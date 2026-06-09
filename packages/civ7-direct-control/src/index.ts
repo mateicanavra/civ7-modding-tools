@@ -20,34 +20,51 @@ import {
   diplomacyResponsePostcondition,
   waitForCiv7DiplomacyResponseAfter,
 } from "./play/operations/diplomacy-postconditions.js";
+import { requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule } from "./play/operations/narrative-request.js";
 import {
   encodeCiv7TunerRequest,
   parseCiv7TunerFrame,
   type Civ7TunerFrame,
 } from "./session/framing.js";
+import {
+  getCiv7NotificationDismissal as getCiv7NotificationDismissalFromModule,
+  requestCiv7NotificationDismissal as requestCiv7NotificationDismissalFromModule,
+} from "./play/notifications/dismissal-request.js";
+import {
+  getCiv7MapGrid as getCiv7MapGridFromModule,
+  getCiv7MapSummary as getCiv7MapSummaryFromModule,
+  getCiv7PlotSnapshot as getCiv7PlotSnapshotFromModule,
+} from "./play/map/reads.js";
+import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
 import { notificationDismissalSource } from "./play/notifications/dismissal.js";
 import { waitForCiv7NotificationDismissal } from "./play/notifications/verification.js";
-import { playNotificationViewSource } from "./play/notifications/view.js";
+import { getCiv7PlayNotificationView as getCiv7PlayNotificationViewFromModule } from "./play/notifications/view.js";
 import {
   narrativeChoicePostcondition,
   waitForCiv7NarrativeChoiceAfter,
 } from "./play/operations/narrative-postconditions.js";
+import {
+  getCiv7UnitTargetAction as getCiv7UnitTargetActionFromModule,
+  requestCiv7UnitTargetAction as requestCiv7UnitTargetActionFromModule,
+} from "./play/operations/unit-target-action.js";
 import { populationPlacementPostcondition } from "./play/operations/population-postconditions.js";
 import { productionChoiceRequestSource } from "./play/operations/production-choice.js";
 import { productionPostconditionFor } from "./play/operations/production-postconditions.js";
 import { operationRouterSource } from "./play/operations/router.js";
 import { unitOperationPostcondition } from "./play/operations/unit-postconditions.js";
 import { cultureChoiceCloseoutSource } from "./play/progression/culture.js";
-import { progressDashboardSource } from "./play/progression/progress-dashboard.js";
+import {
+  getCiv7ProgressDashboard as getCiv7ProgressDashboardFromModule,
+  getCiv7TraditionsView as getCiv7TraditionsViewFromModule,
+} from "./play/progression/reads.js";
 import { technologyChoiceCloseoutSource } from "./play/progression/technology.js";
-import { readyCityViewSource } from "./play/ready/city.js";
-import { unitMovePreviewSource } from "./play/ready/move-preview.js";
-import { readyUnitViewSource } from "./play/ready/unit.js";
-import { battlefieldScanSource } from "./play/tactical/battlefield.js";
-import { destinationAnalysisSource } from "./play/tactical/destination.js";
-import { settlementRecommendationsSource } from "./play/tactical/settlement.js";
-import { targetCandidatesSource } from "./play/tactical/target-candidates.js";
-import { traditionsViewSource } from "./play/progression/traditions.js";
+import { getCiv7ReadyCityView as getCiv7ReadyCityViewFromModule } from "./play/ready/city.js";
+import { getCiv7UnitMovePreview as getCiv7UnitMovePreviewFromModule } from "./play/ready/move-preview.js";
+import { getCiv7ReadyUnitView as getCiv7ReadyUnitViewFromModule } from "./play/ready/unit.js";
+import { getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule } from "./play/tactical/battlefield.js";
+import { getCiv7DestinationAnalysis as getCiv7DestinationAnalysisFromModule } from "./play/tactical/destination.js";
+import { getCiv7SettlementRecommendations as getCiv7SettlementRecommendationsFromModule } from "./play/tactical/settlement.js";
+import { getCiv7TargetCandidates as getCiv7TargetCandidatesFromModule } from "./play/tactical/target-candidates.js";
 
 export {
   assertCiv7ComponentId,
@@ -2618,45 +2635,69 @@ export async function getCiv7PlayableStatus(
 export async function getCiv7MapSummary(
   options: Civ7MapSummaryOptions = {},
 ): Promise<Civ7MapSummaryResult> {
-  const result = await executeCiv7Command({
-    ...options,
-    state: options.state ?? { role: "tuner" },
-    command: buildMapSummaryCommand({
-      includeAreaRegionCounts: options.includeAreaRegionCounts === true,
-      maxIds: options.maxIds ?? 512,
-    }),
+  return await getCiv7MapSummaryFromModule(options, {
+    executeCommand: executeCiv7Command,
+    executeTunerCommand: executeCiv7TunerCommand,
+    parseMapSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
+    parsePlotSnapshot: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
+    parseMapGrid: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
+    boundedInteger,
+    defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+    hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
+    jsLiteral,
+    probeHelperSource,
+    validateMapBounds,
+    validateMapLocation,
   });
-  return jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, "Civ7 map summary");
 }
 
 export async function getCiv7PlotSnapshot(
   input: Civ7PlotSnapshotInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7PlotSnapshotResult> {
-  validateMapLocation(input);
-  const fields = normalizePlotFields(input.fields);
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildPlotSnapshotCommand({ ...input, fields }),
+  return await getCiv7PlotSnapshotFromModule(input, options, {
+    executeCommand: executeCiv7Command,
+    executeTunerCommand: executeCiv7TunerCommand,
+    parseMapSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
+    parsePlotSnapshot: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
+    parseMapGrid: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
+    boundedInteger,
+    defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+    hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
+    jsLiteral,
+    probeHelperSource,
+    validateMapBounds,
+    validateMapLocation,
   });
-  return jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, "Civ7 plot snapshot");
 }
 
 export async function getCiv7MapGrid(
   input: Civ7MapGridInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7MapGridResult> {
-  const maxPlots = boundedInteger(input.maxPlots ?? DEFAULT_CIV7_MAP_GRID_MAX_PLOTS, 1, HARD_CIV7_MAP_GRID_MAX_PLOTS, "maxPlots");
-  validateMapGridInput(input, maxPlots);
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildMapGridCommand({
-      ...input,
-      fields: normalizePlotFields(input.fields),
-      maxPlots,
-    }),
+  return await getCiv7MapGridFromModule(input, options, {
+    executeCommand: executeCiv7Command,
+    executeTunerCommand: executeCiv7TunerCommand,
+    parseMapSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
+    parsePlotSnapshot: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
+    parseMapGrid: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
+    boundedInteger,
+    defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+    hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
+    jsLiteral,
+    probeHelperSource,
+    validateMapBounds,
+    validateMapLocation,
   });
-  return jsonPayloadFromCommandResult<Civ7MapGridResult>(result, "Civ7 map grid");
 }
 
 export async function getCiv7ResourcePlacementFeasibility(
@@ -3434,22 +3475,23 @@ export async function getCiv7TurnCompletionStatus(
 export async function getCiv7PlayNotificationView(
   options: Civ7DirectControlOptions & { maxNotifications?: number } = {},
 ): Promise<Civ7PlayNotificationViewResult> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildPlayNotificationViewCommand({ maxNotifications: options.maxNotifications }),
+  return await getCiv7PlayNotificationViewFromModule(options, {
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parsePlayNotificationView: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, "Civ7 play notification view");
 }
 
 export async function getCiv7NotificationDismissal(
   input: Civ7NotificationDismissInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7NotificationDismissalResult> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildNotificationDismissalCommand(input, { send: false }),
+  return await getCiv7NotificationDismissalFromModule(input, options, {
+    buildNotificationDismissalCommand,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseNotificationDismissal: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, "Civ7 notification dismissal");
 }
 
 export async function requestCiv7NotificationDismissal(
@@ -3457,14 +3499,13 @@ export async function requestCiv7NotificationDismissal(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7NotificationDismissalResult> {
-  assertApproved(approval, "dismissing Civ7 notification");
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildNotificationDismissalCommand(input, { send: true, verificationAttempts: 1 }),
+  return await requestCiv7NotificationDismissalFromModule(input, options, approval, {
+    buildNotificationDismissalCommand,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseNotificationDismissal: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, label),
+    assertApproved,
   });
-  const initial = jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, "Civ7 notification dismissal");
-  if (initial.verified || !initial.sent || initial.before.exists === false) return initial;
-  return await waitForCiv7NotificationDismissal(input, options, initial, getCiv7NotificationDismissal);
 }
 
 export async function sendCiv7TurnComplete(
@@ -3704,57 +3745,22 @@ export async function requestCiv7DiplomacyResponse(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7DiplomacyResponseResult> {
-  assertApproved(approval, "responding to diplomatic action");
-  validatePlayerId(input.playerId);
-  if (!Number.isInteger(input.actionId)) throw new Civ7DirectControlError("command-failed", "actionId must be an integer");
-  if (!Number.isInteger(input.responseType)) throw new Civ7DirectControlError("command-failed", "responseType must be an integer");
-  const before = await getCiv7PlayNotificationView(options);
-  const playerId = before.localPlayerId;
-  const operationInput = {
-    playerId,
-    operationType: "RESPOND_DIPLOMATIC_ACTION",
-    args: { ID: input.actionId, Type: input.responseType },
-  };
-  const beforeValidation = await canStartCiv7PlayerOperation(operationInput, options);
-  if (!beforeValidation.valid) {
-    return {
-      before,
-      beforeValidation,
-      after: before,
-      afterValidation: beforeValidation,
-      sent: false,
-      verified: false,
-      postcondition: {
-        classification: "not-sent",
-        reason: "RESPOND_DIPLOMATIC_ACTION did not validate, so no diplomatic response was sent.",
-      },
-    };
-  }
-  const command = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildDiplomacyResponseCloseoutCommand({ ...input, playerId }),
+  return await requestCiv7DiplomacyResponseFromModule(input, options, approval, {
+    assertApproved,
+    validatePlayerId,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    buildDiplomacyResponseCloseoutCommand,
+    getPlayNotificationView: getCiv7PlayNotificationView,
+    canStartPlayerOperation: canStartCiv7PlayerOperation,
+    parseDiplomacyPayload: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7DiplomacyResponseCommandPayload>(result, label),
+    invalidActionIdError: () => {
+      throw new Civ7DirectControlError("command-failed", "actionId must be an integer");
+    },
+    invalidResponseTypeError: () => {
+      throw new Civ7DirectControlError("command-failed", "responseType must be an integer");
+    },
   });
-  const payload = jsonPayloadFromCommandResult<Civ7DiplomacyResponseCommandPayload>(command, "Civ7 diplomacy response closeout");
-  const after = await waitForCiv7DiplomacyResponseAfter(
-    input,
-    options,
-    before,
-    beforeValidation,
-    getCiv7PlayNotificationView,
-  );
-  const afterValidation = await canStartCiv7PlayerOperation(operationInput, options);
-  const postcondition = diplomacyResponsePostcondition(input, payload.sent === true, before, after, beforeValidation, afterValidation);
-  return {
-    before,
-    beforeValidation,
-    command,
-    payload,
-    after,
-    afterValidation,
-    sent: payload.sent === true,
-    verified: postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change",
-    postcondition,
-  };
 }
 
 export async function requestCiv7NarrativeChoice(
@@ -3762,211 +3768,150 @@ export async function requestCiv7NarrativeChoice(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7NarrativeChoiceResult> {
-  assertApproved(approval, "choosing a narrative story direction");
-  validatePlayerId(input.playerId);
-  if (!input.targetType) throw new Civ7DirectControlError("command-failed", "targetType is required");
-  assertCiv7ComponentId(input.target, "target");
-  if (!Number.isInteger(input.action)) throw new Civ7DirectControlError("command-failed", "action must be an integer");
-  const before = await getCiv7PlayNotificationView(options);
-  const operationInput = {
-    playerId: input.playerId,
-    operationType: "CHOOSE_NARRATIVE_STORY_DIRECTION",
-    args: {
-      TargetType: input.targetType,
-      Target: input.target,
-      Action: input.action,
+  return await requestCiv7NarrativeChoiceFromModule(input, options, approval, {
+    assertApproved,
+    validatePlayerId,
+    assertComponentId: assertCiv7ComponentId,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    buildNarrativeChoiceRequestCommand,
+    getPlayNotificationView: getCiv7PlayNotificationView,
+    canStartPlayerOperation: canStartCiv7PlayerOperation,
+    parseNarrativePayload: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7NarrativeChoiceCommandPayload>(result, label),
+    invalidTargetTypeError: () => {
+      throw new Civ7DirectControlError("command-failed", "targetType is required");
     },
-  };
-  const beforeValidation = await canStartCiv7PlayerOperation(operationInput, options);
-  if (!beforeValidation.valid) {
-    return {
-      before,
-      beforeValidation,
-      after: before,
-      afterValidation: beforeValidation,
-      sent: false,
-      verified: false,
-      postcondition: {
-        classification: "not-sent",
-        reason: "CHOOSE_NARRATIVE_STORY_DIRECTION did not validate, so no narrative choice was sent.",
-      },
-    };
-  }
-  const command = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildNarrativeChoiceRequestCommand(input),
+    invalidActionError: () => {
+      throw new Civ7DirectControlError("command-failed", "action must be an integer");
+    },
   });
-  const payload = jsonPayloadFromCommandResult<Civ7NarrativeChoiceCommandPayload>(command, "Civ7 narrative choice request");
-  const after = await waitForCiv7NarrativeChoiceAfter(
-    input,
-    options,
-    before,
-    beforeValidation,
-    getCiv7PlayNotificationView,
-  );
-  const afterValidation = await canStartCiv7PlayerOperation(operationInput, options);
-  const postcondition = narrativeChoicePostcondition(input, payload.sent === true, before, after, beforeValidation, afterValidation, payload);
-  return {
-    before,
-    beforeValidation,
-    command,
-    payload,
-    after,
-    afterValidation,
-    sent: payload.sent === true,
-    verified: postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change",
-    postcondition,
-  };
 }
 
 export async function getCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7UnitTargetActionResult> {
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildUnitTargetActionCommand(input, { send: false }),
+  return await getCiv7UnitTargetActionFromModule(input, options, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    parseUnitTargetAction: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, label),
+    verificationWaitMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
+    verificationPollIntervalMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   });
-  return jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, "Civ7 unit target action");
 }
 
 export async function getCiv7ReadyUnitView(
   input: Civ7ReadyUnitViewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7ReadyUnitViewResult> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildReadyUnitViewCommand({
-      ...input,
-      radius: boundedInteger(input.radius ?? 2, 0, 5, "radius"),
-      maxOperations: boundedInteger(input.maxOperations ?? 96, 1, 256, "maxOperations"),
-    }),
+  return await getCiv7ReadyUnitViewFromModule(input, options, {
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseReadyUnitView: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7ReadyUnitViewResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7ReadyUnitViewResult>(result, "Civ7 ready unit view");
 }
 
 export async function getCiv7UnitMovePreview(
   input: Civ7UnitMovePreviewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7UnitMovePreviewResult> {
-  if (input.destination !== undefined) validateMapLocation(input.destination);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildUnitMovePreviewCommand({
-      ...input,
-      maxPlots: boundedInteger(input.maxPlots ?? 80, 1, 512, "maxPlots"),
-      maxPathPlots: boundedInteger(input.maxPathPlots ?? 32, 1, 256, "maxPathPlots"),
-    }),
+  return await getCiv7UnitMovePreviewFromModule(input, options, {
+    validateMapLocation,
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseUnitMovePreview: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7UnitMovePreviewResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7UnitMovePreviewResult>(result, "Civ7 unit move preview");
 }
 
 export async function getCiv7ReadyCityView(
   input: Civ7ReadyCityViewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7ReadyCityViewResult> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildReadyCityViewCommand({
-      ...input,
-      maxOperations: boundedInteger(input.maxOperations ?? 96, 1, 256, "maxOperations"),
-    }),
+  return await getCiv7ReadyCityViewFromModule(input, options, {
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseReadyCityView: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7ReadyCityViewResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7ReadyCityViewResult>(result, "Civ7 ready city view");
 }
 
 export async function getCiv7SettlementRecommendations(
   input: Civ7SettlementRecommendationInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7SettlementRecommendationResult> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildSettlementRecommendationsCommand({
-      ...input,
-      count: boundedInteger(input.count ?? 5, 1, 12, "count"),
-    }),
+  return await getCiv7SettlementRecommendationsFromModule(input, options, {
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseSettlementRecommendations: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7SettlementRecommendationResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7SettlementRecommendationResult>(result, "Civ7 settlement recommendations");
 }
 
 export async function getCiv7TargetCandidates(
   input: Civ7TargetCandidatesInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TargetCandidatesResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildTargetCandidatesCommand({
-      ...input,
-      maxCandidates: boundedInteger(input.maxCandidates ?? 8, 1, 64, "maxCandidates"),
-      maxPlayers: boundedInteger(input.maxPlayers ?? 32, 1, 128, "maxPlayers"),
-      unitRadius: boundedInteger(input.unitRadius ?? 4, 0, 16, "unitRadius"),
-    }),
+  return await getCiv7TargetCandidatesFromModule(input, options, {
+    validatePlayerId,
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseTargetCandidates: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7TargetCandidatesResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7TargetCandidatesResult>(result, "Civ7 target candidates");
 }
 
 export async function getCiv7TraditionsView(
   input: Civ7TraditionsViewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TraditionsViewResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildTraditionsViewCommand(input),
+  return await getCiv7TraditionsViewFromModule(input, options, {
+    validatePlayerId,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseTraditionsView: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7TraditionsViewResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7TraditionsViewResult>(result, "Civ7 traditions view");
 }
 
 export async function getCiv7ProgressDashboard(
   input: Civ7ProgressDashboardInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7ProgressDashboardResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildProgressDashboardCommand(input),
+  return await getCiv7ProgressDashboardFromModule(input, options, {
+    validatePlayerId,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseProgressDashboard: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7ProgressDashboardResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7ProgressDashboardResult>(result, "Civ7 progress dashboard");
 }
 
 export async function getCiv7BattlefieldScan(
   input: Civ7BattlefieldScanInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7BattlefieldScanResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildBattlefieldScanCommand({
-      ...input,
-      radius: boundedInteger(input.radius ?? 8, 1, 32, "radius"),
-      maxPlayers: boundedInteger(input.maxPlayers ?? 32, 1, 128, "maxPlayers"),
-      maxUnits: boundedInteger(input.maxUnits ?? 80, 1, 256, "maxUnits"),
-      maxCities: boundedInteger(input.maxCities ?? 32, 1, 128, "maxCities"),
-    }),
+  return await getCiv7BattlefieldScanFromModule(input, options, {
+    validatePlayerId,
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseBattlefieldScan: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7BattlefieldScanResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7BattlefieldScanResult>(result, "Civ7 battlefield scan");
 }
 
 export async function getCiv7DestinationAnalysis(
   input: Civ7DestinationAnalysisInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7DestinationAnalysisResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  validateMapLocation(input.destination);
-  if (input.origin !== undefined) validateMapLocation(input.origin);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildDestinationAnalysisCommand({
-      ...input,
-      corridorRadius: boundedInteger(input.corridorRadius ?? 2, 0, 8, "corridorRadius"),
-      destinationRadius: boundedInteger(input.destinationRadius ?? 4, 1, 16, "destinationRadius"),
-      maxPlayers: boundedInteger(input.maxPlayers ?? 32, 1, 128, "maxPlayers"),
-      maxUnits: boundedInteger(input.maxUnits ?? 96, 1, 256, "maxUnits"),
-      maxCities: boundedInteger(input.maxCities ?? 40, 1, 128, "maxCities"),
-    }),
+  return await getCiv7DestinationAnalysisFromModule(input, options, {
+    validatePlayerId,
+    validateMapLocation,
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseDestinationAnalysis: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7DestinationAnalysisResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7DestinationAnalysisResult>(result, "Civ7 destination analysis");
 }
 
 export async function requestCiv7UnitTargetAction(
@@ -3974,141 +3919,14 @@ export async function requestCiv7UnitTargetAction(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7UnitTargetActionResult> {
-  assertApproved(approval, "sending Civ7 unit target action");
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildUnitTargetActionCommand(input, { send: true }),
+  return await requestCiv7UnitTargetActionFromModule(input, options, approval, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    parseUnitTargetAction: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, label),
+    verificationWaitMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
+    verificationPollIntervalMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   });
-  const immediate = jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, "Civ7 unit target action");
-  return await stabilizeCiv7UnitTargetAction(input, options, immediate);
-}
-
-async function stabilizeCiv7UnitTargetAction(
-  input: Civ7UnitTargetActionInput,
-  options: Civ7DirectControlOptions,
-  immediate: Civ7UnitTargetActionResult,
-): Promise<Civ7UnitTargetActionResult> {
-  if (immediate.sent !== true || immediate.verification?.status !== "no-state-change") {
-    return withUnitTargetVerificationSource(immediate, "immediate", 0, 0);
-  }
-
-  const startedAt = Date.now();
-  let attempts = 0;
-  let last = immediate;
-  while (Date.now() - startedAt < DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS) {
-    const elapsed = Date.now() - startedAt;
-    await sleep(Math.min(
-      DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
-      Math.max(0, DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS - elapsed),
-    ));
-    attempts += 1;
-    const observed = await getCiv7UnitTargetAction(input, options);
-    const reconciled = reconcilePolledUnitTargetAction(immediate, observed, attempts, Date.now() - startedAt);
-    last = reconciled;
-    if (reconciled.verified === true) return reconciled;
-  }
-
-  return {
-    ...last,
-    verification: last.verification
-      ? {
-          ...last.verification,
-          source: "bounded-poll",
-          attempts,
-          observedAfterMs: Date.now() - startedAt,
-          reason: "Bounded verification polling observed no unit or target-plot change after send; re-read current HUD and ready unit before repeating.",
-        }
-      : last.verification,
-    notes: appendNote(last.notes, `Post-send verification polled ${attempts} time(s) for ${Date.now() - startedAt}ms before returning no-state-change.`),
-  };
-}
-
-function reconcilePolledUnitTargetAction(
-  immediate: Civ7UnitTargetActionResult,
-  observed: Civ7UnitTargetActionResult,
-  attempts: number,
-  observedAfterMs: number,
-): Civ7UnitTargetActionResult {
-  const unitChanged = stableJson(immediate.beforeUnit) !== stableJson(observed.beforeUnit);
-  const targetUnitsChanged = stableJson(immediate.beforeTargetUnits) !== stableJson(observed.beforeTargetUnits);
-  if (!unitChanged && !targetUnitsChanged) {
-    return withUnitTargetVerificationSource(immediate, "bounded-poll", attempts, observedAfterMs);
-  }
-
-  const requestedLocation = { x: immediate.target.x, y: immediate.target.y };
-  const beforeLocation = locationFromUnitProbeValue(immediate.beforeUnit);
-  const landedLocation = locationFromUnitProbeValue(observed.beforeUnit);
-  const destinationReached = landedLocation ? sameMapLocation(landedLocation, requestedLocation) : null;
-  const originChanged = beforeLocation && landedLocation ? !sameMapLocation(beforeLocation, landedLocation) : unitChanged;
-  const operationType = immediate.selected?.operationType;
-  const classification =
-    operationType === "MOVE_TO" && destinationReached === true
-      ? "target-reached"
-      : operationType === "MOVE_TO" && originChanged && destinationReached === false
-        ? "path-shortfall"
-        : targetUnitsChanged
-          ? "target-state-changed"
-          : "unit-state-changed";
-
-  return {
-    ...immediate,
-    afterUnit: observed.beforeUnit,
-    afterTargetUnits: observed.beforeTargetUnits,
-    verified: true,
-    verification: {
-      status: "verified",
-      classification,
-      unitChanged,
-      targetUnitsChanged,
-      destinationReached,
-      requestedLocation,
-      landedLocation,
-      source: "bounded-poll",
-      attempts,
-      observedAfterMs,
-      reason: unitTargetVerificationReason(classification),
-    },
-    notes: appendNote(immediate.notes, `Post-send verification stabilized after ${attempts} poll attempt(s) and ${observedAfterMs}ms.`),
-  };
-}
-
-function withUnitTargetVerificationSource(
-  result: Civ7UnitTargetActionResult,
-  source: "immediate" | "bounded-poll",
-  attempts: number,
-  observedAfterMs: number,
-): Civ7UnitTargetActionResult {
-  if (!result.verification) return result;
-  return {
-    ...result,
-    verification: {
-      ...result.verification,
-      source,
-      attempts,
-      observedAfterMs,
-    },
-  };
-}
-
-function unitTargetVerificationReason(classification: NonNullable<Civ7UnitTargetActionResult["verification"]>["classification"]): string {
-  switch (classification) {
-    case "target-reached":
-      return "unit reached the requested target tile after bounded post-send polling";
-    case "path-shortfall":
-      return "unit moved after bounded post-send polling, but landed short of the requested target tile; re-read before issuing a follow-up move";
-    case "target-state-changed":
-      return "target-plot unit state changed after bounded post-send polling";
-    case "unit-state-changed":
-      return "unit state changed after bounded post-send polling";
-    case "no-state-change":
-      return "bounded post-send polling did not observe a unit or target-plot change";
-    case "not-sent":
-      return "read-only target resolution; use --send with an approval reason to mutate";
-  }
-}
-
-function appendNote(notes: ReadonlyArray<string>, note: string): ReadonlyArray<string> {
-  return notes.includes(note) ? notes : [...notes, note];
 }
 
 export function createStaticCiv7CapabilityCatalog(): Civ7CapabilityCatalog {
@@ -4627,87 +4445,6 @@ function buildTunerHealthCommand(): string {
       aliveIds.ok &&
       Array.isArray(aliveIds.value);
     return JSON.stringify(snapshot);
-  })()`;
-}
-
-function buildMapSummaryCommand(options: { includeAreaRegionCounts: boolean; maxIds: number }): string {
-  return `(() => {
-    ${probeHelperSource()}
-    const cap = ${jsLiteral(options.maxIds)};
-    const map = {
-      width: probe(() => GameplayMap.getGridWidth()),
-      height: probe(() => GameplayMap.getGridHeight()),
-      plotCount: probe(() => GameplayMap.getPlotCount()),
-      mapSize: probe(() => GameplayMap.getMapSize()),
-      randomSeed: probe(() => GameplayMap.getRandomSeed()),
-    };
-    const game = {
-      turn: probe(() => Game.turn),
-      age: probe(() => Game.age),
-      maxTurns: probe(() => Game.maxTurns),
-      turnDate: probe(() => Game.getTurnDate()),
-      hash: probe(() => Game.getHash()),
-    };
-    const limitIds = (probeResult) => {
-      if (!probeResult.ok || !Array.isArray(probeResult.value)) return probeResult;
-      return { ok: true, value: probeResult.value.slice(0, cap) };
-    };
-    const rawAreas = ${options.includeAreaRegionCounts}
-      ? {
-          areaIds: limitIds(probe(() => typeof MapAreas !== "undefined" ? MapAreas.getAreaIds() : [])),
-          regionIds: limitIds(probe(() => typeof MapRegions !== "undefined" ? MapRegions.getRegionIds() : [])),
-        }
-      : undefined;
-    const areas = rawAreas
-      ? {
-          ...rawAreas,
-          truncated:
-            (rawAreas.areaIds.ok && rawAreas.areaIds.value.length >= cap) ||
-            (rawAreas.regionIds.ok && rawAreas.regionIds.value.length >= cap),
-        }
-      : undefined;
-    return JSON.stringify({ map, game, ...(areas ? { areas } : {}) });
-  })()`;
-}
-
-function buildPlotSnapshotCommand(input: Civ7PlotSnapshotInput & { fields: ReadonlyArray<Civ7PlotSnapshotField> }): string {
-  return `(() => {
-    ${plotSnapshotScriptSource()}
-    return JSON.stringify(readPlotSnapshot(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildMapGridCommand(input: Civ7MapGridInput & {
-  fields: ReadonlyArray<Civ7PlotSnapshotField>;
-  maxPlots: number;
-}): string {
-  return `(() => {
-    ${plotSnapshotScriptSource()}
-    const input = ${jsLiteral(input)};
-    const width = probe(() => GameplayMap.getGridWidth());
-    const height = probe(() => GameplayMap.getGridHeight());
-    const locationsFromBounds = (bounds, maxPlots) => {
-      const out = [];
-      outer: for (let y = bounds.y; y < bounds.y + bounds.height; y += 1) {
-        for (let x = bounds.x; x < bounds.x + bounds.width; x += 1) {
-          out.push({ x, y });
-          if (out.length >= maxPlots) break outer;
-        }
-      }
-      return out;
-    };
-    const maxPlots = input.maxPlots;
-    const requestedCount = input.locations ? input.locations.length : input.bounds.width * input.bounds.height;
-    const locations = input.locations ? input.locations.slice(0, maxPlots) : locationsFromBounds(input.bounds, maxPlots);
-    return JSON.stringify({
-      bounds: input.bounds,
-      fields: input.fields,
-      plotCount: requestedCount,
-      omitted: Math.max(0, requestedCount - locations.length),
-      hiddenInfoPolicy: input.playerId === undefined ? "not-player-scoped" : input.includeHidden ? "include-hidden" : "visibility-filtered",
-      map: { width, height },
-      plots: locations.map((location) => readPlotSnapshot({ ...input, ...location })),
-    });
   })()`;
 }
 
@@ -5537,14 +5274,6 @@ function buildTurnCompletionStatusCommand(): string {
   })()`;
 }
 
-function buildPlayNotificationViewCommand(options: { maxNotifications?: number } = {}): string {
-  const maxNotifications = options.maxNotifications ?? 25;
-  return `(() => {
-    ${playNotificationViewSource()}
-    return JSON.stringify(readPlayNotifications(${jsLiteral({ maxNotifications })}));
-  })()`;
-}
-
 function buildOperationValidationCommand(family: Civ7OperationFamily, input: Civ7OperationInput): string {
   return `(() => {
     ${operationRouterSource()}
@@ -5594,82 +5323,6 @@ function buildProductionChoiceRequestCommand(input: Civ7ProductionChoiceInput, o
   })()`;
 }
 
-function buildUnitTargetActionCommand(input: Civ7UnitTargetActionInput, options: { send: boolean }): string {
-  return `(() => {
-    ${unitTargetActionSource()}
-    return JSON.stringify(readUnitTargetAction(${jsLiteral(input)}, ${jsLiteral(options)}));
-  })()`;
-}
-
-function buildReadyUnitViewCommand(input: Civ7ReadyUnitViewInput & { radius: number; maxOperations: number }): string {
-  return `(() => {
-    ${readyUnitViewSource()}
-    return JSON.stringify(readReadyUnitView(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildUnitMovePreviewCommand(input: Civ7UnitMovePreviewInput & { maxPlots: number; maxPathPlots: number }): string {
-  return `(() => {
-    ${unitMovePreviewSource()}
-    return JSON.stringify(readUnitMovePreview(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildReadyCityViewCommand(input: Civ7ReadyCityViewInput & { maxOperations: number }): string {
-  return `(() => {
-    ${readyCityViewSource()}
-    return JSON.stringify(readReadyCityView(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildSettlementRecommendationsCommand(input: Civ7SettlementRecommendationInput & { count: number }): string {
-  return `(() => {
-    ${settlementRecommendationsSource()}
-    return JSON.stringify(readSettlementRecommendations(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildTargetCandidatesCommand(input: Civ7TargetCandidatesInput & { maxCandidates: number; maxPlayers: number; unitRadius: number }): string {
-  return `(() => {
-    ${targetCandidatesSource()}
-    return JSON.stringify(readTargetCandidates(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildTraditionsViewCommand(input: Civ7TraditionsViewInput): string {
-  return `(() => {
-    ${traditionsViewSource()}
-    return JSON.stringify(readTraditionsView(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildProgressDashboardCommand(input: Civ7ProgressDashboardInput): string {
-  return `(() => {
-    ${progressDashboardSource()}
-    return JSON.stringify(readProgressDashboard(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildBattlefieldScanCommand(input: Civ7BattlefieldScanInput & { radius: number; maxPlayers: number; maxUnits: number; maxCities: number }): string {
-  return `(() => {
-    ${battlefieldScanSource()}
-    return JSON.stringify(readBattlefieldScan(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildDestinationAnalysisCommand(input: Civ7DestinationAnalysisInput & {
-  corridorRadius: number;
-  destinationRadius: number;
-  maxPlayers: number;
-  maxUnits: number;
-  maxCities: number;
-}): string {
-  return `(() => {
-    ${destinationAnalysisSource()}
-    return JSON.stringify(readDestinationAnalysis(${jsLiteral(input)}));
-  })()`;
-}
-
 function buildNotificationDismissalCommand(input: Civ7NotificationDismissInput, options: { send: boolean; verificationAttempts?: number }): string {
   return `(() => {
     ${notificationDismissalSource()}
@@ -5703,92 +5356,6 @@ function runtimeObjectReaderSource(): string {
         if (result !== undefined) return result;
       }
       return undefined;
-    };`;
-}
-
-function plotSnapshotScriptSource(): string {
-  return `${probeHelperSource()}
-    const callPlot = (name, x, y) => {
-      const fn = GameplayMap[name];
-      if (typeof fn !== "function") throw new Error("GameplayMap." + name + " is not a function");
-      try {
-        return fn.call(GameplayMap, x, y);
-      } catch (first) {
-        try {
-          return fn.call(GameplayMap, { x, y });
-        } catch {
-          throw first;
-        }
-      }
-    };
-    const safeMapCall = (name, x, y) => probe(() => callPlot(name, x, y));
-    const visibilityFor = (input) => {
-      if (input.playerId === undefined) return { policy: "not-player-scoped" };
-      const revealedState = probe(() => GameplayMap.getRevealedState(input.playerId, input.x, input.y));
-      const visible = probe(() => typeof Visibility !== "undefined" && typeof Visibility.isVisible === "function"
-        ? Visibility.isVisible(input.playerId, input.x, input.y)
-        : revealedState.ok && revealedState.value !== 0);
-      const includeFacts = input.includeHidden === true || (visible.ok && visible.value === true) || (revealedState.ok && revealedState.value !== 0);
-      return {
-        policy: input.includeHidden ? "include-hidden" : "visibility-filtered",
-        revealedState,
-        visible,
-        includeFacts,
-      };
-    };
-    const readPlotSnapshot = (input) => {
-      if (!GameplayMap.isValidXY(input.x, input.y)) {
-        return {
-          location: { x: input.x, y: input.y, index: { ok: false, error: "invalid location" } },
-          hiddenInfoPolicy: input.playerId === undefined ? "not-player-scoped" : input.includeHidden ? "include-hidden" : "visibility-filtered",
-          facts: {},
-        };
-      }
-      const visibility = visibilityFor(input);
-      const fields = input.fields ?? [];
-      const facts = {};
-      const include = visibility.policy === "not-player-scoped" || visibility.includeFacts === true;
-      const add = (key, value) => { facts[key] = value; };
-      if (include) {
-        if (fields.includes("terrain")) add("terrain", safeMapCall("getTerrainType", input.x, input.y));
-        if (fields.includes("biome")) add("biome", safeMapCall("getBiomeType", input.x, input.y));
-        if (fields.includes("feature")) add("feature", safeMapCall("getFeatureType", input.x, input.y));
-        if (fields.includes("resource")) add("resource", safeMapCall("getResourceType", input.x, input.y));
-        if (fields.includes("climate")) {
-          add("elevation", safeMapCall("getElevation", input.x, input.y));
-          add("rainfall", safeMapCall("getRainfall", input.x, input.y));
-          add("fertility", safeMapCall("getFertilityType", input.x, input.y));
-        }
-        if (fields.includes("hydrology")) {
-          add("riverType", safeMapCall("getRiverType", input.x, input.y));
-          add("water", safeMapCall("isWater", input.x, input.y));
-          add("lake", safeMapCall("isLake", input.x, input.y));
-        }
-        if (fields.includes("yields")) add("yields", safeMapCall("getYields", input.x, input.y));
-        if (fields.includes("owner")) {
-          add("owner", safeMapCall("getOwner", input.x, input.y));
-          add("ownerName", safeMapCall("getOwnerName", input.x, input.y));
-        }
-        if (fields.includes("areaRegion")) {
-          add("areaId", safeMapCall("getAreaId", input.x, input.y));
-          add("regionId", safeMapCall("getRegionId", input.x, input.y));
-          add("landmassId", safeMapCall("getLandmassId", input.x, input.y));
-        }
-        if (fields.includes("tags")) add("plotTag", safeMapCall("getPlotTag", input.x, input.y));
-        if (fields.includes("city")) add("city", probe(() => typeof MapCities !== "undefined" ? MapCities.getCity(input.x, input.y) : null));
-        if (fields.includes("units")) add("units", probe(() => typeof MapUnits !== "undefined" ? MapUnits.getUnits(input.x, input.y) : []));
-      }
-      if (fields.includes("visibility")) {
-        add("revealedState", visibility.revealedState ?? { ok: false, error: "playerId required" });
-        add("visible", visibility.visible ?? { ok: false, error: "playerId required" });
-      }
-      return {
-        location: { x: input.x, y: input.y, index: probe(() => GameplayMap.getIndexFromXY(input.x, input.y)) },
-        ...(visibility.revealedState ? { revealedState: visibility.revealedState } : {}),
-        ...(visibility.visible ? { visible: visibility.visible } : {}),
-        hiddenInfoPolicy: visibility.policy,
-        facts,
-      };
     };`;
 }
 
@@ -6050,239 +5617,6 @@ function narrativeChoiceRequestSource(): string {
     };`;
 }
 
-function unitTargetActionSource(): string {
-  return `${probeHelperSource()}
-    const toComponentId = (value) => {
-      if (!value || typeof value !== "object") return null;
-      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
-      const out = { owner: value.owner, id: value.id };
-      if (typeof value.type === "number") out.type = value.type;
-      return out;
-    };
-    const enumValueFor = (enums, operationType) => {
-      if (enums && Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
-      if (enums && typeof operationType === "string") {
-        const normalizedKeys = [
-          operationType.replace(/^UNITOPERATION_/, ""),
-          operationType.replace(/^UNITCOMMAND_/, ""),
-          operationType.replace(/^CITYOPERATION_/, ""),
-          operationType.replace(/^CITYCOMMAND_/, ""),
-          operationType.replace(/^PLAYEROPERATION_/, ""),
-        ];
-        for (const key of normalizedKeys) {
-          if (Object.prototype.hasOwnProperty.call(enums, key)) return enums[key];
-        }
-      }
-      return operationType;
-    };
-    const successFromCanStart = (result) => {
-      if (result === true) return true;
-      if (result === false || result == null) return false;
-      if (typeof result === "object") {
-        if (result.Success !== undefined) return result.Success === true;
-        if (result.success !== undefined) return result.success === true;
-        if (result.canStart !== undefined) return result.canStart === true;
-      }
-      return Boolean(result);
-    };
-    const callCanStart = (router, target, operationType, args) => {
-      try {
-        return router.canStart(target, operationType, args ?? {}, false);
-      } catch (first) {
-        try {
-          return router.canStart(target, operationType, args ?? {});
-        } catch {
-          throw first;
-        }
-      }
-    };
-    const targetIndexFor = (x, y) => probe(() => {
-      if (typeof GameplayMap.getIndexFromLocation === "function") return GameplayMap.getIndexFromLocation({ x, y });
-      return GameplayMap.getIndexFromXY(x, y);
-    });
-    const resultContainsTarget = (result, targetIndex) => {
-      if (!targetIndex.ok || !result || typeof result !== "object" || !Array.isArray(result.Plots)) return null;
-      return result.Plots.includes(targetIndex.value);
-    };
-    const summarizeUnit = (unitId) => {
-      const unit = Units.get(unitId);
-      if (!unit) return null;
-      const movement = unit.Movement;
-      const combat = unit.Combat;
-      const health = unit.Health;
-      return {
-        id: toComponentId(unit.id ?? unitId),
-        owner: unit.owner ?? unitId.owner,
-        type: unit.type ?? null,
-        location: unit.location ?? null,
-        movementMovesRemaining: movement?.movementMovesRemaining ?? null,
-        movementTurnsRemaining: movement?.movementTurnsRemaining ?? null,
-        attacksRemaining: combat?.attacksRemaining ?? null,
-        rangedStrength: combat?.rangedStrength ?? null,
-        bombardStrength: combat?.bombardStrength ?? null,
-        meleeStrength: typeof combat?.getMeleeStrength === "function" ? combat.getMeleeStrength(false) : null,
-        damage: health?.damage ?? null,
-        hitPoints: health?.hitPoints ?? null,
-      };
-    };
-    const targetUnitsAt = (x, y) => {
-      const units = typeof MapUnits !== "undefined" && typeof MapUnits.getUnits === "function"
-        ? MapUnits.getUnits(x, y)
-        : [];
-      return Array.isArray(units) ? units.map((id) => toComponentId(id) ?? id) : units;
-    };
-    const probeValue = (probeResult) => probeResult && probeResult.ok === true ? probeResult.value : null;
-    const locationFromUnitProbe = (probeResult) => {
-      const unit = probeValue(probeResult);
-      const location = unit?.location;
-      if (!location || typeof location.x !== "number" || typeof location.y !== "number") return null;
-      return { x: location.x, y: location.y };
-    };
-    const sameLocation = (a, b) => !!(a && b && a.x === b.x && a.y === b.y);
-    const moveModifiers = () => {
-      const attack = typeof UnitOperationMoveModifiers !== "undefined" ? UnitOperationMoveModifiers.ATTACK ?? 0 : 0;
-      const ignore = typeof UnitOperationMoveModifiers !== "undefined" ? UnitOperationMoveModifiers.MOVE_IGNORE_UNEXPLORED_DESTINATION ?? 0 : 0;
-      return attack + ignore;
-    };
-    const candidate = (family, operationType, args, target, targetIndex) => {
-      const router = family === "unit-command" ? Game.UnitCommands : Game.UnitOperations;
-      const enums = family === "unit-command" ? UnitCommandTypes : UnitOperationTypes;
-      const enumValue = enumValueFor(enums, operationType);
-      let result;
-      try {
-        result = callCanStart(router, target, enumValue, args);
-      } catch (err) {
-        return {
-          family,
-          operationType,
-          args,
-          valid: false,
-          result: { error: String(err) },
-          targetInReturnedPlots: null,
-          rejectedReason: "canStart threw",
-        };
-      }
-      const valid = successFromCanStart(result);
-      const targetInReturnedPlots = resultContainsTarget(result, targetIndex);
-      return {
-        family,
-        operationType,
-        args,
-        valid,
-        result,
-        targetInReturnedPlots,
-        ...(valid && targetInReturnedPlots === false ? { rejectedReason: "target not present in canStart returned Plots" } : {}),
-      };
-    };
-    const accepted = (entry) => entry.valid === true && entry.targetInReturnedPlots !== false;
-    const sendCandidate = (unitId, entry) => {
-      const router = entry.family === "unit-command" ? Game.UnitCommands : Game.UnitOperations;
-      const enums = entry.family === "unit-command" ? UnitCommandTypes : UnitOperationTypes;
-      const enumValue = enumValueFor(enums, entry.operationType);
-      return router.sendRequest(unitId, enumValue, entry.args ?? {});
-    };
-    const readUnitTargetAction = (input, options) => {
-      const unitId = input.unitId;
-      const targetIndex = targetIndexFor(input.x, input.y);
-      const target = { x: input.x, y: input.y, index: targetIndex };
-      const baseArgs = { X: input.x, Y: input.y };
-      const attackArgs = { ...baseArgs, Modifiers: moveModifiers() };
-      const candidates = [
-        candidate("unit-operation", "UNITOPERATION_NAVAL_ATTACK", attackArgs, unitId, targetIndex),
-        candidate("unit-operation", "UNITOPERATION_AIR_ATTACK", attackArgs, unitId, targetIndex),
-        candidate("unit-operation", "UNITOPERATION_RANGE_ATTACK", attackArgs, unitId, targetIndex),
-        candidate("unit-command", "UNITCOMMAND_ARMY_OVERRUN", baseArgs, unitId, targetIndex),
-        candidate("unit-operation", "UNITOPERATION_SWAP_UNITS", baseArgs, unitId, targetIndex),
-        candidate("unit-operation", "MOVE_TO", attackArgs, unitId, targetIndex),
-      ];
-      const selected = candidates.find(accepted) ?? null;
-      const beforeUnit = probe(() => summarizeUnit(unitId));
-      const beforeTargetUnits = probe(() => targetUnitsAt(input.x, input.y));
-      const out = {
-        unitId,
-        target,
-        beforeUnit,
-        beforeTargetUnits,
-        candidates,
-        selected,
-        sent: false,
-        notes: [
-          "Selection follows the official right-click WorldInput target order: naval, air, ranged, overrun, swap, then MOVE_TO.",
-          "Validator success is not enough by itself; compare before/after unit location, movement, attacks, and target units."
-        ],
-      };
-      if (options.send === true && selected) {
-        out.sendResult = sendCandidate(unitId, selected);
-        out.sent = true;
-        out.afterUnit = probe(() => summarizeUnit(unitId));
-        out.afterTargetUnits = probe(() => targetUnitsAt(input.x, input.y));
-        const unitChanged = JSON.stringify(out.beforeUnit) !== JSON.stringify(out.afterUnit);
-        const targetUnitsChanged = JSON.stringify(out.beforeTargetUnits) !== JSON.stringify(out.afterTargetUnits);
-        const requestedLocation = { x: input.x, y: input.y };
-        const beforeLocation = locationFromUnitProbe(out.beforeUnit);
-        const landedLocation = locationFromUnitProbe(out.afterUnit);
-        const destinationReached = landedLocation ? sameLocation(landedLocation, requestedLocation) : null;
-        const originChanged = beforeLocation && landedLocation ? !sameLocation(beforeLocation, landedLocation) : unitChanged;
-        const classification = !unitChanged && !targetUnitsChanged
-          ? "no-state-change"
-          : selected.operationType === "MOVE_TO" && destinationReached === true
-            ? "target-reached"
-            : selected.operationType === "MOVE_TO" && originChanged && destinationReached === false
-              ? "path-shortfall"
-              : targetUnitsChanged
-                ? "target-state-changed"
-                : "unit-state-changed";
-        out.verified = unitChanged || targetUnitsChanged;
-        out.verification = {
-          status: out.verified ? "verified" : "no-state-change",
-          classification,
-          unitChanged,
-          targetUnitsChanged,
-          destinationReached,
-          requestedLocation,
-          landedLocation,
-          reason: out.verified
-            ? classification === "target-reached"
-              ? "unit reached the requested target tile"
-              : classification === "path-shortfall"
-                ? "unit moved, but landed short of the requested target tile; re-read before issuing a follow-up move"
-                : classification === "target-state-changed"
-                  ? "target-plot unit state changed after send"
-                  : "unit state changed after send"
-            : "send returned but unit and target-plot probes did not change; re-read before repeating",
-        };
-      } else {
-        out.verification = {
-          status: "not-sent",
-          classification: "not-sent",
-          unitChanged: false,
-          targetUnitsChanged: false,
-          destinationReached: null,
-          requestedLocation: { x: input.x, y: input.y },
-          landedLocation: locationFromUnitProbe(beforeUnit),
-          reason: "read-only target resolution; use --send with an approval reason to mutate",
-        };
-      }
-      return out;
-    };`;
-}
-
-const ALL_CIV7_PLOT_FIELDS: ReadonlyArray<Civ7PlotSnapshotField> = [
-  "terrain",
-  "biome",
-  "feature",
-  "resource",
-  "climate",
-  "hydrology",
-  "yields",
-  "owner",
-  "visibility",
-  "areaRegion",
-  "tags",
-  "city",
-  "units",
-];
-
 const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> = [
   {
     id: "wrapper.restart-begin",
@@ -6467,23 +5801,21 @@ function normalizePlotFields(fields: ReadonlyArray<Civ7PlotSnapshotField> | unde
   return Array.from(new Set(selected));
 }
 
-function validateMapGridInput(input: Civ7MapGridInput, maxPlots: number): void {
-  if (!input.bounds && !input.locations) {
-    throw new Civ7DirectControlError("command-failed", "Map grid reads require explicit bounds or locations");
-  }
-  if (input.bounds && input.locations) {
-    throw new Civ7DirectControlError("command-failed", "Map grid reads accept bounds or locations, not both");
-  }
-  if (input.bounds) validateMapBounds(input.bounds);
-  const locations = input.locations ?? [];
-  if (locations.length > HARD_CIV7_MAP_GRID_MAX_PLOTS) {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      `Map grid location lists must not exceed ${HARD_CIV7_MAP_GRID_MAX_PLOTS} entries`,
-    );
-  }
-  for (const location of locations.slice(0, maxPlots)) validateMapLocation(location);
-}
+const ALL_CIV7_PLOT_FIELDS: ReadonlyArray<Civ7PlotSnapshotField> = [
+  "terrain",
+  "biome",
+  "feature",
+  "resource",
+  "climate",
+  "hydrology",
+  "yields",
+  "owner",
+  "visibility",
+  "areaRegion",
+  "tags",
+  "city",
+  "units",
+];
 
 function validateResourcePlacementFeasibilityInput(
   input: Civ7ResourcePlacementFeasibilityInput,

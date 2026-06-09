@@ -1,3 +1,57 @@
+import { Civ7DirectControlError } from "../../direct-control-error";
+
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7TargetCandidatesInput,
+  Civ7TargetCandidatesResult,
+} from "../../index";
+
+type TargetCandidatesDependencies = Readonly<{
+  validatePlayerId: (playerId: number) => void;
+  boundedInteger: (value: number, min: number, max: number, label: string) => number;
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+  ) => Promise<Civ7CommandResult>;
+  parseTargetCandidates: (
+    result: Civ7CommandResult,
+    label: string,
+  ) => Civ7TargetCandidatesResult;
+}>;
+
+export async function getCiv7TargetCandidates(
+  input: Civ7TargetCandidatesInput = {},
+  options: Civ7DirectControlOptions = {},
+  dependencies: TargetCandidatesDependencies,
+): Promise<Civ7TargetCandidatesResult> {
+  if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
+  const result = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildTargetCandidatesCommand({
+      ...input,
+      maxCandidates: dependencies.boundedInteger(input.maxCandidates ?? 8, 1, 64, "maxCandidates"),
+      maxPlayers: dependencies.boundedInteger(input.maxPlayers ?? 32, 1, 128, "maxPlayers"),
+      unitRadius: dependencies.boundedInteger(input.unitRadius ?? 4, 0, 16, "unitRadius"),
+    }),
+  });
+  return dependencies.parseTargetCandidates(result, "Civ7 target candidates");
+}
+
+function buildTargetCandidatesCommand(input: Civ7TargetCandidatesInput & { maxCandidates: number; maxPlayers: number; unitRadius: number }): string {
+  return `(() => {
+    ${targetCandidatesSource()}
+    return JSON.stringify(readTargetCandidates(${jsLiteral(input)}));
+  })()`;
+}
+
+function jsLiteral(value: unknown): string {
+  const json = JSON.stringify(value);
+  if (json === undefined) {
+    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
+  }
+  return json;
+}
+
 const probeHelperSource = (): string => `const probe = (fn) => {
       try {
         return { ok: true, value: fn() };

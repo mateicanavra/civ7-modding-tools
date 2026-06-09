@@ -205,6 +205,17 @@ All future agent waves must be framed before delegation:
   test-only package ownership extraction with two parallel net-new agents,
   DRA-owned broad-suite removal, official-resource/doc checks for native path
   fit, local package proof, and no runtime/source behavior claim.
+- Direct-control unit-target action source/wrapper slice: completed as the
+  next mutation-facing operation relocation. It moves only
+  `getCiv7UnitTargetAction` / `requestCiv7UnitTargetAction` orchestration, the
+  `readUnitTargetAction` embedded source, command builder, and bounded
+  post-send stabilizer into `src/play/operations/unit-target-action.ts` while
+  keeping public facade exports in `index.ts`. It preserves approval-first
+  send behavior, read/send split, parser label, official target-selection
+  order, bounded no-repeat-after-unverified polling, and re-read HUD/ready-unit
+  guidance. `test/unit-target-action.test.ts` and the focused CLI unit-target
+  suite remain proof owners. This is local package/source relocation proof
+  only, not runtime proof.
 - Direct-control diplomacy/narrative test slice: completed as additive
   test-only package coverage with two parallel net-new agents, DRA-owned
   integration, official-resource/doc checks for native path fit, local package
@@ -287,6 +298,15 @@ All future agent waves must be framed before delegation:
   the battlefield source owner because destination analysis composes the
   battlefield read policy. Wrapper/builder ownership stays in `index.ts`; this
   is source relocation proof only, not runtime proof.
+- Direct-control map read source/wrapper slice: completed as the first
+  map/visibility/GameInfo source relocation. It moves only
+  `getCiv7MapSummary`, `getCiv7PlotSnapshot`, and `getCiv7MapGrid`
+  orchestration plus their map summary, plot snapshot, bounded grid builders,
+  embedded plot snapshot source, field normalization, and bounded-grid input
+  validation into `src/play/map/reads.ts` while keeping public facade exports in
+  `index.ts`. Visibility summary, reveal mutation, GameInfo rows, setup map
+  rows, and player/unit/city summaries stay out of this slice. This is local
+  read-only package/source relocation proof only, not runtime proof.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.
@@ -297,6 +317,14 @@ All future agent waves must be framed before delegation:
   `readPlayNotifications` source into `src/play/notifications/view.ts`.
   Wrapper/build-command ownership stays in `index.ts`; this is source
   relocation proof only, not runtime proof.
+- Direct-control notification view wrapper slice: completed as the notification
+  materialization wrapper relocation. It moves only `getCiv7PlayNotificationView`
+  orchestration plus its command builder into `src/play/notifications/view.ts`
+  while keeping the public facade export in `index.ts`, preserving the existing
+  `maxNotifications` default and HUD materialization source owner. The package
+  play-notification-view test and focused CLI notification HUD suite remain the
+  proof owners. This is local package/source relocation proof only, not runtime
+  proof.
 - Direct-control operation router source slice: completed as the generic
   operation validation/send source relocation. It moves only the embedded
   operation router source into `src/play/operations/router.ts`. Wrapper-level
@@ -351,6 +379,16 @@ All future agent waves must be framed before delegation:
   verified dismissal, stale engine-front rejection, and none-blocker panel
   close paths. This is local package/source relocation proof only, not runtime
   proof.
+- Direct-control notification dismissal wrapper slice: completed as the next
+  notification composition relocation. It moves only the public
+  `getCiv7NotificationDismissal` / `requestCiv7NotificationDismissal`
+  orchestration into `src/play/notifications/dismissal-request.ts` while
+  keeping the public export surface in `index.ts` and leaving the embedded App
+  UI source plus dismissal-settling verifier in their existing notification
+  owners. `test/notification-dismissal.test.ts` remains the package-owned proof
+  for guarded read/send, identity-based verification, and stale engine-front
+  rejection paths. This is local package/source relocation proof only, not
+  runtime proof.
 - Direct-control narrative choice verification helper slice: completed as the
   next specialized closeout-helper relocation. It first expands
   `test/narrative-choice.test.ts` to cover same-blocker `no-state-change` and
@@ -370,6 +408,90 @@ All future agent waves must be framed before delegation:
   helper group into `src/play/operations/diplomacy-postconditions.ts`. The
   embedded `sendDiplomacyResponseCloseout` source owner and the public wrapper
   stay in `index.ts`; this is local package/source relocation proof only, not
+  runtime proof.
+- Direct-control diplomacy response wrapper slice: completed as the next
+  operation-wrapper composition relocation. It moves only
+  `requestCiv7DiplomacyResponse` orchestration into
+  `src/play/operations/diplomacy-request.ts` while keeping the public facade
+  export in `index.ts` and preserving the existing embedded closeout source plus
+  diplomacy postcondition owner modules. `test/diplomacy-response.test.ts` and
+  the focused CLI diplomacy response command suite remain the proof owners. This
+  is local package/source relocation proof only, not runtime proof.
+- Direct-control narrative choice wrapper slice: completed as the next
+  operation-wrapper composition relocation. It moves only
+  `requestCiv7NarrativeChoice` orchestration into
+  `src/play/operations/narrative-request.ts` while keeping the public facade
+  export in `index.ts` and preserving the existing embedded narrative closeout
+  source plus narrative postcondition owner modules. `test/narrative-choice.test.ts`
+  and the focused CLI narrative command suite remain the proof owners. This is
+  local package/source relocation proof only, not runtime proof.
+- Direct-control progression read wrapper slice: completed as the next read-only
+  wrapper composition relocation. It moves only `getCiv7TraditionsView` and
+  `getCiv7ProgressDashboard` orchestration plus their command builders into
+  `src/play/progression/reads.ts` while keeping the public facade exports in
+  `index.ts` and preserving the existing embedded progression source owners.
+  `test/progression-reads.test.ts` and the focused CLI progression-read command
+  suite remain the proof owners. This is local package/source relocation proof
+  only, not runtime proof.
+- Direct-control settlement recommendation wrapper slice: completed as the next
+  read-only wrapper composition relocation. It moves only
+  `getCiv7SettlementRecommendations` orchestration plus its command builder
+  into `src/play/tactical/settlement.ts` while keeping the public facade export
+  in `index.ts` and preserving the existing embedded settlement recommendation
+  source owner. `test/settlement-recommendations.test.ts` and the focused CLI
+  settlement-recommendations command suite remain the proof owners. This is
+  local package/source relocation proof only, not runtime proof.
+- Direct-control target-candidates wrapper slice: completed as the next
+  read-only tactical wrapper composition relocation. It moves only
+  `getCiv7TargetCandidates` orchestration plus its command builder into
+  `src/play/tactical/target-candidates.ts` while keeping the public facade
+  export in `index.ts` and preserving the existing embedded target-candidates
+  source owner. `test/tactical-reads.test.ts` and the focused CLI tactical-read
+  command suite remain the proof owners. This is local package/source
+  relocation proof only, not runtime proof.
+- Direct-control battlefield scan wrapper slice: completed as the next
+  read-only tactical wrapper composition relocation. It moves only
+  `getCiv7BattlefieldScan` orchestration plus its command builder into
+  `src/play/tactical/battlefield.ts` while keeping the public facade export in
+  `index.ts` and preserving the existing embedded battlefield scan source
+  owner. `test/tactical-reads.test.ts` and the focused CLI tactical-read
+  command suite remain the proof owners. This is local package/source
+  relocation proof only, not runtime proof.
+- Direct-control destination analysis wrapper slice: completed as the next
+  read-only tactical wrapper composition relocation. It moves only
+  `getCiv7DestinationAnalysis` orchestration plus its command builder into
+  `src/play/tactical/destination.ts` while keeping the public facade export in
+  `index.ts` and preserving the existing embedded destination analysis source
+  owner. `test/tactical-reads.test.ts` and the focused CLI tactical-read
+  command suite remain the proof owners. This is local package/source
+  relocation proof only, not runtime proof.
+- Direct-control unit move preview wrapper slice: completed as the next
+  read-only ready wrapper composition relocation. It moves only
+  `getCiv7UnitMovePreview` orchestration plus its command builder into
+  `src/play/ready/move-preview.ts` while keeping the public facade export in
+  `index.ts`, preserving destination-only pre-validation, preserving the
+  existing `maxPlots`/`maxPathPlots` defaults and bounds, and preserving
+  embedded-source `unitId` normalization with no new component-id rejection.
+  `test/unit-move-preview.test.ts` and the focused CLI unit-move-preview suite
+  remain the proof owners. This is local package/source relocation proof only,
+  not runtime proof.
+- Direct-control ready-unit wrapper slice: completed as the next read-only
+  ready wrapper composition relocation. It moves only `getCiv7ReadyUnitView`
+  orchestration plus its command builder into `src/play/ready/unit.ts` while
+  keeping the public facade export in `index.ts`, preserving the existing
+  `radius`/`maxOperations` defaults and bounds, and preserving embedded-source
+  `unitId` normalization with no new component-id rejection.
+  `test/ready-unit-view.test.ts` and the focused CLI ready-unit suite remain
+  the proof owners. This is local package/source relocation proof only, not
+  runtime proof.
+- Direct-control ready-city wrapper slice: completed as the next read-only
+  ready wrapper composition relocation. It moves only `getCiv7ReadyCityView`
+  orchestration plus its command builder into `src/play/ready/city.ts` while
+  keeping the public facade export in `index.ts`, preserving the existing
+  `maxOperations` default/bounds, and preserving embedded-source `cityId`
+  normalization and target selection with no new component-id rejection.
+  `test/ready-city-view.test.ts` and the focused CLI ready-city suite remain
+  the proof owners. This is local package/source relocation proof only, not
   runtime proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not

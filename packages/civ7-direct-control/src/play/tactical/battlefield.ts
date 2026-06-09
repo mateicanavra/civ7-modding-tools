@@ -1,3 +1,58 @@
+import { Civ7DirectControlError } from "../../direct-control-error";
+
+import type {
+  Civ7BattlefieldScanInput,
+  Civ7BattlefieldScanResult,
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+} from "../../index";
+
+type BattlefieldScanDependencies = Readonly<{
+  validatePlayerId: (playerId: number) => void;
+  boundedInteger: (value: number, min: number, max: number, label: string) => number;
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+  ) => Promise<Civ7CommandResult>;
+  parseBattlefieldScan: (
+    result: Civ7CommandResult,
+    label: string,
+  ) => Civ7BattlefieldScanResult;
+}>;
+
+export async function getCiv7BattlefieldScan(
+  input: Civ7BattlefieldScanInput = {},
+  options: Civ7DirectControlOptions = {},
+  dependencies: BattlefieldScanDependencies,
+): Promise<Civ7BattlefieldScanResult> {
+  if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
+  const result = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildBattlefieldScanCommand({
+      ...input,
+      radius: dependencies.boundedInteger(input.radius ?? 8, 1, 32, "radius"),
+      maxPlayers: dependencies.boundedInteger(input.maxPlayers ?? 32, 1, 128, "maxPlayers"),
+      maxUnits: dependencies.boundedInteger(input.maxUnits ?? 80, 1, 256, "maxUnits"),
+      maxCities: dependencies.boundedInteger(input.maxCities ?? 32, 1, 128, "maxCities"),
+    }),
+  });
+  return dependencies.parseBattlefieldScan(result, "Civ7 battlefield scan");
+}
+
+function buildBattlefieldScanCommand(input: Civ7BattlefieldScanInput & { radius: number; maxPlayers: number; maxUnits: number; maxCities: number }): string {
+  return `(() => {
+    ${battlefieldScanSource()}
+    return JSON.stringify(readBattlefieldScan(${jsLiteral(input)}));
+  })()`;
+}
+
+function jsLiteral(value: unknown): string {
+  const json = JSON.stringify(value);
+  if (json === undefined) {
+    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
+  }
+  return json;
+}
+
 const probeHelperSource = (): string => `const probe = (fn) => {
       try {
         return { ok: true, value: fn() };

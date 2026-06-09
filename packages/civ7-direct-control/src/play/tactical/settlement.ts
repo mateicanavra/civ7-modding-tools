@@ -1,3 +1,53 @@
+import { Civ7DirectControlError } from "../../direct-control-error";
+
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7SettlementRecommendationInput,
+  Civ7SettlementRecommendationResult,
+} from "../../index";
+
+type SettlementRecommendationDependencies = Readonly<{
+  boundedInteger: (value: number, min: number, max: number, label: string) => number;
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+  ) => Promise<Civ7CommandResult>;
+  parseSettlementRecommendations: (
+    result: Civ7CommandResult,
+    label: string,
+  ) => Civ7SettlementRecommendationResult;
+}>;
+
+export async function getCiv7SettlementRecommendations(
+  input: Civ7SettlementRecommendationInput = {},
+  options: Civ7DirectControlOptions = {},
+  dependencies: SettlementRecommendationDependencies,
+): Promise<Civ7SettlementRecommendationResult> {
+  const result = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildSettlementRecommendationsCommand({
+      ...input,
+      count: dependencies.boundedInteger(input.count ?? 5, 1, 12, "count"),
+    }),
+  });
+  return dependencies.parseSettlementRecommendations(result, "Civ7 settlement recommendations");
+}
+
+function buildSettlementRecommendationsCommand(input: Civ7SettlementRecommendationInput & { count: number }): string {
+  return `(() => {
+    ${settlementRecommendationsSource()}
+    return JSON.stringify(readSettlementRecommendations(${jsLiteral(input)}));
+  })()`;
+}
+
+function jsLiteral(value: unknown): string {
+  const json = JSON.stringify(value);
+  if (json === undefined) {
+    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
+  }
+  return json;
+}
+
 function probeHelperSource(): string {
   return `const probe = (fn) => {
       try {

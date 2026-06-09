@@ -115,11 +115,15 @@ runtime/direct-control claims.
 - [ ] 4.3 Extract notification view/materialization atom.
   - [x] 4.3.1 Extract notification view/materialization embedded source owner
         while keeping the public wrapper in the facade.
+  - [x] 4.3.2 Extract notification view wrapper owner while keeping the public
+        facade export surface in `index.ts`.
 - [x] 4.4 Extract notification dismissal/verification atom.
   - [x] 4.4.1 Extract notification dismissal embedded source owner while
         keeping wrapper-level polling and verification helpers in the facade.
   - [x] 4.4.2 Extract notification dismissal verification helper owner while
         keeping the public wrapper in the facade.
+  - [x] 4.4.3 Extract notification dismissal wrapper owner while keeping the
+        public facade export surface in `index.ts`.
 - [x] 4.5 Extract ready unit/city view atoms.
   - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
         the public wrapper in the facade.
@@ -127,6 +131,12 @@ runtime/direct-control claims.
         wrapper in the facade.
   - [x] 4.5.3 Extract ready-city embedded source owner while keeping the public
         wrapper in the facade.
+  - [x] 4.5.4 Extract unit move preview wrapper owner while keeping the public
+        facade export surface in `index.ts`.
+  - [x] 4.5.5 Extract ready-unit wrapper owner while keeping the public facade
+        export surface in `index.ts`.
+  - [x] 4.5.6 Extract ready-city wrapper owner while keeping the public facade
+        export surface in `index.ts`.
 - [ ] 4.6 Extract operation validation/send/postcondition atoms.
   - [x] 4.6.1 Extract operation router embedded validation/send source owner
         while keeping wrapper-level postconditions and specialized closeouts in
@@ -147,6 +157,16 @@ runtime/direct-control claims.
         the embedded source and public wrapper in the facade.
   - [x] 4.6.8 Extract diplomacy response verification helper owner while
         keeping the embedded source and public wrapper in the facade.
+  - [x] 4.6.9 Extract diplomacy response wrapper owner while keeping the
+        public facade export surface in `index.ts`.
+  - [x] 4.6.10 Extract narrative choice wrapper owner while keeping the
+        public facade export surface and embedded source/build command in
+        `index.ts`.
+  - [ ] 4.6.11 Extract narrative choice embedded source/build command owner
+        after naming the stable operation source module and preserving current
+        panel closeout, validation, and postcondition coverage.
+  - [x] 4.6.12 Extract unit-target action source and wrapper owner while
+        keeping the public facade export surface in `index.ts`.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
@@ -160,6 +180,16 @@ runtime/direct-control claims.
         public wrapper in the facade.
   - [x] 4.7.6 Extract destination analysis embedded source owner while keeping
         the public wrapper in the facade.
+  - [x] 4.7.7 Extract progression read wrapper owner while keeping the public
+        facade export surface in `index.ts`.
+  - [x] 4.7.8 Extract settlement recommendation wrapper owner while keeping the
+        public facade export surface in `index.ts`.
+  - [x] 4.7.9 Extract target-candidates wrapper owner while keeping the public
+        facade export surface in `index.ts`.
+  - [x] 4.7.10 Extract battlefield scan wrapper owner while keeping the public
+        facade export surface in `index.ts`.
+  - [x] 4.7.11 Extract destination analysis wrapper owner while keeping the
+        public facade export surface in `index.ts`.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.
@@ -172,6 +202,10 @@ runtime/direct-control claims.
       or semantic player-agent output.
   - [x] 4.10.1 Extract tuner frame encode/parse owner module behind the
         existing package facade.
+- [ ] 4.11 Extract map/visibility/GameInfo read atoms.
+  - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
+        wrapper/source owner while keeping the public facade export surface in
+        `index.ts`.
 
 ## 5. CLI Semantic Surface Lane
 

@@ -1,3 +1,52 @@
+import { Civ7DirectControlError } from "../../direct-control-error";
+
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7PlayNotificationViewResult,
+} from "../../index";
+
+type PlayNotificationViewOptions = Civ7DirectControlOptions & Readonly<{
+  maxNotifications?: number;
+}>;
+
+type PlayNotificationViewDependencies = Readonly<{
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+  ) => Promise<Civ7CommandResult>;
+  parsePlayNotificationView: (
+    result: Civ7CommandResult,
+    label: string,
+  ) => Civ7PlayNotificationViewResult;
+}>;
+
+export async function getCiv7PlayNotificationView(
+  options: PlayNotificationViewOptions = {},
+  dependencies: PlayNotificationViewDependencies,
+): Promise<Civ7PlayNotificationViewResult> {
+  const result = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildPlayNotificationViewCommand({ maxNotifications: options.maxNotifications }),
+  });
+  return dependencies.parsePlayNotificationView(result, "Civ7 play notification view");
+}
+
+function buildPlayNotificationViewCommand(options: { maxNotifications?: number } = {}): string {
+  const maxNotifications = options.maxNotifications ?? 25;
+  return `(() => {
+    ${playNotificationViewSource()}
+    return JSON.stringify(readPlayNotifications(${jsLiteral({ maxNotifications })}));
+  })()`;
+}
+
+function jsLiteral(value: unknown): string {
+  const json = JSON.stringify(value);
+  if (json === undefined) {
+    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
+  }
+  return json;
+}
+
 function probeHelperSource(): string {
   return `const probe = (fn) => {
       try {

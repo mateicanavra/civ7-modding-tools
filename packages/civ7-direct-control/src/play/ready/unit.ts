@@ -1,3 +1,54 @@
+import { Civ7DirectControlError } from "../../direct-control-error";
+
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7ReadyUnitViewInput,
+  Civ7ReadyUnitViewResult,
+} from "../../index";
+
+type ReadyUnitViewDependencies = Readonly<{
+  boundedInteger: (value: number, min: number, max: number, label: string) => number;
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+  ) => Promise<Civ7CommandResult>;
+  parseReadyUnitView: (
+    result: Civ7CommandResult,
+    label: string,
+  ) => Civ7ReadyUnitViewResult;
+}>;
+
+export async function getCiv7ReadyUnitView(
+  input: Civ7ReadyUnitViewInput = {},
+  options: Civ7DirectControlOptions = {},
+  dependencies: ReadyUnitViewDependencies,
+): Promise<Civ7ReadyUnitViewResult> {
+  const result = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildReadyUnitViewCommand({
+      ...input,
+      radius: dependencies.boundedInteger(input.radius ?? 2, 0, 5, "radius"),
+      maxOperations: dependencies.boundedInteger(input.maxOperations ?? 96, 1, 256, "maxOperations"),
+    }),
+  });
+  return dependencies.parseReadyUnitView(result, "Civ7 ready unit view");
+}
+
+function buildReadyUnitViewCommand(input: Civ7ReadyUnitViewInput & { radius: number; maxOperations: number }): string {
+  return `(() => {
+    ${readyUnitViewSource()}
+    return JSON.stringify(readReadyUnitView(${jsLiteral(input)}));
+  })()`;
+}
+
+function jsLiteral(value: unknown): string {
+  const json = JSON.stringify(value);
+  if (json === undefined) {
+    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
+  }
+  return json;
+}
+
 const probeHelperSource = (): string => `const probe = (fn) => {
       try {
         return { ok: true, value: fn() };

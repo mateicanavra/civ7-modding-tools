@@ -33,7 +33,10 @@ type NarrativeChoiceInput = {
 type NarrativeChoiceMode =
   | "blocker-cleared"
   | "stale"
-  | "panel-cleared-notification-changed";
+  | "panel-cleared-notification-changed"
+  | "validation-changed"
+  | "turn-unblocked"
+  | "send-failed";
 
 type NarrativeChoiceRequest = {
   input: NarrativeChoiceInput;
@@ -224,6 +227,93 @@ describe("narrative choice requests", () => {
       await server.close();
     }
   });
+
+  test("classifies validation changed when the blocker stays live but the post-closeout validator drifts", async () => {
+    const server = await startNarrativeChoiceTunerServer({ mode: "validation-changed" });
+    try {
+      const { port } = server.address();
+      const target = { owner: 0, id: 421, type: 24 };
+      const request = await requestCiv7NarrativeChoice(
+        { playerId: 0, targetType: "CLOSE", target, action: 1 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test narrative validation drift" }
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.postcondition).toMatchObject({
+        classification: "validation-changed",
+        reason:
+          "The narrative choice validator changed after the send, but notification/turn state did not clearly clear.",
+      });
+      expect(request.beforeValidation).toMatchObject({
+        valid: true,
+      });
+      expect(request.afterValidation).toMatchObject({
+        valid: false,
+        result: { Success: false, FailureReasons: ["post-send drift"] },
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("classifies turn unblocked when the narrative choice leaves no blocking decision", async () => {
+    const server = await startNarrativeChoiceTunerServer({ mode: "turn-unblocked" });
+    try {
+      const { port } = server.address();
+      const target = { owner: 0, id: 421, type: 24 };
+      const request = await requestCiv7NarrativeChoice(
+        { playerId: 0, targetType: "CLOSE", target, action: 1 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test narrative turn unblock" }
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.postcondition).toMatchObject({
+        classification: "turn-unblocked",
+        reason: "The narrative choice and UI handling left the turn unblocked.",
+      });
+      expect(request.after.canEndTurn).toEqual({ ok: true, value: true });
+      expect(request.after.notifications).toEqual([]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("does not verify narrative choices when App UI closeout reports no send after pre-validation", async () => {
+    const server = await startNarrativeChoiceTunerServer({ mode: "send-failed" });
+    try {
+      const { port } = server.address();
+      const target = { owner: 0, id: 421, type: 24 };
+      const request = await requestCiv7NarrativeChoice(
+        { playerId: 0, targetType: "CLOSE", target, action: 1 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test narrative send failure" }
+      );
+
+      expect(request.sent).toBe(false);
+      expect(request.verified).toBe(false);
+      expect(request.beforeValidation).toMatchObject({
+        valid: true,
+      });
+      expect(request.afterValidation).toMatchObject({
+        valid: true,
+      });
+      expect(request.postcondition).toMatchObject({
+        classification: "not-sent",
+        reason:
+          "The narrative choice was not sent, either because validation failed before send or the App UI closeout reported no send.",
+      });
+      expect(request.payload).toMatchObject({
+        sent: false,
+        sendResult: { ok: true, value: false },
+      });
+    } finally {
+      await server.close();
+    }
+  });
 });
 
 async function startNarrativeChoiceTunerServer(
@@ -261,9 +351,10 @@ async function startNarrativeChoiceTunerServer(
             ])
           );
         } else if (operationCall) {
+          const operationValid = operationValidationValid({ valid, mode, narrativeChoiceSent });
           socket.write(
             encodeResponse(frame.listenerId, [
-              JSON.stringify(operationValidation(operationCall, valid && !narrativeChoiceSent)),
+              JSON.stringify(operationValidation(operationCall, operationValid, narrativeChoiceSent ? "post-send drift" : "test rejection")),
             ])
           );
         } else if (narrativeChoiceRequest) {
@@ -290,6 +381,17 @@ async function startNarrativeChoiceTunerServer(
       await once(server, "close");
     },
   };
+}
+
+function operationValidationValid(input: {
+  valid: boolean;
+  mode: NarrativeChoiceMode;
+  narrativeChoiceSent: boolean;
+}) {
+  if (!input.valid) return false;
+  if (!input.narrativeChoiceSent) return true;
+  if (input.mode === "validation-changed") return false;
+  return true;
 }
 
 function parseOperationValidationCall(message: string): OperationCall | undefined {
@@ -396,7 +498,7 @@ function isComponentId(value: unknown): value is ComponentId {
   );
 }
 
-function operationValidation(call: OperationCall, valid: boolean) {
+function operationValidation(call: OperationCall, valid: boolean, failureReason: string) {
   return {
     family: call.family,
     operationType: call.input.operationType,
@@ -404,13 +506,13 @@ function operationValidation(call: OperationCall, valid: boolean) {
     target: { playerId: call.input.playerId },
     args: call.input.args,
     valid,
-    result: valid ? { Success: true } : { Success: false, FailureReasons: ["test rejection"] },
+    result: valid ? { Success: true } : { Success: false, FailureReasons: [failureReason] },
   };
 }
 
 function narrativeChoicePayload(request: NarrativeChoiceRequest, mode: NarrativeChoiceMode) {
   const after =
-    mode === "stale"
+    mode === "stale" || mode === "validation-changed" || mode === "send-failed"
       ? {
           panelCount: 1,
           matchingPanelCount: 1,
@@ -430,8 +532,8 @@ function narrativeChoicePayload(request: NarrativeChoiceRequest, mode: Narrative
     playerId: request.playerOperation.playerId,
     args: request.playerOperation.args,
     canStart: { ok: true, value: { Success: true } },
-    sent: true,
-    sendResult: { ok: true, value: true },
+    sent: mode !== "send-failed",
+    sendResult: { ok: true, value: mode !== "send-failed" },
     ui: {
       before: {
         panelCount: 1,
@@ -462,7 +564,7 @@ function playNotificationView(input: { sent: boolean; mode: NarrativeChoiceMode 
     turn: { ok: true, value: 17 },
     turnDate: { ok: true, value: "3750 BCE" },
     hasSentTurnComplete: { ok: true, value: false },
-    canEndTurn: { ok: true, value: false },
+    canEndTurn: { ok: true, value: input.sent && input.mode === "turn-unblocked" },
     blocker: { ok: true, value: notification?.id.id ?? 0 },
     blockingNotificationId: { ok: true, value: notification?.id ?? null },
     selectedUnitId: { ok: true, value: null },
@@ -479,10 +581,12 @@ function playNotificationView(input: { sent: boolean; mode: NarrativeChoiceMode 
 }
 
 function narrativeNotification(mode: NarrativeChoiceMode) {
-  if (mode === "blocker-cleared") return undefined;
+  if (mode === "blocker-cleared" || mode === "turn-unblocked") return undefined;
   const id = mode === "panel-cleared-notification-changed"
     ? { owner: 0, id: 902, type: 20 }
-    : { owner: 0, id: 901, type: 20 };
+    : mode === "validation-changed"
+      ? { owner: 0, id: 903, type: 20 }
+      : { owner: 0, id: 901, type: 20 };
   return {
     id,
     type: 2345,
