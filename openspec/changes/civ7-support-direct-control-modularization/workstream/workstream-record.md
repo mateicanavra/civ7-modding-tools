@@ -61,6 +61,8 @@ titles, and parent reports to close the loop.
 | `019e8ac9-2938-7a50-87b9-a1915f35d427` | Review OpenSpec workstream | framed `/goal` | completed, archived | yes | Accepted as current pre-code review. | Confirms implementation remains blocked until row detail and single-writer gates are present. |
 | `019e8ad7-dc15-76a0-88f8-bb5210bfd7e9` | Add notification HUD test | framed `/goal` implementation | completed, idle | yes | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `@civ7/direct-control` build artifacts were unavailable there. | Created local/mode-named `game/play/notification/hud.test.ts`; DRA performed single-writer monolith removal, package wiring, and final gates in the support worktree. |
 | `019e8ae4-8b20-79a0-8553-41b71bccb63f` | Add priorities play test | framed `/goal` implementation | completed, idle | yes | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `vitest` was unavailable there. | Created local `game/play/priorities.test.ts` with priority HUD/ready-unit/ready-city/battlefield fixtures; DRA performed single-writer monolith deletion, package wiring, and final gates in the support worktree. |
+| `019e8af1-0303-7ce2-b059-6178542f833e` | Plan direct-control test boundaries | framed `/goal` report-only | completed, idle | yes | Accepted as package-test boundary evidence; no mutation authority. | Identified one broad `packages/civ7-direct-control/test/direct-control.test.ts` suite, missing per-atom package tests, missing atom rows for map/setup/autoplay/turn/root/catalog surfaces, and recommended public API/primitives as first source-adjacent test slice. |
+| `019e8af1-427e-7463-a9be-dbdeabbccfdf` | Assess oRPC authority lane | framed `/goal` report-only | completed, idle | yes | Accepted as authority disposition; no mutation authority. | Confirms current support branch lacks tracked `.agents/skills/civ7-orpc-control-architecture` and `packages/civ7-control-orpc`; oRPC stays downstream until authority/source is imported or cited from the relevant branches. |
 
 ## Parallelization Rule
 
@@ -101,8 +103,9 @@ All future agent waves must be framed before delegation:
   handoffs and DRA integration proof; `game.play.test.ts` monolith ownership is
   removed.
 - Direct-control atom corpus: report findings merged for top-level atom
-  boundaries; exact atom rows still need package-test and source-region proof
-  before source edits.
+  boundaries, package-test gaps, and missing public-surface rows; source edits
+  remain blocked until the target slice adds package-owned tests/API-shape
+  coverage and names proof class.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
@@ -116,3 +119,7 @@ All future agent waves must be framed before delegation:
 - Next implementation lane: direct-control atom planning/tests. Source edits
   remain blocked until atom rows name owners, consumers, proof class, and package
   test coverage.
+- oRPC/Effect lane: planning-only in this support branch. Current tracked files
+  do not include `.agents/skills/civ7-orpc-control-architecture` or
+  `packages/civ7-control-orpc`; later work must import or explicitly cite the
+  oRPC authority branch before implementation.

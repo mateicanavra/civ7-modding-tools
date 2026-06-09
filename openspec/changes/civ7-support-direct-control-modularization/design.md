@@ -52,6 +52,8 @@ The direct-control corpus includes:
 - ready unit and ready city views;
 - operation validation/send/postcondition helpers;
 - tactical, progression, settlement, destination, battlefield, and target reads;
+- map, visibility, GameInfo, setup/lifecycle, autoplay, turn-completion, and
+  runtime root inspection surfaces;
 - component ID, schema/type ownership, constants, and public exports;
 - future procedure-core candidates for control-oRPC.
 
@@ -175,7 +177,14 @@ Responsibilities:
    - operation validation/send/postconditions;
    - read-only tactical/progression/destination surfaces;
    - schemas/types/constants.
-6. Add Effect/oRPC procedure cores over stable atoms.
+6. Import or explicitly cite the oRPC architecture skill/source authority from
+   the relevant stack branches.
+7. Add Effect/oRPC procedure cores over stable atoms.
+
+The current support branch does not track
+`.agents/skills/civ7-orpc-control-architecture` or `packages/civ7-control-orpc`.
+The oRPC lane is therefore planning-only here until that authority is imported
+or cited, and it remains downstream of direct-control atoms.
 
 ## Proof Boundaries
 
