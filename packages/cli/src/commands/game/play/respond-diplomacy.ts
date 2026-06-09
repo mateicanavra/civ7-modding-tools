@@ -1,5 +1,6 @@
 import { Command, Flags } from '@oclif/core';
-import { requestCiv7DiplomacyResponse } from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import {
   buildApproval,
   buildDirectControlOptions,
@@ -15,7 +16,7 @@ export default class GamePlayRespondDiplomacy extends Command {
   static id = 'game play respond-diplomacy';
   static summary = 'Validate or send a diplomacy response';
   static description =
-    'Wraps player-operation RESPOND_DIPLOMATIC_ACTION with the live diplomatic action ID and response Type.';
+    'Validates diplomacy responses as player operations, or sends them through the native control-oRPC decision procedure when --send and --reason are explicit.';
 
   static examples = [
     '<%= config.bin %> game play respond-diplomacy --player-id 0 --action-id 56 --response-type -1907089594 --json',
@@ -67,18 +68,16 @@ export default class GamePlayRespondDiplomacy extends Command {
     const reason = requireSendReason(flags.send, flags.reason, 'game play respond-diplomacy');
     const options = buildDirectControlOptions(flags);
     if (flags.send) {
-      const result = await requestCiv7DiplomacyResponse(
-        {
-          playerId: flags['player-id'],
-          actionId: flags['action-id'],
-          responseType: flags['response-type'],
-          ...(flags['notification-id'] ? { notificationId: parseComponentId(flags['notification-id'], 'notification-id') } : {}),
-          activateNotification: true,
-          uiCloseout: true,
-        },
-        options,
-        buildApproval(reason),
-      );
+      const result = await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+        approval: buildApproval(reason),
+      }).decisions.diplomacy.response.request({
+        playerId: flags['player-id'],
+        actionId: flags['action-id'],
+        responseType: flags['response-type'],
+        ...(flags['notification-id'] ? { notificationId: parseComponentId(flags['notification-id'], 'notification-id') } : {}),
+      });
       emitPlayResult(this.log.bind(this), flags.json, result);
       return;
     }

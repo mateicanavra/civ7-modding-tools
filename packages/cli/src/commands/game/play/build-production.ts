@@ -1,5 +1,6 @@
 import { Command, Flags } from '@oclif/core';
-import { requestCiv7ProductionChoice } from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import {
   buildApproval,
   buildDirectControlOptions,
@@ -30,7 +31,7 @@ export default class GamePlayBuildProduction extends Command {
   static id = 'game play build-production';
   static summary = 'Validate or choose city production';
   static description =
-    'Wraps city-operation BUILD for unit, constructible, and project production choices after the live production chooser has provided the item id.';
+    'Validates city-operation BUILD choices, or sends production through the native control-oRPC city procedure when --send and --reason are explicit.';
 
   static examples = [
     '<%= config.bin %> game play build-production --city-id \'{"owner":0,"id":65536,"type":25}\' --unit-type 1558890441 --json',
@@ -97,7 +98,11 @@ export default class GamePlayBuildProduction extends Command {
     };
     const options = buildDirectControlOptions(typedFlags);
     const result = typedFlags.send
-      ? await requestCiv7ProductionChoice({ cityId: input.cityId, args: input.args }, options, buildApproval(reason))
+      ? await createCiv7ControlOrpcServerClient({
+          directControl: liveCiv7ControlOrpcDirectControlFacade,
+          endpointDefaults: options,
+          approval: buildApproval(reason),
+        }).city.production.choice.request({ cityId: input.cityId, args: input.args })
       : await validatePlayOperation('city-operation', input, options);
 
     emitPlayResult(this.log.bind(this), typedFlags.json, result);

@@ -2,7 +2,7 @@ import { Command, Flags } from '@oclif/core';
 import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import {
-  getCiv7UnitTargetAction,
+  getCiv7NotificationDismissal,
 } from '@civ7/direct-control';
 import {
   buildApproval,
@@ -12,15 +12,15 @@ import {
   requireSendReason,
 } from '../../../utils/game-play-shared';
 
-export default class GamePlayUnitTarget extends Command {
-  static id = 'game play unit-target';
-  static summary = 'Resolve a unit plot target through the official right-click action order';
+export default class GamePlayDismissNotification extends Command {
+  static id = 'game play dismiss-notification';
+  static summary = 'Inspect or dismiss a reviewed notification';
   static description =
-    'Plans a unit target action through direct-control, or sends it through the native control-oRPC unit procedure when --send and --reason are explicit.';
+    'Reads a notification through App UI state and optionally dismisses it through the native control-oRPC notification procedure when --send and --reason are explicit.';
 
   static examples = [
-    '<%= config.bin %> game play unit-target --unit-id \'{"owner":0,"id":65536,"type":26}\' --x 23 --y 33 --json',
-    '<%= config.bin %> game play unit-target --unit-id \'{"owner":0,"id":65536,"type":26}\' --x 23 --y 33 --send --reason "focus fire validated ranged target" --json',
+    '<%= config.bin %> game play dismiss-notification --target \'{"owner":0,"id":113,"type":20}\' --json',
+    '<%= config.bin %> game play dismiss-notification --target \'{"owner":0,"id":113,"type":20}\' --send --reason "reviewed wonder completed notice" --json',
   ];
 
   static flags = {
@@ -30,20 +30,12 @@ export default class GamePlayUnitTarget extends Command {
     port: Flags.integer({
       description: 'Civ7 tuner socket port',
     }),
-    'unit-id': Flags.string({
-      description: 'Unit ComponentID JSON',
-      required: true,
-    }),
-    x: Flags.integer({
-      description: 'Target plot X coordinate',
-      required: true,
-    }),
-    y: Flags.integer({
-      description: 'Target plot Y coordinate',
+    target: Flags.string({
+      description: 'Notification ComponentID JSON',
       required: true,
     }),
     send: Flags.boolean({
-      description: 'Send the selected target action after resolving it',
+      description: 'Dismiss the notification when canUserDismiss is true',
       default: false,
     }),
     reason: Flags.string({
@@ -60,21 +52,17 @@ export default class GamePlayUnitTarget extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayUnitTarget);
-    const reason = requireSendReason(flags.send, flags.reason, 'game play unit-target');
-    const input = {
-      unitId: parseComponentId(flags['unit-id'], 'unit-id'),
-      x: flags.x,
-      y: flags.y,
-    };
+    const { flags } = await this.parse(GamePlayDismissNotification);
+    const reason = requireSendReason(flags.send, flags.reason, 'game play dismiss-notification');
+    const input = { notificationId: parseComponentId(flags.target, 'target') };
     const options = buildDirectControlOptions(flags);
     const result = flags.send
       ? await createCiv7ControlOrpcServerClient({
           directControl: liveCiv7ControlOrpcDirectControlFacade,
           endpointDefaults: options,
           approval: buildApproval(reason),
-        }).unit.target.action.request(input)
-      : await getCiv7UnitTargetAction(input, options);
+        }).notifications.dismiss.request(input)
+      : await getCiv7NotificationDismissal(input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

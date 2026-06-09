@@ -85,20 +85,28 @@ describe('game play diplomacy response commands', () => {
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          payload: { playerId: number; notificationId: { id: number }; uiCloseout: { requested: boolean } };
-          postcondition: { classification: string; reason: string };
-        };
+        result: DiplomacyResponseSendResult;
       };
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.payload.playerId).toBe(0);
-      expect(payload.result.payload.notificationId.id).toBe(19);
-      expect(payload.result.payload.uiCloseout.requested).toBe(true);
+      expect(payload.result.status).toBe('sent-confirmed');
+      expect(payload.result.playerId).toBe(0);
+      expect(payload.result.actionId).toBe(8);
+      expect(payload.result.responseType).toBe(926305338);
+      expect(payload.result.notificationId).toEqual({ owner: 0, id: 19, type: 20 });
+      expect(payload.result.validation).toEqual({ beforeValid: true, afterValid: true });
       expect(payload.result.postcondition.classification).toBe('turn-unblocked');
       expect(payload.result.postcondition.reason).toContain('turn unblocked');
+      expect(payload.result.postcondition).toMatchObject({
+        outcome: 'cleared',
+        confidence: 'confirmed',
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'refresh-attention',
+        source: 'decisions.diplomacy.response.request',
+      });
+      expectSemanticDiplomacyResponseOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('sendDiplomacyResponseCloseout'))).toBe(true);
       expect(server.received.some((message) => message.includes('GameContext.localPlayerID'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(false);
@@ -116,6 +124,42 @@ type CommandClass = {
   prototype: { log(message?: string): void };
 };
 
+type DiplomacyResponseSendResult = {
+  playerId: number;
+  actionId: number;
+  responseType: number;
+  notificationId?: { owner: number; id: number; type: number };
+  sent: boolean;
+  status: string;
+  validation: { beforeValid: boolean; afterValid: boolean };
+  postcondition: {
+    classification: string;
+    reason: string;
+    outcome: string;
+    confidence: string;
+    confirmed: boolean;
+    noRepeatAfterUnverified: boolean;
+  };
+  nextSteps: Array<{ kind: string; source: string; label: string }>;
+};
+
+function expectSemanticDiplomacyResponseOmitsRawRuntimeDetails(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"payload"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"uiCloseout"');
+  expect(serialized).not.toContain('"diplomacyState"');
+  expect(serialized).not.toContain('"activationResult"');
+  expect(serialized).not.toContain('Game.PlayerOperations');
+  expect(serialized).not.toContain('sendDiplomacyResponseCloseout');
+}
+
 async function runCommand(command: CommandClass, args: string[]) {
   const log = vi.spyOn(command.prototype, 'log').mockImplementation(() => {});
   try {
@@ -131,6 +175,12 @@ async function startDiplomacyResponseTunerServer(options: {
   let diplomacyCloseoutObserved = false;
   return startFakeTunerServer({
     handle({ message }) {
+      if (message.includes('Network.isInSession')) {
+        return [JSON.stringify(appUiSnapshot())];
+      }
+      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+        return [JSON.stringify(tunerHealthSnapshot())];
+      }
       if (message.includes('readPlayNotifications')) {
         return [JSON.stringify(playNotificationView(
           options.playNotificationMode ?? 'stale-diplomacy',
@@ -147,6 +197,84 @@ async function startDiplomacyResponseTunerServer(options: {
       return undefined;
     },
   });
+}
+
+function appUiSnapshot() {
+  return {
+    network: {
+      isInSession: { ok: true, value: true },
+      numPlayers: { ok: true, value: 1 },
+      hostPlayerId: { ok: true, value: 0 },
+      isConnectedToNetwork: { ok: true, value: true },
+      isAuthenticated: { ok: true, value: false },
+      isLoggedIn: { ok: true, value: true },
+    },
+    autoplay: {
+      isActive: false,
+      turns: -1,
+      isPaused: false,
+      isPausedOrPending: false,
+      observeAsPlayer: -1,
+      returnAsPlayer: -1,
+    },
+    game: {
+      turn: 1,
+      age: 0,
+      maxTurns: 0,
+      turnDate: { ok: true, value: '4000 BCE' },
+      hash: { ok: true, value: 0 },
+    },
+    ui: {
+      inGame: { ok: true, value: true },
+      inShell: { ok: true, value: false },
+      inLoading: { ok: true, value: false },
+      loadingState: { ok: true, value: 6 },
+      loadingStateName: 'WaitingForUIReady',
+      canBeginGame: { ok: true, value: true },
+      canNotifyUIReady: 'function',
+      skipStartButton: { ok: true, value: false },
+      automationActive: { ok: true, value: false },
+    },
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: 0,
+      hasRequestedPause: { ok: true, value: false },
+    },
+    players: {
+      maxPlayers: 64,
+      aliveIds: { ok: true, value: [0] },
+      aliveHumanIds: { ok: true, value: [0] },
+      numAliveHumans: { ok: true, value: 1 },
+    },
+    map: {
+      width: { ok: true, value: 84 },
+      height: { ok: true, value: 54 },
+      plotCount: { ok: true, value: 4536 },
+      mapSize: { ok: true, value: 0 },
+      randomSeed: { ok: true, value: 1 },
+    },
+  };
+}
+
+function tunerHealthSnapshot() {
+  return {
+    evalOk: 2,
+    ready: true,
+    globals: {
+      Game: 'object',
+      Autoplay: 'object',
+      GameplayMap: 'object',
+      Players: 'object',
+      Network: 'undefined',
+    },
+    turn: { ok: true, value: 1 },
+    turnDate: { ok: true, value: '4000 BCE' },
+    width: { ok: true, value: 84 },
+    height: { ok: true, value: 54 },
+    aliveIds: { ok: true, value: [0] },
+    aliveHumanIds: { ok: true, value: [0] },
+    autoplayActive: { ok: true, value: false },
+  };
 }
 
 function operationValidation(message: string) {

@@ -199,6 +199,133 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the adapter does not become an alternate product API or raw command
   tunnel
 
+#### Scenario: CLI end-turn send uses native turn procedure
+- **WHEN** `game play end-turn --send` requests an approved turn completion
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process `turn.complete.request`
+  server-side client
+- **AND** the procedure's approval, readiness, direct-control guard, and
+  postcondition projection remain authoritative for the send
+- **AND** expected pre-send guard blocks project as semantic `not-sent`
+  turn-completion output with inspect/do-not-repeat next steps rather than
+  `TURN_COMPLETION_UNAVAILABLE`
+- **AND** the normal JSON result is the semantic turn-completion procedure
+  projection without raw command/session/state/Tuner details or legacy
+  `verified`
+- **AND** the read-only `game play end-turn` status path remains a
+  direct-control turn-completion status read until a separate accepted read
+  procedure exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI notification dismissal send uses native notification procedure
+- **WHEN** `game play dismiss-notification --send` requests an approved
+  notification dismissal
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process `notifications.dismiss.request`
+  server-side client
+- **AND** the procedure's approval, readiness, direct-control validator,
+  postcondition projection, and no-repeat policy remain authoritative for the
+  send
+- **AND** the normal JSON result is the semantic notification dismissal
+  procedure projection without raw command/session/state/Tuner details, route
+  diagnostics, closeout path, verification attempts, or legacy `verified`
+- **AND** the read-only `game play dismiss-notification` inspection path
+  remains a direct-control notification dismissal read until a separate
+  accepted service read exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI unit target send uses native unit procedure
+- **WHEN** `game play unit-target --send` requests an approved unit target
+  action
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process `unit.target.action.request`
+  server-side client under the `unit` router
+- **AND** the procedure's approval, readiness, direct-control validator,
+  unit-target postcondition projection, and no-repeat policy remain
+  authoritative for the send
+- **AND** the normal JSON result is the semantic unit target action procedure
+  projection without raw command/session/state/Tuner details, send results,
+  before/after runtime probes, direct-control verification envelopes, or
+  legacy `verified`
+- **AND** the read-only `game play unit-target` planning path remains a
+  direct-control unit target action read until a separate accepted service read
+  exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI build-production send uses native city procedure
+- **WHEN** `game play build-production --send` requests an approved city
+  production choice
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process `city.production.choice.request`
+  server-side client under the `city` router
+- **AND** the procedure's approval, readiness, direct-control production
+  validator, production postcondition projection, and no-repeat policy remain
+  authoritative for the send
+- **AND** the normal JSON result is the semantic city production choice
+  procedure projection without raw command/session/state/Tuner details,
+  UI-closeout payloads, send results, before/after runtime probes, or legacy
+  `verified`
+- **AND** the read-only `game play build-production` validation path remains
+  direct-control operation validation until a separate accepted service read
+  exists
+- **AND** `game play build-unit` remains outside this slice until a separate
+  caller migration reconciles that convenience command
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI diplomacy response send uses native decision procedure
+- **WHEN** `game play respond-diplomacy --send` requests an approved diplomacy
+  response
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process
+  `decisions.diplomacy.response.request` server-side client under the
+  `decisions` router
+- **AND** the procedure's approval, readiness, direct-control diplomacy
+  response port, diplomacy postcondition projection, and no-repeat policy
+  remain authoritative for the send
+- **AND** the send result uses direct-control source evidence for the acted
+  local player rather than treating the caller validation `--player-id` as send
+  authority
+- **AND** the normal JSON result is the semantic diplomacy response procedure
+  projection without raw command/session/state/Tuner details, UI closeout
+  payloads, diplomacy state internals, direct-control runtime payloads, or
+  legacy `verified`
+- **AND** the read-only `game play respond-diplomacy` validation path remains
+  direct-control player-operation validation until a separate accepted service
+  read exists
+- **AND** `game play respond-first-meet` remains outside this slice until a
+  separate first-meet service procedure exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI narrative choice send uses native decision procedure
+- **WHEN** `game play choose-narrative --send` requests an approved narrative
+  story direction choice
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process
+  `decisions.narrative.choice.request` server-side client under the
+  `decisions` router
+- **AND** the procedure's approval, readiness, direct-control narrative choice
+  port, narrative postcondition projection, and no-repeat policy remain
+  authoritative for the send
+- **AND** the send result uses direct-control source evidence for the acted
+  local player rather than treating the caller validation `--player-id` as send
+  authority
+- **AND** the normal JSON result is the semantic narrative choice procedure
+  projection without raw command/session/state/Tuner details, App UI closeout
+  payloads, panel/popup internals, direct-control runtime payloads, or legacy
+  `verified`
+- **AND** the read-only `game play choose-narrative --options` path remains a
+  direct-control notification/option read until a separate accepted service
+  read exists
+- **AND** the read-only validation path remains direct-control
+  player-operation validation until a separate accepted service read exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: In-game controller bridge preflight is recorded
 - **WHEN** the in-game controller bridge is planned before source
   implementation
@@ -298,6 +425,9 @@ boundaries.
   runtime/proof ports rather than reimplementing postcondition truth
 - **AND** its normal output projects semantic status, validation summary,
   postcondition summary, and next steps
+- **AND** its normal output uses direct-control source evidence for the acted
+  player rather than echoing caller validation identity when runtime sends use
+  the local player
 - **AND** it excludes endpoint, session, state, raw command, payload, and
   legacy `verified` details from caller-facing input and output
 - **AND** unverified, stale, missing-postcondition, no-state-change, and
@@ -314,6 +444,9 @@ boundaries.
   notification identity rather than direct-control UI toggles
 - **AND** its normal output projects semantic status, validation summary,
   postcondition summary, and next steps
+- **AND** its normal output uses direct-control source evidence for the acted
+  player rather than echoing caller validation identity when runtime sends use
+  the local player
 - **AND** it excludes endpoint, session, state, raw command, payload,
   notification internals, UI closeout internals, and legacy `verified` details
   from caller-facing input and output
@@ -405,6 +538,8 @@ modules before broad implementation.
 - **AND** the procedure consumes the direct-control turn-completion runtime
   port and turn-completion proof helper rather than inferring from legacy
   `verified`
+- **AND** expected direct-control guard-blocked requests are projected as
+  semantic `not-sent` output, not runtime unavailability
 - **AND** normal input is empty and endpoint, session, state, raw command, and
   approval fields remain context-owned
 - **AND** normal output projects before/after turn facts, postcondition

@@ -26,13 +26,25 @@ describe('game play dismiss-notification command', () => {
     ]);
     try {
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.closeoutPath).toBe('NotificationModel.manager.dismiss');
-      expect(payload.result.result.notificationTrainManager.ok).toBe(true);
-      expect(payload.result.result.notificationTrainManager.attempted).toBe(true);
-      expect(payload.result.result.panelCloseControl.attempted).toBe(false);
-      expect(payload.result.result.panelCloseControl.reason).toMatch(/active end-turn blocker/);
-      expect(payload.result.verificationAttempts.length).toBeGreaterThan(1);
+      expect(payload.result.status).toBe('sent-confirmed');
+      expect(payload.result.validation).toMatchObject({
+        beforeExists: true,
+        canDismiss: true,
+        afterExists: false,
+      });
+      expect(payload.result.postcondition).toMatchObject({
+        classification: 'notification-disappeared',
+        outcome: 'cleared',
+        confidence: 'confirmed',
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      });
+      expect(payload.result.nextSteps).toEqual([{
+        kind: 'refresh-attention',
+        source: 'notifications.dismiss.request',
+        label: 'Refresh current attention before choosing the next player action.',
+      }]);
+      expectSemanticDismissalOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('readNotificationDismissal'))).toBe(true);
       expect(server.received.some((message) => message.includes('"send":true'))).toBe(true);
       expect(server.received.some((message) => message.includes('NotificationModel.manager'))).toBe(true);
@@ -51,19 +63,24 @@ describe('game play dismiss-notification command', () => {
     ]);
     try {
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(false);
-      expect(payload.result.result.notificationTrainManager).toMatchObject({ ok: true, attempted: true });
-      expect(payload.result.result.panelCloseControl).toMatchObject({ ok: true, attempted: true });
-      expect(payload.result.after).toMatchObject({
-        exists: true,
-        dismissed: false,
-        isEndTurnBlocking: { ok: true, value: false },
-        engineQueueContains: { ok: true, value: true },
-        isEngineQueueFront: { ok: true, value: true },
-        notificationTrainContains: { ok: true, value: true },
-        isNotificationTrainFront: { ok: true, value: true },
+      expect(payload.result.status).toBe('sent-unverified');
+      expect(payload.result.validation).toMatchObject({
+        beforeExists: true,
+        canDismiss: true,
+        afterExists: true,
       });
-      expect(payload.result.verificationAttempts.length).toBeGreaterThan(1);
+      expect(payload.result.postcondition).toMatchObject({
+        classification: 'engine-front-still-live',
+        outcome: 'stale',
+        confidence: 'unverified',
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'do-not-repeat',
+        source: 'notifications.dismiss.request',
+      });
+      expectSemanticDismissalOmitsRawRuntimeDetails(payload.result);
     } finally {
       await server.close();
     }
@@ -79,14 +96,24 @@ describe('game play dismiss-notification command', () => {
     ]);
     try {
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(false);
-      expect(payload.result.after).toMatchObject({
-        engineQueueContains: { ok: true, value: true },
-        isEngineQueueFront: { ok: true, value: true },
-        notificationTrainContains: { ok: true, value: false },
-        isNotificationTrainFront: { ok: true, value: false },
+      expect(payload.result.status).toBe('sent-unverified');
+      expect(payload.result.validation).toMatchObject({
+        beforeExists: true,
+        canDismiss: true,
+        afterExists: true,
       });
-      expect(payload.result.verificationAttempts.length).toBeGreaterThan(1);
+      expect(payload.result.postcondition).toMatchObject({
+        classification: 'engine-front-still-live',
+        outcome: 'stale',
+        confidence: 'unverified',
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'do-not-repeat',
+        source: 'notifications.dismiss.request',
+      });
+      expectSemanticDismissalOmitsRawRuntimeDetails(payload.result);
     } finally {
       await server.close();
     }
@@ -102,13 +129,24 @@ describe('game play dismiss-notification command', () => {
     ]);
     try {
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(false);
-      expect(payload.result.after).toMatchObject({
-        dismissed: true,
-        engineQueueContains: { ok: true, value: true },
-        isEngineQueueFront: { ok: true, value: true },
+      expect(payload.result.status).toBe('sent-unverified');
+      expect(payload.result.validation).toMatchObject({
+        beforeExists: true,
+        canDismiss: true,
+        afterExists: true,
       });
-      expect(payload.result.verificationAttempts.length).toBeGreaterThan(1);
+      expect(payload.result.postcondition).toMatchObject({
+        classification: 'engine-front-still-live',
+        outcome: 'stale',
+        confidence: 'unverified',
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'do-not-repeat',
+        source: 'notifications.dismiss.request',
+      });
+      expectSemanticDismissalOmitsRawRuntimeDetails(payload.result);
     } finally {
       await server.close();
     }
@@ -139,33 +177,54 @@ async function runDismissNotification(mode: DismissNotificationMode, extraArgs: 
     payload: JSON.parse(writes.join('')) as {
       ok: true;
       result: {
+        notificationId: { owner: number; id: number; type: number };
         sent: boolean;
-        verified: boolean;
-        closeoutPath: string | null;
-        result: {
-          notificationTrainManager: { ok: boolean; attempted: boolean; path?: string };
-          panelCloseControl: { ok: boolean; attempted: boolean; reason?: string };
+        status: string;
+        validation: {
+          beforeExists: boolean;
+          canDismiss: boolean;
+          afterExists: boolean | null;
         };
-        after: {
-          exists: boolean;
-          dismissed: boolean;
-          isEndTurnBlocking: { ok: boolean; value: boolean };
-          engineQueueContains: { ok: boolean; value: boolean };
-          isEngineQueueFront: { ok: boolean; value: boolean };
-          notificationTrainContains: { ok: boolean; value: boolean };
-          isNotificationTrainFront: { ok: boolean; value: boolean };
+        postcondition: {
+          classification: string;
+          outcome: string;
+          confidence: string;
+          confirmed: boolean;
+          noRepeatAfterUnverified: boolean;
         };
-        verificationAttempts: unknown[];
+        nextSteps: Array<{ kind: string; source: string; label: string }>;
       };
     },
     server,
   };
 }
 
+function expectSemanticDismissalOmitsRawRuntimeDetails(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"closeoutPath"');
+  expect(serialized).not.toContain('"verificationAttempts"');
+  expect(serialized).not.toContain('"result"');
+  expect(serialized).not.toContain('NotificationModel.manager.dismiss');
+  expect(serialized).not.toContain('Game.Notifications.dismiss');
+}
+
 async function startDismissNotificationTunerServer(mode: DismissNotificationMode): Promise<FakeTunerServer> {
   let notificationDismissalSent = false;
   return startFakeTunerServer({
     handle({ message }) {
+      if (message.includes('Network.isInSession')) {
+        return [JSON.stringify(appUiSnapshot())];
+      }
+      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+        return [JSON.stringify(tunerHealthSnapshot())];
+      }
       if (message.includes('readNotificationDismissal')) {
         const send = message.includes('"send":true');
         if (send) notificationDismissalSent = true;
@@ -174,6 +233,84 @@ async function startDismissNotificationTunerServer(mode: DismissNotificationMode
       return undefined;
     },
   });
+}
+
+function appUiSnapshot() {
+  return {
+    network: {
+      isInSession: { ok: true, value: true },
+      numPlayers: { ok: true, value: 1 },
+      hostPlayerId: { ok: true, value: 0 },
+      isConnectedToNetwork: { ok: true, value: true },
+      isAuthenticated: { ok: true, value: false },
+      isLoggedIn: { ok: true, value: true },
+    },
+    autoplay: {
+      isActive: false,
+      turns: -1,
+      isPaused: false,
+      isPausedOrPending: false,
+      observeAsPlayer: -1,
+      returnAsPlayer: -1,
+    },
+    game: {
+      turn: 1,
+      age: 0,
+      maxTurns: 0,
+      turnDate: { ok: true, value: '4000 BCE' },
+      hash: { ok: true, value: 0 },
+    },
+    ui: {
+      inGame: { ok: true, value: true },
+      inShell: { ok: true, value: false },
+      inLoading: { ok: true, value: false },
+      loadingState: { ok: true, value: 6 },
+      loadingStateName: 'WaitingForUIReady',
+      canBeginGame: { ok: true, value: true },
+      canNotifyUIReady: 'function',
+      skipStartButton: { ok: true, value: false },
+      automationActive: { ok: true, value: false },
+    },
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: 0,
+      hasRequestedPause: { ok: true, value: false },
+    },
+    players: {
+      maxPlayers: 64,
+      aliveIds: { ok: true, value: [0] },
+      aliveHumanIds: { ok: true, value: [0] },
+      numAliveHumans: { ok: true, value: 1 },
+    },
+    map: {
+      width: { ok: true, value: 84 },
+      height: { ok: true, value: 54 },
+      plotCount: { ok: true, value: 4536 },
+      mapSize: { ok: true, value: 0 },
+      randomSeed: { ok: true, value: 1 },
+    },
+  };
+}
+
+function tunerHealthSnapshot() {
+  return {
+    evalOk: 2,
+    ready: true,
+    globals: {
+      Game: 'object',
+      Autoplay: 'object',
+      GameplayMap: 'object',
+      Players: 'object',
+      Network: 'undefined',
+    },
+    turn: { ok: true, value: 1 },
+    turnDate: { ok: true, value: '4000 BCE' },
+    width: { ok: true, value: 84 },
+    height: { ok: true, value: 54 },
+    aliveIds: { ok: true, value: [0] },
+    aliveHumanIds: { ok: true, value: [0] },
+    autoplayActive: { ok: true, value: false },
+  };
 }
 
 function notificationDismissal(send: boolean, mode: DismissNotificationMode = 'verified', settled = false) {

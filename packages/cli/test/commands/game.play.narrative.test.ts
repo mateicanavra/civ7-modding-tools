@@ -13,7 +13,7 @@ describe('game play narrative commands', () => {
         '--port',
         String(port),
         '--player-id',
-        '0',
+        '2',
         '--target-type',
         'TOT_30001B',
         '--target',
@@ -47,7 +47,7 @@ describe('game play narrative commands', () => {
         '--port',
         String(port),
         '--player-id',
-        '0',
+        '2',
         '--target-type',
         'DISCOVERY_14001B',
         '--target',
@@ -62,18 +62,27 @@ describe('game play narrative commands', () => {
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          postcondition: { classification: string };
-          payload: { ui: { panelClose: unknown; popupClose: unknown } };
-        };
+        result: NarrativeChoiceSendResult;
       };
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(true);
+      expect(payload.result.status).toBe('sent-confirmed');
+      expect(payload.result.playerId).toBe(0);
+      expect(payload.result.targetType).toBe('DISCOVERY_14001B');
+      expect(payload.result.target).toEqual({ owner: 0, id: 25, type: 35 });
+      expect(payload.result.action).toBe(-1326475004);
+      expect(payload.result.validation).toEqual({ beforeValid: true, afterValid: true });
       expect(payload.result.postcondition.classification).toBe('narrative-blocker-cleared');
-      expect(payload.result.payload.ui.panelClose).toEqual({ ok: true, value: { attempted: 1, results: [{ panelType: 'SMALL-NARRATIVE-EVENT', closed: true }] } });
-      expect(payload.result.payload.ui.popupClose).toEqual({ ok: true, value: { available: true } });
+      expect(payload.result.postcondition).toMatchObject({
+        outcome: 'cleared',
+        confidence: 'confirmed',
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'refresh-attention',
+        source: 'decisions.narrative.choice.request',
+      });
+      expectSemanticNarrativeChoiceOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('sendNarrativeChoice'))).toBe(true);
       expect(server.received.some((message) => message.includes('NarrativePopupManager.closePopup'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(false);
@@ -117,16 +126,23 @@ describe('game play narrative commands', () => {
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          postcondition: { classification: string; reason: string };
-        };
+        result: NarrativeChoiceSendResult;
       };
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(false);
+      expect(payload.result.status).toBe('sent-unverified');
       expect(payload.result.postcondition.classification).toBe('no-state-change');
       expect(payload.result.postcondition.reason).toContain('same narrative blocker remained live');
+      expect(payload.result.postcondition).toMatchObject({
+        outcome: 'no-state-change',
+        confidence: 'unverified',
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'do-not-repeat',
+        source: 'decisions.narrative.choice.request',
+      });
+      expectSemanticNarrativeChoiceOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('sendNarrativeChoice'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(false);
     } finally {
@@ -169,18 +185,14 @@ describe('game play narrative commands', () => {
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          postcondition: { classification: string; reason: string };
-          payload: { ui: { after: { matchingPanelCount: number } } };
-        };
+        result: NarrativeChoiceSendResult;
       };
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.payload.ui.after.matchingPanelCount).toBe(0);
-      expect(payload.result.verified).toBe(false);
+      expect(payload.result.status).toBe('sent-unverified');
       expect(payload.result.postcondition.classification).toBe('no-state-change');
       expect(payload.result.postcondition.reason).toContain('same narrative blocker remained live');
+      expect(payload.result.postcondition.noRepeatAfterUnverified).toBe(true);
+      expectSemanticNarrativeChoiceOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('sendNarrativeChoice'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(false);
     } finally {
@@ -343,6 +355,43 @@ type CommandClass = {
   prototype: { log(message?: string): void };
 };
 
+type NarrativeChoiceSendResult = {
+  playerId: number;
+  targetType: string;
+  target: { owner: number; id: number; type?: number };
+  action: number;
+  sent: boolean;
+  status: string;
+  validation: { beforeValid: boolean; afterValid: boolean };
+  postcondition: {
+    classification: string;
+    reason: string;
+    outcome: string;
+    confidence: string;
+    confirmed: boolean;
+    noRepeatAfterUnverified: boolean;
+  };
+  nextSteps: Array<{ kind: string; source: string; label: string }>;
+};
+
+function expectSemanticNarrativeChoiceOmitsRawRuntimeDetails(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"payload"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"ui"');
+  expect(serialized).not.toContain('"sendResult"');
+  expect(serialized).not.toContain('"panelClose"');
+  expect(serialized).not.toContain('"popupClose"');
+  expect(serialized).not.toContain('Game.PlayerOperations');
+  expect(serialized).not.toContain('sendNarrativeChoice');
+}
+
 type PlayNotificationMode = 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'ready-unit';
 type NarrativeChoiceMode = 'panel-cleared' | 'panel-cleared-blocker-live' | 'stale';
 
@@ -362,6 +411,12 @@ async function startNarrativeTunerServer(options: {
   let narrativeChoiceSent = false;
   return startFakeTunerServer({
     handle({ message }) {
+      if (message.includes('Network.isInSession')) {
+        return [JSON.stringify(appUiSnapshot())];
+      }
+      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+        return [JSON.stringify(tunerHealthSnapshot())];
+      }
       if (message.includes('readPlayNotifications')) {
         const playMode = options.playNotificationMode === 'narrative-choice-visible-panel'
           && narrativeChoiceSent
@@ -380,6 +435,84 @@ async function startNarrativeTunerServer(options: {
       return undefined;
     },
   });
+}
+
+function appUiSnapshot() {
+  return {
+    network: {
+      isInSession: { ok: true, value: true },
+      numPlayers: { ok: true, value: 1 },
+      hostPlayerId: { ok: true, value: 0 },
+      isConnectedToNetwork: { ok: true, value: true },
+      isAuthenticated: { ok: true, value: false },
+      isLoggedIn: { ok: true, value: true },
+    },
+    autoplay: {
+      isActive: false,
+      turns: -1,
+      isPaused: false,
+      isPausedOrPending: false,
+      observeAsPlayer: -1,
+      returnAsPlayer: -1,
+    },
+    game: {
+      turn: 8,
+      age: 0,
+      maxTurns: 0,
+      turnDate: { ok: true, value: '3825 BCE' },
+      hash: { ok: true, value: 0 },
+    },
+    ui: {
+      inGame: { ok: true, value: true },
+      inShell: { ok: true, value: false },
+      inLoading: { ok: true, value: false },
+      loadingState: { ok: true, value: 6 },
+      loadingStateName: 'WaitingForUIReady',
+      canBeginGame: { ok: true, value: true },
+      canNotifyUIReady: 'function',
+      skipStartButton: { ok: true, value: false },
+      automationActive: { ok: true, value: false },
+    },
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: 0,
+      hasRequestedPause: { ok: true, value: false },
+    },
+    players: {
+      maxPlayers: 64,
+      aliveIds: { ok: true, value: [0] },
+      aliveHumanIds: { ok: true, value: [0] },
+      numAliveHumans: { ok: true, value: 1 },
+    },
+    map: {
+      width: { ok: true, value: 84 },
+      height: { ok: true, value: 54 },
+      plotCount: { ok: true, value: 4536 },
+      mapSize: { ok: true, value: 0 },
+      randomSeed: { ok: true, value: 1 },
+    },
+  };
+}
+
+function tunerHealthSnapshot() {
+  return {
+    evalOk: 2,
+    ready: true,
+    globals: {
+      Game: 'object',
+      Autoplay: 'object',
+      GameplayMap: 'object',
+      Players: 'object',
+      Network: 'undefined',
+    },
+    turn: { ok: true, value: 8 },
+    turnDate: { ok: true, value: '3825 BCE' },
+    width: { ok: true, value: 84 },
+    height: { ok: true, value: 54 },
+    aliveIds: { ok: true, value: [0] },
+    aliveHumanIds: { ok: true, value: [0] },
+    autoplayActive: { ok: true, value: false },
+  };
 }
 
 function playNotificationView(mode: PlayNotificationMode = 'narrative-choice') {

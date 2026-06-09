@@ -66,6 +66,17 @@ export type Civ7TurnCompletionActionResult = Readonly<{
   verified: boolean;
 }>;
 
+export type Civ7TurnCompletionBlockedResult = Readonly<{
+  sent: false;
+  before: Civ7TurnCompletionStatusResult;
+  fallbackPreflight?: Civ7PlayNotificationViewResult;
+  reason: "turn-completion-blocked";
+}>;
+
+export type Civ7TurnCompletionRequestResult =
+  | (Civ7TurnCompletionActionResult & Readonly<{ sent: true }>)
+  | Civ7TurnCompletionBlockedResult;
+
 export async function getCiv7TurnCompletionStatus(
   options: Civ7DirectControlOptions = {},
   dependencies: Civ7TurnCompletionStatusDependencies =
@@ -83,15 +94,35 @@ export async function sendCiv7TurnComplete(
   approval: Civ7ActionApproval,
   dependencies: TurnCompletionDependencies = defaultTurnCompletionDependencies,
 ): Promise<Civ7TurnCompletionActionResult> {
-  dependencies.assertApproved(approval, "sending Civ7 turn complete");
+  const result = await requestCiv7TurnComplete(options, approval, dependencies);
+  if (!result.sent) {
+    throw new Civ7DirectControlError("command-failed", "Civ7 turn complete is blocked by current game state", {
+      details: { before: result.before, fallbackPreflight: result.fallbackPreflight },
+    });
+  }
+  const { sent: _sent, ...action } = result;
+  return action;
+}
+
+export async function requestCiv7TurnComplete(
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+  dependencies: TurnCompletionDependencies = defaultTurnCompletionDependencies,
+): Promise<Civ7TurnCompletionRequestResult> {
+  dependencies.assertApproved(approval, "requesting Civ7 turn complete");
   const before = await getCiv7TurnCompletionStatus(options, dependencies);
   const fallbackPreflight = probeValue(before.canEndTurn) === true
     ? undefined
     : await dependencies.getPlayNotificationView(options);
   if (!isTurnCompletionAllowed(before, fallbackPreflight)) {
-    throw new Civ7DirectControlError("command-failed", "Civ7 turn complete is blocked by current game state", {
-      details: { before, fallbackPreflight },
-    });
+    return fallbackPreflight === undefined
+      ? { sent: false, before, reason: "turn-completion-blocked" }
+      : {
+          sent: false,
+          before,
+          fallbackPreflight,
+          reason: "turn-completion-blocked",
+        };
   }
   const command = await dependencies.executeAppUiCommand({
     ...options,
@@ -99,7 +130,7 @@ export async function sendCiv7TurnComplete(
   });
   const after = await getCiv7TurnCompletionStatus(options, dependencies);
   const verified = probeValue(after.hasSentTurnComplete) === true || probeValue(after.turn) !== probeValue(before.turn);
-  return { before, after, command, verified };
+  return { sent: true, before, after, command, verified };
 }
 
 export async function sendCiv7TurnUnready(

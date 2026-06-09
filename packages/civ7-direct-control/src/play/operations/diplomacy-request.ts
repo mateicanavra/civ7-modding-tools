@@ -62,6 +62,7 @@ export type Civ7DiplomacyResponseCommandPayload = Readonly<{
 }>;
 
 export type Civ7DiplomacyResponseResult = Readonly<{
+  playerId: number;
   before: Civ7PlayNotificationViewResult;
   beforeValidation: Civ7OperationValidationResult;
   command?: Civ7CommandResult;
@@ -114,6 +115,7 @@ export async function requestCiv7DiplomacyResponse(
   const beforeValidation = await dependencies.canStartPlayerOperation(operationInput, options);
   if (!beforeValidation.valid) {
     return {
+      playerId,
       before,
       beforeValidation,
       after: before,
@@ -149,6 +151,7 @@ export async function requestCiv7DiplomacyResponse(
     afterValidation,
   );
   return {
+    playerId,
     before,
     beforeValidation,
     command,

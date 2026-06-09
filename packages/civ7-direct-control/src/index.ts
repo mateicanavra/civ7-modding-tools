@@ -788,6 +788,8 @@ export {
 } from "./play/autoplay.js";
 export type {
   Civ7TurnCompletionActionResult,
+  Civ7TurnCompletionBlockedResult,
+  Civ7TurnCompletionRequestResult,
   Civ7TurnCompletionStatusDependencies,
   Civ7TurnCompletionStatusInput,
   Civ7TurnCompletionStatusResult,
@@ -796,6 +798,7 @@ export {
   Civ7TurnCompletionStatusInputSchema,
   Civ7TurnCompletionStatusResultSchema,
   getCiv7TurnCompletionStatus,
+  requestCiv7TurnComplete,
   sendCiv7TurnComplete,
   sendCiv7TurnUnready,
 } from "./play/turn-completion.js";

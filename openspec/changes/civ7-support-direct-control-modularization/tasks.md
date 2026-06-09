@@ -1726,6 +1726,13 @@ runtime/direct-control claims.
         proof, and leaving hotseat runtime proof, AI ingestion, CLI semantic
         projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.13.9 Add a source-owned `requestCiv7TurnComplete` result port that
+        preserves the existing throwing `sendCiv7TurnComplete` compatibility
+        path while returning expected pre-send guard blocks as `sent:false`
+        turn-completion evidence, proving no command send occurs for guarded
+        blocks, and leaving hotseat runtime proof, AI ingestion, telemetry,
+        Effect/oRPC transport work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.14 Extract setup/start lifecycle atoms.
   - [x] 4.14.1 Extract setup snapshot and setup map rows read/source owner while
         keeping public facade exports in `index.ts` and leaving

@@ -65,7 +65,7 @@ describe("narrative choice requests", () => {
       const { port } = server.address();
       const target = { owner: 0, id: 421, type: 24 };
       const request = await requestCiv7NarrativeChoice(
-        { playerId: 0, targetType: "CLOSE", target, action: 1 },
+        { playerId: 2, targetType: "CLOSE", target, action: 1 },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
         { approved: true, reason: "test narrative choice send" }
       );
@@ -75,6 +75,7 @@ describe("narrative choice requests", () => {
       expect(request.postcondition).toMatchObject({
         classification: "narrative-blocker-cleared",
       });
+      expect(request.playerId).toBe(0);
       expect(request.payload).toMatchObject({
         localPlayerId: 0,
         playerId: 0,
@@ -107,7 +108,7 @@ describe("narrative choice requests", () => {
       ]);
       expect(server.narrativeChoiceRequests).toEqual([
         {
-          input: { playerId: 0, targetType: "CLOSE", target, action: 1 },
+          input: { playerId: 2, targetType: "CLOSE", target, action: 1 },
           playerOperation: {
             playerId: 0,
             operationType: "CHOOSE_NARRATIVE_STORY_DIRECTION",
@@ -412,7 +413,7 @@ function parseNarrativeChoiceRequest(message: string): NarrativeChoiceRequest | 
   return {
     input,
     playerOperation: {
-      playerId: input.playerId,
+      playerId: 0,
       operationType: "CHOOSE_NARRATIVE_STORY_DIRECTION",
       args: {
         TargetType: input.targetType,

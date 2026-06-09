@@ -68,7 +68,7 @@ function diplomacyResponseResult(
   });
 
   return {
-    playerId: input.playerId,
+    playerId: result.playerId,
     actionId: input.actionId,
     responseType: input.responseType,
     ...(input.notificationId === undefined ? {} : { notificationId: input.notificationId }),

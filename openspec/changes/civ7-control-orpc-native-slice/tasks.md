@@ -381,12 +381,54 @@ adding more read-only facade shells.
 
 ## 7. Edge Adapters
 
-- [x] 7.1 Route one CLI caller through the in-process procedure client only
-  after the service-owned router shape is stable.
+- [x] 7.1 Route selected CLI callers through the in-process procedure client
+  only after the service-owned router shape is stable.
   - [x] 7.1.1 Route `civ7 game status` through the in-process
     `readiness.current` server-side client. Keep CLI endpoint flags as context
     construction, emit the semantic readiness projection, and keep raw
     direct-control playable-status internals out of normal status output.
+  - [x] 7.1.2 Route `civ7 game play end-turn --send` through the in-process
+    `turn.complete.request` server-side client. Keep endpoint flags and
+    approval reason as context construction, emit the semantic
+    turn-completion projection for send and expected guard-blocked `not-sent`
+    output, preserve the existing direct-control status read for check-only
+    mode, and keep live runtime proof pending.
+  - [x] 7.1.3 Route `civ7 game play dismiss-notification --send` through the
+    in-process `notifications.dismiss.request` server-side client. Keep
+    endpoint flags and approval reason as context construction, emit the
+    semantic notification dismissal projection for send output, preserve the
+    existing direct-control notification dismissal read for inspect-only mode,
+    and keep live runtime proof pending.
+  - [x] 7.1.4 Route `civ7 game play unit-target --send` through the
+    in-process `unit.target.action.request` server-side client under the
+    `unit` router. Keep endpoint flags and approval reason as context
+    construction, emit the semantic unit target action projection for send
+    output, preserve the existing direct-control unit target planning read for
+    read-only mode, and keep live runtime proof pending.
+  - [x] 7.1.5 Route `civ7 game play build-production --send` through the
+    in-process `city.production.choice.request` server-side client under the
+    `city` router. Keep endpoint flags and approval reason as context
+    construction, emit the semantic city production choice projection for send
+    output, preserve the existing direct-control operation validation path for
+    read-only mode, leave `game play build-unit` outside this slice, and keep
+    live runtime proof pending.
+  - [x] 7.1.6 Route `civ7 game play respond-diplomacy --send` through the
+    in-process `decisions.diplomacy.response.request` server-side client under
+    the `decisions` router. Keep endpoint flags and approval reason as context
+    construction, emit the semantic diplomacy response projection for send
+    output with direct-control acted/local-player evidence rather than treating
+    `--player-id` as send authority, preserve the existing direct-control
+    player-operation validation path for read-only mode, leave
+    `game play respond-first-meet` outside this slice, and keep live runtime
+    proof pending.
+  - [x] 7.1.7 Route `civ7 game play choose-narrative --send` through the
+    in-process `decisions.narrative.choice.request` server-side client under
+    the `decisions` router. Keep endpoint flags and approval reason as context
+    construction, emit the semantic narrative choice projection for send output
+    with direct-control acted/local-player evidence rather than treating
+    `--player-id` as send authority, preserve the existing direct-control
+    `--options` and player-operation validation paths for read-only mode, and
+    keep live runtime proof pending.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -499,3 +541,23 @@ adding more read-only facade shells.
 - [x] 8.24 Run focused control-oRPC turn-completion procedure tests,
   control-oRPC package test/check/build, relevant OpenSpec strict validates,
   and diff hygiene for the native turn completion procedure slice.
+- [x] 8.25 Run focused direct-control request-result, control-oRPC turn
+  completion, and CLI end-turn tests, `check:cli`, `test:cli:play`, relevant
+  OpenSpec strict validates, and diff hygiene for the CLI turn-completion send
+  migration slice.
+- [x] 8.26 Run focused CLI notification dismissal tests, `check:cli`,
+  `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
+  the CLI notification dismissal send migration slice.
+- [x] 8.27 Run focused CLI unit target tests, `check:cli`, `test:cli:play`,
+  relevant OpenSpec strict validates, and diff hygiene for the CLI unit target
+  send migration slice.
+- [x] 8.28 Run focused CLI production tests, `check:cli`, `test:cli:play`,
+  relevant OpenSpec strict validates, and diff hygiene for the CLI
+  build-production send migration slice.
+- [x] 8.29 Run focused CLI diplomacy response tests, `check:cli`,
+  `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
+  the CLI diplomacy response send migration slice.
+- [x] 8.30 Run focused direct-control narrative request, control-oRPC
+  narrative decision, CLI narrative tests, `check:cli`, `test:cli:play`,
+  relevant OpenSpec strict validates, and diff hygiene for the CLI narrative
+  choice send migration slice.

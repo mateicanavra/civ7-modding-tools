@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import GamePlayEndTurn from '../../src/commands/game/play/end-turn';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
@@ -20,6 +20,10 @@ describe('game play end-turn command', () => {
     await expect(GamePlayEndTurn.run(['--send', '--json'])).rejects.toThrow(/requires --reason/);
 
     const server = await startEndTurnTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayEndTurn.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GamePlayEndTurn.run([
@@ -34,7 +38,37 @@ describe('game play end-turn command', () => {
       ]);
 
       expect(server.received).toContain('CMD:65535:GameContext.sendTurnComplete()');
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          sent: true;
+          status: string;
+          postcondition: { classification: string };
+          nextSteps: Array<{ kind: string; source: string }>;
+        };
+      };
+      expect(payload).toMatchObject({
+        ok: true,
+        result: {
+          sent: true,
+          status: 'sent-confirmed',
+          postcondition: {
+            classification: 'turn-advanced',
+          },
+          nextSteps: [{
+            kind: 'refresh-attention',
+            source: 'turn.complete.request',
+          }],
+        },
+      });
+      expect(JSON.stringify(payload)).not.toContain('"host"');
+      expect(JSON.stringify(payload)).not.toContain('"port"');
+      expect(JSON.stringify(payload)).not.toContain('"state"');
+      expect(JSON.stringify(payload)).not.toContain('"command"');
+      expect(JSON.stringify(payload)).not.toContain('"verified"');
+      expect(JSON.stringify(payload)).not.toContain('GameContext.sendTurnComplete');
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -43,7 +77,7 @@ describe('game play end-turn command', () => {
     const server = await startEndTurnTunerServer({ canEndTurnBefore: false });
     try {
       const { port } = server.address();
-      await expect(GamePlayEndTurn.run([
+      const payload = await runGamePlayEndTurnJson([
         '--host',
         '127.0.0.1',
         '--port',
@@ -52,8 +86,9 @@ describe('game play end-turn command', () => {
         '--reason',
         'test approved end-turn',
         '--json',
-      ])).rejects.toThrow(/blocked by current game state/);
+      ]);
 
+      expectBlockedTurnCompletionPayload(payload);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received).not.toContain('CMD:65535:GameContext.sendTurnComplete()');
     } finally {
@@ -68,7 +103,7 @@ describe('game play end-turn command', () => {
     });
     try {
       const { port } = server.address();
-      await expect(GamePlayEndTurn.run([
+      const payload = await runGamePlayEndTurnJson([
         '--host',
         '127.0.0.1',
         '--port',
@@ -77,8 +112,9 @@ describe('game play end-turn command', () => {
         '--reason',
         'test blocked because a unit closeout exists',
         '--json',
-      ])).rejects.toThrow(/blocked by current game state/);
+      ]);
 
+      expectBlockedTurnCompletionPayload(payload);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received).not.toContain('CMD:65535:GameContext.sendTurnComplete()');
     } finally {
@@ -143,7 +179,7 @@ describe('game play end-turn command', () => {
     });
     try {
       const { port } = server.address();
-      await expect(GamePlayEndTurn.run([
+      const payload = await runGamePlayEndTurnJson([
         '--host',
         '127.0.0.1',
         '--port',
@@ -152,8 +188,9 @@ describe('game play end-turn command', () => {
         '--reason',
         'test blocked unit-lost report end-turn',
         '--json',
-      ])).rejects.toThrow(/blocked by current game state/);
+      ]);
 
+      expectBlockedTurnCompletionPayload(payload);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received).not.toContain('CMD:65535:GameContext.sendTurnComplete()');
     } finally {
@@ -161,6 +198,69 @@ describe('game play end-turn command', () => {
     }
   });
 });
+
+async function runGamePlayEndTurnJson(args: string[]) {
+  const writes: string[] = [];
+  const log = vi.spyOn(GamePlayEndTurn.prototype, 'log').mockImplementation((message?: string) => {
+    if (message) writes.push(message);
+  });
+  try {
+    await GamePlayEndTurn.run(args);
+    return JSON.parse(writes.join('')) as {
+      ok: true;
+      result: {
+        sent: boolean;
+        status: string;
+        after: unknown;
+        postcondition: {
+          classification: string;
+          outcome: string;
+          confidence: string;
+          noRepeatAfterUnverified: boolean;
+        };
+        nextSteps: Array<{ kind: string; source: string }>;
+      };
+    };
+  } finally {
+    log.mockRestore();
+  }
+}
+
+function expectBlockedTurnCompletionPayload(
+  payload: Awaited<ReturnType<typeof runGamePlayEndTurnJson>>,
+) {
+  expect(payload).toMatchObject({
+    ok: true,
+    result: {
+      sent: false,
+      status: 'not-sent',
+      after: null,
+      postcondition: {
+        classification: 'turn-completion-blocked',
+        outcome: 'not-sent',
+        confidence: 'unverified',
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: 'inspect-turn-completion',
+          source: 'turn.complete.request',
+        },
+        {
+          kind: 'do-not-repeat',
+          source: 'turn.complete.request',
+        },
+      ],
+    },
+  });
+  const serialized = JSON.stringify(payload);
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('GameContext.sendTurnComplete');
+}
 
 type EndTurnNotificationMode =
   | 'blocking-choice'
@@ -178,6 +278,12 @@ async function startEndTurnTunerServer(options: {
     handle({ message }) {
       if (message.includes('readPlayNotifications')) {
         return [JSON.stringify(endTurnNotificationView(options.playNotificationMode ?? 'blocking-choice'))];
+      }
+      if (message.includes('Network.isInSession')) {
+        return [JSON.stringify(appUiSnapshot())];
+      }
+      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+        return [JSON.stringify(tunerHealthSnapshot())];
       }
       if (message.includes('hasSentTurnComplete')) {
         return [JSON.stringify(turnCompletionStatus(turnCompleteSent, options.canEndTurnBefore ?? true))];
@@ -390,6 +496,84 @@ function notificationView(input: {
       decisionQueue: [queueItem],
     },
     limits: { maxNotifications: 25, truncated: false },
+  };
+}
+
+function appUiSnapshot() {
+  return {
+    network: {
+      isInSession: { ok: true, value: true },
+      numPlayers: { ok: true, value: 1 },
+      hostPlayerId: { ok: true, value: 0 },
+      isConnectedToNetwork: { ok: true, value: true },
+      isAuthenticated: { ok: true, value: false },
+      isLoggedIn: { ok: true, value: true },
+    },
+    autoplay: {
+      isActive: false,
+      turns: -1,
+      isPaused: false,
+      isPausedOrPending: false,
+      observeAsPlayer: -1,
+      returnAsPlayer: -1,
+    },
+    game: {
+      turn: 1,
+      age: 0,
+      maxTurns: 0,
+      turnDate: { ok: true, value: '4000 BCE' },
+      hash: { ok: true, value: 0 },
+    },
+    ui: {
+      inGame: { ok: true, value: true },
+      inShell: { ok: true, value: false },
+      inLoading: { ok: true, value: false },
+      loadingState: { ok: true, value: 6 },
+      loadingStateName: 'WaitingForUIReady',
+      canBeginGame: { ok: true, value: true },
+      canNotifyUIReady: 'function',
+      skipStartButton: { ok: true, value: false },
+      automationActive: { ok: true, value: false },
+    },
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: 0,
+      hasRequestedPause: { ok: true, value: false },
+    },
+    players: {
+      maxPlayers: 64,
+      aliveIds: { ok: true, value: [0] },
+      aliveHumanIds: { ok: true, value: [0] },
+      numAliveHumans: { ok: true, value: 1 },
+    },
+    map: {
+      width: { ok: true, value: 84 },
+      height: { ok: true, value: 54 },
+      plotCount: { ok: true, value: 4536 },
+      mapSize: { ok: true, value: 0 },
+      randomSeed: { ok: true, value: 1 },
+    },
+  };
+}
+
+function tunerHealthSnapshot() {
+  return {
+    evalOk: 2,
+    ready: true,
+    globals: {
+      Game: 'object',
+      Autoplay: 'object',
+      GameplayMap: 'object',
+      Players: 'object',
+      Network: 'undefined',
+    },
+    turn: { ok: true, value: 1 },
+    turnDate: { ok: true, value: '4000 BCE' },
+    width: { ok: true, value: 84 },
+    height: { ok: true, value: 54 },
+    aliveIds: { ok: true, value: [0] },
+    aliveHumanIds: { ok: true, value: [0] },
+    autoplayActive: { ok: true, value: false },
   };
 }
 

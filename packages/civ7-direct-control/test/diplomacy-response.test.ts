@@ -60,7 +60,7 @@ describe("diplomacy response requests", () => {
     try {
       const { port } = server.address();
       const request = await requestCiv7DiplomacyResponse(
-        { playerId: 0, actionId, responseType, notificationId },
+        { playerId: 2, actionId, responseType, notificationId },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
         { approved: true, reason: "test diplomacy response closeout" }
       );
@@ -71,6 +71,7 @@ describe("diplomacy response requests", () => {
         classification: "turn-unblocked",
         reason: "The response and UI closeout left the turn unblocked.",
       });
+      expect(request.playerId).toBe(0);
       expect(request.before.localPlayerId).toBe(0);
       expect(request.before.notifications).toEqual([
         expect.objectContaining({
