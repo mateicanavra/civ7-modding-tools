@@ -36,6 +36,7 @@ import {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
   assertCiv7ComponentId,
+  createCiv7ControlRequestId,
 } from "../src/index";
 
 describe("Civ7 direct control public API", () => {
@@ -70,6 +71,11 @@ describe("Civ7 direct control public API", () => {
     expect(CIV7_BEGIN_GAME_COMMAND).toBe("UI.notifyUIReady()");
     expect(CIV7_EXIT_TO_MAIN_MENU_COMMAND).toBe('engine.call("exitToMainMenu")');
     expect(CIV7_RELOAD_UI_COMMAND).toBe("UI.reloadUI()");
+  });
+
+  test("exports the direct-control request id helper", () => {
+    expect(createCiv7ControlRequestId()).toMatch(/^civ7-control-[a-z0-9]+-[a-z0-9]+$/);
+    expect(createCiv7ControlRequestId("civ7-restart")).toMatch(/^civ7-restart-[a-z0-9]+-[a-z0-9]+$/);
   });
 
   test("exports stable loading-state labels and public root catalogs", () => {

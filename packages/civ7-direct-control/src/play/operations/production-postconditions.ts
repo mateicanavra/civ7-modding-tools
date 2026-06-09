@@ -2,11 +2,38 @@ import type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationValidationResult,
-  Civ7ProductionPostcondition,
-  Civ7ProductionPostconditionClassification,
-  Civ7ProductionPostconditionSnapshot,
-  Civ7RuntimeProbe,
-} from "../../index";
+} from "./types.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+
+export type Civ7ProductionPostconditionClassification =
+  | "not-sent"
+  | "production-choice-cleared"
+  | "production-state-changed"
+  | "production-state-changed-blocker-still-live"
+  | "validation-changed"
+  | "no-state-change";
+
+export type Civ7ProductionPostconditionSnapshot = Readonly<{
+  cityId: Civ7ComponentId | null;
+  city: Civ7RuntimeProbe<unknown>;
+  buildQueue: Civ7RuntimeProbe<unknown>;
+  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  blocker: Civ7RuntimeProbe<unknown>;
+  canEndTurn: Civ7RuntimeProbe<unknown>;
+  blockingProductionNotification: Civ7RuntimeProbe<unknown>;
+}>;
+
+export type Civ7ProductionPostcondition = Readonly<{
+  family: "city-operation";
+  operationType: "BUILD";
+  classification: Civ7ProductionPostconditionClassification;
+  before?: Civ7ProductionPostconditionSnapshot;
+  after?: Civ7ProductionPostconditionSnapshot;
+  productionStateChanged: boolean;
+  blockerStillLive: boolean;
+  reason: string;
+}>;
 
 export function productionPostconditionFor(
   family: Civ7OperationFamily,

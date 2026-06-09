@@ -9,12 +9,74 @@ import {
   encodeCiv7TunerRequest,
   executeCiv7Command,
   parseCiv7TunerFrame,
+  resolveCiv7DirectControlConfig,
   selectCiv7TunerState,
   snapshotFile,
+  waitForCiv7DirectControl,
   waitForFreshLogMarkers,
 } from "../src/index";
+import { jsonPayloadFromCommandResult } from "../src/session/command-result";
+import { discoverCiv7DirectControlEndpointWithDependencies } from "../src/session/discovery";
+import { allocateListenerId } from "../src/session/listener-id";
+import { openCiv7TunerSocket } from "../src/session/socket";
+import { tunerStatesFromParts } from "../src/session/state";
 
 describe("Civ7 direct control session framing", () => {
+  test("parses command JSON payloads with endpoint and state context", () => {
+    const payload = jsonPayloadFromCommandResult<{ host: string; port: number; ok: true }>(
+      {
+        host: "127.0.0.1",
+        port: 63_456,
+        state: { id: "1", name: "Tuner" },
+        output: ['{"ok":true}'],
+      },
+      "Civ7 test payload",
+    );
+
+    expect(payload).toEqual({
+      host: "127.0.0.1",
+      port: 63_456,
+      state: { id: "1", name: "Tuner" },
+      ok: true,
+    });
+  });
+
+  test("reports invalid command JSON with the original command result details", () => {
+    expect(() =>
+      jsonPayloadFromCommandResult(
+        {
+          host: "127.0.0.1",
+          port: 63_456,
+          state: { id: "65535", name: "App UI" },
+          output: ["{not-json"],
+        },
+        "Civ7 bad payload",
+      ),
+    ).toThrow(/Civ7 bad payload returned invalid JSON: \{not-json/);
+
+    try {
+      jsonPayloadFromCommandResult(
+        {
+          host: "127.0.0.1",
+          port: 63_456,
+          state: { id: "65535", name: "App UI" },
+          output: ["{not-json"],
+        },
+        "Civ7 bad payload",
+      );
+    } catch (err) {
+      expect(err).toMatchObject({
+        code: "command-failed",
+        details: {
+          host: "127.0.0.1",
+          port: 63_456,
+          state: { id: "65535", name: "App UI" },
+          output: ["{not-json"],
+        },
+      });
+    }
+  });
+
   test("uses defaults and env hosts when resolving health", async () => {
     const server = await startTunerServer();
     try {
@@ -47,6 +109,156 @@ describe("Civ7 direct control session framing", () => {
     expect([true, false]).toContain(health.ok);
   });
 
+  test("waits for direct-control health readiness", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server;
+      const health = await waitForCiv7DirectControl({
+        host: "127.0.0.1",
+        port,
+        env: {},
+        timeoutMs: 1_000,
+        waitTimeoutMs: 1_000,
+        pollIntervalMs: 10,
+      });
+
+      expect(health).toMatchObject({
+        ok: true,
+        status: "ready",
+        host: "127.0.0.1",
+        port,
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("times out waiting for direct-control health readiness", async () => {
+    const server = await startTunerServer();
+    const { port } = server;
+    await server.close();
+
+    await expect(
+      waitForCiv7DirectControl({
+        host: "127.0.0.1",
+        port,
+        env: {},
+        timeoutMs: 25,
+        waitTimeoutMs: 25,
+        pollIntervalMs: 1,
+      }),
+    ).rejects.toMatchObject({
+      name: "Civ7DirectControlError",
+      code: "connection-timeout",
+    });
+  });
+
+  test("resolves direct-control config from explicit and env options", () => {
+    expect(
+      resolveCiv7DirectControlConfig({
+        host: "127.0.0.1",
+        hosts: [" 127.0.0.1 ", "127.0.0.2"],
+        env: {
+          CIV7_TUNER_HOSTS: "127.0.0.3,127.0.0.2",
+          CIV7_TUNER_HOST: "127.0.0.4",
+          CIV7_TUNER_PORT: "65535",
+        },
+        timeoutMs: 12_345,
+      }),
+    ).toEqual({
+      hosts: ["127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"],
+      port: 65_535,
+      timeoutMs: 12_345,
+    });
+
+    expect(() =>
+      resolveCiv7DirectControlConfig({
+        env: { CIV7_TUNER_PORT: "0" },
+      }),
+    ).toThrow(/Invalid CIV7_TUNER_PORT/);
+  });
+
+  test("discovers a reachable endpoint after earlier hosts fail", async () => {
+    const queried: string[] = [];
+    const discovered = await discoverCiv7DirectControlEndpointWithDependencies(
+      {
+        hosts: ["127.0.0.2", "127.0.0.1"],
+        port: 58_256,
+        timeoutMs: 250,
+        env: {},
+      },
+      {
+        errorMessage: (err) => err instanceof Error ? err.message : String(err),
+        queryTunerStates: async (options) => {
+          queried.push(`${options.host}:${options.port}:${options.timeoutMs}`);
+          if (options.host === "127.0.0.2") throw new Error("first host unavailable");
+          return [
+            { id: "65535", name: "App UI" },
+            { id: "1", name: "Tuner" },
+          ];
+        },
+      },
+    );
+
+    expect(discovered).toEqual({
+      endpoint: { host: "127.0.0.1", port: 58_256 },
+      states: [
+        { id: "65535", name: "App UI" },
+        { id: "1", name: "Tuner" },
+      ],
+    });
+    expect(queried).toEqual(["127.0.0.2:58256:250", "127.0.0.1:58256:250"]);
+  });
+
+  test("reports unavailable endpoint discovery with per-host details", async () => {
+    await expect(
+      discoverCiv7DirectControlEndpointWithDependencies(
+        {
+          hosts: ["127.0.0.1", "127.0.0.2"],
+          port: 58_256,
+          timeoutMs: 50,
+          env: {},
+        },
+        {
+          errorMessage: (err) => err instanceof Error ? err.message : String(err),
+          queryTunerStates: async (options) => {
+            throw new Error(`unavailable ${options.host}`);
+          },
+        },
+      ),
+    ).rejects.toMatchObject({
+      name: "Civ7DirectControlError",
+      code: "all-hosts-unavailable",
+      details: [
+        { host: "127.0.0.1", error: "unavailable 127.0.0.1" },
+        { host: "127.0.0.2", error: "unavailable 127.0.0.2" },
+      ],
+    });
+  });
+
+  test("opens tuner sockets and reports connection failures with typed errors", async () => {
+    const server = await startTunerServer();
+    const { port } = server;
+    const socket = await openCiv7TunerSocket({
+      host: "127.0.0.1",
+      port,
+      timeoutMs: 1_000,
+    });
+    socket.destroy();
+    await server.close();
+
+    await expect(
+      openCiv7TunerSocket({
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 100,
+      }),
+    ).rejects.toMatchObject({
+      name: "Civ7DirectControlError",
+      code: "connection-failed",
+    });
+  });
+
   test("selects a tuner state by role, name, and id", () => {
     const states = [
       { id: "65535", name: "App UI" },
@@ -57,6 +269,25 @@ describe("Civ7 direct control session framing", () => {
     expect(selectCiv7TunerState(states, { role: "tuner" })).toEqual(states[1]);
     expect(selectCiv7TunerState(states, { name: "Tuner" })).toEqual(states[1]);
     expect(selectCiv7TunerState(states, { id: "65535" })).toEqual(states[0]);
+  });
+
+  test("parses tuner LSQ response parts into state pairs", () => {
+    expect(tunerStatesFromParts(["65535", "App UI", "1", "Tuner"])).toEqual([
+      { id: "65535", name: "App UI" },
+      { id: "1", name: "Tuner" },
+    ]);
+    expect(tunerStatesFromParts(["65535", "App UI", "dangling-id"])).toEqual([
+      { id: "65535", name: "App UI" },
+    ]);
+  });
+
+  test("allocates positive increasing tuner listener ids", () => {
+    const first = allocateListenerId();
+    const second = allocateListenerId();
+
+    expect(Number.isInteger(first)).toBe(true);
+    expect(first).toBeGreaterThan(0);
+    expect(second).toBe(first + 1);
   });
 
   test("parses fragmented and concatenated tuner frames", () => {

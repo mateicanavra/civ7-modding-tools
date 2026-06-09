@@ -1,8 +1,6 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 
-import type {
-  Civ7ActionApproval,
-} from "../../index.js";
+import type { Civ7ActionApproval } from "./types.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,

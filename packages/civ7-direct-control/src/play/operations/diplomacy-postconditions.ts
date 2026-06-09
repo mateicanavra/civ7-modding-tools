@@ -1,16 +1,25 @@
-import type {
-  Civ7ComponentId,
-  Civ7DiplomacyResponseInput,
-  Civ7DiplomacyResponsePostcondition,
-  Civ7DiplomacyResponsePostconditionClassification,
-  Civ7DirectControlOptions,
-  Civ7OperationValidationResult,
-  Civ7RuntimeProbe,
-} from "../../index.js";
+import type { Civ7DiplomacyResponseInput } from "./diplomacy-request.js";
+import type { Civ7OperationValidationResult } from "./types.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import type { Civ7DirectControlOptions } from "../../index.js";
 import type {
   Civ7PlayNotificationSummary,
   Civ7PlayNotificationViewResult,
 } from "../notifications/view.js";
+
+export type Civ7DiplomacyResponsePostconditionClassification =
+  | "not-sent"
+  | "turn-unblocked"
+  | "diplomacy-blocker-cleared"
+  | "blocking-notification-changed"
+  | "validation-changed"
+  | "no-state-change";
+
+export type Civ7DiplomacyResponsePostcondition = Readonly<{
+  classification: Civ7DiplomacyResponsePostconditionClassification;
+  reason: string;
+}>;
 
 export async function waitForCiv7DiplomacyResponseAfter(
   input: Civ7DiplomacyResponseInput,

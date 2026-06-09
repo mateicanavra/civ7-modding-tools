@@ -74,6 +74,27 @@ describe("unit operation requests", () => {
       await server.close();
     }
   });
+
+  test("rejects unit operation sends without an approval reason before socket use", async () => {
+    const server = await startUnitOperationTunerServer();
+    try {
+      const { port } = server.address();
+      await expect(
+        requestCiv7UnitOperation(
+          { unitId: { owner: 0, id: 65536, type: 26 }, operationType: "SKIP_TURN" },
+          { host: "127.0.0.1", port, timeoutMs: 1_000 },
+          { approved: true, reason: "   " }
+        )
+      ).rejects.toMatchObject({
+        code: "command-failed",
+        message: "Explicit approval with a reason is required before requesting unit-operation",
+      });
+      expect(server.received).toEqual([]);
+      expect(server.operationCalls).toEqual([]);
+    } finally {
+      await server.close();
+    }
+  });
 });
 
 async function startUnitOperationTunerServer(): Promise<FakeTunerServer> {

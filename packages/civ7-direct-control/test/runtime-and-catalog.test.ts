@@ -21,8 +21,26 @@ import {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "../src/index";
+import { jsLiteral } from "../src/runtime/command-serialization";
 
 describe("Civ7 runtime inspection and capability catalog support", () => {
+  test("serializes command-source literals without changing JSON shape", () => {
+    expect(jsLiteral({ input: "<city-id>", amount: 2, enabled: true })).toBe(
+      '{"input":"<city-id>","amount":2,"enabled":true}',
+    );
+    expect(jsLiteral(["Game", "UI"])).toBe('["Game","UI"]');
+    expect(jsLiteral(null)).toBe("null");
+  });
+
+  test("rejects unserializable command-source inputs with command-failed classification", () => {
+    expect(() => jsLiteral(undefined)).toThrow("Cannot serialize Civ7 command input");
+    try {
+      jsLiteral(undefined);
+    } catch (err) {
+      expect(err).toMatchObject({ code: "command-failed" });
+    }
+  });
+
   test("routes commands through App UI and Tuner state selections", async () => {
     const server = await startFocusedTunerServer();
     try {

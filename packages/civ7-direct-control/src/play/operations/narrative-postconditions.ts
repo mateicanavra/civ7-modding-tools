@@ -1,17 +1,28 @@
+import type { Civ7OperationValidationResult } from "./types.js";
 import type {
-  Civ7ComponentId,
-  Civ7DirectControlOptions,
   Civ7NarrativeChoiceCommandPayload,
   Civ7NarrativeChoiceInput,
-  Civ7NarrativeChoicePostcondition,
-  Civ7NarrativeChoicePostconditionClassification,
-  Civ7OperationValidationResult,
-  Civ7RuntimeProbe,
-} from "../../index.js";
+} from "./narrative-request.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import type { Civ7DirectControlOptions } from "../../index.js";
 import type {
   Civ7PlayNotificationSummary,
   Civ7PlayNotificationViewResult,
 } from "../notifications/view.js";
+
+export type Civ7NarrativeChoicePostconditionClassification =
+  | "not-sent"
+  | "turn-unblocked"
+  | "narrative-blocker-cleared"
+  | "narrative-panel-cleared"
+  | "validation-changed"
+  | "no-state-change";
+
+export type Civ7NarrativeChoicePostcondition = Readonly<{
+  classification: Civ7NarrativeChoicePostconditionClassification;
+  reason: string;
+}>;
 
 export async function waitForCiv7NarrativeChoiceAfter(
   input: Civ7NarrativeChoiceInput,

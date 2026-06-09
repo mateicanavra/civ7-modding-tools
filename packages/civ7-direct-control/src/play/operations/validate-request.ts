@@ -1,22 +1,43 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
-import { populationPlacementPostcondition } from "./population-postconditions.js";
-import { productionPostconditionFor } from "./production-postconditions.js";
+import {
+  populationPlacementPostcondition,
+  type Civ7PopulationPlacementPostcondition,
+  type Civ7PopulationPlacementPostconditionSnapshot,
+} from "./population-postconditions.js";
+import {
+  productionPostconditionFor,
+  type Civ7ProductionPostcondition,
+  type Civ7ProductionPostconditionSnapshot,
+} from "./production-postconditions.js";
 import { operationRouterSource } from "./router.js";
-import { unitOperationPostcondition } from "./unit-postconditions.js";
-
+import {
+  unitOperationPostcondition,
+  type Civ7UnitOperationPostcondition,
+  type Civ7UnitOperationPostconditionSnapshot,
+} from "./unit-postconditions.js";
 import type {
   Civ7ActionApproval,
-  Civ7CommandResult,
-  Civ7ComponentId,
-  Civ7DirectControlOptions,
   Civ7OperationFamily,
   Civ7OperationInput,
-  Civ7OperationRequestResult,
   Civ7OperationValidationResult,
-  Civ7PopulationPlacementPostconditionSnapshot,
-  Civ7ProductionPostconditionSnapshot,
-  Civ7UnitOperationPostconditionSnapshot,
-} from "../../index";
+} from "./types.js";
+
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+} from "../../index.js";
+
+export type Civ7OperationRequestResult = Readonly<{
+  before: Civ7OperationValidationResult;
+  command?: Civ7CommandResult;
+  after: Civ7OperationValidationResult;
+  sent: boolean;
+  verified: boolean;
+  postcondition?: Civ7UnitOperationPostcondition;
+  populationPostcondition?: Civ7PopulationPlacementPostcondition;
+  productionPostcondition?: Civ7ProductionPostcondition;
+}>;
 
 type OperationRequestDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;

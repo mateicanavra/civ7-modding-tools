@@ -1,15 +1,54 @@
-import { narrativeChoicePostcondition, waitForCiv7NarrativeChoiceAfter } from "./narrative-postconditions.js";
-
+import {
+  narrativeChoicePostcondition,
+  type Civ7NarrativeChoicePostcondition,
+  waitForCiv7NarrativeChoiceAfter,
+} from "./narrative-postconditions.js";
 import type {
   Civ7ActionApproval,
+  Civ7OperationValidationResult,
+} from "./types.js";
+
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7NarrativeChoiceCommandPayload,
-  Civ7NarrativeChoiceInput,
-  Civ7NarrativeChoiceResult,
-  Civ7OperationValidationResult,
 } from "../../index.js";
 import type { Civ7PlayNotificationViewResult } from "../notifications/view.js";
+
+export type Civ7NarrativeChoiceInput = Readonly<{
+  playerId: number;
+  targetType: string;
+  target: Civ7ComponentId;
+  action: number;
+}>;
+
+export type Civ7NarrativeChoiceCommandPayload = Readonly<{
+  localPlayerId: number;
+  playerId: number;
+  args: Readonly<{ TargetType: string; Target: Civ7ComponentId; Action: number }>;
+  canStart: unknown;
+  sent: boolean;
+  sendResult: unknown;
+  ui: Readonly<{
+    before: unknown;
+    after: unknown;
+    panelClose: unknown;
+    popupClose: unknown;
+  }>;
+  notes: ReadonlyArray<string>;
+}>;
+
+export type Civ7NarrativeChoiceResult = Readonly<{
+  before: Civ7PlayNotificationViewResult;
+  beforeValidation: Civ7OperationValidationResult;
+  command?: Civ7CommandResult;
+  payload?: Civ7NarrativeChoiceCommandPayload;
+  after: Civ7PlayNotificationViewResult;
+  afterValidation: Civ7OperationValidationResult;
+  sent: boolean;
+  verified: boolean;
+  postcondition: Civ7NarrativeChoicePostcondition;
+}>;
 
 type NarrativeChoiceRequestDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;

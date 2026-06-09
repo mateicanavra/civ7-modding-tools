@@ -1,13 +1,36 @@
 import type {
-  Civ7ComponentId,
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationValidationResult,
-  Civ7RuntimeProbe,
-  Civ7UnitOperationPostcondition,
-  Civ7UnitOperationPostconditionClassification,
-  Civ7UnitOperationPostconditionSnapshot,
-} from "../../index";
+} from "./types.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+
+export type Civ7UnitOperationPostconditionClassification =
+  | "not-sent"
+  | "queue-advanced"
+  | "selected-unit-changed"
+  | "activity-changed"
+  | "unit-state-changed"
+  | "blocker-changed"
+  | "validation-changed"
+  | "no-state-change";
+
+export type Civ7UnitOperationPostconditionSnapshot = Readonly<{
+  unit: Civ7RuntimeProbe<unknown>;
+  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  blocker: Civ7RuntimeProbe<unknown>;
+}>;
+
+export type Civ7UnitOperationPostcondition = Readonly<{
+  family: "unit-operation" | "unit-command";
+  operationType: string;
+  classification: Civ7UnitOperationPostconditionClassification;
+  before?: Civ7UnitOperationPostconditionSnapshot;
+  after?: Civ7UnitOperationPostconditionSnapshot;
+  reason: string;
+}>;
 
 export function unitOperationPostcondition(
   family: Civ7OperationFamily,

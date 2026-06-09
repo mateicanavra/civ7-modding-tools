@@ -477,6 +477,89 @@ runtime/direct-control claims.
         operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
         semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.8.25 Extract shared operation primitive and validation type owner
+        while keeping public facade type re-exports in `index.ts`, preserving
+        operation family/target/input, action approval, and operation
+        validation-result public contracts while leaving operation request
+        result, postcondition payloads, production choice, diplomacy/narrative
+        closeout, public procedure schemas, operation/proof telemetry, hotseat
+        runtime proof, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.26 Extract operation request result and postcondition type owners
+        while keeping public facade type re-exports in `index.ts`, preserving
+        generic operation request result plus unit-operation,
+        population-placement, and production postcondition public contracts
+        while leaving production choice, diplomacy/narrative closeout, public
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.27 Extract production-choice type owner while keeping public
+        facade type re-exports in `index.ts`, preserving production-choice
+        input, command payload, and result public contracts while leaving
+        diplomacy/narrative closeout, public procedure schemas,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.8.28 Extract diplomacy-response type owner while keeping public
+        facade type re-exports in `index.ts`, preserving diplomacy response
+        input, command payload, result, and postcondition public contracts
+        while leaving narrative closeout, public procedure schemas,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.8.29 Extract narrative-choice type owner while keeping public
+        facade type re-exports in `index.ts`, preserving narrative choice
+        input, command payload, result, and postcondition public contracts
+        while leaving public procedure schemas, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.8.30 Extract capability catalog options type owner while keeping
+        public facade type re-exports in `index.ts`, preserving catalog option
+        shape and leaving then-remaining facade-owned health result types,
+        public procedure schemas, operation/proof telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.31 Extract restart/begin result type owner while keeping public
+        facade type re-exports in `index.ts`, preserving restart/begin result
+        shape and leaving then-remaining facade-owned health result types, public
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.32 Extract direct-control health result type owner while keeping
+        public facade type re-exports in `index.ts`, preserving health result
+        shape and leaving health source/session orchestration, public procedure
+        schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.33 Extract UI loading-state name type owner while keeping public
+        facade type re-exports in `index.ts`, preserving the
+        `CIV7_UI_LOADING_STATES`-derived alias and leaving setup/lifecycle
+        orchestration, public procedure schemas, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.8.34 Extract action approval primitive/helper owner while preserving
+        the public `Civ7ActionApproval` type contract through facade re-exports,
+        approval-first rejection message/classification, and no socket use
+        before approval, and leaving procedure schemas, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.8.35 Extract generic validation primitive/helper owner while
+        preserving bounded integer, simple identifier, and player-id
+        validation message/classification semantics, and leaving map-specific
+        validation helpers, procedure schemas, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.8.36 Extract facade dependency primitive owners for error-message
+        formatting and timer sleeping while preserving playable-status error
+        shaping and autoplay wait dependency behavior, leaving owner-local
+        sleeps/errors, Effect/Bun resource/schedule/layer composition,
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
@@ -491,6 +574,129 @@ runtime/direct-control claims.
         lifecycle/reconnect, procedure schemas, telemetry, semantic CLI, AI
         ingestion, hotseat runtime proof, and Effect/oRPC procedure-core work
         pending.
+  - [x] 4.10.3 Extract session state-selection helper owner behind the
+        existing package facade, preserving role/name/id selection and
+        missing-state error classification while leaving session config/socket,
+        endpoint discovery, command execution, lifecycle/reconnect, procedure
+        schemas, telemetry, semantic CLI, AI ingestion, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.10.4 Extract session direct-control config owner behind the existing
+        package facade, preserving host/env ordering, deduplication, port and
+        timeout defaults, invalid-port classification, and CLI public resolver
+        behavior while leaving endpoint discovery, socket/session lifecycle,
+        command execution, lifecycle/reconnect, procedure schemas, telemetry,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.5 Extract direct-control request-id helper owner behind the
+        existing package facade, preserving the existing prefix/date/pid format
+        while leaving endpoint discovery, socket/session lifecycle, command
+        execution, lifecycle/reconnect, telemetry/correlation contracts,
+        procedure schemas, semantic CLI, AI ingestion, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.10.6 Extract endpoint discovery owner behind the existing package
+        facade, preserving host/env ordering from config resolution,
+        first-reachable-host selection, per-host error details,
+        `all-hosts-unavailable` classification, and focused
+        dependency-injected package proof while leaving socket/session
+        lifecycle, package-level command execution, lifecycle/reconnect,
+        telemetry/correlation contracts, procedure schemas, semantic CLI, AI
+        ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.7 Extract session socket-open helper owner while preserving
+        connection timeout and connection-failed error classification and
+        leaving `Civ7DirectControlSession`, frame request handling, state
+        querying, command execution, reconnect orchestration,
+        telemetry/correlation contracts, procedure schemas, semantic CLI, AI
+        ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.8 Extract tuner state-parts parser owner while preserving LSQ
+        response pair parsing and dangling-part omission, and leaving
+        `Civ7DirectControlSession`, listener allocation, frame request
+        handling, command execution, reconnect orchestration,
+        telemetry/correlation contracts, procedure schemas, semantic CLI, AI
+        ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.9 Extract tuner listener-id allocator owner while preserving
+        positive incrementing listener IDs and leaving
+        `Civ7DirectControlSession`, frame request handling, state querying,
+        command execution, reconnect orchestration, telemetry/correlation
+        contracts, procedure schemas, semantic CLI, AI ingestion, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.10.10 Remove unused standalone tuner message helper after
+        listener-id allocation and frame encoding/parsing gained named session
+        owners, while leaving `Civ7DirectControlSession`, frame request
+        handling, state querying, command execution, reconnect orchestration,
+        telemetry/correlation contracts, procedure schemas, semantic CLI, AI
+        ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.11 Extract `Civ7DirectControlSession` and its private
+        pending-request lifecycle into a session owner while preserving socket
+        connection fallback, LSQ state queries, framed command execution,
+        request timeout/close/error classification, and public facade exports,
+        and leaving package-level query/execute wrappers, reconnect
+        orchestration, telemetry/correlation contracts, procedure schemas,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.12 Extract package-level Tuner query/command execution wrappers
+        into a session execute owner while preserving `queryCiv7TunerStates`,
+        `executeCiv7Command`, `executeCiv7AppUiCommand`, and
+        `executeCiv7TunerCommand` public facade behavior, session
+        creation/close behavior, App UI/Tuner state forcing, command result
+        shape, and focused session proof, and leaving reconnect orchestration,
+        lifecycle composition, telemetry/correlation contracts, procedure
+        schemas, semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.13 Move the public endpoint discovery wrapper into the session
+        discovery owner now that session execute wrappers are owned outside the
+        facade, while preserving public facade exports, host/env ordering,
+        first-reachable-host selection, per-host error details,
+        `all-hosts-unavailable` classification, and focused dependency-injected
+        package proof, and leaving reconnect orchestration, lifecycle
+        composition, telemetry/correlation contracts, procedure schemas,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.14 Extract the private session command reconnect helper into the
+        session owner while preserving retry attempts, close-before-retry
+        behavior, `750 + attempt * 750` backoff, and `command-failed` fallback
+        classification, and leaving Tuner-ready waiting, lifecycle
+        composition, telemetry/correlation contracts, procedure schemas,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.15 Extract direct-control health check owner while keeping public
+        facade exports in `index.ts`, preserving endpoint discovery
+        composition, no-state/state-missing/unavailable classification,
+        selected-state reporting, and typed error wrapping, and leaving
+        `waitForCiv7DirectControl`, Tuner-ready waiting, lifecycle composition,
+        telemetry/correlation contracts, procedure schemas, semantic CLI, AI
+        ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.16 Extract direct-control wait wrapper into the session health
+        owner while keeping public facade exports in `index.ts`, preserving
+        health polling, `waitTimeoutMs` / `timeoutMs` defaulting, poll interval
+        defaulting, last-health timeout details, and `connection-timeout`
+        classification, and leaving Tuner-ready waiting, lifecycle
+        composition, telemetry/correlation contracts, procedure schemas,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.17 Extract Tuner-ready wait ownership into the Tuner health owner
+        while keeping public facade exports in `index.ts`, preserving
+        session-scoped Tuner health polling, `waitTimeoutMs` / `timeoutMs`
+        defaulting, poll interval defaulting, reconnect-close behavior,
+        last-health-or-error timeout details, and `connection-timeout`
+        classification, and leaving setup/restart lifecycle composition,
+        telemetry/correlation contracts, procedure schemas, semantic CLI, AI
+        ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.18 Extract command-result JSON payload parser into a session owner
+        while preserving host/port/state merge behavior, invalid JSON
+        message/classification/details, and existing facade dependency
+        injection, and leaving validation helpers, command serialization,
+        telemetry/correlation contracts, procedure schemas, semantic CLI, AI
+        ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
@@ -523,6 +729,12 @@ runtime/direct-control claims.
         lifecycle orchestration, AI ingestion, static profile shaping, semantic
         CLI, telemetry, hotseat runtime proof, and Effect/oRPC procedure-core
         work pending.
+  - [x] 4.11.7 Extract map validation helper owner while preserving map
+        location `x`/`y` bounds, map-grid `bounds.width`/`bounds.height` hard
+        caps, and existing command-failed messages, and leaving map read source
+        strings, public procedure schemas, telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [ ] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as
@@ -592,6 +804,20 @@ runtime/direct-control claims.
         schemas, telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, or Task 2.9.4
         matrix-row acceptance.
+  - [x] 4.12.11 Extract facade-owned runtime probe helpers into the runtime
+        probe owner while preserving the generated `probe` helper source text
+        and `probeValue` semantics, and leaving module-local source-string
+        helpers, shared serializer ownership, public procedure schemas,
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.12.12 Extract command-source serializer owner while preserving
+        `JSON.stringify` output shape and `command-failed` rejection for
+        unserializable command input, and leaving module-local source-string
+        helpers, validation helpers, public procedure schemas, telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
@@ -656,6 +882,13 @@ runtime/direct-control claims.
         wait, and restart lifecycle package proof, and leaving runtime proof,
         hotseat runtime proof, AI ingestion, semantic CLI projection,
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.14.7 Extract setup-phase wait helper ownership into setup reads while
+        keeping setup-run composition injected from `index.ts`, preserving
+        shell-phase polling, timeout details, `setup-phase-invalid`
+        classification, and existing setup/lifecycle package proof, and leaving
+        runtime proof, hotseat runtime proof, AI ingestion, semantic CLI
+        projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane

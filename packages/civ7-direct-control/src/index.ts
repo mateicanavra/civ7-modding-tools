@@ -1,22 +1,35 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, extname, join, resolve } from "node:path";
-import { Socket, createConnection } from "node:net";
 import {
   assertCiv7ComponentId,
   Civ7ComponentIdSchema,
   type Civ7ComponentId,
   isCiv7ComponentId,
 } from "./civ7-component-id.js";
+import { assertApproved, type Civ7ActionApproval } from "./action-approval.js";
 import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "./direct-control-error.js";
+import { errorMessage } from "./error-message.js";
+import { discoverCiv7DirectControlEndpoint } from "./session/discovery.js";
 import {
-  encodeCiv7TunerRequest,
-  parseCiv7TunerFrame,
-  type Civ7TunerFrame,
-} from "./session/framing.js";
+  executeCiv7AppUiCommand,
+  executeCiv7Command,
+  executeCiv7TunerCommand,
+  queryCiv7TunerStates,
+} from "./session/execute.js";
+import { jsonPayloadFromCommandResult } from "./session/command-result.js";
+import {
+  checkCiv7DirectControlHealth,
+  waitForCiv7DirectControl,
+} from "./session/health.js";
+import { jsLiteral } from "./runtime/command-serialization.js";
+import { sleep } from "./timing.js";
+import { boundedInteger, validateIdentifier, validatePlayerId } from "./validation.js";
+import { Civ7DirectControlSession } from "./session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
+  Civ7DirectControlHealth,
   Civ7DirectControlOptions,
   Civ7TunerState,
   Civ7TunerStateRole,
@@ -30,6 +43,7 @@ import {
   DEFAULT_CIV7_TUNER_STATE_NAME,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
+import { executeSessionCommandWithReconnect } from "./session/reconnect.js";
 import {
   DEFAULT_CIV7_SCRIPTING_LOG,
   snapshotFile,
@@ -47,6 +61,7 @@ import {
   loadCiv7OfficialResourceCapabilities,
   type Civ7CapabilityCatalog,
   type Civ7CapabilityCatalogEntry,
+  type Civ7CapabilityCatalogOptions,
 } from "./catalog/capabilities.js";
 import {
   getCiv7AppUiSnapshot as getCiv7AppUiSnapshotFromModule,
@@ -65,7 +80,11 @@ import {
   DEFAULT_CIV7_ROOT_MAX_METHODS,
   DEFAULT_CIV7_TUNER_API_ROOTS,
 } from "./runtime/inspection-constants.js";
-import type { Civ7RuntimeProbe } from "./runtime/probe.js";
+import {
+  probeHelperSource,
+  probeValue,
+  type Civ7RuntimeProbe,
+} from "./runtime/probe.js";
 import {
   inspectCiv7Root as inspectCiv7RootFromModule,
   type Civ7RootInspectionInput,
@@ -74,6 +93,8 @@ import {
 import {
   checkCiv7TunerHealth as checkCiv7TunerHealthFromModule,
   checkCiv7TunerHealthWithSession,
+  waitForCiv7TunerReady as waitForCiv7TunerReadyFromModule,
+  waitForCiv7TunerReadyWithSession,
   type Civ7TunerHealthResult,
   type Civ7TunerHealthSnapshot,
 } from "./runtime/tuner-health.js";
@@ -85,6 +106,7 @@ import {
   ensureCiv7SetupMapRowVisible as ensureCiv7SetupMapRowVisibleFromModule,
   getCiv7SetupMapRows as getCiv7SetupMapRowsFromModule,
   getCiv7SetupSnapshot as getCiv7SetupSnapshotFromModule,
+  waitForCiv7SetupPhase as waitForCiv7SetupPhaseFromModule,
   type Civ7PlayerSetupParameterSnapshot,
   type Civ7SetupMapRow,
   type Civ7SetupMapRowsInput,
@@ -123,6 +145,7 @@ import {
   beginCiv7Game as beginCiv7GameFromModule,
   restartCiv7Game as restartCiv7GameFromModule,
   restartCiv7GameAndBegin as restartCiv7GameAndBeginFromModule,
+  type Civ7RestartAndBeginResult,
 } from "./setup/restart.js";
 import {
   CIV7_BEGIN_GAME_COMMAND,
@@ -201,7 +224,12 @@ import {
   type Civ7UnitSummaryResult,
   getCiv7UnitSummary as getCiv7UnitSummaryFromModule,
 } from "./play/summaries.js";
-import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
+import {
+  requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule,
+  type Civ7DiplomacyResponseCommandPayload,
+  type Civ7DiplomacyResponseInput,
+  type Civ7DiplomacyResponseResult,
+} from "./play/operations/diplomacy-request.js";
 import { getCiv7PlayNotificationView as getCiv7PlayNotificationViewFromModule } from "./play/notifications/view.js";
 import {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
@@ -211,8 +239,18 @@ import {
   type Civ7UnitTargetActionInput,
   type Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
-import { requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule } from "./play/operations/narrative-request.js";
-import { requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule } from "./play/operations/production-choice.js";
+import {
+  requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule,
+  type Civ7NarrativeChoiceCommandPayload,
+  type Civ7NarrativeChoiceInput,
+  type Civ7NarrativeChoiceResult,
+} from "./play/operations/narrative-request.js";
+import {
+  requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule,
+  type Civ7ProductionChoiceCommandPayload,
+  type Civ7ProductionChoiceInput,
+  type Civ7ProductionChoiceResult,
+} from "./play/operations/production-choice.js";
 import {
   canStartCiv7CityCommand as canStartCiv7CityCommandFromModule,
   canStartCiv7CityOperation as canStartCiv7CityOperationFromModule,
@@ -224,7 +262,13 @@ import {
   requestCiv7PlayerOperation as requestCiv7PlayerOperationFromModule,
   requestCiv7UnitCommand as requestCiv7UnitCommandFromModule,
   requestCiv7UnitOperation as requestCiv7UnitOperationFromModule,
+  type Civ7OperationRequestResult,
 } from "./play/operations/validate-request.js";
+import type {
+  Civ7OperationInput,
+  Civ7OperationValidationResult,
+} from "./play/operations/types.js";
+import type { Civ7ProductionPostconditionSnapshot } from "./play/operations/production-postconditions.js";
 import {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
   DEFAULT_CIV7_GAMEINFO_TABLES,
@@ -232,6 +276,7 @@ import {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
 } from "./play/map/constants.js";
+import { validateMapBounds, validateMapLocation } from "./play/map/validation.js";
 import type {
   Civ7FullMapGridIdentityCheck,
   Civ7FullMapGridInput,
@@ -331,9 +376,22 @@ export {
   parseCiv7TunerFrame,
 } from "./session/framing.js";
 export type { Civ7TunerFrame } from "./session/framing.js";
+export { discoverCiv7DirectControlEndpoint } from "./session/discovery.js";
+export {
+  executeCiv7AppUiCommand,
+  executeCiv7Command,
+  executeCiv7TunerCommand,
+  queryCiv7TunerStates,
+} from "./session/execute.js";
+export {
+  checkCiv7DirectControlHealth,
+  waitForCiv7DirectControl,
+} from "./session/health.js";
+export { Civ7DirectControlSession } from "./session/session.js";
 export type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
+  Civ7DirectControlHealth,
   Civ7DirectControlOptions,
   Civ7TunerState,
   Civ7TunerStateRole,
@@ -347,6 +405,9 @@ export {
   DEFAULT_CIV7_TUNER_STATE_NAME,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
+export { resolveCiv7DirectControlConfig } from "./session/config.js";
+export { createCiv7ControlRequestId } from "./session/request-id.js";
+export { selectCiv7TunerState } from "./session/state.js";
 export {
   DEFAULT_CIV7_SCRIPTING_LOG,
   snapshotFile,
@@ -366,6 +427,7 @@ export {
 export type {
   Civ7CapabilityCatalog,
   Civ7CapabilityCatalogEntry,
+  Civ7CapabilityCatalogOptions,
 } from "./catalog/capabilities.js";
 export {
   DEFAULT_CIV7_APP_UI_API_ROOTS,
@@ -401,6 +463,7 @@ export {
   DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
   DEFAULT_CIV7_SETUP_PARAMETER_IDS,
 } from "./setup/constants.js";
+export type { Civ7UiLoadingStateName } from "./setup/constants.js";
 export type {
   Civ7PlayerSetupParameterSnapshot,
   Civ7SetupMapRow,
@@ -430,6 +493,7 @@ export type {
   Civ7SinglePlayerRunInput,
   Civ7SinglePlayerRunResult,
 } from "./setup/run.js";
+export type { Civ7RestartAndBeginResult } from "./setup/restart.js";
 export {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
   DEFAULT_CIV7_GAMEINFO_TABLES,
@@ -570,6 +634,56 @@ export type {
   Civ7UnitTargetActionInput,
   Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
+export type {
+  Civ7ActionApproval,
+} from "./action-approval.js";
+export type {
+  Civ7OperationFamily,
+  Civ7OperationInput,
+  Civ7OperationTarget,
+  Civ7OperationValidationResult,
+} from "./play/operations/types.js";
+export type {
+  Civ7OperationRequestResult,
+} from "./play/operations/validate-request.js";
+export type {
+  Civ7UnitOperationPostcondition,
+  Civ7UnitOperationPostconditionClassification,
+  Civ7UnitOperationPostconditionSnapshot,
+} from "./play/operations/unit-postconditions.js";
+export type {
+  Civ7PopulationPlacementPostcondition,
+  Civ7PopulationPlacementPostconditionClassification,
+  Civ7PopulationPlacementPostconditionSnapshot,
+} from "./play/operations/population-postconditions.js";
+export type {
+  Civ7ProductionPostcondition,
+  Civ7ProductionPostconditionClassification,
+  Civ7ProductionPostconditionSnapshot,
+} from "./play/operations/production-postconditions.js";
+export type {
+  Civ7ProductionChoiceCommandPayload,
+  Civ7ProductionChoiceInput,
+  Civ7ProductionChoiceResult,
+} from "./play/operations/production-choice.js";
+export type {
+  Civ7DiplomacyResponseCommandPayload,
+  Civ7DiplomacyResponseInput,
+  Civ7DiplomacyResponseResult,
+} from "./play/operations/diplomacy-request.js";
+export type {
+  Civ7DiplomacyResponsePostcondition,
+  Civ7DiplomacyResponsePostconditionClassification,
+} from "./play/operations/diplomacy-postconditions.js";
+export type {
+  Civ7NarrativeChoiceCommandPayload,
+  Civ7NarrativeChoiceInput,
+  Civ7NarrativeChoiceResult,
+} from "./play/operations/narrative-request.js";
+export type {
+  Civ7NarrativeChoicePostcondition,
+  Civ7NarrativeChoicePostconditionClassification,
+} from "./play/operations/narrative-postconditions.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
@@ -588,8 +702,6 @@ export const DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR = join(
   "Saves",
   "Single",
 );
-
-export type Civ7UiLoadingStateName = keyof typeof CIV7_UI_LOADING_STATES;
 
 export type Civ7ResourcePlacementFeasibilityCellInput = Readonly<Civ7MapLocation & {
   resourceTypes: ReadonlyArray<number>;
@@ -733,571 +845,6 @@ export type Civ7SavedGameConfigurationListResult = Readonly<{
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
 }>;
 
-export type Civ7DiplomacyResponseInput = Readonly<{
-  playerId: number;
-  actionId: number;
-  responseType: number;
-  notificationId?: Civ7ComponentId;
-  activateNotification?: boolean;
-  uiCloseout?: boolean;
-}>;
-
-export type Civ7DiplomacyResponseCommandPayload = Readonly<{
-  localPlayerId: number;
-  playerId: number;
-  actionId: number;
-  responseType: number;
-  args: Readonly<{ ID: number; Type: number }>;
-  notificationId: Civ7ComponentId | null;
-  discoveredNotification: unknown;
-  activated: boolean;
-  activationResult: unknown;
-  canStart: unknown;
-  sent: boolean;
-  sendResult: unknown;
-  uiCloseout: Readonly<{
-    requested: boolean;
-    acknowledgeStarted: unknown;
-    closeCurrentDiplomacyProject: unknown;
-    hide: unknown;
-  }>;
-  diplomacyState: Readonly<{
-    before: unknown;
-    after: unknown;
-  }>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7DiplomacyResponsePostconditionClassification =
-  | "not-sent"
-  | "turn-unblocked"
-  | "diplomacy-blocker-cleared"
-  | "blocking-notification-changed"
-  | "validation-changed"
-  | "no-state-change";
-
-export type Civ7DiplomacyResponsePostcondition = Readonly<{
-  classification: Civ7DiplomacyResponsePostconditionClassification;
-  reason: string;
-}>;
-
-export type Civ7DiplomacyResponseResult = Readonly<{
-  before: Civ7PlayNotificationViewResult;
-  beforeValidation: Civ7OperationValidationResult;
-  command?: Civ7CommandResult;
-  payload?: Civ7DiplomacyResponseCommandPayload;
-  after: Civ7PlayNotificationViewResult;
-  afterValidation: Civ7OperationValidationResult;
-  sent: boolean;
-  verified: boolean;
-  postcondition: Civ7DiplomacyResponsePostcondition;
-}>;
-
-export type Civ7NarrativeChoiceInput = Readonly<{
-  playerId: number;
-  targetType: string;
-  target: Civ7ComponentId;
-  action: number;
-}>;
-
-export type Civ7NarrativeChoiceCommandPayload = Readonly<{
-  localPlayerId: number;
-  playerId: number;
-  args: Readonly<{ TargetType: string; Target: Civ7ComponentId; Action: number }>;
-  canStart: unknown;
-  sent: boolean;
-  sendResult: unknown;
-  ui: Readonly<{
-    before: unknown;
-    after: unknown;
-    panelClose: unknown;
-    popupClose: unknown;
-  }>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7NarrativeChoicePostconditionClassification =
-  | "not-sent"
-  | "turn-unblocked"
-  | "narrative-blocker-cleared"
-  | "narrative-panel-cleared"
-  | "validation-changed"
-  | "no-state-change";
-
-export type Civ7NarrativeChoicePostcondition = Readonly<{
-  classification: Civ7NarrativeChoicePostconditionClassification;
-  reason: string;
-}>;
-
-export type Civ7NarrativeChoiceResult = Readonly<{
-  before: Civ7PlayNotificationViewResult;
-  beforeValidation: Civ7OperationValidationResult;
-  command?: Civ7CommandResult;
-  payload?: Civ7NarrativeChoiceCommandPayload;
-  after: Civ7PlayNotificationViewResult;
-  afterValidation: Civ7OperationValidationResult;
-  sent: boolean;
-  verified: boolean;
-  postcondition: Civ7NarrativeChoicePostcondition;
-}>;
-
-export type Civ7OperationFamily =
-  | "unit-operation"
-  | "unit-command"
-  | "city-operation"
-  | "city-command"
-  | "player-operation";
-
-export type Civ7OperationTarget =
-  | Readonly<{ unitId: Civ7ComponentId }>
-  | Readonly<{ cityId: Civ7ComponentId }>
-  | Readonly<{ playerId: number }>;
-
-export type Civ7OperationInput = Civ7OperationTarget & Readonly<{
-  operationType: string;
-  args?: unknown;
-}>;
-
-export type Civ7ActionApproval = Readonly<{
-  approved: true;
-  reason: string;
-  disposableSession?: boolean;
-}>;
-
-export type Civ7OperationValidationResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  family: Civ7OperationFamily;
-  operationType: string;
-  enumValue: unknown;
-  target: Civ7OperationTarget;
-  args: unknown;
-  valid: boolean;
-  result: unknown;
-}>;
-
-export type Civ7UnitOperationPostconditionClassification =
-  | "not-sent"
-  | "queue-advanced"
-  | "selected-unit-changed"
-  | "activity-changed"
-  | "unit-state-changed"
-  | "blocker-changed"
-  | "validation-changed"
-  | "no-state-change";
-
-export type Civ7UnitOperationPostconditionSnapshot = Readonly<{
-  unit: Civ7RuntimeProbe<unknown>;
-  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  blocker: Civ7RuntimeProbe<unknown>;
-}>;
-
-export type Civ7UnitOperationPostcondition = Readonly<{
-  family: "unit-operation" | "unit-command";
-  operationType: string;
-  classification: Civ7UnitOperationPostconditionClassification;
-  before?: Civ7UnitOperationPostconditionSnapshot;
-  after?: Civ7UnitOperationPostconditionSnapshot;
-  reason: string;
-}>;
-
-export type Civ7PopulationPlacementPostconditionClassification =
-  | "not-sent"
-  | "population-ready-cleared"
-  | "placement-state-changed"
-  | "validation-changed"
-  | "no-state-change";
-
-export type Civ7PopulationPlacementPostconditionSnapshot = Readonly<{
-  cityId: Civ7ComponentId | null;
-  city: Civ7RuntimeProbe<unknown>;
-  isReadyToPlacePopulation: Civ7RuntimeProbe<unknown>;
-  cityWorkerCap: Civ7RuntimeProbe<unknown>;
-  workablePlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  blockedPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  expansionPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-}>;
-
-export type Civ7PopulationPlacementPostcondition = Readonly<{
-  family: "player-operation" | "city-command";
-  operationType: string;
-  classification: Civ7PopulationPlacementPostconditionClassification;
-  before?: Civ7PopulationPlacementPostconditionSnapshot;
-  after?: Civ7PopulationPlacementPostconditionSnapshot;
-  readyCleared: boolean;
-  placementStateChanged: boolean;
-  reason: string;
-}>;
-
-export type Civ7OperationRequestResult = Readonly<{
-  before: Civ7OperationValidationResult;
-  command?: Civ7CommandResult;
-  after: Civ7OperationValidationResult;
-  sent: boolean;
-  verified: boolean;
-  postcondition?: Civ7UnitOperationPostcondition;
-  populationPostcondition?: Civ7PopulationPlacementPostcondition;
-  productionPostcondition?: Civ7ProductionPostcondition;
-}>;
-
-export type Civ7ProductionPostconditionClassification =
-  | "not-sent"
-  | "production-choice-cleared"
-  | "production-state-changed"
-  | "production-state-changed-blocker-still-live"
-  | "validation-changed"
-  | "no-state-change";
-
-export type Civ7ProductionPostconditionSnapshot = Readonly<{
-  cityId: Civ7ComponentId | null;
-  city: Civ7RuntimeProbe<unknown>;
-  buildQueue: Civ7RuntimeProbe<unknown>;
-  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  blocker: Civ7RuntimeProbe<unknown>;
-  canEndTurn: Civ7RuntimeProbe<unknown>;
-  blockingProductionNotification: Civ7RuntimeProbe<unknown>;
-}>;
-
-export type Civ7ProductionPostcondition = Readonly<{
-  family: "city-operation";
-  operationType: "BUILD";
-  classification: Civ7ProductionPostconditionClassification;
-  before?: Civ7ProductionPostconditionSnapshot;
-  after?: Civ7ProductionPostconditionSnapshot;
-  productionStateChanged: boolean;
-  blockerStillLive: boolean;
-  reason: string;
-}>;
-
-export type Civ7ProductionChoiceInput = Readonly<{
-  cityId: Civ7ComponentId;
-  args: Readonly<Record<string, number>>;
-}>;
-
-export type Civ7ProductionChoiceCommandPayload = Readonly<{
-  cityId: Civ7ComponentId;
-  args: unknown;
-  beforeValidation: unknown;
-  afterValidation: unknown;
-  sent: boolean;
-  sendResult?: Civ7RuntimeProbe<unknown>;
-  beforeProductionPostcondition: Civ7ProductionPostconditionSnapshot;
-  afterProductionPostcondition: Civ7ProductionPostconditionSnapshot;
-  ui?: Readonly<{
-    cityActivation?: Civ7RuntimeProbe<unknown>;
-    interfaceClose?: Civ7RuntimeProbe<unknown>;
-  }>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7ProductionChoiceResult = Civ7OperationRequestResult & Readonly<{
-  payload?: Civ7ProductionChoiceCommandPayload;
-}>;
-
-export type Civ7CapabilityCatalogOptions = Civ7DirectControlOptions & Readonly<{
-  includeRuntime?: boolean;
-  includeStatic?: boolean;
-  appUiRoots?: ReadonlyArray<string>;
-  tunerRoots?: ReadonlyArray<string>;
-}>;
-
-export type Civ7RestartAndBeginResult = Readonly<{
-  restart: Civ7CommandResult;
-  begin?: Civ7CommandResult;
-  finalAppUi: Civ7AppUiSnapshotResult;
-  tunerHealth?: Civ7TunerHealthResult;
-  observations: ReadonlyArray<Civ7AppUiSnapshot>;
-}>;
-
-export type Civ7DirectControlHealth =
-  | Readonly<{
-      ok: true;
-      status: "ready";
-      host: string;
-      port: number;
-      states: ReadonlyArray<Civ7TunerState>;
-      selectedState?: Civ7TunerState;
-    }>
-  | Readonly<{
-      ok: false;
-      status: "unavailable" | "no-states" | "state-missing" | "command-failed";
-      host?: string;
-      port?: number;
-      states?: ReadonlyArray<Civ7TunerState>;
-      error: Civ7DirectControlError;
-    }>;
-
-type PendingCiv7TunerRequest = {
-  resolve: (frame: Civ7TunerFrame) => void;
-  reject: (err: Error) => void;
-  timer: NodeJS.Timeout;
-  message: string;
-};
-
-let nextListenerId = Math.trunc(Date.now() % 1_000_000);
-
-export function createCiv7ControlRequestId(prefix = "civ7-control"): string {
-  return `${prefix}-${Date.now().toString(36)}-${process.pid.toString(36)}`;
-}
-
-export function resolveCiv7DirectControlConfig(options: Civ7DirectControlOptions = {}): {
-  hosts: string[];
-  port: number;
-  timeoutMs: number;
-} {
-  const env = options.env ?? process.env;
-  const hosts = uniqueNonEmpty([
-    ...(options.hosts ?? []),
-    options.host,
-    ...splitEnvList(env.CIV7_TUNER_HOSTS),
-    env.CIV7_TUNER_HOST,
-    DEFAULT_CIV7_TUNER_HOST,
-  ]);
-  if (hosts.length === 0) {
-    throw new Civ7DirectControlError("no-hosts", "No Civ7 tuner hosts were configured");
-  }
-  return {
-    hosts,
-    port: options.port ?? portFromEnv(env) ?? DEFAULT_CIV7_TUNER_PORT,
-    timeoutMs: options.timeoutMs ?? DEFAULT_CIV7_TUNER_TIMEOUT_MS,
-  };
-}
-
-export async function discoverCiv7DirectControlEndpoint(
-  options: Civ7DirectControlOptions = {},
-): Promise<Readonly<{ endpoint: Civ7DirectControlEndpoint; states: ReadonlyArray<Civ7TunerState> }>> {
-  const config = resolveCiv7DirectControlConfig(options);
-  const errors: Array<{ host: string; error: string }> = [];
-  for (const host of config.hosts) {
-    try {
-      const states = await queryCiv7TunerStates({
-        host,
-        port: config.port,
-        timeoutMs: config.timeoutMs,
-      });
-      return {
-        endpoint: { host, port: config.port },
-        states,
-      };
-    } catch (err) {
-      errors.push({ host, error: errorMessage(err) });
-    }
-  }
-  throw new Civ7DirectControlError(
-    "all-hosts-unavailable",
-    `Unable to reach Civ7 tuner socket on ${config.hosts.join(", ")}:${config.port}`,
-    { details: errors },
-  );
-}
-
-export class Civ7DirectControlSession {
-  private readonly config: ReturnType<typeof resolveCiv7DirectControlConfig>;
-  private socket: Socket | undefined;
-  private endpointValue: Civ7DirectControlEndpoint | undefined;
-  private buffer = Buffer.alloc(0);
-  private readonly pending = new Map<number, PendingCiv7TunerRequest>();
-
-  constructor(options: Civ7DirectControlOptions = {}) {
-    this.config = resolveCiv7DirectControlConfig(options);
-  }
-
-  get endpoint(): Civ7DirectControlEndpoint | undefined {
-    return this.endpointValue;
-  }
-
-  async connect(): Promise<Civ7DirectControlEndpoint> {
-    if (this.socket && !this.socket.destroyed && this.endpointValue) {
-      return this.endpointValue;
-    }
-
-    await this.close();
-    const errors: Array<{ host: string; error: string }> = [];
-    for (const host of this.config.hosts) {
-      try {
-        const socket = await openCiv7TunerSocket({
-          host,
-          port: this.config.port,
-          timeoutMs: this.config.timeoutMs,
-        });
-        this.socket = socket;
-        this.endpointValue = { host, port: this.config.port };
-        this.buffer = Buffer.alloc(0);
-        socket.on("data", (chunk) => this.handleData(chunk));
-        socket.once("error", (err) => {
-          this.rejectPending(new Civ7DirectControlError("connection-failed", err.message, { cause: err }));
-        });
-        socket.once("close", () => {
-          this.rejectPending(new Civ7DirectControlError("socket-closed", "Civ7 tuner socket closed"));
-          this.socket = undefined;
-          this.endpointValue = undefined;
-        });
-        return this.endpointValue;
-      } catch (err) {
-        errors.push({ host, error: errorMessage(err) });
-      }
-    }
-
-    throw new Civ7DirectControlError(
-      "all-hosts-unavailable",
-      `Unable to reach Civ7 tuner socket on ${this.config.hosts.join(", ")}:${this.config.port}`,
-      { details: errors },
-    );
-  }
-
-  async close(): Promise<void> {
-    const socket = this.socket;
-    this.socket = undefined;
-    this.endpointValue = undefined;
-    this.buffer = Buffer.alloc(0);
-    this.rejectPending(new Civ7DirectControlError("socket-closed", "Civ7 tuner socket closed"));
-    if (socket && !socket.destroyed) socket.destroy();
-  }
-
-  async queryStates(options: { timeoutMs?: number } = {}): Promise<ReadonlyArray<Civ7TunerState>> {
-    const response = await this.request("LSQ:", options.timeoutMs);
-    return tunerStatesFromParts(response.parts);
-  }
-
-  async executeCommand(options: {
-    command: string;
-    state?: Civ7TunerStateSelection;
-    timeoutMs?: number;
-  }): Promise<Civ7CommandResult> {
-    const command = options.command.trim();
-    if (!command) {
-      throw new Civ7DirectControlError("command-failed", "Civ7 command must not be empty");
-    }
-    const states = await this.queryStates({ timeoutMs: options.timeoutMs });
-    const state = selectCiv7TunerState(states, options.state);
-    const response = await this.request(`CMD:${state.id}:${command}`, options.timeoutMs);
-    const endpoint = this.endpoint;
-    if (!endpoint) {
-      throw new Civ7DirectControlError("socket-closed", "Civ7 tuner socket closed after command completed");
-    }
-    return {
-      host: endpoint.host,
-      port: endpoint.port,
-      state,
-      output: response.parts,
-    };
-  }
-
-  async request(message: string, timeoutMs = this.config.timeoutMs): Promise<Civ7TunerFrame> {
-    await this.connect();
-    const socket = this.socket;
-    if (!socket || socket.destroyed) {
-      throw new Civ7DirectControlError("socket-closed", `Civ7 tuner socket is closed before ${message}`);
-    }
-    const listenerId = allocateListenerId();
-    const response = new Promise<Civ7TunerFrame>((resolve, reject) => {
-      const timer = setTimeout(() => {
-        this.pending.delete(listenerId);
-        reject(
-          new Civ7DirectControlError(
-            "response-timeout",
-            `Timed out waiting for Civ7 tuner response to ${message}`,
-          ),
-        );
-      }, timeoutMs);
-      this.pending.set(listenerId, { resolve, reject, timer, message });
-    });
-    socket.write(encodeCiv7TunerRequest(listenerId, message));
-    return await response;
-  }
-
-  private handleData(chunk: Buffer): void {
-    this.buffer = Buffer.concat([this.buffer, chunk]);
-    for (;;) {
-      const parsed = parseCiv7TunerFrame(this.buffer);
-      if (!parsed) return;
-      this.buffer = this.buffer.subarray(parsed.bytesRead);
-      const pending = this.pending.get(parsed.frame.listenerId);
-      if (!pending) continue;
-      clearTimeout(pending.timer);
-      this.pending.delete(parsed.frame.listenerId);
-      pending.resolve(parsed.frame);
-    }
-  }
-
-  private rejectPending(err: Civ7DirectControlError): void {
-    for (const [listenerId, pending] of this.pending) {
-      clearTimeout(pending.timer);
-      this.pending.delete(listenerId);
-      pending.reject(
-        new Civ7DirectControlError(
-          err.code,
-          err.message === "Civ7 tuner socket closed"
-            ? `Civ7 tuner socket closed while waiting for ${pending.message}`
-            : err.message,
-          { cause: err, details: { message: pending.message } },
-        ),
-      );
-    }
-  }
-}
-
-export async function queryCiv7TunerStates(options: Civ7DirectControlOptions = {}): Promise<ReadonlyArray<Civ7TunerState>> {
-  const session = new Civ7DirectControlSession(options);
-  try {
-    return await session.queryStates();
-  } finally {
-    await session.close();
-  }
-}
-
-export function selectCiv7TunerState(
-  states: ReadonlyArray<Civ7TunerState>,
-  selection: Civ7TunerStateSelection = { role: "app-ui" },
-): Civ7TunerState {
-  const requested = normalizeStateSelection(selection);
-  const state = states.find((candidate) => {
-    if (requested.id && candidate.id === requested.id) return true;
-    if (requested.name && candidate.name === requested.name) return true;
-    return false;
-  });
-  if (!state) {
-    const requestedLabel = requested.name ?? requested.id ?? "unknown";
-    throw new Civ7DirectControlError(
-      "state-not-found",
-      `Civ7 tuner state "${requestedLabel}" was not available; states: ${states.map((s) => s.name).join(", ")}`,
-      { details: { requested, states } },
-    );
-  }
-  return state;
-}
-
-export async function executeCiv7Command(options: Civ7DirectControlOptions & {
-  command: string;
-  state?: Civ7TunerStateSelection;
-}): Promise<Civ7CommandResult> {
-  const session = new Civ7DirectControlSession(options);
-  try {
-    return await session.executeCommand(options);
-  } finally {
-    await session.close();
-  }
-}
-
-export async function executeCiv7AppUiCommand(options: Civ7DirectControlOptions & {
-  command: string;
-}): Promise<Civ7CommandResult> {
-  return await executeCiv7Command({
-    ...options,
-    state: { role: "app-ui" },
-  });
-}
-
-export async function executeCiv7TunerCommand(options: Civ7DirectControlOptions & {
-  command: string;
-}): Promise<Civ7CommandResult> {
-  return await executeCiv7Command({
-    ...options,
-    state: { role: "tuner" },
-  });
-}
-
 export async function inspectCiv7RuntimeApi(options: Civ7DirectControlOptions & {
   state?: Civ7TunerStateSelection;
   roots?: ReadonlyArray<string>;
@@ -1364,7 +911,13 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
     executeSessionCommandWithReconnect,
     restartCommand: CIV7_RESTART_COMMAND,
     uiLoadingStates: CIV7_UI_LOADING_STATES,
-    waitForTunerReadyWithSession: waitForCiv7TunerReadyWithSession,
+    waitForTunerReadyWithSession: async (
+      session: Civ7DirectControlSession,
+      waitOptions: { timeoutMs?: number; waitTimeoutMs?: number; pollIntervalMs?: number },
+    ) =>
+      await waitForCiv7TunerReadyWithSession(session, waitOptions, {
+        executeSessionCommandWithReconnect,
+      }),
     withSession: async <T>(
       sessionOptions: Civ7DirectControlOptions,
       run: (session: Civ7DirectControlSession) => Promise<T>,
@@ -1379,84 +932,24 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
   });
 }
 
-export async function checkCiv7DirectControlHealth(options: Civ7DirectControlOptions & {
-  state?: Civ7TunerStateSelection;
-} = {}): Promise<Civ7DirectControlHealth> {
-  try {
-    const discovered = await discoverCiv7DirectControlEndpoint(options);
-    if (discovered.states.length === 0) {
-      return {
-        ok: false,
-        status: "no-states",
-        host: discovered.endpoint.host,
-        port: discovered.endpoint.port,
-        states: discovered.states,
-        error: new Civ7DirectControlError("state-not-found", "Civ7 tuner returned no scripting states"),
-      };
-    }
-    let selectedState: Civ7TunerState | undefined;
-    if (options.state) {
-      try {
-        selectedState = selectCiv7TunerState(discovered.states, options.state);
-      } catch (err) {
-        return {
-          ok: false,
-          status: "state-missing",
-          host: discovered.endpoint.host,
-          port: discovered.endpoint.port,
-          states: discovered.states,
-          error: toDirectControlError(err, "state-not-found"),
-        };
-      }
-    }
-    return {
-      ok: true,
-      status: "ready",
-      host: discovered.endpoint.host,
-      port: discovered.endpoint.port,
-      states: discovered.states,
-      selectedState,
-    };
-  } catch (err) {
-    const error = toDirectControlError(err, "connection-failed");
-    return {
-      ok: false,
-      status: error.code === "state-not-found" ? "state-missing" : "unavailable",
-      error,
-    };
-  }
-}
-
-export async function waitForCiv7DirectControl(options: Civ7DirectControlOptions & {
-  state?: Civ7TunerStateSelection;
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-} = {}): Promise<Civ7DirectControlHealth & { ok: true }> {
-  const waitTimeoutMs = options.waitTimeoutMs ?? options.timeoutMs ?? DEFAULT_CIV7_TUNER_TIMEOUT_MS;
-  const pollIntervalMs = options.pollIntervalMs ?? 500;
-  const startedAt = Date.now();
-  let lastHealth: Civ7DirectControlHealth | undefined;
-  while (Date.now() - startedAt <= waitTimeoutMs) {
-    const health = await checkCiv7DirectControlHealth(options);
-    if (health.ok) return health;
-    lastHealth = health;
-    await sleep(pollIntervalMs);
-  }
-  throw new Civ7DirectControlError("connection-timeout", `Timed out waiting for Civ7 tuner readiness after ${waitTimeoutMs}ms`, {
-    details: lastHealth,
-  });
-}
-
 export async function waitForCiv7TunerReady(options: Civ7DirectControlOptions & {
   waitTimeoutMs?: number;
   pollIntervalMs?: number;
 } = {}): Promise<Civ7TunerHealthResult & { ready: true }> {
-  const session = new Civ7DirectControlSession(options);
-  try {
-    return await waitForCiv7TunerReadyWithSession(session, options);
-  } finally {
-    await session.close();
-  }
+  return await waitForCiv7TunerReadyFromModule(options, {
+    executeSessionCommandWithReconnect,
+    withSession: async <T>(
+      sessionOptions: Civ7DirectControlOptions,
+      run: (session: Civ7DirectControlSession) => Promise<T>,
+    ): Promise<T> => {
+      const session = new Civ7DirectControlSession(sessionOptions);
+      try {
+        return await run(session);
+      } finally {
+        await session.close();
+      }
+    },
+  });
 }
 
 export async function getCiv7PlayableStatus(
@@ -1656,7 +1149,7 @@ export async function getCiv7FullMapGrid(
   const mapWidth = requiredProbeNumber(summary.map.width, "GameplayMap.getGridWidth");
   const mapHeight = requiredProbeNumber(summary.map.height, "GameplayMap.getGridHeight");
   const bounds = input.bounds ?? { x: 0, y: 0, width: mapWidth, height: mapHeight };
-  validateMapBounds(bounds, "bounds");
+  validateMapBounds(bounds);
   const maxPlotsPerRead = boundedInteger(
     input.maxPlotsPerRead ?? HARD_CIV7_MAP_GRID_MAX_PLOTS,
     1,
@@ -1871,7 +1364,13 @@ function setupStartDependencies() {
     parseStartPayload: (result: Civ7CommandResult, label: string) =>
       jsonPayloadFromCommandResult<{ ok: unknown }>(result, label),
     uiLoadingStates: CIV7_UI_LOADING_STATES,
-    waitForTunerReadyWithSession: waitForCiv7TunerReadyWithSession,
+    waitForTunerReadyWithSession: async (
+      session: Civ7DirectControlSession,
+      waitOptions: { timeoutMs?: number; waitTimeoutMs?: number; pollIntervalMs?: number },
+    ) =>
+      await waitForCiv7TunerReadyWithSession(session, waitOptions, {
+        executeSessionCommandWithReconnect,
+      }),
     withSession: async <T>(
       sessionOptions: Civ7DirectControlOptions,
       run: (session: Civ7DirectControlSession) => Promise<T>,
@@ -1896,7 +1395,11 @@ function setupRunDependencies() {
     prepareSetup: prepareCiv7SinglePlayerSetup,
     startPreparedGame: startPreparedCiv7SinglePlayerGame,
     validateIdentifier,
-    waitForSetupPhase: waitForCiv7SetupPhase,
+    waitForSetupPhase: async (
+      phase: Civ7SetupPhase,
+      options: Civ7DirectControlOptions,
+      wait: { waitTimeoutMs: number; pollIntervalMs: number },
+    ) => await waitForCiv7SetupPhaseFromModule(phase, options, wait, setupReadDependencies()),
   } as const;
 }
 
@@ -2524,125 +2027,6 @@ export async function generateCiv7CapabilityCatalog(
   });
 }
 
-async function openCiv7TunerSocket(options: {
-  host: string;
-  port: number;
-  timeoutMs: number;
-}): Promise<Socket> {
-  return await new Promise<Socket>((resolve, reject) => {
-    const socket = createConnection({ host: options.host, port: options.port });
-    const timer = setTimeout(() => {
-      socket.destroy();
-      reject(
-        new Civ7DirectControlError(
-          "connection-timeout",
-          `Timed out connecting to Civ7 tuner socket ${options.host}:${options.port}`,
-        ),
-      );
-    }, options.timeoutMs);
-    socket.once("connect", () => {
-      clearTimeout(timer);
-      resolve(socket);
-    });
-    socket.once("error", (err) => {
-      clearTimeout(timer);
-      reject(
-        new Civ7DirectControlError(
-          "connection-failed",
-          `Failed connecting to Civ7 tuner socket ${options.host}:${options.port}: ${err.message}`,
-          { cause: err },
-        ),
-      );
-    });
-  });
-}
-
-async function sendCiv7TunerMessage(options: {
-  socket: Socket;
-  message: string;
-  timeoutMs: number;
-}): Promise<Civ7TunerFrame> {
-  const listenerId = allocateListenerId();
-  return await new Promise<Civ7TunerFrame>((resolve, reject) => {
-    let buffer = Buffer.alloc(0);
-    const timer = setTimeout(() => {
-      cleanup();
-      reject(
-        new Civ7DirectControlError(
-          "response-timeout",
-          `Timed out waiting for Civ7 tuner response to ${options.message}`,
-        ),
-      );
-    }, options.timeoutMs);
-    const cleanup = () => {
-      clearTimeout(timer);
-      options.socket.off("data", onData);
-      options.socket.off("error", onError);
-      options.socket.off("close", onClose);
-    };
-    const onError = (err: Error) => {
-      cleanup();
-      reject(new Civ7DirectControlError("connection-failed", err.message, { cause: err }));
-    };
-    const onClose = () => {
-      cleanup();
-      reject(
-        new Civ7DirectControlError(
-          "socket-closed",
-          `Civ7 tuner socket closed while waiting for ${options.message}`,
-        ),
-      );
-    };
-    const onData = (chunk: Buffer) => {
-      buffer = Buffer.concat([buffer, chunk]);
-      for (;;) {
-        const parsed = parseCiv7TunerFrame(buffer);
-        if (!parsed) return;
-        buffer = buffer.subarray(parsed.bytesRead);
-        if (parsed.frame.listenerId === listenerId) {
-          cleanup();
-          resolve(parsed.frame);
-          return;
-        }
-      }
-    };
-    options.socket.on("data", onData);
-    options.socket.once("error", onError);
-    options.socket.once("close", onClose);
-    options.socket.write(encodeCiv7TunerRequest(listenerId, options.message));
-  });
-}
-
-function normalizeStateSelection(selection: Civ7TunerStateSelection): { id?: string; name?: string } {
-  if (typeof selection === "string") {
-    return selection === CIV7_TUNER_APP_UI_STATE_NAME || selection === CIV7_TUNER_STATE_NAME
-      ? { name: selection }
-      : { id: selection, name: selection };
-  }
-  if (selection.role === "app-ui") return { name: CIV7_TUNER_APP_UI_STATE_NAME };
-  if (selection.role === "tuner") return { name: CIV7_TUNER_STATE_NAME };
-  return { id: selection.id, name: selection.name };
-}
-
-function allocateListenerId(): number {
-  nextListenerId = (nextListenerId + 1) % 0xffff_ffff;
-  if (nextListenerId <= 0) nextListenerId = 1;
-  return nextListenerId;
-}
-
-function portFromEnv(env: NodeJS.ProcessEnv): number | undefined {
-  if (!env.CIV7_TUNER_PORT) return undefined;
-  const port = Number(env.CIV7_TUNER_PORT);
-  if (!Number.isInteger(port) || port <= 0 || port > 65_535) {
-    throw new Civ7DirectControlError("invalid-port", `Invalid CIV7_TUNER_PORT: ${env.CIV7_TUNER_PORT}`);
-  }
-  return port;
-}
-
-function splitEnvList(value: string | undefined): string[] {
-  return value?.split(",").map((entry) => entry.trim()).filter(Boolean) ?? [];
-}
-
 function isNodeNotFound(err: unknown): boolean {
   return (
     err !== null &&
@@ -2875,34 +2259,6 @@ function buildLoadSavedGameConfigurationCommand(input: Civ7SavedGameConfiguratio
     });
   })()`;
 }
-function probeHelperSource(): string {
-  return `const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };`;
-}
-
-function jsonPayloadFromCommandResult<T extends object>(result: Civ7CommandResult, label: string): T {
-  try {
-    const payload = JSON.parse(result.output[0] ?? "{}") as T;
-    return {
-      host: result.host,
-      port: result.port,
-      state: result.state,
-      ...payload,
-    } as T;
-  } catch (err) {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      `${label} returned invalid JSON: ${result.output.join("\n") || "<empty>"}`,
-      { cause: err, details: result },
-    );
-  }
-}
-
 function normalizePlotFields(fields: ReadonlyArray<Civ7PlotSnapshotField> | undefined): ReadonlyArray<Civ7PlotSnapshotField> {
   const selected: ReadonlyArray<Civ7PlotSnapshotField> = fields?.length
     ? fields
@@ -3025,7 +2381,7 @@ export function planCiv7MapGridReadBounds(
   bounds: Civ7MapBounds,
   maxPlotsPerRead = HARD_CIV7_MAP_GRID_MAX_PLOTS,
 ): Civ7MapBounds[] {
-  validateMapBounds(bounds, "bounds");
+  validateMapBounds(bounds);
   const maxPlots = boundedInteger(maxPlotsPerRead, 1, HARD_CIV7_MAP_GRID_MAX_PLOTS, "maxPlotsPerRead");
   const chunks: Civ7MapBounds[] = [];
   const chunkWidth = Math.min(bounds.width, maxPlots);
@@ -3040,28 +2396,6 @@ export function planCiv7MapGridReadBounds(
   }
 
   return chunks;
-}
-
-function validateMapBounds(bounds: Civ7MapBounds, dimensionLabel = "bounds"): void {
-  validateMapLocation(bounds);
-  boundedInteger(bounds.width, 1, 1_000_000, `${dimensionLabel}.width`);
-  boundedInteger(bounds.height, 1, 1_000_000, `${dimensionLabel}.height`);
-}
-
-function validateMapLocation(location: Civ7MapLocation): void {
-  boundedInteger(location.x, 0, 1_000_000, "x");
-  boundedInteger(location.y, 0, 1_000_000, "y");
-}
-
-function validatePlayerId(playerId: number): number {
-  return boundedInteger(playerId, 0, 1024, "playerId");
-}
-
-function boundedInteger(value: number, min: number, max: number, label: string): number {
-  if (!Number.isInteger(value) || value < min || value > max) {
-    throw new Civ7DirectControlError("command-failed", `${label} must be an integer between ${min} and ${max}`);
-  }
-  return value;
 }
 
 function requiredProbeNumber(probe: Civ7RuntimeProbe<number>, label: string): number {
@@ -3103,13 +2437,6 @@ function probeNumberOr(probe: Civ7RuntimeProbe<unknown>, fallback: number): numb
   if (!probe.ok) return fallback;
   const value = Number(probe.value);
   return Number.isFinite(value) ? value : fallback;
-}
-
-function validateIdentifier(value: string, label: string): string {
-  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
-    throw new Civ7DirectControlError("command-failed", `${label} must be a simple identifier`);
-  }
-  return value;
 }
 
 async function readCiv7SavedGameConfiguration(path: string): Promise<Civ7SavedGameConfiguration> {
@@ -3217,30 +2544,6 @@ function summarizeCiv7CfgStrings(strings: ReadonlyArray<string>): Civ7SavedGameC
   if (gameSeed !== undefined) summary.gameSeed = gameSeed;
   return summary;
 }
-async function waitForCiv7SetupPhase(
-  phase: Civ7SetupPhase,
-  options: Civ7DirectControlOptions,
-  wait: { waitTimeoutMs: number; pollIntervalMs: number },
-): Promise<Civ7SetupSnapshotResult> {
-  const startedAt = Date.now();
-  let last: Civ7SetupSnapshotResult | undefined;
-  while (Date.now() - startedAt <= wait.waitTimeoutMs) {
-    try {
-      const snapshot = await getCiv7SetupSnapshot(options);
-      last = snapshot;
-      if (snapshot.snapshot.phase === phase) return snapshot;
-    } catch {
-      // Keep polling during shell transitions; callers get timeout details below.
-    }
-    await sleep(wait.pollIntervalMs);
-  }
-  throw new Civ7DirectControlError(
-    "setup-phase-invalid",
-    `Timed out waiting for Civ7 setup phase ${phase}`,
-    { details: last },
-  );
-}
-
 async function waitForCiv7SetupRevisionAfter(
   before: Civ7SetupSnapshotResult,
   options: Civ7DirectControlOptions,
@@ -3280,100 +2583,7 @@ async function waitForCiv7SetupRevisionAfter(
   );
 }
 
-function assertApproved(approval: Civ7ActionApproval, action: string): void {
-  if (!approval || approval.approved !== true || !approval.reason.trim()) {
-    throw new Civ7DirectControlError("command-failed", `Explicit approval with a reason is required before ${action}`);
-  }
-}
-
-function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
-  return probe.ok ? probe.value : undefined;
-}
-
-function jsLiteral(value: unknown): string {
-  const json = JSON.stringify(value);
-  if (json === undefined) {
-    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
-  }
-  return json;
-}
-
-function tunerStatesFromParts(parts: ReadonlyArray<string>): Civ7TunerState[] {
-  const states: Civ7TunerState[] = [];
-  for (let i = 0; i + 1 < parts.length; i += 2) {
-    states.push({ id: parts[i] ?? "", name: parts[i + 1] ?? "" });
-  }
-  return states;
-}
-
-async function waitForCiv7TunerReadyWithSession(
-  session: Civ7DirectControlSession,
-  options: {
-    timeoutMs?: number;
-    waitTimeoutMs?: number;
-    pollIntervalMs?: number;
-  } = {},
-): Promise<Civ7TunerHealthResult & { ready: true }> {
-  const waitTimeoutMs = options.waitTimeoutMs ?? options.timeoutMs ?? DEFAULT_CIV7_TUNER_TIMEOUT_MS;
-  const pollIntervalMs = options.pollIntervalMs ?? 500;
-  const startedAt = Date.now();
-  let lastHealth: Civ7TunerHealthResult | undefined;
-  let lastError: Civ7DirectControlError | undefined;
-  while (Date.now() - startedAt <= waitTimeoutMs) {
-    try {
-      const health = await checkCiv7TunerHealthWithSession(session, options.timeoutMs, {
-        executeSessionCommandWithReconnect,
-      });
-      if (health.ready) return health as Civ7TunerHealthResult & { ready: true };
-      lastHealth = health;
-    } catch (err) {
-      lastError = toDirectControlError(err, "command-failed");
-      await session.close();
-    }
-    await sleep(pollIntervalMs);
-  }
-  throw new Civ7DirectControlError(
-    "connection-timeout",
-    `Timed out waiting for Civ7 Tuner readiness after ${waitTimeoutMs}ms`,
-    { details: lastHealth ?? lastError },
-  );
-}
-
-async function executeSessionCommandWithReconnect(
-  session: Civ7DirectControlSession,
-  options: {
-    command: string;
-    state?: Civ7TunerStateSelection;
-    timeoutMs?: number;
-  },
-  attempts = 6,
-): Promise<Civ7CommandResult> {
-  let lastError: unknown;
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    try {
-      return await session.executeCommand(options);
-    } catch (err) {
-      lastError = err;
-      await session.close();
-      await sleep(750 + attempt * 750);
-    }
-  }
-  throw toDirectControlError(lastError, "command-failed");
-}
-
-function uniqueNonEmpty(values: ReadonlyArray<string | undefined>): string[] {
-  return Array.from(new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value))));
-}
-
 function toDirectControlError(err: unknown, fallbackCode: Civ7DirectControlErrorCode): Civ7DirectControlError {
   if (err instanceof Civ7DirectControlError) return err;
   return new Civ7DirectControlError(fallbackCode, errorMessage(err), { cause: err });
-}
-
-function errorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }

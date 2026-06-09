@@ -2,11 +2,11 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Type, type Static } from "typebox";
 
+import type { Civ7DirectControlOptions } from "../session/types.js";
 import type {
-  Civ7CapabilityCatalogOptions,
   Civ7RootInspectionInput,
   Civ7RootInspectionResult,
-} from "../index";
+} from "../runtime/root-inspection.js";
 
 export const Civ7CapabilityCatalogEntrySchema = Type.Object({
   id: Type.String(),
@@ -41,6 +41,13 @@ export const Civ7CapabilityCatalogSchema = Type.Object({
 });
 
 export type Civ7CapabilityCatalog = Static<typeof Civ7CapabilityCatalogSchema>;
+
+export type Civ7CapabilityCatalogOptions = Civ7DirectControlOptions & Readonly<{
+  includeRuntime?: boolean;
+  includeStatic?: boolean;
+  appUiRoots?: ReadonlyArray<string>;
+  tunerRoots?: ReadonlyArray<string>;
+}>;
 
 export const DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS = [
   "Network",

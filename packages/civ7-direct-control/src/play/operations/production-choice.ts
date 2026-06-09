@@ -1,18 +1,46 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
-import { productionPostconditionFor } from "./production-postconditions.js";
-
+import { Civ7DirectControlError } from "../../direct-control-error.js";
+import {
+  productionPostconditionFor,
+  type Civ7ProductionPostconditionSnapshot,
+} from "./production-postconditions.js";
+import type { Civ7OperationRequestResult } from "./validate-request.js";
 import type {
   Civ7ActionApproval,
-  Civ7ComponentId,
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
   Civ7OperationInput,
   Civ7OperationValidationResult,
-  Civ7ProductionChoiceCommandPayload,
-  Civ7ProductionChoiceInput,
-  Civ7ProductionChoiceResult,
-  Civ7ProductionPostconditionSnapshot,
-} from "../../index";
+} from "./types.js";
+
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+} from "../../index.js";
+
+export type Civ7ProductionChoiceInput = Readonly<{
+  cityId: Civ7ComponentId;
+  args: Readonly<Record<string, number>>;
+}>;
+
+export type Civ7ProductionChoiceCommandPayload = Readonly<{
+  cityId: Civ7ComponentId;
+  args: unknown;
+  beforeValidation: unknown;
+  afterValidation: unknown;
+  sent: boolean;
+  sendResult?: Civ7RuntimeProbe<unknown>;
+  beforeProductionPostcondition: Civ7ProductionPostconditionSnapshot;
+  afterProductionPostcondition: Civ7ProductionPostconditionSnapshot;
+  ui?: Readonly<{
+    cityActivation?: Civ7RuntimeProbe<unknown>;
+    interfaceClose?: Civ7RuntimeProbe<unknown>;
+  }>;
+  notes: ReadonlyArray<string>;
+}>;
+
+export type Civ7ProductionChoiceResult = Civ7OperationRequestResult & Readonly<{
+  payload?: Civ7ProductionChoiceCommandPayload;
+}>;
 
 function probeHelperSource(): string {
   return `const probe = (fn) => {
