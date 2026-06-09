@@ -364,6 +364,28 @@ All future agent waves must be framed before delegation:
   2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
   projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
   implementation.
+- Unit-target action plan call-through cleanup: `index.ts` now re-exports
+  `getCiv7UnitTargetAction` directly from
+  `src/play/operations/unit-target-action.ts` after owner-local dependency
+  defaults are in place. This removes the trivial read/plan wrapper while
+  preserving the public package import name, selected-target plan shape,
+  read-vs-send split, and separate approved `requestCiv7UnitTargetAction`
+  mutation wrapper boundary. This is local package/source relocation cleanup
+  proof only: it does not change unit-target mutation behavior, claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, schema/procedure-core work, or
+  Effect/oRPC implementation.
+- Unit-target action request call-through cleanup: `index.ts` now re-exports
+  `requestCiv7UnitTargetAction` directly from
+  `src/play/operations/unit-target-action.ts` after owner-local dependency
+  defaults are in place. This removes the trivial approved mutation facade
+  wrapper while preserving the public package import name, read-vs-send split,
+  approval-first behavior, parser label, default verification timing, bounded
+  no-repeat-after-unverified polling/wording, and unit-target postcondition
+  classification. This is local package/source relocation cleanup proof only:
+  it does not claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or
+  unblock telemetry, AI ingestion, semantic CLI projection, hotseat runtime
+  proof, schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control diplomacy/narrative test slice: completed as additive
   test-only package coverage with two parallel net-new agents, DRA-owned
   integration, official-resource/doc checks for native path fit, local package
@@ -631,6 +653,16 @@ All future agent waves must be framed before delegation:
   generated-output-as-evidence policy, official-resource scanner behavior, and
   package proof. This is local package/source relocation proof only: it does not
   claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock
+  telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
+- Capability catalog call-through cleanup:
+  `index.ts` now re-exports `generateCiv7CapabilityCatalog` directly from
+  `src/catalog/capabilities.ts` after the owner-local dependency defaults are
+  already in place. This removes the remaining trivial async facade wrapper
+  while preserving the public package import name, static/runtime catalog
+  behavior, official-resource fixture scope, and generated-output-as-evidence
+  policy. This is local package/source relocation cleanup proof only: it does
+  not claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock
   telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
   schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control runtime inspection constants slice: completed as a narrow
@@ -980,6 +1012,26 @@ All future agent waves must be framed before delegation:
   only: it does not claim hotseat runtime proof, runtime/live-game proof, accept
   Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
   projection, schema/procedure-core work, or Effect/oRPC implementation.
+- Autoplay status call-through cleanup: `index.ts` now re-exports
+  `getCiv7AutoplayStatus` directly from `src/play/autoplay.ts` after
+  owner-local dependency defaults are in place. This removes the trivial status
+  read wrapper while preserving the public package import name, status result
+  shape, and the separate configure/start/stop mutation wrapper boundary. This
+  is local package/source relocation cleanup proof only: it does not change
+  autoplay mutation behavior, claim hotseat runtime proof, claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, schema/procedure-core work, or
+  Effect/oRPC implementation.
+- Turn-completion status call-through cleanup: `index.ts` now re-exports
+  `getCiv7TurnCompletionStatus` directly from `src/play/turn-completion.ts`
+  after owner-local dependency defaults are in place. This removes the trivial
+  status read wrapper while preserving the public package import name, status
+  result shape, and the separate send-turn-complete/send-unready mutation
+  wrapper boundary. This is local package/source relocation cleanup proof only:
+  it does not change turn-completion mutation behavior, claim hotseat runtime
+  proof, claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or
+  unblock telemetry, AI ingestion, semantic CLI projection,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.
@@ -1045,9 +1097,9 @@ All future agent waves must be framed before delegation:
   narrow progression closeout wrapper relocation. It moves the public wrapper
   orchestration for `requestCiv7TechnologyChoiceCloseout` and
   `requestCiv7CultureChoiceCloseout` into
-  `src/play/progression/{technology,culture}.ts` while keeping the public
-  facade export/call-through in `index.ts`. Executable dependencies remain
-  injected from the facade. This preserves approval-first checks, player/node
+  `src/play/progression/{technology,culture}.ts`; later dependency and
+  call-through cleanup rows record the non-facade owner imports and direct
+  public facade re-exports. This preserves approval-first checks, player/node
   validation, App UI execution, payload parse labels, command serialization,
   optional notification activation, SET_*_TREE_NODE and
   SET_*_TREE_TARGET_NODE send behavior, focused package/CLI proof, and pending
@@ -1202,6 +1254,27 @@ All future agent waves must be framed before delegation:
   Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
   work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Notification dismissal read call-through cleanup: `index.ts` now re-exports
+  `getCiv7NotificationDismissal` directly from
+  `src/play/notifications/dismissal-request.ts` after owner-local dependency
+  defaults are in place. This removes the trivial read planner wrapper while
+  preserving the public package import name, guarded read shape, and separate
+  approved `requestCiv7NotificationDismissal` mutation wrapper boundary. This
+  is local package/source relocation cleanup proof only: it does not change
+  dismissal mutation behavior, claim runtime/live-game proof, accept Task 2.9.4
+  matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
+  schema/procedure-core work, or Effect/oRPC implementation.
+- Notification dismissal request call-through cleanup: `index.ts` now
+  re-exports `requestCiv7NotificationDismissal` directly from
+  `src/play/notifications/dismissal-request.ts` after owner-local approval,
+  App UI execution, parser, serializer, and verification dependencies are in
+  place. This removes the trivial approved request wrapper while preserving the
+  public package import name, approval-first dismissal behavior, guarded send
+  serialization, and final identity-based verification. This is local
+  package/source relocation cleanup proof only: it does not claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, schema/procedure-core work, or
+  Effect/oRPC implementation.
 - Direct-control narrative choice verification helper slice: completed as the
   next specialized closeout-helper relocation. It first expands
   `test/narrative-choice.test.ts` to cover same-blocker `no-state-change` and
@@ -1980,6 +2053,27 @@ All future agent waves must be framed before delegation:
   matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
   hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
   implementation.
+- Setup-read call-through cleanup: `index.ts` now re-exports
+  `getCiv7SetupSnapshot` and `getCiv7SetupMapRows` directly from
+  `src/setup/reads.ts` after the owner-local dependency defaults are in place.
+  This removes the trivial async read wrappers while preserving the public
+  package import names, setup snapshot/map-row read behavior, and the separate
+  setup map-row visibility refresh boundary. This is local package/source
+  relocation cleanup proof only: it does not change setup map-row refresh,
+  setup lifecycle behavior, claim runtime/live-game proof, accept Task 2.9.4
+  matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
+  hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
+- Setup map-row visibility call-through cleanup: `index.ts` now re-exports
+  `ensureCiv7SetupMapRowVisible` directly from `src/setup/reads.ts` after the
+  owner-local dependency defaults are in place. This removes the separate
+  trivial async map-row visibility wrapper while preserving public package
+  import names, approval-first refresh behavior, setup map-row materialization,
+  exit-to-shell refresh semantics, setup read/source behavior, and setup
+  lifecycle behavior. This is local package/source relocation cleanup proof
+  only: it does not claim runtime/live-game proof, accept Task 2.9.4 matrix
+  rows, or unblock telemetry, AI ingestion, semantic CLI projection, hotseat
+  runtime proof, schema/procedure-core work, or Effect/oRPC implementation.
 - Setup-preparation facade dependency cleanup: `src/setup/prepare.ts` now
   imports existing non-facade setup-read defaults, command-result parser, and
   setup option identifier validation directly for
@@ -2037,6 +2131,17 @@ All future agent waves must be framed before delegation:
   runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
   AI ingestion, semantic CLI projection, hotseat runtime proof,
   schema/procedure-core work, or Effect/oRPC implementation.
+- Restart/begin lifecycle call-through cleanup: `index.ts` now re-exports
+  `beginCiv7Game`, `restartCiv7Game`, and `restartCiv7GameAndBegin` directly
+  from `src/setup/restart.ts` after owner-local dependency defaults are in
+  place. This removes the trivial async lifecycle facade wrappers while
+  preserving public package import names, App UI restart/begin command routing,
+  restart-output rejection, GameStarted polling, one-attempt begin send,
+  optional Tuner readiness wait, restart lifecycle package proof, and no-replay
+  package proof. This is local package/source relocation cleanup proof only: it
+  does not claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or
+  unblock telemetry, AI ingestion, semantic CLI projection, hotseat runtime
+  proof, schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into
@@ -2176,6 +2281,27 @@ All future agent waves must be framed before delegation:
   reveal classification, runtime/live-game proof, Task 2.9.4 matrix-row
   acceptance, telemetry, AI ingestion, CLI semantic projection, hotseat runtime
   proof, schema/procedure-core work, or Effect/oRPC implementation.
+- Visibility summary call-through cleanup: `index.ts` now re-exports
+  `getCiv7VisibilitySummary` directly from `src/play/map/visibility.ts` after
+  the owner-local dependency defaults are in place. This removes the trivial
+  async read wrapper while preserving the public package import name,
+  visibility read validation/bounds behavior, and the separate reveal-map
+  mutation wrapper boundary. This is local package/source relocation cleanup
+  proof only: it does not change reveal-map mutation behavior, claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
+- Reveal-map call-through cleanup: `index.ts` now re-exports
+  `revealCiv7MapForPlayer` directly from `src/play/map/visibility.ts` after
+  the owner-local approval, Tuner execution, parser, validation, and
+  visibility-read dependencies are in place. This removes the trivial mutation
+  wrapper while preserving the public package import name, approval-first
+  disposable-session guard, before/after visibility reads,
+  `Visibility.revealAllPlots` command text, and reveal classification shape.
+  This is local package/source relocation cleanup proof only: it does not
+  claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock
+  telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control source verification checkpoint: current stack top
   `83aebdb45` on `codex/disposition-schema-evaluation-report` passed
   `bun run --cwd packages/civ7-direct-control check`,
@@ -2325,3 +2451,134 @@ All future agent waves must be framed before delegation:
   or unblock semantic CLI implementation, debug hierarchy implementation,
   telemetry, AI ingestion, hotseat runtime proof, schema migration, or
   product-path support.
+- Runtime status/inspection facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports the runtime owner
+  functions directly for runtime API inspection, App UI snapshot, Tuner
+  health/readiness, playable status, and bounded root inspection instead of
+  keeping trivial async call-through wrappers. The runtime owner modules and
+  public package import names stay stable; lifecycle/setup composition remains
+  in the setup owners. This is local package/source relocation cleanup only and
+  does not claim runtime/live-game proof, accept Task 2.9.4, or unblock
+  telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+  schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.
+- Map/GameInfo/summary read facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports the read-owner
+  functions directly for map summary, plot snapshot, map grid, GameInfo rows,
+  and player/unit/city summaries instead of keeping trivial async call-through
+  wrappers. The read-owner modules and public package import names stay stable;
+  visibility/reveal mutation and setup reads remain outside this cleanup. This
+  is local package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, or unblock telemetry, AI
+  ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
+  debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Tactical/progression read facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports the read-owner
+  functions directly for settlement recommendations, target candidates,
+  traditions view, progress dashboard, battlefield scan, and destination
+  analysis instead of keeping trivial async call-through wrappers. This is
+  local read-only package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, or unblock telemetry, AI
+  ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
+  debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Ready-read facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports the read-owner
+  functions directly for ready-unit view, ready-city view, and
+  unit-move-preview instead of keeping trivial async call-through wrappers.
+  This is local read-only package/source relocation cleanup only and does not
+  claim runtime/live-game proof, accept Task 2.9.4, or unblock telemetry, AI
+  ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
+  debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Notification-view facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `getCiv7PlayNotificationView` directly from the notification view owner
+  instead of keeping a trivial async call-through wrapper. Notification
+  dismissal remains outside this cleanup. This is local read-only
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
+- Generic operation validation facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `canStartCiv7UnitOperation`, `canStartCiv7UnitCommand`,
+  `canStartCiv7CityOperation`, `canStartCiv7CityCommand`, and
+  `canStartCiv7PlayerOperation` directly from the generic operation owner
+  instead of keeping trivial async validation call-through wrappers. The
+  approved `request*` mutation wrapper cleanup is recorded as a separate
+  follow-on row.
+  This is local package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, or unblock telemetry, AI
+  ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
+  debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Generic operation request facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `requestCiv7UnitOperation`, `requestCiv7UnitCommand`,
+  `requestCiv7CityOperation`, `requestCiv7CityCommand`, and
+  `requestCiv7PlayerOperation` directly from the generic operation owner
+  instead of keeping trivial async mutation call-through wrappers. The
+  operation owner still owns approval-first mutation behavior,
+  validator-first request flow, App UI/Tuner command execution through existing
+  non-facade dependencies, and unit/population/production postcondition result
+  shape. This is local package/source relocation cleanup only and does not
+  claim runtime/live-game proof, accept Task 2.9.4, or unblock telemetry, AI
+  ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
+  debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Production-choice facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `requestCiv7ProductionChoice` directly from the production-choice owner
+  instead of keeping a trivial async mutation call-through wrapper. The
+  production-choice owner still owns approval-first BUILD request behavior,
+  cityId and production-args validation, validator-first no-send behavior,
+  App UI command execution through existing non-facade dependencies, bounded
+  post-send polling, and production postcondition result shape. This is local
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
+- Technology/culture closeout facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `requestCiv7TechnologyChoiceCloseout` and
+  `requestCiv7CultureChoiceCloseout` directly from the progression closeout
+  owners instead of keeping trivial async mutation call-through wrappers. The
+  progression closeout owners still own approval-first checks, player/node
+  validation, App UI execution through existing non-facade dependencies,
+  payload parse labels, optional notification activation, and
+  SET_*_TREE_NODE / SET_*_TREE_TARGET_NODE send behavior. This is local
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
+- Diplomacy/narrative facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `requestCiv7DiplomacyResponse` and `requestCiv7NarrativeChoice` directly
+  from their operation owners instead of keeping trivial async mutation
+  call-through wrappers. The operation owners still own approval-first
+  response behavior, validator-first no-send behavior, App UI closeout command
+  serialization through existing non-facade dependencies, and
+  diplomacy/narrative postcondition classification. This is local
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
+- Autoplay action facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `configureCiv7Autoplay`, `startCiv7Autoplay`, and `stopCiv7Autoplay`
+  directly from the autoplay owner instead of keeping trivial async mutation
+  call-through wrappers. `src/play/autoplay.ts` still owns approval-first
+  mutation behavior, App UI execution, explicit unbounded start semantics, and
+  stop-settling/pause verification. This is local package/source relocation
+  cleanup only and does not claim runtime/live-game proof, accept Task 2.9.4,
+  or unblock telemetry, AI ingestion, CLI semantic projection, hotseat runtime
+  proof, schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.
+- Turn-completion action facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `sendCiv7TurnComplete` and `sendCiv7TurnUnready` directly from the
+  turn-completion owner instead of keeping trivial async mutation call-through
+  wrappers. `src/play/turn-completion.ts` still owns approval-first mutation
+  behavior, stale notification fallback classification, App UI execution, and
+  turn-completion action result shapes. This is local package/source
+  relocation cleanup only and does not claim runtime/live-game proof, accept
+  Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic projection,
+  hotseat runtime proof, schema migration, debug hierarchy implementation, or
+  Effect/oRPC procedure-core work.

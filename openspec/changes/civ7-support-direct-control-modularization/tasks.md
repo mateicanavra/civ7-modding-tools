@@ -253,6 +253,12 @@ runtime/direct-control claims.
         leaving telemetry, AI ingestion, CLI semantic projection, hotseat
         runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.3.4 Prune the trivial notification-view facade call-through wrapper
+        by re-exporting the read-owner function directly from `index.ts`,
+        preserving public package imports for `getCiv7PlayNotificationView`
+        while leaving notification dismissal, telemetry, AI ingestion, CLI
+        semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.4 Extract notification dismissal/verification atom.
   - [x] 4.4.1 Extract notification dismissal embedded source owner while
         keeping wrapper-level polling and verification helpers in the facade.
@@ -275,6 +281,22 @@ runtime/direct-control claims.
         dismissal behavior, final identity-based verification, focused
         package/CLI notification dismissal proof, and leaving runtime/live-game
         proof, telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.4.6 Prune the notification dismissal read facade call-through wrapper
+        by re-exporting `getCiv7NotificationDismissal` directly from
+        `src/play/notifications/dismissal-request.ts`, preserving public
+        package imports, guarded read shape, the separate approved
+        `requestCiv7NotificationDismissal` mutation wrapper, focused
+        package/CLI notification dismissal proof, and leaving runtime/live-game
+        proof, telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.4.7 Prune the notification dismissal request facade call-through
+        wrapper by re-exporting `requestCiv7NotificationDismissal` directly
+        from `src/play/notifications/dismissal-request.ts`, preserving public
+        package imports, approval-first dismissal behavior, guarded send
+        serialization, final identity-based verification, focused package/CLI
+        notification dismissal proof, and leaving runtime/live-game proof,
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.5 Extract ready unit/city view atoms.
   - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
@@ -299,6 +321,13 @@ runtime/direct-control claims.
         and leaving ready-domain regrouping, telemetry, AI ingestion, CLI
         semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
         work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.5.8 Prune trivial ready-read facade call-through wrappers by
+        re-exporting the read-owner functions directly from `index.ts`,
+        preserving public package imports for ready-unit view, ready-city view,
+        and unit-move-preview while leaving ready-domain regrouping, telemetry,
+        AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.6 Extract operation validation/send/postcondition atoms.
   - [x] 4.6.1 Extract operation router embedded validation/send source owner
         while keeping wrapper-level postconditions and specialized closeouts in
@@ -456,6 +485,72 @@ runtime/direct-control claims.
         classification, package/CLI proof, and leaving runtime/live-game proof,
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.26 Prune the unit-target action plan facade call-through wrapper by
+        re-exporting `getCiv7UnitTargetAction` directly from
+        `src/play/operations/unit-target-action.ts`, preserving public package
+        imports, read-vs-send split, selected-target plan shape, the separate
+        approved `requestCiv7UnitTargetAction` mutation wrapper, package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.26a Prune the unit-target action request facade call-through
+        wrapper by re-exporting `requestCiv7UnitTargetAction` directly from
+        `src/play/operations/unit-target-action.ts`, preserving public package
+        imports, read-vs-send split, approval-first behavior, parser label,
+        default verification timing, bounded no-repeat-after-unverified
+        polling/wording, unit-target postcondition classification, package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.27 Prune generic operation validation facade call-through wrappers
+        by re-exporting `canStartCiv7UnitOperation`,
+        `canStartCiv7UnitCommand`, `canStartCiv7CityOperation`,
+        `canStartCiv7CityCommand`, and `canStartCiv7PlayerOperation`
+        directly from `src/play/operations/validate-request.ts`, preserving
+        public package imports, validation/read-only behavior, the separate
+        approved `request*` mutation wrappers, package/CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.6.28 Prune generic operation request facade call-through wrappers by
+        re-exporting `requestCiv7UnitOperation`, `requestCiv7UnitCommand`,
+        `requestCiv7CityOperation`, `requestCiv7CityCommand`, and
+        `requestCiv7PlayerOperation` directly from
+        `src/play/operations/validate-request.ts`, preserving public package
+        imports, approval-first mutation behavior, validator-first request
+        flow, postcondition result shape, package/CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.6.29 Prune the production-choice facade call-through wrapper by
+        re-exporting `requestCiv7ProductionChoice` directly from
+        `src/play/operations/production-choice.ts`, preserving public package
+        imports, approval-first BUILD request behavior, cityId and production
+        args validation, validator-first no-send behavior, production
+        postcondition result shape, package/CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.6.30 Prune the technology/culture closeout facade call-through
+        wrappers by re-exporting `requestCiv7TechnologyChoiceCloseout` and
+        `requestCiv7CultureChoiceCloseout` directly from
+        `src/play/progression/{technology,culture}.ts`, preserving public
+        package imports, approval-first checks, player/node validation, App UI
+        execution, payload parse labels, optional notification activation,
+        SET_*_TREE_NODE / SET_*_TREE_TARGET_NODE send behavior, package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.31 Prune the diplomacy/narrative facade call-through wrappers by
+        re-exporting `requestCiv7DiplomacyResponse` and
+        `requestCiv7NarrativeChoice` directly from
+        `src/play/operations/{diplomacy-request,narrative-request}.ts`,
+        preserving public package imports, approval-first response behavior,
+        validator-first no-send behavior, App UI closeout command
+        serialization, diplomacy/narrative postcondition classification,
+        package/CLI proof, and leaving runtime/live-game proof, telemetry, AI
+        ingestion, semantic CLI projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
@@ -490,6 +585,13 @@ runtime/direct-control claims.
         telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.7.13 Prune trivial tactical/progression read facade call-through
+        wrappers by re-exporting the read-owner functions directly from
+        `index.ts`, preserving public package imports for settlement
+        recommendations, target candidates, traditions view, progress dashboard,
+        battlefield scan, and destination analysis while leaving telemetry, AI
+        ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.
@@ -1091,6 +1193,30 @@ runtime/direct-control claims.
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.11.12 Prune trivial map/GameInfo/summary read facade call-through
+        wrappers by re-exporting the read-owner functions directly from
+        `index.ts`, preserving public package imports for map summary, plot
+        snapshot, map grid, GameInfo rows, and player/unit/city summaries while
+        leaving visibility/reveal mutation, setup reads, public procedure
+        schemas, telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.11.13 Prune the visibility summary read facade call-through wrapper
+        by re-exporting `getCiv7VisibilitySummary` directly from
+        `src/play/map/visibility.ts`, preserving public package imports,
+        visibility read validation/bounds behavior, the separate reveal-map
+        mutation wrapper boundary, public procedure schemas, telemetry, hotseat
+        runtime proof, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.11.14 Prune the reveal-map mutation facade call-through wrapper by
+        re-exporting `revealCiv7MapForPlayer` directly from
+        `src/play/map/visibility.ts`, preserving public package imports,
+        approval-first disposable-session guard, before/after visibility reads,
+        `Visibility.revealAllPlots` command text, reveal classification shape,
+        package proof, and leaving runtime/live-game proof, public procedure
+        schemas, telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as
@@ -1233,6 +1359,21 @@ runtime/direct-control claims.
         projection, and leaving telemetry, AI ingestion, CLI semantic
         projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
         Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.20 Prune trivial runtime status/inspection facade call-through
+        wrappers by re-exporting the runtime owner functions directly from
+        `index.ts`, preserving public package imports for runtime API
+        inspection, App UI snapshot, Tuner health/readiness, playable status,
+        and bounded root inspection while leaving lifecycle/setup composition,
+        telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.12.21 Prune the remaining capability catalog facade call-through
+        wrapper by re-exporting `generateCiv7CapabilityCatalog` directly from
+        `src/catalog/capabilities.ts`, preserving the public package import
+        name, static/runtime catalog behavior, official-resource fixture scope,
+        generated-output-as-evidence policy, and leaving telemetry, AI
+        ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
@@ -1267,6 +1408,36 @@ runtime/direct-control claims.
         hotseat runtime proof, AI ingestion, CLI semantic projection,
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.13.5 Prune the autoplay status facade call-through wrapper by
+        re-exporting `getCiv7AutoplayStatus` directly from
+        `src/play/autoplay.ts`, preserving public package imports, status read
+        shape, the separate configure/start/stop mutation wrappers, hotseat
+        runtime proof, AI ingestion, CLI semantic projection, telemetry,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.13.6 Prune the turn-completion status facade call-through wrapper by
+        re-exporting `getCiv7TurnCompletionStatus` directly from
+        `src/play/turn-completion.ts`, preserving public package imports,
+        status read shape, the separate send-turn-complete/send-unready
+        mutation wrappers, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.13.7 Prune the autoplay action facade call-through wrappers by
+        re-exporting `configureCiv7Autoplay`, `startCiv7Autoplay`, and
+        `stopCiv7Autoplay` directly from `src/play/autoplay.ts`, preserving
+        public package imports, approval-first mutation behavior, explicit
+        unbounded start semantics, stop-settling/pause behavior, command
+        strings, result shapes, package/CLI proof, and leaving hotseat runtime
+        proof, AI ingestion, CLI semantic projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.13.8 Prune the turn-completion action facade call-through wrappers by
+        re-exporting `sendCiv7TurnComplete` and `sendCiv7TurnUnready` directly
+        from `src/play/turn-completion.ts`, preserving public package imports,
+        approval-first mutation behavior, stale notification fallback
+        classification, turn-completion action result shapes, package/CLI
+        proof, and leaving hotseat runtime proof, AI ingestion, CLI semantic
+        projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.14 Extract setup/start lifecycle atoms.
   - [x] 4.14.1 Extract setup snapshot and setup map rows read/source owner while
         keeping public facade exports in `index.ts` and leaving
@@ -1383,6 +1554,32 @@ runtime/direct-control claims.
         runtime proof, AI ingestion, semantic CLI projection, telemetry,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.14.14 Prune trivial setup read facade call-through wrappers by
+        re-exporting `getCiv7SetupSnapshot` and `getCiv7SetupMapRows` directly
+        from `src/setup/reads.ts`, preserving public package imports, setup
+        snapshot/map-row read behavior, the separate setup map-row visibility
+        refresh boundary, setup lifecycle behavior, runtime proof, hotseat
+        runtime proof, AI ingestion, semantic CLI projection, telemetry,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.14.15 Prune trivial restart/begin lifecycle facade call-through
+        wrappers by re-exporting `beginCiv7Game`, `restartCiv7Game`, and
+        `restartCiv7GameAndBegin` directly from `src/setup/restart.ts`,
+        preserving public package imports, App UI restart/begin command
+        routing, restart-output rejection, GameStarted polling, one-attempt
+        begin send, optional Tuner readiness wait, restart lifecycle package
+        proof, no-replay package proof, and leaving runtime/live-game proof,
+        hotseat runtime proof, AI ingestion, semantic CLI projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.14.16 Prune the setup map-row visibility refresh facade call-through
+        wrapper by re-exporting `ensureCiv7SetupMapRowVisible` directly from
+        `src/setup/reads.ts`, preserving public package imports, approval-first
+        refresh behavior, setup map-row materialization, exit-to-shell refresh
+        semantics, setup read/source behavior, setup lifecycle behavior, and
+        leaving runtime/live-game proof, hotseat runtime proof, AI ingestion,
+        semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

@@ -4,6 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import {
   configureCiv7Autoplay,
+  getCiv7AutoplayStatus,
   getCiv7TurnCompletionStatus,
   sendCiv7TurnComplete,
   sendCiv7TurnUnready,
@@ -41,6 +42,7 @@ describe("Civ7 autoplay and turn completion", () => {
     try {
       const { port } = server.address();
       const endpoint = { host: "127.0.0.1", port, timeoutMs: 1_000, pollIntervalMs: 5 };
+      const status = await getCiv7AutoplayStatus(endpoint);
 
       const configure = await configureCiv7Autoplay(
         { ...endpoint, turns: 4, observeAsPlayer: 2, returnAsPlayer: 0, pause: true },
@@ -74,6 +76,16 @@ describe("Civ7 autoplay and turn completion", () => {
             observeAsPlayer: 0,
             returnAsPlayer: 0,
           },
+        },
+      });
+      expect(status).toMatchObject({
+        state: { id: "65535", name: "App UI" },
+        autoplay: {
+          isActive: false,
+          turns: -1,
+        },
+        gameContext: {
+          localPlayerID: 0,
         },
       });
       expect(start.commands[0]?.output[0]).toContain('"isActive":true');
