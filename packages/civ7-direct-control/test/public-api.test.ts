@@ -17,6 +17,10 @@ import {
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
   Civ7MapLocationSchema,
+  Civ7PlayNotificationViewInputSchema,
+  Civ7PlayNotificationViewProcedureDescriptor,
+  Civ7PlayNotificationViewProcedureSchemaArtifacts,
+  Civ7PlayNotificationViewResultSchema,
   Civ7PlayableStatusInputSchema,
   Civ7PlayableStatusProcedureDescriptor,
   Civ7PlayableStatusProcedureSchemaArtifacts,
@@ -34,6 +38,10 @@ import {
   Civ7ReadyUnitViewProcedureSchemaArtifacts,
   Civ7ReadyUnitViewInputSchema,
   Civ7ReadyUnitViewResultSchema,
+  Civ7SettlementRecommendationInputSchema,
+  Civ7SettlementRecommendationResultSchema,
+  Civ7SettlementRecommendationsProcedureDescriptor,
+  Civ7SettlementRecommendationsProcedureSchemaArtifacts,
   Civ7TunerHealthInputSchema,
   Civ7TunerHealthProcedureDescriptor,
   Civ7TunerHealthProcedureSchemaArtifacts,
@@ -68,9 +76,11 @@ import {
   assertCiv7ComponentId,
   callCiv7AppUiSnapshotProcedure,
   callCiv7PlayableStatusProcedure,
+  callCiv7PlayNotificationViewProcedure,
   callCiv7ProcedureCore,
   callCiv7ReadyCityViewProcedure,
   callCiv7ReadyUnitViewProcedure,
+  callCiv7SettlementRecommendationsProcedure,
   callCiv7TunerHealthProcedure,
   callCiv7UnitMovePreviewProcedure,
   civ7ProcedureSchemaReferenceKey,
@@ -325,6 +335,52 @@ describe("Civ7 direct control public API", () => {
     });
   });
 
+  test("exports play-notification view procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { maxNotifications: 25 })).toBe(true);
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { maxNotifications: 101 })).toBe(false);
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { rawCommand: "readPlayNotifications()" })).toBe(false);
+    expect(Civ7PlayNotificationViewResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "state",
+        "localPlayerId",
+        "notifications",
+        "decisions",
+        "hud",
+        "limits",
+      ]),
+    });
+  });
+
+  test("exports settlement recommendation procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, {
+      locations: [{ x: 18, y: 27 }],
+      count: 3,
+      includeSettlers: false,
+      includeCities: false,
+    })).toBe(true);
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { count: 13 })).toBe(false);
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { locations: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { rawCommand: "readSettlementRecommendations()" })).toBe(false);
+    expect(Civ7SettlementRecommendationResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "state",
+        "localPlayerId",
+        "playerId",
+        "count",
+        "requestedLocations",
+        "origins",
+        "recommendations",
+        "notes",
+      ]),
+    });
+  });
+
   test("exports procedure schema reference schema from the public facade", () => {
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "direct-control-facade")).toBe(true);
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "raw-socket")).toBe(false);
@@ -436,6 +492,41 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7UnitMovePreviewProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.outputSchema)
     ]).toBe(Civ7UnitMovePreviewResultSchema);
+  });
+
+  test("exports the play-notification view procedure descriptor artifact from the public facade", () => {
+    expect(Civ7PlayNotificationViewProcedureDescriptor).toMatchObject({
+      procedureKey: "notifications.view",
+      atomFunction: "getCiv7PlayNotificationView",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+    });
+    expect(typeof callCiv7PlayNotificationViewProcedure).toBe("function");
+    expect(Civ7PlayNotificationViewProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7PlayNotificationViewProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7PlayNotificationViewInputSchema);
+    expect(Civ7PlayNotificationViewProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7PlayNotificationViewProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7PlayNotificationViewResultSchema);
+  });
+
+  test("exports the settlement recommendations procedure descriptor artifact from the public facade", () => {
+    expect(Civ7SettlementRecommendationsProcedureDescriptor).toMatchObject({
+      procedureKey: "strategy.settlement.recommendations",
+      family: "strategy",
+      atomFunction: "getCiv7SettlementRecommendations",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+    });
+    expect(typeof callCiv7SettlementRecommendationsProcedure).toBe("function");
+    expect(Civ7SettlementRecommendationsProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7SettlementRecommendationsProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7SettlementRecommendationInputSchema);
+    expect(Civ7SettlementRecommendationsProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7SettlementRecommendationsProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7SettlementRecommendationResultSchema);
   });
 
   test("exports the playable-status procedure descriptor artifact from the public facade", () => {

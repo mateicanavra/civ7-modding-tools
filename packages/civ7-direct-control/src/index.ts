@@ -714,13 +714,39 @@ export {
 export type { Civ7ReadyCityViewProcedureCallOptions } from "./play/ready/city-procedure.js";
 export type {
   Civ7PlayDecisionAction,
+  Civ7PlayDecisionActionContract,
   Civ7PlayDecisionHint,
+  Civ7PlayDecisionHintContract,
   Civ7PlayDecisionInput,
+  Civ7PlayDecisionInputContract,
   Civ7PlayDecisionQueueItem,
+  Civ7PlayDecisionQueueItemContract,
   Civ7PlayNotificationSummary,
+  Civ7PlayNotificationSummaryContract,
+  Civ7PlayNotificationViewInput,
+  Civ7PlayNotificationViewResultContract,
   Civ7PlayNotificationViewResult,
+  PlayNotificationViewDependencies,
+  PlayNotificationViewOptions,
 } from "./play/notifications/view.js";
-export { getCiv7PlayNotificationView } from "./play/notifications/view.js";
+export {
+  Civ7PlayDecisionActionSchema,
+  Civ7PlayDecisionHintSchema,
+  Civ7PlayDecisionInputSchema,
+  Civ7PlayDecisionQueueItemSchema,
+  Civ7PlayNotificationSummarySchema,
+  Civ7PlayNotificationViewInputSchema,
+  Civ7PlayNotificationViewResultSchema,
+  getCiv7PlayNotificationView,
+} from "./play/notifications/view.js";
+export {
+  callCiv7PlayNotificationViewProcedure,
+  Civ7PlayNotificationViewProcedureDescriptor,
+  Civ7PlayNotificationViewProcedureSchemaArtifacts,
+} from "./play/notifications/view-procedure.js";
+export type {
+  Civ7PlayNotificationViewProcedureCallOptions,
+} from "./play/notifications/view-procedure.js";
 export type {
   Civ7NotificationDismissInput,
   Civ7NotificationDismissalResult,
@@ -750,8 +776,25 @@ export type {
   Civ7SettlementRecommendationInput,
   Civ7SettlementRecommendationOrigin,
   Civ7SettlementRecommendationResult,
+  SettlementRecommendationDependencies,
 } from "./play/tactical/settlement.js";
-export { getCiv7SettlementRecommendations };
+export {
+  Civ7SettlementRecommendationFactorSchema,
+  Civ7SettlementRecommendationInputSchema,
+  Civ7SettlementRecommendationOriginSchema,
+  Civ7SettlementRecommendationResultSchema,
+  Civ7SettlementRecommendationSchema,
+  Civ7SettlementSuggestionSchema,
+  getCiv7SettlementRecommendations,
+} from "./play/tactical/settlement.js";
+export {
+  callCiv7SettlementRecommendationsProcedure,
+  Civ7SettlementRecommendationsProcedureDescriptor,
+  Civ7SettlementRecommendationsProcedureSchemaArtifacts,
+} from "./play/tactical/settlement-procedure.js";
+export type {
+  Civ7SettlementRecommendationsProcedureCallOptions,
+} from "./play/tactical/settlement-procedure.js";
 export type {
   Civ7TargetCandidate,
   Civ7TargetCandidatesInput,

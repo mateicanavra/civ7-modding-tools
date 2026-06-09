@@ -2281,6 +2281,48 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, implement the in-game controller router,
         claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
         6.1-6.9.
+  - [x] 4.36 Add the adjacent notification-view procedure atom in
+        `src/play/notifications/view-procedure.ts`, with TypeBox input/output
+        schemas beside the existing notification read atom in
+        `src/play/notifications/view.ts`, focused proof in
+        `test/play-notification-view-procedure.test.ts`, adjacent atom schema
+        proof in `test/play-notification-view.test.ts`, and public facade proof
+        in `test/public-api.test.ts`. This composes the local procedure-core
+        call primitive with the existing `getCiv7PlayNotificationView` atom,
+        validates bounded `maxNotifications` input before atom dependencies
+        run, keeps endpoint/session/state/raw-command selection out of
+        procedure input, validates notification/decision/HUD output through
+        descriptor schema artifacts, forwards direct-control options to the
+        atom, and keeps procedure diagnostics separate from notification-view
+        output. This is local no-network proof over fake atom dependencies
+        only; it does not change CLI output, notification classification, or
+        dismissal behavior, execute live direct-control atoms, add a
+        router/registry/transport adapter, choose Effect Schema, add
+        Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.37 Add the adjacent settlement-recommendations procedure atom in
+        `src/play/tactical/settlement-procedure.ts`, with TypeBox input/output
+        schemas beside the existing read-only settlement recommendation atom
+        in `src/play/tactical/settlement.ts`, focused proof in
+        `test/settlement-recommendations-procedure.test.ts`, adjacent atom
+        schema proof in `test/settlement-recommendations.test.ts`, and public
+        facade proof in `test/public-api.test.ts`. This composes the local
+        procedure-core call primitive with the existing
+        `getCiv7SettlementRecommendations` atom under the existing `strategy`
+        procedure family, validates bounded `count` and map-location input
+        before atom dependencies run, keeps endpoint/session/state/raw-command
+        selection out of procedure input, validates origin/suggestion output
+        through descriptor schema artifacts, forwards direct-control options
+        to the atom, and keeps procedure diagnostics separate from settlement
+        recommendation output. This is local no-network proof over fake atom
+        dependencies only; it does not change CLI output, reinterpret
+        recommendations as actions, add city-founding/send behavior, execute
+        live direct-control atoms, add a router/registry/transport adapter,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2344,11 +2386,21 @@ authority are recorded.
     empty procedure input schema that leaves endpoint/session/state selection
     in context and local no-network proof over a fake App UI command
     dependency.
+    Task 4.36 adds an adjacent read-atom schema/descriptor/call artifact for
+    `notifications.view` over the notification read atom, including bounded
+    `maxNotifications` input, notification/decision/HUD output schema proof,
+    and local no-network proof over fake atom dependencies.
+    Task 4.37 adds an adjacent read-atom schema/descriptor/call artifact for
+    `strategy.settlement.recommendations` over the settlement recommendation
+    atom, including bounded `count` input, map-location input, origin/
+    suggestion output schema proof, and local no-network proof over fake atom
+    dependencies.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
-    inputs/outputs beyond the ready-unit, ready-city, unit move-preview, and
-    runtime-support schema seeds, descriptor schema-reference binding/resolution,
-    adjacent descriptor/call artifacts, and resolver field-list guard.
+    inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
+    runtime-support, notification-view, and settlement-recommendations schema
+    seeds, descriptor schema-reference binding/resolution, adjacent
+    descriptor/call artifacts, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test
