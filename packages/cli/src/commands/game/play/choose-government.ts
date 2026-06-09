@@ -19,7 +19,7 @@ export default class GamePlayChooseGovernment extends Command {
   static examples = [
     '<%= config.bin %> game play choose-government --options --json',
     '<%= config.bin %> game play choose-government --player-id 0 --government-type 0 --json',
-    '<%= config.bin %> game play choose-government --player-id 0 --government-type 0 --send --json',
+    '<%= config.bin %> game play choose-government --government-type 0 --send --json',
   ];
 
   static flags = {
@@ -80,11 +80,22 @@ export default class GamePlayChooseGovernment extends Command {
       });
       return;
     }
-    if (typeof flags['player-id'] !== 'number') {
-      throw new Error('game play choose-government requires --player-id unless --options is used');
-    }
     if (typeof flags['government-type'] !== 'number') {
       throw new Error('game play choose-government requires --government-type unless --options is used');
+    }
+    if (flags.send) {
+      const result = await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      }).government.choice.request({
+        governmentType: flags['government-type'],
+        ...(flags.action === undefined ? {} : { action: flags.action }),
+      });
+      emitPlayResult(this.log.bind(this), flags.json, result);
+      return;
+    }
+    if (typeof flags['player-id'] !== 'number') {
+      throw new Error('game play choose-government requires --player-id unless --options is used');
     }
     const input = {
       operationType: CHANGE_GOVERNMENT,
@@ -94,16 +105,7 @@ export default class GamePlayChooseGovernment extends Command {
         Action: flags.action ?? -1326475004,
       },
     };
-    const result = flags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
-          endpointDefaults: options,
-        }).government.choice.request({
-          playerId: flags['player-id'],
-          governmentType: flags['government-type'],
-          ...(flags.action === undefined ? {} : { action: flags.action }),
-        })
-      : await validatePlayOperation('player-operation', input, options);
+    const result = await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }
@@ -146,7 +148,7 @@ function compactGovernmentChoiceSurface(details: Record<string, unknown>): {
       description: option.description,
       action: option.action,
       celebrationOptions: option.celebrationOptions,
-      chooseCli: option.cli,
+      chooseCli: governmentChoiceSendCli(option),
       validateCli: option.validateCli,
     }));
   return {
@@ -159,6 +161,12 @@ function compactGovernmentChoiceSurface(details: Record<string, unknown>): {
     enabledOptionCount: enabledOptions.length,
     disabledOptionCount: asArray(details.disabledOptions).length,
   };
+}
+
+function governmentChoiceSendCli(option: Record<string, unknown>): string | null {
+  if (typeof option.governmentType !== 'number') return null;
+  const action = typeof option.action === 'number' ? ` --action ${option.action}` : '';
+  return `game play choose-government --government-type ${option.governmentType}${action} --send`;
 }
 
 function asArray(value: unknown): unknown[] {

@@ -1,6 +1,7 @@
 import { narrativeChoiceProofPostcondition } from "@civ7/direct-control/proof/narrative-choice-proof-policy";
 import { Effect } from "effect";
 
+import type { Civ7ControlOrpcContext } from "../../../context";
 import type { Civ7ControlOrpcNarrativeChoiceResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
@@ -13,6 +14,10 @@ import type {
   Civ7NarrativeChoiceResult,
 } from "../contract";
 
+type NarrativeChoiceRuntimeInput = Civ7NarrativeChoiceInput & Readonly<{
+  playerId: number;
+}>;
+
 export const narrativeChoiceRequestProcedure =
   civ7ControlOrpcMutationProcedure(
     civ7ControlOrpcImplementer.narrative.choice.request,
@@ -23,11 +28,18 @@ export const narrativeChoiceRequestProcedure =
   }) {
     return yield* Effect.tryPromise({
       try: async () => {
+        const localPlayerId = await readLocalPlayerId(context);
+        const requestInput = {
+          playerId: localPlayerId,
+          targetType: input.targetType,
+          target: input.target,
+          action: input.action,
+        };
         const result = await context.directControl.requestCiv7NarrativeChoice(
-          input,
+          requestInput,
           context.endpointDefaults,
         );
-        return narrativeChoiceResult(input, result);
+        return narrativeChoiceResult(requestInput, result);
       },
       catch: () =>
         errors.NARRATIVE_CHOICE_UNAVAILABLE({
@@ -40,8 +52,17 @@ export const narrativeChoiceRequestProcedure =
     });
   });
 
+async function readLocalPlayerId(
+  context: Civ7ControlOrpcContext,
+): Promise<number> {
+  const view = await context.directControl.getCiv7PlayNotificationView(
+    context.endpointDefaults,
+  );
+  return view.localPlayerId;
+}
+
 function narrativeChoiceResult(
-  input: Civ7NarrativeChoiceInput,
+  input: NarrativeChoiceRuntimeInput,
   result: Civ7ControlOrpcNarrativeChoiceResult,
 ): Civ7NarrativeChoiceResult {
   const projection = civ7CloseoutMutationProjection({

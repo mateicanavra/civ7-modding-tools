@@ -18,6 +18,13 @@ cleared. Sent results therefore remain `sent-unverified` with do-not-repeat
 next steps until a future source-owned government-domain read/postcondition
 owner proves blocker clearance.
 
+Post-slice public-input repair: the government-domain oRPC send inputs now
+omit caller `playerId`. Procedures continue to read live local-player evidence
+before invoking direct-control runtime ports, and CLI send mode no longer
+requires or passes `--player-id`. The dry-run validation path may still require
+`--player-id` because it intentionally calls the low-level direct-control
+validator rather than the semantic send service.
+
 ## Write Set
 
 - `packages/civ7-direct-control/src/play/government/choice-request.ts`
@@ -52,6 +59,8 @@ owner proves blocker clearance.
 - No raw command/session/state/Tuner payloads, generic operation type/args,
   direct-control operation envelopes, or legacy `verified` in normal send
   output.
+- No caller player-id send authority; public service inputs contain only the
+  requested government/celebration choice fields.
 - No government-domain read service or blocker-clearance postcondition owner
   in this slice.
 - No play-thread wake and no live-game/runtime proof claim.
@@ -64,12 +73,14 @@ owner proves blocker clearance.
   source-owned default government action evidence, and pending-runtime/no-repeat
   proof classification.
 - Focused control-oRPC government procedure proof covers native government
-  domain leaves, fresh local-player evidence before send, caller `playerId` not
-  becoming send authority, raw input rejection, safe tagged error projection,
-  semantic output closure, and sent choices staying no-repeat guarded.
+  domain leaves, fresh local-player evidence before send, caller `playerId`
+  rejection from public procedure input, raw input rejection, safe tagged error
+  projection, semantic output closure, and sent choices staying no-repeat
+  guarded.
 - Focused CLI celebration/government tests cover `choose-celebration --send`
   and `choose-government --send` through the in-process service client path,
-  semantic output, local-player substitution, and raw runtime/detail omission.
+  semantic output, playerless send-mode service inputs, local-player
+  substitution, and raw runtime/detail omission.
 - Closure proof collected: focused direct-control request test,
   direct-control check/build, focused and full control-oRPC package tests,
   control-oRPC check/build, focused CLI celebration/government tests,

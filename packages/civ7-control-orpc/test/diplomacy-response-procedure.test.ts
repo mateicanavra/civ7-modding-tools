@@ -9,10 +9,12 @@ import {
   type Civ7ControlOrpcContext,
   type Civ7ControlOrpcPlayableStatusResult,
 } from "../src/index";
-import type { Civ7ControlOrpcDiplomacyResponseResult } from "../src/dependencies/direct-control";
+import type {
+  Civ7ControlOrpcDiplomacyResponseResult,
+  Civ7ControlOrpcPlayNotificationViewResult,
+} from "../src/dependencies/direct-control";
 
 const diplomacyInput = {
-  playerId: 0,
   actionId: 8_821,
   responseType: -1_713_616_684,
   notificationId: { owner: 0, id: 44, type: 20 },
@@ -29,8 +31,12 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
     );
 
     expect(fake.calls.readiness).toHaveLength(1);
+    expect(fake.calls.views).toHaveLength(1);
     expect(fake.calls.request).toEqual([{
-      input: diplomacyInput,
+      input: {
+        playerId: 0,
+        ...diplomacyInput,
+      },
       options: {
         host: "127.0.0.1",
         port: 4318,
@@ -73,23 +79,37 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
   });
 
-  test("projects source-owned acted player evidence instead of caller validation player", async () => {
-    const input = {
-      ...diplomacyInput,
-      playerId: 2,
-    };
+  test("derives send player from live notification evidence", async () => {
     const fake = fakeContext(diplomacyResponseResult("diplomacy-blocker-cleared", {
       playerId: 0,
-    }));
+    }), { localPlayerId: 2 });
 
     const result = await call(
       Civ7ControlOrpcRouter.diplomacy.response.request,
-      input,
+      diplomacyInput,
       { context: fake.context },
     );
 
-    expect(fake.calls.request[0]?.input).toEqual(input);
+    expect(fake.calls.request[0]?.input).toEqual({
+      playerId: 2,
+      ...diplomacyInput,
+    });
     expect(result.playerId).toBe(0);
+  });
+
+  test("rejects caller playerId before facade execution", async () => {
+    const fake = fakeContext(diplomacyResponseResult("diplomacy-blocker-cleared"));
+
+    await expect(
+      call(
+        Civ7ControlOrpcRouter.diplomacy.response.request,
+        { ...diplomacyInput, playerId: 2 } as never,
+        { context: fake.context },
+      ),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(fake.calls.readiness).toEqual([]);
+    expect(fake.calls.views).toEqual([]);
+    expect(fake.calls.request).toEqual([]);
   });
 
   test("keeps sent no-state-change diplomacy responses no-repeat guarded", async () => {
@@ -177,6 +197,7 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
         ),
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.readiness).toEqual([]);
+      expect(fake.calls.views).toEqual([]);
       expect(fake.calls.request).toEqual([]);
     }
   });
@@ -263,10 +284,11 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
 
 function fakeContext(
   result: Civ7ControlOrpcDiplomacyResponseResult,
-  options: Partial<{ playable: boolean }> = {},
+  options: Partial<{ playable: boolean; localPlayerId: number }> = {},
 ): {
   calls: {
     readiness: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     request: Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
@@ -276,6 +298,7 @@ function fakeContext(
 } {
   const calls = {
     readiness: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
+    views: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
     request: [] as Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
@@ -294,6 +317,12 @@ function fakeContext(
         getCiv7PlayableStatus: async (endpointDefaults) => {
           calls.readiness.push(endpointDefaults);
           return playableStatusResult(options.playable ?? true);
+        },
+        getCiv7PlayNotificationView: async (endpointDefaults) => {
+          calls.views.push(endpointDefaults);
+          return {
+            localPlayerId: options.localPlayerId ?? 0,
+          } as Civ7ControlOrpcPlayNotificationViewResult;
         },
         requestCiv7DiplomacyResponse: async (input, endpointDefaults) => {
           calls.request.push({ input, options: endpointDefaults });
@@ -316,7 +345,7 @@ function diplomacyResponseResult(
 ): Civ7ControlOrpcDiplomacyResponseResult {
   const sent = options.sent ?? classification !== "not-sent";
   return {
-    playerId: options.playerId ?? diplomacyInput.playerId,
+    playerId: options.playerId ?? 0,
     before: {} as Civ7ControlOrpcDiplomacyResponseResult["before"],
     beforeValidation: {
       valid: options.beforeValid ?? classification !== "not-sent",

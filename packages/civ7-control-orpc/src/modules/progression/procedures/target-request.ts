@@ -22,6 +22,8 @@ type ProgressionTargetSource =
 type ProgressionTargetResult =
   | Civ7ProgressionTechnologyTargetResult
   | Civ7ProgressionCultureTargetResult;
+type ProgressionTargetRuntimeInput =
+  Civ7ProgressionTargetInput & Readonly<{ playerId: number }>;
 
 export const progressionTechnologyTargetRequestProcedure =
   civ7ControlOrpcMutationProcedure(
@@ -91,7 +93,7 @@ async function readLocalPlayerId(
 function progressionTargetRuntimeInput(
   input: Civ7ProgressionTargetInput,
   localPlayerId: number,
-): Civ7ProgressionTargetInput {
+): ProgressionTargetRuntimeInput {
   return {
     playerId: localPlayerId,
     node: input.node,
@@ -100,7 +102,7 @@ function progressionTargetRuntimeInput(
 
 async function requestProgressionTarget(
   kind: ProgressionTargetKind,
-  input: Civ7ProgressionTargetInput,
+  input: ProgressionTargetRuntimeInput,
   context: Civ7ControlOrpcContext,
 ): Promise<Civ7ControlOrpcProgressionTargetResult> {
   if (kind === "technology") {
@@ -118,17 +120,17 @@ async function requestProgressionTarget(
 
 function progressionTargetResult(
   source: "progression.technology.target.request",
-  input: Civ7ProgressionTargetInput,
+  input: ProgressionTargetRuntimeInput,
   result: Civ7ControlOrpcProgressionTargetResult,
 ): Civ7ProgressionTechnologyTargetResult;
 function progressionTargetResult(
   source: "progression.culture.target.request",
-  input: Civ7ProgressionTargetInput,
+  input: ProgressionTargetRuntimeInput,
   result: Civ7ControlOrpcProgressionTargetResult,
 ): Civ7ProgressionCultureTargetResult;
 function progressionTargetResult(
   source: ProgressionTargetSource,
-  input: Civ7ProgressionTargetInput,
+  input: ProgressionTargetRuntimeInput,
   result: Civ7ControlOrpcProgressionTargetResult,
 ): ProgressionTargetResult {
   const projection = civ7CloseoutMutationProjection({

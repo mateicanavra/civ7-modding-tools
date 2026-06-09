@@ -28,7 +28,7 @@ export default class GamePlayRespondFirstMeet extends Command {
 
   static examples = [
     '<%= config.bin %> game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral --json',
-    '<%= config.bin %> game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral --send --json',
+    '<%= config.bin %> game play respond-first-meet --met-player-id 2 --response neutral --send --json',
   ];
 
   static flags = {
@@ -39,8 +39,7 @@ export default class GamePlayRespondFirstMeet extends Command {
       description: 'Civ7 tuner socket port',
     }),
     'player-id': Flags.integer({
-      description: 'Local player id',
-      required: true,
+      description: 'Local player id used for dry-run validation. Send mode reads the local player from live notification evidence.',
     }),
     'met-player-id': Flags.integer({
       description: 'Other player id from the live first-meet notification or diplomacy panel',
@@ -78,12 +77,14 @@ export default class GamePlayRespondFirstMeet extends Command {
         directControl: liveCiv7ControlOrpcDirectControlFacade,
         endpointDefaults: options,
       }).diplomacy.firstMeet.response.request({
-        playerId: flags['player-id'],
         metPlayerId: flags['met-player-id'],
         responseType,
       });
       emitPlayResult(this.log.bind(this), flags.json, result);
       return;
+    }
+    if (typeof flags['player-id'] !== 'number') {
+      throw new Error('game play respond-first-meet requires --player-id for dry-run validation');
     }
 
     const input = {

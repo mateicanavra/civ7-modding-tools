@@ -597,7 +597,7 @@ export function readyCityViewSource(): string {
           yieldDelta: yieldDelta(info?.CurrentYields, info?.NextYields),
           maintenance: info?.Maintenance ?? null,
           placementInfo: safeResult(info),
-          cli: "game play assign-worker --player-id <id> --location " + plotIndex,
+          cli: "game play assign-worker --location " + plotIndex + " --send",
         };
       };
       const expansionValue = expansionResult.ok && expansionResult.value && typeof expansionResult.value === "object"
@@ -627,7 +627,7 @@ export function readyCityViewSource(): string {
         expansionCandidates: probe(() => expansionCandidatesValue),
         expansionResult,
         cliHints: [
-          "game play assign-worker --player-id <id> --location <plot-index>",
+          "game play assign-worker --location <plot-index> --send",
           "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
           "For NEW_POPULATION, compare workablePlots against expansionCandidates; assign-worker and expand-city are different acquire-tile branches.",
         ],

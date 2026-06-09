@@ -42,8 +42,6 @@ describe('game play celebration and government commands', () => {
         '127.0.0.1',
         '--port',
         String(port),
-        '--player-id',
-        '2',
         '--golden-age-type',
         '-340825966',
         '--send',
@@ -129,7 +127,7 @@ describe('game play celebration and government commands', () => {
       const culture = payload.result.surfaces[0].enabledOptions.find((option) => option.goldenAgeType === -340825966);
       expect(culture?.name).toBe('Cultural Celebration');
       expect(culture?.duration).toBe(10);
-      expect(culture?.chooseCli).toContain('game play choose-celebration --player-id 0 --golden-age-type -340825966 --send');
+      expect(culture?.chooseCli).toContain('game play choose-celebration --golden-age-type -340825966 --send');
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -178,8 +176,6 @@ describe('game play celebration and government commands', () => {
         '127.0.0.1',
         '--port',
         String(port),
-        '--player-id',
-        '2',
         '--government-type',
         '0',
         '--send',
@@ -265,7 +261,7 @@ describe('game play celebration and government commands', () => {
       expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
       const republic = payload.result.surfaces[0].enabledOptions.find((option) => option.governmentType === 0);
       expect(republic?.name).toBe('Classical Republic');
-      expect(republic?.chooseCli).toContain('game play choose-government --player-id 0 --government-type 0 --action -1326475004 --send');
+      expect(republic?.chooseCli).toContain('game play choose-government --government-type 0 --action -1326475004 --send');
       expect(republic?.celebrationOptions[0].name).toBe('Cultural Celebration');
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -458,7 +454,7 @@ function celebrationChoiceView() {
     enabled: true,
     disabled: false,
     validation: { ok: true, value: { Success: true } },
-    cli: `game play choose-celebration --player-id 0 --golden-age-type ${row.goldenAgeType} --send`,
+    cli: `game play choose-celebration --golden-age-type ${row.goldenAgeType} --send`,
     validateCli: `game play choose-celebration --player-id 0 --golden-age-type ${row.goldenAgeType} --json`,
   }));
   const details = {
@@ -511,7 +507,7 @@ function governmentChoiceView() {
     enabled: true,
     disabled: false,
     validation: { ok: true, value: { Success: true } },
-    cli: `game play choose-government --player-id 0 --government-type ${row.governmentType} --action ${action} --send`,
+    cli: `game play choose-government --government-type ${row.governmentType} --action ${action} --send`,
     validateCli: `game play choose-government --player-id 0 --government-type ${row.governmentType} --action ${action} --json`,
   }));
   const details = {

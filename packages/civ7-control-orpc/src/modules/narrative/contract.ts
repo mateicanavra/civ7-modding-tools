@@ -9,7 +9,6 @@ import { toStandardSchema } from "../../typebox-standard-schema";
 
 const Civ7NarrativeChoiceInputSchema = Type.Object(
   {
-    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     targetType: Type.String({ minLength: 1 }),
     target: Civ7ControlOrpcComponentIdSchema,
     action: Type.Integer(),

@@ -1,6 +1,7 @@
 import { diplomacyResponseProofPostcondition } from "@civ7/direct-control/proof/diplomacy-response-proof-policy";
 import { Effect } from "effect";
 
+import type { Civ7ControlOrpcContext } from "../../../context";
 import type { Civ7ControlOrpcDiplomacyResponseResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
@@ -13,6 +14,10 @@ import type {
   Civ7DiplomacyResponseResult,
 } from "../contract";
 
+type DiplomacyResponseRuntimeInput = Civ7DiplomacyResponseInput & Readonly<{
+  playerId: number;
+}>;
+
 export const diplomacyResponseRequestProcedure =
   civ7ControlOrpcMutationProcedure(
     civ7ControlOrpcImplementer.diplomacy.response.request,
@@ -23,11 +28,20 @@ export const diplomacyResponseRequestProcedure =
   }) {
     return yield* Effect.tryPromise({
       try: async () => {
+        const localPlayerId = await readLocalPlayerId(context);
+        const requestInput = {
+          playerId: localPlayerId,
+          actionId: input.actionId,
+          responseType: input.responseType,
+          ...(input.notificationId === undefined
+            ? {}
+            : { notificationId: input.notificationId }),
+        };
         const result = await context.directControl.requestCiv7DiplomacyResponse(
-          input,
+          requestInput,
           context.endpointDefaults,
         );
-        return diplomacyResponseResult(input, result);
+        return diplomacyResponseResult(requestInput, result);
       },
       catch: () =>
         errors.DIPLOMACY_RESPONSE_UNAVAILABLE({
@@ -40,8 +54,17 @@ export const diplomacyResponseRequestProcedure =
     });
   });
 
+async function readLocalPlayerId(
+  context: Civ7ControlOrpcContext,
+): Promise<number> {
+  const view = await context.directControl.getCiv7PlayNotificationView(
+    context.endpointDefaults,
+  );
+  return view.localPlayerId;
+}
+
 function diplomacyResponseResult(
-  input: Civ7DiplomacyResponseInput,
+  input: DiplomacyResponseRuntimeInput,
   result: Civ7ControlOrpcDiplomacyResponseResult,
 ): Civ7DiplomacyResponseResult {
   const projection = civ7CloseoutMutationProjection({

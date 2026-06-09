@@ -27,9 +27,9 @@ instead of treating caller `playerId` as controller/runtime send authority.
 - `packages/civ7-control-orpc` owns the service behavior that composes
   readiness, before/after notification evidence, closeout runtime
   ports, and semantic output.
-- Caller `playerId` remains part of the caller-facing progression input, but
-  the service binds the closeout request and normal output to the source-owned
-  local-player evidence from the before-notification read.
+- Caller `playerId` is no longer part of the caller-facing progression choice
+  send input. The service binds the closeout request and normal output to the
+  source-owned local-player evidence from the before-notification read.
 - Progression controller bridge ingress remains rejected until a separate
   allowlist slice adds the request/response union, dispatch branch, closed
   controller proof envelope, and package/OpenSpec proof.

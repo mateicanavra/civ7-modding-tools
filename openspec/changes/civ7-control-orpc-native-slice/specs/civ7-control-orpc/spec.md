@@ -146,9 +146,11 @@ errors, and server-side callers.
   `progression.culture.choice.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the input, output, postcondition, evidence, and
   next-step schemas for those service procedures
-- **AND** the input admits only player ID, node ID, and optional notification
-  identity, with technology versus culture expressed by the domain procedure
-  path rather than a generic kind discriminator
+- **AND** the input admits only node ID and optional notification identity,
+  with technology versus culture expressed by the domain procedure path rather
+  than a generic kind discriminator
+- **AND** the procedure reads current local-player evidence before send and
+  does not admit caller-provided player ID as mutation authority
 - **AND** the evidence summary distinguishes read, failed, and skipped-not-sent
   post-read states without inventing after-state facts
 - **AND** endpoint, session, state, raw command, payload, App UI activation
@@ -163,11 +165,11 @@ errors, and server-side callers.
   `progression.culture.target.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the input, output, postcondition, and next-step
   schemas for those service procedures under the `progression` router
-- **AND** the input admits only player ID and node ID, with technology versus
+- **AND** the input admits only node ID, with technology versus
   culture expressed by the domain procedure path rather than a generic
   operation root or operation enum input
 - **AND** the procedure reads current local-player evidence before send and
-  does not treat caller-provided player ID as mutation authority by itself
+  does not admit caller-provided player ID as mutation authority
 - **AND** endpoint, session, state, raw command, generic operation type, raw
   args, direct-control operation envelopes, and legacy `verified` remain
   excluded from procedure input and normal output
@@ -183,12 +185,12 @@ errors, and server-side callers.
   `government.celebration.choice.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the input, output, postcondition, and next-step
   schemas for those service procedures under the `government` router
-- **AND** the input admits only player ID plus government type/action or player
-  ID plus golden-age type, with government versus celebration expressed by the
-  domain procedure path rather than a generic operation root or operation enum
-  input
+- **AND** the input omits caller player ID and admits only government
+  type/action or golden-age type, with government versus celebration expressed
+  by the domain procedure path rather than a generic operation root or
+  operation enum input
 - **AND** the procedure reads current local-player evidence before send and
-  does not treat caller-provided player ID as mutation authority by itself
+  does not treat caller-provided player ID as mutation authority
 - **AND** endpoint, session, state, raw command, generic operation type, raw
   args, direct-control operation envelopes, and legacy `verified` remain
   excluded from procedure input and normal output
@@ -714,6 +716,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** `assign-worker --send` is bounded to the source-owned one-worker
   placement atom rather than silently treating `--amount` as repeated send
   authority
+- **AND** `assign-worker --send` omits caller `--player-id`; the procedure
+  reads live local-player notification evidence and passes that value to the
+  low-level direct-control assign-worker runtime port
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI town-focus sends use native city procedures
@@ -747,9 +752,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the procedure's readiness, direct-control diplomacy
   response port, diplomacy postcondition projection, and no-repeat policy
   remain authoritative for the send
-- **AND** the send result uses direct-control source evidence for the acted
-  local player rather than treating the caller validation `--player-id` as send
-  authority
+- **AND** send input omits caller `playerId`; the procedure reads live
+  local-player evidence before invoking the direct-control runtime port
 - **AND** the normal JSON result is the semantic diplomacy response procedure
   projection without raw command/session/state/Tuner details, UI closeout
   payloads, diplomacy state internals, direct-control runtime payloads, or
@@ -817,8 +821,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the procedure's readiness, before/after notification reads,
   direct-control progression closeout port, progression postcondition
   projection, and no-repeat policy remain authoritative for the send
-- **AND** the send result uses live notification local-player evidence rather
-  than treating caller validation `--player-id` as send authority
+- **AND** send mode omits caller `--player-id`; the send result uses live
+  notification local-player evidence rather than caller validation identity as
+  send authority
 - **AND** the normal JSON result is the semantic progression choice procedure
   projection without raw command/session/state/Tuner details, App UI closeout
   payloads, direct-control runtime payloads, before/after notification views, or
@@ -842,8 +847,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the procedure's readiness, fresh local-player read,
   direct-control progression target runtime port, target proof projection, and
   no-repeat policy remain authoritative for the send
-- **AND** the send result uses live local-player evidence rather than treating
-  caller validation `--player-id` as send authority
+- **AND** the send path omits caller `--player-id` and the result uses live
+  local-player evidence rather than caller-provided player identity
 - **AND** the normal JSON result is the semantic progression target procedure
   projection without raw command/session/state/Tuner details, generic
   operation type or args fields, direct-control operation envelopes, or legacy
@@ -1306,12 +1311,13 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** `city.population.place.request` is listed as a supported game-UI
   mutation only when controller proof and the required ambient validation,
   send, player, city, and postcondition-read APIs are present
-- **AND** assign-worker input remains semantic `{ playerId, location }` while
-  expand-city input remains semantic `{ cityId, destination }`; raw operation
-  types and raw command/session fields are not accepted as bridge input
-- **AND** assign-worker sends require the caller `playerId` to match
-  controller-owned `GameContext.localPlayerID` evidence before any
-  `PlayerOperations.sendRequest` call
+- **AND** assign-worker input remains semantic `{ location }` while expand-city
+  input remains semantic `{ cityId, destination }`; caller `playerId`, raw
+  operation types, and raw command/session fields are not accepted as bridge
+  input
+- **AND** assign-worker sends use controller-owned `GameContext.localPlayerID`
+  evidence through the service context before any `PlayerOperations.sendRequest`
+  call
 - **AND** validator-blocked population placements project semantic `not-sent`
   output and do not call the send API
 - **AND** `population-ready-cleared` requires pre-send city readiness evidence
@@ -1339,9 +1345,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** progression choice procedures are listed as supported game-UI
   mutations only when controller proof and the required ambient validation,
   send, notification, and player progression APIs are present
-- **AND** caller `playerId` remains validation/input context while the runtime
-  send player is derived from controller-owned `GameContext.localPlayerID` and
-  the pre-read local-player notification evidence
+- **AND** the bridge request omits caller `playerId`; the runtime send player
+  is derived from controller-owned `GameContext.localPlayerID` and the pre-read
+  local-player notification evidence
 - **AND** validator-blocked progression choices project semantic `not-sent`
   output, do not call the choose send API, and do not clear the target node
   after a failed choose validation
@@ -1369,8 +1375,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** `narrative.choice.request` is listed as a supported game-UI mutation
   only when controller proof and the required ambient validation, send, and
   notification APIs are present
-- **AND** caller `playerId` remains validation/input context while the runtime
-  send player is derived from controller-owned `GameContext.localPlayerID`
+- **AND** caller input omits `playerId`; the runtime send player is derived
+  from controller-owned `GameContext.localPlayerID`
 - **AND** validator-blocked narrative choices project semantic `not-sent`
   output and do not call the send API
 - **AND** sent choices preserve source-owned narrative proof semantics:
@@ -1399,8 +1405,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** `diplomacy.response.request` is listed as a supported game-UI
   mutation only when controller proof and the required ambient validation,
   send, notification, and blocker-read APIs are present
-- **AND** caller `playerId` remains validation/input context while the runtime
-  send player is derived from controller-owned `GameContext.localPlayerID`
+- **AND** caller input omits `playerId`; the runtime send player is derived
+  from controller-owned `GameContext.localPlayerID`
 - **AND** validator-blocked diplomacy responses project semantic `not-sent`
   output and do not call the send API
 - **AND** sent responses preserve source-owned diplomacy proof semantics:
@@ -1609,8 +1615,8 @@ boundaries.
   direct-control runtime authority
 - **AND** it consumes direct-control diplomacy validators and proof helpers as
   runtime/proof ports rather than inferring proof from legacy `verified`
-- **AND** its normal input exposes player, action, response, and optional
-  notification identity rather than direct-control UI toggles
+- **AND** its normal input exposes action, response, and optional notification
+  identity rather than caller player identity or direct-control UI toggles
 - **AND** its normal output projects semantic status, validation summary,
   postcondition summary, and next steps
 - **AND** its normal output uses direct-control source evidence for the acted
@@ -1633,9 +1639,9 @@ boundaries.
 - **AND** it reads notification evidence before and after the closeout request
   and consumes direct-control progression postcondition helpers rather than
   reimplementing blocker proof truth
-- **AND** its normal input exposes player, node, and optional notification
-  identity rather than a generic `kind` discriminator or direct-control App UI
-  toggles
+- **AND** its normal input exposes node and optional notification identity
+  rather than player identity, a generic `kind` discriminator, or
+  direct-control App UI toggles
 - **AND** its closeout request and normal output use the local-player evidence
   from the before-notification read rather than treating caller `playerId` as
   controller/runtime send authority

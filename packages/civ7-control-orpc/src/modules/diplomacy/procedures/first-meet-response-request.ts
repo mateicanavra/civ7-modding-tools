@@ -14,6 +14,10 @@ import type {
   Civ7FirstMeetResponseResult,
 } from "../contract";
 
+type FirstMeetResponseRuntimeInput = Civ7FirstMeetResponseInput & Readonly<{
+  playerId: number;
+}>;
+
 export const firstMeetResponseRequestProcedure =
   civ7ControlOrpcMutationProcedure(
     civ7ControlOrpcImplementer.diplomacy.firstMeet.response.request,
@@ -57,7 +61,7 @@ async function readLocalPlayerId(
 }
 
 function firstMeetResponseResult(
-  input: Civ7FirstMeetResponseInput,
+  input: FirstMeetResponseRuntimeInput,
   result: Civ7ControlOrpcFirstMeetResponseResult,
 ): Civ7FirstMeetResponseResult {
   const projection = civ7CloseoutMutationProjection({

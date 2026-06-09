@@ -26,8 +26,8 @@ The controller ingress now:
 
 - accepts `diplomacy.response.request` as an additional allowlisted mutation
   procedure key;
-- validates the existing semantic diplomacy response input shape: `playerId`,
-  `actionId`, `responseType`, and optional `notificationId`;
+- validates the existing semantic diplomacy response input shape: `actionId`,
+  `responseType`, and optional `notificationId`;
 - requires closed controller lifecycle, local-player, and hotseat proof
   metadata without accepting caller-provided mutation metadata fields;
 - requires closed controller lifecycle proof for game-controller-ready lifecycle,

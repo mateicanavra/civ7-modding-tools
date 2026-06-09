@@ -15,7 +15,6 @@ import type {
 } from "../src/dependencies/direct-control";
 
 const firstMeetInput = {
-  playerId: 2,
   metPlayerId: 2,
   responseType: 673_478_009,
 } as const;
@@ -142,6 +141,21 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
     }]);
   });
 
+  test("rejects caller playerId before facade execution", async () => {
+    const fake = fakeContext(firstMeetResponseResult("first-meet-cleared"));
+
+    await expect(
+      call(
+        Civ7ControlOrpcRouter.diplomacy.firstMeet.response.request,
+        { ...firstMeetInput, playerId: 2 } as never,
+        { context: fake.context },
+      ),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(fake.calls.readiness).toEqual([]);
+    expect(fake.calls.views).toEqual([]);
+    expect(fake.calls.request).toEqual([]);
+  });
+
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
     const invalidInputs = [
       { ...firstMeetInput, host: "127.0.0.1" },
@@ -165,6 +179,7 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
         ),
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.readiness).toEqual([]);
+      expect(fake.calls.views).toEqual([]);
       expect(fake.calls.request).toEqual([]);
     }
   });

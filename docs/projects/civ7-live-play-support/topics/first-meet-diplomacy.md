@@ -72,7 +72,7 @@ Live turn 80 proof for Napoleon:
   "player1": 0,
   "player2": 1,
   "recommendedResponse": "neutral",
-  "recommendedCli": "game play respond-first-meet --player-id 0 --met-player-id 1 --response neutral"
+  "recommendedCli": "game play respond-first-meet --met-player-id 1 --response neutral --send"
 }
 ```
 

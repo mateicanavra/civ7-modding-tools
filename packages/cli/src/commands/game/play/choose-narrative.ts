@@ -20,7 +20,7 @@ export default class GamePlayChooseNarrative extends Command {
   static examples = [
     '<%= config.bin %> game play choose-narrative --options --json',
     '<%= config.bin %> game play choose-narrative --player-id 0 --target-type TOT_30001B --target \'{"owner":0,"id":45,"type":35}\' --action -1326475004 --json',
-    '<%= config.bin %> game play choose-narrative --player-id 0 --target-type TOT_30001B --target \'{"owner":0,"id":45,"type":35}\' --action -1326475004 --send --json',
+    '<%= config.bin %> game play choose-narrative --target-type TOT_30001B --target \'{"owner":0,"id":45,"type":35}\' --action -1326475004 --send --json',
   ];
 
   static flags = {
@@ -31,7 +31,7 @@ export default class GamePlayChooseNarrative extends Command {
       description: 'Civ7 tuner socket port',
     }),
     'player-id': Flags.integer({
-      description: 'Player id',
+      description: 'Player id used for dry-run validation. Send mode reads the local player from live notification evidence.',
     }),
     'target-type': Flags.string({
       description: 'Narrative TargetType value from the live story direction UI',
@@ -85,9 +85,6 @@ export default class GamePlayChooseNarrative extends Command {
       });
       return;
     }
-    if (typeof flags['player-id'] !== 'number') {
-      throw new Error('game play choose-narrative requires --player-id unless --options is used');
-    }
     if (!flags['target-type']) {
       throw new Error('game play choose-narrative requires --target-type unless --options is used');
     }
@@ -98,6 +95,22 @@ export default class GamePlayChooseNarrative extends Command {
       throw new Error('game play choose-narrative requires --action unless --options is used');
     }
     const target = parseComponentId(flags.target, 'target');
+    if (flags.send) {
+      const result = await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      }).narrative.choice.request({
+        targetType: flags['target-type'],
+        target,
+        action: flags.action,
+      });
+      emitPlayResult(this.log.bind(this), flags.json, result);
+      return;
+    }
+
+    if (typeof flags['player-id'] !== 'number') {
+      throw new Error('game play choose-narrative requires --player-id for dry-run validation');
+    }
     const input = {
       operationType: CHOOSE_NARRATIVE_STORY_DIRECTION,
       playerId: flags['player-id'],
@@ -107,17 +120,7 @@ export default class GamePlayChooseNarrative extends Command {
         Action: flags.action,
       },
     };
-    const result = flags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
-          endpointDefaults: options,
-        }).narrative.choice.request({
-          playerId: flags['player-id'],
-          targetType: flags['target-type'],
-          target,
-          action: flags.action,
-        })
-      : await validatePlayOperation('player-operation', input, options);
+    const result = await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

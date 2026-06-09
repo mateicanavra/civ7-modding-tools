@@ -253,7 +253,7 @@ function readyCityView() {
               },
               maintenance: null,
               placementInfo: { PlotIndex: 1457, IsBlocked: false },
-              cli: 'game play assign-worker --player-id <id> --location 1457',
+              cli: 'game play assign-worker --location 1457 --send',
             },
           ],
         },
@@ -293,7 +293,7 @@ function readyCityView() {
           value: { Success: true, Plots: [1458], ConstructibleTypes: [713967338] },
         },
         cliHints: [
-          'game play assign-worker --player-id <id> --location <plot-index>',
+          'game play assign-worker --location <plot-index> --send',
           "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
         ],
       },

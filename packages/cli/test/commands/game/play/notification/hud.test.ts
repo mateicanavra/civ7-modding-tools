@@ -43,7 +43,8 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Masonry', 'Sailing']);
       const masonry = details?.enabledOptions.find((option) => option.nodeType === -1255676052);
       expect(masonry?.chooseValidation.value?.Success).toBe(true);
-      expect(masonry?.cli).toContain('game play choose-tech --player-id 0 --node -1255676052 --send');
+      expect(masonry?.cli).toContain('game play choose-tech --node -1255676052 --send');
+      expect(masonry?.cli).not.toContain('--player-id');
       expect(masonry?.cli).not.toContain('--closeout');
       expect(details?.disabledOptions[0].name).toBe('Agriculture');
       expect(details?.disabledOptions[0].cli).toBeNull();
@@ -64,7 +65,9 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Discipline', 'Ekklesia']);
       const ekklesia = details?.enabledOptions.find((option) => option.nodeType === -869902342);
       expect(ekklesia?.chooseValidation.value?.Success).toBe(true);
-      expect(ekklesia?.cli).toContain('game play choose-culture --player-id 0 --node -869902342 --send --closeout');
+      expect(ekklesia?.cli).toContain('game play choose-culture --node -869902342 --send');
+      expect(ekklesia?.cli).not.toContain('--closeout');
+      expect(ekklesia?.cli).not.toContain('--player-id');
       expect(details?.disabledOptions[0].name).toBe('Mysticism');
       expect(details?.disabledOptions[0].cli).toBeNull();
       expect(payload.view.hud.nextDecision.details).toBeDefined();
@@ -84,7 +87,7 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Cultural Celebration', 'Wonder Production Celebration']);
       const culture = details?.enabledOptions.find((option) => option.goldenAgeType === -340825966);
       expect(culture?.validation.value?.Success).toBe(true);
-      expect(culture?.cli).toContain('game play choose-celebration --player-id 0 --golden-age-type -340825966 --send');
+      expect(culture?.cli).toContain('game play choose-celebration --golden-age-type -340825966 --send');
       expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -103,7 +106,7 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name)).toEqual(['Classical Republic', 'Despotism', 'Oligarchy']);
       const republic = details?.enabledOptions.find((option) => option.governmentType === 0);
       expect(republic?.validation.value?.Success).toBe(true);
-      expect(republic?.cli).toContain('game play choose-government --player-id 0 --government-type 0 --action -1326475004 --send');
+      expect(republic?.cli).toContain('game play choose-government --government-type 0 --action -1326475004 --send');
       expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -123,7 +126,7 @@ describe('game play notifications command', () => {
       expect(details?.storyLinks.value).toEqual([]);
       expect(details?.enabledOptions[0].targetType).toBe('CLOSE');
       expect(details?.enabledOptions[0].validation.value?.Success).toBe(true);
-      expect(details?.enabledOptions[0].cli).toContain('game play choose-narrative --player-id 0 --target-type CLOSE');
+      expect(details?.enabledOptions[0].cli).toContain('game play choose-narrative --target-type CLOSE');
       expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -405,13 +408,13 @@ function techChoiceHudView() {
       {
         nodeType: -1255676052,
         name: 'Masonry',
-        cli: "game play choose-tech --player-id 0 --node -1255676052 --send",
+        cli: "game play choose-tech --node -1255676052 --send",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
       {
         nodeType: -1558948215,
         name: 'Sailing',
-        cli: "game play choose-tech --player-id 0 --node -1558948215 --send",
+        cli: "game play choose-tech --node -1558948215 --send",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
     ],
@@ -451,13 +454,13 @@ function cultureChoiceHudView() {
       {
         nodeType: -869902342,
         name: 'Ekklesia',
-        cli: "game play choose-culture --player-id 0 --node -869902342 --send --closeout",
+        cli: "game play choose-culture --node -869902342 --send",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
       {
         nodeType: -1404789184,
         name: 'Discipline',
-        cli: "game play choose-culture --player-id 0 --node -1404789184 --send --closeout",
+        cli: "game play choose-culture --node -1404789184 --send",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
     ],
@@ -498,13 +501,13 @@ function celebrationChoiceHudView() {
       {
         goldenAgeType: -340825966,
         name: 'Cultural Celebration',
-        cli: "game play choose-celebration --player-id 0 --golden-age-type -340825966 --send",
+        cli: "game play choose-celebration --golden-age-type -340825966 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
       {
         goldenAgeType: 1923496232,
         name: 'Wonder Production Celebration',
-        cli: "game play choose-celebration --player-id 0 --golden-age-type 1923496232 --send",
+        cli: "game play choose-celebration --golden-age-type 1923496232 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
     ],
@@ -543,19 +546,19 @@ function governmentChoiceHudView() {
       {
         governmentType: 0,
         name: 'Classical Republic',
-        cli: "game play choose-government --player-id 0 --government-type 0 --action -1326475004 --send",
+        cli: "game play choose-government --government-type 0 --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
       {
         governmentType: 1,
         name: 'Despotism',
-        cli: "game play choose-government --player-id 0 --government-type 1 --action -1326475004 --send",
+        cli: "game play choose-government --government-type 1 --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
       {
         governmentType: 2,
         name: 'Oligarchy',
-        cli: "game play choose-government --player-id 0 --government-type 2 --action -1326475004 --send",
+        cli: "game play choose-government --government-type 2 --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
     ],
@@ -593,7 +596,7 @@ function narrativeChoiceHudView() {
     enabledOptions: [
       {
         targetType: 'CLOSE',
-        cli: "game play choose-narrative --player-id 0 --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --send",
+        cli: "game play choose-narrative --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
     ],

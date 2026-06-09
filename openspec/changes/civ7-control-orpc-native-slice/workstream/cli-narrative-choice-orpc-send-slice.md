@@ -26,9 +26,9 @@ direct-control player-operation validation.
 
 ## Boundary
 
-- Send output uses direct-control source evidence for the acted/local player.
-  The caller `--player-id` remains validation input and is not send authority
-  when official UI closeout uses `GameContext.localPlayerID`.
+- Send input omits caller `--player-id`; the service reads live local-player
+  evidence before invoking the direct-control runtime port. The non-send
+  validation path remains player-scoped.
 - No Studio, controller bridge, RPCLink, OpenAPI, or transport work.
 - No direct-control procedure-core scaffolding.
 - No raw command/session/state/Tuner payloads, App UI closeout payloads,
@@ -45,12 +45,12 @@ direct-control player-operation validation.
   result carries top-level acted/local-player evidence from official UI runtime
   reads: caller validation player `2` still returns and acts as local player
   `0`.
-- Focused control-oRPC narrative choice tests prove the service projection
-  reports source-owned acted-player evidence from the direct-control result
-  rather than echoing caller validation identity.
+- Focused control-oRPC narrative choice tests prove the service rejects caller
+  `playerId`, reads local-player evidence before facade execution, and reports
+  source-owned acted-player evidence from the direct-control result.
 - Focused CLI narrative tests prove the accepted `choose-narrative --send`
-  path accepts caller validation player `2`, reports source-owned acted/local
-  player `0`, reaches the existing direct-control official UI narrative
+  path omits caller `--player-id`, reports source-owned acted/local player
+  `0`, reaches the existing direct-control official UI narrative
   closeout runtime command through the in-process service client path, emits
   semantic `narrative.choice.request` output, and keeps raw
   command/session/state, App UI closeout payloads, runtime payloads, panel/

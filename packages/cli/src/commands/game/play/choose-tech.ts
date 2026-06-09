@@ -21,7 +21,7 @@ export default class GamePlayChooseTech extends Command {
   static examples = [
     '<%= config.bin %> game play choose-tech --options --json',
     '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --json',
-    '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --send --json',
+    '<%= config.bin %> game play choose-tech --node -1255676052 --send --json',
   ];
 
   static flags = {
@@ -86,11 +86,21 @@ export default class GamePlayChooseTech extends Command {
       });
       return;
     }
-    if (typeof flags['player-id'] !== 'number') {
-      throw new Error('game play choose-tech requires --player-id unless --options is used');
-    }
     if (typeof flags.node !== 'number') {
       throw new Error('game play choose-tech requires --node unless --options is used');
+    }
+    if (flags.send) {
+      const result = await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      }).progression.technology.choice.request({
+        node: flags.node,
+      });
+      emitPlayResult(this.log.bind(this), flags.json, result);
+      return;
+    }
+    if (typeof flags['player-id'] !== 'number') {
+      throw new Error('game play choose-tech requires --player-id unless --options or --send is used');
     }
     const input = {
       operationType: SET_TECH_TREE_NODE,
@@ -99,15 +109,7 @@ export default class GamePlayChooseTech extends Command {
         ProgressionTreeNodeType: flags.node,
       },
     };
-    const result = flags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
-          endpointDefaults: options,
-        }).progression.technology.choice.request({
-          playerId: flags['player-id'],
-          node: flags.node,
-        })
-      : await validatePlayOperation('player-operation', input, options);
+    const result = await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

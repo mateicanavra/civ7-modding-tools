@@ -87,7 +87,6 @@ const Civ7CityPopulationPlacementInputSchema = Type.Union([
   Type.Object(
     {
       mode: Type.Literal("assign-worker"),
-      playerId: Type.Integer({ minimum: 0 }),
       location: Type.Integer({ minimum: 0 }),
     },
     { additionalProperties: false },

@@ -22,6 +22,9 @@ type GovernmentChoiceSource =
 type GovernmentChoiceResult =
   | Civ7GovernmentChoiceResult
   | Civ7GovernmentCelebrationChoiceResult;
+type GovernmentChoiceRuntimeInput =
+  | (Civ7GovernmentChoiceInput & Readonly<{ playerId: number }>)
+  | (Civ7GovernmentCelebrationChoiceInput & Readonly<{ playerId: number }>);
 
 export const governmentChoiceRequestProcedure =
   civ7ControlOrpcMutationProcedure(
@@ -101,17 +104,17 @@ async function readLocalPlayerId(
 
 function governmentChoiceResult(
   source: "government.choice.request",
-  input: Civ7GovernmentChoiceInput,
+  input: Civ7GovernmentChoiceInput & Readonly<{ playerId: number }>,
   result: Civ7ControlOrpcGovernmentChoiceResult,
 ): Civ7GovernmentChoiceResult;
 function governmentChoiceResult(
   source: "government.celebration.choice.request",
-  input: Civ7GovernmentCelebrationChoiceInput,
+  input: Civ7GovernmentCelebrationChoiceInput & Readonly<{ playerId: number }>,
   result: Civ7ControlOrpcGovernmentChoiceResult,
 ): Civ7GovernmentCelebrationChoiceResult;
 function governmentChoiceResult(
   source: GovernmentChoiceSource,
-  input: Civ7GovernmentChoiceInput | Civ7GovernmentCelebrationChoiceInput,
+  input: GovernmentChoiceRuntimeInput,
   result: Civ7ControlOrpcGovernmentChoiceResult,
 ): GovernmentChoiceResult {
   const projection = civ7CloseoutMutationProjection({

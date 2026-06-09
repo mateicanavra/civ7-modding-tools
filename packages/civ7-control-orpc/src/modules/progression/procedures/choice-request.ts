@@ -29,6 +29,9 @@ type ProgressionChoiceCloseoutResult =
   | Civ7ControlOrpcTechnologyChoiceCloseoutResult
   | Civ7ControlOrpcCultureChoiceCloseoutResult;
 type ProgressionChoiceKind = "technology" | "culture";
+type ProgressionChoiceRuntimeInput = Civ7ProgressionChoiceInput & Readonly<{
+  playerId: number;
+}>;
 type ProgressionChoiceResult =
   | Civ7ProgressionTechnologyChoiceResult
   | Civ7ProgressionCultureChoiceResult;
@@ -118,7 +121,7 @@ export const progressionCultureChoiceRequestProcedure =
 
 async function requestProgressionChoice(
   kind: ProgressionChoiceKind,
-  input: Civ7ProgressionChoiceInput,
+  input: ProgressionChoiceRuntimeInput,
   dependencies: Readonly<{
     context: Civ7ControlOrpcContext;
   }>,
@@ -147,7 +150,7 @@ async function requestProgressionChoice(
 function progressionChoiceRuntimeInput(
   input: Civ7ProgressionChoiceInput,
   before: Civ7ControlOrpcPlayNotificationViewResult,
-): Civ7ProgressionChoiceInput {
+): ProgressionChoiceRuntimeInput {
   return {
     playerId: before.localPlayerId,
     node: input.node,
@@ -160,7 +163,7 @@ function progressionChoiceRuntimeInput(
 function progressionChoiceResult(
   kind: "technology",
   source: "progression.technology.choice.request",
-  input: Civ7ProgressionChoiceInput,
+  input: ProgressionChoiceRuntimeInput,
   result: ProgressionChoiceCloseoutResult,
   before: Civ7ControlOrpcPlayNotificationViewResult,
   after: ProgressionChoicePostRead,
@@ -168,7 +171,7 @@ function progressionChoiceResult(
 function progressionChoiceResult(
   kind: "culture",
   source: "progression.culture.choice.request",
-  input: Civ7ProgressionChoiceInput,
+  input: ProgressionChoiceRuntimeInput,
   result: ProgressionChoiceCloseoutResult,
   before: Civ7ControlOrpcPlayNotificationViewResult,
   after: ProgressionChoicePostRead,
@@ -178,7 +181,7 @@ function progressionChoiceResult(
   source:
     | "progression.technology.choice.request"
     | "progression.culture.choice.request",
-  input: Civ7ProgressionChoiceInput,
+  input: ProgressionChoiceRuntimeInput,
   result: ProgressionChoiceCloseoutResult,
   before: Civ7ControlOrpcPlayNotificationViewResult,
   after: ProgressionChoicePostRead,

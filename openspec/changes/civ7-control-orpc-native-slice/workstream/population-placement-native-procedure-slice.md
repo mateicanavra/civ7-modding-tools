@@ -33,8 +33,11 @@ and proof/no-repeat owner.
 - lives under the semantic `city` router family and keeps
   `procedureKey: "city.population.place.request"` as the stable capability key;
 - accepts a semantic placement mode instead of generic operation vocabulary:
-  `assign-worker` with `playerId` and `location`, or `expand-city` with
-  `cityId` and bounded map `destination`;
+  `assign-worker` with `location`, or `expand-city` with `cityId` and bounded
+  map `destination`;
+- reads live local-player notification evidence for assign-worker sends and
+  passes that value to the low-level direct-control assign-worker runtime port
+  instead of accepting caller `playerId` as send authority;
 - takes explicit readiness from typed oRPC context through the shared
   native effect-oRPC readiness middleware, not normal procedure input;
 - maps `assign-worker` to the control-oRPC runtime facade's semantic
@@ -85,8 +88,10 @@ and proof/no-repeat owner.
 - `git diff --check`
 
 Focused proof covers in-process procedure calls, server-side router client
-calls, shared readiness middleware refusal before mutation, endpoint/session/raw
-operation input rejection, safe tagged error projection, confirmed
+calls, live local-player notification evidence for assign-worker sends,
+caller `playerId` rejection before facade execution, shared readiness
+middleware refusal before mutation, endpoint/session/raw operation input
+rejection, safe tagged error projection, confirmed
 `population-ready-cleared` repeat-safe postconditions, confirmed
 `placement-state-changed` guarded postconditions, unverified validation-only
 and missing-postcondition guarding, and validator-blocked not-sent projection.

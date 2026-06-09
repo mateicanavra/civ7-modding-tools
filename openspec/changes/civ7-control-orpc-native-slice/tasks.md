@@ -337,24 +337,26 @@ adding more read-only facade shells.
     been used.
   - [x] 5.5.13.1 Bind progression choice closeout request identity to the
     before-notification read's local-player evidence before invoking
-    direct-control technology/culture closeout ports. Keep caller `playerId` as
-    validation/context input, not controller/runtime send authority, and keep
-    progression bridge allowlisting pending.
+    direct-control technology/culture closeout ports. Omit caller `playerId`
+    from the public service send input, keep direct-control dry-run validation
+    player-scoped, and keep progression bridge allowlisting pending.
   - [x] 5.5.13.2 Seed `progression.technology.target.request` and
     `progression.culture.target.request` as native service-owned progression
     target-setting leaves. Keep technology versus culture in the domain
-    procedure path, read current local-player evidence before send, use
-    direct-control only as the low-level player-operation runtime/proof port,
+    procedure path, omit caller `playerId` from public send inputs, read
+    current local-player evidence before send, use direct-control only as the
+    low-level player-operation runtime/proof port,
     omit raw operation envelopes and legacy `verified` from normal output, and
     keep sent target results pending-runtime-proof/no-repeat guarded until a
     future source-owned progression read proves target state changed.
   - [x] 5.5.13.3 Seed `government.choice.request` and
     `government.celebration.choice.request` as native service-owned
     government-domain mutation leaves. Keep government versus celebration in
-    the domain procedure path, read current local-player evidence before send,
-    use direct-control only as the low-level player-operation runtime/proof
-    port, omit raw operation envelopes and legacy `verified` from normal
-    output, and keep sent government-domain choices
+    the domain procedure path, omit caller `playerId` from public send inputs,
+    read current local-player evidence before send, use direct-control only as
+    the low-level player-operation runtime/proof port, omit raw operation
+    envelopes and legacy `verified` from normal output, and keep sent
+    government-domain choices
     pending-runtime-proof/no-repeat guarded until a future source-owned read
     proves the live government or celebration blocker cleared.
   - [x] 5.5.13.4 Seed `progression.attribute.purchase.request`,
@@ -665,29 +667,38 @@ adding more read-only facade shells.
     `progression` router. Keep endpoint flags as context construction, emit
     semantic progression choice projection for send output with live
     notification local-player evidence rather than treating `--player-id` as
-    send authority, preserve existing direct-control option reads and dry-run
-    validation paths, retire caller-visible `--closeout` workflow guidance, and
-    keep live runtime proof pending.
+    send authority, omit `--player-id` from send mode, preserve existing
+    direct-control option reads and dry-run validation paths, retire
+    caller-visible `--closeout` workflow guidance, and keep live runtime proof
+    pending.
   - [x] 7.1.9.1 Route `civ7 game play set-tech-target --send` and
     `civ7 game play set-culture-target --send` through the in-process
     `progression.technology.target.request` and
     `progression.culture.target.request` server-side clients under the
     `progression` router. Keep endpoint flags as context construction, emit
-    semantic progression target output, use fresh local-player evidence rather
-    than treating `--player-id` as send authority, preserve direct-control
+    semantic progression target output, omit caller `--player-id` from send
+    mode, use fresh local-player evidence, preserve direct-control
     player-operation validation for read-only mode, and keep sent target
     results pending-runtime-proof/no-repeat guarded until a real post-read
     owner proves target state changed.
+  - [x] 7.1.9.1.1 Remove caller `--player-id` from `civ7 game play
+    choose-tech --send` and `civ7 game play choose-culture --send`, matching
+    the node-only public `progression.technology.choice.request` and
+    `progression.culture.choice.request` service inputs. Keep dry-run
+    validation player-scoped through direct-control, keep generated option
+    send templates playerless, prove caller `playerId` rejection at the
+    procedure and bridge boundary, and keep live runtime proof pending.
   - [x] 7.1.9.2 Route `civ7 game play choose-government --send` and
     `civ7 game play choose-celebration --send` through the in-process
     `government.choice.request` and
     `government.celebration.choice.request` server-side clients under the
     `government` router. Keep endpoint flags as context construction, emit
     semantic government-domain output, use fresh local-player evidence rather
-    than treating `--player-id` as send authority, preserve direct-control
-    option reads and player-operation validation for read-only mode, and keep
-    sent government-domain results pending-runtime-proof/no-repeat guarded
-    until a real post-read owner proves the live blocker cleared.
+    than treating `--player-id` as send authority, omit caller `--player-id`
+    from send mode, preserve direct-control option reads and player-operation
+    validation for read-only mode, and keep sent government-domain results
+    pending-runtime-proof/no-repeat guarded until a real post-read owner proves
+    the live blocker cleared.
   - [x] 7.1.9.3 Route `civ7 game play buy-attribute --send`,
     `civ7 game play consider-attributes --send`,
     `civ7 game play change-tradition --send`, and
@@ -700,6 +711,13 @@ adding more read-only facade shells.
     `sendPlayOperation` fallback branches from migrated commands, and keep
     sent player-choice results pending-runtime-proof/no-repeat guarded until a
     real post-read owner proves the live review state changed.
+  - [x] 7.1.9.3.1 Remove stale caller `--player-id` from progression
+    player-choice notification send hints. Keep action directions focused on
+    the semantic send moves and minimal closeout sequencing context, not every
+    validation/flag variant. Dry-run validation remains available through the
+    CLI interface, but it is not repeated as a notification action. Prove the
+    generated notification-view source omits `--player-id` from send
+    templates and live runtime proof pending.
   - [x] 7.1.9.4 Route `civ7 game play set-town-focus --send` and
     `civ7 game play consider-town-project --send` through the in-process
     city town-focus server-side clients under the `city` router. Keep endpoint
@@ -1136,8 +1154,8 @@ adding more read-only facade shells.
     government procedures; allowlist those leaves through closed controller
     bridge envelopes that derive concrete schemas from the aggregated
     `Civ7ControlOrpcContract`; advertise the mutations only when those exact
-    game UI APIs and controller proof exist; route caller player input through
-    fresh `GameContext.localPlayerID` evidence before send; preserve
+    game UI APIs and controller proof exist; omit caller `playerId` and route
+    sends through fresh `GameContext.localPlayerID` evidence before send; preserve
     validator-blocked not-sent output and pending-runtime-proof/no-repeat
     guarded sent output; keep raw game-UI function names,
     command/session/state details, deployed Civ7 proof, play-thread action,
@@ -1152,7 +1170,7 @@ adding more read-only facade shells.
     allowlist the leaf through a closed controller bridge envelope that
     derives concrete schemas from the aggregated `Civ7ControlOrpcContract`;
     advertise the mutation only when those exact game UI APIs and controller
-    proof exist; route caller player input through fresh
+    proof exist; omit caller `playerId` and route sends through fresh
     `GameContext.localPlayerID` evidence before send; preserve
     validator-blocked not-sent output and keep unmatched/sticky first-meet
     blocker evidence no-repeat guarded; keep raw game-UI function names,
@@ -1420,7 +1438,7 @@ adding more read-only facade shells.
   focused control-oRPC progression target procedure tests, focused CLI
   technology/culture target send tests, direct-control and control-oRPC
   check/build/package gates, `check:cli`, `test:cli:play`, relevant OpenSpec
-  strict validates, and diff hygiene for the CLI progression target send
+  strict validates, stale send-player scans, and diff hygiene for the CLI progression target send
   migration slice. These are local CLI and package proofs only and do not claim
   deployed Civ7 runtime proof, play-thread action, transport expansion, a
   progression read service, controller ingress, or parent Task 5.x/6.x/7.x
@@ -1643,6 +1661,45 @@ adding more read-only facade shells.
   catalog support, relationship labels beyond official evidence,
   approval/reason mechanics, raw runtime output, or parent Task 5.x/6.x/7.x
   acceptance.
+- [x] 8.60.25 Run focused progression choice procedure/controller/game-UI
+  tests, focused CLI technology/culture/HUD tests, direct-control
+  notification-view proof, control-oRPC package test/check/build,
+  direct-control check/build, CLI play/check/build gates, strict OpenSpec
+  validates, private procedure-schema export scan, stale send-mode
+  `--player-id` scan, active approval/caller-permission scan, and diff hygiene
+  for the progression choice player-input cleanup. This is local
+  package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, approval/reason mechanics, broad
+  progression catalog support, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.26 Run focused narrative/diplomacy procedure/controller/game-UI
+  tests, focused CLI narrative/diplomacy/first-meet/HUD tests, direct-control
+  notification-view proof, control-oRPC package test/check/build,
+  direct-control check/build, CLI play/check/build gates, strict OpenSpec
+  validates, private procedure-schema export scan, stale send-mode
+  `--player-id` scan, active approval/caller-permission scan, and diff hygiene
+  for the narrative/diplomacy player-input cleanup. This is local
+  package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, approval/reason mechanics,
+  diplomacy/narrative catalog support, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.27 Run focused population placement procedure/controller/game-UI
+  tests, focused CLI population placement and ready-city tests,
+  direct-control ready-city/notification-view proof, control-oRPC package
+  test/check/build, direct-control check/build, CLI play/check/build gates,
+  strict OpenSpec validates, private procedure-schema export scan, stale
+  assign-worker send-mode `--player-id` scan, active approval/caller-permission
+  scan, generated bundle scan, and diff hygiene for the population placement
+  player-input cleanup. This is local package/CLI/controller-bundle proof only
+  and does not claim deployed Civ7 runtime proof, play-thread action,
+  transport expansion, approval/reason mechanics, city catalog support, or
+  parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.28 Run focused direct-control notification-view proof,
+  direct-control check/build, strict OpenSpec validates, stale progression
+  send-hint `--player-id` scan, active approval/caller-permission scan, and
+  diff hygiene for the progression player-choice notification send-hint
+  cleanup. This is local source/test proof only and does not claim deployed
+  Civ7 runtime proof, play-thread action, transport expansion,
+  approval/reason mechanics, broader progression catalog support, or parent
+  Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

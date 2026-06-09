@@ -44,8 +44,6 @@ describe('game play population placement commands', () => {
         '127.0.0.1',
         '--port',
         String(port),
-        '--player-id',
-        '0',
         '--location',
         '2543',
         '--send',
@@ -234,6 +232,9 @@ async function startPopulationPlacementTunerServer(): Promise<FakeTunerServer> {
       if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
         return [JSON.stringify(tunerHealthSnapshot())];
       }
+      if (message.includes('GameContext.localPlayerID') && message.includes('decisionQueue')) {
+        return [JSON.stringify(playNotificationView())];
+      }
       if (message.includes('return JSON.stringify(validateOperation')) {
         return [JSON.stringify(operationValidation(message))];
       }
@@ -247,6 +248,40 @@ async function startPopulationPlacementTunerServer(): Promise<FakeTunerServer> {
       return undefined;
     },
   });
+}
+
+function playNotificationView() {
+  return {
+    host: '127.0.0.1',
+    port: 0,
+    state: { id: '65535', name: 'App UI' },
+    localPlayerId: 0,
+    turn: { ok: true, value: 1 },
+    turnDate: { ok: true, value: '4000 BCE' },
+    loadingStateName: null,
+    blocker: { ok: true, value: 0 },
+    blockingNotificationId: { ok: true, value: null },
+    selectedUnitId: { ok: true, value: null },
+    selectedCityId: { ok: true, value: null },
+    firstReadyUnitId: { ok: true, value: null },
+    nextDecision: null,
+    hud: {
+      decisionQueue: [],
+      currentBlocker: null,
+      advisories: [],
+      units: [],
+      cities: [],
+      localPlayer: { ok: true, value: 0 },
+      selectedUnit: { ok: true, value: null },
+      selectedCity: { ok: true, value: null },
+      firstReadyUnit: { ok: true, value: null },
+    },
+    limits: {
+      maxNotifications: 25,
+      truncated: false,
+    },
+    notes: [],
+  };
 }
 
 function appUiSnapshot() {

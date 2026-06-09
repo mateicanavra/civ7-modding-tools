@@ -19,7 +19,7 @@ export default class GamePlayChooseCelebration extends Command {
   static examples = [
     '<%= config.bin %> game play choose-celebration --options --json',
     '<%= config.bin %> game play choose-celebration --player-id 0 --golden-age-type -340825966 --json',
-    '<%= config.bin %> game play choose-celebration --player-id 0 --golden-age-type -340825966 --send --json',
+    '<%= config.bin %> game play choose-celebration --golden-age-type -340825966 --send --json',
   ];
 
   static flags = {
@@ -78,11 +78,21 @@ export default class GamePlayChooseCelebration extends Command {
       });
       return;
     }
-    if (typeof flags['player-id'] !== 'number') {
-      throw new Error('game play choose-celebration requires --player-id unless --options is used');
-    }
     if (typeof flags['golden-age-type'] !== 'number') {
       throw new Error('game play choose-celebration requires --golden-age-type unless --options is used');
+    }
+    if (flags.send) {
+      const result = await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      }).government.celebration.choice.request({
+        goldenAgeType: flags['golden-age-type'],
+      });
+      emitPlayResult(this.log.bind(this), flags.json, result);
+      return;
+    }
+    if (typeof flags['player-id'] !== 'number') {
+      throw new Error('game play choose-celebration requires --player-id unless --options is used');
     }
     const input = {
       operationType: CHOOSE_GOLDEN_AGE,
@@ -91,15 +101,7 @@ export default class GamePlayChooseCelebration extends Command {
         GoldenAgeType: flags['golden-age-type'],
       },
     };
-    const result = flags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
-          endpointDefaults: options,
-        }).government.celebration.choice.request({
-          playerId: flags['player-id'],
-          goldenAgeType: flags['golden-age-type'],
-        })
-      : await validatePlayOperation('player-operation', input, options);
+    const result = await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }
@@ -141,7 +143,7 @@ function compactCelebrationChoiceSurface(details: Record<string, unknown>): {
       name: option.name,
       description: option.description,
       duration: option.duration,
-      chooseCli: option.cli,
+      chooseCli: celebrationChoiceSendCli(option),
       validateCli: option.validateCli,
     }));
   return {
@@ -154,6 +156,11 @@ function compactCelebrationChoiceSurface(details: Record<string, unknown>): {
     enabledOptionCount: enabledOptions.length,
     disabledOptionCount: asArray(details.disabledOptions).length,
   };
+}
+
+function celebrationChoiceSendCli(option: Record<string, unknown>): string | null {
+  if (typeof option.goldenAgeType !== 'number') return null;
+  return `game play choose-celebration --golden-age-type ${option.goldenAgeType} --send`;
 }
 
 function asArray(value: unknown): unknown[] {

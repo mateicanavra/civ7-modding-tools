@@ -19,7 +19,7 @@ export default class GamePlayChooseCulture extends Command {
   static examples = [
     '<%= config.bin %> game play choose-culture --options --json',
     '<%= config.bin %> game play choose-culture --player-id 0 --node 115 --json',
-    '<%= config.bin %> game play choose-culture --player-id 0 --node 115 --send --json',
+    '<%= config.bin %> game play choose-culture --node 115 --send --json',
   ];
 
   static flags = {
@@ -83,11 +83,21 @@ export default class GamePlayChooseCulture extends Command {
       });
       return;
     }
-    if (typeof flags['player-id'] !== 'number') {
-      throw new Error('game play choose-culture requires --player-id unless --options is used');
-    }
     if (typeof flags.node !== 'number') {
       throw new Error('game play choose-culture requires --node unless --options is used');
+    }
+    if (flags.send) {
+      const result = await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      }).progression.culture.choice.request({
+        node: flags.node,
+      });
+      emitPlayResult(this.log.bind(this), flags.json, result);
+      return;
+    }
+    if (typeof flags['player-id'] !== 'number') {
+      throw new Error('game play choose-culture requires --player-id unless --options or --send is used');
     }
     const input = {
       operationType: SET_CULTURE_TREE_NODE,
@@ -96,15 +106,7 @@ export default class GamePlayChooseCulture extends Command {
         ProgressionTreeNodeType: flags.node,
       },
     };
-    const result = flags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
-          endpointDefaults: options,
-        }).progression.culture.choice.request({
-          playerId: flags['player-id'],
-          node: flags.node,
-        })
-      : await validatePlayOperation('player-operation', input, options);
+    const result = await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

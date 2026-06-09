@@ -18,7 +18,7 @@ export default class GamePlayRespondDiplomacy extends Command {
 
   static examples = [
     '<%= config.bin %> game play respond-diplomacy --player-id 0 --action-id 56 --response-type -1907089594 --json',
-    '<%= config.bin %> game play respond-diplomacy --player-id 0 --action-id 56 --response-type -1907089594 --send --json',
+    '<%= config.bin %> game play respond-diplomacy --action-id 56 --response-type -1907089594 --send --json',
     '<%= config.bin %> game play respond-diplomacy --action-id 56 --response-type 926305338 --notification-id \'{"owner":0,"id":19,"type":20}\' --send --json',
   ];
 
@@ -66,7 +66,6 @@ export default class GamePlayRespondDiplomacy extends Command {
         directControl: liveCiv7ControlOrpcDirectControlFacade,
         endpointDefaults: options,
       }).diplomacy.response.request({
-        playerId: flags['player-id'],
         actionId: flags['action-id'],
         responseType: flags['response-type'],
         ...(flags['notification-id'] ? { notificationId: parseComponentId(flags['notification-id'], 'notification-id') } : {}),

@@ -473,7 +473,7 @@ export function playNotificationViewSource(): string {
         recommendedResponse: "neutral",
         recommendedCli: player2 == null
           ? null
-          : "game play respond-first-meet --player-id " + String(player1) + " --met-player-id " + String(player2) + " --response neutral",
+          : "game play respond-first-meet --met-player-id " + String(player2) + " --response neutral --send",
         note: "Neutral is the conservative default when Influence cost or payoff is not proven.",
       };
     };
@@ -678,15 +678,13 @@ export function playNotificationViewSource(): string {
             chooseValidation,
             targetValidation,
             cli: chooseEnabled
-              ? "game play choose-tech --player-id " + String(localPlayerId)
-                + " --node " + String(numericNodeType)
+              ? "game play choose-tech --node " + String(numericNodeType)
                 + " --send"
               : null,
             validateCli: "game play choose-tech --player-id " + String(localPlayerId)
               + " --node " + String(numericNodeType) + " --json",
             targetCli: targetEnabled
-              ? "game play set-tech-target --player-id " + String(localPlayerId)
-                + " --node " + String(numericNodeType)
+              ? "game play set-tech-target --node " + String(numericNodeType)
                 + " --send"
               : null,
           });
@@ -789,15 +787,13 @@ export function playNotificationViewSource(): string {
           chooseValidation,
           targetValidation,
           cli: chooseEnabled
-            ? "game play choose-culture --player-id " + String(localPlayerId)
-              + " --node " + String(numericNodeType)
-              + " --send --closeout"
+            ? "game play choose-culture --node " + String(numericNodeType)
+              + " --send"
             : null,
           validateCli: "game play choose-culture --player-id " + String(localPlayerId)
             + " --node " + String(numericNodeType) + " --json",
           targetCli: targetEnabled
-            ? "game play set-culture-target --player-id " + String(localPlayerId)
-              + " --node " + String(numericNodeType)
+            ? "game play set-culture-target --node " + String(numericNodeType)
               + " --send"
             : null,
         });
@@ -868,8 +864,7 @@ export function playNotificationViewSource(): string {
           disabled: !enabled,
           validation,
           cli: enabled && args
-            ? "game play choose-celebration --player-id " + String(localPlayerId)
-              + " --golden-age-type " + String(args.GoldenAgeType)
+            ? "game play choose-celebration --golden-age-type " + String(args.GoldenAgeType)
               + " --send"
             : null,
           validateCli: args
@@ -961,8 +956,7 @@ export function playNotificationViewSource(): string {
           disabled: !enabled,
           validation,
           cli: enabled && governmentIndex != null && activate != null
-            ? "game play choose-government --player-id " + String(localPlayerId)
-              + " --government-type " + String(governmentIndex)
+            ? "game play choose-government --government-type " + String(governmentIndex)
               + " --action " + String(activate)
               + " --send"
             : null,
@@ -1095,8 +1089,7 @@ export function playNotificationViewSource(): string {
           disabled: !enabled,
           validation,
           cli: enabled && targetJson
-            ? "game play choose-narrative --player-id " + String(localPlayerId)
-              + " --target-type " + String(link.ToNarrativeStoryType)
+            ? "game play choose-narrative --target-type " + String(link.ToNarrativeStoryType)
               + " --target '" + targetJson + "'"
               + " --action " + String(activate)
               + " --send"
@@ -1138,8 +1131,7 @@ export function playNotificationViewSource(): string {
           disabled: !enabled,
           validation,
           cli: enabled
-            ? "game play choose-narrative --player-id " + String(localPlayerId)
-              + " --target-type CLOSE"
+            ? "game play choose-narrative --target-type CLOSE"
               + " --target '" + targetJson + "'"
               + " --action " + String(activate)
               + " --send"
@@ -1183,8 +1175,7 @@ export function playNotificationViewSource(): string {
             disabled: !enabled,
             validation,
             cli: enabled
-              ? "game play choose-narrative --player-id " + String(localPlayerId)
-                + " --target-type " + String(visibleOption.targetType)
+              ? "game play choose-narrative --target-type " + String(visibleOption.targetType)
                 + " --target '" + targetJson + "'"
                 + " --action " + String(activate)
                 + " --send"
@@ -1359,9 +1350,9 @@ export function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live tech chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
           [
-            action("choose tech", "game play choose-tech --player-id <id> --node <node> --send", "sequence", "SET_TECH_TREE_NODE then SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start research and finish the chooser workflow"),
+            action("choose tech", "game play choose-tech --node <node> --send", "sequence", "SET_TECH_TREE_NODE then SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start research and finish the chooser workflow"),
             action("validate tech choice", "game play choose-tech --player-id <id> --node <node>", "player-operation", "SET_TECH_TREE_NODE", "{ ProgressionTreeNodeType }", "after reading the candidate node"),
-            action("set tech target", "game play set-tech-target --player-id <id> --node <node>", "player-operation", "SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
+            action("set tech target", "game play set-tech-target --node <node> --send", "player-operation", "SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
           ["Read the live tech node id before sending; choose-tech send mode mirrors the chooser by clearing the temporary target internally."],
         );
@@ -1376,12 +1367,12 @@ export function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live culture chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
           [
-            action("choose culture and close chooser", "game play choose-culture --player-id <id> --node <node> --send --closeout", "sequence", "SET_CULTURE_TREE_NODE then SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start culture and close the chooser surface"),
+            action("choose culture and close chooser", "game play choose-culture --node <node> --send", "sequence", "SET_CULTURE_TREE_NODE then SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start culture and close the chooser surface"),
             action("read culture options", "game play choose-culture --options --json", undefined, undefined, "enabled culture nodes with validation and ready send templates", "before choosing a culture node"),
             action("validate culture choice", "game play choose-culture --player-id <id> --node <node>", "player-operation", "SET_CULTURE_TREE_NODE", "{ ProgressionTreeNodeType }", "after reading the candidate node"),
-            action("set culture target", "game play set-culture-target --player-id <id> --node <node>", "player-operation", "SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
+            action("set culture target", "game play set-culture-target --node <node> --send", "player-operation", "SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
-          ["Read options from the live culture chooser before sending; some UI paths also set the culture target node, so use --closeout for one caller-level selection."],
+          ["Read options from the live culture chooser before sending; send mode also clears the temporary culture target as one caller-level selection."],
         );
       }
       if (stringIncludes(haystack, "CHOOSE_GOVERNMENT")) {
@@ -1395,7 +1386,7 @@ export function playNotificationViewSource(): string {
           [requiredInput("GovernmentType", "live government picker option", "Use the government index from choose-government --options, not the visible row position.")],
           [
             action("read government options", "game play choose-government --options --json", undefined, undefined, "enabled starting governments with validation and ready send templates", "before choosing a government"),
-            action("choose government", "game play choose-government --player-id <id> --government-type <government-type> --action <action> --send", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
+            action("choose government", "game play choose-government --government-type <government-type> --action <action> --send", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
           ],
           ["Read options from the live government picker before sending; the option surface includes celebration effects for context."],
         );
@@ -1411,7 +1402,7 @@ export function playNotificationViewSource(): string {
           [requiredInput("GoldenAgeType", "live celebration chooser option", "Use the GoldenAgeType hash from choose-celebration --options, not old examples or visible row position.")],
           [
             action("read celebration options", "game play choose-celebration --options --json", undefined, undefined, "enabled celebration choices with validation and ready send templates", "before choosing a celebration"),
-            action("choose celebration", "game play choose-celebration --player-id <id> --golden-age-type <golden-age-type> --send", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),
+            action("choose celebration", "game play choose-celebration --golden-age-type <golden-age-type> --send", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),
           ],
           ["Read options from the live celebration chooser before sending; this blocker is not dismissible and should not use notification dismissal."],
         );
@@ -1430,7 +1421,7 @@ export function playNotificationViewSource(): string {
           ],
           [
             action("read city placement candidates", "game play ready-city --compact --json", "read-only", "ready-city population placement packet", "workable plots and expansion candidates", "before choosing assign-worker or expand-city"),
-            action("assign worker to proven plot", "game play assign-worker --player-id <id> --location <plot-index>", "player-operation", "ASSIGN_WORKER", "{ Location, Amount: 1 }", "when the chosen tile is already workable"),
+            action("assign worker to proven plot", "game play assign-worker --location <plot-index> --send", "player-operation", "ASSIGN_WORKER", "{ Location, Amount: 1 }", "when the chosen tile is already workable"),
             action("validate city expansion", "game play expand-city --city-id '<city-id>' --x <x> --y <y>", "city-command", "EXPAND", "{ X, Y }", "when the chosen tile is an expansion purchase"),
           ],
           ["The notification opens acquire-tile mode; the clicked plot determines whether worker assignment or expansion fires. Re-read candidates before choosing either branch."],
@@ -1511,7 +1502,7 @@ export function playNotificationViewSource(): string {
             requiredInput("Type", "chosen first-meet greeting", "Use the first-meet response enum from the live UI, not ordinary Support/Accept/Reject diplomacy response enums."),
           ],
           [
-            action("send neutral first-meet greeting", "game play respond-first-meet --player-id <id> --met-player-id <other-player-id> --response neutral", "player-operation", "RESPOND_DIPLOMATIC_FIRST_MEET", "{ Player1, Player2, Type }", "after validating the greeting options from the live first-meet UI"),
+            action("send neutral first-meet greeting", "game play respond-first-meet --met-player-id <other-player-id> --response neutral --send", "player-operation", "RESPOND_DIPLOMATIC_FIRST_MEET", "{ Player1, Player2, Type }", "after validating the greeting options from the live first-meet UI"),
           ],
           ["First-meet greetings are real player operations, not notification dismissals. Neutral is the conservative default when Influence cost or strategic payoff is not proven."],
         );
@@ -1671,6 +1662,7 @@ export function playNotificationViewSource(): string {
           ],
           [
             action("read narrative options", "game play choose-narrative --options --json", undefined, undefined, "enabled narrative buttons with validation and ready send templates", "before choosing a narrative branch or closeout"),
+            action("send narrative choice", "game play choose-narrative --target-type <target-type> --target '<target>' --action <action> --send", "player-operation", "CHOOSE_NARRATIVE_STORY_DIRECTION", "{ TargetType, Target, Action }", "after choosing one enabled narrative option from the live story UI"),
             action("validate narrative choice", "game play choose-narrative --player-id <id> --target-type <target-type> --target '<target>' --action <action>", "player-operation", "CHOOSE_NARRATIVE_STORY_DIRECTION", "{ TargetType, Target, Action }", "after reading the option key and activation from the story UI"),
           ],
           ["Use the option reader before sending; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, do not synthesize a narrative operation; inspect dismissal postcondition evidence separately."],
@@ -1690,11 +1682,13 @@ export function playNotificationViewSource(): string {
           ],
           [
             action("read tradition options", "game play traditions --compact --json", "read-only", "Players.Culture tradition slot/candidate packet", "active and available traditions with action templates", "before choosing a tradition activation or deactivation"),
-            action("change tradition and close review", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action> --send --closeout", "sequence", "CHANGE_TRADITION then CONSIDER_ASSIGN_TRADITIONS", "{ TraditionType, Action } then {}", "when a specific tradition slot change should be applied and the blocker closed as one caller workflow"),
-            action("change tradition", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action>", "player-operation", "CHANGE_TRADITION", "{ TraditionType, Action }", "when only validation or a single tradition operation is wanted"),
-            action("close tradition review", "game play consider-traditions --player-id <id>", "player-operation", "CONSIDER_ASSIGN_TRADITIONS", "{}", "after valid assignments are already in place"),
+            action("change tradition", "game play change-tradition --tradition-type <tradition-type> --action <action> --send", "player-operation", "CHANGE_TRADITION", "{ TraditionType, Action }", "when one selected tradition operation should be sent"),
+            action("close tradition review", "game play consider-traditions --send", "player-operation", "CONSIDER_ASSIGN_TRADITIONS", "{}", "after valid assignments are already in place"),
           ],
-          ["Full slots may need deactivate, activate, then closeout; use --closeout on the final selected change when one caller action should clear the review surface."],
+          [
+            "Full slots may need deactivate, re-read, then activate.",
+            "Use --closeout on the selected change only when the same move should also clear the review surface.",
+          ],
         );
       }
       if (stringIncludes(haystack, "ATTRIBUTE")) {
@@ -1707,9 +1701,8 @@ export function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live attribute tree node", "Use the buyable attribute node id from the runtime tree.")],
           [
-            action("buy attribute and close review", "game play buy-attribute --player-id <id> --node <node> --send --closeout", "sequence", "BUY_ATTRIBUTE_TREE_NODE then CONSIDER_ASSIGN_ATTRIBUTE", "{ ProgressionTreeNodeType } then {}", "when a buyable node should be purchased and the blocker closed as one caller workflow"),
-            action("buy attribute node", "game play buy-attribute --player-id <id> --node <node>", "player-operation", "BUY_ATTRIBUTE_TREE_NODE", "{ ProgressionTreeNodeType }", "when only validation or a single attribute operation is wanted"),
-            action("close attribute review", "game play consider-attributes --player-id <id>", "player-operation", "CONSIDER_ASSIGN_ATTRIBUTE", "{}", "after no attribute purchase is needed or after buying"),
+            action("buy attribute node", "game play buy-attribute --node <node> --send", "player-operation", "BUY_ATTRIBUTE_TREE_NODE", "{ ProgressionTreeNodeType }", "when one selected attribute purchase should be sent"),
+            action("close attribute review", "game play consider-attributes --send", "player-operation", "CONSIDER_ASSIGN_ATTRIBUTE", "{}", "after no attribute purchase is needed or after buying"),
           ],
           ["Use --closeout when one caller action should buy the node and clear the review surface."],
         );

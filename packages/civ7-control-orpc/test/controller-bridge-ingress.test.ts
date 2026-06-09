@@ -122,43 +122,35 @@ const townFocusInput = {
 };
 const narrativeTarget = { owner: 0, id: 7_001, type: 12 };
 const narrativeInput = {
-  playerId: 2,
   targetType: "DISCOVERY_STORY",
   target: narrativeTarget,
   action: 1,
 };
 const diplomacyInput = {
-  playerId: 2,
   actionId: 8_821,
   responseType: -1_713_616_684,
   notificationId,
 };
 const firstMeetInput = {
-  playerId: 2,
   metPlayerId: 2,
   responseType: 673_478_009,
 };
 const governmentInput = {
-  playerId: 2,
   governmentType: 0,
   action: -1_326_475_004,
 };
 const celebrationInput = {
-  playerId: 2,
   goldenAgeType: -340_825_966,
 };
 const progressionTechnologyInput = {
-  playerId: 2,
   node: 18_001,
   notificationId,
 };
 const progressionCultureInput = {
-  playerId: 2,
   node: 27_001,
   notificationId,
 };
 const progressionTargetInput = {
-  playerId: 2,
   node: 18_001,
 };
 const attributePurchaseInput = {
@@ -978,7 +970,6 @@ describe("Civ7 controller bridge ingress", () => {
       procedureKey: "city.population.place.request",
       input: {
         mode: "assign-worker",
-        playerId: 0,
         location: workerLocation,
       },
       correlationId: "controller-population-1",
@@ -1005,6 +996,7 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.population).toEqual([{
       method: "requestCiv7AssignWorkerPlacement",
       input: { playerId: 0, location: workerLocation },
@@ -1014,7 +1006,6 @@ describe("Civ7 controller bridge ingress", () => {
       procedureKey: "city.population.place.request",
       input: {
         mode: "assign-worker",
-        playerId: 0,
         location: workerLocation,
       },
       correlationId: "controller-population-1",
@@ -1179,8 +1170,12 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.narrative).toEqual([{
-      input: narrativeInput,
+      input: {
+        playerId: 0,
+        ...narrativeInput,
+      },
       options: { timeoutMs: 1_000 },
     }]);
     expect(fake.contextRequests).toEqual([{
@@ -1240,8 +1235,12 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.diplomacy).toEqual([{
-      input: diplomacyInput,
+      input: {
+        playerId: 0,
+        ...diplomacyInput,
+      },
       options: { timeoutMs: 1_000 },
     }]);
     expect(fake.contextRequests).toEqual([{
@@ -1764,6 +1763,13 @@ describe("Civ7 controller bridge ingress", () => {
           mode: "assign-worker",
           playerId: 0,
           location: workerLocation,
+        },
+      },
+      {
+        procedureKey: "city.population.place.request",
+        input: {
+          mode: "assign-worker",
+          location: workerLocation,
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
       },
@@ -1882,6 +1888,13 @@ describe("Civ7 controller bridge ingress", () => {
         procedureKey: "progression.technology.choice.request",
         input: {
           ...progressionTechnologyInput,
+          playerId: 2,
+        },
+      },
+      {
+        procedureKey: "progression.technology.choice.request",
+        input: {
+          ...progressionTechnologyInput,
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
       },
@@ -1895,6 +1908,13 @@ describe("Civ7 controller bridge ingress", () => {
         input: {
           ...progressionCultureInput,
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
+        },
+      },
+      {
+        procedureKey: "progression.technology.target.request",
+        input: {
+          ...progressionTargetInput,
+          playerId: 2,
         },
       },
       {
@@ -2456,6 +2476,7 @@ function fakeProductionChoiceContext(): {
 function fakePopulationPlacementContext(): {
   calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     population: Array<{
       method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
       input: unknown;
@@ -2467,6 +2488,7 @@ function fakePopulationPlacementContext(): {
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     population: Array<{
       method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
       input: unknown;
@@ -2474,6 +2496,7 @@ function fakePopulationPlacementContext(): {
     }>;
   } = {
     status: [],
+    views: [],
     population: [],
   };
   return {
@@ -2489,6 +2512,10 @@ function fakePopulationPlacementContext(): {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
           return playableStatusResult();
+        },
+        getCiv7PlayNotificationView: async (options) => {
+          calls.views.push(options);
+          return cleanNotificationViewResult();
         },
         requestCiv7AssignWorkerPlacement: async (input, options) => {
           calls.population.push({
@@ -2575,6 +2602,7 @@ function fakeTownFocusContext(): {
 function fakeNarrativeChoiceContext(): {
   calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     narrative: Array<{
       input: unknown;
       options: unknown;
@@ -2585,12 +2613,14 @@ function fakeNarrativeChoiceContext(): {
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     narrative: Array<{
       input: unknown;
       options: unknown;
     }>;
   } = {
     status: [],
+    views: [],
     narrative: [],
   };
   return {
@@ -2607,6 +2637,10 @@ function fakeNarrativeChoiceContext(): {
           calls.status.push(options);
           return playableStatusResult();
         },
+        getCiv7PlayNotificationView: async (options) => {
+          calls.views.push(options);
+          return cleanNotificationViewResult();
+        },
         requestCiv7NarrativeChoice: async (input, options) => {
           calls.narrative.push({ input, options });
           return narrativeChoiceResult();
@@ -2619,6 +2653,7 @@ function fakeNarrativeChoiceContext(): {
 function fakeDiplomacyResponseContext(): {
   calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     diplomacy: Array<{
       input: unknown;
       options: unknown;
@@ -2629,12 +2664,14 @@ function fakeDiplomacyResponseContext(): {
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     diplomacy: Array<{
       input: unknown;
       options: unknown;
     }>;
   } = {
     status: [],
+    views: [],
     diplomacy: [],
   };
   return {
@@ -2650,6 +2687,10 @@ function fakeDiplomacyResponseContext(): {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
           return playableStatusResult();
+        },
+        getCiv7PlayNotificationView: async (options) => {
+          calls.views.push(options);
+          return cleanNotificationViewResult();
         },
         requestCiv7DiplomacyResponse: async (input, options) => {
           calls.diplomacy.push({ input, options });
