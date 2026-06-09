@@ -1,6 +1,6 @@
 import React from 'react';
 import { Bolt, Bot, Clipboard, Clock, Dices, MonitorPlay, Play, Radio, RotateCw, Square } from 'lucide-react';
-import { Button, Input } from './ui';
+import { Button, Input, Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
 import { MAP_SIZE_SHORT, LAYOUT } from '../constants';
 import { formatResourceMode } from '../utils';
 import type { RecipeSettings, WorldSettings, GenerationStatus } from '../types';
@@ -98,7 +98,6 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   runInGameStatus,
   runInGameCurrentRelation = "unknown",
   isDirty,
-  lightMode,
   liveRuntime,
   liveGameStudioRelation = "unknown",
   onSyncFromLiveGame,
@@ -108,20 +107,25 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   autoRunEnabled,
   onAutoRunEnabledChange
 }) => {
-  const panelBg = lightMode ? 'bg-white/95' : 'bg-[#141418]/95';
-  const panelBorder = lightMode ? 'border-gray-200' : 'border-[#2a2a32]';
-  const textPrimary = lightMode ? 'text-[#1f2937]' : 'text-[#e8e8ed]';
-  const textSecondary = lightMode ? 'text-[#6b7280]' : 'text-[#8a8a96]';
-  const textMuted = lightMode ? 'text-[#9ca3af]' : 'text-[#5a5a66]';
-  const dividerColor = lightMode ? 'bg-gray-200' : 'bg-[#2a2a32]';
+  // Token-driven chrome; theme follows the single `.dark` class. The footer
+  // docks float over the deck.gl map, so they ride the `popover` tier.
+  const panelBg = 'bg-popover/95';
+  const panelBorder = 'border-border';
+  const textPrimary = 'text-foreground';
+  const textSecondary = 'text-muted-foreground';
+  const textMuted = 'text-muted-foreground/70';
+  const dividerColor = 'bg-border';
+  // Status dots report data the instrument observes (the one place real color
+  // belongs in the chrome): running = amber, error = destructive, ready =
+  // success. `isDirty` is chrome identity, so it uses the slate accent.
   const statusDotClass =
   status === 'running' ?
-  'bg-amber-400' :
+  'bg-warning' :
   status === 'error' ?
-  'bg-red-400' :
+  'bg-destructive' :
   isDirty ?
-  'bg-orange-400' :
-  'bg-emerald-400';
+  'bg-primary' :
+  'bg-success';
   const statusText =
   status === 'running' ?
   'Running' :
@@ -134,7 +138,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   MAP_SIZE_SHORT[lastGlobalSettings.mapSize] || lastGlobalSettings.mapSize;
   const displayResources = formatResourceMode(lastGlobalSettings.resources);
   const liveDotClass =
-    liveRuntime?.status === "ok" ? "bg-emerald-400" : liveRuntime?.status === "error" ? "bg-red-400" : "bg-gray-400";
+    liveRuntime?.status === "ok" ? "bg-success" : liveRuntime?.status === "error" ? "bg-destructive" : "bg-muted-foreground";
   const liveText =
     liveRuntime?.status === "ok"
       ? liveRuntime.turn !== undefined || liveRuntime.seed !== undefined
@@ -154,14 +158,14 @@ export const AppFooter: React.FC<AppFooterProps> = ({
       : null;
   const runInGameDotClass =
     runInGameCurrentRelation === "stale"
-      ? "bg-orange-400"
+      ? "bg-warning"
       : runInGameStatus?.status === "complete"
-      ? "bg-emerald-400"
+      ? "bg-success"
       : runInGameStatus?.status === "failed" || runInGameStatus?.status === "blocked" || runInGameStatus?.status === "uncertain"
-        ? "bg-red-400"
+        ? "bg-destructive"
         : isRunInGameRunning
-          ? "bg-amber-400"
-          : "bg-gray-400";
+          ? "bg-warning"
+          : "bg-muted-foreground";
   const runInGameButtonText = runInGamePrimaryActionLabel(runInGameStatus, runInGameCurrentRelation);
   const operationControlsDisabled = isRunning || isRunInGameRunning || isSaveDeployRunning;
   const liveSyncAvailable =
@@ -249,14 +253,18 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         <div className={`w-px h-5 ${dividerColor}`} />
 
         {/* Last run info */}
-        <div className="flex items-center gap-2 text-[11px]">
-          <button
-            onClick={handleCopySeed}
-            title="Click to copy seed"
-            className={`font-mono ${textPrimary} hover:text-orange-500 hover:underline transition-colors cursor-pointer`}>
+        <div className="flex items-center gap-2 text-data">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={handleCopySeed}
+                className={`font-mono ${textPrimary} hover:text-primary hover:underline transition-colors cursor-pointer`}>
 
-            {lastRunSettings.seed}
-          </button>
+                {lastRunSettings.seed}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Click to copy seed</TooltipContent>
+          </Tooltip>
           <span className={textMuted}>·</span>
           <span className={textPrimary}>{displaySize}</span>
           <span className={textMuted}>·</span>
@@ -266,44 +274,52 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         </div>
       </div>
 
-      {/* Live Civ7 Panel */}
+      {/* Live Civ7 Panel. The "stale vs live game" emphasis is a warning about
+          data, so it uses the `warning` token (not the slate identity accent). */}
       <div
-        className={`h-10 inline-flex min-w-0 max-w-[420px] items-center gap-2 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}
-        title={liveSyncTitle}>
+        className={`h-10 inline-flex min-w-0 max-w-[420px] items-center gap-2 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
 
-        <button
-          type="button"
-          onClick={onSyncFromLiveGame}
-          disabled={!liveSyncAvailable}
-          title={liveSyncTitle}
-          className={`inline-flex h-7 min-w-0 items-center gap-2 rounded border px-2 transition-colors ${
-            liveGameStudioRelation === "stale"
-              ? "border-orange-400 text-orange-500 ring-2 ring-orange-400/40"
-              : "border-transparent"
-          } ${liveSyncAvailable ? "cursor-pointer hover:bg-orange-400/10" : "cursor-default disabled:opacity-100"}`}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={onSyncFromLiveGame}
+              disabled={!liveSyncAvailable}
+              className={`inline-flex h-7 min-w-0 items-center gap-2 rounded border px-2 transition-colors ${
+                liveGameStudioRelation === "stale"
+                  ? "border-warning text-warning ring-1 ring-warning/40"
+                  : "border-transparent"
+              } ${liveSyncAvailable ? "cursor-pointer hover:bg-warning/10" : "cursor-default disabled:opacity-100"}`}>
 
-          <Radio className={`w-3.5 h-3.5 ${liveGameStudioRelation === "stale" ? "text-orange-500" : textMuted}`} />
-          <div className={`w-2 h-2 shrink-0 rounded-full ${liveDotClass}`} />
-          <span className={`truncate text-[11px] font-medium ${liveGameStudioRelation === "stale" ? "text-orange-500" : textPrimary}`}>
-            {liveText}
-          </span>
-          {liveRuntime?.autoplayActive ? (
-            <span className="shrink-0 rounded border border-amber-400/40 px-1.5 py-0.5 text-[10px] text-amber-500">
-              Auto
-            </span>
-          ) : null}
-        </button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onToggleAutoplay}
-          disabled={autoplayControlDisabled}
-          title={autoplayTitle}
-          className={`h-7 px-2 text-[11px] ${liveRuntime?.autoplayActive ? "border-amber-400/60 text-amber-500" : ""}`}>
+              <Radio className={`w-3.5 h-3.5 ${liveGameStudioRelation === "stale" ? "text-warning" : textMuted}`} />
+              <div className={`w-2 h-2 shrink-0 rounded-full ${liveDotClass}`} />
+              <span className={`truncate text-data font-medium ${liveGameStudioRelation === "stale" ? "text-warning" : textPrimary}`}>
+                {liveText}
+              </span>
+              {liveRuntime?.autoplayActive ? (
+                <span className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning">
+                  Auto
+                </span>
+              ) : null}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{liveSyncTitle}</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onToggleAutoplay}
+              disabled={autoplayControlDisabled}
+              className={`h-7 px-2 ${liveRuntime?.autoplayActive ? "border-warning/60 text-warning" : ""}`}>
 
-          {liveRuntime?.autoplayActive ? <Square className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
-          <span>{autoplayButtonText}</span>
-        </Button>
+              {liveRuntime?.autoplayActive ? <Square className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+              <span>{autoplayButtonText}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{autoplayTitle}</TooltipContent>
+        </Tooltip>
       </div>
 
       {/* Run Controls Panel */}
@@ -316,107 +332,141 @@ export const AppFooter: React.FC<AppFooterProps> = ({
 
           Seed
         </span>
-        <Input
-          type="text"
-          value={currentSettings.seed}
-          onChange={(e) => updateSetting('seed', e.target.value)}
-          placeholder="Seed"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          min={CIV7_STUDIO_SEED_MIN}
-          max={CIV7_STUDIO_SEED_MAX}
-          title={`Generation seed (${CIV7_STUDIO_SEED_MIN}-${CIV7_STUDIO_SEED_MAX})`}
-          disabled={operationControlsDisabled}
-          lightMode={lightMode}
-          className="w-20 font-mono" />
-
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Input
+              type="text"
+              value={currentSettings.seed}
+              onChange={(e) => updateSetting('seed', e.target.value)}
+              placeholder="Seed"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              min={CIV7_STUDIO_SEED_MIN}
+              max={CIV7_STUDIO_SEED_MAX}
+              aria-label={`Generation seed (${CIV7_STUDIO_SEED_MIN}-${CIV7_STUDIO_SEED_MAX})`}
+              disabled={operationControlsDisabled}
+              className="w-20 font-mono" />
+          </TooltipTrigger>
+          <TooltipContent>{`Generation seed (${CIV7_STUDIO_SEED_MIN}-${CIV7_STUDIO_SEED_MAX})`}</TooltipContent>
+        </Tooltip>
 
         {/* Reroll button */}
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={onReroll}
-          disabled={operationControlsDisabled}
-          title="Re-roll: New seed and run">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onReroll}
+              disabled={operationControlsDisabled}
+              aria-label="Re-roll: New seed and run">
 
-          <Dices className="w-3.5 h-3.5" />
-        </Button>
+              <Dices className="w-3.5 h-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Re-roll: New seed and run</TooltipContent>
+        </Tooltip>
 
         {/* Auto-run toggle */}
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => onAutoRunEnabledChange(!autoRunEnabled)}
-          disabled={operationControlsDisabled}
-          aria-pressed={autoRunEnabled}
-          aria-label="Toggle auto-run: run current seed on config changes"
-          title="Auto-run: run current seed on config changes"
-          className={autoRunEnabled ? "ring-2 ring-orange-400/50 border-orange-400 text-orange-500" : undefined}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onAutoRunEnabledChange(!autoRunEnabled)}
+              disabled={operationControlsDisabled}
+              aria-pressed={autoRunEnabled}
+              aria-label="Toggle auto-run: run current seed on config changes"
+              className={autoRunEnabled ? "ring-1 ring-ring border-primary text-primary" : undefined}>
 
-          <Bolt className="w-3.5 h-3.5" />
-        </Button>
+              <Bolt className="w-3.5 h-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Auto-run: run current seed on config changes</TooltipContent>
+        </Tooltip>
 
         {/* Run in Game button */}
         {saveDeployStatus && saveDeployStatus.status !== "complete" ? (
-          <div
-            className={`hidden max-w-[150px] items-center gap-1.5 overflow-hidden text-[11px] font-medium ${textPrimary} lg:inline-flex`}
-            title={saveDeployTitle}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                className={`hidden max-w-[150px] items-center gap-1.5 overflow-hidden text-data font-medium ${textPrimary} lg:inline-flex`}>
 
-            <div className={`h-2 w-2 shrink-0 rounded-full ${saveDeployStatus.status === "failed" ? "bg-red-400" : "bg-amber-400"}`} />
-            <span className="truncate">{saveDeployLabel}</span>
-          </div>
+                <div className={`h-2 w-2 shrink-0 rounded-full ${saveDeployStatus.status === "failed" ? "bg-destructive" : "bg-warning"}`} />
+                <span className="truncate">{saveDeployLabel}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="whitespace-pre-line">{saveDeployTitle}</TooltipContent>
+          </Tooltip>
         ) : null}
         {runInGameStatus ? (
-          <div
-            className={`hidden max-w-[180px] items-center gap-1.5 overflow-hidden text-[11px] font-medium ${textPrimary} lg:inline-flex`}
-            title={runInGameTitle}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                className={`hidden max-w-[180px] items-center gap-1.5 overflow-hidden text-data font-medium ${textPrimary} lg:inline-flex`}>
 
-            <div className={`h-2 w-2 shrink-0 rounded-full ${runInGameDotClass}`} />
-            <span className="truncate">{runInGamePhaseLabel}</span>
-            {runInGameStateLabel ? (
-              <span className={`shrink-0 rounded border px-1 py-0.5 text-[10px] ${runInGameCurrentRelation === "stale" ? "border-orange-400/40 text-orange-500" : "border-gray-400/30 text-gray-400"}`}>
-                {runInGameStateLabel}
-              </span>
-            ) : null}
-          </div>
+                <div className={`h-2 w-2 shrink-0 rounded-full ${runInGameDotClass}`} />
+                <span className="truncate">{runInGamePhaseLabel}</span>
+                {runInGameStateLabel ? (
+                  <span className={`shrink-0 rounded border px-1 py-0.5 text-label ${runInGameCurrentRelation === "stale" ? "border-warning/40 text-warning" : "border-border text-muted-foreground"}`}>
+                    {runInGameStateLabel}
+                  </span>
+                ) : null}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="whitespace-pre-line">{runInGameTitle}</TooltipContent>
+          </Tooltip>
         ) : null}
         {runInGameStatus && onRunInGameRetryStatus && runInGameCanRetryStatus(runInGameStatus) ? (
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onRunInGameRetryStatus}
-            title="Refresh Run in Game status">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onRunInGameRetryStatus}
+                aria-label="Refresh Run in Game status">
 
-            <RotateCw className="w-3.5 h-3.5" />
-          </Button>
+                <RotateCw className="w-3.5 h-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Refresh Run in Game status</TooltipContent>
+          </Tooltip>
         ) : null}
         {runInGameStatus && onCopyRunInGameDiagnostics ? (
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onCopyRunInGameDiagnostics}
-            title="Copy Run in Game diagnostics">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onCopyRunInGameDiagnostics}
+                aria-label="Copy Run in Game diagnostics">
 
-            <Clipboard className="w-3.5 h-3.5" />
-          </Button>
+                <Clipboard className="w-3.5 h-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Copy Run in Game diagnostics</TooltipContent>
+          </Tooltip>
         ) : null}
-        <Button
-          onClick={onRunInGame}
-          disabled={operationControlsDisabled}
-          variant="outline"
-          title={runInGameTitle}
-          className={isRunInGameRunning ? 'opacity-70 cursor-wait' : undefined}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={onRunInGame}
+              disabled={operationControlsDisabled}
+              variant="outline"
+              className={isRunInGameRunning ? 'opacity-70 cursor-wait' : undefined}>
 
-          <MonitorPlay className="w-3.5 h-3.5" />
-          <span>{runInGameButtonText}</span>
-        </Button>
+              <MonitorPlay className="w-3.5 h-3.5" />
+              <span>{runInGameButtonText}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent className="whitespace-pre-line">{runInGameTitle}</TooltipContent>
+        </Tooltip>
 
-        {/* Run button */}
+        {/* Run button — the one filled action; dirty emphasis is the slate accent */}
         <Button
           onClick={onRun}
           disabled={operationControlsDisabled}
           className={`
-            ${isDirty ? 'ring-2 ring-orange-400/50 border-orange-400' : ''}
+            ${isDirty ? 'ring-1 ring-ring border-primary' : ''}
             ${isRunning ? 'opacity-70 cursor-wait' : ''}
           `}>
 

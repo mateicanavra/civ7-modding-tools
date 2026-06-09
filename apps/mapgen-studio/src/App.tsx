@@ -10,7 +10,7 @@ import { AppHeader } from "./ui/components/AppHeader";
 import { AppFooter } from "./ui/components/AppFooter";
 import { ExplorePanel } from "./ui/components/ExplorePanel";
 import { RecipePanel } from "./ui/components/RecipePanel";
-import { ToastProvider, useToast } from "./ui/components/ui";
+import { Toaster, toast as sonnerToast, TooltipProvider } from "./components/ui";
 import { createTheme, useThemePreference } from "./ui/hooks";
 import { configsEqual, recipeSettingsEqual, worldSettingsEqual } from "./ui/utils/config";
 import { formatStageName } from "./ui/utils/formatting";
@@ -76,10 +76,6 @@ import {
   type MapConfigSaveDeployStatus,
 } from "./features/mapConfigSave/status";
 import {
-  createStudioServerOrpcClient,
-  studioServerOrpcFailure,
-} from "./features/studioServer/studioServerClient";
-import {
   buildLiveRuntimeErrorState,
   buildLiveRuntimeSnapshotQuery,
   buildLiveRuntimeSnapshotRequest,
@@ -94,8 +90,6 @@ import {
 } from "./features/liveRuntime/model";
 import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
-import { createStudioRecipeDagClient, type RecipeDagResult } from "./features/recipeDag/client";
-import { RecipeDagStatsBar, RecipeDagView } from "./features/recipeDag/RecipeDagView";
 import {
   findVariantIdForEra,
   findVariantKeyForEra,
@@ -103,10 +97,6 @@ import {
   parseEraVariantKey,
   resolveFixedEraUiValue,
 } from "./features/viz/era";
-import {
-  buildRiverLakeFloodplainInspectorSummary,
-  type RiverLakeInspectorLayerRef,
-} from "./features/viz/riverLakeInspector";
 import { formatErrorForUi } from "./shared/errorFormat";
 import { shouldIgnoreGlobalShortcutsInEditableTarget } from "./shared/shortcuts/shortcutPolicy";
 import type { VizEvent } from "./shared/vizEvents";
@@ -136,17 +126,6 @@ import {
 import { getOverlaySuggestions } from "./recipes/overlaySuggestions";
 
 const civ7ControlOrpcClient = createStudioCiv7ControlOrpcClient();
-const recipeDagClient = createStudioRecipeDagClient();
-const studioServerClient = createStudioServerOrpcClient();
-
-type StudioView = "map" | "dag";
-
-type RecipeDagClientState = Readonly<{
-  status: "idle" | "loading" | "ready" | "error";
-  recipeId: string | null;
-  dag: RecipeDagResult | null;
-  error: string | null;
-}>;
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -175,7 +154,7 @@ async function saveRepoBackedConfig(args: {
   config: unknown;
   onStatus?: (status: MapConfigSaveDeployStatus) => void;
 }): Promise<
-  | { ok: true; path?: string; deploy?: MapConfigSaveDeployStatus["deploy"] }
+  | { ok: true; path?: string; deploy?: { command?: string } }
   | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string }
 > {
   const envelope = {
@@ -189,12 +168,16 @@ async function saveRepoBackedConfig(args: {
     config: args.config,
   };
   try {
-    let status = await studioServerClient.mapConfigs.saveDeploy({
-      requestId: args.requestId,
-      id: args.id,
-      sourcePath: args.sourcePath,
-      envelope,
+    const res = await fetch("/api/map-configs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestId: args.requestId, id: args.id, sourcePath: args.sourcePath, envelope }),
     });
+    const body = (await res.json().catch(() => null)) as (Partial<MapConfigSaveDeployStatus> & { error?: string }) | null;
+    if (!res.ok || !body?.requestId) {
+      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, path: body?.path };
+    }
+    let status = body as MapConfigSaveDeployStatus;
     args.onStatus?.(status);
     while (status.status === "running") {
       await delay(500);
@@ -216,8 +199,7 @@ async function saveRepoBackedConfig(args: {
     }
     return { ok: true, path: status.path, deploy: status.deploy };
   } catch (err) {
-    const failure = studioServerOrpcFailure(err, "Repo config save failed");
-    return { ok: false, error: failure.error, path: failure.data?.path as string | undefined };
+    return { ok: false, error: err instanceof Error ? err.message : "Repo config save failed" };
   }
 }
 
@@ -231,10 +213,14 @@ function isAbortLikeError(err: unknown): boolean {
 
 async function fetchMapConfigSaveDeployStatus(requestId: string): Promise<MapConfigSaveDeployStatus | { ok: false; error: string; statusCode?: number }> {
   try {
-    return await studioServerClient.mapConfigs.status({ requestId });
+    const res = await fetch(`/api/map-configs/status?requestId=${encodeURIComponent(requestId)}`);
+    const body = (await res.json().catch(() => null)) as (Partial<MapConfigSaveDeployStatus> & { error?: string }) | null;
+    if (!res.ok || !body?.requestId) {
+      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, statusCode: res.status };
+    }
+    return body as MapConfigSaveDeployStatus;
   } catch (err) {
-    const failure = studioServerOrpcFailure(err, "Save/Deploy status unavailable");
-    return { ok: false, error: failure.error, statusCode: failure.statusCode };
+    return { ok: false, error: err instanceof Error ? err.message : "Save/Deploy status unavailable" };
   }
 }
 
@@ -265,38 +251,50 @@ async function runCurrentConfigInGame(args: {
   | { ok: false; error: string; details?: RunInGameFailureDetails; statusCode?: number }
 > {
   try {
-    const status = await studioServerClient.runInGame.start({
-      recipeId: args.recipeId,
-      seed: args.seed,
-      mapSize: args.mapSize,
-      playerCount: args.playerCount,
-      resources: args.resources,
-      setupConfig: normalizeStudioSetupConfig(args.setupConfig),
-      materialization: { mode: args.materializationMode },
-      ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
-      selectedConfig: args.selectedConfig,
-      config: args.config,
-      sourceSnapshot: args.sourceSnapshot,
+    const res = await fetch("/api/civ7/run-in-game", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        recipeId: args.recipeId,
+        seed: args.seed,
+        mapSize: args.mapSize,
+        playerCount: args.playerCount,
+        resources: args.resources,
+        setupConfig: normalizeStudioSetupConfig(args.setupConfig),
+        materialization: { mode: args.materializationMode },
+        ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
+        selectedConfig: args.selectedConfig,
+        config: args.config,
+        sourceSnapshot: args.sourceSnapshot,
+      }),
     });
-    return status as RunInGameOperationStatus;
+    const body = (await res.json().catch(() => null)) as
+      | (Partial<RunInGameOperationStatus> & { error?: string; details?: RunInGameFailureDetails })
+      | null;
+    if (!res.ok || !body?.requestId) {
+      return {
+        ok: false,
+        error: body?.error ?? `HTTP ${res.status}`,
+        details: body?.details,
+        statusCode: res.status,
+      };
+    }
+    return body as RunInGameOperationStatus;
   } catch (err) {
-    const failure = studioServerOrpcFailure(err, "Run in Game failed");
-    return {
-      ok: false,
-      error: failure.error,
-      details: failure.data?.details as RunInGameFailureDetails | undefined,
-      statusCode: failure.statusCode,
-    };
+    return { ok: false, error: err instanceof Error ? err.message : "Run in Game failed" };
   }
 }
 
 async function fetchRunInGameStatus(requestId: string): Promise<RunInGameOperationStatus | { ok: false; error: string; statusCode?: number }> {
   try {
-    const status = await studioServerClient.runInGame.status({ requestId });
-    return status as RunInGameOperationStatus;
+    const res = await fetch(`/api/civ7/run-in-game/status?requestId=${encodeURIComponent(requestId)}`);
+    const body = (await res.json().catch(() => null)) as (Partial<RunInGameOperationStatus> & { error?: string }) | null;
+    if (!res.ok || !body?.requestId) {
+      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, statusCode: res.status };
+    }
+    return body as RunInGameOperationStatus;
   } catch (err) {
-    const failure = studioServerOrpcFailure(err, "Run in Game status unavailable");
-    return { ok: false, error: failure.error, statusCode: failure.statusCode };
+    return { ok: false, error: err instanceof Error ? err.message : "Run in Game status unavailable" };
   }
 }
 
@@ -679,7 +677,28 @@ type AppContentProps = {
 };
 
 function AppContent(props: AppContentProps) {
-  const { toast } = useToast();
+  // Toast notifications now route through sonner. This adapter preserves the
+  // legacy `toast(message, { variant })` call shape used across this file so the
+  // migration is presentation-only: variant maps to the matching sonner method.
+  const toast = useCallback(
+    (message: string, options?: { variant?: "default" | "success" | "error" | "info"; duration?: number }) => {
+      const sonnerOptions = options?.duration !== undefined ? { duration: options.duration } : undefined;
+      switch (options?.variant) {
+        case "success":
+          sonnerToast.success(message, sonnerOptions);
+          break;
+        case "error":
+          sonnerToast.error(message, sonnerOptions);
+          break;
+        case "info":
+          sonnerToast.info(message, sonnerOptions);
+          break;
+        default:
+          sonnerToast(message, sonnerOptions);
+      }
+    },
+    [],
+  );
   const { themePreference, isLightMode, cyclePreference } = props;
   const theme = useMemo(() => createTheme(isLightMode), [isLightMode]);
   const initialAuthoringStateRef = useRef<ReturnType<typeof loadStudioAuthoringState> | undefined>(undefined);
@@ -701,7 +720,6 @@ function AppContent(props: AppContentProps) {
   const [overlayVariantKeyPreference, setOverlayVariantKeyPreference] = useState<string | null>(null);
   const [eraMode, setEraMode] = useState<"auto" | "fixed">("auto");
   const [manualEra, setManualEra] = useState(1);
-  const [activeStudioView, setActiveStudioView] = useState<StudioView>("map");
   const [recipeSectionCollapsed, setRecipeSectionCollapsed] = useState(false);
   const [configSectionCollapsed, setConfigSectionCollapsed] = useState(false);
   const [exploreStageExpanded, setExploreStageExpanded] = useState(true);
@@ -722,13 +740,6 @@ function AppContent(props: AppContentProps) {
     preset: "none",
     seed: "123",
   });
-  const [recipeDagState, setRecipeDagState] = useState<RecipeDagClientState>({
-    status: "idle",
-    recipeId: null,
-    dag: null,
-    error: null,
-  });
-  const [expandedRecipeDagStageIds, setExpandedRecipeDagStageIds] = useState<ReadonlySet<string>>(() => new Set());
   const [setupConfig, setSetupConfig] = useState<Civ7StudioSetupConfig>(() =>
     initialAuthoringState?.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG
   );
@@ -750,47 +761,6 @@ function AppContent(props: AppContentProps) {
     readStoredRunInGameSourceSnapshot()
   );
   const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(null);
-
-  useEffect(() => {
-    if (activeStudioView !== "dag") return;
-    const recipeId = recipeSettings.recipe;
-    let cancelled = false;
-    setRecipeDagState((prev) => ({
-      status: "loading",
-      recipeId,
-      dag: prev.recipeId === recipeId ? prev.dag : null,
-      error: null,
-    }));
-    void recipeDagClient.recipeDag.get({ recipeId }).then(
-      (dag: RecipeDagResult) => {
-        if (cancelled) return;
-        setRecipeDagState({
-          status: "ready",
-          recipeId,
-          dag,
-          error: null,
-        });
-        const firstStageId = dag.stages[0]?.stageId;
-        if (firstStageId) {
-          setExpandedRecipeDagStageIds((prev) => (
-            prev.size > 0 ? prev : new Set([firstStageId])
-          ));
-        }
-      },
-      (err: unknown) => {
-        if (cancelled) return;
-        setRecipeDagState({
-          status: "error",
-          recipeId,
-          dag: null,
-          error: formatErrorForUi(err),
-        });
-      }
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [activeStudioView, recipeSettings.recipe]);
 
   const overlaySuggestions = useMemo(() => getOverlaySuggestions(recipeSettings.recipe), [recipeSettings.recipe]);
   const overlaySelection = overlaySuggestions.find((opt) => opt.id === overlaySelectionId) ?? null;
@@ -1262,14 +1232,6 @@ function AppContent(props: AppContentProps) {
 
   const [selectedStageId, setSelectedStageId] = useState("");
   const [selectedStepId, setSelectedStepId] = useState("");
-  const handleRecipeDagStageToggle = useCallback((stageId: string) => {
-    setExpandedRecipeDagStageIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(stageId)) next.delete(stageId);
-      else next.add(stageId);
-      return next;
-    });
-  }, []);
 
   const recipeOptions = useMemo(
     () => STUDIO_RECIPE_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label })),
@@ -2316,10 +2278,6 @@ function AppContent(props: AppContentProps) {
   }, [runInGameOperation, toast]);
 
   const dataTypeModel = viz.dataTypeModel;
-  const riverLakeInspectorSummary = useMemo(
-    () => buildRiverLakeFloodplainInspectorSummary(viz.manifest),
-    [viz.manifest]
-  );
   const dataTypeOptions: DataTypeOption[] = useMemo(() => {
     if (!dataTypeModel) return [];
     return dataTypeModel.dataTypes.map((dt) => ({ value: dt.dataTypeId, label: dt.label, group: dt.group }));
@@ -2540,20 +2498,6 @@ function AppContent(props: AppContentProps) {
       selectLayerFor(next, space.spaceId, rm.renderModeId);
     },
     [dataTypeModel, eraMode, manualEra, selectLayerFor]
-  );
-
-  const handleRiverLakeInspectorLayerSelect = useCallback(
-    (ref: RiverLakeInspectorLayerRef) => {
-      const stage = recipeArtifacts.uiMeta.stages.find((candidate) =>
-        candidate.steps.some((step) => step.fullStepId === ref.stepId)
-      );
-      if (stage) setSelectedStageId(stage.stageId);
-      setSelectedStepId(ref.stepId);
-      if (ref.visibility === "debug") viz.setShowDebugLayers(true);
-      viz.setSelectedStepId(ref.stepId);
-      viz.setSelectedLayerKey(ref.layerKey);
-    },
-    [recipeArtifacts.uiMeta.stages, viz]
   );
 
   const handleSpaceChange = useCallback(
@@ -2818,21 +2762,6 @@ function AppContent(props: AppContentProps) {
     return true;
   }, [showGrid, viz.effectiveLayer]);
 
-  const recipeDagView = (
-    <RecipeDagView
-      recipeId={recipeSettings.recipe}
-      dag={recipeDagState.recipeId === recipeSettings.recipe ? recipeDagState.dag : null}
-      status={recipeDagState.recipeId === recipeSettings.recipe ? recipeDagState.status : "idle"}
-      error={recipeDagState.recipeId === recipeSettings.recipe ? recipeDagState.error : null}
-      lightMode={isLightMode}
-      expandedStageIds={expandedRecipeDagStageIds}
-      selectedStageId={selectedStageId || null}
-      onToggleStage={handleRecipeDagStageToggle}
-      onSelectStage={setSelectedStageId}
-      topInset={panelTop + 84}
-    />
-  );
-
   const canvas = (
     <div className="absolute inset-0">
       <div className={`absolute inset-0 ${isLightMode ? "bg-[#f5f5f7]" : "bg-[#0a0a12]"}`} />
@@ -2888,8 +2817,6 @@ function AppContent(props: AppContentProps) {
 
   const header = (
     <AppHeader
-      activeStudioView={activeStudioView}
-      onActiveStudioViewChange={setActiveStudioView}
       isLightMode={isLightMode}
       themePreference={themePreference}
       onThemeCycle={cyclePreference}
@@ -2901,13 +2828,6 @@ function AppContent(props: AppContentProps) {
       setupOptions={setupControlOptions}
       onSetupConfigChange={setSetupConfig}
       onSavedConfigChange={handleSavedSetupConfigChange}
-      statsAccessory={activeStudioView === "dag" ? (
-        <RecipeDagStatsBar
-          dag={recipeDagState.recipeId === recipeSettings.recipe ? recipeDagState.dag : null}
-          recipeId={recipeSettings.recipe}
-          lightMode={isLightMode}
-        />
-      ) : null}
       onHeaderHeightChange={handleHeaderHeightChange}
     />
   );
@@ -3001,8 +2921,6 @@ function AppContent(props: AppContentProps) {
         if (!viz.activeBounds) return;
         deckApiRef.current?.fitToBounds(viz.activeBounds);
       }}
-      riverLakeInspectorSummary={riverLakeInspectorSummary}
-      onRiverLakeInspectorLayerSelect={handleRiverLakeInspectorLayerSelect}
       stageExpanded={exploreStageExpanded}
       onStageExpandedChange={setExploreStageExpanded}
       stepExpanded={exploreStepExpanded}
@@ -3084,8 +3002,8 @@ function AppContent(props: AppContentProps) {
   );
 
   return (
-    <div ref={containerRef} className={`relative w-full min-h-screen ${isLightMode ? "bg-[#f5f5f7]" : "bg-[#0a0a12]"}`}>
-      {activeStudioView === "dag" ? recipeDagView : canvas}
+    <div ref={containerRef} className="relative w-full min-h-screen bg-background">
+      {canvas}
       {presetDialogs}
       <input
         ref={importInputRef}
@@ -3095,23 +3013,19 @@ function AppContent(props: AppContentProps) {
         onChange={handleImportFileChange}
       />
 
-      {activeStudioView === "map" ? (
-        <>
-          <div className="absolute left-4 z-10" style={{ top: panelTop }}>
-            {leftPanel}
-          </div>
-          <div className="absolute right-4 z-10" style={{ top: panelTop }}>
-            {rightPanel}
-          </div>
-        </>
-      ) : null}
+      <div className="absolute left-4 z-10" style={{ top: panelTop }}>
+        {leftPanel}
+      </div>
+      <div className="absolute right-4 z-10" style={{ top: panelTop }}>
+        {rightPanel}
+      </div>
 
       {header}
       {footer}
 
-      {activeStudioView === "map" && error ? (
+      {error ? (
         <div
-          className="absolute left-1/2 -translate-x-1/2 z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-red-500/30 bg-red-950/40 px-4 py-2 text-[12px] text-red-200 backdrop-blur-sm"
+          className="absolute left-1/2 -translate-x-1/2 z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-destructive/40 bg-destructive/15 px-4 py-2 text-xs text-destructive backdrop-blur-sm"
           style={{ top: panelTop }}
         >
           {error}
@@ -3125,8 +3039,9 @@ function AppContent(props: AppContentProps) {
 export function App() {
   const { preference, isLightMode, cyclePreference } = useThemePreference();
   return (
-    <ToastProvider lightMode={isLightMode}>
+    <TooltipProvider delayDuration={300}>
       <AppContent themePreference={preference} isLightMode={isLightMode} cyclePreference={cyclePreference} />
-    </ToastProvider>
+      <Toaster />
+    </TooltipProvider>
   );
 }
