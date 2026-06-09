@@ -104,7 +104,7 @@ describe('game play diplomacy response commands', () => {
       });
       expect(payload.result.nextSteps[0]).toMatchObject({
         kind: 'refresh-attention',
-        source: 'decisions.diplomacy.response.request',
+        source: 'diplomacy.response.request',
       });
       expectSemanticDiplomacyResponseOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('sendDiplomacyResponseCloseout'))).toBe(true);

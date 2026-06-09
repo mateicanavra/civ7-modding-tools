@@ -8,9 +8,17 @@ import {
   type Civ7CityContract as Civ7CityContractType,
 } from "./modules/city/contract";
 import {
-  Civ7DecisionsContract,
-  type Civ7DecisionsContract as Civ7DecisionsContractType,
-} from "./modules/decisions/contract";
+  Civ7DiplomacyContract,
+  type Civ7DiplomacyContract as Civ7DiplomacyContractType,
+} from "./modules/diplomacy/contract";
+import {
+  Civ7NarrativeContract,
+  type Civ7NarrativeContract as Civ7NarrativeContractType,
+} from "./modules/narrative/contract";
+import {
+  Civ7ProgressionContract,
+  type Civ7ProgressionContract as Civ7ProgressionContractType,
+} from "./modules/progression/contract";
 import {
   Civ7ReadinessContract,
   type Civ7ReadinessContract as Civ7ReadinessContractType,
@@ -35,8 +43,10 @@ import {
 export type Civ7ControlOrpcContract = Readonly<{
   attention: Civ7AttentionContractType;
   city: Civ7CityContractType;
-  decisions: Civ7DecisionsContractType;
+  diplomacy: Civ7DiplomacyContractType;
+  narrative: Civ7NarrativeContractType;
   notifications: Civ7NotificationsContractType;
+  progression: Civ7ProgressionContractType;
   readiness: Civ7ReadinessContractType;
   strategy: Civ7StrategyContractType;
   turn: Civ7TurnContractType;
@@ -47,8 +57,10 @@ export const Civ7ControlOrpcContract: Civ7ControlOrpcContract =
   civ7ControlOrpcContractBase.router({
     attention: Civ7AttentionContract,
     city: Civ7CityContract,
-    decisions: Civ7DecisionsContract,
+    diplomacy: Civ7DiplomacyContract,
+    narrative: Civ7NarrativeContract,
     notifications: Civ7NotificationsContract,
+    progression: Civ7ProgressionContract,
     readiness: Civ7ReadinessContract,
     strategy: Civ7StrategyContract,
     turn: Civ7TurnContract,

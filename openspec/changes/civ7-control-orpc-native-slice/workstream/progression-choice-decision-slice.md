@@ -1,27 +1,31 @@
-# Progression Choice Decision Slice
+# Progression Choice Domain Slice
 
-Status: implemented local package/procedure slice.
+Status: implemented local package/procedure slice; amended by the
+domain-hierarchy repair that moved progression out of the generic `decisions`
+root.
 Date: 2026-06-05.
 
 ## Purpose
 
-Add `decisions.progression.choice.request` as a native service-owned
-control-oRPC decision procedure for technology and culture node choices.
+Add `progression.technology.choice.request` and
+`progression.culture.choice.request` as native service-owned control-oRPC
+progression procedures for technology and culture node choices.
 
 This consumes the direct-control progression closeout runtime ports and the
 source-owned progression choice postcondition classifiers, while keeping the
 caller-facing procedure contract semantic and closed against raw App UI
-closeout internals.
+closeout internals. Technology versus culture is expressed by the domain
+procedure path, not by a generic `kind` discriminator under an action bucket.
 
 ## Write Set
 
 - `packages/civ7-control-orpc/src/dependencies/direct-control.ts`
 - `packages/civ7-control-orpc/src/errors.ts`
 - `packages/civ7-control-orpc/src/index.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/contract.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/router.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/procedures/progression-choice-request.ts`
-- `packages/civ7-control-orpc/test/decisions-progression-choice-procedure.test.ts`
+- `packages/civ7-control-orpc/src/modules/progression/contract.ts`
+- `packages/civ7-control-orpc/src/modules/progression/router.ts`
+- `packages/civ7-control-orpc/src/modules/progression/procedures/choice-request.ts`
+- `packages/civ7-control-orpc/test/progression-choice-procedure.test.ts`
 - this OpenSpec record, `tasks.md`, and
   `specs/civ7-control-orpc/spec.md`
 
@@ -29,8 +33,10 @@ closeout internals.
 
 The service procedure owns:
 
-- the caller-facing progression kind/player/node/notification input shape;
-- the `decisions.progression.choice.request` contract/router/procedure leaf;
+- the caller-facing player/node/notification input shape for each progression
+  domain leaf;
+- the `progression.technology.choice.request` and
+  `progression.culture.choice.request` contract/router/procedure leaves;
 - approval and playable-readiness composition through existing native
   effect-oRPC middleware;
 - before/after notification evidence collection around the direct-control
@@ -62,7 +68,7 @@ Normal procedure input and output exclude:
 
 - no direct-control runtime implementation change;
 - no CLI, Studio, RPCLink, bridge, or in-game controller adapter change;
-- no broad decisions catalog or generic operation router;
+- no broad decision/action catalog or generic operation router;
 - no custom oRPC/context/middleware/procedure-core plumbing;
 - no shared validator/postcondition middleware acceptance;
 - no runtime/live-game proof claim;
@@ -71,7 +77,7 @@ Normal procedure input and output exclude:
 
 ## Proof Collected
 
-- `bun run --cwd packages/civ7-control-orpc test test/decisions-progression-choice-procedure.test.ts`
+- `bun run --cwd packages/civ7-control-orpc test test/progression-choice-procedure.test.ts`
 - `bun run --cwd packages/civ7-direct-control test test/progression-choice-postconditions.test.ts`
 - `bun run --cwd packages/civ7-control-orpc test`
 - `bun run --cwd packages/civ7-control-orpc check`

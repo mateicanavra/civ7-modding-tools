@@ -1,29 +1,41 @@
 export { createCiv7ControlOrpcServerClient } from "./client";
 export {
+  Civ7ControllerBridgeApprovalSchema,
   Civ7ControllerBridgeAttentionCurrentRequestSchema,
   Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
   Civ7ControllerBridgeErrorSchema,
   Civ7ControllerBridgeFailureResponseSchema,
+  Civ7ControllerBridgeMutationProofSchema,
+  Civ7ControllerBridgeNotificationDismissRequestSchema,
+  Civ7ControllerBridgeNotificationDismissSuccessResponseSchema,
   Civ7ControllerBridgeReadinessCurrentRequestSchema,
   Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
   Civ7ControllerBridgeRequestSchema,
   Civ7ControllerBridgeResponseSchema,
   Civ7ControllerBridgeSuccessResponseSchema,
+  Civ7ControllerBridgeTurnCompleteRequestSchema,
+  Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
   createCiv7ControllerBridgeIngress,
   invokeCiv7ControllerBridgeRequest,
 } from "./bridge/controller-ingress";
 export type {
+  Civ7ControllerBridgeApproval,
   Civ7ControllerBridgeAttentionCurrentRequest,
   Civ7ControllerBridgeAttentionCurrentSuccessResponse,
   Civ7ControllerBridgeContextFactory,
   Civ7ControllerBridgeError,
   Civ7ControllerBridgeFailureResponse,
   Civ7ControllerBridgeIngress,
+  Civ7ControllerBridgeMutationProof,
+  Civ7ControllerBridgeNotificationDismissRequest,
+  Civ7ControllerBridgeNotificationDismissSuccessResponse,
   Civ7ControllerBridgeReadinessCurrentRequest,
   Civ7ControllerBridgeReadinessCurrentSuccessResponse,
   Civ7ControllerBridgeRequest,
   Civ7ControllerBridgeResponse,
   Civ7ControllerBridgeSuccessResponse,
+  Civ7ControllerBridgeTurnCompleteRequest,
+  Civ7ControllerBridgeTurnCompleteSuccessResponse,
 } from "./bridge/controller-ingress";
 export {
   CIV7_INTELLIGENCE_BRIDGE_GLOBAL_KEY,
@@ -166,59 +178,80 @@ export { cityRouter } from "./modules/city/router";
 export { cityPopulationPlaceRequestProcedure } from "./modules/city/procedures/population-place-request";
 export { cityProductionChoiceRequestProcedure } from "./modules/city/procedures/production-choice-request";
 export {
-  Civ7DecisionsContract,
-  Civ7DecisionsDiplomacyResponseContract,
-  Civ7DecisionsDiplomacyResponseInputSchema,
-  Civ7DecisionsDiplomacyResponseInputStandardSchema,
-  Civ7DecisionsDiplomacyResponseNextStepSchema,
-  Civ7DecisionsDiplomacyResponsePostconditionClassificationSchema,
-  Civ7DecisionsDiplomacyResponsePostconditionSummarySchema,
-  Civ7DecisionsDiplomacyResponseProofOutcomeSchema,
-  Civ7DecisionsDiplomacyResponseRequestStatusSchema,
-  Civ7DecisionsDiplomacyResponseResultSchema,
-  Civ7DecisionsDiplomacyResponseResultStandardSchema,
-  Civ7DecisionsDiplomacyResponseValidationSummarySchema,
-  Civ7DecisionsNarrativeChoiceContract,
-  Civ7DecisionsNarrativeChoiceInputSchema,
-  Civ7DecisionsNarrativeChoiceInputStandardSchema,
-  Civ7DecisionsNarrativeChoiceNextStepSchema,
-  Civ7DecisionsNarrativeChoicePostconditionClassificationSchema,
-  Civ7DecisionsNarrativeChoicePostconditionSummarySchema,
-  Civ7DecisionsNarrativeChoiceProofOutcomeSchema,
-  Civ7DecisionsNarrativeChoiceRequestStatusSchema,
-  Civ7DecisionsNarrativeChoiceResultSchema,
-  Civ7DecisionsNarrativeChoiceResultStandardSchema,
-  Civ7DecisionsNarrativeChoiceValidationSummarySchema,
-  Civ7DecisionsProgressionChoiceContract,
-  Civ7DecisionsProgressionChoiceEvidenceSummarySchema,
-  Civ7DecisionsProgressionChoiceInputSchema,
-  Civ7DecisionsProgressionChoiceInputStandardSchema,
-  Civ7DecisionsProgressionChoiceKindSchema,
-  Civ7DecisionsProgressionChoiceNextStepSchema,
-  Civ7DecisionsProgressionChoicePostconditionClassificationSchema,
-  Civ7DecisionsProgressionChoicePostconditionSummarySchema,
-  Civ7DecisionsProgressionChoiceProofOutcomeSchema,
-  Civ7DecisionsProgressionChoiceRequestStatusSchema,
-  Civ7DecisionsProgressionChoiceResultSchema,
-  Civ7DecisionsProgressionChoiceResultStandardSchema,
-} from "./modules/decisions/contract";
+  Civ7NarrativeContract,
+  Civ7NarrativeChoiceContract,
+  Civ7NarrativeChoiceInputSchema,
+  Civ7NarrativeChoiceInputStandardSchema,
+  Civ7NarrativeChoiceNextStepSchema,
+  Civ7NarrativeChoicePostconditionClassificationSchema,
+  Civ7NarrativeChoicePostconditionSummarySchema,
+  Civ7NarrativeChoiceProofOutcomeSchema,
+  Civ7NarrativeChoiceRequestStatusSchema,
+  Civ7NarrativeChoiceResultSchema,
+  Civ7NarrativeChoiceResultStandardSchema,
+  Civ7NarrativeChoiceValidationSummarySchema,
+} from "./modules/narrative/contract";
 export type {
-  Civ7DecisionsContract as Civ7DecisionsContractType,
-  Civ7DecisionsDiplomacyResponseContract as Civ7DecisionsDiplomacyResponseContractType,
-  Civ7DecisionsDiplomacyResponseInput,
-  Civ7DecisionsDiplomacyResponseResult,
-  Civ7DecisionsNarrativeChoiceContract as Civ7DecisionsNarrativeChoiceContractType,
-  Civ7DecisionsNarrativeChoiceInput,
-  Civ7DecisionsNarrativeChoiceResult,
-  Civ7DecisionsProgressionChoiceContract as Civ7DecisionsProgressionChoiceContractType,
-  Civ7DecisionsProgressionChoiceInput,
-  Civ7DecisionsProgressionChoiceKind,
-  Civ7DecisionsProgressionChoiceResult,
-} from "./modules/decisions/contract";
-export { decisionsRouter } from "./modules/decisions/router";
-export { decisionsDiplomacyResponseRequestProcedure } from "./modules/decisions/procedures/diplomacy-response-request";
-export { decisionsNarrativeChoiceRequestProcedure } from "./modules/decisions/procedures/narrative-choice-request";
-export { decisionsProgressionChoiceRequestProcedure } from "./modules/decisions/procedures/progression-choice-request";
+  Civ7NarrativeContract as Civ7NarrativeContractType,
+  Civ7NarrativeChoiceContract as Civ7NarrativeChoiceContractType,
+  Civ7NarrativeChoiceInput,
+  Civ7NarrativeChoiceResult,
+} from "./modules/narrative/contract";
+export { narrativeRouter } from "./modules/narrative/router";
+export { narrativeChoiceRequestProcedure } from "./modules/narrative/procedures/choice-request";
+export {
+  Civ7DiplomacyContract,
+  Civ7DiplomacyResponseContract,
+  Civ7DiplomacyResponseInputSchema,
+  Civ7DiplomacyResponseInputStandardSchema,
+  Civ7DiplomacyResponseNextStepSchema,
+  Civ7DiplomacyResponsePostconditionClassificationSchema,
+  Civ7DiplomacyResponsePostconditionSummarySchema,
+  Civ7DiplomacyResponseProofOutcomeSchema,
+  Civ7DiplomacyResponseRequestStatusSchema,
+  Civ7DiplomacyResponseResultSchema,
+  Civ7DiplomacyResponseResultStandardSchema,
+  Civ7DiplomacyResponseValidationSummarySchema,
+} from "./modules/diplomacy/contract";
+export type {
+  Civ7DiplomacyContract as Civ7DiplomacyContractType,
+  Civ7DiplomacyResponseContract as Civ7DiplomacyResponseContractType,
+  Civ7DiplomacyResponseInput,
+  Civ7DiplomacyResponseResult,
+} from "./modules/diplomacy/contract";
+export { diplomacyRouter } from "./modules/diplomacy/router";
+export { diplomacyResponseRequestProcedure } from "./modules/diplomacy/procedures/response-request";
+export {
+  Civ7ProgressionChoiceEvidenceSummarySchema,
+  Civ7ProgressionChoiceInputSchema,
+  Civ7ProgressionChoiceInputStandardSchema,
+  Civ7ProgressionChoicePostconditionClassificationSchema,
+  Civ7ProgressionChoicePostconditionSummarySchema,
+  Civ7ProgressionChoiceProofOutcomeSchema,
+  Civ7ProgressionChoiceRequestStatusSchema,
+  Civ7ProgressionContract,
+  Civ7ProgressionCultureChoiceContract,
+  Civ7ProgressionCultureChoiceNextStepSchema,
+  Civ7ProgressionCultureChoiceResultSchema,
+  Civ7ProgressionCultureChoiceResultStandardSchema,
+  Civ7ProgressionTechnologyChoiceContract,
+  Civ7ProgressionTechnologyChoiceNextStepSchema,
+  Civ7ProgressionTechnologyChoiceResultSchema,
+  Civ7ProgressionTechnologyChoiceResultStandardSchema,
+} from "./modules/progression/contract";
+export type {
+  Civ7ProgressionChoiceInput,
+  Civ7ProgressionContract as Civ7ProgressionContractType,
+  Civ7ProgressionCultureChoiceContract as Civ7ProgressionCultureChoiceContractType,
+  Civ7ProgressionCultureChoiceResult,
+  Civ7ProgressionTechnologyChoiceContract as Civ7ProgressionTechnologyChoiceContractType,
+  Civ7ProgressionTechnologyChoiceResult,
+} from "./modules/progression/contract";
+export { progressionRouter } from "./modules/progression/router";
+export {
+  progressionCultureChoiceRequestProcedure,
+  progressionTechnologyChoiceRequestProcedure,
+} from "./modules/progression/procedures/choice-request";
 export {
   Civ7NotificationsContract,
   Civ7NotificationDismissInputSchema,

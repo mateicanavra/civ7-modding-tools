@@ -1,12 +1,16 @@
 # Control-oRPC Atom, Policy, And Dependency Inventory
 
-Status: draft inventory for native control-oRPC prework.
+Status: historical inventory and current boundary reference.
 Date: 2026-06-04.
 
 ## Purpose
 
-This inventory turns the current direct-control procedure descriptor seeds into
-the separation map needed before `packages/civ7-control-orpc` source exists.
+This inventory records the direct-control procedure descriptor seeds that
+guided the first native control-oRPC slices. It is now historical source
+evidence plus a boundary reference; the live control-oRPC contract/router,
+runtime facade, and later workstream records are authoritative for current
+package shape.
+
 It does not implement contracts, routers, context construction, middleware,
 transport, telemetry persistence, runtime proof, or Task 2.9.4 acceptance.
 
@@ -15,11 +19,15 @@ owns runtime ports and proof facts; the oRPC package owns procedure contracts,
 router modules, service behavior/composition, context, middleware, typed
 errors, and server-side clients.
 
-## Current Descriptor Coverage
+## Historical Descriptor Coverage
 
-Current source contains 25 adjacent procedure descriptor artifacts. All
+At intake, source contained adjacent procedure descriptor artifacts. All
 descriptors declare `schemaTechnology: "typebox"`, `proofBoundary:
 "local-package-test"`, and `effect-orpc-procedure-core` as a consumer class.
+Do not treat the table below as a current implementation matrix; use it as
+source evidence for runtime/proof ownership and compare against live
+`packages/civ7-control-orpc/src/contract.ts`, `src/router.ts`, and
+`src/dependencies/direct-control.ts` before selecting a slice.
 
 | Router family | Procedure keys | Direct-control atom owners | Risk class |
 |---|---|---|---|
@@ -31,7 +39,7 @@ descriptors declare `schemaTechnology: "typebox"`, `proofBoundary:
 | `player` | `player.summary.read` | `src/play/summaries.ts` | Read |
 | `strategy` | `strategy.traditions.view`, `strategy.progress.dashboard`, `strategy.settlement.recommendations`, `strategy.target.candidates`, `strategy.battlefield.scan`, `strategy.destination.analysis` | `src/play/progression/reads.ts`, `src/play/tactical/{settlement,target-candidates,battlefield,destination}.ts` | Read/planning evidence |
 
-The mutation descriptor set is currently narrow:
+The initial mutation descriptor set was narrow:
 
 | Procedure key | Atom owner | Gates recorded on descriptor |
 |---|---|---|
@@ -102,7 +110,7 @@ future package proves repeated use through oRPC/effect-orpc primitives.
   `not-classified` / `none` / `relationship-unproven` family unless official
   relationship/team/war/suzerain evidence proves more.
 
-### Mutation Atoms
+### Mutation Atoms And Implemented Domain Procedures
 
 - `unit.target.action.request` wraps validator-selected unit action requests
   and post-send verification.
@@ -110,16 +118,17 @@ future package proves repeated use through oRPC/effect-orpc primitives.
   production postconditions.
 - `notifications.dismiss.request` wraps notification dismissal and dismissal
   postconditions.
-- Diplomacy, narrative, population placement, and technology/culture closeout
-  source capabilities now have bounded native procedure leaves. Turn completion
-  sends now have direct-control-owned proof/no-repeat policy prework, but no
-  accepted native procedure atom yet. Setup actions, autoplay actions,
-  reveal-map, and generic operation request wrappers still exist as source
-  capabilities but are not accepted native procedure atoms in this inventory.
+- Diplomacy, narrative, population placement, technology/culture closeout, and
+  turn completion source capabilities now have bounded native procedure leaves.
+  Setup actions, autoplay actions, reveal-map, and generic operation request
+  wrappers still exist as source capabilities but are not accepted native
+  procedure atoms in this inventory.
   Technology/culture closeout postcondition classification remains
   direct-control-owned in
-  `src/play/progression/choice-postconditions.ts`; `decisions.progression.choice.request`
-  owns the semantic service contract/projection over those runtime/proof ports.
+  `src/play/progression/choice-postconditions.ts`;
+  `progression.technology.choice.request` and
+  `progression.culture.choice.request` own the semantic service
+  contract/projection over those runtime/proof ports.
 
 ## Policy Owners
 
@@ -209,9 +218,9 @@ context-composer, event bus, or router registry.
 
 `workstream/semantic-capability-hierarchy.md` defines the target
 Sieve/player-agent capability families: `readiness`, `attention`, `world`,
-`strategy`, `decisions`, domain-owned mutations, and `debug`. Current
-direct-control descriptor families remain source evidence and transitional
-package shape, not the long-term service hierarchy.
+`strategy`, `narrative`, `diplomacy`, `progression`, domain-owned mutations,
+and `debug`. Current direct-control descriptor families remain source evidence
+and transitional package shape, not the long-term service hierarchy.
 
 Future implementation slices should use that hierarchy to decide where
 service-owned behavior belongs before adding another package module or

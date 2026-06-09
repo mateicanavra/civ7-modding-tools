@@ -124,7 +124,7 @@ export class Civ7UnitTargetActionUnavailableError extends ORPCTaggedError(
 
 export const Civ7NarrativeChoiceUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("decisions.narrative.choice.request"),
+    procedureKey: Type.Literal("narrative.choice.request"),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
@@ -146,7 +146,7 @@ export class Civ7NarrativeChoiceUnavailableError extends ORPCTaggedError(
 
 export const Civ7DiplomacyResponseUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("decisions.diplomacy.response.request"),
+    procedureKey: Type.Literal("diplomacy.response.request"),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
@@ -168,7 +168,10 @@ export class Civ7DiplomacyResponseUnavailableError extends ORPCTaggedError(
 
 export const Civ7ProgressionChoiceUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("decisions.progression.choice.request"),
+    procedureKey: Type.Union([
+      Type.Literal("progression.technology.choice.request"),
+      Type.Literal("progression.culture.choice.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },

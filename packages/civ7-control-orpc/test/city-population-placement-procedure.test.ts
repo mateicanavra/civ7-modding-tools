@@ -13,11 +13,11 @@ import {
 const cityId = { owner: 0, id: 196_610, type: 1 };
 const destination = { x: 16, y: 19 };
 type PopulationPlacementRuntimeResult = Awaited<
-  ReturnType<Civ7ControlOrpcContext["directControl"]["requestCiv7PlayerOperation"]>
+  ReturnType<Civ7ControlOrpcContext["directControl"]["requestCiv7AssignWorkerPlacement"]>
 >;
 
 describe("city.population.place.request control-oRPC procedure", () => {
-  test("maps assign-worker placement to the player-operation runtime port with context approval", async () => {
+  test("maps assign-worker placement to the semantic population runtime port with context approval", async () => {
     const fake = fakeContext(
       operationRequestResult("population-ready-cleared", "assign-worker"),
     );
@@ -64,14 +64,10 @@ describe("city.population.place.request control-oRPC procedure", () => {
     expect(serialized).not.toContain("\"command\"");
     expect(serialized).not.toContain("\"verified\"");
     expect(fake.calls).toEqual([{
-      method: "requestCiv7PlayerOperation",
+      method: "requestCiv7AssignWorkerPlacement",
       input: {
         playerId: 0,
-        operationType: "ASSIGN_WORKER",
-        args: {
-          Location: 2543,
-          Amount: 1,
-        },
+        location: 2543,
       },
       options: {
         host: "127.0.0.1",
@@ -86,7 +82,7 @@ describe("city.population.place.request control-oRPC procedure", () => {
     }]);
   });
 
-  test("maps expand-city placement to the city-command runtime port through the server-side router client", async () => {
+  test("maps expand-city placement to the semantic population runtime port through the server-side router client", async () => {
     const fake = fakeContext(
       operationRequestResult("population-ready-cleared", "expand-city"),
     );
@@ -107,14 +103,10 @@ describe("city.population.place.request control-oRPC procedure", () => {
       status: "sent-confirmed",
     });
     expect(fake.calls).toEqual([{
-      method: "requestCiv7CityCommand",
+      method: "requestCiv7ExpandCityPlacement",
       input: {
         cityId,
-        operationType: "EXPAND",
-        args: {
-          X: destination.x,
-          Y: destination.y,
-        },
+        destination,
       },
       options: {
         host: "127.0.0.1",
@@ -377,14 +369,14 @@ function fakeContext(
 ): {
   context: Civ7ControlOrpcContext;
   calls: Array<{
-    method: "requestCiv7CityCommand" | "requestCiv7PlayerOperation";
+    method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
     input: unknown;
     options: unknown;
     approval: unknown;
   }>;
 } {
   const calls: Array<{
-    method: "requestCiv7CityCommand" | "requestCiv7PlayerOperation";
+    method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
     input: unknown;
     options: unknown;
     approval: unknown;
@@ -409,9 +401,9 @@ function fakeContext(
           playable: true,
           readiness: "tuner-ready",
         }),
-        requestCiv7CityCommand: async (input, endpointDefaults, approval) => {
+        requestCiv7AssignWorkerPlacement: async (input, endpointDefaults, approval) => {
           calls.push({
-            method: "requestCiv7CityCommand",
+            method: "requestCiv7AssignWorkerPlacement",
             input,
             options: endpointDefaults,
             approval,
@@ -419,9 +411,9 @@ function fakeContext(
           if (resultOrError instanceof Error) throw resultOrError;
           return resultOrError;
         },
-        requestCiv7PlayerOperation: async (input, endpointDefaults, approval) => {
+        requestCiv7ExpandCityPlacement: async (input, endpointDefaults, approval) => {
           calls.push({
-            method: "requestCiv7PlayerOperation",
+            method: "requestCiv7ExpandCityPlacement",
             input,
             options: endpointDefaults,
             approval,

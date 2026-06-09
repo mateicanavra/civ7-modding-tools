@@ -10,9 +10,64 @@ import {
   Civ7AttentionCurrentResultSchema,
 } from "../modules/attention/contract";
 import {
+  Civ7NotificationDismissInputSchema,
+  Civ7NotificationDismissalResultSchema,
+} from "../modules/notifications/contract";
+import {
   Civ7ReadinessCurrentInputSchema,
   Civ7ReadinessCurrentResultSchema,
 } from "../modules/readiness/contract";
+import {
+  Civ7TurnCompletionInputSchema,
+  Civ7TurnCompletionResultSchema,
+} from "../modules/turn/contract";
+import {
+  Civ7UnitTargetActionInputSchema,
+  Civ7UnitTargetActionResultSchema,
+} from "../modules/unit/contract";
+
+export const Civ7ControllerBridgeApprovalSchema = Type.Object(
+  {
+    source: Type.Literal("controller-runtime"),
+    approved: Type.Literal(true),
+    reason: Type.String({ minLength: 1 }),
+    disposableSession: Type.Optional(Type.Boolean()),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeApproval = Static<
+  typeof Civ7ControllerBridgeApprovalSchema
+>;
+
+export const Civ7ControllerBridgeMutationProofSchema = Type.Object(
+  {
+    lifecycle: Type.Object(
+      {
+        source: Type.Literal("controller-runtime"),
+        status: Type.Literal("game-controller-ready"),
+      },
+      { additionalProperties: false },
+    ),
+    localPlayer: Type.Object(
+      {
+        source: Type.Literal("GameContext.localPlayerID"),
+        playerId: Type.Integer({ minimum: 0, maximum: 255 }),
+      },
+      { additionalProperties: false },
+    ),
+    hotseat: Type.Object(
+      {
+        source: Type.Literal("controller-runtime"),
+        status: Type.Literal("single-local-player"),
+      },
+      { additionalProperties: false },
+    ),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeMutationProof = Static<
+  typeof Civ7ControllerBridgeMutationProofSchema
+>;
 
 export const Civ7ControllerBridgeReadinessCurrentRequestSchema = Type.Object(
   {
@@ -38,13 +93,61 @@ export type Civ7ControllerBridgeAttentionCurrentRequest = Static<
   typeof Civ7ControllerBridgeAttentionCurrentRequestSchema
 >;
 
+export const Civ7ControllerBridgeNotificationDismissRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("notifications.dismiss.request"),
+    input: Civ7NotificationDismissInputSchema,
+    approval: Civ7ControllerBridgeApprovalSchema,
+    controllerProof: Civ7ControllerBridgeMutationProofSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeNotificationDismissRequest = Static<
+  typeof Civ7ControllerBridgeNotificationDismissRequestSchema
+>;
+
+export const Civ7ControllerBridgeTurnCompleteRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("turn.complete.request"),
+    input: Civ7TurnCompletionInputSchema,
+    approval: Civ7ControllerBridgeApprovalSchema,
+    controllerProof: Civ7ControllerBridgeMutationProofSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeTurnCompleteRequest = Static<
+  typeof Civ7ControllerBridgeTurnCompleteRequestSchema
+>;
+
+export const Civ7ControllerBridgeUnitTargetActionRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("unit.target.action.request"),
+    input: Civ7UnitTargetActionInputSchema,
+    approval: Civ7ControllerBridgeApprovalSchema,
+    controllerProof: Civ7ControllerBridgeMutationProofSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeUnitTargetActionRequest = Static<
+  typeof Civ7ControllerBridgeUnitTargetActionRequestSchema
+>;
+
 export const Civ7ControllerBridgeRequestSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentRequestSchema,
   Civ7ControllerBridgeAttentionCurrentRequestSchema,
+  Civ7ControllerBridgeNotificationDismissRequestSchema,
+  Civ7ControllerBridgeTurnCompleteRequestSchema,
+  Civ7ControllerBridgeUnitTargetActionRequestSchema,
 ]);
 export type Civ7ControllerBridgeRequest =
   | Civ7ControllerBridgeReadinessCurrentRequest
-  | Civ7ControllerBridgeAttentionCurrentRequest;
+  | Civ7ControllerBridgeAttentionCurrentRequest
+  | Civ7ControllerBridgeNotificationDismissRequest
+  | Civ7ControllerBridgeTurnCompleteRequest
+  | Civ7ControllerBridgeUnitTargetActionRequest;
 
 export const Civ7ControllerBridgeErrorSchema = Type.Object(
   {
@@ -90,13 +193,61 @@ export type Civ7ControllerBridgeAttentionCurrentSuccessResponse = Static<
   typeof Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema
 >;
 
+export const Civ7ControllerBridgeNotificationDismissSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("notifications.dismiss.request"),
+      output: Civ7NotificationDismissalResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeNotificationDismissSuccessResponse = Static<
+  typeof Civ7ControllerBridgeNotificationDismissSuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeTurnCompleteSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("turn.complete.request"),
+      output: Civ7TurnCompletionResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeTurnCompleteSuccessResponse = Static<
+  typeof Civ7ControllerBridgeTurnCompleteSuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("unit.target.action.request"),
+      output: Civ7UnitTargetActionResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeUnitTargetActionSuccessResponse = Static<
+  typeof Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema
+>;
+
 export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
   Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeNotificationDismissSuccessResponseSchema,
+  Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
+  Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
 ]);
 export type Civ7ControllerBridgeSuccessResponse =
   | Civ7ControllerBridgeReadinessCurrentSuccessResponse
-  | Civ7ControllerBridgeAttentionCurrentSuccessResponse;
+  | Civ7ControllerBridgeAttentionCurrentSuccessResponse
+  | Civ7ControllerBridgeNotificationDismissSuccessResponse
+  | Civ7ControllerBridgeTurnCompleteSuccessResponse
+  | Civ7ControllerBridgeUnitTargetActionSuccessResponse;
 
 export const Civ7ControllerBridgeFailureResponseSchema = Type.Object(
   {
@@ -160,8 +311,12 @@ export async function invokeCiv7ControllerBridgeRequest(
 
   try {
     const context = await options.createContext(request);
+    const approval = isControllerBridgeMutationRequest(request)
+      ? request.approval
+      : context.approval;
     const client = createCiv7ControlOrpcServerClient({
       ...context,
+      approval,
       correlation: request.correlationId == null
         ? context.correlation
         : {
@@ -174,6 +329,42 @@ export async function invokeCiv7ControllerBridgeRequest(
       return {
         ok: true,
         procedureKey: "readiness.current",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "notifications.dismiss.request") {
+      const output = await client.notifications.dismiss.request(request.input);
+      return {
+        ok: true,
+        procedureKey: "notifications.dismiss.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "turn.complete.request") {
+      const output = await client.turn.complete.request(request.input);
+      return {
+        ok: true,
+        procedureKey: "turn.complete.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "unit.target.action.request") {
+      const output = await client.unit.target.action.request(request.input);
+      return {
+        ok: true,
+        procedureKey: "unit.target.action.request",
         output,
         ...(request.correlationId == null
           ? {}
@@ -202,7 +393,21 @@ function isUnsupportedProcedureRequest(
   if (!("procedureKey" in request)) return false;
   return typeof request.procedureKey === "string"
     && request.procedureKey !== "readiness.current"
-    && request.procedureKey !== "attention.current";
+    && request.procedureKey !== "attention.current"
+    && request.procedureKey !== "notifications.dismiss.request"
+    && request.procedureKey !== "turn.complete.request"
+    && request.procedureKey !== "unit.target.action.request";
+}
+
+function isControllerBridgeMutationRequest(
+  request: Civ7ControllerBridgeRequest,
+): request is
+  | Civ7ControllerBridgeNotificationDismissRequest
+  | Civ7ControllerBridgeTurnCompleteRequest
+  | Civ7ControllerBridgeUnitTargetActionRequest {
+  return request.procedureKey === "notifications.dismiss.request"
+    || request.procedureKey === "turn.complete.request"
+    || request.procedureKey === "unit.target.action.request";
 }
 
 function safeBridgeProcedureError(err: unknown): Civ7ControllerBridgeError {

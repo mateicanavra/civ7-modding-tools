@@ -39,6 +39,20 @@ errors, and server-side callers.
 - **AND** the runtime entrypoint does not expose raw command/session/tuner
   payloads or make direct-control result envelopes normal service output
 
+#### Scenario: Runtime facade narrows population placement ports
+- **WHEN** `city.population.place.request` needs low-level player-operation or
+  city-command runtime authority for population placement
+- **THEN** the control-oRPC runtime facade exposes semantic
+  assign-worker-placement and expand-city-placement ports to context
+  constructors and procedures
+- **AND** those ports accept only the service-owned placement shapes rather
+  than generic `operationType` and raw `args`
+- **AND** the live facade adapter may map those semantic ports to
+  direct-control-owned player-operation and city-command runtime functions
+  internally
+- **AND** raw generic operation inputs remain excluded from normal procedure
+  input and from the exported control-oRPC context-construction surface
+
 #### Scenario: Shared service primitives are needed by procedure contracts
 - **WHEN** service-owned procedure contracts need common Civ7 primitives such
   as component IDs or map locations in caller-facing input or output
@@ -87,12 +101,13 @@ errors, and server-side callers.
   semantics consumed by the procedure
 
 #### Scenario: Progression choice service contract is offered
-- **WHEN** `decisions.progression.choice.request` exposes its caller-facing
-  contract
+- **WHEN** `progression.technology.choice.request` and
+  `progression.culture.choice.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the input, output, postcondition, evidence, and
-  next-step schemas for that service procedure
-- **AND** the input admits only progression kind, player ID, node ID, and
-  optional notification identity
+  next-step schemas for those service procedures
+- **AND** the input admits only player ID, node ID, and optional notification
+  identity, with technology versus culture expressed by the domain procedure
+  path rather than a generic kind discriminator
 - **AND** the evidence summary distinguishes read, failed, and skipped-not-sent
   post-read states without inventing after-state facts
 - **AND** endpoint, session, state, raw command, payload, App UI activation
@@ -276,14 +291,14 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   caller migration reconciles that convenience command
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI diplomacy response send uses native decision procedure
+#### Scenario: CLI diplomacy response send uses native diplomacy procedure
 - **WHEN** `game play respond-diplomacy --send` requests an approved diplomacy
   response
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
   and approval reason
 - **AND** the send path calls the in-process
-  `decisions.diplomacy.response.request` server-side client under the
-  `decisions` router
+  `diplomacy.response.request` server-side client under the
+  `diplomacy` router
 - **AND** the procedure's approval, readiness, direct-control diplomacy
   response port, diplomacy postcondition projection, and no-repeat policy
   remain authoritative for the send
@@ -301,14 +316,14 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   separate first-meet service procedure exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI narrative choice send uses native decision procedure
+#### Scenario: CLI narrative choice send uses native narrative procedure
 - **WHEN** `game play choose-narrative --send` requests an approved narrative
   story direction choice
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
   and approval reason
 - **AND** the send path calls the in-process
-  `decisions.narrative.choice.request` server-side client under the
-  `decisions` router
+  `narrative.choice.request` server-side client under the
+  `narrative` router
 - **AND** the procedure's approval, readiness, direct-control narrative choice
   port, narrative postcondition projection, and no-repeat policy remain
   authoritative for the send
@@ -386,6 +401,71 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** mutation allowlists, local-player/hotseat proof, runtime proof, Civ7
   UIScript/modinfo packaging, and full `7.3` implementation remain pending
 
+#### Scenario: Controller ingress allowlists notification dismissal mutation
+- **WHEN** the package-local controller ingress allowlists the first mutation
+  procedure
+- **THEN** the only accepted mutation key in that slice is the service-owned
+  `notifications.dismiss.request` procedure
+- **AND** its request envelope validates the existing notification-dismissal
+  procedure input schema plus closed controller-runtime approval metadata
+- **AND** the same envelope requires closed controller proof metadata for
+  game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
+  evidence, and single-local-player/hotseat status before context construction
+  and native router dispatch
+- **AND** invocation delegates to the existing in-process router/client and
+  native mutation approval/readiness/proof procedure middleware rather than
+  adding a bridge-local dispatcher or mutation runner
+- **AND** raw host, port, session, state, command, rawCommand, and raw
+  direct-control dismissal internals remain excluded from bridge request and
+  response shapes
+- **AND** local tests prove only the serialized ingress gate and in-process
+  service dispatch; Civ7 UIScript/modinfo packaging, additional mutation
+  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+
+#### Scenario: Controller ingress allowlists turn completion mutation
+- **WHEN** the package-local controller ingress allowlists turn completion
+  after the native turn service procedure exists
+- **THEN** the accepted mutation key in that slice is the service-owned
+  `turn.complete.request` procedure
+- **AND** its request envelope validates the existing empty turn-completion
+  procedure input schema plus closed controller-runtime approval metadata
+- **AND** the same envelope requires closed controller proof metadata for
+  game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
+  evidence, and single-local-player/hotseat status before context construction
+  and native router dispatch
+- **AND** invocation delegates to the existing in-process router/client and
+  native mutation approval/readiness/proof procedure middleware rather than
+  adding a bridge-local dispatcher or mutation runner
+- **AND** raw host, port, session, state, command, rawCommand, and raw
+  direct-control turn-completion internals remain excluded from bridge request
+  and response shapes
+- **AND** local tests prove only the serialized ingress gate and in-process
+  service dispatch; Civ7 UIScript/modinfo packaging, further mutation
+  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+
+#### Scenario: Controller ingress allowlists unit target action mutation
+- **WHEN** the package-local controller ingress allowlists unit target action
+  after the native unit service procedure exists
+- **THEN** the accepted mutation key in that slice is the service-owned
+  `unit.target.action.request` procedure
+- **AND** its request envelope validates the existing unit-target-action
+  procedure input schema plus closed controller-runtime approval metadata
+- **AND** the same envelope requires closed controller proof metadata for
+  game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
+  evidence, and single-local-player/hotseat status before context construction
+  and native router dispatch
+- **AND** invocation delegates to the existing in-process router/client and
+  native mutation approval/readiness/proof procedure middleware rather than
+  adding a bridge-local dispatcher or mutation runner
+- **AND** raw host, port, session, state, command, rawCommand, and raw
+  direct-control unit-operation internals remain excluded from bridge request
+  and response shapes
+- **AND** controller approval reason remains request metadata and is not echoed
+  in bridge success or failure output
+- **AND** local tests prove only the serialized ingress gate and in-process
+  service dispatch; Civ7 UIScript/modinfo packaging, further mutation
+  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control approval,
@@ -416,9 +496,30 @@ boundaries.
   validator/postcondition middleware or parent Task 6.x completion by
   implication
 
-#### Scenario: Narrative decision request procedure is implemented
-- **WHEN** a narrative choice decision procedure requests a player choice
-- **THEN** it is offered under the semantic `decisions` router
+#### Scenario: Shared mutation procedure helper applies native middleware
+- **WHEN** existing mutation procedures share approval and playable-readiness
+  gates
+- **THEN** the shared helper composes those gates through native
+  oRPC/effect-oRPC middleware on the selected procedure leaf
+- **AND** invalid procedure input remains rejected before readiness reads or
+  direct-control mutation ports are called
+- **AND** procedures still own domain-specific service behavior, typed errors,
+  and semantic result projection
+- **AND** validator-first and postcondition/proof policy remain
+  procedure-local, policy-helper-owned, or source-owned until separately
+  promoted
+- **AND** the shared helper does not add a root implementer, custom dispatcher,
+  runner, operation root, decision root, context bus, error bus, or transport
+  edge
+- **AND** local tests do not claim live Civ7 runtime proof or Task 6.x
+  completion
+
+#### Scenario: Narrative choice request procedure is implemented
+- **WHEN** a narrative choice procedure requests a player choice
+- **THEN** it is offered under the `narrative` domain router as
+  `narrative.choice.request`
+- **AND** the former generic `decisions.narrative` placement is burned down
+  rather than preserved as a compatibility path
 - **AND** it checks mutation approval and playable readiness before invoking
   direct-control runtime authority
 - **AND** it consumes direct-control narrative validators and proof helpers as
@@ -434,8 +535,11 @@ boundaries.
   not-sent paths remain no-repeat guarded
 
 #### Scenario: Diplomacy response request procedure is implemented
-- **WHEN** a diplomacy response decision procedure requests a player response
-- **THEN** it is offered under the semantic `decisions` router
+- **WHEN** a diplomacy response procedure requests a player response
+- **THEN** it is offered under the `diplomacy` domain router as
+  `diplomacy.response.request`
+- **AND** the former generic `decisions.diplomacy` placement is burned down
+  rather than preserved as a compatibility path
 - **AND** it checks mutation approval and playable readiness before invoking
   direct-control runtime authority
 - **AND** it consumes direct-control diplomacy validators and proof helpers as
@@ -456,14 +560,17 @@ boundaries.
 #### Scenario: Progression choice request procedure is implemented
 - **WHEN** a technology or culture progression choice procedure requests a
   player node selection
-- **THEN** it is offered under the semantic `decisions` router
+- **THEN** it is offered under the semantic `progression` router as
+  `progression.technology.choice.request` or
+  `progression.culture.choice.request`
 - **AND** it checks mutation approval and playable readiness before invoking
   direct-control runtime authority
 - **AND** it reads notification evidence before and after the closeout request
   and consumes direct-control progression postcondition helpers rather than
   reimplementing blocker proof truth
-- **AND** its normal input exposes progression kind, player, node, and optional
-  notification identity rather than direct-control App UI toggles
+- **AND** its normal input exposes player, node, and optional notification
+  identity rather than a generic `kind` discriminator or direct-control App UI
+  toggles
 - **AND** its normal output projects semantic status, evidence summary,
   postcondition summary, and next steps
 - **AND** if the closeout was sent but the post-send notification read fails,
@@ -508,9 +615,9 @@ modules before broad implementation.
 - **AND** the future oRPC module can consume those facts without reaching into
   raw command/session internals
 
-#### Scenario: Progression choice proof policy is owned before native decisions
+#### Scenario: Progression choice proof policy is owned before native procedures
 - **WHEN** technology or culture choice closeouts are prepared for future
-  `decisions` procedure exposure
+  progression procedure exposure
 - **THEN** blocker-clearing, blocker-transitioned, state-changed-blocker-live,
   sticky-blocker, and turn-unblocked postcondition classification belongs to a
   direct-control progression proof owner rather than CLI-only logic

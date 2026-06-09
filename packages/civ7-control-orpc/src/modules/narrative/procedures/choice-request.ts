@@ -2,29 +2,21 @@ import { narrativeChoiceProofPostcondition } from "@civ7/direct-control";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNarrativeChoiceResult } from "../../../dependencies/direct-control";
-import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
-import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
+import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
-  Civ7DecisionsNarrativeChoiceInput,
-  Civ7DecisionsNarrativeChoiceResult,
+  Civ7NarrativeChoiceInput,
+  Civ7NarrativeChoiceResult,
 } from "../contract";
 
-const decisionsNarrativeChoiceRequestWithApproval =
-  civ7ControlOrpcImplementer.decisions.narrative.choice.request.use(
-    civ7MutationApprovalMiddleware,
-  );
-const decisionsNarrativeChoiceRequestReady =
-  decisionsNarrativeChoiceRequestWithApproval.use(
-    civ7MutationReadinessMiddleware,
-  );
-
-export const decisionsNarrativeChoiceRequestProcedure =
-  decisionsNarrativeChoiceRequestReady.effect(function* ({
+export const narrativeChoiceRequestProcedure =
+  civ7ControlOrpcMutationProcedure(
+    civ7ControlOrpcImplementer.narrative.choice.request,
+  ).effect(function* ({
     context,
     errors,
     input,
@@ -34,14 +26,14 @@ export const decisionsNarrativeChoiceRequestProcedure =
         const result = await context.directControl.requestCiv7NarrativeChoice(
           input,
           context.endpointDefaults,
-          context.approval,
+          context.approval!,
         );
         return narrativeChoiceResult(input, result);
       },
       catch: () =>
         errors.NARRATIVE_CHOICE_UNAVAILABLE({
           data: {
-            procedureKey: "decisions.narrative.choice.request",
+            procedureKey: "narrative.choice.request",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
           },
@@ -50,9 +42,9 @@ export const decisionsNarrativeChoiceRequestProcedure =
   });
 
 function narrativeChoiceResult(
-  input: Civ7DecisionsNarrativeChoiceInput,
+  input: Civ7NarrativeChoiceInput,
   result: Civ7ControlOrpcNarrativeChoiceResult,
-): Civ7DecisionsNarrativeChoiceResult {
+): Civ7NarrativeChoiceResult {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
     postcondition: narrativeChoiceProofPostcondition(result, undefined),
@@ -61,7 +53,7 @@ function narrativeChoiceResult(
       reason: "The narrative choice result did not include explicit postcondition evidence.",
       outcome: result.sent ? "unknown" : "not-sent",
     },
-    source: "decisions.narrative.choice.request",
+    source: "narrative.choice.request",
     inspectKind: "inspect-narrative-choice",
     inspectLabel: "Inspect current attention and narrative choice state before attempting another narrative request.",
     doNotRepeatLabel: "Do not repeat this narrative choice request until fresh attention and narrative evidence is read.",
@@ -78,7 +70,7 @@ function narrativeChoiceResult(
       beforeValid: result.beforeValidation.valid,
       afterValid: result.afterValidation.valid,
     },
-    postcondition: projection.postcondition as Civ7DecisionsNarrativeChoiceResult["postcondition"],
+    postcondition: projection.postcondition as Civ7NarrativeChoiceResult["postcondition"],
     nextSteps: projection.nextSteps,
   };
 }

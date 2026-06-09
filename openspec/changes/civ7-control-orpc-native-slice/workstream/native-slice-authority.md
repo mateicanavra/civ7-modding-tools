@@ -186,10 +186,11 @@ Rejected candidate classes:
 
 ## Corrected Implementation Slices
 
-The first source slices already created tracked `packages/civ7-control-orpc`
-source and proved in-process router mechanics without transport edges. That is
-now transitional proof, not the next implementation strategy. The corrected
-package shape still points toward:
+The first source slices created tracked `packages/civ7-control-orpc` source and
+proved in-process router mechanics without transport edges. That is now
+transitional proof, not the next implementation strategy. The live router and
+contract files are the current source of truth for module roots; the package
+shape now points toward domain/service-owned modules such as:
 
 ```text
 src/contract.ts
@@ -200,10 +201,17 @@ src/procedure.ts
 src/dependencies/direct-control.ts
 src/policy/*.ts
 src/middleware/*.ts
-src/modules/runtime/*
+src/modules/readiness/*
+src/modules/attention/*
+src/modules/city/*
+src/modules/unit/*
 src/modules/notifications/*
-test/server-side-client.test.ts
-test/in-process-router.test.ts
+src/modules/narrative/*
+src/modules/diplomacy/*
+src/modules/progression/*
+src/modules/turn/*
+src/modules/strategy/*
+test/*procedure.test.ts
 ```
 
 The semantic hierarchy seed is now recorded in

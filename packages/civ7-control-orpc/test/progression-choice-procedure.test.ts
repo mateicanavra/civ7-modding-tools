@@ -16,19 +16,17 @@ import type {
 } from "../src/dependencies/direct-control";
 
 const technologyInput = {
-  kind: "technology",
   playerId: 0,
   node: 18_001,
   notificationId: { owner: 0, id: 72, type: 20 },
 } as const;
 
 const cultureInput = {
-  kind: "culture",
   playerId: 0,
   node: 27_001,
 } as const;
 
-describe("decisions.progression.choice.request control-oRPC procedure", () => {
+describe("progression choice control-oRPC procedures", () => {
   test("projects confirmed technology choices without raw command output", async () => {
     const before = notificationView("NOTIFICATION_CHOOSE_TECH", {
       currentResearching: probe(10),
@@ -41,7 +39,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
     });
 
     const result = await call(
-      Civ7ControlOrpcRouter.decisions.progression.choice.request,
+      Civ7ControlOrpcRouter.progression.technology.choice.request,
       technologyInput,
       { context: fake.context },
     );
@@ -66,7 +64,6 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
     }]);
     expect(fake.calls.culture).toEqual([]);
     expect(result).toEqual({
-      kind: "technology",
       playerId: 0,
       node: 18_001,
       notificationId: { owner: 0, id: 72, type: 20 },
@@ -88,7 +85,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
       },
       nextSteps: [{
         kind: "refresh-attention",
-        source: "decisions.progression.choice.request",
+        source: "progression.technology.choice.request",
         label: "Refresh current attention before choosing the next player action.",
       }],
     });
@@ -118,7 +115,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
     });
 
     const result = await call(
-      Civ7ControlOrpcRouter.decisions.progression.choice.request,
+      Civ7ControlOrpcRouter.progression.culture.choice.request,
       cultureInput,
       { context: fake.context },
     );
@@ -149,7 +146,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
     });
     expect(result.nextSteps).toEqual([{
       kind: "do-not-repeat",
-      source: "decisions.progression.choice.request",
+      source: "progression.culture.choice.request",
       label: "Do not repeat this progression choice request until fresh attention and progression evidence is read.",
     }]);
   });
@@ -167,7 +164,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
     });
 
     const result = await call(
-      Civ7ControlOrpcRouter.decisions.progression.choice.request,
+      Civ7ControlOrpcRouter.progression.technology.choice.request,
       technologyInput,
       { context: fake.context },
     );
@@ -191,7 +188,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
     });
     expect(result.nextSteps).toEqual([{
       kind: "inspect-progression-choice",
-      source: "decisions.progression.choice.request",
+      source: "progression.technology.choice.request",
       label: "Inspect current attention and progression choice state before attempting another progression request.",
     }]);
     expect(fake.calls.views).toHaveLength(1);
@@ -211,7 +208,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
     });
 
     const result = await call(
-      Civ7ControlOrpcRouter.decisions.progression.choice.request,
+      Civ7ControlOrpcRouter.progression.technology.choice.request,
       technologyInput,
       { context: fake.context },
     );
@@ -235,7 +232,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
     });
     expect(result.nextSteps).toEqual([{
       kind: "do-not-repeat",
-      source: "decisions.progression.choice.request",
+      source: "progression.technology.choice.request",
       label: "Do not repeat this progression choice request until fresh attention and progression evidence is read.",
     }]);
     expect(JSON.stringify(result)).not.toContain("CMD");
@@ -250,14 +247,14 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
 
     await expect(
       call(
-        Civ7ControlOrpcRouter.decisions.progression.choice.request,
+        Civ7ControlOrpcRouter.progression.technology.choice.request,
         technologyInput,
         { context: fake.context },
       ),
     ).rejects.toMatchObject({
       code: "MUTATION_APPROVAL_REQUIRED",
       data: {
-        procedureKey: "decisions.progression.choice.request",
+        procedureKey: "progression.technology.choice.request",
         source: "context.approval",
         risk: "mutation",
       },
@@ -287,7 +284,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
 
       await expect(
         call(
-          Civ7ControlOrpcRouter.decisions.progression.choice.request,
+          Civ7ControlOrpcRouter.progression.technology.choice.request,
           input as never,
           { context: fake.context },
         ),
@@ -317,7 +314,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
 
     await expect(
       call(
-        Civ7ControlOrpcRouter.decisions.progression.choice.request,
+        Civ7ControlOrpcRouter.progression.technology.choice.request,
         technologyInput,
         { context: failingContext },
       ),
@@ -325,14 +322,14 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
       code: "PROGRESSION_CHOICE_UNAVAILABLE",
       status: 503,
       data: {
-        procedureKey: "decisions.progression.choice.request",
+        procedureKey: "progression.technology.choice.request",
         source: "direct-control-facade",
       },
     });
 
     try {
       await call(
-        Civ7ControlOrpcRouter.decisions.progression.choice.request,
+        Civ7ControlOrpcRouter.progression.technology.choice.request,
         technologyInput,
         { context: failingContext },
       );
@@ -353,26 +350,42 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
     });
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
-    const result = await client.decisions.progression.choice.request(cultureInput);
+    const result = await client.progression.culture.choice.request(cultureInput);
 
     expect(result.status).toBe("sent-confirmed");
     expect(result.postcondition.classification).toBe("culture-choice-cleared");
   });
 
-  test("publishes a contract-first progression decision service leaf", () => {
+  test("publishes domain-first progression service leaves", () => {
     expect(
-      Civ7ControlOrpcContract.decisions.progression.choice.request["~orpc"],
+      Civ7ControlOrpcContract.progression.technology.choice.request["~orpc"],
     ).toMatchObject({
       meta: {
-        family: "decisions",
-        procedureKey: "decisions.progression.choice.request",
+        family: "progression",
+        procedureKey: "progression.technology.choice.request",
         proofBoundary: "local-package-test",
         risk: "mutation",
       },
     });
     expect(
-      Civ7ControlOrpcContract.decisions.progression.choice.request["~orpc"].errorMap,
+      Civ7ControlOrpcContract.progression.culture.choice.request["~orpc"],
+    ).toMatchObject({
+      meta: {
+        family: "progression",
+        procedureKey: "progression.culture.choice.request",
+        proofBoundary: "local-package-test",
+        risk: "mutation",
+      },
+    });
+    expect(
+      Civ7ControlOrpcContract.progression.technology.choice.request["~orpc"].errorMap,
     ).toHaveProperty("PROGRESSION_CHOICE_UNAVAILABLE");
+    expect(
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions,
+    ).toBeUndefined();
+    expect(
+      (Civ7ControlOrpcRouter as unknown as Record<string, unknown>).decisions,
+    ).toBeUndefined();
     expect(Civ7ProgressionChoiceUnavailableError.code).toBe(
       "PROGRESSION_CHOICE_UNAVAILABLE",
     );

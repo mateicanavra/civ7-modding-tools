@@ -16,7 +16,7 @@ export default class GamePlayRespondDiplomacy extends Command {
   static id = 'game play respond-diplomacy';
   static summary = 'Validate or send a diplomacy response';
   static description =
-    'Validates diplomacy responses as player operations, or sends them through the native control-oRPC decision procedure when --send and --reason are explicit.';
+    'Validates diplomacy responses as player operations, or sends them through the native control-oRPC diplomacy procedure when --send and --reason are explicit.';
 
   static examples = [
     '<%= config.bin %> game play respond-diplomacy --player-id 0 --action-id 56 --response-type -1907089594 --json',
@@ -72,7 +72,7 @@ export default class GamePlayRespondDiplomacy extends Command {
         directControl: liveCiv7ControlOrpcDirectControlFacade,
         endpointDefaults: options,
         approval: buildApproval(reason),
-      }).decisions.diplomacy.response.request({
+      }).diplomacy.response.request({
         playerId: flags['player-id'],
         actionId: flags['action-id'],
         responseType: flags['response-type'],

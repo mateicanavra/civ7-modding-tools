@@ -5,8 +5,7 @@ import {
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../../../dependencies/direct-control";
-import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
-import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
+import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
@@ -15,15 +14,10 @@ import {
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7TurnCompletionResult } from "../contract";
 
-const turnCompleteRequestWithApproval =
-  civ7ControlOrpcImplementer.turn.complete.request.use(
-    civ7MutationApprovalMiddleware,
-  );
-const turnCompleteRequestReady =
-  turnCompleteRequestWithApproval.use(civ7MutationReadinessMiddleware);
-
 export const turnCompleteRequestProcedure =
-  turnCompleteRequestReady.effect(function* ({
+  civ7ControlOrpcMutationProcedure(
+    civ7ControlOrpcImplementer.turn.complete.request,
+  ).effect(function* ({
     context,
     errors,
   }) {
@@ -31,7 +25,7 @@ export const turnCompleteRequestProcedure =
       try: async () => {
         const result = await context.directControl.requestCiv7TurnComplete(
           context.endpointDefaults,
-          context.approval,
+          context.approval!,
         );
         return turnCompletionResult(result);
       },

@@ -143,6 +143,10 @@ outcome. The workstream is rebaselined around this order:
 
 ## Target File Shape
 
+The live `packages/civ7-control-orpc/src/contract.ts` and `src/router.ts`
+module roots are the current implementation authority. This target shape is a
+directional layout, not a request to recreate old runtime/read wrappers.
+
 ```text
 packages/civ7-control-orpc
   src/client.ts
@@ -182,12 +186,11 @@ packages/civ7-control-orpc
       router.ts
       procedures/
         current.ts
-    runtime/
+    attention/
       contract.ts
       router.ts
       procedures/
-        app-ui-snapshot.ts
-        tuner-health.ts
+        current.ts
     notifications/
       contract.ts
       router.ts
@@ -204,6 +207,26 @@ packages/civ7-control-orpc
       procedures/
         population-place-request.ts
         production-choice-request.ts
+    narrative/
+      contract.ts
+      router.ts
+      procedures/
+        choice-request.ts
+    diplomacy/
+      contract.ts
+      router.ts
+      procedures/
+        response-request.ts
+    progression/
+      contract.ts
+      router.ts
+      procedures/
+        choice-request.ts
+    turn/
+      contract.ts
+      router.ts
+      procedures/
+        complete-request.ts
     strategy/
       contract.ts
       router.ts

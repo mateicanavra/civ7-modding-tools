@@ -103,7 +103,7 @@ describe("control-oRPC mutation result policy", () => {
         reason: "No explicit postcondition evidence was returned.",
         outcome: "unknown",
       },
-      source: "decisions.progression.choice.request",
+      source: "progression.technology.choice.request",
       inspectKind: "inspect-progression-choice",
       inspectLabel: "Inspect progression state before retrying.",
       doNotRepeatLabel: "Do not repeat until fresh progression evidence is read.",
@@ -116,7 +116,7 @@ describe("control-oRPC mutation result policy", () => {
     });
     expect(confirmed.nextSteps).toEqual([{
       kind: "refresh-attention",
-      source: "decisions.progression.choice.request",
+      source: "progression.technology.choice.request",
       label: "Refresh current attention before choosing the next player action.",
     }]);
 
@@ -134,7 +134,7 @@ describe("control-oRPC mutation result policy", () => {
         reason: "No explicit postcondition evidence was returned.",
         outcome: "unknown",
       },
-      source: "decisions.progression.choice.request",
+      source: "progression.technology.choice.request",
       inspectKind: "inspect-progression-choice",
       inspectLabel: "Inspect progression state before retrying.",
       doNotRepeatLabel: "Do not repeat until fresh progression evidence is read.",
@@ -144,7 +144,7 @@ describe("control-oRPC mutation result policy", () => {
     expect(pending.postcondition.confirmed).toBe(false);
     expect(pending.nextSteps).toEqual([{
       kind: "do-not-repeat",
-      source: "decisions.progression.choice.request",
+      source: "progression.technology.choice.request",
       label: "Do not repeat until fresh progression evidence is read.",
     }]);
   });

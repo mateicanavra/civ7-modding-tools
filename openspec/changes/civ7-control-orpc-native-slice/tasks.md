@@ -102,8 +102,8 @@ adding more read-only facade shells.
     focused helpers while preserving legacy request `verified` behavior.
   - [x] 5.2.6 Extract technology/culture progression-choice postcondition
     policy out of CLI commands into direct-control progression proof ownership.
-    Keep native `decisions` procedures, shared postcondition middleware,
-    runtime proof, and parent Task 5.x/6.x acceptance pending.
+    Keep native domain-owned progression procedures, shared postcondition
+    middleware, runtime proof, and parent Task 5.x/6.x acceptance pending.
   - [x] 5.2.7 Extract turn-completion send proof/no-repeat policy into a
     direct-control-owned helper. Preserve the existing turn-completion runtime
     send path while classifying turn-advanced, turn-complete-sent,
@@ -133,17 +133,17 @@ adding more read-only facade shells.
     The service owns the normal projection, next-step wording, raw-output
     exclusion, and relationship-unproven policy; no strategy catalog, action
     authority, runtime proof, or parent Task 5.x/6.x acceptance.
-  - [x] 5.4.5 Record `decisions.narrative.choice.request` as a service-owned
-    decision boundary over direct-control narrative runtime, validator, and
+  - [x] 5.4.5 Record `narrative.choice.request` as a service-owned
+    narrative boundary over direct-control narrative runtime, validator, and
     proof ports. The service owns the caller-facing semantic choice shape,
     normal proof projection, raw-output exclusion, and no-repeat next steps;
-    no direct-control procedure core, broad decisions catalog, runtime proof,
+    no direct-control procedure core, generic decisions root, runtime proof,
     or parent Task 5.x/6.x acceptance.
-  - [x] 5.4.6 Record `decisions.diplomacy.response.request` as a
-    service-owned decision boundary over direct-control diplomacy runtime,
+  - [x] 5.4.6 Record `diplomacy.response.request` as a
+    service-owned diplomacy boundary over direct-control diplomacy runtime,
     validator, and proof ports. The service owns the caller-facing semantic
     response shape, normal proof projection, raw-output exclusion, and
-    no-repeat next steps; direct-control-only UI toggles, broad decisions
+    no-repeat next steps; direct-control-only UI toggles, generic decisions
     catalogs, runtime proof, and parent Task 5.x/6.x acceptance remain out of
     scope.
   - [x] 5.4.7 Burn down root public exports of direct-control runtime-port
@@ -158,8 +158,8 @@ adding more read-only facade shells.
   - [x] 5.4.9 Move shared caller-facing component ID and map-location
     primitive schemas into `packages/civ7-control-orpc` service model
     ownership, prove equivalence to direct-control primitives, and switch
-    attention, notification, city, unit, decisions, and strategy contracts off
-    direct-control primitive value imports.
+    attention, notification, city, unit, narrative, diplomacy, progression,
+    and strategy contracts off direct-control primitive value imports.
   - [x] 5.4.10 Move `notifications.dismiss.request` caller-facing input and
     normal postcondition classification schemas into control-oRPC service
     ownership while leaving direct-control notification dismissal runtime/proof
@@ -174,18 +174,25 @@ adding more read-only facade shells.
   - [x] 5.4.13 Add a package verification guard that fails if control-oRPC
     module contract files import direct-control, while leaving runtime/proof
     procedure imports and focused equivalence tests out of that guard.
-  - [x] 5.4.14 Record `decisions.progression.choice.request` as a
-    service-owned decision boundary over direct-control technology/culture
-    closeout runtime ports and progression-choice proof helpers. The service
-    owns caller-facing input, semantic evidence/proof projection, raw-output
-    exclusion, and no-repeat next steps; broad decisions catalogs, runtime
-    proof, and parent Task 5.x/6.x acceptance remain out of scope.
+  - [x] 5.4.14 Record `progression.technology.choice.request` and
+    `progression.culture.choice.request` as service-owned progression
+    boundaries over direct-control technology/culture closeout runtime ports
+    and progression-choice proof helpers. The service owns caller-facing
+    input, semantic evidence/proof projection, raw-output exclusion, and
+    no-repeat next steps; broad choice/action catalogs, runtime proof, and
+    parent Task 5.x/6.x acceptance remain out of scope.
   - [x] 5.4.15 Record `turn.complete.request` as a service-owned turn
     mutation boundary over the direct-control turn completion runtime port and
     turn-completion proof helper. The service owns the empty caller-facing
     input, semantic before/after proof projection, raw-output exclusion, and
     no-repeat next steps; CLI end-turn migration, runtime proof, and parent
     Task 5.x/6.x acceptance remain out of scope.
+  - [x] 5.4.16 Narrow the control-oRPC runtime facade for
+    `city.population.place.request` from generic player/city operation ports
+    to semantic assign-worker and expand-city placement ports. Keep
+    direct-control's low-level player-operation/city-command authority inside
+    the live facade adapter and keep raw operation inputs out of the exported
+    context-construction surface.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -224,27 +231,27 @@ adding more read-only facade shells.
     neutral front planning output without adding same-shaped read wrappers,
     operation sends, strategy catalogs, relationship labels beyond official
     evidence, or runtime/live proof claims.
-  - [x] 5.5.10 Seed `decisions.narrative.choice.request` as a native
-    service-owned decision procedure that composes approval, playable
+  - [x] 5.5.10 Seed `narrative.choice.request` as a native
+    service-owned narrative procedure that composes approval, playable
     readiness, direct-control narrative request authority, and source-owned
     narrative proof classification into semantic output without exposing raw
     command/session/payload details or claiming runtime/live proof.
-  - [x] 5.5.11 Seed `decisions.diplomacy.response.request` as a native
-    service-owned decision procedure that composes approval, playable
+  - [x] 5.5.11 Seed `diplomacy.response.request` as a native
+    service-owned diplomacy procedure that composes approval, playable
     readiness, direct-control diplomacy response authority, and source-owned
     diplomacy proof classification into semantic output without exposing raw
     command/session/payload/UI-closeout details or claiming runtime/live proof.
-  - [x] 5.5.12 Seed `decisions.progression.choice.request` as a native
-    service-owned decision procedure that composes approval, playable
-    readiness, before/after notification evidence, direct-control
-    technology/culture closeout authority, and source-owned progression proof
-    classification into semantic output without exposing raw
-    command/session/payload/App UI closeout details or claiming runtime/live
-    proof.
-  - [x] 5.5.13 Guard `decisions.progression.choice.request` post-send
-    notification read failures as sent-unverified pending runtime proof with
-    no-repeat next steps, instead of surfacing a generic unavailable error after
-    mutation authority may have been used.
+  - [x] 5.5.12 Seed `progression.technology.choice.request` and
+    `progression.culture.choice.request` as native service-owned progression
+    procedures that compose approval, playable readiness, before/after
+    notification evidence, direct-control technology/culture closeout
+    authority, and source-owned progression proof classification into semantic
+    output without exposing raw command/session/payload/App UI closeout details
+    or claiming runtime/live proof.
+  - [x] 5.5.13 Guard progression choice post-send notification read failures
+    as sent-unverified pending runtime proof with no-repeat next steps, instead
+    of surfacing a generic unavailable error after mutation authority may have
+    been used.
   - [x] 5.5.14 Seed `turn.complete.request` as a native service-owned turn
     mutation procedure that composes approval, playable readiness,
     direct-control turn-completion send authority, and source-owned
@@ -264,6 +271,11 @@ adding more read-only facade shells.
     playable-status runtime ports. Keep live-game proof, transport
     propagation, validator-first middleware, and postcondition/proof
     middleware pending.
+  - [x] 6.1.3 Promote the repeated approval-plus-readiness mutation procedure
+    chain into a leaf-scoped native effect-oRPC helper reused by existing
+    mutation leaves. Keep validator-first middleware, postcondition/proof
+    middleware, telemetry propagation, live runtime proof, and parent Task 6.x
+    acceptance pending.
 - [ ] 6.2 Add approval middleware before mutation procedures.
   - [x] 6.2.1 Add leaf-scoped native effect-oRPC approval middleware for
     `city.production.choice.request`; keep shared approval middleware pending
@@ -281,13 +293,14 @@ adding more read-only facade shells.
     `city.population.place.request` while keeping validator-first and
     postcondition/proof middleware pending.
   - [x] 6.2.6 Reuse shared native approval middleware for
-    `decisions.narrative.choice.request` while keeping validator-first and
+    `narrative.choice.request` while keeping validator-first and
     postcondition/proof middleware pending.
   - [x] 6.2.7 Reuse shared native approval middleware for
-    `decisions.diplomacy.response.request` while keeping validator-first and
+    `diplomacy.response.request` while keeping validator-first and
     postcondition/proof middleware pending.
   - [x] 6.2.8 Reuse shared native approval middleware for
-    `decisions.progression.choice.request` while keeping validator-first and
+    `progression.technology.choice.request` and
+    `progression.culture.choice.request` while keeping validator-first and
     postcondition/proof middleware pending.
   - [x] 6.2.9 Reuse shared native approval middleware for
     `turn.complete.request` while keeping validator-first and
@@ -310,11 +323,11 @@ adding more read-only facade shells.
     direct-control validator-first player-operation/city-command runtime ports
     and project source-owned population-placement proof/no-repeat semantics
     into normal output; keep shared validator/postcondition middleware pending.
-  - [x] 6.3.5 Compose `decisions.narrative.choice.request` through the
+  - [x] 6.3.5 Compose `narrative.choice.request` through the
     direct-control narrative request runtime port and project source-owned
     narrative proof/no-repeat semantics into normal output; keep shared
     validator/postcondition middleware pending.
-  - [x] 6.3.6 Compose `decisions.diplomacy.response.request` through the
+  - [x] 6.3.6 Compose `diplomacy.response.request` through the
     direct-control diplomacy response runtime port and project source-owned
     diplomacy proof/no-repeat semantics into normal output; keep shared
     validator/postcondition middleware pending.
@@ -323,15 +336,16 @@ adding more read-only facade shells.
     narrative, and diplomacy mutation procedures. Keep direct-control proof
     classifiers as source authority and keep shared validator/postcondition
     middleware pending.
-  - [x] 6.3.8 Compose `decisions.progression.choice.request` through
-    direct-control technology/culture closeout runtime ports and source-owned
-    progression choice proof/no-repeat semantics; keep shared
-    validator/postcondition middleware pending.
+  - [x] 6.3.8 Compose `progression.technology.choice.request` and
+    `progression.culture.choice.request` through direct-control
+    technology/culture closeout runtime ports and source-owned progression
+    choice proof/no-repeat semantics; keep shared validator/postcondition
+    middleware pending.
   - [x] 6.3.9 Preserve progression choice no-repeat proof boundaries when
     after-read evidence is unavailable after a sent closeout; keep live
     runtime proof and shared postcondition middleware pending.
   - [x] 6.3.10 Extend the shared closeout-style mutation projection helper to
-    `decisions.progression.choice.request` so source-owned progression
+    progression choice request leaves so source-owned progression
     postconditions and explicit pending-proof boundaries derive normal
     postcondition summaries, request status, and no-repeat next steps without
     accepting shared validator/postcondition middleware.
@@ -363,17 +377,17 @@ adding more read-only facade shells.
     `city.population.place.request` direct-control runtime-port failures while
     shared safe-error middleware remains pending.
   - [x] 6.4.7 Use native effect-orpc tagged error constructors for
-    `decisions.narrative.choice.request` direct-control runtime-port failures
+    `narrative.choice.request` direct-control runtime-port failures
     while keeping raw direct-control cause, command, session, and payload
     details out of public error data.
   - [x] 6.4.8 Use native effect-orpc tagged error constructors for
-    `decisions.diplomacy.response.request` direct-control runtime-port
+    `diplomacy.response.request` direct-control runtime-port
     failures while keeping raw direct-control cause, command, session, payload,
     and UI-closeout details out of public error data.
-  - [x] 6.4.9 Use native effect-orpc tagged error constructors for
-    `decisions.progression.choice.request` direct-control runtime-port
-    failures while keeping raw direct-control cause, command, session, payload,
-    and App UI closeout details out of public error data.
+  - [x] 6.4.9 Use native effect-orpc tagged error constructors for progression
+    choice direct-control runtime-port failures while keeping raw
+    direct-control cause, command, session, payload, and App UI closeout
+    details out of public error data.
   - [x] 6.4.10 Use native effect-orpc tagged error constructors for
     `turn.complete.request` direct-control runtime-port failures while keeping
     raw direct-control cause, command, session, state, and Tuner details out of
@@ -413,8 +427,8 @@ adding more read-only facade shells.
     read-only mode, leave `game play build-unit` outside this slice, and keep
     live runtime proof pending.
   - [x] 7.1.6 Route `civ7 game play respond-diplomacy --send` through the
-    in-process `decisions.diplomacy.response.request` server-side client under
-    the `decisions` router. Keep endpoint flags and approval reason as context
+    in-process `diplomacy.response.request` server-side client under
+    the `diplomacy` router. Keep endpoint flags and approval reason as context
     construction, emit the semantic diplomacy response projection for send
     output with direct-control acted/local-player evidence rather than treating
     `--player-id` as send authority, preserve the existing direct-control
@@ -422,8 +436,8 @@ adding more read-only facade shells.
     `game play respond-first-meet` outside this slice, and keep live runtime
     proof pending.
   - [x] 7.1.7 Route `civ7 game play choose-narrative --send` through the
-    in-process `decisions.narrative.choice.request` server-side client under
-    the `decisions` router. Keep endpoint flags and approval reason as context
+    in-process `narrative.choice.request` server-side client under
+    the `narrative` router. Keep endpoint flags and approval reason as context
     construction, emit the semantic narrative choice projection for send output
     with direct-control acted/local-player evidence rather than treating
     `--player-id` as send authority, preserve the existing direct-control
@@ -461,6 +475,28 @@ adding more read-only facade shells.
     client, preserve raw command/session/tuner endpoint rejection, and keep
     mutation allowlists, local-player/hotseat proof, runtime proof, Civ7
     UIScript/modinfo packaging, and full `7.3` implementation pending.
+  - [x] 7.3.5 Allowlist the first controller-ingress mutation,
+    `notifications.dismiss.request`, only behind a closed serialized
+    controller approval/proof envelope. Require controller-runtime approval
+    metadata, game-controller-ready lifecycle evidence,
+    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
+    evidence before context construction and native router dispatch; keep
+    additional mutation allowlists, UIScript/modinfo packaging, runtime proof,
+    and full `7.3` implementation pending.
+  - [x] 7.3.6 Allowlist `turn.complete.request` through the same closed
+    controller approval/proof envelope. Require controller-runtime approval
+    metadata, game-controller-ready lifecycle evidence,
+    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
+    evidence before context construction and native router dispatch; keep
+    further mutation allowlists, UIScript/modinfo packaging, runtime proof, and
+    full `7.3` implementation pending.
+  - [x] 7.3.7 Allowlist `unit.target.action.request` through the same closed
+    controller approval/proof envelope. Require controller-runtime approval
+    metadata, game-controller-ready lifecycle evidence,
+    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
+    evidence before context construction and native router dispatch; keep
+    further mutation allowlists, UIScript/modinfo packaging, runtime proof, and
+    full `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -473,12 +509,12 @@ adding more read-only facade shells.
   added.
 - [x] 8.4 Run CLI play tests/check when a CLI caller is routed through
   procedures.
-- [x] 8.5 Run direct-control narrative proof, control-oRPC narrative decision,
+- [x] 8.5 Run direct-control narrative proof, control-oRPC narrative,
   package check/build, OpenSpec strict validation, and diff hygiene gates for
-  `decisions.narrative.choice.request` before closing that slice.
+  `narrative.choice.request` before closing that slice.
 - [x] 8.6 Run direct-control diplomacy proof, control-oRPC diplomacy response,
   package check/build, OpenSpec strict validation, and diff hygiene gates for
-  `decisions.diplomacy.response.request` before closing that slice.
+  `diplomacy.response.request` before closing that slice.
 - [x] 8.7 Run focused control-oRPC mutation projection policy and affected
   notification/narrative/diplomacy procedure tests, package check/build,
   strict OpenSpec validates, and diff hygiene when the shared closeout
@@ -495,6 +531,24 @@ adding more read-only facade shells.
 - [x] 8.11 Run focused controller-ingress/intelligence-bridge tests, package
   check/build, strict OpenSpec validates, and diff hygiene for the
   `attention.current` controller ingress allowlist slice.
+- [x] 8.31 Run focused controller-ingress, notification-dismissal, and
+  intelligence-bridge tests, control-oRPC check/build, strict OpenSpec
+  validates, and diff hygiene for the first controller mutation ingress
+  allowlist slice.
+- [x] 8.32 Run focused population-placement procedure tests, control-oRPC
+  package test/check/build, strict OpenSpec validates, generic runtime-port
+  scan, and diff hygiene for the population placement runtime facade narrowing
+  slice.
+- [x] 8.33 Run focused controller-ingress, turn-completion, and
+  intelligence-bridge tests, control-oRPC package test/check/build, strict
+  OpenSpec validates, and diff hygiene for the controller turn-completion
+  ingress allowlist slice.
+- [x] 8.34 Run focused mutation procedure regressions, control-oRPC package
+  test/check/build, strict OpenSpec validates, and diff hygiene for the shared
+  native mutation procedure helper slice.
+- [x] 8.35 Run focused controller-ingress and unit-target action procedure
+  tests, control-oRPC package test/check/build, strict OpenSpec validates, and
+  diff hygiene for the controller unit-target action ingress allowlist slice.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.
@@ -558,6 +612,6 @@ adding more read-only facade shells.
   `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
   the CLI diplomacy response send migration slice.
 - [x] 8.30 Run focused direct-control narrative request, control-oRPC
-  narrative decision, CLI narrative tests, `check:cli`, `test:cli:play`,
+  narrative, CLI narrative tests, `check:cli`, `test:cli:play`,
   relevant OpenSpec strict validates, and diff hygiene for the CLI narrative
   choice send migration slice.

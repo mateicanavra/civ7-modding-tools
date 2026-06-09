@@ -8,8 +8,8 @@ Date: 2026-06-05.
 Move technology and culture choice blocker postcondition classification out of
 the CLI commands and into `@civ7/direct-control` progression proof ownership.
 
-This is pre-oRPC service work. It makes future native `decisions` procedures
-able to consume source-owned postcondition policy instead of copying
+This is pre-oRPC service work. It makes the native domain-owned progression
+procedure able to consume source-owned postcondition policy instead of copying
 caller-local CLI logic or inferring success from raw App UI closeout sends.
 
 ## Write Set
@@ -69,7 +69,7 @@ any future live mutation closure claim.
 ## Residual Risk
 
 Technology and culture choice request wrappers still return raw App UI closeout
-payloads from direct-control. A future native `decisions` procedure must own the
-caller-facing semantic contract and projection, consume this proof policy, and
-preserve no-repeat guarding for sticky or state-changed-blocker-still-live
-paths.
+payloads from direct-control. A future native progression choice procedure must
+own the caller-facing semantic contract and projection, consume this proof
+policy, and preserve no-repeat guarding for sticky or
+state-changed-blocker-still-live paths.

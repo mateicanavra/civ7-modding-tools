@@ -18,12 +18,12 @@ const diplomacyInput = {
   notificationId: { owner: 0, id: 44, type: 20 },
 } as const;
 
-describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
+describe("diplomacy.response.request control-oRPC procedure", () => {
   test("projects confirmed diplomacy responses without raw command output", async () => {
     const fake = fakeContext(diplomacyResponseResult("diplomacy-blocker-cleared"));
 
     const result = await call(
-      Civ7ControlOrpcRouter.decisions.diplomacy.response.request,
+      Civ7ControlOrpcRouter.diplomacy.response.request,
       diplomacyInput,
       { context: fake.context },
     );
@@ -62,7 +62,7 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
       },
       nextSteps: [{
         kind: "refresh-attention",
-        source: "decisions.diplomacy.response.request",
+        source: "diplomacy.response.request",
         label: "Refresh current attention before choosing the next player action.",
       }],
     });
@@ -87,7 +87,7 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
     }));
 
     const result = await call(
-      Civ7ControlOrpcRouter.decisions.diplomacy.response.request,
+      Civ7ControlOrpcRouter.diplomacy.response.request,
       input,
       { context: fake.context },
     );
@@ -103,7 +103,7 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
     }));
 
     const result = await call(
-      Civ7ControlOrpcRouter.decisions.diplomacy.response.request,
+      Civ7ControlOrpcRouter.diplomacy.response.request,
       diplomacyInput,
       { context: fake.context },
     );
@@ -118,7 +118,7 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
     });
     expect(result.nextSteps).toEqual([{
       kind: "do-not-repeat",
-      source: "decisions.diplomacy.response.request",
+      source: "diplomacy.response.request",
       label: "Do not repeat this diplomacy response request until fresh attention and diplomacy evidence is read.",
     }]);
   });
@@ -132,7 +132,7 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
     }));
 
     const result = await call(
-      Civ7ControlOrpcRouter.decisions.diplomacy.response.request,
+      Civ7ControlOrpcRouter.diplomacy.response.request,
       diplomacyInput,
       { context: fake.context },
     );
@@ -153,7 +153,7 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
     });
     expect(result.nextSteps).toEqual([{
       kind: "inspect-diplomacy-response",
-      source: "decisions.diplomacy.response.request",
+      source: "diplomacy.response.request",
       label: "Inspect current attention and diplomacy response state before attempting another diplomacy request.",
     }]);
   });
@@ -165,14 +165,14 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
 
     await expect(
       call(
-        Civ7ControlOrpcRouter.decisions.diplomacy.response.request,
+        Civ7ControlOrpcRouter.diplomacy.response.request,
         diplomacyInput,
         { context: fake.context },
       ),
     ).rejects.toMatchObject({
       code: "MUTATION_APPROVAL_REQUIRED",
       data: {
-        procedureKey: "decisions.diplomacy.response.request",
+        procedureKey: "diplomacy.response.request",
         source: "context.approval",
         risk: "mutation",
       },
@@ -198,7 +198,7 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
 
       await expect(
         call(
-          Civ7ControlOrpcRouter.decisions.diplomacy.response.request,
+          Civ7ControlOrpcRouter.diplomacy.response.request,
           input as never,
           { context: fake.context },
         ),
@@ -224,7 +224,7 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
 
     await expect(
       call(
-        Civ7ControlOrpcRouter.decisions.diplomacy.response.request,
+        Civ7ControlOrpcRouter.diplomacy.response.request,
         diplomacyInput,
         { context: failingContext },
       ),
@@ -232,14 +232,14 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
       code: "DIPLOMACY_RESPONSE_UNAVAILABLE",
       status: 503,
       data: {
-        procedureKey: "decisions.diplomacy.response.request",
+        procedureKey: "diplomacy.response.request",
         source: "direct-control-facade",
       },
     });
 
     try {
       await call(
-        Civ7ControlOrpcRouter.decisions.diplomacy.response.request,
+        Civ7ControlOrpcRouter.diplomacy.response.request,
         diplomacyInput,
         { context: failingContext },
       );
@@ -256,25 +256,31 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
     const fake = fakeContext(diplomacyResponseResult("blocking-notification-changed"));
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
-    const result = await client.decisions.diplomacy.response.request(diplomacyInput);
+    const result = await client.diplomacy.response.request(diplomacyInput);
 
     expect(result.status).toBe("sent-confirmed");
     expect(result.postcondition.outcome).toBe("state-changed");
   });
 
-  test("publishes a contract-first diplomacy decision service leaf", () => {
+  test("publishes a contract-first diplomacy domain service leaf", () => {
     expect(
-      Civ7ControlOrpcContract.decisions.diplomacy.response.request["~orpc"],
+      Civ7ControlOrpcContract.diplomacy.response.request["~orpc"],
     ).toMatchObject({
       meta: {
-        family: "decisions",
-        procedureKey: "decisions.diplomacy.response.request",
+        family: "diplomacy",
+        procedureKey: "diplomacy.response.request",
         proofBoundary: "local-package-test",
         risk: "mutation",
       },
     });
     expect(
-      Civ7ControlOrpcContract.decisions.diplomacy.response.request["~orpc"].errorMap,
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions,
+    ).toBeUndefined();
+    expect(
+      (Civ7ControlOrpcRouter as unknown as Record<string, unknown>).decisions,
+    ).toBeUndefined();
+    expect(
+      Civ7ControlOrpcContract.diplomacy.response.request["~orpc"].errorMap,
     ).toHaveProperty("DIPLOMACY_RESPONSE_UNAVAILABLE");
     expect(Civ7DiplomacyResponseUnavailableError.code).toBe(
       "DIPLOMACY_RESPONSE_UNAVAILABLE",

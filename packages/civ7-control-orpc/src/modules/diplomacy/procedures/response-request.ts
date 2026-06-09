@@ -2,29 +2,21 @@ import { diplomacyResponseProofPostcondition } from "@civ7/direct-control";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcDiplomacyResponseResult } from "../../../dependencies/direct-control";
-import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
-import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
+import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
-  Civ7DecisionsDiplomacyResponseInput,
-  Civ7DecisionsDiplomacyResponseResult,
+  Civ7DiplomacyResponseInput,
+  Civ7DiplomacyResponseResult,
 } from "../contract";
 
-const decisionsDiplomacyResponseRequestWithApproval =
-  civ7ControlOrpcImplementer.decisions.diplomacy.response.request.use(
-    civ7MutationApprovalMiddleware,
-  );
-const decisionsDiplomacyResponseRequestReady =
-  decisionsDiplomacyResponseRequestWithApproval.use(
-    civ7MutationReadinessMiddleware,
-  );
-
-export const decisionsDiplomacyResponseRequestProcedure =
-  decisionsDiplomacyResponseRequestReady.effect(function* ({
+export const diplomacyResponseRequestProcedure =
+  civ7ControlOrpcMutationProcedure(
+    civ7ControlOrpcImplementer.diplomacy.response.request,
+  ).effect(function* ({
     context,
     errors,
     input,
@@ -34,14 +26,14 @@ export const decisionsDiplomacyResponseRequestProcedure =
         const result = await context.directControl.requestCiv7DiplomacyResponse(
           input,
           context.endpointDefaults,
-          context.approval,
+          context.approval!,
         );
         return diplomacyResponseResult(input, result);
       },
       catch: () =>
         errors.DIPLOMACY_RESPONSE_UNAVAILABLE({
           data: {
-            procedureKey: "decisions.diplomacy.response.request",
+            procedureKey: "diplomacy.response.request",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
           },
@@ -50,9 +42,9 @@ export const decisionsDiplomacyResponseRequestProcedure =
   });
 
 function diplomacyResponseResult(
-  input: Civ7DecisionsDiplomacyResponseInput,
+  input: Civ7DiplomacyResponseInput,
   result: Civ7ControlOrpcDiplomacyResponseResult,
-): Civ7DecisionsDiplomacyResponseResult {
+): Civ7DiplomacyResponseResult {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
     postcondition: diplomacyResponseProofPostcondition(result, undefined),
@@ -61,7 +53,7 @@ function diplomacyResponseResult(
       reason: "The diplomacy response result did not include explicit postcondition evidence.",
       outcome: result.sent ? "unknown" : "not-sent",
     },
-    source: "decisions.diplomacy.response.request",
+    source: "diplomacy.response.request",
     inspectKind: "inspect-diplomacy-response",
     inspectLabel: "Inspect current attention and diplomacy response state before attempting another diplomacy request.",
     doNotRepeatLabel: "Do not repeat this diplomacy response request until fresh attention and diplomacy evidence is read.",
@@ -78,7 +70,7 @@ function diplomacyResponseResult(
       beforeValid: result.beforeValidation.valid,
       afterValid: result.afterValidation.valid,
     },
-    postcondition: projection.postcondition as Civ7DecisionsDiplomacyResponseResult["postcondition"],
+    postcondition: projection.postcondition as Civ7DiplomacyResponseResult["postcondition"],
     nextSteps: projection.nextSteps,
   };
 }
