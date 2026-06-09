@@ -1,0 +1,114 @@
+# Operation/Proof Telemetry Contract
+
+This is a planning contract for future operation/proof telemetry records. It is
+not a source implementation, accepted schema, telemetry persistence layer,
+AI-ingestion contract, normal CLI semantic envelope, debug/internal service
+contract, runtime proof, or Effect/oRPC procedure-core contract.
+
+The telemetry target exists because mutation-facing direct-control work needs a
+stable audit vocabulary across approval, validation, send, post-read, and
+postcondition evidence. Future AI-intelligence and procedure-core consumers
+need explicit outcome evidence; they must not train, act, or close product
+claims from a vague `verified: true` flag.
+
+## Scope
+
+The telemetry record applies to future operation/action audit events produced
+from repo-owned direct-control atoms. It is designed to describe an attempted or
+candidate action and the proof collected around it. It does not authorize
+telemetry persistence, background collection, AI corpus generation, or oRPC
+middleware implementation by itself.
+
+Telemetry records should be scoped to the operation, player, and agent-owned
+hotseat slot when that evidence exists. Human-turn refusal and pending runtime
+proof labels must remain visible when relevant.
+
+## Future Record Slots
+
+Future implementation should converge on a stable record shape with these slots
+or direct equivalents:
+
+| Slot | Purpose |
+|---|---|
+| `recordVersion` | Identifies the telemetry contract version once a schema owner exists. |
+| `correlationId` | Links validation, send, post-read, and outcome evidence without exposing it in normal CLI by default. |
+| `playerScope` | Records local-player, player, agent-slot, observer, or unknown scope. |
+| `strategyIntent` | Optional source-labeled intent from a strategy or player-agent layer. |
+| `candidateAction` | Stable action candidate identity before approval or send. |
+| `operationFamily` | Direct-control operation family such as unit operation, production, narrative, diplomacy, notification dismissal, turn completion, setup, or autoplay support. |
+| `target` | Source-labeled target identity, component id, notification id, location, city, unit, or none. |
+| `args` | Bounded, schema-owned operation arguments with sensitive/debug-only internals omitted. |
+| `approval` | Approval requirement, approval reason, approver/source, and refusal reason when not approved. |
+| `validation_pre` | Validator result before send, including no-send blockers and input/evidence policy. |
+| `send_receipt` | Send attempt/result, request family, sent/not-sent status, and transport-independent receipt facts. |
+| `post_read` | Readback source used for postcondition evaluation, with source/freshness/evidence labels. |
+| `validation_post` | Post-send validator result, including stale/unknown/no-state-change classifications. |
+| `postcondition` | Explicit classification, reason, blocker state, no-repeat guidance, and confidence boundary. |
+| `outcome_delta` | Source-labeled state change, no-state-change, or unknown outcome evidence. |
+| `blocker_delta` | Blocking notification, ready-unit, ready-city, turn, or closeout state change. |
+| `evidencePolicy` | Which evidence classes were allowed and which proof classes remain pending. |
+| `runtimeObservationLinks` | Optional references to live observations, logs, or resources without treating them as equivalent proof classes. |
+
+## Projection Boundaries
+
+Normal CLI may summarize telemetry as player-agent state-machine status:
+
+- approval required/refused;
+- not sent because validation failed;
+- sent with explicit postcondition classification;
+- stale or unknown with reread/no-repeat guidance;
+- concise outcome or blocker delta.
+
+Normal CLI must not dump the full telemetry record by default.
+
+Debug/internal service projection may expose raw telemetry details under a
+debug-owned command, flag, or future debug procedure. AI ingestion may consume
+telemetry only through an accepted machine contract with source, freshness,
+evidence, and scope labels. Procedure cores may attach telemetry hooks only
+after typed schema/procedure ownership is accepted.
+
+## Proof Classes
+
+Telemetry must keep these evidence classes separate:
+
+- local package or CLI tests;
+- target-thread evidence;
+- peer reports;
+- repo docs and OpenSpec records;
+- official resources;
+- logs/database artifacts;
+- Tuner/App UI reads;
+- live runtime proof;
+- in-game observations.
+
+No single record field may collapse those into a generic proof claim. Local
+tests can prove construction and projection separation; they do not prove live
+runtime behavior.
+
+## Acceptance Gaps
+
+This contract reduces the `contractArtifact` gap for the Operation/Proof
+Telemetry row, but it does not accept the row. Acceptance still needs:
+
+- a named telemetry source owner;
+- a schema/test owner and concrete schema choice;
+- record-construction tests for approval, validation, send receipt, post-read,
+  postcondition, outcome delta, blocker delta, stale, and unknown cases;
+- projection separation tests proving normal CLI, debug/internal service,
+  AI-ingestion, and procedure-core outputs remain distinct;
+- proof-label guards preventing local tests, thread evidence, docs, logs, or
+  resources from being labeled as live runtime proof;
+- fixtures proving no consumer trains or acts on vague `verified: true`.
+
+## Stop Conditions
+
+Stop and reframe if future telemetry work:
+
+- collapses approval, validation, send, post-read, postcondition, and outcome
+  evidence into a single `verified` boolean;
+- lets AI ingestion consume CLI presentation strings or debug raw output;
+- treats local tests, target threads, peer reports, docs, logs, or resources as
+  live runtime proof;
+- hides stale/unknown/no-repeat-after-unverified classifications;
+- turns telemetry persistence, AI ingestion, normal CLI projection, or
+  procedure-core middleware into one broad raw JSON surface.

@@ -31,6 +31,24 @@ from the row or rows it consumes after their `acceptanceStatus` is `accepted`.
 | Operation/proof telemetry | Telemetry contract owner, schema owner, proof owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
 | Effect/oRPC procedure cores | Procedure-core owner, schema owner, proof owner, TypeBox/Effect Schema disposition owner, adapter-boundary owner | Procedure-core contract tests over stable direct-control atoms, typed errors, approval gates, correlation/telemetry hooks, schema encode/decode checks, and explicit non-tunnel transport boundary | Tasks 6.1-6.9, oRPC package behavior, Effect resource/schedule/stream implementation, transport adapters |
 
+Contract-artifact status:
+
+- Hotseat handoff state: `workstream/hotseat-handoff-contract.md` recorded.
+- Semantic CLI player-agent view:
+  `workstream/semantic-cli-envelope-contract.md` recorded.
+- Strategy/intelligence ingestion:
+  `workstream/strategy-intelligence-ingestion-contract.md` recorded.
+- Debug/internal service output:
+  `workstream/debug-service-projection-contract.md` recorded.
+- Operation/proof telemetry:
+  `workstream/operation-proof-telemetry-contract.md` recorded.
+- Effect/oRPC procedure cores: `workstream/procedure-core-contract.md`
+  recorded.
+
+These artifacts close only the `contractArtifact` planning sub-gap. They do not
+accept any row, assign source/proof/schema owners, create tests, prove runtime
+behavior, or unblock dependent implementation lanes.
+
 Global acceptance stop conditions:
 
 - Stop if a row says it supports both target consumers without separating
@@ -150,17 +168,22 @@ Intake rejection conditions:
 - `contractArtifact`: existing artifacts are planning records, App UI snapshot
   shape, Tuner health/playable-status results, session health/reconnect shapes,
   setup lifecycle results, autoplay support results, and turn-completion
-  results. Missing contract artifact before acceptance: a hotseat handoff state
-  contract/checklist that names session health, current local player,
-  agent-slot ownership, turn/blocker state, approval/action eligibility,
-  curtain/interface state, human-turn refusal, and human-restoration evidence.
+  results, and `workstream/hotseat-handoff-contract.md`, which names future
+  handoff state slots for session health, current local player, slot ownership,
+  turn/blocker state, curtain/interface state, action eligibility, approval
+  state, post-action state, runtime proof gates, projection boundaries,
+  acceptance gaps, and stop conditions. Missing before acceptance: a named
+  runtime source/proof owner, gate runner, human-restoration proof owner, and
+  live runtime evidence over that contract.
 - `proofPlan`: existing proof is planning evidence and local fake-runtime tests
-  for reusable atoms. Missing proof before acceptance: menu/setup hotseat
-  snapshot, disposable hotseat activation, two-slot `GameContext.localPlayerID`
-  rotation, agent-owned current-slot detection, mutation refusal for
-  non-agent human turns, one approved agent-slot operation, turn completion,
-  human UI restoration, fallback non-local operation probe disposition, and
-  bounded Autoplay measurement proof as support/debug evidence only.
+  for reusable atoms. Missing proof before acceptance: the runtime proof gates
+  listed in `workstream/hotseat-handoff-contract.md`, including menu/setup
+  hotseat snapshot, disposable hotseat activation, two-slot
+  `GameContext.localPlayerID` rotation, agent-owned current-slot detection,
+  mutation refusal for non-agent human turns, one approved agent-slot
+  operation, turn completion, human UI restoration, fallback non-local
+  operation probe disposition, and bounded Autoplay measurement proof as
+  support/debug evidence only.
 - `projectionPlan`: normal CLI may later summarize current player, slot
   ownership, handoff readiness, blocker state, action eligibility, and safe
   next steps through the semantic CLI row; debug/internal service output may
@@ -234,19 +257,22 @@ Intake rejection conditions:
   owner after the row has a concrete owner. No broad `common`, `utils`,
   `types`, debug/service, telemetry, AI-ingestion, transport, or procedure-core
   bucket is authorized.
-- `contractArtifact`: existing artifacts are command-specific play outputs and
-  the CLI play corpus inventory. Missing contract artifact before acceptance:
-  a semantic player-agent envelope contract that defines game state, blockers,
-  decisions, action results, safe/unsafe next steps, and postcondition
-  classifications while explicitly excluding raw service/debug fields from
-  normal play output.
+- `contractArtifact`: existing artifacts are command-specific play outputs,
+  the CLI play corpus inventory, and
+  `workstream/semantic-cli-envelope-contract.md`, which defines the planned
+  normal CLI semantic slots for game state, blockers, decisions, action
+  results, safe/unsafe next steps, postcondition classifications, evidence
+  labels, and excluded raw service/debug fields. Missing before acceptance: a
+  named source owner, schema/test owner, and implementation test fixture over
+  that contract.
 - `proofPlan`: existing local proof is canonical `test:cli:play` plus the
   focused command owner tests recorded in `workstream/cli-play-corpus.md`.
   Missing proof before acceptance: tests that normal play output carries the
-  semantic envelope, tests that raw session/transport/closeout/command/proof
-  JSON and correlation/probe internals are omitted from normal play output, and
-  tests or fixtures proving AI ingestion does not consume CLI presentation
-  strings.
+  planned semantic envelope from
+  `workstream/semantic-cli-envelope-contract.md`, tests that raw
+  session/transport/closeout/command/proof JSON and correlation/probe internals
+  are omitted from normal play output, and tests or fixtures proving AI
+  ingestion does not consume CLI presentation strings.
 - `projectionPlan`: normal CLI projection should be semantic player-agent
   state and action guidance only; debug/internal service projection remains
   omitted from normal output or routed through debug-owned commands/flags; AI
@@ -321,19 +347,23 @@ Intake rejection conditions:
   transport adapter, or procedure-core implementation is authorized.
 - `contractArtifact`: existing artifacts are planning records, direct-control
   read/proof result shapes, GameInfo/map/summary read owners, operation
-  postcondition shapes, capability catalog schemas, and proof/log helper
-  outputs. Missing contract artifact before acceptance: a stable machine
-  ingestion schema for `StrategyPlan`, `ActionCandidate`, `ProfileRecipe`,
-  `LoadedRowProof`, `RunMetric`, `PromotionDecision`, or their agreed
-  equivalents, with source/freshness/evidence labels and explicit separation
-  between live external play records and static native-AI profile shaping.
+  postcondition shapes, capability catalog schemas, proof/log helper outputs,
+  and `workstream/strategy-intelligence-ingestion-contract.md`, which names
+  future record families such as `StrategyPlan`, `ActionCandidate`,
+  `ActionOutcome`, `LoadedRowProof`, `RunMetric`, `PromotionDecision`, and
+  `ProfileRecipe`, with source/freshness/evidence labels and explicit
+  separation between live external play records and static native-AI profile
+  shaping. Missing before acceptance: a named source/proof owner, schema/test
+  owner, fixture owner, and implementation tests over that ingestion contract.
 - `proofPlan`: existing proof is planning evidence plus local package/CLI tests
   for direct-control atoms that may later feed ingestion. Missing proof before
-  acceptance: AI-ingestion contract fixture tests, encode/decode or validation
-  tests, source/freshness label assertions, evidence-class snapshots,
-  stale/unknown/outcome fixtures, and tests proving ingestion does not consume
-  normal CLI presentation strings, raw command strings, raw SQL, runtime
-  reflection, unlabeled saves/logs/debug DB rows, or vague `verified: true`.
+  acceptance: AI-ingestion contract fixture tests against
+  `workstream/strategy-intelligence-ingestion-contract.md`, encode/decode or
+  validation tests, source/freshness label assertions, evidence-class
+  snapshots, stale/unknown/outcome fixtures, and tests proving ingestion does
+  not consume normal CLI presentation strings, raw command strings, raw SQL,
+  runtime reflection, unlabeled saves/logs/debug DB rows, or vague
+  `verified: true`.
 - `projectionPlan`: normal CLI projection is omitted and must not feed
   ingestion; debug/internal service output may enrich records only through
   explicit source/freshness/evidence labels; operation/proof telemetry must be
@@ -407,19 +437,22 @@ Intake rejection conditions:
   transport, telemetry, or AI-ingestion bucket is authorized.
 - `contractArtifact`: existing contract artifacts are package result shapes for
   runtime inspection, bounded root inspection, App UI snapshot, Tuner health,
-  playable status, capability catalog, direct-control health, and reveal-map
-  debug/disposable visibility. Missing contract artifact before acceptance:
-  a documented debug/internal service projection contract that names which raw
-  fields are debug-only and which summaries, if any, may feed normal CLI or
-  AI-ingestion surfaces.
+  playable status, capability catalog, direct-control health, reveal-map
+  debug/disposable visibility, and
+  `workstream/debug-service-projection-contract.md`, which names debug-only raw
+  field classes, allowed normal summary classes, AI-ingestion boundaries,
+  procedure-core boundaries, acceptance gaps, and stop conditions. Missing
+  before acceptance: a named source/proof owner and implementation tests over
+  that projection boundary.
 - `proofPlan`: existing local proof includes
   `game.control.test.ts` coverage for health diagnostics, runtime inspection,
   App UI snapshot, playable status, map/GameInfo reads, AI loaded-lever reads,
   and operation validation through the package boundary; package proof includes
   `runtime-and-catalog.test.ts` and `session.test.ts`. Missing proof before
-  acceptance: tests proving raw transport/session/probe/closeout/correlation
-  details are reachable only through debug-owned commands or flags and are not
-  emitted by normal play output or accepted AI-ingestion contracts.
+  acceptance: tests proving the raw field classes in
+  `workstream/debug-service-projection-contract.md` are reachable only through
+  debug-owned commands, flags, or future debug procedures and are not emitted
+  by normal play output or accepted AI-ingestion contracts.
 - `projectionPlan`: normal CLI projection remains omitted/debug-only for raw
   runtime/service fields; debug/internal service projection may include raw
   transport/session state, probe output, route selection, closeout traces,
@@ -498,18 +531,22 @@ Intake rejection conditions:
   AI-ingestion, persistence, transport, or procedure-core bucket is authorized.
 - `contractArtifact`: existing artifacts are package result/postcondition
   shapes, approval primitives, validation/send wrappers, closeout
-  classifications, notification verification summaries, and proof/log helper
-  outputs. Missing contract artifact before acceptance: a stable telemetry
-  record/schema that names strategy intent, candidate action, operation family,
+  classifications, notification verification summaries, proof/log helper
+  outputs, and `workstream/operation-proof-telemetry-contract.md`, which names
+  future record slots for strategy intent, candidate action, operation family,
   target, args, approval, validation result, send receipt, post-read,
   postcondition classification, outcome delta, blocker delta, evidence policy,
-  correlation id, source/freshness label, and stale/unknown classification.
+  correlation id, source/freshness label, stale/unknown classification, proof
+  classes, projection boundaries, acceptance gaps, and stop conditions. Missing
+  before acceptance: a named source/proof owner, schema/test owner, and
+  implementation tests over that record contract.
 - `proofPlan`: existing local proof covers approval-first behavior,
   validator-first no-send paths, focused send/read split, postcondition
   classification, no-repeat-after-unverified guidance, notification identity
   verification, and setup/turn lifecycle readback in package and focused CLI
-  tests. Missing proof before acceptance: contract tests for telemetry
-  record construction, fixture snapshots for stale/unknown/outcome evidence,
+  tests. Missing proof before acceptance: contract tests for telemetry record
+  construction against `workstream/operation-proof-telemetry-contract.md`,
+  fixture snapshots for stale/unknown/outcome evidence,
   normal/debug/AI/procedure projection separation tests, and runtime-proof
   labeling tests that prevent local tests or docs from becoming live proof.
 - `projectionPlan`: normal CLI may receive only summarized state-machine
@@ -598,16 +635,20 @@ Intake rejection conditions:
   method table is accepted by this intake.
 - `contractArtifact`: current artifacts are planning records, current TypeBox
   public contracts, direct-control atom types/results, the compatibility
-  matrix, and the schema-evaluation disposition. Missing before acceptance:
-  typed procedure contracts with context, approval policy, correlation IDs,
-  typed errors, telemetry hooks, resource/schedule/stream semantics where
-  appropriate, and explicit TypeBox / Effect Schema / Zod adapter ownership.
+  matrix, the schema-evaluation disposition, and
+  `workstream/procedure-core-contract.md`, which names future procedure atom
+  slots for procedure keys, schemas, context, middleware, typed errors,
+  correlation, projection policy, proof boundaries, router families, schema
+  ownership, middleware boundaries, acceptance gaps, and stop conditions.
+  Missing before acceptance: named source/schema/proof owners,
+  context/middleware/error/correlation owners, explicit controller/external/AI
+  service boundaries, and implementation tests over that procedure contract.
 - `proofPlan`: current proof is planning evidence and local atom test evidence
-  only. Missing before acceptance: oRPC schema/procedure validation test,
-  error-shape snapshot, encode/decode round trip, Bun runtime check, CLI
-  semantic projection test, AI-ingestion contract fixture test,
-  middleware approval/correlation/error tests, and no-raw-command-tunnel tests
-  over stable direct-control atoms.
+  only. Missing before acceptance: oRPC schema/procedure validation test
+  against `workstream/procedure-core-contract.md`, error-shape snapshot,
+  encode/decode round trip, Bun runtime check, CLI semantic projection test,
+  AI-ingestion contract fixture test, middleware approval/correlation/error
+  tests, and no-raw-command-tunnel tests over stable direct-control atoms.
 - `projectionPlan`: normal CLI remains omitted here and belongs to the
   semantic CLI row; the oclif shell remains separate. Debug/internal service
   diagnostics belong to the debug row. AI ingestion consumes typed contracts

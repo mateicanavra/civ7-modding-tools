@@ -102,6 +102,10 @@
         The matrix also records a row-by-row acceptance backlog; those blockers
         must be cleared per row before any dependent implementation lane can
         consume that row as accepted.
+        All six row contract artifacts are now recorded in
+        `workstream/compatibility-matrix.md`, but that closes only the
+        `contractArtifact` planning sub-gap. Row acceptance still requires
+        source/proof/schema owners, tests, and stop-condition coverage.
         A future row acceptance update must include the row acceptance intake
         fields recorded in `workstream/compatibility-matrix.md`: owner
         assignment, write set, contract artifact, proof plan, projection plan,
@@ -109,20 +113,25 @@
         The debug/internal service output row now has a draft acceptance intake
         with concrete current package/CLI owners and missing proof called out,
         but its `acceptanceStatus` remains `pending-debug-service-boundary`
-        until normal/debug/AI separation tests and a debug projection contract
-        are assigned and passing.
+        until normal/debug/AI separation tests and a debug projection owner are
+        assigned and passing. The planning contract is now recorded in
+        `workstream/debug-service-projection-contract.md`, but it does not
+        assign source/proof owners or accept the row.
         The semantic CLI player-agent view row now has a draft acceptance
         intake with current `game play` command/test owners from
         `workstream/cli-play-corpus.md` and missing envelope/schema/proof
         called out, but its `acceptanceStatus` remains
-        `pending-cli-semantic-envelope` until a semantic envelope owner,
-        contract, and normal/debug/AI separation tests are assigned and
-        passing.
+        `pending-cli-semantic-envelope`. The planning contract is now recorded
+        in `workstream/semantic-cli-envelope-contract.md`, but the row remains
+        pending until a semantic envelope owner, schema/test owner, and
+        normal/debug/AI separation tests are assigned and passing.
         The operation/proof telemetry row now has a draft acceptance intake
         with current operation, approval, postcondition, notification
         verification, setup/turn lifecycle, and focused CLI proof owners
         identified, but its `acceptanceStatus` remains
-        `pending-telemetry-contract` until a telemetry contract owner, schema,
+        `pending-telemetry-contract`. The planning contract is now recorded in
+        `workstream/operation-proof-telemetry-contract.md`, but the row remains
+        pending until a telemetry source owner, schema/test owner,
         record-construction tests, projection separation tests, and proof-label
         guards are assigned and passing.
         The strategy/intelligence ingestion row now has a draft acceptance
@@ -131,14 +140,19 @@
         its `acceptanceStatus` remains `pending-ai-ingestion-contract` until an
         ingestion contract owner, schema/test owner, source/freshness/evidence
         fixtures, and normal/debug/telemetry/procedure separation tests are
-        assigned and passing.
+        assigned and passing. The planning contract is now recorded in
+        `workstream/strategy-intelligence-ingestion-contract.md`, but it does
+        not assign owners or accept the row.
         The hotseat handoff row now has a draft acceptance intake using the
         hotseat/autoplay target-thread and peer-report planning evidence plus
         current runtime/session/setup/autoplay/turn-completion atom owners as
         candidate support evidence, but its `acceptanceStatus` remains
         `pending-hotseat-runtime-proof` until hotseat runtime source/proof
         owners, live activation/rotation/action/restoration gates, and
-        human-turn refusal proof are assigned and passing.
+        human-turn refusal proof are assigned and passing. The planning
+        contract/checklist is now recorded in
+        `workstream/hotseat-handoff-contract.md`, but it does not assign owners
+        or accept the row.
         The Effect/oRPC procedure cores row now has a draft acceptance intake
         using the oRPC authority citation, controller-bridge substrate repair,
         TypeBox versus Effect Schema report disposition, current TypeBox public
@@ -147,7 +161,9 @@
         until procedure-core source/schema/proof owners, context/middleware,
         error, and correlation owners, schema/procedure validation tests,
         encode/decode and typed-error tests, projection-separation tests, and
-        no-raw-command-tunnel tests are assigned and passing.
+        no-raw-command-tunnel tests are assigned and passing. The planning
+        contract is now recorded in `workstream/procedure-core-contract.md`,
+        but it does not assign owners or accept the row.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
@@ -156,8 +172,11 @@
       needs command/flag boundary ownership and tests; operation/proof
       telemetry still needs contract/schema/proof ownership and explicit
       outcome evidence fixtures; Effect/oRPC procedure cores still need
-      procedure/schema/proof ownership, TypeBox-vs-Effect-Schema disposition,
-      and procedure-core tests over stable atoms.
+      procedure/schema/proof ownership, TypeBox/Effect Schema/Zod adapter
+      ownership for a concrete schema slice, and procedure-core tests over
+      stable atoms. The TypeBox versus Effect Schema report disposition is
+      already recorded as bounded-hybrid planning evidence; it is not enough to
+      accept the row without owners and tests.
   - Compatibility proof classes must remain separate: target-thread evidence,
     repo docs, local tests, logs/database artifacts, official resources, live
     runtime proof, and in-game observations.
@@ -1641,7 +1660,7 @@ runtime/direct-control claims.
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
   - [x] 4.14.7 Extract setup-phase wait helper ownership into setup reads while
-        keeping setup-run composition injected from `index.ts`, preserving
+        keeping setup-run composition outside the wait-helper owner, preserving
         shell-phase polling, timeout details, `setup-phase-invalid`
         classification, and existing setup/lifecycle package proof, and leaving
         runtime proof, hotseat runtime proof, AI ingestion, semantic CLI
@@ -1819,6 +1838,10 @@ authority are recorded.
     decode/encode, transformations, typed parse errors, Effect integration, or
     machine-ingestion ergonomics matter; document any Zod/oRPC adapter as an
     adapter boundary rather than a third durable schema authority.
+  - The report disposition is planning evidence, not row acceptance. A concrete
+    schema slice still needs TypeBox/Effect Schema/Zod adapter ownership,
+    source/proof owners, and tests before Task 2.9.4 or 6.x implementation can
+    proceed.
   - Migration acceptance checks remain pending: oRPC schema/procedure
     validation test, error-shape snapshot, encode/decode round trip, Bun
     runtime check, CLI semantic projection test, and AI-ingestion contract

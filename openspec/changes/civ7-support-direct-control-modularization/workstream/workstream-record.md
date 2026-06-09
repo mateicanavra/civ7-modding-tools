@@ -723,8 +723,9 @@ All future agent waves must be framed before delegation:
   constants ownership relocation. It moves only autoplay default max-turn,
   wait, poll, and stop-stability constants into `src/play/autoplay.ts` while
   keeping public facade re-exports in `index.ts`. This preserves autoplay
-  wrapper defaults and keeps App UI execution, validation, approval, sleeping,
-  and serializer dependencies injected from the facade. Broader public
+  wrapper defaults; later autoplay facade dependency-pruning slices moved App
+  UI execution, validation, approval, sleeping, and serializer defaults into
+  the autoplay owner. Broader public
   constants/types, procedure schemas, operation/proof telemetry, AI ingestion,
   hotseat runtime proof, CLI semantic projection, Effect/oRPC procedure-core
   work, and Task 2.9.4 matrix-row acceptance stay pending. This is local
@@ -734,8 +735,9 @@ All future agent waves must be framed before delegation:
   constants ownership relocation. It moves only unit-target post-send
   verification wait/poll defaults into `src/play/operations/unit-target-action.ts`
   while keeping public facade re-exports in `index.ts`. This preserves bounded
-  unit-target verification timing and keeps command execution, parsing, and
-  approval dependencies injected from the facade. Broader public constants/types,
+  unit-target verification timing; a later unit-target facade dependency-pruning
+  slice moved command execution, parsing, and approval defaults into the
+  unit-target owner. Broader public constants/types,
   procedure schemas, operation/proof telemetry, AI ingestion, hotseat runtime
   proof, CLI semantic projection, Effect/oRPC procedure-core work, and Task
   2.9.4 matrix-row acceptance stay pending. This is local package/constants
@@ -1526,9 +1528,10 @@ All future agent waves must be framed before delegation:
   orchestration, the private production-choice command builder, production
   argument validation, read-only status payload reads, and bounded post-send
   polling into `src/play/operations/production-choice.ts` while keeping the
-  public facade export in `index.ts`. The facade still injects approval,
-  ComponentID validation, App UI execution, city-operation validation,
-  payload parsing, and serialization. This preserves approval-first BUILD
+  public facade export in `index.ts`. Later production-choice facade dependency
+  cleanup moved approval, ComponentID validation, App UI execution,
+  city-operation validation, payload parsing, and serialization defaults into
+  the production-choice owner. This preserves approval-first BUILD
   request behavior, validator-first sends, invalid-prevalidation no-send
   status payloads, production postcondition classification, and package/CLI
   production proof. Generic operation wrapper composition, telemetry, AI
@@ -2195,9 +2198,10 @@ All future agent waves must be framed before delegation:
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into
   `src/play/operations/diplomacy-request.ts` while keeping public facade exports
-  in `index.ts`. The facade still injects approval, App UI execution,
-  notification reads, player-operation validation, payload parsing, and
-  serialization. This preserves optional notification activation,
+  in `index.ts`. Later diplomacy response facade dependency cleanup moved
+  approval, App UI execution, notification reads, player-operation validation,
+  payload parsing, and serialization defaults into the diplomacy request owner.
+  This preserves optional notification activation,
   RESPOND_DIPLOMATIC_ACTION send behavior, leader acknowledgement, diplomacy UI
   closeout calls, focused diplomacy package/CLI proof, and existing
   postcondition classification. Runtime/live-game proof, telemetry, AI
@@ -2222,9 +2226,10 @@ All future agent waves must be framed before delegation:
   operation source relocation. It moves only the App UI narrative choice
   command builder and embedded source into
   `src/play/operations/narrative-request.ts` while keeping public facade exports
-  in `index.ts`. The facade still injects approval, App UI execution,
-  notification reads, player-operation validation, payload parsing, ComponentID
-  validation, and serialization. This preserves CHOOSE_NARRATIVE_STORY_DIRECTION
+  in `index.ts`. Later narrative choice facade dependency cleanup moved
+  approval, App UI execution, notification reads, player-operation validation,
+  payload parsing, ComponentID validation, and serialization defaults into the
+  narrative request owner. This preserves CHOOSE_NARRATIVE_STORY_DIRECTION
   send behavior, narrative popup/panel closeout calls, focused narrative
   package/CLI proof, and existing postcondition classification. Runtime/live-game
   proof, telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
@@ -2831,3 +2836,82 @@ All future agent waves must be framed before delegation:
   semantic envelopes, debug/internal service boundary work, and Effect/oRPC
   procedure-core implementation remain blocked pending named source/proof
   owners and accepted matrix rows.
+- Semantic CLI envelope contract planning:
+  `workstream/semantic-cli-envelope-contract.md` now records the planned normal
+  `game play` semantic envelope slots, normal CLI exclusions, proof-class
+  separation, acceptance gaps, and stop conditions for the Semantic CLI
+  Player-Agent View matrix row. This reduces the row's contract-artifact gap
+  only; it does not implement CLI semantic output, accept Task 2.9.4, claim
+  runtime/live-game proof, create an AI-ingestion or telemetry contract, assign
+  a schema/test owner, or unblock debug/internal service, hotseat runtime,
+  schema migration, or Effect/oRPC procedure-core implementation.
+- Debug/internal service projection contract planning:
+  `workstream/debug-service-projection-contract.md` now records the planned raw
+  diagnostic field classes, normal-summary boundary, AI-ingestion boundary,
+  procedure-core boundary, acceptance gaps, and stop conditions for the
+  Debug/Internal Service Output matrix row. This reduces the row's
+  contract-artifact gap only; it does not implement debug hierarchy output,
+  accept Task 2.9.4, claim runtime/live-game proof, create a telemetry or
+  AI-ingestion contract, assign source/proof owners, or unblock normal CLI
+  semantic envelopes, hotseat runtime, schema migration, or Effect/oRPC
+  procedure-core implementation.
+- Operation/proof telemetry contract planning:
+  `workstream/operation-proof-telemetry-contract.md` now records the planned
+  action/proof telemetry record slots, projection boundaries, proof-class
+  separation, acceptance gaps, and stop conditions for the Operation/Proof
+  Telemetry matrix row. This reduces the row's contract-artifact gap only; it
+  does not implement telemetry schemas or persistence, accept Task 2.9.4, claim
+  runtime/live-game proof, create AI-ingestion or procedure-core contracts,
+  assign source/proof owners, or unblock normal CLI semantic envelopes,
+  debug/internal service implementation, hotseat runtime, schema migration, or
+  Effect/oRPC procedure-core implementation.
+- Strategy/intelligence ingestion contract planning:
+  `workstream/strategy-intelligence-ingestion-contract.md` now records the
+  planned AI-ingestion record families, required source/freshness/evidence
+  labels, normal/debug/telemetry/procedure projection boundaries, live external
+  play versus static native-AI profile lane separation, acceptance gaps, and
+  stop conditions for the Strategy/Intelligence Ingestion matrix row. This
+  reduces the row's contract-artifact gap only; it does not implement
+  AI-ingestion schemas, generate corpus/model/profile artifacts, accept Task
+  2.9.4, claim runtime/live-game proof, create telemetry or procedure-core
+  contracts, assign source/proof owners, or unblock normal CLI semantic
+  envelopes, debug/internal service implementation, hotseat runtime, schema
+  migration, or Effect/oRPC procedure-core implementation.
+- Hotseat handoff contract planning:
+  `workstream/hotseat-handoff-contract.md` now records the planned handoff
+  state slots, runtime proof gates, projection boundaries, acceptance gaps, and
+  stop conditions for the Hotseat Handoff State matrix row. This reduces the
+  row's contract-artifact gap only; it does not implement hotseat runtime
+  source, accept Task 2.9.4, claim runtime/live-game proof, assign source/proof
+  owners, wake the play thread, approve any live action, or unblock normal CLI
+  semantic envelopes, telemetry, AI ingestion, debug/internal service
+  implementation, schema migration, or Effect/oRPC procedure-core
+  implementation.
+- Effect/oRPC procedure-core contract planning:
+  `workstream/procedure-core-contract.md` now records the planned procedure
+  atom slots, router families, schema ownership boundary, middleware boundary,
+  projection policy, proof boundaries, acceptance gaps, and stop conditions for
+  the Effect/oRPC Procedure Cores matrix row. This reduces the row's
+  contract-artifact gap only; it does not implement Effect/oRPC source,
+  migrate schemas, add transport adapters, implement the in-game controller
+  router, accept Task 2.9.4, claim runtime/live-game proof, assign source/proof
+  owners, or unblock normal CLI semantic envelopes, telemetry, AI ingestion,
+  debug/internal service implementation, hotseat runtime, schema migration, or
+  Effect/oRPC procedure-core implementation.
+- Procedure schema blocker wording alignment:
+  Task 2.9.4 and Task 6.2 now distinguish the already-recorded TypeBox versus
+  Effect Schema report disposition from the still-missing concrete schema-slice
+  ownership and tests. The bounded-hybrid report disposition remains planning
+  evidence only; procedure-core row acceptance still requires named
+  TypeBox/Effect Schema/Zod adapter ownership, source/proof owners, and
+  procedure-core validation over stable direct-control atoms. This does not
+  accept Task 2.9.4, migrate schemas, add Effect Schema artifacts, implement
+  Effect/oRPC source, or unblock 5.x/6.x work.
+- Compatibility contract-artifact status:
+  `workstream/compatibility-matrix.md` now summarizes that all six row contract
+  artifacts are recorded: hotseat handoff, semantic CLI envelope,
+  strategy/intelligence ingestion, debug/internal service projection,
+  operation/proof telemetry, and Effect/oRPC procedure core. This closes only
+  the `contractArtifact` planning sub-gap. It does not accept Task 2.9.4,
+  assign source/proof/schema owners, add tests, prove runtime behavior, or
+  unblock any dependent implementation lane.
