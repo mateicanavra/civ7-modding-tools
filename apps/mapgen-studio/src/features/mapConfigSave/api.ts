@@ -1,10 +1,16 @@
-// Map-config save/deploy HTTP surface and its persistence key.
+// Map-config save/deploy data surface and its persistence key.
 //
-// Thin `fetch` wrappers over the `/api/map-configs*` endpoints plus the
-// localStorage key used to correlate the last save/deploy request across
-// dev-server reloads. Extracted verbatim from `App.tsx` during the
-// app-decomposition slice — request shapes, error handling, and the key string
-// are unchanged (localStorage contract preserved).
+// EVERYTHING talks oRPC (FRAME §4.7): these callers speak the studio's own
+// `@civ7/studio-server` contract through the typed oRPC client (`src/lib/orpc.ts`)
+// — there is NO manual `fetch` of `/api/map-configs*` here anymore. The request
+// shapes, the running-status poll loop, the error handling, and the localStorage
+// key string are preserved verbatim (localStorage contract is hard-core parity):
+// only the transport moved from `fetch` to the oRPC client. The non-uniform error
+// codes (saveDeploy validation → 400, status miss → 404) survive on
+// `ORPCError.status`.
+import { ORPCError } from "@orpc/client";
+
+import { orpcClient } from "../../lib/orpc";
 import { delay } from "../../shared/async";
 import type { MapConfigSaveDeployStatus } from "./status";
 
@@ -19,18 +25,22 @@ export function toConfigId(label: string): string {
   return id || `map-config-${Date.now()}`;
 }
 
+/** Map a thrown oRPC client error to `{ error, statusCode }` (legacy code via `ORPCError.status`). */
+function saveDeployFailure(err: unknown, fallback: string): { error: string; statusCode?: number } {
+  if (err instanceof ORPCError) {
+    return { error: err.message || `HTTP ${err.status}`, statusCode: err.status };
+  }
+  return { error: err instanceof Error ? err.message : fallback };
+}
+
 export async function fetchMapConfigSaveDeployStatus(
   requestId: string,
 ): Promise<MapConfigSaveDeployStatus | { ok: false; error: string; statusCode?: number }> {
   try {
-    const res = await fetch(`/api/map-configs/status?requestId=${encodeURIComponent(requestId)}`);
-    const body = (await res.json().catch(() => null)) as (Partial<MapConfigSaveDeployStatus> & { error?: string }) | null;
-    if (!res.ok || !body?.requestId) {
-      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, statusCode: res.status };
-    }
+    const body = await orpcClient.mapConfigs.status({ requestId });
     return body as MapConfigSaveDeployStatus;
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Save/Deploy status unavailable" };
+    return { ok: false, ...saveDeployFailure(err, "Save/Deploy status unavailable") };
   }
 }
 
@@ -62,16 +72,20 @@ export async function saveRepoBackedConfig(args: {
     config: args.config,
   };
   try {
-    const res = await fetch("/api/map-configs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestId: args.requestId, id: args.id, sourcePath: args.sourcePath, envelope }),
-    });
-    const body = (await res.json().catch(() => null)) as (Partial<MapConfigSaveDeployStatus> & { error?: string }) | null;
-    if (!res.ok || !body?.requestId) {
-      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, path: body?.path };
+    let status: MapConfigSaveDeployStatus;
+    try {
+      status = (await orpcClient.mapConfigs.saveDeploy({
+        requestId: args.requestId,
+        id: args.id,
+        sourcePath: args.sourcePath,
+        envelope,
+      })) as MapConfigSaveDeployStatus;
+    } catch (err) {
+      // Parity: a saveDeploy throw carried `path` in the legacy body when present;
+      // the oRPC error data does not, so we surface the failure without a path
+      // (the engine only attaches `path` to the in-progress status, polled below).
+      return { ok: false, ...saveDeployFailure(err, "Repo config save failed") };
     }
-    let status = body as MapConfigSaveDeployStatus;
     args.onStatus?.(status);
     while (status.status === "running") {
       await delay(500);

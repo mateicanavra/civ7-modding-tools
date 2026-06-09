@@ -56,7 +56,8 @@
     "react-dom": "^19.2.4",
     "sonner": "2.0.7",
     "tailwind-merge": "latest",
-    "typebox": "^1.0.80"
+    "typebox": "^1.0.80",
+    "zustand": "5.0.14"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.13",
