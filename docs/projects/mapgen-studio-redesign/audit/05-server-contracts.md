@@ -1,5 +1,23 @@
 # 05 — Server Boundary / API Contract Inventory
 
+> **RE-BASELINE (2026-06-08, control seam):** This inventory is **scoped to the
+> studio-server surface** (map authoring, save/deploy, run-in-game, setup catalog —
+> the `runInGame.*` / `mapConfigs.*` / `civ7.*` endpoints below). It remains the
+> source of truth **for that surface**, which the studio builds (P5).
+>
+> The **live-game read surface** — endpoints #1–#7 and #10 here that today read
+> FireTuner via `@civ7/direct-control` (`civ7/status`, `map-summary`, `gameinfo`,
+> `live/status`, `live/snapshot`, `live/entities`, `live/gameinfo`, `setup-config`)
+> — is **superseded** by the **control-oRPC seam**. Those reads are **designed-toward
+> the tip of the live-control `codex/*` stack, not yet on `main`**: the studio will
+> consume `world.*` / `readiness.*` / `attention.*` through the
+> `Civ7IntelligenceBridge` ingress via a thin `LiveControlPort`, **not** by reading
+> FireTuner. See [`architecture/12-control-seam.md`](../architecture/12-control-seam.md)
+> for the target contract surface and the adapter seam. **No FireTuner reads from
+> the studio.** The `Effect service mapping` / `Parity risk` columns for those read
+> rows describe the **legacy** path retained only behind the seam's fallback adapter
+> until the control package binds.
+
 **Lane:** server-boundary / API-contract corpus for the `effect-orpc` router migration.
 **Scope:** `apps/mapgen-studio`. Current "server" = hand-rolled `server.middlewares.use("/api/...")` handlers inside `vite.config.ts` (`configureServer`, lines 379–1147) plus helper modules under `src/server/*`. Client calls via raw `fetch` in `src/App.tsx`.
 **Goal:** every endpoint captured so the oRPC router implements exact behavior parity. Cited `file:line` against the snapshot at the head of this branch.
