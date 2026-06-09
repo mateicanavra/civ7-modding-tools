@@ -1,9 +1,12 @@
 import { Civ7DirectControlError } from "../../direct-control-error";
 
 import type {
+  Civ7ActionApproval,
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7MapBounds,
+  Civ7RevealMapResult,
+  Civ7RuntimeProbe,
   Civ7VisibilitySummaryInput,
   Civ7VisibilitySummaryResult,
 } from "../../index";
@@ -19,6 +22,16 @@ type VisibilityReadDependencies = Readonly<{
   validateMapBounds: (bounds: Civ7MapBounds) => void;
   validatePlayerId: (playerId: number) => number;
 }>;
+
+type VisibilityRevealDependencies = VisibilityReadDependencies &
+  Readonly<{
+    assertApproved: (approval: Civ7ActionApproval, action: string) => void;
+    getVisibilitySummary: (
+      input: Civ7VisibilitySummaryInput,
+      options?: Civ7DirectControlOptions,
+    ) => Promise<Civ7VisibilitySummaryResult>;
+    probeValue: <T>(probe: Civ7RuntimeProbe<T>) => T | undefined;
+  }>;
 
 export async function getCiv7VisibilitySummary(
   input: Civ7VisibilitySummaryInput,
@@ -47,6 +60,46 @@ export async function getCiv7VisibilitySummary(
     ),
   });
   return dependencies.parseVisibilitySummary(result, "Civ7 visibility summary");
+}
+
+export async function revealCiv7MapForPlayer(
+  input: Readonly<{ playerId: number }>,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+  dependencies: VisibilityRevealDependencies,
+): Promise<Civ7RevealMapResult> {
+  dependencies.assertApproved(approval, "revealing the Civ7 map");
+  if (!approval.disposableSession) {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "Map reveal requires disposableSession approval",
+    );
+  }
+  const playerId = dependencies.validatePlayerId(input.playerId);
+  const before = await dependencies.getVisibilitySummary({ playerId }, options);
+  const command = await dependencies.executeTunerCommand({
+    ...options,
+    command: `Visibility.revealAllPlots(${playerId})`,
+  });
+  const after = await dependencies.getVisibilitySummary({ playerId }, options);
+  const beforeCount = dependencies.probeValue(before.numPlotsRevealed);
+  const afterCount = dependencies.probeValue(after.numPlotsRevealed);
+  const classification =
+    beforeCount !== undefined && afterCount !== undefined && afterCount > beforeCount
+      ? "revealed"
+      : beforeCount !== undefined && afterCount !== undefined && afterCount === beforeCount
+        ? "already-revealed"
+        : "unverified";
+  return {
+    host: command.host,
+    port: command.port,
+    state: command.state,
+    playerId,
+    before,
+    after,
+    command,
+    classification,
+  };
 }
 
 function buildVisibilitySummaryCommand(

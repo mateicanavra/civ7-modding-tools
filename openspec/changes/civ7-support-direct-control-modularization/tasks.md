@@ -186,6 +186,13 @@ runtime/direct-control claims.
         keeping the public wrapper in the facade.
   - [x] 4.4.3 Extract notification dismissal wrapper owner while keeping the
         public facade export surface in `index.ts`.
+  - [x] 4.4.4 Extract notification dismissal command builder owner while
+        keeping the public facade export surface in `index.ts`, preserving
+        guarded read/send dismissal command serialization, final identity-based
+        verification, focused package/CLI notification dismissal proof, and
+        leaving runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.5 Extract ready unit/city view atoms.
   - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
         the public wrapper in the facade.
@@ -199,7 +206,7 @@ runtime/direct-control claims.
         export surface in `index.ts`.
   - [x] 4.5.6 Extract ready-city wrapper owner while keeping the public facade
         export surface in `index.ts`.
-- [ ] 4.6 Extract operation validation/send/postcondition atoms.
+- [x] 4.6 Extract operation validation/send/postcondition atoms.
   - [x] 4.6.1 Extract operation router embedded validation/send source owner
         while keeping wrapper-level postconditions and specialized closeouts in
         the facade.
@@ -229,6 +236,53 @@ runtime/direct-control claims.
         panel closeout, validation, and postcondition coverage.
   - [x] 4.6.12 Extract unit-target action source and wrapper owner while
         keeping the public facade export surface in `index.ts`.
+  - [x] 4.6.12 Extract production-choice wrapper owner while keeping the public
+        facade export surface in `index.ts`, preserving approval-first BUILD
+        request orchestration, cityId and production-args validation,
+        validator-first behavior, read-only status payload for invalid
+        pre-validation, bounded post-send polling, production postcondition
+        classification, and package/CLI production proof, and leaving generic
+        operation wrappers, telemetry, AI ingestion, semantic CLI projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.6.13 Extract generic operation validation/request wrapper owner while
+        keeping the public facade export surface in `index.ts`, preserving
+        unit/city/player operation and command validation, approval-first send
+        behavior, validator-first requests, operation router source routing,
+        unit/population/production postcondition classification, and package
+        proof for unit operations and population placement, and leaving
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.14 Extract diplomacy response closeout source owner while keeping
+        the public facade export surface in `index.ts`, preserving App UI
+        response-panel closeout source text, optional notification activation,
+        RESPOND_DIPLOMATIC_ACTION send behavior, UI closeout calls, focused
+        diplomacy package/CLI proof, and leaving runtime/live-game proof,
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.15 Extract narrative choice source owner while keeping the public
+        facade export surface in `index.ts`, preserving App UI narrative
+        choice source text, CHOOSE_NARRATIVE_STORY_DIRECTION send behavior,
+        narrative popup/panel closeout calls, focused narrative package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.16 Extract technology choice closeout command builder owner while
+        keeping the public facade wrapper in `index.ts`, preserving App UI
+        technology closeout command serialization, optional notification
+        activation, SET_TECH_TREE_NODE / SET_TECH_TREE_TARGET_NODE send
+        behavior, focused technology package/CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.6.17 Extract culture choice closeout command builder owner while
+        keeping the public facade wrapper in `index.ts`, preserving App UI
+        culture closeout command serialization, optional notification
+        activation, SET_CULTURE_TREE_NODE / SET_CULTURE_TREE_TARGET_NODE send
+        behavior, focused culture package/CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
@@ -264,7 +318,7 @@ runtime/direct-control claims.
       or semantic player-agent output.
   - [x] 4.10.1 Extract tuner frame encode/parse owner module behind the
         existing package facade.
-- [ ] 4.11 Extract map/visibility/GameInfo read atoms.
+- [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
         `index.ts`.
@@ -281,6 +335,21 @@ runtime/direct-control claims.
         `index.ts` and leaving reveal mutation, setup map rows, AI ingestion,
         static profile shaping, semantic CLI, telemetry, hotseat runtime proof,
         and Effect/oRPC procedure-core work pending.
+  - [x] 4.11.5 Extract reveal-map mutation wrapper owner while keeping public
+        facade exports in `index.ts`, preserving approval-first and
+        disposable-session guards, player-id validation, visibility before/after
+        reads, `Visibility.revealAllPlots` command text, classification shape,
+        and leaving setup map rows to 4.11.6 plus AI ingestion, static profile
+        shaping, semantic CLI, telemetry, hotseat runtime proof, and
+        Effect/oRPC procedure-core work pending.
+  - [x] 4.11.6 Extract setup snapshot and setup map rows read/source owner while
+        keeping public facade exports in `index.ts`, preserving setup map script
+        validation, `limit` default/bounds, setup-domain/config-db row
+        materialization, setup snapshot phase/config shape, and lifecycle helper
+        reuse of the same setup source while leaving prepare/start/restart
+        lifecycle orchestration, AI ingestion, static profile shaping, semantic
+        CLI, telemetry, hotseat runtime proof, and Effect/oRPC procedure-core
+        work pending.
 - [ ] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as
@@ -304,6 +373,108 @@ runtime/direct-control claims.
         root inspection, capability catalog, telemetry, hotseat runtime proof,
         AI ingestion, CLI semantic projection, and Effect/oRPC procedure-core
         work pending.
+  - [x] 4.12.4 Extract proof/log helper owner while keeping the public facade
+        export surface in `index.ts`, preserving `snapshotFile` /
+        `waitForFreshLogMarkers` behavior, and leaving capability catalog,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, and Effect/oRPC procedure-core work pending.
+  - [x] 4.12.5 Extract capability catalog source owner while keeping public
+        facade exports in `index.ts`, injecting runtime root inspection from the
+        facade, preserving static/runtime/official-resource catalog behavior,
+        and leaving TypeBox schema ownership, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection, and
+        Effect/oRPC procedure-core work pending.
+  - [x] 4.12.6 Extract playable-status composition owner while keeping public
+        facade exports in `index.ts`, preserving App UI/Tuner health
+        composition, shell/playable/readiness classification, and unready error
+        capture, and leaving bounded root inspection, TypeBox schema ownership,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, and Effect/oRPC procedure-core work pending.
+  - [x] 4.12.7 Extract bounded root inspection owner while keeping public
+        facade exports in `index.ts`, preserving root identifier validation,
+        bounds, state default, JSON parse label, command serialization, and
+        result shape, and leaving TypeBox schema ownership, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.12.8 Extract capability catalog schema owner while keeping public
+        facade exports in `index.ts`, preserving TypeBox catalog entry/catalog
+        schema shape and catalog result typing, and leaving broader public
+        constants/types, procedure schemas, operation/proof telemetry, hotseat
+        runtime proof, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.9 Extract runtime inspection constants owner while keeping public
+        facade re-exports in `index.ts`, preserving default App UI/Tuner root
+        catalogs and bounded root `maxKeys`/`maxMethods` defaults, and leaving
+        broader public constants/types, procedure schemas, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+- [x] 4.13 Extract autoplay and turn-completion atoms.
+  - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
+        facade exports in `index.ts`, preserving approval-first send/unready
+        behavior, guard-first status read, stale notification fallback
+        classification, command strings, parse label, and action result shape,
+        and leaving autoplay source ownership, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.13.2 Extract autoplay status/configure/start/stop source ownership
+        while keeping public facade exports in `index.ts`, preserving approval
+        gates, bounded turn/player validation, explicit unbounded start
+        semantics, stop-settling/pause behavior, command strings, and result
+        shapes, and leaving hotseat runtime proof, AI ingestion, CLI semantic
+        projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+- [x] 4.14 Extract setup/start lifecycle atoms.
+  - [x] 4.14.1 Extract setup snapshot and setup map rows read/source owner while
+        keeping public facade exports in `index.ts` and leaving
+        `ensureCiv7SetupMapRowVisible`, `prepareCiv7SinglePlayerSetup`,
+        `startPreparedCiv7SinglePlayerGame`, `runCiv7SinglePlayerFromSetup`,
+        restart/begin lifecycle orchestration, no-replay semantics, runtime
+        proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.2 Extract setup map-row visibility refresh owner while keeping
+        public facade exports in `index.ts`, preserving approval-first
+        exit-to-shell refresh, setup map-row polling, command strings, and
+        verified result shape, and leaving `prepareCiv7SinglePlayerSetup`,
+        `startPreparedCiv7SinglePlayerGame`, `runCiv7SinglePlayerFromSetup`,
+        restart/begin lifecycle orchestration, no-replay semantics, runtime
+        proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.3 Extract single-player setup preparation owner while keeping
+        public facade exports in `index.ts`, preserving approval-first setup
+        mutation, setup snapshot readback, map-row proof, setup option
+        validation, prepare command source, and no-replay-after-socket-close
+        proof, and leaving `startPreparedCiv7SinglePlayerGame`,
+        `runCiv7SinglePlayerFromSetup`, restart/begin lifecycle orchestration,
+        runtime proof, AI ingestion, semantic CLI projection, telemetry,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.14.4 Extract prepared single-player start owner while keeping public
+        facade exports in `index.ts`, preserving approval-first start,
+        pre-start setup readback, host-game command source, begin polling,
+        one-attempt begin send, Tuner/map verification, seed mismatch
+        classification, and no-replay-after-begin-close package proof, and
+        leaving `runCiv7SinglePlayerFromSetup`, restart/begin lifecycle
+        orchestration, runtime proof, AI ingestion, semantic CLI projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.14.5 Extract single-player setup run owner while keeping public facade
+        exports in `index.ts`, preserving approval-first run orchestration,
+        active-game rejection unless `fromRunningGame: "exit-to-shell"` is
+        supplied, exit-to-main-menu command routing, shell wait, prepare/start
+        composition, verified result shape, and existing no-replay package
+        proof, and leaving restart/begin lifecycle orchestration, runtime
+        proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.6 Extract restart/begin lifecycle owner while keeping public facade
+        exports in `index.ts`, preserving App UI restart command routing,
+        restart-output rejection, begin notification command routing,
+        GameStarted polling, one-attempt begin send, optional Tuner readiness
+        wait, and restart lifecycle package proof, and leaving runtime proof,
+        hotseat runtime proof, AI ingestion, semantic CLI projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

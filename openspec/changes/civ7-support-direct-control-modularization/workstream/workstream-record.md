@@ -445,6 +445,86 @@ All future agent waves must be framed before delegation:
   telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection, and
   Effect/oRPC procedure-core work stay pending. This is local package/source
   relocation proof only, not runtime proof.
+- Direct-control proof/log helper slice: completed as a narrow local helper
+  relocation. It moves only `FileSnapshot`, `FreshLogMarkerProof`,
+  `snapshotFile`, `waitForFreshLogMarkers`, and private ordered-marker/file
+  helpers into `src/proof/log-markers.ts` while keeping public facade exports
+  in `index.ts`. Capability catalog, operation/proof telemetry, AI ingestion,
+  hotseat runtime proof, CLI semantic projection, and Effect/oRPC
+  procedure-core work stay pending. A returned `FreshLogMarkerProof` remains
+  local/log evidence and is not live runtime proof by itself.
+- Direct-control capability catalog source slice: completed as a narrow catalog
+  relocation. It moves static catalog construction, runtime inspection catalog
+  construction, official-resource capability scanning, sorting/deduplication,
+  and private catalog helpers into `src/catalog/capabilities.ts` while keeping
+  public facade exports in `index.ts`. Runtime root inspection is injected from
+  the facade to avoid executable back-imports. A later schema slice moved the
+  catalog TypeBox schemas into the same owner. Operation/proof telemetry, AI
+  ingestion, hotseat runtime proof, CLI semantic projection, broader
+  schema/type/procedure-core ownership, and Task 2.9.4 matrix-row acceptance
+  stay pending. This is local package/source relocation proof only, not runtime
+  proof or AI/hotseat product-path support.
+- Direct-control playable-status slice: completed as a narrow runtime-status
+  composition relocation. It moves only `getCiv7PlayableStatus` composition into
+  `src/runtime/playable-status.ts` while keeping public facade exports in
+  `index.ts` and injecting App UI snapshot, Tuner health, and error-message
+  dependencies from the facade. This preserves shell/playable/readiness
+  classification and unready error capture. Bounded root inspection was
+  extracted in the later runtime inspection slice; capability catalog schemas
+  were extracted in the later catalog schema slice. Broader public and procedure
+  schemas, operation/proof telemetry, AI ingestion, hotseat runtime proof, CLI
+  semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance stay pending. This is local package/source relocation
+  proof only, not runtime proof or AI/hotseat product-path support.
+- Direct-control bounded root inspection slice: completed as a narrow
+  debug/internal inspection relocation. It moves only `inspectCiv7Root` and the
+  generated bounded root inspection command builder into
+  `src/runtime/root-inspection.ts` while keeping public facade exports in
+  `index.ts` and injecting command execution, validation, bounds, JSON parsing,
+  command serialization, and error construction from the facade. This preserves
+  root identifier validation, `maxRoots`/`maxKeys`/`maxMethods`, state default,
+  parse label, command serialization, and result shape. Capability catalog
+  schemas were extracted in the later catalog schema slice. Broader public and
+  procedure schemas, operation/proof telemetry, AI ingestion, hotseat runtime
+  proof, CLI semantic projection, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance stay pending. This is local package/source
+  relocation proof only, not runtime proof, runtime reflection authority, or
+  AI/hotseat product-path support.
+- Direct-control capability catalog schema slice: completed as a narrow schema
+  ownership relocation. It moves only `Civ7CapabilityCatalogEntrySchema`,
+  `Civ7CapabilityCatalogSchema`, and their derived catalog entry/result types
+  into `src/catalog/capabilities.ts` while keeping public facade re-exports in
+  `index.ts`. This preserves the TypeBox schema shape and catalog result typing.
+  Broader public constants/types, procedure schemas, operation/proof telemetry,
+  AI ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
+  is local package/schema relocation proof only, not runtime proof, AI/hotseat
+  product-path support, or procedure-core schema readiness.
+- Direct-control runtime inspection constants slice: completed as a narrow
+  constants ownership relocation. It moves only the default App UI/Tuner API
+  root catalogs and bounded root `maxKeys`/`maxMethods` defaults into
+  `src/runtime/inspection-constants.ts` while keeping public facade re-exports
+  in `index.ts`. This preserves runtime API default-root selection and bounded
+  root cap defaults. Broader public constants/types, procedure schemas,
+  operation/proof telemetry, AI ingestion, hotseat runtime proof, CLI semantic
+  projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance stay pending. This is local package/constants relocation proof
+  only, not runtime proof, runtime reflection authority, AI/hotseat product-path
+  support, or procedure-core readiness.
+- Direct-control turn-completion slice: completed as a narrow turn-completion
+  source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
+  `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,
+  and the private turn-completion fallback classifier helpers into
+  `src/play/turn-completion.ts` while keeping public facade exports in
+  `index.ts` and injecting App UI execution, JSON parsing, notification reads,
+  and approval assertion from the facade. This preserves approval-first
+  send/unready behavior, guard-first status read, stale notification fallback
+  classification, command strings, parse label, and action result shape.
+  Autoplay source ownership, hotseat runtime proof, AI ingestion, CLI semantic
+  projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance stay pending. This is local package/source relocation
+  proof only, not runtime proof, live-game proof, hotseat product-path support,
+  or procedure-core readiness.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.
@@ -473,6 +553,29 @@ All future agent waves must be framed before delegation:
   technology and culture chooser closeout sources into
   `src/play/progression/{technology,culture}.ts`. Public wrapper ownership stays
   in `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control technology choice closeout builder slice: completed as a
+  narrow progression closeout command-builder relocation. It moves only the
+  App UI technology choice closeout command builder into
+  `src/play/progression/technology.ts` while keeping the public facade wrapper
+  in `index.ts`. The facade still owns approval, App UI execution, player-id and
+  node validation, payload parsing, and serialization injection. This preserves
+  optional notification activation, SET_TECH_TREE_NODE and
+  SET_TECH_TREE_TARGET_NODE send behavior, focused technology package/CLI proof,
+  and existing pending runtime/live-game proof. Telemetry, AI ingestion,
+  semantic CLI projection, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance remain pending. This is local package/source relocation
+  proof only, not runtime/live-game proof.
+- Direct-control culture choice closeout builder slice: completed as a narrow
+  progression closeout command-builder relocation. It moves only the App UI
+  culture choice closeout command builder into `src/play/progression/culture.ts`
+  while keeping the public facade wrapper in `index.ts`. The facade still owns
+  approval, App UI execution, player-id and node validation, payload parsing,
+  and serialization injection. This preserves optional notification activation,
+  SET_CULTURE_TREE_NODE and SET_CULTURE_TREE_TARGET_NODE send behavior, focused
+  culture package/CLI proof, and existing pending runtime/live-game proof.
+  Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
 - Direct-control production-choice source slice: completed as the next
   operation action source relocation. It moves only the embedded production
   choice source into `src/play/operations/production-choice.ts`. The public
@@ -527,6 +630,18 @@ All future agent waves must be framed before delegation:
   for guarded read/send, identity-based verification, and stale engine-front
   rejection paths. This is local package/source relocation proof only, not
   runtime proof.
+- Direct-control notification dismissal builder slice: completed as a narrow
+  notification command-builder relocation. It moves only the guarded read/send
+  App UI dismissal command builder into
+  `src/play/notifications/dismissal-request.ts` while keeping public facade
+  exports in `index.ts`. The facade still owns App UI execution, payload
+  parsing, approval assertion, and serialization injection. This preserves
+  notification dismissal read/send command serialization, final identity-based
+  verification, focused package/CLI notification dismissal proof, and existing
+  pending runtime/live-game proof. Telemetry, AI ingestion, semantic CLI
+  projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance remain pending. This is local package/source relocation proof only,
+  not runtime/live-game proof.
 - Direct-control narrative choice verification helper slice: completed as the
   next specialized closeout-helper relocation. It first expands
   `test/narrative-choice.test.ts` to cover same-blocker `no-state-change` and
@@ -631,6 +746,163 @@ All future agent waves must be framed before delegation:
   `test/ready-city-view.test.ts` and the focused CLI ready-city suite remain
   the proof owners. This is local package/source relocation proof only, not
   runtime proof.
+- Direct-control autoplay slice: completed as a narrow mutation-facing
+  autoplay wrapper/source relocation. It moves only `getCiv7AutoplayStatus`,
+  `configureCiv7Autoplay`, `startCiv7Autoplay`, `stopCiv7Autoplay`, autoplay
+  command builders, player inference, config matching, and wait/stop-settling
+  helpers into `src/play/autoplay.ts` while keeping public facade exports in
+  `index.ts`. The slice preserves approval-first configuration/start/stop,
+  bounded turns/player validation, explicit unbounded start behavior, native
+  pause-before-stop settling, command strings, and result shapes. This is local
+  package/source relocation proof only, not runtime proof; hotseat runtime
+  proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
+- Direct-control reveal-map slice: completed as a narrow mutation-facing
+  visibility wrapper relocation. It moves only `revealCiv7MapForPlayer`
+  orchestration and reveal classification into `src/play/map/visibility.ts`
+  while keeping public facade exports in `index.ts`. The slice preserves
+  approval-first and disposable-session guards, player-id validation, visibility
+  before/after reads, `Visibility.revealAllPlots` command text, and result
+  classification shape. This is local package/source relocation proof only, not
+  live-game proof; setup map rows, AI ingestion, static profile shaping,
+  semantic CLI projection, telemetry, hotseat runtime proof, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
+- Direct-control setup reads slice: completed as a narrow setup read/source
+  relocation. It moves only `getCiv7SetupSnapshot`, `getCiv7SetupMapRows`,
+  their command builders, shared setup snapshot/map-row source, and
+  `validateMapScript` into `src/setup/reads.ts` while keeping public facade
+  exports in `index.ts`. Lifecycle orchestration still reuses the same setup
+  source through an internal helper import, but `ensureCiv7SetupMapRowVisible`,
+  `prepareCiv7SinglePlayerSetup`, `startPreparedCiv7SinglePlayerGame`,
+  `runCiv7SinglePlayerFromSetup`, restart/begin lifecycle orchestration, and
+  no-replay semantics remain in the facade for later setup/lifecycle owner
+  slices. This is local package/source relocation proof only, not runtime proof;
+  hotseat runtime proof, AI ingestion, semantic CLI projection, telemetry,
+  Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
+  pending.
+- Direct-control setup map-row refresh slice: completed as a narrow
+  setup/lifecycle source relocation. It moves only
+  `ensureCiv7SetupMapRowVisible` plus the private setup phase and map-row
+  polling helpers needed by its exit-to-shell refresh path into
+  `src/setup/reads.ts` while keeping the public facade export in `index.ts`.
+  This preserves map script validation, `limit` default/bounds, approval-first
+  refresh, exit-to-main-menu and reload command strings, setup map-row polling,
+  and verified result shape. `prepareCiv7SinglePlayerSetup`,
+  `startPreparedCiv7SinglePlayerGame`, `runCiv7SinglePlayerFromSetup`,
+  restart/begin lifecycle orchestration, no-replay semantics, hotseat runtime
+  proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
+  This is local package/source relocation proof only, not runtime/live-game
+  proof.
+- Direct-control setup preparation slice: completed as a narrow
+  setup/lifecycle source relocation. It moves only
+  `prepareCiv7SinglePlayerSetup`, the generated setup preparation command,
+  setup input normalization, setup map-row/readback assertions, and private
+  setup parameter helpers into `src/setup/prepare.ts` while keeping the public
+  facade export in `index.ts`. `startPreparedCiv7SinglePlayerGame` and
+  `runCiv7SinglePlayerFromSetup` still reuse the internal normalization and
+  readback helpers until their owner slices move. This preserves
+  approval-first setup mutation, setup snapshot readback, setup map-row proof,
+  setup option validation, command string/source shape, and
+  no-replay-after-socket-close package proof. Start/run, restart/begin
+  lifecycle orchestration, remaining no-replay ownership, hotseat runtime proof,
+  AI ingestion, semantic CLI projection, telemetry, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
+- Direct-control prepared start slice: completed as a narrow setup/lifecycle
+  source relocation. It moves only `startPreparedCiv7SinglePlayerGame`, the
+  generated prepared-start command, begin polling, setup pre-readback, Tuner/map
+  verification, and post-start seed assertion into `src/setup/start.ts` while
+  keeping the public facade export in `index.ts`. The facade still injects
+  session creation/close, reconnect execution, Tuner readiness, map summary
+  reads, approval assertion, command parsing, and constants. This preserves
+  approval-first start, host-game command source, one-attempt begin send,
+  no-replay-after-begin-close package proof, setup-start timeout details, and
+  seed mismatch classification. `runCiv7SinglePlayerFromSetup`, restart/begin
+  lifecycle orchestration, remaining no-replay ownership, hotseat runtime proof,
+  AI ingestion, semantic CLI projection, telemetry, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
+- Direct-control setup run slice: completed as a narrow setup/lifecycle source
+  relocation. It moves only `runCiv7SinglePlayerFromSetup` composition,
+  active-game rejection unless `fromRunningGame: "exit-to-shell"` is supplied,
+  exit-to-main-menu command routing, shell wait, prepare/start chaining, and
+  verified result shape into `src/setup/run.ts` while keeping the public facade
+  export in `index.ts`. The facade still injects App UI execution, setup
+  snapshot reads, setup phase waits, prepare/start wrappers, approval assertion,
+  validation helpers, and constants. This preserves approval-first run
+  orchestration, shell-exit behavior, existing prepare/start proof, and
+  no-replay package proof. Restart/begin lifecycle orchestration, remaining
+  no-replay ownership, hotseat runtime proof, AI ingestion, semantic CLI
+  projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance remain pending. This is local package/source relocation
+  proof only, not runtime/live-game proof.
+- Direct-control restart/begin slice: completed as a narrow setup/lifecycle
+  source relocation. It moves only `beginCiv7Game`, `restartCiv7Game`, and
+  `restartCiv7GameAndBegin` orchestration into `src/setup/restart.ts` while
+  keeping public facade exports in `index.ts`. The facade still injects App UI
+  execution, command execution, session creation/close, reconnect execution,
+  Tuner readiness, loading-state constants, and command constants. This
+  preserves App UI restart command routing, restart-output rejection,
+  begin-notification command routing, GameStarted polling, one-attempt begin
+  send, optional Tuner readiness wait, and restart lifecycle package proof.
+  Runtime/live-game proof, hotseat runtime proof, AI ingestion, semantic CLI
+  projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance remain pending. This is local package/source relocation
+  proof only, not runtime/live-game proof.
+- Direct-control production-choice wrapper slice: completed as a narrow
+  operation source relocation. It moves only `requestCiv7ProductionChoice`
+  orchestration, the private production-choice command builder, production
+  argument validation, read-only status payload reads, and bounded post-send
+  polling into `src/play/operations/production-choice.ts` while keeping the
+  public facade export in `index.ts`. The facade still injects approval,
+  ComponentID validation, App UI execution, city-operation validation,
+  payload parsing, and serialization. This preserves approval-first BUILD
+  request behavior, validator-first sends, invalid-prevalidation no-send
+  status payloads, production postcondition classification, and package/CLI
+  production proof. Generic operation wrapper composition, telemetry, AI
+  ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
+  Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
+- Direct-control generic operation wrapper slice: completed as a narrow
+  operation source relocation. It moves only the public generic
+  unit/city/player operation and command validation/request wrapper
+  composition, the private operation validation/request command builders,
+  operation input validation, validator-first request flow, and
+  unit/population/production postcondition composition into
+  `src/play/operations/validate-request.ts` while keeping public facade exports
+  in `index.ts`. The facade still injects approval, Tuner execution, command
+  parsing, and serialization. This preserves approval-first send behavior,
+  operation router source routing, unit-operation and population-placement
+  package proof, and production postcondition composition. Telemetry, AI
+  ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
+  Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
+- Direct-control diplomacy closeout source slice: completed as a narrow
+  operation source relocation. It moves only the App UI diplomacy response
+  closeout command builder and embedded closeout source into
+  `src/play/operations/diplomacy-request.ts` while keeping public facade exports
+  in `index.ts`. The facade still injects approval, App UI execution,
+  notification reads, player-operation validation, payload parsing, and
+  serialization. This preserves optional notification activation,
+  RESPOND_DIPLOMATIC_ACTION send behavior, leader acknowledgement, diplomacy UI
+  closeout calls, focused diplomacy package/CLI proof, and existing
+  postcondition classification. Runtime/live-game proof, telemetry, AI
+  ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
+  Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
+- Direct-control narrative choice source slice: completed as a narrow
+  operation source relocation. It moves only the App UI narrative choice
+  command builder and embedded source into
+  `src/play/operations/narrative-request.ts` while keeping public facade exports
+  in `index.ts`. The facade still injects approval, App UI execution,
+  notification reads, player-operation validation, payload parsing, ComponentID
+  validation, and serialization. This preserves CHOOSE_NARRATIVE_STORY_DIRECTION
+  send behavior, narrative popup/panel closeout calls, focused narrative
+  package/CLI proof, and existing postcondition classification. Runtime/live-game
+  proof, telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending. This
+  is local package/source relocation proof only, not runtime/live-game proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now

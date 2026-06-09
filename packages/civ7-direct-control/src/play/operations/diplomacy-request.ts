@@ -1,4 +1,4 @@
-import { diplomacyResponsePostcondition, waitForCiv7DiplomacyResponseAfter } from "./diplomacy-postconditions";
+import { diplomacyResponsePostcondition, waitForCiv7DiplomacyResponseAfter } from "./diplomacy-postconditions.js";
 
 import type {
   Civ7ActionApproval,
@@ -17,7 +17,6 @@ type DiplomacyResponseRequestDependencies = Readonly<{
   executeAppUiCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,
   ) => Promise<Civ7CommandResult>;
-  buildDiplomacyResponseCloseoutCommand: (input: Civ7DiplomacyResponseInput) => string;
   getPlayNotificationView: (options: Civ7DirectControlOptions) => Promise<Civ7PlayNotificationViewResult>;
   canStartPlayerOperation: (
     input: Readonly<{ playerId: number; operationType: string; args: { ID: number; Type: number } }>,
@@ -27,6 +26,7 @@ type DiplomacyResponseRequestDependencies = Readonly<{
     result: Civ7CommandResult,
     label: string,
   ) => Civ7DiplomacyResponseCommandPayload;
+  jsLiteral: (value: unknown) => string;
   invalidActionIdError: () => never;
   invalidResponseTypeError: () => never;
 }>;
@@ -67,7 +67,7 @@ export async function requestCiv7DiplomacyResponse(
 
   const command = await dependencies.executeAppUiCommand({
     ...options,
-    command: dependencies.buildDiplomacyResponseCloseoutCommand({ ...input, playerId }),
+    command: buildDiplomacyResponseCloseoutCommand({ ...input, playerId }, dependencies),
   });
   const payload = dependencies.parseDiplomacyPayload(command, "Civ7 diplomacy response closeout");
   const after = await waitForCiv7DiplomacyResponseAfter(
@@ -97,4 +97,152 @@ export async function requestCiv7DiplomacyResponse(
     verified: postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change",
     postcondition,
   };
+}
+
+export function buildDiplomacyResponseCloseoutCommand(
+  input: Civ7DiplomacyResponseInput,
+  dependencies: Pick<DiplomacyResponseRequestDependencies, "jsLiteral">,
+): string {
+  return `(() => {
+    ${diplomacyResponseCloseoutSource()}
+    return JSON.stringify(sendDiplomacyResponseCloseout(${dependencies.jsLiteral(input)}));
+  })()`;
+}
+
+export function diplomacyResponseCloseoutSource(): string {
+  return `${probeHelperSource()}
+    const toComponentId = (value) => {
+      if (!value || typeof value !== "object") return null;
+      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
+      const out = { owner: value.owner, id: value.id };
+      if (typeof value.type === "number") out.type = value.type;
+      return out;
+    };
+    const safeCall = (label, fn) => {
+      try {
+        return { ok: true, value: fn() };
+      } catch (err) {
+        return { ok: false, error: label + ": " + String(err) };
+      }
+    };
+    const diplomacyManager = () => typeof DiplomacyManager === "undefined" ? null : DiplomacyManager;
+    const interfaceMode = () => typeof InterfaceMode === "undefined" ? null : InterfaceMode;
+    const leaderModelManager = () => typeof LeaderModelManager === "undefined" ? null : LeaderModelManager;
+    const readDiplomacyState = (input) => ({
+      currentProjectReactionDataActionID: diplomacyManager()?.currentProjectReactionData?.actionID ?? null,
+      currentProjectReactionRequestActionID: diplomacyManager()?.currentProjectReactionRequest?.actionID ?? null,
+      selectedActionID: diplomacyManager()?.selectedActionID ?? null,
+      isShowing: safeCall("DiplomacyManager.isShowing", () => diplomacyManager()?.isShowing?.()),
+      interfaceMode: safeCall("InterfaceMode.getCurrent", () => interfaceMode()?.getCurrent?.()),
+      responseData: safeCall("Game.Diplomacy.getResponseDataForUI", () => Game.Diplomacy.getResponseDataForUI(input.actionId)),
+      eventData: safeCall("Game.Diplomacy.getDiplomaticEventData", () => Game.Diplomacy.getDiplomaticEventData(input.actionId)),
+    });
+    const activateNotification = (notificationId) => {
+      if (!notificationId) return { ok: false, skipped: true, reason: "notificationId not provided" };
+      return safeCall("activate diplomacy response notification", () => {
+        const notification = Game.Notifications.find(notificationId);
+        if (!notification) return { found: false };
+        if (!notification.Target || notification.Target.id == null) return { found: true, target: notification.Target ?? null, activated: false };
+        const manager = diplomacyManager();
+        if (!manager) return { found: true, target: notification.Target, activated: false, reason: "DiplomacyManager unavailable" };
+        if (notification.Target.id != manager.currentProjectReactionData?.actionID && notification.Target.id != manager.currentProjectReactionRequest?.actionID) {
+          manager.currentProjectReactionData = Game.Diplomacy.getResponseDataForUI(notification.Target.id);
+          manager.addCurrentDiplomacyProject(manager.currentProjectReactionData);
+        }
+        return {
+          found: true,
+          target: notification.Target,
+          activated: true,
+          currentProjectReactionDataActionID: manager.currentProjectReactionData?.actionID ?? null,
+          currentProjectReactionRequestActionID: manager.currentProjectReactionRequest?.actionID ?? null,
+        };
+      });
+    };
+    const currentBlockingDiplomacyNotification = (input) => {
+      return safeCall("find current blocking diplomatic-response notification", () => {
+        const blockerType = Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID);
+        const id = Game.Notifications.findEndTurnBlocking(GameContext.localPlayerID, blockerType);
+        const notificationId = toComponentId(id);
+        const notification = notificationId ? Game.Notifications.find(notificationId) : null;
+        const type = notificationId && typeof Game.Notifications.getType === "function"
+          ? Game.Notifications.getType(notificationId)
+          : notification?.Type ?? null;
+        const typeName = typeof Game.Notifications.getTypeName === "function" ? Game.Notifications.getTypeName(type) : null;
+        const actionMatches = notification?.Target?.id === input.actionId;
+        return typeName === "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED" && actionMatches ? notificationId : null;
+      });
+    };
+    const sendDiplomacyResponseCloseout = (input) => {
+      const localPlayerId = GameContext.localPlayerID;
+      const playerId = localPlayerId;
+      const args = { ID: input.actionId, Type: input.responseType };
+      const discoveredNotification = currentBlockingDiplomacyNotification(input);
+      const notificationId = toComponentId(input.notificationId) ?? (discoveredNotification.ok ? discoveredNotification.value : null);
+      const before = readDiplomacyState(input);
+      const activationResult = input.activateNotification === false ? { ok: false, skipped: true, reason: "activation disabled" } : activateNotification(notificationId);
+      const canStart = safeCall("Game.PlayerOperations.canStart", () => Game.PlayerOperations.canStart(
+        playerId,
+        PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION,
+        args,
+        false,
+      ));
+      let sent = false;
+      let sendResult = null;
+      if (canStart.ok && (canStart.value?.Success === true || canStart.value?.canStart === true)) {
+        sendResult = safeCall("Game.PlayerOperations.sendRequest", () => Game.PlayerOperations.sendRequest(
+          playerId,
+          PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION,
+          args,
+        ));
+        sent = sendResult.ok === true;
+      }
+      const shouldCloseout = input.uiCloseout !== false;
+      const acknowledgeStarted = shouldCloseout
+        ? safeCall("LeaderModelManager.beginAcknowledgePlayerSequence", () => leaderModelManager()?.beginAcknowledgePlayerSequence?.())
+        : { ok: false, skipped: true, reason: "ui closeout disabled" };
+      const closeCurrentDiplomacyProject = shouldCloseout
+        ? safeCall("DiplomacyManager.closeCurrentDiplomacyProject", () => diplomacyManager()?.closeCurrentDiplomacyProject?.(false))
+        : { ok: false, skipped: true, reason: "ui closeout disabled" };
+      const hide = shouldCloseout
+        ? safeCall("DiplomacyManager.hide", () => diplomacyManager()?.hide?.(false))
+        : { ok: false, skipped: true, reason: "ui closeout disabled" };
+      return {
+        localPlayerId,
+        playerId,
+        actionId: input.actionId,
+        responseType: input.responseType,
+        args,
+        notificationId,
+        discoveredNotification,
+        activated: activationResult.ok === true && activationResult.value?.activated === true,
+        activationResult,
+        canStart,
+        sent,
+        sendResult,
+        uiCloseout: {
+          requested: shouldCloseout,
+          acknowledgeStarted,
+          closeCurrentDiplomacyProject,
+          hide,
+        },
+        diplomacyState: {
+          before,
+          after: readDiplomacyState(input),
+        },
+        notes: [
+          "This follows the official response-panel path more closely than a raw player-operation send: optional notification activation, RESPOND_DIPLOMATIC_ACTION, leader acknowledgement, and diplomacy UI closeout.",
+          "If postcondition remains no-state-change, inspect notification expiry/target state before retrying another response."
+        ],
+      };
+    };`;
+}
+
+function probeHelperSource(): string {
+  return `const probe = (fn) => {
+      try {
+        return { ok: true, value: fn() };
+      } catch (err) {
+        return { ok: false, error: String(err) };
+      }
+    };`;
 }
