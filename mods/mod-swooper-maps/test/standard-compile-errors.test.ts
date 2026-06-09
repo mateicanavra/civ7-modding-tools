@@ -30,12 +30,12 @@ function expectCompileError(fn: () => void): RecipeCompileError {
 }
 
 describe("standard recipe compile errors (map-rivers)", () => {
-  it("rejects conflicting map-rivers legacy and current density knobs", () => {
+  it("rejects retired map-rivers riverDensity alias", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
         foundation: foundationConfig,
         "map-rivers": {
-          knobs: { riverDensity: "dense", navigableRiverDensity: "sparse" },
+          knobs: { riverDensity: "dense" },
         },
       } as any)
     );
@@ -43,9 +43,8 @@ describe("standard recipe compile errors (map-rivers)", () => {
     expect(
       err.errors.some(
         (item) =>
-          item.code === "stage.compile.failed" &&
-          item.path === "/config/map-rivers" &&
-          item.message.includes("legacy alias")
+          item.code === "config.invalid" &&
+          item.path === "/config/map-rivers/knobs/riverDensity"
       )
     ).toBe(true);
   });

@@ -7,6 +7,7 @@ The public projection model is intentionally narrow:
 
 - public knob: `map-rivers.knobs.navigableRiverDensity`
 - physical truth knob: `hydrology-hydrography.knobs.riverDensity`
+- retired surface: `map-rivers.knobs.riverDensity`
 - internal selector defaults: compiled density profiles owned by the consumed
   Hydrology-backed op envelope
 

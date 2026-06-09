@@ -16,8 +16,9 @@ normal maps visibly rivered while preserving arid/no-signal exceptions.
 - Add navigable projection coherence metrics: connected chains, sampled trunk
   length, slope/obstruction legality, mouth proximity, and distribution.
 - Predeclare minimum visible terrain thresholds for normal wet Earthlike maps.
-- Keep `map-rivers.navigableRiverDensity` as the projection knob and preserve
-  Hydrology `riverDensity` as physical classification.
+- Keep `map-rivers.navigableRiverDensity` as the projection knob, preserve
+  Hydrology `riverDensity` as physical classification, and retire the old
+  `map-rivers.riverDensity` alias.
 - Retire legacy length-threshold projection contracts and keep selector
   internals inside the Hydrology-backed op/profile envelope unless product
   authority later promotes a better public knob.

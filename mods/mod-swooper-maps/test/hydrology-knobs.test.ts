@@ -209,38 +209,21 @@ describe("hydrology knobs compilation", () => {
     );
   });
 
-  it("keeps map-rivers riverDensity as a legacy alias for navigableRiverDensity", () => {
-    const legacy = standardRecipe.compileConfig(
+  it("defaults navigable projection density to normal when the map-rivers knob is omitted", () => {
+    const omitted = standardRecipe.compileConfig(
       env,
       withFoundation({
-        "map-rivers": { knobs: { riverDensity: "dense" } },
+        "map-rivers": { knobs: {} },
       })
     );
     const current = standardRecipe.compileConfig(
       env,
       withFoundation({
-        "map-rivers": { knobs: { navigableRiverDensity: "dense" } },
+        "map-rivers": { knobs: { navigableRiverDensity: "normal" } },
       })
     );
 
-    expect(legacy["map-rivers"]).toEqual(current["map-rivers"]);
-  });
-
-  it("allows duplicate map-rivers alias and current density knobs when they agree", () => {
-    const duplicate = standardRecipe.compileConfig(
-      env,
-      withFoundation({
-        "map-rivers": { knobs: { riverDensity: "sparse", navigableRiverDensity: "sparse" } },
-      })
-    );
-    const current = standardRecipe.compileConfig(
-      env,
-      withFoundation({
-        "map-rivers": { knobs: { navigableRiverDensity: "sparse" } },
-      })
-    );
-
-    expect(duplicate["map-rivers"]).toEqual(current["map-rivers"]);
+    expect(omitted["map-rivers"]).toEqual(current["map-rivers"]);
   });
 
   it("changes navigable projection without rewriting Hydrology truth artifacts", () => {

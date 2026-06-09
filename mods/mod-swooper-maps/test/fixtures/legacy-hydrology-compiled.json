@@ -203,6 +203,10 @@
     },
     "hydrology-hydrography": {
       "lakes": {
+        "computeRiverNetworkMetrics": {
+          "config": {},
+          "strategy": "default"
+        },
         "planLakes": {
           "config": {
             "maxLakeLandFraction": 0.003,
@@ -444,6 +448,10 @@
     },
     "hydrology-hydrography": {
       "lakes": {
+        "computeRiverNetworkMetrics": {
+          "config": {},
+          "strategy": "default"
+        },
         "planLakes": {
           "config": {
             "maxLakeLandFraction": 0.003,
@@ -685,6 +693,10 @@
     },
     "hydrology-hydrography": {
       "lakes": {
+        "computeRiverNetworkMetrics": {
+          "config": {},
+          "strategy": "default"
+        },
         "planLakes": {
           "config": {
             "maxLakeLandFraction": 0.003,
@@ -926,6 +938,10 @@
     },
     "hydrology-hydrography": {
       "lakes": {
+        "computeRiverNetworkMetrics": {
+          "config": {},
+          "strategy": "default"
+        },
         "planLakes": {
           "config": {
             "maxLakeLandFraction": 0.006,

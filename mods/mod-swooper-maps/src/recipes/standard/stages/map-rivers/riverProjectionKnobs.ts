@@ -19,21 +19,10 @@ export type NavigableRiverDensityKnob = Static<typeof NavigableRiverDensityKnobS
 
 export type NavigableRiverDensityKnobs = Readonly<{
   navigableRiverDensity?: NavigableRiverDensityKnob;
-  riverDensity?: NavigableRiverDensityKnob;
 }>;
 
 export function resolveNavigableRiverDensityKnob(
   knobs: NavigableRiverDensityKnobs
 ): NavigableRiverDensityKnob {
-  const { navigableRiverDensity, riverDensity } = knobs;
-  if (
-    navigableRiverDensity !== undefined &&
-    riverDensity !== undefined &&
-    navigableRiverDensity !== riverDensity
-  ) {
-    throw new Error(
-      "map-rivers.knobs.riverDensity is a legacy alias for navigableRiverDensity; set only navigableRiverDensity or give both keys the same value."
-    );
-  }
-  return navigableRiverDensity ?? riverDensity ?? "normal";
+  return knobs.navigableRiverDensity ?? "normal";
 }

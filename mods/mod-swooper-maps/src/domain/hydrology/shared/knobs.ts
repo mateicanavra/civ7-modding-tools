@@ -14,7 +14,7 @@ export const HydrologyDrynessKnobSchema = Type.Union(
   {
     default: "mix",
     description:
-      "Global moisture availability preset (wet/mix/dry). Used to bias climate generation; does not directly tune hydrography projection thresholds.",
+      "Global moisture availability preset (wet/mix/dry). Used to bias climate generation; does not directly tune canonical drainage routing or Hydrology river classification thresholds.",
   }
 );
 
@@ -101,7 +101,8 @@ export type HydrologyCryosphereKnob = Static<typeof HydrologyCryosphereKnobSchem
  * Hydrology river density knob (semantic intent).
  *
  * Meaning:
- * - River network projection density preset (classification thresholds and length bounds).
+ * - Physical river-network classification density preset over canonical
+ *   Hydrology truth.
  *
  * Stage scope:
  * - Used by `hydrology-hydrography` only.
@@ -111,7 +112,7 @@ export const HydrologyRiverDensityKnobSchema = Type.Union(
   {
     default: "normal",
     description:
-      "River projection density preset (sparse/normal/dense). Applies as a deterministic transform over projection thresholds and length bounds.",
+      "Physical river-network classification density preset (sparse/normal/dense). Applies as a deterministic transform over Hydrology river classification thresholds; Civ-visible projection remains downstream.",
   }
 );
 

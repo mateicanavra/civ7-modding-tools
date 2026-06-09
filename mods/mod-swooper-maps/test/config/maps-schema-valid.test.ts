@@ -1290,6 +1290,23 @@ describe("Shipped map configs", () => {
     );
   });
 
+  it("rejects retired map-rivers riverDensity alias", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const { errors } = normalizeStrict(
+      schema,
+      {
+        "map-rivers": {
+          knobs: { riverDensity: "dense" },
+        },
+      },
+      "/maps/legacy-map-rivers-alias"
+    );
+
+    expect(errors.map((error) => error.path)).toEqual(
+      expect.arrayContaining(["/maps/legacy-map-rivers-alias/map-rivers/knobs/riverDensity"])
+    );
+  });
+
   it("rejects morphology truth config under map projection stages", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
     const { errors } = normalizeStrict(

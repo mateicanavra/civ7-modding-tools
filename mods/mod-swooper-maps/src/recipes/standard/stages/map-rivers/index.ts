@@ -11,12 +11,11 @@ import {
 const knobsSchema = Type.Object(
   {
     navigableRiverDensity: Type.Optional(NavigableRiverDensityKnobSchema),
-    riverDensity: Type.Optional(NavigableRiverDensityKnobSchema),
   },
   {
     additionalProperties: false,
     description:
-      "Map-rivers knobs. Use navigableRiverDensity for MapGen-owned Civ-visible river projection after elevation is finalized. riverDensity is accepted as a legacy alias.",
+      "Map-rivers knobs. Use navigableRiverDensity for MapGen-owned Civ-visible river projection after elevation is finalized.",
   }
 );
 

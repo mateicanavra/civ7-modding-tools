@@ -5,6 +5,8 @@
 - [x] 1.2 Add typed no-signal exceptions for arid/closed-basin maps.
 - [x] 1.3 Update `navigableRiverDensity` tests to verify projection changes do
   not rewrite Hydrology truth.
+- [x] 1.4 Retire the legacy `map-rivers.knobs.riverDensity` alias and realign
+  adjacent Hydrology wording to the narrow owner model.
 
 ## 2. Acceptance Thresholds
 

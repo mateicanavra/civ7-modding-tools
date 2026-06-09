@@ -15,7 +15,7 @@ const knobsSchema = Type.Object(
      *
      * Stage scope:
      * - Transforms baseline rainfall/moisture and related forcing only.
-     * - Must not change discharge routing truth or hydrography projection thresholds.
+     * - Must not change canonical drainage routing truth or Hydrology river classification knobs.
      */
     dryness: Type.Optional(HydrologyDrynessKnobSchema),
     /**
