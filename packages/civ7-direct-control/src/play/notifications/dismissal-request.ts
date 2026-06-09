@@ -1,5 +1,12 @@
+import { Type, type Static } from "typebox";
+
+import { assertCiv7ComponentId, Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { notificationDismissalSource } from "./dismissal.js";
-import { notificationDismissalPostcondition } from "./postconditions.js";
+import {
+  Civ7NotificationDismissalPostconditionSchema,
+  Civ7NotificationDismissalSummarySchema,
+  notificationDismissalPostcondition,
+} from "./postconditions.js";
 import { waitForCiv7NotificationDismissal } from "./verification.js";
 import { assertApproved } from "../../action-approval.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
@@ -19,6 +26,17 @@ import type {
 export type Civ7NotificationDismissInput = Readonly<{
   notificationId: Civ7ComponentId;
 }>;
+
+export const Civ7NotificationDismissInputSchema = Type.Object({
+  notificationId: Civ7ComponentIdSchema,
+}, { additionalProperties: false });
+
+export const Civ7NotificationDismissRequestInputSchema = Type.Object({
+  notificationId: Civ7ComponentIdSchema,
+  approvalReason: Type.String({ minLength: 1 }),
+  disposableSession: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false });
+export type Civ7NotificationDismissRequestInput = Readonly<Static<typeof Civ7NotificationDismissRequestInputSchema>>;
 
 export type Civ7NotificationDismissalSummary = Readonly<{
   id: Civ7ComponentId | null;
@@ -62,6 +80,28 @@ export type Civ7NotificationDismissalResult = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7NotificationDismissalResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  notificationId: Civ7ComponentIdSchema,
+  before: Civ7NotificationDismissalSummarySchema,
+  after: Type.Union([Civ7NotificationDismissalSummarySchema, Type.Null()]),
+  canDismiss: Type.Boolean(),
+  sent: Type.Boolean(),
+  result: Type.Unknown(),
+  closeoutPath: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+  verificationAttempts: Type.Optional(Type.Array(Civ7NotificationDismissalSummarySchema)),
+  verified: Type.Boolean(),
+  postcondition: Civ7NotificationDismissalPostconditionSchema,
+  notes: Type.Array(Type.String()),
+}, { additionalProperties: false });
+
 type Civ7NotificationDismissalPayload = Omit<Civ7NotificationDismissalResult, "postcondition">;
 
 type NotificationDismissalRequestDependencies = Readonly<{
@@ -91,6 +131,7 @@ export async function getCiv7NotificationDismissal(
   options: Civ7DirectControlOptions = {},
   dependencies: NotificationDismissalRequestDependencies = defaultNotificationDismissalRequestDependencies,
 ): Promise<Civ7NotificationDismissalResult> {
+  assertCiv7ComponentId(input.notificationId, "notificationId");
   const result = await dependencies.executeAppUiCommand({
     ...options,
     command: buildNotificationDismissalCommand(input, { send: false }, dependencies),
@@ -109,6 +150,7 @@ export async function requestCiv7NotificationDismissal(
   }> = defaultNotificationDismissalRequestDependencies,
 ): Promise<Civ7NotificationDismissalResult> {
   dependencies.assertApproved(approval, "dismissing Civ7 notification");
+  assertCiv7ComponentId(input.notificationId, "notificationId");
   const result = await dependencies.executeAppUiCommand({
     ...options,
     command: buildNotificationDismissalCommand(input, { send: true, verificationAttempts: 1 }, dependencies),

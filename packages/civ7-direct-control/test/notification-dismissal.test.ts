@@ -21,6 +21,22 @@ type NotificationDismissalMode =
   | "expired-engine-front-none-blocker";
 
 describe("notification dismissal", () => {
+  test("rejects malformed notification ids before building App UI commands", async () => {
+    await expect(getCiv7NotificationDismissal(
+      { notificationId: { owner: 0, type: 20 } } as never,
+      { host: "127.0.0.1", port: 1 },
+    )).rejects.toMatchObject({
+      code: "command-failed",
+    });
+    await expect(requestCiv7NotificationDismissal(
+      { notificationId: { owner: 0, type: 20 } } as never,
+      { host: "127.0.0.1", port: 1 },
+      { approved: true, reason: "test malformed notification id" },
+    )).rejects.toMatchObject({
+      code: "command-failed",
+    });
+  });
+
   test("plans and sends guarded notification dismissal", async () => {
     const server = await startNotificationDismissalTunerServer();
     try {

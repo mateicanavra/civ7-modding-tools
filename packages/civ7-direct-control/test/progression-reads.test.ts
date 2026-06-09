@@ -1,8 +1,16 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
-import { getCiv7ProgressDashboard, getCiv7TraditionsView } from "../src/index";
+import {
+  Civ7ProgressDashboardInputSchema,
+  Civ7ProgressDashboardResultSchema,
+  Civ7TraditionsViewInputSchema,
+  Civ7TraditionsViewResultSchema,
+  getCiv7ProgressDashboard,
+  getCiv7TraditionsView,
+} from "../src/index";
 
 type FakeTunerServer = {
   received: string[];
@@ -11,6 +19,65 @@ type FakeTunerServer = {
 };
 
 describe("progression read surfaces", () => {
+  test("exports TypeBox schemas for the read-only traditions view atom", () => {
+    expect(Value.Check(Civ7TraditionsViewInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7TraditionsViewInputSchema, { playerId: 0 })).toBe(true);
+    expect(Value.Check(Civ7TraditionsViewInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7TraditionsViewInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7TraditionsViewInputSchema, { rawCommand: "readTraditionsView()" })).toBe(false);
+
+    const result = traditionsViewResult();
+    expect(Value.Check(Civ7TraditionsViewResultSchema, result)).toBe(true);
+    expect(Value.Check(Civ7TraditionsViewResultSchema, {
+      ...result,
+      active: [
+        {
+          ...result.active[0],
+          actionHints: [
+            {
+              ...result.active[0].actionHints[0],
+              operationType: "sendRequest",
+            },
+          ],
+        },
+      ],
+    })).toBe(false);
+    expect(Value.Check(Civ7TraditionsViewResultSchema, {
+      ...result,
+      hiddenInfoPolicy: "raw-debug-output",
+    })).toBe(false);
+    expect(Value.Check(Civ7TraditionsViewResultSchema, {
+      ...result,
+      rawCommand: "readTraditionsView()",
+    })).toBe(false);
+  });
+
+  test("exports TypeBox schemas for the read-only progress dashboard atom", () => {
+    expect(Value.Check(Civ7ProgressDashboardInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7ProgressDashboardInputSchema, { playerId: 0 })).toBe(true);
+    expect(Value.Check(Civ7ProgressDashboardInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7ProgressDashboardInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7ProgressDashboardInputSchema, { rawCommand: "readProgressDashboard()" })).toBe(false);
+
+    const result = progressDashboardResult();
+    expect(Value.Check(Civ7ProgressDashboardResultSchema, result)).toBe(true);
+    expect(Value.Check(Civ7ProgressDashboardResultSchema, {
+      ...result,
+      triumphs: {
+        ...result.triumphs,
+        source: "raw-debug-output",
+      },
+    })).toBe(false);
+    expect(Value.Check(Civ7ProgressDashboardResultSchema, {
+      ...result,
+      hiddenInfoPolicy: "raw-debug-output",
+    })).toBe(false);
+    expect(Value.Check(Civ7ProgressDashboardResultSchema, {
+      ...result,
+      rawCommand: "readProgressDashboard()",
+    })).toBe(false);
+  });
+
   test("reads traditions view through App UI without sending tradition operations", async () => {
     const server = await startProgressionReadTunerServer();
     try {
@@ -288,6 +355,15 @@ function traditionsView() {
   };
 }
 
+function traditionsViewResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    ...traditionsView(),
+  };
+}
+
 function traditionSummary(input: {
   id: number;
   type: string;
@@ -426,6 +502,15 @@ function progressDashboard() {
       "VictoryManager is module-local in the official UI and may not be globally available through direct App UI eval; this wrapper uses the official lower-level runtime APIs exposed to App UI.",
       "Triumph rows are reported from runtime GameInfo.Triumphs. An empty table means no runtime triumph rows were available from this read, not that rewards are impossible elsewhere.",
     ],
+  };
+}
+
+function progressDashboardResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    ...progressDashboard(),
   };
 }
 

@@ -6,6 +6,14 @@ transport adapter, in-game controller router implementation, App UI bridge
 implementation, telemetry persistence layer, AI-ingestion contract, runtime
 proof, or Task 2.9.4 row acceptance.
 
+Native oRPC composition is now owned by
+`openspec/changes/civ7-control-orpc-native-slice/`. The direct-control
+procedure-core seed is boundary evidence only: it can record atom metadata,
+schema ownership, policy requirements, proof vocabulary, and middleware
+candidates, but it must not keep growing into direct-control-local router,
+context, middleware, typed-error, correlation, or transport mechanics that
+oRPC/effect-orpc already provides.
+
 Current owner seed: `packages/civ7-direct-control/src/procedure-core.ts`
 records a direct-control-local descriptor owner for procedure keys, stable atom
 owners, projection policy, proof boundary, player scope, consumer class, and
@@ -35,8 +43,21 @@ executing atoms, registering a router, or owning transport behavior. The
 procedure-core owner also has a no-network call primitive over injected
 handlers that validates input before handler execution, validates output after
 handler execution, returns procedure output separately from debug/telemetry
-diagnostics, resolves correlation IDs according to descriptor policy, and
-normalizes handler failures with typed direct-control error details. The first
+diagnostics, records descriptor-owned schema technology plus projection policy
+in diagnostics, resolves correlation IDs according to descriptor policy, and
+normalizes handler failures with typed direct-control error details. The
+procedure-core owner also exports a local error summary schema/helper over
+existing descriptor/call failures so future router/error-shape work has a typed
+projection that omits raw cause objects and nested cause messages. It also
+exports a local settled call envelope schema/helper over the existing call
+primitive, preserving successful output/diagnostics and projecting
+procedure-core failures through the safe error summary for JSON round-trip
+proof. It also exports a local handler context schema over the injected
+procedure context, keeping endpoint and raw-command details out of the context
+envelope while preserving descriptor, procedure key, correlation, proof
+boundary, player scope, and context requirements as future oRPC context and
+middleware inputs, not as a direct-control-owned middleware implementation.
+The first
 concrete descriptor
 artifact is `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`,
 which owns the `unit.ready.view` descriptor adjacent to the ready-unit atom and
@@ -74,15 +95,54 @@ owns the `runtime.app.ui.snapshot` descriptor adjacent to the App UI snapshot
 atom and schema exports. The third adjacent runtime-support descriptor artifact
 is `packages/civ7-direct-control/src/runtime/tuner-health-procedure.ts`, which
 owns the `runtime.tuner.health` descriptor adjacent to the Tuner health atom and
-schema exports. The adjacent notification read descriptor artifact is
+schema exports. The adjacent turn-completion status descriptor artifact is
+`packages/civ7-direct-control/src/play/turn-completion-procedure.ts`, which
+owns the `runtime.turn.completion.status` descriptor adjacent to the
+turn-completion status atom and schema exports. The adjacent unit-summary
+descriptor artifact is
+`packages/civ7-direct-control/src/play/unit-summary-procedure.ts`, which owns
+the `unit.summary.read` descriptor adjacent to the unit summary atom and schema
+exports. The adjacent city-summary descriptor artifact is
+`packages/civ7-direct-control/src/play/city-summary-procedure.ts`, which owns
+the `city.summary.read` descriptor adjacent to the city summary atom and schema
+exports. The adjacent player-summary descriptor artifact is
+`packages/civ7-direct-control/src/play/player-summary-procedure.ts`, which owns
+the `player.summary.read` descriptor adjacent to the player summary atom and
+schema exports, and is the first narrow `player` procedure-family owner. The
+adjacent unit-target action request descriptor artifact is
+`packages/civ7-direct-control/src/play/operations/unit-target-action-procedure.ts`,
+which owns the `unit.target.action.request` mutation descriptor adjacent to the
+approved unit-target action atom and schema exports. The adjacent
+production-choice request descriptor artifact is
+`packages/civ7-direct-control/src/play/operations/production-choice-procedure.ts`,
+which owns the `city.production.choice.request` mutation descriptor adjacent to
+the approved production-choice atom, schema exports, and production
+postcondition schema exports while projecting procedure output without the
+atom's raw command-bearing result field. The adjacent notification dismissal
+request descriptor artifact is
+`packages/civ7-direct-control/src/play/notifications/dismissal-procedure.ts`,
+which owns the `notifications.dismiss.request` mutation descriptor adjacent to
+the approval-gated notification dismissal atom, schema exports, and notification
+dismissal postcondition schema exports. The adjacent notification read
+descriptor artifact is
 `packages/civ7-direct-control/src/play/notifications/view-procedure.ts`, which
 owns the `notifications.view` descriptor adjacent to the notification read atom
 and schema exports. The adjacent settlement-recommendations descriptor artifact
 is `packages/civ7-direct-control/src/play/tactical/settlement-procedure.ts`,
 which owns the `strategy.settlement.recommendations` descriptor adjacent to the
 read-only settlement recommendation atom and schema exports while staying under
-the existing `strategy` procedure family. This is local package proof only; it
-does not collect runtime evidence, add Effect/oRPC dependencies, create
+the existing `strategy` procedure family. The adjacent target-candidates
+descriptor artifact is
+`packages/civ7-direct-control/src/play/tactical/target-candidates-procedure.ts`,
+which owns the `strategy.target.candidates` descriptor adjacent to the
+read-only target-candidates atom and schema exports while preserving the
+neutral relationship evidence model. The adjacent battlefield-scan descriptor
+artifact is
+`packages/civ7-direct-control/src/play/tactical/battlefield-procedure.ts`,
+which owns the `strategy.battlefield.scan` descriptor adjacent to the
+read-only battlefield scan atom and schema exports while preserving the
+neutral relationship evidence model. This is local package proof only; it does
+not collect runtime evidence, add Effect/oRPC dependencies, create
 `packages/civ7-control-orpc`, implement router/procedure behavior, choose a
 broader schema migration, claim runtime proof, or accept the matrix row.
 
@@ -181,6 +241,48 @@ verifies the schemas are exported for future procedure-core consumers. This is
 a read-only settlement recommendation schema seed; it does not change normal
 CLI output, reinterpret recommendations as actions, add city-founding/send
 behavior, claim runtime proof, or accept the matrix row.
+
+`packages/civ7-direct-control/src/play/tactical/target-candidates.ts` now owns
+TypeBox schemas for `getCiv7TargetCandidates` input, target-candidate
+approach, target-candidate rows, relationship-label policy, and output. The
+input schema preserves the existing bounded `playerId`, `origins`,
+`maxCandidates`, `maxPlayers`, and `unitRadius` contracts. The output schema
+keeps `relationshipLabelPolicy` constrained to `not-classified` / `none` /
+`relationship-unproven`; endpoint/session/state selection and raw command
+fields remain procedure context/debug concerns. Focused proof in
+`packages/civ7-direct-control/test/tactical-reads.test.ts` validates the
+existing fake target-candidates result against the output schema, rejects
+out-of-bound inputs and invalid map locations, rejects context/raw-command
+input and root-level raw command output fields, and rejects stronger
+relationship-proof output. Public facade proof in
+`packages/civ7-direct-control/test/public-api.test.ts` verifies the schemas
+are exported for future procedure-core consumers. This is a read-only
+target-candidates schema seed; it does not change normal CLI output,
+reinterpret candidates as action plans, infer hostile/enemy/non-friendly/
+opponent/threat/war/ally/suzerain labels, add attack/move/send behavior, claim
+runtime proof, or accept the matrix row.
+
+`packages/civ7-direct-control/src/play/tactical/battlefield.ts` now owns
+TypeBox schemas for `getCiv7BattlefieldScan` input, relationship-label policy,
+unit rows, city rows, owner summaries, points of interest, and output. The
+input schema preserves the existing bounded `playerId`, `origins`, `radius`,
+`maxPlayers`, `maxUnits`, and `maxCities` contracts. The output schema keeps
+`relationshipLabelPolicy` constrained to `not-classified` / `none` /
+`relationship-unproven` and constrains row-level relationship proof/label slots
+to `self`/`friendly` for local-player rows or `none`/`relationship-unproven`
+for other-owner rows; endpoint/session/state selection and raw command fields
+remain procedure context/debug concerns. Focused proof in
+`packages/civ7-direct-control/test/tactical-reads.test.ts` validates the
+existing fake battlefield scan result against the output schema, rejects
+out-of-bound inputs and invalid map locations, rejects context/raw-command
+input and root-level raw command output fields, and rejects stronger row-level
+relationship proof or label output. Public facade proof in
+`packages/civ7-direct-control/test/public-api.test.ts` verifies the schemas
+are exported for future procedure-core consumers. This is a read-only
+battlefield-scan schema seed; it does not change normal CLI output,
+reinterpret battlefield scan as action planning or validator output, infer
+hostile/enemy/non-friendly/opponent/threat/war/ally/suzerain labels, add
+attack/move/send behavior, claim runtime proof, or accept the matrix row.
 
 The adjacent ready-unit descriptor artifact reuses those schema exports and
 records root input/output field names from the actual TypeBox schemas,
@@ -286,6 +388,317 @@ reinterpret recommendations as actions, add city-founding/send behavior, add
 a router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
 proof, or accept the matrix row.
 
+The adjacent target-candidates procedure artifact reuses the target-candidates
+schema exports and records `strategy.target.candidates` beside
+`getCiv7TargetCandidates`. Focused proof in
+`packages/civ7-direct-control/test/target-candidates-procedure.test.ts` checks
+the descriptor's input/output field lists against resolved schema root
+properties, including origins, neutral relationship label policy, candidates,
+and notes, without registering a router or transport adapter. The same artifact
+exports a concrete call wrapper over `getCiv7TargetCandidates`, composed
+through the local procedure-core call primitive. Focused proof uses fake atom
+dependencies to prove direct-control option forwarding, input validation before
+atom dependencies run, output validation after the atom returns, separated
+output/diagnostics, no-send read-only command text, and preservation of
+relationship-unproven semantics. This is local no-network read-atom proof only;
+it does not change CLI output, reinterpret candidates as action plans, infer
+hostile/enemy/non-friendly/opponent/threat/war/ally/suzerain labels, add
+attack/move/send behavior, add a broad tactical catalog, add a router, add
+Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
+the matrix row.
+
+The adjacent battlefield-scan procedure artifact reuses the battlefield scan
+schema exports and records `strategy.battlefield.scan` beside
+`getCiv7BattlefieldScan`. Focused proof in
+`packages/civ7-direct-control/test/battlefield-scan-procedure.test.ts` checks
+the descriptor's input/output field lists against resolved schema root
+properties, including origins, neutral relationship label policy, units,
+cities, owners, points of interest, and notes, without registering a router or
+transport adapter. The same artifact exports a concrete call wrapper over
+`getCiv7BattlefieldScan`, composed through the local procedure-core call
+primitive. Focused proof uses fake atom dependencies to prove direct-control
+option forwarding, input validation before atom dependencies run, output
+validation after the atom returns, separated output/diagnostics, no-send
+read-only command text, and preservation of relationship-unproven semantics.
+This is local no-network read-atom proof only; it does not change CLI output,
+reinterpret battlefield scan as action planning or validator output, infer
+hostile/enemy/non-friendly/opponent/threat/war/ally/suzerain labels, add
+attack/move/send behavior, add a broad tactical catalog, add a router, add
+Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
+the matrix row.
+
+The adjacent destination-analysis procedure artifact reuses the destination
+analysis schema exports and records `strategy.destination.analysis` beside
+`getCiv7DestinationAnalysis`. Focused proof in
+`packages/civ7-direct-control/test/destination-analysis-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including required destination input, origin, bounded radii/caps,
+neutral relationship label policy, corridor, destination pressure, points of
+interest, and notes, without registering a router or transport adapter. The
+same artifact exports a concrete call wrapper over
+`getCiv7DestinationAnalysis`, composed through the local procedure-core call
+primitive. Focused proof uses fake atom dependencies to prove direct-control
+option forwarding, input validation before atom dependencies run, output
+validation after the atom returns, separated output/diagnostics, no-send
+read-only command text, and preservation of relationship-unproven semantics.
+This is local no-network read-atom proof only; it does not change CLI output,
+reinterpret destination analysis as pathfinding/route authority, movement/
+attack/send planning, or validator output, infer hostile/enemy/non-friendly/
+opponent/threat/war/ally/suzerain labels, add a broad tactical catalog, add a
+router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
+proof, or accept the matrix row.
+
+The adjacent traditions-view procedure artifact reuses the traditions view
+schema exports and records `strategy.traditions.view` beside
+`getCiv7TraditionsView`. Focused proof in
+`packages/civ7-direct-control/test/traditions-view-procedure.test.ts` checks
+the descriptor's input/output field lists against resolved schema root
+properties, including bounded player input, turn/government/slot state,
+tradition action hints, recommended CLI affordances, hidden-info policy, and
+notes, without registering a router or transport adapter. The same artifact
+exports a concrete call wrapper over `getCiv7TraditionsView`, composed through
+the local procedure-core call primitive. Focused proof uses fake atom
+dependencies to prove direct-control option forwarding, input validation before
+atom dependencies run, output validation after the atom returns, separated
+output/diagnostics, no-send read-only command text, and preservation of
+tradition action hints as read affordances rather than sends. This is local
+no-network read-atom proof only; it does not change CLI output, send or
+validate tradition changes, reinterpret the view as action execution, add a
+progression taxonomy family or broad progression catalog, add a router, add
+Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
+the matrix row.
+
+The adjacent progress-dashboard procedure artifact reuses the progress
+dashboard schema exports and records `strategy.progress.dashboard` beside
+`getCiv7ProgressDashboard`. Focused proof in
+`packages/civ7-direct-control/test/progress-dashboard-procedure.test.ts` checks
+the descriptor's input/output field lists against resolved schema root
+properties, including bounded player input, age, player, legacy path, victory,
+triumph, proof-source, hidden-info policy, and notes, without registering a
+router or transport adapter. The same artifact exports a concrete call wrapper
+over `getCiv7ProgressDashboard`, composed through the local procedure-core call
+primitive. Focused proof uses fake atom dependencies to prove direct-control
+option forwarding, input validation before atom dependencies run, output
+validation after the atom returns, separated output/diagnostics, no-send
+read-only command text, and preservation of progress dashboard data as a
+read-only strategy/progress lens rather than chooser behavior. This is local
+no-network read-atom proof only; it does not change CLI output, choose
+technologies/civics/productions/policies/victory strategy, add a progression
+taxonomy family or broad progression catalog, add a router, add Effect/oRPC
+dependencies, choose Effect Schema, claim runtime proof, or accept the matrix
+row.
+
+The adjacent map-summary procedure artifact reuses the map summary schema
+exports and records `map.summary.read` beside `getCiv7MapSummary`. Focused
+proof in `packages/civ7-direct-control/test/map-summary-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including optional area-count input, bounded `maxIds`, map/game
+runtime probes, optional area/region probe output, and raw/context input
+separation, without registering a router or transport adapter. The same
+artifact exports a concrete call wrapper over `getCiv7MapSummary`, composed
+through the local procedure-core call primitive. Focused proof uses fake atom
+dependencies to prove direct-control option forwarding, bounded input
+validation before command execution, output validation after the atom returns,
+separated output/diagnostics, and no-send read-only command text. This is local
+no-network read-atom proof only; it does not change CLI output, implement plot
+snapshot/map grid/GameInfo/visibility procedures, add a broad map catalog, add
+a router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
+proof, or accept the matrix row.
+
+The adjacent plot-snapshot procedure artifact reuses the plot snapshot schema
+exports and records `map.plot.snapshot` beside `getCiv7PlotSnapshot`. Focused
+proof in `packages/civ7-direct-control/test/plot-snapshot-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including bounded map location input, field vocabulary, optional
+hidden-info policy controls, plot location, revealed/visible probes,
+hidden-info policy output, runtime-probe facts, and raw/context input
+separation, without registering a router or transport adapter. The same
+artifact exports a concrete call wrapper over `getCiv7PlotSnapshot`, composed
+through the local procedure-core call primitive. Focused proof uses fake atom
+dependencies to prove direct-control option forwarding, map-location validation
+before Tuner execution, output validation after the atom returns, separated
+output/diagnostics, and no-send read-only command text. This is local
+no-network read-atom proof only; it does not change CLI output, implement map
+grid/GameInfo/visibility procedures, add a broad map catalog, add a router, add
+Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
+the matrix row.
+
+The adjacent map-grid procedure artifact reuses the map grid schema exports and
+records `map.grid.read` beside `getCiv7MapGrid`. Focused proof in
+`packages/civ7-direct-control/test/map-grid-procedure.test.ts` checks the
+descriptor's input/output field lists against resolved schema root properties,
+including exact bounds-or-locations input, validator-equivalent map bounds,
+location, location-list, and maxPlots caps, field vocabulary, hidden-info
+policy controls, omitted counts, optional map probes, plot outputs, and raw/
+context input separation, without registering a router or transport adapter.
+The same artifact exports a concrete call wrapper over `getCiv7MapGrid`,
+composed through the local procedure-core call primitive. Focused proof uses
+fake atom dependencies to prove direct-control option forwarding, bounded
+maxPlots validation, map-bound validation before Tuner execution, output
+validation after the atom returns, separated output/diagnostics, bounded
+traversal command text, and no-send read-only command text. This is local
+no-network read-atom proof only; it does not change CLI output, implement
+GameInfo/visibility procedures, add a broad map catalog, add a router, add
+Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
+the matrix row.
+
+The adjacent GameInfo-rows procedure artifact reuses the GameInfo rows schema
+exports and records `runtime.gameinfo.rows` beside `getCiv7GameInfoRows`.
+Focused proof in
+`packages/civ7-direct-control/test/gameinfo-rows-procedure.test.ts` checks the
+descriptor's input/output field lists against resolved schema root properties,
+including table/filter identifiers, bounded `limit`/`offset`, lookup/filter/
+include toggles, source `"GameInfo"`, row output, total/omitted status,
+optional schema/primary-key runtime probes, and raw/context input separation,
+without registering a router or transport adapter. The same artifact exports a
+concrete call wrapper over `getCiv7GameInfoRows`, composed through the local
+procedure-core call primitive. Focused proof uses fake atom dependencies to
+prove direct-control option forwarding, identifier and bounded input
+validation before Tuner execution, output validation after the atom returns,
+separated output/diagnostics, Database schema/primary-key probe command text,
+and no-send read-only command text. This is local no-network read-atom proof
+only; it does not change CLI output, implement visibility procedures, add a
+broad map/debug catalog, add a router, add Effect/oRPC dependencies, choose
+Effect Schema, claim runtime proof, or accept the matrix row.
+
+The adjacent visibility-summary procedure artifact reuses the visibility
+summary schema exports and records `map.visibility.read` beside
+`getCiv7VisibilitySummary`. Focused proof in
+`packages/civ7-direct-control/test/visibility-summary-procedure.test.ts` checks
+the descriptor's input/output field lists against resolved schema root
+properties, including bounded player input, shared map-bounds input, the
+existing `includeGrid`-requires-`bounds` invariant, bounded `maxPlots`,
+revealed/visible runtime probes, counts/grid output, and raw/context input
+separation, without registering a router or transport adapter. The same
+artifact exports a concrete call wrapper over `getCiv7VisibilitySummary`,
+composed through the local procedure-core call primitive. Focused proof uses
+fake atom dependencies to prove direct-control option forwarding, player and
+bounded input validation before Tuner execution, output validation after the
+atom returns, separated output/diagnostics, visibility read command text, and
+absence of reveal/send command text. This is local no-network read-atom proof
+only; it does not wrap `revealCiv7MapForPlayer`, change CLI output, add a broad
+map catalog, add a router, add Effect/oRPC dependencies, choose Effect Schema,
+claim runtime proof, or accept the matrix row.
+
+The adjacent turn-completion status procedure artifact reuses the
+turn-completion status schema exports and records
+`runtime.turn.completion.status` beside `getCiv7TurnCompletionStatus`.
+Focused proof in
+`packages/civ7-direct-control/test/turn-completion-status-procedure.test.ts`
+checks the descriptor's empty input and output field lists against resolved
+schema root properties, including turn, turn date, sent-turn-complete status,
+end-turn availability, blocker, first ready unit, and raw/context input
+separation, without registering a router or transport adapter. The same
+artifact exports a concrete call wrapper over `getCiv7TurnCompletionStatus`,
+composed through the local procedure-core call primitive. Focused proof uses
+fake atom dependencies to prove direct-control option forwarding, input
+validation before dependency execution, output validation after the atom
+returns, separated output/diagnostics, turn-completion status read command
+text, and absence of send/unready command text. This is local no-network
+read-atom proof only; it does not change turn-completion send/unready mutation
+behavior, autoplay behavior, CLI output, add a router, add Effect/oRPC
+dependencies, choose Effect Schema, claim runtime proof, or accept the matrix
+row.
+
+The adjacent unit-summary procedure artifact reuses the unit summary schema
+exports and records `unit.summary.read` beside `getCiv7UnitSummary`. Focused
+proof in `packages/civ7-direct-control/test/unit-summary-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including bounded player, unit-id, and max-items input, unit
+runtime-probe output, map-location output, and raw/context input separation,
+without registering a router or transport adapter. The same artifact exports a
+concrete call wrapper over `getCiv7UnitSummary`, composed through the local
+procedure-core call primitive. Focused proof uses fake atom dependencies to
+prove direct-control option forwarding, input validation before dependency
+execution, output validation after the atom returns, separated output/
+diagnostics, unit summary read command text, and absence of send-operation
+command text. This is local no-network read-atom proof only; it does not add a
+player-summary procedure atom, change CLI output, add a broad summary catalog,
+add a router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
+proof, or accept the matrix row.
+
+The adjacent city-summary procedure artifact reuses the city summary schema
+exports and records `city.summary.read` beside `getCiv7CitySummary`. Focused
+proof in `packages/civ7-direct-control/test/city-summary-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including bounded player, city-id, and max-items input, city
+runtime-probe output, map-location output, and raw/context input separation,
+without registering a router or transport adapter. The same artifact exports a
+concrete call wrapper over `getCiv7CitySummary`, composed through the local
+procedure-core call primitive. Focused proof uses fake atom dependencies to
+prove direct-control option forwarding, input validation before dependency
+execution, output validation after the atom returns, separated output/
+diagnostics, city summary read command text, and absence of send-operation
+command text. This is local no-network read-atom proof only; it does not add a
+player-summary procedure atom, change CLI output, add a broad summary catalog,
+add a router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
+proof, or accept the matrix row.
+
+The adjacent player-summary procedure artifact reuses the player summary schema
+exports, adds `player` as a narrow operational procedure family, and records
+`player.summary.read` beside `getCiv7PlayerSummary`. Focused proof in
+`packages/civ7-direct-control/test/player-summary-procedure.test.ts` checks the
+descriptor's input/output field lists against resolved schema root properties,
+including bounded player and max-items input, include toggles, player
+runtime-probe output, component-id unit/city id output, and raw/context input
+separation, without registering a router or transport adapter. Focused proof in
+`packages/civ7-direct-control/test/procedure-core.test.ts` proves the `player`
+family/key pair without weakening family-prefix validation. The same artifact
+exports a concrete call wrapper over `getCiv7PlayerSummary`, composed through
+the local procedure-core call primitive. Focused proof uses fake atom
+dependencies to prove direct-control option forwarding, input validation before
+dependency execution, output validation after the atom returns, separated
+output/diagnostics, player summary read command text, and absence of
+send-operation command text. This is local no-network read-atom proof only; it
+does not add a broad player procedure catalog, change CLI output, add a broad
+summary catalog, add a router, add Effect/oRPC dependencies, choose Effect
+Schema, claim runtime proof, or accept the matrix row.
+
+The adjacent unit-target action request procedure artifact reuses the
+unit-target action schemas and records `unit.target.action.request` beside
+`requestCiv7UnitTargetAction`. Focused proof in
+`packages/civ7-direct-control/test/unit-target-action-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including component-id input, validator-equivalent bounded target
+coordinates, explicit `approvalReason`, optional disposable-session intent,
+mutation gate metadata, caller-provided correlation, telemetry middleware
+projection, and raw/context input separation, without registering a router or
+transport adapter. The same artifact exports a concrete call wrapper over
+`requestCiv7UnitTargetAction`, composed through the local procedure-core call
+primitive. Focused proof uses a fake request dependency to prove direct-control
+option forwarding, approval object construction before the existing atom send
+path, input validation before dependency execution, output validation after the
+atom returns, separated output/diagnostics, and no handler execution without a
+caller-provided correlation ID. This is local no-network mutation-procedure
+proof only; it does not execute live direct-control atoms, change CLI output,
+weaken approval/validator/postcondition/no-repeat gates, add a router, add
+Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
+the matrix row.
+
+The adjacent notification dismissal request procedure artifact reuses the
+notification dismissal schemas and records `notifications.dismiss.request`
+beside `requestCiv7NotificationDismissal`. Focused proof in
+`packages/civ7-direct-control/test/notification-dismissal-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including component-id notification input, explicit
+`approvalReason`, optional disposable-session intent, mutation gate metadata,
+caller-provided correlation, telemetry middleware projection, and raw/context
+input separation, without registering a router or transport adapter. The same
+artifact exports a concrete call wrapper over
+`requestCiv7NotificationDismissal`, composed through the local procedure-core
+call primitive. Focused proof uses a fake request dependency to prove direct-
+control option forwarding, approval object construction before the existing
+atom send path, input validation before dependency execution, output validation
+after the atom returns for confirmed and `engine-front-still-live` guarded
+postconditions, separated output/diagnostics, root command/raw-command output
+rejection, and no handler execution without a caller-provided correlation ID.
+Adjacent atom proof covers malformed notification-id rejection before App UI
+command construction. This is local no-network mutation-procedure proof only;
+it does not execute live direct-control atoms, change CLI output, weaken
+approval/validator/postcondition/no-repeat gates, infer repeat safety from
+legacy `verified`, add a router, add Effect/oRPC dependencies, choose Effect
+Schema, claim runtime proof, or accept the matrix row.
+
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` validates ready-unit
@@ -304,12 +717,49 @@ Local no-network procedure-core calls now live in
 ready-unit handler through the procedure-core owner, proves validated input
 reaches the handler, invalid input prevents handler execution, invalid output
 fails after handler execution, caller-provided correlation ID policy is enforced,
-and handler failures are normalized with procedure and correlation details.
+descriptor-owned `schemaTechnology` and projection policy are recorded in
+diagnostics rather than returned procedure output, and handler failures are
+normalized with procedure and correlation details.
 Public facade proof in `packages/civ7-direct-control/test/public-api.test.ts`
 verifies the call result/diagnostic schemas and call helper are exported. This
 is local injected-handler proof only; it does not execute live direct-control
 atoms, add a router, add Effect/oRPC dependencies, choose Effect Schema, claim
 runtime proof, or accept the matrix row.
+
+Local procedure-core error summaries now live in
+`packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
+`packages/civ7-direct-control/test/procedure-core.test.ts` projects existing
+descriptor input-schema failures and handler failures into
+`Civ7ProcedureCoreErrorSummarySchema`, preserving procedure key, correlation,
+role, schema reference, reason, and source error code where applicable while
+omitting raw cause objects, nested cause messages, and raw command details.
+Public facade proof validates the exported reason/summary schemas and helper.
+This is local typed-error/error-shape proof only; it does not replace
+`Civ7DirectControlError`, register a router, add transport behavior, choose
+Effect Schema, claim runtime proof, or accept the matrix row.
+
+Local procedure-core settled call envelopes now live in
+`packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
+`packages/civ7-direct-control/test/procedure-core.test.ts` settles successful
+calls into `{ ok: true, output, diagnostics }`, settles procedure-core handler
+failures into `{ ok: false, error }` using the safe error summary, validates
+JSON round trips through `Civ7ProcedureCoreCallEnvelopeSchema`, proves raw
+command-bearing nested cause details stay out of the error envelope, and
+rethrows non-procedure errors instead of hiding them. Public facade proof
+validates the exported envelope schema and helper. This is local
+result/error-envelope proof only; it does not change existing throwing call
+behavior, register a router, add transport behavior, choose Effect Schema,
+claim runtime proof, or accept the matrix row.
+
+Local procedure-core handler context schemas now live in
+`packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
+`packages/civ7-direct-control/test/procedure-core.test.ts` validates the actual
+injected handler context against `Civ7ProcedureCoreCallContextSchema`, proves a
+local JSON round trip, and rejects endpoint/raw-command fields in the context
+envelope. Public facade proof validates the exported context schema. This is
+local context-shape proof only; it does not implement runtime context
+construction, add middleware, register a router, add transport behavior, choose
+Effect Schema, claim runtime proof, or accept the matrix row.
 
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
@@ -363,6 +813,7 @@ Procedure families should be named by operational surface, not transport:
 - `controller`;
 - `notifications`;
 - `choices`;
+- `player`;
 - `city`;
 - `unit`;
 - `map`;
@@ -426,13 +877,24 @@ gaps for the current TypeBox descriptor shape, generic raw fields,
 repo-local command-source/session-execute
 owners, context-owned endpoint/state input fields, and adjacent ready-unit,
 ready-city, unit move-preview, playable-status, App UI snapshot, Tuner
-health, notification-view, and settlement-recommendations descriptor artifacts with
+health, notification-view, settlement-recommendations, target-candidates,
+battlefield-scan, destination-analysis, traditions-view, and
+progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
+visibility-summary, turn-completion status, unit-summary, city-summary,
+player-summary, unit-target action request, production-choice request, and
+notification dismissal request
+descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
 Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city,
 unit move-preview, playable-status, App UI snapshot, Tuner health, and
-notification-view and settlement-recommendations procedure call wrappers, but
-they do not accept the row.
+notification-view, settlement-recommendations, target-candidates,
+battlefield-scan, destination-analysis, traditions-view, and
+progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
+visibility-summary, turn-completion status, unit-summary, city-summary,
+player-summary, unit-target action request, production-choice request, and
+notification dismissal request
+procedure call wrappers, but they do not accept the row.
 Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
@@ -440,17 +902,24 @@ Acceptance still needs:
   procedure contracts;
 - concrete procedure input/output owners over stable direct-control atoms
   beyond the current ready-read, move-preview, runtime-support, and
-  notification-view and settlement-recommendations call wrappers;
+  notification-view, settlement-recommendations, target-candidates,
+  battlefield-scan, destination-analysis, traditions-view, and
+  progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
+  visibility-summary, turn-completion status, unit-summary, city-summary,
+  player-summary, unit-target action request, production-choice request, and
+  notification dismissal request call wrappers;
 - final middleware/error/correlation owners and runtime context construction
-  beyond descriptor context-policy metadata and the local injected-handler call
-  helper;
+  beyond descriptor context-policy metadata, the local injected-handler call
+  helper, and the local handler context schema;
 - final schema reference registration in the runtime router/procedure owner;
 - explicit boundaries for in-game controller router, external direct-control
   bridge, and future AI services;
 - final oRPC schema/procedure validation tests beyond the local TypeBox
   payload/call helper;
-- final router/procedure error-shape snapshots;
-- encode/decode round-trip tests;
+- final router/procedure error-shape snapshots beyond the local summary helper
+  and settled envelope;
+- final oRPC/Bun encode/decode round-trip tests beyond local JSON envelope
+  proof;
 - Bun runtime checks;
 - CLI semantic projection tests;
 - AI-ingestion contract fixture tests;

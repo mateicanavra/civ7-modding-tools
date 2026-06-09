@@ -1,8 +1,17 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
 import {
+  Civ7MapGridInputSchema,
+  Civ7MapGridResultSchema,
+  Civ7MapSummaryInputSchema,
+  Civ7MapSummaryResultSchema,
+  Civ7PlotSnapshotInputSchema,
+  Civ7PlotSnapshotResultSchema,
+  Civ7VisibilitySummaryInputSchema,
+  Civ7VisibilitySummaryResultSchema,
   getCiv7GameInfoRows,
   getCiv7MapGrid,
   getCiv7MapSummary,
@@ -18,6 +27,140 @@ type FakeTunerServer = {
 };
 
 describe("map and visibility reads", () => {
+  test("validates map summary schema boundaries beside the read atom", () => {
+    expect(Value.Check(Civ7MapSummaryInputSchema, {
+      includeAreaRegionCounts: true,
+      maxIds: 512,
+    })).toBe(true);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: 1.5 })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: -1 })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: 1_000_001 })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { port: 4318 })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { state: { role: "tuner" } })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { rawCommand: "GameplayMap.getGridWidth()" })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryResultSchema, mapSummaryResult())).toBe(true);
+    expect(Value.Check(Civ7MapSummaryResultSchema, {
+      ...mapSummaryResult(),
+      rawCommand: "GameplayMap.getGridWidth()",
+    })).toBe(false);
+  });
+
+  test("validates plot snapshot schema boundaries beside the read atom", () => {
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, {
+      x: 3,
+      y: 4,
+      playerId: 0,
+      fields: ["terrain", "resource", "visibility"],
+      includeHidden: false,
+    })).toBe(true);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 1.5, y: 4 })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: -1, y: 4 })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 1_000_001 })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, fields: ["enemy"] })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, port: 4318 })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, state: { role: "tuner" } })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, {
+      x: 3,
+      y: 4,
+      rawCommand: "GameplayMap.getTerrainType(3, 4)",
+    })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotResultSchema, plotSnapshotResult())).toBe(true);
+    expect(Value.Check(Civ7PlotSnapshotResultSchema, {
+      ...plotSnapshotResult(),
+      session: { stateName: "Tuner" },
+    })).toBe(false);
+  });
+
+  test("validates map grid schema boundaries beside the read atom", () => {
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["terrain"],
+      maxPlots: 1,
+    })).toBe(true);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      locations: [{ x: 0, y: 0 }],
+      fields: ["terrain"],
+    })).toBe(true);
+    expect(Value.Check(Civ7MapGridInputSchema, { fields: ["terrain"] })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      locations: [{ x: 0, y: 0 }],
+      fields: ["terrain"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 0, height: 1 },
+      fields: ["terrain"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 10_001 },
+      fields: ["terrain"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      locations: [{ x: 0, y: 1_000_001 }],
+      fields: ["terrain"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["enemy"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["terrain"],
+      maxPlots: 10_001,
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["terrain"],
+      host: "127.0.0.1",
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["terrain"],
+      rawCommand: "GameplayMap.getGridWidth()",
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridResultSchema, mapGridResult())).toBe(true);
+    expect(Value.Check(Civ7MapGridResultSchema, {
+      ...mapGridResult(),
+      session: { stateName: "Tuner" },
+    })).toBe(false);
+  });
+
+  test("validates visibility summary schema boundaries beside the read atom", () => {
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
+      playerId: 0,
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      includeGrid: true,
+      maxPlots: 2,
+    })).toBe(true);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0 })).toBe(true);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 1.5 })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 1_025 })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
+      playerId: 0,
+      includeGrid: true,
+    })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
+      playerId: 0,
+      bounds: { x: 0, y: 0, width: 0, height: 1 },
+      includeGrid: true,
+    })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
+      playerId: 0,
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      maxPlots: 10_001,
+    })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, rawCommand: "Visibility.revealAllPlots(0)" })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryResultSchema, visibilitySummaryResult())).toBe(true);
+    expect(Value.Check(Civ7VisibilitySummaryResultSchema, {
+      ...visibilitySummaryResult(),
+      command: "Visibility.revealAllPlots(0)",
+    })).toBe(false);
+  });
+
   test("wraps bounded Tuner map and plot reads", async () => {
     const server = await startMapTunerServer();
     try {
@@ -158,6 +301,42 @@ async function startMapTunerServer(): Promise<FakeTunerServer> {
       server.close();
       await once(server, "close");
     },
+  };
+}
+
+function mapSummaryResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...mapSummaryPayload(),
+  };
+}
+
+function plotSnapshotResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...plotSnapshotPayload(),
+  };
+}
+
+function mapGridResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...mapGridPayload(),
+  };
+}
+
+function visibilitySummaryResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...visibilityPayload(10),
   };
 }
 

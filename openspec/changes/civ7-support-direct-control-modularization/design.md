@@ -322,7 +322,11 @@ Compatibility matrix execution gate:
 - Effect/Bun and Effect/oRPC must compose over stable direct-control atoms,
   typed schemas, context, approval policy, correlation, errors, telemetry hooks,
   and resource/concurrency primitives where appropriate. They must not start as
-  transport-first raw command tunneling.
+  transport-first raw command tunneling, and direct-control-local prework must
+  stop at policy/dependency/proof separation rather than rebuilding oRPC
+  router, context, middleware, typed-error, correlation, or transport mechanics.
+  The staged native implementation authority is
+  `openspec/changes/civ7-control-orpc-native-slice/`.
 - Procedure-core schema work must explicitly evaluate TypeBox versus Effect
   Schema before adding or rewriting direct-control contracts. That disposition
   must consider encode/decode affordances, typed errors, oRPC compatibility,
@@ -449,7 +453,11 @@ Responsibilities:
    direct-control atoms, not raw command tunneling, caller-owned socket state,
    or transport-first architecture. This citation does not import or accept
    tracked procedure-core source.
-10. Add Effect/oRPC procedure cores over stable atoms.
+10. Promote native control-oRPC work through
+    `openspec/changes/civ7-control-orpc-native-slice/`, separating policies,
+    context dependencies, read ports, middleware candidates, contracts, and
+    modules before source implementation.
+11. Add Effect/oRPC procedure cores over stable atoms.
 
 The oRPC lane is therefore planning-only here after authority citation, and it
 remains downstream of direct-control atoms, Task 2.9.4 matrix-row acceptance,

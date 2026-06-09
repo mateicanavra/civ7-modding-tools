@@ -1,5 +1,8 @@
+import { Type, type Static } from "typebox";
+
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { assertApproved, type Civ7ActionApproval } from "../action-approval.js";
+import { Civ7ComponentIdSchema } from "../civ7-component-id.js";
 import {
   getCiv7PlayNotificationView,
   type Civ7PlayNotificationSummary,
@@ -7,25 +10,53 @@ import {
 } from "./notifications/view.js";
 import { jsonPayloadFromCommandResult } from "../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../session/execute.js";
-import type { Civ7ComponentId } from "../civ7-component-id.js";
-import { probeHelperSource, type Civ7RuntimeProbe } from "../runtime/probe.js";
+import {
+  Civ7RuntimeProbeSchema,
+  probeHelperSource,
+  type Civ7RuntimeProbe,
+} from "../runtime/probe.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7TunerState,
 } from "../session/types.js";
 
-export type Civ7TurnCompletionStatusResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  turn: Civ7RuntimeProbe<number>;
-  turnDate: Civ7RuntimeProbe<string>;
-  hasSentTurnComplete: Civ7RuntimeProbe<boolean>;
-  canEndTurn: Civ7RuntimeProbe<boolean>;
-  blocker: Civ7RuntimeProbe<unknown>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
+
+export const Civ7TurnCompletionStatusInputSchema = Type.Object({}, { additionalProperties: false });
+export type Civ7TurnCompletionStatusInput = Static<typeof Civ7TurnCompletionStatusInputSchema>;
+
+export const Civ7TurnCompletionStatusResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  localPlayerId: Type.Number(),
+  turn: Civ7RuntimeProbeSchema(Type.Number()),
+  turnDate: Civ7RuntimeProbeSchema(Type.String()),
+  hasSentTurnComplete: Civ7RuntimeProbeSchema(Type.Boolean()),
+  canEndTurn: Civ7RuntimeProbeSchema(Type.Boolean()),
+  blocker: Civ7RuntimeProbeSchema(Type.Unknown()),
+  firstReadyUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+}, { additionalProperties: false });
+export type Civ7TurnCompletionStatusResult = Readonly<Static<typeof Civ7TurnCompletionStatusResultSchema>>;
+
+export type Civ7TurnCompletionStatusDependencies = Readonly<{
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+  ) => Promise<Civ7CommandResult>;
+  parseTurnCompletionStatus: (
+    result: Civ7CommandResult,
+    label: string,
+  ) => Civ7TurnCompletionStatusResult;
+}>;
+
+type TurnCompletionDependencies = Civ7TurnCompletionStatusDependencies & Readonly<{
+  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
+  getPlayNotificationView: (options: Civ7DirectControlOptions) => Promise<Civ7PlayNotificationViewResult>;
 }>;
 
 export type Civ7TurnCompletionActionResult = Readonly<{
@@ -35,21 +66,9 @@ export type Civ7TurnCompletionActionResult = Readonly<{
   verified: boolean;
 }>;
 
-type TurnCompletionDependencies = Readonly<{
-  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
-  executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
-  ) => Promise<Civ7CommandResult>;
-  getPlayNotificationView: (options: Civ7DirectControlOptions) => Promise<Civ7PlayNotificationViewResult>;
-  parseTurnCompletionStatus: (
-    result: Civ7CommandResult,
-    label: string,
-  ) => Civ7TurnCompletionStatusResult;
-}>;
-
 export async function getCiv7TurnCompletionStatus(
   options: Civ7DirectControlOptions = {},
-  dependencies: Pick<TurnCompletionDependencies, "executeAppUiCommand" | "parseTurnCompletionStatus"> =
+  dependencies: Civ7TurnCompletionStatusDependencies =
     defaultTurnCompletionDependencies,
 ): Promise<Civ7TurnCompletionStatusResult> {
   const result = await dependencies.executeAppUiCommand({

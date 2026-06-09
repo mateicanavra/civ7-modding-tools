@@ -1,9 +1,12 @@
+import { Type } from "typebox";
+
 import { battlefieldScanSource } from "./battlefield.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { validateMapLocation } from "../map/validation.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import { boundedInteger, validatePlayerId } from "../../validation.js";
+import { Civ7MapLocationSchema } from "../map/types.js";
 
 import type {
   Civ7CommandResult,
@@ -11,6 +14,22 @@ import type {
   Civ7TunerState,
 } from "../../session/types.js";
 import type { Civ7MapLocation } from "../map/types.js";
+
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7DestinationAnalysisInputSchema = Type.Object({
+  playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
+  origin: Type.Optional(Civ7MapLocationSchema),
+  destination: Civ7MapLocationSchema,
+  corridorRadius: Type.Optional(Type.Integer({ minimum: 0, maximum: 8 })),
+  destinationRadius: Type.Optional(Type.Integer({ minimum: 1, maximum: 16 })),
+  maxPlayers: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
+  maxUnits: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
+  maxCities: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
+}, { additionalProperties: false });
 
 export type Civ7DestinationAnalysisInput = Readonly<{
   playerId?: number;
@@ -22,6 +41,122 @@ export type Civ7DestinationAnalysisInput = Readonly<{
   maxUnits?: number;
   maxCities?: number;
 }>;
+
+export const Civ7DestinationAnalysisRelationshipLabelPolicySchema = Type.Object({
+  relationshipSource: Type.Literal("not-classified"),
+  relationshipProof: Type.Literal("none"),
+  unprovenLabel: Type.Literal("relationship-unproven"),
+  guidance: Type.String(),
+}, { additionalProperties: false });
+
+const destinationRelationshipProofSchema = Type.Union([
+  Type.Literal("self"),
+  Type.Literal("none"),
+]);
+
+const destinationRelationshipLabelSchema = Type.Union([
+  Type.Literal("friendly"),
+  Type.Literal("relationship-unproven"),
+]);
+
+const destinationStanceSchema = Type.Union([
+  Type.Literal("friendly"),
+  Type.Literal("other"),
+]);
+
+const destinationAnalysisUnitSchema = (
+  distanceFields: Record<string, ReturnType<typeof Type.Number> | ReturnType<typeof Type.Optional>>,
+) => Type.Object({
+  id: Type.Unknown(),
+  owner: Type.Number(),
+  stance: destinationStanceSchema,
+  relationshipProof: destinationRelationshipProofSchema,
+  relationshipLabel: destinationRelationshipLabelSchema,
+  type: Type.Unknown(),
+  typeName: Type.Union([Type.String(), Type.Null()]),
+  role: Type.String(),
+  location: Civ7MapLocationSchema,
+  distance: Type.Number(),
+  nearestOrigin: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+  damage: Type.Number(),
+  wounded: Type.Boolean(),
+  strength: Type.Number(),
+  movementMovesRemaining: Type.Union([Type.Number(), Type.Null()]),
+  attacksRemaining: Type.Union([Type.Number(), Type.Null()]),
+  ...distanceFields,
+}, { additionalProperties: false });
+
+export const Civ7DestinationAnalysisCorridorUnitSchema = destinationAnalysisUnitSchema({
+  corridorDistance: Type.Number(),
+  destinationDistance: Type.Optional(Type.Number()),
+});
+
+export const Civ7DestinationAnalysisDestinationUnitSchema = destinationAnalysisUnitSchema({
+  corridorDistance: Type.Optional(Type.Number()),
+  destinationDistance: Type.Number(),
+});
+
+export const Civ7DestinationAnalysisCitySchema = Type.Object({
+  id: Type.Unknown(),
+  owner: Type.Number(),
+  stance: destinationStanceSchema,
+  relationshipProof: destinationRelationshipProofSchema,
+  relationshipLabel: destinationRelationshipLabelSchema,
+  name: Type.Union([Type.String(), Type.Null()]),
+  location: Civ7MapLocationSchema,
+  distance: Type.Number(),
+  nearestOrigin: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+  population: Type.Unknown(),
+  isTown: Type.Unknown(),
+  destinationDistance: Type.Number(),
+}, { additionalProperties: false });
+
+export const Civ7DestinationAnalysisCorridorSchema = Type.Object({
+  routeHint: Type.String(),
+  directGridDistance: Type.Union([Type.Number(), Type.Null()]),
+  sampleCount: Type.Number(),
+  sampledPlots: Type.Array(Type.Unknown()),
+  units: Type.Array(Civ7DestinationAnalysisCorridorUnitSchema),
+  unitCount: Type.Number(),
+}, { additionalProperties: false });
+
+export const Civ7DestinationAnalysisPressureSchema = Type.Object({
+  units: Type.Array(Civ7DestinationAnalysisDestinationUnitSchema),
+  unitCount: Type.Number(),
+  cities: Type.Array(Civ7DestinationAnalysisCitySchema),
+  cityCount: Type.Number(),
+  apparentOtherStrength: Type.Number(),
+}, { additionalProperties: false });
+
+export const Civ7DestinationAnalysisPointOfInterestSchema = Type.Object({
+  kind: Type.String(),
+  severity: Type.String(),
+  location: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+  summary: Type.String(),
+  units: Type.Optional(Type.Array(Type.Union([
+    Civ7DestinationAnalysisCorridorUnitSchema,
+    Civ7DestinationAnalysisDestinationUnitSchema,
+  ]))),
+  cities: Type.Optional(Type.Array(Civ7DestinationAnalysisCitySchema)),
+}, { additionalProperties: false });
+
+export const Civ7DestinationAnalysisResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  localPlayerId: Type.Number(),
+  playerId: Type.Number(),
+  origin: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+  destination: Civ7MapLocationSchema,
+  corridorRadius: Type.Number(),
+  destinationRadius: Type.Number(),
+  hiddenInfoPolicy: Type.String(),
+  relationshipLabelPolicy: Civ7DestinationAnalysisRelationshipLabelPolicySchema,
+  corridor: Civ7DestinationAnalysisCorridorSchema,
+  destinationPressure: Civ7DestinationAnalysisPressureSchema,
+  pointsOfInterest: Type.Array(Civ7DestinationAnalysisPointOfInterestSchema),
+  notes: Type.Array(Type.String()),
+}, { additionalProperties: false });
 
 export type Civ7DestinationAnalysisResult = Readonly<{
   host: string;
@@ -41,7 +176,7 @@ export type Civ7DestinationAnalysisResult = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
-type DestinationAnalysisDependencies = Readonly<{
+export type DestinationAnalysisDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;
   validateMapLocation: (location: Civ7MapLocation) => void;
   boundedInteger: (value: number, min: number, max: number, label: string) => number;

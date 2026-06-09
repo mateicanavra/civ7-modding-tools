@@ -1,8 +1,11 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
 import {
+  Civ7TurnCompletionStatusInputSchema,
+  Civ7TurnCompletionStatusResultSchema,
   configureCiv7Autoplay,
   getCiv7AutoplayStatus,
   getCiv7TurnCompletionStatus,
@@ -19,6 +22,21 @@ type FakeTunerServer = {
 };
 
 describe("Civ7 autoplay and turn completion", () => {
+  test("exports turn-completion status schemas with context-owned input", () => {
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { port: 4318 })).toBe(false);
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { state: { role: "app-ui" } })).toBe(false);
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { rawCommand: "GameContext.sendTurnComplete()" })).toBe(false);
+
+    const status = turnCompletionStatusResult();
+    expect(Value.Check(Civ7TurnCompletionStatusResultSchema, status)).toBe(true);
+    expect(Value.Check(Civ7TurnCompletionStatusResultSchema, {
+      ...status,
+      command: "GameContext.sendTurnComplete()",
+    })).toBe(false);
+  });
+
   test("requires approval before mutating autoplay or turn-completion state", async () => {
     await expect(configureCiv7Autoplay({ turns: 1 }, undefined as never)).rejects.toMatchObject({
       code: "command-failed",
@@ -226,6 +244,21 @@ describe("Civ7 autoplay and turn completion", () => {
     }
   });
 });
+
+function turnCompletionStatusResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    localPlayerId: 0,
+    turn: { ok: true as const, value: 12 },
+    turnDate: { ok: true as const, value: "3990 BCE" },
+    hasSentTurnComplete: { ok: true as const, value: false },
+    canEndTurn: { ok: true as const, value: true },
+    blocker: { ok: true as const, value: 0 },
+    firstReadyUnitId: { ok: true as const, value: null },
+  };
+}
 
 async function startAutoplayTurnTunerServer(
   options: { activeAutoplay?: boolean } = {}

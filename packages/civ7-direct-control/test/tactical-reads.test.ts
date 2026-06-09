@@ -1,8 +1,15 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
 import {
+  Civ7BattlefieldScanInputSchema,
+  Civ7BattlefieldScanResultSchema,
+  Civ7DestinationAnalysisInputSchema,
+  Civ7DestinationAnalysisResultSchema,
+  Civ7TargetCandidatesInputSchema,
+  Civ7TargetCandidatesResultSchema,
   getCiv7BattlefieldScan,
   getCiv7DestinationAnalysis,
   getCiv7TargetCandidates,
@@ -15,6 +22,138 @@ type FakeTacticalReadTunerServer = {
 };
 
 describe("tactical read wrappers", () => {
+  test("exports TypeBox schemas for the neutral battlefield scan read atom", () => {
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, {
+      origins: [{ x: 17, y: 20 }],
+      radius: 8,
+      maxPlayers: 12,
+      maxUnits: 16,
+      maxCities: 8,
+    })).toBe(true);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { radius: 33 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { maxPlayers: 129 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { maxUnits: 257 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { maxCities: 129 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { rawCommand: "readBattlefieldScan()" })).toBe(false);
+
+    const result = battlefieldScanResult();
+    expect(Value.Check(Civ7BattlefieldScanResultSchema, result)).toBe(true);
+    expect(Value.Check(Civ7BattlefieldScanResultSchema, {
+      ...result,
+      units: [
+        {
+          ...result.units[1],
+          relationshipProof: "owner-mismatch",
+        },
+      ],
+    })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanResultSchema, {
+      ...result,
+      owners: [
+        {
+          ...result.owners[1],
+          relationshipLabel: "enemy",
+        },
+      ],
+    })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanResultSchema, {
+      ...result,
+      rawCommand: "readBattlefieldScan()",
+    })).toBe(false);
+  });
+
+  test("exports TypeBox schemas for the neutral target-candidates read atom", () => {
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, {
+      origins: [{ x: 18, y: 20 }],
+      maxCandidates: 4,
+      maxPlayers: 12,
+      unitRadius: 3,
+    })).toBe(true);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { maxCandidates: 65 })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { maxPlayers: 129 })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { unitRadius: 17 })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { rawCommand: "readTargetCandidates()" })).toBe(false);
+
+    const result = targetCandidatesResult();
+    expect(Value.Check(Civ7TargetCandidatesResultSchema, result)).toBe(true);
+    expect(Value.Check(Civ7TargetCandidatesResultSchema, {
+      ...result,
+      relationshipLabelPolicy: {
+        ...result.relationshipLabelPolicy,
+        relationshipProof: "owner-mismatch",
+      },
+    })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesResultSchema, {
+      ...result,
+      rawCommand: "readTargetCandidates()",
+    })).toBe(false);
+  });
+
+  test("exports TypeBox schemas for the neutral destination analysis read atom", () => {
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, {
+      playerId: 0,
+      origin: { x: 20, y: 14 },
+      destination: { x: 13, y: 17 },
+      corridorRadius: 2,
+      destinationRadius: 4,
+      maxPlayers: 12,
+      maxUnits: 16,
+      maxCities: 8,
+    })).toBe(true);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, {
+      origin: { x: 20, y: 14 },
+    })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 1.5, y: 0 } })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, corridorRadius: 9 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, destinationRadius: 17 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, maxPlayers: 129 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, maxUnits: 257 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, maxCities: 129 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, {
+      destination: { x: 0, y: 0 },
+      rawCommand: "readDestinationAnalysis()",
+    })).toBe(false);
+
+    const result = destinationAnalysisResult();
+    expect(Value.Check(Civ7DestinationAnalysisResultSchema, result)).toBe(true);
+    expect(Value.Check(Civ7DestinationAnalysisResultSchema, {
+      ...result,
+      destinationPressure: {
+        ...result.destinationPressure,
+        units: [
+          {
+            ...result.destinationPressure.units[0],
+            relationshipProof: "owner-mismatch",
+          },
+        ],
+      },
+    })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisResultSchema, {
+      ...result,
+      destinationPressure: {
+        ...result.destinationPressure,
+        units: [
+          {
+            ...result.destinationPressure.units[0],
+            relationshipLabel: "enemy",
+          },
+        ],
+      },
+    })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisResultSchema, {
+      ...result,
+      rawCommand: "readDestinationAnalysis()",
+    })).toBe(false);
+  });
+
   test("reads target candidates as owner/proximity planning evidence", async () => {
     const server = await startTacticalReadTunerServer();
     try {
@@ -397,6 +536,24 @@ function targetCandidatesReadView() {
   };
 }
 
+function targetCandidatesResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    ...targetCandidatesReadView(),
+  };
+}
+
+function battlefieldScanResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    ...battlefieldScanReadView(),
+  };
+}
+
 function battlefieldScanReadView() {
   const friendlyUnit = {
     id: { owner: 0, id: 458752, type: 26 },
@@ -597,6 +754,15 @@ function destinationAnalysisReadView() {
       "The corridor is a straight-line grid approximation, not Civ7 engine pathfinding.",
       "Relationship labels are not classified here. Treat owner and proximity pressure as relationship-unproven until official proof exists.",
     ],
+  };
+}
+
+function destinationAnalysisResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    ...destinationAnalysisReadView(),
   };
 }
 

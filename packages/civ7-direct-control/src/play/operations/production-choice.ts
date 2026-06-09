@@ -1,11 +1,15 @@
+import { Type, type Static } from "typebox";
+
 import { assertApproved } from "../../action-approval.js";
-import { assertCiv7ComponentId } from "../../civ7-component-id.js";
+import { assertCiv7ComponentId, Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import {
+  Civ7ProductionPostconditionSchema,
+  Civ7ProductionPostconditionSnapshotSchema,
   productionPostconditionFor,
   type Civ7ProductionPostconditionSnapshot,
 } from "./production-postconditions.js";
@@ -26,10 +30,99 @@ import type {
   Civ7DirectControlOptions,
 } from "../../session/types.js";
 
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+const civ7ProductionChoiceArgsSchema = Type.Unsafe<Readonly<Record<string, number>>>({
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    UnitType: { type: "integer" },
+    ConstructibleType: { type: "integer" },
+    ProjectType: { type: "integer" },
+    X: { type: "integer" },
+    Y: { type: "integer" },
+  },
+  oneOf: [
+    {
+      required: ["UnitType"],
+      not: {
+        anyOf: [
+          { required: ["ConstructibleType"] },
+          { required: ["ProjectType"] },
+          { required: ["X"] },
+          { required: ["Y"] },
+        ],
+      },
+    },
+    {
+      required: ["ProjectType"],
+      not: {
+        anyOf: [
+          { required: ["UnitType"] },
+          { required: ["ConstructibleType"] },
+          { required: ["X"] },
+          { required: ["Y"] },
+        ],
+      },
+    },
+    {
+      required: ["ConstructibleType"],
+      not: {
+        anyOf: [
+          { required: ["UnitType"] },
+          { required: ["ProjectType"] },
+          { required: ["X"] },
+          { required: ["Y"] },
+        ],
+      },
+    },
+    {
+      required: ["ConstructibleType", "X", "Y"],
+      not: {
+        anyOf: [
+          { required: ["UnitType"] },
+          { required: ["ProjectType"] },
+        ],
+      },
+    },
+  ],
+});
+
+export const Civ7ProductionChoiceInputSchema = Type.Object({
+  cityId: Civ7ComponentIdSchema,
+  args: civ7ProductionChoiceArgsSchema,
+}, { additionalProperties: false });
+
 export type Civ7ProductionChoiceInput = Readonly<{
   cityId: Civ7ComponentId;
   args: Readonly<Record<string, number>>;
 }>;
+
+export const Civ7ProductionChoiceRequestInputSchema = Type.Object({
+  cityId: Civ7ComponentIdSchema,
+  args: civ7ProductionChoiceArgsSchema,
+  approvalReason: Type.String({ minLength: 1 }),
+  disposableSession: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false });
+export type Civ7ProductionChoiceRequestInput = Readonly<Static<typeof Civ7ProductionChoiceRequestInputSchema>>;
+
+const civ7OperationValidationResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  family: Type.Literal("city-operation"),
+  operationType: Type.Literal("BUILD"),
+  enumValue: Type.Unknown(),
+  target: Type.Object({
+    cityId: Civ7ComponentIdSchema,
+  }, { additionalProperties: false }),
+  args: Type.Unknown(),
+  valid: Type.Boolean(),
+  result: Type.Unknown(),
+}, { additionalProperties: false });
 
 export type Civ7ProductionChoiceCommandPayload = Readonly<{
   cityId: Civ7ComponentId;
@@ -47,9 +140,34 @@ export type Civ7ProductionChoiceCommandPayload = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
+export const Civ7ProductionChoiceCommandPayloadSchema = Type.Object({
+  cityId: Civ7ComponentIdSchema,
+  args: Type.Unknown(),
+  beforeValidation: Type.Unknown(),
+  afterValidation: Type.Unknown(),
+  sent: Type.Boolean(),
+  sendResult: Type.Optional(Type.Unknown()),
+  beforeProductionPostcondition: Civ7ProductionPostconditionSnapshotSchema,
+  afterProductionPostcondition: Civ7ProductionPostconditionSnapshotSchema,
+  ui: Type.Optional(Type.Object({
+    cityActivation: Type.Optional(Type.Unknown()),
+    interfaceClose: Type.Optional(Type.Unknown()),
+  }, { additionalProperties: false })),
+  notes: Type.Array(Type.String()),
+}, { additionalProperties: false });
+
 export type Civ7ProductionChoiceResult = Civ7OperationRequestResult & Readonly<{
   payload?: Civ7ProductionChoiceCommandPayload;
 }>;
+
+export const Civ7ProductionChoiceResultSchema = Type.Object({
+  before: civ7OperationValidationResultSchema,
+  after: civ7OperationValidationResultSchema,
+  sent: Type.Boolean(),
+  verified: Type.Boolean(),
+  productionPostcondition: Type.Optional(Civ7ProductionPostconditionSchema),
+  payload: Type.Optional(Civ7ProductionChoiceCommandPayloadSchema),
+}, { additionalProperties: false });
 
 type ProductionChoiceDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;

@@ -1,11 +1,16 @@
+import { Type, type Static } from "typebox";
+
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
-import { probeHelperSource } from "../../runtime/probe.js";
+import {
+  Civ7RuntimeProbeSchema,
+  probeHelperSource,
+  type Civ7RuntimeProbe,
+} from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7TunerCommand } from "../../session/execute.js";
 import { boundedInteger, validateIdentifier } from "../../validation.js";
@@ -14,18 +19,44 @@ import {
   HARD_CIV7_GAMEINFO_LIMIT,
 } from "./constants.js";
 
-export type Civ7GameInfoRowsInput = Readonly<{
-  table: string;
-  limit?: number;
-  offset?: number;
-  lookup?: string | number | ReadonlyArray<string | number>;
-  filter?: Readonly<{
-    key: string;
-    equals: string | number | boolean;
-  }>;
-  includeSchema?: boolean;
-  includePrimaryKeys?: boolean;
-}>;
+const civ7GameInfoIdentifierSchema = Type.String({ pattern: "^[A-Za-z_][A-Za-z0-9_]*$" });
+
+export const Civ7GameInfoRowsInputSchema = Type.Object({
+  table: civ7GameInfoIdentifierSchema,
+  limit: Type.Optional(Type.Integer({ minimum: 1, maximum: HARD_CIV7_GAMEINFO_LIMIT })),
+  offset: Type.Optional(Type.Integer({ minimum: 0, maximum: 1_000_000 })),
+  lookup: Type.Optional(Type.Union([
+    Type.String(),
+    Type.Number(),
+    Type.Array(Type.Union([Type.String(), Type.Number()])),
+  ])),
+  filter: Type.Optional(Type.Object({
+    key: civ7GameInfoIdentifierSchema,
+    equals: Type.Union([Type.String(), Type.Number(), Type.Boolean()]),
+  }, { additionalProperties: false })),
+  includeSchema: Type.Optional(Type.Boolean()),
+  includePrimaryKeys: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false });
+
+export type Civ7GameInfoRowsInput = Readonly<Static<typeof Civ7GameInfoRowsInputSchema>>;
+
+export const Civ7GameInfoRowsResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: Type.Object({
+    id: Type.String(),
+    name: Type.String(),
+  }, { additionalProperties: false }),
+  table: civ7GameInfoIdentifierSchema,
+  source: Type.Literal("GameInfo"),
+  rows: Type.Array(Type.Record(Type.String(), Type.Unknown())),
+  limit: Type.Integer({ minimum: 1, maximum: HARD_CIV7_GAMEINFO_LIMIT }),
+  offset: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  total: Civ7RuntimeProbeSchema(Type.Number()),
+  omittedUnknown: Type.Boolean(),
+  schema: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
+  primaryKeys: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
+}, { additionalProperties: false });
 
 export type Civ7GameInfoRowsResult = Readonly<{
   host: string;
@@ -42,7 +73,7 @@ export type Civ7GameInfoRowsResult = Readonly<{
   primaryKeys?: Civ7RuntimeProbe<unknown>;
 }>;
 
-type GameInfoReadDependencies = Readonly<{
+export type GameInfoReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   defaultGameInfoLimit: number;
   executeTunerCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;

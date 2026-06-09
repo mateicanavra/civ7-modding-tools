@@ -7,6 +7,8 @@ import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 import {
   Civ7AppUiSnapshotResultSchema,
+  Civ7GameInfoRowsInputSchema,
+  Civ7GameInfoRowsResultSchema,
   Civ7PlayableStatusInputSchema,
   Civ7PlayableStatusResultSchema,
   Civ7TunerHealthResultSchema,
@@ -43,6 +45,22 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
       jsLiteral(undefined);
     } catch (err) {
       expect(err).toMatchObject({ code: "command-failed" });
+    }
+
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+    for (const value of [1n, circular]) {
+      try {
+        jsLiteral(value);
+      } catch (err) {
+        expect(err).toMatchObject({
+          code: "command-failed",
+          message: "Cannot serialize Civ7 command input",
+        });
+        expect((err as Error).cause).toBeInstanceOf(TypeError);
+        continue;
+      }
+      throw new Error("Expected command-failed for unserializable command-source input");
     }
   });
 
@@ -290,6 +308,24 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
         offset: 0,
         total: { ok: true, value: 1 },
       });
+      expect(Value.Check(Civ7GameInfoRowsInputSchema, {
+        table: "Resources",
+        limit: 2,
+        filter: { key: "ResourceType", equals: "RESOURCE_COTTON" },
+      })).toBe(true);
+      expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources;DROP" })).toBe(false);
+      expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", limit: 1_001 })).toBe(false);
+      expect(Value.Check(Civ7GameInfoRowsInputSchema, {
+        table: "Resources",
+        filter: { key: "Resource-Type", equals: "RESOURCE_COTTON" },
+      })).toBe(false);
+      expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", host: "127.0.0.1" })).toBe(false);
+      expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", rawCommand: "GameInfo.Resources" })).toBe(false);
+      expect(Value.Check(Civ7GameInfoRowsResultSchema, rows)).toBe(true);
+      expect(Value.Check(Civ7GameInfoRowsResultSchema, {
+        ...rows,
+        session: { stateName: "Tuner" },
+      })).toBe(false);
     } finally {
       await server.close();
     }
