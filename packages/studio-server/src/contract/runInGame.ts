@@ -247,7 +247,15 @@ export const start = oc
         sourceSnapshot: z.unknown().optional(),
         selectedConfig: z
           .object({
-            id: z.string(),
+            // `id` is OPTIONAL: disposable runs send `selectedConfig` without one,
+            // and `parseRunInGameSetupRequest` (apps/.../server/runInGame/
+            // requestValidation.ts) reads `selected.id` defensively (defaulting to
+            // "studio-current" when absent). Declaring it required forced the caller
+            // to launder the request through an `as unknown as Parameters<…>` cast;
+            // making it optional here aligns the contract with the validator + engine
+            // and restores end-to-end input type safety on the
+            // `assertNoRawControlFields`-protected start path.
+            id: z.string().optional(),
             label: z.string().optional(),
             description: z.string().optional(),
             sourcePath: z.string().optional(),
