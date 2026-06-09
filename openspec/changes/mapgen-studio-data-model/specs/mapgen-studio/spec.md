@@ -34,9 +34,10 @@ backoff are hard core). Query results SHALL NOT be mirrored into Zustand.
 #### Scenario: Start and save mutations seed the poll
 
 - **WHEN** a run-in-game start or save-deploy mutation returns its immediate response
-- **THEN** the response seeds the corresponding status query cache and sets the
-  active request id in `runStore`, so the operation is shown immediately and the poll
-  continues from it without an extra round-trip
+- **THEN** the response seeds the operation state synchronously and sets the active
+  request id in `runStore`, and the poll's `initialData` keeps that seed fresh for one
+  interval — so the operation is shown immediately and the first network refresh is the
+  interval-driven one, with no extra immediate round-trip
 
 #### Scenario: Live-runtime poll stays imperative
 
