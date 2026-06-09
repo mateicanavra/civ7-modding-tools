@@ -127,10 +127,12 @@ adding more read-only facade shells.
     summary behavior into the control-oRPC service owner. See
     `workstream/world-runtime-resource-boundary.md`.
   - [x] 5.4.4 Record `strategy.frontSummary` as a service-owned planning
-    composition over target-candidate and battlefield-scan runtime/read ports.
-    The service owns the normal projection, next-step wording, raw-output
-    exclusion, and relationship-unproven policy; no strategy catalog, action
-    authority, runtime proof, or parent Task 5.x/6.x acceptance.
+    composition over target-candidate, battlefield-scan, and optional
+    destination-analysis runtime/read ports. The service owns the normal
+    projection, semantic next-step descriptors, raw-output exclusion, and
+    relationship-unproven policy; CLI command strings stay caller-local; no
+    strategy catalog, action authority, runtime proof, or parent Task 5.x/6.x
+    acceptance.
   - [x] 5.4.5 Record `narrative.choice.request` as a service-owned
     narrative boundary over direct-control narrative runtime, validator, and
     proof ports. The service owns the caller-facing semantic choice shape,
@@ -191,6 +193,44 @@ adding more read-only facade shells.
     direct-control's low-level player-operation/city-command authority inside
     the live facade adapter and keep raw operation inputs out of the exported
     context-construction surface.
+  - [x] 5.4.17 Record `world.current` as a service-owned current-world
+    boundary over playable/App UI snapshot facts. The service owns the
+    contract-local schema, normal projection, next-step wording, raw-output
+    exclusion, and relationship-label absence; direct-control remains only the
+    low-level playable/App UI snapshot port. This does not revive
+    `map.summary.read`, `player.summary.read`, `unit.summary.read`, or
+    `city.summary.read`.
+  - [x] 5.4.18 Record `attention.priorities` as a service-owned priority
+    dashboard over playable status, notification, turn-completion,
+    ready-unit/city, and optional battlefield runtime/read ports. The service
+    owns priority ranking, source status, semantic next-step descriptors,
+    raw-output exclusion, and the no-CLI-string contract boundary;
+    battlefield remains planning evidence only, with no send authority,
+    runtime proof, or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.19 Record `strategy.civilianRouteTriage` as a service-owned
+    civilian route planning composition over notification, ready-unit,
+    settlement recommendation, battlefield-scan, and destination-analysis
+    runtime/read ports. The service owns route status, reasons, source status,
+    semantic next-step descriptors, raw-output exclusion, and
+    relationship-unproven policy; CLI command strings stay caller-local; no
+    movement/founding/action authority, runtime proof, controller bridge, or
+    parent Task 5.x/6.x acceptance.
+  - [x] 5.4.20 Record `strategy.formationSnapshot` as a service-owned
+    formation planning composition over notification, ready-unit, and
+    battlefield-scan runtime/read ports. The service owns formation posture,
+    source status, safe unit/contact projections, semantic next-step
+    descriptors, raw-output exclusion, and relationship-unproven policy; CLI
+    command strings stay caller-local; no movement/action authority, runtime
+    proof, controller bridge, or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.21 Record `notifications.queue.current` and
+    `notifications.queue.dismiss.request` as service-owned notification queue
+    scheduling and guarded informational-closeout boundaries over
+    notification HUD reads and item-scoped notification dismissal runtime/proof
+    ports. The service owns queue disposition, eligibility/exclusion reasons,
+    semantic next-step descriptors, aggregate proof/no-repeat projection, raw
+    output exclusion, and the no-CLI-string contract boundary; no broad
+    operation catalog, approval/reason mechanic, runtime proof, controller
+    bridge, or parent Task 5.x/6.x acceptance.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -237,10 +277,11 @@ adding more read-only facade shells.
     postcondition/no-repeat authority procedure-local; shared
     validator/postcondition middleware remains pending.
   - [x] 5.5.9 Seed `strategy.frontSummary` as a native service-owned planning
-    procedure that composes target-candidate and battlefield-scan evidence into
-    neutral front planning output without adding same-shaped read wrappers,
-    operation sends, strategy catalogs, relationship labels beyond official
-    evidence, or runtime/live proof claims.
+    procedure that composes target-candidate, battlefield-scan, and optional
+    destination-analysis evidence into neutral front planning output without
+    adding same-shaped read wrappers, CLI syntax in service output, operation
+    sends, strategy catalogs, relationship labels beyond official evidence, or
+    runtime/live proof claims.
   - [x] 5.5.10 Seed `narrative.choice.request` as a native
     service-owned narrative procedure that composes playable
     readiness, direct-control narrative request authority, and source-owned
@@ -303,6 +344,52 @@ adding more read-only facade shells.
     direct-control turn-completion send authority, and source-owned
     turn-completion proof classification into semantic output without exposing
     raw command/session/Tuner details or claiming runtime/live proof.
+  - [x] 5.5.15 Seed `world.current` as a native service-owned world procedure
+    that projects bounded turn, local-player, map, and player-count facts from
+    the playable/App UI snapshot without calling direct-control summary
+    wrappers, exposing actor catalogs, inferring relationship labels, or
+    claiming runtime/live proof.
+  - [x] 5.5.16 Seed `world.plot.read` and `world.grid.read` as native
+    service-owned world procedures over bounded direct-control plot snapshot
+    and map grid runtime read ports. Keep caller input/output schemas
+    contract-local, strip raw host/port/state/session/Tuner envelopes from
+    normal output, reject endpoint/session/raw command fields before facade
+    execution, and keep game-UI/controller allowlisting, runtime proof, broad
+    actor catalog support, and parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.17 Seed `attention.priorities` as a native service-owned
+    attention procedure that composes playable status, notification,
+    turn-completion, ready-unit/city, and optional battlefield evidence into a
+    semantic priority dashboard. Keep caller input/output schemas
+    contract-local, keep CLI command suggestions out of service output, keep
+    battlefield evidence relationship-safe and read-only, and keep runtime
+    proof, action-send authority, transport expansion, and parent Task
+    5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.18 Seed `strategy.civilianRouteTriage` as a native service-owned
+    strategy procedure that composes current notification, ready-unit,
+    settlement recommendation, battlefield, and destination evidence into a
+    semantic civilian route triage. Keep caller input/output schemas
+    contract-local, keep CLI command suggestions out of service output, keep
+    settlement and battlefield evidence relationship-safe and read-only, and
+    keep runtime proof, movement/founding/action authority, controller bridge,
+    transport expansion, and parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.19 Seed `strategy.formationSnapshot` as a native service-owned
+    strategy procedure that composes current notification, ready-unit, and
+    battlefield evidence into a semantic formation posture view. Keep caller
+    input/output schemas contract-local, keep CLI command suggestions out of
+    service output, keep battlefield evidence relationship-safe and read-only,
+    omit raw ready-unit operation/evidence payloads, and keep runtime proof,
+    movement/action authority, controller bridge, transport expansion, and
+    parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.20 Seed `notifications.queue.current` and
+    `notifications.queue.dismiss.request` as native service-owned notification
+    queue procedures that compose current notification HUD evidence, item
+    eligibility/exclusion policy, readiness-gated notification dismissal
+    runtime ports, and aggregate proof/no-repeat projection into semantic queue
+    output. Keep caller input/output schemas contract-local, keep CLI command
+    suggestions out of service output, omit raw App UI closeout internals and
+    legacy `verified`, and keep runtime proof, controller bridge, transport
+    expansion, broad operation catalog support, approval/reason mechanics, and
+    parent Task 5.x/6.x/7.x acceptance pending.
 
 ## 6. Native Policy Layering
 
@@ -565,6 +652,71 @@ adding more read-only facade shells.
     migrated commands, and keep sent town-focus results
     pending-runtime-proof/no-repeat guarded until a real city-read owner proves
     town project review state changed.
+  - [x] 7.1.9.5 Route `civ7 game map --summary` through the in-process
+    `world.current` server-side client under the `world` router. Keep endpoint
+    flags as context construction, emit the semantic current-world projection,
+    omit raw host/port/state/session/Tuner payloads from normal summary JSON,
+    and leave plot/grid reads on bounded direct-control diagnostics until
+    separate accepted world/map read service leaves exist.
+  - [x] 7.1.9.6 Route `civ7 game map --plot` and `civ7 game map --bounds`
+    through the in-process `world.plot.read` and `world.grid.read`
+    server-side clients under the `world` router. Keep endpoint flags as
+    context construction, emit semantic bounded map projections, omit raw
+    host/port/state/session/Tuner payloads and direct-control envelopes from
+    normal JSON, keep GameInfo/debug reads separate, and avoid controller,
+    transport, relationship-label, or runtime-proof claims.
+  - [x] 7.1.9.7 Route `civ7 game play front-summary` through the in-process
+    `strategy.frontSummary` server-side client under the `strategy` router.
+    Move target-candidate, battlefield, and destination-analysis composition
+    into the service procedure, keep endpoint flags as context construction,
+    keep CLI command-string suggestions as CLI presentation only, emit
+    relationship-safe semantic planning output, omit raw
+    host/port/state/session/Tuner payloads and direct-control envelopes from
+    normal JSON, and avoid transport, relationship-label, action-send, or
+    runtime-proof claims.
+  - [x] 7.1.9.8 Route `civ7 game play priorities` through the in-process
+    `attention.priorities` server-side client under the `attention` router.
+    Move priority ranking, source-status, current-HUD/ready-actor/optional
+    battlefield composition, and semantic next-step descriptors into the
+    service procedure. Keep endpoint flags as context construction, keep CLI
+    command-string suggestions as CLI presentation only, emit
+    relationship-safe read-only attention output, omit raw
+    host/port/state/session/Tuner payloads and direct-control envelopes from
+    normal JSON, and avoid transport, relationship-label, action-send, or
+    runtime-proof claims.
+  - [x] 7.1.9.9 Route `civ7 game play civilian-route-triage` through the
+    in-process `strategy.civilianRouteTriage` server-side client under the
+    `strategy` router. Move route-status, source-status, settlement,
+    battlefield, destination, and semantic next-step composition into the
+    service procedure. Keep endpoint flags as context construction, keep CLI
+    command-string suggestions as CLI presentation only, emit
+    relationship-safe read-only route planning output, omit raw
+    host/port/state/session/Tuner payloads and direct-control envelopes from
+    normal JSON, and avoid controller bridge, transport, relationship-label,
+    movement/founding/action-send, or runtime-proof claims.
+  - [x] 7.1.9.10 Route `civ7 game play formation-snapshot` through the
+    in-process `strategy.formationSnapshot` server-side client under the
+    `strategy` router. Move formation posture, source status, ready-unit,
+    battlefield, contact grouping, and semantic next-step composition into the
+    service procedure. Keep endpoint flags as context construction, keep CLI
+    command-string suggestions as CLI presentation only, emit
+    relationship-safe read-only formation output, omit raw
+    host/port/state/session/Tuner payloads, direct-control envelopes, raw
+    ready-unit operation payloads, and raw battlefield unit evidence from
+    normal JSON, and avoid controller bridge, transport, relationship-label,
+    movement/action-send, or runtime-proof claims.
+  - [x] 7.1.9.11 Route `civ7 game play notification-queue` and
+    `civ7 game play dismiss-notification-queue` through the in-process
+    `notifications.queue.current` and `notifications.queue.dismiss.request`
+    server-side clients under the `notifications` router. Move queue
+    disposition, informational dismissal eligibility, exclusion reasons,
+    readiness-gated aggregate dismissal, and proof/no-repeat projection into
+    the service procedures. Keep endpoint flags as context construction, keep
+    CLI command-string suggestions as CLI presentation only, omit raw
+    host/port/state/session/Tuner payloads, direct-control envelopes, legacy
+    `verified`, and raw App UI dismissal internals from normal JSON, and avoid
+    controller bridge, transport, broad operation catalogs, approval/reason
+    mechanics, or runtime-proof claims.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -812,10 +964,11 @@ adding more read-only facade shells.
     `strategy.frontSummary`: expose ambient `Players`, `Players.Units`,
     `Players.Cities`, `Units`, `Cities`, `GameInfo.Units`, `GameplayMap`, and
     controller-owned local-player evidence as internal target-candidate and
-    battlefield-scan read ports behind the existing service-owned strategy
-    procedure; allowlist only `strategy.frontSummary` through bridge ingress,
-    not raw `targetCandidates` or `battlefieldScan` leaves; fail closed when
-    required ambient owner/unit/city APIs are missing; preserve
+    battlefield-scan/destination-analysis read ports behind the existing
+    service-owned strategy procedure; allowlist only `strategy.frontSummary`
+    through bridge ingress, not raw `targetCandidates`, `battlefieldScan`, or
+    `destinationAnalysis` leaves; fail closed when required ambient
+    owner/unit/city APIs are missing; preserve
     relationship-unproven normal output and raw host/port/state/session/command
     omission; keep target-action send authority, generic strategy catalogs,
     hostile/enemy/opponent/threat/war/ally/suzerain labels, deployed Civ7
@@ -940,6 +1093,27 @@ adding more read-only facade shells.
     command/session/state details, deployed Civ7 proof, play-thread action,
     transport expansion, direct-control game-UI semantic subpaths, public
     package-root procedure schema exports, and full `7.3` acceptance pending.
+  - [x] 7.3.35 Allowlist the read-only `world.current` service procedure
+    through the controller bridge and game-UI supported-read facts: derive the
+    closed bridge request/output schemas from the aggregated
+    `Civ7ControlOrpcContract`, dispatch only when controller context lists
+    `world.current` as supported, and let `readiness.current` recommend
+    `read-world` when current-world facts are the only supported controller
+    read. Keep actor summaries, relationship labels, raw game-UI function
+    names, command/session/state details, deployed Civ7 proof, play-thread
+    action, transport expansion, public package-root procedure schema exports,
+    and full `7.3` acceptance pending.
+  - [x] 7.3.36 Add game-resident world plot/grid read dependencies for
+    `world.plot.read` and `world.grid.read`: expose ambient `GameplayMap`
+    plot APIs as low-level map read evidence for the existing service-owned
+    world procedures, allowlist both leaves through closed controller bridge
+    envelopes derived from the aggregated `Civ7ControlOrpcContract`, advertise
+    the reads only when the exact plot-level map APIs exist, and keep normal
+    bridge output semantic without raw host/port/state/session/command,
+    direct-control runtime envelopes, actor catalogs, or relationship labels.
+    Keep deployed Civ7 proof, play-thread action, transport expansion, public
+    package-root procedure schema exports, broad world/actor catalogs, and
+    full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -1243,6 +1417,91 @@ adding more read-only facade shells.
   play-thread action, transport expansion, direct-control game-UI semantic
   subpaths, public package-root procedure schema exports, or parent
   Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.12 Run focused world-current, readiness-current, and
+  controller-ingress tests plus control-oRPC package test/check/build,
+  controller mod package build/test/check with bundle scan, strict OpenSpec
+  validates, private procedure-schema export scans, and diff hygiene for the
+  service-owned `world.current` procedure and controller read allowlist slice.
+  These are local package and generated-bundle proofs only and do not claim
+  deployed Civ7 runtime proof, play-thread action, transport expansion,
+  revived summary wrappers, actor catalog support, relationship labels, public
+  package-root procedure schema exports, or parent Task 5.x/6.x/7.x
+  acceptance.
+- [x] 8.60.13 Run focused CLI map summary proof, full CLI test, CLI check,
+  relevant OpenSpec strict validates, and diff hygiene for the
+  `game map --summary` migration to `world.current`. This is local
+  CLI/service proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, plot/grid service migration,
+  revived summary wrappers, relationship labels, or parent Task 5.x/6.x/7.x
+  acceptance.
+- [x] 8.60.14 Run focused world plot/grid procedure tests, control-oRPC
+  package check/build, focused CLI map command tests, CLI check, relevant
+  OpenSpec strict validates, private procedure-schema export scan,
+  active approval/caller-permission scan, and diff hygiene for the
+  `world.plot.read`/`world.grid.read` service leaves and `game map`
+  plot/bounds migration. This is local package/CLI service proof only and does
+  not claim deployed Civ7 runtime proof, play-thread action, controller bridge
+  allowlisting, transport expansion, broad actor catalog support, relationship
+  labels, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.15 Run focused controller bridge, game-UI controller, world map
+  read, and readiness tests plus control-oRPC package check/build, strict
+  OpenSpec validates, private procedure-schema export scan, active
+  approval/caller-permission scan, generated bundle scan, and diff hygiene for
+  the game-resident world plot/grid read dependency and controller bridge
+  allowlist slice. This is local package and generated-bundle proof only and
+  does not claim deployed Civ7 runtime proof, play-thread action, transport
+  expansion, broad actor catalog support, relationship labels, public
+  package-root procedure schema exports, or parent Task 5.x/6.x/7.x
+  acceptance.
+- [x] 8.60.16 Run focused strategy-front-summary and CLI tactical-read tests
+  plus control-oRPC package test/check/build, CLI play/check gates, strict
+  OpenSpec validates, private procedure-schema export scan, active
+  approval/caller-permission scan, service-output CLI-string scan, and diff
+  hygiene for the `strategy.frontSummary` service-composition expansion and
+  `game play front-summary` in-process oRPC caller migration. This is local
+  package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, relationship labels beyond official
+  evidence, action-send authority, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.17 Run focused attention-priorities and CLI priorities tests plus
+  control-oRPC package test/check/build, CLI play/check gates, strict
+  OpenSpec validates, private procedure-schema export scan, active
+  approval/caller-permission scan, service-output CLI-string scan, and diff
+  hygiene for the `attention.priorities` service-composition expansion and
+  `game play priorities` in-process oRPC caller migration. This is local
+  package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, relationship labels beyond official
+  evidence, action-send authority, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.18 Run focused strategy-civilian-route-triage and CLI tactical-read
+  tests plus control-oRPC package test/check/build, CLI play/check gates,
+  strict OpenSpec validates, private procedure-schema export scan, active
+  approval/caller-permission scan, service-output CLI-string scan, and diff
+  hygiene for the `strategy.civilianRouteTriage` service-composition expansion
+  and `game play civilian-route-triage` in-process oRPC caller migration. This
+  is local package/CLI proof only and does not claim deployed Civ7 runtime
+  proof, play-thread action, controller bridge, transport expansion,
+  relationship labels beyond official evidence, movement/founding/action-send
+  authority, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.19 Run focused strategy-formation-snapshot and CLI tactical-read
+  tests plus control-oRPC package test/check/build, CLI play/check gates,
+  strict OpenSpec validates, private procedure-schema export scan, active
+  approval/caller-permission scan, service-output CLI-string scan, and diff
+  hygiene for the `strategy.formationSnapshot` service-composition expansion
+  and `game play formation-snapshot` in-process oRPC caller migration. This is
+  local package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, controller bridge, transport expansion, relationship
+  labels beyond official evidence, movement/action-send authority, or parent
+  Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.20 Run focused notification-queue procedure tests and CLI
+  notification queue tests plus control-oRPC package test/check/build, CLI
+  play/check gates, strict OpenSpec validates, private procedure-schema export
+  scan, active approval/caller-permission scan, service-output CLI-string
+  scan, and diff hygiene for the `notifications.queue.*` service-composition
+  expansion and `game play notification-queue` / `dismiss-notification-queue`
+  in-process oRPC caller migration. This is local package/CLI proof only and
+  does not claim deployed Civ7 runtime proof, play-thread action, controller
+  bridge, transport expansion, broad operation catalog support, approval/reason
+  mechanics, raw App UI closeout output, or parent Task 5.x/6.x/7.x
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

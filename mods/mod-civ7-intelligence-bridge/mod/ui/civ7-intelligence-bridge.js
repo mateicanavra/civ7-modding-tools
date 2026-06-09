@@ -26881,8 +26881,8 @@ function notificationDismissalPostconditionReason(classification) {
       return "The dismissal was sent, but notification identity evidence did not confirm disappearance, queue removal, or front movement.";
   }
 }
-function probeValue2(probe13) {
-  return probe13.ok ? probe13.value : void 0;
+function probeValue2(probe14) {
+  return probe14.ok ? probe14.value : void 0;
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-DO73ZQ4V.js
@@ -27039,8 +27039,8 @@ function progressionChoiceDetailsChanged(left3, right3) {
 }
 function probeValue(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe13 = value2;
-    return probe13.ok === true ? probe13.value ?? null : null;
+    const probe14 = value2;
+    return probe14.ok === true ? probe14.value ?? null : null;
   }
   return value2 ?? null;
 }
@@ -27182,8 +27182,8 @@ function turnCompletionNoRepeatAfterUnverified(classification) {
       return true;
   }
 }
-function probeValue3(probe13) {
-  return probe13.ok ? probe13.value : void 0;
+function probeValue3(probe14) {
+  return probe14.ok ? probe14.value : void 0;
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-ZGRAA6DD.js
@@ -27242,7 +27242,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-CR22UR4G.js
+// ../../packages/civ7-control-orpc/dist/chunk-IXBCRY5S.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -28178,6 +28178,45 @@ var Civ7StrategyFrontSummaryUnavailableError = class extends ORPCTaggedError(
   }
 ) {
 };
+var Civ7WorldCurrentUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("world.current"),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldCurrentUnavailableError = class extends ORPCTaggedError(
+  "Civ7WorldCurrentUnavailableError",
+  {
+    code: "WORLD_CURRENT_UNAVAILABLE",
+    message: "Current world view failed.",
+    schema: toStandardSchema(Civ7WorldCurrentUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
+var Civ7WorldReadUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Union([
+      typebox_exports.Literal("world.plot.read"),
+      typebox_exports.Literal("world.grid.read")
+    ]),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldReadUnavailableError = class extends ORPCTaggedError(
+  "Civ7WorldReadUnavailableError",
+  {
+    code: "WORLD_READ_UNAVAILABLE",
+    message: "World map read failed.",
+    schema: toStandardSchema(Civ7WorldReadUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
 var Civ7NotificationDismissalUnavailableErrorDataSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("notifications.dismiss.request"),
@@ -28556,7 +28595,9 @@ var civ7ControlOrpcErrorMap = {
   TOWN_FOCUS_UNAVAILABLE: Civ7TownFocusUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
   UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,
-  UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError
+  UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
+  WORLD_CURRENT_UNAVAILABLE: Civ7WorldCurrentUnavailableError,
+  WORLD_READ_UNAVAILABLE: Civ7WorldReadUnavailableError
 };
 var civ7ControlOrpcContractBase = eoc.$meta({}).errors(civ7ControlOrpcErrorMap);
 var Civ7ControlOrpcComponentIdSchema = typebox_exports.Object(
@@ -30005,6 +30046,7 @@ var Civ7ReadinessNextStepSchema = typebox_exports.Object(
     kind: typebox_exports.Union([
       typebox_exports.Literal("read-attention"),
       typebox_exports.Literal("read-strategy-front"),
+      typebox_exports.Literal("read-world"),
       typebox_exports.Literal("restore-tuner"),
       typebox_exports.Literal("begin-game"),
       typebox_exports.Literal("wait-loading"),
@@ -30145,9 +30187,14 @@ var Civ7StrategyFrontSummaryInputSchema = typebox_exports.Object(
   {
     playerId: typebox_exports.Optional(typebox_exports.Integer({ minimum: 0, maximum: 1024 })),
     origins: typebox_exports.Optional(typebox_exports.Array(Civ7ControlOrpcMapLocationSchema)),
+    target: typebox_exports.Optional(Civ7ControlOrpcMapLocationSchema),
     candidateLimit: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 8 })),
     scanRadius: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 32 })),
-    maxPlayers: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 128 }))
+    corridorRadius: typebox_exports.Optional(typebox_exports.Integer({ minimum: 0, maximum: 8 })),
+    destinationRadius: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 16 })),
+    maxPlayers: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 128 })),
+    maxUnits: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 256 })),
+    maxCities: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 128 }))
   },
   { additionalProperties: false }
 );
@@ -30167,7 +30214,11 @@ var Civ7StrategyRelationshipLabelPolicySchema = typebox_exports.Object(
 var Civ7StrategyFrontSourceStatusSchema = typebox_exports.Object(
   {
     targetCandidates: typebox_exports.Literal("read"),
-    battlefieldScan: typebox_exports.Literal("read")
+    battlefieldScan: typebox_exports.Literal("read"),
+    destinationAnalysis: typebox_exports.Union([
+      typebox_exports.Literal("read"),
+      typebox_exports.Literal("skipped-no-target")
+    ])
   },
   { additionalProperties: false }
 );
@@ -30192,7 +30243,24 @@ var Civ7StrategyFrontPointOfInterestSchema = typebox_exports.Object(
     kind: typebox_exports.String(),
     severity: typebox_exports.String(),
     location: typebox_exports.Union([Civ7ControlOrpcMapLocationSchema, typebox_exports.Null()]),
-    summary: typebox_exports.String()
+    summary: typebox_exports.String(),
+    source: typebox_exports.Union([
+      typebox_exports.Literal("battlefield"),
+      typebox_exports.Literal("destination")
+    ])
+  },
+  { additionalProperties: false }
+);
+var Civ7StrategyFrontPressureSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.String(),
+    severity: typebox_exports.String(),
+    summary: typebox_exports.String(),
+    location: typebox_exports.Union([Civ7ControlOrpcMapLocationSchema, typebox_exports.Null()]),
+    source: typebox_exports.Union([
+      typebox_exports.Literal("battlefield"),
+      typebox_exports.Literal("destination")
+    ])
   },
   { additionalProperties: false }
 );
@@ -30227,6 +30295,7 @@ var Civ7StrategyFrontSummaryResultSchema = typebox_exports.Object(
     playerId: typebox_exports.Integer({ minimum: 0 }),
     localPlayerId: typebox_exports.Integer({ minimum: 0 }),
     origins: typebox_exports.Array(Civ7ControlOrpcMapLocationSchema),
+    target: typebox_exports.Union([Civ7ControlOrpcMapLocationSchema, typebox_exports.Null()]),
     sourceStatus: Civ7StrategyFrontSourceStatusSchema,
     relationshipLabelPolicy: Civ7StrategyRelationshipLabelPolicySchema,
     summary: typebox_exports.Object(
@@ -30235,6 +30304,16 @@ var Civ7StrategyFrontSummaryResultSchema = typebox_exports.Object(
         pointOfInterestCount: typebox_exports.Integer({ minimum: 0 }),
         observedOwnerCount: typebox_exports.Integer({ minimum: 0 }),
         nextStepCount: typebox_exports.Integer({ minimum: 0 })
+      },
+      { additionalProperties: false }
+    ),
+    front: typebox_exports.Object(
+      {
+        posture: typebox_exports.String(),
+        headline: typebox_exports.String(),
+        risks: typebox_exports.Array(typebox_exports.String()),
+        nextInspections: typebox_exports.Array(Civ7StrategyFrontSummaryNextStepSchema),
+        pressure: typebox_exports.Array(Civ7StrategyFrontPressureSchema)
       },
       { additionalProperties: false }
     ),
@@ -30606,6 +30685,284 @@ var Civ7UnitContract = {
     request: Civ7UnitUpgradeContract
   }
 };
+var NullableNumberSchema = typebox_exports.Union([typebox_exports.Number(), typebox_exports.Null()]);
+var NullableIntegerSchema = typebox_exports.Union([typebox_exports.Integer(), typebox_exports.Null()]);
+var Civ7WorldCurrentInputSchema = typebox_exports.Object(
+  {},
+  { additionalProperties: false }
+);
+var Civ7WorldCurrentSourceStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("read"),
+  typebox_exports.Literal("skipped-not-playable"),
+  typebox_exports.Literal("skipped-unavailable")
+]);
+var Civ7WorldCurrentTurnSchema = typebox_exports.Object(
+  {
+    current: NullableNumberSchema,
+    date: typebox_exports.Union([typebox_exports.String(), typebox_exports.Null()]),
+    age: NullableNumberSchema,
+    maxTurns: NullableNumberSchema,
+    hash: NullableNumberSchema
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldCurrentLocalPlayerSchema = typebox_exports.Object(
+  {
+    playerId: NullableIntegerSchema,
+    observerId: NullableIntegerSchema
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldCurrentMapSchema = typebox_exports.Object(
+  {
+    width: NullableNumberSchema,
+    height: NullableNumberSchema,
+    plotCount: NullableNumberSchema,
+    mapSize: NullableNumberSchema,
+    randomSeed: NullableNumberSchema
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldCurrentPlayersSchema = typebox_exports.Object(
+  {
+    maxPlayers: NullableNumberSchema,
+    alivePlayerIds: typebox_exports.Array(typebox_exports.Integer({ minimum: 0 })),
+    aliveHumanIds: typebox_exports.Array(typebox_exports.Integer({ minimum: 0 })),
+    aliveHumanCount: NullableNumberSchema
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldCurrentNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("read-attention"),
+      typebox_exports.Literal("restore-readiness"),
+      typebox_exports.Literal("enter-game"),
+      typebox_exports.Literal("inspect-world")
+    ]),
+    source: typebox_exports.Literal("world.current"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldCurrentResultSchema = typebox_exports.Object(
+  {
+    playable: typebox_exports.Boolean(),
+    readiness: typebox_exports.String(),
+    sourceStatus: typebox_exports.Object(
+      {
+        playableStatus: typebox_exports.Literal("read"),
+        game: Civ7WorldCurrentSourceStatusSchema,
+        map: Civ7WorldCurrentSourceStatusSchema,
+        players: Civ7WorldCurrentSourceStatusSchema
+      },
+      { additionalProperties: false }
+    ),
+    turn: Civ7WorldCurrentTurnSchema,
+    localPlayer: Civ7WorldCurrentLocalPlayerSchema,
+    map: Civ7WorldCurrentMapSchema,
+    players: Civ7WorldCurrentPlayersSchema,
+    summary: typebox_exports.Object(
+      {
+        hasMapDimensions: typebox_exports.Boolean(),
+        alivePlayerCount: NullableIntegerSchema,
+        nextStepCount: typebox_exports.Integer({ minimum: 0 })
+      },
+      { additionalProperties: false }
+    ),
+    nextSteps: typebox_exports.Array(Civ7WorldCurrentNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldCurrentInputStandardSchema = toStandardSchema(
+  Civ7WorldCurrentInputSchema
+);
+var Civ7WorldCurrentResultStandardSchema = toStandardSchema(
+  Civ7WorldCurrentResultSchema
+);
+var Civ7WorldPlotFieldSchema = typebox_exports.Union([
+  typebox_exports.Literal("terrain"),
+  typebox_exports.Literal("biome"),
+  typebox_exports.Literal("feature"),
+  typebox_exports.Literal("resource"),
+  typebox_exports.Literal("climate"),
+  typebox_exports.Literal("hydrology"),
+  typebox_exports.Literal("yields"),
+  typebox_exports.Literal("owner"),
+  typebox_exports.Literal("visibility"),
+  typebox_exports.Literal("areaRegion"),
+  typebox_exports.Literal("tags"),
+  typebox_exports.Literal("city"),
+  typebox_exports.Literal("units")
+]);
+var Civ7WorldHiddenInfoPolicySchema = typebox_exports.Union([
+  typebox_exports.Literal("include-hidden"),
+  typebox_exports.Literal("visibility-filtered"),
+  typebox_exports.Literal("not-player-scoped")
+]);
+var Civ7WorldProbeSchema = typebox_exports.Union([
+  typebox_exports.Object(
+    {
+      ok: typebox_exports.Literal(true),
+      value: typebox_exports.Unknown()
+    },
+    { additionalProperties: false }
+  ),
+  typebox_exports.Object(
+    {
+      ok: typebox_exports.Literal(false),
+      error: typebox_exports.String()
+    },
+    { additionalProperties: false }
+  )
+]);
+var Civ7WorldPlotReadInputSchema = typebox_exports.Object(
+  {
+    location: Civ7ControlOrpcMapLocationSchema,
+    playerId: typebox_exports.Optional(typebox_exports.Integer({ minimum: 0 })),
+    fields: typebox_exports.Optional(typebox_exports.Array(Civ7WorldPlotFieldSchema)),
+    includeHidden: typebox_exports.Optional(typebox_exports.Boolean())
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldPlotSnapshotSchema = typebox_exports.Object(
+  {
+    location: typebox_exports.Object(
+      {
+        x: typebox_exports.Integer({ minimum: 0, maximum: 1e6 }),
+        y: typebox_exports.Integer({ minimum: 0, maximum: 1e6 }),
+        index: NullableNumberSchema
+      },
+      { additionalProperties: false }
+    ),
+    visibility: typebox_exports.Object(
+      {
+        revealedState: typebox_exports.Optional(Civ7WorldProbeSchema),
+        visible: typebox_exports.Optional(Civ7WorldProbeSchema)
+      },
+      { additionalProperties: false }
+    ),
+    hiddenInfoPolicy: Civ7WorldHiddenInfoPolicySchema,
+    facts: typebox_exports.Record(typebox_exports.String(), Civ7WorldProbeSchema),
+    summary: typebox_exports.Object(
+      {
+        factCount: typebox_exports.Integer({ minimum: 0 }),
+        probeErrorCount: typebox_exports.Integer({ minimum: 0 })
+      },
+      { additionalProperties: false }
+    )
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldPlotReadResultSchema = typebox_exports.Object(
+  {
+    sourceStatus: typebox_exports.Object(
+      {
+        plot: typebox_exports.Union([
+          typebox_exports.Literal("read"),
+          typebox_exports.Literal("read-with-probe-errors"),
+          typebox_exports.Literal("invalid-location")
+        ])
+      },
+      { additionalProperties: false }
+    ),
+    plot: Civ7WorldPlotSnapshotSchema
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldMapBoundsSchema = typebox_exports.Object(
+  {
+    x: typebox_exports.Integer({ minimum: 0, maximum: 1e6 }),
+    y: typebox_exports.Integer({ minimum: 0, maximum: 1e6 }),
+    width: typebox_exports.Integer({ minimum: 1, maximum: 1e4 }),
+    height: typebox_exports.Integer({ minimum: 1, maximum: 1e4 })
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldGridReadInputSchema = typebox_exports.Object(
+  {
+    bounds: Civ7WorldMapBoundsSchema,
+    fields: typebox_exports.Array(Civ7WorldPlotFieldSchema),
+    playerId: typebox_exports.Optional(typebox_exports.Integer({ minimum: 0 })),
+    includeHidden: typebox_exports.Optional(typebox_exports.Boolean()),
+    maxPlots: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 1e4 }))
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldGridReadResultSchema = typebox_exports.Object(
+  {
+    sourceStatus: typebox_exports.Object(
+      {
+        grid: typebox_exports.Union([
+          typebox_exports.Literal("read"),
+          typebox_exports.Literal("read-with-omissions"),
+          typebox_exports.Literal("read-with-probe-errors")
+        ]),
+        map: typebox_exports.Union([
+          typebox_exports.Literal("read"),
+          typebox_exports.Literal("skipped-unavailable")
+        ])
+      },
+      { additionalProperties: false }
+    ),
+    bounds: Civ7WorldMapBoundsSchema,
+    fields: typebox_exports.Array(Civ7WorldPlotFieldSchema),
+    plotCount: typebox_exports.Integer({ minimum: 0 }),
+    omitted: typebox_exports.Integer({ minimum: 0 }),
+    hiddenInfoPolicy: Civ7WorldHiddenInfoPolicySchema,
+    map: typebox_exports.Object(
+      {
+        width: NullableNumberSchema,
+        height: NullableNumberSchema
+      },
+      { additionalProperties: false }
+    ),
+    plots: typebox_exports.Array(Civ7WorldPlotSnapshotSchema),
+    summary: typebox_exports.Object(
+      {
+        returnedPlotCount: typebox_exports.Integer({ minimum: 0 }),
+        probeErrorCount: typebox_exports.Integer({ minimum: 0 })
+      },
+      { additionalProperties: false }
+    )
+  },
+  { additionalProperties: false }
+);
+var Civ7WorldPlotReadInputStandardSchema = toStandardSchema(
+  Civ7WorldPlotReadInputSchema
+);
+var Civ7WorldPlotReadResultStandardSchema = toStandardSchema(
+  Civ7WorldPlotReadResultSchema
+);
+var Civ7WorldGridReadInputStandardSchema = toStandardSchema(
+  Civ7WorldGridReadInputSchema
+);
+var Civ7WorldGridReadResultStandardSchema = toStandardSchema(
+  Civ7WorldGridReadResultSchema
+);
+var Civ7WorldCurrentContract = civ7ControlOrpcContractBase.input(Civ7WorldCurrentInputStandardSchema).output(Civ7WorldCurrentResultStandardSchema).meta({
+  family: "world",
+  procedureKey: "world.current",
+  proofBoundary: "local-package-test",
+  risk: "read-only"
+});
+var Civ7WorldPlotReadContract = civ7ControlOrpcContractBase.input(Civ7WorldPlotReadInputStandardSchema).output(Civ7WorldPlotReadResultStandardSchema).meta({
+  family: "world",
+  procedureKey: "world.plot.read",
+  proofBoundary: "local-package-test",
+  risk: "read-only"
+});
+var Civ7WorldGridReadContract = civ7ControlOrpcContractBase.input(Civ7WorldGridReadInputStandardSchema).output(Civ7WorldGridReadResultStandardSchema).meta({
+  family: "world",
+  procedureKey: "world.grid.read",
+  proofBoundary: "local-package-test",
+  risk: "read-only"
+});
+var Civ7WorldContract = {
+  current: Civ7WorldCurrentContract,
+  plot: Civ7WorldPlotReadContract,
+  grid: Civ7WorldGridReadContract
+};
 var Civ7ControlOrpcContract = civ7ControlOrpcContractBase.router({
   attention: Civ7AttentionContract,
   city: Civ7CityContract,
@@ -30617,7 +30974,8 @@ var Civ7ControlOrpcContract = civ7ControlOrpcContractBase.router({
   readiness: Civ7ReadinessContract,
   strategy: Civ7StrategyContract,
   turn: Civ7TurnContract,
-  unit: Civ7UnitContract
+  unit: Civ7UnitContract,
+  world: Civ7WorldContract
 });
 var civ7ControlOrpcEffectRuntime = ManagedRuntime_exports.make(Layer_exports.empty);
 var civ7ControlOrpcBaseImplementer = implementEffect(
@@ -30980,11 +31338,11 @@ function skippedSourceStatus(playableStatus) {
     readyCity: skipped
   };
 }
-function probeValue4(probe13) {
-  if (probe13 == null || typeof probe13 !== "object") return null;
-  if (!("ok" in probe13) || probe13.ok !== true) return null;
-  if (!("value" in probe13)) return null;
-  return probe13.value;
+function probeValue4(probe14) {
+  if (probe14 == null || typeof probe14 !== "object") return null;
+  if (!("ok" in probe14) || probe14.ok !== true) return null;
+  if (!("value" in probe14)) return null;
+  return probe14.value;
 }
 function componentIdFromUnknown(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
@@ -31987,8 +32345,8 @@ function booleanProbeValue(value2) {
 }
 function probeValue22(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe13 = value2;
-    return probe13.ok === true ? probe13.value ?? null : null;
+    const probe14 = value2;
+    return probe14.ok === true ? probe14.value ?? null : null;
   }
   return value2 ?? null;
 }
@@ -32413,6 +32771,13 @@ function readinessNextSteps(status, context5) {
       label: "Read strategy front summary before choosing tactical support actions."
     }];
   }
+  if (status.readiness === "app-ui-game" && supportsWorldCurrent(context5)) {
+    return [{
+      kind: "read-world",
+      source: "readiness.current",
+      label: "Read current world facts before choosing support actions."
+    }];
+  }
   switch (status.readiness) {
     case "app-ui-game":
       return [{
@@ -32453,11 +32818,14 @@ function supportsAttentionCurrent(context5) {
 function supportsStrategyFront(context5) {
   return supportedReadProcedures(context5).includes("strategy.frontSummary");
 }
+function supportsWorldCurrent(context5) {
+  return supportedReadProcedures(context5).includes("world.current");
+}
 function supportedReadProcedures(context5) {
   return context5.controller?.supportedReadProcedures ?? [];
 }
-function probeValue32(probe13) {
-  return probe13.ok ? probe13.value : null;
+function probeValue32(probe14) {
+  return probe14.ok ? probe14.value : null;
 }
 var readinessRouter = {
   current: readinessCurrentProcedure
@@ -32481,10 +32849,21 @@ var strategyFrontSummaryProcedure = civ7ControlOrpcImplementer.strategy.frontSum
           context5.endpointDefaults
         )
       ]);
+      const target = input.target ?? firstCandidateCityLocation(targetCandidates.candidates);
+      const destinationAnalysis = target == null ? null : await context5.directControl.getCiv7DestinationAnalysis(
+        destinationAnalysisInput({
+          input,
+          target,
+          origin: targetCandidates.origins[0] ?? battlefieldScan.origins[0]
+        }),
+        context5.endpointDefaults
+      );
       return strategyFrontSummaryResult({
         input,
         targetCandidates,
-        battlefieldScan
+        battlefieldScan,
+        destinationAnalysis,
+        target
       });
     },
     catch: () => errors.STRATEGY_FRONT_SUMMARY_UNAVAILABLE({
@@ -32511,13 +32890,31 @@ function battlefieldScanInput(input) {
     origins: input.origins,
     radius: input.scanRadius ?? 8,
     maxPlayers: input.maxPlayers,
-    maxUnits: 48,
-    maxCities: 24
+    maxUnits: input.maxUnits ?? 48,
+    maxCities: input.maxCities ?? 24
+  };
+}
+function destinationAnalysisInput({
+  input,
+  target,
+  origin
+}) {
+  return {
+    playerId: input.playerId,
+    origin,
+    destination: target,
+    corridorRadius: input.corridorRadius ?? 2,
+    destinationRadius: input.destinationRadius ?? 4,
+    maxPlayers: input.maxPlayers,
+    maxUnits: input.maxUnits,
+    maxCities: input.maxCities
   };
 }
 function strategyFrontSummaryResult({
   targetCandidates,
-  battlefieldScan
+  battlefieldScan,
+  destinationAnalysis,
+  target
 }) {
   const targetCandidateSummaries = targetCandidates.candidates.map(
     (candidate2) => ({
@@ -32534,12 +32931,22 @@ function strategyFrontSummaryResult({
       reasons: [...candidate2.reasons]
     })
   );
-  const pointsOfInterest2 = battlefieldScan.pointsOfInterest.map((point) => ({
-    kind: point.kind,
-    severity: point.severity,
-    location: point.location,
-    summary: normalizeRelationshipSummary(point.summary)
-  }));
+  const pointsOfInterest2 = [
+    ...battlefieldScan.pointsOfInterest.map((point) => ({
+      kind: point.kind,
+      severity: point.severity,
+      location: point.location,
+      summary: normalizeRelationshipSummary(point.summary),
+      source: "battlefield"
+    })),
+    ...destinationAnalysis?.pointsOfInterest.map((point) => ({
+      kind: point.kind,
+      severity: point.severity,
+      location: point.location,
+      summary: normalizeRelationshipSummary(point.summary),
+      source: "destination"
+    })) ?? []
+  ];
   const observedOwners = battlefieldScan.owners.map((owner) => ({
     owner: owner.owner,
     relationship: owner.relationshipProof === "self" ? "self" : "relationship-unproven",
@@ -32553,13 +32960,23 @@ function strategyFrontSummaryResult({
     targetCandidates: targetCandidateSummaries,
     pointsOfInterest: pointsOfInterest2
   });
+  const front = strategyFrontView({
+    origins: targetCandidates.origins.length > 0 ? targetCandidates.origins : battlefieldScan.origins,
+    target,
+    targetCandidates: targetCandidateSummaries,
+    pointsOfInterest: pointsOfInterest2,
+    destinationAnalysis,
+    nextSteps
+  });
   return {
     playerId: targetCandidates.playerId,
     localPlayerId: targetCandidates.localPlayerId,
     origins: targetCandidates.origins.length > 0 ? targetCandidates.origins : battlefieldScan.origins,
+    target,
     sourceStatus: {
       targetCandidates: "read",
-      battlefieldScan: "read"
+      battlefieldScan: "read",
+      destinationAnalysis: destinationAnalysis == null ? "skipped-no-target" : "read"
     },
     relationshipLabelPolicy: {
       relationshipSource: "not-classified",
@@ -32573,6 +32990,7 @@ function strategyFrontSummaryResult({
       observedOwnerCount: observedOwners.length,
       nextStepCount: nextSteps.length
     },
+    front,
     targetCandidates: targetCandidateSummaries,
     pointsOfInterest: pointsOfInterest2,
     observedOwners,
@@ -32639,8 +33057,98 @@ function strategyNextSteps({
   }
   return nextSteps;
 }
+function strategyFrontView({
+  origins,
+  target,
+  targetCandidates,
+  pointsOfInterest: pointsOfInterest2,
+  destinationAnalysis,
+  nextSteps
+}) {
+  const pressure = [...pointsOfInterest2].map((point) => ({
+    kind: point.kind,
+    severity: point.severity,
+    summary: point.summary,
+    location: point.location,
+    source: point.source
+  })).sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
+  const highPressure = pressure.filter((item) => item.severity === "high");
+  const risks = uniqueStrings([
+    ...highPressure.map((item) => item.summary),
+    ...destinationRisks(destinationAnalysis)
+  ]).slice(0, 8);
+  const origin = origins[0] ?? null;
+  const candidate2 = targetCandidates[0];
+  const targetLabel = target ? `target/front (${target.x},${target.y})` : "no target/front selected";
+  const originLabel = origin ? `origin (${origin.x},${origin.y})` : "inferred runtime origins";
+  const candidateLabel = candidate2 ? `owner ${candidate2.owner}` : "no ranked target candidate";
+  return {
+    posture: postureFromPressure(pressure, destinationAnalysis),
+    headline: `${originLabel} toward ${targetLabel}; leading candidate: ${candidateLabel}`,
+    risks,
+    nextInspections: nextSteps,
+    pressure
+  };
+}
+function destinationRisks(destinationAnalysis) {
+  const pressure = asRecord(destinationAnalysis?.destinationPressure);
+  const risks = [];
+  const unitCount = Number(pressure?.unitCount ?? 0);
+  const cityCount = Number(pressure?.cityCount ?? 0);
+  const apparentOtherStrength = Number(pressure?.apparentOtherStrength ?? 0);
+  if (unitCount > 0) {
+    risks.push(`${unitCount} other-owner units near intended front`);
+  }
+  if (cityCount > 0) {
+    risks.push(`${cityCount} relationship-unproven cities near intended front`);
+  }
+  if (apparentOtherStrength > 0) {
+    risks.push(`apparent destination contact ${apparentOtherStrength}`);
+  }
+  return risks;
+}
+function postureFromPressure(pressure, destinationAnalysis) {
+  if (pressure.some(
+    (item) => item.kind === "civilian-risk" && item.severity === "high"
+  )) return "screen-civilians-before-advance";
+  if (pressure.some(
+    (item) => item.kind === "nearby-other-owners" && item.severity === "high"
+  )) return "stabilize-front-before-committing-siege";
+  const destinationPressure = asRecord(destinationAnalysis?.destinationPressure);
+  if (Number(destinationPressure?.unitCount ?? 0) > 0 || Number(destinationPressure?.cityCount ?? 0) > 0) {
+    return "stage-before-entering-target-contact";
+  }
+  return "inspect-and-advance-cautiously";
+}
+function severityRank(severity) {
+  if (severity === "high") return 3;
+  if (severity === "medium") return 2;
+  if (severity === "low") return 1;
+  return 0;
+}
 function normalizeRelationshipSummary(summary5) {
   return summary5.replace(/\bfriendly\b/gi, "own").replace(/\bpressure\b/gi, "contact").replace(/\bthreat\b/gi, "contact");
+}
+function firstCandidateCityLocation(candidates) {
+  for (const candidate2 of candidates) {
+    if (candidate2.approach.targetLocation != null) {
+      return candidate2.approach.targetLocation;
+    }
+    const cityLocation2 = locationFromUnknown(candidate2.nearestCity);
+    if (cityLocation2 != null) return cityLocation2;
+  }
+  return null;
+}
+function locationFromUnknown(value2) {
+  const record = asRecord(value2);
+  const location = asRecord(record?.location);
+  return typeof location?.x === "number" && typeof location.y === "number" ? { x: location.x, y: location.y } : null;
+}
+function asRecord(value2) {
+  return value2 !== null && typeof value2 === "object" ? value2 : null;
+}
+function uniqueStrings(values3) {
+  return [...new Set(values3.filter((value2) => value2.length > 0))];
 }
 var strategyRouter = {
   frontSummary: strategyFrontSummaryProcedure
@@ -32752,13 +33260,13 @@ function turnCompletionProbeSummary(status) {
     firstReadyUnitId: probeValue42(status.firstReadyUnitId)
   };
 }
-function blockerValue(probe13) {
-  const value2 = probeValue42(probe13);
+function blockerValue(probe14) {
+  const value2 = probeValue42(probe14);
   if (typeof value2 === "number" || typeof value2 === "string") return value2;
   return null;
 }
-function probeValue42(probe13) {
-  return probe13.ok ? probe13.value : null;
+function probeValue42(probe14) {
+  return probe14.ok ? probe14.value : null;
 }
 var turnRouter = {
   complete: {
@@ -33029,6 +33537,303 @@ var unitRouter = {
     request: unitUpgradeRequestProcedure
   }
 };
+var worldCurrentProcedure = civ7ControlOrpcImplementer.world.current.effect(function* ({
+  context: context5,
+  errors
+}) {
+  return yield* Effect_exports.tryPromise({
+    try: async () => worldCurrentResult(
+      await context5.directControl.getCiv7PlayableStatus(
+        context5.endpointDefaults
+      )
+    ),
+    catch: () => errors.WORLD_CURRENT_UNAVAILABLE({
+      data: {
+        procedureKey: "world.current",
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+function worldCurrentResult(status) {
+  const inGame = status.playable || status.readiness === "app-ui-game";
+  const snapshot = status.appUi.snapshot;
+  const map16 = inGame ? worldMapFacts(status) : emptyMapFacts();
+  const players = inGame ? worldPlayerFacts(status) : emptyPlayerFacts();
+  const nextSteps = worldCurrentNextSteps(status, map16);
+  return {
+    playable: status.playable,
+    readiness: status.readiness,
+    sourceStatus: {
+      playableStatus: "read",
+      game: inGame ? "read" : "skipped-not-playable",
+      map: inGame ? mapSourceStatus(snapshot.map) : "skipped-not-playable",
+      players: inGame ? playersSourceStatus(snapshot.players) : "skipped-not-playable"
+    },
+    turn: inGame ? {
+      current: status.appUi.snapshot.game.turn,
+      date: probeValue5(status.appUi.snapshot.game.turnDate),
+      age: status.appUi.snapshot.game.age,
+      maxTurns: status.appUi.snapshot.game.maxTurns,
+      hash: probeValue5(status.appUi.snapshot.game.hash)
+    } : {
+      current: null,
+      date: null,
+      age: null,
+      maxTurns: null,
+      hash: null
+    },
+    localPlayer: inGame ? {
+      playerId: playerIdOrNull(status.appUi.snapshot.gameContext.localPlayerID),
+      observerId: playerIdOrNull(
+        status.appUi.snapshot.gameContext.localObserverID
+      )
+    } : {
+      playerId: null,
+      observerId: null
+    },
+    map: map16,
+    players,
+    summary: {
+      hasMapDimensions: map16.width != null && map16.height != null && map16.width > 0 && map16.height > 0,
+      alivePlayerCount: players.alivePlayerIds.length,
+      nextStepCount: nextSteps.length
+    },
+    nextSteps
+  };
+}
+function worldMapFacts(status) {
+  const map16 = status.appUi.snapshot.map;
+  return {
+    width: probeValue5(map16.width),
+    height: probeValue5(map16.height),
+    plotCount: probeValue5(map16.plotCount),
+    mapSize: probeValue5(map16.mapSize),
+    randomSeed: probeValue5(map16.randomSeed)
+  };
+}
+function emptyMapFacts() {
+  return {
+    width: null,
+    height: null,
+    plotCount: null,
+    mapSize: null,
+    randomSeed: null
+  };
+}
+function worldPlayerFacts(status) {
+  const players = status.appUi.snapshot.players;
+  return {
+    maxPlayers: status.appUi.snapshot.players.maxPlayers,
+    alivePlayerIds: integerArrayOrEmpty(probeValue5(players.aliveIds)),
+    aliveHumanIds: integerArrayOrEmpty(probeValue5(players.aliveHumanIds)),
+    aliveHumanCount: probeValue5(players.numAliveHumans)
+  };
+}
+function emptyPlayerFacts() {
+  return {
+    maxPlayers: null,
+    alivePlayerIds: [],
+    aliveHumanIds: [],
+    aliveHumanCount: null
+  };
+}
+function worldCurrentNextSteps(status, map16) {
+  if (status.playable || status.readiness === "app-ui-game") {
+    if (map16.width == null || map16.height == null) {
+      return [{
+        kind: "inspect-world",
+        source: "world.current",
+        label: "World map facts are incomplete; inspect current world evidence before acting."
+      }];
+    }
+    return [{
+      kind: "read-attention",
+      source: "world.current",
+      label: "Read current attention before choosing support actions."
+    }];
+  }
+  if (status.readiness === "shell") {
+    return [{
+      kind: "enter-game",
+      source: "world.current",
+      label: "Enter an active game before reading current world facts."
+    }];
+  }
+  return [{
+    kind: "restore-readiness",
+    source: "world.current",
+    label: "Restore playable or game UI readiness before reading current world facts."
+  }];
+}
+function mapSourceStatus(map16) {
+  return map16.width.ok || map16.height.ok || map16.plotCount.ok || map16.mapSize.ok ? "read" : "skipped-unavailable";
+}
+function playersSourceStatus(players) {
+  return players.aliveIds.ok || players.aliveHumanIds.ok || players.numAliveHumans.ok ? "read" : "skipped-unavailable";
+}
+function probeValue5(probe14) {
+  return probe14.ok ? probe14.value : null;
+}
+function integerArrayOrEmpty(value2) {
+  return Array.isArray(value2) ? value2.filter(
+    (item) => Number.isInteger(item) && item >= 0
+  ) : [];
+}
+function playerIdOrNull(value2) {
+  return Number.isInteger(value2) && Number(value2) >= 0 ? Number(value2) : null;
+}
+var worldPlotReadProcedure = civ7ControlOrpcImplementer.world.plot.effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  return yield* Effect_exports.tryPromise({
+    try: async () => worldPlotReadResult(
+      await context5.directControl.getCiv7PlotSnapshot(
+        {
+          x: input.location.x,
+          y: input.location.y,
+          fields: input.fields,
+          playerId: input.playerId,
+          includeHidden: input.includeHidden
+        },
+        context5.endpointDefaults
+      )
+    ),
+    catch: () => errors.WORLD_READ_UNAVAILABLE({
+      data: {
+        procedureKey: "world.plot.read",
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var worldGridReadProcedure = civ7ControlOrpcImplementer.world.grid.effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  return yield* Effect_exports.tryPromise({
+    try: async () => worldGridReadResult(
+      await context5.directControl.getCiv7MapGrid(
+        {
+          bounds: input.bounds,
+          fields: input.fields,
+          playerId: input.playerId,
+          includeHidden: input.includeHidden,
+          maxPlots: input.maxPlots
+        },
+        context5.endpointDefaults
+      )
+    ),
+    catch: () => errors.WORLD_READ_UNAVAILABLE({
+      data: {
+        procedureKey: "world.grid.read",
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+function worldPlotReadResult(result) {
+  const plot = worldPlotSnapshot(result);
+  const probeErrorCount = plot.summary.probeErrorCount;
+  const invalidLocation = plot.location.index == null && plot.summary.factCount === 0;
+  return {
+    sourceStatus: {
+      plot: invalidLocation ? "invalid-location" : probeErrorCount > 0 ? "read-with-probe-errors" : "read"
+    },
+    plot
+  };
+}
+function worldGridReadResult(result) {
+  const plots = result.plots.map(worldPlotSnapshot);
+  const probeErrorCount = plots.reduce(
+    (total, plot) => total + plot.summary.probeErrorCount,
+    0
+  ) + probeErrorCountForRecord(result.map ?? {});
+  return {
+    sourceStatus: {
+      grid: result.omitted > 0 ? "read-with-omissions" : probeErrorCount > 0 ? "read-with-probe-errors" : "read",
+      map: probeValue6(result.map?.width) != null || probeValue6(result.map?.height) != null ? "read" : "skipped-unavailable"
+    },
+    bounds: result.bounds ?? boundsFromPlots(plots),
+    fields: Array.from(result.fields),
+    plotCount: result.plotCount,
+    omitted: result.omitted,
+    hiddenInfoPolicy: result.hiddenInfoPolicy,
+    map: {
+      width: probeValue6(result.map?.width),
+      height: probeValue6(result.map?.height)
+    },
+    plots,
+    summary: {
+      returnedPlotCount: plots.length,
+      probeErrorCount
+    }
+  };
+}
+function worldPlotSnapshot(plot) {
+  const facts = probeRecord(plot.facts);
+  const visibility = {
+    ...plot.revealedState ? { revealedState: publicProbe(plot.revealedState) } : {},
+    ...plot.visible ? { visible: publicProbe(plot.visible) } : {}
+  };
+  return {
+    location: {
+      x: plot.location.x,
+      y: plot.location.y,
+      index: probeValue6(plot.location.index)
+    },
+    visibility,
+    hiddenInfoPolicy: plot.hiddenInfoPolicy,
+    facts,
+    summary: {
+      factCount: Object.keys(facts).length,
+      probeErrorCount: probeErrorCountForRecord(facts) + probeErrorCountForRecord(visibility) + (plot.location.index.ok ? 0 : 1)
+    }
+  };
+}
+function publicProbe(probe14) {
+  return probe14.ok ? { ok: true, value: probe14.value } : {
+    ok: false,
+    error: probe14.error
+  };
+}
+function probeRecord(facts) {
+  return Object.fromEntries(
+    Object.entries(facts).map(([key, value2]) => [key, publicProbe(value2)])
+  );
+}
+function probeValue6(probe14) {
+  return probe14?.ok ? probe14.value : null;
+}
+function probeErrorCountForRecord(record) {
+  return Object.values(record).filter(
+    (value2) => value2 != null && typeof value2 === "object" && "ok" in value2 && value2.ok === false
+  ).length;
+}
+function boundsFromPlots(plots) {
+  if (plots.length === 0) return { x: 0, y: 0, width: 1, height: 1 };
+  const xs = plots.map((plot) => plot.location.x);
+  const ys = plots.map((plot) => plot.location.y);
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  return {
+    x: minX,
+    y: minY,
+    width: Math.max(...xs) - minX + 1,
+    height: Math.max(...ys) - minY + 1
+  };
+}
+var worldRouter = {
+  current: worldCurrentProcedure,
+  plot: worldPlotReadProcedure,
+  grid: worldGridReadProcedure
+};
 var Civ7ControlOrpcRouter = civ7ControlOrpcImplementer.router({
   attention: attentionRouter,
   city: cityRouter,
@@ -33040,7 +33845,8 @@ var Civ7ControlOrpcRouter = civ7ControlOrpcImplementer.router({
   readiness: readinessRouter,
   strategy: strategyRouter,
   turn: turnRouter,
-  unit: unitRouter
+  unit: unitRouter,
+  world: worldRouter
 });
 function createCiv7ControlOrpcServerClient(context5) {
   return createRouterClient(Civ7ControlOrpcRouter, { context: context5 });
@@ -33062,6 +33868,24 @@ var Civ7StrategyFrontSummaryInputSchema2 = typeboxInputSchemaFromContractProcedu
 );
 var Civ7StrategyFrontSummaryResultSchema2 = typeboxOutputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.strategy.frontSummary
+);
+var Civ7WorldCurrentInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.current
+);
+var Civ7WorldCurrentResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.current
+);
+var Civ7WorldPlotReadInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.plot
+);
+var Civ7WorldPlotReadResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.plot
+);
+var Civ7WorldGridReadInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.grid
+);
+var Civ7WorldGridReadResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.grid
 );
 var Civ7NotificationDismissInputSchema2 = typeboxInputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.notifications.dismiss.request
@@ -33232,6 +34056,30 @@ var Civ7ControllerBridgeStrategyFrontSummaryRequestSchema = typebox_exports.Obje
   {
     procedureKey: typebox_exports.Literal("strategy.frontSummary"),
     input: Civ7StrategyFrontSummaryInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeWorldCurrentRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("world.current"),
+    input: Civ7WorldCurrentInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeWorldPlotReadRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("world.plot.read"),
+    input: Civ7WorldPlotReadInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeWorldGridReadRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("world.grid.read"),
+    input: Civ7WorldGridReadInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33416,6 +34264,9 @@ var Civ7ControllerBridgeRequestSchema = typebox_exports.Union([
   Civ7ControllerBridgeReadinessCurrentRequestSchema,
   Civ7ControllerBridgeAttentionCurrentRequestSchema,
   Civ7ControllerBridgeStrategyFrontSummaryRequestSchema,
+  Civ7ControllerBridgeWorldCurrentRequestSchema,
+  Civ7ControllerBridgeWorldPlotReadRequestSchema,
+  Civ7ControllerBridgeWorldGridReadRequestSchema,
   Civ7ControllerBridgeNotificationDismissRequestSchema,
   Civ7ControllerBridgeTurnCompleteRequestSchema,
   Civ7ControllerBridgeCityProductionChoiceRequestSchema,
@@ -33475,6 +34326,33 @@ var Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema = typebox_expo
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("strategy.frontSummary"),
     output: Civ7StrategyFrontSummaryResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeWorldCurrentSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("world.current"),
+    output: Civ7WorldCurrentResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeWorldPlotReadSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("world.plot.read"),
+    output: Civ7WorldPlotReadResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeWorldGridReadSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("world.grid.read"),
+    output: Civ7WorldGridReadResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33681,6 +34559,9 @@ var Civ7ControllerBridgeSuccessResponseSchema = typebox_exports.Union([
   Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
   Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
   Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
+  Civ7ControllerBridgeWorldCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeWorldPlotReadSuccessResponseSchema,
+  Civ7ControllerBridgeWorldGridReadSuccessResponseSchema,
   Civ7ControllerBridgeNotificationDismissSuccessResponseSchema,
   Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
@@ -33775,6 +34656,33 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       return {
         ok: true,
         procedureKey: "strategy.frontSummary",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "world.current") {
+      const output2 = await client.world.current(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "world.current",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "world.plot.read") {
+      const output2 = await client.world.plot(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "world.plot.read",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "world.grid.read") {
+      const output2 = await client.world.grid(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "world.grid.read",
         output: output2,
         ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
       };
@@ -34021,7 +34929,7 @@ function controllerProofFromContext(context5) {
 function isUnsupportedProcedureRequest(request2) {
   if (request2 == null || typeof request2 !== "object") return false;
   if (!("procedureKey" in request2)) return false;
-  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "city.townFocus.change.request" && request2.procedureKey !== "city.townFocus.review.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "diplomacy.firstMeet.response.request" && request2.procedureKey !== "government.choice.request" && request2.procedureKey !== "government.celebration.choice.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "unit.upgrade.request" && request2.procedureKey !== "unit.resettle.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request" && request2.procedureKey !== "progression.technology.target.request" && request2.procedureKey !== "progression.culture.target.request" && request2.procedureKey !== "progression.attribute.purchase.request" && request2.procedureKey !== "progression.attribute.review.request" && request2.procedureKey !== "progression.tradition.change.request" && request2.procedureKey !== "progression.tradition.review.request";
+  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "world.current" && request2.procedureKey !== "world.plot.read" && request2.procedureKey !== "world.grid.read" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "city.townFocus.change.request" && request2.procedureKey !== "city.townFocus.review.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "diplomacy.firstMeet.response.request" && request2.procedureKey !== "government.choice.request" && request2.procedureKey !== "government.celebration.choice.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "unit.upgrade.request" && request2.procedureKey !== "unit.resettle.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request" && request2.procedureKey !== "progression.technology.target.request" && request2.procedureKey !== "progression.culture.target.request" && request2.procedureKey !== "progression.attribute.purchase.request" && request2.procedureKey !== "progression.attribute.review.request" && request2.procedureKey !== "progression.tradition.change.request" && request2.procedureKey !== "progression.tradition.review.request";
 }
 function isControllerBridgeMutationRequest(request2) {
   return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "city.townFocus.change.request" || request2.procedureKey === "city.townFocus.review.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "diplomacy.firstMeet.response.request" || request2.procedureKey === "government.choice.request" || request2.procedureKey === "government.celebration.choice.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "unit.upgrade.request" || request2.procedureKey === "unit.resettle.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request" || request2.procedureKey === "progression.technology.target.request" || request2.procedureKey === "progression.culture.target.request" || request2.procedureKey === "progression.attribute.purchase.request" || request2.procedureKey === "progression.attribute.review.request" || request2.procedureKey === "progression.tradition.change.request" || request2.procedureKey === "progression.tradition.review.request";
@@ -34530,7 +35438,7 @@ async function requestCiv7GameUiTurnComplete(target = globalThis) {
       state: { id: "game-ui", name: "Game UI" },
       output: ["game-ui-turn-completion-requested"]
     },
-    verified: probeValue5(after3.hasSentTurnComplete) === true || probeValue5(after3.turn) !== probeValue5(before2.turn)
+    verified: probeValue7(after3.hasSentTurnComplete) === true || probeValue7(after3.turn) !== probeValue7(before2.turn)
   };
 }
 function gameUiNotificationSummaries(target, playerId, maxNotifications) {
@@ -34710,10 +35618,10 @@ function ok(value2) {
   return { ok: true, value: value2 };
 }
 function gameUiTurnCompletionAllowed(status) {
-  return probeValue5(status.canEndTurn) === true && probeValue5(status.hasSentTurnComplete) !== true;
+  return probeValue7(status.canEndTurn) === true && probeValue7(status.hasSentTurnComplete) !== true;
 }
-function probeValue5(probe13) {
-  return probe13.ok ? probe13.value : void 0;
+function probeValue7(probe14) {
+  return probe14.ok ? probe14.value : void 0;
 }
 function isPresent2(value2) {
   return value2 != null;
@@ -35020,8 +35928,8 @@ function probe3(fn2) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue23(probe13) {
-  return probe13?.ok ? probe13.value : void 0;
+function probeValue23(probe14) {
+  return probe14?.ok ? probe14.value : void 0;
 }
 function stableJson2(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -36080,8 +36988,8 @@ function probe5(fn2) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue33(probe13) {
-  return probe13?.ok ? probe13.value : void 0;
+function probeValue33(probe14) {
+  return probe14?.ok ? probe14.value : void 0;
 }
 function stableJson22(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -36942,7 +37850,7 @@ function gameUiFirstMeetPostcondition(sent, before2, after3, metPlayerId) {
 }
 function classifyGameUiFirstMeetPostcondition(sent, before2, after3, metPlayerId) {
   if (!sent) return "not-sent";
-  if (probeValue6(after3.canEndTurn) === true) return "turn-unblocked";
+  if (probeValue62(after3.canEndTurn) === true) return "turn-unblocked";
   const beforeBlocker = findFirstMeetNotification(before2, metPlayerId);
   if (!beforeBlocker) return "first-meet-blocker-unmatched";
   const afterBlocker = findFirstMeetNotification(after3, metPlayerId);
@@ -37013,7 +37921,7 @@ function probe8(fn2) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue6(input) {
+function probeValue62(input) {
   return input.ok ? input.value : void 0;
 }
 var CIV7_GAME_UI_GOVERNMENT_ACTIVATE_ACTION = -1326475004;
@@ -37810,6 +38718,72 @@ async function getCiv7GameUiBattlefieldScan(input = {}, target = globalThis) {
     ]
   };
 }
+async function getCiv7GameUiDestinationAnalysis(input, target = globalThis) {
+  if (!civ7GameUiStrategyFrontAvailable(target)) {
+    throw new Error("Civ7 game UI strategy front dependency is unavailable.");
+  }
+  const localPlayerId = target.GameContext?.localPlayerID ?? 0;
+  const playerId = input.playerId ?? localPlayerId;
+  const destinationRadius = boundedInteger(input.destinationRadius ?? 4, 1, 16);
+  const corridorRadius = boundedInteger(input.corridorRadius ?? 2, 0, 8);
+  const scan = await getCiv7GameUiBattlefieldScan({
+    playerId,
+    origins: [input.destination],
+    radius: destinationRadius,
+    maxPlayers: input.maxPlayers,
+    maxUnits: input.maxUnits,
+    maxCities: input.maxCities
+  }, target);
+  const destinationUnits = scan.units.map((unit) => ({
+    ...unit,
+    destinationDistance: unit.distance
+  }));
+  const destinationCities = scan.cities.map((city) => ({
+    ...city,
+    destinationDistance: city.distance
+  }));
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    localPlayerId,
+    playerId,
+    origin: input.origin ?? null,
+    destination: input.destination,
+    corridorRadius,
+    destinationRadius,
+    hiddenInfoPolicy: "game-ui-runtime-summary; may include game-resident unit or city summaries until paired with visibility reads",
+    relationshipLabelPolicy,
+    corridor: {
+      routeHint: "direct-grid",
+      directGridDistance: input.origin == null ? null : distance(input.origin, input.destination),
+      sampleCount: input.origin == null ? 0 : 2,
+      sampledPlots: input.origin == null ? [] : [input.origin, input.destination],
+      units: [],
+      unitCount: 0
+    },
+    destinationPressure: {
+      units: destinationUnits,
+      unitCount: destinationUnits.length,
+      cities: destinationCities,
+      cityCount: destinationCities.length,
+      apparentOtherStrength: scan.owners.filter((owner) => owner.relationshipProof !== "self").reduce((sum2, owner) => sum2 + owner.apparentStrength, 0)
+    },
+    pointsOfInterest: scan.pointsOfInterest.map((point) => ({
+      kind: point.kind,
+      severity: point.severity,
+      location: point.location,
+      summary: point.summary,
+      units: destinationUnits,
+      cities: destinationCities
+    })),
+    notes: [
+      "Read-only game UI destination-analysis runtime port for strategy.frontSummary.",
+      "Owner mismatch and proximity remain relationship-unproven planning evidence.",
+      "Use visibility and validator-backed unit action procedures before any mutation."
+    ]
+  };
+}
 var relationshipLabelPolicy = {
   relationshipSource: "not-classified",
   relationshipProof: "none",
@@ -38263,6 +39237,256 @@ function probe11(fn2) {
     return { ok: false, error: String(err) };
   }
 }
+function civ7GameUiWorldMapReadsAvailable(target) {
+  return typeof target.GameplayMap?.getGridWidth === "function" && typeof target.GameplayMap?.getGridHeight === "function" && typeof target.GameplayMap?.isValidXY === "function" && typeof target.GameplayMap?.getIndexFromXY === "function";
+}
+async function getCiv7GameUiPlotSnapshot(input, target = globalThis) {
+  if (!civ7GameUiWorldMapReadsAvailable(target)) {
+    throw new Error("Civ7 game UI world map dependency is unavailable.");
+  }
+  return {
+    ...gameUiRuntimeIdentity(),
+    ...plotSnapshot(
+      {
+        x: boundedInteger2(input.x, 0, 1e6, "x"),
+        y: boundedInteger2(input.y, 0, 1e6, "y"),
+        fields: normalizePlotFields(input.fields),
+        playerId: input.playerId,
+        includeHidden: input.includeHidden
+      },
+      target
+    )
+  };
+}
+async function getCiv7GameUiMapGrid(input, target = globalThis) {
+  if (!civ7GameUiWorldMapReadsAvailable(target)) {
+    throw new Error("Civ7 game UI world map dependency is unavailable.");
+  }
+  const maxPlots = boundedInteger2(input.maxPlots ?? 256, 1, 1e4, "maxPlots");
+  const fields = normalizePlotFields(input.fields);
+  const bounds = input.bounds == null ? void 0 : mapBounds(input.bounds);
+  const explicitLocations = input.locations?.map(mapLocation);
+  if (bounds == null && explicitLocations == null) {
+    throw new Error("Civ7 game UI map grid reads require bounds or locations.");
+  }
+  if (bounds != null && explicitLocations != null) {
+    throw new Error("Civ7 game UI map grid reads accept bounds or locations, not both.");
+  }
+  const requestedCount = explicitLocations?.length ?? bounds.width * bounds.height;
+  const locations = (explicitLocations ?? locationsFromBounds(bounds, maxPlots)).slice(0, maxPlots);
+  return {
+    ...gameUiRuntimeIdentity(),
+    ...bounds == null ? {} : { bounds },
+    fields: Array.from(fields),
+    plotCount: requestedCount,
+    omitted: Math.max(0, requestedCount - locations.length),
+    hiddenInfoPolicy: hiddenInfoPolicy(input),
+    map: {
+      width: probe12(() => Number(target.GameplayMap.getGridWidth())),
+      height: probe12(() => Number(target.GameplayMap.getGridHeight()))
+    },
+    plots: locations.map(
+      (location) => plotSnapshot({
+        ...location,
+        fields,
+        playerId: input.playerId,
+        includeHidden: input.includeHidden
+      }, target)
+    )
+  };
+}
+function plotSnapshot(input, target) {
+  const visibility = visibilityFor(input, target);
+  if (target.GameplayMap?.isValidXY?.(input.x, input.y) !== true) {
+    return {
+      location: {
+        x: input.x,
+        y: input.y,
+        index: { ok: false, error: "invalid location" }
+      },
+      hiddenInfoPolicy: visibility.policy,
+      facts: {}
+    };
+  }
+  const facts = {};
+  const include = visibility.policy === "not-player-scoped" || visibility.includeFacts === true;
+  const add6 = (key, value2) => {
+    facts[key] = value2;
+  };
+  if (include) {
+    if (input.fields.includes("terrain")) {
+      add6("terrain", mapProbe(target, "getTerrainType", input));
+    }
+    if (input.fields.includes("biome")) {
+      add6("biome", mapProbe(target, "getBiomeType", input));
+    }
+    if (input.fields.includes("feature")) {
+      add6("feature", mapProbe(target, "getFeatureType", input));
+    }
+    if (input.fields.includes("resource")) {
+      add6("resource", mapProbe(target, "getResourceType", input));
+    }
+    if (input.fields.includes("climate")) {
+      add6("elevation", mapProbe(target, "getElevation", input));
+      add6("rainfall", mapProbe(target, "getRainfall", input));
+      add6("fertility", mapProbe(target, "getFertilityType", input));
+    }
+    if (input.fields.includes("hydrology")) {
+      add6("riverType", mapProbe(target, "getRiverType", input));
+      add6("water", mapProbe(target, "isWater", input));
+    }
+    if (input.fields.includes("yields")) {
+      add6("yields", mapProbe(target, "getYields", input));
+    }
+    if (input.fields.includes("owner")) {
+      add6("owner", mapProbe(target, "getOwner", input));
+      add6("ownerName", mapProbe(target, "getOwnerName", input));
+    }
+    if (input.fields.includes("areaRegion")) {
+      add6("areaId", mapProbe(target, "getAreaId", input));
+      add6("regionId", mapProbe(target, "getRegionId", input));
+      add6("landmassId", mapProbe(target, "getLandmassId", input));
+    }
+    if (input.fields.includes("tags")) {
+      add6("plotTag", mapProbe(target, "getPlotTag", input));
+    }
+    if (input.fields.includes("city")) {
+      add6("city", probe12(() => target.MapCities?.getCity?.(input.x, input.y) ?? null));
+    }
+    if (input.fields.includes("units")) {
+      add6("units", probe12(() => target.MapUnits?.getUnits?.(input.x, input.y) ?? []));
+    }
+  }
+  if (input.fields.includes("visibility")) {
+    add6(
+      "revealedState",
+      visibility.revealedState ?? { ok: false, error: "playerId required" }
+    );
+    add6(
+      "visible",
+      visibility.visible ?? { ok: false, error: "playerId required" }
+    );
+  }
+  return {
+    location: {
+      x: input.x,
+      y: input.y,
+      index: probe12(() => Number(target.GameplayMap.getIndexFromXY(input.x, input.y)))
+    },
+    ...visibility.revealedState ? { revealedState: visibility.revealedState } : {},
+    ...visibility.visible ? { visible: visibility.visible } : {},
+    hiddenInfoPolicy: visibility.policy,
+    facts
+  };
+}
+function visibilityFor(input, target) {
+  if (input.playerId == null) return { policy: "not-player-scoped" };
+  const revealedState = probe12(
+    () => target.GameplayMap.getRevealedState(input.playerId, input.x, input.y)
+  );
+  const visible = probe12(() => {
+    if (typeof target.Visibility?.isVisible === "function") {
+      return Boolean(target.Visibility.isVisible(input.playerId, input.x, input.y));
+    }
+    return revealedState.ok && revealedState.value !== 0;
+  });
+  return {
+    policy: input.includeHidden === true ? "include-hidden" : "visibility-filtered",
+    revealedState,
+    visible,
+    includeFacts: input.includeHidden === true || visible.ok && visible.value === true || revealedState.ok && revealedState.value !== 0
+  };
+}
+function mapProbe(target, name, location) {
+  return probe12(() => {
+    const fn2 = target.GameplayMap?.[name];
+    if (typeof fn2 !== "function") {
+      throw new Error(`GameplayMap.${name} is not a function`);
+    }
+    return fn2(location.x, location.y);
+  });
+}
+function locationsFromBounds(bounds, maxPlots) {
+  const out = [];
+  outer: for (let y = bounds.y; y < bounds.y + bounds.height; y += 1) {
+    for (let x = bounds.x; x < bounds.x + bounds.width; x += 1) {
+      out.push({ x, y });
+      if (out.length >= maxPlots) break outer;
+    }
+  }
+  return out;
+}
+function normalizePlotFields(fields) {
+  const selected = fields?.length ? fields : defaultPlotFields;
+  for (const field of selected) {
+    if (!allPlotFields.includes(field)) {
+      throw new Error(`Unsupported Civ7 plot field: ${field}`);
+    }
+  }
+  return Array.from(new Set(selected));
+}
+function hiddenInfoPolicy(input) {
+  if (input.playerId == null) return "not-player-scoped";
+  return input.includeHidden === true ? "include-hidden" : "visibility-filtered";
+}
+function mapBounds(bounds) {
+  return {
+    x: boundedInteger2(bounds.x, 0, 1e6, "bounds.x"),
+    y: boundedInteger2(bounds.y, 0, 1e6, "bounds.y"),
+    width: boundedInteger2(bounds.width, 1, 1e4, "bounds.width"),
+    height: boundedInteger2(bounds.height, 1, 1e4, "bounds.height")
+  };
+}
+function mapLocation(location) {
+  return {
+    x: boundedInteger2(location.x, 0, 1e6, "location.x"),
+    y: boundedInteger2(location.y, 0, 1e6, "location.y")
+  };
+}
+function boundedInteger2(value2, min3, max5, label) {
+  if (!Number.isInteger(value2) || value2 < min3 || value2 > max5) {
+    throw new Error(`${label} must be an integer ${min3}..${max5}.`);
+  }
+  return value2;
+}
+function gameUiRuntimeIdentity() {
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" }
+  };
+}
+function probe12(fn2) {
+  try {
+    return { ok: true, value: fn2() };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+var defaultPlotFields = [
+  "terrain",
+  "biome",
+  "feature",
+  "resource",
+  "owner",
+  "visibility",
+  "areaRegion"
+];
+var allPlotFields = [
+  "terrain",
+  "biome",
+  "feature",
+  "resource",
+  "climate",
+  "hydrology",
+  "yields",
+  "owner",
+  "visibility",
+  "areaRegion",
+  "tags",
+  "city",
+  "units"
+];
 function installCiv7GameUiIntelligenceBridge(options = {}) {
   const target = options.target ?? globalThis;
   return installCiv7IntelligenceBridge({
@@ -38287,11 +39511,6 @@ function createCiv7GameUiControllerContextFactory(options) {
   });
 }
 function createCiv7GameUiDirectControlFacade(target) {
-  const unsupported = async () => {
-    throw new Error(
-      "Civ7 game UI controller dependency is not implemented for this procedure."
-    );
-  };
   return {
     requestCiv7ProductionChoice: async (input) => await requestCiv7GameUiProductionChoice(input, target),
     requestCiv7NotificationDismissal: async (input) => await requestCiv7GameUiNotificationDismissal(input, target),
@@ -38320,6 +39539,9 @@ function createCiv7GameUiDirectControlFacade(target) {
       maxNotifications: options?.maxNotifications
     }, target),
     getCiv7BattlefieldScan: async (input) => await getCiv7GameUiBattlefieldScan(input, target),
+    getCiv7DestinationAnalysis: async (input) => await getCiv7GameUiDestinationAnalysis(input, target),
+    getCiv7PlotSnapshot: async (input) => await getCiv7GameUiPlotSnapshot(input, target),
+    getCiv7MapGrid: async (input) => await getCiv7GameUiMapGrid(input, target),
     getCiv7ReadyUnitView: async (input) => await getCiv7GameUiReadyUnitView(input, target),
     getCiv7ReadyCityView: async (input) => await getCiv7GameUiReadyCityView(input, target),
     getCiv7TargetCandidates: async (input) => await getCiv7GameUiTargetCandidates(input, target),
@@ -38328,10 +39550,10 @@ function createCiv7GameUiDirectControlFacade(target) {
 }
 function gameUiPlayableStatus(target) {
   const snapshot = gameUiSnapshot(target);
-  const inGame = probeValue7(snapshot.ui.inGame) === true;
-  const inShell = probeValue7(snapshot.ui.inShell) === true;
-  const inLoading = probeValue7(snapshot.ui.inLoading) === true;
-  const canBegin = probeValue7(snapshot.ui.canBeginGame) === true;
+  const inGame = probeValue72(snapshot.ui.inGame) === true;
+  const inShell = probeValue72(snapshot.ui.inShell) === true;
+  const inLoading = probeValue72(snapshot.ui.inLoading) === true;
+  const canBegin = probeValue72(snapshot.ui.canBeginGame) === true;
   const readiness = inGame ? "app-ui-game" : canBegin ? "begin-ready" : inLoading ? "loading" : inShell ? "shell" : "unavailable";
   return {
     host: "game-ui",
@@ -38421,6 +39643,12 @@ function gameUiSupportedReadProcedures(target) {
   if (civ7GameUiStrategyFrontAvailable(target)) {
     supported2.push("strategy.frontSummary");
   }
+  if (gameUiWorldCurrentAvailable(target)) {
+    supported2.push("world.current");
+  }
+  if (civ7GameUiWorldMapReadsAvailable(target)) {
+    supported2.push("world.plot.read", "world.grid.read");
+  }
   return supported2;
 }
 function gameUiNotificationDismissalAvailable(target) {
@@ -38431,6 +39659,9 @@ function gameUiNotificationDismissalAvailable(target) {
 function gameUiAttentionReadAvailable(target) {
   return typeof target.Game?.Notifications?.getIdsForPlayer === "function" && typeof target.Game?.Notifications?.find === "function" && typeof target.UI?.Player?.getFirstReadyUnit === "function" && isControllerPlayerId(target.GameContext?.localPlayerID);
 }
+function gameUiWorldCurrentAvailable(target) {
+  return typeof target.UI?.isInGame === "function" && typeof target.GameplayMap?.getGridWidth === "function" && typeof target.GameplayMap?.getGridHeight === "function" && typeof target.Game?.getTurnDate === "function" && typeof target.Players?.getAliveIds === "function" && typeof target.Players?.getAliveHumanIds === "function" && typeof target.Players?.getNumAliveHumans === "function" && isControllerPlayerId(target.GameContext?.localPlayerID);
+}
 function gameUiTurnCompletionAvailable(target) {
   return gameUiAttentionReadAvailable(target) && typeof target.GameContext?.hasSentTurnComplete === "function" && typeof target.GameContext?.sendTurnComplete === "function" && typeof target.canEndTurn === "function" && typeof target.Game?.getTurnDate === "function" && typeof target.Game?.Notifications?.getEndTurnBlockingType === "function";
 }
@@ -38438,13 +39669,13 @@ function gameUiSnapshot(target) {
   return {
     network: {
       isInSession: ok2(Boolean(target.Network?.isInSession)),
-      numPlayers: probe12(() => target.Network?.getNumPlayers?.() ?? 0),
-      hostPlayerId: probe12(() => target.Network?.getHostPlayerId?.() ?? -1),
-      isConnectedToNetwork: probe12(
+      numPlayers: probe13(() => target.Network?.getNumPlayers?.() ?? 0),
+      hostPlayerId: probe13(() => target.Network?.getHostPlayerId?.() ?? -1),
+      isConnectedToNetwork: probe13(
         () => target.Network?.isConnectedToNetwork?.() ?? false
       ),
-      isAuthenticated: probe12(() => target.Network?.isAuthenticated?.() ?? false),
-      isLoggedIn: probe12(() => target.Network?.isLoggedIn?.() ?? false)
+      isAuthenticated: probe13(() => target.Network?.isAuthenticated?.() ?? false),
+      isLoggedIn: probe13(() => target.Network?.isLoggedIn?.() ?? false)
     },
     autoplay: {
       isActive: target.Autoplay?.isActive ?? false,
@@ -38458,18 +39689,18 @@ function gameUiSnapshot(target) {
       turn: target.Game?.turn ?? -1,
       age: target.Game?.age ?? -1,
       maxTurns: target.Game?.maxTurns ?? 0,
-      turnDate: probe12(() => target.Game?.getTurnDate?.() ?? ""),
-      hash: probe12(() => target.Game?.getHash?.() ?? 0)
+      turnDate: probe13(() => target.Game?.getTurnDate?.() ?? ""),
+      hash: probe13(() => target.Game?.getHash?.() ?? 0)
     },
     ui: {
-      inGame: probe12(() => target.UI?.isInGame?.() ?? false),
-      inShell: probe12(() => target.UI?.isInShell?.() ?? false),
-      inLoading: probe12(() => target.UI?.isInLoading?.() ?? false),
-      loadingState: probe12(() => target.UI?.getGameLoadingState?.() ?? -1),
+      inGame: probe13(() => target.UI?.isInGame?.() ?? false),
+      inShell: probe13(() => target.UI?.isInShell?.() ?? false),
+      inLoading: probe13(() => target.UI?.isInLoading?.() ?? false),
+      loadingState: probe13(() => target.UI?.getGameLoadingState?.() ?? -1),
       loadingStateName: loadingStateName(target),
       canBeginGame: canBeginGame(target),
       canNotifyUIReady: typeof target.UI?.notifyUIReady,
-      skipStartButton: probe12(
+      skipStartButton: probe13(
         () => target.Configuration?.getGame?.().skipStartButton ?? false
       ),
       automationActive: ok2(false)
@@ -38477,27 +39708,27 @@ function gameUiSnapshot(target) {
     gameContext: {
       localPlayerID: target.GameContext?.localPlayerID ?? -1,
       localObserverID: target.GameContext?.localObserverID ?? -1,
-      hasRequestedPause: probe12(
+      hasRequestedPause: probe13(
         () => target.GameContext?.hasRequestedPause?.() ?? false
       )
     },
     players: {
       maxPlayers: target.Players?.maxPlayers ?? 0,
-      aliveIds: probe12(() => target.Players?.getAliveIds?.() ?? []),
-      aliveHumanIds: probe12(() => target.Players?.getAliveHumanIds?.() ?? []),
-      numAliveHumans: probe12(() => target.Players?.getNumAliveHumans?.() ?? 0)
+      aliveIds: probe13(() => target.Players?.getAliveIds?.() ?? []),
+      aliveHumanIds: probe13(() => target.Players?.getAliveHumanIds?.() ?? []),
+      numAliveHumans: probe13(() => target.Players?.getNumAliveHumans?.() ?? 0)
     },
     map: {
-      width: probe12(() => target.GameplayMap?.getGridWidth?.() ?? 0),
-      height: probe12(() => target.GameplayMap?.getGridHeight?.() ?? 0),
-      plotCount: probe12(() => target.GameplayMap?.getPlotCount?.() ?? 0),
-      mapSize: probe12(() => target.GameplayMap?.getMapSize?.() ?? 0),
-      randomSeed: probe12(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
+      width: probe13(() => target.GameplayMap?.getGridWidth?.() ?? 0),
+      height: probe13(() => target.GameplayMap?.getGridHeight?.() ?? 0),
+      plotCount: probe13(() => target.GameplayMap?.getPlotCount?.() ?? 0),
+      mapSize: probe13(() => target.GameplayMap?.getMapSize?.() ?? 0),
+      randomSeed: probe13(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
     }
   };
 }
 function gameUiControllerMutationProof(target) {
-  if (probeValue7(probe12(() => target.UI?.isInGame?.() ?? false)) !== true) {
+  if (probeValue72(probe13(() => target.UI?.isInGame?.() ?? false)) !== true) {
     return null;
   }
   const localPlayerId = target.GameContext?.localPlayerID;
@@ -38519,18 +39750,18 @@ function gameUiControllerMutationProof(target) {
   };
 }
 function isSingleLocalHuman(target, localPlayerId) {
-  const aliveHumanIds = probe12(() => target.Players?.getAliveHumanIds?.());
+  const aliveHumanIds = probe13(() => target.Players?.getAliveHumanIds?.());
   if (aliveHumanIds.ok && Array.isArray(aliveHumanIds.value)) {
     return aliveHumanIds.value.length === 1 && aliveHumanIds.value[0] === localPlayerId;
   }
-  const aliveHumanCount = probe12(() => target.Players?.getNumAliveHumans?.());
+  const aliveHumanCount = probe13(() => target.Players?.getNumAliveHumans?.());
   return aliveHumanCount.ok && aliveHumanCount.value === 1;
 }
 function isControllerPlayerId(playerId) {
   return typeof playerId === "number" && Number.isInteger(playerId) && playerId >= 0 && playerId <= 255;
 }
 function canBeginGame(target) {
-  return probe12(() => {
+  return probe13(() => {
     const loadingState = target.UI?.getGameLoadingState?.();
     if (loadingState == null) return false;
     const states = target.UIGameLoadingState ?? {};
@@ -38544,7 +39775,7 @@ function loadingStateName(target) {
     ([, value2]) => value2 === loadingState
   )?.[0] ?? null;
 }
-function probe12(fn2) {
+function probe13(fn2) {
   try {
     return ok2(fn2());
   } catch (err) {
@@ -38554,8 +39785,8 @@ function probe12(fn2) {
 function ok2(value2) {
   return { ok: true, value: value2 };
 }
-function probeValue7(probe13) {
-  return probe13.ok ? probe13.value : void 0;
+function probeValue72(probe14) {
+  return probe14.ok ? probe14.value : void 0;
 }
 
 // src/ui/civ7-intelligence-bridge.ts

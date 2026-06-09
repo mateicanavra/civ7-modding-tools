@@ -40,7 +40,7 @@ export const notificationsDismissRequestProcedure =
     });
   });
 
-function notificationDismissalResult(
+export function notificationDismissalResult(
   result: Civ7ControlOrpcNotificationDismissalResult,
 ): Civ7NotificationDismissalResult {
   const projection = civ7CloseoutMutationProjection({

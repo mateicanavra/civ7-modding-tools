@@ -7,8 +7,9 @@ Date: 2026-06-05.
 
 Seed the first native `strategy` service procedure after the workstream
 rebaseline stopped adding same-shaped read wrappers. `strategy.frontSummary`
-is a planning view for support/player agents that composes target-candidate
-and battlefield-scan evidence into one neutral front summary.
+is a planning view for support/player agents that composes target-candidate,
+battlefield-scan, and optional destination-analysis evidence into one neutral
+front summary.
 
 The slice advances semantic capability hierarchy and service-owned behavior
 without adding a strategy catalog, transport edge, direct-control procedure
@@ -33,12 +34,16 @@ core, action authority, or in-game/runtime proof.
 
 `strategy.frontSummary`:
 
-- calls `getCiv7TargetCandidates` and `getCiv7BattlefieldScan` as
+- calls `getCiv7TargetCandidates`, `getCiv7BattlefieldScan`, and, when a
+  target is supplied or inferred, `getCiv7DestinationAnalysis` as
   direct-control runtime/read ports through oRPC context;
 - owns the normal service projection in `packages/civ7-control-orpc`;
 - emits source status, target-candidate summaries, points of interest,
-  observed owner summaries, policy notes, and next steps for inspection,
-  visibility reads, and validator-backed action checks;
+  destination pressure, observed owner summaries, policy notes, and semantic
+  next-step descriptors for inspection, visibility reads, and
+  validator-backed action checks;
+- keeps concrete CLI command strings out of the service contract; CLI callers
+  may map semantic next-step descriptors into command suggestions locally;
 - excludes direct-control `host`, `port`, `state`, raw session, raw command,
   and transport/debug details from normal output;
 - preserves `relationship-unproven` for other owners unless official
@@ -55,8 +60,9 @@ declare war, send actions, validate a target action, or close a blocker.
   direct-control summary surface;
 - no mutation behavior, mutation policy change, validator/postcondition
   middleware, telemetry persistence, or raw proof/debug projection;
-- no CLI, Studio, RPCLink, OpenAPI, in-game bridge, transport, or
-  `Civ7IntelligenceBridge` implementation in this service seed;
+- no Studio, RPCLink, OpenAPI, transport, or `Civ7IntelligenceBridge`
+  implementation in this service seed; later CLI and controller slices may
+  call the same semantic procedure without moving CLI syntax into the service;
 - no runtime/live-game proof claim, play-thread action, or Task 5.x/6.x parent
   acceptance by implication.
 
@@ -64,10 +70,13 @@ declare war, send actions, validate a target action, or close a blocker.
 
 Focused package proof covers:
 
-- in-process router calls compose both direct-control runtime/read ports with
-  endpoint defaults supplied through context;
+- in-process router calls compose target-candidate, battlefield-scan, and
+  destination-analysis runtime/read ports with endpoint defaults supplied
+  through context;
 - normal output omits host, port, state, raw command, and command-source
   details;
+- normal service output uses semantic next-step descriptors, not `game play`
+  command strings;
 - other-owner target candidates and observed owners stay
   `relationship-unproven`;
 - endpoint/session/state/raw command fields are rejected as procedure input;
@@ -89,8 +98,8 @@ Closure gates:
 ## Residual Risk
 
 This is local package proof only. It proves native service composition and
-projection shape, not live Civ7 target-candidate or battlefield evidence, not
-runtime relationship authority, not a complete strategy family, and not parent
-Task 5.x/6.x completion. Later controller work may add game-resident
-dependencies for the same semantic `strategy.frontSummary` procedure without
-reviving raw target-candidate or battlefield-scan bridge leaves.
+projection shape, not live Civ7 target-candidate, battlefield, or destination
+evidence, not runtime relationship authority, not a complete strategy family,
+and not parent Task 5.x/6.x completion. Later caller/controller work may call
+the same semantic `strategy.frontSummary` procedure without reviving raw
+target-candidate, battlefield-scan, or destination-analysis bridge leaves.

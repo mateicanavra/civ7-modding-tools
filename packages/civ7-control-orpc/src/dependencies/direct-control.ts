@@ -2,8 +2,12 @@ import {
   getCiv7PlayableStatus,
   getCiv7PlayNotificationView,
   getCiv7BattlefieldScan,
+  getCiv7DestinationAnalysis,
+  getCiv7MapGrid,
+  getCiv7PlotSnapshot,
   getCiv7ReadyCityView,
   getCiv7ReadyUnitView,
+  getCiv7SettlementRecommendations,
   getCiv7TargetCandidates,
   getCiv7TurnCompletionStatus,
   requestCiv7AttributePurchase,
@@ -30,6 +34,7 @@ import {
   requestCiv7CultureTarget,
   type Civ7DirectControlOptions,
   Civ7BattlefieldScanResultSchema,
+  Civ7DestinationAnalysisResultSchema,
   type Civ7AttributePurchaseInput,
   type Civ7AttributeReviewInput,
   type Civ7DiplomacyResponseInput,
@@ -41,6 +46,8 @@ import {
   type Civ7CultureChoiceCloseoutResult,
   type Civ7GovernmentChoiceInput,
   type Civ7GovernmentDomainChoiceResult,
+  type Civ7MapGridInput,
+  type Civ7MapGridResult,
   type Civ7NarrativeChoiceInput,
   type Civ7NarrativeChoiceResult,
   Civ7PlayNotificationViewResultSchema,
@@ -52,14 +59,19 @@ import {
   Civ7TurnCompletionStatusResultSchema,
   Civ7UnitTargetActionResultSchema,
   type Civ7BattlefieldScanInput,
+  type Civ7DestinationAnalysisInput,
   type Civ7NotificationDismissInput,
   type Civ7NotificationDismissalResult,
   type Civ7OperationRequestResult,
   type Civ7PlayNotificationViewResult,
+  type Civ7PlotSnapshotInput,
+  type Civ7PlotSnapshotResult,
   type Civ7PopulationPlacementProofSource,
   type Civ7ProductionChoiceInput,
   type Civ7ReadyCityViewInput,
   type Civ7ReadyUnitViewInput,
+  type Civ7SettlementRecommendationInput,
+  Civ7SettlementRecommendationResultSchema,
   type Civ7TargetCandidatesInput,
   type Civ7TechnologyChoiceCloseoutInput,
   type Civ7TechnologyChoiceCloseoutResult,
@@ -125,11 +137,19 @@ export type Civ7ControlOrpcPlayNotificationViewResult =
 export type Civ7ControlOrpcBattlefieldScanResult = Static<
   typeof Civ7BattlefieldScanResultSchema
 >;
+export type Civ7ControlOrpcDestinationAnalysisResult = Static<
+  typeof Civ7DestinationAnalysisResultSchema
+>;
+export type Civ7ControlOrpcPlotSnapshotResult = Civ7PlotSnapshotResult;
+export type Civ7ControlOrpcMapGridResult = Civ7MapGridResult;
 export type Civ7ControlOrpcReadyUnitViewResult = Static<
   typeof Civ7ReadyUnitViewResultSchema
 >;
 export type Civ7ControlOrpcReadyCityViewResult = Static<
   typeof Civ7ReadyCityViewResultSchema
+>;
+export type Civ7ControlOrpcSettlementRecommendationsResult = Static<
+  typeof Civ7SettlementRecommendationResultSchema
 >;
 export type Civ7ControlOrpcTargetCandidatesResult = Static<
   typeof Civ7TargetCandidatesResultSchema
@@ -244,6 +264,18 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input?: Civ7BattlefieldScanInput,
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcBattlefieldScanResult>;
+  getCiv7DestinationAnalysis(
+    input: Civ7DestinationAnalysisInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcDestinationAnalysisResult>;
+  getCiv7PlotSnapshot(
+    input: Civ7PlotSnapshotInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcPlotSnapshotResult>;
+  getCiv7MapGrid(
+    input: Civ7MapGridInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcMapGridResult>;
   getCiv7ReadyUnitView(
     input?: Civ7ReadyUnitViewInput,
     options?: Civ7DirectControlOptions,
@@ -252,6 +284,10 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input?: Civ7ReadyCityViewInput,
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcReadyCityViewResult>;
+  getCiv7SettlementRecommendations(
+    input?: Civ7SettlementRecommendationInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcSettlementRecommendationsResult>;
   getCiv7TargetCandidates(
     input?: Civ7TargetCandidatesInput,
     options?: Civ7DirectControlOptions,
@@ -345,6 +381,14 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     getCiv7BattlefieldScan(input, options) as Promise<
       Civ7ControlOrpcBattlefieldScanResult
     >,
+  getCiv7DestinationAnalysis: async (input, options) =>
+    getCiv7DestinationAnalysis(input, options) as Promise<
+      Civ7ControlOrpcDestinationAnalysisResult
+    >,
+  getCiv7PlotSnapshot: async (input, options) =>
+    getCiv7PlotSnapshot(input, options),
+  getCiv7MapGrid: async (input, options) =>
+    getCiv7MapGrid(input, options),
   getCiv7ReadyUnitView: async (input, options) =>
     getCiv7ReadyUnitView(input, options) as Promise<
       Civ7ControlOrpcReadyUnitViewResult
@@ -352,6 +396,10 @@ export const liveCiv7ControlOrpcDirectControlFacade:
   getCiv7ReadyCityView: async (input, options) =>
     getCiv7ReadyCityView(input, options) as Promise<
       Civ7ControlOrpcReadyCityViewResult
+    >,
+  getCiv7SettlementRecommendations: async (input, options) =>
+    getCiv7SettlementRecommendations(input, options) as Promise<
+      Civ7ControlOrpcSettlementRecommendationsResult
     >,
   getCiv7TargetCandidates: async (input, options) =>
     getCiv7TargetCandidates(input, options) as Promise<

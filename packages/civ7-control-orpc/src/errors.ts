@@ -56,6 +56,28 @@ export class Civ7AttentionCurrentUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7AttentionPrioritiesUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("attention.priorities"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7AttentionPrioritiesUnavailableErrorData = Static<
+  typeof Civ7AttentionPrioritiesUnavailableErrorDataSchema
+>;
+
+export class Civ7AttentionPrioritiesUnavailableError extends ORPCTaggedError(
+  "Civ7AttentionPrioritiesUnavailableError",
+  {
+    code: "ATTENTION_PRIORITIES_UNAVAILABLE",
+    message: "Attention priorities view failed.",
+    schema: toStandardSchema(Civ7AttentionPrioritiesUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7StrategyFrontSummaryUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("strategy.frontSummary"),
@@ -78,6 +100,103 @@ export class Civ7StrategyFrontSummaryUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Literal("strategy.civilianRouteTriage"),
+      source: Type.Literal("direct-control-facade"),
+      ...Civ7ControlOrpcErrorCorrelationProperties,
+    },
+    { additionalProperties: false },
+  );
+export type Civ7StrategyCivilianRouteTriageUnavailableErrorData = Static<
+  typeof Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema
+>;
+
+export class Civ7StrategyCivilianRouteTriageUnavailableError extends ORPCTaggedError(
+  "Civ7StrategyCivilianRouteTriageUnavailableError",
+  {
+    code: "STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE",
+    message: "Strategy civilian route triage failed.",
+    schema: toStandardSchema(
+      Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
+export const Civ7StrategyFormationSnapshotUnavailableErrorDataSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Literal("strategy.formationSnapshot"),
+      source: Type.Literal("direct-control-facade"),
+      ...Civ7ControlOrpcErrorCorrelationProperties,
+    },
+    { additionalProperties: false },
+  );
+export type Civ7StrategyFormationSnapshotUnavailableErrorData = Static<
+  typeof Civ7StrategyFormationSnapshotUnavailableErrorDataSchema
+>;
+
+export class Civ7StrategyFormationSnapshotUnavailableError extends ORPCTaggedError(
+  "Civ7StrategyFormationSnapshotUnavailableError",
+  {
+    code: "STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE",
+    message: "Strategy formation snapshot failed.",
+    schema: toStandardSchema(
+      Civ7StrategyFormationSnapshotUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
+export const Civ7WorldCurrentUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("world.current"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7WorldCurrentUnavailableErrorData = Static<
+  typeof Civ7WorldCurrentUnavailableErrorDataSchema
+>;
+
+export class Civ7WorldCurrentUnavailableError extends ORPCTaggedError(
+  "Civ7WorldCurrentUnavailableError",
+  {
+    code: "WORLD_CURRENT_UNAVAILABLE",
+    message: "Current world view failed.",
+    schema: toStandardSchema(Civ7WorldCurrentUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export const Civ7WorldReadUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("world.plot.read"),
+      Type.Literal("world.grid.read"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7WorldReadUnavailableErrorData = Static<
+  typeof Civ7WorldReadUnavailableErrorDataSchema
+>;
+
+export class Civ7WorldReadUnavailableError extends ORPCTaggedError(
+  "Civ7WorldReadUnavailableError",
+  {
+    code: "WORLD_READ_UNAVAILABLE",
+    message: "World map read failed.",
+    schema: toStandardSchema(Civ7WorldReadUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
@@ -96,6 +215,31 @@ export class Civ7NotificationDismissalUnavailableError extends ORPCTaggedError(
     code: "NOTIFICATION_DISMISSAL_UNAVAILABLE",
     message: "Direct-control notification dismissal request failed.",
     schema: toStandardSchema(Civ7NotificationDismissalUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export const Civ7NotificationQueueUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("notifications.queue.current"),
+      Type.Literal("notifications.queue.dismiss.request"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7NotificationQueueUnavailableErrorData = Static<
+  typeof Civ7NotificationQueueUnavailableErrorDataSchema
+>;
+
+export class Civ7NotificationQueueUnavailableError extends ORPCTaggedError(
+  "Civ7NotificationQueueUnavailableError",
+  {
+    code: "NOTIFICATION_QUEUE_UNAVAILABLE",
+    message: "Notification queue service failed.",
+    schema: toStandardSchema(Civ7NotificationQueueUnavailableErrorDataSchema),
     status: 503,
   },
 ) {}
@@ -510,6 +654,7 @@ export class Civ7CorrelationIdInvalidError extends ORPCTaggedError(
 
 export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
+  ATTENTION_PRIORITIES_UNAVAILABLE: Civ7AttentionPrioritiesUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
   FIRST_MEET_RESPONSE_UNAVAILABLE: Civ7FirstMeetResponseUnavailableError,
@@ -519,17 +664,24 @@ export const civ7ControlOrpcErrorMap = {
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
   NARRATIVE_CHOICE_UNAVAILABLE: Civ7NarrativeChoiceUnavailableError,
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
+  NOTIFICATION_QUEUE_UNAVAILABLE: Civ7NotificationQueueUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PROGRESSION_CHOICE_UNAVAILABLE: Civ7ProgressionChoiceUnavailableError,
   PROGRESSION_PLAYER_CHOICE_UNAVAILABLE: Civ7ProgressionPlayerChoiceUnavailableError,
   PROGRESSION_TARGET_UNAVAILABLE: Civ7ProgressionTargetUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
+  STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE:
+    Civ7StrategyCivilianRouteTriageUnavailableError,
+  STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE:
+    Civ7StrategyFormationSnapshotUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
   TOWN_FOCUS_UNAVAILABLE: Civ7TownFocusUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
   UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
+  WORLD_CURRENT_UNAVAILABLE: Civ7WorldCurrentUnavailableError,
+  WORLD_READ_UNAVAILABLE: Civ7WorldReadUnavailableError,
 } satisfies EffectErrorMap;
 
 export type Civ7ControlOrpcEffectErrorMap = typeof civ7ControlOrpcErrorMap;

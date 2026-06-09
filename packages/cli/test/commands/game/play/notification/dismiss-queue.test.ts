@@ -8,7 +8,7 @@ describe('game play dismiss-notification-queue command', () => {
   test('bulk dismisses only eligible informational queue items with send enabled', async () => {
     const dryRun = await runDismissNotificationQueue('mixed-queue');
     try {
-      expect(dryRun.payload.view.send).toBe(false);
+      expect(dryRun.payload.view.sent).toBe(false);
       expect(dryRun.payload.view.eligibleCount).toBe(1);
       expect(dryRun.payload.view.selectedCount).toBe(1);
       expect(dryRun.payload.view.excluded).toHaveLength(2);
@@ -22,12 +22,13 @@ describe('game play dismiss-notification-queue command', () => {
       '--send',
     ]);
     try {
-      expect(sent.payload.view.send).toBe(true);
+      expect(sent.payload.view.sent).toBe(true);
       expect(sent.payload.view.eligibleCount).toBe(1);
       expect(sent.payload.view.selectedCount).toBe(1);
       expect(sent.payload.view.results).toHaveLength(1);
       expect(sent.payload.view.results[0].sent).toBe(true);
-      expect(sent.payload.view.results[0].verified).toBe(true);
+      expect(sent.payload.view.results[0].status).toBe('sent-confirmed');
+      expect(sent.payload.view.postcondition.confirmed).toBe(true);
       expect(sent.server.received.filter((message) => message.includes('readNotificationDismissal')).length).toBeGreaterThan(1);
       expect(sent.server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -77,11 +78,13 @@ async function runDismissNotificationQueue(mode: DismissQueueMode, extraArgs: re
     payload: JSON.parse(writes.join('')) as {
       ok: true;
       view: {
-        send: boolean;
+        sent: boolean;
         eligibleCount: number;
         selectedCount: number;
         excluded: Array<{ typeName: string | null; reason: string }>;
-        results: Array<{ sent: boolean; verified: boolean }>;
+        status: string;
+        postcondition: { confirmed: boolean };
+        results: Array<{ sent: boolean; status: string }>;
       };
     },
     server,
@@ -94,6 +97,12 @@ async function startDismissNotificationQueueTunerServer(mode: DismissQueueMode):
     handle({ message }) {
       if (message.includes('readPlayNotifications')) {
         return [JSON.stringify(dismissNotificationQueueView(mode))];
+      }
+      if (message.includes('isInGame') && message.includes('GameContext.localPlayerID')) {
+        return [JSON.stringify(appUiSnapshot())];
+      }
+      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+        return [JSON.stringify(tunerHealthSnapshot())];
       }
       if (message.includes('readNotificationDismissal')) {
         const send = message.includes('"send":true');
@@ -119,6 +128,86 @@ function dismissNotificationQueueView(mode: DismissQueueMode) {
       nextDecision: decisionQueue.find((item) => item.isEndTurnBlocking) ?? null,
       decisionQueue,
     },
+  };
+}
+
+function appUiSnapshot() {
+  const ok = <T>(value: T) => ({ ok: true, value });
+  return {
+    network: {
+      isInSession: ok(true),
+      numPlayers: ok(2),
+      hostPlayerId: ok(0),
+      isConnectedToNetwork: ok(true),
+      isAuthenticated: ok(true),
+      isLoggedIn: ok(true),
+    },
+    autoplay: {
+      isActive: false,
+      turns: 0,
+      isPaused: false,
+      isPausedOrPending: false,
+      observeAsPlayer: -1,
+      returnAsPlayer: -1,
+    },
+    game: {
+      turn: 123,
+      age: 0,
+      maxTurns: 500,
+      turnDate: ok('1160 BCE'),
+      hash: ok(1),
+    },
+    ui: {
+      inGame: ok(true),
+      inShell: ok(false),
+      inLoading: ok(false),
+      loadingState: ok(0),
+      loadingStateName: null,
+      canBeginGame: ok(false),
+      canNotifyUIReady: 'function',
+      skipStartButton: ok(false),
+      automationActive: ok(false),
+    },
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: -1,
+      hasRequestedPause: ok(false),
+    },
+    players: {
+      maxPlayers: 8,
+      aliveIds: ok([0, 1]),
+      aliveHumanIds: ok([0]),
+      numAliveHumans: ok(1),
+    },
+    map: {
+      width: ok(80),
+      height: ok(52),
+      plotCount: ok(4160),
+      mapSize: ok(1),
+      randomSeed: ok(1234),
+    },
+  };
+}
+
+function tunerHealthSnapshot() {
+  const ok = <T>(value: T) => ({ ok: true, value });
+  return {
+    evalOk: 2,
+    ready: true,
+    globals: {
+      Game: 'object',
+      Autoplay: 'object',
+      GameplayMap: 'object',
+      Players: 'object',
+      Network: 'object',
+    },
+    turn: ok(123),
+    turnDate: ok('1160 BCE'),
+    width: ok(80),
+    height: ok(52),
+    aliveIds: ok([0, 1]),
+    aliveHumanIds: ok([0]),
+    autoplayActive: ok(false),
   };
 }
 

@@ -56,6 +56,12 @@ export {
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
   Civ7ControllerBridgeUnitUpgradeRequestSchema,
   Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema,
+  Civ7ControllerBridgeWorldCurrentRequestSchema,
+  Civ7ControllerBridgeWorldCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeWorldGridReadRequestSchema,
+  Civ7ControllerBridgeWorldGridReadSuccessResponseSchema,
+  Civ7ControllerBridgeWorldPlotReadRequestSchema,
+  Civ7ControllerBridgeWorldPlotReadSuccessResponseSchema,
   createCiv7ControllerBridgeIngress,
   invokeCiv7ControllerBridgeRequest,
 } from "./bridge/controller-ingress";
@@ -118,6 +124,12 @@ export type {
   Civ7ControllerBridgeUnitTargetActionSuccessResponse,
   Civ7ControllerBridgeUnitUpgradeRequest,
   Civ7ControllerBridgeUnitUpgradeSuccessResponse,
+  Civ7ControllerBridgeWorldCurrentRequest,
+  Civ7ControllerBridgeWorldCurrentSuccessResponse,
+  Civ7ControllerBridgeWorldGridReadRequest,
+  Civ7ControllerBridgeWorldGridReadSuccessResponse,
+  Civ7ControllerBridgeWorldPlotReadRequest,
+  Civ7ControllerBridgeWorldPlotReadSuccessResponse,
 } from "./bridge/controller-ingress";
 export {
   CIV7_INTELLIGENCE_BRIDGE_GLOBAL_KEY,
@@ -132,9 +144,12 @@ export type {
 export { civ7ControlOrpcContractBase } from "./contract-base";
 export { Civ7ControlOrpcContract } from "./contract";
 export type { Civ7ControlOrpcContext } from "./context";
+export type { Civ7WorldPlotField } from "./modules/world/contract";
 export {
   Civ7AttentionCurrentUnavailableError,
   Civ7AttentionCurrentUnavailableErrorDataSchema,
+  Civ7AttentionPrioritiesUnavailableError,
+  Civ7AttentionPrioritiesUnavailableErrorDataSchema,
   Civ7CorrelationIdInvalidError,
   Civ7CorrelationIdInvalidErrorDataSchema,
   Civ7DiplomacyResponseUnavailableError,
@@ -153,6 +168,8 @@ export {
   Civ7NarrativeChoiceUnavailableErrorDataSchema,
   Civ7NotificationDismissalUnavailableError,
   Civ7NotificationDismissalUnavailableErrorDataSchema,
+  Civ7NotificationQueueUnavailableError,
+  Civ7NotificationQueueUnavailableErrorDataSchema,
   Civ7PopulationPlacementUnavailableError,
   Civ7PopulationPlacementUnavailableErrorDataSchema,
   Civ7ProgressionChoiceUnavailableError,
@@ -165,6 +182,10 @@ export {
   Civ7ProductionChoiceUnavailableErrorDataSchema,
   Civ7ReadinessCurrentUnavailableError,
   Civ7ReadinessCurrentUnavailableErrorDataSchema,
+  Civ7StrategyCivilianRouteTriageUnavailableError,
+  Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema,
+  Civ7StrategyFormationSnapshotUnavailableError,
+  Civ7StrategyFormationSnapshotUnavailableErrorDataSchema,
   Civ7StrategyFrontSummaryUnavailableError,
   Civ7StrategyFrontSummaryUnavailableErrorDataSchema,
   Civ7TownFocusUnavailableError,
@@ -175,8 +196,13 @@ export {
   Civ7UnitRequestUnavailableErrorDataSchema,
   Civ7UnitTargetActionUnavailableError,
   Civ7UnitTargetActionUnavailableErrorDataSchema,
+  Civ7WorldCurrentUnavailableError,
+  Civ7WorldCurrentUnavailableErrorDataSchema,
+  Civ7WorldReadUnavailableError,
+  Civ7WorldReadUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
   type Civ7AttentionCurrentUnavailableErrorData,
+  type Civ7AttentionPrioritiesUnavailableErrorData,
   type Civ7ControlOrpcErrorMap,
   type Civ7ControlOrpcEffectErrorMap,
   type Civ7CorrelationIdInvalidErrorData,
@@ -188,17 +214,22 @@ export {
   type Civ7MutationReadinessUnavailableErrorData,
   type Civ7NarrativeChoiceUnavailableErrorData,
   type Civ7NotificationDismissalUnavailableErrorData,
+  type Civ7NotificationQueueUnavailableErrorData,
   type Civ7PopulationPlacementUnavailableErrorData,
   type Civ7ProgressionChoiceUnavailableErrorData,
   type Civ7ProgressionPlayerChoiceUnavailableErrorData,
   type Civ7ProgressionTargetUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7ReadinessCurrentUnavailableErrorData,
+  type Civ7StrategyCivilianRouteTriageUnavailableErrorData,
+  type Civ7StrategyFormationSnapshotUnavailableErrorData,
   type Civ7StrategyFrontSummaryUnavailableErrorData,
   type Civ7TownFocusUnavailableErrorData,
   type Civ7TurnCompletionUnavailableErrorData,
   type Civ7UnitRequestUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
+  type Civ7WorldCurrentUnavailableErrorData,
+  type Civ7WorldReadUnavailableErrorData,
 } from "./errors";
 export {
   Civ7ControlOrpcCorrelationIdSchema,
@@ -225,15 +256,32 @@ export { Civ7ControlOrpcRouter } from "./router";
 export {
   Civ7AttentionContract,
   Civ7AttentionCurrentContract,
+  Civ7AttentionPrioritiesContract,
 } from "./modules/attention/contract";
 export type {
   Civ7AttentionContract as Civ7AttentionContractType,
   Civ7AttentionCurrentContract as Civ7AttentionCurrentContractType,
   Civ7AttentionCurrentInput,
   Civ7AttentionCurrentResult,
+  Civ7AttentionPrioritiesContract as Civ7AttentionPrioritiesContractType,
+  Civ7AttentionPrioritiesInput,
+  Civ7AttentionPrioritiesResult,
 } from "./modules/attention/contract";
 export { attentionRouter } from "./modules/attention/router";
 export { attentionCurrentProcedure } from "./modules/attention/procedures/current";
+export { attentionPrioritiesProcedure } from "./modules/attention/procedures/priorities";
+export {
+  Civ7WorldContract,
+  Civ7WorldCurrentContract,
+} from "./modules/world/contract";
+export type {
+  Civ7WorldContract as Civ7WorldContractType,
+  Civ7WorldCurrentContract as Civ7WorldCurrentContractType,
+  Civ7WorldCurrentInput,
+  Civ7WorldCurrentResult,
+} from "./modules/world/contract";
+export { worldRouter } from "./modules/world/router";
+export { worldCurrentProcedure } from "./modules/world/procedures/current";
 export {
   Civ7CityContract,
   Civ7CityPopulationPlacementContract,
@@ -336,10 +384,18 @@ export type {
   Civ7NotificationDismissalContract as Civ7NotificationDismissalContractType,
   Civ7NotificationDismissInput,
   Civ7NotificationDismissalResult,
+  Civ7NotificationQueueDismissInput,
+  Civ7NotificationQueueDismissResult,
+  Civ7NotificationQueueInput,
+  Civ7NotificationQueueResult,
   Civ7NotificationsContract as Civ7NotificationsContractType,
 } from "./modules/notifications/contract";
 export { notificationsRouter } from "./modules/notifications/router";
 export { notificationsDismissRequestProcedure } from "./modules/notifications/procedures/dismiss-request";
+export {
+  notificationsQueueCurrentProcedure,
+  notificationsQueueDismissRequestProcedure,
+} from "./modules/notifications/procedures/queue";
 export {
   Civ7ReadinessContract,
   Civ7ReadinessCurrentContract,
@@ -353,16 +409,26 @@ export type {
 export { readinessRouter } from "./modules/readiness/router";
 export { readinessCurrentProcedure } from "./modules/readiness/procedures/current";
 export {
+  Civ7StrategyCivilianRouteTriageContract,
   Civ7StrategyContract,
+  Civ7StrategyFormationSnapshotContract,
   Civ7StrategyFrontSummaryContract,
 } from "./modules/strategy/contract";
 export type {
+  Civ7StrategyCivilianRouteTriageContract as Civ7StrategyCivilianRouteTriageContractType,
+  Civ7StrategyCivilianRouteTriageInput,
+  Civ7StrategyCivilianRouteTriageResult,
   Civ7StrategyContract as Civ7StrategyContractType,
+  Civ7StrategyFormationSnapshotContract as Civ7StrategyFormationSnapshotContractType,
+  Civ7StrategyFormationSnapshotInput,
+  Civ7StrategyFormationSnapshotResult,
   Civ7StrategyFrontSummaryContract as Civ7StrategyFrontSummaryContractType,
   Civ7StrategyFrontSummaryInput,
   Civ7StrategyFrontSummaryResult,
 } from "./modules/strategy/contract";
 export { strategyRouter } from "./modules/strategy/router";
+export { strategyCivilianRouteTriageProcedure } from "./modules/strategy/procedures/civilian-route-triage";
+export { strategyFormationSnapshotProcedure } from "./modules/strategy/procedures/formation-snapshot";
 export { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
 export {
   Civ7TurnCompletionContract,

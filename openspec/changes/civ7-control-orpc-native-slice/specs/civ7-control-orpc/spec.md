@@ -246,6 +246,247 @@ errors, and server-side callers.
   relationship-unproven semantics unless official relationship, team, war, or
   suzerain evidence proves stronger labels
 
+#### Scenario: Attention priorities service view is added
+- **WHEN** `attention.priorities` exposes a caller-facing priority dashboard
+  under the `attention` router
+- **THEN** control-oRPC owns the contract-local input/output schemas, native
+  service procedure, priority ranking, source-status projection, semantic
+  next-step descriptors, and normal output wording
+- **AND** the input is closed and admits only priority-read options such as
+  notification count, ready-unit bounds, and optional battlefield read bounds;
+  it does not accept endpoint, session, state, host, port, command, rawCommand,
+  transport, or send-operation fields
+- **AND** the procedure composes playable status, notification, turn-completion,
+  ready-unit/city, and optional battlefield runtime/read evidence from context
+  dependencies rather than adding same-shaped direct-control facade wrappers
+- **AND** normal service output emits semantic priority and next-step
+  descriptors rather than literal CLI `game play ...` command strings
+- **AND** battlefield evidence remains read-only planning context and must not
+  be treated as relationship status, action authority, target-send authority,
+  or hostile/enemy/opponent/threat/war/ally/suzerain proof
+- **AND** normal output omits host, port, state, session, command, rawCommand,
+  Tuner payloads, direct-control runtime envelopes, and raw transport details
+- **AND** local package tests prove only native service composition and fake
+  runtime behavior; deployed Civ7 runtime proof, action-send authority,
+  transport expansion, controller allowlisting, and parent Task 5.x/6.x/7.x
+  acceptance remain pending
+
+#### Scenario: Civilian route triage service view is added
+- **WHEN** `strategy.civilianRouteTriage` exposes a caller-facing civilian
+  route planning view under the `strategy` router
+- **THEN** control-oRPC owns the contract-local input/output schemas, native
+  service procedure, route status, source-status projection, relationship-safe
+  reasons, semantic next-step descriptors, and normal output wording
+- **AND** the input is closed and admits only route-read options such as player
+  id, origin, destination, settlement count, and bounded battlefield/route scan
+  limits; it does not accept endpoint, session, state, host, port, command,
+  rawCommand, transport, approval, reason, or send-operation fields
+- **AND** the procedure composes notification, ready-unit, settlement
+  recommendation, battlefield-scan, and destination-analysis runtime/read
+  evidence from context dependencies rather than keeping route-status logic in
+  CLI code or adding a same-shaped direct-control facade wrapper
+- **AND** normal service output emits semantic route triage and next-step
+  descriptors rather than literal CLI `game play ...` command strings
+- **AND** settlement, battlefield, and destination evidence remains read-only
+  planning context and must not be treated as relationship status, movement,
+  founding, target-send authority, or hostile/enemy/opponent/threat/war/ally/
+  suzerain proof
+- **AND** normal output omits host, port, state, session, command, rawCommand,
+  Tuner payloads, direct-control runtime envelopes, raw notification details,
+  raw settlement factors, raw unit/city arrays, and raw transport details
+- **AND** local package tests prove only native service composition and fake
+  runtime behavior; deployed Civ7 runtime proof, movement/founding/action-send
+  authority, transport expansion, controller allowlisting, and parent Task
+  5.x/6.x/7.x acceptance remain pending
+
+#### Scenario: Formation snapshot service view is added
+- **WHEN** `strategy.formationSnapshot` exposes a caller-facing formation
+  planning view under the `strategy` router
+- **THEN** control-oRPC owns the contract-local input/output schemas, native
+  service procedure, formation posture, source-status projection,
+  relationship-safe reasons, semantic next-step descriptors, and normal output
+  wording
+- **AND** the input is closed and admits only formation-read options such as
+  player id, origin, radius, screen radius, contact radius, and bounded
+  battlefield scan limits; it does not accept endpoint, session, state, host,
+  port, command, rawCommand, transport, approval, reason, or send-operation
+  fields
+- **AND** the procedure composes notification, ready-unit, and battlefield-scan
+  runtime/read evidence from context dependencies rather than keeping
+  formation posture logic in CLI code or adding a same-shaped direct-control
+  facade wrapper
+- **AND** normal service output emits semantic formation next-step descriptors
+  rather than literal CLI `game play ...` command strings
+- **AND** ready-unit and battlefield evidence remains read-only planning
+  context and must not be treated as relationship status, movement, target-send
+  authority, or hostile/enemy/opponent/threat/war/ally/suzerain proof
+- **AND** normal output omits host, port, state, session, command, rawCommand,
+  Tuner payloads, direct-control runtime envelopes, raw notification details,
+  raw ready-unit operations, raw unit evidence payloads, raw unit/city arrays,
+  and raw transport details
+- **AND** local package tests prove only native service composition and fake
+  runtime behavior; deployed Civ7 runtime proof, movement/action-send
+  authority, transport expansion, controller allowlisting, and parent Task
+  5.x/6.x/7.x acceptance remain pending
+
+#### Scenario: Notification queue service views are added
+- **WHEN** `notifications.queue.current` and
+  `notifications.queue.dismiss.request` expose caller-facing notification queue
+  surfaces under the `notifications` router
+- **THEN** control-oRPC owns the contract-local input/output schemas, native
+  service procedures, queue disposition, informational dismissal eligibility,
+  exclusion reasons, aggregate proof/no-repeat projection, semantic next-step
+  descriptors, and normal output wording
+- **AND** inputs are closed and admit only bounded queue-read and selected
+  bulk-dismissal options such as max notification count, max dismissal count,
+  and explicit send intent; they do not accept endpoint, session, state, host,
+  port, command, rawCommand, transport, approval, reason, raw operation, or
+  caller-supplied proof fields
+- **AND** the read procedure composes notification HUD decision queue evidence
+  from context dependencies rather than keeping queue scheduling behavior in
+  CLI code or exposing raw notification details as the service contract
+- **AND** the dismissal request procedure passes native mutation readiness and
+  proof/no-repeat middleware, invokes only item-scoped notification dismissal
+  runtime ports for eligible informational candidates, excludes operation-
+  bearing and unclassified notifications, and keeps aggregate unverified sends
+  do-not-repeat guarded
+- **AND** normal service output emits semantic notification next-step
+  descriptors rather than literal CLI `game play ...` command strings
+- **AND** normal output omits host, port, state, session, command, rawCommand,
+  Tuner payloads, direct-control runtime envelopes, raw App UI closeout
+  internals, legacy `verified`, approval/reason mechanics, raw operation
+  payloads, and raw transport details
+- **AND** local package tests prove only native service composition and fake
+  runtime behavior; deployed Civ7 runtime proof, controller bridge
+  allowlisting, transport expansion, broad operation catalog support, and
+  parent Task 5.x/6.x/7.x acceptance remain pending
+
+#### Scenario: Current world service view is added
+- **WHEN** `world.current` exposes a caller-facing current-world read
+- **THEN** control-oRPC owns the contract-local input/output schemas, native
+  service procedure, normal projection, and next-step wording under the
+  `world` router
+- **AND** the input is a closed empty object and does not accept endpoint,
+  session, state, host, port, command, rawCommand, or transport fields
+- **AND** the procedure reads the existing playable/App UI snapshot runtime
+  port and projects bounded turn, local-player, map, and player-count facts
+  without exposing the raw playable-status envelope
+- **AND** the procedure does not call transitional direct-control
+  `map.summary.read`, `player.summary.read`, `unit.summary.read`, or
+  `city.summary.read` facade wrappers as runtime resources
+- **AND** normal output omits actor samples, owner grouping, relationship
+  labels, raw app-ui snapshot objects, host, port, state, command, rawCommand,
+  session, Tuner payloads, and direct-control runtime internals
+- **AND** world output does not infer hostile, enemy, opponent, threat, war,
+  ally, suzerain, or other relationship labels from owner ids or player counts
+- **AND** local package tests prove only native service projection and fake
+  runtime behavior; deployed Civ7 runtime proof, broad world/actor catalog
+  support, transport expansion, and parent Task 5.x/6.x/7.x acceptance remain
+  pending
+
+#### Scenario: World plot and grid service reads are added
+- **WHEN** `world.plot.read` and `world.grid.read` expose bounded map
+  diagnostics under the `world` router
+- **THEN** control-oRPC owns the contract-local caller input, normal output
+  projection, source-status wording, and tagged error boundary
+- **AND** direct-control remains only the low-level plot snapshot and map grid
+  runtime read port that can execute bounded Tuner map probes
+- **AND** normal output omits raw host, port, state, session, command,
+  rawCommand, Tuner payloads, direct-control runtime envelopes, actor
+  catalogs, and relationship labels
+- **AND** the procedures reject endpoint/session/state/raw command fields from
+  caller input before invoking the direct-control facade
+- **AND** game-UI controller context advertises these reads only when the
+  separate game-resident map evidence path is present
+- **AND** local package tests prove only service projection and fake runtime
+  behavior; deployed Civ7 runtime proof, transport expansion, broad
+  world/actor catalog support, and parent Task 5.x/6.x/7.x acceptance remain
+  pending
+
+#### Scenario: CLI map summary uses current world service projection
+- **WHEN** `game map --summary` reads current world/map facts
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the summary path calls the in-process `world.current` server-side
+  client under the `world` router
+- **AND** the normal JSON result is the semantic current-world projection
+  without raw host, port, state, session, command, rawCommand, Tuner payloads,
+  raw App UI snapshot envelopes, direct-control summary envelopes, actor
+  catalogs, or relationship labels
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI map plot and bounds use world service projection
+- **WHEN** `game map --plot` and `game map --bounds` read bounded map facts
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** plot mode calls the in-process `world.plot.read` server-side client
+  under the `world` router
+- **AND** bounds mode calls the in-process `world.grid.read` server-side
+  client under the `world` router
+- **AND** normal JSON results are semantic world plot/grid projections without
+  raw host, port, state, session, command, rawCommand, Tuner payloads,
+  direct-control runtime envelopes, actor catalogs, or relationship labels
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI priorities uses attention service projection
+- **WHEN** `game play priorities` reads the current priority dashboard
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the priorities path calls the in-process `attention.priorities`
+  server-side client under the `attention` router
+- **AND** priority ranking, source-status, current-HUD, ready-actor, and
+  optional battlefield composition come from the service procedure
+- **AND** the CLI maps semantic next-step descriptors into command suggestions
+  in CLI output only; native service output remains caller-neutral and does not
+  contain literal CLI `game play ...` command strings
+- **AND** the normal JSON result omits raw host, port, state, session, command,
+  rawCommand, Tuner payloads, direct-control runtime envelopes, and transport
+  details
+- **AND** battlefield evidence remains relationship-safe read-only planning
+  context and does not authorize sends or hostile/enemy/opponent/threat labels
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI notification queue commands use notifications service projection
+- **WHEN** `game play notification-queue` schedules current notification work
+  or `game play dismiss-notification-queue` dry-runs or sends reviewed
+  informational closeouts
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the queue scheduler calls the in-process
+  `notifications.queue.current` server-side client under the `notifications`
+  router
+- **AND** the queue closeout command calls the in-process
+  `notifications.queue.dismiss.request` server-side client under the
+  `notifications` router
+- **AND** queue disposition, eligibility/exclusion policy, readiness-gated
+  aggregate dismissal, and proof/no-repeat projection come from the service
+  procedures
+- **AND** the CLI maps semantic next-step descriptors into command suggestions
+  in CLI output only; native service output remains caller-neutral and does not
+  contain literal CLI `game play ...` command strings
+- **AND** the normal JSON result omits raw host, port, state, session, command,
+  rawCommand, Tuner payloads, direct-control runtime envelopes, raw App UI
+  closeout internals, legacy `verified`, approval/reason mechanics, and
+  transport details
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI civilian route triage uses strategy service projection
+- **WHEN** `game play civilian-route-triage` reads settlement, route, and
+  battlefield planning evidence
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the route-triage path calls the in-process
+  `strategy.civilianRouteTriage` server-side client under the `strategy`
+  router
+- **AND** route status, source-status, ready-unit origin inference, settlement
+  destination inference, battlefield evidence, and optional destination
+  analysis composition come from the service procedure
+- **AND** the CLI maps semantic next-step descriptors into command suggestions
+  in CLI output only; native service output remains caller-neutral and does not
+  contain literal CLI `game play ...` command strings
+- **AND** the normal JSON result omits raw host, port, state, session, command,
+  rawCommand, Tuner payloads, direct-control runtime envelopes, raw
+  notification details, raw tactical read-port arrays, and transport details
+- **AND** planning evidence remains relationship-safe read-only context and
+  does not authorize movement, founding, sends, or hostile/enemy/opponent/
+  threat labels
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: Transitional facade-only procedure remains
 - **WHEN** a current facade-only read leaf is retained while the native service
   shape is being corrected
@@ -1168,7 +1409,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   for `Players`, `Players.Units`, `Players.Cities`, `Units`, `Cities`,
   `GameInfo.Units`, `GameplayMap`, and controller-owned local-player evidence
 - **THEN** the context may execute the service-owned `strategy.frontSummary`
-  procedure through the existing in-process router
+  procedure through the existing in-process router, including target-candidate,
+  battlefield-scan, and destination-analysis composition
 - **AND** `strategy.frontSummary` is listed as a supported game-UI read only
   when controller proof and the required ambient owner, unit, city, and map
   APIs are present
@@ -1177,20 +1419,70 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `canMutate: false`, and recommends `read-strategy-front` when
   `attention.current` is not supported
 - **AND** bridge ingress allowlists the semantic `strategy.frontSummary`
-  procedure only, not raw `targetCandidates`, `battlefieldScan`, or generic
-  tactical catalog leaves
+  procedure only, not raw `targetCandidates`, `battlefieldScan`,
+  `destinationAnalysis`, or generic tactical catalog leaves
 - **AND** the game-UI tactical read dependencies fail closed when required
   ambient owner/unit/city APIs are missing
 - **AND** normal bridge success output remains the semantic strategy front
   summary and omits host, port, state, command, rawCommand, session, tuner
   payloads, raw game-UI function names, direct-control socket details, and raw
   tactical read-port envelopes
+- **AND** normal service and bridge output uses semantic next-step descriptors
+  rather than literal CLI `game play ...` command strings; CLI callers may map
+  descriptors into command suggestions in their own presentation layer
 - **AND** normal output preserves `self` and `relationship-unproven` only; it
   does not infer hostile, enemy, opponent, threat, war, ally, or suzerain
   labels from owner mismatch, proximity, contact, ranking, or action legality
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, target-action send
   authority, broad strategy catalogs, play-thread action, and full `7.3`
+  implementation remain pending
+
+#### Scenario: Game UI controller supports current world reads
+- **WHEN** the game-scoped controller context exposes ambient playable/App UI
+  snapshot facts for current world state
+- **THEN** the context may execute the service-owned `world.current` procedure
+  through the existing in-process router
+- **AND** `world.current` is listed as a supported game-UI read only when
+  controller proof and the required ambient game context, map, player, and turn
+  APIs are present
+- **AND** `readiness.current` reports observation capability for a controller
+  context that lists `world.current` as a supported read, keeps
+  `canMutate: false`, and recommends `read-world` when `attention.current` and
+  `strategy.frontSummary` are not supported
+- **AND** bridge ingress validates the semantic `world.current` input and
+  output envelopes from the aggregated `Civ7ControlOrpcContract` rather than
+  exporting per-procedure schema constants or using `Type.Unknown`
+- **AND** normal bridge success output remains the semantic current-world view
+  and omits host, port, state, command, rawCommand, session, tuner payloads,
+  raw game-UI function names, direct-control socket details, raw playable
+  status envelopes, actor catalogs, and relationship labels
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, broad world/actor
+  catalogs, play-thread action, and full `7.3` implementation remain pending
+
+#### Scenario: Game UI controller supports world plot and grid reads
+- **WHEN** the game-scoped controller context exposes ambient `GameplayMap`
+  plot APIs for bounded map reads
+- **THEN** the context may execute the service-owned `world.plot.read` and
+  `world.grid.read` procedures through the existing in-process router
+- **AND** `world.plot.read` and `world.grid.read` are listed as supported
+  game-UI reads only when the exact plot-level map APIs required by the
+  low-level dependency are present
+- **AND** the game-UI dependency returns bounded low-level plot/grid runtime
+  evidence for the existing world service procedures to project; it does not
+  own normal output semantics, actor catalogs, relationship labels, or a
+  separate transport API
+- **AND** bridge ingress validates the semantic plot/grid request and output
+  envelopes from the aggregated `Civ7ControlOrpcContract` rather than
+  exporting per-procedure schema constants or using `Type.Unknown`
+- **AND** normal bridge success output remains the semantic world plot/grid
+  view and omits host, port, state, command, rawCommand, session, tuner
+  payloads, raw game-UI function names, direct-control socket details,
+  direct-control runtime envelopes, actor catalogs, and relationship labels
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, broad world/actor
+  catalogs, play-thread action, transport expansion, and full `7.3`
   implementation remain pending
 
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics

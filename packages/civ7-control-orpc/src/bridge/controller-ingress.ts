@@ -29,6 +29,24 @@ const Civ7StrategyFrontSummaryInputSchema = typeboxInputSchemaFromContractProced
 const Civ7StrategyFrontSummaryResultSchema = typeboxOutputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.strategy.frontSummary,
 );
+const Civ7WorldCurrentInputSchema = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.current,
+);
+const Civ7WorldCurrentResultSchema = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.current,
+);
+const Civ7WorldPlotReadInputSchema = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.plot,
+);
+const Civ7WorldPlotReadResultSchema = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.plot,
+);
+const Civ7WorldGridReadInputSchema = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.grid,
+);
+const Civ7WorldGridReadResultSchema = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.world.grid,
+);
 const Civ7NotificationDismissInputSchema = typeboxInputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.notifications.dismiss.request,
 );
@@ -245,6 +263,42 @@ export const Civ7ControllerBridgeStrategyFrontSummaryRequestSchema =
   );
 export type Civ7ControllerBridgeStrategyFrontSummaryRequest = Static<
   typeof Civ7ControllerBridgeStrategyFrontSummaryRequestSchema
+>;
+
+export const Civ7ControllerBridgeWorldCurrentRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("world.current"),
+    input: Civ7WorldCurrentInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeWorldCurrentRequest = Static<
+  typeof Civ7ControllerBridgeWorldCurrentRequestSchema
+>;
+
+export const Civ7ControllerBridgeWorldPlotReadRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("world.plot.read"),
+    input: Civ7WorldPlotReadInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeWorldPlotReadRequest = Static<
+  typeof Civ7ControllerBridgeWorldPlotReadRequestSchema
+>;
+
+export const Civ7ControllerBridgeWorldGridReadRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("world.grid.read"),
+    input: Civ7WorldGridReadInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeWorldGridReadRequest = Static<
+  typeof Civ7ControllerBridgeWorldGridReadRequestSchema
 >;
 
 export const Civ7ControllerBridgeNotificationDismissRequestSchema = Type.Object(
@@ -523,6 +577,9 @@ export const Civ7ControllerBridgeRequestSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentRequestSchema,
   Civ7ControllerBridgeAttentionCurrentRequestSchema,
   Civ7ControllerBridgeStrategyFrontSummaryRequestSchema,
+  Civ7ControllerBridgeWorldCurrentRequestSchema,
+  Civ7ControllerBridgeWorldPlotReadRequestSchema,
+  Civ7ControllerBridgeWorldGridReadRequestSchema,
   Civ7ControllerBridgeNotificationDismissRequestSchema,
   Civ7ControllerBridgeTurnCompleteRequestSchema,
   Civ7ControllerBridgeCityProductionChoiceRequestSchema,
@@ -550,6 +607,9 @@ export type Civ7ControllerBridgeRequest =
   | Civ7ControllerBridgeReadinessCurrentRequest
   | Civ7ControllerBridgeAttentionCurrentRequest
   | Civ7ControllerBridgeStrategyFrontSummaryRequest
+  | Civ7ControllerBridgeWorldCurrentRequest
+  | Civ7ControllerBridgeWorldPlotReadRequest
+  | Civ7ControllerBridgeWorldGridReadRequest
   | Civ7ControllerBridgeNotificationDismissRequest
   | Civ7ControllerBridgeTurnCompleteRequest
   | Civ7ControllerBridgeCityProductionChoiceRequest
@@ -630,6 +690,48 @@ export const Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema =
   );
 export type Civ7ControllerBridgeStrategyFrontSummarySuccessResponse = Static<
   typeof Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeWorldCurrentSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("world.current"),
+      output: Civ7WorldCurrentResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeWorldCurrentSuccessResponse = Static<
+  typeof Civ7ControllerBridgeWorldCurrentSuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeWorldPlotReadSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("world.plot.read"),
+      output: Civ7WorldPlotReadResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeWorldPlotReadSuccessResponse = Static<
+  typeof Civ7ControllerBridgeWorldPlotReadSuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeWorldGridReadSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("world.grid.read"),
+      output: Civ7WorldGridReadResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeWorldGridReadSuccessResponse = Static<
+  typeof Civ7ControllerBridgeWorldGridReadSuccessResponseSchema
 >;
 
 export const Civ7ControllerBridgeNotificationDismissSuccessResponseSchema =
@@ -951,6 +1053,9 @@ export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
   Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
   Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
+  Civ7ControllerBridgeWorldCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeWorldPlotReadSuccessResponseSchema,
+  Civ7ControllerBridgeWorldGridReadSuccessResponseSchema,
   Civ7ControllerBridgeNotificationDismissSuccessResponseSchema,
   Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
@@ -978,6 +1083,9 @@ export type Civ7ControllerBridgeSuccessResponse =
   | Civ7ControllerBridgeReadinessCurrentSuccessResponse
   | Civ7ControllerBridgeAttentionCurrentSuccessResponse
   | Civ7ControllerBridgeStrategyFrontSummarySuccessResponse
+  | Civ7ControllerBridgeWorldCurrentSuccessResponse
+  | Civ7ControllerBridgeWorldPlotReadSuccessResponse
+  | Civ7ControllerBridgeWorldGridReadSuccessResponse
   | Civ7ControllerBridgeNotificationDismissSuccessResponse
   | Civ7ControllerBridgeTurnCompleteSuccessResponse
   | Civ7ControllerBridgeCityProductionChoiceSuccessResponse
@@ -1113,6 +1221,42 @@ export async function invokeCiv7ControllerBridgeRequest(
       return {
         ok: true,
         procedureKey: "strategy.frontSummary",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "world.current") {
+      const output = await client.world.current(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "world.current",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "world.plot.read") {
+      const output = await client.world.plot(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "world.plot.read",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "world.grid.read") {
+      const output = await client.world.grid(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "world.grid.read",
         output,
         ...(request.correlationId == null
           ? {}
@@ -1440,6 +1584,9 @@ function isUnsupportedProcedureRequest(
     && request.procedureKey !== "readiness.current"
     && request.procedureKey !== "attention.current"
     && request.procedureKey !== "strategy.frontSummary"
+    && request.procedureKey !== "world.current"
+    && request.procedureKey !== "world.plot.read"
+    && request.procedureKey !== "world.grid.read"
     && request.procedureKey !== "notifications.dismiss.request"
     && request.procedureKey !== "turn.complete.request"
     && request.procedureKey !== "city.production.choice.request"

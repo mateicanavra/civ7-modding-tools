@@ -78,6 +78,7 @@ export const Civ7ReadinessNextStepSchema = Type.Object(
     kind: Type.Union([
       Type.Literal("read-attention"),
       Type.Literal("read-strategy-front"),
+      Type.Literal("read-world"),
       Type.Literal("restore-tuner"),
       Type.Literal("begin-game"),
       Type.Literal("wait-loading"),

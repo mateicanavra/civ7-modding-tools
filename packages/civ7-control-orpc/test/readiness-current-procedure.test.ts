@@ -234,6 +234,47 @@ describe("readiness.current control-oRPC procedure", () => {
     );
   });
 
+  test("recommends current world when it is the supported controller read", async () => {
+    const fake = fakeContext(playableStatusResult({
+      playable: false,
+      readiness: "app-ui-game",
+      tunerReady: null,
+    }), {
+      controller: {
+        supportedReadProcedures: ["world.current"],
+      },
+    });
+
+    const result = await call(Civ7ControlOrpcRouter.readiness.current, {}, {
+      context: fake.context,
+    });
+
+    expect(result).toMatchObject({
+      playable: false,
+      readiness: "app-ui-game",
+      capability: {
+        canObserve: true,
+        canMutate: false,
+        reason:
+          "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
+      },
+      controller: {
+        supportedProcedures: [{
+          procedureKey: "world.current",
+          risk: "read-only",
+        }],
+      },
+      nextSteps: [{
+        kind: "read-world",
+        source: "readiness.current",
+        label: "Read current world facts before choosing support actions.",
+      }],
+    });
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain(
+      "read-attention",
+    );
+  });
+
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
     const invalidInputs = [
       { host: "127.0.0.1" },

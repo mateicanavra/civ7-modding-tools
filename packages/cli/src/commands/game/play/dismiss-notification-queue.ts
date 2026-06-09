@@ -1,34 +1,11 @@
 import { Command, Flags } from '@oclif/core';
 import {
-  type Civ7ComponentId,
-  type Civ7NotificationDismissalResult,
-  type Civ7PlayDecisionQueueItem,
-  getCiv7PlayNotificationView,
-  requestCiv7NotificationDismissal,
-} from '@civ7/direct-control';
+  createCiv7ControlOrpcServerClient,
+} from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import {
   buildDirectControlOptions,
 } from '../../../utils/game-play-shared';
-
-type DismissalCandidate = Readonly<{
-  notificationId: Civ7ComponentId;
-  category: string;
-  typeName: string | null;
-  summary: string | null;
-  message: string | null;
-  location: unknown;
-  isEndTurnBlocking: boolean;
-  reason: string;
-}>;
-
-type ExcludedNotification = Readonly<{
-  notificationId: Civ7ComponentId | null;
-  category: string;
-  typeName: string | null;
-  summary: string | null;
-  isEndTurnBlocking: boolean;
-  reason: string;
-}>;
 
 export default class GamePlayDismissNotificationQueue extends Command {
   static id = 'game play dismiss-notification-queue';
@@ -76,51 +53,16 @@ export default class GamePlayDismissNotificationQueue extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayDismissNotificationQueue);    const options = buildDirectControlOptions(flags);
-    const hud = await getCiv7PlayNotificationView({
-      ...options,
-      maxNotifications: flags.max,
+    const { flags } = await this.parse(GamePlayDismissNotificationQueue);
+    const client = createCiv7ControlOrpcServerClient({
+      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      endpointDefaults: buildDirectControlOptions(flags),
     });
-    const { candidates, excluded } = classifyQueue(hud.hud.decisionQueue);
-    const selected = candidates.slice(0, flags['max-dismissals']);
-    const omittedEligibleCount = Math.max(0, candidates.length - selected.length);
-    const results: Civ7NotificationDismissalResult[] = [];
-
-    if (flags.send) {
-      for (const candidate of selected) {
-        results.push(await requestCiv7NotificationDismissal(
-          { notificationId: candidate.notificationId },
-          options,
-        ));
-      }
-    }
-
-    const view = {
-      localPlayerId: hud.localPlayerId,
-      turn: hud.turn,
-      turnDate: hud.turnDate,
-      blocker: hud.blocker,
-      blockingNotificationId: hud.blockingNotificationId,
-      canEndTurn: hud.canEndTurn,
-      queueLength: hud.hud.decisionQueue.length,
-      send: flags.send,
+    const view = await client.notifications.queue.dismiss.request({
+      maxNotifications: flags.max,
       maxDismissals: flags['max-dismissals'],
-      eligibleCount: candidates.length,
-      selectedCount: selected.length,
-      omittedEligibleCount,
-      candidates: selected,
-      excluded,
-      results,
-      verified: flags.send ? results.every((result) => result.verified) : false,
-      notes: [
-        flags.send
-          ? 'Bulk dismissal sent only for eligible informational closeout candidates selected from a fresh HUD queue read.'
-          : 'Dry run only. Add --send to dismiss eligible informational closeout candidates.',
-        'Operation-bearing, unit-command, production, diplomacy, narrative, progression, population, and unclassified notifications are excluded.',
-        'A completed App UI call is not counted as aggregate verified unless each item proves dismissal from post-send notification identity/queue/front evidence.',
-        'Re-read the queue after this command before making further decisions.',
-      ],
-    };
+      send: flags.send,
+    });
 
     if (flags.json) {
       this.log(JSON.stringify({ ok: true, view }));
@@ -128,74 +70,28 @@ export default class GamePlayDismissNotificationQueue extends Command {
     }
 
     this.log(`Turn ${formatProbe(view.turn)} (${formatProbe(view.turnDate)})`);
-    this.log(`Eligible: ${view.eligibleCount}; selected: ${view.selectedCount}; send: ${view.send}`);
-    for (const candidate of selected) {
+    this.log(`Eligible: ${view.eligibleCount}; selected: ${view.selectedCount}; send: ${view.sent}; status: ${view.status}`);
+    for (const candidate of view.candidates) {
       this.log(`- ${formatId(candidate.notificationId)} ${candidate.typeName ?? candidate.category}: ${candidate.summary ?? candidate.message ?? ''}`);
       this.log(`  why: ${candidate.reason}`);
     }
-    if (excluded.length > 0) this.log(`Excluded: ${excluded.length}`);
+    if (view.excluded.length > 0) this.log(`Excluded: ${view.excluded.length}`);
   }
 }
 
-function classifyQueue(queue: ReadonlyArray<Civ7PlayDecisionQueueItem>): {
-  candidates: DismissalCandidate[];
-  excluded: ExcludedNotification[];
-} {
-  const candidates: DismissalCandidate[] = [];
-  const excluded: ExcludedNotification[] = [];
-  for (const item of queue) {
-    if (isBulkDismissalCandidate(item)) {
-      candidates.push({
-        notificationId: item.notificationId,
-        category: item.category,
-        typeName: item.typeName,
-        summary: item.summary,
-        message: item.message,
-        location: item.location,
-        isEndTurnBlocking: item.isEndTurnBlocking,
-        reason: `${item.typeName ?? item.category} reviewed as informational closeout`,
-      });
-      continue;
-    }
-    excluded.push({
-      notificationId: item.notificationId,
-      category: item.category,
-      typeName: item.typeName,
-      summary: item.summary,
-      isEndTurnBlocking: item.isEndTurnBlocking,
-      reason: exclusionReason(item),
-    });
+function formatProbe(value: unknown): string {
+  if (value && typeof value === 'object' && 'ok' in value) {
+    const probe = value as { ok: boolean; value?: unknown; error?: string };
+    if (!probe.ok) return `<error: ${probe.error ?? 'unknown'}>`;
+    return formatValue(probe.value);
   }
-  return { candidates, excluded };
+  return formatValue(value);
 }
 
-function isBulkDismissalCandidate(item: Civ7PlayDecisionQueueItem): item is Civ7PlayDecisionQueueItem & { notificationId: Civ7ComponentId } {
-  return item.notificationId != null
-    && item.category === 'informational-notification'
-    && item.operationFamily === 'app-ui-action'
-    && item.operationType === 'Game.Notifications.dismiss'
-    && !isFrontUnitLostReport(item);
-}
-
-function exclusionReason(item: Civ7PlayDecisionQueueItem): string {
-  if (!item.notificationId) return 'missing notification id';
-  if (isFrontUnitLostReport(item)) return 'front unit-loss reports require exact reviewed dismissal proof, not bulk dismissal';
-  if (item.category === 'unit-command') return 'unit command requires ready-unit inspection';
-  if (item.operationFamily && item.operationFamily !== 'app-ui-action') return 'gameplay operation requires live inputs and validator-backed command';
-  if (item.category === 'notification' || item.category === 'blocking-notification') return 'unclassified notification needs handler evidence first';
-  if (item.category === 'informational-notification') return 'informational item is not exposed as App UI dismissal by the live HUD';
-  return 'not an informational closeout candidate';
-}
-
-function isFrontUnitLostReport(item: Civ7PlayDecisionQueueItem): boolean {
-  return item.isEndTurnBlocking === true && item.typeName === 'NOTIFICATION_UNIT_LOST';
-}
-
-function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {
-  if (!probe.ok) return `<error: ${probe.error}>`;
-  return typeof probe.value === 'object' ? JSON.stringify(probe.value) : String(probe.value);
-}
-
-function formatId(id: Civ7ComponentId): string {
+function formatId(id: unknown): string {
   return JSON.stringify(id);
+}
+
+function formatValue(value: unknown): string {
+  return value == null || typeof value === 'object' ? JSON.stringify(value) : String(value);
 }

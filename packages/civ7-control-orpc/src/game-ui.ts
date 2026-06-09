@@ -81,9 +81,16 @@ import {
 import {
   civ7GameUiStrategyFrontAvailable,
   getCiv7GameUiBattlefieldScan,
+  getCiv7GameUiDestinationAnalysis,
   getCiv7GameUiTargetCandidates,
   type Civ7GameUiStrategyFrontTarget,
 } from "./game-ui-strategy-front";
+import {
+  civ7GameUiWorldMapReadsAvailable,
+  getCiv7GameUiMapGrid,
+  getCiv7GameUiPlotSnapshot,
+  type Civ7GameUiMapReadTarget,
+} from "./game-ui-map";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 import type {
   Civ7ControlOrpcDirectControlFacade,
@@ -257,7 +264,9 @@ export type Civ7GameUiRuntimeTarget = {
     isWater?: Civ7GameUiStrategyFrontTarget["GameplayMap"] extends infer Map
       ? Map extends { isWater?: infer Fn } ? Fn : never
       : never;
-  };
+  } & Civ7GameUiMapReadTarget["GameplayMap"];
+  Visibility?: Civ7GameUiMapReadTarget["Visibility"];
+  MapCities?: Civ7GameUiMapReadTarget["MapCities"];
   MapUnits?: Civ7GameUiUnitTargetActionTarget["MapUnits"];
   Units?: Civ7GameUiUnitTargetActionTarget["Units"]
     & Civ7GameUiStrategyFrontTarget["Units"];
@@ -315,12 +324,6 @@ export function createCiv7GameUiControllerContextFactory(
 function createCiv7GameUiDirectControlFacade(
   target: Civ7GameUiRuntimeTarget,
 ): Civ7ControlOrpcDirectControlFacade {
-  const unsupported = async (): Promise<never> => {
-    throw new Error(
-      "Civ7 game UI controller dependency is not implemented for this procedure.",
-    );
-  };
-
   return {
     requestCiv7ProductionChoice: async (input) =>
       await requestCiv7GameUiProductionChoice(input, target),
@@ -373,10 +376,19 @@ function createCiv7GameUiDirectControlFacade(
       }, target),
     getCiv7BattlefieldScan: async (input) =>
       await getCiv7GameUiBattlefieldScan(input, target),
+    getCiv7DestinationAnalysis: async (input) =>
+      await getCiv7GameUiDestinationAnalysis(input, target),
+    getCiv7PlotSnapshot: async (input) =>
+      await getCiv7GameUiPlotSnapshot(input, target),
+    getCiv7MapGrid: async (input) =>
+      await getCiv7GameUiMapGrid(input, target),
     getCiv7ReadyUnitView: async (input) =>
       await getCiv7GameUiReadyUnitView(input, target),
     getCiv7ReadyCityView: async (input) =>
       await getCiv7GameUiReadyCityView(input, target),
+    getCiv7SettlementRecommendations: async () => {
+      throw new Error("game-ui settlement recommendations are not supported");
+    },
     getCiv7TargetCandidates: async (input) =>
       await getCiv7GameUiTargetCandidates(input, target),
     getCiv7TurnCompletionStatus: async () =>
@@ -496,6 +508,12 @@ function gameUiSupportedReadProcedures(
   if (civ7GameUiStrategyFrontAvailable(target)) {
     supported.push("strategy.frontSummary");
   }
+  if (gameUiWorldCurrentAvailable(target)) {
+    supported.push("world.current");
+  }
+  if (civ7GameUiWorldMapReadsAvailable(target)) {
+    supported.push("world.plot.read", "world.grid.read");
+  }
   return supported;
 }
 
@@ -516,6 +534,17 @@ function gameUiAttentionReadAvailable(target: Civ7GameUiRuntimeTarget): boolean 
   return typeof target.Game?.Notifications?.getIdsForPlayer === "function"
     && typeof target.Game?.Notifications?.find === "function"
     && typeof target.UI?.Player?.getFirstReadyUnit === "function"
+    && isControllerPlayerId(target.GameContext?.localPlayerID);
+}
+
+function gameUiWorldCurrentAvailable(target: Civ7GameUiRuntimeTarget): boolean {
+  return typeof target.UI?.isInGame === "function"
+    && typeof target.GameplayMap?.getGridWidth === "function"
+    && typeof target.GameplayMap?.getGridHeight === "function"
+    && typeof target.Game?.getTurnDate === "function"
+    && typeof target.Players?.getAliveIds === "function"
+    && typeof target.Players?.getAliveHumanIds === "function"
+    && typeof target.Players?.getNumAliveHumans === "function"
     && isControllerPlayerId(target.GameContext?.localPlayerID);
 }
 
