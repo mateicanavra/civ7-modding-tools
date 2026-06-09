@@ -32,9 +32,9 @@ const ProjectRiverNetworkInputSchema = Type.Object(
  */
 const ProjectRiverNetworkOutputSchema = Type.Object(
   {
-    /** River class per tile (0=none, 1=minor, 2=major). */
+    /** River class per tile (0=none, 1=minor, >=2=major/projectable). */
     riverClass: TypedArraySchemas.u8({
-      description: "River class per tile (0=none, 1=minor, 2=major).",
+      description: "River class per tile (0=none, 1=minor, >=2=major/projectable).",
     }),
     /** Computed discharge threshold for minor rivers (same units as discharge). */
     minorThreshold: Type.Number({

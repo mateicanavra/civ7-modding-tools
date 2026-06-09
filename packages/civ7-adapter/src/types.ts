@@ -613,7 +613,14 @@ export interface EngineAdapter {
   /** Build elevation layer */
   buildElevation(): void;
 
-  /** Model river paths */
+  /**
+   * Compatibility-only wrapper for Civ7's high-level river generator
+   * (`TerrainBuilder.modelRivers`).
+   *
+   * Standard MapGen-authored rivers must publish hydrology truth and project
+   * selected navigable terrain through dedicated map stages instead of using
+   * this method as a river truth or metadata-authoring surface.
+   */
   modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void;
 
   /** Define named rivers */

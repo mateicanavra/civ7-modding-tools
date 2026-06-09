@@ -16,9 +16,9 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
     discharge: TypedArraySchemas.f32({
       description: "Accumulated discharge proxy per tile (routing + runoff accumulation).",
     }),
-    /** Discrete river class derived from discharge thresholds (0=none, 1=minor, 2=major). */
+    /** Discrete river class derived from discharge thresholds (0=none, 1=minor, >=2=major/projectable). */
     riverClass: TypedArraySchemas.u8({
-      description: "River class per tile (0=none, 1=minor, 2=major).",
+      description: "River class per tile (0=none, 1=minor, >=2=major/projectable).",
     }),
     /** Steepest-descent receiver index per tile, used by downstream Hydrology lake planning. */
     flowDir: TypedArraySchemas.i32({

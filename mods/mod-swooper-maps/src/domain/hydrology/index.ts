@@ -6,9 +6,11 @@ export {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
   RIVER_CLASS_NONE,
+  findInvalidRiverClassIndex,
   isAnyRiverClass,
   isMajorRiverClass,
   isMinorRiverClass,
+  isValidRiverClass,
 } from "./river-class.js";
 
 const domain = defineDomain({ id: "hydrology", ops } as const);

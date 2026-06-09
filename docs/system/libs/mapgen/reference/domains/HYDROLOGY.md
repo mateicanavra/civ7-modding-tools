@@ -109,6 +109,10 @@ before elevation, rivers after elevation.
 
 Hydrology river classes have distinct projection meanings:
 
+- `riverClass` is the Hydrology-owned intent class. `0` means no channel,
+  `1` means minor/headwater channel intent, and values `>=2` mean
+  major/projectable channel intent. Values above `2` are reserved for future
+  stream-order hierarchy and remain eligible for major-river projection.
 - `riverClass=1` is minor-river intent. It remains a physics/display/planning
   surface and must not be promoted into `TERRAIN_NAVIGABLE_RIVER`.
 - `riverClass>=2` is major-river intent and is the only hydrology class eligible

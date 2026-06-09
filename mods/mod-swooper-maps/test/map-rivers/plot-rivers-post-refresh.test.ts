@@ -6,6 +6,7 @@ import {
   NAVIGABLE_RIVER_TERRAIN,
   createExtendedMapContext,
 } from "@swooper/mapgen-core";
+import { NO_RIVER_TYPE } from "@civ7/map-policy";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
@@ -159,9 +160,10 @@ describe("map-rivers/plot-rivers", () => {
     expect(projected?.plannedMinorRiverTileCount).toBe(5);
     expect(readback?.riverMask?.[0]).toBe(1);
     expect(readback?.riverMask?.[width]).toBe(0);
-    expect(readback?.engineNavigableRiverMask?.[0]).toBe(1);
-    expect(readback?.engineRiverType?.[0]).toBeGreaterThan(0);
+    expect(readback?.engineNavigableRiverMask?.[0]).toBe(0);
+    expect(readback?.engineRiverType?.[0]).toBe(NO_RIVER_TYPE);
     expect(readback?.terrainNavigableRiverTileCount).toBe(5);
+    expect(readback?.engineNavigableRiverTileCount).toBe(0);
     expect(readback?.engineMinorRiverTileCount).toBe(0);
     expect(readback?.minorRiverStampingSupported).toBe(false);
     expect(readback?.minorRiverUnsupportedReason).toContain("minor river");

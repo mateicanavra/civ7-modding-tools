@@ -1,4 +1,5 @@
 import type { MapDimensions } from "@civ7/adapter";
+import { findInvalidRiverClassIndex } from "@mapgen/domain/hydrology/river-class.js";
 
 export type ArtifactValidationIssue = Readonly<{ message: string }>;
 
@@ -55,7 +56,14 @@ export function validateHydrographyArtifact(
   };
   validateTypedArray(errors, "hydrography.runoff", candidate.runoff, Float32Array, size);
   validateTypedArray(errors, "hydrography.discharge", candidate.discharge, Float32Array, size);
-  validateTypedArray(errors, "hydrography.riverClass", candidate.riverClass, Uint8Array, size);
+  if (validateTypedArray(errors, "hydrography.riverClass", candidate.riverClass, Uint8Array, size)) {
+    const invalidIndex = findInvalidRiverClassIndex(candidate.riverClass);
+    if (invalidIndex >= 0) {
+      errors.push({
+        message: `Expected hydrography.riverClass values to be non-negative integer river classes (first invalid index ${invalidIndex}).`,
+      });
+    }
+  }
   validateTypedArray(errors, "hydrography.flowDir", candidate.flowDir, Int32Array, size);
   validateTypedArray(errors, "hydrography.sinkMask", candidate.sinkMask, Uint8Array, size);
   validateTypedArray(errors, "hydrography.outletMask", candidate.outletMask, Uint8Array, size);

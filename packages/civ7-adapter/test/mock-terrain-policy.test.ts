@@ -157,16 +157,22 @@ describe("mock adapter terrain policy", () => {
 
     expect(adapter.getRiverType(0, 0)).toBe(NO_RIVER_TYPE);
     expect(adapter.isRiver(0, 0)).toBe(false);
+    expect(adapter.getRiverType(1, 0)).toBe(NO_RIVER_TYPE);
+    expect(adapter.isRiver(1, 0)).toBe(false);
+    expect(adapter.isNavigableRiver(1, 0)).toBe(false);
     expect(projection.stampedNavigableRiverTileCount).toBe(2);
     expect(projection.rejectedNavigableRiverTileCount).toBe(1);
     expect(projection.extraNavigableRiverTileCount).toBe(1);
     expect(projection.navigableRiverMismatchTileCount).toBe(2);
     expect(projection.engineRiverType[0]).toBe(NO_RIVER_TYPE);
-    expect(projection.engineRiverType[1]).toBe(RIVER_TYPE_NAVIGABLE);
-    expect(projection.engineNavigableRiverMask[1]).toBe(1);
+    expect(projection.engineRiverType[1]).toBe(NO_RIVER_TYPE);
+    expect(projection.engineNavigableRiverMask[1]).toBe(0);
     expect(projection.engineNavigableRiverMask[3]).toBe(1);
     expect(projection.terrainNavigableRiverMask[3]).toBe(0);
     expect(projection.rejectedNavigableRiverMask[3]).toBe(1);
+    expect(projection.engineRiverTileCount).toBe(1);
+    expect(projection.engineNavigableRiverTileCount).toBe(1);
+    expect(projection.terrainNavigableRiverTileCount).toBe(3);
     expect(projection.engineMinorRiverTileCount).toBe(0);
     expect(projection.minorRiverStampingSupported).toBe(false);
   });

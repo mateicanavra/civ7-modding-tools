@@ -642,11 +642,11 @@ export class MockAdapter implements EngineAdapter {
   }
 
   isRiver(x: number, y: number): boolean {
-    return this.getRiverType(x, y) !== MOCK_NO_RIVER || this.riverMask[this.idx(x, y)] === 1;
+    return this.getRiverType(x, y) !== MOCK_NO_RIVER;
   }
 
   isNavigableRiver(x: number, y: number): boolean {
-    return this.getRiverType(x, y) === MOCK_RIVER_NAVIGABLE || this.riverMask[this.idx(x, y)] === 1;
+    return this.getRiverType(x, y) === MOCK_RIVER_NAVIGABLE;
   }
 
   getElevation(x: number, y: number): number {
@@ -683,7 +683,6 @@ export class MockAdapter implements EngineAdapter {
     const isNavigableRiverTerrain =
       terrainType === this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
     this.riverMask[index] = isNavigableRiverTerrain ? 1 : 0;
-    this.riverTypes[index] = isNavigableRiverTerrain ? MOCK_RIVER_NAVIGABLE : MOCK_NO_RIVER;
     this.mountainMask[index] = terrainType === this.mountainTerrainId ? 1 : 0;
     this.validationMaterializedCoastMask[index] = 0;
     if (terrainType !== this.coastTerrainId) {
@@ -998,7 +997,8 @@ export class MockAdapter implements EngineAdapter {
     this.riverMask.fill(0);
     this.riverTypes.fill(MOCK_NO_RIVER);
 
-    // Best-effort: ensure at least one river exists on land for effect verification.
+    // Compatibility-only mirror of Civ7's high-level generator surface. Standard
+    // MapGen river projection stamps terrain directly and does not call this.
     let startX = -1;
     let startY = -1;
     for (let y = 0; y < this.height && startX < 0; y++) {
