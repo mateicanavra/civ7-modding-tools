@@ -912,6 +912,10 @@ export {
   Civ7NotificationDismissalSummarySchema,
 } from "./play/notifications/postconditions.js";
 export {
+  notificationDismissalProofOutcome,
+  notificationDismissalProofPostcondition,
+} from "./proof/notification-dismissal-proof-policy";
+export {
   callCiv7NotificationDismissRequestProcedure,
   Civ7NotificationDismissRequestProcedureDescriptor,
   Civ7NotificationDismissRequestProcedureSchemaArtifacts,
@@ -1034,6 +1038,13 @@ export {
   requestCiv7UnitTargetAction,
 } from "./play/operations/unit-target-action.js";
 export {
+  unitTargetProofOutcome,
+  unitTargetProofPostcondition,
+} from "./proof/unit-target-proof-policy";
+export type {
+  Civ7UnitTargetActionVerification,
+} from "./proof/unit-target-proof-policy";
+export {
   callCiv7UnitTargetActionRequestProcedure,
   Civ7UnitTargetActionRequestProcedureDescriptor,
   Civ7UnitTargetActionRequestProcedureSchemaArtifacts,
@@ -1075,6 +1086,13 @@ export type {
   Civ7PopulationPlacementPostconditionClassification,
   Civ7PopulationPlacementPostconditionSnapshot,
 } from "./play/operations/population-postconditions.js";
+export {
+  populationPlacementProofOutcome,
+  populationPlacementProofPostcondition,
+} from "./proof/population-placement-proof-policy.js";
+export type {
+  Civ7PopulationPlacementProofSource,
+} from "./proof/population-placement-proof-policy.js";
 export type {
   Civ7ProductionPostcondition,
   Civ7ProductionPostconditionClassification,
@@ -1098,6 +1116,14 @@ export {
   Civ7ProductionChoiceResultSchema,
   requestCiv7ProductionChoice,
 } from "./play/operations/production-choice.js";
+export {
+  productionChoicePostconditionConfirmed,
+  productionChoicePostconditionOutcome,
+  productionChoiceRequestVerified,
+} from "./play/operations/production-choice-proof";
+export type {
+  Civ7ProductionChoicePostconditionOutcome,
+} from "./play/operations/production-choice-proof";
 export {
   callCiv7ProductionChoiceRequestProcedure,
   Civ7ProductionChoiceRequestProcedureDescriptor,

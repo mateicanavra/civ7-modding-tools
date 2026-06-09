@@ -84,17 +84,79 @@ adding more read-only facade shells.
     burn-down map for current direct-control-shaped procedure modules.
 - [ ] 5.4 Identify service-owned behavior, runtime ports, policy owners,
   repositories/read ports, and middleware candidates from the modularized code.
+  - [x] 5.4.1 Record `attention.current` as a service-owned composition
+    boundary over playable status, notifications, and ready actor runtime
+    ports without adding a direct-control attention facade.
+  - [x] 5.4.2 Record turn-completion status as an `attention.current`
+    runtime read port and semantic projection owner, not a standalone
+    facade-only procedure leaf.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
+  - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
+    that derives semantic blockers, decisions, ready actors, and next steps
+    from existing direct-control runtime ports.
+  - [x] 5.5.2 Enrich `attention.current` with turn-completion evidence so
+    end-turn next steps require source-owned turn status instead of clean
+    notifications alone.
+  - [x] 5.5.3 Seed `city.production.choice.request` as the first native
+    write-capable procedure leaf, with oRPC context approval and semantic
+    production proof projection over the direct-control production-choice
+    runtime port.
+  - [x] 5.5.4 Seed `notifications.dismiss.request` as the second native
+    write-capable procedure leaf, with oRPC context approval and semantic
+    notification dismissal proof projection over the direct-control
+    notification dismissal runtime port.
+  - [x] 5.5.5 Seed `unit.target.action.request` as a single native unit
+    procedure leaf, with oRPC context approval and semantic unit-target proof
+    projection over the direct-control unit-target runtime port; do not add a
+    broad operations catalog or an operations entry router.
+  - [x] 5.5.6 Seed `city.population.place.request` as a single native city
+    procedure leaf that owns the semantic assign-worker versus expand-city
+    caller shape over direct-control player-operation/city-command runtime
+    ports; do not add a generic operation catalog.
 
 ## 6. Native Policy Layering
 
 - [ ] 6.1 Promote shared middleware only after modularized behavior shows a
   repeated policy and the implementation uses native oRPC/effect-orpc
   primitives.
+  - [x] 6.1.1 Promote the repeated mutation approval gate into shared native
+    effect-oRPC builder middleware after the production-choice and notification
+    dismissal leaves proved the same context-owned approval policy.
 - [ ] 6.2 Add approval middleware before mutation procedures.
+  - [x] 6.2.1 Add leaf-scoped native effect-oRPC approval middleware for
+    `city.production.choice.request`; keep shared approval middleware pending
+    until another mutation procedure reuses the same policy.
+  - [x] 6.2.2 Repeat leaf-scoped native effect-oRPC approval middleware for
+    `notifications.dismiss.request`; shared approval middleware promotion is
+    now the next native policy-layering candidate, not accepted in this slice.
+  - [x] 6.2.3 Reuse shared native approval middleware across
+    `city.production.choice.request` and `notifications.dismiss.request` while
+    keeping validator-first and postcondition/proof middleware pending.
+  - [x] 6.2.4 Reuse shared native approval middleware for
+    `unit.target.action.request` while keeping validator-first and
+    postcondition/proof middleware pending.
+  - [x] 6.2.5 Reuse shared native approval middleware for
+    `city.population.place.request` while keeping validator-first and
+    postcondition/proof middleware pending.
 - [ ] 6.3 Add validator-first and postcondition/proof middleware before
   mutation sends.
+  - [x] 6.3.1 Compose `city.production.choice.request` through the
+    direct-control validator-first production-choice port and project
+    source-owned postcondition/no-repeat proof semantics into normal output;
+    keep shared validator/postcondition middleware pending.
+  - [x] 6.3.2 Compose `notifications.dismiss.request` through the
+    direct-control approval/validation/postcondition dismissal port and project
+    source-owned notification proof/no-repeat semantics into normal output;
+    keep shared validator/postcondition middleware pending.
+  - [x] 6.3.3 Compose `unit.target.action.request` through the direct-control
+    validator-first unit-target runtime port and project source-owned
+    verification/proof/no-repeat semantics into normal output; keep shared
+    validator/postcondition middleware pending.
+  - [x] 6.3.4 Compose `city.population.place.request` through the
+    direct-control validator-first player-operation/city-command runtime ports
+    and project source-owned population-placement proof/no-repeat semantics
+    into normal output; keep shared validator/postcondition middleware pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
@@ -104,6 +166,12 @@ adding more read-only facade shells.
     oRPC/effect-orpc error path is proven without custom wrapper plumbing.
   - [ ] 6.4.3 Add correlation through accepted oRPC/effect-orpc context/error
     primitives.
+  - [x] 6.4.4 Use native effect-orpc tagged error constructors for
+    `unit.target.action.request` direct-control runtime-port failures while
+    shared safe-error middleware remains pending.
+  - [x] 6.4.5 Use native effect-orpc tagged error constructors for
+    `city.population.place.request` direct-control runtime-port failures while
+    shared safe-error middleware remains pending.
 
 ## 7. Edge Adapters
 
