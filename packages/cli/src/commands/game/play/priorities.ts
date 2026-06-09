@@ -9,12 +9,14 @@ import {
   buildDirectControlOptions,
   recommendedCliFromDecisionDetails,
 } from '../../../utils/game-play-shared';
+import { createSemanticCliEnvelope, type SemanticCliEnvelope } from '../../../game-play/semantic-envelope';
 
 type PriorityItem = {
   priority: number;
   kind: string;
   summary: string;
   reason: string;
+  blocking: boolean;
   command?: string;
   evidence?: unknown;
 };
@@ -208,6 +210,7 @@ function buildCompactView(view: PriorityView): {
   summary: string;
   decisionHud: Record<string, unknown>;
   priorities: Array<Pick<PriorityItem, 'priority' | 'kind' | 'summary' | 'reason' | 'command'>>;
+  semanticEnvelope: SemanticCliEnvelope;
   next: string | null;
   warnings: string[];
   omitted: Array<{ path: string; reason: string }>;
@@ -223,6 +226,84 @@ function buildCompactView(view: PriorityView): {
       ? 'Battlefield scan is read-only planning evidence; validate and postcondition-check any mutation separately.'
       : null,
   ].filter((warning): warning is string => Boolean(warning));
+  const compactPriorities = view.priorities.slice(0, 6).map(({ priority, kind, summary, reason, command }) => ({
+    priority,
+    kind,
+    summary,
+    reason,
+    command,
+  }));
+  const decisionHud = {
+    turn: view.turn,
+    turnDate: view.turnDate,
+    blocker: view.blocker,
+    canEndTurn: view.canEndTurn,
+    hasSentTurnComplete: view.hasSentTurnComplete,
+    firstReadyUnitId: view.firstReadyUnitId,
+    selectedCityId: view.selectedCityId,
+    readyUnit: view.readyUnit
+      ? {
+          unitId: view.readyUnit.unitId,
+          legalNoTargetOperationCount: view.readyUnit.legalNoTargetOperationCount,
+        }
+      : null,
+    readyCity: view.readyCity
+      ? {
+          cityId: view.readyCity.cityId,
+          legalOperationCount: view.readyCity.legalOperationCount,
+          populationPlacement: view.readyCity.populationPlacement,
+        }
+      : null,
+    battlefieldPoiCount: Array.isArray(view.battlefield?.pointsOfInterest)
+      ? view.battlefield.pointsOfInterest.length
+      : 0,
+  };
+  const next = top?.command ?? null;
+  const semanticBlockers = view.priorities.filter(isSemanticBlockerPriority).slice(0, 6);
+  const semanticEnvelope = createSemanticCliEnvelope({
+    scope: {
+      surface: 'game play priorities',
+      playerScope: 'local-player',
+      localPlayerId: view.localPlayerId,
+    },
+    state: decisionHud,
+    blockers: semanticBlockers.map(({ priority, kind, summary, reason }) => ({
+      priority,
+      kind,
+      summary,
+      reason,
+    })),
+    decisions: compactPriorities.map(({ kind, summary, command }) => ({
+      kind,
+      summary,
+      command: command ?? null,
+    })),
+    actions: compactPriorities.flatMap(({ kind, command }) =>
+      command
+        ? [{
+            family: kind,
+            command,
+            readOnly: !command.includes('--send'),
+            approvalRequired: command.includes('--send'),
+          }]
+        : [],
+    ),
+    result: {
+      status: 'read-only',
+      sent: false,
+      classification: 'not-sent',
+    },
+    nextSteps: next ? [next] : [],
+    evidence: [{
+      label: 'local-cli-priorities-compact',
+      proofClass: 'local-cli-output',
+      command: 'game play priorities --compact --json',
+    }],
+    notes: [
+      'Read-only compact priorities semantic envelope; it does not prove live mutation behavior.',
+      ...warnings,
+    ],
+  });
 
   return {
     ok: true,
@@ -231,39 +312,10 @@ function buildCompactView(view: PriorityView): {
     summary: top
       ? `${top.kind}: ${top.summary}`
       : 'no priorities surfaced',
-    decisionHud: {
-      turn: view.turn,
-      turnDate: view.turnDate,
-      blocker: view.blocker,
-      canEndTurn: view.canEndTurn,
-      hasSentTurnComplete: view.hasSentTurnComplete,
-      firstReadyUnitId: view.firstReadyUnitId,
-      selectedCityId: view.selectedCityId,
-      readyUnit: view.readyUnit
-        ? {
-            unitId: view.readyUnit.unitId,
-            legalNoTargetOperationCount: view.readyUnit.legalNoTargetOperationCount,
-          }
-        : null,
-      readyCity: view.readyCity
-        ? {
-            cityId: view.readyCity.cityId,
-            legalOperationCount: view.readyCity.legalOperationCount,
-            populationPlacement: view.readyCity.populationPlacement,
-          }
-        : null,
-      battlefieldPoiCount: Array.isArray(view.battlefield?.pointsOfInterest)
-        ? view.battlefield.pointsOfInterest.length
-        : 0,
-    },
-    priorities: view.priorities.slice(0, 6).map(({ priority, kind, summary, reason, command }) => ({
-      priority,
-      kind,
-      summary,
-      reason,
-      command,
-    })),
-    next: top?.command ?? null,
+    decisionHud,
+    priorities: compactPriorities,
+    semanticEnvelope,
+    next,
     warnings,
     omitted: [
       { path: 'view.hud', reason: 'use --json without --compact for full HUD details' },
@@ -290,6 +342,7 @@ function buildPriorities(input: {
       kind: 'runtime-state-error',
       summary: 'core HUD probes failed; live blocker state is not proven clean',
       reason: 'A missing turn, blocker, or blocking-notification probe means the App UI read is partial. Do not treat an empty notification queue as end-turn proof.',
+      blocking: true,
       command: 'game play rehydrate --json; game watch --count 1 --include-ready-unit --include-ready-city --jsonl',
       evidence: runtimeErrors,
     });
@@ -297,7 +350,8 @@ function buildPriorities(input: {
 
   const nextDecision = input.hud.hud?.nextDecision;
   if (nextDecision) {
-    const isBlocking = nextDecision.isEndTurnBlocking ? 100 : 70;
+    const isEndTurnBlocking = nextDecision.isEndTurnBlocking === true;
+    const priority = isEndTurnBlocking ? 100 : 70;
     const staleUnitCommand = staleUnitCommandPriority(nextDecision);
     const recommendedDetailCommand = recommendedCliFromDecisionDetails((nextDecision as { details?: unknown }).details);
     const decisionCommand = commandFromDecision(nextDecision);
@@ -306,7 +360,7 @@ function buildPriorities(input: {
       ? 'game play ready-unit --json; game play unit-target --unit-id \'<unit-id>\' --x <x> --y <y> --json'
       : undefined;
     items.push({
-      priority: isBlocking,
+      priority,
       kind: staleUnitCommand?.kind ?? `hud:${nextDecision.category}`,
       summary: staleUnitCommand?.summary ?? nextDecision.summary ?? nextDecision.message ?? nextDecision.typeName ?? 'current HUD decision',
       reason: staleUnitCommand?.reason ?? (recommendedDetailCommand
@@ -318,6 +372,7 @@ function buildPriorities(input: {
         : readyUnitCommand
           ? 'A ready unit exists; inspect the ready-unit and target surfaces instead of treating COMMAND_UNITS as stale reconciliation.'
         : 'HUD decisions are the shortest-lived live authority and should be resolved or consciously deferred before broad strategy.'),
+      blocking: isEndTurnBlocking,
       command: staleUnitCommand?.command ?? recommendedDetailCommand ?? decisionCommand ?? detailCommand ?? readyUnitCommand ?? nextDecision.cli,
       evidence: nextDecision,
     });
@@ -331,6 +386,7 @@ function buildPriorities(input: {
       kind: 'ready-unit',
       summary: `${unit?.typeName ?? 'ready unit'}${location}`,
       reason: 'A ready unit blocks turn flow and target-plot actions require unit-target validation even when no-target operations are present.',
+      blocking: true,
       command: 'game play ready-unit --json; game play unit-target --unit-id \'<unit-id>\' --x <x> --y <y> --json',
       evidence: {
         unitId: input.readyUnit.unitId,
@@ -346,6 +402,7 @@ function buildPriorities(input: {
       kind: 'ready-city',
       summary: city?.name ?? 'ready city',
       reason: 'City blockers often branch between production, town focus, population placement, and expansion.',
+      blocking: true,
       command: 'game play ready-city --json',
       evidence: {
         cityId: input.readyCity.cityId,
@@ -361,6 +418,7 @@ function buildPriorities(input: {
       kind: `battlefield:${String(point.kind ?? 'point-of-interest')}`,
       summary: String(point.summary ?? point.kind ?? 'battlefield point of interest'),
       reason: 'Battlefield POIs identify immediate inspection needs around the current ready-unit origin.',
+      blocking: false,
       command: battlefieldCommandFor(point),
       evidence: point,
     });
@@ -372,11 +430,16 @@ function buildPriorities(input: {
       kind: 'clean-read',
       summary: 'no HUD, ready-unit, ready-city, or battlefield priority surfaced',
       reason: 'Fresh clean reads can use the guarded end-turn command; it rechecks blockers before sending.',
+      blocking: false,
       command: "game play end-turn --send --reason 'clean read: no HUD, ready-unit, ready-city, or battlefield priority surfaced' --json",
     });
   }
 
   return items.sort((a, b) => b.priority - a.priority);
+}
+
+function isSemanticBlockerPriority(item: PriorityItem): boolean {
+  return item.blocking;
 }
 
 function hudProbeErrors(hud: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>): Array<{ field: string; error: string }> {

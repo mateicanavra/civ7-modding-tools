@@ -113,10 +113,10 @@
         The debug/internal service output row now has a draft acceptance intake
         with concrete current package/CLI owners and missing proof called out,
         but its `acceptanceStatus` remains `pending-debug-service-boundary`
-        until normal/debug/AI separation tests and a debug projection owner are
-        assigned and passing. The planning contract is now recorded in
-        `workstream/debug-service-projection-contract.md`, but it does not
-        assign source/proof owners or accept the row. Focused compact
+        until final hierarchy/schema/gate owners, command/flag boundary
+        coverage, and normal/debug/AI separation tests are assigned and
+        passing. The planning contract is now recorded in
+        `workstream/debug-service-projection-contract.md`. Focused compact
         `game play priorities`, compact `game play ready-city`, compact
         `game play unit-move-preview`, and full/read-only
         `game play ready-unit --json` coverage plus passive
@@ -143,24 +143,54 @@
         network/UI/player/map probes, Tuner health globals, catalog
         owner/provenance/confidence,
         own/prototype/enumerable keys, and method owner/length/signature
-        diagnostics, but the row remains pending.
+        diagnostics. The debug projection source/proof owner seed is now
+        recorded in
+        `packages/cli/src/game-debug/debug-service-projection.ts`,
+        `packages/cli/test/commands/game/debug-service-projection.test.ts`,
+        and `packages/cli/test/commands/game.control.test.ts`, but the row
+        remains pending until final debug hierarchy/schema/test owners,
+        command/flag boundary coverage, normal/debug/AI/procedure separation
+        tests, and stop-condition coverage are assigned and passing.
         The semantic CLI player-agent view row now has a draft acceptance
         intake with current `game play` command/test owners from
         `workstream/cli-play-corpus.md` and missing envelope/schema/proof
         called out, but its `acceptanceStatus` remains
         `pending-cli-semantic-envelope`. The planning contract is now recorded
-        in `workstream/semantic-cli-envelope-contract.md`, but the row remains
-        pending until a semantic envelope owner, schema/test owner, and
-        normal/debug/AI separation tests are assigned and passing.
+        in `workstream/semantic-cli-envelope-contract.md`. The semantic
+        envelope source/proof owner seed is now recorded in
+        `packages/cli/src/game-play/semantic-envelope.ts` and
+        `packages/cli/test/commands/game/play/semantic-envelope.test.ts`, and
+        the shared normal-output helper now consumes that owner for forbidden
+        debug/internal marker detection. Focused `game play priorities
+        --compact --json` proof now carries the first command-integrated
+        `semanticEnvelope` through that owner. The row remains pending until
+        full command-surface envelope coverage, final schema/test ownership,
+        normal/debug/AI separation tests, and stop-condition coverage are
+        assigned and passing.
         The operation/proof telemetry row now has a draft acceptance intake
         with current operation, approval, postcondition, notification
         verification, setup/turn lifecycle, and focused CLI proof owners
         identified, but its `acceptanceStatus` remains
         `pending-telemetry-contract`. The planning contract is now recorded in
-        `workstream/operation-proof-telemetry-contract.md`, but the row remains
-        pending until a telemetry source owner, schema/test owner,
-        record-construction tests, projection separation tests, and proof-label
-        guards are assigned and passing.
+        `workstream/operation-proof-telemetry-contract.md`. The telemetry
+        source/proof owner seed is now recorded in
+        `packages/civ7-direct-control/src/proof/operation-telemetry.ts` and
+        `packages/civ7-direct-control/test/operation-telemetry.test.ts`, and
+        the first operation-atom adapter owner seed is now recorded in
+        `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` with
+        proof in
+        `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`, and
+        the second operation-atom adapter owner seed is now recorded in
+        `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`
+        with proof in
+        `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
+        and the telemetry proof-label guard seed is now recorded in
+        `packages/civ7-direct-control/src/proof/operation-telemetry.ts` with
+        proof in
+        `packages/civ7-direct-control/test/operation-telemetry.test.ts`, but
+        the row remains pending until a final schema/test owner, broader
+        adapter slices from operation atoms, projection separation tests, and
+        final proof-label gates are assigned and passing.
         The strategy/intelligence ingestion row now has a draft acceptance
         intake using current target-thread/peer-report planning evidence and
         direct-control read/proof atom owners as candidate input evidence, but
@@ -1823,6 +1853,46 @@ runtime/direct-control claims.
         proof, hotseat runtime proof, AI ingestion, semantic CLI projection,
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance remain pending.
+- [x] 4.15 Seed a unit-target operation telemetry adapter owner in
+      `src/proof/unit-target-telemetry.ts` with focused local proof in
+      `test/unit-target-telemetry.test.ts`, preserving approval,
+      `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+      postcondition, and `outcome_delta` as separate telemetry slots while
+      treating legacy `verified` booleans as source evidence only. This seeds
+      the operation/proof telemetry row's operation-atom adapter gap for one
+      unit-target action shape only; it does not choose schema technology,
+      add persistence, implement AI ingestion, add Effect/oRPC middleware,
+      claim runtime/live-game proof, accept Task 2.9.4, or create broad
+      adapters for every operation family.
+- [x] 4.16 Seed a production-choice operation telemetry adapter owner in
+      `src/proof/production-choice-telemetry.ts` with focused local proof in
+      `test/production-choice-telemetry.test.ts`, preserving approval,
+      `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+      postcondition, `outcome_delta`, `blocker_delta`, and evidence policy as
+      separate telemetry slots while treating legacy `verified` booleans as
+      source evidence only. This seeds the operation/proof telemetry row's
+      operation-atom adapter gap for one production-choice shape only; the
+      source-reachable cleared path can summarize confirmed, while missing
+      postcondition, validator-blocked no-send, no-state-change,
+      blocker-still-live, `validation-changed`, and pending-runtime-proof paths
+      remain no-repeat guarded. Defensive enum handling for
+      `production-state-changed` is not counted as focused proof for a current
+      source-reachable production-choice outcome. It does not choose schema
+      technology, add
+      persistence, implement AI ingestion, change CLI/debug projections, add
+      Effect/oRPC middleware, claim runtime/live-game proof, accept Task 2.9.4,
+      or create broad adapters for every operation family.
+- [x] 4.17 Seed operation telemetry proof-label guards in
+      `src/proof/operation-telemetry.ts` with focused proof in
+      `test/operation-telemetry.test.ts`, rejecting `live-runtime-proof` and
+      `in-game-observation` evidence labels unless the record boundary is
+      explicitly `live-runtime-proof`. This preserves `pending-runtime-proof`
+      as a pending evidence class without allowing local tests, planning
+      evidence, docs, peer reports, logs, or target-thread evidence to be
+      mislabeled as live proof. It does not collect runtime evidence, choose
+      schema technology, add persistence, implement AI ingestion, change
+      CLI/debug projections, add Effect/oRPC middleware, claim runtime/live-game
+      proof, accept Task 2.9.4, or create broad telemetry middleware.
 
 ## 5. CLI Semantic Surface Lane
 

@@ -25,10 +25,10 @@ from the row or rows it consumes after their `acceptanceStatus` is `accepted`.
 | Row | Missing owner/proof assignments | Required proof before acceptance | Dependent lanes that stay blocked |
 | --- | --- | --- | --- |
 | Hotseat handoff state | Hotseat runtime source owner, hotseat runtime proof owner, runtime gate runner, human-restoration proof owner | Disposable hotseat activation, two-slot `GameContext.localPlayerID` rotation, agent-slot approved operation, turn-complete and human UI restoration evidence | CLI hotseat status, mutation procedure cores, live agent-turn execution, action telemetry |
-| Semantic CLI player-agent view | CLI semantic envelope owner, proof owner, envelope schema/test owner, debug-separation reviewer | Local CLI semantic envelope tests plus fixtures proving normal output contains player-agent state/actions and excludes raw service/debug payloads | Tasks 5.1-5.7, normal CLI runtime-status projection, AI-facing semantic summaries |
+| Semantic CLI player-agent view | Full envelope implementation owner, final schema/test owner, debug-separation reviewer/gate owner beyond the recorded CLI owner seed | Local CLI semantic envelope tests plus fixtures proving normal output contains player-agent state/actions and excludes raw service/debug payloads | Tasks 5.1-5.7, normal CLI runtime-status projection, AI-facing semantic summaries |
 | Strategy/intelligence ingestion | AI-ingestion contract owner, schema owner, proof owner, source/freshness label owner | Machine-contract fixtures proving source labels, freshness/evidence labels, action/proof vocabulary, and no dependency on CLI strings/raw probes | AI corpus artifacts, strategy/playbook records, static profile recipes, model-training telemetry feeds |
-| Debug/internal service output | Debug/service hierarchy owner, proof owner, command/flag boundary owner | Tests proving raw transport/session/probe/closeout/correlation detail is available only through debug-owned service surfaces and not normal play output or AI ingestion | Debug service hierarchy, runtime diagnostics, internal procedure diagnostics |
-| Operation/proof telemetry | Telemetry contract owner, schema owner, proof owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
+| Debug/internal service output | Final debug/service hierarchy owner, schema/test owner, command/flag boundary owner | Tests proving raw transport/session/probe/closeout/correlation detail is available only through debug-owned service surfaces and not normal play output or AI ingestion | Debug service hierarchy, runtime diagnostics, internal procedure diagnostics |
+| Operation/proof telemetry | Final schema owner, broader operation-atom adapter owners beyond the unit-target and production-choice adapter seeds, projection gate owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
 | Effect/oRPC procedure cores | Procedure-core owner, schema owner, proof owner, TypeBox/Effect Schema disposition owner, adapter-boundary owner | Procedure-core contract tests over stable direct-control atoms, typed errors, approval gates, correlation/telemetry hooks, schema encode/decode checks, and explicit non-tunnel transport boundary | Tasks 6.1-6.9, oRPC package behavior, Effect resource/schedule/stream implementation, transport adapters |
 
 Contract-artifact status:
@@ -217,8 +217,15 @@ Intake rejection conditions:
 - `dependencyDirection`: hotseat/autoplay foundation -> AI-intelligence model
 - `surface`: semantic CLI player-agent view
 - `primaryConsumer`: normal local player-agent CLI user/API
-- `sourceOwner`: pending CLI semantic envelope owner
-- `proofOwner`: pending CLI semantic envelope proof owner
+- `sourceOwner`: `packages/cli/src/game-play/semantic-envelope.ts`
+  owner seed and structural constructor; command-specific projections remain
+  under their existing `game play` command owners, with `game play priorities`
+  now carrying the first compact semantic-envelope integration
+- `proofOwner`: `packages/cli/test/commands/game/play/semantic-envelope.test.ts`
+  owner-seed proof plus existing focused play suites using the shared
+  normal-output helper; `packages/cli/test/commands/game/play/priorities.test.ts`
+  proves the first compact priorities envelope integration; final row
+  proof/gate owner remains pending
 - `playerScope`: current local player and agent-slot scoped; human-turn
   exclusion must remain visible when relevant
 - `consumerClass`: normal CLI player-agent view; AI-intelligence ingestion only
@@ -232,8 +239,10 @@ Intake rejection conditions:
 - `debugServiceProjection`: intentionally omitted from normal output; raw
   internals only through debug-owned commands or flags
 - `proofLabel`: `pending-cli-semantic-envelope`
-- `acceptanceStatus`: `pending-cli-semantic-envelope`; source owner, proof
-  owner, envelope schema, and normal/debug separation tests not assigned
+- `acceptanceStatus`: `pending-cli-semantic-envelope`; source/proof owner seed
+  and first compact priorities integration exist, but full command-surface
+  envelope coverage, final schema owner, integration fixtures, and
+  normal/debug/AI separation tests are not assigned
 - `blockingDependents`: tasks 5.1-5.7, AI-facing semantic envelope consumers,
   normal CLI runtime-status projection
 - `stopCondition`: stop if normal CLI dumps raw session, transport, closeout,
@@ -248,51 +257,71 @@ Intake rejection conditions:
   owners are the 28 canonical play suites covered by root `test:cli:play`,
   including the focused notification, priorities, ready, tactical, progression,
   production, operation, and mutation-facing command suites listed in that
-  corpus. Missing before acceptance: a named CLI semantic envelope source
-  owner, schema/test owner, and reviewer/gate owner for normal/debug/AI
-  projection separation.
+  corpus. The source/proof owner seed for shared envelope vocabulary and
+  forbidden normal-output internals is now
+  `packages/cli/src/game-play/semantic-envelope.ts` with proof in
+  `packages/cli/test/commands/game/play/semantic-envelope.test.ts`; compact
+  priorities integration is owned by `packages/cli/src/commands/game/play/priorities.ts`
+  and proven in `packages/cli/test/commands/game/play/priorities.test.ts`.
+  Missing before acceptance: full command-surface envelope ownership, final
+  schema/test owner, and reviewer/gate owner for normal/debug/AI projection
+  separation.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
   planning updates. A later implementation slice may touch the listed play
-  command modules, focused play tests, and a precisely named semantic-envelope
-  owner after the row has a concrete owner. No broad `common`, `utils`,
-  `types`, debug/service, telemetry, AI-ingestion, transport, or procedure-core
-  bucket is authorized.
+  command modules, focused play tests, and the seeded semantic-envelope owner
+  only after assigning a concrete implementation/schema owner. The compact
+  priorities integration is authorized as the first command-surface proof and
+  does not authorize broad rollout by default. No broad `common`, `utils`,
+  `types`, debug/service, telemetry, AI-ingestion, transport, or
+  procedure-core bucket is authorized.
 - `contractArtifact`: existing artifacts are command-specific play outputs,
   the CLI play corpus inventory, and
   `workstream/semantic-cli-envelope-contract.md`, which defines the planned
   normal CLI semantic slots for game state, blockers, decisions, action
   results, safe/unsafe next steps, postcondition classifications, evidence
-  labels, and excluded raw service/debug fields. Missing before acceptance: a
-  named source owner, schema/test owner, and implementation test fixture over
-  that contract.
+  labels, and excluded raw service/debug fields. Compact `game play priorities
+  --compact --json` now carries a `semanticEnvelope` fixture over that contract.
+  Missing before acceptance: full command-surface envelope implementation,
+  final schema/test owner, and integration fixtures over the remaining normal
+  play surfaces.
 - `proofPlan`: existing local proof is canonical `test:cli:play` plus the
   focused command owner tests recorded in `workstream/cli-play-corpus.md`.
-  Missing proof before acceptance: tests that normal play output carries the
-  planned semantic envelope from
-  `workstream/semantic-cli-envelope-contract.md`, tests that raw
-  session/transport/closeout/command/proof JSON and correlation/probe internals
-  are omitted from normal play output, and tests or fixtures proving AI
-  ingestion does not consume CLI presentation strings.
+  The semantic owner-seed proof now verifies the planned envelope slot
+  vocabulary and raw debug/internal marker classes used by the shared
+  normal-output helper. Compact priorities proof now verifies that normal play
+  output carries a `semanticEnvelope` using the planned slots from
+  `workstream/semantic-cli-envelope-contract.md`, limits `blockers` to actual
+  blocking state/items instead of battlefield or clean-read recommendations,
+  and still omits forbidden raw debug/internal marker classes. Missing proof
+  before acceptance: command-integrated envelope tests across the remaining
+  normal play surfaces, tests that raw session/transport/closeout/command/proof
+  JSON and correlation/probe internals are omitted from normal play output, and
+  tests or fixtures proving AI ingestion does not consume CLI presentation
+  strings.
 - `projectionPlan`: normal CLI projection should be semantic player-agent
   state and action guidance only; debug/internal service projection remains
   omitted from normal output or routed through debug-owned commands/flags; AI
   ingestion remains out-of-scope until a separate machine contract accepts
   source/freshness/evidence labels; telemetry and procedure-core projections
   remain pending separate rows.
-- `stopConditionCoverage`: missing before acceptance. Required coverage must
-  fail if normal CLI output includes raw session state, transport details,
-  closeout traces, command strings, proof JSON, route selection, correlation
-  internals, debug probes, or if AI consumers depend on CLI presentation text.
+- `stopConditionCoverage`: partial owner-seed coverage exists for classifying
+  raw debug/internal marker leaks in normal output, and compact priorities now
+  proves a command-integrated semantic envelope stays inside that marker
+  boundary while keeping non-blocking recommendations out of `blockers`.
+  Required coverage before acceptance must still fail if any normal CLI output
+  includes raw session state, transport details, closeout traces, command
+  strings, proof JSON, route selection, correlation internals, debug probes, or
+  if AI consumers depend on CLI presentation text.
 - `downstreamUnblock`: none yet. Acceptance would unblock only the named CLI
   semantic-surface tasks 5.1-5.7 after the envelope contract, owner assignment,
   and separation tests are recorded; it would not unblock AI ingestion,
   telemetry, hotseat runtime proof, debug hierarchy, schema migration,
   transport adapters, or procedure-core implementation.
 - `nonProofClaims`: this intake does not claim runtime/live-game proof, CLI
-  semantic implementation, AI ingestion implementation, telemetry contract
-  acceptance, debug hierarchy implementation, schema migration, Effect/Bun
-  implementation, Effect/oRPC procedure-core work, product-path support, or
-  Task 2.9.4 row acceptance.
+  semantic implementation beyond compact priorities, final schema selection,
+  AI ingestion implementation, telemetry contract acceptance, debug hierarchy
+  implementation, schema migration, Effect/Bun implementation, Effect/oRPC
+  procedure-core work, product-path support, or Task 2.9.4 row acceptance.
 
 ### Strategy/Intelligence Ingestion
 
@@ -396,8 +425,14 @@ Intake rejection conditions:
   diagnostics for it
 - `surface`: debug/internal service output
 - `primaryConsumer`: direct-control service/debug hierarchy
-- `sourceOwner`: pending debug/internal service output owner
-- `proofOwner`: pending debug/internal service output proof owner
+- `sourceOwner`: `packages/cli/src/game-debug/debug-service-projection.ts`
+  owner seed for debug/internal field classes and payload path expectations;
+  command-specific debug outputs remain under their existing CLI command and
+  direct-control atom owners
+- `proofOwner`: `packages/cli/test/commands/game/debug-service-projection.test.ts`
+  owner-seed proof plus `packages/cli/test/commands/game.control.test.ts`
+  command-integrated debug payload proof; final row proof/gate owner remains
+  pending
 - `playerScope`: debug/observer scoped unless a row-specific action surface
   assigns local-player or agent-slot scope
 - `consumerClass`: debug/internal service output; support diagnostics; future
@@ -412,8 +447,10 @@ Intake rejection conditions:
   state, raw probes, route selection, closeout traces, correlation, and
   diagnostics
 - `proofLabel`: `planning-evidence-only`
-- `acceptanceStatus`: `pending-debug-service-boundary`; debug owner, proof
-  owner, command/flag boundary, and tests not assigned
+- `acceptanceStatus`: `pending-debug-service-boundary`; source/proof owner seed
+  and command-integrated debug payload proof exist, but final debug hierarchy
+  owner, schema/test owner, command/flag boundary coverage, and separation
+  tests are not assigned
 - `blockingDependents`: debug service hierarchy, runtime-status projection,
   internal diagnostics in procedure cores
 - `stopCondition`: stop if debug/internal output becomes normal CLI output,
@@ -428,8 +465,13 @@ Intake rejection conditions:
   are `packages/cli/test/commands/game.control.test.ts`,
   `packages/civ7-direct-control/test/runtime-and-catalog.test.ts`,
   `packages/civ7-direct-control/test/session.test.ts`, and future
-  normal/debug separation tests. Gate owner remains the support DRA until a
-  dedicated debug/service hierarchy owner is assigned.
+  normal/debug separation tests. The shared debug projection source/proof owner
+  seed is now `packages/cli/src/game-debug/debug-service-projection.ts` with
+  focused proof in
+  `packages/cli/test/commands/game/debug-service-projection.test.ts` and
+  command-integrated proof in `packages/cli/test/commands/game.control.test.ts`.
+  Missing before acceptance: a final debug/service hierarchy owner,
+  schema/test owner, and reviewer/gate owner.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
   planning updates. A later implementation slice may touch the listed CLI
   debug commands, package atom owners, and focused tests only after assigning a
@@ -441,9 +483,11 @@ Intake rejection conditions:
   debug/disposable visibility, and
   `workstream/debug-service-projection-contract.md`, which names debug-only raw
   field classes, allowed normal summary classes, AI-ingestion boundaries,
-  procedure-core boundaries, acceptance gaps, and stop conditions. Missing
-  before acceptance: a named source/proof owner and implementation tests over
-  that projection boundary.
+  procedure-core boundaries, acceptance gaps, and stop conditions. The current
+  source artifact adds the internal field-class vocabulary, owner metadata, and
+  payload path expectation helper. Missing before acceptance: a final
+  schema/test owner and broader implementation tests over command/flag,
+  normal/debug/AI, telemetry, and procedure diagnostic separation.
 - `proofPlan`: existing local proof includes
   `game.control.test.ts` coverage for health diagnostics, runtime inspection,
   App UI snapshot, playable status, map/GameInfo reads, AI loaded-lever reads,
@@ -471,6 +515,10 @@ Intake rejection conditions:
   selected state, network/UI/player/map probes, Tuner health globals, catalog
   owner/provenance/confidence, visibility revealed/visible counts, grid states,
   own/prototype/enumerable keys, and method owner/length/signature diagnostics.
+  Owner-seed proof now verifies the debug/internal field-class vocabulary and
+  asserts current `game.control.test.ts` payloads expose transport/session
+  state, route selection, runtime/App UI/map probes, correlation diagnostics,
+  and catalog provenance through the seeded debug projection helper.
   Missing proof before acceptance: broader tests proving the raw field classes in
   `workstream/debug-service-projection-contract.md` are reachable only through
   debug-owned commands, flags, or future debug procedures and are not emitted
@@ -482,7 +530,8 @@ Intake rejection conditions:
   out-of-scope until a separate ingestion contract accepts source/freshness and
   evidence labels; telemetry and procedure-core projections remain pending
   separate rows.
-- `stopConditionCoverage`: missing before acceptance. Required coverage must
+- `stopConditionCoverage`: partial owner-seed coverage exists for debug-owned
+  command payload field classes. Required coverage before acceptance must still
   fail if debug/internal output becomes normal CLI player-agent output, AI
   ingestion input, product action authority, or a substitute for live runtime
   proof.
@@ -504,8 +553,18 @@ Intake rejection conditions:
 - `surface`: operation/proof telemetry
 - `primaryConsumer`: support proof, AI-intelligence ingestion, and future
   procedure middleware
-- `sourceOwner`: pending telemetry contract owner
-- `proofOwner`: pending telemetry contract proof owner
+- `sourceOwner`: `packages/civ7-direct-control/src/proof/operation-telemetry.ts`
+  owner seed for record slot vocabulary, structural constructor, and normal
+  summary boundary; `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`
+  and `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`
+  seed the first two operation-result adapters while broader
+  operation-specific adapters remain under their existing operation/proof atom
+  owners
+- `proofOwner`: `packages/civ7-direct-control/test/operation-telemetry.test.ts`
+  owner-seed proof plus
+  `packages/civ7-direct-control/test/unit-target-telemetry.test.ts` and
+  `packages/civ7-direct-control/test/production-choice-telemetry.test.ts` for
+  the current adapter seeds; final row proof/gate owner remains pending
 - `playerScope`: operation-local, player-scoped, and agent-slot-scoped for
   mutation-facing records; observer/debug scoped for diagnostics
 - `consumerClass`: proof telemetry; AI-intelligence ingestion; debug/internal
@@ -522,8 +581,11 @@ Intake rejection conditions:
   `validation_pre`, `send_receipt`, `validation_post`, `outcome_delta`, blocker
   deltas, runtime observation links, and stale/unknown classification
 - `proofLabel`: `pending-telemetry-contract`
-- `acceptanceStatus`: `pending-telemetry-contract`; telemetry schema, source
-  owner, proof owner, and local/runtime proof boundary tests not assigned
+- `acceptanceStatus`: `pending-telemetry-contract`; source/proof owner seed plus
+  unit-target and production-choice operation-result adapter seeds exist, but
+  telemetry schema owner, broader operation-atom adapters,
+  normal/debug/AI/procedure projection separation tests, and final runtime
+  proof boundary gates are not assigned
 - `blockingDependents`: telemetry persistence, AI ingestion, procedure
   middleware, action audit vocabulary, semantic CLI proof summaries
 - `stopCondition`: stop if telemetry trains or acts on vague `verified: true`,
@@ -543,8 +605,23 @@ Intake rejection conditions:
   `diplomacy-response.test.ts`, `narrative-choice.test.ts`,
   `notification-dismissal.test.ts`, `autoplay-and-turn.test.ts`, and
   setup/lifecycle tests, plus focused CLI command suites where they consume
-  postcondition results. Missing before acceptance: a named telemetry contract
-  source owner, schema/test owner, and reviewer/gate owner.
+  postcondition results. The shared telemetry source/proof owner seed is now
+  `packages/civ7-direct-control/src/proof/operation-telemetry.ts` with focused
+  proof in `packages/civ7-direct-control/test/operation-telemetry.test.ts`,
+  including no-repeat-guarded summaries for sent-unverified, stale/unknown, and
+  pending-runtime-proof records plus a proof-label guard rejecting
+  `live-runtime-proof` and `in-game-observation` evidence labels under non-live
+  boundaries. Operation-result adapter owner seeds now include
+  `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`
+  with focused proof in
+  `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`, adapting
+  one unit-target action result shape into separated telemetry slots, and
+  `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts` with
+  focused proof in
+  `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
+  adapting one production-choice result shape into separated telemetry slots.
+  Missing before acceptance: a final schema/test owner, broader operation-atom
+  adapter owners, and reviewer/gate owner.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
   planning updates. A later implementation slice may touch a precisely named
   telemetry contract owner, focused package/CLI tests, and narrow adapters from
@@ -559,16 +636,38 @@ Intake rejection conditions:
   target, args, approval, validation result, send receipt, post-read,
   postcondition classification, outcome delta, blocker delta, evidence policy,
   correlation id, source/freshness label, stale/unknown classification, proof
-  classes, projection boundaries, acceptance gaps, and stop conditions. Missing
-  before acceptance: a named source/proof owner, schema/test owner, and
-  implementation tests over that record contract.
+  classes, projection boundaries, acceptance gaps, and stop conditions. The
+  current source artifact adds the internal record slot vocabulary,
+  constructor, postcondition sanitizer, normal summary boundary, and first
+  unit-target plus production-choice operation-result adapters. Missing before
+  acceptance: a schema/test owner, broader operation-atom adapters, and
+  projection-separation implementation tests over that record contract.
 - `proofPlan`: existing local proof covers approval-first behavior,
   validator-first no-send paths, focused send/read split, postcondition
   classification, no-repeat-after-unverified guidance, notification identity
   verification, and setup/turn lifecycle readback in package and focused CLI
-  tests. Missing proof before acceptance: contract tests for telemetry record
-  construction against `workstream/operation-proof-telemetry-contract.md`,
-  fixture snapshots for stale/unknown/outcome evidence,
+  tests. Owner-seed proof now covers telemetry record construction against
+  `workstream/operation-proof-telemetry-contract.md`, keeps approval,
+  validation, send, post-read, outcome, and blocker evidence as separate slots,
+  strips legacy `verified` booleans from the postcondition contract, and keeps
+  raw telemetry slots out of the normal summary boundary. Unit-target adapter
+  proof now verifies that a real operation result shape maps approval,
+  `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+  postcondition, and `outcome_delta` into separate telemetry slots while
+  refusing to treat a legacy top-level `verified` boolean as confirmed
+  postcondition proof; missing postcondition, no-state-change, and
+  pending-runtime-proof summaries remain no-repeat guarded. Production-choice
+  adapter proof verifies that a production result shape maps approval,
+  `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+  postcondition, `outcome_delta`, and `blocker_delta` into separate telemetry
+  slots while using `productionPostcondition` as the classification owner;
+  missing postcondition, validator-blocked no-send, no-state-change,
+  blocker-still-live, `validation-changed`, and pending-runtime-proof paths
+  remain no-repeat guarded. Proof-label guard coverage now rejects local,
+  planning, pending, and other non-live telemetry records that try to carry
+  `live-runtime-proof` or `in-game-observation` labels, while allowing those
+  labels only under an explicit `live-runtime-proof` boundary. Missing proof
+  before acceptance: broader adapter fixtures for stale/unknown/outcome evidence,
   normal/debug/AI/procedure projection separation tests, and runtime-proof
   labeling tests that prevent local tests or docs from becoming live proof.
 - `projectionPlan`: normal CLI may receive only summarized state-machine
@@ -577,11 +676,16 @@ Intake rejection conditions:
   under the debug row; AI ingestion must consume only source-labeled machine
   contracts from the AI-ingestion row; procedure cores may attach middleware
   hooks only after typed schema/procedure ownership is accepted.
-- `stopConditionCoverage`: missing before acceptance. Required coverage must
+- `stopConditionCoverage`: partial owner-seed coverage now proves the structural
+  telemetry constructor does not carry a legacy `verified` boolean as the
+  postcondition contract and keeps raw telemetry slots out of the normal
+  summary boundary. It also rejects live-runtime and in-game proof labels under
+  non-live proof boundaries. Required coverage before acceptance must still
   fail if telemetry collapses approval, validation, send, postcondition,
   post-read, and outcome evidence into `verified: true`; if AI ingestion or
-  procedure cores consume raw CLI/debug strings; or if local tests, target
-  threads, peer reports, logs, or docs are labeled as live runtime proof.
+  procedure cores consume raw CLI/debug strings; or if future producers or
+  projections relabel local tests, target threads, peer reports, logs, or docs
+  as live runtime proof.
 - `downstreamUnblock`: none yet. Acceptance would unblock only explicitly named
   telemetry contract, action-audit vocabulary, and later procedure middleware
   slices after schema/proof owners and separation tests are recorded; it would

@@ -85,19 +85,70 @@ No single record field may collapse those into a generic proof claim. Local
 tests can prove construction and projection separation; they do not prove live
 runtime behavior.
 
+## Current Owner Seed
+
+`packages/civ7-direct-control/src/proof/operation-telemetry.ts` is the current
+internal source owner seed for operation/proof telemetry record slot names, the
+TypeScript structural constructor, postcondition sanitization, and normal
+summary boundary. Its focused proof owner is
+`packages/civ7-direct-control/test/operation-telemetry.test.ts`.
+
+The owner seed keeps approval, validation, send receipt, post-read,
+postcondition, outcome delta, blocker delta, evidence policy, and runtime
+observation links as separate fields. It deliberately strips legacy `verified`
+booleans from the postcondition contract and exposes a normal summary that does
+not include raw telemetry/debug slots. The summary keeps status and
+no-repeat-after-unverified guidance aligned: sent records without confirmed
+postcondition proof, including missing postconditions, unverified confidence,
+stale/unknown outcomes, and pending runtime proof, remain no-repeat guarded.
+The owner also seeds proof-label guards: non-live boundaries reject
+`live-runtime-proof` and `in-game-observation` evidence labels, while
+`pending-runtime-proof` remains a pending proof class instead of a live proof
+claim.
+
+`packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` is the first
+operation-atom adapter owner seed. Its focused proof owner is
+`packages/civ7-direct-control/test/unit-target-telemetry.test.ts`. It adapts
+one unit-target action result shape into separated telemetry approval,
+`validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+postcondition, and `outcome_delta` slots while treating the legacy top-level
+`verified` boolean as source evidence only.
+
+`packages/civ7-direct-control/src/proof/production-choice-telemetry.ts` is the
+second operation-atom adapter owner seed. Its focused proof owner is
+`packages/civ7-direct-control/test/production-choice-telemetry.test.ts`. It
+adapts one production-choice result shape into separated telemetry approval,
+`validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+postcondition, `outcome_delta`, `blocker_delta`, and evidence-policy slots
+while using `productionPostcondition` as the proof/classification owner. It
+treats the legacy top-level `verified` boolean as source evidence only and
+keeps missing postcondition, validator-blocked no-send, no-state-change,
+production-state-changed-blocker-still-live, `validation-changed`, and pending
+runtime proof paths no-repeat guarded.
+
+These are TypeScript structural owner seeds only. They do not choose TypeBox or
+Effect Schema, attach broad telemetry adapters to every operation atom,
+implement telemetry persistence, implement AI-ingestion, add procedure
+middleware, prove runtime/live-game behavior, or accept the matrix row.
+
 ## Acceptance Gaps
 
 This contract reduces the `contractArtifact` gap for the Operation/Proof
-Telemetry row, but it does not accept the row. Acceptance still needs:
+Telemetry row, and the owner seed reduces the source/proof ownership gap, but
+it does not accept the row. Acceptance still needs:
 
-- a named telemetry source owner;
 - a schema/test owner and concrete schema choice;
-- record-construction tests for approval, validation, send receipt, post-read,
-  postcondition, outcome delta, blocker delta, stale, and unknown cases;
+- broader record-construction tests for approval, validation, send receipt,
+  post-read, postcondition, outcome delta, blocker delta, stale, and unknown
+  cases;
+- broader operation-atom adapters that produce records from existing
+  direct-control approval, validation, send, post-read, and postcondition owners
+  beyond the seeded unit-target and production-choice result adapters;
 - projection separation tests proving normal CLI, debug/internal service,
   AI-ingestion, and procedure-core outputs remain distinct;
 - proof-label guards preventing local tests, thread evidence, docs, logs, or
-  resources from being labeled as live runtime proof;
+  resources from being labeled as live runtime proof across all future
+  producers and projections;
 - fixtures proving no consumer trains or acts on vague `verified: true`.
 
 ## Stop Conditions

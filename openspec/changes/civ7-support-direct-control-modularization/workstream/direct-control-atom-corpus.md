@@ -473,6 +473,50 @@ public and procedure schemas, operation/proof telemetry, hotseat runtime proof, 
 ingestion, CLI semantic projection, and Effect/oRPC procedure-core work remain
 pending.
 
+Proof telemetry owner seed update:
+`src/proof/operation-telemetry.ts` now owns the internal operation/proof
+telemetry record vocabulary, structural constructor, postcondition sanitizer,
+and normal-summary boundary. `test/operation-telemetry.test.ts` proves local
+record construction, separation of approval/validation/send/post-read/outcome/
+blocker evidence, removal of legacy `verified` booleans from the postcondition
+contract, omission of raw telemetry/debug slots from the normal summary, and
+proof-label guards that reject `live-runtime-proof` and `in-game-observation`
+labels under non-live proof boundaries while preserving `pending-runtime-proof`
+as pending evidence. This is local package/source proof only. It does not
+export a public schema, attach broad telemetry adapters to operation atoms,
+implement persistence, prove runtime/live-game behavior, accept Task 2.9.4, or
+unblock AI ingestion, semantic CLI output, debug hierarchy, or Effect/oRPC
+procedure cores.
+
+Unit-target telemetry adapter seed update:
+`src/proof/unit-target-telemetry.ts` now owns the first operation-result adapter
+from the unit-target action atom into the operation/proof telemetry record
+shape. `test/unit-target-telemetry.test.ts` proves that the adapter separates
+approval, `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+postcondition, and `outcome_delta`; ignores the legacy top-level `verified`
+boolean as proof authority when explicit postcondition evidence is missing; and
+keeps no-state-change and pending-runtime-proof sends no-repeat guarded. This is
+local package/source proof for one operation shape only. It does not export a
+public schema, add telemetry persistence, infer runtime/live-game proof, accept
+Task 2.9.4, or unblock broader operation adapters, AI ingestion, semantic CLI
+output, debug hierarchy, or Effect/oRPC procedure cores.
+
+Production-choice telemetry adapter seed update:
+`src/proof/production-choice-telemetry.ts` now owns the second operation-result
+adapter from the production-choice atom into the operation/proof telemetry
+record shape. `test/production-choice-telemetry.test.ts` proves that the
+adapter separates approval, `validation_pre`, `send_receipt`, `post_read`,
+`validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
+evidence policy; uses `productionPostcondition` as the proof/classification
+owner; ignores the legacy top-level `verified` boolean as proof authority when
+explicit postcondition evidence is missing; and keeps validator-blocked
+no-send, no-state-change, blocker-still-live, `validation-changed`, and
+pending-runtime-proof paths no-repeat guarded. This is local package/source
+proof for one production-choice shape only. It does not export a public schema,
+add telemetry persistence, infer runtime/live-game proof, accept Task 2.9.4, or
+unblock broader operation adapters, AI ingestion, semantic CLI output, debug
+hierarchy, or Effect/oRPC procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,

@@ -72,6 +72,39 @@ Technology-option proof now covers read-only technology chooser option output.
 Culture-option proof now covers read-only culture chooser option output.
 Celebration-option proof now covers read-only celebration chooser option output.
 Government-option proof now covers read-only government chooser option output.
+Semantic CLI envelope owner-seed proof now names
+`packages/cli/src/game-play/semantic-envelope.ts` as the source owner
+for future envelope slots and normal-output debug/internal exclusion marker
+classes, with focused proof in
+`packages/cli/test/commands/game/play/semantic-envelope.test.ts`. The shared
+normal-output helper now consumes that owner. This reduces the semantic CLI row
+source/proof ownership gap only; it does not implement command-integrated
+envelopes, choose final schema technology, accept Task 2.9.4, prove
+AI-ingestion separation, or claim runtime/live-game proof.
+Compact priorities semantic-envelope proof now emits the first
+command-integrated `semanticEnvelope` on `game play priorities --compact
+--json`, using the structural constructor in
+`packages/cli/src/game-play/semantic-envelope.ts` and focused proof in
+`packages/cli/test/commands/game/play/priorities.test.ts`. The proof keeps
+non-blocking clean-read and battlefield recommendations out of `blockers`.
+This reduces the semantic CLI row's first-integration gap only; it does not
+implement envelope coverage across every normal play command, choose final
+schema technology, accept Task 2.9.4, prove AI-ingestion separation, or claim
+runtime/live-game proof.
+Operation/proof telemetry owner-seed proof now names
+`packages/civ7-direct-control/src/proof/operation-telemetry.ts` as the internal
+source owner for future telemetry record slots and normal-summary projection
+boundary, with focused proof in
+`packages/civ7-direct-control/test/operation-telemetry.test.ts`. The proof
+keeps approval, validation, send receipt, post-read, outcome, and blocker
+evidence separate, strips legacy `verified` booleans from the postcondition
+contract, keeps sent-unverified, stale/unknown, and pending-runtime-proof
+summaries no-repeat guarded, and keeps raw telemetry/debug slots out of the
+normal summary. This
+reduces the operation/proof telemetry row's source/proof owner gap only; it
+does not choose schema technology, attach operation adapters, implement
+telemetry persistence, prove projection separation across CLI/debug/AI/
+procedure surfaces, accept Task 2.9.4, or claim runtime/live-game proof.
 Follow-up focused `game health --json` and
 `game inspect --json`
 proof now asserts that debug-owned commands emit raw readiness and runtime
@@ -81,6 +114,57 @@ These reduce the debug/internal service row proof gap but do not accept Task
 2.9.4, assign a debug projection owner, prove AI-ingestion or telemetry
 separation, implement debug/service hierarchy, or claim runtime/live-game
 proof.
+Debug/internal service projection owner-seed proof now names
+`packages/cli/src/game-debug/debug-service-projection.ts` as the source owner
+for debug/internal field classes and payload path expectations, with focused
+proof in `packages/cli/test/commands/game/debug-service-projection.test.ts`
+and command-integrated proof in
+`packages/cli/test/commands/game.control.test.ts`. The proof ties existing
+debug-owned command payloads to transport/session state, route selection,
+runtime/App UI/map probes, correlation diagnostics, and catalog provenance.
+This reduces the debug/internal service row's source/proof owner gap only; it
+does not implement a debug hierarchy, choose schema technology, prove AI
+ingestion or telemetry separation, accept Task 2.9.4, or claim
+runtime/live-game proof.
+Unit-target telemetry adapter owner-seed proof now names
+`packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` as the first
+operation-result adapter owner from the unit-target action atom into
+operation/proof telemetry. Focused proof in
+`packages/civ7-direct-control/test/unit-target-telemetry.test.ts` verifies that
+approval, `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+postcondition, and `outcome_delta` stay separate; legacy top-level `verified`
+booleans are source evidence only; and missing postcondition, no-state-change,
+and pending-runtime-proof sends remain no-repeat guarded. This reduces only the
+telemetry row's operation-atom adapter gap for one operation shape; it does not
+choose schema technology, add persistence, implement AI ingestion, add
+Effect/oRPC middleware, accept Task 2.9.4, or claim runtime/live-game proof.
+Production-choice telemetry adapter owner-seed proof now names
+`packages/civ7-direct-control/src/proof/production-choice-telemetry.ts` as the
+second operation-result adapter owner from the production-choice atom into
+operation/proof telemetry. Focused proof in
+`packages/civ7-direct-control/test/production-choice-telemetry.test.ts`
+verifies that approval, `validation_pre`, `send_receipt`, `post_read`,
+`validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
+evidence policy stay separate; `productionPostcondition` remains the
+proof/classification owner; legacy top-level `verified` booleans are source
+evidence only; and missing postcondition, validator-blocked no-send,
+no-state-change, blocker-still-live, `validation-changed`, and
+pending-runtime-proof paths remain no-repeat guarded. This reduces only the
+telemetry row's operation-atom adapter gap for one additional operation shape;
+it does not choose schema technology, add persistence, implement AI ingestion,
+change CLI/debug projections, add Effect/oRPC middleware, accept Task 2.9.4, or
+claim runtime/live-game proof.
+Operation telemetry proof-label guard proof now strengthens
+`packages/civ7-direct-control/src/proof/operation-telemetry.ts` so non-live
+proof boundaries reject `live-runtime-proof` and `in-game-observation` evidence
+labels. Focused proof in
+`packages/civ7-direct-control/test/operation-telemetry.test.ts` verifies that
+local/planning/pending records cannot label themselves as live runtime or
+in-game proof, while explicit `pending-runtime-proof` remains pending rather
+than live. This reduces only the telemetry row's proof-label guard gap; it does
+not collect runtime evidence, choose schema technology, add persistence,
+implement AI ingestion, change CLI/debug projections, add Effect/oRPC
+middleware, accept Task 2.9.4, or claim runtime/live-game proof.
 
 ## Current State
 
@@ -2862,6 +2946,48 @@ All future agent waves must be framed before delegation:
   telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
   schema migration, debug hierarchy implementation, or Effect/oRPC
   procedure-core work.
+- Unit-target telemetry adapter owner seed:
+  `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` now adapts
+  the unit-target action result shape into the operation/proof telemetry record
+  owner without exporting a public schema. Focused proof in
+  `packages/civ7-direct-control/test/unit-target-telemetry.test.ts` checks
+  separated approval, `validation_pre`, `send_receipt`, `post_read`,
+  `validation_post`, postcondition, and `outcome_delta` slots; verifies that a
+  legacy top-level `verified: true` without explicit verification is still
+  summarized as sent-unverified/no-repeat guarded; and keeps no-state-change
+  and pending-runtime-proof paths guarded. This is local package/source proof
+  for one operation shape only; it does not accept Task 2.9.4, choose schema
+  technology, add telemetry persistence, implement AI ingestion, add
+  Effect/oRPC middleware, claim runtime/live-game proof, or unblock broader
+  operation adapters.
+- Production-choice telemetry adapter owner seed:
+  `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts` now
+  adapts the production-choice result shape into the operation/proof telemetry
+  record owner without exporting a public schema. Focused proof in
+  `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`
+  checks separated approval, `validation_pre`, `send_receipt`, `post_read`,
+  `validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
+  evidence-policy slots; verifies that a legacy top-level `verified: true`
+  without explicit production postcondition evidence is still summarized as
+  sent-unverified/no-repeat guarded; treats `productionPostcondition` as the
+  classification owner; and keeps validator-blocked no-send, no-state-change,
+  blocker-still-live, `validation-changed`, and pending-runtime-proof paths
+  guarded. This is local package/source proof for one production-choice shape
+  only; it does not accept Task 2.9.4, choose schema technology, add telemetry
+  persistence, implement AI ingestion, change CLI/debug projections, add
+  Effect/oRPC middleware, claim runtime/live-game proof, or unblock broader
+  operation adapters.
+- Operation telemetry proof-label guard seed:
+  `packages/civ7-direct-control/src/proof/operation-telemetry.ts` now rejects
+  `live-runtime-proof` and `in-game-observation` evidence labels unless the
+  record boundary is explicitly `live-runtime-proof`. Focused proof in
+  `packages/civ7-direct-control/test/operation-telemetry.test.ts` covers local,
+  planning, and pending-runtime-proof records trying to carry live labels, and
+  confirms pending runtime proof remains distinct from live runtime proof. This
+  is local package/source proof only; it does not accept Task 2.9.4, collect or
+  claim runtime/live-game proof, choose schema technology, add telemetry
+  persistence, implement AI ingestion, change CLI/debug projections, add
+  Effect/oRPC middleware, or unblock future telemetry producers/projections.
 - Direct-control implementation guard audit:
   the current support slice was rechecked after the facade/source
   modularization stack and remains free of new intelligence-layer code,
@@ -2893,6 +3019,20 @@ All future agent waves must be framed before delegation:
   AI-ingestion contract, assign source/proof owners, or unblock normal CLI
   semantic envelopes, hotseat runtime, schema migration, or Effect/oRPC
   procedure-core implementation.
+- Debug/internal service projection owner seed:
+  `packages/cli/src/game-debug/debug-service-projection.ts` now records the
+  debug/internal field-class vocabulary, owner metadata, and payload path
+  expectation helper. Focused proof in
+  `packages/cli/test/commands/game/debug-service-projection.test.ts` covers
+  the owner seed, and command-integrated proof in
+  `packages/cli/test/commands/game.control.test.ts` ties existing debug-owned
+  command payloads to transport/session state, route selection, runtime/App UI
+  and map probes, correlation diagnostics, and catalog provenance. This
+  reduces the row's source/proof owner gap only; it does not implement a debug
+  hierarchy, choose schema technology, accept Task 2.9.4, claim
+  runtime/live-game proof, create telemetry or AI-ingestion contracts, or
+  unblock normal CLI semantic envelopes, hotseat runtime, schema migration, or
+  Effect/oRPC procedure-core work.
 - Debug projection proof increment:
   focused `game status --json` coverage now joins `game health --json` and
   `game inspect --json` in proving that debug-owned commands can emit raw
@@ -3027,3 +3167,16 @@ All future agent waves must be framed before delegation:
   the `contractArtifact` planning sub-gap. It does not accept Task 2.9.4,
   assign source/proof/schema owners, add tests, prove runtime behavior, or
   unblock any dependent implementation lane.
+- Compact priorities semantic-envelope integration:
+  `game play priorities --compact --json` now emits the first
+  command-integrated `semanticEnvelope` through
+  `packages/cli/src/game-play/semantic-envelope.ts`, with focused proof in
+  `packages/cli/test/commands/game/play/priorities.test.ts` and structural
+  constructor proof in
+  `packages/cli/test/commands/game/play/semantic-envelope.test.ts`. The
+  priorities proof keeps clean-read end-turn affordances and battlefield POIs
+  out of `blockers` while retaining true blockers such as ready units. This is
+  local CLI proof over compact priorities only; it does not accept Task 2.9.4,
+  choose TypeBox or Effect Schema, implement every normal play command
+  envelope, prove AI-ingestion separation, claim runtime/live-game proof, or
+  unblock telemetry, debug hierarchy, hotseat runtime, or Effect/oRPC work.

@@ -84,14 +84,36 @@ Local CLI tests may prove formatting, semantic projection, fixture behavior, and
 normal/debug separation. They do not prove live runtime behavior or hotseat
 product safety.
 
+## Current Owner And Integration Seed
+
+`packages/cli/src/game-play/semantic-envelope.ts` is the current
+source owner seed for semantic envelope slot names, the TypeScript structural
+constructor, and normal-output debug/internal exclusion marker classes. Its
+focused proof owner is
+`packages/cli/test/commands/game/play/semantic-envelope.test.ts`, and the
+shared normal-output helper consumes that source owner for forbidden-marker
+detection.
+
+`game play priorities --compact --json` now carries the first
+command-integrated `semanticEnvelope` using that owner. Its proof keeps
+non-blocking clean-read and battlefield recommendations out of `blockers`.
+This is a TypeScript structural integration seed only. It does not choose
+TypeBox or Effect Schema, implement semantic envelopes across every command
+surface, prove AI-ingestion separation, or accept the matrix row.
+
 ## Acceptance Gaps
 
 This contract reduces the `contractArtifact` gap for the Semantic CLI
-Player-Agent View row, but it does not accept the row. Acceptance still needs:
+Player-Agent View row, and the owner/integration seed reduces the source/proof
+ownership and first integration gaps, but it does not accept the row.
+Acceptance still needs:
 
-- a named CLI semantic envelope source owner;
-- a schema/test owner and concrete schema choice;
-- focused tests proving normal play output carries the semantic envelope;
+- command-integrated semantic envelope implementation ownership across the
+  remaining normal play command surfaces;
+- a final schema/test owner and concrete TypeBox / Effect Schema / adapter
+  disposition where applicable;
+- focused tests proving normal play output carries the semantic envelope beyond
+  compact priorities;
 - tests proving raw session, transport, closeout, command, proof JSON,
   correlation, and probe internals are omitted from normal play output;
 - tests or fixtures proving AI ingestion does not consume CLI presentation

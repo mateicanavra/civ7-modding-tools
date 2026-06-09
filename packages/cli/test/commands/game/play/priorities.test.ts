@@ -1,5 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayPriorities from '../../../../src/commands/game/play/priorities';
+import {
+  SEMANTIC_CLI_ENVELOPE_SLOTS,
+  SEMANTIC_CLI_ENVELOPE_VERSION,
+} from '../../../../src/game-play/semantic-envelope';
 import { type FakeTunerServer, startFakeTunerServer } from '../../fixtures/tuner-socket-server';
 import { expectNormalPlayPayloadToOmitDebugInternals } from './normal-output-boundary';
 
@@ -75,6 +79,15 @@ describe('game play priorities command', () => {
       expect(payload.omitted.some((item) => item.path === 'priorities[].evidence')).toBe(true);
       expect(payload.priorities.some((item) => item.kind === 'clean-read')).toBe(false);
       expect(payload.priorities.every((item) => item.evidence === undefined)).toBe(true);
+      expect(Object.keys(payload.semanticEnvelope)).toEqual(SEMANTIC_CLI_ENVELOPE_SLOTS);
+      expect(payload.semanticEnvelope.version).toBe(SEMANTIC_CLI_ENVELOPE_VERSION);
+      expect(payload.semanticEnvelope.nextSteps).toEqual([payload.next]);
+      expect(payload.semanticEnvelope.actions[0]?.command).toBe(payload.next);
+      expect(payload.semanticEnvelope.result).toMatchObject({
+        status: 'read-only',
+        sent: false,
+        classification: 'not-sent',
+      });
       expect(payload.view).toBeUndefined();
       expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -92,8 +105,26 @@ describe('game play priorities command', () => {
       expect(top.command).toContain("--reason 'clean read: no HUD, ready-unit, ready-city, or battlefield priority surfaced'");
       expect(payload.next).toBe(top.command);
       expect(top.reason).toContain('rechecks blockers before sending');
+      expect(payload.semanticEnvelope.blockers).toEqual([]);
+      expect(payload.semanticEnvelope.actions[0]).toMatchObject({
+        command: top.command,
+        approvalRequired: true,
+      });
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendTurnComplete'))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('keeps battlefield recommendations out of semantic blockers', async () => {
+    const { payload, server } = await runPriorities('ready-unit', { battlefield: true });
+    try {
+      expect(payload.semanticEnvelope.blockers.some((item) => item.kind === 'ready-unit')).toBe(true);
+      expect(payload.semanticEnvelope.blockers.some((item) => item.kind.startsWith('battlefield:'))).toBe(false);
+      expect(payload.semanticEnvelope.decisions.some((item) => item.kind.startsWith('battlefield:'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
     }
@@ -362,6 +393,14 @@ async function runPriorities(
     warnings: string[];
     omitted: Array<{ path: string }>;
     priorities: Array<{ kind: string; command?: string; reason: string; summary: string; evidence?: unknown }>;
+    semanticEnvelope: {
+      version: string;
+      actions: Array<{ command?: string }>;
+      blockers: Array<{ kind: string }>;
+      decisions: Array<{ kind: string }>;
+      nextSteps: string[];
+      result: Record<string, unknown>;
+    };
     decisionHud: { hasSentTurnComplete?: unknown };
     view?: unknown;
   };
