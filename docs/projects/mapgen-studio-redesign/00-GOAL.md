@@ -188,7 +188,10 @@ Phase order per [`FRAME.md`](FRAME.md) §7 (design-system-first):
 
 - [x] Frame, isolate, research, audit, target architecture, slice plan
 - [x] Re-frame + un-pause + normative FRAME.md + goal reset (2026-06-08)
-- [ ] **P1 Design system** (`design:*` chain) — FIRST DOMINO, in progress next
+- [x] **P1 Design system foundation** — DONE (slice `design/ds-foundation`:
+  `971627971` spec + `4274e60f4` impl). Tailwind v4 + shadcn + tokens + `.dark`
+  theming + self-hosted fonts. Verified: tsc + prod build + worker bundle + live
+  render, no console errors, non-breaking. OpenSpec `mapgen-studio-design-system`.
 - [ ] P2 Client data layer (oRPC-native TanStack Query + Zustand, behind seam)
 - [ ] P3 Component decomposition (un-god App.tsx onto the design system)
 - [ ] P4 Primitives→shadcn + new components + rjsf re-skin + craft
