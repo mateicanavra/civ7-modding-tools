@@ -7,7 +7,7 @@
   not rewrite Hydrology truth.
 - [x] 1.4 Retire the legacy `map-rivers.knobs.riverDensity` alias and realign
   adjacent Hydrology wording to the narrow owner model.
-- [ ] 1.5 Fix `endpointDischargePercentileMin` so the selected endpoint floor is
+- [x] 1.5 Fix `endpointDischargePercentileMin` so the selected endpoint floor is
   enforced by the selector, or remove/rename the reported floor with tests.
 
 ## 2. Acceptance Thresholds
