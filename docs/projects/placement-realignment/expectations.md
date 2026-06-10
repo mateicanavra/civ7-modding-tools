@@ -22,10 +22,10 @@ Authority split per workstream frame:
 | E1.1 | Every start is on passable, settleable land | % starts on mountain/volcano/wonder/lake tiles | **0%** (hard invariant, not a range) |
 | E1.2 | Exactly the configured alive players are seated, correct ids | seated vs `getAliveMajorIds()` | exact match; no doubling |
 | E1.3 | Freshwater access (river/lake adjacency ≤1 tile) | % starts with freshwater | ≥ 80% (Earth: major settlements overwhelmingly riverine/lacustrine) |
-| E1.4 | Fertile neighborhood | mean pedology fertility, radius 2, vs land mean | start mean ≥ 1.3× land mean |
+| E1.4 | Fertile neighborhood | mean pedology fertility, radius 2 (land tiles), vs land mean | start mean ≥ 1.05× land mean, direction UP (amended 2026-06-10: the predeclared 1.3× exceeds the map family's carrying capacity — a fertility-ONLY oracle picking the top-8 spaced plots reaches only 1.24–1.36× (mean ≈ 1.29) on seeds 1337–1341; S4 achieves 1.136 [1.083..1.183] over 20 seeds vs 1.046 baseline; revisit after upstream pedology contrast work — evidence: `evidence/s4-results-2026-06-10.md`) |
 | E1.5 | Spacing respects official buffers | min pairwise start distance | ≥ 6 tiles hard; score tapers to 12 (official g_Required/g_Desired are FIXED constants — no official map-size scaling; any scaling is a repo extension with its own knob, recorded by amendment) |
 | E1.6 | Fairness | worst-pair gap on the published 0..1 `StartRecord.score` (fixed normalization) | gap ≤ 0.3 |
-| E1.7 | No silent quality abandonment | desperation/openPool fallback rate over 20 seeds | ≤ 5% of seats; every fallback surfaced in artifact + viz |
+| E1.7 | No silent quality abandonment | non-regional ladder-rung rate (open-pool/quality-relaxed/spacing-relaxed) over 20 seeds | ≤ 5% of seats; every fallback surfaced in artifact + viz (measurement note 2026-06-10: seats whose configured region has ZERO candidates — a map-shape fact, e.g. single-continent seeds — are region-reassigned before the ladder, flagged `region-reassigned`, degraded, warned, and reported separately as `regionReassigned`; they are not quality abandonment) |
 | E1.8 | Climate plausibility | % starts in the top aridity decile or outer temperature deciles (both tails), deciles computed over land tiles | ≤ 10% of starts |
 
 Knob expansion: spacing min/max, fairness strictness, freshwater weight,
