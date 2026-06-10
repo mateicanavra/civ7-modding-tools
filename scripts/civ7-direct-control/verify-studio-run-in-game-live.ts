@@ -1,5 +1,10 @@
 #!/usr/bin/env bun
 
+import { createHash } from "node:crypto";
+import { readFile, stat } from "node:fs/promises";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import {
   checkCiv7DirectControlHealth,
   createCiv7ControlRequestId,
@@ -12,6 +17,7 @@ import {
   type Civ7SetupOptionValue,
   waitForFreshLogMarkers,
 } from "../../packages/civ7-direct-control/src/index.ts";
+import { resolveModsDir } from "../../packages/plugins/plugin-mods/src/index.ts";
 
 type LiveProofArgs = {
   host?: string;
@@ -46,7 +52,46 @@ Mutating setup/start proof:
 Notes:
   Without --mutate this only checks LSQ health, setup snapshot, and optional
   map-row visibility. With --mutate it prepares and starts a disposable
-  single-player session through @civ7/direct-control.`;
+  single-player session through @civ7/direct-control.
+
+  For {swooper-maps}/maps/*.js, this verifier also blocks stale installed mod
+  bundles by comparing the local generated map script with the deployed Civ Mods
+  script before launching.`;
+
+export type MapScriptFileIdentity = Readonly<{
+  path: string;
+  sha256: string;
+  sizeBytes: number;
+  mtimeMs: number;
+  mtimeIso: string;
+}>;
+
+export type MapScriptMarkerProof = Readonly<{
+  marker: string;
+  present: boolean;
+}>;
+
+export type SwooperMapScriptDeploymentStage = Readonly<{
+  name: "deployed-script-identity";
+  ok: boolean;
+  status: "not-swooper-map-script" | "matched" | "unresolved";
+  mapScript: string;
+  localPath?: string;
+  deployedPath?: string;
+  local?: MapScriptFileIdentity;
+  deployed?: MapScriptFileIdentity;
+  localMarkers?: ReadonlyArray<MapScriptMarkerProof>;
+  deployedMarkers?: ReadonlyArray<MapScriptMarkerProof>;
+  unresolvedLinks: ReadonlyArray<string>;
+  recoveryHint?: string;
+}>;
+
+export const SWOOPER_MAP_SCRIPT_PATTERN = /^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*\.js)$/;
+
+export const REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS = [
+  "map.rivers.officialCivRiverModeling",
+  "POST-MODEL-RIVERS",
+] as const;
 
 function parseArgs(argv: string[]): LiveProofArgs {
   const args: LiveProofArgs = {
@@ -146,6 +191,133 @@ function parseOptionValue(value: string): Civ7SetupOptionValue {
   return value;
 }
 
+export function resolveSwooperMapScriptPaths(args: {
+  mapScript: string;
+  repoRoot: string;
+  modsDir: string;
+}): Readonly<{
+  localPath: string;
+  deployedPath: string;
+}> | undefined {
+  const match = SWOOPER_MAP_SCRIPT_PATTERN.exec(args.mapScript);
+  if (!match) return undefined;
+  const fileName = match[1]!;
+  return {
+    localPath: resolve(args.repoRoot, "mods/mod-swooper-maps/mod/maps", fileName),
+    deployedPath: resolve(args.modsDir, "mod-swooper-maps/maps", fileName),
+  };
+}
+
+export function buildSwooperMapScriptDeploymentStage(args: {
+  mapScript: string;
+  localPath?: string;
+  deployedPath?: string;
+  local?: MapScriptFileIdentity;
+  deployed?: MapScriptFileIdentity;
+  localMarkers?: ReadonlyArray<MapScriptMarkerProof>;
+  deployedMarkers?: ReadonlyArray<MapScriptMarkerProof>;
+}): SwooperMapScriptDeploymentStage {
+  if (!args.localPath || !args.deployedPath) {
+    return {
+      name: "deployed-script-identity",
+      ok: true,
+      status: "not-swooper-map-script",
+      mapScript: args.mapScript,
+      unresolvedLinks: [],
+    };
+  }
+
+  const unresolvedLinks: string[] = [];
+  if (!args.local) unresolvedLinks.push("local-mod-script.missing");
+  if (!args.deployed) unresolvedLinks.push("deployed-mod-script.missing");
+  if (args.local && args.deployed && args.local.sha256 !== args.deployed.sha256) {
+    unresolvedLinks.push("deployed-mod-script.hash-mismatch");
+  }
+  for (const proof of args.localMarkers ?? []) {
+    if (!proof.present) unresolvedLinks.push(`local-mod-script.marker-missing.${markerId(proof.marker)}`);
+  }
+  for (const proof of args.deployedMarkers ?? []) {
+    if (!proof.present) unresolvedLinks.push(`deployed-mod-script.marker-missing.${markerId(proof.marker)}`);
+  }
+
+  const ok = unresolvedLinks.length === 0;
+  return {
+    name: "deployed-script-identity",
+    ok,
+    status: ok ? "matched" : "unresolved",
+    mapScript: args.mapScript,
+    localPath: args.localPath,
+    deployedPath: args.deployedPath,
+    ...(args.local ? { local: args.local } : {}),
+    ...(args.deployed ? { deployed: args.deployed } : {}),
+    ...(args.localMarkers ? { localMarkers: args.localMarkers } : {}),
+    ...(args.deployedMarkers ? { deployedMarkers: args.deployedMarkers } : {}),
+    unresolvedLinks,
+    ...(ok
+      ? {}
+      : {
+          recoveryHint:
+            "Build and deploy the current Swooper Maps bundle before live verification: bun run --cwd mods/mod-swooper-maps build && bun run --cwd mods/mod-swooper-maps deploy",
+        }),
+  };
+}
+
+async function checkSwooperMapScriptDeployment(args: {
+  mapScript: string;
+  repoRoot: string;
+}): Promise<SwooperMapScriptDeploymentStage> {
+  const paths = resolveSwooperMapScriptPaths({
+    mapScript: args.mapScript,
+    repoRoot: args.repoRoot,
+    modsDir: resolveModsDir().modsDir,
+  });
+  if (!paths) {
+    return buildSwooperMapScriptDeploymentStage({ mapScript: args.mapScript });
+  }
+
+  const [local, deployed, localText, deployedText] = await Promise.all([
+    fileIdentity(paths.localPath),
+    fileIdentity(paths.deployedPath),
+    readFile(paths.localPath, "utf8").catch(() => undefined),
+    readFile(paths.deployedPath, "utf8").catch(() => undefined),
+  ]);
+
+  return buildSwooperMapScriptDeploymentStage({
+    mapScript: args.mapScript,
+    ...paths,
+    ...(local ? { local } : {}),
+    ...(deployed ? { deployed } : {}),
+    ...(localText !== undefined ? { localMarkers: markerProofs(localText) } : {}),
+    ...(deployedText !== undefined ? { deployedMarkers: markerProofs(deployedText) } : {}),
+  });
+}
+
+async function fileIdentity(path: string): Promise<MapScriptFileIdentity | undefined> {
+  try {
+    const [metadata, bytes] = await Promise.all([stat(path), readFile(path)]);
+    return {
+      path,
+      sha256: createHash("sha256").update(bytes).digest("hex"),
+      sizeBytes: metadata.size,
+      mtimeMs: metadata.mtimeMs,
+      mtimeIso: metadata.mtime.toISOString(),
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+function markerProofs(text: string): ReadonlyArray<MapScriptMarkerProof> {
+  return REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS.map((marker) => ({
+    marker,
+    present: text.includes(marker),
+  }));
+}
+
+function markerId(marker: string): string {
+  return marker.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+}
+
 function serializeError(error: unknown): Record<string, unknown> {
   if (error instanceof Error) {
     return {
@@ -201,6 +373,7 @@ async function main(): Promise<number> {
     stages: [],
   };
   const stages = report.stages as unknown[];
+  const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 
   try {
     const health = await checkCiv7DirectControlHealth(options);
@@ -230,6 +403,21 @@ async function main(): Promise<number> {
         rowCount: mapRows.rows.length,
         rows: mapRows.rows,
       });
+      const deploymentStage = await checkSwooperMapScriptDeployment({
+        mapScript: args.mapScript,
+        repoRoot,
+      });
+      stages.push(deploymentStage);
+      if (!deploymentStage.ok) {
+        report.failureStage = deploymentStage.name;
+        report.error = {
+          message: deploymentStage.recoveryHint ?? "Deployed map script identity is unresolved",
+          unresolvedLinks: deploymentStage.unresolvedLinks,
+        };
+        report.finishedAt = new Date().toISOString();
+        console.log(safeJson(report));
+        return 2;
+      }
     }
 
     if (!args.mutate) {
@@ -298,11 +486,13 @@ async function main(): Promise<number> {
   }
 }
 
-main()
-  .then((code) => {
-    process.exitCode = code;
-  })
-  .catch((error) => {
-    console.error(safeJson({ ok: false, error: serializeError(error) }));
-    process.exitCode = 1;
-  });
+if (import.meta.main) {
+  main()
+    .then((code) => {
+      process.exitCode = code;
+    })
+    .catch((error) => {
+      console.error(safeJson({ ok: false, error: serializeError(error) }));
+      process.exitCode = 1;
+    });
+}
