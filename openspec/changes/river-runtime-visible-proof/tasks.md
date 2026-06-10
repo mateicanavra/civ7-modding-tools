@@ -19,7 +19,7 @@
   native `MapRivers` object plot in the same final-surface proof.
 - [ ] 2.3 Center camera on samples, capture screenshots, hash artifacts, and
   emit visual verdict fields.
-- [ ] 2.4 Add negative controls for wrong map/seed, off-target camera, and
+- [x] 2.4 Add negative controls for wrong map/seed, off-target camera, and
   no-river configs.
 - [ ] 2.5 Require minor-river claims to cite metadata/native-writer evidence,
   not terrain-only readback.
