@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import type {
+  RunInGameFileContentProof,
   RunInGameExactAuthorshipProof,
   RunInGameFileIdentity,
   RunInGameMaterializationStatus,
@@ -14,8 +15,11 @@ import type {
 import {
   buildRunInGameExactAuthorshipProof,
   buildRunInGameSourceSnapshotProof,
+  fileContentMarkerProof,
   fileIdentity,
   parseSwooperMapgenLogProof,
+  runInGameMaterializationScriptUnresolvedLinks,
+  runInGameRequiredMaterializationMarkers,
 } from "../../src/server/runInGame/proofIdentity";
 
 const requestId = "studio-run-in-game-test";
@@ -35,6 +39,41 @@ describe("Run in Game exact authorship proof identity", () => {
       expect(identity.path).toBe("studio-current.js");
       expect(identity.sha256).toHaveLength(64);
       expect(identity.sizeBytes).toBeGreaterThan(0);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("proves required materialization markers from generated script content", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "studio-proof-markers-"));
+    try {
+      const path = join(dir, "studio-current.js");
+      await writeFile(
+        path,
+        [
+          requestId,
+          configHash,
+          envelopeHash,
+          "map.rivers.officialCivRiverModeling",
+          "POST-MODEL-RIVERS",
+        ].join("\n"),
+        "utf8",
+      );
+
+      const proof = await fileContentMarkerProof({
+        repoRoot: dir,
+        path,
+        markers: runInGameRequiredMaterializationMarkers({ requestId, configHash, envelopeHash }),
+      });
+
+      expect(proof.path).toBe("studio-current.js");
+      expect(proof.markers.map((marker) => [marker.id, marker.present])).toEqual([
+        ["run-request-id", true],
+        ["run-config-hash", true],
+        ["run-envelope-hash", true],
+        ["native-river-modeling-trace", true],
+        ["native-river-modeling-checkpoint", true],
+      ]);
     } finally {
       await rm(dir, { recursive: true, force: true });
     }
@@ -507,6 +546,45 @@ describe("Run in Game exact authorship proof identity", () => {
     ]));
   });
 
+  it("keeps exact authorship unresolved when the deployed script lacks current river materialization markers", () => {
+    const args = completeProofArgs();
+    const proof = buildRunInGameExactAuthorshipProof({
+      ...args,
+      materialization: {
+        ...args.materialization,
+        deployedModScriptContent: contentProof(
+          "/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js",
+          { "native-river-modeling-checkpoint": false },
+        ),
+      },
+    });
+
+    expect(proof.status).toBe("unresolved");
+    expect(proof.unresolvedLinks).toContain("materialization.deployed-mod-script-marker.native-river-modeling-checkpoint");
+  });
+
+  it("reports materialization script proof gaps before starting Civ", () => {
+    const args = completeProofArgs();
+    const links = runInGameMaterializationScriptUnresolvedLinks({
+      materialization: {
+        ...args.materialization,
+        localModScriptContent: contentProof("different.js"),
+        deployedModScriptContent: contentProof(
+          "/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js",
+          { "run-request-id": false },
+        ),
+      },
+      localModScript: args.localModScript,
+      deployedModScript: args.deployedModScript,
+      requiredMarkers: runInGameRequiredMaterializationMarkers({ requestId, configHash, envelopeHash }),
+    });
+
+    expect(links).toEqual(expect.arrayContaining([
+      "materialization.local-mod-script-content-path-mismatch",
+      "materialization.deployed-mod-script-marker.run-request-id",
+    ]));
+  });
+
   it("uses setup config player count as exact-authorship readback", () => {
     const proof = buildRunInGameExactAuthorshipProof({
       ...completeProofArgs(),
@@ -569,15 +647,22 @@ function completeProofArgs(): Parameters<typeof buildRunInGameExactAuthorshipPro
     envelopeHash,
   };
   const localModScript = fileProof("mod/maps/studio-current.js", "same-deployed-js-hash");
+  const deployedModScript = fileProof("/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js", localModScript.sha256);
   return {
     requestId,
     request,
     sourceSnapshot,
-    materialization,
+    materialization: {
+      ...materialization,
+      localModScript,
+      deployedModScript,
+      localModScriptContent: contentProof(localModScript.path),
+      deployedModScriptContent: contentProof(deployedModScript.path),
+    },
     sourceConfig: fileProof("configs/studio-current.config.json", "source-config-hash"),
     generatedSourceScript: fileProof("generated/studio-current.ts", "generated-source-hash"),
     localModScript,
-    deployedModScript: fileProof("/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js", localModScript.sha256),
+    deployedModScript,
     rowProof: { rows: [{ file: mapScript }] },
     setupSnapshot: setupSnapshot(),
     startMapSummary: mapSummary(),
@@ -589,6 +674,21 @@ function completeProofArgs(): Parameters<typeof buildRunInGameExactAuthorshipPro
       gameHash: 123456,
     },
     createdAt: "2026-06-06T00:00:00.000Z",
+  };
+}
+
+function contentProof(
+  path: string,
+  overrides: Partial<Record<string, boolean>> = {},
+): RunInGameFileContentProof {
+  return {
+    path,
+    markers: runInGameRequiredMaterializationMarkers({ requestId, configHash, envelopeHash })
+      .map((marker) => ({
+        id: marker.id,
+        marker: marker.marker,
+        present: overrides[marker.id] ?? true,
+      })),
   };
 }
 

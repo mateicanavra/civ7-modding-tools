@@ -41,8 +41,11 @@ import { waitForCiv7MapgenLogFailure } from "./src/server/runInGame/logFailure";
 import {
   buildRunInGameExactAuthorshipProof,
   buildRunInGameSourceSnapshotProof,
+  fileContentMarkerProof,
   fileIdentity,
   parseSwooperMapgenLogProof,
+  runInGameMaterializationScriptUnresolvedLinks,
+  runInGameRequiredMaterializationMarkers,
 } from "./src/server/runInGame/proofIdentity";
 import { parseRunInGameSetupRequest } from "./src/server/runInGame/requestValidation";
 import {
@@ -271,6 +274,10 @@ async function optionalFileIdentity(args: {
   exposeAs?: "relative-to-repo" | "absolute";
 }) {
   return await fileIdentity(args).catch(() => undefined);
+}
+
+async function optionalFileContentMarkerProof(args: Parameters<typeof fileContentMarkerProof>[0]) {
+  return await fileContentMarkerProof(args).catch(() => undefined);
 }
 
 function generatedSourceScriptPath(repoRoot: string, id: string): string {
@@ -694,13 +701,50 @@ async function runRunInGameStartEngine(body: {
             exposeAs: "absolute",
           })
         : undefined;
+      const requiredMaterializationMarkers = runInGameRequiredMaterializationMarkers({
+        requestId,
+        configHash,
+        envelopeHash,
+      });
+      const localModScriptContent = await optionalFileContentMarkerProof({
+        repoRoot,
+        path: localModScriptPath(repoRoot, id),
+        markers: requiredMaterializationMarkers,
+      });
+      const deployedModScriptContent = deploy.targetDir
+        ? await optionalFileContentMarkerProof({
+            repoRoot,
+            path: deployedModScriptPath(deploy.targetDir, id),
+            exposeAs: "absolute",
+            markers: requiredMaterializationMarkers,
+          })
+        : undefined;
       materialization = {
         ...materialization,
         ...(generatedSourceScript ? { generatedSourceScript } : {}),
         ...(localModScript ? { localModScript } : {}),
         ...(deployedModScript ? { deployedModScript } : {}),
+        ...(localModScriptContent ? { localModScriptContent } : {}),
+        ...(deployedModScriptContent ? { deployedModScriptContent } : {}),
       };
       runInGameOperations.update(requestId, { phase, materialization });
+      const materializationScriptUnresolvedLinks = runInGameMaterializationScriptUnresolvedLinks({
+        materialization,
+        localModScript,
+        deployedModScript,
+        requiredMarkers: requiredMaterializationMarkers,
+      });
+      if (materializationScriptUnresolvedLinks.length > 0) {
+        throw new RunInGameHttpError(
+          500,
+          "Generated Swooper map script is missing current materialization proof markers",
+          {
+            code: "map-script-materialization-proof-missing",
+            unresolvedLinks: materializationScriptUnresolvedLinks,
+            materialization,
+          },
+        );
+      }
 
       let processRestart;
       if (restartCivProcess) {

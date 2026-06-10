@@ -9,6 +9,8 @@
   keys to default public config.
 - [x] 2.3 Refresh stale Studio recipe artifacts during Studio preflight.
 - [x] 2.4 Regenerate Studio recipe artifacts.
+- [ ] 2.5 Render stage steps in the DAG as compact one-line expandable rows
+  with smooth rectangular shutter expand/collapse behavior for step detail.
 
 ## 3. Verification
 
@@ -17,3 +19,5 @@
 - [x] 3.2 Run the focused Studio artifact test.
 - [x] 3.3 Run Studio recipe generation and app build gates.
 - [x] 3.4 Run OpenSpec validation and `git diff --check`.
+- [ ] 3.5 Browser/Playwright check that stage step rows are scannable when
+  collapsed, expand/collapse smoothly, and preserve selected stage/step context.

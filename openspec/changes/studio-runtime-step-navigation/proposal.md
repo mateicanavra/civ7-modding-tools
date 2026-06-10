@@ -29,6 +29,9 @@ steps.
   when there is an exact public property match, or at the stage root otherwise.
 - Make Studio recipe preflight refresh stale generated artifacts instead of
   accepting any existing artifact set as current.
+- Render steps within each stage as one-line expandable DAG rows so the stage
+  topology remains scannable while per-step artifact/proof details live behind a
+  smooth rectangular shutter interaction.
 - Add tests proving Morphology runtime steps remain visible in Studio artifacts
   while the public authoring schema remains semantic.
 
@@ -44,11 +47,15 @@ steps.
 - Do not couple runtime step visibility to public schema property names.
 - Do not make Studio infer SDK authoring-layer boundaries locally.
 - Do not add one-off mutable config value assertions as proof.
+- Do not render every step's full detail body by default or turn the stage DAG
+  into nested always-open cards.
 
 ## Verification Gates
 
 - `bun test apps/mapgen-studio/test/config/defaultConfigSchema.test.ts`
 - `bun run --cwd mods/mod-swooper-maps build:studio-recipes`
 - `bun run --cwd apps/mapgen-studio build`
+- Browser/Playwright check that stage step rows collapse to one-line scan rows
+  and expand/collapse without losing the selected stage/step context.
 - `bun run openspec -- validate studio-runtime-step-navigation --strict`
 - `git diff --check`

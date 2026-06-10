@@ -35,6 +35,13 @@ for known binary masks. Those counts are display evidence, not a replacement for
 Hydrology benchmark summaries, live readback counters, rendered screenshots, or
 product acceptance proof.
 
+For the pipeline DAG, stage rows remain the primary topology surface. Steps
+within a stage must render as compact one-line rows in an expandable list: a
+long rectangular shutter interaction that can slide open for per-step layer,
+artifact, and proof detail, then collapse back to the scan row without losing
+stage context. River/lake/floodplain proof details belong in the expanded step
+content, not as always-visible nested cards that make the DAG unreadable.
+
 Statuses include:
 
 - `no-physical-rivers`
