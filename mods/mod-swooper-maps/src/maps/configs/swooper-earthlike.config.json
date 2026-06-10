@@ -709,9 +709,10 @@
         "minSpacingTiles": 3
       },
       "resources": {
-        "densityPer100Tiles": 10,
-        "minSpacingTiles": 2,
-        "maxPlacementsPerResourceShare": 0.3
+        "density": 1,
+        "sparsity": 0,
+        "rarityFidelity": 1,
+        "siteSpacingTiles": 3
       },
       "starts": {
         "minContiguousLandTiles": 24,

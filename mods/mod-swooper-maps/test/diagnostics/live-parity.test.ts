@@ -160,8 +160,18 @@ function snapshot(args: {
     ...(args.resourceRejectionContext
       ? {
           resourcePlan: {
-            placements: [
-              { plotIndex: 1, preferredResourceType: 13, preferredTypeOffset: 2, priority: 0.9 },
+            siteSpacingTiles: 3,
+            intents: [
+              {
+                plotIndex: 1,
+                resourceType: "RESOURCE_GOLD",
+                resourceTypeId: 13,
+                family: "geological",
+                laneId: "orogenic-hydrothermal",
+                phase: "rotation",
+                order: 0,
+                inHabitat: true,
+              },
             ],
           },
           resourcePlacementOutcomes: {
@@ -179,20 +189,6 @@ function snapshot(args: {
                 status: "placed",
                 resourceType: 46,
                 observedResourceType: 46,
-              },
-            ],
-            assignmentTrace: [
-              {
-                plotIndex: 1,
-                resourceType: 46,
-                initialResourceType: 46,
-                preferredResourceType: 13,
-                assignmentPhase: "scarce-floor",
-                reassignedByRebalance: false,
-                assignmentOrder: 168,
-                perTypeCountBefore: 0,
-                legalPlotCountForResource: 660,
-                targetMinPerType: 7,
               },
             ],
           },
@@ -546,18 +542,15 @@ describe("final-surface parity proof", () => {
         },
         local: {
           surfaceResourceType: 8,
-          preferredPlacement: { preferredResourceType: 13, preferredTypeOffset: 2, priority: 0.9 },
+          preferredPlacement: { preferredResourceType: 13 },
           outcome: { status: "placed", resourceType: 46, observedResourceType: 46 },
-          assignment: {
-            resourceType: 46,
-            initialResourceType: 46,
-            preferredResourceType: 13,
-            assignmentPhase: "scarce-floor",
-            reassignedByRebalance: false,
-            assignmentOrder: 168,
-            perTypeCountBefore: 0,
-            legalPlotCountForResource: 660,
-            targetMinPerType: 7,
+          planIntent: {
+            resourceType: 13,
+            resourceTypeName: "RESOURCE_GOLD",
+            phase: "rotation",
+            family: "geological",
+            laneId: "orogenic-hydrothermal",
+            inHabitat: true,
           },
         },
       },

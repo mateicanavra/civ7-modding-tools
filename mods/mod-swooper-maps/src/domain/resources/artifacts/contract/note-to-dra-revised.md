@@ -1,0 +1,1 @@
+hey -- just so you know, it doesn't seem like corpus belongs here at all. this looks like it belongs in civ7 map policy or types directly. wherever it fits along with the most other generated direct official types and policies and such. specific domains cannot own civ7 official policy or types -- they must import that from the package

@@ -1,128 +1,12 @@
 import { Type, defineArtifact, type Static } from "@swooper/mapgen-core/authoring";
-import type {
-  EarthlikeResourceExpectationsArtifact,
-  OfficialResourceCorpusArtifact,
-} from "@mapgen/domain/resources";
+import type { EarthlikeResourceExpectationsArtifact } from "../../lib/earthlike-expectations/types.js";
+import { PlacementConstraintsSchema } from "./corpus.contract.js";
 
-const SourceRefSchema = Type.Object(
-  {
-    file: Type.String(),
-    table: Type.String(),
-  },
-  { additionalProperties: false }
-);
-
-const RuntimeIdSchema = Type.Object(
-  {
-    status: Type.Literal("unverified"),
-    value: Type.Null(),
-    evidence: Type.Array(Type.Never(), { maxItems: 0 }),
-    rationale: Type.String(),
-  },
-  { additionalProperties: false }
-);
-
-const ResourceClassOverrideSchema = Type.Object(
-  {
-    age: Type.String({ pattern: "^AGE_" }),
-    resourceClass: Type.String({ pattern: "^RESOURCECLASS_" }),
-    sourceFile: Type.String(),
-  },
-  { additionalProperties: false }
-);
-
-const ResourceDistributionFactsSchema = Type.Object(
-  {
-    adjacentToLand: Type.Optional(Type.Boolean()),
-    lakeEligible: Type.Optional(Type.Boolean()),
-    staple: Type.Optional(Type.Boolean()),
-    minimumPerHemisphere: Type.Optional(Type.Integer({ minimum: 0 })),
-    hemisphereUnique: Type.Optional(Type.Boolean()),
-    bonusResourceSlots: Type.Optional(Type.Integer({ minimum: 0 })),
-    unlocksCiv: Type.Optional(Type.Boolean()),
-    tradeable: Type.Optional(Type.Boolean()),
-  },
-  { additionalProperties: false }
-);
-
-const PlacementConstraintsSchema = Type.Object(
-  {
-    hasOfficialBiomeConstraints: Type.Boolean(),
-    validBiomeConstraintCount: Type.Integer({ minimum: 0 }),
-    sourceTables: Type.Array(SourceRefSchema),
-    placementFlags: ResourceDistributionFactsSchema,
-  },
-  { additionalProperties: false }
-);
-
-const YieldChangeSchema = Type.Object(
-  {
-    YieldType: Type.String({ pattern: "^YIELD_" }),
-    YieldChange: Type.String(),
-  },
-  { additionalProperties: false }
-);
-
-const ResourceDispositionSchema = <TStatus extends string>(statuses: readonly TStatus[]) =>
-  Type.Object(
-    {
-      status: Type.Union(statuses.map((status) => Type.Literal(status))),
-      rationale: Type.String(),
-    },
-    { additionalProperties: false }
-  );
-
-const ResourceCorpusEntrySchema = Type.Object(
-  {
-    resourceType: Type.String({ pattern: "^RESOURCE_" }),
-    staticResourceRowSlot: Type.Integer({ minimum: 0 }),
-    staticSource: SourceRefSchema,
-    name: Type.String(),
-    tooltip: Type.String(),
-    baseClass: Type.String({ pattern: "^RESOURCECLASS_" }),
-    weight: Type.Integer({ minimum: 0 }),
-    runtimeId: RuntimeIdSchema,
-    validAges: Type.Array(Type.String({ pattern: "^AGE_" })),
-    ageClassOverrides: Type.Array(ResourceClassOverrideSchema),
-    officialPlacementConstraints: PlacementConstraintsSchema,
-    yieldChanges: Type.Array(YieldChangeSchema),
-    typeTags: Type.Array(Type.String()),
-    placeability: ResourceDispositionSchema([
-      "placeable",
-      "conditional",
-      "not-map-placed",
-      "unknown",
-    ]),
-    strategyRequired: ResourceDispositionSchema(["required", "not-required", "blocked"]),
-  },
-  { additionalProperties: false }
-);
-
-export const ResourceCorpusArtifactSchema = Type.Unsafe<OfficialResourceCorpusArtifact>(
-  Type.Object(
-    {
-      source: Type.Object(
-        {
-          authority: Type.Literal("civ7-official-resources"),
-          module: Type.Literal("base-standard"),
-          order: Type.Literal("base-standard.modinfo Resources row order"),
-          runtimeIdStatus: Type.Literal("unverified"),
-          sourceFiles: Type.Array(Type.String()),
-        },
-        { additionalProperties: false }
-      ),
-      resources: Type.Array(ResourceCorpusEntrySchema),
-    },
-    {
-      additionalProperties: false,
-      description:
-        "Official base-standard resource corpus. Static resource row slots are source evidence only; runtime numeric ids remain unverified until in-game GameInfo.Resources proof is attached.",
-    }
-  )
-);
-
-export type ResourceCorpusArtifact = Static<typeof ResourceCorpusArtifactSchema>;
-
+/**
+ * Artifact contract for the earthlike per-resource expectation corpus
+ * (`artifact:resources.earthlikeExpectations`). One artifact per file by repo
+ * convention.
+ */
 const ExpectationGroupIdSchema = Type.Union([
   Type.Literal("aquatic-coastal-navigable-river"),
   Type.Literal("cultivated-plantation-medicinal"),
@@ -346,15 +230,8 @@ export type ResourceEarthlikeExpectationsArtifact = Static<
   typeof ResourceEarthlikeExpectationsArtifactSchema
 >;
 
-export const resourceArtifacts = {
-  corpus: defineArtifact({
-    name: "resourceCorpus",
-    id: "artifact:resources.corpus",
-    schema: ResourceCorpusArtifactSchema,
-  }),
-  earthlikeExpectations: defineArtifact({
-    name: "resourceEarthlikeExpectations",
-    id: "artifact:resources.earthlikeExpectations",
-    schema: ResourceEarthlikeExpectationsArtifactSchema,
-  }),
-} as const;
+export const resourceEarthlikeExpectationsArtifact = defineArtifact({
+  name: "resourceEarthlikeExpectations",
+  id: "artifact:resources.earthlikeExpectations",
+  schema: ResourceEarthlikeExpectationsArtifactSchema,
+});

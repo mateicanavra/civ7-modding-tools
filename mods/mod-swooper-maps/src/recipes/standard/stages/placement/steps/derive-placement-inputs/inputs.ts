@@ -9,7 +9,6 @@ import {
 import placement from "@mapgen/domain/placement";
 import type { PlacementInputsV1 } from "../../placement-inputs.js";
 import { getStandardRuntime } from "../../../../runtime.js";
-import { filterInitialMapResourceTypeIds } from "../../../../../../domain/resources/initial-map-authoring-policy.js";
 
 import DerivePlacementInputsContract from "./contract.js";
 
@@ -170,11 +169,6 @@ export function buildPlacementInputs(
     ];
   });
   const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
-  const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
-  const candidateResourceTypes = filterInitialMapResourceTypeIds(
-    context.adapter.getPlaceableResourceTypes(),
-    noResourceSentinel
-  );
   const engineSurface = readEngineSurface(context);
   const naturalWonderBlockedMask = buildNaturalWonderBlockedMask(width, height);
   const naturalWonderPlan = ops.naturalWonders(
@@ -212,30 +206,12 @@ export function buildPlacementInputs(
     },
     config.discoveries
   );
-  const resourcesPlan = ops.resources(
-    {
-      width,
-      height,
-      noResourceSentinel,
-      candidateResourceTypes,
-      landMask: physical.topography.landMask,
-      fertility: physical.pedology.fertility,
-      effectiveMoisture: physical.biomeClassification.effectiveMoisture,
-      surfaceTemperature: physical.biomeClassification.surfaceTemperature,
-      aridityIndex: physical.biomeClassification.aridityIndex,
-      riverClass: physical.hydrography.riverClass,
-      lakeMask: physical.lakePlan.lakeMask,
-    },
-    config.resources
-  );
-
   return {
     mapInfo: runtime.mapInfo,
     starts: baseStarts,
     wonders: wondersPlan,
     naturalWonderPlan,
     discoveryPlan,
-    resources: resourcesPlan,
     placementConfig: config,
   };
 }

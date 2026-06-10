@@ -14,13 +14,11 @@ export default createStep(DerivePlacementInputsContract, {
   artifacts: implementArtifacts(
     [
       placementArtifacts.placementInputs,
-      placementArtifacts.resourcePlan,
       placementArtifacts.naturalWonderPlan,
       placementArtifacts.discoveryPlan,
     ],
     {
       placementInputs: {},
-      resourcePlan: {},
       naturalWonderPlan: {},
       discoveryPlan: {},
     }
@@ -52,7 +50,6 @@ export default createStep(DerivePlacementInputsContract, {
       },
     });
     deps.artifacts.placementInputs.publish(context, inputs);
-    deps.artifacts.resourcePlan.publish(context, inputs.resources);
     deps.artifacts.naturalWonderPlan.publish(context, inputs.naturalWonderPlan);
     logNaturalWonderPlanRuntimeTelemetry(inputs.naturalWonderPlan);
     logNaturalWonderPlanInputRuntimeTelemetry(naturalWonderPlanInputTelemetry);

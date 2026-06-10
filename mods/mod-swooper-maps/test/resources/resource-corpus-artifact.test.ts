@@ -4,13 +4,13 @@ import { Value } from "typebox/value";
 import { OFFICIAL_RESOURCE_CORPUS_ARTIFACT } from "../../src/domain/resources/index.js";
 import {
   ResourceCorpusArtifactSchema,
-  resourceArtifacts,
-} from "../../src/recipes/standard/stages/resources/artifacts.js";
+  resourceCorpusArtifact,
+} from "../../src/domain/resources/artifacts/contract/corpus.contract.js";
 
 describe("resources corpus artifact", () => {
   it("declares the resource-owned corpus artifact id without creating a stage shell", () => {
-    expect(resourceArtifacts.corpus.id).toBe("artifact:resources.corpus");
-    expect(resourceArtifacts.corpus.name).toBe("resourceCorpus");
+    expect(resourceCorpusArtifact.id).toBe("artifact:resources.corpus");
+    expect(resourceCorpusArtifact.name).toBe("resourceCorpus");
   });
 
   it("publishes a corpus artifact with explicit static/runtime identity boundaries", () => {

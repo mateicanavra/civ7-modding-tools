@@ -109,6 +109,13 @@ describe("placement metrics harness (S0)", () => {
     expect(computedCount).toBeGreaterThanOrEqual(12);
   });
 
+  it("computes the S3 resource expectation set offline (no pending-s3 left)", () => {
+    const s3Set = ["E2.1", "E2.2", "E2.3", "E2.4", "E2.5", "E2.6", "E2.7", "E2.8", "E2.9", "E3.4"];
+    for (const id of s3Set) {
+      expect(run.metrics[id]!.status, id).toBe("computed");
+    }
+  });
+
   it("is deterministic for a fixed seed", () => {
     const rerun = runPlacementMetrics({
       seed: 1337,

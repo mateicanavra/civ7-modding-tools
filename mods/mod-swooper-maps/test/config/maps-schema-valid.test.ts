@@ -865,11 +865,13 @@ describe("Shipped map configs", () => {
       strategy: "default",
       config: { densityPer100Tiles: 3, minSpacingTiles: 3 },
     });
-    expect(compiled.placement["derive-placement-inputs"].resources.strategy).toBe("default");
-    expect(compiled.placement["derive-placement-inputs"].resources.config).toEqual({
-      densityPer100Tiles: 10,
-      minSpacingTiles: 2,
-      maxPlacementsPerResourceShare: 0.3,
+    expect(compiled.placement["derive-placement-inputs"].resources).toBeUndefined();
+    expect(compiled.placement["plan-resources"].selectSites.strategy).toBe("default");
+    expect(compiled.placement["plan-resources"].selectSites.config).toMatchObject({
+      density: 1,
+      sparsity: 0,
+      rarityFidelity: 1,
+      siteSpacingTiles: 3,
     });
     expect(compiled.placement["derive-placement-inputs"].starts).toBeUndefined();
     expect(compiled.placement["assign-starts"].starts).toEqual({
@@ -880,6 +882,10 @@ describe("Shipped map configs", () => {
     expect(compiled.placement["place-natural-wonders"]).toEqual({});
     expect(compiled.placement["prepare-placement-surface"]).toEqual({});
     expect(compiled.placement["place-resources"]).toEqual({});
+    expect(compiled.placement["plan-resources"].habitat).toEqual({
+      strategy: "default",
+      config: {},
+    });
     expect(compiled.placement["place-discoveries"]).toEqual({});
     expect(compiled.placement["assign-advanced-starts"]).toEqual({});
     expect(compiled.placement.placement).toEqual({});

@@ -117,8 +117,7 @@ describe("terrain relief diagnostics", () => {
     expect(stats.resourcePlannedCount).toBe(
       stats.resourcePlacedCount + stats.resourceRejectedCount + stats.resourceMismatchCount
     );
-    expect(stats.resourceTargetCount).toBeGreaterThan(0);
-    expect(stats.resourcePlannedCount).toBeGreaterThanOrEqual(stats.resourceTargetCount);
+    expect(stats.resourceDemandTypeCount).toBeGreaterThan(0);
     expect(stats.resourcePlacedCount).toBeGreaterThan(0);
     expect(stats.resourceMismatchCount).toBe(0);
     expect(sumRecordValues(stats.resourcePlanTypeCounts)).toBe(stats.resourcePlannedCount);

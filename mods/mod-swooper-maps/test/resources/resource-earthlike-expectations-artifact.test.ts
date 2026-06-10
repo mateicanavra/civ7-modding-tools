@@ -13,8 +13,8 @@ import {
 } from "../../src/domain/resources/index.js";
 import {
   ResourceEarthlikeExpectationsArtifactSchema,
-  resourceArtifacts,
-} from "../../src/recipes/standard/stages/resources/artifacts.js";
+  resourceEarthlikeExpectationsArtifact,
+} from "../../src/domain/resources/artifacts/contract/earthlike-expectations.contract.js";
 
 const blockedResources = [
   "RESOURCE_CLOVES",
@@ -25,14 +25,14 @@ const blockedResources = [
 ] as const;
 
 const repoRoot = join(import.meta.dir, "../../../..");
-const sourceRoot = join(repoRoot, "mods/mod-swooper-maps/src/domain/resources/earthlike-expectations");
+const sourceRoot = join(repoRoot, "mods/mod-swooper-maps/src/domain/resources/lib/earthlike-expectations");
 
 describe("resource earthlike expectations artifact", () => {
   it("declares the resource-owned earthlike expectations artifact id", () => {
-    expect(resourceArtifacts.earthlikeExpectations.id).toBe(
+    expect(resourceEarthlikeExpectationsArtifact.id).toBe(
       "artifact:resources.earthlikeExpectations"
     );
-    expect(resourceArtifacts.earthlikeExpectations.name).toBe(
+    expect(resourceEarthlikeExpectationsArtifact.name).toBe(
       "resourceEarthlikeExpectations"
     );
   });

@@ -73,7 +73,7 @@ const TERRESTRIAL_RESOURCE_TYPES: readonly TerrestrialResourceType[] = [
   "RESOURCE_LLAMAS",
 ];
 
-const TERRESTRIAL_SIGNALS: Record<TerrestrialResourceType, ResourceSignals> = {
+export const TERRESTRIAL_SIGNALS: Record<TerrestrialResourceType, ResourceSignals> = {
   RESOURCE_CAMELS: {
     laneId: "arid-rangeland",
     primary: ["aridRangelandMask", "openGrassPlainsMask"],

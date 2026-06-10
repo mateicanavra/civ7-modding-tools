@@ -659,11 +659,7 @@
         "densityPer100Tiles": 3,
         "minSpacingTiles": 3
       },
-      "resources": {
-        "densityPer100Tiles": 9,
-        "minSpacingTiles": 2,
-        "maxPlacementsPerResourceShare": 0.3
-      }
+      "resources": {}
     }
   }
 }

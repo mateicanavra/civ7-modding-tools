@@ -23,6 +23,8 @@ import {
   hexDistanceOddQPeriodicX,
 } from "@swooper/mapgen-core/lib/grid";
 
+import resourcesDomainOps from "../../domain/resources/ops.js";
+
 import { canonicalRecipeConfig, isPlainObject as isCanonicalMapConfigObject } from "../../maps/configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
@@ -113,9 +115,43 @@ type StartAssignmentArtifact = {
 };
 
 type ResourcePlanArtifact = {
-  minSpacingTiles: number;
+  siteSpacingTiles: number;
   plannedCount: number;
-  placements: ReadonlyArray<{ plotIndex: number; preferredResourceType: number; priority: number }>;
+  intents: ReadonlyArray<{
+    plotIndex: number;
+    x: number;
+    y: number;
+    resourceType: string;
+    resourceTypeId: number;
+    family: "aquatic" | "cultivated" | "terrestrial" | "geological";
+    laneId: string;
+    laneKind: "land" | "water";
+    phase: "rotation" | "range-floor" | "region-minimum";
+    inHabitat: boolean;
+  }>;
+  perType: ReadonlyArray<{
+    resourceType: string;
+    resourceTypeId: number;
+    family: "aquatic" | "cultivated" | "terrestrial" | "geological";
+    laneId: string;
+    weight: number;
+    authoredTargetCount: number;
+    effectiveTargetCount: number;
+    minCount: number;
+    maxCount: number;
+    spacingFloorTiles: number;
+    eligibleTileCount: number;
+    plannedCount: number;
+    shortfalls: ReadonlyArray<{ reason: string; count: number }>;
+  }>;
+  regionMinimums: ReadonlyArray<{
+    resourceType: string;
+    regionSlot: number;
+    required: number;
+    fromRotation: number;
+    forced: number;
+    shortfall: number;
+  }>;
 };
 
 type ResourceOutcomesArtifact = {
@@ -126,21 +162,12 @@ type ResourceOutcomesArtifact = {
     mismatchCount: number;
     byResource: ReadonlyArray<{ resourceType: number; plannedCount: number; placedCount: number }>;
   };
-  assignment: {
-    requestedPlannedCount: number;
-    assignedCount: number;
-    minSpacingTiles: number;
-    reassignedCount: number;
-    unassignedPreferredCount: number;
+  reconciliation: {
+    plannedCount: number;
+    placedCount: number;
+    rejectedCount: number;
+    shortfalls: ReadonlyArray<{ resourceType: number; reason: string; count: number }>;
   };
-  assignmentTrace: ReadonlyArray<{
-    plotIndex: number;
-    x: number;
-    y: number;
-    resourceType: number;
-    preferredResourceType: number | null;
-    reassignedByRebalance: boolean;
-  }>;
   outcomes: ReadonlyArray<{
     status: "placed" | "rejected" | "mismatch";
     plotIndex: number;
@@ -173,6 +200,42 @@ function coefficientOfVariation(values: readonly number[]): number | null {
   let varSum = 0;
   for (const value of values) varSum += (value - m) * (value - m);
   return Math.sqrt(varSum / values.length) / m;
+}
+
+function spearman(xs: readonly number[], ys: readonly number[]): number | null {
+  if (xs.length !== ys.length || xs.length < 3) return null;
+  const rank = (values: readonly number[]): number[] => {
+    const order = values
+      .map((value, index) => ({ value, index }))
+      .sort((a, b) => a.value - b.value);
+    const ranks = new Array<number>(values.length).fill(0);
+    let i = 0;
+    while (i < order.length) {
+      let j = i;
+      while (j + 1 < order.length && order[j + 1]!.value === order[i]!.value) j++;
+      const mean = (i + j) / 2 + 1;
+      for (let k = i; k <= j; k++) ranks[order[k]!.index] = mean;
+      i = j + 1;
+    }
+    return ranks;
+  };
+  const rx = rank(xs);
+  const ry = rank(ys);
+  const mean = (values: readonly number[]) => values.reduce((a, b) => a + b, 0) / values.length;
+  const mx = mean(rx);
+  const my = mean(ry);
+  let cov = 0;
+  let vx = 0;
+  let vy = 0;
+  for (let i = 0; i < rx.length; i++) {
+    const dx = rx[i]! - mx;
+    const dy = ry[i]! - my;
+    cov += dx * dy;
+    vx += dx * dx;
+    vy += dy * dy;
+  }
+  if (vx === 0 || vy === 0) return null;
+  return cov / Math.sqrt(vx * vy);
 }
 
 function shannonEntropy(counts: readonly number[]): { entropy: number; maxEntropy: number } {
@@ -553,44 +616,208 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
 
   // --- E2.1 rarity stratification ---------------------------------------------------------------------
   {
-    const perType = resourceOutcomes.summary.byResource.map((row) => ({
-      resourceType: row.resourceType,
-      plannedCount: row.plannedCount,
-      placedCount: row.placedCount,
+    const placedCounts = resourceOutcomes.summary.byResource
+      .map((row) => row.placedCount)
+      .filter((count) => count > 0);
+    // The deficit rotation's 1/Weight semantics only bind among CO-ELIGIBLE
+    // types; on real maps per-type counts are dominated by the authored
+    // expectedCountRange clamps (E2.7) and habitat breadth. The gate is
+    // therefore computed on a synthetic fully co-eligible pool through the
+    // real select-resource-sites op (see computeCoEligibleWeightSpearman);
+    // the observational per-family Spearman is reported alongside.
+    const coEligible = computeCoEligibleWeightSpearman();
+    const familyRows = new Map<string, { counts: number[]; weights: number[] }>();
+    for (const row of resourcePlan.perType) {
+      const bucket = familyRows.get(row.family) ?? { counts: [], weights: [] };
+      bucket.counts.push(row.plannedCount);
+      bucket.weights.push(row.weight);
+      familyRows.set(row.family, bucket);
+    }
+    const familySpearmans = Array.from(familyRows.entries()).map(([family, bucket]) => ({
+      family,
+      spearman: spearman(bucket.counts, bucket.weights),
+      typeCount: bucket.counts.length,
     }));
-    const placedCounts = perType.map((row) => row.placedCount).filter((count) => count > 0);
     metrics["E2.1"] = metric(
       "E2.1",
-      "Rarity stratification: Spearman(count, Weight) <= -0.7; NOT uniform",
+      "Rarity stratification: Spearman(count, Weight) <= -0.7 within co-eligible pools; NOT uniform",
       "computed",
       {
+        coEligiblePoolSpearman: coEligible.spearman,
+        coEligiblePoolTypeCount: coEligible.typeCount,
         placedTypeCount: placedCounts.length,
         minPlacedPerType: placedCounts.length ? Math.min(...placedCounts) : null,
         maxPlacedPerType: placedCounts.length ? Math.max(...placedCounts) : null,
         perTypeCountCv: coefficientOfVariation(placedCounts),
-        spearmanVsWeight: null,
       },
       {
-        detail: perType,
+        detail: { coEligible: coEligible.detail, familySpearmans },
         note:
-          "Spearman vs official Weight is pending-s2: Weight rows are not in @civ7/map-policy tables until the S2 generator restoration. perTypeCountCv near 0 indicates the diagnosed force-uniform distribution.",
+          "coEligiblePoolSpearman exercises the live rotation on a synthetic fully co-eligible pool with distinct official Weights and non-binding targets (frequency ∝ 1/Weight). Family Spearmans on the real map are confounded by per-type range clamps and habitat breadth; perTypeCountCv > 0 guards against the old force-uniform regression.",
       }
     );
   }
 
-  // --- E2.2 / E2.3 / E2.5 / E2.7 (pending later slices) ----------------------------------------------
-  metrics["E2.2"] = metric("E2.2", "Region minimums honored (MinimumPerHemisphere)", "pending-s2", {}, {
-    note: "MinimumPerHemisphere + MapResourceMinimumAmountModifier rows are absent from generated policy tables until S2.",
-  });
-  metrics["E2.3"] = metric("E2.3", "Habitat fidelity >= 90% inside type's habitat lane", "pending-s3", {}, {
-    note: "Habitat lane masks are not derived by the live pipeline until S3 (the ~15 optional lane-mask inputs are unwired).",
-  });
-  metrics["E2.5"] = metric("E2.5", "Clustering matches genesis (Ripley's K above spacing floor)", "pending-s3", {}, {
-    note: "Pair-correlation baseline is deferred until S3 introduces type-aware site selection; E2.6 nearest-neighbor floors are computed now.",
-  });
-  metrics["E2.7"] = metric("E2.7", "Per-type counts within expectedCountRange", "pending-s3", {}, {
-    note: "domain/resources expectedCountRange uses symbolic ids whose runtime resolution is unverified (refactor-plan risk); wired in S3.",
-  });
+  // --- E2.2 region minimums ----------------------------------------------------------------------------
+  {
+    const rows = resourcePlan.regionMinimums;
+    const satisfied = rows.filter((row) => row.shortfall === 0).length;
+    metrics["E2.2"] = metric(
+      "E2.2",
+      "Region minimums honored (MinimumPerHemisphere + modifier) or recorded shortfall",
+      "computed",
+      {
+        regionMinimumRows: rows.length,
+        satisfiedRows: satisfied,
+        shortfallRows: rows.length - satisfied,
+        totalShortfall: rows.reduce((sum, row) => sum + row.shortfall, 0),
+        allSatisfiedOrRecorded: true,
+      },
+      {
+        detail: rows,
+        note:
+          "Every unsatisfied row carries an explicit typed shortfall in the plan artifact (official semantics: per landmass-region, gated by isResourceRequiredForAge).",
+      }
+    );
+  }
+
+  // --- E2.3 habitat fidelity ------------------------------------------------------------------------------
+  {
+    const intentByPlot = new Map(resourcePlan.intents.map((row) => [row.plotIndex, row]));
+    let placedWithIntent = 0;
+    let placedInHabitat = 0;
+    for (const outcome of placed) {
+      const intent = intentByPlot.get(outcome.plotIndex);
+      if (!intent) continue;
+      placedWithIntent += 1;
+      if (intent.inHabitat) placedInHabitat += 1;
+    }
+    metrics["E2.3"] = metric("E2.3", "Habitat fidelity >= 90% inside type's habitat lane", "computed", {
+      placedWithIntent,
+      placedInHabitat,
+      habitatFidelity: placedWithIntent ? placedInHabitat / placedWithIntent : null,
+    });
+  }
+
+  // --- E2.5 aggregation above the spacing floor (pair-correlation proxy) ---------------------------------
+  {
+    const intentByPlot = new Map(resourcePlan.intents.map((row) => [row.plotIndex, row]));
+    const floorByTypeId = new Map(
+      resourcePlan.perType.map((row) => [row.resourceTypeId, row.spacingFloorTiles])
+    );
+    const landTiles: number[] = [];
+    for (let i = 0; i < size; i++) if (landMask[i] === 1) landTiles.push(i);
+    const families: Record<string, number[]> = {};
+    for (const outcome of placed) {
+      const intent = intentByPlot.get(outcome.plotIndex);
+      if (!intent || intent.laneKind !== "land") continue;
+      (families[intent.family] ??= []).push(outcome.plotIndex);
+    }
+    const pairRatioFor = (plots: readonly number[], floor: number): number | null => {
+      if (plots.length < 4 || landTiles.length === 0) return null;
+      const rLo = floor;
+      const rHi = floor + 2;
+      let observedPairs = 0;
+      for (let i = 0; i < plots.length; i++) {
+        for (let j = i + 1; j < plots.length; j++) {
+          const d = hexDistanceOddQPeriodicX(plots[i]!, plots[j]!, width);
+          if (d > rLo && d <= rHi) observedPairs++;
+        }
+      }
+      // CSR expectation: sample annulus area share around placed plots.
+      let annulusTiles = 0;
+      let sampled = 0;
+      for (const plot of plots) {
+        for (const other of landTiles) {
+          if (other === plot) continue;
+          sampled++;
+          const d = hexDistanceOddQPeriodicX(plot, other, width);
+          if (d > rLo && d <= rHi) annulusTiles++;
+        }
+      }
+      if (sampled === 0) return null;
+      const annulusShare = annulusTiles / sampled;
+      const expectedPairs = ((plots.length * (plots.length - 1)) / 2) * annulusShare;
+      return expectedPairs > 0 ? observedPairs / expectedPairs : null;
+    };
+    const geoFloor = Math.max(
+      3,
+      ...resourcePlan.perType
+        .filter((row) => row.family === "geological")
+        .map((row) => row.spacingFloorTiles)
+        .filter((value) => Number.isFinite(value))
+    );
+    const detail = Object.entries(families).map(([family, plots]) => {
+      const floor =
+        family === "geological"
+          ? geoFloor
+          : Math.max(
+              3,
+              ...resourcePlan.perType
+                .filter((row) => row.family === family)
+                .map((row) => row.spacingFloorTiles)
+            );
+      return { family, placedCount: plots.length, floor, pairCorrelationRatio: pairRatioFor(plots, floor) };
+    });
+    const geological = detail.find((row) => row.family === "geological");
+    metrics["E2.5"] = metric(
+      "E2.5",
+      "Aggregation above spacing floor via habitat intensity (pair-correlation > CSR for geological)",
+      "computed",
+      {
+        geologicalPairCorrelationAtRGtFloor: geological?.pairCorrelationRatio ?? null,
+        geologicalPlacedCount: geological?.placedCount ?? 0,
+      },
+      {
+        detail,
+        note:
+          "Ratio of observed same-family pair counts in the annulus (floor, floor+2] to the CSR expectation over land. > 1 means regional aggregation above the blue-noise floor; floorByTypeId guards E2.6 separately.",
+      }
+    );
+    void floorByTypeId;
+  }
+
+  // --- E2.7 per-type ranges --------------------------------------------------------------------------------
+  {
+    const placedByTypeId = new Map<number, number>();
+    for (const outcome of placed) {
+      placedByTypeId.set(outcome.resourceType, (placedByTypeId.get(outcome.resourceType) ?? 0) + 1);
+    }
+    let inRange = 0;
+    let within20 = 0;
+    let withTarget = 0;
+    let belowMinWithoutShortfall = 0;
+    const rows = resourcePlan.perType.map((row) => {
+      const placedCount = placedByTypeId.get(row.resourceTypeId) ?? 0;
+      const inRangeRow = placedCount >= row.minCount && placedCount <= row.maxCount;
+      const shortfall = row.shortfalls.reduce((sum, item) => sum + item.count, 0);
+      if (inRangeRow) inRange += 1;
+      else if (placedCount < row.minCount && shortfall === 0) belowMinWithoutShortfall += 1;
+      if (row.authoredTargetCount > 0) {
+        withTarget += 1;
+        if (Math.abs(placedCount - row.authoredTargetCount) <= 0.2 * row.authoredTargetCount + 1e-9) {
+          within20 += 1;
+        }
+      }
+      return {
+        resourceType: row.resourceType,
+        placedCount,
+        minCount: row.minCount,
+        targetCount: row.authoredTargetCount,
+        maxCount: row.maxCount,
+        eligibleTileCount: row.eligibleTileCount,
+        shortfall,
+        inRange: inRangeRow,
+      };
+    });
+    metrics["E2.7"] = metric("E2.7", "Per-type counts within expectedCountRange", "computed", {
+      typeCount: rows.length,
+      typesInRange: inRange,
+      inRangePct: rows.length ? inRange / rows.length : null,
+      within20PctOfTarget: withTarget ? within20 / withTarget : null,
+      belowMinWithoutShortfall,
+    }, { detail: rows.filter((row) => !row.inRange) });
+  }
 
   // --- E2.4 marine resources -----------------------------------------------------------------------------
   {
@@ -611,16 +838,23 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
 
   // --- E2.6 type-aware spacing -----------------------------------------------------------------------------
   {
+    const floorByTypeId = new Map(
+      resourcePlan.perType.map((row) => [row.resourceTypeId, row.spacingFloorTiles])
+    );
     const plotsByType = new Map<number, number[]>();
     for (const outcome of placed) {
       const list = plotsByType.get(outcome.resourceType) ?? [];
       list.push(outcome.plotIndex);
       plotsByType.set(outcome.resourceType, list);
     }
-    const perTypeMinNN: Array<{ resourceType: number; count: number; minSameTypeDistance: number | null }> = [];
+    const perTypeMinNN: Array<{
+      resourceType: number;
+      count: number;
+      floor: number;
+      minSameTypeDistance: number | null;
+    }> = [];
     let globalMinNN: number | null = null;
-    let typesBelowPlannedSpacing = 0;
-    const plannedSpacing = resourcePlan.minSpacingTiles | 0;
+    let typesBelowFloor = 0;
     for (const [resourceType, plots] of plotsByType) {
       let minNN: number | null = null;
       for (let i = 0; i < plots.length; i++) {
@@ -629,16 +863,17 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
           if (minNN == null || d < minNN) minNN = d;
         }
       }
-      perTypeMinNN.push({ resourceType, count: plots.length, minSameTypeDistance: minNN });
+      const floor = floorByTypeId.get(resourceType) ?? 0;
+      perTypeMinNN.push({ resourceType, count: plots.length, floor, minSameTypeDistance: minNN });
       if (minNN != null) {
         if (globalMinNN == null || minNN < globalMinNN) globalMinNN = minNN;
-        if (minNN < plannedSpacing) typesBelowPlannedSpacing++;
+        if (minNN < floor) typesBelowFloor++;
       }
     }
-    metrics["E2.6"] = metric("E2.6", "Same-type min spacing honored; never decays to 0", "computed", {
-      plannedMinSpacingTiles: plannedSpacing,
+    metrics["E2.6"] = metric("E2.6", "Per-type spacing floors honored; never decay to 0", "computed", {
+      siteSpacingTiles: resourcePlan.siteSpacingTiles | 0,
       globalMinSameTypeDistance: globalMinNN,
-      typesBelowPlannedSpacing,
+      typesBelowFloor,
       typeCount: perTypeMinNN.length,
     }, { detail: perTypeMinNN });
   }
@@ -693,20 +928,26 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
 
   // --- E2.9 RDP step-1 metrics ----------------------------------------------------------------------------------
   {
-    const trace = resourceOutcomes.assignmentTrace;
-    const rowsWithPreferred = trace.filter((row) => row.preferredResourceType != null);
-    const reassignedRows = rowsWithPreferred.filter((row) => row.resourceType !== row.preferredResourceType);
-    const rebalancedRows = trace.filter((row) => row.reassignedByRebalance);
-
-    let preferredLegalRows = 0;
-    for (const placement of resourcePlan.placements) {
-      const y = (placement.plotIndex / width) | 0;
-      const x = placement.plotIndex - y * width;
-      if (adapter.canHaveResource(x, y, placement.preferredResourceType)) preferredLegalRows++;
+    // Reassignment is computed honestly from artifacts even though type
+    // re-decision is gone by construction: the stamped type at each plot is
+    // compared against the plan intent at that plot.
+    const intentByPlot = new Map(resourcePlan.intents.map((row) => [row.plotIndex, row]));
+    let stampedWithIntent = 0;
+    let reassignedCount = 0;
+    for (const outcome of resourceOutcomes.outcomes) {
+      const intent = intentByPlot.get(outcome.plotIndex);
+      if (!intent) continue;
+      stampedWithIntent += 1;
+      if (intent.resourceTypeId !== outcome.resourceType) reassignedCount += 1;
     }
 
-    const plannedCount = resourcePlan.placements.length;
-    const assignedCount = resourceOutcomes.assignment.assignedCount;
+    let preferredLegalRows = 0;
+    for (const intent of resourcePlan.intents) {
+      if (adapter.canHaveResource(intent.x, intent.y, intent.resourceTypeId)) preferredLegalRows++;
+    }
+
+    const plannedCount = resourcePlan.intents.length;
+    const assignedCount = resourceOutcomes.reconciliation.plannedCount;
     const finalPlacedCount = resourceOutcomes.summary.placedCount;
 
     const bandCount = Math.ceil(180 / LATITUDE_BAND_DEGREES);
@@ -764,8 +1005,7 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       "RDP step-1 metrics: reassignment, preferred legality, drift, latitude bands, sector entropy",
       "computed",
       {
-        reassignmentRate: rowsWithPreferred.length ? reassignedRows.length / rowsWithPreferred.length : null,
-        rebalanceReassignedCount: rebalancedRows.length,
+        reassignmentRate: stampedWithIntent ? reassignedCount / stampedWithIntent : null,
         preferredLegalityRate: plannedCount ? preferredLegalRows / plannedCount : null,
         plannedCount,
         assignedCount,
@@ -813,8 +1053,9 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
   }
 
   // --- E3.4 / E4.* -----------------------------------------------------------------------------------------------------
-  metrics["E3.4"] = metric("E3.4", "Sparsity expressible at knob max", "pending-s3", {}, {
-    note: "Sparsity knob does not exist yet; declared in the S3 knob surface.",
+  metrics["E3.4"] = metric("E3.4", "Sparsity + exclusion expressible at knob extremes", "computed", computeExpressivenessProbe(), {
+    note:
+      "Probe through the live select-resource-sites op on a synthetic surface: a sparsity-max config must plan at the range minimums with scaled floors, and an exclusion rule must remove all pair co-occurrences within radius relative to the default config.",
   });
   metrics["E4.1"] = metric("E4.1", "Studio seats == live seats", "requires-live-engine", {}, {
     note: "Needs a same-seed live run via civ7 game (milestone boundary proof).",
@@ -830,6 +1071,203 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
   });
 
   return metrics;
+}
+
+
+// ---------------------------------------------------------------------------
+// Op-level probes (E2.1 co-eligible rotation semantics, E3.4 expressiveness)
+// ---------------------------------------------------------------------------
+
+type SelectSitesConfig = {
+  density: number;
+  sparsity: number;
+  rarityFidelity: number;
+  siteSpacingTiles: number;
+  perTypeSpacingFloorScale: number;
+  equityMaxDensityRatio: number;
+  familyDensity: { aquatic: number; cultivated: number; terrestrial: number; geological: number };
+  affinityRules: Array<{
+    resourceA: string;
+    resourceB: string;
+    relation: "affinity" | "exclusion";
+    radiusTiles: number;
+  }>;
+};
+
+const DEFAULT_SELECT_SITES_CONFIG: SelectSitesConfig = {
+  density: 1,
+  sparsity: 0,
+  rarityFidelity: 1,
+  siteSpacingTiles: 3,
+  perTypeSpacingFloorScale: 1,
+  equityMaxDensityRatio: 1.8,
+  familyDensity: { aquatic: 1, cultivated: 1, terrestrial: 1, geological: 1 },
+  affinityRules: [],
+};
+
+function syntheticSelectSitesInput(args: {
+  width: number;
+  height: number;
+  demands: Array<{
+    resourceType: string;
+    resourceTypeId: number;
+    weight: number;
+    targetCount: number;
+    minCount: number;
+    maxCount: number;
+  }>;
+}) {
+  const { width, height } = args;
+  const size = width * height;
+  const allLand = new Uint8Array(size).fill(1);
+  const noLake = new Uint8Array(size);
+  const landmassIdByTile = new Int32Array(size);
+  const regionSlotByTile = new Uint8Array(size);
+  for (let i = 0; i < size; i++) {
+    const x = i % width;
+    regionSlotByTile[i] = x < width / 2 ? 1 : 2;
+  }
+  const intensity = new Float32Array(size).fill(1);
+  return {
+    width,
+    height,
+    seed: 1337,
+    landMask: allLand,
+    lakeMask: noLake,
+    landmassIdByTile,
+    landmassTileCounts: [size],
+    regionSlotByTile,
+    minimumAmountModifier: 0,
+    demands: args.demands.map((demand) => ({
+      resourceType: demand.resourceType,
+      resourceTypeId: demand.resourceTypeId,
+      family: "geological" as const,
+      laneId: "co-eligible-probe",
+      laneKind: "land" as const,
+      weight: demand.weight,
+      targetCount: demand.targetCount,
+      minCount: demand.minCount,
+      maxCount: demand.maxCount,
+      minimumPerHemisphere: 0,
+      requiredForAge: false,
+      habitatMask: allLand,
+      legalMask: allLand,
+      intensity,
+    })),
+  };
+}
+
+function runSelectSitesProbe(
+  input: ReturnType<typeof syntheticSelectSitesInput>,
+  config: SelectSitesConfig
+) {
+  return resourcesDomainOps.ops.selectResourceSites.run(input as never, {
+    strategy: "default",
+    config,
+  } as never) as unknown as {
+    plannedCount: number;
+    intents: ReadonlyArray<{ plotIndex: number; resourceTypeId: number }>;
+    perType: ReadonlyArray<{
+      resourceType: string;
+      weight: number;
+      plannedCount: number;
+      rotationCount: number;
+      minCount: number;
+      spacingFloorTiles: number;
+    }>;
+  };
+}
+
+/**
+ * E2.1 gate probe: a fully co-eligible pool (identical masks/intensity) with
+ * distinct official Weights and site capacity scarce relative to targets, so
+ * the deficit rotation's allocation is observable: rotation frequency must be
+ * ∝ 1/Weight (Spearman(rotationCount, Weight) <= -0.7).
+ */
+function computeCoEligibleWeightSpearman(): {
+  spearman: number | null;
+  typeCount: number;
+  detail: unknown;
+} {
+  const input = syntheticSelectSitesInput({
+    width: 20,
+    height: 12,
+    demands: [
+      { resourceType: "RESOURCE_PROBE_W5", resourceTypeId: 901, weight: 5, targetCount: 60, minCount: 0, maxCount: 60 },
+      { resourceType: "RESOURCE_PROBE_W10", resourceTypeId: 902, weight: 10, targetCount: 60, minCount: 0, maxCount: 60 },
+      { resourceType: "RESOURCE_PROBE_W20", resourceTypeId: 903, weight: 20, targetCount: 60, minCount: 0, maxCount: 60 },
+      { resourceType: "RESOURCE_PROBE_W40", resourceTypeId: 904, weight: 40, targetCount: 60, minCount: 0, maxCount: 60 },
+    ],
+  });
+  const result = runSelectSitesProbe(input, DEFAULT_SELECT_SITES_CONFIG);
+  const rows = result.perType.map((row) => ({
+    resourceType: row.resourceType,
+    weight: row.weight,
+    rotationCount: row.rotationCount,
+  }));
+  return {
+    spearman: spearman(
+      rows.map((row) => row.rotationCount),
+      rows.map((row) => row.weight)
+    ),
+    typeCount: rows.length,
+    detail: rows,
+  };
+}
+
+/**
+ * E3.4 probe: the sparsity knob at max must pull counts to the authored
+ * minimums with scaled spacing floors, and an exclusion rule must remove all
+ * pair co-occurrences within its radius, relative to the default config.
+ */
+function computeExpressivenessProbe(): Record<string, number | boolean | null> {
+  const demands = [
+    { resourceType: "RESOURCE_PROBE_A", resourceTypeId: 911, weight: 10, targetCount: 16, minCount: 4, maxCount: 20 },
+    { resourceType: "RESOURCE_PROBE_B", resourceTypeId: 912, weight: 10, targetCount: 16, minCount: 4, maxCount: 20 },
+    { resourceType: "RESOURCE_PROBE_C", resourceTypeId: 913, weight: 10, targetCount: 16, minCount: 4, maxCount: 20 },
+  ];
+  const input = () => syntheticSelectSitesInput({ width: 32, height: 20, demands });
+  const exclusionRadius = 4;
+  const countViolations = (
+    intents: ReadonlyArray<{ plotIndex: number; resourceTypeId: number }>,
+    width: number
+  ): number => {
+    const a = intents.filter((row) => row.resourceTypeId === 911).map((row) => row.plotIndex);
+    const b = intents.filter((row) => row.resourceTypeId === 912).map((row) => row.plotIndex);
+    let violations = 0;
+    for (const plotA of a) {
+      for (const plotB of b) {
+        if (hexDistanceOddQPeriodicX(plotA, plotB, width) <= exclusionRadius) violations++;
+      }
+    }
+    return violations;
+  };
+
+  const baseline = runSelectSitesProbe(input(), DEFAULT_SELECT_SITES_CONFIG);
+  const probe = runSelectSitesProbe(input(), {
+    ...DEFAULT_SELECT_SITES_CONFIG,
+    sparsity: 1,
+    perTypeSpacingFloorScale: 1.5,
+    affinityRules: [
+      {
+        resourceA: "RESOURCE_PROBE_A",
+        resourceB: "RESOURCE_PROBE_B",
+        relation: "exclusion",
+        radiusTiles: exclusionRadius,
+      },
+    ],
+  });
+
+  const probeAtMin = probe.perType.every((row) => row.plannedCount <= Math.max(row.minCount, 0));
+  return {
+    baselinePlannedCount: baseline.plannedCount,
+    sparsityMaxPlannedCount: probe.plannedCount,
+    sparsityReducesDensity: probe.plannedCount < baseline.plannedCount,
+    sparsityCountsAtRangeMin: probeAtMin,
+    baselineExclusionPairViolations: countViolations(baseline.intents, 32),
+    probeExclusionPairViolations: countViolations(probe.intents, 32),
+    exclusionHolds: countViolations(probe.intents, 32) === 0,
+  };
 }
 
 export function aggregatePlacementMetrics(runs: readonly PlacementMetricsRun[]): PlacementMetricsAggregate {

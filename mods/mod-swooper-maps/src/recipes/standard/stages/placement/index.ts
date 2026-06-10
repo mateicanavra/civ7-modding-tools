@@ -7,6 +7,7 @@ import {
   placeNaturalWonders,
   placeResources,
   placement,
+  planResources,
   plotLandmassRegions,
   preparePlacementSurface,
 } from "./steps/index.js";
@@ -31,6 +32,7 @@ export default createStage({
     plotLandmassRegions,
     placeNaturalWonders,
     preparePlacementSurface,
+    planResources,
     placeResources,
     assignStarts,
     placeDiscoveries,

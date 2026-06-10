@@ -249,7 +249,7 @@ export type ResourceDeltaPlacementContext = Readonly<{
   plannedPreferredResourceType: number | null;
   plannedPreferredResourceSymbol: string;
   localOutcome: ResourcePlacementOutcomeContext | null;
-  assignmentTrace: ResourceAssignmentTraceContext | null;
+  planIntent: ResourcePlanIntentContext | null;
   resourceNeighborhood: ResourceDeltaNeighborhoodContext;
   evidenceClass:
     | "local-assigned-live-empty"
@@ -465,19 +465,15 @@ export type ResourcePlacementOutcomeContext = Readonly<{
   reason: string | null;
 }>;
 
-export type ResourceAssignmentTraceContext = Readonly<{
+export type ResourcePlanIntentContext = Readonly<{
   resourceType: number;
   resourceSymbol: string;
-  initialResourceType: number;
-  initialResourceSymbol: string;
-  preferredResourceType: number | null;
-  preferredResourceSymbol: string;
-  assignmentPhase: string;
-  reassignedByRebalance: boolean;
-  assignmentOrder: number | null;
-  perTypeCountBefore: number | null;
-  legalPlotCountForResource: number | null;
-  targetMinPerType: number | null;
+  resourceTypeName: string | null;
+  phase: string;
+  family: string | null;
+  laneId: string | null;
+  inHabitat: boolean | null;
+  order: number | null;
 }>;
 
 export type CellSurfaceContext = Readonly<{
@@ -749,7 +745,7 @@ export function buildResourceDeltaPlacementContexts(
   const maxRows = options.maxRows ?? Number.POSITIVE_INFINITY;
   const resourcePlan = readResourcePlanEvidence(proof.local.evidence);
   const outcomes = readResourceOutcomeEvidence(proof.local.evidence);
-  const assignmentTrace = readResourceAssignmentTraceEvidence(proof.local.evidence);
+  const planIntents = readResourcePlanIntentEvidence(proof.local.evidence);
   const rows: ResourceDeltaPlacementContext[] = [];
   const localValues = proof.local.surfaces.resource.values;
   const liveValues = proof.live.surfaces.resource.values;
@@ -796,7 +792,7 @@ export function buildResourceDeltaPlacementContexts(
       plannedPreferredResourceType,
       plannedPreferredResourceSymbol: symbolFor("resource", plannedPreferredResourceType),
       localOutcome,
-      assignmentTrace: assignmentTrace.byPlot.get(index) ?? null,
+      planIntent: planIntents.byPlot.get(index) ?? null,
       resourceNeighborhood: {
         minSpacingTiles: resourcePlan.minSpacingTiles,
         localResourceOnLocal:
@@ -1802,16 +1798,18 @@ function readResourcePlanEvidence(evidence: unknown): {
 } {
   const preferredByPlot = new Map<number, number>();
   const plan = isRecord(evidence) ? evidence.resourcePlan : undefined;
-  const placements = isRecord(plan) && Array.isArray(plan.placements) ? plan.placements : [];
-  const minSpacingTiles = isRecord(plan) ? finiteInteger(plan.minSpacingTiles) : null;
-  for (const placement of placements) {
-    if (!isRecord(placement)) continue;
-    const plotIndex = finiteInteger(placement.plotIndex);
-    const preferredResourceType = finiteInteger(placement.preferredResourceType);
-    if (plotIndex === null || preferredResourceType === null || preferredByPlot.has(plotIndex)) {
+  // S3 plan shape: typed per-plot intents (plan authority); the planned type
+  // IS the stamped type, so "preferred" == planned resourceTypeId.
+  const intents = isRecord(plan) && Array.isArray(plan.intents) ? plan.intents : [];
+  const minSpacingTiles = isRecord(plan) ? finiteInteger(plan.siteSpacingTiles) : null;
+  for (const intent of intents) {
+    if (!isRecord(intent)) continue;
+    const plotIndex = finiteInteger(intent.plotIndex);
+    const resourceTypeId = finiteInteger(intent.resourceTypeId);
+    if (plotIndex === null || resourceTypeId === null || preferredByPlot.has(plotIndex)) {
       continue;
     }
-    preferredByPlot.set(plotIndex, preferredResourceType);
+    preferredByPlot.set(plotIndex, resourceTypeId);
   }
   return { preferredByPlot, minSpacingTiles };
 }
@@ -1845,44 +1843,28 @@ function readResourceOutcomeEvidence(evidence: unknown): {
   return { byPlot };
 }
 
-function readResourceAssignmentTraceEvidence(evidence: unknown): {
-  byPlot: ReadonlyMap<number, ResourceAssignmentTraceContext>;
+function readResourcePlanIntentEvidence(evidence: unknown): {
+  byPlot: ReadonlyMap<number, ResourcePlanIntentContext>;
 } {
-  const byPlot = new Map<number, ResourceAssignmentTraceContext>();
-  const resourcePlacementOutcomes = isRecord(evidence)
-    ? evidence.resourcePlacementOutcomes
-    : undefined;
-  const trace =
-    isRecord(resourcePlacementOutcomes) && Array.isArray(resourcePlacementOutcomes.assignmentTrace)
-      ? resourcePlacementOutcomes.assignmentTrace
-      : [];
-  for (const row of trace) {
+  const byPlot = new Map<number, ResourcePlanIntentContext>();
+  const plan = isRecord(evidence) ? evidence.resourcePlan : undefined;
+  const intents = isRecord(plan) && Array.isArray(plan.intents) ? plan.intents : [];
+  for (const row of intents) {
     if (!isRecord(row)) continue;
     const plotIndex = finiteInteger(row.plotIndex);
-    const resourceType = finiteInteger(row.resourceType);
-    const initialResourceType = finiteInteger(row.initialResourceType);
-    if (
-      plotIndex === null ||
-      resourceType === null ||
-      initialResourceType === null ||
-      byPlot.has(plotIndex)
-    ) {
+    const resourceType = finiteInteger(row.resourceTypeId);
+    if (plotIndex === null || resourceType === null || byPlot.has(plotIndex)) {
       continue;
     }
-    const preferredResourceType = finiteInteger(row.preferredResourceType);
     byPlot.set(plotIndex, {
       resourceType,
       resourceSymbol: symbolFor("resource", resourceType),
-      initialResourceType,
-      initialResourceSymbol: symbolFor("resource", initialResourceType),
-      preferredResourceType,
-      preferredResourceSymbol: symbolFor("resource", preferredResourceType),
-      assignmentPhase: typeof row.assignmentPhase === "string" ? row.assignmentPhase : "unknown",
-      reassignedByRebalance: row.reassignedByRebalance === true,
-      assignmentOrder: finiteInteger(row.assignmentOrder),
-      perTypeCountBefore: finiteInteger(row.perTypeCountBefore),
-      legalPlotCountForResource: finiteInteger(row.legalPlotCountForResource),
-      targetMinPerType: finiteInteger(row.targetMinPerType),
+      resourceTypeName: typeof row.resourceType === "string" ? row.resourceType : null,
+      phase: typeof row.phase === "string" ? row.phase : "unknown",
+      family: typeof row.family === "string" ? row.family : null,
+      laneId: typeof row.laneId === "string" ? row.laneId : null,
+      inHabitat: typeof row.inHabitat === "boolean" ? row.inHabitat : null,
+      order: finiteInteger(row.order),
     });
   }
   return { byPlot };

@@ -1,7 +1,29 @@
-import { Type } from "@swooper/mapgen-core/authoring";
+import { Type, type TSchema } from "@swooper/mapgen-core/authoring";
+import resources from "@mapgen/domain/resources";
 
 function defaultEnvelope(config: unknown): { strategy: "default"; config: unknown } {
   return { strategy: "default", config: config ?? {} };
+}
+
+/**
+ * Derives a public schema from an op's default strategy config schema
+ * (foundation pattern) instead of hand-shadowing the op fields.
+ */
+function defaultStrategyConfigSchema(opConfig: TSchema, description: string): TSchema {
+  const variants = (opConfig as { anyOf?: unknown[] }).anyOf ?? [];
+  const variant = variants.find((candidate) => {
+    const strategy = (candidate as { properties?: { strategy?: { const?: unknown } } }).properties
+      ?.strategy;
+    return strategy?.const === "default";
+  }) as { properties?: { config?: TSchema } } | undefined;
+  const config = variant?.properties?.config;
+  if (!config) {
+    throw new Error("Placement public schema expected a default strategy config schema.");
+  }
+  return Type.Unsafe({
+    ...(config as Record<string, unknown>),
+    description,
+  });
 }
 
 export const PlacementKnobsSchema = Type.Object(
@@ -60,41 +82,9 @@ export const PlacementDiscoveriesSchema = Type.Object(
   }
 );
 
-export const PlacementResourcesSchema = Type.Object(
-  {
-    densityPer100Tiles: Type.Optional(
-      Type.Number({
-        default: 9,
-        minimum: 0,
-        maximum: 50,
-        description:
-          "Sets target resource density per 100 land tiles; higher values plan more typed resource intents before engine legality reconciliation.",
-      })
-    ),
-    minSpacingTiles: Type.Optional(
-      Type.Integer({
-        default: 2,
-        minimum: 0,
-        maximum: 8,
-        description:
-          "Sets the minimum odd-q hex spacing between planned resources; higher values spread resources farther apart and can lower final placements.",
-      })
-    ),
-    maxPlacementsPerResourceShare: Type.Optional(
-      Type.Number({
-        default: 0.3,
-        minimum: 0.05,
-        maximum: 1,
-        description:
-          "Caps the share of planned resource placements that any single resource type may claim, preserving variety when the adapter catalog is broad enough.",
-      })
-    ),
-  },
-  {
-    additionalProperties: false,
-    description:
-      "Resource placement controls for density, spacing, and type variety. Resource type candidates come from the Civ7 adapter catalog filtered by the resource-domain initial-map authoring policy, not authored config.",
-  }
+export const PlacementResourcesSchema = defaultStrategyConfigSchema(
+  resources.ops.selectResourceSites.config,
+  "Resource site-selection controls: density and sparsity scaling within authored per-type ranges, official-Weight rarity fidelity, blue-noise site spacing, per-type spacing-floor scaling, per-landmass equity ceiling, per-family density overrides, and resource-resource affinity/exclusion rules. Per-type targets come from the resource-domain earthlike expectation corpus, not authored config."
 );
 
 export const PlacementStartsSchema = Type.Object(
@@ -239,11 +229,13 @@ export function compilePlacementPublicConfig(config: Record<string, unknown>) {
       wonders: defaultEnvelope({}),
       naturalWonders: defaultEnvelope(config.naturalWonders),
       discoveries: defaultEnvelope(config.discoveries),
-      resources: defaultEnvelope(config.resources),
     },
     "plot-landmass-regions": {},
     "place-natural-wonders": {},
     "prepare-placement-surface": {},
+    "plan-resources": {
+      selectSites: defaultEnvelope(config.resources),
+    },
     "place-resources": {},
     "assign-starts": {
       starts: defaultEnvelope({
