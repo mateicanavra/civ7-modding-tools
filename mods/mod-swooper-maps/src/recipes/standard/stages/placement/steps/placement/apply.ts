@@ -2,13 +2,14 @@ import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
-import type { NaturalWonderStampingStats } from "../place-natural-wonders/materialize.js";
-import { normalizeNaturalWonderStampingStats } from "../place-natural-wonders/materialize.js";
 import { logAsciiMap, logTerrainStats } from "../terrain-diagnostics.js";
 import type { PlacementOutputsV1 } from "../../placement-outputs.js";
 
 type LandmassRegionSlotByTile = Static<
   (typeof import("../../../../map-artifacts.js").mapArtifacts)["landmassRegionSlotByTile"]["schema"]
+>;
+type NaturalWonderPlacement = Static<
+  (typeof import("../../artifacts.js").placementArtifacts)["naturalWonderPlacement"]["schema"]
 >;
 type EngineTerrainSnapshot = Static<
   (typeof import("../../../../map-artifacts.js").mapArtifacts)["placementEngineTerrainSnapshot"]["schema"]
@@ -34,7 +35,7 @@ type StartAssignment = Static<
 
 type ApplyPlacementArgs = {
   context: ExtendedMapContext;
-  naturalWonderPlacement: DeepReadonly<NaturalWonderStampingStats>;
+  naturalWonderPlacement: DeepReadonly<NaturalWonderPlacement>;
   surfacePreparation: DeepReadonly<PlacementSurfacePreparation>;
   resourcePlacement: DeepReadonly<ResourcePlacementOutcomes>;
   startAssignment: DeepReadonly<StartAssignment>;
@@ -82,7 +83,9 @@ export function applyPlacementPlan({
   emit({ type: "placement.start", message: "[SWOOPER_MOD] === placement summary ===" });
   emit({ type: "placement.start", message: `[SWOOPER_MOD] Map size: ${width}x${height}` });
 
-  const wonderStamping = normalizeNaturalWonderStampingStats(naturalWonderPlacement);
+  // The wonder placement artifact is validated at its publish site; this
+  // terminal step consumes it directly instead of re-normalizing it through a
+  // cross-step helper import.
   const slotByTile = landmassRegionSlotByTile.slotByTile;
   const slotCounts = surfacePreparation.slotCounts;
   const resourcesPlaced = resourcePlacement.summary.placedCount;
@@ -110,6 +113,10 @@ export function applyPlacementPlan({
   logTerrainStats(trace, adapter, width, height, "Final");
   logAsciiMap(trace, adapter, width, height);
 
+  // DECLARED physics-buffer parity read: comparing the Morphology physics
+  // land mask against the engine surface is the purpose of this snapshot
+  // (waterDriftCount evidence), so the heightfield buffer — not the engine —
+  // is the intended comparison source here.
   const physics = context.buffers.heightfield;
   const engineSnapshot = snapshotEngineHeightfield(context);
   const engineLandMask = engineSnapshot
@@ -154,8 +161,8 @@ export function applyPlacementPlan({
     resourcesAttempted: true,
     resourcesPlaced,
     waterDriftCount,
-    wondersPlanned: wonderStamping.plannedCount,
-    wondersPlaced: wonderStamping.placedCount,
+    wondersPlanned: naturalWonderPlacement.plannedCount,
+    wondersPlaced: naturalWonderPlacement.placedCount,
     discoveriesPlanned,
     discoveriesPlaced,
   });
@@ -163,8 +170,8 @@ export function applyPlacementPlan({
   emit({
     type: "placement.parity",
     slotCounts,
-    wondersPlanned: wonderStamping.plannedCount,
-    wondersPlaced: wonderStamping.placedCount,
+    wondersPlanned: naturalWonderPlacement.plannedCount,
+    wondersPlaced: naturalWonderPlacement.placedCount,
     resourcesAttempted: true,
     resourcesPlaced,
     discoveriesPlanned,
@@ -174,9 +181,7 @@ export function applyPlacementPlan({
   });
 
   return publishOutputs({
-    naturalWondersCount: wonderStamping.placedCount,
-    floodplainsCount: 0,
-    snowTilesCount: 0,
+    naturalWondersCount: naturalWonderPlacement.placedCount,
     resourcesCount: resourcesPlaced,
     startsAssigned,
     discoveriesCount: discoveriesPlaced,

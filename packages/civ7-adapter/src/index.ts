@@ -29,6 +29,7 @@ export type {
   LandmassIdName,
   VoronoiUtils,
   DiscoveryCatalogEntry,
+  ResourceCatalogEntry,
   ResourcePlacementIntent,
   ResourcePlacementOutcome,
   ResourcePlacementRejectionReason,

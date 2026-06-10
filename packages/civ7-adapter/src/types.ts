@@ -27,6 +27,18 @@ export interface DiscoveryCatalogEntry {
 }
 
 /**
+ * Runtime resource catalog row used to enrich placement telemetry with
+ * symbolic resource names. The live adapter reads GameInfo.Resources; the
+ * mock adapter serves the static policy-table catalog.
+ */
+export interface ResourceCatalogEntry {
+  index: number;
+  resourceType: string;
+  resourceClassType: string | null;
+  name: string | null;
+}
+
+/**
  * Named resource rejection reasons keep placement reconciliation auditable.
  * MapGen owns the deterministic intent; the adapter owns Civ7 feasibility and
  * readback evidence instead of hiding drift behind aggregate generator counts.
@@ -454,6 +466,13 @@ export interface EngineAdapter {
 
   /** Adapter-owned placeable resource type catalog used by deterministic placement. */
   getPlaceableResourceTypes(): number[];
+
+  /**
+   * Adapter-owned symbolic resource catalog (id, RESOURCE_* type, class,
+   * display name) used by placement telemetry. Keeps GameInfo access at the
+   * adapter boundary instead of recipe-layer globalThis reads.
+   */
+  getResourceCatalog(): ResourceCatalogEntry[];
 
   /**
    * Materialize one planned resource intent and report a typed per-tile outcome.

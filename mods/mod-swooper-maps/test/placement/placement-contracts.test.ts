@@ -60,7 +60,9 @@ describe("placement product/effect contracts", () => {
     expect(preparePlacementSurfaceStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced
     );
-    expect(preparePlacementSurfaceStep.contract.artifacts.requires).toContain(
+    // S6: ordering after the wonder stamp is tag-only; the step declares no
+    // read-and-discard artifact requirement on the wonder evidence.
+    expect(preparePlacementSurfaceStep.contract.artifacts.requires).not.toContain(
       placementArtifacts.naturalWonderPlacement
     );
   });
@@ -182,8 +184,13 @@ describe("placement product/effect contracts", () => {
     const placementSources = listSourceFiles(PLACEMENT_STEPS_DIR)
       .map((file) => ({ file, source: readFileSync(file, "utf8") }))
       .filter(({ file }) => !file.endsWith("/placement-contracts.test.ts"));
+    // S6: artifact contracts are one-per-file under artifacts/contract/;
+    // the start-assignment contract carries the per-seat record schema.
     const artifactSource = readFileSync(
-      join(import.meta.dir, "../../src/recipes/standard/stages/placement/artifacts.ts"),
+      join(
+        import.meta.dir,
+        "../../src/recipes/standard/stages/placement/artifacts/contract/start-assignment.contract.ts"
+      ),
       "utf8"
     );
 

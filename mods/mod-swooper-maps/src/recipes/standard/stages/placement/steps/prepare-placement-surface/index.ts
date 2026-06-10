@@ -1,11 +1,14 @@
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { normalizeNaturalWonderStampingStats } from "../place-natural-wonders/materialize.js";
 import { runPlacementProductStep } from "../product-runtime.js";
 import { logTerrainStats } from "../terrain-diagnostics.js";
 import { applyLandmassRegionSlots } from "./landmass-regions.js";
 import { readFinalLakeProjection } from "./lake-readback.js";
 import { readTerrainValidationBoundarySnapshot } from "./terrain-validation-readback.js";
+import {
+  validatePlacementSurfacePreparationArtifact,
+  validatePlacementSurfaceValidationBoundaryArtifact,
+} from "./validate.js";
 import { placementArtifacts } from "../../artifacts.js";
 import { mapArtifacts } from "../../../../map-artifacts.js";
 import PreparePlacementSurfaceStepContract from "./contract.js";
@@ -14,12 +17,15 @@ export default createStep(PreparePlacementSurfaceStepContract, {
   artifacts: implementArtifacts(
     [placementArtifacts.placementSurfacePreparation, mapArtifacts.placementSurfaceValidationBoundary],
     {
-      placementSurfacePreparation: {},
-      placementSurfaceValidationBoundary: {},
+      placementSurfacePreparation: {
+        validate: (value) => validatePlacementSurfacePreparationArtifact(value),
+      },
+      placementSurfaceValidationBoundary: {
+        validate: (value) => validatePlacementSurfaceValidationBoundaryArtifact(value),
+      },
     }
   ),
   run: (context, _config, _ops, deps) => {
-    const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
     const engineProjectionLakes = deps.artifacts.engineProjectionLakes.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const { adapter, trace } = context;
@@ -30,9 +36,6 @@ export default createStep(PreparePlacementSurfaceStepContract, {
       trace.event(() => payload);
     };
 
-    // Natural wonder evidence is required before maintenance runs so this step
-    // cannot become a hidden second chance to stamp product intent.
-    normalizeNaturalWonderStampingStats(naturalWonderPlacement);
     logTerrainStats(trace, adapter, width, height, "Initial");
 
     const beforeValidate = readTerrainValidationBoundarySnapshot(

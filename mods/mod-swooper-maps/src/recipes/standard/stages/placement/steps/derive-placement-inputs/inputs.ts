@@ -1,5 +1,5 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import type { DeepReadonly, Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
+import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import type { DiscoveryCatalogEntry } from "@civ7/adapter";
 import {
   CIV7_BROWSER_TABLES_V0,
@@ -14,8 +14,8 @@ import DerivePlacementInputsContract from "./contract.js";
 
 type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsContract.schema>;
 type DerivePlacementInputsOps = StepRuntimeOps<NonNullable<typeof DerivePlacementInputsContract.ops>>;
-type PlanStartsBase = Static<typeof placement.ops.planStarts["input"]["properties"]["baseStarts"]>;
-type PlanWondersOutput = Static<typeof placement.ops.planWonders["output"]>;
+type PlanNaturalWondersOutput = Static<typeof placement.ops.planNaturalWonders["output"]>;
+type PlanDiscoveriesOutput = Static<typeof placement.ops.planDiscoveries["output"]>;
 
 const FEATURE_VALID_TERRAIN_TYPE_INDICES =
   CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as Record<
@@ -42,10 +42,10 @@ const FEATURE_TAGS_BY_FEATURE_TYPE = CIV7_BROWSER_TABLES_V0.featureTagsByFeature
   readonly string[] | undefined
 >;
 
-export type PlacementPlanBundle = {
-  artifact: DeepReadonly<PlacementInputsV1>;
-  starts: DeepReadonly<PlanStartsBase>;
-  wonders: DeepReadonly<PlanWondersOutput>;
+export type PlacementInputsBuildResult = {
+  inputs: PlacementInputsV1;
+  naturalWonderPlan: PlanNaturalWondersOutput;
+  discoveryPlan: PlanDiscoveriesOutput;
 };
 
 function sanitizeDiscoveryCandidates(values: DiscoveryCatalogEntry[]): DiscoveryCatalogEntry[] {
@@ -71,24 +71,60 @@ function sanitizeDiscoveryCandidates(values: DiscoveryCatalogEntry[]): Discovery
   return candidates;
 }
 
-function readEngineSurface(context: ExtendedMapContext): {
-  terrainType: Uint8Array;
-  biomeType: Uint8Array;
-  featureType: Int16Array;
-} {
+/**
+ * DECLARED engine-surface read (ADR-009): per-tile terrain for natural-wonder
+ * planning. Terrain is the one wonder-planning field that cannot be
+ * reconstructed from pipeline artifacts — `validateAndFixTerrain` runs inside
+ * the features projection step and applies engine-only terrain maintenance
+ * (e.g. coast materialization) after every artifact-published terrain intent.
+ * This mirrors the declared resource legality surface read in plan-resources:
+ * the planner must see exactly what the stamp-time engine oracle will see.
+ * Biome and feature surfaces ARE artifact/field-reconstructed (see
+ * buildPlacementInputs); terrain stays a declared readback, not a silent one.
+ */
+function readDeclaredEngineTerrainSurface(context: ExtendedMapContext): Uint8Array {
   const { width, height } = context.dimensions;
   const size = width * height;
   const terrainType = new Uint8Array(size);
-  const biomeType = new Uint8Array(size);
-  const featureType = new Int16Array(size);
   for (let i = 0; i < size; i++) {
     const y = (i / width) | 0;
     const x = i - y * width;
     terrainType[i] = Math.max(0, context.adapter.getTerrainType(x, y) | 0);
-    biomeType[i] = Math.max(0, context.adapter.getBiomeType(x, y) | 0);
-    featureType[i] = context.adapter.getFeatureType(x, y) | 0;
   }
-  return { terrainType, biomeType, featureType };
+  return terrainType;
+}
+
+/**
+ * Engine biome surface reconstructed from the ecology biomeBindings artifact.
+ * `plot-biomes` stamps exactly `engineBiomeId` per tile and nothing rebinds
+ * biomes between that projection and placement planning, so the artifact is
+ * the engine biome surface without a readback.
+ */
+function buildEngineBiomeSurface(engineBiomeId: Uint16Array, size: number): Uint8Array {
+  if (engineBiomeId.length !== size) {
+    throw new Error(
+      `[Placement] biomeBindings.engineBiomeId length ${engineBiomeId.length} != map size ${size}.`
+    );
+  }
+  const biomeType = new Uint8Array(size);
+  for (let i = 0; i < size; i++) {
+    biomeType[i] = engineBiomeId[i] ?? 0;
+  }
+  return biomeType;
+}
+
+/**
+ * Engine feature surface from the declared `field:featureType` dependency.
+ * The features projection step reifies the engine feature surface into this
+ * field after stamping + terrain validation, so placement planning consumes a
+ * declared field edge instead of an undeclared per-tile adapter readback.
+ */
+function readDeclaredFeatureField(context: ExtendedMapContext, size: number): Int16Array {
+  const featureType = context.fields?.featureType;
+  if (!(featureType instanceof Int16Array) || featureType.length !== size) {
+    throw new Error("[Placement] Missing or invalid field:featureType for placement planning.");
+  }
+  return featureType;
 }
 
 function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Array {
@@ -104,7 +140,7 @@ function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Arra
   return mask;
 }
 
-/** Builds placement inputs from map info, authored config, and adapter-owned catalogs. */
+/** Builds placement inputs from map info, authored config, adapter-owned catalogs, and pipeline artifacts. */
 export function buildPlacementInputs(
   context: ExtendedMapContext,
   config: DerivePlacementInputsConfig,
@@ -112,6 +148,7 @@ export function buildPlacementInputs(
   physical: {
     topography: {
       landMask: Uint8Array;
+      elevation: Int16Array;
     };
     hydrography: {
       riverClass: Uint8Array;
@@ -124,13 +161,17 @@ export function buildPlacementInputs(
       surfaceTemperature: Float32Array;
       aridityIndex: Float32Array;
     };
+    biomeBindings: {
+      engineBiomeId: Uint16Array;
+    };
     pedology: {
       fertility: Float32Array;
     };
   }
-): PlacementInputsV1 {
+): PlacementInputsBuildResult {
   const runtime = getStandardRuntime(context);
   const { width, height } = context.dimensions;
+  const size = width * height;
   const baseStarts = {
     playersLandmass1: runtime.playersLandmass1,
     playersLandmass2: runtime.playersLandmass2,
@@ -166,7 +207,12 @@ export function buildPlacementInputs(
     ];
   });
   const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
-  const engineSurface = readEngineSurface(context);
+  const terrainType = readDeclaredEngineTerrainSurface(context);
+  const biomeType = buildEngineBiomeSurface(
+    physical.biomeBindings.engineBiomeId as Uint16Array,
+    size
+  );
+  const featureType = readDeclaredFeatureField(context, size);
   const naturalWonderBlockedMask = buildNaturalWonderBlockedMask(width, height);
   const naturalWonderPlan = ops.naturalWonders(
     {
@@ -174,16 +220,16 @@ export function buildPlacementInputs(
       height,
       wondersCount: wondersPlan.wondersCount,
       landMask: physical.topography.landMask,
-      elevation: context.buffers.heightfield.elevation,
+      elevation: physical.topography.elevation,
       aridityIndex: physical.biomeClassification.aridityIndex,
       riverClass: physical.hydrography.riverClass,
       lakeMask: physical.lakePlan.lakeMask,
       coastTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
       mountainTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN,
       iceFeatureType: CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_ICE,
-      terrainType: engineSurface.terrainType,
-      biomeType: engineSurface.biomeType,
-      featureType: engineSurface.featureType,
+      terrainType,
+      biomeType,
+      featureType,
       noFeatureType: context.adapter.NO_FEATURE | 0,
       naturalWonderBlockedMask,
       featureCatalog: naturalWonderCatalog,
@@ -195,7 +241,7 @@ export function buildPlacementInputs(
       width,
       height,
       landMask: physical.topography.landMask,
-      elevation: context.buffers.heightfield.elevation,
+      elevation: physical.topography.elevation,
       aridityIndex: physical.biomeClassification.aridityIndex,
       riverClass: physical.hydrography.riverClass,
       lakeMask: physical.lakePlan.lakeMask,
@@ -204,29 +250,13 @@ export function buildPlacementInputs(
     config.discoveries
   );
   return {
-    mapInfo: runtime.mapInfo,
-    starts: baseStarts,
-    wonders: wondersPlan,
+    inputs: {
+      mapInfo: runtime.mapInfo,
+      starts: baseStarts,
+      wonders: wondersPlan,
+      placementConfig: config,
+    },
     naturalWonderPlan,
     discoveryPlan,
-    placementConfig: config,
-  };
-}
-
-/**
- * Gives product steps a typed view of the derived placement input artifact.
- *
- * The derivation step owns this shape because it is the step that composes the
- * authored config, map runtime, adapter catalogs, and physical fields into the
- * placement input artifact. Product/effect steps consume that artifact through
- * this owner instead of reaching into the terminal placement summary step.
- */
-export function buildPlacementPlanInput(
-  derivedInputs: DeepReadonly<PlacementInputsV1>
-): PlacementPlanBundle {
-  return {
-    artifact: derivedInputs,
-    starts: derivedInputs.starts,
-    wonders: derivedInputs.wonders,
   };
 }

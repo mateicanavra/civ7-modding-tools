@@ -12,13 +12,17 @@ export const PlacementInputsConfigSchema = Type.Object(
 
 const PlacementRuntimeStartsSchema = placement.ops.planStarts["input"].properties.baseStarts;
 
+/**
+ * Shared placement planning inputs (map runtime + wonder-count plan + the
+ * authored product config). The natural-wonder and discovery PLANS are NOT
+ * embedded here — each plan is single-published as its own artifact by the
+ * derivation step (placement-realignment S6: one publish per artifact).
+ */
 export const PlacementInputsV1Schema = Type.Object(
   {
     mapInfo: placement.ops.planWonders["input"].properties.mapInfo,
     starts: PlacementRuntimeStartsSchema,
     wonders: placement.ops.planWonders["output"],
-    naturalWonderPlan: placement.ops.planNaturalWonders["output"],
-    discoveryPlan: placement.ops.planDiscoveries["output"],
     placementConfig: PlacementInputsConfigSchema,
   },
   { additionalProperties: false }

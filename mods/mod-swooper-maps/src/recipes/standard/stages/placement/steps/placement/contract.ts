@@ -8,6 +8,13 @@ import {
 import { placementArtifacts } from "../../artifacts.js";
 import { mapArtifacts } from "../../../../map-artifacts.js";
 
+/**
+ * Terminal placement evidence step. DECLARED parity read (ADR-009): this step
+ * intentionally reads the Morphology physics heightfield buffer and compares
+ * it against an engine readback snapshot - that physics-vs-engine comparison
+ * (waterDriftCount, placementEngineTerrainSnapshot) is the step's product,
+ * so both sides of the comparison are evidence inputs, not planning truth.
+ */
 const PlacementStepContract = defineStep({
   id: "placement",
   phase: "placement",

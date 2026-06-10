@@ -309,8 +309,6 @@ function isPlacementOutputSatisfied(
 
   const counts = [
     candidate.naturalWondersCount,
-    candidate.floodplainsCount,
-    candidate.snowTilesCount,
     candidate.resourcesCount,
     candidate.startsAssigned,
     candidate.discoveriesCount,

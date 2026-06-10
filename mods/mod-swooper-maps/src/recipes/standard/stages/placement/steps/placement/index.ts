@@ -1,6 +1,11 @@
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { applyPlacementPlan } from "./apply.js";
+import {
+  validatePlacementEngineStateArtifact,
+  validatePlacementEngineTerrainSnapshotArtifact,
+  validatePlacementOutputsArtifact,
+} from "./validate.js";
 import PlacementStepContract from "./contract.js";
 import { placementArtifacts } from "../../artifacts.js";
 import { mapArtifacts } from "../../../../map-artifacts.js";
@@ -12,9 +17,15 @@ export default createStep(PlacementStepContract, {
       mapArtifacts.placementEngineTerrainSnapshot,
     ],
     {
-      placementOutputs: {},
-      engineState: {},
-      placementEngineTerrainSnapshot: {},
+      placementOutputs: {
+        validate: (value) => validatePlacementOutputsArtifact(value),
+      },
+      engineState: {
+        validate: (value) => validatePlacementEngineStateArtifact(value),
+      },
+      placementEngineTerrainSnapshot: {
+        validate: (value) => validatePlacementEngineTerrainSnapshotArtifact(value),
+      },
     }
   ),
   run: (context, _config, _ops, deps) => {

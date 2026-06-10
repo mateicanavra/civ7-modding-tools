@@ -51,7 +51,6 @@ export default createStep(PlaceResourcesStepContract, {
   }),
   run: (context, _config, _ops, deps) => {
     const plan = deps.artifacts.resourcePlanAdjusted.read(context);
-    deps.artifacts.placementSurfacePreparation.read(context);
     const { width, height } = context.dimensions;
     const emit = (payload: Record<string, unknown>): void => {
       if (!context.trace?.isVerbose) return;
@@ -77,6 +76,7 @@ export default createStep(PlaceResourcesStepContract, {
       }));
     }
     logResourcePlacementRuntimeTelemetry(
+      context.adapter.getResourceCatalog(),
       outcomes.summary,
       outcomes.reconciliation,
       outcomes.outcomes

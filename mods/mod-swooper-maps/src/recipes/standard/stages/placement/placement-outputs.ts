@@ -1,22 +1,17 @@
 import { Type, type Static } from "@swooper/mapgen-core/authoring";
 
-const PlacementMethodCallSchema = Type.Object(
-  {
-    method: Type.String(),
-    args: Type.Optional(Type.Unknown()),
-  },
-  { additionalProperties: false }
-);
-
+/**
+ * Terminal placement summary counts. Every field here is measured from
+ * product artifacts at the publish site — permanently-zero placeholder fields
+ * (floodplainsCount, snowTilesCount) and the never-produced methodCalls log
+ * were removed in placement-realignment S6 instead of being faked.
+ */
 export const PlacementOutputsV1Schema = Type.Object(
   {
     naturalWondersCount: Type.Number(),
-    floodplainsCount: Type.Number(),
-    snowTilesCount: Type.Number(),
     resourcesCount: Type.Number(),
     startsAssigned: Type.Number(),
     discoveriesCount: Type.Number(),
-    methodCalls: Type.Optional(Type.Array(PlacementMethodCallSchema)),
   },
   { additionalProperties: false }
 );

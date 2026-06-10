@@ -42,6 +42,9 @@ describe("derive placement inputs", () => {
     const context = {
       dimensions: { width, height },
       adapter,
+      fields: {
+        featureType: new Int16Array(size).fill(adapter.NO_FEATURE),
+      },
       buffers: {
         heightfield: {
           elevation: new Int16Array(size).fill(500),
@@ -91,13 +94,19 @@ describe("derive placement inputs", () => {
       {},
       ops,
       {
-        topography: { landMask: new Uint8Array(size).fill(1) },
+        topography: {
+          landMask: new Uint8Array(size).fill(1),
+          elevation: new Int16Array(size).fill(500),
+        },
         hydrography: { riverClass: new Uint8Array(size) },
         lakePlan: { lakeMask: new Uint8Array(size) },
         biomeClassification: {
           effectiveMoisture: new Float32Array(size).fill(0.5),
           surfaceTemperature: new Float32Array(size).fill(0.5),
           aridityIndex: new Float32Array(size).fill(0.5),
+        },
+        biomeBindings: {
+          engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
         },
         pedology: { fertility: new Float32Array(size).fill(0.5) },
       }
@@ -145,6 +154,9 @@ describe("derive placement inputs", () => {
     const context = {
       dimensions: { width, height },
       adapter,
+      fields: {
+        featureType: new Int16Array(size).fill(adapter.NO_FEATURE),
+      },
       buffers: {
         heightfield: {
           elevation: new Int16Array(size).fill(500),
@@ -194,13 +206,19 @@ describe("derive placement inputs", () => {
       {},
       ops,
       {
-        topography: { landMask: new Uint8Array(size).fill(1) },
+        topography: {
+          landMask: new Uint8Array(size).fill(1),
+          elevation: new Int16Array(size).fill(500),
+        },
         hydrography: { riverClass: new Uint8Array(size) },
         lakePlan: { lakeMask: new Uint8Array(size) },
         biomeClassification: {
           effectiveMoisture: new Float32Array(size).fill(0.5),
           surfaceTemperature: new Float32Array(size).fill(0.5),
           aridityIndex: new Float32Array(size).fill(0.5),
+        },
+        biomeBindings: {
+          engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
         },
         pedology: { fertility: new Float32Array(size).fill(0.5) },
       }
@@ -308,7 +326,7 @@ describe("derive placement inputs", () => {
         ],
       },
       physical: {
-        topography: { landMask: new Uint8Array(size).fill(1) },
+        topography: { landMask: new Uint8Array(size).fill(1), elevation },
         hydrography: { riverClass: new Uint8Array(size).fill(2) },
         lakePlan: { lakeMask: new Uint8Array(size) },
         biomeClassification: {

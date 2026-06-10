@@ -18,10 +18,7 @@ const PlaceResourcesStepContract = defineStep({
   ],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced],
   artifacts: {
-    requires: [
-      placementArtifacts.resourcePlanAdjusted,
-      placementArtifacts.placementSurfacePreparation,
-    ],
+    requires: [placementArtifacts.resourcePlanAdjusted],
     provides: [placementArtifacts.resourcePlacementOutcomes],
   },
   schema: Type.Object({}, { additionalProperties: false }),
