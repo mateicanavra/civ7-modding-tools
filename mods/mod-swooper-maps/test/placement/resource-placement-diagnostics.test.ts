@@ -152,6 +152,48 @@ describe("resource placement diagnostics", () => {
     ).toThrow(/plan metadata mismatch/i);
   });
 
+  it("does not rescue resource placement onto protected river tiles", () => {
+    const width = 5;
+    const height = 2;
+    const riverResourceExclusionMask = new Uint8Array(width * height);
+    riverResourceExclusionMask[0] = 1;
+    riverResourceExclusionMask[1] = 1;
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo: { GridWidth: width, GridHeight: height },
+      mapSizeId: 1,
+      rng: createLabelRng(1934),
+      canHaveResource: () => true,
+    });
+
+    const outcomes = placeResourcesWithTypedOutcomes({
+      adapter,
+      width,
+      height,
+      resources: {
+        width,
+        height,
+        candidateResourceTypes: [4],
+        targetCount: 2,
+        plannedCount: 2,
+        minSpacingTiles: 0,
+        riverResourceExclusionMask,
+        riverResourceExclusionTileCount: 2,
+        placements: [
+          { plotIndex: 0, preferredResourceType: 4, preferredTypeOffset: 0, priority: 1 },
+          { plotIndex: 1, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.9 },
+        ],
+      },
+    });
+
+    expect(outcomes.summary.placedCount).toBe(2);
+    expect(new Set(outcomes.outcomes.map((outcome) => outcome.plotIndex)).size).toBe(2);
+    for (const outcome of outcomes.outcomes) {
+      expect(riverResourceExclusionMask[outcome.plotIndex]).toBe(0);
+    }
+  });
+
   it("formats compact runtime telemetry for scripting logs", () => {
     const telemetry = buildResourcePlacementRuntimeTelemetry(
       {
