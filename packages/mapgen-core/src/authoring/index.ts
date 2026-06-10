@@ -2,6 +2,7 @@ export { createStep, createStepFor, defineStep } from "./step/index.js";
 export { defineArtifact, implementArtifacts } from "./artifact/index.js";
 export { createStage, deriveStageAuthoringModel } from "./stage.js";
 export { createRecipe } from "./recipe.js";
+export { buildRecipeDag } from "./recipe-dag.js";
 export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
 export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
 export {
@@ -52,6 +53,7 @@ export type {
   RecipeDefinition,
   RecipeModule,
   Stage,
+  StageContractAny,
   StageModule,
   StageAuthoringConfigLayer,
   StageAuthoringModel,
@@ -60,6 +62,17 @@ export type {
   Step,
   StepModule,
 } from "./types.js";
+export type {
+  BuildRecipeDagInput,
+  RecipeDag,
+  RecipeDagArtifactRef,
+  RecipeDagDiagnostic,
+  RecipeDagEdge,
+  RecipeDagEndpoint,
+  RecipeDagPhase,
+  RecipeDagStage,
+  RecipeDagStep,
+} from "./recipe-dag.js";
 export type { RecipePresetDefinitionV1, StudioPresetExportFileV1 } from "./preset-schemas.js";
 export type {
   ArtifactContract,

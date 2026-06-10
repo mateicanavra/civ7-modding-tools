@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, Globe, SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, GitBranch, Globe, Map, SlidersHorizontal } from 'lucide-react';
 import { AppBrand } from './AppBrand';
 import { ViewControls } from './ViewControls';
 import { Select } from './ui';
@@ -18,6 +18,8 @@ import {
 import type { ThemePreference, WorldSettings } from '../types';
 export const HEADER_HEIGHT = LAYOUT.HEADER_HEIGHT;
 export interface AppHeaderProps {
+  activeStudioView: "map" | "dag";
+  onActiveStudioViewChange: (view: "map" | "dag") => void;
   isLightMode: boolean;
   themePreference: ThemePreference;
   onThemeCycle: () => void;
@@ -38,6 +40,8 @@ export interface AppHeaderProps {
   onHeaderHeightChange?: (height: number) => void;
 }
 export const AppHeader: React.FC<AppHeaderProps> = ({
+  activeStudioView,
+  onActiveStudioViewChange,
   isLightMode,
   themePreference,
   onThemeCycle,
@@ -58,6 +62,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const textSecondary = isLightMode ? 'text-[#6b7280]' : 'text-[#8a8a96]';
   const textMuted = isLightMode ? 'text-[#9ca3af]' : 'text-[#5a5a66]';
   const dividerColor = isLightMode ? 'bg-gray-200' : 'bg-[#2a2a32]';
+  const tabClassName = (active: boolean) => `flex h-7 items-center gap-1.5 rounded px-2.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 ${
+    active
+      ? isLightMode
+        ? 'bg-gray-200 text-[#1f2937] focus-visible:ring-gray-300'
+        : 'bg-[#222228] text-[#e8e8ed] focus-visible:ring-[#3a3a44]'
+      : isLightMode
+        ? 'text-[#6b7280] hover:bg-gray-100 hover:text-[#1f2937] focus-visible:ring-gray-300'
+        : 'text-[#8a8a96] hover:bg-[#1a1a1f] hover:text-[#e8e8ed] focus-visible:ring-[#3a3a44]'
+  }`;
   const setupButtonClassName = `flex h-7 shrink-0 items-center gap-1.5 rounded border px-2.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 ${
     isLightMode
       ? 'border-gray-200 bg-white text-[#374151] hover:bg-gray-50 focus-visible:ring-gray-300'
@@ -278,7 +291,30 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       </div>
 
       {/* Right: View Controls */}
-      <div className="shrink-0">
+      <div className="flex shrink-0 items-start gap-2">
+        <div
+          className={`h-10 inline-flex items-center gap-1 px-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}
+          role="tablist"
+          aria-label="Studio view">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeStudioView === "map"}
+            className={tabClassName(activeStudioView === "map")}
+            onClick={() => onActiveStudioViewChange("map")}>
+            <Map className="h-3.5 w-3.5" />
+            <span>Map</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeStudioView === "dag"}
+            className={tabClassName(activeStudioView === "dag")}
+            onClick={() => onActiveStudioViewChange("dag")}>
+            <GitBranch className="h-3.5 w-3.5" />
+            <span>DAG</span>
+          </button>
+        </div>
         <ViewControls
           themePreference={themePreference}
           onThemeCycle={onThemeCycle}

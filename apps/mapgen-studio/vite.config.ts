@@ -378,7 +378,25 @@ export default defineConfig(({ command }) => ({
     {
       name: "repo-backed-map-configs",
       configureServer(server) {
+        let recipeDagOrpcMiddlewarePromise:
+          | Promise<typeof import("./src/server/recipeDag/orpc").handleStudioRecipeDagOrpcRequest>
+          | null = null;
+        const loadRecipeDagOrpcMiddleware = () => {
+          recipeDagOrpcMiddlewarePromise ??= server
+            .ssrLoadModule("/src/server/recipeDag/orpc.ts")
+            .then((module) => module.handleStudioRecipeDagOrpcRequest);
+          return recipeDagOrpcMiddlewarePromise;
+        };
+
         server.middlewares.use(handleStudioCiv7ControlOrpcRequest);
+        server.middlewares.use((req, res, next) => {
+          void loadRecipeDagOrpcMiddleware().then(
+            (middleware) => {
+              void middleware(req, res, next);
+            },
+            next,
+          );
+        });
         server.middlewares.use("/api/civ7/status", async (req, res, next) => {
           if (req.method !== "GET") return next();
           try {
