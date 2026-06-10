@@ -123,21 +123,62 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       role: "projection",
       renderModeId: "grid:projection",
       nonZeroCount: 2,
+      presentation: {
+        category: "navigable-projection",
+        categoryLabel: "Projection plan",
+        palette: {
+          paletteId: "river-projection-teal",
+          activeColor: "#0f766e",
+        },
+      },
     });
     expect(projection?.counts).toMatchObject({ projected: 2, major: 3 });
 
-    expect(byRowKey.get("terrain-readback")).toMatchObject({
+    const terrain = byRowKey.get("terrain-readback");
+    expect(terrain).toMatchObject({
       proofClass: "terrain-readback",
       claimStatus: "available",
       displayStatus: "terrain-readback-present",
     });
-    expect(byRowKey.get("metadata-readback")?.counts).toMatchObject({ layers: 1, debug: 1, metadata: 1 });
+    expect(terrain?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.engineRiverMask")).toMatchObject({
+      presentation: {
+        category: "engine-terrain-readback",
+        palette: {
+          paletteId: "terrain-readback-cyan",
+          activeColor: "#0891b2",
+        },
+      },
+    });
+    const metadata = byRowKey.get("metadata-readback");
+    expect(metadata?.counts).toMatchObject({ layers: 1, debug: 1, metadata: 1 });
+    expect(
+      metadata?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.engineNavigableRiverMetadataMask")
+    ).toMatchObject({
+      presentation: {
+        category: "engine-metadata-readback",
+        palette: {
+          paletteId: "metadata-readback-violet",
+          activeColor: "#7c3aed",
+        },
+      },
+    });
     expect(byRowKey.get("lake-plan-readback")).toMatchObject({
       proofClass: "lake-final",
       claimStatus: "available",
       displayStatus: "lake-readback-present",
     });
     expect(byRowKey.get("lake-plan-readback")?.counts).toMatchObject({ "planned lakes": 2, "engine lakes": 2 });
+    expect(
+      byRowKey.get("lake-plan-readback")?.layerRefs.find((ref) => ref.dataTypeKey === "map.hydrology.lakes.engineLakeMask")
+    ).toMatchObject({
+      presentation: {
+        category: "lake-plan-readback",
+        palette: {
+          paletteId: "lake-plan-indigo",
+          activeColor: "#4f46e5",
+        },
+      },
+    });
     expect(byRowKey.get("lake-exact-counters")).toMatchObject({
       proofClass: "lake-final",
       claimStatus: "unresolved",
@@ -149,12 +190,34 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       displayStatus: "floodplain-apply-present",
     });
     expect(byRowKey.get("floodplain-intent")?.counts).toMatchObject({ "fp intent": 2 });
+    expect(
+      byRowKey.get("floodplain-intent")?.layerRefs.find((ref) => ref.dataTypeKey === "map.ecology.features.floodplainIntentMask")
+    ).toMatchObject({
+      presentation: {
+        category: "floodplain-intent",
+        palette: {
+          paletteId: "floodplain-intent-lime",
+          activeColor: "#65a30d",
+        },
+      },
+    });
     expect(byRowKey.get("floodplain-apply")).toMatchObject({
       proofClass: "floodplain-active",
       claimStatus: "available",
       displayStatus: "floodplain-apply-present",
     });
     expect(byRowKey.get("floodplain-apply")?.counts).toMatchObject({ "fp applied": 2 });
+    expect(
+      byRowKey.get("floodplain-apply")?.layerRefs.find((ref) => ref.dataTypeKey === "map.ecology.features.floodplainRejectedMask")
+    ).toMatchObject({
+      presentation: {
+        category: "mismatch-debug",
+        palette: {
+          paletteId: "mismatch-debug-red",
+          activeColor: "#dc2626",
+        },
+      },
+    });
     expect(byRowKey.get("floodplain-live-readback")).toMatchObject({
       proofClass: "floodplain-active",
       claimStatus: "unresolved",
@@ -226,7 +289,16 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     const projected = byRowKey
       .get("projection-plan")
       ?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.projectedRiverMask");
-    expect(projected).toMatchObject({ role: "projection", renderModeId: "grid:projection" });
+    expect(projected).toMatchObject({
+      role: "projection",
+      renderModeId: "grid:projection",
+      presentation: {
+        category: "navigable-projection",
+        palette: {
+          paletteId: "river-projection-teal",
+        },
+      },
+    });
     expect(projected?.nonZeroCount).toBeGreaterThan(0);
 
     expect(byRowKey.get("hydrology-truth")?.claimStatus).toBe("available");
@@ -234,9 +306,18 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     expect(byRowKey.get("terrain-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(
       "map.rivers.engineRiverMask"
     );
+    expect(
+      byRowKey.get("terrain-readback")?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.engineRiverMask")
+        ?.presentation.category
+    ).toBe("engine-terrain-readback");
     expect(byRowKey.get("metadata-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(
       "map.rivers.engineNavigableRiverMetadataMask"
     );
+    expect(
+      byRowKey.get("metadata-readback")?.layerRefs.find((ref) =>
+        ref.dataTypeKey === "map.rivers.engineNavigableRiverMetadataMask"
+      )?.presentation.category
+    ).toBe("engine-metadata-readback");
     expect(byRowKey.get("lake-plan-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toEqual(
       expect.arrayContaining(["map.hydrology.lakes.plannedLakeMask", "map.hydrology.lakes.engineLakeMask"])
     );

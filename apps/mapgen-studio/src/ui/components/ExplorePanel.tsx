@@ -528,10 +528,15 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                       type="button"
                       key={ref.layerKey}
                       onClick={() => onRiverLakeInspectorLayerSelect?.(ref)}
-                      title={`${ref.label} · ${row.proofClass}`}
-                      className={`max-w-[96px] truncate rounded px-1.5 py-0.5 text-[9px] transition-colors ${lightMode ? "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50" : "bg-[#111116] border border-[#2a2a32] text-[#c4c4cc] hover:bg-[#1a1a1f]"}`}
+                      title={`${ref.label} · ${ref.presentation.categoryLabel} · ${row.proofClass}`}
+                      className={`inline-flex max-w-[112px] items-center gap-1 truncate rounded px-1.5 py-0.5 text-[9px] transition-colors ${lightMode ? "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50" : "bg-[#111116] border border-[#2a2a32] text-[#c4c4cc] hover:bg-[#1a1a1f]"}`}
                     >
-                      {formatLayerButtonLabel(ref)}
+                      <span
+                        aria-hidden="true"
+                        className="h-1.5 w-1.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: ref.presentation.palette.activeColor }}
+                      />
+                      <span className="truncate">{formatLayerButtonLabel(ref)}</span>
                     </button>
                   ))}
                 </div>

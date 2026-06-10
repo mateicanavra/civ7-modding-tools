@@ -30,6 +30,31 @@ export type RiverLakeInspectorProofClass =
 
 export type RiverLakeInspectorClaimStatus = "available" | "pass" | "fail" | "unresolved" | "out-of-scope";
 
+export type RiverLakeInspectorMaskCategory =
+  | "physical-river-truth"
+  | "navigable-projection"
+  | "engine-terrain-readback"
+  | "engine-metadata-readback"
+  | "lake-plan-readback"
+  | "floodplain-intent"
+  | "floodplain-apply"
+  | "mismatch-debug"
+  | "proof-only";
+
+export type RiverLakeInspectorPalette = Readonly<{
+  paletteId: string;
+  label: string;
+  activeColor: string;
+  inactiveColor: string;
+  debugColor: string;
+}>;
+
+export type RiverLakeInspectorMaskPresentation = Readonly<{
+  category: RiverLakeInspectorMaskCategory;
+  categoryLabel: string;
+  palette: RiverLakeInspectorPalette;
+}>;
+
 export type RiverLakeInspectorDisplayStatus =
   | "hydrology-truth-present"
   | "projection-plan-present"
@@ -67,6 +92,7 @@ export type RiverLakeInspectorLayerRef = Readonly<{
   renderModeId: string;
   nonZeroCount: number | null;
   sampleCount: number | null;
+  presentation: RiverLakeInspectorMaskPresentation;
 }>;
 
 export type RiverLakeInspectorRow = Readonly<{
@@ -322,6 +348,129 @@ const COUNT_LABEL_BY_DATA_TYPE_KEY: Readonly<Record<string, string>> = {
   "map.ecology.features.rejectionMask": "feature rejects",
 };
 
+const MASK_PRESENTATIONS: Readonly<Record<RiverLakeInspectorMaskCategory, RiverLakeInspectorMaskPresentation>> = {
+  "physical-river-truth": {
+    category: "physical-river-truth",
+    categoryLabel: "Hydrology truth",
+    palette: {
+      paletteId: "river-truth-blue",
+      label: "Hydrology truth",
+      activeColor: "#2563eb",
+      inactiveColor: "#dbeafe",
+      debugColor: "#1e40af",
+    },
+  },
+  "navigable-projection": {
+    category: "navigable-projection",
+    categoryLabel: "Projection plan",
+    palette: {
+      paletteId: "river-projection-teal",
+      label: "Projection plan",
+      activeColor: "#0f766e",
+      inactiveColor: "#ccfbf1",
+      debugColor: "#134e4a",
+    },
+  },
+  "engine-terrain-readback": {
+    category: "engine-terrain-readback",
+    categoryLabel: "Terrain readback",
+    palette: {
+      paletteId: "terrain-readback-cyan",
+      label: "Terrain readback",
+      activeColor: "#0891b2",
+      inactiveColor: "#cffafe",
+      debugColor: "#155e75",
+    },
+  },
+  "engine-metadata-readback": {
+    category: "engine-metadata-readback",
+    categoryLabel: "Metadata readback",
+    palette: {
+      paletteId: "metadata-readback-violet",
+      label: "Metadata readback",
+      activeColor: "#7c3aed",
+      inactiveColor: "#ede9fe",
+      debugColor: "#5b21b6",
+    },
+  },
+  "lake-plan-readback": {
+    category: "lake-plan-readback",
+    categoryLabel: "Lake plan/readback",
+    palette: {
+      paletteId: "lake-plan-indigo",
+      label: "Lake plan/readback",
+      activeColor: "#4f46e5",
+      inactiveColor: "#e0e7ff",
+      debugColor: "#3730a3",
+    },
+  },
+  "floodplain-intent": {
+    category: "floodplain-intent",
+    categoryLabel: "Floodplain intent",
+    palette: {
+      paletteId: "floodplain-intent-lime",
+      label: "Floodplain intent",
+      activeColor: "#65a30d",
+      inactiveColor: "#ecfccb",
+      debugColor: "#3f6212",
+    },
+  },
+  "floodplain-apply": {
+    category: "floodplain-apply",
+    categoryLabel: "Floodplain apply",
+    palette: {
+      paletteId: "floodplain-apply-green",
+      label: "Floodplain apply",
+      activeColor: "#16a34a",
+      inactiveColor: "#dcfce7",
+      debugColor: "#166534",
+    },
+  },
+  "mismatch-debug": {
+    category: "mismatch-debug",
+    categoryLabel: "Mismatch/debug",
+    palette: {
+      paletteId: "mismatch-debug-red",
+      label: "Mismatch/debug",
+      activeColor: "#dc2626",
+      inactiveColor: "#fee2e2",
+      debugColor: "#991b1b",
+    },
+  },
+  "proof-only": {
+    category: "proof-only",
+    categoryLabel: "Proof-only",
+    palette: {
+      paletteId: "proof-only-slate",
+      label: "Proof-only",
+      activeColor: "#64748b",
+      inactiveColor: "#e2e8f0",
+      debugColor: "#334155",
+    },
+  },
+};
+
+function maskCategoryForLayer(layer: VizLayerEntryV1): RiverLakeInspectorMaskCategory {
+  const key = layer.dataTypeKey;
+  if (key.includes("MismatchMask") || key.includes("RejectedMask") || key.includes("rejectionMask")) {
+    return "mismatch-debug";
+  }
+  if (key === "map.rivers.engineNavigableRiverMetadataMask" || key === "map.rivers.engineMinorRiverMask") {
+    return "engine-metadata-readback";
+  }
+  if (key === "map.rivers.engineRiverMask") return "engine-terrain-readback";
+  if (key.startsWith("map.rivers.")) return "navigable-projection";
+  if (key.startsWith("hydrology.hydrography.")) return "physical-river-truth";
+  if (key.includes(".lakes.") || key === "hydrology.lakes.lakePlan") return "lake-plan-readback";
+  if (key.includes("floodplainIntentMask")) return "floodplain-intent";
+  if (key.includes("floodplainAppliedMask") || key === "map.ecology.featureType") return "floodplain-apply";
+  return "proof-only";
+}
+
+function maskPresentationForLayer(layer: VizLayerEntryV1): RiverLakeInspectorMaskPresentation {
+  return MASK_PRESENTATIONS[maskCategoryForLayer(layer)];
+}
+
 function resolveLayerVisibility(layer: VizLayerEntryV1): VizLayerVisibility {
   const visibility = layer.meta?.visibility;
   if (visibility === "debug") return "debug";
@@ -378,6 +527,7 @@ function toLayerRef(layer: VizLayerEntryV1): RiverLakeInspectorLayerRef {
     renderModeId: renderModeIdFor(layer),
     nonZeroCount: samples?.nonZeroCount ?? null,
     sampleCount: samples?.sampleCount ?? null,
+    presentation: maskPresentationForLayer(layer),
   };
 }
 

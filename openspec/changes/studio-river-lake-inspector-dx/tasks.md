@@ -3,7 +3,14 @@
 - [x] 1.1 Derive a river/lake/floodplain summary from current artifacts and
   proof labels.
 - [x] 1.2 Add status classification for zero/missing/divergent river states.
-- [ ] 1.3 Add stable palettes and category metadata for masks.
+- [x] 1.3 Add stable palettes and category metadata for masks.
+  - Inspector layer refs now carry stable mask presentation metadata
+    (`category`, `categoryLabel`, and palette id/colors) for Hydrology truth,
+    navigable projection, engine terrain readback, engine metadata readback,
+    lake plan/readback, floodplain intent/apply, mismatch/debug, and proof-only
+    layers.
+  - The Water Proof layer buttons render category swatches from the same
+    metadata instead of inferring visual meaning only from button text.
 - [x] 1.4 Bind each summary row to exact layer identity (`dataTypeKey`,
   `spaceId`, `kind` / `role`, `variantKey`) and proof class.
 - [x] 1.5 Add lake exact-counter/drift rows and floodplain intent/applied/live
