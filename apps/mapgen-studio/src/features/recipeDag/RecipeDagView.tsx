@@ -1,8 +1,23 @@
 import React, { useMemo } from "react";
-import { AlertTriangle, Boxes, ChevronDown, GitBranch, Loader2, Package } from "lucide-react";
+import {
+  AlertTriangle,
+  Boxes,
+  ChevronDown,
+  CloudSun,
+  Flag,
+  GitBranch,
+  Layers3,
+  Loader2,
+  Mountain,
+  Package,
+  Route,
+  Sprout,
+  Waves,
+  type LucideIcon,
+} from "lucide-react";
 
 import type { RecipeDagResult } from "./client";
-import { formatArtifactLabel } from "./artifactPresentation";
+import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation";
 import { buildRecipeDagLayout, pointsToPath } from "./layout";
 
 type RecipeDagLoadStatus = "idle" | "loading" | "ready" | "error";
@@ -140,15 +155,6 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                       fill={palette.phaseAccents[index % palette.phaseAccents.length]}
                       opacity="0.9"
                     />
-                    <text
-                      x={52}
-                      y={phase.y + 26}
-                      fill={palette.phaseText}
-                      fontSize="12"
-                      fontWeight="700"
-                    >
-                      {phase.id}
-                    </text>
                   </g>
                 ))}
                 {layout.edgeGroups.map((edge) => {
@@ -177,6 +183,7 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                   <ArtifactEdgeLabel
                     key={`${edge.id}:label`}
                     label={edge.label}
+                    domainId={resolveArtifactGroupDomainId(edge.artifacts)}
                     title={`${edge.fromStageId} provides ${edge.artifacts.join(", ")} to ${edge.toStageId}`}
                     x={edge.labelX}
                     y={edge.labelY - 14}
@@ -185,6 +192,17 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                   />
                 );
               })}
+
+              {layout.phaseBands.map((phase, index) => (
+                <PhaseLaneLabel
+                  key={`${phase.id}:label`}
+                  phaseId={phase.id}
+                  x={52}
+                  y={phase.y + 16}
+                  accent={palette.phaseAccents[index % palette.phaseAccents.length]}
+                  lightMode={lightMode}
+                />
+              ))}
 
               {dag.stages.map((stage) => {
                 const position = layout.positions.get(stage.stageId);
@@ -196,34 +214,51 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                 const headingClass = dimmed ? palette.headingDimmed : palette.heading;
                 const bodyClass = dimmed ? palette.bodyDimmed : palette.body;
                 const iconClass = dimmed ? palette.iconDimmed : palette.icon;
+                const zIndex = expanded ? 70 : selected ? 50 : dimmed ? 20 : 30;
+                const expandedPanelId = `recipe-dag-stage-${stage.stageId}-steps`;
                 return (
                   <article
                     key={stage.stageId}
-                    className={`absolute z-20 overflow-hidden rounded-lg border shadow-sm transition-[background-color,border-color,box-shadow,color] ${stageClass}`}
+                    className={`absolute rounded-lg border shadow-sm transition-[background-color,border-color,box-shadow,color,transform] duration-200 ${expanded ? "shadow-2xl" : ""} ${stageClass}`}
                     style={{
                       left: position.x,
                       top: position.y,
                       width: position.width,
+                      zIndex,
                     }}
+                    data-stage-id={stage.stageId}
+                    data-stage-selected={selected ? "true" : "false"}
+                    data-stage-expanded={expanded ? "true" : "false"}
                   >
-                    <button
-                      type="button"
-                      className="flex w-full items-start gap-2 px-3 py-2 text-left"
-                      aria-expanded={expanded}
-                      onClick={() => {
-                        onSelectStage(stage.stageId);
-                        onToggleStage(stage.stageId);
-                      }}
-                    >
-                      <Boxes className={`mt-0.5 h-4 w-4 shrink-0 ${iconClass}`} />
-                      <span className="min-w-0 flex-1">
-                        <span className={`block truncate text-[13px] font-semibold ${headingClass}`}>{stage.stageId}</span>
-                        <span className={`mt-0.5 block truncate text-[11px] ${bodyClass}`}>
-                          Runs {stage.steps.length} {stage.steps.length === 1 ? "step" : "steps"}; creates {stage.artifactProvides.length}; needs {stage.artifactRequires.length}
+                    <div className="flex items-start gap-1.5 px-3 py-2">
+                      <button
+                        type="button"
+                        className="flex min-w-0 flex-1 items-start gap-2 text-left"
+                        aria-pressed={selected}
+                        onClick={() => onSelectStage(stage.stageId)}
+                      >
+                        <Boxes className={`mt-0.5 h-4 w-4 shrink-0 ${iconClass}`} />
+                        <span className="min-w-0 flex-1">
+                          <span className={`block truncate text-[13px] font-semibold ${headingClass}`}>{stage.stageId}</span>
+                          <span className={`mt-0.5 block truncate text-[11px] ${bodyClass}`}>
+                            Runs {stage.steps.length} {stage.steps.length === 1 ? "step" : "steps"}; creates {stage.artifactProvides.length}; needs {stage.artifactRequires.length}
+                          </span>
                         </span>
-                      </span>
-                      <ChevronDown className={`mt-0.5 h-4 w-4 shrink-0 transition-transform ${expanded ? "rotate-180" : ""} ${iconClass}`} />
-                    </button>
+                      </button>
+                      <button
+                        type="button"
+                        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition ${palette.expandButton}`}
+                        aria-expanded={expanded}
+                        aria-controls={expandedPanelId}
+                        aria-label={`${expanded ? "Collapse" : "Expand"} ${stage.stageId} steps`}
+                        onClick={() => {
+                          onSelectStage(stage.stageId);
+                          onToggleStage(stage.stageId);
+                        }}
+                      >
+                        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${expanded ? "rotate-180" : ""} ${iconClass}`} />
+                      </button>
+                    </div>
 
                     <div className={`grid grid-cols-3 border-t text-center text-[10px] ${palette.rule}`}>
                       <StageCounter label="In" value={stage.inboundArtifactEdgeCount} />
@@ -231,8 +266,14 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                       <StageCounter label="Internal" value={stage.internalArtifactEdgeCount} />
                     </div>
 
-                    {expanded ? (
-                      <div className={`max-h-[320px] overflow-auto border-t px-3 py-2 ${palette.rule}`}>
+                    <div
+                      id={expandedPanelId}
+                      aria-hidden={!expanded}
+                      className={`origin-top overflow-hidden border-t transition-[max-height,opacity,transform] duration-200 ${palette.rule} ${
+                        expanded ? "max-h-[340px] opacity-100 translate-y-0" : "max-h-0 opacity-0 -translate-y-1"
+                      }`}
+                    >
+                      <div className="max-h-[320px] overflow-auto px-3 py-2">
                         <ol className="space-y-2">
                           {stage.steps.map((step) => (
                             <li key={step.fullStepId} className={`rounded border px-2 py-1.5 ${palette.step}`}>
@@ -246,7 +287,7 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                           ))}
                         </ol>
                       </div>
-                    ) : null}
+                    </div>
                   </article>
                 );
               })}
@@ -261,7 +302,7 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                     {dag.diagnostics.slice(0, 6).map((diagnostic, index) => (
                       <li key={`${diagnostic.kind}-${diagnostic.artifact.id}-${index}`} className="flex min-w-0 items-center gap-1 truncate">
                         <span className="truncate">{diagnostic.kind}</span>
-                        <ArtifactInlineIcon />
+                        <ArtifactInlineIcon domainId={resolveArtifactGroupDomainId([diagnostic.artifact.id])} />
                         <span className="truncate" title={diagnostic.artifact.id}>{formatArtifactLabel(diagnostic.artifact.id)}</span>
                       </li>
                     ))}
@@ -320,6 +361,7 @@ function StageCounter(props: { label: string; value: number }) {
 
 function ArtifactEdgeLabel(props: {
   label: string;
+  domainId: string | null;
   title: string;
   x: number;
   y: number;
@@ -338,7 +380,7 @@ function ArtifactEdgeLabel(props: {
       }}
       title={props.title}
     >
-      <ArtifactInlineIcon />
+      <ArtifactInlineIcon domainId={props.domainId} />
       <span className="truncate">{props.label}</span>
     </div>
   );
@@ -359,7 +401,7 @@ function ArtifactList(props: { label: string; values: readonly string[]; lightMo
             className={`flex max-w-full items-center gap-1 truncate rounded border px-1 py-0.5 text-[9px] ${chip}`}
             title={value}
           >
-            <ArtifactInlineIcon />
+            <ArtifactInlineIcon domainId={resolveArtifactGroupDomainId([value])} />
             <span className="truncate">{formatArtifactLabel(value)}</span>
           </span>
         ))}
@@ -371,8 +413,44 @@ function ArtifactList(props: { label: string; values: readonly string[]; lightMo
   );
 }
 
-function ArtifactInlineIcon() {
-  return <Package className="h-2.5 w-2.5 shrink-0 text-current" aria-hidden="true" />;
+function ArtifactInlineIcon(props: { domainId: string | null }) {
+  const Icon = iconForDomainId(props.domainId);
+  return <Icon className="h-2.5 w-2.5 shrink-0 text-current" aria-hidden="true" />;
+}
+
+function PhaseLaneLabel(props: {
+  phaseId: string;
+  x: number;
+  y: number;
+  accent: string;
+  lightMode: boolean;
+}) {
+  const Icon = iconForDomainId(props.phaseId);
+  const className = props.lightMode
+    ? "border-white/80 bg-white/88 text-slate-700"
+    : "border-white/10 bg-[#0d0d11]/88 text-[#d4d4dc]";
+  return (
+    <div
+      className={`absolute z-10 flex items-center gap-1.5 rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-normal shadow-sm backdrop-blur-sm ${className}`}
+      style={{ left: props.x, top: props.y }}
+      title={`Phase ${props.phaseId}`}
+    >
+      <Icon className="h-3.5 w-3.5 shrink-0" style={{ color: props.accent }} aria-hidden="true" />
+      <span>{props.phaseId}</span>
+    </div>
+  );
+}
+
+function iconForDomainId(domainId: string | null): LucideIcon {
+  const normalized = domainId?.toLowerCase() ?? "";
+  if (normalized.includes("hydro") || normalized.includes("river") || normalized.includes("lake")) return Waves;
+  if (normalized.includes("climate") || normalized.includes("temperature") || normalized.includes("rain")) return CloudSun;
+  if (normalized.includes("terrain") || normalized.includes("height") || normalized.includes("elevation")) return Mountain;
+  if (normalized.includes("biome") || normalized.includes("vegetation") || normalized.includes("resource")) return Sprout;
+  if (normalized.includes("route") || normalized.includes("path") || normalized.includes("river")) return Route;
+  if (normalized.includes("finish") || normalized.includes("final")) return Flag;
+  if (normalized.includes("shape") || normalized.includes("land")) return Layers3;
+  return Package;
 }
 
 function CenteredState(props: {
@@ -416,6 +494,7 @@ function createPalette(lightMode: boolean) {
       kicker: "text-cyan-700",
       icon: "text-cyan-700",
       iconDimmed: "text-gray-400",
+      expandButton: "border-gray-200 bg-white text-gray-500 hover:border-cyan-300 hover:text-cyan-700",
       edge: "#0891b2",
       edgeLabelPill: "border-cyan-200 bg-white text-cyan-800",
       edgeLabelPillDimmed: "border-slate-200 bg-slate-50 text-slate-500",
@@ -448,6 +527,7 @@ function createPalette(lightMode: boolean) {
     kicker: "text-cyan-300",
     icon: "text-cyan-300",
     iconDimmed: "text-[#5f6570]",
+    expandButton: "border-[#30303a] bg-[#15151a] text-[#8a8a96] hover:border-cyan-400/50 hover:text-cyan-200",
     edge: "#22d3ee",
     edgeLabelPill: "border-cyan-400/35 bg-[#101014] text-cyan-200",
     edgeLabelPillDimmed: "border-[#24242c] bg-[#101014] text-[#6f7480]",

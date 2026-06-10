@@ -53,14 +53,15 @@ export type RecipeDagLayout = Readonly<{
 
 const STAGE_WIDTH = 248;
 const STAGE_HEIGHT = 122;
-const RANK_GAP_X = 122;
+const RANK_GAP_X = 150;
 const GRAPH_PAD_X = 80;
 const GRAPH_PAD_TOP = 96;
 const GRAPH_PAD_BOTTOM = 110;
 const PHASE_TITLE_HEIGHT = 42;
 const PHASE_MIN_HEIGHT = 188;
-const STAGE_GAP_Y = 28;
+const STAGE_GAP_Y = 36;
 const EDGE_STEM = 34;
+const EDGE_LABEL_MIN_GAP = 26;
 
 export function buildRecipeDagLayout(dag: RecipeDagResult): RecipeDagLayout {
   const edgeGroups = groupStageEdges(dag);
@@ -90,7 +91,7 @@ export function buildRecipeDagLayout(dag: RecipeDagResult): RecipeDagLayout {
       };
     }),
     rankColumns,
-    edgeGroups: routeEdges(edgeGroups, positions),
+    edgeGroups: spreadEdgeLabels(routeEdges(edgeGroups, positions)),
   };
 }
 
@@ -294,6 +295,32 @@ function anchorOffset(edges: readonly StageEdgeGroup[], edgeId: string, height: 
 
 function formatEdgeLabel(artifacts: readonly string[]): string {
   return formatArtifactGroupLabel(artifacts);
+}
+
+function spreadEdgeLabels(edgeGroups: readonly RoutedStageEdgeGroup[]): RoutedStageEdgeGroup[] {
+  const routed = edgeGroups
+    .filter((edge) => edge.points.length > 0)
+    .sort((a, b) => a.labelX - b.labelX || a.labelY - b.labelY);
+  const buckets = new Map<number, RoutedStageEdgeGroup[]>();
+  for (const edge of routed) {
+    const bucket = Math.round(edge.labelX / 96);
+    buckets.set(bucket, [...(buckets.get(bucket) ?? []), edge]);
+  }
+
+  const labelYByEdgeId = new Map<string, number>();
+  for (const edges of buckets.values()) {
+    let previousY = Number.NEGATIVE_INFINITY;
+    for (const edge of [...edges].sort((a, b) => a.labelY - b.labelY)) {
+      const nextY = Math.max(edge.labelY, previousY + EDGE_LABEL_MIN_GAP);
+      labelYByEdgeId.set(edge.id, nextY);
+      previousY = nextY;
+    }
+  }
+
+  return edgeGroups.map((edge) => ({
+    ...edge,
+    labelY: labelYByEdgeId.get(edge.id) ?? edge.labelY,
+  }));
 }
 
 function resolveStagePhaseId(

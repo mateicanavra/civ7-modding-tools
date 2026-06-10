@@ -25,7 +25,12 @@ describe("RecipeDagView", () => {
     expect(html).toContain("shape");
     expect(html).toContain("climate");
     expect(html).toContain("Sources");
-    expect(html).toContain(">hydrology.hydrography<");
+    expect(html).toContain(">hydrography<");
+    expect(html).toContain("aria-pressed=\"true\"");
+    expect(html).toContain("aria-expanded=\"true\"");
+    expect(html).toContain("aria-controls=\"recipe-dag-stage-shape-steps\"");
+    expect(html).toContain("data-stage-expanded=\"true\"");
+    expect(html).toContain("z-index:70");
     expect(html).toContain("Step 1: seed");
     expect(html).toContain("Creates");
     expect(html).not.toContain("opacity-45");
