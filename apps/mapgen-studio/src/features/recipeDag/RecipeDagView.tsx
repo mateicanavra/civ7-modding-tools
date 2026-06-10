@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
-import { AlertTriangle, Boxes, ChevronDown, GitBranch, Loader2 } from "lucide-react";
+import { AlertTriangle, Boxes, ChevronDown, GitBranch, Loader2, Package } from "lucide-react";
 
 import type { RecipeDagResult } from "./client";
+import { formatArtifactLabel } from "./artifactPresentation";
 import { buildRecipeDagLayout, pointsToPath } from "./layout";
 
 type RecipeDagLoadStatus = "idle" | "loading" | "ready" | "error";
@@ -163,22 +164,27 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                         markerEnd="url(#recipe-dag-arrow)"
                         opacity={related ? "0.82" : "0.22"}
                       />
-                      <text
-                        x={edge.labelX}
-                        y={edge.labelY - 5}
-                        fill={palette.edgeLabel}
-                        fontSize="9"
-                        fontWeight="700"
-                        textAnchor="middle"
-                        opacity={related ? "0.9" : "0.25"}
-                      >
-                        {edge.label}
-                      </text>
                       <title>{`${edge.fromStageId} provides ${edge.artifacts.join(", ")} to ${edge.toStageId}`}</title>
                     </g>
                   );
                 })}
               </svg>
+
+              {layout.edgeGroups.map((edge) => {
+                if (!edge.points.length) return null;
+                const related = !selectedStageId || edge.fromStageId === selectedStageId || edge.toStageId === selectedStageId;
+                return (
+                  <ArtifactEdgeLabel
+                    key={`${edge.id}:label`}
+                    label={edge.label}
+                    title={`${edge.fromStageId} provides ${edge.artifacts.join(", ")} to ${edge.toStageId}`}
+                    x={edge.labelX}
+                    y={edge.labelY - 14}
+                    related={related}
+                    lightMode={lightMode}
+                  />
+                );
+              })}
 
               {dag.stages.map((stage) => {
                 const position = layout.positions.get(stage.stageId);
@@ -186,10 +192,14 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                 const expanded = expandedStageIds.has(stage.stageId);
                 const selected = selectedStageId === stage.stageId;
                 const dimmed = Boolean(neighborStageIds && !neighborStageIds.has(stage.stageId));
+                const stageClass = selected ? palette.stageSelected : dimmed ? palette.stageDimmed : palette.stage;
+                const headingClass = dimmed ? palette.headingDimmed : palette.heading;
+                const bodyClass = dimmed ? palette.bodyDimmed : palette.body;
+                const iconClass = dimmed ? palette.iconDimmed : palette.icon;
                 return (
                   <article
                     key={stage.stageId}
-                    className={`absolute overflow-hidden rounded-lg border shadow-sm transition-opacity ${selected ? palette.stageSelected : palette.stage} ${dimmed ? "opacity-45" : "opacity-100"}`}
+                    className={`absolute z-20 overflow-hidden rounded-lg border shadow-sm transition-[background-color,border-color,box-shadow,color] ${stageClass}`}
                     style={{
                       left: position.x,
                       top: position.y,
@@ -205,14 +215,14 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                         onToggleStage(stage.stageId);
                       }}
                     >
-                      <Boxes className={`mt-0.5 h-4 w-4 shrink-0 ${palette.icon}`} />
+                      <Boxes className={`mt-0.5 h-4 w-4 shrink-0 ${iconClass}`} />
                       <span className="min-w-0 flex-1">
-                        <span className={`block truncate text-[13px] font-semibold ${palette.heading}`}>{stage.stageId}</span>
-                        <span className={`mt-0.5 block truncate text-[11px] ${palette.body}`}>
+                        <span className={`block truncate text-[13px] font-semibold ${headingClass}`}>{stage.stageId}</span>
+                        <span className={`mt-0.5 block truncate text-[11px] ${bodyClass}`}>
                           Runs {stage.steps.length} {stage.steps.length === 1 ? "step" : "steps"}; creates {stage.artifactProvides.length}; needs {stage.artifactRequires.length}
                         </span>
                       </span>
-                      <ChevronDown className={`mt-0.5 h-4 w-4 shrink-0 transition-transform ${expanded ? "rotate-180" : ""} ${palette.icon}`} />
+                      <ChevronDown className={`mt-0.5 h-4 w-4 shrink-0 transition-transform ${expanded ? "rotate-180" : ""} ${iconClass}`} />
                     </button>
 
                     <div className={`grid grid-cols-3 border-t text-center text-[10px] ${palette.rule}`}>
@@ -226,10 +236,10 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                         <ol className="space-y-2">
                           {stage.steps.map((step) => (
                             <li key={step.fullStepId} className={`rounded border px-2 py-1.5 ${palette.step}`}>
-                              <div className={`truncate text-[11px] font-medium ${palette.heading}`}>
+                              <div className={`truncate text-[11px] font-medium ${headingClass}`}>
                                 Step {step.orderInStage + 1}: {step.stepId}
                               </div>
-                              <div className={`mt-1 truncate text-[10px] ${palette.body}`}>Phase: {step.phase}</div>
+                              <div className={`mt-1 truncate text-[10px] ${bodyClass}`}>Phase: {step.phase}</div>
                               <ArtifactList label="Needs" values={step.artifactRequires.map((artifact) => artifact.id)} lightMode={lightMode} />
                               <ArtifactList label="Creates" values={step.artifactProvides.map((artifact) => artifact.id)} lightMode={lightMode} />
                             </li>
@@ -249,8 +259,10 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                   </div>
                   <ul className="grid gap-1 sm:grid-cols-2">
                     {dag.diagnostics.slice(0, 6).map((diagnostic, index) => (
-                      <li key={`${diagnostic.kind}-${diagnostic.artifact.id}-${index}`} className="truncate">
-                        {diagnostic.kind}: {diagnostic.artifact.id}
+                      <li key={`${diagnostic.kind}-${diagnostic.artifact.id}-${index}`} className="flex min-w-0 items-center gap-1 truncate">
+                        <span className="truncate">{diagnostic.kind}</span>
+                        <ArtifactInlineIcon />
+                        <span className="truncate" title={diagnostic.artifact.id}>{formatArtifactLabel(diagnostic.artifact.id)}</span>
                       </li>
                     ))}
                   </ul>
@@ -306,6 +318,32 @@ function StageCounter(props: { label: string; value: number }) {
   );
 }
 
+function ArtifactEdgeLabel(props: {
+  label: string;
+  title: string;
+  x: number;
+  y: number;
+  related: boolean;
+  lightMode: boolean;
+}) {
+  const palette = createPalette(props.lightMode);
+  const className = props.related ? palette.edgeLabelPill : palette.edgeLabelPillDimmed;
+  return (
+    <div
+      className={`absolute z-10 flex max-w-[180px] cursor-default items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold shadow-sm ${className}`}
+      style={{
+        left: props.x,
+        top: props.y,
+        transform: "translate(-50%, -50%)",
+      }}
+      title={props.title}
+    >
+      <ArtifactInlineIcon />
+      <span className="truncate">{props.label}</span>
+    </div>
+  );
+}
+
 function ArtifactList(props: { label: string; values: readonly string[]; lightMode: boolean }) {
   if (props.values.length === 0) return null;
   const chip = props.lightMode
@@ -316,8 +354,13 @@ function ArtifactList(props: { label: string; values: readonly string[]; lightMo
       <div className="mb-1 text-[9px] font-semibold uppercase opacity-70">{props.label}</div>
       <div className="flex flex-wrap gap-1">
         {props.values.slice(0, 5).map((value) => (
-          <span key={value} className={`max-w-full truncate rounded border px-1 py-0.5 text-[9px] ${chip}`}>
-            {value}
+          <span
+            key={value}
+            className={`flex max-w-full items-center gap-1 truncate rounded border px-1 py-0.5 text-[9px] ${chip}`}
+            title={value}
+          >
+            <ArtifactInlineIcon />
+            <span className="truncate">{formatArtifactLabel(value)}</span>
           </span>
         ))}
         {props.values.length > 5 ? (
@@ -326,6 +369,10 @@ function ArtifactList(props: { label: string; values: readonly string[]; lightMo
       </div>
     </div>
   );
+}
+
+function ArtifactInlineIcon() {
+  return <Package className="h-2.5 w-2.5 shrink-0 text-current" aria-hidden="true" />;
 }
 
 function CenteredState(props: {
@@ -358,15 +405,20 @@ function createPalette(lightMode: boolean) {
       panel: "border-white/80 bg-white/78",
       stage: "border-gray-200 bg-white",
       stageSelected: "border-cyan-500 bg-white ring-2 ring-cyan-500/30",
+      stageDimmed: "border-gray-200 bg-[#f8fafc] shadow-none",
       step: "border-gray-200 bg-gray-50",
       rule: "border-gray-200 text-gray-500",
       diagnostic: "border-amber-300 bg-amber-50 text-amber-900",
       heading: "text-gray-900",
+      headingDimmed: "text-gray-500",
       body: "text-gray-600",
+      bodyDimmed: "text-gray-400",
       kicker: "text-cyan-700",
       icon: "text-cyan-700",
+      iconDimmed: "text-gray-400",
       edge: "#0891b2",
-      edgeLabel: "#0e7490",
+      edgeLabelPill: "border-cyan-200 bg-white text-cyan-800",
+      edgeLabelPillDimmed: "border-slate-200 bg-slate-50 text-slate-500",
       rankLine: "rgba(71,85,105,0.22)",
       phaseFills: [
         "rgba(236,253,245,0.68)",
@@ -385,15 +437,20 @@ function createPalette(lightMode: boolean) {
     panel: "border-white/10 bg-[#141418]/72",
     stage: "border-[#2a2a32] bg-[#101014]",
     stageSelected: "border-cyan-400 bg-[#101014] ring-2 ring-cyan-400/30",
+    stageDimmed: "border-[#24242c] bg-[#0d0d11] shadow-none",
     step: "border-[#30303a] bg-[#15151a]",
     rule: "border-[#2a2a32] text-[#8a8a96]",
     diagnostic: "border-amber-500/40 bg-amber-500/10 text-amber-200",
     heading: "text-[#f0f0f4]",
+    headingDimmed: "text-[#747482]",
     body: "text-[#a9a9b5]",
+    bodyDimmed: "text-[#696976]",
     kicker: "text-cyan-300",
     icon: "text-cyan-300",
+    iconDimmed: "text-[#5f6570]",
     edge: "#22d3ee",
-    edgeLabel: "#67e8f9",
+    edgeLabelPill: "border-cyan-400/35 bg-[#101014] text-cyan-200",
+    edgeLabelPillDimmed: "border-[#24242c] bg-[#101014] text-[#6f7480]",
     rankLine: "rgba(148,163,184,0.16)",
     phaseFills: [
       "rgba(6,78,59,0.20)",

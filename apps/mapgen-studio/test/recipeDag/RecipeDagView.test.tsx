@@ -25,9 +25,10 @@ describe("RecipeDagView", () => {
     expect(html).toContain("shape");
     expect(html).toContain("climate");
     expect(html).toContain("Sources");
-    expect(html).toContain("seed-grid");
+    expect(html).toContain(">hydrology.hydrography<");
     expect(html).toContain("Step 1: seed");
     expect(html).toContain("Creates");
+    expect(html).not.toContain("opacity-45");
   });
 });
 
@@ -41,8 +42,8 @@ function recipeDag(): RecipeDagResult {
       {
         id: "shape",
         order: 0,
-        stageIds: ["shape"],
-        stepCount: 1,
+        stageIds: ["shape", "isolated"],
+        stepCount: 2,
       },
       {
         id: "climate",
@@ -67,13 +68,13 @@ function recipeDag(): RecipeDagResult {
             orderInStage: 0,
             phase: "shape",
             artifactRequires: [],
-            artifactProvides: [{ id: "seed-grid", name: "Seed grid" }],
+            artifactProvides: [{ id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" }],
             tagRequires: [],
             tagProvides: [],
           },
         ],
         artifactRequires: [],
-        artifactProvides: [{ id: "seed-grid", name: "Seed grid" }],
+        artifactProvides: [{ id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" }],
         inboundArtifactEdgeCount: 0,
         outboundArtifactEdgeCount: 1,
         internalArtifactEdgeCount: 0,
@@ -93,15 +94,42 @@ function recipeDag(): RecipeDagResult {
             order: 1,
             orderInStage: 0,
             phase: "climate",
-            artifactRequires: [{ id: "seed-grid", name: "Seed grid" }],
+            artifactRequires: [{ id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" }],
             artifactProvides: [],
             tagRequires: [],
             tagProvides: [],
           },
         ],
-        artifactRequires: [{ id: "seed-grid", name: "Seed grid" }],
+        artifactRequires: [{ id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" }],
         artifactProvides: [],
         inboundArtifactEdgeCount: 1,
+        outboundArtifactEdgeCount: 0,
+        internalArtifactEdgeCount: 0,
+        diagnosticCount: 0,
+      },
+      {
+        id: "isolated",
+        stageId: "isolated",
+        order: 2,
+        phases: ["shape"],
+        steps: [
+          {
+            id: "mod-swooper-maps.standard.isolated.note",
+            stageId: "isolated",
+            stepId: "note",
+            fullStepId: "mod-swooper-maps.standard.isolated.note",
+            order: 2,
+            orderInStage: 0,
+            phase: "shape",
+            artifactRequires: [],
+            artifactProvides: [],
+            tagRequires: [],
+            tagProvides: [],
+          },
+        ],
+        artifactRequires: [],
+        artifactProvides: [],
+        inboundArtifactEdgeCount: 0,
         outboundArtifactEdgeCount: 0,
         internalArtifactEdgeCount: 0,
         diagnosticCount: 0,
@@ -109,8 +137,8 @@ function recipeDag(): RecipeDagResult {
     ],
     edges: [
       {
-        id: "mod-swooper-maps.standard.shape.seed->mod-swooper-maps.standard.climate.temperature:seed-grid",
-        artifact: { id: "seed-grid", name: "Seed grid" },
+        id: "mod-swooper-maps.standard.shape.seed->mod-swooper-maps.standard.climate.temperature:artifact:hydrology.hydrography",
+        artifact: { id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" },
         from: {
           stageId: "shape",
           stepId: "seed",
