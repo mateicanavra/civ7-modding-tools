@@ -12,6 +12,9 @@ lakes, floodplains, and mismatches.
   engine terrain river counts without requiring debug mode
 - **AND** metadata and mismatch layers are available behind an explicit debug
   control
+- **AND** lakes are separated into plan/readback and exact-counter rows
+- **AND** floodplains are separated into intent, application, and live-readback
+  rows
 - **AND** zero visible rivers yields a specific status and tuning target
 - **AND** layer-backed rows are labeled as inspectable/available rather than
   passed until same-run proof counters or rendered proof packets satisfy the

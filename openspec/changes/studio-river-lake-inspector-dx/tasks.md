@@ -6,7 +6,7 @@
 - [ ] 1.3 Add stable palettes and category metadata for masks.
 - [x] 1.4 Bind each summary row to exact layer identity (`dataTypeKey`,
   `spaceId`, `kind` / `role`, `variantKey`) and proof class.
-- [ ] 1.5 Add lake exact-counter/drift rows and floodplain intent/applied/live
+- [x] 1.5 Add lake exact-counter/drift rows and floodplain intent/applied/live
   rows so raw score layers cannot masquerade as product proof.
 
 ## 2. UI And Config

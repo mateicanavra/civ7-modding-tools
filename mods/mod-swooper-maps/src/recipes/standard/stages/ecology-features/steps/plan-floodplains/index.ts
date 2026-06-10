@@ -1,4 +1,5 @@
 import { ctxStepSeed } from "@swooper/mapgen-core";
+import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 
@@ -28,6 +29,8 @@ const FLOODPLAIN_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {
   FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE:
     (FEATURE_KEY_INDEX.FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE ?? 0) + 1,
 };
+const GROUP_ECOLOGY_FEATURES = "Ecology / Features";
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(PlanFloodplainsStepContract, {
   artifacts: implementArtifacts(
@@ -72,6 +75,7 @@ export default createStep(PlanFloodplainsStepContract, {
 
     const featureIndex = new Uint16Array(base.featureIndex);
     const reserved = new Uint8Array(base.reserved);
+    const floodplainIntentMask = new Uint8Array(width * height);
 
     for (const placement of placements) {
       const feature = placement.feature;
@@ -92,6 +96,7 @@ export default createStep(PlanFloodplainsStepContract, {
         throw new Error(`plan-floodplains attempted to claim occupied tileIndex=${idx} (${x},${y})`);
       }
       featureIndex[idx] = index;
+      floodplainIntentMask[idx] = 1;
     }
 
     deps.artifacts.featureIntentsFloodplains.publish(context, placements);
@@ -100,6 +105,20 @@ export default createStep(PlanFloodplainsStepContract, {
       height,
       featureIndex,
       reserved,
+    });
+
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "ecology.features.floodplainIntentMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: floodplainIntentMask,
+      meta: defineVizMeta("ecology.features.floodplainIntentMask", {
+        label: "Floodplain Intent Mask",
+        group: GROUP_ECOLOGY_FEATURES,
+        palette: "categorical",
+        role: "intent",
+      }),
     });
   },
 });

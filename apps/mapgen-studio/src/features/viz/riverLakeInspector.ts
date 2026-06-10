@@ -70,6 +70,7 @@ export type RiverLakeInspectorLayerRef = Readonly<{
 }>;
 
 export type RiverLakeInspectorRow = Readonly<{
+  rowKey: string;
   lane: RiverLakeInspectorLane;
   laneLabel: string;
   label: string;
@@ -87,6 +88,7 @@ export type RiverLakeFloodplainInspectorSummary = Readonly<{
 }>;
 
 type LaneSpec = Readonly<{
+  rowKey: string;
   lane: RiverLakeInspectorLane;
   laneLabel: string;
   label: string;
@@ -103,6 +105,7 @@ type LaneSpec = Readonly<{
 
 const LANE_SPECS: readonly LaneSpec[] = [
   {
+    rowKey: "hydrology-truth",
     lane: "hydrology",
     laneLabel: "Hydrology",
     label: "Drainage truth",
@@ -125,6 +128,7 @@ const LANE_SPECS: readonly LaneSpec[] = [
       "Same-run Hydrology layers are present. Non-zero river counts require the Hydrology summary artifact, not manifest inference.",
   },
   {
+    rowKey: "projection-plan",
     lane: "projection",
     laneLabel: "Projection",
     label: "Navigable river plan",
@@ -144,6 +148,7 @@ const LANE_SPECS: readonly LaneSpec[] = [
       "The projected navigable-river mask is present and labeled as projection-plan evidence, not engine terrain truth.",
   },
   {
+    rowKey: "terrain-readback",
     lane: "terrain-readback",
     laneLabel: "Terrain",
     label: "Engine terrain readback",
@@ -158,6 +163,7 @@ const LANE_SPECS: readonly LaneSpec[] = [
       "The engine terrain readback layer is present. Exact parity still depends on same-run mismatch counters.",
   },
   {
+    rowKey: "metadata-readback",
     lane: "metadata-readback",
     laneLabel: "Metadata",
     label: "Civ river metadata",
@@ -176,9 +182,10 @@ const LANE_SPECS: readonly LaneSpec[] = [
       "Civ river metadata readback layers are present behind debug inspection.",
   },
   {
+    rowKey: "lake-plan-readback",
     lane: "lakes",
     laneLabel: "Lakes",
-    label: "Lake plan and readback",
+    label: "Lake plan/readback",
     proofClass: "lake-final",
     dataTypeKeys: [
       "hydrology.lakes.lakePlan",
@@ -195,20 +202,73 @@ const LANE_SPECS: readonly LaneSpec[] = [
       "Lake plan and engine readback layers are present. Exact drift counts come from lake parity counters.",
   },
   {
+    rowKey: "lake-exact-counters",
+    lane: "lakes",
+    laneLabel: "Lakes",
+    label: "Lake exact counters",
+    proofClass: "lake-final",
+    dataTypeKeys: [],
+    requiredDataTypeKeys: [],
+    presentStatus: "lake-exact-log-missing",
+    missingStatus: "lake-exact-log-missing",
+    missingClaimStatus: "unresolved",
+    missingEvidence:
+      "Exact lake closure requires accepted-lake count plus final water/classification drift counters from same-run parity, not manifest layers.",
+    presentEvidence:
+      "Exact lake closure requires accepted-lake count plus final water/classification drift counters from same-run parity, not manifest layers.",
+  },
+  {
+    rowKey: "floodplain-intent",
     lane: "floodplains",
     laneLabel: "Floodplains",
-    label: "Feature application",
+    label: "Floodplain intent",
     proofClass: "floodplain-active",
-    dataTypeKeys: ["map.ecology.featureType", "map.ecology.features.rejectionMask"],
-    requiredDataTypeKeys: ["map.ecology.featureType"],
+    dataTypeKeys: ["map.ecology.features.floodplainIntentMask", "ecology.features.floodplainIntentMask"],
+    requiredDataTypeKeys: ["map.ecology.features.floodplainIntentMask"],
+    presentStatus: "floodplain-apply-present",
+    missingStatus: "floodplain-intent-missing",
+    missingEvidence:
+      "No floodplain intent layer is present; Studio cannot inspect whether the pipeline planned floodplain-family features.",
+    presentEvidence:
+      "Floodplain intent is present as a planning layer. Product proof still needs apply and live readback evidence.",
+  },
+  {
+    rowKey: "floodplain-apply",
+    lane: "floodplains",
+    laneLabel: "Floodplains",
+    label: "Floodplain apply",
+    proofClass: "floodplain-active",
+    dataTypeKeys: [
+      "map.ecology.features.floodplainAppliedMask",
+      "map.ecology.features.floodplainRejectedMask",
+      "map.ecology.features.rejectionMask",
+    ],
+    requiredDataTypeKeys: ["map.ecology.features.floodplainAppliedMask"],
     presentStatus: "floodplain-apply-present",
     missingStatus: "floodplain-live-missing",
     missingEvidence:
-      "No final feature-type layer is present; floodplain application/readback cannot be inspected from this manifest.",
+      "No floodplain applied mask is present; floodplain application cannot be inspected from this manifest.",
     presentEvidence:
-      "Final feature application layers are present. Floodplain-specific active counts require feature counters.",
+      "Floodplain applied/rejected masks are present. Live floodplain-family readback remains a separate proof row.",
   },
   {
+    rowKey: "floodplain-live-readback",
+    lane: "floodplains",
+    laneLabel: "Floodplains",
+    label: "Floodplain live readback",
+    proofClass: "floodplain-active",
+    dataTypeKeys: [],
+    requiredDataTypeKeys: [],
+    presentStatus: "floodplain-live-missing",
+    missingStatus: "floodplain-live-missing",
+    missingClaimStatus: "unresolved",
+    missingEvidence:
+      "Live floodplain proof requires nonzero floodplain-family feature readback from the same Civ run; Studio manifest layers cannot close it.",
+    presentEvidence:
+      "Live floodplain proof requires nonzero floodplain-family feature readback from the same Civ run; Studio manifest layers cannot close it.",
+  },
+  {
+    rowKey: "civ-rendered",
     lane: "rendered",
     laneLabel: "Rendered",
     label: "In-game visible rivers",
@@ -224,6 +284,7 @@ const LANE_SPECS: readonly LaneSpec[] = [
       "Studio manifest layers cannot prove rendered Civ visibility; this row closes only with same-run game screenshots.",
   },
   {
+    rowKey: "product-acceptance",
     lane: "acceptance",
     laneLabel: "Acceptance",
     label: "Product closure",
@@ -253,6 +314,10 @@ const COUNT_LABEL_BY_DATA_TYPE_KEY: Readonly<Record<string, string>> = {
   "map.hydrology.lakes.plannedLakeMask": "planned lakes",
   "map.hydrology.lakes.engineLakeMask": "engine lakes",
   "map.hydrology.lakes.rejectedLakeMask": "rejected lakes",
+  "map.ecology.features.floodplainIntentMask": "fp intent",
+  "ecology.features.floodplainIntentMask": "fp intent",
+  "map.ecology.features.floodplainAppliedMask": "fp applied",
+  "map.ecology.features.floodplainRejectedMask": "fp rejected",
   "map.ecology.featureType": "features",
   "map.ecology.features.rejectionMask": "feature rejects",
 };
@@ -386,6 +451,7 @@ export function buildRiverLakeFloodplainInspectorSummary(
         ? spec.presentClaimStatus ?? "available"
         : spec.missingClaimStatus ?? "unresolved";
       return {
+        rowKey: spec.rowKey,
         lane: spec.lane,
         laneLabel: spec.laneLabel,
         label: spec.label,

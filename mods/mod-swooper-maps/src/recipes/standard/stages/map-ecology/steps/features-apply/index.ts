@@ -9,9 +9,14 @@ import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
+const FLOODPLAIN_FEATURE_KEY_PATTERN = /^FEATURE_[A-Z]+_FLOODPLAIN_(?:MINOR|NAVIGABLE)$/;
 
 function incrementCount(counts: Record<string, number>, key: string): void {
   counts[key] = (counts[key] ?? 0) + 1;
+}
+
+function isFloodplainFeatureKey(feature: string): boolean {
+  return FLOODPLAIN_FEATURE_KEY_PATTERN.test(feature);
 }
 
 export default createStep(FeaturesApplyStepContract, {
@@ -58,10 +63,18 @@ export default createStep(FeaturesApplyStepContract, {
     );
 
     const { width, height } = context.dimensions;
+    const floodplainIntentMask = new Uint8Array(width * height);
+    for (const placement of placements.floodplains) {
+      const x = placement.x | 0;
+      const y = placement.y | 0;
+      if (x >= 0 && x < width && y >= 0 && y < height) floodplainIntentMask[y * width + x] = 1;
+    }
     const rejections: Array<{ x: number; y: number; feature: FeatureKey; reason: string }> = [];
     const attemptedByFeature: Record<string, number> = {};
     const appliedByFeature: Record<string, number> = {};
     const rejectedCanHaveFeatureByFeature: Record<string, number> = {};
+    const floodplainAppliedMask = new Uint8Array(width * height);
+    const floodplainRejectedMask = new Uint8Array(width * height);
     let applied = 0;
 
     for (const placement of resolvedPlacements) {
@@ -83,6 +96,7 @@ export default createStep(FeaturesApplyStepContract, {
         continue;
       }
       context.adapter.setFeatureType(x, y, { Feature: featureIndex, Direction: -1, Elevation: 0 });
+      if (isFloodplainFeatureKey(placement.feature)) floodplainAppliedMask[y * width + x] = 1;
       incrementCount(appliedByFeature, placement.feature);
       applied += 1;
     }
@@ -101,7 +115,9 @@ export default createStep(FeaturesApplyStepContract, {
         rejection.y >= 0 &&
         rejection.y < height
       ) {
-        rejectionMask[rejection.y * width + rejection.x] = 1;
+        const index = rejection.y * width + rejection.x;
+        rejectionMask[index] = 1;
+        if (isFloodplainFeatureKey(rejection.feature)) floodplainRejectedMask[index] = 1;
       }
     }
 
@@ -146,6 +162,19 @@ export default createStep(FeaturesApplyStepContract, {
     }));
 
     context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "map.ecology.features.floodplainIntentMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: floodplainIntentMask,
+      meta: defineVizMeta("map.ecology.features.floodplainIntentMask", {
+        label: "Floodplain Intent Mask",
+        group: GROUP_MAP_ECOLOGY,
+        palette: "categorical",
+        role: "intent",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "map.ecology.features.rejectionMask",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
@@ -153,6 +182,32 @@ export default createStep(FeaturesApplyStepContract, {
       values: rejectionMask,
       meta: defineVizMeta("map.ecology.features.rejectionMask", {
         label: "Feature Rejection Mask",
+        group: GROUP_MAP_ECOLOGY,
+        palette: "categorical",
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "map.ecology.features.floodplainAppliedMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: floodplainAppliedMask,
+      meta: defineVizMeta("map.ecology.features.floodplainAppliedMask", {
+        label: "Floodplain Applied Mask",
+        group: GROUP_MAP_ECOLOGY,
+        palette: "categorical",
+        role: "engine",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "map.ecology.features.floodplainRejectedMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: floodplainRejectedMask,
+      meta: defineVizMeta("map.ecology.features.floodplainRejectedMask", {
+        label: "Floodplain Rejected Mask",
         group: GROUP_MAP_ECOLOGY,
         palette: "categorical",
         visibility: "debug",

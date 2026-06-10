@@ -39,6 +39,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     const hydroStep = "mod-swooper-maps.standard.hydrology-hydrography.rivers";
     const mapRiverStep = "mod-swooper-maps.standard.map-rivers.plot-rivers";
     const mapLakeStep = "mod-swooper-maps.standard.map-hydrology.lakes";
+    const floodplainPlanStep = "mod-swooper-maps.standard.ecology-features.plan-floodplains";
     const featuresStep = "mod-swooper-maps.standard.map-ecology.features-apply";
     const summary = buildRiverLakeFloodplainInspectorSummary({
       layers: [
@@ -88,19 +89,33 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
           values: [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
         }),
         gridLayer({
-          stepId: featuresStep,
+          stepId: floodplainPlanStep,
           stepIndex: 4,
-          dataTypeKey: "map.ecology.featureType",
+          dataTypeKey: "map.ecology.features.floodplainIntentMask",
+          role: "intent",
+          values: [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+        }),
+        gridLayer({
+          stepId: featuresStep,
+          stepIndex: 5,
+          dataTypeKey: "map.ecology.features.floodplainAppliedMask",
           role: "engine",
-          values: [0, 0, 5, 0, 0, 8, 0, 0, 0, 0, 0, 0],
+          values: [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+        }),
+        gridLayer({
+          stepId: featuresStep,
+          stepIndex: 5,
+          dataTypeKey: "map.ecology.features.floodplainRejectedMask",
+          visibility: "debug",
+          values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         }),
       ],
     });
 
     expect(summary?.version).toBe(1);
-    const byLane = new Map(summary?.rows.map((row) => [row.lane, row]));
+    const byRowKey = new Map(summary?.rows.map((row) => [row.rowKey, row]));
 
-    const projection = byLane.get("projection");
+    const projection = byRowKey.get("projection-plan");
     expect(projection?.proofClass).toBe("projection-plan");
     expect(projection?.claimStatus).toBe("available");
     expect(projection?.displayStatus).toBe("projection-plan-present");
@@ -111,30 +126,46 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     });
     expect(projection?.counts).toMatchObject({ projected: 2, major: 3 });
 
-    expect(byLane.get("terrain-readback")).toMatchObject({
+    expect(byRowKey.get("terrain-readback")).toMatchObject({
       proofClass: "terrain-readback",
       claimStatus: "available",
       displayStatus: "terrain-readback-present",
     });
-    expect(byLane.get("metadata-readback")?.counts).toMatchObject({ layers: 1, debug: 1, metadata: 1 });
-    expect(byLane.get("lakes")).toMatchObject({
+    expect(byRowKey.get("metadata-readback")?.counts).toMatchObject({ layers: 1, debug: 1, metadata: 1 });
+    expect(byRowKey.get("lake-plan-readback")).toMatchObject({
       proofClass: "lake-final",
       claimStatus: "available",
       displayStatus: "lake-readback-present",
     });
-    expect(byLane.get("lakes")?.counts).toMatchObject({ "planned lakes": 2, "engine lakes": 2 });
-    expect(byLane.get("floodplains")).toMatchObject({
+    expect(byRowKey.get("lake-plan-readback")?.counts).toMatchObject({ "planned lakes": 2, "engine lakes": 2 });
+    expect(byRowKey.get("lake-exact-counters")).toMatchObject({
+      proofClass: "lake-final",
+      claimStatus: "unresolved",
+      displayStatus: "lake-exact-log-missing",
+    });
+    expect(byRowKey.get("floodplain-intent")).toMatchObject({
       proofClass: "floodplain-active",
       claimStatus: "available",
       displayStatus: "floodplain-apply-present",
     });
-    expect(byLane.get("floodplains")?.counts).toMatchObject({ features: 2 });
-    expect(byLane.get("rendered")).toMatchObject({
+    expect(byRowKey.get("floodplain-intent")?.counts).toMatchObject({ "fp intent": 2 });
+    expect(byRowKey.get("floodplain-apply")).toMatchObject({
+      proofClass: "floodplain-active",
+      claimStatus: "available",
+      displayStatus: "floodplain-apply-present",
+    });
+    expect(byRowKey.get("floodplain-apply")?.counts).toMatchObject({ "fp applied": 2 });
+    expect(byRowKey.get("floodplain-live-readback")).toMatchObject({
+      proofClass: "floodplain-active",
+      claimStatus: "unresolved",
+      displayStatus: "floodplain-live-missing",
+    });
+    expect(byRowKey.get("civ-rendered")).toMatchObject({
       proofClass: "civ-rendered",
       claimStatus: "unresolved",
       displayStatus: "rendered-proof-missing",
     });
-    expect(byLane.get("acceptance")).toMatchObject({
+    expect(byRowKey.get("product-acceptance")).toMatchObject({
       proofClass: "product-acceptance",
       claimStatus: "unresolved",
       displayStatus: "acceptance-proof-missing",
@@ -190,26 +221,34 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
 
     const layers = events.flatMap((event) => (event.type === "viz.layer.upsert" ? [event.layer] : []));
     const summary = buildRiverLakeFloodplainInspectorSummary({ layers });
-    const byLane = new Map(summary?.rows.map((row) => [row.lane, row]));
+    const byRowKey = new Map(summary?.rows.map((row) => [row.rowKey, row]));
 
-    const projected = byLane
-      .get("projection")
+    const projected = byRowKey
+      .get("projection-plan")
       ?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.projectedRiverMask");
     expect(projected).toMatchObject({ role: "projection", renderModeId: "grid:projection" });
     expect(projected?.nonZeroCount).toBeGreaterThan(0);
 
-    expect(byLane.get("hydrology")?.claimStatus).toBe("available");
-    expect(byLane.get("projection")?.claimStatus).toBe("available");
-    expect(byLane.get("terrain-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(
+    expect(byRowKey.get("hydrology-truth")?.claimStatus).toBe("available");
+    expect(byRowKey.get("projection-plan")?.claimStatus).toBe("available");
+    expect(byRowKey.get("terrain-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(
       "map.rivers.engineRiverMask"
     );
-    expect(byLane.get("metadata-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(
+    expect(byRowKey.get("metadata-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(
       "map.rivers.engineNavigableRiverMetadataMask"
     );
-    expect(byLane.get("lakes")?.layerRefs.map((ref) => ref.dataTypeKey)).toEqual(
+    expect(byRowKey.get("lake-plan-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toEqual(
       expect.arrayContaining(["map.hydrology.lakes.plannedLakeMask", "map.hydrology.lakes.engineLakeMask"])
     );
-    expect(byLane.get("rendered")?.claimStatus).toBe("unresolved");
-    expect(byLane.get("acceptance")?.claimStatus).toBe("unresolved");
+    expect(byRowKey.get("lake-exact-counters")?.claimStatus).toBe("unresolved");
+    expect(byRowKey.get("floodplain-intent")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(
+      "map.ecology.features.floodplainIntentMask"
+    );
+    expect(byRowKey.get("floodplain-apply")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(
+      "map.ecology.features.floodplainAppliedMask"
+    );
+    expect(byRowKey.get("floodplain-live-readback")?.claimStatus).toBe("unresolved");
+    expect(byRowKey.get("civ-rendered")?.claimStatus).toBe("unresolved");
+    expect(byRowKey.get("product-acceptance")?.claimStatus).toBe("unresolved");
   });
 });
