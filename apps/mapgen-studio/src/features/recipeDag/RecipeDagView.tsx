@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { AlertTriangle, Boxes, ChevronDown, GitBranch, Loader2 } from "lucide-react";
 
 import type { RecipeDagResult } from "./client";
+import { buildRecipeDagLayout, pointsToPath } from "./layout";
 
 type RecipeDagLoadStatus = "idle" | "loading" | "ready" | "error";
 
@@ -18,28 +19,6 @@ export interface RecipeDagViewProps {
   topInset: number;
 }
 
-type StagePosition = Readonly<{
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}>;
-
-type StageEdgeGroup = Readonly<{
-  id: string;
-  fromStageId: string;
-  toStageId: string;
-  artifacts: readonly string[];
-}>;
-
-const STAGE_WIDTH = 232;
-const STAGE_HEIGHT = 116;
-const STAGE_GAP_X = 86;
-const PHASE_GAP_Y = 218;
-const GRAPH_PAD_X = 72;
-const GRAPH_PAD_TOP = 98;
-const GRAPH_PAD_BOTTOM = 112;
-
 export function RecipeDagView(props: RecipeDagViewProps) {
   const {
     recipeId,
@@ -54,34 +33,25 @@ export function RecipeDagView(props: RecipeDagViewProps) {
     topInset,
   } = props;
   const palette = useMemo(() => createPalette(lightMode), [lightMode]);
-  const layout = useMemo(() => (dag ? buildLayout(dag) : null), [dag]);
+  const layout = useMemo(() => (dag ? buildRecipeDagLayout(dag) : null), [dag]);
+  const neighborStageIds = useMemo(() => {
+    if (!selectedStageId || !layout) return null;
+    const ids = new Set([selectedStageId]);
+    for (const edge of layout.edgeGroups) {
+      if (edge.fromStageId === selectedStageId) ids.add(edge.toStageId);
+      if (edge.toStageId === selectedStageId) ids.add(edge.fromStageId);
+    }
+    return ids;
+  }, [layout, selectedStageId]);
 
   return (
     <section
       className={`absolute inset-0 overflow-hidden ${palette.surface}`}
       style={{ paddingTop: topInset }}
-      aria-label="Recipe dependency graph"
+      aria-label={`Recipe dependency graph for ${recipeId}`}
     >
       <div className={`absolute inset-0 pointer-events-none ${palette.grid}`} aria-hidden="true" />
       <div className="relative flex h-full min-h-0 flex-col">
-        <div className={`mx-4 mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 backdrop-blur-sm ${palette.panel}`}>
-          <div className="min-w-0">
-            <div className={`flex items-center gap-2 text-[11px] font-semibold uppercase ${palette.kicker}`}>
-              <GitBranch className="h-4 w-4" />
-              Recipe DAG
-            </div>
-            <h2 className={`mt-1 truncate text-[18px] font-semibold ${palette.heading}`}>
-              {dag?.title ?? recipeId}
-            </h2>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Metric label="Phases" value={dag?.phases.length ?? 0} lightMode={lightMode} />
-            <Metric label="Stages" value={dag?.stages.length ?? 0} lightMode={lightMode} />
-            <Metric label="Artifact edges" value={dag?.edges.length ?? 0} lightMode={lightMode} />
-            <Metric label="Diagnostics" value={dag?.diagnostics.length ?? 0} lightMode={lightMode} tone={dag?.diagnostics.length ? "warn" : "normal"} />
-          </div>
-        </div>
-
         <div className="relative min-h-0 flex-1 overflow-auto px-4 pb-4">
           {status === "loading" || status === "idle" ? (
             <CenteredState
@@ -127,20 +97,51 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                     <path d="M0,0 L0,6 L8,3 z" fill={palette.edge} />
                   </marker>
                 </defs>
-                {layout.phaseBands.map((phase) => (
+                {layout.rankColumns.map((column) => (
+                  <g key={column.rank}>
+                    <line
+                      x1={column.x + 124}
+                      y1={48}
+                      x2={column.x + 124}
+                      y2={layout.height - 58}
+                      stroke={palette.rankLine}
+                      strokeWidth="1"
+                      strokeDasharray="3 8"
+                    />
+                    <text
+                      x={column.x}
+                      y={28}
+                      fill={palette.phaseText}
+                      fontSize="10"
+                      fontWeight="700"
+                    >
+                      {column.label}
+                    </text>
+                  </g>
+                ))}
+                {layout.phaseBands.map((phase, index) => (
                   <g key={phase.id}>
                     <rect
                       x={32}
-                      y={phase.y - 52}
+                      y={phase.y}
                       width={layout.width - 64}
-                      height={PHASE_GAP_Y - 30}
+                      height={phase.height}
                       rx={8}
-                      fill={palette.phaseFill}
+                      fill={palette.phaseFills[index % palette.phaseFills.length]}
                       stroke={palette.phaseStroke}
+                    />
+                    <rect
+                      x={32}
+                      y={phase.y}
+                      width={4}
+                      height={phase.height}
+                      rx={2}
+                      fill={palette.phaseAccents[index % palette.phaseAccents.length]}
+                      opacity="0.9"
                     />
                     <text
                       x={52}
-                      y={phase.y - 24}
+                      y={phase.y + 26}
                       fill={palette.phaseText}
                       fontSize="12"
                       fontWeight="700"
@@ -149,25 +150,30 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                     </text>
                   </g>
                 ))}
-                {layout.edgeGroups.map((edge, index) => {
-                  const from = layout.positions.get(edge.fromStageId);
-                  const to = layout.positions.get(edge.toStageId);
-                  if (!from || !to) return null;
-                  const x1 = from.x + from.width;
-                  const y1 = from.y + 42 + (index % 4) * 10;
-                  const x2 = to.x;
-                  const y2 = to.y + 42 + (index % 4) * 10;
-                  const dx = Math.max(42, Math.abs(x2 - x1) * 0.42);
+                {layout.edgeGroups.map((edge) => {
+                  if (!edge.points.length) return null;
+                  const related = !selectedStageId || edge.fromStageId === selectedStageId || edge.toStageId === selectedStageId;
                   return (
                     <g key={edge.id}>
                       <path
-                        d={`M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`}
+                        d={pointsToPath(edge.points)}
                         fill="none"
                         stroke={palette.edge}
-                        strokeWidth="2"
+                        strokeWidth={related ? "2.4" : "1.4"}
                         markerEnd="url(#recipe-dag-arrow)"
-                        opacity="0.76"
+                        opacity={related ? "0.82" : "0.22"}
                       />
+                      <text
+                        x={edge.labelX}
+                        y={edge.labelY - 5}
+                        fill={palette.edgeLabel}
+                        fontSize="9"
+                        fontWeight="700"
+                        textAnchor="middle"
+                        opacity={related ? "0.9" : "0.25"}
+                      >
+                        {edge.label}
+                      </text>
                       <title>{`${edge.fromStageId} provides ${edge.artifacts.join(", ")} to ${edge.toStageId}`}</title>
                     </g>
                   );
@@ -179,10 +185,11 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                 if (!position) return null;
                 const expanded = expandedStageIds.has(stage.stageId);
                 const selected = selectedStageId === stage.stageId;
+                const dimmed = Boolean(neighborStageIds && !neighborStageIds.has(stage.stageId));
                 return (
                   <article
                     key={stage.stageId}
-                    className={`absolute overflow-hidden rounded-lg border shadow-sm ${selected ? palette.stageSelected : palette.stage}`}
+                    className={`absolute overflow-hidden rounded-lg border shadow-sm transition-opacity ${selected ? palette.stageSelected : palette.stage} ${dimmed ? "opacity-45" : "opacity-100"}`}
                     style={{
                       left: position.x,
                       top: position.y,
@@ -202,7 +209,7 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                       <span className="min-w-0 flex-1">
                         <span className={`block truncate text-[13px] font-semibold ${palette.heading}`}>{stage.stageId}</span>
                         <span className={`mt-0.5 block truncate text-[11px] ${palette.body}`}>
-                          {stage.steps.length} steps, {stage.artifactProvides.length} provides, {stage.artifactRequires.length} requires
+                          Runs {stage.steps.length} {stage.steps.length === 1 ? "step" : "steps"}; creates {stage.artifactProvides.length}; needs {stage.artifactRequires.length}
                         </span>
                       </span>
                       <ChevronDown className={`mt-0.5 h-4 w-4 shrink-0 transition-transform ${expanded ? "rotate-180" : ""} ${palette.icon}`} />
@@ -220,11 +227,11 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                           {stage.steps.map((step) => (
                             <li key={step.fullStepId} className={`rounded border px-2 py-1.5 ${palette.step}`}>
                               <div className={`truncate text-[11px] font-medium ${palette.heading}`}>
-                                {step.orderInStage + 1}. {step.stepId}
+                                Step {step.orderInStage + 1}: {step.stepId}
                               </div>
-                              <div className={`mt-1 truncate text-[10px] ${palette.body}`}>{step.phase}</div>
-                              <ArtifactList label="Requires" values={step.artifactRequires.map((artifact) => artifact.id)} lightMode={lightMode} />
-                              <ArtifactList label="Provides" values={step.artifactProvides.map((artifact) => artifact.id)} lightMode={lightMode} />
+                              <div className={`mt-1 truncate text-[10px] ${palette.body}`}>Phase: {step.phase}</div>
+                              <ArtifactList label="Needs" values={step.artifactRequires.map((artifact) => artifact.id)} lightMode={lightMode} />
+                              <ArtifactList label="Creates" values={step.artifactProvides.map((artifact) => artifact.id)} lightMode={lightMode} />
                             </li>
                           ))}
                         </ol>
@@ -257,58 +264,20 @@ export function RecipeDagView(props: RecipeDagViewProps) {
   );
 }
 
-function buildLayout(dag: RecipeDagResult): {
-  width: number;
-  height: number;
-  positions: Map<string, StagePosition>;
-  phaseBands: readonly { id: string; y: number }[];
-  edgeGroups: readonly StageEdgeGroup[];
-} {
-  const phaseIndexById = new Map(dag.phases.map((phase, index) => [phase.id, index]));
-  const positions = new Map<string, StagePosition>();
-  for (const stage of dag.stages) {
-    const phaseId = stage.phases[0] ?? dag.phases[0]?.id ?? "unphased";
-    const phaseIndex = phaseIndexById.get(phaseId) ?? 0;
-    positions.set(stage.stageId, {
-      x: GRAPH_PAD_X + stage.order * (STAGE_WIDTH + STAGE_GAP_X),
-      y: GRAPH_PAD_TOP + phaseIndex * PHASE_GAP_Y,
-      width: STAGE_WIDTH,
-      height: STAGE_HEIGHT,
-    });
-  }
-  const width = Math.max(980, GRAPH_PAD_X * 2 + dag.stages.length * STAGE_WIDTH + Math.max(0, dag.stages.length - 1) * STAGE_GAP_X);
-  const height = Math.max(520, GRAPH_PAD_TOP + Math.max(1, dag.phases.length) * PHASE_GAP_Y + GRAPH_PAD_BOTTOM);
-  return {
-    width,
-    height,
-    positions,
-    phaseBands: dag.phases.map((phase) => ({
-      id: phase.id,
-      y: GRAPH_PAD_TOP + (phaseIndexById.get(phase.id) ?? 0) * PHASE_GAP_Y,
-    })),
-    edgeGroups: groupStageEdges(dag),
-  };
-}
-
-function groupStageEdges(dag: RecipeDagResult): StageEdgeGroup[] {
-  const groups = new Map<string, { fromStageId: string; toStageId: string; artifacts: Set<string> }>();
-  for (const edge of dag.edges) {
-    if (edge.internal) continue;
-    const key = `${edge.from.stageId}->${edge.to.stageId}`;
-    const existing = groups.get(key) ?? {
-      fromStageId: edge.from.stageId,
-      toStageId: edge.to.stageId,
-      artifacts: new Set<string>(),
-    };
-    existing.artifacts.add(edge.artifact.id);
-    groups.set(key, existing);
-  }
-  return Array.from(groups.entries()).map(([id, group]) => ({
-    id,
-    fromStageId: group.fromStageId,
-    toStageId: group.toStageId,
-    artifacts: Array.from(group.artifacts).sort(),
-  }));
+export function RecipeDagStatsBar(props: { dag: RecipeDagResult | null; recipeId: string; lightMode: boolean }) {
+  const palette = createPalette(props.lightMode);
+  return (
+    <div className={`flex max-w-[min(760px,calc(100vw-260px))] items-center gap-2 rounded-lg border px-2 py-1 backdrop-blur-md ${palette.panel}`}>
+      <div className={`hidden min-w-0 items-center gap-1.5 px-2 text-[11px] font-semibold uppercase md:flex ${palette.kicker}`}>
+        <GitBranch className="h-3.5 w-3.5" />
+        <span className="truncate">{props.dag?.title ?? props.recipeId}</span>
+      </div>
+      <Metric label="Phases" value={props.dag?.phases.length ?? 0} lightMode={props.lightMode} />
+      <Metric label="Stages" value={props.dag?.stages.length ?? 0} lightMode={props.lightMode} />
+      <Metric label="Edges" value={props.dag?.edges.length ?? 0} lightMode={props.lightMode} />
+      <Metric label="Issues" value={props.dag?.diagnostics.length ?? 0} lightMode={props.lightMode} tone={props.dag?.diagnostics.length ? "warn" : "normal"} />
+    </div>
+  );
 }
 
 function Metric(props: { label: string; value: number; lightMode: boolean; tone?: "normal" | "warn" }) {
@@ -321,9 +290,9 @@ function Metric(props: { label: string; value: number; lightMode: boolean; tone?
       ? "border-amber-500/40 bg-amber-500/10 text-amber-200"
       : "border-[#2a2a32] bg-[#111116] text-[#e8e8ed]";
   return (
-    <div className={`min-w-[86px] rounded border px-2 py-1 text-right ${className}`}>
-      <div className="text-[15px] font-semibold leading-5">{props.value}</div>
-      <div className="text-[10px] uppercase">{props.label}</div>
+    <div className={`min-w-[64px] rounded border px-2 py-1 text-right ${className}`}>
+      <div className="text-[13px] font-semibold leading-4">{props.value}</div>
+      <div className="text-[9px] uppercase">{props.label}</div>
     </div>
   );
 }
@@ -386,7 +355,7 @@ function createPalette(lightMode: boolean) {
     return {
       surface: "bg-[#f5f5f7]",
       grid: "bg-[linear-gradient(rgba(0,0,0,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.045)_1px,transparent_1px)] bg-[length:48px_48px]",
-      panel: "border-gray-200 bg-white/95",
+      panel: "border-white/80 bg-white/78",
       stage: "border-gray-200 bg-white",
       stageSelected: "border-cyan-500 bg-white ring-2 ring-cyan-500/30",
       step: "border-gray-200 bg-gray-50",
@@ -397,15 +366,23 @@ function createPalette(lightMode: boolean) {
       kicker: "text-cyan-700",
       icon: "text-cyan-700",
       edge: "#0891b2",
-      phaseFill: "rgba(255,255,255,0.68)",
-      phaseStroke: "rgba(148,163,184,0.55)",
-      phaseText: "#475569",
+      edgeLabel: "#0e7490",
+      rankLine: "rgba(71,85,105,0.22)",
+      phaseFills: [
+        "rgba(236,253,245,0.68)",
+        "rgba(239,246,255,0.68)",
+        "rgba(255,247,237,0.66)",
+        "rgba(245,243,255,0.64)",
+      ],
+      phaseAccents: ["#059669", "#2563eb", "#d97706", "#7c3aed"],
+      phaseStroke: "rgba(100,116,139,0.42)",
+      phaseText: "#334155",
     } as const;
   }
   return {
     surface: "bg-[#0a0a12]",
     grid: "bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[length:48px_48px]",
-    panel: "border-[#2a2a32] bg-[#141418]/95",
+    panel: "border-white/10 bg-[#141418]/72",
     stage: "border-[#2a2a32] bg-[#101014]",
     stageSelected: "border-cyan-400 bg-[#101014] ring-2 ring-cyan-400/30",
     step: "border-[#30303a] bg-[#15151a]",
@@ -416,8 +393,16 @@ function createPalette(lightMode: boolean) {
     kicker: "text-cyan-300",
     icon: "text-cyan-300",
     edge: "#22d3ee",
-    phaseFill: "rgba(20,20,24,0.68)",
-    phaseStroke: "rgba(68,68,78,0.82)",
-    phaseText: "#a9a9b5",
+    edgeLabel: "#67e8f9",
+    rankLine: "rgba(148,163,184,0.16)",
+    phaseFills: [
+      "rgba(6,78,59,0.20)",
+      "rgba(30,64,175,0.18)",
+      "rgba(146,64,14,0.18)",
+      "rgba(91,33,182,0.17)",
+    ],
+    phaseAccents: ["#34d399", "#60a5fa", "#f59e0b", "#a78bfa"],
+    phaseStroke: "rgba(100,116,139,0.42)",
+    phaseText: "#d4d4dc",
   } as const;
 }

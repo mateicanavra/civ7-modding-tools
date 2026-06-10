@@ -1,6 +1,5 @@
 import React from 'react';
 import { ChevronDown, GitBranch, Globe, Map, SlidersHorizontal } from 'lucide-react';
-import { AppBrand } from './AppBrand';
 import { ViewControls } from './ViewControls';
 import { Select } from './ui';
 import {
@@ -37,6 +36,7 @@ export interface AppHeaderProps {
   };
   onSetupConfigChange: (config: Civ7StudioSetupConfig) => void;
   onSavedConfigChange: (configId: string) => void;
+  statsAccessory?: React.ReactNode;
   onHeaderHeightChange?: (height: number) => void;
 }
 export const AppHeader: React.FC<AppHeaderProps> = ({
@@ -53,12 +53,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   setupOptions,
   onSetupConfigChange,
   onSavedConfigChange,
+  statsAccessory,
   onHeaderHeightChange
 }) => {
   const headerRef = React.useRef<HTMLElement | null>(null);
   const [setupOpen, setSetupOpen] = React.useState(false);
-  const panelBg = isLightMode ? 'bg-white/95' : 'bg-[#141418]/95';
-  const panelBorder = isLightMode ? 'border-gray-200' : 'border-[#2a2a32]';
+  const panelBg = isLightMode ? 'bg-white/70' : 'bg-[#141418]/62';
+  const panelBorder = isLightMode ? 'border-white/80' : 'border-white/10';
   const textSecondary = isLightMode ? 'text-[#6b7280]' : 'text-[#8a8a96]';
   const textMuted = isLightMode ? 'text-[#9ca3af]' : 'text-[#5a5a66]';
   const dividerColor = isLightMode ? 'bg-gray-200' : 'bg-[#2a2a32]';
@@ -117,20 +118,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   return (
     <header
       ref={headerRef}
-      className="absolute top-4 left-4 right-4 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3"
+      className="pointer-events-none absolute left-3 right-3 top-2 z-20 h-10"
       style={{
         minHeight: HEADER_HEIGHT
       }}>
 
-      {/* Left: App Brand */}
-      <div className="shrink-0">
-        <AppBrand isLightMode={isLightMode} />
-      </div>
-
       {/* Center: World Settings */}
-      <div className="min-w-0 flex flex-col items-center gap-2 overflow-visible">
+      <div className="pointer-events-auto absolute left-1/2 top-0 flex w-[min(760px,calc(100vw-300px))] min-w-0 -translate-x-1/2 flex-col items-center gap-2 overflow-visible">
         <div
-          className={`flex min-h-10 max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 px-3 py-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
+          className={`flex min-h-10 w-full max-w-full flex-nowrap items-center justify-center gap-x-3 px-3 py-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
 
           <div className="flex items-center gap-1.5">
             <Globe className={`w-4 h-4 ${textMuted}`} />
@@ -206,6 +202,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${setupOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
+
+        {statsAccessory ? statsAccessory : null}
 
         {setupOpen ? (
           <div
@@ -291,7 +289,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       </div>
 
       {/* Right: View Controls */}
-      <div className="flex shrink-0 items-start gap-2">
+      <div className="pointer-events-auto absolute right-0 top-0 flex shrink-0 flex-col items-end gap-1.5">
         <div
           className={`h-10 inline-flex items-center gap-1 px-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}
           role="tablist"

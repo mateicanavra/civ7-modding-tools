@@ -4,7 +4,7 @@ import React from 'react';
 // ============================================================================
 // Toolbar for theme toggle and grid visibility.
 // ============================================================================
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Grid3X3, Sun, Moon, Monitor } from 'lucide-react';
 import { cn } from '../utils';
 import type { ThemePreference } from '../types';
 // ============================================================================
@@ -58,8 +58,8 @@ export const ViewControls: React.FC<ViewControlsProps> = ({
   // ==========================================================================
   // Styles
   // ==========================================================================
-  const panelBg = isLightMode ? 'bg-white/95' : 'bg-[#141418]/95';
-  const panelBorder = isLightMode ? 'border-gray-200' : 'border-[#2a2a32]';
+  const panelBg = isLightMode ? 'bg-white/70' : 'bg-[#141418]/62';
+  const panelBorder = isLightMode ? 'border-white/80' : 'border-white/10';
   const dividerColor = isLightMode ? 'bg-gray-200' : 'bg-[#2a2a32]';
   // Icon button styles based on theme
   const iconBtn = cn(
@@ -103,7 +103,7 @@ export const ViewControls: React.FC<ViewControlsProps> = ({
         aria-pressed={showGrid}
         className={showGrid ? iconBtnActive : iconBtn}>
 
-        <div className="w-4 h-4" />
+        <Grid3X3 className="w-4 h-4" />
       </button>
     </div>);
 

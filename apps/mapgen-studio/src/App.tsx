@@ -91,7 +91,7 @@ import {
 import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
 import { createStudioRecipeDagClient, type RecipeDagResult } from "./features/recipeDag/client";
-import { RecipeDagView } from "./features/recipeDag/RecipeDagView";
+import { RecipeDagStatsBar, RecipeDagView } from "./features/recipeDag/RecipeDagView";
 import {
   findVariantIdForEra,
   findVariantKeyForEra,
@@ -2821,7 +2821,7 @@ function AppContent(props: AppContentProps) {
       selectedStageId={selectedStageId || null}
       onToggleStage={handleRecipeDagStageToggle}
       onSelectStage={setSelectedStageId}
-      topInset={panelTop}
+      topInset={panelTop + 84}
     />
   );
 
@@ -2893,6 +2893,13 @@ function AppContent(props: AppContentProps) {
       setupOptions={setupControlOptions}
       onSetupConfigChange={setSetupConfig}
       onSavedConfigChange={handleSavedSetupConfigChange}
+      statsAccessory={activeStudioView === "dag" ? (
+        <RecipeDagStatsBar
+          dag={recipeDagState.recipeId === recipeSettings.recipe ? recipeDagState.dag : null}
+          recipeId={recipeSettings.recipe}
+          lightMode={isLightMode}
+        />
+      ) : null}
       onHeaderHeightChange={handleHeaderHeightChange}
     />
   );

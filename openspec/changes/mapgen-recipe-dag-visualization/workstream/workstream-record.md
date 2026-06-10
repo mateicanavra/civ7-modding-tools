@@ -7,7 +7,8 @@
   as a full-screen secondary Studio tab.
 - Future state: A recipe author can select a recipe, open the DAG tab, see
   phase clusters, stage nodes, artifact dependency edges, and expandable
-  sequential steps without reading source files.
+  sequential steps without reading source files; dense recipes use a
+  dependency-ranked layout that remains smooth to pan with a trackpad.
 - Non-goals: Editable graph mutation APIs; runtime trace overlays; generated
   artifact edits; Civ7 runtime/direct-control changes; phase-as-order semantics.
 - Hard core: Artifact edges come from authored `contract.artifacts` producer and
@@ -25,8 +26,8 @@
 ## Status
 
 - Last updated: 2026-06-10
-- Current gate: 11 - Review and closure after implementation verification.
-- Next gate: Graphite slice amendment and handoff.
+- Current gate: 8 - Follow-on DAG layout/chrome slice implementation.
+- Next gate: focused verification, browser inspection, and Graphite commit.
 - Blocked by: none.
 - Stop condition: Retarget if the unmerged MapGen Studio redesign stack is
   required for correctness.
@@ -34,10 +35,10 @@
 ## Repo State
 
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-mapgen-recipe-dag`
-- Branch: `codex/mapgen-recipe-dag-visualization`
-- Parent branch: `main`
-- Stack position: Graphite-tracked slice on `main` for
-  `mapgen-recipe-dag-visualization`.
+- Branch: `codex/mapgen-dag-ui-layout`
+- Parent branch: `codex/mapgen-recipe-dag-visualization`
+- Stack position: Graphite-tracked follow-on slice above
+  `codex/mapgen-recipe-dag-visualization`.
 - Dirty files and owner: this workstream owns
   `openspec/changes/mapgen-recipe-dag-visualization/**` and later write-set
   files listed in `proposal.md`.
@@ -66,8 +67,9 @@
   recipe artifacts are touched.
 - Runtime proof: not required for read-only recipe source visualization.
 - Product proof: browser/component verification that selected recipe load,
-  full-screen DAG render, artifact edges, diagnostics, and stage expansion are
-  visible and accessible.
+  full-screen DAG render, compact chrome, centered stats, dependency-ranked
+  lanes, artifact edges, diagnostics, and stage expansion are visible,
+  accessible, and smooth under native scrolling.
 - Closure boundary: source tests, Studio build, OpenSpec validation, diff check,
   clean Graphite state.
 
@@ -78,6 +80,11 @@
   - Turing: recipe/stage/step/artifact corpus exploration.
   - Dewey: oRPC + Effect code pattern exploration.
   - Raman: Studio frontend/visualization exploration.
+  - Pasteur: DAG layout/library investigation for the follow-on UI slice.
+  - Curie: compact chrome and DAG presentation review for the follow-on UI
+    slice.
+  - Dirac: OpenSpec, verification, and Graphite hygiene review for the follow-on
+    UI slice.
 - Review agents: to be spawned after implementation for bounded review lanes.
 - Open findings:
   - Turing confirmed no separate persisted DAG exists; source recipe `stages`
@@ -88,3 +95,9 @@
   - Raman confirmed no React graph library exists; a deterministic SVG/HTML DAG
     view under `apps/mapgen-studio/src/features/recipeDag/` fits better than
     deck.gl or `packages/mapgen-viz`.
+  - Pasteur recommended a custom deterministic dependency-ranked layout now and
+    deferring React Flow/ELK/Dagre until editable graph semantics require them.
+  - Curie identified the compact transparent header, centered stats strip, step
+    copy, and lane color improvements as the UI write set.
+  - Dirac confirmed the existing OpenSpec change should receive a follow-on
+    layout/readability update rather than a new semantic change.
