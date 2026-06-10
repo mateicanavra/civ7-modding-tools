@@ -994,33 +994,13 @@ export class MockAdapter implements EngineAdapter {
     this.riverMask.fill(0);
     this.riverTypes.fill(MOCK_NO_RIVER);
 
-    // Compatibility-only mirror of Civ7's high-level generator surface. Standard
-    // MapGen river projection stamps terrain directly and does not call this.
-    let startX = -1;
-    let startY = -1;
-    for (let y = 0; y < this.height && startX < 0; y++) {
-      for (let x = 0; x < this.width; x++) {
-        if (!this.isWater(x, y)) {
-          startX = x;
-          startY = y;
-          break;
-        }
-      }
-    }
-
-    if (startX < 0) return;
-
-    const maxLen = Math.max(1, Math.min(this.height - startY, _maxLength | 0 || this.height));
-    const minLen = Math.max(1, _minLength | 0 || 1);
-    const length = Math.min(maxLen, minLen);
-
-    for (let dy = 0; dy < length; dy++) {
-      const y = startY + dy;
-      if (this.isWater(startX, y)) continue;
-      const i = this.idx(startX, y);
+    // Compatibility-oriented mock: mirror Civ's bulk writer onto already
+    // stamped navigable-river terrain so map-stage tests can prove the bounded
+    // projection contract without inventing a second fake river network.
+    for (let i = 0; i < this.width * this.height; i++) {
+      if ((this.terrainTypes[i] ?? 0) !== (_navigableTerrain & 0xff)) continue;
       this.riverMask[i] = 1;
       this.riverTypes[i] = MOCK_RIVER_NAVIGABLE;
-      this.terrainTypes[i] = _navigableTerrain & 0xff;
     }
   }
 
@@ -1137,7 +1117,7 @@ export class MockAdapter implements EngineAdapter {
       terrainNavigableRiverTileCount,
       minorRiverStampingSupported: false,
       minorRiverUnsupportedReason:
-        "MockAdapter mirrors the current projection path: navigable terrain can be stamped directly, but the proven bulk Civ river-modeling writer is not invoked here.",
+        "MockAdapter mirrors the bounded projection/readback contract, but exact minor-river metadata parity remains diagnostic.",
     };
   }
 

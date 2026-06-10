@@ -79,6 +79,13 @@ describe("map-hydrology/lakes runtime fill drift", () => {
       sinkMask: sinkLakeMask,
       outletMask: new Uint8Array(size),
     });
+    context.artifacts.set("artifact:hydrology.riverNetworkMetrics", {
+      upstreamArea: new Int32Array(size),
+      streamOrderProxy: new Uint8Array(size),
+      mouthType: new Uint8Array(size),
+      slopeClass: new Uint8Array(size),
+      flowPermanenceProxy: new Uint8Array(size),
+    });
     context.artifacts.set("artifact:hydrology.lakePlan", {
       width,
       height,

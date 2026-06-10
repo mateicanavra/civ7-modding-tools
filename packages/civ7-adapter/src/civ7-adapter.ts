@@ -691,7 +691,7 @@ export class Civ7Adapter implements EngineAdapter {
       terrainNavigableRiverTileCount,
       minorRiverStampingSupported: false,
       minorRiverUnsupportedReason:
-        "Current MapGen river projection stamps navigable terrain directly and does not invoke Civ's proven bulk river-modeling sequence, so minor-river metadata authoring is not attempted on this path.",
+        "Current projection path materializes a Civ-visible navigable subset, but exact minor-river metadata parity remains a readback-only boundary rather than a proven MapGen intent-writer surface.",
     };
   }
 
