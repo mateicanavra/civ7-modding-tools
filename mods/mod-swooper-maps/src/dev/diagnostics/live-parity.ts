@@ -122,9 +122,11 @@ export type NativeRiverObjectReadbackStatus =
 export type RiverMetadataParityExample = Readonly<{
   x: number;
   y: number;
+  plannedMinorRiver?: number | null;
   projectedNavigableTerrain: number | null;
   liveTerrainNavigableRiver: number | null;
   liveNavigableRiver: number | null;
+  liveMinorRiver?: number | null;
   liveRiverType: number | null;
 }>;
 
@@ -144,6 +146,10 @@ export type RiverMetadataParityReport = Readonly<{
   liveRiverTileCount: number;
   liveNavigableRiverTileCount: number;
   liveMinorRiverTileCount: number;
+  liveMinorOnPlannedMinorCount: number;
+  liveMinorOffPlannedMinorCount: number;
+  plannedMinorWithoutLiveMinorCount: number;
+  plannedMinorVsLiveMinorMismatchCount: number;
   nativeRiverObjectReadbackStatus: NativeRiverObjectReadbackStatus;
   nativeRiverObjectCount: number | null;
   nativeRiverObjectSampleCount: number;
@@ -153,6 +159,15 @@ export type RiverMetadataParityReport = Readonly<{
   minorRiverStampingSupported?: boolean;
   minorRiverUnsupportedReason?: string;
   examples: ReadonlyArray<RiverMetadataParityExample>;
+}>;
+
+type MaskPairComparison = Readonly<{
+  compared: number;
+  presentOnPlannedCount: number;
+  liveOffPlannedCount: number;
+  plannedWithoutLiveCount: number;
+  mismatchCount: number;
+  dimensionMismatch: boolean;
 }>;
 
 export type LakeReadbackCounters = Readonly<{
@@ -1638,6 +1653,7 @@ function buildRiverMetadataParityReport(
   const liveRiverTileCount = countOnes(liveRiver?.values);
   const liveNavigableRiverTileCount = countOnes(liveNavigable?.values);
   const liveMinorRiverTileCount = countOnes(liveMinor?.values);
+  const minorComparison = compareMaskPair(localPlannedMinor, liveMinor);
   const nativeRiverObjects = nativeRiverObjectParityFields({
     snapshot: live.nativeRiverObjects,
     projectedNavigableTerrainTileCount,
@@ -1673,6 +1689,10 @@ function buildRiverMetadataParityReport(
       liveRiverTileCount,
       liveNavigableRiverTileCount,
       liveMinorRiverTileCount,
+      liveMinorOnPlannedMinorCount: minorComparison.presentOnPlannedCount,
+      liveMinorOffPlannedMinorCount: minorComparison.liveOffPlannedCount,
+      plannedMinorWithoutLiveMinorCount: minorComparison.plannedWithoutLiveCount,
+      plannedMinorVsLiveMinorMismatchCount: minorComparison.mismatchCount,
       ...nativeRiverObjects,
       projectedVsLiveTerrainMismatchCount: 0,
       projectedVsLiveMetadataMismatchCount: 0,
@@ -1688,7 +1708,8 @@ function buildRiverMetadataParityReport(
     localProjected.values.length !== liveTerrain.values.length ||
     localProjected.width !== liveNavigable.width ||
     localProjected.height !== liveNavigable.height ||
-    localProjected.values.length !== liveNavigable.values.length
+    localProjected.values.length !== liveNavigable.values.length ||
+    minorComparison.dimensionMismatch
   ) {
     return {
       status: "dimension-mismatch",
@@ -1701,6 +1722,10 @@ function buildRiverMetadataParityReport(
       liveRiverTileCount,
       liveNavigableRiverTileCount,
       liveMinorRiverTileCount,
+      liveMinorOnPlannedMinorCount: minorComparison.presentOnPlannedCount,
+      liveMinorOffPlannedMinorCount: minorComparison.liveOffPlannedCount,
+      plannedMinorWithoutLiveMinorCount: minorComparison.plannedWithoutLiveCount,
+      plannedMinorVsLiveMinorMismatchCount: minorComparison.mismatchCount,
       ...nativeRiverObjects,
       projectedVsLiveTerrainMismatchCount: 0,
       projectedVsLiveMetadataMismatchCount: 0,
@@ -1719,6 +1744,9 @@ function buildRiverMetadataParityReport(
     const projectedValue = normalizedMaskValue(localProjected.values[index]);
     const liveTerrainValue = normalizedMaskValue(liveTerrain.values[index]);
     const liveNavigableValue = normalizedMaskValue(liveNavigable.values[index]);
+    const plannedMinorValue =
+      localPlannedMinor === undefined ? null : normalizedMaskValue(localPlannedMinor.values[index]);
+    const liveMinorValue = liveMinor === undefined ? null : normalizedMaskValue(liveMinor.values[index]);
     if (liveTerrainValue === null || liveNavigableValue === null) {
       missingLiveReadback += 1;
     }
@@ -1733,15 +1761,20 @@ function buildRiverMetadataParityReport(
     if (terrainMetadataMismatch) liveTerrainVsMetadataMismatchCount += 1;
     if (
       examples.length < 10 &&
-      (projectedTerrainMismatch || projectedMetadataMismatch || terrainMetadataMismatch)
+      (projectedTerrainMismatch ||
+        projectedMetadataMismatch ||
+        terrainMetadataMismatch ||
+        (plannedMinorValue !== null && liveMinorValue !== null && plannedMinorValue !== liveMinorValue))
     ) {
       const y = Math.floor(index / localProjected.width);
       examples.push({
         x: index - y * localProjected.width,
         y,
+        plannedMinorRiver: plannedMinorValue,
         projectedNavigableTerrain: projectedValue,
         liveTerrainNavigableRiver: liveTerrainValue,
         liveNavigableRiver: liveNavigableValue,
+        liveMinorRiver: liveMinorValue,
         liveRiverType: liveRiverType?.values[index] ?? null,
       });
     }
@@ -1749,7 +1782,8 @@ function buildRiverMetadataParityReport(
 
   const metadataDivergenceCount =
     projectedVsLiveMetadataMismatchCount +
-    liveTerrainVsMetadataMismatchCount;
+    liveTerrainVsMetadataMismatchCount +
+    minorComparison.mismatchCount;
   const status: RiverMetadataParityReport["status"] =
     missingLiveReadback > 0
       ? "readback-missing"
@@ -1769,12 +1803,88 @@ function buildRiverMetadataParityReport(
     liveRiverTileCount,
     liveNavigableRiverTileCount,
     liveMinorRiverTileCount,
+    liveMinorOnPlannedMinorCount: minorComparison.presentOnPlannedCount,
+    liveMinorOffPlannedMinorCount: minorComparison.liveOffPlannedCount,
+    plannedMinorWithoutLiveMinorCount: minorComparison.plannedWithoutLiveCount,
+    plannedMinorVsLiveMinorMismatchCount: minorComparison.mismatchCount,
     ...nativeRiverObjects,
     projectedVsLiveTerrainMismatchCount,
     projectedVsLiveMetadataMismatchCount,
     liveTerrainVsMetadataMismatchCount,
     ...minorRiverBoundary,
     examples,
+  };
+}
+
+function compareMaskPair(
+  planned: SurfaceGrid | undefined,
+  live: SurfaceGrid | undefined
+): MaskPairComparison {
+  if (planned === undefined && live === undefined) {
+    return {
+      compared: 0,
+      presentOnPlannedCount: 0,
+      liveOffPlannedCount: 0,
+      plannedWithoutLiveCount: 0,
+      mismatchCount: 0,
+      dimensionMismatch: false,
+    };
+  }
+  if (planned === undefined) {
+    const liveCount = countOnes(live?.values);
+    return {
+      compared: live?.values.length ?? 0,
+      presentOnPlannedCount: 0,
+      liveOffPlannedCount: liveCount,
+      plannedWithoutLiveCount: 0,
+      mismatchCount: liveCount,
+      dimensionMismatch: false,
+    };
+  }
+  if (live === undefined) {
+    const plannedCount = countOnes(planned.values);
+    return {
+      compared: planned.values.length,
+      presentOnPlannedCount: 0,
+      liveOffPlannedCount: 0,
+      plannedWithoutLiveCount: plannedCount,
+      mismatchCount: plannedCount,
+      dimensionMismatch: false,
+    };
+  }
+  if (
+    planned.width !== live.width ||
+    planned.height !== live.height ||
+    planned.values.length !== live.values.length
+  ) {
+    return {
+      compared: 0,
+      presentOnPlannedCount: 0,
+      liveOffPlannedCount: 0,
+      plannedWithoutLiveCount: 0,
+      mismatchCount: 0,
+      dimensionMismatch: true,
+    };
+  }
+
+  let presentOnPlannedCount = 0;
+  let liveOffPlannedCount = 0;
+  let plannedWithoutLiveCount = 0;
+  for (let index = 0; index < planned.values.length; index += 1) {
+    const plannedValue = normalizedMaskValue(planned.values[index]);
+    const liveValue = normalizedMaskValue(live.values[index]);
+    if (plannedValue === null || liveValue === null) continue;
+    if (plannedValue === 1 && liveValue === 1) presentOnPlannedCount += 1;
+    if (plannedValue === 0 && liveValue === 1) liveOffPlannedCount += 1;
+    if (plannedValue === 1 && liveValue === 0) plannedWithoutLiveCount += 1;
+  }
+  return {
+    compared: planned.values.length,
+    presentOnPlannedCount,
+    liveOffPlannedCount,
+    plannedWithoutLiveCount,
+    mismatchCount: liveOffPlannedCount + plannedWithoutLiveCount,
+    dimensionMismatch: false,
   };
 }
 

@@ -357,6 +357,10 @@ describe("final-surface parity proof", () => {
       liveRiverTileCount: 2,
       liveNavigableRiverTileCount: 1,
       liveMinorRiverTileCount: 1,
+      liveMinorOnPlannedMinorCount: 1,
+      liveMinorOffPlannedMinorCount: 0,
+      plannedMinorWithoutLiveMinorCount: 0,
+      plannedMinorVsLiveMinorMismatchCount: 0,
       minorRiverStampingSupported: false,
       minorRiverUnsupportedReason: "minor metadata writer unproven",
     });
@@ -369,6 +373,78 @@ describe("final-surface parity proof", () => {
     });
     expect(proof.proofClaims.claims["product-acceptance"]).toMatchObject({
       status: "unresolved",
+    });
+  });
+
+  test("fails metadata parity when native minor rivers do not match planned minor truth", () => {
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof(),
+      local: snapshot({
+        source: "local-mapgen",
+        resourceCoordinateProof: true,
+        riverMetadata: {
+          width: 2,
+          height: 1,
+          plannedMinorRiver: { width: 2, height: 1, values: [1, 0] },
+          plannedMajorRiver: { width: 2, height: 1, values: [0, 0] },
+          projectedNavigableTerrain: { width: 2, height: 1, values: [0, 0] },
+          minorRiverStampingSupported: false,
+          minorRiverUnsupportedReason: "bulk native minor metadata requires parity classification",
+        },
+      }),
+      live: snapshot({
+        source: "live-civ7",
+        riverMetadata: {
+          width: 2,
+          height: 1,
+          terrainNavigableRiver: { width: 2, height: 1, values: [0, 0] },
+          riverType: {
+            width: 2,
+            height: 1,
+            values: [NO_RIVER_TYPE, RIVER_TYPE_MINOR],
+          },
+          river: { width: 2, height: 1, values: [0, 1] },
+          navigableRiver: { width: 2, height: 1, values: [0, 0] },
+          minorRiver: { width: 2, height: 1, values: [0, 1] },
+        },
+        nativeRiverObjects: nativeRiverObjects(1),
+      }),
+      now: () => new Date("2026-06-06T00:00:00.000Z"),
+    });
+
+    expect(proof.status).toBe("complete");
+    expect(proof.riverMetadataParity).toMatchObject({
+      status: "terrain-match-metadata-divergent",
+      plannedMinorRiverTileCount: 1,
+      liveMinorRiverTileCount: 1,
+      liveMinorOnPlannedMinorCount: 0,
+      liveMinorOffPlannedMinorCount: 1,
+      plannedMinorWithoutLiveMinorCount: 1,
+      plannedMinorVsLiveMinorMismatchCount: 2,
+      projectedVsLiveTerrainMismatchCount: 0,
+      projectedVsLiveMetadataMismatchCount: 0,
+      liveTerrainVsMetadataMismatchCount: 0,
+    });
+    expect(proof.riverMetadataParity?.examples).toEqual([
+      expect.objectContaining({
+        x: 0,
+        y: 0,
+        plannedMinorRiver: 1,
+        liveMinorRiver: 0,
+      }),
+      expect.objectContaining({
+        x: 1,
+        y: 0,
+        plannedMinorRiver: 0,
+        liveMinorRiver: 1,
+      }),
+    ]);
+    expect(proof.proofClaims.claims["terrain-readback"]).toMatchObject({
+      status: "pass",
+    });
+    expect(proof.proofClaims.claims["metadata-readback"]).toMatchObject({
+      status: "fail",
+      evidenceLinks: ["river-metadata.terrain-match-metadata-divergent"],
     });
   });
 

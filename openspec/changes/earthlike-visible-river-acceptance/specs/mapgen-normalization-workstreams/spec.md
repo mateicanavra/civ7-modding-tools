@@ -40,6 +40,9 @@ river metadata readback as separate proof classes.
   writer surface is proven by disposable-session readback
 - **AND** any bulk native `RIVER_MINOR` metadata produced by Civ river modeling
   is reported as engine materialization/readback
+- **AND** the final-surface parity proof reports native minor-river metadata
+  counts on planned minor truth, off planned minor truth, and planned minor
+  truth missing native minor metadata
 - **AND** authored minor-river success is not claimed unless same-run evidence
   classifies native minor river objects against Hydrology truth
 

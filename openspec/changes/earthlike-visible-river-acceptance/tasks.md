@@ -80,6 +80,12 @@
     authored navigable terrain stamping. Remaining proof must classify any
     native-added river objects against Hydrology truth instead of treating bulk
     metadata existence as minor-river product closure.
+  - Final-surface parity now reports
+    `liveMinorOnPlannedMinorCount`, `liveMinorOffPlannedMinorCount`,
+    `plannedMinorWithoutLiveMinorCount`, and
+    `plannedMinorVsLiveMinorMismatchCount`. Native minor metadata that appears
+    off the Hydrology planned-minor mask or misses planned minor truth keeps the
+    metadata-readback claim failed even when terrain readback is complete.
 - [x] 2.6 Add lake/river coupled physical benchmark fixtures:
   tilted island plane, central ridge, closed bowl, saddle spill, tributary
   valleys, rain-shadow coast, arid interior plateau, low-gradient coastal
@@ -201,10 +207,12 @@
     with planned lakes marked as physics and engine lakes marked as readback.
   - Final-surface lake readback proof:
     `bun run --cwd mods/mod-swooper-maps test -- test/diagnostics/live-parity.test.ts`
-    passed on 2026-06-09. It requires `lakeReadbackParity` to expose local
+    passed on 2026-06-09 and again after the 2026-06-10 native minor-river
+    parity gate. It requires `lakeReadbackParity` to expose local
     accepted-lake/final-drift counters, preserve current `missing-exact-log`
-    semantics for older Studio proof logs, and block future exact/local lake
-    counter divergence.
+    semantics for older Studio proof logs, block future exact/local lake
+    counter divergence, and fail metadata-readback when native minor-river
+    metadata does not match Hydrology planned minor truth.
   - `test/map-rivers/plot-rivers-post-refresh.test.ts` guards the exact
     `artifact:map.rivers.projectedNavigableRivers` and
     `artifact:map.rivers.engineProjectionRivers` IDs named by the OpenSpec
