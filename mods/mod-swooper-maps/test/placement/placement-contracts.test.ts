@@ -8,8 +8,10 @@ import {
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../src/recipes/standard/tags.js";
 import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
+import adjustResourcesStep from "../../src/recipes/standard/stages/placement/steps/adjust-resources/index.js";
 import assignAdvancedStartsStep from "../../src/recipes/standard/stages/placement/steps/assign-advanced-starts/index.js";
 import assignStartsStep from "../../src/recipes/standard/stages/placement/steps/assign-starts/index.js";
+import planResourcesStep from "../../src/recipes/standard/stages/placement/steps/plan-resources/index.js";
 import placeNaturalWondersStep from "../../src/recipes/standard/stages/placement/steps/place-natural-wonders/index.js";
 import placeDiscoveriesStep from "../../src/recipes/standard/stages/placement/steps/place-discoveries/index.js";
 import placeResourcesStep from "../../src/recipes/standard/stages/placement/steps/place-resources/index.js";
@@ -71,23 +73,63 @@ describe("placement product/effect contracts", () => {
     expect(placementStepIds).toEqual(
       expect.arrayContaining([
         "mod-swooper-maps.standard.placement.prepare-placement-surface",
-        "mod-swooper-maps.standard.placement.place-resources",
+        "mod-swooper-maps.standard.placement.plan-resources",
         "mod-swooper-maps.standard.placement.assign-starts",
+        "mod-swooper-maps.standard.placement.adjust-resources",
+        "mod-swooper-maps.standard.placement.place-resources",
         "mod-swooper-maps.standard.placement.place-discoveries",
         "mod-swooper-maps.standard.placement.assign-advanced-starts",
         "mod-swooper-maps.standard.placement.placement",
       ])
     );
+    // S5 (D3 contract change): plan-resources -> assign-starts ->
+    // adjust-resources (support pass) -> place-resources (stamp) ->
+    // place-discoveries. Planning stays before starts; stamping moves after
+    // the support pass.
     expect(
-      placementStepIds.indexOf("mod-swooper-maps.standard.placement.place-resources")
+      placementStepIds.indexOf("mod-swooper-maps.standard.placement.plan-resources")
     ).toBeLessThan(placementStepIds.indexOf("mod-swooper-maps.standard.placement.assign-starts"));
     expect(
       placementStepIds.indexOf("mod-swooper-maps.standard.placement.assign-starts")
     ).toBeLessThan(
+      placementStepIds.indexOf("mod-swooper-maps.standard.placement.adjust-resources")
+    );
+    expect(
+      placementStepIds.indexOf("mod-swooper-maps.standard.placement.adjust-resources")
+    ).toBeLessThan(
+      placementStepIds.indexOf("mod-swooper-maps.standard.placement.place-resources")
+    );
+    expect(
+      placementStepIds.indexOf("mod-swooper-maps.standard.placement.place-resources")
+    ).toBeLessThan(
       placementStepIds.indexOf("mod-swooper-maps.standard.placement.place-discoveries")
     );
 
+    expect(planResourcesStep.contract.provides).toContain(
+      PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned
+    );
+    expect(assignStartsStep.contract.requires).toContain(
+      PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned
+    );
+    expect(adjustResourcesStep.contract.requires).toContain(
+      PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned
+    );
+    expect(adjustResourcesStep.contract.provides).toContain(
+      PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesAdjusted
+    );
+    expect(adjustResourcesStep.contract.artifacts.provides).toContain(
+      placementArtifacts.resourcePlanAdjusted
+    );
+    expect(placeResourcesStep.contract.requires).toContain(
+      PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesAdjusted
+    );
+    expect(placeResourcesStep.contract.artifacts.requires).toContain(
+      placementArtifacts.resourcePlanAdjusted
+    );
     expect(placeResourcesStep.contract.provides).toContain(
+      PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced
+    );
+    expect(placeDiscoveriesStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced
     );
     expect(assignStartsStep.contract.provides).toContain(

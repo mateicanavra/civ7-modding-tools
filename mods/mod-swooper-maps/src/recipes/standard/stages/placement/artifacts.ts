@@ -132,6 +132,36 @@ const PlacementSurfacePreparationSchema = Type.Object(
   }
 );
 
+const ResourceEligibilityArtifactSchema = Type.Object(
+  {
+    width: Type.Integer({ minimum: 1 }),
+    height: Type.Integer({ minimum: 1 }),
+    rows: Type.Array(
+      Type.Object(
+        {
+          resourceType: Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" }),
+          resourceTypeId: Type.Integer({ minimum: 0 }),
+          habitatMask: TypedArraySchemas.u8({
+            description: "Habitat lane eligibility (1=in-lane).",
+          }),
+          legalMask: TypedArraySchemas.u8({
+            description: "Per-resource policy legality from Resource_ValidPlacements rows (1=legal).",
+          }),
+          intensity: TypedArraySchemas.f32({
+            description: "Habitat intensity (0..1).",
+          }),
+        },
+        { additionalProperties: false }
+      )
+    ),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Per-type habitat/legality/intensity fields the resource plan was selected under (S5). Published by the planning step so the post-starts support pass adjusts the plan inside the SAME policy constraints instead of re-deriving them.",
+  }
+);
+
 const PlanStartsOutputSchema = placement.ops.planStarts.output;
 
 const StartAssignmentArtifactSchema = Type.Object(
@@ -403,12 +433,22 @@ const ResourceReconciliationSummarySchema = Type.Object(
         rotation: Type.Integer({ minimum: 0 }),
         rangeFloor: Type.Integer({ minimum: 0 }),
         regionMinimum: Type.Integer({ minimum: 0 }),
+        support: Type.Integer({
+          minimum: 0,
+          description:
+            "Placed counts for support-pass ADDITIONS (S5). Support-driven moves keep their original planning phase; full per-adjustment provenance lives in the adjusted-plan artifact.",
+        }),
       },
       {
         additionalProperties: false,
-        description: "Placed counts by planning phase (joined from the resource plan intents).",
+        description: "Placed counts by planning phase (joined from the adjusted resource plan intents).",
       }
     ),
+    supportAdjustedPlacedCount: Type.Integer({
+      minimum: 0,
+      description:
+        "How many placed outcomes came from support-adjusted intents (moves + adds), making the S5 provenance visible in the stamped outcomes (additive field).",
+    }),
   },
   { additionalProperties: false }
 );
@@ -453,6 +493,16 @@ export const placementArtifacts = {
     name: "resourcePlan",
     id: "artifact:placement.resourcePlan",
     schema: resources.ops.selectResourceSites.output,
+  }),
+  resourceEligibility: defineArtifact({
+    name: "resourceEligibility",
+    id: "artifact:placement.resourceEligibility",
+    schema: ResourceEligibilityArtifactSchema,
+  }),
+  resourcePlanAdjusted: defineArtifact({
+    name: "resourcePlanAdjusted",
+    id: "artifact:placement.resourcePlanAdjusted",
+    schema: resources.ops.adjustResourceSupport.output,
   }),
   naturalWonderPlan: defineArtifact({
     name: "naturalWonderPlan",

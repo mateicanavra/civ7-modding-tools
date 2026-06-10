@@ -17,11 +17,17 @@ type PlanIntent = {
   family: "aquatic" | "cultivated" | "terrestrial" | "geological";
   laneId: string;
   laneKind: "land" | "water";
-  phase: "rotation" | "range-floor" | "region-minimum";
+  phase: "rotation" | "range-floor" | "region-minimum" | "support";
   order: number;
   regionSlot: number;
   landmassId: number;
   inHabitat: boolean;
+  support?: {
+    action: "move" | "add";
+    reason: "support-floor" | "support-equity";
+    seatIndex: number;
+    fromPlotIndex?: number;
+  };
 };
 
 function intent(
@@ -48,27 +54,26 @@ function intent(
   };
 }
 
+// S5: place-resources stamps the support-ADJUSTED plan shape.
 function plan(width: number, height: number, intents: PlanIntent[]) {
   return {
     width,
     height,
     seed: 1,
     plannedCount: intents.length,
-    rotationCount: intents.filter((row) => row.phase === "rotation").length,
-    rangeFloorCount: intents.filter((row) => row.phase === "range-floor").length,
-    regionMinimumCount: intents.filter((row) => row.phase === "region-minimum").length,
-    siteSpacingTiles: 3,
-    equitySkippedSiteCount: 0,
+    moveCount: 0,
+    addCount: intents.filter((row) => row.phase === "support").length,
     intents,
-    perType: [],
-    regionMinimums: [],
+    adjustments: [],
+    shortfalls: [],
+    perStart: [],
+    equity: { gapBefore: null, gapAfter: null, tolerance: 2 },
     settings: {
-      density: 1,
-      sparsity: 0,
-      rarityFidelity: 1,
-      perTypeSpacingFloorScale: 1,
-      equityMaxDensityRatio: 1.8,
-      affinityRuleCount: 0,
+      enabled: true,
+      supportFloor: 2,
+      supportRadiusTiles: 4,
+      equityTolerance: 2,
+      strength: 1,
     },
   } as unknown as Parameters<typeof placeResourcesWithTypedOutcomes>[0]["plan"];
 }
@@ -119,7 +124,8 @@ describe("resource placement diagnostics", () => {
       placedCount: 2,
       rejectedCount: 2,
       shortfalls: [{ resourceType: 9, reason: "cannot-have-resource", count: 2 }],
-      byPhase: { rotation: 2, rangeFloor: 0, regionMinimum: 0 },
+      byPhase: { rotation: 2, rangeFloor: 0, regionMinimum: 0, support: 0 },
+      supportAdjustedPlacedCount: 0,
     });
   });
 
@@ -184,7 +190,8 @@ describe("resource placement diagnostics", () => {
         placedCount: 3,
         rejectedCount: 1,
         shortfalls: [{ resourceType: 44, reason: "cannot-have-resource", count: 1 }],
-        byPhase: { rotation: 3, rangeFloor: 0, regionMinimum: 0 },
+        byPhase: { rotation: 3, rangeFloor: 0, regionMinimum: 0, support: 0 },
+        supportAdjustedPlacedCount: 0,
       },
       [
         { index: 13, resourceType: "RESOURCE_GOLD", resourceClassType: null, name: null },
@@ -237,7 +244,7 @@ describe("resource placement diagnostics", () => {
         plannedCount: 4,
         placedCount: 3,
         rejectedCount: 1,
-        byPhase: { rotation: 3, rangeFloor: 0, regionMinimum: 0 },
+        byPhase: { rotation: 3, rangeFloor: 0, regionMinimum: 0, support: 0 },
         shortfalls: [{ resourceType: 44, reason: "cannot-have-resource", count: 1 }],
       },
       byReason: [{ reason: "cannot-have-resource", count: 1 }],
@@ -275,7 +282,8 @@ describe("resource placement diagnostics", () => {
         placedCount: 159,
         rejectedCount: 0,
         shortfalls: [],
-        byPhase: { rotation: 140, rangeFloor: 15, regionMinimum: 4 },
+        byPhase: { rotation: 140, rangeFloor: 15, regionMinimum: 4, support: 0 },
+        supportAdjustedPlacedCount: 0,
       },
       Array.from({ length: 55 }, (_, index) => ({
         index,
@@ -301,7 +309,7 @@ describe("resource placement diagnostics", () => {
         plannedCount: 159,
         placedCount: 159,
         rejectedCount: 0,
-        byPhase: { rotation: 140, rangeFloor: 15, regionMinimum: 4 },
+        byPhase: { rotation: 140, rangeFloor: 15, regionMinimum: 4, support: 0 },
       },
     });
     expect(telemetry).not.toHaveProperty("unmappedPlacedResourceTypes");

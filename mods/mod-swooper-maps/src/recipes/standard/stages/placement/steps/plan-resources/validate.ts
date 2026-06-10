@@ -65,6 +65,36 @@ export function validateResourceDemandPlanArtifact(value: unknown): ValidationIs
   return issues;
 }
 
+export function validateResourceEligibilityArtifact(value: unknown): ValidationIssue[] {
+  if (!isRecord(value)) return [issue("resourceEligibility artifact must be an object.")];
+  const issues: ValidationIssue[] = [];
+  const width = Number(value.width);
+  const height = Number(value.height);
+  const size = width * height;
+  if (!Number.isSafeInteger(size) || size <= 0) {
+    return [issue(`resourceEligibility has invalid dimensions ${String(value.width)}x${String(value.height)}.`)];
+  }
+  const rows = Array.isArray(value.rows) ? value.rows : null;
+  if (!rows) return [issue("resourceEligibility.rows must be an array.")];
+  const seenTypes = new Set<string>();
+  for (const row of rows) {
+    if (!isRecord(row)) {
+      issues.push(issue("resourceEligibility row must be an object."));
+      continue;
+    }
+    const type = String(row.resourceType);
+    if (seenTypes.has(type)) issues.push(issue(`resourceEligibility row ${type} appears more than once.`));
+    seenTypes.add(type);
+    for (const field of ["habitatMask", "legalMask", "intensity"] as const) {
+      const mask = row[field] as { length?: number } | undefined;
+      if (!mask || mask.length !== size) {
+        issues.push(issue(`resourceEligibility ${type}.${field} length must equal ${size}.`));
+      }
+    }
+  }
+  return issues;
+}
+
 export function validateResourcePlanArtifact(value: unknown): ValidationIssue[] {
   if (!isRecord(value)) return [issue("resourcePlan artifact must be an object.")];
   const issues: ValidationIssue[] = [];

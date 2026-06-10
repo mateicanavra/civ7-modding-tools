@@ -732,6 +732,19 @@ export function collectWorldBalanceStats(args: Readonly<{
   if (!Array.isArray(resourcePlan?.intents) || !Array.isArray(resourcePlan?.perType)) {
     throw new Error("Missing placement.resourcePlan.");
   }
+  // S5: place-resources stamps the support-ADJUSTED plan, so every per-plot
+  // join against placed outcomes must use the adjusted intents (the base plan
+  // remains authority for per-type ranges, spacing floors, and shortfalls).
+  const resourcePlanAdjusted = context.artifacts.get(placementArtifacts.resourcePlanAdjusted.id) as
+    | {
+        intents?: ReadonlyArray<
+          Readonly<{ plotIndex?: number; resourceTypeId?: number; inHabitat?: boolean }>
+        >;
+      }
+    | undefined;
+  const stampedResourceIntents = Array.isArray(resourcePlanAdjusted?.intents)
+    ? resourcePlanAdjusted.intents
+    : resourcePlan.intents;
   if (!Array.isArray(resourcePlacement?.outcomes)) {
     throw new Error("Missing placement.resourcePlacementOutcomes.");
   }
@@ -905,7 +918,7 @@ export function collectWorldBalanceStats(args: Readonly<{
     }
   }
   const resourceIntentByPlot = new Map<number, { resourceTypeId: number; inHabitat: boolean }>();
-  for (const intent of resourcePlan.intents) {
+  for (const intent of stampedResourceIntents) {
     if (Number.isFinite(intent.resourceTypeId)) {
       incrementCount(resourcePlanTypeCounts, intent.resourceTypeId as number);
     }
@@ -917,7 +930,7 @@ export function collectWorldBalanceStats(args: Readonly<{
       });
     }
   }
-  const resourcePlannedPlotIndices = resourcePlan.intents
+  const resourcePlannedPlotIndices = stampedResourceIntents
     .map((intent) =>
       Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex as number) : -1
     )

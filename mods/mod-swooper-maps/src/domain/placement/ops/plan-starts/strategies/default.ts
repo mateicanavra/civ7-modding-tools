@@ -231,13 +231,13 @@ function buildResourceSupport(args: {
   width: number;
   height: number;
   radius: number;
-  placedResourcePlotIndices?: readonly number[];
+  plannedResourcePlotIndices?: readonly number[];
 }): Uint8Array | undefined {
-  if (!args.placedResourcePlotIndices?.length || args.radius <= 0) return undefined;
+  if (!args.plannedResourcePlotIndices?.length || args.radius <= 0) return undefined;
   const size = Math.max(0, args.width * args.height);
   const counts = new Uint16Array(size);
   let maxCount = 0;
-  for (const raw of args.placedResourcePlotIndices) {
+  for (const raw of args.plannedResourcePlotIndices) {
     const plotIndex = raw | 0;
     if (plotIndex < 0 || plotIndex >= size) continue;
     for (const idx of getHexRadiusIndicesOddQ(plotIndex, args.width, args.height, args.radius)) {
@@ -401,7 +401,7 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
         width,
         height,
         radius: Math.max(0, config.resourceSupportRadiusTiles | 0),
-        placedResourcePlotIndices: input.placedResourcePlotIndices,
+        plannedResourcePlotIndices: input.plannedResourcePlotIndices,
       });
 
     const climateThresholds = computeClimateComfortThresholds({

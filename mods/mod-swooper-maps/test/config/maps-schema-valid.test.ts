@@ -198,6 +198,7 @@ const PLACEMENT_PUBLIC_KEYS = [
   "discoveries",
   "resources",
   "starts",
+  "support",
 ] as const;
 
 const DEFAULT_STARTS_CONFIG = {
@@ -240,8 +241,10 @@ const PLACEMENT_INTERNAL_STAGE_KEYS = [
   "plot-landmass-regions",
   "place-natural-wonders",
   "prepare-placement-surface",
-  "place-resources",
+  "plan-resources",
   "assign-starts",
+  "adjust-resources",
+  "place-resources",
   "place-discoveries",
   "assign-advanced-starts",
   "placement",

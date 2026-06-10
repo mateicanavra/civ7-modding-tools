@@ -6,7 +6,12 @@ import { placementArtifacts } from "../../artifacts.js";
 const PlaceDiscoveriesStepContract = defineStep({
   id: "place-discoveries",
   phase: "placement",
-  requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned],
+  // S5 chain: discoveries follow the resource stamp — resourcesPlaced now
+  // lands after startsAssigned + the support pass (D3 reorder).
+  requires: [
+    PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned,
+    PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced,
+  ],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.discoveriesPlaced],
   artifacts: {
     requires: [placementArtifacts.discoveryPlan, placementArtifacts.startAssignment],

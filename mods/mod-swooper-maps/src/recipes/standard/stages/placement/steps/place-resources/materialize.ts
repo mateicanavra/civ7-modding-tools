@@ -9,7 +9,7 @@ import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 import resources from "@mapgen/domain/resources";
 
-type ResourcePlanOutput = Static<(typeof resources.ops.selectResourceSites)["output"]>;
+type ResourcePlanOutput = Static<(typeof resources.ops.adjustResourceSupport)["output"]>;
 type ResourcePlacementOutcomes = Static<
   (typeof import("../../artifacts.js").placementArtifacts)["resourcePlacementOutcomes"]["schema"]
 >;
@@ -359,14 +359,16 @@ function assertResourceOutcomeMatchesIntent(
 }
 
 /**
- * Thin materializer (placement-realignment S3 / D4): stamps the typed plot
- * intents from the domain/resources site-selection plan and reconciles
- * engine legality with typed outcomes.
+ * Thin materializer (placement-realignment S3 / D4, reordered by S5 / D3):
+ * stamps the typed plot intents from the ADJUSTED resource plan (site
+ * selection + post-starts support pass) and reconciles engine legality with
+ * typed outcomes.
  *
- * The plan is authority for type-at-plot. Engine rejections are recorded as
- * typed shortfalls per resource type; there is NO type re-decision, NO
- * relocation, and NO whole-map fallback here. Wrong-type readback
- * (mismatch) remains fail-hard.
+ * The adjusted plan is authority for type-at-plot. Engine rejections are
+ * recorded as typed shortfalls per resource type; there is NO type
+ * re-decision, NO relocation, and NO whole-map fallback here. Wrong-type
+ * readback (mismatch) remains fail-hard. Support-pass provenance is carried
+ * into the outcomes (byPhase.support + supportAdjustedPlacedCount).
  */
 export function placeResourcesWithTypedOutcomes({
   adapter,
@@ -386,7 +388,8 @@ export function placeResourcesWithTypedOutcomes({
   }
 
   const outcomes: ResourcePlacementOutcome[] = [];
-  const byPhase = { rotation: 0, rangeFloor: 0, regionMinimum: 0 };
+  const byPhase = { rotation: 0, rangeFloor: 0, regionMinimum: 0, support: 0 };
+  let supportAdjustedPlacedCount = 0;
   const shortfallCounts = new Map<string, number>();
 
   for (const planned of plan.intents) {
@@ -400,7 +403,9 @@ export function placeResourcesWithTypedOutcomes({
     if (outcome.status === "placed") {
       if (planned.phase === "rotation") byPhase.rotation += 1;
       else if (planned.phase === "range-floor") byPhase.rangeFloor += 1;
-      else byPhase.regionMinimum += 1;
+      else if (planned.phase === "region-minimum") byPhase.regionMinimum += 1;
+      else byPhase.support += 1;
+      if (planned.support) supportAdjustedPlacedCount += 1;
     } else if (outcome.status === "rejected") {
       const key = `${planned.resourceTypeId}:${outcome.reason}`;
       shortfallCounts.set(key, (shortfallCounts.get(key) ?? 0) + 1);
@@ -441,6 +446,7 @@ export function placeResourcesWithTypedOutcomes({
       rejectedCount: plan.intents.length - placedCount,
       shortfalls,
       byPhase,
+      supportAdjustedPlacedCount,
     },
     outcomes,
   };

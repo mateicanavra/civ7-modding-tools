@@ -555,6 +555,12 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         perTypeSpacingFloorScale,
         equityMaxDensityRatio,
         affinityRuleCount: (config.affinityRules ?? []).length,
+        affinityRules: (config.affinityRules ?? []).map((rule) => ({
+          resourceA: rule.resourceA,
+          resourceB: rule.resourceB,
+          relation: rule.relation,
+          radiusTiles: rule.radiusTiles,
+        })),
       },
     };
   },

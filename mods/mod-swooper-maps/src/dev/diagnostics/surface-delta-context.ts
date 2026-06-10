@@ -1797,11 +1797,19 @@ function readResourcePlanEvidence(evidence: unknown): {
   minSpacingTiles: number | null;
 } {
   const preferredByPlot = new Map<number, number>();
-  const plan = isRecord(evidence) ? evidence.resourcePlan : undefined;
+  // S5: prefer the support-ADJUSTED plan when present — its intents are the
+  // ones actually stamped; the base resourcePlan stays as fallback evidence.
+  const evidenceRecord = isRecord(evidence) ? evidence : undefined;
+  const plan = isRecord(evidenceRecord?.resourcePlanAdjusted)
+    ? evidenceRecord.resourcePlanAdjusted
+    : evidenceRecord?.resourcePlan;
   // S3 plan shape: typed per-plot intents (plan authority); the planned type
   // IS the stamped type, so "preferred" == planned resourceTypeId.
   const intents = isRecord(plan) && Array.isArray(plan.intents) ? plan.intents : [];
-  const minSpacingTiles = isRecord(plan) ? finiteInteger(plan.siteSpacingTiles) : null;
+  // siteSpacingTiles lives on the BASE plan (the adjusted plan does not
+  // re-declare selection settings).
+  const basePlan = evidenceRecord?.resourcePlan;
+  const minSpacingTiles = isRecord(basePlan) ? finiteInteger(basePlan.siteSpacingTiles) : null;
   for (const intent of intents) {
     if (!isRecord(intent)) continue;
     const plotIndex = finiteInteger(intent.plotIndex);
@@ -1847,7 +1855,10 @@ function readResourcePlanIntentEvidence(evidence: unknown): {
   byPlot: ReadonlyMap<number, ResourcePlanIntentContext>;
 } {
   const byPlot = new Map<number, ResourcePlanIntentContext>();
-  const plan = isRecord(evidence) ? evidence.resourcePlan : undefined;
+  const evidenceRecord = isRecord(evidence) ? evidence : undefined;
+  const plan = isRecord(evidenceRecord?.resourcePlanAdjusted)
+    ? evidenceRecord.resourcePlanAdjusted
+    : evidenceRecord?.resourcePlan;
   const intents = isRecord(plan) && Array.isArray(plan.intents) ? plan.intents : [];
   for (const row of intents) {
     if (!isRecord(row)) continue;

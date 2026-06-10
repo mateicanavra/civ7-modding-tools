@@ -295,12 +295,13 @@ const PlanStartsContract = defineOp({
     ),
     resourceSupport: Type.Optional(
       TypedArraySchemas.u8({
-        description: "Per-tile nearby placed-resource support score (0..255).",
+        description: "Per-tile nearby planned-resource support score (0..255).",
       })
     ),
-    placedResourcePlotIndices: Type.Optional(
+    plannedResourcePlotIndices: Type.Optional(
       Type.Array(Type.Integer({ minimum: 0 }), {
-        description: "Placed resource plot indices used to derive nearby start support.",
+        description:
+          "PLANNED resource site plot indices (select-resource-sites intents) used to derive nearby start support. Planned, not placed: since S5 (D3 contract change) resource stamping runs after starts + the support pass, so plan intents are the only resource signal that exists at start time.",
       })
     ),
   }),
@@ -461,13 +462,13 @@ const PlanStartsContract = defineOp({
         minimum: 0,
         maximum: 4,
         default: 0.5,
-        description: "Weight for nearby placed-resource support in start score.",
+        description: "Weight for nearby planned-resource support in start score.",
       }),
       resourceSupportRadiusTiles: Type.Integer({
         minimum: 0,
         maximum: 8,
         default: 4,
-        description: "Radius used to count nearby placed-resource support for starts.",
+        description: "Radius used to count nearby planned-resource support for starts.",
       }),
       freshwaterWeight: Type.Number({
         minimum: 0,

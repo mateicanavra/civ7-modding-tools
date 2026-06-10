@@ -85,7 +85,7 @@ const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "plotEffectCoverage",
   ],
   "map-ecology": ["knobs", "biomeBindings"],
-  placement: ["knobs", "naturalWonders", "discoveries", "resources", "starts"],
+  placement: ["knobs", "naturalWonders", "discoveries", "resources", "starts", "support"],
 };
 
 function isObject(value: unknown): value is Record<string, unknown> {

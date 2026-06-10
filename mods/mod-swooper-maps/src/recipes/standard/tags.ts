@@ -48,6 +48,12 @@ export const PLACEMENT_PRODUCT_EFFECT_TAGS = {
   placement: {
     naturalWondersPlaced: "effect:placement.naturalWondersPlaced",
     surfacePrepared: "effect:placement.surfacePrepared",
+    // S5 (D3 contract change): planning and stamping are separate effects so
+    // starts assign against the PLAN and the support pass adjusts the plan
+    // before any engine stamping:
+    // resourcesPlanned → startsAssigned → resourcesAdjusted → resourcesPlaced.
+    resourcesPlanned: "effect:placement.resourcesPlanned",
+    resourcesAdjusted: "effect:placement.resourcesAdjusted",
     resourcesPlaced: "effect:placement.resourcesPlaced",
     startsAssigned: "effect:placement.startsAssigned",
     discoveriesPlaced: "effect:placement.discoveriesPlaced",
@@ -145,6 +151,16 @@ const EFFECT_OWNERS: Record<string, TagOwner> = {
     pkg: "mod-swooper-maps",
     phase: "placement",
     stepId: "prepare-placement-surface",
+  },
+  [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned]: {
+    pkg: "mod-swooper-maps",
+    phase: "placement",
+    stepId: "plan-resources",
+  },
+  [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesAdjusted]: {
+    pkg: "mod-swooper-maps",
+    phase: "placement",
+    stepId: "adjust-resources",
   },
   [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced]: {
     pkg: "mod-swooper-maps",

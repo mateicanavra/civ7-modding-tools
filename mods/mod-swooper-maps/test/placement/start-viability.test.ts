@@ -33,7 +33,7 @@ type StartInput = {
   aridityIndex: Float32Array;
   riverClass: Uint8Array;
   lakeMask: Uint8Array;
-  placedResourcePlotIndices?: number[];
+  plannedResourcePlotIndices?: number[];
 };
 
 function idx(width: number, x: number, y: number): number {
@@ -174,7 +174,7 @@ describe("start viability planning", () => {
     );
     const supportedPlot = idx(input.width, 2, 2);
     const unsupportedPlot = idx(input.width, 8, 6);
-    input.placedResourcePlotIndices = [supportedPlot];
+    input.plannedResourcePlotIndices = [supportedPlot];
 
     const result = plan(input, {
       resourceSupportRadiusTiles: 2,
