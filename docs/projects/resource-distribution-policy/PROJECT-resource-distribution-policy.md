@@ -1,7 +1,22 @@
 # Project: Resource Distribution Policy
-**Status:** Active
+**Status:** Active (steps 1–5 implemented; live Milestone A proof open)
 **Timeline:** 2026-06-05 -> open
 **Teams:** MapGen / Swooper Maps
+
+## Implementation Ledger
+
+| Step | Status | Where |
+| --- | --- | --- |
+| 1. Metrics before tuning | **Done (2026-06-09)** | Placement metrics harness (`mods/mod-swooper-maps/src/dev/diagnostics/placement-metrics.ts`, `verify:placement-metrics`); E2.9 spatial-quality metrics + baseline in `docs/projects/placement-realignment/evidence/baseline-2026-06-09.md` (placement-realignment S0). |
+| 2. Spacing preserved during fallback | **Done (2026-06-09, superseded 2026-06-10)** | S1d recorded spacing shortfalls instead of decaying to 0; S3 then deleted the assignment/fallback machinery entirely — spacing floors are per-type plan invariants (`select-resource-sites`), violations impossible by construction (placement-realignment S3, change `placement-realignment-s3-resources`). |
+| 3. Civ-policy test harness | **Done (2026-06-09/10)** | S2 regenerated `Resource_ValidPlacements` + Weight/MinimumPerHemisphere tables (`@civ7/map-policy` V1); the mock adapter's static `canHaveResource` emulation plus `policy/resource-legality.ts` make legality-driven clustering testable offline (op-contract + world-balance suites). |
+| 4. Lane planners promoted into the recipe | **Done (2026-06-10)** | New `plan-resources` placement step runs the four family demand planners + group rollup with proven runtime ids and derived habitat lanes (change `placement-realignment-s3-resources`). |
+| 5. Lane-aware blue-noise selection | **Done (2026-06-10)** | New `resources/select-resource-sites` op: blue-noise stream + habitat-intensity thinning + official weight deficit rotation + range/region-minimum passes + per-landmass equity + affinity/exclusion; thin typed-reconcile materializer. Gates: `docs/projects/placement-realignment/evidence/s3-results-2026-06-10.md` (start-support balancing is S5 of the placement realignment, not this step). |
+
+Live-game disposition (Milestone A of the placement realignment) remains
+open: full-grid parity rerun, the 106/6996 resource-mismatch corpus refresh,
+and `civ7 game` probes for live region-minimum counts and mock-vs-live
+legality agreement.
 
 ## Frame
 
