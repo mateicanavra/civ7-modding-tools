@@ -4,13 +4,19 @@ import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 import placement from "@mapgen/domain/placement";
 
+import {
+  PLACEMENT_VIZ_GROUP,
+  UNIT_SCORE_VALUE_SPEC,
+  buildPlacementPointBuffers,
+} from "../../viz.js";
+
 type PlanStartsOutput = Static<(typeof placement.ops.planStarts)["output"]>;
 type StartAssignmentArtifact = Static<
   (typeof import("../../artifacts.js").placementArtifacts)["startAssignment"]["schema"]
 >;
 type StartSeatRecord = PlanStartsOutput["seats"][number];
 
-const GROUP_GAMEPLAY = "Gameplay / Placement";
+const GROUP_GAMEPLAY = PLACEMENT_VIZ_GROUP;
 const START_POSITION_COLORS: Array<[number, number, number, number]> = [
   [59, 130, 246, 230],
   [239, 68, 68, 230],
@@ -21,6 +27,34 @@ const START_POSITION_COLORS: Array<[number, number, number, number]> = [
   [249, 115, 22, 230],
   [99, 102, 241, 230],
 ];
+const START_COMPONENT_KEYS = [
+  "freshwater",
+  "fertility",
+  "expansion",
+  "climate",
+  "resource",
+  "roughness",
+] as const;
+const START_SEAT_RUNG_CATEGORIES = [
+  { value: 1, label: "Regional", color: [34, 197, 94, 235] as [number, number, number, number] },
+  { value: 2, label: "Open Pool", color: [245, 158, 11, 235] as [number, number, number, number] },
+  {
+    value: 3,
+    label: "Quality Relaxed",
+    color: [249, 115, 22, 235] as [number, number, number, number],
+  },
+  {
+    value: 4,
+    label: "Spacing Relaxed",
+    color: [239, 68, 68, 235] as [number, number, number, number],
+  },
+];
+const START_SEAT_RUNG_VALUES: Record<string, number> = {
+  regional: 1,
+  "open-pool": 2,
+  "quality-relaxed": 3,
+  "spacing-relaxed": 4,
+};
 const START_TIER_CATEGORIES = [
   { value: 0, label: "None", color: [148, 163, 184, 0] as [number, number, number, number] },
   { value: 1, label: "Rejected", color: [100, 116, 139, 120] as [number, number, number, number] },
@@ -187,6 +221,14 @@ function cloneSeat(seat: DeepReadonly<StartSeatRecord>): StartSeatRecord {
   };
 }
 
+/**
+ * Emits the start-scoring decision surface from the PLAN output (S7, E4.2).
+ *
+ * Called before seat materialization so the score/tier/component layers exist
+ * even when selection degrades or stamping fails — the old code emitted only
+ * after a successful assignment, which hid scoring viz exactly when it was
+ * most needed (audit-register studio-viz P2).
+ */
 export function emitStartViabilityViz(
   context: ExtendedMapContext,
   starts: DeepReadonly<PlanStartsOutput>
@@ -200,6 +242,7 @@ export function emitStartViabilityViz(
       dims: { width, height },
       format: "f32",
       values: starts.scoreByTile as Float32Array,
+      valueSpec: UNIT_SCORE_VALUE_SPEC,
       meta: defineVizMeta("placement.starts.viabilityScore", {
         label: "Start Viability",
         group: GROUP_GAMEPLAY,
@@ -226,6 +269,87 @@ export function emitStartViabilityViz(
       }),
     });
   }
+  emitStartComponentViz(context, starts);
+  emitStartSeatRungViz(context, starts.seats);
+}
+
+/**
+ * Per-component score grids (freshwater/fertility/expansion/climate/resource/
+ * roughness), rebuilt from the retained per-candidate component vectors so
+ * studio can decompose WHY a tile scored as it did (E4.3; target card A1).
+ * Non-candidate tiles are zero, matching the composite scoreByTile convention.
+ */
+function emitStartComponentViz(
+  context: ExtendedMapContext,
+  starts: DeepReadonly<PlanStartsOutput>
+): void {
+  if (!context.viz) return;
+  const { width, height } = context.dimensions;
+  const size = Math.max(0, width * height);
+  const grids = new Map<string, Float32Array>();
+  for (const key of START_COMPONENT_KEYS) grids.set(key, new Float32Array(size));
+  for (const candidate of starts.candidates) {
+    const plotIndex = candidate.plotIndex | 0;
+    if (plotIndex < 0 || plotIndex >= size) continue;
+    for (const key of START_COMPONENT_KEYS) {
+      grids.get(key)![plotIndex] = candidate.components[key];
+    }
+  }
+  for (const key of START_COMPONENT_KEYS) {
+    const dataTypeKey = `placement.starts.component.${key}`;
+    context.viz.dumpGrid(context.trace, {
+      dataTypeKey,
+      spaceId: "tile.hexOddQ",
+      dims: { width, height },
+      format: "f32",
+      values: grids.get(key)!,
+      valueSpec: UNIT_SCORE_VALUE_SPEC,
+      meta: defineVizMeta(dataTypeKey, {
+        label: `Start Component: ${key[0]!.toUpperCase()}${key.slice(1)}`,
+        group: GROUP_GAMEPLAY,
+        description:
+          key === "roughness"
+            ? "Roughness penalty magnitude per start candidate (0 = flat, 1 = max rugged); zero on non-candidate tiles."
+            : `Per-candidate ${key} component of the start viability score (0..1); zero on non-candidate tiles.`,
+        palette: "continuous",
+      }),
+    });
+  }
+}
+
+/**
+ * Seat points labeled by the fallback-ladder rung that seated each player
+ * (fairness-relevant: every non-regional rung is a recorded degradation).
+ * Unseated seats (plotIndex -1) cannot be points; they are surfaced via
+ * warnStartDegradations and the fairness report in the artifact.
+ */
+function emitStartSeatRungViz(
+  context: ExtendedMapContext,
+  seats: DeepReadonly<PlanStartsOutput["seats"]>
+): void {
+  if (!context.viz || !seats.length) return;
+  const { width } = context.dimensions;
+  const rows = seats.map((seat) => ({
+    plotIndex: seat.plotIndex,
+    value: START_SEAT_RUNG_VALUES[seat.rung] ?? 4,
+  }));
+  const { positions, values, count } = buildPlacementPointBuffers(rows, width);
+  if (!count) return;
+  context.viz.dumpPoints(context.trace, {
+    dataTypeKey: "placement.starts.seatRung",
+    spaceId: "tile.hexOddQ",
+    positions,
+    values,
+    valueFormat: "u16",
+    meta: defineVizMeta("placement.starts.seatRung", {
+      label: "Start Seat Rungs",
+      group: GROUP_GAMEPLAY,
+      description:
+        "Selection-ladder rung per seated start (regional > open-pool > quality-relaxed > spacing-relaxed). Non-regional rungs are recorded degradations; unseated seats appear in the fairness report, not here.",
+      palette: "categorical",
+      categories: START_SEAT_RUNG_CATEGORIES,
+    }),
+  });
 }
 
 export function emitStartPositionsViz(

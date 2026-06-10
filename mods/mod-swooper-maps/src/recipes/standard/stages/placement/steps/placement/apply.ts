@@ -4,6 +4,11 @@ import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import { logAsciiMap, logTerrainStats } from "../terrain-diagnostics.js";
 import type { PlacementOutputsV1 } from "../../placement-outputs.js";
+import {
+  PLACEMENT_TILE_SPACE_ID,
+  PLACEMENT_VIZ_GROUP,
+  transparentNoneCategory,
+} from "../../viz.js";
 
 type LandmassRegionSlotByTile = Static<
   (typeof import("../../../../map-artifacts.js").mapArtifacts)["landmassRegionSlotByTile"]["schema"]
@@ -49,7 +54,7 @@ type ApplyPlacementArgs = {
   ) => DeepReadonly<EngineTerrainSnapshot>;
 };
 
-const GROUP_GAMEPLAY = "Gameplay / Placement";
+const GROUP_GAMEPLAY = PLACEMENT_VIZ_GROUP;
 
 /**
  * Collates final placement evidence after product-owned steps have already
@@ -123,8 +128,37 @@ export function applyPlacementPlan({
     ? engineSnapshot.landMask
     : new Uint8Array(physics.landMask);
   let waterDriftCount = 0;
+  const waterDrift = new Uint8Array(engineLandMask.length);
   for (let i = 0; i < engineLandMask.length; i++) {
-    if ((engineLandMask[i] ?? 0) !== (physics.landMask[i] ?? 0)) waterDriftCount += 1;
+    if ((engineLandMask[i] ?? 0) !== (physics.landMask[i] ?? 0)) {
+      waterDriftCount += 1;
+      // 1 = engine land where physics says water; 2 = engine water where physics says land.
+      waterDrift[i] = (engineLandMask[i] ?? 0) === 1 ? 1 : 2;
+    }
+  }
+  // S7 (debug evidence): the per-tile surface behind waterDriftCount — where
+  // the final engine land mask diverged from the Morphology physics mask.
+  if (engineSnapshot && waterDrift.length === width * height) {
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "map.placement.engine.waterDrift",
+      spaceId: PLACEMENT_TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: waterDrift,
+      meta: defineVizMeta("map.placement.engine.waterDrift", {
+        label: "Engine vs Physics Water Drift",
+        group: GROUP_GAMEPLAY,
+        visibility: "debug",
+        description:
+          "Tiles where the post-placement engine land mask disagrees with the Morphology physics land mask (the waterDriftCount parity evidence).",
+        palette: "categorical",
+        categories: [
+          transparentNoneCategory("In Agreement"),
+          { value: 1, label: "Engine Land / Physics Water", color: [34, 197, 94, 235] },
+          { value: 2, label: "Engine Water / Physics Land", color: [239, 68, 68, 235] },
+        ],
+      }),
+    });
   }
 
   if (engineSnapshot) {

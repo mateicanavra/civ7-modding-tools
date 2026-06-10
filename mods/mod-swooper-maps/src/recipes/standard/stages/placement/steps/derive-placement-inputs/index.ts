@@ -1,6 +1,12 @@
+import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import DerivePlacementInputsContract from "./contract.js";
+import {
+  PLACEMENT_TILE_SPACE_ID,
+  PLACEMENT_VIZ_GROUP,
+  UNIT_SCORE_VALUE_SPEC,
+} from "../../viz.js";
 import { buildPlacementInputs } from "./inputs.js";
 import {
   buildNaturalWonderPlanInputRuntimeTelemetry,
@@ -86,5 +92,60 @@ export default createStep(DerivePlacementInputsContract, {
     logNaturalWonderPlanInputRuntimeTelemetry(naturalWonderPlanInputTelemetry);
     traceNaturalWonderPlanInputRuntimeTelemetry(context, naturalWonderPlanInputTelemetry);
     deps.artifacts.discoveryPlan.publish(context, discoveryPlan);
+
+    // S7 (E4.2/E4.3): this step's decision products are the wonder and
+    // discovery PLANS; emit their anchor sites with planning priority so the
+    // step is inspectable in studio before any stamping happens.
+    emitPlannedSitesViz(context, {
+      dataTypeKey: "placement.wonders.plannedSites",
+      label: "Planned Natural Wonder Sites",
+      description:
+        "Anchor plots the natural-wonder plan selected, colored by planning priority (0..1). Stamping outcomes appear on the place-natural-wonders step.",
+      placements: naturalWonderPlan.placements,
+    });
+    emitPlannedSitesViz(context, {
+      dataTypeKey: "placement.discoveries.plannedSites",
+      label: "Planned Discovery Sites",
+      description:
+        "Plots the discovery plan selected, colored by planning priority (0..1). Stamping outcomes appear on the place-discoveries step.",
+      placements: discoveryPlan.placements,
+    });
   },
 });
+
+function emitPlannedSitesViz(
+  context: ExtendedMapContext,
+  args: {
+    dataTypeKey: string;
+    label: string;
+    description: string;
+    placements: ReadonlyArray<{ readonly plotIndex: number; readonly priority: number }>;
+  }
+): void {
+  if (!context.viz) return;
+  const { width } = context.dimensions;
+  const positions = new Float32Array(args.placements.length * 2);
+  const values = new Float32Array(args.placements.length);
+  for (let i = 0; i < args.placements.length; i++) {
+    const { plotIndex, priority } = args.placements[i]!;
+    const y = (plotIndex / width) | 0;
+    const x = plotIndex - y * width;
+    positions[i * 2] = x;
+    positions[i * 2 + 1] = y;
+    values[i] = priority;
+  }
+  context.viz.dumpPoints(context.trace, {
+    dataTypeKey: args.dataTypeKey,
+    spaceId: PLACEMENT_TILE_SPACE_ID,
+    positions,
+    values,
+    valueFormat: "f32",
+    valueSpec: UNIT_SCORE_VALUE_SPEC,
+    meta: defineVizMeta(args.dataTypeKey, {
+      label: args.label,
+      group: PLACEMENT_VIZ_GROUP,
+      description: args.description,
+      palette: "continuous",
+    }),
+  });
+}

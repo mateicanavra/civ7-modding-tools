@@ -1,10 +1,19 @@
+import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { runPlacementProductStep } from "../product-runtime.js";
 import { logTerrainStats } from "../terrain-diagnostics.js";
 import { applyLandmassRegionSlots } from "./landmass-regions.js";
 import { readFinalLakeProjection } from "./lake-readback.js";
-import { readTerrainValidationBoundarySnapshot } from "./terrain-validation-readback.js";
+import {
+  readTerrainValidationBoundarySnapshot,
+  type TerrainValidationBoundarySnapshot,
+} from "./terrain-validation-readback.js";
+import {
+  PLACEMENT_TILE_SPACE_ID,
+  PLACEMENT_VIZ_GROUP,
+  transparentNoneCategory,
+} from "../../viz.js";
 import {
   validatePlacementSurfacePreparationArtifact,
   validatePlacementSurfaceValidationBoundaryArtifact,
@@ -104,5 +113,90 @@ export default createStep(PreparePlacementSurfaceStepContract, {
       slotCounts,
       ...finalLakeReadback,
     });
+
+    // S7 (E4.2, debug evidence): per-tile drift surfaces behind the lake and
+    // terrain drift counters this step already publishes as aggregates.
+    emitSurfaceDriftViz(context, {
+      acceptedLakeMask: engineProjectionLakes.lakeMask as Uint8Array,
+      beforeValidate,
+      afterMaintenance,
+    });
   },
 });
+
+/**
+ * Debug-visibility evidence layers for the surface maintenance boundary:
+ * where engine validation/maintenance dried accepted lake tiles or changed
+ * terrain/water classification (the per-tile data behind
+ * finalLakeWaterDriftCount / finalLakeClassificationDriftCount).
+ */
+function emitSurfaceDriftViz(
+  context: ExtendedMapContext,
+  args: {
+    acceptedLakeMask: Uint8Array;
+    beforeValidate: TerrainValidationBoundarySnapshot;
+    afterMaintenance: TerrainValidationBoundarySnapshot;
+  }
+): void {
+  if (!context.viz) return;
+  const { width, height } = context.dimensions;
+  const size = Math.max(0, width * height);
+  const { acceptedLakeMask, beforeValidate, afterMaintenance } = args;
+
+  const lakeDrift = new Uint8Array(size);
+  for (let i = 0; i < size; i++) {
+    if (acceptedLakeMask[i] !== 1) continue;
+    if (afterMaintenance.waterMask[i] !== 1) lakeDrift[i] = 2;
+    else if (afterMaintenance.lakeMask[i] !== 1) lakeDrift[i] = 3;
+    else lakeDrift[i] = 1;
+  }
+  context.viz.dumpGrid(context.trace, {
+    dataTypeKey: "map.placement.surface.lakeDrift",
+    spaceId: PLACEMENT_TILE_SPACE_ID,
+    dims: { width, height },
+    format: "u8",
+    values: lakeDrift,
+    meta: defineVizMeta("map.placement.surface.lakeDrift", {
+      label: "Lake Drift (Surface Maintenance)",
+      group: PLACEMENT_VIZ_GROUP,
+      visibility: "debug",
+      description:
+        "Accepted lake tiles after final engine surface maintenance: stable, dried (no longer water), or declassified (water but not a Civ7 lake).",
+      palette: "categorical",
+      categories: [
+        transparentNoneCategory("Not Accepted Lake"),
+        { value: 1, label: "Lake Stable", color: [59, 130, 246, 200] },
+        { value: 2, label: "Dried (Water Drift)", color: [239, 68, 68, 235] },
+        { value: 3, label: "Declassified", color: [245, 158, 11, 235] },
+      ],
+    }),
+  });
+
+  const terrainDrift = new Uint8Array(size);
+  for (let i = 0; i < size; i++) {
+    const terrainChanged = beforeValidate.terrain[i] !== afterMaintenance.terrain[i];
+    const waterChanged = beforeValidate.waterMask[i] !== afterMaintenance.waterMask[i];
+    terrainDrift[i] = terrainChanged && waterChanged ? 3 : waterChanged ? 2 : terrainChanged ? 1 : 0;
+  }
+  context.viz.dumpGrid(context.trace, {
+    dataTypeKey: "map.placement.surface.terrainValidationDrift",
+    spaceId: PLACEMENT_TILE_SPACE_ID,
+    dims: { width, height },
+    format: "u8",
+    values: terrainDrift,
+    meta: defineVizMeta("map.placement.surface.terrainValidationDrift", {
+      label: "Terrain Validation Drift",
+      group: PLACEMENT_VIZ_GROUP,
+      visibility: "debug",
+      description:
+        "Tiles the engine's validateAndFixTerrain/maintenance pass changed between the before-validate and after-maintenance snapshots (terrain type and/or water classification).",
+      palette: "categorical",
+      categories: [
+        transparentNoneCategory("Unchanged"),
+        { value: 1, label: "Terrain Changed", color: [245, 158, 11, 235] },
+        { value: 2, label: "Water Changed", color: [59, 130, 246, 235] },
+        { value: 3, label: "Both Changed", color: [239, 68, 68, 235] },
+      ],
+    }),
+  });
+}

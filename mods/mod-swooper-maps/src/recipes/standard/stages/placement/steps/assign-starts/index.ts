@@ -77,10 +77,14 @@ export default createStep(AssignStartsStepContract, {
       context.trace.event(() => payload);
     };
 
+    // PLAN-phase viz (S7, E4.2): score/tier/component/seat-rung layers come
+    // from the op output BEFORE materialization, so the scoring surface is
+    // inspectable even when selection degrades or stamping fails.
+    emitStartViabilityViz(context, plan);
+
     const assignment = runPlacementProductStep("placement.starts", emit, () =>
       materializeStartAssignment({ context, plan })
     );
-    emitStartViabilityViz(context, plan);
     emitStartPositionsViz(context, assignment.positions);
     deps.artifacts.startAssignment.publish(context, assignment);
   },
