@@ -17,7 +17,11 @@ import {
   HYDROLOGY_SLOPE_NONE,
   HYDROLOGY_SLOPE_STEEP,
 } from "../../../river-network-metrics.js";
-import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../../river-class.js";
+import {
+  isAnyRiverClass,
+  isMajorRiverClass,
+  isMinorRiverClass,
+} from "../../../river-class.js";
 import ComputeRiverNetworkMetricsContract from "../contract.js";
 
 const FLAT_SLOPE_MAX = 0.5;
@@ -28,6 +32,13 @@ const MAJOR_PERENNIAL_SPECIFIC_DISCHARGE_MIN = 4;
 const MINOR_INTERMITTENT_SPECIFIC_DISCHARGE_MIN = 2.25;
 const NON_RIVER_EPHEMERAL_SPECIFIC_DISCHARGE_MIN = 1.5;
 const NON_RIVER_EPHEMERAL_UPSTREAM_AREA_MIN = 4;
+
+function safeShare(numerator: number, denominator: number): number {
+  if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator <= 0) {
+    return 0;
+  }
+  return Math.max(0, Math.min(1, numerator / denominator));
+}
 
 function computeLandReceiver(
   size: number,
@@ -176,7 +187,7 @@ export const defaultStrategy = createStrategy(ComputeRiverNetworkMetricsContract
       const index = order[i]!;
       const dest = receiver[index] ?? -1;
 
-      if (input.riverClass[index] === RIVER_CLASS_MINOR || input.riverClass[index] === RIVER_CLASS_MAJOR) {
+      if (isAnyRiverClass(input.riverClass[index])) {
         const maxOrder = maxIncomingOrder[index] ?? 0;
         streamOrderProxy[index] =
           maxOrder === 0 ? 1 : Math.min(255, maxOrder + (maxIncomingOrderCount[index] >= 2 ? 1 : 0));
@@ -235,14 +246,14 @@ export const defaultStrategy = createStrategy(ComputeRiverNetworkMetricsContract
       const specificDischarge = (input.discharge[i] ?? 0) / area;
       const riverClass = input.riverClass[i] ?? 0;
 
-      if (riverClass === RIVER_CLASS_MAJOR) {
+      if (isMajorRiverClass(riverClass)) {
         flowPermanenceProxy[i] =
           specificDischarge >= MAJOR_PERENNIAL_SPECIFIC_DISCHARGE_MIN
             ? HYDROLOGY_FLOW_PERENNIAL
             : HYDROLOGY_FLOW_INTERMITTENT;
         continue;
       }
-      if (riverClass === RIVER_CLASS_MINOR) {
+      if (isMinorRiverClass(riverClass)) {
         flowPermanenceProxy[i] =
           specificDischarge >= MINOR_INTERMITTENT_SPECIFIC_DISCHARGE_MIN
             ? HYDROLOGY_FLOW_INTERMITTENT
@@ -256,12 +267,170 @@ export const defaultStrategy = createStrategy(ComputeRiverNetworkMetricsContract
           : HYDROLOGY_FLOW_DRY;
     }
 
+    let landTileCount = 0;
+    let lakeTileCount = 0;
+    let riverTileCount = 0;
+    let minorRiverTileCount = 0;
+    let majorRiverTileCount = 0;
+    let streamOrder1RiverTileCount = 0;
+    let lowOrderRiverTileCount = 0;
+    let dryFlowTileCount = 0;
+    let ephemeralFlowTileCount = 0;
+    let intermittentFlowTileCount = 0;
+    let perennialFlowTileCount = 0;
+    let riverDryTileCount = 0;
+    let riverEphemeralTileCount = 0;
+    let riverIntermittentTileCount = 0;
+    let riverPerennialTileCount = 0;
+    let oceanMouthTileCount = 0;
+    let acceptedLakeMouthTileCount = 0;
+    let closedBasinMouthTileCount = 0;
+    let spillPathMouthTileCount = 0;
+    let unresolvedMouthTileCount = 0;
+    let resolvedMouthTileCount = 0;
+    let assignedBasinLandTileCount = 0;
+    let unassignedBasinLandTileCount = 0;
+    let invalidReceiverTileCount = 0;
+    let downstreamDischargeDropEdgeCount = 0;
+    let maxUpstreamArea = 0;
+    let maxStreamOrderProxy = 0;
+    let terminalDischarge = 0;
+    let lakeConnectedTerminalDischarge = 0;
+
+    for (let i = 0; i < size; i++) {
+      if (input.landMask[i] !== 1) continue;
+      landTileCount += 1;
+
+      const discharge = Math.max(0, input.discharge[i] ?? 0);
+      if ((input.lakeMask[i] ?? 0) === 1) {
+        lakeTileCount += 1;
+      }
+
+      if ((input.basinId[i] ?? -1) >= 0) assignedBasinLandTileCount += 1;
+      else unassignedBasinLandTileCount += 1;
+
+      const rawReceiver = input.flowDir[i] ?? -1;
+      const hasInvalidReceiver = rawReceiver < -1 || rawReceiver >= size;
+      if (hasInvalidReceiver) invalidReceiverTileCount += 1;
+
+      const landReceiver = receiver[i] ?? -1;
+      if (
+        landReceiver >= 0 &&
+        Math.max(0, input.discharge[landReceiver] ?? 0) + Number.EPSILON < discharge
+      ) {
+        downstreamDischargeDropEdgeCount += 1;
+      }
+      if (landReceiver < 0 && !hasInvalidReceiver) {
+        terminalDischarge += discharge;
+        const mouth = mouthType[i] ?? HYDROLOGY_MOUTH_UNRESOLVED;
+        if (mouth === HYDROLOGY_MOUTH_ACCEPTED_LAKE || (input.lakeMask[i] ?? 0) === 1) {
+          lakeConnectedTerminalDischarge += discharge;
+        }
+      }
+
+      const riverClass = input.riverClass[i] ?? 0;
+      const isRiverTile = isAnyRiverClass(riverClass);
+      if (isMinorRiverClass(riverClass)) {
+        minorRiverTileCount += 1;
+        riverTileCount += 1;
+      } else if (isMajorRiverClass(riverClass)) {
+        majorRiverTileCount += 1;
+        riverTileCount += 1;
+      }
+
+      const permanence = flowPermanenceProxy[i] ?? HYDROLOGY_FLOW_DRY;
+      if (permanence === HYDROLOGY_FLOW_EPHEMERAL) ephemeralFlowTileCount += 1;
+      else if (permanence === HYDROLOGY_FLOW_INTERMITTENT) intermittentFlowTileCount += 1;
+      else if (permanence === HYDROLOGY_FLOW_PERENNIAL) perennialFlowTileCount += 1;
+      else dryFlowTileCount += 1;
+      if (isRiverTile) {
+        if (permanence === HYDROLOGY_FLOW_EPHEMERAL) riverEphemeralTileCount += 1;
+        else if (permanence === HYDROLOGY_FLOW_INTERMITTENT) riverIntermittentTileCount += 1;
+        else if (permanence === HYDROLOGY_FLOW_PERENNIAL) riverPerennialTileCount += 1;
+        else riverDryTileCount += 1;
+
+        const streamOrder = streamOrderProxy[i] ?? 0;
+        if (streamOrder === 1) streamOrder1RiverTileCount += 1;
+        if (streamOrder > 0 && streamOrder <= 2) lowOrderRiverTileCount += 1;
+      }
+
+      const mouth = mouthType[i] ?? HYDROLOGY_MOUTH_UNRESOLVED;
+      if (mouth === HYDROLOGY_MOUTH_OCEAN) {
+        oceanMouthTileCount += 1;
+        resolvedMouthTileCount += 1;
+      } else if (mouth === HYDROLOGY_MOUTH_ACCEPTED_LAKE) {
+        acceptedLakeMouthTileCount += 1;
+        resolvedMouthTileCount += 1;
+      } else if (mouth === HYDROLOGY_MOUTH_CLOSED_BASIN) {
+        closedBasinMouthTileCount += 1;
+        resolvedMouthTileCount += 1;
+      } else if (mouth === HYDROLOGY_MOUTH_SPILL_PATH) {
+        spillPathMouthTileCount += 1;
+        resolvedMouthTileCount += 1;
+      } else {
+        unresolvedMouthTileCount += 1;
+      }
+
+      maxUpstreamArea = Math.max(maxUpstreamArea, upstreamArea[i] ?? 0);
+      maxStreamOrderProxy = Math.max(maxStreamOrderProxy, streamOrderProxy[i] ?? 0);
+    }
+
+    const nonDryFlowTileCount =
+      ephemeralFlowTileCount + intermittentFlowTileCount + perennialFlowTileCount;
+    const closedOrLakeTerminalTileCount = acceptedLakeMouthTileCount + closedBasinMouthTileCount;
+
     return {
       upstreamArea,
       streamOrderProxy,
       mouthType,
       slopeClass,
       flowPermanenceProxy,
+      benchmarkSummary: {
+        version: 1,
+        landTileCount,
+        waterTileCount: Math.max(0, size - landTileCount),
+        lakeTileCount,
+        lakeLandShare: safeShare(lakeTileCount, landTileCount),
+        riverTileCount,
+        minorRiverTileCount,
+        majorRiverTileCount,
+        riverLandShare: safeShare(riverTileCount, landTileCount),
+        minorRiverShareOfRiverTiles: safeShare(minorRiverTileCount, riverTileCount),
+        majorRiverShareOfRiverTiles: safeShare(majorRiverTileCount, riverTileCount),
+        streamOrder1RiverTileCount,
+        lowOrderRiverTileCount,
+        lowOrderRiverShareOfRiverTiles: safeShare(lowOrderRiverTileCount, riverTileCount),
+        dryFlowTileCount,
+        ephemeralFlowTileCount,
+        intermittentFlowTileCount,
+        perennialFlowTileCount,
+        nonDryFlowLandShare: safeShare(nonDryFlowTileCount, landTileCount),
+        riverDryTileCount,
+        riverEphemeralTileCount,
+        riverIntermittentTileCount,
+        riverPerennialTileCount,
+        nonPerennialRiverShareOfRiverTiles: safeShare(
+          riverDryTileCount + riverEphemeralTileCount + riverIntermittentTileCount,
+          riverTileCount
+        ),
+        oceanMouthTileCount,
+        acceptedLakeMouthTileCount,
+        closedBasinMouthTileCount,
+        spillPathMouthTileCount,
+        unresolvedMouthTileCount,
+        resolvedMouthTileCount,
+        assignedBasinLandTileCount,
+        unassignedBasinLandTileCount,
+        invalidReceiverTileCount,
+        downstreamDischargeDropEdgeCount,
+        closedOrLakeTerminalLandShare: safeShare(closedOrLakeTerminalTileCount, landTileCount),
+        lakeConnectedTerminalDischargeShare: safeShare(
+          lakeConnectedTerminalDischarge,
+          terminalDischarge
+        ),
+        maxUpstreamArea,
+        maxStreamOrderProxy,
+      },
     } as const;
   },
 });

@@ -90,6 +90,54 @@ export const HydrologyLakePlanArtifactSchema = Type.Object(
   }
 );
 
+const HydrologyRiverNetworkBenchmarkSummarySchema = Type.Object(
+  {
+    version: Type.Literal(1),
+    landTileCount: Type.Integer({ minimum: 0 }),
+    waterTileCount: Type.Integer({ minimum: 0 }),
+    lakeTileCount: Type.Integer({ minimum: 0 }),
+    lakeLandShare: Type.Number({ minimum: 0, maximum: 1 }),
+    riverTileCount: Type.Integer({ minimum: 0 }),
+    minorRiverTileCount: Type.Integer({ minimum: 0 }),
+    majorRiverTileCount: Type.Integer({ minimum: 0 }),
+    riverLandShare: Type.Number({ minimum: 0, maximum: 1 }),
+    minorRiverShareOfRiverTiles: Type.Number({ minimum: 0, maximum: 1 }),
+    majorRiverShareOfRiverTiles: Type.Number({ minimum: 0, maximum: 1 }),
+    streamOrder1RiverTileCount: Type.Integer({ minimum: 0 }),
+    lowOrderRiverTileCount: Type.Integer({ minimum: 0 }),
+    lowOrderRiverShareOfRiverTiles: Type.Number({ minimum: 0, maximum: 1 }),
+    dryFlowTileCount: Type.Integer({ minimum: 0 }),
+    ephemeralFlowTileCount: Type.Integer({ minimum: 0 }),
+    intermittentFlowTileCount: Type.Integer({ minimum: 0 }),
+    perennialFlowTileCount: Type.Integer({ minimum: 0 }),
+    nonDryFlowLandShare: Type.Number({ minimum: 0, maximum: 1 }),
+    riverDryTileCount: Type.Integer({ minimum: 0 }),
+    riverEphemeralTileCount: Type.Integer({ minimum: 0 }),
+    riverIntermittentTileCount: Type.Integer({ minimum: 0 }),
+    riverPerennialTileCount: Type.Integer({ minimum: 0 }),
+    nonPerennialRiverShareOfRiverTiles: Type.Number({ minimum: 0, maximum: 1 }),
+    oceanMouthTileCount: Type.Integer({ minimum: 0 }),
+    acceptedLakeMouthTileCount: Type.Integer({ minimum: 0 }),
+    closedBasinMouthTileCount: Type.Integer({ minimum: 0 }),
+    spillPathMouthTileCount: Type.Integer({ minimum: 0 }),
+    unresolvedMouthTileCount: Type.Integer({ minimum: 0 }),
+    resolvedMouthTileCount: Type.Integer({ minimum: 0 }),
+    assignedBasinLandTileCount: Type.Integer({ minimum: 0 }),
+    unassignedBasinLandTileCount: Type.Integer({ minimum: 0 }),
+    invalidReceiverTileCount: Type.Integer({ minimum: 0 }),
+    downstreamDischargeDropEdgeCount: Type.Integer({ minimum: 0 }),
+    closedOrLakeTerminalLandShare: Type.Number({ minimum: 0, maximum: 1 }),
+    lakeConnectedTerminalDischargeShare: Type.Number({ minimum: 0, maximum: 1 }),
+    maxUpstreamArea: Type.Integer({ minimum: 0 }),
+    maxStreamOrderProxy: Type.Integer({ minimum: 0 }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Aggregate Hydrology river/lake benchmark metrics for diagnostics, Studio, and product proof rows.",
+  }
+);
+
 export const HydrologyRiverNetworkMetricsArtifactSchema = Type.Object(
   {
     upstreamArea: TypedArraySchemas.i32({
@@ -110,6 +158,7 @@ export const HydrologyRiverNetworkMetricsArtifactSchema = Type.Object(
       description:
         "Flow permanence proxy per land tile: 0=dry/no-signal, 1=ephemeral, 2=intermittent, 3=perennial.",
     }),
+    benchmarkSummary: HydrologyRiverNetworkBenchmarkSummarySchema,
   },
   {
     additionalProperties: false,

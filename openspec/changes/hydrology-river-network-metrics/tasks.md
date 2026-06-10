@@ -6,10 +6,12 @@
   projection behavior.
 - [ ] 1.3 Update physical-grounding docs with the metric oracles and uncertainty
   markers.
-- [ ] 1.4 Add benchmark-contract fields for tile scale, visible feature floor,
-  regime row, channel class ratios, terminal shares, lake area share, and
-  stylization notes.
-- [ ] 1.5 Record external Earth benchmark anchors before changing any local
+- [x] 1.4 Add observed benchmark-summary fields for channel class ratios,
+  river-specific permanence, low-order hierarchy, terminal shares, lake area
+  share, basin coverage, and routing-health counters.
+- [ ] 1.5 Add benchmark-contract metadata for tile scale, visible feature floor,
+  regime row, and stylization notes.
+- [ ] 1.6 Record external Earth benchmark anchors before changing any local
   acceptance threshold.
 
 ## 2. Seed Matrix
