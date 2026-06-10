@@ -4,6 +4,8 @@
 - [ ] 1.2 Add direct-control wrappers for centering on tile coordinates and
   recording camera/visibility state.
 - [ ] 1.3 Add screenshot capture with explicit fallback labeling.
+- [ ] 1.4 Add metadata/materialization disposition fields for terrain-only,
+  native-writer parity pass/fail, not-run, and unsupported-writer states.
 
 ## 2. Visible Proof Runner
 
@@ -12,6 +14,8 @@
   emit visual verdict fields.
 - [ ] 2.3 Add negative controls for wrong map/seed, off-target camera, and
   no-river configs.
+- [ ] 2.4 Require minor-river claims to cite metadata/native-writer evidence,
+  not terrain-only readback.
 
 ## 3. Validation
 

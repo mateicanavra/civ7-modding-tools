@@ -6,6 +6,9 @@
   evidence.
 - [ ] 1.3 Keep inactive floodplain/no-signal rows labeled as controls, not
   product passes.
+- [ ] 1.4 Move floodplain proof inputs to Hydrology/final-surface truth plus Civ
+  legality/readback, and prevent projected navigable adjacency from being the
+  sole product-proof input.
 
 ## 2. Product Matrix
 

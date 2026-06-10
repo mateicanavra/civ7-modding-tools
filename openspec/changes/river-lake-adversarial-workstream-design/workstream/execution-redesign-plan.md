@@ -9,6 +9,12 @@ Second-wave authority addendum:
 - `workstream/2026-06-09-second-wave-synthesis.md`
 - `workstream/agent-notes/2026-06-09-agent-*-second-wave.md`
 
+Third-wave session frame:
+
+- `docs/projects/river-lake-recovery/FRAME.md`
+- `docs/projects/river-lake-recovery/ADVERSARIAL-SYNTHESIS-2026-06-10.md`
+- `docs/projects/river-lake-recovery/agent-notes/2026-06-10-agent-*.md`
+
 ## Objective
 
 Finish the river/lake recovery as a physically grounded, architecture-correct,
@@ -115,6 +121,19 @@ Benchmark usage rule from the adversarial pass:
   - lake area should stay in the low single digits of land area, not near-zero
     and not tens of percent;
   - endorheic / closed drainage must remain materially present.
+
+Third-wave correction notes:
+
+- the active root `AGENTS.md` now routes hydrology/river/lake work through the
+  session frame until the session ends;
+- native `modelRivers(...)` bulk writer support is proven, but parity to
+  Hydrology-authored truth is not;
+- `endpointDischargePercentileMin` must be enforced or removed/renamed before
+  navigable-river projection metrics are treated as reliable;
+- public/raw config and Studio labels must not preserve stale selectors as the
+  product model;
+- floodplain closure must move toward Hydrology/final-surface truth plus Civ
+  legality/readback rather than projection adjacency alone.
 
 ## Locked Ownership Boundary
 

@@ -1,5 +1,13 @@
 # Design: River And Lake Recovery Redesign
 
+Session frame:
+
+- `docs/projects/river-lake-recovery/FRAME.md` is the active compaction-safe
+  frame for the current hydrology/river/lake recovery session.
+- `docs/projects/river-lake-recovery/ADVERSARIAL-SYNTHESIS-2026-06-10.md`
+  records the current adversarial synthesis and the immediate correction
+  sequence.
+
 ## Objective Frame
 
 Future state:
