@@ -994,9 +994,9 @@ export class MockAdapter implements EngineAdapter {
     this.riverMask.fill(0);
     this.riverTypes.fill(MOCK_NO_RIVER);
 
-    // Compatibility-oriented mock: mirror Civ's bulk writer onto already
-    // stamped navigable-river terrain so map-stage tests can prove the bounded
-    // projection contract without inventing a second fake river network.
+    // Native-writer mock: mirror Civ's bulk writer onto already stamped
+    // navigable-river terrain so map-stage tests prove the projection contract
+    // without inventing a second fake river network.
     for (let i = 0; i < this.width * this.height; i++) {
       if ((this.terrainTypes[i] ?? 0) !== (_navigableTerrain & 0xff)) continue;
       this.riverMask[i] = 1;

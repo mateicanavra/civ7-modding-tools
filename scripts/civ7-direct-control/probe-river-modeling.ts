@@ -9,6 +9,7 @@ import {
   type Civ7CommandResult,
   type Civ7DirectControlOptions,
 } from "../../packages/civ7-direct-control/src/index.ts";
+import { CIV7_DEFAULT_RIVER_MODELING_ARGS } from "../../packages/civ7-map-policy/src/index.ts";
 
 import {
   summarizeRiverMetadataReadback,
@@ -49,12 +50,27 @@ type RuntimeMethodInventory = Readonly<{
 
 export type RiverModelingRuntimeInventory = Readonly<{
   terrainBuilder: RuntimeObjectInventory;
+  mapRivers: RuntimeObjectInventory;
   riverTypes: Readonly<Record<string, unknown>>;
   terrainNavigableRiver: number | null;
-  officialCompatibilityDefaults: Readonly<{
+  officialPolicyDefaults: Readonly<{
     minLength: number;
     maxLength: number;
   }>;
+}>;
+
+export type NativeRiverObjectSummary = Readonly<{
+  exists: boolean;
+  numRivers: number | null;
+  samples: ReadonlyArray<
+    Readonly<{
+      index: number;
+      riverType: number | null;
+      plotCount: number | null;
+      connectedToOcean: boolean | null;
+    }>
+  >;
+  blockedBy: ReadonlyArray<string>;
 }>;
 
 type RiverModelingMutationResult = Readonly<{
@@ -74,8 +90,10 @@ export type RiverModelingProbeOutput = Readonly<{
   blockedBy: ReadonlyArray<string>;
   evidenceBoundary: string;
   inventory: RiverModelingRuntimeInventory;
+  preNativeRiverObjects: NativeRiverObjectSummary | null;
   preReadback: RiverMetadataReadbackSummary | null;
   mutation?: RiverModelingMutationResult;
+  postNativeRiverObjects?: NativeRiverObjectSummary;
   postReadback?: RiverMetadataReadbackSummary;
   deltas?: Readonly<{
     terrainNavigableRiver: number;
@@ -83,13 +101,15 @@ export type RiverModelingProbeOutput = Readonly<{
     navigableRiver: number;
     minorRiver: number;
     noRiver: number;
+    nativeRiverCount: number | null;
     terrainChanged: boolean;
     metadataChanged: boolean;
+    nativeRiverObjectsChanged: boolean;
   }> | null;
 }>;
 
-const OFFICIAL_DEFAULT_MIN_LENGTH = 5;
-const OFFICIAL_DEFAULT_MAX_LENGTH = 15;
+const OFFICIAL_DEFAULT_MIN_LENGTH = CIV7_DEFAULT_RIVER_MODELING_ARGS.minLength;
+const OFFICIAL_DEFAULT_MAX_LENGTH = CIV7_DEFAULT_RIVER_MODELING_ARGS.maxLength;
 
 const usage = `Usage:
   bun scripts/civ7-direct-control/probe-river-modeling.ts
@@ -198,6 +218,7 @@ async function main(): Promise<number> {
 
   const directControl = { host: args.host, port: args.port, timeoutMs: args.timeoutMs };
   const inventory = await readRuntimeInventory(directControl);
+  const preNativeRiverObjects = await readNativeRiverObjects(directControl);
   const preReadback =
     args.readFullGrid || args.confirmDisposableSession
       ? summarizeRiverMetadataReadback(
@@ -213,7 +234,7 @@ async function main(): Promise<number> {
       : undefined;
 
   if (!args.confirmDisposableSession) {
-    const output = buildDryRunOutput({ inventory, preReadback });
+    const output = buildDryRunOutput({ inventory, preNativeRiverObjects, preReadback });
     writeOutput(args.output, output);
     console.log(JSON.stringify(output, null, 2));
     return 2;
@@ -238,8 +259,16 @@ async function main(): Promise<number> {
       directControl,
     ),
   );
+  const postNativeRiverObjects = await readNativeRiverObjects(directControl);
 
-  const output = buildMutationOutput({ inventory, preReadback, mutation, postReadback });
+  const output = buildMutationOutput({
+    inventory,
+    preNativeRiverObjects,
+    preReadback,
+    mutation,
+    postNativeRiverObjects,
+    postReadback,
+  });
   writeOutput(args.output, output);
   console.log(JSON.stringify(output, null, 2));
   return output.ok ? 0 : 2;
@@ -247,6 +276,7 @@ async function main(): Promise<number> {
 
 export function buildDryRunOutput(args: {
   inventory: RiverModelingRuntimeInventory;
+  preNativeRiverObjects?: NativeRiverObjectSummary;
   preReadback?: RiverMetadataReadbackSummary;
 }): RiverModelingProbeOutput {
   const hasCandidate = args.inventory.terrainBuilder.modelRivers?.exists === true;
@@ -259,16 +289,19 @@ export function buildDryRunOutput(args: {
       ...(hasCandidate ? [] : ["river-modeling-probe.modelRivers.missing"]),
     ],
     evidenceBoundary:
-      "Read-only unless --confirm-disposable-session is passed. A native TerrainBuilder.modelRivers sequence is not product authoring evidence until disposable runtime proof shows river metadata changes on the same run.",
+      "Read-only unless --confirm-disposable-session is passed. A native TerrainBuilder.modelRivers sequence is not product authoring evidence until disposable runtime proof shows river metadata and MapRivers object changes on the same run.",
     inventory: args.inventory,
+    preNativeRiverObjects: args.preNativeRiverObjects ?? null,
     preReadback: args.preReadback ?? null,
   };
 }
 
 export function buildMutationOutput(args: {
   inventory: RiverModelingRuntimeInventory;
+  preNativeRiverObjects?: NativeRiverObjectSummary;
   preReadback: RiverMetadataReadbackSummary | undefined;
   mutation: RiverModelingMutationResult;
+  postNativeRiverObjects?: NativeRiverObjectSummary;
   postReadback: RiverMetadataReadbackSummary;
 }): RiverModelingProbeOutput {
   const pre = args.preReadback;
@@ -280,11 +313,27 @@ export function buildMutationOutput(args: {
       pre.noRiver !== post.noRiver
     : false;
   const terrainChanged = pre ? pre.terrainNavigableRiver !== post.terrainNavigableRiver : false;
+  const nativeRiverObjectsChanged =
+    typeof args.preNativeRiverObjects?.numRivers === "number" &&
+    typeof args.postNativeRiverObjects?.numRivers === "number"
+      ? args.preNativeRiverObjects.numRivers !== args.postNativeRiverObjects.numRivers
+      : false;
+  const nativeReadbackComplete =
+    args.postNativeRiverObjects === undefined || args.postNativeRiverObjects.blockedBy.length === 0;
+  const nativeEvidenceSatisfied =
+    args.postNativeRiverObjects === undefined ||
+    nativeRiverObjectsChanged ||
+    (args.postNativeRiverObjects.numRivers ?? 0) > 0;
   const readbackComplete =
     post.missingFacts.length === 0 &&
     post.failedFacts.length === 0 &&
     (pre === undefined || (pre.missingFacts.length === 0 && pre.failedFacts.length === 0));
-  const ok = args.mutation.ok && metadataChanged && readbackComplete;
+  const ok =
+    args.mutation.ok &&
+    metadataChanged &&
+    readbackComplete &&
+    nativeReadbackComplete &&
+    nativeEvidenceSatisfied;
 
   return {
     ok,
@@ -296,12 +345,18 @@ export function buildMutationOutput(args: {
           ...(args.mutation.ok ? [] : ["river-modeling-probe.sequence.call-failed"]),
           ...(metadataChanged ? [] : ["river-modeling-probe.metadata-unchanged"]),
           ...(readbackComplete ? [] : ["river-modeling-probe.readback-incomplete"]),
+          ...(nativeReadbackComplete ? [] : ["river-modeling-probe.native-river-readback-incomplete"]),
+          ...(nativeEvidenceSatisfied ? [] : ["river-modeling-probe.native-river-objects-unchanged"]),
         ],
     evidenceBoundary:
-      "This probe only tests the official TerrainBuilder.modelRivers compatibility sequence in the current disposable runtime session. Production use still requires source-integrated semantics and same-run Studio/Civ parity proof.",
+      "This probe only tests the official TerrainBuilder.modelRivers sequence in the current disposable runtime session. Production use still requires source-integrated semantics and same-run Studio/Civ parity proof.",
     inventory: args.inventory,
     mutation: args.mutation,
+    preNativeRiverObjects: args.preNativeRiverObjects ?? null,
     preReadback: pre ?? null,
+    ...(args.postNativeRiverObjects === undefined
+      ? {}
+      : { postNativeRiverObjects: args.postNativeRiverObjects }),
     postReadback: post,
     deltas: pre
       ? {
@@ -310,8 +365,14 @@ export function buildMutationOutput(args: {
           navigableRiver: post.navigableRiver - pre.navigableRiver,
           minorRiver: post.minorRiver - pre.minorRiver,
           noRiver: post.noRiver - pre.noRiver,
+          nativeRiverCount:
+            typeof args.preNativeRiverObjects?.numRivers === "number" &&
+            typeof args.postNativeRiverObjects?.numRivers === "number"
+              ? args.postNativeRiverObjects.numRivers - args.preNativeRiverObjects.numRivers
+              : null,
           terrainChanged,
           metadataChanged,
+          nativeRiverObjectsChanged,
         }
       : null,
   };
@@ -323,6 +384,14 @@ async function readRuntimeInventory(options: Civ7DirectControlOptions): Promise<
     command: buildRuntimeInventoryCommand(),
   });
   return jsonPayloadFromCommandResult<RiverModelingRuntimeInventory>(result, "river modeling runtime inventory");
+}
+
+async function readNativeRiverObjects(options: Civ7DirectControlOptions): Promise<NativeRiverObjectSummary> {
+  const result = await executeCiv7TunerCommand({
+    ...options,
+    command: buildNativeRiverObjectsCommand(),
+  });
+  return jsonPayloadFromCommandResult<NativeRiverObjectSummary>(result, "native river object summary");
 }
 
 async function callModelRiversSequence(
@@ -366,17 +435,69 @@ function buildRuntimeInventoryCommand(): string {
       : undefined;
     return JSON.stringify({
       terrainBuilder: inspect(typeof TerrainBuilder === "undefined" ? undefined : TerrainBuilder),
+      mapRivers: inspect(typeof MapRivers === "undefined" ? undefined : MapRivers),
       riverTypes: typeof RiverTypes === "undefined" ? {} : {
         NO_RIVER: RiverTypes.NO_RIVER,
         RIVER_MINOR: RiverTypes.RIVER_MINOR,
         RIVER_NAVIGABLE: RiverTypes.RIVER_NAVIGABLE,
       },
       terrainNavigableRiver: terrain ? (typeof terrain.$index === "number" ? terrain.$index : terrain.Index ?? null) : null,
-      officialCompatibilityDefaults: {
+      officialPolicyDefaults: {
         minLength: ${OFFICIAL_DEFAULT_MIN_LENGTH},
         maxLength: ${OFFICIAL_DEFAULT_MAX_LENGTH},
       },
     });
+  })()`;
+}
+
+function buildNativeRiverObjectsCommand(): string {
+  return `(() => {
+    const out = {
+      exists: typeof MapRivers !== "undefined" && MapRivers !== null,
+      numRivers: null,
+      samples: [],
+      blockedBy: [],
+    };
+    try {
+      if (!out.exists) {
+        out.blockedBy.push("native-river-objects.MapRivers.missing");
+        return JSON.stringify(out);
+      }
+      const rawCount = typeof MapRivers.numRivers === "function" ? MapRivers.numRivers() : MapRivers.numRivers;
+      if (!Number.isInteger(rawCount)) {
+        out.blockedBy.push("native-river-objects.numRivers.unavailable");
+        return JSON.stringify(out);
+      }
+      out.numRivers = rawCount;
+      const sampleCount = Math.min(rawCount, 16);
+      for (let index = 0; index < sampleCount; index += 1) {
+        let riverType = null;
+        let plotCount = null;
+        let connectedToOcean = null;
+        try {
+          if (typeof MapRivers.getRiverTypeByIndex === "function") {
+            const value = MapRivers.getRiverTypeByIndex(index);
+            riverType = Number.isInteger(value) ? value : null;
+          }
+        } catch (_error) {}
+        try {
+          if (typeof MapRivers.getRiverPlots === "function") {
+            const plots = MapRivers.getRiverPlots(index);
+            plotCount = plots && typeof plots.length === "number" ? plots.length : null;
+          }
+        } catch (_error) {}
+        try {
+          if (typeof MapRivers.isRiverConnectedToOcean === "function") {
+            const value = MapRivers.isRiverConnectedToOcean(index);
+            connectedToOcean = typeof value === "boolean" ? value : null;
+          }
+        } catch (_error) {}
+        out.samples.push({ index, riverType, plotCount, connectedToOcean });
+      }
+    } catch (error) {
+      out.blockedBy.push(error instanceof Error ? error.message : String(error));
+    }
+    return JSON.stringify(out);
   })()`;
 }
 

@@ -614,12 +614,12 @@ export interface EngineAdapter {
   buildElevation(): void;
 
   /**
-   * Compatibility-only wrapper for Civ7's high-level river generator
+   * Native wrapper for Civ7's high-level river materializer
    * (`TerrainBuilder.modelRivers`).
    *
-   * Standard MapGen-authored rivers must publish hydrology truth and project
-   * selected navigable terrain through dedicated map stages instead of using
-   * this method as a river truth or metadata-authoring surface.
+   * Hydrology owns authored river truth. Map stages use this boundary only to
+   * ask Civ to materialize projected navigable river terrain as native river
+   * objects/metadata, then verify the result through readback.
    */
   modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void;
 

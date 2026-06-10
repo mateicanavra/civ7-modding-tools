@@ -5,6 +5,8 @@ import { join } from "node:path";
 import {
   CIV7_BROWSER_TABLES_V0,
   CIV7_COAST_CLASSIFICATION_POLICY_V0,
+  CIV7_DEFAULT_RIVER_MODELING_ARGS,
+  CIV7_RIVER_MODELING_POLICY_V0,
   CIV7_RIVER_TYPE_METADATA_SOURCE,
   CIV7_RIVER_TYPES_V0,
   NATURAL_WONDER_CATALOG,
@@ -86,6 +88,39 @@ describe("@civ7/map-policy", () => {
     expect(CIV7_RIVER_TYPES_V0.source).toContain(
       "Base/modules/base-standard/ui-next/tooltips/plot-tooltip/helpers.js"
     );
+  });
+
+  it("owns the stock Civ7 river materialization policy", () => {
+    expect(CIV7_RIVER_MODELING_POLICY_V0.navigableTerrain).toBe("TERRAIN_NAVIGABLE_RIVER");
+    expect(CIV7_RIVER_MODELING_POLICY_V0.sequence).toEqual([
+      "TerrainBuilder.modelRivers",
+      "TerrainBuilder.validateAndFixTerrain",
+      "TerrainBuilder.defineNamedRivers",
+    ]);
+    expect(CIV7_RIVER_MODELING_POLICY_V0.defaultProfile).toBe("standardContinental");
+    expect(CIV7_DEFAULT_RIVER_MODELING_ARGS).toEqual({
+      minLength: 5,
+      maxLength: 15,
+      source: [
+        "Base/modules/base-standard/maps/continents.js",
+        "Base/modules/base-standard/maps/fractal.js",
+        "Base/modules/base-standard/maps/pangaea-plus.js",
+        "Base/modules/base-standard/maps/continents-plus.js",
+        "Base/modules/base-standard/maps/terra-incognita.js",
+        "Base/modules/base-standard/maps/continents-voronoi.js",
+        "Base/modules/base-standard/maps/fractal-voronoi.js",
+        "Base/modules/base-standard/maps/pangaea-voronoi.js",
+        "Base/modules/base-standard/maps/shattered-seas-voronoi.js",
+      ],
+    });
+    expect(CIV7_RIVER_MODELING_POLICY_V0.profiles.islandHeavy).toMatchObject({
+      minLength: 5,
+      maxLength: 70,
+    });
+    expect(CIV7_RIVER_MODELING_POLICY_V0.profiles.shuffleLargeLandmass).toMatchObject({
+      minLength: 10,
+      maxLength: 85,
+    });
   });
 
   it("keeps generated map-policy and Studio river metadata catalogs in sync", () => {
