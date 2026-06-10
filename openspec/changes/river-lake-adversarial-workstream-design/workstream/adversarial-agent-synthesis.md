@@ -55,6 +55,20 @@ These notes are part of the workstream evidence, not optional side chatter.
 Future execution slices should cite them directly when they tighten or retire a
 surface.
 
+Follow-on second-wave notes were added after a narrower framed investigation on
+2026-06-09:
+
+- `agent-notes/2026-06-09-agent-1-earth-benchmarks-second-wave.md`
+- `agent-notes/2026-06-09-agent-2-civ-materialization-second-wave.md`
+- `agent-notes/2026-06-09-agent-3-upstream-ownership-second-wave.md`
+- `agent-notes/2026-06-09-agent-4-failure-archaeology-second-wave.md`
+- `agent-notes/2026-06-09-agent-5-verification-second-wave.md`
+- `agent-notes/2026-06-09-agent-6-knob-contract-second-wave.md`
+
+See also:
+
+- `2026-06-09-second-wave-synthesis.md`
+
 ## Six Adversarial Lanes
 
 ### 1. Hydrology Root-Cause Prosecutor

@@ -4,6 +4,11 @@ Date: 2026-06-09
 Owner: Codex / river-lake recovery workstream
 Status: active design authority for the remaining execution train
 
+Second-wave authority addendum:
+
+- `workstream/2026-06-09-second-wave-synthesis.md`
+- `workstream/agent-notes/2026-06-09-agent-*-second-wave.md`
+
 ## Objective
 
 Finish the river/lake recovery as a physically grounded, architecture-correct,
@@ -48,6 +53,9 @@ Use these sources in this order for the remaining work:
 - Official scripts still expose `TerrainBuilder.modelRivers(...)`,
   `defineNamedRivers()`, and `storeWaterData()`; no stable public per-tile minor
   river writer has yet been proven.
+- Current `map-rivers` code directly stamps selected navigable-river terrain,
+  but that remains narrower than full Civ river semantics. Minor-river Civ
+  materialization is still the highest-risk unproven gap in this train.
 
 ## Physical Grounding
 
@@ -121,6 +129,9 @@ These are explicitly out:
 - Projection-only fallback corridors that repair broken upstream drainage.
 - Treating `TERRAIN_NAVIGABLE_RIVER` terrain readback as proof of Civ river
   metadata, gameplay semantics, or rendered visibility.
+- Treating the current categorical `modelRivers(...)` ban as settled product
+  truth before the minor-river runtime-authoring question is explicitly
+  dispositioned.
 - Moving Hydrology selection logic into `@civ7/map-policy`.
 - Preserving broken legacy config because it already exists.
 - Claiming minor-river stamping until a real runtime writer is discovered and
