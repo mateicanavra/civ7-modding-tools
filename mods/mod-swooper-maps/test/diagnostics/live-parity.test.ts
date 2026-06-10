@@ -516,6 +516,42 @@ describe("final-surface parity proof", () => {
     expect(proof.unresolvedLinks).toEqual([]);
   });
 
+  test("passes lake-final when exact and local final lake counters match with zero drift", () => {
+    const baseExact = exactProof();
+    const lakeReadback = {
+      acceptedLakeTileCount: 63,
+      finalLakeWaterDriftCount: 0,
+      finalLakeClassificationDriftCount: 0,
+    };
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof({
+        log: {
+          ...baseExact.log,
+          placementSurfacePreparation: lakeReadback,
+        },
+      }),
+      local: snapshot({
+        source: "local-mapgen",
+        resourceCoordinateProof: true,
+        lakeReadback,
+      }),
+      live: snapshot({ source: "live-civ7" }),
+    });
+
+    expect(proof.status).toBe("complete");
+    expect(proof.lakeReadbackParity).toEqual({
+      status: "match",
+      local: lakeReadback,
+      exact: lakeReadback,
+      mismatchedFields: [],
+    });
+    expect(proof.proofClaims.claims["lake-final"]).toMatchObject({
+      status: "pass",
+      evidenceLinks: ["lakeReadbackParity"],
+    });
+    expect(proof.unresolvedLinks).toEqual([]);
+  });
+
   test("blocks parity when exact and local lake readback counters diverge", () => {
     const baseExact = exactProof();
     const proof = buildFinalSurfaceParityProof({

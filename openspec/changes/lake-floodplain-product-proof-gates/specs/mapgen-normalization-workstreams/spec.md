@@ -10,6 +10,8 @@ rather than stale counters, missing logs, or inactive zero-count rows.
 - **THEN** exact proof includes accepted lake count, final water drift, and final
   classification drift
 - **AND** missing exact counters keep lake proof unresolved
+- **AND** matching exact/local zero-drift counters are required for a lake-final
+  proof pass
 
 #### Scenario: Floodplain row is claimed
 - **WHEN** floodplain product visibility is claimed

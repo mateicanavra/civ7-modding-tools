@@ -2,7 +2,8 @@
 
 Lake gates:
 
-- exact log includes `acceptedLakeTileCount`;
+- exact log includes `PLACEMENT_SURFACE_PREPARATION_V1` with
+  `acceptedLakeTileCount`;
 - final accepted-lake water drift is `0`;
 - final accepted-lake classification drift is `0`;
 - `missing-exact-log` is unresolved, not pass.

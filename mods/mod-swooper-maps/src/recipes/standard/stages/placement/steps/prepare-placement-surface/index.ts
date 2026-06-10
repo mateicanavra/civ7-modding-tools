@@ -90,6 +90,9 @@ export default createStep(PreparePlacementSurfaceStepContract, {
       engineProjectionLakes.lakeMask
     );
     emit({ type: "placement.lakes.finalReadback", ...finalLakeReadback });
+    console.log(
+      `[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 ${JSON.stringify(finalLakeReadback)}`
+    );
 
     const slotCounts = { none: 0, west: 0, east: 0 };
     for (let i = 0; i < slotByTile.length; i++) {

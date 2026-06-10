@@ -136,6 +136,11 @@ describe("Run in Game exact authorship proof identity", () => {
           appliedByFeature: { FEATURE_TAIGA: 301, FEATURE_REEF: 11 },
           rejectedCanHaveFeatureByFeature: { FEATURE_TAIGA: 4 },
         })}`,
+        `[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 ${JSON.stringify({
+          acceptedLakeTileCount: 63,
+          finalLakeWaterDriftCount: 0,
+          finalLakeClassificationDriftCount: 0,
+        })}`,
         `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
           plannedCount: 4,
@@ -261,6 +266,12 @@ describe("Run in Game exact authorship proof identity", () => {
         appliedByFeature: { FEATURE_REEF: 11, FEATURE_TAIGA: 301 },
         rejectedCanHaveFeatureByFeature: { FEATURE_TAIGA: 4 },
       },
+    });
+    expect(logProof?.placementSurfacePreparation).toMatchObject({
+      marker: "PLACEMENT_SURFACE_PREPARATION_V1",
+      acceptedLakeTileCount: 63,
+      finalLakeWaterDriftCount: 0,
+      finalLakeClassificationDriftCount: 0,
     });
     expect(logProof?.resourcePlacement).toMatchObject({
       marker: "RESOURCE_PLACEMENT_V1",
@@ -443,6 +454,11 @@ describe("Run in Game exact authorship proof identity", () => {
   it("ignores placement telemetry outside the matching proof section", () => {
     const logProof = parseSwooperMapgenLogProof({
       text: [
+        `[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 ${JSON.stringify({
+          acceptedLakeTileCount: 63,
+          finalLakeWaterDriftCount: 0,
+          finalLakeClassificationDriftCount: 0,
+        })}`,
         `[SWOOPER_MOD] FEATURE_APPLY_V1 ${JSON.stringify({
           attempted: 1,
           applied: 1,
@@ -481,6 +497,7 @@ describe("Run in Game exact authorship proof identity", () => {
     });
 
     expect(logProof?.featureApply).toBeUndefined();
+    expect(logProof?.placementSurfacePreparation).toBeUndefined();
     expect(logProof?.resourcePlacement).toBeUndefined();
     expect(logProof?.naturalWonderPlan).toBeUndefined();
     expect(logProof?.naturalWonderPlacement).toBeUndefined();

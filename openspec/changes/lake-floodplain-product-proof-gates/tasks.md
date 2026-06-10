@@ -1,6 +1,6 @@
 ## 1. Lake And Floodplain Proof
 
-- [ ] 1.1 Emit exact log lake counters and block lake closure on missing exact
+- [x] 1.1 Emit exact log lake counters and block lake closure on missing exact
   counters.
 - [x] 1.2 Preserve a floodplain active seed regression with nonzero live feature
   evidence.
