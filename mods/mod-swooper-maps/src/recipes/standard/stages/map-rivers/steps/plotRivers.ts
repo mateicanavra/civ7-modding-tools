@@ -5,6 +5,7 @@ import {
   defineVizMeta,
   snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
+import { CIV7_DEFAULT_RIVER_MODELING_ARGS } from "@civ7/map-policy";
 import {
   HYDROLOGY_FLOW_INTERMITTENT,
   HYDROLOGY_FLOW_PERENNIAL,
@@ -307,9 +308,25 @@ export default createStep(PlotRiversStepContract, {
       policy: "hydrology.authoredNavigableTerrain.v0",
       selectedTileCount: materialized.selectedTileCount,
       reason:
-        "MapGen preserves the Hydrology-selected navigable terrain mask instead of running Civ's whole-map river generator.",
+        "MapGen stamps the Hydrology-selected navigable terrain mask before asking Civ to build native river objects.",
     }));
     logStats("POST-AUTHORED-RIVERS");
+    // Stock Civ map scripts run TerrainBuilder.modelRivers before validation
+    // and named-river definition. Keep Hydrology as source truth, but use the
+    // adapter-owned native boundary so Civ creates river metadata/model objects
+    // rather than terrain-only rows.
+    context.adapter.modelRivers(
+      CIV7_DEFAULT_RIVER_MODELING_ARGS.minLength,
+      CIV7_DEFAULT_RIVER_MODELING_ARGS.maxLength,
+      NAVIGABLE_RIVER_TERRAIN
+    );
+    context.trace.event(() => ({
+      type: "map.rivers.officialCivRiverModeling",
+      policy: "civ7.stockRiverMaterialization.v0",
+      minLength: CIV7_DEFAULT_RIVER_MODELING_ARGS.minLength,
+      maxLength: CIV7_DEFAULT_RIVER_MODELING_ARGS.maxLength,
+    }));
+    logStats("POST-MODEL-RIVERS");
     context.adapter.validateAndFixTerrain();
     logStats("POST-VALIDATE");
     context.adapter.defineNamedRivers();
