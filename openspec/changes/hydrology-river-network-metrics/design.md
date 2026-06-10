@@ -12,7 +12,7 @@ The benchmark contract is declared before tuning and must record:
 - hidden drainage, minor/headwater, major, and navigable-visible class counts;
 - channel-length share by class;
 - basin terminal shares (ocean, accepted lake, closed basin, unresolved);
-- lake area share and lake-connected discharge share;
+- lake area share and lake-connected terminal discharge share;
 - major-to-minor and navigable-to-major ratios;
 - stylization ledger when Civ tile scale requires exaggeration, merging, or
   omission relative to Earth data.
@@ -27,6 +27,15 @@ Metrics:
   unresolved.
 - `slopeClass`: flat, low, moderate, steep, mountain-blocked.
 - `flowPermanenceProxy`: perennial, intermittent, ephemeral, or dry/no-signal.
+- `benchmarkSummary`: observed Hydrology aggregate fields for land/water/lake
+  denominators, river class ratios, river-specific permanence, low-order
+  hierarchy, terminal shares, basin coverage, and routing-health counters.
+
+Benchmark metadata belongs in report/spec/docs surfaces, not in the Hydrology
+compute op. It records tile scale, visible feature floor, regime row, external
+Earth anchors, and stylization notes so Studio/proof tooling can interpret
+observed metrics without turning projection/readback artifacts into Hydrology
+truth.
 
 Generated-map oracles:
 
@@ -41,11 +50,15 @@ Generated-map oracles:
 
 External Earth anchors constrain the first accepted pass:
 
-- HydroRIVERS / HydroATLAS inclusion floors and global routed-network coverage.
-- GRWL river-surface-area order of magnitude for visible wide rivers.
-- global non-perennial and headwater-dominance studies for minor/headwater
-  class ratios.
-- HydroLAKES / global lake inventory area share for lake abundance.
+- HydroRIVERS / HydroATLAS inclusion floors and global routed-network coverage:
+  HydroRIVERS uses `>=10 km2` upstream area or `>=0.1 m3/s` average flow and
+  reports 35.9 million km globally.
+- GRWL visible-river floor: rivers `>=30 m` wide, more than 2.1 million km of
+  centerlines, and sub-total-network coverage.
+- global non-perennial studies: 51-60% of river length ceases flowing at least
+  one day per year, so non-perennial classes are expected rather than failures.
+- HydroLAKES / global lake inventory: about 1.4 million lakes/reservoirs and
+  2.67 million km2 surface area for a `>=10 ha` inventory floor.
 - endorheic-basin datasets for closed-terminal frequency and no-ocean outcomes.
 
 The local generated seed matrix can calibrate against those anchors; it cannot

@@ -12,6 +12,12 @@ tuned.
   stream hierarchy proxy, mouth type, slope class, and flow permanence proxy
 - **AND** they distinguish wet normal rivers from arid ephemeral/no-signal
   outcomes
+- **AND** they publish an observed benchmark summary for river class ratios,
+  river-specific permanence, low-order hierarchy, terminal shares, lake share,
+  basin coverage, and routing-health counters
+- **AND** benchmark metadata records tile scale, visible feature floor, regime
+  row, external Earth anchors, and stylization notes outside the Hydrology
+  compute op
 
 #### Scenario: Physical network metrics fail
 - **WHEN** drainage contains cycles, invalid receivers, unexplained discharge
