@@ -216,6 +216,7 @@ import type {
 import {
   getCiv7MapGrid,
   getCiv7MapSummary,
+  getCiv7NativeRiverObjects,
   getCiv7PlotSnapshot,
 } from "./play/map/reads.js";
 import {
@@ -568,6 +569,9 @@ export {
   Civ7MapGridResultSchema,
   Civ7MapSummaryInputSchema,
   Civ7MapSummaryResultSchema,
+  Civ7NativeRiverObjectSampleSchema,
+  Civ7NativeRiverObjectsInputSchema,
+  Civ7NativeRiverObjectsResultSchema,
   Civ7PlotSnapshotFieldSchema,
   Civ7PlotSnapshotInputSchema,
   Civ7PlotSnapshotResultSchema,
@@ -831,6 +835,9 @@ export type {
   Civ7MapLocation,
   Civ7MapSummaryOptions,
   Civ7MapSummaryResult,
+  Civ7NativeRiverObjectSample,
+  Civ7NativeRiverObjectsInput,
+  Civ7NativeRiverObjectsResult,
   Civ7PlotSnapshot,
   Civ7PlotSnapshotField,
   Civ7PlotSnapshotInput,
@@ -839,6 +846,7 @@ export type {
 export {
   getCiv7MapGrid,
   getCiv7MapSummary,
+  getCiv7NativeRiverObjects,
   getCiv7PlotSnapshot,
 };
 export {

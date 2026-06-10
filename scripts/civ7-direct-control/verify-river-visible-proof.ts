@@ -6,6 +6,7 @@ import { dirname, resolve } from "node:path";
 
 import type {
   FinalSurfaceParityProof,
+  NativeRiverObjectSnapshot,
   RiverMetadataSnapshot,
   SurfaceGrid,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
@@ -50,6 +51,13 @@ type ScreenshotProof = Readonly<{
   target: MapLocation;
 }>;
 
+type NativeRiverObjectsProof = Readonly<{
+  status: "present" | "zero-rivers" | "missing" | "unavailable";
+  numRivers: number | null;
+  sampleCount: number;
+  blockedBy: ReadonlyArray<string>;
+}>;
+
 type RiverVisibleProofStatus =
   | "visible"
   | "not-visible"
@@ -70,6 +78,7 @@ export type RiverVisibleProof = Readonly<{
     sampleCount: number;
     samples: ReadonlyArray<RiverSample>;
   }>;
+  nativeRiverObjects: NativeRiverObjectsProof;
   camera: Readonly<{
     status: "bound-to-sample" | "missing" | "target-not-sampled";
     source: CameraSource;
@@ -237,6 +246,7 @@ export function buildRiverVisibleProofOutput(args: {
   const parityProofHash = hashValue(args.parity);
   const allLiveSamples = collectLiveRiverSamples(args.parity.live.riverMetadata, args.parity.local.riverMetadata);
   const selectedSamples = sampleEvenly(allLiveSamples, maxSamples);
+  const nativeRiverObjects = nativeRiverObjectsProof(args.parity.live.nativeRiverObjects);
   const target = args.cameraTarget;
   const targetIsSampled = target !== undefined && selectedSamples.some((sample) => sameLocation(sample, target));
   const screenshots = args.screenshots ?? [];
@@ -251,6 +261,13 @@ export function buildRiverVisibleProofOutput(args: {
   }
   if (args.parity.proofClaims.claims["exact-authorship"]?.status !== "pass") {
     blockedBy.add("final-surface-parity.exact-authorship-pass");
+  }
+  if (nativeRiverObjects.status === "missing") {
+    blockedBy.add("river-visible.native-river-objects");
+  } else if (nativeRiverObjects.status === "unavailable") {
+    blockedBy.add("river-visible.native-river-objects-readable");
+  } else if (nativeRiverObjects.status === "zero-rivers") {
+    blockedBy.add("river-visible.native-river-objects-present");
   }
   if (allLiveSamples.length === 0) blockedBy.add("river-visible.live-terrain-river-samples");
   if (target === undefined) blockedBy.add("river-visible.camera-target");
@@ -297,6 +314,7 @@ export function buildRiverVisibleProofOutput(args: {
       sampleCount: selectedSamples.length,
       samples: selectedSamples,
     },
+    nativeRiverObjects,
     camera: {
       status: cameraStatus,
       source: args.cameraSource ?? "unknown",
@@ -321,6 +339,32 @@ export function buildRiverVisibleProofOutput(args: {
     status,
     proofHash: hashValue(proof),
     proof,
+  };
+}
+
+function nativeRiverObjectsProof(snapshot: NativeRiverObjectSnapshot | undefined): NativeRiverObjectsProof {
+  if (snapshot === undefined) {
+    return {
+      status: "missing",
+      numRivers: null,
+      sampleCount: 0,
+      blockedBy: ["native-river-objects.not-provided"],
+    };
+  }
+  const blockedBy = snapshot.blockedBy ?? [];
+  if (!snapshot.exists || snapshot.numRivers === null || blockedBy.length > 0) {
+    return {
+      status: "unavailable",
+      numRivers: snapshot.numRivers,
+      sampleCount: snapshot.sampleCount,
+      blockedBy,
+    };
+  }
+  return {
+    status: snapshot.numRivers === 0 ? "zero-rivers" : "present",
+    numRivers: snapshot.numRivers,
+    sampleCount: snapshot.sampleCount,
+    blockedBy: [],
   };
 }
 

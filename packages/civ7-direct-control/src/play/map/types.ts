@@ -256,3 +256,38 @@ export type Civ7FullMapGridResult = Readonly<{
   chunks: ReadonlyArray<Civ7MapGridReadChunk>;
   plots: ReadonlyArray<Civ7PlotSnapshot>;
 }>;
+
+export const Civ7NativeRiverObjectsInputSchema = Type.Object({
+  maxSamples: Type.Optional(Type.Integer({ minimum: 0, maximum: 256 })),
+}, { additionalProperties: false });
+
+export type Civ7NativeRiverObjectsInput = Readonly<Static<typeof Civ7NativeRiverObjectsInputSchema>>;
+
+export const Civ7NativeRiverObjectSampleSchema = Type.Object({
+  index: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  riverType: Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.Null()])),
+  plotCount: Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.Null()])),
+  connectedToOcean: Civ7RuntimeProbeSchema(Type.Union([Type.Boolean(), Type.Null()])),
+}, { additionalProperties: false });
+
+export type Civ7NativeRiverObjectSample = Readonly<Static<typeof Civ7NativeRiverObjectSampleSchema>>;
+
+export const Civ7NativeRiverObjectsResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  exists: Type.Boolean(),
+  numRivers: Civ7RuntimeProbeSchema(Type.Number()),
+  samples: Type.Array(Civ7NativeRiverObjectSampleSchema),
+  truncated: Type.Boolean(),
+}, { additionalProperties: false });
+
+export type Civ7NativeRiverObjectsResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  exists: boolean;
+  numRivers: Civ7RuntimeProbe<number>;
+  samples: ReadonlyArray<Civ7NativeRiverObjectSample>;
+  truncated: boolean;
+}>;

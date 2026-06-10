@@ -23,6 +23,8 @@ import {
   Civ7MapLocationSchema,
   Civ7MapSummaryInputSchema,
   Civ7MapSummaryResultSchema,
+  Civ7NativeRiverObjectsInputSchema,
+  Civ7NativeRiverObjectsResultSchema,
   Civ7PlotSnapshotInputSchema,
   Civ7PlotSnapshotResultSchema,
   Civ7BattlefieldScanInputSchema,
@@ -288,6 +290,25 @@ describe("Civ7 direct control public API", () => {
         "omitted",
         "hiddenInfoPolicy",
         "plots",
+      ]),
+    });
+  });
+
+  test("exports native river object read schemas from the public facade", () => {
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 16 })).toBe(true);
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 257 })).toBe(false);
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { rawCommand: "MapRivers.numRivers()" })).toBe(false);
+    expect(Civ7NativeRiverObjectsResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "state",
+        "exists",
+        "numRivers",
+        "samples",
+        "truncated",
       ]),
     });
   });

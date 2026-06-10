@@ -98,6 +98,7 @@ function snapshot(args: {
   omitted?: number;
   localTerrain?: ReadonlyArray<number | null>;
   riverMetadata?: FinalSurfaceSnapshot["riverMetadata"];
+  nativeRiverObjects?: FinalSurfaceSnapshot["nativeRiverObjects"];
   lakeReadback?: {
     acceptedLakeTileCount: number;
     finalLakeWaterDriftCount: number;
@@ -236,6 +237,7 @@ function snapshot(args: {
       resource: { width, height, values: [7, 8] },
     },
     ...(args.riverMetadata === undefined ? {} : { riverMetadata: args.riverMetadata }),
+    ...(args.nativeRiverObjects === undefined ? {} : { nativeRiverObjects: args.nativeRiverObjects }),
     evidence: args.source === "live-civ7"
       ? {
           runtime: { turn: 1, gameHash: args.gameHash ?? 99, width, height, seed: 1234, plotCount: 2 },
@@ -285,6 +287,26 @@ function riverMetadata(args: {
   };
 }
 
+function nativeRiverObjects(numRivers: number): FinalSurfaceSnapshot["nativeRiverObjects"] {
+  return {
+    exists: true,
+    numRivers,
+    sampleCount: numRivers > 0 ? 1 : 0,
+    ...(numRivers > 0
+      ? {
+          samples: [
+            {
+              index: 0,
+              riverType: RIVER_TYPE_NAVIGABLE,
+              plotCount: 3,
+              connectedToOcean: true,
+            },
+          ],
+        }
+      : {}),
+  };
+}
+
 describe("final-surface parity proof", () => {
   test("reports river metadata parity with planned minor and major masks separated", () => {
     const localRiverMetadata: FinalSurfaceSnapshot["riverMetadata"] = {
@@ -317,7 +339,11 @@ describe("final-surface parity proof", () => {
         resourceCoordinateProof: true,
         riverMetadata: localRiverMetadata,
       }),
-      live: snapshot({ source: "live-civ7", riverMetadata: liveRiverMetadata }),
+      live: snapshot({
+        source: "live-civ7",
+        riverMetadata: liveRiverMetadata,
+        nativeRiverObjects: nativeRiverObjects(1),
+      }),
       now: () => new Date("2026-06-06T00:00:00.000Z"),
     });
 
@@ -494,6 +520,7 @@ describe("final-surface parity proof", () => {
           navigable: [0, 0],
           minor: [0, 0],
         }),
+        nativeRiverObjects: nativeRiverObjects(1),
       }),
     });
 
@@ -529,6 +556,45 @@ describe("final-surface parity proof", () => {
     expect(proof.residuals.find((residual) => residual.key === "rivers")).toMatchObject({
       status: "covered-by-terrain-grid",
     });
+  });
+
+  test("blocks river metadata closure when native MapRivers objects are absent", () => {
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof(),
+      local: snapshot({
+        source: "local-mapgen",
+        resourceCoordinateProof: true,
+        riverMetadata: riverMetadata({
+          projected: [1, 0],
+          minorRiverStampingSupported: false,
+          minorRiverUnsupportedReason: "minor metadata readback-only",
+        }),
+      }),
+      live: snapshot({
+        source: "live-civ7",
+        riverMetadata: riverMetadata({
+          terrain: [1, 0],
+          riverType: [RIVER_TYPE_NAVIGABLE, NO_RIVER_TYPE],
+          river: [1, 0],
+          navigable: [1, 0],
+          minor: [0, 0],
+        }),
+        nativeRiverObjects: nativeRiverObjects(0),
+      }),
+    });
+
+    expect(proof.status).toBe("unresolved");
+    expect(proof.riverMetadataParity).toMatchObject({
+      status: "match",
+      nativeRiverObjectReadbackStatus: "zero-rivers",
+      nativeRiverObjectCount: 0,
+      nativeRiverObjectSampleCount: 0,
+    });
+    expect(proof.proofClaims.claims["metadata-readback"]).toMatchObject({
+      status: "fail",
+      evidenceLinks: ["river-metadata.native-river-objects"],
+    });
+    expect(proof.unresolvedLinks).toContain("river-metadata.native-river-objects");
   });
 
   test("blocks river metadata parity when local and live grids have different dimensions", () => {

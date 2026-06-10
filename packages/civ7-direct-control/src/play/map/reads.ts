@@ -22,6 +22,8 @@ import type {
   Civ7MapSummaryInput,
   Civ7MapSummaryOptions,
   Civ7MapSummaryResult,
+  Civ7NativeRiverObjectsInput,
+  Civ7NativeRiverObjectsResult,
   Civ7PlotSnapshotField,
   Civ7PlotSnapshotInput,
   Civ7PlotSnapshotResult,
@@ -39,6 +41,7 @@ type MapReadDependencies = Readonly<{
   jsLiteral: (value: unknown) => string;
   parseMapGrid: (result: Civ7CommandResult, label: string) => Civ7MapGridResult;
   parseMapSummary: (result: Civ7CommandResult, label: string) => Civ7MapSummaryResult;
+  parseNativeRiverObjects: (result: Civ7CommandResult, label: string) => Civ7NativeRiverObjectsResult;
   parsePlotSnapshot: (result: Civ7CommandResult, label: string) => Civ7PlotSnapshotResult;
   probeHelperSource: () => string;
   validateMapBounds: (bounds: Civ7MapBounds) => void;
@@ -66,6 +69,11 @@ export type MapGridReadDependencies = Pick<
   | "probeHelperSource"
   | "validateMapBounds"
   | "validateMapLocation"
+>;
+
+export type NativeRiverObjectsReadDependencies = Pick<
+  MapReadDependencies,
+  "boundedInteger" | "executeTunerCommand" | "jsLiteral" | "parseNativeRiverObjects" | "probeHelperSource"
 >;
 
 export async function getCiv7MapSummary(
@@ -124,6 +132,19 @@ export async function getCiv7MapGrid(
     ),
   });
   return dependencies.parseMapGrid(result, "Civ7 map grid");
+}
+
+export async function getCiv7NativeRiverObjects(
+  input: Civ7NativeRiverObjectsInput = {},
+  options: Civ7DirectControlOptions = {},
+  dependencies: NativeRiverObjectsReadDependencies = defaultMapReadDependencies,
+): Promise<Civ7NativeRiverObjectsResult> {
+  const maxSamples = dependencies.boundedInteger(input.maxSamples ?? 16, 0, 256, "maxSamples");
+  const result = await dependencies.executeTunerCommand({
+    ...options,
+    command: buildNativeRiverObjectsCommand({ maxSamples }, dependencies),
+  });
+  return dependencies.parseNativeRiverObjects(result, "Civ7 native river objects");
 }
 
 function buildMapSummaryCommand(
@@ -209,6 +230,52 @@ function buildMapGridCommand(input: Civ7MapGridInput & {
       hiddenInfoPolicy: input.playerId === undefined ? "not-player-scoped" : input.includeHidden ? "include-hidden" : "visibility-filtered",
       map: { width, height },
       plots: locations.map((location) => readPlotSnapshot({ ...input, ...location })),
+    });
+  })()`;
+}
+
+function buildNativeRiverObjectsCommand(
+  input: Required<Civ7NativeRiverObjectsInput>,
+  dependencies: NativeRiverObjectsReadDependencies,
+): string {
+  return `(() => {
+    ${dependencies.probeHelperSource()}
+    const input = ${dependencies.jsLiteral(input)};
+    const exists = typeof MapRivers !== "undefined" && MapRivers !== null;
+    const numRivers = exists
+      ? probe(() => {
+          const raw = typeof MapRivers.numRivers === "function"
+            ? MapRivers.numRivers()
+            : MapRivers.numRivers;
+          if (!Number.isInteger(raw)) throw new Error("MapRivers.numRivers did not return an integer");
+          return raw;
+        })
+      : { ok: false, error: "MapRivers unavailable" };
+    const riverCount = numRivers.ok ? Math.max(0, numRivers.value) : 0;
+    const sampleCount = Math.min(riverCount, input.maxSamples);
+    const samples = [];
+    for (let index = 0; index < sampleCount; index += 1) {
+      const plots = probe(() => typeof MapRivers.getRiverPlots === "function"
+        ? MapRivers.getRiverPlots(index)
+        : null);
+      samples.push({
+        index,
+        riverType: probe(() => typeof MapRivers.getRiverTypeByIndex === "function"
+          ? MapRivers.getRiverTypeByIndex(index)
+          : null),
+        plotCount: plots.ok
+          ? { ok: true, value: plots.value && typeof plots.value.length === "number" ? plots.value.length : null }
+          : plots,
+        connectedToOcean: probe(() => typeof MapRivers.isRiverConnectedToOcean === "function"
+          ? MapRivers.isRiverConnectedToOcean(index)
+          : null),
+      });
+    }
+    return JSON.stringify({
+      exists,
+      numRivers,
+      samples,
+      truncated: riverCount > sampleCount,
     });
   })()`;
 }
@@ -358,6 +425,8 @@ const defaultMapReadDependencies: MapReadDependencies = {
     jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
   parseMapSummary: (result, label) =>
     jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
+  parseNativeRiverObjects: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7NativeRiverObjectsResult>(result, label),
   parsePlotSnapshot: (result, label) =>
     jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
   probeHelperSource,
