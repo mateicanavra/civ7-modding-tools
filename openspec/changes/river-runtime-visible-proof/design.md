@@ -7,7 +7,8 @@ The visible proof runner emits one packet with:
 - setup row/readback, live map identity, seed, dimensions, game hash when
   available;
 - final terrain parity and metadata status;
-- sampled live river tile coordinates and connected-chain ids;
+- sampled live river tile coordinates and native `MapRivers` object/plot
+  membership for each closure camera target;
 - camera target, zoom, visibility/layer/graphics state;
 - screenshot paths and hashes;
 - visual verdict (`visible`, `not-visible`, `obscured`, `inconclusive`) with
@@ -32,6 +33,8 @@ cannot claim minor-river success from terrain-only evidence.
 Closure-capable `civ-rendered` proof also requires:
 
 - `exact-authorship=pass` for the same run before visible proof can pass;
+- each camera target to be both live `TERRAIN_NAVIGABLE_RIVER` terrain and a
+  plot returned by native `MapRivers.getRiverPlots(...)` in the same run;
 - direct-control camera targeting/state capture, even when screenshot capture
   falls back to OS capture;
 - manual-file screenshots to remain debug-only evidence rather than

@@ -93,7 +93,16 @@ export type NativeRiverObjectSampleSnapshot = Readonly<{
   index: number;
   riverType: number | null;
   plotCount: number | null;
+  plotSampleCount?: number;
+  plotTruncated?: boolean;
+  plots?: ReadonlyArray<NativeRiverObjectPlotSnapshot>;
   connectedToOcean: boolean | null;
+}>;
+
+export type NativeRiverObjectPlotSnapshot = Readonly<{
+  raw: unknown;
+  index: number | null;
+  location: Readonly<{ x: number; y: number }> | null;
 }>;
 
 export type NativeRiverObjectSnapshot = Readonly<{

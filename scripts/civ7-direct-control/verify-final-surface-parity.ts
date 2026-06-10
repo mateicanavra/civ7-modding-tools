@@ -167,17 +167,36 @@ function probeNullableBoolean(value: Civ7RuntimeProbe<boolean | null> | undefine
   return value.value;
 }
 
+function probeNativeRiverPlots(
+  value: Civ7NativeRiverObjectsResult["samples"][number]["plots"] | undefined,
+): NonNullable<NativeRiverObjectSnapshot["samples"]>[number]["plots"] {
+  if (!value || value.ok !== true || !Array.isArray(value.value)) return undefined;
+  return value.value.map((plot) => ({
+    raw: plot.raw,
+    index: typeof plot.index === "number" && Number.isFinite(plot.index) ? plot.index : null,
+    location: plot.location && typeof plot.location.x === "number" && typeof plot.location.y === "number"
+      ? { x: plot.location.x, y: plot.location.y }
+      : null,
+  }));
+}
+
 function nativeRiverObjectsSnapshot(result: Civ7NativeRiverObjectsResult): NativeRiverObjectSnapshot {
   return {
     exists: result.exists,
     numRivers: probeNumber(result.numRivers) ?? null,
     sampleCount: result.samples.length,
-    samples: result.samples.map((sample) => ({
-      index: sample.index,
-      riverType: probeNullableNumber(sample.riverType),
-      plotCount: probeNullableNumber(sample.plotCount),
-      connectedToOcean: probeNullableBoolean(sample.connectedToOcean),
-    })),
+    samples: result.samples.map((sample) => {
+      const plots = probeNativeRiverPlots(sample.plots);
+      return {
+        index: sample.index,
+        riverType: probeNullableNumber(sample.riverType),
+        plotCount: probeNullableNumber(sample.plotCount),
+        plotSampleCount: sample.plotSampleCount,
+        plotTruncated: sample.plotTruncated,
+        ...(plots === undefined ? {} : { plots }),
+        connectedToOcean: probeNullableBoolean(sample.connectedToOcean),
+      };
+    }),
     blockedBy: [
       ...(result.exists ? [] : ["native-river-objects.MapRivers.missing"]),
       ...(result.numRivers.ok ? [] : ["native-river-objects.numRivers.unavailable"]),

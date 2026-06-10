@@ -138,10 +138,12 @@ describe("map and visibility reads", () => {
 
   test("validates native river object schema boundaries beside the read atom", () => {
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 16 })).toBe(true);
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 16, maxPlotsPerRiver: 128 })).toBe(true);
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, {})).toBe(true);
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: -1 })).toBe(false);
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 257 })).toBe(false);
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 1.5 })).toBe(false);
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxPlotsPerRiver: 2049 })).toBe(false);
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { command: "MapRivers.numRivers()" })).toBe(false);
     expect(Value.Check(Civ7NativeRiverObjectsResultSchema, nativeRiverObjectsResult())).toBe(true);
     expect(Value.Check(Civ7NativeRiverObjectsResultSchema, {
@@ -258,12 +260,32 @@ describe("map and visibility reads", () => {
             index: 0,
             riverType: { ok: true, value: 1 },
             plotCount: { ok: true, value: 4 },
+            plotSampleCount: 4,
+            plotTruncated: false,
+            plots: {
+              ok: true,
+              value: [
+                { raw: 1, index: 1, location: { x: 1, y: 0 } },
+                { raw: 3, index: 3, location: { x: 3, y: 0 } },
+                { raw: 5, index: 5, location: { x: 5, y: 0 } },
+                { raw: 7, index: 7, location: { x: 7, y: 0 } },
+              ],
+            },
             connectedToOcean: { ok: true, value: true },
           },
           {
             index: 1,
             riverType: { ok: true, value: 0 },
             plotCount: { ok: true, value: 2 },
+            plotSampleCount: 2,
+            plotTruncated: false,
+            plots: {
+              ok: true,
+              value: [
+                { raw: 2, index: 2, location: { x: 2, y: 0 } },
+                { raw: 4, index: 4, location: { x: 4, y: 0 } },
+              ],
+            },
             connectedToOcean: { ok: true, value: false },
           },
         ],
@@ -574,12 +596,32 @@ function nativeRiverObjectsPayload() {
         index: 0,
         riverType: { ok: true, value: 1 },
         plotCount: { ok: true, value: 4 },
+        plotSampleCount: 4,
+        plotTruncated: false,
+        plots: {
+          ok: true,
+          value: [
+            { raw: 1, index: 1, location: { x: 1, y: 0 } },
+            { raw: 3, index: 3, location: { x: 3, y: 0 } },
+            { raw: 5, index: 5, location: { x: 5, y: 0 } },
+            { raw: 7, index: 7, location: { x: 7, y: 0 } },
+          ],
+        },
         connectedToOcean: { ok: true, value: true },
       },
       {
         index: 1,
         riverType: { ok: true, value: 0 },
         plotCount: { ok: true, value: 2 },
+        plotSampleCount: 2,
+        plotTruncated: false,
+        plots: {
+          ok: true,
+          value: [
+            { raw: 2, index: 2, location: { x: 2, y: 0 } },
+            { raw: 4, index: 4, location: { x: 4, y: 0 } },
+          ],
+        },
         connectedToOcean: { ok: true, value: false },
       },
     ],

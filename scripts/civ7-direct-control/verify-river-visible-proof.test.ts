@@ -48,7 +48,17 @@ describe("river visible proof verifier", () => {
       expect(output.proof.nativeRiverObjects).toMatchObject({
         status: "present",
         numRivers: 1,
+        sampledPlotCount: 2,
+        samplesWithPlots: 1,
       });
+      expect(output.proof.liveRiverSamples.samples[0]?.nativeRiverObjects).toEqual([
+        {
+          riverIndex: 0,
+          riverType: 1,
+          connectedToOcean: true,
+          plotIndex: 1,
+        },
+      ]);
       expect(output.proof.camera).toMatchObject({
         status: "bound-to-sample",
         source: "direct-control",
@@ -147,6 +157,38 @@ describe("river visible proof verifier", () => {
       numRivers: 0,
     });
     expect(output.proof.blockedBy).toContain("river-visible.native-river-objects-present");
+  });
+
+  test("blocks when camera target is live river terrain but not a native river object plot", () => {
+    const temp = mkdtempSync(join(tmpdir(), "river-visible-proof-"));
+    try {
+      const screenshot = join(temp, "unbound-native.png");
+      writeFileSync(screenshot, "unbound native");
+
+      const output = buildRiverVisibleProofOutput({
+        parity: parityProof({
+          terrainReadbackStatus: "pass",
+          exactAuthorshipStatus: "pass",
+          projected: [0, 1, 0, 1],
+          liveTerrain: [0, 1, 0, 1],
+          nativeRiverPlots: [3],
+        }),
+        screenshots: [screenshot],
+        cameraTarget: { x: 1, y: 0 },
+        cameraSource: "direct-control",
+        verdict: "visible",
+        verdictSource: "manual-review",
+        captureMode: "direct-control",
+      });
+
+      expect(output.ok).toBe(false);
+      expect(output.status).toBe("blocked");
+      expect(output.proof.camera.status).toBe("bound-to-sample");
+      expect(output.proof.liveRiverSamples.samples[0]?.nativeRiverObjects).toEqual([]);
+      expect(output.proof.blockedBy).toContain("river-visible.camera-target-native-river-object");
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
   });
 
   test("blocks when final-surface terrain readback did not pass", () => {
@@ -267,10 +309,12 @@ function parityProof(args: {
   liveNavigable?: ReadonlyArray<number | null>;
   nativeRiverCount?: number | null;
   nativeRiverBlockedBy?: ReadonlyArray<string>;
+  nativeRiverPlots?: ReadonlyArray<number>;
 }): FinalSurfaceParityProof {
   const width = 2;
   const height = 2;
   const nativeRiverCount = args.nativeRiverCount ?? (args.liveTerrain.includes(1) ? 1 : 0);
+  const nativeRiverPlots = args.nativeRiverPlots ?? [1, 3];
   return {
     status: "complete",
     createdAt: "2026-06-09T20:00:00.000Z",
@@ -323,7 +367,14 @@ function parityProof(args: {
                 {
                   index: 0,
                   riverType: 1,
-                  plotCount: 2,
+                  plotCount: nativeRiverPlots.length,
+                  plotSampleCount: nativeRiverPlots.length,
+                  plotTruncated: false,
+                  plots: nativeRiverPlots.map((plotIndex) => ({
+                    raw: plotIndex,
+                    index: plotIndex,
+                    location: { x: plotIndex % width, y: Math.floor(plotIndex / width) },
+                  })),
                   connectedToOcean: true,
                 },
               ],

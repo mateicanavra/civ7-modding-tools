@@ -140,9 +140,10 @@ export async function getCiv7NativeRiverObjects(
   dependencies: NativeRiverObjectsReadDependencies = defaultMapReadDependencies,
 ): Promise<Civ7NativeRiverObjectsResult> {
   const maxSamples = dependencies.boundedInteger(input.maxSamples ?? 16, 0, 256, "maxSamples");
+  const maxPlotsPerRiver = dependencies.boundedInteger(input.maxPlotsPerRiver ?? 256, 0, 2048, "maxPlotsPerRiver");
   const result = await dependencies.executeTunerCommand({
     ...options,
-    command: buildNativeRiverObjectsCommand({ maxSamples }, dependencies),
+    command: buildNativeRiverObjectsCommand({ maxSamples, maxPlotsPerRiver }, dependencies),
   });
   return dependencies.parseNativeRiverObjects(result, "Civ7 native river objects");
 }
@@ -253,19 +254,80 @@ function buildNativeRiverObjectsCommand(
       : { ok: false, error: "MapRivers unavailable" };
     const riverCount = numRivers.ok ? Math.max(0, numRivers.value) : 0;
     const sampleCount = Math.min(riverCount, input.maxSamples);
+    const safeRawPlot = (plot) => {
+      if (plot === null || typeof plot === "number" || typeof plot === "string" || typeof plot === "boolean") return plot;
+      if (plot && typeof plot === "object") {
+        const out = {};
+        for (const key of ["index", "Index", "$index", "plotIndex", "x", "y"]) {
+          if (typeof plot[key] === "number" || typeof plot[key] === "string" || typeof plot[key] === "boolean" || plot[key] === null) {
+            out[key] = plot[key];
+          }
+        }
+        return out;
+      }
+      return String(plot);
+    };
+    const numericPlotIndex = (plot) => {
+      if (Number.isInteger(plot)) return plot;
+      if (typeof plot === "string" && plot.trim() !== "" && Number.isInteger(Number(plot))) return Number(plot);
+      if (plot && typeof plot === "object") {
+        for (const key of ["index", "Index", "$index", "plotIndex"]) {
+          if (Number.isInteger(plot[key])) return plot[key];
+          if (typeof plot[key] === "string" && plot[key].trim() !== "" && Number.isInteger(Number(plot[key]))) return Number(plot[key]);
+        }
+        if (Number.isInteger(plot.x) && Number.isInteger(plot.y)) {
+          const indexResult = probe(() => GameplayMap.getIndexFromXY(plot.x, plot.y));
+          if (indexResult.ok && Number.isInteger(indexResult.value)) return indexResult.value;
+        }
+      }
+      return null;
+    };
+    const locationFromIndex = (index) => {
+      if (!Number.isInteger(index) || index < 0) return null;
+      const location = probe(() => GameplayMap.getLocationFromIndex(index));
+      if (!location.ok || !location.value || !Number.isInteger(location.value.x) || !Number.isInteger(location.value.y)) return null;
+      return { x: location.value.x, y: location.value.y };
+    };
+    const locationFromPlot = (plot, index) => {
+      if (plot && typeof plot === "object" && Number.isInteger(plot.x) && Number.isInteger(plot.y)) {
+        return { x: plot.x, y: plot.y };
+      }
+      return locationFromIndex(index);
+    };
+    const normalizeRiverPlots = (plots) => {
+      if (!plots.ok) return plots;
+      if (!Array.isArray(plots.value)) return { ok: true, value: [] };
+      const selected = plots.value.slice(0, input.maxPlotsPerRiver);
+      return {
+        ok: true,
+        value: selected.map((plot) => {
+          const index = numericPlotIndex(plot);
+          return {
+            raw: safeRawPlot(plot),
+            index,
+            location: locationFromPlot(plot, index),
+          };
+        }),
+      };
+    };
     const samples = [];
     for (let index = 0; index < sampleCount; index += 1) {
       const plots = probe(() => typeof MapRivers.getRiverPlots === "function"
         ? MapRivers.getRiverPlots(index)
         : null);
+      const normalizedPlots = normalizeRiverPlots(plots);
+      const plotCount = plots.ok && plots.value && typeof plots.value.length === "number"
+        ? plots.value.length
+        : null;
       samples.push({
         index,
         riverType: probe(() => typeof MapRivers.getRiverTypeByIndex === "function"
           ? MapRivers.getRiverTypeByIndex(index)
           : null),
-        plotCount: plots.ok
-          ? { ok: true, value: plots.value && typeof plots.value.length === "number" ? plots.value.length : null }
-          : plots,
+        plotCount: plots.ok ? { ok: true, value: plotCount } : plots,
+        plotSampleCount: normalizedPlots.ok ? normalizedPlots.value.length : 0,
+        plotTruncated: typeof plotCount === "number" && plotCount > input.maxPlotsPerRiver,
+        plots: normalizedPlots,
         connectedToOcean: probe(() => typeof MapRivers.isRiverConnectedToOcean === "function"
           ? MapRivers.isRiverConnectedToOcean(index)
           : null),
