@@ -30,6 +30,11 @@ Projection masks must not be labeled as engine truth. In particular,
 `map.rivers.engineRiverMask` is terrain readback. Duplicated Hydrology truth
 layers shown near map-rivers must retain Hydrology ownership labels.
 
+Studio may derive non-zero tile counts from same-run inline grid layer payloads
+for known binary masks. Those counts are display evidence, not a replacement for
+Hydrology benchmark summaries, live readback counters, rendered screenshots, or
+product acceptance proof.
+
 Statuses include:
 
 - `no-physical-rivers`

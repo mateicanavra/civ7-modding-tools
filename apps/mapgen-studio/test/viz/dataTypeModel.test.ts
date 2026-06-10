@@ -109,7 +109,7 @@ describe("buildStepDataTypeModel", () => {
     });
 
     const layers = [
-      layer("map.rivers.projectedRiverMask", "default", "engine"),
+      layer("map.rivers.projectedRiverMask", "default", "projection"),
       layer("map.rivers.plannedMinorRiverMask", "default", "physics"),
       layer("map.rivers.plannedMajorRiverMask", "default", "physics"),
       layer("map.rivers.engineRiverMask", "default", "engine"),
@@ -144,7 +144,7 @@ describe("buildStepDataTypeModel", () => {
     ]);
 
     const byId = new Map(debugModel.dataTypes.map((dt) => [dt.dataTypeId, dt]));
-    expect(byId.get("map.rivers.projectedRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:engine");
+    expect(byId.get("map.rivers.projectedRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:projection");
     expect(byId.get("map.rivers.plannedMinorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:physics");
     expect(byId.get("map.rivers.plannedMajorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:physics");
     expect(byId.get("map.rivers.engineRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:engine");
@@ -226,7 +226,7 @@ describe("buildStepDataTypeModel", () => {
     ]);
 
     const byId = new Map(debugModel.dataTypes.map((dt) => [dt.dataTypeId, dt]));
-    expect(byId.get("map.rivers.projectedRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:engine");
+    expect(byId.get("map.rivers.projectedRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:projection");
     expect(byId.get("map.rivers.plannedMinorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:physics");
     expect(byId.get("map.rivers.plannedMajorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:physics");
     expect(byId.get("map.rivers.engineRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:engine");

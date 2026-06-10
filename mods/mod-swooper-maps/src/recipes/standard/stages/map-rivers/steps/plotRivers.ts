@@ -385,7 +385,7 @@ export default createStep(PlotRiversStepContract, {
           label: "Navigable River Mask (Projected)",
           group: GROUP_MAP_RIVERS,
           palette: "categorical",
-          role: "engine",
+          role: "projection",
         }),
       });
       context.viz?.dumpGrid(context.trace, {

@@ -16,8 +16,14 @@ import {
   CircleDot,
   Activity,
   Bug,
-  Flame } from
+  Flame,
+  Droplets } from
 'lucide-react';
+import type {
+  RiverLakeFloodplainInspectorSummary,
+  RiverLakeInspectorClaimStatus,
+  RiverLakeInspectorLayerRef,
+} from '../../features/viz/riverLakeInspector';
 import type {
   StageOption,
   StepOption,
@@ -103,6 +109,10 @@ export interface ExplorePanelProps {
   onShowDebugLayersChange: (show: boolean) => void;
   /** Callback when fit view is requested */
   onFitView: () => void;
+  /** River/lake/floodplain proof navigator */
+  riverLakeInspectorSummary?: RiverLakeFloodplainInspectorSummary | null;
+  /** Callback when a proof layer should be selected */
+  onRiverLakeInspectorLayerSelect?: (layerRef: RiverLakeInspectorLayerRef) => void;
   /** Whether the stage section is expanded (optional controlled mode) */
   stageExpanded?: boolean;
   /** Callback when stageExpanded changes (optional controlled mode) */
@@ -156,6 +166,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   showDebugLayers,
   onShowDebugLayersChange,
   onFitView,
+  riverLakeInspectorSummary = null,
+  onRiverLakeInspectorLayerSelect,
   stageExpanded: stageExpandedProp,
   onStageExpandedChange,
   stepExpanded: stepExpandedProp,
@@ -229,6 +241,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   const textMuted = lightMode ? 'text-[#9ca3af]' : 'text-[#5a5a66]';
   const borderSubtle = lightMode ? 'border-gray-100' : 'border-[#222228]';
   const hoverBg = lightMode ? 'hover:bg-gray-50' : 'hover:bg-[#1a1a1f]';
+  const chipBg = lightMode ? 'bg-gray-100 text-gray-600' : 'bg-[#222228] text-[#8a8a96]';
   const listMaxHeight = "max-h-[200px]";
   // Stage list styles
   const stageItemBase = `w-full text-left px-3 py-2 text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-2`;
@@ -316,6 +329,62 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       const current = prev[key] ?? true;
       return { ...prev, [key]: !current };
     });
+  };
+
+  const inspectorRows = riverLakeInspectorSummary?.rows ?? [];
+  const statusChipClass = (status: RiverLakeInspectorClaimStatus) => {
+    if (status === "pass") {
+      return lightMode ? "bg-emerald-50 text-emerald-700" : "bg-emerald-950/60 text-emerald-300";
+    }
+    if (status === "fail") {
+      return lightMode ? "bg-red-50 text-red-700" : "bg-red-950/60 text-red-300";
+    }
+    if (status === "out-of-scope") {
+      return lightMode ? "bg-gray-100 text-gray-500" : "bg-[#222228] text-[#7a7a86]";
+    }
+    return lightMode ? "bg-amber-50 text-amber-700" : "bg-amber-950/60 text-amber-300";
+  };
+  const statusLabel = (status: RiverLakeInspectorClaimStatus) => {
+    switch (status) {
+      case "pass":
+        return "ready";
+      case "fail":
+        return "fail";
+      case "out-of-scope":
+        return "skip";
+      case "unresolved":
+      default:
+        return "open";
+    }
+  };
+  const formatCountLabel = (key: string) => {
+    switch (key) {
+      case "layers":
+        return "layers";
+      case "default":
+        return "shown";
+      case "debug":
+        return "debug";
+      default:
+        return key;
+    }
+  };
+  const formatLayerButtonLabel = (ref: RiverLakeInspectorLayerRef) => {
+    if (ref.dataTypeKey.includes("projectedRiverMask")) return "projected";
+    if (ref.dataTypeKey.includes("plannedMinorRiverMask")) return "minor";
+    if (ref.dataTypeKey.includes("plannedMajorRiverMask")) return "major";
+    if (ref.dataTypeKey.includes("engineRiverMask")) return "terrain";
+    if (ref.dataTypeKey.includes("Metadata")) return "metadata";
+    if (ref.dataTypeKey.includes("engineMinorRiverMask")) return "minor meta";
+    if (ref.dataTypeKey.includes("riverMismatchMask")) return "mismatch";
+    if (ref.dataTypeKey.includes("lakePlan")) return "lake plan";
+    if (ref.dataTypeKey.includes("plannedLakeMask")) return "planned";
+    if (ref.dataTypeKey.includes("engineLakeMask")) return "engine";
+    if (ref.dataTypeKey.includes("rejectedLakeMask")) return "rejected";
+    if (ref.dataTypeKey.includes("featureType")) return "features";
+    if (ref.dataTypeKey.includes("rejectionMask")) return "rejects";
+    const parts = ref.dataTypeKey.split(".");
+    return parts[parts.length - 1] ?? ref.dataTypeKey;
   };
   // ==========================================================================
   // Render
@@ -413,6 +482,58 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
             <div className={`px-3 py-2 text-[11px] ${textMuted} italic`}>No steps available</div>
           )}
         </div>
+      ) : null}
+
+      {/* WATER PROOF SECTION */}
+      {inspectorRows.length > 0 ? (
+        <>
+          <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
+            <div className="w-full flex items-center justify-between px-3 py-2">
+              <div className="flex items-center gap-2 min-w-0 overflow-hidden">
+                <Droplets className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
+                <span className={`text-[11px] font-semibold ${textSecondary} uppercase tracking-wider`}>
+                  Water Proof
+                </span>
+              </div>
+              <span className={`text-[10px] ${textMuted}`}>{inspectorRows.length}</span>
+            </div>
+          </div>
+          <div className={`flex-shrink-0 border-b ${borderSubtle} max-h-[260px] overflow-y-auto custom-scrollbar`}>
+            {inspectorRows.map((row) => (
+              <div key={row.lane} className={`px-3 py-2 border-b last:border-b-0 ${borderSubtle}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className={`text-[9px] uppercase tracking-wider ${textMuted}`}>{row.laneLabel}</div>
+                    <div className={`text-[11px] font-medium ${textPrimary} truncate`} title={row.displayStatus}>
+                      {row.label}
+                    </div>
+                  </div>
+                  <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${statusChipClass(row.claimStatus)}`}>
+                    {statusLabel(row.claimStatus)}
+                  </span>
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-1">
+                  {Object.entries(row.counts).map(([key, value]) => (
+                    <span key={key} className={`rounded px-1.5 py-0.5 text-[9px] ${chipBg}`}>
+                      {formatCountLabel(key)} {value}
+                    </span>
+                  ))}
+                  {row.layerRefs.slice(0, 4).map((ref) => (
+                    <button
+                      type="button"
+                      key={ref.layerKey}
+                      onClick={() => onRiverLakeInspectorLayerSelect?.(ref)}
+                      title={`${ref.label} · ${row.proofClass}`}
+                      className={`max-w-[96px] truncate rounded px-1.5 py-0.5 text-[9px] transition-colors ${lightMode ? "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50" : "bg-[#111116] border border-[#2a2a32] text-[#c4c4cc] hover:bg-[#1a1a1f]"}`}
+                    >
+                      {formatLayerButtonLabel(ref)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       ) : null}
 
       {/* 3. LAYERS SECTION */}

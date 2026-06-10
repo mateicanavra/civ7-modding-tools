@@ -329,7 +329,7 @@ describe("standard pipeline viz emissions", () => {
     expect(waterClassMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")).toBe(true);
 
     const projectedRiverMetas = metasByKey.get("map.rivers.projectedRiverMask") as any[] | undefined;
-    expect(projectedRiverMetas?.some((m) => m?.visibility === "default" && m?.role === "engine")).toBe(true);
+    expect(projectedRiverMetas?.some((m) => m?.visibility === "default" && m?.role === "projection")).toBe(true);
 
     const minorRiverIntentMetas = metasByKey.get("map.rivers.plannedMinorRiverMask") as any[] | undefined;
     expect(minorRiverIntentMetas?.some((m) => m?.visibility === "default" && m?.role === "physics")).toBe(true);
