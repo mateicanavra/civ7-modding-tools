@@ -53,6 +53,10 @@ Use these sources in this order for the remaining work:
 - Official scripts still expose `TerrainBuilder.modelRivers(...)`,
   `defineNamedRivers()`, and `storeWaterData()`; no stable public per-tile minor
   river writer has yet been proven.
+- A bounded direct-control probe for the official `modelRivers(...)` sequence
+  now exists at `scripts/civ7-direct-control/probe-river-modeling.ts`; its
+  2026-06-10 live baseline is recorded in
+  `workstream/2026-06-10-river-modeling-probe-baseline.md`.
 - Current `map-rivers` code directly stamps selected navigable-river terrain,
   but that remains narrower than full Civ river semantics. Minor-river Civ
   materialization is still the highest-risk unproven gap in this train.
