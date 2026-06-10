@@ -52,6 +52,7 @@ import {
 import { buildSwooperMapsStudioDeployPlan } from "./src/server/mapConfigs/deploy";
 import { createMapConfigSaveDeployOperationStore } from "./src/server/mapConfigs/operationState";
 import { parseMapConfigSaveRequest } from "./src/server/mapConfigs/requestValidation";
+import { isStudioServerRpcPath } from "./src/server/studioServer/rpcPath";
 import type { RunInGamePhase, RunInGameRequestStatus } from "./src/features/runInGame/status";
 import { buildLiveRuntimeStatusState } from "./src/features/liveRuntime/model";
 import { handleStudioCiv7ControlOrpcRequest } from "./src/server/civ7ControlOrpc";
@@ -396,10 +397,7 @@ async function materializeRunInGameConfig(args: {
 async function nodeRequestToWebRequest(req: import("node:http").IncomingMessage): Promise<Request> {
   const method = req.method ?? "GET";
   const host = (req.headers.host as string | undefined) ?? "localhost";
-  // Connect's path-mounted middleware (`use("/rpc", …)`) STRIPS the mount prefix
-  // from `req.url`, but the oRPC handler matches against the full `/rpc/...` path
-  // (its `prefix`). Use `originalUrl` (the un-rewritten path) so the prefix matches.
-  const path = (req as { originalUrl?: string }).originalUrl ?? req.url ?? "/";
+  const path = req.url ?? "/";
   const url = `http://${host}${path}`;
   const headers = new Headers();
   for (const [key, value] of Object.entries(req.headers)) {
@@ -1422,7 +1420,11 @@ export default defineConfig(({ command }) => ({
         // divergence). The standalone Bun server is DEFERRED (FRAME §4.7).
         // -------------------------------------------------------------------
         const studioRpc = createStudioRpcHandler(createStudioServerContextForApp(command));
-        server.middlewares.use("/rpc", async (req, res, next) => {
+        server.middlewares.use(async (req, res, next) => {
+          if (!isStudioServerRpcPath(req.url)) {
+            next();
+            return;
+          }
           const request = await nodeRequestToWebRequest(req);
           const { matched, response } = await studioRpc.handle(request, { prefix: "/rpc" });
           if (!matched || !response) {
