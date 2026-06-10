@@ -440,6 +440,8 @@ async function startAutoplayTurnTunerServer(
         canNotifyUIReady: "function",
         skipStartButton: { ok: true, value: false },
         automationActive: { ok: true, value: false },
+        activeInputContext: { ok: true, value: 4 },
+        activeInputContextName: "World",
       },
       gameContext: {
         localPlayerID: 0,
