@@ -10,9 +10,12 @@ Lake gates:
 Floodplain gates:
 
 - keep a floodplain-producing seed such as the existing active proof row;
-- require local/exact/live floodplain-family feature counts and at least one
-  live floodplain-family tile for active rows;
-- preserve zero-count seeds only as inactive/no-signal controls.
+- require exact and local floodplain-family feature-apply counters to agree;
+- require the active row to apply at least one floodplain-family feature;
+- require live final feature-grid readback to match the local final feature
+  surface for active rows;
+- preserve zero-count seeds only as inactive/no-signal controls, reported as
+  out-of-scope rather than product passes;
 - derive floodplain eligibility from Hydrology/final-surface truth plus Civ
   legality/readback, not from projected navigable-river adjacency alone.
 

@@ -14,7 +14,17 @@ rather than stale counters, missing logs, or inactive zero-count rows.
 #### Scenario: Floodplain row is claimed
 - **WHEN** floodplain product visibility is claimed
 - **THEN** the proof uses an active floodplain-producing seed
-- **AND** live readback includes nonzero floodplain-family features
+- **AND** exact log feature-apply counters and local feature-apply diagnostics
+  agree for floodplain-family features
+- **AND** the active row has nonzero floodplain-family applied count
+- **AND** live final feature-grid readback matches the local final feature
+  surface
+
+#### Scenario: Floodplain row has no signal
+- **WHEN** exact and local floodplain-family feature-apply counters are both
+  zero
+- **THEN** the row is classified as an inactive control
+- **AND** it is not allowed to count as a floodplain product pass
 
 ### Requirement: River Lake Product Closure Uses A Scenario Matrix
 

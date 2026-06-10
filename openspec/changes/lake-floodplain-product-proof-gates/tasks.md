@@ -2,11 +2,11 @@
 
 - [ ] 1.1 Emit exact log lake counters and block lake closure on missing exact
   counters.
-- [ ] 1.2 Preserve a floodplain active seed regression with nonzero live feature
+- [x] 1.2 Preserve a floodplain active seed regression with nonzero live feature
   evidence.
-- [ ] 1.3 Keep inactive floodplain/no-signal rows labeled as controls, not
+- [x] 1.3 Keep inactive floodplain/no-signal rows labeled as controls, not
   product passes.
-- [ ] 1.4 Move floodplain proof inputs to Hydrology/final-surface truth plus Civ
+- [x] 1.4 Move floodplain proof inputs to Hydrology/final-surface truth plus Civ
   legality/readback, and prevent projected navigable adjacency from being the
   sole product-proof input.
 
