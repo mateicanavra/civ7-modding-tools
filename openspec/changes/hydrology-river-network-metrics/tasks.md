@@ -2,7 +2,7 @@
 
 - [x] 1.1 Add hydrology network metric derivation for basin, upstream area,
   stream hierarchy, mouth type, slope class, and flow permanence.
-- [ ] 1.2 Emit metrics in diagnostics and map statistics without changing Civ
+- [x] 1.2 Emit metrics in diagnostics and map statistics without changing Civ
   projection behavior.
 - [ ] 1.3 Update physical-grounding docs with the metric oracles and uncertainty
   markers.
