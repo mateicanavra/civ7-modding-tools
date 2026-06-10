@@ -6,6 +6,7 @@ import {
   HYDROLOGY_FLOW_INTERMITTENT,
   HYDROLOGY_FLOW_PERENNIAL,
   HYDROLOGY_MOUTH_ACCEPTED_LAKE,
+  HYDROLOGY_MOUTH_CLOSED_BASIN,
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
   HYDROLOGY_SLOPE_FLAT,
@@ -106,6 +107,179 @@ describe("hydrology/compute-river-network-metrics", () => {
     expect(result.benchmarkSummary.nonPerennialRiverShareOfRiverTiles).toBe(1);
     expect(result.benchmarkSummary.closedOrLakeTerminalLandShare).toBe(1);
     expect(result.benchmarkSummary.lakeConnectedTerminalDischargeShare).toBe(1);
+  });
+
+  it("records endorheic closed-basin terminals as typed hydrology outcomes", () => {
+    const width = 5;
+    const height = 1;
+    const size = width * height;
+    const landMask = new Uint8Array(size).fill(1);
+    const elevation = new Int16Array([20, 16, 12, 8, 4]);
+    const routingElevation = new Float32Array(elevation);
+    const depressionDepth = new Float32Array(size);
+    const runoff = new Float32Array([3, 3, 3, 3, 3]);
+    const discharge = new Float32Array([3, 6, 9, 12, 15]);
+    const riverClass = new Uint8Array([
+      0,
+      RIVER_CLASS_MINOR,
+      RIVER_CLASS_MINOR,
+      RIVER_CLASS_MAJOR,
+      RIVER_CLASS_MAJOR,
+    ]);
+    const flowDir = new Int32Array([1, 2, 3, 4, -1]);
+    const basinId = new Int32Array(size).fill(4);
+    const terminalType = new Uint8Array(size);
+    terminalType[4] = 2;
+    const lakeMask = new Uint8Array(size);
+
+    const result = runOpValidated(
+      computeRiverNetworkMetrics,
+      {
+        width,
+        height,
+        landMask,
+        elevation,
+        routingElevation,
+        depressionDepth,
+        runoff,
+        discharge,
+        riverClass,
+        flowDir,
+        basinId,
+        terminalType,
+        lakeMask,
+      },
+      {
+        strategy: "default",
+        config: {},
+      }
+    );
+
+    for (let i = 0; i < size; i++) {
+      expect(result.mouthType[i]).toBe(HYDROLOGY_MOUTH_CLOSED_BASIN);
+    }
+    expect(result.benchmarkSummary).toMatchObject({
+      version: 1,
+      landTileCount: 5,
+      riverTileCount: 4,
+      minorRiverTileCount: 2,
+      majorRiverTileCount: 2,
+      oceanMouthTileCount: 0,
+      acceptedLakeMouthTileCount: 0,
+      closedBasinMouthTileCount: 5,
+      unresolvedMouthTileCount: 0,
+      resolvedMouthTileCount: 5,
+      assignedBasinLandTileCount: 5,
+      unassignedBasinLandTileCount: 0,
+      invalidReceiverTileCount: 0,
+      downstreamDischargeDropEdgeCount: 0,
+      maxUpstreamArea: 5,
+      maxStreamOrderProxy: 1,
+    });
+    expect(result.benchmarkSummary.closedOrLakeTerminalLandShare).toBe(1);
+    expect(result.benchmarkSummary.lakeConnectedTerminalDischargeShare).toBe(0);
+    expect(result.benchmarkSummary.nonPerennialRiverShareOfRiverTiles).toBeGreaterThan(0);
+  });
+
+  it("keeps wet headwater channels as the majority before a major trunk", () => {
+    const width = 7;
+    const height = 3;
+    const size = width * height;
+    const outletWater = 20;
+    const trunkA = 13;
+    const trunkB = 19;
+    const landMask = new Uint8Array(size).fill(1);
+    landMask[outletWater] = 0;
+    const elevation = new Int16Array([
+      30, 28, 26, 24, 26, 28, 30,
+      28, 26, 24, 22, 20, 18, 12,
+      30, 28, 26, 24, 20, 10, 0,
+    ]);
+    const routingElevation = new Float32Array(elevation);
+    const depressionDepth = new Float32Array(size);
+    const runoff = new Float32Array(size).fill(5);
+    const discharge = new Float32Array(size);
+    const riverClass = new Uint8Array(size);
+    const flowDir = new Int32Array(size).fill(-1);
+    const basinId = new Int32Array(size);
+    basinId.fill(trunkB);
+    basinId[outletWater] = -1;
+    const terminalType = new Uint8Array(size);
+    terminalType[trunkB] = 1;
+    const lakeMask = new Uint8Array(size);
+
+    for (const index of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18]) {
+      riverClass[index] = RIVER_CLASS_MINOR;
+      discharge[index] = 5;
+    }
+    for (const index of [trunkA, trunkB]) {
+      riverClass[index] = RIVER_CLASS_MAJOR;
+    }
+    discharge[trunkA] = 65;
+    discharge[trunkB] = 100;
+
+    flowDir[0] = 1;
+    flowDir[1] = 2;
+    flowDir[2] = 3;
+    flowDir[3] = 10;
+    flowDir[4] = 11;
+    flowDir[5] = 12;
+    flowDir[6] = 12;
+    flowDir[7] = 8;
+    flowDir[8] = 9;
+    flowDir[9] = 10;
+    flowDir[10] = 11;
+    flowDir[11] = 12;
+    flowDir[12] = trunkA;
+    flowDir[trunkA] = trunkB;
+    flowDir[14] = 15;
+    flowDir[15] = 16;
+    flowDir[16] = 17;
+    flowDir[17] = 18;
+    flowDir[18] = trunkB;
+    flowDir[trunkB] = outletWater;
+
+    const result = runOpValidated(
+      computeRiverNetworkMetrics,
+      {
+        width,
+        height,
+        landMask,
+        elevation,
+        routingElevation,
+        depressionDepth,
+        runoff,
+        discharge,
+        riverClass,
+        flowDir,
+        basinId,
+        terminalType,
+        lakeMask,
+      },
+      {
+        strategy: "default",
+        config: {},
+      }
+    );
+
+    expect(result.benchmarkSummary).toMatchObject({
+      version: 1,
+      landTileCount: 20,
+      riverTileCount: 20,
+      minorRiverTileCount: 18,
+      majorRiverTileCount: 2,
+      oceanMouthTileCount: 20,
+      unresolvedMouthTileCount: 0,
+      invalidReceiverTileCount: 0,
+      downstreamDischargeDropEdgeCount: 0,
+      maxUpstreamArea: 20,
+    });
+    expect(result.benchmarkSummary.minorRiverShareOfRiverTiles).toBe(0.9);
+    expect(result.benchmarkSummary.majorRiverShareOfRiverTiles).toBe(0.1);
+    expect(result.benchmarkSummary.lowOrderRiverShareOfRiverTiles).toBe(1);
+    expect(result.benchmarkSummary.nonPerennialRiverShareOfRiverTiles).toBeGreaterThan(0.8);
+    expect(result.upstreamArea[trunkB]).toBe(20);
+    expect(result.flowPermanenceProxy[trunkB]).toBe(HYDROLOGY_FLOW_PERENNIAL);
   });
 
   it("marks spill-routed paths separately from direct ocean mouths", () => {

@@ -64,6 +64,18 @@ External Earth anchors constrain the first accepted pass:
 The local generated seed matrix can calibrate against those anchors; it cannot
 define them.
 
+Generated-map pass bands are proof-class scoped:
+
+- routing health, terminal typing, basin assignment, and monotonic discharge are
+  hard Hydrology truth gates;
+- visible-scale tile-share bands are local stability guardrails for a declared
+  recipe, tile scale, and feature floor;
+- fixture rows carry physical edge cases that generated averages can hide,
+  including wet headwater dominance and endorheic closed-basin terminals;
+- a scalar tile-share band must not be cited as an Earth benchmark unless the
+  benchmark row records the external source, metric surface, tile scale, feature
+  floor, and stylization ledger that make the comparison legitimate.
+
 ## Review Lanes
 
 - Physical hydrology review.
