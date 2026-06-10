@@ -154,13 +154,10 @@ describe("placement plan operations", () => {
   // resource planning is covered by the domain/resources op-contract tests
   // (derive-habitat-fields, select-resource-sites) and the recipe smoke tests.
 
-  it("merges start overrides", () => {
+  it("merges per-hemisphere player-count overrides", () => {
     const baseStarts = {
       playersLandmass1: 1,
       playersLandmass2: 1,
-      startSectorRows: 2,
-      startSectorCols: 2,
-      startSectors: [1, 2],
     };
 
     const result = runOpValidated(planStarts, { baseStarts }, {
@@ -168,15 +165,15 @@ describe("placement plan operations", () => {
       config: {
         overrides: {
           playersLandmass1: 3,
-          startSectorRows: 3,
-          startSectors: [5],
         },
       },
     });
 
     expect(result.playersLandmass1).toBe(3);
     expect(result.playersLandmass2).toBe(1);
-    expect(result.startSectorRows).toBe(3);
-    expect(result.startSectors).toEqual([5]);
+    expect(result.seats.length).toBe(4);
+    // Sector machinery was removed in placement-realignment S4; the op output
+    // carries the spacing contract instead.
+    expect(result.spacingFloorTiles).toBeGreaterThanOrEqual(0);
   });
 });

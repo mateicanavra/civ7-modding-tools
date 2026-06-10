@@ -241,8 +241,9 @@ describe("standard pipeline viz emissions", () => {
     expect(fertilityMetas?.some((m) => m?.visibility === "default")).toBe(true);
     expect(fertilityMetas?.some((m) => m?.visibility === "default" && m?.role === "centroids")).toBe(true);
 
-    const sectorMetas = metasByKey.get("placement.starts.sectorId") as any[] | undefined;
-    expect(sectorMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+    // Inert start-sector machinery (and its always-on grid viz) was removed in
+    // placement-realignment S4; landmass-region slots are the real regional layer.
+    expect(metasByKey.has("placement.starts.sectorId")).toBe(false);
 
     const startViabilityMetas = metasByKey.get("placement.starts.viabilityScore") as any[] | undefined;
     expect(startViabilityMetas?.some((m) => m?.visibility === "default")).toBe(true);

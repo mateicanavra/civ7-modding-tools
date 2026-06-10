@@ -134,9 +134,6 @@ export function buildPlacementInputs(
   const baseStarts = {
     playersLandmass1: runtime.playersLandmass1,
     playersLandmass2: runtime.playersLandmass2,
-    startSectorRows: runtime.startSectorRows,
-    startSectorCols: runtime.startSectorCols,
-    startSectors: runtime.startSectors,
   };
   const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
   const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog().flatMap((entry) => {

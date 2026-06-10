@@ -1488,6 +1488,15 @@ export class MockAdapter implements EngineAdapter {
     this.recordPlacementEffect();
   }
 
+  getAliveMajorIds(): number[] {
+    // Mock semantics: contiguous major ids 0..N-1 derived from the configured
+    // map info player counts (live id semantics are probed at Milestone A).
+    const players =
+      Math.max(0, (this.mapInfo?.PlayersLandmass1 ?? 0) | 0) +
+      Math.max(0, (this.mapInfo?.PlayersLandmass2 ?? 0) | 0);
+    return Array.from({ length: players }, (_, index) => index);
+  }
+
   assignAdvancedStartRegions(): void {
     this.calls.assignAdvancedStartRegions++;
     // Mock: no-op

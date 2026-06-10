@@ -4,7 +4,6 @@ import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import type { NaturalWonderStampingStats } from "../place-natural-wonders/materialize.js";
 import { normalizeNaturalWonderStampingStats } from "../place-natural-wonders/materialize.js";
-import type { StartAssignmentResult } from "../assign-starts/materialize.js";
 import { logAsciiMap, logTerrainStats } from "../terrain-diagnostics.js";
 import type { PlacementOutputsV1 } from "../../placement-outputs.js";
 
@@ -29,13 +28,16 @@ type DiscoveryPlacementOutcomes = Static<
 type AdvancedStartAssignment = Static<
   (typeof import("../../artifacts.js").placementArtifacts)["advancedStartAssignment"]["schema"]
 >;
+type StartAssignment = Static<
+  (typeof import("../../artifacts.js").placementArtifacts)["startAssignment"]["schema"]
+>;
 
 type ApplyPlacementArgs = {
   context: ExtendedMapContext;
   naturalWonderPlacement: DeepReadonly<NaturalWonderStampingStats>;
   surfacePreparation: DeepReadonly<PlacementSurfacePreparation>;
   resourcePlacement: DeepReadonly<ResourcePlacementOutcomes>;
-  startAssignment: DeepReadonly<StartAssignmentResult>;
+  startAssignment: DeepReadonly<StartAssignment>;
   discoveryPlacement: DeepReadonly<DiscoveryPlacementOutcomes>;
   advancedStartAssignment: DeepReadonly<AdvancedStartAssignment>;
   landmassRegionSlotByTile: DeepReadonly<LandmassRegionSlotByTile>;
@@ -89,7 +91,9 @@ export function applyPlacementPlan({
     primaryAssigned: startAssignment.primaryAssigned,
     islandClusterAssigned: startAssignment.islandClusterAssigned,
     marginalAssigned: startAssignment.marginalAssigned,
-    desperationAssigned: startAssignment.desperationAssigned,
+    noneAssigned: startAssignment.noneAssigned,
+    rungCounts: startAssignment.rungCounts,
+    status: startAssignment.status,
     candidateCount: startAssignment.candidateCount,
     tierCounts: startAssignment.tierCounts,
   };

@@ -3,17 +3,19 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { buildPlacementPlanInput } from "../derive-placement-inputs/inputs.js";
 import { runPlacementProductStep } from "../product-runtime.js";
 import {
-  assignStartPositions,
   emitStartPositionsViz,
-  emitStartSectorViz,
   emitStartViabilityViz,
+  materializeStartAssignment,
 } from "./materialize.js";
 import { placementArtifacts } from "../../artifacts.js";
+import { validateStartAssignmentArtifact } from "./validate.js";
 import AssignStartsStepContract from "./contract.js";
 
 export default createStep(AssignStartsStepContract, {
   artifacts: implementArtifacts([placementArtifacts.startAssignment], {
-    startAssignment: {},
+    startAssignment: {
+      validate: (value) => validateStartAssignmentArtifact(value),
+    },
   }),
   run: (context, config, _ops, deps) => {
     const placementInputs = deps.artifacts.placementInputs.read(context);
@@ -33,21 +35,17 @@ export default createStep(AssignStartsStepContract, {
     const { starts: baseStarts } = buildPlacementPlanInput(placementInputs);
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const { width, height } = context.dimensions;
-    const startsConfig = cloneStartsConfig(config.starts);
     const naturalWonderPlotIndices = collectNaturalWonderPlotIndices(
       naturalWonderPlacement.coordinateRows
     );
-    const mountainMask = mountains.mountainMask as Uint8Array;
-    const volcanoMask = volcanoes.volcanoMask as Uint8Array;
-    const starts = _ops.starts(
+    const plan = _ops.starts(
       {
         baseStarts: {
           playersLandmass1: baseStarts.playersLandmass1,
           playersLandmass2: baseStarts.playersLandmass2,
-          startSectorRows: baseStarts.startSectorRows,
-          startSectorCols: baseStarts.startSectorCols,
-          startSectors: [...baseStarts.startSectors],
         },
+        // Alive-majors READ surface; the op owns the slot→player mapping (D3).
+        alivePlayerIds: context.adapter.getAliveMajorIds(),
         width,
         height,
         landMask: topography.landMask as Uint8Array,
@@ -64,31 +62,26 @@ export default createStep(AssignStartsStepContract, {
         aridityIndex: biomeClassification.aridityIndex as Float32Array,
         riverClass: hydrography.riverClass as Uint8Array,
         lakeMask: lakePlan.lakeMask as Uint8Array,
-        mountainMask,
-        volcanoMask,
+        mountainMask: mountains.mountainMask as Uint8Array,
+        volcanoMask: volcanoes.volcanoMask as Uint8Array,
         naturalWonderPlotIndices,
         placedResourcePlotIndices: resourcePlacement.outcomes
           .filter((outcome) => outcome.status === "placed")
           .map((outcome) => outcome.plotIndex),
+        // seatBiases: per-civ StartBias rows need live player→civ data; the
+        // offline default is neutral (Milestone A wires the live half).
       },
-      startsConfig as Parameters<typeof _ops.starts>[1]
+      config.starts as Parameters<typeof _ops.starts>[1]
     );
     const emit = (payload: Record<string, unknown>): void => {
       if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);
     };
 
-    const unsettleableMask = buildUnsettleableMask({
-      size: width * height,
-      mountainMask,
-      volcanoMask,
-      naturalWonderPlotIndices,
-    });
     const assignment = runPlacementProductStep("placement.starts", emit, () =>
-      assignStartPositions({ context, starts, slotByTile, unsettleableMask })
+      materializeStartAssignment({ context, plan })
     );
-    emitStartViabilityViz(context, starts);
-    emitStartSectorViz(context, slotByTile, starts);
+    emitStartViabilityViz(context, plan);
     emitStartPositionsViz(context, assignment.positions);
     deps.artifacts.startAssignment.publish(context, assignment);
   },
@@ -116,55 +109,4 @@ function collectNaturalWonderPlotIndices(
     }
   }
   return Array.from(plots).sort((a, b) => a - b);
-}
-
-/**
- * Tiles no start may ever occupy (E1.1 hard invariant). The plan-starts op
- * screens candidates with the same data; this mask also guards the
- * materializer's desperation fallback, which bypasses planned candidates.
- */
-function buildUnsettleableMask(args: {
-  size: number;
-  mountainMask: Uint8Array;
-  volcanoMask: Uint8Array;
-  naturalWonderPlotIndices: readonly number[];
-}): Uint8Array {
-  const mask = new Uint8Array(Math.max(0, args.size));
-  for (let i = 0; i < mask.length; i++) {
-    if ((args.mountainMask[i] ?? 0) === 1 || (args.volcanoMask[i] ?? 0) === 1) mask[i] = 1;
-  }
-  for (const plotIndex of args.naturalWonderPlotIndices) {
-    if (plotIndex >= 0 && plotIndex < mask.length) mask[plotIndex] = 1;
-  }
-  return mask;
-}
-
-function cloneStartsConfig(
-  envelope: Readonly<{
-    strategy: "default";
-    config: Readonly<{
-      overrides?: Readonly<{
-        playersLandmass1?: number;
-        playersLandmass2?: number;
-        startSectorRows?: number;
-        startSectorCols?: number;
-        startSectors?: readonly unknown[];
-      }>;
-      [key: string]: unknown;
-    }>;
-  }>
-) {
-  const overrides = envelope.config.overrides;
-  return {
-    strategy: envelope.strategy,
-    config: {
-      ...envelope.config,
-      overrides: overrides
-        ? {
-            ...overrides,
-            startSectors: [...(overrides.startSectors ?? [])],
-          }
-        : undefined,
-    },
-  };
 }

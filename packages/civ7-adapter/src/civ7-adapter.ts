@@ -1111,6 +1111,19 @@ export class Civ7Adapter implements EngineAdapter {
     }
   }
 
+  getAliveMajorIds(): number[] {
+    const players = (
+      globalThis as typeof globalThis & {
+        Players?: { getAliveMajorIds?: () => unknown };
+      }
+    ).Players;
+    const result = players?.getAliveMajorIds?.();
+    if (!Array.isArray(result)) return [];
+    return result
+      .filter((id): id is number => typeof id === "number" && Number.isInteger(id) && id >= 0)
+      .map((id) => id | 0);
+  }
+
   chooseStartSectors(
     players1: number,
     players2: number,
