@@ -102,7 +102,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
 
     const projection = byLane.get("projection");
     expect(projection?.proofClass).toBe("projection-plan");
-    expect(projection?.claimStatus).toBe("pass");
+    expect(projection?.claimStatus).toBe("available");
     expect(projection?.displayStatus).toBe("projection-plan-present");
     expect(projection?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.projectedRiverMask")).toMatchObject({
       role: "projection",
@@ -113,19 +113,19 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
 
     expect(byLane.get("terrain-readback")).toMatchObject({
       proofClass: "terrain-readback",
-      claimStatus: "pass",
+      claimStatus: "available",
       displayStatus: "terrain-readback-present",
     });
     expect(byLane.get("metadata-readback")?.counts).toMatchObject({ layers: 1, debug: 1, metadata: 1 });
     expect(byLane.get("lakes")).toMatchObject({
       proofClass: "lake-final",
-      claimStatus: "pass",
+      claimStatus: "available",
       displayStatus: "lake-readback-present",
     });
     expect(byLane.get("lakes")?.counts).toMatchObject({ "planned lakes": 2, "engine lakes": 2 });
     expect(byLane.get("floodplains")).toMatchObject({
       proofClass: "floodplain-active",
-      claimStatus: "pass",
+      claimStatus: "available",
       displayStatus: "floodplain-apply-present",
     });
     expect(byLane.get("floodplains")?.counts).toMatchObject({ features: 2 });
@@ -198,8 +198,8 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     expect(projected).toMatchObject({ role: "projection", renderModeId: "grid:projection" });
     expect(projected?.nonZeroCount).toBeGreaterThan(0);
 
-    expect(byLane.get("hydrology")?.claimStatus).toBe("pass");
-    expect(byLane.get("projection")?.claimStatus).toBe("pass");
+    expect(byLane.get("hydrology")?.claimStatus).toBe("available");
+    expect(byLane.get("projection")?.claimStatus).toBe("available");
     expect(byLane.get("terrain-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(
       "map.rivers.engineRiverMask"
     );

@@ -336,6 +336,9 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
     if (status === "pass") {
       return lightMode ? "bg-emerald-50 text-emerald-700" : "bg-emerald-950/60 text-emerald-300";
     }
+    if (status === "available") {
+      return lightMode ? "bg-sky-50 text-sky-700" : "bg-sky-950/60 text-sky-300";
+    }
     if (status === "fail") {
       return lightMode ? "bg-red-50 text-red-700" : "bg-red-950/60 text-red-300";
     }
@@ -348,6 +351,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
     switch (status) {
       case "pass":
         return "ready";
+      case "available":
+        return "inspect";
       case "fail":
         return "fail";
       case "out-of-scope":

@@ -28,7 +28,7 @@ export type RiverLakeInspectorProofClass =
   | "civ-rendered"
   | "product-acceptance";
 
-export type RiverLakeInspectorClaimStatus = "pass" | "fail" | "unresolved" | "out-of-scope";
+export type RiverLakeInspectorClaimStatus = "available" | "pass" | "fail" | "unresolved" | "out-of-scope";
 
 export type RiverLakeInspectorDisplayStatus =
   | "hydrology-truth-present"
@@ -94,6 +94,7 @@ type LaneSpec = Readonly<{
   dataTypeKeys: readonly string[];
   requiredDataTypeKeys: readonly string[];
   presentStatus: RiverLakeInspectorDisplayStatus;
+  presentClaimStatus?: RiverLakeInspectorClaimStatus;
   missingStatus: RiverLakeInspectorDisplayStatus;
   missingClaimStatus?: RiverLakeInspectorClaimStatus;
   missingEvidence: string;
@@ -382,7 +383,7 @@ export function buildRiverLakeFloodplainInspectorSummary(
       const layerRefs = collectRefs(layersByDataTypeKey, spec.dataTypeKeys);
       const hasEvidence = hasRequiredRefs(layersByDataTypeKey, spec.requiredDataTypeKeys);
       const claimStatus: RiverLakeInspectorClaimStatus = hasEvidence
-        ? "pass"
+        ? spec.presentClaimStatus ?? "available"
         : spec.missingClaimStatus ?? "unresolved";
       return {
         lane: spec.lane,

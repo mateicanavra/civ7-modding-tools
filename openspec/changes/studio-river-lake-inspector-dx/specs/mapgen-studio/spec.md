@@ -13,6 +13,9 @@ lakes, floodplains, and mismatches.
 - **AND** metadata and mismatch layers are available behind an explicit debug
   control
 - **AND** zero visible rivers yields a specific status and tuning target
+- **AND** layer-backed rows are labeled as inspectable/available rather than
+  passed until same-run proof counters or rendered proof packets satisfy the
+  row's proof class
 
 #### Scenario: Legacy river-density config is imported
 - **WHEN** Studio imports a config with `map-rivers.knobs.riverDensity`
