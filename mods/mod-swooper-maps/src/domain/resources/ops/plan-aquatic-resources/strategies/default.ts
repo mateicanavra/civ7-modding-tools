@@ -72,7 +72,9 @@ export const AQUATIC_SIGNALS: Record<AquaticResourceType, ResourceSignals> = {
 
 export const defaultStrategy = createStrategy(PlanAquaticResourcesContract, "default", {
   // TODO: if you want to validate and normalize, do it in normalize (I guess validate shold be separate?)
-  normalize: (config) => {},
+  normalize: (config) => {
+    return config;
+  },
   run: (input) => {
     const size = validateGrid(input.width, input.height);
     const expectations = new Map(input.expectations.map((row) => [row.resourceType, row]));
