@@ -98,6 +98,8 @@ describe("Civ7Adapter river projection readback", () => {
     expect(projection.navigableRiverMismatchTileCount).toBe(2);
     expect(projection.engineNavigableRiverTileCount).toBe(0);
     expect(projection.terrainNavigableRiverTileCount).toBe(3);
+    expect(projection.minorRiverStampingSupported).toBe(true);
+    expect(projection.minorRiverUnsupportedReason).toContain("TerrainBuilder.modelRivers");
   });
 
   it("falls back to river metadata for isNavigableRiver when the API is absent", () => {
@@ -124,5 +126,57 @@ describe("Civ7Adapter river projection readback", () => {
 
     expect(adapter.isNavigableRiver(0, 0)).toBe(true);
     expect(adapter.isNavigableRiver(1, 0)).toBe(false);
+
+    const projection = adapter.readRiverProjection(2, 1, new Uint8Array([0, 0]));
+    expect(Array.from(projection.engineMinorRiverMask)).toEqual([0, 1]);
+    expect(projection.engineMinorRiverTileCount).toBe(1);
+    expect(projection.minorRiverStampingSupported).toBe(true);
+  });
+
+  it("uses map-policy river constants when the runtime RiverTypes global is absent", () => {
+    (globalThis as any).GameInfo = {
+      Terrains: [
+        {
+          TerrainType: "TERRAIN_NAVIGABLE_RIVER",
+          Index: NAVIGABLE_RIVER_TERRAIN,
+        },
+      ],
+    };
+    (globalThis as any).GameplayMap = {
+      getTerrainType: () => CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT,
+      getRiverType: (x: number) => (x === 0 ? RIVER_TYPE_NAVIGABLE : RIVER_TYPE_MINOR),
+      isRiver: () => true,
+    };
+
+    const adapter = new Civ7AdapterCtor(2, 1);
+
+    expect(adapter.isNavigableRiver(0, 0)).toBe(true);
+    expect(adapter.isNavigableRiver(1, 0)).toBe(false);
+
+    const projection = adapter.readRiverProjection(2, 1, new Uint8Array([0, 0]));
+    expect(Array.from(projection.engineNavigableRiverMask)).toEqual([1, 0]);
+    expect(Array.from(projection.engineMinorRiverMask)).toEqual([0, 1]);
+    expect(projection.minorRiverStampingSupported).toBe(true);
+  });
+
+  it("keeps minor-river metadata unsupported when the native river-type contract is absent", () => {
+    (globalThis as any).GameInfo = {
+      Terrains: [
+        {
+          TerrainType: "TERRAIN_NAVIGABLE_RIVER",
+          Index: NAVIGABLE_RIVER_TERRAIN,
+        },
+      ],
+    };
+    (globalThis as any).GameplayMap = {
+      getTerrainType: () => CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT,
+      isRiver: () => false,
+    };
+
+    const adapter = new Civ7AdapterCtor(1, 1);
+    const projection = adapter.readRiverProjection(1, 1, new Uint8Array([0]));
+
+    expect(projection.minorRiverStampingSupported).toBe(false);
+    expect(projection.minorRiverUnsupportedReason).toContain("unavailable");
   });
 });

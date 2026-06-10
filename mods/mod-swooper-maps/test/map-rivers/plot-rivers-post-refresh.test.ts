@@ -218,7 +218,7 @@ describe("map-rivers/plot-rivers", () => {
     expect(readback?.engineRiverTileCount).toBe(5);
     expect(readback?.engineNavigableRiverTileCount).toBe(5);
     expect(readback?.engineMinorRiverTileCount).toBe(0);
-    expect(readback?.minorRiverStampingSupported).toBe(false);
-    expect(readback?.minorRiverUnsupportedReason).toContain("minor-river metadata parity");
+    expect(readback?.minorRiverStampingSupported).toBe(true);
+    expect(readback?.minorRiverUnsupportedReason).toContain("engineMinorRiverMask");
   });
 });

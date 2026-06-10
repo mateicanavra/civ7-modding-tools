@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  NO_RIVER_TYPE,
+  RIVER_TYPE_MINOR,
+  RIVER_TYPE_NAVIGABLE,
+} from "../../packages/civ7-map-policy/src/index.js";
+import {
   buildDryRunOutput,
   buildMutationOutput,
   parseArgs,
@@ -44,7 +49,11 @@ const runtimeInventory = {
     ownKeys: ["getRiver", "getRiverPlots", "getRiverTypeByIndex", "numRivers"],
     prototypeKeys: [],
   },
-  riverTypes: { NO_RIVER: -1, RIVER_MINOR: 0, RIVER_NAVIGABLE: 1 },
+  riverTypes: {
+    NO_RIVER: NO_RIVER_TYPE,
+    RIVER_MINOR: RIVER_TYPE_MINOR,
+    RIVER_NAVIGABLE: RIVER_TYPE_NAVIGABLE,
+  },
   terrainNavigableRiver: 12,
   officialPolicyDefaults: {
     minLength: 5,
@@ -108,8 +117,8 @@ describe("river modeling probe", () => {
         exists: true,
         numRivers: 2,
         samples: [
-          { index: 0, riverType: 1, plotCount: 2, connectedToOcean: true },
-          { index: 1, riverType: 0, plotCount: 1, connectedToOcean: false },
+          { index: 0, riverType: RIVER_TYPE_NAVIGABLE, plotCount: 2, connectedToOcean: true },
+          { index: 1, riverType: RIVER_TYPE_MINOR, plotCount: 1, connectedToOcean: false },
         ],
         blockedBy: [],
       },

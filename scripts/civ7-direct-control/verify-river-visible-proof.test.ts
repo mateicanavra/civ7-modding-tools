@@ -4,6 +4,10 @@ import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { describe, expect, test } from "bun:test";
 
+import {
+  RIVER_TYPE_MINOR,
+  RIVER_TYPE_NAVIGABLE,
+} from "../../packages/civ7-map-policy/src/index.js";
 import type { FinalSurfaceParityProof } from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
 import {
   buildRiverVisibleProofOutput,
@@ -83,7 +87,7 @@ describe("river visible proof verifier", () => {
       expect(output.proof.liveRiverSamples.samples[0]?.nativeRiverObjects).toEqual([
         {
           riverIndex: 0,
-          riverType: 1,
+          riverType: RIVER_TYPE_NAVIGABLE,
           connectedToOcean: true,
           plotIndex: 1,
         },
@@ -786,7 +790,11 @@ function parityProof(args: {
         height,
         terrainNavigableRiver: { width, height, values: args.liveTerrain },
         navigableRiver: { width, height, values: args.liveNavigable ?? args.liveTerrain },
-        riverType: { width, height, values: [0, 1, 0, 1] },
+        riverType: {
+          width,
+          height,
+          values: [RIVER_TYPE_MINOR, RIVER_TYPE_NAVIGABLE, RIVER_TYPE_MINOR, RIVER_TYPE_NAVIGABLE],
+        },
       },
       nativeRiverObjects: {
         exists: args.nativeRiverBlockedBy === undefined,
@@ -797,7 +805,7 @@ function parityProof(args: {
               samples: [
                 {
                   index: 0,
-                  riverType: 1,
+                  riverType: RIVER_TYPE_NAVIGABLE,
                   plotCount: nativeRiverPlots.length,
                   plotSampleCount: nativeRiverPlots.length,
                   plotTruncated: false,

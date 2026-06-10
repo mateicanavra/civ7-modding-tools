@@ -140,7 +140,7 @@ describe("mock adapter terrain policy", () => {
     expect(projection.nonLakeTileCount).toBe(0);
   });
 
-  it("reads navigable river projection parity without claiming minor river stamping", () => {
+  it("reads navigable river projection parity while preserving native minor metadata capability", () => {
     const adapter = createMockAdapter({ width: 5, height: 2, defaultTerrainType: TERRAIN_FLAT });
     const navigableRiverTerrain = adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
     const planned = new Uint8Array(10);
@@ -177,6 +177,7 @@ describe("mock adapter terrain policy", () => {
     expect(projection.engineNavigableRiverTileCount).toBe(1);
     expect(projection.terrainNavigableRiverTileCount).toBe(3);
     expect(projection.engineMinorRiverTileCount).toBe(0);
-    expect(projection.minorRiverStampingSupported).toBe(false);
+    expect(projection.minorRiverStampingSupported).toBe(true);
+    expect(projection.minorRiverUnsupportedReason).toContain("river-type metadata readback");
   });
 });

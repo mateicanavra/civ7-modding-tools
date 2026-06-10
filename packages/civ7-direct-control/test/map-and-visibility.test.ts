@@ -3,7 +3,11 @@ import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 
-import { NO_RIVER_TYPE } from "../../civ7-map-policy/src/index.js";
+import {
+  NO_RIVER_TYPE,
+  RIVER_TYPE_MINOR,
+  RIVER_TYPE_NAVIGABLE,
+} from "../../civ7-map-policy/src/index.js";
 import {
   Civ7MapGridInputSchema,
   Civ7MapGridResultSchema,
@@ -258,7 +262,7 @@ describe("map and visibility reads", () => {
         samples: [
           {
             index: 0,
-            riverType: { ok: true, value: 1 },
+            riverType: { ok: true, value: RIVER_TYPE_NAVIGABLE },
             plotCount: { ok: true, value: 4 },
             plotSampleCount: 4,
             plotTruncated: false,
@@ -275,7 +279,7 @@ describe("map and visibility reads", () => {
           },
           {
             index: 1,
-            riverType: { ok: true, value: 0 },
+            riverType: { ok: true, value: RIVER_TYPE_MINOR },
             plotCount: { ok: true, value: 2 },
             plotSampleCount: 2,
             plotTruncated: false,
@@ -594,7 +598,7 @@ function nativeRiverObjectsPayload() {
     samples: [
       {
         index: 0,
-        riverType: { ok: true, value: 1 },
+        riverType: { ok: true, value: RIVER_TYPE_NAVIGABLE },
         plotCount: { ok: true, value: 4 },
         plotSampleCount: 4,
         plotTruncated: false,
@@ -611,7 +615,7 @@ function nativeRiverObjectsPayload() {
       },
       {
         index: 1,
-        riverType: { ok: true, value: 0 },
+        riverType: { ok: true, value: RIVER_TYPE_MINOR },
         plotCount: { ok: true, value: 2 },
         plotSampleCount: 2,
         plotTruncated: false,

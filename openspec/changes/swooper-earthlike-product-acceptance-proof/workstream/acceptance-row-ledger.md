@@ -64,8 +64,11 @@ predate `proofClaims`; their row mapping is:
 - Rivers terrain row: `terrain-readback=pass`, `metadata-readback=fail`,
   `civ-rendered=unresolved`, `studio-visible=unresolved`,
   `product-acceptance=unresolved`.
-- Rivers metadata row: `metadata-readback=fail` until a real metadata writer is
-  discovered and proven, or the product row explicitly scopes metadata out.
+- Rivers metadata row: `metadata-readback=fail` for legacy terrain-only proof
+  packets. Current river recovery work has since proven the native bulk
+  `TerrainBuilder.modelRivers(...)` sequence can author river metadata; closure
+  now requires proving the current pipeline's same-run metadata parity rather
+  than permanently scoping metadata out.
 - Floodplain row: `floodplain-active=technical pass` for the active feature-grid
   proof, with `civ-rendered=unresolved`, `studio-visible=unresolved`, and
   `product-acceptance=unresolved` until visible-state evidence and reviewer
@@ -76,7 +79,7 @@ predate `proofClaims`; their row mapping is:
 | Row | Disposition | Proof Class | Evidence | Remaining Action |
 | --- | --- | --- | --- | --- |
 | Rivers: selected major/navigable river trunks are visible in Civ terrain readback | technical pass | terrain-row materialization | `riverMetadataParity.status=terrain-match-metadata-divergent`; planned minor river tiles `212`; planned major river tiles `149`; projected navigable terrain tiles `6`; live `TERRAIN_NAVIGABLE_RIVER` tiles `6`; projected-vs-live terrain mismatch count `0`. | Keep this as the technical acceptance basis for visible major/navigable rivers. Do not require Civ `GameplayMap.isRiver` metadata to pass the terrain visibility row. Full product/visual review remains open until Studio visible-state evidence and reviewer disposition are captured. |
-| Rivers: Civ river metadata matches MapGen projected navigable terrain | reclassified | runtime metadata authoring capability gap | Same proof reports live `river=0`, live `navigableRiver=0`, live `minorRiver=0`, projected-vs-live metadata mismatch count `6`, and live terrain-vs-metadata mismatch count `6`. The disposable writer probe for `TerrainBuilder.setRiverValidationValues()` returned `undefined` but left full-grid river metadata unchanged. | Keep `minorRiverStampingSupported=false`. Open a new repair only if a stable per-tile river metadata writer is discovered and proven in a disposable session. |
+| Rivers: Civ river metadata matches MapGen projected navigable terrain | open repair | runtime metadata parity | Legacy proof reports live `river=0`, live `navigableRiver=0`, live `minorRiver=0`, projected-vs-live metadata mismatch count `6`, and live terrain-vs-metadata mismatch count `6`. The failed disposable probe was for `TerrainBuilder.setRiverValidationValues()`, not the now-proven official bulk `TerrainBuilder.modelRivers(...)` sequence. | Re-run same-run proof through the current pipeline and require native metadata readback to classify navigable and minor rows against Hydrology/projected intent. Do not close from terrain rows alone. |
 | Floodplains: floodplain-family feature placement is visible in Civ feature readback | technical pass | live feature-grid materialization | River proof `studio-run-in-game-mq6c38rf-n2p` is an inactive no-signal floodplain row (`localFloodplainFamily=0`, `liveFloodplainFamily=0`). Floodplain proof `studio-run-in-game-mq6dx234-1wx4` is an active row: exact telemetry applied `11` floodplain-family features, local replay now plans those same `11` floodplain-family features after the verifier latitude-orientation repair, and live feature-grid readback contains those `11` floodplain-family ids. | Keep this as the live visibility basis for floodplains. Do not claim deterministic Studio/Civ full-surface parity from this seed; residual final grid deltas remain on terrain, feature, resource, and resource placement. Full product/visual review remains open until Studio visible-state evidence and reviewer disposition are captured. |
 
 ## Interpretation
@@ -84,8 +87,17 @@ predate `proofClaims`; their row mapping is:
 - The visible river product failure is technically repaired for the proven
   terrain-stamping proof class; product/visual acceptance remains open until
   Studio visible-state evidence and reviewer disposition are captured.
-- Minor-river metadata remains an explicitly unsupported adapter capability, not
-  a hidden mock/runtime mismatch.
+- A 2026-06-10 live debug appshot on the current runtime map showed visible
+  river corridors after camera focus on live river tile `(79,7)`, and the live
+  band scan found `82` `TERRAIN_NAVIGABLE_RIVER` tiles. This is useful
+  operational context only; it does not close `civ-rendered` or
+  `product-acceptance` because it is not bound to an exact-authored Studio run
+  and its appshot manifest is explicitly `debug-fallback`.
+- Minor-river metadata is no longer treated as an explicitly unsupported adapter
+  capability. The current adapter/readback boundary recognizes the native
+  river-type metadata surface when available, while exact minor parity remains
+  open until current same-run live readback matches Hydrology planned-minor
+  intent.
 - Floodplain live visibility is now proven by the separate floodplain-producing
   seed. The older river proof remains useful because it prevents a false
   floodplain failure on a no-signal input.
