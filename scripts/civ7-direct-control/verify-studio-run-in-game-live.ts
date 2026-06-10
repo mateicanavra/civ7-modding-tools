@@ -89,8 +89,8 @@ export type SwooperMapScriptDeploymentStage = Readonly<{
 export const SWOOPER_MAP_SCRIPT_PATTERN = /^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*\.js)$/;
 
 export const REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS = [
-  "map.rivers.officialCivRiverModeling",
-  "POST-MODEL-RIVERS",
+  "map.rivers.authoredTerrainMaterialization",
+  "POST-AUTHORED-RIVERS",
 ] as const;
 
 function parseArgs(argv: string[]): LiveProofArgs {

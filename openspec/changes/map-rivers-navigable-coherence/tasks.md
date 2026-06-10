@@ -16,7 +16,7 @@
   on normal Earthlike maps.
 - [x] 2.2 Add negative controls where low/no navigable projection is expected.
 - [ ] 2.3 Rebaseline shipped/default configs only after same-run proof passes.
-- [ ] 2.4 Add a native-writer decision record before any `modelRivers(...)`
+- [x] 2.4 Add a native-writer decision record before any `modelRivers(...)`
   integration is treated as part of projection closure.
 
 ## 3. Validation

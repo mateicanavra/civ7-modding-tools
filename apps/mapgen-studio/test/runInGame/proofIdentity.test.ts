@@ -54,8 +54,8 @@ describe("Run in Game exact authorship proof identity", () => {
           requestId,
           configHash,
           envelopeHash,
-          "map.rivers.officialCivRiverModeling",
-          "POST-MODEL-RIVERS",
+          "map.rivers.authoredTerrainMaterialization",
+          "POST-AUTHORED-RIVERS",
         ].join("\n"),
         "utf8",
       );
@@ -71,8 +71,8 @@ describe("Run in Game exact authorship proof identity", () => {
         ["run-request-id", true],
         ["run-config-hash", true],
         ["run-envelope-hash", true],
-        ["native-river-modeling-trace", true],
-        ["native-river-modeling-checkpoint", true],
+        ["authored-river-materialization-trace", true],
+        ["authored-river-materialization-checkpoint", true],
       ]);
     } finally {
       await rm(dir, { recursive: true, force: true });
@@ -554,13 +554,15 @@ describe("Run in Game exact authorship proof identity", () => {
         ...args.materialization,
         deployedModScriptContent: contentProof(
           "/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js",
-          { "native-river-modeling-checkpoint": false },
+          { "authored-river-materialization-checkpoint": false },
         ),
       },
     });
 
     expect(proof.status).toBe("unresolved");
-    expect(proof.unresolvedLinks).toContain("materialization.deployed-mod-script-marker.native-river-modeling-checkpoint");
+    expect(proof.unresolvedLinks).toContain(
+      "materialization.deployed-mod-script-marker.authored-river-materialization-checkpoint"
+    );
   });
 
   it("reports materialization script proof gaps before starting Civ", () => {

@@ -40,12 +40,12 @@ describe("studio run-in-game live verifier deployment identity", () => {
       local: identity("/repo/mods/mod-swooper-maps/mod/maps/mountain-rivers-patch.js", "same"),
       deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js", "same"),
       localMarkers: [
-        { marker: "map.rivers.officialCivRiverModeling", present: true },
-        { marker: "POST-MODEL-RIVERS", present: true },
+        { marker: "map.rivers.authoredTerrainMaterialization", present: true },
+        { marker: "POST-AUTHORED-RIVERS", present: true },
       ],
       deployedMarkers: [
-        { marker: "map.rivers.officialCivRiverModeling", present: true },
-        { marker: "POST-MODEL-RIVERS", present: true },
+        { marker: "map.rivers.authoredTerrainMaterialization", present: true },
+        { marker: "POST-AUTHORED-RIVERS", present: true },
       ],
     });
 
@@ -64,20 +64,20 @@ describe("studio run-in-game live verifier deployment identity", () => {
       local: identity("/repo/mods/mod-swooper-maps/mod/maps/mountain-rivers-patch.js", "current"),
       deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js", "stale"),
       localMarkers: [
-        { marker: "map.rivers.officialCivRiverModeling", present: true },
-        { marker: "POST-MODEL-RIVERS", present: true },
+        { marker: "map.rivers.authoredTerrainMaterialization", present: true },
+        { marker: "POST-AUTHORED-RIVERS", present: true },
       ],
       deployedMarkers: [
-        { marker: "map.rivers.officialCivRiverModeling", present: false },
-        { marker: "POST-MODEL-RIVERS", present: false },
+        { marker: "map.rivers.authoredTerrainMaterialization", present: false },
+        { marker: "POST-AUTHORED-RIVERS", present: false },
       ],
     });
 
     expect(stage.ok).toBe(false);
     expect(stage.unresolvedLinks).toEqual([
       "deployed-mod-script.hash-mismatch",
-      "deployed-mod-script.marker-missing.map-rivers-officialcivrivermodeling",
-      "deployed-mod-script.marker-missing.post-model-rivers",
+      "deployed-mod-script.marker-missing.map-rivers-authoredterrainmaterialization",
+      "deployed-mod-script.marker-missing.post-authored-rivers",
     ]);
     expect(stage.recoveryHint).toContain("bun run --cwd mods/mod-swooper-maps deploy");
   });

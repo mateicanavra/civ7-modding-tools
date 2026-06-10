@@ -89,6 +89,12 @@ authority over authored truth. The remaining native-Civ question is narrower:
 can a bounded materialization path use the official writer while preserving and
 proving parity to Hydrology-authored truth?
 
+2026-06-10 live evidence answers the current bounded question negatively for
+Swooper authored projection: `modelRivers(...)` increased visible navigable
+terrain, but added unauthored no-sink components after resources were already
+protected. Use direct authored terrain materialization until a native writer can
+prove exact topology parity, not just extra visible rivers.
+
 ## Physical Grounding
 
 Earth does not have a single universal river-density constant. Drainage density,

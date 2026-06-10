@@ -27,6 +27,13 @@ river metadata in bulk. This change may use native writer evidence only after a
 bounded parity decision proves Hydrology truth remains the authority. Projection
 must not delegate river truth back to Civ.
 
+The 2026-06-10 bounded same-seed decision rejects `modelRivers(...)` for the
+current authored Swooper projection path. Live Civ produced 84 navigable-river
+terrain tiles while MapGen selected 24; resources no longer overlapped rivers,
+but ten live components had no water/lake sink and were native-generator extras.
+The current closure path is direct authored terrain materialization plus
+readback parity, not native whole-map river generation.
+
 Initial acceptance bands:
 
 - For Standard `84x54` normal Earthlike maps where planned major rivers exceed

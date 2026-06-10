@@ -17,14 +17,14 @@ export type RunInGameRequiredContentMarker = Readonly<{
   marker: string;
 }>;
 
-const NATIVE_RIVER_MODELING_CONTENT_MARKERS: readonly RunInGameRequiredContentMarker[] = [
+const AUTHORED_RIVER_MATERIALIZATION_CONTENT_MARKERS: readonly RunInGameRequiredContentMarker[] = [
   {
-    id: "native-river-modeling-trace",
-    marker: "map.rivers.officialCivRiverModeling",
+    id: "authored-river-materialization-trace",
+    marker: "map.rivers.authoredTerrainMaterialization",
   },
   {
-    id: "native-river-modeling-checkpoint",
-    marker: "POST-MODEL-RIVERS",
+    id: "authored-river-materialization-checkpoint",
+    marker: "POST-AUTHORED-RIVERS",
   },
 ] as const;
 
@@ -83,7 +83,7 @@ export function runInGameRequiredMaterializationMarkers(args: {
       id: "run-envelope-hash",
       marker: args.envelopeHash,
     },
-    ...NATIVE_RIVER_MODELING_CONTENT_MARKERS,
+    ...AUTHORED_RIVER_MATERIALIZATION_CONTENT_MARKERS,
   ];
 }
 

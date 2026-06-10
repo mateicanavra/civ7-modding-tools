@@ -7,10 +7,9 @@ const mapOutputDir = join(repoRoot, "mod", "maps");
 const modInfoPath = join(repoRoot, "mod", "swooper-maps.modinfo");
 const bareWorkspaceImportPattern =
   /\b(?:import|export)\s+(?:[^"']*?\s+from\s+)?["'](@(?:swooper|civ7|mateicanavra)\/[^"']+)["']/g;
-const nativeRiverMaterializationMarkers = [
-  "context.adapter.modelRivers",
-  "map.rivers.officialCivRiverModeling",
-  "POST-MODEL-RIVERS",
+const authoredRiverMaterializationMarkers = [
+  "map.rivers.authoredTerrainMaterialization",
+  "POST-AUTHORED-RIVERS",
 ] as const;
 
 function listedModMapFiles(): string[] {
@@ -71,17 +70,17 @@ describe("built map runtime imports", () => {
     }
   });
 
-  test("bundles native Civ river materialization into each map script", () => {
+  test("bundles authored river materialization proof markers into each map script", () => {
     const mapFiles = listedModMapFiles();
 
     expect(mapFiles.length).toBeGreaterThan(0);
 
     for (const mapFile of mapFiles) {
       const source = readFileSync(join(mapOutputDir, mapFile), "utf8");
-      for (const marker of nativeRiverMaterializationMarkers) {
+      for (const marker of authoredRiverMaterializationMarkers) {
         expect(
           source.includes(marker),
-          `${mapFile} is missing native river materialization marker ${marker}`
+          `${mapFile} is missing authored river materialization marker ${marker}`
         ).toBe(true);
       }
     }

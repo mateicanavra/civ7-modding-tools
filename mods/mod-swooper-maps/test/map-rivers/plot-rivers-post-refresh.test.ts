@@ -6,10 +6,7 @@ import {
   NAVIGABLE_RIVER_TERRAIN,
   createExtendedMapContext,
 } from "@swooper/mapgen-core";
-import {
-  CIV7_DEFAULT_RIVER_MODELING_ARGS,
-  RIVER_TYPE_NAVIGABLE,
-} from "@civ7/map-policy";
+import { NO_RIVER_TYPE } from "@civ7/map-policy";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
@@ -50,13 +47,8 @@ class RiverCacheRefreshAdapter extends MockAdapter {
     this.callOrder.push("validateAndFixTerrain");
   }
 
-  override modelRivers(
-    minLength: number,
-    maxLength: number,
-    navigableTerrain: number
-  ): void {
-    this.callOrder.push(`modelRivers:${minLength}:${maxLength}`);
-    super.modelRivers(minLength, maxLength, navigableTerrain);
+  override modelRivers(): void {
+    throw new Error("map-rivers authored projection must not call the native whole-map river generator");
   }
 
   override defineNamedRivers(): void {
@@ -163,7 +155,6 @@ describe("map-rivers/plot-rivers", () => {
     );
 
     expect(adapter.callOrder).toEqual([
-      `modelRivers:${CIV7_DEFAULT_RIVER_MODELING_ARGS.minLength}:${CIV7_DEFAULT_RIVER_MODELING_ARGS.maxLength}`,
       "validateAndFixTerrain",
       "defineNamedRivers",
       "recalculateAreas",
@@ -195,6 +186,7 @@ describe("map-rivers/plot-rivers", () => {
           riverMask?: Uint8Array;
           engineRiverType?: Int32Array;
           engineNavigableRiverMask?: Uint8Array;
+          engineRiverTileCount?: number;
           engineMinorRiverTileCount?: number;
           terrainNavigableRiverTileCount?: number;
           minorRiverStampingSupported?: boolean;
@@ -218,10 +210,11 @@ describe("map-rivers/plot-rivers", () => {
     expect(readback?.riverMask?.[0]).toBe(1);
     expect(readback?.riverMask?.[width]).toBe(0);
     expect(readback?.terrainNavigableRiverMask?.[0]).toBe(1);
-    expect(readback?.engineNavigableRiverMask?.[0]).toBe(1);
-    expect(readback?.engineRiverType?.[0]).toBe(RIVER_TYPE_NAVIGABLE);
+    expect(readback?.engineNavigableRiverMask?.[0]).toBe(0);
+    expect(readback?.engineRiverType?.[0]).toBe(NO_RIVER_TYPE);
     expect(readback?.terrainNavigableRiverTileCount).toBe(5);
-    expect(readback?.engineNavigableRiverTileCount).toBe(5);
+    expect(readback?.engineRiverTileCount).toBe(0);
+    expect(readback?.engineNavigableRiverTileCount).toBe(0);
     expect(readback?.engineMinorRiverTileCount).toBe(0);
     expect(readback?.minorRiverStampingSupported).toBe(false);
     expect(readback?.minorRiverUnsupportedReason).toContain("minor-river metadata parity");

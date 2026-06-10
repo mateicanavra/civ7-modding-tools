@@ -198,7 +198,19 @@ same-run Studio/Civ proof
 terrain-row visibility is the supported proof of MapGen-owned major-river
 stamping; minor or navigable river metadata is a separate readback/writer
 surface. `TerrainBuilder.modelRivers` remains the official high-level engine
-generator. Official resources were refreshed through `bun run refresh:data`
+generator for stock map scripts, but it is not a proven exact materializer for
+MapGen-authored river truth. A 2026-06-10 same-seed live run after native
+generator restoration reported 84 live `TERRAIN_NAVIGABLE_RIVER` tiles while
+MapGen projected 24; resource overlap was zero, but ten live river components
+had no water/lake sink and those fragments were native-generator additions.
+Authored Swooper maps therefore preserve the Hydrology-selected terrain mask
+directly and use terrain readback for major-river proof unless a future native
+writer surface proves exact parity to Hydrology truth. The same seed after this
+authored materialization change read back 25 live `TERRAIN_NAVIGABLE_RIVER`
+tiles with zero resource overlap and zero no-sink terrain-river components,
+while `MapRivers.numRivers` remained `0`; metadata remains a separate unsolved
+writer surface. Official resources were
+refreshed through `bun run refresh:data`
 against the installed Steam app on 2026-06-09 and stayed clean at snapshot
 `fbc38ef`; spot checks of the installed app matched that snapshot for
 `continents.js`, `archipelago.js`, tooltip helpers, `terrain.xml`, and
