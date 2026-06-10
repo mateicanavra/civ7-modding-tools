@@ -48,20 +48,19 @@ violation set:
 - Swooper Maps viz/diagnostic preflight setup.
 
 Package-local deploy orchestration found and repaired:
-- `mods/mod-swooper-maps` `deploy` and `deploy:studio` invoked Turbo and Bun
+- `mods/mod-swooper-maps` `deploy` invoked Turbo and Bun
   workspace filters from a package-local script.
 - `mods/mod-swooper-civ-dacia` `deploy` invoked the CLI through a Bun workspace
   filter.
 - Studio Save/Deploy and Run in Game invoked the package-local deploy script;
-  it now invokes the root Turbo `deploy:studio` graph for Swooper Maps.
+  it now invokes the root Turbo `deploy` graph for Swooper Maps.
 
 ## Proof Ledger
 
 - Passed: `bun run lint:workspace-entrypoints`
 - Passed: MapGen Studio Turbo dry-runs for `dev` and `build`
 - Passed: Docs Turbo dry-runs for `dev` and `build`
-- Passed: Mod deploy Turbo dry-runs for Swooper Maps deploy, Swooper Maps
-  Studio deploy, and Dacia deploy
+- Passed: Mod deploy Turbo dry-runs for Swooper Maps deploy and Dacia deploy
 - Passed: `bun run --cwd apps/mapgen-studio test -- test/mapConfigSave/deployCommand.test.ts test/mapConfigSave/operationState.test.ts`
 - Passed: `bunx turbo run check --filter=mapgen-studio --filter=mod-swooper-maps --filter=civ-mod-dacia`
 - Passed: `bun run openspec -- validate workspace-entrypoint-authority --strict`

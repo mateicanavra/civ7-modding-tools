@@ -47,15 +47,6 @@ class RiverCacheRefreshAdapter extends MockAdapter {
     this.callOrder.push("validateAndFixTerrain");
   }
 
-  override modelRivers(
-    minLength: number,
-    maxLength: number,
-    navigableTerrain: number
-  ): void {
-    this.callOrder.push("modelRivers");
-    super.modelRivers(minLength, maxLength, navigableTerrain);
-  }
-
   override defineNamedRivers(): void {
     this.callOrder.push("defineNamedRivers");
   }
@@ -153,7 +144,6 @@ describe("map-rivers/plot-rivers", () => {
     );
 
     expect(adapter.callOrder).toEqual([
-      "modelRivers",
       "validateAndFixTerrain",
       "defineNamedRivers",
       "recalculateAreas",
@@ -207,10 +197,11 @@ describe("map-rivers/plot-rivers", () => {
     expect(projected?.projectionSignalReason).toContain("normal Earthlike");
     expect(readback?.riverMask?.[0]).toBe(1);
     expect(readback?.riverMask?.[width]).toBe(0);
-    expect(readback?.engineNavigableRiverMask?.[0]).toBe(1);
+    expect(readback?.terrainNavigableRiverMask?.[0]).toBe(1);
+    expect(readback?.engineNavigableRiverMask?.[0]).toBe(0);
     expect(readback?.engineRiverType?.[0]).toBeDefined();
     expect(readback?.terrainNavigableRiverTileCount).toBe(5);
-    expect(readback?.engineNavigableRiverTileCount).toBe(5);
+    expect(readback?.engineNavigableRiverTileCount).toBe(0);
     expect(readback?.engineMinorRiverTileCount).toBe(0);
     expect(readback?.minorRiverStampingSupported).toBe(false);
     expect(readback?.minorRiverUnsupportedReason).toContain("minor-river metadata parity");

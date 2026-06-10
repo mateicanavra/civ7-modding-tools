@@ -14,12 +14,6 @@ import shatteredRingConfig from "../../src/maps/configs/shattered-ring.config.js
 import sunderedArchipelagoConfig from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsConfig from "../../src/maps/configs/swooper-desert-mountains.config.json";
 import swooperEarthlikeConfig from "../../src/maps/configs/swooper-earthlike.config.json";
-import legacyFoundationCompiled from "../fixtures/legacy-foundation-compiled.json";
-import legacyHydrologyCompiled from "../fixtures/legacy-hydrology-compiled.json";
-import legacyMorphologyCompiled from "../fixtures/legacy-morphology-compiled.json";
-import legacyEcologyCompiled from "../fixtures/legacy-ecology-compiled.json";
-import legacyProjectionCompiled from "../fixtures/legacy-projection-compiled.json";
-import legacyPlacementCompiled from "../fixtures/legacy-placement-compiled.json";
 
 const shippedMapConfigs = [
   ["shattered-ring.config.json", shatteredRingConfig],
@@ -76,13 +70,6 @@ const MORPHOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
   "morphology-features": ["knobs", "islandChains", "mountainRanges", "volcanoes"],
 };
 
-const MORPHOLOGY_STAGE_IDS = [
-  "morphology-coasts",
-  "morphology-routing",
-  "morphology-erosion",
-  "morphology-features",
-] as const;
-
 const MORPHOLOGY_INTERNAL_STAGE_KEYS = [
   "landmass-plates",
   "rugged-coasts",
@@ -120,12 +107,6 @@ const HYDROLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
   ],
 };
 
-const HYDROLOGY_STAGE_IDS = [
-  "hydrology-climate-baseline",
-  "hydrology-hydrography",
-  "hydrology-climate-refine",
-] as const;
-
 const HYDROLOGY_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
   "hydrology-climate-baseline": ["climate-baseline"],
   "hydrology-hydrography": ["rivers"],
@@ -156,12 +137,6 @@ const ECOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
   ],
 };
 
-const ECOLOGY_STAGE_IDS = [
-  "ecology-pedology",
-  "ecology-biomes",
-  "ecology-features",
-] as const;
-
 const ECOLOGY_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
   "ecology-pedology": ["pedology", "resource-basins"],
   "ecology-biomes": ["biomes"],
@@ -183,14 +158,6 @@ const PROJECTION_PUBLIC_KEYS: Record<string, readonly string[]> = {
   "map-rivers": ["knobs"],
   "map-ecology": ["knobs", "biomeBindings"],
 };
-
-const PROJECTION_STAGE_IDS = [
-  "map-morphology",
-  "map-hydrology",
-  "map-elevation",
-  "map-rivers",
-  "map-ecology",
-] as const;
 
 const PROJECTION_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
   "map-morphology": ["plot-coasts", "plot-continents", "plot-mountains", "plot-volcanoes"],
@@ -473,12 +440,12 @@ describe("Shipped map configs", () => {
   it("keeps shipped map-rivers configs on the current navigableRiverDensity knob surface", () => {
     for (const [fileName, raw] of mapCatalogConfigs) {
       const mapRiversKnobs = (raw.config as any)["map-rivers"]?.knobs ?? {};
-      const usesLegacyAlias = Object.prototype.hasOwnProperty.call(mapRiversKnobs, "riverDensity");
+      const usesRetiredAlias = Object.prototype.hasOwnProperty.call(mapRiversKnobs, "riverDensity");
       const usesCurrentKnob = Object.prototype.hasOwnProperty.call(
         mapRiversKnobs,
         "navigableRiverDensity"
       );
-      expect(usesLegacyAlias, `${fileName} must not use the legacy density alias`).toBe(false);
+      expect(usesRetiredAlias, `${fileName} must not use the retired density alias`).toBe(false);
       expect(
         usesCurrentKnob || Object.keys(mapRiversKnobs).length === 0,
         `${fileName} must use navigableRiverDensity or no density knob`
@@ -982,118 +949,7 @@ describe("Shipped map configs", () => {
     expect(compiled.foundation["plate-topology"]).toEqual({});
   });
 
-  it("keeps migrated Foundation configs compiled-equivalent to the legacy shipped configs", () => {
-    const env = {
-      seed: 123,
-      dimensions: { width: 80, height: 60 },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
-    const expected = legacyFoundationCompiled as Record<string, unknown>;
-
-    for (const [fileName, raw] of shippedMapConfigs) {
-      const id = fileName.replace(/\.config\.json$/, "");
-      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
-      expect(stable(compiled.foundation)).toEqual(expected[id]);
-    }
-  });
-
-  it("keeps Morphology configs compiled-equivalent while schema docs and ranges tighten", () => {
-    const env = {
-      seed: 123,
-      dimensions: { width: 80, height: 60 },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
-    const expected = legacyMorphologyCompiled as Record<string, unknown>;
-
-    for (const [fileName, raw] of shippedMapConfigs) {
-      const id = fileName.replace(/\.config\.json$/, "");
-      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
-      const morphologyCompiled = Object.fromEntries(
-        MORPHOLOGY_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
-      );
-      expect(stable(morphologyCompiled)).toEqual(expected[id]);
-    }
-  });
-
-  it("keeps Hydrology configs compiled-equivalent to the legacy shipped configs", () => {
-    const env = {
-      seed: 123,
-      dimensions: { width: 80, height: 60 },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
-    const expected = legacyHydrologyCompiled as Record<string, unknown>;
-
-    for (const [fileName, raw] of shippedMapConfigs) {
-      const id = fileName.replace(/\.config\.json$/, "");
-      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
-      const hydrologyCompiled = Object.fromEntries(
-        HYDROLOGY_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
-      );
-      expect(stable(hydrologyCompiled)).toEqual(expected[id]);
-    }
-  });
-
-  it("keeps Ecology configs compiled-equivalent after accepted peer-repair threshold updates", () => {
-    const env = {
-      seed: 123,
-      dimensions: { width: 80, height: 60 },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
-    const expected = legacyEcologyCompiled as Record<string, unknown>;
-
-    for (const [fileName, raw] of shippedMapConfigs) {
-      const id = fileName.replace(/\.config\.json$/, "");
-      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
-      const ecologyCompiled = Object.fromEntries(
-        ECOLOGY_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
-      );
-      expect(stable(ecologyCompiled)).toEqual(expected[id]);
-    }
-  });
-
-  it("keeps Projection configs compiled-equivalent to the legacy shipped configs", () => {
-    const env = {
-      seed: 123,
-      dimensions: { width: 80, height: 60 },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
-    const expected = legacyProjectionCompiled as Record<string, unknown>;
-
-    for (const [fileName, raw] of shippedMapConfigs) {
-      const id = fileName.replace(/\.config\.json$/, "");
-      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
-      const projectionCompiled = Object.fromEntries(
-        PROJECTION_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
-      );
-      expect(stable(projectionCompiled)).toEqual(expected[id]);
-    }
-  });
-
-  it("keeps non-start Placement configs legacy-equivalent while assigning start planning to assign-starts", () => {
-    const env = {
-      seed: 123,
-      dimensions: { width: 80, height: 60 },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
-    const expected = legacyPlacementCompiled as Record<string, unknown>;
-
-    for (const [fileName, raw] of shippedMapConfigs) {
-      const id = fileName.replace(/\.config\.json$/, "");
-      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
-      const observedPlacement = stable(compiled.placement) as any;
-      const expectedPlacement = stable(expected[id]) as any;
-      delete observedPlacement["assign-starts"].starts;
-      delete expectedPlacement.placement["derive-placement-inputs"].starts;
-      expect({ placement: observedPlacement }).toEqual(expectedPlacement);
-      expect(compiled.placement["derive-placement-inputs"].starts).toBeUndefined();
-      expect(compiled.placement["assign-starts"].starts).toEqual({
-        strategy: "default",
-        config: expectedStartsConfig(raw),
-      });
-    }
-  });
-
-  it("rejects legacy map-morphology alias keys", () => {
+  it("rejects retired map-morphology alias keys", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
     const { errors } = normalizeStrict(
       schema,
@@ -1111,22 +967,22 @@ describe("Shipped map configs", () => {
           buildElevation: {},
         },
       },
-      "/maps/legacy-map-morphology"
+      "/maps/retired-map-morphology"
     );
 
     const errorPaths = errors.map((error) => error.path);
     expect(errorPaths).toEqual(
       expect.arrayContaining([
-        "/maps/legacy-map-morphology/map-morphology/plotCoasts",
-        "/maps/legacy-map-morphology/map-morphology/plotContinents",
-        "/maps/legacy-map-morphology/map-morphology/plot-coasts",
-        "/maps/legacy-map-morphology/map-morphology/plot-continents",
-        "/maps/legacy-map-morphology/map-morphology/plot-mountains",
-        "/maps/legacy-map-morphology/map-morphology/plot-volcanoes",
-        "/maps/legacy-map-morphology/map-morphology/mountains",
-        "/maps/legacy-map-morphology/map-morphology/volcanoes",
-        "/maps/legacy-map-morphology/map-morphology/plotVolcanoes",
-        "/maps/legacy-map-morphology/map-morphology/buildElevation",
+        "/maps/retired-map-morphology/map-morphology/plotCoasts",
+        "/maps/retired-map-morphology/map-morphology/plotContinents",
+        "/maps/retired-map-morphology/map-morphology/plot-coasts",
+        "/maps/retired-map-morphology/map-morphology/plot-continents",
+        "/maps/retired-map-morphology/map-morphology/plot-mountains",
+        "/maps/retired-map-morphology/map-morphology/plot-volcanoes",
+        "/maps/retired-map-morphology/map-morphology/mountains",
+        "/maps/retired-map-morphology/map-morphology/volcanoes",
+        "/maps/retired-map-morphology/map-morphology/plotVolcanoes",
+        "/maps/retired-map-morphology/map-morphology/buildElevation",
       ])
     );
   });
@@ -1278,14 +1134,14 @@ describe("Shipped map configs", () => {
           },
         },
       },
-      "/maps/legacy-map-hydrology-rivers"
+      "/maps/retired-map-hydrology-rivers"
     );
 
     const errorPaths = errors.map((error) => error.path);
     expect(errorPaths).toEqual(
       expect.arrayContaining([
-        "/maps/legacy-map-hydrology-rivers/map-hydrology/knobs/riverDensity",
-        "/maps/legacy-map-hydrology-rivers/map-hydrology/plot-rivers",
+        "/maps/retired-map-hydrology-rivers/map-hydrology/knobs/riverDensity",
+        "/maps/retired-map-hydrology-rivers/map-hydrology/plot-rivers",
       ])
     );
   });
@@ -1299,11 +1155,11 @@ describe("Shipped map configs", () => {
           knobs: { riverDensity: "dense" },
         },
       },
-      "/maps/legacy-map-rivers-alias"
+      "/maps/retired-map-rivers-alias"
     );
 
     expect(errors.map((error) => error.path)).toEqual(
-      expect.arrayContaining(["/maps/legacy-map-rivers-alias/map-rivers/knobs/riverDensity"])
+      expect.arrayContaining(["/maps/retired-map-rivers-alias/map-rivers/knobs/riverDensity"])
     );
   });
 

@@ -29,11 +29,6 @@ export async function fileIdentity(args: {
   };
 }
 
-export function parseDeployTargetDir(stdout: string): string | null {
-  const match = stdout.match(/Deployed to:\s*(.+)$/m);
-  return match?.[1]?.trim() || null;
-}
-
 export function buildRunInGameSourceSnapshotProof(args: {
   requestId: string;
   sourceSnapshot: unknown;

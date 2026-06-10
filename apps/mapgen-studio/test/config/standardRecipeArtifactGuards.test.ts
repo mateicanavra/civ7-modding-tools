@@ -116,28 +116,20 @@ describe("standard recipe generated artifact guardrails", () => {
     }
   });
 
-  it("migrates stale Studio overrides before the worker-style strict compile path", () => {
+  it("keeps Studio overrides on the worker-style strict compile path", () => {
     const runtimeEntry = getRuntimeRecipe("mod-swooper-maps/standard");
-    const staleOverrides = {
-      foundation: {
-        meshResolution: {
-          plateCount: 28,
-          cellsPerPlate: 2,
-          relaxationSteps: 2,
-          referenceArea: 4536,
-          plateScalePower: 0.8,
-        },
-        platePartition: {
-          plateCount: 28,
-          referenceArea: 4536,
-          plateScalePower: 0.8,
+    const studioOverrides = {
+      "hydrology-hydrography": {
+        knobs: {
+          riverDensity: "normal",
+          lakeiness: "many",
         },
       },
     };
 
     const merged = mergeDeterministic(
       runtimeEntry.defaultConfig,
-      migratePipelineConfigUnknown(staleOverrides)
+      migratePipelineConfigUnknown(studioOverrides)
     );
     const { value, errors } = normalizeStrict<Record<string, unknown>>(
       runtimeEntry.configSchema,
@@ -146,11 +138,6 @@ describe("standard recipe generated artifact guardrails", () => {
     );
 
     expect(errors).toEqual([]);
-    const foundation = value.foundation as Record<string, Record<string, unknown>>;
-    expect(foundation.meshResolution).not.toHaveProperty("referenceArea");
-    expect(foundation.meshResolution).not.toHaveProperty("plateScalePower");
-    expect(foundation.platePartition).not.toHaveProperty("referenceArea");
-    expect(foundation.platePartition).not.toHaveProperty("plateScalePower");
 
     const plan = runtimeEntry.recipe.compile(
       {

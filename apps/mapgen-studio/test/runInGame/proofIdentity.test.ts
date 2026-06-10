@@ -15,7 +15,6 @@ import {
   buildRunInGameExactAuthorshipProof,
   buildRunInGameSourceSnapshotProof,
   fileIdentity,
-  parseDeployTargetDir,
   parseSwooperMapgenLogProof,
 } from "../../src/server/runInGame/proofIdentity";
 
@@ -25,7 +24,7 @@ const envelopeHash = "envelope-hash";
 const mapScript = "{swooper-maps}/maps/studio-current.js";
 
 describe("Run in Game exact authorship proof identity", () => {
-  it("hashes file content and parses the deployed target directory", async () => {
+  it("hashes file content for deployed artifact identity", async () => {
     const dir = await mkdtemp(join(tmpdir(), "studio-proof-"));
     try {
       const path = join(dir, "studio-current.js");
@@ -36,8 +35,6 @@ describe("Run in Game exact authorship proof identity", () => {
       expect(identity.path).toBe("studio-current.js");
       expect(identity.sha256).toHaveLength(64);
       expect(identity.sizeBytes).toBeGreaterThan(0);
-      expect(parseDeployTargetDir("ok\nDeployed to: /tmp/Civ Mods/Swooper Maps\n")).toBe("/tmp/Civ Mods/Swooper Maps");
-      expect(parseDeployTargetDir("ok\n")).toBeNull();
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

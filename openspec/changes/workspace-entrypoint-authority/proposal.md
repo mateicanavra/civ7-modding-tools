@@ -46,7 +46,6 @@ authority hard to see and easy to regress.
 - `bunx turbo run dev --filter=@civ7/docs --dry=json`
 - `bunx turbo run build --filter=@civ7/docs --dry=json`
 - `bunx turbo run deploy --filter=mod-swooper-maps --dry=json`
-- `bunx turbo run deploy:studio --filter=mod-swooper-maps --dry=json`
 - `bunx turbo run deploy --filter=civ-mod-dacia --dry=json`
 - `bun run --cwd apps/mapgen-studio test -- test/mapConfigSave/deployCommand.test.ts test/mapConfigSave/operationState.test.ts`
 - `bunx turbo run check --filter=mapgen-studio --filter=mod-swooper-maps --filter=civ-mod-dacia`

@@ -16,6 +16,40 @@ afterEach(async () => {
 });
 
 describe("Studio Civ7 control-oRPC browser edge", () => {
+  test("resolves the default browser URL against location.origin", async () => {
+    const middleware = createStudioCiv7ControlOrpcMiddleware({
+      directControl: {
+        getCiv7PlayableStatus: async () => playableStatusResult(),
+      } as Civ7ControlOrpcContext["directControl"],
+    });
+    const origin = await listen((req, res) => {
+      void middleware(req, res, () => {
+        res.statusCode = 404;
+        res.end("not found");
+      });
+    });
+    const originalLocation = globalThis.location;
+    Object.defineProperty(globalThis, "location", {
+      configurable: true,
+      value: new URL(origin),
+    });
+
+    try {
+      const client = createStudioCiv7ControlOrpcClient();
+      const result = await client.readiness.current({});
+
+      expect(result).toMatchObject({
+        playable: true,
+        readiness: "tuner-ready",
+      });
+    } finally {
+      Object.defineProperty(globalThis, "location", {
+        configurable: true,
+        value: originalLocation,
+      });
+    }
+  });
+
   test("calls readiness.current through native RPCLink and RPCHandler", async () => {
     const calls: Array<Civ7ControlOrpcContext["endpointDefaults"]> = [];
     const middleware = createStudioCiv7ControlOrpcMiddleware({

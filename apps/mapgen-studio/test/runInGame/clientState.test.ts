@@ -31,23 +31,6 @@ const pipelineConfig = {
   },
 } as unknown as PipelineConfig;
 
-const legacyFoundationConfig = {
-  foundation: {
-    meshResolution: {
-      plateCount: 28,
-      cellsPerPlate: 2,
-      relaxationSteps: 2,
-      referenceArea: 4536,
-      plateScalePower: 0.8,
-    },
-    platePartition: {
-      plateCount: 28,
-      referenceArea: 4536,
-      plateScalePower: 0.8,
-    },
-  },
-} as unknown as PipelineConfig;
-
 const setupConfig = {
   gameOptions: {
     Difficulty: "DIFFICULTY_PRINCE",
@@ -196,35 +179,4 @@ describe("Run in Game client state", () => {
     }))).toBeNull();
   });
 
-  it("migrates retired Foundation size-scaling fields from stored source snapshots", () => {
-    const built = buildRunInGameSourceSnapshot({
-      requestId: status.requestId,
-      recipeSettings,
-      worldSettings,
-      pipelineConfig: legacyFoundationConfig,
-      setupConfig,
-      materializationMode: "disposable",
-    });
-    const builtFoundation = built.pipelineConfig.foundation as Record<string, Record<string, unknown>>;
-    expect(builtFoundation.meshResolution).not.toHaveProperty("referenceArea");
-    expect(builtFoundation.platePartition).not.toHaveProperty("plateScalePower");
-
-    const parsed = parseRunInGameSourceSnapshot(JSON.stringify({
-      requestId: status.requestId,
-      createdAt: "2026-06-01T00:00:00.000Z",
-      recipeSettings,
-      worldSettings,
-      pipelineConfig: legacyFoundationConfig,
-      setupConfig,
-      materializationMode: "disposable",
-    }));
-
-    expect(parsed).not.toBeNull();
-    const parsedFoundation = parsed!.pipelineConfig.foundation as Record<string, Record<string, unknown>>;
-    expect(parsedFoundation.meshResolution.plateCount).toBe(28);
-    expect(parsedFoundation.meshResolution).not.toHaveProperty("referenceArea");
-    expect(parsedFoundation.meshResolution).not.toHaveProperty("plateScalePower");
-    expect(parsedFoundation.platePartition).not.toHaveProperty("referenceArea");
-    expect(parsedFoundation.platePartition).not.toHaveProperty("plateScalePower");
-  });
 });

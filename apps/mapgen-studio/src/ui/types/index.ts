@@ -325,4 +325,4 @@ export interface Preset {
   updatedAt: string;
 }
 
-// (No legacy aliases: Studio is the only consumer and uses the v1 vocabulary.)
+// (No retired aliases: Studio is the only consumer and uses the v1 vocabulary.)
