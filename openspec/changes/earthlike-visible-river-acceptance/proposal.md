@@ -38,7 +38,9 @@ This change is active. The investigation row is:
   authored terrain stamping and keeps exact parity plus rendered proof open.
 
 Owner classification: projection/materialization plus adapter readback for
-navigable/major rivers; adapter capability gap for minor river stamping.
+navigable/major rivers; no stable per-tile minor-river writer is proven. Native
+bulk minor-river metadata exists through bounded `modelRivers(...)`, but exact
+minor parity remains acceptance-gated against Hydrology intent.
 
 ## Target Authority Refs
 

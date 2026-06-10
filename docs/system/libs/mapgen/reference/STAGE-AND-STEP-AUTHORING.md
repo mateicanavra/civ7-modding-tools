@@ -93,9 +93,11 @@ export default createStep(PlotRiversStepContract, {
 ```
 
 Do not use the old `TerrainBuilder.modelRivers` delegation pattern as a new
-MapGen step template. Hydrology owns river truth; `map-rivers` projects the
+MapGen truth template. Hydrology owns river truth; `map-rivers` projects the
 Civ-visible navigable terrain subset, records planned minor/major intent, and
-captures engine readback as a separate proof surface.
+captures engine readback as a separate proof surface. A bounded
+adapter-owned `modelRivers(...)` call is allowed only after Hydrology-selected
+terrain stamping, as native Civ materialization for metadata/model/cache state.
 
 ## Stage contract (config compilation boundary)
 

@@ -123,16 +123,19 @@ Evidence:
 - After stamping it runs `validateAndFixTerrain()`, `defineNamedRivers()`,
   `recalculateAreas()`, and `storeWaterData()`:
   `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts:302-311`
-- The structural guard test explicitly rejects `adapter.modelRivers(...)` in map
-  stages and asserts that navigable river materialization stays MapGen-owned:
-  `mods/mod-swooper-maps/test/pipeline/map-stamping.contract-guard.test.ts:120-147`
+- Superseded 2026-06-10 follow-up: the current branch now calls
+  `adapter.modelRivers(...)` after Hydrology-selected terrain stamping as a
+  bounded Civ-native metadata/model/cache materialization pass. That does not
+  make Civ the truth owner; it replaces the terrain-only path that left
+  `MapRivers` and `GameplayMap.getRiverType` empty.
 
 Adversarial conclusion:
 
 - On this branch, "we directly stamp rivers ourselves" is true for the
   navigable/major visible subset.
-- Official Civ `TerrainBuilder.modelRivers(...)` exists in the game, but it is
-  not the current branch's authoring path.
+- Official Civ `TerrainBuilder.modelRivers(...)` is the current bounded
+  materialization path after that authored stamp, not the current truth
+  generator.
 
 ### B. Adapter boundary cleanly separates terrain readback from metadata readback
 
@@ -268,8 +271,9 @@ Evidence:
 - Accepted technical river row says terrain readback passed while metadata
   diverged and product/visual review remains open:
   `openspec/changes/swooper-earthlike-product-acceptance-proof/workstream/acceptance-row-ledger.md:78`
-- Accepted metadata row says live `river=0`, `navigableRiver=0`, `minorRiver=0`
-  and keeps `minorRiverStampingSupported=false`:
+- Accepted metadata row now treats the legacy live `river=0`,
+  `navigableRiver=0`, `minorRiver=0` packet as obsolete terrain-only evidence
+  and keeps current metadata parity open for same-run proof:
   `openspec/changes/swooper-earthlike-product-acceptance-proof/workstream/acceptance-row-ledger.md:79`
 
 Adversarial conclusion:

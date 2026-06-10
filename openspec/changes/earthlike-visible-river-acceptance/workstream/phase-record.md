@@ -146,10 +146,10 @@
   `noRiver=4536`. This rejects the discovered no-argument hook as a stable
   production minor-river authoring surface.
 - Owner classification updated 2026-06-10: projection/materialization plus
-  adapter readback for navigable/major rivers; adapter capability gap for
-  per-tile minor-river stamping; bulk native minor-river metadata
-  materialization supported through `TerrainBuilder.modelRivers(...)` but still
-  parity-gated against Hydrology truth.
+  adapter readback for navigable/major rivers; no stable per-tile minor-river
+  writer is proven; bulk native minor-river metadata materialization is
+  supported through `TerrainBuilder.modelRivers(...)` but still parity-gated
+  against Hydrology truth.
 - Testing design: hard drainage invariants first, then lake/river coupling
   fixtures, then knob metamorphic checks, then same-run Studio/Civ parity. The
   physical benchmark suite now covers water-supply/topology decoupling and

@@ -20,9 +20,10 @@
 - [x] 1.2 Classify the owner: hydrology truth, ecology/floodplain policy,
   projection/materialization, Studio visualization, or Civ policy.
   - Classification: projection/materialization + adapter readback for
-    navigable/major rivers; adapter capability gap for per-tile minor-river
-    stamping; bulk native minor-river metadata materialization is supported but
-    must be parity-classified before product claims.
+    navigable/major rivers; no stable per-tile minor-river writer is proven;
+    bulk native minor-river metadata materialization is supported but must be
+    parity-classified against Hydrology planned-minor intent before product
+    claims.
 
 ## 2. Repair
 

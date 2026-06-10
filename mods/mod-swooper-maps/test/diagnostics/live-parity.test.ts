@@ -17,6 +17,8 @@ import {
 
 const pipelineConfig = { landmasses: { kind: "test" } } as const;
 const configHash = hashParityValue(pipelineConfig);
+const nativeRiverMetadataReadbackReason =
+  "Native Civ river-type metadata readback is available after TerrainBuilder.modelRivers; exact Hydrology minor-river parity must compare planned minor intent to engineMinorRiverMask.";
 const fileIdentity = {
   path: "/tmp/swooper-earthlike.js",
   sha256: "sha256",
@@ -326,8 +328,8 @@ describe("final-surface parity proof", () => {
       plannedMinorRiver: { width: 2, height: 1, values: [1, 0] },
       plannedMajorRiver: { width: 2, height: 1, values: [0, 1] },
       projectedNavigableTerrain: { width: 2, height: 1, values: [0, 1] },
-      minorRiverStampingSupported: false,
-      minorRiverUnsupportedReason: "minor metadata writer unproven",
+      minorRiverStampingSupported: true,
+      minorRiverUnsupportedReason: nativeRiverMetadataReadbackReason,
     };
     const liveRiverMetadata: FinalSurfaceSnapshot["riverMetadata"] = {
       width: 2,
@@ -372,8 +374,8 @@ describe("final-surface parity proof", () => {
       liveMinorOffPlannedMinorCount: 0,
       plannedMinorWithoutLiveMinorCount: 0,
       plannedMinorVsLiveMinorMismatchCount: 0,
-      minorRiverStampingSupported: false,
-      minorRiverUnsupportedReason: "minor metadata writer unproven",
+      minorRiverStampingSupported: true,
+      minorRiverUnsupportedReason: nativeRiverMetadataReadbackReason,
     });
     expect(proof.unresolvedLinks).toEqual([]);
     expect(proof.proofClaims.claims["exact-authorship"].status).toBe("pass");
@@ -399,8 +401,8 @@ describe("final-surface parity proof", () => {
           plannedMinorRiver: { width: 2, height: 1, values: [1, 0] },
           plannedMajorRiver: { width: 2, height: 1, values: [0, 0] },
           projectedNavigableTerrain: { width: 2, height: 1, values: [0, 0] },
-          minorRiverStampingSupported: false,
-          minorRiverUnsupportedReason: "bulk native minor metadata requires parity classification",
+          minorRiverStampingSupported: true,
+          minorRiverUnsupportedReason: nativeRiverMetadataReadbackReason,
         },
       }),
       live: snapshot({
@@ -780,8 +782,8 @@ describe("final-surface parity proof", () => {
         resourceCoordinateProof: true,
         riverMetadata: riverMetadata({
           projected: [1, 0],
-          minorRiverStampingSupported: false,
-          minorRiverUnsupportedReason: "minor metadata readback-only",
+          minorRiverStampingSupported: true,
+          minorRiverUnsupportedReason: nativeRiverMetadataReadbackReason,
         }),
       }),
       live: snapshot({
@@ -809,8 +811,8 @@ describe("final-surface parity proof", () => {
       projectedVsLiveTerrainMismatchCount: 0,
       projectedVsLiveMetadataMismatchCount: 1,
       liveTerrainVsMetadataMismatchCount: 1,
-      minorRiverStampingSupported: false,
-      minorRiverUnsupportedReason: "minor metadata readback-only",
+      minorRiverStampingSupported: true,
+      minorRiverUnsupportedReason: nativeRiverMetadataReadbackReason,
     });
     expect(proof.proofClaims.claims["terrain-readback"]).toMatchObject({
       status: "pass",
@@ -839,8 +841,8 @@ describe("final-surface parity proof", () => {
         resourceCoordinateProof: true,
         riverMetadata: riverMetadata({
           projected: [1, 0],
-          minorRiverStampingSupported: false,
-          minorRiverUnsupportedReason: "minor metadata readback-only",
+          minorRiverStampingSupported: true,
+          minorRiverUnsupportedReason: nativeRiverMetadataReadbackReason,
         }),
       }),
       live: snapshot({

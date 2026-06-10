@@ -4,10 +4,24 @@ Date: 2026-06-10
 
 ## Decision
 
-Do not call `TerrainBuilder.modelRivers(...)` in the authored Swooper
-`map-rivers` projection path. Preserve the Hydrology-selected
-`TERRAIN_NAVIGABLE_RIVER` mask directly, then validate terrain, define names,
-refresh areas/water, and prove parity through readback.
+Use `TerrainBuilder.modelRivers(...)` only as the bounded Civ-native
+materialization pass after `map-rivers` stamps the Hydrology-selected
+`TERRAIN_NAVIGABLE_RIVER` terrain mask. Hydrology remains the source of river
+truth; `map-rivers` owns projection/materialization/readback; the native writer
+is not a public selector, upstream river generator, or proof substitute.
+
+This supersedes the earlier same-day terrain-only decision below. That decision
+correctly rejected unbounded whole-map native river generation because it added
+extra fragments and no-sink components, but the terrain-only alternative left
+Civ river metadata and model objects absent. Later adapter/runtime evidence
+proved the stock Civ sequence can create native river metadata after authored
+terrain stamping, so the current path is:
+
+1. select from Hydrology-authored river truth;
+2. stamp only the selected navigable terrain mask;
+3. run the adapter-owned native bulk materialization pass;
+4. validate terrain, define named rivers, recalculate areas, and store water;
+5. prove terrain and metadata outcomes by same-run readback.
 
 ## Evidence
 
@@ -26,10 +40,17 @@ refresh areas/water, and prove parity through readback.
   metadata was explicitly absent (`MapRivers.numRivers = 0`,
   `GameplayMap.getRiverType = -1` everywhere), confirming this path is terrain
   materialization, not hidden native river generation.
+- Follow-up runtime and adapter slices reclassified native river metadata as an
+  available readback/materialization surface when `GameplayMap.getRiverType`
+  exists after `TerrainBuilder.modelRivers(...)`. Exact Hydrology parity,
+  especially for minor rivers, remains open until same-run evidence compares
+  planned intent masks to `engineNavigableRiverMask` and
+  `engineMinorRiverMask`.
 
 ## Consequence
 
-Official stock scripts still use `modelRivers(...)`, and `@civ7/map-policy`
-still records that fact. For Swooper authored maps, that fact is engine evidence
-only; it is not product acceptance unless a future writer proves exact
-Hydrology-topology parity on the same run.
+Official stock scripts use `modelRivers(...)`, and `@civ7/map-policy` records
+the stock Civ arguments as pure Civ facts. Swooper may use that surface only
+inside `map-rivers` after Hydrology projection has already selected terrain.
+Product acceptance still requires same-run terrain, metadata, Studio, and
+rendered-visibility proof; a successful native call alone is not acceptance.
