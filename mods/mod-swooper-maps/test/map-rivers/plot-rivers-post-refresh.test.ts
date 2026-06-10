@@ -140,6 +140,13 @@ describe("map-rivers/plot-rivers", () => {
         (_value, index) => (index < width ? 3 : index < width * 2 ? 2 : 0)
       ),
     });
+    context.artifacts.set("artifact:hydrology.lakePlan", {
+      width,
+      height,
+      lakeMask: new Uint8Array(size),
+      plannedLakeTileCount: 0,
+      sinkLakeCount: 0,
+    });
 
     expect(adapter.getTerrainType(0, 0)).toBe(FLAT_TERRAIN);
 

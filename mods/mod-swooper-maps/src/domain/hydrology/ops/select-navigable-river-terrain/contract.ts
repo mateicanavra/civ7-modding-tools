@@ -13,6 +13,14 @@ const SelectNavigableRiverTerrainInputSchema = Type.Object(
     flowDir: TypedArraySchemas.i32({
       description: "Hydrology receiver graph per tile (-1=terminal, otherwise destination tile index).",
     }),
+    mouthType: TypedArraySchemas.u8({
+      description:
+        "Hydrology drainage mouth classification per tile; navigable terrain selection starts only from real ocean/lake/spill terminal mouths.",
+    }),
+    lakeMask: TypedArraySchemas.u8({
+      description:
+        "Hydrology lake mask; nonprojectable lake tiles may carry channel continuity, but non-lake projection blockers do not.",
+    }),
     projectableLandMask: TypedArraySchemas.u8({
       description:
         "Map-rivers projection eligibility mask after engine terrain constraints (1=eligible land, 0=not projectable).",

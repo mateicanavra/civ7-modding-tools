@@ -119,6 +119,7 @@ export default createStep(PlotRiversStepContract, {
   ),
   run: (context, config, ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read(context);
+    const lakePlan = deps.artifacts.lakePlan.read(context);
     const riverNetworkMetrics = deps.artifacts.riverNetworkMetrics.read(context);
     const { width, height } = context.dimensions;
 
@@ -202,6 +203,8 @@ export default createStep(PlotRiversStepContract, {
         riverClass: hydrography.riverClass,
         discharge: hydrography.discharge,
         flowDir: hydrography.flowDir,
+        mouthType: riverNetworkMetrics.mouthType,
+        lakeMask: lakePlan.lakeMask,
         projectableLandMask,
       },
       config.selectNavigableRiverTerrain

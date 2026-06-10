@@ -1,5 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { isMajorRiverClass, isMinorRiverClass } from "../../../river-class.js";
+import {
+  HYDROLOGY_MOUTH_ACCEPTED_LAKE,
+  HYDROLOGY_MOUTH_OCEAN,
+  HYDROLOGY_MOUTH_SPILL_PATH,
+} from "../../../river-network-metrics.js";
 import SelectNavigableRiverTerrainContract from "../contract.js";
 
 function clamp01(value: number): number {
@@ -25,18 +30,29 @@ function assertLength(name: string, actual: number, expected: number): void {
 function bestUnselectedUpstream(
   upstream: readonly number[],
   discharge: Float32Array,
-  selectedMask: Uint8Array
+  selectedMask: Uint8Array,
+  projectableLandMask: Uint8Array,
+  corridorMask: Uint8Array
 ): number {
   let bestIndex = -1;
   let bestDischarge = -Infinity;
   for (const index of upstream) {
-    if (selectedMask[index] === 1) continue;
+    if (corridorMask[index] !== 1) continue;
+    if (projectableLandMask[index] === 1 && selectedMask[index] === 1) continue;
     const currentDischarge = discharge[index] ?? 0;
     if (currentDischarge <= bestDischarge) continue;
     bestDischarge = currentDischarge;
     bestIndex = index;
   }
   return bestIndex;
+}
+
+function isTerminalAnchoredMouth(mouthType: number): boolean {
+  return (
+    mouthType === HYDROLOGY_MOUTH_OCEAN ||
+    mouthType === HYDROLOGY_MOUTH_ACCEPTED_LAKE ||
+    mouthType === HYDROLOGY_MOUTH_SPILL_PATH
+  );
 }
 
 export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContract, "default", {
@@ -54,6 +70,12 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
     if (!(input.flowDir instanceof Int32Array)) {
       throw new Error("[Hydrology] Invalid flowDir for hydrology/select-navigable-river-terrain.");
     }
+    if (!(input.mouthType instanceof Uint8Array)) {
+      throw new Error("[Hydrology] Invalid mouthType for hydrology/select-navigable-river-terrain.");
+    }
+    if (!(input.lakeMask instanceof Uint8Array)) {
+      throw new Error("[Hydrology] Invalid lakeMask for hydrology/select-navigable-river-terrain.");
+    }
     if (!(input.projectableLandMask instanceof Uint8Array)) {
       throw new Error(
         "[Hydrology] Invalid projectableLandMask for hydrology/select-navigable-river-terrain."
@@ -62,10 +84,14 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
     assertLength("riverClass", input.riverClass.length, size);
     assertLength("discharge", input.discharge.length, size);
     assertLength("flowDir", input.flowDir.length, size);
+    assertLength("mouthType", input.mouthType.length, size);
+    assertLength("lakeMask", input.lakeMask.length, size);
     assertLength("projectableLandMask", input.projectableLandMask.length, size);
 
     const plannedMinorRiverMask = new Uint8Array(size);
     const plannedMajorRiverMask = new Uint8Array(size);
+    const majorPathMask = new Uint8Array(size);
+    const corridorMask = new Uint8Array(size);
     const eligible = new Uint8Array(size);
     let plannedMinorRiverTileCount = 0;
     let plannedMajorRiverTileCount = 0;
@@ -80,10 +106,17 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
       }
       if (!isMajorRiverClass(riverClass)) continue;
       plannedMajorRiverMask[i] = 1;
+      majorPathMask[i] = 1;
       plannedMajorRiverTileCount += 1;
-      if (input.projectableLandMask[i] !== 1) continue;
-      eligible[i] = 1;
-      eligibleTileCount += 1;
+      if (input.projectableLandMask[i] === 1) {
+        corridorMask[i] = 1;
+        eligible[i] = 1;
+        eligibleTileCount += 1;
+        continue;
+      }
+      if (input.lakeMask[i] === 1) {
+        corridorMask[i] = 1;
+      }
     }
 
     const riverMask = new Uint8Array(size);
@@ -119,11 +152,11 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
     const endpointDischarges: number[] = [];
 
     for (let i = 0; i < size; i++) {
-      if (eligible[i] !== 1) continue;
+      if (corridorMask[i] !== 1) continue;
       const receiver = input.flowDir[i] ?? -1;
-      if (receiver >= 0 && receiver < size && eligible[receiver] === 1) {
+      if (receiver >= 0 && receiver < size && corridorMask[receiver] === 1) {
         upstream[receiver]!.push(i);
-      } else {
+      } else if (isTerminalAnchoredMouth(input.mouthType[i] ?? 0)) {
         allEndpoints.push(i);
         endpointDischarges.push(input.discharge[i] ?? 0);
       }
@@ -152,13 +185,21 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
       while (
         current >= 0 &&
         current < size &&
-        eligible[current] === 1 &&
-        riverMask[current] !== 1 &&
+        corridorMask[current] === 1 &&
         !seen.has(current)
       ) {
         seen.add(current);
-        chain.push(current);
-        current = bestUnselectedUpstream(upstream[current]!, input.discharge, riverMask);
+        if (eligible[current] === 1) {
+          if (riverMask[current] === 1) break;
+          chain.push(current);
+        }
+        current = bestUnselectedUpstream(
+          upstream[current]!,
+          input.discharge,
+          riverMask,
+          input.projectableLandMask,
+          corridorMask
+        );
       }
 
       if (chain.length === 0) continue;
