@@ -1,6 +1,6 @@
 # Completion Audit
 
-Date: 2026-06-09
+Date: 2026-06-09; updated 2026-06-10 for native river modeling
 
 This audit maps the active river/lake objective to current evidence on
 `codex/mapgen-physical-rivers`. It is intentionally stricter than the task list:
@@ -11,15 +11,15 @@ or live proof establish the requirement.
 
 | Requirement | Evidence |
 | --- | --- |
-| Isolated Graphite branch/worktree off main | Branch `codex/mapgen-physical-rivers` exists in a separate clean worktree. Current Graphite status is ahead `1`, behind `749`, and `needs restack`; this proves isolation only, not closure readiness. |
-| Diagnose why rivers were not stamped | `proposal.md`, `phase-record.md`, and `acceptance-row-ledger.md` classify the issue: MapGen-owned major/navigable rivers can be materialized as `TERRAIN_NAVIGABLE_RIVER`; Civ river metadata remains readback-only because no stable per-tile minor-river writer is proven. |
+| Isolated Graphite branch/worktree off main | Branch stack now includes `codex/map-rivers-native-modeling-restored` in a separate clean worktree. This proves isolation only, not closure readiness. |
+| Diagnose why rivers were not stamped | `proposal.md`, `phase-record.md`, resource evidence, and 2026-06-10 runtime proof classify the issue: direct terrain stamping alone can leave Civ river metadata at zero; the official bulk `TerrainBuilder.modelRivers(...)` sequence creates river metadata/model objects, including minor and navigable river rows, when called after authored terrain stamping. Exact authored-topology parity and rendered product visibility remain open. |
 | Ground diagnosis in repo code and history | `phase-record.md` and `workstream/history-evidence.md` record exact semantic-history commands and representative commits for the lineage from `TerrainBuilder.modelRivers`/cache refresh through MapGen-owned projection, lake truth normalization, and `@civ7/map-policy` constants. |
 | Ground diagnosis in official resources, installed app, and Narsil | `resource-evidence.md` records resource sync, installed-app checksum spot checks, Narsil index cross-check caveats, exact official river callsite search, and the absence of a public `setRiverValidationValues` callsite. |
 | Ground physical benchmark design in Earth hydrology | `workstream/physical-grounding.md` maps the benchmark suite to watershed routing, confluence accumulation, rain-shadow runoff asymmetry, and closed/terminal basin expectations with USGS/AMS/NOAA source anchors. |
 | Use direct-control / map query tools | `@civ7/direct-control` hydrology facts expose `riverType`, `river`, and `navigableRiver`; `verify-final-surface-parity.ts` and `probe-river-writer.ts` use live readback. |
 | Separate hydrology truth, projection, Studio display, and Civ metadata | `map-rivers` publishes planned minor, planned major, projected navigable, terrain readback, metadata/API readback, and mismatch artifacts; `live-parity.ts` emits `riverMetadataParity` as a distinct proof class. |
-| Handle minor rivers honestly | Hydrology-owned `RIVER_CLASS_MINOR` remains planned minor-river intent and is not promoted to navigable terrain; `minorRiverStampingSupported=false` is recorded until a writer is discovered and proven. |
-| Selected projected navigable trunks are visible | Same-run proof `studio-run-in-game-mq6c38rf-n2p` reports planned major `149`, selected projected navigable terrain `6`, live `TERRAIN_NAVIGABLE_RIVER=6`, and terrain mismatch count `0`. This does not claim every planned major river tile becomes Civ-visible terrain. |
+| Handle minor rivers honestly | Hydrology-owned `RIVER_CLASS_MINOR` remains planned minor-river intent and is not promoted to navigable terrain. Per-tile minor stamping remains unproven; bulk native modeling now creates minor-river metadata, but product claims require same-run parity classification against Hydrology truth. |
+| Selected projected navigable trunks are materialized | Earlier same-run proof `studio-run-in-game-mq6c38rf-n2p` reports planned major `149`, selected projected navigable terrain `6`, live `TERRAIN_NAVIGABLE_RIVER=6`, and terrain mismatch count `0`. Current branch live readback after native modeling recorded `terrainNavigableRiver=82`, `river=202`, `navigableRiver=68`, and `minorRiver=134` on one run. This does not claim every planned major river tile becomes Civ-visible terrain or that native-added river objects all match Hydrology truth. |
 | Physical benchmark tests cover lake/river coupling | `physical-grounding.md` maps the Earth-hydrology expectations to the benchmark suite. Physical benchmark tests cover watershed routing, confluences, rain shadows, endorheic basins, saddle/lake-chain admission, lakeiness/topology decoupling, and river routing invariants. |
 | Accepted lake tiles survive final placement readback | Same-run proof `studio-run-in-game-mq6c38rf-n2p` records final accepted lake readback with `acceptedLakeTileCount=63`, `finalLakeWaterDriftCount=0`, and `finalLakeClassificationDriftCount=0`, proving accepted lake tiles stayed water/lake classified through the final placement surface boundary. `live-parity.ts` now emits `lakeReadbackParity`; current exact-authorship logs are explicitly marked `missing-exact-log`, and future exact/local lake counter drift blocks as `lake-readback.mismatch`. |
 | Preserve shared Civ constants | `@civ7/map-policy` owns the reviewed river metadata source and exports `NO_RIVER=-1`, `RIVER_MINOR=0`, and `RIVER_NAVIGABLE=1`; the Civ7 table generator consumes that source for the Studio catalog, the map-policy catalog, and `@civ7/types/generated/river-types.gen.d.ts`; adapter internals, mock adapter, direct-control API fixtures, and direct-control probe fixtures consume the shared constants without adapter river-constant re-exports. |
@@ -67,7 +67,9 @@ is still required before closure.
 
 Additional validation previously recorded for this branch includes adapter,
 map-policy, direct-control, Studio display, live-parity, floodplain, and
-world-balance focused suites; rerun the full post-restack set before closure.
+world-balance focused suites. The current stack also has focused validation for
+the restored native modeling source slice. Rerun the full product proof sweep
+before closure.
 
 ## Review Disposition
 
@@ -90,19 +92,20 @@ world-balance focused suites; rerun the full post-restack set before closure.
 
 | Requirement | Status |
 | --- | --- |
-| Civ minor-river metadata is stamped | Not claimed. Disposable runtime proof rejected `TerrainBuilder.setRiverValidationValues()` because river metadata counts were unchanged. |
-| Civ `GameplayMap.isRiver` / `isNavigableRiver` matches terrain projection | Not claimed. Same-run proof classifies this as `terrain-match-metadata-divergent`. |
+| Per-tile Civ minor-river metadata is stamped from Hydrology truth | Not claimed. Disposable runtime proof rejected `TerrainBuilder.setRiverValidationValues()` because river metadata counts were unchanged. Bulk native modeling can create minor metadata, but that is not a per-tile Hydrology-authored writer. |
+| Civ `GameplayMap.isRiver` / `isNavigableRiver` exactly matches terrain projection | Not claimed. Current source produces nonzero metadata through native bulk modeling, but exact selected-vs-native river object parity still needs same-run classification. |
 | Every planned major river tile becomes Civ-visible terrain | Not claimed. The projection selects a Civ-visible navigable trunk subset from planned major river tiles. |
 | Deterministic full-surface Studio/Civ parity | Not claimed. Current accepted proof rows leave non-river terrain, feature, resource, and resource-placement residuals unresolved. |
 | Migrating shipped Earthlike config to `navigableRiverDensity` | Not claimed. The shipped config keeps the legacy alias to preserve current proof hash until a fresh live proof is captured for the renamed key. |
-| Graphite stack closure | Not complete. `gt log short --no-interactive` reports `codex/mapgen-physical-rivers (needs restack)`, and the user explicitly instructed not to restack until a later offer. |
+| Graphite stack closure | Not complete for the full hydrology/river/lake goal. Current work continues on `codex/map-rivers-native-modeling-restored`. |
 
 ## Required Before Goal Completion
 
-- Receive permission/offer to restack, then restack and re-run the appropriate
-  post-restack validation gates.
 - Keep the worktree clean after restack/submit operations.
-- Do not mark minor-river metadata stamping complete unless a new Civ writer
-  surface is discovered and proven by disposable-session readback.
+- Do not mark per-tile minor-river metadata stamping complete unless a new Civ
+  writer surface is discovered and proven by disposable-session readback.
+- Do not mark bulk native minor-river materialization complete until native
+  river objects are same-run classified against Hydrology truth and rendered
+  proof includes sampled minor/navigable evidence or an explicit disposition.
 - Keep non-river final-surface residuals in the product-acceptance workstream
   unless a residual is newly classified as river/lake-owned.

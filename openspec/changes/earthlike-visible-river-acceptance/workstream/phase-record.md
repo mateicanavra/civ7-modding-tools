@@ -145,9 +145,11 @@
   `terrainNavigableRiver=6`, `river=0`, `navigableRiver=0`, `minorRiver=0`,
   `noRiver=4536`. This rejects the discovered no-argument hook as a stable
   production minor-river authoring surface.
-- Owner classification: projection/materialization plus adapter readback for
-  navigable/major rivers; adapter capability gap for minor-river metadata
-  stamping.
+- Owner classification updated 2026-06-10: projection/materialization plus
+  adapter readback for navigable/major rivers; adapter capability gap for
+  per-tile minor-river stamping; bulk native minor-river metadata
+  materialization supported through `TerrainBuilder.modelRivers(...)` but still
+  parity-gated against Hydrology truth.
 - Testing design: hard drainage invariants first, then lake/river coupling
   fixtures, then knob metamorphic checks, then same-run Studio/Civ parity. The
   physical benchmark suite now covers water-supply/topology decoupling and
@@ -159,12 +161,14 @@
   accepted on `map-rivers` only as a legacy alias, and focused compile tests
   prove the two knobs can vary independently.
 - Completion audit: `workstream/completion-audit.md` records the current
-  requirement-by-requirement evidence, including non-claims for Civ minor-river
-  metadata stamping and deterministic full-surface parity.
+  requirement-by-requirement evidence, including non-claims for per-tile Civ
+  minor-river metadata stamping from Hydrology truth and deterministic
+  full-surface parity.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
-- Next action: investigate the remaining non-river final-surface parity drift
-  in the product-acceptance workstream and keep
-  `minorRiverStampingSupported=false` unless a new writer surface is discovered
-  and proven.
-- Stop condition: a proposed fix claims minor rivers are stamped without adapter
-  readback proving an actual minor-river write capability.
+- Next action: classify native bulk river objects against Hydrology truth in
+  the product-acceptance workstream, continue the non-river final-surface parity
+  drift investigation separately, and keep per-tile minor-river authoring
+  unclaimed unless a dedicated writer surface is discovered and proven.
+- Stop condition: a proposed fix claims Hydrology-authored minor rivers are
+  stamped without same-run adapter readback proving either a dedicated per-tile
+  write capability or a bulk-native parity pass.

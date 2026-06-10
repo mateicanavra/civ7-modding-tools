@@ -111,6 +111,9 @@ tooltip and utility code read river metadata via `GameplayMap.getRiverType`,
 
 Conclusion: current official resources and the installed app both support Civ's
 bulk river generator and river metadata readback, but do not expose a proven
-public per-tile minor-river writer. MapGen-owned major-river stamping is
-therefore bounded to `TERRAIN_NAVIGABLE_RIVER` terrain projection unless a
-separate metadata writer is discovered and proven.
+public per-tile minor-river writer. MapGen-owned river work therefore uses
+Hydrology-selected `TERRAIN_NAVIGABLE_RIVER` terrain stamping as the authored
+projection boundary and Civ's official bulk `modelRivers` sequence as a
+materialization/readback boundary. Minor-river metadata produced by the bulk
+writer is engine materialization evidence until it is classified against
+Hydrology truth in the same run.

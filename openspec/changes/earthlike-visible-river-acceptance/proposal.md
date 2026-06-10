@@ -12,26 +12,30 @@ This change is active. The investigation row is:
 - Hydrology truth already publishes `artifact:hydrology.hydrography` with
   discharge, flow direction, sink/outlet masks, and `riverClass` (`1=minor`,
   `2=major`).
-- `map-rivers` no longer calls Civ7 `TerrainBuilder.modelRivers`; this was an
-  intentional architecture-normalization change so MapGen owns deterministic
-  projection instead of delegating topology to Civ policy.
+- `map-rivers` now uses a bounded native materialization sequence: it stamps the
+  Hydrology-selected navigable terrain mask first, then calls adapter-owned
+  Civ7 `TerrainBuilder.modelRivers(...)` before validation, named-river
+  definition, and water-cache refresh. Hydrology remains truth owner; the native
+  writer is a materialization/readback boundary, not a topology authority.
 - Current MapGen code stamps selected major-river trunks as
   `TERRAIN_NAVIGABLE_RIVER`; minor hydrology intent remains separate and is not
   promoted into navigable terrain. Earlier projection logic treated all
   `riverClass > 0` as navigable-eligible, which collapsed the minor/major
   distinction.
 - Official Civ7 resources distinguish `RIVER_MINOR`, `RIVER_NAVIGABLE`, and
-  `TERRAIN_NAVIGABLE_RIVER`. Minor rivers are river metadata, not a terrain row,
-  and no stable public tile-authoring API for `RIVER_MINOR` has been identified.
+  `TERRAIN_NAVIGABLE_RIVER`. Minor rivers are river metadata, not a terrain row.
+  No stable public per-tile `RIVER_MINOR` writer has been identified, but a
+  stable bulk river materialization writer has been proven through
+  `TerrainBuilder.modelRivers(...)`.
 - Live direct-control readback on 2026-06-09 showed `RiverTypes.NO_RIVER=-1`,
-  `RIVER_MINOR=0`, `RIVER_NAVIGABLE=1`, and a map state with 70
-  `TERRAIN_NAVIGABLE_RIVER` tiles but zero `GameplayMap.isRiver` /
-  `isNavigableRiver` tiles. Those river metadata constants now live in
-  `@civ7/map-policy` and `@civ7/types`, not in mock-local literals. Tuner
-  exposes `TerrainBuilder.modelRivers`, `defineNamedRivers`, and
-  `setRiverValidationValues`; the discovered no-argument
-  `setRiverValidationValues()` hook was rejected by disposable proof because
-  river metadata readback was unchanged before/after the call.
+  `RIVER_MINOR=0`, `RIVER_NAVIGABLE=1`, and direct terrain stamping could leave
+  river metadata at zero. Those river metadata constants now live in
+  `@civ7/map-policy` and `@civ7/types`, not in mock-local literals. Disposable
+  proof on 2026-06-10 established that the official bulk sequence
+  `modelRivers -> validateAndFixTerrain -> defineNamedRivers -> storeWaterData`
+  can increase `GameplayMap` river metadata from zero to nonzero minor and
+  navigable rows. Current source therefore uses the bounded bulk writer after
+  authored terrain stamping and keeps exact parity plus rendered proof open.
 
 Owner classification: projection/materialization plus adapter readback for
 navigable/major rivers; adapter capability gap for minor river stamping.
@@ -47,9 +51,11 @@ navigable/major rivers; adapter capability gap for minor river stamping.
 
 - Isolate authored hydrology truth, projected navigable rivers, Studio
   rendering, Civ terrain readback, and Civ river-metadata readback.
-- Keep minor-river stamping unsupported and explicit until an adapter write
-  capability exists; do not pretend minor hydrology classes are stamped by
-  navigable terrain writes.
+- Keep per-tile minor-river stamping unsupported and explicit until an adapter
+  write capability exists; do not pretend minor hydrology classes are stamped by
+  navigable terrain writes. Bulk native minor metadata can count only as
+  materialization/readback evidence, and only with same-run parity
+  classification.
 - Split user-facing river knobs by owner: Hydrology `riverDensity` controls the
   physical river network thresholds, while map-rivers `navigableRiverDensity`
   controls the Civ-visible navigable trunk subset.

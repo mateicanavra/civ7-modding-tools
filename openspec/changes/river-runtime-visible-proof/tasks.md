@@ -4,7 +4,10 @@
 - [ ] 1.2 Add direct-control wrappers for centering on tile coordinates and
   recording camera/visibility state.
 - [ ] 1.3 Add screenshot capture with explicit fallback labeling.
-- [ ] 1.4 Add metadata/materialization disposition fields for terrain-only,
+  - Superseded: window-scoped capture is owned by the CLI taxonomy's
+    `view.appshot.capture` (D12); the rivers-local XR screenshot path was
+    retired without landing.
+- [x] 1.4 Add metadata/materialization disposition fields for terrain-only,
   native-writer parity pass/fail, not-run, and unsupported-writer states.
 - [x] 1.5 Extend native `MapRivers` readback to preserve bounded plot
   membership for sampled river objects.

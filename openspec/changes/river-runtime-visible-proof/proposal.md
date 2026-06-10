@@ -14,9 +14,9 @@ sampled live river tiles.
 
 ## What Changes
 
-- Add direct-control primitives or wrappers for selecting sampled river tiles,
-  centering the camera, recording camera/zoom/visibility state, and capturing
-  screenshots.
+- Add direct-control procedures, Studio ORPC endpoints, and CLI commands for
+  selecting sampled river tiles, centering the camera, recording
+  camera/zoom/visibility state, and requesting screenshots.
 - Add a river visible-proof runner that composes exact-authored run, final
   surface parity, live river tile sampling, native `MapRivers` plot membership,
   camera targeting, screenshots, and explicit visual verdict.

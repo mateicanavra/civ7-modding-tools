@@ -32,12 +32,16 @@ river metadata readback as separate proof classes.
 - **AND** it reports rejected selected tiles and extra raw engine navigable-river
   terrain tiles
 
-#### Scenario: Minor river metadata lacks an authoring API
+#### Scenario: Minor river metadata remains separate from terrain projection
 - **WHEN** hydrology contains `riverClass=1` minor river tiles
 - **THEN** MapGen publishes those tiles as planned minor-river intent
 - **AND** MapGen does not promote those tiles into `TERRAIN_NAVIGABLE_RIVER`
-- **AND** the adapter readback reports `minorRiverStampingSupported=false`
-- **AND** the unsupported reason is present in the map-rivers projection artifact
+- **AND** per-tile minor-river authoring remains unclaimed unless a dedicated
+  writer surface is proven by disposable-session readback
+- **AND** any bulk native `RIVER_MINOR` metadata produced by Civ river modeling
+  is reported as engine materialization/readback
+- **AND** authored minor-river success is not claimed unless same-run evidence
+  classifies native minor river objects against Hydrology truth
 
 ### Requirement: River/Lake Physical Benchmarks Are Falsification-First
 
