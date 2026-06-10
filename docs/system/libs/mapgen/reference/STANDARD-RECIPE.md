@@ -98,11 +98,15 @@ Stage-level posture:
   `morphology-features.mountains`. The `map-morphology.plot-mountains` step is
   projection-only and rejects truth-planning knobs/config.
 - Placement exposes product-facing controls for natural wonders, discoveries,
-  floodplains, and resources, then compiles them into internal planner and
-  product/effect step config. Adapter resource catalogs and runtime start-sector
-  inputs are supplied by the run environment rather than authored map config.
-  The final `placement` step consumes product artifacts; it does not rerun
-  product materialization.
+  resources, starts, and the resource↔start support pass; the `resources`,
+  `starts`, and `support` groups are derived from the owning op's default
+  strategy config schema (no hand-shadowed schemas). Adapter resource catalogs
+  and runtime player counts are supplied by the run environment rather than
+  authored map config. Resource planning runs before start assignment;
+  resource stamping runs after the support pass (`plan-resources →
+  assign-starts → adjust-resources → place-resources`). The final `placement`
+  step consumes product artifacts; it does not rerun product materialization.
+  See [`docs/system/libs/mapgen/reference/domains/PLACEMENT.md`](/system/libs/mapgen/reference/domains/PLACEMENT.md).
 
 ## Domains + ops registry
 

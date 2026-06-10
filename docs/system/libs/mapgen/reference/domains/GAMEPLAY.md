@@ -15,7 +15,7 @@ Gameplay is the **final mapgen layer** that turns “world physics outputs” in
 - resources/wonders/discoveries,
 - and any gameplay-owned narrative/playability surfaces.
 
-Target posture: Gameplay **absorbs** the legacy Narrative and Placement domains. Pipeline stage names may remain `placement` / `narrative-*` as a naming convention, but ownership is Gameplay.
+Target posture: Gameplay **absorbs** the legacy Narrative and Placement domains. Pipeline stage names may remain `placement` / `narrative-*` as a naming convention, but ownership is Gameplay — with one carve-out: `domain/resources` owns resource planning (demand/eligibility, habitat lanes, site selection, support adjustment) per ADR-008 in [`docs/system/ADR.md`](/system/ADR.md); a Gameplay consolidation may absorb starts/discoveries/wonders orchestration but does not re-own resource planning logic.
 
 ## Wiring status (today)
 
