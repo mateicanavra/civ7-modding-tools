@@ -30,10 +30,37 @@ describe("RecipeDagView", () => {
     expect(html).toContain("aria-expanded=\"true\"");
     expect(html).toContain("aria-controls=\"recipe-dag-stage-shape-steps\"");
     expect(html).toContain("data-stage-expanded=\"true\"");
-    expect(html).toContain("z-index:70");
+    expect(html).toContain("z-index:95");
+    expect(html).toContain("marker-end=\"url(#recipe-dag-arrow-active)\"");
+    expect(html).toContain("stroke=\"#f59e0b\"");
+    expect(html).toContain("aria-label=\"Select dependency hydrography\"");
+    expect(html).toContain("data-edge-label-selected=\"false\"");
+    expect(html).toContain("text-[9.5px]");
     expect(html).toContain("Step 1: seed");
     expect(html).toContain("Creates");
     expect(html).not.toContain("opacity-45");
+  });
+
+  it("keeps connector paths and labels neutral before selection", () => {
+    const html = renderToStaticMarkup(
+      <RecipeDagView
+        recipeId="mod-swooper-maps/standard"
+        dag={recipeDag()}
+        status="ready"
+        error={null}
+        lightMode={false}
+        expandedStageIds={new Set()}
+        selectedStageId={null}
+        onToggleStage={vi.fn()}
+        onSelectStage={vi.fn()}
+        topInset={96}
+      />
+    );
+
+    expect(html).toContain("stroke=\"#5f6570\"");
+    expect(html).toContain("border-[#2a2a32] bg-[#101014] text-[#a7a7b2]");
+    expect(html).toContain(" L ");
+    expect(html).not.toContain("border-color:#f59e0b");
   });
 });
 

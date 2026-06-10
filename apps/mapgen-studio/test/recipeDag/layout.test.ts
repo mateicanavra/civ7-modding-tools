@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { buildRecipeDagLayout, groupStageEdges, pointsToPath } from "../../src/features/recipeDag/layout";
+import {
+  buildArtifactEdgeLabels,
+  buildRecipeDagLayout,
+  groupStageEdges,
+  pointsToPath,
+  resolveEdgeLabelPosition,
+  resolveEdgeLabelPositions,
+  type RoutedStageEdgeGroup,
+} from "../../src/features/recipeDag/layout";
 import type { RecipeDagResult } from "../../src/features/recipeDag/client";
 
 describe("recipe DAG layout", () => {
@@ -13,6 +21,25 @@ describe("recipe DAG layout", () => {
     expect(layout.positions.get("sink")?.rank).toBe(2);
     expect(layout.positions.get("sink")?.phaseId).toBe("finish");
     expect(layout.rankColumns.map((column) => column.label)).toEqual(["Sources", "D1", "D2"]);
+  });
+
+  it("assigns every stage in a phase to its own vertical row", () => {
+    const layout = buildRecipeDagLayout(recipeDag());
+    const source = layout.positions.get("source");
+    const branchA = layout.positions.get("branch-a");
+    const branchB = layout.positions.get("branch-b");
+    const sink = layout.positions.get("sink");
+    const shapeBand = layout.phaseBands.find((phase) => phase.id === "shape");
+
+    expect(source?.phaseRow).toBe(0);
+    expect(branchA?.phaseRow).toBe(1);
+    expect(branchB?.phaseRow).toBe(2);
+    expect(sink?.phaseRow).toBe(0);
+    expect(new Set([source?.y, branchA?.y, branchB?.y])).toHaveLength(3);
+    expect(branchA?.rank).toBe(branchB?.rank);
+    expect(branchA?.y).not.toBe(branchB?.y);
+    expect(shapeBand).toBeDefined();
+    expect(shapeBand!.y + shapeBand!.height).toBeGreaterThanOrEqual(branchB!.y + branchB!.height + 26);
   });
 
   it("groups stage edges and produces routed orthogonal paths", () => {
@@ -38,7 +65,115 @@ describe("recipe DAG layout", () => {
       expect(labels[index]! - labels[index - 1]!).toBeGreaterThanOrEqual(26);
     }
   });
+
+  it("pulls selected-stage edge labels toward the dependency destination", () => {
+    const layout = buildRecipeDagLayout(recipeDag());
+    const edge = layout.edgeGroups.find((candidate) => candidate.fromStageId === "source" && candidate.toStageId === "branch-a");
+
+    expect(edge).toBeDefined();
+    const routed = edge!;
+    const last = routed.points[routed.points.length - 1]!;
+    const defaultPosition = resolveEdgeLabelPosition(routed, null);
+    const sourcePosition = resolveEdgeLabelPosition(routed, "source");
+    const targetPosition = resolveEdgeLabelPosition(routed, "branch-a");
+    const unrelatedPosition = resolveEdgeLabelPosition(routed, "sink");
+
+    expect(defaultPosition).toEqual({ x: routed.labelX, y: routed.labelY });
+    expect(unrelatedPosition).toEqual(defaultPosition);
+    expect(Math.abs(sourcePosition.y - last.y)).toBeLessThan(Math.abs(defaultPosition.y - last.y));
+    expect(Math.abs(targetPosition.y - last.y)).toBeLessThan(Math.abs(defaultPosition.y - last.y));
+    expect(sourcePosition.x).toBeLessThan(last.x);
+  });
+
+  it("fans crowded selected-stage labels around the shared destination", () => {
+    const edges: RoutedStageEdgeGroup[] = [
+      routedEdge("a->sink", "a", "sink", 98),
+      routedEdge("b->sink", "b", "sink", 100),
+      routedEdge("c->sink", "c", "sink", 102),
+    ];
+    const resolved = resolveEdgeLabelPositions(edges, "sink");
+    const positions = edges
+      .map((edge) => resolved.get(edge.id)!)
+      .sort((a, b) => a.y - b.y);
+
+    expect(positions[1]!.y - positions[0]!.y).toBeGreaterThanOrEqual(30);
+    expect(positions[2]!.y - positions[1]!.y).toBeGreaterThanOrEqual(30);
+  });
+
+  it("applies destination crowding to the non-selected graph", () => {
+    const edges: RoutedStageEdgeGroup[] = [
+      routedEdge("a->sink", "a", "sink", 98),
+      routedEdge("b->sink", "b", "sink", 100),
+      routedEdge("c->sink", "c", "sink", 102),
+    ];
+    const resolved = resolveEdgeLabelPositions(edges, null);
+    const positions = edges
+      .map((edge) => resolved.get(edge.id)!)
+      .sort((a, b) => a.y - b.y);
+
+    expect(positions.every((position) => position.x < 320)).toBe(true);
+    expect(positions[1]!.y - positions[0]!.y).toBeGreaterThanOrEqual(30);
+    expect(positions[2]!.y - positions[1]!.y).toBeGreaterThanOrEqual(30);
+  });
+
+  it("bundles shared-source edges before separating toward destinations", () => {
+    const layout = buildRecipeDagLayout(recipeDag());
+    const outgoing = layout.edgeGroups.filter((edge) => edge.fromStageId === "source");
+
+    expect(outgoing).toHaveLength(2);
+    expect(new Set(outgoing.map((edge) => edge.points[0]?.y))).toHaveLength(1);
+    expect(new Set(outgoing.map((edge) => edge.points[1]?.x))).toHaveLength(1);
+    expect(new Set(outgoing.map((edge) => edge.points[2]?.y))).toHaveLength(2);
+  });
+
+  it("labels each provided artifact once across split destination connectors", () => {
+    const layout = buildRecipeDagLayout(recipeDag());
+    const labels = buildArtifactEdgeLabels(layout.edgeGroups);
+    const seedLabels = labels.filter((label) => label.artifact === "seed-grid");
+    const seedLabel = seedLabels[0];
+    const sourceEdge = layout.edgeGroups.find((edge) => edge.fromStageId === "source")!;
+
+    expect(seedLabels).toHaveLength(1);
+    expect(seedLabel?.edgeIds).toHaveLength(2);
+    expect(seedLabel?.toStageIds).toEqual(["branch-a", "branch-b"]);
+    expect(seedLabel?.label).toBe("seed-grid");
+    expect(seedLabel?.labelX).toBeGreaterThan(sourceEdge.points[0]!.x);
+    expect(seedLabel?.labelX).toBeLessThanOrEqual(sourceEdge.points[1]!.x);
+    expect(seedLabel?.labelX).toBeGreaterThan(sourceEdge.points[0]!.x + (sourceEdge.points[1]!.x - sourceEdge.points[0]!.x) * 0.7);
+  });
+
+  it("moves a split artifact label near the selected destination branch", () => {
+    const layout = buildRecipeDagLayout(recipeDag());
+    const labels = buildArtifactEdgeLabels(layout.edgeGroups, "branch-b");
+    const seedLabel = labels.find((label) => label.artifact === "seed-grid");
+    const branchBEdge = layout.edgeGroups.find((edge) => edge.fromStageId === "source" && edge.toStageId === "branch-b")!;
+    const branchBEndpoint = branchBEdge.points[branchBEdge.points.length - 1]!;
+
+    expect(seedLabel).toBeDefined();
+    expect(seedLabel?.edgeIds).toHaveLength(2);
+    expect(seedLabel?.toStageIds).toEqual(["branch-a", "branch-b"]);
+    expect(seedLabel?.labelX).toBeGreaterThan(branchBEdge.points[1]!.x);
+    expect(Math.abs(seedLabel!.labelY - branchBEndpoint.y)).toBeLessThan(8);
+  });
 });
+
+function routedEdge(id: string, fromStageId: string, toStageId: string, destinationY: number): RoutedStageEdgeGroup {
+  return {
+    id,
+    fromStageId,
+    toStageId,
+    artifacts: [`${fromStageId}-artifact`],
+    points: [
+      { x: 80, y: destinationY },
+      { x: 240, y: destinationY },
+      { x: 240, y: 100 },
+      { x: 320, y: 100 },
+    ],
+    label: id,
+    labelX: 220,
+    labelY: destinationY,
+  };
+}
 
 function recipeDag(): RecipeDagResult {
   return {
