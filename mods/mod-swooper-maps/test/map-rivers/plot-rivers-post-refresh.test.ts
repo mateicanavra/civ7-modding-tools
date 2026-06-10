@@ -203,6 +203,6 @@ describe("map-rivers/plot-rivers", () => {
     expect(readback?.engineNavigableRiverTileCount).toBe(0);
     expect(readback?.engineMinorRiverTileCount).toBe(0);
     expect(readback?.minorRiverStampingSupported).toBe(false);
-    expect(readback?.minorRiverUnsupportedReason).toContain("minor river");
+    expect(readback?.minorRiverUnsupportedReason).toContain("proven bulk Civ river-modeling writer");
   });
 });

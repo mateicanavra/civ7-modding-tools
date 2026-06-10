@@ -268,12 +268,13 @@ export interface LakeProjectionResult {
  * Adapter readback for deterministic river projection.
  *
  * MapGen can deterministically choose navigable-river terrain today. Civ7's
- * minor rivers are engine river metadata rather than terrain rows, and the
- * public script surface observed so far exposes readback but no stable
- * tile-authoring API for that metadata. This result keeps those proof classes
- * separate: navigable terrain parity is testable now, while minor-river
- * materialization remains an explicit unsupported boundary until an adapter
- * capability is discovered.
+ * river metadata remains a separate proof surface from raw terrain rows: a run
+ * can have navigable-river terrain while still lacking live river metadata.
+ * This result therefore keeps terrain and metadata parity separate. Current
+ * MapGen river projection still does not invoke the proven bulk
+ * `TerrainBuilder.modelRivers(...)` sequence, so minor-river metadata
+ * materialization remains unattempted in the current projection path even
+ * though the runtime writer now exists.
  */
 export interface RiverProjectionResult {
   width: number;
@@ -301,6 +302,7 @@ export interface RiverProjectionResult {
   engineNavigableRiverTileCount: number;
   engineMinorRiverTileCount: number;
   terrainNavigableRiverTileCount: number;
+  /** Whether the current projection path attempted a proven minor-river authoring surface. */
   minorRiverStampingSupported: boolean;
   minorRiverUnsupportedReason: string;
 }

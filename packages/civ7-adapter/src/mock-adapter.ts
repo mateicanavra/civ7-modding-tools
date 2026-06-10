@@ -1137,7 +1137,7 @@ export class MockAdapter implements EngineAdapter {
       terrainNavigableRiverTileCount,
       minorRiverStampingSupported: false,
       minorRiverUnsupportedReason:
-        "MockAdapter mirrors the current Civ7 adapter boundary: navigable terrain can be stamped; minor river metadata is readback-only.",
+        "MockAdapter mirrors the current projection path: navigable terrain can be stamped directly, but the proven bulk Civ river-modeling writer is not invoked here.",
     };
   }
 

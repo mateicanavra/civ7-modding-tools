@@ -691,7 +691,7 @@ export class Civ7Adapter implements EngineAdapter {
       terrainNavigableRiverTileCount,
       minorRiverStampingSupported: false,
       minorRiverUnsupportedReason:
-        "Civ7 exposes minor-river readback as river metadata, but no stable TerrainBuilder/GameplayMap tile-authoring API for RIVER_MINOR has been identified.",
+        "Current MapGen river projection stamps navigable terrain directly and does not invoke Civ's proven bulk river-modeling sequence, so minor-river metadata authoring is not attempted on this path.",
     };
   }
 

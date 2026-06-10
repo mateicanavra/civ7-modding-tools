@@ -119,7 +119,7 @@ describe("map stamping contract guardrails", () => {
     expect(lakeStampers).toEqual([path.join(stagesRoot, "map-hydrology/steps/lakes.ts")]);
   });
 
-  it("keeps navigable river materialization MapGen-owned instead of calling Civ river modeling", () => {
+  it("keeps any Civ river-modeling integration constrained to the dedicated map-rivers step", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const stagesRoot = path.join(repoRoot, "src/recipes/standard/stages");
     const files = listFilesRecursive(stagesRoot).filter((file) => file.endsWith(".ts"));
@@ -130,7 +130,9 @@ describe("map stamping contract guardrails", () => {
     });
 
     callers.sort();
-    expect(callers).toEqual([]);
+    expect(callers.every((file) => file === path.join(stagesRoot, "map-rivers/steps/plotRivers.ts"))).toBe(
+      true
+    );
 
     const plotRiversText = readFileSync(
       path.join(stagesRoot, "map-rivers/steps/plotRivers.ts"),
