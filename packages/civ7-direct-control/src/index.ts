@@ -661,6 +661,16 @@ export {
   getCiv7UnitSummary,
 };
 export {
+  CIV7_START_POSITIONS_METHOD,
+  Civ7StartPositionPlayerSchema,
+  Civ7StartPositionsResultSchema,
+  readCiv7StartPositions,
+} from "./play/start-positions.js";
+export type {
+  Civ7StartPositionPlayer,
+  Civ7StartPositionsResult,
+} from "./play/start-positions.js";
+export {
   callCiv7PlayerSummaryProcedure,
   Civ7PlayerSummaryProcedureDescriptor,
   Civ7PlayerSummaryProcedureSchemaArtifacts,
