@@ -49,10 +49,11 @@ civ7-open-spec-workstream template files map as noted per row.
 - [x] All OpenSpec validation passed — `bun run openspec:validate`:
   89 passed, 0 failed.
 - [x] `git diff --check` passed.
-- [ ] Runtime proof is recorded when the closure claim needs runtime
-  evidence — NOT checked: no runtime proof exists. The closure claim
-  explicitly excludes live behavior (Proof Gates: live NOT RUN); any claim
-  needing runtime evidence is deferred to Milestones A+B.
+- [x] Runtime proof is recorded when the closure claim needs runtime
+  evidence — Milestones A+B executed live 2026-06-11
+  (`../evidence/milestone-a-2026-06-11*.md`, `../evidence/milestone-b-2026-06-11.md`):
+  run-in-game request ids, deploy path, proof identity (configHash/
+  envelopeHash/seed/dims matched), bounded Scripting.log windows.
 
 ## Proof Labels
 
@@ -61,13 +62,16 @@ civ7-open-spec-workstream template files map as noted per row.
   Gates: local stats GREEN, generated/build GREEN, studio dumps PARTIAL
   (headless verified / interactive pending), live NOT RUN; repo state below
   labels commit/submit/PR separately.
-- [ ] Runtime records include branch, commit, deploy command/path, … —
-  NOT checked: no runtime records exist yet; the required fields are
-  pre-listed in `../MILESTONE-PROOFS.md` so Milestone evidence files include
-  them.
-- [ ] Product proof records required conditions, covered scope, uncovered
+- [x] Runtime records include branch, commit, deploy command/path, request
+  ids, timestamps, parsed payloads, and manual boundaries — recorded per
+  attempt in `../evidence/milestone-a-2026-06-11.md` (run attempts table +
+  pre-run log boundary; evidence branch `placement-live-integration`).
+- [x] Product proof records required conditions, covered scope, uncovered
   scope, authority refs, evidence per condition, and excluded claims —
-  NOT checked: product proof (studio↔live parity E4.1, interactive viz QA)
+  E4.1 recorded as classified-partial (6/10 exact; deltas owned by the
+  rivers-stack terrain/feature drift; zero identity violations); excluded
+  claims named: in-browser studio layer QA (DEF-008) + in-game visual pass
+  remain human follow-ups. (original note: product proof (studio↔live parity E4.1, interactive viz QA)
   is Milestone B; conditions + exclusions are predeclared in
   `../MILESTONE-PROOFS.md`.
 - [x] No stronger proof claim is made than the evidence supports — every

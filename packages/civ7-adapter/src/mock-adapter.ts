@@ -294,6 +294,14 @@ export interface MockAdapterConfig {
   mapSizeId?: MapSizeId;
   /** Map info row (Civ7: GameInfo.Maps.lookup(mapSizeId)) */
   mapInfo?: MapInfo | null;
+  /**
+   * Alive major player count (Civ7: Players.getAliveMajorIds().length). The
+   * live engine seats the game's actual alive players, which can be fewer
+   * than PlayersLandmass1+PlayersLandmass2 (HUGE advertises 6/6 slots while
+   * a 10-player game has 10 alive — Milestone A5 evidence). Defaults to the
+   * map-info sum.
+   */
+  aliveMajorCount?: number;
   /** Default terrain type for all tiles */
   defaultTerrainType?: number;
   /** Default elevation for all tiles */
@@ -351,6 +359,7 @@ export class MockAdapter implements EngineAdapter {
 
   private mapSizeId: MapSizeId;
   private mapInfo: MapInfo | null;
+  private aliveMajorCount: number | null;
 
   private terrainTypes: Uint8Array;
   private elevations: Int16Array;
@@ -439,6 +448,9 @@ export class MockAdapter implements EngineAdapter {
     this.height = config.height ?? 80;
     this.mapSizeId = config.mapSizeId ?? 0;
     this.mapInfo = config.mapInfo ?? null;
+    this.aliveMajorCount = Number.isFinite(config.aliveMajorCount)
+      ? Math.max(0, (config.aliveMajorCount as number) | 0)
+      : null;
     this.noResourceSentinel = Number.isFinite(config.noResourceSentinel)
       ? (config.noResourceSentinel as number) | 0
       : DEFAULT_NO_RESOURCE;
@@ -1505,11 +1517,15 @@ export class MockAdapter implements EngineAdapter {
   }
 
   getAliveMajorIds(): number[] {
-    // Mock semantics: contiguous major ids 0..N-1 derived from the configured
-    // map info player counts (live id semantics are probed at Milestone A).
+    // Mock semantics: contiguous major ids 0..N-1 (Milestone A5 verified the
+    // live engine is also contiguous-from-zero, human first). Count comes
+    // from the explicit aliveMajorCount when configured (live games can have
+    // fewer alive players than the map-info landmass slots), else from the
+    // configured map info player counts.
     const players =
+      this.aliveMajorCount ??
       Math.max(0, (this.mapInfo?.PlayersLandmass1 ?? 0) | 0) +
-      Math.max(0, (this.mapInfo?.PlayersLandmass2 ?? 0) | 0);
+        Math.max(0, (this.mapInfo?.PlayersLandmass2 ?? 0) | 0);
     return Array.from({ length: players }, (_, index) => index);
   }
 

@@ -50,15 +50,16 @@
 
 ## Status
 
-- Last updated: 2026-06-10
-- Current gate: gates 8–9 COMPLETE (all slices S0–S8 implemented + verified at
-  their declared proof classes; slice table below). Gates 3–7 + plan review
-  (gate 11) were complete on 2026-06-09.
-- Remaining: live-game proof at Milestones A+B (gate 10 live rungs) — NOT run;
-  exact runbook in `../MILESTONE-PROOFS.md`. The workstream is otherwise
-  closed (closure checklist in this directory).
-- Blocked by: Milestones A+B need the game install + tuner socket (user
-  environment).
+- Last updated: 2026-06-11
+- Current gate: gates 8–10 COMPLETE. The 9-slice Graphite stack is submitted
+  as draft PRs #1565–#1573 (+ S9 live-compat and the S10 live-proof closure
+  slice). Milestones A+B executed live on 2026-06-11 (see Proof Gates).
+- Remaining: human visual follow-ups only (in-browser studio layer QA /
+  DEF-008; in-game visual pass past the age-intro overlay) + the recorded
+  follow-up corrections from the live findings (isResourceRequiredForAge
+  derivation, mock marine/SILVER legality calibration, telemetry line caps,
+  DEF-010 seat capacity) — each tracked, none blocking closure.
+- Blocked by: —
 - Stop condition: implemented slices verified against predeclared Earth-like
   benchmarks (done, stats class); studio layers correct (headless emission
   done; interactive QA = Milestone B); live-game proof recorded at milestones
@@ -134,8 +135,22 @@
   bundle builds; same emission path as the studio worker). Interactive
   browser visual QA (colors, point sizing, overlay composites, landMask
   visibility call) NOT done — Milestone B item.
-- **Live game: NOT RUN.** Milestones A+B pending; no live claim is made
-  anywhere in this workstream. Exactly what each must probe:
+- **Live game: RUN (2026-06-11).** Milestones A+B executed against a live
+  Civ7 session (Huge 106x66, seed 1337, 10 players, swooper-earthlike map
+  config, ToT Config.Civ7Cfg game setup) from the `placement-live-integration`
+  evidence branch (placement stack top + rivers stack merge; merge log
+  `evidence/live-integration-2026-06-11.md`). Headline verdicts —
+  E4.4 PASS 0.9863; E2.4 PASS (26 marine); E2.2 PASS (1 shortfall, typed);
+  E1.2 live-verified (contiguous ids, human first, no doubling);
+  E3.1/E3.2 PASS on the live stamped surface; A1 full-grid deltas 321/321
+  classified with 0 unexplained (placement-owned = exactly the 7 typed
+  legality rejections); B1 zero artifact-surface drift live (only the two
+  declared engine reads drift, rivers-stack owner); E4.1 classified-partial
+  (6/10 seats exact, all deltas attributed upstream). Evidence:
+  `evidence/milestone-a-2026-06-11*.md`, `evidence/milestone-b-2026-06-11.md`.
+  Remaining human follow-ups: in-browser studio layer QA (DEF-008) and an
+  in-game visual pass (age-intro overlay blocked OS captures).
+  The original probe list (kept for reference):
   - **Milestone A (resources + identity):** full-grid
     `bun run verify:final-surface-parity` with delta classification (not
     sampled probes) + disposition of the
