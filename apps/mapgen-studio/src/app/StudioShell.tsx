@@ -2176,6 +2176,10 @@ export function StudioShell(props: StudioShellProps) {
     setHeaderHeight((prev) => prev === height ? prev : height);
   }, []);
   const panelTop = LAYOUT.SPACING + headerHeight + LAYOUT.SPACING;
+  // The docks are pinned between the measured header and the footer bar (which
+  // sits `bottom-4` and is FOOTER_HEIGHT tall), keeping one SPACING of air on
+  // each side of the footer.
+  const panelBottom = LAYOUT.FOOTER_HEIGHT + 2 * LAYOUT.SPACING;
 
   const backgroundGridEnabled = useMemo(() => {
     if (!showGrid) return false;
@@ -2427,8 +2431,8 @@ export function StudioShell(props: StudioShellProps) {
         onChange={handleImportFileChange}
       />
 
-      <LeftDock top={panelTop}>{leftPanel}</LeftDock>
-      <RightDock top={panelTop}>{rightPanel}</RightDock>
+      <LeftDock top={panelTop} bottom={panelBottom}>{leftPanel}</LeftDock>
+      <RightDock top={panelTop} bottom={panelBottom}>{rightPanel}</RightDock>
 
       {header}
       {footer}

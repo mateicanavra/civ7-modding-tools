@@ -1,18 +1,24 @@
 // ============================================================================
 // LAYOUT
 // ============================================================================
-// Layout constants for consistent spacing and sizing.
+// The single geometry authority for the studio chrome (Pass-2 amendment in
+// .interface-design/system.md). Panels consume these via inline style so a
+// geometry change is a one-line edit here — no arbitrary-value width classes.
 // ============================================================================
 
 export const LAYOUT = {
-  /** Floating top toolbar reserve in pixels. */
-  HEADER_HEIGHT: 40,
+  /**
+   * Initial estimate of the measured header height (single-row bar). The
+   * ResizeObserver in `AppHeader` is the authority — this only seeds
+   * `StudioShell`'s state for the first paint and is NOT a reserved band.
+   */
+  HEADER_HEIGHT: 48,
   /** Footer bar height in pixels */
   FOOTER_HEIGHT: 56,
-  /** Default panel width in pixels */
-  PANEL_WIDTH: 280,
-  /** Explore panel width in pixels */
-  EXPLORE_PANEL_WIDTH: 240,
+  /** Recipe (left) dock panel width in pixels */
+  PANEL_WIDTH: 340,
+  /** Explore (right) dock panel width in pixels */
+  EXPLORE_PANEL_WIDTH: 260,
   /** Standard spacing unit in pixels */
   SPACING: 16,
   /** Border radius presets */

@@ -19,6 +19,7 @@ import {
   Flame } from
 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
+import { LAYOUT } from '../constants';
 import type {
   StageOption,
   StepOption,
@@ -317,9 +318,14 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   // ==========================================================================
   // Render
   // ==========================================================================
+  // Width comes from the LAYOUT geometry authority; the panel caps at the
+  // dock's header→footer column (`max-h-full`) and scrolls internally instead
+  // of underlapping the footer on short viewports. pointer-events-auto restores
+  // interactivity inside the pass-through dock.
   return (
     <div
-      className={`flex flex-col w-[260px] rounded-lg border overflow-hidden shadow-lg backdrop-blur-sm ${panelBg} ${panelBorder}`}>
+      style={{ width: LAYOUT.EXPLORE_PANEL_WIDTH }}
+      className={`flex flex-col max-h-full rounded-lg border overflow-y-auto overflow-x-hidden custom-scrollbar shadow-lg backdrop-blur-sm pointer-events-auto ${panelBg} ${panelBorder}`}>
 
       {/* 1. STAGE SECTION */}
       <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
