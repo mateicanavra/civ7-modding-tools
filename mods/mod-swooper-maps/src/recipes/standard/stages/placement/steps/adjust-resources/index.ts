@@ -5,6 +5,7 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import AdjustResourcesStepContract from "./contract.js";
 import { placementArtifacts } from "../../artifacts.js";
 import { validateResourcePlanAdjustedArtifact } from "./validate.js";
+import { warnLog } from "../../log.js";
 import {
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
@@ -64,7 +65,7 @@ export default createStep(AdjustResourcesStepContract, {
       const summary = adjusted.shortfalls
         .map((row) => `seat ${row.seatIndex}: ${row.reason} x${row.missing}`)
         .join("; ");
-      console.warn(
+      warnLog(
         `[Placement] Resource support pass recorded ${adjusted.shortfalls.length} typed shortfall(s): ${summary}.`
       );
       context.trace?.event(() => ({

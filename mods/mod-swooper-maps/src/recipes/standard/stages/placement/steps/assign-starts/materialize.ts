@@ -3,6 +3,7 @@ import { defineVizMeta } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 import placement from "@mapgen/domain/placement";
+import { warnLog } from "../../log.js";
 
 import {
   PLACEMENT_VIZ_GROUP,
@@ -69,7 +70,7 @@ function colorForStartPosition(index: number): [number, number, number, number] 
 
 /**
  * Loud degradation surfacing (E1.7): every non-regional seat and every
- * below-floor spacing is reported via console.warn (visible on live runs)
+ * below-floor spacing is reported via warnLog (engine-safe; visible on live runs)
  * and a warn-tagged trace event (visible in verbose/studio traces). The
  * decisions themselves were already made — and recorded — by the plan-starts
  * op; this only makes them audible.
@@ -87,7 +88,7 @@ function warnStartDegradations(
     byRung.set(key, list);
   }
   for (const [path, seatIndices] of byRung) {
-    console.warn(
+    warnLog(
       `[Placement] Start assignment degraded to ${path} for ${seatIndices.length} seat(s) ` +
         `(seat indices: ${seatIndices.join(", ")}); regional viability guarantees were relaxed for those seats.`
     );
@@ -102,7 +103,7 @@ function warnStartDegradations(
   for (const seat of seats) {
     if (seat.plotIndex < 0) continue;
     if (!seat.imputedFlags.includes("spacing-below-floor")) continue;
-    console.warn(
+    warnLog(
       `[Placement] Seat ${seat.seatIndex} seated below the hard spacing floor ` +
         `(achievedSpacing=${seat.achievedSpacing}); the alternative was an unseated player.`
     );
@@ -116,7 +117,7 @@ function warnStartDegradations(
   const reassigned = seats.filter((seat) => seat.imputedFlags.includes("region-reassigned"));
   if (reassigned.length) {
     const seatIndices = reassigned.map((seat) => seat.seatIndex);
-    console.warn(
+    warnLog(
       `[Placement] ${reassigned.length} seat(s) region-reassigned (seat indices: ` +
         `${seatIndices.join(", ")}); their configured landmass region has zero start candidates on this map.`
     );
