@@ -255,12 +255,15 @@ export function buildDisplayQueueBridgeCommand(): string {
   })()`;
 }
 
+// NOTE: DisplayQueueManager.isSuspended is a METHOD (live-verified; treating it
+// as a property silently inverted suspend/resume guards once already).
 const displayQueueSnapshotSource = `
     const requestRow = (r) => ({ category: String(r.category), id: typeof r.id === "number" ? r.id : null });
+    const queueIsSuspended = (dqm) => typeof dqm.isSuspended === "function" ? Boolean(dqm.isSuspended()) : Boolean(dqm._isSuspended);
     const snapshotQueue = (dqm) => ({
       active: dqm.activeDisplays.map(requestRow),
       suspended: (dqm.suspendedRequests ?? []).map(requestRow),
-      isSuspended: Boolean(dqm.isSuspended ?? (dqm.suspendedRequests ?? []).length > 0),
+      isSuspended: queueIsSuspended(dqm),
       handlerCategories: dqm.registeredHandlers ? [...dqm.registeredHandlers.keys()] : [],
     });`;
 
@@ -305,11 +308,14 @@ export function buildCloseDisplaysCommand(
 }
 
 export function buildDisplayQueueHoldCommand(action: "suspend" | "resume"): string {
+  // suspend()/resume() carry their own internal idempotence guards; the
+  // readback below is the verification, not a guess.
   return `(() => {
+    ${displayQueueSnapshotSource}
     const dqm = globalThis[${jsLiteral(CIV7_DISPLAY_QUEUE_BRIDGE_GLOBAL)}];
     ${action === "suspend"
-      ? `if (!dqm.isSuspended) dqm.suspend();`
-      : `if (dqm.isSuspended) dqm.resume();`}
-    return JSON.stringify({ isSuspended: Boolean(dqm.isSuspended) });
+      ? `if (!queueIsSuspended(dqm)) dqm.suspend();`
+      : `if (queueIsSuspended(dqm)) dqm.resume();`}
+    return JSON.stringify({ isSuspended: queueIsSuspended(dqm) });
   })()`;
 }

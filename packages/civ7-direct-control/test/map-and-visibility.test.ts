@@ -19,7 +19,7 @@ import {
   getCiv7VisibilitySummary,
   revealCiv7MapForPlayer,
 } from "../src/index";
-import { exploreCiv7MapForPlayer } from "../src/play/map/visibility";
+import { defaultExploreSettleMs, exploreCiv7MapForPlayer } from "../src/play/map/visibility";
 
 type FakeTunerServer = {
   received: string[];
@@ -263,6 +263,16 @@ describe("explore map for player", () => {
       { revealed: 29, visible: 7 },
       { revealed: 6996, visible: 7 },
     ];
+    // First purge finds the suppressed discovery displays; later purges are empty.
+    const purges = [
+      {
+        closed: [
+          { category: "Cinematic", closed: 7 },
+          { category: "UnlockPopup", closed: 1 },
+        ],
+        closedTotal: 8,
+      },
+    ];
     const dependencies = {
       boundedInteger: (value: number) => value,
       defaultMapGridMaxPlots: 4096,
@@ -298,15 +308,12 @@ describe("explore map for player", () => {
       probeValue: <T,>(probe: { ok: boolean; value?: T }) => (probe.ok ? probe.value : undefined),
       closeDisplays: async () => {
         calls.push("close");
+        const next = purges.shift() ?? { closed: [], closedTotal: 0 };
         return {
           host: "127.0.0.1",
           port: 4318,
           state: { id: "65535", name: "App UI" },
-          closed: [
-            { category: "Cinematic", closed: 7 },
-            { category: "UnlockPopup", closed: 1 },
-          ],
-          closedTotal: 8,
+          ...next,
           remainingActive: [],
           remainingSuspended: [],
         };
@@ -338,26 +345,35 @@ describe("explore map for player", () => {
     };
   }
 
-  test("runs the suppressed-grant sequence in order and reports side effects", async () => {
+  const fastDrain = { settleMs: 0, pollMs: 250, quiescePolls: 2 } as const;
+
+  test("runs the verified state machine and drains until quiesce", async () => {
     const { calls, dependencies } = exploreDependencies();
     const result = await exploreCiv7MapForPlayer(
-      { playerId: 0 },
+      { playerId: 0, ...fastDrain },
       {},
       dependencies as never,
     );
+    // suspend is verified BEFORE the grant; the drain purges each poll and
+    // exits only after quiescePolls consecutive empty purges; resume precedes
+    // the grant release so late displays cannot re-queue mid-flight.
     expect(calls).toEqual([
       "summary",
       "suspend",
       "grant",
-      "settle",
-      "close",
+      "settle", "close",
+      "settle", "close",
+      "settle", "close",
       "resume",
       "release",
       "summary",
     ]);
     expect(result.classification).toBe("explored");
     expect(result.grantReleased).toBe(true);
-    expect(result.grantedPlots).toBe(6996);
+    expect(result.quiesced).toBe(true);
+    expect(result.drainPolls).toBe(3);
+    expect(result.suspendVerified).toBe(true);
+    expect(result.resumeVerified).toBe(true);
     expect(result.suppressedDisplays).toEqual([
       { category: "Cinematic", closed: 7 },
       { category: "UnlockPopup", closed: 1 },
@@ -366,24 +382,47 @@ describe("explore map for player", () => {
     expect(result.mutation).toBe("Visibility.setTrackedVisibilityGrant");
   });
 
-  test("settle defaults scale with map size and honor explicit settleMs", async () => {
-    const slept: number[] = [];
-    const { dependencies } = exploreDependencies({
-      sleep: async (ms: number) => {
-        slept.push(ms);
-      },
-    });
-    await exploreCiv7MapForPlayer({ playerId: 0 }, {}, dependencies as never);
-    expect(slept).toEqual([Math.round(6996 * 10)]);
+  test("settle default scales with map size and is clamped", () => {
+    expect(defaultExploreSettleMs(6996)).toBe(69_960);
+    expect(defaultExploreSettleMs(100)).toBe(15_000);
+    expect(defaultExploreSettleMs(50_000)).toBe(120_000);
+  });
 
-    slept.length = 0;
-    const second = exploreDependencies({
-      sleep: async (ms: number) => {
-        slept.push(ms);
-      },
+  test("hits the hard cap when the queue never quiesces", async () => {
+    const { dependencies } = exploreDependencies({
+      closeDisplays: async () => ({
+        host: "127.0.0.1",
+        port: 4318,
+        state: { id: "65535", name: "App UI" },
+        closed: [{ category: "Cinematic", closed: 1 }],
+        closedTotal: 1,
+        remainingActive: [],
+        remainingSuspended: [],
+      }),
     });
-    await exploreCiv7MapForPlayer({ playerId: 0, settleMs: 1_000 }, {}, second.dependencies as never);
-    expect(slept).toEqual([1_000]);
+    const result = await exploreCiv7MapForPlayer(
+      { playerId: 0, settleMs: 0, pollMs: 250, quiescePolls: 2, maxExtraWaitMs: 500 },
+      {},
+      dependencies as never,
+    );
+    expect(result.quiesced).toBe(false);
+    expect(result.drainPolls).toBe(2);
+    expect(result.suppressedDisplays).toEqual([{ category: "Cinematic", closed: 2 }]);
+  });
+
+  test("fails loudly when suspension is not verified by readback", async () => {
+    const { calls, dependencies } = exploreDependencies({
+      suspendDisplayQueue: async () => ({
+        host: "127.0.0.1",
+        port: 4318,
+        state: { id: "65535", name: "App UI" },
+        isSuspended: false,
+      }),
+    });
+    await expect(
+      exploreCiv7MapForPlayer({ playerId: 0, ...fastDrain }, {}, dependencies as never),
+    ).rejects.toThrow(/suspension was not verified/);
+    expect(calls).not.toContain("grant");
   });
 
   test("resumes the display queue even when the grant fails", async () => {
@@ -393,7 +432,7 @@ describe("explore map for player", () => {
       },
     });
     await expect(
-      exploreCiv7MapForPlayer({ playerId: 0 }, {}, dependencies as never),
+      exploreCiv7MapForPlayer({ playerId: 0, ...fastDrain }, {}, dependencies as never),
     ).rejects.toThrow("tuner down");
     expect(calls).toContain("resume");
   });
