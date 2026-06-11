@@ -1290,6 +1290,26 @@ export {
   narrativeChoiceProofOutcome,
   narrativeChoiceProofPostcondition,
 } from "./proof/narrative-choice-proof-policy.js";
+export {
+  CIV7_CINEMATIC_CLOSE_BUTTON_SELECTOR,
+  CIV7_CINEMATIC_MOMENT_SELECTOR,
+  CIV7_CINEMATIC_TITLE_SELECTOR,
+  Civ7CinematicCameraRestoreResultSchema,
+  Civ7CinematicDismissalInputSchema,
+  Civ7CinematicDismissalResultSchema,
+  Civ7CinematicDismissalRowSchema,
+  DEFAULT_CIV7_CINEMATIC_MAX_DISMISSALS,
+  DEFAULT_CIV7_CINEMATIC_SETTLE_MS,
+  MAX_CIV7_CINEMATIC_MAX_DISMISSALS,
+  MAX_CIV7_CINEMATIC_SETTLE_MS,
+  dismissCiv7CinematicMoments,
+} from "./play/operations/cinematic-dismissal.js";
+export type {
+  Civ7CinematicCameraRestoreResult,
+  Civ7CinematicDismissalInput,
+  Civ7CinematicDismissalResult,
+  Civ7CinematicDismissalRow,
+} from "./play/operations/cinematic-dismissal.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
