@@ -10,13 +10,11 @@ import {
   type Civ7StudioSetupConfig
 } from '../../features/civ7Setup/setupConfig';
 import {
-  LAYOUT,
   MAP_SIZE_OPTIONS,
   PLAYER_COUNT_OPTIONS,
   RESOURCE_MODE_OPTIONS } from
 '../constants';
 import type { ThemePreference, WorldSettings } from '../types';
-export const HEADER_HEIGHT = LAYOUT.HEADER_HEIGHT;
 export interface AppHeaderProps {
   themePreference: ThemePreference;
   onThemeCycle: () => void;
@@ -101,10 +99,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   return (
     <header
       ref={headerRef}
-      className="absolute top-4 left-4 right-4 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3"
-      style={{
-        minHeight: HEADER_HEIGHT
-      }}>
+      className="absolute top-4 left-4 right-4 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
 
       {/* Left: App Brand */}
       <div className="shrink-0">

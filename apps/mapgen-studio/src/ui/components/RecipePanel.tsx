@@ -16,6 +16,7 @@ import {
   Play } from
 'lucide-react';
 import { SchemaConfigForm } from '../../features/configOverrides/SchemaConfigForm';
+import { LAYOUT } from '../constants';
 import {
   formatMapConfigSaveDeployPhaseLabel,
   type MapConfigSaveDeployStatus,
@@ -219,8 +220,13 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   // ==========================================================================
   return (
     <>
+      {/* Width comes from the LAYOUT geometry authority (Pass-2: 340px); height
+          shrinks to fit but is capped by the dock's header→footer column
+          (`max-h-full`). pointer-events-auto restores interactivity inside the
+          pass-through dock. */}
       <div
-        className={`flex flex-col w-[280px] max-h-[calc(100vh-180px)] rounded-lg border overflow-hidden shadow-lg backdrop-blur-sm ${panelBg} ${panelBorder}`}>
+        style={{ width: LAYOUT.PANEL_WIDTH }}
+        className={`flex flex-col max-h-full rounded-lg border overflow-hidden shadow-lg backdrop-blur-sm pointer-events-auto ${panelBg} ${panelBorder}`}>
 
         {/* Header */}
         <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
@@ -393,9 +399,11 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               </Tooltip>
             </div>
 
-            {/* Config Form / JSON */}
+            {/* Config Form / JSON. pb-6 matches the h-6 scroll-edge fade below:
+                at full scroll the fade overlays only this padding, never the
+                last field row. */}
             <div
-            className={`px-3 pb-3 ${overridesDisabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
+            className={`px-3 pb-6 ${overridesDisabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
 
               {showJson ?
             <div className="border border-border-subtle rounded p-2.5 max-h-[240px] overflow-auto bg-surface-sunken">
@@ -417,6 +425,11 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
 
             }
             </div>
+            {/* Scroll-edge fade: sticky inside the scroll container so mid-scroll
+                cuts read as "more below" instead of the end of the form. The
+                negative margin keeps it from adding scroll height; it fades to
+                the panel surface (popover) and never intercepts the pointer. */}
+            <div aria-hidden="true" className="sticky bottom-0 -mt-6 h-6 shrink-0 pointer-events-none bg-gradient-to-t from-popover to-transparent" />
           </div>
         }
 

@@ -34,9 +34,12 @@ wraps) and gives the explore panel its first overflow constraint.
 
 ### 4. Fade affordance inside the scroll container
 
-A `pointer-events-none sticky bottom-0` gradient (`bg-gradient-to-t from-card`)
-inside the scrollable body. Sticky-in-scroll means it disappears naturally at the
-end of content (nothing below it to overlay) without any scroll-position JS.
+A `pointer-events-none sticky bottom-0` gradient (`bg-gradient-to-t from-popover`)
+inside the scrollable body, with a negative top margin so it adds no scroll
+height. Because of that margin the fade is always painted at the scroll edge —
+including at full scroll — so the form wrapper carries bottom padding equal to
+the fade height (`pb-6` vs `h-6`): at the end of content the fade overlays only
+padding, never the last field row. No scroll-position JS.
 
 ## Risks
 
