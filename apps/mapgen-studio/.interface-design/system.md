@@ -140,10 +140,31 @@ info hue — keep the chrome monochrome-cool).
   `lightMode`-prop removal lands as components migrate (P3/P4); P1 establishes the
   `.dark` system and tokens so both can briefly coexist without conflict.
 
-## Component patterns (preserve as-built dimensions, re-skin onto shadcn)
+## Component patterns (preserve control density, re-skin onto shadcn)
 
-Keep the dense dimensions from the extraction baseline — Button `h-8`/`h-7`, Input
-`h-7`, Switch 36×20, Field row `justify-between gap-3 py-1` with `min-w-[96px]`
+Keep the dense control dimensions from the extraction baseline — Button `h-8`/`h-7`,
+Input `h-7`, Switch 36×20, Field row `justify-between gap-3 py-1` with `min-w-[96px]`
 label, Card `rounded-lg border p-2.5`, eyebrow label uppercase 10px. The migration
 changes the *mechanism* (Radix shadcn primitives, token-driven) and adds the
 contour-focus signature + motion — not the density.
+
+## Pass-2 amendment (2026-06-11, user-grounded): chrome geometry is NOT preserved
+
+Pass 1 read "preserve as-built dimensions" as covering chrome *geometry* too, and
+shipped the pre-redesign skeleton (280px left dock, stale 104px header reserve,
+flat label/help typography). The user judged the result **squished**. Amended
+decisions (see `docs/projects/mapgen-studio-redesign/pass-2-design-fixes.md`):
+
+- **Left dock 340px** (was 280). The recipe form is the instrument's main working
+  surface; at 280 its helper prose wraps into noise. Explore dock stays 260 —
+  lists fit it.
+- **Header reserve is content-driven.** The measured header height (ResizeObserver)
+  is the only authority; no static `minHeight` band. Docks rise to the header.
+- **Docks span header→footer** with internal scroll; the scroll edge carries a
+  fade affordance, never a mid-sentence hard cut.
+- **Form text hierarchy:** field labels sit a full tier above descriptions —
+  labels `text-foreground` medium, descriptions stay muted `text-data`. Two-tier
+  gray-on-gray is a defect, not density.
+- **One Run CTA.** The footer is the run console (seed, auto-run, run, run-in-game);
+  panel-local duplicates are removed.
+- Control density (button/input/switch/field-row dimensions above) is unchanged.

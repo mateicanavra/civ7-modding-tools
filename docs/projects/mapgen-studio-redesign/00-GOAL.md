@@ -215,3 +215,17 @@ live screenshots, zero console errors. Each slice = one OpenSpec change.
 - [ ] *(optional)* deeper `StudioShell` container/presentational panel split.
 
 Live-control: NOT waiting for merge. Seam designed toward stack-top (FRAME §6).
+
+## Pass 2 — design fixes (ACTIVE 2026-06-11)
+
+User verdict on Pass 1: **not functionally complete; still "squished"**. Pass 2 is
+a visually-grounded fix workstream — frame, issue→change map, and verification
+contract in [`pass-2-design-fixes.md`](pass-2-design-fixes.md). Five OpenSpec
+slices stacked on `design/a11y-fixes` (Graphite-only, never submitted); each slice
+closes only with visual proof from the running app:
+
+- [ ] **C1** `mapgen-studio-layout-geometry` — `design/layout-geometry`
+- [ ] **C2** `mapgen-studio-form-hierarchy` — `design/form-hierarchy`
+- [ ] **C3** `mapgen-studio-run-console` — `design/run-console`
+- [ ] **C4** `mapgen-studio-explore-toolbar` — `design/explore-toolbar`
+- [ ] **C5** `mapgen-studio-first-run-visibility` — `design/first-run-visibility`
