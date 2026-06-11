@@ -7,9 +7,13 @@ import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 
 // Two discrete mutations, deliberately not interchangeable:
-// --explore  terrain becomes known (REVEALED/fogged, no live vision) via the
-//            engine's tracked visibility grants, with discovery popups
-//            suppressed through the official display queue. The map-QA verb.
+// --explore  the whole map becomes known via the engine's tracked visibility
+//            grants, with discovery popups suppressed through the official
+//            display queue. The map-QA verb. By default the grant stays held
+//            so the map remains fully VISIBLE (no fog re-cover — the FOW
+//            renderer has no scripting binding to disable fog any other
+//            way); --restore-fog releases the grant, reverting plots to
+//            REVEALED/fogged.
 // --reveal   the engine's own Visibility.revealAllPlots(player) — a special,
 //            rare-use per-player command whose discovery side effects display
 //            normally.
@@ -17,9 +21,9 @@ export default class GameMapVisibility extends Command {
   static id = 'game map visibility';
   static summary = 'Read, explore, or reveal Civ7 player visibility';
   static description =
-    'Reads bounded visibility state, explores the whole map (terrain known, fogged, popups ' +
-    'suppressed), or reveals it outright via the engine reveal command, for a disposable debug ' +
-    'session through @civ7/direct-control.';
+    'Reads bounded visibility state, explores the whole map (popups suppressed; stays fully ' +
+    'visible unless --restore-fog), or reveals it outright via the engine reveal command, for a ' +
+    'disposable debug session.';
 
   static examples = [
     '<%= config.bin %> game map visibility --player-id 0 --bounds 0,0,32,32 --json',
@@ -46,9 +50,14 @@ export default class GameMapVisibility extends Command {
       default: false,
     }),
     explore: Flags.boolean({
-      description: 'Explore the whole map for the player (terrain known under fog, discovery popups suppressed)',
+      description: 'Explore the whole map for the player (discovery popups suppressed; map stays fully visible unless --restore-fog)',
       default: false,
       exclusive: ['reveal'],
+    }),
+    'restore-fog': Flags.boolean({
+      description: 'Release the explore grant after settling so fog of war re-covers the explored terrain',
+      default: false,
+      dependsOn: ['explore'],
     }),
     reveal: Flags.boolean({
       description: 'Reveal all plots for the player (engine reveal command; discovery popups display)',
@@ -91,6 +100,7 @@ export default class GameMapVisibility extends Command {
         }).display.explore.request({
           playerId: flags['player-id'],
           ...(flags['settle-ms'] === undefined ? {} : { settleMs: flags['settle-ms'] }),
+          ...(flags['restore-fog'] ? { restoreFog: true } : {}),
         })
       : flags.reveal
         ? await revealCiv7MapForPlayer(

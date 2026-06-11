@@ -35,8 +35,12 @@ type ExploreDrainState = Readonly<{
  *      the reveal progressively; releasing early strands the paint mid-sweep),
  *      purging the suspended queue every pollMs until quiescePolls consecutive
  *      empty purges or the hard cap (settleMs + maxExtraWaitMs),
- *   4. resume the queue, then release the grant (visible count reverts,
- *      revealed state persists — that IS explore semantics).
+ *   4. resume the queue; then, ONLY when `restoreFog` is set, release the
+ *      grant (visible count reverts, revealed state persists, fog re-covers
+ *      the terrain). By default the grant stays held so the map remains
+ *      fully visible — the FOW render toggle/reveal pacing has no scripting
+ *      binding (live-probed: WorldUI/Environment/Visibility expose none),
+ *      so holding the grant is the only way to keep fog off.
  *
  * The queue resume is bound to an acquire/release boundary: a suspended queue
  * silently swallows every later display in the session, so the queue is
@@ -158,12 +162,14 @@ export const displayExploreRequestProcedure =
             )
           );
           yield* Ref.set(resumedInline, true);
-          const release = yield* facadeCall(() =>
-            context.directControl.releaseCiv7ExploreGrant(
-              { playerId: input.playerId, grantId: grant.grantId },
-              context.endpointDefaults,
+          const release = input.restoreFog === true
+            ? yield* facadeCall(() =>
+              context.directControl.releaseCiv7ExploreGrant(
+                { playerId: input.playerId, grantId: grant.grantId },
+                context.endpointDefaults,
+              )
             )
-          );
+            : null;
           const after = yield* readVisibilitySummary();
 
           return displayExploreRequestResult({
@@ -172,7 +178,7 @@ export const displayExploreRequestProcedure =
             after,
             grantId: grant.grantId,
             grantedPlots: grant.grantedPlots,
-            grantReleased: release.released,
+            grantReleased: release?.released ?? false,
             settleMs,
             drained,
             resumeVerified: !resume.isSuspended,

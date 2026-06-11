@@ -18,7 +18,7 @@ import type {
 const fastDrain = { settleMs: 0, pollMs: 250, quiescePolls: 2 } as const;
 
 describe("display.explore.request control-oRPC procedure", () => {
-  test("runs the verified state machine and drains until quiesce", async () => {
+  test("runs the verified state machine, drains until quiesce, and holds the grant by default", async () => {
     const fake = fakeContext();
     const result = await call(
       Civ7ControlOrpcRouter.display.explore.request,
@@ -27,8 +27,8 @@ describe("display.explore.request control-oRPC procedure", () => {
     );
 
     // suspend is verified BEFORE the grant; the drain purges each poll and
-    // exits only after quiescePolls consecutive empty purges; resume precedes
-    // the grant release so late displays cannot re-queue mid-flight.
+    // exits only after quiescePolls consecutive empty purges. By default the
+    // grant is NOT released — fog never re-covers the explored map.
     expect(fake.calls).toEqual([
       "summary",
       "suspend",
@@ -37,7 +37,6 @@ describe("display.explore.request control-oRPC procedure", () => {
       "close",
       "close",
       "resume",
-      "release",
       "summary",
     ]);
     expect(result).toMatchObject({
@@ -46,7 +45,7 @@ describe("display.explore.request control-oRPC procedure", () => {
       after: { revealed: 6996, visible: 7 },
       grantId: 1,
       grantedPlots: 6996,
-      grantReleased: true,
+      grantReleased: false,
       settleMs: 0,
       drainPolls: 3,
       quiesced: true,
@@ -61,6 +60,33 @@ describe("display.explore.request control-oRPC procedure", () => {
       classification: "explored",
     });
     expectSafeExploreOutput(result);
+  });
+
+  test("releases the grant after resume when restoreFog is set", async () => {
+    const fake = fakeContext();
+    const result = await call(
+      Civ7ControlOrpcRouter.display.explore.request,
+      { playerId: 0, restoreFog: true, ...fastDrain },
+      { context: fake.context },
+    );
+
+    // Resume precedes the grant release so late displays cannot re-queue
+    // mid-flight; release reverts plots VISIBLE -> REVEALED (fogged).
+    expect(fake.calls).toEqual([
+      "summary",
+      "suspend",
+      "grant",
+      "close",
+      "close",
+      "close",
+      "resume",
+      "release",
+      "summary",
+    ]);
+    expect(result).toMatchObject({
+      grantReleased: true,
+      classification: "explored",
+    });
   });
 
   test("hits the hard cap when the queue never quiesces", async () => {

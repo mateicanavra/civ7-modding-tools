@@ -173,6 +173,19 @@ new decision number.
   `createCiv7ControlOrpcServerClient` like the rest of the map surface —
   the original direct-control orchestrator (which bypassed the Effect
   layer) is removed outright, no stubs.
+- **D11 — explore's default end-state is FULLY VISIBLE (user decision
+  2026-06-11, slice 5).** By default `display.explore.request` HOLDS the
+  tracked visibility grant after the drain instead of releasing it, so fog
+  of war never re-covers the explored map (the slow engine-paced FOW
+  re-cover after release was the user-visible pain). `restoreFog: true`
+  (CLI `--restore-fog`, dependsOn `--explore`) opts back into the previous
+  release → REVEALED/fogged end-state. Live-probed and settled: the FOW
+  render toggle and reveal pacing have NO scripting binding in either
+  scripting state (WorldUI, Camera, Configuration, Visibility, GameplayMap,
+  globals all clean; `Environment` exposes only atmospheric/height fog for
+  cinematics) — holding the grant is the only scriptable way to keep fog
+  off. The held grant lives until session end; explore remains a
+  disposable-session verb.
 
 ## Corpus Gate
 

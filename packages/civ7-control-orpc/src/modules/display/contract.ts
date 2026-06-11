@@ -75,6 +75,15 @@ const Civ7DisplayExploreRequestInputSchema = Type.Object(
     pollMs: Type.Optional(Type.Integer({ minimum: 250, maximum: 60_000 })),
     quiescePolls: Type.Optional(Type.Integer({ minimum: 1, maximum: 20 })),
     maxExtraWaitMs: Type.Optional(Type.Integer({ minimum: 0, maximum: 600_000 })),
+    /**
+     * Release the tracked grant after the drain so fog of war re-covers the
+     * explored terrain (plots revert VISIBLE -> REVEALED). Default false: the
+     * grant stays held and the whole map remains visible — the FOW
+     * renderer's re-cover pass never runs. The held grant lives until the
+     * session ends or the grant is released; this is a disposable-session
+     * verb either way.
+     */
+    restoreFog: Type.Optional(Type.Boolean()),
   },
   { additionalProperties: false },
 );
