@@ -444,7 +444,7 @@ Tests:
 
 CLI/Studio:
 
-- CLI: `civ7 game visibility --player-id 0 --bounds 0,0,32,32 --json`.
+- CLI: `civ7 game map visibility --player-id 0 --bounds 0,0,32,32 --json`.
 - Studio: visibility mask overlay and hidden-info toggle guard.
 
 ### `getCiv7GameInfoRows(input, options?)`

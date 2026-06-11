@@ -89,7 +89,7 @@ team, diplomacy, independent-power, war-state, or operation-validator evidence
 proves more.
 
 After choosing a target, the agent still needs normal live-play discipline:
-`game play ready-unit`, `game map` or `game visibility`, `game play
+`game play ready-unit`, `game map` or `game map visibility`, `game play
 unit-target`, operation validation, and postcondition checks.
 
 ## Live Context

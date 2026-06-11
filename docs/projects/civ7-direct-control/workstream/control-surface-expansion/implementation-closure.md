@@ -82,7 +82,7 @@ CLI commands added or extended:
 
 - `game status`
 - `game map`
-- `game visibility`
+- `game map visibility` (id at introduction: `game visibility`; fully migrated by the cli-command-taxonomy workstream)
 - `game gameinfo`
 - `game autoplay`
 - `game operation`
