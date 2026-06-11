@@ -1,5 +1,6 @@
 import { Command, Flags } from '@oclif/core';
-import { readCiv7DisplayQueue } from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 
 // Truth source: the official DisplayQueueManager in the App UI scripting state
 // (core/ui/context-manager/display-queue-manager.js, reached through the shared
@@ -7,6 +8,7 @@ import { readCiv7DisplayQueue } from '@civ7/direct-control';
 // unlock/triumph popups, narrative events, diplomacy dialogs — is a request in
 // that queue, so this command reads queue state instead of probing DOM
 // selectors (DOM emptiness was live-proven to be a false truth source).
+// Consumed through the typed control-oRPC display.queue.current procedure.
 export default class GamePlayScreenShow extends Command {
   static id = 'game play screen show';
   static summary = 'Show queued Civ7 display requests (read-only)';
@@ -38,11 +40,15 @@ export default class GamePlayScreenShow extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayScreenShow);
-    const result = await readCiv7DisplayQueue({
-      host: flags.host,
-      port: flags.port,
-      timeoutMs: flags['timeout-ms'],
+    const client = createCiv7ControlOrpcServerClient({
+      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      endpointDefaults: {
+        host: flags.host,
+        port: flags.port,
+        timeoutMs: flags['timeout-ms'],
+      },
     });
+    const result = await client.display.queue.current({});
 
     if (flags.json) {
       this.log(JSON.stringify({ ok: true, result }));

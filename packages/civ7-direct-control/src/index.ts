@@ -610,23 +610,24 @@ export type {
   PlotSnapshotReadDependencies,
 } from "./play/map/reads.js";
 export type {
-  Civ7ExploreMapInput,
-  Civ7ExploreMapResult,
-  Civ7ExploreSideEffect,
+  Civ7ExploreGrantInput,
+  Civ7ExploreGrantResult,
+  Civ7ExploreReleaseInput,
+  Civ7ExploreReleaseResult,
   Civ7RevealMapResult,
   Civ7VisibilitySummaryInput,
   Civ7VisibilitySummaryResult,
+  VisibilityGrantDependencies,
   VisibilityReadDependencies,
 } from "./play/map/visibility.js";
 export {
-  Civ7ExploreMapInputSchema,
-  Civ7ExploreSideEffectSchema,
+  applyCiv7ExploreGrant,
   Civ7VisibilityGridStateSchema,
   Civ7VisibilitySummaryInputSchema,
   Civ7VisibilitySummaryResultSchema,
   defaultExploreSettleMs,
-  exploreCiv7MapForPlayer,
   getCiv7VisibilitySummary,
+  releaseCiv7ExploreGrant,
   revealCiv7MapForPlayer,
 } from "./play/map/visibility.js";
 export {

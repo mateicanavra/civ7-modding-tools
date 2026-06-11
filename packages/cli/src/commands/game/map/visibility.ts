@@ -1,9 +1,10 @@
 import { Command, Flags } from '@oclif/core';
 import {
-  exploreCiv7MapForPlayer,
   getCiv7VisibilitySummary,
   revealCiv7MapForPlayer,
 } from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 
 // Two discrete mutations, deliberately not interchangeable:
 // --explore  terrain becomes known (REVEALED/fogged, no live vision) via the
@@ -84,13 +85,13 @@ export default class GameMapVisibility extends Command {
       throw new Error(`game map visibility --${flags.reveal ? 'reveal' : 'explore'} requires --disposable`);
     }
     const result = flags.explore
-      ? await exploreCiv7MapForPlayer(
-          {
-            playerId: flags['player-id'],
-            ...(flags['settle-ms'] === undefined ? {} : { settleMs: flags['settle-ms'] }),
-          },
-          options,
-        )
+      ? await createCiv7ControlOrpcServerClient({
+          directControl: liveCiv7ControlOrpcDirectControlFacade,
+          endpointDefaults: options,
+        }).display.explore.request({
+          playerId: flags['player-id'],
+          ...(flags['settle-ms'] === undefined ? {} : { settleMs: flags['settle-ms'] }),
+        })
       : flags.reveal
         ? await revealCiv7MapForPlayer(
             { playerId: flags['player-id'] },

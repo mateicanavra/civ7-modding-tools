@@ -61,12 +61,15 @@ describe('game play screen show', () => {
       const { writes } = await runCommand(server, ['--json']);
       const payload = JSON.parse(writes.join('')) as {
         ok: boolean;
-        result: QueueSnapshot & { host: string; port: number; state: { id: string; name: string } };
+        result: QueueSnapshot;
       };
       expect(payload.ok).toBe(true);
       expect(payload.result.active).toEqual([{ category: 'Narrative', id: null }]);
       expect(payload.result.isSuspended).toBe(false);
-      expect(payload.result.state.name).toBe('App UI');
+      // The typed display.queue.current procedure projects queue facts only —
+      // endpoint/session details (host/port/state) stay behind the service.
+      expect(payload.result).not.toHaveProperty('state');
+      expect(payload.result.handlerCategories).toEqual(['Narrative']);
     } finally {
       await server.close();
     }

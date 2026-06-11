@@ -1,6 +1,13 @@
 import {
+  applyCiv7ExploreGrant,
+  closeCiv7Displays,
   getCiv7PlayableStatus,
   getCiv7PlayNotificationView,
+  getCiv7VisibilitySummary,
+  readCiv7DisplayQueue,
+  releaseCiv7ExploreGrant,
+  resumeCiv7DisplayQueue,
+  suspendCiv7DisplayQueue,
   getCiv7ProgressDashboard,
   getCiv7TraditionsView,
   getCiv7BattlefieldScan,
@@ -42,6 +49,16 @@ import {
   type Civ7AttributeReviewInput,
   type Civ7AdvisorWarningViewedInput,
   type Civ7AdvisorWarningViewedResult,
+  type Civ7CloseDisplaysInput,
+  type Civ7CloseDisplaysResult,
+  type Civ7DisplayQueueHoldResult,
+  type Civ7DisplayQueueSnapshot,
+  type Civ7ExploreGrantInput,
+  type Civ7ExploreGrantResult,
+  type Civ7ExploreReleaseInput,
+  type Civ7ExploreReleaseResult,
+  type Civ7VisibilitySummaryInput,
+  type Civ7VisibilitySummaryResult,
   type Civ7DiplomacyResponseInput,
   type Civ7DiplomacyResponseResult,
   type Civ7FirstMeetResponseInput,
@@ -156,6 +173,12 @@ export type Civ7ControlOrpcDestinationAnalysisResult = Static<
 >;
 export type Civ7ControlOrpcPlotSnapshotResult = Civ7PlotSnapshotResult;
 export type Civ7ControlOrpcMapGridResult = Civ7MapGridResult;
+export type Civ7ControlOrpcDisplayQueueSnapshotResult = Civ7DisplayQueueSnapshot;
+export type Civ7ControlOrpcCloseDisplaysResult = Civ7CloseDisplaysResult;
+export type Civ7ControlOrpcDisplayQueueHoldResult = Civ7DisplayQueueHoldResult;
+export type Civ7ControlOrpcExploreGrantResult = Civ7ExploreGrantResult;
+export type Civ7ControlOrpcExploreReleaseResult = Civ7ExploreReleaseResult;
+export type Civ7ControlOrpcVisibilitySummaryResult = Civ7VisibilitySummaryResult;
 export type Civ7ControlOrpcReadyUnitViewResult = Static<
   typeof Civ7ReadyUnitViewResultSchema
 >;
@@ -321,6 +344,31 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
   getCiv7TurnCompletionStatus(
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcTurnCompletionStatusResult>;
+  getCiv7VisibilitySummary(
+    input: Civ7VisibilitySummaryInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcVisibilitySummaryResult>;
+  readCiv7DisplayQueue(
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcDisplayQueueSnapshotResult>;
+  closeCiv7Displays(
+    input: Civ7CloseDisplaysInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcCloseDisplaysResult>;
+  suspendCiv7DisplayQueue(
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcDisplayQueueHoldResult>;
+  resumeCiv7DisplayQueue(
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcDisplayQueueHoldResult>;
+  applyCiv7ExploreGrant(
+    input: Civ7ExploreGrantInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcExploreGrantResult>;
+  releaseCiv7ExploreGrant(
+    input: Civ7ExploreReleaseInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcExploreReleaseResult>;
 }>;
 
 export const liveCiv7ControlOrpcDirectControlFacade:
@@ -441,4 +489,18 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     getCiv7TurnCompletionStatus(options) as Promise<
       Civ7ControlOrpcTurnCompletionStatusResult
     >,
+  getCiv7VisibilitySummary: async (input, options) =>
+    getCiv7VisibilitySummary(input, options),
+  readCiv7DisplayQueue: async (options) =>
+    readCiv7DisplayQueue(options),
+  closeCiv7Displays: async (input, options) =>
+    closeCiv7Displays(input, options),
+  suspendCiv7DisplayQueue: async (options) =>
+    suspendCiv7DisplayQueue(options),
+  resumeCiv7DisplayQueue: async (options) =>
+    resumeCiv7DisplayQueue(options),
+  applyCiv7ExploreGrant: async (input, options) =>
+    applyCiv7ExploreGrant(input, options),
+  releaseCiv7ExploreGrant: async (input, options) =>
+    releaseCiv7ExploreGrant(input, options),
 };

@@ -225,6 +225,75 @@ export class Civ7WorldReadUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7DisplayQueueUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("display.queue.current"),
+      Type.Literal("display.queue.close"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7DisplayQueueUnavailableErrorData = Static<
+  typeof Civ7DisplayQueueUnavailableErrorDataSchema
+>;
+
+export class Civ7DisplayQueueUnavailableError extends ORPCTaggedError(
+  "Civ7DisplayQueueUnavailableError",
+  {
+    code: "DISPLAY_QUEUE_UNAVAILABLE",
+    message: "Display queue service failed.",
+    schema: toStandardSchema(Civ7DisplayQueueUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export const Civ7ExploreSuspensionUnverifiedErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("display.explore.request"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7ExploreSuspensionUnverifiedErrorData = Static<
+  typeof Civ7ExploreSuspensionUnverifiedErrorDataSchema
+>;
+
+export class Civ7ExploreSuspensionUnverifiedError extends ORPCTaggedError(
+  "Civ7ExploreSuspensionUnverifiedError",
+  {
+    code: "EXPLORE_SUSPENSION_UNVERIFIED",
+    message: "Display queue suspension was not verified by readback before explore.",
+    schema: toStandardSchema(Civ7ExploreSuspensionUnverifiedErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export const Civ7ExploreFailedErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("display.explore.request"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7ExploreFailedErrorData = Static<
+  typeof Civ7ExploreFailedErrorDataSchema
+>;
+
+export class Civ7ExploreFailedError extends ORPCTaggedError(
+  "Civ7ExploreFailedError",
+  {
+    code: "EXPLORE_FAILED",
+    message: "Map explore request failed.",
+    schema: toStandardSchema(Civ7ExploreFailedErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
@@ -760,6 +829,9 @@ export const civ7ControlOrpcErrorMap = {
   ATTENTION_PRIORITIES_UNAVAILABLE: Civ7AttentionPrioritiesUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
+  DISPLAY_QUEUE_UNAVAILABLE: Civ7DisplayQueueUnavailableError,
+  EXPLORE_FAILED: Civ7ExploreFailedError,
+  EXPLORE_SUSPENSION_UNVERIFIED: Civ7ExploreSuspensionUnverifiedError,
   FIRST_MEET_RESPONSE_UNAVAILABLE: Civ7FirstMeetResponseUnavailableError,
   GOVERNMENT_CHOICE_UNAVAILABLE: Civ7GovernmentChoiceUnavailableError,
   MUTATION_PROOF_BOUNDARY_INVALID: Civ7MutationProofBoundaryInvalidError,

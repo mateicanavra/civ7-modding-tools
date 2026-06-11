@@ -19,7 +19,11 @@ import {
   getCiv7VisibilitySummary,
   revealCiv7MapForPlayer,
 } from "../src/index";
-import { defaultExploreSettleMs, exploreCiv7MapForPlayer } from "../src/play/map/visibility";
+import {
+  applyCiv7ExploreGrant,
+  defaultExploreSettleMs,
+  releaseCiv7ExploreGrant,
+} from "../src/play/map/visibility";
 
 type FakeTunerServer = {
   received: string[];
@@ -256,84 +260,29 @@ describe("map and visibility reads", () => {
 });
 
 
-describe("explore map for player", () => {
-  function exploreDependencies(overrides: Partial<Record<string, unknown>> = {}) {
-    const calls: string[] = [];
-    const summaries = [
-      { revealed: 29, visible: 7 },
-      { revealed: 6996, visible: 7 },
-    ];
-    // First purge finds the suppressed discovery displays; later purges are empty.
-    const purges = [
-      {
-        closed: [
-          { category: "Cinematic", closed: 7 },
-          { category: "UnlockPopup", closed: 1 },
-        ],
-        closedTotal: 8,
-      },
-    ];
+describe("explore grant atoms", () => {
+  function grantDependencies(overrides: Partial<Record<string, unknown>> = {}) {
+    const commands: string[] = [];
     const dependencies = {
-      boundedInteger: (value: number) => value,
-      defaultMapGridMaxPlots: 4096,
+      boundedInteger: (value: number, min: number, max: number, label: string) => {
+        if (!Number.isInteger(value) || value < min || value > max) {
+          throw new Error(`${label} must be an integer between ${min} and ${max}`);
+        }
+        return value;
+      },
       executeTunerCommand: async ({ command }: { command: string }) => {
+        commands.push(command);
         if (command.includes("setTrackedVisibilityGrant")) {
-          calls.push("grant");
           return tunerResult({ grantId: 1, grantedPlots: 6996, plotCount: 6996 });
         }
-        calls.push("release");
         return tunerResult({ released: true });
-      },
-      hardMapGridMaxPlots: 100_000_000,
-      jsLiteral: (value: unknown) => JSON.stringify(value),
-      parseVisibilitySummary: () => {
-        throw new Error("unused in explore tests");
-      },
-      probeHelperSource: () => "",
-      validateMapBounds: () => undefined,
-      validatePlayerId: (playerId: number) => playerId,
-      getVisibilitySummary: async () => {
-        calls.push("summary");
-        const next = summaries.shift() ?? { revealed: 6996, visible: 7 };
-        return {
-          host: "127.0.0.1",
-          port: 4318,
-          state: { id: "1", name: "Tuner" },
-          playerId: 0,
-          numPlotsRevealed: { ok: true, value: next.revealed },
-          numPlotsVisible: { ok: true, value: next.visible },
-          counts: {},
-        };
-      },
-      probeValue: <T,>(probe: { ok: boolean; value?: T }) => (probe.ok ? probe.value : undefined),
-      closeDisplays: async () => {
-        calls.push("close");
-        const next = purges.shift() ?? { closed: [], closedTotal: 0 };
-        return {
-          host: "127.0.0.1",
-          port: 4318,
-          state: { id: "65535", name: "App UI" },
-          ...next,
-          remainingActive: [],
-          remainingSuspended: [],
-        };
       },
       parseExploreGrant: (result: { output: string[] }) => JSON.parse(result.output[0] ?? "{}"),
       parseExploreRelease: (result: { output: string[] }) => JSON.parse(result.output[0] ?? "{}"),
-      resumeDisplayQueue: async () => {
-        calls.push("resume");
-        return { host: "127.0.0.1", port: 4318, state: { id: "65535", name: "App UI" }, isSuspended: false };
-      },
-      sleep: async () => {
-        calls.push("settle");
-      },
-      suspendDisplayQueue: async () => {
-        calls.push("suspend");
-        return { host: "127.0.0.1", port: 4318, state: { id: "65535", name: "App UI" }, isSuspended: true };
-      },
+      validatePlayerId: (playerId: number) => playerId,
       ...overrides,
     };
-    return { calls, dependencies };
+    return { commands, dependencies };
   }
 
   function tunerResult(payload: unknown) {
@@ -345,96 +294,59 @@ describe("explore map for player", () => {
     };
   }
 
-  const fastDrain = { settleMs: 0, pollMs: 250, quiescePolls: 2 } as const;
-
-  test("runs the verified state machine and drains until quiesce", async () => {
-    const { calls, dependencies } = exploreDependencies();
-    const result = await exploreCiv7MapForPlayer(
-      { playerId: 0, ...fastDrain },
+  test("applyCiv7ExploreGrant issues one tracked-grant exec and parses the payload", async () => {
+    const { commands, dependencies } = grantDependencies();
+    const result = await applyCiv7ExploreGrant(
+      { playerId: 0 },
       {},
       dependencies as never,
     );
-    // suspend is verified BEFORE the grant; the drain purges each poll and
-    // exits only after quiescePolls consecutive empty purges; resume precedes
-    // the grant release so late displays cannot re-queue mid-flight.
-    expect(calls).toEqual([
-      "summary",
-      "suspend",
-      "grant",
-      "settle", "close",
-      "settle", "close",
-      "settle", "close",
-      "resume",
-      "release",
-      "summary",
-    ]);
-    expect(result.classification).toBe("explored");
-    expect(result.grantReleased).toBe(true);
-    expect(result.quiesced).toBe(true);
-    expect(result.drainPolls).toBe(3);
-    expect(result.suspendVerified).toBe(true);
-    expect(result.resumeVerified).toBe(true);
-    expect(result.suppressedDisplays).toEqual([
-      { category: "Cinematic", closed: 7 },
-      { category: "UnlockPopup", closed: 1 },
-    ]);
-    expect(result.discoveryPosture).toBe("ui-suppressed-gameplay-discovers");
-    expect(result.mutation).toBe("Visibility.setTrackedVisibilityGrant");
+    expect(commands).toHaveLength(1);
+    expect(commands[0]).toContain("Visibility.setTrackedVisibilityGrant(playerId, 1, plots)");
+    expect(commands[0]).toContain("GameplayMap.getIndexFromXY(x, y)");
+    expect(result).toMatchObject({
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "1", name: "Tuner" },
+      grantId: 1,
+      grantedPlots: 6996,
+      plotCount: 6996,
+    });
+  });
+
+  test("releaseCiv7ExploreGrant issues one removeTrackedVisibilityGrant exec", async () => {
+    const { commands, dependencies } = grantDependencies();
+    const result = await releaseCiv7ExploreGrant(
+      { playerId: 0, grantId: 1 },
+      {},
+      dependencies as never,
+    );
+    expect(commands).toHaveLength(1);
+    expect(commands[0]).toContain("Visibility.removeTrackedVisibilityGrant(0, 1)");
+    expect(result).toMatchObject({
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "1", name: "Tuner" },
+      released: true,
+    });
+  });
+
+  test("releaseCiv7ExploreGrant rejects non-integer grant ids before any exec", async () => {
+    const { commands, dependencies } = grantDependencies();
+    await expect(
+      releaseCiv7ExploreGrant(
+        { playerId: 0, grantId: 1.5 },
+        {},
+        dependencies as never,
+      ),
+    ).rejects.toThrow(/grantId/);
+    expect(commands).toHaveLength(0);
   });
 
   test("settle default scales with map size and is clamped", () => {
     expect(defaultExploreSettleMs(6996)).toBe(69_960);
     expect(defaultExploreSettleMs(100)).toBe(15_000);
     expect(defaultExploreSettleMs(50_000)).toBe(120_000);
-  });
-
-  test("hits the hard cap when the queue never quiesces", async () => {
-    const { dependencies } = exploreDependencies({
-      closeDisplays: async () => ({
-        host: "127.0.0.1",
-        port: 4318,
-        state: { id: "65535", name: "App UI" },
-        closed: [{ category: "Cinematic", closed: 1 }],
-        closedTotal: 1,
-        remainingActive: [],
-        remainingSuspended: [],
-      }),
-    });
-    const result = await exploreCiv7MapForPlayer(
-      { playerId: 0, settleMs: 0, pollMs: 250, quiescePolls: 2, maxExtraWaitMs: 500 },
-      {},
-      dependencies as never,
-    );
-    expect(result.quiesced).toBe(false);
-    expect(result.drainPolls).toBe(2);
-    expect(result.suppressedDisplays).toEqual([{ category: "Cinematic", closed: 2 }]);
-  });
-
-  test("fails loudly when suspension is not verified by readback", async () => {
-    const { calls, dependencies } = exploreDependencies({
-      suspendDisplayQueue: async () => ({
-        host: "127.0.0.1",
-        port: 4318,
-        state: { id: "65535", name: "App UI" },
-        isSuspended: false,
-      }),
-    });
-    await expect(
-      exploreCiv7MapForPlayer({ playerId: 0, ...fastDrain }, {}, dependencies as never),
-    ).rejects.toThrow(/suspension was not verified/);
-    expect(calls).not.toContain("grant");
-  });
-
-  test("resumes the display queue even when the grant fails", async () => {
-    const { calls, dependencies } = exploreDependencies({
-      executeTunerCommand: async () => {
-        throw new Error("tuner down");
-      },
-    });
-    await expect(
-      exploreCiv7MapForPlayer({ playerId: 0, ...fastDrain }, {}, dependencies as never),
-    ).rejects.toThrow("tuner down");
-    expect(calls).toContain("resume");
   });
 });
 

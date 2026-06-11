@@ -15,16 +15,7 @@ import {
 } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7TunerCommand } from "../../session/execute.js";
-import { sleep } from "../../timing.js";
 import { boundedInteger, validatePlayerId } from "../../validation.js";
-import {
-  closeCiv7Displays,
-  resumeCiv7DisplayQueue,
-  suspendCiv7DisplayQueue,
-  type Civ7CloseDisplaysInput,
-  type Civ7CloseDisplaysResult,
-  type Civ7DisplayQueueHoldResult,
-} from "../operations/display-queue.js";
 import {
   DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
@@ -113,80 +104,29 @@ export type Civ7RevealMapResult = Readonly<{
   classification: "revealed" | "already-revealed" | "unverified";
 }>;
 
-export type Civ7ExploreMapInput = Readonly<{
+export type Civ7ExploreGrantInput = Readonly<{
   playerId: number;
-  /**
-   * Minimum time the tracked visibility grant stays active before release.
-   * The FOW renderer streams the reveal progressively (live-verified on the
-   * native debug Explore All too — it is engine pacing, not our overhead),
-   * so releasing early strands the paint mid-sweep. Default adapts to map
-   * size: clamp(15s..120s, plotCount * 10ms).
-   */
-  settleMs?: number;
-  /** Drain poll interval while the grant is held. Default 2500ms. */
-  pollMs?: number;
-  /**
-   * Consecutive empty drain polls required before the queue is considered
-   * quiet (discovery displays can trail the grant by many seconds —
-   * live-observed; a fixed-time purge misses late arrivals). Default 3.
-   */
-  quiescePolls?: number;
-  /** Hard cap on the drain phase beyond settleMs. Default 60s. */
-  maxExtraWaitMs?: number;
 }>;
 
-export const Civ7ExploreMapInputSchema = Type.Object({
-  playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
-  settleMs: Type.Optional(Type.Integer({ minimum: 0, maximum: 600_000 })),
-  pollMs: Type.Optional(Type.Integer({ minimum: 250, maximum: 60_000 })),
-  quiescePolls: Type.Optional(Type.Integer({ minimum: 1, maximum: 20 })),
-  maxExtraWaitMs: Type.Optional(Type.Integer({ minimum: 0, maximum: 600_000 })),
-}, { additionalProperties: false });
-
-export const Civ7ExploreSideEffectSchema = Type.Object({
-  category: Type.String(),
-  closed: Type.Integer({ minimum: 1 }),
-}, { additionalProperties: false });
-
-export type Civ7ExploreSideEffect = Readonly<{
-  category: string;
-  closed: number;
-}>;
-
-export type Civ7ExploreMapResult = Readonly<{
+export type Civ7ExploreGrantResult = Readonly<{
   host: string;
   port: number;
   state: Civ7TunerState;
-  playerId: number;
-  before: Civ7VisibilitySummaryResult;
-  after: Civ7VisibilitySummaryResult;
   grantId: number;
   grantedPlots: number;
-  grantReleased: boolean;
-  settleMs: number;
-  /** Drain polls executed while holding the grant. */
-  drainPolls: number;
-  /** True when the drain ended on quiesce; false when it hit the hard cap. */
-  quiesced: boolean;
-  /** Queue suspension verified by readback after suspend (state machine gate). */
-  suspendVerified: boolean;
-  /** Queue resume verified by readback (state machine gate). */
-  resumeVerified: boolean;
-  /**
-   * Display requests (wonder-discovery cinematics, unlock/triumph popups, ...)
-   * that gameplay enqueued during the grant. They were parked by the suspended
-   * DisplayQueueManager and purged through the official close path — nothing
-   * was ever shown on screen.
-   */
-  suppressedDisplays: ReadonlyArray<Civ7ExploreSideEffect>;
-  mutation: "Visibility.setTrackedVisibilityGrant";
-  /**
-   * Exploring marks plots REVEALED, which is a real first-sight discovery
-   * gameplay-side (wonders count as discovered, explore challenges progress).
-   * Only the UI side effects are suppressed; use disposable sessions.
-   */
-  discoveryPosture: "ui-suppressed-gameplay-discovers";
-  classification: "explored" | "already-explored" | "unverified";
+  plotCount: number;
+}>;
+
+export type Civ7ExploreReleaseInput = Readonly<{
+  playerId: number;
+  grantId: number;
+}>;
+
+export type Civ7ExploreReleaseResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  released: boolean;
 }>;
 
 export type VisibilityReadDependencies = Readonly<{
@@ -210,18 +150,13 @@ type VisibilityRevealDependencies = VisibilityReadDependencies &
     probeValue: <T>(probe: Civ7RuntimeProbe<T>) => T | undefined;
   }>;
 
-type VisibilityExploreDependencies = VisibilityRevealDependencies &
-  Readonly<{
-    closeDisplays: (
-      input: Civ7CloseDisplaysInput,
-      options?: Civ7DirectControlOptions,
-    ) => Promise<Civ7CloseDisplaysResult>;
-    parseExploreGrant: (result: Civ7CommandResult, label: string) => ExploreGrantPayload;
-    parseExploreRelease: (result: Civ7CommandResult, label: string) => ExploreReleasePayload;
-    resumeDisplayQueue: (options?: Civ7DirectControlOptions) => Promise<Civ7DisplayQueueHoldResult>;
-    sleep: (ms: number) => Promise<void>;
-    suspendDisplayQueue: (options?: Civ7DirectControlOptions) => Promise<Civ7DisplayQueueHoldResult>;
-  }>;
+export type VisibilityGrantDependencies = Readonly<{
+  boundedInteger: (value: number, min: number, max: number, label: string) => number;
+  executeTunerCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;
+  parseExploreGrant: (result: Civ7CommandResult, label: string) => ExploreGrantPayload;
+  parseExploreRelease: (result: Civ7CommandResult, label: string) => ExploreReleasePayload;
+  validatePlayerId: (playerId: number) => number;
+}>;
 
 type ExploreGrantPayload = Readonly<{
   grantId: number;
@@ -295,134 +230,61 @@ export async function revealCiv7MapForPlayer(
 }
 
 /**
- * Explores the whole map for a player — terrain becomes known (REVEALED /
- * fogged) without granting live vision — through the engine's tracked
- * visibility grants, with every UI side effect suppressed:
- *
- *   1. suspend the DisplayQueueManager (App UI) so nothing can mount,
- *   2. Visibility.setTrackedVisibilityGrant over every plot (Tuner),
- *   3. hold the grant for settleMs (FOW renderer paints progressively;
- *      releasing too early live-verifiably strands the paint mid-sweep),
- *   4. purge the parked discovery displays via the official close path,
- *   5. resume the queue, then release the grant (visible count reverts,
- *      revealed state persists — that IS explore semantics, live-verified
- *      HIDDEN→VISIBLE→REVEALED with zero leaked visibility refcounts).
- *
- * This is the gameplay-side equivalent of the native debug console's
- * "Explore All" button (an ImGui render-only override with no scripting
- * binding). Unlike that button, sight is real here: wonders genuinely get
- * discovered and explore challenges progress — only their popups/cinematics
- * are suppressed. Reveal (revealAllPlots) stays a separate, rare-use command.
+ * Applies a tracked visibility grant over every plot for the player — the
+ * wire atom behind explore semantics (terrain becomes known/REVEALED while
+ * the grant is held; visible count reverts on release, revealed persists —
+ * live-verified HIDDEN→VISIBLE→REVEALED with zero leaked visibility
+ * refcounts). One Tuner exec; the suspend/drain/resume orchestration around
+ * it lives in the Effect layer (@civ7/control-orpc display.explore.request).
  */
-export async function exploreCiv7MapForPlayer(
-  input: Civ7ExploreMapInput,
+export async function applyCiv7ExploreGrant(
+  input: Civ7ExploreGrantInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: VisibilityExploreDependencies = defaultVisibilityExploreDependencies,
-): Promise<Civ7ExploreMapResult> {
+  dependencies: VisibilityGrantDependencies = defaultVisibilityGrantDependencies,
+): Promise<Civ7ExploreGrantResult> {
   const playerId = dependencies.validatePlayerId(input.playerId);
-  const pollMs = dependencies.boundedInteger(input.pollMs ?? 2_500, 250, 60_000, "pollMs");
-  const quiescePolls = dependencies.boundedInteger(input.quiescePolls ?? 3, 1, 20, "quiescePolls");
-  const maxExtraWaitMs = dependencies.boundedInteger(
-    input.maxExtraWaitMs ?? 60_000,
+  const result = await dependencies.executeTunerCommand({
+    ...options,
+    command: buildExploreGrantCommand(playerId),
+  });
+  const payload = dependencies.parseExploreGrant(result, "Civ7 explore grant");
+  return {
+    host: result.host,
+    port: result.port,
+    state: result.state,
+    grantId: payload.grantId,
+    grantedPlots: payload.grantedPlots,
+    plotCount: payload.plotCount,
+  };
+}
+
+/**
+ * Releases a tracked visibility grant previously applied with
+ * applyCiv7ExploreGrant. One Tuner exec.
+ */
+export async function releaseCiv7ExploreGrant(
+  input: Civ7ExploreReleaseInput,
+  options: Civ7DirectControlOptions = {},
+  dependencies: VisibilityGrantDependencies = defaultVisibilityGrantDependencies,
+): Promise<Civ7ExploreReleaseResult> {
+  const playerId = dependencies.validatePlayerId(input.playerId);
+  const grantId = dependencies.boundedInteger(
+    input.grantId,
     0,
-    600_000,
-    "maxExtraWaitMs",
+    Number.MAX_SAFE_INTEGER,
+    "grantId",
   );
-  const before = await dependencies.getVisibilitySummary({ playerId }, options);
-
-  // State machine: every transition below is verified by readback before the
-  // next one runs — a fixed-time purge live-verifiably misses late-arriving
-  // discovery displays (they trail the grant by many seconds).
-  const suspend = await dependencies.suspendDisplayQueue(options);
-  if (!suspend.isSuspended) {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      "Civ7 explore: display queue suspension was not verified by readback",
-    );
-  }
-  try {
-    const grant = dependencies.parseExploreGrant(
-      await dependencies.executeTunerCommand({
-        ...options,
-        command: buildExploreGrantCommand(playerId),
-      }),
-      "Civ7 explore grant",
-    );
-    const settleMs = dependencies.boundedInteger(
-      input.settleMs ?? defaultExploreSettleMs(grant.plotCount),
-      0,
-      600_000,
-      "settleMs",
-    );
-
-    // Drain loop: hold the grant for at least settleMs (FOW renderer paces its
-    // paint), purging the suspended queue every poll. Exit only after
-    // quiescePolls consecutive empty purges — that is the deterministic
-    // "gameplay stopped enqueueing displays" signal — or the hard cap.
-    const suppressed = new Map<string, number>();
-    let elapsedMs = 0;
-    let quietPolls = 0;
-    let drainPolls = 0;
-    let quiesced = false;
-    for (;;) {
-      await dependencies.sleep(pollMs);
-      elapsedMs += pollMs;
-      const purge = await dependencies.closeDisplays({}, options);
-      drainPolls += 1;
-      for (const row of purge.closed) {
-        suppressed.set(row.category, (suppressed.get(row.category) ?? 0) + row.closed);
-      }
-      quietPolls = purge.closedTotal === 0 ? quietPolls + 1 : 0;
-      if (elapsedMs >= settleMs && quietPolls >= quiescePolls) {
-        quiesced = true;
-        break;
-      }
-      if (elapsedMs >= settleMs + maxExtraWaitMs) break;
-    }
-
-    const resume = await dependencies.resumeDisplayQueue(options);
-    const release = dependencies.parseExploreRelease(
-      await dependencies.executeTunerCommand({
-        ...options,
-        command: buildExploreReleaseCommand(playerId, grant.grantId),
-      }),
-      "Civ7 explore grant release",
-    );
-    const after = await dependencies.getVisibilitySummary({ playerId }, options);
-    const beforeRevealed = dependencies.probeValue(before.numPlotsRevealed);
-    const afterRevealed = dependencies.probeValue(after.numPlotsRevealed);
-    const classification =
-      beforeRevealed !== undefined && afterRevealed !== undefined && afterRevealed > beforeRevealed
-        ? "explored"
-        : beforeRevealed !== undefined && afterRevealed !== undefined && afterRevealed === beforeRevealed
-          ? "already-explored"
-          : "unverified";
-    return {
-      host: after.host,
-      port: after.port,
-      state: after.state,
-      playerId,
-      before,
-      after,
-      grantId: grant.grantId,
-      grantedPlots: grant.grantedPlots,
-      grantReleased: release.released,
-      settleMs,
-      drainPolls,
-      quiesced,
-      suspendVerified: suspend.isSuspended,
-      resumeVerified: !resume.isSuspended,
-      suppressedDisplays: [...suppressed.entries()].map(([category, closed]) => ({ category, closed })),
-      mutation: "Visibility.setTrackedVisibilityGrant",
-      discoveryPosture: "ui-suppressed-gameplay-discovers",
-      classification,
-    };
-  } catch (error) {
-    // Never leave the queue suspended: a suspended queue silently swallows
-    // every later display in the session.
-    await dependencies.resumeDisplayQueue(options).catch(() => undefined);
-    throw error;
-  }
+  const result = await dependencies.executeTunerCommand({
+    ...options,
+    command: buildExploreReleaseCommand(playerId, grantId),
+  });
+  const payload = dependencies.parseExploreRelease(result, "Civ7 explore grant release");
+  return {
+    host: result.host,
+    port: result.port,
+    state: result.state,
+    released: payload.released,
+  };
 }
 
 /** clamp(15s..120s, plotCount * 10ms) — FOW render streaming scales with map size. */
@@ -525,12 +387,10 @@ const defaultVisibilityRevealDependencies: VisibilityRevealDependencies = {
   probeValue,
 };
 
-const defaultVisibilityExploreDependencies: VisibilityExploreDependencies = {
-  ...defaultVisibilityRevealDependencies,
-  closeDisplays: closeCiv7Displays,
+const defaultVisibilityGrantDependencies: VisibilityGrantDependencies = {
+  boundedInteger,
+  executeTunerCommand: executeCiv7TunerCommand,
   parseExploreGrant: (result, label) => jsonPayloadFromCommandResult<ExploreGrantPayload>(result, label),
   parseExploreRelease: (result, label) => jsonPayloadFromCommandResult<ExploreReleasePayload>(result, label),
-  resumeDisplayQueue: resumeCiv7DisplayQueue,
-  sleep,
-  suspendDisplayQueue: suspendCiv7DisplayQueue,
+  validatePlayerId,
 };

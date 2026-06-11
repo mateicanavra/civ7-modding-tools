@@ -1,11 +1,13 @@
 import { Command, Flags } from '@oclif/core';
-import { closeCiv7Displays } from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 
 // Closes display requests through the official DisplayQueueManager.closeMatching
 // path, which runs each category handler's real teardown (e.g. the Cinematic
 // handler pops its dynamic camera, fog override, and VFX group). Synthetic DOM
 // clicks were live-proven to skip those handlers and orphan engine state — the
 // queue, not the DOM, is the truth source for "dismissed".
+// Consumed through the typed control-oRPC display.queue.close procedure.
 export default class GamePlayScreenDismiss extends Command {
   static id = 'game play screen dismiss';
   static summary = 'Close queued Civ7 display requests via the official queue';
@@ -43,13 +45,16 @@ export default class GamePlayScreenDismiss extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayScreenDismiss);
-    const result = await closeCiv7Displays(
-      flags.category && flags.category.length > 0 ? { categories: flags.category } : {},
-      {
+    const client = createCiv7ControlOrpcServerClient({
+      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      endpointDefaults: {
         host: flags.host,
         port: flags.port,
         timeoutMs: flags['timeout-ms'],
       },
+    });
+    const result = await client.display.queue.close(
+      flags.category && flags.category.length > 0 ? { categories: flags.category } : {},
     );
 
     if (flags.json) {
