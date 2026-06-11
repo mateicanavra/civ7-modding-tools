@@ -21,10 +21,6 @@ export type VizStore = {
   setShowDebugLayers(next: boolean): void;
 };
 
-function scheduleFrame(cb: () => void): number {
-  if (typeof requestAnimationFrame === "function") return requestAnimationFrame(cb);
-  return setTimeout(cb, 0) as unknown as number;
-}
 
 export function createVizStore(): VizStore {
   const listeners = new Set<() => void>();
@@ -48,6 +44,7 @@ export function createVizStore(): VizStore {
   let pendingSelectedStepId: string | null | undefined = undefined;
   let pendingSelectedLayerKey: string | null | undefined = undefined;
   let rafId: number | null = null;
+  let backstopId: ReturnType<typeof setTimeout> | null = null;
 
   const notify = () => {
     for (const l of listeners) l();
@@ -63,7 +60,10 @@ export function createVizStore(): VizStore {
   };
 
   const commit = () => {
+    if (rafId != null && typeof cancelAnimationFrame === "function") cancelAnimationFrame(rafId);
+    if (backstopId != null) clearTimeout(backstopId);
     rafId = null;
+    backstopId = null;
     let changed = false;
 
     if (pendingStreamManifest !== undefined && pendingStreamManifest !== streamManifest) {
@@ -90,9 +90,20 @@ export function createVizStore(): VizStore {
     }
   };
 
+  // Commits batch onto the next animation frame, but rAF is throttled
+  // indefinitely for hidden/backgrounded documents — which would leave streamed
+  // manifests uncommitted (stale "awaiting matter" canvas) while non-rAF state
+  // like run status keeps updating. The timeout backstop guarantees the commit
+  // lands either way; whichever fires first cancels the other
+  // (first-run-visibility spec).
   const requestCommit = () => {
-    if (rafId != null) return;
-    rafId = scheduleFrame(commit);
+    if (rafId != null || backstopId != null) return;
+    if (typeof requestAnimationFrame === "function") {
+      rafId = requestAnimationFrame(commit);
+      backstopId = setTimeout(commit, 50);
+    } else {
+      backstopId = setTimeout(commit, 0);
+    }
   };
 
   const getOrInitPendingManifest = (): VizManifestV1 | null => {
