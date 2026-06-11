@@ -65,11 +65,27 @@ No additional deltas beyond the A1 classes.
   itself is not visible in OS captures. Dismissing the first-turn
   intro/notification stack is live-play-stack functionality (its
   `dismiss-notification-queue` reported `not-sent` for this blocker class).
+- Update (2026-06-11, second pass): the blocking screens were
+  natural-wonder DISCOVERY CINEMATICS queued by the map reveal (user
+  hypothesis confirmed). Dismissed via the official-handler pattern (App UI
+  DOM: activate `fxs-hero-button.cinematic-moment__close-button`), draining
+  all 7 by name — Zhangjiajie, Iguazu Falls, Gullfoss, Uluru, Machapuchare,
+  Redwood Forest, Torres del Paine — which independently corroborates the A1
+  wonder classes (Gullfoss biome halo, Zhangjiajie/Machapuchare footprints)
+  and the 7-wonder count on the Huge map. `Camera.popCamera`/`lookAtPlot`
+  then ran clean. Promotable primitive: cinematic-moment dismissal belongs in
+  `@civ7/direct-control` next to first-meet/narrative close.
+- Remaining blocker is OS capture, not game state: six `game appshot`
+  frames spanning 6+ hours are pixel-identical (including while a different
+  cinematic was provably active), i.e. macOS screencapture returns a stale
+  frame while the backgrounded game does not present new frames to the
+  captured display. Needs the game foregrounded on the captured display (a
+  human glance); game/tuner state itself is healthy throughout.
 - Disposition: visual map inspection is SUPPLEMENTAL per the workstream
   frame; the substantive B gates above are log/benchmark-proven. Remaining
   human follow-ups recorded in the closure checklist: (1) in-browser studio
-  review of the 29 placement layers (DEF-008 landMask call), (2) an in-game
-  visual pass once the intro stack is dismissed in normal play.
+  review of the 29 placement layers (DEF-008 landMask call), (2) a direct
+  look at the now-unblocked game window (intro/wonder queue drained).
 
 ## Live-run findings owed to follow-up slices (recorded, not silently fixed)
 
