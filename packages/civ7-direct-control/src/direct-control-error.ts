@@ -21,7 +21,12 @@ export type Civ7DirectControlErrorCode =
   | "setup-config-load-failed"
   | "setup-config-proof-missing"
   | "procedure-descriptor-invalid"
-  | "procedure-call-failed";
+  | "procedure-call-failed"
+  | "clean-frame-unverified"
+  | "window-shot-helper-unavailable"
+  | "window-shot-permission-required"
+  | "window-shot-window-not-found"
+  | "window-shot-failed";
 
 export class Civ7DirectControlError extends Error {
   readonly code: Civ7DirectControlErrorCode;

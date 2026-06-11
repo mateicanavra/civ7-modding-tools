@@ -423,6 +423,15 @@ function createCiv7GameUiDirectControlFacade(
     releaseCiv7ExploreGrant: async () => {
       throw new Error("game-ui explore grant release is not supported");
     },
+    enterCiv7CleanFrame: async () => {
+      throw new Error("game-ui clean-frame enter is not supported");
+    },
+    exitCiv7CleanFrame: async () => {
+      throw new Error("game-ui clean-frame exit is not supported");
+    },
+    captureCiv7WindowShot: async () => {
+      throw new Error("game-ui window-shot capture is not supported");
+    },
   };
 }
 

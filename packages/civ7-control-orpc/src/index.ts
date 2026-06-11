@@ -145,6 +145,11 @@ export { civ7ControlOrpcContractBase } from "./contract-base";
 export { Civ7ControlOrpcContract } from "./contract";
 export type { Civ7ControlOrpcContext } from "./context";
 export {
+  Civ7AppshotCaptureFailedError,
+  Civ7AppshotCleanFrameUnverifiedError,
+  Civ7AppshotErrorDataSchema,
+  Civ7AppshotPermissionRequiredError,
+  Civ7AppshotWindowNotFoundError,
   Civ7AttentionCurrentUnavailableError,
   Civ7AttentionCurrentUnavailableErrorDataSchema,
   Civ7AttentionPrioritiesUnavailableError,
@@ -214,6 +219,7 @@ export {
   Civ7WorldReadUnavailableError,
   Civ7WorldReadUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
+  type Civ7AppshotErrorData,
   type Civ7AttentionCurrentUnavailableErrorData,
   type Civ7AttentionPrioritiesUnavailableErrorData,
   type Civ7ControlOrpcErrorMap,
