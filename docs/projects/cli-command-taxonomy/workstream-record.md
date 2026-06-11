@@ -1,0 +1,166 @@
+# Systematic Workstream Record — CLI Command Taxonomy (game mount)
+
+## Frame
+
+- Objective: extend the noun-first / phase-verb grammar that
+  `docs/projects/civ7-live-play-support/topics/command-surface-design.md`
+  established for `game play` to the whole `game` mount, so every command lives
+  at a taxonomy home a play agent can predict from the noun it is thinking
+  about.
+- Future state: `game` carries a flat session-control tier plus real noun
+  topics (`map`, `play` incl. the new `screen` noun, reserved `view`). Flat
+  ids and the `game map` flag-multiplex stay unchanged; decision-logged FULL
+  migrations (D5) remove an old id outright and retarget every repo
+  reference in the same slice — never silently.
+- Non-goals: migrating the 43 `game play/*` commands into the
+  unit/city/progress/notifications/trade/turn grammar (owned by the
+  command-surface-design roadmap, see D7); implementing the rivers-branch
+  `camera`/`screenshot`/`appshot` arrivals (designated only, see D6).
+- Hard core: the command-surface-design grammar (noun-first, phase verbs
+  `show|targets|preview|check|send`; native control first; mutations gated
+  behind explicit flags) and its compatibility rule — "Do not remove existing
+  commands casually" and "Do not add aliases as a substitute for fixing the
+  command model".
+- Exterior: the `game play/*` noun migration (D7); presentation/capture
+  commands not yet on `main` (D6); any direct-control or control-oRPC service
+  changes (this workstream moves CLI surface only).
+- Falsifier: any existing documented invocation breaking WITHOUT a
+  decision-logged migration that retargets its references (`game map
+  --summary` and the flat session commands are unchanged; `game visibility`
+  is the one recorded full migration), or the oclif manifest failing to
+  emit both a topic index command and its subcommands.
+- Redesign trigger: oclif rejecting command-file + topic-dir coexistence or
+  cross-topic aliases (verified working — see Status notes), or a consumer
+  inventory showing clustering value for the flat session tier (would reopen
+  D1).
+
+## Status
+
+- Last updated: 2026-06-11
+- Current gate: slice 4 (map noun gathering) implemented; stack submitted as
+  drafts.
+- Next gate: review + merge of PRs #1576/#1577 and the slice 3/4 PRs; then the
+  D7 play-grammar migration proceeds under command-surface-design ownership.
+- Blocked by: nothing; pre-merge amendment of slice 2 means no alias debt for
+  `game map starts` / `game play screen dismiss`.
+- Stop condition: all four slices merged with the manifest showing the target
+  ids and zero broken legacy invocations.
+- Verified findings:
+  - oclif command-file + topic-dir coexistence works: `game/map.ts` beside
+    `game/map/` emitted both `game:map` and `game:map:starts` in the manifest
+    (slice 2). Slice 4 still restructures to `game/map/index.ts` for the
+    long-term topic shape.
+  - Cross-topic aliases verified working (`static aliases` with
+    colon-separated ids, mirroring `mod git push` → `link:push`) BEFORE the
+    D5 override chose full migration; recorded as a usable mechanism, not
+    used by this stack.
+
+## Repo State
+
+- Worktree: `wt-direct-control-live-ui`
+- Branches (Graphite stack, bottom → top):
+  1. `direct-control-cinematic-dismissal` (PR #1576) — dismissal primitive.
+  2. `cli-game-dismiss-cinematics-and-starts` (PR #1577, amended in place) —
+     `game map starts`, `game play screen dismiss|show`.
+  3. `cli-taxonomy-workstream-docs` — this directory.
+  4. `cli-game-map-noun-topic` — `game map` topic restructure + visibility
+     move.
+- Protected paths: `packages/cli/src/commands/game/play/*` behavior (D7
+  boundary); `game map` index flag-multiplex behavior (D2 compatibility).
+- Generated/read-only paths: `packages/cli/oclif.manifest.json` (build
+  output, untracked).
+
+## Decision Log
+
+Decisions D1–D7 are settled. Do not relitigate; record deviations here with a
+new decision number.
+
+- **D1 — session tier stays flat.** The `game` mount itself is the session
+  noun. Session-control singletons stay FLAT: `status`, `health`, `restart`,
+  `autoplay`, `exec`, `inspect`, `operation`, `watch`, `catalog`, `gameinfo`,
+  `ai loaded-levers`, `local-data inspect`. Rationale: `gameinfo` is already
+  the NATIVE Civ7 noun (GameInfo); `status`/`health`/`restart` have a huge
+  reference blast radius (91/16/20+ doc references) and no clustering value;
+  the design doc forbids aliases as a substitute for model fixes — and
+  equally, renames without consumer value. No `game session` / `game native`
+  umbrella topics.
+- **D2 — `game map` becomes a real noun topic.** Subcommands `summary`,
+  `plot`, `grid`, `starts`, `visibility`. The current `game map`
+  flag-multiplex (`--summary/--plot/--bounds`) is preserved as the topic
+  INDEX command (oclif: `game/map/index.ts`) so every existing invocation
+  keeps working unchanged; the new subcommands are thin delegations over the
+  same service calls with focused flags.
+- **D3 — `game starts` renames to `game map starts`.** Amended into slice 2;
+  the command was unmerged, so no alias is needed.
+- **D4 — `game dismiss-cinematics` renames to `game play screen dismiss`.**
+  Amended into slice 2. Added sibling `game play screen show` (read-only: one
+  App UI exec listing active cinematic/display screens — selector count +
+  titles via the same selectors as the dismissal primitive; reuses exported
+  selector constants from `@civ7/direct-control` rather than duplicating
+  strings). `screen` is a new play noun; native primitive =
+  DisplayQueueManager cinematic-moment screens (provenance comments per
+  slice 1).
+- **D5 — `game visibility` moves to `game map visibility`, FULL MIGRATION
+  (user decision 2026-06-11, supersedes the initial alias plan).** No alias,
+  no deprecated stub: the old id is removed outright and every repo
+  reference (docs/, scripts/, .agents/) is retargeted to
+  `game map visibility` in the same slice. (For the record: cross-topic
+  oclif aliases were verified working via the `mod/git` → `link:*` pattern
+  before the override — usable if a future migration ever needs one.)
+- **D6 — rivers-branch arrivals get a designated home.** Planned arrivals
+  (`camera`, `screenshot`, `appshot` — NOT on `main`) are DESIGNATED to land
+  as `game view camera|screenshot|appshot` (a presentation/capture noun).
+  Documented only; not implemented here.
+- **D7 — `game play/*` noun migration is out of scope.** The 43 `game play/*`
+  commands' migration to the unit/city/progress/notifications/trade/turn
+  grammar is OWNED by the existing command-surface-design.md roadmap. This
+  workstream records the boundary and cross-links; see
+  `docs/projects/civ7-live-play-support/topics/command-surface-design.md`
+  (Priority Refactors, Compatibility Path).
+
+## Corpus Gate
+
+- Corpus source(s): `packages/cli/src/commands/game/**` on the stack;
+  `corpus.md` in this directory (command corpus ledger).
+- Corpus shape: action surfaces (CLI command ids) + consumer/reference
+  effect matrix.
+- Coverage ledger: see `corpus.md` — every flat-tier command has a row with
+  id/summary/layer/state/consumer/refs/decision; play tier covered by
+  one-liners + the design-doc accuracy table.
+- Open uncertainty: reference counts are point-in-time greps (2026-06-11);
+  rivers-branch arrival shapes may drift before they reach `main`.
+
+## Proof Gates
+
+- Local stats: `turbo run test --filter=@mateicanavra/civ7-cli
+  --filter=@civ7/direct-control` green; root `bun run check-types` green.
+- Generated/deploy proof: oclif manifest contains `game:map`,
+  `game:map:starts`, `game:map:summary|plot|grid|visibility`,
+  `game:play:screen:dismiss|show`; does NOT contain `game:starts` or
+  `game:dismiss-cinematics` — and after the D5 override, no
+  `game:visibility` id or alias at all.
+- Runtime proof: none required — no live-game socket use in this workstream;
+  all command behavior is fake-tuner-server tested. The underlying
+  primitives carry their own live verification (cinematic dismissal and
+  founder-unit starts live-verified 2026-06-11; `restart` rerolls the map
+  seed, live-verified 2026-06-11).
+- Product proof: `--help` exits 0 without sockets for `game map`,
+  `game map summary`, `game map starts`, `game play screen dismiss`.
+- Closure boundary: D6 (view noun) and D7 (play migration) intentionally
+  remain open; they are exterior, not debt.
+
+## Slice Ledger
+
+| Slice | Branch | PR | Content | State |
+| --- | --- | --- | --- | --- |
+| 1 | `direct-control-cinematic-dismissal` | #1576 | cinematic-moment dismissal primitive (`@civ7/direct-control`) | submitted (draft) |
+| 2 | `cli-game-dismiss-cinematics-and-starts` | #1577 | `game map starts`, `game play screen dismiss`, `game play screen show` (amended in place to taxonomy homes per D2/D3/D4) | submitted (draft, amended) |
+| 3 | `cli-taxonomy-workstream-docs` | — | this directory: workstream record, corpus ledger, target grammar | this slice |
+| 4 | `cli-game-map-noun-topic` | — | `game map` topic restructure (`index/summary/plot/grid`), `game map visibility` FULL migration incl. repo-wide reference retarget (D2/D5) | next slice |
+
+## Team
+
+- Owner: Matei (tools@matei.work)
+- Evidence agents: fake-tuner-server CLI tests; oclif manifest grep.
+- Review agents: PR review on the Graphite stack.
+- Open findings: none.
