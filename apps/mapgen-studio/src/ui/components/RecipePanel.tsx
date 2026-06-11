@@ -12,8 +12,7 @@ import {
   BookOpen,
   Focus,
   Settings,
-  Save,
-  Play } from
+  Save } from
 'lucide-react';
 import { SchemaConfigForm } from '../../features/configOverrides/SchemaConfigForm';
 import { LAYOUT } from '../constants';
@@ -68,8 +67,6 @@ export interface RecipePanelProps {
   settings: RecipeSettings;
   /** Callback when recipe settings change */
   onSettingsChange: (settings: RecipeSettings) => void;
-  /** Callback to start generation */
-  onRun: () => void;
   /** Callback to save preset to current */
   onSaveToCurrent: () => void;
   /** Callback to save preset as new */
@@ -82,10 +79,6 @@ export interface RecipePanelProps {
   onDeletePreset: () => void;
   /** Whether delete is available */
   canDeletePreset?: boolean;
-  /** Whether generation is running */
-  isRunning: boolean;
-  /** Whether generation is disabled by another Studio operation */
-  isRunDisabled?: boolean;
   /** Whether config save/deploy is running */
   isSaveDeployRunning?: boolean;
   /** Current config save/deploy status */
@@ -120,15 +113,12 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   selectedStep,
   settings,
   onSettingsChange,
-  onRun,
   onSaveToCurrent,
   onSaveAsNew,
   onImportPreset,
   onExportPreset,
   onDeletePreset,
   canDeletePreset = false,
-  isRunning,
-  isRunDisabled = false,
   isSaveDeployRunning = false,
   saveDeployStatus,
   isSaveDisabled = false,
@@ -167,7 +157,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
     if (configCollapsedProp === undefined) setLocalConfigCollapsed(next);
   };
   const saveActionDisabled = isSaveDisabled || isSaveDeployRunning;
-  const runActionDisabled = isRunning || isRunDisabled || isSaveDeployRunning;
   const saveLabel = saveDeployStatus ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase) : 'Save & Deploy Config';
   const saveTitle = isSaveDeployRunning ? `Save & Deploy Config: ${saveLabel}` : saveActionDisabled ? 'Save unavailable while another operation is running' : 'Save & Deploy Config';
 
@@ -438,25 +427,17 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
           className={`flex-shrink-0 px-3 py-2.5 border-t ${borderColor} ${sectionBg}`}>
 
           <div className="flex items-center gap-2">
-            <Button
-              onClick={onRun}
-              disabled={runActionDisabled}
-              className={`flex-1 ${isDirty ? 'ring-1 ring-ring border-primary' : ''} ${isRunning || isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
-
-              <Play className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>{isRunning ? 'Running…' : 'Run'}</span>
-            </Button>
-
             {/*
               Save & Deploy menu — Radix `DropdownMenu` (role=menu/menuitem,
               Escape, arrow-key roving focus, focus trap + restore for free). The
-              prior hand-rolled overlay is gone; the action set + values are
-              preserved exactly (Save & Deploy → onSaveToCurrent, As… →
-              onSaveAsNew, Export… → onExportPreset, Import… → onImportPreset,
-              Delete Scratch → onDeletePreset gated by `canDeletePreset`). Radix
-              closes on select, so the explicit `setShowSaveMenu(false)` per item
-              is no longer needed; the controlled open state stays so the
-              `saveActionDisabled` effect can still force-close it.
+              action set + values are preserved exactly (Save & Deploy →
+              onSaveToCurrent, As… → onSaveAsNew, Export… → onExportPreset,
+              Import… → onImportPreset, Delete Scratch → onDeletePreset gated by
+              `canDeletePreset`). Radix closes on select; the controlled open
+              state stays so the `saveActionDisabled` effect can force-close it.
+
+              This is the panel's only footer action: running lives exclusively
+              in the footer run console (Pass-2 run-console spec — one Run CTA).
             */}
             <DropdownMenu open={showSaveMenu} onOpenChange={setShowSaveMenu}>
               <Tooltip>
@@ -464,12 +445,11 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      size="icon"
                       disabled={saveActionDisabled}
-                      aria-label="Save & Deploy Config"
-                      className={`h-8 w-8 ${isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
+                      className={`flex-1 ${isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
 
                       <Save className="w-4 h-4" aria-hidden="true" />
+                      <span>Save & Deploy</span>
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
