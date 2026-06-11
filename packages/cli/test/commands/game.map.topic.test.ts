@@ -78,6 +78,17 @@ describe('game map noun topic', () => {
     expect(GameMapVisibility.aliases ?? []).toEqual([]);
   });
 
+  test('game map visibility gates --explore behind --disposable', async () => {
+    const server = await startWorldTunerServer();
+    try {
+      await expect(
+        runCommand(GameMapVisibility, server, ['--player-id', '0', '--explore']),
+      ).rejects.toThrow(/--explore requires --disposable/);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('game map visibility still gates --reveal behind --disposable', async () => {
     const server = await startWorldTunerServer();
     try {

@@ -1,17 +1,28 @@
 import { Command, Flags } from '@oclif/core';
-import { getCiv7VisibilitySummary, revealCiv7MapForPlayer } from '@civ7/direct-control';
+import {
+  exploreCiv7MapForPlayer,
+  getCiv7VisibilitySummary,
+  revealCiv7MapForPlayer,
+} from '@civ7/direct-control';
 
-// Moved from `game visibility` to its taxonomy home under the `game map`
-// noun topic (D5 in docs/projects/cli-command-taxonomy/workstream-record.md).
-// The old id keeps working via the cross-topic oclif alias below.
+// Two discrete mutations, deliberately not interchangeable:
+// --explore  terrain becomes known (REVEALED/fogged, no live vision) via the
+//            engine's tracked visibility grants, with discovery popups
+//            suppressed through the official display queue. The map-QA verb.
+// --reveal   the engine's own Visibility.revealAllPlots(player) — a special,
+//            rare-use per-player command whose discovery side effects display
+//            normally.
 export default class GameMapVisibility extends Command {
   static id = 'game map visibility';
-  static summary = 'Read or reveal Civ7 player visibility';
+  static summary = 'Read, explore, or reveal Civ7 player visibility';
   static description =
-    'Reads bounded visibility state, or explicitly reveals the map for a disposable debug session through @civ7/direct-control.';
+    'Reads bounded visibility state, explores the whole map (terrain known, fogged, popups ' +
+    'suppressed), or reveals it outright via the engine reveal command, for a disposable debug ' +
+    'session through @civ7/direct-control.';
 
   static examples = [
     '<%= config.bin %> game map visibility --player-id 0 --bounds 0,0,32,32 --json',
+    '<%= config.bin %> game map visibility --player-id 0 --explore --disposable --json',
     '<%= config.bin %> game map visibility --player-id 0 --reveal --disposable --json',
   ];
 
@@ -33,13 +44,21 @@ export default class GameMapVisibility extends Command {
       description: 'Include bounded visibility grid',
       default: false,
     }),
+    explore: Flags.boolean({
+      description: 'Explore the whole map for the player (terrain known under fog, discovery popups suppressed)',
+      default: false,
+      exclusive: ['reveal'],
+    }),
     reveal: Flags.boolean({
-      description: 'Reveal all plots for the player',
+      description: 'Reveal all plots for the player (engine reveal command; discovery popups display)',
       default: false,
     }),
     disposable: Flags.boolean({
-      description: 'Confirm this is a disposable debug session for reveal',
+      description: 'Confirm this is a disposable debug session for explore/reveal',
       default: false,
+    }),
+    'settle-ms': Flags.integer({
+      description: 'Explore grant hold time so the fog-of-war renderer can stream the reveal (default scales with map size)',
     }),
     'max-plots': Flags.integer({
       description: 'Maximum plots for grid reads',
@@ -61,20 +80,28 @@ export default class GameMapVisibility extends Command {
       port: flags.port,
       timeoutMs: flags['timeout-ms'],
     };
-    if (flags.reveal && flags.disposable !== true) {
-      throw new Error('game map visibility --reveal requires --disposable');
+    if ((flags.reveal || flags.explore) && flags.disposable !== true) {
+      throw new Error(`game map visibility --${flags.reveal ? 'reveal' : 'explore'} requires --disposable`);
     }
-    const result = flags.reveal
-      ? await revealCiv7MapForPlayer(
-          { playerId: flags['player-id'] },
+    const result = flags.explore
+      ? await exploreCiv7MapForPlayer(
+          {
+            playerId: flags['player-id'],
+            ...(flags['settle-ms'] === undefined ? {} : { settleMs: flags['settle-ms'] }),
+          },
           options,
         )
-      : await getCiv7VisibilitySummary({
-          playerId: flags['player-id'],
-          bounds: flags.bounds ? parseBounds(flags.bounds) : undefined,
-          includeGrid: flags.grid || Boolean(flags.bounds),
-          maxPlots: flags['max-plots'],
-        }, options);
+      : flags.reveal
+        ? await revealCiv7MapForPlayer(
+            { playerId: flags['player-id'] },
+            options,
+          )
+        : await getCiv7VisibilitySummary({
+            playerId: flags['player-id'],
+            bounds: flags.bounds ? parseBounds(flags.bounds) : undefined,
+            includeGrid: flags.grid || Boolean(flags.bounds),
+            maxPlots: flags['max-plots'],
+          }, options);
 
     if (flags.json) {
       this.log(JSON.stringify({ ok: true, result }));

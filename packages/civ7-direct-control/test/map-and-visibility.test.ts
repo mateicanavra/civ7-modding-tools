@@ -19,6 +19,7 @@ import {
   getCiv7VisibilitySummary,
   revealCiv7MapForPlayer,
 } from "../src/index";
+import { exploreCiv7MapForPlayer } from "../src/play/map/visibility";
 
 type FakeTunerServer = {
   received: string[];
@@ -251,6 +252,150 @@ describe("map and visibility reads", () => {
     } finally {
       await server.close();
     }
+  });
+});
+
+
+describe("explore map for player", () => {
+  function exploreDependencies(overrides: Partial<Record<string, unknown>> = {}) {
+    const calls: string[] = [];
+    const summaries = [
+      { revealed: 29, visible: 7 },
+      { revealed: 6996, visible: 7 },
+    ];
+    const dependencies = {
+      boundedInteger: (value: number) => value,
+      defaultMapGridMaxPlots: 4096,
+      executeTunerCommand: async ({ command }: { command: string }) => {
+        if (command.includes("setTrackedVisibilityGrant")) {
+          calls.push("grant");
+          return tunerResult({ grantId: 1, grantedPlots: 6996, plotCount: 6996 });
+        }
+        calls.push("release");
+        return tunerResult({ released: true });
+      },
+      hardMapGridMaxPlots: 100_000_000,
+      jsLiteral: (value: unknown) => JSON.stringify(value),
+      parseVisibilitySummary: () => {
+        throw new Error("unused in explore tests");
+      },
+      probeHelperSource: () => "",
+      validateMapBounds: () => undefined,
+      validatePlayerId: (playerId: number) => playerId,
+      getVisibilitySummary: async () => {
+        calls.push("summary");
+        const next = summaries.shift() ?? { revealed: 6996, visible: 7 };
+        return {
+          host: "127.0.0.1",
+          port: 4318,
+          state: { id: "1", name: "Tuner" },
+          playerId: 0,
+          numPlotsRevealed: { ok: true, value: next.revealed },
+          numPlotsVisible: { ok: true, value: next.visible },
+          counts: {},
+        };
+      },
+      probeValue: <T,>(probe: { ok: boolean; value?: T }) => (probe.ok ? probe.value : undefined),
+      closeDisplays: async () => {
+        calls.push("close");
+        return {
+          host: "127.0.0.1",
+          port: 4318,
+          state: { id: "65535", name: "App UI" },
+          closed: [
+            { category: "Cinematic", closed: 7 },
+            { category: "UnlockPopup", closed: 1 },
+          ],
+          closedTotal: 8,
+          remainingActive: [],
+          remainingSuspended: [],
+        };
+      },
+      parseExploreGrant: (result: { output: string[] }) => JSON.parse(result.output[0] ?? "{}"),
+      parseExploreRelease: (result: { output: string[] }) => JSON.parse(result.output[0] ?? "{}"),
+      resumeDisplayQueue: async () => {
+        calls.push("resume");
+        return { host: "127.0.0.1", port: 4318, state: { id: "65535", name: "App UI" }, isSuspended: false };
+      },
+      sleep: async () => {
+        calls.push("settle");
+      },
+      suspendDisplayQueue: async () => {
+        calls.push("suspend");
+        return { host: "127.0.0.1", port: 4318, state: { id: "65535", name: "App UI" }, isSuspended: true };
+      },
+      ...overrides,
+    };
+    return { calls, dependencies };
+  }
+
+  function tunerResult(payload: unknown) {
+    return {
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "1", name: "Tuner" },
+      output: [JSON.stringify(payload)],
+    };
+  }
+
+  test("runs the suppressed-grant sequence in order and reports side effects", async () => {
+    const { calls, dependencies } = exploreDependencies();
+    const result = await exploreCiv7MapForPlayer(
+      { playerId: 0 },
+      {},
+      dependencies as never,
+    );
+    expect(calls).toEqual([
+      "summary",
+      "suspend",
+      "grant",
+      "settle",
+      "close",
+      "resume",
+      "release",
+      "summary",
+    ]);
+    expect(result.classification).toBe("explored");
+    expect(result.grantReleased).toBe(true);
+    expect(result.grantedPlots).toBe(6996);
+    expect(result.suppressedDisplays).toEqual([
+      { category: "Cinematic", closed: 7 },
+      { category: "UnlockPopup", closed: 1 },
+    ]);
+    expect(result.discoveryPosture).toBe("ui-suppressed-gameplay-discovers");
+    expect(result.mutation).toBe("Visibility.setTrackedVisibilityGrant");
+  });
+
+  test("settle defaults scale with map size and honor explicit settleMs", async () => {
+    const slept: number[] = [];
+    const { dependencies } = exploreDependencies({
+      sleep: async (ms: number) => {
+        slept.push(ms);
+      },
+    });
+    await exploreCiv7MapForPlayer({ playerId: 0 }, {}, dependencies as never);
+    expect(slept).toEqual([Math.round(6996 * 10)]);
+
+    slept.length = 0;
+    const second = exploreDependencies({
+      sleep: async (ms: number) => {
+        slept.push(ms);
+      },
+    });
+    await exploreCiv7MapForPlayer({ playerId: 0, settleMs: 1_000 }, {}, second.dependencies as never);
+    expect(slept).toEqual([1_000]);
+  });
+
+  test("resumes the display queue even when the grant fails", async () => {
+    const { calls, dependencies } = exploreDependencies({
+      executeTunerCommand: async () => {
+        throw new Error("tuner down");
+      },
+    });
+    await expect(
+      exploreCiv7MapForPlayer({ playerId: 0 }, {}, dependencies as never),
+    ).rejects.toThrow("tuner down");
+    expect(calls).toContain("resume");
   });
 });
 

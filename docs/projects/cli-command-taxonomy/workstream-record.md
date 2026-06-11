@@ -37,10 +37,12 @@
 ## Status
 
 - Last updated: 2026-06-11
-- Current gate: slice 4 (map noun gathering) implemented; stack submitted as
-  drafts.
-- Next gate: review + merge of PRs #1576/#1577 and the slice 3/4 PRs; then the
-  D7 play-grammar migration proceeds under command-surface-design ownership.
+- Current gate: slice 5 (DQM display control + explore, D8/D9) implemented on
+  top of the slice 1–4 stack; live-validated end-to-end against a fresh game.
+- Next gate: review + merge of PRs #1576–#1579 + slice 5; the slice-1
+  synthetic-DOM primitive is replaced by slice 5 before merge (the false-drain
+  merge blocker is resolved in-stack). Then the D7 play-grammar migration
+  proceeds under command-surface-design ownership.
 - Blocked by: nothing; pre-merge amendment of slice 2 means no alias debt for
   `game map starts` / `game play screen dismiss`.
 - Stop condition: all four slices merged with the manifest showing the target
@@ -117,6 +119,38 @@ new decision number.
   workstream records the boundary and cross-links; see
   `docs/projects/civ7-live-play-support/topics/command-surface-design.md`
   (Priority Refactors, Compatibility Path).
+- **D8 — DisplayQueueManager is the display-control substrate (live-proven
+  2026-06-11, slice 5).** Every popup-like screen (wonder cinematics, unlock
+  popups, triumph popups, narrative events, diplomacy dialogs, ... — 17
+  registered handler categories) is a request in the official
+  DisplayQueueManager (`core/ui/context-manager/display-queue-manager.js`,
+  reached via module-registry import). `closeMatching(category)` runs each
+  handler's REAL teardown; `suspend()/resume()` park new requests without
+  displaying them. The slice-1 synthetic-DOM dismissal primitive produced
+  false drains (queue entries removed from DOM only; handlers never ran) and
+  is REPLACED outright by `display-queue.ts` (`readCiv7DisplayQueue`,
+  `closeCiv7Displays`, `suspendCiv7DisplayQueue`, `resumeCiv7DisplayQueue`).
+  Truth source is queue state, never DOM emptiness. Related correction: the
+  long-standing "leaked WorldUI cinematic render layer that only a restart
+  clears" finding was FALSE — those whole-display captures were showing the
+  macOS "Sequoia Sunrise" wallpaper (a redwood forest) because the game runs
+  fullscreen on its own Space. The official close path was never broken.
+- **D9 — explore and reveal are two discrete visibility mutations (user
+  decision 2026-06-11, slice 5).** `--reveal` stays the engine's own
+  `Visibility.revealAllPlots(player)`: special, rare-use, discovery popups
+  display normally. `--explore` is the map-QA verb: engine tracked visibility
+  grants (`Visibility.setTrackedVisibilityGrant(player, 1, allPlots)` →
+  settle → `removeTrackedVisibilityGrant`), leaving plots REVEALED/fogged
+  with zero leaked refcounts (live-verified HIDDEN→VISIBLE→REVEALED), with
+  ALL display side effects suppressed via D8's suspend→purge→resume. The
+  native debug console's "Explore All" is an ImGui render-only override with
+  no scripting binding (binary-verified: TerrainPanel "Fog of War" section)
+  and cannot be borrowed; gameplay-side sight is real (wonders genuinely
+  discovered, explore challenges progress) — recorded as
+  `discoveryPosture: "ui-suppressed-gameplay-discovers"`. The rivers-branch
+  `--explore` (a `changeVisibilityCount(+1)` loop that leaks visibility
+  refcounts) is superseded by this implementation; its drain must adopt this
+  one (supersedes the D6-adjacent note in INTEGRATION-PLAN's rivers list).
 
 ## Corpus Gate
 
@@ -157,6 +191,7 @@ new decision number.
 | 2 | `cli-game-dismiss-cinematics-and-starts` | #1577 | `game map starts`, `game play screen dismiss`, `game play screen show` (amended in place to taxonomy homes per D2/D3/D4) | submitted (draft, amended) |
 | 3 | `cli-taxonomy-workstream-docs` | — | this directory: workstream record, corpus ledger, target grammar | this slice |
 | 4 | `cli-game-map-noun-topic` | — | `game map` topic restructure (`index/summary/plot/grid`), `game map visibility` FULL migration incl. repo-wide reference retarget (D2/D5) | next slice |
+| 5 | `direct-control-display-queue` | — | DQM display-control primitives replace the synthetic dismissal outright (D8); `game map visibility --explore` via suppressed tracked grants (D9); `game play screen show/dismiss` rewired to queue truth | this slice |
 
 ## Team
 
