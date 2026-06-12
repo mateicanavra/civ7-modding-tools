@@ -6,7 +6,7 @@ import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 
 const PlotLandmassRegionsStepContract = defineStep({
   id: "plot-landmass-regions",
-  phase: "gameplay",
+  phase: "placement",
   requires: [],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.landmassRegionsPlotted],
   artifacts: {

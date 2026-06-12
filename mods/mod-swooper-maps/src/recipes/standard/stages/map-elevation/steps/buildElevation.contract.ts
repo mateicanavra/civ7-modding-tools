@@ -7,7 +7,7 @@ import { mapElevationArtifacts } from "../artifacts.js";
 
 const BuildElevationStepContract = defineStep({
   id: "build-elevation",
-  phase: "gameplay",
+  phase: "morphology",
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted,
     MAP_PROJECTION_EFFECT_TAGS.map.volcanoesPlotted,

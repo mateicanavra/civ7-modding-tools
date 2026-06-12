@@ -11,7 +11,7 @@ import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../tags.js";
  */
 const PlotEffectsStepContract = defineStep({
   id: "plot-effects",
-  phase: "gameplay",
+  phase: "ecology",
   requires: [],
   provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.plotEffectsApplied],
   artifacts: {

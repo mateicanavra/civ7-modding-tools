@@ -17,6 +17,7 @@ export const FIELD_DEPENDENCY_TAGS = {
 
 export const STANDARD_ENGINE_EFFECT_TAGS = {
   engine: {
+    riversModeled: "effect:engine.riversModeled",
     biomesApplied: ENGINE_EFFECT_TAGS.biomesApplied,
     featuresApplied: ENGINE_EFFECT_TAGS.featuresApplied,
     plotEffectsApplied: "effect:engine.plotEffectsApplied",
@@ -73,67 +74,67 @@ const VERIFIED_EFFECT_TAGS = new Set<string>([
 const EFFECT_OWNERS: Record<string, TagOwner> = {
   [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "morphology",
     stepId: "plot-coasts",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "morphology",
     stepId: "plot-continents",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "morphology",
     stepId: "plot-mountains",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.volcanoesPlotted]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "morphology",
     stepId: "plot-volcanoes",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "morphology",
     stepId: "build-elevation",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.landmassRegionsPlotted]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "placement",
     stepId: "plot-landmass-regions",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.lakesPlotted]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "hydrology",
     stepId: "lakes",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.elevationParityCaptured]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "morphology",
     stepId: "build-elevation",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.hydrologyLakesParityCaptured]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "hydrology",
     stepId: "lakes",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "hydrology",
     stepId: "plot-rivers",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "hydrology",
     stepId: "plot-rivers",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.ecologyBiomesParityCaptured]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "ecology",
     stepId: "plot-biomes",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.ecologyFeaturesParityCaptured]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "ecology",
     stepId: "features-apply",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.placementParityCaptured]: {
@@ -181,19 +182,24 @@ const EFFECT_OWNERS: Record<string, TagOwner> = {
     phase: "placement",
     stepId: "assign-advanced-starts",
   },
+  [STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled]: {
+    pkg: "mod-swooper-maps",
+    phase: "hydrology",
+    stepId: "plot-rivers",
+  },
   [STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "ecology",
     stepId: "plot-biomes",
   },
   [STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "ecology",
     stepId: "features-apply",
   },
   [STANDARD_ENGINE_EFFECT_TAGS.engine.plotEffectsApplied]: {
     pkg: "mod-swooper-maps",
-    phase: "gameplay",
+    phase: "ecology",
     stepId: "plot-effects",
   },
   [STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied]: {
