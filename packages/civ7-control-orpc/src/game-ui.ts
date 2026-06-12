@@ -110,6 +110,10 @@ export type Civ7GameUiRuntimeTarget = {
   Civ7IntelligenceBridge?: Civ7IntelligenceBridge;
   EndTurnBlockingTypes?: Civ7GameUiNotificationDismissalTarget["EndTurnBlockingTypes"];
   NotificationModel?: Civ7GameUiNotificationDismissalTarget["NotificationModel"];
+  Input?: {
+    getActiveContext?: () => number;
+  };
+  InputContext?: Record<string, number>;
   UI?: {
     isInGame?: () => boolean;
     isInShell?: () => boolean;
@@ -638,6 +642,23 @@ function gameUiSnapshot(target: Civ7GameUiRuntimeTarget) {
         target.Configuration?.getGame?.().skipStartButton ?? false
       ),
       automationActive: ok(false),
+      activeInputContext: probe(() => {
+        const context = target.Input?.getActiveContext?.();
+        if (context === undefined) throw new Error("Input.getActiveContext unavailable");
+        return context;
+      }),
+      activeInputContextName: (() => {
+        try {
+          const context = target.Input?.getActiveContext?.();
+          if (context === undefined) return null;
+          return (
+            Object.entries(target.InputContext ?? {}).find(([, value]) => value === context)?.[0] ??
+            null
+          );
+        } catch {
+          return null;
+        }
+      })(),
     },
     gameContext: {
       localPlayerID: target.GameContext?.localPlayerID ?? -1,
