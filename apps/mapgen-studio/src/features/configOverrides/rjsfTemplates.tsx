@@ -33,7 +33,6 @@ export type BrowserConfigFormContext = {
 // is gone. The theme now follows the single `.dark` class via design-system
 // tokens (`card`/`muted`/`border`/`accent`/…), so there is no `lightMode` read.
 const FORM = {
-  card: "bg-card border-border",
   // Group well: nesting is a surface, not an indent (Pass-3 config-surface
   // spec). One recess below the stage card — tinted toward the page token so
   // groups read as machined slots in the slate. `background` sits below `card`
@@ -56,12 +55,12 @@ const FORM = {
   groupHeading: "text-label font-semibold uppercase tracking-wider text-muted-foreground",
   subGroupHeading: "text-label font-semibold uppercase tracking-wider text-muted-foreground/70",
   // Rhythm on the 4px base (Pass-3): 4px inside a field block, 8px between
-  // sibling fields, 12px between groups/stage sections. Group wells carry
-  // `my-1`, which composes with the sibling gap to the 12px group step.
+  // sibling fields. Stage sections carry NO inter-item rhythm (Y4 flatten):
+  // the accordion is tight — hairline dividers separate rows, not margins.
+  // Group wells carry `my-1`, composing with the sibling gap inside a slab.
   rhythm: {
     field: "gap-1",
     siblings: "gap-2",
-    sections: "gap-3",
     groupPull: "my-1",
   },
 } as const;
@@ -207,8 +206,11 @@ export function BrowserConfigObjectFieldTemplate(
   const textClass = FORM.text;
 
   if (isRoot) {
+    // Y4 flatten: the stage list is a TIGHT accordion — flush rows separated
+    // by hairlines, no inter-card margins, no card chrome. Expansion is the
+    // only volume change (a recessed slab opens under the row).
     return (
-      <div className={`flex flex-col ${FORM.rhythm.sections}`}>
+      <div className={`flex flex-col divide-y divide-border-subtle border-y ${FORM.borderSubtle}`}>
         {properties.filter((p) => !p.hidden).map((p) => p.content)}
       </div>
     );
@@ -236,11 +238,14 @@ export function BrowserConfigObjectFieldTemplate(
   );
 
   if (isStage) {
+    // Y4 flatten: stage objects lay FLAT on the panel — no card chrome, no
+    // raised surface. The header is a full-bleed disclosure row; expanding it
+    // opens a RECESSED slab (`surface-sunken` — below the panel, toward the
+    // page) so the interaction reads as a door opening into the graphite,
+    // not a card inflating off it. Group wells keep their one machined-slot
+    // tier inside the slab.
     return (
-      <section
-        className={`rounded-lg border p-2.5 ${FORM.card}`}
-        data-config-section=""
-        data-config-pointer={pointer}>
+      <section data-config-section="" data-config-pointer={pointer}>
         {collapse ? (
           <CollapsibleHeader
             pointer={pointer}
@@ -248,23 +253,25 @@ export function BrowserConfigObjectFieldTemplate(
             titleClass={`text-sm font-semibold ${textClass}`}
             expanded={expanded}
             collapse={collapse}
+            className="px-2.5 py-2 hover:bg-muted/20 transition-colors"
           />
         ) : (
-          <header className="flex flex-col gap-1">
+          <header className="flex flex-col gap-1 px-2.5 py-2">
             <div className={`text-sm font-semibold ${textClass}`}>{prettyTitle}</div>
             {renderGsComments({ schema, className: labelClass })}
             {description ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
           </header>
         )}
         {expanded ? (
-          <div id={collapse ? configContentId(pointer) : undefined}>
+          <div
+            id={collapse ? configContentId(pointer) : undefined}
+            className={`border-t bg-surface-sunken/60 px-2.5 pb-2.5 pt-2 ${FORM.borderSubtle}`}>
             {collapse ? (
-              <div className="flex flex-col gap-1 pt-1">
+              <div className="flex flex-col gap-1 pb-1.5">
                 {renderGsComments({ schema, className: labelClass })}
                 {description ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
               </div>
             ) : null}
-            <div className={`my-1.5 border-t ${FORM.divider}`} />
             {content}
           </div>
         ) : null}

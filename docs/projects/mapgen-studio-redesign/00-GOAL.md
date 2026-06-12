@@ -462,3 +462,48 @@ addressed to this lane
   effect core — adopting v3 platform now buys a guaranteed second migration.
   Full evidence + revisit triggers:
   `research/04-effect-native-substrate-spike.md`.
+
+## Studio fixes wave Y (2026-06-12, user-reported)
+
+- [x] **Y1 — "Waiting for Proof" zombie (run-in-game proof never matched).**
+  Root cause: `gen:maps` runs inside turbo's CACHED `build` task and
+  `SWOOPER_STUDIO_RUN_ID` was never declared in `turbo.json` — strict env
+  mode stripped it / the cache replayed a bundle without it, so the deployed
+  map script logged `[mapgen-proof] {"requestId":null,…}` (observed live)
+  and the marker waiter could never match: every Run in Game sat the full
+  90s log timeout in "Waiting for Proof" while the game reached turn green.
+  Fix: `turbo.json` `build.env: ["SWOOPER_STUDIO_RUN_ID"]` (cache-correct:
+  the output genuinely differs) + a post-deploy fail-fast guard
+  (`mapScriptEmbedsRequestId`, code `run-request-id-not-materialized`) so a
+  missing embedded id can never masquerade as a proof wait again. Verified
+  live end-to-end: Run in Game → Complete, proof line carries the request id.
+- [x] **Y2 — saved-config precedence affordance.** Verified the suspected
+  partial overwrite is NOT real (dropdown changes merge cleanly); the real
+  gap was silent drift. New categorical rule (system.md Y-wave amendment):
+  drift = "re-applying the saved file would change the state"
+  (`studioSetupDriftsFromSavedConfig`; governed keys + player options only);
+  the header selector gets a warning ring + orange "Modified" pill, click
+  re-applies the saved config. 5 new drift pins. Verified live (Speed →
+  Quick → pill; click → Standard restored, pill cleared).
+- [x] **Y3 — tile grid restored on every stage.** X6's constant graphite
+  border ink (#0d0d11 = the page substrate) was invisible between dark fills
+  at fit zoom — Huge-map tiles are a few px wide, so the tessellation
+  dissolved into dots everywhere except the Delaunay mesh (its own slate
+  ink), i.e. "the grid disappears for every stage besides the first". Fix:
+  the one tile-border RULE — border = own fill × 0.55, opaque
+  (`tileBorderColorForFill`), legible at every zoom/palette/theme. Plus:
+  layer-selection default now prefers the step's tile-space GRID layer over
+  first-emitted (the map studio defaults to the map). New border-rule pin;
+  verified live across stages 2/10/13 (contiguous lattice at fit zoom).
+  Second user report ("when I switch stages, the grid goes away") exposed
+  the OTHER grid: the canvas graticule was gated on layer kind
+  (points/segments only), so it vanished for tile/mesh selections — i.e. on
+  most stage switches. New rule: the graticule is CANVAS substrate — once a
+  manifest exists it follows the grid toggle on every stage (including
+  zero-layer steps like Placement); layers may opt out via meta. Verified
+  live across stages 1/2/10/13/17.
+- [x] **Y4 — flat config accordion.** Stage cards retired: top-level config
+  objects are full-bleed disclosure rows with hairline dividers and zero
+  inter-item margin; expansion opens a recessed `surface-sunken` slab (door
+  INTO the graphite); wells keep their one tier inside. Verified live, dark
+  + light. system.md Y-wave amendment carries all three design rules.

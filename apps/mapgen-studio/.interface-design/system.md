@@ -252,9 +252,10 @@ supersedes the Pass-4 dock placement, keeps the console split + icon contract:
   geometry — regular pointy-top hexes on the odd-R row-offset lattice (the
   hex-convention audit proved `tile.hexOddQ` mislabels that grid; the model's
   column-offset projection is not a regular tiling, hence the "squished"
-  look it produced). Tile borders use ONE graphite ink (`#0d0d11`, α200) in
-  both themes — dark seams against the fills; never a mid-luminance color
-  that competes with the data palette. Unfilled tiles draw nothing.
+  look it produced). Border ink: see the Y-wave amendment below — the X6
+  constant-graphite ink (`#0d0d11`, α200) is superseded by the fill-derived
+  border rule (a page-colored seam dissolved the lattice into dots at fit
+  zoom). Unfilled tiles draw nothing (unchanged).
 
 ## DAG-tab amendment (2026-06-12, handoff-mandated): stage views
 
@@ -278,3 +279,42 @@ Decisions (see `openspec/changes/mapgen-studio-dag-tab/design.md`):
   view activation, staleTime ∞) — fetch on first activation, cached per
   recipe; pipeline selection/expansion live in `viewStore` as
   pipeline-prefixed fields, distinct from map-explore selection.
+
+## Y-wave amendment (2026-06-12, user-grounded): tile border rule, flat config accordion, selector drift
+
+- **The one tile-border RULE (supersedes X6's constant ink):** a tile's
+  border is its OWN fill pulled toward black (`fill × 0.55`, fully opaque) —
+  self-grout, owned by `tileBorderColorForFill` in `presentation.ts`. The X6
+  page-substrate constant was invisible between dark fills at fit zoom
+  (Huge-map tiles are a few pixels wide), dissolving the tessellation into
+  dots; a fill-derived seam is darker than its fill BY CONSTRUCTION, so the
+  lattice reads at every zoom, both themes, every palette — and still
+  recedes like etched grout up close. Unfilled tiles still draw nothing.
+- **Default layer preference: the map studio defaults to the MAP.** When
+  layer selection resets (step/stage switch, fresh manifest), prefer the
+  step's tile-space GRID layer over whichever layer the worker emitted
+  first (points/mesh). Owned by `useVizState`'s selection fallback.
+- **The graticule is CANVAS substrate, not layer furniture.** Once a
+  manifest exists, the background grid follows the user's grid toggle on
+  EVERY stage — kind-independent, including steps with no visible layers
+  (the canvas stays a ready survey field, never dead space); a layer may
+  opt out via `meta.showGrid: false`. The old points/segments-only gate
+  made the grid vanish on most stage switches. Pre-manifest, the
+  awaiting-matter overlay carries its own graticule.
+- **Flat config accordion (supersedes the Pass-3 stage CARD):** top-level
+  config objects lay flat on the panel — full-bleed disclosure rows,
+  hairline dividers (`divide-border-subtle`), zero inter-item margin, no
+  card chrome. Expanding opens a RECESSED slab (`bg-surface-sunken/60`,
+  hairline top) — the interaction reads as a door opening INTO the
+  graphite, never a card lifting off it. Group wells keep their one
+  machined-slot tier inside the slab; the Pass-3 4/8px field rhythm is
+  unchanged; the 12px inter-card step is retired.
+- **Selector drift affordance (categorical):** any selector that names a
+  source of truth (saved game config; world/map config) must SHOW when the
+  current state has drifted from that source — warning(orange) ring on the
+  control + a warning "Modified" pill whose click re-applies the source
+  (sync back). Drift for a saved game config = "re-applying the file would
+  change the state" (`studioSetupDriftsFromSavedConfig`): the file governs
+  the options it specifies + its player options; ungoverned keys never count
+  as drift. The game-setup dropdowns may never silently supersede a selected
+  saved config.
