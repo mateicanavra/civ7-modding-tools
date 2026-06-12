@@ -255,3 +255,26 @@ supersedes the Pass-4 dock placement, keeps the console split + icon contract:
   look it produced). Tile borders use ONE graphite ink (`#0d0d11`, α200) in
   both themes — dark seams against the fills; never a mid-luminance color
   that competes with the data palette. Unfilled tiles draw nothing.
+
+## DAG-tab amendment (2026-06-12, handoff-mandated): stage views
+
+Decisions (see `openspec/changes/mapgen-studio-dag-tab/design.md`):
+
+- **Stage-view furniture rule:** what the center stage presents (Map vs
+  Pipeline) is the STAGE's own concern — not Game bar (not a game setting),
+  not World console (not a map parameter), not a dock (not authoring or
+  map inspection). View switchers float at the stage's top edge, centered,
+  in the popover-tier pill chrome, using the segmented-control idiom
+  (active segment lifts one surface tier).
+- **Pipeline stage (recipe DAG):** chrome is token-driven (no `lightMode`
+  forks); the ONLY surviving light/dark fork is the preserved
+  `domainPresentation` data palette (domain accents ARE data color). The
+  neutral connector ink is `PIPELINE_EDGE_INK` (muted-foreground luminance
+  token). The map canvas stays mounted-but-invisible under the pipeline so
+  deck camera state and in-flight runs survive view flips; the Explore
+  dock (map-scoped) leaves the stage in pipeline view; Recipe dock, Game
+  bar, World console stay.
+- **Pipeline data:** TanStack Query (`["recipeDag", recipeId]`, enabled on
+  view activation, staleTime ∞) — fetch on first activation, cached per
+  recipe; pipeline selection/expansion live in `viewStore` as
+  pipeline-prefixed fields, distinct from map-explore selection.

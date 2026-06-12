@@ -1,23 +1,30 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-import { RecipeDagView } from "../../src/features/recipeDag/RecipeDagView";
+import { PipelineStage, PIPELINE_EDGE_INK } from "../../src/features/recipeDag/PipelineStage";
 import type { RecipeDagResult } from "../../src/features/recipeDag/client";
 
-describe("RecipeDagView", () => {
+// Behavioral pins PORTED from the merged feature's RecipeDagView.test.tsx
+// (handoff §1/§4: the chrome was re-expressed in the redesign's language, so
+// the semantic assertions move here — selection vs expansion, label
+// selectability, focus accents, z-order — while palette literals become the
+// token-driven equivalents).
+
+describe("PipelineStage", () => {
   it("renders phase bands, stage nodes, artifact edge labels, and expanded sequential steps", () => {
     const html = renderToStaticMarkup(
-      <RecipeDagView
+      <PipelineStage
         recipeId="mod-swooper-maps/standard"
         dag={recipeDag()}
         status="ready"
         error={null}
-        lightMode={false}
+        isLightMode={false}
         expandedStageIds={new Set(["shape"])}
         selectedStageId="shape"
         onToggleStage={vi.fn()}
         onSelectStage={vi.fn()}
         topInset={96}
+        bottomInset={88}
       />
     );
 
@@ -35,32 +42,65 @@ describe("RecipeDagView", () => {
     expect(html).toContain("stroke=\"#f59e0b\"");
     expect(html).toContain("aria-label=\"Select dependency hydrography\"");
     expect(html).toContain("data-edge-label-selected=\"false\"");
-    expect(html).toContain("text-[9.5px]");
     expect(html).toContain("Step 1: seed");
     expect(html).toContain("Creates");
-    expect(html).not.toContain("opacity-45");
   });
 
   it("keeps connector paths and labels neutral before selection", () => {
     const html = renderToStaticMarkup(
-      <RecipeDagView
+      <PipelineStage
         recipeId="mod-swooper-maps/standard"
         dag={recipeDag()}
         status="ready"
         error={null}
-        lightMode={false}
+        isLightMode={false}
         expandedStageIds={new Set()}
         selectedStageId={null}
         onToggleStage={vi.fn()}
         onSelectStage={vi.fn()}
         topInset={96}
+        bottomInset={88}
       />
     );
 
-    expect(html).toContain("stroke=\"#5f6570\"");
-    expect(html).toContain("border-[#2a2a32] bg-[#101014] text-[#a7a7b2]");
+    // Idle graph: connectors carry the neutral token ink, labels ride the
+    // neutral popover pill, no domain accent leaks into inline styles.
+    expect(html).toContain(`stroke="${PIPELINE_EDGE_INK}"`);
+    expect(html).toContain("border-border bg-popover text-muted-foreground");
     expect(html).toContain(" L ");
+    expect(html).toContain("marker-end=\"url(#recipe-dag-arrow)\"");
     expect(html).not.toContain("border-color:#f59e0b");
+  });
+
+  it("surfaces projection diagnostics in the warning panel", () => {
+    const dag = recipeDag();
+    const withDiagnostics: RecipeDagResult = {
+      ...dag,
+      diagnostics: [
+        {
+          kind: "artifact-consumer-missing",
+          artifact: { id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" },
+        } as RecipeDagResult["diagnostics"][number],
+      ],
+    };
+    const html = renderToStaticMarkup(
+      <PipelineStage
+        recipeId="mod-swooper-maps/standard"
+        dag={withDiagnostics}
+        status="ready"
+        error={null}
+        isLightMode={false}
+        expandedStageIds={new Set()}
+        selectedStageId={null}
+        onToggleStage={vi.fn()}
+        onSelectStage={vi.fn()}
+        topInset={96}
+        bottomInset={88}
+      />
+    );
+
+    expect(html).toContain("Artifact diagnostics");
+    expect(html).toContain("artifact-consumer-missing");
   });
 });
 
