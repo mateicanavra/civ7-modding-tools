@@ -143,9 +143,51 @@ describe("display.explore.request control-oRPC procedure", () => {
       data: {
         procedureKey: "display.explore.request",
         source: "direct-control-facade",
+        step: "apply-explore-grant",
+        detail: "tuner down",
       },
     });
     expect(fake.calls).toEqual(["summary", "suspend", "grant", "resume"]);
+  });
+
+  test("short-circuits to a skipped already-explored result when every plot is revealed and visible", async () => {
+    // Fully revealed AND fully visible: a prior explore grant is still held.
+    // The procedure must NOT suspend/grant/drain — re-granting against a
+    // held full-map grant is the second-call failure mode.
+    const fake = fakeContext({
+      summaries: [visibilitySummary(6996, 6996)],
+    });
+    const result = await call(
+      Civ7ControlOrpcRouter.display.explore.request,
+      { playerId: 0, ...fastDrain },
+      { context: fake.context },
+    );
+    expect(fake.calls).toEqual(["summary"]);
+    expect(result).toEqual({
+      playerId: 0,
+      skipped: true,
+      before: { revealed: 6996, visible: 6996 },
+      after: { revealed: 6996, visible: 6996 },
+      mapPlotCount: 6996,
+      classification: "already-explored",
+    });
+    expectSafeExploreOutput(result);
+  });
+
+  test("runs the full machine despite full visibility when restoreFog is set", async () => {
+    // restoreFog callers want the release path — the short-circuit would
+    // silently skip it, so it must not engage.
+    const fake = fakeContext({
+      summaries: [visibilitySummary(6996, 6996), visibilitySummary(6996, 7)],
+    });
+    const result = await call(
+      Civ7ControlOrpcRouter.display.explore.request,
+      { playerId: 0, restoreFog: true, ...fastDrain },
+      { context: fake.context },
+    );
+    expect(fake.calls).toContain("grant");
+    expect(fake.calls).toContain("release");
+    expect(result).toMatchObject({ skipped: false, grantReleased: true });
   });
 
   test("classifies an unchanged revealed count as already-explored", async () => {
@@ -306,6 +348,7 @@ function fakeContext(options: {
 
 function visibilitySummary(
   revealed: number,
+  visible = 7,
 ): Civ7ControlOrpcVisibilitySummaryResult {
   return {
     host: "127.0.0.1",
@@ -313,7 +356,8 @@ function visibilitySummary(
     state: { id: "1", name: "Tuner" },
     playerId: 0,
     numPlotsRevealed: { ok: true, value: revealed },
-    numPlotsVisible: { ok: true, value: 7 },
+    numPlotsVisible: { ok: true, value: visible },
+    mapPlotCount: { ok: true, value: 6996 },
     counts: {},
   };
 }

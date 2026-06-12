@@ -65,6 +65,7 @@ export const Civ7VisibilitySummaryResultSchema = Type.Object({
   playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
   numPlotsRevealed: Civ7RuntimeProbeSchema(Type.Number()),
   numPlotsVisible: Civ7RuntimeProbeSchema(Type.Number()),
+  mapPlotCount: Civ7RuntimeProbeSchema(Type.Number()),
   counts: Type.Record(Type.String(), Type.Number()),
   grid: Type.Optional(Type.Object({
     bounds: Civ7MapBoundsSchema,
@@ -81,6 +82,7 @@ export type Civ7VisibilitySummaryResult = Readonly<{
   playerId: number;
   numPlotsRevealed: Civ7RuntimeProbe<number>;
   numPlotsVisible: Civ7RuntimeProbe<number>;
+  mapPlotCount: Civ7RuntimeProbe<number>;
   counts: Record<string, number>;
   grid?: Readonly<{
     bounds: Civ7MapBounds;
@@ -355,6 +357,7 @@ function buildVisibilitySummaryCommand(
       numPlotsVisible: probe(() => typeof Visibility !== "undefined" && typeof Visibility.getPlotsVisibleCount === "function"
         ? Visibility.getPlotsVisibleCount(input.playerId)
         : 0),
+      mapPlotCount: probe(() => GameplayMap.getGridWidth() * GameplayMap.getGridHeight()),
       counts,
       ...(input.includeGrid ? {
         grid: {

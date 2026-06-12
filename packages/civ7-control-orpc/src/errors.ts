@@ -276,6 +276,10 @@ export const Civ7ExploreFailedErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("display.explore.request"),
     source: Type.Literal("direct-control-facade"),
+    /** Wire-atom step that failed (e.g. "apply-explore-grant"). */
+    step: Type.Optional(Type.String()),
+    /** Human-readable failure detail from the underlying call. */
+    detail: Type.Optional(Type.String()),
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },

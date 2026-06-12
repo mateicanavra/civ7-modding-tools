@@ -638,6 +638,7 @@ function visibilityPayload(revealedCount: number) {
     playerId: 0,
     numPlotsRevealed: { ok: true, value: revealedCount },
     numPlotsVisible: { ok: true, value: revealedCount },
+    mapPlotCount: { ok: true, value: revealedCount },
     counts: { "1": 2 },
     grid: {
       bounds: { x: 0, y: 0, width: 2, height: 1 },

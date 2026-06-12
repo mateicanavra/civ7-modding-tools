@@ -99,9 +99,30 @@ const Civ7DisplayExploreVisibilityProbeSchema = Type.Object(
   { additionalProperties: false },
 );
 
-const Civ7DisplayExploreRequestResultSchema = Type.Object(
+/**
+ * Idempotent short-circuit shape: the pre-grant visibility read already shows
+ * every plot revealed AND visible (a prior explore grant is still held), so
+ * the procedure skips suspend/grant/drain entirely — re-running
+ * `Visibility.setTrackedVisibilityGrant` against an already-held full-map
+ * grant is the known second-click failure mode. `before`/`after` echo the
+ * same read: nothing mutated.
+ */
+const Civ7DisplayExploreSkippedResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
+    skipped: Type.Literal(true),
+    before: Civ7DisplayExploreVisibilityProbeSchema,
+    after: Civ7DisplayExploreVisibilityProbeSchema,
+    mapPlotCount: Type.Number(),
+    classification: Type.Literal("already-explored"),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7DisplayExploreFullResultSchema = Type.Object(
+  {
+    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
+    skipped: Type.Literal(false),
     before: Civ7DisplayExploreVisibilityProbeSchema,
     after: Civ7DisplayExploreVisibilityProbeSchema,
     grantId: Type.Number(),
@@ -123,6 +144,11 @@ const Civ7DisplayExploreRequestResultSchema = Type.Object(
   },
   { additionalProperties: false },
 );
+
+const Civ7DisplayExploreRequestResultSchema = Type.Union([
+  Civ7DisplayExploreSkippedResultSchema,
+  Civ7DisplayExploreFullResultSchema,
+]);
 export type Civ7DisplayExploreRequestResult = Static<
   typeof Civ7DisplayExploreRequestResultSchema
 >;
