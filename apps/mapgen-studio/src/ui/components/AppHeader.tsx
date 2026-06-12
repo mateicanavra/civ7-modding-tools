@@ -1,8 +1,9 @@
 import React from 'react';
-import { ChevronDown, Gamepad2, SlidersHorizontal } from 'lucide-react';
+import { Gamepad2, Settings } from 'lucide-react';
 import { AppBrand } from './AppBrand';
 import { ViewControls } from './ViewControls';
 import { OptionSelect } from './OptionSelect';
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
 import {
   getLocalPlayerSetup,
   updateStudioSetupGameOption,
@@ -61,8 +62,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const textSecondary = 'text-muted-foreground';
   const textMuted = 'text-muted-foreground/70';
   const dividerColor = 'bg-border';
-  const setupButtonClassName =
-    'flex h-7 shrink-0 items-center gap-1.5 rounded border border-input bg-input-background px-2 text-data font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
   const localPlayerSetup = getLocalPlayerSetup(setupConfig);
   const updateLeader = (value: string) => {
     onSetupConfigChange(updateStudioSetupPlayerOption(setupConfig, 'PlayerLeader', value || undefined));
@@ -138,6 +137,25 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 Modified
               </button>
             ) : null}
+            {/* Game-setup disclosure: the gear rides the config cluster (the
+                setup it opens is what drifts a saved config), icon-only per
+                the console contract. */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-expanded={setupOpen}
+                  aria-controls="app-header-setup-panel"
+                  aria-label="Game setup"
+                  title="Game setup"
+                  onClick={() => setSetupOpen((open) => !open)}
+                  className={`shrink-0 ${setupOpen ? 'ring-1 ring-ring border-primary text-primary' : ''}`}>
+                  <Settings className="w-3.5 h-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Game setup</TooltipContent>
+            </Tooltip>
           </div>
 
           {gameConsole ? (
@@ -146,22 +164,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               {gameConsole}
             </>
           ) : null}
-
-          <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
-
-          {/* Game-setup disclosure: icon-only (the dropdown row IS the
-              label), pinned last in the bar per the Pass-5 spec. */}
-          <button
-            type="button"
-            className={setupButtonClassName}
-            aria-expanded={setupOpen}
-            aria-controls="app-header-setup-panel"
-            aria-label="Game setup"
-            title="Game setup"
-            onClick={() => setSetupOpen((open) => !open)}>
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${setupOpen ? 'rotate-180' : ''}`} />
-          </button>
         </div>
 
         {setupOpen ? (

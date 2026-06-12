@@ -1,5 +1,5 @@
 import React from 'react';
-import { Binoculars, Clipboard, FastForward, LoaderCircle, Radio, RotateCw, Square, SquareArrowOutUpRight } from 'lucide-react';
+import { Bug, ChevronDown, LoaderCircle, Play, Radio, Rocket, RotateCw, ScanEye, Square } from 'lucide-react';
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
 import {
   formatRunInGamePhaseLabel,
@@ -16,16 +16,20 @@ import {
 // ============================================================================
 // GAME CONSOLE
 // ============================================================================
-// The Game bar's command cluster (Pass-5 toolbar-architecture-v2 spec): every
-// control and readout that observes or commands the LIVE GAME lives here —
-// live runtime chip + apply-suggestion bridge, autoplay, Run in Game with its
-// status/retry/diagnostics, and the save-deploy chip. New live-game controls
-// belong in this unit, not in the studio console. The cluster renders inline
-// with NO panel chrome or identity label of its own: AppHeader composes it
-// into the Game bar row, whose "Game" identity covers it. The studio↔game
-// bridge cues (stale warning ring, Current/Stale/Previous relation chip) are
-// computed against the current authored Studio state and surface here, beside
-// the controls they qualify.
+// The Game bar's command cluster (Pass-5 toolbar-architecture-v2 spec; Z-wave
+// status consolidation): every control and readout that observes or commands
+// the LIVE GAME lives here. The cluster is ONE status + THREE commands:
+//
+//   [signal chip: dot + turn/seed + chevron]  [autoplay]  [explore]  [Play]
+//
+// The chip is the single merged game status — its dot folds the live runtime,
+// the Run in Game operation, and save/deploy into one color, and clicking it
+// opens the status hang-off: a panel docked under the bar (same idiom as the
+// header's setup disclosure) carrying the expanded per-operation statuses and
+// their secondary affordances (apply-live-to-Studio, refresh status, copy
+// diagnostics as the Bug action). Nothing else in the bar pulses or stacks
+// pills; the studio↔game bridge cues (stale warning ring, Current/Stale/
+// Previous relation) surface on the chip and inside the hang-off.
 // ============================================================================
 
 /** Read-only live Civ7 runtime snapshot the console renders. */
@@ -72,7 +76,21 @@ export interface GameConsoleProps {
   onCopyRunInGameDiagnostics?: () => void;
   /** Current config save/deploy status */
   saveDeployStatus?: MapConfigSaveDeployStatus | null;
+  /** Initial open state for the status hang-off (tests + dev affordance). */
+  defaultStatusOpen?: boolean;
 }
+
+/**
+ * Autoplay glyph: one play triangle wrapped by the clockwise repeat loop —
+ * "keep playing forward". Composed from lucide parts because no single glyph
+ * carries both. The `!` overrides beat the Button's `[&_svg]:size-3.5` rule.
+ */
+const AutoplayGlyph: React.FC = () => (
+  <span aria-hidden="true" className="relative inline-flex h-4 w-4 items-center justify-center">
+    <RotateCw className="!h-4 !w-4" />
+    <Play className="absolute !h-[7px] !w-[7px] translate-x-[0.5px] fill-current" strokeWidth={0} />
+  </span>
+);
 
 export const GameConsole: React.FC<GameConsoleProps> = ({
   liveRuntime,
@@ -89,9 +107,33 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   onRunInGameRetryStatus,
   onCopyRunInGameDiagnostics,
   saveDeployStatus,
+  defaultStatusOpen = false,
 }) => {
+  const [statusOpen, setStatusOpen] = React.useState(defaultStatusOpen);
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  // The hang-off is a popup, so it dismisses like one (outside click /
+  // Escape). This also keeps it from ever stacking against the header's
+  // setup-disclosure row — opening anything else IS an outside click.
+  React.useEffect(() => {
+    if (!statusOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (rootRef.current && event.target instanceof Node && !rootRef.current.contains(event.target)) {
+        setStatusOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setStatusOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [statusOpen]);
   const textPrimary = 'text-foreground';
   const textMuted = 'text-muted-foreground/70';
+  const eyebrowClass = `text-label font-medium uppercase tracking-wider ${textMuted}`;
   // The "stale vs live game" emphasis is a warning about data, so it uses the
   // `warning` token (not the slate identity accent).
   const liveDotClass =
@@ -113,12 +155,14 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
           ? "Current"
           : "Previous"
       : null;
+  const runInGameFailed =
+    runInGameStatus?.status === "failed" || runInGameStatus?.status === "blocked" || runInGameStatus?.status === "uncertain";
   const runInGameDotClass =
     runInGameCurrentRelation === "stale"
       ? "bg-warning"
       : runInGameStatus?.status === "complete"
       ? "bg-success"
-      : runInGameStatus?.status === "failed" || runInGameStatus?.status === "blocked" || runInGameStatus?.status === "uncertain"
+      : runInGameFailed
         ? "bg-destructive"
         : isRunInGameRunning
           ? "bg-warning"
@@ -129,9 +173,6 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     liveGameStudioRelation === "stale" &&
     Boolean(onSyncFromLiveGame) &&
     !operationControlsDisabled;
-  const liveSyncTitle = liveSyncAvailable
-    ? "Apply live game suggestion to Studio"
-    : liveRuntime?.readiness ?? liveRuntime?.error ?? "Civ7 live runtime status";
   const autoplayControlDisabled = operationControlsDisabled || isAutoplayActionRunning || liveRuntime?.status !== "ok" || !onToggleAutoplay;
   // Icon-only contract (Pass-4): the start/stop/in-flight wording the label
   // used to carry lives entirely in the accessible name + tooltip.
@@ -144,16 +185,46 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     ? "Explore: toggle tile visibility in the live game"
     : "Explore: tile visibility control is not yet available";
   const saveDeployLabel = saveDeployStatus ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase) : null;
-  const saveDeployTitle = saveDeployStatus
-    ? [
-        `Save/Deploy: ${saveDeployLabel}`,
-        saveDeployStatus.requestId ? `Request: ${saveDeployStatus.requestId}` : null,
-        saveDeployStatus.path ? `Path: ${saveDeployStatus.path}` : null,
-        saveDeployStatus.error ? `Error: ${saveDeployStatus.error}` : null,
-      ].filter(Boolean).join("\n")
-    : "Config save/deploy status";
-  // Icon-only contract (Pass-4): the dynamic action label ("Run in Game",
-  // "Retry Run", "Restart Civ & Run") leads the accessible name + tooltip.
+  const saveDeployActive = saveDeployStatus?.status === "running";
+  const saveDeployDotClass =
+    saveDeployStatus?.status === "failed"
+      ? "bg-destructive"
+      : saveDeployStatus?.status === "complete"
+        ? "bg-success"
+        : "bg-warning";
+  // The chip's ONE dot folds every tracked operation into a single color:
+  // any failure wins, then in-flight/stale warnings, then live health.
+  const combinedDotClass =
+    liveRuntime?.status === "error" || runInGameFailed || saveDeployStatus?.status === "failed"
+      ? "bg-destructive"
+      : isRunInGameRunning ||
+          saveDeployActive ||
+          runInGameCurrentRelation === "stale" ||
+          liveGameStudioRelation === "stale"
+        ? "bg-warning"
+        : liveRuntime?.status === "ok"
+          ? "bg-success"
+          : "bg-muted-foreground";
+  // Activity overrides the idle turn/seed readout: while something is in
+  // flight the chip narrates the phase, then settles back to the live line.
+  const chipText = isRunInGameRunning
+    ? runInGamePhaseLabel
+    : saveDeployActive
+      ? saveDeployLabel ?? liveText
+      : liveText;
+  const chipTitle = [
+    `Live: ${liveText}`,
+    liveRuntime?.autoplayActive ? `Autoplay active${liveRuntime.autoplayPaused ? " (paused)" : ""}` : null,
+    liveGameStudioRelation === "stale" ? "Live game is ahead of Studio — open for the apply action" : null,
+    runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : null,
+    runInGameStateLabel ? `Studio state: ${runInGameStateLabel}` : null,
+    runInGameStatus?.requestId ? `Request: ${runInGameStatus.requestId}` : null,
+    saveDeployStatus ? `Save/Deploy: ${saveDeployLabel}` : null,
+    saveDeployStatus?.requestId ? `Deploy request: ${saveDeployStatus.requestId}` : null,
+    "Click to expand game status",
+  ].filter(Boolean).join("\n");
+  // The labeled CTA keeps the full operation story in its accessible name:
+  // dynamic action ("Run in Game", "Retry Run", "Restart Civ & Run") first.
   const runInGameTitle = [
     runInGameButtonText,
     runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : "Launches the current config in Civ7",
@@ -163,36 +234,41 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     runInGameStatus?.error ? `Error: ${runInGameStatus.error}` : null,
     runInGameStatus?.details?.recoveryHint ? `Recovery: ${runInGameStatus.details.recoveryHint}` : null,
   ].filter(Boolean).join("\n");
+  const applyLiveTitle = "Apply live game suggestion to Studio";
 
   return (
-    <div className="inline-flex min-w-0 max-w-full items-center gap-2">
+    <div ref={rootRef} className="relative inline-flex min-w-0 max-w-full items-center gap-2">
       <Tooltip>
         <TooltipTrigger asChild>
           <button
             type="button"
-            onClick={onSyncFromLiveGame}
-            disabled={!liveSyncAvailable}
-            aria-label={liveSyncTitle}
-            title={liveSyncTitle}
-            className={`inline-flex h-7 min-w-0 max-w-[280px] items-center gap-2 rounded border px-2 transition-colors ${
+            onClick={() => setStatusOpen((open) => !open)}
+            aria-expanded={statusOpen}
+            aria-controls="game-status-panel"
+            aria-label={chipTitle}
+            title={chipTitle}
+            className={`inline-flex h-7 min-w-0 max-w-[280px] cursor-pointer items-center gap-2 rounded border px-2 transition-colors hover:bg-accent ${
               liveGameStudioRelation === "stale"
                 ? "border-warning text-warning ring-1 ring-warning/40"
-                : "border-transparent"
-            } ${liveSyncAvailable ? "cursor-pointer hover:bg-warning/10" : "cursor-default disabled:opacity-100"}`}>
+                : statusOpen
+                  ? "border-input bg-accent"
+                  : "border-transparent"
+            }`}>
 
             <Radio className={`w-3.5 h-3.5 ${liveGameStudioRelation === "stale" ? "text-warning" : textMuted}`} />
-            <div className={`w-2 h-2 shrink-0 rounded-full ${liveDotClass}`} />
+            <div className={`w-2 h-2 shrink-0 rounded-full ${combinedDotClass}`} />
             <span className={`truncate text-data font-medium ${liveGameStudioRelation === "stale" ? "text-warning" : textPrimary}`}>
-              {liveText}
+              {chipText}
             </span>
             {liveRuntime?.autoplayActive ? (
               <span className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning">
                 Auto
               </span>
             ) : null}
+            <ChevronDown className={`h-3 w-3 shrink-0 ${textMuted} transition-transform ${statusOpen ? "rotate-180" : ""}`} />
           </button>
         </TooltipTrigger>
-        <TooltipContent>{liveSyncTitle}</TooltipContent>
+        <TooltipContent className="whitespace-pre-line">{chipTitle}</TooltipContent>
       </Tooltip>
 
       <Tooltip>
@@ -211,7 +287,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
             ) : liveRuntime?.autoplayActive ? (
               <Square className="w-3.5 h-3.5" />
             ) : (
-              <FastForward className="w-3.5 h-3.5" />
+              <AutoplayGlyph />
             )}
           </Button>
         </TooltipTrigger>
@@ -229,97 +305,152 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
             title={exploreTitle}
             className="shrink-0">
 
-            <Binoculars className="w-3.5 h-3.5" />
+            <ScanEye className="w-3.5 h-3.5" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>{exploreTitle}</TooltipContent>
       </Tooltip>
 
-      {saveDeployStatus && saveDeployStatus.status !== "complete" ? (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div
-              role="status"
-              aria-label={saveDeployTitle}
-              title={saveDeployTitle}
-              className={`hidden max-w-[150px] items-center gap-1.5 overflow-hidden text-data font-medium ${textPrimary} lg:inline-flex`}>
+      {/* The Game CTA mirrors the World console's Run: the one filled action
+          in its bar, same Button size, verb label. Rocket = launch Civ7 (the
+          action leaves the studio — the old external-launch semantic). */}
+      <Button
+        onClick={onRunInGame}
+        disabled={operationControlsDisabled}
+        aria-label={runInGameTitle}
+        title={runInGameTitle}
+        className={isRunInGameRunning ? 'shrink-0 opacity-70 cursor-wait' : 'shrink-0'}>
 
-              <div className={`h-2 w-2 shrink-0 rounded-full ${saveDeployStatus.status === "failed" ? "bg-destructive" : "bg-warning"}`} />
-              <span className="truncate">{saveDeployLabel}</span>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent className="whitespace-pre-line">{saveDeployTitle}</TooltipContent>
-        </Tooltip>
-      ) : null}
-      {runInGameStatus ? (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div
-              role="status"
-              aria-label={runInGameTitle}
-              title={runInGameTitle}
-              className={`hidden max-w-[180px] items-center gap-1.5 overflow-hidden text-data font-medium ${textPrimary} lg:inline-flex`}>
+        <Rocket className="w-3 h-3" />
+        <span>{isRunInGameRunning ? 'Playing...' : 'Play'}</span>
+      </Button>
 
-              <div className={`h-2 w-2 shrink-0 rounded-full ${runInGameDotClass}`} />
-              <span className="truncate">{runInGamePhaseLabel}</span>
-              {runInGameStateLabel ? (
-                <span className={`shrink-0 rounded border px-1 py-0.5 text-label ${runInGameCurrentRelation === "stale" ? "border-warning/40 text-warning" : "border-border text-muted-foreground"}`}>
-                  {runInGameStateLabel}
-                </span>
+      {statusOpen ? (
+        <div
+          id="game-status-panel"
+          role="region"
+          aria-label="Expanded game status"
+          className="absolute left-0 top-full z-30 mt-3.5 w-80 overflow-hidden rounded-lg border border-border bg-popover/95 shadow-lg backdrop-blur-sm">
+
+          <div className="flex flex-col divide-y divide-border-subtle">
+            {/* Live runtime */}
+            <div className="flex flex-col gap-1.5 px-3 py-2.5">
+              <div className="flex items-center gap-2">
+                <span className={eyebrowClass}>Live game</span>
+                {liveRuntime?.autoplayActive ? (
+                  <span className="rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning">
+                    Auto{liveRuntime.autoplayPaused ? " (paused)" : ""}
+                  </span>
+                ) : null}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`h-2 w-2 shrink-0 rounded-full ${liveDotClass}`} />
+                <span className={`truncate text-data font-medium ${textPrimary}`}>{liveText}</span>
+              </div>
+              {liveRuntime?.readiness && liveRuntime.status === "ok" && (liveRuntime.turn !== undefined || liveRuntime.seed !== undefined) ? (
+                <span className={`text-label ${textMuted}`}>{liveRuntime.readiness}</span>
+              ) : null}
+              {liveSyncAvailable ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onSyncFromLiveGame}
+                  aria-label={applyLiveTitle}
+                  title={applyLiveTitle}
+                  className="self-start border-warning/40 text-warning hover:bg-warning/10">
+                  Apply to Studio
+                </Button>
               ) : null}
             </div>
-          </TooltipTrigger>
-          <TooltipContent className="whitespace-pre-line">{runInGameTitle}</TooltipContent>
-        </Tooltip>
-      ) : null}
-      {runInGameStatus && onRunInGameRetryStatus && runInGameCanRetryStatus(runInGameStatus) ? (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="shrink-0"
-              onClick={onRunInGameRetryStatus}
-              aria-label="Refresh Run in Game status">
 
-              <RotateCw className="w-3.5 h-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Refresh Run in Game status</TooltipContent>
-        </Tooltip>
-      ) : null}
-      {runInGameStatus && onCopyRunInGameDiagnostics ? (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="shrink-0"
-              onClick={onCopyRunInGameDiagnostics}
-              aria-label="Copy Run in Game diagnostics">
+            {/* Run in Game operation */}
+            <div className="flex flex-col gap-1.5 px-3 py-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className={eyebrowClass}>Run in Game</span>
+                <div className="flex items-center gap-1">
+                  {runInGameStatus && onRunInGameRetryStatus && runInGameCanRetryStatus(runInGameStatus) ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={onRunInGameRetryStatus}
+                          aria-label="Refresh Run in Game status"
+                          title="Refresh Run in Game status">
 
-              <Clipboard className="w-3.5 h-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Copy Run in Game diagnostics</TooltipContent>
-        </Tooltip>
-      ) : null}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            onClick={onRunInGame}
-            disabled={operationControlsDisabled}
-            variant="outline"
-            size="icon"
-            aria-label={runInGameTitle}
-            title={runInGameTitle}
-            className={isRunInGameRunning ? 'shrink-0 opacity-70 cursor-wait' : 'shrink-0'}>
+                          <RotateCw className="w-3.5 h-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Refresh Run in Game status</TooltipContent>
+                    </Tooltip>
+                  ) : null}
+                  {runInGameStatus && onCopyRunInGameDiagnostics ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={onCopyRunInGameDiagnostics}
+                          aria-label="Copy Run in Game diagnostics"
+                          title="Copy Run in Game diagnostics">
 
-            <SquareArrowOutUpRight className="w-3.5 h-3.5" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent className="whitespace-pre-line">{runInGameTitle}</TooltipContent>
-      </Tooltip>
+                          <Bug className="w-3.5 h-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy Run in Game diagnostics</TooltipContent>
+                    </Tooltip>
+                  ) : null}
+                </div>
+              </div>
+              {runInGameStatus ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2 w-2 shrink-0 rounded-full ${runInGameDotClass}`} />
+                    <span className={`text-data font-medium ${textPrimary}`}>{runInGamePhaseLabel}</span>
+                    {runInGameStateLabel ? (
+                      <span className={`rounded border px-1 py-0.5 text-label ${runInGameCurrentRelation === "stale" ? "border-warning/40 text-warning" : "border-border text-muted-foreground"}`}>
+                        {runInGameStateLabel}
+                      </span>
+                    ) : null}
+                  </div>
+                  <span className={`truncate text-label ${textMuted}`} title={runInGameStatus.requestId}>
+                    {runInGameStatus.requestId}
+                  </span>
+                  {runInGameStatus.error ? (
+                    <p className="text-label text-destructive">{runInGameStatus.error}</p>
+                  ) : null}
+                  {runInGameStatus.details?.recoveryHint ? (
+                    <p className={`text-label ${textMuted}`}>{runInGameStatus.details.recoveryHint}</p>
+                  ) : null}
+                </>
+              ) : (
+                <span className={`text-data ${textMuted}`}>No run yet</span>
+              )}
+            </div>
+
+            {/* Save & deploy operation */}
+            {saveDeployStatus ? (
+              <div className="flex flex-col gap-1.5 px-3 py-2.5">
+                <span className={eyebrowClass}>Save &amp; Deploy</span>
+                <div className="flex items-center gap-2">
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${saveDeployDotClass}`} />
+                  <span className={`text-data font-medium ${textPrimary}`}>{saveDeployLabel}</span>
+                </div>
+                {saveDeployStatus.requestId ? (
+                  <span className={`truncate text-label ${textMuted}`} title={saveDeployStatus.requestId}>
+                    {saveDeployStatus.requestId}
+                  </span>
+                ) : null}
+                {saveDeployStatus.error ? (
+                  <p className="text-label text-destructive">{saveDeployStatus.error}</p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

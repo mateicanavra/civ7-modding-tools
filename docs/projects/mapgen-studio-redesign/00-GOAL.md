@@ -507,3 +507,41 @@ addressed to this lane
   inter-item margin; expansion opens a recessed `surface-sunken` slab (door
   INTO the graphite); wells keep their one tier inside. Verified live, dark
   + light. system.md Y-wave amendment carries all three design rules.
+
+## Studio fixes wave Z (2026-06-12, user-directed) — Game bar v3
+
+Six rapid, craft-attuned toolbar changes on the Game bar (GameConsole +
+AppHeader), committed as `design/z1-game-toolbar-v3`:
+
+- **Z1a gear:** the game-setup disclosure became a `Settings` gear icon
+  Button riding the CONFIG cluster (right of the selector + Modified pill,
+  before the divider into the console) — the setup it opens is exactly what
+  drifts a saved config. `SlidersHorizontal` + chevron retired.
+- **Z1b one status:** the run-in-game phase chip + relation pill and the
+  save/deploy chip left the bar; the signal chip now holds THE combined
+  status (dot folds live + run + deploy; text narrates the active phase
+  while one runs). Clicking the chip opens the **status hang-off** — a
+  popover-tier panel under the bar with per-operation sections (Live game /
+  Run in Game / Save & Deploy), request ids, errors, recovery hints, and the
+  relocated secondary affordances. Popup semantics (outside-click + Escape
+  dismissal) — also what prevents stacking against the setup row (the bar's
+  backdrop-blur makes z-index local, so simultaneous-open had overlapped).
+- **Z1c debug action:** Copy-diagnostics moved into the hang-off as the
+  `Bug` ghost button (with `RotateCw` refresh beside it when retryable).
+- **Z1d explore glyph:** `Binoculars` → `ScanEye` (vision/reveal, non-toy;
+  `Eye` stays reserved for layer visibility).
+- **Z1e autoplay glyph:** `FastForward` → composed play-in-clockwise-loop
+  (small filled `Play` centered in `RotateCw`; `!` size overrides beat the
+  Button's svg sizing rule). Stop remains `Square`.
+- **Z1f Play CTA:** Run in Game became the bar's one filled action — label
+  "Play" ("Playing..." in flight), `Rocket` glyph (launch-the-external-app
+  semantics), exact Button-size parity with the World console's Run
+  (verified live: both 32px, same primary fill).
+
+Evidence: studio suite 213 passed (3 new chip/hang-off/CTA pins; existing
+pins retargeted — expanded-status pins render via `defaultStatusOpen`
+because static markup can't click); tsc clean; live-verified dark + light
+(bar order, hang-off open/dismiss, gear↔hang-off exclusivity, CTA parity
+measured via computed styles). system.md gained the Z-wave amendment
+(Game bar v3 + console glyph registry v3); Pass-4 glyph registry marked
+superseded.

@@ -214,6 +214,8 @@ Decisions (see `docs/projects/mapgen-studio-redesign/pass-4-design-fixes.md`):
   Console glyphs: autoplay start `FastForward` / stop `Square`; Run in Game
   `SquareArrowOutUpRight` (launches the external app); Explore `Binoculars`
   (tile visibility). `Eye` stays reserved for layer-visibility toggles.
+  *(Glyph assignments superseded by the Z-wave registry v3 below; the
+  icon-only contract itself is unchanged.)*
 - **Config objects collapse:** every config object renders a per-object header
   row (chevron + title + trailing action zone — future home of object-local
   Reset/Show-JSON); collapsed by default, manual expand; optional sticky
@@ -318,3 +320,34 @@ Decisions (see `openspec/changes/mapgen-studio-dag-tab/design.md`):
   the options it specifies + its player options; ungoverned keys never count
   as drift. The game-setup dropdowns may never silently supersede a selected
   saved config.
+
+## Z-wave amendment (2026-06-12, user-grounded): Game bar v3 — one status, one popup, launch CTA
+
+Rearranges the Game bar (supersedes the Pass-4/5 console glyph registry and
+the trailing-disclosure placement; keeps the icon-only contract + zoning):
+
+- **Bar order:** `Gamepad2` Game · │ · Config select + Modified pill +
+  **gear** (`Settings`, icon-only Button) · │ · signal chip · autoplay ·
+  explore · **Play** CTA. The game-setup disclosure rides the CONFIG cluster
+  (the setup it opens is exactly what drifts a saved config); open state =
+  `ring-1 ring-ring border-primary text-primary` (the footer auto-run idiom).
+- **ONE status, held by the signal chip.** The chip's dot folds live runtime
+  + Run in Game + save/deploy into one color (any failure → destructive;
+  in-flight or stale → warning; live ok → success); while an operation runs
+  the chip text narrates its phase, then settles back to `Turn N · Seed S`.
+  No secondary status pills ride the bar — the run-relation pill
+  (Current/Stale/Previous), request ids, errors, and recovery hints live in
+  the **status hang-off**: a popup panel docked under the chip (`popover`
+  tier, chevron-disclosed, outside-click + Escape dismissal — popup
+  semantics keep it from ever stacking against the setup row). Secondary
+  per-operation affordances live inside it: Apply-live-to-Studio, refresh
+  status (`RotateCw`), copy diagnostics (**`Bug`** — it's the debug action).
+- **Console glyph registry (v3):** autoplay idle = composed glyph (one
+  `Play` triangle inside the clockwise `RotateCw` loop — "keep playing
+  forward"); stop `Square` unchanged. Explore = **`ScanEye`** (reveal/vision
+  without the toy binoculars; bare `Eye` stays reserved for layer-visibility
+  toggles). Run in Game = labeled **`Play`** CTA, filled primary, SAME
+  Button size as the World console's Run (the two bars mirror: World "Run"
+  authors the map, Game "Play" launches it) with a **`Rocket`** glyph —
+  launch-the-external-app semantics, replacing `SquareArrowOutUpRight`.
+  `SlidersHorizontal` retired from the header (gear owns setup).
