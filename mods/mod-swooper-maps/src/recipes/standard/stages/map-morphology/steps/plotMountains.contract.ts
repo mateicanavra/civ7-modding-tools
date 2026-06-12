@@ -5,7 +5,7 @@ import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 const PlotMountainsStepContract = defineStep({
   id: "plot-mountains",
-  phase: "gameplay",
+  phase: "morphology",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted],
   artifacts: {

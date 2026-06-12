@@ -6,7 +6,7 @@ import { mapMorphologyArtifacts } from "../artifacts.js";
 
 const PlotCoastsStepContract = defineStep({
   id: "plot-coasts",
-  phase: "gameplay",
+  phase: "morphology",
   requires: [],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
   artifacts: {
