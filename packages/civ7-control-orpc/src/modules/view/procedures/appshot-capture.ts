@@ -8,7 +8,11 @@ import type {
 } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
-import type { Civ7ViewAppshotCaptureResult } from "../contract";
+import { viewCameraFromFocusResult } from "../camera-readback";
+import type {
+  Civ7ViewAppshotCaptureResult,
+  Civ7ViewCamera,
+} from "../contract";
 
 const DEFAULT_APPSHOT_SETTLE_MS = 400;
 
@@ -63,6 +67,76 @@ export const viewAppshotCaptureProcedure =
 
     const settleMs = input.settleMs ?? DEFAULT_APPSHOT_SETTLE_MS;
     const restoredInline = yield* Ref.make(false);
+
+    // Camera move runs BEFORE the acquire boundary: a focus that fails or
+    // never verifies leaves the session exactly as it was — the display
+    // queue is untouched and there is nothing to restore. The camera itself
+    // deliberately stays on the target after the capture: it is navigation
+    // state the caller asked for, not UI chrome.
+    let camera: Civ7ViewCamera | undefined;
+    if (input.target === undefined) {
+      if (input.zoom !== undefined) {
+        return yield* Effect.fail(
+          errors.CAMERA_FOCUS_FAILED({
+            data: {
+              ...errorData,
+              detail: "zoom requires a target plot — pass target {x, y} alongside zoom",
+            },
+          }),
+        );
+      }
+    } else {
+      const target = input.target;
+      const focus = yield* Effect.tryPromise({
+        try: () =>
+          context.directControl.focusCiv7Camera(
+            {
+              x: target.x,
+              y: target.y,
+              ...(input.zoom === undefined ? {} : { zoom: input.zoom }),
+            },
+            context.endpointDefaults,
+          ),
+        catch: (error) =>
+          errors.CAMERA_FOCUS_FAILED({
+            data: {
+              ...errorData,
+              detail: error instanceof Error ? error.message : String(error),
+            },
+          }),
+      });
+      if (!focus.lookAt.ok || focus.lookAt.value !== true) {
+        return yield* Effect.fail(
+          errors.CAMERA_FOCUS_FAILED({
+            data: {
+              ...errorData,
+              detail: focus.lookAt.ok
+                ? "camera move readback reported the lookAt did not run"
+                : focus.lookAt.error,
+            },
+          }),
+        );
+      }
+      // A frame "at a plot" must actually be centered on that plot — anything
+      // else silently captures the wrong place, so unverified is a failure
+      // here (unlike the standalone view.camera.focus, which reports truth).
+      if (!focus.centerMatchesTarget) {
+        const center = focus.after.centerPlot.ok
+          ? focus.after.centerPlot.value
+          : null;
+        return yield* Effect.fail(
+          errors.CAMERA_FOCUS_UNVERIFIED({
+            data: {
+              ...errorData,
+              detail: "viewport center readback did not land on the target plot: "
+                + `target=(${target.x},${target.y}) center=`
+                + (center === null ? "unresolved" : `(${center.x},${center.y})`),
+            },
+          }),
+        );
+      }
+      camera = viewCameraFromFocusResult(focus);
+    }
 
     return yield* Effect.acquireUseRelease(
       // Acquire: suspend the display queue, verified by readback — anything
@@ -148,6 +222,7 @@ export const viewAppshotCaptureProcedure =
             purge,
             enter,
             settleMs,
+            camera,
             restored: {
               view: exit.view,
               harnessHidden: exit.harnessHidden,
@@ -178,6 +253,7 @@ function viewAppshotCaptureResult(input: Readonly<{
   purge: Civ7ControlOrpcCloseDisplaysResult;
   enter: Civ7ControlOrpcCleanFrameEnterResult;
   settleMs: number;
+  camera: Civ7ViewCamera | undefined;
   restored: Civ7ViewAppshotCaptureResult["cleanFrame"]["restored"];
 }>): Civ7ViewAppshotCaptureResult {
   return {
@@ -214,5 +290,6 @@ function viewAppshotCaptureResult(input: Readonly<{
       })),
       restored: input.restored,
     },
+    ...(input.camera === undefined ? {} : { camera: input.camera }),
   };
 }

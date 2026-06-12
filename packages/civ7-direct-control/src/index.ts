@@ -1349,6 +1349,19 @@ export type {
   CleanFrameDependencies,
 } from "./play/view/clean-frame.js";
 export {
+  Civ7CameraFocusInputSchema,
+  Civ7CameraFocusOptionsSchema,
+  Civ7CameraFocusResultSchema,
+  Civ7CameraStateSnapshotSchema,
+  focusCiv7CameraOnPlot,
+} from "./play/view/camera.js";
+export type {
+  CameraFocusDependencies,
+  Civ7CameraFocusInput,
+  Civ7CameraFocusResult,
+  Civ7CameraStateSnapshot,
+} from "./play/view/camera.js";
+export {
   CIV7_WINDOW_SHOT_SWIFT_SOURCE,
   Civ7CaptureWindowRowSchema,
   Civ7WindowShotCaptureResultSchema,

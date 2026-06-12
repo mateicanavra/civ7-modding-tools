@@ -4,6 +4,7 @@ import {
   closeCiv7Displays,
   enterCiv7CleanFrame,
   exitCiv7CleanFrame,
+  focusCiv7CameraOnPlot,
   getCiv7PlayableStatus,
   getCiv7PlayNotificationView,
   getCiv7VisibilitySummary,
@@ -45,6 +46,8 @@ import {
   requestCiv7UnitCommand,
   requestCiv7UnitTargetAction,
   requestCiv7CultureTarget,
+  type Civ7CameraFocusInput,
+  type Civ7CameraFocusResult,
   type Civ7CleanFrameEnterInput,
   type Civ7CleanFrameEnterResult,
   type Civ7CleanFrameExitResult,
@@ -186,6 +189,7 @@ export type Civ7ControlOrpcCloseDisplaysResult = Civ7CloseDisplaysResult;
 export type Civ7ControlOrpcDisplayQueueHoldResult = Civ7DisplayQueueHoldResult;
 export type Civ7ControlOrpcExploreGrantResult = Civ7ExploreGrantResult;
 export type Civ7ControlOrpcExploreReleaseResult = Civ7ExploreReleaseResult;
+export type Civ7ControlOrpcCameraFocusResult = Civ7CameraFocusResult;
 export type Civ7ControlOrpcCleanFrameEnterResult = Civ7CleanFrameEnterResult;
 export type Civ7ControlOrpcCleanFrameExitResult = Civ7CleanFrameExitResult;
 export type Civ7ControlOrpcWindowShotCaptureResult = Civ7WindowShotCaptureResult;
@@ -380,6 +384,10 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7ExploreReleaseInput,
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcExploreReleaseResult>;
+  focusCiv7Camera(
+    input: Civ7CameraFocusInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcCameraFocusResult>;
   enterCiv7CleanFrame(
     input: Civ7CleanFrameEnterInput,
     options?: Civ7DirectControlOptions,
@@ -525,6 +533,8 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     applyCiv7ExploreGrant(input, options),
   releaseCiv7ExploreGrant: async (input, options) =>
     releaseCiv7ExploreGrant(input, options),
+  focusCiv7Camera: async (input, options) =>
+    focusCiv7CameraOnPlot(input, options),
   enterCiv7CleanFrame: async (input, options) =>
     enterCiv7CleanFrame(input, options),
   exitCiv7CleanFrame: async (options) =>

@@ -88,6 +88,55 @@ describe('game view appshot', () => {
     }
   });
 
+  test('--target drives a verified camera focus BEFORE the clean frame and reports it', async () => {
+    captureCalls.length = 0;
+    const { server } = await startAppshotServer();
+    try {
+      const { writes } = await runCommand(server, [
+        '--target', '32,17',
+        '--zoom', '0.25',
+        '--settle-ms', '0',
+        '--json',
+      ]);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: boolean;
+        result: { camera?: Record<string, unknown> };
+      };
+      expect(payload.ok).toBe(true);
+      expect(payload.result.camera).toMatchObject({
+        target: { x: 32, y: 17 },
+        zoom: 0.25,
+        instantaneous: true,
+        after: { zoomLevel: 0.25, centerPlot: { x: 32, y: 17 } },
+        plotCursor: { x: 32, y: 17 },
+        centerMatchesTarget: true,
+      });
+
+      // The camera moves first — before the queue is suspended, so a failed
+      // focus never leaves anything to restore.
+      const cameraIndex = server.received.findIndex((m) => m.includes('Camera.lookAtPlot'));
+      const suspendIndex = server.received.findIndex((m) => m.includes('dqm.suspend()'));
+      expect(cameraIndex).toBeGreaterThanOrEqual(0);
+      expect(suspendIndex).toBeGreaterThan(cameraIndex);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('--zoom without --target fails before any wire traffic', async () => {
+    captureCalls.length = 0;
+    const { server } = await startAppshotServer();
+    try {
+      await expect(
+        runCommand(server, ['--zoom', '0.25', '--settle-ms', '0', '--json']),
+      ).rejects.toThrow('--zoom requires --target');
+      expect(server.received).toHaveLength(0);
+      expect(captureCalls).toEqual([]);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('passes capture targeting and hide-units through to the procedure', async () => {
     captureCalls.length = 0;
     const { server } = await startAppshotServer();
@@ -115,6 +164,26 @@ async function startAppshotServer(): Promise<{ server: FakeTunerServer }> {
   let cleanFrameEntered = false;
   const server = await startFakeTunerServer({
     handle({ message }) {
+      if (message.includes('Camera.lookAtPlot')) {
+        const target = { x: 32, y: 17 };
+        const snapshot = (center: { x: number; y: number }) => ({
+          exists: true,
+          zoomLevel: { ok: true, value: 0.25 },
+          focusPoint: { ok: true, value: { x: 1.5, y: 2.5 } },
+          centerPlot: { ok: true, value: center },
+        });
+        return [JSON.stringify({
+          source: 'app-ui-camera',
+          target,
+          targetIndex: { ok: true, value: 1834 },
+          options: { zoom: 0.25, instantaneous: true },
+          before: snapshot({ x: 0, y: 0 }),
+          lookAt: { ok: true, value: true },
+          plotCursor: { ok: true, value: target },
+          after: snapshot(target),
+          centerMatchesTarget: true,
+        })];
+      }
       if (message.includes('display-queue-manager.js') && message.includes('ready')) {
         return [JSON.stringify({ ready: true })];
       }

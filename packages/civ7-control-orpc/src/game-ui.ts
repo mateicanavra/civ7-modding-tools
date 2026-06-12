@@ -423,6 +423,9 @@ function createCiv7GameUiDirectControlFacade(
     releaseCiv7ExploreGrant: async () => {
       throw new Error("game-ui explore grant release is not supported");
     },
+    focusCiv7Camera: async () => {
+      throw new Error("game-ui camera focus is not supported");
+    },
     enterCiv7CleanFrame: async () => {
       throw new Error("game-ui clean-frame enter is not supported");
     },
