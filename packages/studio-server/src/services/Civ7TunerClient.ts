@@ -14,70 +14,76 @@ import {
 } from "@civ7/direct-control";
 import { Effect } from "effect";
 
+import { Civ7TunerSession, Civ7TunerSessionLive } from "./Civ7TunerSession.js";
+
 /**
  * `Civ7TunerClient` — Effect service wrapping the `@civ7/direct-control` FireTuner
  * socket + filesystem reads used by the studio's read surface.
  *
- * Each accessor lifts a direct-control promise into an Effect via
- * `Effect.tryPromise`, surfacing the rejection in the Effect error channel so the
- * procedure layer (router/*) can map it to the correct legacy status code. The
- * direct-control *call shapes* (args, timeout, includeAreaRegionCounts, clamps)
- * are lifted verbatim from the `/api/*` handlers in
- * `apps/mapgen-studio/vite.config.ts` — no semantic change.
+ * Every tuner read routes through the shared `Civ7TunerSession` (`use` +
+ * `options.session` injection): one multiplexed connection for the whole
+ * polling surface instead of connect-per-request — the churn that wedged the
+ * game — plus the session's backoff gate when the tuner stops answering. The
+ * direct-control *call shapes* (args, timeout, includeAreaRegionCounts,
+ * clamps) are unchanged from the legacy handlers — no semantic change to the
+ * read surface. `savedConfigurations` is a filesystem read (no socket) and
+ * deliberately bypasses the session/gate.
  *
- * Parity note: the studio remains direct-control-backed for these live reads this
- * run (FRAME §4.7). The control-oRPC seam (architecture/12) is designed-toward,
- * not yet bound. No FireTuner reads are added beyond the existing handler set.
+ * Parity note: the studio remains direct-control-backed for these live reads
+ * this run. The control-oRPC seam (architecture/12) is designed-toward, not
+ * yet bound. No FireTuner reads are added beyond the existing handler set.
  */
 export class Civ7TunerClient extends Effect.Service<Civ7TunerClient>()(
   "@civ7/studio-server/Civ7TunerClient",
   {
     accessors: true,
-    sync: () => {
+    dependencies: [Civ7TunerSessionLive],
+    effect: Effect.gen(function* () {
+      const tuner = yield* Civ7TunerSession;
       const timeoutMs = DEFAULT_CIV7_TUNER_TIMEOUT_MS;
       return {
         // #1 status — getCiv7PlayableStatus({ timeoutMs })
         playableStatus: () =>
-          Effect.tryPromise(() => getCiv7PlayableStatus({ timeoutMs })),
+          tuner.use((o) => getCiv7PlayableStatus({ timeoutMs, ...o })),
 
         // #2 mapSummary — includeAreaRegionCounts: true
         mapSummary: () =>
-          Effect.tryPromise(() =>
-            getCiv7MapSummary({ timeoutMs, includeAreaRegionCounts: true }),
+          tuner.use((o) =>
+            getCiv7MapSummary({ timeoutMs, includeAreaRegionCounts: true, ...o }),
           ),
 
         // live.status field read — includeAreaRegionCounts: false
         liveMapSummary: () =>
-          Effect.tryPromise(() =>
-            getCiv7MapSummary({ timeoutMs, includeAreaRegionCounts: false }),
+          tuner.use((o) =>
+            getCiv7MapSummary({ timeoutMs, includeAreaRegionCounts: false, ...o }),
           ),
 
-        appUiSnapshot: () => Effect.tryPromise(() => getCiv7AppUiSnapshot({ timeoutMs })),
+        appUiSnapshot: () => tuner.use((o) => getCiv7AppUiSnapshot({ timeoutMs, ...o })),
 
-        autoplayStatus: () => Effect.tryPromise(() => getCiv7AutoplayStatus({ timeoutMs })),
+        autoplayStatus: () => tuner.use((o) => getCiv7AutoplayStatus({ timeoutMs, ...o })),
 
         // #3 / live.gameInfo — getCiv7GameInfoRows({ table, limit }, { timeoutMs })
         gameInfoRows: (table: string, limit: number) =>
-          Effect.tryPromise(() => getCiv7GameInfoRows({ table, limit }, { timeoutMs })),
+          tuner.use((o) => getCiv7GameInfoRows({ table, limit }, { timeoutMs, ...o })),
 
         // #10 setupConfig — getCiv7SetupSnapshot({ timeoutMs })
-        setupSnapshot: () => Effect.tryPromise(() => getCiv7SetupSnapshot({ timeoutMs })),
+        setupSnapshot: () => tuner.use((o) => getCiv7SetupSnapshot({ timeoutMs, ...o })),
 
-        // #11 savedConfigs — listCiv7SavedGameConfigurations()
+        // #11 savedConfigs — filesystem read; no tuner socket, no gate.
         savedConfigurations: () => Effect.tryPromise(() => listCiv7SavedGameConfigurations()),
 
         // #5 live.snapshot — getCiv7MapGrid(input, { timeoutMs })
         mapGrid: (input: Parameters<typeof getCiv7MapGrid>[0]) =>
-          Effect.tryPromise(() => getCiv7MapGrid(input, { timeoutMs })),
+          tuner.use((o) => getCiv7MapGrid(input, { timeoutMs, ...o })),
 
         // #6 live.entities — player/unit/city summaries
         playerSummary: (input: Parameters<typeof getCiv7PlayerSummary>[0]) =>
-          Effect.tryPromise(() => getCiv7PlayerSummary(input, { timeoutMs })),
+          tuner.use((o) => getCiv7PlayerSummary(input, { timeoutMs, ...o })),
         unitSummary: (input: Parameters<typeof getCiv7UnitSummary>[0]) =>
-          Effect.tryPromise(() => getCiv7UnitSummary(input, { timeoutMs })),
+          tuner.use((o) => getCiv7UnitSummary(input, { timeoutMs, ...o })),
         citySummary: (input: Parameters<typeof getCiv7CitySummary>[0]) =>
-          Effect.tryPromise(() => getCiv7CitySummary(input, { timeoutMs })),
+          tuner.use((o) => getCiv7CitySummary(input, { timeoutMs, ...o })),
       };
-    },
+    }),
   },
 ) {}

@@ -2,11 +2,13 @@
  * `@civ7/studio-server` — public entrypoint.
  *
  * - Contract surface (slice A1): zod I/O for all 16 endpoints.
- * - Effect services (A2): `Civ7TunerClient`, `StudioConfig`.
+ * - Effect services (A2): `Civ7TunerClient`, `StudioConfig`; `Civ7TunerSession`
+ *   (tuner-session workstream) — the scoped owner of the ONE shared FireTuner
+ *   connection, with the backoff gate and the host injection/health ports.
  * - effect-orpc router (A3): `createStudioRouter` + non-uniform error mapping.
  * - Host handler (A4-lite): `createStudioRpcHandler(context)` → an `RPCHandler`
- *   the host mounts at `/rpc` (the Vite dev middleware this run; a Bun server
- *   later). A standalone Bun process is DEFERRED (FRAME §4.7).
+ *   the host (the studio Bun daemon) mounts at `/rpc`, plus `tuner.*` ports and
+ *   the `dispose()` shutdown obligation.
  *
  * The host supplies a {@link StudioServerContext} carrying the process singletons,
  * the catalog loader, and the three stateful engine fns (shared queue + dual-store
@@ -26,4 +28,15 @@ export { createStudioRpcHandler, type StudioRpcHandle } from "./handler.js";
 export { createStudioRouter, type StudioRouter } from "./router/index.js";
 export { makeStudioRuntime, type StudioRuntime } from "./runtime.js";
 export { Civ7TunerClient } from "./services/Civ7TunerClient.js";
+export {
+  CIV7_TUNER_GATE_COOLDOWN_MS,
+  CIV7_TUNER_GATE_THRESHOLD,
+  Civ7TunerBackoffError,
+  Civ7TunerSession,
+  Civ7TunerSessionLive,
+  makeCiv7TunerSessionLayer,
+  type Civ7TunerSessionApi,
+  type Civ7TunerSessionHealth,
+  type Civ7TunerSessionOptions,
+} from "./services/Civ7TunerSession.js";
 export { StudioConfig } from "./services/StudioConfig.js";

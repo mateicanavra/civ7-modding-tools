@@ -51,7 +51,7 @@
     "@swooper/mapgen-viz": "workspace:*",
     "class-variance-authority": "latest",
     "clsx": "latest",
-    "effect": "3.21.2",
+    "effect": "3.21.3",
     "effect-orpc": "^0.2.2",
     "lucide-react": "0.522.0",
     "mod-swooper-maps": "workspace:*",
