@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  clearStudioSetupSavedConfig,
   studioSetupConfigFromSavedConfigFile,
   studioSetupConfigFromLiveSnapshot,
   studioSetupDriftsFromSavedConfig,
   updateStudioSetupGameOption,
-  updateStudioSetupSavedConfig,
   updateStudioSetupPlayerOption,
 } from "../../src/features/civ7Setup/setupConfig";
 
@@ -123,20 +123,12 @@ describe("Civ7 Studio setup config", () => {
     });
   });
 
-  it("applies a saved config without dropping explicit neighboring setup choices", () => {
-    const updated = updateStudioSetupSavedConfig({
-      gameOptions: {
-        AgeLength: "AGE_LENGTH_STANDARD",
-      },
-      playerOptions: [
-        {
-          playerId: 0,
-          options: {
-            PlayerLeader: "LEADER_HARRIET_TUBMAN",
-          },
-        },
-      ],
-    }, {
+  // Config-precedence pin (P7): selection applies the file EXACTLY. At launch
+  // the engine loads the saved config file first and re-applies every studio
+  // option on top, so any pre-existing studio key the file does not specify
+  // would silently override the file — selection must wipe it.
+  it("applying a saved config replaces prior studio options instead of merging over them", () => {
+    const applied = studioSetupConfigFromSavedConfigFile({
       id: "tot-config",
       displayName: "ToT Config",
       fileName: "ToT Config.Civ7Cfg",
@@ -158,15 +150,33 @@ describe("Civ7 Studio setup config", () => {
       ],
     });
 
-    expect(updated.gameOptions).toEqual({
-      AgeLength: "AGE_LENGTH_STANDARD",
-      Difficulty: "DIFFICULTY_CUSTOM",
-    });
-    expect(updated.playerOptions[0]?.options.PlayerLeader).toBe("LEADER_ALEXANDER");
+    // No stale keys survive: the launch payload is the file, nothing else.
+    expect(applied.gameOptions).toEqual({ Difficulty: "DIFFICULTY_CUSTOM" });
+    expect(applied.playerOptions).toEqual([
+      { playerId: 0, options: { PlayerLeader: "LEADER_ALEXANDER" } },
+    ]);
   });
 
-  // Config-precedence pins (Y2): the saved-config selector shows Modified
-  // exactly when a governed value drifted; re-apply (sync back) clears it.
+  it("deselecting keeps the current options as free-form custom state", () => {
+    const cleared = clearStudioSetupSavedConfig({
+      savedConfig: {
+        id: "tot-config",
+        displayName: "ToT Config",
+        fileName: "ToT Config.Civ7Cfg",
+        path: "/tmp/ToT Config.Civ7Cfg",
+      },
+      gameOptions: { Difficulty: "DIFFICULTY_CUSTOM" },
+      playerOptions: [{ playerId: 0, options: { PlayerLeader: "LEADER_ALEXANDER" } }],
+    });
+
+    expect(cleared.savedConfig).toBeUndefined();
+    expect(cleared.gameOptions).toEqual({ Difficulty: "DIFFICULTY_CUSTOM" });
+    expect(cleared.playerOptions[0]?.options.PlayerLeader).toBe("LEADER_ALEXANDER");
+  });
+
+  // Config-precedence pins (Y2, hardened in P7): the selector shows "Custom"
+  // whenever the authored state differs AT ALL from the file-derived state —
+  // re-selecting the config re-applies the file exactly and clears the drift.
   describe("saved-config drift detection", () => {
     const savedConfig = {
       id: "tot-config",
@@ -191,10 +201,7 @@ describe("Civ7 Studio setup config", () => {
         },
       ],
     };
-    const applied = updateStudioSetupSavedConfig(
-      { gameOptions: { AgeLength: "AGE_LENGTH_STANDARD" }, playerOptions: [{ playerId: 0, options: {} }] },
-      savedConfig,
-    );
+    const applied = studioSetupConfigFromSavedConfigFile(savedConfig);
 
     it("is clean immediately after applying the saved config", () => {
       expect(studioSetupDriftsFromSavedConfig(applied, savedConfig)).toBe(false);
@@ -210,14 +217,14 @@ describe("Civ7 Studio setup config", () => {
       expect(studioSetupDriftsFromSavedConfig(drifted, savedConfig)).toBe(true);
     });
 
-    it("does NOT drift when an ungoverned option changes (the apply merge keeps it)", () => {
+    it("drifts when ANY option the file does not specify is added (it would override the file at launch)", () => {
       const edited = updateStudioSetupGameOption(applied, "AgeLength", "AGE_LENGTH_LONG");
-      expect(studioSetupDriftsFromSavedConfig(edited, savedConfig)).toBe(false);
+      expect(studioSetupDriftsFromSavedConfig(edited, savedConfig)).toBe(true);
     });
 
     it("re-applying the saved config clears the drift (sync back)", () => {
       const drifted = updateStudioSetupGameOption(applied, "GameSpeeds", "GAMESPEED_QUICK");
-      const resynced = updateStudioSetupSavedConfig(drifted, savedConfig);
+      const resynced = studioSetupConfigFromSavedConfigFile(savedConfig);
       expect(studioSetupDriftsFromSavedConfig(resynced, savedConfig)).toBe(false);
     });
   });

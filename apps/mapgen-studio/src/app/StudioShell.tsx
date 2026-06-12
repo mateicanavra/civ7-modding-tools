@@ -40,12 +40,13 @@ import {
   type RunInGameOperationStatus,
 } from "../features/runInGame/status";
 import {
+  clearStudioSetupSavedConfig,
   getLocalPlayerSetup,
   normalizeStudioSetupConfig,
   optionRowsFromParameter,
   studioSetupConfigFromLiveSnapshot,
+  studioSetupConfigFromSavedConfigFile,
   studioSetupDriftsFromSavedConfig,
-  updateStudioSetupSavedConfig,
   type Civ7SetupSnapshotLike,
   type Civ7StudioSetupConfig,
 } from "../features/civ7Setup/setupConfig";
@@ -1399,11 +1400,11 @@ export function StudioShell(props: StudioShellProps) {
     };
   }, [liveSetup.setup, savedSetupConfigs.configurations, savedSetupConfigs.status, setupCatalog.catalog, setupConfig]);
 
-  // Config precedence (Y2): the saved-config selector must SHOW when the
-  // game-setup dropdowns (or a live sync) have superseded values the selected
-  // saved config governs — drift is "re-applying the file would change the
-  // state". The header renders the orange Modified affordance off this flag;
-  // clicking it re-applies the saved config (sync back).
+  // Config precedence (Y2, hardened in P7): the selector claims the saved
+  // config ONLY while the authored setup state equals the file-derived state
+  // — any difference (dropdown edit, live sync, stray persisted key) means
+  // the launch would not be the file, so the header shows "Custom" instead.
+  // Re-selecting the config re-applies the file exactly and returns to clean.
   const savedSetupConfigModified = useMemo(() => {
     const selectedId = setupConfig.savedConfig?.id;
     if (!selectedId) return false;
@@ -1415,10 +1416,10 @@ export function StudioShell(props: StudioShellProps) {
   const handleSavedSetupConfigChange = useCallback((configId: string) => {
     const savedConfig = savedSetupConfigs.configurations.find((config) => config.id === configId);
     if (!savedConfig) {
-      setSetupConfig((current) => updateStudioSetupSavedConfig(current, undefined));
+      setSetupConfig((current) => clearStudioSetupSavedConfig(current));
       return;
     }
-    setSetupConfig((current) => updateStudioSetupSavedConfig(current, savedConfig));
+    setSetupConfig(studioSetupConfigFromSavedConfigFile(savedConfig));
     const nextSeed = savedConfig.summary.mapSeed ?? savedConfig.summary.gameSeed;
     if (nextSeed !== undefined) {
       const seedPolicy = parseCiv7StudioSeed(nextSeed);

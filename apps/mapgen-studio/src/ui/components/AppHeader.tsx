@@ -11,6 +11,15 @@ import {
   type Civ7StudioSetupConfig
 } from '../../features/civ7Setup/setupConfig';
 import type { ThemePreference } from '../types';
+
+/**
+ * Sentinel selector value for the drifted state: the authored game setup no
+ * longer equals the selected saved config's file, so the launch would be a
+ * custom configuration. Not a selectable target — choosing a real config
+ * re-applies that file.
+ */
+const CUSTOM_SETUP_VALUE = '__custom-setup__';
+
 export interface AppHeaderProps {
   themePreference: ThemePreference;
   onThemeCycle: () => void;
@@ -27,9 +36,11 @@ export interface AppHeaderProps {
   onSetupConfigChange: (config: Civ7StudioSetupConfig) => void;
   onSavedConfigChange: (configId: string) => void;
   /**
-   * Config precedence: true when the game-setup dropdowns (or a live sync)
-   * superseded values the selected saved config governs. Renders the orange
-   * Modified affordance on the selector; clicking it re-applies the file.
+   * Config precedence: true when the authored setup state no longer equals
+   * the selected saved config's file-derived state (any dropdown edit, live
+   * sync, or stray persisted key counts — what would launch is no longer the
+   * file). The selector then shows "Custom" in warning orange; the companion
+   * re-apply affordance restores the file exactly.
    */
   savedConfigModified?: boolean;
   onHeaderHeightChange?: (height: number) => void;
@@ -121,20 +132,30 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
               Config
             </span>
+            {/* Config-precedence display: while the setup state matches the
+                selected file the selector names it; once it drifts the
+                selector itself says "Custom" (the launch is no longer the
+                file). Picking the config again re-applies the file exactly. */}
             <OptionSelect
-              value={setupConfig.savedConfig?.id ?? ""}
-              onValueChange={(value) => onSavedConfigChange(value)}
-              options={setupOptions.savedConfigOptions}
+              value={savedConfigModified ? CUSTOM_SETUP_VALUE : setupConfig.savedConfig?.id ?? ""}
+              onValueChange={(value) => {
+                if (value !== CUSTOM_SETUP_VALUE) onSavedConfigChange(value);
+              }}
+              options={
+                savedConfigModified
+                  ? [{ value: CUSTOM_SETUP_VALUE, label: "Custom" }, ...setupOptions.savedConfigOptions]
+                  : setupOptions.savedConfigOptions
+              }
               ariaLabel="Saved config"
               className={`w-44 max-w-[34vw] ${savedConfigModified ? 'border-warning text-warning ring-1 ring-warning/40' : ''}`} />
             {savedConfigModified && setupConfig.savedConfig ? (
               <button
                 type="button"
                 onClick={() => onSavedConfigChange(setupConfig.savedConfig!.id)}
-                aria-label={`Game setup modified from ${setupConfig.savedConfig.displayName} — click to re-apply the saved config`}
-                title={`Game setup modified from ${setupConfig.savedConfig.displayName} — click to re-apply the saved config`}
+                aria-label={`Game setup is Custom (drifted from ${setupConfig.savedConfig.displayName}) — click to re-apply the saved config`}
+                title={`Game setup is Custom (drifted from ${setupConfig.savedConfig.displayName}) — click to re-apply the saved config`}
                 className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning cursor-pointer transition-colors hover:bg-warning/10">
-                Modified
+                Re-apply
               </button>
             ) : null}
             {/* Game-setup disclosure: the gear rides the config cluster (the
