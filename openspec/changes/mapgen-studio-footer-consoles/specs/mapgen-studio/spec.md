@@ -19,8 +19,12 @@ save-deploy status).
 - **THEN** the live chip, autoplay toggle, Run in Game button, its status chip/retry/diagnostics, and the save-deploy chip render in the right-docked console under a visible identity label
 
 #### Scenario: Centering is independent of the game console
-- **WHEN** the game console's content width changes
+- **WHEN** the game console's content width changes and horizontal space allows
 - **THEN** the studio console remains horizontally centered in the viewport
+
+#### Scenario: Consoles never overlap when space is tight
+- **WHEN** the viewport is too narrow for centered placement beside the game console
+- **THEN** the studio console yields position (shifts) rather than overlapping the game console
 
 ### Requirement: The Console Split Preserves Studio-Game State Legibility
 

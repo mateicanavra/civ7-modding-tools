@@ -8,6 +8,7 @@
 export { AppBrand } from './AppBrand';
 export { AppHeader, type AppHeaderProps } from './AppHeader';
 export { AppFooter, FOOTER_HEIGHT, type AppFooterProps } from './AppFooter';
+export { GameConsole, type GameConsoleProps, type GameConsoleLiveRuntime } from './GameConsole';
 
 // Panel components
 export { RecipePanel, type RecipePanelProps } from './RecipePanel';
