@@ -595,3 +595,78 @@ mod-swooper-maps **569/0 fail** (= handoff baseline); civ7-direct-control
 rebuild proved it, main-worktree control run cross-checked); mapgen-core
 **103/0 fail**; studio-server **2** (main's handler pins). Deferred to the
 operator: draining the stack (standing never-submit rule vs handoff step 5).
+
+## P7 deep semantic review (2026-06-12, operator-mandated) — COMPLETE
+
+The post-restack review-and-fix wave: a 5-lane framed subagent review
+(config-precedence evidence, dead-ends, semantic-loss-vs-main,
+inspector design, idiom/conformance) over everything the restack merged,
+plus mid-flight operator additions. Nine slices stacked on
+`design/post-main-restack-reconcile`:
+
+- [x] **Reconcile amend — contract regressions (P1×2).** The restack had
+  kept pre-rivers studio-server contracts while the ported engines emit
+  rivers shapes: `mapConfigs` deploy details (nested
+  `{build,targetDir,modsDir,filesCopied}`) and `runInGame` content-proof
+  fields (`contentMarkerProof`/`fileContentProof` + local/deployed script
+  content) restored from main, amended into the reconcile commit.
+- [x] **`design/p7-config-precedence-custom` — the "big big big" item.**
+  Root cause at the engine seam: `prepareCiv7SinglePlayerSetup` loads the
+  saved config file FIRST then re-applies every studio key on top, so any
+  unauthored studio key silently overrides the file. Selection is now
+  exact-replace (`studioSetupConfigFromSavedConfigFile`, previously
+  production-dead), drift is total-equality, and the selector shows
+  **Custom** whenever the launched state differs from the file
+  ("Re-apply" restores it). Proven live: launch payload carried EXACTLY
+  the file's options (vs the prior 22-key default wall captured in the
+  wild), persistence wipe included.
+- [x] **`design/p7-water-proof-inspector`** — river/lake/floodplain
+  inspector summary surfaced in the Explore dock with layer-jump chips —
+  superseded in-stack by `design/p7-water-stats` after operator review.
+- [x] **`design/p7-explore-wiring`** — the Explore button wired for real:
+  the mounted control-oRPC router reached through the typed
+  `LiveControlPort.display.explore` seam (the gap was client-side only);
+  three-state affordance + result toasts; live-proven (full-map reveal).
+- [x] **`design/p7-idiom-jsdoc-polish`** — naming/JSDoc pass over the
+  restacked surface (why-comments on the precedence seam, port taxonomy,
+  setup-config type).
+- [x] **`design/p7-responsive-status-chip`** — turn/seed chip drops the
+  seed suffix under a Tailwind v4 container query when the bar narrows.
+- [x] **`design/p7-flat-config-explorer`** — config objects flattened
+  into a flush nested disclosure explorer: wells retired, scalar runs and
+  section rows divided by hairlines, depth read via compounding `pl-3`
+  indent + heading tiers; array items as hairline rows.
+- [x] **`design/p7-orpc-native-errors` — categorical wrapper kill.**
+  Operator directive: any error mapping/extraction around oRPC is an
+  architectural flaw. Investigation (native docs + effect-orpc source)
+  then migration: per-procedure `.errors()` maps pin the legacy
+  non-uniform statuses on DECLARED codes; the host context maps engine
+  `RunInGameHttpError`s to matching raw `ORPCError`s that arrive as
+  DEFINED errors; clients read `safe()` + `isDefinedError()` and branch
+  on codes. Deleted outright: `orpcError`/`statusToCode`/
+  `rethrowEngineError`/`orpcFailure`/`runInGameFailure`/
+  `saveDeployFailure`/`readErrorData`/`StudioServerOrpcFailure`/
+  `recipeDagSafeErrorMiddleware`. **Deferred follow-up:** migrate the
+  ~18 engine `RunInGameHttpError` throw sites to contract errors so the
+  host mapping shim can die too.
+- [x] **`design/p7-water-stats`** — operator verdict on the proof UI:
+  "slop". Re-expressed as a stats section: semantic counts per data
+  family, divergence (mismatch/reject) warning-tinted, collapsed summary
+  "matches baseline"/"N mismatched"; proof vocabulary BANNED from product
+  chrome (system.md amendment) — claim semantics stay in the
+  riverLakeInspector module.
+
+Dead-ends sweep closed: Explore wired, the dead selection helper now the
+production path, all legacy error wrappers deleted; no dead routes — the
+control-oRPC mount serves canonical procedures only.
+
+Gates at tip (all green): mapgen-studio **239/50** (canonical
+`bun run test`) + tsc + build; studio-server build/check/**5** tests;
+mod-swooper-maps **569**; direct-control **433**; control-orpc **345**;
+mapgen-core **103**. Live proofs: config-precedence launch payload,
+Explore reveal, water stats over a real run (surfaced a genuine
+32-intent vs 31-engine lake delta at a glance).
+
+Submission: operator LIFTED the never-submit rule for this phase —
+`gt submit --stack --ai` + merge drain per the repo-local
+graphite-stack-drain skill.

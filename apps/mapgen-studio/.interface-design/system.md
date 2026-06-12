@@ -369,12 +369,15 @@ the trailing-disclosure placement; keeps the icon-only contract + zoning):
   `@container`; the signal chip's seed suffix rides a `@max-3xl:hidden` span
   so the chip collapses to `Turn N` before the bar wraps. Full
   `Turn N · Seed S` stays in the tooltip/accessible name.
-- **Water proof section (ExplorePanel).** The river/lake/floodplain
-  inspector renders as a collapsible section between Step and Layers: lane
-  eyebrow per truth class, claim status as status-dot + word (`ready` /
-  `inspect` / `fail` / `open` / `skip`; projection evidence is steel
-  "inspect", NEVER success-green — projection masks don't masquerade as
-  engine truth), module-owned data-color dots on the layer-jump chips.
+- **Water stats section (ExplorePanel).** The river/lake/floodplain data
+  renders as a STATS section between Step and Layers — one compact line per
+  data family carrying its semantic counts (plan vs engine, e.g. `lake
+  intent 32 · engine lakes 31`) plus layer-jump chips with module-owned
+  data-color dots. Divergence counts (mismatch/rejected) wear the warning
+  tint when nonzero; the collapsed header reads `matches baseline` or `N
+  mismatched`. PROOF VOCABULARY IS BANNED FROM PRODUCT CHROME: no claim
+  words, no lane eyebrows, no acceptance/rendered bookkeeping rows — claim
+  semantics stay in the `riverLakeInspector` module and project docs.
 - **Saved-config precedence shows "Custom".** Selection applies the saved
   config file EXACTLY (full replace); ANY divergence flips the selector
   value itself to a warning-tinted `Custom` entry with a `Re-apply`

@@ -13,7 +13,7 @@ export { GameConsole, type GameConsoleProps, type GameConsoleLiveRuntime } from 
 // Panel components
 export { RecipePanel, type RecipePanelProps } from './RecipePanel';
 export { ExplorePanel, type ExplorePanelProps } from './ExplorePanel';
-export { WaterProofSection, type WaterProofSectionProps } from './WaterProofSection';
+export { WaterStatsSection, type WaterStatsSectionProps } from './WaterStatsSection';
 
 // Form components
 export { ViewControls, type ViewControlsProps } from './ViewControls';
