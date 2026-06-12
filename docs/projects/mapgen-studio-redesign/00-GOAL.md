@@ -210,8 +210,21 @@ live screenshots, zero console errors. Each slice = one OpenSpec change.
 - [x] **P7 Review** — multi-lens reviewer waves each run; no open P1/P2 at tip.
 
 **Remaining (SUPERVISED — not auto-run):**
-- [ ] **P5b Server cutover** — standalone **Bun** server, production `/api` parity fix
-  (today `/api` is Vite-dev-only), then **remove** the legacy `/api` middleware. Awaiting user go-ahead.
+- [x] **P5b Server cutover** — DONE (2026-06-12, user go granted; OpenSpec
+  `mapgen-studio-bun-server`, slices `design/bun-server-frame` →
+  `design/bun-server-engines` → `design/bun-control-fetch` →
+  `design/bun-server-daemon`): standalone **Bun** daemon
+  (`src/server/daemon/daemon.ts`, port 5174) owns all server state
+  (extracted `createStudioEngines`) + the three oRPC mounts (`/rpc`,
+  `/api/civ7/rpc` and `/api/recipe-dag/rpc` both now fetch-adapter,
+  statically imported under Bun — `ssrLoadModule` gone); `bun run dev` =
+  dev-live runner (daemon → healthz → Vite); `vite.config.ts` is
+  frontend-only (proxy `/rpc` + `/api`); optional `--assets-root` static
+  serving opens the prod story. Legacy `/api/*` REST handlers **RETIRED
+  outright** per user directive 2026-06-12 ("no legacy... forward only") —
+  no compat layer, unknown `/api` → 404; parity script moved to oRPC.
+  Gates: studio 201, mod 471, build + worker bundle, strict OpenSpec,
+  live-verified (run loop + pipeline view through the proxy).
 - [ ] *(optional)* deeper `StudioShell` container/presentational panel split.
 
 Live-control: NOT waiting for merge. Seam designed toward stack-top (FRAME §6).

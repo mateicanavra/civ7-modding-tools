@@ -50,22 +50,16 @@ import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
 // queue, both operation stores (the dual-store 409 mutex), the server instance
 // identity, and the five engine functions (autoplay, run-in-game start/status,
 // save-deploy start/status). `createStudioEngines` owns ALL process-singleton
-// server state — exactly one instance may exist per server process, shared by
-// every transport (the `/rpc` oRPC mount and the legacy `/api/*` handlers), or
-// the queue/mutex semantics diverge (architecture/10 §7).
+// server state — exactly one instance may exist per server process (the Bun
+// daemon), shared by every oRPC mount, or the queue/mutex semantics diverge
+// (architecture/10 §7).
 //
-// Each engine returns the SAME success body the legacy `/api` handler wrote, or
-// THROWS:
-//   - `RunInGameHttpError` (carries statusCode + details) — used as-is, also
-//     for the autoplay/save-deploy 409 mutex + run-in-game/save-deploy 404.
+// Each engine returns its success body, or THROWS:
+//   - `RunInGameHttpError` (carries statusCode + details) — preserves the
+//     non-uniform legacy status codes (409 mutex, run-in-game/save-deploy 404).
 //   - a plain `Error` — validation/save failures (mapped to 400 by the caller).
-// The `/api` middleware adapts return/throw → `res`; the oRPC context adapts
-// return/throw → value/ORPCError (./context.ts, `orpcError` mapping).
-//
-// IMPORT CONSTRAINT (load-bearing): this module is statically imported by
-// `vite.config.ts`, so its import graph must stay node-evaluable — never
-// import `effect-orpc` (TS-source package entry) or anything that does outside
-// a bundled dist. `@civ7/direct-control` + local server modules only.
+// The oRPC context adapts return/throw → value/ORPCError (./context.ts,
+// `orpcError` mapping), keeping those statuses across the oRPC boundary.
 // ============================================================================
 
 const execFileAsync = promisify(execFile);

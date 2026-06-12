@@ -8,16 +8,13 @@ import { RunInGameHttpError } from "../runInGame/operationState";
 import type { StudioEngines } from "./engines";
 
 /**
- * Build the `StudioServerContext` the oRPC router consumes — the SAME engines +
- * stores the legacy `/api/*` handlers use (shared state, no divergence). Engine
- * `RunInGameHttpError`s are converted to `ORPCError` with the legacy status +
- * `details`/`observedAt` payload so the non-uniform codes survive the oRPC
- * boundary. Moved verbatim from `vite.config.ts` (`createStudioServerContextForApp`)
- * in the bun-server engine-extraction slice; the host now injects the engines,
- * the repo root, and its command label (`vite` dev: "serve"; Bun daemon: "daemon").
- *
- * Import constraint: `@civ7/studio-server` is safe to import from node-evaluated
- * config code (tsup bundles effect-orpc into its dist) — see ./engines.ts header.
+ * Build the `StudioServerContext` the oRPC router consumes over the process's
+ * one engines instance. Engine `RunInGameHttpError`s are converted to
+ * `ORPCError` with the historical status + `details` payload so the
+ * non-uniform codes survive the oRPC boundary (architecture/10 §1). Moved
+ * verbatim from `vite.config.ts` (`createStudioServerContextForApp`) in the
+ * bun-server engine-extraction slice; the host (the Bun daemon) injects the
+ * engines and its command label.
  */
 export function createStudioServerContext(options: Readonly<{
   engines: StudioEngines;

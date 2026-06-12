@@ -119,11 +119,20 @@ async function loadExactAuthorshipProof(args: Args): Promise<ExactAuthorshipProo
     return extractExactAuthorshipProof(JSON.parse(readFileSync(args.proofFile, "utf8")));
   }
   if (!args.requestId) throw new Error("Expected --request-id or --proof-file");
-  const url = `${args.studioUrl}/api/civ7/run-in-game/status?requestId=${encodeURIComponent(args.requestId)}`;
-  const response = await fetch(url);
-  const payload = await response.json();
-  if (!response.ok || payload?.ok === false) {
-    throw new Error(`Studio Run in Game status unavailable for ${args.requestId}: ${JSON.stringify(payload)}`);
+  // Studio oRPC transport (the legacy `/api/civ7/run-in-game/status` REST
+  // endpoint is retired): POST the RPC envelope to `runInGame.status` and
+  // unwrap the `json` payload — the same operation-state object the legacy
+  // endpoint returned.
+  const url = `${args.studioUrl}/rpc/runInGame/status`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ json: { requestId: args.requestId } }),
+  });
+  const envelope = (await response.json()) as { json?: unknown };
+  const payload = envelope?.json;
+  if (!response.ok || (isRecord(payload) && payload.ok === false)) {
+    throw new Error(`Studio Run in Game status unavailable for ${args.requestId}: ${JSON.stringify(payload ?? envelope)}`);
   }
   return extractExactAuthorshipProof(payload);
 }
