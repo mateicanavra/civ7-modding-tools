@@ -86,13 +86,13 @@ describe("recipe DAG domain presentation", () => {
   });
 
   it("keeps domain lucide imports centralized outside the view", () => {
-    const source = readFileSync(new URL("../../src/features/recipeDag/RecipeDagView.tsx", import.meta.url), "utf8");
+    const source = readFileSync(new URL("../../src/features/recipeDag/PipelineStage.tsx", import.meta.url), "utf8");
     const lucideImport = source.match(/import\s*{([\s\S]*?)}\s*from "lucide-react";/)?.[1] ?? "";
     const importedNames = lucideImport
       .split(",")
       .map((name) => name.trim())
       .filter(Boolean);
 
-    expect(importedNames).toEqual(["AlertTriangle", "ChevronDown", "GitBranch", "Loader2"]);
+    expect(importedNames).toEqual(["AlertTriangle", "ChevronDown", "Loader2", "Workflow"]);
   });
 });
