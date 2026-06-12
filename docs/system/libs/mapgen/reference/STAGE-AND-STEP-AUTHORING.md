@@ -28,15 +28,26 @@ Representative example (dependency tags + artifact requirements; excerpt; see fu
 
 ```ts
 import { defineStep, Type } from "@swooper/mapgen-core/authoring";
-import { STANDARD_ENGINE_EFFECT_TAGS, MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
+import { mapRiversArtifacts } from "../artifacts.js";
 
 export default defineStep({
   id: "plot-rivers",
   phase: "gameplay",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled],
-  artifacts: { requires: [hydrologyHydrographyArtifacts.hydrography], provides: [] },
+  provides: [
+    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
+    MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured,
+  ],
+  artifacts: {
+    requires: [hydrologyHydrographyArtifacts.hydrography],
+    provides: [
+      mapRiversArtifacts.projectedNavigableRivers,
+      mapRiversArtifacts.engineProjectionRivers,
+      mapRiversArtifacts.riversEngineTerrainSnapshot,
+    ],
+  },
   schema: Type.Object({}),
 });
 ```
@@ -52,22 +63,39 @@ A step module pairs a step contract with an implementation:
 Representative example (createStep boundary; excerpt; see full file in anchors):
 
 ```ts
-import { NAVIGABLE_RIVER_TERRAIN } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 
 export default createStep(PlotRiversStepContract, {
   normalize: (config, ctx) => {
-    // shape-preserving; may use ctx.knobs deterministically
+    // Shape-preserving; may use ctx.knobs deterministically. For rivers, this
+    // is where map-rivers navigableRiverDensity resolves the Hydrology-owned
+    // navigable-river projection policy without mutating Hydrology truth.
     return config;
   },
-  run: (context, config, _ops, deps) => {
+  run: (context, config, ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read(context);
-    // ... optional trace/viz from hydrography ...
-    context.adapter.modelRivers(config.minLength, config.maxLength, NAVIGABLE_RIVER_TERRAIN);
+    const projected = ops.selectNavigableRiverTerrain(
+      {
+        width: context.dimensions.width,
+        height: context.dimensions.height,
+        riverClass: hydrography.riverClass,
+        discharge: hydrography.discharge,
+        flowDir: hydrography.flowDir,
+        projectableLandMask: /* finalized projectable terrain mask */,
+      },
+      config.selectNavigableRiverTerrain
+    );
+    // ... stamp projected.riverMask as TERRAIN_NAVIGABLE_RIVER ...
+    // ... refresh Civ caches and publish projected + engine readback artifacts ...
   },
 });
 ```
+
+Do not use the old `TerrainBuilder.modelRivers` delegation pattern as a new
+MapGen step template. Hydrology owns river truth; `map-rivers` projects the
+Civ-visible navigable terrain subset, records planned minor/major intent, and
+captures engine readback as a separate proof surface.
 
 ## Stage contract (config compilation boundary)
 

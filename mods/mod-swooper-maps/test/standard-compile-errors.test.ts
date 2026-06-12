@@ -29,6 +29,27 @@ function expectCompileError(fn: () => void): RecipeCompileError {
   throw new Error("Expected RecipeCompileError");
 }
 
+describe("standard recipe compile errors (map-rivers)", () => {
+  it("rejects retired map-rivers riverDensity alias", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "map-rivers": {
+          knobs: { riverDensity: "dense" },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path === "/config/map-rivers/knobs/riverDensity"
+      )
+    ).toBe(true);
+  });
+});
+
 describe("standard recipe compile errors (ecology)", () => {
   it("flags unknown stage public keys", () => {
     const err = expectCompileError(() =>
@@ -403,14 +424,12 @@ describe("standard recipe compile errors (ecology)", () => {
     ).toBe(true);
   });
 
-  it("rejects out-of-range Projection public numeric controls", () => {
+  it("rejects retired map-rivers projection thresholds from the public config surface", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
         foundation: foundationConfig,
         "map-rivers": {
-          riverProjection: {
-            minLength: 0,
-          },
+          riverProjection: { minLength: 0 },
         },
       } as any)
     );
@@ -419,7 +438,7 @@ describe("standard recipe compile errors (ecology)", () => {
       err.errors.some(
         (item) =>
           item.code === "config.invalid" &&
-          item.path.includes("/config/map-rivers/riverProjection/minLength")
+          item.path.includes("/config/map-rivers/riverProjection")
       )
     ).toBe(true);
   });

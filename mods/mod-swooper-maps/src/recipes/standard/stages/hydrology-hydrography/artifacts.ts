@@ -16,17 +16,19 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
     discharge: TypedArraySchemas.f32({
       description: "Accumulated discharge proxy per tile (routing + runoff accumulation).",
     }),
-    /** Discrete river class derived from discharge thresholds (0=none, 1=minor, 2=major). */
+    /** Discrete river class derived from discharge thresholds (0=none, 1=minor, >=2=major/projectable). */
     riverClass: TypedArraySchemas.u8({
-      description: "River class per tile (0=none, 1=minor, 2=major).",
+      description: "River class per tile (0=none, 1=minor, >=2=major/projectable).",
     }),
-    /** Steepest-descent receiver index per tile, used by downstream Hydrology lake planning. */
+    /** Hydrology-conditioned receiver index per tile, used by downstream Hydrology lake planning. */
     flowDir: TypedArraySchemas.i32({
-      description: "Steepest-descent receiver index per tile (or -1 for sinks/edges).",
+      description:
+        "Hydrology-conditioned receiver index per tile (or -1 for typed terminal basins).",
     }),
-    /** Routing sinks: candidate endorheic basins / internal drainage endpoints. */
+    /** Raw drainage minima: lake/depression candidates, not automatic discharge terminals. */
     sinkMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): land tiles that are routing sinks (candidate endorheic basins).",
+      description:
+        "Mask (1/0): raw local drainage minima used as lake/depression candidates.",
     }),
     /** Routing outlets: land tiles that drain to ocean/edges (land→water/out-of-bounds). */
     outletMask: TypedArraySchemas.u8({
@@ -36,7 +38,25 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
     /** Optional basin identifier per tile (or -1 when unassigned). */
     basinId: Type.Optional(
       TypedArraySchemas.i32({
-        description: "Optional basin identifier per tile (or -1 when unassigned).",
+        description: "Optional Hydrology drainage basin identifier per tile (or -1 when unassigned).",
+      })
+    ),
+    routingElevation: Type.Optional(
+      TypedArraySchemas.f32({
+        description:
+          "Hydrologically conditioned routing surface; does not mutate Morphology elevation.",
+      })
+    ),
+    depressionDepth: Type.Optional(
+      TypedArraySchemas.f32({
+        description:
+          "Positive where drainage conditioning fills a raw topographic depression to a spill surface.",
+      })
+    ),
+    terminalType: Type.Optional(
+      TypedArraySchemas.u8({
+        description:
+          "Terminal classification per land tile: 0=none, 1=ocean/water outlet, 2=closed basin.",
       })
     ),
   },
@@ -70,6 +90,34 @@ export const HydrologyLakePlanArtifactSchema = Type.Object(
   }
 );
 
+export const HydrologyRiverNetworkMetricsArtifactSchema = Type.Object(
+  {
+    upstreamArea: TypedArraySchemas.i32({
+      description: "Contributing land-tile count draining through each land tile.",
+    }),
+    streamOrderProxy: TypedArraySchemas.u8({
+      description: "Strahler-like hierarchy proxy over Hydrology river truth (0 on non-river tiles).",
+    }),
+    mouthType: TypedArraySchemas.u8({
+      description:
+        "Drainage mouth classification per land tile: 0=unresolved, 1=ocean, 2=accepted lake, 3=closed basin, 4=spill-path routed.",
+    }),
+    slopeClass: TypedArraySchemas.u8({
+      description:
+        "Slope class per land tile: 0=none/water, 1=flat, 2=low, 3=moderate, 4=steep, 5=mountain-blocked closed basin.",
+    }),
+    flowPermanenceProxy: TypedArraySchemas.u8({
+      description:
+        "Flow permanence proxy per land tile: 0=dry/no-signal, 1=ephemeral, 2=intermittent, 3=perennial.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Hydrology-owned river-network diagnostic metrics derived from routing/discharge/lake truth before map projection.",
+  }
+);
+
 export const hydrologyHydrographyArtifacts = {
   hydrography: defineArtifact({
     name: "hydrography",
@@ -80,5 +128,10 @@ export const hydrologyHydrographyArtifacts = {
     name: "lakePlan",
     id: "artifact:hydrology.lakePlan",
     schema: HydrologyLakePlanArtifactSchema,
+  }),
+  riverNetworkMetrics: defineArtifact({
+    name: "riverNetworkMetrics",
+    id: "artifact:hydrology.riverNetworkMetrics",
+    schema: HydrologyRiverNetworkMetricsArtifactSchema,
   }),
 } as const;

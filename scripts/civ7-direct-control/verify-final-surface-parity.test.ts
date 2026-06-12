@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
-import { buildBlockedFinalSurfaceParityOutput } from "./verify-final-surface-parity";
+import {
+  buildBlockedFinalSurfaceParityOutput,
+  extractExactAuthorshipProof,
+} from "./verify-final-surface-parity";
 
 describe("final-surface parity verifier output", () => {
   test("preserves upstream exact-authorship unresolved links in blocked output", () => {
@@ -34,5 +37,22 @@ describe("final-surface parity verifier output", () => {
       "exact-authorship-proof.complete",
       "exact-authorship-proof.unresolved-links-empty",
     ]);
+  });
+
+  test("accepts previous final-surface proof output as proof-file input", () => {
+    const exactAuthorshipPacket = {
+      status: "complete",
+      requestId: "studio-run-in-game-test",
+      unresolvedLinks: [],
+      sourceSnapshot: { configHash: "config-hash" },
+    };
+
+    expect(
+      extractExactAuthorshipProof({
+        ok: false,
+        parityStatus: "unresolved",
+        proof: { exactAuthorshipPacket },
+      })
+    ).toEqual(exactAuthorshipPacket);
   });
 });

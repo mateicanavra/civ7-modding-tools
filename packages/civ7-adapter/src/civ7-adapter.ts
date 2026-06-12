@@ -24,6 +24,7 @@ import type {
   ResourceCatalogEntry,
   ResourcePlacementIntent,
   ResourcePlacementOutcome,
+  RiverProjectionResult,
   VoronoiUtils,
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
@@ -32,6 +33,7 @@ import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.j
 import {
   CIV7_BROWSER_TABLES_V0,
   NATURAL_WONDER_CATALOG,
+  NO_RIVER_TYPE,
   getNaturalWonderFootprintIndices,
 } from "@civ7/map-policy";
 
@@ -195,6 +197,43 @@ export class Civ7Adapter implements EngineAdapter {
 
   isAdjacentToRivers(x: number, y: number, radius = 1): boolean {
     return GameplayMap.isAdjacentToRivers(x, y, radius);
+  }
+
+  getRiverType(x: number, y: number): number {
+    const map = GameplayMap as unknown as {
+      getRiverType?: (x: number, y: number) => number;
+    };
+    const riverTypes = (globalThis as typeof globalThis & {
+      RiverTypes?: Record<string, number>;
+    }).RiverTypes;
+    const noRiverType =
+      typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER | 0 : NO_RIVER_TYPE;
+    return typeof map.getRiverType === "function" ? map.getRiverType(x, y) | 0 : noRiverType;
+  }
+
+  isRiver(x: number, y: number): boolean {
+    const map = GameplayMap as unknown as {
+      isRiver?: (x: number, y: number) => boolean;
+    };
+    if (typeof map.isRiver === "function") return map.isRiver(x, y);
+    const riverTypes = (globalThis as typeof globalThis & {
+      RiverTypes?: Record<string, number>;
+    }).RiverTypes;
+    const noRiverType =
+      typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER | 0 : NO_RIVER_TYPE;
+    return this.getRiverType(x, y) !== noRiverType;
+  }
+
+  isNavigableRiver(x: number, y: number): boolean {
+    const map = GameplayMap as unknown as {
+      isNavigableRiver?: (x: number, y: number) => boolean;
+    };
+    if (typeof map.isNavigableRiver === "function") return map.isNavigableRiver(x, y);
+    const riverTypes = (globalThis as typeof globalThis & {
+      RiverTypes?: Record<string, number>;
+    }).RiverTypes;
+    const navigableRiverType = riverTypes?.RIVER_NAVIGABLE;
+    return typeof navigableRiverType === "number" && this.getRiverType(x, y) === navigableRiverType;
   }
 
   getElevation(x: number, y: number): number {
@@ -540,6 +579,120 @@ export class Civ7Adapter implements EngineAdapter {
 
   storeWaterData(): void {
     TerrainBuilder.storeWaterData();
+  }
+
+  readRiverProjection(
+    width: number,
+    height: number,
+    plannedNavigableRiverMask: Uint8Array
+  ): RiverProjectionResult {
+    const size = Math.max(0, (width | 0) * (height | 0));
+    if (plannedNavigableRiverMask.length !== size) {
+      throw new Error(
+        `[Civ7Adapter] Invalid river mask length for readRiverProjection (expected ${size}, got ${plannedNavigableRiverMask.length}).`
+      );
+    }
+
+    const navigableRiverTerrain = this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
+    const riverTypes = (globalThis as typeof globalThis & {
+      RiverTypes?: Record<string, number>;
+    }).RiverTypes;
+    const noRiverType =
+      typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER : NO_RIVER_TYPE;
+    const minorRiverType = riverTypes?.RIVER_MINOR;
+    const navigableRiverType = riverTypes?.RIVER_NAVIGABLE;
+    const stampedNavigableRiverMask = new Uint8Array(size);
+    const rejectedNavigableRiverMask = new Uint8Array(size);
+    const engineTerrain = new Int32Array(size);
+    const engineRiverType = new Int32Array(size);
+    const engineIsRiverMask = new Uint8Array(size);
+    const engineNavigableRiverMask = new Uint8Array(size);
+    const engineMinorRiverMask = new Uint8Array(size);
+    const terrainNavigableRiverMask = new Uint8Array(size);
+    const navigableRiverMismatchMask = new Uint8Array(size);
+    let plannedNavigableRiverTileCount = 0;
+    let stampedNavigableRiverTileCount = 0;
+    let rejectedNavigableRiverTileCount = 0;
+    let extraNavigableRiverTileCount = 0;
+    let navigableRiverMismatchTileCount = 0;
+    let engineRiverTileCount = 0;
+    let engineNavigableRiverTileCount = 0;
+    let engineMinorRiverTileCount = 0;
+    let terrainNavigableRiverTileCount = 0;
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        const planned = plannedNavigableRiverMask[idx] === 1;
+        const terrain = this.getTerrainType(x, y) | 0;
+        const riverType = this.getRiverType(x, y) | 0;
+        const isRiver = this.isRiver(x, y);
+        const isNavigable =
+          this.isNavigableRiver(x, y) ||
+          (typeof navigableRiverType === "number" && riverType === navigableRiverType);
+        const hasNavigableTerrain = terrain === navigableRiverTerrain;
+        const isMinor =
+          typeof minorRiverType === "number"
+            ? isRiver && riverType === minorRiverType
+            : isRiver && !isNavigable;
+        const hasRiverMetadata = riverType !== noRiverType;
+
+        engineTerrain[idx] = terrain;
+        engineRiverType[idx] = riverType;
+        engineIsRiverMask[idx] = isRiver || hasRiverMetadata ? 1 : 0;
+        engineNavigableRiverMask[idx] = isNavigable ? 1 : 0;
+        engineMinorRiverMask[idx] = isMinor ? 1 : 0;
+        terrainNavigableRiverMask[idx] = hasNavigableTerrain ? 1 : 0;
+
+        if (planned) plannedNavigableRiverTileCount += 1;
+        if (isRiver || hasRiverMetadata) engineRiverTileCount += 1;
+        if (isNavigable) engineNavigableRiverTileCount += 1;
+        if (isMinor) engineMinorRiverTileCount += 1;
+        if (hasNavigableTerrain) terrainNavigableRiverTileCount += 1;
+
+        if (planned && hasNavigableTerrain) {
+          stampedNavigableRiverMask[idx] = 1;
+          stampedNavigableRiverTileCount += 1;
+        } else if (planned) {
+          rejectedNavigableRiverMask[idx] = 1;
+          rejectedNavigableRiverTileCount += 1;
+        } else if (hasNavigableTerrain) {
+          extraNavigableRiverTileCount += 1;
+        }
+
+        if ((planned ? 1 : 0) !== (hasNavigableTerrain ? 1 : 0)) {
+          navigableRiverMismatchMask[idx] = 1;
+          navigableRiverMismatchTileCount += 1;
+        }
+      }
+    }
+
+    return {
+      width,
+      height,
+      plannedNavigableRiverMask,
+      stampedNavigableRiverMask,
+      rejectedNavigableRiverMask,
+      engineTerrain,
+      engineRiverType,
+      engineIsRiverMask,
+      engineNavigableRiverMask,
+      engineMinorRiverMask,
+      terrainNavigableRiverMask,
+      navigableRiverMismatchMask,
+      plannedNavigableRiverTileCount,
+      stampedNavigableRiverTileCount,
+      rejectedNavigableRiverTileCount,
+      extraNavigableRiverTileCount,
+      navigableRiverMismatchTileCount,
+      engineRiverTileCount,
+      engineNavigableRiverTileCount,
+      engineMinorRiverTileCount,
+      terrainNavigableRiverTileCount,
+      minorRiverStampingSupported: false,
+      minorRiverUnsupportedReason:
+        "Current projection path materializes a Civ-visible navigable subset, but exact minor-river metadata parity remains a readback-only boundary rather than a proven MapGen intent-writer surface.",
+    };
   }
 
   generateLakes(width: number, height: number, tilesPerLake: number): void {

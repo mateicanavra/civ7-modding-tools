@@ -27,6 +27,13 @@ ALLOWLIST=(
   # CIV-20: DONE - placement.ts now uses adapter
   # CIV-47: bun test harness stubs Civ7 runtime modules
   "packages/mapgen-core/test/setup.ts"
+  # map-policy owns generated/static Civ7 policy provenance strings; these are
+  # not runtime base-standard imports or direct engine access.
+  "packages/civ7-map-policy/src/civ7-tables.gen.ts"
+  "packages/civ7-map-policy/src/coast-classification.ts"
+  "packages/civ7-map-policy/src/resource-constants.ts"
+  "packages/civ7-map-policy/src/river-constants.ts"
+  "packages/civ7-map-policy/test/map-policy.test.ts"
 )
 
 # Config/build files that may reference /base-standard/ in comments or patterns

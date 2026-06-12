@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
+import { NO_RIVER_TYPE } from "../../packages/civ7-map-policy/src/index.ts";
 import { summarizeTerrainEdgeReadbackCompleteness } from "./verify-terrain-edge-live-context";
 
 type TerrainRows = Parameters<typeof summarizeTerrainEdgeReadbackCompleteness>[0];
@@ -31,7 +32,7 @@ describe("terrain-edge live context verifier", () => {
               terrain: { ok: true, value: 3 },
               water: { ok: true, value: true },
               lake: { ok: true, value: false },
-              riverType: { ok: true, value: -1 },
+              riverType: { ok: true, value: NO_RIVER_TYPE },
               areaId: { ok: false, error: "MapAreas unavailable" },
               regionId: { ok: true, value: -1 },
             },

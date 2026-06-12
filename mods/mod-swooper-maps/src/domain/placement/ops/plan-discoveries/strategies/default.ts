@@ -2,6 +2,7 @@ import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexNeighborIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
+import { isAnyRiverClass } from "../../../../hydrology/index.js";
 import PlanDiscoveriesContract from "../contract.js";
 
 type Candidate = {
@@ -62,7 +63,9 @@ export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default"
     const reliefByTile = new Float32Array(size);
     let maxRelief = 0;
     for (let i = 0; i < size; i++) {
-      if (input.landMask[i] !== 1 || input.lakeMask[i] === 1 || input.riverClass[i] > 0) continue;
+      if (input.landMask[i] !== 1 || input.lakeMask[i] === 1 || isAnyRiverClass(input.riverClass[i])) {
+        continue;
+      }
       landTileCount += 1;
       const y = (i / width) | 0;
       const x = i - y * width;
@@ -102,7 +105,9 @@ export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default"
     const reliefScale = Math.max(1, maxRelief);
     const candidates: Candidate[] = [];
     for (let i = 0; i < size; i++) {
-      if (input.landMask[i] !== 1 || input.lakeMask[i] === 1 || input.riverClass[i] > 0) continue;
+      if (input.landMask[i] !== 1 || input.lakeMask[i] === 1 || isAnyRiverClass(input.riverClass[i])) {
+        continue;
+      }
       const reliefN = clamp01((reliefByTile[i] ?? 0) / reliefScale);
       const aridity = clamp01(input.aridityIndex[i] ?? 0);
       const priority = clamp01(reliefN * 0.65 + (1 - aridity) * 0.35);

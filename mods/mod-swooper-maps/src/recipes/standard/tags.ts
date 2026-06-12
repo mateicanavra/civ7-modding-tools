@@ -17,7 +17,6 @@ export const FIELD_DEPENDENCY_TAGS = {
 
 export const STANDARD_ENGINE_EFFECT_TAGS = {
   engine: {
-    riversModeled: "effect:engine.riversModeled",
     biomesApplied: ENGINE_EFFECT_TAGS.biomesApplied,
     featuresApplied: ENGINE_EFFECT_TAGS.featuresApplied,
     plotEffectsApplied: "effect:engine.plotEffectsApplied",
@@ -181,11 +180,6 @@ const EFFECT_OWNERS: Record<string, TagOwner> = {
     pkg: "mod-swooper-maps",
     phase: "placement",
     stepId: "assign-advanced-starts",
-  },
-  [STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled]: {
-    pkg: "mod-swooper-maps",
-    phase: "gameplay",
-    stepId: "plot-rivers",
   },
   [STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied]: {
     pkg: "mod-swooper-maps",

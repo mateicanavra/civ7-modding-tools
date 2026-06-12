@@ -105,6 +105,27 @@ function scenarioResourceHabitatFidelityMin(label: string): number {
   return scenario?.resourceHabitatFidelityMin ?? 0.9;
 }
 
+const FLOODPLAIN_FEATURE_KEYS = [
+  "FEATURE_DESERT_FLOODPLAIN_MINOR",
+  "FEATURE_DESERT_FLOODPLAIN_NAVIGABLE",
+  "FEATURE_GRASSLAND_FLOODPLAIN_MINOR",
+  "FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE",
+  "FEATURE_PLAINS_FLOODPLAIN_MINOR",
+  "FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE",
+  "FEATURE_TROPICAL_FLOODPLAIN_MINOR",
+  "FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE",
+  "FEATURE_TUNDRA_FLOODPLAIN_MINOR",
+  "FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE",
+] as const;
+
+function floodplainAttemptCount(stats: WorldBalanceStats): number {
+  let total = 0;
+  for (const feature of FLOODPLAIN_FEATURE_KEYS) {
+    total += stats.featureAttemptCounts[feature] ?? 0;
+  }
+  return total;
+}
+
 function expectResourceDiagnostics(stats: WorldBalanceStats): void {
   expect(stats.resourcePlannedCount, `${stats.label} resource plans`).toBeGreaterThan(0);
   // Plan-authority cutover (S3): demand rows are corpus-typed; ranges hold or
@@ -198,6 +219,70 @@ function expectResourceDiagnostics(stats: WorldBalanceStats): void {
   }
 }
 
+function expectNavigableRiverDiagnostics(stats: WorldBalanceStats): void {
+  expect(stats.hydrologyMajorRiverTiles, `${stats.label} major river intent`).toBeGreaterThan(0);
+  expect(stats.hydrologyMinorRiverTiles, `${stats.label} minor river intent`).toBeGreaterThan(0);
+  expect(stats.hydrologyOutletTiles, `${stats.label} drainage outlets`).toBeGreaterThan(0);
+  expect(stats.hydrologyTerminalOceanTiles, `${stats.label} ocean terminals`).toBeGreaterThan(0);
+  expect(stats.projectedPlannedMajorRiverTiles, `${stats.label} projected major count`).toBe(
+    stats.hydrologyMajorRiverTiles
+  );
+  expect(
+    stats.projectedNavigableRiverEligibleTiles,
+    `${stats.label} eligible navigable river tiles`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverTargetTiles,
+    `${stats.label} navigable river target`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverTiles,
+    `${stats.label} selected navigable river tiles`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverTiles,
+    `${stats.label} selected navigable river tiles must stay within eligible major-river truth`
+  ).toBeLessThanOrEqual(stats.projectedNavigableRiverEligibleTiles);
+  expect(
+    stats.projectedNavigableRiverChains,
+    `${stats.label} selected navigable river chains`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverLongestChain,
+    `${stats.label} navigable river longest chain`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverMeanChainLength,
+    `${stats.label} navigable river mean chain length`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverSelectedEligibleFraction,
+    `${stats.label} selected eligible major fraction`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverNonProjectableMajorTiles,
+    `${stats.label} blocked major-river count`
+  ).toBeGreaterThanOrEqual(0);
+  expect(
+    stats.projectedNavigableRiverUnselectedEligibleMajorTiles,
+    `${stats.label} unselected eligible major count`
+  ).toBeGreaterThanOrEqual(0);
+  expect(
+    stats.projectedNavigableRiverMajorDurableTiles,
+    `${stats.label} durable major-river truth`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverSignalStatus,
+    `${stats.label} projection signal status`
+  ).toBeDefined();
+  expect(stats.terrainNavigableRiverTiles, `${stats.label} terrain river readback`).toBe(
+    stats.projectedNavigableRiverTiles
+  );
+  expect(stats.riverProjectionMismatchCount, `${stats.label} river projection mismatch`).toBe(0);
+  expect(stats.riverSelectedRejectedCount, `${stats.label} rejected selected rivers`).toBe(0);
+  expect(stats.riverExtraEngineCount, `${stats.label} extra engine rivers`).toBe(0);
+}
+
 describe("world balance stats", () => {
   it("keeps shipped map identities within product-visible geography budgets", { timeout: 30_000 }, () => {
     for (const caseData of CASES) {
@@ -286,6 +371,7 @@ describe("world balance stats", () => {
 
     for (const stats of rolls) {
       expectResourceDiagnostics(stats);
+      expectNavigableRiverDiagnostics(stats);
       expect(stats.invalidFeatureSurfaceCount, `${stats.label} invalid feature surface`).toBe(0);
       expect(stats.finalLakeWaterDriftCount, `${stats.label} final lake water drift`).toBe(0);
       expect(stats.finalLakeClassificationDriftCount, `${stats.label} final lake classification drift`).toBe(0);
@@ -307,5 +393,89 @@ describe("world balance stats", () => {
     expect(presentIn("FEATURE_TAIGA"), "taiga seed presence").toBe(seeds.length);
     expect(presentIn("FEATURE_SAVANNA_WOODLAND"), "savanna seed presence").toBeGreaterThanOrEqual(6);
     expect(presentIn("FEATURE_SAGEBRUSH_STEPPE"), "sagebrush seed presence").toBeGreaterThanOrEqual(6);
+  });
+
+  it("keeps representative Earthlike seeds on a filled navigable-river trunk budget", {
+    timeout: 30_000,
+  }, () => {
+    const seeds = [1018, 24681357, 1, 42];
+
+    for (const seed of seeds) {
+      const stats = collectWorldBalanceStats({
+        label: `swooper-earthlike:river-trunks:${seed}`,
+        config: recipeConfig(swooperEarthlikeConfigRaw),
+        seed,
+        width: 84,
+        height: 54,
+      });
+
+      expectNavigableRiverDiagnostics(stats);
+      expect(
+        stats.projectedNavigableRiverTiles,
+        `${stats.label} navigable projection should fill the target budget on strong-signal Earthlike seeds`
+      ).toBeGreaterThanOrEqual(stats.projectedNavigableRiverTargetTiles);
+      expect(
+        stats.projectedNavigableRiverSignalStatus,
+        `${stats.label} Earthlike seeds should remain normal-signal`
+      ).toBe("normal-signal");
+      expect(
+        stats.projectedNavigableRiverSelectedEligibleFraction,
+        `${stats.label} navigable projection should keep a coherent minority of eligible major truth`
+      ).toBeGreaterThanOrEqual(0.12);
+      expect(
+        stats.projectedNavigableRiverChains,
+        `${stats.label} navigable projection should expose multiple coherent trunks`
+      ).toBeGreaterThanOrEqual(2);
+      expect(
+        stats.projectedNavigableRiverLongestChain,
+        `${stats.label} navigable projection should expose multi-tile trunks, not singleton outlets`
+      ).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it("classifies compact arid controls as low-signal rather than projection failures", {
+    timeout: 30_000,
+  }, () => {
+    const seeds = [42, 99];
+
+    for (const seed of seeds) {
+      const stats = collectWorldBalanceStats({
+        label: `swooper-desert-mountains:low-signal:${seed}`,
+        config: recipeConfig(swooperDesertMountainsRaw),
+        seed,
+        width: 24,
+        height: 16,
+      });
+
+      expectNavigableRiverDiagnostics(stats);
+      expect(
+        stats.projectedNavigableRiverSignalStatus,
+        `${stats.label} compact desert controls should be typed as low-signal`
+      ).toBe("arid-low-signal");
+      expect(
+        stats.projectedNavigableRiverLongestChain,
+        `${stats.label} compact desert controls should not project long navigable trunks`
+      ).toBeLessThanOrEqual(4);
+      expect(
+        stats.projectedNavigableRiverSelectedEligibleFraction,
+        `${stats.label} compact desert controls should keep a sparse visible navigable subset`
+      ).toBeLessThanOrEqual(0.3);
+    }
+  });
+
+  it("keeps a floodplain-producing Earthlike acceptance seed available", { timeout: 15_000 }, () => {
+    const stats = collectWorldBalanceStats({
+      label: "swooper-earthlike:floodplain-acceptance",
+      config: recipeConfig(swooperEarthlikeConfigRaw),
+      seed: 1018,
+      width: 84,
+      height: 54,
+    });
+
+    expect(floodplainAttemptCount(stats), "floodplain-family attempts").toBeGreaterThanOrEqual(8);
+    for (const feature of FLOODPLAIN_FEATURE_KEYS) {
+      expect(stats.featureRejectCounts[feature] ?? 0, `${feature} soft rejections`).toBe(0);
+    }
+    expect(stats.invalidFeatureSurfaceCount, "invalid feature surface").toBe(0);
   });
 });

@@ -7,6 +7,7 @@
  */
 
 import { mock } from "bun:test";
+import { NO_RIVER_TYPE } from "@civ7/map-policy";
 
 // Mock /base-standard/ modules that Civ7Adapter imports
 // These are Civ7 runtime paths that don't exist in test environment
@@ -95,7 +96,7 @@ mock.module("/base-standard/scripts/kd-tree.js", () => ({
   getRainfall: () => 50,
   getTemperature: () => 15,
   getPlotLatitude: () => 0,
-  getRiverType: () => 0,
+  getRiverType: () => NO_RIVER_TYPE,
   getAreaId: () => 0,
   getAreaIsWater: () => false,
   getContinentType: () => 0,

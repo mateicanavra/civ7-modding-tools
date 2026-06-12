@@ -271,7 +271,7 @@ const PlanStartsContract = defineOp({
     ),
     riverClass: Type.Optional(
       TypedArraySchemas.u8({
-        description: "Hydrology river class per tile (0=none,1=minor,2=major).",
+        description: "Hydrology river class per tile (0=none,1=minor,>=2=major/projectable).",
       })
     ),
     lakeMask: Type.Optional(

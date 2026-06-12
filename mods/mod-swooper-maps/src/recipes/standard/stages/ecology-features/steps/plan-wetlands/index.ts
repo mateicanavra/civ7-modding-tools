@@ -2,6 +2,7 @@ import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 
+import { isAnyRiverClass } from "../../../../../../domain/hydrology/index.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import {
   validateFeatureIntentsListArtifact,
@@ -44,7 +45,7 @@ export default createStep(PlanWetlandsStepContract, {
     for (let i = 0; i < size; i++) {
       flatLandMask[i] =
         topography.landMask[i] === 1 &&
-        hydrography.riverClass[i] === 0 &&
+        !isAnyRiverClass(hydrography.riverClass[i]) &&
         lakePlan.lakeMask[i] !== 1 &&
         mountains.mountainMask[i] !== 1 &&
         mountains.hillMask[i] !== 1 &&

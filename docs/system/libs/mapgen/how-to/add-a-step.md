@@ -73,14 +73,14 @@ Representative example (dependency tags; excerpt; see full file in anchors):
 
 ```ts
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
-import { STANDARD_ENGINE_EFFECT_TAGS, MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 
 const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "gameplay",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled],
+  provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   artifacts: {
     requires: [hydrologyHydrographyArtifacts.hydrography],
     provides: [],

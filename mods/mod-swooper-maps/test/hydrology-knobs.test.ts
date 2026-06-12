@@ -1,6 +1,11 @@
 import { describe, expect, it } from "bun:test";
+import { createMockAdapter } from "@civ7/adapter";
+import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe from "../src/recipes/standard/recipe.js";
+import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
+import { hydrologyHydrographyArtifacts } from "../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 
 const env = {
   seed: 123,
@@ -12,9 +17,53 @@ const foundationConfig = {
   knobs: { plateCount: 28, plateActivity: 0.5 },
 };
 
+function runHydrologyTruth(config: Record<string, unknown>) {
+  const width = env.dimensions.width;
+  const height = env.dimensions.height;
+  const mapInfo = {
+    GridWidth: width,
+    GridHeight: height,
+    MinLatitude: env.latitudeBounds.bottomLatitude,
+    MaxLatitude: env.latitudeBounds.topLatitude,
+    PlayersLandmass1: 4,
+    PlayersLandmass2: 4,
+    StartSectorRows: 4,
+    StartSectorCols: 4,
+  };
+
+  const adapter = createMockAdapter({
+    width,
+    height,
+    mapInfo,
+    mapSizeId: 1,
+    rng: createLabelRng(env.seed),
+  });
+  const context = createExtendedMapContext({ width, height }, adapter, env);
+  initializeStandardRuntime(context, { mapInfo, logPrefix: "[hydrology-knobs]", storyEnabled: false });
+  standardRecipe.run(context, env, withFoundation(config), { log: () => {} });
+
+  return context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
+    | {
+        runoff?: Float32Array;
+        discharge?: Float32Array;
+        riverClass?: Uint8Array;
+        flowDir?: Int32Array;
+        sinkMask?: Uint8Array;
+        outletMask?: Uint8Array;
+      }
+    | undefined;
+}
+
 const withFoundation = (config: Record<string, unknown>) => ({
   foundation: foundationConfig,
   ...config,
+});
+
+const navigableProfile = (endpointDischargePercentileMin: number, targetMajorTileFraction: number) => ({
+  selectNavigableRiverTerrain: {
+    strategy: "default",
+    config: { endpointDischargePercentileMin, targetMajorTileFraction },
+  },
 });
 
 describe("hydrology knobs compilation", () => {
@@ -50,7 +99,7 @@ describe("hydrology knobs compilation", () => {
         knobs: { dryness: "wet", seasonality: "high", oceanCoupling: "earthlike" },
       },
       "hydrology-hydrography": { knobs: { riverDensity: "dense", lakeiness: "many" } },
-      "map-rivers": { knobs: { riverDensity: "dense" } },
+      "map-rivers": { knobs: { navigableRiverDensity: "dense" } },
       "hydrology-climate-refine": { knobs: { dryness: "wet" } },
     } as const;
 
@@ -99,21 +148,18 @@ describe("hydrology knobs compilation", () => {
       env,
       withFoundation({
         "hydrology-hydrography": { knobs: { riverDensity: "sparse" } },
-        "map-rivers": { knobs: { riverDensity: "sparse" } },
       })
     );
     const normal = standardRecipe.compileConfig(
       env,
       withFoundation({
         "hydrology-hydrography": { knobs: { riverDensity: "normal" } },
-        "map-rivers": { knobs: { riverDensity: "normal" } },
       })
     );
     const dense = standardRecipe.compileConfig(
       env,
       withFoundation({
         "hydrology-hydrography": { knobs: { riverDensity: "dense" } },
-        "map-rivers": { knobs: { riverDensity: "dense" } },
       })
     );
 
@@ -127,9 +173,75 @@ describe("hydrology knobs compilation", () => {
     ).toBeGreaterThan(
       dense["hydrology-hydrography"].rivers.projectRiverNetwork.config.minorPercentile
     );
-    expect(sparse["map-rivers"]["plot-rivers"]).toEqual({ minLength: 7, maxLength: 18 });
-    expect(normal["map-rivers"]["plot-rivers"]).toEqual({ minLength: 5, maxLength: 15 });
-    expect(dense["map-rivers"]["plot-rivers"]).toEqual({ minLength: 3, maxLength: 12 });
+    expect(sparse["map-rivers"]["plot-rivers"]).toEqual(navigableProfile(0.94, 0.28));
+    expect(normal["map-rivers"]["plot-rivers"]).toEqual(navigableProfile(0.94, 0.28));
+    expect(dense["map-rivers"]["plot-rivers"]).toEqual(navigableProfile(0.94, 0.28));
+  });
+
+  it("decouples Civ-visible navigable river density from physical river network density", () => {
+    const densePhysicalSparseVisible = standardRecipe.compileConfig(
+      env,
+      withFoundation({
+        "hydrology-hydrography": { knobs: { riverDensity: "dense" } },
+        "map-rivers": { knobs: { navigableRiverDensity: "sparse" } },
+      })
+    );
+    const sparsePhysicalDenseVisible = standardRecipe.compileConfig(
+      env,
+      withFoundation({
+        "hydrology-hydrography": { knobs: { riverDensity: "sparse" } },
+        "map-rivers": { knobs: { navigableRiverDensity: "dense" } },
+      })
+    );
+
+    expect(
+      densePhysicalSparseVisible["hydrology-hydrography"].rivers.projectRiverNetwork.config
+        .minorPercentile
+    ).toBeLessThan(
+      sparsePhysicalDenseVisible["hydrology-hydrography"].rivers.projectRiverNetwork.config
+        .minorPercentile
+    );
+    expect(densePhysicalSparseVisible["map-rivers"]["plot-rivers"]).toEqual(
+      navigableProfile(0.97, 0.18)
+    );
+    expect(sparsePhysicalDenseVisible["map-rivers"]["plot-rivers"]).toEqual(
+      navigableProfile(0.9, 0.4)
+    );
+  });
+
+  it("defaults navigable projection density to normal when the map-rivers knob is omitted", () => {
+    const omitted = standardRecipe.compileConfig(
+      env,
+      withFoundation({
+        "map-rivers": { knobs: {} },
+      })
+    );
+    const current = standardRecipe.compileConfig(
+      env,
+      withFoundation({
+        "map-rivers": { knobs: { navigableRiverDensity: "normal" } },
+      })
+    );
+
+    expect(omitted["map-rivers"]).toEqual(current["map-rivers"]);
+  });
+
+  it("changes navigable projection without rewriting Hydrology truth artifacts", () => {
+    const sparseVisible = runHydrologyTruth({
+      "hydrology-hydrography": { knobs: { riverDensity: "normal" } },
+      "map-rivers": { knobs: { navigableRiverDensity: "sparse" } },
+    });
+    const denseVisible = runHydrologyTruth({
+      "hydrology-hydrography": { knobs: { riverDensity: "normal" } },
+      "map-rivers": { knobs: { navigableRiverDensity: "dense" } },
+    });
+
+    expect(sparseVisible?.runoff).toEqual(denseVisible?.runoff);
+    expect(sparseVisible?.discharge).toEqual(denseVisible?.discharge);
+    expect(sparseVisible?.riverClass).toEqual(denseVisible?.riverClass);
+    expect(sparseVisible?.flowDir).toEqual(denseVisible?.flowDir);
+    expect(sparseVisible?.sinkMask).toEqual(denseVisible?.sinkMask);
+    expect(sparseVisible?.outletMask).toEqual(denseVisible?.outletMask);
   });
 
   it("allows optional semantic public config in hydrology stages", () => {
@@ -172,8 +284,7 @@ describe("hydrology knobs compilation", () => {
         },
         "map-hydrology": {},
         "map-rivers": {
-          knobs: { riverDensity: "dense" },
-          riverProjection: { minLength: 5, maxLength: 15 },
+          knobs: { navigableRiverDensity: "dense" },
         },
         "hydrology-climate-refine": {
           knobs: { dryness: "wet", temperature: "hot", cryosphere: "on" },
@@ -214,8 +325,9 @@ describe("hydrology knobs compilation", () => {
     expect(
       compiled["hydrology-hydrography"].rivers.projectRiverNetwork.config.majorPercentile
     ).toBeCloseTo(0.91, 6);
-    // - map-rivers materializes hydrology-owned major rivers without engine generator thresholds.
-    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({ minLength: 3, maxLength: 12 });
+    // - map-rivers materializes hydrology-owned major rivers without engine generator thresholds,
+    //   and exposes a separate navigableRiverDensity knob for Civ-visible trunk density.
+    expect(compiled["map-rivers"]["plot-rivers"]).toEqual(navigableProfile(0.9, 0.4));
     expect(
       compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config
         .riverCorridor.lowlandAdjacencyBonus

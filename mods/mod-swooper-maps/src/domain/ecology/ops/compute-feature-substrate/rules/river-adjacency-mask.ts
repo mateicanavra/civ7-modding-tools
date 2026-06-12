@@ -1,5 +1,7 @@
 import { clampInt } from "@swooper/mapgen-core/lib/math";
 
+import { isAnyRiverClass } from "../../../../hydrology/index.js";
+
 export function computeRiverAdjacencyMask(args: {
   width: number;
   height: number;
@@ -13,7 +15,7 @@ export function computeRiverAdjacencyMask(args: {
 
   const mask = new Uint8Array(size);
   if (radius <= 0) {
-    for (let i = 0; i < size; i++) mask[i] = args.riverClass[i] ? 1 : 0;
+    for (let i = 0; i < size; i++) mask[i] = isAnyRiverClass(args.riverClass[i]) ? 1 : 0;
     return mask;
   }
 
@@ -27,7 +29,7 @@ export function computeRiverAdjacencyMask(args: {
       for (let ny = y0; ny <= y1 && !adjacent; ny++) {
         const row = ny * width;
         for (let nx = x0; nx <= x1; nx++) {
-          if (args.riverClass[row + nx] !== 0) {
+          if (isAnyRiverClass(args.riverClass[row + nx])) {
             adjacent = 1;
             break;
           }
@@ -39,4 +41,3 @@ export function computeRiverAdjacencyMask(args: {
 
   return mask;
 }
-

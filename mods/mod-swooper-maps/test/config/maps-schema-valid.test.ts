@@ -8,6 +8,8 @@ import {
   type CanonicalMapConfigEnvelope,
 } from "../../src/maps/configs/canonical";
 
+import mountainPatchConfig from "../../src/maps/configs/mountain-patch.config.json";
+import mountainRiversPatchConfig from "../../src/maps/configs/mountain-rivers-patch.config.json";
 import shatteredRingConfig from "../../src/maps/configs/shattered-ring.config.json";
 import sunderedArchipelagoConfig from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsConfig from "../../src/maps/configs/swooper-desert-mountains.config.json";
@@ -24,6 +26,12 @@ const shippedMapConfigs = [
   ["sundered-archipelago.config.json", sunderedArchipelagoConfig],
   ["swooper-desert-mountains.config.json", swooperDesertMountainsConfig],
   ["swooper-earthlike.config.json", swooperEarthlikeConfig],
+] as const satisfies readonly (readonly [string, CanonicalMapConfigEnvelope])[];
+
+const mapCatalogConfigs = [
+  ...shippedMapConfigs,
+  ["mountain-patch.config.json", mountainPatchConfig],
+  ["mountain-rivers-patch.config.json", mountainRiversPatchConfig],
 ] as const satisfies readonly (readonly [string, CanonicalMapConfigEnvelope])[];
 
 const FOUNDATION_PUBLIC_KEYS = [
@@ -99,7 +107,7 @@ const HYDROLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "moistureTransport",
     "precipitation",
   ],
-  "hydrology-hydrography": ["knobs", "runoff", "riverNetwork", "lakes"],
+  "hydrology-hydrography": ["knobs", "drainageRouting", "runoff", "riverNetwork", "lakes"],
   "hydrology-climate-refine": [
     "knobs",
     "precipitationRefinement",
@@ -172,7 +180,7 @@ const PROJECTION_PUBLIC_KEYS: Record<string, readonly string[]> = {
   "map-morphology": ["knobs"],
   "map-hydrology": ["knobs"],
   "map-elevation": ["knobs"],
-  "map-rivers": ["knobs", "riverProjection"],
+  "map-rivers": ["knobs"],
   "map-ecology": ["knobs", "biomeBindings"],
 };
 
@@ -436,6 +444,45 @@ describe("Shipped map configs", () => {
         stages: STANDARD_STAGES,
       });
       expect(validated.id).toBe(fileName.replace(/\.config\.json$/, ""));
+    }
+  });
+
+  it("keeps mountain-rivers-patch as a visible-river projection comparison config", () => {
+    const normalizeComparison = (raw: CanonicalMapConfigEnvelope) => {
+      const copy = JSON.parse(JSON.stringify(raw)) as Record<string, any>;
+      delete copy.id;
+      delete copy.name;
+      delete copy.description;
+      delete copy.sortIndex;
+      delete copy.config?.["map-rivers"]?.knobs?.riverDensity;
+      delete copy.config?.["map-rivers"]?.knobs?.navigableRiverDensity;
+      return stable(copy);
+    };
+
+    expect(mountainPatchConfig.id).toBe("mountain-patch");
+    expect(mountainRiversPatchConfig.id).toBe("mountain-rivers-patch");
+    expect((mountainPatchConfig.config as any)["map-rivers"].knobs.riverDensity).toBeUndefined();
+    expect((mountainPatchConfig.config as any)["map-rivers"].knobs.navigableRiverDensity).toBe("normal");
+    expect((mountainRiversPatchConfig.config as any)["map-rivers"].knobs.riverDensity).toBeUndefined();
+    expect((mountainRiversPatchConfig.config as any)["map-rivers"].knobs.navigableRiverDensity).toBe("normal");
+    expect(normalizeComparison(mountainRiversPatchConfig)).toEqual(
+      normalizeComparison(mountainPatchConfig)
+    );
+  });
+
+  it("keeps shipped map-rivers configs on the current navigableRiverDensity knob surface", () => {
+    for (const [fileName, raw] of mapCatalogConfigs) {
+      const mapRiversKnobs = (raw.config as any)["map-rivers"]?.knobs ?? {};
+      const usesLegacyAlias = Object.prototype.hasOwnProperty.call(mapRiversKnobs, "riverDensity");
+      const usesCurrentKnob = Object.prototype.hasOwnProperty.call(
+        mapRiversKnobs,
+        "navigableRiverDensity"
+      );
+      expect(usesLegacyAlias, `${fileName} must not use the legacy density alias`).toBe(false);
+      expect(
+        usesCurrentKnob || Object.keys(mapRiversKnobs).length === 0,
+        `${fileName} must use navigableRiverDensity or no density knob`
+      ).toBe(true);
     }
   });
 
@@ -827,7 +874,12 @@ describe("Shipped map configs", () => {
     expect(compiled["map-morphology"]["plot-volcanoes"]).toEqual({});
     expect(compiled["map-hydrology"].lakes.projectionReadback).toBe(true);
     expect(compiled["map-elevation"]["build-elevation"]).toEqual({});
-    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({ minLength: 5, maxLength: 15 });
+    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({
+      selectNavigableRiverTerrain: {
+        strategy: "default",
+        config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
+      },
+    });
     expect(compiled["map-ecology"]["plot-biomes"].bindings.tropicalSeasonal).toBe("BIOME_PLAINS");
     expect(compiled["map-ecology"]["plot-biomes"].bindings.marine).toBe("BIOME_MARINE");
     expect(compiled["map-ecology"]["features-apply"].apply).toEqual({
@@ -1088,7 +1140,12 @@ describe("Shipped map configs", () => {
           lakes: { projectionReadback: true },
         },
         "map-rivers": {
-          "plot-rivers": { minLength: 5, maxLength: 15 },
+          "plot-rivers": {
+            selectNavigableRiverTerrain: {
+              strategy: "default",
+              config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
+            },
+          },
         },
         "map-elevation": {
           "build-elevation": {},
@@ -1213,7 +1270,12 @@ describe("Shipped map configs", () => {
       {
         "map-hydrology": {
           knobs: { riverDensity: "dense" },
-          "plot-rivers": { minLength: 5 },
+          "plot-rivers": {
+            selectNavigableRiverTerrain: {
+              strategy: "default",
+              config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
+            },
+          },
         },
       },
       "/maps/legacy-map-hydrology-rivers"
@@ -1225,6 +1287,23 @@ describe("Shipped map configs", () => {
         "/maps/legacy-map-hydrology-rivers/map-hydrology/knobs/riverDensity",
         "/maps/legacy-map-hydrology-rivers/map-hydrology/plot-rivers",
       ])
+    );
+  });
+
+  it("rejects retired map-rivers riverDensity alias", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const { errors } = normalizeStrict(
+      schema,
+      {
+        "map-rivers": {
+          knobs: { riverDensity: "dense" },
+        },
+      },
+      "/maps/legacy-map-rivers-alias"
+    );
+
+    expect(errors.map((error) => error.path)).toEqual(
+      expect.arrayContaining(["/maps/legacy-map-rivers-alias/map-rivers/knobs/riverDensity"])
     );
   });
 

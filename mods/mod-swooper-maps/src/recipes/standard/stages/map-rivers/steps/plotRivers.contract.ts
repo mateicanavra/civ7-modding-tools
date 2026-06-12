@@ -1,35 +1,15 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
+import hydrology from "@mapgen/domain/hydrology";
 
-import { MAP_PROJECTION_EFFECT_TAGS, STANDARD_ENGINE_EFFECT_TAGS } from "../../../tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 import { mapRiversArtifacts } from "../artifacts.js";
 
-const PlotRiversStepConfigSchema = Type.Object(
-  {
-    /**
-     * Minimum navigable channel trunk length selected from Hydrology flow.
-     */
-    minLength: Type.Integer({
-      description: "Minimum navigable channel trunk length selected from Hydrology flow.",
-      default: 5,
-      minimum: 1,
-      maximum: 40,
-    }),
-    /**
-     * Maximum navigable channel trunk length selected from Hydrology flow.
-     */
-    maxLength: Type.Integer({
-      description: "Maximum navigable channel trunk length selected from Hydrology flow.",
-      default: 15,
-      minimum: 1,
-      maximum: 80,
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Config for MapGen-owned navigable river projection.",
-  }
-);
+const PlotRiversStepConfigSchema = Type.Object({}, {
+  additionalProperties: false,
+  description:
+    "Map-rivers step config. Navigable-river selection semantics are owned by the Hydrology op envelope on this step.",
+});
 
 const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
@@ -38,15 +18,20 @@ const PlotRiversStepContract = defineStep({
   provides: [
     MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
     MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured,
-    STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled,
   ],
   artifacts: {
-    requires: [hydrologyHydrographyArtifacts.hydrography],
+    requires: [
+      hydrologyHydrographyArtifacts.hydrography,
+      hydrologyHydrographyArtifacts.riverNetworkMetrics,
+    ],
     provides: [
       mapRiversArtifacts.projectedNavigableRivers,
       mapRiversArtifacts.engineProjectionRivers,
       mapRiversArtifacts.riversEngineTerrainSnapshot,
     ],
+  },
+  ops: {
+    selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,
   },
   schema: PlotRiversStepConfigSchema,
 });

@@ -2,6 +2,11 @@ import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexNeighborIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
+import {
+  RIVER_CLASS_MAJOR,
+  RIVER_CLASS_NONE,
+  isAnyRiverClass,
+} from "../../../../hydrology/index.js";
 import PlanNaturalWondersContract from "../contract.js";
 
 type Candidate = {
@@ -118,7 +123,7 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
     for (let i = 0; i < size; i++) {
       const reliefN = clamp01((reliefByTile[i] ?? 0) / reliefScale);
       const aridity = clamp01(input.aridityIndex[i] ?? 0);
-      const river = clamp01((input.riverClass[i] ?? 0) / 2);
+      const river = clamp01((input.riverClass[i] ?? RIVER_CLASS_NONE) / RIVER_CLASS_MAJOR);
       const priority = clamp01(reliefN * 0.75 + (1 - aridity) * 0.15 + river * 0.1);
       candidates.push({
         plotIndex: i,
@@ -426,14 +431,14 @@ function satisfiesFeatureTags(args: {
       case "NOTADJACENTTORIVER": {
         let adjacentRiver = false;
         for (const plotIndex of args.footprint) {
-          if ((args.riverClass[plotIndex] ?? 0) > 0) adjacentRiver = true;
+          if (isAnyRiverClass(args.riverClass[plotIndex])) adjacentRiver = true;
         }
         forEachFootprintNeighbor({
           footprint: args.footprint,
           width: args.width,
           height: args.height,
           fn: (plotIndex) => {
-            if ((args.riverClass[plotIndex] ?? 0) > 0) adjacentRiver = true;
+            if (isAnyRiverClass(args.riverClass[plotIndex])) adjacentRiver = true;
           },
         });
         if (adjacentRiver) return false;
@@ -462,7 +467,7 @@ function satisfiesFeatureTags(args: {
           width: args.width,
           height: args.height,
           fn: (plotIndex) => {
-            if ((args.riverClass[plotIndex] ?? 0) > 0) adjacentRiver = true;
+            if (isAnyRiverClass(args.riverClass[plotIndex])) adjacentRiver = true;
           },
         });
         if (!adjacentRiver) return false;

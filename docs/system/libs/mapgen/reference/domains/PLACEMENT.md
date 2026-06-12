@@ -60,7 +60,7 @@ All placement *decision* logic lives in domain ops (plan → select → reconcil
 
 Placement requires (dependency tags):
 
-- `effect:engine.riversModeled` (from `map-rivers`)
+- `effect:map.riversPlotted` (from `map-rivers`)
 - `effect:engine.featuresApplied` (from `map-ecology`)
 - ecology/topography/morphology/hydrology artifacts for planning surfaces (biome via `ecology.biomeBindings`, feature via declared `field:featureType`, elevation via `topography.elevation`, plus mountains/volcanoes/hydrography/pedology/climate inputs)
 

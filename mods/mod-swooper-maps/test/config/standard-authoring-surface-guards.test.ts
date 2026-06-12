@@ -48,7 +48,7 @@ const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "moistureTransport",
     "precipitation",
   ],
-  "hydrology-hydrography": ["knobs", "runoff", "riverNetwork", "lakes"],
+  "hydrology-hydrography": ["knobs", "drainageRouting", "runoff", "riverNetwork", "lakes"],
   "hydrology-climate-refine": [
     "knobs",
     "precipitationRefinement",
@@ -69,7 +69,7 @@ const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
   "map-morphology": ["knobs"],
   "map-hydrology": ["knobs"],
   "map-elevation": ["knobs"],
-  "map-rivers": ["knobs", "riverProjection"],
+  "map-rivers": ["knobs"],
   "ecology-features": [
     "knobs",
     "substrateScoring",

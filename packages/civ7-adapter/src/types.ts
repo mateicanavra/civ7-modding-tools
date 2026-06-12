@@ -264,6 +264,47 @@ export interface LakeProjectionResult {
   nonLakeTileCount: number;
 }
 
+/**
+ * Adapter readback for deterministic river projection.
+ *
+ * MapGen can deterministically choose navigable-river terrain today. Civ7's
+ * river metadata remains a separate proof surface from raw terrain rows: a run
+ * can have navigable-river terrain while still lacking live river metadata.
+ * This result therefore keeps terrain and metadata parity separate. Exact
+ * Hydrology-to-engine river parity still requires readback comparison because
+ * the engine runtime surface is not a per-tile Hydrology metadata setter.
+ */
+export interface RiverProjectionResult {
+  width: number;
+  height: number;
+  plannedNavigableRiverMask: Uint8Array;
+  /** MapGen-planned tiles accepted as raw TERRAIN_NAVIGABLE_RIVER terrain. */
+  stampedNavigableRiverMask: Uint8Array;
+  /** MapGen-planned tiles absent from raw TERRAIN_NAVIGABLE_RIVER terrain readback. */
+  rejectedNavigableRiverMask: Uint8Array;
+  engineTerrain: Int32Array;
+  engineRiverType: Int32Array;
+  engineIsRiverMask: Uint8Array;
+  /** Civ river metadata/API navigable readback; terrain readback is terrainNavigableRiverMask. */
+  engineNavigableRiverMask: Uint8Array;
+  engineMinorRiverMask: Uint8Array;
+  terrainNavigableRiverMask: Uint8Array;
+  /** Projected navigable mask vs raw TERRAIN_NAVIGABLE_RIVER terrain mismatch. */
+  navigableRiverMismatchMask: Uint8Array;
+  plannedNavigableRiverTileCount: number;
+  stampedNavigableRiverTileCount: number;
+  rejectedNavigableRiverTileCount: number;
+  extraNavigableRiverTileCount: number;
+  navigableRiverMismatchTileCount: number;
+  engineRiverTileCount: number;
+  engineNavigableRiverTileCount: number;
+  engineMinorRiverTileCount: number;
+  terrainNavigableRiverTileCount: number;
+  /** Whether this adapter/runtime can author Civ7 minor-river metadata directly from MapGen intent. */
+  minorRiverStampingSupported: boolean;
+  minorRiverUnsupportedReason: string;
+}
+
 // ============================================================================
 // Voronoi Utilities (foundation dependency)
 // ============================================================================
@@ -379,6 +420,15 @@ export interface EngineAdapter {
 
   /** Check if tile is near rivers */
   isAdjacentToRivers(x: number, y: number, radius?: number): boolean;
+
+  /** Get Civ7 river type metadata for a tile, using the runtime's no-river sentinel when absent. */
+  getRiverType(x: number, y: number): number;
+
+  /** Check whether Civ7 classifies the tile as any river type. */
+  isRiver(x: number, y: number): boolean;
+
+  /** Check whether Civ7 classifies the tile as a navigable river. */
+  isNavigableRiver(x: number, y: number): boolean;
 
   /** Get tile elevation */
   getElevation(x: number, y: number): number;
@@ -563,7 +613,14 @@ export interface EngineAdapter {
   /** Build elevation layer */
   buildElevation(): void;
 
-  /** Model river paths */
+  /**
+   * Compatibility-only wrapper for Civ7's high-level river generator
+   * (`TerrainBuilder.modelRivers`).
+   *
+   * Standard MapGen-authored rivers must publish hydrology truth and project
+   * selected navigable terrain through dedicated map stages instead of using
+   * this method as a river truth or metadata-authoring surface.
+   */
   modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void;
 
   /** Define named rivers */
@@ -571,6 +628,17 @@ export interface EngineAdapter {
 
   /** Store water data */
   storeWaterData(): void;
+
+  /**
+   * Read back river terrain/metadata parity for a deterministic navigable
+   * river projection. This is readback only; minor river stamping is not
+   * represented until the adapter exposes a stable write capability.
+   */
+  readRiverProjection(
+    width: number,
+    height: number,
+    plannedNavigableRiverMask: Uint8Array
+  ): RiverProjectionResult;
 
   /** Generate lakes (wraps Civ7 base-standard elevation terrain generator) */
   generateLakes(width: number, height: number, tilesPerLake: number): void;

@@ -24,7 +24,7 @@ MORPHOLOGY converts Foundation’s tectonic driver fields into **tile-space terr
 
 - **Topography** (elevation + sea level + land mask + bathymetry)
 - **Substrate** (erodibility + sediment depth)
-- **Routing** (flow direction + accumulation)
+- **Geomorphic routing proxy** (flow direction + accumulation used by terrain-shaping consumers)
 - **Coastline metrics** (coastal adjacency + distance-to-coast snapshot)
 - **Volcano intent** (planned volcano points / mask)
 - **Landmasses** (connected-component decomposition of the land mask)
@@ -105,7 +105,7 @@ Morphology provides the following artifact dependency tags (all `artifact:*`):
 - `artifact:morphology.topography`
 - `artifact:morphology.substrate`
 - `artifact:morphology.coastlineMetrics`
-- `artifact:morphology.routing`
+- `artifact:morphology.routing` (geomorphic proxy; not canonical Hydrology drainage routing)
 - `artifact:morphology.volcanoes`
 - `artifact:morphology.landmasses`
 
@@ -189,9 +189,11 @@ Fields:
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.ts` (mutating `substrate.sedimentDepth` in-place)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.contract.ts` (requires `morphologyArtifacts.substrate`)
 
-### `artifact:morphology.routing` (truth handle; tile space; mutable buffer)
+### `artifact:morphology.routing` (geomorphic proxy handle; tile space; mutable buffer)
 
-Flow routing buffers derived from current topography.
+Flow routing buffers derived from current topography for Morphology terrain
+shaping consumers such as erosion and rough-land planning. Hydrology owns the
+canonical drainage route graph used for discharge, rivers, and lakes.
 
 Fields:
 
@@ -323,7 +325,9 @@ Classifies shallow shelf water from Morphology truth (nearshore distance + bathy
 
 #### `morphology/compute-flow-routing` → `{ flowDir, flowAccum, basinId }`
 
-Computes flow routing and accumulation buffers from elevation and land mask.
+Computes Morphology's geomorphic routing proxy from elevation and land mask.
+This op is not the canonical water-routing algorithm; Hydrology computes
+depression-conditioned drainage routing from Morphology topography.
 
 **Ground truth anchors**
 

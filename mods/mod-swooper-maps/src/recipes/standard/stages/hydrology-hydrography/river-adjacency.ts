@@ -1,3 +1,5 @@
+import { isAnyRiverClass } from "../../../../domain/hydrology/index.js";
+
 export function computeRiverAdjacencyMaskFromRiverClass(options: {
   width: number;
   height: number;
@@ -15,7 +17,7 @@ export function computeRiverAdjacencyMaskFromRiverClass(options: {
 
   const mask = new Uint8Array(size);
   if (radius <= 0) {
-    for (let i = 0; i < size; i++) mask[i] = options.riverClass[i] ? 1 : 0;
+    for (let i = 0; i < size; i++) mask[i] = isAnyRiverClass(options.riverClass[i]) ? 1 : 0;
     return mask;
   }
 
@@ -29,7 +31,7 @@ export function computeRiverAdjacencyMaskFromRiverClass(options: {
       for (let ny = y0; ny <= y1 && !adjacent; ny++) {
         const row = ny * width;
         for (let nx = x0; nx <= x1; nx++) {
-          if (options.riverClass[row + nx] !== 0) {
+          if (isAnyRiverClass(options.riverClass[row + nx])) {
             adjacent = 1;
             break;
           }

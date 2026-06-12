@@ -25,5 +25,17 @@
 			Description="LOC_MAP_SUNDERED_ARCHIPELAGO_DESCRIPTION"
 			SortIndex="503"
 		/>
+		<Row
+			File="{swooper-maps}/maps/mountain-patch.js"
+			Name="LOC_MAP_MOUNTAIN_PATCH_NAME"
+			Description="LOC_MAP_MOUNTAIN_PATCH_DESCRIPTION"
+			SortIndex="1900"
+		/>
+		<Row
+			File="{swooper-maps}/maps/mountain-rivers-patch.js"
+			Name="LOC_MAP_MOUNTAIN_RIVERS_PATCH_NAME"
+			Description="LOC_MAP_MOUNTAIN_RIVERS_PATCH_DESCRIPTION"
+			SortIndex="1901"
+		/>
 	</Maps>
 </Database>

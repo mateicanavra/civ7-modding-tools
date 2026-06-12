@@ -14,9 +14,12 @@ import computeCryosphereState from "./compute-cryosphere-state/index.js";
 import applyAlbedoFeedback from "./apply-albedo-feedback/index.js";
 import computeLandWaterBudget from "./compute-land-water-budget/index.js";
 import computeClimateDiagnostics from "./compute-climate-diagnostics/index.js";
+import computeDrainageRouting from "./compute-drainage-routing/index.js";
 import accumulateDischarge from "./accumulate-discharge/index.js";
 import projectRiverNetwork from "./project-river-network/index.js";
+import computeRiverNetworkMetrics from "./compute-river-network-metrics/index.js";
 import planLakes from "./plan-lakes/index.js";
+import selectNavigableRiverTerrain from "./select-navigable-river-terrain/index.js";
 
 const implementations = {
   computeRadiativeForcing,
@@ -32,9 +35,12 @@ const implementations = {
   applyAlbedoFeedback,
   computeLandWaterBudget,
   computeClimateDiagnostics,
+  computeDrainageRouting,
   accumulateDischarge,
   projectRiverNetwork,
+  computeRiverNetworkMetrics,
   planLakes,
+  selectNavigableRiverTerrain,
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
 
 export default implementations;
@@ -53,7 +59,10 @@ export {
   applyAlbedoFeedback,
   computeLandWaterBudget,
   computeClimateDiagnostics,
+  computeDrainageRouting,
   accumulateDischarge,
   projectRiverNetwork,
+  computeRiverNetworkMetrics,
   planLakes,
+  selectNavigableRiverTerrain,
 };

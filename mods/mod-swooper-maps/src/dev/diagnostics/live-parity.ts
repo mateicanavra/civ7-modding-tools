@@ -6,6 +6,10 @@ import {
   getCiv7StandardMapSizePresetForDimensions,
 } from "@civ7/adapter";
 import {
+  CIV7_BROWSER_TABLES_V0,
+  RIVER_TYPE_MINOR,
+} from "@civ7/map-policy";
+import {
   createExtendedMapContext,
   createLabelRng,
   sha256Hex,
@@ -46,6 +50,7 @@ export type FinalSurfaceSnapshot = Readonly<{
   configHash?: string;
   envelopeHash?: string;
   surfaces: Readonly<Record<FinalSurfaceKey, SurfaceGrid>>;
+  riverMetadata?: RiverMetadataSnapshot;
   evidence?: Readonly<Record<string, unknown>>;
 }>;
 
@@ -66,6 +71,93 @@ export type SurfaceDiffSummary = Readonly<{
   mismatchPct: number;
   examples: ReadonlyArray<SurfaceMismatchExample>;
   pairCounts: ReadonlyArray<Readonly<{ local: number | null; live: number | null; count: number }>>;
+}>;
+
+export type RiverMetadataSnapshot = Readonly<{
+  width: number;
+  height: number;
+  plannedMinorRiver?: SurfaceGrid;
+  plannedMajorRiver?: SurfaceGrid;
+  projectedNavigableTerrain?: SurfaceGrid;
+  terrainNavigableRiver?: SurfaceGrid;
+  riverType?: SurfaceGrid;
+  river?: SurfaceGrid;
+  navigableRiver?: SurfaceGrid;
+  minorRiver?: SurfaceGrid;
+  minorRiverStampingSupported?: boolean;
+  minorRiverUnsupportedReason?: string;
+}>;
+
+export type RiverMetadataParityExample = Readonly<{
+  x: number;
+  y: number;
+  projectedNavigableTerrain: number | null;
+  liveTerrainNavigableRiver: number | null;
+  liveNavigableRiver: number | null;
+  liveRiverType: number | null;
+}>;
+
+export type RiverMetadataParityReport = Readonly<{
+  status:
+    | "match"
+    | "terrain-match-metadata-divergent"
+    | "mismatch"
+    | "readback-missing"
+    | "dimension-mismatch";
+  compared: number;
+  missingLiveReadback: number;
+  plannedMinorRiverTileCount: number;
+  plannedMajorRiverTileCount: number;
+  projectedNavigableTerrainTileCount: number;
+  liveTerrainNavigableRiverTileCount: number;
+  liveRiverTileCount: number;
+  liveNavigableRiverTileCount: number;
+  liveMinorRiverTileCount: number;
+  projectedVsLiveTerrainMismatchCount: number;
+  projectedVsLiveMetadataMismatchCount: number;
+  liveTerrainVsMetadataMismatchCount: number;
+  minorRiverStampingSupported?: boolean;
+  minorRiverUnsupportedReason?: string;
+  examples: ReadonlyArray<RiverMetadataParityExample>;
+}>;
+
+export type LakeReadbackCounters = Readonly<{
+  acceptedLakeTileCount?: number;
+  finalLakeWaterDriftCount?: number;
+  finalLakeClassificationDriftCount?: number;
+}>;
+
+export type LakeReadbackParityReport = Readonly<{
+  status: "match" | "mismatch" | "missing-local-readback" | "missing-exact-log";
+  local?: LakeReadbackCounters;
+  exact?: LakeReadbackCounters;
+  mismatchedFields: ReadonlyArray<keyof LakeReadbackCounters>;
+}>;
+
+export type RiverLakeProofClaimStatus = "pass" | "fail" | "unresolved" | "out-of-scope";
+
+export type RiverLakeProofLabel =
+  | "exact-authorship"
+  | "hydrology-truth"
+  | "projection-plan"
+  | "terrain-readback"
+  | "metadata-readback"
+  | "studio-visible"
+  | "civ-rendered"
+  | "lake-final"
+  | "floodplain-active"
+  | "product-acceptance";
+
+export type RiverLakeProofClaim = Readonly<{
+  label: RiverLakeProofLabel;
+  status: RiverLakeProofClaimStatus;
+  reason: string;
+  evidenceLinks: ReadonlyArray<string>;
+}>;
+
+export type RiverLakeProofClaimLedger = Readonly<{
+  version: 1;
+  claims: Readonly<Record<RiverLakeProofLabel, RiverLakeProofClaim>>;
 }>;
 
 export type ParityResidualClassification = Readonly<{
@@ -285,6 +377,9 @@ export type FinalSurfaceParityProof = Readonly<{
   naturalWonderPlanInputContextProof?: NaturalWonderPlanInputContextProofComparison;
   resourcePlacementCoordinateProof?: ResourcePlacementCoordinateProofComparison;
   resourcePlacementRejectionContexts?: ReadonlyArray<ResourcePlacementRejectionContext>;
+  riverMetadataParity?: RiverMetadataParityReport;
+  lakeReadbackParity?: LakeReadbackParityReport;
+  proofClaims: RiverLakeProofClaimLedger;
   residuals: ReadonlyArray<ParityResidualClassification>;
   unresolvedLinks: ReadonlyArray<string>;
 }>;
@@ -395,6 +490,7 @@ export type ExactAuthorshipProofLike = Readonly<{
       inputRows?: ReadonlyArray<unknown>;
       payload?: unknown;
     }>;
+    placementSurfacePreparation?: LakeReadbackCounters;
   }>;
 }>;
 
@@ -427,19 +523,26 @@ function createMemoryTraceSink(events: TraceEvent[]): TraceSink {
   };
 }
 
-function createStandardMapInfo(width: number, height: number) {
+export function createFinalSurfaceParityMapInfo(width: number, height: number) {
   const mapSizePreset = getCiv7StandardMapSizePresetForDimensions(width, height);
-  const latitudeBounds = mapSizePreset?.latitudeBounds ?? CIV7_STANDARD_ROW_LATITUDE_BOUNDS;
+  const fallbackLatitudeBounds = mapSizePreset?.latitudeBounds ?? CIV7_STANDARD_ROW_LATITUDE_BOUNDS;
+  const fallbackMinLatitude = Math.min(fallbackLatitudeBounds.topLatitude, fallbackLatitudeBounds.bottomLatitude);
+  const fallbackMaxLatitude = Math.max(fallbackLatitudeBounds.topLatitude, fallbackLatitudeBounds.bottomLatitude);
+  const baseMapInfo = mapSizePreset?.mapInfo;
   const mapInfo = {
-    ...(mapSizePreset?.mapInfo ?? {}),
+    ...(baseMapInfo ?? {}),
     GridWidth: width,
     GridHeight: height,
-    MinLatitude: Math.min(latitudeBounds.topLatitude, latitudeBounds.bottomLatitude),
-    MaxLatitude: Math.max(latitudeBounds.topLatitude, latitudeBounds.bottomLatitude),
+    MinLatitude: baseMapInfo?.MinLatitude ?? fallbackMinLatitude,
+    MaxLatitude: baseMapInfo?.MaxLatitude ?? fallbackMaxLatitude,
     PlayersLandmass1: mapSizePreset?.mapInfo.PlayersLandmass1 ?? 4,
     PlayersLandmass2: mapSizePreset?.mapInfo.PlayersLandmass2 ?? 4,
     StartSectorRows: mapSizePreset?.mapInfo.StartSectorRows ?? 4,
     StartSectorCols: mapSizePreset?.mapInfo.StartSectorCols ?? 4,
+  } as const;
+  const latitudeBounds = {
+    topLatitude: mapInfo.MaxLatitude,
+    bottomLatitude: mapInfo.MinLatitude,
   } as const;
   return { latitudeBounds, mapInfo };
 }
@@ -460,7 +563,7 @@ function resolveRecipeConfig(config: unknown, override: unknown): unknown {
 
 export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): FinalSurfaceSnapshot {
   const { width, height, seed } = input;
-  const { latitudeBounds, mapInfo } = createStandardMapInfo(width, height);
+  const { latitudeBounds, mapInfo } = createFinalSurfaceParityMapInfo(width, height);
   const envBase = {
     seed,
     dimensions: { width, height },
@@ -534,6 +637,7 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
     evidence.resourcePlacementOutcomes = resourcePlacementOutcomes;
   }
   evidence.terrainProjection = buildTerrainProjectionEvidence(context);
+  const riverMetadata = buildLocalRiverMetadataSnapshot(context, width, height);
 
   return {
     source: "local-mapgen",
@@ -548,8 +652,34 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
       feature: { width, height, values: feature },
       resource: { width, height, values: resource },
     },
+    ...(riverMetadata === undefined ? {} : { riverMetadata }),
     evidence,
   };
+}
+
+function buildLocalRiverMetadataSnapshot(
+  context: ReturnType<typeof createExtendedMapContext>,
+  width: number,
+  height: number
+): RiverMetadataSnapshot | undefined {
+  const projected = context.artifacts.get(mapRiversArtifacts.projectedNavigableRivers.id);
+  const readback = context.artifacts.get(mapRiversArtifacts.engineProjectionRivers.id);
+  if (!isPlainObject(projected) && !isPlainObject(readback)) return undefined;
+  const size = width * height;
+  return stripUndefined({
+    width,
+    height,
+    plannedMinorRiver: gridFromNumericArray(width, height, projected?.plannedMinorRiverMask, size),
+    plannedMajorRiver: gridFromNumericArray(width, height, projected?.plannedMajorRiverMask, size),
+    projectedNavigableTerrain: gridFromNumericArray(width, height, projected?.riverMask, size),
+    terrainNavigableRiver: gridFromNumericArray(width, height, readback?.terrainNavigableRiverMask, size),
+    riverType: gridFromNumericArray(width, height, readback?.engineRiverType, size),
+    river: gridFromNumericArray(width, height, readback?.engineIsRiverMask, size),
+    navigableRiver: gridFromNumericArray(width, height, readback?.engineNavigableRiverMask, size),
+    minorRiver: gridFromNumericArray(width, height, readback?.engineMinorRiverMask, size),
+    minorRiverStampingSupported: booleanValue(readback?.minorRiverStampingSupported),
+    minorRiverUnsupportedReason: nonEmptyStringValue(readback?.minorRiverUnsupportedReason),
+  }) as RiverMetadataSnapshot | undefined;
 }
 
 function buildTerrainProjectionEvidence(context: ReturnType<typeof createExtendedMapContext>): unknown {
@@ -713,7 +843,9 @@ export function liveGridToFinalSurfaceSnapshot(args: {
       { width, height, values: new Array<number | null>(width * height).fill(null) },
     ])
   ) as Record<FinalSurfaceKey, SurfaceGrid>;
+  const riverMetadata = createEmptyRiverMetadataSnapshot(width, height);
   const plots = isPlainObject(args.grid) && Array.isArray(args.grid.plots) ? args.grid.plots : [];
+  const navigableRiverTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_NAVIGABLE_RIVER;
 
   for (const plot of plots) {
     if (!isPlainObject(plot) || !isPlainObject(plot.location)) continue;
@@ -726,6 +858,17 @@ export function liveGridToFinalSurfaceSnapshot(args: {
       const value = probeNumberValue(facts[key]);
       (surfaces[key].values as Array<number | null>)[index] = value;
     }
+    const terrain = probeNumberValue(facts.terrain);
+    const riverType = probeNumberValue(facts.riverType);
+    const river = probeBooleanValue(facts.river);
+    const navigableRiver = probeBooleanValue(facts.navigableRiver);
+    (riverMetadata.terrainNavigableRiver!.values as Array<number | null>)[index] =
+      terrain === null ? null : terrain === navigableRiverTerrain ? 1 : 0;
+    (riverMetadata.riverType!.values as Array<number | null>)[index] = riverType;
+    (riverMetadata.river!.values as Array<number | null>)[index] = river;
+    (riverMetadata.navigableRiver!.values as Array<number | null>)[index] = navigableRiver;
+    (riverMetadata.minorRiver!.values as Array<number | null>)[index] =
+      riverType === null ? null : riverType === RIVER_TYPE_MINOR ? 1 : 0;
   }
 
   return {
@@ -736,7 +879,21 @@ export function liveGridToFinalSurfaceSnapshot(args: {
     ...(args.configHash === undefined ? {} : { configHash: args.configHash }),
     ...(args.envelopeHash === undefined ? {} : { envelopeHash: args.envelopeHash }),
     surfaces,
+    riverMetadata,
     ...(args.evidence === undefined ? {} : { evidence: args.evidence }),
+  };
+}
+
+function createEmptyRiverMetadataSnapshot(width: number, height: number): RiverMetadataSnapshot {
+  const size = width * height;
+  return {
+    width,
+    height,
+    terrainNavigableRiver: { width, height, values: new Array<number | null>(size).fill(null) },
+    riverType: { width, height, values: new Array<number | null>(size).fill(null) },
+    river: { width, height, values: new Array<number | null>(size).fill(null) },
+    navigableRiver: { width, height, values: new Array<number | null>(size).fill(null) },
+    minorRiver: { width, height, values: new Array<number | null>(size).fill(null) },
   };
 }
 
@@ -829,8 +986,11 @@ export function buildFinalSurfaceParityProof(args: {
     exact === undefined ? undefined : buildResourcePlacementCoordinateProofComparison(exact, args.local);
   const resourcePlacementRejectionContexts =
     exact === undefined ? [] : buildResourcePlacementRejectionContexts(exact, args.local);
+  const riverMetadataParity = buildRiverMetadataParityReport(args.local, args.live);
+  const lakeReadbackParity = buildLakeReadbackParityReport(exact, args.local);
+  const exactAuthorshipValidation = validateExactAuthorshipProofPacket(exact);
 
-  unresolvedLinks.push(...validateExactAuthorshipProofPacket(exact).unresolvedLinks);
+  unresolvedLinks.push(...exactAuthorshipValidation.unresolvedLinks);
   addSurfaceShapeLinks(unresolvedLinks, args.local, "local", exact?.runtime?.width, exact?.runtime?.height);
   addSurfaceShapeLinks(unresolvedLinks, args.live, "live", exact?.runtime?.width, exact?.runtime?.height);
   addFullGridEvidenceLinks(unresolvedLinks, args.live);
@@ -913,6 +1073,24 @@ export function buildFinalSurfaceParityProof(args: {
       unresolvedLinks.push(...resourcePlacementCoordinateProof.mismatchedLinks);
     }
   }
+  if (riverMetadataParity?.status === "readback-missing") {
+    unresolvedLinks.push("river-metadata.readback");
+  } else if (riverMetadataParity?.status === "dimension-mismatch") {
+    unresolvedLinks.push("river-metadata.dimensions");
+  } else if (riverMetadataParity?.status === "mismatch") {
+    unresolvedLinks.push("river-metadata.mismatch");
+  }
+  if (
+    riverMetadataParity?.minorRiverStampingSupported === false &&
+    riverMetadataParity.minorRiverUnsupportedReason === undefined
+  ) {
+    unresolvedLinks.push("river-metadata.minor-unsupported-reason");
+  }
+  if (lakeReadbackParity?.status === "missing-local-readback") {
+    unresolvedLinks.push("lake-readback.local-readback");
+  } else if (lakeReadbackParity?.status === "mismatch") {
+    unresolvedLinks.push("lake-readback.mismatch");
+  }
 
   for (const diff of diffs) {
     if (diff.status === "dimension-mismatch") unresolvedLinks.push(`surface.${diff.key}.dimensions`);
@@ -924,6 +1102,11 @@ export function buildFinalSurfaceParityProof(args: {
   for (const residual of residuals) {
     if (residual.status === "unresolved") unresolvedLinks.push(`residual.${residual.key}`);
   }
+  const proofClaims = buildRiverLakeProofClaimLedger({
+    exactAuthorshipUnresolvedLinks: exactAuthorshipValidation.unresolvedLinks,
+    riverMetadataParity,
+    lakeReadbackParity,
+  });
 
   return {
     status: unresolvedLinks.length === 0 ? "complete" : "unresolved",
@@ -955,6 +1138,9 @@ export function buildFinalSurfaceParityProof(args: {
     ...(resourcePlacementRejectionContexts.length === 0
       ? {}
       : { resourcePlacementRejectionContexts }),
+    ...(riverMetadataParity === undefined ? {} : { riverMetadataParity }),
+    ...(lakeReadbackParity === undefined ? {} : { lakeReadbackParity }),
+    proofClaims,
     residuals,
     unresolvedLinks: [...new Set(unresolvedLinks)].sort((a, b) => a.localeCompare(b)),
   };
@@ -1028,6 +1214,209 @@ export function validateExactAuthorshipProofPacket(value: unknown): {
   };
 }
 
+function proofClaim(
+  label: RiverLakeProofLabel,
+  status: RiverLakeProofClaimStatus,
+  reason: string,
+  evidenceLinks: ReadonlyArray<string> = []
+): RiverLakeProofClaim {
+  return { label, status, reason, evidenceLinks };
+}
+
+function buildRiverLakeProofClaimLedger(args: {
+  exactAuthorshipUnresolvedLinks: ReadonlyArray<string>;
+  riverMetadataParity?: RiverMetadataParityReport;
+  lakeReadbackParity?: LakeReadbackParityReport;
+}): RiverLakeProofClaimLedger {
+  const { exactAuthorshipUnresolvedLinks, riverMetadataParity, lakeReadbackParity } = args;
+  const exactAuthorship =
+    exactAuthorshipUnresolvedLinks.length === 0
+      ? proofClaim(
+          "exact-authorship",
+          "pass",
+          "Exact-authorship packet has no unresolved identity, materialization, log, or runtime links.",
+          ["exact-authorship-proof"]
+        )
+      : proofClaim(
+          "exact-authorship",
+          "unresolved",
+          "Exact-authorship packet is missing required identity, materialization, log, or runtime links.",
+          exactAuthorshipUnresolvedLinks
+        );
+  const claims: Record<RiverLakeProofLabel, RiverLakeProofClaim> = {
+    "exact-authorship": exactAuthorship,
+    "hydrology-truth": proofClaim(
+      "hydrology-truth",
+      "unresolved",
+      "Physical hydrology network metrics are not part of this parity packet yet.",
+      ["hydrology-river-network-metrics"]
+    ),
+    "projection-plan": proofClaim(
+      "projection-plan",
+      "unresolved",
+      "Navigable projection coherence and density metrics are not part of this parity packet yet.",
+      ["map-rivers-navigable-coherence"]
+    ),
+    "terrain-readback": terrainReadbackClaim(riverMetadataParity),
+    "metadata-readback": metadataReadbackClaim(riverMetadataParity),
+    "studio-visible": proofClaim(
+      "studio-visible",
+      "unresolved",
+      "Studio river/lake/floodplain inspector visibility is not proven by final-surface parity readback.",
+      ["studio-river-lake-inspector-dx"]
+    ),
+    "civ-rendered": proofClaim(
+      "civ-rendered",
+      "unresolved",
+      "No same-run Civ screenshot/viewport proof is attached to this parity packet.",
+      ["river-runtime-visible-proof"]
+    ),
+    "lake-final": lakeFinalClaim(lakeReadbackParity),
+    "floodplain-active": proofClaim(
+      "floodplain-active",
+      "unresolved",
+      "Active live floodplain-family feature proof is not derived from this parity packet.",
+      ["lake-floodplain-product-proof-gates"]
+    ),
+    "product-acceptance": proofClaim(
+      "product-acceptance",
+      "unresolved",
+      "Product acceptance requires all proof labels plus reviewer disposition; parity packets do not close product acceptance.",
+      ["swooper-earthlike-product-acceptance-proof"]
+    ),
+  };
+  return { version: 1, claims };
+}
+
+function terrainReadbackClaim(
+  parity: RiverMetadataParityReport | undefined
+): RiverLakeProofClaim {
+  if (parity === undefined) {
+    return proofClaim(
+      "terrain-readback",
+      "unresolved",
+      "No river terrain readback comparison is present.",
+      ["river-metadata.readback"]
+    );
+  }
+  if (parity.status === "match" || parity.status === "terrain-match-metadata-divergent") {
+    return proofClaim(
+      "terrain-readback",
+      "pass",
+      "Projected navigable terrain matches live TERRAIN_NAVIGABLE_RIVER readback.",
+      ["riverMetadataParity"]
+    );
+  }
+  if (parity.status === "readback-missing") {
+    return proofClaim(
+      "terrain-readback",
+      "unresolved",
+      "River terrain readback is missing or incomplete.",
+      ["river-metadata.readback"]
+    );
+  }
+  return proofClaim(
+    "terrain-readback",
+    "fail",
+    "Projected navigable terrain does not match live terrain readback.",
+    [`river-metadata.${parity.status}`]
+  );
+}
+
+function metadataReadbackClaim(
+  parity: RiverMetadataParityReport | undefined
+): RiverLakeProofClaim {
+  if (parity === undefined) {
+    return proofClaim(
+      "metadata-readback",
+      "unresolved",
+      "No Civ river metadata readback comparison is present.",
+      ["river-metadata.readback"]
+    );
+  }
+  if (parity.status === "match") {
+    return proofClaim(
+      "metadata-readback",
+      "pass",
+      "Civ river metadata agrees with the local river metadata claim.",
+      ["riverMetadataParity"]
+    );
+  }
+  if (parity.status === "terrain-match-metadata-divergent") {
+    return proofClaim(
+      "metadata-readback",
+      "fail",
+      "Live terrain contains navigable-river terrain while Civ river metadata remains divergent.",
+      ["river-metadata.terrain-match-metadata-divergent"]
+    );
+  }
+  if (parity.status === "readback-missing") {
+    return proofClaim(
+      "metadata-readback",
+      "unresolved",
+      "Civ river metadata readback is missing or incomplete.",
+      ["river-metadata.readback"]
+    );
+  }
+  return proofClaim(
+    "metadata-readback",
+    "fail",
+    "Civ river metadata comparison failed.",
+    [`river-metadata.${parity.status}`]
+  );
+}
+
+function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLakeProofClaim {
+  if (parity === undefined) {
+    return proofClaim(
+      "lake-final",
+      "unresolved",
+      "No local/exact lake final-readback counters are present.",
+      ["lake-readback.local-readback"]
+    );
+  }
+  if (parity.status === "missing-exact-log") {
+    return proofClaim(
+      "lake-final",
+      "unresolved",
+      "Local lake counters exist, but the exact runtime log lacks lake counters.",
+      ["lake-readback.exact-log"]
+    );
+  }
+  if (parity.status === "missing-local-readback") {
+    return proofClaim(
+      "lake-final",
+      "unresolved",
+      "Exact lake counters exist, but local lake final-readback counters are missing.",
+      ["lake-readback.local-readback"]
+    );
+  }
+  if (parity.status === "mismatch") {
+    return proofClaim(
+      "lake-final",
+      "fail",
+      "Exact and local lake final-readback counters diverge.",
+      parity.mismatchedFields.map((field) => `lake-readback.${field}`)
+    );
+  }
+  const finalWaterDrift = parity.local?.finalLakeWaterDriftCount;
+  const finalClassificationDrift = parity.local?.finalLakeClassificationDriftCount;
+  if (finalWaterDrift === 0 && finalClassificationDrift === 0) {
+    return proofClaim(
+      "lake-final",
+      "pass",
+      "Exact and local lake final-readback counters match with zero final water/classification drift.",
+      ["lakeReadbackParity"]
+    );
+  }
+  return proofClaim(
+    "lake-final",
+    "fail",
+    "Lake counters match, but final lake drift is nonzero or incomplete.",
+    ["lake-readback.final-drift"]
+  );
+}
+
 export function configFromExactAuthorshipProof(exact: ExactAuthorshipProofLike | undefined): unknown {
   return exact?.sourceSnapshot?.pipelineConfig;
 }
@@ -1050,6 +1439,70 @@ export function stableParityProofStringify(value: unknown): string {
   return stableStringify(value);
 }
 
+const LAKE_READBACK_COUNTER_FIELDS = [
+  "acceptedLakeTileCount",
+  "finalLakeWaterDriftCount",
+  "finalLakeClassificationDriftCount",
+] as const satisfies readonly (keyof LakeReadbackCounters)[];
+
+function buildLakeReadbackParityReport(
+  exact: ExactAuthorshipProofLike | undefined,
+  local: FinalSurfaceSnapshot
+): LakeReadbackParityReport | undefined {
+  const terrainProjection = isPlainObject(local.evidence?.terrainProjection)
+    ? local.evidence.terrainProjection
+    : undefined;
+  const localCounters = readLakeReadbackCounters(
+    terrainProjection?.placementSurfacePreparation
+  );
+  const exactCounters = readLakeReadbackCounters(exact?.log?.placementSurfacePreparation);
+  if (localCounters === undefined && exactCounters === undefined) return undefined;
+  if (localCounters === undefined) {
+    return {
+      status: "missing-local-readback",
+      ...(exactCounters === undefined ? {} : { exact: exactCounters }),
+      mismatchedFields: [],
+    };
+  }
+  if (exactCounters === undefined) {
+    return {
+      status: "missing-exact-log",
+      local: localCounters,
+      mismatchedFields: [],
+    };
+  }
+
+  const mismatchedFields = LAKE_READBACK_COUNTER_FIELDS.filter(
+    (field) => localCounters[field] !== exactCounters[field]
+  );
+  return {
+    status: mismatchedFields.length === 0 ? "match" : "mismatch",
+    local: localCounters,
+    exact: exactCounters,
+    mismatchedFields,
+  };
+}
+
+function readLakeReadbackCounters(value: unknown): LakeReadbackCounters | undefined {
+  if (!isPlainObject(value)) return undefined;
+  const counters: Partial<Record<keyof LakeReadbackCounters, number>> = {};
+  const acceptedLakeTileCount = numberValue(value.acceptedLakeTileCount);
+  const finalLakeWaterDriftCount = numberValue(value.finalLakeWaterDriftCount);
+  const finalLakeClassificationDriftCount = numberValue(
+    value.finalLakeClassificationDriftCount
+  );
+  if (acceptedLakeTileCount !== undefined) {
+    counters.acceptedLakeTileCount = acceptedLakeTileCount;
+  }
+  if (finalLakeWaterDriftCount !== undefined) {
+    counters.finalLakeWaterDriftCount = finalLakeWaterDriftCount;
+  }
+  if (finalLakeClassificationDriftCount !== undefined) {
+    counters.finalLakeClassificationDriftCount = finalLakeClassificationDriftCount;
+  }
+  return Object.keys(counters).length === 0 ? undefined : counters;
+}
+
 function classifyResidualSurfaces(local: FinalSurfaceSnapshot): ReadonlyArray<ParityResidualClassification> {
   const placementParity = isPlainObject(local.evidence?.placementParity) ? local.evidence.placementParity : undefined;
   const wondersPlanned = numberValue(placementParity?.wondersPlanned);
@@ -1060,7 +1513,7 @@ function classifyResidualSurfaces(local: FinalSurfaceSnapshot): ReadonlyArray<Pa
       status: "covered-by-terrain-grid",
       owner: "mapgen-authored-policy",
       evidence:
-        "Navigable rivers are materialized as terrain in this recipe; exact river metadata parity remains outside the hard equality gate.",
+        "Navigable rivers are materialized as terrain in this recipe; river metadata is reported separately by riverMetadataParity.",
     },
     {
       key: "floodplains",
@@ -1086,6 +1539,161 @@ function classifyResidualSurfaces(local: FinalSurfaceSnapshot): ReadonlyArray<Pa
           : "Natural wonders are materialized as feature ids; the feature full-grid gate covers tile-level presence, but footprint semantics should remain visible in placement telemetry.",
     },
   ];
+}
+
+function buildRiverMetadataParityReport(
+  local: FinalSurfaceSnapshot,
+  live: FinalSurfaceSnapshot
+): RiverMetadataParityReport | undefined {
+  const localProjected = local.riverMetadata?.projectedNavigableTerrain;
+  const localPlannedMinor = local.riverMetadata?.plannedMinorRiver;
+  const localPlannedMajor = local.riverMetadata?.plannedMajorRiver;
+  const liveTerrain = live.riverMetadata?.terrainNavigableRiver;
+  const liveRiver = live.riverMetadata?.river;
+  const liveNavigable = live.riverMetadata?.navigableRiver;
+  const liveMinor = live.riverMetadata?.minorRiver;
+  const liveRiverType = live.riverMetadata?.riverType;
+  const minorRiverBoundary = minorRiverBoundaryFields(local.riverMetadata);
+  if (
+    localProjected === undefined &&
+    liveTerrain === undefined &&
+    liveRiver === undefined &&
+    liveNavigable === undefined &&
+    liveMinor === undefined &&
+    liveRiverType === undefined
+  ) {
+    return undefined;
+  }
+
+  const compared = Math.min(
+    localProjected?.values.length ?? 0,
+    liveTerrain?.values.length ?? 0,
+    liveNavigable?.values.length ?? 0
+  );
+  if (localProjected === undefined || liveTerrain === undefined || liveNavigable === undefined || compared === 0) {
+    return {
+      status: "readback-missing",
+      compared: 0,
+      missingLiveReadback: 0,
+      plannedMinorRiverTileCount: countOnes(localPlannedMinor?.values),
+      plannedMajorRiverTileCount: countOnes(localPlannedMajor?.values),
+      projectedNavigableTerrainTileCount: countOnes(localProjected?.values),
+      liveTerrainNavigableRiverTileCount: countOnes(liveTerrain?.values),
+      liveRiverTileCount: countOnes(liveRiver?.values),
+      liveNavigableRiverTileCount: countOnes(liveNavigable?.values),
+      liveMinorRiverTileCount: countOnes(liveMinor?.values),
+      projectedVsLiveTerrainMismatchCount: 0,
+      projectedVsLiveMetadataMismatchCount: 0,
+      liveTerrainVsMetadataMismatchCount: 0,
+      ...minorRiverBoundary,
+      examples: [],
+    };
+  }
+
+  if (
+    localProjected.width !== liveTerrain.width ||
+    localProjected.height !== liveTerrain.height ||
+    localProjected.values.length !== liveTerrain.values.length ||
+    localProjected.width !== liveNavigable.width ||
+    localProjected.height !== liveNavigable.height ||
+    localProjected.values.length !== liveNavigable.values.length
+  ) {
+    return {
+      status: "dimension-mismatch",
+      compared: 0,
+      missingLiveReadback: 0,
+      plannedMinorRiverTileCount: countOnes(localPlannedMinor?.values),
+      plannedMajorRiverTileCount: countOnes(localPlannedMajor?.values),
+      projectedNavigableTerrainTileCount: countOnes(localProjected.values),
+      liveTerrainNavigableRiverTileCount: countOnes(liveTerrain.values),
+      liveRiverTileCount: countOnes(liveRiver?.values),
+      liveNavigableRiverTileCount: countOnes(liveNavigable.values),
+      liveMinorRiverTileCount: countOnes(liveMinor?.values),
+      projectedVsLiveTerrainMismatchCount: 0,
+      projectedVsLiveMetadataMismatchCount: 0,
+      liveTerrainVsMetadataMismatchCount: 0,
+      ...minorRiverBoundary,
+      examples: [],
+    };
+  }
+
+  let missingLiveReadback = 0;
+  let projectedVsLiveTerrainMismatchCount = 0;
+  let projectedVsLiveMetadataMismatchCount = 0;
+  let liveTerrainVsMetadataMismatchCount = 0;
+  const examples: RiverMetadataParityExample[] = [];
+  for (let index = 0; index < compared; index += 1) {
+    const projectedValue = normalizedMaskValue(localProjected.values[index]);
+    const liveTerrainValue = normalizedMaskValue(liveTerrain.values[index]);
+    const liveNavigableValue = normalizedMaskValue(liveNavigable.values[index]);
+    if (liveTerrainValue === null || liveNavigableValue === null) {
+      missingLiveReadback += 1;
+    }
+    const projectedTerrainMismatch =
+      projectedValue !== null && liveTerrainValue !== null && projectedValue !== liveTerrainValue;
+    const projectedMetadataMismatch =
+      projectedValue !== null && liveNavigableValue !== null && projectedValue !== liveNavigableValue;
+    const terrainMetadataMismatch =
+      liveTerrainValue !== null && liveNavigableValue !== null && liveTerrainValue !== liveNavigableValue;
+    if (projectedTerrainMismatch) projectedVsLiveTerrainMismatchCount += 1;
+    if (projectedMetadataMismatch) projectedVsLiveMetadataMismatchCount += 1;
+    if (terrainMetadataMismatch) liveTerrainVsMetadataMismatchCount += 1;
+    if (
+      examples.length < 10 &&
+      (projectedTerrainMismatch || projectedMetadataMismatch || terrainMetadataMismatch)
+    ) {
+      const y = Math.floor(index / localProjected.width);
+      examples.push({
+        x: index - y * localProjected.width,
+        y,
+        projectedNavigableTerrain: projectedValue,
+        liveTerrainNavigableRiver: liveTerrainValue,
+        liveNavigableRiver: liveNavigableValue,
+        liveRiverType: liveRiverType?.values[index] ?? null,
+      });
+    }
+  }
+
+  const metadataDivergenceCount =
+    projectedVsLiveMetadataMismatchCount +
+    liveTerrainVsMetadataMismatchCount;
+  const status: RiverMetadataParityReport["status"] =
+    missingLiveReadback > 0
+      ? "readback-missing"
+      : projectedVsLiveTerrainMismatchCount > 0
+        ? "mismatch"
+        : metadataDivergenceCount > 0
+          ? "terrain-match-metadata-divergent"
+          : "match";
+  return {
+    status,
+    compared,
+    missingLiveReadback,
+    plannedMinorRiverTileCount: countOnes(localPlannedMinor?.values),
+    plannedMajorRiverTileCount: countOnes(localPlannedMajor?.values),
+    projectedNavigableTerrainTileCount: countOnes(localProjected.values),
+    liveTerrainNavigableRiverTileCount: countOnes(liveTerrain.values),
+    liveRiverTileCount: countOnes(liveRiver?.values),
+    liveNavigableRiverTileCount: countOnes(liveNavigable.values),
+    liveMinorRiverTileCount: countOnes(liveMinor?.values),
+    projectedVsLiveTerrainMismatchCount,
+    projectedVsLiveMetadataMismatchCount,
+    liveTerrainVsMetadataMismatchCount,
+    ...minorRiverBoundary,
+    examples,
+  };
+}
+
+function minorRiverBoundaryFields(
+  metadata: RiverMetadataSnapshot | undefined
+): Pick<RiverMetadataParityReport, "minorRiverStampingSupported" | "minorRiverUnsupportedReason"> {
+  const reason = nonEmptyStringValue(metadata?.minorRiverUnsupportedReason);
+  return {
+    ...(metadata?.minorRiverStampingSupported === undefined
+      ? {}
+      : { minorRiverStampingSupported: metadata.minorRiverStampingSupported }),
+    ...(reason === undefined ? {} : { minorRiverUnsupportedReason: reason }),
+  };
 }
 
 function addSurfaceShapeLinks(
@@ -1985,8 +2593,61 @@ function indexedSurfaceValue(values: ReadonlyArray<number | null>, index: number
   return value === undefined ? undefined : value;
 }
 
+function gridFromNumericArray(
+  width: number,
+  height: number,
+  value: unknown,
+  expectedLength: number
+): SurfaceGrid | undefined {
+  if (!isArrayLike(value) || value.length !== expectedLength) return undefined;
+  const values = new Array<number | null>(expectedLength);
+  for (let index = 0; index < expectedLength; index += 1) {
+    const entry = numberValue(value[index]);
+    values[index] = entry === undefined ? null : Math.trunc(entry);
+  }
+  return { width, height, values };
+}
+
+function isArrayLike(value: unknown): value is ArrayLike<unknown> {
+  return (
+    Array.isArray(value) ||
+    value instanceof Uint8Array ||
+    value instanceof Int8Array ||
+    value instanceof Uint16Array ||
+    value instanceof Int16Array ||
+    value instanceof Uint32Array ||
+    value instanceof Int32Array ||
+    value instanceof Float32Array ||
+    value instanceof Float64Array
+  );
+}
+
+function countOnes(values: ReadonlyArray<number | null> | undefined): number {
+  if (values === undefined) return 0;
+  let count = 0;
+  for (const value of values) {
+    if (normalizedMaskValue(value) === 1) count += 1;
+  }
+  return count;
+}
+
+function normalizedMaskValue(value: number | null | undefined): number | null {
+  if (value === null || value === undefined || !Number.isFinite(value)) return null;
+  return value === 0 ? 0 : 1;
+}
+
+function booleanValue(value: unknown): boolean | undefined {
+  return typeof value === "boolean" ? value : undefined;
+}
+
 function stringValue(value: unknown): string | undefined {
   return typeof value === "string" ? value : undefined;
+}
+
+function nonEmptyStringValue(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
 }
 
 function hash32Value(value: unknown): string | undefined {
@@ -2007,6 +2668,12 @@ function probeNumberValue(value: unknown): number | null {
   if (!isPlainObject(value)) return numberValue(value);
   if (value.ok !== true) return null;
   return numberValue(value.value);
+}
+
+function probeBooleanValue(value: unknown): number | null {
+  if (!isPlainObject(value)) return typeof value === "boolean" ? (value ? 1 : 0) : null;
+  if (value.ok !== true) return null;
+  return typeof value.value === "boolean" ? (value.value ? 1 : 0) : null;
 }
 
 function hasFileIdentity(value: FileIdentityLike | undefined): boolean {

@@ -1,5 +1,4 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
-import { selectFlowReceiver } from "@swooper/mapgen-core/lib/grid";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { hydrologyHydrographyArtifacts } from "../artifacts.js";
 import { validateHydrographyArtifact } from "./rivers.validation.js";
@@ -12,26 +11,6 @@ import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/config.
 
 const GROUP_HYDROGRAPHY = "Hydrology / Hydrography";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
-
-function computeFlowDir(options: {
-  width: number;
-  height: number;
-  elevation: Int16Array;
-  landMask: Uint8Array;
-}): Int32Array {
-  const { width, height, elevation, landMask } = options;
-  const size = width * height;
-  const flowDir = new Int32Array(size);
-  for (let i = 0; i < size; i++) flowDir[i] = -1;
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const idx = y * width + x;
-      if (landMask[idx] !== 1) continue;
-      flowDir[idx] = selectFlowReceiver(x, y, width, height, elevation);
-    }
-  }
-  return flowDir;
-}
 
 export default createStep(RiversStepContract, {
   artifacts: implementArtifacts([hydrologyHydrographyArtifacts.hydrography], {
@@ -77,19 +56,22 @@ export default createStep(RiversStepContract, {
       rainfall: Uint8Array;
       humidity: Uint8Array;
     };
-    const flowDir = computeFlowDir({
-      width,
-      height,
-      elevation: topography.elevation,
-      landMask: topography.landMask,
-    });
+    const routing = ops.drainageRouting(
+      {
+        width,
+        height,
+        elevation: topography.elevation,
+        landMask: topography.landMask,
+      },
+      config.drainageRouting
+    );
 
     const discharge = ops.accumulateDischarge(
       {
         width,
         height,
         landMask: topography.landMask,
-        flowDir,
+        flowDir: routing.flowDir,
         rainfall: climateField.rainfall,
         humidity: climateField.humidity,
       },
@@ -102,6 +84,7 @@ export default createStep(RiversStepContract, {
         height,
         landMask: topography.landMask,
         discharge: discharge.discharge,
+        flowDir: routing.flowDir,
       },
       config.projectRiverNetwork
     );
@@ -110,9 +93,13 @@ export default createStep(RiversStepContract, {
       runoff: discharge.runoff,
       discharge: discharge.discharge,
       riverClass: projected.riverClass,
-      flowDir,
-      sinkMask: discharge.sinkMask,
-      outletMask: discharge.outletMask,
+      flowDir: routing.flowDir,
+      sinkMask: routing.sinkMask,
+      outletMask: routing.outletMask,
+      basinId: routing.basinId,
+      routingElevation: routing.routingElevation,
+      depressionDepth: routing.depressionDepth,
+      terminalType: routing.terminalType,
     });
 
     context.viz?.dumpGrid(context.trace, {
@@ -155,7 +142,7 @@ export default createStep(RiversStepContract, {
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
-      values: discharge.sinkMask,
+      values: routing.sinkMask,
       meta: defineVizMeta("hydrology.hydrography.sinkMask", {
         label: "Sink Mask",
         group: GROUP_HYDROGRAPHY,
@@ -168,9 +155,47 @@ export default createStep(RiversStepContract, {
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
-      values: discharge.outletMask,
+      values: routing.outletMask,
       meta: defineVizMeta("hydrology.hydrography.outletMask", {
         label: "Outlet Mask",
+        group: GROUP_HYDROGRAPHY,
+        palette: "categorical",
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "hydrology.hydrography.basinId",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "i32",
+      values: routing.basinId,
+      meta: defineVizMeta("hydrology.hydrography.basinId", {
+        label: "Drainage Basin Id",
+        group: GROUP_HYDROGRAPHY,
+        palette: "categorical",
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "hydrology.hydrography.depressionDepth",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "f32",
+      values: routing.depressionDepth,
+      meta: defineVizMeta("hydrology.hydrography.depressionDepth", {
+        label: "Drainage Conditioning Depth",
+        group: GROUP_HYDROGRAPHY,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "hydrology.hydrography.terminalType",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: routing.terminalType,
+      meta: defineVizMeta("hydrology.hydrography.terminalType", {
+        label: "Drainage Terminal Type",
         group: GROUP_HYDROGRAPHY,
         palette: "categorical",
         visibility: "debug",

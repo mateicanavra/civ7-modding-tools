@@ -149,6 +149,10 @@ export const HydrologyClimateBaselinePublicSchema = Type.Object(
 
 export const HydrologyHydrographyPublicSchema = Type.Object(
   {
+    drainageRouting: optionalAuthorSchema(
+      baselineOps.computeDrainageRouting.strategies.default,
+      "hydrography drainage routing"
+    ),
     runoff: optionalAuthorSchema(
       baselineOps.accumulateDischarge.strategies.default,
       "hydrography runoff"

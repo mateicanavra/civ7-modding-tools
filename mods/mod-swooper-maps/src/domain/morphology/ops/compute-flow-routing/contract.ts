@@ -8,7 +8,11 @@ const RoutingConfigSchema = Type.Object(
 );
 
 /**
- * Computes flow routing and accumulation buffers from elevation and land mask.
+ * Computes Morphology's geomorphic routing proxy from elevation and land mask.
+ *
+ * This op supports terrain shaping consumers such as erosion and rough-land
+ * planning. Hydrology owns canonical drainage routing, discharge, rivers, and
+ * lake intent.
  */
 const ComputeFlowRoutingContract = defineOp({
   kind: "compute",

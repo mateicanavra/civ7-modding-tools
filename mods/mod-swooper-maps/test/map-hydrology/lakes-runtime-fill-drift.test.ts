@@ -7,6 +7,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import lakes from "../../src/recipes/standard/stages/map-hydrology/steps/lakes.js";
 import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
 import { buildTestDeps } from "../support/step-deps.js";
+import selectNavigableRiverTerrain from "../../src/domain/hydrology/ops/select-navigable-river-terrain/index.js";
 
 /**
  * Runtime validation double.
@@ -78,6 +79,13 @@ describe("map-hydrology/lakes runtime fill drift", () => {
       sinkMask: sinkLakeMask,
       outletMask: new Uint8Array(size),
     });
+    context.artifacts.set("artifact:hydrology.riverNetworkMetrics", {
+      upstreamArea: new Int32Array(size),
+      streamOrderProxy: new Uint8Array(size),
+      mouthType: new Uint8Array(size),
+      slopeClass: new Uint8Array(size),
+      flowPermanenceProxy: new Uint8Array(size),
+    });
     context.artifacts.set("artifact:hydrology.lakePlan", {
       width,
       height,
@@ -89,8 +97,13 @@ describe("map-hydrology/lakes runtime fill drift", () => {
     lakes.run(context as any, { projectionReadback: true }, {} as any, buildTestDeps(lakes));
     plotRivers.run(
       context as any,
-      { minLength: 1, maxLength: 5 },
-      {} as any,
+      {
+        selectNavigableRiverTerrain: {
+          strategy: "default",
+          config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
+        },
+      },
+      { selectNavigableRiverTerrain: selectNavigableRiverTerrain.run } as any,
       buildTestDeps(plotRivers)
     );
 

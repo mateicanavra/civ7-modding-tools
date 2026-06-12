@@ -6,6 +6,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import standardRecipe from "../src/recipes/standard/recipe.js";
 import type { StandardRecipeConfig } from "../src/recipes/standard/recipe.js";
 import { DEFERRED_INITIAL_MAP_RESOURCE_TYPE_IDS } from "../src/domain/resources/policy/initial-map-authoring.js";
+import { isAnyRiverClass } from "../src/domain/hydrology/index.js";
 import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
 import { mapArtifacts } from "../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../src/recipes/standard/stages/foundation/artifacts.js";
@@ -380,7 +381,7 @@ describe("standard recipe execution", () => {
 	      const riverClass = hydrography?.riverClass;
 	      if (!(riverClass instanceof Uint8Array)) throw new Error("Missing hydrography riverClass.");
 	      let count = 0;
-	      for (let i = 0; i < riverClass.length; i++) if ((riverClass[i] ?? 0) > 0) count++;
+	      for (let i = 0; i < riverClass.length; i++) if (isAnyRiverClass(riverClass[i])) count++;
 	      return count;
 	    };
 

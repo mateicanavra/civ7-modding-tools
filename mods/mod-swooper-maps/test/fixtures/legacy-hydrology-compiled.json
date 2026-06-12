@@ -203,6 +203,10 @@
     },
     "hydrology-hydrography": {
       "lakes": {
+        "computeRiverNetworkMetrics": {
+          "config": {},
+          "strategy": "default"
+        },
         "planLakes": {
           "config": {
             "maxLakeLandFraction": 0.003,
@@ -219,6 +223,12 @@
             "infiltrationFraction": 0.15,
             "minRunoff": 0,
             "runoffScale": 1
+          },
+          "strategy": "default"
+        },
+        "drainageRouting": {
+          "config": {
+            "allowExternalEdgeOutlets": false
           },
           "strategy": "default"
         },
@@ -438,6 +448,10 @@
     },
     "hydrology-hydrography": {
       "lakes": {
+        "computeRiverNetworkMetrics": {
+          "config": {},
+          "strategy": "default"
+        },
         "planLakes": {
           "config": {
             "maxLakeLandFraction": 0.003,
@@ -454,6 +468,12 @@
             "infiltrationFraction": 0.15,
             "minRunoff": 0,
             "runoffScale": 1
+          },
+          "strategy": "default"
+        },
+        "drainageRouting": {
+          "config": {
+            "allowExternalEdgeOutlets": false
           },
           "strategy": "default"
         },
@@ -673,6 +693,10 @@
     },
     "hydrology-hydrography": {
       "lakes": {
+        "computeRiverNetworkMetrics": {
+          "config": {},
+          "strategy": "default"
+        },
         "planLakes": {
           "config": {
             "maxLakeLandFraction": 0.003,
@@ -689,6 +713,12 @@
             "infiltrationFraction": 0.15,
             "minRunoff": 0,
             "runoffScale": 1
+          },
+          "strategy": "default"
+        },
+        "drainageRouting": {
+          "config": {
+            "allowExternalEdgeOutlets": false
           },
           "strategy": "default"
         },
@@ -908,6 +938,10 @@
     },
     "hydrology-hydrography": {
       "lakes": {
+        "computeRiverNetworkMetrics": {
+          "config": {},
+          "strategy": "default"
+        },
         "planLakes": {
           "config": {
             "maxLakeLandFraction": 0.006,
@@ -924,6 +958,12 @@
             "infiltrationFraction": 0.18,
             "minRunoff": 0,
             "runoffScale": 1
+          },
+          "strategy": "default"
+        },
+        "drainageRouting": {
+          "config": {
+            "allowExternalEdgeOutlets": false
           },
           "strategy": "default"
         },

@@ -9,11 +9,11 @@ import { HydrologyHydrographyPublicSchema } from "../hydrology-public-config.js"
 const knobsSchema = Type.Object(
   {
     /**
-     * River projection density.
+     * Physical river-network classification density.
      *
      * Stage scope:
-     * - Transforms projection thresholds/length bounds over the defaulted baseline.
-     * - Does not change discharge routing truth (only projection/classification).
+     * - Transforms Hydrology river classification thresholds over the defaulted baseline.
+     * - Does not change canonical drainage routing or Civ-visible projection ownership.
      */
     riverDensity: Type.Optional(HydrologyRiverDensityKnobSchema),
     /**
@@ -27,7 +27,7 @@ const knobsSchema = Type.Object(
   },
   {
     description:
-      "Hydrology hydrography knobs (riverDensity/lakeiness). Knobs apply after defaulted river and lake controls as deterministic transforms.",
+      "Hydrology hydrography knobs (riverDensity/lakeiness). Knobs apply as deterministic transforms over Hydrology river classification and lake-intent planning; Civ-visible projection remains downstream.",
   }
 );
 
@@ -38,11 +38,13 @@ export default createStage({
   steps: [rivers, lakes],
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     rivers: {
+      drainageRouting: { strategy: "default", config: config.drainageRouting ?? {} },
       accumulateDischarge: { strategy: "default", config: config.runoff ?? {} },
       projectRiverNetwork: { strategy: "default", config: config.riverNetwork ?? {} },
     },
     lakes: {
       planLakes: { strategy: "default", config: config.lakes ?? {} },
+      computeRiverNetworkMetrics: { strategy: "default", config: {} },
     },
   }),
 } as const);

@@ -1,3 +1,5 @@
+import { isAnyRiverClass } from "../../../../hydrology/index.js";
+
 export type WetlandSubstrateMasks = Readonly<{
   lowlandMask: Uint8Array;
   floodplainMask: Uint8Array;
@@ -120,7 +122,7 @@ function hasRiverFlowNear(args: Readonly<{
     const row = ny * args.width;
     for (let nx = args.x0; nx <= args.x1; nx++) {
       const idx = row + nx;
-      if ((args.riverClass[idx] ?? 0) === 0) continue;
+      if (!isAnyRiverClass(args.riverClass[idx])) continue;
       if (args.dischargeMin <= 0 || (args.discharge[idx] ?? 0) >= args.dischargeMin) {
         return true;
       }

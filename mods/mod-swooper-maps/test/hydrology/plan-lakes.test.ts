@@ -69,6 +69,32 @@ describe("hydrology/plan-lakes", () => {
     expect(result.plannedLakeTileCount).toBe(3);
   });
 
+  it("does not let one upstream expansion step cascade through an entire basin", () => {
+    const width = 5;
+    const height = 1;
+    const size = width * height;
+    const sinkMask = new Uint8Array(size);
+    sinkMask[4] = 1;
+    const discharge = new Float32Array(size);
+    discharge[4] = 100;
+
+    const result = planLakes.run(
+      {
+        width,
+        height,
+        landMask: new Uint8Array(size).fill(1),
+        flowDir: new Int32Array([1, 2, 3, 4, -1]),
+        discharge,
+        sinkMask,
+      },
+      { maxUpstreamSteps: 1, sinkDischargePercentileMin: 0, maxLakeLandFraction: 1 }
+    );
+
+    expect(Array.from(result.lakeMask)).toEqual([0, 0, 0, 1, 1]);
+    expect(result.sinkLakeCount).toBe(1);
+    expect(result.plannedLakeTileCount).toBe(2);
+  });
+
   it("admits terminal basins by discharge percentile and lake budget", () => {
     const width = 6;
     const height = 1;

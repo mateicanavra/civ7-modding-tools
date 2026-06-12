@@ -631,10 +631,8 @@
       "knobs": {}
     },
     "map-rivers": {
-      "knobs": {},
-      "riverProjection": {
-        "minLength": 3,
-        "maxLength": 12
+      "knobs": {
+        "navigableRiverDensity": "dense"
       }
     },
     "map-ecology": {

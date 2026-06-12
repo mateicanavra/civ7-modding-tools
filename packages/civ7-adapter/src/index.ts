@@ -25,6 +25,8 @@ export type {
   MapInfo,
   MapContext,
   ContinentBounds,
+  LakeProjectionResult,
+  RiverProjectionResult,
   PlotTagName,
   LandmassIdName,
   VoronoiUtils,
