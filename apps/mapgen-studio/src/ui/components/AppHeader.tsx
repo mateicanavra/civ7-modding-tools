@@ -25,6 +25,12 @@ export interface AppHeaderProps {
   };
   onSetupConfigChange: (config: Civ7StudioSetupConfig) => void;
   onSavedConfigChange: (configId: string) => void;
+  /**
+   * Config precedence: true when the game-setup dropdowns (or a live sync)
+   * superseded values the selected saved config governs. Renders the orange
+   * Modified affordance on the selector; clicking it re-applies the file.
+   */
+  savedConfigModified?: boolean;
   onHeaderHeightChange?: (height: number) => void;
   /**
    * The live-game command cluster (Pass-5 zoning v2: top = Game, bottom =
@@ -40,6 +46,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onShowGridChange,
   setupConfig,
   setupOptions,
+  savedConfigModified = false,
   onSetupConfigChange,
   onSavedConfigChange,
   onHeaderHeightChange,
@@ -120,7 +127,17 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onValueChange={(value) => onSavedConfigChange(value)}
               options={setupOptions.savedConfigOptions}
               ariaLabel="Saved config"
-              className="w-44 max-w-[34vw]" />
+              className={`w-44 max-w-[34vw] ${savedConfigModified ? 'border-warning text-warning ring-1 ring-warning/40' : ''}`} />
+            {savedConfigModified && setupConfig.savedConfig ? (
+              <button
+                type="button"
+                onClick={() => onSavedConfigChange(setupConfig.savedConfig!.id)}
+                aria-label={`Game setup modified from ${setupConfig.savedConfig.displayName} — click to re-apply the saved config`}
+                title={`Game setup modified from ${setupConfig.savedConfig.displayName} — click to re-apply the saved config`}
+                className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning cursor-pointer transition-colors hover:bg-warning/10">
+                Modified
+              </button>
+            ) : null}
           </div>
 
           {gameConsole ? (

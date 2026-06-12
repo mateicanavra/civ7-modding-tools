@@ -44,6 +44,7 @@ import {
   normalizeStudioSetupConfig,
   optionRowsFromParameter,
   studioSetupConfigFromLiveSnapshot,
+  studioSetupDriftsFromSavedConfig,
   updateStudioSetupSavedConfig,
   type Civ7SetupSnapshotLike,
   type Civ7StudioSetupConfig,
@@ -1398,6 +1399,19 @@ export function StudioShell(props: StudioShellProps) {
     };
   }, [liveSetup.setup, savedSetupConfigs.configurations, savedSetupConfigs.status, setupCatalog.catalog, setupConfig]);
 
+  // Config precedence (Y2): the saved-config selector must SHOW when the
+  // game-setup dropdowns (or a live sync) have superseded values the selected
+  // saved config governs — drift is "re-applying the file would change the
+  // state". The header renders the orange Modified affordance off this flag;
+  // clicking it re-applies the saved config (sync back).
+  const savedSetupConfigModified = useMemo(() => {
+    const selectedId = setupConfig.savedConfig?.id;
+    if (!selectedId) return false;
+    const savedConfig = savedSetupConfigs.configurations.find((config) => config.id === selectedId);
+    if (!savedConfig) return false;
+    return studioSetupDriftsFromSavedConfig(setupConfig, savedConfig);
+  }, [savedSetupConfigs.configurations, setupConfig]);
+
   const handleSavedSetupConfigChange = useCallback((configId: string) => {
     const savedConfig = savedSetupConfigs.configurations.find((config) => config.id === configId);
     if (!savedConfig) {
@@ -2240,6 +2254,7 @@ export function StudioShell(props: StudioShellProps) {
       onShowGridChange={setShowGrid}
       setupConfig={setupConfig}
       setupOptions={setupControlOptions}
+      savedConfigModified={savedSetupConfigModified}
       onSetupConfigChange={setSetupConfig}
       onSavedConfigChange={handleSavedSetupConfigChange}
       onHeaderHeightChange={handleHeaderHeightChange}

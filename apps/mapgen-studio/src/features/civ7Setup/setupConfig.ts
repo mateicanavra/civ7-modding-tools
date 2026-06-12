@@ -308,6 +308,24 @@ export function updateStudioSetupSavedConfig(
   });
 }
 
+/**
+ * Drift detection for the saved-config selector (config-precedence rule): a
+ * saved config GOVERNS the setup options it specifies plus the player
+ * options it carries; the game-setup dropdowns must never silently supersede
+ * it. The studio has drifted from the selected saved config exactly when
+ * RE-APPLYING the file would change the current state — i.e. a later
+ * dropdown change (or live sync) overwrote a governed value. Keys the file
+ * does not specify are deliberately ungoverned (apply is a merge that keeps
+ * them), so editing them never counts as drift, and re-apply ("sync back")
+ * is a no-op precisely when the selector is clean.
+ */
+export function studioSetupDriftsFromSavedConfig(
+  config: Civ7StudioSetupConfig,
+  savedConfig: Civ7SavedSetupConfigFile,
+): boolean {
+  return !studioSetupConfigsEqual(config, updateStudioSetupSavedConfig(config, savedConfig));
+}
+
 export function labelForCiv7SetupValue(value: unknown): string {
   if (typeof value !== "string") return String(value ?? "");
   const stripped = value
