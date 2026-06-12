@@ -383,12 +383,15 @@ const VALUE_RAMP: ReadonlyArray<RgbaColor> = [
 const UNKNOWN_COLOR: RgbaColor = [0, 0, 0, 0];
 
 /**
- * The one tile-border ink (Pass-5 tile-orientation spec): a mid-luminance
- * slate chosen to stay legible against white, black, and graphite canvas
- * backgrounds. All tile-space polygon strokes use this — no per-call border
- * literals.
+ * The one tile-border ink (Pass-5 tile-orientation spec, retuned on user
+ * feedback): graphite — the dark page substrate (#0d0d11), one ink in BOTH
+ * themes. Borders only ever separate FILLED tiles (unfilled tiles draw
+ * nothing), so a dark seam reads against the fills everywhere: in dark mode
+ * it recedes into the canvas like grout; in light mode it is a crisp
+ * graphite grid. All tile-space polygon strokes use this — no per-call
+ * border literals, no mid-luminance slate (it clashed with the palette).
  */
-export const TILE_BORDER_COLOR: RgbaColor = [100, 116, 139, 220];
+export const TILE_BORDER_COLOR: RgbaColor = [13, 13, 17, 200];
 
 type ColorOut = { [index: number]: number };
 

@@ -72,29 +72,16 @@ function isTileSpace(spaceId: VizSpaceId): boolean {
   return spaceId === "tile.hexOddR" || spaceId === "tile.hexOddQ";
 }
 
-// Odd-q tile positions MUST match mapgen-core's canonical hex space
-// (`projectOddqToHexSpace`: HEX_WIDTH = √3, HEX_HEIGHT = 1.5) — the Delaunay
-// mesh and every `world.xy` layer live in that frame, so tiles co-register
-// with them only on the same lattice: columns √3·size apart, rows 1.5·size
-// apart, odd COLUMNS shifted down 0.75·size (pre-flip y-down coords; the
-// shared north-up flip happens after).
-const ODD_Q_COL_SPACING = Math.sqrt(3);
-const ODD_Q_ROW_SPACING = 1.5;
-const ODD_Q_COL_OFFSET = ODD_Q_ROW_SPACING / 2;
-
-function oddQTileCenter(col: number, row: number, size: number): [number, number] {
-  const x = size * ODD_Q_COL_SPACING * col;
-  const y = size * (ODD_Q_ROW_SPACING * row + ((col & 1) ? ODD_Q_COL_OFFSET : 0));
-  return [x, y];
-}
-
-function oddQPointFromTileXY(x: number, y: number, size: number): [number, number] {
-  const colParity = Math.round(x) & 1;
-  const px = size * ODD_Q_COL_SPACING * x;
-  const py = size * (ODD_Q_ROW_SPACING * y + (colParity ? ODD_Q_COL_OFFSET : 0));
-  return [px, py];
-}
-
+// BOTH tile spaces render the GAME's plot geometry: pointy-top hexes on a
+// row-offset (odd-R) lattice — columns √3·size apart, rows 1.5·size apart,
+// odd ROWS shifted east half a tile (pre-flip y-down coords; the shared
+// north-up flip happens after). `tile.hexOddQ` is, by audit evidence, a
+// mislabel of this same grid: Civ7's direction set (E/W/NE/NW/SE/SW) and
+// Firaxis's own debug dumpers (odd-row indents) are odd-R, and the engine
+// boundary writes (x,y) untransposed. The world frame (√3·width ×
+// 1.5·height) matches the Delaunay/world.xy frame, so cross-space layers
+// co-register. See docs/projects/mapgen-studio-redesign/research/
+// 03-hex-convention-audit.md.
 function oddRTileCenter(col: number, row: number, size: number): [number, number] {
   const x = size * Math.sqrt(3) * (col + ((row & 1) ? 0.5 : 0));
   const y = size * 1.5 * row;
@@ -113,14 +100,12 @@ function orientTilePointNorthUp(point: [number, number]): [number, number] {
   return [x, -y];
 }
 
-function tilePoint(spaceId: VizSpaceId, x: number, y: number, size: number): [number, number] {
-  const point = spaceId === "tile.hexOddQ" ? oddQPointFromTileXY(x, y, size) : oddRPointFromTileXY(x, y, size);
-  return orientTilePointNorthUp(point);
+function tilePoint(_spaceId: VizSpaceId, x: number, y: number, size: number): [number, number] {
+  return orientTilePointNorthUp(oddRPointFromTileXY(x, y, size));
 }
 
-function tileCenter(spaceId: VizSpaceId, col: number, row: number, size: number): [number, number] {
-  const point = spaceId === "tile.hexOddQ" ? oddQTileCenter(col, row, size) : oddRTileCenter(col, row, size);
-  return orientTilePointNorthUp(point);
+function tileCenter(_spaceId: VizSpaceId, col: number, row: number, size: number): [number, number] {
+  return orientTilePointNorthUp(oddRTileCenter(col, row, size));
 }
 
 function transformPoint(spaceId: VizSpaceId, x: number, y: number, tileSize: number): [number, number] {
@@ -138,30 +123,6 @@ function hexPolygonPointy(center: [number, number], size: number): Array<[number
   return out;
 }
 
-// The hexagon that exactly tiles the canonical odd-q lattice: a flat-top hex
-// (column offset ⇒ flat-top orientation) with its vertical pitch compressed
-// to the lattice's 1.5·size row spacing. Vertices, counterclockwise from
-// east: E, NE, NW, W, SW, SE. Adjacent cells share edges exactly — no gaps,
-// no overlaps, no phantom seams.
-function hexPolygonOddQ(center: [number, number], size: number): Array<[number, number]> {
-  const [cx, cy] = center;
-  const rx = (2 / Math.sqrt(3)) * size; // east/west vertex reach
-  const ix = (1 / Math.sqrt(3)) * size; // diagonal vertex x
-  const iy = (ODD_Q_ROW_SPACING / 2) * size; // diagonal vertex y (half the row pitch)
-  return [
-    [cx + rx, cy],
-    [cx + ix, cy + iy],
-    [cx - ix, cy + iy],
-    [cx - rx, cy],
-    [cx - ix, cy - iy],
-    [cx + ix, cy - iy],
-  ];
-}
-
-/** Row-offset (odd-R) lattices are pointy-top; the column-offset (odd-Q) lattice is flat-top. */
-function hexPolygonForSpace(spaceId: VizSpaceId, center: [number, number], size: number): Array<[number, number]> {
-  return spaceId === "tile.hexOddQ" ? hexPolygonOddQ(center, size) : hexPolygonPointy(center, size);
-}
 
 function hexGridGeometryKey(args: { spaceId: VizSpaceId; width: number; height: number; tileSize: number }): string {
   return `${args.spaceId}:${args.width}x${args.height}:s${args.tileSize}`;
@@ -189,7 +150,7 @@ async function getOrBuildHexGridGeometry(args: {
     const x = i % width;
     const y = (i / width) | 0;
     const center = tileCenter(spaceId, x, y, tileSize);
-    polygons[i] = hexPolygonForSpace(spaceId, center, tileSize);
+    polygons[i] = hexPolygonPointy(center, tileSize);
   }
 
   const geom: HexGridGeometry = { indices, polygons };
@@ -203,28 +164,19 @@ async function getOrBuildHexGridGeometry(args: {
   return geom;
 }
 
-export function boundsForTileGrid(spaceId: VizSpaceId, dims: { width: number; height: number }, tileSize: number): Bounds {
+export function boundsForTileGrid(_spaceId: VizSpaceId, dims: { width: number; height: number }, tileSize: number): Bounds {
   const { width, height } = dims;
   if (width <= 0 || height <= 0) return [0, 0, 1, 1];
 
   const s3 = Math.sqrt(3) * tileSize;
   const s = tileSize;
 
-  if (spaceId === "tile.hexOddR") {
-    const hasOddRow = height > 1;
-    const maxCenterX = s3 * ((width - 1) + (hasOddRow ? 0.5 : 0));
-    const maxCenterY = 1.5 * tileSize * (height - 1);
-    return [-s, -maxCenterY - s, maxCenterX + s, s];
-  }
-
-  // tile.hexOddQ — the canonical hex-space lattice (matches the Delaunay
-  // world): columns √3·s apart, rows 1.5·s apart, odd columns +0.75·s.
-  const hasOddCol = width > 1;
-  const maxCenterX = s3 * (width - 1);
-  const maxCenterY = 1.5 * tileSize * (height - 1) + (hasOddCol ? 0.75 * tileSize : 0);
-  const padX = (2 / Math.sqrt(3)) * tileSize;
-  const padY = 0.75 * tileSize;
-  return [-padX, -maxCenterY - padY, maxCenterX + padX, padY];
+  // One lattice for both tile spaces: the game's odd-R grid (see the
+  // convention note above oddRTileCenter).
+  const hasOddRow = height > 1;
+  const maxCenterX = s3 * ((width - 1) + (hasOddRow ? 0.5 : 0));
+  const maxCenterY = 1.5 * tileSize * (height - 1);
+  return [-s, -maxCenterY - s, maxCenterX + s, s];
 }
 
 export function boundsForLayerInRenderSpace(layer: VizLayerEntryV1, tileSize = 1): Bounds {
