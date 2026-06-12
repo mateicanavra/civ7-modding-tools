@@ -16,13 +16,16 @@ import {
 // ============================================================================
 // GAME CONSOLE
 // ============================================================================
-// The footer's live-Civ7 area (Pass-3 footer-consoles spec): every control and
-// readout that observes or commands the LIVE GAME lives here — live runtime
-// chip + apply-suggestion bridge, autoplay, Run in Game with its status/retry/
-// diagnostics, and the save-deploy chip. New live-game controls belong in this
-// unit, not in the studio console. The studio↔game bridge cues (stale warning
-// ring, Current/Stale/Previous relation chip) are computed against the current
-// authored Studio state and surface here, beside the controls they qualify.
+// The Game bar's command cluster (Pass-5 toolbar-architecture-v2 spec): every
+// control and readout that observes or commands the LIVE GAME lives here —
+// live runtime chip + apply-suggestion bridge, autoplay, Run in Game with its
+// status/retry/diagnostics, and the save-deploy chip. New live-game controls
+// belong in this unit, not in the studio console. The cluster renders inline
+// with NO panel chrome or identity label of its own: AppHeader composes it
+// into the Game bar row, whose "Game" identity covers it. The studio↔game
+// bridge cues (stale warning ring, Current/Stale/Previous relation chip) are
+// computed against the current authored Studio state and surface here, beside
+// the controls they qualify.
 // ============================================================================
 
 /** Read-only live Civ7 runtime snapshot the console renders. */
@@ -87,9 +90,6 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   onCopyRunInGameDiagnostics,
   saveDeployStatus,
 }) => {
-  // Token-driven chrome; the console floats over the map on the popover tier.
-  const panelBg = 'bg-popover/95';
-  const panelBorder = 'border-border';
   const textPrimary = 'text-foreground';
   const textMuted = 'text-muted-foreground/70';
   // The "stale vs live game" emphasis is a warning about data, so it uses the
@@ -165,15 +165,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   ].filter(Boolean).join("\n");
 
   return (
-    <div
-      className={`h-10 inline-flex min-w-0 max-w-full items-center gap-2 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
-
-      {/* Console identity: this is the live-game area, named so it can grow. */}
-      <span className={`text-label font-semibold uppercase tracking-wider shrink-0 ${textMuted}`}>
-        Civ7
-      </span>
-      <div className="w-px h-5 shrink-0 bg-border" />
-
+    <div className="inline-flex min-w-0 max-w-full items-center gap-2">
       <Tooltip>
         <TooltipTrigger asChild>
           <button

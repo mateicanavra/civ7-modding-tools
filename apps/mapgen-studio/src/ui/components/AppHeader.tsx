@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, Globe, SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, Gamepad2, SlidersHorizontal } from 'lucide-react';
 import { AppBrand } from './AppBrand';
 import { ViewControls } from './ViewControls';
 import { OptionSelect } from './OptionSelect';
@@ -9,19 +9,12 @@ import {
   updateStudioSetupPlayerOption,
   type Civ7StudioSetupConfig
 } from '../../features/civ7Setup/setupConfig';
-import {
-  MAP_SIZE_OPTIONS,
-  PLAYER_COUNT_OPTIONS,
-  RESOURCE_MODE_OPTIONS } from
-'../constants';
-import type { ThemePreference, WorldSettings } from '../types';
+import type { ThemePreference } from '../types';
 export interface AppHeaderProps {
   themePreference: ThemePreference;
   onThemeCycle: () => void;
   showGrid: boolean;
   onShowGridChange: (show: boolean) => void;
-  globalSettings: WorldSettings;
-  onGlobalSettingsChange: (settings: WorldSettings) => void;
   setupConfig: Civ7StudioSetupConfig;
   setupOptions: {
     savedConfigOptions: ReadonlyArray<{ value: string; label: string }>;
@@ -34,9 +27,9 @@ export interface AppHeaderProps {
   onSavedConfigChange: (configId: string) => void;
   onHeaderHeightChange?: (height: number) => void;
   /**
-   * The live-game console (Pass-4 vertical zoning: top = game, bottom =
-   * studio). Rendered as a centered row beneath the world bar — after the
-   * transient setup panel, so the disclosure stays attached to its button.
+   * The live-game command cluster (Pass-5 zoning v2: top = Game, bottom =
+   * World/Map). Composed INLINE into the Game bar row, between the
+   * saved-config selector and the trailing setup disclosure.
    */
   gameConsole?: React.ReactNode;
 }
@@ -45,8 +38,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onThemeCycle,
   showGrid,
   onShowGridChange,
-  globalSettings,
-  onGlobalSettingsChange,
   setupConfig,
   setupOptions,
   onSetupConfigChange,
@@ -64,16 +55,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const textMuted = 'text-muted-foreground/70';
   const dividerColor = 'bg-border';
   const setupButtonClassName =
-    'flex h-7 shrink-0 items-center gap-1.5 rounded border border-input bg-input-background px-2.5 text-data font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
-  const updateSetting = <K extends keyof WorldSettings,>(
-  key: K,
-  value: WorldSettings[K]) =>
-  {
-    onGlobalSettingsChange({
-      ...globalSettings,
-      [key]: value
-    });
-  };
+    'flex h-7 shrink-0 items-center gap-1.5 rounded border border-input bg-input-background px-2 text-data font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
   const localPlayerSetup = getLocalPlayerSetup(setupConfig);
   const updateLeader = (value: string) => {
     onSetupConfigChange(updateStudioSetupPlayerOption(setupConfig, 'PlayerLeader', value || undefined));
@@ -113,54 +95,18 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         <AppBrand />
       </div>
 
-      {/* Center: World Settings */}
+      {/* Center: the Game bar — config selector, live command cluster, and
+          the trailing game-setup disclosure. Map/world settings live in the
+          footer's World/Map console (Pass-5 zoning v2). */}
       <div className="min-w-0 flex flex-col items-center gap-2 overflow-visible">
         <div
           className={`flex min-h-10 max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 px-3 py-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
 
           <div className="flex items-center gap-1.5">
-            <Globe className={`w-4 h-4 ${textMuted}`} />
+            <Gamepad2 className={`w-4 h-4 ${textMuted}`} />
             <span className={`text-label font-semibold uppercase tracking-wider ${textSecondary}`}>
-              World
+              Game
             </span>
-          </div>
-
-          <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
-
-          <div className="flex items-center gap-2">
-            <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
-              Size
-            </span>
-            <OptionSelect
-              value={globalSettings.mapSize}
-              onValueChange={(value) =>
-                updateSetting('mapSize', value as WorldSettings['mapSize'])
-              }
-              options={MAP_SIZE_OPTIONS.map((opt) => ({
-                value: opt.value,
-                label: opt.label
-              }))}
-              ariaLabel="World size"
-              className="w-24" />
-          </div>
-
-          <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
-
-          <div className="flex items-center gap-2">
-            <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
-              Players
-            </span>
-            <OptionSelect
-              value={globalSettings.playerCount.toString()}
-              onValueChange={(value) =>
-                updateSetting('playerCount', parseInt(value, 10))
-              }
-              options={PLAYER_COUNT_OPTIONS.map((count) => ({
-                value: count.toString(),
-                label: count.toString()
-              }))}
-              ariaLabel="Players"
-              className="w-14" />
           </div>
 
           <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
@@ -177,16 +123,26 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               className="w-44 max-w-[34vw]" />
           </div>
 
+          {gameConsole ? (
+            <>
+              <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
+              {gameConsole}
+            </>
+          ) : null}
+
           <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
 
+          {/* Game-setup disclosure: icon-only (the dropdown row IS the
+              label), pinned last in the bar per the Pass-5 spec. */}
           <button
             type="button"
             className={setupButtonClassName}
             aria-expanded={setupOpen}
             aria-controls="app-header-setup-panel"
+            aria-label="Game setup"
+            title="Game setup"
             onClick={() => setSetupOpen((open) => !open)}>
             <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>Setup</span>
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${setupOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
@@ -195,25 +151,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           <div
             id="app-header-setup-panel"
             className={`flex min-h-10 max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 px-3 py-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
-
-            <div className="flex items-center gap-2">
-              <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
-                Resources
-              </span>
-              <OptionSelect
-                value={globalSettings.resources}
-                onValueChange={(value) =>
-                  updateSetting('resources', value as WorldSettings['resources'])
-                }
-                options={RESOURCE_MODE_OPTIONS.map((opt) => ({
-                  value: opt.value,
-                  label: opt.label
-                }))}
-                ariaLabel="Resources"
-                className="w-24" />
-            </div>
-
-            <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
 
             <div className="flex items-center gap-2">
               <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
@@ -269,14 +206,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 className="w-28" />
             </div>
           </div>
-        ) : null}
-
-        {gameConsole ? (
-          // Live-game console docked beneath the world bar (and beneath the
-          // open setup panel): the header zone is the GAME zone, the footer
-          // is the studio zone. Growth here reflows the side panels through
-          // the measured-header mechanism above.
-          <div className="max-w-full">{gameConsole}</div>
         ) : null}
       </div>
 
