@@ -11,6 +11,9 @@ type StartTier = "primary" | "islandCluster" | "marginal";
 type RejectionReason =
   | "water"
   | "lake"
+  | "mountain"
+  | "volcano"
+  | "natural-wonder"
   | "single-tile-island"
   | "insufficient-landmass"
   | "insufficient-expansion"
@@ -332,6 +335,13 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
     const surfaceTemperature = optionalLength(input.surfaceTemperature, size);
     const aridityIndex = optionalLength(input.aridityIndex, size);
     const riverClass = optionalLength(input.riverClass, size);
+    const mountainMask = optionalLength(input.mountainMask, size);
+    const volcanoMask = optionalLength(input.volcanoMask, size);
+    const naturalWonderPlots = new Set<number>();
+    for (const raw of input.naturalWonderPlotIndices ?? []) {
+      const plotIndex = raw | 0;
+      if (plotIndex >= 0 && plotIndex < size) naturalWonderPlots.add(plotIndex);
+    }
     const resourceSupport =
       optionalLength(input.resourceSupport, size) ??
       buildResourceSupport({
@@ -365,6 +375,21 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
       }
       if ((lakeMask?.[plotIndex] ?? 0) === 1) {
         addRejection(rejectionCounts, "lake");
+        tierByTile[plotIndex] = 1;
+        continue;
+      }
+      if ((mountainMask?.[plotIndex] ?? 0) === 1) {
+        addRejection(rejectionCounts, "mountain");
+        tierByTile[plotIndex] = 1;
+        continue;
+      }
+      if ((volcanoMask?.[plotIndex] ?? 0) === 1) {
+        addRejection(rejectionCounts, "volcano");
+        tierByTile[plotIndex] = 1;
+        continue;
+      }
+      if (naturalWonderPlots.has(plotIndex)) {
+        addRejection(rejectionCounts, "natural-wonder");
         tierByTile[plotIndex] = 1;
         continue;
       }

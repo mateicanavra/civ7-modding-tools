@@ -19,9 +19,12 @@ export default createStep(AssignStartsStepContract, {
     const placementInputs = deps.artifacts.placementInputs.read(context);
     deps.artifacts.placementSurfacePreparation.read(context);
     const resourcePlacement = deps.artifacts.resourcePlacementOutcomes.read(context);
+    const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const topography = deps.artifacts.topography.read(context);
     const landmasses = deps.artifacts.landmasses.read(context);
+    const mountains = deps.artifacts.mountains.read(context);
+    const volcanoes = deps.artifacts.volcanoes.read(context);
     const coastlineMetrics = deps.artifacts.coastlineMetrics.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
@@ -31,6 +34,11 @@ export default createStep(AssignStartsStepContract, {
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const { width, height } = context.dimensions;
     const startsConfig = cloneStartsConfig(config.starts);
+    const naturalWonderPlotIndices = collectNaturalWonderPlotIndices(
+      naturalWonderPlacement.coordinateRows
+    );
+    const mountainMask = mountains.mountainMask as Uint8Array;
+    const volcanoMask = volcanoes.volcanoMask as Uint8Array;
     const starts = _ops.starts(
       {
         baseStarts: {
@@ -56,6 +64,9 @@ export default createStep(AssignStartsStepContract, {
         aridityIndex: biomeClassification.aridityIndex as Float32Array,
         riverClass: hydrography.riverClass as Uint8Array,
         lakeMask: lakePlan.lakeMask as Uint8Array,
+        mountainMask,
+        volcanoMask,
+        naturalWonderPlotIndices,
         placedResourcePlotIndices: resourcePlacement.outcomes
           .filter((outcome) => outcome.status === "placed")
           .map((outcome) => outcome.plotIndex),
@@ -67,8 +78,14 @@ export default createStep(AssignStartsStepContract, {
       context.trace.event(() => payload);
     };
 
+    const unsettleableMask = buildUnsettleableMask({
+      size: width * height,
+      mountainMask,
+      volcanoMask,
+      naturalWonderPlotIndices,
+    });
     const assignment = runPlacementProductStep("placement.starts", emit, () =>
-      assignStartPositions({ context, starts, slotByTile })
+      assignStartPositions({ context, starts, slotByTile, unsettleableMask })
     );
     emitStartViabilityViz(context, starts);
     emitStartSectorViz(context, slotByTile, starts);
@@ -76,6 +93,51 @@ export default createStep(AssignStartsStepContract, {
     deps.artifacts.startAssignment.publish(context, assignment);
   },
 });
+
+/**
+ * Collects every plot a placed natural wonder occupies: the planned anchor,
+ * the observed (possibly relocated) anchor, and the expected footprint tiles.
+ */
+function collectNaturalWonderPlotIndices(
+  coordinateRows: ReadonlyArray<{
+    readonly status: "placed" | "rejected";
+    readonly plotIndex: number;
+    readonly observedPlotIndex?: number;
+    readonly expectedFootprintReadback?: ReadonlyArray<{ readonly plotIndex: number }>;
+  }>
+): number[] {
+  const plots = new Set<number>();
+  for (const row of coordinateRows) {
+    if (row.status !== "placed") continue;
+    plots.add(row.plotIndex);
+    if (typeof row.observedPlotIndex === "number") plots.add(row.observedPlotIndex);
+    for (const footprint of row.expectedFootprintReadback ?? []) {
+      plots.add(footprint.plotIndex);
+    }
+  }
+  return Array.from(plots).sort((a, b) => a - b);
+}
+
+/**
+ * Tiles no start may ever occupy (E1.1 hard invariant). The plan-starts op
+ * screens candidates with the same data; this mask also guards the
+ * materializer's desperation fallback, which bypasses planned candidates.
+ */
+function buildUnsettleableMask(args: {
+  size: number;
+  mountainMask: Uint8Array;
+  volcanoMask: Uint8Array;
+  naturalWonderPlotIndices: readonly number[];
+}): Uint8Array {
+  const mask = new Uint8Array(Math.max(0, args.size));
+  for (let i = 0; i < mask.length; i++) {
+    if ((args.mountainMask[i] ?? 0) === 1 || (args.volcanoMask[i] ?? 0) === 1) mask[i] = 1;
+  }
+  for (const plotIndex of args.naturalWonderPlotIndices) {
+    if (plotIndex >= 0 && plotIndex < mask.length) mask[plotIndex] = 1;
+  }
+  return mask;
+}
 
 function cloneStartsConfig(
   envelope: Readonly<{

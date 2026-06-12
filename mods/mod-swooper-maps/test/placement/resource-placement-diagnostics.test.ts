@@ -326,6 +326,7 @@ describe("resource placement diagnostics", () => {
         assignedCount: 159,
         minSpacingTiles: 2,
         spacingBlockedCount: 11,
+        spacingShortfallCount: 0,
         reassignedCount: 120,
         unassignedPreferredCount: 18,
         candidateResourceTypes: Array.from({ length: 55 }, (_, resourceType) => resourceType),

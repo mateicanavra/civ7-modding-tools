@@ -13,10 +13,19 @@ type AssignStartPositionsArgs = {
   context: ExtendedMapContext;
   starts: DeepReadonly<PlanStartsOutput>;
   slotByTile: Uint8Array;
+  /**
+   * Tiles no start may occupy (mountains, volcanoes, natural-wonder plots).
+   * Screens the desperation fallback, which bypasses planned candidates.
+   */
+  unsettleableMask?: Uint8Array;
 };
+
+export type StartAssignmentPath = "regional" | "openPool" | "desperation";
 
 export type StartAssignmentResult = {
   positions: number[];
+  /** Assignment path per seat index, aligned with positions. */
+  seatPaths: StartAssignmentPath[];
   assigned: number;
   regionalAssigned: number;
   openPoolAssigned: number;
@@ -29,6 +38,26 @@ export type StartAssignmentResult = {
   rejectionCounts: Array<PlanStartsOutput["rejectionCounts"][number]>;
   tierCounts: PlanStartsOutput["tierCounts"];
 };
+
+/**
+ * Loud fallback surfacing (E1.7): every openPool/desperation seat is reported
+ * via console.warn (visible on live runs) and a warn-tagged trace event
+ * (visible in verbose/studio traces). Selection behavior is unchanged.
+ */
+function warnStartFallback(
+  context: ExtendedMapContext,
+  payload: { path: Exclude<StartAssignmentPath, "regional">; seats: number; seatIndices: number[] }
+): void {
+  console.warn(
+    `[Placement] Start assignment fell back to ${payload.path} for ${payload.seats} seat(s) ` +
+      `(seat indices: ${payload.seatIndices.join(", ")}); regional viability guarantees were relaxed for those seats.`
+  );
+  context.trace?.event(() => ({
+    type: "placement.starts.fallback",
+    level: "warn",
+    ...payload,
+  }));
+}
 
 const GROUP_GAMEPLAY = "Gameplay / Placement";
 const START_POSITION_COLORS: Array<[number, number, number, number]> = [
@@ -65,6 +94,7 @@ export function assignStartPositions({
   context,
   starts,
   slotByTile,
+  unsettleableMask,
 }: AssignStartPositionsArgs): StartAssignmentResult {
   const { adapter } = context;
   const { width, height } = context.dimensions;
@@ -80,6 +110,7 @@ export function assignStartPositions({
   if (totalPlayers <= 0) {
     return {
       positions: new Array<number>(Math.max(0, totalPlayers)).fill(-1),
+      seatPaths: [],
       assigned: 0,
       regionalAssigned: 0,
       openPoolAssigned: 0,
@@ -101,6 +132,7 @@ export function assignStartPositions({
 
   const used = new Uint8Array(width * height);
   const positions = new Array<number>(totalPlayers).fill(-1);
+  const seatPaths = new Array<StartAssignmentPath>(totalPlayers).fill("regional");
   const selectedGlobal: StartCandidate[] = [];
   const candidates = [...starts.candidates].sort(compareCandidates);
 
@@ -174,22 +206,36 @@ export function assignStartPositions({
       minSpacingTiles
     );
     let writeIndex = 0;
+    const openPoolSeatIndices: number[] = [];
     for (let i = 0; i < positions.length && writeIndex < openPoolSelection.length; i++) {
       if (positions[i] >= 0) continue;
       const candidate = openPoolSelection[writeIndex++];
       if (!candidate) continue;
       positions[i] = candidate.plotIndex;
+      seatPaths[i] = "openPool";
+      openPoolSeatIndices.push(i);
       adapter.setStartPosition(candidate.plotIndex, i);
       selectedGlobal.push(candidate);
       tierAssignments[candidate.tier] += 1;
       assigned++;
       openPoolAssigned++;
     }
+    if (openPoolAssigned > 0) {
+      warnStartFallback(context, {
+        path: "openPool",
+        seats: openPoolAssigned,
+        seatIndices: openPoolSeatIndices,
+      });
+    }
   }
 
   let desperationAssigned = 0;
   if (assigned < totalPlayers) {
-    const desperateCandidates = collectDesperationCandidates(slotByTile, candidates);
+    const desperateCandidates = collectDesperationCandidates(
+      slotByTile,
+      candidates,
+      unsettleableMask
+    );
     const remaining = totalPlayers - assigned;
     const desperateSelection = chooseDesperationTiles(
       desperateCandidates,
@@ -199,15 +245,25 @@ export function assignStartPositions({
       selectedGlobal
     );
     let writeIndex = 0;
+    const desperationSeatIndices: number[] = [];
     for (let i = 0; i < positions.length && writeIndex < desperateSelection.length; i++) {
       if (positions[i] >= 0) continue;
       const plotIndex = desperateSelection[writeIndex++] ?? -1;
       if (plotIndex < 0) continue;
       positions[i] = plotIndex;
+      seatPaths[i] = "desperation";
+      desperationSeatIndices.push(i);
       adapter.setStartPosition(plotIndex, i);
       used[plotIndex] = 1;
       assigned++;
       desperationAssigned++;
+    }
+    if (desperationAssigned > 0) {
+      warnStartFallback(context, {
+        path: "desperation",
+        seats: desperationAssigned,
+        seatIndices: desperationSeatIndices,
+      });
     }
   }
 
@@ -219,6 +275,7 @@ export function assignStartPositions({
 
   return {
     positions,
+    seatPaths,
     assigned,
     regionalAssigned,
     openPoolAssigned,
@@ -531,12 +588,14 @@ function chooseRankedFromPool(args: {
 
 function collectDesperationCandidates(
   slotByTile: Uint8Array,
-  plannedCandidates: readonly StartCandidate[]
+  plannedCandidates: readonly StartCandidate[],
+  unsettleableMask?: Uint8Array
 ): number[] {
   const planned = new Set(plannedCandidates.map((candidate) => candidate.plotIndex));
   const out: number[] = [];
   for (let i = 0; i < slotByTile.length; i++) {
     if ((slotByTile[i] ?? 0) === 0) continue;
+    if ((unsettleableMask?.[i] ?? 0) === 1) continue;
     if (planned.has(i)) continue;
     out.push(i);
   }

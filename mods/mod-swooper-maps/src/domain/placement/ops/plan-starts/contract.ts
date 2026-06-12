@@ -35,6 +35,9 @@ const StartCandidateTierSchema = Type.Union([
 const StartRejectionReasonSchema = Type.Union([
   Type.Literal("water"),
   Type.Literal("lake"),
+  Type.Literal("mountain"),
+  Type.Literal("volcano"),
+  Type.Literal("natural-wonder"),
   Type.Literal("single-tile-island"),
   Type.Literal("insufficient-landmass"),
   Type.Literal("insufficient-expansion"),
@@ -103,6 +106,22 @@ const PlanStartsContract = defineOp({
     ),
     lakeMask: Type.Optional(
       TypedArraySchemas.u8({ description: "Hydrology lake mask per tile." })
+    ),
+    mountainMask: Type.Optional(
+      TypedArraySchemas.u8({
+        description: "Morphology mountain terrain mask per tile (1=mountain); excludes candidates.",
+      })
+    ),
+    volcanoMask: Type.Optional(
+      TypedArraySchemas.u8({
+        description: "Morphology volcano vent mask per tile (1=volcano); excludes candidates.",
+      })
+    ),
+    naturalWonderPlotIndices: Type.Optional(
+      Type.Array(Type.Integer({ minimum: 0 }), {
+        description:
+          "Plot indices occupied by placed natural wonders (anchor, observed, and footprint tiles); excluded from start candidacy.",
+      })
     ),
     resourceSupport: Type.Optional(
       TypedArraySchemas.u8({

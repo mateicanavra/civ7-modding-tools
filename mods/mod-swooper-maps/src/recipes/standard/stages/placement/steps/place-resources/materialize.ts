@@ -62,7 +62,7 @@ type PlaceResourcesWithTypedOutcomesArgs = {
   height: number;
   resources: DeepReadonly<PlanResourcesOutput>;
 };
-type ResourceAssignmentPhase = "scarce-floor" | "strict-spacing" | "relaxed-spacing";
+type ResourceAssignmentPhase = "scarce-floor" | "strict-spacing";
 type ResourceAssignment = {
   plotIndex: number;
   resourceType: number;
@@ -191,31 +191,6 @@ function buildPreferredResourceByPlot(
   return byPlot;
 }
 
-function chooseLeastUsedLegalResource(args: {
-  adapter: ExtendedMapContext["adapter"];
-  width: number;
-  height: number;
-  plotIndex: number;
-  candidateResourceTypes: readonly number[];
-  perTypeCounts: ReadonlyMap<number, number>;
-}): number | null {
-  let bestType: number | null = null;
-  let bestCount = Number.POSITIVE_INFINITY;
-  for (const resourceType of args.candidateResourceTypes) {
-    if (
-      !isLegalResourceTile(args.adapter, args.width, args.height, args.plotIndex, resourceType)
-    ) {
-      continue;
-    }
-    const count = args.perTypeCounts.get(resourceType) ?? 0;
-    if (count < bestCount || (count === bestCount && (bestType === null || resourceType < bestType))) {
-      bestType = resourceType;
-      bestCount = count;
-    }
-  }
-  return bestType;
-}
-
 function isFarEnoughFromAssignments(args: {
   plotIndex: number;
   assignments: readonly ResourceAssignment[];
@@ -264,34 +239,6 @@ function findLeastUsedLegalPlot(args: {
       continue;
     }
     return { plotIndex: candidatePlot, spacingBlockedCount };
-  }
-  return { plotIndex: null, spacingBlockedCount };
-}
-
-function findLegalPlotWithRelaxedSpacing(args: {
-  adapter: ExtendedMapContext["adapter"];
-  width: number;
-  height: number;
-  plotOrder: readonly number[];
-  resourceType: number;
-  usedPlots: ReadonlySet<number>;
-  assignments: readonly ResourceAssignment[];
-  minSpacingTiles: number;
-}): { plotIndex: number | null; spacingBlockedCount: number } {
-  let spacingBlockedCount = 0;
-  const maxSpacing = Math.max(0, Math.trunc(args.minSpacingTiles));
-  for (let spacing = maxSpacing; spacing >= 0; spacing--) {
-    const result = findLeastUsedLegalPlot({
-      ...args,
-      minSpacingTiles: spacing,
-    });
-    spacingBlockedCount += result.spacingBlockedCount;
-    if (result.plotIndex !== null) {
-      return {
-        plotIndex: result.plotIndex,
-        spacingBlockedCount,
-      };
-    }
   }
   return { plotIndex: null, spacingBlockedCount };
 }
@@ -521,42 +468,10 @@ function assignResourceIntents(args: {
     if (!progressed) break;
   }
 
-  const relaxedExhaustedResourceTypes = new Set<number>();
-  while (assignments.length < targetCount) {
-    const assignableResourceTypes = args.candidateResourceTypes
-      .filter((resourceType) => !relaxedExhaustedResourceTypes.has(resourceType))
-      .sort((a, b) => {
-        const countDelta = (perTypeCounts.get(a) ?? 0) - (perTypeCounts.get(b) ?? 0);
-        if (countDelta !== 0) return countDelta;
-        const legalDelta = (legalPlotCounts.get(a) ?? 0) - (legalPlotCounts.get(b) ?? 0);
-        return legalDelta !== 0 ? legalDelta : a - b;
-      });
-    if (assignableResourceTypes.length === 0) break;
-
-    let progressed = false;
-    for (const resourceType of assignableResourceTypes) {
-      if (assignments.length >= targetCount) break;
-      const result = findLegalPlotWithRelaxedSpacing({
-        adapter: args.adapter,
-        width: args.width,
-        height: args.height,
-        plotOrder,
-        resourceType,
-        usedPlots,
-        assignments,
-        minSpacingTiles,
-      });
-      spacingBlockedCount += result.spacingBlockedCount;
-      const plotIndex = result.plotIndex;
-      if (plotIndex === null) {
-        relaxedExhaustedResourceTypes.add(resourceType);
-        continue;
-      }
-      addAssignment(plotIndex, resourceType, "relaxed-spacing");
-      progressed = true;
-    }
-    if (!progressed) break;
-  }
+  // Spacing-preserving fallback (RDP step 2 / S1d): when no plot satisfies the
+  // authored spacing floor, the remaining target count is recorded as a typed
+  // shortfall instead of decaying spacing toward 0 and forcing placement.
+  const spacingShortfallCount = Math.max(0, targetCount - assignments.length);
 
   rebalanceAssignmentResourceTypes({
     adapter: args.adapter,
@@ -581,6 +496,7 @@ function assignResourceIntents(args: {
       legalPlotCounts,
       minSpacingTiles,
       spacingBlockedCount,
+      spacingShortfallCount,
     }),
   };
 }
@@ -598,6 +514,7 @@ function summarizeResourceAssignments(args: {
   legalPlotCounts: ReadonlyMap<number, number>;
   minSpacingTiles: number;
   spacingBlockedCount: number;
+  spacingShortfallCount: number;
 }): ResourceAssignmentSummary {
   const byResource = new Map<
     number,
@@ -669,6 +586,7 @@ function summarizeResourceAssignments(args: {
     assignedCount: args.assignments.length,
     minSpacingTiles: args.minSpacingTiles,
     spacingBlockedCount: args.spacingBlockedCount,
+    spacingShortfallCount: args.spacingShortfallCount,
     reassignedCount,
     unassignedPreferredCount,
     candidateResourceTypes: [...args.candidateResourceTypes],
@@ -867,6 +785,9 @@ export function buildResourcePlacementRuntimeTelemetry(
             assignedCount: assignment.assignedCount,
             minSpacingTiles: assignment.minSpacingTiles,
             spacingBlockedCount: assignment.spacingBlockedCount,
+            ...(assignment.spacingShortfallCount > 0
+              ? { spacingShortfallCount: assignment.spacingShortfallCount }
+              : {}),
             reassignedCount: assignment.reassignedCount,
             unassignedPreferredCount: assignment.unassignedPreferredCount,
             legalCandidateResourceTypeCount: assignment.legalCandidateResourceTypes.length,

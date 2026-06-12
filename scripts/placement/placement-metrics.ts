@@ -16,8 +16,12 @@
  *   --seeds N         number of seeds to run (default 1)
  *   --size S          named Civ7 size preset or explicit WxH (default standard = 84x54)
  *   --players N       intended total player count (default 8, split across hemispheres)
- *   --studio-mapinfo  reproduce the studio worker mapInfo defect:
- *                     PlayersLandmass1 = PlayersLandmass2 = players (E1.2 doubling probe)
+ *   --studio-mapinfo  reproduce the studio worker mapInfo mapping
+ *                     (apps/mapgen-studio/src/browser-runner/pipeline.worker.ts).
+ *                     Since S1 the worker splits playerCount ceil/floor across
+ *                     PlayersLandmass1/2 (per-hemisphere semantics), so this
+ *                     probe asserts seated == players; before S1 it duplicated
+ *                     the total into both slots (E1.2 doubling).
  *   --json PATH       write { runs, aggregate } JSON to PATH
  *
  * Stdout is the aggregate JSON; per-run progress goes to stderr.
@@ -61,8 +65,12 @@ function main(): void {
   const players = Math.max(1, parseIntFlag(flags.players, 8));
   const studioMapInfo = flags["studio-mapinfo"] === true;
 
-  const playersLandmass1 = studioMapInfo ? players : Math.ceil(players / 2);
-  const playersLandmass2 = studioMapInfo ? players : Math.floor(players / 2);
+  // The studio worker now maps its single playerCount to per-hemisphere
+  // counts with the same ceil/floor split (S1 E1.2 fix), so --studio-mapinfo
+  // and the baseline split produce the same mapInfo; the flag is kept as a
+  // labeled probe of the worker mapping.
+  const playersLandmass1 = Math.ceil(players / 2);
+  const playersLandmass2 = Math.floor(players / 2);
 
   const runs: PlacementMetricsRun[] = [];
   for (let i = 0; i < seedCount; i++) {
