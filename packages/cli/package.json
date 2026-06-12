@@ -83,8 +83,14 @@
       "game:local-data": {
         "description": "Inspect local Civ7 SQLite, save, and log evidence"
       },
+      "game:map": {
+        "description": "Read current world, plot, grid, start, and visibility map state"
+      },
       "game:play": {
         "description": "Turn-by-turn live-play shortcuts over direct-control"
+      },
+      "game:play:screen": {
+        "description": "Inspect and dismiss App UI display-queue screens (cinematic moments)"
       },
       "mod": {
         "description": "Manage Civilization VII mods"
