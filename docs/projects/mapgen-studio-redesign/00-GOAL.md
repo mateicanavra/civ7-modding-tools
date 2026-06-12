@@ -282,3 +282,38 @@ px-3 ⇒ 12px; footer centering measured 860==860 @1720px; debug filter
 exercised live 2→3→2). Gates green at tip: tsc, build + worker-bundle,
 146 tests, five strict OpenSpec validations. Stack remains UNSUBMITTED per
 the standing rule.
+
+## Pass-4 design fixes (2026-06-11, late) — COMPLETE
+
+User-grounded wave four (`pass-4-design-fixes.md`): game-console placement
+deliberation, console icon set, and the config-collapse feature. New standing
+meta-rule recorded (and saved to agent memory): user callouts are categorical
+by default — sweep the class, not the instance. OpenSpec slices stacked on
+`design/explore-toolbar-groups`:
+
+- [x] **E1** `mapgen-studio-game-console-dock` — `design/game-console-dock`
+  (deliberated merge-vs-colocate; chose colocation: AppHeader `gameConsole`
+  slot renders the console centered beneath the world bar — vertical zoning
+  top = game, bottom = studio; footer reduced to the centered Studio console;
+  shared operation gating preserved; game-console tests moved to the
+  component that owns the markup)
+- [x] **E2** `mapgen-studio-game-console-icons` — `design/game-console-icons`
+  (autoplay `FastForward`/`Square`/spinner, Run in Game
+  `SquareArrowOutUpRight` — icon-only with the dynamic action labels leading
+  aria-label/title/Tooltip; new disabled `Binoculars` Explore placeholder so
+  the three-command set reads together)
+- [x] **E3** `mapgen-studio-config-collapse` — `design/config-collapse`
+  (per-object header anatomy with trailing action zone — future home of
+  object-local Reset/Show-JSON; collapsed-by-default with manual expand,
+  focused stage root defaults expanded; pointer-keyed state survives mode
+  switches — verified live; sticky auto-expand-on-scroll toggle default OFF,
+  DOM-driven engine with scroll anchoring, cascade verified live through
+  nested groups. Found + documented: rjsf `deepEquals` treats functions as
+  always-equal, so collapse state must cross formContext as Set DATA, not
+  closures)
+
+**Pass-4 closure (2026-06-11):** all three slices implemented + visually
+verified on :5173 (dark + light; focused/unfocused collapse, persistence,
+and the sticky chain walk exercised live). Gates green at tip: tsc, build +
+worker-bundle, 162 tests, three strict OpenSpec validations. Stack remains
+UNSUBMITTED per the standing rule.

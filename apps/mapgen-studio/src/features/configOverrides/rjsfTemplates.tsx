@@ -1,10 +1,30 @@
 import type { ArrayFieldTemplateProps, FieldTemplateProps, ObjectFieldTemplateProps, RJSFSchema } from "@rjsf/utils";
 import type { ReactNode } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { FieldRow } from "../../ui/components/fields";
 import { pathToPointer } from "./schemaPresentation";
 
+/**
+ * Collapse state for the form's config objects (Pass-4 config-collapse
+ * spec), keyed by JSON pointer. Provided by `useConfigCollapse` via the
+ * RecipePanel; when ABSENT the templates render today's always-expanded
+ * markup with no chevrons (template unit mounts, bare `SchemaForm` reuse).
+ *
+ * The expanded set is exposed as DATA (not an `isExpanded` closure) on
+ * purpose: rjsf's `SchemaField.shouldComponentUpdate` uses `deepEquals`,
+ * which assumes all functions are equivalent — a context whose only change
+ * is a fresh closure identity would never re-render the form. lodash
+ * `isEqual` compares Set contents, so membership changes propagate.
+ */
+export type ConfigCollapseContext = Readonly<{
+  /** Resolved set of expanded pointers (defaults already applied). */
+  expandedPointers: ReadonlySet<string>;
+  toggle(pointer: string): void;
+}>;
+
 export type BrowserConfigFormContext = {
   transparentPaths: ReadonlySet<string>;
+  collapse?: ConfigCollapseContext;
 };
 
 // Token-driven chrome for the rjsf config form — this is a high-traffic live
@@ -76,6 +96,47 @@ function renderGsComments(args: { schema: unknown; className: string }): ReactNo
     <div className={["text-data whitespace-pre-wrap", args.className].filter(Boolean).join(" ")}>
       {comments}
     </div>
+  );
+}
+
+function configContentId(pointer: string): string {
+  return `config-object-content${pointer.replace(/[^A-Za-z0-9_-]+/g, "-")}`;
+}
+
+/**
+ * The per-object header row (Pass-4 config-collapse spec): chevron + title
+ * as ONE disclosure button, plus a trailing zone for object-local actions —
+ * the future home of per-object Reset/Show-JSON; the array template's Add
+ * button rides it already. The `data-config-*` attributes are the sticky
+ * engine's DOM contract (see `useConfigCollapse`).
+ */
+function CollapsibleHeader(args: {
+  pointer: string;
+  title: string;
+  titleClass: string;
+  expanded: boolean;
+  collapse: ConfigCollapseContext;
+  className?: string;
+  actions?: ReactNode;
+}): ReactNode {
+  const { pointer, title, titleClass, expanded, collapse, className, actions } = args;
+  const Chevron = expanded ? ChevronDown : ChevronRight;
+  return (
+    <header
+      className={["flex items-center gap-1", className].filter(Boolean).join(" ")}
+      data-config-header=""
+      data-config-pointer={pointer}>
+      <button
+        type="button"
+        onClick={() => collapse.toggle(pointer)}
+        aria-expanded={expanded}
+        aria-controls={configContentId(pointer)}
+        className="flex flex-1 min-w-0 items-center gap-1.5 text-left cursor-pointer">
+        <Chevron className="w-3 h-3 shrink-0 text-muted-foreground/70" aria-hidden="true" />
+        <span className={`min-w-0 truncate ${titleClass}`}>{title}</span>
+      </button>
+      {actions ? <div className="flex items-center gap-1 shrink-0">{actions}</div> : null}
+    </header>
   );
 }
 
@@ -160,6 +221,11 @@ export function BrowserConfigObjectFieldTemplate(
   const prettyTitle = title ? humanizeSchemaLabel(title) : leafKey ? humanizeSchemaLabel(leafKey) : "Section";
   const isStage = depth === 1;
 
+  // Collapse plumbing (Pass-4): no context ⇒ always expanded, no chevrons.
+  const collapse = props.registry.formContext?.collapse;
+  const pointer = pathToPointer(path);
+  const expanded = collapse ? collapse.expandedPointers.has(pointer) : true;
+
   const content = (
     <div className={`flex flex-col ${FORM.rhythm.siblings}`}>
       {!isStage && description ? (
@@ -171,14 +237,37 @@ export function BrowserConfigObjectFieldTemplate(
 
   if (isStage) {
     return (
-      <section className={`rounded-lg border p-2.5 ${FORM.card}`}>
-        <header className="flex flex-col gap-1">
-          <div className={`text-sm font-semibold ${textClass}`}>{prettyTitle}</div>
-          {renderGsComments({ schema, className: labelClass })}
-          {description ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
-        </header>
-        <div className={`my-1.5 border-t ${FORM.divider}`} />
-        {content}
+      <section
+        className={`rounded-lg border p-2.5 ${FORM.card}`}
+        data-config-section=""
+        data-config-pointer={pointer}>
+        {collapse ? (
+          <CollapsibleHeader
+            pointer={pointer}
+            title={prettyTitle}
+            titleClass={`text-sm font-semibold ${textClass}`}
+            expanded={expanded}
+            collapse={collapse}
+          />
+        ) : (
+          <header className="flex flex-col gap-1">
+            <div className={`text-sm font-semibold ${textClass}`}>{prettyTitle}</div>
+            {renderGsComments({ schema, className: labelClass })}
+            {description ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
+          </header>
+        )}
+        {expanded ? (
+          <div id={collapse ? configContentId(pointer) : undefined}>
+            {collapse ? (
+              <div className="flex flex-col gap-1 pt-1">
+                {renderGsComments({ schema, className: labelClass })}
+                {description ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
+              </div>
+            ) : null}
+            <div className={`my-1.5 border-t ${FORM.divider}`} />
+            {content}
+          </div>
+        ) : null}
       </section>
     );
   }
@@ -188,21 +277,48 @@ export function BrowserConfigObjectFieldTemplate(
   // (surface nesting is capped at card → well; see FORM.well).
   if (depth === 2) {
     return (
-      <section className={`rounded-md border p-2 ${FORM.rhythm.groupPull} ${FORM.well}`}>
-        <header className="pb-1.5">
-          <div className={FORM.groupHeading}>{prettyTitle}</div>
-        </header>
-        {content}
+      <section
+        className={`rounded-md border p-2 ${FORM.rhythm.groupPull} ${FORM.well}`}
+        data-config-section=""
+        data-config-pointer={pointer}>
+        {collapse ? (
+          <CollapsibleHeader
+            pointer={pointer}
+            title={prettyTitle}
+            titleClass={FORM.groupHeading}
+            expanded={expanded}
+            collapse={collapse}
+            className={expanded ? "pb-1.5" : undefined}
+          />
+        ) : (
+          <header className="pb-1.5">
+            <div className={FORM.groupHeading}>{prettyTitle}</div>
+          </header>
+        )}
+        {expanded ? <div id={collapse ? configContentId(pointer) : undefined}>{content}</div> : null}
       </section>
     );
   }
 
   return (
-    <section className={`flex flex-col gap-1 ${FORM.rhythm.groupPull}`}>
-      <header>
-        <div className={FORM.subGroupHeading}>{prettyTitle}</div>
-      </header>
-      {content}
+    <section
+      className={`flex flex-col gap-1 ${FORM.rhythm.groupPull}`}
+      data-config-section=""
+      data-config-pointer={pointer}>
+      {collapse ? (
+        <CollapsibleHeader
+          pointer={pointer}
+          title={prettyTitle}
+          titleClass={FORM.subGroupHeading}
+          expanded={expanded}
+          collapse={collapse}
+        />
+      ) : (
+        <header>
+          <div className={FORM.subGroupHeading}>{prettyTitle}</div>
+        </header>
+      )}
+      {expanded ? <div id={collapse ? configContentId(pointer) : undefined}>{content}</div> : null}
     </section>
   );
 }
@@ -210,43 +326,71 @@ export function BrowserConfigObjectFieldTemplate(
 export function BrowserConfigArrayFieldTemplate(
   props: ArrayFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>
 ){
-  const { title, items, canAdd, onAddClick, disabled, readonly, schema } = props;
+  const { title, items, canAdd, onAddClick, disabled, readonly, schema, fieldPathId } = props;
   const prettyTitle = title ? humanizeSchemaLabel(title) : "Items";
   const allowMutations = !disabled && !readonly;
   const labelClass = FORM.label;
+
+  // Collapse plumbing (Pass-4): arrays ride the same per-object header
+  // anatomy as object groups; the Add button is the first object-local
+  // action living in the header's trailing zone.
+  const collapse = props.registry.formContext?.collapse;
+  const pointer = pathToPointer(fieldPathId.path ?? []);
+  const expanded = collapse ? collapse.expandedPointers.has(pointer) : true;
+
+  const addButton =
+    canAdd && allowMutations ? (
+      <button
+        type="button"
+        className={`px-2 py-1 text-data rounded border ${FORM.button}`}
+        onClick={onAddClick}
+      >
+        Add
+      </button>
+    ) : null;
 
   // Arrays ride the same well tier as object groups (one surface recess);
   // items separate by hairline borders only — a tinted item box would be a
   // third surface tier, which the elevation scheme caps out.
   return (
-    <section className={`rounded-md border p-2 ${FORM.rhythm.groupPull} ${FORM.well}`}>
-      <div className="flex items-center gap-2">
-        <div className={FORM.groupHeading}>{prettyTitle}</div>
-        <div style={{ flex: 1 }} />
-        {canAdd && allowMutations ? (
-          <button
-            type="button"
-            className={`px-2 py-1 text-data rounded border ${FORM.button}`}
-            onClick={onAddClick}
-          >
-            Add
-          </button>
-        ) : null}
-      </div>
-      {renderGsComments({ schema, className: labelClass })}
-      <div className={`my-2 border-t ${FORM.divider}`} />
-      <div className={`flex flex-col ${FORM.rhythm.siblings}`}>
-        {items.map((item, index) => {
-          // RJSF v6 types this as ReactElement[], but some templates/versions
-          // pass an "item" object that wraps the actual element in `.children`.
-          const content = (item as any)?.children ?? (item as any)?.props?.children ?? item;
-          return (
-            <div key={item.key ?? index} className={`rounded border p-2 ${FORM.borderSubtle}`}>
-              {content}
-            </div>
-          );
-        })}
-      </div>
+    <section
+      className={`rounded-md border p-2 ${FORM.rhythm.groupPull} ${FORM.well}`}
+      data-config-section=""
+      data-config-pointer={pointer}>
+      {collapse ? (
+        <CollapsibleHeader
+          pointer={pointer}
+          title={prettyTitle}
+          titleClass={FORM.groupHeading}
+          expanded={expanded}
+          collapse={collapse}
+          actions={addButton}
+        />
+      ) : (
+        <div className="flex items-center gap-2">
+          <div className={FORM.groupHeading}>{prettyTitle}</div>
+          <div style={{ flex: 1 }} />
+          {addButton}
+        </div>
+      )}
+      {expanded ? (
+        <div id={collapse ? configContentId(pointer) : undefined}>
+          {renderGsComments({ schema, className: labelClass })}
+          <div className={`my-2 border-t ${FORM.divider}`} />
+          <div className={`flex flex-col ${FORM.rhythm.siblings}`}>
+            {items.map((item, index) => {
+              // RJSF v6 types this as ReactElement[], but some templates/versions
+              // pass an "item" object that wraps the actual element in `.children`.
+              const content = (item as any)?.children ?? (item as any)?.props?.children ?? item;
+              return (
+                <div key={item.key ?? index} className={`rounded border p-2 ${FORM.borderSubtle}`}>
+                  {content}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

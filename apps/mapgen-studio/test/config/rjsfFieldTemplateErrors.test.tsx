@@ -4,7 +4,10 @@ import type { FieldTemplateProps, RJSFSchema } from "@rjsf/utils";
 
 import type { ObjectFieldTemplateProps } from "@rjsf/utils";
 
+import type { ArrayFieldTemplateProps } from "@rjsf/utils";
+
 import {
+  BrowserConfigArrayFieldTemplate,
   BrowserConfigFieldTemplate,
   BrowserConfigObjectFieldTemplate,
   type BrowserConfigFormContext,
@@ -63,14 +66,17 @@ describe("BrowserConfigFieldTemplate error live regions", () => {
 describe("BrowserConfigObjectFieldTemplate nesting surfaces", () => {
   type ObjectProps = ObjectFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>;
 
-  function renderGroup(path: (string | number)[]): string {
+  function renderGroup(
+    path: (string | number)[],
+    formContext: BrowserConfigFormContext = { transparentPaths: new Set<string>() }
+  ): string {
     const props = {
       title: "Mesh Resolution",
       description: undefined,
       properties: [{ hidden: false, content: <div>field</div>, name: "x" }],
       fieldPathId: { path, id: path.join("_") },
       schema: { type: "object" } as RJSFSchema,
-      registry: { formContext: { transparentPaths: new Set<string>() } },
+      registry: { formContext },
     };
     return renderToStaticMarkup(
       <BrowserConfigObjectFieldTemplate {...(props as unknown as ObjectProps)} />
@@ -88,5 +94,94 @@ describe("BrowserConfigObjectFieldTemplate nesting surfaces", () => {
     const html = renderGroup(["foundation", "meshResolution", "advanced"]);
     expect(html).not.toContain("bg-background/40");
     expect(html).not.toContain("border-l");
+  });
+});
+
+describe("BrowserConfigObjectFieldTemplate collapse (Pass-4 config-collapse spec)", () => {
+  type ObjectProps = ObjectFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>;
+
+  function renderWithCollapse(path: (string | number)[], expandedPointers: string[]): string {
+    const formContext: BrowserConfigFormContext = {
+      transparentPaths: new Set<string>(),
+      collapse: {
+        expandedPointers: new Set(expandedPointers),
+        toggle: () => {},
+      },
+    };
+    const props = {
+      title: "Mesh Resolution",
+      description: undefined,
+      properties: [{ hidden: false, content: <div>field-content-marker</div>, name: "x" }],
+      fieldPathId: { path, id: path.join("_") },
+      schema: { type: "object" } as RJSFSchema,
+      registry: { formContext },
+    };
+    return renderToStaticMarkup(
+      <BrowserConfigObjectFieldTemplate {...(props as unknown as ObjectProps)} />
+    );
+  }
+
+  it("renders a collapsed object as an accessible disclosure header with hidden content", () => {
+    const html = renderWithCollapse(["foundation"], []);
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain('data-config-pointer="/foundation"');
+    expect(html).not.toContain("field-content-marker");
+  });
+
+  it("reveals content when the pointer is expanded", () => {
+    const html = renderWithCollapse(["foundation"], ["/foundation"]);
+    expect(html).toContain('aria-expanded="true"');
+    expect(html).toContain("field-content-marker");
+  });
+
+  it("renders nested groups collapsed independently of the stage", () => {
+    const html = renderWithCollapse(["foundation", "meshResolution"], ["/foundation"]);
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).not.toContain("field-content-marker");
+  });
+
+  it("keeps array actions in the header action zone while collapsed", () => {
+    type ArrayProps = ArrayFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>;
+    const html = renderToStaticMarkup(
+      <BrowserConfigArrayFieldTemplate
+        {...({
+          title: "Range Seeds",
+          items: [{ key: "0", children: <div>array-item-marker</div> }],
+          canAdd: true,
+          onAddClick: () => {},
+          disabled: false,
+          readonly: false,
+          schema: { type: "array" } as RJSFSchema,
+          fieldPathId: { path: ["foundation", "rangeSeeds"], id: "foundation_rangeSeeds" },
+          registry: {
+            formContext: {
+              transparentPaths: new Set<string>(),
+              collapse: { expandedPointers: new Set<string>(), toggle: () => {} },
+            },
+          },
+        } as unknown as ArrayProps)}
+      />
+    );
+    // Collapsed: the Add action stays reachable on the header, items hidden.
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain(">Add<");
+    expect(html).not.toContain("array-item-marker");
+  });
+
+  it("renders no disclosure chrome without a collapse context (unit mounts, bare reuse)", () => {
+    const expandedDefault = renderToStaticMarkup(
+      <BrowserConfigObjectFieldTemplate
+        {...({
+          title: "Mesh Resolution",
+          description: undefined,
+          properties: [{ hidden: false, content: <div>field-content-marker</div>, name: "x" }],
+          fieldPathId: { path: ["foundation"], id: "foundation" },
+          schema: { type: "object" } as RJSFSchema,
+          registry: { formContext: { transparentPaths: new Set<string>() } },
+        } as unknown as ObjectProps)}
+      />
+    );
+    expect(expandedDefault).toContain("field-content-marker");
+    expect(expandedDefault).not.toContain("aria-expanded");
   });
 });
