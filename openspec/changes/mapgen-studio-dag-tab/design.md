@@ -95,3 +95,49 @@ DAG moves over unchanged.
    deletion, gates green, visual verification dark + light.
 3. Ledger/system.md amendments ride slice 2 (decision records are part of
    the change).
+4. `design/dag-orpc-mount` — mount re-home (user-directed; researched via a
+   4-agent workflow before deciding).
+
+## Addendum — the mount re-home decision (slice 4)
+
+The user asked whether vite middleware is really the right place for the
+recipe-dag oRPC mount. Research verdict (repo inspection × oRPC docs ×
+Vite docs × effect-orpc README):
+
+- **Vite IS the right host today** — it is the only dev server, and
+  production is a static Caddy/dist SPA with no server process at all, so
+  dev semantics are the only semantics. oRPC documents no Vite
+  integration; `configureServer` middleware is Vite's canonical mechanism.
+  effect-orpc prescribes no transport (it hands back a plain oRPC router).
+- **But the merged mount's mechanism had a real defect.** Its handler
+  promise was memoized forever (`??=`, never reset), so even app-src edits
+  to the server module were never re-served; and its supposed
+  contract-freshness was void anyway — the recipe contracts resolve to
+  BUILT dist via package exports (no source aliases) and
+  `server.watch.ignored` excludes all dist.
+- **A static config import is NOT available as the fix** (first attempt,
+  corrected): the router layer imports `effect-orpc`, whose package entry
+  is TypeScript SOURCE — Node cannot type-strip under node_modules, so a
+  static import breaks config evaluation (`vite build` fails; the dev
+  server's restart-on-config-change fails and silently keeps serving the
+  OLD config — which is also why the first smoke test lied).
+  `@civ7/studio-server` tolerates static import only because tsup bundles
+  effect-orpc into its dist.
+- **Resolution:** the canonical artifact is now the FETCH-adapter handler
+  (`createStudioRecipeDagRpcHandler`, mirroring `@civ7/studio-server`'s
+  A4-lite shape — drops verbatim onto Bun at the P5b cutover, per oRPC's
+  own Bun guidance), behind a thin Connect shim. The mount keeps
+  `ssrLoadModule` (the only loader that compiles effect-orpc's TS under
+  Node) but calls it PER REQUEST — Vite's documented SSR pattern: cheap
+  cache hits when unchanged, fresh code on the next request after an edit
+  (fixing the memoize-stale defect) — behind a path pre-check so the SSR
+  loader never runs for unrelated requests. The node⇄web bridge moved out
+  of vite.config into `src/server/http/nodeWebBridge.ts`, shared by the
+  `/rpc` and recipe-dag mounts. Path contract `/api/recipe-dag/rpc`
+  unchanged (handoff §1).
+- **Not done, deliberately:** folding the router into `@civ7/studio-server`
+  — its dependency graph is deliberately mod-agnostic (the recipe-dag
+  service imports mod-swooper-maps), and its contracts are zod where
+  recipe-dag's are TypeBox. The documented-legitimate shape is the sibling
+  handler at its own prefix; full composition is a P5b-era question with
+  the service host-injected via context if ever wanted.
