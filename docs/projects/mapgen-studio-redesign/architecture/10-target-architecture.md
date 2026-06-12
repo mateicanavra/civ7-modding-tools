@@ -18,9 +18,26 @@
 
 ## 1. Server: `@civ7/studio-server` (new workspace package)
 
-Replaces the 16 hand-rolled `/api/*` handlers in `vite.config.ts` (~L379-1147).
-Contract-first so the client gets types before the impl exists; OpenAPI/RPC
-handler mounted at `/api` so legacy paths keep working through cutover.
+> **RE-BASELINE (2026-06-08, control seam) — designed-toward stack-top, not yet on
+> `main`.** This section covers the **studio-server** surface only: map authoring,
+> save/deploy, run-in-game, setup catalog/saved-configs. The **live-game read
+> surface** (FireTuner reads in [`audit/05`](../audit/05-server-contracts.md) #1–#7,
+> #10) is **NOT** re-implemented here — it is **superseded by the control-oRPC
+> seam**. The studio consumes live reads (`world.*`, `readiness.*`, `attention.*`)
+> from `@civ7/control-orpc` + the `Civ7IntelligenceBridge` ingress through a thin
+> `LiveControlPort`, per [`architecture/12-control-seam.md`](12-control-seam.md).
+> That package is **absent from `main`** (empty placeholder on our branch) and lives
+> at the **tip of the live-control `codex/*` stack** (observed leaf
+> `codex/live-control-hotseat-source-route-adoption`, commit `7ea1cbd5`). The
+> studio-server therefore owns authoring/deploy/run-in-game and **mounts
+> `/api/control` as a thin forward to the bridge host** — it does not own live
+> reads. **No FireTuner reads from the studio.** Re-verify the tip before binding.
+
+Replaces the hand-rolled **authoring / deploy / run-in-game** `/api/*` handlers in
+`vite.config.ts` (~L379-1147). Contract-first so the client gets types before the
+impl exists; OpenAPI/RPC handler mounted at `/api` so legacy paths keep working
+through cutover. The FireTuner read handlers (#1–#7, #10) are **not** ported here;
+they bind through the control seam (§ above + doc 12).
 
 ```
 packages/studio-server/
