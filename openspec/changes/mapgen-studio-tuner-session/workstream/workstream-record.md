@@ -53,4 +53,31 @@
 
 ## Evidence
 
-- (per phase, appended as slices close)
+- Phase 1 (`design/tuner-session-frame`, de06d0e4a): docs committed;
+  `--strict` valid. Research wave first: effect 3.21.3 + effect-orpc +
+  oRPC source verification (ManagedRuntime dispose runs Layer.scoped
+  finalizers; effect-orpc has no per-request scope; no core circuit
+  breaker), full consumer map of every session creation point, /typescript
+  pattern sweep (ports/adapters, strangler fig, proportionality → no
+  RcRef/pool: the session self-heals).
+- Phase 2 (`design/tuner-session-seam`, abec11ab7): options.session seam +
+  graceful FIN close + stats; 389/389 package tests (incl. 5 new pins);
+  package tsc + build.
+- Phase 3 (`design/tuner-effect-session`, 644d1e9db): `Civ7TunerSession`
+  (Context.Tag + Layer.scoped, parameterized), gate, client convergence,
+  handler `tuner.*` + `dispose()`; effect deduped to 3.21.3; studio 204
+  tests incl. 3 new pins (one shared connection + FIN on dispose; gate
+  fail-fast → half-open → reset; wedge-suspicion health).
+- Phase 4 (`design/tuner-daemon-wiring`): control mount session injection;
+  healthz tuner block; SIGINT/SIGTERM dispose. **Live soak found a real
+  bug the units missed**: 13 stable ESTABLISHED tuner connections — the
+  page-load burst raced `connect()` (only sequentially idempotent); fixed
+  with in-flight connect dedup in the session class + concurrent-burst
+  pin (390 package tests). Post-fix live evidence (fresh processes, Civ7
+  in shell): healthz `tuner: { consecutiveResponseTimeouts: 0,
+  gateOpenUntil: null, wedgeSuspected: false }`; readiness 200 with the
+  `shell` chip live in the Game bar; **exactly 1 established connection on
+  :4318 across 30s+ of app polling, zero CLOSED-state fds**; after daemon
+  stop the game holds ONLY its listener (descriptor fully released —
+  the wedge signature's exact inverse). Gates: tsc, studio 204, mod 471,
+  build + worker bundle, `--strict` valid.

@@ -122,7 +122,9 @@ export interface StudioDaemonDeps {
   };
   controlRpc: { handle(request: Request): Promise<{ matched: boolean; response?: Response }> };
   recipeDagRpc: { handle(request: Request): Promise<{ matched: boolean; response?: Response }> };
-  health(): { ok: boolean } & Record<string, unknown>;
+  health():
+    | ({ ok: boolean } & Record<string, unknown>)
+    | Promise<{ ok: boolean } & Record<string, unknown>>;
   assetsRoot?: string;
 }
 
@@ -135,7 +137,7 @@ export function createStudioDaemonFetch(
     const pathname = url.pathname;
 
     if (pathname === "/healthz") {
-      const health = deps.health();
+      const health = await deps.health();
       return Response.json(health, { status: health.ok ? 200 : 503 });
     }
 
@@ -170,20 +172,29 @@ export function createStudioDaemonFetch(
   };
 }
 
-export function createStudioDaemon(args: StudioDaemonArgs) {
+export async function createStudioDaemon(args: StudioDaemonArgs) {
   const engines = createStudioEngines({ repoRoot: args.repoRoot });
   const context = createStudioServerContext({ engines, hostCommand: "daemon" });
+  const studioRpc = createStudioRpcHandler(context);
+  // The ONE shared tuner connection (Effect-scoped in the studio runtime;
+  // resolving it builds the runtime layer). The control mount reuses it via
+  // endpointDefaults — every polling read multiplexes over this socket
+  // instead of opening its own (the churn that wedged the game).
+  const tunerSession = await studioRpc.tuner.session();
   const deps: StudioDaemonDeps = {
-    studioRpc: createStudioRpcHandler(context),
-    controlRpc: createStudioCiv7ControlRpcHandler(),
+    studioRpc,
+    controlRpc: createStudioCiv7ControlRpcHandler({ session: tunerSession }),
     recipeDagRpc: createStudioRecipeDagRpcHandler(),
-    health: () => ({
+    health: async () => ({
       ok: true,
       serverInstanceId: engines.serverInstanceId,
       startedAt: engines.serverStartedAt,
       repoRoot: args.repoRoot,
       assetsRoot: args.assetsRoot ?? null,
       runtimeMode: "studio-daemon-effect-orpc",
+      // Wedge observability: consecutive response-timeouts on the shared
+      // socket + backoff gate state (tuner-session workstream).
+      tuner: await studioRpc.tuner.health(),
     }),
     ...(args.assetsRoot ? { assetsRoot: args.assetsRoot } : {}),
   };
@@ -191,6 +202,8 @@ export function createStudioDaemon(args: StudioDaemonArgs) {
 
   return {
     engines,
+    /** Closes the studio runtime scope — graceful FIN to the game. */
+    dispose: () => studioRpc.dispose(),
     start() {
       const server = Bun.serve({
         hostname: args.host,
@@ -212,8 +225,23 @@ function defaultRepoRoot(): string {
 
 if ((import.meta as { main?: boolean }).main) {
   const args = parseStudioDaemonArgs(process.argv.slice(2), { repoRoot: defaultRepoRoot() });
-  const daemon = createStudioDaemon(args);
+  const daemon = await createStudioDaemon(args);
   const server = daemon.start();
+  // Shutdown = dispose the runtime scope FIRST (graceful FIN on the shared
+  // tuner socket — the whole point of scoped release), then stop serving.
+  let shuttingDown = false;
+  const shutdown = async () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    try {
+      await daemon.dispose();
+    } finally {
+      server.stop(true);
+      process.exit(0);
+    }
+  };
+  process.once("SIGINT", () => void shutdown());
+  process.once("SIGTERM", () => void shutdown());
   process.stdout.write(
     `mapgen-studio daemon listening on http://${server.hostname}:${server.port} (repoRoot ${args.repoRoot})\n`,
   );

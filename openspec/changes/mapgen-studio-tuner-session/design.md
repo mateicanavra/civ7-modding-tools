@@ -143,6 +143,26 @@ class Civ7TunerSession extends Effect.Service<Civ7TunerSession>()(
 3. Daemon wiring (control facade shares the socket; health; dispose).
 4. Run-in-game convergence: explicitly deferred — out of scope.
 
+## Implementation addenda (as built)
+
+- The service is a `Context.Tag` + `Layer.scoped` pair
+  (`makeCiv7TunerSessionLayer(options)`) rather than the `Effect.Service`
+  `scoped:` sketch above — the layer must be parameterizable (tests inject
+  a fake tuner endpoint + short gate timings); `Civ7TunerSessionLive` is
+  the zero-config production reference that both `Civ7TunerClient`'s
+  dependencies and the runtime merge share (memoized single instance).
+- **Connect race found by the live soak (not the unit tests):** the
+  session's `connect()` was only reuse-idempotent for sequential callers.
+  A page-load burst (~13 concurrent reads through the shared session) made
+  every caller see "no socket", dial its own, and leak all but the last —
+  observed as 13 stable ESTABLISHED connections. Fixed at the root in
+  `@civ7/direct-control`: in-flight connect deduplication (`connecting`
+  promise memo), pinned by a concurrent-burst package test. Post-fix soak:
+  exactly ONE established connection across sustained polling.
+- The workspace `effect` versions were skewed (app + control-orpc pinned
+  3.21.2, studio-server 3.21.3 → mixed-runtime warning when the layers
+  crossed); deduped to 3.21.3 everywhere.
+
 ## Verification
 
 - direct-control tests (package has a fake-tuner-server fixture):
