@@ -1,20 +1,22 @@
 import React from 'react';
-import { Bolt, Clock, Dices, Play } from 'lucide-react';
+import { Bolt, Dices, Globe, History, Play } from 'lucide-react';
 import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui';
-import { MAP_SIZE_SHORT, LAYOUT } from '../constants';
+import { OptionSelect } from './OptionSelect';
+import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS, RESOURCE_MODE_OPTIONS, LAYOUT } from '../constants';
 import { formatResourceMode } from '../utils';
 import type { RecipeSettings, WorldSettings, GenerationStatus } from '../types';
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from '../../features/civ7Setup/seedPolicy';
 
 // ============================================================================
-// APP FOOTER — the studio console (Pass-4 game-console-dock spec)
+// APP FOOTER — the World/Map console (Pass-5 toolbar-architecture-v2 spec)
 // ============================================================================
-// The footer is the STUDIO zone: one centered console carrying studio-runtime
-// status and run controls (status · last run · seed · reroll · auto-run ·
-// Run). Everything that observes or commands live Civ7 lives in `GameConsole`,
-// docked beneath the world bar in the header (top = game, bottom = studio).
-// The footer still receives the game-side in-flight booleans because seed/
-// reroll/run share one operation gate across both zones (behavior parity).
+// The footer is the WORLD/MAP zone: one centered console authoring the map
+// (size · players · resources · seed) and driving the studio iteration loop
+// (status · History · reroll · auto-run · Run). Everything that observes or
+// commands live Civ7 lives in `GameConsole`, composed into the header's Game
+// bar (top = game, bottom = world/map). The footer still receives the
+// game-side in-flight booleans because its authoring/run controls share one
+// operation gate across both zones (behavior parity).
 // ============================================================================
 
 export interface AppFooterProps {
@@ -24,6 +26,10 @@ export interface AppFooterProps {
   lastRunSettings: RecipeSettings;
   /** World settings from the last completed run */
   lastGlobalSettings: WorldSettings;
+  /** Current world settings (size, players, resources) */
+  globalSettings: WorldSettings;
+  /** Callback when world settings change */
+  onGlobalSettingsChange: (settings: WorldSettings) => void;
   /** Current recipe settings (for seed input) */
   currentSettings: RecipeSettings;
   /** Callback when recipe settings change */
@@ -52,6 +58,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   status,
   lastRunSettings,
   lastGlobalSettings,
+  globalSettings,
+  onGlobalSettingsChange,
   currentSettings,
   onSettingsChange,
   onRun,
@@ -104,6 +112,20 @@ export const AppFooter: React.FC<AppFooterProps> = ({
       [key]: value
     });
   };
+  const updateWorldSetting = <K extends keyof WorldSettings,>(
+  key: K,
+  value: WorldSettings[K]) =>
+  {
+    onGlobalSettingsChange({
+      ...globalSettings,
+      [key]: value
+    });
+  };
+  // The History affordance compresses the old inline last-run cluster: the
+  // tooltip presents the run, the accessible name mirrors it (a11y + static
+  // markup parity), and the click keeps the copy-seed behavior the inline
+  // seed button used to carry.
+  const historyLabel = `Run history — last run: seed ${lastRunSettings.seed}, ${displaySize}, ${lastGlobalSettings.playerCount} players, ${displayResources} resources. Click to copy seed.`;
   const handleCopySeed = async () => {
     try {
       await navigator.clipboard.writeText(lastRunSettings.seed);
@@ -126,10 +148,20 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         height: FOOTER_HEIGHT
       }}>
 
-      {/* Studio console — studio-runtime status + run controls, centered. */}
+      {/* World/Map console — map authoring + studio iteration loop, centered. */}
 
       <div
         className={`h-10 shrink-0 inline-flex items-center gap-3 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
+
+        {/* Console identity: the map/world zone, mirroring the Game bar. */}
+        <div className="flex items-center gap-1.5">
+          <Globe className={`w-4 h-4 ${textMuted}`} />
+          <span className={`text-label font-semibold uppercase tracking-wider ${textSecondary}`}>
+            World
+          </span>
+        </div>
+
+        <div className={`w-px h-5 ${dividerColor}`} />
 
         {/* Status indicator */}
         <div className="flex items-center gap-2">
@@ -139,37 +171,88 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           </span>
         </div>
 
+        {/* Run history — the collapsed last-run cluster. */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleCopySeed}
+              aria-label={historyLabel}
+              title={historyLabel}>
+
+              <History className="w-3.5 h-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-label font-medium uppercase tracking-wider opacity-70">
+                Last run
+              </span>
+              <span className="font-mono">{lastRunSettings.seed}</span>
+              <span>
+                {displaySize} · {lastGlobalSettings.playerCount}p · {displayResources}
+              </span>
+              <span className="opacity-70">Click to copy seed</span>
+            </div>
+          </TooltipContent>
+        </Tooltip>
+
         <div className={`w-px h-5 ${dividerColor}`} />
 
-        {/* Last Run label */}
-        <div className="flex items-center gap-1.5">
-          <Clock className={`w-3.5 h-3.5 ${textMuted}`} />
-          <span
-            className={`text-label font-medium uppercase tracking-wider ${textSecondary}`}>
-
-            Last
+        {/* Map settings (Pass-5: no map settings in the top bar) */}
+        <div className="flex items-center gap-2">
+          <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
+            Size
           </span>
+          <OptionSelect
+            value={globalSettings.mapSize}
+            onValueChange={(value) =>
+              updateWorldSetting('mapSize', value as WorldSettings['mapSize'])
+            }
+            options={MAP_SIZE_OPTIONS.map((opt) => ({
+              value: opt.value,
+              label: opt.label
+            }))}
+            ariaLabel="World size"
+            disabled={operationControlsDisabled}
+            className="w-24" />
         </div>
 
-        {/* Last run info */}
-        <div className="flex items-center gap-2 text-data">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={handleCopySeed}
-                className={`font-mono ${textPrimary} hover:text-primary hover:underline transition-colors cursor-pointer`}>
+        <div className="flex items-center gap-2">
+          <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
+            Players
+          </span>
+          <OptionSelect
+            value={globalSettings.playerCount.toString()}
+            onValueChange={(value) =>
+              updateWorldSetting('playerCount', parseInt(value, 10))
+            }
+            options={PLAYER_COUNT_OPTIONS.map((count) => ({
+              value: count.toString(),
+              label: count.toString()
+            }))}
+            ariaLabel="Players"
+            disabled={operationControlsDisabled}
+            className="w-14" />
+        </div>
 
-                {lastRunSettings.seed}
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>Click to copy seed</TooltipContent>
-          </Tooltip>
-          <span className={textMuted}>·</span>
-          <span className={textPrimary}>{displaySize}</span>
-          <span className={textMuted}>·</span>
-          <span className={textPrimary}>{lastGlobalSettings.playerCount}p</span>
-          <span className={textMuted}>·</span>
-          <span className={textPrimary}>{displayResources}</span>
+        <div className="flex items-center gap-2">
+          <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
+            Resources
+          </span>
+          <OptionSelect
+            value={globalSettings.resources}
+            onValueChange={(value) =>
+              updateWorldSetting('resources', value as WorldSettings['resources'])
+            }
+            options={RESOURCE_MODE_OPTIONS.map((opt) => ({
+              value: opt.value,
+              label: opt.label
+            }))}
+            ariaLabel="Resources"
+            disabled={operationControlsDisabled}
+            className="w-24" />
         </div>
 
         <div className={`w-px h-5 ${dividerColor}`} />

@@ -2200,8 +2200,6 @@ export function StudioShell(props: StudioShellProps) {
       onThemeCycle={cyclePreference}
       showGrid={showGrid}
       onShowGridChange={setShowGrid}
-      globalSettings={worldSettings}
-      onGlobalSettingsChange={setWorldSettings}
       setupConfig={setupConfig}
       setupOptions={setupControlOptions}
       onSetupConfigChange={setSetupConfig}
@@ -2328,6 +2326,8 @@ export function StudioShell(props: StudioShellProps) {
       status={status}
       lastRunSettings={lastRunSettings}
       lastGlobalSettings={lastGlobalSettings}
+      globalSettings={worldSettings}
+      onGlobalSettingsChange={setWorldSettings}
       currentSettings={recipeSettings}
       onSettingsChange={setRecipeSettings}
       onRun={triggerRun}
