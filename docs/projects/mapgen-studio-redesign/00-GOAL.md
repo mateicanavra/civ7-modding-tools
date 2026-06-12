@@ -244,3 +244,41 @@ Gates green at tip: tsc, build + worker-bundle, 144 tests, six strict OpenSpec
 validations. Review wave: no P1/P2; two P3s repaired in-stack (scroll-fade padding;
 a foreign `codex/sieve-engine-reference` docs commit `gt move`d out of the stack
 base). Stack remains UNSUBMITTED per the standing rule.
+
+## Pass 3 — spacing substrate + config surface + console split (2026-06-11, evening)
+
+Next user wave: config-panel padding/margins "really bad" (wants a ground-up
+elevation/nesting pass), separate live-game vs studio-only bottom controls,
+inventory + regroup the explore bottom buttons, and a new standing law: **no
+hard-coded config overrides anywhere**. Frame, root-cause diagnosis, and
+designs in [`pass-3-design-fixes.md`](pass-3-design-fixes.md). Five OpenSpec
+slices stacked on `design/theme-class-sync`:
+
+- [x] **D0** `mapgen-studio-spacing-substrate` — `design/spacing-substrate`
+  (ROOT CAUSE: unlayered `* {margin:0;padding:0}` in index.html outranked
+  Tailwind v4's `@layer utilities`, zeroing every spacing utility app-wide;
+  removed. Theme bootstrap now reads `theme-preference` with useTheme's
+  resolution + light pre-paint flash guard)
+- [x] **D4** `mapgen-studio-no-hardcoded-defaults` — `design/no-hardcoded-defaults`
+  (deleted the 330-line hand-maintained default-config duplicate the app never
+  imported; shape tests retargeted at STANDARD_RECIPE_CONFIG, exposing real
+  drift in the ecology stages)
+- [x] **D1** `mapgen-studio-config-surface` — `design/config-surface` (nesting
+  by surface elevation: recessed group wells replace border-l indent ladders,
+  two-surface cap, arrays unified; FORM.rhythm 4/8/12 codified; group headings
+  inverted to the eyebrow tier)
+- [x] **D2** `mapgen-studio-footer-consoles` — `design/footer-consoles`
+  (centered Studio console merges the two studio bars; named modular
+  `GameConsole` right-docked under a Civ7 eyebrow — live chip + sync bridge,
+  autoplay, Run in Game + status/retry/diagnostics, save-deploy chip; exact
+  centering while space allows, yield-not-overlap verified at 1199px)
+- [x] **D3** `mapgen-studio-explore-toolbar-groups` — `design/explore-toolbar-groups`
+  (VIEW vs LAYER clusters by control target; debug toggle relocated to the
+  Data list header it actually filters — verified filtering live)
+
+**Pass-3 closure (2026-06-11):** all five slices implemented + visually
+verified on :5173 (dark + light screenshots; DOM-computed spacing proof
+px-3 ⇒ 12px; footer centering measured 860==860 @1720px; debug filter
+exercised live 2→3→2). Gates green at tip: tsc, build + worker-bundle,
+146 tests, five strict OpenSpec validations. Stack remains UNSUBMITTED per
+the standing rule.
