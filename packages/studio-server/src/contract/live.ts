@@ -1,6 +1,11 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
 
+import {
+  liveEntitiesErrors,
+  liveGameInfoErrors,
+  liveSnapshotErrors,
+} from "./errors.js";
 import { isoTimestamp, unknownRecord } from "./shared.js";
 
 /**
@@ -16,9 +21,9 @@ import { isoTimestamp, unknownRecord } from "./shared.js";
  * PARITY INVARIANT (audit/05 #4, line 29; target-arch §1 invariants): `live.status`
  * returns **200** even on partial failure — each of the four aggregated reads runs
  * under `Promise.allSettled`, and a rejected read is surfaced in-band as
- * `{ error: String(reason) }` for that field. These are NOT transport-layer errors;
- * the errorMap middleware (A3) must leave them as 200-body fields. Only an outer
- * throw yields `500 { ok:false, error }`.
+ * `{ error: String(reason) }` for that field. These are NOT transport-layer errors —
+ * `live.status` therefore declares NO contract error codes (only an outer defect
+ * yields a transport-level 500).
  */
 const fieldOrError = z.union([unknownRecord, z.object({ error: z.string() })]);
 
@@ -56,6 +61,7 @@ export const status = oc
 // Contract input defaults below document the wire defaults; clamping is applied
 // server-side. `fields` is accepted as the raw csv string to preserve parsing parity.
 export const snapshot = oc
+  .errors(liveSnapshotErrors)
   .input(
     z.object({
       x: z.number().int().default(0),
@@ -84,6 +90,7 @@ export const snapshot = oc
 // Error 400: { ok:false, error }. Reads FireTuner (3× Promise.all — any failure
 // → whole 400, NOT allSettled).
 export const entities = oc
+  .errors(liveEntitiesErrors)
   .input(
     z.object({
       playerId: z.number().int().optional(),
@@ -114,6 +121,7 @@ export const entities = oc
 // `civ7.gameInfo` (#3). Refined from `array(gameInfoRow)` to the opaque result
 // record to preserve current `/api` behavior.
 export const gameInfo = oc
+  .errors(liveGameInfoErrors)
   .input(
     z.object({
       tables: z.string().default("Terrains,Biomes,Features,Resources,Maps,MapSizes"),

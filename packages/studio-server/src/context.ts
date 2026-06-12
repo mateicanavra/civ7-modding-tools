@@ -33,8 +33,12 @@ export type SetupCatalog = StudioOutputs["civ7"]["setupCatalog"]["catalog"];
  * stateful engines cross this seam.
  *
  * Each engine fn returns the SAME success shape its `/api` handler wrote, OR
- * throws an `ORPCError` (built via ./errors) carrying the legacy non-uniform
- * status code + body. The package re-throws engine `ORPCError`s unchanged.
+ * throws an `ORPCError` whose code/status/data MATCH the procedure's DECLARED
+ * contract errors (./contract/errors.ts) — `AUTOPLAY_BLOCKED`/`AUTOPLAY_FAILED`,
+ * `RUN_IN_GAME_BLOCKED`/`_INVALID`/`_FAILED`/`_UNAVAILABLE`/`_STATUS_NOT_FOUND`,
+ * `SAVE_DEPLOY_BLOCKED`/`_INVALID`/`_FAILED`/`_STATUS_NOT_FOUND` — so oRPC
+ * validates them into DEFINED typed errors client-side. The package re-throws
+ * engine `ORPCError`s unchanged.
  */
 export interface StudioServerContext {
   /** Process-lifetime singletons surfaced by `studio.serverInfo` + run-in-game 404 echo. */

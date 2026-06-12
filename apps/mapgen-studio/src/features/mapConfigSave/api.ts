@@ -3,12 +3,14 @@
 // EVERYTHING talks oRPC (FRAME §4.7): these callers speak the studio's own
 // `@civ7/studio-server` contract through the typed oRPC client (`src/lib/orpc.ts`)
 // — there is NO manual `fetch` of `/api/map-configs*` here anymore. The request
-// shapes, the running-status poll loop, the error handling, and the localStorage
-// key string are preserved verbatim (localStorage contract is hard-core parity):
-// only the transport moved from `fetch` to the oRPC client. The non-uniform error
-// codes (saveDeploy validation → 400, status miss → 404) survive on
-// `ORPCError.status`.
-import { ORPCError } from "@orpc/client";
+// shapes, the running-status poll loop, and the localStorage key string are
+// preserved verbatim (localStorage contract is hard-core parity). Failures are
+// read through oRPC's NATIVE typed contract errors: `safe(...)` +
+// `isDefinedError(...)` expose the DECLARED code
+// (SAVE_DEPLOY_BLOCKED/INVALID/FAILED/STATUS_NOT_FOUND, statuses pinned in
+// packages/studio-server/src/contract/errors.ts) — the status-miss branch is
+// `code === "SAVE_DEPLOY_STATUS_NOT_FOUND"` instead of a raw 404.
+import { isDefinedError, safe } from "@orpc/client";
 
 import { orpcClient } from "../../lib/orpc";
 import { delay } from "../../shared/async";
@@ -25,23 +27,21 @@ export function toConfigId(label: string): string {
   return id || `map-config-${Date.now()}`;
 }
 
-/** Map a thrown oRPC client error to `{ error, statusCode }` (legacy code via `ORPCError.status`). */
-function saveDeployFailure(err: unknown, fallback: string): { error: string; statusCode?: number } {
-  if (err instanceof ORPCError) {
-    return { error: err.message || `HTTP ${err.status}`, statusCode: err.status };
-  }
-  return { error: err instanceof Error ? err.message : fallback };
-}
-
 export async function fetchMapConfigSaveDeployStatus(
   requestId: string,
-): Promise<MapConfigSaveDeployStatus | { ok: false; error: string; statusCode?: number }> {
-  try {
-    const body = await orpcClient.mapConfigs.status({ requestId });
-    return body as MapConfigSaveDeployStatus;
-  } catch (err) {
-    return { ok: false, ...saveDeployFailure(err, "Save/Deploy status unavailable") };
+): Promise<MapConfigSaveDeployStatus | { ok: false; error: string; code?: string }> {
+  const { error, data } = await safe(orpcClient.mapConfigs.status({ requestId }));
+  if (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof Error && error.message
+          ? error.message
+          : "Save/Deploy status unavailable",
+      ...(isDefinedError(error) ? { code: error.code } : {}),
+    };
   }
+  return data as MapConfigSaveDeployStatus;
 }
 
 export async function saveRepoBackedConfig(args: {
@@ -72,20 +72,27 @@ export async function saveRepoBackedConfig(args: {
     config: args.config,
   };
   try {
-    let status: MapConfigSaveDeployStatus;
-    try {
-      status = (await orpcClient.mapConfigs.saveDeploy({
+    const saveResult = await safe(
+      orpcClient.mapConfigs.saveDeploy({
         requestId: args.requestId,
         id: args.id,
         sourcePath: args.sourcePath,
         envelope,
-      })) as MapConfigSaveDeployStatus;
-    } catch (err) {
+      }),
+    );
+    if (saveResult.error) {
       // Parity: a saveDeploy throw carried `path` in the legacy body when present;
       // the oRPC error data does not, so we surface the failure without a path
       // (the engine only attaches `path` to the in-progress status, polled below).
-      return { ok: false, ...saveDeployFailure(err, "Repo config save failed") };
+      return {
+        ok: false,
+        error:
+          saveResult.error instanceof Error && saveResult.error.message
+            ? saveResult.error.message
+            : "Repo config save failed",
+      };
     }
+    let status: MapConfigSaveDeployStatus = saveResult.data as MapConfigSaveDeployStatus;
     args.onStatus?.(status);
     while (status.status === "running") {
       await delay(500);

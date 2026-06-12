@@ -1,5 +1,5 @@
 import { createServer, type Server } from "node:http";
-import { createORPCClient } from "@orpc/client";
+import { createORPCClient, isDefinedError, safe, ORPCError } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import { afterEach, describe, expect, test } from "vitest";
@@ -52,6 +52,91 @@ describe("studio-server RPC handler", () => {
       deployed: true,
     });
     expect(calls).toEqual(["status:save-1"]);
+  });
+
+  test("delivers an engine 409 as the DEFINED SAVE_DEPLOY_BLOCKED error", async () => {
+    // The host context throws a RAW ORPCError whose code/status/data match the
+    // declared contract entry (contract/errors.ts) — oRPC must validate it into
+    // a defined error client-side (the "combining both approaches" rule).
+    const context = makeContext({
+      mapConfigSaveDeploy: async () => {
+        throw new ORPCError("SAVE_DEPLOY_BLOCKED", {
+          status: 409,
+          message: "Save/Deploy is already running.",
+          data: {
+            details: {
+              code: "save-deploy-operation-active",
+              activeRequestId: "save-0",
+            },
+          },
+        });
+      },
+    });
+    const client = await listenWithClient(context);
+
+    const { error } = await safe(
+      client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} }),
+    );
+
+    expect(error).toBeInstanceOf(ORPCError);
+    if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
+    expect(isDefinedError(error)).toBe(true);
+    expect(error.code).toBe("SAVE_DEPLOY_BLOCKED");
+    expect(error.status).toBe(409);
+    expect(error.message).toBe("Save/Deploy is already running.");
+    expect(error.data).toEqual({
+      details: {
+        code: "save-deploy-operation-active",
+        activeRequestId: "save-0",
+      },
+    });
+  });
+
+  test("delivers a run-in-game status miss as RUN_IN_GAME_STATUS_NOT_FOUND with the server-identity echo", async () => {
+    const context = makeContext({
+      runInGameStatus: async () => {
+        throw new ORPCError("RUN_IN_GAME_STATUS_NOT_FOUND", {
+          status: 404,
+          message: "Run in Game request not found: run-1",
+          data: {
+            serverInstanceId: "studio-server-test",
+            serverStartedAt: "2026-06-10T00:00:00.000Z",
+          },
+        });
+      },
+    });
+    const client = await listenWithClient(context);
+
+    const { error } = await safe(client.runInGame.status({ requestId: "run-1" }));
+
+    expect(error).toBeInstanceOf(ORPCError);
+    if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
+    expect(isDefinedError(error)).toBe(true);
+    expect(error.code).toBe("RUN_IN_GAME_STATUS_NOT_FOUND");
+    expect(error.status).toBe(404);
+    // PARITY INVARIANT: the 404 echoes the server identity for restart detection.
+    expect(error.data).toEqual({
+      serverInstanceId: "studio-server-test",
+      serverStartedAt: "2026-06-10T00:00:00.000Z",
+    });
+  });
+
+  test("wraps an unmapped engine throw as the namespace FAILED defined error", async () => {
+    const context = makeContext({
+      runInGameStart: async () => {
+        throw new Error("engine exploded");
+      },
+    });
+    const client = await listenWithClient(context);
+
+    const { error } = await safe(client.runInGame.start({ recipeId: "mod-swooper-maps/standard" }));
+
+    expect(error).toBeInstanceOf(ORPCError);
+    if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
+    expect(isDefinedError(error)).toBe(true);
+    expect(error.code).toBe("RUN_IN_GAME_FAILED");
+    expect(error.status).toBe(500);
+    expect(error.message).toBe("engine exploded");
   });
 
   test("passes non-rpc paths through for host fallback middleware", async () => {

@@ -1454,7 +1454,7 @@ export function StudioShell(props: StudioShellProps) {
           recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
           details: {
             failureClass: "uncertain",
-            code: result.statusCode === 404 ? "operation-status-missing" : "operation-status-unavailable",
+            code: result.code === "RUN_IN_GAME_STATUS_NOT_FOUND" ? "operation-status-missing" : "operation-status-unavailable",
             phase: "uncertain",
             completedPhases: prev.completedPhases,
           },
@@ -1477,7 +1477,7 @@ export function StudioShell(props: StudioShellProps) {
           phase: "failed",
           error: result.error,
           details: {
-            code: result.statusCode === 404 ? "operation-status-missing" : "operation-status-unavailable",
+            code: result.code === "SAVE_DEPLOY_STATUS_NOT_FOUND" ? "operation-status-missing" : "operation-status-unavailable",
           },
         });
       });

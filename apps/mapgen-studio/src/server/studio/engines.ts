@@ -62,8 +62,10 @@ import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
 //   - `RunInGameHttpError` (carries statusCode + details) — preserves the
 //     non-uniform legacy status codes (409 mutex, run-in-game/save-deploy 404).
 //   - a plain `Error` — validation/save failures (mapped to 400 by the caller).
-// The oRPC context adapts return/throw → value/ORPCError (./context.ts,
-// `orpcError` mapping), keeping those statuses across the oRPC boundary.
+// The oRPC context adapts return/throw → value/ORPCError (./context.ts), mapping
+// each status onto the contract's DECLARED error codes (409→*_BLOCKED,
+// 400→*_INVALID, 404→*_STATUS_NOT_FOUND, 503→*_UNAVAILABLE, else *_FAILED) so
+// those statuses survive the oRPC boundary as defined typed errors.
 // ============================================================================
 
 const execFileAsync = promisify(execFile);

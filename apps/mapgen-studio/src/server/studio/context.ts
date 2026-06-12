@@ -1,35 +1,85 @@
-import {
-  orpcError,
-  type StudioServerContext,
-} from "@civ7/studio-server";
+import { ORPCError } from "@orpc/client";
+import type { StudioServerContext } from "@civ7/studio-server";
 
 import { loadCiv7SetupCatalog } from "../civ7Resources/catalog";
 import { RunInGameHttpError } from "../runInGame/operationState";
 import type { StudioEngines } from "./engines";
 
 /**
+ * Per-namespace mapping from an engine `RunInGameHttpError.statusCode` to the
+ * DECLARED contract error code (packages/studio-server/src/contract/errors.ts).
+ * Absent slots fall through to `failed` (500).
+ */
+type EngineErrorCodes = Readonly<{
+  /** 409 — dual-store mutex. */
+  blocked?: string;
+  /** 400 — request validation. */
+  invalid?: string;
+  /** 503 — downstream dependency unavailable. */
+  unavailable?: string;
+  /** Everything else (500 fallback). */
+  failed: string;
+}>;
+
+const AUTOPLAY_CODES: EngineErrorCodes = {
+  blocked: "AUTOPLAY_BLOCKED",
+  failed: "AUTOPLAY_FAILED",
+};
+
+const RUN_IN_GAME_CODES: EngineErrorCodes = {
+  blocked: "RUN_IN_GAME_BLOCKED",
+  invalid: "RUN_IN_GAME_INVALID",
+  unavailable: "RUN_IN_GAME_UNAVAILABLE",
+  failed: "RUN_IN_GAME_FAILED",
+};
+
+const SAVE_DEPLOY_CODES: EngineErrorCodes = {
+  blocked: "SAVE_DEPLOY_BLOCKED",
+  invalid: "SAVE_DEPLOY_INVALID",
+  failed: "SAVE_DEPLOY_FAILED",
+};
+
+/**
  * Build the `StudioServerContext` the oRPC router consumes over the process's
- * one engines instance. Engine `RunInGameHttpError`s are converted to
- * `ORPCError` with the historical status + `details` payload so the
- * non-uniform codes survive the oRPC boundary (architecture/10 §1). Moved
- * verbatim from `vite.config.ts` (`createStudioServerContextForApp`) in the
- * bun-server engine-extraction slice; the host (the Bun daemon) injects the
- * engines and its command label.
+ * one engines instance. Engine `RunInGameHttpError`s are converted to raw
+ * `ORPCError`s whose code/status/data MATCH the contract's DECLARED errors
+ * (packages/studio-server/src/contract/errors.ts) — 409→`*_BLOCKED`,
+ * 400→`*_INVALID`, 404→`*_STATUS_NOT_FOUND`, 503→`*_UNAVAILABLE`, else
+ * `*_FAILED` — so oRPC validates them into DEFINED typed errors at the client
+ * without this module importing the contract. Moved verbatim from
+ * `vite.config.ts` (`createStudioServerContextForApp`) in the bun-server
+ * engine-extraction slice; the host (the Bun daemon) injects the engines and
+ * its command label.
  */
 export function createStudioServerContext(options: Readonly<{
   engines: StudioEngines;
   hostCommand: string;
 }>): StudioServerContext {
   const { engines, hostCommand } = options;
-  const toOrpc = (err: unknown, fallbackStatus: number, fallbackMessage: string) => {
+  const toOrpc = (
+    err: unknown,
+    codes: EngineErrorCodes,
+    fallbackMessage: string,
+  ): ORPCError<string, unknown> => {
     if (err instanceof RunInGameHttpError) {
-      return orpcError(
-        err.statusCode,
-        err.message,
-        err.details === undefined ? undefined : { details: err.details },
-      );
+      const declared =
+        err.statusCode === 409 && codes.blocked
+          ? { code: codes.blocked, status: 409 }
+          : err.statusCode === 400 && codes.invalid
+            ? { code: codes.invalid, status: 400 }
+            : err.statusCode === 503 && codes.unavailable
+              ? { code: codes.unavailable, status: 503 }
+              : { code: codes.failed, status: 500 };
+      return new ORPCError(declared.code, {
+        status: declared.status,
+        message: err.message,
+        ...(err.details === undefined ? {} : { data: { details: err.details } }),
+      });
     }
-    return orpcError(fallbackStatus, err instanceof Error ? err.message : fallbackMessage);
+    return new ORPCError(codes.failed, {
+      status: 500,
+      message: err instanceof Error ? err.message : fallbackMessage,
+    });
   };
   return {
     serverInstanceId: engines.serverInstanceId,
@@ -49,7 +99,7 @@ export function createStudioServerContext(options: Readonly<{
           ReturnType<StudioServerContext["autoplay"]>
         >;
       } catch (err) {
-        throw toOrpc(err, 500, "Civ7 autoplay request failed");
+        throw toOrpc(err, AUTOPLAY_CODES, "Civ7 autoplay request failed");
       }
     },
     runInGameStart: async (input) => {
@@ -57,7 +107,7 @@ export function createStudioServerContext(options: Readonly<{
         const result = await engines.runRunInGameStartEngine(input);
         return result.operation as Awaited<ReturnType<StudioServerContext["runInGameStart"]>>;
       } catch (err) {
-        throw toOrpc(err, 500, "Run in Game failed");
+        throw toOrpc(err, RUN_IN_GAME_CODES, "Run in Game failed");
       }
     },
     runInGameStatus: async (input) => {
@@ -67,13 +117,18 @@ export function createStudioServerContext(options: Readonly<{
         >;
       } catch (err) {
         if (err instanceof RunInGameHttpError && err.statusCode === 404) {
-          // Parity: run-in-game status 404 echoes serverInstanceId/serverStartedAt.
-          throw orpcError(404, err.message, {
-            serverInstanceId: engines.serverInstanceId,
-            serverStartedAt: engines.serverStartedAt,
+          // Parity: run-in-game status 404 echoes serverInstanceId/serverStartedAt
+          // (restart detection) — the RUN_IN_GAME_STATUS_NOT_FOUND data shape.
+          throw new ORPCError("RUN_IN_GAME_STATUS_NOT_FOUND", {
+            status: 404,
+            message: err.message,
+            data: {
+              serverInstanceId: engines.serverInstanceId,
+              serverStartedAt: engines.serverStartedAt,
+            },
           });
         }
-        throw toOrpc(err, 500, "Run in Game status failed");
+        throw toOrpc(err, RUN_IN_GAME_CODES, "Run in Game status failed");
       }
     },
     mapConfigSaveDeploy: async (input) => {
@@ -82,8 +137,15 @@ export function createStudioServerContext(options: Readonly<{
           ReturnType<StudioServerContext["mapConfigSaveDeploy"]>
         >;
       } catch (err) {
-        // Parity: save/deploy validation failures map to 400 (not 500).
-        throw toOrpc(err, 400, "Save failed");
+        // Parity: save/deploy validation failures (plain Errors from the request
+        // parser / envelope asserts / path jail) map to 400 (not 500).
+        if (!(err instanceof RunInGameHttpError)) {
+          throw new ORPCError("SAVE_DEPLOY_INVALID", {
+            status: 400,
+            message: err instanceof Error ? err.message : "Save failed",
+          });
+        }
+        throw toOrpc(err, SAVE_DEPLOY_CODES, "Save failed");
       }
     },
     mapConfigStatus: async (input) => {
@@ -92,8 +154,15 @@ export function createStudioServerContext(options: Readonly<{
           ReturnType<StudioServerContext["mapConfigStatus"]>
         >;
       } catch (err) {
-        // Parity: save/deploy status 404 does NOT echo serverInstanceId.
-        throw toOrpc(err, 500, "Save/Deploy status failed");
+        if (err instanceof RunInGameHttpError && err.statusCode === 404) {
+          // Parity: save/deploy status 404 does NOT echo serverInstanceId
+          // (documented asymmetry vs runInGame.status).
+          throw new ORPCError("SAVE_DEPLOY_STATUS_NOT_FOUND", {
+            status: 404,
+            message: err.message,
+          });
+        }
+        throw toOrpc(err, SAVE_DEPLOY_CODES, "Save/Deploy status failed");
       }
     },
   };

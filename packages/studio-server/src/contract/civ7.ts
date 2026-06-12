@@ -1,6 +1,15 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
 
+import {
+  autoplayErrors,
+  civ7GameInfoErrors,
+  civ7MapSummaryErrors,
+  civ7StatusErrors,
+  savedConfigsErrors,
+  setupCatalogErrors,
+  setupConfigErrors,
+} from "./errors.js";
 import { isoTimestamp, unknownRecord } from "./shared.js";
 
 /**
@@ -9,10 +18,11 @@ import { isoTimestamp, unknownRecord } from "./shared.js";
  * Source of truth: audit/05-server-contracts.md endpoints #1, #2, #3, #8, #10,
  * #11, #12 (and the `civ7.live.*` sub-namespace lives in ./live.ts).
  *
- * Parity note (errorMap, lands A3): error status codes are NON-UNIFORM across
- * these procedures (gameInfo→400, setupConfig→503, savedConfigs/setupCatalog→500,
- * status/mapSummary→500, autoplay→400/409/500). The success `output` schemas below
- * are the contract surface; per-procedure error semantics are documented inline.
+ * Parity note: error status codes are NON-UNIFORM across these procedures
+ * (gameInfo→400, setupConfig→503, savedConfigs/setupCatalog→500,
+ * status/mapSummary→500, autoplay→409/500). Each procedure DECLARES its codes
+ * via `.errors(...)` (./errors.ts), so the legacy statuses are contract-typed
+ * and arrive client-side as oRPC defined errors.
  */
 
 // ---------------------------------------------------------------------------
@@ -21,6 +31,7 @@ import { isoTimestamp, unknownRecord } from "./shared.js";
 // Request: none. Success 200: { ok: status.playable, status: PlayableStatus }.
 // Error 500: { ok:false, error }. Reads FireTuner socket (getCiv7PlayableStatus).
 export const status = oc
+  .errors(civ7StatusErrors)
   .input(z.object({}))
   .output(
     z.object({
@@ -36,6 +47,7 @@ export const status = oc
 // Request: none (server calls with { includeAreaRegionCounts: true }).
 // Success 200: { ok:true, summary: MapSummary }. Error 500: { ok:false, error }.
 export const mapSummary = oc
+  .errors(civ7MapSummaryErrors)
   .input(z.object({}))
   .output(
     z.object({
@@ -59,6 +71,7 @@ export const mapSummary = oc
 // `array(gameInfoRow)`, which does not match `/api`. Refined to the opaque result
 // record to preserve current behavior (the deep payload is internal, per shared.ts).
 export const gameInfo = oc
+  .errors(civ7GameInfoErrors)
   .input(
     z.object({
       table: z.string().min(1),
@@ -82,6 +95,7 @@ export const gameInfo = oc
 // details.code); 500 { ok:false, error }. Mutates game state; waits on scripting
 // log markers (waitTimeoutMs≈90s). Dual-store 409 mutex + approval object land A3.
 export const autoplay = oc
+  .errors(autoplayErrors)
   .input(
     z.object({
       action: z.enum(["start", "stop"]),
@@ -106,6 +120,7 @@ export const autoplay = oc
 // Request: none. Success 200: { ok:true, observedAt, setup, state, host, port }.
 // Error 503 (UNIQUE): { ok:false, error, observedAt }. Reads FireTuner socket.
 export const setupConfig = oc
+  .errors(setupConfigErrors)
   .input(z.object({}))
   .output(
     z.object({
@@ -126,6 +141,7 @@ export const setupConfig = oc
 // (spread of listCiv7SavedGameConfigurations listResult). Error 500:
 // { ok:false, error, observedAt }. Reads filesystem (Civ7 saved-config dir).
 export const savedConfigs = oc
+  .errors(savedConfigsErrors)
   .input(z.object({}))
   .output(
     z.object({
@@ -167,7 +183,7 @@ export const setupCatalogSchema = z.object({
   gameSpeeds: z.array(setupCatalogOption),
 });
 
-export const setupCatalog = oc.input(z.object({})).output(
+export const setupCatalog = oc.errors(setupCatalogErrors).input(z.object({})).output(
   z.object({
     ok: z.literal(true),
     catalog: setupCatalogSchema,
