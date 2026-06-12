@@ -28,9 +28,13 @@ test('Mod.add invokes build for each builder', () => {
   mod.add(new SingleBuilder());
   mod.add([new ArrayBuilder(), new ArrayBuilder()]);
   const tmp = fs.mkdtempSync(join(os.tmpdir(), 'mod-test-'));
-  mod.build(tmp);
-  expect(single).toBe(1);
-  expect(array).toBe(2);
+  try {
+    mod.build(tmp);
+    expect(single).toBe(1);
+    expect(array).toBe(2);
+  } finally {
+    fs.rmSync(tmp, { force: true, recursive: true });
+  }
 });
 
 test('Mod.addFiles invokes write for each file', () => {
@@ -47,6 +51,10 @@ test('Mod.addFiles invokes write for each file', () => {
   mod.addFiles(new FileStub());
   mod.addFiles([new FileStub(), new FileStub()]);
   const tmp = fs.mkdtempSync(join(os.tmpdir(), 'mod-test-'));
-  mod.build(tmp);
-  expect(count).toBe(3);
+  try {
+    mod.build(tmp);
+    expect(count).toBe(3);
+  } finally {
+    fs.rmSync(tmp, { force: true, recursive: true });
+  }
 });
