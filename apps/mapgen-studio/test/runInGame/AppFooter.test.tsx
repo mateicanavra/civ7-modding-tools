@@ -5,11 +5,14 @@ import { AppFooter } from "../../src/ui/components/AppFooter";
 import { TooltipProvider } from "../../src/components/ui/tooltip";
 import type { RecipeSettings, WorldSettings } from "../../src/ui/types";
 
-// The footer is the WORLD/MAP console (Pass-5 toolbar-architecture-v2 spec):
-// map authoring (size · players · resources · seed) + the studio iteration
-// loop, with the last run compressed into the History affordance. Live-game
-// markup is covered by GameConsole.test.tsx; the footer keeps the shared
-// operation gate: game-side operations disable the authoring/run controls.
+// The footer is the WORLD/MAP console (Pass-5 toolbar-architecture-v2 spec,
+// narrowed by world-console-map-params): map authoring (size · players ·
+// seed) + the studio iteration loop, with the last run compressed into the
+// History affordance. The console only authors settings the map pipeline
+// reads — resources stays in WorldSettings and keeps flowing through runs,
+// but has no pipeline reader, so no control renders for it. Live-game markup
+// is covered by GameConsole.test.tsx; the footer keeps the shared operation
+// gate: game-side operations disable the authoring/run controls.
 
 const recipeSettings: RecipeSettings = {
   recipe: "standard",
@@ -54,11 +57,17 @@ describe("AppFooter world/map console", () => {
     expect(html).toContain("Ready");
     expect(html).toContain('aria-label="World size"');
     expect(html).toContain('aria-label="Players"');
-    expect(html).toContain('aria-label="Resources"');
     expect(html).toContain("Re-roll: New seed and run");
     expect(html).toContain("Generation seed");
     expect(html).not.toContain("Run in Game");
     expect(html).not.toContain("Civ7");
+  });
+
+  it("renders no Resources control or mention (pipeline-input rule; state still flows)", () => {
+    const html = renderFooter();
+
+    expect(html).not.toContain("Resources");
+    expect(html).not.toContain("resources");
   });
 
   it("compresses the last run into the History control's accessible name", () => {
