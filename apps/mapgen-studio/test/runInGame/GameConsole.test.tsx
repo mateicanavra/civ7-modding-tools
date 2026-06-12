@@ -185,6 +185,25 @@ describe("GameConsole live runtime and save/deploy", () => {
     expect(html).toContain("Explore: tile visibility control is not yet available");
   });
 
+  it("renders the wired Explore reveal action when live and a handler exists", () => {
+    const html = renderConsole({
+      liveRuntime: { status: "ok", readiness: "ready" },
+      onExplore: vi.fn(),
+    });
+
+    expect(html).toContain("Explore: reveal the full map in the live game");
+  });
+
+  it("disables Explore and narrates the in-flight request while revealing", () => {
+    const html = renderConsole({
+      liveRuntime: { status: "ok", readiness: "ready" },
+      onExplore: vi.fn(),
+      isExploreActionRunning: true,
+    });
+
+    expect(html).toContain("Explore request in flight");
+  });
+
   it("highlights live seed status when a proved live game is out of sync with Studio", () => {
     const html = renderConsole({
       liveRuntime: { status: "ok", turn: 12, seed: 123 },
