@@ -11,6 +11,17 @@
          cause). Element resets come from Tailwind preflight in index.css.
          Colors match the dark page tokens (index.css --background/--foreground);
          the theme script below out-cascades them for light users. */
+      /* The ROOT must carry background + color-scheme (X4 flash fix): the
+         browser's between-navigations clear color comes from the root
+         element's background and the document color-scheme. Styling only
+         <body> leaves a window — navigation commit until body exists — where
+         the canvas clears to the scheme default (white), which is the bright
+         flash on refresh. index.css re-declares color-scheme later; these two
+         must stay in sync with it. */
+      :root {
+        color-scheme: dark;
+        background: #0d0d11;
+      }
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         background: #0d0d11;
@@ -38,7 +49,9 @@
             // specificity, later source order) so light users don't get a
             // dark pre-React flash (index.css :root --background/--foreground).
             var s = document.createElement("style");
-            s.textContent = "body { background: #f2f2f7; color: #1f2937; }";
+            s.textContent =
+              ":root { color-scheme: light; background: #f2f2f7; } " +
+              "body { background: #f2f2f7; color: #1f2937; }";
             document.head.appendChild(s);
           }
         } catch (e) {
