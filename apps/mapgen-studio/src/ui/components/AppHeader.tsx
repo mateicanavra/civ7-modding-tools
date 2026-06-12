@@ -33,6 +33,12 @@ export interface AppHeaderProps {
   onSetupConfigChange: (config: Civ7StudioSetupConfig) => void;
   onSavedConfigChange: (configId: string) => void;
   onHeaderHeightChange?: (height: number) => void;
+  /**
+   * The live-game console (Pass-4 vertical zoning: top = game, bottom =
+   * studio). Rendered as a centered row beneath the world bar — after the
+   * transient setup panel, so the disclosure stays attached to its button.
+   */
+  gameConsole?: React.ReactNode;
 }
 export const AppHeader: React.FC<AppHeaderProps> = ({
   themePreference,
@@ -45,7 +51,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   setupOptions,
   onSetupConfigChange,
   onSavedConfigChange,
-  onHeaderHeightChange
+  onHeaderHeightChange,
+  gameConsole
 }) => {
   const headerRef = React.useRef<HTMLElement | null>(null);
   const [setupOpen, setSetupOpen] = React.useState(false);
@@ -262,6 +269,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 className="w-28" />
             </div>
           </div>
+        ) : null}
+
+        {gameConsole ? (
+          // Live-game console docked beneath the world bar (and beneath the
+          // open setup panel): the header zone is the GAME zone, the footer
+          // is the studio zone. Growth here reflows the side panels through
+          // the measured-header mechanism above.
+          <div className="max-w-full">{gameConsole}</div>
         ) : null}
       </div>
 

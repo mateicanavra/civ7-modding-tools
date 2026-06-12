@@ -1,0 +1,191 @@
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it, vi } from "vitest";
+
+import { GameConsole, type GameConsoleProps } from "../../src/ui/components/GameConsole";
+import { TooltipProvider } from "../../src/components/ui/tooltip";
+import type { RunInGameOperationStatus } from "../../src/features/runInGame/status";
+
+// The game console owns all live-Civ7 markup (Pass-4 game-console-dock spec:
+// it docks under the world bar in the header). These scenarios moved here
+// from AppFooter.test.tsx when the console left the footer.
+
+function renderConsole(overrides: Partial<GameConsoleProps> = {}) {
+  return renderToStaticMarkup(
+    <TooltipProvider>
+      <GameConsole
+        operationControlsDisabled={false}
+        isRunInGameRunning={false}
+        onRunInGame={vi.fn()}
+        liveRuntime={{ status: "ok", readiness: "shell" }}
+        {...overrides}
+      />
+    </TooltipProvider>
+  );
+}
+
+function renderWithStatus(
+  status: RunInGameOperationStatus,
+  relation: "current" | "stale" | "unknown" = "unknown"
+) {
+  return renderConsole({
+    isRunInGameRunning: status.status === "running",
+    runInGameStatus: status,
+    runInGameCurrentRelation: relation,
+    onRunInGameRetryStatus: vi.fn(),
+    onCopyRunInGameDiagnostics: vi.fn(),
+  });
+}
+
+describe("GameConsole Run in Game status", () => {
+  it("renders the active Run in Game phase with its diagnostics affordance", () => {
+    const html = renderWithStatus({
+      ok: true,
+      requestId: "studio-run-in-game-test",
+      phase: "waiting-for-proof",
+      status: "running",
+      startedAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-01T00:00:01.000Z",
+      completedPhases: ["materializing", "deploying", "checking-civ7", "preparing-setup", "starting-game"],
+      materialization: {
+        mode: "disposable",
+        mapScript: "{swooper-maps}/maps/studio-current.js",
+      },
+    });
+
+    expect(html).toContain("Waiting for Proof");
+    expect(html).toContain("studio-run-in-game-test");
+    expect(html).toContain("Copy Run in Game diagnostics");
+  });
+
+  it("renders retry status and retry run affordances for failed operations", () => {
+    const html = renderWithStatus({
+      ok: false,
+      requestId: "studio-run-in-game-failed",
+      phase: "failed",
+      status: "failed",
+      startedAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-01T00:00:01.000Z",
+      completedPhases: ["materializing", "deploying"],
+      error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+      details: {
+        code: "setup-map-row-not-visible",
+        reloadRequired: true,
+      },
+    });
+
+    expect(html).toContain("Refresh Run in Game status");
+    expect(html).toContain("Retry Run");
+    expect(html).toContain("setup cannot see");
+  });
+
+  it("renders restart-Civ recovery as the primary Run in Game action", () => {
+    const html = renderWithStatus({
+      ok: false,
+      requestId: "studio-run-in-game-restart-needed",
+      phase: "blocked",
+      status: "blocked",
+      startedAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-01T00:00:01.000Z",
+      completedPhases: ["materializing", "deploying", "checking-civ7"],
+      error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+      details: {
+        code: "setup-map-row-not-visible",
+        reloadBoundary: "process-restart-required",
+      },
+    }, "current");
+
+    expect(html).toContain("Restart Civ &amp; Run");
+  });
+
+  it("keeps map script fatal recovery on retry instead of process restart", () => {
+    const html = renderWithStatus({
+      ok: false,
+      requestId: "studio-run-in-game-map-script-failed",
+      phase: "failed",
+      status: "failed",
+      startedAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-01T00:00:01.000Z",
+      completedPhases: ["materializing", "deploying", "preparing-setup", "starting-game", "waiting-for-proof"],
+      error: "Civ7 could not load generated map script",
+      details: {
+        code: "map-script-load-failed",
+        dismissNotificationRequired: true,
+        recoveryBoundary: "civ-notification-dismiss",
+        recoveryHint: "Dismiss the Civ fatal notification, fix or regenerate the map script, then retry Run in Game.",
+      },
+    }, "current");
+
+    expect(html).toContain("Retry Run");
+    expect(html).not.toContain("Restart Civ &amp; Run");
+    expect(html).toContain("Dismiss the Civ fatal notification");
+  });
+
+  it("marks a previous operation stale when the authored Studio state has changed", () => {
+    const html = renderWithStatus({
+      ok: true,
+      requestId: "studio-run-in-game-complete",
+      phase: "complete",
+      status: "complete",
+      startedAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-01T00:00:01.000Z",
+      completedPhases: ["materializing", "deploying", "checking-civ7", "preparing-setup", "starting-game", "waiting-for-proof"],
+    }, "stale");
+
+    expect(html).toContain("Stale");
+    expect(html).toContain("Studio state: Stale");
+  });
+});
+
+describe("GameConsole live runtime and save/deploy", () => {
+  it("renders save/deploy status with its request id", () => {
+    const html = renderConsole({
+      operationControlsDisabled: true,
+      saveDeployStatus: {
+        ok: true,
+        requestId: "studio-save-deploy-test",
+        phase: "deploying",
+        status: "running",
+        startedAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-01T00:00:01.000Z",
+        path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+      },
+    });
+
+    expect(html).toContain("Save/Deploy: Deploying");
+    expect(html).toContain("studio-save-deploy-test");
+    expect(html).toContain("disabled");
+  });
+
+  it("renders a Civ7 autoplay start button from live runtime status", () => {
+    const html = renderConsole({
+      liveRuntime: { status: "ok", readiness: "ready", autoplayActive: false },
+      onToggleAutoplay: vi.fn(),
+    });
+
+    expect(html).toContain("Start Civ7 autoplay");
+  });
+
+  it("renders a Civ7 autoplay stop button when autoplay is active", () => {
+    const html = renderConsole({
+      liveRuntime: { status: "ok", readiness: "ready", autoplayActive: true },
+      onToggleAutoplay: vi.fn(),
+    });
+
+    expect(html).toContain("Stop Civ7 autoplay");
+    expect(html).toContain("Auto");
+  });
+
+  it("highlights live seed status when a proved live game is out of sync with Studio", () => {
+    const html = renderConsole({
+      liveRuntime: { status: "ok", turn: 12, seed: 123 },
+      liveGameStudioRelation: "stale",
+      onSyncFromLiveGame: vi.fn(),
+    });
+
+    expect(html).toContain("Apply live game suggestion to Studio");
+    // The stale-live-game emphasis is token-driven (`warning`), not a raw
+    // palette class — the design system forbids hardcoded color utilities.
+    expect(html).toContain("border-warning");
+    expect(html).toContain("Seed 123");
+  });
+});

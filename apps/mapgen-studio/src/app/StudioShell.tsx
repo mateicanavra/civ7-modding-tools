@@ -6,6 +6,7 @@ import {
 
 import { AppHeader } from "../ui/components/AppHeader";
 import { AppFooter } from "../ui/components/AppFooter";
+import { GameConsole } from "../ui/components/GameConsole";
 import { ExplorePanel } from "../ui/components/ExplorePanel";
 import { RecipePanel } from "../ui/components/RecipePanel";
 import { configsEqual, recipeSettingsEqual, worldSettingsEqual } from "../ui/utils/config";
@@ -2206,6 +2207,27 @@ export function StudioShell(props: StudioShellProps) {
       onSetupConfigChange={setSetupConfig}
       onSavedConfigChange={handleSavedSetupConfigChange}
       onHeaderHeightChange={handleHeaderHeightChange}
+      gameConsole={
+        <GameConsole
+          liveRuntime={liveRuntime}
+          liveGameStudioRelation={liveGameStudioRelation}
+          onSyncFromLiveGame={syncStudioFromLiveGame}
+          isAutoplayActionRunning={autoplayActionRunning}
+          onToggleAutoplay={handleToggleAutoplay}
+          operationControlsDisabled={browserRunning || runInGameRunning || saveDeployRunning}
+          isRunInGameRunning={runInGameRunning}
+          runInGameStatus={runInGameOperation}
+          runInGameCurrentRelation={runInGameCurrentRelation}
+          onRunInGame={() => {
+            void handleRunInGame({ restartCivProcess: runInGameRequiresProcessRestart(runInGameOperation) });
+          }}
+          onRunInGameRetryStatus={() => {
+            if (runInGameOperation) void refreshRunInGameStatus(runInGameOperation.requestId);
+          }}
+          onCopyRunInGameDiagnostics={copyRunInGameDiagnostics}
+          saveDeployStatus={saveDeployOperation}
+        />
+      }
     />
   );
 
@@ -2309,26 +2331,11 @@ export function StudioShell(props: StudioShellProps) {
       currentSettings={recipeSettings}
       onSettingsChange={setRecipeSettings}
       onRun={triggerRun}
-      onRunInGame={() => {
-        void handleRunInGame({ restartCivProcess: runInGameRequiresProcessRestart(runInGameOperation) });
-      }}
-      onRunInGameRetryStatus={() => {
-        if (runInGameOperation) void refreshRunInGameStatus(runInGameOperation.requestId);
-      }}
-      onCopyRunInGameDiagnostics={copyRunInGameDiagnostics}
       onReroll={reroll}
       isRunning={browserRunning}
       isRunInGameRunning={runInGameRunning}
       isSaveDeployRunning={saveDeployRunning}
-      isAutoplayActionRunning={autoplayActionRunning}
-      saveDeployStatus={saveDeployOperation}
-      runInGameStatus={runInGameOperation}
-      runInGameCurrentRelation={runInGameCurrentRelation}
       isDirty={isDirty}
-      liveRuntime={liveRuntime}
-      liveGameStudioRelation={liveGameStudioRelation}
-      onSyncFromLiveGame={syncStudioFromLiveGame}
-      onToggleAutoplay={handleToggleAutoplay}
       onToast={(message) => toast(message, { variant: "success" })}
       autoRunEnabled={autoRunEnabled}
       onAutoRunEnabledChange={setAutoRunEnabled}
