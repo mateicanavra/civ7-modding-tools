@@ -1,24 +1,20 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   AlertTriangle,
-  Boxes,
   ChevronDown,
-  CloudSun,
-  Flag,
   GitBranch,
-  Layers3,
   Loader2,
-  Mountain,
-  Package,
-  Route,
-  Sprout,
-  Waves,
-  type LucideIcon,
 } from "lucide-react";
 
 import type { RecipeDagResult } from "./client";
 import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation";
-import { buildRecipeDagLayout, pointsToPath } from "./layout";
+import { chooseRecipeDagDomainId, getRecipeDagDomainPresentation, getRecipeDagPhaseLaneColors } from "./domainPresentation";
+import {
+  buildArtifactEdgeLabels,
+  buildRecipeDagLayout,
+  pointsToPath,
+  type RoutedStageEdgeGroup,
+} from "./layout";
 
 type RecipeDagLoadStatus = "idle" | "loading" | "ready" | "error";
 
@@ -48,17 +44,59 @@ export function RecipeDagView(props: RecipeDagViewProps) {
     onSelectStage,
     topInset,
   } = props;
+  const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
   const palette = useMemo(() => createPalette(lightMode), [lightMode]);
   const layout = useMemo(() => (dag ? buildRecipeDagLayout(dag) : null), [dag]);
+  const phaseIdByStageId = useMemo(() => {
+    const ids = new Map<string, string | null>();
+    if (!dag) return ids;
+    for (const stage of dag.stages) {
+      ids.set(stage.stageId, chooseRecipeDagDomainId(stage.phases));
+    }
+    return ids;
+  }, [dag]);
+  const edgeLayerGroups = useMemo(() => {
+    if (!layout) return [];
+    return [...layout.edgeGroups].sort((a, b) => a.id.localeCompare(b.id));
+  }, [layout]);
+  const baseArtifactLabels = useMemo(() => buildArtifactEdgeLabels(edgeLayerGroups), [edgeLayerGroups]);
+  const selectedLabel = useMemo(
+    () => baseArtifactLabels.find((label) => label.id === selectedLabelId) ?? null,
+    [baseArtifactLabels, selectedLabelId]
+  );
+  const artifactLabels = useMemo(
+    () => buildArtifactEdgeLabels(edgeLayerGroups, selectedLabel ? null : selectedStageId),
+    [edgeLayerGroups, selectedLabel, selectedStageId]
+  );
   const neighborStageIds = useMemo(() => {
+    if (selectedLabel) return new Set([selectedLabel.fromStageId, ...selectedLabel.toStageIds]);
     if (!selectedStageId || !layout) return null;
-    const ids = new Set([selectedStageId]);
+    const ids = new Set<string>([selectedStageId]);
     for (const edge of layout.edgeGroups) {
       if (edge.fromStageId === selectedStageId) ids.add(edge.toStageId);
       if (edge.toStageId === selectedStageId) ids.add(edge.fromStageId);
     }
     return ids;
-  }, [layout, selectedStageId]);
+  }, [layout, selectedLabel, selectedStageId]);
+  const sortedEdgeLayerGroups = useMemo(() => {
+    const score = (edge: RoutedStageEdgeGroup) => {
+      if (selectedLabel?.edgeIds.includes(edge.id)) return 3;
+      if (!selectedLabel && selectedStageId && (edge.fromStageId === selectedStageId || edge.toStageId === selectedStageId)) return 2;
+      return 1;
+    };
+    return [...edgeLayerGroups].sort((a, b) => score(a) - score(b) || a.id.localeCompare(b.id));
+  }, [edgeLayerGroups, selectedLabel, selectedStageId]);
+  const focusActive = Boolean(selectedLabel || selectedStageId);
+  const getStageAccent = (stageId: string) =>
+    getRecipeDagPhaseLaneColors(phaseIdByStageId.get(stageId) ?? null, lightMode).accent;
+  const handleSelectStage = (stageId: string, options?: { keepSelected?: boolean }) => {
+    setSelectedLabelId(null);
+    if (!options?.keepSelected && !selectedLabel && selectedStageId === stageId) {
+      onSelectStage("");
+      return;
+    }
+    onSelectStage(stageId);
+  };
 
   return (
     <section
@@ -110,7 +148,18 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                     orient="auto"
                     markerUnits="strokeWidth"
                   >
-                    <path d="M0,0 L0,6 L8,3 z" fill={palette.edge} />
+                    <path d="M0,0 L0,6 L8,3 z" fill="context-stroke" />
+                  </marker>
+                  <marker
+                    id="recipe-dag-arrow-active"
+                    markerWidth="10"
+                    markerHeight="10"
+                    refX="8"
+                    refY="3"
+                    orient="auto"
+                    markerUnits="strokeWidth"
+                  >
+                    <path d="M0,0 L0,6 L8,3 z" fill="context-stroke" />
                   </marker>
                 </defs>
                 {layout.rankColumns.map((column) => (
@@ -135,40 +184,48 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                     </text>
                   </g>
                 ))}
-                {layout.phaseBands.map((phase, index) => (
-                  <g key={phase.id}>
-                    <rect
-                      x={32}
-                      y={phase.y}
-                      width={layout.width - 64}
-                      height={phase.height}
-                      rx={8}
-                      fill={palette.phaseFills[index % palette.phaseFills.length]}
-                      stroke={palette.phaseStroke}
-                    />
-                    <rect
-                      x={32}
-                      y={phase.y}
-                      width={4}
-                      height={phase.height}
-                      rx={2}
-                      fill={palette.phaseAccents[index % palette.phaseAccents.length]}
-                      opacity="0.9"
-                    />
-                  </g>
-                ))}
-                {layout.edgeGroups.map((edge) => {
+                {layout.phaseBands.map((phase) => {
+                  const lane = getRecipeDagPhaseLaneColors(phase.id, lightMode);
+                  return (
+                    <g key={phase.id}>
+                      <rect
+                        x={32}
+                        y={phase.y}
+                        width={layout.width - 64}
+                        height={phase.height}
+                        rx={8}
+                        fill={lane.fill}
+                        stroke={palette.phaseStroke}
+                      />
+                      <rect
+                        x={32}
+                        y={phase.y}
+                        width={4}
+                        height={phase.height}
+                        rx={2}
+                        fill={lane.accent}
+                        opacity="0.9"
+                      />
+                    </g>
+                  );
+                })}
+                {sortedEdgeLayerGroups.map((edge) => {
                   if (!edge.points.length) return null;
-                  const related = !selectedStageId || edge.fromStageId === selectedStageId || edge.toStageId === selectedStageId;
+                  const selected = Boolean(selectedLabel?.edgeIds.includes(edge.id));
+                  const related = selectedLabel
+                    ? selected
+                    : !selectedStageId || edge.fromStageId === selectedStageId || edge.toStageId === selectedStageId;
+                  const edgeAccent = getStageAccent(edge.fromStageId);
+                  const stroke = focusActive && related ? edgeAccent : palette.edge;
                   return (
                     <g key={edge.id}>
                       <path
                         d={pointsToPath(edge.points)}
                         fill="none"
-                        stroke={palette.edge}
-                        strokeWidth={related ? "2.4" : "1.4"}
-                        markerEnd="url(#recipe-dag-arrow)"
-                        opacity={related ? "0.82" : "0.22"}
+                        stroke={stroke}
+                        strokeWidth={selected ? "3" : focusActive && related ? "2.4" : "1.35"}
+                        markerEnd={focusActive && related ? "url(#recipe-dag-arrow-active)" : "url(#recipe-dag-arrow)"}
+                        opacity={selected ? "0.96" : focusActive && related ? "0.82" : focusActive ? "0.22" : "0.42"}
                       />
                       <title>{`${edge.fromStageId} provides ${edge.artifacts.join(", ")} to ${edge.toStageId}`}</title>
                     </g>
@@ -176,30 +233,39 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                 })}
               </svg>
 
-              {layout.edgeGroups.map((edge) => {
-                if (!edge.points.length) return null;
-                const related = !selectedStageId || edge.fromStageId === selectedStageId || edge.toStageId === selectedStageId;
+              {artifactLabels.map((label) => {
+                const selected = selectedLabelId === label.id;
+                const related = selectedLabel
+                  ? selected
+                  : !selectedStageId || label.fromStageId === selectedStageId || label.toStageIds.includes(selectedStageId);
+                const visible = selectedLabel ? selected : !selectedStageId || related;
+                if (!visible) return null;
+                const edgeAccent = getStageAccent(label.fromStageId);
                 return (
                   <ArtifactEdgeLabel
-                    key={`${edge.id}:label`}
-                    label={edge.label}
-                    domainId={resolveArtifactGroupDomainId(edge.artifacts)}
-                    title={`${edge.fromStageId} provides ${edge.artifacts.join(", ")} to ${edge.toStageId}`}
-                    x={edge.labelX}
-                    y={edge.labelY - 14}
+                    key={label.id}
+                    label={label.label}
+                    domainId={resolveArtifactGroupDomainId(label.artifacts)}
+                    title={`${label.fromStageId} provides ${label.artifact} to ${label.toStageIds.join(", ")}`}
+                    x={label.labelX}
+                    y={label.labelY - 14}
                     related={related}
+                    selected={selected}
+                    focused={focusActive}
+                    accent={focusActive && (selected || related) ? edgeAccent : palette.edge}
                     lightMode={lightMode}
+                    onSelect={() => setSelectedLabelId(label.id)}
                   />
                 );
               })}
 
-              {layout.phaseBands.map((phase, index) => (
+              {layout.phaseBands.map((phase) => (
                 <PhaseLaneLabel
                   key={`${phase.id}:label`}
                   phaseId={phase.id}
                   x={52}
                   y={phase.y + 16}
-                  accent={palette.phaseAccents[index % palette.phaseAccents.length]}
+                  accent={getRecipeDagPhaseLaneColors(phase.id, lightMode).accent}
                   lightMode={lightMode}
                 />
               ))}
@@ -208,13 +274,17 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                 const position = layout.positions.get(stage.stageId);
                 if (!position) return null;
                 const expanded = expandedStageIds.has(stage.stageId);
-                const selected = selectedStageId === stage.stageId;
+                const selected = !selectedLabel && selectedStageId === stage.stageId;
+                const edgeActive = Boolean(selectedLabel && neighborStageIds?.has(stage.stageId));
                 const dimmed = Boolean(neighborStageIds && !neighborStageIds.has(stage.stageId));
-                const stageClass = selected ? palette.stageSelected : dimmed ? palette.stageDimmed : palette.stage;
+                const stageClass = selected || edgeActive ? palette.stageSelected : dimmed ? palette.stageDimmed : palette.stage;
                 const headingClass = dimmed ? palette.headingDimmed : palette.heading;
                 const bodyClass = dimmed ? palette.bodyDimmed : palette.body;
                 const iconClass = dimmed ? palette.iconDimmed : palette.icon;
-                const zIndex = expanded ? 70 : selected ? 50 : dimmed ? 20 : 30;
+                const stageDomainId = chooseRecipeDagDomainId(stage.phases);
+                const stageAccent = getRecipeDagPhaseLaneColors(stageDomainId, lightMode).accent;
+                const activeNodeAccent = selected || edgeActive ? stageAccent : null;
+                const zIndex = selected || edgeActive ? (expanded ? 95 : 85) : expanded ? 70 : dimmed ? 20 : 30;
                 const expandedPanelId = `recipe-dag-stage-${stage.stageId}-steps`;
                 return (
                   <article
@@ -225,9 +295,12 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                       top: position.y,
                       width: position.width,
                       zIndex,
+                      borderColor: activeNodeAccent ?? undefined,
+                      boxShadow: activeNodeAccent ? `0 0 0 2px ${activeNodeAccent}38, 0 16px 42px ${activeNodeAccent}18` : undefined,
                     }}
                     data-stage-id={stage.stageId}
-                    data-stage-selected={selected ? "true" : "false"}
+                    data-stage-selected={selected || edgeActive ? "true" : "false"}
+                    data-stage-edge-active={edgeActive ? "true" : "false"}
                     data-stage-expanded={expanded ? "true" : "false"}
                   >
                     <div className="flex items-start gap-1.5 px-3 py-2">
@@ -235,9 +308,13 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                         type="button"
                         className="flex min-w-0 flex-1 items-start gap-2 text-left"
                         aria-pressed={selected}
-                        onClick={() => onSelectStage(stage.stageId)}
+                        onClick={() => handleSelectStage(stage.stageId)}
                       >
-                        <Boxes className={`mt-0.5 h-4 w-4 shrink-0 ${iconClass}`} />
+                        <DomainInlineIcon
+                          domainId={stageDomainId}
+                          className={`mt-0.5 h-4 w-4 ${iconClass}`}
+                          style={activeNodeAccent ? { color: activeNodeAccent } : undefined}
+                        />
                         <span className="min-w-0 flex-1">
                           <span className={`block truncate text-[13px] font-semibold ${headingClass}`}>{stage.stageId}</span>
                           <span className={`mt-0.5 block truncate text-[11px] ${bodyClass}`}>
@@ -252,7 +329,7 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                         aria-controls={expandedPanelId}
                         aria-label={`${expanded ? "Collapse" : "Expand"} ${stage.stageId} steps`}
                         onClick={() => {
-                          onSelectStage(stage.stageId);
+                          handleSelectStage(stage.stageId, { keepSelected: true });
                           onToggleStage(stage.stageId);
                         }}
                       >
@@ -280,7 +357,10 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                               <div className={`truncate text-[11px] font-medium ${headingClass}`}>
                                 Step {step.orderInStage + 1}: {step.stepId}
                               </div>
-                              <div className={`mt-1 truncate text-[10px] ${bodyClass}`}>Phase: {step.phase}</div>
+                              <div className={`mt-1 flex items-center gap-1 truncate text-[10px] ${bodyClass}`}>
+                                <DomainInlineIcon domainId={step.phase} className="h-2.5 w-2.5" />
+                                <span className="truncate">Phase: {step.phase}</span>
+                              </div>
                               <ArtifactList label="Needs" values={step.artifactRequires.map((artifact) => artifact.id)} lightMode={lightMode} />
                               <ArtifactList label="Creates" values={step.artifactProvides.map((artifact) => artifact.id)} lightMode={lightMode} />
                             </li>
@@ -302,7 +382,7 @@ export function RecipeDagView(props: RecipeDagViewProps) {
                     {dag.diagnostics.slice(0, 6).map((diagnostic, index) => (
                       <li key={`${diagnostic.kind}-${diagnostic.artifact.id}-${index}`} className="flex min-w-0 items-center gap-1 truncate">
                         <span className="truncate">{diagnostic.kind}</span>
-                        <ArtifactInlineIcon domainId={resolveArtifactGroupDomainId([diagnostic.artifact.id])} />
+                        <DomainInlineIcon domainId={resolveArtifactGroupDomainId([diagnostic.artifact.id])} className="h-2.5 w-2.5" />
                         <span className="truncate" title={diagnostic.artifact.id}>{formatArtifactLabel(diagnostic.artifact.id)}</span>
                       </li>
                     ))}
@@ -366,23 +446,40 @@ function ArtifactEdgeLabel(props: {
   x: number;
   y: number;
   related: boolean;
+  selected: boolean;
+  focused: boolean;
+  accent: string;
   lightMode: boolean;
+  onSelect: () => void;
 }) {
   const palette = createPalette(props.lightMode);
-  const className = props.related ? palette.edgeLabelPill : palette.edgeLabelPillDimmed;
+  const className = props.focused
+    ? props.related
+      ? palette.edgeLabelPill
+      : palette.edgeLabelPillDimmed
+    : palette.edgeLabelPillNeutral;
   return (
-    <div
-      className={`absolute z-10 flex max-w-[180px] cursor-default items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold shadow-sm ${className}`}
+    <button
+      type="button"
+      className={`absolute flex max-w-[190px] cursor-pointer items-center gap-1 rounded-full border px-[6.5px] py-0.5 text-[9.5px] font-semibold shadow-sm transition-[left,top,border-color,box-shadow,color,background-color] duration-200 ${className}`}
       style={{
         left: props.x,
         top: props.y,
+        zIndex: props.selected ? 98 : props.related ? 62 : 10,
         transform: "translate(-50%, -50%)",
+        borderColor: props.focused && props.related ? props.accent : undefined,
+        boxShadow: props.selected ? `0 0 0 2px ${props.accent}33` : undefined,
+        color: props.focused && props.related ? props.accent : undefined,
       }}
       title={props.title}
+      aria-pressed={props.selected}
+      aria-label={`Select dependency ${props.label}`}
+      data-edge-label-selected={props.selected ? "true" : "false"}
+      onClick={props.onSelect}
     >
-      <ArtifactInlineIcon domainId={props.domainId} />
+      <DomainInlineIcon domainId={props.domainId} className="h-[11px] w-[11px]" />
       <span className="truncate">{props.label}</span>
-    </div>
+    </button>
   );
 }
 
@@ -401,7 +498,7 @@ function ArtifactList(props: { label: string; values: readonly string[]; lightMo
             className={`flex max-w-full items-center gap-1 truncate rounded border px-1 py-0.5 text-[9px] ${chip}`}
             title={value}
           >
-            <ArtifactInlineIcon domainId={resolveArtifactGroupDomainId([value])} />
+            <DomainInlineIcon domainId={resolveArtifactGroupDomainId([value])} className="h-2.5 w-2.5" />
             <span className="truncate">{formatArtifactLabel(value)}</span>
           </span>
         ))}
@@ -413,9 +510,9 @@ function ArtifactList(props: { label: string; values: readonly string[]; lightMo
   );
 }
 
-function ArtifactInlineIcon(props: { domainId: string | null }) {
-  const Icon = iconForDomainId(props.domainId);
-  return <Icon className="h-2.5 w-2.5 shrink-0 text-current" aria-hidden="true" />;
+function DomainInlineIcon(props: { domainId: string | null; className: string; style?: React.CSSProperties }) {
+  const { Icon, strokeWidth } = getRecipeDagDomainPresentation(props.domainId);
+  return <Icon className={`shrink-0 text-current ${props.className}`} strokeWidth={strokeWidth} style={props.style} aria-hidden="true" />;
 }
 
 function PhaseLaneLabel(props: {
@@ -425,7 +522,7 @@ function PhaseLaneLabel(props: {
   accent: string;
   lightMode: boolean;
 }) {
-  const Icon = iconForDomainId(props.phaseId);
+  const { Icon, label, strokeWidth } = getRecipeDagDomainPresentation(props.phaseId);
   const className = props.lightMode
     ? "border-white/80 bg-white/88 text-slate-700"
     : "border-white/10 bg-[#0d0d11]/88 text-[#d4d4dc]";
@@ -433,24 +530,12 @@ function PhaseLaneLabel(props: {
     <div
       className={`absolute z-10 flex items-center gap-1.5 rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-normal shadow-sm backdrop-blur-sm ${className}`}
       style={{ left: props.x, top: props.y }}
-      title={`Phase ${props.phaseId}`}
+      title={`Phase ${label}`}
     >
-      <Icon className="h-3.5 w-3.5 shrink-0" style={{ color: props.accent }} aria-hidden="true" />
+      <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={strokeWidth} style={{ color: props.accent }} aria-hidden="true" />
       <span>{props.phaseId}</span>
     </div>
   );
-}
-
-function iconForDomainId(domainId: string | null): LucideIcon {
-  const normalized = domainId?.toLowerCase() ?? "";
-  if (normalized.includes("hydro") || normalized.includes("river") || normalized.includes("lake")) return Waves;
-  if (normalized.includes("climate") || normalized.includes("temperature") || normalized.includes("rain")) return CloudSun;
-  if (normalized.includes("terrain") || normalized.includes("height") || normalized.includes("elevation")) return Mountain;
-  if (normalized.includes("biome") || normalized.includes("vegetation") || normalized.includes("resource")) return Sprout;
-  if (normalized.includes("route") || normalized.includes("path") || normalized.includes("river")) return Route;
-  if (normalized.includes("finish") || normalized.includes("final")) return Flag;
-  if (normalized.includes("shape") || normalized.includes("land")) return Layers3;
-  return Package;
 }
 
 function CenteredState(props: {
@@ -482,7 +567,7 @@ function createPalette(lightMode: boolean) {
       grid: "bg-[linear-gradient(rgba(0,0,0,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.045)_1px,transparent_1px)] bg-[length:48px_48px]",
       panel: "border-white/80 bg-white/78",
       stage: "border-gray-200 bg-white",
-      stageSelected: "border-cyan-500 bg-white ring-2 ring-cyan-500/30",
+      stageSelected: "border-gray-200 bg-white",
       stageDimmed: "border-gray-200 bg-[#f8fafc] shadow-none",
       step: "border-gray-200 bg-gray-50",
       rule: "border-gray-200 text-gray-500",
@@ -495,17 +580,11 @@ function createPalette(lightMode: boolean) {
       icon: "text-cyan-700",
       iconDimmed: "text-gray-400",
       expandButton: "border-gray-200 bg-white text-gray-500 hover:border-cyan-300 hover:text-cyan-700",
-      edge: "#0891b2",
+      edge: "#64748b",
       edgeLabelPill: "border-cyan-200 bg-white text-cyan-800",
+      edgeLabelPillNeutral: "border-slate-200 bg-white text-slate-600",
       edgeLabelPillDimmed: "border-slate-200 bg-slate-50 text-slate-500",
       rankLine: "rgba(71,85,105,0.22)",
-      phaseFills: [
-        "rgba(236,253,245,0.68)",
-        "rgba(239,246,255,0.68)",
-        "rgba(255,247,237,0.66)",
-        "rgba(245,243,255,0.64)",
-      ],
-      phaseAccents: ["#059669", "#2563eb", "#d97706", "#7c3aed"],
       phaseStroke: "rgba(100,116,139,0.42)",
       phaseText: "#334155",
     } as const;
@@ -515,7 +594,7 @@ function createPalette(lightMode: boolean) {
     grid: "bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[length:48px_48px]",
     panel: "border-white/10 bg-[#141418]/72",
     stage: "border-[#2a2a32] bg-[#101014]",
-    stageSelected: "border-cyan-400 bg-[#101014] ring-2 ring-cyan-400/30",
+    stageSelected: "border-[#2a2a32] bg-[#101014]",
     stageDimmed: "border-[#24242c] bg-[#0d0d11] shadow-none",
     step: "border-[#30303a] bg-[#15151a]",
     rule: "border-[#2a2a32] text-[#8a8a96]",
@@ -528,17 +607,11 @@ function createPalette(lightMode: boolean) {
     icon: "text-cyan-300",
     iconDimmed: "text-[#5f6570]",
     expandButton: "border-[#30303a] bg-[#15151a] text-[#8a8a96] hover:border-cyan-400/50 hover:text-cyan-200",
-    edge: "#22d3ee",
+    edge: "#5f6570",
     edgeLabelPill: "border-cyan-400/35 bg-[#101014] text-cyan-200",
+    edgeLabelPillNeutral: "border-[#2a2a32] bg-[#101014] text-[#a7a7b2]",
     edgeLabelPillDimmed: "border-[#24242c] bg-[#101014] text-[#6f7480]",
     rankLine: "rgba(148,163,184,0.16)",
-    phaseFills: [
-      "rgba(6,78,59,0.20)",
-      "rgba(30,64,175,0.18)",
-      "rgba(146,64,14,0.18)",
-      "rgba(91,33,182,0.17)",
-    ],
-    phaseAccents: ["#34d399", "#60a5fa", "#f59e0b", "#a78bfa"],
     phaseStroke: "rgba(100,116,139,0.42)",
     phaseText: "#d4d4dc",
   } as const;
