@@ -300,8 +300,20 @@ export interface RiverProjectionResult {
   engineNavigableRiverTileCount: number;
   engineMinorRiverTileCount: number;
   terrainNavigableRiverTileCount: number;
-  /** Whether this adapter/runtime can author Civ7 minor-river metadata directly from MapGen intent. */
+  /**
+   * Whether this adapter/runtime exposes the native Civ river-type path needed
+   * to observe minor-river metadata after the river materialization boundary.
+   *
+   * This is a capability/readback boundary, not a parity claim. Exact
+   * Hydrology-to-engine minor-river agreement still comes from comparing
+   * planned minor masks against `engineMinorRiverMask`.
+   */
   minorRiverStampingSupported: boolean;
+  /**
+   * Human-readable note for the minor-river metadata boundary. Present for both
+   * supported and unsupported runtimes so proof ledgers can explain why support
+   * does or does not close exact Hydrology parity.
+   */
   minorRiverUnsupportedReason: string;
 }
 
@@ -631,8 +643,9 @@ export interface EngineAdapter {
 
   /**
    * Read back river terrain/metadata parity for a deterministic navigable
-   * river projection. This is readback only; minor river stamping is not
-   * represented until the adapter exposes a stable write capability.
+   * river projection. This is readback only; minor-river closure requires
+   * comparing Hydrology intent to the native metadata masks produced by the
+   * adapter-owned river materialization boundary.
    */
   readRiverProjection(
     width: number,

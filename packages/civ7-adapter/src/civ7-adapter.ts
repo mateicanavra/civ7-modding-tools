@@ -34,6 +34,8 @@ import {
   CIV7_BROWSER_TABLES_V0,
   NATURAL_WONDER_CATALOG,
   NO_RIVER_TYPE,
+  RIVER_TYPE_MINOR,
+  RIVER_TYPE_NAVIGABLE,
   getNaturalWonderFootprintIndices,
 } from "@civ7/map-policy";
 
@@ -232,8 +234,11 @@ export class Civ7Adapter implements EngineAdapter {
     const riverTypes = (globalThis as typeof globalThis & {
       RiverTypes?: Record<string, number>;
     }).RiverTypes;
-    const navigableRiverType = riverTypes?.RIVER_NAVIGABLE;
-    return typeof navigableRiverType === "number" && this.getRiverType(x, y) === navigableRiverType;
+    const navigableRiverType =
+      typeof riverTypes?.RIVER_NAVIGABLE === "number"
+        ? riverTypes.RIVER_NAVIGABLE
+        : RIVER_TYPE_NAVIGABLE;
+    return this.getRiverType(x, y) === navigableRiverType;
   }
 
   getElevation(x: number, y: number): number {
@@ -599,8 +604,16 @@ export class Civ7Adapter implements EngineAdapter {
     }).RiverTypes;
     const noRiverType =
       typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER : NO_RIVER_TYPE;
-    const minorRiverType = riverTypes?.RIVER_MINOR;
-    const navigableRiverType = riverTypes?.RIVER_NAVIGABLE;
+    const minorRiverType =
+      typeof riverTypes?.RIVER_MINOR === "number" ? riverTypes.RIVER_MINOR : RIVER_TYPE_MINOR;
+    const navigableRiverType =
+      typeof riverTypes?.RIVER_NAVIGABLE === "number"
+        ? riverTypes.RIVER_NAVIGABLE
+        : RIVER_TYPE_NAVIGABLE;
+    const gameplayMap = GameplayMap as unknown as {
+      getRiverType?: (x: number, y: number) => number;
+    };
+    const minorRiverStampingSupported = typeof gameplayMap.getRiverType === "function";
     const stampedNavigableRiverMask = new Uint8Array(size);
     const rejectedNavigableRiverMask = new Uint8Array(size);
     const engineTerrain = new Int32Array(size);
@@ -629,12 +642,9 @@ export class Civ7Adapter implements EngineAdapter {
         const isRiver = this.isRiver(x, y);
         const isNavigable =
           this.isNavigableRiver(x, y) ||
-          (typeof navigableRiverType === "number" && riverType === navigableRiverType);
+          riverType === navigableRiverType;
         const hasNavigableTerrain = terrain === navigableRiverTerrain;
-        const isMinor =
-          typeof minorRiverType === "number"
-            ? isRiver && riverType === minorRiverType
-            : isRiver && !isNavigable;
+        const isMinor = isRiver && riverType === minorRiverType;
         const hasRiverMetadata = riverType !== noRiverType;
 
         engineTerrain[idx] = terrain;
@@ -689,9 +699,10 @@ export class Civ7Adapter implements EngineAdapter {
       engineNavigableRiverTileCount,
       engineMinorRiverTileCount,
       terrainNavigableRiverTileCount,
-      minorRiverStampingSupported: false,
-      minorRiverUnsupportedReason:
-        "Current projection path materializes a Civ-visible navigable subset, but exact minor-river metadata parity remains a readback-only boundary rather than a proven MapGen intent-writer surface.",
+      minorRiverStampingSupported,
+      minorRiverUnsupportedReason: minorRiverStampingSupported
+        ? "Native Civ river-type metadata readback is available after TerrainBuilder.modelRivers; exact Hydrology minor-river parity must be proven by comparing planned minor intent to engineMinorRiverMask."
+        : "Native Civ minor-river metadata readback is unavailable in this runtime; exact Hydrology minor-river parity cannot be proven from readRiverProjection.",
     };
   }
 

@@ -69,10 +69,3 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 - Open PRs against `origin`; details in `docs/process/CONTRIBUTING.md`.
 - Active work lives under `docs/projects/`.
 
-## Session Notice - Hydrology/River Recovery
-
-- For the current hydrology, river, lake, floodplain, and Studio hydrology
-  visualization recovery session, read
-  `docs/projects/river-lake-recovery/FRAME.md` after this router and before
-  touching related code, specs, or runtime proof.
-- Remove this notice when the hydrology/river recovery session ends.

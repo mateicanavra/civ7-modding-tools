@@ -105,6 +105,47 @@ export function pickPlannerMasks(
   return picked;
 }
 
+/**
+ * Union of the planned + engine-projected river masks from the map-rivers
+ * stage. Product requirement (rivers stack): no resources on river tiles —
+ * including navigable-river water tiles (no fish on navigable rivers).
+ */
+export function buildRiverResourceExclusionMask(args: {
+  width: number;
+  height: number;
+  projectedNavigableRivers?: {
+    riverMask?: Uint8Array;
+    plannedMajorRiverMask?: Uint8Array;
+    plannedMinorRiverMask?: Uint8Array;
+  };
+  engineProjectionRivers?: {
+    engineIsRiverMask?: Uint8Array;
+    terrainNavigableRiverMask?: Uint8Array;
+    engineNavigableRiverMask?: Uint8Array;
+    engineMinorRiverMask?: Uint8Array;
+    riverMask?: Uint8Array;
+  };
+}): Uint8Array {
+  const size = Math.max(0, args.width * args.height);
+  const mask = new Uint8Array(size);
+  const add = (candidate: Uint8Array | undefined): void => {
+    if (!(candidate instanceof Uint8Array) || candidate.length !== size) return;
+    for (let i = 0; i < size; i++) {
+      if (candidate[i] === 1) mask[i] = 1;
+    }
+  };
+
+  add(args.projectedNavigableRivers?.riverMask);
+  add(args.projectedNavigableRivers?.plannedMajorRiverMask);
+  add(args.projectedNavigableRivers?.plannedMinorRiverMask);
+  add(args.engineProjectionRivers?.riverMask);
+  add(args.engineProjectionRivers?.terrainNavigableRiverMask);
+  add(args.engineProjectionRivers?.engineIsRiverMask);
+  add(args.engineProjectionRivers?.engineNavigableRiverMask);
+  add(args.engineProjectionRivers?.engineMinorRiverMask);
+  return mask;
+}
+
 type GroupPlanRow = {
   resourceType: string;
   status: "planned" | "blocked" | "missing-expectation" | "proxy-gap";
@@ -125,9 +166,23 @@ export function buildResourceDemands(args: {
   plannedRows: ReadonlyArray<GroupPlanRow>;
   habitat: HabitatFields;
   legalitySurface: ResourceLegalitySurface;
+  /**
+   * Optional per-tile river exclusion (1 = river tile). Tiles flagged here
+   * are removed from every demand's legalMask BEFORE legal/eligible counts,
+   * so the exclusion flows through site selection, the support pass, and
+   * stamping with no other changes. Applies to ALL families, aquatic included
+   * (navigable-river water tiles must not receive fish — rivers product
+   * decision).
+   */
+  riverResourceExclusionMask?: Uint8Array;
 }): ResourceDemandBuildResult {
-  const { width, height, plannedRows, habitat, legalitySurface } = args;
+  const { width, height, plannedRows, habitat, legalitySurface, riverResourceExclusionMask } = args;
   const size = width * height;
+  if (riverResourceExclusionMask !== undefined && riverResourceExclusionMask.length !== size) {
+    throw new Error(
+      `[resources] riverResourceExclusionMask length ${riverResourceExclusionMask.length} does not match grid size ${size}.`
+    );
+  }
   const age = resolveActiveResourceAge();
   const resolution = resolveResourceRuntimeIds();
   const expectationByType = new Map(
@@ -179,6 +234,11 @@ export function buildResourceDemands(args: {
 
     const habitatEligibility = buildHabitatEligibility(habitatFields, size, signal);
     const legalMask = buildResourceLegalityMask(legalitySurface, resolved.resourceTypeId);
+    if (riverResourceExclusionMask) {
+      for (let i = 0; i < size; i++) {
+        if (riverResourceExclusionMask[i] === 1) legalMask[i] = 0;
+      }
+    }
     let legalTileCount = 0;
     let eligibleTileCount = 0;
     for (let i = 0; i < size; i++) {

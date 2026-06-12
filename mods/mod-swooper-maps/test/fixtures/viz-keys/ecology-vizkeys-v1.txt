@@ -12,6 +12,7 @@ ecology.biome.surfaceTemperature|tile.hexOddQ|grid
 ecology.biome.treeLine01|tile.hexOddQ|grid
 ecology.biome.vegetationDensity|tile.hexOddQ|grid
 ecology.biome.vegetationDensity|tile.hexOddQ|points
+ecology.features.floodplainIntentMask|tile.hexOddQ|grid
 ecology.occupancy.base.reserved|tile.hexOddQ|grid
 ecology.pedology.fertility|tile.hexOddQ|grid
 ecology.pedology.fertility|tile.hexOddQ|points
@@ -44,6 +45,9 @@ ecology.scoreLayers.FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE|tile.hexOddQ|grid
 ecology.scoreLayers.FEATURE_WATERING_HOLE|tile.hexOddQ|grid
 map.ecology.biome.bindingClass|tile.hexOddQ|grid
 map.ecology.biomeId|tile.hexOddQ|grid
+map.ecology.features.floodplainAppliedMask|tile.hexOddQ|grid
+map.ecology.features.floodplainIntentMask|tile.hexOddQ|grid
+map.ecology.features.floodplainRejectedMask|tile.hexOddQ|grid
 map.ecology.features.rejectionMask|tile.hexOddQ|grid
 map.ecology.featureType|tile.hexOddQ|grid
 map.ecology.temperature|tile.hexOddQ|grid

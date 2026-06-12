@@ -122,9 +122,11 @@ export type NativeRiverObjectReadbackStatus =
 export type RiverMetadataParityExample = Readonly<{
   x: number;
   y: number;
+  plannedMinorRiver?: number | null;
   projectedNavigableTerrain: number | null;
   liveTerrainNavigableRiver: number | null;
   liveNavigableRiver: number | null;
+  liveMinorRiver?: number | null;
   liveRiverType: number | null;
 }>;
 
@@ -144,6 +146,10 @@ export type RiverMetadataParityReport = Readonly<{
   liveRiverTileCount: number;
   liveNavigableRiverTileCount: number;
   liveMinorRiverTileCount: number;
+  liveMinorOnPlannedMinorCount: number;
+  liveMinorOffPlannedMinorCount: number;
+  plannedMinorWithoutLiveMinorCount: number;
+  plannedMinorVsLiveMinorMismatchCount: number;
   nativeRiverObjectReadbackStatus: NativeRiverObjectReadbackStatus;
   nativeRiverObjectCount: number | null;
   nativeRiverObjectSampleCount: number;
@@ -153,6 +159,15 @@ export type RiverMetadataParityReport = Readonly<{
   minorRiverStampingSupported?: boolean;
   minorRiverUnsupportedReason?: string;
   examples: ReadonlyArray<RiverMetadataParityExample>;
+}>;
+
+type MaskPairComparison = Readonly<{
+  compared: number;
+  presentOnPlannedCount: number;
+  liveOffPlannedCount: number;
+  plannedWithoutLiveCount: number;
+  mismatchCount: number;
+  dimensionMismatch: boolean;
 }>;
 
 export type LakeReadbackCounters = Readonly<{
@@ -166,6 +181,27 @@ export type LakeReadbackParityReport = Readonly<{
   local?: LakeReadbackCounters;
   exact?: LakeReadbackCounters;
   mismatchedFields: ReadonlyArray<keyof LakeReadbackCounters>;
+}>;
+
+export type FloodplainFeatureApplyCounters = Readonly<{
+  attemptedFloodplainFeatureCount: number;
+  appliedFloodplainFeatureCount: number;
+  rejectedFloodplainFeatureCount: number;
+}>;
+
+export type FloodplainActiveParityReport = Readonly<{
+  status:
+    | "active-live-match"
+    | "inactive-control"
+    | "missing-local-diagnostics"
+    | "missing-exact-log"
+    | "mismatch"
+    | "live-readback-missing"
+    | "live-feature-mismatch";
+  local?: FloodplainFeatureApplyCounters;
+  exact?: FloodplainFeatureApplyCounters;
+  featureSurfaceStatus?: SurfaceDiffSummary["status"];
+  mismatchedFields: ReadonlyArray<keyof FloodplainFeatureApplyCounters>;
 }>;
 
 export type RiverLakeProofClaimStatus = "pass" | "fail" | "unresolved" | "out-of-scope";
@@ -413,6 +449,7 @@ export type FinalSurfaceParityProof = Readonly<{
   resourcePlacementRejectionContexts?: ReadonlyArray<ResourcePlacementRejectionContext>;
   riverMetadataParity?: RiverMetadataParityReport;
   lakeReadbackParity?: LakeReadbackParityReport;
+  floodplainActiveParity?: FloodplainActiveParityReport;
   proofClaims: RiverLakeProofClaimLedger;
   residuals: ReadonlyArray<ParityResidualClassification>;
   unresolvedLinks: ReadonlyArray<string>;
@@ -484,6 +521,17 @@ export type ExactAuthorshipProofLike = Readonly<{
         placed?: Readonly<{ count?: number; hash32?: string }>;
         rejected?: Readonly<{ count?: number; hash32?: string }>;
         mismatch?: Readonly<{ count?: number; hash32?: string }>;
+      }>;
+    }>;
+    featureApply?: Readonly<{
+      stats?: Readonly<{
+        attempted?: number;
+        applied?: number;
+        rejected?: number;
+        rejectedCanHaveFeature?: number;
+        attemptedByFeature?: Readonly<Record<string, number>>;
+        appliedByFeature?: Readonly<Record<string, number>>;
+        rejectedCanHaveFeatureByFeature?: Readonly<Record<string, number>>;
       }>;
     }>;
     naturalWonderPlacement?: Readonly<{
@@ -645,6 +693,7 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
     if (event.data.type === "naturalWonder.planInput") evidence.naturalWonderPlanInput = event.data;
   }
   evidence.featureIntents = {
+    floodplains: context.artifacts.get(ecologyArtifacts.featureIntentsFloodplains.id),
     vegetation: context.artifacts.get(ecologyArtifacts.featureIntentsVegetation.id),
     wetlands: context.artifacts.get(ecologyArtifacts.featureIntentsWetlands.id),
     reefs: context.artifacts.get(ecologyArtifacts.featureIntentsReefs.id),
@@ -1024,6 +1073,7 @@ export function buildFinalSurfaceParityProof(args: {
     exact === undefined ? [] : buildResourcePlacementRejectionContexts(exact, args.local);
   const riverMetadataParity = buildRiverMetadataParityReport(args.local, args.live);
   const lakeReadbackParity = buildLakeReadbackParityReport(exact, args.local);
+  const floodplainActiveParity = buildFloodplainActiveParityReport(exact, args.local, diffs);
   const exactAuthorshipValidation = validateExactAuthorshipProofPacket(exact);
 
   unresolvedLinks.push(...exactAuthorshipValidation.unresolvedLinks);
@@ -1137,6 +1187,17 @@ export function buildFinalSurfaceParityProof(args: {
   } else if (lakeReadbackParity?.status === "mismatch") {
     unresolvedLinks.push("lake-readback.mismatch");
   }
+  if (floodplainActiveParity?.status === "missing-local-diagnostics") {
+    unresolvedLinks.push("floodplain-active.local-diagnostics");
+  } else if (floodplainActiveParity?.status === "missing-exact-log") {
+    unresolvedLinks.push("floodplain-active.exact-log");
+  } else if (floodplainActiveParity?.status === "mismatch") {
+    unresolvedLinks.push("floodplain-active.mismatch");
+  } else if (floodplainActiveParity?.status === "live-readback-missing") {
+    unresolvedLinks.push("floodplain-active.live-readback");
+  } else if (floodplainActiveParity?.status === "live-feature-mismatch") {
+    unresolvedLinks.push("floodplain-active.live-feature-mismatch");
+  }
 
   for (const diff of diffs) {
     if (diff.status === "dimension-mismatch") unresolvedLinks.push(`surface.${diff.key}.dimensions`);
@@ -1152,6 +1213,7 @@ export function buildFinalSurfaceParityProof(args: {
     exactAuthorshipUnresolvedLinks: exactAuthorshipValidation.unresolvedLinks,
     riverMetadataParity,
     lakeReadbackParity,
+    floodplainActiveParity,
   });
 
   return {
@@ -1186,6 +1248,7 @@ export function buildFinalSurfaceParityProof(args: {
       : { resourcePlacementRejectionContexts }),
     ...(riverMetadataParity === undefined ? {} : { riverMetadataParity }),
     ...(lakeReadbackParity === undefined ? {} : { lakeReadbackParity }),
+    ...(floodplainActiveParity === undefined ? {} : { floodplainActiveParity }),
     proofClaims,
     residuals,
     unresolvedLinks: [...new Set(unresolvedLinks)].sort((a, b) => a.localeCompare(b)),
@@ -1273,8 +1336,9 @@ function buildRiverLakeProofClaimLedger(args: {
   exactAuthorshipUnresolvedLinks: ReadonlyArray<string>;
   riverMetadataParity?: RiverMetadataParityReport;
   lakeReadbackParity?: LakeReadbackParityReport;
+  floodplainActiveParity?: FloodplainActiveParityReport;
 }): RiverLakeProofClaimLedger {
-  const { exactAuthorshipUnresolvedLinks, riverMetadataParity, lakeReadbackParity } = args;
+  const { exactAuthorshipUnresolvedLinks, riverMetadataParity, lakeReadbackParity, floodplainActiveParity } = args;
   const exactAuthorship =
     exactAuthorshipUnresolvedLinks.length === 0
       ? proofClaim(
@@ -1318,12 +1382,7 @@ function buildRiverLakeProofClaimLedger(args: {
       ["river-runtime-visible-proof"]
     ),
     "lake-final": lakeFinalClaim(lakeReadbackParity),
-    "floodplain-active": proofClaim(
-      "floodplain-active",
-      "unresolved",
-      "Active live floodplain-family feature proof is not derived from this parity packet.",
-      ["lake-floodplain-product-proof-gates"]
-    ),
+    "floodplain-active": floodplainActiveClaim(floodplainActiveParity),
     "product-acceptance": proofClaim(
       "product-acceptance",
       "unresolved",
@@ -1332,6 +1391,55 @@ function buildRiverLakeProofClaimLedger(args: {
     ),
   };
   return { version: 1, claims };
+}
+
+function floodplainActiveClaim(parity: FloodplainActiveParityReport | undefined): RiverLakeProofClaim {
+  if (parity === undefined) {
+    return proofClaim(
+      "floodplain-active",
+      "unresolved",
+      "No floodplain feature-apply proof counters are present.",
+      ["floodplain-active.local-diagnostics"]
+    );
+  }
+  if (parity.status === "inactive-control") {
+    return proofClaim(
+      "floodplain-active",
+      "out-of-scope",
+      "This row has zero floodplain-family attempts/applies and is a no-signal control, not a product pass.",
+      ["floodplain-active.inactive-control"]
+    );
+  }
+  if (parity.status === "active-live-match") {
+    return proofClaim(
+      "floodplain-active",
+      "pass",
+      "Exact and local floodplain-family apply counts agree, and the live feature grid matches local final surface readback.",
+      ["floodplainActiveParity"]
+    );
+  }
+  if (parity.status === "mismatch") {
+    return proofClaim(
+      "floodplain-active",
+      "fail",
+      "Exact and local floodplain-family apply counters diverge.",
+      parity.mismatchedFields.map((field) => `floodplain-active.${field}`)
+    );
+  }
+  if (parity.status === "live-feature-mismatch") {
+    return proofClaim(
+      "floodplain-active",
+      "fail",
+      "Floodplain-family apply counters agree, but live feature readback does not match the local final surface.",
+      ["floodplain-active.live-feature-mismatch"]
+    );
+  }
+  return proofClaim(
+    "floodplain-active",
+    "unresolved",
+    "Floodplain active proof is missing required local, exact, or live feature evidence.",
+    [`floodplain-active.${parity.status}`]
+  );
 }
 
 function terrainReadbackClaim(
@@ -1580,6 +1688,124 @@ function readLakeReadbackCounters(value: unknown): LakeReadbackCounters | undefi
   return Object.keys(counters).length === 0 ? undefined : counters;
 }
 
+const FLOODPLAIN_FEATURE_KEY_PATTERN = /^FEATURE_[A-Z]+_FLOODPLAIN_(?:MINOR|NAVIGABLE)$/;
+const FLOODPLAIN_ACTIVE_COUNTER_FIELDS = [
+  "attemptedFloodplainFeatureCount",
+  "appliedFloodplainFeatureCount",
+  "rejectedFloodplainFeatureCount",
+] as const satisfies readonly (keyof FloodplainFeatureApplyCounters)[];
+
+function buildFloodplainActiveParityReport(
+  exact: ExactAuthorshipProofLike | undefined,
+  local: FinalSurfaceSnapshot,
+  diffs: ReadonlyArray<SurfaceDiffSummary>
+): FloodplainActiveParityReport | undefined {
+  const localCounters = readFloodplainFeatureApplyCounters(
+    isPlainObject(local.evidence?.featureApplyDiagnostics) ? local.evidence.featureApplyDiagnostics : undefined
+  );
+  const exactCounters = readFloodplainFeatureApplyCounters(exact?.log?.featureApply?.stats);
+  const featureSurface = diffs.find((diff) => diff.key === "feature");
+  if (localCounters === undefined && exactCounters === undefined) return undefined;
+  if (localCounters === undefined) {
+    return {
+      status: "missing-local-diagnostics",
+      ...(exactCounters === undefined ? {} : { exact: exactCounters }),
+      featureSurfaceStatus: featureSurface?.status,
+      mismatchedFields: [],
+    };
+  }
+  if (exactCounters === undefined) {
+    return {
+      status: "missing-exact-log",
+      local: localCounters,
+      featureSurfaceStatus: featureSurface?.status,
+      mismatchedFields: [],
+    };
+  }
+
+  const mismatchedFields = FLOODPLAIN_ACTIVE_COUNTER_FIELDS.filter(
+    (field) => localCounters[field] !== exactCounters[field]
+  );
+  if (mismatchedFields.length > 0) {
+    return {
+      status: "mismatch",
+      local: localCounters,
+      exact: exactCounters,
+      featureSurfaceStatus: featureSurface?.status,
+      mismatchedFields,
+    };
+  }
+  if (localCounters.appliedFloodplainFeatureCount === 0 && localCounters.attemptedFloodplainFeatureCount === 0) {
+    return {
+      status: "inactive-control",
+      local: localCounters,
+      exact: exactCounters,
+      featureSurfaceStatus: featureSurface?.status,
+      mismatchedFields: [],
+    };
+  }
+  if (featureSurface === undefined || featureSurface.missingLive > 0) {
+    return {
+      status: "live-readback-missing",
+      local: localCounters,
+      exact: exactCounters,
+      featureSurfaceStatus: featureSurface?.status,
+      mismatchedFields: [],
+    };
+  }
+  if (featureSurface.status !== "match") {
+    return {
+      status: "live-feature-mismatch",
+      local: localCounters,
+      exact: exactCounters,
+      featureSurfaceStatus: featureSurface.status,
+      mismatchedFields: [],
+    };
+  }
+  return {
+    status: "active-live-match",
+    local: localCounters,
+    exact: exactCounters,
+    featureSurfaceStatus: featureSurface.status,
+    mismatchedFields: [],
+  };
+}
+
+function readFloodplainFeatureApplyCounters(value: unknown): FloodplainFeatureApplyCounters | undefined {
+  if (!isPlainObject(value)) return undefined;
+  const attemptedByFeature = readCountRecord(value.attemptedByFeature);
+  const appliedByFeature = readCountRecord(value.appliedByFeature);
+  const rejectedByFeature = readCountRecord(value.rejectedCanHaveFeatureByFeature);
+  if (attemptedByFeature === undefined && appliedByFeature === undefined && rejectedByFeature === undefined) {
+    return undefined;
+  }
+  return {
+    attemptedFloodplainFeatureCount: sumFloodplainFeatureCounts(attemptedByFeature),
+    appliedFloodplainFeatureCount: sumFloodplainFeatureCounts(appliedByFeature),
+    rejectedFloodplainFeatureCount: sumFloodplainFeatureCounts(rejectedByFeature),
+  };
+}
+
+function readCountRecord(value: unknown): Readonly<Record<string, number>> | undefined {
+  if (!isPlainObject(value)) return undefined;
+  const counts: Record<string, number> = {};
+  for (const [key, rawCount] of Object.entries(value)) {
+    const count = numberValue(rawCount);
+    if (count === undefined) continue;
+    counts[key] = count;
+  }
+  return Object.keys(counts).length === 0 ? undefined : counts;
+}
+
+function sumFloodplainFeatureCounts(counts: Readonly<Record<string, number>> | undefined): number {
+  if (counts === undefined) return 0;
+  let total = 0;
+  for (const [feature, count] of Object.entries(counts)) {
+    if (FLOODPLAIN_FEATURE_KEY_PATTERN.test(feature)) total += count;
+  }
+  return total;
+}
+
 function classifyResidualSurfaces(local: FinalSurfaceSnapshot): ReadonlyArray<ParityResidualClassification> {
   const placementParity = isPlainObject(local.evidence?.placementParity) ? local.evidence.placementParity : undefined;
   const wondersPlanned = numberValue(placementParity?.wondersPlanned);
@@ -1638,6 +1864,7 @@ function buildRiverMetadataParityReport(
   const liveRiverTileCount = countOnes(liveRiver?.values);
   const liveNavigableRiverTileCount = countOnes(liveNavigable?.values);
   const liveMinorRiverTileCount = countOnes(liveMinor?.values);
+  const minorComparison = compareMaskPair(localPlannedMinor, liveMinor);
   const nativeRiverObjects = nativeRiverObjectParityFields({
     snapshot: live.nativeRiverObjects,
     projectedNavigableTerrainTileCount,
@@ -1673,6 +1900,10 @@ function buildRiverMetadataParityReport(
       liveRiverTileCount,
       liveNavigableRiverTileCount,
       liveMinorRiverTileCount,
+      liveMinorOnPlannedMinorCount: minorComparison.presentOnPlannedCount,
+      liveMinorOffPlannedMinorCount: minorComparison.liveOffPlannedCount,
+      plannedMinorWithoutLiveMinorCount: minorComparison.plannedWithoutLiveCount,
+      plannedMinorVsLiveMinorMismatchCount: minorComparison.mismatchCount,
       ...nativeRiverObjects,
       projectedVsLiveTerrainMismatchCount: 0,
       projectedVsLiveMetadataMismatchCount: 0,
@@ -1688,7 +1919,8 @@ function buildRiverMetadataParityReport(
     localProjected.values.length !== liveTerrain.values.length ||
     localProjected.width !== liveNavigable.width ||
     localProjected.height !== liveNavigable.height ||
-    localProjected.values.length !== liveNavigable.values.length
+    localProjected.values.length !== liveNavigable.values.length ||
+    minorComparison.dimensionMismatch
   ) {
     return {
       status: "dimension-mismatch",
@@ -1701,6 +1933,10 @@ function buildRiverMetadataParityReport(
       liveRiverTileCount,
       liveNavigableRiverTileCount,
       liveMinorRiverTileCount,
+      liveMinorOnPlannedMinorCount: minorComparison.presentOnPlannedCount,
+      liveMinorOffPlannedMinorCount: minorComparison.liveOffPlannedCount,
+      plannedMinorWithoutLiveMinorCount: minorComparison.plannedWithoutLiveCount,
+      plannedMinorVsLiveMinorMismatchCount: minorComparison.mismatchCount,
       ...nativeRiverObjects,
       projectedVsLiveTerrainMismatchCount: 0,
       projectedVsLiveMetadataMismatchCount: 0,
@@ -1719,6 +1955,9 @@ function buildRiverMetadataParityReport(
     const projectedValue = normalizedMaskValue(localProjected.values[index]);
     const liveTerrainValue = normalizedMaskValue(liveTerrain.values[index]);
     const liveNavigableValue = normalizedMaskValue(liveNavigable.values[index]);
+    const plannedMinorValue =
+      localPlannedMinor === undefined ? null : normalizedMaskValue(localPlannedMinor.values[index]);
+    const liveMinorValue = liveMinor === undefined ? null : normalizedMaskValue(liveMinor.values[index]);
     if (liveTerrainValue === null || liveNavigableValue === null) {
       missingLiveReadback += 1;
     }
@@ -1733,15 +1972,20 @@ function buildRiverMetadataParityReport(
     if (terrainMetadataMismatch) liveTerrainVsMetadataMismatchCount += 1;
     if (
       examples.length < 10 &&
-      (projectedTerrainMismatch || projectedMetadataMismatch || terrainMetadataMismatch)
+      (projectedTerrainMismatch ||
+        projectedMetadataMismatch ||
+        terrainMetadataMismatch ||
+        (plannedMinorValue !== null && liveMinorValue !== null && plannedMinorValue !== liveMinorValue))
     ) {
       const y = Math.floor(index / localProjected.width);
       examples.push({
         x: index - y * localProjected.width,
         y,
+        plannedMinorRiver: plannedMinorValue,
         projectedNavigableTerrain: projectedValue,
         liveTerrainNavigableRiver: liveTerrainValue,
         liveNavigableRiver: liveNavigableValue,
+        liveMinorRiver: liveMinorValue,
         liveRiverType: liveRiverType?.values[index] ?? null,
       });
     }
@@ -1749,7 +1993,8 @@ function buildRiverMetadataParityReport(
 
   const metadataDivergenceCount =
     projectedVsLiveMetadataMismatchCount +
-    liveTerrainVsMetadataMismatchCount;
+    liveTerrainVsMetadataMismatchCount +
+    minorComparison.mismatchCount;
   const status: RiverMetadataParityReport["status"] =
     missingLiveReadback > 0
       ? "readback-missing"
@@ -1769,12 +2014,88 @@ function buildRiverMetadataParityReport(
     liveRiverTileCount,
     liveNavigableRiverTileCount,
     liveMinorRiverTileCount,
+    liveMinorOnPlannedMinorCount: minorComparison.presentOnPlannedCount,
+    liveMinorOffPlannedMinorCount: minorComparison.liveOffPlannedCount,
+    plannedMinorWithoutLiveMinorCount: minorComparison.plannedWithoutLiveCount,
+    plannedMinorVsLiveMinorMismatchCount: minorComparison.mismatchCount,
     ...nativeRiverObjects,
     projectedVsLiveTerrainMismatchCount,
     projectedVsLiveMetadataMismatchCount,
     liveTerrainVsMetadataMismatchCount,
     ...minorRiverBoundary,
     examples,
+  };
+}
+
+function compareMaskPair(
+  planned: SurfaceGrid | undefined,
+  live: SurfaceGrid | undefined
+): MaskPairComparison {
+  if (planned === undefined && live === undefined) {
+    return {
+      compared: 0,
+      presentOnPlannedCount: 0,
+      liveOffPlannedCount: 0,
+      plannedWithoutLiveCount: 0,
+      mismatchCount: 0,
+      dimensionMismatch: false,
+    };
+  }
+  if (planned === undefined) {
+    const liveCount = countOnes(live?.values);
+    return {
+      compared: live?.values.length ?? 0,
+      presentOnPlannedCount: 0,
+      liveOffPlannedCount: liveCount,
+      plannedWithoutLiveCount: 0,
+      mismatchCount: liveCount,
+      dimensionMismatch: false,
+    };
+  }
+  if (live === undefined) {
+    const plannedCount = countOnes(planned.values);
+    return {
+      compared: planned.values.length,
+      presentOnPlannedCount: 0,
+      liveOffPlannedCount: 0,
+      plannedWithoutLiveCount: plannedCount,
+      mismatchCount: plannedCount,
+      dimensionMismatch: false,
+    };
+  }
+  if (
+    planned.width !== live.width ||
+    planned.height !== live.height ||
+    planned.values.length !== live.values.length
+  ) {
+    return {
+      compared: 0,
+      presentOnPlannedCount: 0,
+      liveOffPlannedCount: 0,
+      plannedWithoutLiveCount: 0,
+      mismatchCount: 0,
+      dimensionMismatch: true,
+    };
+  }
+
+  let presentOnPlannedCount = 0;
+  let liveOffPlannedCount = 0;
+  let plannedWithoutLiveCount = 0;
+  for (let index = 0; index < planned.values.length; index += 1) {
+    const plannedValue = normalizedMaskValue(planned.values[index]);
+    const liveValue = normalizedMaskValue(live.values[index]);
+    if (plannedValue === null || liveValue === null) continue;
+    if (plannedValue === 1 && liveValue === 1) presentOnPlannedCount += 1;
+    if (plannedValue === 0 && liveValue === 1) liveOffPlannedCount += 1;
+    if (plannedValue === 1 && liveValue === 0) plannedWithoutLiveCount += 1;
+  }
+  return {
+    compared: planned.values.length,
+    presentOnPlannedCount,
+    liveOffPlannedCount,
+    plannedWithoutLiveCount,
+    mismatchCount: liveOffPlannedCount + plannedWithoutLiveCount,
+    dimensionMismatch: false,
   };
 }
 

@@ -85,12 +85,12 @@ const MapRiversEngineProjectionArtifactSchema = Type.Object(
     }),
     minorRiverStampingSupported: Type.Boolean({
       description:
-        "Whether this adapter/runtime can author Civ7 minor-river metadata directly from MapGen intent.",
+        "Whether this adapter/runtime exposes the native Civ river-type readback path needed to observe minor-river metadata after river materialization.",
     }),
     minorRiverUnsupportedReason: Type.String({
       minLength: 1,
       description:
-        "Human-readable boundary note when minor river stamping is not available on the adapter/runtime.",
+        "Human-readable minor-river metadata boundary note; exact Hydrology parity still requires comparing planned minor intent to engine readback.",
     }),
   },
   {

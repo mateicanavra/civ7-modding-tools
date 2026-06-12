@@ -336,6 +336,9 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
     if (status === "pass") {
       return lightMode ? "bg-emerald-50 text-emerald-700" : "bg-emerald-950/60 text-emerald-300";
     }
+    if (status === "available") {
+      return lightMode ? "bg-sky-50 text-sky-700" : "bg-sky-950/60 text-sky-300";
+    }
     if (status === "fail") {
       return lightMode ? "bg-red-50 text-red-700" : "bg-red-950/60 text-red-300";
     }
@@ -348,6 +351,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
     switch (status) {
       case "pass":
         return "ready";
+      case "available":
+        return "inspect";
       case "fail":
         return "fail";
       case "out-of-scope":
@@ -500,7 +505,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           </div>
           <div className={`flex-shrink-0 border-b ${borderSubtle} max-h-[260px] overflow-y-auto custom-scrollbar`}>
             {inspectorRows.map((row) => (
-              <div key={row.lane} className={`px-3 py-2 border-b last:border-b-0 ${borderSubtle}`}>
+              <div key={row.rowKey} className={`px-3 py-2 border-b last:border-b-0 ${borderSubtle}`}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className={`text-[9px] uppercase tracking-wider ${textMuted}`}>{row.laneLabel}</div>
@@ -523,10 +528,15 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                       type="button"
                       key={ref.layerKey}
                       onClick={() => onRiverLakeInspectorLayerSelect?.(ref)}
-                      title={`${ref.label} · ${row.proofClass}`}
-                      className={`max-w-[96px] truncate rounded px-1.5 py-0.5 text-[9px] transition-colors ${lightMode ? "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50" : "bg-[#111116] border border-[#2a2a32] text-[#c4c4cc] hover:bg-[#1a1a1f]"}`}
+                      title={`${ref.label} · ${ref.presentation.categoryLabel} · ${row.proofClass}`}
+                      className={`inline-flex max-w-[112px] items-center gap-1 truncate rounded px-1.5 py-0.5 text-[9px] transition-colors ${lightMode ? "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50" : "bg-[#111116] border border-[#2a2a32] text-[#c4c4cc] hover:bg-[#1a1a1f]"}`}
                     >
-                      {formatLayerButtonLabel(ref)}
+                      <span
+                        aria-hidden="true"
+                        className="h-1.5 w-1.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: ref.presentation.palette.activeColor }}
+                      />
+                      <span className="truncate">{formatLayerButtonLabel(ref)}</span>
                     </button>
                   ))}
                 </div>

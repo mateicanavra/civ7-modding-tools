@@ -11,15 +11,19 @@
     parity claim.
   - Repaired/reclassified proof rows are now in
     `openspec/changes/swooper-earthlike-product-acceptance-proof/workstream/acceptance-row-ledger.md`:
-    visible major/navigable river terrain passes on the `mq6c38rf-n2p`
-    same-run proof, Civ river metadata is reclassified as an unsupported writer
-    gap, and floodplain live visibility passes on the separate
-    `mq6dx234-1wx4` floodplain-producing proof.
+    visible major/navigable river terrain passed on the `mq6c38rf-n2p`
+    same-run proof, and later 2026-06-10 disposable/source-integrated evidence
+    reclassified Civ river metadata from "unsupported writer gap" to "bulk
+    native materialization supported, exact parity still open." Floodplain live
+    visibility passes on the separate `mq6dx234-1wx4` floodplain-producing
+    proof.
 - [x] 1.2 Classify the owner: hydrology truth, ecology/floodplain policy,
   projection/materialization, Studio visualization, or Civ policy.
   - Classification: projection/materialization + adapter readback for
-    navigable/major rivers; adapter capability gap for minor-river metadata
-    stamping.
+    navigable/major rivers; no stable per-tile minor-river writer is proven;
+    bulk native minor-river metadata materialization is supported but must be
+    parity-classified against Hydrology planned-minor intent before product
+    claims.
 
 ## 2. Repair
 
@@ -40,13 +44,18 @@
   - The river proof class is terrain-exact: planned minor `212`, planned major
     `149`, projected navigable terrain `6`, live `TERRAIN_NAVIGABLE_RIVER`
     terrain `6`, and projected-vs-live terrain mismatches `0`.
-  - Civ metadata readback reported `river=0`, `navigableRiver=0`, and
-    `minorRiver=0`; the verifier records this as
+  - Earlier direct-stamping proof reported `river=0`, `navigableRiver=0`, and
+    `minorRiver=0`; the verifier recorded that as
     `terrain-match-metadata-divergent`, separate from terrain stamping.
-- [x] 2.5 Discover or reject a stable Civ minor-river authoring capability; keep
-  `minorRiverStampingSupported=false` until proven otherwise. Candidate probe:
-  isolate `TerrainBuilder.setRiverValidationValues` in a disposable runtime
-  proof before any production use.
+  - Current source now calls the adapter-owned Civ bulk river modeler after
+    authored terrain stamping. Live readback on the current branch recorded
+    `terrainNavigableRiver=82`, `river=202`, `navigableRiver=68`, and
+    `minorRiver=134` for one generated run. This reclassifies metadata support
+    but does not close exact authored-topology parity or rendered visual proof.
+- [x] 2.5 Discover or reject a stable Civ minor-river authoring capability.
+  Candidate probe: isolate `TerrainBuilder.setRiverValidationValues` in a
+  disposable runtime proof before any production use; separately characterize
+  the official bulk `TerrainBuilder.modelRivers(...)` sequence.
   - Resource sync/audit refreshed to `.civ7/outputs/resources` `fbc38ef`
     (`Update snapshot 2026-06-03T01:59:59Z`). Official map scripts still use
     `TerrainBuilder.modelRivers(...)` plus `defineNamedRivers()`/`storeWaterData()`;
@@ -63,13 +72,21 @@
     `/tmp/civ7-river-writer/mutation-mq6c38rf.json`. Candidate rejected for
     production minor-river authoring until a different writer surface is
     discovered and proven.
-  - `map-rivers` artifacts require a non-empty `minorRiverUnsupportedReason`,
-    and the focused projection test asserts that the readback artifact carries
-    the unsupported-boundary note whenever `minorRiverStampingSupported=false`.
-  - Final-surface parity now treats `minorRiverStampingSupported=false` without
-    a non-empty unsupported reason as unresolved proof
-    (`river-metadata.minor-unsupported-reason`), so saved parity artifacts
-    cannot silently drop the boundary explanation.
+  - Disposable proof
+    `studio-run-in-game-live-proof-mq7bkgi3-1t7t` then proved the official bulk
+    sequence can author river metadata: pre `river=0`, `navigableRiver=0`,
+    `minorRiver=0`; post `river=251`, `navigableRiver=71`,
+    `minorRiver=180`.
+  - Current `map-rivers` source uses that bulk materialization sequence after
+    authored navigable terrain stamping. Remaining proof must classify any
+    native-added river objects against Hydrology truth instead of treating bulk
+    metadata existence as minor-river product closure.
+  - Final-surface parity now reports
+    `liveMinorOnPlannedMinorCount`, `liveMinorOffPlannedMinorCount`,
+    `plannedMinorWithoutLiveMinorCount`, and
+    `plannedMinorVsLiveMinorMismatchCount`. Native minor metadata that appears
+    off the Hydrology planned-minor mask or misses planned minor truth keeps the
+    metadata-readback claim failed even when terrain readback is complete.
 - [x] 2.6 Add lake/river coupled physical benchmark fixtures:
   tilted island plane, central ridge, closed bowl, saddle spill, tributary
   valleys, rain-shadow coast, arid interior plateau, low-gradient coastal
@@ -134,9 +151,11 @@
 - [x] 3.2 Re-run river/floodplain product acceptance rows.
   - River terrain acceptance evidence is available in the same-run proof:
     projected navigable terrain `6`, live `TERRAIN_NAVIGABLE_RIVER` `6`, and
-    projected-vs-live terrain mismatch count `0`; Civ metadata divergence
-    (`river=0`, `navigableRiver=0`, `minorRiver=0`) is a separate
-    unsupported-writer proof class.
+    projected-vs-live terrain mismatch count `0`; the older Civ metadata
+    divergence (`river=0`, `navigableRiver=0`, `minorRiver=0`) is now
+    reclassified as a direct-stamping-only failure mode. Current native bulk
+    materialization has positive metadata readback, with exact parity and
+    rendered visibility still open.
   - Floodplain acceptance is reclassified as inactive for this authored map:
     the same-run proof contains no floodplain-family feature ids on either
     local or live full-grid feature surfaces (`localFloodplainFamily=0`,
@@ -171,10 +190,10 @@
   - Adapter terrain-vs-metadata regression proof:
     `bun test packages/civ7-adapter/test/civ7-river-projection.test.ts packages/civ7-adapter/test/mock-terrain-policy.test.ts`
     passed on 2026-06-09. It locks the live-observed case where raw
-    `TERRAIN_NAVIGABLE_RIVER` rows are present while Civ river metadata remains
-    `NO_RIVER`, so map-rivers acceptance/rejection/mismatch accounting follows
-    the supported terrain-row materialization surface and keeps metadata
-    divergence separate.
+    `TERRAIN_NAVIGABLE_RIVER` rows can be present while Civ river metadata
+    remains `NO_RIVER` before native bulk modeling, so map-rivers
+    acceptance/rejection/mismatch accounting keeps terrain rows and metadata
+    readback separate even when current source also invokes `modelRivers`.
   - Shared river metadata catalog proof:
     `bun run --cwd packages/civ7-map-policy test`,
     `bun run --cwd packages/civ7-types check`,
@@ -189,10 +208,12 @@
     with planned lakes marked as physics and engine lakes marked as readback.
   - Final-surface lake readback proof:
     `bun run --cwd mods/mod-swooper-maps test -- test/diagnostics/live-parity.test.ts`
-    passed on 2026-06-09. It requires `lakeReadbackParity` to expose local
+    passed on 2026-06-09 and again after the 2026-06-10 native minor-river
+    parity gate. It requires `lakeReadbackParity` to expose local
     accepted-lake/final-drift counters, preserve current `missing-exact-log`
-    semantics for older Studio proof logs, and block future exact/local lake
-    counter divergence.
+    semantics for older Studio proof logs, block future exact/local lake
+    counter divergence, and fail metadata-readback when native minor-river
+    metadata does not match Hydrology planned minor truth.
   - `test/map-rivers/plot-rivers-post-refresh.test.ts` guards the exact
     `artifact:map.rivers.projectedNavigableRivers` and
     `artifact:map.rivers.engineProjectionRivers` IDs named by the OpenSpec
@@ -203,4 +224,5 @@
 - [x] 3.6 Record completion audit.
   - `workstream/completion-audit.md` maps the active objective to current
     evidence, separates proved river/lake outcomes from non-claims, and records
-    that Graphite still reports `codex/mapgen-physical-rivers (needs restack)`.
+    the current native-modeling reclassification without treating the broader
+    hydrology/river/lake goal as complete.

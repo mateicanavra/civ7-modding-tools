@@ -17,14 +17,14 @@ export type RunInGameRequiredContentMarker = Readonly<{
   marker: string;
 }>;
 
-const NATIVE_RIVER_MODELING_CONTENT_MARKERS: readonly RunInGameRequiredContentMarker[] = [
+const AUTHORED_RIVER_MATERIALIZATION_CONTENT_MARKERS: readonly RunInGameRequiredContentMarker[] = [
   {
-    id: "native-river-modeling-trace",
-    marker: "map.rivers.officialCivRiverModeling",
+    id: "authored-river-materialization-trace",
+    marker: "map.rivers.authoredTerrainMaterialization",
   },
   {
-    id: "native-river-modeling-checkpoint",
-    marker: "POST-MODEL-RIVERS",
+    id: "authored-river-materialization-checkpoint",
+    marker: "POST-AUTHORED-RIVERS",
   },
 ] as const;
 
@@ -83,7 +83,7 @@ export function runInGameRequiredMaterializationMarkers(args: {
       id: "run-envelope-hash",
       marker: args.envelopeHash,
     },
-    ...NATIVE_RIVER_MODELING_CONTENT_MARKERS,
+    ...AUTHORED_RIVER_MATERIALIZATION_CONTENT_MARKERS,
   ];
 }
 
@@ -385,6 +385,11 @@ export function parseSwooperMapgenLogProof(args: {
     proofLine.index,
     completionLine.index
   );
+  const placementSurfacePreparation = parsePlacementSurfacePreparationTelemetryBetween(
+    lines,
+    proofLine.index,
+    completionLine.index
+  );
   return {
     ...(args.logPath ? { logPath: args.logPath } : {}),
     ...(args.observedAt ? { observedAt: args.observedAt } : {}),
@@ -397,6 +402,7 @@ export function parseSwooperMapgenLogProof(args: {
     proofPayload,
     completionPayload,
     ...(featureApply ? { featureApply } : {}),
+    ...(placementSurfacePreparation ? { placementSurfacePreparation } : {}),
     ...(resourcePlacement ? { resourcePlacement } : {}),
     ...(naturalWonderPlan ? { naturalWonderPlan } : {}),
     ...(naturalWonderPlanInput ? { naturalWonderPlanInput } : {}),
@@ -540,6 +546,37 @@ function parseResourcePlacementTelemetryBetween(
       payload,
       ...(resourcePlacementStats(payload) ?? {}),
       ...(resourcePlacementCoordinateProof(payload) ?? {}),
+    };
+  }
+  return undefined;
+}
+
+function parsePlacementSurfacePreparationTelemetryBetween(
+  lines: readonly string[],
+  proofIndex: number,
+  completionIndex: number
+): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["placementSurfacePreparation"]> | undefined {
+  for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
+    const line = lines[index] ?? "";
+    if (!line.includes("PLACEMENT_SURFACE_PREPARATION_V1")) continue;
+    const payload = parsePayloadAfterMarker(line, "PLACEMENT_SURFACE_PREPARATION_V1");
+    if (!payload) continue;
+    const acceptedLakeTileCount = numberValue(payload.acceptedLakeTileCount);
+    const finalLakeWaterDriftCount = numberValue(payload.finalLakeWaterDriftCount);
+    const finalLakeClassificationDriftCount = numberValue(payload.finalLakeClassificationDriftCount);
+    if (
+      acceptedLakeTileCount === undefined ||
+      finalLakeWaterDriftCount === undefined ||
+      finalLakeClassificationDriftCount === undefined
+    ) {
+      continue;
+    }
+    return {
+      marker: "PLACEMENT_SURFACE_PREPARATION_V1",
+      payload,
+      acceptedLakeTileCount,
+      finalLakeWaterDriftCount,
+      finalLakeClassificationDriftCount,
     };
   }
   return undefined;

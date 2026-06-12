@@ -54,8 +54,8 @@ describe("Run in Game exact authorship proof identity", () => {
           requestId,
           configHash,
           envelopeHash,
-          "map.rivers.officialCivRiverModeling",
-          "POST-MODEL-RIVERS",
+          "map.rivers.authoredTerrainMaterialization",
+          "POST-AUTHORED-RIVERS",
         ].join("\n"),
         "utf8",
       );
@@ -71,8 +71,8 @@ describe("Run in Game exact authorship proof identity", () => {
         ["run-request-id", true],
         ["run-config-hash", true],
         ["run-envelope-hash", true],
-        ["native-river-modeling-trace", true],
-        ["native-river-modeling-checkpoint", true],
+        ["authored-river-materialization-trace", true],
+        ["authored-river-materialization-checkpoint", true],
       ]);
     } finally {
       await rm(dir, { recursive: true, force: true });
@@ -135,6 +135,11 @@ describe("Run in Game exact authorship proof identity", () => {
           attemptedByFeature: { FEATURE_TAIGA: 305, FEATURE_REEF: 11 },
           appliedByFeature: { FEATURE_TAIGA: 301, FEATURE_REEF: 11 },
           rejectedCanHaveFeatureByFeature: { FEATURE_TAIGA: 4 },
+        })}`,
+        `[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 ${JSON.stringify({
+          acceptedLakeTileCount: 63,
+          finalLakeWaterDriftCount: 0,
+          finalLakeClassificationDriftCount: 0,
         })}`,
         `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
@@ -261,6 +266,12 @@ describe("Run in Game exact authorship proof identity", () => {
         appliedByFeature: { FEATURE_REEF: 11, FEATURE_TAIGA: 301 },
         rejectedCanHaveFeatureByFeature: { FEATURE_TAIGA: 4 },
       },
+    });
+    expect(logProof?.placementSurfacePreparation).toMatchObject({
+      marker: "PLACEMENT_SURFACE_PREPARATION_V1",
+      acceptedLakeTileCount: 63,
+      finalLakeWaterDriftCount: 0,
+      finalLakeClassificationDriftCount: 0,
     });
     expect(logProof?.resourcePlacement).toMatchObject({
       marker: "RESOURCE_PLACEMENT_V1",
@@ -443,6 +454,11 @@ describe("Run in Game exact authorship proof identity", () => {
   it("ignores placement telemetry outside the matching proof section", () => {
     const logProof = parseSwooperMapgenLogProof({
       text: [
+        `[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 ${JSON.stringify({
+          acceptedLakeTileCount: 63,
+          finalLakeWaterDriftCount: 0,
+          finalLakeClassificationDriftCount: 0,
+        })}`,
         `[SWOOPER_MOD] FEATURE_APPLY_V1 ${JSON.stringify({
           attempted: 1,
           applied: 1,
@@ -481,6 +497,7 @@ describe("Run in Game exact authorship proof identity", () => {
     });
 
     expect(logProof?.featureApply).toBeUndefined();
+    expect(logProof?.placementSurfacePreparation).toBeUndefined();
     expect(logProof?.resourcePlacement).toBeUndefined();
     expect(logProof?.naturalWonderPlan).toBeUndefined();
     expect(logProof?.naturalWonderPlacement).toBeUndefined();
@@ -554,13 +571,15 @@ describe("Run in Game exact authorship proof identity", () => {
         ...args.materialization,
         deployedModScriptContent: contentProof(
           "/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js",
-          { "native-river-modeling-checkpoint": false },
+          { "authored-river-materialization-checkpoint": false },
         ),
       },
     });
 
     expect(proof.status).toBe("unresolved");
-    expect(proof.unresolvedLinks).toContain("materialization.deployed-mod-script-marker.native-river-modeling-checkpoint");
+    expect(proof.unresolvedLinks).toContain(
+      "materialization.deployed-mod-script-marker.authored-river-materialization-checkpoint"
+    );
   });
 
   it("reports materialization script proof gaps before starting Civ", () => {

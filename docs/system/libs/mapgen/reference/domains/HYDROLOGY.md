@@ -194,11 +194,24 @@ re-exported by `CIV7_RIVER_TYPES_V0`, and generated into `@civ7/types`. A
 same-run Studio/Civ proof
 (`studio-run-in-game-mq6c38rf-n2p`) matched projected navigable terrain to live
 `TERRAIN_NAVIGABLE_RIVER` exactly (`6/6`, zero terrain mismatches), while
-`GameplayMap` still reported `NO_RIVER` metadata for those tiles. Therefore
-terrain-row visibility is the supported proof of MapGen-owned major-river
-stamping; minor or navigable river metadata is a separate readback/writer
-surface. `TerrainBuilder.modelRivers` remains the official high-level engine
-generator. Official resources were refreshed through `bun run refresh:data`
+`GameplayMap` still reported `NO_RIVER` metadata for those tiles. That proof is
+historical evidence that terrain rows and river metadata are separate surfaces;
+it is not the current product closure path.
+
+`TerrainBuilder.modelRivers` remains the official high-level stock Civ river
+materialization surface. Swooper authored maps must not delegate river truth to
+that engine generator, but `map-rivers` may use the adapter-owned native bulk
+writer after it stamps the Hydrology-selected navigable terrain mask so Civ
+creates river metadata, model objects, water caches, and named-river state. A
+2026-06-10 same-seed run proved why this boundary matters: unbounded native
+generation produced extra no-sink fragments, while terrain-only authored
+materialization produced no river metadata. Current acceptance therefore
+requires both projected-vs-live terrain readback and projected/planned intent
+vs native metadata readback (`engineNavigableRiverMask` and
+`engineMinorRiverMask`). Minor-river exact parity remains open until same-run
+evidence proves native readback matches Hydrology planned-minor intent.
+Official resources were
+refreshed through `bun run refresh:data`
 against the installed Steam app on 2026-06-09 and stayed clean at snapshot
 `fbc38ef`; spot checks of the installed app matched that snapshot for
 `continents.js`, `archipelago.js`, tooltip helpers, `terrain.xml`, and

@@ -1,5 +1,5 @@
 import type { MapDimensions } from "@civ7/adapter";
-import { findInvalidRiverClassIndex } from "@mapgen/domain/hydrology/river-class.js";
+import { findInvalidRiverClassIndex } from "@mapgen/domain/hydrology";
 
 export type ArtifactValidationIssue = Readonly<{ message: string }>;
 

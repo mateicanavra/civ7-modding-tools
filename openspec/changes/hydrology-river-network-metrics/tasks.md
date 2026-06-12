@@ -17,9 +17,9 @@
 ## 2. Seed Matrix
 
 - [x] 2.1 Add fast deterministic generated-map hydrology checks.
-- [ ] 2.2 Add Earthlike and holdout seed checks with declared pass bands.
+- [x] 2.2 Add Earthlike and holdout seed checks with declared pass bands.
 - [x] 2.3 Add arid/desert no-signal controls.
-- [ ] 2.4 Add closed/endorheic and wet-headwater rows so normal Earth variation
+- [x] 2.4 Add closed/endorheic and wet-headwater rows so normal Earth variation
   is tested instead of averaged away.
 
 ## 3. Validation

@@ -28,15 +28,14 @@ git show -s --format='%H%n%ad%n%s%n%b' --date=iso-strict \
 | `64a32130e` | 2026-05-31 | `feat(mapgen): align projection authoring surface` | Projection stages gained public schemas and deterministic compile mappings, making `map-rivers` the correct place for visible terrain projection knobs instead of Hydrology or Studio-only state. |
 | `33ca94aa3` | 2026-06-03 | `fix(mapgen): enforce Swooper projection parity` | Introduced stronger Civ7 policy/readback posture, including the idea that Studio output must satisfy engine materialization requirements without handing terrain ownership back to Civ scripts. |
 | `4746ab98b` / `07a49061c` | 2026-06-04 / 2026-06-07 | `feat(mapgen): add Civ map policy engine`; `fix(mapgen): add map policy workspace scaffold` | Created the pure `@civ7/map-policy` boundary that now owns shared terrain/river constants and prevents mock/runtime sentinel drift. |
-| Current branch commit | 2026-06-09 | `fix(mapgen): add river metadata readback guardrails` | Current branch: direct major/navigable terrain projection is proved against raw `TERRAIN_NAVIGABLE_RIVER`; Civ metadata readback remains a separate proof class; minor metadata stamping remains unsupported until a writer is proven. |
+| `a1379f19e` | 2026-06-10 | `fix(mapgen): restore native river modeling` | Current branch: `map-rivers` stamps Hydrology-selected navigable terrain, then calls Civ's bulk `modelRivers` boundary so river metadata/model objects are materialized and read back separately from authored terrain truth. |
 
 ## Negative History Signal
 
 `git log -S'modelRivers'` finds the historical engine-delegated river modeling
-path, but the current branch intentionally does not reintroduce
-`TerrainBuilder.modelRivers` as the solution. That old path generated or
-refreshed engine-owned river/caches as a bulk postprocess; it does not provide
-a stable per-tile `RIVER_MINOR` authoring contract.
+path. The current branch reintroduces `TerrainBuilder.modelRivers` only as a
+bounded materialization boundary after Hydrology-authored terrain projection;
+that still does not provide a stable per-tile `RIVER_MINOR` authoring contract.
 
 `git log -S'TERRAIN_NAVIGABLE_RIVER'` shows a newer projection-policy lineage:
 terrain-row materialization became the durable authorable surface, while river
@@ -53,6 +52,8 @@ The history supports the branch architecture:
 - The adapter owns terrain-row and river-metadata readback separation.
 - `@civ7/map-policy` owns generated Civ constants and mock/runtime sentinel
   semantics.
-- Minor river metadata remains explicitly unsupported until a new writer
-  surface is discovered in official resources or runtime and proven by
-  disposable-session readback.
+- Per-tile minor river metadata authoring remains explicitly unsupported until
+  a new writer surface is discovered in official resources or runtime and
+  proven by disposable-session readback. Bulk native minor metadata exists as a
+  materialization/readback surface and must be same-run parity-classified before
+  product claims.

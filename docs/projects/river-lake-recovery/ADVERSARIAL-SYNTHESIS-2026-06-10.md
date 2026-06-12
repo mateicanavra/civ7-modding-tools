@@ -6,8 +6,10 @@ slices.
 
 ## High-Confidence Findings
 
-- Rivers still are not product-proven. Terrain readback has been proven in some
-  runs; rendered in-game visible rivers have not been proven as a product row.
+- Rivers are still not product-complete. Terrain readback and native river
+  metadata now have positive same-run evidence on the current branch, but
+  rendered in-game visible rivers and exact authored-topology parity remain
+  separate product rows.
 - The native Civ river writer question changed shape. A disposable runtime probe
   proved `TerrainBuilder.modelRivers(...)` can author live river metadata in
   bulk. The open question is whether it can be constrained to Hydrology-authored
@@ -15,9 +17,10 @@ slices.
 - Hydrology now owns canonical drainage routing in the current code. Morphology
   still has a flow-routing proxy for terrain-shaping consumers; that proxy is
   not the Hydrology truth graph.
-- `map-rivers` currently stamps selected navigable terrain directly and calls
-  validation/naming/store routines, but it does not currently produce full Civ
-  river metadata parity.
+- `map-rivers` currently stamps selected navigable terrain directly, then calls
+  Civ's bulk river modeler through the adapter before validation/naming/store
+  routines. That produces river metadata/model objects, but the remaining
+  question is parity to Hydrology-authored truth rather than writer existence.
 - The `selectNavigableRiverTerrain` contract reports an
   `endpointDischargePercentileMin` floor but the current strategy does not
   enforce the floor when choosing endpoints. This is a contract bug unless the
@@ -38,8 +41,9 @@ slices.
 3. Add explicit Earth benchmark contract fields: tile scale, feature-size
    floor, regime matrix, channel class ratios, lake area, terminal shares, and
    stylization ledger.
-4. Decide the native writer path with same-run parity evidence before claiming
-   minor-river materialization.
+4. Treat native bulk river modeling as the current materialization path, but
+   require same-run parity/reclassification evidence before claiming authored
+   minor-river success.
 5. Fix or remove `endpointDischargePercentileMin` semantics before relying on
    navigable projection metrics.
 6. Build Studio's inspector around proof classes, not around raw layer sprawl.
@@ -52,7 +56,7 @@ slices.
 2. Fix `selectNavigableRiverTerrain` endpoint-floor semantics with focused
    tests.
 3. Patch Hydrology metric outputs to emit the benchmark contract fields.
-4. Run a bounded native-writer integration design/proof slice.
+4. Run a bounded native-writer parity/proof slice.
 5. Implement Studio inspector summary/status model.
 6. Run same-run rendered proof and product acceptance rows.
 

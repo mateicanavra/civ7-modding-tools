@@ -250,6 +250,13 @@ export type RunInGameExactAuthorshipProof = Readonly<{
         rejectedCanHaveFeatureByFeature?: Readonly<Record<string, number>>;
       }>;
     }>;
+    placementSurfacePreparation?: Readonly<{
+      marker: "PLACEMENT_SURFACE_PREPARATION_V1";
+      payload: unknown;
+      acceptedLakeTileCount: number;
+      finalLakeWaterDriftCount: number;
+      finalLakeClassificationDriftCount: number;
+    }>;
     resourcePlacement?: Readonly<{
       marker: "RESOURCE_PLACEMENT_V1";
       payload: unknown;

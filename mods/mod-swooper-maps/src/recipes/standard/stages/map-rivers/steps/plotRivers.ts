@@ -12,7 +12,7 @@ import {
   HYDROLOGY_MOUTH_CLOSED_BASIN,
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
-} from "@mapgen/domain/hydrology/river-network-metrics.js";
+} from "@mapgen/domain/hydrology";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 import { mapRiversArtifacts } from "../artifacts.js";
@@ -119,6 +119,7 @@ export default createStep(PlotRiversStepContract, {
   ),
   run: (context, config, ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read(context);
+    const lakePlan = deps.artifacts.lakePlan.read(context);
     const riverNetworkMetrics = deps.artifacts.riverNetworkMetrics.read(context);
     const { width, height } = context.dimensions;
 
@@ -202,6 +203,8 @@ export default createStep(PlotRiversStepContract, {
         riverClass: hydrography.riverClass,
         discharge: hydrography.discharge,
         flowDir: hydrography.flowDir,
+        mouthType: riverNetworkMetrics.mouthType,
+        lakeMask: lakePlan.lakeMask,
         projectableLandMask,
       },
       config.selectNavigableRiverTerrain
@@ -300,10 +303,18 @@ export default createStep(PlotRiversStepContract, {
       if (materialized.riverMask[i] !== 1) continue;
       context.adapter.setTerrainType(i % width, Math.floor(i / width), NAVIGABLE_RIVER_TERRAIN);
     }
-    logStats("POST-STAMP-RIVERS");
+    context.trace.event(() => ({
+      type: "map.rivers.authoredTerrainMaterialization",
+      policy: "hydrology.authoredNavigableTerrain.v0",
+      selectedTileCount: materialized.selectedTileCount,
+      reason:
+        "MapGen stamps the Hydrology-selected navigable terrain mask before asking Civ to build native river objects.",
+    }));
+    logStats("POST-AUTHORED-RIVERS");
     // Stock Civ map scripts run TerrainBuilder.modelRivers before validation
-    // and named-river definition. Keep that native materialization sequence
-    // local to projection; Hydrology remains the source of authored river truth.
+    // and named-river definition. Keep Hydrology as source truth, but use the
+    // adapter-owned native boundary so Civ creates river metadata/model objects
+    // rather than terrain-only rows.
     context.adapter.modelRivers(
       CIV7_DEFAULT_RIVER_MODELING_ARGS.minLength,
       CIV7_DEFAULT_RIVER_MODELING_ARGS.maxLength,
@@ -311,6 +322,7 @@ export default createStep(PlotRiversStepContract, {
     );
     context.trace.event(() => ({
       type: "map.rivers.officialCivRiverModeling",
+      policy: "civ7.stockRiverMaterialization.v0",
       minLength: CIV7_DEFAULT_RIVER_MODELING_ARGS.minLength,
       maxLength: CIV7_DEFAULT_RIVER_MODELING_ARGS.maxLength,
     }));

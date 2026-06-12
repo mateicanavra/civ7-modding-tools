@@ -1115,9 +1115,9 @@ export class MockAdapter implements EngineAdapter {
       engineNavigableRiverTileCount,
       engineMinorRiverTileCount,
       terrainNavigableRiverTileCount,
-      minorRiverStampingSupported: false,
+      minorRiverStampingSupported: true,
       minorRiverUnsupportedReason:
-        "MockAdapter mirrors the bounded projection/readback contract, but exact minor-river metadata parity remains diagnostic.",
+        "MockAdapter mirrors Civ river-type metadata readback semantics; exact Hydrology minor-river parity remains diagnostic and must compare planned minor intent to engineMinorRiverMask.",
     };
   }
 

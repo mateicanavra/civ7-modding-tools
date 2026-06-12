@@ -22,6 +22,7 @@ const PlotRiversStepContract = defineStep({
   artifacts: {
     requires: [
       hydrologyHydrographyArtifacts.hydrography,
+      hydrologyHydrographyArtifacts.lakePlan,
       hydrologyHydrographyArtifacts.riverNetworkMetrics,
     ],
     provides: [

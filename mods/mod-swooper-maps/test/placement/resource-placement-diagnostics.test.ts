@@ -152,6 +152,42 @@ describe("resource placement diagnostics", () => {
     ).toThrow(/plan metadata mismatch/i);
   });
 
+  it("never relocates a rejected intent onto another tile (river exclusion holds at stamping)", () => {
+    // River-tile exclusion now lives at the planning seam (see
+    // test/placement/plan-ops.test.ts "resource demand planning river
+    // exclusion"): excluded tiles are zeroed out of every demand's legalMask,
+    // so no plan intent can target them. The stamping invariant proven here is
+    // plan authority — a rejected intent stays a typed shortfall at its
+    // planned plot; there is no rescue/relocation that could land on a river.
+    const width = 5;
+    const height = 2;
+    const riverTilePlots = new Set([0, 1]);
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo: { GridWidth: width, GridHeight: height },
+      mapSizeId: 1,
+      rng: createLabelRng(1934),
+      // Engine rejects everything: a rescuing materializer would hunt for an
+      // alternative plot (possibly a river tile); plan authority must not.
+      canHaveResource: () => false,
+    });
+
+    const outcomes = placeResourcesWithTypedOutcomes({
+      adapter,
+      width,
+      height,
+      plan: plan(width, height, [intent(2, width, 4), intent(3, width, 4)]),
+    });
+
+    expect(outcomes.summary.placedCount).toBe(0);
+    expect(outcomes.summary.rejectedCount).toBe(2);
+    expect(outcomes.outcomes.map((outcome) => outcome.plotIndex)).toEqual([2, 3]);
+    for (const outcome of outcomes.outcomes) {
+      expect(riverTilePlots.has(outcome.plotIndex)).toBe(false);
+    }
+  });
+
   it("formats compact runtime telemetry for scripting logs", () => {
     const telemetry = buildResourcePlacementRuntimeTelemetry(
       {

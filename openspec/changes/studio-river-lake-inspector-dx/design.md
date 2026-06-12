@@ -35,6 +35,26 @@ for known binary masks. Those counts are display evidence, not a replacement for
 Hydrology benchmark summaries, live readback counters, rendered screenshots, or
 product acceptance proof.
 
+Layer presence is an inspectability claim, not a pass condition. Rows backed
+only by manifest layers use an `available`/inspect status so the UI can route a
+user to the evidence without implying product proof. `pass` is reserved for
+rows backed by their required proof class: exact same-run counters for
+projection/readback/lakes/floodplains, rendered screenshot packets for Civ
+visibility, or reviewer-dispositioned acceptance records for product closure.
+
+Lake and floodplain proof rows are split so raw layers cannot collapse the
+proof ladder:
+
+- lake plan/readback is inspectable from planned and engine lake masks;
+- lake exact counters stay unresolved until same-run accepted-lake count and
+  final water/classification drift counters are attached;
+- floodplain intent is inspectable from the floodplain intent mask emitted from
+  feature planning/application inputs;
+- floodplain apply is inspectable from floodplain-family applied/rejected masks
+  emitted at the map-ecology engine boundary;
+- floodplain live readback stays unresolved until same-run Civ readback proves
+  nonzero floodplain-family features for an active row.
+
 For the pipeline DAG, stage rows remain the primary topology surface. Steps
 within a stage must render as compact one-line rows in an expandable list: a
 long rectangular shutter interaction that can slide open for per-step layer,

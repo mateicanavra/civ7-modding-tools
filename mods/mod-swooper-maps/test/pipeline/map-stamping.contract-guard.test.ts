@@ -119,18 +119,18 @@ describe("map stamping contract guardrails", () => {
     expect(lakeStampers).toEqual([path.join(stagesRoot, "map-hydrology/steps/lakes.ts")]);
   });
 
-  it("keeps Civ river modeling constrained to the dedicated map-rivers step", () => {
+  it("keeps native Civ river modeling constrained to the dedicated map-rivers step", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const stagesRoot = path.join(repoRoot, "src/recipes/standard/stages");
     const files = listFilesRecursive(stagesRoot).filter((file) => file.endsWith(".ts"));
 
-    const callers = files.filter((file) => {
+    const nativeRiverGeneratorCallers = files.filter((file) => {
       const text = readFileSync(file, "utf8");
       return /adapter\.modelRivers\s*\(/.test(text);
     });
 
-    callers.sort();
-    expect(callers).toEqual([path.join(stagesRoot, "map-rivers/steps/plotRivers.ts")]);
+    nativeRiverGeneratorCallers.sort();
+    expect(nativeRiverGeneratorCallers).toEqual([path.join(stagesRoot, "map-rivers/steps/plotRivers.ts")]);
 
     const plotRiversText = readFileSync(
       path.join(stagesRoot, "map-rivers/steps/plotRivers.ts"),
@@ -142,7 +142,9 @@ describe("map stamping contract guardrails", () => {
     );
     expect(plotRiversText).toContain("selectNavigableRiverTerrain");
     expect(plotRiversText).toContain("setTerrainType");
-    expect(plotRiversText).toContain("modelRivers");
+    expect(plotRiversText).toContain("map.rivers.authoredTerrainMaterialization");
+    expect(plotRiversText).toContain("CIV7_DEFAULT_RIVER_MODELING_ARGS");
+    expect(plotRiversText).toContain("modelRivers(");
     expect(plotRiversContractText).toContain("MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted");
     expect(plotRiversContractText).not.toContain("riversModeled");
   });

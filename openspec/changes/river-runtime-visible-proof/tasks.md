@@ -4,7 +4,10 @@
 - [ ] 1.2 Add direct-control wrappers for centering on tile coordinates and
   recording camera/visibility state.
 - [ ] 1.3 Add screenshot capture with explicit fallback labeling.
-- [ ] 1.4 Add metadata/materialization disposition fields for terrain-only,
+  - Superseded: window-scoped capture is owned by the CLI taxonomy's
+    `view.appshot.capture` (D12); the rivers-local XR screenshot path was
+    retired without landing.
+- [x] 1.4 Add metadata/materialization disposition fields for terrain-only,
   native-writer parity pass/fail, not-run, and unsupported-writer states.
 - [x] 1.5 Extend native `MapRivers` readback to preserve bounded plot
   membership for sampled river objects.
@@ -16,7 +19,7 @@
   native `MapRivers` object plot in the same final-surface proof.
 - [ ] 2.3 Center camera on samples, capture screenshots, hash artifacts, and
   emit visual verdict fields.
-- [ ] 2.4 Add negative controls for wrong map/seed, off-target camera, and
+- [x] 2.4 Add negative controls for wrong map/seed, off-target camera, and
   no-river configs.
 - [ ] 2.5 Require minor-river claims to cite metadata/native-writer evidence,
   not terrain-only readback.

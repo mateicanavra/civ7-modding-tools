@@ -38,11 +38,14 @@
   - River/floodplain rows are dispositioned in
     `workstream/acceptance-row-ledger.md` as technical proof-class passes:
     visible major/navigable river terrain is proven by live terrain readback,
-    river metadata is reclassified as an unsupported writer capability, and
-    floodplain feature-family live visibility is proven on the separate
-    floodplain-producing seed. Studio visible-state evidence, product/visual
-    reviewer disposition, other product rows, and deterministic full-surface
-    parity remain open.
+    legacy terrain-only metadata failure is reclassified as an obsolete proof
+    input, native metadata readback capability is available through the bounded
+    `modelRivers(...)` materialization path, and exact minor/navigable metadata
+    parity remains open until current same-run evidence compares Hydrology
+    intent to engine masks. Floodplain feature-family live visibility is proven
+    on the separate floodplain-producing seed. Studio visible-state evidence,
+    product/visual reviewer disposition, other product rows, and deterministic
+    full-surface parity remain open.
 - [ ] 3.2 Open targeted repair workstreams only for concrete failing rows.
 - [ ] 3.3 Re-run acceptance rows after targeted repairs.
 

@@ -27,6 +27,17 @@ river metadata in bulk. This change may use native writer evidence only after a
 bounded parity decision proves Hydrology truth remains the authority. Projection
 must not delegate river truth back to Civ.
 
+The 2026-06-10 bounded same-seed decision rejects unbounded whole-map
+`modelRivers(...)` generation as a substitute for Hydrology truth. Live Civ
+produced 84 navigable-river terrain tiles while MapGen selected 24; resources
+no longer overlapped rivers, but ten live components had no water/lake sink and
+were native-generator extras. A later adapter/runtime slice proved the stock
+Civ writer is still needed as a bounded materialization pass after authored
+terrain stamping so Civ creates river metadata/model objects. The current
+closure path is Hydrology-selected terrain stamping, bounded native
+materialization, and same-run terrain plus metadata readback parity, not native
+river generation as truth.
+
 Initial acceptance bands:
 
 - For Standard `84x54` normal Earthlike maps where planned major rivers exceed

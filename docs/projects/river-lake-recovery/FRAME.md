@@ -89,6 +89,17 @@ authority over authored truth. The remaining native-Civ question is narrower:
 can a bounded materialization path use the official writer while preserving and
 proving parity to Hydrology-authored truth?
 
+2026-06-10 disposable and source-integrated evidence changed the runtime
+classification: Civ's bulk `TerrainBuilder.modelRivers(...)` sequence can
+create live river metadata, including minor and navigable river rows, after
+authored terrain stamping. This proves a native bulk materialization surface,
+not a per-tile minor-river writer and not topology parity. Current product work
+therefore keeps Hydrology as truth owner, uses `map-rivers` to stamp the
+Hydrology-selected navigable terrain mask, then calls the adapter-owned Civ
+bulk writer so water cache, named rivers, models, and river metadata exist for
+Civ. Closure still requires same-run parity/reclassification of extra native
+river objects and rendered visual proof.
+
 ## Physical Grounding
 
 Earth does not have a single universal river-density constant. Drainage density,
