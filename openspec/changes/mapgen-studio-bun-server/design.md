@@ -28,12 +28,12 @@ Vite proxy for the RPC prefix. The studio adopts the same shape:
 bun run dev
   └─ src/server/daemon/devLive.ts        (runner)
        ├─ spawns: bun src/server/daemon/daemon.ts --port 5174   (backend)
-       │    Bun.serve fetch router:
+       │    Bun.serve fetch router (oRPC ONLY — no legacy, no fallbacks):
        │      /healthz                → runtime health (json)
        │      /rpc/*                  → createStudioRpcHandler (studio-server)
        │      /api/civ7/rpc/*         → control-oRPC fetch handler
        │      /api/recipe-dag/rpc/*   → recipe-DAG fetch handler (static import)
-       │      /api/*                  → legacy REST compat (same engines)
+       │      /api/* (anything else)  → 404 (legacy REST surface retired)
        │      static dist (optional, --assets-root; prod story)
        └─ spawns: vite --port 5173                              (frontend)
             server.proxy: /rpc → 5174, /api → 5174
@@ -85,16 +85,12 @@ unchanged. Path contract unchanged.
 
 - `src/server/daemon/daemon.ts`: arg parsing (`--host`, `--port`,
   `--repo-root`, `--assets-root`), one `createStudioEngines` instance, the
-  three fetch handlers, the legacy compat router, `/healthz`, optional
-  static serving with SPA fallback. The fetch composition is exported as a
-  pure `createStudioDaemonFetch(deps)` so route dispatch is unit-testable
-  under vitest without `Bun.serve`.
-- `src/server/studio/legacyHttp.ts`: the 16 REST handlers re-expressed as
-  fetch handlers over the same engines — **byte-equal response bodies and
-  status codes**, including the parity pins: run-in-game status 404 echoes
-  `serverInstanceId`/`serverStartedAt`; save-deploy status 404 does not;
-  autoplay/save-deploy/run-in-game non-uniform codes; `live/status` returns
-  200 with per-field embedded `{error}`.
+  three fetch handlers, `/healthz`, optional static serving with SPA
+  fallback. The fetch composition is exported as a pure
+  `createStudioDaemonFetch(deps)` so route dispatch is unit-testable under
+  vitest without `Bun.serve`. The oRPC parity invariants (non-uniform
+  status codes, run-in-game 404 echo) live in the engines + context, which
+  move unchanged.
 - `vite.config.ts`: the `configureServer` plugin and every server-side
   import are deleted; `server.proxy` forwards `/rpc` and `/api` to the
   daemon. The config no longer drags `@civ7/direct-control` or any engine
@@ -108,14 +104,18 @@ unchanged. Path contract unchanged.
   detection is unaffected (identity now lives in the daemon process —
   correct: it owns the operation stores the client reconciles against).
 
-## Legacy retirement list (checkpoint artifact — NOT auto-run)
+## Retired legacy surface (user directive 2026-06-12)
 
-The compat surface below is pending an explicit user checkpoint before
-deletion. Consumer evidence (repo-wide sweep 2026-06-12): the studio client
-calls none of these (oRPC-only since P2); the single live consumer is
-`scripts/civ7-direct-control/verify-final-surface-parity.ts` (hits
-`GET /api/civ7/run-in-game/status`); `packages/civ7-direct-control/README.md`
-documents three of them as examples.
+The checkpoint resolved mid-build: **"no legacy allowed. remove all
+fallbacks and legacy paths. no support. forward only."** The 16 paths below
+are deleted with the Vite server plugin — the daemon never serves them (any
+non-oRPC `/api` path is a 404). Consumer evidence (repo-wide sweep
+2026-06-12): the studio client calls none of these (oRPC-only since P2);
+the single live consumer was
+`scripts/civ7-direct-control/verify-final-surface-parity.ts` (status poll),
+moved to the oRPC `runInGame.status` endpoint in this slice;
+`packages/civ7-direct-control/README.md` documents three of them as
+examples (stale docs, not consumers).
 
 | # | Legacy path | oRPC equivalent (`/rpc`) |
 | --- | --- | --- |
@@ -136,20 +136,17 @@ documents three of them as examples.
 | 15 | `GET /api/map-configs/status` | `mapConfigs.status` |
 | 16 | `POST /api/map-configs` | `mapConfigs.saveDeploy` |
 
-Retirement slice (post-checkpoint): delete `legacyHttp.ts` + its daemon
-mount + tests; update or retire the parity script's status poll.
-
 ## Testing
 
-- Existing pins unchanged: `test/recipeDag/orpc.test.ts` (node transport
-  via the Connect shim), operation-state suites, watch-ignore pins.
+- Existing pins unchanged: `test/recipeDag/orpc.test.ts` and
+  `test/runInGame/civ7ControlOrpcClient.test.ts` (node transports via the
+  Connect shims over the fetch handlers), operation-state suites,
+  watch-ignore pins.
 - New: daemon route-dispatch tests over `createStudioDaemonFetch` with
-  injected handlers (prefix routing, healthz, 404 fall-through, static
-  fallback); control fetch-adapter transport test (mirror of the recipe-DAG
-  one); legacy compat parity pins (404-echo asymmetry, non-uniform status
-  codes, `live/status` embedded-error 200); dev-live plan test
+  injected handlers (prefix routing, healthz 200/503, RPC-unmatched 404,
+  retired-legacy-path 404, no-assets 404); dev-live plan test
   (`makeDevLivePlan` pure function: commands, ports, proxy env).
-- Live smoke (fresh processes, both run modes): `bun run dev` →
+- Live smoke (fresh processes): `bun run dev` boots daemon + vite;
   generation run completes; pipeline view loads the DAG through the proxy;
-  control readiness poll works; curl pins on `/healthz`, a legacy path, and
-  `studio.serverInfo`.
+  control readiness poll works; curl pins on `/healthz` and a retired
+  legacy path (404).

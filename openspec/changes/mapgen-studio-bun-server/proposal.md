@@ -63,16 +63,14 @@ daemon imports the same fetch handler statically.
   `/rpc` and `/api` to the daemon. Dev topology: `bun run dev` runs a
   dev-live runner that spawns the daemon (port 5174), waits for `/healthz`,
   then spawns Vite (port 5173).
-- **Legacy `/api/*` REST handlers**: ported onto the daemon as a thin compat
-  module (same engines, same response bodies and status codes) so the
-  cutover lands with zero observable surface change. Their **retirement is
-  gated on an explicit user checkpoint** (supervision condition) and is NOT
-  part of this change's auto-run scope; the retirement list and consumer
-  evidence live in `design.md`.
+- **Legacy `/api/*` REST handlers: RETIRED** (user directive 2026-06-12: "no
+  legacy allowed... no support, forward only"). The daemon serves the three
+  oRPC mounts only; any other `/api` path is a 404. The single external
+  consumer (`scripts/civ7-direct-control/verify-final-surface-parity.ts`)
+  moves to the oRPC `runInGame.status` endpoint in the same slice. The
+  retired-path inventory lives in `design.md`.
 
 ## Non-Goals
-
-- No retirement of the legacy REST surface without the user checkpoint.
 - No Railway/Caddy production deploy changes (the daemon's static serving
   makes them possible later; wiring them is out of scope).
 - No contract changes to `@civ7/studio-server`, `@civ7/control-orpc`, or
@@ -84,7 +82,9 @@ daemon imports the same fetch handler statically.
 - Affected specs: `mapgen-studio`
 - Affected code: `apps/mapgen-studio/vite.config.ts` (shrinks to
   frontend-only), `apps/mapgen-studio/src/server/studio/*` (new: engines,
-  context, legacy compat), `apps/mapgen-studio/src/server/daemon/*` (new:
-  daemon, dev-live runner), `apps/mapgen-studio/src/server/civ7ControlOrpc.ts`
-  (fetch adapter), `apps/mapgen-studio/package.json` (dev scripts),
-  `apps/mapgen-studio/test/devServer/*` + `test/server/*` (new pins)
+  context), `apps/mapgen-studio/src/server/daemon/*` (new: daemon, dev-live
+  runner), `apps/mapgen-studio/src/server/civ7ControlOrpc.ts` (fetch
+  adapter), `apps/mapgen-studio/package.json` (dev scripts),
+  `apps/mapgen-studio/test/server/*` (new pins),
+  `scripts/civ7-direct-control/verify-final-surface-parity.ts` (oRPC
+  transport)
