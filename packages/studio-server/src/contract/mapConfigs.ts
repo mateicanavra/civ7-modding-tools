@@ -1,6 +1,8 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
 
+import { mapConfigsErrors } from "./errors.js";
+
 /**
  * `mapConfigs.*` namespace — save config to repo + deploy (no Civ restart).
  *
@@ -56,8 +58,11 @@ export const saveDeployStatusSchema = z.object({
 // Errors: 400 (missing); 404 { ok:false, error }.
 //
 // PARITY NOTE (audit/05 #15): the 404 here does NOT include serverInstanceId/
-// serverStartedAt (asymmetry vs runInGame.status #13) — preserve in errorMap (A3).
+// serverStartedAt (asymmetry vs runInGame.status #13) — the defined
+// `SAVE_DEPLOY_STATUS_NOT_FOUND` error (./errors.ts) deliberately declares NO
+// echo `data`, and the host context never attaches one.
 export const status = oc
+  .errors(mapConfigsErrors)
   .input(
     z.object({
       requestId: z.string().min(1),
@@ -72,7 +77,8 @@ export const status = oc
 // `restart`/`verifyRestart` MUST be falsy → else 400.
 // Success 202: MapConfigSaveDeployStatus (async). 202 idempotent (same active
 // requestId returns current). Errors: 409 (run-in-game active OR different save/
-// deploy active); 400 { ok:false, error } on validation.
+// deploy active); 400 on validation — declared as the defined
+// SAVE_DEPLOY_BLOCKED/INVALID/FAILED codes (./errors.ts).
 //
 // PARITY NOTE (audit/05 #16): write-then-deploy with ROLLBACK on deploy-phase
 // failure; idempotent requestId reuse; path-jail (configRoot prefix + .config.json
@@ -81,6 +87,7 @@ export const status = oc
 // are typed as optional booleans here; the falsy-only enforcement lives in
 // `parseMapConfigSaveRequest`.
 export const saveDeploy = oc
+  .errors(mapConfigsErrors)
   .input(
     z.object({
       requestId: z.string().optional(),

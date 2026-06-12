@@ -1,4 +1,3 @@
-import { ORPCError } from "@orpc/server";
 import { Effect, Layer, ManagedRuntime } from "effect";
 import { implementEffect, type EffectImplementer, type EffectImplementerInternal } from "effect-orpc";
 
@@ -7,7 +6,12 @@ import type { RecipeDagContext } from "./context";
 
 export const recipeDagEffectRuntime = ManagedRuntime.make(Layer.empty);
 
-const recipeDagBaseImplementer =
+// NOTE: no error-sanitizing middleware — oRPC already wraps unknown throws/defects
+// as INTERNAL_SERVER_ERROR (effect-orpc's `toORPCErrorFromCause` + the handler's
+// `toORPCError`), and declared failures are raised through the typed
+// `errors.RECIPE_DAG_*` constructors below, so the former
+// `recipeDagSafeErrorMiddleware`/`publicRecipeDagError` pair was redundant.
+export const recipeDagImplementer =
   implementEffect(RecipeDagContract, recipeDagEffectRuntime).$context<RecipeDagContext>() satisfies EffectImplementer<
     typeof RecipeDagContract,
     RecipeDagContext & Record<never, never>,
@@ -16,14 +20,6 @@ const recipeDagBaseImplementer =
     never
   >;
 
-const recipeDagSafeErrorMiddleware = recipeDagBaseImplementer.middleware(async ({ next }) => {
-  try {
-    return await next();
-  } catch (err) {
-    throw publicRecipeDagError(err);
-  }
-});
-
 export type RecipeDagImplementer = EffectImplementerInternal<
   typeof RecipeDagContract,
   RecipeDagContext & Record<never, never>,
@@ -31,9 +27,6 @@ export type RecipeDagImplementer = EffectImplementerInternal<
   never,
   never
 >;
-
-export const recipeDagImplementer: RecipeDagImplementer =
-  recipeDagBaseImplementer.use(recipeDagSafeErrorMiddleware);
 
 export const recipeDagGetProcedure =
   recipeDagImplementer.recipeDag.get.effect(function* ({ input, context, errors }) {
@@ -58,10 +51,3 @@ export const recipeDagGetProcedure =
       },
     });
   });
-
-function publicRecipeDagError(err: unknown): ORPCError<any, any> {
-  if (err instanceof ORPCError) return err;
-  return new ORPCError("INTERNAL_SERVER_ERROR", {
-    message: "Recipe DAG procedure failed.",
-  });
-}

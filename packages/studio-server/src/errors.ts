@@ -1,64 +1,24 @@
-import { ORPCError } from "@orpc/server";
-
 /**
- * `@civ7/studio-server` — error mapping helpers (parity registry, A3).
+ * `@civ7/studio-server` — error helpers (contract-errors regime).
  *
- * The legacy `/api/*` handlers emit **non-uniform** HTTP status codes
+ * Error mapping is CONTRACT-FIRST: every failure a procedure can emit is a
+ * DECLARED oRPC error in `./contract/errors.ts` (attached per procedure via
+ * `oc.errors(...)`), carrying the legacy non-uniform status code
  * (architecture/10 §1 + §7 "Do-not-break registry"):
  *   - civ7.gameInfo / live.* → 400
  *   - civ7.setupConfig → 503
- *   - civ7.autoplay → 400 (bad action) / 409 (mutex) / 500 (other)
- *   - runInGame.start → 400/409/500/503 via RunInGameHttpError; 404 on status miss
- *   - mapConfigs.saveDeploy → 409 (mutex) / 400 (validation); 404 on status miss
+ *   - civ7.autoplay → 409 (mutex) / 500 (other)
+ *   - runInGame.* → 409/400/500/503; 404 status miss (with server-identity echo)
+ *   - mapConfigs.* → 409 (mutex) / 400 (validation); 404 status miss (no echo)
  *   - everything else (status / mapSummary / savedConfigs / setupCatalog) → 500
  *
- * effect-orpc converts a thrown `ORPCError` (or a failing Effect carrying one) into
- * the transport error verbatim, preserving `status`, `code`, `message` and `data`.
- * These helpers build those `ORPCError`s so the procedures (router/*) reproduce the
- * exact per-procedure status code + payload of the corresponding `/api` handler.
- *
- * The `data` payload carries the legacy body's extra fields (`details`,
- * `observedAt`, `serverInstanceId`, …) so no parity information is lost across the
- * oRPC boundary; the `{ ok:false, error }` wire wrapper is the old `/api` handler's
- * concern (kept alive this run) — the oRPC client reads `error.status`/`error.data`.
+ * Procedures throw via the typed `errors.CODE({ message, data })` constructor the
+ * effect handler receives (router/*); the host context throws raw `ORPCError`s
+ * matching the declared entries, which oRPC validates into DEFINED errors. There
+ * is no ad-hoc status→code construction left here — only the message fallback.
  */
 
 /** Map an arbitrary thrown value to its message, matching `err instanceof Error ? err.message : fallback`. */
 export function errorMessage(err: unknown, fallback: string): string {
   return err instanceof Error ? err.message : fallback;
-}
-
-/**
- * Construct an `ORPCError` with an explicit HTTP `status` and optional `data`
- * payload. `code` is a CONSTANT_CASE label; oRPC also derives a default status
- * from well-known codes, but we pass `status` explicitly to pin the legacy value.
- */
-export function orpcError(
-  status: number,
-  message: string,
-  data?: Record<string, unknown>,
-): ORPCError<string, Record<string, unknown> | undefined> {
-  const code = statusToCode(status);
-  return new ORPCError(code, {
-    status,
-    message,
-    ...(data === undefined ? {} : { data }),
-  });
-}
-
-function statusToCode(status: number): string {
-  switch (status) {
-    case 400:
-      return "BAD_REQUEST";
-    case 404:
-      return "NOT_FOUND";
-    case 409:
-      return "CONFLICT";
-    case 500:
-      return "INTERNAL_SERVER_ERROR";
-    case 503:
-      return "SERVICE_UNAVAILABLE";
-    default:
-      return "INTERNAL_SERVER_ERROR";
-  }
 }

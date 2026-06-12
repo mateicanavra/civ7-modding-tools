@@ -1,4 +1,4 @@
-import { createORPCClient, ORPCError } from "@orpc/client";
+import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import type { ContractRouterClient } from "@orpc/contract";
@@ -38,29 +38,11 @@ export const orpcClient: ContractRouterClient<StudioContract> =
  */
 export const orpc = createTanstackQueryUtils(orpcClient);
 
-/**
- * Read the extra-body `data` an `ORPCError` carried back from the studio router.
- *
- * The router pins each procedure's legacy HTTP code on `ORPCError.status` and
- * tucks the legacy body's side fields (`observedAt`, `details`, …) into
- * `ORPCError.data` (see `packages/studio-server/src/router` + `errors.ts`). The
- * contract does not declare an `errorMap`, so on the client `err.data` is typed
- * `unknown` — every caller would otherwise repeat the same inline
- * `(err.data ?? undefined) as { … }` cast to recover one field.
- *
- * This is the single typed accessor for that recovery: it narrows `data` to a
- * `Partial<T>` (each field still treated as possibly-absent, because the wire
- * shape is not statically guaranteed) and returns `undefined` when there is no
- * usable object. Callers read individual fields with their own runtime guard,
- * exactly as the previous hand-rolled casts did — only the cast is centralized.
- */
-export function readErrorData<T extends Record<string, unknown>>(
-  err: ORPCError<string, unknown>,
-): Partial<T> | undefined {
-  return typeof err.data === "object" && err.data !== null
-    ? (err.data as Partial<T>)
-    : undefined;
-}
+// NOTE: error payloads are CONTRACT-TYPED now. Every procedure declares its error
+// codes via `oc.errors(...)` (packages/studio-server/src/contract/errors.ts), so
+// call sites use `safe(...)` + `isDefinedError(...)` from `@orpc/client` and read
+// `error.code` / `error.data` with full types — the former `readErrorData` cast
+// helper is gone.
 
 export { contract };
 export type { StudioContract };

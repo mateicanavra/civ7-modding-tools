@@ -4,7 +4,7 @@ import { Effect } from "effect";
 import { implementEffect } from "effect-orpc";
 
 import { contract, type StudioContract } from "../contract/index.js";
-import { errorMessage, orpcError } from "../errors.js";
+import { errorMessage } from "../errors.js";
 import type { StudioRuntime } from "../runtime.js";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
 import { StudioConfig } from "../services/StudioConfig.js";
@@ -18,16 +18,19 @@ import { StudioConfig } from "../services/StudioConfig.js";
  * `apps/mapgen-studio/vite.config.ts` verbatim:
  *
  *   - Read procedures call `Civ7TunerClient` (→ `@civ7/direct-control`) and map a
- *     failure to the EXACT legacy status code via `orpcError(...)`. The codes are
- *     NON-UNIFORM (gameInfo/live.* → 400, setupConfig → 503, most → 500) — the
- *     do-not-break registry (architecture/10 §7).
+ *     failure to its DECLARED contract error via the typed `errors.CODE(...)`
+ *     constructor param (contract/errors.ts). The codes pin the EXACT legacy
+ *     status — they are NON-UNIFORM (gameInfo/live.* → 400, setupConfig → 503,
+ *     most → 500), the do-not-break registry (architecture/10 §7).
  *   - `civ7.live.status` runs the four reads under `Effect.all({ mode: "either" })`
  *     (the `Promise.allSettled` analogue) and embeds `{ error }` per field at 200;
  *     only an outer defect yields a transport error. PARITY INVARIANT.
  *   - The three stateful engines (autoplay #8, runInGame #13/#14, mapConfigs
  *     #15/#16) delegate to the host-injected `StudioConfig` fns (shared queue +
- *     dual-store mutex live host-side; see ../context.ts) and re-throw the engine's
- *     `ORPCError` unchanged so its 409/400/404/500/503 status + `data` survive.
+ *     dual-store mutex live host-side; see ../context.ts). The host throws raw
+ *     `ORPCError`s whose code/status/data MATCH the declared contract entries, so
+ *     re-throwing them unchanged still yields DEFINED errors client-side; any
+ *     non-ORPCError throw falls back to the namespace `*_FAILED` code.
  *
  * Query parsing parity (clamps, csv split/trim/filter, playerId omit) that the
  * legacy handlers did from the URL is reproduced here against the typed input.
@@ -46,49 +49,66 @@ export function createStudioRouter(
   return oe.router({
     civ7: {
       // #1 GET /api/civ7/status — error 500
-      status: oe.civ7.status.effect(function* () {
+      status: oe.civ7.status.effect(function* ({ errors }) {
         const status = yield* Civ7TunerClient.playableStatus().pipe(
-          Effect.mapError((err) => orpcError(500, errorMessage(err, "Civ7 status request failed"))),
+          Effect.mapError((err) =>
+            errors.CIV7_STATUS_UNAVAILABLE({
+              message: errorMessage(err, "Civ7 status request failed"),
+            }),
+          ),
         );
         return { ok: status.playable, status: status as Record<string, unknown> };
       }),
 
       // #2 GET /api/civ7/map-summary — error 500
-      mapSummary: oe.civ7.mapSummary.effect(function* () {
+      mapSummary: oe.civ7.mapSummary.effect(function* ({ errors }) {
         const summary = yield* Civ7TunerClient.mapSummary().pipe(
           Effect.mapError((err) =>
-            orpcError(500, errorMessage(err, "Civ7 map summary request failed")),
+            errors.CIV7_MAP_SUMMARY_UNAVAILABLE({
+              message: errorMessage(err, "Civ7 map summary request failed"),
+            }),
           ),
         );
         return { ok: true as const, summary: summary as Record<string, unknown> };
       }),
 
       // #3 GET /api/civ7/gameinfo?table=&limit= — error 400 (NOT 500)
-      gameInfo: oe.civ7.gameInfo.effect(function* ({ input }) {
+      gameInfo: oe.civ7.gameInfo.effect(function* ({ input, errors }) {
         const rows = yield* Civ7TunerClient.gameInfoRows(input.table, input.limit).pipe(
           Effect.mapError((err) =>
-            orpcError(400, errorMessage(err, "Civ7 GameInfo request failed")),
+            errors.CIV7_GAMEINFO_FAILED({
+              message: errorMessage(err, "Civ7 GameInfo request failed"),
+            }),
           ),
         );
         // Parity: legacy `/api` writes the WHOLE result object under `rows`.
         return { ok: true as const, rows: rows as unknown as Record<string, unknown> };
       }),
 
-      // #8 POST /api/civ7/autoplay — host engine; 409 mutex / 400 / 500
-      autoplay: oe.civ7.autoplay.effect(function* ({ input }) {
+      // #8 POST /api/civ7/autoplay — host engine; 409 mutex / 500
+      autoplay: oe.civ7.autoplay.effect(function* ({ input, errors }) {
         const config = yield* StudioConfig;
         return yield* Effect.tryPromise({
           try: () => config.autoplay(input),
           catch: (err) => err,
-        }).pipe(Effect.mapError(rethrowEngineError("Civ7 autoplay request failed", 500)));
+        }).pipe(
+          Effect.mapError((err) =>
+            err instanceof ORPCError
+              ? err
+              : errors.AUTOPLAY_FAILED({
+                  message: errorMessage(err, "Civ7 autoplay request failed"),
+                }),
+          ),
+        );
       }),
 
       // #10 GET /api/civ7/setup-config — error 503 (UNIQUE), body carries observedAt
-      setupConfig: oe.civ7.setupConfig.effect(function* () {
+      setupConfig: oe.civ7.setupConfig.effect(function* ({ errors }) {
         const snapshot = yield* Civ7TunerClient.setupSnapshot().pipe(
           Effect.mapError((err) =>
-            orpcError(503, errorMessage(err, "Civ7 setup config unavailable"), {
-              observedAt: new Date().toISOString(),
+            errors.SETUP_CONFIG_UNAVAILABLE({
+              message: errorMessage(err, "Civ7 setup config unavailable"),
+              data: { observedAt: new Date().toISOString() },
             }),
           ),
         );
@@ -103,11 +123,12 @@ export function createStudioRouter(
       }),
 
       // #11 GET /api/civ7/saved-configs — error 500, body carries observedAt
-      savedConfigs: oe.civ7.savedConfigs.effect(function* () {
+      savedConfigs: oe.civ7.savedConfigs.effect(function* ({ errors }) {
         const result = yield* Civ7TunerClient.savedConfigurations().pipe(
           Effect.mapError((err) =>
-            orpcError(500, errorMessage(err, "Civ7 saved configurations unavailable"), {
-              observedAt: new Date().toISOString(),
+            errors.SAVED_CONFIGS_UNAVAILABLE({
+              message: errorMessage(err, "Civ7 saved configurations unavailable"),
+              data: { observedAt: new Date().toISOString() },
             }),
           ),
         );
@@ -120,12 +141,13 @@ export function createStudioRouter(
       }),
 
       // #12 GET /api/civ7/setup-catalog — host loader; error 500
-      setupCatalog: oe.civ7.setupCatalog.effect(function* () {
+      setupCatalog: oe.civ7.setupCatalog.effect(function* ({ errors }) {
         const config = yield* StudioConfig;
         const catalog = yield* Effect.tryPromise(() => config.loadSetupCatalog()).pipe(
           Effect.mapError((err) =>
-            orpcError(500, errorMessage(err, "Civ7 setup catalog unavailable"), {
-              observedAt: new Date().toISOString(),
+            errors.SETUP_CATALOG_UNAVAILABLE({
+              message: errorMessage(err, "Civ7 setup catalog unavailable"),
+              data: { observedAt: new Date().toISOString() },
             }),
           ),
         );
@@ -157,7 +179,7 @@ export function createStudioRouter(
         }),
 
         // #5 GET /api/civ7/live/snapshot — error 400; clamps + csv parse parity
-        snapshot: oe.civ7.live.snapshot.effect(function* ({ input }) {
+        snapshot: oe.civ7.live.snapshot.effect(function* ({ input, errors }) {
           const fields = input.fields
             .split(",")
             .map((field) => field.trim())
@@ -170,7 +192,9 @@ export function createStudioRouter(
             ...(input.playerId === undefined ? {} : { playerId: input.playerId }),
           }).pipe(
             Effect.mapError((err) =>
-              orpcError(400, errorMessage(err, "Civ7 live snapshot request failed")),
+              errors.CIV7_LIVE_SNAPSHOT_FAILED({
+                message: errorMessage(err, "Civ7 live snapshot request failed"),
+              }),
             ),
           );
           return {
@@ -181,7 +205,7 @@ export function createStudioRouter(
         }),
 
         // #6 GET /api/civ7/live/entities — error 400; Promise.all (any failure → 400)
-        entities: oe.civ7.live.entities.effect(function* ({ input }) {
+        entities: oe.civ7.live.entities.effect(function* ({ input, errors }) {
           const maxItems = Math.min(128, Math.max(1, input.maxItems));
           const playerId = input.playerId;
           const result = yield* Effect.all(
@@ -202,7 +226,9 @@ export function createStudioRouter(
             { concurrency: "unbounded" },
           ).pipe(
             Effect.mapError((err) =>
-              orpcError(400, errorMessage(err, "Civ7 live entities request failed")),
+              errors.CIV7_LIVE_ENTITIES_FAILED({
+                message: errorMessage(err, "Civ7 live entities request failed"),
+              }),
             ),
           );
           return {
@@ -215,7 +241,7 @@ export function createStudioRouter(
         }),
 
         // #7 GET /api/civ7/live/gameinfo — error 400; 8-table cap, N parallel reads
-        gameInfo: oe.civ7.live.gameInfo.effect(function* ({ input }) {
+        gameInfo: oe.civ7.live.gameInfo.effect(function* ({ input, errors }) {
           const tables = input.tables
             .split(",")
             .map((table) => table.trim())
@@ -231,7 +257,9 @@ export function createStudioRouter(
             { concurrency: "unbounded" },
           ).pipe(
             Effect.mapError((err) =>
-              orpcError(400, errorMessage(err, "Civ7 live GameInfo request failed")),
+              errors.CIV7_LIVE_GAMEINFO_FAILED({
+                message: errorMessage(err, "Civ7 live GameInfo request failed"),
+              }),
             ),
           );
           // Parity: each table value is the WHOLE result object (legacy behavior).
@@ -249,41 +277,69 @@ export function createStudioRouter(
 
     runInGame: {
       // #14 POST /api/civ7/run-in-game — host engine; 409/400/500/503
-      start: oe.runInGame.start.effect(function* ({ input }) {
+      start: oe.runInGame.start.effect(function* ({ input, errors }) {
         const config = yield* StudioConfig;
         return yield* Effect.tryPromise({
           try: () => config.runInGameStart(input),
           catch: (err) => err,
-        }).pipe(Effect.mapError(rethrowEngineError("Run in Game failed", 500)));
+        }).pipe(
+          Effect.mapError((err) =>
+            err instanceof ORPCError
+              ? err
+              : errors.RUN_IN_GAME_FAILED({ message: errorMessage(err, "Run in Game failed") }),
+          ),
+        );
       }),
 
       // #13 GET /api/civ7/run-in-game/status — host store; 404 echoes server id
-      status: oe.runInGame.status.effect(function* ({ input }) {
+      status: oe.runInGame.status.effect(function* ({ input, errors }) {
         const config = yield* StudioConfig;
         return yield* Effect.tryPromise({
           try: () => config.runInGameStatus(input),
           catch: (err) => err,
-        }).pipe(Effect.mapError(rethrowEngineError("Run in Game status failed", 500)));
+        }).pipe(
+          Effect.mapError((err) =>
+            err instanceof ORPCError
+              ? err
+              : errors.RUN_IN_GAME_FAILED({
+                  message: errorMessage(err, "Run in Game status failed"),
+                }),
+          ),
+        );
       }),
     },
 
     mapConfigs: {
       // #16 POST /api/map-configs — host engine; 409 mutex / 400 validation
-      saveDeploy: oe.mapConfigs.saveDeploy.effect(function* ({ input }) {
+      saveDeploy: oe.mapConfigs.saveDeploy.effect(function* ({ input, errors }) {
         const config = yield* StudioConfig;
         return yield* Effect.tryPromise({
           try: () => config.mapConfigSaveDeploy(input),
           catch: (err) => err,
-        }).pipe(Effect.mapError(rethrowEngineError("Save failed", 400)));
+        }).pipe(
+          Effect.mapError((err) =>
+            err instanceof ORPCError
+              ? err
+              : errors.SAVE_DEPLOY_FAILED({ message: errorMessage(err, "Save failed") }),
+          ),
+        );
       }),
 
       // #15 GET /api/map-configs/status — host store; 404 (no server id echo)
-      status: oe.mapConfigs.status.effect(function* ({ input }) {
+      status: oe.mapConfigs.status.effect(function* ({ input, errors }) {
         const config = yield* StudioConfig;
         return yield* Effect.tryPromise({
           try: () => config.mapConfigStatus(input),
           catch: (err) => err,
-        }).pipe(Effect.mapError(rethrowEngineError("Save/Deploy status failed", 500)));
+        }).pipe(
+          Effect.mapError((err) =>
+            err instanceof ORPCError
+              ? err
+              : errors.SAVE_DEPLOY_FAILED({
+                  message: errorMessage(err, "Save/Deploy status failed"),
+                }),
+          ),
+        );
       }),
     },
 
@@ -321,17 +377,4 @@ function fieldOrError<A>(
 ): Record<string, unknown> | { error: string } {
   if (either._tag === "Right") return (override ?? either.right) as Record<string, unknown>;
   return { error: String(either.left) };
-}
-
-/**
- * Re-throw a host-engine error: if it is already an `ORPCError` (the engine maps
- * its 409/400/404/500/503 + `data` via ../errors) pass it through verbatim;
- * otherwise wrap in a uniform fallback status. Used in `Effect.mapError`, so it
- * returns the resolved `ORPCError` (the effect handler's error channel).
- */
-function rethrowEngineError(fallbackMessage: string, fallbackStatus: number) {
-  return (err: unknown): ORPCError<string, unknown> => {
-    if (err instanceof ORPCError) return err;
-    return orpcError(fallbackStatus, errorMessage(err, fallbackMessage));
-  };
 }

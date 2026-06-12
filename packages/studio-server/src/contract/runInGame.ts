@@ -1,6 +1,7 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
 
+import { runInGameErrors } from "./errors.js";
 import { unknownRecord } from "./shared.js";
 
 /**
@@ -212,9 +213,10 @@ export const operationStatusSchema = z.object({
 //
 // PARITY INVARIANT (audit/05 #13, target-arch §1): the 404 echoes
 // `serverInstanceId`/`serverStartedAt` so the client detects a server restart that
-// lost the op. TTL pruning (30min) → pruned op yields 404. Status→code mapping
-// (200/400/404) + the 404 echo body land in errorMap (A3).
+// lost the op. TTL pruning (30min) → pruned op yields 404. The miss is the defined
+// `RUN_IN_GAME_STATUS_NOT_FOUND` error (./errors.ts), whose `data` carries the echo.
 export const status = oc
+  .errors(runInGameErrors)
   .input(
     z.object({
       requestId: z.string().min(1),
@@ -228,7 +230,8 @@ export const status = oc
 // Body: the full setup request. Success 202: RunInGameOperationState (async).
 // 202 dup (same fingerprint → details.duplicateRequest). Errors: 409 (run-in-game
 // OR save/deploy active), 400/500/503 via RunInGameHttpError (details carries
-// code/materialization/recovery boundaries).
+// code/materialization/recovery boundaries) — declared as the defined
+// RUN_IN_GAME_BLOCKED/INVALID/FAILED/UNAVAILABLE codes (./errors.ts).
 //
 // SECURITY BOUNDARY (target-arch §1): the handler runs `assertNoRawControlFields`
 // — a deep scan rejecting `command|script|javascript|rawJs|rawCommand` keys. The
@@ -237,6 +240,7 @@ export const status = oc
 // `parseRunInGameSetupRequest`, ported in A2/A3). Known top-level fields are typed;
 // the body is otherwise passed through for the validator to reject raw-control keys.
 export const start = oc
+  .errors(runInGameErrors)
   .input(
     z
       .object({
