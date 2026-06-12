@@ -17,6 +17,7 @@ discipline; they should not duplicate the packet as a parallel spec.
 | `civ7-open-spec-workstream` | Running a bounded spec/workstream phase from authority grounding through implementation, verification, downstream realignment, and handoff. |
 | `civ7-systematic-workstream` | Running a systematic, evidence-grounded domain workstream that needs full corpus extraction, expected ranges, architecture-aligned strategies, local statistics, runtime proof, peer review, and clean Graphite closure. |
 | `civ7-operational-debugging` | Debugging build/deploy/log/in-game evidence across generated mod output, deployed Civ7 Mods folders, official resources, and proof boundaries. |
+| `civ7-orpc-control-architecture` | Designing or reviewing oRPC/Effect procedure, router, middleware, and context surfaces for Civ7 direct-control, CLI game/play commands, Studio endpoints, and live-play support refactors (`@civ7/control-orpc`). |
 | `dra-structural-watcher` | Running or setting up a separate watcher DRA for OpenSpec workstreams: heartbeat/cron monitoring, NOTE-TO-DRA scans, correction logs, closure-drift checks, and branch/stack watcher passes without owning implementation. |
 | `graphite-stack-drain` | Managing complex Graphite stack/worktree cleanup: deterministic stack census, source/sink accounting, folding over-atomized stacks, targeted restacks, submit/merge drains, and safe branch/worktree retirement. |
 
