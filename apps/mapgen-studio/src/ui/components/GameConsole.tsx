@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot, Clipboard, MonitorPlay, Radio, RotateCw, Square } from 'lucide-react';
+import { Binoculars, Clipboard, FastForward, LoaderCircle, Radio, RotateCw, Square, SquareArrowOutUpRight } from 'lucide-react';
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
 import {
   formatRunInGamePhaseLabel,
@@ -48,6 +48,11 @@ export interface GameConsoleProps {
   isAutoplayActionRunning?: boolean;
   /** Callback to start or stop Civ7 native autoplay */
   onToggleAutoplay?: () => void;
+  /**
+   * Callback for the Explore command (tile visibility/exploration in the
+   * live game). The button is a disabled placeholder until this is wired.
+   */
+  onExplore?: () => void;
   /** Whether any studio/game operation is in flight (shared control gating) */
   operationControlsDisabled: boolean;
   /** Whether Civ7 Run in Game is currently running */
@@ -72,6 +77,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   onSyncFromLiveGame,
   isAutoplayActionRunning = false,
   onToggleAutoplay,
+  onExplore,
   operationControlsDisabled,
   isRunInGameRunning,
   runInGameStatus,
@@ -127,14 +133,16 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     ? "Apply live game suggestion to Studio"
     : liveRuntime?.readiness ?? liveRuntime?.error ?? "Civ7 live runtime status";
   const autoplayControlDisabled = operationControlsDisabled || isAutoplayActionRunning || liveRuntime?.status !== "ok" || !onToggleAutoplay;
-  const autoplayButtonText = isAutoplayActionRunning
-    ? "Autoplay..."
+  // Icon-only contract (Pass-4): the start/stop/in-flight wording the label
+  // used to carry lives entirely in the accessible name + tooltip.
+  const autoplayTitle = isAutoplayActionRunning
+    ? "Autoplay request in flight"
     : liveRuntime?.autoplayActive
-      ? "Stop Auto"
-      : "Start Auto";
-  const autoplayTitle = liveRuntime?.autoplayActive
-    ? `Stop Civ7 autoplay${liveRuntime.autoplayPaused ? " (paused)" : ""}`
-    : "Start Civ7 autoplay";
+      ? `Stop Civ7 autoplay${liveRuntime.autoplayPaused ? " (paused)" : ""}`
+      : "Start Civ7 autoplay";
+  const exploreTitle = onExplore
+    ? "Explore: toggle tile visibility in the live game"
+    : "Explore: tile visibility control is not yet available";
   const saveDeployLabel = saveDeployStatus ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase) : null;
   const saveDeployTitle = saveDeployStatus
     ? [
@@ -144,8 +152,11 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
         saveDeployStatus.error ? `Error: ${saveDeployStatus.error}` : null,
       ].filter(Boolean).join("\n")
     : "Config save/deploy status";
+  // Icon-only contract (Pass-4): the dynamic action label ("Run in Game",
+  // "Retry Run", "Restart Civ & Run") leads the accessible name + tooltip.
   const runInGameTitle = [
-    runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : "Run in Game: launch current config in Civ7",
+    runInGameButtonText,
+    runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : "Launches the current config in Civ7",
     runInGameStatus?.requestId ? `Request: ${runInGameStatus.requestId}` : null,
     runInGameStatus?.materialization?.mapScript ? `Map: ${runInGameStatus.materialization.mapScript}` : null,
     runInGameStateLabel ? `Studio state: ${runInGameStateLabel}` : null,
@@ -196,18 +207,40 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
         <TooltipTrigger asChild>
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
             onClick={onToggleAutoplay}
             disabled={autoplayControlDisabled}
             aria-label={autoplayTitle}
             title={autoplayTitle}
-            className={`h-7 px-2 shrink-0 ${liveRuntime?.autoplayActive ? "border-warning/60 text-warning" : ""}`}>
+            className={`shrink-0 ${liveRuntime?.autoplayActive ? "border-warning/60 text-warning" : ""}`}>
 
-            {liveRuntime?.autoplayActive ? <Square className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
-            <span>{autoplayButtonText}</span>
+            {isAutoplayActionRunning ? (
+              <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
+            ) : liveRuntime?.autoplayActive ? (
+              <Square className="w-3.5 h-3.5" />
+            ) : (
+              <FastForward className="w-3.5 h-3.5" />
+            )}
           </Button>
         </TooltipTrigger>
         <TooltipContent>{autoplayTitle}</TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onExplore}
+            disabled={operationControlsDisabled || liveRuntime?.status !== "ok" || !onExplore}
+            aria-label={exploreTitle}
+            title={exploreTitle}
+            className="shrink-0">
+
+            <Binoculars className="w-3.5 h-3.5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{exploreTitle}</TooltipContent>
       </Tooltip>
 
       {saveDeployStatus && saveDeployStatus.status !== "complete" ? (
@@ -285,12 +318,12 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
             onClick={onRunInGame}
             disabled={operationControlsDisabled}
             variant="outline"
+            size="icon"
             aria-label={runInGameTitle}
             title={runInGameTitle}
             className={isRunInGameRunning ? 'shrink-0 opacity-70 cursor-wait' : 'shrink-0'}>
 
-            <MonitorPlay className="w-3.5 h-3.5" />
-            <span>{runInGameButtonText}</span>
+            <SquareArrowOutUpRight className="w-3.5 h-3.5" />
           </Button>
         </TooltipTrigger>
         <TooltipContent className="whitespace-pre-line">{runInGameTitle}</TooltipContent>

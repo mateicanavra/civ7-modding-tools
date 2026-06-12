@@ -175,6 +175,12 @@ describe("GameConsole live runtime and save/deploy", () => {
     expect(html).toContain("Auto");
   });
 
+  it("renders the Explore placeholder disabled until a handler is wired", () => {
+    const html = renderConsole();
+
+    expect(html).toContain("Explore: tile visibility control is not yet available");
+  });
+
   it("highlights live seed status when a proved live game is out of sync with Studio", () => {
     const html = renderConsole({
       liveRuntime: { status: "ok", turn: 12, seed: 123 },
