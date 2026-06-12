@@ -6,7 +6,6 @@ import {
   STANDARD_RECIPE_CONFIG_SCHEMA,
   studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
 } from "mod-swooper-maps/recipes/standard-artifacts";
-import { defaultConfig as SOURCE_UI_DEFAULT_CONFIG } from "../../src/ui/data/defaultConfig";
 
 function getSchemaAtPath(schema: unknown, path: readonly string[]): unknown {
   let current: any = schema as any;
@@ -470,7 +469,7 @@ describe("Studio default config", () => {
   });
 
   it("exposes semantic Placement authoring keys instead of runtime step/op envelopes", () => {
-    const expected = ["knobs", "naturalWonders", "discoveries", "resources", "starts"];
+    const expected = ["knobs", "naturalWonders", "discoveries", "resources", "starts", "support"];
     const schemaProps =
       (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["placement"]) as {
         properties?: Record<string, unknown>;
@@ -515,7 +514,9 @@ describe("Studio default config", () => {
   });
 
   it("exposes documented and bounded Placement public controls to Studio", () => {
-    const publicKeys = ["knobs", "naturalWonders", "discoveries", "resources"];
+    // S7 knob surface: the S3 resources, S4 starts, and S5 support groups all
+    // reach Studio through the generated schema (no hand-maintained shadow).
+    const publicKeys = ["knobs", "naturalWonders", "discoveries", "resources", "starts", "support"];
 
     expectPublicStageDescription(STANDARD_RECIPE_CONFIG_SCHEMA, "placement");
     for (const key of publicKeys) {
@@ -554,63 +555,12 @@ describe("Studio default config", () => {
     );
   });
 
-  it("keeps legacy Studio source defaults on the semantic Hydrology surface", () => {
-    const expected: Record<string, readonly string[]> = {
-      "hydrology-climate-baseline": [
-        "knobs",
-        "seasonalCycle",
-        "solarForcing",
-        "thermalState",
-        "atmosphericCirculation",
-        "oceanCurrents",
-        "oceanGeometry",
-        "oceanThermalState",
-        "evaporation",
-        "moistureTransport",
-        "precipitation",
-      ],
-      "hydrology-hydrography": ["knobs", "runoff", "riverNetwork", "lakes"],
-      "hydrology-climate-refine": [
-        "knobs",
-        "precipitationRefinement",
-        "solarForcing",
-        "thermalState",
-        "albedoFeedback",
-        "cryosphereState",
-        "landWaterBudget",
-        "diagnostics",
-      ],
-    };
-
-    for (const [stageId, expectedKeys] of Object.entries(expected)) {
-      const stageConfig = SOURCE_UI_DEFAULT_CONFIG[stageId] ?? {};
-      expect(Object.keys(stageConfig).sort()).toEqual([...expectedKeys].sort());
-      expect(stageConfig).not.toHaveProperty("climate-baseline");
-      expect(stageConfig).not.toHaveProperty("rivers");
-      expect(stageConfig).not.toHaveProperty("climate-refine");
-      expect(hasRawOpEnvelope(stageConfig)).toBe(false);
-    }
-  });
-
-  it("keeps legacy Studio source defaults on the semantic Ecology surface", () => {
-    const expected: Record<string, readonly string[]> = {
-      "ecology-pedology": ["knobs"],
-      "ecology-biomes": ["knobs", "biomeClassification"],
-      "ecology-features": ["knobs"],
-    };
-
-    expect(SOURCE_UI_DEFAULT_CONFIG).not.toHaveProperty("ecology");
-    for (const [stageId, expectedKeys] of Object.entries(expected)) {
-      const stageConfig = SOURCE_UI_DEFAULT_CONFIG[stageId] ?? {};
-      expect(Object.keys(stageConfig).sort()).toEqual([...expectedKeys].sort());
-      expect(stageConfig).not.toHaveProperty("pedology");
-      expect(stageConfig).not.toHaveProperty("resource-basins");
-      expect(stageConfig).not.toHaveProperty("biomes");
-      expect(stageConfig).not.toHaveProperty("score-layers");
-      expect(stageConfig).not.toHaveProperty("plan-plot-effects");
-      expect(hasRawOpEnvelope(stageConfig)).toBe(false);
-    }
-  });
+  // The hand-maintained src/ui/data/defaultConfig.ts shadow was deleted in S7
+  // (placement-realignment): the app is fully schema-driven from generated
+  // recipe artifacts, and the legacy file was the drift surface that left
+  // placement invisible. Its semantic-surface guards now run against
+  // STANDARD_RECIPE_CONFIG directly (the "exposes semantic ... authoring
+  // keys" blocks above).
 
   it("keeps Morphology runtime steps visible even when public config keys are semantic", () => {
     const expectedSteps: Record<string, readonly string[]> = {
@@ -741,13 +691,17 @@ describe("Studio default config", () => {
   });
 
   it("keeps Placement runtime steps visible even when public config keys are semantic", () => {
+    // S5 (D3) ordering: plan-resources before assign-starts; adjust-resources
+    // (support pass) between starts and resource stamping.
     const expectedSteps = [
       "derive-placement-inputs",
       "plot-landmass-regions",
       "place-natural-wonders",
       "prepare-placement-surface",
-      "place-resources",
+      "plan-resources",
       "assign-starts",
+      "adjust-resources",
+      "place-resources",
       "place-discoveries",
       "assign-advanced-starts",
       "placement",

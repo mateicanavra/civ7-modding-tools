@@ -1,3 +1,4 @@
+import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { runPlacementProductStep } from "../product-runtime.js";
@@ -7,6 +8,84 @@ import {
 } from "./materialize.js";
 import { placementArtifacts } from "../../artifacts.js";
 import PlaceResourcesStepContract from "./contract.js";
+import {
+  PLACEMENT_TILE_SPACE_ID,
+  PLACEMENT_VIZ_GROUP,
+  buildPlacementPointBuffers,
+} from "../../viz.js";
+
+const RESOURCE_OUTCOME_CATEGORIES = [
+  { value: 1, label: "Placed", color: [34, 197, 94, 235] as [number, number, number, number] },
+  {
+    value: 2,
+    label: "Rejected: Engine Legality",
+    color: [239, 68, 68, 235] as [number, number, number, number],
+  },
+  {
+    value: 3,
+    label: "Rejected: Out of Bounds",
+    color: [249, 115, 22, 235] as [number, number, number, number],
+  },
+  {
+    value: 4,
+    label: "Rejected: Invalid Type",
+    color: [217, 70, 239, 235] as [number, number, number, number],
+  },
+  {
+    value: 5,
+    label: "Rejected: Wrong Type Readback",
+    color: [234, 179, 8, 235] as [number, number, number, number],
+  },
+];
+
+type ResourceOutcomeRow = Readonly<{
+  status: "placed" | "rejected" | "mismatch";
+  plotIndex: number;
+  reason?: "out-of-bounds" | "invalid-resource-type" | "cannot-have-resource" | "wrong-resource-type";
+}>;
+
+function resourceOutcomeCategoryValue(outcome: ResourceOutcomeRow): number {
+  if (outcome.status === "placed") return 1;
+  switch (outcome.reason) {
+    case "cannot-have-resource":
+      return 2;
+    case "out-of-bounds":
+      return 3;
+    case "invalid-resource-type":
+      return 4;
+    default:
+      return 5;
+  }
+}
+
+/** Placed vs rejected-with-reason points from the typed reconcile (D4 / E4.3). */
+function emitResourceOutcomeViz(
+  context: ExtendedMapContext,
+  outcomes: ReadonlyArray<ResourceOutcomeRow>
+): void {
+  if (!context.viz) return;
+  const { width } = context.dimensions;
+  const rows = outcomes.map((outcome) => ({
+    plotIndex: outcome.plotIndex,
+    value: resourceOutcomeCategoryValue(outcome),
+  }));
+  const { positions, values } = buildPlacementPointBuffers(rows, width);
+  context.viz.dumpPoints(context.trace, {
+    dataTypeKey: "placement.resources.outcome",
+    spaceId: PLACEMENT_TILE_SPACE_ID,
+    positions,
+    values,
+    valueFormat: "u16",
+    meta: defineVizMeta("placement.resources.outcome", {
+      label: "Resource Stamping Outcomes",
+      group: PLACEMENT_VIZ_GROUP,
+      description:
+        "Typed reconcile outcomes per planned resource intent: placed, or rejected with the recorded reason (no relocation, no type re-decision). Per-type identity lives on the plan-resources intent layer.",
+      palette: "categorical",
+      categories: RESOURCE_OUTCOME_CATEGORIES,
+    }),
+  });
+}
 
 function validateResourcePlacementOutcomesArtifact(value: unknown): { message: string }[] {
   if (typeof value !== "object" || value === null) {
@@ -81,6 +160,7 @@ export default createStep(PlaceResourcesStepContract, {
       outcomes.reconciliation,
       outcomes.outcomes
     );
+    emitResourceOutcomeViz(context, outcomes.outcomes);
     deps.artifacts.resourcePlacementOutcomes.publish(context, outcomes);
   },
 });

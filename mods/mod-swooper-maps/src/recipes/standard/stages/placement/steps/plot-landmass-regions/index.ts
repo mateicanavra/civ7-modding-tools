@@ -6,10 +6,11 @@ import {
   validateProjectionMetaArtifact,
 } from "./validate.js";
 import PlotLandmassRegionsStepContract from "./contract.js";
+import { PLACEMENT_VIZ_GROUP, transparentNoneCategory } from "../../viz.js";
 
 type RegionSlot = 0 | 1 | 2;
 
-const GROUP_GAMEPLAY = "Gameplay / Placement";
+const GROUP_GAMEPLAY = PLACEMENT_VIZ_GROUP;
 
 function computeWrappedIntervalCenter(west: number, east: number, width: number): number {
   if (width <= 0) return 0;
@@ -97,7 +98,9 @@ export default createStep(PlotLandmassRegionsStepContract, {
         group: GROUP_GAMEPLAY,
         palette: "categorical",
         categories: [
-          { value: 0, label: "None", color: [148, 163, 184, 210] },
+          // Transparent None (audit presentation defect a): the previous
+          // alpha-210 slate wash painted all water/unassigned tiles opaque.
+          transparentNoneCategory(),
           { value: 1, label: "West", color: [59, 130, 246, 230] },
           { value: 2, label: "East", color: [239, 68, 68, 230] },
         ],
