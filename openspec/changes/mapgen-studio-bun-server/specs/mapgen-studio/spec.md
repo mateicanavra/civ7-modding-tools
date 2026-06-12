@@ -3,11 +3,11 @@
 ### Requirement: The Studio Server Surface Runs As A Standalone Bun Daemon
 
 The Studio's server surface SHALL be owned by a standalone Bun daemon
-process hosting the studio-server `/rpc` mount, the control-oRPC mount at
-`/api/civ7/rpc`, the recipe-DAG mount at `/api/recipe-dag/rpc`, and the
-legacy `/api/*` REST compat surface, with the Vite dev server reduced to a
-frontend-only role that proxies `/rpc` and `/api` to the daemon. All path
-contracts and client transports are unchanged by the cutover.
+process hosting exactly three mounts — the studio-server `/rpc` mount, the
+control-oRPC mount at `/api/civ7/rpc`, and the recipe-DAG mount at
+`/api/recipe-dag/rpc` — with the Vite dev server reduced to a frontend-only
+role that proxies `/rpc` and `/api` to the daemon. The oRPC path contracts
+and client transports are unchanged by the cutover.
 
 #### Scenario: One-command dev runs both processes
 
@@ -32,17 +32,17 @@ contracts and client transports are unchanged by the cutover.
 
 The Studio SHALL keep the serialized operation queue, the run-in-game and
 save/deploy operation stores, and the server instance identity in exactly
-one place — the daemon process — shared by every transport (oRPC mounts
-and legacy compat); no studio server state may live in the Vite process. The engine
-behaviors move verbatim: non-uniform error status codes are preserved
-per-procedure, run-in-game status 404 echoes the server instance identity
-while save/deploy status 404 does not, and `live/status` returns 200 with
-per-field embedded errors.
+one place — the daemon process — shared by every oRPC mount; no studio
+server state may live in the Vite process. The engine behaviors move
+verbatim: non-uniform error status codes are preserved per-procedure,
+run-in-game status 404 echoes the server instance identity while
+save/deploy status 404 does not, and `civ7.live.status` returns success
+with per-field embedded errors.
 
-#### Scenario: Both transports observe one queue
+#### Scenario: All mounts observe one queue
 
 - **WHEN** a run-in-game operation is active and a save/deploy request
-  arrives on either the oRPC mount or the legacy compat surface
+  arrives on the `/rpc` mount
 - **THEN** the request is rejected with the 409 dual-mutex semantics
   naming the active operation
 
@@ -53,23 +53,23 @@ per-field embedded errors.
 - **THEN** the 404 response carries the new process's `serverInstanceId`
   and `serverStartedAt`
 
-### Requirement: Legacy REST Surface Survives The Cutover Until The Retirement Checkpoint
+### Requirement: The Legacy REST Surface Is Retired
 
-The legacy `/api/*` REST handlers SHALL remain available through the
-cutover as a daemon-hosted compat layer with response bodies and status
-codes identical to the Vite-hosted handlers, and SHALL NOT be retired
-without an explicit user-approved retirement decision recorded in this
-workstream.
+The Studio server SHALL NOT serve the hand-rolled legacy `/api/*` REST
+endpoints (user retirement directive, 2026-06-12: no legacy paths, no
+fallbacks, forward only): any `/api` path other than the control-oRPC and
+recipe-DAG mounts is a 404, and every consumer — the studio client and
+repo scripts — talks to the oRPC surface.
 
-#### Scenario: Compat parity
+#### Scenario: Retired paths are gone
 
-- **WHEN** a legacy endpoint is requested after the cutover
-- **THEN** the response status and body shape match the pre-cutover
-  Vite-hosted handler for the same engine state
+- **WHEN** a retired legacy endpoint such as `/api/civ7/status` or
+  `/api/map-configs` is requested
+- **THEN** the daemon responds 404 and no handler-specific behavior runs
 
-#### Scenario: Retirement is gated
+#### Scenario: Consumers ride oRPC
 
-- **WHEN** the cutover slices land without a recorded user checkpoint
-  decision
-- **THEN** the compat surface is still mounted and the retirement remains
-  an open follow-up in the workstream record
+- **WHEN** the run-in-game proof verification script polls an operation's
+  status
+- **THEN** it calls the `runInGame.status` oRPC endpoint, not a legacy
+  REST path
