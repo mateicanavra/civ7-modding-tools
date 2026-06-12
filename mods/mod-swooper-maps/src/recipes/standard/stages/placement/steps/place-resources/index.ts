@@ -8,6 +8,7 @@ import {
 } from "./materialize.js";
 import { placementArtifacts } from "../../artifacts.js";
 import PlaceResourcesStepContract from "./contract.js";
+import { warnLog } from "../../log.js";
 import {
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
@@ -142,7 +143,7 @@ export default createStep(PlaceResourcesStepContract, {
     if (outcomes.reconciliation.rejectedCount > 0) {
       // Typed reconcile (D4): engine-legality rejections are recorded as
       // shortfalls with reasons; the plan's type-at-plot is never re-decided.
-      console.warn(
+      warnLog(
         `[Placement] Resource reconciliation recorded ${outcomes.reconciliation.rejectedCount}/` +
           `${outcomes.reconciliation.plannedCount} typed rejections (no relocation, no type re-decision).`
       );
