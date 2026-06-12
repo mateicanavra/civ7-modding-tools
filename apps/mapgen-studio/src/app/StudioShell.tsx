@@ -2236,12 +2236,17 @@ export function StudioShell(props: StudioShellProps) {
 
   const backgroundGridEnabled = useMemo(() => {
     if (!showGrid) return false;
-    const layer = viz.effectiveLayer;
-    if (!layer) return false;
-    if (!(layer.kind === "points" || layer.kind === "segments")) return false;
-    if (layer.meta?.showGrid === false) return false;
+    // The graticule is CANVAS substrate, not layer furniture: once a manifest
+    // exists it follows the user's grid toggle on EVERY stage — including
+    // steps with no visible layers (the canvas stays a ready survey field,
+    // not dead space). A layer may still opt out via meta. The old
+    // points/segments-only gate made the grid vanish the moment a tile/mesh
+    // layer was selected — i.e. on most stage switches. Pre-manifest, the
+    // awaiting-matter overlay carries its own graticule.
+    if (!viz.manifest) return false;
+    if (viz.effectiveLayer?.meta?.showGrid === false) return false;
     return true;
-  }, [showGrid, viz.effectiveLayer]);
+  }, [showGrid, viz.effectiveLayer, viz.manifest]);
 
   const lastRunSettings = lastRunSnapshot?.recipeSettings ?? recipeSettings;
   const lastGlobalSettings = lastRunSnapshot?.worldSettings ?? worldSettings;

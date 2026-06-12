@@ -179,7 +179,14 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     if (selectedLayerKey && (allowPendingSelection || layersForStep.some((l) => l.key === selectedLayerKey))) {
       return selectedLayerKey;
     }
-    return layersForStep[0]?.key ?? null;
+    // Default preference: the map studio defaults to the MAP. When a step has
+    // a tile-space grid layer, land there instead of whichever layer the
+    // worker happened to emit first (points/mesh) — switching stages keeps
+    // showing the hex grid wherever the step can draw one.
+    const tileGrid = layersForStep.find(
+      (l) => l.layer.kind === "grid" && l.layer.spaceId.startsWith("tile.")
+    );
+    return tileGrid?.key ?? layersForStep[0]?.key ?? null;
   }, [allowPendingSelection, layersForStep, selectedLayerKey]);
 
   const selectableLayers = useMemo(

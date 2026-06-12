@@ -383,15 +383,29 @@ const VALUE_RAMP: ReadonlyArray<RgbaColor> = [
 const UNKNOWN_COLOR: RgbaColor = [0, 0, 0, 0];
 
 /**
- * The one tile-border ink (Pass-5 tile-orientation spec, retuned on user
- * feedback): graphite — the dark page substrate (#0d0d11), one ink in BOTH
- * themes. Borders only ever separate FILLED tiles (unfilled tiles draw
- * nothing), so a dark seam reads against the fills everywhere: in dark mode
- * it recedes into the canvas like grout; in light mode it is a crisp
- * graphite grid. All tile-space polygon strokes use this — no per-call
- * border literals, no mid-luminance slate (it clashed with the palette).
+ * The one tile-border RULE (Pass-5 tile-orientation spec, retuned twice on
+ * user feedback): the border is the tile's OWN fill pulled toward black —
+ * self-grout. The previous constant graphite ink (#0d0d11, the page
+ * substrate) vanished at map scale: at fit zoom a Huge map's tiles are a few
+ * pixels wide, and a page-colored 1px seam between dark fills dissolved the
+ * tessellation into disconnected dots — the grid disappeared everywhere the
+ * Delaunay mesh (its own slate ink) wasn't drawn. A fill-derived seam is
+ * darker than its fill BY CONSTRUCTION, so the hex lattice reads at every
+ * zoom, in both themes, for every palette — and up close it still recedes
+ * like etched grout instead of glowing slate. Unfilled tiles draw nothing
+ * (mesh contract — stroke alpha follows fill alpha). All tile-space polygon
+ * strokes use this rule — no per-call border literals.
  */
-export const TILE_BORDER_COLOR: RgbaColor = [13, 13, 17, 200];
+export const TILE_BORDER_FILL_RATIO = 0.55;
+
+export function tileBorderColorForFill(r: number, g: number, b: number): RgbaColor {
+  return [
+    Math.round(r * TILE_BORDER_FILL_RATIO),
+    Math.round(g * TILE_BORDER_FILL_RATIO),
+    Math.round(b * TILE_BORDER_FILL_RATIO),
+    255,
+  ];
+}
 
 type ColorOut = { [index: number]: number };
 

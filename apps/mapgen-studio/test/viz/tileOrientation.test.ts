@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Layer } from "@deck.gl/core";
 import type { VizLayerEntryV1, VizManifestV1 } from "../../src/features/viz/model";
 import { boundsForTileGrid, renderDeckLayers } from "../../src/features/viz/deckgl/render";
+import { TILE_BORDER_FILL_RATIO } from "../../src/features/viz/presentation";
 
 function polygonCenterY(layer: Layer, index: number): number {
   const polygon = (layer as any).props.getPolygon(index) as Array<[number, number]>;
@@ -145,5 +146,34 @@ describe("tile-space rendering orientation", () => {
     // A filled neighbor keeps its border (the shared tile ink).
     const filledLine = (hexLayer as any).props.getLineColor(0) as number[];
     expect(filledLine[3]).toBeGreaterThan(0);
+  });
+
+  it("grouts each filled tile with its OWN fill darkened (the one border rule)", async () => {
+    const layer = gridLayer("tile.hexOddR");
+    const manifest: VizManifestV1 = {
+      runId: "test-run",
+      outputRoot: "browser://viz",
+      steps: [{ stepId: "test.step", stepIndex: 0 }],
+      layers: [layer],
+    };
+    const result = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });
+    const hexLayer = result.layers.find((candidate) => String(candidate.id).endsWith("::hex"));
+    if (!hexLayer) throw new Error("missing rendered hex layer");
+
+    // The previous CONSTANT graphite ink matched the page substrate, so at
+    // fit zoom the lattice dissolved into dots ("the grid disappeared" for
+    // every tile layer). The border must now derive from the tile's fill —
+    // strictly darker than it, fully opaque, and different per tile.
+    for (const index of [0, 1]) {
+      const fill = (hexLayer as any).props.getFillColor(index) as number[];
+      const line = (hexLayer as any).props.getLineColor(index) as number[];
+      expect(line[3]).toBe(255);
+      for (const channel of [0, 1, 2]) {
+        expect(line[channel]).toBe(Math.round((fill[channel] ?? 0) * TILE_BORDER_FILL_RATIO));
+      }
+    }
+    const line0 = (hexLayer as any).props.getLineColor(0) as number[];
+    const line1 = (hexLayer as any).props.getLineColor(1) as number[];
+    expect(line0).not.toEqual(line1);
   });
 });
