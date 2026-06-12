@@ -6,7 +6,7 @@
 
 // Layout components
 export { AppBrand } from './AppBrand';
-export { AppHeader, HEADER_HEIGHT, type AppHeaderProps } from './AppHeader';
+export { AppHeader, type AppHeaderProps } from './AppHeader';
 export { AppFooter, FOOTER_HEIGHT, type AppFooterProps } from './AppFooter';
 
 // Panel components
