@@ -195,3 +195,16 @@ promotion.
 - Shortfalls and rejections are recorded as typed outcomes instead of being silently rescued (no whole-map fallback, no least-used-type rebalance, no spacing decay).
 - Live-game proof compares plan vs engine state at milestone boundaries; per-slice proof runs on artifacts + mock policy emulation.
 - Future regime changes require a superseding entry here before implementation.
+
+## ADR-010: Placement knobs are semantic groups derived from op schemas, with relationship controls and Earth-like defaults
+
+**Status:** Accepted
+**Date:** 2026-06-10
+**Context:** Before the placement-realignment workstream, the placement stage's knob surface was hollow: the stage `knobs` schema was empty, resources exposed only density/min-spacing/share-cap, the start-sector knobs were hardwired inert, studio exposed no placement controls at all, and the controls users actually wanted (sparsity, resource↔resource affinity/exclusion, resource↔start support) did not exist (diagnosis RC7). Hand-shadowed public schemas had already drifted from op reality elsewhere in the stage.
+**Decision:** Placement public config is organized as **semantic knob groups per product** (`resources`, `starts`, `support`, plus `naturalWonders`/`discoveries`), and each op-backed group is **derived from the owning op's default strategy config schema** (the foundation pattern) — never hand-shadowed. The taxonomy treats density AND sparsity, rarity fidelity, type-aware spacing, resource↔resource affinity/exclusion, and the resource↔start relationship (support floor, radius, equity tolerance, strength) as first-class controls alongside start scoring weights, spacing floor/desired buffers, fairness tolerance, and coastal/river/StartBias preferences. Every knob declares an explicit min/max range; **defaults are Earth-like** (they reproduce the predeclared expectation gates in `docs/projects/placement-realignment/expectations.md`) and knobs expand outward from that baseline to their declared extremes.
+**Consequences:**
+- Studio's placement panel is schema-driven from the generated recipe artifacts (`build:studio-recipes`); there is no parallel hand-maintained config path to drift.
+- Adding an op config field automatically surfaces it as a knob candidate; ranges and descriptions are authored once at the op contract.
+- Tuning changes are weight/range edits inside declared bounds, recorded against the expectation ledger — not new code paths.
+- Expressiveness is testable: the sparsity/exclusion expectation (E3.4) gates that max-sparsity and exclusion settings actually produce their declared extremes.
+- Default changes are behavior changes: they must be verified against the expectation gates before shipping (the ledger amends only by recorded evidence).
