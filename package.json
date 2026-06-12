@@ -65,6 +65,7 @@
     "gt:import-pr": "bash ./scripts/graphite-import-pr.sh",
     "mapgen-studio:gen-civ7-tables": "bun ./scripts/mapgen-studio/generate-civ7-browser-tables.ts",
     "verify:placement-catalogs": "bun scripts/placement/verify-manual-catalogs.ts",
+    "verify:placement-metrics": "bun scripts/placement/placement-metrics.ts",
     "openspec": "openspec",
     "openspec:validate": "openspec validate --all --strict"
   },
