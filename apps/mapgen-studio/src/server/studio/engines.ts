@@ -29,6 +29,7 @@ import {
   buildRunInGameExactAuthorshipProof,
   buildRunInGameSourceSnapshotProof,
   fileIdentity,
+  mapScriptEmbedsRequestId,
   parseDeployTargetDir,
   parseSwooperMapgenLogProof,
 } from "../runInGame/proofIdentity";
@@ -637,6 +638,29 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
           ...(deployedModScript ? { deployedModScript } : {}),
         };
         runInGameOperations.update(requestId, { phase, materialization });
+
+        // Fail fast if the freshly built bundle does not embed this request's
+        // id. The in-game [mapgen-proof] line echoes the embedded id and the
+        // proof waiter matches on it — a bundle without it (the turbo
+        // cached/strict-env regression) would otherwise zombie in
+        // "waiting-for-proof" until the log timeout while the game plays on.
+        const localBundlePath = localModScriptPath(repoRoot, id);
+        const localBundleText = await readFile(localBundlePath, "utf8").catch(() => "");
+        if (!mapScriptEmbedsRequestId(localBundleText, requestId)) {
+          throw new RunInGameHttpError(
+            500,
+            "Deployed map bundle does not embed the Run in Game request id; the in-game proof could never match.",
+            {
+              code: "run-request-id-not-materialized",
+              requestId,
+              mapScript: materialized.mapScript,
+              localModScript: relative(repoRoot, localBundlePath),
+              recoveryHint:
+                "Rebuild map artifacts (gen:maps must see SWOOPER_STUDIO_RUN_ID; check turbo env passthrough/cache), then retry the run.",
+              materialization,
+            },
+          );
+        }
 
         let processRestart;
         if (restartCivProcess) {

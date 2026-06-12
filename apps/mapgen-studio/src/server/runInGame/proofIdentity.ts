@@ -87,6 +87,20 @@ export function runInGameRequiredMaterializationMarkers(args: {
   ];
 }
 
+/**
+ * The deployed map bundle must EMBED the run request id — `gen:maps` bakes it
+ * into the generated source (via `SWOOPER_STUDIO_RUN_ID`) and the in-game
+ * `[mapgen-proof]` log line echoes it, which is what the proof waiter matches
+ * on. When the id is missing (the historical failure: turbo's cached/strict-env
+ * `build` task dropped the env var, so the bundle logged `requestId: null`),
+ * the proof can NEVER match and the operation zombies in "Waiting for Proof"
+ * for the full log timeout. Checking the bundle right after deploy turns that
+ * silent 90s wait into an immediate, precisely attributed failure.
+ */
+export function mapScriptEmbedsRequestId(bundleText: string, requestId: string): boolean {
+  return bundleText.includes(requestId);
+}
+
 export function buildRunInGameSourceSnapshotProof(args: {
   requestId: string;
   sourceSnapshot: unknown;
