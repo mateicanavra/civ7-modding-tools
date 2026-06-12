@@ -55,3 +55,19 @@ These are the invariants the redesigned tab must keep. Everything else is negoti
 - No changes to the projection contract or oRPC schema for the re-skin.
 - No runtime/execution overlay (the DAG is static authoring structure; a "live run" overlay is a separate future feature).
 - The integration lane (this doc's author) will not touch your stack; sequencing questions go to the operator.
+
+## 6. Execution mandate (operator-granted)
+
+This section states your authority and expected mode of work explicitly, so nothing here has to be inferred.
+
+**What is non-negotiable.** The invariants in §2 and every item this doc marks "preserve" in §1 are hard constraints: the projection contract, the server boundary and transport path, the layout/domain/label semantics, the interaction semantics, and the behavioral pins in the test suites. The §5 non-goals are equally binding. Do not weaken, fork, or re-derive any of these.
+
+**Within those bounds, you own the design.** Step fully into design mode and systemic-analysis mode. You are not being asked to transplant the merged code's shape into your shell — you are being asked to decide, as the owner of the Studio design system, what the most **idiomatic, native** expression of this feature is inside the redesigned Studio, and to build that. Where the merged code's structure and your design system disagree about anything outside the §2 invariants, your design system wins.
+
+**Explicit permissions.** You have operator permission to:
+
+- Integrate the feature properly into the design system you manage — its navigation primitives, state layer, theming, component vocabulary — including making reasonable choices and trade-offs to match what you already have.
+- **Modularize** the merged code as you see fit: split, re-home, rename, or re-layer `features/recipeDag/*` modules (keeping their exported semantics intact), introduce whatever internal structure your decomposed shell calls for.
+- **Take the time to plan and specify before building.** Up-front analysis, a written design/spec, and staged execution are encouraged, not tolerated.
+
+**Expected workflow.** Execute this systematically, the way the repo's other major effort runs: structure the work as a **workstream**, and use the **OpenSpec workstream** machinery (proposal → design → tasks → workstream/phase records under `openspec/changes/`) to plan, record, and verify it. The merged feature's own workstream at `openspec/changes/mapgen-recipe-dag-visualization/` is both prior art for the format and the record of what the feature committed to; your workstream should reference it. Land the work through your lane's normal stacked-branch discipline with gates green at each step (§4 lists the gate expectations).
