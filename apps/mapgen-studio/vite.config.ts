@@ -56,6 +56,8 @@ import { parseMapConfigSaveRequest } from "./src/server/mapConfigs/requestValida
 import type { RunInGamePhase, RunInGameRequestStatus } from "./src/features/runInGame/status";
 import { buildLiveRuntimeStatusState } from "./src/features/liveRuntime/model";
 import { handleStudioCiv7ControlOrpcRequest } from "./src/server/civ7ControlOrpc";
+import { STUDIO_RECIPE_DAG_ORPC_PATH } from "./src/shared/recipeDagOrpc";
+import { nodeRequestToWebRequest, writeWebResponse } from "./src/server/http/nodeWebBridge";
 import {
   createStudioRpcHandler,
   orpcError,
@@ -359,38 +361,9 @@ async function materializeRunInGameConfig(args: {
   };
 }
 
-/**
- * Adapt a Vite/Connect Node request (`IncomingMessage`) to a Web `Request` for the
- * oRPC fetch-adapter `RPCHandler`. The `/rpc` middleware runs before Vite consumes
- * the body, so we buffer it here (oRPC reads the Web `Request` body itself). GET/
- * HEAD carry no body. Host/proto come from headers (dev server is local).
- */
-async function nodeRequestToWebRequest(req: import("node:http").IncomingMessage): Promise<Request> {
-  const method = req.method ?? "GET";
-  const host = (req.headers.host as string | undefined) ?? "localhost";
-  // Connect's path-mounted middleware (`use("/rpc", …)`) STRIPS the mount prefix
-  // from `req.url`, but the oRPC handler matches against the full `/rpc/...` path
-  // (its `prefix`). Use `originalUrl` (the un-rewritten path) so the prefix matches.
-  const path = (req as { originalUrl?: string }).originalUrl ?? req.url ?? "/";
-  const url = `http://${host}${path}`;
-  const headers = new Headers();
-  for (const [key, value] of Object.entries(req.headers)) {
-    if (value === undefined) continue;
-    if (Array.isArray(value)) for (const v of value) headers.append(key, v);
-    else headers.set(key, value);
-  }
-  let body: Buffer | undefined;
-  if (method !== "GET" && method !== "HEAD") {
-    const chunks: Buffer[] = [];
-    for await (const chunk of req) chunks.push(Buffer.from(chunk));
-    body = Buffer.concat(chunks);
-  }
-  return new Request(url, {
-    method,
-    headers,
-    ...(body && body.length > 0 ? { body, duplex: "half" } : {}),
-  } as RequestInit & { duplex?: "half" });
-}
+// `nodeRequestToWebRequest` / `writeWebResponse` (the Node ⇄ Web bridge shared
+// by the fetch-adapter oRPC mounts) moved to ./src/server/http/nodeWebBridge —
+// statically imported above like the other server modules.
 
 function writeJson(res: { statusCode: number; setHeader(name: string, value: string): void; end(body?: string): void }, statusCode: number, body: unknown): void {
   res.statusCode = statusCode;
@@ -1078,22 +1051,24 @@ export default defineConfig(({ command }) => ({
     {
       name: "repo-backed-map-configs",
       configureServer(server) {
-        let recipeDagOrpcMiddlewarePromise:
-          | Promise<typeof import("./src/server/recipeDag/orpc").handleStudioRecipeDagOrpcRequest>
-          | null = null;
-        const loadRecipeDagOrpcMiddleware = () => {
-          recipeDagOrpcMiddlewarePromise ??= server
-            .ssrLoadModule("/src/server/recipeDag/orpc.ts")
-            .then((module) => module.handleStudioRecipeDagOrpcRequest);
-          return recipeDagOrpcMiddlewarePromise;
-        };
-
         server.middlewares.use(handleStudioCiv7ControlOrpcRequest);
+        // Recipe-DAG oRPC mount. The handler module MUST load through Vite's
+        // SSR pipeline: its effect-orpc router layer imports `effect-orpc`,
+        // whose package entry is TypeScript SOURCE — Node cannot type-strip
+        // under node_modules, so a static import here breaks config evaluation
+        // (@civ7/studio-server avoids this only by bundling effect-orpc into
+        // its dist). `ssrLoadModule` is called PER REQUEST — Vite's documented
+        // SSR pattern: unchanged graphs are cheap cache hits, and edits to the
+        // server module are picked up on the next request (the previous
+        // forever-memoized promise served the first load until restart). The
+        // path pre-check keeps the SSR loader off every other request.
         server.middlewares.use((req, res, next) => {
-          void loadRecipeDagOrpcMiddleware().then(
-            (middleware) => {
-              void middleware(req, res, next);
-            },
+          const path = (req as { originalUrl?: string }).originalUrl ?? req.url ?? "/";
+          if (!path.startsWith(STUDIO_RECIPE_DAG_ORPC_PATH)) return next();
+          server.ssrLoadModule("/src/server/recipeDag/orpc.ts").then(
+            (module) =>
+              void (module as typeof import("./src/server/recipeDag/orpc"))
+                .handleStudioRecipeDagOrpcRequest(req, res, next),
             next,
           );
         });
@@ -1402,9 +1377,7 @@ export default defineConfig(({ command }) => ({
             next();
             return;
           }
-          res.statusCode = response.status;
-          response.headers.forEach((value, key) => res.setHeader(key, value));
-          res.end(response.body ? Buffer.from(await response.arrayBuffer()) : undefined);
+          await writeWebResponse(res, response);
         });
       },
     },
