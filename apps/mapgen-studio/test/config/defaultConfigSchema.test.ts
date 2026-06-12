@@ -291,7 +291,7 @@ describe("Studio default config", () => {
         "moistureTransport",
         "precipitation",
       ],
-      "hydrology-hydrography": ["knobs", "runoff", "riverNetwork", "lakes"],
+      "hydrology-hydrography": ["knobs", "runoff", "drainageRouting", "riverNetwork", "lakes"],
       "hydrology-climate-refine": [
         "knobs",
         "precipitationRefinement",
@@ -335,7 +335,7 @@ describe("Studio default config", () => {
         "moistureTransport",
         "precipitation",
       ],
-      "hydrology-hydrography": ["knobs", "runoff", "riverNetwork", "lakes"],
+      "hydrology-hydrography": ["knobs", "runoff", "drainageRouting", "riverNetwork", "lakes"],
       "hydrology-climate-refine": [
         "knobs",
         "precipitationRefinement",
@@ -619,7 +619,7 @@ describe("Studio default config", () => {
         "moistureTransport",
         "precipitation",
       ],
-      "hydrology-hydrography": ["runoff", "riverNetwork", "lakes"],
+      "hydrology-hydrography": ["runoff", "drainageRouting", "riverNetwork", "lakes"],
       "hydrology-climate-refine": [
         "precipitationRefinement",
         "solarForcing",

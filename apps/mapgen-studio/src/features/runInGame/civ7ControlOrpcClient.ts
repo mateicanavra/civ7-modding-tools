@@ -18,7 +18,7 @@ export function createStudioCiv7ControlOrpcClient(
   }> = {},
 ): StudioCiv7ControlOrpcClient {
   const link = new RPCLink({
-    url: options.url ?? STUDIO_CIV7_CONTROL_ORPC_PATH,
+    url: options.url ?? resolveStudioCiv7ControlOrpcUrl(),
     ...(options.fetch
       ? {
           fetch: (request, init) => options.fetch?.(request, init)
@@ -28,4 +28,11 @@ export function createStudioCiv7ControlOrpcClient(
   });
 
   return createORPCClient<StudioCiv7ControlOrpcClient>(link);
+}
+
+function resolveStudioCiv7ControlOrpcUrl(): string {
+  if (typeof globalThis.location?.origin === "string") {
+    return new URL(STUDIO_CIV7_CONTROL_ORPC_PATH, globalThis.location.origin).toString();
+  }
+  return STUDIO_CIV7_CONTROL_ORPC_PATH;
 }

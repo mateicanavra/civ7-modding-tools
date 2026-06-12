@@ -51,6 +51,8 @@ export const Civ7AppUiSnapshotSchema = Type.Object({
     canNotifyUIReady: Type.String(),
     skipStartButton: Civ7RuntimeProbeSchema(Type.Boolean()),
     automationActive: Civ7RuntimeProbeSchema(Type.Boolean()),
+    activeInputContext: Civ7RuntimeProbeSchema(Type.Number()),
+    activeInputContextName: Type.Union([Type.String(), Type.Null()]),
   }, { additionalProperties: false }),
   gameContext: Type.Object({
     localPlayerID: Type.Number(),
@@ -106,6 +108,8 @@ export type Civ7AppUiSnapshot = Readonly<{
     canNotifyUIReady: string;
     skipStartButton: Civ7RuntimeProbe<boolean>;
     automationActive: Civ7RuntimeProbe<boolean>;
+    activeInputContext: Civ7RuntimeProbe<number>;
+    activeInputContextName: string | null;
   }>;
   gameContext: Readonly<{
     localPlayerID: number;
@@ -217,6 +221,15 @@ export function buildAppUiSnapshotCommand(): string {
         canNotifyUIReady: typeof g.UI?.notifyUIReady,
         skipStartButton: probe(() => g.Configuration.getGame().skipStartButton),
         automationActive: probe(() => typeof g.Automation !== "undefined" ? g.Automation.isActive : false),
+        activeInputContext: probe(() => g.Input.getActiveContext()),
+        activeInputContextName: (() => {
+          try {
+            const context = g.Input.getActiveContext();
+            return Object.entries(g.InputContext).find(([, value]) => value === context)?.[0] ?? null;
+          } catch {
+            return null;
+          }
+        })(),
       },
       gameContext: {
         localPlayerID: probeValueOr(-1, () => g.GameContext.localPlayerID),

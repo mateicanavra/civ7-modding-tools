@@ -95,6 +95,8 @@ describe("Civ7 App UI snapshot procedure descriptor", () => {
     });
     expect(calls[0]?.command).toContain("Network.isInSession");
     expect(calls[0]?.command).toContain("GameContext.localPlayerID");
+    expect(calls[0]?.command).toContain("Input.getActiveContext");
+    expect(calls[0]?.command).toContain("InputContext");
   });
 
   test("rejects context-owned procedure input before App UI dependencies run", async () => {
@@ -160,6 +162,8 @@ function appUiSnapshotResult() {
         canNotifyUIReady: "function",
         skipStartButton: { ok: true, value: false },
         automationActive: { ok: true, value: false },
+        activeInputContext: { ok: true, value: 4 },
+        activeInputContextName: "World",
       },
       gameContext: {
         localPlayerID: 0,

@@ -23,9 +23,14 @@ export type MapConfigSaveDeployStatus = Readonly<{
   deployed?: boolean;
   error?: string;
   deploy?: {
-    command?: string;
-    stdout?: string;
-    stderr?: string;
+    build?: {
+      task?: string;
+      stdout?: string;
+      stderr?: string;
+    };
+    targetDir?: string;
+    modsDir?: string;
+    filesCopied?: number;
   };
   details?: Record<string, unknown>;
 }>;

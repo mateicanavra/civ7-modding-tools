@@ -43,8 +43,7 @@
     "diag:list": "bun ./src/dev/diagnostics/list-layers.ts",
     "diag:diff": "bun ./src/dev/diagnostics/diff-layers.ts",
     "diag:trace": "bun ./src/dev/diagnostics/extract-trace.ts",
-    "deploy": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
-    "deploy:studio": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"
+    "deploy": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"
   },
   "dependencies": {
     "@swooper/mapgen-core": "workspace:*",

@@ -18,10 +18,6 @@ import { mapRiversArtifacts } from "../artifacts.js";
 
 const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
-const BULK_RIVER_MODELING_COMPATIBILITY_DEFAULT = Object.freeze({
-  minLength: 5,
-  maxLength: 15,
-});
 
 type ProjectionSignalStatus =
   | "normal-signal"
@@ -304,20 +300,6 @@ export default createStep(PlotRiversStepContract, {
       context.adapter.setTerrainType(i % width, Math.floor(i / width), NAVIGABLE_RIVER_TERRAIN);
     }
     logStats("POST-STAMP-RIVERS");
-    // Official Civ maps still run a bulk river-modeling pass before terrain
-    // validation/naming. Keep that compatibility sequence local to projection
-    // instead of surfacing it as authored product config.
-    context.adapter.modelRivers(
-      BULK_RIVER_MODELING_COMPATIBILITY_DEFAULT.minLength,
-      BULK_RIVER_MODELING_COMPATIBILITY_DEFAULT.maxLength,
-      NAVIGABLE_RIVER_TERRAIN
-    );
-    context.trace.event(() => ({
-      type: "map.rivers.bulkRiverModeling",
-      minLength: BULK_RIVER_MODELING_COMPATIBILITY_DEFAULT.minLength,
-      maxLength: BULK_RIVER_MODELING_COMPATIBILITY_DEFAULT.maxLength,
-    }));
-    logStats("POST-MODEL-RIVERS");
     context.adapter.validateAndFixTerrain();
     logStats("POST-VALIDATE");
     context.adapter.defineNamedRivers();

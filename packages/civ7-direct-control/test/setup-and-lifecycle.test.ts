@@ -601,6 +601,8 @@ async function startSetupLifecycleServer(
                   canNotifyUIReady: "function",
                   skipStartButton: { ok: true, value: false },
                   automationActive: { ok: true, value: false },
+                  activeInputContext: { ok: true, value: 4 },
+                  activeInputContextName: "World",
                 },
                 gameContext: {
                   localPlayerID: inShell ? -1 : 0,

@@ -28,7 +28,12 @@ describe("Map config save/deploy operation store", () => {
     });
     const complete = store.complete("studio-save-deploy-test", {
       path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
-      deploy: { command: "bunx turbo run deploy:studio --filter=mod-swooper-maps" },
+      deploy: {
+        build: { task: "mod-swooper-maps#build" },
+        targetDir: "/Users/test/Library/Application Support/Civilization VII/Mods/mod-swooper-maps",
+        modsDir: "/Users/test/Library/Application Support/Civilization VII/Mods",
+        filesCopied: 12,
+      },
     });
 
     expect(complete.status).toBe("complete");

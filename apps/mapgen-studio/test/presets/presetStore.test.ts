@@ -72,47 +72,4 @@ describe("preset storage", () => {
     expect(result.store).toEqual(createEmptyStore());
     expect(result.warning).toBeDefined();
   });
-
-  it("migrates retired Foundation size-scaling fields from saved scratch configs", () => {
-    storage.setItem(
-      STUDIO_PRESET_STORE_KEY,
-      JSON.stringify({
-        version: 1,
-        presetsByRecipeId: {
-          "mod-swooper-maps/standard": [
-            {
-              id: "legacy",
-              label: "Legacy",
-              config: {
-                foundation: {
-                  meshResolution: {
-                    plateCount: 28,
-                    cellsPerPlate: 2,
-                    relaxationSteps: 2,
-                    referenceArea: 4536,
-                    plateScalePower: 0.8,
-                  },
-                  platePartition: {
-                    plateCount: 28,
-                    referenceArea: 4536,
-                    plateScalePower: 0.8,
-                  },
-                },
-              },
-              createdAtIso: "2026-06-01T00:00:00.000Z",
-              updatedAtIso: "2026-06-01T00:00:00.000Z",
-            },
-          ],
-        },
-      })
-    );
-
-    const result = loadPresetStore();
-    const config = result.store.presetsByRecipeId["mod-swooper-maps/standard"]![0]!.config as any;
-    expect(config.foundation.meshResolution.plateCount).toBe(28);
-    expect(config.foundation.meshResolution).not.toHaveProperty("referenceArea");
-    expect(config.foundation.meshResolution).not.toHaveProperty("plateScalePower");
-    expect(config.foundation.platePartition).not.toHaveProperty("referenceArea");
-    expect(config.foundation.platePartition).not.toHaveProperty("plateScalePower");
-  });
 });

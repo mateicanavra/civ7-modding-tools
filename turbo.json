@@ -5,15 +5,17 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "types/**", "example-generated-mod/**", "mod/**"]
     },
+    "mod-swooper-maps#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "types/**", "example-generated-mod/**", "mod/**"],
+      "inputs": ["$TURBO_DEFAULT$", "src/maps/configs/studio-current.config.json"],
+      "env": ["SWOOPER_STUDIO_RUN_ID"]
+    },
     "build:studio-recipes": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "mod/**", "src/maps/generated/**"]
     },
     "deploy": {
-      "dependsOn": ["build", "@mateicanavra/civ7-cli#build"],
-      "cache": false
-    },
-    "deploy:studio": {
       "dependsOn": ["build", "@mateicanavra/civ7-cli#build"],
       "cache": false
     },

@@ -116,6 +116,8 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
             canNotifyUIReady: "function",
             skipStartButton: { ok: true, value: false },
             automationActive: { ok: true, value: false },
+            activeInputContext: { ok: true, value: 4 },
+            activeInputContextName: "World",
           },
           gameContext: {
             localPlayerID: 0,
@@ -238,6 +240,8 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
             canNotifyUIReady: "undefined",
             skipStartButton: { ok: false, error: "Configuration unavailable" },
             automationActive: { ok: false, error: "Automation unavailable" },
+            activeInputContext: { ok: false, error: "Input unavailable" },
+            activeInputContextName: null,
           },
           gameContext: {
             localPlayerID: -1,
@@ -604,6 +608,8 @@ function appUiSnapshot(options: { shell?: boolean }) {
       canNotifyUIReady: "function",
       skipStartButton: { ok: true, value: false },
       automationActive: { ok: true, value: false },
+      activeInputContext: { ok: true, value: inShell ? 3 : 4 },
+      activeInputContextName: inShell ? "Shell" : "World",
     },
     gameContext: {
       localPlayerID: inShell ? -1 : 0,

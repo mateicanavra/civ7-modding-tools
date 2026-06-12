@@ -36,11 +36,13 @@ bun run build
     - `bunx turbo run build:studio-recipes --filter=mod-swooper-maps`
 
 ## Save/Deploy And Run In Game
-Studio deploy operations use the root Turbo graph:
+Studio Save/Deploy and Run In Game first rebuild the Swooper Maps package through
+the root Turbo graph:
 ```bash
-bunx turbo run deploy:studio --filter=mod-swooper-maps
+bunx turbo run build --filter=mod-swooper-maps
 ```
 
-The `mod-swooper-maps` package-local `deploy` and `deploy:studio` scripts are
-leaf deploy commands. They assume Turbo has already built the mod package and
-the Civ7 CLI.
+After the build completes, the Studio server installs the built mod with
+`@civ7/plugin-mods.deployMod(...)`. The `mod-swooper-maps` package-local
+`deploy` script remains a manual leaf command and is not the Studio lifecycle
+path.

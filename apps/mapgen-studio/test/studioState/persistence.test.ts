@@ -38,23 +38,6 @@ const pipelineConfig = {
   },
 } as unknown as PipelineConfig;
 
-const legacyFoundationConfig = {
-  foundation: {
-    meshResolution: {
-      plateCount: 28,
-      cellsPerPlate: 2,
-      relaxationSteps: 2,
-      referenceArea: 4536,
-      plateScalePower: 0.8,
-    },
-    platePartition: {
-      plateCount: 28,
-      referenceArea: 4536,
-      plateScalePower: 0.8,
-    },
-  },
-} as unknown as PipelineConfig;
-
 const setupConfig = {
   gameOptions: {
     Difficulty: "DIFFICULTY_PRINCE",
@@ -119,38 +102,4 @@ describe("Studio authoring-state persistence", () => {
     }))).toBeNull();
   });
 
-  it("migrates retired Foundation size-scaling fields from saved authoring state", () => {
-    const parsed = parseStudioAuthoringState(JSON.stringify({
-      schemaVersion: 1,
-      savedAt: "2026-06-01T00:00:00.000Z",
-      worldSettings,
-      recipeSettings,
-      setupConfig,
-      pipelineConfig: legacyFoundationConfig,
-      overridesDisabled: false,
-      repoBackedPresetOverridesByRecipe: {
-        "mod-swooper-maps/standard": {
-          "legacy-config": {
-            id: "legacy-config",
-            label: "Legacy Config",
-            config: legacyFoundationConfig,
-          },
-        },
-      },
-    }));
-
-    expect(parsed).not.toBeNull();
-    const foundation = parsed!.pipelineConfig.foundation as Record<string, Record<string, unknown>>;
-    expect(foundation.meshResolution).not.toHaveProperty("referenceArea");
-    expect(foundation.meshResolution).not.toHaveProperty("plateScalePower");
-    expect(foundation.platePartition).not.toHaveProperty("referenceArea");
-    expect(foundation.platePartition).not.toHaveProperty("plateScalePower");
-    expect(foundation.meshResolution.plateCount).toBe(28);
-
-    const override = parsed!.repoBackedPresetOverridesByRecipe["mod-swooper-maps/standard"]!["legacy-config"]!
-      .config as PipelineConfig;
-    const overrideFoundation = override.foundation as Record<string, Record<string, unknown>>;
-    expect(overrideFoundation.meshResolution).not.toHaveProperty("referenceArea");
-    expect(overrideFoundation.platePartition).not.toHaveProperty("plateScalePower");
-  });
 });

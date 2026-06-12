@@ -1,21 +1,19 @@
-export type StudioDeployCommand = Readonly<{
-  command: string;
-  args: readonly string[];
+export type SwooperMapsStudioDeployPlan = Readonly<{
+  buildTask: "mod-swooper-maps#build";
+  buildArgs: readonly string[];
   env: NodeJS.ProcessEnv;
 }>;
 
-export function buildSwooperMapsStudioDeployCommand(options: {
+export function buildSwooperMapsStudioDeployPlan(options: {
   requestId?: string;
   env?: NodeJS.ProcessEnv;
-} = {}): StudioDeployCommand {
+} = {}): SwooperMapsStudioDeployPlan {
   const env = options.requestId
     ? { ...(options.env ?? process.env), SWOOPER_STUDIO_RUN_ID: options.requestId }
     : (options.env ?? process.env);
   return {
-    command: options.requestId
-      ? "SWOOPER_STUDIO_RUN_ID=<request> bunx turbo run deploy:studio --filter=mod-swooper-maps"
-      : "bunx turbo run deploy:studio --filter=mod-swooper-maps",
-    args: ["x", "turbo", "run", "deploy:studio", "--filter=mod-swooper-maps"],
+    buildTask: "mod-swooper-maps#build",
+    buildArgs: ["x", "turbo", "run", "build", "--filter=mod-swooper-maps"],
     env,
   };
 }

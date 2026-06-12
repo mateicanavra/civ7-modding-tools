@@ -162,10 +162,10 @@ related_to: []
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.ts` uses `adapter.buildElevation()` then `syncHeightfield(context)` (engine-derived heightfield), but canonical topography already exists in morphology artifacts.
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` and `plotMountains.ts`/`plotVolcanoes.ts` write terrain/feature via adapter only (projection).
   - `packages/civ7-adapter/src/mock-adapter.ts` implements `buildElevation()` as **no‑op** and `expandCoasts()` as simple adjacency; therefore adapter‑only outputs are not trustworthy for viz in mock mode.
-- Map‑hydrology rivers/lakes are adapter calls in map‑hydrology:
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/plotRivers.ts` calls `adapter.modelRivers(...)`.
+- Map‑hydrology/map-rivers split responsibilities:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts` calls `adapter.stampLakes(...)` with `artifact:hydrology.lakePlan`.
-  - `packages/civ7-adapter/src/mock-adapter.ts` `stampLakes()` is a terrain-stamping/readback double; `modelRivers()` is a best-effort stub. This reinforces pipeline-owned hydrography as the viz truth.
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts` directly stamps `TERRAIN_NAVIGABLE_RIVER` from Hydrology-selected terrain.
+  - `packages/civ7-adapter/src/mock-adapter.ts` `stampLakes()` is a terrain-stamping/readback double. Pipeline-owned hydrography remains the viz truth; river terrain projection is read back separately from unsupported minor-river metadata.
 - Map‑ecology (biomes/features/effects) writes engine types only:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plotBiomes.ts` and `features/apply.ts` set engine biomes/features.
   - Mock adapter’s `designateBiomes()`/`addFeatures()` are no‑ops (only effect tags), so engine biomes/features aren’t a reliable source for viz in mock runs.

@@ -76,6 +76,10 @@ import {
   type MapConfigSaveDeployStatus,
 } from "./features/mapConfigSave/status";
 import {
+  createStudioServerOrpcClient,
+  studioServerOrpcFailure,
+} from "./features/studioServer/studioServerClient";
+import {
   buildLiveRuntimeErrorState,
   buildLiveRuntimeSnapshotQuery,
   buildLiveRuntimeSnapshotRequest,
@@ -129,6 +133,7 @@ import { getOverlaySuggestions } from "./recipes/overlaySuggestions";
 
 const civ7ControlOrpcClient = createStudioCiv7ControlOrpcClient();
 const recipeDagClient = createStudioRecipeDagClient();
+const studioServerClient = createStudioServerOrpcClient();
 
 type StudioView = "map" | "dag";
 
@@ -166,7 +171,7 @@ async function saveRepoBackedConfig(args: {
   config: unknown;
   onStatus?: (status: MapConfigSaveDeployStatus) => void;
 }): Promise<
-  | { ok: true; path?: string; deploy?: { command?: string } }
+  | { ok: true; path?: string; deploy?: MapConfigSaveDeployStatus["deploy"] }
   | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string }
 > {
   const envelope = {
@@ -180,16 +185,12 @@ async function saveRepoBackedConfig(args: {
     config: args.config,
   };
   try {
-    const res = await fetch("/api/map-configs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestId: args.requestId, id: args.id, sourcePath: args.sourcePath, envelope }),
+    let status = await studioServerClient.mapConfigs.saveDeploy({
+      requestId: args.requestId,
+      id: args.id,
+      sourcePath: args.sourcePath,
+      envelope,
     });
-    const body = (await res.json().catch(() => null)) as (Partial<MapConfigSaveDeployStatus> & { error?: string }) | null;
-    if (!res.ok || !body?.requestId) {
-      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, path: body?.path };
-    }
-    let status = body as MapConfigSaveDeployStatus;
     args.onStatus?.(status);
     while (status.status === "running") {
       await delay(500);
@@ -211,7 +212,8 @@ async function saveRepoBackedConfig(args: {
     }
     return { ok: true, path: status.path, deploy: status.deploy };
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Repo config save failed" };
+    const failure = studioServerOrpcFailure(err, "Repo config save failed");
+    return { ok: false, error: failure.error, path: failure.data?.path as string | undefined };
   }
 }
 
@@ -225,14 +227,10 @@ function isAbortLikeError(err: unknown): boolean {
 
 async function fetchMapConfigSaveDeployStatus(requestId: string): Promise<MapConfigSaveDeployStatus | { ok: false; error: string; statusCode?: number }> {
   try {
-    const res = await fetch(`/api/map-configs/status?requestId=${encodeURIComponent(requestId)}`);
-    const body = (await res.json().catch(() => null)) as (Partial<MapConfigSaveDeployStatus> & { error?: string }) | null;
-    if (!res.ok || !body?.requestId) {
-      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, statusCode: res.status };
-    }
-    return body as MapConfigSaveDeployStatus;
+    return await studioServerClient.mapConfigs.status({ requestId });
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Save/Deploy status unavailable" };
+    const failure = studioServerOrpcFailure(err, "Save/Deploy status unavailable");
+    return { ok: false, error: failure.error, statusCode: failure.statusCode };
   }
 }
 
@@ -263,50 +261,38 @@ async function runCurrentConfigInGame(args: {
   | { ok: false; error: string; details?: RunInGameFailureDetails; statusCode?: number }
 > {
   try {
-    const res = await fetch("/api/civ7/run-in-game", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        recipeId: args.recipeId,
-        seed: args.seed,
-        mapSize: args.mapSize,
-        playerCount: args.playerCount,
-        resources: args.resources,
-        setupConfig: normalizeStudioSetupConfig(args.setupConfig),
-        materialization: { mode: args.materializationMode },
-        ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
-        selectedConfig: args.selectedConfig,
-        config: args.config,
-        sourceSnapshot: args.sourceSnapshot,
-      }),
+    const status = await studioServerClient.runInGame.start({
+      recipeId: args.recipeId,
+      seed: args.seed,
+      mapSize: args.mapSize,
+      playerCount: args.playerCount,
+      resources: args.resources,
+      setupConfig: normalizeStudioSetupConfig(args.setupConfig),
+      materialization: { mode: args.materializationMode },
+      ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
+      selectedConfig: args.selectedConfig,
+      config: args.config,
+      sourceSnapshot: args.sourceSnapshot,
     });
-    const body = (await res.json().catch(() => null)) as
-      | (Partial<RunInGameOperationStatus> & { error?: string; details?: RunInGameFailureDetails })
-      | null;
-    if (!res.ok || !body?.requestId) {
-      return {
-        ok: false,
-        error: body?.error ?? `HTTP ${res.status}`,
-        details: body?.details,
-        statusCode: res.status,
-      };
-    }
-    return body as RunInGameOperationStatus;
+    return status as RunInGameOperationStatus;
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Run in Game failed" };
+    const failure = studioServerOrpcFailure(err, "Run in Game failed");
+    return {
+      ok: false,
+      error: failure.error,
+      details: failure.data?.details as RunInGameFailureDetails | undefined,
+      statusCode: failure.statusCode,
+    };
   }
 }
 
 async function fetchRunInGameStatus(requestId: string): Promise<RunInGameOperationStatus | { ok: false; error: string; statusCode?: number }> {
   try {
-    const res = await fetch(`/api/civ7/run-in-game/status?requestId=${encodeURIComponent(requestId)}`);
-    const body = (await res.json().catch(() => null)) as (Partial<RunInGameOperationStatus> & { error?: string }) | null;
-    if (!res.ok || !body?.requestId) {
-      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, statusCode: res.status };
-    }
-    return body as RunInGameOperationStatus;
+    const status = await studioServerClient.runInGame.status({ requestId });
+    return status as RunInGameOperationStatus;
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Run in Game status unavailable" };
+    const failure = studioServerOrpcFailure(err, "Run in Game status unavailable");
+    return { ok: false, error: failure.error, statusCode: failure.statusCode };
   }
 }
 

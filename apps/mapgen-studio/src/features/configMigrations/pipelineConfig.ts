@@ -1,8 +1,5 @@
 import type { PipelineConfig } from "../../ui/types";
 
-const LEGACY_FOUNDATION_SIZE_GROUPS = ["meshResolution", "platePartition"] as const;
-const LEGACY_FOUNDATION_SIZE_KEYS = ["referenceArea", "plateScalePower"] as const;
-
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
   const proto = Object.getPrototypeOf(value);
@@ -24,17 +21,5 @@ export function migratePipelineConfig(value: PipelineConfig): PipelineConfig {
 }
 
 export function migratePipelineConfigUnknown(value: unknown): unknown {
-  const cloned = cloneConfigValue(value);
-  if (!isPlainObject(cloned)) return cloned;
-
-  const foundation = cloned.foundation;
-  if (!isPlainObject(foundation)) return cloned;
-
-  for (const groupKey of LEGACY_FOUNDATION_SIZE_GROUPS) {
-    const group = foundation[groupKey];
-    if (!isPlainObject(group)) continue;
-    for (const key of LEGACY_FOUNDATION_SIZE_KEYS) delete group[key];
-  }
-
-  return cloned;
+  return cloneConfigValue(value);
 }
