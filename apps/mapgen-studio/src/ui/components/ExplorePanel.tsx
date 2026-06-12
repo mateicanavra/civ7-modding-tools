@@ -243,6 +243,13 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   const stepItemInactive = 'border-transparent text-muted-foreground hover:bg-accent hover:text-foreground';
   const iconBtn = 'h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent';
   const iconBtnActive = 'h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-foreground bg-muted';
+  // Segmented controls for mutually-exclusive option sets (Render / Space):
+  // an inset container on the control-background token bounds the options so
+  // they read as one control; the active segment lifts one surface tier
+  // (Pass-2 explore-toolbar spec). Independent toggles keep `iconBtn`.
+  const segGroup = 'inline-flex items-center rounded border border-border-subtle bg-input-background p-0.5';
+  const segBtn = 'h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-muted-foreground hover:text-foreground';
+  const segBtnActive = 'h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-foreground bg-muted';
   const stageBadge = (isActive: boolean) => `
     w-5 h-5 flex items-center justify-center rounded-full text-label font-semibold shrink-0
     ${isActive ? 'bg-muted text-foreground' : 'bg-muted/50 text-muted-foreground'}
@@ -533,7 +540,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           {/* Right: Render */}
           <div className="flex flex-col items-end gap-1">
             <span className={`text-label uppercase tracking-wider ${textMuted}`}>Render</span>
-            <div className="flex items-center gap-1">
+            <div className={segGroup}>
               {renderModeOptions.map((option) => (
                 <Tooltip key={option.value}>
                   <TooltipTrigger asChild>
@@ -541,7 +548,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                       onClick={() => onSelectedRenderModeChange(option.value)}
                       aria-label={option.label}
                       aria-pressed={selectedRenderMode === option.value}
-                      className={selectedRenderMode === option.value ? iconBtnActive : iconBtn}
+                      className={selectedRenderMode === option.value ? segBtnActive : segBtn}
                     >
                       {getRenderModeIcon(option.value)}
                     </button>
@@ -557,7 +564,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           {/* Left: Space */}
           <div className="flex flex-col gap-1">
             <span className={`text-label uppercase tracking-wider ${textMuted}`}>Space</span>
-            <div className="flex items-center gap-1">
+            <div className={segGroup}>
               {spaceOptions.map((option) => (
                 <Tooltip key={option.value}>
                   <TooltipTrigger asChild>
@@ -565,7 +572,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                       onClick={() => onSelectedSpaceChange(option.value)}
                       aria-label={option.label}
                       aria-pressed={selectedSpace === option.value}
-                      className={selectedSpace === option.value ? iconBtnActive : iconBtn}
+                      className={selectedSpace === option.value ? segBtnActive : segBtn}
                     >
                       {getSpaceIcon(option.value)}
                     </button>
