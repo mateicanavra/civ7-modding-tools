@@ -1,0 +1,138 @@
+# Pass 5 — design fixes (toolbar architecture v2, tile rendering, canvas affordances)
+
+Fifth user-feedback wave on the redesign stack. Base: `design/config-collapse`
+(Pass-4 tip). Same discipline: one OpenSpec slice + one Graphite branch per
+change, visual verification on :5173, categorical sweeps, behavior parity is
+hard core.
+
+User-supplied direction (decided, not open): the top/bottom split moves from
+Pass-4's "game console docked under the world bar" to a full **Game vs
+World/Map** zoning — the top bar IS the game toolbar, the bottom bar IS the
+map console. Pass-4's E1 colocation is superseded (the frame predicted this:
+"the slot makes relocation cheap").
+
+## X1 — Toolbar architecture v2: top = Game, bottom = World/Map
+
+### Layout (user-specified)
+
+- **Top bar = the Game toolbar.** Identity renames World → Game. One bar
+  carries: saved-config selector · live Civ7 status chip (with the
+  sync-suggestion bridge) · autoplay · Explore · save-deploy + run-status
+  chips · retry/diagnostics · Run in Game · and, at the very END of the bar,
+  an **unlabeled disclosure** (no "Setup" text) that drops down the
+  game-setup row. There is no separate game console anywhere else.
+- **Bottom bar = the World/Map console.** Map size and Players move DOWN,
+  placed LEFT of Seed. Bar contents: studio status · History · Size ·
+  Players · Resources · Seed · reroll · auto-run · Run. No map settings
+  remain in the top bar.
+- **Last-run stats collapse into a History affordance:** one icon button
+  whose hover shows a well-designed tooltip with the last run (seed · size ·
+  players · resources). User preference: tooltip, not a popup toolbar.
+
+### Decisions (mine, within the user's frame)
+
+- **Resources moves to the bottom bar.** It lives in `WorldSettings`, feeds
+  map generation, and appears in the last-run map stats — it is a map
+  setting, and the rule is "no map settings in the top bar at all". The
+  setup dropdown therefore carries pure Civ7 game setup only: Leader · Civ ·
+  Difficulty · Speed. *Falsifier: if the user treats resource mode as game
+  setup, move one select back — the dropdown row still exists.*
+- **GameConsole stops being a panel and becomes the bar's command cluster.**
+  It keeps its component boundary (props, tests, behavior parity intact) but
+  renders an inline flex row with no border/background of its own; AppHeader
+  composes it INTO the Game bar row between the live area and the setup
+  disclosure. The "Civ7" identity label drops — the bar's "Game" identity
+  covers it, and the live chip text already says Civ7.
+- **The setup disclosure is icon-only** (`SlidersHorizontal` + chevron,
+  `aria-expanded`, `aria-label="Game setup"`) per the Pass-4 icon contract:
+  it is a repeated-use secondary control; the dropdown panel itself is the
+  label. It sits last in the bar (user-specified).
+- **History button doubles as copy-seed.** The old seed button copied on
+  click; History keeps that (click = copy last seed) so no affordance is
+  lost. Tooltip carries the full last-run line + "click to copy seed", and
+  the same content rides `aria-label`/`title` (a11y + static-markup parity,
+  same pattern as the console diagnostics).
+- **Run-with-what's-on-screen is already true** (`Run in Game` reads current
+  authored state) — X1 must not change operation semantics, gating, or
+  storage. Behavior parity hard core.
+
+### Mechanism notes
+
+- `WorldSettings` flow: `mapSize`/`playerCount`/`resources` currently update
+  via AppHeader's `onGlobalSettingsChange`; AppFooter gains
+  `globalSettings`/`onGlobalSettingsChange` and AppHeader loses them (it
+  keeps `setupConfig` + saved-config). StudioShell wiring moves accordingly.
+- Width check: footer ≈ status(80) + History(32) + Size(120) + Players(80)
+  + Resources(110) + Seed(130) + 3 icon buttons + Run ≈ 800px — fits the
+  1280 viewport with margin; the header sheds ~320px of selects and gains
+  ~580px of console, net narrower than Pass-4's two stacked rows.
+- *Falsifiers: header wraps at 1280 (then the bar's flex-wrap order must
+  keep the disclosure last); History tooltip unreadable as data (then
+  structure the tooltip content in rows, not a sentence).*
+
+## X2 — Grid icon missing (root cause found) + categorical icon sweep
+
+`ViewControls.tsx:109` renders a literal empty `<div className="w-4 h-4" />`
+where the grid toggle's icon belongs — restore a lucide glyph (`Grid3x3`),
+matching the established `w-4 h-4` size in that cluster. Categorical: the
+icon system IS lucide-react (sole system, 0.522); a src sweep found no other
+empty icon placeholders — re-verify live, and assert the button has visible
+glyph content in a test if cheap.
+
+## X3 — Tile orientation (odd-Q flat-top) + tile-mesh standard
+
+Root cause candidate (pre-grounded): `render.ts` builds hex polygons with
+`hexPolygonPointy` (vertices at 30°+60°·i) for BOTH `tile.hexOddR` and
+`tile.hexOddQ`. Row-offset (odd-R) layouts are pointy-top; column-offset
+(odd-Q) layouts are flat-top (vertices at 0°+60°·i) — every odd-Q
+visualization renders tiles rotated 30° (user's "~45° counterclockwise"
+observation). Fix: flat-top polygon + verify `oddQTileCenter` spacing and
+the `boundsForTileGrid` odd-Q branch (spacing math looks transposed from
+pointy-top). The geometry cache key (`spaceId:WxH:s{size}`) already
+separates spaces, so no stale-cache hazard — but confirm.
+
+Second half — **the tile-mesh contract**, standardized across all
+visualizations and both themes:
+
+- Tile borders legible against any canvas background (white/black/graphite).
+- Unfilled tiles render NOTHING (no phantom mesh) — only filled tiles show.
+- The optional background grid is one consistent treatment everywhere.
+
+*Falsifier: a visualization that intentionally shows an empty mesh (e.g. the
+background grid toggle) — that is the one sanctioned mesh, and it must obey
+the border-legibility rule rather than being removed.*
+
+## X4 — White flash on browser refresh (investigate, then fix)
+
+The `index.html` guard is verified correct for dark (unlayered body
+`#0d0d11` + theme script before CSS) — the flash survives it, so the cause
+is elsewhere. Method (user-specified): observe what renders when during
+reload — earliest-inline-script sampler logging
+`getComputedStyle(html/body).backgroundColor` + canvas presence over the
+first ~1s into sessionStorage, plus rapid screenshots. Suspects, in order:
+WebGL canvas init clear (white default before first deck draw), unstyled
+`html` element showing through, Vite injecting `index.css` via JS after
+first paint. User observation to honor: the DeckGL background seems to
+persist while the rest flashes. Deliverable: identified culprit, then the
+minimal fix.
+
+## X5 — Pre-run cursor (decision: suppress the affordance)
+
+Pre-run, the deck controller is live (`DeckCanvas.tsx` always passes a
+controller) but the only visible texture is the DOM CSS graticule in
+`CanvasStage` — panning works yet moves nothing visible, and the `grab`
+cursor promises a drag that reads as broken. Decision (user delegated, both
+options offered): **Option 2** — until a manifest exists, disable the
+controller and show the default cursor; post-run unchanged. Option 1 (make
+pre-run drag real) would require moving the background texture into deck
+layers — unjustified now; X3's mesh standardization is the natural future
+hook if we ever want it.
+
+## Sequencing
+
+X1 (centerpiece, while the console context is hot) → X2 (small) → X3 →
+X5 (small) → X4 (investigation last; its fix may become its own slice).
+Branches stack on `design/config-collapse`:
+`design/pass5-frame` → `design/toolbar-architecture-v2` →
+`design/grid-icon` → `design/tile-orientation` → `design/prerun-cursor` →
+`design/flash-fix`.
