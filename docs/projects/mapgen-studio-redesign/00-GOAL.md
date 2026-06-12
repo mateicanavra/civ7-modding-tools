@@ -545,3 +545,53 @@ because static markup can't click); tsc clean; live-verified dark + light
 measured via computed styles). system.md gained the Z-wave amendment
 (Game bar v3 + console glyph registry v3); Pass-4 glyph registry marked
 superseded.
+
+## Restack onto post-integration main (2026-06-12, operator-mandated)
+
+Per `docs/projects/graphite-stack-integration/STUDIO-REDESIGN-RESTACK-HANDOFF.md`
+(+ DAG handoff §6): the one-time reconciliation of this 62-branch stack onto
+frozen main `1db0dfc4c` (taxonomy + rivers; dag/placement were already in the
+base). `gt sync --no-restack` + `gt restack --downstack` from the leaf; 8
+conflict events (rerere compounded the predicted ~25–30), resolved per the
+handoff's pre-decided dispositions: our decomposition won all chrome
+(App.tsx, ExplorePanel, AppHeader), our `packages/studio-server` won its 8
+shared files (main's `test/handler.test.ts` + `vitest.config.ts` kept and
+green — the reworked handler passes them unchanged; the package regained a
+`test` script so they run in gates), `civ7-direct-control/index.ts` was the
+pure export union (applied clean), main's resources gitlink (`fbc38ef8`)
+taken, `bun.lock` regenerated via `bun install`.
+
+Post-restack semantic reconciliation (the real work, committed as
+`design/post-main-restack-reconcile` + two mid-stack amends):
+
+- **Engines ported to the rivers deploy** (`engines.ts`): the retired
+  stdout-parsed deploy command → `buildSwooperMapsStudioDeployPlan` (Turbo
+  graph, threads `SWOOPER_STUDIO_RUN_ID`) + `@civ7/plugin-mods` `deployMod`;
+  deploy details follow the new `{build, targetDir, modsDir, filesCopied}`
+  shape end-to-end (save/deploy client type included). The rivers
+  **materialization content-marker gate** (request/config/envelope + native
+  river markers proved in local AND deployed map JS before launch) is now
+  enforced in our engine flow, alongside the Y1 request-id embed guard.
+- **tags.ts union repaired** (amend at `design/map-stage-domains`): the
+  blanket lane-wins resolution had dropped main's S5 placement effects
+  (`resourcesPlanned`/`resourcesAdjusted` + owners) and kept two retired
+  `PlacementOutputsV1` fields in the placement satisfier
+  (floodplainsCount/snowTilesCount) — the latter made EVERY recipe run die
+  with `UnsatisfiedProvidesError: effect:engine.placementApplied` (44
+  failures across the mod suite). Union restored; satisfier matches main.
+- **Schema-test pins** (amend at `design/no-hardcoded-defaults`):
+  `defaultConfigSchema.test.ts` reverted to main's canonical version — the
+  lane copy had resurrected the deliberately-dropped legacy default guards
+  (handoff §1.2 forbids) and pinned pre-rivers key lists (`drainageRouting`
+  missing, retired `riverProjection`/`support` groups present).
+- **Stale scratch removed:** the untracked pre-restack
+  `studio-current.config.json` (old-schema keys) broke `gen:maps`; deleted —
+  the studio regenerates it via Save & Deploy with import-time migration.
+
+Gates at tip (all green): mapgen-studio **223** + tsc + build/worker-bundle;
+mod-swooper-maps **569/0 fail** (= handoff baseline); civ7-direct-control
+**433** (427 baseline + our 6 session pins); civ7-control-orpc **345**
+(= baseline; the 4 appshot failures were a stale local direct-control dist —
+rebuild proved it, main-worktree control run cross-checked); mapgen-core
+**103/0 fail**; studio-server **2** (main's handler pins). Deferred to the
+operator: draining the stack (standing never-submit rule vs handoff step 5).

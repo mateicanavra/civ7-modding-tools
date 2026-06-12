@@ -20,6 +20,8 @@
     "@civ7/adapter": "workspace:*",
     "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
+    "@civ7/map-policy": "workspace:*",
+    "@civ7/plugin-mods": "workspace:*",
     "@civ7/studio-server": "workspace:*",
     "@orpc/client": "1.14.5",
     "@orpc/contract": "1.14.5",

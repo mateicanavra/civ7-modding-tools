@@ -34,9 +34,16 @@ export const saveDeployStatusSchema = z.object({
   error: z.string().optional(),
   deploy: z
     .object({
-      command: z.string().optional(),
-      stdout: z.string().optional(),
-      stderr: z.string().optional(),
+      build: z
+        .object({
+          task: z.string().optional(),
+          stdout: z.string().optional(),
+          stderr: z.string().optional(),
+        })
+        .optional(),
+      targetDir: z.string().optional(),
+      modsDir: z.string().optional(),
+      filesCopied: z.number().optional(),
     })
     .optional(),
   details: z.record(z.string(), z.unknown()).optional(),

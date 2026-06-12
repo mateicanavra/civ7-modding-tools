@@ -25,6 +25,7 @@
     "dev": "tsup --watch",
     "check": "tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --config ./vitest.config.ts",
     "clean": "rimraf dist"
   },
   "dependencies": {
