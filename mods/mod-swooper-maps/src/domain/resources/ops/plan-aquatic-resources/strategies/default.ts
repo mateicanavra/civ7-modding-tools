@@ -43,7 +43,7 @@ const AQUATIC_RESOURCE_TYPES: readonly AquaticResourceType[] = [
   "RESOURCE_TURTLES",
 ];
 
-const AQUATIC_SIGNALS: Record<AquaticResourceType, ResourceSignals> = {
+export const AQUATIC_SIGNALS: Record<AquaticResourceType, ResourceSignals> = {
   RESOURCE_FISH: {
     primary: ["coastalWaterMask", "shelfMask"],
     suppress: ["lakeMask", "iceMask"],
@@ -128,7 +128,11 @@ export const defaultStrategy = createStrategy(PlanAquaticResourcesContract, "def
       const proxyIncomplete = signalFields.length === 0;
       const targetIntentCount = proxyIncomplete
         ? 0
-        : Math.min(expectation.expectedCountRange.max, eligibleTileCount, expectation.expectedCountRange.target);
+        : Math.min(
+            expectation.expectedCountRange.max,
+            eligibleTileCount,
+            expectation.expectedCountRange.target
+          );
       const blockers = [];
       if (proxyIncomplete) {
         blockers.push(`Missing aquatic signal masks: ${signals.primary.join(", ")}.`);
@@ -203,14 +207,20 @@ function countEligibleTiles(
   return count;
 }
 
-function readMask(input: Record<string, unknown>, field: string, size: number): Uint8Array | undefined {
+function readMask(
+  input: Record<string, unknown>,
+  field: string,
+  size: number
+): Uint8Array | undefined {
   const value = input[field];
   if (value === undefined) return undefined;
   if (!(value instanceof Uint8Array)) {
     throw new Error(`Aquatic resource mask ${field} must be a Uint8Array.`);
   }
   if (value.length !== size) {
-    throw new Error(`Aquatic resource mask ${field} length ${value.length} does not match grid size ${size}.`);
+    throw new Error(
+      `Aquatic resource mask ${field} length ${value.length} does not match grid size ${size}.`
+    );
   }
   return value;
 }

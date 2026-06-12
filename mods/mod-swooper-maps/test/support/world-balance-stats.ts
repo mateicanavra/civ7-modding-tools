@@ -128,26 +128,23 @@ export type WorldBalanceStats = Readonly<{
   featureAttemptCounts: Readonly<Record<string, number>>;
   featureRejectCounts: Readonly<Record<string, number>>;
   featureCounts: Readonly<Record<string, number>>;
-  resourceTargetCount: number;
   resourcePlannedCount: number;
   resourcePlacedCount: number;
   resourceRejectedCount: number;
   resourceMismatchCount: number;
-  resourceRequestedPlannedCount: number;
-  resourceAssignedCount: number;
-  resourceReassignedCount: number;
-  resourceReassignmentShare: number;
-  resourceUnassignedPreferredCount: number;
-  resourceAssignmentMinSpacingTiles: number;
-  resourceAssignmentSpacingBlockedCount: number;
-  resourceLegalCandidateResourceTypeCount: number;
-  resourceConstrainedCandidateResourceTypeCount: number;
+  resourceSiteSpacingTiles: number;
+  resourceDemandTypeCount: number;
+  resourceBelowMinTypeCount: number;
+  resourceAboveMaxTypeCount: number;
+  resourceBelowMinWithoutShortfallCount: number;
+  resourceShortfallRecordedCount: number;
+  resourceRegionMinimumShortfallCount: number;
+  resourceInHabitatShare: number;
+  resourceSameTypeSpacingViolationCount: number;
   resourceUniquePlannedTypes: number;
   resourceUniquePlacedTypes: number;
   resourcePlacedCountMinByType: number;
   resourcePlacedCountMaxByType: number;
-  resourceFeasiblePlacedCountMinByType: number;
-  resourceFeasiblePlacedCountMaxByType: number;
   resourcePlannedNearestNeighborMin: number;
   resourcePlannedNearestNeighborP10: number;
   resourcePlannedNearestNeighborMedian: number;
@@ -650,9 +647,27 @@ export function collectWorldBalanceStats(args: Readonly<{
     | undefined;
   const resourcePlan = context.artifacts.get(placementArtifacts.resourcePlan.id) as
     | {
-        targetCount?: number;
         plannedCount?: number;
-        placements?: ReadonlyArray<Readonly<{ plotIndex?: number; preferredResourceType?: number }>>;
+        siteSpacingTiles?: number;
+        intents?: ReadonlyArray<
+          Readonly<{
+            plotIndex?: number;
+            resourceTypeId?: number;
+            inHabitat?: boolean;
+          }>
+        >;
+        perType?: ReadonlyArray<
+          Readonly<{
+            resourceType?: string;
+            resourceTypeId?: number;
+            plannedCount?: number;
+            minCount?: number;
+            maxCount?: number;
+            spacingFloorTiles?: number;
+            shortfalls?: ReadonlyArray<Readonly<{ count?: number }>>;
+          }>
+        >;
+        regionMinimums?: ReadonlyArray<Readonly<{ shortfall?: number }>>;
       }
     | undefined;
   const resourcePlacement = context.artifacts.get(placementArtifacts.resourcePlacementOutcomes.id) as
@@ -665,21 +680,11 @@ export function collectWorldBalanceStats(args: Readonly<{
           byResource?: ResourceOutcomeResourceStats[];
           byReason?: ResourceOutcomeReasonStats[];
         };
-        assignment?: {
-          requestedPlannedCount?: number;
-          assignedCount?: number;
-          minSpacingTiles?: number;
-          spacingBlockedCount?: number;
-          reassignedCount?: number;
-          unassignedPreferredCount?: number;
-          legalCandidateResourceTypes?: readonly number[];
-          byPreferredResource?: ReadonlyArray<
-            Readonly<{
-              resourceType?: number;
-              legalPlotCount?: number;
-              assignedCount?: number;
-            }>
-          >;
+        reconciliation?: {
+          plannedCount?: number;
+          placedCount?: number;
+          rejectedCount?: number;
+          shortfalls?: ReadonlyArray<Readonly<{ count?: number }>>;
         };
         outcomes?: ReadonlyArray<
           Readonly<{
@@ -724,7 +729,7 @@ export function collectWorldBalanceStats(args: Readonly<{
   if (!(engineLakeProjection?.lakeMask instanceof Uint8Array)) {
     throw new Error("Missing map-hydrology engine lake projection.");
   }
-  if (!Array.isArray(resourcePlan?.placements)) {
+  if (!Array.isArray(resourcePlan?.intents) || !Array.isArray(resourcePlan?.perType)) {
     throw new Error("Missing placement.resourcePlan.");
   }
   if (!Array.isArray(resourcePlacement?.outcomes)) {
@@ -763,23 +768,26 @@ export function collectWorldBalanceStats(args: Readonly<{
   const resourcePlacedCounts = resourceOutcomeCountsByResource
     .filter((entry) => entry.placedCount > 0)
     .map((entry) => entry.placedCount);
-  const resourceAssignmentRows = resourcePlacement.assignment?.byPreferredResource ?? [];
-  const resourceTargetMinByType =
-    (resourcePlacement.assignment?.legalCandidateResourceTypes?.length ?? 0) === 0
-      ? 0
-      : Math.floor(
-          Math.max(0, resourcePlacement.summary?.placedCount ?? 0) /
-            Math.max(1, resourcePlacement.assignment?.legalCandidateResourceTypes?.length ?? 0)
-        );
-  const resourceFeasibleAssignmentRows = resourceAssignmentRows.filter(
-    (entry) =>
-      Number.isFinite(entry.assignedCount) &&
-      Number.isFinite(entry.legalPlotCount) &&
-      Math.trunc(entry.legalPlotCount as number) >= resourceTargetMinByType &&
-      Math.trunc(entry.assignedCount as number) >= resourceTargetMinByType
-  );
-  const resourceFeasiblePlacedCounts = resourceFeasibleAssignmentRows.map((entry) =>
-    Math.max(0, Math.trunc(entry.assignedCount as number))
+  const resourcePerTypeRows = resourcePlan.perType ?? [];
+  let resourceBelowMinTypeCount = 0;
+  let resourceAboveMaxTypeCount = 0;
+  let resourceBelowMinWithoutShortfallCount = 0;
+  let resourceShortfallRecordedCount = 0;
+  for (const row of resourcePerTypeRows) {
+    const planned = Math.max(0, Math.trunc(row.plannedCount ?? 0));
+    const minCount = Math.max(0, Math.trunc(row.minCount ?? 0));
+    const maxCount = Math.max(0, Math.trunc(row.maxCount ?? 0));
+    const shortfall = (row.shortfalls ?? []).reduce((sum, item) => sum + (item.count ?? 0), 0);
+    resourceShortfallRecordedCount += shortfall;
+    if (planned < minCount) {
+      resourceBelowMinTypeCount += 1;
+      if (shortfall === 0) resourceBelowMinWithoutShortfallCount += 1;
+    }
+    if (planned > maxCount) resourceAboveMaxTypeCount += 1;
+  }
+  const resourceRegionMinimumShortfallCount = (resourcePlan.regionMinimums ?? []).reduce(
+    (sum, row) => sum + Math.max(0, Math.trunc(row.shortfall ?? 0)),
+    0
   );
 
   let waterTiles = 0;
@@ -896,17 +904,27 @@ export function collectWorldBalanceStats(args: Readonly<{
       }
     }
   }
-  for (const placement of resourcePlan.placements) {
-    if (Number.isFinite(placement.preferredResourceType)) {
-      incrementCount(resourcePlanTypeCounts, placement.preferredResourceType as number);
+  const resourceIntentByPlot = new Map<number, { resourceTypeId: number; inHabitat: boolean }>();
+  for (const intent of resourcePlan.intents) {
+    if (Number.isFinite(intent.resourceTypeId)) {
+      incrementCount(resourcePlanTypeCounts, intent.resourceTypeId as number);
+    }
+    const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex as number) : -1;
+    if (plotIndex >= 0 && plotIndex < width * height) {
+      resourceIntentByPlot.set(plotIndex, {
+        resourceTypeId: Math.trunc(intent.resourceTypeId ?? -1),
+        inHabitat: intent.inHabitat === true,
+      });
     }
   }
-  const resourcePlannedPlotIndices = resourcePlan.placements
-    .map((placement) =>
-      Number.isFinite(placement.plotIndex) ? Math.trunc(placement.plotIndex as number) : -1
+  const resourcePlannedPlotIndices = resourcePlan.intents
+    .map((intent) =>
+      Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex as number) : -1
     )
     .filter((plotIndex) => plotIndex >= 0 && plotIndex < width * height);
   const resourcePlacedPlotIndices: number[] = [];
+  const resourcePlacedPlotsByType = new Map<number, number[]>();
+  let resourcePlacedInHabitat = 0;
   for (const outcome of resourcePlacement.outcomes) {
     if (outcome.status === "placed" && Number.isFinite(outcome.resourceType)) {
       incrementCount(resourcePlacedTypeCounts, outcome.resourceType as number);
@@ -915,6 +933,11 @@ export function collectWorldBalanceStats(args: Readonly<{
         : -1;
       if (plotIndex >= 0 && plotIndex < width * height) {
         resourcePlacedPlotIndices.push(plotIndex);
+        const typeId = Math.trunc(outcome.resourceType as number);
+        const typed = resourcePlacedPlotsByType.get(typeId) ?? [];
+        typed.push(plotIndex);
+        resourcePlacedPlotsByType.set(typeId, typed);
+        if (resourceIntentByPlot.get(plotIndex)?.inHabitat) resourcePlacedInHabitat += 1;
         incrementCount(
           resourcePlacedBiomeSymbolCounts,
           biomeSymbolFromIndex(classification.biomeIndex[plotIndex] ?? 255)
@@ -923,6 +946,27 @@ export function collectWorldBalanceStats(args: Readonly<{
     }
     if (outcome.status === "rejected") {
       incrementCount(resourceRejectReasonCounts, outcome.reason ?? "unknown");
+    }
+  }
+  const spacingFloorByTypeId = new Map<number, number>();
+  for (const row of resourcePerTypeRows) {
+    if (Number.isFinite(row.resourceTypeId)) {
+      spacingFloorByTypeId.set(
+        Math.trunc(row.resourceTypeId as number),
+        Math.max(0, Math.trunc(row.spacingFloorTiles ?? 0))
+      );
+    }
+  }
+  let resourceSameTypeSpacingViolationCount = 0;
+  for (const [typeId, plots] of resourcePlacedPlotsByType) {
+    const floor = spacingFloorByTypeId.get(typeId) ?? 0;
+    if (floor <= 0) continue;
+    for (let i = 0; i < plots.length; i++) {
+      for (let j = i + 1; j < plots.length; j++) {
+        if (hexDistanceOddQPeriodicX(plots[i]!, plots[j]!, width) < floor) {
+          resourceSameTypeSpacingViolationCount += 1;
+        }
+      }
     }
   }
 
@@ -1130,55 +1174,28 @@ export function collectWorldBalanceStats(args: Readonly<{
     featureAttemptCounts: featureApplyDiagnostics?.attemptedByFeature ?? {},
     featureRejectCounts: featureApplyDiagnostics?.rejectedCanHaveFeatureByFeature ?? {},
     featureCounts,
-    resourceTargetCount: Math.max(0, resourcePlan.targetCount ?? 0),
     resourcePlannedCount: Math.max(0, resourcePlacement.summary?.plannedCount ?? 0),
     resourcePlacedCount: Math.max(0, resourcePlacement.summary?.placedCount ?? 0),
     resourceRejectedCount: Math.max(0, resourcePlacement.summary?.rejectedCount ?? 0),
     resourceMismatchCount: Math.max(0, resourcePlacement.summary?.mismatchCount ?? 0),
-    resourceRequestedPlannedCount: Math.max(
-      0,
-      resourcePlacement.assignment?.requestedPlannedCount ?? 0
-    ),
-    resourceAssignedCount: Math.max(0, resourcePlacement.assignment?.assignedCount ?? 0),
-    resourceReassignedCount: Math.max(0, resourcePlacement.assignment?.reassignedCount ?? 0),
-    resourceReassignmentShare:
-      (resourcePlacement.assignment?.assignedCount ?? 0) === 0
-        ? 0
-        : roundMetric(
-            (resourcePlacement.assignment?.reassignedCount ?? 0) /
-              Math.max(1, resourcePlacement.assignment?.assignedCount ?? 0)
-          ),
-    resourceUnassignedPreferredCount: Math.max(
-      0,
-      resourcePlacement.assignment?.unassignedPreferredCount ?? 0
-    ),
-    resourceAssignmentMinSpacingTiles: Math.max(
-      0,
-      resourcePlacement.assignment?.minSpacingTiles ?? 0
-    ),
-    resourceAssignmentSpacingBlockedCount: Math.max(
-      0,
-      resourcePlacement.assignment?.spacingBlockedCount ?? 0
-    ),
-    resourceLegalCandidateResourceTypeCount:
-      resourcePlacement.assignment?.legalCandidateResourceTypes?.length ?? 0,
-    resourceConstrainedCandidateResourceTypeCount: resourceAssignmentRows.filter(
-      (entry) =>
-        Number.isFinite(entry.legalPlotCount) &&
-        Math.trunc(entry.legalPlotCount as number) > 0 &&
-        Number.isFinite(entry.assignedCount) &&
-        Math.trunc(entry.assignedCount as number) < resourceTargetMinByType
-    ).length,
+    resourceSiteSpacingTiles: Math.max(0, resourcePlan.siteSpacingTiles ?? 0),
+    resourceDemandTypeCount: resourcePerTypeRows.length,
+    resourceBelowMinTypeCount,
+    resourceAboveMaxTypeCount,
+    resourceBelowMinWithoutShortfallCount,
+    resourceShortfallRecordedCount,
+    resourceRegionMinimumShortfallCount,
+    resourceInHabitatShare:
+      resourcePlacedPlotIndices.length === 0
+        ? 1
+        : roundMetric(resourcePlacedInHabitat / resourcePlacedPlotIndices.length),
+    resourceSameTypeSpacingViolationCount,
     resourceUniquePlannedTypes: resourceOutcomeCountsByResource.filter((entry) => entry.plannedCount > 0)
       .length,
     resourceUniquePlacedTypes: resourceOutcomeCountsByResource.filter((entry) => entry.placedCount > 0)
       .length,
     resourcePlacedCountMinByType: resourcePlacedCounts.length === 0 ? 0 : Math.min(...resourcePlacedCounts),
     resourcePlacedCountMaxByType: resourcePlacedCounts.length === 0 ? 0 : Math.max(...resourcePlacedCounts),
-    resourceFeasiblePlacedCountMinByType:
-      resourceFeasiblePlacedCounts.length === 0 ? 0 : Math.min(...resourceFeasiblePlacedCounts),
-    resourceFeasiblePlacedCountMaxByType:
-      resourceFeasiblePlacedCounts.length === 0 ? 0 : Math.max(...resourceFeasiblePlacedCounts),
     resourcePlannedNearestNeighborMin: resourcePlannedNearestNeighbor.min,
     resourcePlannedNearestNeighborP10: resourcePlannedNearestNeighbor.p10,
     resourcePlannedNearestNeighborMedian: resourcePlannedNearestNeighbor.median,

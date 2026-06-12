@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import {
@@ -9,8 +8,73 @@ import {
   placeResourcesWithTypedOutcomes,
 } from "../../src/recipes/standard/stages/placement/steps/place-resources/materialize.js";
 
+type PlanIntent = {
+  plotIndex: number;
+  x: number;
+  y: number;
+  resourceType: string;
+  resourceTypeId: number;
+  family: "aquatic" | "cultivated" | "terrestrial" | "geological";
+  laneId: string;
+  laneKind: "land" | "water";
+  phase: "rotation" | "range-floor" | "region-minimum";
+  order: number;
+  regionSlot: number;
+  landmassId: number;
+  inHabitat: boolean;
+};
+
+function intent(
+  plotIndex: number,
+  width: number,
+  resourceTypeId: number,
+  phase: PlanIntent["phase"] = "rotation"
+): PlanIntent {
+  const y = (plotIndex / width) | 0;
+  return {
+    plotIndex,
+    x: plotIndex - y * width,
+    y,
+    resourceType: `RESOURCE_${resourceTypeId}`,
+    resourceTypeId,
+    family: "geological",
+    laneId: "test-lane",
+    laneKind: "land",
+    phase,
+    order: plotIndex,
+    regionSlot: 1,
+    landmassId: 0,
+    inHabitat: true,
+  };
+}
+
+function plan(width: number, height: number, intents: PlanIntent[]) {
+  return {
+    width,
+    height,
+    seed: 1,
+    plannedCount: intents.length,
+    rotationCount: intents.filter((row) => row.phase === "rotation").length,
+    rangeFloorCount: intents.filter((row) => row.phase === "range-floor").length,
+    regionMinimumCount: intents.filter((row) => row.phase === "region-minimum").length,
+    siteSpacingTiles: 3,
+    equitySkippedSiteCount: 0,
+    intents,
+    perType: [],
+    regionMinimums: [],
+    settings: {
+      density: 1,
+      sparsity: 0,
+      rarityFidelity: 1,
+      perTypeSpacingFloorScale: 1,
+      equityMaxDensityRatio: 1.8,
+      affinityRuleCount: 0,
+    },
+  } as unknown as Parameters<typeof placeResourcesWithTypedOutcomes>[0]["plan"];
+}
+
 describe("resource placement diagnostics", () => {
-  it("summarizes placement outcomes by resource and reason", () => {
+  it("stamps plan intents verbatim and records typed per-type shortfalls", () => {
     const width = 4;
     const height = 3;
     const adapter = createMockAdapter({
@@ -26,76 +90,40 @@ describe("resource placement diagnostics", () => {
       adapter,
       width,
       height,
-      resources: {
-        width,
-        height,
-        candidateResourceTypes: [4, 9],
-        targetCount: 4,
-        plannedCount: 4,
-        minSpacingTiles: 0,
-        placements: [
-          { plotIndex: 0, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.9 },
-          { plotIndex: 1, preferredResourceType: 9, preferredTypeOffset: 1, priority: 0.8 },
-          { plotIndex: 5, preferredResourceType: 9, preferredTypeOffset: 1, priority: 0.7 },
-          { plotIndex: 6, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.6 },
-        ],
-      },
+      plan: plan(width, height, [
+        intent(0, width, 4),
+        intent(1, width, 9),
+        intent(5, width, 9, "range-floor"),
+        intent(6, width, 4),
+      ]),
     });
 
-    expect(outcomes.summary).toEqual({
+    expect(outcomes.summary).toMatchObject({
       plannedCount: 4,
-      placedCount: 4,
-      rejectedCount: 0,
+      placedCount: 2,
+      rejectedCount: 2,
       mismatchCount: 0,
-      coordinateProof: {
-        version: 1,
-        placed: { count: 4, hash32: "3c3530cb" },
-        rejected: { count: 0, hash32: "811c9dc5" },
-        mismatch: { count: 0, hash32: "811c9dc5" },
-      },
-      byResource: [
-        {
-          resourceType: 4,
-          plannedCount: 4,
-          placedCount: 4,
-          rejectedCount: 0,
-          mismatchCount: 0,
-          reasons: [],
-        },
-      ],
-      byReason: [],
+      byReason: [{ reason: "cannot-have-resource", count: 2 }],
     });
     expect(outcomes.summary.coordinateProof.placed.hash32).toMatch(/^[0-9a-f]{8}$/);
-    expect(outcomes.assignment).toMatchObject({
-      requestedPlannedCount: 4,
-      assignedCount: 4,
-      reassignedCount: 2,
-      unassignedPreferredCount: 0,
-      candidateResourceTypes: [4, 9],
-      legalCandidateResourceTypes: [4],
-      unassignableResourceTypes: [9],
-      byPreferredResource: [
-        {
-          resourceType: 4,
-          plannedCount: 2,
-          assignedCount: 4,
-          reassignedOutCount: 0,
-          reassignedInCount: 2,
-          unassignedCount: 0,
-        },
-        {
-          resourceType: 9,
-          plannedCount: 2,
-          assignedCount: 0,
-          reassignedOutCount: 2,
-          reassignedInCount: 0,
-          unassignedCount: 0,
-        },
-      ],
+    // Plan authority: type-at-plot is never re-decided; rejections stay at the
+    // planned plot with the planned type.
+    expect(outcomes.outcomes.map((row) => [row.plotIndex, row.resourceType, row.status])).toEqual([
+      [0, 4, "placed"],
+      [1, 9, "rejected"],
+      [5, 9, "rejected"],
+      [6, 4, "placed"],
+    ]);
+    expect(outcomes.reconciliation).toEqual({
+      plannedCount: 4,
+      placedCount: 2,
+      rejectedCount: 2,
+      shortfalls: [{ resourceType: 9, reason: "cannot-have-resource", count: 2 }],
+      byPhase: { rotation: 2, rangeFloor: 0, regionMinimum: 0 },
     });
   });
 
-  it("rejects non-initial-map resource ids before engine materialization", () => {
+  it("fails hard on plan metadata mismatch", () => {
     const width = 4;
     const height = 3;
     const adapter = createMockAdapter({
@@ -105,70 +133,17 @@ describe("resource placement diagnostics", () => {
       mapSizeId: 1,
       rng: createLabelRng(1932),
     });
+    const broken = plan(width, height, [intent(0, width, 4)]) as { plannedCount: number };
+    broken.plannedCount = 2;
 
     expect(() =>
       placeResourcesWithTypedOutcomes({
         adapter,
         width,
         height,
-        resources: {
-          width,
-          height,
-          candidateResourceTypes: [4, 36, 38, 40],
-          targetCount: 1,
-          plannedCount: 1,
-          minSpacingTiles: 0,
-          placements: [
-            { plotIndex: 0, preferredResourceType: 38, preferredTypeOffset: 0, priority: 0.9 },
-          ],
-        },
+        plan: broken as Parameters<typeof placeResourcesWithTypedOutcomes>[0]["plan"],
       })
-    ).toThrow(/RESOURCE_COAL:deferred-future-age.*RESOURCE_OIL:deferred-future-age.*RESOURCE_RUBBER:deferred-future-age/);
-  });
-
-  it("preserves resource spacing while rescuing adjacent planned plots", () => {
-    const width = 8;
-    const height = 4;
-    const adapter = createMockAdapter({
-      width,
-      height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
-      rng: createLabelRng(1933),
-      canHaveResource: () => true,
-    });
-
-    const outcomes = placeResourcesWithTypedOutcomes({
-      adapter,
-      width,
-      height,
-      resources: {
-        width,
-        height,
-        candidateResourceTypes: [4],
-        targetCount: 4,
-        plannedCount: 4,
-        minSpacingTiles: 2,
-        placements: [
-          { plotIndex: 0, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.9 },
-          { plotIndex: 1, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.8 },
-          { plotIndex: 2, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.7 },
-          { plotIndex: 3, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.6 },
-        ],
-      },
-    });
-
-    expect(outcomes.summary.placedCount).toBe(4);
-    expect(outcomes.assignment.minSpacingTiles).toBe(2);
-    expect(outcomes.assignment.spacingBlockedCount).toBeGreaterThan(0);
-    const placedPlotIndices = outcomes.outcomes.map((outcome) => outcome.plotIndex);
-    for (let i = 0; i < placedPlotIndices.length; i++) {
-      for (let j = i + 1; j < placedPlotIndices.length; j++) {
-        expect(
-          hexDistanceOddQPeriodicX(placedPlotIndices[i]!, placedPlotIndices[j]!, width)
-        ).toBeGreaterThanOrEqual(2);
-      }
-    }
+    ).toThrow(/plan metadata mismatch/i);
   });
 
   it("formats compact runtime telemetry for scripting logs", () => {
@@ -186,7 +161,7 @@ describe("resource placement diagnostics", () => {
         },
         byResource: [
           {
-            resourceType: 4,
+            resourceType: 13,
             plannedCount: 2,
             placedCount: 2,
             rejectedCount: 0,
@@ -204,20 +179,16 @@ describe("resource placement diagnostics", () => {
         ],
         byReason: [{ reason: "cannot-have-resource", count: 1 }],
       },
-      undefined,
+      {
+        plannedCount: 4,
+        placedCount: 3,
+        rejectedCount: 1,
+        shortfalls: [{ resourceType: 44, reason: "cannot-have-resource", count: 1 }],
+        byPhase: { rotation: 3, rangeFloor: 0, regionMinimum: 0 },
+      },
       [
-        {
-          index: 4,
-          resourceType: "RESOURCE_GOLD",
-          resourceClassType: "RESOURCECLASS_EMPIRE",
-          name: "Gold",
-        },
-        {
-          index: 44,
-          resourceType: "RESOURCE_RUBIES",
-          resourceClassType: "RESOURCECLASS_BONUS",
-          name: "Rubies",
-        },
+        { index: 13, resourceType: "RESOURCE_GOLD", resourceClassType: null, name: null },
+        { index: 44, resourceType: "RESOURCE_RUBIES", resourceClassType: null, name: null },
       ],
       [
         {
@@ -227,25 +198,11 @@ describe("resource placement diagnostics", () => {
           y: 3,
           resourceType: 44,
           reason: "cannot-have-resource",
-          observedResourceType: -1,
-        },
-      ],
-      [
-        {
-          plotIndex: 67,
-          resourceType: 44,
-          initialResourceType: 44,
-          preferredResourceType: 13,
-          assignmentPhase: "scarce-floor",
-          assignmentOrder: 9,
-          perTypeCountBefore: 2,
-          legalPlotCountForResource: 128,
-          targetMinPerType: 7,
         },
       ]
     );
 
-    expect(telemetry).toEqual({
+    expect(telemetry).toMatchObject({
       version: 1,
       plannedCount: 4,
       placedCount: 3,
@@ -265,9 +222,6 @@ describe("resource placement diagnostics", () => {
       },
       rejectedResourceTypes: [44],
       rejectionExampleCount: 1,
-      rejectionExamples: [
-        "status=rejected resource=RESOURCE_RUBIES resourceType=44 plot=67 x=12 y=3 reason=cannot-have-resource observed=-1",
-      ],
       rejectionRows: [
         {
           status: "rejected",
@@ -277,23 +231,18 @@ describe("resource placement diagnostics", () => {
           x: 12,
           y: 3,
           reason: "cannot-have-resource",
-          observedResourceType: -1,
-          observedResource: null,
-          phase: "scarce-floor",
-          order: 9,
-          initial: 44,
-          preferred: 13,
-          countBefore: 2,
-          legalPlots: 128,
-          targetMin: 7,
         },
       ],
+      reconciliation: {
+        plannedCount: 4,
+        placedCount: 3,
+        rejectedCount: 1,
+        byPhase: { rotation: 3, rangeFloor: 0, regionMinimum: 0 },
+        shortfalls: [{ resourceType: 44, reason: "cannot-have-resource", count: 1 }],
+      },
       byReason: [{ reason: "cannot-have-resource", count: 1 }],
     });
-    expect(telemetry).not.toHaveProperty("placedResourceTypes");
     expect(telemetry).not.toHaveProperty("assignment");
-    expect(telemetry).not.toHaveProperty("unmappedPlacedResourceTypes");
-    expect(telemetry).not.toHaveProperty("plannedResourceTypes");
     expect(JSON.stringify(telemetry).length).toBeLessThan(900);
   });
 
@@ -322,19 +271,11 @@ describe("resource placement diagnostics", () => {
         byReason: [],
       },
       {
-        requestedPlannedCount: 159,
-        assignedCount: 159,
-        minSpacingTiles: 2,
-        spacingBlockedCount: 11,
-        spacingShortfallCount: 0,
-        reassignedCount: 120,
-        unassignedPreferredCount: 18,
-        candidateResourceTypes: Array.from({ length: 55 }, (_, resourceType) => resourceType),
-        legalCandidateResourceTypes: resourceRows
-          .filter((row) => row.placedCount > 0)
-          .map((row) => row.resourceType),
-        unassignableResourceTypes: [5, 15],
-        byPreferredResource: [],
+        plannedCount: 159,
+        placedCount: 159,
+        rejectedCount: 0,
+        shortfalls: [],
+        byPhase: { rotation: 140, rangeFloor: 15, regionMinimum: 4 },
       },
       Array.from({ length: 55 }, (_, index) => ({
         index,
@@ -343,10 +284,6 @@ describe("resource placement diagnostics", () => {
         name: `Resource ${index}`,
       }))
     );
-
-    const placedResourceTypes = resourceRows
-      .filter((row) => row.placedCount > 0)
-      .map((row) => row.resourceType);
 
     expect(telemetry).toMatchObject({
       version: 1,
@@ -359,19 +296,15 @@ describe("resource placement diagnostics", () => {
         placedCount: 159,
         placedHash32: "22222222",
       },
-      placedResourceTypes,
       rejectedResourceTypes: [],
-      assignment: {
-        requestedPlannedCount: 159,
-        assignedCount: 159,
-        reassignedCount: 120,
-        unassignedPreferredCount: 18,
-        legalCandidateResourceTypeCount: 53,
-        unassignableResourceTypes: [5, 15],
+      reconciliation: {
+        plannedCount: 159,
+        placedCount: 159,
+        rejectedCount: 0,
+        byPhase: { rotation: 140, rangeFloor: 15, regionMinimum: 4 },
       },
     });
     expect(telemetry).not.toHaveProperty("unmappedPlacedResourceTypes");
-    expect(telemetry).not.toHaveProperty("plannedResourceTypes");
     expect(JSON.stringify(telemetry).length).toBeLessThan(900);
     expect(`[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(
       900

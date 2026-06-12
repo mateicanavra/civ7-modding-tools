@@ -74,7 +74,7 @@ describe("shipped map config identity", () => {
       minConfidence01: 0.84,
       stride: 4,
     });
-    expect(earthlike.placement.resources.densityPer100Tiles).toBe(10);
+    expect(earthlike.placement.resources).toEqual({ density: 1, sparsity: 0, rarityFidelity: 1, siteSpacingTiles: 3 });
 
     expect(earthlike.placement).not.toHaveProperty("floodplains");
     expect(earthlike["map-rivers"].riverProjection).toEqual({ minLength: 5, maxLength: 15 });

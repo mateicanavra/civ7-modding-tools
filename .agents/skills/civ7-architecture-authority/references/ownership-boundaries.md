@@ -122,6 +122,26 @@ Does not own:
 - adapter internals;
 - hand-edited `mod/` output.
 
+## MapGen Domain Module Layout
+
+Normalized internal layout for `mods/mod-swooper-maps/src/domain/<domain>/`
+(accepted 2026-06-10 during placement-realignment S3; apply when touching any
+domain module, and migrate adjacent files you already own in the change):
+
+- `ops/<op-id>/` — one directory per operation: `contract.ts`, `index.ts`,
+  `types.ts`, `strategies/`. Policy logic used by an operation lives in
+  individual files under `ops/<op-id>/policy/` (one concern per file), never
+  inline in strategy bodies when it encodes official-game or repo policy.
+- `policy/` — domain-level policy modules shared across operations
+  (for example legality predicates, habitat eligibility, authoring-age
+  policy). One concern per file; no barrels beyond the domain index.
+- `lib/` — reference data corpora and their derivations (official corpus,
+  earthlike expectations, runtime-id proofs). Data, not algorithms.
+- `artifacts/contract/` — artifact contracts, split into individual
+  `<artifact>.contract.ts` files (one `defineArtifact` per file). This
+  normalization applies to every artifact-contract collection: do not grow
+  multi-artifact `artifacts.ts` files.
+
 ## Official Resources
 
 Own:

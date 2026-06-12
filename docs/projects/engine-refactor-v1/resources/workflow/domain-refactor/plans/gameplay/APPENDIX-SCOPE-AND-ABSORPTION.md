@@ -2,6 +2,8 @@
 
 *This appendix delineates the **scope** of the Gameplay domain in Civ7 map generation and details how existing logic from the legacy Narrative and Placement domains will be **absorbed or reallocated** in the refactor. It clarifies what the Gameplay domain will own, what remains with other domains, and how responsibilities or data flows will change (or stay the same) as we consolidate gameplay logic under one roof.*
 
+> **Superseded for resource planning (ADR-008, 2026-06-09).** Resource planning is owned by `mods/mod-swooper-maps/src/domain/resources` (official corpus + earthlike expectations + family demand planners + habitat-lane derivation + site selection emitting typed intents), per `docs/system/ADR.md` ADR-008 and the placement-realignment workstream (D2 entry gate). The "Resources" bullet below — Phase A invoking the engine's resource generation — no longer reflects the implemented architecture: resources are planned deterministically within official policy tables (`@civ7/map-policy`) and stamped with typed reconciliation (ADR-009). A future Gameplay domain may absorb starts/discoveries/wonders orchestration, but it consumes `domain/resources` planning rather than re-owning it.
+
 ## Gameplay Domain Responsibilities (Scope)
 
 **What Gameplay *owns* in map generation:**

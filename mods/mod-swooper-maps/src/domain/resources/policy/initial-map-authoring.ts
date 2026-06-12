@@ -1,9 +1,9 @@
-import { OFFICIAL_RESOURCE_CORPUS } from "./corpus/index.js";
+import { OFFICIAL_RESOURCE_CORPUS } from "../lib/corpus/index.js";
 import type {
   OfficialAgeType,
   OfficialResourceCorpusEntry,
   OfficialResourceType,
-} from "./corpus/types.js";
+} from "../lib/corpus/types.js";
 
 export const INITIAL_MAP_RESOURCE_AUTHORING_AGE = "AGE_ANTIQUITY" as const satisfies OfficialAgeType;
 

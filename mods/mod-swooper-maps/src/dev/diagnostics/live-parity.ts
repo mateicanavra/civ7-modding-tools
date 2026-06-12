@@ -1783,9 +1783,9 @@ function buildResourcePlacementRejectionContexts(
       ...(localEvidence.outcomeByPlot.get(row.plotIndex) === undefined
         ? {}
         : { outcome: localEvidence.outcomeByPlot.get(row.plotIndex)! }),
-      ...(localEvidence.assignmentByPlot.get(row.plotIndex) === undefined
+      ...(localEvidence.planIntentByPlot.get(row.plotIndex) === undefined
         ? {}
-        : { assignment: localEvidence.assignmentByPlot.get(row.plotIndex)! }),
+        : { planIntent: localEvidence.planIntentByPlot.get(row.plotIndex)! }),
     },
   }));
 }
@@ -1860,18 +1860,15 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
       reason?: string | null;
     }
   >;
-  assignmentByPlot: ReadonlyMap<
+  planIntentByPlot: ReadonlyMap<
     number,
     {
       resourceType: number;
-      initialResourceType: number;
-      preferredResourceType?: number | null;
-      assignmentPhase: string;
-      reassignedByRebalance?: boolean;
-      assignmentOrder?: number;
-      perTypeCountBefore?: number;
-      legalPlotCountForResource?: number;
-      targetMinPerType?: number;
+      resourceTypeName?: string;
+      phase: string;
+      family?: string;
+      laneId?: string;
+      inHabitat?: boolean;
     }
   >;
 } {
@@ -1885,21 +1882,17 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
     number,
     { preferredResourceType: number; preferredTypeOffset?: number; priority?: number }
   >();
-  const placements = Array.isArray(resourcePlan?.placements) ? resourcePlan.placements : [];
-  for (const placement of placements) {
-    if (!isPlainObject(placement)) continue;
-    const plotIndex = numberValue(placement.plotIndex);
-    const preferredResourceType = numberValue(placement.preferredResourceType);
+  // S3 plan shape: typed per-plot intents (plan authority); the planned type
+  // IS the stamped type, so "preferred" == planned resourceTypeId.
+  const intents = Array.isArray(resourcePlan?.intents) ? resourcePlan.intents : [];
+  for (const intent of intents) {
+    if (!isPlainObject(intent)) continue;
+    const plotIndex = numberValue(intent.plotIndex);
+    const preferredResourceType = numberValue(intent.resourceTypeId);
     if (plotIndex === undefined || preferredResourceType === undefined || preferredByPlot.has(plotIndex)) {
       continue;
     }
-    preferredByPlot.set(plotIndex, {
-      preferredResourceType,
-      ...(numberValue(placement.preferredTypeOffset) === undefined
-        ? {}
-        : { preferredTypeOffset: numberValue(placement.preferredTypeOffset) }),
-      ...(numberValue(placement.priority) === undefined ? {} : { priority: numberValue(placement.priority) }),
-    });
+    preferredByPlot.set(plotIndex, { preferredResourceType });
   }
 
   const outcomeByPlot = new Map<
@@ -1934,64 +1927,47 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
     });
   }
 
-  const assignmentByPlot = new Map<
+  const planIntentByPlot = new Map<
     number,
     {
       resourceType: number;
-      initialResourceType: number;
-      preferredResourceType?: number | null;
-      assignmentPhase: string;
-      reassignedByRebalance?: boolean;
-      assignmentOrder?: number;
-      perTypeCountBefore?: number;
-      legalPlotCountForResource?: number;
-      targetMinPerType?: number;
+      resourceTypeName?: string;
+      phase: string;
+      family?: string;
+      laneId?: string;
+      inHabitat?: boolean;
     }
   >();
-  const assignmentTrace = Array.isArray(resourcePlacementOutcomes?.assignmentTrace)
-    ? resourcePlacementOutcomes.assignmentTrace
-    : [];
-  for (const assignment of assignmentTrace) {
-    if (!isPlainObject(assignment)) continue;
-    const plotIndex = numberValue(assignment.plotIndex);
-    const resourceType = numberValue(assignment.resourceType);
-    const initialResourceType = numberValue(assignment.initialResourceType);
-    const assignmentPhase = stringValue(assignment.assignmentPhase);
+  for (const planIntent of intents) {
+    if (!isPlainObject(planIntent)) continue;
+    const plotIndex = numberValue(planIntent.plotIndex);
+    const resourceType = numberValue(planIntent.resourceTypeId);
+    const phase = stringValue(planIntent.phase);
     if (
       plotIndex === undefined ||
       resourceType === undefined ||
-      initialResourceType === undefined ||
-      !assignmentPhase ||
-      assignmentByPlot.has(plotIndex)
+      !phase ||
+      planIntentByPlot.has(plotIndex)
     ) {
       continue;
     }
-    assignmentByPlot.set(plotIndex, {
+    planIntentByPlot.set(plotIndex, {
       resourceType,
-      initialResourceType,
-      ...(numberOrNullValue(assignment.preferredResourceType) === undefined
+      ...(stringValue(planIntent.resourceType) === undefined
         ? {}
-        : { preferredResourceType: numberOrNullValue(assignment.preferredResourceType) }),
-      assignmentPhase,
-      ...(typeof assignment.reassignedByRebalance === "boolean"
-        ? { reassignedByRebalance: assignment.reassignedByRebalance }
-        : {}),
-      ...(numberValue(assignment.assignmentOrder) === undefined
+        : { resourceTypeName: stringValue(planIntent.resourceType)! }),
+      phase,
+      ...(stringValue(planIntent.family) === undefined
         ? {}
-        : { assignmentOrder: numberValue(assignment.assignmentOrder) }),
-      ...(numberValue(assignment.perTypeCountBefore) === undefined
+        : { family: stringValue(planIntent.family)! }),
+      ...(stringValue(planIntent.laneId) === undefined
         ? {}
-        : { perTypeCountBefore: numberValue(assignment.perTypeCountBefore) }),
-      ...(numberValue(assignment.legalPlotCountForResource) === undefined
-        ? {}
-        : { legalPlotCountForResource: numberValue(assignment.legalPlotCountForResource) }),
-      ...(numberValue(assignment.targetMinPerType) === undefined
-        ? {}
-        : { targetMinPerType: numberValue(assignment.targetMinPerType) }),
+        : { laneId: stringValue(planIntent.laneId)! }),
+      ...(typeof planIntent.inHabitat === "boolean" ? { inHabitat: planIntent.inHabitat } : {}),
     });
   }
 
-  return { preferredByPlot, outcomeByPlot, assignmentByPlot };
+  return { preferredByPlot, outcomeByPlot, planIntentByPlot };
 }
 
 function indexedSurfaceValue(values: ReadonlyArray<number | null>, index: number): number | null | undefined {

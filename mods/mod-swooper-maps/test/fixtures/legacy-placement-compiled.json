@@ -17,37 +17,8 @@
           },
           "strategy": "default"
         },
-        "resources": {
-          "config": {
-            "densityPer100Tiles": 9,
-            "maxPlacementsPerResourceShare": 0.3,
-            "minSpacingTiles": 2
-          },
-          "strategy": "default"
-        },
         "wonders": {
           "config": {},
-          "strategy": "default"
-        },
-        "starts": {
-          "config": {
-            "expansionRadiusTiles": 4,
-            "fertilityWeight": 1.2,
-            "freshwaterWeight": 0.9,
-            "islandClusterRadiusTiles": 5,
-            "largeLandmassWeight": 1,
-            "maxIslandStartCoastDistance": 1,
-            "minContiguousLandTiles": 24,
-            "minExpansionLandTiles": 14,
-            "minIslandClusterLandTiles": 18,
-            "minStartSpacingTiles": 9,
-            "overrides": {
-              "startSectors": []
-            },
-            "resourceSupportRadiusTiles": 4,
-            "resourceSupportWeight": 1,
-            "roughnessPenaltyWeight": 0.6
-          },
           "strategy": "default"
         }
       },
@@ -55,6 +26,50 @@
       "place-natural-wonders": {},
       "place-resources": {},
       "placement": {},
+      "plan-resources": {
+        "aquatic": {
+          "config": {},
+          "strategy": "default"
+        },
+        "cultivated": {
+          "config": {},
+          "strategy": "default"
+        },
+        "geological": {
+          "config": {},
+          "strategy": "default"
+        },
+        "groups": {
+          "config": {},
+          "strategy": "default"
+        },
+        "habitat": {
+          "config": {},
+          "strategy": "default"
+        },
+        "selectSites": {
+          "config": {
+            "affinityRules": [],
+            "density": 1,
+            "equityMaxDensityRatio": 1.8,
+            "familyDensity": {
+              "aquatic": 1,
+              "cultivated": 1,
+              "geological": 1,
+              "terrestrial": 1
+            },
+            "perTypeSpacingFloorScale": 1,
+            "rarityFidelity": 1,
+            "siteSpacingTiles": 3,
+            "sparsity": 0
+          },
+          "strategy": "default"
+        },
+        "terrestrial": {
+          "config": {},
+          "strategy": "default"
+        }
+      },
       "plot-landmass-regions": {},
       "prepare-placement-surface": {}
     }
@@ -77,37 +92,8 @@
           },
           "strategy": "default"
         },
-        "resources": {
-          "config": {
-            "densityPer100Tiles": 9,
-            "maxPlacementsPerResourceShare": 0.3,
-            "minSpacingTiles": 2
-          },
-          "strategy": "default"
-        },
         "wonders": {
           "config": {},
-          "strategy": "default"
-        },
-        "starts": {
-          "config": {
-            "expansionRadiusTiles": 4,
-            "fertilityWeight": 1.2,
-            "freshwaterWeight": 0.9,
-            "islandClusterRadiusTiles": 5,
-            "largeLandmassWeight": 1,
-            "maxIslandStartCoastDistance": 1,
-            "minContiguousLandTiles": 24,
-            "minExpansionLandTiles": 14,
-            "minIslandClusterLandTiles": 18,
-            "minStartSpacingTiles": 9,
-            "overrides": {
-              "startSectors": []
-            },
-            "resourceSupportRadiusTiles": 4,
-            "resourceSupportWeight": 1,
-            "roughnessPenaltyWeight": 0.6
-          },
           "strategy": "default"
         }
       },
@@ -115,6 +101,50 @@
       "place-natural-wonders": {},
       "place-resources": {},
       "placement": {},
+      "plan-resources": {
+        "aquatic": {
+          "config": {},
+          "strategy": "default"
+        },
+        "cultivated": {
+          "config": {},
+          "strategy": "default"
+        },
+        "geological": {
+          "config": {},
+          "strategy": "default"
+        },
+        "groups": {
+          "config": {},
+          "strategy": "default"
+        },
+        "habitat": {
+          "config": {},
+          "strategy": "default"
+        },
+        "selectSites": {
+          "config": {
+            "affinityRules": [],
+            "density": 1,
+            "equityMaxDensityRatio": 1.8,
+            "familyDensity": {
+              "aquatic": 1,
+              "cultivated": 1,
+              "geological": 1,
+              "terrestrial": 1
+            },
+            "perTypeSpacingFloorScale": 1,
+            "rarityFidelity": 1,
+            "siteSpacingTiles": 3,
+            "sparsity": 0
+          },
+          "strategy": "default"
+        },
+        "terrestrial": {
+          "config": {},
+          "strategy": "default"
+        }
+      },
       "plot-landmass-regions": {},
       "prepare-placement-surface": {}
     }
@@ -137,37 +167,8 @@
           },
           "strategy": "default"
         },
-        "resources": {
-          "config": {
-            "densityPer100Tiles": 9,
-            "maxPlacementsPerResourceShare": 0.3,
-            "minSpacingTiles": 2
-          },
-          "strategy": "default"
-        },
         "wonders": {
           "config": {},
-          "strategy": "default"
-        },
-        "starts": {
-          "config": {
-            "expansionRadiusTiles": 4,
-            "fertilityWeight": 1.2,
-            "freshwaterWeight": 0.9,
-            "islandClusterRadiusTiles": 5,
-            "largeLandmassWeight": 1,
-            "maxIslandStartCoastDistance": 1,
-            "minContiguousLandTiles": 24,
-            "minExpansionLandTiles": 14,
-            "minIslandClusterLandTiles": 18,
-            "minStartSpacingTiles": 9,
-            "overrides": {
-              "startSectors": []
-            },
-            "resourceSupportRadiusTiles": 4,
-            "resourceSupportWeight": 1,
-            "roughnessPenaltyWeight": 0.6
-          },
           "strategy": "default"
         }
       },
@@ -175,6 +176,50 @@
       "place-natural-wonders": {},
       "place-resources": {},
       "placement": {},
+      "plan-resources": {
+        "aquatic": {
+          "config": {},
+          "strategy": "default"
+        },
+        "cultivated": {
+          "config": {},
+          "strategy": "default"
+        },
+        "geological": {
+          "config": {},
+          "strategy": "default"
+        },
+        "groups": {
+          "config": {},
+          "strategy": "default"
+        },
+        "habitat": {
+          "config": {},
+          "strategy": "default"
+        },
+        "selectSites": {
+          "config": {
+            "affinityRules": [],
+            "density": 1,
+            "equityMaxDensityRatio": 1.8,
+            "familyDensity": {
+              "aquatic": 1,
+              "cultivated": 1,
+              "geological": 1,
+              "terrestrial": 1
+            },
+            "perTypeSpacingFloorScale": 1,
+            "rarityFidelity": 1,
+            "siteSpacingTiles": 3,
+            "sparsity": 0
+          },
+          "strategy": "default"
+        },
+        "terrestrial": {
+          "config": {},
+          "strategy": "default"
+        }
+      },
       "plot-landmass-regions": {},
       "prepare-placement-surface": {}
     }
@@ -197,37 +242,8 @@
           },
           "strategy": "default"
         },
-        "resources": {
-          "config": {
-            "densityPer100Tiles": 10,
-            "maxPlacementsPerResourceShare": 0.3,
-            "minSpacingTiles": 2
-          },
-          "strategy": "default"
-        },
         "wonders": {
           "config": {},
-          "strategy": "default"
-        },
-        "starts": {
-          "config": {
-            "expansionRadiusTiles": 4,
-            "fertilityWeight": 1.2,
-            "freshwaterWeight": 0.9,
-            "islandClusterRadiusTiles": 5,
-            "largeLandmassWeight": 4,
-            "maxIslandStartCoastDistance": 8,
-            "minContiguousLandTiles": 24,
-            "minExpansionLandTiles": 4,
-            "minIslandClusterLandTiles": 3,
-            "minStartSpacingTiles": 9,
-            "overrides": {
-              "startSectors": []
-            },
-            "resourceSupportRadiusTiles": 1,
-            "resourceSupportWeight": 1,
-            "roughnessPenaltyWeight": 0.6
-          },
           "strategy": "default"
         }
       },
@@ -235,6 +251,50 @@
       "place-natural-wonders": {},
       "place-resources": {},
       "placement": {},
+      "plan-resources": {
+        "aquatic": {
+          "config": {},
+          "strategy": "default"
+        },
+        "cultivated": {
+          "config": {},
+          "strategy": "default"
+        },
+        "geological": {
+          "config": {},
+          "strategy": "default"
+        },
+        "groups": {
+          "config": {},
+          "strategy": "default"
+        },
+        "habitat": {
+          "config": {},
+          "strategy": "default"
+        },
+        "selectSites": {
+          "config": {
+            "affinityRules": [],
+            "density": 1,
+            "equityMaxDensityRatio": 1.8,
+            "familyDensity": {
+              "aquatic": 1,
+              "cultivated": 1,
+              "geological": 1,
+              "terrestrial": 1
+            },
+            "perTypeSpacingFloorScale": 1,
+            "rarityFidelity": 1,
+            "siteSpacingTiles": 3,
+            "sparsity": 0
+          },
+          "strategy": "default"
+        },
+        "terrestrial": {
+          "config": {},
+          "strategy": "default"
+        }
+      },
       "plot-landmass-regions": {},
       "prepare-placement-surface": {}
     }

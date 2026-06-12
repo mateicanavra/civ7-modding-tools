@@ -8,12 +8,49 @@ import {
 import { placementArtifacts } from "../../artifacts.js";
 import PlaceResourcesStepContract from "./contract.js";
 
+function validateResourcePlacementOutcomesArtifact(value: unknown): { message: string }[] {
+  if (typeof value !== "object" || value === null) {
+    return [{ message: "resourcePlacementOutcomes artifact must be an object." }];
+  }
+  const issues: { message: string }[] = [];
+  const artifact = value as {
+    summary?: { plannedCount?: number; placedCount?: number; mismatchCount?: number };
+    reconciliation?: { plannedCount?: number; placedCount?: number; rejectedCount?: number };
+    outcomes?: unknown[];
+  };
+  const outcomes = Array.isArray(artifact.outcomes) ? artifact.outcomes : [];
+  if (artifact.summary?.plannedCount !== outcomes.length) {
+    issues.push({
+      message: `summary.plannedCount ${String(artifact.summary?.plannedCount)} != outcomes.length ${outcomes.length}.`,
+    });
+  }
+  if ((artifact.summary?.mismatchCount ?? 0) !== 0) {
+    issues.push({
+      message: "mismatch outcomes are fail-hard and must never be published in the artifact.",
+    });
+  }
+  const reconciliation = artifact.reconciliation;
+  if (
+    reconciliation &&
+    (reconciliation.placedCount ?? 0) + (reconciliation.rejectedCount ?? 0) !==
+      (reconciliation.plannedCount ?? 0)
+  ) {
+    issues.push({ message: "reconciliation placed+rejected must equal planned." });
+  }
+  if (reconciliation && artifact.summary?.placedCount !== reconciliation.placedCount) {
+    issues.push({ message: "summary.placedCount != reconciliation.placedCount." });
+  }
+  return issues;
+}
+
 export default createStep(PlaceResourcesStepContract, {
   artifacts: implementArtifacts([placementArtifacts.resourcePlacementOutcomes], {
-    resourcePlacementOutcomes: {},
+    resourcePlacementOutcomes: {
+      validate: (value) => validateResourcePlacementOutcomesArtifact(value),
+    },
   }),
   run: (context, _config, _ops, deps) => {
-    const resources = deps.artifacts.resourcePlan.read(context);
+    const plan = deps.artifacts.resourcePlan.read(context);
     deps.artifacts.placementSurfacePreparation.read(context);
     const { width, height } = context.dimensions;
     const emit = (payload: Record<string, unknown>): void => {
@@ -22,29 +59,27 @@ export default createStep(PlaceResourcesStepContract, {
     };
 
     const outcomes = runPlacementProductStep("placement.resources", emit, () =>
-      placeResourcesWithTypedOutcomes({ adapter: context.adapter, width, height, resources })
+      placeResourcesWithTypedOutcomes({ adapter: context.adapter, width, height, plan })
     );
-    if (outcomes.assignment.spacingShortfallCount > 0) {
-      // Spacing-preserving fallback (S1d): shortfalls are recorded, not forced.
+    if (outcomes.reconciliation.rejectedCount > 0) {
+      // Typed reconcile (D4): engine-legality rejections are recorded as
+      // shortfalls with reasons; the plan's type-at-plot is never re-decided.
       console.warn(
-        `[Placement] Resource assignment recorded a spacing shortfall of ` +
-          `${outcomes.assignment.spacingShortfallCount}/${outcomes.assignment.requestedPlannedCount} planned intents ` +
-          `(authored minSpacingTiles=${outcomes.assignment.minSpacingTiles} preserved instead of decaying to 0).`
+        `[Placement] Resource reconciliation recorded ${outcomes.reconciliation.rejectedCount}/` +
+          `${outcomes.reconciliation.plannedCount} typed rejections (no relocation, no type re-decision).`
       );
       context.trace?.event(() => ({
-        type: "placement.resources.spacingShortfall",
+        type: "placement.resources.reconciliationShortfall",
         level: "warn",
-        spacingShortfallCount: outcomes.assignment.spacingShortfallCount,
-        requestedPlannedCount: outcomes.assignment.requestedPlannedCount,
-        assignedCount: outcomes.assignment.assignedCount,
-        minSpacingTiles: outcomes.assignment.minSpacingTiles,
+        rejectedCount: outcomes.reconciliation.rejectedCount,
+        plannedCount: outcomes.reconciliation.plannedCount,
+        shortfalls: outcomes.reconciliation.shortfalls,
       }));
     }
     logResourcePlacementRuntimeTelemetry(
       outcomes.summary,
-      outcomes.assignment,
-      outcomes.outcomes,
-      outcomes.assignmentTrace
+      outcomes.reconciliation,
+      outcomes.outcomes
     );
     deps.artifacts.resourcePlacementOutcomes.publish(context, outcomes);
   },

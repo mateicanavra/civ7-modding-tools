@@ -1,7 +1,65 @@
 import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
 import placement from "@mapgen/domain/placement";
+import resources from "@mapgen/domain/resources";
 import { PlacementInputsV1Schema } from "./placement-inputs.js";
 import { PlacementOutputsV1Schema } from "./placement-outputs.js";
+
+const ResourceFamilySchema = Type.Union([
+  Type.Literal("aquatic"),
+  Type.Literal("cultivated"),
+  Type.Literal("terrestrial"),
+  Type.Literal("geological"),
+]);
+
+const ResourceDemandSummaryRowSchema = Type.Object(
+  {
+    resourceType: Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" }),
+    resourceTypeId: Type.Integer({ minimum: 0 }),
+    family: ResourceFamilySchema,
+    laneId: Type.String(),
+    laneKind: Type.Union([Type.Literal("land"), Type.Literal("water")]),
+    weight: Type.Number({ minimum: 1 }),
+    minimumPerHemisphere: Type.Integer({ minimum: 0 }),
+    requiredForAge: Type.Boolean(),
+    targetCount: Type.Integer({ minimum: 0 }),
+    minCount: Type.Integer({ minimum: 0 }),
+    maxCount: Type.Integer({ minimum: 0 }),
+    habitatTileCount: Type.Integer({ minimum: 0 }),
+    legalTileCount: Type.Integer({ minimum: 0 }),
+    eligibleTileCount: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false }
+);
+
+const ResourceDemandPlanArtifactSchema = Type.Object(
+  {
+    age: Type.String({ pattern: "^AGE_[A-Z_]+$" }),
+    runtimeIdResolution: Type.Object(
+      {
+        status: Type.Literal("verified"),
+        checkedCount: Type.Integer({ minimum: 0 }),
+      },
+      { additionalProperties: false }
+    ),
+    minimumAmountModifier: Type.Integer(),
+    groups: resources.ops.planResourceGroups.output,
+    demands: Type.Array(ResourceDemandSummaryRowSchema),
+    excluded: Type.Array(
+      Type.Object(
+        {
+          resourceType: Type.String(),
+          reason: Type.String(),
+        },
+        { additionalProperties: false }
+      )
+    ),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Per-type resource demand/eligibility plan from the domain/resources family planners: symbolic group rollup plus proven-runtime-id demand rows (weight, range gates, region-minimum facts) feeding site selection.",
+  }
+);
 
 const PlacementEngineStateV1Schema = Type.Object(
   {
@@ -333,76 +391,53 @@ const ResourcePlacementSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-const ResourceAssignmentResourceSummarySchema = Type.Object(
+const ResourceReconciliationShortfallSchema = Type.Object(
   {
-    resourceType: Type.Integer(),
-    legalPlotCount: Type.Integer({ minimum: 0 }),
-    plannedCount: Type.Integer({ minimum: 0 }),
-    assignedCount: Type.Integer({ minimum: 0 }),
-    reassignedOutCount: Type.Integer({ minimum: 0 }),
-    reassignedInCount: Type.Integer({ minimum: 0 }),
-    unassignedCount: Type.Integer({ minimum: 0 }),
-  },
-  { additionalProperties: false }
-);
-
-const ResourceAssignmentSummarySchema = Type.Object(
-  {
-    requestedPlannedCount: Type.Integer({ minimum: 0 }),
-    assignedCount: Type.Integer({ minimum: 0 }),
-    minSpacingTiles: Type.Integer({ minimum: 0 }),
-    spacingBlockedCount: Type.Integer({ minimum: 0 }),
-    spacingShortfallCount: Type.Integer({
-      minimum: 0,
-      description:
-        "Planned intents that could not be assigned without violating the authored spacing floor. Recorded instead of decaying spacing toward 0 (spacing-preserving fallback).",
-    }),
-    reassignedCount: Type.Integer({ minimum: 0 }),
-    unassignedPreferredCount: Type.Integer({ minimum: 0 }),
-    candidateResourceTypes: Type.Array(Type.Integer({ minimum: 0 })),
-    legalCandidateResourceTypes: Type.Array(Type.Integer({ minimum: 0 })),
-    unassignableResourceTypes: Type.Array(Type.Integer({ minimum: 0 })),
-    byPreferredResource: Type.Array(ResourceAssignmentResourceSummarySchema),
-  },
-  { additionalProperties: false }
-);
-
-const ResourceAssignmentTraceSchema = Type.Object(
-  {
-    plotIndex: Type.Integer(),
-    x: Type.Integer(),
-    y: Type.Integer(),
-    resourceType: Type.Integer(),
-    initialResourceType: Type.Integer(),
-    preferredResourceType: Type.Union([Type.Integer(), Type.Null()]),
-    assignmentPhase: Type.Union([
-      Type.Literal("scarce-floor"),
-      Type.Literal("strict-spacing"),
+    resourceType: Type.Integer({ minimum: 0 }),
+    reason: Type.Union([
+      Type.Literal("out-of-bounds"),
+      Type.Literal("invalid-resource-type"),
+      Type.Literal("cannot-have-resource"),
     ]),
-    reassignedByRebalance: Type.Boolean(),
-    assignmentOrder: Type.Integer({ minimum: 0 }),
-    perTypeCountBefore: Type.Integer({ minimum: 0 }),
-    legalPlotCountForResource: Type.Integer({ minimum: 0 }),
-    targetMinPerType: Type.Integer({ minimum: 0 }),
+    count: Type.Integer({ minimum: 0 }),
   },
+  { additionalProperties: false }
+);
+
+const ResourceReconciliationSummarySchema = Type.Object(
   {
-    additionalProperties: false,
-    description:
-      "Diagnostic trace for the local resource assignment pass that selected each resource intent before adapter materialization.",
-  }
+    plannedCount: Type.Integer({ minimum: 0 }),
+    placedCount: Type.Integer({ minimum: 0 }),
+    rejectedCount: Type.Integer({ minimum: 0 }),
+    shortfalls: Type.Array(ResourceReconciliationShortfallSchema, {
+      description:
+        "Typed per-type engine-legality shortfalls. The plan type at the planned plot is never re-decided; rejections are recorded, not rescued.",
+    }),
+    byPhase: Type.Object(
+      {
+        rotation: Type.Integer({ minimum: 0 }),
+        rangeFloor: Type.Integer({ minimum: 0 }),
+        regionMinimum: Type.Integer({ minimum: 0 }),
+      },
+      {
+        additionalProperties: false,
+        description: "Placed counts by planning phase (joined from the resource plan intents).",
+      }
+    ),
+  },
+  { additionalProperties: false }
 );
 
 const ResourcePlacementOutcomesArtifactSchema = Type.Object(
   {
     summary: ResourcePlacementSummarySchema,
-    assignment: ResourceAssignmentSummarySchema,
-    assignmentTrace: Type.Array(ResourceAssignmentTraceSchema),
+    reconciliation: ResourceReconciliationSummarySchema,
     outcomes: Type.Array(ResourcePlacementOutcomeSchema),
   },
   {
     additionalProperties: false,
     description:
-      "Typed resource intent reconciliation. Rejections are allowed only with named reasons; mismatches are fail-hard.",
+      "Typed resource intent reconciliation (D4): the plan is authority; the materializer stamps intents and records typed rejections. No type re-decision, no whole-map fallback; mismatches are fail-hard.",
   }
 );
 
@@ -424,10 +459,15 @@ export const placementArtifacts = {
     id: "artifact:placementInputs",
     schema: PlacementInputsV1Schema,
   }),
+  resourceDemandPlan: defineArtifact({
+    name: "resourceDemandPlan",
+    id: "artifact:placement.resourceDemandPlan",
+    schema: ResourceDemandPlanArtifactSchema,
+  }),
   resourcePlan: defineArtifact({
     name: "resourcePlan",
     id: "artifact:placement.resourcePlan",
-    schema: placement.ops.planResources.output,
+    schema: resources.ops.selectResourceSites.output,
   }),
   naturalWonderPlan: defineArtifact({
     name: "naturalWonderPlan",

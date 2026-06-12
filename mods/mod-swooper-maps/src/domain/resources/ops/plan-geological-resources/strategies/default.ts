@@ -2,6 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import PlanGeologicalResourcesContract from "../contract.js";
 
+// TODO: either import these from the official civ7 map policy package in our repo, or if they are local types put them in types
 type GeologicalResourceType =
   | "RESOURCE_GOLD"
   | "RESOURCE_GOLD_DISTANT_LANDS"
@@ -106,7 +107,7 @@ const GEOLOGICAL_RESOURCE_TYPES: readonly GeologicalResourceType[] = [
   "RESOURCE_RUBIES",
 ];
 
-const GEOLOGICAL_SIGNALS: Record<GeologicalResourceType, ResourceSignals> = {
+export const GEOLOGICAL_SIGNALS: Record<GeologicalResourceType, ResourceSignals> = {
   RESOURCE_GOLD: {
     laneId: "orogenic-hydrothermal",
     primary: ["orogenyMask", "alluvialPlacerMask"],
@@ -269,13 +270,19 @@ export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "
       const proxyIncomplete = signalFields.length === 0;
       const targetIntentCount = proxyIncomplete
         ? 0
-        : Math.min(expectation.expectedCountRange.max, eligibleTileCount, expectation.expectedCountRange.target);
+        : Math.min(
+            expectation.expectedCountRange.max,
+            eligibleTileCount,
+            expectation.expectedCountRange.target
+          );
       const blockers = [];
       if (proxyIncomplete) {
         blockers.push(`Missing geological signal masks: ${signals.primary.join(", ")}.`);
       }
       if (!proxyIncomplete && eligibleTileCount === 0) {
-        blockers.push("No eligible geological tiles observed for this resource under supplied masks.");
+        blockers.push(
+          "No eligible geological tiles observed for this resource under supplied masks."
+        );
       }
 
       plans.push({
@@ -313,7 +320,9 @@ export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "
 function validateGrid(width: number, height: number): number {
   const size = width * height;
   if (!Number.isSafeInteger(size) || size <= 0) {
-    throw new Error(`Invalid grid dimensions for geological resource planning: ${width}x${height}.`);
+    throw new Error(
+      `Invalid grid dimensions for geological resource planning: ${width}x${height}.`
+    );
   }
   return size;
 }
@@ -345,14 +354,20 @@ function countEligibleTiles(
   return count;
 }
 
-function readMask(input: Record<string, unknown>, field: string, size: number): Uint8Array | undefined {
+function readMask(
+  input: Record<string, unknown>,
+  field: string,
+  size: number
+): Uint8Array | undefined {
   const value = input[field];
   if (value === undefined) return undefined;
   if (!(value instanceof Uint8Array)) {
     throw new Error(`Geological resource mask ${field} must be a Uint8Array.`);
   }
   if (value.length !== size) {
-    throw new Error(`Geological resource mask ${field} length ${value.length} does not match grid size ${size}.`);
+    throw new Error(
+      `Geological resource mask ${field} length ${value.length} does not match grid size ${size}.`
+    );
   }
   return value;
 }

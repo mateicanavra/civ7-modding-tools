@@ -2,7 +2,7 @@ import {
   OFFICIAL_RESOURCE_BY_TYPE,
   OFFICIAL_RESOURCE_CORPUS,
 } from "../corpus/official-base-standard.js";
-import { getInitialMapResourcePolicyForType } from "../initial-map-authoring-policy.js";
+import { getInitialMapResourcePolicyForType } from "../../policy/initial-map-authoring.js";
 import type { OfficialResourceType } from "../corpus/types.js";
 import type {
   EarthlikeResourceExpectation,

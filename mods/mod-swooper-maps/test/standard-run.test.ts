@@ -5,7 +5,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe from "../src/recipes/standard/recipe.js";
 import type { StandardRecipeConfig } from "../src/recipes/standard/recipe.js";
-import { DEFERRED_INITIAL_MAP_RESOURCE_TYPE_IDS } from "../src/domain/resources/initial-map-authoring-policy.js";
+import { DEFERRED_INITIAL_MAP_RESOURCE_TYPE_IDS } from "../src/domain/resources/policy/initial-map-authoring.js";
 import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
 import { mapArtifacts } from "../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../src/recipes/standard/stages/foundation/artifacts.js";

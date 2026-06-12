@@ -711,44 +711,56 @@ describe("surface delta context diagnostics", () => {
       },
       {
         resourcePlan: {
-          minSpacingTiles: 2,
-          placements: [
-            { plotIndex: 0, preferredResourceType: 3 },
-            { plotIndex: 1, preferredResourceType: 3 },
-            { plotIndex: 2, preferredResourceType: 2 },
-          ],
-        },
-        resourcePlacementOutcomes: {
-          assignmentTrace: [
+          siteSpacingTiles: 2,
+          intents: [
             {
               plotIndex: 0,
               x: 0,
               y: 0,
-              resourceType: 3,
-              initialResourceType: 12,
-              preferredResourceType: 3,
-              assignmentPhase: "scarce-floor",
-              reassignedByRebalance: true,
-              assignmentOrder: 0,
-              perTypeCountBefore: 0,
-              legalPlotCountForResource: 4,
-              targetMinPerType: 2,
+              resourceType: "RESOURCE_FISH",
+              resourceTypeId: 3,
+              family: "aquatic",
+              laneId: "coastal-fishery",
+              laneKind: "water",
+              phase: "rotation",
+              order: 0,
+              regionSlot: 1,
+              landmassId: -1,
+              inHabitat: true,
+            },
+            {
+              plotIndex: 1,
+              x: 1,
+              y: 0,
+              resourceType: "RESOURCE_FISH",
+              resourceTypeId: 3,
+              family: "aquatic",
+              laneId: "coastal-fishery",
+              laneKind: "water",
+              phase: "rotation",
+              order: 1,
+              regionSlot: 1,
+              landmassId: -1,
+              inHabitat: true,
             },
             {
               plotIndex: 2,
               x: 2,
               y: 0,
-              resourceType: 2,
-              initialResourceType: 2,
-              preferredResourceType: 2,
-              assignmentPhase: "strict-spacing",
-              reassignedByRebalance: false,
-              assignmentOrder: 1,
-              perTypeCountBefore: 0,
-              legalPlotCountForResource: 3,
-              targetMinPerType: 2,
+              resourceType: "RESOURCE_DYES",
+              resourceTypeId: 2,
+              family: "cultivated",
+              laneId: "coastal-dyes",
+              laneKind: "water",
+              phase: "range-floor",
+              order: 2,
+              regionSlot: 1,
+              landmassId: -1,
+              inHabitat: false,
             },
           ],
+        },
+        resourcePlacementOutcomes: {
           outcomes: [
             {
               status: "placed",
@@ -793,16 +805,14 @@ describe("surface delta context diagnostics", () => {
       },
       plannedPreferredResourceSymbol: "RESOURCE_FISH",
       localOutcome: { status: "placed", resourceSymbol: "RESOURCE_FISH" },
-      assignmentTrace: {
+      planIntent: {
         resourceSymbol: "RESOURCE_FISH",
-        initialResourceSymbol: "RESOURCE_PEARLS",
-        preferredResourceSymbol: "RESOURCE_FISH",
-        assignmentPhase: "scarce-floor",
-        reassignedByRebalance: true,
-        assignmentOrder: 0,
-        perTypeCountBefore: 0,
-        legalPlotCountForResource: 4,
-        targetMinPerType: 2,
+        resourceTypeName: "RESOURCE_FISH",
+        phase: "rotation",
+        family: "aquatic",
+        laneId: "coastal-fishery",
+        inHabitat: true,
+        order: 0,
       },
       resourceNeighborhood: {
         minSpacingTiles: 2,
@@ -837,7 +847,11 @@ describe("surface delta context diagnostics", () => {
       liveResource: { symbol: "RESOURCE_FISH" },
       plannedPreferredResourceSymbol: "RESOURCE_FISH",
       localOutcome: null,
-      assignmentTrace: null,
+      planIntent: {
+        resourceSymbol: "RESOURCE_FISH",
+        phase: "rotation",
+        order: 1,
+      },
       evidenceClass: "live-only-preferred-but-unassigned",
     });
     expect(rows[2]).toMatchObject({
@@ -845,9 +859,9 @@ describe("surface delta context diagnostics", () => {
       localResource: { symbol: "RESOURCE_DYES" },
       liveResource: { symbol: "RESOURCE_PEARLS" },
       localOutcome: { status: "placed", resourceSymbol: "RESOURCE_DYES" },
-      assignmentTrace: {
-        assignmentPhase: "strict-spacing",
-        reassignedByRebalance: false,
+      planIntent: {
+        phase: "range-floor",
+        inHabitat: false,
       },
       evidenceClass: "local-assigned-live-substitution",
     });
@@ -864,13 +878,13 @@ describe("surface delta context diagnostics", () => {
       },
       {
         resourcePlan: {
-          placements: [
-            { plotIndex: 0, preferredResourceType: 3 },
-            { plotIndex: 1, preferredResourceType: 3 },
-            { plotIndex: 2, preferredResourceType: 2 },
-            { plotIndex: 3, preferredResourceType: 6 },
-            { plotIndex: 4, preferredResourceType: 53 },
-            { plotIndex: 5, preferredResourceType: 14 },
+          intents: [
+            { plotIndex: 0, resourceTypeId: 3 },
+            { plotIndex: 1, resourceTypeId: 3 },
+            { plotIndex: 2, resourceTypeId: 2 },
+            { plotIndex: 3, resourceTypeId: 6 },
+            { plotIndex: 4, resourceTypeId: 53 },
+            { plotIndex: 5, resourceTypeId: 14 },
           ],
         },
         resourcePlacementOutcomes: {

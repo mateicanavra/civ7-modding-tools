@@ -187,10 +187,14 @@ describe("placement reconciliation", () => {
     expect(adapter.calls.stampDiscovery.length).toBe(discoveryOutcomes?.summary.placedCount);
   });
 
-  it("fails hard without falling back when no engine-legal resource assignment exists", () => {
+  it("records typed resource rejections without relocation when the engine oracle rejects every intent", () => {
     const width = 20;
     const height = 12;
     const seed = 1441;
+    // Plan-authority cutover (S3/D4): the plan is built within static policy
+    // legality; a divergent live oracle produces typed per-intent rejections
+    // (recorded shortfalls), never relocation, type re-decision, or official
+    // generator fallback.
     const adapter = createMockAdapter({
       width,
       height,
@@ -200,12 +204,19 @@ describe("placement reconciliation", () => {
       canHaveResource: () => false,
     });
 
-    expect(() => runStandardPlacementRecipe({ adapter, seed, width, height })).toThrow(
-      /no engine-legal resource assignments/i
-    );
+    const { context } = runStandardPlacementRecipe({ adapter, seed, width, height });
+    const resourceOutcomes = readResourceOutcomes(context);
 
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.calls.setResourceType.length).toBe(0);
+    expect(resourceOutcomes?.summary.plannedCount).toBeGreaterThan(0);
+    expect(resourceOutcomes?.summary.placedCount).toBe(0);
+    expect(resourceOutcomes?.summary.rejectedCount).toBe(resourceOutcomes?.summary.plannedCount);
+    expect(resourceOutcomes?.summary.mismatchCount).toBe(0);
+    expect(
+      resourceOutcomes?.summary.byReason.every((row) => row.reason === "cannot-have-resource")
+    ).toBe(true);
+    expect(resourceOutcomes?.reconciliation.shortfalls.length).toBeGreaterThan(0);
   });
 
   it("records typed discovery rejections without falling back to official generation", () => {

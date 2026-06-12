@@ -70,6 +70,10 @@ const CASES = [
   {
     label: "sundered-archipelago",
     config: recipeConfig(sunderedArchipelagoRaw),
+    // Archipelago landmasses shrink habitat∧legality intersections, so the
+    // range-floor pass uses more legal-but-out-of-lane tiles than the
+    // Earth-like baseline budget (E2.3 targets the Earth-like map).
+    resourceHabitatFidelityMin: 0.85,
     wetlandMax: 0.22,
     reefMax: 0.02,
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_MANGROVE"],
@@ -81,6 +85,10 @@ const CASES = [
   {
     label: "desert-mountains",
     config: recipeConfig(swooperDesertMountainsRaw),
+    // Extreme-aridity identity map: many temperate/wet lanes barely intersect
+    // legality, so range-floor coverage leans on legal-but-out-of-lane tiles
+    // (E2.3's 0.9 budget targets the Earth-like baseline map).
+    resourceHabitatFidelityMin: 0.85,
     wetlandMax: 0.08,
     reefMax: 0.03,
     requiredFeatures: ["FEATURE_SAVANNA_WOODLAND", "FEATURE_SAGEBRUSH_STEPPE"],
@@ -90,46 +98,34 @@ const CASES = [
   },
 ] as const;
 
+function scenarioResourceHabitatFidelityMin(label: string): number {
+  const scenario = CASES.find((entry) => entry.label === label) as
+    | { resourceHabitatFidelityMin?: number }
+    | undefined;
+  return scenario?.resourceHabitatFidelityMin ?? 0.9;
+}
+
 function expectResourceDiagnostics(stats: WorldBalanceStats): void {
   expect(stats.resourcePlannedCount, `${stats.label} resource plans`).toBeGreaterThan(0);
+  // Plan-authority cutover (S3): demand rows are corpus-typed; ranges hold or
+  // record typed shortfalls; rarity stratification replaces forced uniformity.
+  expect(stats.resourceDemandTypeCount, `${stats.label} resource demand types`).toBeGreaterThan(0);
+  expect(stats.resourceAboveMaxTypeCount, `${stats.label} above-max resource types`).toBe(0);
   expect(
-    stats.resourceRequestedPlannedCount,
-    `${stats.label} requested resource plans`
-  ).toBeGreaterThanOrEqual(stats.resourcePlannedCount);
-  expect(stats.resourceAssignedCount, `${stats.label} assigned resource plans`).toBe(
-    stats.resourcePlannedCount
-  );
+    stats.resourceBelowMinWithoutShortfallCount,
+    `${stats.label} below-min types must carry a recorded shortfall`
+  ).toBe(0);
   expect(
-    stats.resourceReassignmentShare,
-    `${stats.label} reassignment share floor`
-  ).toBeGreaterThanOrEqual(0);
+    stats.resourceInHabitatShare,
+    `${stats.label} habitat fidelity`
+  ).toBeGreaterThanOrEqual(scenarioResourceHabitatFidelityMin(stats.label));
   expect(
-    stats.resourceReassignmentShare,
-    `${stats.label} reassignment share ceiling`
-  ).toBeLessThanOrEqual(1);
-  expect(
-    stats.resourceLegalCandidateResourceTypeCount,
-    `${stats.label} legal resource candidate types`
-  ).toBeGreaterThan(0);
-  const feasibleResourceTypeCount = Math.max(
-    0,
-    stats.resourceLegalCandidateResourceTypeCount -
-      stats.resourceConstrainedCandidateResourceTypeCount
-  );
+    stats.resourceSameTypeSpacingViolationCount,
+    `${stats.label} same-type spacing floor violations`
+  ).toBe(0);
   expect(stats.resourceUniquePlannedTypes, `${stats.label} planned resource variety`).toBeGreaterThanOrEqual(
-    Math.min(feasibleResourceTypeCount, stats.resourcePlannedCount)
+    Math.min(stats.resourceDemandTypeCount, stats.resourcePlannedCount)
   );
-  expect(stats.resourceUniquePlacedTypes, `${stats.label} placed resource variety`).toBeGreaterThanOrEqual(
-    Math.min(feasibleResourceTypeCount, stats.resourcePlacedCount)
-  );
-  expect(
-    stats.resourceFeasiblePlacedCountMaxByType - stats.resourceFeasiblePlacedCountMinByType,
-    `${stats.label} feasible placed resource spread`
-  ).toBeLessThanOrEqual(1);
-  expect(
-    stats.resourceConstrainedCandidateResourceTypeCount,
-    `${stats.label} constrained resource candidate count`
-  ).toBeGreaterThanOrEqual(0);
   expect(
     stats.resourcePlacedCount + stats.resourceRejectedCount + stats.resourceMismatchCount,
     `${stats.label} resource outcome total`
@@ -149,12 +145,6 @@ function expectResourceDiagnostics(stats: WorldBalanceStats): void {
     stats.resourceOutcomeCountsByReason.reduce((sum, entry) => sum + entry.count, 0),
     `${stats.label} resource by-reason total`
   ).toBe(stats.resourceRejectedCount + stats.resourceMismatchCount);
-  if (stats.resourcePlacedCount > 1) {
-    expect(
-      stats.resourcePlacedNearestNeighborMin,
-      `${stats.label} placed resource spacing`
-    ).toBeGreaterThanOrEqual(stats.resourceAssignmentMinSpacingTiles);
-  }
   expect(
     stats.resourcePlacedMaxLocalDensityRadius2,
     `${stats.label} placed resource local density`

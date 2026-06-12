@@ -83,7 +83,7 @@ const CULTIVATED_RESOURCE_TYPES: readonly CultivatedResourceType[] = [
   "RESOURCE_FLAX",
 ];
 
-const CULTIVATED_SIGNALS: Record<CultivatedResourceType, ResourceSignals> = {
+export const CULTIVATED_SIGNALS: Record<CultivatedResourceType, ResourceSignals> = {
   RESOURCE_COTTON: {
     laneId: "alluvial-irrigated",
     primary: ["warmAlluvialMask", "floodplainOrRiverMask", "warmGrassPlainsMask"],
