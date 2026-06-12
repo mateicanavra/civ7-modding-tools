@@ -224,8 +224,23 @@ contract in [`pass-2-design-fixes.md`](pass-2-design-fixes.md). Five OpenSpec
 slices stacked on `design/a11y-fixes` (Graphite-only, never submitted); each slice
 closes only with visual proof from the running app:
 
-- [ ] **C1** `mapgen-studio-layout-geometry` — `design/layout-geometry`
-- [ ] **C2** `mapgen-studio-form-hierarchy` — `design/form-hierarchy`
-- [ ] **C3** `mapgen-studio-run-console` — `design/run-console`
-- [ ] **C4** `mapgen-studio-explore-toolbar` — `design/explore-toolbar`
-- [ ] **C5** `mapgen-studio-first-run-visibility` — `design/first-run-visibility`
+- [x] **C1** `mapgen-studio-layout-geometry` — `design/layout-geometry` (340px dock,
+  content-driven header reserve, header→footer docks, scroll-edge fade)
+- [x] **C2** `mapgen-studio-form-hierarchy` — `design/form-hierarchy` (foreground
+  labels vs muted prose; rawErrors-gated alert regions — 40 phantom alerts → 0)
+- [x] **C3** `mapgen-studio-run-console` — `design/run-console` (single Run CTA in
+  the footer console; full-width Save & Deploy; "Balanced" not "Bal")
+- [x] **C4** `mapgen-studio-explore-toolbar` — `design/explore-toolbar` (Render/Space
+  as inset segmented controls)
+- [x] **C5** `mapgen-studio-first-run-visibility` — `design/first-run-visibility`
+  (diagnosis: not reproducible at tip; fit/selection fallbacks verified; rAF-starvation
+  commit backstop added to vizStore)
+- [x] **C6** `mapgen-studio-theme-class-sync` — `design/theme-class-sync` (found by
+  the visual gate: nothing wrote `.dark` after boot; theme toggle now re-themes live)
+
+**Pass-2 closure (2026-06-11):** all six slices implemented + visually verified on
+:5173 (dark + light screenshots, DOM measurements, fresh-state first-run proof).
+Gates green at tip: tsc, build + worker-bundle, 144 tests, six strict OpenSpec
+validations. Review wave: no P1/P2; two P3s repaired in-stack (scroll-fade padding;
+a foreign `codex/sieve-engine-reference` docs commit `gt move`d out of the stack
+base). Stack remains UNSUBMITTED per the standing rule.
