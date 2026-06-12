@@ -13,30 +13,9 @@
 /** User's theme preference - 'system' follows OS setting */
 export type ThemePreference = "system" | "light" | "dark";
 
-/** Theme tokens for consistent styling across components */
-export interface Theme {
-  container: string;
-  card: string;
-  nestedCard: string;
-  deepNestedCard: string;
-  text: string;
-  textBright: string;
-  label: string;
-  muted: string;
-  sectionTitle: string;
-  subtitle: string;
-  input: string;
-  button: string;
-  primaryButton: string;
-  checkbox: string;
-  hoverBg: string;
-  tabActive: string;
-  tabInactive: string;
-  toggleActive: string;
-  toggleInactive: string;
-  divider: string;
-  strategyBadge: string;
-}
+// The former `Theme` token-bundle interface was removed with `createTheme()`:
+// the chrome is themed by the single `.dark` class (shadcn strategy), so there is
+// no runtime theme object to type. Components use token utility classes directly.
 
 // ============================================================================
 // Option Types (for controlled components)

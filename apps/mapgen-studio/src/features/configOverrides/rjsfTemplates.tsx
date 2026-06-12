@@ -1,53 +1,27 @@
 import type { ArrayFieldTemplateProps, FieldTemplateProps, ObjectFieldTemplateProps, RJSFSchema } from "@rjsf/utils";
 import type { ReactNode } from "react";
-import type { Theme } from "../../ui/types";
 import { FieldRow } from "../../ui/components/fields";
 import { pathToPointer } from "./schemaPresentation";
 
 export type BrowserConfigFormContext = {
   transparentPaths: ReadonlySet<string>;
-  lightMode?: boolean;
-  theme: Theme;
 };
 
-type FormTheme = Readonly<{
-  card: string;
-  nested: string;
-  divider: string;
-  label: string;
-  muted: string;
-  text: string;
-  borderSubtle: string;
-  button: string;
-  buttonActive: string;
-}>;
-
-function getFormTheme(lightMode?: boolean): FormTheme {
-  if (lightMode) {
-    return {
-      card: "bg-white border-gray-200",
-      nested: "bg-gray-50 border-gray-100",
-      divider: "border-gray-200",
-      label: "text-[#6b7280]",
-      muted: "text-[#9ca3af]",
-      text: "text-[#1f2937]",
-      borderSubtle: "border-gray-100",
-      button: "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200",
-      buttonActive: "bg-[#4b5563] text-white border-[#4b5563]",
-    };
-  }
-  return {
-    card: "bg-[#141418] border-[#2a2a32]",
-    nested: "bg-[#0f0f12] border-[#222228]",
-    divider: "border-[#2a2a32]",
-    label: "text-[#8a8a96]",
-    muted: "text-[#5a5a66]",
-    text: "text-[#e8e8ed]",
-    borderSubtle: "border-[#222228]",
-    button: "bg-[#222228] text-[#e8e8ed] border-[#2a2a32] hover:bg-[#2a2a32]",
-    buttonActive: "bg-[#4b5563] text-white border-[#4b5563]",
-  };
-}
+// Token-driven chrome for the rjsf config form — this is a high-traffic live
+// surface (every config edit re-renders it). The former `getFormTheme(lightMode)`
+// helper returned raw-hex class bundles per light/dark branch; that whole branch
+// is gone. The theme now follows the single `.dark` class via design-system
+// tokens (`card`/`muted`/`border`/`accent`/…), so there is no `lightMode` read.
+const FORM = {
+  card: "bg-card border-border",
+  nested: "bg-muted/40 border-border-subtle",
+  divider: "border-border",
+  label: "text-muted-foreground",
+  muted: "text-muted-foreground/70",
+  text: "text-foreground",
+  borderSubtle: "border-border-subtle",
+  button: "bg-muted text-foreground border-border hover:bg-accent",
+} as const;
 
 function humanizeSchemaLabel(label: string): string {
   const s = label
@@ -76,7 +50,7 @@ function renderGsComments(args: { schema: unknown; className: string }): ReactNo
   const comments = normalizeGsComments(meta?.gs?.comments);
   if (!comments) return null;
   return (
-    <div className={["text-[11px] whitespace-pre-wrap", args.className].filter(Boolean).join(" ")}>
+    <div className={["text-data whitespace-pre-wrap", args.className].filter(Boolean).join(" ")}>
       {comments}
     </div>
   );
@@ -90,10 +64,9 @@ export function BrowserConfigFieldTemplate(
   const prettyLabel = label ? humanizeSchemaLabel(label) : "";
   const schemaType = props.schema?.type;
   const suppressDescription = schemaType === "object" || schemaType === "array";
-  const theme = getFormTheme(props.registry.formContext?.lightMode);
-  const labelClass = theme.label;
-  const textClass = theme.text;
-  const mutedClass = theme.muted;
+  const labelClass = FORM.label;
+  const textClass = FORM.text;
+  const mutedClass = FORM.muted;
 
   const showLabel = displayLabel && label;
 
@@ -101,10 +74,10 @@ export function BrowserConfigFieldTemplate(
     return (
       <div className={["flex flex-col gap-1", classNames].filter(Boolean).join(" ")}>
         <div className={textClass}>{children}</div>
-        {description && !suppressDescription ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
+        {description && !suppressDescription ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
         {renderGsComments({ schema: props.schema, className: labelClass })}
-        {errors ? <div className="text-[11px] text-rose-400">{errors}</div> : null}
-        {help ? <div className={`text-[11px] ${mutedClass}`}>{help}</div> : null}
+        {errors ? <div className="text-data text-destructive">{errors}</div> : null}
+        {help ? <div className={`text-data ${mutedClass}`}>{help}</div> : null}
       </div>
     );
   }
@@ -112,16 +85,16 @@ export function BrowserConfigFieldTemplate(
   return (
     <div className={["flex flex-col gap-1", classNames].filter(Boolean).join(" ")}>
       <FieldRow>
-        <label className={`text-[11px] min-w-[96px] ${labelClass}`} htmlFor={id}>
+        <label className={`text-data min-w-[96px] ${labelClass}`} htmlFor={id}>
           <span className="font-medium">{prettyLabel}</span>
-          {required ? <span className="text-[11px] text-rose-400">*</span> : null}
+          {required ? <span className="text-data text-destructive">*</span> : null}
         </label>
         <div className={`flex-1 min-w-[120px] ${textClass}`}>{children}</div>
       </FieldRow>
-      {description && !suppressDescription ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
+      {description && !suppressDescription ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
       {renderGsComments({ schema: props.schema, className: labelClass })}
-      {errors ? <div className="text-[11px] text-rose-400">{errors}</div> : null}
-      {help ? <div className={`text-[11px] ${mutedClass}`}>{help}</div> : null}
+      {errors ? <div className="text-data text-destructive">{errors}</div> : null}
+      {help ? <div className={`text-data ${mutedClass}`}>{help}</div> : null}
     </div>
   );
 }
@@ -137,9 +110,8 @@ export function BrowserConfigObjectFieldTemplate(
   const leafKey = typeof leaf === "string" ? leaf : "";
   const isRoot = depth === 0;
   const isTransparent = transparentPaths.has(pathToPointer(path));
-  const theme = getFormTheme(props.registry.formContext?.lightMode);
-  const labelClass = theme.label;
-  const textClass = theme.text;
+  const labelClass = FORM.label;
+  const textClass = FORM.text;
 
   if (isRoot) {
     return <div className="flex flex-col gap-2">{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
@@ -155,7 +127,7 @@ export function BrowserConfigObjectFieldTemplate(
   const content = (
     <div className="flex flex-col gap-1.5">
       {!isStage && description ? (
-        <div className={`text-[11px] ${labelClass}`}>{description}</div>
+        <div className={`text-data ${labelClass}`}>{description}</div>
       ) : null}
       {properties.filter((p) => !p.hidden).map((p) => p.content)}
     </div>
@@ -163,20 +135,20 @@ export function BrowserConfigObjectFieldTemplate(
 
   if (isStage) {
     return (
-      <section className={`rounded-lg border p-2.5 ${theme.card}`}>
+      <section className={`rounded-lg border p-2.5 ${FORM.card}`}>
         <header className="flex flex-col gap-1">
           <div className={`text-sm font-semibold ${textClass}`}>{prettyTitle}</div>
           {renderGsComments({ schema, className: labelClass })}
-          {description ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
+          {description ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
         </header>
-        <div className={`my-1.5 border-t ${theme.divider}`} />
+        <div className={`my-1.5 border-t ${FORM.divider}`} />
         {content}
       </section>
     );
   }
 
-  const headingClass = `${depth >= 3 ? "text-[11px]" : "text-[12px]"} font-semibold ${textClass}`;
-  const inlineBorder = `${depth >= 3 ? "pl-2" : "pl-2.5"} border-l ${theme.borderSubtle}`;
+  const headingClass = `${depth >= 3 ? "text-data" : "text-xs"} font-semibold ${textClass}`;
+  const inlineBorder = `${depth >= 3 ? "pl-2" : "pl-2.5"} border-l ${FORM.borderSubtle}`;
   const groupWrapper = `flex flex-col gap-0.5`;
   return (
     <section className={groupWrapper}>
@@ -196,19 +168,18 @@ export function BrowserConfigArrayFieldTemplate(
   const { title, items, canAdd, onAddClick, disabled, readonly, schema } = props;
   const prettyTitle = title ? humanizeSchemaLabel(title) : "Items";
   const allowMutations = !disabled && !readonly;
-  const theme = getFormTheme(props.registry.formContext?.lightMode);
-  const textClass = theme.text;
-  const labelClass = theme.label;
+  const textClass = FORM.text;
+  const labelClass = FORM.label;
 
   return (
-    <section className={`rounded-md border p-2 ${theme.nested}`}>
+    <section className={`rounded-md border p-2 ${FORM.nested}`}>
       <div className="flex items-center gap-2">
-        <div className={`text-[12px] font-semibold ${textClass}`}>{prettyTitle}</div>
+        <div className={`text-xs font-semibold ${textClass}`}>{prettyTitle}</div>
         <div style={{ flex: 1 }} />
         {canAdd && allowMutations ? (
           <button
             type="button"
-            className={`px-2 py-1 text-[11px] rounded border ${theme.button}`}
+            className={`px-2 py-1 text-data rounded border ${FORM.button}`}
             onClick={onAddClick}
           >
             Add
@@ -216,14 +187,14 @@ export function BrowserConfigArrayFieldTemplate(
         ) : null}
       </div>
       {renderGsComments({ schema, className: labelClass })}
-      <div className={`my-2 border-t ${theme.divider}`} />
+      <div className={`my-2 border-t ${FORM.divider}`} />
       <div className="flex flex-col gap-2">
         {items.map((item, index) => {
           // RJSF v6 types this as ReactElement[], but some templates/versions
           // pass an "item" object that wraps the actual element in `.children`.
           const content = (item as any)?.children ?? (item as any)?.props?.children ?? item;
           return (
-            <div key={item.key ?? index} className={`rounded-md border p-2 ${theme.nested}`}>
+            <div key={item.key ?? index} className={`rounded-md border p-2 ${FORM.nested}`}>
               {content}
             </div>
           );

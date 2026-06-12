@@ -13,7 +13,7 @@
 import { ORPCError } from "@orpc/client";
 
 import { orpcClient, readErrorData } from "../../lib/orpc";
-import type { Civ7SavedSetupConfigFile, Civ7SetupSnapshotLike } from "./setupConfig";
+import type { Civ7SetupSnapshotLike } from "./setupConfig";
 
 export type Civ7SetupCatalogOption = Readonly<{
   value: string;
@@ -76,36 +76,13 @@ export async function fetchCiv7SetupConfig(options: { signal?: AbortSignal } = {
   }
 }
 
-export async function fetchCiv7SavedSetupConfigs(): Promise<
-  | { ok: true; observedAt: string; directory: string; configurations: ReadonlyArray<Civ7SavedSetupConfigFile> }
-  | { ok: false; error: string; observedAt?: string; statusCode?: number }
-> {
-  try {
-    const body = await orpcClient.civ7.savedConfigs({});
-    return {
-      ok: true,
-      // Both contract-required on the success body (civ7.savedConfigs output:
-      // `observedAt: isoTimestamp`, `directory: z.string()`).
-      observedAt: body.observedAt,
-      directory: body.directory,
-      configurations: body.configurations as unknown as ReadonlyArray<Civ7SavedSetupConfigFile>,
-    };
-  } catch (err) {
-    return { ok: false, ...orpcFailure(err, "Civ7 saved configurations unavailable") };
-  }
-}
-
-export async function fetchCiv7SetupCatalog(): Promise<
-  | { ok: true; catalog: Civ7SetupCatalog }
-  | { ok: false; error: string; observedAt?: string; statusCode?: number }
-> {
-  try {
-    const body = await orpcClient.civ7.setupCatalog({});
-    return { ok: true, catalog: body.catalog as unknown as Civ7SetupCatalog };
-  } catch (err) {
-    return { ok: false, ...orpcFailure(err, "Civ7 setup catalog unavailable") };
-  }
-}
+// NOTE: The saved-configs and setup-catalog READS are served directly by the
+// oRPC-native TanStack Query layer (`useSetupDataQueries` →
+// `orpc.civ7.savedConfigs` / `orpc.civ7.setupCatalog`). The former imperative
+// `fetchCiv7SavedSetupConfigs` / `fetchCiv7SetupCatalog` wrappers had no callers
+// after that migration and were removed; the `Civ7SetupCatalog` /
+// `Civ7SetupCatalogOption` TYPES above are kept (consumed by the query view +
+// `setupOptions`).
 
 export async function requestCiv7Autoplay(action: "start" | "stop"): Promise<{
   ok: boolean;

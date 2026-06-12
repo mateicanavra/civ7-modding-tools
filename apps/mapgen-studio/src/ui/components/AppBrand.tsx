@@ -6,15 +6,10 @@ import { ExternalLink, Github, User } from 'lucide-react';
  *
  * Reskinned onto the design tokens: the pill and its hover card float over the
  * deck.gl map, so they ride the `popover` tier with `backdrop-blur`; the theme
- * follows the single `.dark` class rather than the legacy `isLightMode` hex
- * ternaries. The `isLightMode` prop is retained for call-site compatibility
- * during the shell migration but no longer drives styling.
+ * follows the single `.dark` class. (The legacy `isLightMode` hex ternaries and
+ * the now-unused `isLightMode` prop have been removed.)
  */
-interface AppBrandProps {
-  isLightMode?: boolean;
-}
-
-export const AppBrand: React.FC<AppBrandProps> = () => {
+export const AppBrand: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   return (
     <div

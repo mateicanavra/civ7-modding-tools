@@ -51,8 +51,6 @@ export interface AppFooterProps {
   runInGameCurrentRelation?: RunInGameCurrentRelation;
   /** Whether current settings differ from last run */
   isDirty: boolean;
-  /** Light mode flag for styling */
-  lightMode: boolean;
   /** Read-only live Civ7 runtime status */
   liveRuntime?: {
     status: "idle" | "ok" | "error";
@@ -240,7 +238,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         {/* Status indicator */}
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${statusDotClass}`} />
-          <span className={`text-[11px] font-medium ${textPrimary}`}>
+          <span className={`text-data font-medium ${textPrimary}`}>
             {statusText}
           </span>
         </div>
@@ -251,7 +249,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         <div className="flex items-center gap-1.5">
           <Clock className={`w-3.5 h-3.5 ${textMuted}`} />
           <span
-            className={`text-[10px] font-medium uppercase tracking-wider ${textSecondary}`}>
+            className={`text-label font-medium uppercase tracking-wider ${textSecondary}`}>
 
             Last
           </span>
@@ -339,7 +337,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
 
         {/* Seed input */}
         <span
-          className={`text-[10px] font-medium uppercase tracking-wider ${textMuted}`}>
+          className={`text-label font-medium uppercase tracking-wider ${textMuted}`}>
 
           Seed
         </span>

@@ -92,8 +92,6 @@ export interface ExplorePanelProps {
   onEraModeChange: (mode: "auto" | "fixed") => void;
   /** Callback when era value changes */
   onEraValueChange: (era: number) => void;
-  /** Light mode flag for styling */
-  lightMode: boolean;
   /** Whether to show edge visualization */
   showEdges: boolean;
   /** Callback when edge visibility changes */
