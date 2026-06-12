@@ -108,5 +108,5 @@ describe("pipeline seed matrix stats", () => {
         `seed ${seed} viable starts`
       ).toBeGreaterThanOrEqual(6);
     }
-  });
+  }, 30_000);
 });

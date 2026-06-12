@@ -89,6 +89,7 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 **Context:** Silver's `Resource_ValidPlacements` rows are tundra-bound and the standard mock map yields only 16 legal tiles against a [16,18,20] expected range with spacing floor 3 — a typed `spacing-floor-preserved` shortfall on 4 of 5 seeds (S3 evidence, recorded not faked). Owner: placement-realignment.
 **Scope:** Choose among: upstream ecology tundra coverage, corpus range recalibration by amendment, or accepting live legality divergence once measured.
 **Impact:** E2.7 sits at 33/34 types in range with a recorded shortfall instead of 100%.
+**Trigger fired (2026-06-11):** Milestone A3 measured live-legal SILVER tiles full-grid: 112 (ignoreWeight=true) / 88 (=false) vs the mock's 16 — the E2.7 exception is a MOCK-EMULATION artifact, not a map shortage. Disposition: calibrate the mock silver (and marine — WHALES/CRABS were the other strict lanes) legality emulation against the A3 disagreement classes, then re-run the E2.7 gate. Evidence: `docs/projects/placement-realignment/evidence/live-legality-agreement.json` + `milestone-a-2026-06-11.md` A3.
 
 ## DEF-010: Hemisphere split derived from landmass capacity on single-continent maps
 
@@ -97,6 +98,7 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 **Context:** Config-driven west/east seat splits degenerate when a map generates one continent (seed 1348: east region = 21 land tiles, zero candidates); seats are region-reassigned loudly today. Deriving the split from actual landmass capacity is a seating-policy change that should follow the live id-semantics probe. Owner: placement-realignment (S4 decision log).
 **Scope:** Capacity-aware split policy in `plan-starts` seat identity/region assignment; expectations note for the E1.7 measurement frame.
 **Impact:** Single-continent maps seat everyone on one region via recorded degradations rather than a planned split.
+**Trigger evidence (2026-06-11):** Milestone A5/A7 — live alive-major ids are contiguous-from-zero, human first; live HUGE advertises 6/6 landmass slots while a 10-player game has 10 alive, so the pipeline seats 12 with 2 inert flagged `slot-index` surplus seats. Capacity/alive-aware seat count (`min(slots, alive)`) is the recorded correction; see `milestone-a-2026-06-11-a7-seat-parity.md`.
 
 ## DEF-011: Official resources submodule refresh (D4)
 

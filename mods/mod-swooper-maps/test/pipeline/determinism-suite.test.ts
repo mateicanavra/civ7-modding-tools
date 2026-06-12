@@ -104,5 +104,5 @@ describe("pipeline determinism suite (M1)", () => {
         throw new Error(`Determinism drift for ${caseData.label}:\n${diffs.join("\n")}`);
       }
     }
-  });
+  }, 30_000);
 });

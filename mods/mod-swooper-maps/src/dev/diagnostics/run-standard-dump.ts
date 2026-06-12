@@ -67,15 +67,28 @@ async function main(): Promise<void> {
   const traceSink = createTraceDumpSink({ outputRoot });
   const viz = createVizDumper({ outputRoot });
 
+  // Player/sector geometry defaults reproduce the historical 8-player frame;
+  // override to match a live engine Maps row (e.g. HUGE live row is
+  // PlayersLandmass1/2 = 6/6, StartSectorRows/Cols = 4/3, with the game's
+  // alive-major count possibly below the slot sum — Milestone A evidence).
+  const players1 = parseIntOr(typeof flags.players1 === "string" ? flags.players1 : undefined, 4);
+  const players2 = parseIntOr(typeof flags.players2 === "string" ? flags.players2 : undefined, 4);
+  const sectorRows = parseIntOr(typeof flags.sectorRows === "string" ? flags.sectorRows : undefined, 4);
+  const sectorCols = parseIntOr(typeof flags.sectorCols === "string" ? flags.sectorCols : undefined, 4);
+  const aliveMajorCount = parseIntOr(typeof flags.alive === "string" ? flags.alive : undefined, players1 + players2);
+  // Live engine init params carry +/-90 on HUGE (probed via getPlotLatitude,
+  // Milestone A7); the historical default here stays +/-60 for old labels.
+  const minLat = parseIntOr(typeof flags.minLat === "string" ? flags.minLat : undefined, -60);
+  const maxLat = parseIntOr(typeof flags.maxLat === "string" ? flags.maxLat : undefined, 60);
   const mapInfo = {
     GridWidth: width,
     GridHeight: height,
-    MinLatitude: -60,
-    MaxLatitude: 60,
-    PlayersLandmass1: 4,
-    PlayersLandmass2: 4,
-    StartSectorRows: 4,
-    StartSectorCols: 4,
+    MinLatitude: minLat,
+    MaxLatitude: maxLat,
+    PlayersLandmass1: players1,
+    PlayersLandmass2: players2,
+    StartSectorRows: sectorRows,
+    StartSectorCols: sectorCols,
   } as const;
 
   const envBase = {
@@ -105,6 +118,7 @@ async function main(): Promise<void> {
     height,
     mapInfo,
     mapSizeId: 1,
+    aliveMajorCount,
     rng: createLabelRng(seed),
   });
 
