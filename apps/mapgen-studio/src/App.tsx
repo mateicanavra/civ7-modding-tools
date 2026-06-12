@@ -103,6 +103,10 @@ import {
   parseEraVariantKey,
   resolveFixedEraUiValue,
 } from "./features/viz/era";
+import {
+  buildRiverLakeFloodplainInspectorSummary,
+  type RiverLakeInspectorLayerRef,
+} from "./features/viz/riverLakeInspector";
 import { formatErrorForUi } from "./shared/errorFormat";
 import { shouldIgnoreGlobalShortcutsInEditableTarget } from "./shared/shortcuts/shortcutPolicy";
 import type { VizEvent } from "./shared/vizEvents";
@@ -2312,6 +2316,10 @@ function AppContent(props: AppContentProps) {
   }, [runInGameOperation, toast]);
 
   const dataTypeModel = viz.dataTypeModel;
+  const riverLakeInspectorSummary = useMemo(
+    () => buildRiverLakeFloodplainInspectorSummary(viz.manifest),
+    [viz.manifest]
+  );
   const dataTypeOptions: DataTypeOption[] = useMemo(() => {
     if (!dataTypeModel) return [];
     return dataTypeModel.dataTypes.map((dt) => ({ value: dt.dataTypeId, label: dt.label, group: dt.group }));
@@ -2532,6 +2540,20 @@ function AppContent(props: AppContentProps) {
       selectLayerFor(next, space.spaceId, rm.renderModeId);
     },
     [dataTypeModel, eraMode, manualEra, selectLayerFor]
+  );
+
+  const handleRiverLakeInspectorLayerSelect = useCallback(
+    (ref: RiverLakeInspectorLayerRef) => {
+      const stage = recipeArtifacts.uiMeta.stages.find((candidate) =>
+        candidate.steps.some((step) => step.fullStepId === ref.stepId)
+      );
+      if (stage) setSelectedStageId(stage.stageId);
+      setSelectedStepId(ref.stepId);
+      if (ref.visibility === "debug") viz.setShowDebugLayers(true);
+      viz.setSelectedStepId(ref.stepId);
+      viz.setSelectedLayerKey(ref.layerKey);
+    },
+    [recipeArtifacts.uiMeta.stages, viz]
   );
 
   const handleSpaceChange = useCallback(
@@ -2979,6 +3001,8 @@ function AppContent(props: AppContentProps) {
         if (!viz.activeBounds) return;
         deckApiRef.current?.fitToBounds(viz.activeBounds);
       }}
+      riverLakeInspectorSummary={riverLakeInspectorSummary}
+      onRiverLakeInspectorLayerSelect={handleRiverLakeInspectorLayerSelect}
       stageExpanded={exploreStageExpanded}
       onStageExpandedChange={setExploreStageExpanded}
       stepExpanded={exploreStepExpanded}

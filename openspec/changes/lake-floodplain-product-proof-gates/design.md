@@ -13,6 +13,8 @@ Floodplain gates:
 - require local/exact/live floodplain-family feature counts and at least one
   live floodplain-family tile for active rows;
 - preserve zero-count seeds only as inactive/no-signal controls.
+- derive floodplain eligibility from Hydrology/final-surface truth plus Civ
+  legality/readback, not from projected navigable-river adjacency alone.
 
 Product matrix:
 

@@ -7,6 +7,8 @@
   not rewrite Hydrology truth.
 - [x] 1.4 Retire the legacy `map-rivers.knobs.riverDensity` alias and realign
   adjacent Hydrology wording to the narrow owner model.
+- [x] 1.5 Fix `endpointDischargePercentileMin` so the selected endpoint floor is
+  enforced by the selector, or remove/rename the reported floor with tests.
 
 ## 2. Acceptance Thresholds
 
@@ -14,6 +16,8 @@
   on normal Earthlike maps.
 - [x] 2.2 Add negative controls where low/no navigable projection is expected.
 - [ ] 2.3 Rebaseline shipped/default configs only after same-run proof passes.
+- [ ] 2.4 Add a native-writer decision record before any `modelRivers(...)`
+  integration is treated as part of projection closure.
 
 ## 3. Validation
 

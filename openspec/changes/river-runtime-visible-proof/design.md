@@ -16,6 +16,19 @@ The visible proof runner emits one packet with:
 The runner may use OS screenshot only as a labeled fallback. Direct-control
 should own runtime map/camera operations.
 
+Runtime river proof must record both current materialization surfaces:
+
+- direct terrain stamping, which can prove live `TERRAIN_NAVIGABLE_RIVER`
+  terrain rows;
+- native bulk writer behavior, where `TerrainBuilder.modelRivers(...)` has been
+  proven to author river metadata in a disposable run but has not yet been
+  integrated or parity-bound to Hydrology truth.
+
+The packet must therefore include a metadata/materialization disposition:
+`terrain-only`, `native-writer-parity-pass`, `native-writer-parity-fail`,
+`native-writer-not-run`, or `unsupported-writer-surface`. A visible proof row
+cannot claim minor-river success from terrain-only evidence.
+
 Closure-capable `civ-rendered` proof also requires:
 
 - `exact-authorship=pass` for the same run before visible proof can pass;

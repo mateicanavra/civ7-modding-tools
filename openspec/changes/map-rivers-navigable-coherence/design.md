@@ -15,6 +15,18 @@ This change does not preserve or reintroduce authored `minLength/maxLength`
 projection thresholds. Those values are not the product model and do not match
 the physically grounded owner split.
 
+`endpointDischargePercentileMin` is an internal Hydrology selection envelope
+field, not a user-facing knob. Because the selector reports
+`selectedEndpointDischargeFloor`, the strategy must either enforce that floor
+when choosing candidate endpoints or remove/rename the reported field. Reporting
+an unenforced floor is not an acceptable proof surface.
+
+The native Civ bulk writer is not categorically banned by this change. A
+disposable runtime probe proved `TerrainBuilder.modelRivers(...)` can author
+river metadata in bulk. This change may use native writer evidence only after a
+bounded parity decision proves Hydrology truth remains the authority. Projection
+must not delegate river truth back to Civ.
+
 Initial acceptance bands:
 
 - For Standard `84x54` normal Earthlike maps where planned major rivers exceed

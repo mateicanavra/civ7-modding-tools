@@ -15,6 +15,8 @@ export {
   isResourceAdjacentToLandRuntimeOptional,
 } from "./resource-constants.js";
 export {
+  CIV7_DEFAULT_RIVER_MODELING_ARGS,
+  CIV7_RIVER_MODELING_POLICY_V0,
   CIV7_RIVER_TYPES_V0,
   NO_RIVER_TYPE,
   RIVER_TYPE_MINOR,

@@ -99,6 +99,57 @@ Author-facing control is primarily via stage knobs (compiled at stage compile ti
 
 Some steps also expose flat step config surfaces for explicit overrides (e.g., seasonality posture).
 
+## River network benchmark contract
+
+Hydrology benchmark reports compare generated drainage truth against Earth-scale
+families before projection tuning. This contract is report/diagnostic metadata,
+not additional Hydrology compute truth:
+
+- **Tile scale.** A Civ map tile is a coarse strategy-scale sample, not a
+  geodetic cell. Reports must record the run dimensions and any latitude
+  assumption used for tile-to-kilometer translation. Do not compare a single
+  tile directly to a 30 m river pixel.
+- **Visible feature floor.** Hydrology may contain hidden drainage and
+  minor/headwater channel intent that is below Civ terrain visibility.
+  `map-rivers` may only turn Hydrology `riverClass>=2` into
+  `TERRAIN_NAVIGABLE_RIVER`; minor channels remain Hydrology truth unless a
+  native metadata writer is separately proven.
+- **Regime row.** Every benchmark row must name its climate/relief regime:
+  `wet`, `normal`, `arid`, `mountain`, `closed`, `archipelago`, or an explicit
+  extension. Arid/no-visible outcomes can be valid only when the regime row and
+  metrics support that claim.
+- **Observed Hydrology fields.** `artifact:hydrology.riverNetworkMetrics`
+  publishes `benchmarkSummary` with land/water/lake denominators, minor/major
+  river counts, river-specific permanence, low-order hierarchy, terminal
+  shares, basin coverage, and routing-health counters. Reports may consume
+  those values but must not reinterpret projection or runtime readback as
+  Hydrology truth.
+- **Stylization ledger.** Any Civ-visible exaggeration, merging, omission, or
+  native-engine substitution must record: source Earth anchor, affected metric,
+  reason for stylization, changed product claim, and proof gate. Silent
+  stylization is a product failure.
+
+Earth anchors for the first accepted pass:
+
+- HydroRIVERS maps global river reaches at a coarse floor of catchment area
+  `>=10 km2` or average flow `>=0.1 m3/s`; its product page reports 8.5 million
+  reaches averaging 4.2 km for 35.9 million km globally:
+  <https://www.hydrosheds.org/products/hydrorivers>.
+- Global hydrography work cautions that the HydroRIVERS threshold is empirical,
+  so local tuning must use regime families and topology oracles rather than
+  treating one threshold as universal Earth truth:
+  <https://www.nature.com/articles/s41597-021-00819-9>.
+- GRWL records rivers `>=30 m` wide and covers more than 2.1 million km of
+  visible river centerlines; use it as a visible-river floor, not as the total
+  drainage network:
+  <https://www.science.org/doi/10.1126/science.aat0636>.
+- Non-perennial rivers are common: global modeling predicts water ceases to
+  flow at least one day per year along 51-60% of river length:
+  <https://pubmed.ncbi.nlm.nih.gov/34135525/>.
+- HydroLAKES reports about 1.4 million lakes/reservoirs totaling 2.67 million
+  km2:
+  <https://www.hydrosheds.org/products/hydrolakes>.
+
 ## Engine projection notes (map-hydrology / map-rivers)
 
 The `map-hydrology` stage:

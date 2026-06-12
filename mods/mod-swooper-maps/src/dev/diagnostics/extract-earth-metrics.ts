@@ -1,12 +1,15 @@
 import { biomeSymbolFromIndex } from "../../domain/ecology/types.js";
 import { isAnyRiverClass } from "../../domain/hydrology/index.js";
 
+export type RiverNetworkBenchmarkSummary = Readonly<Record<string, number> & { version: 1 }>;
+
 export type EarthMetricsInput = {
   width: number;
   height: number;
   landMask: Uint8Array;
   lakeMask?: Uint8Array;
   riverClass?: Uint8Array;
+  riverNetworkBenchmarkSummary?: RiverNetworkBenchmarkSummary;
   biomeIndex?: Uint8Array;
 };
 
@@ -14,6 +17,9 @@ export type EarthMetrics = {
   landShare: number;
   lakeShare: number;
   riverClassShare: number;
+  hydrology: {
+    riverNetworkSummary: RiverNetworkBenchmarkSummary | null;
+  };
   biomeDiversity: number;
   dominantBiome: string | null;
 };
@@ -67,11 +73,31 @@ export function computeEarthMetrics(input: EarthMetricsInput): EarthMetrics {
     }
   }
 
+  const riverNetworkSummary = input.riverNetworkBenchmarkSummary ?? null;
+  if (riverNetworkSummary) {
+    if (riverNetworkSummary.version !== 1) {
+      throw new Error("[Diagnostics] riverNetworkBenchmarkSummary version mismatch.");
+    }
+    if (riverNetworkSummary.landTileCount !== landTiles) {
+      throw new Error(
+        `[Diagnostics] riverNetworkBenchmarkSummary landTileCount mismatch (expected ${landTiles}, got ${riverNetworkSummary.landTileCount}).`
+      );
+    }
+    if (input.riverClass && riverNetworkSummary.riverTileCount !== riverTiles) {
+      throw new Error(
+        `[Diagnostics] riverNetworkBenchmarkSummary riverTileCount mismatch (expected ${riverTiles}, got ${riverNetworkSummary.riverTileCount}).`
+      );
+    }
+  }
+
   const denom = Math.max(1, size);
   return {
     landShare: landTiles / denom,
     lakeShare: lakeTiles / denom,
     riverClassShare: riverTiles / denom,
+    hydrology: {
+      riverNetworkSummary,
+    },
     biomeDiversity: biomeCounts.size,
     dominantBiome,
   };

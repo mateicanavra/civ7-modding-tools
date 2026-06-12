@@ -12,6 +12,22 @@ import { computeEarthMetrics } from "../../src/dev/diagnostics/extract-earth-met
 import { standardConfig } from "../support/standard-config.js";
 
 describe("pipeline earth metrics", () => {
+  it("rejects river-network summaries that do not match the same diagnostic run", () => {
+    expect(() =>
+      computeEarthMetrics({
+        width: 2,
+        height: 1,
+        landMask: new Uint8Array([1, 1]),
+        riverClass: new Uint8Array([1, 0]),
+        riverNetworkBenchmarkSummary: {
+          version: 1,
+          landTileCount: 2,
+          riverTileCount: 2,
+        },
+      })
+    ).toThrow("riverTileCount mismatch");
+  });
+
   it("produces broad earth-like coverage metrics on the standard preset", () => {
     const seed = 1337;
     const width = 48;
@@ -43,12 +59,18 @@ describe("pipeline earth metrics", () => {
     const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
       | { riverClass?: Uint8Array; sinkMask?: Uint8Array }
       | undefined;
+    const riverNetworkMetrics = context.artifacts.get(hydrologyHydrographyArtifacts.riverNetworkMetrics.id) as
+      | { benchmarkSummary?: { version: 1 } & Record<string, number> }
+      | undefined;
     const classification = context.artifacts.get(ecologyArtifacts.biomeClassification.id) as
       | { biomeIndex?: Uint8Array }
       | undefined;
     if (!(topography?.landMask instanceof Uint8Array)) throw new Error("Missing topography.landMask.");
     if (!(hydrography?.riverClass instanceof Uint8Array)) throw new Error("Missing hydrography.riverClass.");
     if (!(hydrography?.sinkMask instanceof Uint8Array)) throw new Error("Missing hydrography.sinkMask.");
+    if (riverNetworkMetrics?.benchmarkSummary?.version !== 1) {
+      throw new Error("Missing hydrology.riverNetworkMetrics.benchmarkSummary.");
+    }
     const lakePlan = context.artifacts.get(hydrologyHydrographyArtifacts.lakePlan.id) as
       | { lakeMask?: Uint8Array }
       | undefined;
@@ -61,6 +83,7 @@ describe("pipeline earth metrics", () => {
       landMask: topography.landMask,
       lakeMask: lakePlan.lakeMask,
       riverClass: hydrography.riverClass,
+      riverNetworkBenchmarkSummary: riverNetworkMetrics.benchmarkSummary,
       biomeIndex: classification.biomeIndex,
     });
 
@@ -68,6 +91,9 @@ describe("pipeline earth metrics", () => {
     expect(metrics.landShare).toBeLessThan(0.9);
     expect(metrics.lakeShare).toBeLessThan(0.2);
     expect(metrics.riverClassShare).toBeGreaterThan(0);
+    expect(metrics.hydrology.riverNetworkSummary?.riverTileCount).toBeGreaterThan(0);
+    expect(metrics.hydrology.riverNetworkSummary?.riverLandShare).toBeGreaterThan(0);
+    expect(metrics.hydrology.riverNetworkSummary?.invalidReceiverTileCount).toBe(0);
     expect(metrics.biomeDiversity).toBeGreaterThanOrEqual(2);
     expect(metrics.dominantBiome).not.toBeNull();
   });

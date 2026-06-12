@@ -41,6 +41,9 @@ function runMetrics(seed: number, width: number, height: number) {
   const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
     | { riverClass?: Uint8Array; sinkMask?: Uint8Array }
     | undefined;
+  const riverNetworkMetrics = context.artifacts.get(hydrologyHydrographyArtifacts.riverNetworkMetrics.id) as
+    | { benchmarkSummary?: { version: 1 } & Record<string, number> }
+    | undefined;
   const engineProjectionLakes = context.artifacts.get(mapHydrologyArtifacts.engineProjectionLakes.id) as
     | { lakeMask?: Uint8Array }
     | undefined;
@@ -60,6 +63,9 @@ function runMetrics(seed: number, width: number, height: number) {
   if (!(topography?.landMask instanceof Uint8Array)) throw new Error("Missing topography.landMask.");
   if (!(hydrography?.riverClass instanceof Uint8Array)) throw new Error("Missing hydrography.riverClass.");
   if (!(hydrography?.sinkMask instanceof Uint8Array)) throw new Error("Missing hydrography.sinkMask.");
+  if (riverNetworkMetrics?.benchmarkSummary?.version !== 1) {
+    throw new Error("Missing hydrology.riverNetworkMetrics.benchmarkSummary.");
+  }
   if (!(engineProjectionLakes?.lakeMask instanceof Uint8Array))
     throw new Error("Missing engineProjectionLakes.lakeMask.");
   if (!(classification?.biomeIndex instanceof Uint8Array)) throw new Error("Missing biomeClassification.biomeIndex.");
@@ -72,6 +78,7 @@ function runMetrics(seed: number, width: number, height: number) {
       landMask: topography.landMask,
       lakeMask: engineProjectionLakes.lakeMask,
       riverClass: hydrography.riverClass,
+      riverNetworkBenchmarkSummary: riverNetworkMetrics.benchmarkSummary,
       biomeIndex: classification.biomeIndex,
     }),
     starts: {
@@ -99,6 +106,10 @@ describe("pipeline seed matrix stats", () => {
       expect(metricsA.earth.lakeShare).toBeLessThan(0.5);
       expect(metricsA.earth.riverClassShare).toBeGreaterThanOrEqual(0);
       expect(metricsA.earth.riverClassShare).toBeLessThan(1);
+      expect(metricsA.earth.hydrology.riverNetworkSummary?.landTileCount).toBeGreaterThan(0);
+      expect(metricsA.earth.hydrology.riverNetworkSummary?.riverTileCount).toBeGreaterThanOrEqual(0);
+      expect(metricsA.earth.hydrology.riverNetworkSummary?.invalidReceiverTileCount).toBe(0);
+      expect(metricsA.earth.hydrology.riverNetworkSummary?.downstreamDischargeDropEdgeCount).toBe(0);
       expect(metricsA.earth.biomeDiversity).toBeGreaterThanOrEqual(1);
       expect(metricsA.starts.assigned, `seed ${seed} assigned starts`).toBe(8);
       expect(metricsA.starts.desperationAssigned, `seed ${seed} desperation starts`).toBe(0);

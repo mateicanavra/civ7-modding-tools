@@ -63,6 +63,31 @@ function runHydrologyMetrics(args: Readonly<{
         streamOrderProxy?: Uint8Array;
         mouthType?: Uint8Array;
         flowPermanenceProxy?: Uint8Array;
+        benchmarkSummary?: {
+          version: 1;
+          landTileCount: number;
+          riverTileCount: number;
+          minorRiverTileCount: number;
+          majorRiverTileCount: number;
+          riverLandShare: number;
+          minorRiverShareOfRiverTiles: number;
+          majorRiverShareOfRiverTiles: number;
+          lowOrderRiverShareOfRiverTiles: number;
+          lakeLandShare: number;
+          nonDryFlowLandShare: number;
+          riverDryTileCount: number;
+          riverEphemeralTileCount: number;
+          riverIntermittentTileCount: number;
+          riverPerennialTileCount: number;
+          nonPerennialRiverShareOfRiverTiles: number;
+          unresolvedMouthTileCount: number;
+          assignedBasinLandTileCount: number;
+          unassignedBasinLandTileCount: number;
+          invalidReceiverTileCount: number;
+          downstreamDischargeDropEdgeCount: number;
+          maxUpstreamArea: number;
+          maxStreamOrderProxy: number;
+        };
       }
     | undefined;
 
@@ -80,6 +105,9 @@ function runHydrologyMetrics(args: Readonly<{
   }
   if (!(metrics?.flowPermanenceProxy instanceof Uint8Array)) {
     throw new Error("Missing hydrology.riverNetworkMetrics.flowPermanenceProxy.");
+  }
+  if (metrics.benchmarkSummary?.version !== 1) {
+    throw new Error("Missing hydrology.riverNetworkMetrics.benchmarkSummary.");
   }
 
   let unresolvedMouthCount = 0;
@@ -114,6 +142,7 @@ function runHydrologyMetrics(args: Readonly<{
     intermittentCount,
     perennialCount,
     riverTileCount,
+    benchmarkSummary: metrics.benchmarkSummary,
   };
 }
 
@@ -125,6 +154,28 @@ describe("pipeline hydrology river-network metrics", () => {
       expect(stats.unresolvedMouthCount, `seed ${seed} unresolved mouths`).toBe(0);
       expect(stats.maxUpstreamArea, `seed ${seed} max upstream area`).toBeGreaterThan(8);
       expect(stats.maxStreamOrder, `seed ${seed} max stream order`).toBeGreaterThanOrEqual(2);
+      expect(stats.benchmarkSummary.unresolvedMouthTileCount).toBe(stats.unresolvedMouthCount);
+      expect(stats.benchmarkSummary.maxUpstreamArea).toBe(stats.maxUpstreamArea);
+      expect(stats.benchmarkSummary.maxStreamOrderProxy).toBe(stats.maxStreamOrder);
+      expect(stats.benchmarkSummary.riverTileCount).toBe(stats.riverTileCount);
+      expect(stats.benchmarkSummary.minorRiverTileCount).toBeGreaterThan(0);
+      expect(stats.benchmarkSummary.majorRiverTileCount).toBeGreaterThan(0);
+      expect(stats.benchmarkSummary.riverDryTileCount).toBe(0);
+      expect(
+        stats.benchmarkSummary.riverEphemeralTileCount +
+          stats.benchmarkSummary.riverIntermittentTileCount +
+          stats.benchmarkSummary.riverPerennialTileCount
+      ).toBe(stats.benchmarkSummary.riverTileCount);
+      expect(stats.benchmarkSummary.riverLandShare).toBeGreaterThan(0);
+      expect(stats.benchmarkSummary.minorRiverShareOfRiverTiles).toBeGreaterThan(0);
+      expect(stats.benchmarkSummary.majorRiverShareOfRiverTiles).toBeGreaterThan(0);
+      expect(stats.benchmarkSummary.lowOrderRiverShareOfRiverTiles).toBeGreaterThan(0);
+      expect(stats.benchmarkSummary.nonDryFlowLandShare).toBeGreaterThan(0);
+      expect(stats.benchmarkSummary.nonPerennialRiverShareOfRiverTiles).toBeGreaterThan(0);
+      expect(stats.benchmarkSummary.invalidReceiverTileCount).toBe(0);
+      expect(stats.benchmarkSummary.downstreamDischargeDropEdgeCount).toBe(0);
+      expect(stats.benchmarkSummary.unassignedBasinLandTileCount).toBe(0);
+      expect(stats.benchmarkSummary.assignedBasinLandTileCount).toBe(stats.benchmarkSummary.landTileCount);
       expect(
         stats.ephemeralCount + stats.intermittentCount + stats.perennialCount,
         `seed ${seed} non-dry flow signal`
@@ -136,6 +187,12 @@ describe("pipeline hydrology river-network metrics", () => {
     const config = recipeConfig(desertMountainsRaw);
     const stats = runHydrologyMetrics({ config, width: 42, height: 26, seed: 1018 });
     expect(stats.unresolvedMouthCount).toBe(0);
+    expect(stats.benchmarkSummary.unresolvedMouthTileCount).toBe(0);
+    expect(stats.benchmarkSummary.landTileCount).toBeGreaterThan(0);
+    expect(stats.benchmarkSummary.invalidReceiverTileCount).toBe(0);
+    expect(stats.benchmarkSummary.downstreamDischargeDropEdgeCount).toBe(0);
+    expect(stats.benchmarkSummary.lakeLandShare).toBeGreaterThanOrEqual(0);
+    expect(stats.benchmarkSummary.riverLandShare).toBeGreaterThanOrEqual(0);
     expect(stats.dryCount).toBeGreaterThan(0);
     expect(stats.maxUpstreamArea).toBeGreaterThan(0);
   });

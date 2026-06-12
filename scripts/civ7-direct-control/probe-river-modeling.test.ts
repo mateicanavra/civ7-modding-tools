@@ -38,9 +38,15 @@ const runtimeInventory = {
       signature: "function storeWaterData() { [native code] }",
     },
   },
+  mapRivers: {
+    exists: true,
+    type: "object",
+    ownKeys: ["getRiver", "getRiverPlots", "getRiverTypeByIndex", "numRivers"],
+    prototypeKeys: [],
+  },
   riverTypes: { NO_RIVER: -1, RIVER_MINOR: 0, RIVER_NAVIGABLE: 1 },
   terrainNavigableRiver: 12,
-  officialCompatibilityDefaults: {
+  officialPolicyDefaults: {
     minLength: 5,
     maxLength: 15,
   },
@@ -55,6 +61,7 @@ describe("river modeling probe", () => {
       status: "dry-run",
       mutationAttempted: false,
       blockedBy: ["river-modeling-probe.confirm-disposable-session"],
+      preNativeRiverObjects: null,
     });
   });
 
@@ -71,6 +78,12 @@ describe("river modeling probe", () => {
         noRiver: 4,
         missingFacts: [],
         failedFacts: [],
+      },
+      preNativeRiverObjects: {
+        exists: true,
+        numRivers: 0,
+        samples: [],
+        blockedBy: [],
       },
       mutation: {
         attempted: true,
@@ -91,6 +104,15 @@ describe("river modeling probe", () => {
         missingFacts: [],
         failedFacts: [],
       },
+      postNativeRiverObjects: {
+        exists: true,
+        numRivers: 2,
+        samples: [
+          { index: 0, riverType: 1, plotCount: 2, connectedToOcean: true },
+          { index: 1, riverType: 0, plotCount: 1, connectedToOcean: false },
+        ],
+        blockedBy: [],
+      },
     });
 
     expect(output).toMatchObject({
@@ -103,8 +125,13 @@ describe("river modeling probe", () => {
         navigableRiver: 2,
         minorRiver: 1,
         noRiver: -3,
+        nativeRiverCount: 2,
         terrainChanged: true,
         metadataChanged: true,
+        nativeRiverObjectsChanged: true,
+      },
+      postNativeRiverObjects: {
+        numRivers: 2,
       },
     });
   });
@@ -147,7 +174,7 @@ describe("river modeling probe", () => {
     });
   });
 
-  test("parses official compatibility arguments", () => {
+  test("parses official policy arguments", () => {
     expect(
       parseArgs([
         "--confirm-disposable-session",

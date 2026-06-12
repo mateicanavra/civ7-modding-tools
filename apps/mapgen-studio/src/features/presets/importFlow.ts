@@ -3,7 +3,10 @@ import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 
 import type { StudioPresetExportFileV1 } from "@swooper/mapgen-core/authoring";
 import type { RecipeArtifacts } from "../../recipes/catalog";
-import { migratePipelineConfigUnknown } from "../configMigrations/pipelineConfig";
+import {
+  PipelineConfigMigrationError,
+  migratePipelineConfigUnknown,
+} from "../configMigrations/pipelineConfig";
 
 export type ImportPresetResult =
   | Readonly<{
@@ -38,7 +41,20 @@ export function resolveImportedPreset(args: {
     };
   }
 
-  const sanitized = migratePipelineConfigUnknown(stripSchemaMetadataRoot(presetFile.preset.config));
+  let sanitized: unknown;
+  try {
+    sanitized = migratePipelineConfigUnknown(stripSchemaMetadataRoot(presetFile.preset.config));
+  } catch (error) {
+    if (error instanceof PipelineConfigMigrationError) {
+      return {
+        ok: false,
+        kind: "invalid-config",
+        message: error.message,
+        details: error.details,
+      };
+    }
+    throw error;
+  }
   const { value, errors } = normalizeStrict<Record<string, unknown>>(
     recipe.configSchema,
     sanitized,
