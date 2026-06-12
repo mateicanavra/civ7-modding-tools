@@ -3,9 +3,15 @@ import React from 'react';
 // VIEW CONTROLS
 // ============================================================================
 // Toolbar for theme toggle and grid visibility.
+//
+// Reskinned onto the design tokens: the dock floats over the map on the
+// `popover` tier; icon buttons rest on `text-muted-foreground` and lift to
+// `bg-accent` on hover / `bg-muted` when active. Native `title=` hints are now
+// the shadcn Tooltip (token-styled, delay-grouped under the shell provider).
 // ============================================================================
-import { Grid3X3, Sun, Moon, Monitor } from 'lucide-react';
+import { Sun, Moon, Monitor } from 'lucide-react';
 import { cn } from '../utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
 import type { ThemePreference } from '../types';
 // ============================================================================
 // Props
@@ -15,8 +21,8 @@ export interface ViewControlsProps {
   themePreference: ThemePreference;
   /** Callback to cycle theme preference */
   onThemeCycle: () => void;
-  /** Light mode flag for styling */
-  isLightMode: boolean;
+  /** Light mode flag (retained for call-site compatibility; styling is token-driven) */
+  isLightMode?: boolean;
   /** Whether grid is visible */
   showGrid: boolean;
   /** Callback when grid visibility changes */
@@ -46,65 +52,67 @@ const THEME_CONFIG: Record<
   }
 };
 // ============================================================================
+// Styles (token-driven; theme follows the `.dark` class)
+// ============================================================================
+const iconBtn = cn(
+  'h-7 w-7 flex items-center justify-center rounded transition-colors',
+  'text-muted-foreground hover:bg-accent hover:text-foreground'
+);
+const iconBtnActive = cn(
+  'h-7 w-7 flex items-center justify-center rounded transition-colors',
+  'bg-muted text-foreground'
+);
+// ============================================================================
 // Component
 // ============================================================================
 export const ViewControls: React.FC<ViewControlsProps> = ({
   themePreference,
   onThemeCycle,
-  isLightMode,
   showGrid,
   onShowGridChange
 }) => {
-  // ==========================================================================
-  // Styles
-  // ==========================================================================
-  const panelBg = isLightMode ? 'bg-white/70' : 'bg-[#141418]/62';
-  const panelBorder = isLightMode ? 'border-white/80' : 'border-white/10';
-  const dividerColor = isLightMode ? 'bg-gray-200' : 'bg-[#2a2a32]';
-  // Icon button styles based on theme
-  const iconBtn = cn(
-    'h-7 w-7 flex items-center justify-center rounded transition-colors',
-    isLightMode ?
-    'text-[#6b7280] hover:bg-gray-100 hover:text-[#1f2937]' :
-    'text-[#8a8a96] hover:bg-[#1a1a1f] hover:text-[#e8e8ed]'
-  );
-  const iconBtnActive = cn(
-    'h-7 w-7 flex items-center justify-center rounded transition-colors',
-    isLightMode ? 'bg-gray-200 text-[#1f2937]' : 'bg-[#222228] text-[#e8e8ed]'
-  );
   const { icon: ThemeIcon, tooltip: themeTooltip } =
   THEME_CONFIG[themePreference];
+  const gridTooltip = showGrid ? 'Hide grid' : 'Show grid';
   // ==========================================================================
   // Render
   // ==========================================================================
   return (
     <div
-      className={`h-10 inline-flex items-center gap-1 px-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}
+      className="h-10 inline-flex items-center gap-1 px-1.5 rounded-lg border border-border bg-popover/95 backdrop-blur-sm"
       role="toolbar"
       aria-label="View controls">
 
       {/* Theme toggle */}
-      <button
-        onClick={onThemeCycle}
-        title={themeTooltip}
-        aria-label={themeTooltip}
-        className={iconBtn}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={onThemeCycle}
+            aria-label={themeTooltip}
+            className={iconBtn}>
 
-        <ThemeIcon className="w-4 h-4" />
-      </button>
+            <ThemeIcon className="w-4 h-4" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{themeTooltip}</TooltipContent>
+      </Tooltip>
 
-      <div className={`w-px h-4 ${dividerColor}`} aria-hidden="true" />
+      <div className="w-px h-4 bg-border" aria-hidden="true" />
 
       {/* Grid toggle */}
-      <button
-        onClick={() => onShowGridChange(!showGrid)}
-        title={showGrid ? 'Hide grid' : 'Show grid'}
-        aria-label={showGrid ? 'Hide grid' : 'Show grid'}
-        aria-pressed={showGrid}
-        className={showGrid ? iconBtnActive : iconBtn}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={() => onShowGridChange(!showGrid)}
+            aria-label={gridTooltip}
+            aria-pressed={showGrid}
+            className={showGrid ? iconBtnActive : iconBtn}>
 
-        <Grid3X3 className="w-4 h-4" />
-      </button>
+            <div className="w-4 h-4" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{gridTooltip}</TooltipContent>
+      </Tooltip>
     </div>);
 
 };
