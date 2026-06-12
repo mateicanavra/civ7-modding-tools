@@ -47,6 +47,7 @@ export type ViewState = {
   exploreStageExpanded: boolean;
   exploreStepExpanded: boolean;
   exploreLayersExpanded: boolean;
+  exploreWaterProofExpanded: boolean;
   // Explore selection (single owner; App no longer mirrors these)
   selectedStageId: string;
   selectedStepId: string;
@@ -70,6 +71,7 @@ export type ViewState = {
   setExploreStageExpanded: (next: Updater<boolean>) => void;
   setExploreStepExpanded: (next: Updater<boolean>) => void;
   setExploreLayersExpanded: (next: Updater<boolean>) => void;
+  setExploreWaterProofExpanded: (next: Updater<boolean>) => void;
   setSelectedStageId: (next: Updater<string>) => void;
   setSelectedStepId: (next: Updater<string>) => void;
   setStageView: (next: Updater<StageView>) => void;
@@ -90,6 +92,7 @@ export const useViewStore = create<ViewState>((set) => ({
   exploreStageExpanded: true,
   exploreStepExpanded: true,
   exploreLayersExpanded: true,
+  exploreWaterProofExpanded: false,
   selectedStageId: "",
   selectedStepId: "",
   stageView: "map",
@@ -115,6 +118,8 @@ export const useViewStore = create<ViewState>((set) => ({
     set((s) => ({ exploreStepExpanded: resolve(next, s.exploreStepExpanded) })),
   setExploreLayersExpanded: (next) =>
     set((s) => ({ exploreLayersExpanded: resolve(next, s.exploreLayersExpanded) })),
+  setExploreWaterProofExpanded: (next) =>
+    set((s) => ({ exploreWaterProofExpanded: resolve(next, s.exploreWaterProofExpanded) })),
   setSelectedStageId: (next) => set((s) => ({ selectedStageId: resolve(next, s.selectedStageId) })),
   setSelectedStepId: (next) => set((s) => ({ selectedStepId: resolve(next, s.selectedStepId) })),
   setStageView: (next) => set((s) => ({ stageView: resolve(next, s.stageView) })),

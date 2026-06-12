@@ -75,6 +75,11 @@ import {
 import { type DeckCanvasApi } from "../features/viz/DeckCanvas";
 import { useVizState } from "../features/viz/useVizState";
 import {
+  buildRiverLakeFloodplainInspectorSummary,
+  type RiverLakeInspectorLayerRef,
+} from "../features/viz/riverLakeInspector";
+import { applyRiverLakeInspectorSelection } from "../features/viz/inspectorSelection";
+import {
   findVariantIdForEra,
   findVariantKeyForEra,
   listEraVariants,
@@ -237,6 +242,8 @@ export function StudioShell(props: StudioShellProps) {
   const setExploreStepExpanded = useViewStore((s) => s.setExploreStepExpanded);
   const exploreLayersExpanded = useViewStore((s) => s.exploreLayersExpanded);
   const setExploreLayersExpanded = useViewStore((s) => s.setExploreLayersExpanded);
+  const exploreWaterProofExpanded = useViewStore((s) => s.exploreWaterProofExpanded);
+  const setExploreWaterProofExpanded = useViewStore((s) => s.setExploreWaterProofExpanded);
   const stageView = useViewStore((s) => s.stageView);
   const setStageView = useViewStore((s) => s.setStageView);
   const pipelineSelectedStageId = useViewStore((s) => s.pipelineSelectedStageId);
@@ -1761,6 +1768,11 @@ export function StudioShell(props: StudioShellProps) {
     return dataTypeModel.dataTypes.map((dt) => ({ value: dt.dataTypeId, label: dt.label, group: dt.group }));
   }, [dataTypeModel]);
 
+  const riverLakeInspectorSummary = useMemo(
+    () => buildRiverLakeFloodplainInspectorSummary(viz.manifest),
+    [viz.manifest]
+  );
+
   const selection = useMemo(() => {
     if (!dataTypeModel) return null;
     for (const dt of dataTypeModel.dataTypes) {
@@ -1962,6 +1974,20 @@ export function StudioShell(props: StudioShellProps) {
 
   const handleStepChange = useCallback((stepId: string) => setSelectedStepId(stepId), []);
 
+  const handleRiverLakeInspectorLayerSelect = useCallback(
+    (ref: RiverLakeInspectorLayerRef) => {
+      applyRiverLakeInspectorSelection(ref, {
+        stages: recipeArtifacts.uiMeta.stages,
+        setSelectedStageId,
+        setSelectedStepId,
+        setShowDebugLayers: viz.setShowDebugLayers,
+        setVizSelectedStepId: viz.setSelectedStepId,
+        setVizSelectedLayerKey: viz.setSelectedLayerKey,
+      });
+    },
+    [recipeArtifacts.uiMeta.stages, viz]
+  );
+
   const handleDataTypeChange = useCallback(
     (next: string) => {
       if (!dataTypeModel) return;
@@ -2093,11 +2119,16 @@ export function StudioShell(props: StudioShellProps) {
     run: triggerRun,
     reroll,
     toggleRightPanel: () => {
-      const rightCollapsed = !exploreStageExpanded && !exploreStepExpanded && !exploreLayersExpanded;
+      const rightCollapsed =
+        !exploreStageExpanded &&
+        !exploreStepExpanded &&
+        !exploreLayersExpanded &&
+        !exploreWaterProofExpanded;
       const next = rightCollapsed;
       setExploreStageExpanded(next);
       setExploreStepExpanded(next);
       setExploreLayersExpanded(next);
+      setExploreWaterProofExpanded(next);
     },
     toggleLeftPanel: () => {
       const leftCollapsed = recipeSectionCollapsed && configSectionCollapsed;
@@ -2377,6 +2408,10 @@ export function StudioShell(props: StudioShellProps) {
       onStepExpandedChange={setExploreStepExpanded}
       layersExpanded={exploreLayersExpanded}
       onLayersExpandedChange={setExploreLayersExpanded}
+      riverLakeInspectorSummary={riverLakeInspectorSummary}
+      onRiverLakeInspectorLayerSelect={handleRiverLakeInspectorLayerSelect}
+      waterProofExpanded={exploreWaterProofExpanded}
+      onWaterProofExpandedChange={setExploreWaterProofExpanded}
     />
   );
 
