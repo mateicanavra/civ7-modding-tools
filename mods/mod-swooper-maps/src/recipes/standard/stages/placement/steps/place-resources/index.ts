@@ -50,7 +50,7 @@ export default createStep(PlaceResourcesStepContract, {
     },
   }),
   run: (context, _config, _ops, deps) => {
-    const plan = deps.artifacts.resourcePlan.read(context);
+    const plan = deps.artifacts.resourcePlanAdjusted.read(context);
     deps.artifacts.placementSurfacePreparation.read(context);
     const { width, height } = context.dimensions;
     const emit = (payload: Record<string, unknown>): void => {

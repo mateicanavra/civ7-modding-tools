@@ -1,6 +1,7 @@
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import type { contracts } from "./contracts.js";
 
+import adjustResourceSupport from "./adjust-resource-support/index.js";
 import deriveHabitatFields from "./derive-habitat-fields/index.js";
 import planAquaticResources from "./plan-aquatic-resources/index.js";
 import planCultivatedResources from "./plan-cultivated-resources/index.js";
@@ -10,6 +11,7 @@ import planTerrestrialResources from "./plan-terrestrial-resources/index.js";
 import selectResourceSites from "./select-resource-sites/index.js";
 
 const implementations = {
+  adjustResourceSupport,
   deriveHabitatFields,
   planAquaticResources,
   planCultivatedResources,
@@ -22,6 +24,7 @@ const implementations = {
 export default implementations;
 
 export {
+  adjustResourceSupport,
   deriveHabitatFields,
   planAquaticResources,
   planCultivatedResources,

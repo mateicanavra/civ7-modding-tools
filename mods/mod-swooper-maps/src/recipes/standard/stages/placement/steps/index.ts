@@ -3,8 +3,9 @@ export { default as plotLandmassRegions } from "./plot-landmass-regions/index.js
 export { default as placeNaturalWonders } from "./place-natural-wonders/index.js";
 export { default as preparePlacementSurface } from "./prepare-placement-surface/index.js";
 export { default as planResources } from "./plan-resources/index.js";
-export { default as placeResources } from "./place-resources/index.js";
 export { default as assignStarts } from "./assign-starts/index.js";
+export { default as adjustResources } from "./adjust-resources/index.js";
+export { default as placeResources } from "./place-resources/index.js";
 export { default as placeDiscoveries } from "./place-discoveries/index.js";
 export { default as assignAdvancedStarts } from "./assign-advanced-starts/index.js";
 export { default as placement } from "./placement/index.js";

@@ -148,7 +148,7 @@ type ResourcePlanArtifact = {
     family: "aquatic" | "cultivated" | "terrestrial" | "geological";
     laneId: string;
     laneKind: "land" | "water";
-    phase: "rotation" | "range-floor" | "region-minimum";
+    phase: "rotation" | "range-floor" | "region-minimum" | "support";
     inHabitat: boolean;
   }>;
   perType: ReadonlyArray<{
@@ -174,6 +174,31 @@ type ResourcePlanArtifact = {
     forced: number;
     shortfall: number;
   }>;
+};
+
+type ResourcePlanAdjustedArtifact = {
+  plannedCount: number;
+  moveCount: number;
+  addCount: number;
+  intents: ResourcePlanArtifact["intents"];
+  adjustments: ReadonlyArray<{
+    action: "move" | "add";
+    reason: "support-floor" | "support-equity";
+    resourceType: string;
+    resourceTypeId: number;
+    fromPlotIndex?: number;
+    toPlotIndex: number;
+    seatIndex: number;
+  }>;
+  shortfalls: ReadonlyArray<{ seatIndex: number; reason: string; missing: number }>;
+  perStart: ReadonlyArray<{
+    seatIndex: number;
+    playerId: number;
+    plotIndex: number;
+    supportBefore: number;
+    supportAfter: number;
+  }>;
+  equity: { gapBefore: number | null; gapAfter: number | null; tolerance: number };
 };
 
 type ResourceOutcomesArtifact = {
@@ -382,6 +407,9 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
   const resourcePlan = context.artifacts.get(placementArtifacts.resourcePlan.id) as
     | ResourcePlanArtifact
     | undefined;
+  const resourcePlanAdjusted = context.artifacts.get(placementArtifacts.resourcePlanAdjusted.id) as
+    | ResourcePlanAdjustedArtifact
+    | undefined;
   const resourceOutcomes = context.artifacts.get(placementArtifacts.resourcePlacementOutcomes.id) as
     | ResourceOutcomesArtifact
     | undefined;
@@ -407,6 +435,11 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
   if (!startAssignment) throw new Error("Missing artifact:placement.startAssignment.");
   if (!resourceOutcomes) throw new Error("Missing artifact:placement.resourcePlacementOutcomes.");
   if (!resourcePlan) throw new Error("Missing artifact:placement.resourcePlan.");
+  if (!resourcePlanAdjusted) throw new Error("Missing artifact:placement.resourcePlanAdjusted.");
+  // S5: place-resources stamps the support-ADJUSTED intents; every per-plot
+  // join against stamped outcomes uses these. The base plan stays authority
+  // for per-type ranges, spacing floors, weights, and region minimums.
+  const stampedIntents = resourcePlanAdjusted.intents;
   const landMask = topography?.landMask;
   if (!(landMask instanceof Uint8Array) || landMask.length !== size) {
     throw new Error("Missing artifact:morphology.topography landMask.");
@@ -742,7 +775,7 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
 
   // --- E2.3 habitat fidelity ------------------------------------------------------------------------------
   {
-    const intentByPlot = new Map(resourcePlan.intents.map((row) => [row.plotIndex, row]));
+    const intentByPlot = new Map(stampedIntents.map((row) => [row.plotIndex, row]));
     let placedWithIntent = 0;
     let placedInHabitat = 0;
     for (const outcome of placed) {
@@ -760,7 +793,7 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
 
   // --- E2.5 aggregation above the spacing floor (pair-correlation proxy) ---------------------------------
   {
-    const intentByPlot = new Map(resourcePlan.intents.map((row) => [row.plotIndex, row]));
+    const intentByPlot = new Map(stampedIntents.map((row) => [row.plotIndex, row]));
     const floorByTypeId = new Map(
       resourcePlan.perType.map((row) => [row.resourceTypeId, row.spacingFloorTiles])
     );
@@ -819,6 +852,12 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       return { family, placedCount: plots.length, floor, pairCorrelationRatio: pairRatioFor(plots, floor) };
     });
     const geological = detail.find((row) => row.family === "geological");
+    // Counterfactual (S5): the same ratio on the BASE plan's geological
+    // sites, before the support pass moved any — attributes aggregation
+    // movement to the adjustment instead of seed geography.
+    const baseGeologicalPlots = resourcePlan.intents
+      .filter((row) => row.family === "geological" && row.laneKind === "land")
+      .map((row) => row.plotIndex);
     metrics["E2.5"] = metric(
       "E2.5",
       "Aggregation above spacing floor via habitat intensity (pair-correlation > CSR for geological)",
@@ -826,11 +865,12 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       {
         geologicalPairCorrelationAtRGtFloor: geological?.pairCorrelationRatio ?? null,
         geologicalPlacedCount: geological?.placedCount ?? 0,
+        basePlanGeologicalPairCorrelation: pairRatioFor(baseGeologicalPlots, geoFloor),
       },
       {
         detail,
         note:
-          "Ratio of observed same-family pair counts in the annulus (floor, floor+2] to the CSR expectation over land. > 1 means regional aggregation above the blue-noise floor; floorByTypeId guards E2.6 separately.",
+          "Ratio of observed same-family pair counts in the annulus (floor, floor+2] to the CSR expectation over land. > 1 means regional aggregation above the blue-noise floor; floorByTypeId guards E2.6 separately. basePlanGeologicalPairCorrelation is the pre-support-pass counterfactual (S5).",
       }
     );
     void floorByTypeId;
@@ -990,7 +1030,7 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
     // Reassignment is computed honestly from artifacts even though type
     // re-decision is gone by construction: the stamped type at each plot is
     // compared against the plan intent at that plot.
-    const intentByPlot = new Map(resourcePlan.intents.map((row) => [row.plotIndex, row]));
+    const intentByPlot = new Map(stampedIntents.map((row) => [row.plotIndex, row]));
     let stampedWithIntent = 0;
     let reassignedCount = 0;
     for (const outcome of resourceOutcomes.outcomes) {
@@ -1001,11 +1041,11 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
     }
 
     let preferredLegalRows = 0;
-    for (const intent of resourcePlan.intents) {
+    for (const intent of stampedIntents) {
       if (adapter.canHaveResource(intent.x, intent.y, intent.resourceTypeId)) preferredLegalRows++;
     }
 
-    const plannedCount = resourcePlan.intents.length;
+    const plannedCount = stampedIntents.length;
     const assignedCount = resourceOutcomes.reconciliation.plannedCount;
     const finalPlacedCount = resourceOutcomes.summary.placedCount;
 
@@ -1097,18 +1137,40 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
     }
     const minPerStart = perStartCounts.length ? Math.min(...perStartCounts) : null;
     const maxPerStart = perStartCounts.length ? Math.max(...perStartCounts) : null;
+    const supportShortfallMissing = resourcePlanAdjusted.shortfalls.reduce(
+      (sum, row) => sum + row.missing,
+      0
+    );
     metrics["E3.1"] = metric("E3.1", "Resources within radius 4 of each start >= 2", "computed", {
       minResourcesPerStart: minPerStart,
       meanResourcesPerStart: mean(perStartCounts),
       startsBelowFloor: perStartCounts.filter((count) => count < START_SUPPORT_FLOOR).length,
       startsTotal: perStartCounts.length,
-    }, { detail: perStartCounts });
+      supportMoves: resourcePlanAdjusted.moveCount,
+      supportAdds: resourcePlanAdjusted.addCount,
+      supportShortfallMissing,
+    }, {
+      detail: {
+        perStartPlacedCounts: perStartCounts,
+        perStartPlanned: resourcePlanAdjusted.perStart,
+        adjustments: resourcePlanAdjusted.adjustments,
+        shortfalls: resourcePlanAdjusted.shortfalls,
+      },
+      note:
+        "Measured on PLACED outcomes (post-stamp). supportMoves/supportAdds and the per-adjustment provenance come from the adjusted-plan artifact (S5).",
+    });
     metrics["E3.2"] = metric("E3.2", "Start support equity: max-min per-player count <= 2", "computed", {
       maxMinGap: minPerStart != null && maxPerStart != null ? maxPerStart - minPerStart : null,
+      plannedGapBefore: resourcePlanAdjusted.equity.gapBefore,
+      plannedGapAfter: resourcePlanAdjusted.equity.gapAfter,
     });
     metrics["E3.3"] = metric("E3.3", "Support guarantee holds across seeds (20/20)", "computed", {
-      guaranteeHolds: minPerStart != null && minPerStart >= START_SUPPORT_FLOOR,
-    }, { note: "Aggregate trueCount across seeds gives the N/N guarantee rate." });
+      guaranteeHolds:
+        minPerStart != null &&
+        minPerStart >= START_SUPPORT_FLOOR &&
+        maxPerStart != null &&
+        maxPerStart - minPerStart <= 2,
+    }, { note: "guaranteeHolds = floor (E3.1) AND equity (E3.2) on this seed; aggregate trueCount across seeds gives the N/N guarantee rate." });
   }
 
   // --- E3.4 / E4.* -----------------------------------------------------------------------------------------------------

@@ -71,7 +71,9 @@ describe("placement landmass region projection", () => {
     expect(firstProjection).toBeGreaterThanOrEqual(0);
     expect(firstResourceIntent).toBeGreaterThan(firstProjection);
     expect(firstStart).toBeGreaterThan(firstProjection);
-    expect(firstStart).toBeGreaterThan(firstResourceIntent);
+    // S5 (D3 reorder): starts stamp BEFORE resources — resource stamping now
+    // runs after the resource-to-start support pass.
+    expect(firstResourceIntent).toBeGreaterThan(firstStart);
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.calls.setResourceType.length).toBeGreaterThan(0);
 

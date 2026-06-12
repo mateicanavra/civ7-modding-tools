@@ -93,17 +93,23 @@ export const PlacementStartsSchema = defaultStrategyConfigSchema(
   "Start placement controls: first-age expansion viability and island-start tiers, spacing floor/target (official 6/12 buffers), scoring weights (fertility, freshwater, climate comfort, resource support, roughness with tunable divisor), tier bias, ranking blend, fairness tolerance for the balancing pass, and coastal/river start preference."
 );
 
+export const PlacementSupportSchema = defaultStrategyConfigSchema(
+  resources.ops.adjustResourceSupport.config,
+  "Resource-to-start support pass controls (S5; runs after start assignment and before resource stamping): per-start support floor within a radius, cross-player equity tolerance, enable switch, and adjustment strength. Earth-like defaults reproduce the E3.1/E3.2 gates."
+);
+
 export const PlacementPublicSchema = Type.Object(
   {
     naturalWonders: Type.Optional(PlacementNaturalWondersSchema),
     discoveries: Type.Optional(PlacementDiscoveriesSchema),
     resources: Type.Optional(PlacementResourcesSchema),
     starts: Type.Optional(PlacementStartsSchema),
+    support: Type.Optional(PlacementSupportSchema),
   },
   {
     additionalProperties: false,
     description:
-      "Placement authoring controls for late gameplay products: natural wonders, discoveries, resources, and first-age viable starts. Runtime map-size start counts and adapter catalogs are supplied by the run environment rather than authored here.",
+      "Placement authoring controls for late gameplay products: natural wonders, discoveries, resources, first-age viable starts, and the resource-to-start support pass. Runtime map-size start counts and adapter catalogs are supplied by the run environment rather than authored here.",
   }
 );
 
@@ -120,10 +126,13 @@ export function compilePlacementPublicConfig(config: Record<string, unknown>) {
     "plan-resources": {
       selectSites: defaultEnvelope(config.resources),
     },
-    "place-resources": {},
     "assign-starts": {
       starts: defaultEnvelope(config.starts),
     },
+    "adjust-resources": {
+      support: defaultEnvelope(config.support),
+    },
+    "place-resources": {},
     "place-discoveries": {},
     "assign-advanced-starts": {},
     placement: {},

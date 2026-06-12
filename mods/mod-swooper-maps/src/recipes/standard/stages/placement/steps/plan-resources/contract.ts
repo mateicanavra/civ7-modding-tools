@@ -13,9 +13,9 @@ import { ecologyArtifacts } from "../../../ecology/artifacts.js";
  * Resource planning (placement-realignment S3): habitat-lane derivation +
  * family demand planning + site selection, all owned by domain/resources
  * (ADR-008). Runs after surface preparation so policy legality is evaluated
- * against the final engine surface; the stamp step (place-resources) stays a
- * separate thin shell so a later slice can reorder stamping after starts
- * (refactor-plan S5) without touching planning.
+ * against the final engine surface. Since S5 the plan is a first-class effect
+ * (resourcesPlanned): starts assign against the PLAN, the support pass
+ * adjusts it, and only then does place-resources stamp (D3 contract change).
  *
  * Declared engine-surface read (ADR-009): per-tile terrain/biome/feature and
  * water readings feed the policy legality masks. This mirrors exactly what
@@ -26,7 +26,7 @@ const PlanResourcesStepContract = defineStep({
   id: "plan-resources",
   phase: "placement",
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
-  provides: [],
+  provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned],
   artifacts: {
     requires: [
       morphologyArtifacts.topography,
@@ -42,7 +42,11 @@ const PlanResourcesStepContract = defineStep({
       ecologyArtifacts.pedology,
       mapArtifacts.landmassRegionSlotByTile,
     ],
-    provides: [placementArtifacts.resourceDemandPlan, placementArtifacts.resourcePlan],
+    provides: [
+      placementArtifacts.resourceDemandPlan,
+      placementArtifacts.resourcePlan,
+      placementArtifacts.resourceEligibility,
+    ],
   },
   ops: {
     habitat: resources.ops.deriveHabitatFields,

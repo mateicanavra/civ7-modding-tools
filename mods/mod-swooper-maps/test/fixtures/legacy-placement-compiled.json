@@ -1,6 +1,18 @@
 {
   "shattered-ring": {
     "placement": {
+      "adjust-resources": {
+        "support": {
+          "config": {
+            "enabled": true,
+            "equityTolerance": 2,
+            "strength": 1,
+            "supportFloor": 2,
+            "supportRadiusTiles": 4
+          },
+          "strategy": "default"
+        }
+      },
       "assign-advanced-starts": {},
       "assign-starts": {},
       "derive-placement-inputs": {
@@ -76,6 +88,18 @@
   },
   "sundered-archipelago": {
     "placement": {
+      "adjust-resources": {
+        "support": {
+          "config": {
+            "enabled": true,
+            "equityTolerance": 2,
+            "strength": 1,
+            "supportFloor": 2,
+            "supportRadiusTiles": 4
+          },
+          "strategy": "default"
+        }
+      },
       "assign-advanced-starts": {},
       "assign-starts": {},
       "derive-placement-inputs": {
@@ -151,6 +175,18 @@
   },
   "swooper-desert-mountains": {
     "placement": {
+      "adjust-resources": {
+        "support": {
+          "config": {
+            "enabled": true,
+            "equityTolerance": 2,
+            "strength": 1,
+            "supportFloor": 2,
+            "supportRadiusTiles": 4
+          },
+          "strategy": "default"
+        }
+      },
       "assign-advanced-starts": {},
       "assign-starts": {},
       "derive-placement-inputs": {
@@ -226,6 +262,18 @@
   },
   "swooper-earthlike": {
     "placement": {
+      "adjust-resources": {
+        "support": {
+          "config": {
+            "enabled": true,
+            "equityTolerance": 2,
+            "strength": 1,
+            "supportFloor": 2,
+            "supportRadiusTiles": 4
+          },
+          "strategy": "default"
+        }
+      },
       "assign-advanced-starts": {},
       "assign-starts": {},
       "derive-placement-inputs": {

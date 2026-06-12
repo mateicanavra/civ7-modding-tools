@@ -414,6 +414,7 @@ type LocalTraceEvidence = {
   naturalWonderPlanInput?: unknown;
   naturalWonderPlacement?: unknown;
   resourcePlan?: unknown;
+  resourcePlanAdjusted?: unknown;
   resourcePlacementOutcomes?: unknown;
   terrainProjection?: unknown;
 };
@@ -522,6 +523,10 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
   if (naturalWonderPlacement !== undefined) evidence.naturalWonderPlacement = naturalWonderPlacement;
   const resourcePlan = context.artifacts.get(placementArtifacts.resourcePlan.id);
   if (resourcePlan !== undefined) evidence.resourcePlan = resourcePlan;
+  // S5: the stamped intents are the support-ADJUSTED plan; capture it so the
+  // per-plot parity join classifies against what was actually stamped.
+  const resourcePlanAdjusted = context.artifacts.get(placementArtifacts.resourcePlanAdjusted.id);
+  if (resourcePlanAdjusted !== undefined) evidence.resourcePlanAdjusted = resourcePlanAdjusted;
   const resourcePlacementOutcomes = context.artifacts.get(
     placementArtifacts.resourcePlacementOutcomes.id
   );
@@ -1872,9 +1877,13 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
     }
   >;
 } {
-  const resourcePlan = isPlainObject(local.evidence?.resourcePlan)
-    ? local.evidence.resourcePlan
-    : undefined;
+  // S5: prefer the support-ADJUSTED plan when present — its intents are the
+  // ones actually stamped; the base resourcePlan stays as fallback evidence.
+  const resourcePlan = isPlainObject(local.evidence?.resourcePlanAdjusted)
+    ? local.evidence.resourcePlanAdjusted
+    : isPlainObject(local.evidence?.resourcePlan)
+      ? local.evidence.resourcePlan
+      : undefined;
   const resourcePlacementOutcomes = isPlainObject(local.evidence?.resourcePlacementOutcomes)
     ? local.evidence.resourcePlacementOutcomes
     : undefined;

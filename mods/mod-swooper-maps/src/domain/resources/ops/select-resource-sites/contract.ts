@@ -60,7 +60,7 @@ const DemandRowSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const AffinityRuleSchema = Type.Object(
+export const AffinityRuleSchema = Type.Object(
   {
     resourceA: Type.String({
       pattern: "^RESOURCE_[A-Z0-9_]+$",
@@ -217,6 +217,10 @@ const SelectResourceSitesContract = defineOp({
           perTypeSpacingFloorScale: Type.Number(),
           equityMaxDensityRatio: Type.Number(),
           affinityRuleCount: Type.Integer({ minimum: 0 }),
+          affinityRules: Type.Array(AffinityRuleSchema, {
+            description:
+              "Echo of the affinity/exclusion rules the plan was selected under, so downstream plan adjusters (S5 support pass) respect the same rules without duplicating config.",
+          }),
         },
         { additionalProperties: false }
       ),

@@ -12,18 +12,26 @@ import {
 import { placementArtifacts } from "../../artifacts.js";
 import {
   validateResourceDemandPlanArtifact,
+  validateResourceEligibilityArtifact,
   validateResourcePlanArtifact,
 } from "./validate.js";
 
 export default createStep(PlanResourcesStepContract, {
   artifacts: implementArtifacts(
-    [placementArtifacts.resourceDemandPlan, placementArtifacts.resourcePlan],
+    [
+      placementArtifacts.resourceDemandPlan,
+      placementArtifacts.resourcePlan,
+      placementArtifacts.resourceEligibility,
+    ],
     {
       resourceDemandPlan: {
         validate: (value) => validateResourceDemandPlanArtifact(value),
       },
       resourcePlan: {
         validate: (value) => validateResourcePlanArtifact(value),
+      },
+      resourceEligibility: {
+        validate: (value) => validateResourceEligibilityArtifact(value),
       },
     }
   ),
@@ -162,6 +170,20 @@ export default createStep(PlanResourcesStepContract, {
 
     deps.artifacts.resourceDemandPlan.publish(context, demandPlan);
     deps.artifacts.resourcePlan.publish(context, plan);
+    // S5: the post-starts support pass adjusts this plan inside the same
+    // policy constraints, so the eligibility fields the plan was selected
+    // under are published once here rather than re-derived later.
+    deps.artifacts.resourceEligibility.publish(context, {
+      width,
+      height,
+      rows: demandResult.demands.map((row) => ({
+        resourceType: row.resourceType,
+        resourceTypeId: row.resourceTypeId,
+        habitatMask: row.habitatMask,
+        legalMask: row.legalMask,
+        intensity: row.intensity,
+      })),
+    });
 
     context.trace?.event(() => ({
       type: "placement.resources.plan",

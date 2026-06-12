@@ -20,7 +20,7 @@ export default createStep(AssignStartsStepContract, {
   run: (context, config, _ops, deps) => {
     const placementInputs = deps.artifacts.placementInputs.read(context);
     deps.artifacts.placementSurfacePreparation.read(context);
-    const resourcePlacement = deps.artifacts.resourcePlacementOutcomes.read(context);
+    const resourcePlan = deps.artifacts.resourcePlan.read(context);
     const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const topography = deps.artifacts.topography.read(context);
@@ -65,9 +65,10 @@ export default createStep(AssignStartsStepContract, {
         mountainMask: mountains.mountainMask as Uint8Array,
         volcanoMask: volcanoes.volcanoMask as Uint8Array,
         naturalWonderPlotIndices,
-        placedResourcePlotIndices: resourcePlacement.outcomes
-          .filter((outcome) => outcome.status === "placed")
-          .map((outcome) => outcome.plotIndex),
+        // D3 (S5): resource-support scoring works off PLANNED site intents —
+        // stamping runs after the support pass, so placed outcomes do not
+        // exist yet when starts are chosen.
+        plannedResourcePlotIndices: resourcePlan.intents.map((intent) => intent.plotIndex),
         // seatBiases: per-civ StartBias rows need live player→civ data; the
         // offline default is neutral (Milestone A wires the live half).
       },

@@ -1,5 +1,6 @@
 import { createStage } from "@swooper/mapgen-core/authoring";
 import {
+  adjustResources,
   assignAdvancedStarts,
   assignStarts,
   derivePlacementInputs,
@@ -22,6 +23,10 @@ import {
  * preparation remains grouped because terrain validation, area recalc, water
  * storage, and landmass-region restamping form one transactional precondition
  * for all downstream placement products.
+ *
+ * Resource ordering (S5, D3 contract change): planning stays before starts;
+ * stamping runs after the resource↔start support pass —
+ * plan-resources → assign-starts → adjust-resources → place-resources.
  */
 export default createStage({
   id: "placement",
@@ -33,8 +38,9 @@ export default createStage({
     placeNaturalWonders,
     preparePlacementSurface,
     planResources,
-    placeResources,
     assignStarts,
+    adjustResources,
+    placeResources,
     placeDiscoveries,
     assignAdvancedStarts,
     placement,
