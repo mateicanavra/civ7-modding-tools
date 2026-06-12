@@ -201,27 +201,37 @@ const PLACEMENT_PUBLIC_KEYS = [
 ] as const;
 
 const DEFAULT_STARTS_CONFIG = {
+  climateExtremePenaltyWeight: 1.5,
+  climateWeight: 1.6,
+  coastalPreferenceWeight: 0,
+  desiredSpacingTiles: 12,
   expansionRadiusTiles: 4,
-  fertilityWeight: 1.2,
-  freshwaterWeight: 0.9,
+  fairnessTolerance: 0.3,
+  fertilityWeight: 2.2,
+  freshwaterWeight: 1.1,
   islandClusterRadiusTiles: 5,
   largeLandmassWeight: 1,
+  marginalExpansionRatio: 0.65,
+  marginalLandRatio: 0.5,
   maxIslandStartCoastDistance: 1,
   minContiguousLandTiles: 24,
   minExpansionLandTiles: 14,
   minIslandClusterLandTiles: 18,
-  minStartSpacingTiles: 9,
-  overrides: { startSectors: [] },
+  rankingBlend: 0.86,
   resourceSupportRadiusTiles: 4,
-  resourceSupportWeight: 1,
+  resourceSupportWeight: 0.5,
+  riverPreferenceWeight: 0,
+  roughnessDivisor: 900,
   roughnessPenaltyWeight: 0.6,
+  spacingFloorTiles: 6,
+  startBiasWeight: 1,
+  tierBias: { primary: 0.08, islandCluster: 0.02, marginal: -0.08 },
 };
 
 function expectedStartsConfig(raw: CanonicalMapConfigEnvelope) {
   return {
     ...DEFAULT_STARTS_CONFIG,
     ...((raw.config as any).placement?.starts ?? {}),
-    overrides: { startSectors: [] },
   };
 }
 

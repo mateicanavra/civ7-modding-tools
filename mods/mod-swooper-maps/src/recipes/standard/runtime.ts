@@ -6,9 +6,6 @@ export type StandardRuntime = {
   mapInfo: MapInfo;
   playersLandmass1: number;
   playersLandmass2: number;
-  startSectorRows: number;
-  startSectorCols: number;
-  startSectors: unknown[];
   storyEnabled: boolean;
 };
 
@@ -33,18 +30,12 @@ function createRuntime(context: ExtendedMapContext): StandardRuntime {
   const mapInfo = resolveMapInfo(adapter);
   const playersLandmass1 = mapInfo.PlayersLandmass1 ?? 4;
   const playersLandmass2 = mapInfo.PlayersLandmass2 ?? 4;
-  const startSectorRows = mapInfo.StartSectorRows ?? 4;
-  const startSectorCols = mapInfo.StartSectorCols ?? 4;
-  const startSectors: unknown[] = [];
 
   return {
     logPrefix: "[standard]",
     mapInfo,
     playersLandmass1,
     playersLandmass2,
-    startSectorRows,
-    startSectorCols,
-    startSectors,
     storyEnabled: true,
   };
 }
@@ -68,9 +59,6 @@ export function initializeStandardRuntime(
     runtime.mapInfo = init.mapInfo;
     runtime.playersLandmass1 = init.mapInfo.PlayersLandmass1 ?? runtime.playersLandmass1;
     runtime.playersLandmass2 = init.mapInfo.PlayersLandmass2 ?? runtime.playersLandmass2;
-    runtime.startSectorRows = init.mapInfo.StartSectorRows ?? runtime.startSectorRows;
-    runtime.startSectorCols = init.mapInfo.StartSectorCols ?? runtime.startSectorCols;
-    runtime.startSectors = [];
   }
   return runtime;
 }

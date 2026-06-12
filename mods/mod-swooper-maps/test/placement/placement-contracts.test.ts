@@ -136,7 +136,7 @@ describe("placement product/effect contracts", () => {
     }
   });
 
-  it("models start assignment as deterministic tiered policy, not fallback telemetry", () => {
+  it("models start assignment as op-owned ladder selection with per-seat records", () => {
     const placementSources = listSourceFiles(PLACEMENT_STEPS_DIR)
       .map((file) => ({ file, source: readFileSync(file, "utf8") }))
       .filter(({ file }) => !file.endsWith("/placement-contracts.test.ts"));
@@ -147,9 +147,13 @@ describe("placement product/effect contracts", () => {
 
     for (const { file, source } of placementSources) {
       expect(source, file).not.toMatch(/fallbackAssigned|fallbackUsed|deterministic fallback/);
+      // Selection authority moved into the plan-starts op (S4); the recipe
+      // layer must not re-grow selection logic or the deleted desperation path.
+      expect(source, file).not.toMatch(/desperation|chooseStartTiles|chooseRankedFromPool/);
+      expect(source, file).not.toMatch(/startSector/);
     }
     expect(artifactSource).not.toMatch(/fallbackAssigned|fallbackUsed|deterministic fallback/);
-    expect(artifactSource).toContain("openPoolAssigned");
-    expect(artifactSource).toContain("openPoolUsed");
+    expect(artifactSource).toContain("rungCounts");
+    expect(artifactSource).toContain("fairnessReport");
   });
 });

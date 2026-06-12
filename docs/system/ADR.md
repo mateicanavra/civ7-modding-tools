@@ -183,6 +183,7 @@ promotion.
 - `domain/placement/ops/plan-resources` (generic scalar scorer) is superseded and deleted in the S3 slice; no dual path remains.
 - Resource policy grounding (Weight, MinimumPerHemisphere, legality rows, required-for-age) flows from `@civ7/map-policy` generated tables into `domain/resources` planning; the engine oracle (`canHaveResource`) is a reconcile-time check, not a planning authority.
 - The absorption appendix's "invoke the engine resource generator" posture is superseded for resources by the deterministic typed plan+stamp pipeline (ADR-009).
+- (S4 amendment, 2026-06-10) Start placement diverges from the official `chooseStartSectors` sector grid: the inert start-sector machinery (knobs, contract fields, runtime plumbing, sector viz) was removed and landmass-region slots (`plot-landmass-regions`) are the regional mechanism driving seat assignment; the adapter's `chooseStartSectors`/`assignStartPositions` wrappers remain typed but uncalled.
 
 ## ADR-009: Deterministic typed reconciliation is the placement regime; engine readbacks are evidence-only
 

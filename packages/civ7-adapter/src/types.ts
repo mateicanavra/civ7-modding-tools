@@ -717,6 +717,16 @@ export interface EngineAdapter {
   setStartPosition(plotIndex: number, playerId: number): void;
 
   /**
+   * Alive major player ids (Civ7: Players.getAliveMajorIds()).
+   *
+   * READ surface only: the adapter reports ids, it never decides seating.
+   * The slot→player mapping is owned by the placement plan-starts op
+   * (placement-realignment S4 / D3). The mock adapter returns contiguous ids
+   * derived from its map info player counts.
+   */
+  getAliveMajorIds(): number[];
+
+  /**
    * Assign advanced start regions
    * Wraps /base-standard/maps/assign-advanced-start-region.js assignAdvancedStartRegions()
    */

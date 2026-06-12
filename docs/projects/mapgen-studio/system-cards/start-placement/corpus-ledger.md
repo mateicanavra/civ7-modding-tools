@@ -69,3 +69,21 @@ render card. Verification refuted 3 of 4 sub-agent P1s (see below).
   (`civ7-adapter/src/types.ts:658`), aggregate-only current artifact
   (`artifacts.ts:77-119`), and the `ecology/resources/score-balance` precedent.
   Section D flips from issues → acceptance criteria + gap-from-current.
+
+## As-built closure (placement-realignment S4, 2026-06-10)
+
+The S4 starts vertical (`openspec/changes/placement-realignment-s4-starts/`,
+evidence `docs/projects/placement-realignment/evidence/s4-results-2026-06-10.md`)
+implements the target card's acceptance criteria; the target card itself is
+left untouched as the prescriptive reference. Per-row disposition:
+
+| Row | Was (current card) | Now (as-built) |
+| --- | --- | --- |
+| 3 | composite score ÷(sum+1), no climate-extreme term | fixed 0..1 weight normalization; components retained per seat; climate comfort + extreme-decile penalty (E1.8 frame); land-only r2 fertility (E1.4 frame); coastal/river preference + StartBias hook |
+| 4 | 13 knobs incl. inert sector fields | knob set derived from op config (foundation pattern): spacing floor/desired, fairnessTolerance, roughnessDivisor, tierBias, rankingBlend, climate weights, bias weights, per-hemisphere overrides — all with min/max; sector knobs deleted |
+| 6 | regional → open-pool → desperation → THROW (`materialize.ts:135-218`) | op-owned four-rung ladder (regional → open-pool → quality-relaxed → spacing-relaxed), never-throw; unseated = degraded data; hard-fail only on zero settleable land |
+| 7 | spacing relaxation decrements to 0 | hard 6-tile floor for all rungs above last resort; 12 desired is a score taper; below-floor only in last resort, flagged + warned |
+| 8 | desperation = spacing only (unscored) | last resort still ranks by the blended quality function; no unscored path exists |
+| 13 | `setStartPosition(plot, i)` positional slot index | `setStartPosition(plot, playerId)` with playerId from the adapter alive-majors READ surface, mapped at the single `seat-identity.ts` policy point, `playerIdSource` recorded per seat (D3; live semantics probe at Milestone A) |
+| — | aggregate-only artifact | per-player `StartRecord[]` + `fairnessReport` (worstPairGap, swaps, relaxations) + `inputCoverage`; validate hook registered |
+| — | always-on sector grid viz (inert machinery) | sector machinery + viz deleted; landmass-region slots are the regional mechanism (ADR-008 amendment) |

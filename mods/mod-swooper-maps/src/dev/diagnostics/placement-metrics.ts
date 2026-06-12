@@ -106,12 +106,34 @@ const SECTOR_COLS = 4;
 
 type StartAssignmentArtifact = {
   positions: number[];
+  seats: ReadonlyArray<{
+    seatIndex: number;
+    playerId: number;
+    playerIdSource: "alive-majors" | "slot-index";
+    plotIndex: number;
+    rung: "regional" | "open-pool" | "quality-relaxed" | "spacing-relaxed";
+    status: "full" | "degraded";
+    score: number;
+    achievedSpacing: number;
+    imputedFlags: string[];
+  }>;
+  fairnessReport: {
+    tolerance: number;
+    worstPairGap: number | null;
+    balanced: boolean;
+    relaxations: ReadonlyArray<{ seatIndex: number; kind: string; from: number; to: number }>;
+  };
+  status: "full" | "degraded";
   assigned: number;
-  regionalAssigned: number;
-  openPoolAssigned: number;
-  openPoolUsed: boolean;
-  desperationAssigned: number;
+  unseatedCount: number;
+  rungCounts: {
+    regional: number;
+    openPool: number;
+    qualityRelaxed: number;
+    spacingRelaxed: number;
+  };
   candidateCount: number;
+  inputCoverage: ReadonlyArray<{ input: string; status: "provided" | "imputed" }>;
 };
 
 type ResourcePlanArtifact = {
@@ -553,27 +575,64 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
     });
   }
 
-  // --- E1.6 fairness (pending S4) ------------------------------------------------------------------
-  metrics["E1.6"] = metric("E1.6", "Worst-pair gap on StartRecord.score <= 0.3", "pending-s4", {}, {
-    note: "Per-player StartRecord.score (fixed 0..1 normalization) is unbuilt until S4; no published per-seat score exists yet.",
-  });
+  // --- E1.6 fairness (computed from fairnessReport since S4) ----------------------------------------
+  {
+    const seatScores = startAssignment.seats
+      .filter((seat) => seat.plotIndex >= 0)
+      .map((seat) => seat.score);
+    metrics["E1.6"] = metric(
+      "E1.6",
+      "Worst-pair gap on StartRecord.score <= 0.3",
+      "computed",
+      {
+        worstPairGap: startAssignment.fairnessReport.worstPairGap,
+        tolerance: startAssignment.fairnessReport.tolerance,
+        balanced: startAssignment.fairnessReport.balanced,
+        minSeatScore: seatScores.length ? Math.min(...seatScores) : null,
+        maxSeatScore: seatScores.length ? Math.max(...seatScores) : null,
+      },
+      {
+        note:
+          "worstPairGap is the published fairnessReport value on fixed-normalization StartRecord scores; balanced reflects the post-balancing-pass verdict.",
+      }
+    );
+  }
 
-  // --- E1.7 fallback rates --------------------------------------------------------------------------
-  metrics["E1.7"] = metric(
-    "E1.7",
-    "Desperation/openPool fallback rate <= 5% of seats; surfaced in artifact",
-    "computed",
-    {
-      seatedCount: startAssignment.assigned,
-      regionalAssigned: startAssignment.regionalAssigned,
-      openPoolAssigned: startAssignment.openPoolAssigned,
-      desperationAssigned: startAssignment.desperationAssigned,
-      openPoolUsed: startAssignment.openPoolUsed,
-      fallbackRate: startAssignment.assigned
-        ? (startAssignment.openPoolAssigned + startAssignment.desperationAssigned) / startAssignment.assigned
-        : null,
-    }
-  );
+  // --- E1.7 fallback-ladder rates (per rung since S4) -------------------------------------------------
+  {
+    const rungs = startAssignment.rungCounts;
+    const nonRegional = rungs.openPool + rungs.qualityRelaxed + rungs.spacingRelaxed;
+    const regionReassigned = startAssignment.seats.filter((seat) =>
+      seat.imputedFlags.includes("region-reassigned")
+    ).length;
+    const degradedSeats = startAssignment.seats.filter(
+      (seat) => seat.plotIndex < 0 || seat.rung !== "regional" || seat.status === "degraded"
+    );
+    metrics["E1.7"] = metric(
+      "E1.7",
+      "Non-regional fallback rate <= 5% of seats; every degradation surfaced per seat",
+      "computed",
+      {
+        seatedCount: startAssignment.assigned,
+        unseatedCount: startAssignment.unseatedCount,
+        regionalAssigned: rungs.regional,
+        openPoolAssigned: rungs.openPool,
+        qualityRelaxedAssigned: rungs.qualityRelaxed,
+        spacingRelaxedAssigned: rungs.spacingRelaxed,
+        regionReassigned,
+        fallbackRate: startAssignment.assigned ? nonRegional / startAssignment.assigned : null,
+        allDegradationsSurfaced: degradedSeats.every((seat) => seat.status === "degraded"),
+      },
+      {
+        detail: degradedSeats.map((seat) => ({
+          seatIndex: seat.seatIndex,
+          rung: seat.rung,
+          plotIndex: seat.plotIndex,
+          imputedFlags: seat.imputedFlags,
+        })),
+      }
+    );
+  }
 
   // --- E1.8 climate extremes -------------------------------------------------------------------------
   {
