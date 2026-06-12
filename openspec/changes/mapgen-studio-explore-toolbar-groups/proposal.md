@@ -24,8 +24,10 @@ All in `src/ui/components/ExplorePanel.tsx`:
 
 - **Two eyebrow-labeled clusters** replace the zig-zag rows:
   - **VIEW** — Fit to view (camera), Edges overlay toggle (map display).
-  - **DATA** — Render segment, Space segment, then the conditional
+  - **LAYER** — Render segment, Space segment, then the conditional
     data-scoped rows (Era, Variant, Overlay + opacity) under the same cluster.
+    (Named "Layer", not "Data": the Data list section sits directly above and
+    a duplicate eyebrow would read as part of it.)
 - **Consistent row anatomy**: label-left / control-right within each cluster
   (no more right-aligned-label-over-control vs left-aligned variants).
 - **Debug toggle relocates to the DATA section header** (beside the count),

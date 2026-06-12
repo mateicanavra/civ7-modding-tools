@@ -247,6 +247,10 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   // an inset container on the control-background token bounds the options so
   // they read as one control; the active segment lifts one surface tier
   // (Pass-2 explore-toolbar spec). Independent toggles keep `iconBtn`.
+  // Toolbar cluster anatomy (Pass-3): a cluster heading names the target
+  // (View = camera/map, Layer = selected data); row labels sit a tier below.
+  const clusterHeading = `text-label font-semibold uppercase tracking-wider ${textSecondary}`;
+  const rowLabel = `text-label uppercase tracking-wider ${textMuted}`;
   const segGroup = 'inline-flex items-center rounded border border-border-subtle bg-input-background p-0.5';
   const segBtn = 'h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-muted-foreground hover:text-foreground';
   const segBtnActive = 'h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-foreground bg-muted';
@@ -431,14 +435,17 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         </div>
       ) : null}
 
-      {/* 3. LAYERS SECTION */}
-      <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
+      {/* 3. LAYERS SECTION. The debug toggle lives on this header — it filters
+          which entries the data list shows (`includeDebug`), so it belongs to
+          the list, not to the view toolbar (Pass-3 explore-toolbar spec). It is
+          a sibling of the disclosure button, never nested inside it. */}
+      <div className={`flex-shrink-0 border-b ${borderSubtle} flex items-center`}>
         <button
           type="button"
           onClick={() => setIsLayersExpanded(!isLayersExpanded)}
           aria-expanded={isLayersExpanded}
           aria-controls="explore-layers-list"
-          className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${hoverBg}`}>
+          className={`flex-1 min-w-0 flex items-center justify-between pl-3 pr-2 py-2 transition-colors ${hoverBg}`}>
 
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <SquareStack className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
@@ -456,6 +463,18 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
             <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isLayersExpanded ? "rotate-180" : ""}`} />
           </div>
         </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => onShowDebugLayersChange(!showDebugLayers)}
+              aria-label={showDebugLayers ? "Hide debug layers" : "Show debug layers"}
+              aria-pressed={showDebugLayers}
+              className={`mr-2 ${showDebugLayers ? iconBtnActive : iconBtn}`}>
+              <Bug className="w-3.5 h-3.5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{showDebugLayers ? "Hide debug layers" : "Show debug layers"}</TooltipContent>
+        </Tooltip>
       </div>
       {isLayersExpanded ? (
         <div id="explore-layers-list" className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
@@ -510,10 +529,13 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         </div>
       ) : null}
 
-      {/* 4. VIEW TOOLBAR */}
+      {/* 4. VIEW + LAYER TOOLBAR — controls grouped by target (Pass-3):
+          VIEW acts on the camera/map display; LAYER acts on the selected data
+          layer's presentation. Rows are label-left / control-right. */}
       <div className="flex-shrink-0 p-2 flex flex-col gap-2">
+        {/* VIEW cluster: camera + map-display */}
         <div className="flex items-center justify-between gap-2">
-          {/* Left: Fit & Edges */}
+          <span className={clusterHeading}>View</span>
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -528,6 +550,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                 <button
                   onClick={() => onShowEdgesChange(!showEdges)}
                   aria-label={showEdges ? 'Hide edges' : 'Show edges'}
+                  aria-pressed={showEdges}
                   className={showEdges ? iconBtnActive : iconBtn}>
 
                   <GitBranch className="w-3.5 h-3.5" />
@@ -536,10 +559,16 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
               <TooltipContent>{showEdges ? 'Hide edges' : 'Show edges'}</TooltipContent>
             </Tooltip>
           </div>
+        </div>
 
-          {/* Right: Render */}
-          <div className="flex flex-col items-end gap-1">
-            <span className={`text-label uppercase tracking-wider ${textMuted}`}>Render</span>
+        <div className={`border-t ${borderSubtle}`} />
+
+        {/* LAYER cluster: how the selected data layer renders. ("Layer", not
+            "Data" — the Data list section sits directly above this toolbar.) */}
+        <div className="flex flex-col gap-1.5">
+          <span className={clusterHeading}>Layer</span>
+          <div className="flex items-center justify-between gap-2">
+            <span className={rowLabel}>Render</span>
             <div className={segGroup}>
               {renderModeOptions.map((option) => (
                 <Tooltip key={option.value}>
@@ -558,12 +587,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
               ))}
             </div>
           </div>
-        </div>
-
-        <div className="flex items-center justify-between gap-2">
-          {/* Left: Space */}
-          <div className="flex flex-col gap-1">
-            <span className={`text-label uppercase tracking-wider ${textMuted}`}>Space</span>
+          <div className="flex items-center justify-between gap-2">
+            <span className={rowLabel}>Space</span>
             <div className={segGroup}>
               {spaceOptions.map((option) => (
                 <Tooltip key={option.value}>
@@ -582,19 +607,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
               ))}
             </div>
           </div>
-
-          {/* Right: Debug toggle */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => onShowDebugLayersChange(!showDebugLayers)}
-                aria-label={showDebugLayers ? "Hide debug layers" : "Show debug layers"}
-                className={showDebugLayers ? iconBtnActive : iconBtn}>
-                <Bug className="w-3.5 h-3.5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>{showDebugLayers ? "Hide debug layers" : "Show debug layers"}</TooltipContent>
-          </Tooltip>
         </div>
 
         {eraEnabled ? (
