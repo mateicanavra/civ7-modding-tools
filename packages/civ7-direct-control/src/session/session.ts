@@ -17,9 +17,13 @@ import type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
   Civ7DirectControlOptions,
+  Civ7DirectControlSessionStats,
   Civ7TunerState,
   Civ7TunerStateSelection,
 } from "./types.js";
+
+/** How long a graceful FIN gets before `close()` falls back to `destroy()`. */
+const GRACEFUL_CLOSE_TIMEOUT_MS = 1_000;
 
 type PendingCiv7TunerRequest = {
   resolve: (frame: Civ7TunerFrame) => void;
@@ -36,6 +40,7 @@ export class Civ7DirectControlSession {
   private endpointValue: Civ7DirectControlEndpoint | undefined;
   private buffer = Buffer.alloc(0);
   private readonly pending = new Map<number, PendingCiv7TunerRequest>();
+  private consecutiveResponseTimeouts = 0;
 
   constructor(options: Civ7DirectControlOptions = {}) {
     this.config = resolveCiv7DirectControlConfig(options);
@@ -43,6 +48,16 @@ export class Civ7DirectControlSession {
 
   get endpoint(): Civ7DirectControlEndpoint | undefined {
     return this.endpointValue;
+  }
+
+  /**
+   * Health counters observed on this socket — the one vantage point that
+   * sees ALL traffic on a shared session (every consumer's requests). A
+   * sustained run of response-timeouts is the wedged/busy-tuner signature
+   * the studio's backoff gate keys on.
+   */
+  get stats(): Civ7DirectControlSessionStats {
+    return { consecutiveResponseTimeouts: this.consecutiveResponseTimeouts };
   }
 
   async connect(): Promise<Civ7DirectControlEndpoint> {
@@ -84,13 +99,30 @@ export class Civ7DirectControlSession {
     );
   }
 
+  /**
+   * Graceful close: FIN first (`socket.end()`), so the game can release its
+   * descriptor cleanly — abrupt `destroy()` teardown is the suspected driver
+   * of the game-side fd leak that wedges the tuner after long sessions. The
+   * destroy fallback only fires if the peer never completes the handshake.
+   */
   async close(): Promise<void> {
     const socket = this.socket;
     this.socket = undefined;
     this.endpointValue = undefined;
     this.buffer = Buffer.alloc(0);
     this.rejectPending(new Civ7DirectControlError("socket-closed", "Civ7 tuner socket closed"));
-    if (socket && !socket.destroyed) socket.destroy();
+    if (!socket || socket.destroyed) return;
+    await new Promise<void>((resolve) => {
+      const timer = setTimeout(() => socket.destroy(), GRACEFUL_CLOSE_TIMEOUT_MS);
+      socket.once("close", () => {
+        clearTimeout(timer);
+        resolve();
+      });
+      // Post-end errors (peer reset during the handshake) must not surface as
+      // unhandled; "close" always follows.
+      socket.on("error", () => {});
+      socket.end();
+    });
   }
 
   async queryStates(options: { timeoutMs?: number } = {}): Promise<ReadonlyArray<Civ7TunerState>> {
@@ -132,6 +164,7 @@ export class Civ7DirectControlSession {
     const response = new Promise<Civ7TunerFrame>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(listenerId);
+        this.consecutiveResponseTimeouts += 1;
         reject(
           new Civ7DirectControlError(
             "response-timeout",
@@ -155,6 +188,7 @@ export class Civ7DirectControlSession {
       if (!pending) continue;
       clearTimeout(pending.timer);
       this.pending.delete(parsed.frame.listenerId);
+      this.consecutiveResponseTimeouts = 0;
       pending.resolve(parsed.frame);
     }
   }
@@ -180,6 +214,11 @@ export async function withCiv7DirectControlSession<T>(
   options: Civ7DirectControlOptions,
   run: (session: Civ7DirectControlSession) => Promise<T>,
 ): Promise<T> {
+  // Caller-owned shared session: reuse, never close — the owner (e.g. the
+  // studio daemon's Effect-scoped service) manages acquisition/release.
+  if (options.session) {
+    return await run(options.session);
+  }
   const session = new Civ7DirectControlSession(options);
   try {
     return await run(session);
