@@ -6,7 +6,10 @@ import type {
   Civ7ControlOrpcDestinationAnalysisResult,
   Civ7ControlOrpcTargetCandidatesResult,
 } from "../../../dependencies/direct-control";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7StrategyFrontSummaryInput,
@@ -66,9 +69,10 @@ export const strategyFrontSummaryProcedure =
           target,
         });
       },
-      catch: () =>
+      catch: (cause) =>
         errors.STRATEGY_FRONT_SUMMARY_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "strategy.frontSummary",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

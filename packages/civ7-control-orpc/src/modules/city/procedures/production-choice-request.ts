@@ -6,7 +6,10 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcProductionChoiceResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
   civ7MutationRequestStatusWithoutGuarded,
@@ -30,9 +33,10 @@ export const cityProductionChoiceRequestProcedure =
         );
         return cityProductionChoiceResult(input, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.PRODUCTION_CHOICE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "city.production.choice.request",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

@@ -4,7 +4,10 @@ import { Effect } from "effect";
 import type { Civ7ControlOrpcContext } from "../../../context";
 import type { Civ7ControlOrpcProgressionTargetResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
@@ -42,9 +45,10 @@ export const progressionTechnologyTargetRequestProcedure =
         const result = await requestProgressionTarget(kind, requestInput, context);
         return progressionTargetResult(source, requestInput, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.PROGRESSION_TARGET_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: source,
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
@@ -70,9 +74,10 @@ export const progressionCultureTargetRequestProcedure =
         const result = await requestProgressionTarget(kind, requestInput, context);
         return progressionTargetResult(source, requestInput, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.PROGRESSION_TARGET_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: source,
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

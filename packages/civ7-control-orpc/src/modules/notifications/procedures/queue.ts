@@ -5,7 +5,10 @@ import type {
   Civ7ControlOrpcPlayNotificationViewResult,
 } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7NotificationQueueDismissResult,
@@ -34,9 +37,10 @@ export const notificationsQueueCurrentProcedure =
         });
         return notificationQueueResult(view);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.NOTIFICATION_QUEUE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "notifications.queue.current",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
@@ -87,9 +91,10 @@ export const notificationsQueueDismissRequestProcedure =
           maxDismissals,
         });
       },
-      catch: () =>
+      catch: (cause) =>
         errors.NOTIFICATION_QUEUE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "notifications.queue.dismiss.request",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

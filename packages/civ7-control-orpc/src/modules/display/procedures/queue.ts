@@ -4,7 +4,10 @@ import type {
   Civ7ControlOrpcCloseDisplaysResult,
   Civ7ControlOrpcDisplayQueueSnapshotResult,
 } from "../../../dependencies/direct-control";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7DisplayQueueCloseResult,
@@ -23,9 +26,10 @@ export const displayQueueCurrentProcedure =
             context.endpointDefaults,
           ),
         ),
-      catch: () =>
+      catch: (cause) =>
         errors.DISPLAY_QUEUE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "display.queue.current",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
@@ -48,9 +52,10 @@ export const displayQueueCloseProcedure =
             context.endpointDefaults,
           ),
         ),
-      catch: () =>
+      catch: (cause) =>
         errors.DISPLAY_QUEUE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "display.queue.close",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

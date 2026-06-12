@@ -4,7 +4,10 @@ import { Effect } from "effect";
 import type { Civ7ControlOrpcContext } from "../../../context";
 import type { Civ7ControlOrpcDirectControlFacade } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
@@ -44,9 +47,10 @@ export const cityTownFocusChangeRequestProcedure =
         );
         return townFocusResult(source, input, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.TOWN_FOCUS_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: source,
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
@@ -72,9 +76,10 @@ export const cityTownFocusReviewRequestProcedure =
         );
         return townFocusResult(source, input, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.TOWN_FOCUS_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: source,
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

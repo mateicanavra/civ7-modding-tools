@@ -5,7 +5,10 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNotificationDismissalResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
@@ -29,9 +32,10 @@ export const notificationsDismissRequestProcedure =
           );
         return notificationDismissalResult(result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.NOTIFICATION_DISMISSAL_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "notifications.dismiss.request",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

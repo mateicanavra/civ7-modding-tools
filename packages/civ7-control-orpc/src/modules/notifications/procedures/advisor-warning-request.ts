@@ -6,7 +6,10 @@ import { Effect } from "effect";
 import type { Civ7ControlOrpcContext } from "../../../context";
 import type { Civ7ControlOrpcAdvisorWarningViewedResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
@@ -39,9 +42,10 @@ export const notificationsAdvisorWarningViewedRequestProcedure =
           );
         return advisorWarningViewedResult(input, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: source,
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

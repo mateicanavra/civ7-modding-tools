@@ -12,10 +12,18 @@ const Civ7ControlOrpcErrorCorrelationProperties = {
   correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
 };
 
+const Civ7ControlOrpcErrorFailureProperties = {
+  /** Failing wire-atom step within the procedure (e.g. "apply-explore-grant"), when it runs several. */
+  step: Type.Optional(Type.String()),
+  /** Human-readable failure detail from the underlying call. */
+  detail: Type.Optional(Type.String()),
+};
+
 export const Civ7ReadinessCurrentUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("readiness.current"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -38,6 +46,7 @@ export const Civ7AttentionCurrentUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("attention.current"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -60,6 +69,7 @@ export const Civ7AttentionPrioritiesUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("attention.priorities"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -82,6 +92,7 @@ export const Civ7StrategyFrontSummaryUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("strategy.frontSummary"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -108,6 +119,7 @@ export const Civ7StrategyTacticalReadUnavailableErrorDataSchema = Type.Object(
       Type.Literal("strategy.destinationAnalysis"),
     ]),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -133,6 +145,7 @@ export const Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema =
     {
       procedureKey: Type.Literal("strategy.civilianRouteTriage"),
       source: Type.Literal("direct-control-facade"),
+      ...Civ7ControlOrpcErrorFailureProperties,
       ...Civ7ControlOrpcErrorCorrelationProperties,
     },
     { additionalProperties: false },
@@ -158,6 +171,7 @@ export const Civ7StrategyFormationSnapshotUnavailableErrorDataSchema =
     {
       procedureKey: Type.Literal("strategy.formationSnapshot"),
       source: Type.Literal("direct-control-facade"),
+      ...Civ7ControlOrpcErrorFailureProperties,
       ...Civ7ControlOrpcErrorCorrelationProperties,
     },
     { additionalProperties: false },
@@ -182,6 +196,7 @@ export const Civ7WorldCurrentUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("world.current"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -207,6 +222,7 @@ export const Civ7WorldReadUnavailableErrorDataSchema = Type.Object(
       Type.Literal("world.grid.read"),
     ]),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -232,6 +248,7 @@ export const Civ7DisplayQueueUnavailableErrorDataSchema = Type.Object(
       Type.Literal("display.queue.close"),
     ]),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -254,6 +271,7 @@ export const Civ7ExploreSuspensionUnverifiedErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("display.explore.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -276,10 +294,7 @@ export const Civ7ExploreFailedErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("display.explore.request"),
     source: Type.Literal("direct-control-facade"),
-    /** Wire-atom step that failed (e.g. "apply-explore-grant"). */
-    step: Type.Optional(Type.String()),
-    /** Human-readable failure detail from the underlying call. */
-    detail: Type.Optional(Type.String()),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -302,8 +317,7 @@ export const Civ7AppshotErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("view.appshot.capture"),
     source: Type.Literal("direct-control-facade"),
-    /** Human-readable failure detail from the capture pipeline. */
-    detail: Type.Optional(Type.String()),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -359,8 +373,7 @@ export const Civ7ViewCameraErrorDataSchema = Type.Object(
       Type.Literal("view.appshot.capture"),
     ]),
     source: Type.Literal("direct-control-facade"),
-    /** Human-readable failure detail from the camera pipeline. */
-    detail: Type.Optional(Type.String()),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -391,6 +404,7 @@ export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -416,6 +430,7 @@ export const Civ7NotificationAdvisorWarningUnavailableErrorDataSchema =
         "notifications.advisorWarning.viewed.request",
       ),
       source: Type.Literal("direct-control-facade"),
+      ...Civ7ControlOrpcErrorFailureProperties,
       ...Civ7ControlOrpcErrorCorrelationProperties,
     },
     { additionalProperties: false },
@@ -443,6 +458,7 @@ export const Civ7NotificationQueueUnavailableErrorDataSchema = Type.Object(
       Type.Literal("notifications.queue.dismiss.request"),
     ]),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -465,6 +481,7 @@ export const Civ7UnitTargetActionUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("unit.target.action.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -490,6 +507,7 @@ export const Civ7UnitRequestUnavailableErrorDataSchema = Type.Object(
       Type.Literal("unit.resettle.request"),
     ]),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -512,6 +530,7 @@ export const Civ7NarrativeChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("narrative.choice.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -534,6 +553,7 @@ export const Civ7DiplomacyResponseUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("diplomacy.response.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -556,6 +576,7 @@ export const Civ7FirstMeetResponseUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("diplomacy.firstMeet.response.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -581,6 +602,7 @@ export const Civ7GovernmentChoiceUnavailableErrorDataSchema = Type.Object(
       Type.Literal("government.celebration.choice.request"),
     ]),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -606,6 +628,7 @@ export const Civ7ProgressionChoiceUnavailableErrorDataSchema = Type.Object(
       Type.Literal("progression.culture.choice.request"),
     ]),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -628,6 +651,7 @@ export const Civ7ProgressionDashboardUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("progression.dashboard.current"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -652,6 +676,7 @@ export const Civ7ProgressionTraditionsUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("progression.traditions.current"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -682,6 +707,7 @@ export const Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema =
         Type.Literal("progression.tradition.review.request"),
       ]),
       source: Type.Literal("direct-control-facade"),
+      ...Civ7ControlOrpcErrorFailureProperties,
       ...Civ7ControlOrpcErrorCorrelationProperties,
     },
     { additionalProperties: false },
@@ -709,6 +735,7 @@ export const Civ7ProgressionTargetUnavailableErrorDataSchema = Type.Object(
       Type.Literal("progression.culture.target.request"),
     ]),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -731,6 +758,7 @@ export const Civ7TurnCompletionUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("turn.complete.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -756,6 +784,7 @@ export const Civ7MutationReadinessRequiredErrorDataSchema = Type.Object(
     risk: Type.Literal("mutation"),
     playable: Type.Literal(false),
     readiness: Type.String(),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -779,6 +808,7 @@ export const Civ7MutationReadinessUnavailableErrorDataSchema = Type.Object(
     procedureKey: Type.String(),
     source: Type.Literal("direct-control-facade"),
     risk: Type.Literal("mutation"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -809,6 +839,7 @@ export const Civ7MutationProofBoundaryInvalidErrorDataSchema = Type.Object(
       Type.Literal("sent-unverified-without-do-not-repeat"),
       Type.Literal("sent-guarded-without-do-not-repeat"),
     ]),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -831,6 +862,7 @@ export const Civ7ProductionChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("city.production.choice.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -856,6 +888,7 @@ export const Civ7TownFocusUnavailableErrorDataSchema = Type.Object(
       Type.Literal("city.townFocus.review.request"),
     ]),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
@@ -878,6 +911,7 @@ export const Civ7PopulationPlacementUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("city.population.place.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },

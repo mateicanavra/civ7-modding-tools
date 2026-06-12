@@ -14,7 +14,10 @@ import type {
   Civ7ControlOrpcReadyUnitViewResult,
   Civ7ControlOrpcTurnCompletionStatusResult,
 } from "../../../dependencies/direct-control";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import type { Civ7ControlOrpcMapLocation } from "../../../model/primitives";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
@@ -99,9 +102,10 @@ export const attentionPrioritiesProcedure =
           },
         });
       },
-      catch: () =>
+      catch: (cause) =>
         errors.ATTENTION_PRIORITIES_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "attention.priorities",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

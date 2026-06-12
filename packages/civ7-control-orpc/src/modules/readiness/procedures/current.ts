@@ -3,7 +3,10 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcContext } from "../../../context";
 import type { Civ7ControlOrpcPlayableStatusResult } from "../../../dependencies/direct-control";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7ReadinessCurrentResult } from "../contract";
 
@@ -20,9 +23,10 @@ export const readinessCurrentProcedure =
           ),
           context,
         ),
-      catch: () =>
+      catch: (cause) =>
         errors.READINESS_CURRENT_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "readiness.current",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

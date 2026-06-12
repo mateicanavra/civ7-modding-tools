@@ -144,7 +144,7 @@ describe("display.explore.request control-oRPC procedure", () => {
         procedureKey: "display.explore.request",
         source: "direct-control-facade",
         step: "apply-explore-grant",
-        detail: "tuner down",
+        detail: "Error",
       },
     });
     expect(fake.calls).toEqual(["summary", "suspend", "grant", "resume"]);

@@ -1,3 +1,4 @@
+import { Civ7DirectControlError } from "@civ7/direct-control";
 import { Type, type Static } from "typebox";
 
 export const Civ7ControlOrpcCorrelationIdSchema = Type.String({
@@ -25,4 +26,20 @@ export function civ7ControlOrpcErrorCorrelationData(
   return isCiv7ControlOrpcCorrelationId(correlationId)
     ? { correlationId }
     : {};
+}
+
+/**
+ * Bounded failure detail for a defined-error `detail` field. NEVER the raw
+ * cause message: tuner failure messages embed raw commands and endpoint
+ * details, and error data is a wire contract (pinned by the "without raw
+ * details" leak tests). Civ7DirectControlError causes surface their bounded
+ * code ("direct-control/response-timeout"); anything else surfaces only its
+ * constructor name.
+ */
+export function civ7ControlOrpcFailureDetail(cause: unknown): string {
+  if (cause instanceof Civ7DirectControlError) {
+    return `direct-control/${cause.code}`;
+  }
+  if (cause instanceof Error) return cause.name;
+  return typeof cause;
 }

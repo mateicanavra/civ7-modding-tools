@@ -6,7 +6,10 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
   civ7MutationRequestStatus,
@@ -28,9 +31,10 @@ export const turnCompleteRequestProcedure =
         );
         return turnCompletionResult(result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.TURN_COMPLETION_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "turn.complete.request",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

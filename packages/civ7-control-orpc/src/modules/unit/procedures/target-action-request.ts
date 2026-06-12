@@ -3,7 +3,10 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcUnitTargetActionResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
   civ7MutationRequestStatus,
@@ -27,9 +30,10 @@ export const unitTargetActionRequestProcedure =
         );
         return unitTargetActionResult(result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.UNIT_TARGET_ACTION_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "unit.target.action.request",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

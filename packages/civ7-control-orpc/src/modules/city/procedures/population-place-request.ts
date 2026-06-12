@@ -3,7 +3,10 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcContext } from "../../../context";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
   civ7MutationRequestStatus,
@@ -57,9 +60,10 @@ export const cityPopulationPlaceRequestProcedure =
           );
         return cityPopulationPlacementResult(runtimeInput, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.POPULATION_PLACEMENT_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "city.population.place.request",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

@@ -5,7 +5,10 @@ import {
 import { Effect, Ref } from "effect";
 
 import type { Civ7ControlOrpcVisibilitySummaryResult } from "../../../dependencies/direct-control";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7DisplayExploreRequestResult } from "../contract";
 
@@ -69,7 +72,7 @@ export const displayExploreRequestProcedure =
             data: {
               ...errorData,
               step,
-              detail: cause instanceof Error ? cause.message : String(cause),
+              detail: civ7ControlOrpcFailureDetail(cause),
             },
           }),
       });
