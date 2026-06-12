@@ -48,7 +48,25 @@ This is new since your base and overlaps your decomposition directly:
 
 ## 2. Suggested restack order for your lane
 
-1. `gt sync --no-restack`, then a targeted `gt restack --branch <your-leaf> --downstack` (your lane is ~36 branches; expect conflicts concentrated in the `design/server-orpc`→`design/app-decompose`→`design/app-shell` region for studio-server/App.tsx, and in whatever branches touch `ExplorePanel`/footer for the inspector wiring).
+1. `gt sync --no-restack`, then a targeted `gt restack --branch <your-leaf> --downstack` (expect conflicts concentrated in the `design/server-orpc`→`design/app-decompose`→`design/app-shell` region for studio-server/App.tsx, in whatever branches touch `ExplorePanel`/footer for the inspector wiring, and in the `bun-server-*`/`tuner-*` tail for studio-server).
 2. Resolve App.tsx in your favor (your decomposition wins), then re-home: the three oRPC clients (control, recipe-dag, studio-server), the DAG tab, the inspector surface, and the run-in-game proof gate into your decomposed tree.
 3. Run the studio + mod suites; port semantic assertions from any chrome-bound tests you replace (`RecipeDagView.test.tsx`, ExplorePanel-adjacent tests) onto your new components in the same change.
 4. The integration lane (this doc's author) is done and will not touch your stack; sequencing questions go to the operator.
+
+## 3. Division of labor + pre-resolved judgment calls (2026-06-12, post-#1601)
+
+The integration agent ran a fresh census against your lane at leaf `design/tuner-daemon-wiring` (base `df77f3502`, 71 commits ahead, 32 colliding files vs the remaining drift = taxonomy + rivers + closure docs only; dag/placement/trivia are already in your base). **Main is frozen for you: the integration lane has merged everything it will merge.** The split of remaining work:
+
+**Already done for you (integration side — do not redo):**
+- All other stacks drained or dropped; no further main movement from the integration lane.
+- The `packages/studio-server` both-sides-built situation was analyzed file-by-file. Your tree and main's (rivers-restored) tree are near-identical siblings: 10 files differ, ~244 lines. Disposition table below — every resolution is pre-decided.
+- The `packages/civ7-direct-control/src/index.ts` conflict (your 1 commit vs rivers' export additions) is a pure union. Main's side added: the native river readback group (`getCiv7NativeRiverObjects` + its 3 schemas), the explore grant/release group (`applyCiv7ExploreGrant`, `releaseCiv7ExploreGrant`, `defaultExploreSettleMs`, `VisibilityGrantDependencies`, 4 io types), and the start-positions group (`readCiv7StartPositions`, `CIV7_START_POSITIONS_METHOD`, 2 schemas + types). Your side added `Civ7DirectControlSessionStats`. Keep all of it.
+
+**Yours (owner-lane work only you can do):**
+1. The restack itself and every in-lane resolution (your decomposition wins on App.tsx/ExplorePanel/shell chrome; re-home the merged capabilities per §1.4 and §2.2).
+2. `packages/studio-server` shared files — **your version wins in all 8**: `package.json`, `contract/mapConfigs.ts`, `contract/runInGame.ts`, `handler.ts`, `index.ts`, `runtime.ts`, `services/Civ7TunerClient.ts`, plus your new `services/Civ7TunerSession.ts`. Your tuner-session/dispose rework is the deliberate evolution of the rivers restoration; nothing in main's versions of these 8 files carries unique semantics your tree lacks.
+3. `packages/studio-server` main-only files — `test/handler.test.ts` (2 tests: stateful ops through the native effect-oRPC handler; non-rpc passthrough for host fallback) and `vitest.config.ts` survive your restack automatically (none of your commits delete them; you simply never had them). **Keep them and make them green**: both tests pin semantics your reworked handler preserves (`handle(request, {prefix})`, `matched:false` → host fallthrough), so at most the handler construction call needs a mechanical update for your new tuner ports. If your rework deliberately changed pinned behavior, replace the test with equivalent coverage in the same commit — don't delete without replacement.
+4. `bun.lock`: resolve either way, then `bun install` and commit the regenerated lockfile.
+5. Full gates + drain of your stack when you're done (post-restack baseline: mapgen-studio 174 / mod 569 / direct-control 427 / control-orpc 345 — your lane's additions land on top of those counts).
+
+**Recommendation on splitting (operator asked):** stay linear, no semantic split. Conflict cost scales with commits touching colliding files, and your exposure is low (App.tsx ×4, vite ×5, studio-server ×5, ExplorePanel ×8, bun.lock ×7 ≈ 25–30 conflict events over 71 commits, with rerere compounding). A split does the same conflict work plus re-parenting overhead, and with ~5 branches left there is no long-lived tail to justify draining a bottom segment early. Finish the remaining branches on your current base first, then restack once against final main, then drain.
