@@ -114,6 +114,7 @@ import { useAuthoringStore } from "../stores/authoringStore";
 import { useRunStore } from "../stores/runStore";
 import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
 import { useOperationStatusPolls } from "./hooks/useOperationStatusPolls";
+import { useDaemonInstanceWatchdog } from "./hooks/useDaemonInstanceWatchdog";
 import { isAbortLikeError } from "../shared/async";
 import { clampNumber } from "../shared/number";
 import {
@@ -472,6 +473,9 @@ export function StudioShell(props: StudioShellProps) {
   // defaults), replacing the prior hand-rolled load/retry/focus effect; the derived view
   // shapes are unchanged so `setupControlOptions` below consumes them as before.
   const { savedSetupConfigs, setupCatalog } = useSetupDataQueries();
+  // Auto-reload the tab when the daemon restarts under it — the user should
+  // never need a manual hard refresh to get back to a coherent session.
+  useDaemonInstanceWatchdog();
   const [autoplayActionRunning, setAutoplayActionRunning] = useState(false);
   const [exploreActionRunning, setExploreActionRunning] = useState(false);
   const saveDeployRunning = saveDeployOperation?.status === "running";
@@ -1530,7 +1534,17 @@ export function StudioShell(props: StudioShellProps) {
   });
 
   const handleRunInGame = useCallback(async (options?: { restartCivProcess?: boolean }) => {
-    if (runInGameRunning || saveDeployRunning) return;
+    // Busy gate must never be silent — a click that does nothing is
+    // indistinguishable from a broken launch path.
+    if (runInGameRunning || saveDeployRunning) {
+      toast(
+        runInGameRunning
+          ? "Run in Game is already running — check the status chip in the Game bar."
+          : "Save & Deploy is in progress; wait for it to finish before launching.",
+        { variant: "info" },
+      );
+      return;
+    }
     setLocalError(null);
     const seedPolicy = parseCiv7StudioSeed(recipeSettings.seed);
     if (!seedPolicy.ok) {
