@@ -79,7 +79,13 @@ export function makeDevLivePlan(args: DevLiveArgs): DevLivePlan {
     rpcProxyTarget: backendUrl,
     daemon: {
       command: bunExecutable,
+      // --watch: bun tracks the daemon's full import graph (including
+      // workspace package sources) and restarts the process on change. The
+      // restart stays inside this child process, so the "either child exits
+      // stops the other" teardown below never fires for a hot restart; the
+      // studio tab recovers via the daemon-instance watchdog reload.
       args: [
+        "--watch",
         "src/server/daemon/daemon.ts",
         "--host",
         args.host,
