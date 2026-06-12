@@ -17,13 +17,11 @@ import type {
   GenerationStatus,
   OverlayOption,
   PipelineConfig,
-  RecipeSettings,
   RenderModeOption,
   SpaceOption,
   StageOption,
   StepOption,
   VariantOption,
-  WorldSettings,
 } from "../ui/types";
 
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
@@ -33,27 +31,21 @@ import {
   buildRunInGameClientSnapshot,
   buildRunInGameFingerprint,
   buildRunInGameSourceSnapshot,
-  parseRunInGameClientSnapshot,
   relationForRunInGameOperation,
-  type RunInGameClientSnapshot,
   type RunInGameCurrentRelation,
-  type RunInGameSourceSnapshot,
 } from "../features/runInGame/clientState";
 import {
   formatRunInGameDiagnostics,
-  isRunInGameTerminalPhase,
   runInGameRequiresProcessRestart,
   type RunInGameOperationStatus,
 } from "../features/runInGame/status";
 import { createStudioCiv7ControlOrpcClient } from "../features/runInGame/civ7ControlOrpcClient";
 import {
-  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
   getLocalPlayerSetup,
   normalizeStudioSetupConfig,
   optionRowsFromParameter,
   studioSetupConfigFromLiveSnapshot,
   updateStudioSetupSavedConfig,
-  type Civ7SavedSetupConfigFile,
   type Civ7SetupSnapshotLike,
   type Civ7StudioSetupConfig,
 } from "../features/civ7Setup/setupConfig";
@@ -103,11 +95,6 @@ import { parsePresetKey, type PresetKey } from "../features/presets/types";
 import { usePresets } from "../features/presets/usePresets";
 import { migratePipelineConfig } from "../features/configMigrations/pipelineConfig";
 import {
-  loadStudioAuthoringState,
-  saveStudioAuthoringState,
-} from "../features/studioState/persistence";
-import {
-  DEFAULT_STUDIO_RECIPE_ID,
   findRecipeArtifacts,
   getRecipeArtifacts,
   STUDIO_RECIPE_OPTIONS,
@@ -117,28 +104,22 @@ import { getOverlaySuggestions } from "../recipes/overlaySuggestions";
 
 import { orpcClient } from "../lib/orpc";
 import { useViewStore } from "../stores/viewStore";
+import { useAuthoringStore } from "../stores/authoringStore";
+import { useRunStore } from "../stores/runStore";
+import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
+import { useOperationStatusPolls } from "./hooks/useOperationStatusPolls";
 import { isAbortLikeError } from "../shared/async";
 import { clampNumber } from "../shared/number";
 import {
   toConfigId,
   saveRepoBackedConfig,
   fetchMapConfigSaveDeployStatus,
-  MAP_CONFIG_SAVE_LAST_REQUEST_KEY,
 } from "../features/mapConfigSave/api";
 import { runCurrentConfigInGame, fetchRunInGameStatus } from "../features/runInGame/api";
-import {
-  RUN_IN_GAME_LAST_REQUEST_KEY,
-  RUN_IN_GAME_LAST_SNAPSHOT_KEY,
-  RUN_IN_GAME_LAST_SOURCE_KEY,
-  readStoredRunInGameSourceSnapshot,
-} from "../features/runInGame/sourceSnapshotStorage";
-import { liveSourceMatchesStudio, type LastRunSnapshot } from "../features/runInGame/liveSource";
+import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
 import {
   fetchCiv7SetupConfig,
-  fetchCiv7SavedSetupConfigs,
-  fetchCiv7SetupCatalog,
   requestCiv7Autoplay,
-  type Civ7SetupCatalog,
 } from "../features/civ7Setup/api";
 import {
   findSetupParameterLike,
@@ -189,11 +170,28 @@ export function StudioShell(props: StudioShellProps) {
   const toast = useToast();
   const { themePreference, isLightMode, cyclePreference } = props;
   const theme = useMemo(() => createTheme(isLightMode), [isLightMode]);
-  const initialAuthoringStateRef = useRef<ReturnType<typeof loadStudioAuthoringState> | undefined>(undefined);
-  if (initialAuthoringStateRef.current === undefined) {
-    initialAuthoringStateRef.current = loadStudioAuthoringState();
-  }
-  const initialAuthoringState = initialAuthoringStateRef.current;
+
+  // Authoring state is owned by `authoringStore` (Zustand persist, architecture/10 §3).
+  // The store seeds itself from the reference persistence (`loadStudioAuthoringState`)
+  // and persists through the same serializer — so the on-disk schema is byte-identical
+  // and the prior manual `saveStudioAuthoringState` effect is gone. Setters mirror the
+  // `useState` (value-or-updater) signature, so the call sites below are unchanged.
+  const worldSettings = useAuthoringStore((s) => s.worldSettings);
+  const setWorldSettings = useAuthoringStore((s) => s.setWorldSettings);
+  const recipeSettings = useAuthoringStore((s) => s.recipeSettings);
+  const setRecipeSettings = useAuthoringStore((s) => s.setRecipeSettings);
+  const setupConfig = useAuthoringStore((s) => s.setupConfig);
+  const setSetupConfig = useAuthoringStore((s) => s.setSetupConfig);
+  const pipelineConfig = useAuthoringStore((s) => s.pipelineConfig);
+  const setPipelineConfig = useAuthoringStore((s) => s.setPipelineConfig);
+  const overridesDisabled = useAuthoringStore((s) => s.overridesDisabled);
+  const setOverridesDisabled = useAuthoringStore((s) => s.setOverridesDisabled);
+  const repoBackedPresetOverridesByRecipe = useAuthoringStore(
+    (s) => s.repoBackedPresetOverridesByRecipe,
+  );
+  const setRepoBackedPresetOverridesByRecipe = useAuthoringStore(
+    (s) => s.setRepoBackedPresetOverridesByRecipe,
+  );
 
   const deckApiRef = useRef<DeckCanvasApi | null>(null);
   const [deckApiReadyTick, setDeckApiReadyTick] = useState(0);
@@ -234,20 +232,6 @@ export function StudioShell(props: StudioShellProps) {
   const autoRunTimerRef = useRef<number | null>(null);
   const autoRunPendingRef = useRef(false);
 
-  const [worldSettings, setWorldSettings] = useState<WorldSettings>(() => initialAuthoringState?.worldSettings ?? {
-    mapSize: "MAPSIZE_STANDARD",
-    playerCount: 6,
-    resources: "balanced",
-  });
-
-  const [recipeSettings, setRecipeSettings] = useState<RecipeSettings>(() => initialAuthoringState?.recipeSettings ?? {
-    recipe: DEFAULT_STUDIO_RECIPE_ID,
-    preset: "none",
-    seed: "123",
-  });
-  const [setupConfig, setSetupConfig] = useState<Civ7StudioSetupConfig>(() =>
-    initialAuthoringState?.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG
-  );
   const [presetError, setPresetError] = useState<PresetErrorState | null>(null);
   const [saveDialogState, setSaveDialogState] = useState<{ open: boolean; label: string; description?: string }>({
     open: false,
@@ -259,12 +243,11 @@ export function StudioShell(props: StudioShellProps) {
   const lastAppliedPresetRef = useRef<AppliedPresetSnapshot | null>(null);
   const lastPresetKeyRef = useRef(recipeSettings.preset);
   const lastRecipeIdRef = useRef(recipeSettings.recipe);
-  const [repoBackedPresetOverridesByRecipe, setRepoBackedPresetOverridesByRecipe] = useState<
-    Record<string, Record<string, BuiltInPreset>>
-  >(() => initialAuthoringState?.repoBackedPresetOverridesByRecipe ?? {});
-  const [lastRunInGameSource, setLastRunInGameSource] = useState<RunInGameSourceSnapshot | null>(() =>
-    readStoredRunInGameSourceSnapshot()
-  );
+  // `lastRunInGameSource` is owned by `runStore` (persisted via the existing
+  // RUN_IN_GAME_LAST_SOURCE_KEY bridge); the prior `readStoredRunInGameSourceSnapshot`
+  // mount read now seeds the store directly.
+  const lastRunInGameSource = useRunStore((s) => s.lastRunInGameSource);
+  const setLastRunInGameSource = useRunStore((s) => s.setLastRunInGameSource);
   const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(null);
 
   const overlaySuggestions = useMemo(() => getOverlaySuggestions(recipeSettings.recipe), [recipeSettings.recipe]);
@@ -314,13 +297,10 @@ export function StudioShell(props: StudioShellProps) {
     livePresets,
   });
   const isLocalPresetSelected = parsePresetKey(recipeSettings.preset).kind === "local";
-  const [pipelineConfig, setPipelineConfig] = useState<PipelineConfig>(() => {
-    if (initialAuthoringState?.pipelineConfig) return initialAuthoringState.pipelineConfig;
-    const artifacts = recipeArtifacts;
-    return buildDefaultConfig(artifacts.configSchema, artifacts.uiMeta, artifacts.defaultConfig);
-  });
-  const [overridesDisabled, setOverridesDisabled] = useState(() => initialAuthoringState?.overridesDisabled ?? false);
-  const [lastRunSnapshot, setLastRunSnapshot] = useState<LastRunSnapshot | null>(null);
+  // `lastRunSnapshot` is session-only run state owned by `runStore` (not persisted —
+  // parity with the prior in-memory `useState`).
+  const lastRunSnapshot = useRunStore((s) => s.lastRunSnapshot);
+  const setLastRunSnapshot = useRunStore((s) => s.setLastRunSnapshot);
 
   useEffect(() => {
     const previousPreset = lastPresetKeyRef.current;
@@ -394,16 +374,8 @@ export function StudioShell(props: StudioShellProps) {
     toast(loadWarning, { variant: "info" });
   }, [loadWarning, toast]);
 
-  useEffect(() => {
-    saveStudioAuthoringState({
-      worldSettings,
-      recipeSettings,
-      setupConfig,
-      pipelineConfig,
-      overridesDisabled,
-      repoBackedPresetOverridesByRecipe,
-    });
-  }, [overridesDisabled, pipelineConfig, recipeSettings, repoBackedPresetOverridesByRecipe, setupConfig, worldSettings]);
+  // Authoring persistence is now driven by `authoringStore`'s `persist` middleware
+  // (same serializer, same key, same schema) — the prior manual save effect is removed.
 
   const vizIngestRef = useRef<(event: VizEvent) => void>(() => {});
   const handleVizEvent = useCallback((event: VizEvent) => {
@@ -418,8 +390,14 @@ export function StudioShell(props: StudioShellProps) {
   const browserRunning = browserRunner.state.running;
   const [localError, setLocalError] = useState<string | null>(null);
   const [saveDeployOperation, setSaveDeployOperation] = useState<MapConfigSaveDeployStatus | null>(null);
-  const [runInGameSnapshot, setRunInGameSnapshot] = useState<RunInGameClientSnapshot | null>(null);
-  const [lastSaveDeployConfig, setLastSaveDeployConfig] = useState<unknown>(null);
+  // `runInGameSnapshot` is owned by `runStore` (persisted via RUN_IN_GAME_LAST_SNAPSHOT_KEY);
+  // `lastSaveDeployConfig` is session-only run state owned by `runStore` (not persisted).
+  const runInGameSnapshot = useRunStore((s) => s.runInGameSnapshot);
+  const setRunInGameSnapshot = useRunStore((s) => s.setRunInGameSnapshot);
+  const lastSaveDeployConfig = useRunStore((s) => s.lastSaveDeployConfig);
+  const setLastSaveDeployConfig = useRunStore((s) => s.setLastSaveDeployConfig);
+  const setRunInGameRequestId = useRunStore((s) => s.setRunInGameRequestId);
+  const setSaveDeployRequestId = useRunStore((s) => s.setSaveDeployRequestId);
   const lastRunInGameToastRef = useRef<string | null>(null);
   const liveStatusFailureCountRef = useRef(0);
   const liveSnapshotFailureCountRef = useRef(0);
@@ -439,19 +417,11 @@ export function StudioShell(props: StudioShellProps) {
     updatedAt?: string;
     error?: string;
   }>({ status: "idle" });
-  const [savedSetupConfigs, setSavedSetupConfigs] = useState<{
-    status: "idle" | "ok" | "error";
-    directory?: string;
-    configurations: ReadonlyArray<Civ7SavedSetupConfigFile>;
-    updatedAt?: string;
-    error?: string;
-  }>({ status: "idle", configurations: [] });
-  const [setupCatalog, setSetupCatalog] = useState<{
-    status: "idle" | "ok" | "error";
-    catalog?: Civ7SetupCatalog;
-    updatedAt?: string;
-    error?: string;
-  }>({ status: "idle" });
+  // Saved configs + setup catalog are READ through oRPC-native TanStack Query
+  // (architecture/10 §2). The query layer owns retry + refetch-on-focus (query client
+  // defaults), replacing the prior hand-rolled load/retry/focus effect; the derived view
+  // shapes are unchanged so `setupControlOptions` below consumes them as before.
+  const { savedSetupConfigs, setupCatalog } = useSetupDataQueries();
   const [autoplayActionRunning, setAutoplayActionRunning] = useState(false);
   const saveDeployRunning = saveDeployOperation?.status === "running";
   const runInGameRunning = runInGameOperation?.status === "running";
@@ -693,66 +663,9 @@ export function StudioShell(props: StudioShellProps) {
     };
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    let retryTimer: number | null = null;
-
-    const load = async () => {
-      const [configs, catalog] = await Promise.all([
-        fetchCiv7SavedSetupConfigs(),
-        fetchCiv7SetupCatalog(),
-      ]);
-      if (cancelled) return;
-      if (configs.ok) {
-        setSavedSetupConfigs({
-          status: "ok",
-          directory: configs.directory,
-          configurations: configs.configurations,
-          updatedAt: configs.observedAt,
-        });
-      } else {
-        setSavedSetupConfigs({
-          status: "error",
-          configurations: [],
-          error: configs.error,
-          updatedAt: configs.observedAt ?? new Date().toISOString(),
-        });
-      }
-      if (catalog.ok) {
-        setSetupCatalog({
-          status: "ok",
-          catalog: catalog.catalog,
-          updatedAt: catalog.catalog.observedAt,
-        });
-      } else {
-        setSetupCatalog({
-          status: "error",
-          error: catalog.error,
-          updatedAt: catalog.observedAt ?? new Date().toISOString(),
-        });
-      }
-
-      if (!configs.ok || !catalog.ok) {
-        retryTimer = window.setTimeout(load, document.hidden ? 10000 : 3000);
-      }
-    };
-
-    const loadNow = () => {
-      if (retryTimer !== null) {
-        window.clearTimeout(retryTimer);
-        retryTimer = null;
-      }
-      void load();
-    };
-
-    void load();
-    window.addEventListener("focus", loadNow);
-    return () => {
-      cancelled = true;
-      if (retryTimer !== null) window.clearTimeout(retryTimer);
-      window.removeEventListener("focus", loadNow);
-    };
-  }, []);
+  // Saved configs + setup catalog now load via `useSetupDataQueries` (TanStack Query);
+  // the prior hand-rolled load/retry/focus-refetch effect is replaced by the query
+  // client's `retry` + `refetchOnWindowFocus` defaults.
 
   useEffect(() => {
     const el = containerRef.current;
@@ -980,22 +893,16 @@ export function StudioShell(props: StudioShellProps) {
     const initial = createMapConfigSaveDeployStatus({ requestId, phase: "queued" });
     setSaveDeployOperation(initial);
 
-    try {
-      localStorage.setItem(MAP_CONFIG_SAVE_LAST_REQUEST_KEY, requestId);
-    } catch {
-      // Server status remains authoritative while the dev server is alive.
-    }
+    // The save/deploy request-id bridge is owned by `runStore` (persisted via the
+    // existing MAP_CONFIG_SAVE_LAST_REQUEST_KEY through the store's fan-out adapter).
+    setSaveDeployRequestId(requestId);
 
     const result = await saveRepoBackedConfig({
       ...args,
       requestId,
       onStatus: (status) => {
         setSaveDeployOperation((current) => current?.requestId === requestId ? status : current);
-        try {
-          localStorage.setItem(MAP_CONFIG_SAVE_LAST_REQUEST_KEY, status.requestId);
-        } catch {
-          // Server status remains authoritative while the dev server is alive.
-        }
+        setSaveDeployRequestId(status.requestId);
       },
     });
     setSaveDeployOperation((current) => {
@@ -1011,7 +918,7 @@ export function StudioShell(props: StudioShellProps) {
     });
     if (result.ok) setLastSaveDeployConfig(stripSchemaMetadataRoot(args.config));
     return result;
-  }, [browserRunning, runInGameRunning, saveDeployRunning]);
+  }, [browserRunning, runInGameRunning, saveDeployRunning, setLastSaveDeployConfig, setSaveDeployRequestId]);
 
   const handleSaveDialogConfirm = useCallback(
     async (args: { label: string; description?: string }) => {
@@ -1492,12 +1399,10 @@ export function StudioShell(props: StudioShellProps) {
       return;
     }
     setRunInGameOperation(result);
-    try {
-      localStorage.setItem(RUN_IN_GAME_LAST_REQUEST_KEY, result.requestId);
-    } catch {
-      // Server status remains authoritative while the dev server is alive.
-    }
-  }, []);
+    // The request-id bridge is owned by `runStore` (persisted via the existing
+    // RUN_IN_GAME_LAST_REQUEST_KEY through the store's fan-out adapter).
+    setRunInGameRequestId(result.requestId);
+  }, [setRunInGameRequestId]);
 
   const refreshMapConfigSaveDeployStatus = useCallback(async (requestId: string) => {
     const result = await fetchMapConfigSaveDeployStatus(requestId);
@@ -1515,25 +1420,22 @@ export function StudioShell(props: StudioShellProps) {
       return;
     }
     setSaveDeployOperation(result);
-    try {
-      localStorage.setItem(MAP_CONFIG_SAVE_LAST_REQUEST_KEY, result.requestId);
-    } catch {
-      // Server status remains authoritative while the dev server is alive.
-    }
-  }, []);
+    // The request-id bridge is owned by `runStore` (persisted via the existing
+    // MAP_CONFIG_SAVE_LAST_REQUEST_KEY through the store's fan-out adapter).
+    setSaveDeployRequestId(result.requestId);
+  }, [setSaveDeployRequestId]);
+
+  // Mount-time restore: the run-in-game snapshot + the active request ids are already
+  // seeded into `runStore` from the existing localStorage bridge at store init, so this
+  // effect just resumes the status poll for any persisted request id (running the same
+  // `refreshRunInGameStatus` it did before). `runInGameSnapshot` is read live from the
+  // store, so the prior `setRunInGameSnapshot(snapshot)` rehydration is no longer needed.
+  const restoredRunInGameRequestIdRef = useRef(useRunStore.getState().runInGameRequestId);
+  const restoredSaveDeployRequestIdRef = useRef(useRunStore.getState().saveDeployRequestId);
 
   useEffect(() => {
     let cancelled = false;
-    let requestId: string | null = null;
-    let snapshot: RunInGameClientSnapshot | null = null;
-    try {
-      requestId = localStorage.getItem(RUN_IN_GAME_LAST_REQUEST_KEY);
-      snapshot = parseRunInGameClientSnapshot(localStorage.getItem(RUN_IN_GAME_LAST_SNAPSHOT_KEY));
-    } catch {
-      requestId = null;
-      snapshot = null;
-    }
-    if (snapshot) setRunInGameSnapshot(snapshot);
+    const requestId = restoredRunInGameRequestIdRef.current;
     if (!requestId) return undefined;
     void refreshRunInGameStatus(requestId).then(() => {
       if (cancelled) return;
@@ -1544,52 +1446,24 @@ export function StudioShell(props: StudioShellProps) {
   }, [refreshRunInGameStatus]);
 
   useEffect(() => {
-    let requestId: string | null = null;
-    try {
-      requestId = localStorage.getItem(MAP_CONFIG_SAVE_LAST_REQUEST_KEY);
-    } catch {
-      requestId = null;
-    }
+    const requestId = restoredSaveDeployRequestIdRef.current;
     if (!requestId) return undefined;
     void refreshMapConfigSaveDeployStatus(requestId);
     return undefined;
   }, [refreshMapConfigSaveDeployStatus]);
 
-  useEffect(() => {
-    if (!saveDeployOperation || saveDeployOperation.status !== "running") return undefined;
-    let cancelled = false;
-    const timer = window.setTimeout(() => {
-      if (!cancelled) void refreshMapConfigSaveDeployStatus(saveDeployOperation.requestId);
-    }, document.hidden ? 3000 : 1000);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [refreshMapConfigSaveDeployStatus, saveDeployOperation]);
-
-  useEffect(() => {
-    if (!runInGameOperation) return undefined;
-    if (isRunInGameTerminalPhase(runInGameOperation.phase)) {
-      if (lastRunInGameToastRef.current !== runInGameOperation.requestId) {
-        lastRunInGameToastRef.current = runInGameOperation.requestId;
-        if (runInGameOperation.status === "complete") {
-          toast(`Run in Game complete: ${runInGameOperation.materialization?.mapScript ?? runInGameOperation.requestId}`, { variant: "success" });
-        } else if (runInGameOperation.status !== "running") {
-          toast(`Run in Game ${runInGameOperation.status}: ${runInGameOperation.error ?? runInGameOperation.requestId}`, { variant: "error" });
-        }
-      }
-      return undefined;
-    }
-
-    let cancelled = false;
-    const timer = window.setTimeout(() => {
-      if (!cancelled) void refreshRunInGameStatus(runInGameOperation.requestId);
-    }, document.hidden ? 3000 : 1000);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [refreshRunInGameStatus, runInGameOperation, toast]);
+  // Run-in-game + save-deploy status polling is now driven by TanStack Query
+  // `refetchInterval` (same cadence, terminal stop, and 404 mapping — see
+  // `useOperationStatusPolls`); the prior self-rescheduling `setTimeout` effects and the
+  // terminal-toast effect are consolidated there.
+  useOperationStatusPolls({
+    runInGameOperation,
+    saveDeployOperation,
+    refreshRunInGameStatus,
+    refreshMapConfigSaveDeployStatus,
+    lastRunInGameToastRef,
+    toast,
+  });
 
   const handleRunInGame = useCallback(async (options?: { restartCivProcess?: boolean }) => {
     if (runInGameRunning || saveDeployRunning) return;
@@ -1670,13 +1544,10 @@ export function StudioShell(props: StudioShellProps) {
       selectedConfig,
     });
     setLastRunInGameSource(sourceSnapshot);
-    try {
-      localStorage.setItem(RUN_IN_GAME_LAST_REQUEST_KEY, result.requestId);
-      localStorage.setItem(RUN_IN_GAME_LAST_SNAPSHOT_KEY, JSON.stringify(snapshot));
-      localStorage.setItem(RUN_IN_GAME_LAST_SOURCE_KEY, JSON.stringify(sourceSnapshot));
-    } catch {
-      // Server status remains authoritative while the dev server is alive.
-    }
+    // The run-in-game bridge (request id + snapshot + source) is owned by `runStore`;
+    // the store's fan-out persist adapter writes the same RUN_IN_GAME_LAST_REQUEST_KEY /
+    // _SNAPSHOT_KEY / _SOURCE_KEY localStorage entries (same serializers) on each set.
+    setRunInGameRequestId(result.requestId);
     toast(`Run in Game started: ${result.materialization?.mapScript ?? result.requestId}`, { variant: "info" });
   }, [
     pipelineConfig,
@@ -1687,6 +1558,9 @@ export function StudioShell(props: StudioShellProps) {
     runInGameMaterializationMode,
     runInGameRunning,
     saveDeployRunning,
+    setLastRunInGameSource,
+    setRunInGameRequestId,
+    setRunInGameSnapshot,
     setupConfig,
     toast,
     worldSettings,

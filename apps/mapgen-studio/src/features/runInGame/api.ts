@@ -70,7 +70,11 @@ export async function runCurrentConfigInGame(args: {
     // The legacy handler posted `selectedConfig` verbatim (its `id` may be absent
     // for disposable runs) and `parseRunInGameSetupRequest` tolerates that, so we
     // pass it through the permissive (`.catchall`) start input unchanged.
-    const request = {
+    // The request envelope type-checks directly against the start input now that
+    // `selectedConfig.id` is optional in the contract (a disposable run sends
+    // `selectedConfig` without an `id`). No `as unknown as Parameters<…>` cast — the
+    // `assertNoRawControlFields`-protected payload is fully input-typed end to end.
+    const request: Parameters<typeof orpcClient.runInGame.start>[0] = {
       recipeId: args.recipeId,
       seed: args.seed,
       mapSize: args.mapSize,
@@ -79,10 +83,10 @@ export async function runCurrentConfigInGame(args: {
       setupConfig: normalizeStudioSetupConfig(args.setupConfig),
       materialization: { mode: args.materializationMode },
       ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
-      selectedConfig: args.selectedConfig,
+      ...(args.selectedConfig ? { selectedConfig: args.selectedConfig } : {}),
       config: args.config,
       sourceSnapshot: args.sourceSnapshot,
-    } as unknown as Parameters<typeof orpcClient.runInGame.start>[0];
+    };
     const body = await orpcClient.runInGame.start(request);
     return body as RunInGameOperationStatus;
   } catch (err) {
