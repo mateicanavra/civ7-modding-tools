@@ -610,16 +610,24 @@ export type {
   PlotSnapshotReadDependencies,
 } from "./play/map/reads.js";
 export type {
+  Civ7ExploreGrantInput,
+  Civ7ExploreGrantResult,
+  Civ7ExploreReleaseInput,
+  Civ7ExploreReleaseResult,
   Civ7RevealMapResult,
   Civ7VisibilitySummaryInput,
   Civ7VisibilitySummaryResult,
+  VisibilityGrantDependencies,
   VisibilityReadDependencies,
 } from "./play/map/visibility.js";
 export {
+  applyCiv7ExploreGrant,
   Civ7VisibilityGridStateSchema,
   Civ7VisibilitySummaryInputSchema,
   Civ7VisibilitySummaryResultSchema,
+  defaultExploreSettleMs,
   getCiv7VisibilitySummary,
+  releaseCiv7ExploreGrant,
   revealCiv7MapForPlayer,
 } from "./play/map/visibility.js";
 export {
@@ -1301,25 +1309,27 @@ export {
   narrativeChoiceProofPostcondition,
 } from "./proof/narrative-choice-proof-policy.js";
 export {
-  CIV7_CINEMATIC_CLOSE_BUTTON_SELECTOR,
-  CIV7_CINEMATIC_MOMENT_SELECTOR,
-  CIV7_CINEMATIC_TITLE_SELECTOR,
-  Civ7CinematicCameraRestoreResultSchema,
-  Civ7CinematicDismissalInputSchema,
-  Civ7CinematicDismissalResultSchema,
-  Civ7CinematicDismissalRowSchema,
-  DEFAULT_CIV7_CINEMATIC_MAX_DISMISSALS,
-  DEFAULT_CIV7_CINEMATIC_SETTLE_MS,
-  MAX_CIV7_CINEMATIC_MAX_DISMISSALS,
-  MAX_CIV7_CINEMATIC_SETTLE_MS,
-  dismissCiv7CinematicMoments,
-} from "./play/operations/cinematic-dismissal.js";
+  CIV7_DISPLAY_QUEUE_BRIDGE_GLOBAL,
+  CIV7_KNOWN_DISPLAY_CATEGORIES,
+  Civ7CloseDisplaysResultSchema,
+  Civ7ClosedDisplaysRowSchema,
+  Civ7DisplayQueueSnapshotSchema,
+  Civ7DisplayRequestSchema,
+  closeCiv7Displays,
+  ensureCiv7DisplayQueueBridge,
+  readCiv7DisplayQueue,
+  resumeCiv7DisplayQueue,
+  suspendCiv7DisplayQueue,
+} from "./play/operations/display-queue.js";
 export type {
-  Civ7CinematicCameraRestoreResult,
-  Civ7CinematicDismissalInput,
-  Civ7CinematicDismissalResult,
-  Civ7CinematicDismissalRow,
-} from "./play/operations/cinematic-dismissal.js";
+  Civ7CloseDisplaysInput,
+  Civ7CloseDisplaysResult,
+  Civ7ClosedDisplaysRow,
+  Civ7DisplayQueueHoldResult,
+  Civ7DisplayQueueSnapshot,
+  Civ7DisplayRequest,
+  DisplayQueueDependencies,
+} from "./play/operations/display-queue.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;

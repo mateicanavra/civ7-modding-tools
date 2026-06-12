@@ -2,150 +2,92 @@ import { describe, expect, test, vi } from 'vitest';
 import GamePlayScreenDismiss from '../../src/commands/game/play/screen/dismiss';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
-type CinematicProbePayload = {
-  cinematicPresent: boolean;
-  dismissedTitle: string | null;
-  activate: { ok: boolean; value?: boolean } | null;
-  click: { ok: boolean; value?: boolean } | null;
-  remainingSelectorCount: number;
+type ClosePayload = {
+  closed: Array<{ category: string; closed: number }>;
+  closedTotal: number;
+  remainingActive: Array<{ category: string; id: number | null }>;
+  remainingSuspended: Array<{ category: string; id: number | null }>;
 };
 
 describe('game play screen dismiss', () => {
-  test('drains queued cinematic moments and reports titles plus a drained verdict', async () => {
-    const { server } = await startCinematicTunerServer({
-      probes: [presentProbe('Zhangjiajie'), presentProbe('Iguazú Falls'), absentProbe()],
-      domClearCount: 0,
+  test('closes everything queued through DisplayQueueManager.closeMatching and reports queue truth', async () => {
+    const { server } = await startDisplayQueueServer({
+      close: {
+        closed: [
+          { category: 'Cinematic', closed: 7 },
+          { category: 'UnlockPopup', closed: 1 },
+        ],
+        closedTotal: 8,
+        remainingActive: [],
+        remainingSuspended: [],
+      },
     });
     try {
-      const { writes } = await runCommand(server, ['--settle-ms', '0']);
+      const { writes } = await runCommand(server, []);
       expect(writes).toEqual([
-        'dismissed[1]: Zhangjiajie',
-        'dismissed[2]: Iguazú Falls',
-        'drained: yes (0 cinematic-moment DOM nodes after 3 probes)',
+        'closed: Cinematic x7',
+        'closed: UnlockPopup x1',
+        'queue: empty',
       ]);
-      expect(server.received.filter((message) => message.includes('dismissCinematicMoment'))).toHaveLength(3);
-      expect(server.received.filter((message) => message.includes('readCinematicDrainCheck'))).toHaveLength(1);
-      expect(server.received.some((message) => message.includes('restoreCinematicCamera'))).toBe(false);
+      const closeCommands = server.received.filter((message) => message.includes('closeMatching'));
+      expect(closeCommands).toHaveLength(1);
+      // The official queue path is the truth source — no DOM probing, no synthetic events.
+      expect(closeCommands[0]).not.toContain('querySelector');
+      expect(closeCommands[0]).not.toContain('dispatchEvent');
     } finally {
       await server.close();
     }
   });
 
-  test('respects --max and reports an undrained verdict', async () => {
-    const { server } = await startCinematicTunerServer({
-      probes: [],
-      fallbackProbe: presentProbe('Uluru'),
-      domClearCount: 2,
+  test('restricts closure to explicit --category values', async () => {
+    const { server } = await startDisplayQueueServer({
+      close: {
+        closed: [{ category: 'Cinematic', closed: 2 }],
+        closedTotal: 2,
+        remainingActive: [{ category: 'UnlockPopup', id: 9 }],
+        remainingSuspended: [],
+      },
     });
     try {
-      const { writes } = await runCommand(server, ['--max', '2', '--settle-ms', '0']);
+      const { writes } = await runCommand(server, ['--category', 'Cinematic']);
       expect(writes).toEqual([
-        'dismissed[1]: Uluru',
-        'dismissed[2]: Uluru',
-        'drained: no (2 cinematic-moment DOM nodes remain after 2 probes)',
+        'closed: Cinematic x2',
+        'queue: 1 request(s) remain',
       ]);
-      expect(server.received.filter((message) => message.includes('dismissCinematicMoment'))).toHaveLength(2);
+      const closeCommands = server.received.filter((message) => message.includes('closeMatching'));
+      expect(closeCommands[0]).toContain('["Cinematic"]');
     } finally {
       await server.close();
     }
   });
 
-  test('supports --look-at camera restore and --json output', async () => {
-    const { server } = await startCinematicTunerServer({
-      probes: [absentProbe()],
-      domClearCount: 0,
+  test('reports the empty-queue fast path and supports --json', async () => {
+    const { server } = await startDisplayQueueServer({
+      close: { closed: [], closedTotal: 0, remainingActive: [], remainingSuspended: [] },
     });
     try {
-      const { writes } = await runCommand(server, ['--settle-ms', '0', '--look-at', '31,7', '--json']);
-      const payload = JSON.parse(writes.join('')) as {
-        ok: boolean;
-        result: {
-          dismissals: unknown[];
-          drained: boolean;
-          iterations: number;
-          domClearCount: number;
-          cameraRestore: { plot: { x: number; y: number }; lookAt: { ok: boolean; value?: boolean } } | null;
-        };
-      };
+      const human = await runCommand(server, []);
+      expect(human.writes).toEqual(['closed: nothing was queued', 'queue: empty']);
+
+      const json = await runCommand(server, ['--json']);
+      const payload = JSON.parse(json.writes.join('')) as { ok: boolean; result: ClosePayload };
       expect(payload.ok).toBe(true);
-      expect(payload.result.dismissals).toEqual([]);
-      expect(payload.result.drained).toBe(true);
-      expect(payload.result.cameraRestore).toEqual({
-        plot: { x: 31, y: 7 },
-        lookAt: { ok: true, value: true },
-      });
-      const cameraCommands = server.received.filter((message) => message.includes('restoreCinematicCamera'));
-      expect(cameraCommands).toHaveLength(1);
-      expect(cameraCommands[0]).toContain('Camera.lookAtPlot(plot.x, plot.y)');
-      expect(cameraCommands[0]).toContain('"x":31');
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('reports the zero-cinematic fast path in human output', async () => {
-    const { server } = await startCinematicTunerServer({
-      probes: [absentProbe()],
-      domClearCount: 0,
-    });
-    try {
-      const { writes } = await runCommand(server, ['--settle-ms', '0']);
-      expect(writes).toEqual([
-        'no cinematic moments were mounted',
-        'drained: yes (0 cinematic-moment DOM nodes after 1 probe)',
-      ]);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('rejects a malformed --look-at value without opening a socket', async () => {
-    const { server } = await startCinematicTunerServer({ probes: [], domClearCount: 0 });
-    try {
-      await expect(runCommand(server, ['--look-at', 'not-a-plot'])).rejects.toThrow(/--look-at must be x,y/);
-      expect(server.received).toHaveLength(0);
+      expect(payload.result.closedTotal).toBe(0);
+      expect(payload.result.remainingActive).toEqual([]);
     } finally {
       await server.close();
     }
   });
 });
 
-function presentProbe(title: string): CinematicProbePayload {
-  return {
-    cinematicPresent: true,
-    dismissedTitle: title,
-    activate: { ok: true, value: true },
-    click: { ok: true, value: true },
-    remainingSelectorCount: 4,
-  };
-}
-
-function absentProbe(): CinematicProbePayload {
-  return {
-    cinematicPresent: false,
-    dismissedTitle: null,
-    activate: null,
-    click: null,
-    remainingSelectorCount: 0,
-  };
-}
-
-async function startCinematicTunerServer(options: {
-  probes: CinematicProbePayload[];
-  fallbackProbe?: CinematicProbePayload;
-  domClearCount: number;
-}): Promise<{ server: FakeTunerServer }> {
-  const probes = [...options.probes];
+async function startDisplayQueueServer(options: { close: ClosePayload }): Promise<{ server: FakeTunerServer }> {
   const server = await startFakeTunerServer({
     handle({ message }) {
-      if (message.includes('dismissCinematicMoment')) {
-        return [JSON.stringify(probes.shift() ?? options.fallbackProbe ?? absentProbe())];
+      if (message.includes('display-queue-manager.js') && message.includes('ready')) {
+        return [JSON.stringify({ ready: true })];
       }
-      if (message.includes('readCinematicDrainCheck')) {
-        return [JSON.stringify({ domClearCount: options.domClearCount })];
-      }
-      if (message.includes('restoreCinematicCamera')) {
-        return [JSON.stringify({ lookAt: { ok: true, value: true } })];
+      if (message.includes('closeMatching')) {
+        return [JSON.stringify(options.close)];
       }
       return undefined;
     },

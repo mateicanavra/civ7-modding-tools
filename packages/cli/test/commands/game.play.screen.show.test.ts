@@ -2,77 +2,87 @@ import { describe, expect, test, vi } from 'vitest';
 import GamePlayScreenShow from '../../src/commands/game/play/screen/show';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
-type ScreenShowPayload = {
-  selectorCount: number;
-  screens: Array<{ title: string | null; closeButtonPresent: boolean }>;
+type QueueSnapshot = {
+  active: Array<{ category: string; id: number | null }>;
+  suspended: Array<{ category: string; id: number | null }>;
+  isSuspended: boolean;
+  handlerCategories: string[];
 };
 
 describe('game play screen show', () => {
-  test('lists the mounted cinematic screen from one read-only App UI exec', async () => {
-    const server = await startScreenShowTunerServer({
-      selectorCount: 4,
-      screens: [{ title: 'Zhangjiajie', closeButtonPresent: true }],
+  test('lists queued display requests from the official DisplayQueueManager', async () => {
+    const server = await startDisplayQueueServer({
+      active: [{ category: 'Cinematic', id: 6 }],
+      suspended: [{ category: 'UnlockPopup', id: 7 }],
+      isSuspended: true,
+      handlerCategories: ['Cinematic', 'UnlockPopup'],
     });
     try {
       const { writes } = await runCommand(server, []);
       expect(writes).toEqual([
-        'cinematic-moment DOM nodes: 4',
-        'screen: Zhangjiajie (close button present)',
+        'active: Cinematic (id 6)',
+        'suspended: UnlockPopup (id 7)',
+        'queue is SUSPENDED (new requests park without displaying)',
       ]);
 
-      const commands = server.received.filter((message) => message.startsWith('CMD:'));
-      expect(commands).toHaveLength(1);
-      expect(commands[0]).toContain('readScreenShow');
-      expect(commands[0]).toContain('cinematic-moment__close-button');
-      expect(commands[0]).toContain('cinematic-moment_title-header');
-      expect(commands[0]).toContain('[class*=cinematic-moment]');
-      // Read-only: no synthetic close events or clicks anywhere in the exec.
-      expect(commands[0]).not.toContain('action-activate');
-      expect(commands[0]).not.toContain('.click()');
-      expect(commands[0]).not.toContain('dispatchEvent');
+      const reads = server.received.filter((message) => message.includes('snapshotQueue'));
+      expect(reads).toHaveLength(1);
+      // Queue truth, not DOM truth: no selector probing in the exec.
+      expect(reads[0]).not.toContain('querySelector');
+      expect(reads[0]).not.toContain('dispatchEvent');
     } finally {
       await server.close();
     }
   });
 
-  test('reports an empty screen list when nothing is mounted', async () => {
-    const server = await startScreenShowTunerServer({ selectorCount: 0, screens: [] });
+  test('reports an empty queue when nothing is queued', async () => {
+    const server = await startDisplayQueueServer({
+      active: [],
+      suspended: [],
+      isSuspended: false,
+      handlerCategories: ['Cinematic'],
+    });
     try {
       const { writes } = await runCommand(server, []);
-      expect(writes).toEqual([
-        'cinematic-moment DOM nodes: 0',
-        'screens: none mounted',
-      ]);
+      expect(writes).toEqual(['display queue: empty']);
     } finally {
       await server.close();
     }
   });
 
   test('emits machine-readable output with --json', async () => {
-    const server = await startScreenShowTunerServer({
-      selectorCount: 4,
-      screens: [{ title: null, closeButtonPresent: true }],
+    const server = await startDisplayQueueServer({
+      active: [{ category: 'Narrative', id: null }],
+      suspended: [],
+      isSuspended: false,
+      handlerCategories: ['Narrative'],
     });
     try {
       const { writes } = await runCommand(server, ['--json']);
       const payload = JSON.parse(writes.join('')) as {
         ok: boolean;
-        result: ScreenShowPayload & { host: string; port: number; state: { id: string; name: string } };
+        result: QueueSnapshot;
       };
       expect(payload.ok).toBe(true);
-      expect(payload.result.selectorCount).toBe(4);
-      expect(payload.result.screens).toEqual([{ title: null, closeButtonPresent: true }]);
-      expect(payload.result.state.name).toBe('App UI');
+      expect(payload.result.active).toEqual([{ category: 'Narrative', id: null }]);
+      expect(payload.result.isSuspended).toBe(false);
+      // The typed display.queue.current procedure projects queue facts only —
+      // endpoint/session details (host/port/state) stay behind the service.
+      expect(payload.result).not.toHaveProperty('state');
+      expect(payload.result.handlerCategories).toEqual(['Narrative']);
     } finally {
       await server.close();
     }
   });
 });
 
-async function startScreenShowTunerServer(payload: ScreenShowPayload): Promise<FakeTunerServer> {
+async function startDisplayQueueServer(payload: QueueSnapshot): Promise<FakeTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
-      if (message.includes('readScreenShow')) {
+      if (message.includes('display-queue-manager.js') && message.includes('ready')) {
+        return [JSON.stringify({ ready: true })];
+      }
+      if (message.includes('snapshotQueue')) {
         return [JSON.stringify(payload)];
       }
       return undefined;

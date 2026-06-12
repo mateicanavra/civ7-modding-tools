@@ -1,5 +1,35 @@
 # Handoff — Live Validation Findings & Immediate Direction (2026-06-11)
 
+> **SUPERSEDED same day — corrections (read first).** The repair loop this
+> doc commissioned ran to completion; several findings below were FALSIFIED:
+>
+> 1. **There is no leaked cinematic render layer.** The "wonder scene that
+>    survives all cleanup" in whole-display captures was the macOS
+>    **"Sequoia Sunrise" wallpaper** (a redwood forest video). The game runs
+>    fullscreen on its own Space; `screencapture -x` captures the desktop
+>    Space. The official close path was never broken.
+> 2. **The official close path works and is now the substrate.** Wonder
+>    cinematics, unlock popups, and triumph popups were all closed live via
+>    `DisplayQueueManager.closeMatching(category)` with handler state
+>    verified clean. The synthetic-DOM dismissal primitive (finding 1 below)
+>    was REPLACED outright by `display-queue.ts` (D8 in the workstream
+>    record); `suspend()/resume()` additionally allow mutating without
+>    anything ever displaying.
+> 3. **Explore is implemented natively** via engine tracked visibility
+>    grants: `Visibility.setTrackedVisibilityGrant(player, 1, plots)` →
+>    settle → `removeTrackedVisibilityGrant` leaves plots REVEALED/fogged
+>    with zero leaked refcounts (D9). The debug console's "Explore All" is
+>    an ImGui render-only override with no scripting binding — not
+>    borrowable. Discovery popups are suppressed via suspend→purge→resume.
+> 4. **`XR` is definitively `undefined` in the Mac Steam build** (probed in
+>    a clean world view); the XR screenshot API exists only in the
+>    VisionOS/XR build. No native JS-invocable capture exists; window-scoped
+>    OS capture (ScreenCaptureKit; needs a one-time Screen Recording TCC
+>    grant) is the honest appshot fix.
+>
+> Current decisions live in `workstream-record.md` (D8/D9). The text below
+> is preserved as the historical state capture that drove the repair loop.
+
 State capture before a context compaction. Everything below was discovered
 live against a running Civ7 session (user present, single built-in display).
 

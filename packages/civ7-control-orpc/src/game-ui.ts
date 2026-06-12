@@ -402,6 +402,27 @@ function createCiv7GameUiDirectControlFacade(
       await getCiv7GameUiTargetCandidates(input, target),
     getCiv7TurnCompletionStatus: async () =>
       await getCiv7GameUiTurnCompletionStatus(target),
+    getCiv7VisibilitySummary: async () => {
+      throw new Error("game-ui visibility summary is not supported");
+    },
+    readCiv7DisplayQueue: async () => {
+      throw new Error("game-ui display queue read is not supported");
+    },
+    closeCiv7Displays: async () => {
+      throw new Error("game-ui display close is not supported");
+    },
+    suspendCiv7DisplayQueue: async () => {
+      throw new Error("game-ui display queue suspend is not supported");
+    },
+    resumeCiv7DisplayQueue: async () => {
+      throw new Error("game-ui display queue resume is not supported");
+    },
+    applyCiv7ExploreGrant: async () => {
+      throw new Error("game-ui explore grant is not supported");
+    },
+    releaseCiv7ExploreGrant: async () => {
+      throw new Error("game-ui explore grant release is not supported");
+    },
   };
 }
 

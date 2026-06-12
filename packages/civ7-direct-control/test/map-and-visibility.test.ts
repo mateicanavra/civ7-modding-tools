@@ -19,6 +19,11 @@ import {
   getCiv7VisibilitySummary,
   revealCiv7MapForPlayer,
 } from "../src/index";
+import {
+  applyCiv7ExploreGrant,
+  defaultExploreSettleMs,
+  releaseCiv7ExploreGrant,
+} from "../src/play/map/visibility";
 
 type FakeTunerServer = {
   received: string[];
@@ -251,6 +256,97 @@ describe("map and visibility reads", () => {
     } finally {
       await server.close();
     }
+  });
+});
+
+
+describe("explore grant atoms", () => {
+  function grantDependencies(overrides: Partial<Record<string, unknown>> = {}) {
+    const commands: string[] = [];
+    const dependencies = {
+      boundedInteger: (value: number, min: number, max: number, label: string) => {
+        if (!Number.isInteger(value) || value < min || value > max) {
+          throw new Error(`${label} must be an integer between ${min} and ${max}`);
+        }
+        return value;
+      },
+      executeTunerCommand: async ({ command }: { command: string }) => {
+        commands.push(command);
+        if (command.includes("setTrackedVisibilityGrant")) {
+          return tunerResult({ grantId: 1, grantedPlots: 6996, plotCount: 6996 });
+        }
+        return tunerResult({ released: true });
+      },
+      parseExploreGrant: (result: { output: string[] }) => JSON.parse(result.output[0] ?? "{}"),
+      parseExploreRelease: (result: { output: string[] }) => JSON.parse(result.output[0] ?? "{}"),
+      validatePlayerId: (playerId: number) => playerId,
+      ...overrides,
+    };
+    return { commands, dependencies };
+  }
+
+  function tunerResult(payload: unknown) {
+    return {
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "1", name: "Tuner" },
+      output: [JSON.stringify(payload)],
+    };
+  }
+
+  test("applyCiv7ExploreGrant issues one tracked-grant exec and parses the payload", async () => {
+    const { commands, dependencies } = grantDependencies();
+    const result = await applyCiv7ExploreGrant(
+      { playerId: 0 },
+      {},
+      dependencies as never,
+    );
+    expect(commands).toHaveLength(1);
+    expect(commands[0]).toContain("Visibility.setTrackedVisibilityGrant(playerId, 1, plots)");
+    expect(commands[0]).toContain("GameplayMap.getIndexFromXY(x, y)");
+    expect(result).toMatchObject({
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "1", name: "Tuner" },
+      grantId: 1,
+      grantedPlots: 6996,
+      plotCount: 6996,
+    });
+  });
+
+  test("releaseCiv7ExploreGrant issues one removeTrackedVisibilityGrant exec", async () => {
+    const { commands, dependencies } = grantDependencies();
+    const result = await releaseCiv7ExploreGrant(
+      { playerId: 0, grantId: 1 },
+      {},
+      dependencies as never,
+    );
+    expect(commands).toHaveLength(1);
+    expect(commands[0]).toContain("Visibility.removeTrackedVisibilityGrant(0, 1)");
+    expect(result).toMatchObject({
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "1", name: "Tuner" },
+      released: true,
+    });
+  });
+
+  test("releaseCiv7ExploreGrant rejects non-integer grant ids before any exec", async () => {
+    const { commands, dependencies } = grantDependencies();
+    await expect(
+      releaseCiv7ExploreGrant(
+        { playerId: 0, grantId: 1.5 },
+        {},
+        dependencies as never,
+      ),
+    ).rejects.toThrow(/grantId/);
+    expect(commands).toHaveLength(0);
+  });
+
+  test("settle default scales with map size and is clamped", () => {
+    expect(defaultExploreSettleMs(6996)).toBe(69_960);
+    expect(defaultExploreSettleMs(100)).toBe(15_000);
+    expect(defaultExploreSettleMs(50_000)).toBe(120_000);
   });
 });
 

@@ -6,6 +6,7 @@ import { civ7ControlOrpcImplementer } from "./procedure";
 import { attentionRouter } from "./modules/attention/router";
 import { cityRouter } from "./modules/city/router";
 import { diplomacyRouter } from "./modules/diplomacy/router";
+import { displayRouter } from "./modules/display/router";
 import { governmentRouter } from "./modules/government/router";
 import { narrativeRouter } from "./modules/narrative/router";
 import { notificationsRouter } from "./modules/notifications/router";
@@ -23,6 +24,7 @@ export const Civ7ControlOrpcRouter: Router<
   attention: attentionRouter,
   city: cityRouter,
   diplomacy: diplomacyRouter,
+  display: displayRouter,
   government: governmentRouter,
   narrative: narrativeRouter,
   notifications: notificationsRouter,
