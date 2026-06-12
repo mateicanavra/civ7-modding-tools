@@ -1,11 +1,17 @@
 import { Command, Flags } from '@oclif/core';
-import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
-import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
+import {
+  parseWorldBounds,
+  parseWorldLocation,
+  parseWorldPlotFields,
+  readCiv7World,
+} from '../../../utils/game-map-shared';
 
-type Civ7WorldGridInput = Parameters<
-  ReturnType<typeof createCiv7ControlOrpcServerClient>['world']['grid']
->[0];
-type Civ7WorldPlotField = NonNullable<Civ7WorldGridInput['fields']>[number];
+// Topic index for the `game map` noun (D2 in
+// docs/projects/cli-command-taxonomy/workstream-record.md): the original
+// flag-multiplexed command is preserved verbatim so every existing
+// `game map --summary/--plot/--bounds` invocation keeps working unchanged.
+// The focused subcommands (`game map summary|plot|grid`) delegate to the
+// same readCiv7World service-call helper.
 
 export default class GameMap extends Command {
   static id = 'game map';
@@ -66,30 +72,34 @@ export default class GameMap extends Command {
       port: flags.port,
       timeoutMs: flags['timeout-ms'],
     };
-    const fields = parseFields(flags.fields);
+    const fields = parseWorldPlotFields(flags.fields);
     const playerId = flags['player-id'];
-    const client = createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
-      endpointDefaults: options,
-    });
     let result: unknown;
     if (flags.bounds) {
-      result = await client.world.grid({
-        bounds: parseBounds(flags.bounds),
-        fields,
-        playerId,
-        includeHidden: flags['include-hidden'],
-        maxPlots: flags['max-plots'],
-      });
+      result = await readCiv7World(
+        {
+          mode: 'grid',
+          bounds: parseWorldBounds(flags.bounds),
+          fields,
+          playerId,
+          includeHidden: flags['include-hidden'],
+          maxPlots: flags['max-plots'],
+        },
+        options,
+      );
     } else if (flags.plot) {
-      result = await client.world.plot({
-        location: parseLocation(flags.plot),
-        fields,
-        playerId,
-        includeHidden: flags['include-hidden'],
-      });
+      result = await readCiv7World(
+        {
+          mode: 'plot',
+          location: parseWorldLocation(flags.plot),
+          fields,
+          playerId,
+          includeHidden: flags['include-hidden'],
+        },
+        options,
+      );
     } else {
-      result = await client.world.current({});
+      result = await readCiv7World({ mode: 'summary' }, options);
     }
 
     if (flags.json) {
@@ -99,21 +109,4 @@ export default class GameMap extends Command {
 
     this.log(JSON.stringify(result, null, 2));
   }
-}
-
-function parseFields(value: string | undefined): Civ7WorldPlotField[] {
-  return (value?.split(',').map((field) => field.trim()).filter(Boolean) as Civ7WorldPlotField[] | undefined)
-    ?? ['terrain', 'biome', 'feature', 'resource', 'owner', 'visibility', 'areaRegion'];
-}
-
-function parseLocation(value: string): { x: number; y: number } {
-  const [x, y] = value.split(',').map((part) => Number(part.trim()));
-  if (!Number.isInteger(x) || !Number.isInteger(y)) throw new Error(`Invalid location: ${value}`);
-  return { x, y };
-}
-
-function parseBounds(value: string): { x: number; y: number; width: number; height: number } {
-  const [x, y, width, height] = value.split(',').map((part) => Number(part.trim()));
-  if (![x, y, width, height].every(Number.isInteger)) throw new Error(`Invalid bounds: ${value}`);
-  return { x, y, width, height };
 }

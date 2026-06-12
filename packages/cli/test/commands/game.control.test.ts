@@ -8,7 +8,7 @@ import GameStatus from '../../src/commands/game/status';
 import GameCatalog from '../../src/commands/game/catalog';
 import GameMap from '../../src/commands/game/map';
 import GameGameInfo from '../../src/commands/game/gameinfo';
-import GameVisibility from '../../src/commands/game/visibility';
+import GameMapVisibility from '../../src/commands/game/map/visibility';
 import GameAiLoadedLevers from '../../src/commands/game/ai/loaded-levers';
 import GameOperation from '../../src/commands/game/operation';
 import {
@@ -516,12 +516,12 @@ describe('game direct-control commands', () => {
   test('prints visibility summary as debug projection', async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GameVisibility.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameMapVisibility.prototype, 'log').mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       const { port } = server.address();
-      await GameVisibility.run([
+      await GameMapVisibility.run([
         '--host',
         '127.0.0.1',
         '--port',

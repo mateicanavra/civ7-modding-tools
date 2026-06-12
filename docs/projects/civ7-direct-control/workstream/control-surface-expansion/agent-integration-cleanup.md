@@ -159,7 +159,7 @@ parity/better coverage is proven.
   - `civ7 game player summary [playerId] --json`
   - `civ7 game unit summary [playerId] --json`
   - `civ7 game city summary [playerId] --json`
-  - `civ7 game visibility summary <playerId> --json`
+  - `civ7 game map visibility summary <playerId> --json`
 - `[inference]` Add catalog/inspection commands after the package catalog
   schema exists:
   - `civ7 game inspect root <root> --state Tuner --max-keys <n> --json`

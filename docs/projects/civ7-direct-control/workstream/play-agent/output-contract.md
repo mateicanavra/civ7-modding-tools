@@ -499,7 +499,7 @@ Send summary with audit expansion:
 2. Keep existing `{ ok, result }` CLI JSON as `--raw` or
    `--contract direct-control-v1` during migration.
 3. Add contract tests that assert summary shape and omission entries for:
-   `game status`, `game map`, `game visibility`, `game operation`, and any new
+   `game status`, `game map`, `game map visibility`, `game operation`, and any new
    tactical command.
 4. Add focused-field tests for `--fields` and expansion tests for
    `--expand hud,lens,audit,debug`.

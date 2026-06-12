@@ -1,15 +1,18 @@
 import { Command, Flags } from '@oclif/core';
 import { getCiv7VisibilitySummary, revealCiv7MapForPlayer } from '@civ7/direct-control';
 
-export default class GameVisibility extends Command {
-  static id = 'game visibility';
+// Moved from `game visibility` to its taxonomy home under the `game map`
+// noun topic (D5 in docs/projects/cli-command-taxonomy/workstream-record.md).
+// The old id keeps working via the cross-topic oclif alias below.
+export default class GameMapVisibility extends Command {
+  static id = 'game map visibility';
   static summary = 'Read or reveal Civ7 player visibility';
   static description =
     'Reads bounded visibility state, or explicitly reveals the map for a disposable debug session through @civ7/direct-control.';
 
   static examples = [
-    '<%= config.bin %> game visibility --player-id 0 --bounds 0,0,32,32 --json',
-    '<%= config.bin %> game visibility --player-id 0 --reveal --disposable --json',
+    '<%= config.bin %> game map visibility --player-id 0 --bounds 0,0,32,32 --json',
+    '<%= config.bin %> game map visibility --player-id 0 --reveal --disposable --json',
   ];
 
   static flags = {
@@ -52,14 +55,14 @@ export default class GameVisibility extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GameVisibility);
+    const { flags } = await this.parse(GameMapVisibility);
     const options = {
       host: flags.host,
       port: flags.port,
       timeoutMs: flags['timeout-ms'],
     };
     if (flags.reveal && flags.disposable !== true) {
-      throw new Error('game visibility --reveal requires --disposable');
+      throw new Error('game map visibility --reveal requires --disposable');
     }
     const result = flags.reveal
       ? await revealCiv7MapForPlayer(
