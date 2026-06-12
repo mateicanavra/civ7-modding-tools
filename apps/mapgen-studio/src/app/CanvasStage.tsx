@@ -84,6 +84,7 @@ export function CanvasStage(props: CanvasStageProps) {
         showBackgroundGrid={false}
         lightMode={lightMode}
         activeBounds={activeBounds}
+        interactive={hasManifest}
       />
       {/* Awaiting matter: a graticule field + a centered contour frame so the
           empty stage reads as a survey console that is ready, not dead space. */}
