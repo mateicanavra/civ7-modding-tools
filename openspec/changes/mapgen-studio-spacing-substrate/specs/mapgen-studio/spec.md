@@ -14,15 +14,17 @@ and element resets come only from Tailwind preflight.
 - **WHEN** the page loads before React hydrates
 - **THEN** the body still paints the dark flash-guard background and font stack from `index.html`
 
-### Requirement: The Theme Bootstrap Reads The Persisted Preference Key
+### Requirement: The Theme Bootstrap Mirrors The App's Preference Resolution
 
 The pre-paint theme script SHALL read the same localStorage key the app writes
-(`theme-preference`), defaulting to dark when the key is absent or unreadable.
+(`theme-preference`) and resolve it the same way `useTheme` does — explicit
+light/dark wins; absent or `system` follows the OS preference; storage errors
+fall back to dark.
 
 #### Scenario: Light preference applies before first paint
 - **WHEN** `localStorage["theme-preference"]` is `"light"` and the page loads
 - **THEN** the bootstrap does not add the `dark` class, so no dark pre-paint flash occurs
 
-#### Scenario: Absent key keeps the dark default
+#### Scenario: Absent key follows the OS preference
 - **WHEN** no theme preference is persisted
-- **THEN** the bootstrap adds the `dark` class before first paint
+- **THEN** the bootstrap adds the `dark` class exactly when the OS prefers dark, matching what the app will resolve after hydration
