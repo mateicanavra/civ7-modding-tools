@@ -25,6 +25,19 @@ describe("recipe DAG layout", () => {
     expect(routed?.artifacts).toEqual(["seed-grid"]);
     expect(pointsToPath(routed?.points ?? [])).toContain("L");
   });
+
+  it("spreads crowded edge labels in the same horizontal bucket", () => {
+    const layout = buildRecipeDagLayout(crowdedRecipeDag());
+    const labels = layout.edgeGroups
+      .filter((edge) => edge.fromStageId === "source")
+      .map((edge) => edge.labelY)
+      .sort((a, b) => a - b);
+
+    expect(labels.length).toBe(4);
+    for (let index = 1; index < labels.length; index += 1) {
+      expect(labels[index]! - labels[index - 1]!).toBeGreaterThanOrEqual(26);
+    }
+  });
 });
 
 function recipeDag(): RecipeDagResult {
@@ -48,6 +61,32 @@ function recipeDag(): RecipeDagResult {
       edge("source", "seed", "branch-b", "height", "seed-grid"),
       edge("branch-a", "coast", "sink", "finalize", "coast-grid"),
       edge("branch-b", "height", "sink", "finalize", "height-grid"),
+    ],
+    diagnostics: [],
+  };
+}
+
+function crowdedRecipeDag(): RecipeDagResult {
+  return {
+    recipeId: "crowded",
+    recipeKey: "mod-swooper-maps/crowded",
+    namespace: "mod-swooper-maps",
+    title: "Crowded DAG",
+    phases: [
+      { id: "shape", order: 0, stageIds: ["source", "branch-a", "branch-b", "branch-c", "branch-d"], stepCount: 5 },
+    ],
+    stages: [
+      stage("source", 0, "shape", [], ["seed-a", "seed-b", "seed-c", "seed-d"]),
+      stage("branch-a", 1, "shape", ["seed-a"], []),
+      stage("branch-b", 2, "shape", ["seed-b"], []),
+      stage("branch-c", 3, "shape", ["seed-c"], []),
+      stage("branch-d", 4, "shape", ["seed-d"], []),
+    ],
+    edges: [
+      edge("source", "seed", "branch-a", "step", "seed-a"),
+      edge("source", "seed", "branch-b", "step", "seed-b"),
+      edge("source", "seed", "branch-c", "step", "seed-c"),
+      edge("source", "seed", "branch-d", "step", "seed-d"),
     ],
     diagnostics: [],
   };
