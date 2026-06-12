@@ -7,7 +7,7 @@ import {
   toRjsfSchema,
   tryGetSchemaAtPath,
 } from "./schemaPresentation";
-import type { BrowserConfigFormContext } from "./rjsfTemplates";
+import type { BrowserConfigFormContext, ConfigCollapseContext } from "./rjsfTemplates";
 import { getAtPath, setAtPath } from "./pathUtils";
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -34,10 +34,15 @@ export type SchemaConfigFormProps<TConfig> = Readonly<{
   onChange(next: TConfig): void;
   disabled: boolean;
   focusPath?: readonly string[] | null;
+  /**
+   * Collapse state for config objects (Pass-4 config-collapse spec).
+   * Omitted ⇒ the form renders fully expanded with no disclosure chrome.
+   */
+  collapse?: ConfigCollapseContext;
 }>;
 
 export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>) {
-  const { schema, value, onChange, disabled, focusPath } = props;
+  const { schema, value, onChange, disabled, focusPath, collapse } = props;
 
   const buildUiSchema = useMemo(() => {
     const hasEnum = (node: RJSFSchema): boolean =>
@@ -168,11 +173,18 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
     [active.resolved.schema, buildUiSchema]
   );
 
+  // Pointers are mode-independent (focused mode wraps the stage under its own
+  // key), so one collapse context serves both views unchanged.
+  const formContext = useMemo<BrowserConfigFormContext>(
+    () => ({ ...active.resolved.formContext, collapse }),
+    [active.resolved.formContext, collapse]
+  );
+
   return (
     <SchemaForm
       schema={active.resolved.schema}
       uiSchema={uiSchema}
-      formContext={active.resolved.formContext}
+      formContext={formContext}
       value={active.formValue as TConfig}
       disabled={disabled}
       onChange={(next) => {

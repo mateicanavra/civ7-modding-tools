@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 // ============================================================================
 // RECIPE PANEL
 // ============================================================================
@@ -11,10 +11,12 @@ import {
   Braces,
   BookOpen,
   Focus,
+  ListCollapse,
   Settings,
   Save } from
 'lucide-react';
 import { SchemaConfigForm } from '../../features/configOverrides/SchemaConfigForm';
+import { useConfigCollapse } from '../../features/configOverrides/useConfigCollapse';
 import { LAYOUT } from '../constants';
 import {
   formatMapConfigSaveDeployPhaseLabel,
@@ -175,6 +177,16 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
     return config;
   }, [config, selectedStep, showAllSteps]);
   const focusPath = !showAllSteps && selectedStep ? [selectedStep] : null;
+  // Config-object collapse (Pass-4): collapsed by default with manual expand;
+  // the focused stage root defaults expanded; the sticky toggle (default OFF)
+  // hands expansion to the scroll engine.
+  const [stickyAutoExpand, setStickyAutoExpand] = useState(false);
+  const configScrollRef = useRef<HTMLDivElement | null>(null);
+  const collapse = useConfigCollapse({
+    scrollRootRef: configScrollRef,
+    sticky: stickyAutoExpand,
+    focusRootPointer: focusPath ? `/${focusPath.join('/')}` : null
+  });
   // ==========================================================================
   // Handlers
   // ==========================================================================
@@ -351,12 +363,27 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
 
         {/* Config Content */}
         {!configCollapsed &&
-        <div id="recipe-panel-config-section" className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div id="recipe-panel-config-section" ref={configScrollRef} className="flex-1 overflow-y-auto overflow-x-hidden">
             {/* Config Actions */}
             <div
             className={`px-3 py-2 flex items-center gap-2 ${overridesDisabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
 
               <div className="flex-1" />
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                  type="button"
+                  onClick={() => setStickyAutoExpand(!stickyAutoExpand)}
+                  aria-label={stickyAutoExpand ? "Disable Auto-Expand on Scroll" : "Enable Auto-Expand on Scroll"}
+                  aria-pressed={stickyAutoExpand}
+                  className={stickyAutoExpand ? iconBtnActive : iconBtn}>
+
+                    <ListCollapse className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{stickyAutoExpand ? 'Auto-Expand on Scroll: On' : 'Auto-Expand on Scroll: Off'}</TooltipContent>
+              </Tooltip>
 
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -409,6 +436,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               value={config}
               focusPath={focusPath}
               disabled={overridesDisabled}
+              collapse={collapse}
               onChange={(next) => onConfigChange(next)}
             />
 
