@@ -450,3 +450,15 @@ addressed to this lane
   sustained polling, zero leaked fds, game releases its descriptor on daemon
   stop. Run-in-game flows untouched (parity). Deferred: run-flow convergence;
   "restart Civ7" UI affordance.
+- [x] **Effect-native substrate spike** — user-directed leverage question: should
+  the daemon shell, devLive runner, and tuner protocol client be rebuilt on
+  `@effect/platform(-bun)` primitives (HttpServer/runMain, Command,
+  Socket/Stream/Deferred)? Three-investigator research wave, verified against
+  published tarball source. **Verdict: REJECT all three; revisit at Effect v4
+  stable** — adapters ≈ deleted code, platform-bun drags non-optional
+  rpc/sql/cluster peers, platform Socket semantics mismatch the soak-verified
+  FIN/reconnect invariants, effect-orpc requires its own ManagedRuntime
+  regardless (no "one graph" payoff), and v4 (in beta) folds platform into
+  effect core — adopting v3 platform now buys a guaranteed second migration.
+  Full evidence + revisit triggers:
+  `research/04-effect-native-substrate-spike.md`.
