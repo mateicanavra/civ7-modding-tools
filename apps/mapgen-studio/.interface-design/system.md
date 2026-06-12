@@ -351,3 +351,31 @@ the trailing-disclosure placement; keeps the icon-only contract + zoning):
   authors the map, Game "Play" launches it) with a **`Rocket`** glyph —
   launch-the-external-app semantics, replacing `SquareArrowOutUpRight`.
   `SlidersHorizontal` retired from the header (gear owns setup).
+
+## P7 amendment (2026-06-12, user-grounded): config explorer v2 — flat nested accordion + responsive chip + Water proof + Custom precedence
+
+- **Config explorer v2 (supersedes the Pass-3 "group well" tier).** Nested
+  config objects are a FLAT collapsible object explorer: every object/array
+  at depth ≥2 is a flush, full-bleed disclosure row — no well cards, no
+  rounded borders, no side margins, no inter-section gaps. Hairlines come
+  from the parent container's `divide-y divide-border-subtle`; depth reads
+  through a compounding `pl-3` indent on each expanded body plus the heading
+  tier (group eyebrow at depth 2, the dimmer sub-group eyebrow below). Runs
+  of consecutive scalar fields are the only padded blocks (`px-2.5` + the
+  sibling gap); array items are hairline rows, never bordered boxes. The
+  stage slab (`surface-sunken`) remains the single recess tier — surface
+  count goes DOWN with this amendment, not up.
+- **Responsive status chip.** The Game bar's center column is an
+  `@container`; the signal chip's seed suffix rides a `@max-3xl:hidden` span
+  so the chip collapses to `Turn N` before the bar wraps. Full
+  `Turn N · Seed S` stays in the tooltip/accessible name.
+- **Water proof section (ExplorePanel).** The river/lake/floodplain
+  inspector renders as a collapsible section between Step and Layers: lane
+  eyebrow per truth class, claim status as status-dot + word (`ready` /
+  `inspect` / `fail` / `open` / `skip`; projection evidence is steel
+  "inspect", NEVER success-green — projection masks don't masquerade as
+  engine truth), module-owned data-color dots on the layer-jump chips.
+- **Saved-config precedence shows "Custom".** Selection applies the saved
+  config file EXACTLY (full replace); ANY divergence flips the selector
+  value itself to a warning-tinted `Custom` entry with a `Re-apply`
+  affordance beside it. The Modified pill wording is retired.

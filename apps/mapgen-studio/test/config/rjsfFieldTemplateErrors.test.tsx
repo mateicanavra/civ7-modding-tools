@@ -83,17 +83,22 @@ describe("BrowserConfigObjectFieldTemplate nesting surfaces", () => {
     );
   }
 
-  it("renders a depth-2 group as a recessed well, not an indent rule", () => {
+  it("renders a depth-2 group as a flat disclosure row — no well card, no side margins", () => {
     const html = renderGroup(["foundation", "meshResolution"]);
-    // Pass-3 config-surface spec: surface tier (page-tint well), no border-l ladder.
-    expect(html).toContain("bg-background/40");
-    expect(html).not.toContain("border-l");
+    // Config explorer v2 (P7 flatten): the well surface is retired. Nested
+    // objects are flush rows; depth reads through the compounding indent.
+    expect(html).not.toContain("bg-background/40");
+    expect(html).not.toContain("rounded-md");
+    expect(html).not.toContain("my-1");
+    expect(html).toContain("pl-3");
   });
 
-  it("adds no third surface tier at depth 3", () => {
+  it("renders depth 3 with the same flat anatomy on the dimmer heading tier", () => {
     const html = renderGroup(["foundation", "meshResolution", "advanced"]);
     expect(html).not.toContain("bg-background/40");
-    expect(html).not.toContain("border-l");
+    expect(html).not.toContain("rounded-md");
+    expect(html).toContain("text-muted-foreground/70");
+    expect(html).toContain("pl-3");
   });
 });
 
