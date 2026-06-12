@@ -18,8 +18,10 @@ import { Civ7MapLocationSchema, type Civ7MapLocation } from "../map/types.js";
 import { validateMapLocation } from "../map/validation.js";
 
 // Live-verified camera navigation: Camera.lookAtPlot moves the in-game camera
-// to a plot and PlotCursor.plotCursorCoords keeps the cursor in sync. The
-// move is VERIFIED by readback, not assumed: Camera.pickPlot(0.5, 0.5)
+// to a plot and PlotCursor.plotCursorCoords keeps the cursor in sync (the
+// engine does not echo the cursor back through this readback path, so the
+// sync is a fire-and-forget side effect — verification rides on the camera
+// center, below). The move is VERIFIED by readback, not assumed: Camera.pickPlot(0.5, 0.5)
 // resolves which plot actually sits at the viewport center, and the result's
 // `centerMatchesTarget` reports whether that center landed on the requested
 // target.
@@ -75,7 +77,6 @@ export const Civ7CameraFocusResultSchema = Type.Object({
   options: Civ7CameraFocusOptionsSchema,
   before: Civ7CameraStateSnapshotSchema,
   lookAt: Civ7RuntimeProbeSchema(Type.Boolean()),
-  plotCursor: Civ7RuntimeProbeSchema(Type.Union([Civ7MapLocationSchema, Type.Null()])),
   after: Civ7CameraStateSnapshotSchema,
   centerMatchesTarget: Type.Boolean(),
 }, { additionalProperties: false });
@@ -93,7 +94,6 @@ export type Civ7CameraFocusResult = Readonly<{
   }>;
   before: Civ7CameraStateSnapshot;
   lookAt: Readonly<{ ok: true; value: boolean } | { ok: false; error: string }>;
-  plotCursor: Readonly<{ ok: true; value: Civ7MapLocation | null } | { ok: false; error: string }>;
   after: Civ7CameraStateSnapshot;
   centerMatchesTarget: boolean;
 }>;
@@ -146,7 +146,6 @@ export async function focusCiv7CameraOnPlot(
       );
       merged = {
         ...immediate,
-        plotCursor: settled.plotCursor,
         after: settled.after,
         centerMatchesTarget: cameraFocusCenterMatchesTarget({
           ...immediate,
@@ -243,9 +242,6 @@ function buildCameraFocusCommand(
       if (typeof PlotCursor !== "undefined" && PlotCursor !== null) PlotCursor.plotCursorCoords = target;
       return true;
     });
-    const plotCursor = probe(() => typeof PlotCursor !== "undefined" && PlotCursor !== null
-      ? safeLocation(PlotCursor.plotCursorCoords)
-      : null);
     const after = readCameraState();
     return JSON.stringify({
       source: "app-ui-camera",
@@ -254,7 +250,6 @@ function buildCameraFocusCommand(
       options,
       before,
       lookAt,
-      plotCursor,
       after,
       centerMatchesTarget: after.centerPlot.ok === true &&
         after.centerPlot.value !== null &&
@@ -301,9 +296,6 @@ function buildCameraFocusStateReadCommand(
     const options = { instantaneous: input.instantaneous === true };
     if (Number.isFinite(input.zoom)) options.zoom = input.zoom;
     const after = readCameraState();
-    const plotCursor = probe(() => typeof PlotCursor !== "undefined" && PlotCursor !== null
-      ? safeLocation(PlotCursor.plotCursorCoords)
-      : null);
     const targetIndex = probe(() => {
       if (typeof GameplayMap === "undefined" || GameplayMap === null) throw new Error("GameplayMap unavailable");
       if (typeof GameplayMap.getIndexFromLocation === "function") return GameplayMap.getIndexFromLocation(target);
@@ -317,7 +309,6 @@ function buildCameraFocusStateReadCommand(
       options,
       before: after,
       lookAt: { ok: true, value: true },
-      plotCursor,
       after,
       centerMatchesTarget: after.centerPlot.ok === true &&
         after.centerPlot.value !== null &&

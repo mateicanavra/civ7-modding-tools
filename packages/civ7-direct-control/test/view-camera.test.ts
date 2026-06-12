@@ -42,7 +42,6 @@ function cameraPayload(overrides: Partial<{
     options: { instantaneous: true },
     before: snapshot,
     lookAt: overrides.lookAt ?? { ok: true, value: true },
-    plotCursor: { ok: true, value: target },
     after: snapshot,
     centerMatchesTarget: centerPlot !== null && centerPlot.x === target.x && centerPlot.y === target.y,
   };

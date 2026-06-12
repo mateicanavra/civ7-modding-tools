@@ -27,7 +27,6 @@ describe("view.camera.focus control-oRPC procedure", () => {
       instantaneous: true,
       before: { zoomLevel: 0.25, centerPlot: { x: 0, y: 0 } },
       after: { zoomLevel: 0.25, centerPlot: { x: 12, y: 34 } },
-      plotCursor: { x: 12, y: 34 },
       centerMatchesTarget: true,
     });
     // Endpoint/session identity never leaves the procedure boundary.
@@ -167,7 +166,6 @@ function fakeContext(options: {
             },
             before: snapshot({ x: 0, y: 0 }),
             lookAt: options.cameraLookAt ?? { ok: true, value: true },
-            plotCursor: { ok: true, value: target },
             after: snapshot(center),
             centerMatchesTarget: center !== null
               && center.x === target.x

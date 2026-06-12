@@ -27,7 +27,6 @@ export function viewCameraFromFocusResult(
     instantaneous: focus.options.instantaneous,
     before: cameraState(focus.before),
     after: cameraState(focus.after),
-    plotCursor: focus.plotCursor.ok ? focus.plotCursor.value : null,
     centerMatchesTarget: focus.centerMatchesTarget,
   };
 }

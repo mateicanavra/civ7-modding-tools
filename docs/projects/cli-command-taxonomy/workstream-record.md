@@ -272,8 +272,10 @@ new decision number.
   exactly; the caller decides). The camera deliberately STAYS on the
   target after the capture — navigation state the caller asked for, not
   UI chrome to restore. The result's optional `camera` section carries the
-  verified move (target/zoom/before/after/plotCursor/centerMatchesTarget,
-  probes flattened to value-or-null at the wire boundary). Live-settled
+  verified move (target/zoom/before/after/centerMatchesTarget, probes
+  flattened to value-or-null at the wire boundary; the PlotCursor sync is
+  a fire-and-forget side effect — this build never echoes the cursor back,
+  so the dead readback field was removed in the cleanup pass). Live-settled
   zoom facts (2026-06-11): the engine's zoom is NORMALIZED 0..1 (0 =
   closest, 1 = fully zoomed out; `Camera.getState().zoomLevel` reads back
   exactly the requested fraction, values above 1 clamp to 1) — the 0..10
@@ -309,6 +311,15 @@ new decision number.
   `game:play:screen:dismiss|show`; does NOT contain `game:starts` or
   `game:dismiss-cinematics` — and after the D5 override, no
   `game:visibility` id or alias at all.
+- Live-proof session recipe (replaces the scratch restore script that
+  previously lived untracked in the placement worktree): the standard
+  setup is one call to `runCiv7SinglePlayerFromSetup` from
+  `@civ7/direct-control` with `mapScript
+  "{swooper-maps}/maps/swooper-earthlike.js"`, `mapSize MAPSIZE_HUGE`,
+  `seed/gameSeed 1337`, `playerCount 10`, `savedConfig "ToT Config"`
+  (`~/Library/Application Support/Civilization VII/Saves/Single/ToT
+  Config.Civ7Cfg`), `fromRunningGame "exit-to-shell"`, `waitForTuner
+  true`.
 - Runtime proof: none required — no live-game socket use in this workstream;
   all command behavior is fake-tuner-server tested. The underlying
   primitives carry their own live verification (cinematic dismissal and

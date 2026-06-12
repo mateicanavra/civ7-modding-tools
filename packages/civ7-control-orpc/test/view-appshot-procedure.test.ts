@@ -110,7 +110,6 @@ describe("view.appshot.capture control-oRPC procedure", () => {
       zoom: 0.25,
       instantaneous: true,
       after: { centerPlot: { x: 12, y: 34 } },
-      plotCursor: { x: 12, y: 34 },
       centerMatchesTarget: true,
     });
     expectSafeAppshotOutput(result);
@@ -464,7 +463,6 @@ function cameraFocusResult(input: Readonly<{
     },
     before: snapshot({ x: 0, y: 0 }),
     lookAt: input.lookAt ?? { ok: true, value: true },
-    plotCursor: { ok: true, value: input.target },
     after: snapshot(input.center),
     centerMatchesTarget: input.center !== null
       && input.center.x === input.target.x

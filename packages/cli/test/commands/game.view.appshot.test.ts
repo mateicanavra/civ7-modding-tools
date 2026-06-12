@@ -108,7 +108,6 @@ describe('game view appshot', () => {
         zoom: 0.25,
         instantaneous: true,
         after: { zoomLevel: 0.25, centerPlot: { x: 32, y: 17 } },
-        plotCursor: { x: 32, y: 17 },
         centerMatchesTarget: true,
       });
 
@@ -179,7 +178,6 @@ async function startAppshotServer(): Promise<{ server: FakeTunerServer }> {
           options: { zoom: 0.25, instantaneous: true },
           before: snapshot({ x: 0, y: 0 }),
           lookAt: { ok: true, value: true },
-          plotCursor: { ok: true, value: target },
           after: snapshot(target),
           centerMatchesTarget: true,
         })];

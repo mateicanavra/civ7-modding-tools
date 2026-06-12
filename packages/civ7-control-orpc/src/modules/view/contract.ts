@@ -38,8 +38,6 @@ const Civ7ViewCameraSchema = Type.Object(
     instantaneous: Type.Boolean(),
     before: Civ7ViewCameraStateSchema,
     after: Civ7ViewCameraStateSchema,
-    /** PlotCursor position after the move — kept in sync with the target. */
-    plotCursor: Civ7ViewCameraPlotSchema,
     /** Verified by readback: the viewport-center plot IS the requested target. */
     centerMatchesTarget: Type.Boolean(),
   },

@@ -16,7 +16,6 @@ describe('game view camera', () => {
         instantaneous: true,
         before: { zoomLevel: 0.25, centerPlot: { x: 0, y: 0 } },
         after: { zoomLevel: 0.25, centerPlot: { x: 32, y: 17 } },
-        plotCursor: { x: 32, y: 17 },
         centerMatchesTarget: true,
       });
       const command = server.received.find((m) => m.includes('Camera.lookAtPlot'));
@@ -80,7 +79,6 @@ function cameraPayload(center: { x: number; y: number }, input: {
     },
     before: snapshot({ x: 0, y: 0 }),
     lookAt: { ok: true, value: true },
-    plotCursor: { ok: true, value: input.target },
     after: snapshot(center),
     centerMatchesTarget: center.x === input.target.x && center.y === input.target.y,
   });
