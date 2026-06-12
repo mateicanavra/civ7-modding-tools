@@ -33,13 +33,12 @@ export type BrowserConfigFormContext = {
 // is gone. The theme now follows the single `.dark` class via design-system
 // tokens (`card`/`muted`/`border`/`accent`/…), so there is no `lightMode` read.
 const FORM = {
-  // Group well: nesting is a surface, not an indent (Pass-3 config-surface
-  // spec). One recess below the stage card — tinted toward the page token so
-  // groups read as machined slots in the slate. `background` sits below `card`
-  // in BOTH themes (5%<9% dark, 96%<100% light), so the tint recesses in both.
-  // Two surface tiers maximum: card → well; deeper nesting adds headings and
-  // rhythm only, never a third surface.
-  well: "bg-background/40 border-border-subtle",
+  // Config explorer v2 (P7 flatten): the old depth-2 "well" cards are
+  // retired. Nesting is now a FLAT collapsible object explorer — full-bleed
+  // disclosure rows separated by hairline dividers, depth carried by a
+  // compounding left indent (`nestIndent`), never by a third surface. The
+  // stage slab (`surface-sunken`) stays the single recess tier.
+  nestIndent: "pl-3",
   divider: "border-border",
   // Field labels sit a full tier above prose (Pass-2 form hierarchy): labels are
   // foreground anchors the eye scans; descriptions/help/gs-comments recede on the
@@ -55,13 +54,12 @@ const FORM = {
   groupHeading: "text-label font-semibold uppercase tracking-wider text-muted-foreground",
   subGroupHeading: "text-label font-semibold uppercase tracking-wider text-muted-foreground/70",
   // Rhythm on the 4px base (Pass-3): 4px inside a field block, 8px between
-  // sibling fields. Stage sections carry NO inter-item rhythm (Y4 flatten):
-  // the accordion is tight — hairline dividers separate rows, not margins.
-  // Group wells carry `my-1`, composing with the sibling gap inside a slab.
+  // sibling fields. Object/array sections carry NO inter-item rhythm (Y4 +
+  // P7 flatten): hairline dividers separate rows, not margins — only runs of
+  // scalar fields keep the sibling gap inside their padded block.
   rhythm: {
     field: "gap-1",
     siblings: "gap-2",
-    groupPull: "my-1",
   },
 } as const;
 
@@ -191,6 +189,72 @@ export function BrowserConfigFieldTemplate(
   );
 }
 
+type ObjectProperty = ObjectFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>["properties"][number];
+
+type PropertyRun =
+  | { kind: "fields"; items: ObjectProperty[] }
+  | { kind: "section"; item: ObjectProperty };
+
+/**
+ * True when a child property renders as its own disclosure section (object or
+ * array) rather than a scalar field row. Drives the flat-explorer layout:
+ * sections stack flush (hairline-divided), scalar runs keep the padded
+ * field rhythm. Unresolvable schemas (refs/unions) default to the field run —
+ * the safe choice is padding, never a phantom section.
+ */
+function isSectionProperty(parentSchema: RJSFSchema | undefined, name: string): boolean {
+  const sub = parentSchema?.properties?.[name];
+  if (!sub || typeof sub !== "object") return false;
+  const type = (sub as RJSFSchema).type;
+  return type === "object" || type === "array";
+}
+
+function groupPropertyRuns(
+  properties: readonly ObjectProperty[],
+  parentSchema: RJSFSchema | undefined,
+): PropertyRun[] {
+  const runs: PropertyRun[] = [];
+  for (const property of properties) {
+    if (property.hidden) continue;
+    if (isSectionProperty(parentSchema, property.name)) {
+      runs.push({ kind: "section", item: property });
+      continue;
+    }
+    const last = runs.at(-1);
+    if (last?.kind === "fields") last.items.push(property);
+    else runs.push({ kind: "fields", items: [property] });
+  }
+  return runs;
+}
+
+/**
+ * Flat-explorer child layout (config explorer v2): consecutive scalar fields
+ * render as one padded block with the sibling gap; object/array children
+ * render flush as their own disclosure rows. The container's `divide-y`
+ * draws the hairline between every neighbor, so sections need no borders of
+ * their own.
+ */
+function FlatObjectChildren(args: {
+  properties: readonly ObjectProperty[];
+  schema: RJSFSchema | undefined;
+  fieldsClass: string;
+}): ReactNode {
+  const runs = groupPropertyRuns(args.properties, args.schema);
+  return (
+    <div className="flex flex-col divide-y divide-border-subtle">
+      {runs.map((run, index) =>
+        run.kind === "section" ? (
+          <div key={run.item.name ?? index}>{run.item.content}</div>
+        ) : (
+          <div key={index} className={`flex flex-col ${FORM.rhythm.siblings} ${args.fieldsClass}`}>
+            {run.items.map((p) => p.content)}
+          </div>
+        ),
+      )}
+    </div>
+  );
+}
+
 export function BrowserConfigObjectFieldTemplate(
   props: ObjectFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>
 ){
@@ -228,22 +292,14 @@ export function BrowserConfigObjectFieldTemplate(
   const pointer = pathToPointer(path);
   const expanded = collapse ? collapse.expandedPointers.has(pointer) : true;
 
-  const content = (
-    <div className={`flex flex-col ${FORM.rhythm.siblings}`}>
-      {!isStage && description ? (
-        <div className={`text-data ${labelClass}`}>{description}</div>
-      ) : null}
-      {properties.filter((p) => !p.hidden).map((p) => p.content)}
-    </div>
-  );
-
   if (isStage) {
     // Y4 flatten: stage objects lay FLAT on the panel — no card chrome, no
     // raised surface. The header is a full-bleed disclosure row; expanding it
     // opens a RECESSED slab (`surface-sunken` — below the panel, toward the
     // page) so the interaction reads as a door opening into the graphite,
-    // not a card inflating off it. Group wells keep their one machined-slot
-    // tier inside the slab.
+    // not a card inflating off it. Inside the slab the config explorer v2
+    // layout takes over: full-bleed nested disclosure rows, hairline-divided,
+    // with only scalar-field runs carrying horizontal padding.
     return (
       <section data-config-section="" data-config-pointer={pointer}>
         {collapse ? (
@@ -265,67 +321,50 @@ export function BrowserConfigObjectFieldTemplate(
         {expanded ? (
           <div
             id={collapse ? configContentId(pointer) : undefined}
-            className={`border-t bg-surface-sunken/60 px-2.5 pb-2.5 pt-2 ${FORM.borderSubtle}`}>
-            {collapse ? (
-              <div className="flex flex-col gap-1 pb-1.5">
+            className={`border-t bg-surface-sunken/60 ${FORM.borderSubtle}`}>
+            {collapse && (description || normalizeGsComments((schema as GsSchemaMeta | null)?.gs?.comments)) ? (
+              <div className="flex flex-col gap-1 px-2.5 pt-2 pb-1.5">
                 {renderGsComments({ schema, className: labelClass })}
                 {description ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
               </div>
             ) : null}
-            {content}
+            <FlatObjectChildren properties={properties} schema={schema} fieldsClass="px-2.5 py-2" />
           </div>
         ) : null}
       </section>
     );
   }
 
-  // Depth 2: the one well tier inside a stage card. Depth ≥3: no further
-  // surface — an eyebrow heading and the sibling rhythm carry the structure
-  // (surface nesting is capped at card → well; see FORM.well).
-  if (depth === 2) {
-    return (
-      <section
-        className={`rounded-md border p-2 ${FORM.rhythm.groupPull} ${FORM.well}`}
-        data-config-section=""
-        data-config-pointer={pointer}>
-        {collapse ? (
-          <CollapsibleHeader
-            pointer={pointer}
-            title={prettyTitle}
-            titleClass={FORM.groupHeading}
-            expanded={expanded}
-            collapse={collapse}
-            className={expanded ? "pb-1.5" : undefined}
-          />
-        ) : (
-          <header className="pb-1.5">
-            <div className={FORM.groupHeading}>{prettyTitle}</div>
-          </header>
-        )}
-        {expanded ? <div id={collapse ? configContentId(pointer) : undefined}>{content}</div> : null}
-      </section>
-    );
-  }
-
+  // Depth ≥2 (config explorer v2): every nested object is the SAME flat
+  // disclosure row — no well cards, no side margins, no inter-section gaps.
+  // The hairlines come from the parent's `divide-y`; depth reads through the
+  // compounding `nestIndent` on each expanded body plus the heading tier
+  // (group eyebrow at depth 2, the dimmer sub-group eyebrow below).
+  const headingClass = depth === 2 ? FORM.groupHeading : FORM.subGroupHeading;
   return (
-    <section
-      className={`flex flex-col gap-1 ${FORM.rhythm.groupPull}`}
-      data-config-section=""
-      data-config-pointer={pointer}>
+    <section data-config-section="" data-config-pointer={pointer}>
       {collapse ? (
         <CollapsibleHeader
           pointer={pointer}
           title={prettyTitle}
-          titleClass={FORM.subGroupHeading}
+          titleClass={headingClass}
           expanded={expanded}
           collapse={collapse}
+          className="px-2.5 py-1.5 hover:bg-muted/20 transition-colors"
         />
       ) : (
-        <header>
-          <div className={FORM.subGroupHeading}>{prettyTitle}</div>
+        <header className="px-2.5 py-1.5">
+          <div className={headingClass}>{prettyTitle}</div>
         </header>
       )}
-      {expanded ? <div id={collapse ? configContentId(pointer) : undefined}>{content}</div> : null}
+      {expanded ? (
+        <div id={collapse ? configContentId(pointer) : undefined} className={FORM.nestIndent}>
+          {description ? (
+            <div className={`text-data px-2.5 pb-1.5 ${labelClass}`}>{description}</div>
+          ) : null}
+          <FlatObjectChildren properties={properties} schema={schema} fieldsClass="px-2.5 pb-2 pt-1" />
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -356,14 +395,11 @@ export function BrowserConfigArrayFieldTemplate(
       </button>
     ) : null;
 
-  // Arrays ride the same well tier as object groups (one surface recess);
-  // items separate by hairline borders only — a tinted item box would be a
-  // third surface tier, which the elevation scheme caps out.
+  // Arrays ride the same flat disclosure-row anatomy as object sections
+  // (config explorer v2): no well card, hairline-divided item rows instead
+  // of bordered item boxes — a box would be a phantom surface tier.
   return (
-    <section
-      className={`rounded-md border p-2 ${FORM.rhythm.groupPull} ${FORM.well}`}
-      data-config-section=""
-      data-config-pointer={pointer}>
+    <section data-config-section="" data-config-pointer={pointer}>
       {collapse ? (
         <CollapsibleHeader
           pointer={pointer}
@@ -371,26 +407,26 @@ export function BrowserConfigArrayFieldTemplate(
           titleClass={FORM.groupHeading}
           expanded={expanded}
           collapse={collapse}
+          className="px-2.5 py-1.5 hover:bg-muted/20 transition-colors"
           actions={addButton}
         />
       ) : (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 px-2.5 py-1.5">
           <div className={FORM.groupHeading}>{prettyTitle}</div>
           <div style={{ flex: 1 }} />
           {addButton}
         </div>
       )}
       {expanded ? (
-        <div id={collapse ? configContentId(pointer) : undefined}>
-          {renderGsComments({ schema, className: labelClass })}
-          <div className={`my-2 border-t ${FORM.divider}`} />
-          <div className={`flex flex-col ${FORM.rhythm.siblings}`}>
+        <div id={collapse ? configContentId(pointer) : undefined} className={FORM.nestIndent}>
+          {renderGsComments({ schema, className: `px-2.5 pb-1.5 ${labelClass}` })}
+          <div className="flex flex-col divide-y divide-border-subtle">
             {items.map((item, index) => {
               // RJSF v6 types this as ReactElement[], but some templates/versions
               // pass an "item" object that wraps the actual element in `.children`.
               const content = (item as any)?.children ?? (item as any)?.props?.children ?? item;
               return (
-                <div key={item.key ?? index} className={`rounded border p-2 ${FORM.borderSubtle}`}>
+                <div key={item.key ?? index} className="px-2.5 py-2">
                   {content}
                 </div>
               );
