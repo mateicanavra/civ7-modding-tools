@@ -6,9 +6,11 @@ import { TooltipProvider } from "../../src/components/ui/tooltip";
 import type { RunInGameOperationStatus } from "../../src/features/runInGame/status";
 
 // The game console owns all live-Civ7 markup (Pass-5 toolbar-architecture-v2
-// spec: it renders as the command cluster inside the header's Game bar).
+// spec: it renders as the command cluster inside the header's Game bar; the
+// Z-wave folded the status pills into ONE chip + the status hang-off panel).
 // These scenarios moved here from AppFooter.test.tsx when the console left
-// the footer.
+// the footer. Expanded-status pins render with `defaultStatusOpen` because
+// static markup cannot click the chip open.
 
 function renderConsole(overrides: Partial<GameConsoleProps> = {}) {
   return renderToStaticMarkup(
@@ -18,6 +20,7 @@ function renderConsole(overrides: Partial<GameConsoleProps> = {}) {
         isRunInGameRunning={false}
         onRunInGame={vi.fn()}
         liveRuntime={{ status: "ok", readiness: "shell" }}
+        defaultStatusOpen
         {...overrides}
       />
     </TooltipProvider>
@@ -194,5 +197,69 @@ describe("GameConsole live runtime and save/deploy", () => {
     // palette class — the design system forbids hardcoded color utilities.
     expect(html).toContain("border-warning");
     expect(html).toContain("Seed 123");
+  });
+});
+
+describe("GameConsole combined status chip + hang-off (Z-wave)", () => {
+  it("keeps the hang-off closed by default: secondary affordances stay off the bar", () => {
+    const html = renderConsole({
+      defaultStatusOpen: false,
+      runInGameStatus: {
+        ok: true,
+        requestId: "studio-run-in-game-closed",
+        phase: "complete",
+        status: "complete",
+        startedAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-01T00:00:01.000Z",
+        completedPhases: ["materializing", "deploying"],
+      },
+      onCopyRunInGameDiagnostics: vi.fn(),
+    });
+
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).not.toContain("Copy Run in Game diagnostics");
+    // The chip's title still aggregates the merged status for hover/AT.
+    expect(html).toContain("studio-run-in-game-closed");
+  });
+
+  it("renders the labeled Play CTA, swapping to Playing... while a run is in flight", () => {
+    const idle = renderConsole({ defaultStatusOpen: false });
+    expect(idle).toContain(">Play<");
+
+    const running = renderConsole({
+      defaultStatusOpen: false,
+      isRunInGameRunning: true,
+      runInGameStatus: {
+        ok: true,
+        requestId: "studio-run-in-game-running",
+        phase: "deploying",
+        status: "running",
+        startedAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-01T00:00:01.000Z",
+        completedPhases: ["materializing"],
+      },
+    });
+    expect(running).toContain("Playing...");
+    // Activity narration: the chip text carries the in-flight phase.
+    expect(running).toContain(">Deploying<");
+  });
+
+  it("folds operation failures into the chip's single status dot", () => {
+    // Hang-off closed: the only status dot in the markup is the chip's.
+    const html = renderConsole({
+      defaultStatusOpen: false,
+      runInGameStatus: {
+        ok: false,
+        requestId: "studio-run-in-game-folded",
+        phase: "failed",
+        status: "failed",
+        startedAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-01T00:00:01.000Z",
+        completedPhases: ["materializing"],
+        error: "deploy exploded",
+      },
+    });
+
+    expect(html).toContain("bg-destructive");
   });
 });
