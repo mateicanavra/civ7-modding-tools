@@ -201,6 +201,7 @@ function visibilitySummaryResult() {
     playerId: 0,
     numPlotsRevealed: { ok: true as const, value: 10 },
     numPlotsVisible: { ok: true as const, value: 2 },
+    mapPlotCount: { ok: true as const, value: 2 },
     counts: { "1": 2 },
     grid: {
       bounds: { x: 0, y: 0, width: 2, height: 1 },

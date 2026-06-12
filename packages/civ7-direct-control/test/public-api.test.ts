@@ -339,6 +339,7 @@ describe("Civ7 direct control public API", () => {
         "playerId",
         "numPlotsRevealed",
         "numPlotsVisible",
+        "mapPlotCount",
         "counts",
       ]),
     });

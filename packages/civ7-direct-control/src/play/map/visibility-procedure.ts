@@ -44,6 +44,7 @@ export const Civ7VisibilitySummaryProcedureDescriptor = createCiv7ProcedureCoreD
     "playerId",
     "numPlotsRevealed",
     "numPlotsVisible",
+    "mapPlotCount",
     "counts",
     "grid",
   ],

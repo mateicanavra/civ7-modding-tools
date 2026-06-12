@@ -27,6 +27,10 @@ type ExploreDrainState = Readonly<{
  * fogged) without granting live vision — by orchestrating the direct-control
  * wire atoms as one Effect state machine:
  *
+ *   0. read the visibility summary; when every plot is already revealed AND
+ *      visible (a prior grant is still held) and fog restore was not
+ *      requested, return a skipped already-explored result — re-granting
+ *      against a held full-map grant is the second-call failure mode,
  *   1. suspend the DisplayQueueManager (App UI) so nothing can mount —
  *      verified by readback before anything mutates,
  *   2. applyCiv7ExploreGrant (Visibility.setTrackedVisibilityGrant over every
@@ -57,13 +61,20 @@ export const displayExploreRequestProcedure =
       source: "direct-control-facade" as const,
       ...civ7ControlOrpcErrorCorrelationData(context),
     };
-    const facadeCall = <T>(call: () => Promise<T>) =>
+    const facadeCall = <T>(step: string, call: () => Promise<T>) =>
       Effect.tryPromise({
         try: call,
-        catch: () => errors.EXPLORE_FAILED({ data: errorData }),
+        catch: (cause) =>
+          errors.EXPLORE_FAILED({
+            data: {
+              ...errorData,
+              step,
+              detail: cause instanceof Error ? cause.message : String(cause),
+            },
+          }),
       });
-    const readVisibilitySummary = () =>
-      facadeCall(() =>
+    const readVisibilitySummary = (step: string) =>
+      facadeCall(step, () =>
         context.directControl.getCiv7VisibilitySummary(
           { playerId: input.playerId },
           context.endpointDefaults,
@@ -75,14 +86,42 @@ export const displayExploreRequestProcedure =
     const maxExtraWaitMs = input.maxExtraWaitMs
       ?? DEFAULT_EXPLORE_MAX_EXTRA_WAIT_MS;
 
-    const before = yield* readVisibilitySummary();
+    const before = yield* readVisibilitySummary("read-visibility-before");
+
+    // Idempotent short-circuit: when the pre-grant read already shows every
+    // plot revealed AND visible, a prior explore grant is still held —
+    // re-running Visibility.setTrackedVisibilityGrant against it is the
+    // second-click failure mode, and there is nothing left to reveal. Skipped
+    // when restoreFog is requested: that caller wants the release path.
+    const beforeRevealed = probeValue(before.numPlotsRevealed);
+    const beforeVisible = probeValue(before.numPlotsVisible);
+    const mapPlotCount = probeValue(before.mapPlotCount);
+    if (
+      input.restoreFog !== true
+      && beforeRevealed != null
+      && beforeVisible != null
+      && mapPlotCount != null
+      && mapPlotCount > 0
+      && beforeRevealed >= mapPlotCount
+      && beforeVisible >= mapPlotCount
+    ) {
+      return {
+        playerId: input.playerId,
+        skipped: true,
+        before: visibilityProbe(before),
+        after: visibilityProbe(before),
+        mapPlotCount,
+        classification: "already-explored",
+      } satisfies Civ7DisplayExploreRequestResult;
+    }
+
     const resumedInline = yield* Ref.make(false);
 
     return yield* Effect.acquireUseRelease(
       // Acquire: suspend the display queue, verified by readback — the state
       // machine gate before any mutation runs.
       Effect.gen(function* () {
-        const suspend = yield* facadeCall(() =>
+        const suspend = yield* facadeCall("suspend-display-queue", () =>
           context.directControl.suspendCiv7DisplayQueue(
             context.endpointDefaults,
           )
@@ -96,7 +135,7 @@ export const displayExploreRequestProcedure =
       }),
       () =>
         Effect.gen(function* () {
-          const grant = yield* facadeCall(() =>
+          const grant = yield* facadeCall("apply-explore-grant", () =>
             context.directControl.applyCiv7ExploreGrant(
               { playerId: input.playerId },
               context.endpointDefaults,
@@ -122,7 +161,7 @@ export const displayExploreRequestProcedure =
               body: (state) =>
                 Effect.gen(function* () {
                   yield* Effect.sleep(pollMs);
-                  const purge = yield* facadeCall(() =>
+                  const purge = yield* facadeCall("drain-close-displays", () =>
                     context.directControl.closeCiv7Displays(
                       {},
                       context.endpointDefaults,
@@ -156,21 +195,21 @@ export const displayExploreRequestProcedure =
 
           // Resume precedes the grant release so late displays cannot
           // re-queue mid-flight.
-          const resume = yield* facadeCall(() =>
+          const resume = yield* facadeCall("resume-display-queue", () =>
             context.directControl.resumeCiv7DisplayQueue(
               context.endpointDefaults,
             )
           );
           yield* Ref.set(resumedInline, true);
           const release = input.restoreFog === true
-            ? yield* facadeCall(() =>
+            ? yield* facadeCall("release-explore-grant", () =>
               context.directControl.releaseCiv7ExploreGrant(
                 { playerId: input.playerId, grantId: grant.grantId },
                 context.endpointDefaults,
               )
             )
             : null;
-          const after = yield* readVisibilitySummary();
+          const after = yield* readVisibilitySummary("read-visibility-after");
 
           return displayExploreRequestResult({
             playerId: input.playerId,
@@ -222,6 +261,7 @@ function displayExploreRequestResult(input: Readonly<{
       : "unverified";
   return {
     playerId: input.playerId,
+    skipped: false,
     before: visibilityProbe(input.before),
     after: visibilityProbe(input.after),
     grantId: input.grantId,
