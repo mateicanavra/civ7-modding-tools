@@ -91,6 +91,18 @@ the `boundsForTileGrid` odd-Q branch (spacing math looks transposed from
 pointy-top). The geometry cache key (`spaceId:WxH:s{size}`) already
 separates spaces, so no stale-cache hazard — but confirm.
 
+**Implementation addendum (deeper grounding):** the textbook flat-top layout
+(columns 1.5·s, rows √3·s) was rejected mid-slice. mapgen-core's canonical
+hex space (`projectOddqToHexSpace`: HEX_WIDTH √3, HEX_HEIGHT 1.5, odd
+columns +0.75) is the frame the Delaunay mesh — and therefore every
+`world.xy` layer — is built in; tiles co-register with those stages only on
+the same lattice. Odd-Q therefore renders flat-top hexes whose vertical
+pitch is compressed to the 1.5·s row spacing (the exact tiling hexagon of
+that lattice). Note for a future engine conversation: Civ7's native
+adjacency (E/W/NE/NW/SE/SW, no N/S) is pointy-top row-offset, while
+mapgen-core models odd-q column-offset — a model↔game convention gap that
+is upstream of the studio and out of scope here.
+
 Second half — **the tile-mesh contract**, standardized across all
 visualizations and both themes:
 

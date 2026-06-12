@@ -1,6 +1,7 @@
 import type { Layer } from "@deck.gl/core";
 import { LineLayer, ScatterplotLayer, PolygonLayer } from "@deck.gl/layers";
 import {
+  TILE_BORDER_COLOR,
   buildCategoricalColorMap,
   writeColorForScalarValue,
 } from "../presentation";
@@ -71,26 +72,27 @@ function isTileSpace(spaceId: VizSpaceId): boolean {
   return spaceId === "tile.hexOddR" || spaceId === "tile.hexOddQ";
 }
 
-function axialToPixelPointy(q: number, r: number, size: number): [number, number] {
-  const x = size * Math.sqrt(3) * (q + r / 2);
-  const y = size * 1.5 * r;
+// Odd-q tile positions MUST match mapgen-core's canonical hex space
+// (`projectOddqToHexSpace`: HEX_WIDTH = √3, HEX_HEIGHT = 1.5) — the Delaunay
+// mesh and every `world.xy` layer live in that frame, so tiles co-register
+// with them only on the same lattice: columns √3·size apart, rows 1.5·size
+// apart, odd COLUMNS shifted down 0.75·size (pre-flip y-down coords; the
+// shared north-up flip happens after).
+const ODD_Q_COL_SPACING = Math.sqrt(3);
+const ODD_Q_ROW_SPACING = 1.5;
+const ODD_Q_COL_OFFSET = ODD_Q_ROW_SPACING / 2;
+
+function oddQTileCenter(col: number, row: number, size: number): [number, number] {
+  const x = size * ODD_Q_COL_SPACING * col;
+  const y = size * (ODD_Q_ROW_SPACING * row + ((col & 1) ? ODD_Q_COL_OFFSET : 0));
   return [x, y];
 }
 
-function oddQToAxialR(row: number, colParityBase: number): number {
-  const q = colParityBase | 0;
-  return row - (q - (q & 1)) / 2;
-}
-
-function oddQTileCenter(col: number, row: number, size: number): [number, number] {
-  const r = oddQToAxialR(row, col);
-  return axialToPixelPointy(col, r, size);
-}
-
 function oddQPointFromTileXY(x: number, y: number, size: number): [number, number] {
-  const qParityBase = Math.round(x);
-  const r = oddQToAxialR(y, qParityBase);
-  return axialToPixelPointy(x, r, size);
+  const colParity = Math.round(x) & 1;
+  const px = size * ODD_Q_COL_SPACING * x;
+  const py = size * (ODD_Q_ROW_SPACING * y + (colParity ? ODD_Q_COL_OFFSET : 0));
+  return [px, py];
 }
 
 function oddRTileCenter(col: number, row: number, size: number): [number, number] {
@@ -136,6 +138,31 @@ function hexPolygonPointy(center: [number, number], size: number): Array<[number
   return out;
 }
 
+// The hexagon that exactly tiles the canonical odd-q lattice: a flat-top hex
+// (column offset ⇒ flat-top orientation) with its vertical pitch compressed
+// to the lattice's 1.5·size row spacing. Vertices, counterclockwise from
+// east: E, NE, NW, W, SW, SE. Adjacent cells share edges exactly — no gaps,
+// no overlaps, no phantom seams.
+function hexPolygonOddQ(center: [number, number], size: number): Array<[number, number]> {
+  const [cx, cy] = center;
+  const rx = (2 / Math.sqrt(3)) * size; // east/west vertex reach
+  const ix = (1 / Math.sqrt(3)) * size; // diagonal vertex x
+  const iy = (ODD_Q_ROW_SPACING / 2) * size; // diagonal vertex y (half the row pitch)
+  return [
+    [cx + rx, cy],
+    [cx + ix, cy + iy],
+    [cx - ix, cy + iy],
+    [cx - rx, cy],
+    [cx - ix, cy - iy],
+    [cx + ix, cy - iy],
+  ];
+}
+
+/** Row-offset (odd-R) lattices are pointy-top; the column-offset (odd-Q) lattice is flat-top. */
+function hexPolygonForSpace(spaceId: VizSpaceId, center: [number, number], size: number): Array<[number, number]> {
+  return spaceId === "tile.hexOddQ" ? hexPolygonOddQ(center, size) : hexPolygonPointy(center, size);
+}
+
 function hexGridGeometryKey(args: { spaceId: VizSpaceId; width: number; height: number; tileSize: number }): string {
   return `${args.spaceId}:${args.width}x${args.height}:s${args.tileSize}`;
 }
@@ -162,7 +189,7 @@ async function getOrBuildHexGridGeometry(args: {
     const x = i % width;
     const y = (i / width) | 0;
     const center = tileCenter(spaceId, x, y, tileSize);
-    polygons[i] = hexPolygonPointy(center, tileSize);
+    polygons[i] = hexPolygonForSpace(spaceId, center, tileSize);
   }
 
   const geom: HexGridGeometry = { indices, polygons };
@@ -190,11 +217,14 @@ export function boundsForTileGrid(spaceId: VizSpaceId, dims: { width: number; he
     return [-s, -maxCenterY - s, maxCenterX + s, s];
   }
 
-  // tile.hexOddQ
+  // tile.hexOddQ — the canonical hex-space lattice (matches the Delaunay
+  // world): columns √3·s apart, rows 1.5·s apart, odd columns +0.75·s.
   const hasOddCol = width > 1;
   const maxCenterX = s3 * (width - 1);
-  const maxCenterY = 1.5 * tileSize * ((height - 1) + (hasOddCol ? 0.5 : 0));
-  return [-s, -maxCenterY - s, maxCenterX + s, s];
+  const maxCenterY = 1.5 * tileSize * (height - 1) + (hasOddCol ? 0.75 * tileSize : 0);
+  const padX = (2 / Math.sqrt(3)) * tileSize;
+  const padY = 0.75 * tileSize;
+  return [-padX, -maxCenterY - padY, maxCenterX + padX, padY];
 }
 
 export function boundsForLayerInRenderSpace(layer: VizLayerEntryV1, tileSize = 1): Bounds {
@@ -388,7 +418,12 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
             return [colors[base] ?? 0, colors[base + 1] ?? 0, colors[base + 2] ?? 0, colors[base + 3] ?? 255];
           },
           stroked: true,
-          getLineColor: [17, 24, 39, 220],
+          // Mesh contract: unfilled tiles draw nothing — the border follows
+          // the fill's alpha so transparent tiles leave no phantom mesh.
+          getLineColor: (i) => {
+            const alpha = colors[Number(i) * 4 + 3] ?? 0;
+            return alpha === 0 ? [0, 0, 0, 0] : TILE_BORDER_COLOR;
+          },
           getLineWidth: 1,
           lineWidthUnits: "pixels",
           opacity,
@@ -636,7 +671,12 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
           return [colors[base] ?? 0, colors[base + 1] ?? 0, colors[base + 2] ?? 0, colors[base + 3] ?? 255];
         },
         stroked: true,
-        getLineColor: [17, 24, 39, 220],
+        // Mesh contract: unfilled tiles draw nothing — the border follows
+        // the fill's alpha so transparent tiles leave no phantom mesh.
+        getLineColor: (i) => {
+          const alpha = colors[Number(i) * 4 + 3] ?? 0;
+          return alpha === 0 ? [0, 0, 0, 0] : TILE_BORDER_COLOR;
+        },
         getLineWidth: 1,
         lineWidthUnits: "pixels",
         opacity,
