@@ -114,8 +114,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
       {/* Center: the Game bar — config selector, live command cluster, and
           the trailing game-setup disclosure. Map/world settings live in the
-          footer's World/Map console (Pass-5 zoning v2). */}
-      <div className="min-w-0 flex flex-col items-center gap-2 overflow-visible">
+          footer's World/Map console (Pass-5 zoning v2). `@container` lets the
+          status chip drop its seed suffix when this column narrows. */}
+      <div className="@container min-w-0 flex flex-col items-center gap-2 overflow-visible">
         <div
           className={`flex min-h-10 max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 px-3 py-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
 

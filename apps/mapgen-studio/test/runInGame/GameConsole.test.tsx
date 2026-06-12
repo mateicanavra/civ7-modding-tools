@@ -216,6 +216,9 @@ describe("GameConsole live runtime and save/deploy", () => {
     // palette class — the design system forbids hardcoded color utilities.
     expect(html).toContain("border-warning");
     expect(html).toContain("Seed 123");
+    // Responsive chip: the seed suffix rides a container-query span so the
+    // chip collapses to just the turn when the Game bar narrows.
+    expect(html).toContain("@max-3xl:hidden");
   });
 });
 
