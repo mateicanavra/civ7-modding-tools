@@ -368,3 +368,26 @@ authoring, tile lattice zoom inspection, cursor states, and the flash
 sampler before/after exercised live). Gates green at tip: tsc, build +
 worker-bundle, 167 tests, five strict OpenSpec validations. Stack remains
 UNSUBMITTED per the standing rule.
+
+Two user-flagged follow-up slices landed the same night:
+
+- [x] **X6** `mapgen-studio-tile-game-geometry` — `design/tile-game-geometry`
+  (user flagged the vertically squished grid + clashing slate borders; the
+  hex-convention audit — `research/03-hex-convention-audit.md` — proved
+  with official evidence that Civ7's plot grid is pointy-top odd-R and
+  mapgen-core's odd-Q is a mislabel whose lattice is not a regular tiling,
+  which IS the squish; both tile spaces now render regular pointy-top
+  odd-R hexes on the same world frame, and `TILE_BORDER_COLOR` is one
+  graphite ink — #0d0d11 α200 — in both themes. Engine-side odd-Q→odd-R
+  migration spawned as its own task, out of studio scope)
+- [x] **X7** `mapgen-studio-world-console-map-params` —
+  `design/world-console-map-params` (Resources leaves the footer UI — its
+  select, label, and History-tooltip line — under the newly codified zone
+  boundary rule: World console iff the map pipeline reads it; Players stays
+  because `playerCount` feeds `PlayersLandmass1/2`. The original
+  end-to-end removal was REVISED mid-flight by the user: ALL backend
+  resources plumbing stays byte-identical — `WorldSettings.resources`,
+  persistence, fingerprints, run requests, proof identity, and the
+  worker's `StudioResourcesMode` write, the wire deliberately reserved for
+  the placement stack's resources vertical; verified no reader exists on
+  any branch before touching the UI)
