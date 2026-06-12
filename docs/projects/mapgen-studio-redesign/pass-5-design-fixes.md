@@ -37,6 +37,10 @@ map console. Pass-4's E1 colocation is superseded (the frame predicted this:
   setup dropdown therefore carries pure Civ7 game setup only: Leader · Civ ·
   Difficulty · Speed. *Falsifier: if the user treats resource mode as game
   setup, move one select back — the dropdown row still exists.*
+  **Superseded by X7 (same session):** the falsifier fired in a third
+  direction — resources is neither game setup nor a live map parameter
+  (no pipeline reader exists), so the select leaves the UI entirely while
+  ALL `WorldSettings.resources` plumbing stays (see X7).
 - **GameConsole stops being a panel and becomes the bar's command cluster.**
   It keeps its component boundary (props, tests, behavior parity intact) but
   renders an inline flex row with no border/background of its own; AppHeader
@@ -150,6 +154,29 @@ controller and show the default cursor; post-run unchanged. Option 1 (make
 pre-run drag real) would require moving the background texture into deck
 layers — unjustified now; X3's mesh standardization is the natural future
 hook if we ever want it.
+
+## X7 — World console is map-parameter-only (Resources UI out, plumbing stays)
+
+User-flagged after X6. Original ask was an end-to-end resources removal;
+**revised mid-flight: do NOT delete the backend plumbing** — the placement
+stack carries the resources vertical (S3 demand planners, S5 resource-start
+support, A2 live resource-policy evidence) and the codex-stack design doc
+explicitly reserves the wire: "Studio `resourcesMode` is carried as
+`MapInfo.StudioResourcesMode` in browser runs only (currently informational;
+not consumed by the pipeline)." Verified: no reader of `StudioResourcesMode`
+exists on any branch.
+
+- **Scope:** AppFooter only — Resources label + select removed; the History
+  tooltip/accessible name drop their resources line (the console speaks its
+  own vocabulary; the value stays recorded in run snapshots). Footer:
+  World · status · History · Size · Players · Seed · reroll · auto-run · Run.
+- **Zone boundary rule (codified in system.md):** World console iff the map
+  pipeline reads it (`playerCount` → `PlayersLandmass1/2` → landmass
+  balancing qualifies Players); Civ7-session-only settings → Game setup;
+  no reader anywhere → no control (resources, until the vertical consumes
+  the reserved wire).
+- **Players stays in the World bar** (user-delegated call) — the rule above
+  is the line the user asked me to draw.
 
 ## Sequencing
 

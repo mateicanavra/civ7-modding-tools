@@ -2,8 +2,7 @@ import React from 'react';
 import { Bolt, Dices, Globe, History, Play } from 'lucide-react';
 import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui';
 import { OptionSelect } from './OptionSelect';
-import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS, RESOURCE_MODE_OPTIONS, LAYOUT } from '../constants';
-import { formatResourceMode } from '../utils';
+import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS, LAYOUT } from '../constants';
 import type { RecipeSettings, WorldSettings, GenerationStatus } from '../types';
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from '../../features/civ7Setup/seedPolicy';
 
@@ -11,12 +10,16 @@ import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from '../../features/civ7S
 // APP FOOTER — the World/Map console (Pass-5 toolbar-architecture-v2 spec)
 // ============================================================================
 // The footer is the WORLD/MAP zone: one centered console authoring the map
-// (size · players · resources · seed) and driving the studio iteration loop
-// (status · History · reroll · auto-run · Run). Everything that observes or
-// commands live Civ7 lives in `GameConsole`, composed into the header's Game
-// bar (top = game, bottom = world/map). The footer still receives the
-// game-side in-flight booleans because its authoring/run controls share one
-// operation gate across both zones (behavior parity).
+// (size · players · seed) and driving the studio iteration loop
+// (status · History · reroll · auto-run · Run). The console authors exactly
+// the settings the map pipeline reads — a setting the pipeline does not
+// consume gets no control here (resources lives in `WorldSettings` and keeps
+// flowing through runs, but has no pipeline reader yet, so no select).
+// Everything that observes or commands live Civ7 lives in `GameConsole`,
+// composed into the header's Game bar (top = game, bottom = world/map). The
+// footer still receives the game-side in-flight booleans because its
+// authoring/run controls share one operation gate across both zones
+// (behavior parity).
 // ============================================================================
 
 export interface AppFooterProps {
@@ -26,7 +29,7 @@ export interface AppFooterProps {
   lastRunSettings: RecipeSettings;
   /** World settings from the last completed run */
   lastGlobalSettings: WorldSettings;
-  /** Current world settings (size, players, resources) */
+  /** Current world settings (size, players) */
   globalSettings: WorldSettings;
   /** Callback when world settings change */
   onGlobalSettingsChange: (settings: WorldSettings) => void;
@@ -101,7 +104,6 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   'Ready';
   const displaySize =
   MAP_SIZE_SHORT[lastGlobalSettings.mapSize] || lastGlobalSettings.mapSize;
-  const displayResources = formatResourceMode(lastGlobalSettings.resources);
   const operationControlsDisabled = isRunning || isRunInGameRunning || isSaveDeployRunning;
   const updateSetting = <K extends keyof RecipeSettings,>(
   key: K,
@@ -125,7 +127,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   // tooltip presents the run, the accessible name mirrors it (a11y + static
   // markup parity), and the click keeps the copy-seed behavior the inline
   // seed button used to carry.
-  const historyLabel = `Run history — last run: seed ${lastRunSettings.seed}, ${displaySize}, ${lastGlobalSettings.playerCount} players, ${displayResources} resources. Click to copy seed.`;
+  const historyLabel = `Run history — last run: seed ${lastRunSettings.seed}, ${displaySize}, ${lastGlobalSettings.playerCount} players. Click to copy seed.`;
   const handleCopySeed = async () => {
     try {
       await navigator.clipboard.writeText(lastRunSettings.seed);
@@ -191,7 +193,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
               </span>
               <span className="font-mono">{lastRunSettings.seed}</span>
               <span>
-                {displaySize} · {lastGlobalSettings.playerCount}p · {displayResources}
+                {displaySize} · {lastGlobalSettings.playerCount}p
               </span>
               <span className="opacity-70">Click to copy seed</span>
             </div>
@@ -235,24 +237,6 @@ export const AppFooter: React.FC<AppFooterProps> = ({
             ariaLabel="Players"
             disabled={operationControlsDisabled}
             className="w-14" />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
-            Resources
-          </span>
-          <OptionSelect
-            value={globalSettings.resources}
-            onValueChange={(value) =>
-              updateWorldSetting('resources', value as WorldSettings['resources'])
-            }
-            options={RESOURCE_MODE_OPTIONS.map((opt) => ({
-              value: opt.value,
-              label: opt.label
-            }))}
-            ariaLabel="Resources"
-            disabled={operationControlsDisabled}
-            className="w-24" />
         </div>
 
         <div className={`w-px h-5 ${dividerColor}`} />

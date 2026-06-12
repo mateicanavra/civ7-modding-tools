@@ -232,13 +232,22 @@ supersedes the Pass-4 dock placement, keeps the console split + icon contract:
   the label) expanding pure game setup: Leader · Civ · Difficulty · Speed.
   **No map/world settings in the top bar, ever.**
 - **Bottom bar = THE World/Map console** (identity `Globe` + "World"): studio
-  status · History · Size · Players · Resources · Seed · reroll · auto-run ·
-  Run. Map settings author here; the relocated selects ride the shared
-  operation gate. Resources is a map setting (`WorldSettings`), not game setup.
+  status · History · Size · Players · Seed · reroll · auto-run · Run. Map
+  settings author here; the relocated selects ride the shared operation gate.
+- **Zone boundary rule (X7, settles "where does this control go"):** a
+  control belongs to the World console **iff the map pipeline reads it to
+  generate the map**; a setting only the Civ7 session reads belongs to Game
+  setup. Players qualifies (`playerCount` → `PlayersLandmass1/2` → landmass
+  balancing/placement); leader/civ/difficulty/speed don't. A setting NEITHER
+  reads (resources today) gets no authoring control at all — its state may
+  still flow through runs (`WorldSettings.resources` does, deliberately
+  reserved for the resources vertical), and the rule re-admits the select
+  the day a pipeline reader exists.
 - **History affordance:** the last-run cluster compresses into one icon button
-  (`History`); hover tooltip presents the run (seed/size/players/resources),
-  the accessible name mirrors it, click copies the last seed (the affordance
-  the old inline seed button carried). Tooltip, never a popup.
+  (`History`); hover tooltip presents the run (seed/size/players), the
+  accessible name mirrors it, click copies the last seed (the affordance
+  the old inline seed button carried). Tooltip, never a popup. It speaks the
+  console's own vocabulary: only parameters the console authors appear.
 - **Tile grid (X6, user-grounded):** tile layers render the GAME's plot
   geometry — regular pointy-top hexes on the odd-R row-offset lattice (the
   hex-convention audit proved `tile.hexOddQ` mislabels that grid; the model's
