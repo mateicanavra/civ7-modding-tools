@@ -5,7 +5,10 @@ import type {
   Civ7ControlOrpcMapGridResult,
   Civ7ControlOrpcPlotSnapshotResult,
 } from "../../../dependencies/direct-control";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7WorldGridReadResult,
@@ -33,9 +36,10 @@ export const worldPlotReadProcedure =
             context.endpointDefaults,
           ),
         ),
-      catch: () =>
+      catch: (cause) =>
         errors.WORLD_READ_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "world.plot.read",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
@@ -64,9 +68,10 @@ export const worldGridReadProcedure =
             context.endpointDefaults,
           ),
         ),
-      catch: () =>
+      catch: (cause) =>
         errors.WORLD_READ_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "world.grid.read",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

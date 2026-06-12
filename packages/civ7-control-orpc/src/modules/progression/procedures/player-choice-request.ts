@@ -4,7 +4,10 @@ import { Effect } from "effect";
 import type { Civ7ControlOrpcContext } from "../../../context";
 import type { Civ7ControlOrpcProgressionPlayerChoiceResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
@@ -53,9 +56,10 @@ export const progressionAttributePurchaseRequestProcedure =
         );
         return progressionPlayerChoiceResult(source, requestInput, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: source,
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
@@ -82,9 +86,10 @@ export const progressionAttributeReviewRequestProcedure =
         );
         return progressionPlayerChoiceResult(source, requestInput, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: source,
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
@@ -116,9 +121,10 @@ export const progressionTraditionChangeRequestProcedure =
         );
         return progressionPlayerChoiceResult(source, requestInput, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: source,
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
@@ -145,9 +151,10 @@ export const progressionTraditionReviewRequestProcedure =
         );
         return progressionPlayerChoiceResult(source, requestInput, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: source,
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

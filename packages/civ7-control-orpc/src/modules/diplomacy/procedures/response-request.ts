@@ -4,7 +4,10 @@ import { Effect } from "effect";
 import type { Civ7ControlOrpcContext } from "../../../context";
 import type { Civ7ControlOrpcDiplomacyResponseResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
@@ -43,9 +46,10 @@ export const diplomacyResponseRequestProcedure =
         );
         return diplomacyResponseResult(requestInput, result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.DIPLOMACY_RESPONSE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "diplomacy.response.request",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

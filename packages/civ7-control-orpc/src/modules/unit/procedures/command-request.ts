@@ -2,7 +2,10 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcContext } from "../../../context";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
   civ7MutationRequestStatus,
@@ -37,9 +40,10 @@ export const unitUpgradeRequestProcedure = civ7ControlOrpcMutationProcedure(
         "unit.upgrade.request",
       );
     },
-    catch: () =>
+    catch: (cause) =>
       errors.UNIT_REQUEST_UNAVAILABLE({
         data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
           procedureKey: "unit.upgrade.request",
           source: "direct-control-facade",
           ...civ7ControlOrpcErrorCorrelationData(context),
@@ -67,9 +71,10 @@ export const unitResettleRequestProcedure = civ7ControlOrpcMutationProcedure(
         "unit.resettle.request",
       );
     },
-    catch: () =>
+    catch: (cause) =>
       errors.UNIT_REQUEST_UNAVAILABLE({
         data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
           procedureKey: "unit.resettle.request",
           source: "direct-control-facade",
           ...civ7ControlOrpcErrorCorrelationData(context),

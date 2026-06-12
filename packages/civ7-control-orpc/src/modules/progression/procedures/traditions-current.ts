@@ -1,7 +1,10 @@
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcTraditionsViewResult } from "../../../dependencies/direct-control";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7ProgressionTraditionsInput,
@@ -22,9 +25,10 @@ export const progressionTraditionsCurrentProcedure =
         );
         return progressionTraditionsResult(input, traditions);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.PROGRESSION_TRADITIONS_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "progression.traditions.current",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

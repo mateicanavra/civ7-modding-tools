@@ -5,7 +5,10 @@ import type {
   Civ7ControlOrpcDestinationAnalysisResult,
   Civ7ControlOrpcTargetCandidatesResult,
 } from "../../../dependencies/direct-control";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7StrategyBattlefieldScanResult,
@@ -29,9 +32,10 @@ export const strategyBattlefieldScanProcedure =
         );
         return battlefieldScanResult(result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.STRATEGY_TACTICAL_READ_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "strategy.battlefieldScan",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
@@ -54,9 +58,10 @@ export const strategyTargetCandidatesProcedure =
         );
         return targetCandidatesResult(result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.STRATEGY_TACTICAL_READ_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "strategy.targetCandidates",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
@@ -79,9 +84,10 @@ export const strategyDestinationAnalysisProcedure =
         );
         return destinationAnalysisResult(result);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.STRATEGY_TACTICAL_READ_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "strategy.destinationAnalysis",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

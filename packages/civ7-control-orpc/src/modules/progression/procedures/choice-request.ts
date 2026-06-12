@@ -13,7 +13,10 @@ import type {
   Civ7ControlOrpcTechnologyChoiceCloseoutResult,
 } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
   type Civ7MutationProofPostcondition,
@@ -75,9 +78,10 @@ export const progressionTechnologyChoiceRequestProcedure =
         const after = await readAfterProgressionChoice(context, result);
         return progressionChoiceResult(kind, source, requestInput, result, before, after);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.PROGRESSION_CHOICE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: source,
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
@@ -108,9 +112,10 @@ export const progressionCultureChoiceRequestProcedure =
         const after = await readAfterProgressionChoice(context, result);
         return progressionChoiceResult(kind, source, requestInput, result, before, after);
       },
-      catch: () =>
+      catch: (cause) =>
         errors.PROGRESSION_CHOICE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: source,
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

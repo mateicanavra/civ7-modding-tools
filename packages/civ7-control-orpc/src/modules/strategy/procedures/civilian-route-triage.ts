@@ -7,7 +7,10 @@ import type {
   Civ7ControlOrpcReadyUnitViewResult,
   Civ7ControlOrpcSettlementRecommendationsResult,
 } from "../../../dependencies/direct-control";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import type { Civ7ControlOrpcMapLocation } from "../../../model/primitives";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
@@ -82,9 +85,10 @@ export const strategyCivilianRouteTriageProcedure =
           destination,
         });
       },
-      catch: () =>
+      catch: (cause) =>
         errors.STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "strategy.civilianRouteTriage",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),

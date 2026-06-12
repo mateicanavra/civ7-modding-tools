@@ -5,7 +5,10 @@ import type {
   Civ7ControlOrpcPlayNotificationViewResult,
   Civ7ControlOrpcReadyUnitViewResult,
 } from "../../../dependencies/direct-control";
-import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7ControlOrpcErrorCorrelationData,
+  civ7ControlOrpcFailureDetail,
+} from "../../../model/correlation";
 import type {
   Civ7ControlOrpcComponentId,
   Civ7ControlOrpcMapLocation,
@@ -61,9 +64,10 @@ export const strategyFormationSnapshotProcedure =
           origin,
         });
       },
-      catch: () =>
+      catch: (cause) =>
         errors.STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE({
           data: {
+            detail: civ7ControlOrpcFailureDetail(cause),
             procedureKey: "strategy.formationSnapshot",
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
