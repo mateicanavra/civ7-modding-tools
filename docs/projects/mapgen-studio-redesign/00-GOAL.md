@@ -433,3 +433,20 @@ addressed to this lane
   pins ported to `PipelineStage.test.tsx`. Verified live dark + light:
   17-stage standard-recipe graph, selection/expansion/label focus,
   generation run completed WHILE the pipeline view was active.
+
+## Tuner-session workstream (2026-06-12, post-P5)
+
+- [x] **Shared tuner session (Effect)** — OpenSpec `mapgen-studio-tuner-session`,
+  slices `design/tuner-session-frame` → `design/tuner-session-seam` →
+  `design/tuner-effect-session` → `design/tuner-daemon-wiring`. Root cause of
+  the tuner wedge (game-side fd leak from connect-per-request churn) closed:
+  `Civ7DirectControlOptions.session` seam + graceful FIN close + connect-race
+  dedup in `@civ7/direct-control`; `Civ7TunerSession` Effect service
+  (Layer.scoped acquireRelease, backoff gate on consecutive response-timeouts,
+  typed `Civ7TunerBackoffError`, health port) owns the ONE connection in the
+  studio runtime; daemon injects it into the control mount, reports tuner
+  health on `/healthz` (`wedgeSuspected`), and disposes the runtime on
+  shutdown. Live soak: exactly 1 established tuner connection across
+  sustained polling, zero leaked fds, game releases its descriptor on daemon
+  stop. Run-in-game flows untouched (parity). Deferred: run-flow convergence;
+  "restart Civ7" UI affordance.

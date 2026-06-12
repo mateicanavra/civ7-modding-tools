@@ -50,6 +50,30 @@ describe("caller-owned shared tuner session", () => {
     }
   });
 
+  test("a concurrent first burst shares ONE connection (connect dedup)", async () => {
+    const server = await startSharedSessionServer();
+    const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
+    try {
+      const results = await Promise.all(
+        Array.from({ length: 8 }, (_, i) =>
+          executeCiv7Command({
+            port: server.port,
+            session,
+            command: `burst-${i}`,
+            timeoutMs: 1_000,
+          }),
+        ),
+      );
+      expect(results).toHaveLength(8);
+      // Without in-flight connect dedup, every concurrent caller dialed its
+      // own socket and all but the last leaked open (observed live: a page
+      // load burst held 13 established tuner connections).
+      expect(server.connections()).toBe(1);
+    } finally {
+      await session.close();
+    }
+  });
+
   test("without an injected session, each call opens and closes its own connection", async () => {
     const server = await startSharedSessionServer();
     await executeCiv7Command({

@@ -7,7 +7,10 @@ import {
   liveCiv7ControlOrpcDirectControlFacade,
   type Civ7ControlOrpcDirectControlFacade,
 } from "@civ7/control-orpc/runtime";
-import { DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "@civ7/direct-control";
+import {
+  DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+  type Civ7DirectControlSession,
+} from "@civ7/direct-control";
 import { RPCHandler } from "@orpc/server/fetch";
 
 import { STUDIO_CIV7_CONTROL_ORPC_PATH } from "../shared/civ7ControlOrpc";
@@ -30,6 +33,15 @@ export function createStudioCiv7ControlOrpcContext(
   options: Readonly<{
     directControl?: Civ7ControlOrpcDirectControlFacade;
     timeoutMs?: number;
+    /**
+     * The daemon's shared tuner session (owned by the studio runtime's
+     * `Civ7TunerSession`). `endpointDefaults` is `Civ7DirectControlOptions`,
+     * so the session flows through every router procedure → every
+     * direct-control call reuses the one multiplexed connection instead of
+     * opening its own. Lifecycle stays with the owner — the facade never
+     * closes it.
+     */
+    session?: Civ7DirectControlSession;
   }> = {},
 ): Civ7ControlOrpcContext {
   return {
@@ -37,6 +49,7 @@ export function createStudioCiv7ControlOrpcContext(
       ?? liveCiv7ControlOrpcDirectControlFacade,
     endpointDefaults: {
       timeoutMs: options.timeoutMs ?? DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+      ...(options.session ? { session: options.session } : {}),
     },
   };
 }
@@ -50,6 +63,7 @@ export function createStudioCiv7ControlRpcHandler(
   options: Readonly<{
     directControl?: Civ7ControlOrpcDirectControlFacade;
     timeoutMs?: number;
+    session?: Civ7DirectControlSession;
   }> = {},
 ): StudioCiv7ControlRpcHandle {
   const handler = new RPCHandler(Civ7ControlOrpcRouter);
@@ -72,6 +86,7 @@ export function createStudioCiv7ControlOrpcMiddleware(
   options: Readonly<{
     directControl?: Civ7ControlOrpcDirectControlFacade;
     timeoutMs?: number;
+    session?: Civ7DirectControlSession;
   }> = {},
 ): (
   req: IncomingMessage,

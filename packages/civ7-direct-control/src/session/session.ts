@@ -41,6 +41,7 @@ export class Civ7DirectControlSession {
   private buffer = Buffer.alloc(0);
   private readonly pending = new Map<number, PendingCiv7TunerRequest>();
   private consecutiveResponseTimeouts = 0;
+  private connecting: Promise<Civ7DirectControlEndpoint> | undefined;
 
   constructor(options: Civ7DirectControlOptions = {}) {
     this.config = resolveCiv7DirectControlConfig(options);
@@ -60,11 +61,27 @@ export class Civ7DirectControlSession {
     return { consecutiveResponseTimeouts: this.consecutiveResponseTimeouts };
   }
 
+  /**
+   * Concurrency-safe: parallel callers (a shared session's first burst of
+   * polls) await ONE in-flight attempt instead of each opening a socket —
+   * without this, every concurrent `connect()` saw "no socket", dialed its
+   * own, the last assignment won, and the rest leaked open.
+   */
   async connect(): Promise<Civ7DirectControlEndpoint> {
     if (this.socket && !this.socket.destroyed && this.endpointValue) {
       return this.endpointValue;
     }
+    if (this.connecting) return await this.connecting;
+    const attempt = this.establishConnection();
+    this.connecting = attempt;
+    try {
+      return await attempt;
+    } finally {
+      if (this.connecting === attempt) this.connecting = undefined;
+    }
+  }
 
+  private async establishConnection(): Promise<Civ7DirectControlEndpoint> {
     await this.close();
     const errors: Array<{ host: string; error: string }> = [];
     for (const host of this.config.hosts) {
