@@ -1,4 +1,5 @@
 import type { Civ7DirectControlError } from "../direct-control-error.js";
+import type { Civ7DirectControlSession } from "./session.js";
 
 export type Civ7TunerState = Readonly<{
   id: string;
@@ -26,6 +27,20 @@ export type Civ7DirectControlOptions = Readonly<{
   port?: number;
   timeoutMs?: number;
   env?: NodeJS.ProcessEnv;
+  /**
+   * Caller-owned shared session. When present, procedures reuse it (the
+   * connection is multiplexed by listenerId, so concurrent calls are fine)
+   * and NEVER close it — lifecycle belongs to the owner (e.g. the studio
+   * daemon's Effect-scoped `Civ7TunerSession`). When absent, behavior is
+   * unchanged: a fresh session per call, closed in `finally`.
+   */
+  session?: Civ7DirectControlSession;
+}>;
+
+/** Read-only health counters observed on a session's socket (all traffic). */
+export type Civ7DirectControlSessionStats = Readonly<{
+  /** Response-timeouts since the last successfully resolved frame. */
+  consecutiveResponseTimeouts: number;
 }>;
 
 export type Civ7CommandResult = Readonly<{

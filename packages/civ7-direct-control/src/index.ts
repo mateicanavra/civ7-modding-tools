@@ -382,6 +382,7 @@ export type {
   Civ7DirectControlEndpoint,
   Civ7DirectControlHealth,
   Civ7DirectControlOptions,
+  Civ7DirectControlSessionStats,
   Civ7TunerState,
   Civ7TunerStateRole,
   Civ7TunerStateSelection,
