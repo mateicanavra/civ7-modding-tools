@@ -1,4 +1,5 @@
 import type { RecipeDagResult } from "./client";
+import { formatArtifactGroupLabel } from "./artifactPresentation";
 
 export type DagPoint = Readonly<{
   x: number;
@@ -292,9 +293,7 @@ function anchorOffset(edges: readonly StageEdgeGroup[], edgeId: string, height: 
 }
 
 function formatEdgeLabel(artifacts: readonly string[]): string {
-  if (artifacts.length === 0) return "artifact";
-  if (artifacts.length === 1) return artifacts[0] ?? "artifact";
-  return `${artifacts[0]} +${artifacts.length - 1}`;
+  return formatArtifactGroupLabel(artifacts);
 }
 
 function resolveStagePhaseId(
