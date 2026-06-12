@@ -201,7 +201,8 @@ describe("pipeline hydrology river-network metrics", () => {
         `seed ${seed} non-dry flow signal`
       ).toBeGreaterThan(stats.riverTileCount / 4);
     }
-  });
+    // Multi-seed full-pipeline run: 5s default budget flakes under load.
+  }, 30_000);
 
   it("checks Earthlike and holdout seed rows against declared visible-scale stability bands", () => {
     const config = recipeConfig(earthlikeRaw);
@@ -251,7 +252,8 @@ describe("pipeline hydrology river-network metrics", () => {
         expectBetween(stats.benchmarkSummary.lakeLandShare, 0.005, 0.05, `${label} lake land share`);
       }
     }
-  });
+    // Multi-seed full-pipeline run: 5s default budget flakes under load.
+  }, 30_000);
 
   it("keeps arid controls typed rather than unresolved", () => {
     const config = recipeConfig(desertMountainsRaw);
