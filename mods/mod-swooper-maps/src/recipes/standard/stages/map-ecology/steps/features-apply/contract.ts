@@ -9,7 +9,7 @@ import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 
 const FeaturesApplyStepContract = defineStep({
   id: "features-apply",
-  phase: "gameplay",
+  phase: "ecology",
   requires: [],
   provides: [
     FIELD_DEPENDENCY_TAGS.field.featureType,

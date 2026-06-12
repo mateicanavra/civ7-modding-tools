@@ -11,7 +11,7 @@ import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 const PlotBiomesStepContract = defineStep({
   id: "plot-biomes",
-  phase: "gameplay",
+  phase: "ecology",
   requires: [],
   provides: [
     FIELD_DEPENDENCY_TAGS.field.biomeId,

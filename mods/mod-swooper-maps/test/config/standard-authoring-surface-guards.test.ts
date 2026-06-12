@@ -225,6 +225,10 @@ describe("standard authoring surface guardrails", () => {
       .sort();
     const generatedIds = readdirSync(generatedDir)
       .filter((entry) => entry.endsWith(".ts"))
+      // Transient studio deploys are excluded on BOTH sides: the studio writes
+      // `studio-current.config.json` + its generated entrypoint during runs,
+      // and the guard must not depend on whether a run happened recently.
+      .filter((entry) => !TRANSIENT_STUDIO_CONFIGS.has(entry.replace(/\.ts$/, ".config.json")))
       .map((entry) => entry.replace(/\.ts$/, ""))
       .sort();
 

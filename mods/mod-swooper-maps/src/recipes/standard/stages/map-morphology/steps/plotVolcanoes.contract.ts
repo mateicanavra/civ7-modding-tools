@@ -5,7 +5,7 @@ import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 const PlotVolcanoesStepContract = defineStep({
   id: "plot-volcanoes",
-  phase: "gameplay",
+  phase: "morphology",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.volcanoesPlotted],
   artifacts: {
