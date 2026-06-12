@@ -53,73 +53,70 @@ describe("tile-space rendering orientation", () => {
     expect(maxY).toBeGreaterThan(0);
   });
 
-  // Orientation contract (Pass-5 tile-orientation spec): row-offset (odd-R)
-  // lattices are pointy-top — a vertex sits straight above the center; the
-  // column-offset (odd-Q) lattice is flat-top — a vertex sits straight to
-  // the center's right (at 2/√3·size: the canonical-lattice tiling hex), and
-  // never straight above.
-  it.each([
-    ["tile.hexOddR", "pointy"],
-    ["tile.hexOddQ", "flat"],
-  ] as const)("renders %s as %s-top hexes", async (spaceId, orientation) => {
-    const layer = gridLayer(spaceId);
-    const manifest: VizManifestV1 = {
-      runId: "test-run",
-      outputRoot: "browser://viz",
-      steps: [{ stepId: "test.step", stepIndex: 0 }],
-      layers: [layer],
-    };
-    const result = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });
-    const hexLayer = result.layers.find((candidate) => String(candidate.id).endsWith("::hex"));
-    if (!hexLayer) throw new Error("missing rendered hex layer");
+  // Orientation contract (Pass-5, retuned by the hex-convention audit —
+  // docs/projects/mapgen-studio-redesign/research/03-hex-convention-audit.md):
+  // BOTH tile spaces render the GAME's plot geometry — regular pointy-top
+  // hexes (a vertex straight above the center, none straight east) on a
+  // row-offset odd-R lattice. `tile.hexOddQ` is a mislabel of that grid.
+  it.each(["tile.hexOddR", "tile.hexOddQ"] as const)(
+    "renders %s as regular pointy-top hexes (game geometry)",
+    async (spaceId) => {
+      const layer = gridLayer(spaceId);
+      const manifest: VizManifestV1 = {
+        runId: "test-run",
+        outputRoot: "browser://viz",
+        steps: [{ stepId: "test.step", stepIndex: 0 }],
+        layers: [layer],
+      };
+      const result = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });
+      const hexLayer = result.layers.find((candidate) => String(candidate.id).endsWith("::hex"));
+      if (!hexLayer) throw new Error("missing rendered hex layer");
 
-    const polygon = (hexLayer as any).props.getPolygon(0) as Array<[number, number]>;
-    const [cx, cy] = polygon
-      .reduce(([sx, sy], [x, y]) => [sx + x, sy + y], [0, 0])
-      .map((v) => v / polygon.length);
-    const hasVertexAbove = polygon.some(([x, y]) => Math.abs(x - cx) < 1e-6 && Math.abs(y - cy - 1) < 1e-6);
-    const hasVertexRight = polygon.some(
-      ([x, y]) => Math.abs(y - cy) < 1e-6 && Math.abs(x - cx - 2 / Math.sqrt(3)) < 1e-6
-    );
-    if (orientation === "pointy") {
+      const polygon = (hexLayer as any).props.getPolygon(0) as Array<[number, number]>;
+      const [cx, cy] = polygon
+        .reduce(([sx, sy], [x, y]) => [sx + x, sy + y], [0, 0])
+        .map((v) => v / polygon.length);
+      // Regular pointy-top: a vertex exactly `size` above the center, and
+      // every vertex exactly `size` away (no squash on any axis).
+      const hasVertexAbove = polygon.some(
+        ([x, y]) => Math.abs(x - cx) < 1e-6 && Math.abs(y - cy - 1) < 1e-6
+      );
+      const allUnitRadius = polygon.every(([x, y]) => Math.abs(Math.hypot(x - cx, y - cy) - 1) < 1e-6);
       expect(hasVertexAbove).toBe(true);
-      expect(hasVertexRight).toBe(false);
-    } else {
-      expect(hasVertexRight).toBe(true);
-      expect(hasVertexAbove).toBe(false);
+      expect(allUnitRadius).toBe(true);
     }
-  });
+  );
 
-  // The odd-Q lattice must match mapgen-core's canonical hex space
-  // (`projectOddqToHexSpace`): columns √3·size apart in x, odd columns
-  // dropped 0.75·size — the frame the Delaunay mesh (world.xy) lives in, so
-  // tile layers co-register with mesh layers.
-  it("places odd-Q tiles on the canonical hex-space lattice", async () => {
-    const layer = gridLayer("tile.hexOddQ");
-    const manifest: VizManifestV1 = {
-      runId: "test-run",
-      outputRoot: "browser://viz",
-      steps: [{ stepId: "test.step", stepIndex: 0 }],
-      layers: [layer],
-    };
-    const result = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });
-    const hexLayer = result.layers.find((candidate) => String(candidate.id).endsWith("::hex"));
-    if (!hexLayer) throw new Error("missing rendered hex layer");
+  it.each(["tile.hexOddR", "tile.hexOddQ"] as const)(
+    "places %s tiles on the game's row-offset lattice",
+    async (spaceId) => {
+      const layer = gridLayer(spaceId);
+      const manifest: VizManifestV1 = {
+        runId: "test-run",
+        outputRoot: "browser://viz",
+        steps: [{ stepId: "test.step", stepIndex: 0 }],
+        layers: [layer],
+      };
+      const result = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });
+      const hexLayer = result.layers.find((candidate) => String(candidate.id).endsWith("::hex"));
+      if (!hexLayer) throw new Error("missing rendered hex layer");
 
-    const centerOf = (index: number): [number, number] => {
-      const polygon = (hexLayer as any).props.getPolygon(index) as Array<[number, number]>;
-      const [sx, sy] = polygon.reduce(([ax, ay], [x, y]) => [ax + x, ay + y], [0, 0]);
-      return [sx / polygon.length, sy / polygon.length];
-    };
+      const centerOf = (index: number): [number, number] => {
+        const polygon = (hexLayer as any).props.getPolygon(index) as Array<[number, number]>;
+        const [sx, sy] = polygon.reduce(([ax, ay], [x, y]) => [ax + x, ay + y], [0, 0]);
+        return [sx / polygon.length, sy / polygon.length];
+      };
 
-    // Tiles 0 and 1 are columns 0 and 1 of row 0; tile 2 is row 1 column 0.
-    const [c0x, c0y] = centerOf(0);
-    const [c1x, c1y] = centerOf(1);
-    const [, c2y] = centerOf(2);
-    expect(c1x - c0x).toBeCloseTo(Math.sqrt(3), 6);
-    expect(c0y - c1y).toBeCloseTo(0.75, 6); // odd column drops (north-up flipped)
-    expect(c0y - c2y).toBeCloseTo(1.5, 6); // row pitch
-  });
+      // Tiles 0 and 1 are columns 0 and 1 of row 0; tile 2 is row 1 col 0.
+      const [c0x, c0y] = centerOf(0);
+      const [c1x, c1y] = centerOf(1);
+      const [c2x, c2y] = centerOf(2);
+      expect(c1x - c0x).toBeCloseTo(Math.sqrt(3), 6); // column pitch
+      expect(c1y - c0y).toBeCloseTo(0, 6); // same row, same y
+      expect(c0y - c2y).toBeCloseTo(1.5, 6); // row pitch
+      expect(c2x - c0x).toBeCloseTo(Math.sqrt(3) / 2, 6); // odd row shifts east
+    }
+  );
 
   it("renders noData tiles fully transparent — no fill, no border (mesh contract)", async () => {
     const layer: VizLayerEntryV1 = {
