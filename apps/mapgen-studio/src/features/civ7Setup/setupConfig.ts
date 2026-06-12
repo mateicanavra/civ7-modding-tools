@@ -282,6 +282,19 @@ export function updateStudioSetupMapScript(
   });
 }
 
+/**
+ * Selecting a saved config applies the file EXACTLY (config-precedence rule).
+ *
+ * Why full replacement: at launch the engine loads the saved configuration
+ * file into Civ7 first and then re-applies EVERY studio game/player option on
+ * top of it (`prepareCiv7SinglePlayerSetup` in @civ7/direct-control), so any
+ * studio key the file does not specify would silently override the loaded
+ * file. The only state in which "the selected config is what launches" holds
+ * is studio state that equals the file-derived state — stale keys from
+ * earlier sessions, live syncs, or dropdown edits are deliberately wiped
+ * here. Anything the user changes afterwards flips the selector to "Custom"
+ * (see `studioSetupDriftsFromSavedConfig`).
+ */
 export function studioSetupConfigFromSavedConfigFile(savedConfig: Civ7SavedSetupConfigFile): Civ7StudioSetupConfig {
   return normalizeStudioSetupConfig({
     savedConfig,
@@ -292,38 +305,29 @@ export function studioSetupConfigFromSavedConfigFile(savedConfig: Civ7SavedSetup
   });
 }
 
-export function updateStudioSetupSavedConfig(
-  config: Civ7StudioSetupConfig,
-  savedConfig: Civ7SavedSetupConfigFile | undefined,
-): Civ7StudioSetupConfig {
-  if (!savedConfig) return normalizeStudioSetupConfig({ ...config, savedConfig: undefined });
-  return normalizeStudioSetupConfig({
-    ...config,
-    savedConfig,
-    gameOptions: {
-      ...config.gameOptions,
-      ...savedConfig.setupOptions,
-    },
-    playerOptions: savedConfig.playerOptions.length > 0 ? savedConfig.playerOptions : config.playerOptions,
-  });
+/**
+ * Deselect the saved config while keeping the current options as free-form
+ * custom setup state. Clearing the ref is not a reset — it only stops
+ * claiming that a file governs the next launch.
+ */
+export function clearStudioSetupSavedConfig(config: Civ7StudioSetupConfig): Civ7StudioSetupConfig {
+  return normalizeStudioSetupConfig({ ...config, savedConfig: undefined });
 }
 
 /**
- * Drift detection for the saved-config selector (config-precedence rule): a
- * saved config GOVERNS the setup options it specifies plus the player
- * options it carries; the game-setup dropdowns must never silently supersede
- * it. The studio has drifted from the selected saved config exactly when
- * RE-APPLYING the file would change the current state — i.e. a later
- * dropdown change (or live sync) overwrote a governed value. Keys the file
- * does not specify are deliberately ungoverned (apply is a merge that keeps
- * them), so editing them never counts as drift, and re-apply ("sync back")
- * is a no-op precisely when the selector is clean.
+ * Drift detection for the saved-config selector (config-precedence rule):
+ * the studio launches the selected saved config exactly when the authored
+ * setup state equals the file-derived state
+ * (`studioSetupConfigFromSavedConfigFile`). ANY difference — a dropdown
+ * edit, a live sync, or a stray key rehydrated from persistence — means the
+ * launch would not be the file, so the selector must show "Custom".
+ * Re-selecting the config (re-apply) is always the way back to clean.
  */
 export function studioSetupDriftsFromSavedConfig(
   config: Civ7StudioSetupConfig,
   savedConfig: Civ7SavedSetupConfigFile,
 ): boolean {
-  return !studioSetupConfigsEqual(config, updateStudioSetupSavedConfig(config, savedConfig));
+  return !studioSetupConfigsEqual(config, studioSetupConfigFromSavedConfigFile(savedConfig));
 }
 
 export function labelForCiv7SetupValue(value: unknown): string {
