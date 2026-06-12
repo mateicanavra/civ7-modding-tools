@@ -9,6 +9,7 @@ describe("dev-live plan", () => {
     expect(plan.rpcProxyTarget).toBe(plan.backendUrl);
     expect(plan.frontendUrl).toBe("http://127.0.0.1:5173/");
     expect(plan.daemon.args).toEqual([
+      "--watch",
       "src/server/daemon/daemon.ts",
       "--host",
       "127.0.0.1",
