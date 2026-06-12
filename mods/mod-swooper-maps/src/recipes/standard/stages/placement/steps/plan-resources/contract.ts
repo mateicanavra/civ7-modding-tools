@@ -8,6 +8,7 @@ import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 import { hydrologyClimateRefineArtifacts } from "../../../hydrology-climate-refine/artifacts.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { mapRiversArtifacts } from "../../../map-rivers/artifacts.js";
 
 /**
  * Resource planning (placement-realignment S3): habitat-lane derivation +
@@ -36,6 +37,8 @@ const PlanResourcesStepContract = defineStep({
       morphologyArtifacts.beltDrivers,
       hydrologyHydrographyArtifacts.hydrography,
       hydrologyHydrographyArtifacts.lakePlan,
+      mapRiversArtifacts.projectedNavigableRivers,
+      mapRiversArtifacts.engineProjectionRivers,
       hydrologyClimateRefineArtifacts.climateIndices,
       hydrologyClimateRefineArtifacts.cryosphere,
       ecologyArtifacts.biomeClassification,

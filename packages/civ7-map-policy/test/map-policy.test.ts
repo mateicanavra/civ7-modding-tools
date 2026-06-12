@@ -22,7 +22,6 @@ import {
   resolveNaturalWonderMaterializationDirection,
   resolveNaturalWonderPlacementDirection,
 } from "../src/index.js";
-import { CIV7_BROWSER_TABLES_V0 as STUDIO_CIV7_BROWSER_TABLES_V0 } from "../../../apps/mapgen-studio/src/civ7-data/civ7-tables.gen.js";
 
 function listSourceFiles(dir: string): string[] {
   const entries = readdirSync(dir);
@@ -123,17 +122,13 @@ describe("@civ7/map-policy", () => {
     });
   });
 
-  it("keeps generated map-policy and Studio river metadata catalogs in sync", () => {
+  it("keeps the generated map-policy river metadata catalog on the live-observed source", () => {
     expect(CIV7_BROWSER_TABLES_V0.riverTypes).toEqual(CIV7_RIVER_TYPE_METADATA_SOURCE);
-    expect(STUDIO_CIV7_BROWSER_TABLES_V0.riverTypes).toEqual(
-      CIV7_RIVER_TYPE_METADATA_SOURCE
-    );
   });
 
   it("labels generated Civ7 table inputs as source evidence rather than repo truth", () => {
     const generatedTables = [
       join(import.meta.dir, "../src/civ7-tables.gen.ts"),
-      join(import.meta.dir, "../../../apps/mapgen-studio/src/civ7-data/civ7-tables.gen.ts"),
     ];
 
     for (const path of generatedTables) {

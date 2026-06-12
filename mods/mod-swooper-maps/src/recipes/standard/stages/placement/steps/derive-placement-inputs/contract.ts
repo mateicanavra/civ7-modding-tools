@@ -10,7 +10,6 @@ import { placementArtifacts } from "../../artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import { morphologyArtifacts } from "../../../morphology/artifacts.js";
-import { mapRiversArtifacts } from "../../../map-rivers/artifacts.js";
 
 /**
  * Builds the placement input artifact from runtime config and placement ops.
@@ -41,8 +40,6 @@ const DerivePlacementInputsContract = defineStep({
       morphologyArtifacts.topography,
       hydrologyHydrographyArtifacts.hydrography,
       hydrologyHydrographyArtifacts.lakePlan,
-      mapRiversArtifacts.projectedNavigableRivers,
-      mapRiversArtifacts.engineProjectionRivers,
       ecologyArtifacts.biomeClassification,
       ecologyArtifacts.biomeBindings,
       ecologyArtifacts.pedology,

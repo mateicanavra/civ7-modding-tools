@@ -5,6 +5,7 @@ import resourcesDomain from "@mapgen/domain/resources";
 import PlanResourcesStepContract from "./contract.js";
 import {
   buildResourceDemands,
+  buildRiverResourceExclusionMask,
   expectationsForGroup,
   pickPlannerMasks,
   readResourceLegalitySurface,
@@ -53,6 +54,8 @@ export default createStep(PlanResourcesStepContract, {
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
+    const projectedNavigableRivers = deps.artifacts.projectedNavigableRivers.read(context);
+    const engineProjectionRivers = deps.artifacts.engineProjectionRivers.read(context);
     const climateIndices = deps.artifacts.climateIndices.read(context);
     const cryosphere = deps.artifacts.cryosphere.read(context);
     const biomeClassification = deps.artifacts.biomeClassification.read(context);
@@ -139,12 +142,22 @@ export default createStep(PlanResourcesStepContract, {
     // --- id proof + policy legality + demand rows --------------------------------------------
     const legalitySurface = readResourceLegalitySurface(context);
     const plannedRows = groups.groups.flatMap((group) => group.plans);
+    // Rivers product requirement: no resources on river tiles (planned or
+    // engine-projected, navigable water included). Excluded at the legality
+    // seam so it flows through site selection, support, and stamping.
+    const riverResourceExclusionMask = buildRiverResourceExclusionMask({
+      width,
+      height,
+      projectedNavigableRivers,
+      engineProjectionRivers,
+    });
     const demandResult = buildResourceDemands({
       width,
       height,
       plannedRows,
       habitat,
       legalitySurface,
+      riverResourceExclusionMask,
     });
 
     // --- step 3: site selection (domain/resources op) ----------------------------------------
