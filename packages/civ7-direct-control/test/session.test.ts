@@ -1,4 +1,4 @@
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createServer } from "node:net";
@@ -352,20 +352,24 @@ describe("Civ7 direct control session framing", () => {
 
   test("waits for fresh ordered log markers", async () => {
     const dir = await mkdtemp(join(tmpdir(), "civ7-direct-control-log-"));
-    const logPath = join(dir, "Scripting.log");
-    await writeFile(logPath, "old\n");
-    const snapshot = await snapshotFile(logPath);
-    await writeFile(logPath, "old\nCreating Context -  MapGeneration\nDestroying Context -  MapGeneration\n");
+    try {
+      const logPath = join(dir, "Scripting.log");
+      await writeFile(logPath, "old\n");
+      const snapshot = await snapshotFile(logPath);
+      await writeFile(logPath, "old\nCreating Context -  MapGeneration\nDestroying Context -  MapGeneration\n");
 
-    const proof = await waitForFreshLogMarkers({
-      logPath,
-      snapshot,
-      markers: ["Creating Context -  MapGeneration", "Destroying Context -  MapGeneration"],
-      timeoutMs: 100,
-      pollIntervalMs: 10,
-    });
+      const proof = await waitForFreshLogMarkers({
+        logPath,
+        snapshot,
+        markers: ["Creating Context -  MapGeneration", "Destroying Context -  MapGeneration"],
+        timeoutMs: 100,
+        pollIntervalMs: 10,
+      });
 
-    expect(proof.matched).toEqual(["Creating Context -  MapGeneration", "Destroying Context -  MapGeneration"]);
+      expect(proof.matched).toEqual(["Creating Context -  MapGeneration", "Destroying Context -  MapGeneration"]);
+    } finally {
+      await rm(dir, { force: true, recursive: true });
+    }
   });
 });
 
