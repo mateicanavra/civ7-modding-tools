@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { Toaster, TooltipProvider } from "../components/ui";
 import { useThemePreference } from "../ui/hooks";
 
@@ -15,6 +17,15 @@ import { StudioShell } from "./StudioShell";
  */
 export function StudioProviders() {
   const { preference, isLightMode, cyclePreference } = useThemePreference();
+
+  // Runtime half of the single-`.dark`-class strategy: the index.html bootstrap
+  // owns the pre-paint initial state (no flash); this effect owns every change
+  // after hydration so the theme toggle actually re-themes the chrome
+  // (theme-class-sync spec — without it the cycle only relabels the button).
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", !isLightMode);
+  }, [isLightMode]);
+
   return (
     <TooltipProvider delayDuration={300}>
       <StudioShell
