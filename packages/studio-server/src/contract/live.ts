@@ -1,7 +1,7 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
 
-import { gameInfoRow, isoTimestamp, unknownRecord } from "./shared.js";
+import { isoTimestamp, unknownRecord } from "./shared.js";
 
 /**
  * `civ7.live.*` sub-namespace — aggregated live runtime reads.
@@ -107,6 +107,12 @@ export const entities = oc
 //   slice(0,8) — 8-table cap), limit(clamp 1..200, default 100).
 // Success 200: { ok:true, observedAt, tables: Record<table, rows> }.
 // Error 400: { ok:false, error }. N parallel reads.
+//
+// PARITY REFINEMENT (A3): each `tables[table]` value is the WHOLE
+// `Civ7GameInfoRowsResult` object (legacy maps `[table, await
+// getCiv7GameInfoRows(...)]`), not a bare row array — same mismatch as
+// `civ7.gameInfo` (#3). Refined from `array(gameInfoRow)` to the opaque result
+// record to preserve current `/api` behavior.
 export const gameInfo = oc
   .input(
     z.object({
@@ -118,6 +124,6 @@ export const gameInfo = oc
     z.object({
       ok: z.literal(true),
       observedAt: isoTimestamp,
-      tables: z.record(z.string(), z.array(gameInfoRow)),
+      tables: z.record(z.string(), unknownRecord),
     }),
   );
