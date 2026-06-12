@@ -29,15 +29,50 @@ export type DeckCanvasProps = {
   activeBounds: Bounds | null;
   apiRef?: MutableRefObject<DeckCanvasApi | null>;
   onApiReady?: () => void;
+  /**
+   * Camera interaction gate (Pass-5 prerun-cursor spec). Pre-run the only
+   * visible texture is the DOM CSS graticule behind the canvas — panning
+   * moves nothing the user can see, so the controller is disabled and the
+   * cursor stays default until there is matter to drag. Defaults to true.
+   */
+  interactive?: boolean;
 };
 
+// Controller config shared by the constructor and the interactivity effect.
+const CONTROLLER_OPTIONS = {
+  keyboard: {
+    // Make arrow-key motion feel less "stuck" while keeping the eased camera
+    // transition. Default for Orthographic/Orbit state is ~50px; we want ~3x.
+    moveSpeed: 150,
+  },
+} as const;
+
+function cursorForInteractivity(interactive: boolean) {
+  return interactive
+    ? ({ isDragging }: { isDragging: boolean }) => (isDragging ? "grabbing" : "grab")
+    : () => "default";
+}
+
 export function DeckCanvas(props: DeckCanvasProps) {
-  const { layers, effectiveLayer, viewportSize, showBackgroundGrid = true, lightMode = false, activeBounds, apiRef, onApiReady } = props;
+  const {
+    layers,
+    effectiveLayer,
+    viewportSize,
+    showBackgroundGrid = true,
+    lightMode = false,
+    activeBounds,
+    apiRef,
+    onApiReady,
+    interactive = true,
+  } = props;
 
   // Using the core Deck instance avoids React-driven rerenders on every pointer interaction.
   // (The @deck.gl/react wrapper can schedule React updates during camera changes.)
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const deckRef = useRef<Deck<any> | null>(null);
+  // Mirrors `interactive` for the mount effect (which must not re-run on
+  // toggles — the interactivity effect below handles those via setProps).
+  const interactiveRef = useRef(interactive);
 
   const views = useMemo(() => new OrthographicView({ id: 'ortho' }), []);
 
@@ -160,13 +195,8 @@ export function DeckCanvas(props: DeckCanvasProps) {
     const deck = new Deck({
       canvas,
       views,
-      controller: {
-        keyboard: {
-          // Make arrow-key motion feel less "stuck" while keeping the eased camera transition.
-          // Default for Orthographic/Orbit state is ~50px; we want ~3x.
-          moveSpeed: 150,
-        },
-      },
+      controller: interactiveRef.current ? CONTROLLER_OPTIONS : false,
+      getCursor: cursorForInteractivity(interactiveRef.current),
       initialViewState: {
         target: [...DEFAULT_VIEW_STATE.target],
         zoom: DEFAULT_VIEW_STATE.zoom,
@@ -183,6 +213,16 @@ export function DeckCanvas(props: DeckCanvasProps) {
     };
     // deckLayers intentionally excluded: we update via setProps below.
   }, [views]);
+
+  // Toggle camera interactivity (and the cursor that advertises it) without
+  // remounting the Deck instance.
+  useEffect(() => {
+    interactiveRef.current = interactive;
+    deckRef.current?.setProps({
+      controller: interactive ? CONTROLLER_OPTIONS : false,
+      getCursor: cursorForInteractivity(interactive),
+    });
+  }, [interactive]);
 
   // Keep layers in sync without remounting the Deck instance.
   useEffect(() => {
