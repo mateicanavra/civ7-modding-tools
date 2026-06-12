@@ -1,11 +1,42 @@
-// Run-in-game HTTP surface: start a run and poll its status.
+// Run-in-game data surface: start a run and poll its status.
 //
-// Thin `fetch` wrappers over `/api/civ7/run-in-game*`. Extracted verbatim from
-// `App.tsx` during the app-decomposition slice — the request body shape
-// (including the `assertNoRawControlFields`-protected payload assembled here),
-// non-uniform error handling, and status-code propagation are unchanged.
+// EVERYTHING talks oRPC (FRAME §4.7): these callers speak the studio's own
+// `@civ7/studio-server` contract through the typed oRPC client (`src/lib/orpc.ts`)
+// — there is NO manual `fetch` of `/api/*` here anymore. The request body shape
+// (including the `assertNoRawControlFields`-protected payload assembled here), the
+// non-uniform error handling, and the status-code propagation are preserved
+// verbatim: the transport moved from `fetch` to the oRPC client; the request
+// envelope, the result shapes, and the 404 `statusCode` the caller uses for
+// server-restart detection did not. The router pins the legacy HTTP code on
+// `ORPCError.status` and carries `details` (and the 404 server-id echo) in
+// `ORPCError.data`, which we read back below.
+import { ORPCError } from "@orpc/client";
+
+import { orpcClient } from "../../lib/orpc";
 import { normalizeStudioSetupConfig, type Civ7StudioSetupConfig } from "../civ7Setup/setupConfig";
 import type { RunInGameFailureDetails, RunInGameOperationStatus } from "./status";
+
+/**
+ * Translate a thrown oRPC client error into the legacy run-in-game failure
+ * envelope. `ORPCError.status` is the pinned legacy HTTP code (used for the 404
+ * restart-detection branch in `App.tsx`); `ORPCError.data.details` carries the
+ * `RunInGameFailureDetails` the engine attached. A non-`ORPCError` throw maps to
+ * the bare `err.message` shape the old `catch` block produced (no `statusCode`).
+ */
+function runInGameFailure(
+  err: unknown,
+  fallback: string,
+): { error: string; details?: RunInGameFailureDetails; statusCode?: number } {
+  if (err instanceof ORPCError) {
+    const data = (err.data ?? undefined) as { details?: RunInGameFailureDetails } | undefined;
+    return {
+      error: err.message || `HTTP ${err.status}`,
+      statusCode: err.status,
+      ...(data?.details !== undefined ? { details: data.details } : {}),
+    };
+  }
+  return { error: err instanceof Error ? err.message : fallback };
+}
 
 export async function runCurrentConfigInGame(args: {
   recipeId: string;
@@ -34,37 +65,28 @@ export async function runCurrentConfigInGame(args: {
   | { ok: false; error: string; details?: RunInGameFailureDetails; statusCode?: number }
 > {
   try {
-    const res = await fetch("/api/civ7/run-in-game", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        recipeId: args.recipeId,
-        seed: args.seed,
-        mapSize: args.mapSize,
-        playerCount: args.playerCount,
-        resources: args.resources,
-        setupConfig: normalizeStudioSetupConfig(args.setupConfig),
-        materialization: { mode: args.materializationMode },
-        ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
-        selectedConfig: args.selectedConfig,
-        config: args.config,
-        sourceSnapshot: args.sourceSnapshot,
-      }),
-    });
-    const body = (await res.json().catch(() => null)) as
-      | (Partial<RunInGameOperationStatus> & { error?: string; details?: RunInGameFailureDetails })
-      | null;
-    if (!res.ok || !body?.requestId) {
-      return {
-        ok: false,
-        error: body?.error ?? `HTTP ${res.status}`,
-        details: body?.details,
-        statusCode: res.status,
-      };
-    }
+    // The request envelope is assembled exactly as before (the server runs
+    // `assertNoRawControlFields` over it); only the transport is the oRPC client.
+    // The legacy handler posted `selectedConfig` verbatim (its `id` may be absent
+    // for disposable runs) and `parseRunInGameSetupRequest` tolerates that, so we
+    // pass it through the permissive (`.catchall`) start input unchanged.
+    const request = {
+      recipeId: args.recipeId,
+      seed: args.seed,
+      mapSize: args.mapSize,
+      playerCount: args.playerCount,
+      resources: args.resources,
+      setupConfig: normalizeStudioSetupConfig(args.setupConfig),
+      materialization: { mode: args.materializationMode },
+      ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
+      selectedConfig: args.selectedConfig,
+      config: args.config,
+      sourceSnapshot: args.sourceSnapshot,
+    } as unknown as Parameters<typeof orpcClient.runInGame.start>[0];
+    const body = await orpcClient.runInGame.start(request);
     return body as RunInGameOperationStatus;
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Run in Game failed" };
+    return { ok: false, ...runInGameFailure(err, "Run in Game failed") };
   }
 }
 
@@ -72,13 +94,14 @@ export async function fetchRunInGameStatus(
   requestId: string,
 ): Promise<RunInGameOperationStatus | { ok: false; error: string; statusCode?: number }> {
   try {
-    const res = await fetch(`/api/civ7/run-in-game/status?requestId=${encodeURIComponent(requestId)}`);
-    const body = (await res.json().catch(() => null)) as (Partial<RunInGameOperationStatus> & { error?: string }) | null;
-    if (!res.ok || !body?.requestId) {
-      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, statusCode: res.status };
-    }
+    const body = await orpcClient.runInGame.status({ requestId });
     return body as RunInGameOperationStatus;
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Run in Game status unavailable" };
+    const failure = runInGameFailure(err, "Run in Game status unavailable");
+    return {
+      ok: false,
+      error: failure.error,
+      ...(failure.statusCode !== undefined ? { statusCode: failure.statusCode } : {}),
+    };
   }
 }
