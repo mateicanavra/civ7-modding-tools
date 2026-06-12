@@ -152,45 +152,39 @@ describe("resource placement diagnostics", () => {
     ).toThrow(/plan metadata mismatch/i);
   });
 
-  it("does not rescue resource placement onto protected river tiles", () => {
+  it("never relocates a rejected intent onto another tile (river exclusion holds at stamping)", () => {
+    // River-tile exclusion now lives at the planning seam (see
+    // test/placement/plan-ops.test.ts "resource demand planning river
+    // exclusion"): excluded tiles are zeroed out of every demand's legalMask,
+    // so no plan intent can target them. The stamping invariant proven here is
+    // plan authority — a rejected intent stays a typed shortfall at its
+    // planned plot; there is no rescue/relocation that could land on a river.
     const width = 5;
     const height = 2;
-    const riverResourceExclusionMask = new Uint8Array(width * height);
-    riverResourceExclusionMask[0] = 1;
-    riverResourceExclusionMask[1] = 1;
+    const riverTilePlots = new Set([0, 1]);
     const adapter = createMockAdapter({
       width,
       height,
       mapInfo: { GridWidth: width, GridHeight: height },
       mapSizeId: 1,
       rng: createLabelRng(1934),
-      canHaveResource: () => true,
+      // Engine rejects everything: a rescuing materializer would hunt for an
+      // alternative plot (possibly a river tile); plan authority must not.
+      canHaveResource: () => false,
     });
 
     const outcomes = placeResourcesWithTypedOutcomes({
       adapter,
       width,
       height,
-      resources: {
-        width,
-        height,
-        candidateResourceTypes: [4],
-        targetCount: 2,
-        plannedCount: 2,
-        minSpacingTiles: 0,
-        riverResourceExclusionMask,
-        riverResourceExclusionTileCount: 2,
-        placements: [
-          { plotIndex: 0, preferredResourceType: 4, preferredTypeOffset: 0, priority: 1 },
-          { plotIndex: 1, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.9 },
-        ],
-      },
+      plan: plan(width, height, [intent(2, width, 4), intent(3, width, 4)]),
     });
 
-    expect(outcomes.summary.placedCount).toBe(2);
-    expect(new Set(outcomes.outcomes.map((outcome) => outcome.plotIndex)).size).toBe(2);
+    expect(outcomes.summary.placedCount).toBe(0);
+    expect(outcomes.summary.rejectedCount).toBe(2);
+    expect(outcomes.outcomes.map((outcome) => outcome.plotIndex)).toEqual([2, 3]);
     for (const outcome of outcomes.outcomes) {
-      expect(riverResourceExclusionMask[outcome.plotIndex]).toBe(0);
+      expect(riverTilePlots.has(outcome.plotIndex)).toBe(false);
     }
   });
 

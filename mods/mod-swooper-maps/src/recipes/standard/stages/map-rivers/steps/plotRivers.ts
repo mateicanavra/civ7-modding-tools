@@ -12,7 +12,7 @@ import {
   HYDROLOGY_MOUTH_CLOSED_BASIN,
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
-} from "@mapgen/domain/hydrology/river-network-metrics.js";
+} from "@mapgen/domain/hydrology";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 import { mapRiversArtifacts } from "../artifacts.js";
