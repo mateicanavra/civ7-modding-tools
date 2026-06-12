@@ -143,14 +143,22 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   // `warning` token (not the slate identity accent).
   const liveDotClass =
     liveRuntime?.status === "ok" ? "bg-success" : liveRuntime?.status === "error" ? "bg-destructive" : "bg-muted-foreground";
-  const liveText =
+  // The live summary splits into a primary segment (always rendered) and the
+  // seed suffix, which the chip drops when the Game bar container narrows
+  // (container query on the header's center column). The full string stays in
+  // the tooltip/accessible name.
+  const liveHasGameIdentity =
+    liveRuntime?.status === "ok" && (liveRuntime.turn !== undefined || liveRuntime.seed !== undefined);
+  const liveTextPrimary =
     liveRuntime?.status === "ok"
-      ? liveRuntime.turn !== undefined || liveRuntime.seed !== undefined
-        ? `Turn ${liveRuntime.turn ?? "?"} · Seed ${liveRuntime.seed ?? "?"}`
+      ? liveHasGameIdentity
+        ? `Turn ${liveRuntime.turn ?? "?"}`
         : liveRuntime.readiness ?? "Civ7 ready"
       : liveRuntime?.status === "error"
         ? liveRuntime.error ?? "Live unavailable"
         : "Live idle";
+  const liveTextSeedSuffix = liveHasGameIdentity ? ` · Seed ${liveRuntime?.seed ?? "?"}` : "";
+  const liveText = `${liveTextPrimary}${liveTextSeedSuffix}`;
   const runInGamePhaseLabel = runInGameStatus ? formatRunInGamePhaseLabel(runInGameStatus.phase) : "Run in Game";
   const runInGameStateLabel =
     runInGameStatus && !isRunInGameRunning
@@ -219,6 +227,18 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     : saveDeployActive
       ? saveDeployLabel ?? liveText
       : liveText;
+  // Rendered chip content: live summaries drop the seed suffix when the Game
+  // bar container narrows (`@max-3xl` ≈ 768px container width) — the turn is
+  // the at-a-glance signal; the seed stays in the tooltip and hang-off.
+  const chipContent =
+    !isRunInGameRunning && !saveDeployActive && liveTextSeedSuffix ? (
+      <>
+        {liveTextPrimary}
+        <span className="@max-3xl:hidden">{liveTextSeedSuffix}</span>
+      </>
+    ) : (
+      chipText
+    );
   const chipTitle = [
     `Live: ${liveText}`,
     liveRuntime?.autoplayActive ? `Autoplay active${liveRuntime.autoplayPaused ? " (paused)" : ""}` : null,
@@ -265,7 +285,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
             <Radio className={`w-3.5 h-3.5 ${liveGameStudioRelation === "stale" ? "text-warning" : textMuted}`} />
             <div className={`w-2 h-2 shrink-0 rounded-full ${combinedDotClass}`} />
             <span className={`truncate text-data font-medium ${liveGameStudioRelation === "stale" ? "text-warning" : textPrimary}`}>
-              {chipText}
+              {chipContent}
             </span>
             {liveRuntime?.autoplayActive ? (
               <span className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning">
