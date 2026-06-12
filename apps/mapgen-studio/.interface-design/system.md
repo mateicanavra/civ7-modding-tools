@@ -168,3 +168,31 @@ decisions (see `docs/projects/mapgen-studio-redesign/pass-2-design-fixes.md`):
 - **One Run CTA.** The footer is the run console (seed, auto-run, run, run-in-game);
   panel-local duplicates are removed.
 - Control density (button/input/switch/field-row dimensions above) is unchanged.
+
+## Pass-3 amendment (2026-06-11, user-grounded): spacing substrate + form elevation + console split
+
+Pass-3 grounding found the spacing scale above had **never rendered**: an
+unlayered `* { margin:0; padding:0 }` reset in `index.html` outranks Tailwind
+v4's `@layer utilities`, zeroing every padding/margin utility app-wide. Decisions
+(see `docs/projects/mapgen-studio-redesign/pass-3-design-fixes.md`):
+
+- **No unlayered author CSS.** `index.html` may carry only the pre-paint flash
+  guard (`body` colors); resets belong to Tailwind preflight (layered). Any
+  future global CSS outside `index.css` must live in a cascade layer.
+- **Form surface elevation (config panel):** nesting is expressed by *surfaces,
+  not indent rules*. Panel (popover) → stage card (card, one recess) → **group
+  well** (one further recess: `bg-background/40`-class tint, `border-border-subtle`,
+  rounded, padded). Two surface tiers maximum; deeper nesting differentiates by
+  eyebrow heading + rhythm only. Arrays ride the same well treatment. `border-l`
+  indent ladders are removed.
+- **Form rhythm (4px base):** 4px within a field block (label/input/help),
+  8px between fields, 12px between groups and between stage cards. Owned by the
+  FORM constant in `rjsfTemplates.tsx`.
+- **Footer = two consoles.** A centered **Studio console** (status, last run,
+  seed, reroll, auto-run, Run) and a right-docked, named **Game console**
+  (live Civ7 status/sync, autoplay, Run in Game + status, save-deploy chip).
+  Studio↔game relation chips (Current/Stale/Previous, stale sync ring) live on
+  the Game console; studio dirty state stays on the Studio console.
+- **Explore toolbar groups by target:** VIEW (camera fit, edges overlay) and
+  DATA (render, space, era, variant, overlay) clusters with eyebrow labels;
+  the debug toggle is a DATA-list filter and lives on the DATA section header.
