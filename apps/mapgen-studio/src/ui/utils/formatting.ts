@@ -31,16 +31,18 @@ export function formatFieldName(name: string): string {
 }
 
 /**
- * Format a resource mode for compact display.
+ * Format a resource mode for display. Full words — the footer summary has the
+ * space, and abbreviations ("Bal") read as accidental truncation next to the
+ * unabbreviated map-size label (Pass-2 run-console spec).
  *
- * @example formatResourceMode('balanced') // 'Bal'
+ * @example formatResourceMode('balanced') // 'Balanced'
  */
 export function formatResourceMode(mode: string): string {
-  const shortNames: Record<string, string> = {
-    balanced: 'Bal',
-    strategic: 'Strat'
+  const displayNames: Record<string, string> = {
+    balanced: 'Balanced',
+    strategic: 'Strategic'
   };
-  return shortNames[mode] || mode;
+  return displayNames[mode] || mode;
 }
 
 /**

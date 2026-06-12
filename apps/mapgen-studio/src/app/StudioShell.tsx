@@ -2233,15 +2233,12 @@ export function StudioShell(props: StudioShellProps) {
         );
         if (next.recipe !== recipeSettings.recipe) toast(`Recipe: ${next.recipe}`, { variant: "info" });
       }}
-      onRun={triggerRun}
       onSaveToCurrent={handleSaveToCurrent}
       onSaveAsNew={handleSaveAsNew}
       onImportPreset={handleImportPreset}
       onExportPreset={handleExportPreset}
       onDeletePreset={handleDeletePreset}
       canDeletePreset={isLocalPresetSelected}
-      isRunning={browserRunning}
-      isRunDisabled={runInGameRunning || saveDeployRunning}
       isSaveDeployRunning={saveDeployRunning}
       saveDeployStatus={saveDeployOperation}
       isSaveDisabled={browserRunning || runInGameRunning || saveDeployRunning}
