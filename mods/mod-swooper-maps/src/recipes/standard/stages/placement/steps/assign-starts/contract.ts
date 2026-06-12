@@ -21,7 +21,6 @@ const AssignStartsStepContract = defineStep({
   artifacts: {
     requires: [
       placementArtifacts.placementInputs,
-      placementArtifacts.placementSurfacePreparation,
       placementArtifacts.resourcePlan,
       placementArtifacts.naturalWonderPlacement,
       mapArtifacts.landmassRegionSlotByTile,

@@ -1,6 +1,5 @@
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { buildPlacementPlanInput } from "../derive-placement-inputs/inputs.js";
 import { runPlacementProductStep } from "../product-runtime.js";
 import {
   emitStartPositionsViz,
@@ -19,7 +18,6 @@ export default createStep(AssignStartsStepContract, {
   }),
   run: (context, config, _ops, deps) => {
     const placementInputs = deps.artifacts.placementInputs.read(context);
-    deps.artifacts.placementSurfacePreparation.read(context);
     const resourcePlan = deps.artifacts.resourcePlan.read(context);
     const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
@@ -32,7 +30,7 @@ export default createStep(AssignStartsStepContract, {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const biomeClassification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);
-    const { starts: baseStarts } = buildPlacementPlanInput(placementInputs);
+    const baseStarts = placementInputs.starts;
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const { width, height } = context.dimensions;
     const naturalWonderPlotIndices = collectNaturalWonderPlotIndices(

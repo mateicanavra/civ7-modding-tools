@@ -24,7 +24,13 @@ describe("plan-vegetation/apply pipeline", () => {
       latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
     };
 
-    const adapter = createMockAdapter({ width, height });
+    // This test exercises plan->intents->apply WIRING, not the static
+    // feature-legality policy; the synthetic context never stamps engine
+    // biomes/terrain, so the policy oracle is overridden to accept. (S6:
+    // features-apply now reifies the engine feature field unconditionally,
+    // which exposed that the previous all-zeros field counted unapplied
+    // tiles as applied.)
+    const adapter = createMockAdapter({ width, height, canHaveFeature: () => true });
     adapter.fillWater(false);
 
     const ctx = createExtendedMapContext({ width, height }, adapter, env);

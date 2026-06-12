@@ -21,6 +21,7 @@ import type {
   NaturalWonderCatalogEntry,
   NaturalWonderPlacementOutcome,
   PlotTagName,
+  ResourceCatalogEntry,
   ResourcePlacementIntent,
   ResourcePlacementOutcome,
   VoronoiUtils,
@@ -350,6 +351,45 @@ export class Civ7Adapter implements EngineAdapter {
 
   getPlaceableResourceTypes(): number[] {
     return [...PLACEABLE_RESOURCE_TYPE_IDS];
+  }
+
+  getResourceCatalog(): ResourceCatalogEntry[] {
+    // Live runtime catalog: GameInfo.Resources stays behind the adapter so
+    // recipe-layer telemetry never reads engine globals directly.
+    const table = (globalThis as { GameInfo?: { Resources?: Iterable<unknown> } }).GameInfo
+      ?.Resources;
+    if (!table) return [];
+    const rows: ResourceCatalogEntry[] = [];
+    for (const raw of table) {
+      const row = raw as {
+        Index?: unknown;
+        $index?: unknown;
+        ResourceType?: unknown;
+        ResourceClassType?: unknown;
+        Name?: unknown;
+      };
+      const index =
+        typeof row.Index === "number" && Number.isFinite(row.Index)
+          ? Math.trunc(row.Index)
+          : typeof row.$index === "number" && Number.isFinite(row.$index)
+            ? Math.trunc(row.$index)
+            : null;
+      const resourceType =
+        typeof row.ResourceType === "string" && row.ResourceType.length > 0
+          ? row.ResourceType
+          : null;
+      if (index === null || resourceType === null) continue;
+      rows.push({
+        index,
+        resourceType,
+        resourceClassType:
+          typeof row.ResourceClassType === "string" && row.ResourceClassType.length > 0
+            ? row.ResourceClassType
+            : null,
+        name: typeof row.Name === "string" && row.Name.length > 0 ? row.Name : null,
+      });
+    }
+    return rows.sort((a, b) => a.index - b.index);
   }
 
   placeResourceIntent(

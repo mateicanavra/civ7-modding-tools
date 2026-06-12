@@ -50,6 +50,7 @@ type NaturalWonderPlanInputTelemetryArgs = {
   physical: {
     topography: {
       landMask: Uint8Array;
+      elevation: Int16Array;
     };
     hydrography: {
       riverClass: Uint8Array;
@@ -126,7 +127,7 @@ export function buildNaturalWonderPlanInputRuntimeTelemetry({
       terrainType[plotIndex] ?? 0,
       biomeType[plotIndex] ?? 0,
       featureType[plotIndex] ?? 0,
-      context.buffers.heightfield.elevation[plotIndex] ?? 0,
+      physical.topography.elevation[plotIndex] ?? 0,
       aridityPpm[plotIndex] ?? 0,
       physical.hydrography.riverClass[plotIndex] ?? 0,
       physical.lakePlan.lakeMask[plotIndex] ?? 0,
@@ -141,7 +142,7 @@ export function buildNaturalWonderPlanInputRuntimeTelemetry({
       version: 1,
       plotCount: size,
       landMaskHash32: hash32Values(physical.topography.landMask),
-      elevationHash32: hash32Values(context.buffers.heightfield.elevation),
+      elevationHash32: hash32Values(physical.topography.elevation),
       aridityPpmHash32: hash32Values(aridityPpm),
       riverClassHash32: hash32Values(physical.hydrography.riverClass),
       lakeMaskHash32: hash32Values(physical.lakePlan.lakeMask),

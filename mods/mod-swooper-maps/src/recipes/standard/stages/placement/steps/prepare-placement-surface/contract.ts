@@ -12,6 +12,10 @@ import { placementArtifacts } from "../../artifacts.js";
  * Surface preparation is the transactional boundary that makes the engine safe
  * for placement products. It groups maintenance operations that must happen
  * together before resources, starts, and discoveries read engine state.
+ *
+ * Ordering after the wonder stamp is carried by the `naturalWondersPlaced`
+ * effect tag alone (S6: no read-and-discard artifacts); wonder evidence is
+ * validated at its publish site, not re-normalized here.
  */
 const PreparePlacementSurfaceStepContract = defineStep({
   id: "prepare-placement-surface",
@@ -23,7 +27,6 @@ const PreparePlacementSurfaceStepContract = defineStep({
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
   artifacts: {
     requires: [
-      placementArtifacts.naturalWonderPlacement,
       mapHydrologyArtifacts.engineProjectionLakes,
       mapArtifacts.landmassRegionSlotByTile,
     ],

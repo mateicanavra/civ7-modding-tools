@@ -1,4 +1,5 @@
 import type {
+  ResourceCatalogEntry,
   ResourcePlacementIntent,
   ResourcePlacementMismatchReason,
   ResourcePlacementOutcome,
@@ -17,19 +18,6 @@ type ResourcePlacementReason = ResourcePlacementRejectionReason | ResourcePlacem
 type ResourcePlacementSummary = ResourcePlacementOutcomes["summary"];
 type ResourceReconciliationSummary = ResourcePlacementOutcomes["reconciliation"];
 type ResourcePlacementRuntimeTelemetryOutcome = ResourcePlacementOutcomes["outcomes"][number];
-type RuntimeResourceCatalogEntry = {
-  readonly index: number;
-  readonly resourceType: string;
-  readonly resourceClassType: string | null;
-  readonly name: string | null;
-};
-type RuntimeResourceRow = {
-  readonly Index?: unknown;
-  readonly $index?: unknown;
-  readonly ResourceType?: unknown;
-  readonly ResourceClassType?: unknown;
-  readonly Name?: unknown;
-};
 type ResourcePlacementCoordinateDigest = ResourcePlacementSummary["coordinateProof"]["placed"];
 
 type PlaceResourcesWithTypedOutcomesArgs = {
@@ -174,37 +162,6 @@ function summarizeResourceOutcomes(
   };
 }
 
-function coerceRuntimeIndex(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? Math.trunc(value) : null;
-}
-
-function coerceRuntimeString(value: unknown): string | null {
-  return typeof value === "string" && value.length > 0 ? value : null;
-}
-
-export function readRuntimeResourceCatalog(): readonly RuntimeResourceCatalogEntry[] {
-  const runtime = globalThis as typeof globalThis & {
-    GameInfo?: { Resources?: Iterable<RuntimeResourceRow> };
-  };
-  const table = runtime.GameInfo?.Resources;
-  if (!table) return [];
-
-  return Array.from(table)
-    .map((row) => {
-      const index = coerceRuntimeIndex(row.Index) ?? coerceRuntimeIndex(row.$index);
-      const resourceType = coerceRuntimeString(row.ResourceType);
-      if (index === null || resourceType === null) return null;
-      return {
-        index,
-        resourceType,
-        resourceClassType: coerceRuntimeString(row.ResourceClassType),
-        name: coerceRuntimeString(row.Name),
-      };
-    })
-    .filter((row): row is RuntimeResourceCatalogEntry => row !== null)
-    .sort((a, b) => a.index - b.index);
-}
-
 /**
  * RESOURCE_PLACEMENT_V1 runtime telemetry. Same envelope as before the S3
  * cutover (version/planned/placed/rejected/mismatch counts, per-type
@@ -215,7 +172,7 @@ export function readRuntimeResourceCatalog(): readonly RuntimeResourceCatalogEnt
 export function buildResourcePlacementRuntimeTelemetry(
   summary: ResourcePlacementSummary,
   reconciliation?: ResourceReconciliationSummary,
-  runtimeCatalog: readonly RuntimeResourceCatalogEntry[] = readRuntimeResourceCatalog(),
+  runtimeCatalog: readonly ResourceCatalogEntry[] = [],
   outcomes: readonly ResourcePlacementRuntimeTelemetryOutcome[] = []
 ): Record<string, unknown> {
   const runtimeByIndex = new Map(runtimeCatalog.map((row) => [row.index, row]));
@@ -299,11 +256,11 @@ export function buildResourcePlacementRuntimeTelemetry(
 }
 
 export function logResourcePlacementRuntimeTelemetry(
+  runtimeCatalog: readonly ResourceCatalogEntry[],
   summary: ResourcePlacementSummary,
   reconciliation: ResourceReconciliationSummary,
   outcomes: readonly ResourcePlacementRuntimeTelemetryOutcome[] = []
 ): void {
-  const runtimeCatalog = readRuntimeResourceCatalog();
   if (runtimeCatalog.length === 0) return;
   console.log(
     `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify(

@@ -1,6 +1,10 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../../map-artifacts.js";
+import {
+  validateLandmassRegionSlotByTileArtifact,
+  validateProjectionMetaArtifact,
+} from "./validate.js";
 import PlotLandmassRegionsStepContract from "./contract.js";
 
 type RegionSlot = 0 | 1 | 2;
@@ -62,8 +66,12 @@ export default createStep(PlotLandmassRegionsStepContract, {
       mapArtifacts.landmassRegionSlotByTile,
     ],
     {
-      projectionMeta: {},
-      landmassRegionSlotByTile: {},
+      projectionMeta: {
+        validate: (value) => validateProjectionMetaArtifact(value),
+      },
+      landmassRegionSlotByTile: {
+        validate: (value) => validateLandmassRegionSlotByTileArtifact(value),
+      },
     }
   ),
   run: (context, _config, _ops, deps) => {

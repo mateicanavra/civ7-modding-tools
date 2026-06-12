@@ -187,7 +187,13 @@ export default createStep(FeaturesApplyStepContract, {
     }
     if (applied > 0) {
       context.adapter.validateAndFixTerrain();
-      reifyFeatureField(context);
+    }
+    // The field:featureType this step provides must always be the reified
+    // engine surface — even when zero features applied — because downstream
+    // planning (placement) consumes the field as a declared engine-feature
+    // projection instead of re-reading the adapter per tile.
+    reifyFeatureField(context);
+    if (applied > 0) {
       const featureTypeCategories = buildFeatureTypeVizCategories(
         context.adapter,
         context.fields.featureType

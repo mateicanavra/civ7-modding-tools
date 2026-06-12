@@ -19,6 +19,7 @@ import type {
   NaturalWonderCatalogEntry,
   NaturalWonderPlacementOutcome,
   PlotTagName,
+  ResourceCatalogEntry,
   ResourcePlacementIntent,
   ResourcePlacementOutcome,
   VoronoiBoundingBox,
@@ -809,6 +810,21 @@ export class MockAdapter implements EngineAdapter {
 
   getPlaceableResourceTypes(): number[] {
     return [...this.resourceTypeCatalog];
+  }
+
+  getResourceCatalog(): ResourceCatalogEntry[] {
+    // Mock runtime catalog: served from the static policy tables so telemetry
+    // enrichment behaves the same offline as against GameInfo.Resources.
+    return Object.entries(
+      CIV7_BROWSER_TABLES_V0.resourceTypes as Record<string, number>
+    )
+      .map(([resourceType, index]) => ({
+        index: index | 0,
+        resourceType,
+        resourceClassType: null,
+        name: null,
+      }))
+      .sort((a, b) => a.index - b.index);
   }
 
   placeResourceIntent(
