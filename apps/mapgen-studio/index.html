@@ -4,27 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MapGen Studio</title>
-    <script>
-      // Apply theme before first paint (no flash). Default dark; `.dark` drives
-      // the design tokens in index.css. localStorage key written by the app.
-      (function () {
-        try {
-          var stored = localStorage.getItem("mapgen-studio:theme");
-          if (stored ? stored === "dark" : true) {
-            document.documentElement.classList.add("dark");
-          }
-        } catch (e) {
-          document.documentElement.classList.add("dark");
-        }
-      })();
-    </script>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      /* Pre-React flash color matches the dark page token (index.css --background). */
+      /* Pre-paint flash guard ONLY. This block must stay unlayered-minimal:
+         unlayered author CSS outranks every Tailwind @layer, so a global reset
+         here would zero all padding/margin utilities app-wide (Pass-3 root
+         cause). Element resets come from Tailwind preflight in index.css.
+         Colors match the dark page tokens (index.css --background/--foreground);
+         the theme script below out-cascades them for light users. */
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         background: #0d0d11;
@@ -32,6 +18,34 @@
         min-height: 100vh;
       }
     </style>
+    <script>
+      // Apply theme before first paint (no flash). `.dark` drives the design
+      // tokens in index.css. Must stay AFTER the flash-guard <style> so the
+      // light override it appends wins by source order.
+      (function () {
+        try {
+          // Same key + resolution as `useTheme.ts`: explicit light/dark wins;
+          // "system" (or anything else) follows the OS preference.
+          var stored = localStorage.getItem("theme-preference");
+          var dark =
+            stored === "dark" ||
+            (stored !== "light" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) {
+            document.documentElement.classList.add("dark");
+          } else {
+            // The static flash guard above is dark; out-cascade it (same
+            // specificity, later source order) so light users don't get a
+            // dark pre-React flash (index.css :root --background/--foreground).
+            var s = document.createElement("style");
+            s.textContent = "body { background: #f2f2f7; color: #1f2937; }";
+            document.head.appendChild(s);
+          }
+        } catch (e) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
