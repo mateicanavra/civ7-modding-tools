@@ -9,7 +9,7 @@ import React from 'react';
 // `bg-accent` on hover / `bg-muted` when active. Native `title=` hints are now
 // the shadcn Tooltip (token-styled, delay-grouped under the shell provider).
 // ============================================================================
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Grid3x3, Sun, Moon, Monitor } from 'lucide-react';
 import { cn } from '../utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
 import type { ThemePreference } from '../types';
@@ -106,7 +106,7 @@ export const ViewControls: React.FC<ViewControlsProps> = ({
             aria-pressed={showGrid}
             className={showGrid ? iconBtnActive : iconBtn}>
 
-            <div className="w-4 h-4" />
+            <Grid3x3 className="w-4 h-4" />
           </button>
         </TooltipTrigger>
         <TooltipContent>{gridTooltip}</TooltipContent>
