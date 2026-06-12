@@ -46,8 +46,8 @@ export interface AppHeaderProps {
   onHeaderHeightChange?: (height: number) => void;
   /**
    * The live-game command cluster (Pass-5 zoning v2: top = Game, bottom =
-   * World/Map). Composed INLINE into the Game bar row, between the
-   * saved-config selector and the trailing setup disclosure.
+   * World/Map). Composed INLINE into the Game bar row, after the Config
+   * cluster (selector + setup gear, Z-wave Game bar v3).
    */
   gameConsole?: React.ReactNode;
 }
