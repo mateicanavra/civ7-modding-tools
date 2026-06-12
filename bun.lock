@@ -37,6 +37,7 @@
         "@civ7/adapter": "workspace:*",
         "@civ7/control-orpc": "workspace:*",
         "@civ7/direct-control": "workspace:*",
+        "@civ7/map-policy": "workspace:*",
         "@deck.gl/core": "^9.0.43",
         "@deck.gl/layers": "^9.0.43",
         "@deck.gl/react": "^9.0.43",

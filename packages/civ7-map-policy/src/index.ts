@@ -1,5 +1,12 @@
-export { CIV7_BROWSER_TABLES_V0 } from "./civ7-tables.gen.js";
-export type { Civ7BrowserTablesV0 } from "./civ7-tables.gen.js";
+export { CIV7_BROWSER_TABLES_V0, CIV7_POLICY_TABLES_V1 } from "./civ7-tables.gen.js";
+export type {
+  Civ7BrowserTablesV0,
+  Civ7MapResourceMinimumAmountModifierRowV1,
+  Civ7PolicyTablesV1,
+  Civ7ResourceRowV1,
+  Civ7StartBiasScoreRowV1,
+  Civ7StartBiasValueRowV1,
+} from "./civ7-tables.gen.js";
 
 export {
   NO_RESOURCE,
