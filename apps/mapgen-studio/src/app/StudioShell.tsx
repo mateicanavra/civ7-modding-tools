@@ -473,6 +473,7 @@ export function StudioShell(props: StudioShellProps) {
   // shapes are unchanged so `setupControlOptions` below consumes them as before.
   const { savedSetupConfigs, setupCatalog } = useSetupDataQueries();
   const [autoplayActionRunning, setAutoplayActionRunning] = useState(false);
+  const [exploreActionRunning, setExploreActionRunning] = useState(false);
   const saveDeployRunning = saveDeployOperation?.status === "running";
   const runInGameRunning = runInGameOperation?.status === "running";
 
@@ -1752,6 +1753,30 @@ export function StudioShell(props: StudioShellProps) {
     }
   }, [autoplayActionRunning, browserRunning, liveRuntime.autoplayActive, runInGameRunning, saveDeployRunning, toast]);
 
+  /**
+   * Explore (reveal the map) in the live game via the canonical
+   * `display.explore.request` control procedure — the studio's map-QA verb.
+   * The grant stays held (fog does not re-cover) for a disposable studio
+   * session; player 0 is the canonical local player, matching the CLI.
+   */
+  const handleExplore = useCallback(async () => {
+    if (exploreActionRunning || browserRunning || runInGameRunning || saveDeployRunning) return;
+    setExploreActionRunning(true);
+    try {
+      const result = await liveControlPort.display.explore.request({ playerId: 0 });
+      toast(
+        result.classification === "already-explored"
+          ? "Live map already fully revealed"
+          : `Live map revealed — ${result.grantedPlots} plots granted`,
+        { variant: "success" },
+      );
+    } catch (err) {
+      toast(`Explore failed: ${err instanceof Error ? err.message : "live game unavailable"}`, { variant: "error" });
+    } finally {
+      setExploreActionRunning(false);
+    }
+  }, [browserRunning, exploreActionRunning, runInGameRunning, saveDeployRunning, toast]);
+
   const copyRunInGameDiagnostics = useCallback(async () => {
     if (!runInGameOperation) return;
     try {
@@ -2302,6 +2327,8 @@ export function StudioShell(props: StudioShellProps) {
           onSyncFromLiveGame={syncStudioFromLiveGame}
           isAutoplayActionRunning={autoplayActionRunning}
           onToggleAutoplay={handleToggleAutoplay}
+          onExplore={handleExplore}
+          isExploreActionRunning={exploreActionRunning}
           operationControlsDisabled={browserRunning || runInGameRunning || saveDeployRunning}
           isRunInGameRunning={runInGameRunning}
           runInGameStatus={runInGameOperation}

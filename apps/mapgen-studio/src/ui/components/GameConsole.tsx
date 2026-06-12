@@ -56,10 +56,14 @@ export interface GameConsoleProps {
   /** Callback to start or stop Civ7 native autoplay */
   onToggleAutoplay?: () => void;
   /**
-   * Callback for the Explore command (tile visibility/exploration in the
-   * live game). The button is a disabled placeholder until this is wired.
+   * Callback for the Explore command: reveal the full map in the live game
+   * via the canonical `display.explore.request` control procedure (UI
+   * display queue suppressed while gameplay discovers the tiles). The
+   * button renders disabled until a handler is wired.
    */
   onExplore?: () => void;
+  /** Whether a map explore (reveal) request is in flight */
+  isExploreActionRunning?: boolean;
   /** Whether any studio/game operation is in flight (shared control gating) */
   operationControlsDisabled: boolean;
   /** Whether Civ7 Run in Game is currently running */
@@ -99,6 +103,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   isAutoplayActionRunning = false,
   onToggleAutoplay,
   onExplore,
+  isExploreActionRunning = false,
   operationControlsDisabled,
   isRunInGameRunning,
   runInGameStatus,
@@ -181,9 +186,11 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     : liveRuntime?.autoplayActive
       ? `Stop Civ7 autoplay${liveRuntime.autoplayPaused ? " (paused)" : ""}`
       : "Start Civ7 autoplay";
-  const exploreTitle = onExplore
-    ? "Explore: toggle tile visibility in the live game"
-    : "Explore: tile visibility control is not yet available";
+  const exploreTitle = !onExplore
+    ? "Explore: tile visibility control is not yet available"
+    : isExploreActionRunning
+      ? "Explore request in flight"
+      : "Explore: reveal the full map in the live game";
   const saveDeployLabel = saveDeployStatus ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase) : null;
   const saveDeployActive = saveDeployStatus?.status === "running";
   const saveDeployDotClass =
@@ -300,12 +307,16 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
             variant="outline"
             size="icon"
             onClick={onExplore}
-            disabled={operationControlsDisabled || liveRuntime?.status !== "ok" || !onExplore}
+            disabled={operationControlsDisabled || isExploreActionRunning || liveRuntime?.status !== "ok" || !onExplore}
             aria-label={exploreTitle}
             title={exploreTitle}
             className="shrink-0">
 
-            <ScanEye className="w-3.5 h-3.5" />
+            {isExploreActionRunning ? (
+              <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <ScanEye className="w-3.5 h-3.5" />
+            )}
           </Button>
         </TooltipTrigger>
         <TooltipContent>{exploreTitle}</TooltipContent>
