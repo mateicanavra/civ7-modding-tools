@@ -433,6 +433,17 @@ export interface AutoplayEngineResult {
 type SaveDeployOperationStore = ReturnType<typeof createMapConfigSaveDeployOperationStore>;
 export type SaveDeployEngineResult = ReturnType<SaveDeployOperationStore["create"]>;
 
+/**
+ * The studio's stateful server engines — the one place long-running Civ7
+ * operations (run-in-game, save/deploy, autoplay) execute and are tracked.
+ *
+ * Contract: engines serialize through a process-wide operation queue (one
+ * Civ7-mutating operation at a time), record progress in TTL-bounded
+ * operation stores keyed by request id, and throw `RunInGameHttpError`
+ * (legacy HTTP status + structured `details`) for every client-visible
+ * failure — transports map it 1:1, so error codes stay stable across the
+ * Vite middleware and Bun daemon mounts.
+ */
 export interface StudioEngines {
   /** Process-lifetime identity — clients reconcile run-in-game state against it. */
   readonly serverInstanceId: string;
@@ -504,6 +515,17 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
     };
   }
 
+  /**
+   * The Run-in-Game orchestrator: validate the request, materialize the map
+   * config + generated script, build-and-deploy the swooper mod, prove the
+   * deployed script carries this run's materialization markers (request id /
+   * config hash / envelope hash / native river markers — the correctness
+   * boundary: a launch must never run a stale script), restart or exit Civ7
+   * to shell as needed, start the prepared single-player game, and wait for
+   * the in-game mapgen log proof. Progress is recorded phase-by-phase in the
+   * operation store under the request id; duplicate requests return the
+   * already-tracked operation instead of double-launching.
+   */
   async function runRunInGameStartEngine(
     body: RunInGameStartEngineBody,
   ): Promise<RunInGameStartResult> {

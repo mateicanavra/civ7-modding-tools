@@ -12,6 +12,15 @@ export type Civ7StudioSavedConfigRef = Readonly<{
   path: string;
 }>;
 
+/**
+ * The authored game-setup state behind the header's Game bar — the single
+ * source for what launches in Civ7. At launch the engine loads
+ * `savedConfig` (if any) into Civ7 first and then re-applies EVERY key in
+ * `gameOptions`/`playerOptions` on top, so these maps must contain only
+ * values the user (or an exact saved-config application) authored: any
+ * extra key silently overrides the loaded file (see
+ * `studioSetupConfigFromSavedConfigFile` / `studioSetupDriftsFromSavedConfig`).
+ */
 export type Civ7StudioSetupConfig = Readonly<{
   savedConfig?: Civ7StudioSavedConfigRef;
   mapScript?: string;

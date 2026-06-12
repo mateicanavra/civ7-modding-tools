@@ -67,6 +67,10 @@ export function useSetupDataQueries(): {
     return {
       status: "ok",
       directory: body.directory ?? "",
+      // The contract deliberately types `configurations` as opaque records:
+      // the saved-config file shape is owned by @civ7/direct-control
+      // (listCiv7SavedGameConfigurations), and re-declaring it in the oRPC
+      // contract would just drift. The cast states that trust explicitly.
       configurations: body.configurations as unknown as ReadonlyArray<Civ7SavedSetupConfigFile>,
       updatedAt: body.observedAt ?? new Date().toISOString(),
     };
@@ -84,11 +88,13 @@ export function useSetupDataQueries(): {
     if (!body) {
       return { status: "idle" };
     }
+    // Same deliberate-opacity trust as `configurations` above: the catalog
+    // shape is owned by the server's civ7Resources catalog builder.
     const catalog = body.catalog as unknown as Civ7SetupCatalog;
     return {
       status: "ok",
       catalog,
-      updatedAt: catalog.observedAt,
+      updatedAt: catalog.observedAt ?? new Date().toISOString(),
     };
   }, [setupCatalogQuery.data, setupCatalogQuery.error, setupCatalogQuery.isError]);
 
