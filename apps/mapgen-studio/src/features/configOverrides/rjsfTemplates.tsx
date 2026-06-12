@@ -16,6 +16,10 @@ const FORM = {
   card: "bg-card border-border",
   nested: "bg-muted/40 border-border-subtle",
   divider: "border-border",
+  // Field labels sit a full tier above prose (Pass-2 form hierarchy): labels are
+  // foreground anchors the eye scans; descriptions/help/gs-comments recede on the
+  // muted tier. Same 11px size — the split is color/weight, not scale.
+  fieldLabel: "text-foreground",
   label: "text-muted-foreground",
   muted: "text-muted-foreground/70",
   text: "text-foreground",
@@ -59,7 +63,7 @@ function renderGsComments(args: { schema: unknown; className: string }): ReactNo
 export function BrowserConfigFieldTemplate(
   props: FieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>
 ){
-  const { id, label, required, description, errors, help, children, hidden, classNames, displayLabel } = props;
+  const { id, label, required, description, errors, help, children, hidden, classNames, displayLabel, rawErrors } = props;
   if (hidden) return <div style={{ display: "none" }} />;
   const prettyLabel = label ? humanizeSchemaLabel(label) : "";
   const schemaType = props.schema?.type;
@@ -74,7 +78,10 @@ export function BrowserConfigFieldTemplate(
   // `role="alert"` live region, and the widget mirrors that id through
   // `aria-describedby` + `aria-invalid` (see `rjsfWidgets.tsx`), so assistive tech
   // announces validation against the control rather than as orphaned text.
+  // Gated on `rawErrors`: rjsf's `errors` prop is an always-truthy element, so
+  // rendering on it mounts an empty live region per field (~40 phantom alerts).
   const errorId = `${id}__error`;
+  const hasErrors = (rawErrors?.length ?? 0) > 0;
 
   if (!showLabel) {
     return (
@@ -82,7 +89,7 @@ export function BrowserConfigFieldTemplate(
         <div className={textClass}>{children}</div>
         {description && !suppressDescription ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
         {renderGsComments({ schema: props.schema, className: labelClass })}
-        {errors ? <div id={errorId} role="alert" className="text-data text-destructive">{errors}</div> : null}
+        {hasErrors ? <div id={errorId} role="alert" className="text-data text-destructive">{errors}</div> : null}
         {help ? <div className={`text-data ${mutedClass}`}>{help}</div> : null}
       </div>
     );
@@ -91,7 +98,7 @@ export function BrowserConfigFieldTemplate(
   return (
     <div className={["flex flex-col gap-1", classNames].filter(Boolean).join(" ")}>
       <FieldRow>
-        <label className={`text-data min-w-[96px] ${labelClass}`} htmlFor={id}>
+        <label className={`text-data min-w-[96px] ${FORM.fieldLabel}`} htmlFor={id}>
           <span className="font-medium">{prettyLabel}</span>
           {required ? <span className="text-data text-destructive">*</span> : null}
         </label>
@@ -99,7 +106,7 @@ export function BrowserConfigFieldTemplate(
       </FieldRow>
       {description && !suppressDescription ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
       {renderGsComments({ schema: props.schema, className: labelClass })}
-      {errors ? <div id={errorId} role="alert" className="text-data text-destructive">{errors}</div> : null}
+      {hasErrors ? <div id={errorId} role="alert" className="text-data text-destructive">{errors}</div> : null}
       {help ? <div className={`text-data ${mutedClass}`}>{help}</div> : null}
     </div>
   );
