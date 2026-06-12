@@ -79,7 +79,9 @@ export function DeckCanvas(props: DeckCanvasProps) {
   const gridEnabled = useMemo(() => {
     if (!showBackgroundGrid) return false;
     if (!effectiveLayer) return false;
-    if (!(effectiveLayer.kind === 'points' || effectiveLayer.kind === 'segments')) return false;
+    // Canvas substrate, not layer furniture: the grid follows the caller's
+    // toggle for every rendered layer (kind-independent; layers may opt out
+    // via meta). Mirrors `backgroundGridEnabled` in StudioShell.
     if (effectiveLayer.meta?.showGrid === false) return false;
     return true;
   }, [effectiveLayer, showBackgroundGrid]);
