@@ -317,3 +317,54 @@ verified on :5173 (dark + light; focused/unfocused collapse, persistence,
 and the sticky chain walk exercised live). Gates green at tip: tsc, build +
 worker-bundle, 162 tests, three strict OpenSpec validations. Stack remains
 UNSUBMITTED per the standing rule.
+
+## Pass-5 design fixes (2026-06-11, night) — COMPLETE
+
+User-grounded wave five (`pass-5-design-fixes.md`): the Game/World toolbar
+architecture v2 (user-specified, supersedes Pass-4's colocation), tile
+rendering correctness, and canvas affordance honesty. New standing rule
+recorded (saved to agent memory): for complex UI patterns, search existing
+component libraries (shadcn/ui first) before building from scratch — without
+forcing a library where the in-repo solution is better. OpenSpec slices
+stacked on `design/config-collapse`:
+
+- [x] **X1** `mapgen-studio-toolbar-architecture-v2` —
+  `design/toolbar-architecture-v2` (top bar = THE Game toolbar: Gamepad2
+  identity, saved-config selector, the GameConsole cluster inlined without
+  panel chrome, and a trailing icon-only game-setup disclosure expanding
+  Leader/Civ/Difficulty/Speed only; bottom bar = THE World/Map console:
+  Globe identity, Size/Players/Resources left of Seed riding the shared
+  operation gate; last-run stats compressed into a History icon whose
+  tooltip + accessible name carry the run and whose click copies the seed)
+- [x] **X2** `mapgen-studio-grid-icon` — `design/grid-icon` (ViewControls
+  grid toggle rendered an empty `w-4 h-4` div — restored `Grid3x3`;
+  categorical sweep found no other empty placeholders, inline svgs, or
+  non-lucide icons; live-DOM scan confirms only the overrides Switch is
+  legitimately glyph-less)
+- [x] **X3** `mapgen-studio-tile-orientation` — `design/tile-orientation`
+  (odd-Q tiles were drawn pointy-top on a sheared pointy-axial lattice;
+  they now render flat-top on the model's CANONICAL hex space —
+  `projectOddqToHexSpace`, the frame the Delaunay/world.xy layers live in —
+  with the lattice's exact tiling hexagon; mesh contract: noData/non-finite
+  tiles fully transparent with stroke following fill alpha, one
+  `TILE_BORDER_COLOR` ink legible on white/black/graphite. Flagged
+  upstream, out of scope: mapgen-core models odd-q column-offset while
+  Civ7's native adjacency is pointy-top row-offset)
+- [x] **X4** `mapgen-studio-flash-fix` — `design/flash-fix` (instrumented
+  reloads with an earliest-inline-script sampler: the root element sat
+  unstyled — transparent background, `color-scheme: normal` — until
+  JS-injected CSS landed ~138ms in, so the navigation clear color was
+  white; the flash guard now puts background + color-scheme on `:root` for
+  both theme branches; after: dark root by the first animation frame ~8ms)
+- [x] **X5** `mapgen-studio-prerun-cursor` — `design/prerun-cursor`
+  (pre-run the deck controller was live but only the DOM graticule was
+  visible — a grab cursor promising an invisible drag; the canvas is now
+  inert with a default cursor until a manifest exists, restoring
+  grab/grabbing + the controller post-run via setProps without remount)
+
+**Pass-5 closure (2026-06-11):** all five slices implemented + verified on
+:5173 (dark + light; setup disclosure, History affordance, footer
+authoring, tile lattice zoom inspection, cursor states, and the flash
+sampler before/after exercised live). Gates green at tip: tsc, build +
+worker-bundle, 167 tests, five strict OpenSpec validations. Stack remains
+UNSUBMITTED per the standing rule.
