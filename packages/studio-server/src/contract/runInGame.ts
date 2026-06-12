@@ -48,6 +48,17 @@ const fileIdentity = z.object({
   mtimeIso: z.string(),
 });
 
+const contentMarkerProof = z.object({
+  id: z.string(),
+  marker: z.string(),
+  present: z.boolean(),
+});
+
+const fileContentProof = z.object({
+  path: z.string(),
+  markers: z.array(contentMarkerProof),
+});
+
 // RunInGameSourceSnapshotProof
 const sourceSnapshotProof = z.object({
   identityHash: z.string(),
@@ -73,6 +84,8 @@ const materializationStatus = z.object({
   generatedSourceScript: fileIdentity.optional(),
   localModScript: fileIdentity.optional(),
   deployedModScript: fileIdentity.optional(),
+  localModScriptContent: fileContentProof.optional(),
+  deployedModScriptContent: fileContentProof.optional(),
 });
 
 // RunInGameRequestStatus

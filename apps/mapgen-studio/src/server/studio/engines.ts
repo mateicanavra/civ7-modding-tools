@@ -28,17 +28,20 @@ import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
 import {
   buildRunInGameExactAuthorshipProof,
   buildRunInGameSourceSnapshotProof,
+  fileContentMarkerProof,
   fileIdentity,
   mapScriptEmbedsRequestId,
-  parseDeployTargetDir,
   parseSwooperMapgenLogProof,
+  runInGameMaterializationScriptUnresolvedLinks,
+  runInGameRequiredMaterializationMarkers,
 } from "../runInGame/proofIdentity";
 import { parseRunInGameSetupRequest } from "../runInGame/requestValidation";
 import {
   launchCiv7MacViaSteamWithRetries,
   shutdownCiv7MacProcess,
 } from "../runInGame/macosProcessRestart";
-import { buildSwooperMapsStudioDeployCommand } from "../mapConfigs/deploy";
+import { deployMod, resolveModsDir } from "@civ7/plugin-mods";
+import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { createMapConfigSaveDeployOperationStore } from "../mapConfigs/operationState";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
 import type { RunInGamePhase, RunInGameRequestStatus } from "../../features/runInGame/status";
@@ -184,44 +187,77 @@ async function restartCiv7ProcessViaSteam(): Promise<{
   };
 }
 
+// Deploy = the Turbo build graph + the @civ7/plugin-mods deploy API (the
+// rivers-era canonical shape; the old parsed-stdout deploy command is gone).
+// `buildSwooperMapsStudioDeployPlan` threads SWOOPER_STUDIO_RUN_ID so the
+// generated bundle embeds the run's request id (the proof-identity contract).
 async function deploySwooperMaps(repoRoot: string): Promise<{
-  command: string;
-  stdout: string;
-  stderr: string;
+  build: {
+    task: string;
+    stdout: string;
+    stderr: string;
+  };
+  targetDir: string;
+  modsDir: string;
+  filesCopied: number;
 }> {
-  const deploy = buildSwooperMapsStudioDeployCommand();
-  const { stdout, stderr } = await execFileAsync("bun", [...deploy.args], {
+  const plan = buildSwooperMapsStudioDeployPlan();
+  const { stdout, stderr } = await execFileAsync("bun", [...plan.buildArgs], {
     cwd: repoRoot,
     timeout: DEPLOY_TIMEOUT_MS,
     maxBuffer: 16 * 1024 * 1024,
-    env: deploy.env,
+    env: plan.env,
+  });
+  const modsDir = resolveModsDir().modsDir;
+  const deployed = deployMod({
+    inputDir: resolve(repoRoot, "mods/mod-swooper-maps/mod"),
+    modId: "mod-swooper-maps",
+    modsDir,
   });
   return {
-    command: deploy.command,
-    stdout: tail(stdout),
-    stderr: tail(stderr),
+    build: {
+      task: plan.buildTask,
+      stdout: tail(stdout),
+      stderr: tail(stderr),
+    },
+    targetDir: deployed.targetDir,
+    modsDir: deployed.modsDir,
+    filesCopied: deployed.filesCopied,
   };
 }
 
 async function deploySwooperMapsForRun(repoRoot: string, requestId: string): Promise<{
-  command: string;
-  stdout: string;
-  stderr: string;
-  targetDir?: string;
+  build: {
+    task: string;
+    stdout: string;
+    stderr: string;
+  };
+  targetDir: string;
+  modsDir: string;
+  filesCopied: number;
 }> {
-  const deploy = buildSwooperMapsStudioDeployCommand({ requestId });
-  const { stdout, stderr } = await execFileAsync("bun", [...deploy.args], {
+  const plan = buildSwooperMapsStudioDeployPlan({ requestId });
+  const { stdout, stderr } = await execFileAsync("bun", [...plan.buildArgs], {
     cwd: repoRoot,
     timeout: DEPLOY_TIMEOUT_MS,
     maxBuffer: 16 * 1024 * 1024,
-    env: deploy.env,
+    env: plan.env,
   });
-  const targetDir = parseDeployTargetDir(stdout);
+  const modsDir = resolveModsDir().modsDir;
+  const deployed = deployMod({
+    inputDir: resolve(repoRoot, "mods/mod-swooper-maps/mod"),
+    modId: "mod-swooper-maps",
+    modsDir,
+  });
   return {
-    command: deploy.command,
-    stdout: tail(stdout),
-    stderr: tail(stderr),
-    ...(targetDir ? { targetDir } : {}),
+    build: {
+      task: plan.buildTask,
+      stdout: tail(stdout),
+      stderr: tail(stderr),
+    },
+    targetDir: deployed.targetDir,
+    modsDir: deployed.modsDir,
+    filesCopied: deployed.filesCopied,
   };
 }
 
@@ -231,6 +267,10 @@ async function optionalFileIdentity(args: {
   exposeAs?: "relative-to-repo" | "absolute";
 }) {
   return await fileIdentity(args).catch(() => undefined);
+}
+
+async function optionalFileContentMarkerProof(args: Parameters<typeof fileContentMarkerProof>[0]) {
+  return await fileContentMarkerProof(args).catch(() => undefined);
 }
 
 function generatedSourceScriptPath(repoRoot: string, id: string): string {
@@ -631,13 +671,54 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
               exposeAs: "absolute",
             })
           : undefined;
+        // Materialization CONTENT proof (rivers-era correctness boundary):
+        // the request/config/envelope markers — including the native-river
+        // markers — must be present in the local AND deployed map JS before
+        // Civ launches, or the in-game proof could never bind to this run.
+        const requiredMaterializationMarkers = runInGameRequiredMaterializationMarkers({
+          requestId,
+          configHash,
+          envelopeHash,
+        });
+        const localModScriptContent = await optionalFileContentMarkerProof({
+          repoRoot,
+          path: localModScriptPath(repoRoot, id),
+          markers: requiredMaterializationMarkers,
+        });
+        const deployedModScriptContent = deploy.targetDir
+          ? await optionalFileContentMarkerProof({
+              repoRoot,
+              path: deployedModScriptPath(deploy.targetDir, id),
+              exposeAs: "absolute",
+              markers: requiredMaterializationMarkers,
+            })
+          : undefined;
         materialization = {
           ...materialization,
           ...(generatedSourceScript ? { generatedSourceScript } : {}),
           ...(localModScript ? { localModScript } : {}),
           ...(deployedModScript ? { deployedModScript } : {}),
+          ...(localModScriptContent ? { localModScriptContent } : {}),
+          ...(deployedModScriptContent ? { deployedModScriptContent } : {}),
         };
         runInGameOperations.update(requestId, { phase, materialization });
+        const materializationScriptUnresolvedLinks = runInGameMaterializationScriptUnresolvedLinks({
+          materialization,
+          localModScript,
+          deployedModScript,
+          requiredMarkers: requiredMaterializationMarkers,
+        });
+        if (materializationScriptUnresolvedLinks.length > 0) {
+          throw new RunInGameHttpError(
+            500,
+            "Generated Swooper map script is missing current materialization proof markers",
+            {
+              code: "map-script-materialization-proof-missing",
+              unresolvedLinks: materializationScriptUnresolvedLinks,
+              materialization,
+            },
+          );
+        }
 
         // Fail fast if the freshly built bundle does not embed this request's
         // id. The in-game [mapgen-proof] line echoes the embedded id and the

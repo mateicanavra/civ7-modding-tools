@@ -58,7 +58,7 @@ export async function saveRepoBackedConfig(args: {
   config: unknown;
   onStatus?: (status: MapConfigSaveDeployStatus) => void;
 }): Promise<
-  | { ok: true; path?: string; deploy?: { command?: string } }
+  | { ok: true; path?: string; deploy?: MapConfigSaveDeployStatus["deploy"] }
   | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string }
 > {
   const envelope = {
