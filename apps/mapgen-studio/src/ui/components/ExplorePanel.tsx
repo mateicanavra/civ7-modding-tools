@@ -303,6 +303,9 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
     return order.map((key) => ({ key, label: key, items: groups.get(key) ?? [], indexByValue }));
   })();
 
+  // The data-type group disclosure is identified by its group name as a stable,
+  // markup-safe id slug, so the toggle's `aria-controls` points at the rendered list.
+  const groupListId = (key: string) => `explore-data-group-${key.replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
   const isGroupExpanded = (key: string) => groupOpen[key] ?? true;
   const toggleGroupExpanded = (key: string) => {
     if (!key) return;
@@ -452,18 +455,23 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                     type="button"
                     onClick={() => toggleGroupExpanded(group.key)}
                     className={`w-full px-3 pt-2 pb-1 flex items-center justify-between text-label uppercase tracking-wider ${textMuted} ${hoverBg}`}
-                    aria-label={expanded ? "Collapse group" : "Expand group"}
                     aria-expanded={expanded}
+                    aria-controls={groupListId(group.key)}
                   >
+                    {/* The toggle's accessible name is the visible group name; the
+                        expand/collapse state is already conveyed by aria-expanded,
+                        so no aria-label override is needed (it would have masked the
+                        group name from assistive tech). */}
                     <span className="truncate">{group.label}</span>
                     <div className="flex items-center gap-2">
                       <span className={`text-label ${textMuted}`}>{group.items.length}</span>
-                      <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${expanded ? "rotate-180" : ""}`} />
+                      <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden="true" />
                     </div>
                   </button>
                 ) : null}
-                {expanded
-                  ? group.items.map((dataType) => {
+                {expanded ? (
+                  <div id={group.key ? groupListId(group.key) : undefined}>
+                    {group.items.map((dataType) => {
                       const idx = group.indexByValue.get(dataType.value) ?? 0;
                       return (
                         <button
@@ -480,8 +488,9 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                           <span className="truncate">{dataType.label}</span>
                         </button>
                       );
-                    })
-                  : null}
+                    })}
+                  </div>
+                ) : null}
               </React.Fragment>
             );
           })}
@@ -604,6 +613,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
               value={eraValue}
               disabled={eraMode === "auto"}
               onChange={(e) => onEraValueChange(Number(e.target.value))}
+              aria-label="Era"
               className="w-full accent-primary"
             />
             <div className="flex items-center justify-between text-label">
@@ -654,6 +664,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                   step={0.05}
                   value={overlayOpacity}
                   onChange={(e) => onOverlayOpacityChange(Number(e.target.value))}
+                  aria-label="Overlay opacity"
                   className="w-full accent-primary"
                 />
               </div>

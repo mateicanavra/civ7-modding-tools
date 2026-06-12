@@ -188,16 +188,30 @@ Phase order per [`FRAME.md`](FRAME.md) §7 (design-system-first):
 
 - [x] Frame, isolate, research, audit, target architecture, slice plan
 - [x] Re-frame + un-pause + normative FRAME.md + goal reset (2026-06-08)
-- [x] **P1 Design system foundation** — DONE (slice `design/ds-foundation`:
-  `971627971` spec + `4274e60f4` impl). Tailwind v4 + shadcn + tokens + `.dark`
-  theming + self-hosted fonts. Verified: tsc + prod build + worker bundle + live
-  render, no console errors, non-breaking. OpenSpec `mapgen-studio-design-system`.
-- [ ] P2 Client data layer (oRPC-native TanStack Query + Zustand, behind seam)
-- [ ] P3 Component decomposition (un-god App.tsx onto the design system)
-- [ ] P4 Primitives→shadcn + new components + rjsf re-skin + craft
-- [ ] P5 Server (effect-oRPC on Bun, aligned to control-oRPC stack-top seam)
-- [ ] P6 Rigor + dead code + comments
-- [ ] P7 Verify + review wave → hand over **built, UNSUBMITTED** Graphite stack
-- [~] A1 `@civ7/studio-server` contracts (PROVISIONAL — re-derive vs stack-top in P5)
+All implementation delivered as a 15-slice Graphite stack on `main` (NOT submitted).
+Whole stack green: tsc + build + worker-bundle + **138/138 tests** + dark/light
+live screenshots, zero console errors. Each slice = one OpenSpec change.
 
-Live-control: NOT waiting for merge. Inspect stack-top, design the seam (FRAME §6).
+- [x] **P0 Seam** — `design/control-seam` (`architecture/12-control-seam.md`).
+- [x] **P1 Design system** — `design/ds-foundation` (Tailwind v4 + shadcn + tokens + `.dark`).
+- [x] **P4a Primitives** — `design/ui-primitives` (canonical shadcn `components/ui/*`).
+- [x] **P4b Reskin** — `design/shell-reskin` (substrate-elevation chrome; felt depth).
+- [x] **P3a Decompose helpers** — `design/app-decompose`.
+- [x] **P5a Server (oRPC)** — `design/server-orpc`: `@civ7/studio-server` effect-orpc
+  at `/rpc`, `/api` lifted verbatim (shared engine singletons), parity **verified live vs Civ7**.
+- [x] **P2 Client data** — `design/client-data`: zero `/api` fetch; live poll verbatim; viewStore.
+- [x] **P3b Decompose shell** — `design/app-shell`: `App.tsx` → 17-line root + shell tree.
+- [x] **Test infra** — `design/test-harness-fix` (vitest `@` alias + TooltipProvider).
+- [x] **P4c Craft/a11y** — `design/craft-a11y` (diagnostics in-DOM, landmarks, Select migration, type scale, empty-stage).
+- [x] **P2b Data model** — `design/data-model` (oRPC-native TanStack Query reads; contract fix; persisted stores).
+- [x] **P6 Rigor** — `design/rigor` (typed error accessor, dead code, comments).
+- [x] **Theming finish** — `design/theming-finish` (delete `createTheme`/`lightMode`/`getFormTheme`/rjsf hex).
+- [x] **A11y P2** — `design/a11y-fixes` (Radix Save menu, field-error association, slider names, skip target).
+- [x] **P7 Review** — multi-lens reviewer waves each run; no open P1/P2 at tip.
+
+**Remaining (SUPERVISED — not auto-run):**
+- [ ] **P5b Server cutover** — standalone **Bun** server, production `/api` parity fix
+  (today `/api` is Vite-dev-only), then **remove** the legacy `/api` middleware. Awaiting user go-ahead.
+- [ ] *(optional)* deeper `StudioShell` container/presentational panel split.
+
+Live-control: NOT waiting for merge. Seam designed toward stack-top (FRAME §6).

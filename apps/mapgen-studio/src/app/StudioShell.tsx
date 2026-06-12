@@ -38,7 +38,6 @@ import {
   runInGameRequiresProcessRestart,
   type RunInGameOperationStatus,
 } from "../features/runInGame/status";
-import { createStudioCiv7ControlOrpcClient } from "../features/runInGame/civ7ControlOrpcClient";
 import {
   getLocalPlayerSetup,
   normalizeStudioSetupConfig,
@@ -136,14 +135,13 @@ import {
 } from "../features/configOverrides/configBuilders";
 import { mergeBuiltInPresets, toRepoBackedPreset } from "../features/presets/repoBacked";
 import type { PresetErrorState } from "../features/presets/dialogState";
+import { liveControlPort } from "../lib/control/liveControlPort";
 
 import { CanvasStage } from "./CanvasStage";
 import { ErrorBanner } from "./ErrorBanner";
 import { LeftDock } from "./LeftDock";
 import { RightDock } from "./RightDock";
 import { useToast } from "./hooks/useToast";
-
-const civ7ControlOrpcClient = createStudioCiv7ControlOrpcClient();
 
 export type StudioShellProps = {
   themePreference: "system" | "light" | "dark";
@@ -580,7 +578,7 @@ export function StudioShell(props: StudioShellProps) {
         try {
           const [liveStatus, readinessResult] = await Promise.all([
             orpcClient.civ7.live.status({}, { signal: statusAbortController.signal }),
-            civ7ControlOrpcClient.readiness.current({}),
+            liveControlPort.readiness.current(),
           ]);
           body = isPlainObject(liveStatus)
             ? {
@@ -2399,7 +2397,15 @@ export function StudioShell(props: StudioShellProps) {
       <div aria-live="polite" className="sr-only">
         {liveStatusAnnouncement}
       </div>
-      <main id="map-preview" aria-label="Map preview" tabIndex={-1} className="contents">
+      {/*
+        Skip-link target. Previously `display:contents`, which removes the
+        element from the box tree — the browser can't focus or scroll to it, so
+        the skip link landed nowhere. It is now a real, laid-out box that fills
+        the stage (`absolute inset-0`, identical to the CanvasStage fill it
+        wraps), keeping it in the a11y tree and focusable via `tabIndex={-1}`
+        without changing the visual layout.
+      */}
+      <main id="map-preview" aria-label="Map preview" tabIndex={-1} className="absolute inset-0">
         <CanvasStage
           apiRef={deckApiRef}
           onApiReady={handleDeckApiReady}
