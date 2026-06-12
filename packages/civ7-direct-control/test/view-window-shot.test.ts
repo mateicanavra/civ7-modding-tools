@@ -6,7 +6,6 @@ import {
   captureCiv7WindowShot,
   CIV7_WINDOW_SHOT_SWIFT_SOURCE,
   ensureCiv7WindowShotHelper,
-  listCiv7CaptureWindows,
   type WindowShotDependencies,
 } from "../src/play/view/window-shot";
 import { Civ7DirectControlError } from "../src/direct-control-error";
@@ -39,15 +38,22 @@ type FakeOptions = Readonly<{
   helperStdout?: string;
   helperFails?: boolean;
   compileFails?: boolean;
+  /** Directory listing returned for any readdir (cache root or appshot dir). */
+  directoryEntries?: string[];
+  /** Paths whose stat reports an mtime older than the retention window. */
+  stalePaths?: string[];
 }>;
 
 function fakeDependencies(options: FakeOptions = {}): {
   dependencies: WindowShotDependencies;
   execCalls: Array<{ file: string; args: readonly string[] }>;
   writes: string[];
+  removed: string[];
 } {
   const execCalls: Array<{ file: string; args: readonly string[] }> = [];
   const writes: string[] = [];
+  const removed: string[] = [];
+  const now = new Date("2026-06-11T12:00:00.000Z");
   const dependencies: WindowShotDependencies = {
     execFile: async (file, args) => {
       execCalls.push({ file, args });
@@ -64,20 +70,28 @@ function fakeDependencies(options: FakeOptions = {}): {
       return { stdout, stderr: "" };
     },
     mkdir: async () => undefined,
-    now: () => new Date("2026-06-11T12:00:00.000Z"),
+    now: () => now,
+    readdir: async () => options.directoryEntries ?? [],
     readFile: (async () => PNG_1X1) as WindowShotDependencies["readFile"],
+    rm: async (path) => {
+      removed.push(String(path));
+    },
     stat: (async (path: string) => {
       if (options.helperExists === false && !String(path).endsWith(".png")) {
         throw Object.assign(new Error("ENOENT"), { code: "ENOENT" });
       }
-      return { size: PNG_1X1.byteLength } as Stats;
+      const stale = (options.stalePaths ?? []).some((p) => String(path).endsWith(p));
+      return {
+        size: PNG_1X1.byteLength,
+        mtimeMs: stale ? now.getTime() - 8 * 24 * 60 * 60 * 1000 : now.getTime(),
+      } as Stats;
     }) as WindowShotDependencies["stat"],
     tmpdir: () => "/tmp/fake",
     writeFile: (async (path: string) => {
       writes.push(String(path));
     }) as WindowShotDependencies["writeFile"],
   };
-  return { dependencies, execCalls, writes };
+  return { dependencies, execCalls, writes, removed };
 }
 
 describe("window-shot helper lifecycle", () => {
@@ -125,6 +139,28 @@ describe("window-shot helper lifecycle", () => {
     expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).not.toContain("activate()");
     // The whole display is never a capture target.
     expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).not.toContain("SCContentFilter(display");
+    // No stale-pixel fallback: an off-screen window that cannot produce a
+    // fresh frame FAILS instead of silently returning the stale store.
+    expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).not.toContain("screenshot-fallback");
+    // No vestigial list mode — capture is the helper's only surface.
+    expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).not.toContain('"list"');
+  });
+
+  test("compiling a new revision prunes the previous revisions' cache entries", async () => {
+    const { dependencies, removed } = fakeDependencies({
+      helperExists: false,
+      directoryEntries: [
+        "civ7-window-shot-aaaaaaaaaaaa",
+        "civ7-window-shot-aaaaaaaaaaaa.swift",
+        "unrelated-file",
+      ],
+    });
+    const binary = await ensureCiv7WindowShotHelper(dependencies);
+    expect(removed).toEqual([
+      "/tmp/fake/civ7-direct-control/civ7-window-shot-aaaaaaaaaaaa",
+      "/tmp/fake/civ7-direct-control/civ7-window-shot-aaaaaaaaaaaa.swift",
+    ]);
+    expect(removed).not.toContain(binary);
   });
 });
 
@@ -229,27 +265,29 @@ describe("captureCiv7WindowShot", () => {
   });
 });
 
-describe("listCiv7CaptureWindows", () => {
-  test("returns the helper's window rows", async () => {
-    const { dependencies, execCalls } = fakeDependencies({
+describe("appshot retention", () => {
+  test("the managed default destination self-cleans: appshots past retention are dropped", async () => {
+    const { dependencies, removed } = fakeDependencies({
       helperExists: true,
-      helperStdout: JSON.stringify({
-        ok: true,
-        mode: "list",
-        windows: [{
-          windowId: 4242,
-          app: "CivilizationVII",
-          bundleId: "com.aspyr.civ7.steam",
-          title: "Sid Meier's Civilization VII",
-          width: 1728,
-          height: 1080,
-          onScreen: true,
-        }],
-      }),
+      directoryEntries: [
+        "civ7-appshot-old.png",
+        "civ7-appshot-fresh.png",
+        "user-file.png",
+      ],
+      stalePaths: ["civ7-appshot-old.png"],
     });
-    const result = await listCiv7CaptureWindows({}, dependencies);
-    expect(execCalls[0]?.args).toEqual(["list", "--app", "civilization"]);
-    expect(result.windows).toHaveLength(1);
-    expect(result.windows[0]?.windowId).toBe(4242);
+    const result = await captureCiv7WindowShot({}, dependencies);
+    expect(result.file.path).toContain("/tmp/fake/civ7-appshots/civ7-appshot-");
+    expect(removed).toEqual(["/tmp/fake/civ7-appshots/civ7-appshot-old.png"]);
+  });
+
+  test("explicit outputPath directories are the caller's — never pruned", async () => {
+    const { dependencies, removed } = fakeDependencies({
+      helperExists: true,
+      directoryEntries: ["civ7-appshot-old.png"],
+      stalePaths: ["civ7-appshot-old.png"],
+    });
+    await captureCiv7WindowShot({ outputPath: "/tmp/out.png" }, dependencies);
+    expect(removed).toEqual([]);
   });
 });

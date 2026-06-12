@@ -1,8 +1,8 @@
 import { execFile as execFileCallback } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { promisify } from "node:util";
 
 import { Type, type Static } from "typebox";
@@ -56,7 +56,7 @@ var outPath: String? = nil
 var arguments = CommandLine.arguments.dropFirst().makeIterator()
 while let argument = arguments.next() {
   switch argument {
-  case "list", "capture":
+  case "capture":
     mode = argument
   case "--app":
     guard let value = arguments.next() else { fail("usage", "--app requires a value") }
@@ -72,7 +72,7 @@ while let argument = arguments.next() {
   }
 }
 guard let selectedMode = mode else {
-  fail("usage", "usage: civ7-window-shot <list|capture> [--app substring] [--window-id id] [--out path.png]")
+  fail("usage", "usage: civ7-window-shot capture [--app substring] [--window-id id] --out path.png")
 }
 
 if !CGPreflightScreenCaptureAccess() {
@@ -190,14 +190,9 @@ func captureViaStream(filter: SCContentFilter, configuration: SCStreamConfigurat
 func run(mode: String, appNeedle: String, windowId: UInt32?, outPath: String?) async {
   let windows = await shareableWindows()
 
-  if mode == "list" {
-    let rows = windows.filter { matches($0, needle: appNeedle) }.map(windowRow)
-    emit(["ok": true, "mode": "list", "windows": rows], code: 0)
-  }
-
   guard let outPath = outPath else { fail("usage", "capture requires --out <path.png>") }
   guard let window = pickWindow(from: windows, appNeedle: appNeedle, windowId: windowId) else {
-    fail("window-not-found", "no window matched app substring '" + appNeedle + "'; adjust --app or pass --window-id (run list mode to enumerate)")
+    fail("window-not-found", "no window matched app substring '" + appNeedle + "'; adjust --app or pass --window-id")
   }
 
   let filter = SCContentFilter(desktopIndependentWindow: window)
@@ -210,18 +205,17 @@ func run(mode: String, appNeedle: String, windowId: UInt32?, outPath: String?) a
   configuration.captureResolution = .best
 
   // On-screen windows composite continuously: the one-shot screenshot is
-  // fresh and fastest. Off-screen windows go through the stream-forced path;
-  // if the stream yields nothing the one-shot still runs, but the result is
-  // labeled so callers know the pixels may be stale.
+  // fresh and fastest. Off-screen windows MUST go through the stream-forced
+  // path — their backing store is stale, so a one-shot would silently capture
+  // old pixels. No fallback: if the stream yields nothing, fail honestly.
   var image: CGImage? = nil
   var frameSource = "screenshot"
   if !window.isOnScreen {
-    if let streamed = await captureViaStream(filter: filter, configuration: configuration) {
-      image = streamed
-      frameSource = "stream"
-    } else {
-      frameSource = "screenshot-fallback"
+    guard let streamed = await captureViaStream(filter: filter, configuration: configuration) else {
+      fail("capture-failed", "the window is off-screen (another Space or minimized) and no fresh frame could be forced via a capture stream; bring the game window on screen and retry")
     }
+    image = streamed
+    frameSource = "stream"
   }
   if image == nil {
     do {
@@ -284,21 +278,12 @@ export const Civ7CaptureWindowRowSchema = Type.Object({
 
 export type Civ7CaptureWindowRow = Readonly<Static<typeof Civ7CaptureWindowRowSchema>>;
 
-export type Civ7WindowShotListInput = Readonly<{
-  /** Case-insensitive substring of app name / bundle id / window title. */
-  appName?: string;
-}>;
-
-export type Civ7WindowShotListResult = Readonly<{
-  windows: ReadonlyArray<Civ7CaptureWindowRow>;
-}>;
-
 export type Civ7WindowShotCaptureInput = Readonly<{
   /** PNG output path; defaults under the OS temp dir. */
   outputPath?: string;
   /** Case-insensitive substring of app name / bundle id / window title. */
   appName?: string;
-  /** Exact window id (from list mode) — overrides appName matching. */
+  /** Exact window id — overrides appName matching. */
   windowId?: number;
 }>;
 
@@ -318,8 +303,6 @@ export const Civ7WindowShotFrameSourceSchema = Type.Union([
   Type.Literal("screenshot"),
   /** Off-screen window: a temporary stream forced fresh compositing. */
   Type.Literal("stream"),
-  /** Off-screen window and the stream yielded nothing: pixels may be STALE. */
-  Type.Literal("screenshot-fallback"),
 ]);
 
 export type Civ7WindowShotFrameSource = Static<typeof Civ7WindowShotFrameSourceSchema>;
@@ -354,7 +337,9 @@ export type WindowShotDependencies = Readonly<{
   ) => Promise<Readonly<{ stdout: string; stderr: string }>>;
   mkdir: typeof mkdir;
   now: () => Date;
+  readdir: (path: string) => Promise<string[]>;
   readFile: typeof readFile;
+  rm: (path: string, options: Readonly<{ force: boolean }>) => Promise<void>;
   stat: typeof stat;
   tmpdir: () => string;
   writeFile: typeof writeFile;
@@ -364,7 +349,9 @@ const defaultWindowShotDependencies: WindowShotDependencies = {
   execFile,
   mkdir,
   now: () => new Date(),
+  readdir: (path) => readdir(path),
   readFile,
+  rm: (path, options) => rm(path, options),
   stat,
   tmpdir,
   writeFile,
@@ -373,7 +360,8 @@ const defaultWindowShotDependencies: WindowShotDependencies = {
 /**
  * Compiles the Swift capture helper once per source revision and caches the
  * binary under the OS temp dir (keyed by source hash, so package upgrades
- * recompile automatically).
+ * recompile automatically). Compiling a new revision prunes the previous
+ * revisions' binaries and sources, so the cache never accumulates.
  */
 export async function ensureCiv7WindowShotHelper(
   dependencies: WindowShotDependencies = defaultWindowShotDependencies,
@@ -405,20 +393,27 @@ export async function ensureCiv7WindowShotHelper(
       { cause: error },
     );
   }
+  await pruneStaleHelperRevisions(dependencies, cacheRoot, basename(binaryPath));
   return binaryPath;
 }
 
-/** Enumerates capturable windows matching the app substring. */
-export async function listCiv7CaptureWindows(
-  input: Civ7WindowShotListInput = {},
-  dependencies: WindowShotDependencies = defaultWindowShotDependencies,
-): Promise<Civ7WindowShotListResult> {
-  const payload = await runWindowShotHelper(dependencies, [
-    "list",
-    "--app",
-    input.appName ?? DEFAULT_CIV7_WINDOW_MATCH,
-  ]);
-  return { windows: (payload as { windows: Civ7CaptureWindowRow[] }).windows };
+/** Best-effort: drop binaries/sources from previous helper revisions. */
+async function pruneStaleHelperRevisions(
+  dependencies: WindowShotDependencies,
+  cacheRoot: string,
+  keepBasename: string,
+): Promise<void> {
+  try {
+    const entries = await dependencies.readdir(cacheRoot);
+    await Promise.all(entries
+      .filter((name) =>
+        name.startsWith("civ7-window-shot-")
+        && name !== keepBasename
+        && name !== `${keepBasename}.swift`)
+      .map((name) => dependencies.rm(join(cacheRoot, name), { force: true })));
+  } catch {
+    // Cache pruning never blocks a capture.
+  }
 }
 
 /**
@@ -438,6 +433,11 @@ export async function captureCiv7WindowShot(
     input.outputPath ?? defaultWindowShotPath(requestedAt, dependencies.tmpdir()),
   );
   await dependencies.mkdir(dirname(outputPath), { recursive: true });
+  // Retention loop for the managed destination only — explicit outputPath
+  // directories belong to the caller and are never touched.
+  if (input.outputPath === undefined) {
+    await pruneStaleAppshots(dependencies, dirname(outputPath), requestedAt);
+  }
   const payload = await runWindowShotHelper(dependencies, [
     "capture",
     "--out",
@@ -465,11 +465,7 @@ export async function captureCiv7WindowShot(
   return {
     captureMode: "window-scoped-screencapturekit",
     requestedAt: requestedAt.toISOString(),
-    frameSource: payload.frameSource === "stream"
-      ? "stream"
-      : payload.frameSource === "screenshot-fallback"
-        ? "screenshot-fallback"
-        : "screenshot",
+    frameSource: payload.frameSource === "stream" ? "stream" : "screenshot",
     window: {
       windowId: payload.windowId,
       app: payload.app,
@@ -552,6 +548,36 @@ function defaultWindowShotPath(date: Date, tmp: string): string {
     "civ7-appshots",
     `civ7-appshot-${date.toISOString().replace(/[:.]/g, "-")}.png`,
   );
+}
+
+/**
+ * Retention for the managed default destination: appshots older than 7 days
+ * are dropped on each capture, so the directory is self-cleaning. The OS temp
+ * dir's own purge is the backstop. Best-effort — retention never blocks a
+ * capture.
+ */
+const CIV7_APPSHOT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+
+async function pruneStaleAppshots(
+  dependencies: WindowShotDependencies,
+  directory: string,
+  now: Date,
+): Promise<void> {
+  try {
+    const cutoff = now.getTime() - CIV7_APPSHOT_RETENTION_MS;
+    const entries = await dependencies.readdir(directory);
+    await Promise.all(entries
+      .filter((name) => name.startsWith("civ7-appshot-") && name.endsWith(".png"))
+      .map(async (name) => {
+        const path = join(directory, name);
+        const fileStat = await dependencies.stat(path);
+        if (fileStat.mtimeMs < cutoff) {
+          await dependencies.rm(path, { force: true });
+        }
+      }));
+  } catch {
+    // Retention never blocks a capture.
+  }
 }
 
 function pngDimensions(bytes: Buffer): { width: number; height: number } | undefined {

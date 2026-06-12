@@ -101,14 +101,13 @@ const Civ7ViewAppshotCaptureResultSchema = Type.Object(
     /**
      * How frame freshness was obtained — never via app activation or focus
      * changes. "screenshot": window on screen, one-shot. "stream": off-screen
-     * window, a temporary capture stream forced fresh compositing.
-     * "screenshot-fallback": off-screen and the stream yielded nothing, so
-     * the pixels may be stale.
+     * window, a temporary capture stream forced fresh compositing. An
+     * off-screen window whose stream yields nothing FAILS instead of
+     * returning possibly-stale pixels.
      */
     frameSource: Type.Union([
       Type.Literal("screenshot"),
       Type.Literal("stream"),
-      Type.Literal("screenshot-fallback"),
     ]),
     window: Civ7ViewAppshotWindowSchema,
     file: Civ7ViewAppshotFileSchema,

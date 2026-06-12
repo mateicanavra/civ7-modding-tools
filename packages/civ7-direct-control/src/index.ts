@@ -1356,14 +1356,11 @@ export {
   DEFAULT_CIV7_WINDOW_MATCH,
   captureCiv7WindowShot,
   ensureCiv7WindowShotHelper,
-  listCiv7CaptureWindows,
 } from "./play/view/window-shot.js";
 export type {
   Civ7CaptureWindowRow,
   Civ7WindowShotCaptureInput,
   Civ7WindowShotCaptureResult,
-  Civ7WindowShotListInput,
-  Civ7WindowShotListResult,
   WindowShotDependencies,
 } from "./play/view/window-shot.js";
 

@@ -230,9 +230,16 @@ new decision number.
   (live-verified: 43 distinct frames over 4s from a fullscreen window on
   an inactive Space, then a clean-frame capture with `frameSource:
   "stream"` and `onScreen: false` throughout). The result's `frameSource`
-  reports the path: `screenshot` (on-screen, one-shot), `stream`
-  (off-screen, forced fresh), `screenshot-fallback` (stream yielded
-  nothing; pixels may be stale); (c) the floating
+  reports the path: `screenshot` (on-screen, one-shot) or `stream`
+  (off-screen, forced fresh) — an off-screen window whose stream yields
+  nothing FAILS rather than returning possibly-stale pixels (the
+  stale-fallback path was removed in the cleanup pass: dead code, never
+  observed live, and "maybe-stale" is not an acceptable capture result).
+  Artifact lifecycle: default outputs land in the managed
+  `$TMPDIR/civ7-appshots/` directory, self-cleaned on each capture (7-day
+  retention; explicit `--output` paths are the caller's and never
+  pruned), and compiling a new helper revision prunes previous revisions
+  from the `$TMPDIR/civ7-direct-control/` cache; (c) the floating
   badges left in clean frames are RESOURCE icons — engine-rendered world
   assets, not UI DOM (user-identified; the clean frame's DOM hide was
   live-verified: plot-icons hidden, harness display:none) — i.e. map
