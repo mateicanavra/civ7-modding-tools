@@ -34,7 +34,7 @@ import {
   DialogFooter,
   DialogClose } from
 '../../components/ui';
-import { Select } from './ui';
+import { OptionSelect } from './OptionSelect';
 import type {
   PipelineConfig,
   Theme,
@@ -229,6 +229,8 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
           <button
             type="button"
             onClick={() => setRecipeCollapsed(!recipeCollapsed)}
+            aria-expanded={!recipeCollapsed}
+            aria-controls="recipe-panel-recipe-section"
             className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}>
 
             <div className="flex items-center gap-2 min-w-0">
@@ -248,42 +250,41 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         {/* Recipe & Preset Selection */}
         {!recipeCollapsed &&
         <div
+          id="recipe-panel-recipe-section"
           className={`flex-shrink-0 px-3 py-3 space-y-2 border-b ${borderSubtle}`}>
 
           <div className="flex items-center gap-3">
             <span
-              className={`text-[10px] font-medium uppercase tracking-wider w-14 shrink-0 ${textMuted}`}>
+              className={`text-label font-medium uppercase tracking-wider w-14 shrink-0 ${textMuted}`}>
 
               Recipe
             </span>
-            <Select
+            <OptionSelect
               value={settings.recipe}
-              onChange={(e) => updateSetting('recipe', e.target.value)}
-              aria-label="Recipe"
+              onValueChange={(value) => updateSetting('recipe', value)}
+              ariaLabel="Recipe"
               options={recipeOptions.map((opt) => ({
                 value: opt.value,
                 label: opt.label
               }))}
-              lightMode={lightMode}
               className="flex-1" />
 
           </div>
 
           <div className="flex items-center gap-3">
             <span
-              className={`text-[10px] font-medium uppercase tracking-wider w-14 shrink-0 ${textMuted}`}>
+              className={`text-label font-medium uppercase tracking-wider w-14 shrink-0 ${textMuted}`}>
 
               Config
             </span>
-            <Select
+            <OptionSelect
               value={settings.preset}
-              onChange={(e) => updateSetting('preset', e.target.value)}
-              aria-label="Config"
+              onValueChange={(value) => updateSetting('preset', value)}
+              ariaLabel="Config"
               options={presetOptions.map((opt) => ({
                 value: opt.value,
                 label: opt.label
               }))}
-              lightMode={lightMode}
               className="flex-1" />
 
           </div>
@@ -295,6 +296,8 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
           <div
             role="button"
             tabIndex={0}
+            aria-expanded={!configCollapsed}
+            aria-controls="recipe-panel-config-section"
             onClick={() => setConfigCollapsed(!configCollapsed)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -355,7 +358,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
 
         {/* Config Content */}
         {!configCollapsed &&
-        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div id="recipe-panel-config-section" className="flex-1 overflow-y-auto overflow-x-hidden">
             {/* Config Actions */}
             <div
             className={`px-3 py-2 flex items-center gap-2 ${overridesDisabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
@@ -474,7 +477,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                       onSaveToCurrent();
                       setShowSaveMenu(false);
                     }}
-                    className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} rounded-t-lg`}>
+                    className={`w-full text-left px-3 py-2 text-data ${textPrimary} ${hoverBg} rounded-t-lg`}>
 
                       Save & Deploy
                     </button>
@@ -484,7 +487,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                       onSaveAsNew();
                       setShowSaveMenu(false);
                     }}
-                    className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
+                    className={`w-full text-left px-3 py-2 text-data ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
                       Save & Deploy As…
                     </button>
@@ -494,7 +497,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                       onExportPreset();
                       setShowSaveMenu(false);
                     }}
-                    className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
+                    className={`w-full text-left px-3 py-2 text-data ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
                       Export…
                     </button>
@@ -504,7 +507,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                       onImportPreset();
                       setShowSaveMenu(false);
                     }}
-                    className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
+                    className={`w-full text-left px-3 py-2 text-data ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
                       Import…
                     </button>
@@ -521,7 +524,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                       </button>
                     }
                     {!canDeletePreset &&
-                    <div className={`w-full text-left px-3 py-2 text-[11px] ${textMuted} rounded-b-lg border-t ${borderSubtle}`}>
+                    <div className={`w-full text-left px-3 py-2 text-data ${textMuted} rounded-b-lg border-t ${borderSubtle}`}>
                         Delete Scratch
                       </div>
                     }

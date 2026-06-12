@@ -1,6 +1,6 @@
 import React from 'react';
 import { Bolt, Bot, Clipboard, Clock, Dices, MonitorPlay, Play, Radio, RotateCw, Square } from 'lucide-react';
-import { Button, Input, Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
+import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui';
 import { MAP_SIZE_SHORT, LAYOUT } from '../constants';
 import { formatResourceMode } from '../utils';
 import type { RecipeSettings, WorldSettings, GenerationStatus } from '../types';
@@ -220,6 +220,13 @@ export const AppFooter: React.FC<AppFooterProps> = ({
     }
   };
   return (
+    // The footer carries its own `TooltipProvider` so its diagnostic hints work
+    // whether or not an ancestor provides one (the shell does; the static-markup
+    // parity tests mount the footer bare). Diagnostics are ALSO mirrored onto the
+    // visible triggers via `aria-label`/`title`, so the request id, failure
+    // reason, and live/autoplay/stale hints stay present for assistive tech and
+    // for the static markup — not hidden inside hover-only Tooltip content.
+    <TooltipProvider>
     <footer
       className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-center gap-2"
       style={{
@@ -285,6 +292,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
               type="button"
               onClick={onSyncFromLiveGame}
               disabled={!liveSyncAvailable}
+              aria-label={liveSyncTitle}
+              title={liveSyncTitle}
               className={`inline-flex h-7 min-w-0 items-center gap-2 rounded border px-2 transition-colors ${
                 liveGameStudioRelation === "stale"
                   ? "border-warning text-warning ring-1 ring-warning/40"
@@ -312,6 +321,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
               size="sm"
               onClick={onToggleAutoplay}
               disabled={autoplayControlDisabled}
+              aria-label={autoplayTitle}
+              title={autoplayTitle}
               className={`h-7 px-2 ${liveRuntime?.autoplayActive ? "border-warning/60 text-warning" : ""}`}>
 
               {liveRuntime?.autoplayActive ? <Square className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
@@ -389,6 +400,9 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <div
+                role="status"
+                aria-label={saveDeployTitle}
+                title={saveDeployTitle}
                 className={`hidden max-w-[150px] items-center gap-1.5 overflow-hidden text-data font-medium ${textPrimary} lg:inline-flex`}>
 
                 <div className={`h-2 w-2 shrink-0 rounded-full ${saveDeployStatus.status === "failed" ? "bg-destructive" : "bg-warning"}`} />
@@ -402,6 +416,9 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <div
+                role="status"
+                aria-label={runInGameTitle}
+                title={runInGameTitle}
                 className={`hidden max-w-[180px] items-center gap-1.5 overflow-hidden text-data font-medium ${textPrimary} lg:inline-flex`}>
 
                 <div className={`h-2 w-2 shrink-0 rounded-full ${runInGameDotClass}`} />
@@ -452,6 +469,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
               onClick={onRunInGame}
               disabled={operationControlsDisabled}
               variant="outline"
+              aria-label={runInGameTitle}
+              title={runInGameTitle}
               className={isRunInGameRunning ? 'opacity-70 cursor-wait' : undefined}>
 
               <MonitorPlay className="w-3.5 h-3.5" />
@@ -474,6 +493,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <span>{isRunning ? 'Running...' : 'Run'}</span>
         </Button>
       </div>
-    </footer>);
+    </footer>
+    </TooltipProvider>);
 
 };

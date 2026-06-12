@@ -21,14 +21,19 @@ export type CanvasStageProps = {
 /**
  * `CanvasStage` — the full-bleed deck.gl host (architecture/10 §4).
  *
- * Purely presentational: it owns the theme-tinted backdrop, the optional
- * decorative grid, the `DeckCanvas` mount, and the "Click Run to generate a map"
- * empty state. All rendering inputs (layers, effective layer, viewport, bounds,
- * deck api ref/ready handler) are passed in by `StudioShell`. This block was
- * previously the inline `canvas` JSX inside `AppContent`; it is MOVED here
- * verbatim so the DOM, classes, and Deck.gl inputs are unchanged — recoloring the
- * hard-coded backdrop hexes is deferred to the design-craft slice, not this
- * behavior-preserving decomposition.
+ * Purely presentational: it owns the token-driven backdrop, the optional
+ * decorative grid, the `DeckCanvas` mount, and the "awaiting matter" empty state.
+ * All rendering inputs (layers, effective layer, viewport, bounds, deck api
+ * ref/ready handler) are passed in by `StudioShell`.
+ *
+ * Craft (system.md lever #3): the chrome backdrop is the page substrate
+ * (`bg-background` — the token the design system names as "the deck.gl canvas
+ * backdrop"), so it follows the `.dark` theme instead of a hard-coded
+ * `lightMode` hex ternary. The radial vignette + grid are drawn in luminance
+ * (`--muted-foreground` at very low alpha), not hex. Before any matter exists,
+ * the empty stage frames the map with a subtle graticule + contour ring so it
+ * reads as *ready*, not hollow. `lightMode` is still forwarded to `DeckCanvas`
+ * because that governs deck.gl scene rendering, not the chrome.
  */
 export function CanvasStage(props: CanvasStageProps) {
   const {
@@ -45,22 +50,17 @@ export function CanvasStage(props: CanvasStageProps) {
 
   return (
     <div className="absolute inset-0">
-      <div className={`absolute inset-0 ${lightMode ? "bg-[#f5f5f7]" : "bg-[#0a0a12]"}`} />
-      {/* Theme-tinted backdrop (kept outside deck.gl so it remains stable and cheap) */}
+      {/* Page substrate — the design-system token named as the deck.gl backdrop. */}
+      <div className="absolute inset-0 bg-background" />
+      {/* Luminance vignette (cool-steel, very low alpha) — depth without chroma. */}
       <div
         className="absolute inset-0 opacity-30 pointer-events-none"
         style={{
-          backgroundImage: lightMode
-            ? `
-              radial-gradient(circle at 30% 40%, #cbd5e0 0%, transparent 55%),
-              radial-gradient(circle at 70% 60%, #cbd5e0 0%, transparent 45%),
-              radial-gradient(circle at 50% 80%, #cbd5e0 0%, transparent 35%)
-            `
-            : `
-              radial-gradient(circle at 30% 40%, #2d3748 0%, transparent 55%),
-              radial-gradient(circle at 70% 60%, #2d3748 0%, transparent 45%),
-              radial-gradient(circle at 50% 80%, #2d3748 0%, transparent 35%)
-            `,
+          backgroundImage: `
+            radial-gradient(circle at 30% 40%, hsl(var(--muted-foreground) / 0.18) 0%, transparent 55%),
+            radial-gradient(circle at 70% 60%, hsl(var(--muted-foreground) / 0.18) 0%, transparent 45%),
+            radial-gradient(circle at 50% 80%, hsl(var(--muted-foreground) / 0.18) 0%, transparent 35%)
+          `,
         }}
       />
       {backgroundGridEnabled ? (
@@ -68,8 +68,8 @@ export function CanvasStage(props: CanvasStageProps) {
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage: `
-              linear-gradient(${lightMode ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.02)"} 1px, transparent 1px),
-              linear-gradient(90deg, ${lightMode ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.02)"} 1px, transparent 1px)
+              linear-gradient(hsl(var(--muted-foreground) / 0.06) 1px, transparent 1px),
+              linear-gradient(90deg, hsl(var(--muted-foreground) / 0.06) 1px, transparent 1px)
             `,
             backgroundSize: "56px 56px",
           }}
@@ -85,9 +85,30 @@ export function CanvasStage(props: CanvasStageProps) {
         lightMode={lightMode}
         activeBounds={activeBounds}
       />
+      {/* Awaiting matter: a graticule field + a centered contour frame so the
+          empty stage reads as a survey console that is ready, not dead space. */}
       {!hasManifest ? (
-        <div className="absolute inset-0 flex items-center justify-center text-[12px] text-[#7a7a8c]">
-          Click Run to generate a map
+        <div className="absolute inset-0 pointer-events-none">
+          <div
+            className="absolute inset-0 opacity-40"
+            style={{
+              backgroundImage: `
+                linear-gradient(hsl(var(--muted-foreground) / 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, hsl(var(--muted-foreground) / 0.05) 1px, transparent 1px)
+              `,
+              backgroundSize: "120px 120px",
+            }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3 rounded-xl border border-border/60 bg-popover/40 px-8 py-6 text-center backdrop-blur-sm">
+              <span className="text-label uppercase tracking-[0.2em] text-muted-foreground/70">
+                Awaiting matter
+              </span>
+              <span className="text-data font-medium text-muted-foreground">
+                Click Run to generate a map
+              </span>
+            </div>
+          </div>
         </div>
       ) : null}
     </div>
