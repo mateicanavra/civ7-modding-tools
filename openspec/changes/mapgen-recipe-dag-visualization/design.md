@@ -168,6 +168,12 @@ Visualization choice:
   renderer.
 - Layout should be deterministic from recipe order and phase grouping so tests
   can assert node/edge identity without pixel-fragile force simulation.
+- Dense real recipes should use a deterministic dependency-ranked layout:
+  stages remain the graph nodes, cross-stage artifact groups assign dependency
+  ranks, phase ids remain visual lanes, and edges route through stable
+  orthogonal ports. This preserves the native scroll surface that makes
+  trackpad navigation fluid while reducing long arbitrary splines and avoiding a
+  premature editable-canvas dependency.
 
 ## Review Lanes
 

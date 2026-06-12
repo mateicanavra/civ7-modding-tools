@@ -5,8 +5,8 @@
 // ============================================================================
 
 export const LAYOUT = {
-  /** Header reserve in pixels; allows the top controls to wrap without covering panels. */
-  HEADER_HEIGHT: 104,
+  /** Floating top toolbar reserve in pixels. */
+  HEADER_HEIGHT: 40,
   /** Footer bar height in pixels */
   FOOTER_HEIGHT: 56,
   /** Default panel width in pixels */

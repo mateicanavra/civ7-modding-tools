@@ -21,14 +21,13 @@ describe("RecipeDagView", () => {
       />
     );
 
-    expect(html).toContain("Recipe DAG");
     expect(html).toContain("Swooper Maps / Standard");
     expect(html).toContain("shape");
     expect(html).toContain("climate");
-    expect(html).toContain("Artifact edges");
+    expect(html).toContain("Sources");
     expect(html).toContain("seed-grid");
-    expect(html).toContain("1. seed");
-    expect(html).toContain("Provides");
+    expect(html).toContain("Step 1: seed");
+    expect(html).toContain("Creates");
   });
 });
 

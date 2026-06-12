@@ -56,3 +56,12 @@ DAG as a peer to the existing map/config exploration experience.
 - **AND** loading, empty, diagnostic, and error states are accessible
 - **AND** selecting a different recipe reloads the DAG for that recipe id
 
+#### Scenario: Dense recipe dependency graph is scanned
+
+- **WHEN** the selected recipe contains many stages and cross-stage artifact
+  dependencies
+- **THEN** Studio lays out stages by dependency rank with phase lanes as visual
+  grouping
+- **AND** dependency edges use stable routed paths and labels that make producer
+  and consumer relationships easier to follow
+- **AND** the graph remains a smooth native scroll surface for trackpad panning

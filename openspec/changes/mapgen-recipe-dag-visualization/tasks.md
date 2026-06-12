@@ -33,6 +33,12 @@
 - [x] 4.4 Add accessible loading, diagnostic, and error states.
 - [x] 4.5 Add focused component and browser verification for recipe loading and
   stage expansion.
+- [x] 4.6 Add compact transparent Studio chrome for the DAG view: toolbar-height
+  top shell, right-side view/toolbox stack, and centered DAG stats under the
+  world controls.
+- [x] 4.7 Replace literal recipe-order spline rendering with a pure
+  dependency-ranked layout module, phase lanes, stable ports, and routed edge
+  paths while preserving native trackpad scrolling.
 
 ## 5. Verification And Realignment
 
@@ -44,3 +50,6 @@
   Studio DAG contracts beyond this OpenSpec design.
 - [x] 5.6 Complete review disposition, downstream realignment, closure checklist,
   and Graphite commit.
+- [x] 5.7 Verify the follow-on DAG layout/chrome slice with focused tests,
+  Studio check/build, OpenSpec validation, browser inspection, diff check, and
+  clean Graphite commit.
