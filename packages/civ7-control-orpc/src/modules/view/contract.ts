@@ -6,10 +6,78 @@ import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
+const Civ7ViewCameraTargetSchema = Type.Object(
+  {
+    x: Type.Integer({ minimum: 0 }),
+    y: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7ViewCameraPlotSchema = Type.Union([
+  Civ7ViewCameraTargetSchema,
+  Type.Null(),
+]);
+
+const Civ7ViewCameraStateSchema = Type.Object(
+  {
+    /** Engine zoom-level readback; null when the engine did not report one. */
+    zoomLevel: Type.Union([Type.Number(), Type.Null()]),
+    /** Plot at the viewport center (Camera.pickPlot readback); null when unresolved. */
+    centerPlot: Civ7ViewCameraPlotSchema,
+  },
+  { additionalProperties: false },
+);
+
+const Civ7ViewCameraSchema = Type.Object(
+  {
+    target: Civ7ViewCameraTargetSchema,
+    /** Requested normalized zoom (0 closest .. 1 fully out); omitted = keep the current zoom. */
+    zoom: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+    /** True = the move skipped the pan animation. */
+    instantaneous: Type.Boolean(),
+    before: Civ7ViewCameraStateSchema,
+    after: Civ7ViewCameraStateSchema,
+    /** Verified by readback: the viewport-center plot IS the requested target. */
+    centerMatchesTarget: Type.Boolean(),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ViewCamera = Static<typeof Civ7ViewCameraSchema>;
+
+const Civ7ViewCameraFocusInputSchema = Type.Object(
+  {
+    x: Type.Integer({ minimum: 0 }),
+    y: Type.Integer({ minimum: 0 }),
+    /** Normalized engine zoom: 0 (closest) .. 1 (fully out); omitted = keep the current zoom. */
+    zoom: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+    /** Skip the pan animation. Default true. */
+    instantaneous: Type.Optional(Type.Boolean()),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ViewCameraFocusInput = Static<
+  typeof Civ7ViewCameraFocusInputSchema
+>;
+
+const Civ7ViewCameraFocusResultSchema = Civ7ViewCameraSchema;
+export type Civ7ViewCameraFocusResult = Static<
+  typeof Civ7ViewCameraFocusResultSchema
+>;
+
 const Civ7ViewAppshotCaptureInputSchema = Type.Object(
   {
     /** PNG output path; defaults under the OS temp dir. */
     outputPath: Type.Optional(Type.String({ minLength: 1 })),
+    /**
+     * Focus the camera on this plot (verified by readback) before the clean
+     * frame is entered. The camera STAYS on the target after the capture —
+     * it is navigation state, not UI chrome, so it is never silently
+     * restored.
+     */
+    target: Type.Optional(Civ7ViewCameraTargetSchema),
+    /** Normalized engine zoom for the camera move: 0 (closest) .. 1 (fully out); requires target. */
+    zoom: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
     /** Case-insensitive substring of app name / bundle id / window title. */
     appName: Type.Optional(Type.String({ minLength: 1 })),
     /** Exact window id — overrides appName matching. */
@@ -112,6 +180,8 @@ const Civ7ViewAppshotCaptureResultSchema = Type.Object(
     window: Civ7ViewAppshotWindowSchema,
     file: Civ7ViewAppshotFileSchema,
     cleanFrame: Civ7ViewAppshotCleanFrameSchema,
+    /** Present when a target plot was requested: the verified camera move. */
+    camera: Type.Optional(Civ7ViewCameraSchema),
   },
   { additionalProperties: false },
 );
@@ -144,14 +214,45 @@ const Civ7ViewAppshotCaptureContract: Civ7ViewAppshotCaptureContract =
       risk: "runtime-support",
     });
 
+const Civ7ViewCameraFocusInputStandardSchema = toStandardSchema(
+  Civ7ViewCameraFocusInputSchema,
+);
+const Civ7ViewCameraFocusResultStandardSchema = toStandardSchema(
+  Civ7ViewCameraFocusResultSchema,
+);
+
+type Civ7ViewCameraFocusContract = ContractProcedure<
+  typeof Civ7ViewCameraFocusInputStandardSchema,
+  typeof Civ7ViewCameraFocusResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+const Civ7ViewCameraFocusContract: Civ7ViewCameraFocusContract =
+  civ7ControlOrpcContractBase
+    .input(Civ7ViewCameraFocusInputStandardSchema)
+    .output(Civ7ViewCameraFocusResultStandardSchema)
+    .meta({
+      family: "view",
+      procedureKey: "view.camera.focus",
+      proofBoundary: "local-package-test",
+      risk: "runtime-support",
+    });
+
 export type Civ7ViewContract = Readonly<{
   appshot: Readonly<{
     capture: Civ7ViewAppshotCaptureContract;
+  }>;
+  camera: Readonly<{
+    focus: Civ7ViewCameraFocusContract;
   }>;
 }>;
 
 export const Civ7ViewContract: Civ7ViewContract = {
   appshot: {
     capture: Civ7ViewAppshotCaptureContract,
+  },
+  camera: {
+    focus: Civ7ViewCameraFocusContract,
   },
 };

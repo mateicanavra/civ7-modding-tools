@@ -12,6 +12,7 @@ import {
   type Civ7ControlOrpcContext,
 } from "../src/index";
 import type {
+  Civ7ControlOrpcCameraFocusResult,
   Civ7ControlOrpcCleanFrameEnterResult,
   Civ7ControlOrpcCloseDisplaysResult,
   Civ7ControlOrpcWindowShotCaptureResult,
@@ -85,6 +86,110 @@ describe("view.appshot.capture control-oRPC procedure", () => {
     expect(fake.captureInputs).toEqual([
       { outputPath: "/tmp/custom.png", appName: "civ", windowId: 7 },
     ]);
+  });
+
+  test("target plot: verified camera focus runs BEFORE any clean-frame work and lands in result.camera", async () => {
+    const fake = fakeContext();
+    const result = await call(
+      Civ7ControlOrpcRouter.view.appshot.capture,
+      { target: { x: 12, y: 34 }, zoom: 0.25, ...fastSettle },
+      { context: fake.context },
+    );
+    expect(fake.calls).toEqual([
+      "cameraFocus",
+      "suspend",
+      "close",
+      "enterCleanFrame",
+      "capture",
+      "exitCleanFrame",
+      "resume",
+    ]);
+    expect(fake.cameraInputs).toEqual([{ x: 12, y: 34, zoom: 0.25 }]);
+    expect(result.camera).toMatchObject({
+      target: { x: 12, y: 34 },
+      zoom: 0.25,
+      instantaneous: true,
+      after: { centerPlot: { x: 12, y: 34 } },
+      centerMatchesTarget: true,
+    });
+    expectSafeAppshotOutput(result);
+  });
+
+  test("without a target the camera is never touched and result.camera is absent", async () => {
+    const fake = fakeContext();
+    const result = await call(
+      Civ7ControlOrpcRouter.view.appshot.capture,
+      { ...fastSettle },
+      { context: fake.context },
+    );
+    expect(fake.calls).not.toContain("cameraFocus");
+    expect(result.camera).toBeUndefined();
+  });
+
+  test("zoom without a target fails CAMERA_FOCUS_FAILED before any facade call", async () => {
+    const fake = fakeContext();
+    await expect(
+      call(
+        Civ7ControlOrpcRouter.view.appshot.capture,
+        { zoom: 0.25, ...fastSettle },
+        { context: fake.context },
+      ),
+    ).rejects.toMatchObject({
+      code: "CAMERA_FOCUS_FAILED",
+      data: { detail: expect.stringContaining("zoom requires a target plot") },
+    });
+    expect(fake.calls).toEqual([]);
+  });
+
+  test("a center-readback miss fails CAMERA_FOCUS_UNVERIFIED without touching the display queue", async () => {
+    const fake = fakeContext({ cameraCenter: { x: 11, y: 34 } });
+    await expect(
+      call(
+        Civ7ControlOrpcRouter.view.appshot.capture,
+        { target: { x: 12, y: 34 }, ...fastSettle },
+        { context: fake.context },
+      ),
+    ).rejects.toMatchObject({
+      code: "CAMERA_FOCUS_UNVERIFIED",
+      data: {
+        procedureKey: "view.appshot.capture",
+        detail: expect.stringContaining("target=(12,34) center=(11,34)"),
+      },
+    });
+    // Nothing was suspended or hidden, so there is nothing to restore.
+    expect(fake.calls).toEqual(["cameraFocus"]);
+  });
+
+  test("a camera move that never ran fails CAMERA_FOCUS_FAILED with the probe error", async () => {
+    const fake = fakeContext({
+      cameraLookAt: { ok: false, error: "Camera.lookAtPlot unavailable" },
+    });
+    await expect(
+      call(
+        Civ7ControlOrpcRouter.view.appshot.capture,
+        { target: { x: 12, y: 34 }, ...fastSettle },
+        { context: fake.context },
+      ),
+    ).rejects.toMatchObject({
+      code: "CAMERA_FOCUS_FAILED",
+      data: { detail: "Camera.lookAtPlot unavailable" },
+    });
+    expect(fake.calls).toEqual(["cameraFocus"]);
+  });
+
+  test("a camera facade error maps to CAMERA_FOCUS_FAILED", async () => {
+    const fake = fakeContext({ cameraError: new Error("tuner socket closed") });
+    await expect(
+      call(
+        Civ7ControlOrpcRouter.view.appshot.capture,
+        { target: { x: 12, y: 34 }, ...fastSettle },
+        { context: fake.context },
+      ),
+    ).rejects.toMatchObject({
+      code: "CAMERA_FOCUS_FAILED",
+      data: { detail: "tuner socket closed" },
+    });
+    expect(fake.calls).toEqual(["cameraFocus"]);
   });
 
   test("fails APPSHOT_CLEAN_FRAME_UNVERIFIED when queue suspension readback fails", async () => {
@@ -195,6 +300,9 @@ describe("view.appshot.capture control-oRPC procedure", () => {
       { rawCommand: "ViewManager.setCurrentByName" },
       { settleMs: 60_001 },
       { windowId: -1 },
+      { target: { x: -1, y: 0 } },
+      { target: { x: 0.5, y: 2 } },
+      { target: { x: 12, y: 34 }, zoom: 1.5 },
     ];
     for (const input of invalidInputs) {
       const fake = fakeContext();
@@ -225,6 +333,8 @@ describe("view.appshot.capture control-oRPC procedure", () => {
     expect(errorMap).toHaveProperty("APPSHOT_WINDOW_NOT_FOUND");
     expect(errorMap).toHaveProperty("APPSHOT_CLEAN_FRAME_UNVERIFIED");
     expect(errorMap).toHaveProperty("APPSHOT_CAPTURE_FAILED");
+    expect(errorMap).toHaveProperty("CAMERA_FOCUS_FAILED");
+    expect(errorMap).toHaveProperty("CAMERA_FOCUS_UNVERIFIED");
     expect(Civ7AppshotPermissionRequiredError.code).toBe("APPSHOT_PERMISSION_REQUIRED");
     expect(Civ7AppshotWindowNotFoundError.code).toBe("APPSHOT_WINDOW_NOT_FOUND");
     expect(Civ7AppshotCleanFrameUnverifiedError.code).toBe("APPSHOT_CLEAN_FRAME_UNVERIFIED");
@@ -238,15 +348,20 @@ function fakeContext(options: {
   suspendIsSuspended?: boolean;
   enterResult?: EnterPayload;
   captureError?: Error;
+  cameraCenter?: { x: number; y: number } | null;
+  cameraLookAt?: { ok: true; value: boolean } | { ok: false; error: string };
+  cameraError?: Error;
 } = {}): {
   context: Civ7ControlOrpcContext;
   calls: string[];
   enterInputs: unknown[];
   captureInputs: unknown[];
+  cameraInputs: unknown[];
 } {
   const calls: string[] = [];
   const enterInputs: unknown[] = [];
   const captureInputs: unknown[] = [];
+  const cameraInputs: unknown[] = [];
   const enterPayload: EnterPayload = options.enterResult ?? {
     switched: true,
     viewBefore: "World",
@@ -259,6 +374,7 @@ function fakeContext(options: {
     calls,
     enterInputs,
     captureInputs,
+    cameraInputs,
     context: {
       endpointDefaults: {
         host: "127.0.0.1",
@@ -266,6 +382,20 @@ function fakeContext(options: {
         timeoutMs: 1_000,
       },
       directControl: {
+        focusCiv7Camera: async (input) => {
+          calls.push("cameraFocus");
+          cameraInputs.push(input);
+          if (options.cameraError) throw options.cameraError;
+          const target = { x: (input as { x: number }).x, y: (input as { y: number }).y };
+          const zoom = (input as { zoom?: number }).zoom;
+          const center = options.cameraCenter === undefined ? target : options.cameraCenter;
+          return cameraFocusResult({
+            target,
+            center,
+            ...(zoom === undefined ? {} : { zoom }),
+            ...(options.cameraLookAt === undefined ? {} : { lookAt: options.cameraLookAt }),
+          });
+        },
         suspendCiv7DisplayQueue: async () => {
           calls.push("suspend");
           return {
@@ -307,6 +437,36 @@ function fakeContext(options: {
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
+  };
+}
+
+function cameraFocusResult(input: Readonly<{
+  target: { x: number; y: number };
+  center: { x: number; y: number } | null;
+  zoom?: number;
+  lookAt?: { ok: true; value: boolean } | { ok: false; error: string };
+}>): Civ7ControlOrpcCameraFocusResult {
+  const snapshot = (center: { x: number; y: number } | null) => ({
+    exists: true,
+    zoomLevel: { ok: true, value: input.zoom ?? 0.4 } as const,
+    focusPoint: { ok: true, value: { x: 1.5, y: 2.5 } } as const,
+    centerPlot: { ok: true, value: center } as const,
+  });
+  return {
+    ...appUiEnvelope(),
+    source: "app-ui-camera",
+    target: input.target,
+    targetIndex: { ok: true, value: input.target.y * 106 + input.target.x },
+    options: {
+      ...(input.zoom === undefined ? {} : { zoom: input.zoom }),
+      instantaneous: true,
+    },
+    before: snapshot({ x: 0, y: 0 }),
+    lookAt: input.lookAt ?? { ok: true, value: true },
+    after: snapshot(input.center),
+    centerMatchesTarget: input.center !== null
+      && input.center.x === input.target.x
+      && input.center.y === input.target.y,
   };
 }
 

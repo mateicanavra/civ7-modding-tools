@@ -348,6 +348,41 @@ export class Civ7AppshotCaptureFailedError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7ViewCameraErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("view.camera.focus"),
+      Type.Literal("view.appshot.capture"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    /** Human-readable failure detail from the camera pipeline. */
+    detail: Type.Optional(Type.String()),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7ViewCameraErrorData = Static<typeof Civ7ViewCameraErrorDataSchema>;
+
+export class Civ7CameraFocusFailedError extends ORPCTaggedError(
+  "Civ7CameraFocusFailedError",
+  {
+    code: "CAMERA_FOCUS_FAILED",
+    message: "Camera focus request failed.",
+    schema: toStandardSchema(Civ7ViewCameraErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export class Civ7CameraFocusUnverifiedError extends ORPCTaggedError(
+  "Civ7CameraFocusUnverifiedError",
+  {
+    code: "CAMERA_FOCUS_UNVERIFIED",
+    message: "The camera move completed but the viewport-center readback did not land on the requested plot.",
+    schema: toStandardSchema(Civ7ViewCameraErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
@@ -883,6 +918,8 @@ export const civ7ControlOrpcErrorMap = {
   APPSHOT_CLEAN_FRAME_UNVERIFIED: Civ7AppshotCleanFrameUnverifiedError,
   APPSHOT_PERMISSION_REQUIRED: Civ7AppshotPermissionRequiredError,
   APPSHOT_WINDOW_NOT_FOUND: Civ7AppshotWindowNotFoundError,
+  CAMERA_FOCUS_FAILED: Civ7CameraFocusFailedError,
+  CAMERA_FOCUS_UNVERIFIED: Civ7CameraFocusUnverifiedError,
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   ATTENTION_PRIORITIES_UNAVAILABLE: Civ7AttentionPrioritiesUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,

@@ -245,6 +245,51 @@ new decision number.
   live-verified: plot-icons hidden, harness display:none) — i.e. map
   content that belongs in the frame.
 
+- **D13 — screenshot-at-plot is a first-class `view` capability; the rivers
+  camera atom moves into the view family and the hacked composition is
+  superseded (slice 7, 2026-06-11).** The rivers branch already had a GOOD
+  verified camera atom — `focusCiv7CameraOnPlot` (`Camera.lookAtPlot` +
+  PlotCursor sync, viewport-center readback via `Camera.pickPlot(0.5,
+  0.5)`, `centerMatchesTarget` verdict, one settle re-read for animated
+  pans) — but its "screenshot at a plot" story was a hacked manual
+  composition: run `game camera`, then the whole-display appshot that
+  merely ECHOED `target`/`cameraProofHash` into its manifest as metadata
+  (nothing bound the camera position to the pixels), plus the dead
+  `XR.World.takeScreenshot` probe (`game screenshot`; XR settled absent
+  from this build per D12). This slice keeps the camera capability and
+  replaces the composition: the atom is ported to
+  `@civ7/direct-control` `src/play/view/camera.ts` (verbatim semantics),
+  exposed standalone as the Effect procedure `view.camera.focus` + CLI
+  `game view camera --plot x,y [--zoom 0..10] [--animated]` (its
+  D6-designated home), and composed into `view.appshot.capture` via
+  optional `target {x,y}` + `zoom`: the camera focuses FIRST — before the
+  acquire boundary, so a failed/unverified focus leaves the display queue
+  untouched — and an appshot-with-target HARD-FAILS
+  (`CAMERA_FOCUS_UNVERIFIED`) when the center readback misses, because a
+  "frame at a plot" that isn't centered on the plot silently captures the
+  wrong place. The standalone `view.camera.focus` instead reports
+  `centerMatchesTarget` as truth (plots near the map edge can never center
+  exactly; the caller decides). The camera deliberately STAYS on the
+  target after the capture — navigation state the caller asked for, not
+  UI chrome to restore. The result's optional `camera` section carries the
+  verified move (target/zoom/before/after/centerMatchesTarget, probes
+  flattened to value-or-null at the wire boundary; the PlotCursor sync is
+  a fire-and-forget side effect — this build never echoes the cursor back,
+  so the dead readback field was removed in the cleanup pass). Live-settled
+  zoom facts (2026-06-11): the engine's zoom is NORMALIZED 0..1 (0 =
+  closest, 1 = fully zoomed out; `Camera.getState().zoomLevel` reads back
+  exactly the requested fraction, values above 1 clamp to 1) — the 0..10
+  range the rivers atom advertised was never honored; and zoom settles
+  asynchronously even for instantaneous moves (the same-command readback
+  reports the previous level), so the ported atom re-reads on a settle
+  loop (4 × 150ms) until both the center and the requested zoom verify.
+  Rivers drain note (extends D12's): rivers' `play/map/camera.ts`,
+  `camera-procedure.ts`, `capture.ts` (XR, dead), `appshot*.ts`, the
+  rivers world-module camera/capture procedures, and CLI `game camera` /
+  `game screenshot` / `game appshot` are all superseded — drop them during
+  the drain; the lab branch `placement-live-integration` is the conflict
+  oracle.
+
 ## Corpus Gate
 
 - Corpus source(s): `packages/cli/src/commands/game/**` on the stack;
@@ -266,6 +311,15 @@ new decision number.
   `game:play:screen:dismiss|show`; does NOT contain `game:starts` or
   `game:dismiss-cinematics` — and after the D5 override, no
   `game:visibility` id or alias at all.
+- Live-proof session recipe (replaces the scratch restore script that
+  previously lived untracked in the placement worktree): the standard
+  setup is one call to `runCiv7SinglePlayerFromSetup` from
+  `@civ7/direct-control` with `mapScript
+  "{swooper-maps}/maps/swooper-earthlike.js"`, `mapSize MAPSIZE_HUGE`,
+  `seed/gameSeed 1337`, `playerCount 10`, `savedConfig "ToT Config"`
+  (`~/Library/Application Support/Civilization VII/Saves/Single/ToT
+  Config.Civ7Cfg`), `fromRunningGame "exit-to-shell"`, `waitForTuner
+  true`.
 - Runtime proof: none required — no live-game socket use in this workstream;
   all command behavior is fake-tuner-server tested. The underlying
   primitives carry their own live verification (cinematic dismissal and
@@ -285,7 +339,8 @@ new decision number.
 | 3 | `cli-taxonomy-workstream-docs` | — | this directory: workstream record, corpus ledger, target grammar | this slice |
 | 4 | `cli-game-map-noun-topic` | — | `game map` topic restructure (`index/summary/plot/grid`), `game map visibility` FULL migration incl. repo-wide reference retarget (D2/D5) | next slice |
 | 5 | `direct-control-display-queue` | #1582 | DQM display-control primitives replace the synthetic dismissal outright (D8); `game map visibility --explore` via suppressed tracked grants (D9); orchestration homed as Effect procedures in `@civ7/control-orpc` `display` module, CLI on the typed client (D10); `game play screen show/dismiss` rewired to queue truth | submitted (draft) |
-| 6 | `view-appshot-window-capture` | — | `game view appshot` window-scoped clean-frame capture (D12): SCK window capture atom + clean-frame view atoms, `view.appshot.capture` Effect procedure, CLI on the typed client | in review |
+| 6 | `view-appshot-window-capture` | #1584 | `game view appshot` window-scoped clean-frame capture (D12): SCK window capture atom + clean-frame view atoms, `view.appshot.capture` Effect procedure, CLI on the typed client | submitted (draft) |
+| 7 | `view-camera-plot-appshot` | — | screenshot-at-plot (D13): rivers camera atom re-homed at `play/view/camera.ts`, `view.camera.focus` procedure + CLI `game view camera`, `view.appshot.capture` `target`/`zoom` with verified-before-acquire camera focus, CLI `--target/--zoom` | this slice |
 
 ## Team
 
