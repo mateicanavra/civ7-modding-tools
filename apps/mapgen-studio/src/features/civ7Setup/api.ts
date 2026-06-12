@@ -12,7 +12,7 @@
 // router maps them onto `ORPCError.status`, which we read back below.
 import { ORPCError } from "@orpc/client";
 
-import { orpcClient } from "../../lib/orpc";
+import { orpcClient, readErrorData } from "../../lib/orpc";
 import type { Civ7SavedSetupConfigFile, Civ7SetupSnapshotLike } from "./setupConfig";
 
 export type Civ7SetupCatalogOption = Readonly<{
@@ -44,7 +44,9 @@ function orpcFailure(
   fallback: string,
 ): { error: string; statusCode?: number; observedAt?: string } {
   if (err instanceof ORPCError) {
-    const data = (err.data ?? undefined) as { observedAt?: string } | undefined;
+    // `observedAt` rides in the error body for setupConfig (503) and savedConfigs
+    // (500) — the router attaches it via `orpcError(…, { observedAt })`.
+    const data = readErrorData<{ observedAt: string }>(err);
     return {
       error: err.message || `HTTP ${err.status}`,
       statusCode: err.status,
@@ -65,7 +67,8 @@ export async function fetchCiv7SetupConfig(options: { signal?: AbortSignal } = {
     );
     return {
       ok: true,
-      observedAt: body.observedAt ?? new Date().toISOString(),
+      // Contract-required on the success body (civ7.setupConfig output: isoTimestamp).
+      observedAt: body.observedAt,
       setup: body.setup as Civ7SetupSnapshotLike,
     };
   } catch (err) {
@@ -81,8 +84,10 @@ export async function fetchCiv7SavedSetupConfigs(): Promise<
     const body = await orpcClient.civ7.savedConfigs({});
     return {
       ok: true,
-      observedAt: body.observedAt ?? new Date().toISOString(),
-      directory: body.directory ?? "",
+      // Both contract-required on the success body (civ7.savedConfigs output:
+      // `observedAt: isoTimestamp`, `directory: z.string()`).
+      observedAt: body.observedAt,
+      directory: body.directory,
       configurations: body.configurations as unknown as ReadonlyArray<Civ7SavedSetupConfigFile>,
     };
   } catch (err) {
