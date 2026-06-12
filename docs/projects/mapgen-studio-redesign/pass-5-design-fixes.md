@@ -103,6 +103,17 @@ adjacency (E/W/NE/NW/SE/SW, no N/S) is pointy-top row-offset, while
 mapgen-core models odd-q column-offset — a model↔game convention gap that
 is upstream of the studio and out of scope here.
 
+**Superseded by X6 (same session):** the user flagged the compressed look
+("grid looks squished vertically"), and the convention audit
+(`research/03-hex-convention-audit.md`) proved Civ7's grid is pointy-top
+odd-R — the model's odd-Q is a mislabel, and its "canonical lattice" is not
+a regular hex tiling (which is WHY the tiling hexagon had to be squashed).
+The renderer now draws the GAME's geometry for both tile spaces: regular
+pointy-top hexes, odd rows shifted east. Same world frame, so world.xy
+co-registration is unchanged. Border ink also retuned on user feedback:
+graphite (#0d0d11), one ink in both themes (the slate clashed with the
+palette). Engine-side odd-Q→odd-R migration spawned as its own task.
+
 Second half — **the tile-mesh contract**, standardized across all
 visualizations and both themes:
 

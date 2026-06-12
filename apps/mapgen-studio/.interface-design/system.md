@@ -239,3 +239,10 @@ supersedes the Pass-4 dock placement, keeps the console split + icon contract:
   (`History`); hover tooltip presents the run (seed/size/players/resources),
   the accessible name mirrors it, click copies the last seed (the affordance
   the old inline seed button carried). Tooltip, never a popup.
+- **Tile grid (X6, user-grounded):** tile layers render the GAME's plot
+  geometry — regular pointy-top hexes on the odd-R row-offset lattice (the
+  hex-convention audit proved `tile.hexOddQ` mislabels that grid; the model's
+  column-offset projection is not a regular tiling, hence the "squished"
+  look it produced). Tile borders use ONE graphite ink (`#0d0d11`, α200) in
+  both themes — dark seams against the fills; never a mid-luminance color
+  that competes with the data palette. Unfilled tiles draw nothing.
