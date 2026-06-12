@@ -391,3 +391,32 @@ Two user-flagged follow-up slices landed the same night:
   worker's `StudioResourcesMode` write, the wire deliberately reserved for
   the placement stack's resources vertical; verified no reader exists on
   any branch before touching the UI)
+
+## DAG handoff (2026-06-12) — restack + pipeline tab — COMPLETE
+
+The recipe-DAG feature merged to main (PRs #1587–#1591) with a handoff spec
+addressed to this lane
+(`docs/projects/graphite-stack-integration/DAG-STUDIO-REDESIGN-HANDOFF.md`):
+
+- [x] **Restack onto post-DAG main** (main @ 6adfc9ec3, 19 commits
+  absorbed). §4 resolutions: App.tsx/AppHeader/ViewControls/layout.ts —
+  this lane's versions win (old DAG chrome not ported); vite.config.ts —
+  recipe-dag oRPC middleware preserved; package.json/bun.lock — dep union
+  (+ `design/post-dag-restack-lockfile` reconcile). All §1 "preserve"
+  items intact: `features/recipeDag/*` headless modules,
+  `server/recipeDag/*`, `shared/recipeDagOrpc.ts`, mapgen-core
+  `recipe-dag.ts`. Gates at tip post-restack: tsc, 192 studio tests
+  (incl. 5 recipeDag suites), 103 mapgen-core, build + worker bundle.
+- [x] **`mapgen-studio-dag-tab`** — `design/dag-tab-frame` (OpenSpec
+  workstream: proposal/design/tasks/spec/workstream record) +
+  `design/dag-tab-stage` (implementation): the DAG re-expressed as the
+  **Pipeline stage view** — floating Map|Pipeline segmented switcher
+  (stage-furniture rule, codified in system.md), `PipelineStage`
+  token-driven chrome preserving all handoff §2.6 interaction semantics,
+  pipeline console strip, TanStack Query data layer
+  (`useRecipeDagQuery`), viewStore pipeline fields, Explore dock scoped to
+  map view, map canvas mounted-but-invisible under the pipeline (camera +
+  in-flight runs survive). `RecipeDagView.tsx` deleted; its behavioral
+  pins ported to `PipelineStage.test.tsx`. Verified live dark + light:
+  17-stage standard-recipe graph, selection/expansion/label focus,
+  generation run completed WHILE the pipeline view was active.

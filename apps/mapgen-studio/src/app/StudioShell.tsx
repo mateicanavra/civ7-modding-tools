@@ -138,6 +138,10 @@ import { mergeBuiltInPresets, toRepoBackedPreset } from "../features/presets/rep
 import type { PresetErrorState } from "../features/presets/dialogState";
 import { liveControlPort } from "../lib/control/liveControlPort";
 
+import { PipelineStage } from "../features/recipeDag/PipelineStage";
+import { useRecipeDagQuery } from "../features/recipeDag/useRecipeDagQuery";
+import { StageViewTabs } from "../ui/components/StageViewTabs";
+
 import { CanvasStage } from "./CanvasStage";
 import { ErrorBanner } from "./ErrorBanner";
 import { LeftDock } from "./LeftDock";
@@ -231,9 +235,43 @@ export function StudioShell(props: StudioShellProps) {
   const setExploreStepExpanded = useViewStore((s) => s.setExploreStepExpanded);
   const exploreLayersExpanded = useViewStore((s) => s.exploreLayersExpanded);
   const setExploreLayersExpanded = useViewStore((s) => s.setExploreLayersExpanded);
+  const stageView = useViewStore((s) => s.stageView);
+  const setStageView = useViewStore((s) => s.setStageView);
+  const pipelineSelectedStageId = useViewStore((s) => s.pipelineSelectedStageId);
+  const setPipelineSelectedStageId = useViewStore((s) => s.setPipelineSelectedStageId);
+  const pipelineExpandedStageIds = useViewStore((s) => s.pipelineExpandedStageIds);
+  const setPipelineExpandedStageIds = useViewStore((s) => s.setPipelineExpandedStageIds);
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
   const autoRunTimerRef = useRef<number | null>(null);
   const autoRunPendingRef = useRef(false);
+
+  // Pipeline (recipe DAG) stage view — data via TanStack Query, gated on the
+  // view being active (fetch on first activation, cached per recipe).
+  const recipeDag = useRecipeDagQuery(recipeSettings.recipe, {
+    enabled: stageView === "pipeline",
+  });
+  // Prune pipeline expansion to stages that exist in the loaded DAG (the
+  // merged feature did the same on fetch success) — switching recipes must
+  // not carry phantom expanded ids across graphs.
+  useEffect(() => {
+    if (!recipeDag.dag) return;
+    const known = new Set(recipeDag.dag.stages.map((stage) => stage.stageId));
+    setPipelineExpandedStageIds((prev) => {
+      const kept = [...prev].filter((id) => known.has(id));
+      return kept.length === prev.size ? prev : new Set(kept);
+    });
+  }, [recipeDag.dag, setPipelineExpandedStageIds]);
+  const handlePipelineStageToggle = useCallback(
+    (stageId: string) => {
+      setPipelineExpandedStageIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(stageId)) next.delete(stageId);
+        else next.add(stageId);
+        return next;
+      });
+    },
+    [setPipelineExpandedStageIds]
+  );
 
   const [presetError, setPresetError] = useState<PresetErrorState | null>(null);
   const [saveDialogState, setSaveDialogState] = useState<{ open: boolean; label: string; description?: string }>({
@@ -2413,18 +2451,43 @@ export function StudioShell(props: StudioShellProps) {
         wraps), keeping it in the a11y tree and focusable via `tabIndex={-1}`
         without changing the visual layout.
       */}
-      <main id="map-preview" aria-label="Map preview" tabIndex={-1} className="absolute inset-0">
-        <CanvasStage
-          apiRef={deckApiRef}
-          onApiReady={handleDeckApiReady}
-          layers={viz.deck.layers}
-          effectiveLayer={viz.effectiveLayer}
-          viewportSize={viewportSize}
-          activeBounds={viz.activeBounds}
-          lightMode={isLightMode}
-          backgroundGridEnabled={backgroundGridEnabled}
-          hasManifest={Boolean(viz.manifest)}
-        />
+      <main
+        id="map-preview"
+        aria-label={stageView === "pipeline" ? "Recipe pipeline" : "Map preview"}
+        tabIndex={-1}
+        className="absolute inset-0"
+      >
+        {/* The map stage stays MOUNTED (just not painted) while the pipeline
+            view is up: deck camera state and in-flight run/poll loops are
+            untouched — behavior parity (mapgen-studio-dag-tab). */}
+        <div className={`absolute inset-0 ${stageView === "pipeline" ? "invisible" : ""}`}>
+          <CanvasStage
+            apiRef={deckApiRef}
+            onApiReady={handleDeckApiReady}
+            layers={viz.deck.layers}
+            effectiveLayer={viz.effectiveLayer}
+            viewportSize={viewportSize}
+            activeBounds={viz.activeBounds}
+            lightMode={isLightMode}
+            backgroundGridEnabled={backgroundGridEnabled}
+            hasManifest={Boolean(viz.manifest)}
+          />
+        </div>
+        {stageView === "pipeline" ? (
+          <PipelineStage
+            recipeId={recipeSettings.recipe}
+            dag={recipeDag.dag}
+            status={recipeDag.status}
+            error={recipeDag.error}
+            isLightMode={isLightMode}
+            expandedStageIds={pipelineExpandedStageIds}
+            selectedStageId={pipelineSelectedStageId || null}
+            onToggleStage={handlePipelineStageToggle}
+            onSelectStage={setPipelineSelectedStageId}
+            topInset={panelTop}
+            bottomInset={panelBottom}
+          />
+        ) : null}
       </main>
       {presetDialogs}
       <input
@@ -2436,7 +2499,13 @@ export function StudioShell(props: StudioShellProps) {
       />
 
       <LeftDock top={panelTop} bottom={panelBottom}>{leftPanel}</LeftDock>
-      <RightDock top={panelTop} bottom={panelBottom}>{rightPanel}</RightDock>
+      {/* The Explore dock is map-scoped (run stage/step navigation, layers,
+          camera); it leaves the stage when the pipeline view is active. */}
+      {stageView === "map" ? (
+        <RightDock top={panelTop} bottom={panelBottom}>{rightPanel}</RightDock>
+      ) : null}
+
+      <StageViewTabs value={stageView} onValueChange={setStageView} top={panelTop} />
 
       {header}
       {footer}

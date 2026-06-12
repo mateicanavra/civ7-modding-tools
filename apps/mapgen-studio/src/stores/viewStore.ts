@@ -23,6 +23,13 @@ function resolve<T>(updater: Updater<T>, prev: T): T {
 
 export type EraMode = "auto" | "fixed";
 
+/**
+ * Which view the center stage presents: the generated map, or the authored
+ * recipe's dependency pipeline (mapgen-studio-dag-tab). Stage furniture —
+ * not a Game-bar or World-console concern.
+ */
+export type StageView = "map" | "pipeline";
+
 export type ViewState = {
   // Canvas layer toggles
   showGrid: boolean;
@@ -43,6 +50,13 @@ export type ViewState = {
   // Explore selection (single owner; App no longer mirrors these)
   selectedStageId: string;
   selectedStepId: string;
+  // Stage view + pipeline (recipe DAG) view state. Pipeline selection and
+  // expansion are deliberately separate from the map-explore `selectedStageId`
+  // above — a pipeline stage node and an explore run-stage are different
+  // concepts that happen to share a word. "" = no pipeline stage selected.
+  stageView: StageView;
+  pipelineSelectedStageId: string;
+  pipelineExpandedStageIds: ReadonlySet<string>;
 
   setShowGrid: (next: Updater<boolean>) => void;
   setShowEdges: (next: Updater<boolean>) => void;
@@ -58,6 +72,9 @@ export type ViewState = {
   setExploreLayersExpanded: (next: Updater<boolean>) => void;
   setSelectedStageId: (next: Updater<string>) => void;
   setSelectedStepId: (next: Updater<string>) => void;
+  setStageView: (next: Updater<StageView>) => void;
+  setPipelineSelectedStageId: (next: Updater<string>) => void;
+  setPipelineExpandedStageIds: (next: Updater<ReadonlySet<string>>) => void;
 };
 
 export const useViewStore = create<ViewState>((set) => ({
@@ -75,6 +92,9 @@ export const useViewStore = create<ViewState>((set) => ({
   exploreLayersExpanded: true,
   selectedStageId: "",
   selectedStepId: "",
+  stageView: "map",
+  pipelineSelectedStageId: "",
+  pipelineExpandedStageIds: new Set<string>(),
 
   setShowGrid: (next) => set((s) => ({ showGrid: resolve(next, s.showGrid) })),
   setShowEdges: (next) => set((s) => ({ showEdges: resolve(next, s.showEdges) })),
@@ -97,4 +117,9 @@ export const useViewStore = create<ViewState>((set) => ({
     set((s) => ({ exploreLayersExpanded: resolve(next, s.exploreLayersExpanded) })),
   setSelectedStageId: (next) => set((s) => ({ selectedStageId: resolve(next, s.selectedStageId) })),
   setSelectedStepId: (next) => set((s) => ({ selectedStepId: resolve(next, s.selectedStepId) })),
+  setStageView: (next) => set((s) => ({ stageView: resolve(next, s.stageView) })),
+  setPipelineSelectedStageId: (next) =>
+    set((s) => ({ pipelineSelectedStageId: resolve(next, s.pipelineSelectedStageId) })),
+  setPipelineExpandedStageIds: (next) =>
+    set((s) => ({ pipelineExpandedStageIds: resolve(next, s.pipelineExpandedStageIds) })),
 }));
