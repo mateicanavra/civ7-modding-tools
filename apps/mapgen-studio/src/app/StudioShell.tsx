@@ -242,8 +242,8 @@ export function StudioShell(props: StudioShellProps) {
   const setExploreStepExpanded = useViewStore((s) => s.setExploreStepExpanded);
   const exploreLayersExpanded = useViewStore((s) => s.exploreLayersExpanded);
   const setExploreLayersExpanded = useViewStore((s) => s.setExploreLayersExpanded);
-  const exploreWaterProofExpanded = useViewStore((s) => s.exploreWaterProofExpanded);
-  const setExploreWaterProofExpanded = useViewStore((s) => s.setExploreWaterProofExpanded);
+  const exploreWaterStatsExpanded = useViewStore((s) => s.exploreWaterStatsExpanded);
+  const setExploreWaterStatsExpanded = useViewStore((s) => s.setExploreWaterStatsExpanded);
   const stageView = useViewStore((s) => s.stageView);
   const setStageView = useViewStore((s) => s.setStageView);
   const pipelineSelectedStageId = useViewStore((s) => s.pipelineSelectedStageId);
@@ -2148,12 +2148,12 @@ export function StudioShell(props: StudioShellProps) {
         !exploreStageExpanded &&
         !exploreStepExpanded &&
         !exploreLayersExpanded &&
-        !exploreWaterProofExpanded;
+        !exploreWaterStatsExpanded;
       const next = rightCollapsed;
       setExploreStageExpanded(next);
       setExploreStepExpanded(next);
       setExploreLayersExpanded(next);
-      setExploreWaterProofExpanded(next);
+      setExploreWaterStatsExpanded(next);
     },
     toggleLeftPanel: () => {
       const leftCollapsed = recipeSectionCollapsed && configSectionCollapsed;
@@ -2437,8 +2437,8 @@ export function StudioShell(props: StudioShellProps) {
       onLayersExpandedChange={setExploreLayersExpanded}
       riverLakeInspectorSummary={riverLakeInspectorSummary}
       onRiverLakeInspectorLayerSelect={handleRiverLakeInspectorLayerSelect}
-      waterProofExpanded={exploreWaterProofExpanded}
-      onWaterProofExpandedChange={setExploreWaterProofExpanded}
+      waterStatsExpanded={exploreWaterStatsExpanded}
+      onWaterStatsExpandedChange={setExploreWaterStatsExpanded}
     />
   );
 

@@ -19,7 +19,7 @@ import {
   Flame } from
 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
-import { WaterProofSection } from './WaterProofSection';
+import { WaterStatsSection } from './WaterStatsSection';
 import type {
   RiverLakeFloodplainInspectorSummary,
   RiverLakeInspectorLayerRef } from
@@ -125,9 +125,9 @@ export interface ExplorePanelProps {
   /** Callback when a water-proof evidence layer chip is clicked */
   onRiverLakeInspectorLayerSelect?: (ref: RiverLakeInspectorLayerRef) => void;
   /** Whether the water-proof section is expanded (optional controlled mode) */
-  waterProofExpanded?: boolean;
-  /** Callback when waterProofExpanded changes (optional controlled mode) */
-  onWaterProofExpandedChange?: (expanded: boolean) => void;
+  waterStatsExpanded?: boolean;
+  /** Callback when waterStatsExpanded changes (optional controlled mode) */
+  onWaterStatsExpandedChange?: (expanded: boolean) => void;
 }
 // ============================================================================
 // Component
@@ -176,13 +176,13 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   onLayersExpandedChange,
   riverLakeInspectorSummary,
   onRiverLakeInspectorLayerSelect,
-  waterProofExpanded: waterProofExpandedProp,
-  onWaterProofExpandedChange
+  waterStatsExpanded: waterStatsExpandedProp,
+  onWaterStatsExpandedChange
 }) => {
   const [localStageExpanded, setLocalStageExpanded] = useState(true);
   const [localStepExpanded, setLocalStepExpanded] = useState(true);
   const [localLayersExpanded, setLocalLayersExpanded] = useState(true);
-  const [localWaterProofExpanded, setLocalWaterProofExpanded] = useState(false);
+  const [localWaterStatsExpanded, setLocalWaterStatsExpanded] = useState(false);
   const [groupOpen, setGroupOpen] = useState<Record<string, boolean>>({});
 
   const isStageExpanded = stageExpandedProp ?? localStageExpanded;
@@ -203,10 +203,10 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
     if (layersExpandedProp === undefined) setLocalLayersExpanded(next);
   };
 
-  const isWaterProofExpanded = waterProofExpandedProp ?? localWaterProofExpanded;
-  const setIsWaterProofExpanded = (next: boolean) => {
-    onWaterProofExpandedChange?.(next);
-    if (waterProofExpandedProp === undefined) setLocalWaterProofExpanded(next);
+  const isWaterStatsExpanded = waterStatsExpandedProp ?? localWaterStatsExpanded;
+  const setIsWaterStatsExpanded = (next: boolean) => {
+    onWaterStatsExpandedChange?.(next);
+    if (waterStatsExpandedProp === undefined) setLocalWaterStatsExpanded(next);
   };
   const currentStage = stages.find((s) => s.value === selectedStage);
   const currentStep = steps.find((s) => s.value === selectedStep);
@@ -460,11 +460,11 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       ) : null}
 
       {/* WATER PROOF SECTION — River/Lake/Floodplain inspector rows */}
-      <WaterProofSection
+      <WaterStatsSection
         summary={riverLakeInspectorSummary}
         onLayerSelect={onRiverLakeInspectorLayerSelect}
-        expanded={isWaterProofExpanded}
-        onExpandedChange={setIsWaterProofExpanded}
+        expanded={isWaterStatsExpanded}
+        onExpandedChange={setIsWaterStatsExpanded}
       />
 
       {/* 3. LAYERS SECTION. The debug toggle lives on this header — it filters
