@@ -4,21 +4,17 @@ import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger
 import { MAP_SIZE_SHORT, LAYOUT } from '../constants';
 import { formatResourceMode } from '../utils';
 import type { RecipeSettings, WorldSettings, GenerationStatus } from '../types';
-import type { RunInGameOperationStatus } from '../../features/runInGame/status';
-import type { RunInGameCurrentRelation } from '../../features/runInGame/clientState';
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from '../../features/civ7Setup/seedPolicy';
-import type { MapConfigSaveDeployStatus } from '../../features/mapConfigSave/status';
-import { GameConsole, type GameConsoleLiveRuntime } from './GameConsole';
 
 // ============================================================================
-// APP FOOTER — two consoles (Pass-3 footer-consoles spec)
+// APP FOOTER — the studio console (Pass-4 game-console-dock spec)
 // ============================================================================
-// The footer separates ownership domains: the centered STUDIO console carries
-// studio-runtime status and run controls (status · last run · seed · reroll ·
-// auto-run · Run); the right-docked GAME console (`GameConsole`) carries
-// everything that observes or commands live Civ7. Equal flex side zones keep
-// the studio console exactly centered while space allows; when the game
-// console needs more room, the studio console yields left, never overlaps.
+// The footer is the STUDIO zone: one centered console carrying studio-runtime
+// status and run controls (status · last run · seed · reroll · auto-run ·
+// Run). Everything that observes or commands live Civ7 lives in `GameConsole`,
+// docked beneath the world bar in the header (top = game, bottom = studio).
+// The footer still receives the game-side in-flight booleans because seed/
+// reroll/run share one operation gate across both zones (behavior parity).
 // ============================================================================
 
 export interface AppFooterProps {
@@ -34,38 +30,16 @@ export interface AppFooterProps {
   onSettingsChange: (settings: RecipeSettings) => void;
   /** Callback to start a generation run */
   onRun: () => void;
-  /** Callback to launch the current map config in Civ7 */
-  onRunInGame: () => void;
-  /** Callback to refresh the current Civ7 Run in Game operation status */
-  onRunInGameRetryStatus?: () => void;
-  /** Callback to copy current Civ7 Run in Game diagnostics */
-  onCopyRunInGameDiagnostics?: () => void;
   /** Callback to reroll (new seed + run) */
   onReroll: () => void;
   /** Whether generation is currently running */
   isRunning: boolean;
-  /** Whether Civ7 Run in Game is currently running */
+  /** Whether Civ7 Run in Game is currently running (shared operation gate) */
   isRunInGameRunning: boolean;
-  /** Whether config save/deploy is currently running */
+  /** Whether config save/deploy is currently running (shared operation gate) */
   isSaveDeployRunning?: boolean;
-  /** Current config save/deploy status */
-  saveDeployStatus?: MapConfigSaveDeployStatus | null;
-  /** Request-correlated Civ7 Run in Game status */
-  runInGameStatus?: RunInGameOperationStatus | null;
-  /** Whether the recorded operation matches the current authored Studio state */
-  runInGameCurrentRelation?: RunInGameCurrentRelation;
   /** Whether current settings differ from last run */
   isDirty: boolean;
-  /** Read-only live Civ7 runtime status */
-  liveRuntime?: GameConsoleLiveRuntime;
-  /** Whether the current Studio config/seed matches the proved live game source. */
-  liveGameStudioRelation?: "current" | "stale" | "unknown";
-  /** Callback to apply a visible live-runtime or proved-run suggestion back into Studio. */
-  onSyncFromLiveGame?: () => void;
-  /** Whether a Civ7 autoplay start/stop request is in flight */
-  isAutoplayActionRunning?: boolean;
-  /** Callback to start or stop Civ7 native autoplay */
-  onToggleAutoplay?: () => void;
   /** Toast function for notifications */
   onToast?: (message: string) => void;
   /** When enabled, config changes auto-run the current seed */
@@ -81,22 +55,11 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   currentSettings,
   onSettingsChange,
   onRun,
-  onRunInGame,
-  onRunInGameRetryStatus,
-  onCopyRunInGameDiagnostics,
   onReroll,
   isRunning,
   isRunInGameRunning,
   isSaveDeployRunning = false,
-  saveDeployStatus,
-  runInGameStatus,
-  runInGameCurrentRelation = "unknown",
   isDirty,
-  liveRuntime,
-  liveGameStudioRelation = "unknown",
-  onSyncFromLiveGame,
-  isAutoplayActionRunning = false,
-  onToggleAutoplay,
   onToast,
   autoRunEnabled,
   onAutoRunEnabledChange
@@ -158,15 +121,10 @@ export const AppFooter: React.FC<AppFooterProps> = ({
     // for the static markup — not hidden inside hover-only Tooltip content.
     <TooltipProvider>
     <footer
-      className="absolute bottom-4 left-4 right-4 z-20 flex items-center gap-2"
+      className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-center"
       style={{
         height: FOOTER_HEIGHT
       }}>
-
-      {/* Equal flex-1 side zones center the studio console exactly while space
-          allows; when the game console needs more than its share, its zone
-          grows and the studio console yields left instead of overlapping. */}
-      <div className="flex-1 min-w-0" />
 
       {/* Studio console — studio-runtime status + run controls, centered. */}
 
@@ -286,25 +244,6 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <Play className="w-3 h-3" />
           <span>{isRunning ? 'Running...' : 'Run'}</span>
         </Button>
-      </div>
-
-      {/* Game console — everything live-Civ7, right-docked, free to grow. */}
-      <div className="flex-1 flex items-center justify-end">
-        <GameConsole
-          liveRuntime={liveRuntime}
-          liveGameStudioRelation={liveGameStudioRelation}
-          onSyncFromLiveGame={onSyncFromLiveGame}
-          isAutoplayActionRunning={isAutoplayActionRunning}
-          onToggleAutoplay={onToggleAutoplay}
-          operationControlsDisabled={operationControlsDisabled}
-          isRunInGameRunning={isRunInGameRunning}
-          runInGameStatus={runInGameStatus}
-          runInGameCurrentRelation={runInGameCurrentRelation}
-          onRunInGame={onRunInGame}
-          onRunInGameRetryStatus={onRunInGameRetryStatus}
-          onCopyRunInGameDiagnostics={onCopyRunInGameDiagnostics}
-          saveDeployStatus={saveDeployStatus}
-        />
       </div>
     </footer>
     </TooltipProvider>);

@@ -4,7 +4,10 @@ import { describe, expect, it, vi } from "vitest";
 import { AppFooter } from "../../src/ui/components/AppFooter";
 import { TooltipProvider } from "../../src/components/ui/tooltip";
 import type { RecipeSettings, WorldSettings } from "../../src/ui/types";
-import type { RunInGameOperationStatus } from "../../src/features/runInGame/status";
+
+// The footer is the STUDIO console (Pass-4 game-console-dock spec). Live-game
+// markup is covered by GameConsole.test.tsx; the footer keeps the shared
+// operation gate: game-side operations disable studio run controls.
 
 const recipeSettings: RecipeSettings = {
   recipe: "standard",
@@ -18,251 +21,48 @@ const worldSettings: WorldSettings = {
   resources: "balanced",
 };
 
-function renderFooter(status: RunInGameOperationStatus, relation: "current" | "stale" | "unknown" = "unknown") {
+function renderFooter(overrides: Partial<Parameters<typeof AppFooter>[0]> = {}) {
   return renderToStaticMarkup(
     <TooltipProvider>
       <AppFooter
         status="ready"
-      lastRunSettings={recipeSettings}
-      lastGlobalSettings={worldSettings}
-      currentSettings={recipeSettings}
-      onSettingsChange={vi.fn()}
-      onRun={vi.fn()}
-      onRunInGame={vi.fn()}
-      onRunInGameRetryStatus={vi.fn()}
-      onCopyRunInGameDiagnostics={vi.fn()}
-      onReroll={vi.fn()}
-      isRunning={false}
-      isRunInGameRunning={status.status === "running"}
-      runInGameStatus={status}
-      runInGameCurrentRelation={relation}
-      isDirty={false}
-      lightMode={false}
-      liveRuntime={{ status: "ok", readiness: "shell" }}
-      autoRunEnabled={false}
-      onAutoRunEnabledChange={vi.fn()}
+        lastRunSettings={recipeSettings}
+        lastGlobalSettings={worldSettings}
+        currentSettings={recipeSettings}
+        onSettingsChange={vi.fn()}
+        onRun={vi.fn()}
+        onReroll={vi.fn()}
+        isRunning={false}
+        isRunInGameRunning={false}
+        isDirty={false}
+        autoRunEnabled={false}
+        onAutoRunEnabledChange={vi.fn()}
+        {...overrides}
       />
     </TooltipProvider>
   );
 }
 
-describe("AppFooter Run in Game status", () => {
-  it("renders active Run in Game phase separately from browser run status", () => {
-    const html = renderFooter({
-      ok: true,
-      requestId: "studio-run-in-game-test",
-      phase: "waiting-for-proof",
-      status: "running",
-      startedAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      completedPhases: ["materializing", "deploying", "checking-civ7", "preparing-setup", "starting-game"],
-      materialization: {
-        mode: "disposable",
-        mapScript: "{swooper-maps}/maps/studio-current.js",
-      },
-    });
+describe("AppFooter studio console", () => {
+  it("renders studio status and run controls without any live-game markup", () => {
+    const html = renderFooter();
 
-    expect(html).toContain("Waiting for Proof");
-    expect(html).toContain("studio-run-in-game-test");
-    expect(html).toContain("Copy Run in Game diagnostics");
     expect(html).toContain("Ready");
+    expect(html).toContain("Re-roll: New seed and run");
+    expect(html).toContain("Generation seed");
+    expect(html).not.toContain("Run in Game");
+    expect(html).not.toContain("Civ7");
   });
 
-  it("renders retry status and retry run affordances for failed operations", () => {
-    const html = renderFooter({
-      ok: false,
-      requestId: "studio-run-in-game-failed",
-      phase: "failed",
-      status: "failed",
-      startedAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      completedPhases: ["materializing", "deploying"],
-      error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
-      details: {
-        code: "setup-map-row-not-visible",
-        reloadRequired: true,
-      },
-    });
+  it("disables run controls while Run in Game is running (shared operation gate)", () => {
+    const html = renderFooter({ isRunInGameRunning: true });
 
-    expect(html).toContain("Refresh Run in Game status");
-    expect(html).toContain("Retry Run");
-    expect(html).toContain("setup cannot see");
-  });
-
-  it("renders restart-Civ recovery as the primary Run in Game action", () => {
-    const html = renderFooter({
-      ok: false,
-      requestId: "studio-run-in-game-restart-needed",
-      phase: "blocked",
-      status: "blocked",
-      startedAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      completedPhases: ["materializing", "deploying", "checking-civ7"],
-      error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
-      details: {
-        code: "setup-map-row-not-visible",
-        reloadBoundary: "process-restart-required",
-      },
-    }, "current");
-
-    expect(html).toContain("Restart Civ &amp; Run");
-  });
-
-  it("keeps map script fatal recovery on retry instead of process restart", () => {
-    const html = renderFooter({
-      ok: false,
-      requestId: "studio-run-in-game-map-script-failed",
-      phase: "failed",
-      status: "failed",
-      startedAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      completedPhases: ["materializing", "deploying", "preparing-setup", "starting-game", "waiting-for-proof"],
-      error: "Civ7 could not load generated map script",
-      details: {
-        code: "map-script-load-failed",
-        dismissNotificationRequired: true,
-        recoveryBoundary: "civ-notification-dismiss",
-        recoveryHint: "Dismiss the Civ fatal notification, fix or regenerate the map script, then retry Run in Game.",
-      },
-    }, "current");
-
-    expect(html).toContain("Retry Run");
-    expect(html).not.toContain("Restart Civ &amp; Run");
-    expect(html).toContain("Dismiss the Civ fatal notification");
-  });
-
-  it("marks a previous operation stale when the authored Studio state has changed", () => {
-    const html = renderFooter({
-      ok: true,
-      requestId: "studio-run-in-game-complete",
-      phase: "complete",
-      status: "complete",
-      startedAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      completedPhases: ["materializing", "deploying", "checking-civ7", "preparing-setup", "starting-game", "waiting-for-proof"],
-    }, "stale");
-
-    expect(html).toContain("Stale");
-    expect(html).toContain("Studio state: Stale");
-  });
-
-  it("renders save/deploy status separately and disables browser run controls", () => {
-    const html = renderToStaticMarkup(
-      <AppFooter
-        status="ready"
-        lastRunSettings={recipeSettings}
-        lastGlobalSettings={worldSettings}
-        currentSettings={recipeSettings}
-        onSettingsChange={vi.fn()}
-        onRun={vi.fn()}
-        onRunInGame={vi.fn()}
-        onReroll={vi.fn()}
-        isRunning={false}
-        isRunInGameRunning={false}
-        isSaveDeployRunning={true}
-        saveDeployStatus={{
-          ok: true,
-          requestId: "studio-save-deploy-test",
-          phase: "deploying",
-          status: "running",
-          startedAt: "2026-06-01T00:00:00.000Z",
-          updatedAt: "2026-06-01T00:00:01.000Z",
-          path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
-        }}
-        isDirty={false}
-        lightMode={false}
-        autoRunEnabled={false}
-        onAutoRunEnabledChange={vi.fn()}
-      />
-    );
-
-    expect(html).toContain("Save/Deploy: Deploying");
-    expect(html).toContain("studio-save-deploy-test");
     expect(html).toContain("disabled");
   });
 
-  it("renders a Civ7 autoplay start button from live runtime status", () => {
-    const html = renderToStaticMarkup(
-      <AppFooter
-        status="ready"
-        lastRunSettings={recipeSettings}
-        lastGlobalSettings={worldSettings}
-        currentSettings={recipeSettings}
-        onSettingsChange={vi.fn()}
-        onRun={vi.fn()}
-        onRunInGame={vi.fn()}
-        onReroll={vi.fn()}
-        isRunning={false}
-        isRunInGameRunning={false}
-        isDirty={false}
-        lightMode={false}
-        liveRuntime={{ status: "ok", readiness: "ready", autoplayActive: false }}
-        onToggleAutoplay={vi.fn()}
-        autoRunEnabled={false}
-        onAutoRunEnabledChange={vi.fn()}
-      />
-    );
+  it("disables run controls while config save/deploy is running (shared operation gate)", () => {
+    const html = renderFooter({ isSaveDeployRunning: true });
 
-    expect(html).toContain("Start Auto");
-    expect(html).toContain("Start Civ7 autoplay");
-  });
-
-  it("renders a Civ7 autoplay stop button when autoplay is active", () => {
-    const html = renderToStaticMarkup(
-      <AppFooter
-        status="ready"
-        lastRunSettings={recipeSettings}
-        lastGlobalSettings={worldSettings}
-        currentSettings={recipeSettings}
-        onSettingsChange={vi.fn()}
-        onRun={vi.fn()}
-        onRunInGame={vi.fn()}
-        onReroll={vi.fn()}
-        isRunning={false}
-        isRunInGameRunning={false}
-        isDirty={false}
-        lightMode={false}
-        liveRuntime={{ status: "ok", readiness: "ready", autoplayActive: true }}
-        onToggleAutoplay={vi.fn()}
-        autoRunEnabled={false}
-        onAutoRunEnabledChange={vi.fn()}
-      />
-    );
-
-    expect(html).toContain("Stop Auto");
-    expect(html).toContain("Stop Civ7 autoplay");
-    expect(html).toContain("Auto");
-  });
-
-  it("highlights live seed status when a proved live game is out of sync with Studio", () => {
-    const html = renderToStaticMarkup(
-      <AppFooter
-        status="ready"
-        lastRunSettings={recipeSettings}
-        lastGlobalSettings={worldSettings}
-        currentSettings={{ ...recipeSettings, seed: "456" }}
-        onSettingsChange={vi.fn()}
-        onRun={vi.fn()}
-        onRunInGame={vi.fn()}
-        onReroll={vi.fn()}
-        isRunning={false}
-        isRunInGameRunning={false}
-        isDirty={true}
-        lightMode={false}
-        liveRuntime={{ status: "ok", turn: 12, seed: 123 }}
-        liveGameStudioRelation="stale"
-        onSyncFromLiveGame={vi.fn()}
-        autoRunEnabled={false}
-        onAutoRunEnabledChange={vi.fn()}
-      />
-    );
-
-    expect(html).toContain("Apply live game suggestion to Studio");
-    // The stale-live-game emphasis is token-driven (`warning`), not a raw
-    // `border-orange-400` palette class — the design system forbids hardcoded
-    // hex/named-color utilities. The assertion still verifies the stale ring is
-    // present, now via the token.
-    expect(html).toContain("border-warning");
-    expect(html).toContain("Seed 123");
+    expect(html).toContain("disabled");
   });
 });
