@@ -704,11 +704,7 @@
         "densityPer100Tiles": 3,
         "minSpacingTiles": 2
       },
-      "resources": {
-        "densityPer100Tiles": 12,
-        "minSpacingTiles": 1,
-        "maxPlacementsPerResourceShare": 0.23
-      },
+      "resources": {},
       "starts": {
         "minContiguousLandTiles": 24,
         "expansionRadiusTiles": 8,
@@ -716,7 +712,8 @@
         "islandClusterRadiusTiles": 8,
         "minIslandClusterLandTiles": 30,
         "maxIslandStartCoastDistance": 8,
-        "minStartSpacingTiles": 10,
+        "spacingFloorTiles": 6,
+        "desiredSpacingTiles": 10,
         "resourceSupportRadiusTiles": 4,
         "resourceSupportWeight": 0.6,
         "fertilityWeight": 1.3,
