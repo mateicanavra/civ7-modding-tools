@@ -376,7 +376,19 @@ const VALUE_RAMP: ReadonlyArray<RgbaColor> = [
   [253, 231, 37, 230],
 ];
 
-const UNKNOWN_COLOR: RgbaColor = [120, 120, 120, 220];
+// Tile-mesh contract (Pass-5 tile-orientation spec): tiles "not filled by
+// anything" — noData sentinels and non-finite values — render NOTHING, so no
+// phantom mesh floats over the canvas background. Renderers key per-tile
+// stroke alpha off the fill alpha, so transparent fills drop their borders.
+const UNKNOWN_COLOR: RgbaColor = [0, 0, 0, 0];
+
+/**
+ * The one tile-border ink (Pass-5 tile-orientation spec): a mid-luminance
+ * slate chosen to stay legible against white, black, and graphite canvas
+ * backgrounds. All tile-space polygon strokes use this — no per-call border
+ * literals.
+ */
+export const TILE_BORDER_COLOR: RgbaColor = [100, 116, 139, 220];
 
 type ColorOut = { [index: number]: number };
 
