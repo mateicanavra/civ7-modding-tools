@@ -219,3 +219,23 @@ Decisions (see `docs/projects/mapgen-studio-redesign/pass-4-design-fixes.md`):
   Reset/Show-JSON); collapsed by default, manual expand; optional sticky
   auto-expand-on-scroll toggle in the config toolbar, default OFF; identical in
   focused and unfocused modes.
+
+## Pass-5 amendment (2026-06-11, user-grounded): zoning v2 — Game bar / World console
+
+Decisions (see `docs/projects/mapgen-studio-redesign/pass-5-design-fixes.md`);
+supersedes the Pass-4 dock placement, keeps the console split + icon contract:
+
+- **Top bar = THE Game toolbar.** One bar (identity `Gamepad2` + "Game")
+  unifies the saved-config selector, the GameConsole command cluster (inline,
+  no panel chrome or "Civ7" label of its own), and a trailing **icon-only**
+  game-setup disclosure (`SlidersHorizontal` + chevron — the dropdown row is
+  the label) expanding pure game setup: Leader · Civ · Difficulty · Speed.
+  **No map/world settings in the top bar, ever.**
+- **Bottom bar = THE World/Map console** (identity `Globe` + "World"): studio
+  status · History · Size · Players · Resources · Seed · reroll · auto-run ·
+  Run. Map settings author here; the relocated selects ride the shared
+  operation gate. Resources is a map setting (`WorldSettings`), not game setup.
+- **History affordance:** the last-run cluster compresses into one icon button
+  (`History`); hover tooltip presents the run (seed/size/players/resources),
+  the accessible name mirrors it, click copies the last seed (the affordance
+  the old inline seed button carried). Tooltip, never a popup.
