@@ -1,21 +1,26 @@
 import React from 'react';
-import { Bolt, Bot, Clipboard, Clock, Dices, MonitorPlay, Play, Radio, RotateCw, Square } from 'lucide-react';
+import { Bolt, Clock, Dices, Play } from 'lucide-react';
 import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui';
 import { MAP_SIZE_SHORT, LAYOUT } from '../constants';
 import { formatResourceMode } from '../utils';
 import type { RecipeSettings, WorldSettings, GenerationStatus } from '../types';
-import {
-  formatRunInGamePhaseLabel,
-  runInGamePrimaryActionLabel,
-  runInGameCanRetryStatus,
-  type RunInGameOperationStatus,
-} from '../../features/runInGame/status';
+import type { RunInGameOperationStatus } from '../../features/runInGame/status';
 import type { RunInGameCurrentRelation } from '../../features/runInGame/clientState';
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from '../../features/civ7Setup/seedPolicy';
-import {
-  formatMapConfigSaveDeployPhaseLabel,
-  type MapConfigSaveDeployStatus,
-} from '../../features/mapConfigSave/status';
+import type { MapConfigSaveDeployStatus } from '../../features/mapConfigSave/status';
+import { GameConsole, type GameConsoleLiveRuntime } from './GameConsole';
+
+// ============================================================================
+// APP FOOTER — two consoles (Pass-3 footer-consoles spec)
+// ============================================================================
+// The footer separates ownership domains: the centered STUDIO console carries
+// studio-runtime status and run controls (status · last run · seed · reroll ·
+// auto-run · Run); the right-docked GAME console (`GameConsole`) carries
+// everything that observes or commands live Civ7. Equal flex side zones keep
+// the studio console exactly centered while space allows; when the game
+// console needs more room, the studio console yields left, never overlaps.
+// ============================================================================
+
 export interface AppFooterProps {
   /** Current generation status */
   status: GenerationStatus;
@@ -52,16 +57,7 @@ export interface AppFooterProps {
   /** Whether current settings differ from last run */
   isDirty: boolean;
   /** Read-only live Civ7 runtime status */
-  liveRuntime?: {
-    status: "idle" | "ok" | "error";
-    turn?: number;
-    seed?: number;
-    readiness?: string;
-    autoplayActive?: boolean;
-    autoplayPaused?: boolean;
-    updatedAt?: string;
-    error?: string;
-  };
+  liveRuntime?: GameConsoleLiveRuntime;
   /** Whether the current Studio config/seed matches the proved live game source. */
   liveGameStudioRelation?: "current" | "stale" | "unknown";
   /** Callback to apply a visible live-runtime or proved-run suggestion back into Studio. */
@@ -135,71 +131,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   const displaySize =
   MAP_SIZE_SHORT[lastGlobalSettings.mapSize] || lastGlobalSettings.mapSize;
   const displayResources = formatResourceMode(lastGlobalSettings.resources);
-  const liveDotClass =
-    liveRuntime?.status === "ok" ? "bg-success" : liveRuntime?.status === "error" ? "bg-destructive" : "bg-muted-foreground";
-  const liveText =
-    liveRuntime?.status === "ok"
-      ? liveRuntime.turn !== undefined || liveRuntime.seed !== undefined
-        ? `Turn ${liveRuntime.turn ?? "?"} · Seed ${liveRuntime.seed ?? "?"}`
-        : liveRuntime.readiness ?? "Civ7 ready"
-      : liveRuntime?.status === "error"
-        ? liveRuntime.error ?? "Live unavailable"
-        : "Live idle";
-  const runInGamePhaseLabel = runInGameStatus ? formatRunInGamePhaseLabel(runInGameStatus.phase) : "Run in Game";
-  const runInGameStateLabel =
-    runInGameStatus && !isRunInGameRunning
-      ? runInGameCurrentRelation === "stale"
-        ? "Stale"
-        : runInGameCurrentRelation === "current"
-          ? "Current"
-          : "Previous"
-      : null;
-  const runInGameDotClass =
-    runInGameCurrentRelation === "stale"
-      ? "bg-warning"
-      : runInGameStatus?.status === "complete"
-      ? "bg-success"
-      : runInGameStatus?.status === "failed" || runInGameStatus?.status === "blocked" || runInGameStatus?.status === "uncertain"
-        ? "bg-destructive"
-        : isRunInGameRunning
-          ? "bg-warning"
-          : "bg-muted-foreground";
-  const runInGameButtonText = runInGamePrimaryActionLabel(runInGameStatus, runInGameCurrentRelation);
   const operationControlsDisabled = isRunning || isRunInGameRunning || isSaveDeployRunning;
-  const liveSyncAvailable =
-    liveRuntime?.status === "ok" &&
-    liveGameStudioRelation === "stale" &&
-    Boolean(onSyncFromLiveGame) &&
-    !operationControlsDisabled;
-  const liveSyncTitle = liveSyncAvailable
-    ? "Apply live game suggestion to Studio"
-    : liveRuntime?.readiness ?? liveRuntime?.error ?? "Civ7 live runtime status";
-  const autoplayControlDisabled = operationControlsDisabled || isAutoplayActionRunning || liveRuntime?.status !== "ok" || !onToggleAutoplay;
-  const autoplayButtonText = isAutoplayActionRunning
-    ? "Autoplay..."
-    : liveRuntime?.autoplayActive
-      ? "Stop Auto"
-      : "Start Auto";
-  const autoplayTitle = liveRuntime?.autoplayActive
-    ? `Stop Civ7 autoplay${liveRuntime.autoplayPaused ? " (paused)" : ""}`
-    : "Start Civ7 autoplay";
-  const saveDeployLabel = saveDeployStatus ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase) : null;
-  const saveDeployTitle = saveDeployStatus
-    ? [
-        `Save/Deploy: ${saveDeployLabel}`,
-        saveDeployStatus.requestId ? `Request: ${saveDeployStatus.requestId}` : null,
-        saveDeployStatus.path ? `Path: ${saveDeployStatus.path}` : null,
-        saveDeployStatus.error ? `Error: ${saveDeployStatus.error}` : null,
-      ].filter(Boolean).join("\n")
-    : "Config save/deploy status";
-  const runInGameTitle = [
-    runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : "Run in Game: launch current config in Civ7",
-    runInGameStatus?.requestId ? `Request: ${runInGameStatus.requestId}` : null,
-    runInGameStatus?.materialization?.mapScript ? `Map: ${runInGameStatus.materialization.mapScript}` : null,
-    runInGameStateLabel ? `Studio state: ${runInGameStateLabel}` : null,
-    runInGameStatus?.error ? `Error: ${runInGameStatus.error}` : null,
-    runInGameStatus?.details?.recoveryHint ? `Recovery: ${runInGameStatus.details.recoveryHint}` : null,
-  ].filter(Boolean).join("\n");
   const updateSetting = <K extends keyof RecipeSettings,>(
   key: K,
   value: RecipeSettings[K]) =>
@@ -226,14 +158,20 @@ export const AppFooter: React.FC<AppFooterProps> = ({
     // for the static markup — not hidden inside hover-only Tooltip content.
     <TooltipProvider>
     <footer
-      className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-center gap-2"
+      className="absolute bottom-4 left-4 right-4 z-20 flex items-center gap-2"
       style={{
         height: FOOTER_HEIGHT
       }}>
 
-      {/* Status Panel */}
+      {/* Equal flex-1 side zones center the studio console exactly while space
+          allows; when the game console needs more than its share, its zone
+          grows and the studio console yields left instead of overlapping. */}
+      <div className="flex-1 min-w-0" />
+
+      {/* Studio console — studio-runtime status + run controls, centered. */}
+
       <div
-        className={`h-10 inline-flex items-center gap-3 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
+        className={`h-10 shrink-0 inline-flex items-center gap-3 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
 
         {/* Status indicator */}
         <div className="flex items-center gap-2">
@@ -255,8 +193,6 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           </span>
         </div>
 
-        <div className={`w-px h-5 ${dividerColor}`} />
-
         {/* Last run info */}
         <div className="flex items-center gap-2 text-data">
           <Tooltip>
@@ -277,63 +213,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <span className={textMuted}>·</span>
           <span className={textPrimary}>{displayResources}</span>
         </div>
-      </div>
 
-      {/* Live Civ7 Panel. The "stale vs live game" emphasis is a warning about
-          data, so it uses the `warning` token (not the slate identity accent). */}
-      <div
-        className={`h-10 inline-flex min-w-0 max-w-[420px] items-center gap-2 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              onClick={onSyncFromLiveGame}
-              disabled={!liveSyncAvailable}
-              aria-label={liveSyncTitle}
-              title={liveSyncTitle}
-              className={`inline-flex h-7 min-w-0 items-center gap-2 rounded border px-2 transition-colors ${
-                liveGameStudioRelation === "stale"
-                  ? "border-warning text-warning ring-1 ring-warning/40"
-                  : "border-transparent"
-              } ${liveSyncAvailable ? "cursor-pointer hover:bg-warning/10" : "cursor-default disabled:opacity-100"}`}>
-
-              <Radio className={`w-3.5 h-3.5 ${liveGameStudioRelation === "stale" ? "text-warning" : textMuted}`} />
-              <div className={`w-2 h-2 shrink-0 rounded-full ${liveDotClass}`} />
-              <span className={`truncate text-data font-medium ${liveGameStudioRelation === "stale" ? "text-warning" : textPrimary}`}>
-                {liveText}
-              </span>
-              {liveRuntime?.autoplayActive ? (
-                <span className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning">
-                  Auto
-                </span>
-              ) : null}
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>{liveSyncTitle}</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onToggleAutoplay}
-              disabled={autoplayControlDisabled}
-              aria-label={autoplayTitle}
-              title={autoplayTitle}
-              className={`h-7 px-2 ${liveRuntime?.autoplayActive ? "border-warning/60 text-warning" : ""}`}>
-
-              {liveRuntime?.autoplayActive ? <Square className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
-              <span>{autoplayButtonText}</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{autoplayTitle}</TooltipContent>
-        </Tooltip>
-      </div>
-
-      {/* Run Controls Panel */}
-      <div
-        className={`h-10 inline-flex items-center gap-2 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
+        <div className={`w-px h-5 ${dividerColor}`} />
 
         {/* Seed input */}
         <span
@@ -393,91 +274,6 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <TooltipContent>Auto-run: run current seed on config changes</TooltipContent>
         </Tooltip>
 
-        {/* Run in Game button */}
-        {saveDeployStatus && saveDeployStatus.status !== "complete" ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                role="status"
-                aria-label={saveDeployTitle}
-                title={saveDeployTitle}
-                className={`hidden max-w-[150px] items-center gap-1.5 overflow-hidden text-data font-medium ${textPrimary} lg:inline-flex`}>
-
-                <div className={`h-2 w-2 shrink-0 rounded-full ${saveDeployStatus.status === "failed" ? "bg-destructive" : "bg-warning"}`} />
-                <span className="truncate">{saveDeployLabel}</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent className="whitespace-pre-line">{saveDeployTitle}</TooltipContent>
-          </Tooltip>
-        ) : null}
-        {runInGameStatus ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                role="status"
-                aria-label={runInGameTitle}
-                title={runInGameTitle}
-                className={`hidden max-w-[180px] items-center gap-1.5 overflow-hidden text-data font-medium ${textPrimary} lg:inline-flex`}>
-
-                <div className={`h-2 w-2 shrink-0 rounded-full ${runInGameDotClass}`} />
-                <span className="truncate">{runInGamePhaseLabel}</span>
-                {runInGameStateLabel ? (
-                  <span className={`shrink-0 rounded border px-1 py-0.5 text-label ${runInGameCurrentRelation === "stale" ? "border-warning/40 text-warning" : "border-border text-muted-foreground"}`}>
-                    {runInGameStateLabel}
-                  </span>
-                ) : null}
-              </div>
-            </TooltipTrigger>
-            <TooltipContent className="whitespace-pre-line">{runInGameTitle}</TooltipContent>
-          </Tooltip>
-        ) : null}
-        {runInGameStatus && onRunInGameRetryStatus && runInGameCanRetryStatus(runInGameStatus) ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onRunInGameRetryStatus}
-                aria-label="Refresh Run in Game status">
-
-                <RotateCw className="w-3.5 h-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Refresh Run in Game status</TooltipContent>
-          </Tooltip>
-        ) : null}
-        {runInGameStatus && onCopyRunInGameDiagnostics ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onCopyRunInGameDiagnostics}
-                aria-label="Copy Run in Game diagnostics">
-
-                <Clipboard className="w-3.5 h-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Copy Run in Game diagnostics</TooltipContent>
-          </Tooltip>
-        ) : null}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              onClick={onRunInGame}
-              disabled={operationControlsDisabled}
-              variant="outline"
-              aria-label={runInGameTitle}
-              title={runInGameTitle}
-              className={isRunInGameRunning ? 'opacity-70 cursor-wait' : undefined}>
-
-              <MonitorPlay className="w-3.5 h-3.5" />
-              <span>{runInGameButtonText}</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent className="whitespace-pre-line">{runInGameTitle}</TooltipContent>
-        </Tooltip>
-
         {/* Run button — the one filled action; dirty emphasis is the slate accent */}
         <Button
           onClick={onRun}
@@ -490,6 +286,25 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <Play className="w-3 h-3" />
           <span>{isRunning ? 'Running...' : 'Run'}</span>
         </Button>
+      </div>
+
+      {/* Game console — everything live-Civ7, right-docked, free to grow. */}
+      <div className="flex-1 flex items-center justify-end">
+        <GameConsole
+          liveRuntime={liveRuntime}
+          liveGameStudioRelation={liveGameStudioRelation}
+          onSyncFromLiveGame={onSyncFromLiveGame}
+          isAutoplayActionRunning={isAutoplayActionRunning}
+          onToggleAutoplay={onToggleAutoplay}
+          operationControlsDisabled={operationControlsDisabled}
+          isRunInGameRunning={isRunInGameRunning}
+          runInGameStatus={runInGameStatus}
+          runInGameCurrentRelation={runInGameCurrentRelation}
+          onRunInGame={onRunInGame}
+          onRunInGameRetryStatus={onRunInGameRetryStatus}
+          onCopyRunInGameDiagnostics={onCopyRunInGameDiagnostics}
+          saveDeployStatus={saveDeployStatus}
+        />
       </div>
     </footer>
     </TooltipProvider>);
