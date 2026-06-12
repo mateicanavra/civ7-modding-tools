@@ -90,6 +90,8 @@ import {
 } from "./features/liveRuntime/model";
 import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
+import { createStudioRecipeDagClient, type RecipeDagResult } from "./features/recipeDag/client";
+import { RecipeDagView } from "./features/recipeDag/RecipeDagView";
 import {
   findVariantIdForEra,
   findVariantKeyForEra,
@@ -126,6 +128,16 @@ import {
 import { getOverlaySuggestions } from "./recipes/overlaySuggestions";
 
 const civ7ControlOrpcClient = createStudioCiv7ControlOrpcClient();
+const recipeDagClient = createStudioRecipeDagClient();
+
+type StudioView = "map" | "dag";
+
+type RecipeDagClientState = Readonly<{
+  status: "idle" | "loading" | "ready" | "error";
+  recipeId: string | null;
+  dag: RecipeDagResult | null;
+  error: string | null;
+}>;
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -699,6 +711,7 @@ function AppContent(props: AppContentProps) {
   const [overlayVariantKeyPreference, setOverlayVariantKeyPreference] = useState<string | null>(null);
   const [eraMode, setEraMode] = useState<"auto" | "fixed">("auto");
   const [manualEra, setManualEra] = useState(1);
+  const [activeStudioView, setActiveStudioView] = useState<StudioView>("map");
   const [recipeSectionCollapsed, setRecipeSectionCollapsed] = useState(false);
   const [configSectionCollapsed, setConfigSectionCollapsed] = useState(false);
   const [exploreStageExpanded, setExploreStageExpanded] = useState(true);
@@ -719,6 +732,13 @@ function AppContent(props: AppContentProps) {
     preset: "none",
     seed: "123",
   });
+  const [recipeDagState, setRecipeDagState] = useState<RecipeDagClientState>({
+    status: "idle",
+    recipeId: null,
+    dag: null,
+    error: null,
+  });
+  const [expandedRecipeDagStageIds, setExpandedRecipeDagStageIds] = useState<ReadonlySet<string>>(() => new Set());
   const [setupConfig, setSetupConfig] = useState<Civ7StudioSetupConfig>(() =>
     initialAuthoringState?.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG
   );
@@ -740,6 +760,47 @@ function AppContent(props: AppContentProps) {
     readStoredRunInGameSourceSnapshot()
   );
   const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(null);
+
+  useEffect(() => {
+    if (activeStudioView !== "dag") return;
+    const recipeId = recipeSettings.recipe;
+    let cancelled = false;
+    setRecipeDagState((prev) => ({
+      status: "loading",
+      recipeId,
+      dag: prev.recipeId === recipeId ? prev.dag : null,
+      error: null,
+    }));
+    void recipeDagClient.recipeDag.get({ recipeId }).then(
+      (dag: RecipeDagResult) => {
+        if (cancelled) return;
+        setRecipeDagState({
+          status: "ready",
+          recipeId,
+          dag,
+          error: null,
+        });
+        const firstStageId = dag.stages[0]?.stageId;
+        if (firstStageId) {
+          setExpandedRecipeDagStageIds((prev) => (
+            prev.size > 0 ? prev : new Set([firstStageId])
+          ));
+        }
+      },
+      (err: unknown) => {
+        if (cancelled) return;
+        setRecipeDagState({
+          status: "error",
+          recipeId,
+          dag: null,
+          error: formatErrorForUi(err),
+        });
+      }
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [activeStudioView, recipeSettings.recipe]);
 
   const overlaySuggestions = useMemo(() => getOverlaySuggestions(recipeSettings.recipe), [recipeSettings.recipe]);
   const overlaySelection = overlaySuggestions.find((opt) => opt.id === overlaySelectionId) ?? null;
@@ -1211,6 +1272,14 @@ function AppContent(props: AppContentProps) {
 
   const [selectedStageId, setSelectedStageId] = useState("");
   const [selectedStepId, setSelectedStepId] = useState("");
+  const handleRecipeDagStageToggle = useCallback((stageId: string) => {
+    setExpandedRecipeDagStageIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(stageId)) next.delete(stageId);
+      else next.add(stageId);
+      return next;
+    });
+  }, []);
 
   const recipeOptions = useMemo(
     () => STUDIO_RECIPE_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label })),
@@ -2741,6 +2810,21 @@ function AppContent(props: AppContentProps) {
     return true;
   }, [showGrid, viz.effectiveLayer]);
 
+  const recipeDagView = (
+    <RecipeDagView
+      recipeId={recipeSettings.recipe}
+      dag={recipeDagState.recipeId === recipeSettings.recipe ? recipeDagState.dag : null}
+      status={recipeDagState.recipeId === recipeSettings.recipe ? recipeDagState.status : "idle"}
+      error={recipeDagState.recipeId === recipeSettings.recipe ? recipeDagState.error : null}
+      lightMode={isLightMode}
+      expandedStageIds={expandedRecipeDagStageIds}
+      selectedStageId={selectedStageId || null}
+      onToggleStage={handleRecipeDagStageToggle}
+      onSelectStage={setSelectedStageId}
+      topInset={panelTop}
+    />
+  );
+
   const canvas = (
     <div className="absolute inset-0">
       <div className={`absolute inset-0 ${isLightMode ? "bg-[#f5f5f7]" : "bg-[#0a0a12]"}`} />
@@ -2796,6 +2880,8 @@ function AppContent(props: AppContentProps) {
 
   const header = (
     <AppHeader
+      activeStudioView={activeStudioView}
+      onActiveStudioViewChange={setActiveStudioView}
       isLightMode={isLightMode}
       themePreference={themePreference}
       onThemeCycle={cyclePreference}
@@ -2982,7 +3068,7 @@ function AppContent(props: AppContentProps) {
 
   return (
     <div ref={containerRef} className={`relative w-full min-h-screen ${isLightMode ? "bg-[#f5f5f7]" : "bg-[#0a0a12]"}`}>
-      {canvas}
+      {activeStudioView === "dag" ? recipeDagView : canvas}
       {presetDialogs}
       <input
         ref={importInputRef}
@@ -2992,17 +3078,21 @@ function AppContent(props: AppContentProps) {
         onChange={handleImportFileChange}
       />
 
-      <div className="absolute left-4 z-10" style={{ top: panelTop }}>
-        {leftPanel}
-      </div>
-      <div className="absolute right-4 z-10" style={{ top: panelTop }}>
-        {rightPanel}
-      </div>
+      {activeStudioView === "map" ? (
+        <>
+          <div className="absolute left-4 z-10" style={{ top: panelTop }}>
+            {leftPanel}
+          </div>
+          <div className="absolute right-4 z-10" style={{ top: panelTop }}>
+            {rightPanel}
+          </div>
+        </>
+      ) : null}
 
       {header}
       {footer}
 
-      {error ? (
+      {activeStudioView === "map" && error ? (
         <div
           className="absolute left-1/2 -translate-x-1/2 z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-red-500/30 bg-red-950/40 px-4 py-2 text-[12px] text-red-200 backdrop-blur-sm"
           style={{ top: panelTop }}
