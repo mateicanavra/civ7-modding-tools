@@ -28,6 +28,8 @@ export type RunInGameMaterializationStatus = Readonly<{
   generatedSourceScript?: RunInGameFileIdentity;
   localModScript?: RunInGameFileIdentity;
   deployedModScript?: RunInGameFileIdentity;
+  localModScriptContent?: RunInGameFileContentProof;
+  deployedModScriptContent?: RunInGameFileContentProof;
 }>;
 
 export type RunInGameFileIdentity = Readonly<{
@@ -36,6 +38,17 @@ export type RunInGameFileIdentity = Readonly<{
   sizeBytes: number;
   mtimeMs: number;
   mtimeIso: string;
+}>;
+
+export type RunInGameFileContentProof = Readonly<{
+  path: string;
+  markers: ReadonlyArray<RunInGameContentMarkerProof>;
+}>;
+
+export type RunInGameContentMarkerProof = Readonly<{
+  id: string;
+  marker: string;
+  present: boolean;
 }>;
 
 export type RunInGameSourceSnapshotProof = Readonly<{
@@ -192,6 +205,8 @@ export type RunInGameExactAuthorshipProof = Readonly<{
     generatedSourceScript?: RunInGameFileIdentity;
     localModScript?: RunInGameFileIdentity;
     deployedModScript?: RunInGameFileIdentity;
+    localModScriptContent?: RunInGameFileContentProof;
+    deployedModScriptContent?: RunInGameFileContentProof;
   }>;
   civSetup: Readonly<{
     mapScript?: string;

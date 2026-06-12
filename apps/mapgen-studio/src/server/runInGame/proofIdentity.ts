@@ -3,12 +3,30 @@ import { readFile, stat } from "node:fs/promises";
 import { isAbsolute, relative, resolve } from "node:path";
 
 import type {
+  RunInGameContentMarkerProof,
   RunInGameExactAuthorshipProof,
+  RunInGameFileContentProof,
   RunInGameFileIdentity,
   RunInGameMaterializationStatus,
   RunInGameRequestStatus,
   RunInGameSourceSnapshotProof,
 } from "../../features/runInGame/status";
+
+export type RunInGameRequiredContentMarker = Readonly<{
+  id: string;
+  marker: string;
+}>;
+
+const NATIVE_RIVER_MODELING_CONTENT_MARKERS: readonly RunInGameRequiredContentMarker[] = [
+  {
+    id: "native-river-modeling-trace",
+    marker: "map.rivers.officialCivRiverModeling",
+  },
+  {
+    id: "native-river-modeling-checkpoint",
+    marker: "POST-MODEL-RIVERS",
+  },
+] as const;
 
 export async function fileIdentity(args: {
   repoRoot: string;
@@ -27,6 +45,46 @@ export async function fileIdentity(args: {
     mtimeMs: metadata.mtimeMs,
     mtimeIso: metadata.mtime.toISOString(),
   };
+}
+
+export async function fileContentMarkerProof(args: {
+  repoRoot: string;
+  path: string;
+  markers: ReadonlyArray<RunInGameRequiredContentMarker>;
+  exposeAs?: "relative-to-repo" | "absolute";
+}): Promise<RunInGameFileContentProof> {
+  const absolutePath = isAbsolute(args.path) ? args.path : resolve(args.repoRoot, args.path);
+  const text = await readFile(absolutePath, "utf8");
+  return {
+    path: args.exposeAs === "absolute" ? absolutePath : relative(args.repoRoot, absolutePath),
+    markers: args.markers.map((marker) => ({
+      id: marker.id,
+      marker: marker.marker,
+      present: text.includes(marker.marker),
+    })),
+  };
+}
+
+export function runInGameRequiredMaterializationMarkers(args: {
+  requestId: string;
+  configHash: string;
+  envelopeHash: string;
+}): ReadonlyArray<RunInGameRequiredContentMarker> {
+  return [
+    {
+      id: "run-request-id",
+      marker: args.requestId,
+    },
+    {
+      id: "run-config-hash",
+      marker: args.configHash,
+    },
+    {
+      id: "run-envelope-hash",
+      marker: args.envelopeHash,
+    },
+    ...NATIVE_RIVER_MODELING_CONTENT_MARKERS,
+  ];
 }
 
 export function buildRunInGameSourceSnapshotProof(args: {
@@ -86,6 +144,19 @@ export function buildRunInGameExactAuthorshipProof(args: {
   const localModScript = args.localModScript ?? args.materialization.localModScript;
   const deployedModScript = args.deployedModScript ?? args.materialization.deployedModScript;
   const unresolvedLinks: string[] = [];
+  const requiredMaterializationMarkers = args.materialization.configHash && args.materialization.envelopeHash
+    ? runInGameRequiredMaterializationMarkers({
+        requestId: args.requestId,
+        configHash: args.materialization.configHash,
+        envelopeHash: args.materialization.envelopeHash,
+      })
+    : undefined;
+  const materializationScriptLinks = runInGameMaterializationScriptUnresolvedLinks({
+    materialization: args.materialization,
+    localModScript,
+    deployedModScript,
+    requiredMarkers: requiredMaterializationMarkers,
+  });
 
   addMissing(unresolvedLinks, Boolean(args.sourceSnapshot?.identityHash), "source-snapshot.identity-hash");
   addMissing(unresolvedLinks, args.sourceSnapshot?.recipeSettings !== undefined, "source-snapshot.recipe-settings");
@@ -135,7 +206,7 @@ export function buildRunInGameExactAuthorshipProof(args: {
   addStringMismatch(unresolvedLinks, args.logProof?.envelopeHash, args.materialization.envelopeHash, "swooper-log.envelope-hash-mismatch");
   addNumberMismatch(unresolvedLinks, args.logProof?.dimensions.width, runtimeSummary.width, "runtime.log-width-mismatch");
   addNumberMismatch(unresolvedLinks, args.logProof?.dimensions.height, runtimeSummary.height, "runtime.log-height-mismatch");
-  addStringMismatch(unresolvedLinks, localModScript?.sha256, deployedModScript?.sha256, "materialization.deployed-mod-script-hash-mismatch");
+  unresolvedLinks.push(...materializationScriptLinks);
 
   return {
     status: unresolvedLinks.length === 0 ? "complete" : "unresolved",
@@ -162,6 +233,8 @@ export function buildRunInGameExactAuthorshipProof(args: {
       ...(generatedSourceScript ? { generatedSourceScript } : {}),
       ...(localModScript ? { localModScript } : {}),
       ...(deployedModScript ? { deployedModScript } : {}),
+      ...(args.materialization.localModScriptContent ? { localModScriptContent: args.materialization.localModScriptContent } : {}),
+      ...(args.materialization.deployedModScriptContent ? { deployedModScriptContent: args.materialization.deployedModScriptContent } : {}),
     },
     civSetup: {
       ...(setupReadback.mapScript === undefined ? {} : { mapScript: setupReadback.mapScript }),
@@ -184,6 +257,62 @@ export function buildRunInGameExactAuthorshipProof(args: {
     ...(args.logProof ? { log: args.logProof } : {}),
     unresolvedLinks,
   };
+}
+
+export function runInGameMaterializationScriptUnresolvedLinks(args: {
+  materialization: RunInGameMaterializationStatus;
+  localModScript?: RunInGameFileIdentity;
+  deployedModScript?: RunInGameFileIdentity;
+  requiredMarkers?: ReadonlyArray<RunInGameRequiredContentMarker>;
+}): string[] {
+  const localModScript = args.localModScript ?? args.materialization.localModScript;
+  const deployedModScript = args.deployedModScript ?? args.materialization.deployedModScript;
+  const links: string[] = [];
+  addStringMismatch(links, localModScript?.sha256, deployedModScript?.sha256, "materialization.deployed-mod-script-hash-mismatch");
+  addMissing(links, Boolean(args.materialization.localModScriptContent), "materialization.local-mod-script-content-proof");
+  addMissing(links, Boolean(args.materialization.deployedModScriptContent), "materialization.deployed-mod-script-content-proof");
+  addStringMismatch(
+    links,
+    args.materialization.localModScriptContent?.path,
+    localModScript?.path,
+    "materialization.local-mod-script-content-path-mismatch",
+  );
+  addStringMismatch(
+    links,
+    args.materialization.deployedModScriptContent?.path,
+    deployedModScript?.path,
+    "materialization.deployed-mod-script-content-path-mismatch",
+  );
+  pushMissingContentMarkers(
+    links,
+    args.materialization.localModScriptContent?.markers,
+    "materialization.local-mod-script-marker",
+    args.requiredMarkers,
+  );
+  pushMissingContentMarkers(
+    links,
+    args.materialization.deployedModScriptContent?.markers,
+    "materialization.deployed-mod-script-marker",
+    args.requiredMarkers,
+  );
+  return links;
+}
+
+function pushMissingContentMarkers(
+  links: string[],
+  markers: ReadonlyArray<RunInGameContentMarkerProof> | undefined,
+  prefix: string,
+  requiredMarkers: ReadonlyArray<RunInGameRequiredContentMarker> | undefined,
+): void {
+  if (markers === undefined) return;
+  for (const required of requiredMarkers ?? []) {
+    if (!markers.some((marker) => marker.id === required.id)) {
+      links.push(`${prefix}.${required.id}`);
+    }
+  }
+  for (const marker of markers) {
+    if (!marker.present) links.push(`${prefix}.${marker.id}`);
+  }
 }
 
 function addMissing(links: string[], condition: boolean, link: string): void {

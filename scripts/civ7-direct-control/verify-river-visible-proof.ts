@@ -6,6 +6,7 @@ import { dirname, resolve } from "node:path";
 
 import type {
   FinalSurfaceParityProof,
+  NativeRiverObjectSnapshot,
   RiverMetadataSnapshot,
   SurfaceGrid,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
@@ -40,6 +41,14 @@ type RiverSample = Readonly<{
   liveTerrainNavigableRiver: number | null;
   liveNavigableRiver: number | null;
   liveRiverType: number | null;
+  nativeRiverObjects: ReadonlyArray<NativeRiverSampleBinding>;
+}>;
+
+type NativeRiverSampleBinding = Readonly<{
+  riverIndex: number;
+  riverType: number | null;
+  connectedToOcean: boolean | null;
+  plotIndex: number;
 }>;
 
 type ScreenshotProof = Readonly<{
@@ -48,6 +57,15 @@ type ScreenshotProof = Readonly<{
   sizeBytes: number;
   captureMode: CaptureMode;
   target: MapLocation;
+}>;
+
+type NativeRiverObjectsProof = Readonly<{
+  status: "present" | "zero-rivers" | "missing" | "unavailable";
+  numRivers: number | null;
+  sampleCount: number;
+  sampledPlotCount: number;
+  samplesWithPlots: number;
+  blockedBy: ReadonlyArray<string>;
 }>;
 
 type RiverVisibleProofStatus =
@@ -70,6 +88,7 @@ export type RiverVisibleProof = Readonly<{
     sampleCount: number;
     samples: ReadonlyArray<RiverSample>;
   }>;
+  nativeRiverObjects: NativeRiverObjectsProof;
   camera: Readonly<{
     status: "bound-to-sample" | "missing" | "target-not-sampled";
     source: CameraSource;
@@ -236,9 +255,18 @@ export function buildRiverVisibleProofOutput(args: {
   const maxSamples = Math.max(1, Math.trunc(args.maxSamples ?? 8));
   const parityProofHash = hashValue(args.parity);
   const allLiveSamples = collectLiveRiverSamples(args.parity.live.riverMetadata, args.parity.local.riverMetadata);
-  const selectedSamples = sampleEvenly(allLiveSamples, maxSamples);
+  const nativeRiverPlotMembership = nativeRiverPlotMembershipByIndex(args.parity.live.nativeRiverObjects);
+  const selectedSamples = sampleEvenly(allLiveSamples, maxSamples).map((sample) => ({
+    ...sample,
+    nativeRiverObjects: nativeRiverPlotMembership.get(sample.index) ?? [],
+  }));
+  const nativeRiverObjects = nativeRiverObjectsProof(args.parity.live.nativeRiverObjects);
   const target = args.cameraTarget;
-  const targetIsSampled = target !== undefined && selectedSamples.some((sample) => sameLocation(sample, target));
+  const targetSample = target === undefined
+    ? undefined
+    : selectedSamples.find((sample) => sameLocation(sample, target));
+  const targetIsSampled = targetSample !== undefined;
+  const targetIsNativeRiverObject = Boolean(targetSample && targetSample.nativeRiverObjects.length > 0);
   const screenshots = args.screenshots ?? [];
   const missingPaths = screenshots.filter((path) => !existsSync(path));
   const screenshotItems = missingPaths.length === 0 && target !== undefined && targetIsSampled
@@ -252,9 +280,22 @@ export function buildRiverVisibleProofOutput(args: {
   if (args.parity.proofClaims.claims["exact-authorship"]?.status !== "pass") {
     blockedBy.add("final-surface-parity.exact-authorship-pass");
   }
+  if (nativeRiverObjects.status === "missing") {
+    blockedBy.add("river-visible.native-river-objects");
+  } else if (nativeRiverObjects.status === "unavailable") {
+    blockedBy.add("river-visible.native-river-objects-readable");
+  } else if (nativeRiverObjects.status === "zero-rivers") {
+    blockedBy.add("river-visible.native-river-objects-present");
+  }
+  if (nativeRiverObjects.status === "present" && nativeRiverObjects.samplesWithPlots === 0) {
+    blockedBy.add("river-visible.native-river-object-plots");
+  }
   if (allLiveSamples.length === 0) blockedBy.add("river-visible.live-terrain-river-samples");
   if (target === undefined) blockedBy.add("river-visible.camera-target");
   if (target !== undefined && !targetIsSampled) blockedBy.add("river-visible.camera-target-sampled-live-river");
+  if (target !== undefined && targetIsSampled && !targetIsNativeRiverObject) {
+    blockedBy.add("river-visible.camera-target-native-river-object");
+  }
   if (args.cameraSource === undefined || args.cameraSource === "unknown") {
     blockedBy.add("river-visible.camera-source");
   }
@@ -297,6 +338,7 @@ export function buildRiverVisibleProofOutput(args: {
       sampleCount: selectedSamples.length,
       samples: selectedSamples,
     },
+    nativeRiverObjects,
     camera: {
       status: cameraStatus,
       source: args.cameraSource ?? "unknown",
@@ -324,6 +366,66 @@ export function buildRiverVisibleProofOutput(args: {
   };
 }
 
+function nativeRiverObjectsProof(snapshot: NativeRiverObjectSnapshot | undefined): NativeRiverObjectsProof {
+  if (snapshot === undefined) {
+    return {
+      status: "missing",
+      numRivers: null,
+      sampleCount: 0,
+      sampledPlotCount: 0,
+      samplesWithPlots: 0,
+      blockedBy: ["native-river-objects.not-provided"],
+    };
+  }
+  const blockedBy = snapshot.blockedBy ?? [];
+  const sampledPlotCount = nativeRiverSampledPlotCount(snapshot);
+  const samplesWithPlots = snapshot.samples?.filter((sample) => (sample.plots?.length ?? 0) > 0).length ?? 0;
+  if (!snapshot.exists || snapshot.numRivers === null || blockedBy.length > 0) {
+    return {
+      status: "unavailable",
+      numRivers: snapshot.numRivers,
+      sampleCount: snapshot.sampleCount,
+      sampledPlotCount,
+      samplesWithPlots,
+      blockedBy,
+    };
+  }
+  return {
+    status: snapshot.numRivers === 0 ? "zero-rivers" : "present",
+    numRivers: snapshot.numRivers,
+    sampleCount: snapshot.sampleCount,
+    sampledPlotCount,
+    samplesWithPlots,
+    blockedBy: [],
+  };
+}
+
+function nativeRiverPlotMembershipByIndex(
+  snapshot: NativeRiverObjectSnapshot | undefined,
+): ReadonlyMap<number, ReadonlyArray<NativeRiverSampleBinding>> {
+  const membership = new Map<number, NativeRiverSampleBinding[]>();
+  for (const sample of snapshot?.samples ?? []) {
+    for (const plot of sample.plots ?? []) {
+      if (plot.index === null) continue;
+      const existing = membership.get(plot.index) ?? [];
+      existing.push({
+        riverIndex: sample.index,
+        riverType: sample.riverType,
+        connectedToOcean: sample.connectedToOcean,
+        plotIndex: plot.index,
+      });
+      membership.set(plot.index, existing);
+    }
+  }
+  return membership;
+}
+
+function nativeRiverSampledPlotCount(snapshot: NativeRiverObjectSnapshot | undefined): number {
+  let count = 0;
+  for (const sample of snapshot?.samples ?? []) count += sample.plots?.length ?? 0;
+  return count;
+}
+
 function collectLiveRiverSamples(
   live: RiverMetadataSnapshot | undefined,
   local: RiverMetadataSnapshot | undefined
@@ -345,6 +447,7 @@ function collectLiveRiverSamples(
       liveTerrainNavigableRiver: gridValue(terrain, index),
       liveNavigableRiver: gridValue(navigable, index),
       liveRiverType: gridValue(riverType, index),
+      nativeRiverObjects: [],
     });
   }
   return samples;

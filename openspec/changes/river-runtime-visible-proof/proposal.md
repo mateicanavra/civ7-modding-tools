@@ -18,15 +18,16 @@ sampled live river tiles.
   centering the camera, recording camera/zoom/visibility state, and capturing
   screenshots.
 - Add a river visible-proof runner that composes exact-authored run, final
-  surface parity, live river tile sampling, camera targeting, screenshots, and
-  explicit visual verdict.
+  surface parity, live river tile sampling, native `MapRivers` plot membership,
+  camera targeting, screenshots, and explicit visual verdict.
 - Add positive and negative controls so stale/off-target screenshots cannot
   pass.
 
 ## Requires
 
 - Exact-authorship proof.
-- Live terrain readback and sampled river coordinates.
+- Live terrain readback, sampled river coordinates, and native `MapRivers`
+  object plot readback for the same run.
 - A currently running Civ session for visual proof.
 
 ## Enables Parallel Work
@@ -52,8 +53,8 @@ sampled live river tiles.
 ## Stop Conditions
 
 - Camera cannot be centered on sampled river tiles.
-- Screenshot cannot be tied to request id, seed, dimensions, camera state, and
-  sampled coordinates.
+- Screenshot cannot be tied to request id, seed, dimensions, camera state,
+  sampled coordinates, and native river object membership.
 - Visual verdict is missing or based only on terrain readback.
 
 ## Verification Gates

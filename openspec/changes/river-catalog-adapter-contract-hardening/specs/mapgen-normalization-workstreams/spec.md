@@ -17,6 +17,9 @@ and Hydrology river-class truth.
 - **AND** repo-owned constants remain owned by the map-policy source
 
 #### Scenario: Standard MapGen stages author rivers
-- **WHEN** standard stages materialize MapGen-owned rivers
-- **THEN** they do not call `adapter.modelRivers()`
-- **AND** `modelRivers()` remains an engine-generator compatibility surface
+- **WHEN** `map-rivers` materializes Hydrology-owned river truth into Civ
+  terrain/runtime state
+- **THEN** it may call `adapter.modelRivers()` only as the bounded Civ-native
+  materialization pass described by `@civ7/map-policy`
+- **AND** `modelRivers()` must not become an upstream Hydrology generator,
+  public length-selector model, or proof substitute for same-run readback

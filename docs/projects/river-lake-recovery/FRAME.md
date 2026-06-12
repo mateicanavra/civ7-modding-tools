@@ -153,6 +153,19 @@ Sources:
 | Studio hydrology visualization and status ladder | Studio / DX layer | Hydrology truth, projection logic |
 | Product acceptance | OpenSpec/product proof records plus reviewer disposition | unit tests or code slices self-closing |
 
+## Studio DAG Step Display
+
+For stage/step DAG navigation, stages own the high-level topology and steps
+must be disclosed as compact one-line rows inside their parent stage. A stage
+row should behave like a long rectangular shutter: collapsed by default when
+appropriate, smoothly expandable/collapsible, and preserving the user's place
+while exposing per-step proof, artifact, and visualization details on demand.
+
+The one-line step row is the stable scan surface. Expanded content may show
+hydrology/rivers/lakes/floodplains proof detail, but it must not turn the DAG
+into a dense wall of always-visible nested cards. This is a Studio DX
+requirement, not a Hydrology truth or projection policy.
+
 ## System Dynamics
 
 Dominant reinforcing loop:

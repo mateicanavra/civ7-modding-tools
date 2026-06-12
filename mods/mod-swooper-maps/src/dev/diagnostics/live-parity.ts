@@ -51,6 +51,7 @@ export type FinalSurfaceSnapshot = Readonly<{
   envelopeHash?: string;
   surfaces: Readonly<Record<FinalSurfaceKey, SurfaceGrid>>;
   riverMetadata?: RiverMetadataSnapshot;
+  nativeRiverObjects?: NativeRiverObjectSnapshot;
   evidence?: Readonly<Record<string, unknown>>;
 }>;
 
@@ -88,6 +89,36 @@ export type RiverMetadataSnapshot = Readonly<{
   minorRiverUnsupportedReason?: string;
 }>;
 
+export type NativeRiverObjectSampleSnapshot = Readonly<{
+  index: number;
+  riverType: number | null;
+  plotCount: number | null;
+  plotSampleCount?: number;
+  plotTruncated?: boolean;
+  plots?: ReadonlyArray<NativeRiverObjectPlotSnapshot>;
+  connectedToOcean: boolean | null;
+}>;
+
+export type NativeRiverObjectPlotSnapshot = Readonly<{
+  raw: unknown;
+  index: number | null;
+  location: Readonly<{ x: number; y: number }> | null;
+}>;
+
+export type NativeRiverObjectSnapshot = Readonly<{
+  exists: boolean;
+  numRivers: number | null;
+  sampleCount: number;
+  samples?: ReadonlyArray<NativeRiverObjectSampleSnapshot>;
+  blockedBy?: ReadonlyArray<string>;
+}>;
+
+export type NativeRiverObjectReadbackStatus =
+  | "present"
+  | "zero-rivers"
+  | "unavailable"
+  | "not-provided";
+
 export type RiverMetadataParityExample = Readonly<{
   x: number;
   y: number;
@@ -113,6 +144,9 @@ export type RiverMetadataParityReport = Readonly<{
   liveRiverTileCount: number;
   liveNavigableRiverTileCount: number;
   liveMinorRiverTileCount: number;
+  nativeRiverObjectReadbackStatus: NativeRiverObjectReadbackStatus;
+  nativeRiverObjectCount: number | null;
+  nativeRiverObjectSampleCount: number;
   projectedVsLiveTerrainMismatchCount: number;
   projectedVsLiveMetadataMismatchCount: number;
   liveTerrainVsMetadataMismatchCount: number;
@@ -834,6 +868,7 @@ export function liveGridToFinalSurfaceSnapshot(args: {
   seed?: number;
   configHash?: string;
   envelopeHash?: string;
+  nativeRiverObjects?: NativeRiverObjectSnapshot;
   evidence?: Readonly<Record<string, unknown>>;
 }): FinalSurfaceSnapshot {
   const { width, height } = args;
@@ -880,6 +915,7 @@ export function liveGridToFinalSurfaceSnapshot(args: {
     ...(args.envelopeHash === undefined ? {} : { envelopeHash: args.envelopeHash }),
     surfaces,
     riverMetadata,
+    ...(args.nativeRiverObjects === undefined ? {} : { nativeRiverObjects: args.nativeRiverObjects }),
     ...(args.evidence === undefined ? {} : { evidence: args.evidence }),
   };
 }
@@ -1079,6 +1115,16 @@ export function buildFinalSurfaceParityProof(args: {
     unresolvedLinks.push("river-metadata.dimensions");
   } else if (riverMetadataParity?.status === "mismatch") {
     unresolvedLinks.push("river-metadata.mismatch");
+  }
+  if (riverMetadataParity && riverMetadataParityExpectsNativeObjects(riverMetadataParity)) {
+    if (riverMetadataParity.nativeRiverObjectReadbackStatus === "zero-rivers") {
+      unresolvedLinks.push("river-metadata.native-river-objects");
+    } else if (
+      riverMetadataParity.nativeRiverObjectReadbackStatus === "unavailable" ||
+      riverMetadataParity.nativeRiverObjectReadbackStatus === "not-provided"
+    ) {
+      unresolvedLinks.push("river-metadata.native-river-readback");
+    }
   }
   if (
     riverMetadataParity?.minorRiverStampingSupported === false &&
@@ -1334,6 +1380,45 @@ function metadataReadbackClaim(
       ["river-metadata.readback"]
     );
   }
+  if (parity.status === "readback-missing") {
+    return proofClaim(
+      "metadata-readback",
+      "unresolved",
+      "Civ river metadata readback is missing or incomplete.",
+      ["river-metadata.readback"]
+    );
+  }
+  if (parity.status === "dimension-mismatch" || parity.status === "mismatch") {
+    return proofClaim(
+      "metadata-readback",
+      "fail",
+      "Civ river metadata comparison failed.",
+      [`river-metadata.${parity.status}`]
+    );
+  }
+  if (
+    riverMetadataParityExpectsNativeObjects(parity) &&
+    (parity.nativeRiverObjectReadbackStatus === "not-provided" ||
+      parity.nativeRiverObjectReadbackStatus === "unavailable")
+  ) {
+    return proofClaim(
+      "metadata-readback",
+      "unresolved",
+      "Civ native MapRivers object readback is missing or unavailable for a run with river surfaces.",
+      ["river-metadata.native-river-readback"]
+    );
+  }
+  if (
+    riverMetadataParityExpectsNativeObjects(parity) &&
+    parity.nativeRiverObjectReadbackStatus === "zero-rivers"
+  ) {
+    return proofClaim(
+      "metadata-readback",
+      "fail",
+      "Projected or live river terrain exists, but Civ MapRivers reports zero native river objects.",
+      ["river-metadata.native-river-objects"]
+    );
+  }
   if (parity.status === "match") {
     return proofClaim(
       "metadata-readback",
@@ -1348,14 +1433,6 @@ function metadataReadbackClaim(
       "fail",
       "Live terrain contains navigable-river terrain while Civ river metadata remains divergent.",
       ["river-metadata.terrain-match-metadata-divergent"]
-    );
-  }
-  if (parity.status === "readback-missing") {
-    return proofClaim(
-      "metadata-readback",
-      "unresolved",
-      "Civ river metadata readback is missing or incomplete.",
-      ["river-metadata.readback"]
     );
   }
   return proofClaim(
@@ -1554,6 +1631,20 @@ function buildRiverMetadataParityReport(
   const liveMinor = live.riverMetadata?.minorRiver;
   const liveRiverType = live.riverMetadata?.riverType;
   const minorRiverBoundary = minorRiverBoundaryFields(local.riverMetadata);
+  const plannedMinorRiverTileCount = countOnes(localPlannedMinor?.values);
+  const plannedMajorRiverTileCount = countOnes(localPlannedMajor?.values);
+  const projectedNavigableTerrainTileCount = countOnes(localProjected?.values);
+  const liveTerrainNavigableRiverTileCount = countOnes(liveTerrain?.values);
+  const liveRiverTileCount = countOnes(liveRiver?.values);
+  const liveNavigableRiverTileCount = countOnes(liveNavigable?.values);
+  const liveMinorRiverTileCount = countOnes(liveMinor?.values);
+  const nativeRiverObjects = nativeRiverObjectParityFields({
+    snapshot: live.nativeRiverObjects,
+    projectedNavigableTerrainTileCount,
+    liveTerrainNavigableRiverTileCount,
+    liveRiverTileCount,
+    liveNavigableRiverTileCount,
+  });
   if (
     localProjected === undefined &&
     liveTerrain === undefined &&
@@ -1575,13 +1666,14 @@ function buildRiverMetadataParityReport(
       status: "readback-missing",
       compared: 0,
       missingLiveReadback: 0,
-      plannedMinorRiverTileCount: countOnes(localPlannedMinor?.values),
-      plannedMajorRiverTileCount: countOnes(localPlannedMajor?.values),
-      projectedNavigableTerrainTileCount: countOnes(localProjected?.values),
-      liveTerrainNavigableRiverTileCount: countOnes(liveTerrain?.values),
-      liveRiverTileCount: countOnes(liveRiver?.values),
-      liveNavigableRiverTileCount: countOnes(liveNavigable?.values),
-      liveMinorRiverTileCount: countOnes(liveMinor?.values),
+      plannedMinorRiverTileCount,
+      plannedMajorRiverTileCount,
+      projectedNavigableTerrainTileCount,
+      liveTerrainNavigableRiverTileCount,
+      liveRiverTileCount,
+      liveNavigableRiverTileCount,
+      liveMinorRiverTileCount,
+      ...nativeRiverObjects,
       projectedVsLiveTerrainMismatchCount: 0,
       projectedVsLiveMetadataMismatchCount: 0,
       liveTerrainVsMetadataMismatchCount: 0,
@@ -1602,13 +1694,14 @@ function buildRiverMetadataParityReport(
       status: "dimension-mismatch",
       compared: 0,
       missingLiveReadback: 0,
-      plannedMinorRiverTileCount: countOnes(localPlannedMinor?.values),
-      plannedMajorRiverTileCount: countOnes(localPlannedMajor?.values),
-      projectedNavigableTerrainTileCount: countOnes(localProjected.values),
-      liveTerrainNavigableRiverTileCount: countOnes(liveTerrain.values),
-      liveRiverTileCount: countOnes(liveRiver?.values),
-      liveNavigableRiverTileCount: countOnes(liveNavigable.values),
-      liveMinorRiverTileCount: countOnes(liveMinor?.values),
+      plannedMinorRiverTileCount,
+      plannedMajorRiverTileCount,
+      projectedNavigableTerrainTileCount,
+      liveTerrainNavigableRiverTileCount,
+      liveRiverTileCount,
+      liveNavigableRiverTileCount,
+      liveMinorRiverTileCount,
+      ...nativeRiverObjects,
       projectedVsLiveTerrainMismatchCount: 0,
       projectedVsLiveMetadataMismatchCount: 0,
       liveTerrainVsMetadataMismatchCount: 0,
@@ -1669,19 +1762,70 @@ function buildRiverMetadataParityReport(
     status,
     compared,
     missingLiveReadback,
-    plannedMinorRiverTileCount: countOnes(localPlannedMinor?.values),
-    plannedMajorRiverTileCount: countOnes(localPlannedMajor?.values),
-    projectedNavigableTerrainTileCount: countOnes(localProjected.values),
-    liveTerrainNavigableRiverTileCount: countOnes(liveTerrain.values),
-    liveRiverTileCount: countOnes(liveRiver?.values),
-    liveNavigableRiverTileCount: countOnes(liveNavigable.values),
-    liveMinorRiverTileCount: countOnes(liveMinor?.values),
+    plannedMinorRiverTileCount,
+    plannedMajorRiverTileCount,
+    projectedNavigableTerrainTileCount,
+    liveTerrainNavigableRiverTileCount,
+    liveRiverTileCount,
+    liveNavigableRiverTileCount,
+    liveMinorRiverTileCount,
+    ...nativeRiverObjects,
     projectedVsLiveTerrainMismatchCount,
     projectedVsLiveMetadataMismatchCount,
     liveTerrainVsMetadataMismatchCount,
     ...minorRiverBoundary,
     examples,
   };
+}
+
+function nativeRiverObjectParityFields(args: {
+  snapshot: NativeRiverObjectSnapshot | undefined;
+  projectedNavigableTerrainTileCount: number;
+  liveTerrainNavigableRiverTileCount: number;
+  liveRiverTileCount: number;
+  liveNavigableRiverTileCount: number;
+}): Pick<
+  RiverMetadataParityReport,
+  "nativeRiverObjectReadbackStatus" | "nativeRiverObjectCount" | "nativeRiverObjectSampleCount"
+> {
+  const { snapshot } = args;
+  if (snapshot === undefined) {
+    return {
+      nativeRiverObjectReadbackStatus: "not-provided",
+      nativeRiverObjectCount: null,
+      nativeRiverObjectSampleCount: 0,
+    };
+  }
+  const sampleCount = snapshot.sampleCount ?? snapshot.samples?.length ?? 0;
+  const blocked = snapshot.blockedBy?.length ? true : false;
+  if (!snapshot.exists || snapshot.numRivers === null || blocked) {
+    return {
+      nativeRiverObjectReadbackStatus: "unavailable",
+      nativeRiverObjectCount: snapshot.numRivers,
+      nativeRiverObjectSampleCount: sampleCount,
+    };
+  }
+  const expectedRiverSurfaceCount = Math.max(
+    args.projectedNavigableTerrainTileCount,
+    args.liveTerrainNavigableRiverTileCount,
+    args.liveRiverTileCount,
+    args.liveNavigableRiverTileCount
+  );
+  return {
+    nativeRiverObjectReadbackStatus:
+      snapshot.numRivers === 0 && expectedRiverSurfaceCount > 0 ? "zero-rivers" : "present",
+    nativeRiverObjectCount: snapshot.numRivers,
+    nativeRiverObjectSampleCount: sampleCount,
+  };
+}
+
+function riverMetadataParityExpectsNativeObjects(parity: RiverMetadataParityReport): boolean {
+  return Math.max(
+    parity.projectedNavigableTerrainTileCount,
+    parity.liveTerrainNavigableRiverTileCount,
+    parity.liveRiverTileCount,
+    parity.liveNavigableRiverTileCount
+  ) > 0;
 }
 
 function minorRiverBoundaryFields(

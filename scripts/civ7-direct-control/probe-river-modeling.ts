@@ -6,8 +6,11 @@ import { dirname, resolve } from "node:path";
 import {
   executeCiv7TunerCommand,
   getCiv7FullMapGrid,
+  getCiv7NativeRiverObjects,
   type Civ7CommandResult,
   type Civ7DirectControlOptions,
+  type Civ7NativeRiverObjectsResult,
+  type Civ7RuntimeProbe,
 } from "../../packages/civ7-direct-control/src/index.ts";
 import { CIV7_DEFAULT_RIVER_MODELING_ARGS } from "../../packages/civ7-map-policy/src/index.ts";
 
@@ -387,11 +390,39 @@ async function readRuntimeInventory(options: Civ7DirectControlOptions): Promise<
 }
 
 async function readNativeRiverObjects(options: Civ7DirectControlOptions): Promise<NativeRiverObjectSummary> {
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildNativeRiverObjectsCommand(),
-  });
-  return jsonPayloadFromCommandResult<NativeRiverObjectSummary>(result, "native river object summary");
+  return summarizeNativeRiverObjects(await getCiv7NativeRiverObjects({ maxSamples: 16 }, options));
+}
+
+function summarizeNativeRiverObjects(result: Civ7NativeRiverObjectsResult): NativeRiverObjectSummary {
+  return {
+    exists: result.exists,
+    numRivers: probeNumberValue(result.numRivers),
+    samples: result.samples.map((sample) => ({
+      index: sample.index,
+      riverType: probeNullableNumberValue(sample.riverType),
+      plotCount: probeNullableNumberValue(sample.plotCount),
+      connectedToOcean: probeNullableBooleanValue(sample.connectedToOcean),
+    })),
+    blockedBy: [
+      ...(result.exists ? [] : ["native-river-objects.MapRivers.missing"]),
+      ...(result.numRivers.ok ? [] : ["native-river-objects.numRivers.unavailable"]),
+    ],
+  };
+}
+
+function probeNumberValue(probe: Civ7RuntimeProbe<number> | undefined): number | null {
+  if (!probe || probe.ok !== true || typeof probe.value !== "number" || !Number.isFinite(probe.value)) return null;
+  return probe.value;
+}
+
+function probeNullableNumberValue(probe: Civ7RuntimeProbe<number | null> | undefined): number | null {
+  if (!probe || probe.ok !== true || typeof probe.value !== "number" || !Number.isFinite(probe.value)) return null;
+  return probe.value;
+}
+
+function probeNullableBooleanValue(probe: Civ7RuntimeProbe<boolean | null> | undefined): boolean | null {
+  if (!probe || probe.ok !== true || typeof probe.value !== "boolean") return null;
+  return probe.value;
 }
 
 async function callModelRiversSequence(
@@ -447,57 +478,6 @@ function buildRuntimeInventoryCommand(): string {
         maxLength: ${OFFICIAL_DEFAULT_MAX_LENGTH},
       },
     });
-  })()`;
-}
-
-function buildNativeRiverObjectsCommand(): string {
-  return `(() => {
-    const out = {
-      exists: typeof MapRivers !== "undefined" && MapRivers !== null,
-      numRivers: null,
-      samples: [],
-      blockedBy: [],
-    };
-    try {
-      if (!out.exists) {
-        out.blockedBy.push("native-river-objects.MapRivers.missing");
-        return JSON.stringify(out);
-      }
-      const rawCount = typeof MapRivers.numRivers === "function" ? MapRivers.numRivers() : MapRivers.numRivers;
-      if (!Number.isInteger(rawCount)) {
-        out.blockedBy.push("native-river-objects.numRivers.unavailable");
-        return JSON.stringify(out);
-      }
-      out.numRivers = rawCount;
-      const sampleCount = Math.min(rawCount, 16);
-      for (let index = 0; index < sampleCount; index += 1) {
-        let riverType = null;
-        let plotCount = null;
-        let connectedToOcean = null;
-        try {
-          if (typeof MapRivers.getRiverTypeByIndex === "function") {
-            const value = MapRivers.getRiverTypeByIndex(index);
-            riverType = Number.isInteger(value) ? value : null;
-          }
-        } catch (_error) {}
-        try {
-          if (typeof MapRivers.getRiverPlots === "function") {
-            const plots = MapRivers.getRiverPlots(index);
-            plotCount = plots && typeof plots.length === "number" ? plots.length : null;
-          }
-        } catch (_error) {}
-        try {
-          if (typeof MapRivers.isRiverConnectedToOcean === "function") {
-            const value = MapRivers.isRiverConnectedToOcean(index);
-            connectedToOcean = typeof value === "boolean" ? value : null;
-          }
-        } catch (_error) {}
-        out.samples.push({ index, riverType, plotCount, connectedToOcean });
-      }
-    } catch (error) {
-      out.blockedBy.push(error instanceof Error ? error.message : String(error));
-    }
-    return JSON.stringify(out);
   })()`;
 }
 

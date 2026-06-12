@@ -3,7 +3,8 @@
 - [x] 1.1 Add or update river-class validation and docs.
 - [x] 1.2 Update mock adapter behavior to simulate terrain-without-metadata.
 - [x] 1.3 Update generated catalog wording to source evidence where relevant.
-- [x] 1.4 Mark `modelRivers()` compatibility-only and keep standard-stage guard.
+- [x] 1.4 Mark `modelRivers()` as a bounded Civ-native materialization surface
+  for `map-rivers`, not an upstream Hydrology generator or public selector.
 
 ## 2. Tests
 

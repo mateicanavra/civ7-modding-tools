@@ -5,6 +5,8 @@ import { dirname, resolve } from "node:path";
 
 import {
   getCiv7FullMapGrid,
+  getCiv7NativeRiverObjects,
+  type Civ7NativeRiverObjectsResult,
   type Civ7RuntimeProbe,
 } from "../../packages/civ7-direct-control/src/index.ts";
 import {
@@ -16,6 +18,7 @@ import {
   runLocalFinalSurfaceSnapshot,
   validateExactAuthorshipProofPacket,
   type ExactAuthorshipProofLike,
+  type NativeRiverObjectSnapshot,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
 
 type Args = Readonly<{
@@ -154,6 +157,53 @@ function probeNumber(value: Civ7RuntimeProbe<number> | undefined): number | unde
   return value.value;
 }
 
+function probeNullableNumber(value: Civ7RuntimeProbe<number | null> | undefined): number | null {
+  if (!value || value.ok !== true || typeof value.value !== "number" || !Number.isFinite(value.value)) return null;
+  return value.value;
+}
+
+function probeNullableBoolean(value: Civ7RuntimeProbe<boolean | null> | undefined): boolean | null {
+  if (!value || value.ok !== true || typeof value.value !== "boolean") return null;
+  return value.value;
+}
+
+function probeNativeRiverPlots(
+  value: Civ7NativeRiverObjectsResult["samples"][number]["plots"] | undefined,
+): NonNullable<NativeRiverObjectSnapshot["samples"]>[number]["plots"] {
+  if (!value || value.ok !== true || !Array.isArray(value.value)) return undefined;
+  return value.value.map((plot) => ({
+    raw: plot.raw,
+    index: typeof plot.index === "number" && Number.isFinite(plot.index) ? plot.index : null,
+    location: plot.location && typeof plot.location.x === "number" && typeof plot.location.y === "number"
+      ? { x: plot.location.x, y: plot.location.y }
+      : null,
+  }));
+}
+
+function nativeRiverObjectsSnapshot(result: Civ7NativeRiverObjectsResult): NativeRiverObjectSnapshot {
+  return {
+    exists: result.exists,
+    numRivers: probeNumber(result.numRivers) ?? null,
+    sampleCount: result.samples.length,
+    samples: result.samples.map((sample) => {
+      const plots = probeNativeRiverPlots(sample.plots);
+      return {
+        index: sample.index,
+        riverType: probeNullableNumber(sample.riverType),
+        plotCount: probeNullableNumber(sample.plotCount),
+        plotSampleCount: sample.plotSampleCount,
+        plotTruncated: sample.plotTruncated,
+        ...(plots === undefined ? {} : { plots }),
+        connectedToOcean: probeNullableBoolean(sample.connectedToOcean),
+      };
+    }),
+    blockedBy: [
+      ...(result.exists ? [] : ["native-river-objects.MapRivers.missing"]),
+      ...(result.numRivers.ok ? [] : ["native-river-objects.numRivers.unavailable"]),
+    ],
+  };
+}
+
 export function buildBlockedFinalSurfaceParityOutput(args: {
   exact: ExactAuthorshipProofLike;
   blockedBy: ReadonlyArray<string>;
@@ -219,6 +269,14 @@ async function main(): Promise<number> {
     port: args.port,
     timeoutMs: args.timeoutMs,
   });
+  const nativeRiverObjects = await getCiv7NativeRiverObjects(
+    { maxSamples: 16 },
+    {
+      host: args.host,
+      port: args.port,
+      timeoutMs: args.timeoutMs,
+    }
+  );
 
   const liveSeed = probeNumber(grid.summary.map.randomSeed);
   const liveTurn = probeNumber(grid.summary.game.turn);
@@ -230,7 +288,9 @@ async function main(): Promise<number> {
     ...(liveSeed === undefined ? {} : { seed: liveSeed }),
     configHash: exact.sourceSnapshot?.configHash,
     envelopeHash: exact.sourceSnapshot?.envelopeHash,
+    nativeRiverObjects: nativeRiverObjectsSnapshot(nativeRiverObjects),
     evidence: {
+      nativeRiverObjects,
       fullGrid: {
         bounds: grid.bounds,
         plotCount: grid.plotCount,

@@ -9,6 +9,8 @@ import {
   Civ7MapGridResultSchema,
   Civ7MapSummaryInputSchema,
   Civ7MapSummaryResultSchema,
+  Civ7NativeRiverObjectsInputSchema,
+  Civ7NativeRiverObjectsResultSchema,
   Civ7PlotSnapshotInputSchema,
   Civ7PlotSnapshotResultSchema,
   Civ7VisibilitySummaryInputSchema,
@@ -16,6 +18,7 @@ import {
   getCiv7GameInfoRows,
   getCiv7MapGrid,
   getCiv7MapSummary,
+  getCiv7NativeRiverObjects,
   getCiv7PlotSnapshot,
   getCiv7VisibilitySummary,
   revealCiv7MapForPlayer,
@@ -133,6 +136,22 @@ describe("map and visibility reads", () => {
     })).toBe(false);
   });
 
+  test("validates native river object schema boundaries beside the read atom", () => {
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 16 })).toBe(true);
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 16, maxPlotsPerRiver: 128 })).toBe(true);
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: -1 })).toBe(false);
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 257 })).toBe(false);
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 1.5 })).toBe(false);
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxPlotsPerRiver: 2049 })).toBe(false);
+    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { command: "MapRivers.numRivers()" })).toBe(false);
+    expect(Value.Check(Civ7NativeRiverObjectsResultSchema, nativeRiverObjectsResult())).toBe(true);
+    expect(Value.Check(Civ7NativeRiverObjectsResultSchema, {
+      ...nativeRiverObjectsResult(),
+      rawCommand: "MapRivers.numRivers()",
+    })).toBe(false);
+  });
+
   test("validates visibility summary schema boundaries beside the read atom", () => {
     expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
       playerId: 0,
@@ -219,6 +238,60 @@ describe("map and visibility reads", () => {
       expect(grid.plotCount).toBe(100_000_000);
       expect(grid.omitted).toBe(99_999_999);
       expect(server.received.some((message) => message.includes("break outer"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("wraps bounded native MapRivers object reads", async () => {
+    const server = await startMapTunerServer();
+    try {
+      const { port } = server.address();
+      const nativeRivers = await getCiv7NativeRiverObjects(
+        { maxSamples: 2 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
+      );
+
+      expect(nativeRivers).toMatchObject({
+        exists: true,
+        numRivers: { ok: true, value: 2 },
+        samples: [
+          {
+            index: 0,
+            riverType: { ok: true, value: 1 },
+            plotCount: { ok: true, value: 4 },
+            plotSampleCount: 4,
+            plotTruncated: false,
+            plots: {
+              ok: true,
+              value: [
+                { raw: 1, index: 1, location: { x: 1, y: 0 } },
+                { raw: 3, index: 3, location: { x: 3, y: 0 } },
+                { raw: 5, index: 5, location: { x: 5, y: 0 } },
+                { raw: 7, index: 7, location: { x: 7, y: 0 } },
+              ],
+            },
+            connectedToOcean: { ok: true, value: true },
+          },
+          {
+            index: 1,
+            riverType: { ok: true, value: 0 },
+            plotCount: { ok: true, value: 2 },
+            plotSampleCount: 2,
+            plotTruncated: false,
+            plots: {
+              ok: true,
+              value: [
+                { raw: 2, index: 2, location: { x: 2, y: 0 } },
+                { raw: 4, index: 4, location: { x: 4, y: 0 } },
+              ],
+            },
+            connectedToOcean: { ok: true, value: false },
+          },
+        ],
+        truncated: false,
+      });
+      expect(server.received.some((message) => message.includes("MapRivers.numRivers"))).toBe(true);
     } finally {
       await server.close();
     }
@@ -374,6 +447,8 @@ async function startMapTunerServer(): Promise<FakeTunerServer> {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(mapSummaryPayload())]));
         } else if (frame.message.includes("locationsFromBounds")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(mapGridPayload())]));
+        } else if (frame.message.includes("MapRivers") && frame.message.includes("numRivers")) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(nativeRiverObjectsPayload())]));
         } else if (frame.message.includes("readPlotSnapshot")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(plotSnapshotPayload())]));
         } else if (frame.message === "CMD:1:Visibility.revealAllPlots(0)") {
@@ -429,6 +504,15 @@ function mapGridResult() {
     port: 4318,
     state: { id: "1", name: "Tuner" },
     ...mapGridPayload(),
+  };
+}
+
+function nativeRiverObjectsResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...nativeRiverObjectsPayload(),
   };
 }
 
@@ -500,6 +584,48 @@ function plotSnapshotPayload() {
       revealedState: { ok: true, value: 1 },
       visible: { ok: true, value: true },
     },
+  };
+}
+
+function nativeRiverObjectsPayload() {
+  return {
+    exists: true,
+    numRivers: { ok: true, value: 2 },
+    samples: [
+      {
+        index: 0,
+        riverType: { ok: true, value: 1 },
+        plotCount: { ok: true, value: 4 },
+        plotSampleCount: 4,
+        plotTruncated: false,
+        plots: {
+          ok: true,
+          value: [
+            { raw: 1, index: 1, location: { x: 1, y: 0 } },
+            { raw: 3, index: 3, location: { x: 3, y: 0 } },
+            { raw: 5, index: 5, location: { x: 5, y: 0 } },
+            { raw: 7, index: 7, location: { x: 7, y: 0 } },
+          ],
+        },
+        connectedToOcean: { ok: true, value: true },
+      },
+      {
+        index: 1,
+        riverType: { ok: true, value: 0 },
+        plotCount: { ok: true, value: 2 },
+        plotSampleCount: 2,
+        plotTruncated: false,
+        plots: {
+          ok: true,
+          value: [
+            { raw: 2, index: 2, location: { x: 2, y: 0 } },
+            { raw: 4, index: 4, location: { x: 4, y: 0 } },
+          ],
+        },
+        connectedToOcean: { ok: true, value: false },
+      },
+    ],
+    truncated: false,
   };
 }
 
