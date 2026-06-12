@@ -1,6 +1,9 @@
 import {
   applyCiv7ExploreGrant,
+  captureCiv7WindowShot,
   closeCiv7Displays,
+  enterCiv7CleanFrame,
+  exitCiv7CleanFrame,
   getCiv7PlayableStatus,
   getCiv7PlayNotificationView,
   getCiv7VisibilitySummary,
@@ -42,7 +45,12 @@ import {
   requestCiv7UnitCommand,
   requestCiv7UnitTargetAction,
   requestCiv7CultureTarget,
+  type Civ7CleanFrameEnterInput,
+  type Civ7CleanFrameEnterResult,
+  type Civ7CleanFrameExitResult,
   type Civ7DirectControlOptions,
+  type Civ7WindowShotCaptureInput,
+  type Civ7WindowShotCaptureResult,
   Civ7BattlefieldScanResultSchema,
   Civ7DestinationAnalysisResultSchema,
   type Civ7AttributePurchaseInput,
@@ -178,6 +186,9 @@ export type Civ7ControlOrpcCloseDisplaysResult = Civ7CloseDisplaysResult;
 export type Civ7ControlOrpcDisplayQueueHoldResult = Civ7DisplayQueueHoldResult;
 export type Civ7ControlOrpcExploreGrantResult = Civ7ExploreGrantResult;
 export type Civ7ControlOrpcExploreReleaseResult = Civ7ExploreReleaseResult;
+export type Civ7ControlOrpcCleanFrameEnterResult = Civ7CleanFrameEnterResult;
+export type Civ7ControlOrpcCleanFrameExitResult = Civ7CleanFrameExitResult;
+export type Civ7ControlOrpcWindowShotCaptureResult = Civ7WindowShotCaptureResult;
 export type Civ7ControlOrpcVisibilitySummaryResult = Civ7VisibilitySummaryResult;
 export type Civ7ControlOrpcReadyUnitViewResult = Static<
   typeof Civ7ReadyUnitViewResultSchema
@@ -369,6 +380,17 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7ExploreReleaseInput,
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcExploreReleaseResult>;
+  enterCiv7CleanFrame(
+    input: Civ7CleanFrameEnterInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcCleanFrameEnterResult>;
+  exitCiv7CleanFrame(
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcCleanFrameExitResult>;
+  /** OS-local ScreenCaptureKit window capture — no Tuner endpoint involved. */
+  captureCiv7WindowShot(
+    input: Civ7WindowShotCaptureInput,
+  ): Promise<Civ7ControlOrpcWindowShotCaptureResult>;
 }>;
 
 export const liveCiv7ControlOrpcDirectControlFacade:
@@ -503,4 +525,10 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     applyCiv7ExploreGrant(input, options),
   releaseCiv7ExploreGrant: async (input, options) =>
     releaseCiv7ExploreGrant(input, options),
+  enterCiv7CleanFrame: async (input, options) =>
+    enterCiv7CleanFrame(input, options),
+  exitCiv7CleanFrame: async (options) =>
+    exitCiv7CleanFrame(options),
+  captureCiv7WindowShot: async (input) =>
+    captureCiv7WindowShot(input),
 };

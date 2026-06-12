@@ -294,6 +294,60 @@ export class Civ7ExploreFailedError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7AppshotErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("view.appshot.capture"),
+    source: Type.Literal("direct-control-facade"),
+    /** Human-readable failure detail from the capture pipeline. */
+    detail: Type.Optional(Type.String()),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7AppshotErrorData = Static<typeof Civ7AppshotErrorDataSchema>;
+
+export class Civ7AppshotPermissionRequiredError extends ORPCTaggedError(
+  "Civ7AppshotPermissionRequiredError",
+  {
+    code: "APPSHOT_PERMISSION_REQUIRED",
+    message: "Screen Recording permission is not granted for the app running this process. " +
+      "The OS prompt has already registered it: open System Settings -> Privacy & Security -> " +
+      "Screen & System Audio Recording, enable the host app, then retry.",
+    schema: toStandardSchema(Civ7AppshotErrorDataSchema),
+    status: 403,
+  },
+) {}
+
+export class Civ7AppshotWindowNotFoundError extends ORPCTaggedError(
+  "Civ7AppshotWindowNotFoundError",
+  {
+    code: "APPSHOT_WINDOW_NOT_FOUND",
+    message: "No window matched the Civ7 capture target; adjust appName or pass windowId.",
+    schema: toStandardSchema(Civ7AppshotErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export class Civ7AppshotCleanFrameUnverifiedError extends ORPCTaggedError(
+  "Civ7AppshotCleanFrameUnverifiedError",
+  {
+    code: "APPSHOT_CLEAN_FRAME_UNVERIFIED",
+    message: "Clean-frame state (queue suspension or hidden-rules view) was not verified by readback before capture.",
+    schema: toStandardSchema(Civ7AppshotErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export class Civ7AppshotCaptureFailedError extends ORPCTaggedError(
+  "Civ7AppshotCaptureFailedError",
+  {
+    code: "APPSHOT_CAPTURE_FAILED",
+    message: "Window-scoped appshot capture failed.",
+    schema: toStandardSchema(Civ7AppshotErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
@@ -825,6 +879,10 @@ export class Civ7CorrelationIdInvalidError extends ORPCTaggedError(
 ) {}
 
 export const civ7ControlOrpcErrorMap = {
+  APPSHOT_CAPTURE_FAILED: Civ7AppshotCaptureFailedError,
+  APPSHOT_CLEAN_FRAME_UNVERIFIED: Civ7AppshotCleanFrameUnverifiedError,
+  APPSHOT_PERMISSION_REQUIRED: Civ7AppshotPermissionRequiredError,
+  APPSHOT_WINDOW_NOT_FOUND: Civ7AppshotWindowNotFoundError,
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   ATTENTION_PRIORITIES_UNAVAILABLE: Civ7AttentionPrioritiesUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,

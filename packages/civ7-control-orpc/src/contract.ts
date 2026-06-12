@@ -48,6 +48,10 @@ import {
   type Civ7UnitContract as Civ7UnitContractType,
 } from "./modules/unit/contract";
 import {
+  Civ7ViewContract,
+  type Civ7ViewContract as Civ7ViewContractType,
+} from "./modules/view/contract";
+import {
   Civ7WorldContract,
   type Civ7WorldContract as Civ7WorldContractType,
 } from "./modules/world/contract";
@@ -65,6 +69,7 @@ export type Civ7ControlOrpcContract = Readonly<{
   strategy: Civ7StrategyContractType;
   turn: Civ7TurnContractType;
   unit: Civ7UnitContractType;
+  view: Civ7ViewContractType;
   world: Civ7WorldContractType;
 }>;
 
@@ -82,5 +87,6 @@ export const Civ7ControlOrpcContract: Civ7ControlOrpcContract =
     strategy: Civ7StrategyContract,
     turn: Civ7TurnContract,
     unit: Civ7UnitContract,
+    view: Civ7ViewContract,
     world: Civ7WorldContract,
   });

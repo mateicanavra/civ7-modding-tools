@@ -187,6 +187,64 @@ new decision number.
   off. The held grant lives until session end; explore remains a
   disposable-session verb.
 
+- **D12 — `game view appshot` lands as window-scoped clean-frame capture
+  (slice 6, 2026-06-11).** D6's designated `game view` home gets its first
+  real implementation, superseding the rivers-branch `game appshot`
+  (whole-display `screencapture -x` — hash-identical to a desktop
+  screenshot, so wallpaper/overlays leaked into "game" captures). Settled
+  platform facts: the Mac Steam build has NO programmatic capture (zero XR
+  strings in the binary, no settings toggle, Steam F12/ISteamScreenshots is
+  human-keypress only), so capture is ScreenCaptureKit
+  `SCContentFilter(desktopIndependentWindow:)` + `SCScreenshotManager` via a
+  Swift helper embedded in `@civ7/direct-control` (compiled once per source
+  hash, cached in the OS temp dir; requires a one-time Screen Recording TCC
+  grant — preflight + `CGRequestScreenCaptureAccess` fire the OS prompt and
+  the failure carries the exact System Settings path). Clean frames come
+  from the official ViewManager rules engine: the game's own
+  INTERFACEMODE_SCREENSHOT maps to a stub ScreenshotView (rules all visible,
+  placeholder buttons injected), so the package registers its own
+  hidden-rules view (`DirectControlCleanFrame`, the Cinematic view's rule
+  set + "empty" harness, optional 3D-unit hide) reachable only via the live
+  VFS path `/core/ui/views/view-manager.js` (the `.chunk.js` paths in our
+  extracted resources are extraction artifacts and do NOT resolve).
+  Layering per D10: wire/OS atoms in `@civ7/direct-control`
+  (`enterCiv7CleanFrame`/`exitCiv7CleanFrame`/`captureCiv7WindowShot`),
+  orchestration as the Effect procedure `view.appshot.capture`
+  (suspend-verified → purge → enter-verified → settle → capture → restore,
+  with an acquire/release finalizer guaranteeing the HUD and queue are
+  restored on every failure path), CLI `game view appshot` on the typed
+  client. Rivers drain note: the rivers appshot files
+  (`play/map/appshot*.ts`, `world.capture.appshot`, `game appshot`) are
+  superseded outright — drop them in favor of this slice during the drain;
+  the camera/screenshot verbs remain rivers-owned arrivals under D6.
+  Live-proof findings folded back in: (a) the SCK capture path trips the
+  CGS_REQUIRE_INIT assertion in CLI processes unless CG is initialized on
+  the main thread (`CGMainDisplayID()`) and the main thread services a run
+  loop instead of semaphore-blocking; (b) an off-screen game window
+  (fullscreen on another Space, minimized) stops compositing, so its
+  backing store is STALE — app activation was tried first but macOS
+  resolves background-process activation nondeterministically (sometimes a
+  soft Dock bounce, sometimes a full Space switch), so the shipped
+  mechanism is a temporary SCStream: a running capture stream forces the
+  window server to composite fresh frames with ZERO focus interaction
+  (live-verified: 43 distinct frames over 4s from a fullscreen window on
+  an inactive Space, then a clean-frame capture with `frameSource:
+  "stream"` and `onScreen: false` throughout). The result's `frameSource`
+  reports the path: `screenshot` (on-screen, one-shot) or `stream`
+  (off-screen, forced fresh) — an off-screen window whose stream yields
+  nothing FAILS rather than returning possibly-stale pixels (the
+  stale-fallback path was removed in the cleanup pass: dead code, never
+  observed live, and "maybe-stale" is not an acceptable capture result).
+  Artifact lifecycle: default outputs land in the managed
+  `$TMPDIR/civ7-appshots/` directory, self-cleaned on each capture (7-day
+  retention; explicit `--output` paths are the caller's and never
+  pruned), and compiling a new helper revision prunes previous revisions
+  from the `$TMPDIR/civ7-direct-control/` cache; (c) the floating
+  badges left in clean frames are RESOURCE icons — engine-rendered world
+  assets, not UI DOM (user-identified; the clean frame's DOM hide was
+  live-verified: plot-icons hidden, harness display:none) — i.e. map
+  content that belongs in the frame.
+
 ## Corpus Gate
 
 - Corpus source(s): `packages/cli/src/commands/game/**` on the stack;
@@ -227,6 +285,7 @@ new decision number.
 | 3 | `cli-taxonomy-workstream-docs` | — | this directory: workstream record, corpus ledger, target grammar | this slice |
 | 4 | `cli-game-map-noun-topic` | — | `game map` topic restructure (`index/summary/plot/grid`), `game map visibility` FULL migration incl. repo-wide reference retarget (D2/D5) | next slice |
 | 5 | `direct-control-display-queue` | #1582 | DQM display-control primitives replace the synthetic dismissal outright (D8); `game map visibility --explore` via suppressed tracked grants (D9); orchestration homed as Effect procedures in `@civ7/control-orpc` `display` module, CLI on the typed client (D10); `game play screen show/dismiss` rewired to queue truth | submitted (draft) |
+| 6 | `view-appshot-window-capture` | — | `game view appshot` window-scoped clean-frame capture (D12): SCK window capture atom + clean-frame view atoms, `view.appshot.capture` Effect procedure, CLI on the typed client | in review |
 
 ## Team
 

@@ -1330,6 +1330,39 @@ export type {
   Civ7DisplayRequest,
   DisplayQueueDependencies,
 } from "./play/operations/display-queue.js";
+export {
+  CIV7_CLEAN_FRAME_HIDDEN_WORLD_RULES,
+  CIV7_CLEAN_FRAME_HIDE_UNITS_GLOBAL,
+  CIV7_CLEAN_FRAME_PREVIOUS_VIEW_GLOBAL,
+  CIV7_CLEAN_FRAME_VIEW_NAME,
+  CIV7_VIEW_MANAGER_BRIDGE_GLOBAL,
+  Civ7CleanFrameEnterResultSchema,
+  Civ7CleanFrameExitResultSchema,
+  ensureCiv7ViewManagerBridge,
+  enterCiv7CleanFrame,
+  exitCiv7CleanFrame,
+} from "./play/view/clean-frame.js";
+export type {
+  Civ7CleanFrameEnterInput,
+  Civ7CleanFrameEnterResult,
+  Civ7CleanFrameExitResult,
+  CleanFrameDependencies,
+} from "./play/view/clean-frame.js";
+export {
+  CIV7_WINDOW_SHOT_SWIFT_SOURCE,
+  Civ7CaptureWindowRowSchema,
+  Civ7WindowShotCaptureResultSchema,
+  Civ7WindowShotFileSchema,
+  DEFAULT_CIV7_WINDOW_MATCH,
+  captureCiv7WindowShot,
+  ensureCiv7WindowShotHelper,
+} from "./play/view/window-shot.js";
+export type {
+  Civ7CaptureWindowRow,
+  Civ7WindowShotCaptureInput,
+  Civ7WindowShotCaptureResult,
+  WindowShotDependencies,
+} from "./play/view/window-shot.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
