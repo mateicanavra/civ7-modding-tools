@@ -196,3 +196,26 @@ v4's `@layer utilities`, zeroing every padding/margin utility app-wide. Decision
 - **Explore toolbar groups by target:** VIEW (camera fit, edges overlay) and
   DATA (render, space, era, variant, overlay) clusters with eyebrow labels;
   the debug toggle is a DATA-list filter and lives on the DATA section header.
+
+## Pass-4 amendment (2026-06-11, user-grounded): vertical zoning + console icon contract
+
+Decisions (see `docs/projects/mapgen-studio-redesign/pass-4-design-fixes.md`):
+
+- **Vertical zoning: top = game, bottom = studio.** The header zone carries the
+  world definition (inputs shared by studio generation and live launches) with
+  the **Game console docked directly beneath the world bar** (AppHeader
+  `gameConsole` slot, centered row, after the transient setup panel). The
+  footer is the **Studio console alone**, simply centered. The Pass-3 console
+  *split* (named, modular GameConsole; relation chips ride it) is unchanged —
+  only the dock moved. Side panels reflow via the measured-header mechanism.
+- **Icon-only contract for consoles:** secondary repeated-use actions in dense
+  consoles are icon-only and MUST carry `aria-label` + `title` + Tooltip.
+  Primary CTAs (Run, Save & Deploy) and disclosures (Setup) keep labels.
+  Console glyphs: autoplay start `FastForward` / stop `Square`; Run in Game
+  `SquareArrowOutUpRight` (launches the external app); Explore `Binoculars`
+  (tile visibility). `Eye` stays reserved for layer-visibility toggles.
+- **Config objects collapse:** every config object renders a per-object header
+  row (chevron + title + trailing action zone — future home of object-local
+  Reset/Show-JSON); collapsed by default, manual expand; optional sticky
+  auto-expand-on-scroll toggle in the config toolbar, default OFF; identical in
+  focused and unfocused modes.
