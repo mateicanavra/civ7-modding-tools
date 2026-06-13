@@ -7,9 +7,9 @@ import { run, type SpawnResult } from "../lib/spawn.js";
 
 /**
  * The rule pack. Data lives in rules.json (shared with the Nx plugin); this
- * module types it and supplies per-rule output parsers. H2 = wrapped rules
- * only: every detect command executes the pre-existing mechanism unchanged
- * and is re-emitted as normalized diagnostics.
+ * module types it and supplies per-rule output parsers. H2 wrapped existing
+ * mechanisms unchanged; later slices add owning-tool gates such as H3
+ * nx-boundaries and H4 Biome hygiene.
  */
 
 export interface HarnessRule {

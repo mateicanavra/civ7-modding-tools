@@ -5,7 +5,10 @@
       "plugin": "./tools/habitat-harness/src/plugin.js",
       "options": {
         "checkTargetName": "habitat:check",
-        "boundariesTargetName": "boundaries"
+        "boundariesTargetName": "boundaries",
+        "biomeFormatTargetName": "biome:format",
+        "biomeCheckTargetName": "biome:check",
+        "biomeCiTargetName": "biome:ci"
       }
     }
   ],

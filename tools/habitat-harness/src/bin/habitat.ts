@@ -145,9 +145,13 @@ switch (command) {
     break;
   }
   case "fix": {
-    // Zero fixable rules are registered in H2 (codemods land with the grit catalog, H5).
-    console.log("no fixable rules registered");
-    process.exit(0);
+    const args = flag("--dry-run")
+      ? ["bunx", "--bun", "@biomejs/biome", "check", "."]
+      : ["bunx", "--bun", "@biomejs/biome", "check", "--write", "."];
+    const res = run(args, { cwd: repoRoot });
+    process.stdout.write(res.stdout);
+    process.stderr.write(res.stderr);
+    process.exit(res.exitCode);
     break;
   }
   case "verify": {
@@ -157,7 +161,7 @@ switch (command) {
     const base = opt("--base") ?? mergeBase("main") ?? "main";
     console.log(`\nhabitat verify: running nx affected (base=${base}) ...`);
     const res = run(
-      ["bunx", "nx", "affected", "-t", "build,check,test,boundaries", "--base", base],
+      ["bunx", "nx", "affected", "-t", "build,check,test,boundaries,biome:ci", "--base", base],
       { cwd: repoRoot }
     );
     process.stdout.write(res.stdout);
@@ -226,6 +230,7 @@ switch (command) {
             `nx run ${owner.name}:check`,
             `nx run ${owner.name}:test`,
             "nx run @internal/habitat-harness:boundaries",
+            "nx run-many -t biome:ci --projects=@internal/habitat-harness",
             "habitat check",
           ],
         },

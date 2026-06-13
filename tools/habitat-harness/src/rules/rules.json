@@ -1,5 +1,5 @@
 {
-  "$comment": "Single source of truth for the habitat rule pack (H2: wrapped rules only, zero new rules). Consumed by src/rules/architecture.ts (CLI, typed) and src/plugin.js (Nx target inference). Field semantics: docs/projects/habitat-harness/ + openspec/changes/habitat-harness-scaffold/design.md. ownerProject = the Nx project whose habitat:check target runs this rule. lane: enforced rules fail `habitat check`; advisory rules report only (matching pre-harness enforcement reality). detect runs from the repo root unless cwd is set.",
+  "$comment": "Single source of truth for the habitat rule pack. H2 wrapped existing rules; later slices add owning-tool gates such as H3 nx-boundaries and H4 Biome hygiene. Consumed by src/rules/architecture.ts (CLI, typed) and src/plugin.js (Nx target inference). Field semantics: docs/projects/habitat-harness/ + openspec/changes/habitat-harness-scaffold/design.md. ownerProject = the Nx project whose habitat:check target runs this rule. lane: enforced rules fail `habitat check`; advisory rules report only (matching pre-harness enforcement reality). detect runs from the repo root unless cwd is set.",
   "rules": [
     {
       "id": "workspace-entrypoints",
@@ -126,6 +126,19 @@
       ],
       "remediate": null,
       "message": "Fix the import edge or revise taxonomy.md and eslint.boundaries.config.mjs together with recorded provenance; do not weaken the boundary config ad hoc.",
+      "exceptionPath": "none"
+    },
+    {
+      "id": "biome-ci",
+      "ownerTool": "biome",
+      "ownerProject": "@internal/habitat-harness",
+      "lane": "enforced",
+      "scope": "live repo files included by biome.json",
+      "forbids": "formatter drift, ordinary lint hygiene violations, and import-organization drift",
+      "why": "Biome owns the hygiene layer in H4; ESLint/Nx/Grit must not duplicate formatter or ordinary hygiene ownership.",
+      "detect": ["bunx", "--bun", "@biomejs/biome", "ci", "."],
+      "remediate": "bun run habitat:fix",
+      "message": "Run `bun run habitat:fix` or `bunx --bun @biomejs/biome check --write .`; keep generated/protected zones excluded in biome.json.",
       "exceptionPath": "none"
     },
     {

@@ -7,7 +7,7 @@
 - Owner: workstream owner agent (Codex continuation)
 - Branch/Graphite stack: `agent-F-habitat-biome-hygiene` -> `agent-F-habitat-boundary-tags` -> `agent-F-habitat-harness-scaffold` -> `agent-F-habitat-nx-adoption` -> `agent-F-habitat-harness-workstream` -> `main`
 - Started: 2026-06-13
-- Status: OPEN — Biome setup, format commit, blame shield, and Prettier retirement complete; task 2.4 is partially evidenced but blocked by DL-15/DL-16; Biome lint lane and harness integration remain
+- Status: OPEN — Biome setup, format commit, blame shield, Prettier retirement, lint lane, and harness/Nx/CI integration complete; task 2.4 and closure remain blocked by DL-15/DL-16
 
 ## Objective
 
@@ -25,11 +25,11 @@
 
 ## Current State
 
-- Repo/Graphite state: active H4 branch `agent-F-habitat-biome-hygiene`, stacked above H3 (`agent-F-habitat-boundary-tags`); working diff is H4-owned evidence and guard-repair work.
-- Dirty files and owner: current dirty files are the Swooper Maps contract guard plus H4 workstream records; all are owned by this H4 evidence/repair step.
-- Current code evidence: H1/H2/H3 locally closed; `openspec list` showed `habitat-biome-hygiene` at 0/11 tasks at phase open; `.prettierrc` has been removed; direct `prettier` / `eslint-config-prettier` package surfaces have been removed; Biome 2.4.16 is installed and `biome.json` loads successfully; the Swooper Maps import guard now parses import declarations with TypeScript so Biome multiline imports do not create false architecture failures.
+- Repo/Graphite state: active H4 branch `agent-F-habitat-biome-hygiene`, stacked above H3 (`agent-F-habitat-boundary-tags`); current working diff is H4-owned harness integration and records.
+- Dirty files and owner: current dirty files are H4 integration files (`tools/habitat-harness`, CI, root scripts/Nx config) plus H4 records; all are owned by this H4 step.
+- Current code evidence: H1/H2/H3 locally closed; `openspec list` showed `habitat-biome-hygiene` at 0/11 tasks at phase open; `.prettierrc` has been removed; direct `prettier` / `eslint-config-prettier` package surfaces have been removed; Biome 2.4.16 is installed and `biome.json` loads successfully; the Swooper Maps import guard now parses import declarations with TypeScript so Biome multiline imports do not create false architecture failures; Biome linter/hygiene runs as locked `biome-ci` habitat rule and as inferred Nx `biome:format`, `biome:check`, and `biome:ci` targets.
 - Generated outputs affected: tracked post-format `mods/*/mod/**` hashes still match the pre-format capture exactly. A fresh root build dirties the pre-existing `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js` tracked bundle with a non-format `from "net"` import; this was not hand-edited and is recorded as DL-16 / task 2.4 stop-condition evidence.
-- Tests/guards affected: the Swooper Maps contract guard now tolerates Biome multiline imports; future H4 implementation will add Biome targets/rules and CI wiring; existing `nx-boundaries` and H2 harness rules remain authoritative.
+- Tests/guards affected: the Swooper Maps contract guard now tolerates Biome multiline imports; H4 adds the locked `biome-ci` Habitat rule plus Nx/CI wiring; existing `nx-boundaries` and H2 harness rules remain authoritative.
 
 ## Scope
 
@@ -43,8 +43,8 @@
 ## Spec/Tasks
 
 - Spec/proposal: `openspec/changes/habitat-biome-hygiene/proposal.md` and `specs/habitat-harness/spec.md`
-- Tasks: `openspec/changes/habitat-biome-hygiene/tasks.md` (0/11 at phase open)
-- Validation status: `bun run openspec -- validate habitat-biome-hygiene --strict` PASS after phase-record setup
+- Tasks: `openspec/changes/habitat-biome-hygiene/tasks.md` (8/11 complete after H4 integration; 2.4, 4.1, 4.3 remain open)
+- Validation status: `bun run openspec -- validate habitat-biome-hygiene --strict` PASS after H4 integration
 
 ## Review
 
@@ -55,12 +55,14 @@
 
 ## Agent Fleet State
 
-N/A - solo phase setup. Add agents before implementation review/evidence review if delegated.
+- Darwin (`019ebfb9-6562-7c62-8342-7186f5e2a93a`) completed a read-only H4 3.2 review lane over the OpenSpec artifacts, harness plugin/CLI/rule pack, README, and CI. Findings matched the implemented checklist: inferred `biome:*` targets, `biome-ci` rule, `habitat fix`, `verify`/`classify` target wiring, CI, README/editor guidance, and no boundary/taxonomy weakening.
 
 ## Implementation
 
-- Completed tasks: 1.1, 1.2, 2.1, 2.2, 2.3.
-- Remaining tasks: 2.4-4.3. Task 2.4 has partial evidence: root build green; tracked pre/post format hashes match; direct `mod-swooper-maps:test` green after repairing the H4-caused multiline-import guard false negative; root `bun run test` remains red through DL-15 / SDK async-teardown behavior, so 2.4 is not marked complete.
+- Completed tasks: 1.1, 1.2, 2.1, 2.2, 2.3, 3.1, 3.2, 4.2.
+- Remaining tasks: 2.4, 4.1, 4.3. Task 2.4 has partial evidence: root build green; tracked pre/post format hashes match; direct `mod-swooper-maps:test` green after repairing the H4-caused multiline-import guard false negative; root `bun run test` remains red through DL-15 / SDK async-teardown behavior, so 2.4 is not marked complete.
+- Biome lint lane: minimal green bug-risk rule set is enabled in `biome.json` with `recommended: false`; no desired red Biome rule was silently disabled after selection. The red assist class (`organizeImports`) was repaired mechanically by applying the safe assist and committing it separately; no ratchet baseline is required for `biome-ci` because the rule is locked with zero diagnostics.
+- Harness integration: `@internal/habitat-harness` now infers `biome:format`, `biome:check`, and `biome:ci`; `habitat fix` runs `biome check --write .` and `--dry-run` runs non-writing `biome check .`; `habitat check` includes locked `biome-ci`; `habitat verify` composes `build,check,test,boundaries,biome:ci`; CI runs `bunx nx run-many -t biome:ci`; README documents editor setup and the never-plain-`lint` target convention.
 - Stop conditions triggered: task 2.4 cannot close as green yet. Fresh build produces a non-format intelligence-bridge bundle drift (`from "net"`) and root test exits 1 through package-local Vitest fan-out / SDK teardown defects. These are known out-of-scope defects unless promoted, but they block the proposal's strict 2.4 green claim.
 
 ## Verification
@@ -97,6 +99,19 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
   - `bun test test/foundation/contract-guard.test.ts -t "keeps decomposed tectonics strategy imports local"` (from `mods/mod-swooper-maps`)
   - `bunx nx run mod-swooper-maps:test --skip-nx-cache`
   - `bun run test > /tmp/h4-root-test-after-guard.log 2>&1`
+  - `bunx --bun @biomejs/biome lint . --only=<candidate-rule>` for each promoted minimal green Biome linter rule
+  - `bunx --bun @biomejs/biome check --write . --max-diagnostics=80`
+  - `git diff --name-only | rg '(^|/)dist/|(^|/)types/|(^|/)mod/|^\\.civ7/outputs/|(^|/)_archive/|src/maps/generated|packages/civ7-types/generated|civ7-tables\\.gen\\.ts' || true`
+  - `bunx --bun @biomejs/biome ci . --max-diagnostics=20`
+  - `bunx nx run-many -t check --skip-nx-cache`
+  - `bunx nx show project @internal/habitat-harness --json`
+  - `bunx nx run-many -t biome:ci --projects=@internal/habitat-harness --skip-nx-cache`
+  - `bunx nx run-many -t biome:check --projects=@internal/habitat-harness --skip-nx-cache`
+  - `bun run habitat:fix -- --dry-run`
+  - `bun run habitat:check -- --rule biome-ci`
+  - `bun run habitat:check -- --json --output /tmp/h4-habitat-check-after-biome.json`
+  - `bunx nx affected -t biome:ci --base HEAD~1 --skip-nx-cache`
+  - `NX_DAEMON=false bunx nx affected -t build,check,test,boundaries,biome:ci --base HEAD --head HEAD --outputStyle=static`
 - Results: H4 branch opened cleanly above H3; OpenSpec list shows H1/H2/H3 complete and H4 at 0/11 tasks.
 - Biome setup results: `@biomejs/biome` exact-pinned at 2.4.16; config loads
   successfully; formatter settings match `.prettierrc` semantics (`semi`,
@@ -191,24 +206,49 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
   proposal asks for build/test green plus build-output parity. Root build is
   green, but root test/parity expose known out-of-scope defects that require
   promotion or separate repair before strict closure.
+- Minimal Biome rule promotion result: selected green correctness/suspicious
+  bug-risk rules pass under `biome ci`; nested `**/_archive/**` is excluded so
+  live code can keep `noGlobalIsFinite` without historical archive churn.
+- Import organization result: `biome check --write .` applied safe import
+  organization across 1158 live files, with no protected/generated path changes
+  in the post-write grep. Verification before commit: `biome ci`, full
+  `nx run-many -t check --skip-nx-cache`, OpenSpec validation, and
+  `git diff --check` all passed. Commit:
+  `b72b26fe545228d8bd75ae92ed7c758717670873`
+  (`style(habitat-biome): organize imports with Biome`).
+- Harness integration result: Nx now exposes `biome:format`, `biome:check`,
+  `biome:ci`, `boundaries`, `habitat:check`, and `check` for
+  `@internal/habitat-harness`; `biome:ci` and `biome:check` run green through
+  Nx; `habitat fix --dry-run` reports no fixes without writing; `habitat check
+  --rule biome-ci` passes with locked `biome-ci` and baseline-integrity; full
+  `habitat check --json` passes all enforced rules and reports only the
+  pre-existing advisory `doc-ambiguity` finding.
+- Verify composition result: `nx affected -t biome:ci --base HEAD~1` runs the
+  new affected Biome target green for the H4 integration delta. The full target
+  list parses with `NX_DAEMON=false bunx nx affected -t
+  build,check,test,boundaries,biome:ci --base HEAD --head HEAD --outputStyle=static`
+  and selects no tasks. A broader `habitat verify --base HEAD` probe completed
+  the harness phase, then began buffered `nx affected` work for the dirty root
+  metadata diff; it was interrupted, so no green full-verify claim is made from
+  that probe.
 - Evidence boundary: H4-owned formatter/config/test-guard behavior is green;
   no claim is made that repo-wide root test or fresh-build parity is green.
 
 ## Realignment
 
-- Downstream docs/specs/issues updated: top-level workstream record reconciled from stale pre-execution state to H4-active state.
-- Tests/guards updated: none yet.
+- Downstream docs/specs/issues updated: top-level workstream record reconciled from stale pre-execution state to H4-active state; H4 tasks updated for 3.1/3.2/4.2; DL-12 updated from pending to enforced Biome hygiene reality.
+- Tests/guards updated: Swooper Maps import guard now parses imports structurally; Habitat rule pack now includes locked `biome-ci`; CI includes `biome:ci`.
 - Deferrals/triage updated: none; known red-test triage tasks remain outside H4 unless explicitly promoted.
 - Downstream realignment ledger: N/A at phase open.
 
 ## Next Action
 
-- Exact next step: decide whether DL-16 and the SDK/DL-15 root-test blockers
-  are promoted into prerequisite repair slices for task 2.4 closure; otherwise
-  continue H4 implementation with task 2.4 explicitly open, then return before
-  closure.
-- First files to inspect: `tools/habitat-harness/src/plugin.js`,
-  `tools/habitat-harness/src/bin/habitat.ts`,
-  `tools/habitat-harness/src/rules/rules.json`, `.github/workflows/ci.yml`,
-  and the post-format parity hash files.
+- Exact next step: commit the H4 integration diff if final checks remain green,
+  then promote or repair the DL-16 intelligence-bridge bundle leak and DL-15
+  package-local Vitest fan-out / SDK teardown blockers before claiming H4 task
+  2.4 or closure.
+- First files to inspect for closure blockers:
+  `mods/mod-civ7-intelligence-bridge` bundling config/source, plugin package
+  `test` scripts, `packages/sdk/src/files/XmlFile.ts`, and
+  `packages/sdk/test/mod.test.ts`.
 - Stop condition: Biome config would format generated/protected zones, create non-format semantic diff, or require hygiene ownership that overlaps Nx/Grit.

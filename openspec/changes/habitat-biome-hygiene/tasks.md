@@ -24,10 +24,10 @@
 
 ## 3. Lint Hygiene Lane
 
-- [ ] 3.1 Enable Biome linter with the minimal green rule set; for each
+- [x] 3.1 Enable Biome linter with the minimal green rule set; for each
   desired-but-red recommended rule, register a rule-pack entry with a ratchet
   baseline instead of disabling silently (list in phase record).
-- [ ] 3.2 Wire harness: `biome:format|check|ci` inferred targets; `habitat
+- [x] 3.2 Wire harness: `biome:format|check|ci` inferred targets; `habitat
   fix` runs format + safe assists; `habitat check` runs `biome:ci`; CI
   affected targets include `biome:ci`.
 
@@ -35,7 +35,7 @@
 
 - [ ] 4.1 All proposal verification gates pass (biome ci, parity, blame probe,
   habitat integration, no prettier residue).
-- [ ] 4.2 Harness README documents editor setup and the never-`lint`-named
+- [x] 4.2 Harness README documents editor setup and the never-`lint`-named
   target convention.
 - [ ] 4.3 `bun run openspec -- validate habitat-biome-hygiene --strict`;
   realign docs; close per workstream record.
