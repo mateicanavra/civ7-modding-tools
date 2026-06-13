@@ -7,7 +7,7 @@
 - Owner: workstream owner agent (Codex continuation)
 - Branch/Graphite stack: `agent-F-habitat-biome-hygiene` -> `agent-F-habitat-boundary-tags` -> `agent-F-habitat-harness-scaffold` -> `agent-F-habitat-nx-adoption` -> `agent-F-habitat-harness-workstream` -> `main`
 - Started: 2026-06-13
-- Status: OPEN — continuity records reconciled; implementation tasks not started
+- Status: OPEN — Biome setup, format commit, blame shield, and Prettier retirement complete; parity and harness integration remain
 
 ## Objective
 
@@ -27,7 +27,7 @@
 
 - Repo/Graphite state: clean worktree on empty H4 branch `agent-F-habitat-biome-hygiene`, stacked above restacked H3 (`agent-F-habitat-boundary-tags`).
 - Dirty files and owner: this phase will first own only `docs/projects/habitat-harness/workstream-record.md` and this phase record; implementation write set begins after setup.
-- Current code evidence: H1/H2/H3 locally closed; `openspec list` showed `habitat-biome-hygiene` at 0/11 tasks at phase open; `.prettierrc` still exists pending task 2.3; Biome 2.4.16 is installed and `biome.json` now loads successfully for task 1.1.
+- Current code evidence: H1/H2/H3 locally closed; `openspec list` showed `habitat-biome-hygiene` at 0/11 tasks at phase open; `.prettierrc` has been removed; direct `prettier` / `eslint-config-prettier` package surfaces have been removed; Biome 2.4.16 is installed and `biome.json` loads successfully.
 - Generated outputs affected: none yet. H4 parity will hash formatting-independent `mod/**` artifacts before reformat; generated outputs remain protected and are not hand-edited.
 - Tests/guards affected: future H4 implementation will add Biome targets/rules and CI wiring; existing `nx-boundaries` and H2 harness rules remain authoritative.
 
@@ -59,8 +59,8 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
 
 ## Implementation
 
-- Completed tasks: 1.1, 1.2, 2.1, 2.2.
-- Remaining tasks: 2.3-4.3.
+- Completed tasks: 1.1, 1.2, 2.1, 2.2, 2.3.
+- Remaining tasks: 2.4-4.3.
 - Stop conditions triggered: none at phase open.
 
 ## Verification
@@ -85,6 +85,11 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
   - `git show --shortstat --oneline --no-renames b6c2b7c384a7d5068353116efc78da88451f4f13`
   - `git show --name-only --format= --no-renames b6c2b7c384a7d5068353116efc78da88451f4f13 | rg '(^|/)dist/|(^|/)types/|(^|/)mod/|^\\.civ7/outputs/|^docs/_archive/|src/maps/generated|packages/civ7-types/generated|civ7-tables\\.gen\\.ts' || true`
   - `git blame --ignore-revs-file .git-blame-ignore-revs -L 1,5 -- vitest.config.ts`
+  - `bun install`
+  - `bunx --bun @biomejs/biome format . --max-diagnostics=20`
+  - `rg -n -i "prettier" --glob '!docs/_archive/**' --glob '!node_modules/**' --glob '!**/node_modules/**'`
+  - `bun pm why prettier`
+  - `bun pm why eslint-config-prettier`
 - Results: H4 branch opened cleanly above H3; OpenSpec list shows H1/H2/H3 complete and H4 at 0/11 tasks.
 - Biome setup results: `@biomejs/biome` exact-pinned at 2.4.16; config loads
   successfully; formatter settings match `.prettierrc` semantics (`semi`,
@@ -120,6 +125,24 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
 - Blame-ignore probe: `git blame --ignore-revs-file .git-blame-ignore-revs -L
   1,5 -- vitest.config.ts` attributes formatted lines to pre-format commits
   (`1c5f5dd947`, `15082cf3f5`), not the Biome format commit.
+- Prettier retirement result: `.prettierrc` deleted; root direct `prettier`
+  devDependency removed; `mods/mod-swooper-civ-dacia` package-local
+  `format` script removed; package-local `prettier` and
+  `eslint-config-prettier` devDependencies removed; three
+  `// prettier-ignore` formatter-control comments replaced with
+  `// biome-ignore format` comments placed before the matching `@ts-ignore`
+  lines. These imports intentionally stay one-line because declaration
+  generation reports unresolved Civ7 runtime modules on the module-specifier
+  line, and `@ts-ignore` only suppresses the next physical line.
+- Prettier residue sweep: no repo config, script, direct dependency, or source
+  formatter-control reference remains. Remaining `prettier` strings are
+  historical/project H4 prose, plain-English prose, and `bun.lock` third-party
+  metadata. `bun pm why prettier` reports only the transitive dependency from
+  `json-schema-to-typescript@15.0.4` through `mod-swooper-maps`; `bun pm why
+  eslint-config-prettier` reports only the optional peer edge from
+  `@nx/eslint-plugin@22.7.5`.
+- Post-retirement format check: `bunx --bun @biomejs/biome format .
+  --max-diagnostics=20` checked 2356 files and applied no fixes.
 - Skipped gates and rationale: implementation gates not run yet; this record opens the slice before code.
 - Evidence boundary: phase setup only; no Biome implementation or formatting proof claimed.
 
@@ -132,6 +155,11 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
 
 ## Next Action
 
-- Exact next step: validate the H4 OpenSpec shape, then start task 1.1 by adding exact-pinned Biome and configuring `biome.json` from `.prettierrc` without enabling overlapping boundary/syntax concerns.
-- First files to inspect: `.prettierrc`, `package.json`, `tools/habitat-harness/src/plugin.js`, `tools/habitat-harness/src/bin/habitat.ts`, `tools/habitat-harness/src/rules/rules.json`, `.github/workflows/ci.yml`.
+- Exact next step: run task 2.4 parity/build-test verification from the
+  pre-format `mod/**` hashes, then proceed to the minimal Biome lint lane and
+  harness/Nx/CI integration.
+- First files to inspect: `tools/habitat-harness/src/plugin.js`,
+  `tools/habitat-harness/src/bin/habitat.ts`,
+  `tools/habitat-harness/src/rules/rules.json`, `.github/workflows/ci.yml`,
+  and the post-format parity hash files.
 - Stop condition: Biome config would format generated/protected zones, create non-format semantic diff, or require hygiene ownership that overlaps Nx/Grit.

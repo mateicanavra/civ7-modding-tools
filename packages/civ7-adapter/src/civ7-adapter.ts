@@ -59,35 +59,26 @@ import "/base-standard/maps/map-globals.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { VoronoiUtils as CivVoronoiUtils } from "/base-standard/scripts/voronoi-utils.js";
 // Vanilla Civ7 biomes/features live in feature-biome-generator.js
+// biome-ignore format: keep this runtime import on one line so @ts-ignore suppresses the unresolved Civ7 module diagnostic.
 // @ts-ignore - resolved only at Civ7 runtime
-// prettier-ignore
-import {
-  designateBiomes as civ7DesignateBiomes,
-  addFeatures as civ7AddFeatures,
-} from "/base-standard/maps/feature-biome-generator.js";
+import { designateBiomes as civ7DesignateBiomes, addFeatures as civ7AddFeatures } from "/base-standard/maps/feature-biome-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { generateSnow as civ7GenerateSnow } from "/base-standard/maps/snow-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { generateDiscoveries as civ7GenerateDiscoveries } from "/base-standard/maps/discovery-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import * as civ7ResourceGeneratorModule from "/base-standard/maps/resource-generator.js";
+// biome-ignore format: keep this runtime import on one line so @ts-ignore suppresses the unresolved Civ7 module diagnostic.
 // @ts-ignore - resolved only at Civ7 runtime
-// prettier-ignore
-import {
-  assignStartPositions as civ7AssignStartPositions,
-  chooseStartSectors as civ7ChooseStartSectors,
-} from "/base-standard/maps/assign-starting-plots.js";
+import { assignStartPositions as civ7AssignStartPositions, chooseStartSectors as civ7ChooseStartSectors } from "/base-standard/maps/assign-starting-plots.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { needHumanNearEquator as civ7NeedHumanNearEquator } from "/base-standard/maps/map-utilities.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { assignAdvancedStartRegions as civ7AssignAdvancedStartRegions } from "/base-standard/maps/assign-advanced-start-region.js";
 // Elevation terrain generator (lakes/coasts)
+// biome-ignore format: keep this runtime import on one line so @ts-ignore suppresses the unresolved Civ7 module diagnostic.
 // @ts-ignore - resolved only at Civ7 runtime
-// prettier-ignore
-import {
-  generateLakes as civ7GenerateLakes,
-  expandCoasts as civ7ExpandCoasts,
-} from "/base-standard/maps/elevation-terrain-generator.js";
+import { generateLakes as civ7GenerateLakes, expandCoasts as civ7ExpandCoasts } from "/base-standard/maps/elevation-terrain-generator.js";
 
 /**
  * Production adapter wrapping GameplayMap, TerrainBuilder, AreaBuilder, FractalBuilder

@@ -77,7 +77,7 @@ No other ESLint rules survive.
 | Invariant | Source of promise | Today | Workstream slice |
 |---|---|---|---|
 | Generated artifacts are read-only (regenerate via scripts) | root `AGENTS.md` Hygiene | nothing | H5 (file layer, staged-file guard) |
-| Formatting consistency | `.prettierrc` exists; no gate anywhere | nothing | H4 (Biome `format`/`ci`) |
+| Formatting consistency | pre-H4: `.prettierrc` existed; no gate anywhere | Biome config present; CI/habitat gate pending in H4 | H4 (Biome `format`/`ci`) |
 | Bun-only package manager locally | CI-only pnpm guard | CI only | H7 (pre-commit cheap check) |
 | Stage truth/projection separation (`map-*` projection-only) | normalization packet / openspec config | prose + partial G-guards | logged; future rule after normalization train lands (exterior here) |
 | Typed intent APIs at adapter boundary | swooper-maps architecture.md | prose only | logged in discrepancy-log; future rule |

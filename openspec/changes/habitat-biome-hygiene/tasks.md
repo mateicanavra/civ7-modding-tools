@@ -15,7 +15,7 @@
 - [x] 2.1 Capture pre-reformat build-output hashes (`mod/**`).
 - [x] 2.2 Dedicated format-only commit: `bunx --bun @biomejs/biome format
   --write .`; add commit SHA to new `.git-blame-ignore-revs`.
-- [ ] 2.3 Remove `.prettierrc` and prettier references (deps, docs, editor
+- [x] 2.3 Remove `.prettierrc` and prettier references (deps, docs, editor
   config); `bun install`.
 - [ ] 2.4 Verify build/test green and build-output parity with 2.1 hashes per
   the proposal stop condition (formatting-independent `mod/**` artifacts
