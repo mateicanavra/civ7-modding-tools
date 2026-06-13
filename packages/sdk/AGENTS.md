@@ -144,4 +144,4 @@ See `apps/playground/src/examples/` for working examples
 - Game schema: Extract with `bun run refresh:data` at workspace root
 
 ### Testing Notes
-- `XmlFile.write` uses an asynchronous `fs.mkdir` callback; wait briefly after `Mod.build` in tests before reading generated files.
+- `Mod.build` completes SDK file writes before returning; tests may read generated files or remove temporary output directories immediately after the call.
