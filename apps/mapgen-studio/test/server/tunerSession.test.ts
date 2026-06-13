@@ -34,24 +34,26 @@ describe("Civ7TunerSession (Effect scoped shared session)", () => {
     const tuner = await startFakeTuner();
     const { runtime, service } = await makeRuntime(tuner.port);
 
-    const first = await runtime.runPromise(
-      service.use((o) =>
-        executeCiv7Command({ port: tuner.port, command: "first", timeoutMs: 1_000, ...o })
-      )
-    );
-    const second = await runtime.runPromise(
-      service.use((o) =>
-        executeCiv7Command({ port: tuner.port, command: "second", timeoutMs: 1_000, ...o })
-      )
-    );
+    try {
+      const first = await runtime.runPromise(
+        service.use((o) =>
+          executeCiv7Command({ port: tuner.port, command: "first", timeoutMs: 5_000, ...o })
+        )
+      );
+      const second = await runtime.runPromise(
+        service.use((o) =>
+          executeCiv7Command({ port: tuner.port, command: "second", timeoutMs: 5_000, ...o })
+        )
+      );
 
-    expect(first.output).toEqual(["null"]);
-    expect(second.output).toEqual(["null"]);
-    expect(tuner.connections()).toBe(1);
+      expect(first.output).toEqual(["null"]);
+      expect(second.output).toEqual(["null"]);
+      expect(tuner.connections()).toBe(1);
+    } finally {
+      await runtime.dispose();
+    }
 
-    await runtime.dispose();
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    expect(tuner.finReceived()).toBe(true);
+    expect(await waitForFin(tuner)).toBe(true);
   });
 
   test("gate: fails fast after the threshold, half-opens after cooldown, resets on success", async () => {
@@ -193,6 +195,15 @@ async function startFakeTuner(): Promise<FakeTuner> {
     },
     close,
   };
+}
+
+async function waitForFin(tuner: FakeTuner): Promise<boolean> {
+  const deadline = Date.now() + 2_000;
+  while (Date.now() < deadline) {
+    if (tuner.finReceived()) return true;
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  return tuner.finReceived();
 }
 
 function encodeResponse(listenerId: number, parts: readonly string[]): Buffer {

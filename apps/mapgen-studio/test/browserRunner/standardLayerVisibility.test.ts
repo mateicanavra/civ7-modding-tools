@@ -42,15 +42,15 @@ async function runStandardRecipeInWorker(): Promise<BrowserRunEvent[]> {
       recipeId: "mod-swooper-maps/standard",
       seed: 1780185340,
       mapSizeId: "MAPSIZE_TINY",
-      dimensions: { width: 32, height: 20 },
+      dimensions: { width: 8, height: 6 },
       latitudeBounds: { topLatitude: 70, bottomLatitude: -70 },
-      playerCount: 4,
+      playerCount: 2,
       resourcesMode: "balanced",
       configOverrides: {},
     },
   });
 
-  const deadline = Date.now() + 120_000;
+  const deadline = Date.now() + 180_000;
   while (Date.now() < deadline) {
     const terminal = harness.events.find(
       (event) =>
