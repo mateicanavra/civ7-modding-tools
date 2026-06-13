@@ -50,7 +50,31 @@ export default defineConfig({
         root: r('apps/mapgen-studio'),
         // Mirror the app's `@/*` -> src alias (tsconfig + vite) so vitest resolves
         // the shadcn `components/ui` -> `@/lib/utils` import chain.
-        resolve: { alias: { '@': r('apps/mapgen-studio/src') } },
+        resolve: {
+          alias: [
+            { find: '@', replacement: r('apps/mapgen-studio/src') },
+            {
+              find: /^\/mods\/(.+)$/,
+              replacement: `${r('mods')}/$1`,
+            },
+            {
+              find: /^@mapgen\/domain\/config(?:\.js)?$/,
+              replacement: r('mods/mod-swooper-maps/src/domain/config.ts'),
+            },
+            {
+              find: /^@mapgen\/domain$/,
+              replacement: r('mods/mod-swooper-maps/src/domain/index.ts'),
+            },
+            {
+              find: /^@mapgen\/domain\/(.+)\.js$/,
+              replacement: `${r('mods/mod-swooper-maps/src/domain')}/$1.ts`,
+            },
+            {
+              find: /^@mapgen\/domain\/(.+)$/,
+              replacement: `${r('mods/mod-swooper-maps/src/domain')}/$1`,
+            },
+          ],
+        },
         test: { name: 'mapgen-studio' }
       },
       {

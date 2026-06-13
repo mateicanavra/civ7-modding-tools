@@ -15,11 +15,18 @@ async function loadServeConfig() {
 }
 
 describe("Studio dev server watch ignores", () => {
-  it("ignores Studio-written map config JSON files so Save/Run does not full-reload the tab", async () => {
+  it("ignores Studio-written and deploy-written mod outputs so Save/Run does not full-reload the tab", async () => {
     const config = await loadServeConfig();
     const ignored = config.server?.watch?.ignored;
 
     expect(Array.isArray(ignored)).toBe(true);
-    expect(ignored).toContain("**/mods/mod-swooper-maps/src/maps/configs/*.config.json");
+    expect(ignored).toEqual(
+      expect.arrayContaining([
+        "**/mods/mod-swooper-maps/dist/**",
+        "**/mods/mod-swooper-maps/mod/**",
+        "**/mods/mod-swooper-maps/src/maps/generated/**",
+        "**/mods/mod-swooper-maps/src/maps/configs/*.config.json",
+      ]),
+    );
   });
 });

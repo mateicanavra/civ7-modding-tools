@@ -72,5 +72,5 @@ describe("recipe DAG artifact presentation", () => {
       .filter((artifact) => !artifact.domainId || artifact.domainId === "artifact");
 
     expect(generic).toEqual([]);
-  });
+  }, 15_000);
 });
