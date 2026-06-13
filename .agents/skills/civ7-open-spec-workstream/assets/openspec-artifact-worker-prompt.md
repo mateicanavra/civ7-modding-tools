@@ -89,4 +89,11 @@ When later asked to edit:
   completion.
 - Preserve existing artifact voice, tables, and checklist shape.
 - Return changed paths, validation run/results, and unresolved ambiguity.
+- If the edit changes handoff/navigation/phase-state shape, flag the
+  information-shape lane.
+- If the edit changes generic skill/reference/agent guidance, flag the
+  canonicality-boundary lane.
+- If the edit records proof or records dispositions for findings, flag the
+  proof-ledger lane.
+- If the edit closes tasks or checklists, flag the closure-readiness lane.
 ```

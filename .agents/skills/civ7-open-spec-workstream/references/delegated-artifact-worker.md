@@ -24,6 +24,23 @@ context-preserving document operator for the phase-control layer:
 The owner still decides what is true. The worker makes the truth durable on
 disk, flags contradictions, and preserves handoff quality.
 
+## Information Shape
+
+Design this pattern for a future DRA or workstream owner who needs to resume or
+delegate quickly while under implementation pressure.
+
+| Artifact | Reader Task | Navigation Shape |
+|---|---|---|
+| `SKILL.md` hook | Decide whether the workstream should use the pattern | Short trigger/routing entry |
+| This reference | Understand when and how to operate the worker | Random-access sections by concern |
+| Launch prompt asset | Start a worker without reconstructing instructions | Copy-forward checklist |
+| Repo-local agent file | Run a reusable bounded role when the runner exposes agents | Self-contained system prompt |
+
+Keep durable operating rules here. Put phase-specific facts in the active
+OpenSpec change. Put copyable launch text in the asset. Do not duplicate the
+same instruction across all layers unless the worker must see it without loading
+this reference.
+
 ## When To Use
 
 Use the worker when any of these are true:
@@ -188,6 +205,28 @@ matches the touched files:
 
 The worker may run these gates, but the owner owns whether they are sufficient.
 
+## Review Loop Fit
+
+Use the smallest review loop that matches the risk of the worker output.
+Routine artifact edits do not need review theater; closure-affecting edits do.
+
+| Concern / Risk | Review Lane | Evidence Base | Forbidden Scope | Required Output |
+|---|---|---|---|---|
+| Worker edits could make future resumption slower | Information shape | Edited artifact diff plus this reference | Redesigning phase scope | P1/P2/P3 findings on reader/task/navigation fit, hierarchy, scent, signal-to-noise, progressive disclosure, multi-artifact placement, and handoff fields |
+| Worker records findings or proof | Proof ledger | Review ledger, phase record, command output, searches | Re-running implementation | Findings on claim strength, missing evidence homes, or overclaim |
+| Worker closes tasks or checklists | Closure readiness | Tasks, closure checklist, git status, validation output | Merging/draining branches | Findings on incomplete disposition, dirty state, or unproven closure |
+| Worker changes generic guidance | Canonicality boundary | Skill/reference/agent diff | Adding phase-specific rules | Findings on generic-vs-subject drift and duplicate truth |
+
+Disposition every material finding before accepting the worker patch. Use the
+existing review disposition rules in `team-and-review-lanes.md` and the active
+review ledger. Accepted P1/P2 findings block dependent work and closure until
+repaired, rejected with source evidence, invalidated with later evidence, or
+resolved by a user/authority decision. Use `waived` or `deferred` only for
+P3/nonblocking findings unless higher authority explicitly changes that rule.
+
+Accepted material findings must become repair demands naming the artifact/path,
+evidence, expected change, owner, and whether closure is blocked.
+
 ## Failure Modes
 
 | Symptom | Likely Cause | Fix |
@@ -196,6 +235,8 @@ The worker may run these gates, but the owner owns whether they are sufficient.
 | Worker turns into reviewer | Role boundary unclear | Split review into a separate watcher/reviewer lane |
 | Worker edits code | Write set too broad | Stop the worker and relaunch with artifact-only scope |
 | Worker bloats phase docs | No artifact contract anchor | Re-ground in `artifact-contracts.md` and request terse patch |
+| Worker output is hard to resume from | Information shape lane was skipped | Review headers, first sentences, and handoff fields before accepting |
+| Worker findings stay unresolved | Review-loop disposition was skipped | Classify each finding and repair, waive, reject, invalidate, or defer it |
 | Owner trusts unreviewed patch | Delegation confused with ownership transfer | Owner reviews diff and validates before staging |
 | Worker loses thread context | No budget rule or handoff | Ask for a compaction-safe handoff before new work |
 
