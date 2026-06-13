@@ -4,7 +4,7 @@
   configure `biome.json` (formatter matching `.prettierrc` semantics; linter
   scoped per proposal; excludes for generated zones, `mod/**`, `dist/**`,
   `.nx`, `.civ7/outputs`, `docs/_archive`, vendor files).
-- [ ] 1.2 Dry-run `biome format` repo-wide; review diff size; the reformat
+- [x] 1.2 Dry-run `biome format` repo-wide; review diff size; the reformat
   delta is accepted only if confined to whitespace/quote-style/trailing-comma
   classes — verified by `git diff -w` on the reformat commit being
   empty-or-quotes/commas-only plus a sampled diff review recorded in the
@@ -13,7 +13,7 @@
 ## 2. Reformat And Prettier Retirement
 
 - [x] 2.1 Capture pre-reformat build-output hashes (`mod/**`).
-- [ ] 2.2 Dedicated format-only commit: `bunx --bun @biomejs/biome format
+- [x] 2.2 Dedicated format-only commit: `bunx --bun @biomejs/biome format
   --write .`; add commit SHA to new `.git-blame-ignore-revs`.
 - [ ] 2.3 Remove `.prettierrc` and prettier references (deps, docs, editor
   config); `bun install`.

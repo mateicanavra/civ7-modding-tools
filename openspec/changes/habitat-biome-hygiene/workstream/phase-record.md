@@ -59,8 +59,8 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
 
 ## Implementation
 
-- Completed tasks: 1.1, 2.1.
-- Remaining tasks: 1.2, 2.2-4.3.
+- Completed tasks: 1.1, 1.2, 2.1, 2.2.
+- Remaining tasks: 2.3-4.3.
 - Stop conditions triggered: none at phase open.
 
 ## Verification
@@ -80,6 +80,11 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
   - `bunx --bun @biomejs/biome format . --max-diagnostics=40`
   - `bunx --bun @biomejs/biome format . --reporter=json --max-diagnostics=none > /tmp/h4-biome-format-dry-run.json || true`
   - `shasum -a 256 $(git ls-files 'mods/*/mod/**' | sort)`
+  - `bunx --bun @biomejs/biome format --write . --max-diagnostics=80`
+  - `bunx --bun @biomejs/biome format . --max-diagnostics=20`
+  - `git show --shortstat --oneline --no-renames b6c2b7c384a7d5068353116efc78da88451f4f13`
+  - `git show --name-only --format= --no-renames b6c2b7c384a7d5068353116efc78da88451f4f13 | rg '(^|/)dist/|(^|/)types/|(^|/)mod/|^\\.civ7/outputs/|^docs/_archive/|src/maps/generated|packages/civ7-types/generated|civ7-tables\\.gen\\.ts' || true`
+  - `git blame --ignore-revs-file .git-blame-ignore-revs -L 1,5 -- vitest.config.ts`
 - Results: H4 branch opened cleanly above H3; OpenSpec list shows H1/H2/H3 complete and H4 at 0/11 tasks.
 - Biome setup results: `@biomejs/biome` exact-pinned at 2.4.16; config loads
   successfully; formatter settings match `.prettierrc` semantics (`semi`,
@@ -95,6 +100,26 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
 - Pre-format mod output hashes captured in
   `openspec/changes/habitat-biome-hygiene/workstream/pre-format-mod-output-hashes.txt`
   for the six tracked generated mod output files under `mods/*/mod/**`.
+- Format-write result: first run formatted 2356 files, fixed 1555 files, then
+  surfaced two Tailwind CSS parse errors in `apps/mapgen-studio/src/index.css`.
+  `biome.json` now enables `css.parser.tailwindDirectives`; the rerun completed
+  cleanly.
+- Dedicated format-only commit:
+  `b6c2b7c384a7d5068353116efc78da88451f4f13`
+  (`style(habitat-biome): apply Biome repo format`) with 1555 files changed,
+  65053 insertions, and 53126 deletions.
+- Format diff review: changed path count by extension was `.ts` 1431, `.json`
+  38, `.tsx` 38, `.js` 35, `.mjs` 11, `.jsx` 1, `.css` 1, `.jsonc` 1. Sampled
+  hunks showed Biome mechanical rewrites only: two-space JSON expansion,
+  single-to-double quote changes, trailing-comma normalization, semicolon
+  insertion, and line wrapping.
+- Protected/generated path grep over the format commit returned no matches.
+  Post-format hashes in
+  `openspec/changes/habitat-biome-hygiene/workstream/post-format-mod-output-hashes.txt`
+  match the pre-format capture exactly.
+- Blame-ignore probe: `git blame --ignore-revs-file .git-blame-ignore-revs -L
+  1,5 -- vitest.config.ts` attributes formatted lines to pre-format commits
+  (`1c5f5dd947`, `15082cf3f5`), not the Biome format commit.
 - Skipped gates and rationale: implementation gates not run yet; this record opens the slice before code.
 - Evidence boundary: phase setup only; no Biome implementation or formatting proof claimed.
 
