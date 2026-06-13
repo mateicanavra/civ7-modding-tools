@@ -33,8 +33,9 @@ existing Vite dev middleware, while keeping the legacy `/api/*` handlers alive
   construction.
 - Preserve the parity registry EXACTLY: non-uniform error status codes
   (gameInfo/live → 400, setupConfig → 503, most → 500, 404 on missing op);
-  `civ7.live.status` 200-with-embedded-`{error}`; run-in-game status 404 echoes
-  `serverInstanceId`/`serverStartedAt` while map-config status 404 does not.
+  `civ7.live.status` 200-with-embedded-`{error}`. S1.2 supersedes the original
+  status-miss identity rule: run-in-game and map-config status 404s both echo
+  `serverInstanceId`/`serverStartedAt`.
 - Mount an oRPC `RPCHandler` at `/rpc` inside the existing Vite dev middleware
   (no Bun process). Keep ALL legacy `/api/*` handlers alive (coexistence).
 - Add `apps/mapgen-studio/src/lib/orpc.ts`: the typed oRPC client (RPCLink → `/rpc`)
@@ -72,7 +73,7 @@ existing Vite dev middleware, while keeping the legacy `/api/*` handlers alive
 
 - Any hard-core parity behavior cannot be preserved (non-uniform status codes,
   live.status embedded-error, run-in-game engine, proof identity, security scan,
-  serialized queue / dual mutex, 404 server-id echo asymmetry).
+  serialized queue / dual mutex, status-miss server-id echo).
 
 ## Consumer Impact
 
@@ -85,6 +86,6 @@ end-to-end type safety, with zero behavior change to the existing app.
 - `bun run check` + `bun run build` in `apps/mapgen-studio` (tsc + vite build +
   worker-bundle check).
 - Runtime smoke through `/rpc`: serverInfo 200; non-uniform error codes; run-in-game
-  404 echoes server identity; map-config 404 does not; `assertNoRawControlFields`
+  and map-config 404s echo server identity; `assertNoRawControlFields`
   rejects raw-control keys with 400; legacy `/api/*` still responds (shared state).
 - OpenSpec strict validation.

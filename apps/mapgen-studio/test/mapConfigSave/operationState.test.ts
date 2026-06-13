@@ -49,10 +49,21 @@ describe("Map config save/deploy operation store", () => {
       path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
       saved: false,
       deployed: false,
+      details: {
+        code: "save-deploy-existing-config-unavailable",
+      },
     });
 
     expect(failed.status).toBe("failed");
     expect(failed.details?.failedAtPhase).toBe("deploying");
+    expect(failed.details?.code).toBe("save-deploy-existing-config-unavailable");
+    expect(failed.details?.recoveryActions).toContain("inspect-deploy-output");
+    expect(failed.recoveryActions).toEqual([
+      "copy-diagnostics",
+      "retry-status",
+      "retry-save-deploy",
+      "inspect-deploy-output",
+    ]);
 
     harness.advance(1_001);
     expect(harness.store.get("studio-save-deploy-test")).toBeUndefined();

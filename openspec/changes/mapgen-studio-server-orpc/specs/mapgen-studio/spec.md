@@ -52,12 +52,13 @@ stateful invariants of the hand-rolled `/api/*` handlers without alteration.
   `{ error: <reason> }` while successful fields carry their payload
 - **AND** only an outer (non-aggregated) failure yields a transport error
 
-#### Scenario: Run-in-game status 404 echoes server identity; map-config status 404 does not
+#### Scenario: Operation status 404 echoes server identity
 - **WHEN** `runInGame.status` is polled for an unknown or pruned request id
 - **THEN** the 404 error `data` includes `serverInstanceId` and `serverStartedAt`
   for client restart detection
 - **WHEN** `mapConfigs.status` is polled for an unknown request id
-- **THEN** the 404 error does NOT include `serverInstanceId`/`serverStartedAt`
+- **THEN** the 404 error `data` includes `serverInstanceId` and
+  `serverStartedAt` for the same restart detection contract
 
 #### Scenario: Raw control fields are rejected
 - **WHEN** `runInGame.start` receives a body containing any of

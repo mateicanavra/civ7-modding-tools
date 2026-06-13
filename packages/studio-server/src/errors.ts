@@ -9,7 +9,7 @@
  *   - civ7.setupConfig → 503
  *   - civ7.autoplay → 409 (mutex) / 500 (other)
  *   - runInGame.* → 409/400/500/503; 404 status miss (with server-identity echo)
- *   - mapConfigs.* → 409 (mutex) / 400 (validation); 404 status miss (no echo)
+ *   - mapConfigs.* → 409/400/500/503; 404 status miss (with server-identity echo)
  *   - everything else (status / mapSummary / savedConfigs / setupCatalog) → 500
  *
  * Procedures throw via the typed `errors.CODE({ message, data })` constructor the

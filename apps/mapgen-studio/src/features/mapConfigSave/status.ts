@@ -33,6 +33,7 @@ export type MapConfigSaveDeployStatus = Readonly<{
     filesCopied?: number;
   };
   details?: Record<string, unknown>;
+  recoveryActions?: ReadonlyArray<string>;
 }>;
 
 export function kindForMapConfigSaveDeployPhase(
@@ -71,6 +72,7 @@ export function createMapConfigSaveDeployStatus(args: {
   error?: string;
   deploy?: MapConfigSaveDeployStatus["deploy"];
   details?: Record<string, unknown>;
+  recoveryActions?: ReadonlyArray<string>;
 }): MapConfigSaveDeployStatus {
   const timestamp = (args.now ?? (() => new Date()))().toISOString();
   const status = kindForMapConfigSaveDeployPhase(args.phase);
@@ -87,6 +89,7 @@ export function createMapConfigSaveDeployStatus(args: {
     ...(args.error === undefined ? {} : { error: args.error }),
     ...(args.deploy === undefined ? {} : { deploy: args.deploy }),
     ...(args.details === undefined ? {} : { details: args.details }),
+    ...(args.recoveryActions === undefined ? {} : { recoveryActions: args.recoveryActions }),
   };
 }
 
@@ -101,6 +104,7 @@ export function updateMapConfigSaveDeployStatus(
     error?: string;
     deploy?: MapConfigSaveDeployStatus["deploy"];
     details?: Record<string, unknown>;
+    recoveryActions?: ReadonlyArray<string>;
   }>,
 ): MapConfigSaveDeployStatus {
   const status = kindForMapConfigSaveDeployPhase(patch.phase);
@@ -116,5 +120,6 @@ export function updateMapConfigSaveDeployStatus(
     ...(patch.error === undefined ? {} : { error: patch.error }),
     ...(patch.deploy === undefined ? {} : { deploy: patch.deploy }),
     ...(patch.details === undefined ? {} : { details: patch.details }),
+    ...(patch.recoveryActions === undefined ? {} : { recoveryActions: patch.recoveryActions }),
   };
 }

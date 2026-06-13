@@ -20,10 +20,10 @@ import {
 } from "@civ7/direct-control";
 
 import {
-  RunInGameHttpError,
   createRunInGameOperationStore,
   type RunInGameOperationState,
 } from "../runInGame/operationState";
+import { StudioEngineError } from "./engineErrors";
 import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
 import {
   buildRunInGameExactAuthorshipProof,
@@ -59,9 +59,10 @@ import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
 // (architecture/10 §7).
 //
 // Each engine returns its success body, or THROWS:
-//   - `RunInGameHttpError` (carries statusCode + details) — preserves the
-//     non-uniform legacy status codes (409 mutex, run-in-game/save-deploy 404).
-//   - a plain `Error` — validation/save failures (mapped to 400 by the caller).
+//   - `StudioEngineError` (carries statusCode + details) — preserves the
+//     non-uniform legacy status codes (409 mutex, run-in-game/save-deploy 404)
+//     and known invalid/unavailable/failed engine categories.
+//   - an unexpected exception — mapped by the oRPC context to `*_FAILED`.
 // The oRPC context adapts return/throw → value/ORPCError (./context.ts), mapping
 // each status onto the contract's DECLARED error codes (409→*_BLOCKED,
 // 400→*_INVALID, 404→*_STATUS_NOT_FOUND, 503→*_UNAVAILABLE, else *_FAILED) so
@@ -119,6 +120,31 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function invalidEngineRequest(message: string, code: string, details: Record<string, unknown> = {}): StudioEngineError {
+  return new StudioEngineError(400, message, {
+    code,
+    ...details,
+    recoveryActions: ["copy-diagnostics"],
+  });
+}
+
+function unavailableEngineDependency(
+  message: string,
+  code: string,
+  err?: unknown,
+  details: Record<string, unknown> = {},
+): StudioEngineError {
+  const directControlCode = err instanceof Civ7DirectControlError ? err.code : undefined;
+  const cause = err instanceof Civ7DirectControlError ? err.details : err;
+  return new StudioEngineError(503, message, {
+    code,
+    ...details,
+    ...(directControlCode === undefined ? {} : { directControlCode }),
+    ...(cause === undefined ? {} : { cause: cloneForJson(cause) }),
+    recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
+  });
+}
+
 async function restartCiv7ProcessViaSteam(): Promise<{
   command: string;
   quit: { command: string; stdout: string; stderr: string };
@@ -130,7 +156,12 @@ async function restartCiv7ProcessViaSteam(): Promise<{
   setupPhase?: string;
 }> {
   if (process.platform !== "darwin") {
-    throw new Error("Civ7 process restart from Studio is currently supported on macOS only");
+    throw unavailableEngineDependency(
+      "Civ7 process restart from Studio is currently supported on macOS only",
+      "civ7-process-restart-platform-unavailable",
+      undefined,
+      { platform: process.platform },
+    );
   }
 
   const shutdown = await shutdownCiv7MacProcess({
@@ -143,6 +174,12 @@ async function restartCiv7ProcessViaSteam(): Promise<{
     forceKillTimeoutMs: CIV7_PROCESS_FORCE_KILL_TIMEOUT_MS,
     pollIntervalMs: CIV7_PROCESS_RESTART_POLL_INTERVAL_MS,
     stableAbsentPolls: CIV7_PROCESS_EXIT_STABLE_POLLS,
+  }).catch((err: unknown) => {
+    throw unavailableEngineDependency(
+      "Unable to shut down Civ7 process before restart",
+      "civ7-process-shutdown-unavailable",
+      err,
+    );
   });
 
   const steamLaunch = await launchCiv7MacViaSteamWithRetries({
@@ -156,9 +193,22 @@ async function restartCiv7ProcessViaSteam(): Promise<{
     pollIntervalMs: CIV7_PROCESS_RESTART_POLL_INTERVAL_MS,
     maxLaunchAttempts: CIV7_PROCESS_LAUNCH_ATTEMPTS,
     retryDelayMs: CIV7_PROCESS_LAUNCH_RETRY_DELAY_MS,
+  }).catch((err: unknown) => {
+    throw unavailableEngineDependency(
+      "Unable to launch Civ7 via Steam",
+      "civ7-steam-launch-unavailable",
+      err,
+    );
   });
   const launch = steamLaunch.attempts[steamLaunch.attempts.length - 1]?.launch;
-  if (!launch) throw new Error("Civ7 Steam launch did not record an attempt");
+  if (!launch) {
+    throw unavailableEngineDependency(
+      "Civ7 Steam launch did not record an attempt",
+      "civ7-steam-launch-attempt-missing",
+      undefined,
+      { launchAttempts: steamLaunch.attempts },
+    );
+  }
 
   const startedAt = Date.now();
   let setupPhase: string | undefined;
@@ -174,7 +224,15 @@ async function restartCiv7ProcessViaSteam(): Promise<{
   }
 
   if (setupPhase !== "shell") {
-    throw new Error(`Civ7 process restarted but setup shell was not ready within ${CIV7_PROCESS_RESTART_WAIT_TIMEOUT_MS}ms`);
+    throw unavailableEngineDependency(
+      `Civ7 process restarted but setup shell was not ready within ${CIV7_PROCESS_RESTART_WAIT_TIMEOUT_MS}ms`,
+      "civ7-setup-shell-timeout",
+      undefined,
+      {
+        setupPhase,
+        timeoutMs: CIV7_PROCESS_RESTART_WAIT_TIMEOUT_MS,
+      },
+    );
   }
 
   return {
@@ -306,21 +364,25 @@ function isNodeNotFound(err: unknown): boolean {
 
 function assertRepoMapEnvelope(envelope: unknown, id: string): void {
   if (!envelope || typeof envelope !== "object" || Array.isArray(envelope)) {
-    throw new Error("Map config envelope must be a JSON object");
+    throw invalidEngineRequest("Map config envelope must be a JSON object", "map-config-envelope-not-object");
   }
   const record = envelope as Record<string, unknown>;
-  if (record.id !== id) throw new Error("Map config envelope id must match the requested id");
+  if (record.id !== id) {
+    throw invalidEngineRequest("Map config envelope id must match the requested id", "map-config-envelope-id-mismatch");
+  }
   if (typeof record.name !== "string" || record.name.trim().length === 0) {
-    throw new Error("Map config name must be non-empty");
+    throw invalidEngineRequest("Map config name must be non-empty", "map-config-name-empty");
   }
   if (typeof record.description !== "string" || record.description.trim().length === 0) {
-    throw new Error("Map config description must be non-empty");
+    throw invalidEngineRequest("Map config description must be non-empty", "map-config-description-empty");
   }
-  if (record.recipe !== "standard") throw new Error('Map config recipe must be "standard"');
+  if (record.recipe !== "standard") {
+    throw invalidEngineRequest('Map config recipe must be "standard"', "map-config-recipe-invalid");
+  }
   if (!Number.isInteger(record.sortIndex))
-    throw new Error("Map config sortIndex must be an integer");
+    throw invalidEngineRequest("Map config sortIndex must be an integer", "map-config-sort-index-invalid");
   if (!record.config || typeof record.config !== "object" || Array.isArray(record.config)) {
-    throw new Error("Map config payload must be a JSON object");
+    throw invalidEngineRequest("Map config payload must be a JSON object", "map-config-payload-not-object");
   }
 }
 
@@ -364,12 +426,21 @@ async function materializeRunInGameConfig(args: {
     ? resolve(args.repoRoot, args.sourcePath)
     : resolve(configRoot, `${args.id}.config.json`);
   if (!target.startsWith(`${configRoot}/`) || !target.endsWith(".config.json")) {
-    throw new Error("Map config writes must stay in mods/mod-swooper-maps/src/maps/configs");
+    throw invalidEngineRequest(
+      "Map config writes must stay in mods/mod-swooper-maps/src/maps/configs",
+      "map-config-path-outside-config-root",
+      { sourcePath: args.sourcePath },
+    );
   }
   const path = relative(args.repoRoot, target);
   const previous = await readFile(target, "utf8").catch((err: unknown) => {
     if (isNodeNotFound(err)) return null;
-    throw err;
+    throw unavailableEngineDependency(
+      "Unable to read existing map config before Run in Game materialization",
+      "map-config-read-unavailable",
+      err,
+      { path, sourcePath: args.sourcePath },
+    );
   });
   await mkdir(dirname(target), { recursive: true });
   await writeFile(target, `${JSON.stringify(args.envelope, null, 2)}\n`);
@@ -386,7 +457,26 @@ async function materializeRunInGameConfig(args: {
 
 function cloneForJson(value: unknown): unknown {
   if (value === undefined) return undefined;
-  return JSON.parse(JSON.stringify(value));
+  if (value instanceof Error) {
+    return {
+      name: value.name,
+      message: value.message,
+      ...(value.stack === undefined ? {} : { stack: value.stack }),
+    };
+  }
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch {
+    return String(value);
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value != null && typeof value === "object" && !Array.isArray(value);
+}
+
+function engineDetails(err: unknown): Record<string, unknown> {
+  return err instanceof StudioEngineError && isRecord(err.details) ? err.details : {};
 }
 
 async function restoreRepoConfig(target: string, previous: string | null): Promise<void> {
@@ -441,7 +531,7 @@ export type SaveDeployEngineResult = ReturnType<SaveDeployOperationStore["create
  *
  * Contract: engines serialize through a process-wide operation queue (one
  * Civ7-mutating operation at a time), record progress in TTL-bounded
- * operation stores keyed by request id, and throw `RunInGameHttpError`
+ * operation stores keyed by request id, and throw `StudioEngineError`
  * (legacy HTTP status + structured `details`) for every client-visible
  * failure — transports map it 1:1, so error codes stay stable across the
  * Vite middleware and Bun daemon mounts.
@@ -476,7 +566,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
   async function runAutoplayEngine(action: "start" | "stop"): Promise<AutoplayEngineResult> {
     const activeRunInGame = runInGameOperations.findActive();
     if (activeRunInGame) {
-      throw new RunInGameHttpError(
+      throw new StudioEngineError(
         409,
         "Run in Game is running; wait for it to finish before changing autoplay.",
         {
@@ -488,7 +578,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
     }
     const activeSaveDeploy = saveDeployOperations.findActive();
     if (activeSaveDeploy) {
-      throw new RunInGameHttpError(
+      throw new StudioEngineError(
         409,
         "Save/Deploy is running; wait for it to finish before changing autoplay.",
         {
@@ -503,10 +593,17 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
       waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
       pollIntervalMs: 1_000,
     };
-    const result =
-      action === "start"
-        ? await startCiv7Autoplay(opts)
-        : await stopCiv7Autoplay(opts);
+    const result = await (action === "start"
+      ? startCiv7Autoplay(opts)
+      : stopCiv7Autoplay(opts)
+    ).catch((err: unknown) => {
+      throw unavailableEngineDependency(
+        `Civ7 autoplay ${action} is unavailable`,
+        "civ7-autoplay-unavailable",
+        err,
+        { action },
+      );
+    });
     return {
       ok: result.verified,
       action,
@@ -535,7 +632,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
     try {
       parsedRequest = parseRunInGameSetupRequest(body);
     } catch (err) {
-      throw new RunInGameHttpError(
+      throw new StudioEngineError(
         400,
         err instanceof Error ? err.message : "Invalid Run in Game request",
         { code: "run-in-game-request-invalid" },
@@ -598,7 +695,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
           },
         };
       }
-      throw new RunInGameHttpError(
+      throw new StudioEngineError(
         409,
         "Another Run in Game request is already running; wait for it to finish before launching a different config.",
         {
@@ -610,7 +707,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
     }
     const activeSaveDeploy = saveDeployOperations.findActive();
     if (activeSaveDeploy) {
-      throw new RunInGameHttpError(
+      throw new StudioEngineError(
         409,
         "Save/Deploy is running; wait for it to finish before Run in Game.",
         {
@@ -733,7 +830,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
           requiredMarkers: requiredMaterializationMarkers,
         });
         if (materializationScriptUnresolvedLinks.length > 0) {
-          throw new RunInGameHttpError(
+          throw new StudioEngineError(
             500,
             "Generated Swooper map script is missing current materialization proof markers",
             {
@@ -752,7 +849,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
         const localBundlePath = localModScriptPath(repoRoot, id);
         const localBundleText = await readFile(localBundlePath, "utf8").catch(() => "");
         if (!mapScriptEmbedsRequestId(localBundleText, requestId)) {
-          throw new RunInGameHttpError(
+          throw new StudioEngineError(
             500,
             "Deployed map bundle does not embed the Run in Game request id; the in-game proof could never match.",
             {
@@ -778,7 +875,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
         phase = "checking-civ7";
         runInGameOperations.update(requestId, { phase, materialization });
         await getCiv7PlayableStatus({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }).catch((err) => {
-          throw new RunInGameHttpError(503, "Civ7 direct-control status is unavailable", {
+          throw new StudioEngineError(503, "Civ7 direct-control status is unavailable", {
             code: "direct-control-status-unavailable",
             cause: cloneForJson(err instanceof Civ7DirectControlError ? err.details : err),
             materialization,
@@ -802,7 +899,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
         }
         const rowProof = rowVisibility.final;
         if (rowProof.rows.length === 0) {
-          throw new RunInGameHttpError(409, `Civ7 setup cannot see ${launchMapScript}`, {
+          throw new StudioEngineError(409, `Civ7 setup cannot see ${launchMapScript}`, {
             code: "setup-map-row-not-visible",
             reloadRequired: true,
             reloadBoundary:
@@ -842,13 +939,18 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
             mapScript: launchMapScript,
           });
           if (mapgenFailure) {
-            throw new RunInGameHttpError(500, mapgenFailure.message, {
+            throw new StudioEngineError(500, mapgenFailure.message, {
               ...mapgenFailure,
               materialization,
               cause: cloneForJson(err instanceof Civ7DirectControlError ? err.details : err),
             });
           }
-          throw err;
+          throw unavailableEngineDependency(
+            "Civ7 direct-control start is unavailable",
+            "direct-control-start-unavailable",
+            err,
+            { materialization },
+          );
         });
 
         phase = "waiting-for-proof";
@@ -868,13 +970,18 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
             mapScript: launchMapScript,
           });
           if (mapgenFailure) {
-            throw new RunInGameHttpError(500, mapgenFailure.message, {
+            throw new StudioEngineError(500, mapgenFailure.message, {
               ...mapgenFailure,
               materialization,
               cause: err instanceof Error ? err.message : String(err),
             });
           }
-          throw err;
+          throw unavailableEngineDependency(
+            "Civ7 mapgen log proof is unavailable",
+            "direct-control-proof-unavailable",
+            err,
+            { materialization },
+          );
         });
         const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(
           () => "",
@@ -889,7 +996,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
           seed,
         });
         if (!logProof) {
-          throw new RunInGameHttpError(
+          throw new StudioEngineError(
             500,
             "Swooper log proof payload did not match the Studio Run in Game request",
             {
@@ -984,7 +1091,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
   function runRunInGameStatusEngine(requestId: string): RunInGameOperationState {
     const status = runInGameOperations.get(requestId);
     if (!status) {
-      throw new RunInGameHttpError(404, `Run in Game request not found: ${requestId}`, {
+      throw new StudioEngineError(404, `Run in Game request not found: ${requestId}`, {
         code: "run-in-game-request-not-found",
       });
     }
@@ -992,10 +1099,18 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
   }
 
   async function runSaveDeployEngine(body: unknown): Promise<SaveDeployEngineResult> {
-    const parsedRequest = parseMapConfigSaveRequest(body as Parameters<typeof parseMapConfigSaveRequest>[0]);
+    let parsedRequest: ReturnType<typeof parseMapConfigSaveRequest>;
+    try {
+      parsedRequest = parseMapConfigSaveRequest(body as Parameters<typeof parseMapConfigSaveRequest>[0]);
+    } catch (err) {
+      throw invalidEngineRequest(
+        err instanceof Error ? err.message : "Invalid Save/Deploy request",
+        "save-deploy-request-invalid",
+      );
+    }
     const activeRunInGame = runInGameOperations.findActive();
     if (activeRunInGame) {
-      throw new RunInGameHttpError(
+      throw new StudioEngineError(
         409,
         "Run in Game is running; wait for it to finish before Save/Deploy.",
         {
@@ -1007,7 +1122,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
     }
     const activeSaveDeploy = saveDeployOperations.findActive();
     if (activeSaveDeploy && activeSaveDeploy.requestId !== parsedRequest.requestId) {
-      throw new RunInGameHttpError(409, "Save/Deploy is already running.", {
+      throw new StudioEngineError(409, "Save/Deploy is already running.", {
         code: "save-deploy-operation-active",
         activeRequestId: activeSaveDeploy.requestId,
         activePhase: activeSaveDeploy.phase,
@@ -1022,7 +1137,11 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
       ? resolve(repoRoot, parsedRequest.sourcePath)
       : resolve(configRoot, `${parsedRequest.id}.config.json`);
     if (!target.startsWith(`${configRoot}/`) || !target.endsWith(".config.json")) {
-      throw new Error("Map config writes must stay in mods/mod-swooper-maps/src/maps/configs");
+      throw invalidEngineRequest(
+        "Map config writes must stay in mods/mod-swooper-maps/src/maps/configs",
+        "map-config-path-outside-config-root",
+        { sourcePath: parsedRequest.sourcePath },
+      );
     }
     const path = relative(repoRoot, target);
     const requestId = parsedRequest.requestId ?? createCiv7ControlRequestId("studio-save-deploy");
@@ -1034,7 +1153,12 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
         saveDeployOperations.update(requestId, { phase, path });
         previous = await readFile(target, "utf8").catch((err: unknown) => {
           if (isNodeNotFound(err)) return null;
-          throw err;
+          throw unavailableEngineDependency(
+            "Unable to read existing map config before Save/Deploy",
+            "save-deploy-existing-config-unavailable",
+            err,
+            { path, sourcePath: parsedRequest.sourcePath },
+          );
         });
         await mkdir(dirname(target), { recursive: true });
         await writeFile(target, `${JSON.stringify(parsedRequest.envelope, null, 2)}\n`);
@@ -1045,13 +1169,22 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
         saveDeployOperations.complete(requestId, { path, saved: true, deployed: true, deploy });
       } catch (err) {
         const error = err instanceof Error ? err.message : "Deploy failed";
+        let rollbackFailure: unknown;
         if (phase === "deploying") {
-          await restoreRepoConfig(target, previous);
+          try {
+            await restoreRepoConfig(target, previous);
+          } catch (restoreErr) {
+            rollbackFailure = restoreErr;
+          }
         }
         saveDeployOperations.fail(requestId, phase, error, {
           path,
           saved: false,
           deployed: false,
+          details: {
+            ...engineDetails(err),
+            ...(rollbackFailure === undefined ? {} : { rollbackFailure: cloneForJson(rollbackFailure) }),
+          },
         });
       }
     };
@@ -1066,7 +1199,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
   function runSaveDeployStatusEngine(requestId: string): SaveDeployEngineResult {
     const status = saveDeployOperations.get(requestId);
     if (!status) {
-      throw new RunInGameHttpError(404, `Save/Deploy request not found: ${requestId}`, {
+      throw new StudioEngineError(404, `Save/Deploy request not found: ${requestId}`, {
         code: "save-deploy-request-not-found",
       });
     }

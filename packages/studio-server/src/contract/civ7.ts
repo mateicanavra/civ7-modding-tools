@@ -20,7 +20,7 @@ import { isoTimestamp, unknownRecord } from "./shared.js";
  *
  * Parity note: error status codes are NON-UNIFORM across these procedures
  * (gameInfo→400, setupConfig→503, savedConfigs/setupCatalog→500,
- * status/mapSummary→500, autoplay→409/500). Each procedure DECLARES its codes
+ * status/mapSummary→500, autoplay→409/503/500). Each procedure DECLARES its codes
  * via `.errors(...)` (./errors.ts), so the legacy statuses are contract-typed
  * and arrive client-side as oRPC defined errors.
  */
@@ -91,9 +91,11 @@ export const gameInfo = oc
 // ---------------------------------------------------------------------------
 // Body: { action: "start" | "stop" }.
 // Success 200: { ok: result.verified, action, autoplay, game, gameContext, result }.
-// Errors: 400 (bad action); 409 (run-in-game OR save/deploy active, with
-// details.code); 500 { ok:false, error }. Mutates game state; waits on scripting
-// log markers (waitTimeoutMs≈90s). Dual-store 409 mutex + approval object land A3.
+// Errors: 400 (bad action/invalid engine request); 409 (run-in-game OR
+// save/deploy active, with details.code); 503 direct-control unavailable; 500
+// unexpected failure.
+// Mutates game state; waits on scripting log markers (waitTimeoutMs≈90s).
+// Dual-store 409 mutex + approval object land A3.
 export const autoplay = oc
   .errors(autoplayErrors)
   .input(

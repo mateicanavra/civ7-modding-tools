@@ -86,8 +86,7 @@ in `apps/mapgen-studio/src/server/studio/engines.ts` (133, 161, 177, 309-323,
 config-shape → 400 `*_INVALID`, genuine bug → 500 with detail. The bare
 rethrows at 851/877 currently turn Civ7DirectControlError timeouts into bare
 500s — this is the operator's live "internal server error" failure class.
-Save-deploy status 404 gains the `serverInstanceId` echo (asymmetry at
-`context.ts:158`), interim until events land.
+Save-deploy status 404 gains the `serverInstanceId` echo before events land.
 
 **DP-OPEN-1 Preset-layer kill.** Out of this program. Needs operator scope
 confirmation (scratch/localStorage presets, import/export, vocabulary).
@@ -209,7 +208,11 @@ guard test "no `Civ7DirectControlSession` construction outside
 style: id, owner, scope, forbids, detection, remediation); close out the
 `mapgen-studio-tuner-session` openspec change (17/19 tasks pending closure);
 final sweep deleting anything the previous slices orphaned (dead hooks, dead
-taxonomy enums, dead vite proxy config).
+taxonomy enums, dead vite proxy config); schema-tech closeout for
+`packages/studio-server/src/contract/*` so the remaining legacy Zod success I/O
+schemas are either migrated to TypeBox/Standard Schema or retained by a durable
+schema-technology rationale. S1.2 already keeps new error `data` schemas on
+TypeBox/Standard Schema.
 
 ## 4. Test program relayering (from the audit)
 

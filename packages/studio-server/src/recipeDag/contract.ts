@@ -8,7 +8,7 @@ import {
   type RecipeDagErrorMap,
 } from "./errors.js";
 import { RecipeDagGetInputSchema, RecipeDagResultSchema } from "./schema.js";
-import { toStandardSchema } from "./typeboxStandardSchema.js";
+import { toStandardSchema } from "../typeboxStandardSchema.js";
 
 export type RecipeDagProcedureMeta = Readonly<{
   family?: "recipe-dag";

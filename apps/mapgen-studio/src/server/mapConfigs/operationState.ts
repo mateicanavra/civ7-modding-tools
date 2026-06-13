@@ -5,6 +5,12 @@ import {
   type MapConfigSaveDeployPhase,
 } from "../../features/mapConfigSave/status";
 
+function recoveryActionsForSaveDeploy(phase: MapConfigSaveDeployPhase): string[] {
+  const actions = ["copy-diagnostics", "retry-status", "retry-save-deploy"];
+  if (phase === "deploying") actions.push("inspect-deploy-output");
+  return actions;
+}
+
 type StoreOptions = Readonly<{
   ttlMs: number;
   now?: () => Date;
@@ -37,6 +43,7 @@ export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
       requestId,
       phase: "queued",
       now,
+      recoveryActions: ["copy-diagnostics", "retry-status"],
     });
     operations.set(requestId, status);
     return status;
@@ -81,7 +88,9 @@ export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
       details: {
         ...(patch.details ?? {}),
         failedAtPhase: phase,
+        recoveryActions: recoveryActionsForSaveDeploy(phase),
       },
+      recoveryActions: recoveryActionsForSaveDeploy(phase),
     });
   }
 

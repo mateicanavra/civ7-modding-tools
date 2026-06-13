@@ -36,9 +36,11 @@ export type SetupCatalog = StudioOutputs["civ7"]["setupCatalog"]["catalog"];
  *
  * Each engine fn returns the SAME success shape its `/api` handler wrote, OR
  * throws an `ORPCError` whose code/status/data MATCH the procedure's DECLARED
- * contract errors (./contract/errors.ts) — `AUTOPLAY_BLOCKED`/`AUTOPLAY_FAILED`,
+ * contract errors (./contract/errors.ts) — `AUTOPLAY_BLOCKED`/
+ * `AUTOPLAY_UNAVAILABLE`/`AUTOPLAY_FAILED`,
  * `RUN_IN_GAME_BLOCKED`/`_INVALID`/`_FAILED`/`_UNAVAILABLE`/`_STATUS_NOT_FOUND`,
- * `SAVE_DEPLOY_BLOCKED`/`_INVALID`/`_FAILED`/`_STATUS_NOT_FOUND` — so oRPC
+ * `SAVE_DEPLOY_BLOCKED`/`_INVALID`/`_UNAVAILABLE`/`_FAILED`/
+ * `_STATUS_NOT_FOUND` — so oRPC
  * validates them into DEFINED typed errors client-side. The package re-throws
  * engine `ORPCError`s unchanged.
  */
@@ -73,7 +75,7 @@ export interface StudioServerContext {
 
   /**
    * Autoplay engine (#8). Resolves with the success body; throws `ORPCError`
-   * 409 (run-in-game OR save/deploy active, `data.details.code`) or 500.
+   * 409 (run-in-game OR save/deploy active, `data.details.code`), 503, or 500.
    */
   autoplay(input: StudioInputs["civ7"]["autoplay"]): Promise<StudioOutputs["civ7"]["autoplay"]>;
 
@@ -104,8 +106,9 @@ export interface StudioServerContext {
   ): Promise<StudioOutputs["mapConfigs"]["saveDeploy"]>;
 
   /**
-   * Poll save/deploy (#15). Resolves the snapshot; throws `ORPCError` 404 (NO
-   * serverInstanceId echo — asymmetry vs run-in-game status, parity note).
+   * Poll save/deploy (#15). Resolves the snapshot; throws `ORPCError` 404
+   * carrying `data.serverInstanceId`/`data.serverStartedAt` for the same
+   * restart-detection contract as run-in-game status.
    */
   mapConfigStatus(
     input: StudioInputs["mapConfigs"]["status"],
