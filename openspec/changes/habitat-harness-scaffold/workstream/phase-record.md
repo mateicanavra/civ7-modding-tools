@@ -84,8 +84,19 @@ N/A - solo phase
   posture unchanged from H1 closure (H1 phase record carries the test-red
   evidence chain).
 - `tsc -p tools/habitat-harness/tsconfig.json --noEmit` clean.
-- Shrink-only probes (4.3): local probe + CI-side probe run post-commit —
-  results appended below.
+- Shrink-only probes (4.3), run post-commit:
+  - The first probe run CAUGHT A REAL BUG: `mergeBase()` tried `origin/<base>`
+    before `<base>`, so `--base HEAD` silently resolved to origin/main and the
+    probe passed vacuously. Fixed (ref-as-given wins; origin/ fallback for CI
+    checkouts) — the probe doing its job.
+  - After fix: hand-adding an entry to the committed `adapter-boundary`
+    baseline with `--base HEAD` (rule exists at that base) →
+    `baseline-integrity` FAILS: "baseline for existing rule 'adapter-boundary'
+    grew by 1 entry … shrink-only". Clean state passes at both `--base HEAD`
+    and default `main` (rule new at merge-base → introduction allowed). This
+    exercises the exact code path CI runs (`habitat check` default base);
+    post-merge, additions to then-existing rules fail in CI with no flag
+    escape.
 
 ## Realignment
 

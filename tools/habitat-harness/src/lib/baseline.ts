@@ -59,7 +59,9 @@ function gitShow(ref: string, repoRelPath: string): string | null {
 }
 
 export function mergeBase(base = "main"): string | null {
-  for (const ref of [`origin/${base}`, base]) {
+  // The ref as given wins (so --base HEAD means HEAD); origin/<base> is the
+  // fallback for CI checkouts where the local branch does not exist.
+  for (const ref of [base, `origin/${base}`]) {
     const res = run(["git", "merge-base", "HEAD", ref], { cwd: repoRoot });
     if (res.exitCode === 0) return res.stdout.trim();
   }
