@@ -59,8 +59,8 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
 
 ## Implementation
 
-- Completed tasks: 1.1.
-- Remaining tasks: 1.2-4.3.
+- Completed tasks: 1.1, 2.1.
+- Remaining tasks: 1.2, 2.2-4.3.
 - Stop conditions triggered: none at phase open.
 
 ## Verification
@@ -78,6 +78,8 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
   - `bunx --bun @biomejs/biome --version`
   - `bunx --bun @biomejs/biome rage --formatter --linter`
   - `bunx --bun @biomejs/biome format . --max-diagnostics=40`
+  - `bunx --bun @biomejs/biome format . --reporter=json --max-diagnostics=none > /tmp/h4-biome-format-dry-run.json || true`
+  - `shasum -a 256 $(git ls-files 'mods/*/mod/**' | sort)`
 - Results: H4 branch opened cleanly above H3; OpenSpec list shows H1/H2/H3 complete and H4 at 0/11 tasks.
 - Biome setup results: `@biomejs/biome` exact-pinned at 2.4.16; config loads
   successfully; formatter settings match `.prettierrc` semantics (`semi`,
@@ -87,6 +89,12 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
   1557 formatting errors before any write. This is expected before the
   dedicated reformat task; task 1.2 remains open until diff-size/sample review
   and format-diff acceptance are recorded.
+- Dry-run JSON evidence: 1556 unique paths with format diagnostics; extension
+  summary: `.ts` 1431, `.tsx` 38, `.json` 37, `.js` 35, `.mjs` 11, `.css` 2,
+  `.jsx` 1, `.jsonc` 1.
+- Pre-format mod output hashes captured in
+  `openspec/changes/habitat-biome-hygiene/workstream/pre-format-mod-output-hashes.txt`
+  for the six tracked generated mod output files under `mods/*/mod/**`.
 - Skipped gates and rationale: implementation gates not run yet; this record opens the slice before code.
 - Evidence boundary: phase setup only; no Biome implementation or formatting proof claimed.
 

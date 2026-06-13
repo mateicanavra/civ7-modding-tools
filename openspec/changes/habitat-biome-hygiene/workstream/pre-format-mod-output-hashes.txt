@@ -1,0 +1,12 @@
+# H4 pre-format tracked mod output hashes
+
+Captured before `bunx --bun @biomejs/biome format --write .`.
+
+```text
+adc25b149fd1874f7060f89f708f899d3dbc99a5f0e63d1e4c676225cfdf800c  mods/mod-civ7-intelligence-bridge/mod/civ7-intelligence-bridge.modinfo
+50317b7dc1d0b35023e4e12bfae2e72e34c89dbe4f0a4136bbe105c430fb93da  mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js
+fe656726493fe89bfe6af6bdc2e3818be841b0cabb85c99f2b0292e728821745  mods/mod-swooper-maps/mod/config/config.xml
+cbfb83eb999c6687ea1214335a9460253c9382861075aa87d6a0b76bb20d1924  mods/mod-swooper-maps/mod/swooper-maps.modinfo
+7c55f1d17f442b05af2a879e5ac079a1fb218b883ef338fa07c6154e8207d189  mods/mod-swooper-maps/mod/text/en_us/MapText.xml
+3db5f39ab4210f3a2d4044855eac051df43919582e65e600c405acda4feddd4d  mods/mod-swooper-maps/mod/text/en_us/ModuleText.xml
+```
