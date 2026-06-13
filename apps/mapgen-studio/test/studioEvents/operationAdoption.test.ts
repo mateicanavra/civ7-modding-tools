@@ -1,13 +1,16 @@
 import { describe, expect, test } from "vitest";
 
-import type { StudioOperationsCurrent } from "@civ7/studio-server";
+import type { StudioOperationEvent, StudioOperationsCurrent } from "@civ7/studio-server";
 
 import {
   STUDIO_EVENT_STREAM_RETRY_ATTEMPTS,
   studioEventsWatchClientContext,
   studioEventsWatchLiveOptions,
 } from "../../src/app/hooks/useStudioEvents";
-import { adoptStudioOperationsCurrent } from "../../src/app/operationAdoption";
+import {
+  adoptStudioOperationsCurrent,
+  applyStudioOperationEvent,
+} from "../../src/app/operationAdoption";
 import type { MapConfigSaveDeployStatus } from "../../src/features/mapConfigSave/status";
 import type { RunInGameOperationStatus } from "../../src/features/runInGame/status";
 
@@ -80,6 +83,52 @@ describe("Studio event operation adoption", () => {
     expect(state.saveDeploy).toBeNull();
   });
 
+  test("applies pushed Run in Game operation events without pre-handling terminal toasts", () => {
+    const state = adoptionState();
+
+    applyStudioOperationEvent(
+      operationEvent({
+        kind: "run-in-game",
+        status: {
+          ok: true,
+          requestId: "run-pushed-1",
+          phase: "complete",
+          status: "complete",
+          startedAt: "2026-06-13T00:00:00.000Z",
+          updatedAt: "2026-06-13T00:00:01.000Z",
+          completedPhases: ["materializing", "complete"],
+        },
+      }),
+      state.targets,
+    );
+
+    expect(state.runInGame?.requestId).toBe("run-pushed-1");
+    expect(state.handledRunInGameToasts).toEqual([]);
+  });
+
+  test("applies pushed Save&Deploy operation events", () => {
+    const state = adoptionState();
+
+    applyStudioOperationEvent(
+      operationEvent({
+        kind: "save-deploy",
+        status: {
+          ok: true,
+          requestId: "save-pushed-1",
+          phase: "complete",
+          status: "complete",
+          startedAt: "2026-06-13T00:00:00.000Z",
+          updatedAt: "2026-06-13T00:00:01.000Z",
+          saved: true,
+          deployed: true,
+        },
+      }),
+      state.targets,
+    );
+
+    expect(state.saveDeploy?.requestId).toBe("save-pushed-1");
+  });
+
   test("builds live event query options with scoped stream retry context", () => {
     const options = studioEventsWatchLiveOptions();
 
@@ -116,6 +165,16 @@ function adoptionState(initial?: {
     },
   };
   return state;
+}
+
+function operationEvent(
+  event: Omit<StudioOperationEvent, "type" | "observedAt">,
+): StudioOperationEvent {
+  return {
+    type: "operation",
+    observedAt: "2026-06-13T00:00:02.000Z",
+    ...event,
+  } as StudioOperationEvent;
 }
 
 function currentOperations(overrides?: Partial<StudioOperationsCurrent>): StudioOperationsCurrent {

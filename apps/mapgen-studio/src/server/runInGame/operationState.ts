@@ -20,6 +20,7 @@ type StoreOptions = Readonly<{
   serverStartedAt: string;
   ttlMs: number;
   now?: () => Date;
+  onChange?: (state: RunInGameOperationState) => void;
 }>;
 
 export function createRunInGameOperationStore(options: StoreOptions) {
@@ -66,6 +67,7 @@ export function createRunInGameOperationStore(options: StoreOptions) {
       recoveryActions: ["copy-diagnostics", "retry-status"],
     };
     operations.set(requestId, state);
+    options.onChange?.(state);
     return state;
   }
 
@@ -95,6 +97,7 @@ export function createRunInGameOperationStore(options: StoreOptions) {
       }),
     };
     operations.set(requestId, next);
+    options.onChange?.(next);
     return next;
   }
 

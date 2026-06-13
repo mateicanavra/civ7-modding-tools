@@ -1,4 +1,4 @@
-import type { StudioOperationsCurrent } from "@civ7/studio-server";
+import type { StudioOperationEvent, StudioOperationsCurrent } from "@civ7/studio-server";
 
 import type { MapConfigSaveDeployStatus } from "../features/mapConfigSave/status";
 import {
@@ -29,6 +29,17 @@ export function adoptStudioOperationsCurrent(
 
   const saveDeploy = current.saveDeploy.active ?? current.saveDeploy.recent[0] ?? null;
   targets.setSaveDeployOperation(saveDeploy as MapConfigSaveDeployStatus | null);
+}
+
+export function applyStudioOperationEvent(
+  event: StudioOperationEvent,
+  targets: Pick<StudioOperationAdoptionTargets, "setRunInGameOperation" | "setSaveDeployOperation">,
+): void {
+  if (event.kind === "run-in-game") {
+    targets.setRunInGameOperation(event.status as RunInGameOperationStatus);
+    return;
+  }
+  targets.setSaveDeployOperation(event.status as MapConfigSaveDeployStatus);
 }
 
 export async function readAndAdoptStudioOperationsCurrent(args: Readonly<{

@@ -113,8 +113,7 @@ import { useViewStore } from "../stores/viewStore";
 import { useAuthoringStore } from "../stores/authoringStore";
 import { useRunStore } from "../stores/runStore";
 import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
-import { useOperationStatusPolls } from "./hooks/useOperationStatusPolls";
-import { useDaemonInstanceWatchdog } from "./hooks/useDaemonInstanceWatchdog";
+import { useRunInGameTerminalToast } from "./hooks/useRunInGameTerminalToast";
 import { useStudioEvents } from "./hooks/useStudioEvents";
 import { readAndAdoptStudioOperationsCurrent } from "./operationAdoption";
 import { isAbortLikeError } from "../shared/async";
@@ -122,7 +121,6 @@ import { clampNumber } from "../shared/number";
 import {
   toConfigId,
   saveRepoBackedConfig,
-  fetchMapConfigSaveDeployStatus,
 } from "../features/mapConfigSave/api";
 import { runCurrentConfigInGame, fetchRunInGameStatus } from "../features/runInGame/api";
 import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
@@ -169,6 +167,43 @@ export type StudioShellProps = {
   isLightMode: boolean;
   cyclePreference(): void;
 };
+
+const SAVE_DEPLOY_TERMINAL_EVENT_TIMEOUT_MS = 5 * 60_000;
+
+type SaveDeployTerminalWaiter = Readonly<{
+  resolve(status: MapConfigSaveDeployStatus): void;
+  reject(error: Error): void;
+  timeoutId: ReturnType<typeof setTimeout>;
+}>;
+
+function isSaveDeployTerminal(status: MapConfigSaveDeployStatus): boolean {
+  return status.status !== "running";
+}
+
+function saveDeployResultFromTerminalStatus(
+  status: MapConfigSaveDeployStatus,
+  fallbackPath?: string,
+):
+  | { ok: true; path?: string; deploy?: MapConfigSaveDeployStatus["deploy"]; saved?: boolean; deployed?: boolean }
+  | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string } {
+  const path = status.path ?? fallbackPath;
+  if (!status.ok || status.status === "failed") {
+    return {
+      ok: false,
+      error: status.error ?? "Save/deploy failed",
+      saved: status.saved,
+      deployed: status.deployed,
+      path,
+    };
+  }
+  return {
+    ok: true,
+    path,
+    deploy: status.deploy,
+    saved: status.saved,
+    deployed: status.deployed,
+  };
+}
 
 /**
  * `StudioShell` — the layout + orchestration container (architecture/10 §4).
@@ -443,6 +478,8 @@ export function StudioShell(props: StudioShellProps) {
   const browserRunning = browserRunner.state.running;
   const [localError, setLocalError] = useState<string | null>(null);
   const [saveDeployOperation, setSaveDeployOperation] = useState<MapConfigSaveDeployStatus | null>(null);
+  const saveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(null);
+  const saveDeployWaitersRef = useRef<Map<string, SaveDeployTerminalWaiter>>(new Map());
   // Run presentation state is session-only; cross-reload operation recovery is
   // daemon-owned through `studio.operations.current`.
   const runInGameSnapshot = useRunStore((s) => s.runInGameSnapshot);
@@ -468,14 +505,45 @@ export function StudioShell(props: StudioShellProps) {
     updatedAt?: string;
     error?: string;
   }>({ status: "idle" });
+  useEffect(() => {
+    saveDeployOperationRef.current = saveDeployOperation;
+    if (!saveDeployOperation || !isSaveDeployTerminal(saveDeployOperation)) return;
+    const waiter = saveDeployWaitersRef.current.get(saveDeployOperation.requestId);
+    if (!waiter) return;
+    saveDeployWaitersRef.current.delete(saveDeployOperation.requestId);
+    clearTimeout(waiter.timeoutId);
+    waiter.resolve(saveDeployOperation);
+  }, [saveDeployOperation]);
+
+  useEffect(() => {
+    return () => {
+      for (const waiter of saveDeployWaitersRef.current.values()) {
+        clearTimeout(waiter.timeoutId);
+        waiter.reject(new Error("Save/Deploy wait cancelled"));
+      }
+      saveDeployWaitersRef.current.clear();
+    };
+  }, []);
+
+  const waitForSaveDeployTerminalEvent = useCallback((requestId: string): Promise<MapConfigSaveDeployStatus> => {
+    const current = saveDeployOperationRef.current;
+    if (current?.requestId === requestId && isSaveDeployTerminal(current)) {
+      return Promise.resolve(current);
+    }
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        saveDeployWaitersRef.current.delete(requestId);
+        reject(new Error("Save/Deploy event stream did not report a terminal status in time"));
+      }, SAVE_DEPLOY_TERMINAL_EVENT_TIMEOUT_MS);
+      saveDeployWaitersRef.current.set(requestId, { resolve, reject, timeoutId });
+    });
+  }, []);
+
   // Saved configs + setup catalog are READ through oRPC-native TanStack Query
   // (architecture/10 §2). The query layer owns retry + refetch-on-focus (query client
   // defaults), replacing the prior hand-rolled load/retry/focus effect; the derived view
   // shapes are unchanged so `setupControlOptions` below consumes them as before.
   const { savedSetupConfigs, setupCatalog } = useSetupDataQueries();
-  // Auto-reload the tab when the daemon restarts under it — the user should
-  // never need a manual hard refresh to get back to a coherent session.
-  useDaemonInstanceWatchdog();
   const [autoplayActionRunning, setAutoplayActionRunning] = useState(false);
   const [exploreActionRunning, setExploreActionRunning] = useState(false);
   const saveDeployRunning = saveDeployOperation?.status === "running";
@@ -955,20 +1023,37 @@ export function StudioShell(props: StudioShellProps) {
         setSaveDeployOperation((current) => current?.requestId === requestId ? status : current);
       },
     });
-    setSaveDeployOperation((current) => {
-      if (!current || current.requestId !== requestId) return current;
-      if ("requestId" in current && current.status === "complete" && result.ok) return current;
-      return updateMapConfigSaveDeployStatus(current, {
-        phase: result.ok ? "complete" : "failed",
-        path: result.path,
-        saved: "saved" in result ? result.saved : result.ok,
-        deployed: "deployed" in result ? result.deployed : result.ok,
-        error: result.ok ? undefined : result.error,
+    if (!result.ok) {
+      setSaveDeployOperation((current) => {
+        if (!current || current.requestId !== requestId) return current;
+        return updateMapConfigSaveDeployStatus(current, {
+          phase: "failed",
+          error: result.error,
+          path: result.path,
+          saved: result.saved,
+          deployed: result.deployed,
+        });
       });
-    });
-    if (result.ok) setLastSaveDeployConfig(stripSchemaMetadataRoot(args.config));
-    return result;
-  }, [browserRunning, runInGameRunning, saveDeployRunning, setLastSaveDeployConfig]);
+      return result;
+    }
+
+    try {
+      const terminal = isSaveDeployTerminal(result.status)
+        ? result.status
+        : await waitForSaveDeployTerminalEvent(requestId);
+      const terminalResult = saveDeployResultFromTerminalStatus(terminal, result.path);
+      if (terminalResult.ok) setLastSaveDeployConfig(stripSchemaMetadataRoot(args.config));
+      return terminalResult;
+    } catch (err) {
+      return {
+        ok: false as const,
+        error: err instanceof Error ? err.message : "Save/Deploy event stream did not report a terminal status",
+        saved: result.status.saved,
+        deployed: result.status.deployed,
+        path: result.path,
+      };
+    }
+  }, [browserRunning, runInGameRunning, saveDeployRunning, setLastSaveDeployConfig, waitForSaveDeployTerminalEvent]);
 
   const handleSaveDialogConfirm = useCallback(
     async (args: { label: string; description?: string }) => {
@@ -1441,46 +1526,12 @@ export function StudioShell(props: StudioShellProps) {
   const refreshRunInGameStatus = useCallback(async (requestId: string) => {
     const result = await fetchRunInGameStatus(requestId);
     if (!("requestId" in result)) {
-      setRunInGameOperation((prev) => {
-        if (!prev || prev.requestId !== requestId) return prev;
-        return {
-          ...prev,
-          ok: false,
-          phase: "uncertain",
-          status: "uncertain",
-          updatedAt: new Date().toISOString(),
-          error: result.error,
-          recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
-          details: {
-            failureClass: "uncertain",
-            code: result.code === "RUN_IN_GAME_STATUS_NOT_FOUND" ? "operation-status-missing" : "operation-status-unavailable",
-            phase: "uncertain",
-            completedPhases: prev.completedPhases,
-          },
-        };
-      });
+      setLocalError(result.error);
+      toast(`Run in Game status unavailable: ${result.error}`, { variant: "error" });
       return;
     }
     setRunInGameOperation(result);
-  }, []);
-
-  const refreshMapConfigSaveDeployStatus = useCallback(async (requestId: string) => {
-    const result = await fetchMapConfigSaveDeployStatus(requestId);
-    if (!("requestId" in result)) {
-      setSaveDeployOperation((prev) => {
-        if (!prev || prev.requestId !== requestId) return prev;
-        return updateMapConfigSaveDeployStatus(prev, {
-          phase: "failed",
-          error: result.error,
-          details: {
-            code: result.code === "SAVE_DEPLOY_STATUS_NOT_FOUND" ? "operation-status-missing" : "operation-status-unavailable",
-          },
-        });
-      });
-      return;
-    }
-    setSaveDeployOperation(result);
-  }, []);
+  }, [toast]);
 
   const markRunInGameToastHandled = useCallback((requestId: string) => {
     lastRunInGameToastRef.current = requestId;
@@ -1510,15 +1561,8 @@ export function StudioShell(props: StudioShellProps) {
     setLocalError,
   });
 
-  // Run-in-game + save-deploy status polling is now driven by TanStack Query
-  // `refetchInterval` (same cadence, terminal stop, and 404 mapping — see
-  // `useOperationStatusPolls`); the prior self-rescheduling `setTimeout` effects and the
-  // terminal-toast effect are consolidated there.
-  useOperationStatusPolls({
+  useRunInGameTerminalToast({
     runInGameOperation,
-    saveDeployOperation,
-    refreshRunInGameStatus,
-    refreshMapConfigSaveDeployStatus,
     lastRunInGameToastRef,
     toast,
   });

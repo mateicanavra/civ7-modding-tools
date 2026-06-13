@@ -14,6 +14,7 @@ function recoveryActionsForSaveDeploy(phase: MapConfigSaveDeployPhase): string[]
 type StoreOptions = Readonly<{
   ttlMs: number;
   now?: () => Date;
+  onChange?: (status: MapConfigSaveDeployStatus) => void;
 }>;
 
 export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
@@ -51,6 +52,7 @@ export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
       recoveryActions: ["copy-diagnostics", "retry-status"],
     });
     operations.set(requestId, status);
+    options.onChange?.(status);
     return status;
   }
 
@@ -65,6 +67,7 @@ export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
       now,
     });
     operations.set(requestId, next);
+    options.onChange?.(next);
     return next;
   }
 

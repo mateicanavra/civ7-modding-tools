@@ -41,6 +41,7 @@ import {
   shutdownCiv7MacProcess,
 } from "../runInGame/macosProcessRestart";
 import { deployMod, resolveModsDir } from "@civ7/plugin-mods";
+import type { StudioEventHubApi, StudioOperationEvent } from "@civ7/studio-server";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { createMapConfigSaveDeployOperationStore } from "../mapConfigs/operationState";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
@@ -524,6 +525,10 @@ export interface AutoplayEngineResult {
 
 type SaveDeployOperationStore = ReturnType<typeof createMapConfigSaveDeployOperationStore>;
 export type SaveDeployEngineResult = ReturnType<SaveDeployOperationStore["create"]>;
+type StudioEngineEventHub = Pick<StudioEventHubApi, "publish">;
+type OperationPublisher = (event: StudioOperationEvent) => void;
+type RunInGameOperationEvent = Extract<StudioOperationEvent, { kind: "run-in-game" }>;
+type SaveDeployOperationEvent = Extract<StudioOperationEvent, { kind: "save-deploy" }>;
 export type StudioOperationsCurrent = Readonly<{
   ok: true;
   serverInstanceId: string;
@@ -563,19 +568,64 @@ export interface StudioEngines {
   currentOperations(): StudioOperationsCurrent;
 }
 
-export function createStudioEngines(options: Readonly<{ repoRoot: string }>): StudioEngines {
+function publishOperationEvent(eventHub: StudioEngineEventHub, event: StudioOperationEvent): void {
+  void eventHub.publish(event).catch((error: unknown) => {
+    console.error("[mapgen-studio] failed to publish operation event", error);
+  });
+}
+
+function createOperationPublisher(eventHub: StudioEngineEventHub | undefined): OperationPublisher | undefined {
+  if (!eventHub) return undefined;
+  return (event) => publishOperationEvent(eventHub, event);
+}
+
+function runInGameStatusForEvent(status: RunInGameOperationState): RunInGameOperationEvent["status"] {
+  const { completedPhases, recoveryActions, ...rest } = status;
+  return {
+    ...rest,
+    completedPhases: [...completedPhases],
+    ...(recoveryActions === undefined ? {} : { recoveryActions: [...recoveryActions] }),
+  };
+}
+
+function saveDeployStatusForEvent(status: SaveDeployEngineResult): SaveDeployOperationEvent["status"] {
+  const { recoveryActions, ...rest } = status;
+  return {
+    ...rest,
+    ...(recoveryActions === undefined ? {} : { recoveryActions: [...recoveryActions] }),
+  };
+}
+
+export function createStudioEngines(options: Readonly<{ repoRoot: string; eventHub?: StudioEngineEventHub }>): StudioEngines {
   const { repoRoot } = options;
   const serverStartedAt = new Date().toISOString();
   const serverInstanceId = createCiv7ControlRequestId("studio-server");
+  const publishOperation = createOperationPublisher(options.eventHub);
 
   let studioOperationQueue = Promise.resolve();
   const runInGameOperations = createRunInGameOperationStore({
     serverInstanceId,
     serverStartedAt,
     ttlMs: RUN_IN_GAME_OPERATION_TTL_MS,
+    onChange: publishOperation
+      ? (status) => publishOperation({
+        type: "operation",
+        kind: "run-in-game",
+        status: runInGameStatusForEvent(status),
+        observedAt: status.updatedAt,
+      })
+      : undefined,
   });
   const saveDeployOperations = createMapConfigSaveDeployOperationStore({
     ttlMs: RUN_IN_GAME_OPERATION_TTL_MS,
+    onChange: publishOperation
+      ? (status) => publishOperation({
+        type: "operation",
+        kind: "save-deploy",
+        status: saveDeployStatusForEvent(status),
+        observedAt: status.updatedAt,
+      })
+      : undefined,
   });
 
   async function runAutoplayEngine(action: "start" | "stop"): Promise<AutoplayEngineResult> {

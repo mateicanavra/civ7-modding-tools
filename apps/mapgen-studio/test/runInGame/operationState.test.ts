@@ -4,8 +4,9 @@ import { describe, expect, it } from "vitest";
 import { createRunInGameOperationStore } from "../../src/server/runInGame/operationState";
 import { StudioEngineError } from "../../src/server/studio/engineErrors";
 import { formatRunInGameDiagnostics } from "../../src/features/runInGame/status";
+import type { RunInGameOperationState } from "../../src/server/runInGame/operationState";
 
-function createStore() {
+function createStore(options: { onChange?: (state: RunInGameOperationState) => void } = {}) {
   let nowMs = Date.parse("2026-06-01T00:00:00.000Z");
   return {
     advance(ms: number) {
@@ -16,6 +17,7 @@ function createStore() {
       serverStartedAt: "2026-06-01T00:00:00.000Z",
       ttlMs: 1_000,
       now: () => new Date(nowMs),
+      onChange: options.onChange,
     }),
   };
 }
@@ -47,6 +49,25 @@ describe("Run in Game operation store", () => {
     expect(store.findActive()?.requestId).toBe(first.requestId);
     store.complete("request-1", { ok: true });
     expect(store.findActive()).toBeUndefined();
+  });
+
+  it("emits transition snapshots for create, update, complete, and fail", () => {
+    const events: RunInGameOperationState[] = [];
+    const { store } = createStore({ onChange: (state) => events.push(state) });
+
+    store.create("request-1");
+    store.update("request-1", { phase: "deploying" });
+    store.complete("request-1", { ok: true });
+    store.create("request-2");
+    store.fail("request-2", "starting-game", new Error("launch failed"));
+
+    expect(events.map((event) => [event.requestId, event.phase, event.status])).toEqual([
+      ["request-1", "materializing", "running"],
+      ["request-1", "deploying", "running"],
+      ["request-1", "complete", "complete"],
+      ["request-2", "materializing", "running"],
+      ["request-2", "failed", "failed"],
+    ]);
   });
 
   it("lists retained operations newest first and prunes stale records", () => {
