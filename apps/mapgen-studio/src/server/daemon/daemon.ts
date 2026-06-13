@@ -152,8 +152,8 @@ export function createStudioDaemonFetch(
 }
 
 export async function createStudioDaemon(args: StudioDaemonArgs) {
-  const engines = createStudioEngines({ repoRoot: args.repoRoot });
   const eventHub = createStudioEventHub();
+  const engines = createStudioEngines({ repoRoot: args.repoRoot, eventHub });
   const context = createStudioServerContext({ engines, eventHub, hostCommand: "daemon" });
   // The ONE handler over the ONE runtime. Session sharing is structural now:
   // the handler resolves the shared tuner connection from its runtime and

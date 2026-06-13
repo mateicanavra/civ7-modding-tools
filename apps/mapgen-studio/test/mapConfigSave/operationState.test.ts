@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { createMapConfigSaveDeployOperationStore } from "../../src/server/mapConfigs/operationState";
+import type { MapConfigSaveDeployStatus } from "../../src/features/mapConfigSave/status";
 
-function createStore() {
+function createStore(options: { onChange?: (status: MapConfigSaveDeployStatus) => void } = {}) {
   let nowMs = Date.parse("2026-06-01T00:00:00.000Z");
   return {
     advance(ms: number) {
@@ -11,6 +12,7 @@ function createStore() {
     store: createMapConfigSaveDeployOperationStore({
       ttlMs: 1_000,
       now: () => new Date(nowMs),
+      onChange: options.onChange,
     }),
   };
 }
@@ -55,6 +57,25 @@ describe("Map config save/deploy operation store", () => {
 
     harness.advance(1_001);
     expect(harness.store.list()).toEqual([]);
+  });
+
+  it("emits transition snapshots for create, update, complete, and fail", () => {
+    const events: MapConfigSaveDeployStatus[] = [];
+    const { store } = createStore({ onChange: (status) => events.push(status) });
+
+    store.create("studio-save-deploy-1");
+    store.update("studio-save-deploy-1", { phase: "saving", path: "configs/studio-current.config.json" });
+    store.complete("studio-save-deploy-1", { path: "configs/studio-current.config.json" });
+    store.create("studio-save-deploy-2");
+    store.fail("studio-save-deploy-2", "deploying", "Deploy failed");
+
+    expect(events.map((event) => [event.requestId, event.phase, event.status])).toEqual([
+      ["studio-save-deploy-1", "queued", "running"],
+      ["studio-save-deploy-1", "saving", "running"],
+      ["studio-save-deploy-1", "complete", "complete"],
+      ["studio-save-deploy-2", "queued", "running"],
+      ["studio-save-deploy-2", "failed", "failed"],
+    ]);
   });
 
   it("records failed phase details and prunes stale records", () => {

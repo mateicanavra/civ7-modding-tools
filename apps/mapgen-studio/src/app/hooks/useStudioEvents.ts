@@ -5,6 +5,7 @@ import type { StudioEvent } from "@civ7/studio-server";
 
 import { orpc, orpcClient } from "../../lib/orpc";
 import {
+  applyStudioOperationEvent,
   readAndAdoptStudioOperationsCurrent,
   type StudioOperationAdoptionTargets,
 } from "../operationAdoption";
@@ -42,6 +43,9 @@ export function useStudioEvents(args: StudioOperationAdoptionTargets & {
   const helloKey = event?.type === "hello"
     ? `${event.serverInstanceId}:${event.serverStartedAt}:${event.observedAt}`
     : null;
+  const operationKey = event?.type === "operation"
+    ? `${event.kind}:${event.status.requestId}:${event.observedAt}`
+    : null;
 
   useEffect(() => {
     if (!helloKey) return;
@@ -60,6 +64,14 @@ export function useStudioEvents(args: StudioOperationAdoptionTargets & {
       cancelled = true;
     };
   }, [helloKey, markRunInGameToastHandled, setLocalError, setRunInGameOperation, setSaveDeployOperation]);
+
+  useEffect(() => {
+    if (!operationKey || event?.type !== "operation") return;
+    applyStudioOperationEvent(event, {
+      setRunInGameOperation,
+      setSaveDeployOperation,
+    });
+  }, [event, operationKey, setRunInGameOperation, setSaveDeployOperation]);
 
   useEffect(() => {
     if (!eventQuery.error) return;
