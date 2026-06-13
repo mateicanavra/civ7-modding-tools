@@ -7,7 +7,7 @@
 - Owner: workstream owner agent (F)
 - Branch/Graphite stack: `agent-F-habitat-nx-adoption` → `agent-F-habitat-harness-workstream` → `main`
 - Started: 2026-06-12
-- Status: IN PROGRESS
+- Status: COMPLETE (gates green; committed `953bc84e6`; proof class: local commit — not submitted)
 
 ## Objective
 
@@ -133,10 +133,14 @@ N/A - solo phase
     {config, plugin-files, plugin-mods, docs, cli, mapgen-studio} re-ran
     (15/21 cached) — matches the dependent set computed from graph.json
     beforehand — PASS.
-  - **4.3 affected probe:** `--base=main`/`--base=HEAD` show all 21 projects
-    while the H1 migration itself is uncommitted (root package.json/nx.json
-    are global inputs — correct behavior, vacuous probe). Clean re-probe
-    post-commit recorded below.
+  - **4.3 affected probe:** pre-commit, `--affected` showed all 21 projects
+    (the uncommitted migration touches global inputs — correct, but vacuous as
+    a probe). Post-commit clean re-probe: touch `packages/config/src/index.ts`,
+    `nx show projects --affected --base=HEAD` → exactly {@civ7/config,
+    @civ7/docs, @civ7/plugin-files, @civ7/plugin-mods, @mateicanavra/civ7-cli,
+    mapgen-studio} — identical to the graph-computed dependent set — PASS.
+    (Deviation from task text: `--base=HEAD` instead of `--base=main`, because
+    the H1 branch itself changes global files; recorded.)
   - **4.5 turbo residuals:** sweep found FUNCTIONAL residue beyond docs and
     fixed it: `apps/mapgen-studio/src/server/mapConfigs/deploy.ts` shelled out
     to `bunx turbo run build` at runtime (type + impl + test updated to
@@ -167,6 +171,13 @@ N/A - solo phase
 
 ## Next Action
 
-- Exact next step: task 1.1 — record `main`-state baselines (build/check/test green + hash `mod/**`)
-- First files to inspect: turbo.json, root package.json
-- Stop condition: FRAME falsifier — Nx cannot represent the turbo pipeline + bun workspace graph with `bun run check`/CI parity → return to Matei with evidence
+- Exact next step: H1 CLOSED. Open H2 (`habitat-harness-scaffold`) on a stacked
+  branch off `agent-F-habitat-nx-adoption`; phase record into
+  `openspec/changes/habitat-harness-scaffold/workstream/`.
+- Notes for H2: nx 22.7.5; `tools/*` workspace glob ready; remember DL-15
+  (umbrella vitest) when wrapping test suites — wrap the corpus six per-file
+  (`bun test <path>`), they are bun tests, unaffected; the two spawned fix
+  tasks (bridge net-import, sdk teardown race) may land on main mid-train —
+  re-baseline test parity from the then-current state if so.
+- Stop condition: none triggered; FRAME falsifier NOT fired (Nx represented
+  the full pipeline; parity proven).
