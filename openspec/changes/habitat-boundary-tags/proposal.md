@@ -51,7 +51,10 @@ slice locks immediately.
 
 ## Enables Parallel Work
 
-- `habitat-biome-hygiene` runs in parallel (disjoint write sets).
+- `habitat-biome-hygiene` (H4) is serialized AFTER this change — both touch
+  root `package.json`, `ci.yml`, and the harness rule pack, and H4's repo-wide
+  reformat rewrites the `package.json` files this change edits tags into
+  (ledger F1).
 - `habitat-enforcement-consolidation` (boundary-adjacent retirements).
 
 ## Affected Owners
@@ -87,10 +90,13 @@ means zero immediate disruption.
 ## Verification Gates
 
 - `bun run openspec -- validate habitat-boundary-tags --strict`
-- `bunx nx affected -t boundaries` (and run-many --all) green on the clean tree.
-- Probe: temporary import from `packages/config` (kind:foundation) into
-  `@civ7/adapter` consumer direction that violates a constraint → boundaries
-  target fails with the tag-rule message; probe removed.
+- `bunx nx run-many -t boundaries --all` green on the clean tree (the gate);
+  `bunx nx affected -t boundaries` runs as a smoke check only (affected on a
+  clean tree runs nothing and proves nothing).
+- Probe: add `import '@civ7/adapter'` (plus the dependency edge) in a scratch
+  file inside `packages/config/src/` — `kind:foundation` may depend only on
+  `kind:foundation`, so the `boundaries` target must fail naming the
+  `kind:foundation` constraint; probe then reverted.
 - `bunx nx show project <p>` displays expected tags for spot-checked projects.
 - `bun run habitat check` includes the locked `nx-boundaries` rule.
 - `bun run build && bun run check && bun run test` unchanged-green.

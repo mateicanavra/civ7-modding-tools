@@ -38,12 +38,13 @@ fail closed on ambiguity.
 
 Generated paths SHALL be writable only by their owning generators; staged
 hand-edits SHALL fail `habitat check --staged`, and CI SHALL detect drift by
-regenerating and diffing.
+regenerating and diffing zones that have a repo-runnable generator.
 
 #### Scenario: Hand-edit of a generated file
 - **WHEN** a change stages an edit under a protected generated zone
 - **THEN** the check fails with the owning regenerate command as remediation
 
 #### Scenario: Generator drift
-- **WHEN** generated outputs no longer match their source declarations
+- **WHEN** outputs in a zone with a repo-runnable generator no longer match
+  their source declarations
 - **THEN** the CI regenerate-and-diff gate fails naming the stale zone

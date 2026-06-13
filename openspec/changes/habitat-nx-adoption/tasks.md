@@ -8,8 +8,11 @@
 - [ ] 1.3 Diff generated `nx.json` against `turbo.json` semantics; apply the
   manual conversion pass from design.md (env inputs, `cache: true`,
   `persistent` → `continuous`, `sharedGlobals`).
-- [ ] 1.4 Move `mod-swooper-maps#build:studio-recipes` and `mapgen-studio#dev`
-  overrides into the respective package.json `"nx"` fields.
+- [ ] 1.4 Move all project-scoped turbo.json overrides (7 at time of writing:
+  `mod-swooper-maps#build`, `mod-swooper-maps#check`, `@civ7/docs#dev`,
+  `mapgen-studio#dev`/`#build`/`#check`/`#test`) plus the
+  `build:studio-recipes` target into the respective package.json `"nx"`
+  fields.
 - [ ] 1.5 Add `tools/*` to root workspaces; add root `mise.toml` pinning node
   and bun; gitignore `.nx/cache` and `.nx/workspace-data`.
 
@@ -23,7 +26,9 @@
   otherwise unchanged.
 - [ ] 2.3 Update `scripts/lint/lint-workspace-entrypoints.mjs`: forbid nested
   `nx` orchestration in package-local scripts (replace nested-turbo rule);
-  keep all other rules.
+  keep all other rules. Expected green at landing (no current violations);
+  record in the phase record that this rule-semantics edit precedes the
+  ratchet machinery (H2) deliberately.
 
 ## 3. Turbo Retirement
 
@@ -40,10 +45,17 @@
   studio-server edges).
 - [ ] 4.2 `bun run build && bun run check && bun run test` green;
   `mods/mod-swooper-maps/mod/**` output byte-identical to the 1.1 baseline.
-- [ ] 4.3 Probe `bunx nx affected -t check --base=main` with a one-package
-  change; confirm correct scoping.
-- [ ] 4.4 `git grep -l turbo` limited to historical references; record
+- [ ] 4.3 Affected probe: touch one source file in `packages/config`, run
+  `bunx nx affected -t check --base=main`; expected affected set =
+  `@civ7/config` plus its dependents as listed in graph.json (record the
+  expected set in the phase record before running); confirm the actual
+  affected set matches.
+- [ ] 4.4 Cache-behavior gate: run `bunx nx run-many -t build --all` twice on
+  an unchanged tree — second run must report all tasks as cache hits; then
+  touch one source file in `packages/config` — only `@civ7/config` and its
+  dependents may miss cache.
+- [ ] 4.5 `git grep -l turbo` limited to historical references; record
   residuals in the phase record.
-- [ ] 4.5 `bun run openspec -- validate habitat-nx-adoption --strict`; update
+- [ ] 4.6 `bun run openspec -- validate habitat-nx-adoption --strict`; update
   downstream realignment (AGENTS.md, process docs) and close per workstream
   record.

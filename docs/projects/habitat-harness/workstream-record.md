@@ -21,7 +21,7 @@
 | 8 Slices | DONE (defined, not executed) | OpenSpec train below; all strict-valid (146/146 repo-wide) |
 | 9 Local stats | NOT STARTED | begins with H1 execution |
 | 10 Runtime proof | N/A by design | harness touches structure only; byte-parity gates stand in (H1/H4) |
-| 11 Review | PENDING | pre-execution review lanes below |
+| 11 Review | IN TRAIN | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice |
 | 12 Closure | NOT STARTED | per-slice via closure checklists |
 
 ## The change train (slices)
@@ -30,12 +30,12 @@
 |---|---|---|---|---|
 | H1 | `habitat-nx-adoption` | Nx fully adopted via native Turbo migration; turbo retired; mise pin; tools/* workspace | — | train root |
 | H2 | `habitat-harness-scaffold` | tools/habitat-harness package: habitat CLI, rule pack, ratchet/baselines, Nx plugin; wrap ALL existing checks (zero new rules) | H1 | — |
-| H3 | `habitat-boundary-tags` | tags on all projects + enforce-module-boundaries (locked); ESLint quarantined to that one rule | H1, H2 | ∥ with H4 |
-| H4 | `habitat-biome-hygiene` | Biome owns hygiene; prettier retired; one blame-shielded reformat commit; ratcheted lint lane | H1, H2 | ∥ with H3 |
-| H5 | `habitat-grit-catalog` | Grit pattern catalog (ports 8 eslint families + 4 script families, fixtures, parity), first codemods, file-layer generated-zone protection | H2, H4 | — |
-| H6 | `habitat-enforcement-consolidation` | Retire superseded scripts/eslint/tests with parity evidence; habitat verify becomes the single path; CI re-pointed | H3, H5 | — |
-| H7 | `habitat-git-hooks` | Husky pre-commit (staged scope; restage ONLY formatter-touched files) + pre-push affected verify | H2, H4, H5 | ∥ with H8 prep |
-| H8 | `habitat-generators-migrations` | Project/pattern generators, harness migrations, habitat classify, agent operating procedure in AGENTS.md | H6 | train tail |
+| H3 | `habitat-boundary-tags` | tags on all projects + enforce-module-boundaries (locked at empty baseline); ESLint quarantined to that one rule | H1, H2 | — |
+| H4 | `habitat-biome-hygiene` | Biome owns hygiene; prettier retired; one blame-shielded reformat commit; ratcheted lint lane | H1, H2, H3 | — (serialized after H3: shared writes on `package.json` files, `ci.yml`, rule pack — reformat would conflict with tag edits; ledger F1) |
+| H5 | `habitat-grit-catalog` | Grit pattern catalog (ports 8 eslint families + script families incl. G8/G10/G11, fixtures, probe-confirmed parity), first codemods, file-layer generated-zone protection | H2, H4 | — |
+| H6 | `habitat-enforcement-consolidation` | Retire superseded scripts/eslint/tests with per-rule parity + probe evidence; habitat verify becomes the single path; CI re-pointed | H3, H5 | — |
+| H7 | `habitat-git-hooks` | Husky pre-commit (staged scope; restage ONLY formatter-touched files) + pre-push affected verify; dispositions legacy `scripts/git-hooks` | H2, H3, H4, H5 | — |
+| H8 | `habitat-generators-migrations` | Project/pattern generators, harness migrations, habitat classify, agent operating procedure in AGENTS.md | H6, H7 | train tail (strictly after H7; ledger F40) |
 
 Each slice = one OpenSpec change + one Graphite branch stacked on its
 prerequisites; phase continuity records go in
@@ -54,7 +54,7 @@ prerequisites; phase continuity records go in
 
 | Lane | Scope | When |
 |---|---|---|
-| Spec review | train coherence, shortcut language, task readiness | once before H1 starts (next action) |
+| Spec review | train coherence, shortcut language, task readiness | DONE 2026-06-12 — 4 reviewers, 4× READY-WITH-REPAIRS; all repairs applied (see `review-disposition-ledger.md`) |
 | Architecture review | taxonomy/constraints vs normalization-train ownership; no overlap with `normalize-import-boundaries` change (coordination note below) | before H3 |
 | Implementation review | per-slice diff + fixtures + baselines | each slice |
 | Evidence review | parity tables, probe matrices, byte-parity claims | H1, H4, H5, H6 |
@@ -77,10 +77,8 @@ train redefines the other's authority.
 - habitat-native rule budget watched against the FRAME degeneration trigger (≥3 tool-assigned rules falling back to native ⇒ stop and re-evaluate).
 - Worktree/Graphite discipline per repo skills; one slice per branch; `gt restack --upstack` after mid-stack changes; `gt sync --no-restack` in shared environments.
 
-## Next exact action (when execution begins)
+## Next exact action
 
-1. Run the pre-execution spec-review lane over the 8 changes (fresh reviewer
-   agents; disposition ledger in this directory).
-2. Open H1: copy phase-record template into
-   `openspec/changes/habitat-nx-adoption/workstream/`, then execute tasks 1.1+
-   on a stacked branch off this one.
+1. ~~Pre-execution spec-review lane~~ DONE (`review-disposition-ledger.md`, all repairs applied).
+2. Open H1: phase record into `openspec/changes/habitat-nx-adoption/workstream/`,
+   then execute tasks 1.1+ on a stacked branch off this one.

@@ -42,10 +42,12 @@ now, not deferred; trade-offs recorded. Biome 2.4.x verified working under Bun
 ## Requires
 
 - `habitat-nx-adoption`, `habitat-harness-scaffold`
+- `habitat-boundary-tags` — serialized after H3 (shared writes: package.json
+  files, ci.yml, rule pack; the repo-wide reformat would conflict with H3's
+  tag edits — ledger F1).
 
 ## Enables Parallel Work
 
-- Runs parallel with `habitat-boundary-tags` (disjoint writes).
 - Required by `habitat-grit-catalog` (grit:apply must Biome-format rewrites)
   and `habitat-git-hooks` (staged formatting).
 
@@ -67,8 +69,12 @@ now, not deferred; trade-offs recorded. Biome 2.4.x verified working under Bun
 - Biome cannot express a `.prettierrc` setting and the resulting diff is not
   acceptable as a one-time cost — stop and record the delta before
   reformatting.
-- The reformat commit changes any build output byte (should be impossible;
-  verify).
+- Build-output parity is asserted on formatting-independent artifacts
+  (`mod/**` XML/SQL/asset files byte-identical). If bundled JS output differs,
+  compare after a minify-normalization pass (e.g. `esbuild --minify` both
+  sides) — formatting-only differences there are accepted and recorded as a
+  trade-off in the phase record; any NON-formatting difference is the stop
+  condition.
 
 ## Consumer Impact
 
@@ -80,8 +86,9 @@ documented in harness README.
 
 - `bun run openspec -- validate habitat-biome-hygiene --strict`
 - `bunx --bun @biomejs/biome ci .` green post-reformat.
-- `bun run build && bun run test` green pre/post reformat with identical
-  `mod/**` build outputs (byte parity).
+- `bun run build && bun run test` green pre/post reformat with build-output
+  parity per the stop condition (formatting-independent `mod/**` artifacts
+  byte-identical; bundled JS minify-normalized if needed).
 - `.git-blame-ignore-revs` contains the reformat commit; `git blame` probe on
   a touched file attributes pre-reformat authorship.
 - `bun run habitat check` includes biome rules with correct baseline counts;

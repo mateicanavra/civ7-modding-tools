@@ -16,14 +16,18 @@ tools/habitat-harness/patterns/grit/
     no-helper-redeclaration.md
     no-empty-schema-default.md
     no-runtime-config-merge.md
+    no-civ7-runtime-import.md
   stage-isolation/
     no-sibling-stage-import.md
     no-milestone-recipe-id.md
     no-domain-root-catalog.md
     no-wrapper-only-stage-config.md
+    placement-outcome-contract-boundary.md
   ownership/
     adapter-base-standard-isolation.md
     control-orpc-contract-ownership.md
+    viz-contract-ownership.md
+    sdk-mapgen-entrypoint-isolation.md
   codemods/
     export-star-to-named.md
     deep-import-to-public-surface.md
@@ -49,8 +53,9 @@ Known granularity notes:
   redeclarations) map to grit code snippets — fixture both positive and
   negative cases (e.g. `runValidatedFoo` must NOT match).
 - `lint-normalization-guardrails.mjs` G6/G7 (doc/code sync) are NOT grit
-  rules; they stay habitat-native (semantic, cross-file). Only G1/G2/G5/G9
-  port here.
+  rules; they stay habitat-native (semantic, cross-file). G1/G2/G5/G8/G9
+  (stage-isolation/contract), G10/G11 (ownership), and the G3 runtime-value
+  ban (runtime-purity) port here per the corpus split.
 - Studio artifact rule: worker-file exemptions (`pipeline.worker.ts`,
   `recipeRuntime.ts`) become pattern path excludes, mirrored from the eslint
   block.
@@ -59,12 +64,16 @@ Known granularity notes:
 
 File-layer rules live in the rule pack (not grit): glob + allowedWriters +
 remediation. Enforcement points:
-- `habitat check --staged`: fails if staged paths intersect protected globs
-  (unless the regenerating command is what produced them — detected by
-  invoking the generator in `--check` mode where available, else by message
-  guidance only; record this trade-off).
-- CI: regenerate-and-diff for `gen:maps` outputs (generator runs, diff must be
+- `habitat check --staged`: always fails on any staged path inside a protected
+  zone, regardless of generator `--check` support; the failure message carries
+  the owning regenerate command. The false-positive cost (committing
+  regenerated output requires `--no-verify` or a harness-recognized regen
+  marker) is accepted and recorded as a trade-off.
+- CI: regenerate-and-diff for both repo-runnable generators — `gen:maps`
+  outputs and `civ7-map-policy:gen-tables` (generator runs, diff must be
   empty) — drift detection, not just edit detection.
+  `packages/civ7-types/generated/**` (external resources workflow) gets
+  write-protection only; the regeneration gap is recorded in the phase record.
 
 ## Codemod rules (spec draft §8 made operational)
 

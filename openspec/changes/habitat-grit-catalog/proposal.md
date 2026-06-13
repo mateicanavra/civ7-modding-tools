@@ -2,7 +2,7 @@
 
 The intra-project plane — domain surfaces, runtime purity, stage isolation,
 contract shapes inside `mod-swooper-maps`, plus generated-zone protection —
-is where most existing enforcement lives (8 ESLint rule families, 4 grit-able
+is where most existing enforcement lives (8 ESLint rule families, 5 grit-able
 lint-script families) and where codemod capability is entirely missing. This
 slice creates the GritQL pattern catalog (syntax layer) and the file layer
 (path/generated-zone rules), porting those rules to harness ownership with
@@ -22,8 +22,8 @@ apply, and `--json` all proven; known gotchas recorded.
 ## What Changes
 
 - Add `@getgrit/cli` devDependency; `.grit/grit.yaml` loading
-  `tools/habitat-harness/patterns/grit/`; `grit init` artifacts committed as
-  appropriate.
+  `tools/habitat-harness/patterns/grit/`; commit `.grit/grit.yaml`; gitignore
+  `.grit/.gritmodules` and cache artifacts.
 - Port to grit-check patterns (each with input/output fixtures and a tested
   failure message; ESLint/script originals stay active until
   `habitat-enforcement-consolidation`):
@@ -32,12 +32,18 @@ apply, and `--json` all proven; known gotchas recorded.
     recipe-artifact imports, domain-root `export *` facades.
   - `scope:runtime-purity` family: TypeBox `Value.*`/`TypeCompiler` in runtime
     layers, `runValidated` calls, canonical-helper redeclaration, empty schema
-    defaults, config-merge patterns (`?? {}`, `Value.Default(`).
+    defaults, config-merge patterns (`?? {}`, `Value.Default(`), and the G3
+    runtime-value ban (no Civ7 runtime imports in mapgen-core engine/core
+    paths).
   - `scope:stage-isolation` family: sibling-stage step imports (G5),
     milestone-prefixed recipe IDs (G1), domain-root catalogs (G2),
-    wrapper-only stage config (G9).
-  - adapter-boundary `/base-standard/` import detection (baseline = current
-    6-file allowlist) and control-orpc contract-ownership patterns.
+    wrapper-only stage config (G9), placement outcome contract boundary (G8).
+  - ownership family: adapter-boundary `/base-standard/` import detection
+    (baseline = current 6-file allowlist), control-orpc contract-ownership
+    patterns, viz contract ownership (G10: no shared `steps/viz.ts` hubs, no
+    cross-step private viz imports), and SDK mapgen entrypoint isolation
+    (G11: SDK root must not import `./mapgen`; `@civ7/adapter/civ7`
+    importable only under `src/mapgen/`).
 - First grit-apply codemods (fixture-gated; apply runs Biome format after):
   `export *` → named exports in contract surfaces; deep-import → public-surface
   rewrite where the mapping is mechanical.
@@ -108,8 +114,13 @@ promise made real). No behavior change in product code.
 
 - `bun run openspec -- validate habitat-grit-catalog --strict`
 - Pattern parity: for each ported rule, grit-check findings on the current
-  tree match the original mechanism's findings exactly (empty vs empty, or
-  identical file sets); parity table recorded in the phase record.
+  tree match the original mechanism's findings exactly. Identical non-empty
+  finding sets are one acceptable form; for every ported rule whose
+  current-tree finding set is empty, parity additionally requires an
+  injected-violation dual run — a synthetic violation file run through BOTH
+  the original mechanism and the grit port, asserting both flag it. Parity
+  table rows record `empty/empty + probe-confirmed`; table recorded in the
+  phase record.
 - Fixture suite: every pattern has passing input/output (apply) or
   match/no-match (check) fixtures run by a harness test.
 - `bunx nx affected -t grit:check` green; `habitat fix --dry-run` lists only

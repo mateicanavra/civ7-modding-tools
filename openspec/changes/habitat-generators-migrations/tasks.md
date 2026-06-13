@@ -10,8 +10,12 @@
 
 ## 2. Migrations
 
-- [ ] 2.1 Wire `migrations.json` + a no-op baseline migration;
-  `bunx nx migrate @internal/habitat-harness` proof.
+- [ ] 2.1 Wire the plugin's `migrations.json` + a no-op baseline migration;
+  proof: hand-author a `migrations.json` run file and execute `bunx nx
+  migrate --run-migrations=migrations.json` (the package is unpublished, so
+  `bunx nx migrate @internal/habitat-harness` registry resolution does not
+  apply). Note: the migration requirement's demonstrable gate in this slice
+  is the no-op migration execution only.
 
 ## 3. Classify And Agent Procedure
 
@@ -22,7 +26,9 @@
 
 ## 4. Verification And Closure
 
-- [ ] 4.1 All proposal gates pass; classify spot-checks recorded.
+- [ ] 4.1 All proposal gates pass; classify spot-checks recorded against the
+  four-path expected-output matrix in the proposal (owning project, tags,
+  in-scope rules, required verification targets per path).
 - [ ] 4.2 `bun run openspec -- validate habitat-generators-migrations
   --strict`; downstream realignment (AGENTS routers, process docs); train
   closure review against FRAME end-state checklist (§14 of spec draft input).

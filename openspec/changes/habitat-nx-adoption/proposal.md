@@ -97,11 +97,18 @@ scope. No package-level consumer impact.
 ## Verification Gates
 
 - `bun run openspec -- validate habitat-nx-adoption --strict`
-- `bunx nx graph --file=graph.json` succeeds; graph contains all 21 projects
-  with correct dependency edges (spot-check adapter/mapgen-core/mod edges).
+- `bunx nx graph --file=graph.json` succeeds; graph contains all 21 projects;
+  every workspace `dependencies`/`devDependencies` edge declared in the 22
+  package.json manifests appears as an edge in `nx graph --file=graph.json`
+  output (scripted set comparison recorded in the phase record); spot-check
+  adapter/mapgen-core/mod edges as a sanity layer.
 - `bun run build && bun run check && bun run test` green, byte-equivalent
   behavior to `main` for build outputs of `mod-swooper-maps` (mod/ output diff
   empty on same inputs).
+- Cache behavior: run `bunx nx run-many -t build --all` twice on an unchanged
+  tree — second run must report all tasks as cache hits; then touch one source
+  file in `packages/config` — only `@civ7/config` and its dependents may miss
+  cache.
 - `bunx nx affected -t check --base=main` runs and scopes correctly on a probe
   change.
 - CI workflow passes on the PR with Nx commands.

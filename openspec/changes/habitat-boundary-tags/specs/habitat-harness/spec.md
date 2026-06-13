@@ -4,7 +4,10 @@
 
 Every workspace project SHALL carry `kind:*` tags from the derived taxonomy in
 its `package.json`, and cross-project dependency constraints SHALL be enforced
-by `@nx/enforce-module-boundaries` as a locked harness rule.
+by `@nx/enforce-module-boundaries` as a harness rule that is locked when its
+baseline is empty (expected at adoption); any red edge discovered at adoption
+is explicitly baselined and logged in the discrepancy log, and the rule locks
+when that baseline empties.
 
 #### Scenario: Illegal cross-project dependency
 - **WHEN** a project imports from a project whose tags violate the

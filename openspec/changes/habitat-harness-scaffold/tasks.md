@@ -19,8 +19,18 @@
 - [ ] 2.3 Wrap adapter-boundary (allowlist surfaced as reported-baselined
   diagnostics, allowlist file untouched), control-orpc-contract-ownership,
   adr-lint, doc-ambiguity (advisory lane, reusing its existing baseline).
-- [ ] 2.4 Wrap `bun run lint` (ESLint) and the architecture test suites
-  (`test:architecture-cutover`) as coarse-grained rules.
+- [ ] 2.4 Wrap `bun run lint` (ESLint) as a coarse-grained rule. Wrap the
+  corpus §C six architecture tests with per-file invocations — each as
+  `bun test <explicit test file path>` (they are NOT covered by
+  `test:architecture-cutover`):
+  `packages/mapgen-core/test/architecture/core-purity.test.ts`,
+  `mods/mod-swooper-maps/test/pipeline/rng-authority-boundary.test.ts`,
+  `mods/mod-swooper-maps/test/pipeline/recipe-import-boundary.test.ts`,
+  `mods/mod-swooper-maps/test/ecology/ecology-step-import-guardrails.test.ts`,
+  `mods/mod-swooper-maps/test/foundation/m11-projection-boundary-band.test.ts`,
+  `mods/mod-swooper-maps/test/build/map-bundle-runtime-imports.test.ts`.
+  Separately wrap `test:architecture-cutover` (coarse, 4 cutover tests) as its
+  own wrapped rule.
 - [ ] 2.5 Add root scripts (`habitat`, `habitat:check`, `habitat:fix`,
   `habitat:verify`); wire `habitat verify` to check + nx affected targets.
 
@@ -35,10 +45,20 @@
 
 - [ ] 4.1 Clean-tree run: `bun run habitat check` green; `--json` output
   validates against the diagnostic schema; every corpus-wrapped rule present.
-- [ ] 4.2 Synthetic-violation probe (scratch file breaking adapter boundary):
-  fails with rule id + remediation message; remove probe.
+- [ ] 4.2 Synthetic-violation probe matrix — one injected violation per
+  wrapped family:
+  (a) script family: a `/base-standard/` import outside
+  `packages/civ7-adapter` → expect the wrapped adapter-boundary rule id fails;
+  (b) ESLint family: a deep `@mapgen/domain/*/ops/*` import → expect the
+  wrapped eslint lane fails;
+  (c) architecture-test family: a Civ7 runtime ref in mapgen-core prod code →
+  expect the wrapped core-purity suite fails.
+  Each row records probe file path, injected violation, and expected rule
+  id/failure text; matrix recorded in the phase record; probes reverted after
+  capture.
 - [ ] 4.3 Baseline shrink-only probe: hand-adding a baseline entry fails the
-  self-check.
+  self-check. CI-side probe: a commit adding an entry to an EXISTING rule's
+  baseline must fail the self-check as run in CI (not only via the local CLI).
 - [ ] 4.4 `bun run build && bun run check && bun run test` unchanged-green;
   CI uploads habitat JSON diagnostics artifact.
 - [ ] 4.5 `bun run openspec -- validate habitat-harness-scaffold --strict`;

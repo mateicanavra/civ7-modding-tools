@@ -28,7 +28,7 @@ Two enforcement planes — do not conflate them:
 | `kind:mod` | Game-facing mod packages (recipes, domains, map configs, game runtime wrappers) | `mods/*`; `docs/system/ARCHITECTURE.md` |
 | `kind:tooling` | Repo-local dev tooling (the habitat harness itself) | new with this workstream |
 
-## 2. Per-project assignment (all 21 projects)
+## 2. Per-project assignment (all 21 existing projects + the new harness package)
 
 | Project | Path | Tags |
 |---|---|---|

@@ -29,10 +29,16 @@ an empty baseline SHALL be locked (any violation fails).
 - **WHEN** a change introduces a violation not present in the rule's baseline
 - **THEN** `habitat check` fails even though older baselined violations exist
 
-#### Scenario: Baseline expansion is blocked
-- **WHEN** a change adds entries to a baseline file outside a
-  rule-introduction change using the explicit expansion gate
+#### Scenario: Expansion of an existing rule's baseline is rejected
+- **WHEN** a change adds entries to the baseline of a rule that already exists
+  at the merge-base
 - **THEN** the baseline self-check fails the build
+
+#### Scenario: Rule introduction lands with its baseline
+- **WHEN** a change registers a new ruleId in the rule pack and commits that
+  rule's baseline in the same change
+- **THEN** the self-check accepts the new baseline and the shrink-only rule
+  applies from then on
 
 #### Scenario: Rule locks at zero
 - **WHEN** a rule's baseline becomes empty

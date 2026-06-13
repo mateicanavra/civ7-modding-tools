@@ -147,6 +147,7 @@ file contents, command flags, or task order.
 | Pre-commit scope | Format + cheap grit checks on staged files only; full affected verification at pre-push; auto-restage only formatter-touched files | If multi-lane worktree staging conflicts appear in practice |
 | ESLint survives (minimal) | Only as the runner for `@nx/enforce-module-boundaries`; all other current ESLint rules migrate to Grit/file-layer | When Nx Conformance or a Biome-native boundary integration covers it |
 | Doc-lint scripts (`lint-doc-*`, `lint-mapgen-docs.py`) | Wrapped as habitat-native checks, not force-fitted into a tool layer | If they grow; they are doc tooling, not architecture enforcement |
+| By-design habitat-native set (excluded from the degeneration-trigger count) | Exactly: adr-lint, doc-ambiguity, mapgen-docs (doc tooling); workspace-entrypoints (manifest rule); G6/G7 (semantic doc/code sync). Everything else must live on its tool layer | If this list grows beyond these six, the growth counts toward the degeneration trigger |
 | Nx version | Adopt latest 22.x; do not wait for 23 stable; never 21.5.0/21.6.0 (pulled releases) | `nx migrate` when 23 lands |
 
 ## 4. De-risk evidence (all flags resolved 2026-06-12)
@@ -180,7 +181,7 @@ Gotchas captured for implementation:
   `targetDefaults` (dependsOn/outputs/inputs map 1:1; `cache: true` becomes
   explicit; `persistent` → `continuous`).
   https://nx.dev/docs/guides/adopting-nx/from-turborepo
-- Not auto-mapped (needs a manual pass, our turbo.json is ~6 tasks):
+- Not auto-mapped (needs a manual pass; our turbo.json has 18 task entries):
   `extends`, `passThroughEnv`, `envMode`, `outputLogs`; env vars become cache
   inputs.
 - Bun officially supported as package manager (since Nx 19.1); Nx runs on
@@ -218,7 +219,7 @@ and agent operating procedure. We **amend**:
 
 ## 6. Grounding insights (what the repo actually has)
 
-- **Scale:** 18 workspace packages (3 apps, 11 packages incl. 4 plugins,
+- **Scale:** 21 workspace projects (3 apps, 15 packages incl. 4 plugins,
   3 mods), ~2,200 TS files, ~305k LOC. Bun workspaces + text bun.lock +
   `linker = "isolated"` already (spec-aligned).
 - **Existing enforcement is substantial and mostly green:** 9 lint scripts
@@ -226,10 +227,12 @@ and agent operating procedure. We **amend**:
   recipe imports, normalization guardrails, doc lints, oRPC contract
   ownership), 6+ architecture tests (core purity, recipe import boundary,
   RNG authority, bundle runtime imports, projection band, ecology guardrails),
-  ESLint flat config with 5 families of restricted-import/syntax rules, CI
-  `architecture-strict-core` job. Allowlists exist (adapter boundary: 7
+  ESLint flat config with 8 families of restricted-import/syntax rules, CI
+  `architecture-strict-core` job. Allowlists exist (adapter boundary: 6
   exceptions) — the embryonic ratchet.
-- **What's missing:** no Nx/Biome/Grit/Husky anywhere; no local hooks at all;
+- **What's missing:** no Nx/Biome/Grit/Husky anywhere; no harness-style local
+  hooks (one opt-in `scripts/git-hooks/pre-commit` exists — it publishes the
+  civ7-resources submodule via `core.hooksPath`; dispositioned in slice H7);
   prose-only rules (generated-zone read-only, stage truth/projection
   separation, typed intent usage) have **zero enforcement**; checks emit
   human text, not JSON; no codemod capability at all.

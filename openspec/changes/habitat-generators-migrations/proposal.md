@@ -28,8 +28,13 @@ procedure wiring (AGENTS.md routing) that makes classify-first the default.
 - `@internal/habitat-harness:pattern` generator: scaffolds a grit pattern +
   fixtures + rule-pack entry + empty baseline (rule-introduction path with
   the `--expand-baseline` gate from H2).
-- Harness migrations wiring (`bunx nx migrate @internal/habitat-harness`):
-  versioned migration stubs so future harness convention changes propagate.
+- Harness migrations wiring: migrations ship in the plugin's
+  `migrations.json`; because `@internal/habitat-harness` is unpublished,
+  `bunx nx migrate @internal/habitat-harness` (npm-registry version
+  resolution) does not apply — migrations are executed via a hand-authored
+  `migrations.json` run file + `bunx nx migrate
+  --run-migrations=migrations.json` (no registry resolution); versioned
+  migration stubs so future harness convention changes propagate.
 - `habitat classify <path-or-diff>` completes: maps any path/diff to project,
   tags, owning rules, and required targets (the agent entry point).
 - Agent operating procedure: root `AGENTS.md` Tooling Defaults section gains
@@ -45,6 +50,8 @@ procedure wiring (AGENTS.md routing) that makes classify-first the default.
 ## Requires
 
 - `habitat-enforcement-consolidation`
+- `habitat-git-hooks` (strictly sequential — both slices write root
+  `AGENTS.md` and the harness README; no parallelism with H7)
 
 ## Enables Parallel Work
 
@@ -83,7 +90,16 @@ impossible for supported kinds.
   generated output → probes removed.
 - Probe: pattern generator output passes the fixture runner and registers in
   the rule pack.
-- `bunx nx migrate @internal/habitat-harness` executes the no-op baseline
-  migration.
-- `habitat classify` returns correct project/tags/rules for spot-checked
-  paths (adapter file, generated file, mod step file, harness file).
+- The no-op baseline migration executes successfully via a hand-authored
+  `migrations.json` run file + `bunx nx migrate
+  --run-migrations=migrations.json` (no registry resolution; the package is
+  unpublished).
+- `habitat classify` spot-check matrix — four probe paths with expected
+  outputs (per `docs/projects/habitat-harness/taxonomy.md`), each naming the
+  owning project, tags, in-scope rules, and required verification targets:
+  - `packages/civ7-adapter/src/<any>.ts` → project `@civ7/adapter`, tag
+    `kind:adapter` (adapter `/base-standard/` ownership rules in scope)
+  - `mods/mod-swooper-maps/src/recipes/<any>` → project `mod-swooper-maps`,
+    tag `kind:mod`, recipe-surface rules in scope
+  - `packages/config/<any>` → project `@civ7/config`, tag `kind:foundation`
+  - `apps/mapgen-studio/src/<any>` → project `mapgen-studio`, tag `kind:app`

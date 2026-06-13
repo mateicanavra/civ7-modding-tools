@@ -4,9 +4,11 @@
   configure `biome.json` (formatter matching `.prettierrc` semantics; linter
   scoped per proposal; excludes for generated zones, `mod/**`, `dist/**`,
   `.nx`, `.civ7/outputs`, `docs/_archive`, vendor files).
-- [ ] 1.2 Dry-run `biome format` repo-wide; review diff size; adjust config
-  until the delta is the accepted one-time cost (record stats in phase
-  record).
+- [ ] 1.2 Dry-run `biome format` repo-wide; review diff size; the reformat
+  delta is accepted only if confined to whitespace/quote-style/trailing-comma
+  classes — verified by `git diff -w` on the reformat commit being
+  empty-or-quotes/commas-only plus a sampled diff review recorded in the
+  phase record (with diff stats).
 
 ## 2. Reformat And Prettier Retirement
 
@@ -15,7 +17,10 @@
   --write .`; add commit SHA to new `.git-blame-ignore-revs`.
 - [ ] 2.3 Remove `.prettierrc` and prettier references (deps, docs, editor
   config); `bun install`.
-- [ ] 2.4 Verify build/test green and `mod/**` byte parity with 2.1 hashes.
+- [ ] 2.4 Verify build/test green and build-output parity with 2.1 hashes per
+  the proposal stop condition (formatting-independent `mod/**` artifacts
+  byte-identical; bundled JS minify-normalized if it differs, recorded as a
+  trade-off).
 
 ## 3. Lint Hygiene Lane
 

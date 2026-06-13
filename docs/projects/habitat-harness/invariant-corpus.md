@@ -16,10 +16,10 @@ Owner-layer legend (frame hard core #2): `nx-boundaries` (tags + enforce-module-
 
 | ID | Implementation | Invariant | Scope | Enforced today | JSON? | Exceptions | Harness owner | Disposition |
 |---|---|---|---|---|---|---|---|---|
-| adapter-boundary | `lint-adapter-boundary.sh` (bash+rg) | `/base-standard/` imports only inside `packages/civ7-adapter` | `packages/**` | root `check` + `ci:architecture-strict-core` | parseable text | 6 allowlisted files (CIV-20, CIV-47, map-policy tables) → becomes the rule's ratchet baseline | grit-check (+ nx tag `kind:adapter` context) | wrap-then-port |
+| adapter-boundary | `lint-adapter-boundary.sh` (bash+rg) | `/base-standard/` imports only inside `packages/civ7-adapter` | `packages/**` | `ci:architecture-strict-core` only (root `check` does NOT invoke it) | parseable text | 6 allowlisted files (CIV-20, CIV-47, map-policy tables) → becomes the rule's ratchet baseline | grit-check (+ nx tag `kind:adapter` context) | wrap-then-port |
 | domain-refactor-guardrails | `lint-domain-refactor-guardrails.sh` (bash+rg, `boundary`/`full` profiles) | ops don't import adapter/context/map-projection/domain-root config; no cross-domain deep imports; no RNG/engine imports outside runtime layers; full profile adds JSDoc/schema-description rules | `mods/mod-swooper-maps/src/domain/**`, `recipes/standard/**` | root `check` + strict-core (full) | text | 0 | grit-check (+ grit-apply candidates for JSDoc) | wrap-then-port |
 | mapgen-recipe-imports | `lint-mapgen-recipe-imports.sh` (bash+rg) | recipes import domain only via public surfaces (`@mapgen/domain/<d>`, `/ops`, `/config.js`) | `mods/mod-swooper-maps/src/recipes/**` | root `check` | text | 0 | nx-boundaries (package-level) + grit-check (path-level within mod) | wrap-then-port |
-| normalization-guardrails | `lint-normalization-guardrails.mjs` | G1 no milestone-prefixed recipe IDs; G2 no domain-root catalogs; G3 no Civ7 runtime imports in mapgen-core; G5 no sibling stage step imports; G6 recipe/docs stage-order sync; G7 superseded stage IDs in docs; G8 placement outcome contract boundary; G9 no wrapper-only stage config; G10 viz contract ownership; G11 SDK runtime entrypoint isolation | mod recipes/domain, sdk, mapgen-core, docs | root `check` | structured text | 0 | split: grit-check (G1,G2,G5,G9), nx-boundaries (G3,G10,G11), habitat-native (G6,G7 — doc/code sync is semantic) | wrap-then-port |
+| normalization-guardrails | `lint-normalization-guardrails.mjs` | G1 no milestone-prefixed recipe IDs; G2 no domain-root catalogs; G3 no Civ7 runtime imports in mapgen-core; G5 no sibling stage step imports; G6 recipe/docs stage-order sync; G7 superseded stage IDs in docs; G8 placement outcome contract boundary; G9 no wrapper-only stage config; G10 viz contract ownership; G11 SDK runtime entrypoint isolation | mod recipes/domain, sdk, mapgen-core, docs | root `check` | structured text | 0 | split: grit-check (G1, G2, G5, G8, G9, G10, G11, and the G3 runtime-value ban — all intra-project shapes Nx cannot see), nx-boundaries (G3 project-edge context only, via the `kind:engine` tag rule), habitat-native (G6, G7 — doc/code sync is semantic) | wrap-then-port |
 | control-orpc-contract-ownership | `lint-control-orpc-contract-ownership.mjs` | no `@civ7/direct-control` imports in service contracts; no schema exports from module contracts; no contract-local re-exports from public surface | `packages/civ7-control-orpc/src/modules/**/contract.ts` | root `check` | text | 0 | grit-check | wrap-then-port |
 | workspace-entrypoints | `lint-workspace-entrypoints.mjs` | package-local scripts must not hide workspace orchestration (`--filter`, `--cwd`, nested turbo→nx) | all `package.json` | root `check` | text | 0 | habitat-native (manifest rule, not source syntax) | wrap-then-port (update for nx in H1) |
 | adr-lint | `lint-doc-adrs.mjs` | ADR frontmatter shape + heading IDs + no hardcoded paths | `docs/projects/*/resources/spec/adr/` | manual | yes (`--json`) | 0 | habitat-native (doc tooling) | wrap (keep semantics; low priority) |
@@ -30,7 +30,7 @@ Owner-layer legend (frame hard core #2): `nx-boundaries` (tags + enforce-module-
 
 | ID | Block | Invariant | Harness owner | Disposition |
 |---|---|---|---|---|
-| eslint-studio-recipe-imports | lines ~27–62 | Studio UI imports recipe *artifacts*, not runtime modules (worker files exempt) | nx-boundaries (tag rule app↔mod-artifacts) | port |
+| eslint-studio-recipe-imports | lines ~27–62 | Studio UI imports recipe *artifacts*, not runtime modules (worker files exempt) | grit-check (artifact-vs-runtime split is a subpath distinction within one project — invisible to Nx tags; worker exemptions preserved in the pattern) | port |
 | eslint-domain-ops-deep-imports | ~65–88 | no deep `@mapgen/domain/*/ops|rules|strategies/*` imports outside domain | grit-check (intra-package path rule; nx can't see within one project) | port |
 | eslint-runtime-typebox-ban | ~91–127 | steps/strategies: no TypeBox `Value.*`/`TypeCompiler`, no `runValidated`, no compiler-normalize imports | grit-check | port |
 | eslint-redefined-helpers | ~129–170 | steps/strategies must not redeclare `clamp01`/`clampChance`/`normalizeRange`/`rollPercent` | grit-check | port |
@@ -50,17 +50,18 @@ No other ESLint rules survive.
 | core-purity | `packages/mapgen-core/test/architecture/core-purity.test.ts` | mapgen-core prod code has no Civ7 runtime refs | keep-as-test; **duplicated intent** with nx-boundaries tag rule (`kind:core` ↛ `kind:adapter`) — once the tag rule is locked, slim the test or retire (decided in H6) |
 | rng-authority-boundary | `mods/.../test/pipeline/rng-authority-boundary.test.ts` | no engine RNG / official generators in standard recipe + domain | keep-as-test (runtime semantics) |
 | recipe-import-boundary | `mods/.../test/pipeline/recipe-import-boundary.test.ts` | recipes use public domain surfaces | keep-as-test until grit-check equivalent is locked, then retire (H6) |
-| ecology-step-import-guardrails | `mods/.../test/ecology/ecology-step-import-guardrails.test.ts` | ecology steps don't deep-import ops/rules; retired stage dirs absent | keep-as-test until grit equivalent locked (H6) |
+| ecology-step-import-guardrails | `mods/.../test/ecology/ecology-step-import-guardrails.test.ts` | ecology steps don't deep-import ops/rules; retired stage dirs absent | split in H6: deep-import half retires once the grit equivalent locks; the retired-stage-dirs-absent half stays (test slimmed, not deleted — no grit/file rule covers directory absence) |
 | m11-projection-boundary-band | `mods/.../test/foundation/m11-projection-boundary-band.test.ts` | projection algorithm correctness | keep-as-test (domain logic, not structure) |
 | map-bundle-runtime-imports | `mods/.../test/build/map-bundle-runtime-imports.test.ts` | built bundles embed workspace packages; TextEncoder bootstrap; river markers | keep-as-test (build output correctness) |
+| cutover-tests (×4) | `mods/mod-swooper-maps` `test:architecture-cutover` → `no-op-calls-op-tectonics`, `no-dual-contract-paths`, `no-shim-surfaces`, `foundation-topology-lock` | M-cutover structural invariants (distinct from the six rows above) | keep-as-test; coarse-wrapped via the script target in H2 (the six rows above need per-file `bun test` invocations — see H2 task 2.4) |
 
 ## D. CI wiring
 
 | ID | Where | Behavior | Disposition |
 |---|---|---|---|
-| pnpm-guard | `.github/workflows/ci.yml` | fail on pnpm artifacts | keep; add habitat-native equivalent locally (cheap pre-commit) |
+| pnpm-guard | `.github/workflows/ci.yml` | fail on pnpm artifacts | keep; H7 adds a **registered file-layer rule** (empty baseline, locked) run in pre-commit — not an unregistered native check |
 | root-check | `package.json` `check` → turbo + 5 lint scripts | aggregator | becomes `habitat check` / nx targets in H1–H2 |
-| architecture-strict-core | ci.yml job | lint + adapter-boundary + cutover tests + guardrails + check | re-pointed at `habitat verify` (nx affected) in H2; job kept |
+| architecture-strict-core | ci.yml job | lint + adapter-boundary + cutover tests + guardrails + check | re-pointed at `habitat verify` (nx affected) in **H6** (H2 only adds diagnostics-artifact upload); job kept |
 
 ## E. Generated zones (file layer)
 
@@ -83,8 +84,8 @@ No other ESLint rules survive.
 
 ## Summary counts
 
-- 9 lint scripts → 4 grit-check families, 2 nx-boundaries families, 3 habitat-native (docs/manifest) wraps.
-- 8 ESLint rule families → 1 nx-boundaries, 6 grit-check, 1 grit-apply codemod; ESLint reduced to the single Nx boundary rule.
-- 6 architecture tests → all keep-as-test initially; 3 retire candidates in H6 once equivalent harness rules are locked.
+- 9 lint scripts → 5 grit-check families (normalization split: G1/G2/G3-runtime/G5/G8/G9/G10/G11 grit; G6/G7 native; G3 project-edge via nx tags), 4 habitat-native (docs/manifest) wraps.
+- 8 ESLint rule families → 7 grit-check, 1 grit-apply codemod (+check); ESLint reduced to the single Nx boundary rule.
+- 6 architecture tests (+4 coarse-wrapped cutover tests) → all keep-as-test initially; in H6: 2 retire once equivalent grit rules lock (core-purity slim-or-retire, recipe-import-boundary), ecology test slims (dir-absence half stays).
 - 4 generated zones → file-layer rules (new enforcement).
 - 5 promised-but-unenforced invariants → 3 in-scope new rules (H4/H5/H7), 2 logged as future.

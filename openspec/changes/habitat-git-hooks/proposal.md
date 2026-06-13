@@ -24,29 +24,54 @@ hooks are friction reduction, never verification truth.
   Auto-restage policy (D3): the hook captures the exact file list it formats
   and re-stages **only those paths** (`git add -- <formatted files>`); it
   never stages other dirty or foreign files (multi-lane worktree safety —
-  see shared-worktree note in design of record: other lanes may have staged
-  work in the same tree).
+  see the foreign-staged-file probe, task 3.2, and its probe-matrix entry in
+  the phase record: other lanes may have staged work in the same tree).
+- Disposition the EXISTING legacy hook mechanism: `scripts/git-hooks/pre-commit`
+  (runs `scripts/civ7-resources/publish-submodule.sh` on every commit),
+  installed via `git config core.hooksPath scripts/git-hooks` by
+  `scripts/git-hooks/setup.sh` (root script `setup:git-hooks`). Husky's
+  install repoints `core.hooksPath`, silently dropping that behavior — so:
+  fold the publish-submodule invocation into `habitat hook pre-commit`
+  (preserving current behavior; inspect the script at execution time — if it
+  requires opt-in state, preserve the opt-in semantics and record the
+  decision in the phase record), then retire `scripts/git-hooks/` and the
+  `setup:git-hooks` root script in the same slice so the two mechanisms
+  never coexist.
 - Implement `habitat hook pre-push`: `bunx nx affected -t
   biome:ci,boundaries,grit:check,habitat:check,test --base=<merge-base>`
-  bounded to a recorded time budget; instructions for `--no-verify` escape
-  recorded as policy (allowed; CI catches).
+  bounded to a pre-measured time budget. Budget derivation: BEFORE wiring
+  hooks, measure baseline wall-clock on two declared probe sets — (a) a
+  10-file staged set for pre-commit, (b) a one-package change for pre-push;
+  budget = 2× measured baseline, recorded in the phase record FIRST; the
+  timing gate then fails if the wired hooks exceed those budgets.
+  Instructions for `--no-verify` escape recorded as policy (allowed; CI
+  catches). "Cheap grit checks" is defined by a rule-pack attribute
+  `hookScope: 'pre-commit'`; the tasks enumerate which pattern families get
+  it (fast, path-scoped patterns only) when wiring.
 - `commit-msg` evaluated and explicitly NOT installed (repo uses Graphite
   conventions, no enforced message shape today) — recorded decision, easy to
   add later.
-- Local bun-only guard (pnpm artifact check) in pre-commit (mirrors CI guard).
+- Local bun-only guard (pnpm artifact check) in pre-commit (mirrors CI
+  guard). This is a NEW rule: it is registered in the harness rule pack as a
+  file-layer rule with an empty, locked baseline via the rule-introduction
+  gate — this slice is its rule-introduction change.
 - Hook behavior documented in harness README + root AGENTS touchpoint;
   Graphite interaction verified (`gt create`/`gt modify` invoke git hooks).
 
 ## What Does Not Change
 
-- CI gates unchanged and authoritative; hooks add no new rules — they run
-  existing harness rules earlier.
+- CI gates unchanged and authoritative; hooks add exactly one registered rule
+  (the bun-only file-layer guard, empty locked baseline, introduced via the
+  rule-introduction gate); all other hook checks run existing harness rules
+  earlier.
 - No `post-checkout`/`post-merge` hooks in this slice (optional per spec
   draft; deferred deliberately, recorded).
 
 ## Requires
 
 - `habitat-harness-scaffold`
+- `habitat-boundary-tags` (pre-push affected run invokes the `boundaries`
+  target, which exists only after H3)
 - `habitat-biome-hygiene`
 - `habitat-grit-catalog` (staged grit checks; generated-zone guard)
 
@@ -70,8 +95,9 @@ hooks are friction reduction, never verification truth.
 
 ## Stop Conditions
 
-- Pre-commit exceeds the recorded time budget on a typical staged set — stop
-  and trim scope before shipping.
+- Pre-commit exceeds its pre-measured budget (2× baseline on the declared
+  10-file staged probe set, recorded before wiring) — stop and trim scope
+  before shipping.
 - Hook interaction with Graphite (`gt create/modify/absorb`) produces
   surprising staging behavior in testing — stop and record before enabling.
 - Restage scope cannot be proven limited to formatter-touched files.
@@ -89,5 +115,10 @@ staged files in shared worktrees are never touched (restage is path-exact).
   unstaged file untouched); foreign staged file untouched by restage;
   generated-zone staged edit blocked; pre-push runs affected targets only;
   `gt create` and `gt modify` trigger hooks correctly in a worktree.
-- Hook timing recorded against the budget.
+- Hook timing gate: budgets (2× measured baseline on the two declared probe
+  sets) recorded in the phase record BEFORE wiring; wired hooks measured
+  against them — the gate fails if either budget is exceeded.
+- Legacy hook disposition complete: publish-submodule behavior preserved in
+  `habitat hook pre-commit`; `scripts/git-hooks/` and `setup:git-hooks`
+  retired in this slice.
 - Fresh-clone `bun install` installs hooks (prepare script proof).

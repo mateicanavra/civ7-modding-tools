@@ -32,5 +32,6 @@ configuration updates are generated, not hand-applied.
 
 #### Scenario: Harness convention change
 - **WHEN** a harness version changes a convention consumed by projects
-- **THEN** `bunx nx migrate @internal/habitat-harness` applies the update
-  mechanically
+- **THEN** running the migration via a hand-authored `migrations.json` run
+  file (`bunx nx migrate --run-migrations=migrations.json`; the package is
+  unpublished, so no registry resolution) applies the update mechanically

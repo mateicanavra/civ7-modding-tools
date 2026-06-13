@@ -1,14 +1,17 @@
 ## 1. Tags
 
-- [ ] 1.1 Add `"nx": {"tags": [...]}` to all 21 workspace package.json files
-  plus `tools/habitat-harness`, exactly per taxonomy.md §2.
+- [ ] 1.1 Add `"nx": {"tags": [...]}` to all 21 workspace package.json files,
+  exactly per taxonomy.md §2. `tools/habitat-harness/package.json` already
+  carries `kind:tooling` pre-seeded by H2 — verify it matches taxonomy.md,
+  don't re-add.
 - [ ] 1.2 `bunx nx show project` spot-checks (adapter, mapgen-core,
   mod-swooper-maps, studio-server) confirm tags in the graph.
 
 ## 2. Boundary Rule
 
-- [ ] 2.1 Add `@nx/eslint-plugin` (+ eslint if needed by H6 ordering)
-  devDependency; create `eslint.boundaries.config.mjs` containing only
+- [ ] 2.1 Add `@nx/eslint-plugin` and `eslint` devDependencies (the
+  `boundaries` target owns the ESLint invocation; H6 only re-points aggregate
+  entrypoints); create `eslint.boundaries.config.mjs` containing only
   `@nx/enforce-module-boundaries` with taxonomy.md §3 depConstraints,
   per-constraint agent-readable messages, `enforceBuildableLibDependency`
   evaluated and recorded (expected: false — no buildable-lib split here).

@@ -14,6 +14,20 @@ Current `turbo.json` tasks and their Nx equivalents:
 | `mod-swooper-maps#build:studio-recipes` (outputs `src/maps/generated/**`) | project-level target override in `mods/mod-swooper-maps/package.json` `"nx"` field |
 | `mapgen-studio#dev` (depends on studio-recipes, `persistent: true`) | project-level override; `persistent` → `continuous: true` |
 
+**This table is ILLUSTRATIVE — it covers ~7 of the 18 task entries in
+`turbo.json`. The implementer MUST enumerate every task entry in `turbo.json`
+at execution time and convert each one.** Explicitly including:
+
+- `mod-swooper-maps#build` — carries `env: ["SWOOPER_STUDIO_RUN_ID"]`, which
+  becomes an Nx input (env entry) on that project's override.
+- The three `mapgen-studio#*` targets (`build`, `check`, `test`) that depend on
+  `mod-swooper-maps#build:studio-recipes` (plus `mapgen-studio#dev` above).
+- `deploy`, `deploy:studio`, `clean`, `dev`, and `@civ7/docs#dev`.
+- The root `deploy:mods` script's `--filter='./mods/*'` path-glob, which has no
+  direct Nx equivalent — map it to an explicit
+  `nx run-many --projects=<mod project names>` list or a tag-based selector,
+  and record the choice in the phase record.
+
 Fields requiring manual decisions (converter does not map): any `env`/
 `globalEnv` usage → Nx `inputs` env entries; `globalDependencies` →
 `sharedGlobals` namedInput (include `civ.config.jsonc`, `tsconfig.base.json`,
