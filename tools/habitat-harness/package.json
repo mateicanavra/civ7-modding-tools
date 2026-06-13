@@ -1,0 +1,22 @@
+{
+  "name": "@internal/habitat-harness",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Repo-local enforcement harness: single entrypoint over all structural checks, with ratchet baselines (see docs/projects/habitat-harness/FRAME.md)",
+  "type": "module",
+  "nx": {
+    "tags": ["kind:tooling"]
+  },
+  "scripts": {
+    "check": "tsc -p tsconfig.json --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./plugin": "./src/plugin.js",
+    "./rules": "./src/rules/rules.json"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,5 +1,13 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "plugins": [
+    {
+      "plugin": "./tools/habitat-harness/src/plugin.js",
+      "options": {
+        "checkTargetName": "habitat:check"
+      }
+    }
+  ],
   "targetDefaults": {
     "build": {
       "dependsOn": [

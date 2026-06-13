@@ -1,0 +1,63 @@
+/**
+ * Nx inference plugin (createNodesV2): gives every project that owns at least
+ * one habitat rule a `habitat:check` target running only that project's rules.
+ *
+ * Plain ESM JS on purpose: Nx loads workspace plugins on Node, and a JS file
+ * avoids the optional @swc-node TS-plugin toolchain. The rule data is shared
+ * with the CLI via src/rules/rules.json (single source of truth).
+ */
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const rulesJson = JSON.parse(readFileSync(path.join(here, "rules", "rules.json"), "utf8"));
+
+/** ownerProject -> repo-relative project root (only projects that own rules). */
+const OWNER_ROOTS = {
+  "@internal/habitat-harness": "tools/habitat-harness",
+  "mod-swooper-maps": "mods/mod-swooper-maps",
+  "@swooper/mapgen-core": "packages/mapgen-core",
+  "@civ7/control-orpc": "packages/civ7-control-orpc",
+};
+
+export const createNodesV2 = [
+  "tools/habitat-harness/src/rules/rules.json",
+  (configFiles, options, _context) => {
+    const checkTargetName = options?.checkTargetName ?? "habitat:check";
+    const owners = new Set(rulesJson.rules.map((r) => r.ownerProject));
+    return configFiles.map((configFile) => {
+      const projects = {};
+      for (const owner of owners) {
+        const root = OWNER_ROOTS[owner];
+        if (!root) continue;
+        projects[root] = {
+          targets: {
+            [checkTargetName]: {
+              command: `bun tools/habitat-harness/src/bin/habitat.ts check --owner ${owner}`,
+              options: { cwd: "{workspaceRoot}" },
+              cache: true,
+              // Wrapped rules scan broad repo surfaces; inputs are deliberately
+              // wide so a cache hit can never mask a real violation. Narrows
+              // as rules port to their owning tools (H5/H6).
+              inputs: [
+                "{workspaceRoot}/tools/habitat-harness/src/**",
+                "{workspaceRoot}/tools/habitat-harness/baselines/**",
+                "{workspaceRoot}/scripts/lint/**",
+                "{workspaceRoot}/eslint.config.js",
+                "{workspaceRoot}/packages/**",
+                "{workspaceRoot}/apps/**",
+                "{workspaceRoot}/mods/**",
+                "{workspaceRoot}/docs/**",
+              ],
+              metadata: {
+                description: `habitat rules owned by ${owner} (wrapped enforcement; see docs/projects/habitat-harness/)`,
+              },
+            },
+          },
+        };
+      }
+      return [configFile, { projects }];
+    });
+  },
+];

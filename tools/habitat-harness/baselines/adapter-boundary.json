@@ -1,0 +1,3 @@
+[
+  "packages/civ7-map-policy/src/river-type-metadata.source.ts::Move the /base-standard/ import into @civ7/adapter, or (with a tracking issue) extend the allowlist in scripts/lint/lint-adapter-boundary.sh."
+]

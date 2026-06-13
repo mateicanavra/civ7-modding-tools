@@ -1,0 +1,142 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { repoRoot } from "../lib/paths.js";
+import { run, type SpawnResult } from "../lib/spawn.js";
+import type { HabitatDiagnostic } from "../lib/diagnostics.js";
+
+/**
+ * The rule pack. Data lives in rules.json (shared with the Nx plugin); this
+ * module types it and supplies per-rule output parsers. H2 = wrapped rules
+ * only: every detect command executes the pre-existing mechanism unchanged
+ * and is re-emitted as normalized diagnostics.
+ */
+
+export interface HarnessRule {
+  id: string;
+  ownerTool: string;
+  ownerProject: string;
+  lane: "enforced" | "advisory";
+  scope: string;
+  forbids: string;
+  why: string;
+  detect: string[];
+  remediate: string | null;
+  message: string;
+  exceptionPath: string;
+}
+
+const rulesJsonPath = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "rules.json",
+);
+
+export const rules: HarnessRule[] = (
+  JSON.parse(readFileSync(rulesJsonPath, "utf8")) as { rules: HarnessRule[] }
+).rules;
+
+export function ruleById(id: string): HarnessRule | undefined {
+  return rules.find((r) => r.id === id);
+}
+
+/** Projects with a package-local `lint: eslint .` script (the __eslint_multi__ fan-out). */
+export const eslintProjects: Array<{ name: string; root: string }> = [
+  { name: "@mateicanavra/civ7-cli", root: "packages/cli" },
+  { name: "@civ7/config", root: "packages/config" },
+  { name: "@mateicanavra/civ7-sdk", root: "packages/sdk" },
+  { name: "@civ7/plugin-files", root: "packages/plugins/plugin-files" },
+  { name: "@civ7/plugin-git", root: "packages/plugins/plugin-git" },
+  { name: "@civ7/plugin-graph", root: "packages/plugins/plugin-graph" },
+  { name: "@civ7/plugin-mods", root: "packages/plugins/plugin-mods" },
+  { name: "civ-mod-dacia", root: "mods/mod-swooper-civ-dacia" },
+  { name: "mod-swooper-maps", root: "mods/mod-swooper-maps" },
+];
+
+function coarse(rule: HarnessRule, res: SpawnResult): HabitatDiagnostic[] {
+  if (res.exitCode === 0) return [];
+  const tail = (res.stdout + res.stderr).trim().split("\n").slice(-12).join("\n");
+  return [
+    {
+      ruleId: rule.id,
+      path: ".",
+      message: `${rule.message}\n--- tool output (tail) ---\n${tail}`,
+      severity: rule.lane === "advisory" ? "advisory" : "error",
+      baselined: false,
+    },
+  ];
+}
+
+/** adapter-boundary: surface allowlisted files as baselined diagnostics; unapproved as errors. */
+function parseAdapterBoundary(rule: HarnessRule, res: SpawnResult): HabitatDiagnostic[] {
+  const out = res.stdout + res.stderr;
+  const diags: HabitatDiagnostic[] = [];
+  const section = (header: string): string[] => {
+    const idx = out.indexOf(header);
+    if (idx === -1) return [];
+    const files: string[] = [];
+    for (const line of out.slice(idx + header.length).split("\n")) {
+      const m = line.match(/^\s+-\s+(\S+)$/);
+      if (m) files.push(m[1]);
+      else if (line.trim() === "" && files.length > 0) break;
+    }
+    return files;
+  };
+  for (const f of section("Allowlisted violations (tracked for future cleanup):")) {
+    diags.push({
+      ruleId: rule.id,
+      path: f,
+      message: "/base-standard/ reference allowlisted in scripts/lint/lint-adapter-boundary.sh (tracked debt)",
+      severity: "error",
+      baselined: true, // legacy allowlist is this rule's transitional baseline (design.md)
+    });
+  }
+  for (const f of section("ERROR: Unapproved adapter boundary violations:")) {
+    diags.push({
+      ruleId: rule.id,
+      path: f,
+      message: rule.message,
+      severity: "error",
+      baselined: false,
+    });
+  }
+  // Script failed but we parsed nothing → fall back to coarse so failures never vanish.
+  if (res.exitCode !== 0 && !diags.some((d) => !d.baselined)) return [...diags, ...coarse(rule, res)];
+  return diags;
+}
+
+function runEslintMulti(rule: HarnessRule): { diags: HabitatDiagnostic[]; exitCode: number } {
+  const diags: HabitatDiagnostic[] = [];
+  let exitCode = 0;
+  for (const proj of eslintProjects) {
+    const res = run(["bunx", "eslint", "."], { cwd: path.join(repoRoot, proj.root) });
+    if (res.exitCode !== 0) {
+      exitCode = 1;
+      const tail = (res.stdout + res.stderr).trim().split("\n").slice(-15).join("\n");
+      diags.push({
+        ruleId: rule.id,
+        path: proj.root,
+        message: `eslint failed in ${proj.name}\n--- eslint output (tail) ---\n${tail}`,
+        severity: "error",
+        baselined: false,
+      });
+    }
+  }
+  return { diags, exitCode };
+}
+
+export interface RuleRunResult {
+  exitCode: number;
+  diagnostics: HabitatDiagnostic[];
+}
+
+/** Execute a rule's detect command and parse its output into diagnostics. */
+export function executeRule(rule: HarnessRule): RuleRunResult {
+  if (rule.detect[0] === "__eslint_multi__") {
+    const { diags, exitCode } = runEslintMulti(rule);
+    return { exitCode, diagnostics: diags };
+  }
+  const res = run(rule.detect, { cwd: repoRoot });
+  const diagnostics =
+    rule.id === "adapter-boundary" ? parseAdapterBoundary(rule, res) : coarse(rule, res);
+  return { exitCode: res.exitCode, diagnostics };
+}

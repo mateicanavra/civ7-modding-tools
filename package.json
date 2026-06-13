@@ -68,7 +68,11 @@
     "verify:placement-catalogs": "bun scripts/placement/verify-manual-catalogs.ts",
     "verify:placement-metrics": "bun scripts/placement/placement-metrics.ts",
     "openspec": "openspec",
-    "openspec:validate": "openspec validate --all --strict"
+    "openspec:validate": "openspec validate --all --strict",
+    "habitat": "bun tools/habitat-harness/src/bin/habitat.ts",
+    "habitat:check": "bun tools/habitat-harness/src/bin/habitat.ts check",
+    "habitat:fix": "bun tools/habitat-harness/src/bin/habitat.ts fix",
+    "habitat:verify": "bun tools/habitat-harness/src/bin/habitat.ts verify"
   },
   "workspaces": [
     "apps/*",
