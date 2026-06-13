@@ -1,6 +1,11 @@
 {
   "name": "@mateicanavra/civ7-cli",
   "version": "0.1.0",
+  "nx": {
+    "tags": [
+      "kind:app"
+    ]
+  },
   "description": "CLI for managing Civilization VII modding resources.",
   "author": "Your Name",
   "license": "MIT",

@@ -2,6 +2,11 @@
   "name": "@civ7/plugin-git",
   "version": "0.1.0",
   "private": true,
+  "nx": {
+    "tags": [
+      "kind:plugin"
+    ]
+  },
   "description": "Shared Git utilities for Civ7 monorepo packages (subtree import/push/pull, remotes, status).",
   "type": "module",
   "main": "./dist/index.cjs",

@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "description": "Shared visualization contract types for MapGen (manifest/protocol/value semantics)",
   "private": true,
+  "nx": {
+    "tags": [
+      "kind:foundation"
+    ]
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

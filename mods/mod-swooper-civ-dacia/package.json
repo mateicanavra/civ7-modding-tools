@@ -1,6 +1,11 @@
 {
   "name": "civ-mod-dacia",
   "private": true,
+  "nx": {
+    "tags": [
+      "kind:mod"
+    ]
+  },
   "version": "1.0.0",
   "description": "This mod adds the Dacia civilization to Civilization VII, including Decebalus as a leader, along with unique abilities, units, and buildings.",
   "main": "index.js",

@@ -48,6 +48,10 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 
 - Use `bun` workspace scripts for build, type‑checks, lint, and tests unless a closer `AGENTS.md` says otherwise.
 - Prefer root `nx`-orchestrated scripts (via `bunx nx run-many -t ...` / root `package.json` scripts) for cross-workspace workflows (apps, multi-package builds).
+- Project-plane import boundaries are enforced by the Habitat `boundaries`
+  target and `nx-boundaries` rule. See
+  `docs/projects/habitat-harness/taxonomy.md` before changing `kind:*` tags or
+  boundary constraints.
 - Use package scripts (`bun run --cwd <path> <script>`) for package-local tasks.
 - Runtime Civ7 control belongs in `@civ7/direct-control`; agents should not
   add alternate runtime transports or caller-local control scripts.
@@ -68,4 +72,3 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 
 - Open PRs against `origin`; details in `docs/process/CONTRIBUTING.md`.
 - Active work lives under `docs/projects/`.
-

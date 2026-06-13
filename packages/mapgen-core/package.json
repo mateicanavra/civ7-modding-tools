@@ -1,6 +1,11 @@
 {
   "name": "@swooper/mapgen-core",
   "version": "0.1.0",
+  "nx": {
+    "tags": [
+      "kind:engine"
+    ]
+  },
   "description": "Pure TypeScript domain library for map generation algorithms",
   "type": "module",
   "main": "./dist/index.js",

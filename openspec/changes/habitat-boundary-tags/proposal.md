@@ -24,7 +24,7 @@ slice locks immediately.
   `tools/habitat-harness` → `kind:tooling`).
 - Create `eslint.boundaries.config.mjs` whose only rule is
   `@nx/enforce-module-boundaries` with the depConstraints from taxonomy.md §3
-  (including the recorded wide edge `kind:control` → `kind:mod`).
+  (after architecture review A1, no `kind:control` → `kind:mod` allowance).
 - Add `@nx/eslint-plugin` devDependency; ESLint runs on Node via `bunx eslint`.
 - Register a `boundaries` inferred target in the harness plugin (target name
   `boundaries`, never `lint`); add it to `habitat check`/`verify` composition
@@ -40,9 +40,11 @@ slice locks immediately.
   rules are ported and retired in `habitat-grit-catalog` /
   `habitat-enforcement-consolidation`).
 - No intra-project rules (grit/file-layer territory).
-- No package dependency edits — if a constraint is discovered red during
-  implementation, the constraint is NOT weakened: record the edge, baseline
-  it explicitly, and log the discovery in the discrepancy log.
+- No package dependency edits as a way to weaken constraints. If the rule
+  discovers a hidden but tag-legal source import, repair the import shape by
+  using the package entrypoint and declaring the existing edge; if a constraint
+  is truly red, do NOT weaken it: record the edge, baseline it explicitly, and
+  log the discovery in the discrepancy log.
 
 ## Requires
 

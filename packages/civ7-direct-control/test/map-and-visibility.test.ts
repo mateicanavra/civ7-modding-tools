@@ -7,7 +7,7 @@ import {
   NO_RIVER_TYPE,
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
-} from "../../civ7-map-policy/src/index.js";
+} from "@civ7/map-policy";
 import {
   Civ7MapGridInputSchema,
   Civ7MapGridResultSchema,

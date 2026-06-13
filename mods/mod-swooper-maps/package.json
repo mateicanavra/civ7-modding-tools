@@ -27,6 +27,7 @@
     }
   },
   "nx": {
+    "tags": ["kind:mod"],
     "targets": {
       "build": {
         "dependsOn": ["^build"],

@@ -2,6 +2,12 @@
   "name": "mod-civ7-intelligence-bridge",
   "version": "0.1.0",
   "private": true,
+  "nx": {
+    "tags": [
+      "kind:mod",
+      "kind:control"
+    ]
+  },
   "description": "Game-scoped Civ7 controller bridge bootstrap for native control-oRPC.",
   "type": "module",
   "scripts": {
