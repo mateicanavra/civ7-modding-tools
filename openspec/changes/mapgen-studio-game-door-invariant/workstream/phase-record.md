@@ -6,7 +6,8 @@
 - Graphite branch: `codex/game-door-invariant`
 - Parent: `main` at `b4cc968f9`
 - Watcher: Rawls `019ec217-32d7-7561-9b52-768885b9fed8`
-- Status: implemented, locally verified, and submitted for review
+- Status: implemented, verified, submitted, merged, drained, and audited for
+  program closeout
 - Graphite PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1692
 
 ## Authority
@@ -49,6 +50,17 @@
 - `git diff --check` - passed.
 - `gt submit --stack --ai --no-interactive` - created draft PR #1692.
 - `gt submit --stack --publish --no-interactive --ai` - published PR #1692 for review.
+- PR metadata normalized to `refactor(studio-server): enforce game door invariant`
+  with the verification list in the PR body.
+- `gt merge --dry-run --no-interactive` - passed; Graphite reported only
+  `codex/game-door-invariant` ready to merge.
+- `gt merge --no-interactive` - merged PR #1692 at
+  `88048fe52e736f84c46afd2a9ad5f7d83a09abfe`.
+- `gt sync --no-restack --no-interactive --force` after detaching this worktree
+  from the merged branch - deleted local `codex/game-door-invariant`.
+- Program closeout audit - all runtime simplification OpenSpec slices report
+  complete, runtime residue searches are clean, and `mapgen-studio-game-door-invariant`
+  now reports 20/20 tasks.
 
 ## Live Proof Disposition
 

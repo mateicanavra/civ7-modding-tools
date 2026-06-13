@@ -36,5 +36,5 @@
 - [x] 4.2 Record verification evidence and downstream realignment.
 - [x] 4.3 Submit the S4.1 Graphite branch as the final runtime simplification
       stack layer.
-- [ ] 4.4 Audit the full runtime simplification program before marking the
+- [x] 4.4 Audit the full runtime simplification program before marking the
       overarching goal complete.

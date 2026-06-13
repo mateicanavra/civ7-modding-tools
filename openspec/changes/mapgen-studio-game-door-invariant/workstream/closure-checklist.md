@@ -7,5 +7,6 @@
 - [x] Root OpenSpec validation passes.
 - [x] Focused package and app gates pass.
 - [x] Negative searches prove no live residue.
-- [x] Graphite branch submitted in the runtime simplification stack.
+- [x] Graphite branch submitted, merged, and locally drained in the runtime
+      simplification stack.
 - [x] Repo clean or handed off with explicit ownership.
