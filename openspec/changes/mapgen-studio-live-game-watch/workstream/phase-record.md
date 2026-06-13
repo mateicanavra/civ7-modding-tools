@@ -7,7 +7,8 @@
 - Owner: Codex DRA implementation lane
 - Branch/Graphite stack: `codex/live-game-watch` stacked on `main`
 - Started: 2026-06-13
-- Status: implementation verified; Graphite closure pending
+- Status: complete; feature branch merged via PR #1690; closeout branch records
+  final state
 
 ## Objective
 
@@ -37,8 +38,10 @@
 
 ## Current State
 
-- Repo/Graphite state: `codex/live-game-watch` at `main`
-  `b063f51b061b9247508f0be6f68fe91e2f01f64f`; worktree clean at phase entry.
+- Repo/Graphite state: `codex/live-game-watch` merged via PR #1690; `main`
+  fast-forwarded by `gt sync --no-restack` to merge commit
+  `c83f531bae7179bc60cd0131f1c74fe833ebf5c9`; closeout branch
+  `codex/live-game-watch-closeout` records final task completion.
 - Dirty files and owner: S3.3 OpenSpec/code/test/package metadata files owned
   by this slice.
 - Current code evidence: package runtime owns the daemon live-game watcher and
@@ -98,8 +101,9 @@
 
 - Completed tasks: OpenSpec frame, watcher disposition, package watcher,
   TypeBox live-game event state, client event application, client poll deletion,
-  focused tests, app/package checks, negative search proofs.
-- Remaining tasks: Graphite closure.
+  focused tests, app/package checks, negative search proofs, Graphite
+  submit/merge/drain for the feature branch.
+- Remaining tasks: none for S3.3 after closeout branch merges.
 - Stop conditions triggered: none.
 
 ## Verification
@@ -116,11 +120,16 @@
 - `rg "nextLiveRuntimePollDelayMs|liveStatusFailureCountRef|setTimeout\\(poll|civ7\\.live\\.status\\(\\{\\}|liveControlPort\\.readiness\\.current\\(" apps/mapgen-studio/src apps/mapgen-studio/test packages/studio-server/src packages/studio-server/test -g '*.{ts,tsx}'`
 - `git diff --check`
 - `bun run openspec -- validate mapgen-studio-live-game-watch --strict`
+- `gt submit --dry-run --stack --branch codex/live-game-watch --no-interactive`
+- `gt submit --stack --branch codex/live-game-watch --ai --no-interactive`
+- `gt submit --publish --no-edit --no-interactive --ai`
+- `gt merge --no-interactive`
+- `gt sync --no-restack --no-interactive`
 - Results: listed checks passed; repo-wide OpenSpec validation reported 146
   passed and 0 failed; negative search returned no matches; package build
   regenerated ignored `packages/studio-server/dist` for app subpath type
   availability.
-- Gate disposition: green; Graphite closure pending.
+- Gate disposition: green; feature branch merged via Graphite PR #1690.
 - Evidence boundary: live Civ7 click-through is expected only if local runtime
   conditions permit; focused tests and negative searches are required either
   way.
@@ -140,7 +149,7 @@
 
 ## Next Action
 
-- Exact next step: exact-stage S3.3 files, commit via Graphite, submit/merge,
-  then proceed to S4.1 `game-door-invariant`.
+- Exact next step: submit/merge the closeout branch, then proceed to S4.1
+  `game-door-invariant`.
 - Stop condition: do not keep or reintroduce browser live status polling as a
   backup path.

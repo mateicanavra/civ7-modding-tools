@@ -40,5 +40,5 @@
 - [x] 5.2 Focused package/app tests for watcher and event application.
 - [x] 5.3 Negative search proofs for deleted live status polling paths.
 - [x] 5.4 Package/app check gates selected by blast radius.
-- [ ] 5.5 Watcher findings dispositioned, downstream realignment recorded, and
+- [x] 5.5 Watcher findings dispositioned, downstream realignment recorded, and
       Graphite submit/merge/drain complete.
