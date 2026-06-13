@@ -27,7 +27,7 @@
 
 - Repo/Graphite state: clean worktree on empty H4 branch `agent-F-habitat-biome-hygiene`, stacked above restacked H3 (`agent-F-habitat-boundary-tags`).
 - Dirty files and owner: this phase will first own only `docs/projects/habitat-harness/workstream-record.md` and this phase record; implementation write set begins after setup.
-- Current code evidence: H1/H2/H3 locally closed; `openspec list` shows `habitat-biome-hygiene` at 0/11 tasks; `.prettierrc` exists and formatting enforcement is still absent by DL-12.
+- Current code evidence: H1/H2/H3 locally closed; `openspec list` showed `habitat-biome-hygiene` at 0/11 tasks at phase open; `.prettierrc` still exists pending task 2.3; Biome 2.4.16 is installed and `biome.json` now loads successfully for task 1.1.
 - Generated outputs affected: none yet. H4 parity will hash formatting-independent `mod/**` artifacts before reformat; generated outputs remain protected and are not hand-edited.
 - Tests/guards affected: future H4 implementation will add Biome targets/rules and CI wiring; existing `nx-boundaries` and H2 harness rules remain authoritative.
 
@@ -59,8 +59,8 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
 
 ## Implementation
 
-- Completed tasks: none.
-- Remaining tasks: 1.1-4.3.
+- Completed tasks: 1.1.
+- Remaining tasks: 1.2-4.3.
 - Stop conditions triggered: none at phase open.
 
 ## Verification
@@ -73,7 +73,20 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
   - `gt create agent-F-habitat-biome-hygiene --no-interactive`
   - `git diff --check`
   - `bun run openspec -- validate habitat-biome-hygiene --strict`
+  - `bun add -d -E @biomejs/biome@2.4.16`
+  - `bunx --bun @biomejs/biome init`
+  - `bunx --bun @biomejs/biome --version`
+  - `bunx --bun @biomejs/biome rage --formatter --linter`
+  - `bunx --bun @biomejs/biome format . --max-diagnostics=40`
 - Results: H4 branch opened cleanly above H3; OpenSpec list shows H1/H2/H3 complete and H4 at 0/11 tasks.
+- Biome setup results: `@biomejs/biome` exact-pinned at 2.4.16; config loads
+  successfully; formatter settings match `.prettierrc` semantics (`semi`,
+  double quotes, trailing commas `es5`, line width 100, two-space indent) and
+  exclude generated/protected zones.
+- No-write format result: `biome format .` checked 2356 files and reported
+  1557 formatting errors before any write. This is expected before the
+  dedicated reformat task; task 1.2 remains open until diff-size/sample review
+  and format-diff acceptance are recorded.
 - Skipped gates and rationale: implementation gates not run yet; this record opens the slice before code.
 - Evidence boundary: phase setup only; no Biome implementation or formatting proof claimed.
 

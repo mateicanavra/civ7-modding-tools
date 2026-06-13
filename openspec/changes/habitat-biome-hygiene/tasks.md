@@ -1,6 +1,6 @@
 ## 1. Biome Setup
 
-- [ ] 1.1 `bun add -d -E @biomejs/biome`; `bunx --bun @biomejs/biome init`;
+- [x] 1.1 `bun add -d -E @biomejs/biome`; `bunx --bun @biomejs/biome init`;
   configure `biome.json` (formatter matching `.prettierrc` semantics; linter
   scoped per proposal; excludes for generated zones, `mod/**`, `dist/**`,
   `.nx`, `.civ7/outputs`, `docs/_archive`, vendor files).
