@@ -4,7 +4,7 @@
 
 Studio host engines SHALL expose known operation failures through a sealed
 failure model and an exhaustive oRPC mapping so known categories do not surface
-as anonymous fallback 500s.
+as anonymous 500s.
 
 #### Scenario: Every known failure category maps to a declared error
 
@@ -37,7 +37,7 @@ when an operation request id is not found.
 - **WHEN** `mapConfigs.status` receives an unknown request id
 - **THEN** the error is `SAVE_DEPLOY_STATUS_NOT_FOUND`
 - **AND** the error data includes `serverInstanceId` and `serverStartedAt`
-- **AND** this supersedes the older documented no-echo asymmetry
+- **AND** this supersedes the older documented one-sided identity rule
 
 ### Requirement: Engine Recovery Hints Are Structured
 

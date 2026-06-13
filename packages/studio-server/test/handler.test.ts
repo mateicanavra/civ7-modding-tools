@@ -121,7 +121,43 @@ describe("studio-server RPC handler", () => {
     });
   });
 
-  test("wraps an unmapped engine throw as the namespace FAILED defined error", async () => {
+  test("delivers a save/deploy status miss as SAVE_DEPLOY_STATUS_NOT_FOUND with the server-identity echo", async () => {
+    const context = makeContext({
+      mapConfigStatus: async () => {
+        throw new ORPCError("SAVE_DEPLOY_STATUS_NOT_FOUND", {
+          status: 404,
+          message: "Save/Deploy request not found: save-1",
+          data: {
+            serverInstanceId: "studio-server-test",
+            serverStartedAt: "2026-06-10T00:00:00.000Z",
+            details: {
+              code: "save-deploy-status-not-found",
+              requestId: "save-1",
+            },
+          },
+        });
+      },
+    });
+    const client = await listenWithClient(context);
+
+    const { error } = await safe(client.mapConfigs.status({ requestId: "save-1" }));
+
+    expect(error).toBeInstanceOf(ORPCError);
+    if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
+    expect(isDefinedError(error)).toBe(true);
+    expect(error.code).toBe("SAVE_DEPLOY_STATUS_NOT_FOUND");
+    expect(error.status).toBe(404);
+    expect(error.data).toEqual({
+      serverInstanceId: "studio-server-test",
+      serverStartedAt: "2026-06-10T00:00:00.000Z",
+      details: {
+        code: "save-deploy-status-not-found",
+        requestId: "save-1",
+      },
+    });
+  });
+
+  test("wraps an unexpected engine throw as the namespace FAILED defined error", async () => {
     const context = makeContext({
       runInGameStart: async () => {
         throw new Error("engine exploded");

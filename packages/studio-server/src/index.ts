@@ -1,7 +1,10 @@
 /**
  * `@civ7/studio-server` — public entrypoint.
  *
- * - Contract surface (slice A1): zod I/O for all 16 endpoints.
+ * - Contract surface (slice A1): legacy Studio success I/O schemas for the
+ *   original endpoints remain Zod; error data and recipe-DAG schemas are
+ *   TypeBox/Standard Schema. Do not extend Zod for new durable contract schema
+ *   surfaces without an explicit schema-tech decision.
  * - Effect services (A2): `Civ7TunerClient`, `StudioConfig`; `Civ7TunerSession`
  *   (tuner-session workstream) — the scoped owner of the ONE shared FireTuner
  *   connection, with the backoff gate and the host injection/health ports.

@@ -5,7 +5,7 @@ import {
 } from "effect-orpc";
 import { Type, type Static } from "typebox";
 
-import { toStandardSchema } from "./typeboxStandardSchema.js";
+import { toStandardSchema } from "../typeboxStandardSchema.js";
 
 const RecipeDagRecipeNotFoundDataSchema = Type.Object(
   {

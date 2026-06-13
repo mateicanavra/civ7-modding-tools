@@ -24,7 +24,7 @@ the same functions:
   details }` body + status),
 - the oRPC `StudioServerContext` adapts return/throw → value / `ORPCError`
   (`@civ7/studio-server`'s `orpcError` helper maps the engine's
-  `RunInGameHttpError` status + details onto the transport).
+  Studio engine error status + details onto the transport).
 
 The read surface needs no shared state, so it is implemented inside the package
 from `@civ7/direct-control` directly via the `Civ7TunerClient` Effect service.
@@ -46,9 +46,10 @@ from `@civ7/direct-control` directly via the `Civ7TunerClient` Effect service.
    Verified through `/rpc`.
 5. **Serialized queue + dual mutex.** The shared `studioOperationQueue` and the
    two operation stores are the single instances both transports use.
-6. **404 server-id echo asymmetry.** run-in-game status 404 echoes
-   `serverInstanceId`/`serverStartedAt`; map-config status 404 does NOT. Both
-   reproduced on the oRPC `data` payload and verified live.
+6. **404 server-id echo.** run-in-game and map-config status 404s echo
+   `serverInstanceId`/`serverStartedAt` on the oRPC `data` payload. The original
+   map-config one-sided identity rule was superseded by S1.2's error-spine parity
+   requirement.
 
 ## effect-orpc isolation + packaging
 

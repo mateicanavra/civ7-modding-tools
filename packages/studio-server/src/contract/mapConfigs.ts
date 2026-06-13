@@ -49,18 +49,19 @@ export const saveDeployStatusSchema = z.object({
     })
     .optional(),
   details: z.record(z.string(), z.unknown()).optional(),
+  recoveryActions: z.array(z.string()).optional(),
 });
 
 // ---------------------------------------------------------------------------
 // #15 mapConfigs.status — GET /api/map-configs/status?requestId=
 // ---------------------------------------------------------------------------
 // Query: requestId (REQUIRED). Success 200: MapConfigSaveDeployStatus.
-// Errors: 400 (missing); 404 { ok:false, error }.
+// Errors: 400 (missing); 404 { ok:false, error, serverInstanceId,
+// serverStartedAt }.
 //
-// PARITY NOTE (audit/05 #15): the 404 here does NOT include serverInstanceId/
-// serverStartedAt (asymmetry vs runInGame.status #13) — the defined
-// `SAVE_DEPLOY_STATUS_NOT_FOUND` error (./errors.ts) deliberately declares NO
-// echo `data`, and the host context never attaches one.
+// S1.2 PARITY INVARIANT: the 404 now matches runInGame.status and echoes
+// `serverInstanceId`/`serverStartedAt` so the client can distinguish a missing
+// request id from a daemon restart.
 export const status = oc
   .errors(mapConfigsErrors)
   .input(
@@ -78,7 +79,7 @@ export const status = oc
 // Success 202: MapConfigSaveDeployStatus (async). 202 idempotent (same active
 // requestId returns current). Errors: 409 (run-in-game active OR different save/
 // deploy active); 400 on validation — declared as the defined
-// SAVE_DEPLOY_BLOCKED/INVALID/FAILED codes (./errors.ts).
+// SAVE_DEPLOY_BLOCKED/INVALID/UNAVAILABLE/FAILED codes (./errors.ts).
 //
 // PARITY NOTE (audit/05 #16): write-then-deploy with ROLLBACK on deploy-phase
 // failure; idempotent requestId reuse; path-jail (configRoot prefix + .config.json

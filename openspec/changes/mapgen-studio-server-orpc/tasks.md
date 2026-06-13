@@ -27,7 +27,7 @@
 - [x] 3.2 Route BOTH the legacy `/api/*` handlers AND the oRPC `StudioServerContext`
   through those engines (no state divergence; dual-store 409 mutex preserved).
 - [x] 3.3 Preserve run-in-game status 404 `serverInstanceId`/`serverStartedAt`
-  echo; preserve map-config status 404 WITHOUT the echo (asymmetry).
+  echo; S1.2 updates map-config status 404 to echo the same identity fields.
 - [x] 3.4 Preserve `assertNoRawControlFields`, fingerprint dedup→202, sha256 proof
   identity, `finally` cleanup + `gen:maps` regen, write-then-deploy rollback.
 
@@ -49,5 +49,5 @@
 - [x] 5.2 `bun run check` in `packages/studio-server` (tsc clean).
 - [x] 5.3 `bun run check` + `bun run build` in `apps/mapgen-studio`.
 - [x] 5.4 Runtime smoke through `/rpc` + legacy `/api` coexistence (status codes,
-  404 echo asymmetry, security scan, no console errors).
+  status-miss identity echo, security scan, no console errors).
 - [x] 5.5 Run `bun run openspec -- validate mapgen-studio-server-orpc --strict`.

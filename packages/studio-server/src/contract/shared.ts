@@ -1,7 +1,10 @@
 import { z } from "zod";
 
 /**
- * Shared zod building blocks for the studio-server contracts.
+ * Shared Zod building blocks for the legacy studio-server success I/O
+ * contracts. New durable contract schema surfaces should prefer
+ * TypeBox/Standard Schema unless a slice records a different schema-tech
+ * decision.
  *
  * Contract-first design note: the studio API's *stable surface* is the response
  * envelope (the `{ ok, ... }` wrappers, `observedAt`, status-code semantics). The
@@ -9,7 +12,7 @@ import { z } from "zod";
  * map grids, GameInfo rows, etc.) are large, internal result types that are NOT
  * anchored to any app `status.ts` type and are not part of the contract's drift
  * surface. They are modelled here as permissive schemas (`unknownRecord` /
- * `z.unknown()`); reproducing ~500 lines of direct-control internals in zod would be
+ * `z.unknown()`); reproducing ~500 lines of direct-control internals here would be
  * brittle and is explicitly out of scope for slice A1 (contracts only, no logic).
  *
  * Where the audit (audit/05-server-contracts.md) anchors an output to an existing

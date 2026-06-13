@@ -2,7 +2,7 @@
 
 ## D1. The failure model must be owned before transport mapping
 
-The current adapter uses `RunInGameHttpError.statusCode` as the source of truth
+The current adapter uses `StudioEngineError.statusCode` as the source of truth
 and treats unmapped statuses as `*_FAILED` 500. That preserves rough HTTP
 compatibility, but it does not encode the domain reason the engine already
 knows: mutex blocked, invalid request, dependency unavailable, missing
@@ -13,6 +13,10 @@ and `createStudioServerContext` maps exhaustively. The mapping function should
 have no known-category `else -> 500` path. A genuine unknown exception may still
 be converted to the declared `*_FAILED` code, but known engine failures must not
 silently downgrade to anonymous 500s.
+
+The old Run-in-Game-named host error bridge is removed in this slice. The
+replacement owner is a Studio engine error type, because the failure spine spans
+autoplay, Run in Game, and Save&Deploy.
 
 ## D2. Defined errors remain the wire authority
 
@@ -27,7 +31,7 @@ making future detail additions fail validation.
 Run in Game status 404 already carries `serverInstanceId` and `serverStartedAt`
 so the client can distinguish an unknown request from a daemon restart. S1.2
 changes Save&Deploy status 404 to the same restart-aware shape. This is a
-deliberate correction of the current documented asymmetry, and tests should
+deliberate correction of the earlier one-sided identity rule, and tests should
 move with the slice.
 
 ## D4. Recovery hints are structured, not prose-only
@@ -44,13 +48,23 @@ Static/unit pins should enumerate the sealed failure union and assert that each
 member maps to a declared oRPC error code/status/data shape. Procedure tests
 should cover Run in Game and Save&Deploy start/status failures, including
 mutex, invalid request, unavailable dependency, status not found with identity
-echo, and the intentional unexpected failure fallback.
+echo, and the intentional unexpected failure mapping.
 
 ## D6. OpenSpec and contract residue must move with the parity correction
 
-S1.2 intentionally reverses the older `mapgen-studio-server-orpc` parity note
-that said Save&Deploy status 404 does not echo daemon identity. That older
-change is still live in the OpenSpec tree, and the package contract files still
-document the same asymmetry. Closure requires updating or explicitly
-dispositioning those residues in the S1.2 slice so the spec tree and contract
-comments do not disagree with the new runtime invariant.
+S1.2 intentionally replaces the older `mapgen-studio-server-orpc` parity note
+that described Save&Deploy status 404 without daemon identity. That older change
+is still live in the OpenSpec tree, and the package contract files still
+documented the same one-sided identity rule. Closure requires updating or
+explicitly dispositioning those residues in the S1.2 slice so the spec tree and
+contract comments do not disagree with the new runtime invariant.
+
+## D7. Error data schemas are TypeBox/Standard Schema
+
+The S1.2 error `data` schemas are durable contract artifacts and use
+TypeBox/Standard Schema through the shared studio-server adapter. The older
+Studio success I/O schemas remain Zod in this slice only because they predate
+this correction and are not the error-spine behavior under change. They are not
+a pattern to extend; the runtime simplification closeout must either migrate
+the remaining legacy success I/O schemas to TypeBox/Standard Schema or record a
+durable schema-technology rationale.

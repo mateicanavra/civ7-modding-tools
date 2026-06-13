@@ -8,7 +8,8 @@ import { create } from "zustand";
  * stage/step. Per the "crisp rule" (§3) it lives in Zustand, never in TanStack
  * Query; server data is never mirrored in here. It is intentionally NOT persisted —
  * these are ephemeral view preferences, unlike the authoring/run state whose
- * localStorage schema is a parity contract (kept in `features/*` for now).
+ * localStorage schema is a parity contract that remains in `features/*` until
+ * the localStorage bridge deletion slice owns that migration.
  *
  * Each field exposes a `setX` action whose signature mirrors React's `useState`
  * setter (value OR updater function), so the migration off scattered `useState`

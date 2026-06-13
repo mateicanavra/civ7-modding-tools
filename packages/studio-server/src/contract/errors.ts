@@ -1,4 +1,6 @@
-import { z } from "zod";
+import { Type } from "typebox";
+
+import { toStandardSchema } from "../typeboxStandardSchema.js";
 
 /**
  * Typed contract error maps for `@civ7/studio-server` — oRPC NATIVE defined errors.
@@ -14,7 +16,7 @@ import { z } from "zod";
  *   1. Router procedures throw via the typed `errors.CODE({ message, data })`
  *      constructor param (effect-orpc forwards oRPC's native constructor map).
  *   2. The host context (apps/mapgen-studio/src/server/studio/context.ts) maps
- *      engine `RunInGameHttpError`s to raw `new ORPCError(code, { status, … })`;
+ *      engine `StudioEngineError`s to raw `new ORPCError(code, { status, … })`;
  *      because code/status/data match a declared entry, oRPC validates and
  *      delivers them client-side as DEFINED errors (the "combining both
  *      approaches" rule) without importing this module.
@@ -25,32 +27,45 @@ import { z } from "zod";
  */
 
 /** `observedAt` echo carried by the read failures that historically included it. */
-const observedAtData = z
-  .object({
-    observedAt: z.string().optional(),
-  })
-  .optional();
+const observedAtData = toStandardSchema(Type.Union([
+  Type.Object(
+    {
+      observedAt: Type.Optional(Type.String()),
+    },
+    { additionalProperties: false },
+  ),
+  Type.Undefined(),
+]));
 
 /**
- * Engine failure payload: the `RunInGameHttpError.details` open record
+ * Engine failure payload: the `StudioEngineError.details` value
  * (`code`, `activeRequestId`, `materialization`, recovery boundaries, …).
  */
-const engineDetailsData = z
-  .object({
-    details: z.object({}).catchall(z.unknown()).optional(),
-  })
-  .optional();
+const engineDetailsData = toStandardSchema(Type.Union([
+  Type.Object(
+    {
+      details: Type.Optional(Type.Unknown()),
+    },
+    { additionalProperties: false },
+  ),
+  Type.Undefined(),
+]));
 
 /**
  * Run-in-game status-miss echo: the server identity the client uses for
  * restart detection (PARITY INVARIANT, audit/05 #13).
  */
-const serverIdentityEchoData = z
-  .object({
-    serverInstanceId: z.string().optional(),
-    serverStartedAt: z.string().optional(),
-  })
-  .optional();
+const serverIdentityEchoData = toStandardSchema(Type.Union([
+  Type.Object(
+    {
+      serverInstanceId: Type.Optional(Type.String()),
+      serverStartedAt: Type.Optional(Type.String()),
+      details: Type.Optional(Type.Unknown()),
+    },
+    { additionalProperties: Type.Unknown() },
+  ),
+  Type.Undefined(),
+]));
 
 // ---------------------------------------------------------------------------
 // civ7.* reads — per-procedure codes (legacy statuses preserved exactly)
@@ -123,13 +138,23 @@ export const setupCatalogErrors = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// civ7.autoplay — host engine (409 dual-store mutex / 500 fallback)
+// civ7.autoplay — host engine (409 dual-store mutex / 400 invalid / 503 unavailable / 500 unexpected)
 // ---------------------------------------------------------------------------
 
 export const autoplayErrors = {
   AUTOPLAY_BLOCKED: {
     status: 409,
     message: "Civ7 autoplay is blocked by an active operation",
+    data: engineDetailsData,
+  },
+  AUTOPLAY_INVALID: {
+    status: 400,
+    message: "Invalid Civ7 autoplay request",
+    data: engineDetailsData,
+  },
+  AUTOPLAY_UNAVAILABLE: {
+    status: 503,
+    message: "Civ7 autoplay dependencies are unavailable",
     data: engineDetailsData,
   },
   AUTOPLAY_FAILED: {
@@ -172,7 +197,7 @@ export const runInGameErrors = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// mapConfigs.* — host engine (409 mutex / 400 validation; 404 WITHOUT echo)
+// mapConfigs.* — host engine (409 mutex / 400 validation / 503 unavailable; 404 with identity echo)
 // ---------------------------------------------------------------------------
 
 export const mapConfigsErrors = {
@@ -186,16 +211,19 @@ export const mapConfigsErrors = {
     message: "Invalid Save/Deploy request",
     data: engineDetailsData,
   },
+  SAVE_DEPLOY_UNAVAILABLE: {
+    status: 503,
+    message: "Save/Deploy dependencies are unavailable",
+    data: engineDetailsData,
+  },
   SAVE_DEPLOY_FAILED: {
     status: 500,
     message: "Save failed",
     data: engineDetailsData,
   },
-  // PARITY NOTE (audit/05 #15): unlike RUN_IN_GAME_STATUS_NOT_FOUND, this 404
-  // carries NO serverInstanceId/serverStartedAt echo — the documented asymmetry
-  // is preserved (no echo data schema here, and the host context never adds one).
   SAVE_DEPLOY_STATUS_NOT_FOUND: {
     status: 404,
     message: "Save/Deploy request not found",
+    data: serverIdentityEchoData,
   },
 } as const;

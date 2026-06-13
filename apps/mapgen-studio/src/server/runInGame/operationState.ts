@@ -8,21 +8,12 @@ import type {
   RunInGamePhase,
   RunInGameRequestStatus,
 } from "../../features/runInGame/status";
+import { StudioEngineError } from "../studio/engineErrors";
 
 export type RunInGameOperationState = RunInGameOperationStatus & Readonly<{
   serverInstanceId: string;
   serverStartedAt: string;
 }>;
-
-export class RunInGameHttpError extends Error {
-  constructor(
-    readonly statusCode: number,
-    message: string,
-    readonly details?: unknown
-  ) {
-    super(message);
-  }
-}
 
 type StoreOptions = Readonly<{
   serverInstanceId: string;
@@ -189,7 +180,7 @@ export function runInGameFailureDetails(
   materialization?: RunInGameMaterializationStatus,
 ): RunInGameFailureDetails {
   const directControlCode = err instanceof Civ7DirectControlError ? err.code : undefined;
-  const httpDetails = err instanceof RunInGameHttpError && isRecord(err.details)
+  const httpDetails = err instanceof StudioEngineError && isRecord(err.details)
     ? err.details
     : {};
   const failureClass = classifyRunInGameFailure(err, phase);
@@ -212,7 +203,7 @@ export function runInGameFailureDetails(
 }
 
 export function classifyRunInGameFailure(err: unknown, phase: RunInGamePhase): "blocked" | "failed" | "uncertain" {
-  if (err instanceof RunInGameHttpError && err.statusCode === 409) return "blocked";
+  if (err instanceof StudioEngineError && err.statusCode === 409) return "blocked";
   const code = err instanceof Civ7DirectControlError ? err.code : undefined;
   if (
     (phase === "starting-game" || phase === "waiting-for-proof") &&
@@ -234,7 +225,7 @@ function publicRunInGameFailureMessage(
 ): string {
   const phase = details.phase ?? "failed";
   const phaseLabel = publicRunInGamePhaseLabel(phase);
-  if (err instanceof RunInGameHttpError) {
+  if (err instanceof StudioEngineError) {
     return redactRuntimeCommandText(err.message);
   }
   if (err instanceof Civ7DirectControlError) {

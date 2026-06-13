@@ -7,7 +7,7 @@ Play/Save&Deploy live proof meaningful by removing deploy-written files from
 the daemon import graph. The next runtime simplification slice is the error
 spine: the daemon should not expose known engine failures as anonymous 500s.
 
-Today `createStudioServerContext` maps engine `RunInGameHttpError` statuses
+Today `createStudioServerContext` maps engine `StudioEngineError` statuses
 through a partial status table and falls through to `*_FAILED` 500 for known
 but unmapped categories. Some engine paths also still throw plain `Error`s, and
 Save&Deploy status 404 does not carry the server identity echo that Run in Game
@@ -33,15 +33,17 @@ based on typed failure data.
 
 - Introduce a sealed engine failure model for Studio host engines, with tagged
   failure categories instead of ad-hoc status-code fallthroughs.
-- Replace the partial `toOrpc()` fallback with an exhaustive mapping from every
+- Delete the legacy Run-in-Game-named host error bridge in favor of a
+  Studio-owned engine error type; no compatibility alias remains.
+- Replace the partial `toOrpc()` fallthrough with an exhaustive mapping from every
   known engine failure category to a declared oRPC error code/status/data shape.
 - Preserve durable existing error-code pins while adding a new no-unmapped-500
   pin over the failure union.
 - Add Save&Deploy status 404 server identity echo parity so both operation
   status endpoints can support restart-aware client behavior.
 - Realign the still-live `mapgen-studio-server-orpc` OpenSpec wording and
-  package contract/context comments that currently preserve the old
-  Save&Deploy 404 no-echo asymmetry.
+  package contract/context comments that still described Save&Deploy 404 without
+  the identity echo.
 - Normalize recovery-action hints in Run in Game and Save&Deploy failure data
   instead of leaving recovery guidance as one-off detail fields.
 
