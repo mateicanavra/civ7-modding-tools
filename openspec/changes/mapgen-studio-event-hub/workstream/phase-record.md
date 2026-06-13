@@ -7,7 +7,7 @@
 - Owner: Codex DRA implementation lane
 - Branch/Graphite stack: `codex/event-hub` stacked on `main`
 - Started: 2026-06-13
-- Status: implementation verified; Graphite closure pending
+- Status: complete; merged and drained
 
 ## Objective
 
@@ -30,10 +30,11 @@
 
 ## Current State
 
-- Repo/Graphite state: active `codex/event-hub` over `main` at
-  `7a6906bf09f188c1449ce35675b047d946a0e92d`.
-- Dirty files and owner: S3.1 implementation and OpenSpec records owned by
-  this branch.
+- Repo/Graphite state: `codex/event-hub` merged via PR #1686; `main`
+  fast-forwarded by `gt sync` to merge commit
+  `3cad8fce977fe8ced85dfe85db3821752009c551`; closeout branch
+  `codex/event-hub-closeout` marks final task completion.
+- Dirty files and owner: closeout edits only (`tasks.md`, this phase record).
 - Current code evidence: production `studio.events.watch` exists on the one
   `/rpc` surface; EventHub is daemon-owned and injected through
   `StudioServerContext`; client subscription uses `experimental_liveOptions`.
@@ -90,7 +91,7 @@
   `studio.events.watch`, daemon context/runtime injection, client retry/live
   subscription, reusable operation adoption, S3.0 proof fixture deletion,
   watcher disposition, verification, downstream realignment.
-- Remaining tasks: Graphite submit/merge/drain and final task closeout.
+- Remaining tasks: none for S3.1 after closeout branch merges.
 - Stop conditions triggered: none.
 
 ## Verification
@@ -104,6 +105,10 @@
   - `bun run --cwd apps/mapgen-studio test -- test/server/oneMount.test.ts`
   - `bun x turbo run check --filter=@civ7/studio-server`
   - `bun run --cwd apps/mapgen-studio check`
+  - `gt submit --ai --no-interactive`
+  - `gt submit --publish --no-edit --no-interactive --ai`
+  - `gt merge --no-interactive`
+  - `gt sync --no-restack --no-interactive`
 - Supporting generation for gates:
   - `bun run --cwd packages/studio-server build` produced JS but DTS hung;
     declaration output was restored with
@@ -132,7 +137,7 @@
 
 ## Next Action
 
-- Exact next step: stage exact S3.1 paths, commit with Graphite, submit, merge,
-  drain, then close final task 4.6.
+- Exact next step: submit/merge the closeout branch, then proceed to S3.2
+  `operations-push`.
 - Stop condition: do not delete operation polls/watchdog in S3.1; that belongs
   to S3.2/S3.3.
