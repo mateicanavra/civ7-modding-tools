@@ -1,4 +1,4 @@
-import { type Civ7RuntimeProbe, defaultExploreSettleMs } from "@civ7/direct-control";
+import type { Civ7RuntimeProbe } from "@civ7/direct-control";
 import { Effect, Ref } from "effect";
 
 import type { Civ7ControlOrpcVisibilitySummaryResult } from "../../../dependencies/direct-control";
@@ -271,6 +271,11 @@ function visibilityProbe(
     revealed: probeValue(summary.numPlotsRevealed),
     visible: probeValue(summary.numPlotsVisible),
   };
+}
+
+/** clamp(15s..120s, plotCount * 10ms) — mirrors direct-control visibility grant pacing. */
+function defaultExploreSettleMs(plotCount: number): number {
+  return Math.min(120_000, Math.max(15_000, Math.round(plotCount * 10)));
 }
 
 function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | null {
