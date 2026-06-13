@@ -1,0 +1,50 @@
+# Design — Nx Adoption (Turbo Retirement)
+
+## Conversion map (turbo.json → nx.json)
+
+Current `turbo.json` tasks and their Nx equivalents:
+
+| turbo.json | nx.json |
+|---|---|
+| `build` (`dependsOn: ["^build"]`, outputs `dist/**`, `types/**`, `example-generated-mod/**`, `mod/**`) | targetDefault `build`: same `dependsOn`, same `outputs` with `{projectRoot}` interpolation, `cache: true` |
+| `check` (`dependsOn: ["^build", "^check"]`) | targetDefault `check`: same dependsOn, `cache: true`, no outputs |
+| `lint` (no cache) | targetDefault `lint`, `cache: true` only if inputs are declared correctly; otherwise leave uncached initially |
+| `test` (`dependsOn: ["^build"]`) | targetDefault `test`, `cache: true` with test inputs |
+| `test:architecture-cutover` | same pattern as `test` |
+| `mod-swooper-maps#build:studio-recipes` (outputs `src/maps/generated/**`) | project-level target override in `mods/mod-swooper-maps/package.json` `"nx"` field |
+| `mapgen-studio#dev` (depends on studio-recipes, `persistent: true`) | project-level override; `persistent` → `continuous: true` |
+
+Fields requiring manual decisions (converter does not map): any `env`/
+`globalEnv` usage → Nx `inputs` env entries; `globalDependencies` →
+`sharedGlobals` namedInput (include `civ.config.jsonc`, `tsconfig.base.json`,
+`bun.lock` if turbo listed them).
+
+## Posture rules
+
+- Nx runs on Node (`bunx nx`); never `bunx --bun nx`. Bun stays package
+  manager and script runner. Pin both in `mise.toml`
+  (node per `engines` ≥22.14, bun per `packageManager` field).
+- Projects remain package.json-based (Nx infers from workspaces). No
+  `project.json` files; per-project Nx config goes in the package.json `"nx"`
+  field when needed.
+- `.nx/cache` gitignored; no Nx Cloud (`useInferencePlugins`/cloud prompts
+  declined; `nx.json` carries no `nxCloudId`).
+- Version: latest 22.x at execution time (`bunx nx@latest init`); record exact
+  version in the phase record. `nx migrate` to 23 later is out of scope.
+
+## CI shape
+
+`ci` job: `bun install --frozen-lockfile` → `bunx nx run-many -t build check
+lint test --all` initially; switch to `nx affected` with
+`--base=$NX_BASE --head=$NX_HEAD` once `nrwl/nx-set-shas` (or manual
+merge-base) is wired. `architecture-strict-core` job keeps its current
+script-level steps (they are re-pointed to harness targets in later slices,
+not here).
+
+## Risk containment
+
+First task is the init + diff (the de-risked path): run `bunx nx@latest init`
+on the branch, diff generated `nx.json` against `turbo.json` semantics, and
+only then remove turbo. If conversion is lossy in a way that cannot be
+expressed (stop condition), record evidence in the phase record and surface
+to Matei — this is the FRAME falsifier for D1.
