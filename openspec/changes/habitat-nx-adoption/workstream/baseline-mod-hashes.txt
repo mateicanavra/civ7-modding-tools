@@ -1,0 +1,10 @@
+fe656726493fe89bfe6af6bdc2e3818be841b0cabb85c99f2b0292e728821745  mods/mod-swooper-maps/mod/config/config.xml
+5fd61a3071ea3ce1b075a27cf106f9accd83e4a29bf41fb8dc2217016ba096d0  mods/mod-swooper-maps/mod/maps/mountain-patch.js
+ce74b34d2ba1aab0d2c7f9f8babd548b37b68824222253945ef616904be64697  mods/mod-swooper-maps/mod/maps/mountain-rivers-patch.js
+2e6f448c1f6d8763a0bd0cb241c74bb3a17531fc4b6a6c0ab41203398d946b38  mods/mod-swooper-maps/mod/maps/shattered-ring.js
+e7c2edd1184315455dd8ce778f5f06b6373659455a744f915f204eb18e460716  mods/mod-swooper-maps/mod/maps/sundered-archipelago.js
+16705aaf6061886a5313e958a4c5ec717048b8dd9ab2cb9f239c727785dad0f2  mods/mod-swooper-maps/mod/maps/swooper-desert-mountains.js
+60914f32ef1793a4a5578e4f74918fc0477d9f4b0a46c81ad79c2d3badf9bbdc  mods/mod-swooper-maps/mod/maps/swooper-earthlike.js
+cbfb83eb999c6687ea1214335a9460253c9382861075aa87d6a0b76bb20d1924  mods/mod-swooper-maps/mod/swooper-maps.modinfo
+7c55f1d17f442b05af2a879e5ac079a1fb218b883ef338fa07c6154e8207d189  mods/mod-swooper-maps/mod/text/en_us/MapText.xml
+3db5f39ab4210f3a2d4044855eac051df43919582e65e600c405acda4feddd4d  mods/mod-swooper-maps/mod/text/en_us/ModuleText.xml

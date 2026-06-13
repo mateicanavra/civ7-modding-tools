@@ -47,7 +47,7 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 ## Tooling Defaults
 
 - Use `bun` workspace scripts for build, type‑checks, lint, and tests unless a closer `AGENTS.md` says otherwise.
-- Prefer root `turbo`-orchestrated scripts (via `turbo run ...` / root `package.json` scripts) for cross-workspace workflows (apps, multi-package builds).
+- Prefer root `nx`-orchestrated scripts (via `bunx nx run-many -t ...` / root `package.json` scripts) for cross-workspace workflows (apps, multi-package builds).
 - Use package scripts (`bun run --cwd <path> <script>`) for package-local tasks.
 - Runtime Civ7 control belongs in `@civ7/direct-control`; agents should not
   add alternate runtime transports or caller-local control scripts.

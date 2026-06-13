@@ -8,7 +8,7 @@ export default [
     ignores: [
       "**/dist/**",
       "out/**",
-      ".turbo/**",
+      ".nx/**",
       "node_modules/**",
       "docs/civ7-official/resources/**"
     ]

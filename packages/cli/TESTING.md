@@ -14,7 +14,7 @@ For the Civ7 live-play command suite:
 bun run test:cli:play
 ```
 
-Run these from the repo root. They go through Turborepo so compiled workspace
+Run these from the repo root. They go through Nx so compiled workspace
 dependencies, especially `@civ7/direct-control`, are built before the CLI tests
 import them. Package-local Vitest commands are only safe after the dependency
 graph has already been built.

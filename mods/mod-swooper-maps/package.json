@@ -26,6 +26,22 @@
       "import": "./dist/recipes/standard-map-configs.js"
     }
   },
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": ["^build"],
+        "inputs": ["default", "^default", { "env": "SWOOPER_STUDIO_RUN_ID" }],
+        "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"]
+      },
+      "build:studio-recipes": {
+        "dependsOn": ["^build"],
+        "outputs": ["{projectRoot}/dist/**", "{projectRoot}/src/maps/generated/**"]
+      },
+      "check": {
+        "dependsOn": ["^build", "build"]
+      }
+    }
+  },
   "scripts": {
     "build": "bun run gen:maps && tsup",
     "build:studio-recipes": "tsup --config tsup.studio-recipes.config.ts && bun run gen:studio-recipes-types && bun run gen:maps",

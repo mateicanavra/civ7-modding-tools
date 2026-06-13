@@ -1,0 +1,5 @@
+# Runtime pins for the habitat harness toolchain (see docs/projects/habitat-harness/FRAME.md).
+# Nx runs on Node (never `bunx --bun nx`); Bun stays the package manager and script runner.
+[tools]
+node = "22.14"
+bun = "1.3.7"

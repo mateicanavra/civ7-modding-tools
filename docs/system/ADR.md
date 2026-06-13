@@ -49,7 +49,7 @@ Each decision follows this structure:
 **Consequences:**
 - Contributors must install Bun (see `.bun-version`) and use Bun commands documented in `docs/PROCESS.md` and `docs/process/CONTRIBUTING.md`.
 - pnpm artifacts and pnpm-specific repo logic should not be reintroduced (no `pnpm-lock.yaml`, no `pnpm-workspace.yaml`, no pnpm-only config knobs).
-- Turbo remains the build orchestrator; root `packageManager` stays set to Bun to satisfy Turbo workspace detection.
+- Turbo remained the build orchestrator at the time of this ADR (Nx replaced it in 2026-06; see `openspec/changes/habitat-nx-adoption`); root `packageManager` stays set to Bun.
 - Dependency overrides use the standard `overrides` field instead of pnpm-only configuration.
 - Migration analysis and roll-forward notes live in `docs/projects/temp/SPIKE-bun-migration-feasibility.md`.
 

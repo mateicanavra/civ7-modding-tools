@@ -59,14 +59,102 @@ N/A - solo phase
 
 ## Implementation
 
-- Completed tasks: (updated as executed)
-- Remaining tasks: 1.1–4.6
+- Completed tasks: 1.1–1.5, 2.1–2.3, 3.1–3.2 (4.x in train)
+- Remaining tasks: 4.1–4.6 (4.1 edge gate already green; full parity run in progress)
 - Stop conditions triggered: none
+
+### Execution notes (decisions + evidence)
+
+- **1.1 baselines:** build GREEN, check GREEN; `bun run test` RED in exactly one
+  project — `mod-civ7-intelligence-bridge` (`mod/ui/civ7-intelligence-bridge.js`
+  contains `from "net"`, failing `controller-mod-package.test.ts`). Pre-existing
+  on `main` (this branch was docs-only at the time). mapgen-studio viz tests
+  flaked under parallel load (timeouts) but pass in isolation (50 files/239
+  tests green) — not counted as baseline failures. Parity target: **same single
+  failing project, no new failures.** `mod/**` hash manifest:
+  `baseline-mod-hashes.txt` (10 files).
+- **Related drift found:** the baseline build dirtied the *tracked*
+  `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js` —
+  committed artifact differs from what the build produces (same root cause as
+  the red test; exactly the generator drift H5's regenerate-and-diff will
+  catch). Restored via `git checkout --`; fix delegated to a spawned
+  out-of-scope task (net-import leak).
+- **1.2:** `bunx nx@latest init --no-interactive` → **nx 22.7.5** (22.x ✓, not
+  21.5/21.6 ✓), no `nxCloudId`, turbo.json auto-converted to targetDefaults.
+- **1.3 manual pass:** converter wrote turbo syntax `"@mateicanavra/civ7-cli#build"`
+  into `deploy`/`deploy:studio` dependsOn — fixed to
+  `{ "projects": [...], "target": "build" }`; `dev` lost `persistent` — added
+  `"continuous": true`. turbo.json had no `globalDependencies`/`globalEnv`, so
+  no `sharedGlobals` namedInput needed (recorded). `deploy:studio` is a dead
+  task (no package has the script) — targetDefault kept, harmless.
+- **1.4:** converter dropped all project-scoped entries; moved 7 overrides into
+  package.json `"nx"` fields: `mod-swooper-maps` (build env input
+  `SWOOPER_STUDIO_RUN_ID`, check dependsOn `["^build","build"]`),
+  `mapgen-studio` (dev/build/check/test each depending on
+  `mod-swooper-maps:build:studio-recipes`; dev continuous), `@civ7/docs` (dev
+  continuous). `build:studio-recipes` stayed a targetDefault (only one project
+  has the script — equivalent).
+- **2.1:** all root turbo scripts re-pointed (`run-many -t`, `nx run <proj>:<t>`,
+  `--projects=` lists). `deploy:mods` `--filter='./mods/*'` mapped to explicit
+  `--projects=mod-swooper-maps,civ-mod-dacia` (the only projects with a
+  `deploy` script — verified by grep; recorded choice per design).
+- **2.2:** CI Turbo cache blocks → Nx cache (`.nx/cache`, key on
+  bun.lock/nx.json/manifests) in both jobs; nothing else changed.
+- **2.3:** `nested-turbo` rule → `nested-nx` (`nx run|run-many|affected`);
+  expected green at landing; precedes H2 ratchet deliberately (ledger F39).
+- **3.1:** turbo devDep + turbo.json + `.turbo/` gitignore removed; lockfile
+  updated (1 package removed).
+- **3.2 doc sweep:** AGENTS.md Tooling Defaults, CONTRIBUTING.md (6 spots),
+  ARCHITECTURE.md, mapgen debug how-to re-pointed to Nx; the dated Bun ADR
+  consequence annotated (Nx supersedes Turbo, pointer to this change) rather
+  than rewritten; LINEAR.md historical issue title untouched.
 
 ## Verification
 
-- Commands run: (appended as executed)
-- Results: (appended)
+- Commands run / results:
+  - **4.1 graph:** `nx show projects` = 21 ✓; edge set-comparison: 42 declared
+    workspace edges in 21 manifests vs 42 graph edges, 0 missing — PASS.
+  - **4.2 parity:** `bun run build` GREEN (21 projects), `bun run check` GREEN
+    (21 checks + all 5 root lint scripts). `mod/**` byte parity vs 1.1
+    manifest: 10/10 hashes identical — PASS.
+  - **4.2 tests:** `bun run test` fails in the same pre-existing class only.
+    Evidence chain: (a) `mod-civ7-intelligence-bridge:test` — the baselined
+    `from "net"` failure; (b) sdk + 4 plugin `test` tasks fail via an
+    unhandled ENOENT in `packages/sdk/test/mod.test.ts` (async write lands
+    after temp-dir teardown; surfaces through `XmlFile.ts:26`). All 936 tests
+    PASS in those runs — only the unhandled error fails the run. Proven
+    orchestrator-independent: bare `bun run --cwd packages/plugins/plugin-files test`
+    (no nx, no turbo) exits 1 identically. The turbo-baseline "pass" for these
+    tasks was stale-cache replay, never fresh execution. **No failure is
+    attributable to the migration.** Both defects spawned as out-of-scope fix
+    tasks; umbrella-vitest scoping logged as DL-15.
+  - **4.4 cache gate:** second `nx run-many -t build` on unchanged tree:
+    21/21 cache hits — PASS. Touch `packages/config/src/index.ts` → exactly
+    {config, plugin-files, plugin-mods, docs, cli, mapgen-studio} re-ran
+    (15/21 cached) — matches the dependent set computed from graph.json
+    beforehand — PASS.
+  - **4.3 affected probe:** `--base=main`/`--base=HEAD` show all 21 projects
+    while the H1 migration itself is uncommitted (root package.json/nx.json
+    are global inputs — correct behavior, vacuous probe). Clean re-probe
+    post-commit recorded below.
+  - **4.5 turbo residuals:** sweep found FUNCTIONAL residue beyond docs and
+    fixed it: `apps/mapgen-studio/src/server/mapConfigs/deploy.ts` shelled out
+    to `bunx turbo run build` at runtime (type + impl + test updated to
+    `nx run mod-swooper-maps:build`); `railway.json` buildCommand +
+    watchPatterns; `publish.yml` turbo cache → nx cache; engines.ts
+    remediation message; stale `.turbo` ignores in eslint.config.js /
+    lint-doc-adrs.mjs. Remaining `turbo` hits are historical docs/archives
+    only.
+  - **4.6:** `openspec validate habitat-nx-adoption --strict` PASS; final
+    `bun run check` + `bun run lint` GREEN.
+- **Conversion repair found during verification:** turbo's union `outputs`
+  template over-declared `dist/**` on `mod-swooper-maps:build` (the task only
+  writes `mod/**` + `src/maps/generated/**`); under Nx's destructive cache
+  restore this wiped `build:studio-recipes`' `dist/recipes/*.d.ts`, breaking
+  `mapgen-studio:check` (turbo's tar-overlay restores masked the same
+  conflict). Fixed by declaring per-task actual outputs in the
+  mod-swooper-maps `"nx"` field (build → mod/** + generated; studio-recipes →
+  dist/** + generated). Semantics unchanged; cache correctness improved.
 - Skipped gates and rationale: none
 - Evidence boundary: local-commit class only until gt submit; no runtime proof claimed (structure-only)
 

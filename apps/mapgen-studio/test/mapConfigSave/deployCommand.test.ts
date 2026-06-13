@@ -6,15 +6,8 @@ describe("Swooper Maps Studio deploy plan", () => {
   it("uses the mod-only build task for save/deploy without request markers", () => {
     const plan = buildSwooperMapsStudioDeployPlan({ env: { PATH: "/bin" } });
 
-    expect(plan.buildTask).toBe("mod-swooper-maps#build");
-    expect(plan.buildArgs).toEqual([
-      "x",
-      "turbo",
-      "run",
-      "build",
-      "--filter=mod-swooper-maps",
-      "--only",
-    ]);
+    expect(plan.buildTask).toBe("mod-swooper-maps:build");
+    expect(plan.buildArgs).toEqual(["x", "nx", "run", "mod-swooper-maps:build"]);
     expect(plan.env).not.toHaveProperty("SWOOPER_STUDIO_RUN_ID");
   });
 
@@ -24,14 +17,7 @@ describe("Swooper Maps Studio deploy plan", () => {
       env: { PATH: "/bin" },
     });
 
-    expect(plan.buildArgs).toEqual([
-      "x",
-      "turbo",
-      "run",
-      "build",
-      "--filter=mod-swooper-maps",
-      "--only",
-    ]);
+    expect(plan.buildArgs).toEqual(["x", "nx", "run", "mod-swooper-maps:build"]);
     expect(plan.env.SWOOPER_STUDIO_RUN_ID).toBe("studio-run-in-game-test");
   });
 });

@@ -1,0 +1,83 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "{projectRoot}/dist/**",
+        "{projectRoot}/types/**",
+        "{projectRoot}/example-generated-mod/**",
+        "{projectRoot}/mod/**"
+      ],
+      "cache": true
+    },
+    "build:studio-recipes": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "{projectRoot}/dist/**",
+        "{projectRoot}/mod/**",
+        "{projectRoot}/src/maps/generated/**"
+      ],
+      "cache": true
+    },
+    "deploy": {
+      "dependsOn": [
+        "build",
+        {
+          "projects": ["@mateicanavra/civ7-cli"],
+          "target": "build"
+        }
+      ],
+      "cache": false
+    },
+    "deploy:studio": {
+      "dependsOn": [
+        "build",
+        {
+          "projects": ["@mateicanavra/civ7-cli"],
+          "target": "build"
+        }
+      ],
+      "cache": false
+    },
+    "dev": {
+      "cache": false,
+      "continuous": true
+    },
+    "check": {
+      "dependsOn": [
+        "^build",
+        "^check"
+      ],
+      "cache": true
+    },
+    "lint": {
+      "cache": true
+    },
+    "test": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": true
+    },
+    "test:studio-run-in-game": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": true
+    },
+    "test:architecture-cutover": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": true
+    },
+    "clean": {
+      "cache": true
+    }
+  }
+}

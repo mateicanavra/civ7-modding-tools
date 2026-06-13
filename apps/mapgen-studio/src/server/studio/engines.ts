@@ -923,7 +923,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
               mapScript: materialized.mapScript,
               localModScript: relative(repoRoot, localBundlePath),
               recoveryHint:
-                "Rebuild map artifacts (gen:maps must see SWOOPER_STUDIO_RUN_ID; check turbo env passthrough/cache), then retry the run.",
+                "Rebuild map artifacts (gen:maps must see SWOOPER_STUDIO_RUN_ID; check the nx env input/cache for mod-swooper-maps:build), then retry the run.",
               materialization,
             },
           );

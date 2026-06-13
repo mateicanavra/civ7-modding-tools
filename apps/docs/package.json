@@ -1,6 +1,15 @@
 {
   "name": "@civ7/docs",
   "private": true,
+  "nx": {
+    "targets": {
+      "dev": {
+        "dependsOn": ["^build"],
+        "cache": false,
+        "continuous": true
+      }
+    }
+  },
   "scripts": {
     "dev": "bun run scripts/sync-resources.ts && bun run scripts/dev-staged.ts",
     "start": "mint dev -p 6660 --no-open",

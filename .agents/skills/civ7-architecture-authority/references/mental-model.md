@@ -56,7 +56,7 @@ surfacing implementation seams as stages.
 
 Prefer existing repo primitives:
 
-- Bun workspace scripts and Turbo for builds/checks.
+- Bun workspace scripts and Nx for builds/checks.
 - Package-local `bun run --cwd <package> <script>` for focused validation.
 - Graphite for branch/stack workflow.
 - TypeScript source as editable implementation; `dist/` as generated output.
