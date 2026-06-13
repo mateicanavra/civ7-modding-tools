@@ -18,6 +18,10 @@
     "./contract": {
       "types": "./dist/contract/index.d.ts",
       "import": "./dist/contract/index.js"
+    },
+    "./live-game": {
+      "types": "./dist/liveGame/model.d.ts",
+      "import": "./dist/liveGame/model.js"
     }
   },
   "scripts": {

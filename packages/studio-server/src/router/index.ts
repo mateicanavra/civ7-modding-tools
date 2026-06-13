@@ -5,6 +5,7 @@ import { implementEffect } from "effect-orpc";
 
 import { studioEffectContract, type StudioEffectContract } from "../contract/index.js";
 import { errorMessage } from "../errors.js";
+import { readLiveGameStatusBody } from "../liveGame/statusRead.js";
 import type { StudioRuntime } from "../runtime.js";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
 import { StudioConfig } from "../services/StudioConfig.js";
@@ -158,25 +159,7 @@ export function createStudioRouter(
       live: {
         // #4 GET /api/civ7/live/status — 200-with-embedded-{error}; allSettled
         status: oe.civ7.live.status.effect(function* () {
-          const settled = yield* Effect.all(
-            {
-              status: Civ7TunerClient.playableStatus().pipe(Effect.either),
-              appUi: Civ7TunerClient.appUiSnapshot().pipe(Effect.either),
-              mapSummary: Civ7TunerClient.liveMapSummary().pipe(Effect.either),
-              autoplay: Civ7TunerClient.autoplayStatus().pipe(Effect.either),
-            },
-            { concurrency: "unbounded" },
-          );
-          const playableStatus = settled.status._tag === "Right" ? settled.status.right : undefined;
-          return {
-            ok: Boolean(playableStatus && playableStatus.readiness !== "unavailable"),
-            playable: playableStatus?.playable ?? false,
-            observedAt: new Date().toISOString(),
-            status: fieldOrError(settled.status, playableStatus),
-            appUi: fieldOrError(settled.appUi),
-            mapSummary: fieldOrError(settled.mapSummary),
-            autoplay: fieldOrError(settled.autoplay),
-          };
+          return yield* readLiveGameStatusBody;
         }),
 
         // #5 GET /api/civ7/live/snapshot — error 400; clamps + csv parse parity
@@ -418,16 +401,3 @@ export function createStudioRouter(
  * bound), and the handler module re-exports it.
  */
 export type StudioRouter = ReturnType<typeof createStudioRouter>;
-
-/**
- * Map a `civ7.live.status` per-field result to the contract's
- * `unknownRecord | { error }` union, matching the legacy `allSettled` body:
- * a fulfilled value passes through; a rejection becomes `{ error: String(reason) }`.
- */
-function fieldOrError<A>(
-  either: { _tag: "Left"; left: unknown } | { _tag: "Right"; right: A },
-  override?: A,
-): Record<string, unknown> | { error: string } {
-  if (either._tag === "Right") return (override ?? either.right) as Record<string, unknown>;
-  return { error: String(either.left) };
-}

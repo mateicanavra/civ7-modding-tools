@@ -160,7 +160,7 @@ export async function createStudioDaemon(args: StudioDaemonArgs) {
   // threads it into every control procedure's endpointDefaults — every
   // polling read multiplexes over that socket instead of opening its own
   // (the churn that wedged the game).
-  const studioRpc = createStudioRpcHandler(context);
+  const studioRpc = createStudioRpcHandler(context, { liveGameWatch: {} });
   const deps: StudioDaemonDeps = {
     studioRpc,
     health: async () => ({

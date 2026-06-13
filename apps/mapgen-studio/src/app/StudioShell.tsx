@@ -61,13 +61,11 @@ import {
   type MapConfigSaveDeployStatus,
 } from "../features/mapConfigSave/status";
 import {
-  buildLiveRuntimeErrorState,
   buildLiveRuntimeSnapshotRequest,
   buildLiveRuntimeSnapshotState,
-  buildLiveRuntimeStatusState,
   buildLiveRuntimeSuggestionRecords,
-  nextLiveRuntimePollDelayMs,
   shouldCommitLiveRuntimeSnapshot,
+  type LiveRuntimeSnapshotRequest,
   type LiveRuntimeSnapshotState,
   type LiveRuntimeStatusState,
   type LiveRuntimeSuggestionRecord,
@@ -487,10 +485,11 @@ export function StudioShell(props: StudioShellProps) {
   const lastSaveDeployConfig = useRunStore((s) => s.lastSaveDeployConfig);
   const setLastSaveDeployConfig = useRunStore((s) => s.setLastSaveDeployConfig);
   const lastRunInGameToastRef = useRef<string | null>(null);
-  const liveStatusFailureCountRef = useRef(0);
   const liveSnapshotFailureCountRef = useRef(0);
   const activeLiveSnapshotRequestKeyRef = useRef<string | null>(null);
   const liveSnapshotAbortRef = useRef<AbortController | null>(null);
+  const liveSetupAbortRef = useRef<AbortController | null>(null);
+  const liveRuntimeMountedRef = useRef(true);
   const [liveRuntime, setLiveRuntime] = useState<LiveRuntimeStatusState>({
     status: "idle",
     snapshotStatus: "idle",
@@ -505,6 +504,15 @@ export function StudioShell(props: StudioShellProps) {
     updatedAt?: string;
     error?: string;
   }>({ status: "idle" });
+
+  useEffect(() => {
+    liveRuntimeMountedRef.current = true;
+    return () => {
+      liveRuntimeMountedRef.current = false;
+      liveSnapshotAbortRef.current?.abort();
+      liveSetupAbortRef.current?.abort();
+    };
+  }, []);
   useEffect(() => {
     saveDeployOperationRef.current = saveDeployOperation;
     if (!saveDeployOperation || !isSaveDeployTerminal(saveDeployOperation)) return;
@@ -585,206 +593,148 @@ export function StudioShell(props: StudioShellProps) {
     localError ??
     browserRunner.state.error;
 
-  useEffect(() => {
-    let cancelled = false;
-    let timer: number | null = null;
-    let statusAbortController: AbortController | null = null;
+  const readLiveRuntimeSnapshot = useCallback(async (request: LiveRuntimeSnapshotRequest) => {
+    liveSnapshotAbortRef.current?.abort();
+    const snapshotAbortController = new AbortController();
+    liveSnapshotAbortRef.current = snapshotAbortController;
+    activeLiveSnapshotRequestKeyRef.current = request.key;
 
-    const scheduleNextPoll = () => {
-      const failureCount = Math.max(liveStatusFailureCountRef.current, liveSnapshotFailureCountRef.current);
-      timer = window.setTimeout(
-        poll,
-        nextLiveRuntimePollDelayMs({ failureCount, documentHidden: document.hidden }),
-      );
-    };
-
-    const readSnapshot = async (request: NonNullable<ReturnType<typeof buildLiveRuntimeSnapshotRequest>>) => {
-      liveSnapshotAbortRef.current?.abort();
-      const snapshotAbortController = new AbortController();
-      liveSnapshotAbortRef.current = snapshotAbortController;
-      activeLiveSnapshotRequestKeyRef.current = request.key;
-
+    try {
+      // Snapshot remains request/response. The event stream tells us when live
+      // status changed; the existing request-key guard still owns stale result
+      // rejection.
+      let body: unknown;
       try {
-        // EVERYTHING talks oRPC: the snapshot read now goes through the typed
-        // client instead of a manual `fetch`. Parity is preserved exactly — the
-        // live/snapshot procedure returns the 200 body on success and throws an
-        // `ORPCError` (status 400) on a bad request, which maps to the SAME
-        // `{ ok:false, error }` shape the legacy `res.ok ? body : {...}` branch
-        // produced. The request-key staleness gate (`shouldCommitLiveRuntimeSnapshot`)
-        // and the abort plumbing below are untouched.
-        let body: unknown;
-        try {
-          body = await orpcClient.civ7.live.snapshot(
-            {
-              x: request.bounds.x,
-              y: request.bounds.y,
-              width: request.bounds.width,
-              height: request.bounds.height,
-              fields: request.fields.join(","),
-              maxPlots: request.maxPlots,
-              ...(request.playerId === undefined ? {} : { playerId: request.playerId }),
-            },
-            { signal: snapshotAbortController.signal },
-          );
-        } catch (snapshotErr) {
-          if (cancelled || isAbortLikeError(snapshotErr)) throw snapshotErr;
-          body = {
-            ok: false,
-            error: snapshotErr instanceof Error ? snapshotErr.message : "Live snapshot unavailable",
-          };
-        }
-        if (cancelled) return;
-        if (!shouldCommitLiveRuntimeSnapshot({
-          activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
-          resultRequestKey: request.key,
-          aborted: snapshotAbortController.signal.aborted,
-        })) {
-          return;
-        }
-        const snapshotState = buildLiveRuntimeSnapshotState({
-          request,
-          // `body` is already the procedure output (success) or the `{ ok:false,
-          // error }` envelope built from the thrown `ORPCError` above — the legacy
-          // `res.ok ? … : …` discrimination now lives in the try/catch.
-          body,
-          observedAtFallback: new Date().toISOString(),
-        });
-        liveSnapshotFailureCountRef.current = snapshotState.status === "ok" ? 0 : liveSnapshotFailureCountRef.current + 1;
-        setLiveRuntimeSnapshot(snapshotState);
-        setLiveRuntime((current) => ({
-          ...current,
-          snapshotStatus: snapshotState.status,
-          snapshotHash: snapshotState.snapshotHash ?? current.snapshotHash,
-          bindingStatus: snapshotState.status === "ok" ? current.bindingStatus : "partial",
-          failureCount: Math.max(liveStatusFailureCountRef.current, liveSnapshotFailureCountRef.current),
-          error: snapshotState.status === "ok" ? current.error : snapshotState.error,
-        }));
-      } catch (err) {
-        if (cancelled || isAbortLikeError(err)) return;
-        if (!shouldCommitLiveRuntimeSnapshot({
-          activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
-          resultRequestKey: request.key,
-        })) {
-          return;
-        }
-        liveSnapshotFailureCountRef.current += 1;
-        const snapshotState: LiveRuntimeSnapshotState = {
-          status: "error",
-          requestKey: request.key,
-          error: err instanceof Error ? err.message : "Live snapshot unavailable",
+        body = await orpcClient.civ7.live.snapshot(
+          {
+            x: request.bounds.x,
+            y: request.bounds.y,
+            width: request.bounds.width,
+            height: request.bounds.height,
+            fields: request.fields.join(","),
+            maxPlots: request.maxPlots,
+            ...(request.playerId === undefined ? {} : { playerId: request.playerId }),
+          },
+          { signal: snapshotAbortController.signal },
+        );
+      } catch (snapshotErr) {
+        if (!liveRuntimeMountedRef.current || isAbortLikeError(snapshotErr)) throw snapshotErr;
+        body = {
+          ok: false,
+          error: snapshotErr instanceof Error ? snapshotErr.message : "Live snapshot unavailable",
         };
-        setLiveRuntimeSnapshot(snapshotState);
-        setLiveRuntime((current) => ({
-          ...current,
-          snapshotStatus: "error",
-          bindingStatus: "partial",
-          failureCount: Math.max(liveStatusFailureCountRef.current, liveSnapshotFailureCountRef.current),
-          error: snapshotState.error,
-        }));
       }
-    };
+      if (!liveRuntimeMountedRef.current) return;
+      if (!shouldCommitLiveRuntimeSnapshot({
+        activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
+        resultRequestKey: request.key,
+        aborted: snapshotAbortController.signal.aborted,
+      })) {
+        return;
+      }
+      const snapshotState = buildLiveRuntimeSnapshotState({
+        request,
+        body,
+        observedAtFallback: new Date().toISOString(),
+      });
+      liveSnapshotFailureCountRef.current = snapshotState.status === "ok" ? 0 : liveSnapshotFailureCountRef.current + 1;
+      setLiveRuntimeSnapshot(snapshotState);
+      setLiveRuntime((current) => ({
+        ...current,
+        snapshotStatus: snapshotState.status,
+        snapshotHash: snapshotState.snapshotHash ?? current.snapshotHash,
+        bindingStatus: snapshotState.status === "ok" ? current.bindingStatus : "partial",
+        failureCount: Math.max(current.failureCount ?? 0, liveSnapshotFailureCountRef.current),
+        error: snapshotState.status === "ok" ? current.error : snapshotState.error,
+      }));
+    } catch (err) {
+      if (!liveRuntimeMountedRef.current || isAbortLikeError(err)) return;
+      if (!shouldCommitLiveRuntimeSnapshot({
+        activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
+        resultRequestKey: request.key,
+      })) {
+        return;
+      }
+      liveSnapshotFailureCountRef.current += 1;
+      const snapshotState: LiveRuntimeSnapshotState = {
+        status: "error",
+        requestKey: request.key,
+        error: err instanceof Error ? err.message : "Live snapshot unavailable",
+      };
+      setLiveRuntimeSnapshot(snapshotState);
+      setLiveRuntime((current) => ({
+        ...current,
+        snapshotStatus: "error",
+        bindingStatus: "partial",
+        failureCount: Math.max(current.failureCount ?? 0, liveSnapshotFailureCountRef.current),
+        error: snapshotState.error,
+      }));
+    }
+  }, []);
 
-    const poll = async () => {
-      statusAbortController?.abort();
-      statusAbortController = new AbortController();
-      try {
-        // EVERYTHING talks oRPC: the live-status read now goes through the typed
-        // client. Parity preserved exactly — live/status returns 200 (with per-field
-        // embedded `{ error }` via allSettled) on partial failure and only throws an
-        // `ORPCError` (status 500) on an outer defect. That throw maps to the SAME
-        // outer-catch path the legacy `!res.ok` branch hit (rethrown as an `Error`
-        // carrying the message), so the adaptive-backoff failure accounting below is
-        // unchanged.
-        let body: unknown;
-        try {
-          const [liveStatus, readinessResult] = await Promise.all([
-            orpcClient.civ7.live.status({}, { signal: statusAbortController.signal }),
-            liveControlPort.readiness.current(),
-          ]);
-          body = isPlainObject(liveStatus)
-            ? {
-                ...liveStatus,
-                status: {
-                  ...(isPlainObject(liveStatus.status) ? liveStatus.status : {}),
-                  readiness: readinessResult.readiness,
-                },
-              }
-            : liveStatus;
-        } catch (statusErr) {
-          if (cancelled || isAbortLikeError(statusErr)) throw statusErr;
-          throw new Error(statusErr instanceof Error ? statusErr.message : "Live status unavailable");
-        }
-        if (cancelled) return;
-        if (!body) throw new Error("Live status unavailable");
+  const refreshLiveSetupFromEvent = useCallback(async (statusState: LiveRuntimeStatusState) => {
+    liveSetupAbortRef.current?.abort();
+    const setupAbortController = new AbortController();
+    liveSetupAbortRef.current = setupAbortController;
 
-        const statusState = buildLiveRuntimeStatusState({
-          body,
-          observedAtFallback: new Date().toISOString(),
-          failureCount: 0,
-        });
-        liveStatusFailureCountRef.current = statusState.status === "ok" ? 0 : liveStatusFailureCountRef.current + 1;
-        const snapshotRequest = buildLiveRuntimeSnapshotRequest({ status: statusState });
-        setLiveRuntime((current) => ({
-          ...statusState,
-          snapshotStatus:
-            snapshotRequest === null
-              ? statusState.snapshotStatus
-              : current.snapshotId === statusState.snapshotId && current.snapshotStatus === "ok"
-                ? current.snapshotStatus
-                : "loading",
-          failureCount: Math.max(liveStatusFailureCountRef.current, liveSnapshotFailureCountRef.current),
-        }));
-
-        const setup = await fetchCiv7SetupConfig({ signal: statusAbortController.signal });
-        if (cancelled) return;
-        const suggestedSetupConfig = setup.ok
-          ? normalizeStudioSetupConfig(studioSetupConfigFromLiveSnapshot(setup.setup))
-          : undefined;
-        if (setup.ok) {
-          setLiveSetup({ status: "ok", setup: setup.setup, updatedAt: setup.observedAt });
-        } else {
-          setLiveSetup({
-            status: "error",
-            error: setup.error,
-            updatedAt: setup.observedAt ?? new Date().toISOString(),
-          });
-        }
-        setLiveRuntimeSuggestions(buildLiveRuntimeSuggestionRecords({
-          sourceSnapshotId: statusState.snapshotId,
-          seed: statusState.seed,
-          setupConfig: suggestedSetupConfig,
-          provedStudioRun: false,
-        }));
-
-        if (snapshotRequest) await readSnapshot(snapshotRequest);
-      } catch (err) {
-        if (cancelled || isAbortLikeError(err)) return;
-        liveStatusFailureCountRef.current += 1;
-        const errorState = buildLiveRuntimeErrorState({
-          error: err,
-          observedAt: new Date().toISOString(),
-          failureCount: liveStatusFailureCountRef.current,
-        });
-        setLiveRuntime(errorState);
+    try {
+      const setup = await fetchCiv7SetupConfig({ signal: setupAbortController.signal });
+      if (!liveRuntimeMountedRef.current || setupAbortController.signal.aborted) return;
+      const suggestedSetupConfig = setup.ok
+        ? normalizeStudioSetupConfig(studioSetupConfigFromLiveSnapshot(setup.setup))
+        : undefined;
+      if (setup.ok) {
+        setLiveSetup({ status: "ok", setup: setup.setup, updatedAt: setup.observedAt });
+      } else {
         setLiveSetup({
           status: "error",
-          error: errorState.error ?? "Live setup unavailable",
-          updatedAt: errorState.updatedAt,
+          error: setup.error,
+          updatedAt: setup.observedAt ?? new Date().toISOString(),
         });
-        setLiveRuntimeSuggestions([]);
-      } finally {
-        if (!cancelled) scheduleNextPoll();
       }
-    };
-
-    timer = window.setTimeout(poll, 250);
-    return () => {
-      cancelled = true;
-      statusAbortController?.abort();
-      liveSnapshotAbortRef.current?.abort();
-      if (timer !== null) window.clearTimeout(timer);
-    };
+      setLiveRuntimeSuggestions(buildLiveRuntimeSuggestionRecords({
+        sourceSnapshotId: statusState.snapshotId,
+        seed: statusState.seed,
+        setupConfig: suggestedSetupConfig,
+        provedStudioRun: false,
+      }));
+    } catch (err) {
+      if (!liveRuntimeMountedRef.current || isAbortLikeError(err)) return;
+      const observedAt = new Date().toISOString();
+      setLiveSetup({
+        status: "error",
+        error: err instanceof Error ? err.message : "Live setup unavailable",
+        updatedAt: observedAt,
+      });
+      setLiveRuntimeSuggestions(buildLiveRuntimeSuggestionRecords({
+        sourceSnapshotId: statusState.snapshotId,
+        seed: statusState.seed,
+        provedStudioRun: false,
+        now: () => new Date(observedAt),
+      }));
+    }
   }, []);
+
+  const applyLiveGameState = useCallback((statusState: LiveRuntimeStatusState) => {
+    const snapshotRequest = buildLiveRuntimeSnapshotRequest({ status: statusState });
+    if (!snapshotRequest) {
+      activeLiveSnapshotRequestKeyRef.current = null;
+      liveSnapshotAbortRef.current?.abort();
+    }
+
+    setLiveRuntime((current) => ({
+      ...statusState,
+      snapshotStatus:
+        snapshotRequest === null
+          ? statusState.snapshotStatus
+          : current.snapshotId === statusState.snapshotId && current.snapshotStatus === "ok"
+            ? current.snapshotStatus
+            : "loading",
+      failureCount: Math.max(statusState.failureCount ?? 0, liveSnapshotFailureCountRef.current),
+    }));
+    void refreshLiveSetupFromEvent(statusState);
+    if (snapshotRequest) void readLiveRuntimeSnapshot(snapshotRequest);
+  }, [readLiveRuntimeSnapshot, refreshLiveSetupFromEvent]);
 
   // Saved configs + setup catalog now load via `useSetupDataQueries` (TanStack Query);
   // the prior hand-rolled load/retry/focus-refetch effect is replaced by the query
@@ -1555,6 +1505,7 @@ export function StudioShell(props: StudioShellProps) {
   }, [markRunInGameToastHandled]);
 
   useStudioEvents({
+    applyLiveGameState,
     setRunInGameOperation,
     setSaveDeployOperation,
     markRunInGameToastHandled,

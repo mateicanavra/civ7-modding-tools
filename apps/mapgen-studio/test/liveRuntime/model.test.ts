@@ -6,7 +6,6 @@ import {
   buildLiveRuntimeSnapshotState,
   buildLiveRuntimeStatusState,
   buildLiveRuntimeSuggestionRecords,
-  nextLiveRuntimePollDelayMs,
   shouldCommitLiveRuntimeSnapshot,
 } from "../../src/features/liveRuntime/model";
 
@@ -153,12 +152,6 @@ describe("live runtime model", () => {
     expect(snapshot.status).toBe("ok");
     expect(snapshot.requestKey).toBe(request.key);
     expect(snapshot.snapshotId).toMatch(/^snapshot:8:/);
-  });
-
-  it("backs off repeated failures without changing the healthy cadence", () => {
-    expect(nextLiveRuntimePollDelayMs({ failureCount: 0, documentHidden: false })).toBe(3000);
-    expect(nextLiveRuntimePollDelayMs({ failureCount: 2, documentHidden: false })).toBe(6000);
-    expect(nextLiveRuntimePollDelayMs({ failureCount: 4, documentHidden: true })).toBe(25000);
   });
 
   it("emits explicit suggestion records for live-to-Studio translation", () => {

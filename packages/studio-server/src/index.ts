@@ -63,3 +63,24 @@ export {
   StudioEventHub,
   type StudioEventHubApi,
 } from "./services/StudioEventHub.js";
+export {
+  buildLiveGameErrorState,
+  buildLiveGameState,
+  hashLiveGameValue,
+  liveGameStateKey,
+  liveGameStateSchema,
+  stableLiveGameStringify,
+  type LiveGameBindingStatus,
+  type LiveGameSnapshotStatus,
+  type LiveGameState,
+  type LiveGameStatusBody,
+  type LiveGameStatusKind,
+} from "./liveGame/model.js";
+export {
+  createLiveGameWatcher,
+  createRuntimeLiveGameWatcher,
+  LIVE_GAME_WATCH_INITIAL_DELAY_MS,
+  LIVE_GAME_WATCH_INTERVAL_MS,
+  type LiveGameWatcher,
+  type LiveGameWatcherOptions,
+} from "./liveGame/watcher.js";
