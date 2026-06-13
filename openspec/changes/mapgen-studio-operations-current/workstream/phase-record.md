@@ -7,7 +7,7 @@
 - Owner: Codex DRA implementation lane
 - Branch/Graphite stack: `codex/operations-current` stacked on `main`
 - Started: 2026-06-13
-- Status: implemented; Graphite closure pending
+- Status: closed; merged and drained through Graphite
 
 ## Objective
 
@@ -34,11 +34,10 @@
 
 ## Current State
 
-- Repo/Graphite state: dirty S2.1 worktree on `codex/operations-current`,
-  Graphite parent `main`, local Graphite stack `main -> codex/operations-current`.
-- Dirty files and owner: S2.1 OpenSpec, studio-server contract/router/context,
-  daemon operation stores, Studio engines/context, `runStore`, `StudioShell`,
-  and focused app/package tests.
+- Repo/Graphite state: `codex/operations-current` merged via PR #1682 into
+  `main` at `5c9b356a9cddcd1476610825bc285bfb8d0eedd1`, then pruned from the
+  local Graphite stack.
+- Dirty files and owner: none for S2.1 after merge/drain.
 - Current code evidence: daemon stores expose pruned newest-first `list()`;
   `StudioEngines.currentOperations()` returns daemon identity plus active/recent
   Run in Game and Save&Deploy operations; the unified oRPC contract exposes
@@ -100,7 +99,7 @@
   `studio.operations.current`; TypeBox/Standard Schema current output; client
   boot adoption; operation recovery localStorage bridge deletion; focused tests
   and stale-bridge scan.
-- Remaining tasks: Graphite commit/submit/merge/drain, then continue WS-3.
+- Remaining tasks: none for S2.1; continue WS-3.
 - Stop conditions triggered: none.
 
 ## Verification
@@ -144,8 +143,7 @@
 
 ## Next Action
 
-- Exact next step: stage exact S2.1 files only, commit/submit/merge through
-  Graphite, drain the branch, then open WS-3 S3.0 `stream-spike`.
+- Exact next step: open WS-3 S3.0 `stream-spike`.
 - First files to inspect if revisiting: `packages/studio-server/src/contract/studio.ts`,
   `packages/studio-server/src/router/index.ts`, `apps/mapgen-studio/src/server/studio/engines.ts`,
   `apps/mapgen-studio/src/app/StudioShell.tsx`, `apps/mapgen-studio/src/stores/runStore.ts`.

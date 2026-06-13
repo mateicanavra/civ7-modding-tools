@@ -44,4 +44,4 @@
       `bun run --cwd packages/studio-server test -- test/handler.test.ts`.
 - [x] 4.5 Downstream realignment: plan/workstream notes, stale bridge language
       scan, watcher disposition.
-- [ ] 4.6 Graphite submit/merge/drain according to repo rules.
+- [x] 4.6 Graphite submit/merge/drain according to repo rules.
