@@ -43,5 +43,5 @@
 
 - [x] 4.1 Update workstream records with final evidence and watcher
       disposition.
-- [ ] 4.2 Graphite submit/merge/drain according to repo rules with foreign
+- [x] 4.2 Graphite submit/merge/drain according to repo rules with foreign
       dirty state quarantined.
