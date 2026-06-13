@@ -54,3 +54,12 @@
       harness.
 - [ ] 5.2 "Restart Civ7" recovery affordance in the Studio UI driven by
       `wedgeSuspected` — follow-up surface work.
+
+## 6. Superseded by runtime-one-mount (2026-06-12)
+
+- [x] 6.1 The `tuner.session()` host-injection port (task 4.1/4.2 wiring)
+      was DELETED by `mapgen-studio-runtime-one-mount`: the unified
+      handler now resolves the shared session from its own runtime and
+      builds the control per-request context internally (structural
+      session sharing — no daemon-side injection seam remains).
+      `tuner.health()` and `dispose()` are unchanged.

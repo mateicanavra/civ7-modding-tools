@@ -115,10 +115,15 @@ deletes their subject — never before, never after.
   — batching polls hides the real fix).
 - Tests: REWRITE `server/daemonFetch.test.ts` (single mount route table; legacy
   `/api/*` 404 pins move here — the daemon HTTP layer STAYS, audit's deletion
-  call corrected), `studioServer/rpcPath.test.ts`, `recipeDag/orpc.test.ts`,
-  fallthrough assertions in `studioServerClient.test.ts` +
-  `civ7ControlOrpcClient.test.ts`. NEW PIN: all three namespaces respond on one
+  call corrected). NEW PIN: all three namespaces respond on one
   mount; out-of-scope paths 404.
+- EXECUTED 2026-06-12 (`mapgen-studio-runtime-one-mount`): two grounding
+  corrections — `studioServer/rpcPath.ts` and
+  `features/studioServer/studioServerClient.ts` had ZERO production consumers
+  (vite-middleware-era leftovers), so both DELETED with their tests instead of
+  rewritten; their transport pins live on in `test/server/oneMount.test.ts`.
+  Client `DedupeRequestsPlugin` deferred with evidence (dedupes only GET; RPC
+  link sends POST — no-op) to the S3.2 re-evaluation alongside BatchLink.
 
 **S1.2 `error-spine`** — Sealed failure unions, no unmapped 500s.
 - Engine failure union (tagged) covering the 14 sites; exhaustive `toOrpc()`
@@ -126,6 +131,19 @@ deletes their subject — never before, never after.
   echo; recovery-action hints normalized across RIG + SD.
 - Tests: NEW PIN "no bare 500 from any engine failure path" (table-driven over
   the failure union); keep all DURABLE error-code pins.
+
+**S1.1a `dev-watch-deploy-isolation` (HOTFIX, inserted 2026-06-12)** — Root
+cause of the operator's "launch click → error" found DURING S1.1 live proof,
+with restart-identity evidence: the run-in-game/save-deploy engines rebuild
+`mod-swooper-maps` dist, which sits in the daemon's own import graph (static
+recipeDag service import of `mod-swooper-maps/recipes/*` → dist), so `bun
+--watch` (#1676) restarts the daemon MID-OPERATION (observed at +84s into a
+launch; child deploy process killed; registry wiped; watchdog reloads the
+tab). Pre-existing since #1676 — every dev-mode launch/deploy dies this way.
+Fix candidates (decide in the slice): import recipe stages from mod SOURCE
+under Bun (deploys touch only dist), lazy/subprocess recipe projection, or
+watch-graph isolation. Blocks meaningful live launch proofs for all later
+slices — run BEFORE S1.2.
 
 ### WS-2 “Server Truth” (state spine)
 

@@ -1,5 +1,7 @@
 import { oc } from "@orpc/contract";
+import { Civ7ControlOrpcContract } from "@civ7/control-orpc";
 
+import { RecipeDagGetContract } from "../recipeDag/contract.js";
 import * as civ7 from "./civ7.js";
 import * as live from "./live.js";
 import * as mapConfigs from "./mapConfigs.js";
@@ -7,48 +9,46 @@ import * as runInGame from "./runInGame.js";
 import * as studio from "./studio.js";
 
 /**
- * Root oRPC contract for `@civ7/studio-server`.
+ * Root oRPC contract for `@civ7/studio-server` — the ONE surface the daemon
+ * mounts at `/rpc` (runtime-one-mount slice, DP-1).
  *
- * Contract-first (slice A1): this composes the 16-endpoint corpus into the
- * namespaced procedure tree from audit/05-server-contracts.md §"Proposed oRPC
- * router shape". NO business logic — only zod I/O contracts. The Effect services
- * (A2), effect-orpc router + non-uniform errorMap (A3), and Bun entrypoint (A4)
- * implement against this surface.
+ * Two layers:
  *
- * Namespace → path mapping (legacy `/api/...` path preserved for cutover):
- *   civ7.status            GET  /api/civ7/status              (#1)
- *   civ7.mapSummary        GET  /api/civ7/map-summary         (#2)
- *   civ7.gameInfo          GET  /api/civ7/gameinfo            (#3)
- *   civ7.live.status       GET  /api/civ7/live/status         (#4)
- *   civ7.live.snapshot     GET  /api/civ7/live/snapshot       (#5)
- *   civ7.live.entities     GET  /api/civ7/live/entities       (#6)
- *   civ7.live.gameInfo     GET  /api/civ7/live/gameinfo       (#7)
- *   civ7.autoplay          POST /api/civ7/autoplay            (#8)
- *   civ7.setupConfig       GET  /api/civ7/setup-config        (#10)
- *   civ7.savedConfigs      GET  /api/civ7/saved-configs       (#11)
- *   civ7.setupCatalog      GET  /api/civ7/setup-catalog       (#12)
- *   runInGame.start        POST /api/civ7/run-in-game         (#14)
- *   runInGame.status       GET  /api/civ7/run-in-game/status  (#13)
- *   mapConfigs.saveDeploy  POST /api/map-configs              (#16)
- *   mapConfigs.status      GET  /api/map-configs/status       (#15)
- *   studio.serverInfo      GET  /api/studio/server-info       (#9)
+ * - `studioEffectContract` — the procedures THIS package implements with
+ *   effect-orpc against the one `ManagedRuntime`: the studio read/engine
+ *   surface (16-endpoint corpus, legacy statuses pinned per procedure) plus
+ *   `recipeDag.get` (host-injected service via the `StudioConfig` layer).
+ * - `contract` (public) — the unified client-facing contract:
+ *   `studioEffectContract` with the canonical Civ7 control contract spread
+ *   under `civ7.*`. The control procedures are implemented by
+ *   `@civ7/control-orpc`'s prebuilt router and merged at the handler level;
+ *   their I/O and error schemas are untouched here.
+ *
+ * The `civ7.*` merge is collision-proof: the studio keys
+ * (status/mapSummary/gameInfo/autoplay/setupConfig/savedConfigs/setupCatalog/live)
+ * and the control namespaces
+ * (attention/city/diplomacy/display/government/narrative/notifications/
+ * progression/readiness/strategy/turn/unit/view/world) are disjoint, and the
+ * single-mount contract pin asserts that stays true.
  */
-export const contract = oc.router({
-  civ7: {
-    status: civ7.status,
-    mapSummary: civ7.mapSummary,
-    gameInfo: civ7.gameInfo,
-    autoplay: civ7.autoplay,
-    setupConfig: civ7.setupConfig,
-    savedConfigs: civ7.savedConfigs,
-    setupCatalog: civ7.setupCatalog,
-    live: {
-      status: live.status,
-      snapshot: live.snapshot,
-      entities: live.entities,
-      gameInfo: live.gameInfo,
-    },
+const studioCiv7Contract = {
+  status: civ7.status,
+  mapSummary: civ7.mapSummary,
+  gameInfo: civ7.gameInfo,
+  autoplay: civ7.autoplay,
+  setupConfig: civ7.setupConfig,
+  savedConfigs: civ7.savedConfigs,
+  setupCatalog: civ7.setupCatalog,
+  live: {
+    status: live.status,
+    snapshot: live.snapshot,
+    entities: live.entities,
+    gameInfo: live.gameInfo,
   },
+} as const;
+
+export const studioEffectContract = oc.router({
+  civ7: studioCiv7Contract,
   runInGame: {
     start: runInGame.start,
     status: runInGame.status,
@@ -60,8 +60,22 @@ export const contract = oc.router({
   studio: {
     serverInfo: studio.serverInfo,
   },
+  recipeDag: {
+    get: RecipeDagGetContract,
+  },
+});
+
+export type StudioEffectContract = typeof studioEffectContract;
+
+export const contract = oc.router({
+  ...studioEffectContract,
+  civ7: {
+    ...studioCiv7Contract,
+    ...Civ7ControlOrpcContract,
+  },
 });
 
 export type StudioContract = typeof contract;
 
+export type { RecipeDagResult } from "../recipeDag/schema.js";
 export { civ7, live, mapConfigs, runInGame, studio };

@@ -29,7 +29,10 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
+    "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
+    "@standard-schema/spec": "^1.1.0",
+    "typebox": "^1.0.80",
     "@orpc/client": "1.14.5",
     "@orpc/contract": "1.14.5",
     "@orpc/server": "1.14.5",

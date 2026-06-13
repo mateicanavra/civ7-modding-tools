@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { AlertTriangle, ChevronDown, Loader2, Workflow } from "lucide-react";
 
-import type { RecipeDagResult } from "./client";
+import type { RecipeDagResult } from "@civ7/studio-server/contract";
 import type { RecipeDagLoadStatus } from "./useRecipeDagQuery";
 import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation";
 import {

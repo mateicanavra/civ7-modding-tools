@@ -2,8 +2,10 @@ import type {
   InferContractRouterInputs,
   InferContractRouterOutputs,
 } from "@orpc/contract";
+import type { Civ7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 
-import type { contract } from "./contract/index.js";
+import type { studioEffectContract as contract } from "./contract/index.js";
+import type { RecipeDagService } from "./recipeDag/service.js";
 
 /**
  * Typed I/O for every studio-server procedure, derived from the oRPC contract so
@@ -46,6 +48,25 @@ export interface StudioServerContext {
   readonly serverStartedAt: string;
   /** The Vite `command` ("serve" | "build") echoed by `studio.serverInfo`. */
   readonly viteCommand: string;
+
+  /**
+   * Recipe-DAG projection service (runtime-one-mount slice). The
+   * implementation stays host-side — it imports `mod-swooper-maps` recipe
+   * stages, a dependency this package must not take. `recipeDag.get` reads
+   * it through the `StudioConfig` layer.
+   */
+  readonly recipeDagService: RecipeDagService;
+
+  /**
+   * Civ7 control-oRPC dependencies (runtime-one-mount slice). The handler
+   * builds the control procedures' per-request context from these plus the
+   * runtime's shared `Civ7TunerSession` — session sharing is structural,
+   * not a host-side patch. Hosts pass the live facade; tests pass fakes.
+   */
+  readonly civ7Control: Readonly<{
+    directControl: Civ7ControlOrpcDirectControlFacade;
+    timeoutMs: number;
+  }>;
 
   /** Loads the Civ7 setup catalog (filesystem mirror + macOS app resources). */
   loadSetupCatalog(): Promise<SetupCatalog>;

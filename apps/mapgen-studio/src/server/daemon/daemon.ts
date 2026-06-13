@@ -4,29 +4,24 @@ import { fileURLToPath } from "node:url";
 
 import { createStudioRpcHandler } from "@civ7/studio-server";
 
-import { STUDIO_CIV7_CONTROL_ORPC_PATH } from "../../shared/civ7ControlOrpc";
-import { STUDIO_RECIPE_DAG_ORPC_PATH } from "../../shared/recipeDagOrpc";
-import { createStudioCiv7ControlRpcHandler } from "../civ7ControlOrpc";
-import { createStudioRecipeDagRpcHandler } from "../recipeDag/orpc";
 import { createStudioServerContext } from "../studio/context";
 import { createStudioEngines } from "../studio/engines";
 
 // ============================================================================
 // Studio daemon — the standalone Bun server owning the studio server surface
-// (bun-server workstream, daemon slice; topology per the gt-stack-inspect
-// blueprint: Bun.serve fetch router + dev-live runner + Vite proxy).
+// (bun-server workstream daemon slice; runtime-one-mount slice collapsed the
+// surface to ONE oRPC mount).
 // ----------------------------------------------------------------------------
-// This process owns EVERY `/rpc` + `/api` byte and ALL server state (the one
+// This process owns EVERY `/rpc` byte and ALL server state (the one
 // `createStudioEngines` instance — queue, operation stores, instance
-// identity). Vite is frontend-only and proxies here. Running under Bun also
-// dissolves the effect-orpc TS-source constraint: the recipe-DAG handler is a
-// plain static import (no `ssrLoadModule`).
+// identity). Vite is frontend-only and proxies `/rpc` here.
 //
-// The server surface is oRPC ONLY (user directive 2026-06-12: no legacy, no
-// fallbacks): `/rpc` (studio-server), `/api/civ7/rpc` (control), and
-// `/api/recipe-dag/rpc` (recipe DAG). The 16 hand-rolled legacy `/api/*` REST
-// handlers from the Vite middleware era are RETIRED — any other `/api` path
-// is a 404.
+// The server surface is ONE oRPC mount (runtime-simplification DP-1): `/rpc`
+// hosts the unified `@civ7/studio-server` contract — the studio surface,
+// `civ7.*` (including the absorbed control namespaces), and `recipeDag.*` —
+// behind one RPCHandler over one ManagedRuntime. The former satellite mounts
+// (`/api/civ7/rpc`, `/api/recipe-dag/rpc`) and the 16 hand-rolled legacy
+// `/api/*` REST handlers are RETIRED — every non-`/rpc` API path is a 404.
 //
 // Executed with `bun src/server/daemon/daemon.ts` (never under node). The
 // fetch composition (`createStudioDaemonFetch`) is pure and unit-tested under
@@ -120,15 +115,13 @@ export interface StudioDaemonDeps {
       options?: { prefix?: `/${string}` },
     ): Promise<{ matched: boolean; response?: Response }>;
   };
-  controlRpc: { handle(request: Request): Promise<{ matched: boolean; response?: Response }> };
-  recipeDagRpc: { handle(request: Request): Promise<{ matched: boolean; response?: Response }> };
   health():
     | ({ ok: boolean } & Record<string, unknown>)
     | Promise<{ ok: boolean } & Record<string, unknown>>;
   assetsRoot?: string;
 }
 
-/** Pure fetch router over injected handlers — unit-testable without Bun.serve. */
+/** Pure fetch router over the injected handler — unit-testable without Bun.serve. */
 export function createStudioDaemonFetch(
   deps: StudioDaemonDeps,
 ): (request: Request) => Promise<Response> {
@@ -147,24 +140,10 @@ export function createStudioDaemonFetch(
       return new Response("Not Found", { status: 404 });
     }
 
-    if (pathname.startsWith(STUDIO_CIV7_CONTROL_ORPC_PATH)) {
-      const { matched, response } = await deps.controlRpc.handle(request);
-      if (matched && response) return response;
-      return new Response("Not Found", { status: 404 });
-    }
-
-    if (pathname.startsWith(STUDIO_RECIPE_DAG_ORPC_PATH)) {
-      const { matched, response } = await deps.recipeDagRpc.handle(request);
-      if (matched && response) return response;
-      return new Response("Not Found", { status: 404 });
-    }
-
-    // Retired legacy REST surface (no fallbacks): any other /api path is 404.
-    if (pathname.startsWith("/api/")) {
-      return new Response("Not Found", { status: 404 });
-    }
-
-    if (deps.assetsRoot) {
+    // Retired surfaces (no fallbacks): the legacy REST endpoints AND the
+    // former satellite mounts (`/api/civ7/rpc`, `/api/recipe-dag/rpc`) all
+    // fall through here — every non-`/rpc` API path is a 404.
+    if (deps.assetsRoot && !pathname.startsWith("/api/")) {
       return staticResponse(deps.assetsRoot, pathname);
     }
 
@@ -175,16 +154,14 @@ export function createStudioDaemonFetch(
 export async function createStudioDaemon(args: StudioDaemonArgs) {
   const engines = createStudioEngines({ repoRoot: args.repoRoot });
   const context = createStudioServerContext({ engines, hostCommand: "daemon" });
+  // The ONE handler over the ONE runtime. Session sharing is structural now:
+  // the handler resolves the shared tuner connection from its runtime and
+  // threads it into every control procedure's endpointDefaults — every
+  // polling read multiplexes over that socket instead of opening its own
+  // (the churn that wedged the game).
   const studioRpc = createStudioRpcHandler(context);
-  // The ONE shared tuner connection (Effect-scoped in the studio runtime;
-  // resolving it builds the runtime layer). The control mount reuses it via
-  // endpointDefaults — every polling read multiplexes over this socket
-  // instead of opening its own (the churn that wedged the game).
-  const tunerSession = await studioRpc.tuner.session();
   const deps: StudioDaemonDeps = {
     studioRpc,
-    controlRpc: createStudioCiv7ControlRpcHandler({ session: tunerSession }),
-    recipeDagRpc: createStudioRecipeDagRpcHandler(),
     health: async () => ({
       ok: true,
       serverInstanceId: engines.serverInstanceId,

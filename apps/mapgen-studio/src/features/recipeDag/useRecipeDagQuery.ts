@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { createStudioRecipeDagClient, type RecipeDagResult } from "./client";
+import type { RecipeDagResult } from "@civ7/studio-server/contract";
+
+import { orpcClient } from "../../lib/orpc";
 
 /**
  * `useRecipeDagQuery` — the pipeline view's READ surface on TanStack Query
@@ -12,11 +14,9 @@ import { createStudioRecipeDagClient, type RecipeDagResult } from "./client";
  * responses and cancellation, hand-rolled in the monolith, fall out of the
  * query cache keying.
  *
- * Transport is the PRESERVED oRPC client at `STUDIO_RECIPE_DAG_ORPC_PATH`
- * (handoff §2.2: the client never imports recipe modules). One module-scoped
- * client instance, matching the merged code.
+ * Transport is the ONE unified oRPC client (`orpcClient.recipeDag.get`,
+ * runtime-one-mount slice) — the client never imports recipe modules.
  */
-const recipeDagClient = createStudioRecipeDagClient();
 
 export type RecipeDagLoadStatus = "idle" | "loading" | "ready" | "error";
 
@@ -32,7 +32,7 @@ export function useRecipeDagQuery(
 ): RecipeDagQueryView {
   const query = useQuery<RecipeDagResult, Error>({
     queryKey: ["recipeDag", recipeId],
-    queryFn: () => recipeDagClient.recipeDag.get({ recipeId }),
+    queryFn: () => orpcClient.recipeDag.get({ recipeId }),
     enabled: options.enabled,
     staleTime: Infinity,
   });

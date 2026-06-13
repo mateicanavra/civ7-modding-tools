@@ -1,26 +1,19 @@
 import { describe, expect, test } from "vitest";
 
 import { createStudioDaemonFetch, type StudioDaemonDeps } from "../../src/server/daemon/daemon";
-import { STUDIO_CIV7_CONTROL_ORPC_PATH } from "../../src/shared/civ7ControlOrpc";
-import { STUDIO_RECIPE_DAG_ORPC_PATH } from "../../src/shared/recipeDagOrpc";
 
 function makeDeps(overrides: Partial<StudioDaemonDeps> = {}): {
   deps: StudioDaemonDeps;
   calls: string[];
 } {
   const calls: string[] = [];
-  const handler = (name: string, matched = true) => ({
-    handle: async () => {
-      calls.push(name);
-      return matched
-        ? { matched: true, response: new Response(name, { status: 200 }) }
-        : { matched: false as const };
-    },
-  });
   const deps: StudioDaemonDeps = {
-    studioRpc: handler("studio"),
-    controlRpc: handler("control"),
-    recipeDagRpc: handler("recipeDag"),
+    studioRpc: {
+      handle: async () => {
+        calls.push("studio");
+        return { matched: true, response: new Response("studio", { status: 200 }) };
+      },
+    },
     health: () => ({ ok: true, probe: "test" }),
     ...overrides,
   };
@@ -42,31 +35,23 @@ describe("studio daemon fetch router", () => {
     expect(res.status).toBe(503);
   });
 
-  test("routes the three oRPC prefixes to their handlers", async () => {
+  test("routes every /rpc namespace to the ONE handler", async () => {
     const { deps, calls } = makeDeps();
     const fetchHandler = createStudioDaemonFetch(deps);
 
-    const studio = await fetchHandler(
-      new Request("http://daemon.test/rpc/civ7/status", { method: "POST" }),
-    );
-    const control = await fetchHandler(
-      new Request(`http://daemon.test${STUDIO_CIV7_CONTROL_ORPC_PATH}/readiness/current`, {
-        method: "POST",
-      }),
-    );
-    const recipeDag = await fetchHandler(
-      new Request(`http://daemon.test${STUDIO_RECIPE_DAG_ORPC_PATH}/recipeDag/get`, {
-        method: "POST",
-      }),
-    );
-
-    await expect(studio.text()).resolves.toBe("studio");
-    await expect(control.text()).resolves.toBe("control");
-    await expect(recipeDag.text()).resolves.toBe("recipeDag");
-    expect(calls).toEqual(["studio", "control", "recipeDag"]);
+    for (const path of [
+      "/rpc/civ7/status",
+      "/rpc/civ7/readiness/current",
+      "/rpc/recipeDag/get",
+      "/rpc/studio/serverInfo",
+    ]) {
+      const res = await fetchHandler(new Request(`http://daemon.test${path}`, { method: "POST" }));
+      await expect(res.text(), path).resolves.toBe("studio");
+    }
+    expect(calls).toEqual(["studio", "studio", "studio", "studio"]);
   });
 
-  test("unmatched RPC paths under a mounted prefix are 404", async () => {
+  test("unmatched RPC paths under the mounted prefix are 404", async () => {
     const { deps } = makeDeps({
       studioRpc: { handle: async () => ({ matched: false }) },
     });
@@ -76,7 +61,7 @@ describe("studio daemon fetch router", () => {
     expect(res.status).toBe(404);
   });
 
-  test("retired legacy /api paths are 404 (no fallbacks)", async () => {
+  test("retired /api paths are 404 — legacy REST and the former satellite mounts", async () => {
     const { deps, calls } = makeDeps();
     const fetchHandler = createStudioDaemonFetch(deps);
     for (const path of [
@@ -84,11 +69,22 @@ describe("studio daemon fetch router", () => {
       "/api/civ7/run-in-game/status?requestId=x",
       "/api/map-configs",
       "/api/studio/server-info",
+      // The satellite oRPC mounts died with the runtime-one-mount slice.
+      "/api/civ7/rpc/readiness/current",
+      "/api/recipe-dag/rpc/recipeDag/get",
     ]) {
       const res = await fetchHandler(new Request(`http://daemon.test${path}`));
       expect(res.status, path).toBe(404);
     }
     expect(calls).toEqual([]);
+  });
+
+  test("retired /api paths stay 404 even with a static assets root", async () => {
+    const { deps } = makeDeps({ assetsRoot: "/tmp/does-not-exist-assets" });
+    const res = await createStudioDaemonFetch(deps)(
+      new Request("http://daemon.test/api/civ7/rpc/readiness/current"),
+    );
+    expect(res.status).toBe(404);
   });
 
   test("non-API paths without an assets root are 404", async () => {

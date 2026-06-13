@@ -9,7 +9,7 @@ import {
   resolveEdgeLabelPositions,
   type RoutedStageEdgeGroup,
 } from "../../src/features/recipeDag/layout";
-import type { RecipeDagResult } from "../../src/features/recipeDag/client";
+import type { RecipeDagResult } from "@civ7/studio-server/contract";
 
 describe("recipe DAG layout", () => {
   it("places stages by dependency rank while preserving phase grouping", () => {

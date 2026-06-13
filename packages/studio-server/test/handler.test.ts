@@ -256,6 +256,15 @@ function makeContext(
     mapConfigStatus: async () => {
       throw new Error("Unexpected map-config status call");
     },
+    recipeDagService: {
+      getRecipeDag: async () => {
+        throw new Error("Unexpected recipe-DAG call");
+      },
+    },
+    civ7Control: {
+      directControl: {} as StudioServerContext["civ7Control"]["directControl"],
+      timeoutMs: 1234,
+    },
     ...overrides,
   };
 }

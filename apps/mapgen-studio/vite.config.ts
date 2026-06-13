@@ -4,15 +4,15 @@ import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath } from "node:url";
 
 // ===========================================================================
-// Frontend-only Vite config (bun-server workstream, daemon cutover).
+// Frontend-only Vite config (bun-server workstream; runtime-one-mount slice).
 // ---------------------------------------------------------------------------
-// The studio server surface — `/rpc` (studio-server), `/api/civ7/rpc`
-// (control-oRPC), `/api/recipe-dag/rpc` (recipe DAG), and ALL server state —
-// lives in the standalone Bun daemon (src/server/daemon/daemon.ts). Dev runs
-// both via `bun run dev` (src/server/daemon/devLive.ts); this config only
-// proxies `/rpc` + `/api` to the daemon. The legacy hand-rolled `/api/*` REST
-// handlers are RETIRED (user directive 2026-06-12: no legacy, no fallbacks) —
-// unknown `/api` paths 404 at the daemon.
+// The studio server surface is ONE oRPC mount — `/rpc`, hosting the unified
+// `@civ7/studio-server` contract (studio + `civ7.*` control + `recipeDag.*`)
+// — and ALL server state lives in the standalone Bun daemon
+// (src/server/daemon/daemon.ts). Dev runs both via `bun run dev`
+// (src/server/daemon/devLive.ts); this config proxies exactly `/rpc` to the
+// daemon. The legacy `/api/*` REST handlers and the former satellite mounts
+// are RETIRED — `/api` paths 404 at the daemon and are not proxied.
 //
 // No server modules are imported here anymore: config evaluation is cheap,
 // restarts are safe, and the effect-orpc TS-source constraint is gone (the
@@ -49,7 +49,6 @@ export default defineConfig(({ command }) => ({
     strictPort: true,
     proxy: {
       "/rpc": { target: STUDIO_DEV_RPC_TARGET },
-      "/api": { target: STUDIO_DEV_RPC_TARGET },
     },
     watch: {
       ignored: [

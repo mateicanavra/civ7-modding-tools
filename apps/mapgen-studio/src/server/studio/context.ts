@@ -1,7 +1,10 @@
 import { ORPCError } from "@orpc/client";
 import type { StudioServerContext } from "@civ7/studio-server";
+import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import { DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "@civ7/direct-control";
 
 import { loadCiv7SetupCatalog } from "../civ7Resources/catalog";
+import { defaultRecipeDagService } from "../recipeDag/service";
 import { RunInGameHttpError } from "../runInGame/operationState";
 import type { StudioEngines } from "./engines";
 
@@ -85,6 +88,16 @@ export function createStudioServerContext(options: Readonly<{
     serverInstanceId: engines.serverInstanceId,
     serverStartedAt: engines.serverStartedAt,
     viteCommand: hostCommand,
+    // Recipe-DAG projection: the implementation stays app-side (it imports
+    // mod-swooper-maps recipe stages); the package reads it via StudioConfig.
+    recipeDagService: defaultRecipeDagService,
+    // Civ7 control surface dependencies: the unified handler builds the
+    // control procedures' per-request context from these plus the runtime's
+    // shared tuner session (structural session sharing — no daemon patch).
+    civ7Control: {
+      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+    },
     loadSetupCatalog: async () => {
       // `Civ7SetupCatalog` is deeply `readonly`; the contract's zod-derived catalog
       // type is structurally identical but mutable. Cross the boundary by value

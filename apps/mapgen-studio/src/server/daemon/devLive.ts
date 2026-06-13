@@ -7,7 +7,7 @@ import { STUDIO_DAEMON_DEFAULT_PORT } from "./daemon";
 // Dev-live runner — `bun run dev` (bun-server workstream, daemon slice)
 // ----------------------------------------------------------------------------
 // Spawns the studio daemon (backend), waits for `/healthz`, then spawns the
-// Vite frontend, whose `server.proxy` forwards `/rpc` + `/api` to the daemon
+// Vite frontend, whose `server.proxy` forwards `/rpc` to the daemon
 // (target via STUDIO_DEV_RPC_TARGET). Either child exiting stops the other —
 // one Ctrl-C tears the whole topology down (gt-stack-inspect blueprint).
 // ============================================================================
@@ -169,7 +169,7 @@ export async function runDevLive(args: DevLiveArgs): Promise<void> {
     const vite = startChild("vite", plan.vite);
     running.push(vite);
     process.stdout.write(
-      `mapgen-studio frontend at ${plan.frontendUrl} (proxying /rpc + /api to ${plan.rpcProxyTarget})\n`,
+      `mapgen-studio frontend at ${plan.frontendUrl} (proxying /rpc to ${plan.rpcProxyTarget})\n`,
     );
 
     const exited = await waitForFirstExit(running);
