@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import * as ts from "typescript";
 import {
   FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
   FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG,
@@ -29,6 +30,18 @@ function listFilesRecursive(rootDir: string): string[] {
     out.push(full);
   }
   return out;
+}
+
+function listImportSources(text: string, fileName: string): string[] {
+  const sourceFile = ts.createSourceFile(fileName, text, ts.ScriptTarget.Latest, false);
+
+  return sourceFile.statements.flatMap((statement) => {
+    if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {
+      return [statement.moduleSpecifier.text];
+    }
+
+    return [];
+  });
 }
 
 describe("foundation contract guardrails", () => {
@@ -215,11 +228,7 @@ describe("foundation contract guardrails", () => {
       const text = readFileSync(path.join(repoRoot, relativeFile), "utf8");
       expect(text).not.toContain("domain/foundation/lib/tectonics/");
       expect(text).not.toContain("lib/tectonics/");
-      const importSources = text
-        .split(/\r?\n/)
-        .map((line) => line.match(/^\s*import(?:\s+type)?\s+.*\sfrom\s+["']([^"']+)["'];?/))
-        .filter((match): match is RegExpMatchArray => Boolean(match))
-        .map((match) => match[1]);
+      const importSources = listImportSources(text, relativeFile);
 
       expect(importSources.length).toBeGreaterThan(0);
       expect(importSources.some((source) => source.startsWith("../rules/"))).toBe(true);

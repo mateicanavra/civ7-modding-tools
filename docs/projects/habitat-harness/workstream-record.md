@@ -6,7 +6,7 @@
 - **Controlling frame:** `docs/projects/habitat-harness/FRAME.md` (hard core, falsifier, settled decisions D1–D6)
 - **Stack root:** `agent-F-habitat-harness-workstream` (worktree `wt-agent-F-habitat-harness-workstream`, parent `main`, Graphite-tracked)
 - **Current execution branch:** `agent-F-habitat-biome-hygiene` stacked on H3
-- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 active as of 2026-06-13
+- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 active as of 2026-06-13; H4 2.4 evidence pass is blocked by DL-15/DL-16, not closed
 
 ## Gate state (systematic-workstream)
 
@@ -20,7 +20,7 @@
 | 6 Expectations | DONE | per-slice verification gates; ratchet baselines predeclared (project plane green; adapter-boundary baseline = 6) |
 | 7 Architecture translation | DONE | taxonomy.md (tags/constraints); five-layer ownership in FRAME hard core #2 |
 | 8 Slices | IN TRAIN | OpenSpec train below; H1/H2/H3 closed locally; H4 active |
-| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 reformat parity is next |
+| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes, but fresh root build dirties the pre-existing DL-16 intelligence-bridge bundle artifact |
 | 10 Runtime proof | N/A by design | harness touches structure only; byte-parity gates stand in (H1/H4) |
 | 11 Review | IN TRAIN | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice |
 | 12 Closure | IN TRAIN | H1/H2/H3 have local phase closure records; H4 open |
@@ -45,7 +45,10 @@ prerequisites; phase continuity records go in
 
 Execution state on 2026-06-13: H1 (`habitat-nx-adoption`), H2
 (`habitat-harness-scaffold`), and H3 (`habitat-boundary-tags`) are locally
-closed on the Graphite stack. H4 (`habitat-biome-hygiene`) is the active slice.
+closed on the Graphite stack. H4 (`habitat-biome-hygiene`) is the active slice:
+Biome setup, dry-run, format commit, blame shield, and Prettier retirement are
+done; task 2.4 is partially evidenced but remains open because root test and
+fresh-build parity expose DL-15/DL-16 blockers.
 
 ## Proof classes per slice (predeclared)
 
@@ -87,8 +90,7 @@ train redefines the other's authority.
 1. ~~Pre-execution spec-review lane~~ DONE (`review-disposition-ledger.md`, all repairs applied).
 2. ~~H1/H2/H3 local execution and closure~~ DONE (see each slice's
    `workstream/phase-record.md`).
-3. Open and execute H4 (`habitat-biome-hygiene`) on
-   `agent-F-habitat-biome-hygiene`: create/update
-   `openspec/changes/habitat-biome-hygiene/workstream/phase-record.md`, then
-   begin Biome setup only after the phase record captures preconditions,
-   stop conditions, and parity evidence requirements.
+3. Continue H4 (`habitat-biome-hygiene`) on
+   `agent-F-habitat-biome-hygiene`: finish the task 2.4 disposition without
+   weakening its stop condition, then proceed to the minimal Biome lint lane
+   and harness/Nx/CI integration.

@@ -7,7 +7,7 @@
 - Owner: workstream owner agent (Codex continuation)
 - Branch/Graphite stack: `agent-F-habitat-biome-hygiene` -> `agent-F-habitat-boundary-tags` -> `agent-F-habitat-harness-scaffold` -> `agent-F-habitat-nx-adoption` -> `agent-F-habitat-harness-workstream` -> `main`
 - Started: 2026-06-13
-- Status: OPEN — Biome setup, format commit, blame shield, and Prettier retirement complete; parity and harness integration remain
+- Status: OPEN — Biome setup, format commit, blame shield, and Prettier retirement complete; task 2.4 is partially evidenced but blocked by DL-15/DL-16; Biome lint lane and harness integration remain
 
 ## Objective
 
@@ -25,11 +25,11 @@
 
 ## Current State
 
-- Repo/Graphite state: clean worktree on empty H4 branch `agent-F-habitat-biome-hygiene`, stacked above restacked H3 (`agent-F-habitat-boundary-tags`).
-- Dirty files and owner: this phase will first own only `docs/projects/habitat-harness/workstream-record.md` and this phase record; implementation write set begins after setup.
-- Current code evidence: H1/H2/H3 locally closed; `openspec list` showed `habitat-biome-hygiene` at 0/11 tasks at phase open; `.prettierrc` has been removed; direct `prettier` / `eslint-config-prettier` package surfaces have been removed; Biome 2.4.16 is installed and `biome.json` loads successfully.
-- Generated outputs affected: none yet. H4 parity will hash formatting-independent `mod/**` artifacts before reformat; generated outputs remain protected and are not hand-edited.
-- Tests/guards affected: future H4 implementation will add Biome targets/rules and CI wiring; existing `nx-boundaries` and H2 harness rules remain authoritative.
+- Repo/Graphite state: active H4 branch `agent-F-habitat-biome-hygiene`, stacked above H3 (`agent-F-habitat-boundary-tags`); working diff is H4-owned evidence and guard-repair work.
+- Dirty files and owner: current dirty files are the Swooper Maps contract guard plus H4 workstream records; all are owned by this H4 evidence/repair step.
+- Current code evidence: H1/H2/H3 locally closed; `openspec list` showed `habitat-biome-hygiene` at 0/11 tasks at phase open; `.prettierrc` has been removed; direct `prettier` / `eslint-config-prettier` package surfaces have been removed; Biome 2.4.16 is installed and `biome.json` loads successfully; the Swooper Maps import guard now parses import declarations with TypeScript so Biome multiline imports do not create false architecture failures.
+- Generated outputs affected: tracked post-format `mods/*/mod/**` hashes still match the pre-format capture exactly. A fresh root build dirties the pre-existing `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js` tracked bundle with a non-format `from "net"` import; this was not hand-edited and is recorded as DL-16 / task 2.4 stop-condition evidence.
+- Tests/guards affected: the Swooper Maps contract guard now tolerates Biome multiline imports; future H4 implementation will add Biome targets/rules and CI wiring; existing `nx-boundaries` and H2 harness rules remain authoritative.
 
 ## Scope
 
@@ -60,8 +60,8 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
 ## Implementation
 
 - Completed tasks: 1.1, 1.2, 2.1, 2.2, 2.3.
-- Remaining tasks: 2.4-4.3.
-- Stop conditions triggered: none at phase open.
+- Remaining tasks: 2.4-4.3. Task 2.4 has partial evidence: root build green; tracked pre/post format hashes match; direct `mod-swooper-maps:test` green after repairing the H4-caused multiline-import guard false negative; root `bun run test` remains red through DL-15 / SDK async-teardown behavior, so 2.4 is not marked complete.
+- Stop conditions triggered: task 2.4 cannot close as green yet. Fresh build produces a non-format intelligence-bridge bundle drift (`from "net"`) and root test exits 1 through package-local Vitest fan-out / SDK teardown defects. These are known out-of-scope defects unless promoted, but they block the proposal's strict 2.4 green claim.
 
 ## Verification
 
@@ -90,6 +90,13 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
   - `rg -n -i "prettier" --glob '!docs/_archive/**' --glob '!node_modules/**' --glob '!**/node_modules/**'`
   - `bun pm why prettier`
   - `bun pm why eslint-config-prettier`
+  - `bunx tsc -p packages/civ7-adapter/tsconfig.json --noEmit --pretty false`
+  - `bunx nx run @civ7/adapter:build`
+  - `bun run build`
+  - `git show stash@{0}:mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js | rg -n "from ['\\\"]net['\\\"]|node:net"`
+  - `bun test test/foundation/contract-guard.test.ts -t "keeps decomposed tectonics strategy imports local"` (from `mods/mod-swooper-maps`)
+  - `bunx nx run mod-swooper-maps:test --skip-nx-cache`
+  - `bun run test > /tmp/h4-root-test-after-guard.log 2>&1`
 - Results: H4 branch opened cleanly above H3; OpenSpec list shows H1/H2/H3 complete and H4 at 0/11 tasks.
 - Biome setup results: `@biomejs/biome` exact-pinned at 2.4.16; config loads
   successfully; formatter settings match `.prettierrc` semantics (`semi`,
@@ -143,8 +150,49 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
   `@nx/eslint-plugin@22.7.5`.
 - Post-retirement format check: `bunx --bun @biomejs/biome format .
   --max-diagnostics=20` checked 2356 files and applied no fixes.
-- Skipped gates and rationale: implementation gates not run yet; this record opens the slice before code.
-- Evidence boundary: phase setup only; no Biome implementation or formatting proof claimed.
+- Adapter build repair: replacing `prettier-ignore` with `biome-ignore format`
+  initially put the formatter-ignore comments between the `@ts-ignore` comment
+  and the Civ7 runtime import. TypeScript then reported unresolved runtime
+  modules during declaration generation. The comments were reordered so
+  `biome-ignore format` precedes `@ts-ignore`, the imports stay one physical
+  line, `tsc --noEmit` passes, and `@civ7/adapter:build` passes.
+- Root build result: `bun run build` passed for 20 projects and 1 dependency
+  task. After the successful build, only the generated
+  `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js`
+  artifact drifted from tracked HEAD; the rebuilt bundle contains
+  `import { createConnection } from "net";`. The generated drift was stashed
+  semantically as `h4-build-generated-intelligence-bridge-bundle-drift` and
+  `h4-root-build-generated-intelligence-bridge-bundle-drift`, not integrated.
+- Build-output parity result: the tracked post-format hashes match the
+  pre-format hashes for all six tracked `mods/*/mod/**` files, including the
+  tracked intelligence-bridge bundle. Fresh-build parity is blocked by DL-16,
+  because the regenerated intelligence-bridge bundle changes semantically by
+  introducing a Node `net` import, not by formatting.
+- Swooper Maps guard repair: Biome wrapped long `../rules/index.js` named
+  imports in foundation strategy files. The existing guard parsed imports
+  line-by-line and falsely concluded the strategy no longer imported local
+  rules. The guard now uses the package's `typescript` dependency to parse
+  `ImportDeclaration` module specifiers. Focused proof:
+  `bun test test/foundation/contract-guard.test.ts -t "keeps decomposed
+  tectonics strategy imports local"` passes (1 pass, 0 fail, 57 expects).
+- Focused package proof: `bunx nx run mod-swooper-maps:test --skip-nx-cache`
+  passes after the guard repair (567 pass, 2 skip, 0 fail).
+- Root test result: `bun run test` still exits 1 after the guard repair. Failed
+  Nx tasks are `@civ7/plugin-files:test`, `@civ7/plugin-git:test`,
+  `@civ7/plugin-mods:test`, and `@civ7/plugin-graph:test`. The failure is the
+  DL-15 package-local `vitest run` fan-out class: those package tasks execute
+  the root Vitest project matrix from the plugin package cwd, causing
+  mapgen-studio suites to fail resolving `mod-swooper-maps/recipes/*` exports;
+  the same run also surfaces the known SDK async teardown `ENOENT` and one
+  unrelated direct-control timeout. Direct `mapgen-studio:test` passes in the
+  same root run (47 files, 233 tests), and direct `mod-swooper-maps:test`
+  passes.
+- Skipped gates and rationale: task 2.4 is not marked complete because the
+  proposal asks for build/test green plus build-output parity. Root build is
+  green, but root test/parity expose known out-of-scope defects that require
+  promotion or separate repair before strict closure.
+- Evidence boundary: H4-owned formatter/config/test-guard behavior is green;
+  no claim is made that repo-wide root test or fresh-build parity is green.
 
 ## Realignment
 
@@ -155,9 +203,10 @@ N/A - solo phase setup. Add agents before implementation review/evidence review 
 
 ## Next Action
 
-- Exact next step: run task 2.4 parity/build-test verification from the
-  pre-format `mod/**` hashes, then proceed to the minimal Biome lint lane and
-  harness/Nx/CI integration.
+- Exact next step: decide whether DL-16 and the SDK/DL-15 root-test blockers
+  are promoted into prerequisite repair slices for task 2.4 closure; otherwise
+  continue H4 implementation with task 2.4 explicitly open, then return before
+  closure.
 - First files to inspect: `tools/habitat-harness/src/plugin.js`,
   `tools/habitat-harness/src/bin/habitat.ts`,
   `tools/habitat-harness/src/rules/rules.json`, `.github/workflows/ci.yml`,
