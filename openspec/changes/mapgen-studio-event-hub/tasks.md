@@ -35,4 +35,4 @@
 - [x] 4.4 Package gate: `bun x turbo run check --filter=@civ7/studio-server`.
 - [x] 4.5 Downstream realignment: S3.2/S3.3 assumptions and S3.0 fixture
       disposition recorded.
-- [ ] 4.6 Graphite submit/merge/drain according to repo rules.
+- [x] 4.6 Graphite submit/merge/drain according to repo rules.
