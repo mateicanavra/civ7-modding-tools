@@ -3,7 +3,7 @@ import { ORPCError } from "@orpc/server";
 import { Effect } from "effect";
 import { implementEffect } from "effect-orpc";
 
-import { contract, type StudioContract } from "../contract/index.js";
+import { studioEffectContract, type StudioEffectContract } from "../contract/index.js";
 import { errorMessage } from "../errors.js";
 import type { StudioRuntime } from "../runtime.js";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
@@ -43,8 +43,8 @@ import { StudioConfig } from "../services/StudioConfig.js";
 // trip TS2742 in the emitted `.d.ts`) keeps `StudioRouter` contract-typed.
 export function createStudioRouter(
   runtime: StudioRuntime,
-): Router<StudioContract, Record<never, never>> {
-  const oe = implementEffect(contract, runtime);
+): Router<StudioEffectContract, Record<never, never>> {
+  const oe = implementEffect(studioEffectContract, runtime);
 
   return oe.router({
     civ7: {
@@ -354,6 +354,36 @@ export function createStudioRouter(
           runInGameApiVersion: 2 as const,
           viteCommand: config.viteCommand,
         };
+      }),
+    },
+
+    recipeDag: {
+      // Recipe-DAG projection (runtime-one-mount slice; formerly the
+      // `/api/recipe-dag/rpc` satellite mount). The service is host-injected
+      // through the StudioConfig layer — the ONE runtime serves this
+      // namespace too; the former private empty ManagedRuntime is gone.
+      get: oe.recipeDag.get.effect(function* ({ input, errors }) {
+        const config = yield* StudioConfig;
+        return yield* Effect.tryPromise({
+          try: () => config.recipeDagService.getRecipeDag(input.recipeId),
+          catch: (err) => {
+            if (err instanceof Error && err.name === "RecipeDagNotFound") {
+              return errors.RECIPE_DAG_RECIPE_NOT_FOUND({
+                data: {
+                  procedureKey: "recipeDag.get",
+                  recipeId: input.recipeId,
+                },
+              });
+            }
+            return errors.RECIPE_DAG_UNAVAILABLE({
+              data: {
+                procedureKey: "recipeDag.get",
+                recipeId: input.recipeId,
+                source: "recipe-dag-service",
+              },
+            });
+          },
+        });
       }),
     },
   });

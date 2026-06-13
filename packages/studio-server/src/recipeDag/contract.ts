@@ -2,9 +2,13 @@ import type { ContractProcedure } from "@orpc/contract";
 import type { Schema } from "@orpc/contract";
 import { eoc, type EffectContractBuilder } from "effect-orpc";
 
-import { recipeDagErrorMap, type RecipeDagEffectErrorMap, type RecipeDagErrorMap } from "./errors";
-import { RecipeDagGetInputSchema, RecipeDagResultSchema } from "./schema";
-import { toStandardSchema } from "./typeboxStandardSchema";
+import {
+  recipeDagErrorMap,
+  type RecipeDagEffectErrorMap,
+  type RecipeDagErrorMap,
+} from "./errors.js";
+import { RecipeDagGetInputSchema, RecipeDagResultSchema } from "./schema.js";
+import { toStandardSchema } from "./typeboxStandardSchema.js";
 
 export type RecipeDagProcedureMeta = Readonly<{
   family?: "recipe-dag";
@@ -39,15 +43,3 @@ export const RecipeDagGetContract: RecipeDagGetContract = recipeDagContractBase
     proofBoundary: "local-package-test",
     risk: "read-only",
   });
-
-export type RecipeDagContract = Readonly<{
-  recipeDag: Readonly<{
-    get: RecipeDagGetContract;
-  }>;
-}>;
-
-export const RecipeDagContract: RecipeDagContract = recipeDagContractBase.router({
-  recipeDag: {
-    get: RecipeDagGetContract,
-  },
-});

@@ -1,11 +1,15 @@
 import { Effect } from "effect";
-import { onError } from "@orpc/server";
+import { onError, type Router } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 
-import type { Civ7DirectControlSession } from "@civ7/direct-control";
+import {
+  Civ7ControlOrpcRouter,
+  type Civ7ControlOrpcContext,
+} from "@civ7/control-orpc";
 
+import type { StudioContract, StudioEffectContract } from "./contract/index.js";
 import type { StudioServerContext } from "./context.js";
-import { createStudioRouter, type StudioRouter } from "./router/index.js";
+import { createStudioRouter } from "./router/index.js";
 import { makeStudioRuntime } from "./runtime.js";
 import {
   Civ7TunerSession,
@@ -13,34 +17,40 @@ import {
 } from "./services/Civ7TunerSession.js";
 
 /**
- * `createStudioRpcHandler(context)` — the host entrypoint.
+ * `createStudioRpcHandler(context)` — the host entrypoint for the ONE oRPC
+ * mount (runtime-one-mount slice, DP-1).
  *
  * Builds the per-host `ManagedRuntime` (injecting {@link StudioServerContext}),
- * implements the effect-orpc router, and wraps it in an oRPC `RPCHandler` (fetch
- * adapter — `Request`/`Response`, works under Bun and Node/Vite). The host mounts
- * `handle(request, { prefix })` at `/rpc`. `RPCHandler` returns
- * `{ matched, response }`; `matched: false` means no procedure matched the path
- * → the host falls through (`next()`).
+ * implements the effect-orpc router (studio surface + `recipeDag.*`), merges
+ * the prebuilt `@civ7/control-orpc` router under `civ7.*` (disjoint key sets —
+ * pinned by the single-mount contract test), and wraps the whole tree in ONE
+ * oRPC `RPCHandler` (fetch adapter). The host mounts
+ * `handle(request, { prefix })` at `/rpc`; `matched: false` means no procedure
+ * matched → the host 404s.
  *
- * The handle also carries the shared-tuner-session ports:
- * - `tuner.session()` — the ONE `Civ7DirectControlSession` for injection into
- *   non-Effect consumers (`Civ7DirectControlOptions.session`, e.g. the
- *   control-oRPC mount's `endpointDefaults`). Lifecycle stays with the runtime.
- * - `tuner.health()` — consecutive response-timeouts + backoff-gate state.
+ * Session sharing is STRUCTURAL: the control procedures' per-request context
+ * is built here from `context.civ7Control` plus the runtime's shared
+ * `Civ7TunerSession`, resolved once and memoized. The session object is
+ * acquired UNCONNECTED (`connect()` runs on first command and is
+ * reuse-idempotent), so constructing the handler — including in tests — opens
+ * no socket. There is no session-extraction port anymore; the former
+ * `tuner.session()` consumer (the daemon's control-mount patch) is gone.
+ *
+ * Remaining host obligations:
+ * - `tuner.health()` — consecutive response-timeouts + backoff-gate state
+ *   (the daemon's `/healthz` probe).
  * - `dispose()` — closes the runtime scope (graceful FIN to the game). The
  *   host MUST call this on shutdown or the release finalizer never runs.
  *
- * `StrictGetMethodPlugin` is on by default (GET CSRF hardening) — left enabled.
- * CORS is omitted: `/rpc` is same-origin, so no cross-origin plugin is needed.
+ * `StrictGetMethodPlugin` is on by default (GET CSRF hardening) — left
+ * enabled. CORS is omitted: `/rpc` is same-origin.
  */
 export interface StudioRpcHandle {
-  readonly router: StudioRouter;
   handle(
     request: Request,
-    options?: { prefix?: `/${string}`; context?: Record<never, never> },
+    options?: { prefix?: `/${string}` },
   ): Promise<{ matched: boolean; response?: Response }>;
   readonly tuner: {
-    session(): Promise<Civ7DirectControlSession>;
     health(): Promise<Civ7TunerSessionHealth>;
   };
   dispose(): Promise<void>;
@@ -48,7 +58,26 @@ export interface StudioRpcHandle {
 
 export function createStudioRpcHandler(context: StudioServerContext): StudioRpcHandle {
   const runtime = makeStudioRuntime(context);
-  const router = createStudioRouter(runtime);
+  const effectRouter = createStudioRouter(runtime);
+  // `Router<…>` types every node as `Lazyable<…>`; our effect router never
+  // contains lazy nodes (no `lazy()` anywhere in the builder), so unwrap the
+  // `civ7` node for the spread — the single-mount contract pin exercises both
+  // merged halves at runtime.
+  const studioCiv7 = effectRouter.civ7 as Router<
+    StudioEffectContract["civ7"],
+    Record<never, never>
+  >;
+  // The unified router, typed against the unified contract with the control
+  // procedures' initial context. The effect procedures' initial context is
+  // `Record<never, never>` — contravariantly assignable (they ignore the
+  // per-request control context the handler supplies).
+  const router: Router<StudioContract, Civ7ControlOrpcContext> = {
+    ...effectRouter,
+    civ7: {
+      ...studioCiv7,
+      ...Civ7ControlOrpcRouter,
+    },
+  };
   const handler = new RPCHandler(router, {
     interceptors: [
       onError((error) => {
@@ -59,16 +88,28 @@ export function createStudioRpcHandler(context: StudioServerContext): StudioRpcH
     ],
   });
 
+  // The ONE shared tuner session, memoized for the handler's lifetime. The
+  // runtime layer builds on first resolution; lifecycle stays with the
+  // runtime scope (dispose() runs the release finalizer).
+  let sessionPromise: Promise<Civ7ControlOrpcContext["endpointDefaults"]> | undefined;
+  const controlEndpointDefaults = () =>
+    (sessionPromise ??= runtime
+      .runPromise(Effect.map(Civ7TunerSession, (tuner) => tuner.session))
+      .then((session) => ({
+        timeoutMs: context.civ7Control.timeoutMs,
+        session,
+      })));
+
   return {
-    router,
-    handle: (request, options) =>
+    handle: async (request, options) =>
       handler.handle(request, {
         prefix: options?.prefix ?? "/rpc",
-        context: options?.context ?? {},
+        context: {
+          directControl: context.civ7Control.directControl,
+          endpointDefaults: await controlEndpointDefaults(),
+        } satisfies Civ7ControlOrpcContext,
       }),
     tuner: {
-      session: () =>
-        runtime.runPromise(Effect.map(Civ7TunerSession, (tuner) => tuner.session)),
       health: () =>
         runtime.runPromise(Effect.flatMap(Civ7TunerSession, (tuner) => tuner.health)),
     },

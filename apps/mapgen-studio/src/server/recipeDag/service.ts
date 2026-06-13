@@ -6,8 +6,7 @@ import {
   STANDARD_STAGES,
 } from "mod-swooper-maps/recipes/standard";
 
-import type { RecipeDagService } from "./context";
-import type { RecipeDagResult } from "./schema";
+import type { RecipeDagResult, RecipeDagService } from "@civ7/studio-server";
 
 type RecipeDagSource = Readonly<{
   id: string;

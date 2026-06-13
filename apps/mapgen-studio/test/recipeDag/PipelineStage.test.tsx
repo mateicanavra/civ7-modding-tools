@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import { PipelineStage, PIPELINE_EDGE_INK } from "../../src/features/recipeDag/PipelineStage";
-import type { RecipeDagResult } from "../../src/features/recipeDag/client";
+import type { RecipeDagResult } from "@civ7/studio-server/contract";
 
 // Behavioral pins PORTED from the merged feature's RecipeDagView.test.tsx
 // (handoff §1/§4: the chrome was re-expressed in the redesign's language, so

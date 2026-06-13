@@ -14,8 +14,17 @@
  * the catalog loader, and the three stateful engine fns (shared queue + dual-store
  * mutex live host-side) — see ./context.ts.
  */
-export { contract, civ7, live, mapConfigs, runInGame, studio } from "./contract/index.js";
-export type { StudioContract } from "./contract/index.js";
+export {
+  contract,
+  studioEffectContract,
+  civ7,
+  live,
+  mapConfigs,
+  runInGame,
+  studio,
+} from "./contract/index.js";
+export type { StudioContract, StudioEffectContract, RecipeDagResult } from "./contract/index.js";
+export type { RecipeDagService } from "./recipeDag/service.js";
 
 export type {
   StudioServerContext,
