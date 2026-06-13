@@ -1,7 +1,7 @@
 ---
 name: civ7-open-spec-workstream
 description: |
-  Use in the Civ7 Modding Tools repo when running a bounded workstream or OpenSpec-style phase from authority grounding through spec/proposal, review, implementation, verification, downstream realignment, and handoff. Trigger phrases include "open spec", "workstream", "phase record", "spec-driven implementation", "multi-agent implementation wave", "review disposition", "downstream realignment", or "compaction-safe handoff".
+  Use in the Civ7 Modding Tools repo when running a bounded workstream or OpenSpec-style phase from authority grounding through spec/proposal, review, implementation, verification, downstream realignment, and handoff. Trigger phrases include "open spec", "workstream", "phase record", "spec-driven implementation", "multi-agent implementation wave", "artifact worker", "OpenSpec worker", "delegated artifact edits", "review disposition", "downstream realignment", or "compaction-safe handoff".
 ---
 
 # Civ7 Open Spec Workstream
@@ -37,6 +37,9 @@ or OpenSpec specs.
 - Coordinating owner, implementer, reviewer, and downstream-update roles.
 - Writing phase records, review ledgers, downstream realignment ledgers, closure checklists, or next packets.
 - Running multi-agent implementation or verification waves.
+- Keeping a dedicated artifact worker agent alongside a workstream owner so
+  OpenSpec/workstream documents stay current without pulling the owner away
+  from implementation synthesis.
 
 ## Non-Goals
 
@@ -52,10 +55,14 @@ or OpenSpec specs.
 3. **Re-analyze current state.** Inspect code, tests, docs, generated outputs, and active project artifacts touched by the phase.
 4. **Define or repair the spec/change.** Create or update OpenSpec changes under `openspec/changes/<change-id>/` for implementation slices. Use project-local phase artifacts under `docs/projects/<project>/workstream/<phase>/` only when the slice is deliberately not an OpenSpec change yet.
 5. **Run pre-code review.** Review authority, product ownership, architecture boundaries, task readiness, shortcut language, testing, and sequencing.
-6. **Implement the phase.** Keep edits inside the phase write set and update task/state artifacts immediately when facts change.
-7. **Verify and repair.** Run focused gates, disposition findings, and repair accepted blockers.
-8. **Realign downstream work.** Update dependent project specs, docs, issue plans, tests, guards, and Next Packets when assumptions changed.
-9. **Close or hand off.** Commit according to Graphite workflow, leave repo clean, and write a zero-context continuation packet if work continues.
+6. **Prime an artifact worker when useful.** For long phases, use
+   `references/delegated-artifact-worker.md` and
+   `assets/openspec-artifact-worker-prompt.md` to keep one grounded worker
+   available for phase-record, task, ledger, and checklist edits.
+7. **Implement the phase.** Keep edits inside the phase write set and update task/state artifacts immediately when facts change.
+8. **Verify and repair.** Run focused gates, disposition findings, and repair accepted blockers.
+9. **Realign downstream work.** Update dependent project specs, docs, issue plans, tests, guards, and Next Packets when assumptions changed.
+10. **Close or hand off.** Commit according to Graphite workflow, leave repo clean, and write a zero-context continuation packet if work continues.
 
 ## Reference Map
 
@@ -64,6 +71,7 @@ or OpenSpec specs.
 | Source map | `references/source-map.md` | Resolving authority, stale inputs, and artifact location |
 | Phase loop | `references/phase-loop.md` | Running one phase end to end |
 | Team and review lanes | `references/team-and-review-lanes.md` | Coordinating agents, reviewers, and repair loops |
+| Delegated artifact worker | `references/delegated-artifact-worker.md` | Setting up a standing worker for OpenSpec/workstream document edits |
 | Artifact contracts | `references/artifact-contracts.md` | Creating phase records, ledgers, closure checklists, and handoffs |
 | Failure patterns | `references/failure-patterns.md` | Work is busy but not converging |
 | Validation checks | `references/validation-checks.md` | Checking phase readiness and closure |
@@ -77,6 +85,7 @@ or OpenSpec specs.
 | Downstream realignment ledger | `assets/downstream-realignment-ledger.md` | Recording affected downstream assumptions and patch/no-patch disposition |
 | Closure checklist | `assets/closure-checklist.md` | Closing a phase |
 | Next packet | `assets/next-packet.md` | Handing off incomplete work |
+| Artifact worker prompt | `assets/openspec-artifact-worker-prompt.md` | Priming a standing worker agent for workstream artifact edits |
 
 ## Core Invariants
 
@@ -89,6 +98,7 @@ or OpenSpec specs.
 <invariant name="no-shortcut-language">Fallback, shim, temporary, optional, dual path, compatibility lane, only-if-needed, and silent skip language blocks implementation until removed or explicitly authorized.</invariant>
 <invariant name="review-findings-are-control-inputs">Material reviewer findings require disposition. Accepted P1/P2 findings block dependent implementation until repaired.</invariant>
 <invariant name="realignment-is-required">Each phase must account for downstream docs, tests, specs, issue plans, generated-output assumptions, and future work.</invariant>
+<invariant name="delegation-does-not-transfer-ownership">Delegated artifact edits reduce owner context load, but the workstream owner still owns synthesis, proof claims, review disposition, and final closure.</invariant>
 <invariant name="compaction-state-is-written">Live phase state must be recoverable from files, commits, and Next Packets without replaying chat.</invariant>
 <invariant name="pause-is-not-close">A paused phase may hand off with a Next Packet, but it is not closed, green, or archived.</invariant>
 <invariant name="clean-repo-closure">A phase does not close with unexplained dirty files, untracked artifacts, stale running agents, or incomplete review state.</invariant>
