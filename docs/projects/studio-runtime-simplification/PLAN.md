@@ -2,7 +2,7 @@
 
 **Status:** accepted direction (operator, 2026-06-12); execution-ready
 **Method anchors:** dev:architecture (current/target/transition separation, spine-first ordering, deletion targets), cognition:system-design (leverage points), cognition:testing-design (falsification-first test relayering), dev:spike-methodology (evidence discipline), civ7-open-spec-workstream (slice mechanics), Habitat harness philosophy (categories before instances; invariants as enforceable records).
-**Evidence base:** three agent evidence packs (2026-06-12): runtime inventory + smell audit (7 seams, file:line), effect/oRPC/SSE capability pack, test-suite audit (50 files classified). Direct verification: `eventIterator` exists in @orpc/contract 1.14.5; `@orpc/tanstack-query` 1.14.5 ships non-experimental `streamedOptions`/`streamedQuery` + `experimental_liveOptions`; client plugins include `ClientRetryPlugin` (event-iterator reconnect), `BatchLinkPlugin`, `DedupeRequestsPlugin`.
+**Evidence base:** three agent evidence packs (2026-06-12): runtime inventory + smell audit (7 seams, file:line), effect/oRPC/SSE capability pack, test-suite audit (50 files classified). Direct verification: `eventIterator` exists in @orpc/contract 1.14.5; S3.0 corrected the installed `@orpc/tanstack-query` 1.14.5 helper names to `experimental_streamedOptions` and `experimental_liveOptions`, with `experimental_liveOptions` selected for the event spine because it keeps latest state instead of accumulating an unbounded chunk array; client plugins include `ClientRetryPlugin` (event-iterator reconnect), `BatchLinkPlugin`, `DedupeRequestsPlugin`.
 
 ## 1. The frame
 
@@ -66,9 +66,11 @@ built as a CATEGORY first: `{ type: "hello", serverInstanceId, startedAt } |
 { type: "operation", kind: "run-in-game" | "save-deploy", status } |
 { type: "live-game", state }`. Daemon side: one Effect `PubSub` in the runtime
 layer (the EventHub service); publishers are instances filling the category.
-Client side: one subscription via `streamedOptions` (TanStack Query) +
+Client side: one subscription via `experimental_liveOptions` (TanStack Query) +
 `ClientRetryPlugin` for reconnect; `hello` events replace the watchdog and
-serverInfo poll; reconnect triggers `operations.current` re-adoption.
+serverInfo poll; reconnect triggers `operations.current` re-adoption. The
+older `streamedOptions` wording is stale for this installed package and would
+accumulate events rather than model latest daemon state.
 
 **DP-4 Civ7 interface hybrid — RESOLVED (coherence, not rewrite).** The
 inventory verdict: the shape is right (one shared socket multiplexing
@@ -166,7 +168,7 @@ slices — run BEFORE S1.2.
   (the one unverified bridge — `.effect()` handlers returning async
   iterables/Streams); Effect `PubSub` → async-iterable adapter with
   scope-tied unsubscribe on client disconnect; vite dev proxy SSE passthrough
-  (no buffering); `streamedOptions` consumption + `ClientRetryPlugin`
+  (no buffering); `experimental_liveOptions` consumption + `ClientRetryPlugin`
   reconnect. Output: working reference procedure + findings note. If
   effect-orpc cannot express it, fallback: plain oRPC `.handler()` for the
   watch procedure calling into the runtime — decided in the spike, not during
