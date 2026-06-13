@@ -17,6 +17,8 @@ export default class Check extends HabitatCommand {
     output: Flags.string({ description: "Write the normalized CheckReport JSON to a file." }),
     owner: Flags.string({ description: "Run only rules owned by this workspace project." }),
     rule: Flags.string({ description: "Run only one Habitat rule by id." }),
+    tool: Flags.string({ description: "Run only rules owned by this enforcement tool." }),
+    staged: Flags.boolean({ description: "Check staged file-layer protected zones." }),
     "expand-baseline": Flags.boolean({
       description: "Authoring-only: write current uncovered errors into selected rule baselines.",
     }),
@@ -28,7 +30,7 @@ export default class Check extends HabitatCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Check);
-    const selection = { owner: flags.owner, rule: flags.rule };
+    const selection = { owner: flags.owner, rule: flags.rule, tool: flags.tool };
     if (flags["expand-baseline"]) {
       for (const message of expandBaselines(selection)) this.log(message);
       return;
@@ -38,6 +40,7 @@ export default class Check extends HabitatCommand {
       ...selection,
       base: flags.base,
       commandArgs: this.rawArgv(),
+      staged: flags.staged,
     });
     this.log(renderCheckReport(report, { json: flags.json, output: flags.output }));
     this.exitWith(report.ok ? 0 : 1);
