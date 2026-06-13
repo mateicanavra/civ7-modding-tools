@@ -7,7 +7,7 @@
 - Owner: Codex DRA implementation lane
 - Branch/Graphite stack: `codex/operations-push` stacked on `main`
 - Started: 2026-06-13
-- Status: implementation complete; Graphite closeout pending
+- Status: complete; merged and drained
 
 ## Objective
 
@@ -33,8 +33,10 @@
 
 ## Current State
 
-- Repo/Graphite state: `codex/operations-push` is a single Graphite branch on
-  `main` at S3.1 closeout.
+- Repo/Graphite state: `codex/operations-push` merged via PR #1688; `main`
+  fast-forwarded by `gt sync --no-restack` to merge commit
+  `1be1d760e3c5374194ad86cf124a8ffc81964a0e`; closeout branch
+  `codex/operations-push-closeout` marks final task completion.
 - Dirty files and owner: S3.2 source/docs/tests only.
 - Current code evidence: operation registries publish through the injected
   EventHub; client event hook applies `operation` events; operation polling,
@@ -89,7 +91,7 @@
   injection, client operation event application, operation poll deletion,
   hidden Save&Deploy status loop deletion, `serverInfo` watchdog deletion,
   focused tests, app/package checks, negative search proofs.
-- Remaining tasks: Graphite submit/merge/drain and post-submit cleanup.
+- Remaining tasks: none for S3.2 after closeout branch merges.
 - Stop conditions triggered: none.
 
 ## Verification
@@ -108,9 +110,14 @@
 - `rg "studio\\.serverInfo|serverInfo" apps/mapgen-studio/src -n`
 - `git diff --check`
 - `bun run openspec -- validate mapgen-studio-operations-push --strict`
+- `gt submit --dry-run --stack --branch codex/operations-push --no-interactive`
+- `gt submit --stack --branch codex/operations-push --ai --no-interactive`
+- `gt submit --publish --no-edit --no-interactive --ai`
+- `gt merge --no-interactive`
+- `gt sync --no-restack --no-interactive`
 - Results: listed tests/checks passed; negative searches returned no matches
   for deleted client poll/watchdog paths.
-- Gate disposition: green before Graphite submit.
+- Gate disposition: green; feature branch merged via Graphite.
 - Evidence boundary: live Civ7 proof not expected for S3.2 unless package/app
   tests reveal a daemon restart risk; S1.1 one-mount guarantees remain part of
   selected regression gates.
@@ -129,6 +136,8 @@
 
 ## Next Action
 
-- Exact next step: rerun strict OpenSpec validation after record updates, then
-  commit/submit through Graphite.
-- Stop condition: do not touch live-game polling in S3.2.
+- Exact next step: submit/merge the closeout branch, then proceed to S3.3
+  `live-game-watch`.
+- Stop condition: do not reopen operation polling or client `serverInfo`
+  identity polling; S3.3 owns live-game event publication and live-game poll
+  deletion.

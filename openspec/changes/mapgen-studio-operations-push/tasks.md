@@ -41,4 +41,4 @@
       application.
 - [x] 5.3 Negative search proofs for deleted operation polling/watchdog paths.
 - [x] 5.4 Package/app check gates selected by blast radius.
-- [ ] 5.5 Graphite submit/merge/drain according to repo rules.
+- [x] 5.5 Graphite submit/merge/drain according to repo rules.
