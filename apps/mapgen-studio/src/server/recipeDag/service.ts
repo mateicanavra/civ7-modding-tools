@@ -1,10 +1,4 @@
 import { buildRecipeDag, type StageContractAny } from "@swooper/mapgen-core/authoring";
-import {
-  BROWSER_TEST_STAGES,
-} from "mod-swooper-maps/recipes/browser-test";
-import {
-  STANDARD_STAGES,
-} from "mod-swooper-maps/recipes/standard";
 
 import type { RecipeDagResult, RecipeDagService } from "@civ7/studio-server";
 
@@ -16,22 +10,42 @@ type RecipeDagSource = Readonly<{
   stages: readonly StageContractAny[];
 }>;
 
-const DEFAULT_RECIPE_DAG_SOURCES: readonly RecipeDagSource[] = [
-  {
-    id: "mod-swooper-maps/standard",
-    namespace: "mod-swooper-maps",
-    recipeId: "standard",
-    title: "Swooper Maps / Standard",
-    stages: STANDARD_STAGES as readonly StageContractAny[],
-  },
-  {
-    id: "mod-swooper-maps/browser-test",
-    namespace: "mod-swooper-maps",
-    recipeId: "browser-test",
-    title: "Swooper Maps / Browser Test",
-    stages: BROWSER_TEST_STAGES as readonly StageContractAny[],
-  },
-] as const;
+type RecipeDagSourcesProvider = () => Promise<readonly RecipeDagSource[]>;
+
+const swooperRecipeSourceRoot = "../../../../../mods/mod-swooper-maps/src/recipes";
+let defaultRecipeDagSourcesPromise: Promise<readonly RecipeDagSource[]> | undefined;
+
+async function loadDefaultRecipeDagSources(): Promise<readonly RecipeDagSource[]> {
+  const [standardRecipe, browserTestRecipe] = await Promise.all([
+    import(`${swooperRecipeSourceRoot}/standard/recipe.js`) as Promise<{
+      STANDARD_STAGES: readonly StageContractAny[];
+    }>,
+    import(`${swooperRecipeSourceRoot}/browser-test/recipe.js`) as Promise<{
+      BROWSER_TEST_STAGES: readonly StageContractAny[];
+    }>,
+  ]);
+  return [
+    {
+      id: "mod-swooper-maps/standard",
+      namespace: "mod-swooper-maps",
+      recipeId: "standard",
+      title: "Swooper Maps / Standard",
+      stages: standardRecipe.STANDARD_STAGES,
+    },
+    {
+      id: "mod-swooper-maps/browser-test",
+      namespace: "mod-swooper-maps",
+      recipeId: "browser-test",
+      title: "Swooper Maps / Browser Test",
+      stages: browserTestRecipe.BROWSER_TEST_STAGES,
+    },
+  ] as const;
+}
+
+function getDefaultRecipeDagSources(): Promise<readonly RecipeDagSource[]> {
+  defaultRecipeDagSourcesPromise ??= loadDefaultRecipeDagSources();
+  return defaultRecipeDagSourcesPromise;
+}
 
 export class RecipeDagNotFound extends Error {
   constructor(readonly recipeId: string) {
@@ -41,11 +55,12 @@ export class RecipeDagNotFound extends Error {
 }
 
 export function createRecipeDagService(
-  sources: readonly RecipeDagSource[] = DEFAULT_RECIPE_DAG_SOURCES,
+  sources: readonly RecipeDagSource[] | RecipeDagSourcesProvider = getDefaultRecipeDagSources,
 ): RecipeDagService {
-  const byId = new Map(sources.map((source) => [source.id, source]));
   return {
     async getRecipeDag(recipeId: string): Promise<RecipeDagResult> {
+      const resolvedSources = typeof sources === "function" ? await sources() : sources;
+      const byId = new Map(resolvedSources.map((source) => [source.id, source]));
       const source = byId.get(recipeId);
       if (!source) throw new RecipeDagNotFound(recipeId);
       return buildRecipeDag({

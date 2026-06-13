@@ -13,7 +13,7 @@ export function buildSwooperMapsStudioDeployPlan(options: {
     : (options.env ?? process.env);
   return {
     buildTask: "mod-swooper-maps#build",
-    buildArgs: ["x", "turbo", "run", "build", "--filter=mod-swooper-maps"],
+    buildArgs: ["x", "turbo", "run", "build", "--filter=mod-swooper-maps", "--only"],
     env,
   };
 }

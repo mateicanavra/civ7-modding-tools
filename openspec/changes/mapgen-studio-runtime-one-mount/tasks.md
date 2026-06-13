@@ -60,5 +60,6 @@
 - [x] 4.3 Downstream realignment: PLAN.md §3 S1.1 annotated with the two
       grounding corrections (rpcPath/studioServerClient deletions);
       tuner-session change notes the session-port deletion.
-- [ ] 4.4 Graphite submit/merge/drain per repo rules; foreign staged trio
-      preserved; repo clean.
+- [x] 4.4 Graphite submit/merge/drain per repo rules; foreign staged trio
+      preserved; repo clean. Completed by PR #1678; `main` fast-forwarded to
+      `331534895` before S1.1a opened.
