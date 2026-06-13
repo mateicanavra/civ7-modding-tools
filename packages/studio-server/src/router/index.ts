@@ -355,6 +355,12 @@ export function createStudioRouter(
           viteCommand: config.viteCommand,
         };
       }),
+      operations: {
+        current: oe.studio.operations.current.effect(function* () {
+          const config = yield* StudioConfig;
+          return yield* Effect.promise(() => config.operationsCurrent());
+        }),
+      },
     },
 
     recipeDag: {

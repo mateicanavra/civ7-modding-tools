@@ -42,6 +42,21 @@ describe("Map config save/deploy operation store", () => {
     expect(store.findActive()).toBeUndefined();
   });
 
+  it("lists retained operations newest first and prunes stale records", () => {
+    const harness = createStore();
+    harness.store.create("studio-save-deploy-1");
+    harness.advance(10);
+    harness.store.create("studio-save-deploy-2");
+
+    expect(harness.store.list().map((operation) => operation.requestId)).toEqual([
+      "studio-save-deploy-2",
+      "studio-save-deploy-1",
+    ]);
+
+    harness.advance(1_001);
+    expect(harness.store.list()).toEqual([]);
+  });
+
   it("records failed phase details and prunes stale records", () => {
     const harness = createStore();
     harness.store.create("studio-save-deploy-test");

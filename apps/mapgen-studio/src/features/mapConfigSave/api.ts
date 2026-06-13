@@ -1,10 +1,10 @@
-// Map-config save/deploy data surface and its persistence key.
+// Map-config save/deploy data surface.
 //
 // EVERYTHING talks oRPC (FRAME §4.7): these callers speak the studio's own
 // `@civ7/studio-server` contract through the typed oRPC client (`src/lib/orpc.ts`)
 // — there is NO manual `fetch` of `/api/map-configs*` here anymore. The request
-// shapes, the running-status poll loop, and the localStorage key string are
-// preserved verbatim (localStorage contract is hard-core parity). Failures are
+// shapes and the running-status poll loop are preserved. Operation recovery is
+// daemon-owned through `studio.operations.current`, not localStorage. Failures are
 // read through oRPC's NATIVE typed contract errors: `safe(...)` +
 // `isDefinedError(...)` expose the DECLARED code
 // (SAVE_DEPLOY_BLOCKED/INVALID/FAILED/STATUS_NOT_FOUND, statuses pinned in
@@ -15,8 +15,6 @@ import { isDefinedError, safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
 import { delay } from "../../shared/async";
 import type { MapConfigSaveDeployStatus } from "./status";
-
-export const MAP_CONFIG_SAVE_LAST_REQUEST_KEY = "mapgen-studio.mapConfigSave.lastRequestId.v1";
 
 export function toConfigId(label: string): string {
   const id = label

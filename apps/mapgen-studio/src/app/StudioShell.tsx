@@ -36,6 +36,7 @@ import {
 } from "../features/runInGame/clientState";
 import {
   formatRunInGameDiagnostics,
+  isRunInGameTerminalPhase,
   runInGameRequiresProcessRestart,
   type RunInGameOperationStatus,
 } from "../features/runInGame/status";
@@ -294,9 +295,9 @@ export function StudioShell(props: StudioShellProps) {
   const lastAppliedPresetRef = useRef<AppliedPresetSnapshot | null>(null);
   const lastPresetKeyRef = useRef(recipeSettings.preset);
   const lastRecipeIdRef = useRef(recipeSettings.recipe);
-  // `lastRunInGameSource` is owned by `runStore` (persisted via the existing
-  // RUN_IN_GAME_LAST_SOURCE_KEY bridge); the prior `readStoredRunInGameSourceSnapshot`
-  // mount read now seeds the store directly.
+  // `lastRunInGameSource` is session-only UI state. S2.1 deleted the
+  // localStorage recovery bridge; daemon-retained operations are adopted from
+  // `studio.operations.current` instead.
   const lastRunInGameSource = useRunStore((s) => s.lastRunInGameSource);
   const setLastRunInGameSource = useRunStore((s) => s.setLastRunInGameSource);
   const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(null);
@@ -441,14 +442,12 @@ export function StudioShell(props: StudioShellProps) {
   const browserRunning = browserRunner.state.running;
   const [localError, setLocalError] = useState<string | null>(null);
   const [saveDeployOperation, setSaveDeployOperation] = useState<MapConfigSaveDeployStatus | null>(null);
-  // `runInGameSnapshot` is owned by `runStore` (persisted via RUN_IN_GAME_LAST_SNAPSHOT_KEY);
-  // `lastSaveDeployConfig` is session-only run state owned by `runStore` (not persisted).
+  // Run presentation state is session-only; cross-reload operation recovery is
+  // daemon-owned through `studio.operations.current`.
   const runInGameSnapshot = useRunStore((s) => s.runInGameSnapshot);
   const setRunInGameSnapshot = useRunStore((s) => s.setRunInGameSnapshot);
   const lastSaveDeployConfig = useRunStore((s) => s.lastSaveDeployConfig);
   const setLastSaveDeployConfig = useRunStore((s) => s.setLastSaveDeployConfig);
-  const setRunInGameRequestId = useRunStore((s) => s.setRunInGameRequestId);
-  const setSaveDeployRequestId = useRunStore((s) => s.setSaveDeployRequestId);
   const lastRunInGameToastRef = useRef<string | null>(null);
   const liveStatusFailureCountRef = useRef(0);
   const liveSnapshotFailureCountRef = useRef(0);
@@ -948,16 +947,11 @@ export function StudioShell(props: StudioShellProps) {
     const initial = createMapConfigSaveDeployStatus({ requestId, phase: "queued" });
     setSaveDeployOperation(initial);
 
-    // The save/deploy request-id bridge is owned by `runStore` (persisted via the
-    // existing MAP_CONFIG_SAVE_LAST_REQUEST_KEY through the store's fan-out adapter).
-    setSaveDeployRequestId(requestId);
-
     const result = await saveRepoBackedConfig({
       ...args,
       requestId,
       onStatus: (status) => {
         setSaveDeployOperation((current) => current?.requestId === requestId ? status : current);
-        setSaveDeployRequestId(status.requestId);
       },
     });
     setSaveDeployOperation((current) => {
@@ -973,7 +967,7 @@ export function StudioShell(props: StudioShellProps) {
     });
     if (result.ok) setLastSaveDeployConfig(stripSchemaMetadataRoot(args.config));
     return result;
-  }, [browserRunning, runInGameRunning, saveDeployRunning, setLastSaveDeployConfig, setSaveDeployRequestId]);
+  }, [browserRunning, runInGameRunning, saveDeployRunning, setLastSaveDeployConfig]);
 
   const handleSaveDialogConfirm = useCallback(
     async (args: { label: string; description?: string }) => {
@@ -1467,10 +1461,7 @@ export function StudioShell(props: StudioShellProps) {
       return;
     }
     setRunInGameOperation(result);
-    // The request-id bridge is owned by `runStore` (persisted via the existing
-    // RUN_IN_GAME_LAST_REQUEST_KEY through the store's fan-out adapter).
-    setRunInGameRequestId(result.requestId);
-  }, [setRunInGameRequestId]);
+  }, []);
 
   const refreshMapConfigSaveDeployStatus = useCallback(async (requestId: string) => {
     const result = await fetchMapConfigSaveDeployStatus(requestId);
@@ -1488,37 +1479,30 @@ export function StudioShell(props: StudioShellProps) {
       return;
     }
     setSaveDeployOperation(result);
-    // The request-id bridge is owned by `runStore` (persisted via the existing
-    // MAP_CONFIG_SAVE_LAST_REQUEST_KEY through the store's fan-out adapter).
-    setSaveDeployRequestId(result.requestId);
-  }, [setSaveDeployRequestId]);
-
-  // Mount-time restore: the run-in-game snapshot + the active request ids are already
-  // seeded into `runStore` from the existing localStorage bridge at store init, so this
-  // effect just resumes the status poll for any persisted request id (running the same
-  // `refreshRunInGameStatus` it did before). `runInGameSnapshot` is read live from the
-  // store, so the prior `setRunInGameSnapshot(snapshot)` rehydration is no longer needed.
-  const restoredRunInGameRequestIdRef = useRef(useRunStore.getState().runInGameRequestId);
-  const restoredSaveDeployRequestIdRef = useRef(useRunStore.getState().saveDeployRequestId);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
-    const requestId = restoredRunInGameRequestIdRef.current;
-    if (!requestId) return undefined;
-    void refreshRunInGameStatus(requestId).then(() => {
+    void orpcClient.studio.operations.current({}).then((current) => {
       if (cancelled) return;
+      const runInGame = current.runInGame.active ?? current.runInGame.recent[0] ?? null;
+      if (runInGame) {
+        const operation = runInGame as RunInGameOperationStatus;
+        setRunInGameOperation(operation);
+        if (isRunInGameTerminalPhase(operation.phase)) {
+          lastRunInGameToastRef.current = operation.requestId;
+        }
+      }
+      const saveDeploy = current.saveDeploy.active ?? current.saveDeploy.recent[0] ?? null;
+      if (saveDeploy) setSaveDeployOperation(saveDeploy as MapConfigSaveDeployStatus);
+    }).catch((err) => {
+      if (cancelled) return;
+      setLocalError(err instanceof Error ? err.message : "Unable to read current Studio operations");
     });
     return () => {
       cancelled = true;
     };
-  }, [refreshRunInGameStatus]);
-
-  useEffect(() => {
-    const requestId = restoredSaveDeployRequestIdRef.current;
-    if (!requestId) return undefined;
-    void refreshMapConfigSaveDeployStatus(requestId);
-    return undefined;
-  }, [refreshMapConfigSaveDeployStatus]);
+  }, []);
 
   // Run-in-game + save-deploy status polling is now driven by TanStack Query
   // `refetchInterval` (same cadence, terminal stop, and 404 mapping — see
@@ -1622,10 +1606,6 @@ export function StudioShell(props: StudioShellProps) {
       selectedConfig,
     });
     setLastRunInGameSource(sourceSnapshot);
-    // The run-in-game bridge (request id + snapshot + source) is owned by `runStore`;
-    // the store's fan-out persist adapter writes the same RUN_IN_GAME_LAST_REQUEST_KEY /
-    // _SNAPSHOT_KEY / _SOURCE_KEY localStorage entries (same serializers) on each set.
-    setRunInGameRequestId(result.requestId);
     toast(`Run in Game started: ${result.materialization?.mapScript ?? result.requestId}`, { variant: "info" });
   }, [
     pipelineConfig,
@@ -1637,7 +1617,6 @@ export function StudioShell(props: StudioShellProps) {
     runInGameRunning,
     saveDeployRunning,
     setLastRunInGameSource,
-    setRunInGameRequestId,
     setRunInGameSnapshot,
     setupConfig,
     toast,

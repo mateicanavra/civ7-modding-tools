@@ -37,6 +37,11 @@ export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
     return [...operations.values()].find((status) => status.status === "running");
   }
 
+  function list(): MapConfigSaveDeployStatus[] {
+    prune();
+    return [...operations.values()].sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt));
+  }
+
   function create(requestId: string): MapConfigSaveDeployStatus {
     prune();
     const status = createMapConfigSaveDeployStatus({
@@ -100,6 +105,7 @@ export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
     fail,
     findActive,
     get,
+    list,
     prune,
     update,
   };

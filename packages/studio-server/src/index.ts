@@ -35,6 +35,7 @@ export type {
   StudioOutputs,
   SetupCatalog,
 } from "./context.js";
+export type { StudioOperationsCurrent } from "./contract/studio.js";
 export { createStudioRpcHandler, type StudioRpcHandle } from "./handler.js";
 export { createStudioRouter, type StudioRouter } from "./router/index.js";
 export { makeStudioRuntime, type StudioRuntime } from "./runtime.js";

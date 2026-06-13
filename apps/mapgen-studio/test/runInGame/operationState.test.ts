@@ -49,6 +49,21 @@ describe("Run in Game operation store", () => {
     expect(store.findActive()).toBeUndefined();
   });
 
+  it("lists retained operations newest first and prunes stale records", () => {
+    const harness = createStore();
+    harness.store.create("request-1");
+    harness.advance(10);
+    harness.store.create("request-2");
+
+    expect(harness.store.list().map((operation) => operation.requestId)).toEqual([
+      "request-2",
+      "request-1",
+    ]);
+
+    harness.advance(1_001);
+    expect(harness.store.list()).toEqual([]);
+  });
+
   it("classifies row visibility failures as blocked with recovery actions", () => {
     const { store } = createStore();
     store.create("request-1");

@@ -524,6 +524,20 @@ export interface AutoplayEngineResult {
 
 type SaveDeployOperationStore = ReturnType<typeof createMapConfigSaveDeployOperationStore>;
 export type SaveDeployEngineResult = ReturnType<SaveDeployOperationStore["create"]>;
+export type StudioOperationsCurrent = Readonly<{
+  ok: true;
+  serverInstanceId: string;
+  serverStartedAt: string;
+  observedAt: string;
+  runInGame: Readonly<{
+    active: RunInGameOperationState | null;
+    recent: readonly RunInGameOperationState[];
+  }>;
+  saveDeploy: Readonly<{
+    active: SaveDeployEngineResult | null;
+    recent: readonly SaveDeployEngineResult[];
+  }>;
+}>;
 
 /**
  * The studio's stateful server engines — the one place long-running Civ7
@@ -546,6 +560,7 @@ export interface StudioEngines {
   runRunInGameStatusEngine(requestId: string): RunInGameOperationState;
   runSaveDeployEngine(body: unknown): Promise<SaveDeployEngineResult>;
   runSaveDeployStatusEngine(requestId: string): SaveDeployEngineResult;
+  currentOperations(): StudioOperationsCurrent;
 }
 
 export function createStudioEngines(options: Readonly<{ repoRoot: string }>): StudioEngines {
@@ -1206,6 +1221,25 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
     return status;
   }
 
+  function currentOperations(): StudioOperationsCurrent {
+    const runInGameRecent = runInGameOperations.list();
+    const saveDeployRecent = saveDeployOperations.list();
+    return {
+      ok: true,
+      serverInstanceId,
+      serverStartedAt,
+      observedAt: new Date().toISOString(),
+      runInGame: {
+        active: runInGameRecent.find((operation) => operation.status === "running") ?? null,
+        recent: runInGameRecent,
+      },
+      saveDeploy: {
+        active: saveDeployRecent.find((operation) => operation.status === "running") ?? null,
+        recent: saveDeployRecent,
+      },
+    };
+  }
+
   return {
     serverInstanceId,
     serverStartedAt,
@@ -1215,5 +1249,6 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string }>): St
     runRunInGameStatusEngine,
     runSaveDeployEngine,
     runSaveDeployStatusEngine,
+    currentOperations,
   };
 }
