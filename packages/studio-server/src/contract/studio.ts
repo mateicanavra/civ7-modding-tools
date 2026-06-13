@@ -1,4 +1,4 @@
-import { oc } from "@orpc/contract";
+import { eventIterator, oc } from "@orpc/contract";
 import { Type, type Static } from "typebox";
 import { z } from "zod";
 
@@ -142,6 +142,61 @@ const operationsCurrentOutputStandardSchema = toStandardSchema(operationsCurrent
 
 export type StudioOperationsCurrent = Static<typeof operationsCurrentOutputSchema>;
 
+const studioHelloEventSchema = Type.Object(
+  {
+    type: Type.Literal("hello"),
+    serverInstanceId: Type.String(),
+    serverStartedAt: Type.String(),
+    observedAt: Type.String(),
+  },
+  { additionalProperties: false },
+);
+
+const studioOperationEventSchema = Type.Union([
+  Type.Object(
+    {
+      type: Type.Literal("operation"),
+      kind: Type.Literal("run-in-game"),
+      status: runInGameOperationSchema,
+      observedAt: Type.String(),
+    },
+    { additionalProperties: false },
+  ),
+  Type.Object(
+    {
+      type: Type.Literal("operation"),
+      kind: Type.Literal("save-deploy"),
+      status: saveDeployOperationSchema,
+      observedAt: Type.String(),
+    },
+    { additionalProperties: false },
+  ),
+]);
+
+const studioLiveGameEventSchema = Type.Object(
+  {
+    type: Type.Literal("live-game"),
+    status: Type.Union([Type.Literal("ok"), Type.Literal("unavailable"), Type.Literal("error")]),
+    observedAt: Type.String(),
+    snapshot: Type.Optional(Type.Unknown()),
+    error: Type.Optional(Type.String()),
+    details: Type.Optional(Type.Unknown()),
+  },
+  { additionalProperties: false },
+);
+
+const studioEventSchema = Type.Union([
+  studioHelloEventSchema,
+  studioOperationEventSchema,
+  studioLiveGameEventSchema,
+]);
+const studioEventIteratorSchema = eventIterator(toStandardSchema(studioEventSchema));
+
+export type StudioHelloEvent = Static<typeof studioHelloEventSchema>;
+export type StudioOperationEvent = Static<typeof studioOperationEventSchema>;
+export type StudioLiveGameEvent = Static<typeof studioLiveGameEventSchema>;
+export type StudioEvent = Static<typeof studioEventSchema>;
+
 // ---------------------------------------------------------------------------
 // S2.1 studio.operations.current — daemon-owned operation recovery
 // ---------------------------------------------------------------------------
@@ -151,3 +206,12 @@ export type StudioOperationsCurrent = Static<typeof operationsCurrentOutputSchem
 export const operationsCurrent = oc
   .input(operationsCurrentInputSchema)
   .output(operationsCurrentOutputStandardSchema);
+
+// ---------------------------------------------------------------------------
+// S3.1 studio.events.watch — daemon-owned runtime event stream
+// ---------------------------------------------------------------------------
+// Request: none. Output: event iterator over the sealed TypeBox event category.
+// The router emits an immediate `hello`, then yields the daemon-owned EventHub.
+export const eventsWatch = oc
+  .input(operationsCurrentInputSchema)
+  .output(studioEventIteratorSchema);

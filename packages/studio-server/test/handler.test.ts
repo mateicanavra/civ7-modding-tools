@@ -5,15 +5,22 @@ import type { RouterClient } from "@orpc/server";
 import { afterEach, describe, expect, test } from "vitest";
 
 import {
+  createStudioEventHub,
   createStudioRpcHandler,
+  type StudioEventHubApi,
+  type StudioRpcHandle,
   type StudioRouter,
   type StudioServerContext,
 } from "../src/index";
 
 const openServers: Server[] = [];
+const openHandles: StudioRpcHandle[] = [];
+const openEventHubs: StudioEventHubApi[] = [];
 
 afterEach(async () => {
   await Promise.all(openServers.splice(0).map((server) => closeServer(server)));
+  await Promise.all(openHandles.splice(0).map((handle) => handle.dispose()));
+  await Promise.all(openEventHubs.splice(0).map((eventHub) => eventHub.shutdown()));
 });
 
 describe("studio-server RPC handler", () => {
@@ -67,7 +74,7 @@ describe("studio-server RPC handler", () => {
       },
     });
     expect(calls).toEqual(["status:save-1"]);
-  });
+  }, 10_000);
 
   test("delivers an engine 409 as the DEFINED SAVE_DEPLOY_BLOCKED error", async () => {
     // The host context throws a RAW ORPCError whose code/status/data match the
@@ -191,19 +198,66 @@ describe("studio-server RPC handler", () => {
   });
 
   test("passes non-rpc paths through for host fallback middleware", async () => {
-    const handler = createStudioRpcHandler(makeContext());
+    const handler = trackHandle(createStudioRpcHandler(makeContext()));
     const result = await handler.handle(new Request("http://studio.local/not-rpc"), {
       prefix: "/rpc",
     });
 
     expect(result.matched).toBe(false);
   });
+
+  test("serves studio.events.watch on /rpc with hello delivery and subscription cleanup", async () => {
+    const eventHub = trackEventHub(createStudioEventHub());
+    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const client = directClient(handler);
+
+    const iterator = await client.studio.events.watch({});
+
+    await expect(iterator.next()).resolves.toEqual({
+      done: false,
+      value: {
+        type: "hello",
+        serverInstanceId: "studio-server-test",
+        serverStartedAt: "2026-06-10T00:00:00.000Z",
+        observedAt: expect.any(String),
+      },
+    });
+    expect(eventHub.activeSubscriberCount()).toBe(1);
+
+    await iterator.return?.();
+    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
+  }, 10_000);
 });
+
+function trackHandle(handle: StudioRpcHandle): StudioRpcHandle {
+  openHandles.push(handle);
+  return handle;
+}
+
+function trackEventHub(eventHub: StudioEventHubApi): StudioEventHubApi {
+  openEventHubs.push(eventHub);
+  return eventHub;
+}
+
+function directClient(handler: StudioRpcHandle): RouterClient<StudioRouter> {
+  return createORPCClient<RouterClient<StudioRouter>>(
+    new RPCLink({
+      url: "http://studio.test/rpc",
+      fetch: async (request) => {
+        const result = await handler.handle(request, { prefix: "/rpc" });
+        if (!result.matched || !result.response) {
+          return new Response("not found", { status: 404 });
+        }
+        return result.response;
+      },
+    }),
+  );
+}
 
 async function listenWithClient(
   context: StudioServerContext,
 ): Promise<RouterClient<StudioRouter>> {
-  const studioRpc = createStudioRpcHandler(context);
+  const studioRpc = trackHandle(createStudioRpcHandler(context));
   const origin = await listen(async (req, res) => {
     const request = await nodeRequestToWebRequest(req);
     const { matched, response } = await studioRpc.handle(request, { prefix: "/rpc" });
@@ -278,6 +332,7 @@ async function nodeRequestToWebRequest(
 function makeContext(
   overrides: Partial<StudioServerContext> = {},
 ): StudioServerContext {
+  const eventHub = overrides.eventHub ?? trackEventHub(createStudioEventHub());
   return {
     serverInstanceId: "studio-server-test",
     serverStartedAt: "2026-06-10T00:00:00.000Z",
@@ -341,6 +396,7 @@ function makeContext(
       directControl: {} as StudioServerContext["civ7Control"]["directControl"],
       timeoutMs: 1234,
     },
+    eventHub,
     ...overrides,
   };
 }

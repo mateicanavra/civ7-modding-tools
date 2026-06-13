@@ -6,6 +6,7 @@ import type { Civ7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runt
 
 import type { studioEffectContract as contract } from "./contract/index.js";
 import type { RecipeDagService } from "./recipeDag/service.js";
+import type { StudioEventHubApi } from "./services/StudioEventHub.js";
 
 /**
  * Typed I/O for every studio-server procedure, derived from the oRPC contract so
@@ -69,6 +70,12 @@ export interface StudioServerContext {
     directControl: Civ7ControlOrpcDirectControlFacade;
     timeoutMs: number;
   }>;
+
+  /**
+   * Daemon-owned runtime event bus (S3.1). The package watch procedure and
+   * app-side publishers share this one hub through the host context.
+   */
+  readonly eventHub: StudioEventHubApi;
 
   /** Loads the Civ7 setup catalog (filesystem mirror + macOS app resources). */
   loadSetupCatalog(): Promise<SetupCatalog>;

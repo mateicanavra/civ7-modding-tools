@@ -59,6 +59,9 @@ export const studioEffectContract = oc.router({
   },
   studio: {
     serverInfo: studio.serverInfo,
+    events: {
+      watch: studio.eventsWatch,
+    },
     operations: {
       current: studio.operationsCurrent,
     },
@@ -81,4 +84,5 @@ export const contract = oc.router({
 export type StudioContract = typeof contract;
 
 export type { RecipeDagResult } from "../recipeDag/schema.js";
+export type { StudioEvent, StudioHelloEvent, StudioLiveGameEvent, StudioOperationEvent } from "./studio.js";
 export { civ7, live, mapConfigs, runInGame, studio };

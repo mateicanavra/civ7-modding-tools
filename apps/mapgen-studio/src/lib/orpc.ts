@@ -1,5 +1,6 @@
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
+import { ClientRetryPlugin } from "@orpc/client/plugins";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import type { ContractRouterClient } from "@orpc/contract";
 import type { StudioContract } from "@civ7/studio-server/contract";
@@ -23,6 +24,7 @@ import type { StudioContract } from "@civ7/studio-server/contract";
 /** RPC transport link. `/rpc` is same-origin (Vite dev proxy → daemon). */
 const link = new RPCLink({
   url: () => `${window.location.origin}/rpc`,
+  plugins: [new ClientRetryPlugin()],
 });
 
 /** Typed RPC client mirroring the unified contract tree. */

@@ -36,7 +36,6 @@ import {
 } from "../features/runInGame/clientState";
 import {
   formatRunInGameDiagnostics,
-  isRunInGameTerminalPhase,
   runInGameRequiresProcessRestart,
   type RunInGameOperationStatus,
 } from "../features/runInGame/status";
@@ -116,6 +115,8 @@ import { useRunStore } from "../stores/runStore";
 import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
 import { useOperationStatusPolls } from "./hooks/useOperationStatusPolls";
 import { useDaemonInstanceWatchdog } from "./hooks/useDaemonInstanceWatchdog";
+import { useStudioEvents } from "./hooks/useStudioEvents";
+import { readAndAdoptStudioOperationsCurrent } from "./operationAdoption";
 import { isAbortLikeError } from "../shared/async";
 import { clampNumber } from "../shared/number";
 import {
@@ -1481,28 +1482,33 @@ export function StudioShell(props: StudioShellProps) {
     setSaveDeployOperation(result);
   }, []);
 
+  const markRunInGameToastHandled = useCallback((requestId: string) => {
+    lastRunInGameToastRef.current = requestId;
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
-    void orpcClient.studio.operations.current({}).then((current) => {
-      if (cancelled) return;
-      const runInGame = current.runInGame.active ?? current.runInGame.recent[0] ?? null;
-      if (runInGame) {
-        const operation = runInGame as RunInGameOperationStatus;
-        setRunInGameOperation(operation);
-        if (isRunInGameTerminalPhase(operation.phase)) {
-          lastRunInGameToastRef.current = operation.requestId;
-        }
-      }
-      const saveDeploy = current.saveDeploy.active ?? current.saveDeploy.recent[0] ?? null;
-      if (saveDeploy) setSaveDeployOperation(saveDeploy as MapConfigSaveDeployStatus);
-    }).catch((err) => {
-      if (cancelled) return;
-      setLocalError(err instanceof Error ? err.message : "Unable to read current Studio operations");
+    void readAndAdoptStudioOperationsCurrent({
+      readCurrent: () => orpcClient.studio.operations.current({}),
+      targets: {
+        setRunInGameOperation,
+        setSaveDeployOperation,
+        markRunInGameToastHandled,
+      },
+      isCancelled: () => cancelled,
+      onError: setLocalError,
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [markRunInGameToastHandled]);
+
+  useStudioEvents({
+    setRunInGameOperation,
+    setSaveDeployOperation,
+    markRunInGameToastHandled,
+    setLocalError,
+  });
 
   // Run-in-game + save-deploy status polling is now driven by TanStack Query
   // `refetchInterval` (same cadence, terminal stop, and 404 mapping — see

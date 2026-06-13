@@ -4,6 +4,7 @@ import type { StudioServerContext } from "./context.js";
 import { Civ7TunerClient } from "./services/Civ7TunerClient.js";
 import { Civ7TunerSession, Civ7TunerSessionLive } from "./services/Civ7TunerSession.js";
 import { StudioConfig } from "./services/StudioConfig.js";
+import { StudioEventHub } from "./services/StudioEventHub.js";
 
 /**
  * Builds the `ManagedRuntime` backing the effect-orpc router for one host.
@@ -22,7 +23,7 @@ import { StudioConfig } from "./services/StudioConfig.js";
  * `handle.dispose()`.
  */
 export type StudioRuntime = ManagedRuntime.ManagedRuntime<
-  Civ7TunerClient | Civ7TunerSession | StudioConfig,
+  Civ7TunerClient | Civ7TunerSession | StudioConfig | StudioEventHub,
   never
 >;
 
@@ -31,6 +32,7 @@ export function makeStudioRuntime(context: StudioServerContext): StudioRuntime {
     Civ7TunerSessionLive,
     Civ7TunerClient.Default,
     Layer.succeed(StudioConfig, context),
+    Layer.succeed(StudioEventHub, context.eventHub),
   );
   return ManagedRuntime.make(layer);
 }

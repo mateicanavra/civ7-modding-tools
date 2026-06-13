@@ -8,6 +8,7 @@ import { errorMessage } from "../errors.js";
 import type { StudioRuntime } from "../runtime.js";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
 import { StudioConfig } from "../services/StudioConfig.js";
+import { StudioEventHub } from "../services/StudioEventHub.js";
 
 /**
  * effect-orpc router for `@civ7/studio-server` (slice A3).
@@ -355,6 +356,22 @@ export function createStudioRouter(
           viteCommand: config.viteCommand,
         };
       }),
+      events: {
+        watch: oe.studio.events.watch.effect(function* () {
+          const config = yield* StudioConfig;
+          const eventHub = yield* StudioEventHub;
+          return eventHub.subscribe({
+            initialEvents: [
+              {
+                type: "hello",
+                serverInstanceId: config.serverInstanceId,
+                serverStartedAt: config.serverStartedAt,
+                observedAt: new Date().toISOString(),
+              },
+            ],
+          });
+        }),
+      },
       operations: {
         current: oe.studio.operations.current.effect(function* () {
           const config = yield* StudioConfig;
