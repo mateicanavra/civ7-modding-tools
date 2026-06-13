@@ -50,6 +50,7 @@ procedure wiring (AGENTS.md routing) that makes classify-first the default.
 ## Requires
 
 - `habitat-enforcement-consolidation`
+- `habitat-oclif-cli`
 - `habitat-git-hooks` (strictly sequential — both slices write root
   `AGENTS.md` and the harness README; no parallelism with H7)
 

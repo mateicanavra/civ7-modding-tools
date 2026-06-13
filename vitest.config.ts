@@ -92,6 +92,16 @@ export default defineConfig({
         root: r("packages/plugins/plugin-git"),
         test: { name: "plugin-git" },
       },
+      {
+        extends: true,
+        root: r("tools/habitat-harness"),
+        test: {
+          name: "habitat-harness",
+          env: {
+            NODE_ENV: "production",
+          },
+        },
+      },
     ],
   },
 });

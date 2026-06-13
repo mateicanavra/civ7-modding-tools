@@ -73,6 +73,8 @@ hooks are friction reduction, never verification truth.
 - `habitat-boundary-tags` (pre-push affected run invokes the `boundaries`
   target, which exists only after H3)
 - `habitat-biome-hygiene`
+- `habitat-oclif-cli` (hooks delegate to the stable oclif `habitat hook`
+  command surface)
 - `habitat-grit-catalog` (staged grit checks; generated-zone guard)
 
 ## Enables Parallel Work

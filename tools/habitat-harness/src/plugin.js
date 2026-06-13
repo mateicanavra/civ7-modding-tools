@@ -106,7 +106,7 @@ export const createNodesV2 = [
         if (!root) continue;
         const project = ensureProject(root);
         project.targets[checkTargetName] = {
-          command: `bun tools/habitat-harness/src/bin/habitat.ts check --owner ${owner}`,
+          command: `bun tools/habitat-harness/bin/dev.ts check --owner ${owner}`,
           options: { cwd: "{workspaceRoot}" },
           cache: true,
           // Wrapped rules scan broad repo surfaces; inputs are deliberately

@@ -4,13 +4,29 @@
   "private": true,
   "description": "Repo-local enforcement harness: single entrypoint over all structural checks, with ratchet baselines (see docs/projects/habitat-harness/FRAME.md)",
   "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "habitat": "./bin/run.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "oclif.manifest.json",
+    "src/plugin.js",
+    "src/rules/rules.json",
+    "baselines"
+  ],
   "nx": {
     "tags": [
       "kind:tooling"
     ]
   },
   "scripts": {
-    "check": "tsc -p tsconfig.json --noEmit"
+    "build": "rimraf dist && tsc -p tsconfig.json && oclif manifest && chmod +x bin/run.js",
+    "dev": "bun run bin/dev.ts",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --project habitat-harness",
+    "clean": "rimraf dist oclif.manifest.json"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -19,6 +35,22 @@
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "oclif": "^4.22.70",
+    "rimraf": "^6.1.2",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@oclif/core": "^4.8.0",
+    "@oclif/plugin-help": "^6.2.37"
+  },
+  "oclif": {
+    "bin": "habitat",
+    "dirname": "habitat-harness",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "topicSeparator": " ",
+    "topics": {}
   }
 }

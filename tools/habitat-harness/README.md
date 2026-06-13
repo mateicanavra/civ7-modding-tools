@@ -8,6 +8,11 @@ Authority: `docs/projects/habitat-harness/FRAME.md` (five-layer ownership,
 ratchet invariant, settled decisions). Migration map:
 `docs/projects/habitat-harness/invariant-corpus.md`.
 
+The command shell is oclif, matching the repo's `@mateicanavra/civ7-cli`
+pattern: command classes live under `src/commands/**`, local repo scripts run
+`bin/dev.ts`, and `bin/run.js` is the built production runner. Build output
+(`dist/**`) and `oclif.manifest.json` are generated artifacts.
+
 ## Usage
 
 ```bash
@@ -31,8 +36,10 @@ Notes:
   CI cross-references the rule pack at the merge-base and rejects everything
   else). An empty baseline means the rule is locked: any violation fails.
 - H2 wrapped existing mechanisms verbatim (zero new rules, zero semantic
-  change). H3 added Nx boundaries; H4 makes Biome the hygiene owner. GritQL
-  and file-layer rules land in H5/H6.
+  change). H3 added Nx boundaries; H4 makes Biome the hygiene owner. H4.5
+  moved the command shell to oclif before downstream GritQL, hook, and
+  generator slices extend the CLI surface. GritQL and file-layer rules land in
+  H5/H6.
 
 ## Biome Hygiene
 

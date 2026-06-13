@@ -138,6 +138,7 @@ file contents, command flags, or task order.
 | D4 | **Taxonomy is derived from current state**, lockable on the ratchet; wrong-tag discoveries are future revisions. | Settled |
 | D5 | **Doc-vs-code discrepancies are logged, not resolved** during this workstream; design decisions reviewed at the end. | Settled |
 | D6 | Trade-offs are allowed but must be recorded visibly as revisitable. | Standing rule |
+| D7 | **Habitat is a real CLI and uses oclif**, matching the existing `packages/cli` framework pattern. The H2 Bun-run hand parser is scaffold-only and must be replaced before hooks/generators harden the command surface. | Settled 2026-06-13 |
 
 ## 3. Trade-offs taken (revisitable, recorded per D6)
 
@@ -146,6 +147,7 @@ file contents, command flags, or task order.
 | Biome reformat churn | One dedicated reformat commit + `.git-blame-ignore-revs`; Prettier removed in same slice | Never (one-time cost) |
 | Pre-commit scope | Format + cheap grit checks on staged files only; full affected verification at pre-push; auto-restage only formatter-touched files | If multi-lane worktree staging conflicts appear in practice |
 | ESLint survives (minimal) | Only as the runner for `@nx/enforce-module-boundaries`; all other current ESLint rules migrate to Grit/file-layer | When Nx Conformance or a Biome-native boundary integration covers it |
+| Harness CLI framework | Use oclif as the outer command adapter for `habitat`; keep rule/check logic in reusable libraries, not command classes | Revisit only if oclif becomes incompatible with the repo's Node/Bun execution model |
 | Doc-lint scripts (`lint-doc-*`, `lint-mapgen-docs.py`) | Wrapped as habitat-native checks, not force-fitted into a tool layer | If they grow; they are doc tooling, not architecture enforcement |
 | By-design habitat-native set (excluded from the degeneration-trigger count) | Exactly: adr-lint, doc-ambiguity, mapgen-docs (doc tooling); workspace-entrypoints (manifest rule); G6/G7 (semantic doc/code sync). Everything else must live on its tool layer | If this list grows beyond these six, the growth counts toward the degeneration trigger |
 | Nx version | Adopt latest 22.x; do not wait for 23 stable; never 21.5.0/21.6.0 (pulled releases) | `nx migrate` when 23 lands |
