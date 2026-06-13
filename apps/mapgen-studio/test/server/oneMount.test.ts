@@ -73,6 +73,12 @@ describe("one /rpc mount serves the whole unified contract", () => {
       ok: true,
       serverInstanceId: "one-mount-test",
     });
+    await expect(client.studio.operations.current({})).resolves.toMatchObject({
+      ok: true,
+      serverInstanceId: "one-mount-test",
+      runInGame: { active: null, recent: [] },
+      saveDeploy: { active: null, recent: [] },
+    });
 
     // (a2) the STUDIO half of the merged `civ7.*` node — this is the half the
     // handler's spread can silently drop (review P2-1: a mutation removing
@@ -240,6 +246,14 @@ function makeContext(overrides: Partial<StudioServerContext>): StudioServerConte
     mapConfigStatus: async () => {
       throw new Error("Unexpected map-config status call");
     },
+    operationsCurrent: async () => ({
+      ok: true,
+      serverInstanceId: "one-mount-test",
+      serverStartedAt: "2026-06-12T00:00:00.000Z",
+      observedAt: "2026-06-12T00:00:00.000Z",
+      runInGame: { active: null, recent: [] },
+      saveDeploy: { active: null, recent: [] },
+    }),
     recipeDagService: {
       getRecipeDag: async () => {
         throw new Error("Unexpected recipe-DAG call");

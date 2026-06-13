@@ -218,5 +218,7 @@ export function createStudioServerContext(options: Readonly<{
         throw toOrpc(err, "saveDeploy", "Save/Deploy status failed", identity);
       }
     },
+    operationsCurrent: async () =>
+      engines.currentOperations() as Awaited<ReturnType<StudioServerContext["operationsCurrent"]>>,
   };
 }

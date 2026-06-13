@@ -44,6 +44,11 @@ export function createRunInGameOperationStore(options: StoreOptions) {
     return [...operations.values()].find((state) => state.status === "running");
   }
 
+  function list(): RunInGameOperationState[] {
+    prune();
+    return [...operations.values()].sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt));
+  }
+
   function create(requestId: string, request?: RunInGameRequestStatus): RunInGameOperationState {
     prune();
     const startedAt = nowIso();
@@ -139,6 +144,7 @@ export function createRunInGameOperationStore(options: StoreOptions) {
     fail,
     findActive,
     get,
+    list,
     prune,
     update,
   };

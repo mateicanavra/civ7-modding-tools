@@ -113,4 +113,11 @@ export interface StudioServerContext {
   mapConfigStatus(
     input: StudioInputs["mapConfigs"]["status"],
   ): Promise<StudioOutputs["mapConfigs"]["status"]>;
+
+  /**
+   * Current retained operation truth (S2.1). Fresh daemons return empty
+   * registries; retained active/recent operations are adopted by the client
+   * instead of replaying browser-persisted request ids.
+   */
+  operationsCurrent(): Promise<StudioOutputs["studio"]["operations"]["current"]>;
 }

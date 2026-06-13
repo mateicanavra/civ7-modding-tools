@@ -59,6 +59,9 @@ export const studioEffectContract = oc.router({
   },
   studio: {
     serverInfo: studio.serverInfo,
+    operations: {
+      current: studio.operationsCurrent,
+    },
   },
   recipeDag: {
     get: RecipeDagGetContract,
