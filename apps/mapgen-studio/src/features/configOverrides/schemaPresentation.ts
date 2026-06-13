@@ -17,10 +17,13 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 function assertIsRjsfSchema(schema: unknown): asserts schema is RJSFSchema {
   if (!isPlainObject(schema)) throw new Error("Invalid config schema: expected object");
   const type = schema.type;
-  if (type !== "object") throw new Error(`Invalid config schema: expected type "object", got ${String(type)}`);
+  if (type !== "object")
+    throw new Error(`Invalid config schema: expected type "object", got ${String(type)}`);
 }
 
-function normalizeScalarAnyOfEnumLike(schema: Record<string, unknown>): Record<string, unknown> | null {
+function normalizeScalarAnyOfEnumLike(
+  schema: Record<string, unknown>
+): Record<string, unknown> | null {
   const anyOf = schema.anyOf;
   if (!Array.isArray(anyOf) || anyOf.length === 0) return null;
 
@@ -39,7 +42,9 @@ function normalizeScalarAnyOfEnumLike(schema: Record<string, unknown>): Record<s
     }
   }
 
-  const unique = [...new Set(constValues.map((v) => JSON.stringify(v)))].map((s) => JSON.parse(s) as unknown);
+  const unique = [...new Set(constValues.map((v) => JSON.stringify(v)))].map(
+    (s) => JSON.parse(s) as unknown
+  );
   if (unique.length !== constValues.length) return null;
 
   const inferred = detectedType
@@ -58,7 +63,9 @@ function normalizeScalarAnyOfEnumLike(schema: Record<string, unknown>): Record<s
   return normalized;
 }
 
-function normalizeScalarOneOfEnumLike(schema: Record<string, unknown>): Record<string, unknown> | null {
+function normalizeScalarOneOfEnumLike(
+  schema: Record<string, unknown>
+): Record<string, unknown> | null {
   const oneOf = schema.oneOf;
   if (!Array.isArray(oneOf) || oneOf.length === 0) return null;
 
@@ -77,7 +84,9 @@ function normalizeScalarOneOfEnumLike(schema: Record<string, unknown>): Record<s
     }
   }
 
-  const unique = [...new Set(constValues.map((v) => JSON.stringify(v)))].map((s) => JSON.parse(s) as unknown);
+  const unique = [...new Set(constValues.map((v) => JSON.stringify(v)))].map(
+    (s) => JSON.parse(s) as unknown
+  );
   if (unique.length !== constValues.length) return null;
 
   const inferred = detectedType
@@ -96,7 +105,9 @@ function normalizeScalarOneOfEnumLike(schema: Record<string, unknown>): Record<s
   return normalized;
 }
 
-function normalizeScalarConstEnumLike(schema: Record<string, unknown>): Record<string, unknown> | null {
+function normalizeScalarConstEnumLike(
+  schema: Record<string, unknown>
+): Record<string, unknown> | null {
   if (!("const" in schema)) return null;
   const value = schema.const;
   const t = schema.type;
@@ -111,14 +122,21 @@ function normalizeScalarConstEnumLike(schema: Record<string, unknown>): Record<s
             ? "boolean"
             : null;
   if (!inferred) return null;
-  const normalized: Record<string, unknown> = { ...schema, type: inferred, enum: [value], default: schema.default ?? value };
+  const normalized: Record<string, unknown> = {
+    ...schema,
+    type: inferred,
+    enum: [value],
+    default: schema.default ?? value,
+  };
   // Keep the value visible but prevent confusing free-text editing.
   normalized.readOnly = true;
   delete normalized.const;
   return normalized;
 }
 
-function normalizeSingleVariantUnion(schema: Record<string, unknown>): Record<string, unknown> | null {
+function normalizeSingleVariantUnion(
+  schema: Record<string, unknown>
+): Record<string, unknown> | null {
   const anyOf = schema.anyOf;
   if (Array.isArray(anyOf) && anyOf.length === 1 && isPlainObject(anyOf[0])) {
     const base: Record<string, unknown> = { ...schema };
@@ -143,8 +161,12 @@ export function normalizeSchemaForRjsf(schema: unknown): unknown {
 
   const normalizedAnyOf = normalizeScalarAnyOfEnumLike(schema);
   const normalizedOneOf = normalizedAnyOf ? null : normalizeScalarOneOfEnumLike(schema);
-  const normalizedConst = normalizedAnyOf || normalizedOneOf ? null : normalizeScalarConstEnumLike(schema);
-  const normalizedSingle = normalizedAnyOf || normalizedOneOf || normalizedConst ? null : normalizeSingleVariantUnion(schema);
+  const normalizedConst =
+    normalizedAnyOf || normalizedOneOf ? null : normalizeScalarConstEnumLike(schema);
+  const normalizedSingle =
+    normalizedAnyOf || normalizedOneOf || normalizedConst
+      ? null
+      : normalizeSingleVariantUnion(schema);
   const base = normalizedAnyOf ?? normalizedOneOf ?? normalizedConst ?? normalizedSingle ?? schema;
 
   const out: Record<string, unknown> = {};
@@ -165,7 +187,11 @@ export function tryGetSchemaAtPath(schema: unknown, path: readonly string[]): un
     if (!current || typeof current !== "object") return null;
     const node = current as Record<string, unknown>;
     const properties = node.properties;
-    if (properties && typeof properties === "object" && segment in (properties as Record<string, unknown>)) {
+    if (
+      properties &&
+      typeof properties === "object" &&
+      segment in (properties as Record<string, unknown>)
+    ) {
       current = (properties as Record<string, unknown>)[segment];
       continue;
     }
@@ -173,12 +199,16 @@ export function tryGetSchemaAtPath(schema: unknown, path: readonly string[]): un
     // Best-effort: if we hit a union, pick the first branch that contains the property.
     const anyOf = node.anyOf;
     const oneOf = node.oneOf;
-    const variants = (Array.isArray(anyOf) ? anyOf : Array.isArray(oneOf) ? oneOf : null) as unknown[] | null;
+    const variants = (Array.isArray(anyOf) ? anyOf : Array.isArray(oneOf) ? oneOf : null) as
+      | unknown[]
+      | null;
     if (variants) {
       const match = variants.find((variant) => {
         if (!variant || typeof variant !== "object") return false;
         const vProps = (variant as Record<string, unknown>).properties;
-        return Boolean(vProps && typeof vProps === "object" && segment in (vProps as Record<string, unknown>));
+        return Boolean(
+          vProps && typeof vProps === "object" && segment in (vProps as Record<string, unknown>)
+        );
       });
       if (match) {
         const vProps = (match as Record<string, unknown>).properties as Record<string, unknown>;
@@ -199,14 +229,13 @@ export function pathToPointer(path: Array<string | number>): string {
 }
 
 function normalizeLabel(label: string): string {
-  return label
-    .toLowerCase()
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return label.toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
 }
 
-function getNodeLabel(node: BrowserConfigSchemaDef | undefined, fallbackKey: string | null): string | null {
+function getNodeLabel(
+  node: BrowserConfigSchemaDef | undefined,
+  fallbackKey: string | null
+): string | null {
   if (!node || typeof node === "boolean") return fallbackKey;
   if (typeof node.title === "string" && node.title.trim().length > 0) return node.title;
   return fallbackKey;
@@ -225,10 +254,7 @@ function isConfigWrapper(node: BrowserConfigSchemaDef | undefined): boolean {
 export function collectTransparentPaths(schema: RJSFSchema): ReadonlySet<string> {
   const out = new Set<string>();
 
-  const visit = (
-    node: BrowserConfigSchemaDef | undefined,
-    path: Array<string | number>
-  ): void => {
+  const visit = (node: BrowserConfigSchemaDef | undefined, path: Array<string | number>): void => {
     if (!node || typeof node === "boolean") return;
 
     const nodeAnyOf = node.anyOf;

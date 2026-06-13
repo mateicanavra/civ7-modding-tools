@@ -120,7 +120,8 @@ const ResourceReconciliationSummarySchema = Type.Object(
       },
       {
         additionalProperties: false,
-        description: "Placed counts by planning phase (joined from the adjusted resource plan intents).",
+        description:
+          "Placed counts by planning phase (joined from the adjusted resource plan intents).",
       }
     ),
     supportAdjustedPlacedCount: Type.Integer({

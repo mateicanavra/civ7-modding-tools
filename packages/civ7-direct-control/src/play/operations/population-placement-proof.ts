@@ -8,14 +8,14 @@ export type Civ7PopulationPlacementPostconditionOutcome =
   | "not-sent";
 
 export function populationPlacementRequestVerified(
-  classification: Civ7PopulationPlacementPostconditionClassification | undefined,
+  classification: Civ7PopulationPlacementPostconditionClassification | undefined
 ): boolean {
   // Preserve the legacy request-result boolean; proof confidence is stricter.
   return classification !== "not-sent" && classification !== "no-state-change";
 }
 
 export function populationPlacementPostconditionConfirmed(
-  classification: Civ7PopulationPlacementPostconditionClassification,
+  classification: Civ7PopulationPlacementPostconditionClassification
 ): boolean {
   switch (classification) {
     case "population-ready-cleared":
@@ -29,7 +29,7 @@ export function populationPlacementPostconditionConfirmed(
 }
 
 export function populationPlacementPostconditionOutcome(
-  classification: Civ7PopulationPlacementPostconditionClassification,
+  classification: Civ7PopulationPlacementPostconditionClassification
 ): Civ7PopulationPlacementPostconditionOutcome {
   switch (classification) {
     case "not-sent":

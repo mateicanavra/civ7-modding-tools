@@ -26,8 +26,8 @@ export const LAYOUT = {
     sm: 4,
     md: 6,
     lg: 8,
-    xl: 12
-  }
+    xl: 12,
+  },
 } as const;
 
 export type LayoutConfig = typeof LAYOUT;

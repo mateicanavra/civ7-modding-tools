@@ -30,11 +30,15 @@ describe("attention.current control-oRPC procedure", () => {
       readyCity: readyCityViewResult(cityId),
     });
 
-    const result = await call(Civ7ControlOrpcRouter.attention.current, {
-      maxNotifications: 12,
-    }, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.current,
+      {
+        maxNotifications: 12,
+      },
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result).toMatchObject({
       playable: true,
@@ -78,10 +82,7 @@ describe("attention.current control-oRPC procedure", () => {
         requiredInputs: ["City"],
       },
     ]);
-    expect(result.readyActors.map((actor) => actor.kind)).toEqual([
-      "unit",
-      "city",
-    ]);
+    expect(result.readyActors.map((actor) => actor.kind)).toEqual(["unit", "city"]);
     expect(result.nextSteps.map((step) => step.kind)).toEqual([
       "resolve-blocker",
       "act-ready-unit",
@@ -89,9 +90,9 @@ describe("attention.current control-oRPC procedure", () => {
     ]);
     expect(JSON.stringify(result)).not.toContain("127.0.0.1");
     expect(JSON.stringify(result)).not.toContain("65535");
-    expect(JSON.stringify(result)).not.toContain("\"host\"");
-    expect(JSON.stringify(result)).not.toContain("\"port\"");
-    expect(JSON.stringify(result)).not.toContain("\"state\"");
+    expect(JSON.stringify(result)).not.toContain('"host"');
+    expect(JSON.stringify(result)).not.toContain('"port"');
+    expect(JSON.stringify(result)).not.toContain('"state"');
     expect(JSON.stringify(result)).not.toContain("rawCommand");
 
     expect(fake.calls.playableStatus).toEqual([
@@ -208,9 +209,13 @@ describe("attention.current control-oRPC procedure", () => {
       readyCity: emptyReadyCityViewResult(),
     });
 
-    const result = await call(Civ7ControlOrpcRouter.attention.current, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.current,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
     expect(fake.calls.readyUnit).toEqual([
       {
@@ -238,9 +243,7 @@ describe("attention.current control-oRPC procedure", () => {
         evidence: ["ready-unit-view"],
       },
     ]);
-    expect(result.nextSteps.map((step) => step.kind)).toEqual([
-      "act-ready-unit",
-    ]);
+    expect(result.nextSteps.map((step) => step.kind)).toEqual(["act-ready-unit"]);
     expect(result.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
   });
 
@@ -258,9 +261,13 @@ describe("attention.current control-oRPC procedure", () => {
       readyCity: emptyReadyCityViewResult(),
     });
 
-    const result = await call(Civ7ControlOrpcRouter.attention.current, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.current,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
     expect(fake.calls.readyUnit).toEqual([
       {
@@ -273,9 +280,7 @@ describe("attention.current control-oRPC procedure", () => {
       },
     ]);
     expect(result.turnCompletion.firstReadyUnitId).toEqual(unitId);
-    expect(result.nextSteps.map((step) => step.kind)).toEqual([
-      "act-ready-unit",
-    ]);
+    expect(result.nextSteps.map((step) => step.kind)).toEqual(["act-ready-unit"]);
   });
 
   test("does not report clean attention when notification coverage is truncated", async () => {
@@ -295,11 +300,15 @@ describe("attention.current control-oRPC procedure", () => {
       readyCity: emptyReadyCityViewResult(),
     });
 
-    const result = await call(Civ7ControlOrpcRouter.attention.current, {
-      maxNotifications: 1,
-    }, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.current,
+      {
+        maxNotifications: 1,
+      },
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result.summary).toMatchObject({
       blockerCount: 0,
@@ -316,9 +325,7 @@ describe("attention.current control-oRPC procedure", () => {
       },
     ]);
     expect(result.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
-    expect(result.nextSteps.map((step) => step.label)).not.toContain(
-      "No current blockers found.",
-    );
+    expect(result.nextSteps.map((step) => step.label)).not.toContain("No current blockers found.");
   });
 
   test("does not recommend end turn from notifications alone", async () => {
@@ -335,9 +342,13 @@ describe("attention.current control-oRPC procedure", () => {
       readyCity: emptyReadyCityViewResult(),
     });
 
-    const result = await call(Civ7ControlOrpcRouter.attention.current, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.current,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result.canEndTurn).toBe(false);
     expect(result.turnCompletion).toEqual({
@@ -362,9 +373,13 @@ describe("attention.current control-oRPC procedure", () => {
       readyCity: emptyReadyCityViewResult(),
     });
 
-    const result = await call(Civ7ControlOrpcRouter.attention.current, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.current,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result.turnCompletion).toMatchObject({
       hasSentTurnComplete: true,
@@ -384,9 +399,13 @@ describe("attention.current control-oRPC procedure", () => {
       notifications: notificationViewResult(),
     });
 
-    const result = await call(Civ7ControlOrpcRouter.attention.current, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.current,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result).toMatchObject({
       playable: false,
@@ -453,7 +472,7 @@ describe("attention.current control-oRPC procedure", () => {
       await expect(
         call(Civ7ControlOrpcRouter.attention.current, input as never, {
           context: fake.context,
-        }),
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.playableStatus).toEqual([]);
       expect(fake.calls.notifications).toEqual([]);
@@ -467,14 +486,18 @@ describe("attention.current control-oRPC procedure", () => {
     const fake = fakeContext({
       playableStatus: playableStatusResult(),
       notificationsError: new Error(
-        "Timed out waiting for Civ7 tuner response to CMD:65535:readPlayNotifications()",
+        "Timed out waiting for Civ7 tuner response to CMD:65535:readPlayNotifications()"
       ),
     });
 
     await expect(
-      call(Civ7ControlOrpcRouter.attention.current, {}, {
-        context: fake.context,
-      }),
+      call(
+        Civ7ControlOrpcRouter.attention.current,
+        {},
+        {
+          context: fake.context,
+        }
+      )
     ).rejects.toMatchObject({
       code: "ATTENTION_CURRENT_UNAVAILABLE",
       status: 503,
@@ -485,9 +508,13 @@ describe("attention.current control-oRPC procedure", () => {
     });
 
     try {
-      await call(Civ7ControlOrpcRouter.attention.current, {}, {
-        context: fake.context,
-      });
+      await call(
+        Civ7ControlOrpcRouter.attention.current,
+        {},
+        {
+          context: fake.context,
+        }
+      );
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -506,12 +533,10 @@ describe("attention.current control-oRPC procedure", () => {
         risk: "read-only",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.attention.current["~orpc"].errorMap,
-    ).toHaveProperty("ATTENTION_CURRENT_UNAVAILABLE");
-    expect(Civ7AttentionCurrentUnavailableError.code).toBe(
-      "ATTENTION_CURRENT_UNAVAILABLE",
+    expect(Civ7ControlOrpcContract.attention.current["~orpc"].errorMap).toHaveProperty(
+      "ATTENTION_CURRENT_UNAVAILABLE"
     );
+    expect(Civ7AttentionCurrentUnavailableError.code).toBe("ATTENTION_CURRENT_UNAVAILABLE");
   });
 });
 
@@ -587,7 +612,7 @@ function fakeContext(options: FakeContextOptions): {
 }
 
 function playableStatusResult(
-  overrides: Partial<Civ7ControlOrpcPlayableStatusResult> = {},
+  overrides: Partial<Civ7ControlOrpcPlayableStatusResult> = {}
 ): Civ7ControlOrpcPlayableStatusResult {
   return {
     host: "127.0.0.1",
@@ -605,7 +630,7 @@ function notificationViewResult(
   ids: {
     unitId?: { owner: number; id: number; type?: number };
     cityId?: { owner: number; id: number; type?: number };
-  } = {},
+  } = {}
 ): Civ7ControlOrpcPlayNotificationViewResult {
   const unitId = ids.unitId ?? { owner: 0, id: 458_752, type: 26 };
   const cityId = ids.cityId ?? { owner: 0, id: 131_073, type: 1 };
@@ -680,7 +705,7 @@ function cleanNotificationViewResult(): Civ7ControlOrpcPlayNotificationViewResul
 }
 
 function turnCompletionStatusResult(
-  overrides: Partial<Civ7ControlOrpcTurnCompletionStatusResult> = {},
+  overrides: Partial<Civ7ControlOrpcTurnCompletionStatusResult> = {}
 ): Civ7ControlOrpcTurnCompletionStatusResult {
   return {
     host: "127.0.0.1",
@@ -697,9 +722,11 @@ function turnCompletionStatusResult(
   };
 }
 
-function readyUnitViewResult(
-  unitId: { owner: number; id: number; type?: number },
-): Civ7ControlOrpcReadyUnitViewResult {
+function readyUnitViewResult(unitId: {
+  owner: number;
+  id: number;
+  type?: number;
+}): Civ7ControlOrpcReadyUnitViewResult {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -737,9 +764,11 @@ function emptyReadyUnitViewResult(): Civ7ControlOrpcReadyUnitViewResult {
   };
 }
 
-function readyCityViewResult(
-  cityId: { owner: number; id: number; type?: number },
-): Civ7ControlOrpcReadyCityViewResult {
+function readyCityViewResult(cityId: {
+  owner: number;
+  id: number;
+  type?: number;
+}): Civ7ControlOrpcReadyCityViewResult {
   return {
     host: "127.0.0.1",
     port: 4318,

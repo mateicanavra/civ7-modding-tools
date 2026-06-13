@@ -14,7 +14,10 @@ function collectPlateCells(cellToPlate: Int16Array, plateId: number): number[] {
   return out;
 }
 
-function isContiguous(mesh: { neighborsOffsets: Int32Array; neighbors: Int32Array }, cells: number[]): boolean {
+function isContiguous(
+  mesh: { neighborsOffsets: Int32Array; neighbors: Int32Array },
+  cells: number[]
+): boolean {
   if (cells.length <= 1) return true;
   const maxCell = Math.max(...cells);
   const target = new Uint8Array(Math.max(1, maxCell + 1));
@@ -54,17 +57,24 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 18, cellsPerPlate: 3, relaxationSteps: 2},
+        config: { plateCount: 18, cellsPerPlate: 3, relaxationSteps: 2 },
       },
       ctx as any
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 1234 }, meshConfig).mesh;
-    const mantlePotential = computeMantlePotential.run({ mesh, rngSeed: 2345 }, computeMantlePotential.defaultConfig)
-      .mantlePotential;
-    const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
-      .mantleForcing;
-    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 2346 }, computeCrust.defaultConfig).crust;
+    const mantlePotential = computeMantlePotential.run(
+      { mesh, rngSeed: 2345 },
+      computeMantlePotential.defaultConfig
+    ).mantlePotential;
+    const mantleForcing = computeMantleForcing.run(
+      { mesh, mantlePotential },
+      computeMantleForcing.defaultConfig
+    ).mantleForcing;
+    const crust = computeCrust.run(
+      { mesh, mantleForcing, rngSeed: 2346 },
+      computeCrust.defaultConfig
+    ).crust;
 
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 3456 },
@@ -102,17 +112,24 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 24, cellsPerPlate: 8, relaxationSteps: 2},
+        config: { plateCount: 24, cellsPerPlate: 8, relaxationSteps: 2 },
       },
       ctx as any
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 4444 }, meshConfig).mesh;
-    const mantlePotential = computeMantlePotential.run({ mesh, rngSeed: 5555 }, computeMantlePotential.defaultConfig)
-      .mantlePotential;
-    const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
-      .mantleForcing;
-    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 5556 }, computeCrust.defaultConfig).crust;
+    const mantlePotential = computeMantlePotential.run(
+      { mesh, rngSeed: 5555 },
+      computeMantlePotential.defaultConfig
+    ).mantlePotential;
+    const mantleForcing = computeMantleForcing.run(
+      { mesh, mantlePotential },
+      computeMantleForcing.defaultConfig
+    ).mantleForcing;
+    const crust = computeCrust.run(
+      { mesh, mantleForcing, rngSeed: 5556 },
+      computeCrust.defaultConfig
+    ).crust;
 
     const microplateMinAreaCells = 6;
     const plateGraph = computePlateGraph.run(

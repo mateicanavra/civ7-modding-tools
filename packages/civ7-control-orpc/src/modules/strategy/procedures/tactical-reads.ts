@@ -28,7 +28,7 @@ export const strategyBattlefieldScanProcedure =
       try: async () => {
         const result = await context.directControl.getCiv7BattlefieldScan(
           input,
-          context.endpointDefaults,
+          context.endpointDefaults
         );
         return battlefieldScanResult(result);
       },
@@ -54,7 +54,7 @@ export const strategyTargetCandidatesProcedure =
       try: async () => {
         const result = await context.directControl.getCiv7TargetCandidates(
           input,
-          context.endpointDefaults,
+          context.endpointDefaults
         );
         return targetCandidatesResult(result);
       },
@@ -80,7 +80,7 @@ export const strategyDestinationAnalysisProcedure =
       try: async () => {
         const result = await context.directControl.getCiv7DestinationAnalysis(
           input,
-          context.endpointDefaults,
+          context.endpointDefaults
         );
         return destinationAnalysisResult(result);
       },
@@ -97,18 +97,16 @@ export const strategyDestinationAnalysisProcedure =
   });
 
 function battlefieldScanResult(
-  result: Civ7ControlOrpcBattlefieldScanResult,
+  result: Civ7ControlOrpcBattlefieldScanResult
 ): Civ7StrategyBattlefieldScanResult {
   const owners = asArray(result.owners).map((owner) => {
     const record = asRecord(owner);
-    const relationshipProof = record?.relationshipProof === "self"
-      ? "self" as const
-      : "none" as const;
+    const relationshipProof =
+      record?.relationshipProof === "self" ? ("self" as const) : ("none" as const);
     return {
       owner: numberFromUnknown(record?.owner),
-      relationship: relationshipProof === "self"
-        ? "self" as const
-        : "relationship-unproven" as const,
+      relationship:
+        relationshipProof === "self" ? ("self" as const) : ("relationship-unproven" as const),
       relationshipProof,
       unitCount: numberFromUnknown(record?.unitCount),
       cityCount: numberFromUnknown(record?.cityCount),
@@ -140,17 +138,15 @@ function battlefieldScanResult(
       relationshipSource: "not-classified",
       relationshipProof: "none",
       unprovenLabel: "relationship-unproven",
-      guidance: "Battlefield scan is planning evidence only. Owner contact, proximity, role heuristics, and apparent strength do not prove official diplomatic status.",
+      guidance:
+        "Battlefield scan is planning evidence only. Owner contact, proximity, role heuristics, and apparent strength do not prove official diplomatic status.",
     },
     summary: {
       unitCount: asArray(result.units).length,
       cityCount: asArray(result.cities).length,
       observedOwnerCount: owners.length,
       pointOfInterestCount: pointsOfInterest.length,
-      apparentStrengthTotal: owners.reduce(
-        (total, owner) => total + owner.apparentStrength,
-        0,
-      ),
+      apparentStrengthTotal: owners.reduce((total, owner) => total + owner.apparentStrength, 0),
       nextStepCount: nextSteps.length,
     },
     owners,
@@ -190,7 +186,7 @@ function battlefieldScanResult(
 }
 
 function targetCandidatesResult(
-  result: Civ7ControlOrpcTargetCandidatesResult,
+  result: Civ7ControlOrpcTargetCandidatesResult
 ): Civ7StrategyTargetCandidatesResult {
   const candidates = result.candidates.map((candidate) => {
     const targetLocation = locationFromUnknown(candidate.approach.targetLocation);
@@ -231,7 +227,8 @@ function targetCandidatesResult(
       relationshipSource: "not-classified",
       relationshipProof: "none",
       unprovenLabel: "relationship-unproven",
-      guidance: "Target candidates are planning evidence only. Other-owner contact, route ranking, proximity, and apparent strength do not prove official diplomatic status.",
+      guidance:
+        "Target candidates are planning evidence only. Other-owner contact, route ranking, proximity, and apparent strength do not prove official diplomatic status.",
     },
     summary: {
       candidateCount: candidates.length,
@@ -239,7 +236,7 @@ function targetCandidatesResult(
       observedOwnerCount: new Set(candidates.map((candidate) => candidate.owner)).size,
       apparentStrengthTotal: candidates.reduce(
         (total, candidate) => total + candidate.apparentStrength,
-        0,
+        0
       ),
       nextStepCount: nextSteps.length,
     },
@@ -271,7 +268,7 @@ function targetCandidatesResult(
 }
 
 function destinationAnalysisResult(
-  result: Civ7ControlOrpcDestinationAnalysisResult,
+  result: Civ7ControlOrpcDestinationAnalysisResult
 ): Civ7StrategyDestinationAnalysisResult {
   const corridor = asRecord(result.corridor);
   const destinationPressure = asRecord(result.destinationPressure);
@@ -292,9 +289,7 @@ function destinationAnalysisResult(
   const corridorUnitCount = numberFromUnknown(corridor?.unitCount);
   const destinationUnitCount = numberFromUnknown(destinationPressure?.unitCount);
   const destinationCityCount = numberFromUnknown(destinationPressure?.cityCount);
-  const apparentOtherStrength = numberFromUnknown(
-    destinationPressure?.apparentOtherStrength,
-  );
+  const apparentOtherStrength = numberFromUnknown(destinationPressure?.apparentOtherStrength);
   return {
     playerId: result.playerId,
     localPlayerId: result.localPlayerId,
@@ -307,7 +302,8 @@ function destinationAnalysisResult(
       relationshipSource: "not-classified",
       relationshipProof: "none",
       unprovenLabel: "relationship-unproven",
-      guidance: "Destination analysis is planning evidence only. Other-owner contact, destination proximity, and apparent strength do not prove official diplomatic status.",
+      guidance:
+        "Destination analysis is planning evidence only. Other-owner contact, destination proximity, and apparent strength do not prove official diplomatic status.",
     },
     summary: {
       pointOfInterestCount: pointsOfInterest.length,
@@ -363,17 +359,19 @@ function battlefieldNextSteps(
   input: Readonly<{
     origins: ReadonlyArray<MapLocation>;
     pointsOfInterest: Civ7StrategyBattlefieldScanResult["pointsOfInterest"];
-  }>,
+  }>
 ): Civ7StrategyBattlefieldScanResult["nextSteps"] {
   const point = input.pointsOfInterest[0];
   const origin = input.origins[0];
   if (point == null) {
-    return [{
-      kind: "observe",
-      source: "strategy.battlefieldScan",
-      label: "No battlefield points found; refresh attention or narrow scan origins.",
-      parameters: origin ? { origin } : {},
-    }];
+    return [
+      {
+        kind: "observe",
+        source: "strategy.battlefieldScan",
+        label: "No battlefield points found; refresh attention or narrow scan origins.",
+        parameters: origin ? { origin } : {},
+      },
+    ];
   }
   return [
     {
@@ -401,16 +399,18 @@ function battlefieldNextSteps(
 }
 
 function targetCandidateNextSteps(
-  candidates: Civ7StrategyTargetCandidatesResult["candidates"],
+  candidates: Civ7StrategyTargetCandidatesResult["candidates"]
 ): Civ7StrategyTargetCandidatesResult["nextSteps"] {
   const candidate = candidates[0];
   if (candidate == null) {
-    return [{
-      kind: "observe",
-      source: "strategy.targetCandidates",
-      label: "No target candidates found; refresh strategy evidence or narrow origins.",
-      parameters: {},
-    }];
+    return [
+      {
+        kind: "observe",
+        source: "strategy.targetCandidates",
+        label: "No target candidates found; refresh strategy evidence or narrow origins.",
+        parameters: {},
+      },
+    ];
   }
   return [
     {
@@ -419,9 +419,7 @@ function targetCandidateNextSteps(
       label: `Inspect owner ${candidate.owner} candidate with visibility reads before treating it as actionable.`,
       parameters: {
         owner: candidate.owner,
-        ...(candidate.approach.targetLocation
-          ? { target: candidate.approach.targetLocation }
-          : {}),
+        ...(candidate.approach.targetLocation ? { target: candidate.approach.targetLocation } : {}),
       },
     },
     {
@@ -448,15 +446,17 @@ function destinationNextSteps(
     origin: MapLocation | null;
     destination: MapLocation;
     pointsOfInterest: Civ7StrategyDestinationAnalysisResult["pointsOfInterest"];
-  }>,
+  }>
 ): Civ7StrategyDestinationAnalysisResult["nextSteps"] {
   if (input.pointsOfInterest.length === 0) {
-    return [{
-      kind: "observe",
-      source: "strategy.destinationAnalysis",
-      label: "No destination pressure found; refresh map/visibility evidence before acting.",
-      parameters: { origin: input.origin ?? undefined, destination: input.destination },
-    }];
+    return [
+      {
+        kind: "observe",
+        source: "strategy.destinationAnalysis",
+        label: "No destination pressure found; refresh map/visibility evidence before acting.",
+        parameters: { origin: input.origin ?? undefined, destination: input.destination },
+      },
+    ];
   }
   return [
     {
@@ -481,7 +481,7 @@ function destinationNextSteps(
 }
 
 function nearestDistance(
-  candidates: Civ7StrategyTargetCandidatesResult["candidates"],
+  candidates: Civ7StrategyTargetCandidatesResult["candidates"]
 ): number | null {
   const distances = candidates
     .map((candidate) => candidate.nearestDistance)
@@ -492,7 +492,7 @@ function nearestDistance(
 
 function probeValue<T extends "string" | "boolean">(
   probe: unknown,
-  type: T,
+  type: T
 ): T extends "string" ? string | null : boolean | null {
   const record = asRecord(probe);
   if (record?.ok !== true || typeof record.value !== type) return null as never;
@@ -541,9 +541,7 @@ function asArray(value: unknown): unknown[] {
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
-  return value !== null && typeof value === "object"
-    ? value as Record<string, unknown>
-    : null;
+  return value !== null && typeof value === "object" ? (value as Record<string, unknown>) : null;
 }
 
 function numberFromUnknown(value: unknown): number {

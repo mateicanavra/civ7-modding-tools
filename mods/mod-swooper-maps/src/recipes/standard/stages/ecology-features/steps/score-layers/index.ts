@@ -27,7 +27,7 @@ function maxAdjacentNavigableDischarge(
   width: number,
   height: number,
   navigableRiverMask: Uint8Array,
-  discharge: Float32Array,
+  discharge: Float32Array
 ): number {
   const y = (tileIndex / width) | 0;
   const x = tileIndex - y * width;
@@ -44,7 +44,7 @@ function localReliefM(
   width: number,
   height: number,
   landMask: Uint8Array,
-  elevation: Int16Array,
+  elevation: Int16Array
 ): number {
   if (landMask[tileIndex] !== 1) return Number.POSITIVE_INFINITY;
   const y = (tileIndex / width) | 0;
@@ -86,8 +86,7 @@ export default createStep(ScoreLayersStepContract, {
     for (let i = 0; i < size; i++) {
       ecologyLandMask[i] = topography.landMask[i] === 1 && lakePlan.lakeMask[i] !== 1 ? 1 : 0;
       const isLand = topography.landMask[i] === 1;
-      const isCoast =
-        !isLand && (coastline.coastalWater[i] === 1 || coastline.shelfMask[i] === 1);
+      const isCoast = !isLand && (coastline.coastalWater[i] === 1 || coastline.shelfMask[i] === 1);
       baseWaterClass[i] = isLand
         ? WATER_CLASS_LAND
         : isCoast
@@ -325,13 +324,14 @@ export default createStep(ScoreLayersStepContract, {
       }
 
       const isFloodplainSubstrate = featureSubstrate.floodplainMask[i] === 1;
-      const isNavigableFloodplain = isFloodplainSubstrate && featureSubstrate.navigableRiverMask[i] === 1;
+      const isNavigableFloodplain =
+        isFloodplainSubstrate && featureSubstrate.navigableRiverMask[i] === 1;
       const adjacentNavigableDischarge = maxAdjacentNavigableDischarge(
         i,
         width,
         height,
         featureSubstrate.navigableRiverMask,
-        hydrography.discharge,
+        hydrography.discharge
       );
       const isMinorFloodplain =
         isFloodplainSubstrate && !isNavigableFloodplain && adjacentNavigableDischarge > 0;
@@ -342,10 +342,12 @@ export default createStep(ScoreLayersStepContract, {
         : clamp01(adjacentNavigableDischarge / MINOR_FLOODPLAIN_DISCHARGE_NORMALIZER);
       const y = (i / width) | 0;
       const x = i - y * width;
-      const reliefScore = 1 - clamp01(
-        localReliefM(i, width, height, ecologyLandMask, topography.elevation) /
-          FLOODPLAIN_RELIEF_NORMALIZER_M
-      );
+      const reliefScore =
+        1 -
+        clamp01(
+          localReliefM(i, width, height, ecologyLandMask, topography.elevation) /
+            FLOODPLAIN_RELIEF_NORMALIZER_M
+        );
       const fertilityScore = clamp01(pedology.fertility[i] ?? 0);
       const patchScore = clamp01(
         (floodplainNoise.noise2D(

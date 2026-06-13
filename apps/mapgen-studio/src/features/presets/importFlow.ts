@@ -23,7 +23,9 @@ export type ImportPresetResult =
       details?: ReadonlyArray<string>;
     }>;
 
-function formatErrors(errors: ReadonlyArray<{ path: string; message: string }>): ReadonlyArray<string> {
+function formatErrors(
+  errors: ReadonlyArray<{ path: string; message: string }>
+): ReadonlyArray<string> {
   return errors.map((e) => `${e.path}: ${e.message}`);
 }
 

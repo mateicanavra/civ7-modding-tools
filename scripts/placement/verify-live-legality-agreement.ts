@@ -190,7 +190,7 @@ function jsonPayloadFromCommandResult<T>(result: Civ7CommandResult, label: strin
 async function execJson<T>(
   options: Civ7DirectControlOptions,
   command: string,
-  label: string,
+  label: string
 ): Promise<T> {
   const result = await executeCiv7TunerCommand({ ...options, command });
   return jsonPayloadFromCommandResult<T>(result, label);
@@ -283,7 +283,7 @@ function buildSurfaceChunkCommand(indices: ReadonlyArray<number>): string {
  */
 function buildLegalityChunkCommand(
   indices: ReadonlyArray<number>,
-  resourceTypes: ReadonlyArray<number>,
+  resourceTypes: ReadonlyArray<number>
 ): string {
   return `(() => {
     const idx = ${JSON.stringify(indices)};
@@ -351,8 +351,12 @@ export function unpackHexBits(hex: string, bitCount: number): Uint8Array {
  */
 export function stratifiedSampleIndices(
   strata: string,
-  sampleSize: number,
-): Readonly<{ indices: ReadonlyArray<number>; strataCounts: Record<string, number>; sampleCounts: Record<string, number> }> {
+  sampleSize: number
+): Readonly<{
+  indices: ReadonlyArray<number>;
+  strataCounts: Record<string, number>;
+  sampleCounts: Record<string, number>;
+}> {
   const buckets = new Map<string, number[]>();
   for (let i = 0; i < strata.length; i += 1) {
     const code = strata[i] ?? "0";
@@ -442,7 +446,7 @@ function emptyBreakdown(): DisagreementBreakdown {
 function recordDisagreement(
   breakdown: DisagreementBreakdown,
   isWater: boolean,
-  hasFeature: boolean,
+  hasFeature: boolean
 ): void {
   breakdown.total += 1;
   if (isWater) breakdown.waterPlot += 1;
@@ -478,10 +482,12 @@ async function main(): Promise<number> {
     const chunk = await execJson<StrataChunk>(
       directControl,
       buildStrataChunkCommand(start, end),
-      `strata chunk ${start}..${end}`,
+      `strata chunk ${start}..${end}`
     );
     if (chunk.start !== start || chunk.strata.length !== end - start) {
-      throw new Error(`Strata chunk mismatch at ${start}: ${JSON.stringify({ start: chunk.start, length: chunk.strata.length })}`);
+      throw new Error(
+        `Strata chunk mismatch at ${start}: ${JSON.stringify({ start: chunk.start, length: chunk.strata.length })}`
+      );
     }
     strata += chunk.strata;
   }
@@ -492,7 +498,7 @@ async function main(): Promise<number> {
   const catalog = await execJson<ResourceCatalog>(
     directControl,
     buildResourceCatalogCommand(),
-    "resource catalog",
+    "resource catalog"
   );
 
   const surfaceT: number[] = [];
@@ -504,7 +510,7 @@ async function main(): Promise<number> {
     const chunk = await execJson<SurfaceChunk>(
       directControl,
       buildSurfaceChunkCommand(slice),
-      `surface chunk ${start}`,
+      `surface chunk ${start}`
     );
     if (chunk.t.length !== slice.length) {
       throw new Error(`Surface chunk length mismatch at ${start}`);
@@ -523,7 +529,7 @@ async function main(): Promise<number> {
     const chunk = await execJson<LegalityChunk>(
       directControl,
       buildLegalityChunkCommand(sampledIndices, types),
-      `legality chunk types ${types[0]}..${types[types.length - 1]}`,
+      `legality chunk types ${types[0]}..${types[types.length - 1]}`
     );
     for (const type of types) {
       const entry = chunk[String(type)];
@@ -541,7 +547,7 @@ async function main(): Promise<number> {
     ? await execJson<SilverFullGrid>(
         directControl,
         buildSilverFullGridCommand(silverRow.index),
-        "silver full-grid counts",
+        "silver full-grid counts"
       )
     : null;
 
@@ -573,7 +579,11 @@ async function main(): Promise<number> {
 
   // Live index -> mock runtime id verification (no silent remapping).
   const runtimeIds = resolveResourceRuntimeIds();
-  const indexMismatches: Array<{ resourceType: string; liveIndex: number; expectedRuntimeId: number }> = [];
+  const indexMismatches: Array<{
+    resourceType: string;
+    liveIndex: number;
+    expectedRuntimeId: number;
+  }> = [];
   const unknownToMock: Array<{ resourceType: string | null; liveIndex: number }> = [];
   const comparableTypes: Array<{ liveIndex: number; resourceType: string }> = [];
   for (const row of catalog.rows) {
@@ -667,7 +677,14 @@ async function main(): Promise<number> {
       totalComparisons,
       totalAgreements,
     },
-    map: { width, height, plotCount, coastTerrain: header.coastTerrain, noFeature: header.noFeature, noRiver: header.noRiver },
+    map: {
+      width,
+      height,
+      plotCount,
+      coastTerrain: header.coastTerrain,
+      noFeature: header.noFeature,
+      noRiver: header.noRiver,
+    },
     sample: {
       requestedSize: args.sampleSize,
       actualSize: sampledIndices.length,
@@ -687,7 +704,8 @@ async function main(): Promise<number> {
       unknownToMock,
     },
     comparison: {
-      semantics: "mock buildResourceLegalityMask vs live ResourceBuilder.canHaveResource(x, y, type, /*ignoreWeight*/ true)",
+      semantics:
+        "mock buildResourceLegalityMask vs live ResourceBuilder.canHaveResource(x, y, type, /*ignoreWeight*/ true)",
       perType: perType.sort((a, b) => a.agreement - b.agreement || a.liveIndex - b.liveIndex),
       disagreements: {
         mockLegalLiveIllegal,
@@ -695,19 +713,23 @@ async function main(): Promise<number> {
       },
     },
     ignoreWeightProbe: {
-      semantics: "delta = count(ignoreWeight=true legal) - count(ignoreWeight=false legal) over the sample; strictLegalButIgnoreWeightIllegal > 0 would mean ignoreWeight=true is NOT a superset of ignoreWeight=false",
+      semantics:
+        "delta = count(ignoreWeight=true legal) - count(ignoreWeight=false legal) over the sample; strictLegalButIgnoreWeightIllegal > 0 would mean ignoreWeight=true is NOT a superset of ignoreWeight=false",
       totalIgnoreWeightTrue: perType.reduce((sum, row) => sum + row.liveIgnoreWeightTrueCount, 0),
       totalIgnoreWeightFalse: perType.reduce((sum, row) => sum + row.liveIgnoreWeightFalseCount, 0),
-      typesWhereStrictNotSubset: perType.filter((row) => row.strictLegalButIgnoreWeightIllegal > 0).length,
+      typesWhereStrictNotSubset: perType.filter((row) => row.strictLegalButIgnoreWeightIllegal > 0)
+        .length,
     },
-    silverFullGrid: silverFullGrid ?? { missing: "RESOURCE_SILVER not present in live GameInfo.Resources" },
+    silverFullGrid: silverFullGrid ?? {
+      missing: "RESOURCE_SILVER not present in live GameInfo.Resources",
+    },
     generatedAt: new Date().toISOString(),
   };
 
   writeOutput(args.output, output);
   console.log(JSON.stringify(output, null, 2));
   console.log(
-    `E4.4 agreement >= ${AGREEMENT_GATE_THRESHOLD}: ${gatePass ? "PASS" : "FAIL"} (observed ${observedAgreement.toFixed(4)})`,
+    `E4.4 agreement >= ${AGREEMENT_GATE_THRESHOLD}: ${gatePass ? "PASS" : "FAIL"} (observed ${observedAgreement.toFixed(4)})`
   );
   return gatePass ? 0 : 2;
 }
@@ -725,7 +747,13 @@ if (import.meta.main) {
       process.exitCode = code;
     })
     .catch((error) => {
-      console.error(JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) }, null, 2));
+      console.error(
+        JSON.stringify(
+          { ok: false, error: error instanceof Error ? error.message : String(error) },
+          null,
+          2
+        )
+      );
       process.exitCode = 1;
     });
 }

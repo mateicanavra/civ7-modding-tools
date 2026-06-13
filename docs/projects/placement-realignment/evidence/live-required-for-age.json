@@ -98,9 +98,7 @@
         "indexMismatch": false,
         "staticRequiredForLiveAge": true,
         "liveRequired": true,
-        "keyingLeaders": [
-          "LEADER_HATSHEPSUT"
-        ],
+        "keyingLeaders": ["LEADER_HATSHEPSUT"],
         "keyingLeadersPresent": [],
         "anyKeyingLeaderPresent": false,
         "predictedRequired": false,
@@ -126,10 +124,7 @@
         "indexMismatch": false,
         "staticRequiredForLiveAge": true,
         "liveRequired": true,
-        "keyingLeaders": [
-          "LEADER_HIMIKO",
-          "LEADER_HIMIKO_ALT"
-        ],
+        "keyingLeaders": ["LEADER_HIMIKO", "LEADER_HIMIKO_ALT"],
         "keyingLeadersPresent": [],
         "anyKeyingLeaderPresent": false,
         "predictedRequired": false,
@@ -233,9 +228,7 @@
         "indexMismatch": false,
         "staticRequiredForLiveAge": true,
         "liveRequired": true,
-        "keyingLeaders": [
-          "LEADER_HATSHEPSUT"
-        ],
+        "keyingLeaders": ["LEADER_HATSHEPSUT"],
         "keyingLeadersPresent": [],
         "anyKeyingLeaderPresent": false,
         "predictedRequired": false,
@@ -477,9 +470,7 @@
       "indexMismatch": false,
       "staticRequiredForLiveAge": true,
       "liveRequired": false,
-      "keyingLeaders": [
-        "LEADER_HARRIET_TUBMAN"
-      ],
+      "keyingLeaders": ["LEADER_HARRIET_TUBMAN"],
       "keyingLeadersPresent": [],
       "anyKeyingLeaderPresent": false,
       "predictedRequired": false,
@@ -492,9 +483,7 @@
       "indexMismatch": false,
       "staticRequiredForLiveAge": true,
       "liveRequired": true,
-      "keyingLeaders": [
-        "LEADER_HATSHEPSUT"
-      ],
+      "keyingLeaders": ["LEADER_HATSHEPSUT"],
       "keyingLeadersPresent": [],
       "anyKeyingLeaderPresent": false,
       "predictedRequired": false,
@@ -533,10 +522,7 @@
       "indexMismatch": false,
       "staticRequiredForLiveAge": true,
       "liveRequired": false,
-      "keyingLeaders": [
-        "LEADER_ASHOKA",
-        "LEADER_ASHOKA_ALT"
-      ],
+      "keyingLeaders": ["LEADER_ASHOKA", "LEADER_ASHOKA_ALT"],
       "keyingLeadersPresent": [],
       "anyKeyingLeaderPresent": false,
       "predictedRequired": false,
@@ -562,10 +548,7 @@
       "indexMismatch": false,
       "staticRequiredForLiveAge": true,
       "liveRequired": true,
-      "keyingLeaders": [
-        "LEADER_HIMIKO",
-        "LEADER_HIMIKO_ALT"
-      ],
+      "keyingLeaders": ["LEADER_HIMIKO", "LEADER_HIMIKO_ALT"],
       "keyingLeadersPresent": [],
       "anyKeyingLeaderPresent": false,
       "predictedRequired": false,
@@ -591,9 +574,7 @@
       "indexMismatch": false,
       "staticRequiredForLiveAge": true,
       "liveRequired": false,
-      "keyingLeaders": [
-        "LEADER_HATSHEPSUT"
-      ],
+      "keyingLeaders": ["LEADER_HATSHEPSUT"],
       "keyingLeadersPresent": [],
       "anyKeyingLeaderPresent": false,
       "predictedRequired": false,
@@ -697,9 +678,7 @@
       "indexMismatch": false,
       "staticRequiredForLiveAge": true,
       "liveRequired": true,
-      "keyingLeaders": [
-        "LEADER_HATSHEPSUT"
-      ],
+      "keyingLeaders": ["LEADER_HATSHEPSUT"],
       "keyingLeadersPresent": [],
       "anyKeyingLeaderPresent": false,
       "predictedRequired": false,
@@ -771,9 +750,7 @@
         "LEADER_JOSE_RIZAL",
         "LEADER_MACHIAVELLI"
       ],
-      "keyingLeadersPresent": [
-        "LEADER_MACHIAVELLI"
-      ],
+      "keyingLeadersPresent": ["LEADER_MACHIAVELLI"],
       "anyKeyingLeaderPresent": true,
       "predictedRequired": false,
       "matchesPrediction": true
@@ -785,10 +762,7 @@
       "indexMismatch": false,
       "staticRequiredForLiveAge": false,
       "liveRequired": false,
-      "keyingLeaders": [
-        "LEADER_HIMIKO",
-        "LEADER_HIMIKO_ALT"
-      ],
+      "keyingLeaders": ["LEADER_HIMIKO", "LEADER_HIMIKO_ALT"],
       "keyingLeadersPresent": [],
       "anyKeyingLeaderPresent": false,
       "predictedRequired": false,
@@ -808,9 +782,7 @@
         "LEADER_JOSE_RIZAL",
         "LEADER_MACHIAVELLI"
       ],
-      "keyingLeadersPresent": [
-        "LEADER_MACHIAVELLI"
-      ],
+      "keyingLeadersPresent": ["LEADER_MACHIAVELLI"],
       "anyKeyingLeaderPresent": true,
       "predictedRequired": false,
       "matchesPrediction": true
@@ -829,9 +801,7 @@
         "LEADER_JOSE_RIZAL",
         "LEADER_MACHIAVELLI"
       ],
-      "keyingLeadersPresent": [
-        "LEADER_MACHIAVELLI"
-      ],
+      "keyingLeadersPresent": ["LEADER_MACHIAVELLI"],
       "anyKeyingLeaderPresent": true,
       "predictedRequired": false,
       "matchesPrediction": true
@@ -850,9 +820,7 @@
         "LEADER_JOSE_RIZAL",
         "LEADER_MACHIAVELLI"
       ],
-      "keyingLeadersPresent": [
-        "LEADER_MACHIAVELLI"
-      ],
+      "keyingLeadersPresent": ["LEADER_MACHIAVELLI"],
       "anyKeyingLeaderPresent": true,
       "predictedRequired": false,
       "matchesPrediction": true

@@ -45,4 +45,3 @@ export const defaultStrategy = createStrategy(ScoreIceContract, "default", {
     return { score01 };
   },
 });
-

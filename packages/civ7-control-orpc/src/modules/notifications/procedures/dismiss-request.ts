@@ -1,6 +1,4 @@
-import {
-  notificationDismissalProofPostcondition,
-} from "@civ7/direct-control/proof/notification-dismissal-proof-policy";
+import { notificationDismissalProofPostcondition } from "@civ7/direct-control/proof/notification-dismissal-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNotificationDismissalResult } from "../../../dependencies/direct-control";
@@ -9,43 +7,35 @@ import {
   civ7ControlOrpcErrorCorrelationData,
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
-import {
-  civ7CloseoutMutationProjection,
-} from "../../../policy/mutation-result";
+import { civ7CloseoutMutationProjection } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7NotificationDismissalResult } from "../contract";
 
-export const notificationsDismissRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.notifications.dismiss.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const result =
-          await context.directControl.requestCiv7NotificationDismissal(
-            input,
-            context.endpointDefaults,
-          );
-        return notificationDismissalResult(result);
-      },
-      catch: (cause) =>
-        errors.NOTIFICATION_DISMISSAL_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: "notifications.dismiss.request",
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const notificationsDismissRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.notifications.dismiss.request
+).effect(function* ({ context, errors, input }) {
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const result = await context.directControl.requestCiv7NotificationDismissal(
+        input,
+        context.endpointDefaults
+      );
+      return notificationDismissalResult(result);
+    },
+    catch: (cause) =>
+      errors.NOTIFICATION_DISMISSAL_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: "notifications.dismiss.request",
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
 export function notificationDismissalResult(
-  result: Civ7ControlOrpcNotificationDismissalResult,
+  result: Civ7ControlOrpcNotificationDismissalResult
 ): Civ7NotificationDismissalResult {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
@@ -58,7 +48,8 @@ export function notificationDismissalResult(
     source: "notifications.dismiss.request",
     inspectKind: "inspect-notification",
     inspectLabel: "Inspect notification state before attempting another dismissal request.",
-    doNotRepeatLabel: "Do not repeat this dismissal request until fresh attention and notification evidence is read.",
+    doNotRepeatLabel:
+      "Do not repeat this dismissal request until fresh attention and notification evidence is read.",
   });
 
   return {

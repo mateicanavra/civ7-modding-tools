@@ -23,7 +23,7 @@ export type Civ7IntelligenceBridgeInstallOptions = Readonly<{
 export function createCiv7IntelligenceBridge(
   options: Readonly<{
     createContext: Civ7ControllerBridgeContextFactory;
-  }>,
+  }>
 ): Civ7IntelligenceBridge {
   const ingress = createCiv7ControllerBridgeIngress({
     createContext: options.createContext,
@@ -34,7 +34,7 @@ export function createCiv7IntelligenceBridge(
 }
 
 export function installCiv7IntelligenceBridge(
-  options: Civ7IntelligenceBridgeInstallOptions,
+  options: Civ7IntelligenceBridgeInstallOptions
 ): Civ7IntelligenceBridge {
   const target = options.target;
   if (target.Civ7IntelligenceBridge != null && options.replaceExisting !== true) {

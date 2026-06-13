@@ -44,17 +44,19 @@ describe("Civ7IntelligenceBridge global adapter", () => {
       },
     });
     expect(fake.calls).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "global-readiness-1",
-    }]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "readiness.current",
+        input: {},
+        correlationId: "global-readiness-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
     expect(serialized).not.toContain("Game.turn");
     expect(serialized).not.toContain("Tuner");
   });
@@ -98,10 +100,12 @@ describe("Civ7IntelligenceBridge global adapter", () => {
       Civ7IntelligenceBridge: existing,
     };
 
-    expect(() => installCiv7IntelligenceBridge({
-      target,
-      createContext: () => fakeContext(playableStatusResult()).context,
-    })).toThrow("Civ7IntelligenceBridge is already installed.");
+    expect(() =>
+      installCiv7IntelligenceBridge({
+        target,
+        createContext: () => fakeContext(playableStatusResult()).context,
+      })
+    ).toThrow("Civ7IntelligenceBridge is already installed.");
     expect(target.Civ7IntelligenceBridge).toBe(existing);
 
     const replacement = installCiv7IntelligenceBridge({
@@ -115,9 +119,7 @@ describe("Civ7IntelligenceBridge global adapter", () => {
   });
 });
 
-function fakeContext(
-  result: Civ7ControlOrpcPlayableStatusResult,
-): {
+function fakeContext(result: Civ7ControlOrpcPlayableStatusResult): {
   calls: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
   contextRequests: unknown[];
   context: Civ7ControlOrpcContext;

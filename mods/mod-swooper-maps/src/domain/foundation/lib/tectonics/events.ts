@@ -63,7 +63,10 @@ export function buildBoundaryEventsFromSegments(params: {
     let originPlateId = -1;
     if (eventType === EVENT_TYPE.convergenceSubduction) {
       originPlateId = polarity < 0 ? plateB : polarity > 0 ? plateA : -1;
-    } else if (eventType === EVENT_TYPE.divergenceRift || eventType === EVENT_TYPE.convergenceCollision) {
+    } else if (
+      eventType === EVENT_TYPE.divergenceRift ||
+      eventType === EVENT_TYPE.convergenceCollision
+    ) {
       originPlateId = Math.min(plateA, plateB);
     }
 

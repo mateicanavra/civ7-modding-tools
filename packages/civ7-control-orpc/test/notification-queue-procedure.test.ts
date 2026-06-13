@@ -11,19 +11,17 @@ import {
   type Civ7ControlOrpcNotificationDismissalResult,
 } from "../src/index";
 import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
-import type {
-  Civ7ControlOrpcPlayNotificationViewResult,
-} from "../src/dependencies/direct-control";
+import type { Civ7ControlOrpcPlayNotificationViewResult } from "../src/dependencies/direct-control";
 
 const informationalId = { owner: 0, id: 113, type: 20 };
 const unitLostId = { owner: 0, id: 114, type: 20 };
 const productionId = { owner: 0, id: 115, type: 20 };
 
 const QueueCurrentInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.notifications.queue.current,
+  Civ7ControlOrpcContract.notifications.queue.current
 );
 const QueueDismissInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.notifications.queue.dismiss.request,
+  Civ7ControlOrpcContract.notifications.queue.dismiss.request
 );
 
 describe("notifications.queue control-oRPC procedures", () => {
@@ -32,15 +30,17 @@ describe("notifications.queue control-oRPC procedures", () => {
     const result = await call(
       Civ7ControlOrpcRouter.notifications.queue.current,
       { maxNotifications: 12 },
-      { context: fake.context },
+      { context: fake.context }
     );
 
-    expect(fake.calls.notifications).toEqual([{
-      host: "127.0.0.1",
-      port: 4318,
-      timeoutMs: 1_000,
-      maxNotifications: 12,
-    }]);
+    expect(fake.calls.notifications).toEqual([
+      {
+        host: "127.0.0.1",
+        port: 4318,
+        timeoutMs: 1_000,
+        maxNotifications: 12,
+      },
+    ]);
     expect(result).toMatchObject({
       localPlayerId: 0,
       queueLength: 3,
@@ -94,7 +94,7 @@ describe("notifications.queue control-oRPC procedures", () => {
     const result = await call(
       Civ7ControlOrpcRouter.notifications.queue.current,
       {},
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result.schedule).toEqual([
@@ -120,24 +120,28 @@ describe("notifications.queue control-oRPC procedures", () => {
       maxDismissals: 5,
     });
 
-    expect(fake.calls.dismissals).toEqual([{
-      input: { notificationId: informationalId },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+    expect(fake.calls.dismissals).toEqual([
+      {
+        input: { notificationId: informationalId },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-    }]);
+    ]);
     expect(result).toMatchObject({
       sent: true,
       status: "sent-guarded",
       eligibleCount: 1,
       selectedCount: 1,
       noRepeatAfterUnverified: true,
-      candidates: [{
-        notificationId: informationalId,
-        disposition: "reviewed-dismissal-candidate",
-      }],
+      candidates: [
+        {
+          notificationId: informationalId,
+          disposition: "reviewed-dismissal-candidate",
+        },
+      ],
       excluded: expect.arrayContaining([
         expect.objectContaining({
           notificationId: unitLostId,
@@ -148,18 +152,22 @@ describe("notifications.queue control-oRPC procedures", () => {
           reason: expect.stringContaining("gameplay operation"),
         }),
       ]),
-      results: [{
-        notificationId: informationalId,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "engine-front-still-live",
-          noRepeatAfterUnverified: true,
+      results: [
+        {
+          notificationId: informationalId,
+          status: "sent-unverified",
+          postcondition: {
+            classification: "engine-front-still-live",
+            noRepeatAfterUnverified: true,
+          },
         },
-      }],
-      nextSteps: expect.arrayContaining([expect.objectContaining({
-        kind: "do-not-repeat",
-        source: "notifications.queue.dismiss.request",
-      })]),
+      ],
+      nextSteps: expect.arrayContaining([
+        expect.objectContaining({
+          kind: "do-not-repeat",
+          source: "notifications.queue.dismiss.request",
+        }),
+      ]),
     });
     expectSafeQueueOutput(result);
   });
@@ -170,7 +178,7 @@ describe("notifications.queue control-oRPC procedures", () => {
     const result = await call(
       Civ7ControlOrpcRouter.notifications.queue.dismiss.request,
       { maxDismissals: 1 },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(fake.calls.dismissals).toEqual([]);
@@ -198,11 +206,9 @@ describe("notifications.queue control-oRPC procedures", () => {
     for (const input of invalidInputs) {
       const fake = fakeContext();
       await expect(
-        call(
-          Civ7ControlOrpcRouter.notifications.queue.dismiss.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.notifications.queue.dismiss.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.notifications).toEqual([]);
       expect(fake.calls.dismissals).toEqual([]);
@@ -217,14 +223,18 @@ describe("notifications.queue control-oRPC procedures", () => {
   test("maps queue source failures to tagged errors without raw command details", async () => {
     const fake = fakeContext({
       notificationViewError: new Error(
-        "Timed out waiting for Civ7 tuner response to CMD:65535:Game.Notifications.dismiss(...)",
+        "Timed out waiting for Civ7 tuner response to CMD:65535:Game.Notifications.dismiss(...)"
       ),
     });
 
     await expect(
-      call(Civ7ControlOrpcRouter.notifications.queue.current, {}, {
-        context: fake.context,
-      }),
+      call(
+        Civ7ControlOrpcRouter.notifications.queue.current,
+        {},
+        {
+          context: fake.context,
+        }
+      )
     ).rejects.toMatchObject({
       code: "NOTIFICATION_QUEUE_UNAVAILABLE",
       status: 503,
@@ -235,9 +245,13 @@ describe("notifications.queue control-oRPC procedures", () => {
     });
 
     try {
-      await call(Civ7ControlOrpcRouter.notifications.queue.current, {}, {
-        context: fake.context,
-      });
+      await call(
+        Civ7ControlOrpcRouter.notifications.queue.current,
+        {},
+        {
+          context: fake.context,
+        }
+      );
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -248,9 +262,7 @@ describe("notifications.queue control-oRPC procedures", () => {
   });
 
   test("publishes contract-first notification queue leaves", () => {
-    expect(
-      Civ7ControlOrpcContract.notifications.queue.current["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.notifications.queue.current["~orpc"]).toMatchObject({
       meta: {
         family: "notifications",
         procedureKey: "notifications.queue.current",
@@ -258,9 +270,7 @@ describe("notifications.queue control-oRPC procedures", () => {
         risk: "read-only",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.notifications.queue.dismiss.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.notifications.queue.dismiss.request["~orpc"]).toMatchObject({
       meta: {
         family: "notifications",
         procedureKey: "notifications.queue.dismiss.request",
@@ -268,20 +278,20 @@ describe("notifications.queue control-oRPC procedures", () => {
         risk: "mutation",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.notifications.queue.current["~orpc"].errorMap,
-    ).toHaveProperty("NOTIFICATION_QUEUE_UNAVAILABLE");
-    expect(Civ7NotificationQueueUnavailableError.code).toBe(
-      "NOTIFICATION_QUEUE_UNAVAILABLE",
+    expect(Civ7ControlOrpcContract.notifications.queue.current["~orpc"].errorMap).toHaveProperty(
+      "NOTIFICATION_QUEUE_UNAVAILABLE"
     );
+    expect(Civ7NotificationQueueUnavailableError.code).toBe("NOTIFICATION_QUEUE_UNAVAILABLE");
   });
 });
 
-function fakeContext(options: {
-  notificationViewError?: Error;
-  notificationView?: Civ7ControlOrpcPlayNotificationViewResult;
-  dismissalResult?: Civ7ControlOrpcNotificationDismissalResult;
-} = {}): {
+function fakeContext(
+  options: {
+    notificationViewError?: Error;
+    notificationView?: Civ7ControlOrpcPlayNotificationViewResult;
+    dismissalResult?: Civ7ControlOrpcNotificationDismissalResult;
+  } = {}
+): {
   context: Civ7ControlOrpcContext;
   calls: {
     notifications: unknown[];
@@ -313,10 +323,12 @@ function fakeContext(options: {
         },
         requestCiv7NotificationDismissal: async (input, endpointDefaults) => {
           calls.dismissals.push({ input, options: endpointDefaults });
-          return options.dismissalResult ??
+          return (
+            options.dismissalResult ??
             notificationDismissalResult("notification-disappeared", {
               notificationId: informationalId,
-            });
+            })
+          );
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -367,7 +379,9 @@ function notificationView(): Civ7ControlOrpcPlayNotificationViewResult {
   } as Civ7ControlOrpcPlayNotificationViewResult;
 }
 
-function queueItem(overrides: Partial<Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number]> = {}): Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number] {
+function queueItem(
+  overrides: Partial<Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number]> = {}
+): Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number] {
   return {
     notificationId: informationalId,
     isEndTurnBlocking: false,
@@ -390,18 +404,19 @@ function notificationDismissalResult(
   options: {
     notificationId?: typeof informationalId;
     verified?: boolean;
-  } = {},
+  } = {}
 ): Civ7ControlOrpcNotificationDismissalResult {
   const id = options.notificationId ?? informationalId;
   const before = notificationSummary(id);
-  const after = classification === "engine-front-still-live"
-    ? notificationSummary(id, {
-      dismissed: true,
-      notificationTrainContains: { ok: true, value: false },
-      isNotificationTrainFront: { ok: true, value: false },
-      isEngineQueueFront: { ok: true, value: true },
-    })
-    : notificationSummary(id, { exists: false });
+  const after =
+    classification === "engine-front-still-live"
+      ? notificationSummary(id, {
+          dismissed: true,
+          notificationTrainContains: { ok: true, value: false },
+          isNotificationTrainFront: { ok: true, value: false },
+          isEngineQueueFront: { ok: true, value: true },
+        })
+      : notificationSummary(id, { exists: false });
 
   return {
     host: "127.0.0.1",
@@ -433,7 +448,7 @@ function notificationDismissalResult(
 
 function notificationSummary(
   id: typeof informationalId,
-  overrides: Partial<Civ7ControlOrpcNotificationDismissalResult["before"]> = {},
+  overrides: Partial<Civ7ControlOrpcNotificationDismissalResult["before"]> = {}
 ): Civ7ControlOrpcNotificationDismissalResult["before"] {
   return {
     id,
@@ -466,10 +481,10 @@ function expectSafeQueueOutput(output: unknown): void {
   const serialized = JSON.stringify(output);
   expect(serialized).not.toContain("127.0.0.1");
   expect(serialized).not.toContain("65535");
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
-  expect(serialized).not.toContain("\"session\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
   expect(serialized).not.toContain("rawCommand");
   expect(serialized).not.toContain("Game.Notifications.dismiss(");
   expect(serialized).not.toContain("game play");

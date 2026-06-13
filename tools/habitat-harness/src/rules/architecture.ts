@@ -26,10 +26,7 @@ export interface HarnessRule {
   exceptionPath: string;
 }
 
-const rulesJsonPath = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "rules.json",
-);
+const rulesJsonPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "rules.json");
 
 export const rules: HarnessRule[] = (
   JSON.parse(readFileSync(rulesJsonPath, "utf8")) as { rules: HarnessRule[] }
@@ -85,7 +82,8 @@ function parseAdapterBoundary(rule: HarnessRule, res: SpawnResult): HabitatDiagn
     diags.push({
       ruleId: rule.id,
       path: f,
-      message: "/base-standard/ reference allowlisted in scripts/lint/lint-adapter-boundary.sh (tracked debt)",
+      message:
+        "/base-standard/ reference allowlisted in scripts/lint/lint-adapter-boundary.sh (tracked debt)",
       severity: "error",
       baselined: true, // legacy allowlist is this rule's transitional baseline (design.md)
     });
@@ -100,7 +98,8 @@ function parseAdapterBoundary(rule: HarnessRule, res: SpawnResult): HabitatDiagn
     });
   }
   // Script failed but we parsed nothing → fall back to coarse so failures never vanish.
-  if (res.exitCode !== 0 && !diags.some((d) => !d.baselined)) return [...diags, ...coarse(rule, res)];
+  if (res.exitCode !== 0 && !diags.some((d) => !d.baselined))
+    return [...diags, ...coarse(rule, res)];
   return diags;
 }
 

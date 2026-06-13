@@ -10,24 +10,26 @@ import type { Civ7UnitTargetActionResult } from "../src/play/operations/unit-tar
 
 describe("unit-target telemetry adapter", () => {
   test("adapts a verified unit-target result into separated operation telemetry", () => {
-    const record = createCiv7UnitTargetActionTelemetryRecord(unitTargetTelemetryInput({
-      result: unitTargetResult({
-        sent: true,
-        verified: true,
-        afterUnit: { ok: true, value: { location: { x: 22, y: 33 } } },
-        afterTargetUnits: { ok: true, value: [] },
-        verification: {
-          status: "verified",
-          classification: "unit-state-changed",
-          unitChanged: true,
-          targetUnitsChanged: false,
-          destinationReached: false,
-          requestedLocation: { x: 23, y: 33 },
-          landedLocation: { x: 22, y: 33 },
-          reason: "unit state changed after send",
-        },
-      }),
-    }));
+    const record = createCiv7UnitTargetActionTelemetryRecord(
+      unitTargetTelemetryInput({
+        result: unitTargetResult({
+          sent: true,
+          verified: true,
+          afterUnit: { ok: true, value: { location: { x: 22, y: 33 } } },
+          afterTargetUnits: { ok: true, value: [] },
+          verification: {
+            status: "verified",
+            classification: "unit-state-changed",
+            unitChanged: true,
+            targetUnitsChanged: false,
+            destinationReached: false,
+            requestedLocation: { x: 23, y: 33 },
+            landedLocation: { x: 22, y: 33 },
+            reason: "unit state changed after send",
+          },
+        }),
+      })
+    );
 
     expect(record.candidateAction).toMatchObject({
       id: "unit-target:0:65536:23:33",
@@ -75,13 +77,15 @@ describe("unit-target telemetry adapter", () => {
   });
 
   test("does not treat a legacy verified boolean as confirmed postcondition proof", () => {
-    const record = createCiv7UnitTargetActionTelemetryRecord(unitTargetTelemetryInput({
-      result: unitTargetResult({
-        sent: true,
-        verified: true,
-        verification: undefined,
-      }),
-    }));
+    const record = createCiv7UnitTargetActionTelemetryRecord(
+      unitTargetTelemetryInput({
+        result: unitTargetResult({
+          sent: true,
+          verified: true,
+          verification: undefined,
+        }),
+      })
+    );
 
     expect(record.validation_post?.value).toEqual({
       verificationStatus: "missing-postcondition",
@@ -101,22 +105,25 @@ describe("unit-target telemetry adapter", () => {
   });
 
   test("keeps unverified no-state-change sends no-repeat guarded", () => {
-    const record = createCiv7UnitTargetActionTelemetryRecord(unitTargetTelemetryInput({
-      result: unitTargetResult({
-        sent: true,
-        verified: false,
-        verification: {
-          status: "no-state-change",
-          classification: "no-state-change",
-          unitChanged: false,
-          targetUnitsChanged: false,
-          destinationReached: false,
-          requestedLocation: { x: 23, y: 33 },
-          landedLocation: { x: 22, y: 33 },
-          reason: "send returned but unit and target-plot probes did not change; re-read before repeating",
-        },
-      }),
-    }));
+    const record = createCiv7UnitTargetActionTelemetryRecord(
+      unitTargetTelemetryInput({
+        result: unitTargetResult({
+          sent: true,
+          verified: false,
+          verification: {
+            status: "no-state-change",
+            classification: "no-state-change",
+            unitChanged: false,
+            targetUnitsChanged: false,
+            destinationReached: false,
+            requestedLocation: { x: 23, y: 33 },
+            landedLocation: { x: 22, y: 33 },
+            reason:
+              "send returned but unit and target-plot probes did not change; re-read before repeating",
+          },
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "no-state-change",
@@ -132,23 +139,25 @@ describe("unit-target telemetry adapter", () => {
   });
 
   test("keeps pending runtime proof sends no-repeat guarded", () => {
-    const record = createCiv7UnitTargetActionTelemetryRecord(unitTargetTelemetryInput({
-      proofBoundary: "pending-runtime-proof",
-      result: unitTargetResult({
-        sent: true,
-        verified: true,
-        verification: {
-          status: "verified",
-          classification: "target-reached",
-          unitChanged: true,
-          targetUnitsChanged: false,
-          destinationReached: true,
-          requestedLocation: { x: 23, y: 33 },
-          landedLocation: { x: 23, y: 33 },
-          reason: "local fixture cannot prove this live target was reached",
-        },
-      }),
-    }));
+    const record = createCiv7UnitTargetActionTelemetryRecord(
+      unitTargetTelemetryInput({
+        proofBoundary: "pending-runtime-proof",
+        result: unitTargetResult({
+          sent: true,
+          verified: true,
+          verification: {
+            status: "verified",
+            classification: "target-reached",
+            unitChanged: true,
+            targetUnitsChanged: false,
+            destinationReached: true,
+            requestedLocation: { x: 23, y: 33 },
+            landedLocation: { x: 23, y: 33 },
+            reason: "local fixture cannot prove this live target was reached",
+          },
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "target-reached",

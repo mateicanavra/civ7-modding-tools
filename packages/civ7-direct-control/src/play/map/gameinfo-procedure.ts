@@ -55,10 +55,7 @@ export const Civ7GameInfoRowsProcedureDescriptor = createCiv7ProcedureCoreDescri
     "primaryKeys",
   ],
   playerScope: "debug-observer-only",
-  consumerClasses: [
-    "debug-internal-service-output",
-    "effect-orpc-procedure-core",
-  ],
+  consumerClasses: ["debug-internal-service-output", "effect-orpc-procedure-core"],
   proofBoundary: "local-package-test",
   projection: {
     normalCli: "omitted",
@@ -97,13 +94,13 @@ export type Civ7GameInfoRowsProcedureCallOptions = Readonly<{
 
 export function callCiv7GameInfoRowsProcedure(
   input: Civ7GameInfoRowsInput,
-  options: Civ7GameInfoRowsProcedureCallOptions = {},
+  options: Civ7GameInfoRowsProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7GameInfoRowsResult>> {
   return callCiv7ProcedureCore<Civ7GameInfoRowsInput, Civ7GameInfoRowsResult>(
     Civ7GameInfoRowsProcedureDescriptor,
     Civ7GameInfoRowsProcedureSchemaArtifacts,
     input,
     (validInput) => getCiv7GameInfoRows(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    options.procedure
   );
 }

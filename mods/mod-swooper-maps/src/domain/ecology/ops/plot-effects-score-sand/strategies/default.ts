@@ -60,4 +60,3 @@ export const defaultStrategy = createStrategy(PlotEffectsScoreSandContract, "def
     return { score01, eligibleMask };
   },
 });
-

@@ -2,17 +2,12 @@ import { create } from "zustand";
 import { persist, type PersistStorage, type StorageValue } from "zustand/middleware";
 
 import type { BuiltInPreset } from "../recipes/catalog";
-import {
-  DEFAULT_STUDIO_RECIPE_ID,
-  getRecipeArtifacts,
-} from "../recipes/catalog";
+import { DEFAULT_STUDIO_RECIPE_ID, getRecipeArtifacts } from "../recipes/catalog";
 import {
   DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
   type Civ7StudioSetupConfig,
 } from "../features/civ7Setup/setupConfig";
-import {
-  buildDefaultConfig,
-} from "../features/configOverrides/configBuilders";
+import { buildDefaultConfig } from "../features/configOverrides/configBuilders";
 import {
   STUDIO_AUTHORING_STATE_KEY,
   loadStudioAuthoringState,
@@ -67,7 +62,7 @@ export type AuthoringState = AuthoringData & {
   setPipelineConfig: (next: Updater<PipelineConfig>) => void;
   setOverridesDisabled: (next: Updater<boolean>) => void;
   setRepoBackedPresetOverridesByRecipe: (
-    next: Updater<Record<string, Record<string, BuiltInPreset>>>,
+    next: Updater<Record<string, Record<string, BuiltInPreset>>>
   ) => void;
 };
 
@@ -96,7 +91,11 @@ function buildInitialAuthoringData(): AuthoringData {
     ? persisted.pipelineConfig
     : (() => {
         const artifacts = getRecipeArtifacts(recipeSettings.recipe);
-        return buildDefaultConfig(artifacts.configSchema, artifacts.uiMeta, artifacts.defaultConfig);
+        return buildDefaultConfig(
+          artifacts.configSchema,
+          artifacts.uiMeta,
+          artifacts.defaultConfig
+        );
       })();
   return {
     worldSettings,
@@ -143,7 +142,8 @@ const authoringPersistStorage: PersistStorage<AuthoringData> = {
     // Authoring state is never explicitly removed; persistence is a refresh recovery
     // aid. Provided to satisfy the StorageValue contract.
     try {
-      if (typeof window !== "undefined") window.localStorage?.removeItem(STUDIO_AUTHORING_STATE_KEY);
+      if (typeof window !== "undefined")
+        window.localStorage?.removeItem(STUDIO_AUTHORING_STATE_KEY);
     } catch {
       // Removal is best-effort and must not break authoring.
     }
@@ -156,9 +156,11 @@ export const useAuthoringStore = create<AuthoringState>()(
       ...buildInitialAuthoringData(),
 
       setWorldSettings: (next) => set((s) => ({ worldSettings: resolve(next, s.worldSettings) })),
-      setRecipeSettings: (next) => set((s) => ({ recipeSettings: resolve(next, s.recipeSettings) })),
+      setRecipeSettings: (next) =>
+        set((s) => ({ recipeSettings: resolve(next, s.recipeSettings) })),
       setSetupConfig: (next) => set((s) => ({ setupConfig: resolve(next, s.setupConfig) })),
-      setPipelineConfig: (next) => set((s) => ({ pipelineConfig: resolve(next, s.pipelineConfig) })),
+      setPipelineConfig: (next) =>
+        set((s) => ({ pipelineConfig: resolve(next, s.pipelineConfig) })),
       setOverridesDisabled: (next) =>
         set((s) => ({ overridesDisabled: resolve(next, s.overridesDisabled) })),
       setRepoBackedPresetOverridesByRecipe: (next) =>
@@ -179,8 +181,8 @@ export const useAuthoringStore = create<AuthoringState>()(
         overridesDisabled: state.overridesDisabled,
         repoBackedPresetOverridesByRecipe: state.repoBackedPresetOverridesByRecipe,
       }),
-    },
-  ),
+    }
+  )
 );
 
 export type { StudioAuthoringStateSnapshot };

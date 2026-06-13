@@ -65,7 +65,7 @@ export function createStudioEventHub(): StudioEventHubApi {
           const { scope, counted } = await subscription;
           await Effect.runPromise(Scope.close(scope, Exit.void));
           if (counted) activeSubscribers -= 1;
-        },
+        }
       );
     },
 

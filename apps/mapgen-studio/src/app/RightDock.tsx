@@ -26,7 +26,8 @@ export function RightDock({ top, bottom, children }: RightDockProps) {
     <aside
       aria-label="Explore and inspect"
       className="absolute right-4 z-10 flex flex-col items-stretch pointer-events-none"
-      style={{ top, bottom }}>
+      style={{ top, bottom }}
+    >
       {children}
     </aside>
   );

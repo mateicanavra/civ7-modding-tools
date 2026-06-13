@@ -1,5 +1,10 @@
 import type { MapDimensions } from "@civ7/adapter";
-import { computeSampleStep, defineVizMeta, deriveStepSeed, renderAsciiGrid } from "@swooper/mapgen-core";
+import {
+  computeSampleStep,
+  defineVizMeta,
+  deriveStepSeed,
+  renderAsciiGrid,
+} from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";

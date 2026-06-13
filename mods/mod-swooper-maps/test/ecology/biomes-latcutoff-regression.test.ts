@@ -11,7 +11,9 @@ import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/arti
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 
 describe("biomes latitude-cutoff regression (M3-013)", () => {
-  it("does not hard-cut rainforest into latitude stripes (and still produces cold biomes)", { timeout: 20_000 }, () => {
+  it("does not hard-cut rainforest into latitude stripes (and still produces cold biomes)", {
+    timeout: 20_000,
+  }, () => {
     const width = 106;
     const height = 66;
     const seed = 1337;

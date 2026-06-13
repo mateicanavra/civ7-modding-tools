@@ -60,7 +60,10 @@ describe("findVariantIdForEra", () => {
   });
 
   it("returns null when no era variants are available", () => {
-    const variants = [makeVariant("era:3", "era:3"), makeVariant("snapshot:latest", "snapshot:latest")];
+    const variants = [
+      makeVariant("era:3", "era:3"),
+      makeVariant("snapshot:latest", "snapshot:latest"),
+    ];
     expect(findVariantIdForEra(variants, 3)).toBe("era:3");
     expect(findVariantIdForEra([makeVariant("snapshot:latest", "snapshot:latest")], 2)).toBe(null);
   });
@@ -79,7 +82,10 @@ describe("snapEraToAvailable", () => {
 
 describe("findVariantKeyForEra", () => {
   it("returns the normalized existing variant key for overlays", () => {
-    const variants = [makeVariant("display-era-001", "era:001"), makeVariant("display-era-003", "era:003")];
+    const variants = [
+      makeVariant("display-era-001", "era:001"),
+      makeVariant("display-era-003", "era:003"),
+    ];
     expect(findVariantKeyForEra(variants, 2)).toBe("era:001");
     expect(findVariantKeyForEra(variants, 3)).toBe("era:003");
   });
@@ -92,7 +98,9 @@ describe("resolveFixedEraUiValue", () => {
       makeVariant("era:3", "era:3"),
       makeVariant("era:5", "era:5"),
     ];
-    expect(resolveFixedEraUiValue({ variants, selectedVariantKey: "era:3", requestedEra: 4 })).toBe(3);
+    expect(resolveFixedEraUiValue({ variants, selectedVariantKey: "era:3", requestedEra: 4 })).toBe(
+      3
+    );
   });
 
   it("falls back to nearest snapped era with lower-era tiebreak", () => {

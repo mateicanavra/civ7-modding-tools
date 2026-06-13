@@ -207,7 +207,8 @@ const ComputePrecipitationVectorStrategySchema = Type.Object(
       default: 16,
       minimum: 0,
       maximum: 200,
-      description: "Strength of convergence rainfall boost derived from negative divergence (convergence).",
+      description:
+        "Strength of convergence rainfall boost derived from negative divergence (convergence).",
     }),
   },
   {
@@ -350,7 +351,8 @@ const ComputePrecipitationInputSchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Inputs for precipitation/humidity mapping from humidity transport + local modifiers.",
+    description:
+      "Inputs for precipitation/humidity mapping from humidity transport + local modifiers.",
   }
 );
 

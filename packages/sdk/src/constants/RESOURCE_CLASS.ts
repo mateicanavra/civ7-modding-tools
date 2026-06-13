@@ -6,29 +6,29 @@ export const RESOURCE_CLASS = {
   /**
    * Basic resources that provide standard yields
    */
-  BONUS: 'RESOURCECLASS_BONUS',
-  
+  BONUS: "RESOURCECLASS_BONUS",
+
   /**
    * Resources that primarily benefit city development
    */
-  CITY: 'RESOURCECLASS_CITY',
-  
+  CITY: "RESOURCECLASS_CITY",
+
   /**
    * Resources that provide empire-wide benefits
    */
-  EMPIRE: 'RESOURCECLASS_EMPIRE',
-  
+  EMPIRE: "RESOURCECLASS_EMPIRE",
+
   /**
    * Exploration Age treasure resources
    */
-  TREASURE: 'RESOURCECLASS_TREASURE',
-  
+  TREASURE: "RESOURCECLASS_TREASURE",
+
   /**
    * Placeholder for no resource class
    */
-  NONE: 'NO_RESOURCECLASS'
+  NONE: "NO_RESOURCECLASS",
 } as const;
 
-export type ResourceClass = typeof RESOURCE_CLASS[keyof typeof RESOURCE_CLASS];
+export type ResourceClass = (typeof RESOURCE_CLASS)[keyof typeof RESOURCE_CLASS];
 
-export default RESOURCE_CLASS; 
+export default RESOURCE_CLASS;

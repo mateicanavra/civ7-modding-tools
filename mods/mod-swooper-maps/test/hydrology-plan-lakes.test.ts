@@ -41,11 +41,7 @@ describe("hydrology sink classification", () => {
     const size = width * height;
 
     const landMask = new Uint8Array([1, 1, 1, 1, 1, 1, 1, 1, 0]);
-    const flowDir = new Int32Array([
-      1, 2, 5,
-      4, -1, 8,
-      7, 4, -1,
-    ]);
+    const flowDir = new Int32Array([1, 2, 5, 4, -1, 8, 7, 4, -1]);
 
     const out = accumulateDischarge.run(
       {

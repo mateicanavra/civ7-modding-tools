@@ -17,7 +17,7 @@ function firstMatchingLine(text: string, patterns: ReadonlyArray<RegExp>): strin
 
 export function classifyCiv7MapgenLogFailure(
   freshLogText: string,
-  options: { mapScript?: string } = {},
+  options: { mapScript?: string } = {}
 ): Civ7MapgenLogFailure | undefined {
   const mapScriptLoadLine = firstMatchingLine(freshLogText, [
     /Failed to open file - .*\.js\b/i,
@@ -33,7 +33,8 @@ export function classifyCiv7MapgenLogFailure(
       matchedLogLine: mapScriptLoadLine,
       dismissNotificationRequired: true,
       recoveryBoundary: "civ-notification-dismiss",
-      recoveryHint: "Dismiss the Civ fatal notification, fix or regenerate the map script, then retry Run in Game.",
+      recoveryHint:
+        "Dismiss the Civ fatal notification, fix or regenerate the map script, then retry Run in Game.",
     };
   }
 
@@ -49,7 +50,8 @@ export function classifyCiv7MapgenLogFailure(
       matchedLogLine: generationLine,
       dismissNotificationRequired: true,
       recoveryBoundary: "civ-notification-dismiss",
-      recoveryHint: "Dismiss the Civ fatal notification, correct the authored generation failure, then retry Run in Game.",
+      recoveryHint:
+        "Dismiss the Civ fatal notification, correct the authored generation failure, then retry Run in Game.",
     };
   }
 
@@ -68,10 +70,9 @@ export async function waitForCiv7MapgenLogFailure(options: {
   const deadline = now() + Math.max(0, options.timeoutMs);
 
   while (true) {
-    const failure = classifyCiv7MapgenLogFailure(
-      await options.readFreshLogText().catch(() => ""),
-      { mapScript: options.mapScript },
-    );
+    const failure = classifyCiv7MapgenLogFailure(await options.readFreshLogText().catch(() => ""), {
+      mapScript: options.mapScript,
+    });
     if (failure) return failure;
 
     const remainingMs = deadline - now();

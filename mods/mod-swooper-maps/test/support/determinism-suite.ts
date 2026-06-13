@@ -9,7 +9,10 @@ export type DeterminismCase = {
   config: StandardRecipeConfig;
 };
 
-function buildConfig(overrides: { plateCount?: number; plateActivity?: number }): StandardRecipeConfig {
+function buildConfig(overrides: {
+  plateCount?: number;
+  plateActivity?: number;
+}): StandardRecipeConfig {
   const config = structuredClone(standardConfig) as StandardRecipeConfig;
   config.foundation = {
     ...config.foundation,

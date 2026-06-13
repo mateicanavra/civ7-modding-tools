@@ -74,7 +74,7 @@ describe("m11 plate graph resistance sensitivity", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 26, cellsPerPlate: 10, relaxationSteps: 3},
+        config: { plateCount: 26, cellsPerPlate: 10, relaxationSteps: 3 },
       },
       ctx as any
     );
@@ -126,7 +126,9 @@ describe("m11 plate graph resistance sensitivity", () => {
       }
     ).plateGraph;
 
-    expect(Array.from(plateGraphNeutralA.cellToPlate)).toEqual(Array.from(plateGraphNeutralB.cellToPlate));
+    expect(Array.from(plateGraphNeutralA.cellToPlate)).toEqual(
+      Array.from(plateGraphNeutralB.cellToPlate)
+    );
 
     const diffs = diffCount(plateGraphNeutralA.cellToPlate, plateGraphRift.cellToPlate);
     expect(diffs).toBeGreaterThan(Math.max(5, Math.floor(mesh.cellCount * 0.02)));

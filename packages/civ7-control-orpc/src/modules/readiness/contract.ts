@@ -6,13 +6,8 @@ import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-const Civ7ReadinessCurrentInputSchema = Type.Object(
-  {},
-  { additionalProperties: false },
-);
-export type Civ7ReadinessCurrentInput = Static<
-  typeof Civ7ReadinessCurrentInputSchema
->;
+const Civ7ReadinessCurrentInputSchema = Type.Object({}, { additionalProperties: false });
+export type Civ7ReadinessCurrentInput = Static<typeof Civ7ReadinessCurrentInputSchema>;
 
 export const Civ7ReadinessLevelSchema = Type.Union([
   Type.Literal("tuner-ready"),
@@ -29,7 +24,7 @@ export const Civ7ReadinessCapabilitySchema = Type.Object(
     canMutate: Type.Boolean(),
     reason: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7ReadinessSourceSummarySchema = Type.Object(
@@ -41,16 +36,16 @@ export const Civ7ReadinessSourceSummarySchema = Type.Object(
         inLoading: Type.Union([Type.Boolean(), Type.Null()]),
         canBeginGame: Type.Union([Type.Boolean(), Type.Null()]),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     runtimeControl: Type.Object(
       {
         ready: Type.Union([Type.Boolean(), Type.Null()]),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7ReadinessControllerProcedureRiskSchema = Type.Union([
@@ -63,14 +58,14 @@ export const Civ7ReadinessControllerProcedureSchema = Type.Object(
     procedureKey: Type.String({ minLength: 1 }),
     risk: Civ7ReadinessControllerProcedureRiskSchema,
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7ReadinessControllerSummarySchema = Type.Object(
   {
     supportedProcedures: Type.Array(Civ7ReadinessControllerProcedureSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7ReadinessNextStepSchema = Type.Object(
@@ -88,7 +83,7 @@ export const Civ7ReadinessNextStepSchema = Type.Object(
     source: Type.Literal("readiness.current"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ReadinessCurrentResultSchema = Type.Object(
@@ -101,18 +96,12 @@ const Civ7ReadinessCurrentResultSchema = Type.Object(
     errorCount: Type.Integer({ minimum: 0 }),
     nextSteps: Type.Array(Civ7ReadinessNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7ReadinessCurrentResult = Static<
-  typeof Civ7ReadinessCurrentResultSchema
->;
+export type Civ7ReadinessCurrentResult = Static<typeof Civ7ReadinessCurrentResultSchema>;
 
-const Civ7ReadinessCurrentInputStandardSchema = toStandardSchema(
-  Civ7ReadinessCurrentInputSchema,
-);
-const Civ7ReadinessCurrentResultStandardSchema = toStandardSchema(
-  Civ7ReadinessCurrentResultSchema,
-);
+const Civ7ReadinessCurrentInputStandardSchema = toStandardSchema(Civ7ReadinessCurrentInputSchema);
+const Civ7ReadinessCurrentResultStandardSchema = toStandardSchema(Civ7ReadinessCurrentResultSchema);
 
 export type Civ7ReadinessCurrentContract = ContractProcedure<
   typeof Civ7ReadinessCurrentInputStandardSchema,

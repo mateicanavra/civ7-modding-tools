@@ -53,7 +53,12 @@ export type UseVizStateResult = {
     steps: Array<{ stepId: string; stepIndex: number; address: PipelineAddress | null }>;
   }>;
   dataTypeModel: StepDataTypeModel | null;
-  selectableLayers: Array<{ key: string; label: string; visibility: "default" | "debug" | "hidden"; group?: string }>;
+  selectableLayers: Array<{
+    key: string;
+    label: string;
+    visibility: "default" | "debug" | "hidden";
+    group?: string;
+  }>;
   legend: ReturnType<typeof legendForLayer> | null;
 
   deck: { layers: Layer[] };
@@ -135,7 +140,10 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
 
   const activeSelectedStepId = useMemo(() => {
     if (!manifest) return null;
-    if (selectedStepId && (allowPendingSelection || manifest.steps.some((s) => s.stepId === selectedStepId))) {
+    if (
+      selectedStepId &&
+      (allowPendingSelection || manifest.steps.some((s) => s.stepId === selectedStepId))
+    ) {
       return selectedStepId;
     }
     return steps[0]?.stepId ?? null;
@@ -143,7 +151,9 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
 
   const dataTypeModel = useMemo(() => {
     if (!manifest || !activeSelectedStepId) return null;
-    return buildStepDataTypeModel(manifest, activeSelectedStepId, { includeDebug: showDebugLayers });
+    return buildStepDataTypeModel(manifest, activeSelectedStepId, {
+      includeDebug: showDebugLayers,
+    });
   }, [activeSelectedStepId, manifest, showDebugLayers]);
 
   useEffect(() => {
@@ -176,7 +186,10 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
 
   const activeSelectedLayerKey = useMemo(() => {
     if (!layersForStep.length) return selectedLayerKey ?? null;
-    if (selectedLayerKey && (allowPendingSelection || layersForStep.some((l) => l.key === selectedLayerKey))) {
+    if (
+      selectedLayerKey &&
+      (allowPendingSelection || layersForStep.some((l) => l.key === selectedLayerKey))
+    ) {
       return selectedLayerKey;
     }
     // Default preference: the map studio defaults to the MAP. When a step has

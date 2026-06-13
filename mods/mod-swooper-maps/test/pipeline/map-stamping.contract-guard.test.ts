@@ -130,7 +130,9 @@ describe("map stamping contract guardrails", () => {
     });
 
     nativeRiverGeneratorCallers.sort();
-    expect(nativeRiverGeneratorCallers).toEqual([path.join(stagesRoot, "map-rivers/steps/plotRivers.ts")]);
+    expect(nativeRiverGeneratorCallers).toEqual([
+      path.join(stagesRoot, "map-rivers/steps/plotRivers.ts"),
+    ]);
 
     const plotRiversText = readFileSync(
       path.join(stagesRoot, "map-rivers/steps/plotRivers.ts"),
@@ -154,7 +156,9 @@ describe("map stamping contract guardrails", () => {
     const stagesRoot = path.join(repoRoot, "src/recipes/standard/stages");
     const files = listFilesRecursive(stagesRoot).filter((file) => file.endsWith(".ts"));
 
-    const oddRCallsites = files.filter((file) => readFileSync(file, "utf8").includes("tile.hexOddR"));
+    const oddRCallsites = files.filter((file) =>
+      readFileSync(file, "utf8").includes("tile.hexOddR")
+    );
 
     expect(oddRCallsites).toEqual([]);
   });

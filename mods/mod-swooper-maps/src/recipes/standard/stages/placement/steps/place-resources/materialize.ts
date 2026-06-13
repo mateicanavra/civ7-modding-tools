@@ -12,7 +12,7 @@ import resources from "@mapgen/domain/resources";
 
 type ResourcePlanOutput = Static<(typeof resources.ops.adjustResourceSupport)["output"]>;
 type ResourcePlacementOutcomes = Static<
-  (typeof import("../../artifacts.js").placementArtifacts)["resourcePlacementOutcomes"]["schema"]
+  typeof import("../../artifacts.js").placementArtifacts["resourcePlacementOutcomes"]["schema"]
 >;
 type ResourcePlacementReason = ResourcePlacementRejectionReason | ResourcePlacementMismatchReason;
 type ResourcePlacementSummary = ResourcePlacementOutcomes["summary"];

@@ -100,16 +100,17 @@ class RejectingLakeAdapter extends MockAdapter {
   }
 }
 
-function createContext(adapter: MockAdapter, width: number, height: number, seed: number): TestContext {
-  return createExtendedMapContext(
-    { width, height },
-    adapter,
-    {
-      seed,
-      dimensions: { width, height },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    }
-  );
+function createContext(
+  adapter: MockAdapter,
+  width: number,
+  height: number,
+  seed: number
+): TestContext {
+  return createExtendedMapContext({ width, height }, adapter, {
+    seed,
+    dimensions: { width, height },
+    latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+  });
 }
 
 function seedLakePlan(

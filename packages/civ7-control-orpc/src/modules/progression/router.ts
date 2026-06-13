@@ -2,12 +2,8 @@ import {
   progressionCultureChoiceRequestProcedure,
   progressionTechnologyChoiceRequestProcedure,
 } from "./procedures/choice-request";
-import {
-  progressionDashboardCurrentProcedure,
-} from "./procedures/dashboard-current";
-import {
-  progressionTraditionsCurrentProcedure,
-} from "./procedures/traditions-current";
+import { progressionDashboardCurrentProcedure } from "./procedures/dashboard-current";
+import { progressionTraditionsCurrentProcedure } from "./procedures/traditions-current";
 import {
   progressionAttributePurchaseRequestProcedure,
   progressionAttributeReviewRequestProcedure,

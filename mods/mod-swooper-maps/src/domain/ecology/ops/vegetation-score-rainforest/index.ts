@@ -12,4 +12,3 @@ const scoreVegetationRainforest = createOp(ScoreVegetationRainforestContract, {
 export type * from "./contract.js";
 
 export default scoreVegetationRainforest;
-

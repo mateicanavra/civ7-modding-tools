@@ -8,7 +8,9 @@ const computeMesh = createOp(ComputeMeshContract, {
   strategies: {
     default: {
       normalize: (config, ctx) => {
-        deriveFoundationReferenceArea(requireEnvDimensions(ctx, "foundation/compute-mesh.normalize"));
+        deriveFoundationReferenceArea(
+          requireEnvDimensions(ctx, "foundation/compute-mesh.normalize")
+        );
         const scaledPlateCount = Math.max(2, config.plateCount | 0);
         const cellCount = Math.max(1, scaledPlateCount * (config.cellsPerPlate | 0));
 
@@ -25,7 +27,9 @@ const computeMesh = createOp(ComputeMeshContract, {
 
         const cellCount = config.cellCount ?? 0;
         if (!Number.isInteger(cellCount) || cellCount <= 0) {
-          throw new Error("[Foundation] compute-mesh missing derived cellCount (normalization bug).");
+          throw new Error(
+            "[Foundation] compute-mesh missing derived cellCount (normalization bug)."
+          );
         }
         const relaxationSteps = config.relaxationSteps;
 

@@ -26,4 +26,3 @@ const ScoreVegetationForestContract = defineOp({
 });
 
 export default ScoreVegetationForestContract;
-

@@ -4,10 +4,7 @@ import {
   MorphologyOrogenyKnobSchema,
   MorphologyVolcanismKnobSchema,
 } from "@mapgen/domain/morphology/config.js";
-import {
-  IslandsConfigSchema,
-  VolcanoesConfigSchema,
-} from "@mapgen/domain/morphology/ops";
+import { IslandsConfigSchema, VolcanoesConfigSchema } from "@mapgen/domain/morphology/ops";
 import {
   MountainRangesPublicSchema,
   resolveMountainRangesPublicConfig,

@@ -21,7 +21,13 @@ describe("map-morphology/plot-coasts", () => {
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
     };
 
-    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+    });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
     const size = width * height;
@@ -51,12 +57,12 @@ describe("map-morphology/plot-coasts", () => {
     expect(adapter.getTerrainType(2, 1)).toBe(COAST_TERRAIN);
     // Civ7 coast classification policy can promote neighboring ocean to coast.
     expect(adapter.getTerrainType(2, 0)).toBe(COAST_TERRAIN);
-    const coastClassification = context.artifacts.get(mapMorphologyArtifacts.coastClassification.id) as
-      | { baseWaterClass?: Uint8Array; waterClass?: Uint8Array }
-      | undefined;
+    const coastClassification = context.artifacts.get(
+      mapMorphologyArtifacts.coastClassification.id
+    ) as { baseWaterClass?: Uint8Array; waterClass?: Uint8Array } | undefined;
     expect(coastClassification?.baseWaterClass?.[2]).toBe(2);
     expect(coastClassification?.waterClass?.[2]).toBe(1);
-    expect([...coastClassification?.baseWaterClass ?? []]).toContain(2);
+    expect([...(coastClassification?.baseWaterClass ?? [])]).toContain(2);
 
     // expandCoasts is intentionally not invoked by this step.
     expect((adapter as any).calls?.expandCoasts?.length ?? 0).toBe(0);

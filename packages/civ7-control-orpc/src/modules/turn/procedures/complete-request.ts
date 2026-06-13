@@ -1,6 +1,4 @@
-import {
-  turnCompletionProofPostcondition,
-} from "@civ7/direct-control/proof/turn-completion-proof-policy";
+import { turnCompletionProofPostcondition } from "@civ7/direct-control/proof/turn-completion-proof-policy";
 import type { Civ7RuntimeProbe } from "@civ7/direct-control";
 import { Effect } from "effect";
 
@@ -10,41 +8,32 @@ import {
   civ7ControlOrpcErrorCorrelationData,
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
-import {
-  civ7MutationNextSteps,
-  civ7MutationRequestStatus,
-} from "../../../policy/mutation-result";
+import { civ7MutationNextSteps, civ7MutationRequestStatus } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7TurnCompletionResult } from "../contract";
 
-export const turnCompleteRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.turn.complete.request,
-  ).effect(function* ({
-    context,
-    errors,
-  }) {
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const result = await context.directControl.requestCiv7TurnComplete(
-          context.endpointDefaults,
-        );
-        return turnCompletionResult(result);
-      },
-      catch: (cause) =>
-        errors.TURN_COMPLETION_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: "turn.complete.request",
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const turnCompleteRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.turn.complete.request
+).effect(function* ({ context, errors }) {
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const result = await context.directControl.requestCiv7TurnComplete(context.endpointDefaults);
+      return turnCompletionResult(result);
+    },
+    catch: (cause) =>
+      errors.TURN_COMPLETION_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: "turn.complete.request",
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
 function turnCompletionResult(
-  result: Civ7ControlOrpcTurnCompletionRequestResult,
+  result: Civ7ControlOrpcTurnCompletionRequestResult
 ): Civ7TurnCompletionResult {
   if (!result.sent) return blockedTurnCompletionResult(result);
 
@@ -62,14 +51,16 @@ function turnCompletionResult(
       postcondition,
       source: "turn.complete.request",
       inspectKind: "inspect-turn-completion",
-      inspectLabel: "Inspect current turn completion state before attempting another turn completion request.",
-      doNotRepeatLabel: "Do not repeat turn completion until fresh turn and attention evidence is read.",
+      inspectLabel:
+        "Inspect current turn completion state before attempting another turn completion request.",
+      doNotRepeatLabel:
+        "Do not repeat turn completion until fresh turn and attention evidence is read.",
     }),
   };
 }
 
 function blockedTurnCompletionResult(
-  result: Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: false }>,
+  result: Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: false }>
 ): Civ7TurnCompletionResult {
   const postcondition: Civ7TurnCompletionResult["postcondition"] = {
     classification: "turn-completion-blocked",
@@ -94,7 +85,8 @@ function blockedTurnCompletionResult(
       {
         kind: "inspect-turn-completion",
         source: "turn.complete.request",
-        label: "Inspect current turn completion blockers before attempting another turn completion request.",
+        label:
+          "Inspect current turn completion blockers before attempting another turn completion request.",
       },
       {
         kind: "do-not-repeat",
@@ -106,7 +98,7 @@ function blockedTurnCompletionResult(
 }
 
 function turnCompletionRequestStatus(
-  postcondition: Civ7TurnCompletionResult["postcondition"],
+  postcondition: Civ7TurnCompletionResult["postcondition"]
 ): Civ7TurnCompletionResult["status"] {
   const status = civ7MutationRequestStatus({
     sent: true,
@@ -119,17 +111,16 @@ function turnCompletionRequestStatus(
 }
 
 function turnCompletionPostconditionSummary(
-  result: Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }>,
+  result: Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }>
 ): Civ7TurnCompletionResult["postcondition"] {
   const postcondition = turnCompletionProofPostcondition(result, undefined);
   const confirmed = postcondition.confidence === "confirmed";
 
   return {
-    classification: postcondition.classification as
-      Civ7TurnCompletionResult["postcondition"]["classification"],
+    classification:
+      postcondition.classification as Civ7TurnCompletionResult["postcondition"]["classification"],
     reason: postcondition.reason,
-    outcome: postcondition.outcome as
-      Civ7TurnCompletionResult["postcondition"]["outcome"],
+    outcome: postcondition.outcome as Civ7TurnCompletionResult["postcondition"]["outcome"],
     confidence: postcondition.confidence,
     confirmed,
     noRepeatAfterUnverified: postcondition.noRepeatAfterUnverified,
@@ -137,7 +128,7 @@ function turnCompletionPostconditionSummary(
 }
 
 function turnCompletionProbeSummary(
-  status: Civ7ControlOrpcTurnCompletionRequestResult["before"],
+  status: Civ7ControlOrpcTurnCompletionRequestResult["before"]
 ): Civ7TurnCompletionResult["before"] {
   return {
     turn: probeValue(status.turn),

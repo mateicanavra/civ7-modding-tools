@@ -49,4 +49,3 @@ export function scoreForestSuitability(args: {
 
   return score01;
 }
-

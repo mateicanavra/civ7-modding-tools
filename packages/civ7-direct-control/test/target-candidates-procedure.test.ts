@@ -30,41 +30,48 @@ describe("Civ7 target-candidates procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7TargetCandidatesProcedureDescriptor,
-      Civ7TargetCandidatesProcedureSchemaArtifacts,
+      Civ7TargetCandidatesProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7TargetCandidatesProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7TargetCandidatesProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7TargetCandidatesProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7TargetCandidatesProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      origins: [{ x: 18, y: 20 }],
-      maxCandidates: 4,
-      maxPlayers: 12,
-      unitRadius: 3,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        origins: [{ x: 18, y: 20 }],
+        maxCandidates: 4,
+        maxPlayers: 12,
+        unitRadius: 3,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { maxCandidates: 65 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { host: "127.0.0.1" })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { rawCommand: "readTargetCandidates()" })).toBe(false);
     expect(Value.Check(resolved.outputSchema, targetCandidatesResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...targetCandidatesResult(),
-      relationshipLabelPolicy: {
-        ...targetCandidatesResult().relationshipLabelPolicy,
-        relationshipProof: "owner-mismatch",
-      },
-    })).toBe(false);
-    expect(Value.Check(resolved.outputSchema, {
-      ...targetCandidatesResult(),
-      rawCommand: "readTargetCandidates()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...targetCandidatesResult(),
+        relationshipLabelPolicy: {
+          ...targetCandidatesResult().relationshipLabelPolicy,
+          relationshipProof: "owner-mismatch",
+        },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...targetCandidatesResult(),
+        rawCommand: "readTargetCandidates()",
+      })
+    ).toBe(false);
   });
 
   test("calls the target-candidates atom through the procedure core without touching the live tuner", async () => {
     const validatedPlayers: number[] = [];
-    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> =
+      [];
     const executeCalls: Array<{ host?: string; port?: number; command: string }> = [];
     const dependencies: TargetCandidatesDependencies = {
       validatePlayerId: (playerId) => {
@@ -90,22 +97,25 @@ describe("Civ7 target-candidates procedure descriptor", () => {
       parseTargetCandidates: () => targetCandidatesResult(),
     };
 
-    const result = await callCiv7TargetCandidatesProcedure({
-      playerId: 0,
-      origins: [{ x: 18, y: 20 }],
-      maxCandidates: 4,
-      maxPlayers: 12,
-      unitRadius: 3,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7TargetCandidatesProcedure(
+      {
+        playerId: 0,
+        origins: [{ x: 18, y: 20 }],
+        maxCandidates: 4,
+        maxPlayers: 12,
+        unitRadius: 3,
       },
-      procedure: {
-        correlationId: "target-candidates-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "target-candidates-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(targetCandidatesResult());
     expect(result.output.relationshipLabelPolicy).toEqual({
@@ -155,10 +165,15 @@ describe("Civ7 target-candidates procedure descriptor", () => {
       parseTargetCandidates: () => targetCandidatesResult(),
     };
 
-    await expect(callCiv7TargetCandidatesProcedure({ maxCandidates: 65 }, {
-      procedure: { correlationId: "target-candidates-invalid-max" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7TargetCandidatesProcedure(
+        { maxCandidates: 65 },
+        {
+          procedure: { correlationId: "target-candidates-invalid-max" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -166,12 +181,17 @@ describe("Civ7 target-candidates procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7TargetCandidatesProcedure({
-      host: "127.0.0.1",
-    } as never, {
-      procedure: { correlationId: "target-candidates-context-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7TargetCandidatesProcedure(
+        {
+          host: "127.0.0.1",
+        } as never,
+        {
+          procedure: { correlationId: "target-candidates-context-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

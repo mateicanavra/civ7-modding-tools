@@ -12,4 +12,3 @@ const scoreWetWateringHole = createOp(ScoreWetWateringHoleContract, {
 export type * from "./contract.js";
 
 export default scoreWetWateringHole;
-

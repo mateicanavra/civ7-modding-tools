@@ -39,7 +39,7 @@ describe("government-domain choice requests", () => {
         invalidIntegerError: (field) => {
           throw new Error(`${field} invalid`);
         },
-      },
+      }
     );
 
     expect(result).toMatchObject({
@@ -89,7 +89,7 @@ describe("government-domain choice requests", () => {
         invalidIntegerError: (field) => {
           throw new Error(`${field} invalid`);
         },
-      },
+      }
     );
 
     expect(result).toMatchObject({
@@ -122,7 +122,7 @@ describe("government-domain choice requests", () => {
         invalidIntegerError: (field) => {
           throw new Error(`${field} invalid`);
         },
-      },
+      }
     );
 
     expect(result).toMatchObject({
@@ -153,7 +153,7 @@ describe("government-domain choice requests", () => {
         invalidIntegerError: (field) => {
           throw new Error(`${field} invalid`);
         },
-      },
+      }
     );
 
     expect(result).toMatchObject({
@@ -186,8 +186,8 @@ describe("government-domain choice requests", () => {
           invalidIntegerError: (field) => {
             throw new Error(`${field} invalid`);
           },
-        },
-      ),
+        }
+      )
     ).rejects.toThrow("governmentType invalid");
 
     await expect(
@@ -202,8 +202,8 @@ describe("government-domain choice requests", () => {
           invalidIntegerError: (field) => {
             throw new Error(`${field} invalid`);
           },
-        },
-      ),
+        }
+      )
     ).rejects.toThrow("action invalid");
 
     await expect(
@@ -218,8 +218,8 @@ describe("government-domain choice requests", () => {
           invalidIntegerError: (field) => {
             throw new Error(`${field} invalid`);
           },
-        },
-      ),
+        }
+      )
     ).rejects.toThrow("goldenAgeType invalid");
   });
 });
@@ -231,7 +231,7 @@ function operationResult(
     operationType: string;
     playerId: number;
     args: Readonly<Record<string, number>>;
-  }>,
+  }>
 ): Civ7OperationRequestResult {
   const valid = options.valid ?? true;
   return {
@@ -248,7 +248,7 @@ function validationResult(
     playerId: number;
     args: Readonly<Record<string, number>>;
   }>,
-  valid: boolean,
+  valid: boolean
 ): Civ7OperationRequestResult["before"] {
   return {
     host: "127.0.0.1",

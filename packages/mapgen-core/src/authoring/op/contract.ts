@@ -61,7 +61,9 @@ export function defineOp<
 
   return {
     ...def,
-    config: configSchema as unknown as TUnsafe<OpTypeBag<typeof def.input, typeof def.output, typeof def.strategies>["envelope"]>,
+    config: configSchema as unknown as TUnsafe<
+      OpTypeBag<typeof def.input, typeof def.output, typeof def.strategies>["envelope"]
+    >,
     defaultConfig: defaultConfig as unknown as OpContract<
       Kind,
       Id,

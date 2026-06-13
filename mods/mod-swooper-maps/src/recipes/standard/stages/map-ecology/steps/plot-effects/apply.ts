@@ -7,10 +7,7 @@ type PlotEffectPlacement = {
   plotEffect: PlotEffectKey;
 };
 
-const resolvePlotEffectIndex = (
-  context: ExtendedMapContext,
-  key: PlotEffectKey
-): number => {
+const resolvePlotEffectIndex = (context: ExtendedMapContext, key: PlotEffectKey): number => {
   const index = context.adapter.getPlotEffectTypeIndex(key);
   if (typeof index !== "number" || Number.isNaN(index) || index < 0) {
     throw new Error(`PlotEffectsStep: Unknown plot-effect key "${key}".`);

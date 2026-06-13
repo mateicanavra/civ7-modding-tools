@@ -24,4 +24,3 @@ export function resolveBoundaryRegime(params: {
   if (stress > 0) return BOUNDARY_TYPE.transform;
   return 0;
 }
-

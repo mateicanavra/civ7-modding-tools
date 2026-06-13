@@ -55,8 +55,7 @@ describe("CIV-18: Call-site Fixes", () => {
       const height = 5;
       const waterGrid = new Set(["0,0", "0,1", "1,0"]); // Water tiles
 
-      const isWater = (x: number, y: number): boolean =>
-        waterGrid.has(`${x},${y}`);
+      const isWater = (x: number, y: number): boolean => waterGrid.has(`${x},${y}`);
 
       // Local fallback implementation (mirrors climate-engine.ts)
       const isCoastalLandFallback = (x: number, y: number): boolean => {

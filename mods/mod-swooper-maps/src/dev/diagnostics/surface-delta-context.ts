@@ -608,8 +608,16 @@ export function buildNaturalWonderFootprintReadbackContexts(
         direction,
       });
       if (!footprintPlotIndexes) return [];
-      const localMatchCount = countFeatureMatches(proof.local, footprintPlotIndexes, placement.featureType);
-      const liveMatchCount = countFeatureMatches(proof.live, footprintPlotIndexes, placement.featureType);
+      const localMatchCount = countFeatureMatches(
+        proof.local,
+        footprintPlotIndexes,
+        placement.featureType
+      );
+      const liveMatchCount = countFeatureMatches(
+        proof.live,
+        footprintPlotIndexes,
+        placement.featureType
+      );
       return [
         {
           direction,
@@ -622,7 +630,8 @@ export function buildNaturalWonderFootprintReadbackContexts(
       ];
     });
     const declaredDirection = normalizeDirectionForReadback(placement.direction);
-    const declared = candidates.find((candidate) => candidate.direction === declaredDirection) ?? candidates[0];
+    const declared =
+      candidates.find((candidate) => candidate.direction === declaredDirection) ?? candidates[0];
     const bestLocalMatchCount = maxMatchCount(candidates, "localMatchCount");
     const bestLiveMatchCount = maxMatchCount(candidates, "liveMatchCount");
     const bestLocalDirections = candidates
@@ -679,7 +688,9 @@ export function buildNaturalWonderFootprintCatalogContexts(
     const policy = CIV7_BROWSER_TABLES_V0.featurePolicies[String(entry.featureType)] ?? {};
     const naturalWonderTiles = Math.max(1, Math.trunc(numberValue(policy.naturalWonderTiles) ?? 1));
     const localProjectionDirection = normalizeDirectionForReadback(entry.direction);
-    const localProjectionOffsets = [...(getNaturalWonderFootprintOffsets(policy, entry.direction) ?? [])];
+    const localProjectionOffsets = [
+      ...(getNaturalWonderFootprintOffsets(policy, entry.direction) ?? []),
+    ];
     const supportedDirections = [0, 1, 2, 3, 4, 5].flatMap((direction) => {
       const offsets = getNaturalWonderFootprintOffsets(policy, direction);
       if (!offsets) return [];
@@ -710,8 +721,12 @@ export function buildNaturalWonderFootprintCatalogContexts(
 export function buildNaturalWonderLiveProofBoundaryContext(
   proof: Pick<FinalSurfaceParityProof, "local" | "exactAuthorshipPacket">
 ): NaturalWonderLiveProofBoundaryContext {
-  const localPlacementStats = readNaturalWonderPlacementStats(proof.local.evidence?.naturalWonderPlacement);
-  const liveTelemetryPlacementStats = readNaturalWonderPlacementStatsFromLogTelemetry(proof.exactAuthorshipPacket?.log);
+  const localPlacementStats = readNaturalWonderPlacementStats(
+    proof.local.evidence?.naturalWonderPlacement
+  );
+  const liveTelemetryPlacementStats = readNaturalWonderPlacementStatsFromLogTelemetry(
+    proof.exactAuthorshipPacket?.log
+  );
   const liveProofPlacementStats = readNaturalWonderPlacementStatsFromLogPayload(
     proof.exactAuthorshipPacket?.log,
     "proofPayload"
@@ -778,13 +793,25 @@ export function buildResourceDeltaPlacementContexts(
       legality: {
         ...(localResource === null
           ? {}
-          : { localValueOnLocal: staticSurfaceLegality(proof.local, "resource", x, y, localResource) }),
+          : {
+              localValueOnLocal: staticSurfaceLegality(
+                proof.local,
+                "resource",
+                x,
+                y,
+                localResource
+              ),
+            }),
         ...(localResource === null
           ? {}
-          : { localValueOnLive: staticSurfaceLegality(proof.live, "resource", x, y, localResource) }),
+          : {
+              localValueOnLive: staticSurfaceLegality(proof.live, "resource", x, y, localResource),
+            }),
         ...(liveResource === null
           ? {}
-          : { liveValueOnLocal: staticSurfaceLegality(proof.local, "resource", x, y, liveResource) }),
+          : {
+              liveValueOnLocal: staticSurfaceLegality(proof.local, "resource", x, y, liveResource),
+            }),
         ...(liveResource === null
           ? {}
           : { liveValueOnLive: staticSurfaceLegality(proof.live, "resource", x, y, liveResource) }),
@@ -923,10 +950,18 @@ export function buildSurfaceDeltaContext(
       context: liveContext,
     },
     legality: {
-      ...(localValue === null ? {} : { localValueOnLocal: staticSurfaceLegality(local, key, x, y, localValue) }),
-      ...(localValue === null ? {} : { localValueOnLive: staticSurfaceLegality(live, key, x, y, localValue) }),
-      ...(liveValue === null ? {} : { liveValueOnLocal: staticSurfaceLegality(local, key, x, y, liveValue) }),
-      ...(liveValue === null ? {} : { liveValueOnLive: staticSurfaceLegality(live, key, x, y, liveValue) }),
+      ...(localValue === null
+        ? {}
+        : { localValueOnLocal: staticSurfaceLegality(local, key, x, y, localValue) }),
+      ...(localValue === null
+        ? {}
+        : { localValueOnLive: staticSurfaceLegality(live, key, x, y, localValue) }),
+      ...(liveValue === null
+        ? {}
+        : { liveValueOnLocal: staticSurfaceLegality(local, key, x, y, liveValue) }),
+      ...(liveValue === null
+        ? {}
+        : { liveValueOnLive: staticSurfaceLegality(live, key, x, y, liveValue) }),
     },
   };
 }
@@ -963,7 +998,11 @@ export function staticSurfaceLegality(
   };
 }
 
-export function cellSurfaceContext(snapshot: SnapshotLike, x: number, y: number): CellSurfaceContext {
+export function cellSurfaceContext(
+  snapshot: SnapshotLike,
+  x: number,
+  y: number
+): CellSurfaceContext {
   const terrain = surfaceValue(snapshot, "terrain", x, y);
   const biome = surfaceValue(snapshot, "biome", x, y);
   const feature = surfaceValue(snapshot, "feature", x, y);
@@ -1118,7 +1157,11 @@ function readNaturalWonderFootprintEvidence(snapshot: FinalSurfaceSnapshot): {
         featureSymbol: symbolFor("feature", placement.featureType),
         direction: placement.direction,
         priority: placement.priority,
-        footprintDistanceFromAnchor: hexDistanceOddQPeriodicX(placement.anchorPlotIndex, plotIndex, snapshot.width),
+        footprintDistanceFromAnchor: hexDistanceOddQPeriodicX(
+          placement.anchorPlotIndex,
+          plotIndex,
+          snapshot.width
+        ),
       });
     }
   }
@@ -1138,9 +1181,10 @@ function readNaturalWonderPlacementEvidence(snapshot: FinalSurfaceSnapshot): {
   const placements = [];
   const evidence = snapshot.evidence;
   const naturalWonderPlan = isRecord(evidence) ? evidence.naturalWonderPlan : undefined;
-  const rawPlacements = isRecord(naturalWonderPlan) && Array.isArray(naturalWonderPlan.placements)
-    ? naturalWonderPlan.placements
-    : [];
+  const rawPlacements =
+    isRecord(naturalWonderPlan) && Array.isArray(naturalWonderPlan.placements)
+      ? naturalWonderPlan.placements
+      : [];
   for (const rawPlacement of rawPlacements) {
     if (!isRecord(rawPlacement)) continue;
     const anchorPlotIndex = finiteInteger(rawPlacement.plotIndex);
@@ -1281,7 +1325,11 @@ function naturalWonderReadbackDisposition(
   observedReadbacks: ReadonlyArray<NaturalWonderFootprintCatalogReadbackContext>
 ): NaturalWonderFootprintCatalogContext["readbackDisposition"] {
   if (observedReadbacks.length === 0) return "no-exact-run-evidence";
-  if (observedReadbacks.some((readback) => readback.classification === "live-direction-differs-from-local")) {
+  if (
+    observedReadbacks.some(
+      (readback) => readback.classification === "live-direction-differs-from-local"
+    )
+  ) {
     return "observed-live-direction-drift";
   }
   if (
@@ -1308,11 +1356,15 @@ function naturalWonderLiveProofBoundaryClass(args: {
   return "placement-stats-missing";
 }
 
-function readNaturalWonderPlacementStats(value: unknown): NaturalWonderPlacementStatsContext | null {
+function readNaturalWonderPlacementStats(
+  value: unknown
+): NaturalWonderPlacementStatsContext | null {
   if (!isRecord(value)) return null;
   const coordinateProof = readNaturalWonderCoordinateProof(value.coordinateProof);
   const rejectionExamples = Array.isArray(value.rejectionExamples)
-    ? value.rejectionExamples.filter((entry): entry is string => typeof entry === "string").slice(0, 8)
+    ? value.rejectionExamples
+        .filter((entry): entry is string => typeof entry === "string")
+        .slice(0, 8)
     : [];
   const stats = {
     plannedCount: numberValue(value.plannedCount),
@@ -1349,14 +1401,20 @@ function readNaturalWonderPlacementStatsFromLogTelemetry(
   if (!isRecord(log)) return null;
   const telemetry = log.naturalWonderPlacement;
   if (!isRecord(telemetry)) return null;
-  return readNaturalWonderPlacementStats(telemetry.payload) ??
+  return (
+    readNaturalWonderPlacementStats(telemetry.payload) ??
     readNaturalWonderPlacementStats({
       ...(isRecord(telemetry.stats) ? telemetry.stats : {}),
-      ...(isRecord(telemetry.coordinateProof) ? { coordinateProof: telemetry.coordinateProof } : {}),
-    });
+      ...(isRecord(telemetry.coordinateProof)
+        ? { coordinateProof: telemetry.coordinateProof }
+        : {}),
+    })
+  );
 }
 
-function readNaturalWonderCoordinateProof(value: unknown): NaturalWonderPlacementStatsContext["coordinateProof"] {
+function readNaturalWonderCoordinateProof(
+  value: unknown
+): NaturalWonderPlacementStatsContext["coordinateProof"] {
   if (!isRecord(value)) return null;
   const nestedPlaced = readCoordinateDigest(value.placed);
   const nestedRejected = readCoordinateDigest(value.rejected);
@@ -1402,9 +1460,7 @@ function addResourceSurfaceReasons(
   }
   const surfaceMatches = rows.some(
     (row) =>
-      row[0] === context.biome &&
-      row[1] === context.terrain &&
-      row[2] === (context.feature ?? -1)
+      row[0] === context.biome && row[1] === context.terrain && row[2] === (context.feature ?? -1)
   );
   if (!surfaceMatches) reasons.push("resource.surface");
   const flags = CIV7_BROWSER_TABLES_V0.resourcePlacementFlags[String(resourceType)];
@@ -1428,9 +1484,7 @@ function resourceStaticPolicyContext(
   const matchingRows = rows
     .filter(
       (row) =>
-        row[0] === context.biome &&
-        row[1] === context.terrain &&
-        row[2] === (context.feature ?? -1)
+        row[0] === context.biome && row[1] === context.terrain && row[2] === (context.feature ?? -1)
     )
     .map((row) => ({
       biome: row[0],
@@ -1533,32 +1587,34 @@ function terrainDeltaNeighborhood(
   y: number
 ): TerrainDeltaNeighborhoodContext {
   const offsets = (x & 1) === 1 ? ODD_Q_NEIGHBORS_ODD : ODD_Q_NEIGHBORS_EVEN;
-  const neighbors = offsets.flatMap(([dx, dy], direction): ReadonlyArray<TerrainDeltaNeighborContext> => {
-    const ny = y + dy;
-    if (ny < 0 || ny >= local.height) return [];
-    const nx = local.width > 0 ? wrapX(x + dx, local.width) : x + dx;
-    const plotIndex = ny * local.width + nx;
-    const localTerrain = surfaceValue(local, "terrain", nx, ny);
-    const liveTerrain = surfaceValue(live, "terrain", nx, ny);
-    return [
-      {
-        direction,
-        x: nx,
-        y: ny,
-        plotIndex,
-        localTerrain: {
-          value: localTerrain,
-          symbol: symbolFor("terrain", localTerrain),
-          waterClass: terrainWaterClass(localTerrain),
+  const neighbors = offsets.flatMap(
+    ([dx, dy], direction): ReadonlyArray<TerrainDeltaNeighborContext> => {
+      const ny = y + dy;
+      if (ny < 0 || ny >= local.height) return [];
+      const nx = local.width > 0 ? wrapX(x + dx, local.width) : x + dx;
+      const plotIndex = ny * local.width + nx;
+      const localTerrain = surfaceValue(local, "terrain", nx, ny);
+      const liveTerrain = surfaceValue(live, "terrain", nx, ny);
+      return [
+        {
+          direction,
+          x: nx,
+          y: ny,
+          plotIndex,
+          localTerrain: {
+            value: localTerrain,
+            symbol: symbolFor("terrain", localTerrain),
+            waterClass: terrainWaterClass(localTerrain),
+          },
+          liveTerrain: {
+            value: liveTerrain,
+            symbol: symbolFor("terrain", liveTerrain),
+            waterClass: terrainWaterClass(liveTerrain),
+          },
         },
-        liveTerrain: {
-          value: liveTerrain,
-          symbol: symbolFor("terrain", liveTerrain),
-          waterClass: terrainWaterClass(liveTerrain),
-        },
-      },
-    ];
-  });
+      ];
+    }
+  );
   return {
     neighbors,
     localCounts: countTerrainNeighborClasses(neighbors, "localTerrain"),
@@ -1626,17 +1682,18 @@ function terrainProjectionRowContext(
   snapshot: FinalSurfaceSnapshot,
   plotIndex: number
 ): TerrainProjectionRowContext | null {
-  const projection = isRecord(snapshot.evidence) && isRecord(snapshot.evidence.terrainProjection)
-    ? snapshot.evidence.terrainProjection
-    : undefined;
+  const projection =
+    isRecord(snapshot.evidence) && isRecord(snapshot.evidence.terrainProjection)
+      ? snapshot.evidence.terrainProjection
+      : undefined;
   if (!projection) return null;
-  const morphology = isRecord(projection.coastlineMetrics) ? projection.coastlineMetrics : undefined;
+  const morphology = isRecord(projection.coastlineMetrics)
+    ? projection.coastlineMetrics
+    : undefined;
   const mapMorphologyCoastPolicy = isRecord(projection.mapMorphologyCoastPolicy)
     ? projection.mapMorphologyCoastPolicy
     : undefined;
-  const mapMorphologyCoastTerrainSnapshot = isRecord(
-    projection.mapMorphologyCoastTerrainSnapshot
-  )
+  const mapMorphologyCoastTerrainSnapshot = isRecord(projection.mapMorphologyCoastTerrainSnapshot)
     ? projection.mapMorphologyCoastTerrainSnapshot
     : undefined;
   const mapMorphologyContinentValidationSnapshot = isRecord(
@@ -1644,7 +1701,9 @@ function terrainProjectionRowContext(
   )
     ? projection.mapMorphologyContinentValidationSnapshot
     : undefined;
-  const hydrologyLakePlan = isRecord(projection.hydrologyLakePlan) ? projection.hydrologyLakePlan : undefined;
+  const hydrologyLakePlan = isRecord(projection.hydrologyLakePlan)
+    ? projection.hydrologyLakePlan
+    : undefined;
   const mapHydrologyProjection = isRecord(projection.mapHydrologyProjection)
     ? projection.mapHydrologyProjection
     : undefined;
@@ -1711,7 +1770,10 @@ function terrainProjectionRowContext(
             indexedInteger(mapHydrologyProjection.engineTerrain, plotIndex)
           ),
           engineAreaId: indexedInteger(mapHydrologyProjection.engineAreaId, plotIndex),
-          terrainMismatchMask: indexedInteger(mapHydrologyProjection.terrainMismatchMask, plotIndex),
+          terrainMismatchMask: indexedInteger(
+            mapHydrologyProjection.terrainMismatchMask,
+            plotIndex
+          ),
           terrainMismatchTileCount: finiteInteger(mapHydrologyProjection.terrainMismatchTileCount),
           nonLakeTileCount: finiteInteger(mapHydrologyProjection.nonLakeTileCount),
           morphologyProtectedLakeTileCount: finiteInteger(
@@ -1720,7 +1782,10 @@ function terrainProjectionRowContext(
         }
       : null,
     hydrologyTerrainSnapshot: projectionSnapshotRowContext(hydrologyTerrainSnapshot, plotIndex),
-    mapElevationTerrainSnapshot: projectionSnapshotRowContext(mapElevationTerrainSnapshot, plotIndex),
+    mapElevationTerrainSnapshot: projectionSnapshotRowContext(
+      mapElevationTerrainSnapshot,
+      plotIndex
+    ),
     mapRiversTerrainSnapshot: projectionSnapshotRowContext(mapRiversTerrainSnapshot, plotIndex),
     placementSurfacePreparation: placementSurfacePreparation
       ? {
@@ -1734,7 +1799,10 @@ function terrainProjectionRowContext(
         }
       : null,
     placementTerrainSnapshot: projectionSnapshotRowContext(placementTerrainSnapshot, plotIndex),
-    placementValidationBoundary: validationBoundaryRowContext(placementValidationBoundary, plotIndex),
+    placementValidationBoundary: validationBoundaryRowContext(
+      placementValidationBoundary,
+      plotIndex
+    ),
   };
 }
 
@@ -1745,7 +1813,9 @@ function validationBoundaryRowContext(
   if (!snapshot) return null;
   const beforeValidate = isRecord(snapshot.beforeValidate) ? snapshot.beforeValidate : undefined;
   const afterValidate = isRecord(snapshot.afterValidate) ? snapshot.afterValidate : undefined;
-  const afterMaintenance = isRecord(snapshot.afterMaintenance) ? snapshot.afterMaintenance : undefined;
+  const afterMaintenance = isRecord(snapshot.afterMaintenance)
+    ? snapshot.afterMaintenance
+    : undefined;
   return {
     beforeValidate: validationBoundaryFactContext(beforeValidate, plotIndex),
     afterValidate: validationBoundaryFactContext(afterValidate, plotIndex),
@@ -1983,7 +2053,9 @@ function hash32Value(value: unknown): string | null {
   return typeof value === "string" && /^[0-9a-f]{8}$/i.test(value) ? value.toLowerCase() : null;
 }
 
-function readCoordinateDigest(value: unknown): Readonly<{ count: number | null; hash32: string | null }> | null {
+function readCoordinateDigest(
+  value: unknown
+): Readonly<{ count: number | null; hash32: string | null }> | null {
   if (!isRecord(value)) return null;
   const count = numberValue(value.count);
   const hash32 = hash32Value(value.hash32);
@@ -2023,7 +2095,9 @@ function symbolFor(key: FinalSurfaceKey, value: number | null): string {
   return lookup[value] ?? `UNKNOWN_${key.toUpperCase()}_${value}`;
 }
 
-function invertNumberMap(value: Readonly<Record<string, number>>): Readonly<Record<number, string>> {
+function invertNumberMap(
+  value: Readonly<Record<string, number>>
+): Readonly<Record<number, string>> {
   return Object.fromEntries(Object.entries(value).map(([key, id]) => [id, key]));
 }
 

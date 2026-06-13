@@ -42,7 +42,11 @@ const RESOURCE_OUTCOME_CATEGORIES = [
 type ResourceOutcomeRow = Readonly<{
   status: "placed" | "rejected" | "mismatch";
   plotIndex: number;
-  reason?: "out-of-bounds" | "invalid-resource-type" | "cannot-have-resource" | "wrong-resource-type";
+  reason?:
+    | "out-of-bounds"
+    | "invalid-resource-type"
+    | "cannot-have-resource"
+    | "wrong-resource-type";
 }>;
 
 function resourceOutcomeCategoryValue(outcome: ResourceOutcomeRow): number {

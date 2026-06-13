@@ -1,6 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
-import { estimateDivergenceOddQ, projectOddqToHexSpace, wrapX } from "@swooper/mapgen-core/lib/grid";
+import {
+  estimateDivergenceOddQ,
+  projectOddqToHexSpace,
+  wrapX,
+} from "@swooper/mapgen-core/lib/grid";
 
 import ComputePrecipitationContract from "../contract.js";
 import { clampRainfall, computeDistanceToWater, rainfallToHumidityU8 } from "../rules/index.js";
@@ -35,8 +39,12 @@ function getNeighborDeltaHexSpaceFrom(baseX: number, dx: number, dy: number): Ve
   return { x: p.x - base.x, y: p.y - base.y };
 }
 
-const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) => getNeighborDeltaHexSpaceFrom(1, dx, dy));
-const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) => getNeighborDeltaHexSpaceFrom(0, dx, dy));
+const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) =>
+  getNeighborDeltaHexSpaceFrom(1, dx, dy)
+);
+const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) =>
+  getNeighborDeltaHexSpaceFrom(0, dx, dy)
+);
 
 function elevationGradientOddQ(
   x: number,

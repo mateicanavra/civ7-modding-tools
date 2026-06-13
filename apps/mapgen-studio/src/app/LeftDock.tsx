@@ -26,7 +26,8 @@ export function LeftDock({ top, bottom, children }: LeftDockProps) {
     <aside
       aria-label="Recipe and configuration"
       className="absolute left-4 z-10 flex flex-col items-stretch pointer-events-none"
-      style={{ top, bottom }}>
+      style={{ top, bottom }}
+    >
       {children}
     </aside>
   );

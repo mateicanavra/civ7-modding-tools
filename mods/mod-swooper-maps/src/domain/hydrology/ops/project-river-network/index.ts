@@ -10,4 +10,3 @@ export type * from "./types.js";
 export type * from "./contract.js";
 
 export default projectRiverNetwork;
-

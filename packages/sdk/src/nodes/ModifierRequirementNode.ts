@@ -4,38 +4,36 @@ import { REQUIREMENT } from "../constants";
 import { BaseNode } from "./BaseNode";
 import { ArgumentNode, TArgumentNode } from "./ArgumentNode";
 
-export type TModifierRequirementNode = Pick<ModifierRequirementNode,
-    "type" |
-    "arguments"
->;
+export type TModifierRequirementNode = Pick<ModifierRequirementNode, "type" | "arguments">;
 
 export class ModifierRequirementNode extends BaseNode<TModifierRequirementNode> {
-    _name = 'Requirement';
+  _name = "Requirement";
 
-    type: TObjectValues<typeof REQUIREMENT> | null = REQUIREMENT.PLAYER_HAS_CIVILIZATION_OR_LEADER_TRAIT;
-    arguments: TArgumentNode[] = [];
+  type: TObjectValues<typeof REQUIREMENT> | null =
+    REQUIREMENT.PLAYER_HAS_CIVILIZATION_OR_LEADER_TRAIT;
+  arguments: TArgumentNode[] = [];
 
-    constructor(payload: Partial<TModifierRequirementNode> = {}) {
-        super();
-        this.fill(payload);
+  constructor(payload: Partial<TModifierRequirementNode> = {}) {
+    super();
+    this.fill(payload);
+  }
+
+  fill = (payload: Partial<TModifierRequirementNode> = {}) => {
+    for (const [key, value] of Object.entries(payload)) {
+      if (this.hasOwnProperty(key)) {
+        this[key] = value;
+      }
     }
+    return this;
+  };
 
-    fill = (payload: Partial<TModifierRequirementNode> = {}) => {
-        for (const [key, value] of Object.entries(payload)) {
-            if (this.hasOwnProperty(key)) {
-                this[key] = value;
-            }
-        }
-        return this;
-    }
-
-    toXmlElement() {
-        return {
-            _name: this._name,
-            _attrs: {
-                type: this.type,
-            },
-            _content: this.arguments.map(item => new ArgumentNode(item).toXmlElement())
-        }
-    }
+  toXmlElement() {
+    return {
+      _name: this._name,
+      _attrs: {
+        type: this.type,
+      },
+      _content: this.arguments.map((item) => new ArgumentNode(item).toXmlElement()),
+    };
+  }
 }

@@ -27,8 +27,7 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
     }),
     /** Raw drainage minima: lake/depression candidates, not automatic discharge terminals. */
     sinkMask: TypedArraySchemas.u8({
-      description:
-        "Mask (1/0): raw local drainage minima used as lake/depression candidates.",
+      description: "Mask (1/0): raw local drainage minima used as lake/depression candidates.",
     }),
     /** Routing outlets: land tiles that drain to ocean/edges (land→water/out-of-bounds). */
     outletMask: TypedArraySchemas.u8({
@@ -38,7 +37,8 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
     /** Optional basin identifier per tile (or -1 when unassigned). */
     basinId: Type.Optional(
       TypedArraySchemas.i32({
-        description: "Optional Hydrology drainage basin identifier per tile (or -1 when unassigned).",
+        description:
+          "Optional Hydrology drainage basin identifier per tile (or -1 when unassigned).",
       })
     ),
     routingElevation: Type.Optional(
@@ -144,7 +144,8 @@ export const HydrologyRiverNetworkMetricsArtifactSchema = Type.Object(
       description: "Contributing land-tile count draining through each land tile.",
     }),
     streamOrderProxy: TypedArraySchemas.u8({
-      description: "Strahler-like hierarchy proxy over Hydrology river truth (0 on non-river tiles).",
+      description:
+        "Strahler-like hierarchy proxy over Hydrology river truth (0 on non-river tiles).",
     }),
     mouthType: TypedArraySchemas.u8({
       description:

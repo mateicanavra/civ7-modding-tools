@@ -63,10 +63,7 @@ function isBroadVegetationHabitat(
       );
     case "FEATURE_SAGEBRUSH_STEPPE":
       return (
-        biome === BIOME_SYMBOL_TO_INDEX.desert &&
-        temp >= -12 &&
-        temp <= 32 &&
-        vegetation <= 0.72
+        biome === BIOME_SYMBOL_TO_INDEX.desert && temp >= -12 && temp <= 32 && vegetation <= 0.72
       );
     default:
       return false;

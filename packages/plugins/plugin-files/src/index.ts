@@ -1,8 +1,14 @@
-import * as path from 'node:path';
-import * as fsSync from 'node:fs';
-import { spawn } from 'node:child_process';
-import { loadConfig, resolveInstallDir, resolveUnzipDir, resolveZipPath, findProjectRoot } from '@civ7/config';
-import type { Dirent } from 'node:fs';
+import * as path from "node:path";
+import * as fsSync from "node:fs";
+import { spawn } from "node:child_process";
+import {
+  loadConfig,
+  resolveInstallDir,
+  resolveUnzipDir,
+  resolveZipPath,
+  findProjectRoot,
+} from "@civ7/config";
+import type { Dirent } from "node:fs";
 
 export interface ZipOptions {
   projectRoot?: string;
@@ -41,43 +47,46 @@ export interface DirectoryCopyOptions {
 
 function execSpawn(cmd: string, args: string[], cwd?: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const p = spawn(cmd, args, { cwd, stdio: 'pipe' });
-    p.on('close', (code) => {
+    const p = spawn(cmd, args, { cwd, stdio: "pipe" });
+    p.on("close", (code) => {
       if (code !== 0) return reject(new Error(`${cmd} exited with code ${code}`));
       resolve();
     });
-    p.on('error', (err) => reject(err));
+    p.on("error", (err) => reject(err));
   });
 }
 
 async function readUncompressedSize(zipPath: string): Promise<number> {
   return new Promise((resolve) => {
-    const p = spawn('unzip', ['-l', zipPath], { stdio: 'pipe' });
-    let out = '';
-    p.stdout.on('data', (d) => (out += d.toString()));
-    p.on('close', () => {
-      const last = out.trim().split('\n').pop() ?? '';
-      const size = last ? parseInt(last.trim().split(/\s+/)[0] ?? '0', 10) : 0;
+    const p = spawn("unzip", ["-l", zipPath], { stdio: "pipe" });
+    let out = "";
+    p.stdout.on("data", (d) => (out += d.toString()));
+    p.on("close", () => {
+      const last = out.trim().split("\n").pop() ?? "";
+      const size = last ? parseInt(last.trim().split(/\s+/)[0] ?? "0", 10) : 0;
       resolve(Number.isFinite(size) ? size : 0);
     });
-    p.on('error', () => resolve(0));
+    p.on("error", () => resolve(0));
   });
 }
 
 function normalizeGitmodulesPath(p: string): string {
-  return p.split(path.sep).join('/');
+  return p.split(path.sep).join("/");
 }
 
 function isDestConfiguredAsSubmodule(projectRoot: string, destDir: string): boolean {
-  const gitmodulesPath = path.join(projectRoot, '.gitmodules');
+  const gitmodulesPath = path.join(projectRoot, ".gitmodules");
   if (!fsSync.existsSync(gitmodulesPath)) return false;
 
   const rel = normalizeGitmodulesPath(path.relative(projectRoot, destDir));
-  if (!rel || rel.startsWith('..')) return false;
+  if (!rel || rel.startsWith("..")) return false;
 
-  const text = fsSync.readFileSync(gitmodulesPath, 'utf8');
+  const text = fsSync.readFileSync(gitmodulesPath, "utf8");
   // Match common .gitmodules formatting: `path = <rel>`
-  const re = new RegExp(`^\\s*path\\s*=\\s*${rel.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}\\s*$`, 'm');
+  const re = new RegExp(
+    `^\\s*path\\s*=\\s*${rel.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")}\\s*$`,
+    "m"
+  );
   return re.test(text);
 }
 
@@ -85,7 +94,7 @@ export async function zipResources(options: ZipOptions): Promise<OperationSummar
   const projectRoot = options.projectRoot ?? findProjectRoot(process.cwd());
   const cfg = await loadConfig(projectRoot, options.configPath);
   const raw = cfg.raw ?? {};
-  const profile = options.profile ?? 'default';
+  const profile = options.profile ?? "default";
 
   const srcDir = options.srcDir ?? resolveInstallDir(raw);
   if (!srcDir || !fsSync.existsSync(srcDir)) {
@@ -100,19 +109,19 @@ export async function zipResources(options: ZipOptions): Promise<OperationSummar
   const includePatterns: string[] = raw.profiles?.[profile]?.zip?.include || [];
   const excludePatterns: string[] = raw.profiles?.[profile]?.zip?.exclude || [];
 
-  const args: string[] = ['-r'];
-  if (!options.verbose) args.push('-q');
-  args.push('-X', zipPath);
+  const args: string[] = ["-r"];
+  if (!options.verbose) args.push("-q");
+  args.push("-X", zipPath);
   if (includePatterns.length > 0) {
     args.push(...includePatterns);
   } else {
-    args.push('.');
+    args.push(".");
     for (const pat of excludePatterns) {
-      args.push('-x', pat);
+      args.push("-x", pat);
     }
   }
 
-  await execSpawn('zip', args, srcDir);
+  await execSpawn("zip", args, srcDir);
 
   const archiveSizeBytes = fsSync.statSync(zipPath).size;
   const uncompressedSizeBytes = await readUncompressedSize(zipPath);
@@ -123,7 +132,7 @@ export async function unzipResources(options: UnzipOptions): Promise<OperationSu
   const projectRoot = options.projectRoot ?? findProjectRoot(process.cwd());
   const cfg = await loadConfig(projectRoot, options.configPath);
   const raw = cfg.raw ?? {};
-  const profile = options.profile ?? 'default';
+  const profile = options.profile ?? "default";
 
   const sourceZip = options.zip ?? resolveZipPath({ projectRoot, profile }, raw);
   if (!fsSync.existsSync(sourceZip)) {
@@ -132,11 +141,11 @@ export async function unzipResources(options: UnzipOptions): Promise<OperationSu
   const destDir = options.dest ?? resolveUnzipDir({ projectRoot, profile }, raw);
   const destIsSubmodule = isDestConfiguredAsSubmodule(projectRoot, destDir);
   if (destIsSubmodule) {
-    const gitMarker = path.join(destDir, '.git');
+    const gitMarker = path.join(destDir, ".git");
     if (!fsSync.existsSync(gitMarker)) {
       const rel = normalizeGitmodulesPath(path.relative(projectRoot, destDir));
       throw new Error(
-        `Destination is configured as a git submodule (${rel}), but is not initialized. Run 'bun run resources:init' and retry.`,
+        `Destination is configured as a git submodule (${rel}), but is not initialized. Run 'bun run resources:init' and retry.`
       );
     }
     // Preserve the submodule metadata but ensure a "fresh" extract by clearing everything
@@ -144,7 +153,7 @@ export async function unzipResources(options: UnzipOptions): Promise<OperationSu
     fsSync.mkdirSync(destDir, { recursive: true });
     const entries = fsSync.readdirSync(destDir);
     for (const entry of entries) {
-      if (entry === '.git') continue;
+      if (entry === ".git") continue;
       fsSync.rmSync(path.join(destDir, entry), { recursive: true, force: true });
     }
   } else {
@@ -152,7 +161,7 @@ export async function unzipResources(options: UnzipOptions): Promise<OperationSu
     fsSync.mkdirSync(destDir, { recursive: true });
   }
 
-  await execSpawn('unzip', ['-q', '-o', sourceZip, '-d', destDir]);
+  await execSpawn("unzip", ["-q", "-o", sourceZip, "-d", destDir]);
 
   const archiveSizeBytes = fsSync.statSync(sourceZip).size;
   const uncompressedSizeBytes = await readUncompressedSize(sourceZip);
@@ -169,7 +178,11 @@ export function ensureDirectory(pathToEnsure: string): void {
   ensureDir(pathToEnsure);
 }
 
-export function copyDirectoryRecursive(sourceDir: string, destDir: string, options?: DirectoryCopyOptions): CopySummary {
+export function copyDirectoryRecursive(
+  sourceDir: string,
+  destDir: string,
+  options?: DirectoryCopyOptions
+): CopySummary {
   const summary: CopySummary = { copiedFiles: 0, skippedEntries: 0, errors: 0 };
   const root = sourceDir;
   ensureDir(destDir);
@@ -217,7 +230,7 @@ export function copyDirectoryRecursive(sourceDir: string, destDir: string, optio
     }
   }
 
-  recurse(sourceDir, destDir, '.');
+  recurse(sourceDir, destDir, ".");
   return summary;
 }
 
@@ -229,16 +242,16 @@ export function copyDirectoryRecursive(sourceDir: string, destDir: string, optio
  */
 export function resolveGameDataDir(): string {
   const platform = process.platform;
-  if (platform === 'darwin') {
-    const home = process.env.HOME || process.env.USERPROFILE || '';
-    return path.join(home, 'Library', 'Application Support', 'Civilization VII');
+  if (platform === "darwin") {
+    const home = process.env.HOME || process.env.USERPROFILE || "";
+    return path.join(home, "Library", "Application Support", "Civilization VII");
   }
-  if (platform === 'win32') {
-    const userProfile = process.env.USERPROFILE || '';
-    return path.join(userProfile, 'Documents', 'My Games', "Sid Meier's Civilization VII");
+  if (platform === "win32") {
+    const userProfile = process.env.USERPROFILE || "";
+    return path.join(userProfile, "Documents", "My Games", "Sid Meier's Civilization VII");
   }
-  const home = process.env.HOME || process.env.USERPROFILE || '';
-  return path.join(home, '.local', 'share', 'civ7');
+  const home = process.env.HOME || process.env.USERPROFILE || "";
+  return path.join(home, ".local", "share", "civ7");
 }
 
 export interface ModsDirInfo {
@@ -251,5 +264,5 @@ export interface ModsDirInfo {
  */
 export function resolveModsDir(): ModsDirInfo {
   const base = resolveGameDataDir();
-  return { platform: process.platform, modsDir: path.join(base, 'Mods') };
+  return { platform: process.platform, modsDir: path.join(base, "Mods") };
 }

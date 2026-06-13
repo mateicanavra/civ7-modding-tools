@@ -55,7 +55,7 @@ export class RecipeDagNotFound extends Error {
 }
 
 export function createRecipeDagService(
-  sources: readonly RecipeDagSource[] | RecipeDagSourcesProvider = getDefaultRecipeDagSources,
+  sources: readonly RecipeDagSource[] | RecipeDagSourcesProvider = getDefaultRecipeDagSources
 ): RecipeDagService {
   return {
     async getRecipeDag(recipeId: string): Promise<RecipeDagResult> {

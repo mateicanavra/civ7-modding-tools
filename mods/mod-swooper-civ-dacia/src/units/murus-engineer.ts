@@ -21,14 +21,14 @@ import {
   TERRAIN,
   RESOURCE,
   RESOURCE_CLASS,
-} from '@mateicanavra/civ7-sdk';
-import { UnitPackage } from '@types';
+} from "@mateicanavra/civ7-sdk";
+import { UnitPackage } from "@types";
 
 // Define unit icon
 const murusEngineerIcon = new ImportFileBuilder({
   actionGroupBundle: ACTION_GROUP_BUNDLE.AGE_ANTIQUITY,
-  content: 'blp:unitflag_prospector',
-  name: 'murus_engineer',
+  content: "blp:unitflag_prospector",
+  name: "murus_engineer",
 });
 
 // Define the Murus Engineer unit
@@ -36,7 +36,7 @@ const unitDefinition = new UnitBuilder({
   actionGroupBundle: ACTION_GROUP_BUNDLE.AGE_ANTIQUITY,
   typeTags: [UNIT_CLASS.RECON],
   unit: {
-    unitType: 'UNIT_MURUS_ENGINEER',
+    unitType: "UNIT_MURUS_ENGINEER",
     baseMoves: 2,
     baseSightRange: 2,
     buildCharges: 3,
@@ -45,15 +45,15 @@ const unitDefinition = new UnitBuilder({
   },
   icon: {
     // path: `fs://game/${mod.id}/${murusEngineerIcon.name}`,
-    path: 'blp:unitflag_prospector',
+    path: "blp:unitflag_prospector",
   },
   unitCost: { cost: 80 },
   visualRemap: { to: UNIT_CLASS.PROSPECTOR },
   localizations: [
     {
-      name: 'Murus Engineer',
+      name: "Murus Engineer",
       description:
-        'Dacian unique civilian unit with 3 specialized charges for building Ancient Walls and claiming resources. Walls built by Murus Engineers provide +2 [icon:CITY_DEFENSE] City Defense Strength and units defending on these walls receive +3 [icon:COMBAT_MELEE] Combat Strength.',
+        "Dacian unique civilian unit with 3 specialized charges for building Ancient Walls and claiming resources. Walls built by Murus Engineers provide +2 [icon:CITY_DEFENSE] City Defense Strength and units defending on these walls receive +3 [icon:COMBAT_MELEE] Combat Strength.",
     },
   ],
 });
@@ -63,8 +63,8 @@ const claimResourceAbility = new AbilityBuilder({
   actionGroupBundle: ACTION_GROUP_BUNDLE.AGE_ANTIQUITY,
   ability: {
     abilityType: ABILITY.CLAIM_RESOURCE,
-    name: 'Claim Resource',
-    description: 'Claim an unclaimed resource, adding it to your civilization.',
+    name: "Claim Resource",
+    description: "Claim an unclaimed resource, adding it to your civilization.",
   },
   chargedAbility: {
     enabled: true,
@@ -78,26 +78,26 @@ const claimResourceAbility = new AbilityBuilder({
 const grantAbilityChargeModifierGold = new ModifierBuilder({
   actionGroupBundle: ACTION_GROUP_BUNDLE.AGE_ANTIQUITY,
   modifier: {
-    id: 'MURUS_ENGINEER_MOD_GRANT_ABILITY_CHARGE_GOLD',
+    id: "MURUS_ENGINEER_MOD_GRANT_ABILITY_CHARGE_GOLD",
     collection: COLLECTION.PLAYER_UNITS,
     effect: EFFECT.GRANT_UNIT_ABILITY_CHARGE,
     permanent: true,
     requirements: [
       {
         type: REQUIREMENT.UNIT_TYPE_MATCHES,
-        arguments: [{ name: 'UnitType', value: 'UNIT_MURUS_ENGINEER' }],
+        arguments: [{ name: "UnitType", value: "UNIT_MURUS_ENGINEER" }],
       },
       {
         type: REQUIREMENT.PLOT_RESOURCE_TYPE_MATCHES,
-        arguments: [{ name: 'ResourceType', value: RESOURCE.GOLD }],
+        arguments: [{ name: "ResourceType", value: RESOURCE.GOLD }],
       },
     ],
     arguments: [
       {
-        name: 'ChargedAbilityType',
-        value: 'CHARGED_ABILITY_CLAIM_RESOURCE',
+        name: "ChargedAbilityType",
+        value: "CHARGED_ABILITY_CLAIM_RESOURCE",
       },
-      { name: 'Amount', value: 3 },
+      { name: "Amount", value: 3 },
     ],
   },
 });
@@ -105,26 +105,26 @@ const grantAbilityChargeModifierGold = new ModifierBuilder({
 const grantAbilityChargeModifierLimestone = new ModifierBuilder({
   actionGroupBundle: ACTION_GROUP_BUNDLE.AGE_ANTIQUITY,
   modifier: {
-    id: 'MURUS_ENGINEER_MOD_GRANT_ABILITY_CHARGE_LIMESTONE',
+    id: "MURUS_ENGINEER_MOD_GRANT_ABILITY_CHARGE_LIMESTONE",
     collection: COLLECTION.PLAYER_UNITS,
     effect: EFFECT.GRANT_UNIT_ABILITY_CHARGE,
     permanent: true,
     requirements: [
       {
         type: REQUIREMENT.UNIT_TYPE_MATCHES,
-        arguments: [{ name: 'UnitType', value: 'UNIT_MURUS_ENGINEER' }],
+        arguments: [{ name: "UnitType", value: "UNIT_MURUS_ENGINEER" }],
       },
       {
         type: REQUIREMENT.PLOT_RESOURCE_TYPE_MATCHES,
-        arguments: [{ name: 'ResourceType', value: RESOURCE.LIMESTONE }],
+        arguments: [{ name: "ResourceType", value: RESOURCE.LIMESTONE }],
       },
     ],
     arguments: [
       {
-        name: 'ChargedAbilityType',
-        value: 'CHARGED_ABILITY_CLAIM_RESOURCE',
+        name: "ChargedAbilityType",
+        value: "CHARGED_ABILITY_CLAIM_RESOURCE",
       },
-      { name: 'Amount', value: 3 },
+      { name: "Amount", value: 3 },
     ],
   },
 });
@@ -132,26 +132,26 @@ const grantAbilityChargeModifierLimestone = new ModifierBuilder({
 const grantAbilityChargeModifierSalt = new ModifierBuilder({
   actionGroupBundle: ACTION_GROUP_BUNDLE.AGE_ANTIQUITY,
   modifier: {
-    id: 'MURUS_ENGINEER_MOD_GRANT_ABILITY_CHARGE_SALT',
+    id: "MURUS_ENGINEER_MOD_GRANT_ABILITY_CHARGE_SALT",
     collection: COLLECTION.PLAYER_UNITS,
     effect: EFFECT.GRANT_UNIT_ABILITY_CHARGE,
     permanent: true,
     requirements: [
       {
         type: REQUIREMENT.UNIT_TYPE_MATCHES,
-        arguments: [{ name: 'UnitType', value: 'UNIT_MURUS_ENGINEER' }],
+        arguments: [{ name: "UnitType", value: "UNIT_MURUS_ENGINEER" }],
       },
       {
         type: REQUIREMENT.PLOT_RESOURCE_TYPE_MATCHES,
-        arguments: [{ name: 'ResourceType', value: RESOURCE.SALT }],
+        arguments: [{ name: "ResourceType", value: RESOURCE.SALT }],
       },
     ],
     arguments: [
       {
-        name: 'ChargedAbilityType',
-        value: 'CHARGED_ABILITY_CLAIM_RESOURCE',
+        name: "ChargedAbilityType",
+        value: "CHARGED_ABILITY_CLAIM_RESOURCE",
       },
-      { name: 'Amount', value: 3 },
+      { name: "Amount", value: 3 },
     ],
   },
 });

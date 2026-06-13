@@ -215,10 +215,7 @@ describe("authoring SDK", () => {
       alpha: [],
       beta: ["beta"],
     });
-    expect(stage.authoring.runtime.steps).toEqual([
-      { stepId: "alpha" },
-      { stepId: "beta" },
-    ]);
+    expect(stage.authoring.runtime.steps).toEqual([{ stepId: "alpha" }, { stepId: "beta" }]);
 
     const internal = stage.toInternal({ env: {}, stageConfig: { knobs: {}, climate: 2 } });
     expect(internal.rawSteps).toEqual({ alpha: { value: 2 } });

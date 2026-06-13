@@ -1,16 +1,10 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
-import {
-  CIV7_TUNER_APP_UI_STATE_NAME,
-  CIV7_TUNER_STATE_NAME,
-} from "./constants.js";
-import type {
-  Civ7TunerState,
-  Civ7TunerStateSelection,
-} from "./types.js";
+import { CIV7_TUNER_APP_UI_STATE_NAME, CIV7_TUNER_STATE_NAME } from "./constants.js";
+import type { Civ7TunerState, Civ7TunerStateSelection } from "./types.js";
 
 export function selectCiv7TunerState(
   states: ReadonlyArray<Civ7TunerState>,
-  selection: Civ7TunerStateSelection = { role: "app-ui" },
+  selection: Civ7TunerStateSelection = { role: "app-ui" }
 ): Civ7TunerState {
   const requested = normalizeStateSelection(selection);
   const state = states.find((candidate) => {
@@ -23,7 +17,7 @@ export function selectCiv7TunerState(
     throw new Civ7DirectControlError(
       "state-not-found",
       `Civ7 tuner state "${requestedLabel}" was not available; states: ${states.map((s) => s.name).join(", ")}`,
-      { details: { requested, states } },
+      { details: { requested, states } }
     );
   }
   return state;
@@ -37,7 +31,10 @@ export function tunerStatesFromParts(parts: ReadonlyArray<string>): Civ7TunerSta
   return states;
 }
 
-function normalizeStateSelection(selection: Civ7TunerStateSelection): { id?: string; name?: string } {
+function normalizeStateSelection(selection: Civ7TunerStateSelection): {
+  id?: string;
+  name?: string;
+} {
   if (typeof selection === "string") {
     return selection === CIV7_TUNER_APP_UI_STATE_NAME || selection === CIV7_TUNER_STATE_NAME
       ? { name: selection }

@@ -9,10 +9,7 @@ import type {
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import { viewCameraFromFocusResult } from "../camera-readback";
-import type {
-  Civ7ViewAppshotCaptureResult,
-  Civ7ViewCamera,
-} from "../contract";
+import type { Civ7ViewAppshotCaptureResult, Civ7ViewCamera } from "../contract";
 
 const DEFAULT_APPSHOT_SETTLE_MS = 400;
 
@@ -39,12 +36,8 @@ const DEFAULT_APPSHOT_SETTLE_MS = 400;
  * permission is missing — surfaced as APPSHOT_PERMISSION_REQUIRED with the
  * exact System Settings path in `data.detail`).
  */
-export const viewAppshotCaptureProcedure =
-  civ7ControlOrpcImplementer.view.appshot.capture.effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
+export const viewAppshotCaptureProcedure = civ7ControlOrpcImplementer.view.appshot.capture.effect(
+  function* ({ context, errors, input }) {
     const errorData = {
       procedureKey: "view.appshot.capture" as const,
       source: "direct-control-facade" as const,
@@ -82,7 +75,7 @@ export const viewAppshotCaptureProcedure =
               ...errorData,
               detail: "zoom requires a target plot — pass target {x, y} alongside zoom",
             },
-          }),
+          })
         );
       }
     } else {
@@ -95,7 +88,7 @@ export const viewAppshotCaptureProcedure =
               y: target.y,
               ...(input.zoom === undefined ? {} : { zoom: input.zoom }),
             },
-            context.endpointDefaults,
+            context.endpointDefaults
           ),
         catch: (error) =>
           errors.CAMERA_FOCUS_FAILED({
@@ -114,25 +107,24 @@ export const viewAppshotCaptureProcedure =
                 ? "camera move readback reported the lookAt did not run"
                 : focus.lookAt.error,
             },
-          }),
+          })
         );
       }
       // A frame "at a plot" must actually be centered on that plot — anything
       // else silently captures the wrong place, so unverified is a failure
       // here (unlike the standalone view.camera.focus, which reports truth).
       if (!focus.centerMatchesTarget) {
-        const center = focus.after.centerPlot.ok
-          ? focus.after.centerPlot.value
-          : null;
+        const center = focus.after.centerPlot.ok ? focus.after.centerPlot.value : null;
         return yield* Effect.fail(
           errors.CAMERA_FOCUS_UNVERIFIED({
             data: {
               ...errorData,
-              detail: "viewport center readback did not land on the target plot: "
-                + `target=(${target.x},${target.y}) center=`
-                + (center === null ? "unresolved" : `(${center.x},${center.y})`),
+              detail:
+                "viewport center readback did not land on the target plot: " +
+                `target=(${target.x},${target.y}) center=` +
+                (center === null ? "unresolved" : `(${center.x},${center.y})`),
             },
-          }),
+          })
         );
       }
       camera = viewCameraFromFocusResult(focus);
@@ -143,9 +135,7 @@ export const viewAppshotCaptureProcedure =
       // past this point runs under the release finalizer's restore guarantee.
       Effect.gen(function* () {
         const suspend = yield* facadeCall(() =>
-          context.directControl.suspendCiv7DisplayQueue(
-            context.endpointDefaults,
-          )
+          context.directControl.suspendCiv7DisplayQueue(context.endpointDefaults)
         );
         if (!suspend.isSuspended) {
           return yield* Effect.fail(
@@ -154,7 +144,7 @@ export const viewAppshotCaptureProcedure =
                 ...errorData,
                 detail: "display queue suspension readback failed",
               },
-            }),
+            })
           );
         }
         return suspend;
@@ -162,46 +152,38 @@ export const viewAppshotCaptureProcedure =
       () =>
         Effect.gen(function* () {
           const purge = yield* facadeCall(() =>
-            context.directControl.closeCiv7Displays(
-              {},
-              context.endpointDefaults,
-            )
+            context.directControl.closeCiv7Displays({}, context.endpointDefaults)
           );
           const enter = yield* facadeCall(() =>
             context.directControl.enterCiv7CleanFrame(
               { hideUnits: input.hideUnits === true },
-              context.endpointDefaults,
+              context.endpointDefaults
             )
           );
           if (
-            !enter.switched
-            || enter.view !== CIV7_CLEAN_FRAME_VIEW_NAME
-            || !enter.harnessHidden
+            !enter.switched ||
+            enter.view !== CIV7_CLEAN_FRAME_VIEW_NAME ||
+            !enter.harnessHidden
           ) {
             return yield* Effect.fail(
               errors.APPSHOT_CLEAN_FRAME_UNVERIFIED({
                 data: {
                   ...errorData,
-                  detail: "clean-frame view readback failed: view="
-                    + enter.view
-                    + " harnessHidden="
-                    + String(enter.harnessHidden),
+                  detail:
+                    "clean-frame view readback failed: view=" +
+                    enter.view +
+                    " harnessHidden=" +
+                    String(enter.harnessHidden),
                 },
-              }),
+              })
             );
           }
           yield* Effect.sleep(settleMs);
           const shot = yield* facadeCall(() =>
             context.directControl.captureCiv7WindowShot({
-              ...(input.outputPath === undefined
-                ? {}
-                : { outputPath: input.outputPath }),
-              ...(input.appName === undefined
-                ? {}
-                : { appName: input.appName }),
-              ...(input.windowId === undefined
-                ? {}
-                : { windowId: input.windowId }),
+              ...(input.outputPath === undefined ? {} : { outputPath: input.outputPath }),
+              ...(input.appName === undefined ? {} : { appName: input.appName }),
+              ...(input.windowId === undefined ? {} : { windowId: input.windowId }),
             })
           );
 
@@ -211,9 +193,7 @@ export const viewAppshotCaptureProcedure =
             context.directControl.exitCiv7CleanFrame(context.endpointDefaults)
           );
           const resume = yield* facadeCall(() =>
-            context.directControl.resumeCiv7DisplayQueue(
-              context.endpointDefaults,
-            )
+            context.directControl.resumeCiv7DisplayQueue(context.endpointDefaults)
           );
           yield* Ref.set(restoredInline, true);
 
@@ -235,27 +215,34 @@ export const viewAppshotCaptureProcedure =
       () =>
         Ref.get(restoredInline).pipe(
           Effect.flatMap((restored) =>
-            restored ? Effect.void : Effect.promise(async () => {
-              await context.directControl
-                .exitCiv7CleanFrame(context.endpointDefaults)
-                .then(() => undefined, () => undefined);
-              await context.directControl
-                .resumeCiv7DisplayQueue(context.endpointDefaults)
-                .then(() => undefined, () => undefined);
-            })
-          ),
-        ),
+            restored
+              ? Effect.void
+              : Effect.promise(async () => {
+                  await context.directControl.exitCiv7CleanFrame(context.endpointDefaults).then(
+                    () => undefined,
+                    () => undefined
+                  );
+                  await context.directControl.resumeCiv7DisplayQueue(context.endpointDefaults).then(
+                    () => undefined,
+                    () => undefined
+                  );
+                })
+          )
+        )
     );
-  });
+  }
+);
 
-function viewAppshotCaptureResult(input: Readonly<{
-  shot: Civ7ControlOrpcWindowShotCaptureResult;
-  purge: Civ7ControlOrpcCloseDisplaysResult;
-  enter: Civ7ControlOrpcCleanFrameEnterResult;
-  settleMs: number;
-  camera: Civ7ViewCamera | undefined;
-  restored: Civ7ViewAppshotCaptureResult["cleanFrame"]["restored"];
-}>): Civ7ViewAppshotCaptureResult {
+function viewAppshotCaptureResult(
+  input: Readonly<{
+    shot: Civ7ControlOrpcWindowShotCaptureResult;
+    purge: Civ7ControlOrpcCloseDisplaysResult;
+    enter: Civ7ControlOrpcCleanFrameEnterResult;
+    settleMs: number;
+    camera: Civ7ViewCamera | undefined;
+    restored: Civ7ViewAppshotCaptureResult["cleanFrame"]["restored"];
+  }>
+): Civ7ViewAppshotCaptureResult {
   return {
     captureMode: "window-scoped-screencapturekit",
     requestedAt: input.shot.requestedAt,

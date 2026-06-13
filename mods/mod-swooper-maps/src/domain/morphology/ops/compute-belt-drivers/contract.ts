@@ -7,18 +7,25 @@ import type {
 
 const BeltComponentSummarySchema = Type.Object(
   {
-    id: Type.Integer({ minimum: 0, description: "Stable id within this belt-driver snapshot (1..n)." }),
+    id: Type.Integer({
+      minimum: 0,
+      description: "Stable id within this belt-driver snapshot (1..n).",
+    }),
     boundaryType: Type.Integer({
       minimum: 0,
       description: "Boundary type (BOUNDARY_TYPE values).",
     }),
-    size: Type.Integer({ minimum: 0, description: "Number of tiles in this connected belt seed component." }),
+    size: Type.Integer({
+      minimum: 0,
+      description: "Number of tiles in this connected belt seed component.",
+    }),
     diameter: Type.Integer({
       minimum: 0,
       description: "Approximate hex-graph end-to-end length of this connected belt seed component.",
     }),
     meanUpliftBlend: Type.Number({
-      description: "Mean uplift blend intensity (0..255) across belt seeds in this component (pre-decay).",
+      description:
+        "Mean uplift blend intensity (0..255) across belt seeds in this component (pre-decay).",
     }),
     meanWidthScale: Type.Number({
       description: "Mean width scale multiplier (unitless) across belt seeds in this component.",
@@ -30,7 +37,8 @@ const BeltComponentSummarySchema = Type.Object(
       description: "Mean origin era index across belt seeds in this component (0..eraCount-1).",
     }),
     meanOriginPlateId: Type.Number({
-      description: "Mean origin plate id across belt seeds in this component (plate id; -1 for unknown).",
+      description:
+        "Mean origin plate id across belt seeds in this component (plate id; -1 for unknown).",
     }),
   },
   {
@@ -62,24 +70,32 @@ const ComputeBeltDriversContract = defineOp({
         description: "Tile-space tectonic provenance scalars (origin + last-boundary state).",
       }),
     },
-    { description: "Inputs for deriving morphology belt drivers from tectonic history/provenance tiles." }
+    {
+      description:
+        "Inputs for deriving morphology belt drivers from tectonic history/provenance tiles.",
+    }
   ),
   output: Type.Object(
     {
       boundaryCloseness: TypedArraySchemas.u8({
-        description: "Boundary proximity field per tile (0..255), derived from distance to active belt seed spines.",
+        description:
+          "Boundary proximity field per tile (0..255), derived from distance to active belt seed spines.",
       }),
       boundaryType: TypedArraySchemas.u8({
-        description: "Boundary regime per tile (BOUNDARY_TYPE values), resolved from active eras/provenance.",
+        description:
+          "Boundary regime per tile (BOUNDARY_TYPE values), resolved from active eras/provenance.",
       }),
       upliftPotential: TypedArraySchemas.u8({
-        description: "Orogeny / uplift potential per tile (0..255), decayed away from belt seed centers.",
+        description:
+          "Orogeny / uplift potential per tile (0..255), decayed away from belt seed centers.",
       }),
       collisionPotential: TypedArraySchemas.u8({
-        description: "Collision-driven uplift potential per tile (0..255), decayed away from belt seed centers.",
+        description:
+          "Collision-driven uplift potential per tile (0..255), decayed away from belt seed centers.",
       }),
       subductionPotential: TypedArraySchemas.u8({
-        description: "Subduction-driven uplift potential per tile (0..255), decayed away from belt seed centers.",
+        description:
+          "Subduction-driven uplift potential per tile (0..255), decayed away from belt seed centers.",
       }),
       riftPotential: TypedArraySchemas.u8({
         description: "Rift potential per tile (0..255), decayed away from belt seed centers.",

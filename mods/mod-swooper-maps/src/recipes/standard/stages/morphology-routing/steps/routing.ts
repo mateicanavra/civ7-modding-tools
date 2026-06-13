@@ -36,7 +36,10 @@ function validateTypedArray(
   return true;
 }
 
-function validateRoutingBuffer(value: unknown, dimensions: MapDimensions): ArtifactValidationIssue[] {
+function validateRoutingBuffer(
+  value: unknown,
+  dimensions: MapDimensions
+): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isRecord(value)) {
     errors.push({ message: "Missing routing buffer." });
@@ -73,7 +76,7 @@ export default createStep(RoutingStepContract, {
         elevation: topography.elevation,
         landMask: topography.landMask,
       },
-        config.routing
+      config.routing
     );
 
     context.viz?.dumpGrid(context.trace, {

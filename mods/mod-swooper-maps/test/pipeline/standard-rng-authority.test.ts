@@ -41,7 +41,11 @@ describe("standard recipe RNG authority", () => {
     });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
-    initializeStandardRuntime(context, { mapInfo, logPrefix: "[rng-authority]", storyEnabled: true });
+    initializeStandardRuntime(context, {
+      mapInfo,
+      logPrefix: "[rng-authority]",
+      storyEnabled: true,
+    });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
     const topography = context.artifacts.get(morphologyArtifacts.topography.id) as

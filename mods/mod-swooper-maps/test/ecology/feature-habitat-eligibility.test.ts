@@ -20,7 +20,16 @@ describe("ecology feature habitat eligibility", () => {
     const distanceToCoast = new Uint16Array([1, 5, 1, 1]);
 
     const reef = ecology.ops.scoreReef.run(
-      { width, height, landMask, surfaceTemperature: warm, bathymetry: shallow, shelfMask, coastalWater, distanceToCoast },
+      {
+        width,
+        height,
+        landMask,
+        surfaceTemperature: warm,
+        bathymetry: shallow,
+        shelfMask,
+        coastalWater,
+        distanceToCoast,
+      },
       normalizeOpSelectionOrThrow(ecology.ops.scoreReef, { strategy: "default", config: {} })
     ).score01;
     const atoll = ecology.ops.scoreReefAtoll.run(
@@ -110,15 +119,45 @@ describe("ecology feature habitat eligibility", () => {
     const freezeIndex = new Float32Array(size).fill(0.8);
 
     const marsh = ecology.ops.scoreWetMarsh.run(
-      { width, height, landMask, hydromorphicMask, water01, fertility01, surfaceTemperature, aridityIndex },
+      {
+        width,
+        height,
+        landMask,
+        hydromorphicMask,
+        water01,
+        fertility01,
+        surfaceTemperature,
+        aridityIndex,
+      },
       normalizeOpSelectionOrThrow(ecology.ops.scoreWetMarsh, { strategy: "default", config: {} })
     ).score01;
     const bog = ecology.ops.scoreWetTundraBog.run(
-      { width, height, landMask, hydromorphicMask, water01, fertility01, surfaceTemperature: coldTemperature, freezeIndex },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreWetTundraBog, { strategy: "default", config: {} })
+      {
+        width,
+        height,
+        landMask,
+        hydromorphicMask,
+        water01,
+        fertility01,
+        surfaceTemperature: coldTemperature,
+        freezeIndex,
+      },
+      normalizeOpSelectionOrThrow(ecology.ops.scoreWetTundraBog, {
+        strategy: "default",
+        config: {},
+      })
     ).score01;
     const mangrove = ecology.ops.scoreWetMangrove.run(
-      { width, height, landMask, intertidalCoastMask, water01, fertility01, surfaceTemperature: mangroveTemperature, aridityIndex },
+      {
+        width,
+        height,
+        landMask,
+        intertidalCoastMask,
+        water01,
+        fertility01,
+        surfaceTemperature: mangroveTemperature,
+        aridityIndex,
+      },
       normalizeOpSelectionOrThrow(ecology.ops.scoreWetMangrove, { strategy: "default", config: {} })
     ).score01;
     const oasis = ecology.ops.scoreWetOasis.run(
@@ -163,7 +202,10 @@ describe("ecology feature habitat eligibility", () => {
         biomass01: new Float32Array([0.12, 0.12]),
         fertility01,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationTaiga, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationTaiga, {
+        strategy: "default",
+        config: {},
+      })
     ).score01;
 
     const sagebrush = ecology.ops.scoreVegetationSagebrushSteppe.run(

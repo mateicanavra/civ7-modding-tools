@@ -30,11 +30,11 @@ describe("Civ7 playable-status procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7PlayableStatusProcedureDescriptor,
-      Civ7PlayableStatusProcedureSchemaArtifacts,
+      Civ7PlayableStatusProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual([]);
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7PlayableStatusProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7PlayableStatusProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, {})).toBe(true);
     expect(Value.Check(resolved.inputSchema, { host: "127.0.0.1" })).toBe(false);
@@ -46,10 +46,12 @@ describe("Civ7 playable-status procedure descriptor", () => {
     expect(Value.Check(resolved.inputSchema, { rawCommand: "Game.turn" })).toBe(false);
     expect(Value.Check(resolved.outputSchema, playableStatusResult())).toBe(true);
     expect(Value.Check(resolved.outputSchema, unavailablePlayableStatusResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...playableStatusResult(),
-      command: "Game.turn",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...playableStatusResult(),
+        command: "Game.turn",
+      })
+    ).toBe(false);
   });
 
   test("calls the playable-status atom through the procedure core without touching the live tuner", async () => {
@@ -63,19 +65,22 @@ describe("Civ7 playable-status procedure descriptor", () => {
         calls.push({ kind: "tuner", host: options?.host, port: options?.port });
         return playableStatusResult().tuner;
       },
-      errorMessage: (err) => err instanceof Error ? err.message : String(err),
+      errorMessage: (err) => (err instanceof Error ? err.message : String(err)),
     };
 
-    const result = await callCiv7PlayableStatusProcedure({}, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
-      },
-      procedure: {
-        correlationId: "playable-status-procedure-test",
-      },
-      dependencies,
-    });
+    const result = await callCiv7PlayableStatusProcedure(
+      {},
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "playable-status-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(playableStatusResult());
     expect(result.diagnostics).toMatchObject({
@@ -98,13 +103,16 @@ describe("Civ7 playable-status procedure descriptor", () => {
       checkTunerHealth: async () => {
         throw new Error("Tuner socket unavailable");
       },
-      errorMessage: (err) => err instanceof Error ? err.message : String(err),
+      errorMessage: (err) => (err instanceof Error ? err.message : String(err)),
     };
 
-    const result = await callCiv7PlayableStatusProcedure({}, {
-      procedure: { correlationId: "playable-status-unavailable" },
-      dependencies,
-    });
+    const result = await callCiv7PlayableStatusProcedure(
+      {},
+      {
+        procedure: { correlationId: "playable-status-unavailable" },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(unavailablePlayableStatusResult());
     expect(result.output.tuner).toBeUndefined();
@@ -129,10 +137,12 @@ describe("Civ7 playable-status procedure descriptor", () => {
       errorMessage: (err) => String(err),
     };
 
-    await expect(callCiv7PlayableStatusProcedure({ host: "127.0.0.1" } as never, {
-      procedure: { correlationId: "playable-status-invalid-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7PlayableStatusProcedure({ host: "127.0.0.1" } as never, {
+        procedure: { correlationId: "playable-status-invalid-input" },
+        dependencies,
+      })
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

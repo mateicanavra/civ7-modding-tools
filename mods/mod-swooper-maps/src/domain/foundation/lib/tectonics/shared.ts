@@ -1,4 +1,9 @@
-import { clamp01 as clamp01Core, clampInt, clampU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import {
+  clamp01 as clamp01Core,
+  clampInt,
+  clampU8,
+  wrapDeltaPeriodic,
+} from "@swooper/mapgen-core/lib/math";
 
 export type NeighborhoodMesh = Readonly<{
   cellCount: number;
@@ -123,7 +128,11 @@ export function chooseDriftNeighbor(params: {
   return best;
 }
 
-export function deriveResetThreshold(maxValue: number, fracOfMax: number, minThreshold: number): number {
+export function deriveResetThreshold(
+  maxValue: number,
+  fracOfMax: number,
+  minThreshold: number
+): number {
   const maxByte = Math.max(0, Math.min(255, maxValue | 0)) | 0;
   const frac = Number.isFinite(fracOfMax) ? Math.max(0, Math.min(1, fracOfMax)) : 0;
   const derived = Math.round(maxByte * frac) | 0;

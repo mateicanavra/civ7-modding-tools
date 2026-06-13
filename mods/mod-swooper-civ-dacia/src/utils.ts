@@ -1,7 +1,7 @@
 /**
  * Utility functions for package management
  */
-import { UnitPackage, CivilizationPackage, ConstructiblePackage, UnlockPackage } from '@types';
+import { UnitPackage, CivilizationPackage, ConstructiblePackage, UnlockPackage } from "@types";
 
 /**
  * Extracts components from packages of any type
@@ -11,15 +11,17 @@ import { UnitPackage, CivilizationPackage, ConstructiblePackage, UnlockPackage }
  * @example
  * const { entities, abilities, modifiers, imports } = extractComponents(unitPackages, 'unit');
  */
-export function extractComponents<T extends {
-  abilities?: any[],
-  modifiers?: any[],
-  imports?: any[]
-}>(packages: T[], entityKey: keyof T) {
+export function extractComponents<
+  T extends {
+    abilities?: any[];
+    modifiers?: any[];
+    imports?: any[];
+  },
+>(packages: T[], entityKey: keyof T) {
   return {
-    entities: packages.map(pkg => pkg[entityKey]),
-    abilities: packages.flatMap(pkg => pkg.abilities || []),
-    modifiers: packages.flatMap(pkg => pkg.modifiers || []),
-    imports: packages.flatMap(pkg => pkg.imports || [])
+    entities: packages.map((pkg) => pkg[entityKey]),
+    abilities: packages.flatMap((pkg) => pkg.abilities || []),
+    modifiers: packages.flatMap((pkg) => pkg.modifiers || []),
+    imports: packages.flatMap((pkg) => pkg.imports || []),
   };
 }

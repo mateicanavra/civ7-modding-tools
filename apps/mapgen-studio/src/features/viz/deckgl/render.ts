@@ -6,7 +6,12 @@ import {
   writeColorForScalarValue,
 } from "../presentation";
 import type { Bounds, VizAssetResolver, VizLayerEntryV1, VizManifestV1 } from "../model";
-import type { VizBinaryRef, VizScalarFormat, VizScalarStats, VizSpaceId } from "@swooper/mapgen-viz";
+import type {
+  VizBinaryRef,
+  VizScalarFormat,
+  VizScalarStats,
+  VizSpaceId,
+} from "@swooper/mapgen-viz";
 
 type HexGridGeometry = {
   indices: Uint32Array;
@@ -83,14 +88,14 @@ function isTileSpace(spaceId: VizSpaceId): boolean {
 // co-register. See docs/projects/mapgen-studio-redesign/research/
 // 03-hex-convention-audit.md.
 function oddRTileCenter(col: number, row: number, size: number): [number, number] {
-  const x = size * Math.sqrt(3) * (col + ((row & 1) ? 0.5 : 0));
+  const x = size * Math.sqrt(3) * (col + (row & 1 ? 0.5 : 0));
   const y = size * 1.5 * row;
   return [x, y];
 }
 
 function oddRPointFromTileXY(x: number, y: number, size: number): [number, number] {
   const row = Math.floor(y);
-  const px = size * Math.sqrt(3) * (x + ((row & 1) ? 0.5 : 0));
+  const px = size * Math.sqrt(3) * (x + (row & 1 ? 0.5 : 0));
   const py = size * 1.5 * y;
   return [px, py];
 }
@@ -104,11 +109,21 @@ function tilePoint(_spaceId: VizSpaceId, x: number, y: number, size: number): [n
   return orientTilePointNorthUp(oddRPointFromTileXY(x, y, size));
 }
 
-function tileCenter(_spaceId: VizSpaceId, col: number, row: number, size: number): [number, number] {
+function tileCenter(
+  _spaceId: VizSpaceId,
+  col: number,
+  row: number,
+  size: number
+): [number, number] {
   return orientTilePointNorthUp(oddRTileCenter(col, row, size));
 }
 
-function transformPoint(spaceId: VizSpaceId, x: number, y: number, tileSize: number): [number, number] {
+function transformPoint(
+  spaceId: VizSpaceId,
+  x: number,
+  y: number,
+  tileSize: number
+): [number, number] {
   if (isTileSpace(spaceId)) return tilePoint(spaceId, x, y, tileSize);
   return [x, y];
 }
@@ -123,8 +138,12 @@ function hexPolygonPointy(center: [number, number], size: number): Array<[number
   return out;
 }
 
-
-function hexGridGeometryKey(args: { spaceId: VizSpaceId; width: number; height: number; tileSize: number }): string {
+function hexGridGeometryKey(args: {
+  spaceId: VizSpaceId;
+  width: number;
+  height: number;
+  tileSize: number;
+}): string {
   return `${args.spaceId}:${args.width}x${args.height}:s${args.tileSize}`;
 }
 
@@ -164,7 +183,11 @@ async function getOrBuildHexGridGeometry(args: {
   return geom;
 }
 
-export function boundsForTileGrid(_spaceId: VizSpaceId, dims: { width: number; height: number }, tileSize: number): Bounds {
+export function boundsForTileGrid(
+  _spaceId: VizSpaceId,
+  dims: { width: number; height: number },
+  tileSize: number
+): Bounds {
   const { width, height } = dims;
   if (width <= 0 || height <= 0) return [0, 0, 1, 1];
 
@@ -174,7 +197,7 @@ export function boundsForTileGrid(_spaceId: VizSpaceId, dims: { width: number; h
   // One lattice for both tile spaces: the game's odd-R grid (see the
   // convention note above oddRTileCenter).
   const hasOddRow = height > 1;
-  const maxCenterX = s3 * ((width - 1) + (hasOddRow ? 0.5 : 0));
+  const maxCenterX = s3 * (width - 1 + (hasOddRow ? 0.5 : 0));
   const maxCenterY = 1.5 * tileSize * (height - 1);
   return [-s, -maxCenterY - s, maxCenterX + s, s];
 }
@@ -206,13 +229,22 @@ export function boundsForLayerInRenderSpace(layer: VizLayerEntryV1, tileSize = 1
     outMaxX = Math.max(outMaxX, tx);
     outMaxY = Math.max(outMaxY, ty);
   }
-  if (!Number.isFinite(outMinX) || !Number.isFinite(outMinY) || !Number.isFinite(outMaxX) || !Number.isFinite(outMaxY)) {
+  if (
+    !Number.isFinite(outMinX) ||
+    !Number.isFinite(outMinY) ||
+    !Number.isFinite(outMaxX) ||
+    !Number.isFinite(outMaxY)
+  ) {
     return [0, 0, 1, 1];
   }
   return [outMinX, outMinY, outMaxX, outMaxY];
 }
 
-async function readBinaryRef(ref: VizBinaryRef, assetResolver: VizAssetResolver | null | undefined, signal?: AbortSignal): Promise<ArrayBuffer> {
+async function readBinaryRef(
+  ref: VizBinaryRef,
+  assetResolver: VizAssetResolver | null | undefined,
+  signal?: AbortSignal
+): Promise<ArrayBuffer> {
   if (signal?.aborted) throw createAbortError();
   if (ref.kind === "inline") return ref.buffer;
   if (!assetResolver) throw new Error(`Missing VizAssetResolver for path ref: ${ref.path}`);
@@ -279,7 +311,7 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
   if (shouldShowEdgeOverlay && edgeOverlaySegments && edgeOverlaySegments.kind === "segments") {
     const segBuf = await readBinaryRef(edgeOverlaySegments.segments, assetResolver ?? null, signal);
     const seg = new Float32Array(segBuf);
-    const count = (edgeOverlaySegments.count ?? (seg.length / 4)) | 0;
+    const count = (edgeOverlaySegments.count ?? seg.length / 4) | 0;
     const sourcePositions = new Float32Array(count * 2);
     const targetPositions = new Float32Array(count * 2);
     for (let i = 0; i < count; i++) {
@@ -355,7 +387,13 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
     if (!isTileSpace(layer.spaceId)) {
       throw new Error(`Grid layers currently require a tile spaceId (got ${layer.spaceId}).`);
     }
-    const geometry = await getOrBuildHexGridGeometry({ spaceId: layer.spaceId, width, height, tileSize, tick });
+    const geometry = await getOrBuildHexGridGeometry({
+      spaceId: layer.spaceId,
+      width,
+      height,
+      tileSize,
+      tick,
+    });
 
     return {
       layers: [
@@ -367,7 +405,12 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
           getFillColor: (i) => {
             const idx = Number(i);
             const base = idx * 4;
-            return [colors[base] ?? 0, colors[base + 1] ?? 0, colors[base + 2] ?? 0, colors[base + 3] ?? 255];
+            return [
+              colors[base] ?? 0,
+              colors[base + 1] ?? 0,
+              colors[base + 2] ?? 0,
+              colors[base + 3] ?? 255,
+            ];
           },
           stroked: true,
           // Mesh contract: unfilled tiles draw nothing — the border follows
@@ -379,7 +422,11 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
             const alpha = colors[base + 3] ?? 0;
             return alpha === 0
               ? [0, 0, 0, 0]
-              : tileBorderColorForFill(colors[base] ?? 0, colors[base + 1] ?? 0, colors[base + 2] ?? 0);
+              : tileBorderColorForFill(
+                  colors[base] ?? 0,
+                  colors[base + 1] ?? 0,
+                  colors[base + 2] ?? 0
+                );
           },
           getLineWidth: 1,
           lineWidthUnits: "pixels",
@@ -394,18 +441,23 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
   if (layer.kind === "points") {
     const posBuf = await readBinaryRef(layer.positions, assetResolver ?? null, signal);
     const positions = new Float32Array(posBuf);
-    const count = layer.count ?? ((positions.length / 2) | 0);
+    const count = layer.count ?? (positions.length / 2) | 0;
 
     const valueField = layer.values ?? null;
-    const values =
-      valueField ? decodeScalarArray(await readBinaryRef(valueField.data, assetResolver ?? null, signal), valueField.format) : null;
+    const values = valueField
+      ? decodeScalarArray(
+          await readBinaryRef(valueField.data, assetResolver ?? null, signal),
+          valueField.format
+        )
+      : null;
 
     const paletteMode = layer.meta?.palette ?? "auto";
     const categoricalColorMap =
       values && paletteMode === "categorical" && !layer.meta?.categories?.length
         ? buildCategoricalColorMap({ values, seedKey })
         : undefined;
-    const statsForMapping = values && valueField ? (valueField.stats ?? computeMinMax(values)) : null;
+    const statsForMapping =
+      values && valueField ? (valueField.stats ?? computeMinMax(values)) : null;
 
     const positionsOut = new Float32Array(count * 2);
     const colors = new Uint8ClampedArray(count * 4);
@@ -446,7 +498,8 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
       }
     }
 
-    const stats = values && Number.isFinite(min) && Number.isFinite(max) ? { min, max } : statsForMapping;
+    const stats =
+      values && Number.isFinite(min) && Number.isFinite(max) ? { min, max } : statsForMapping;
 
     return {
       layers: [
@@ -473,18 +526,23 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
   if (layer.kind === "segments") {
     const segBuf = await readBinaryRef(layer.segments, assetResolver ?? null, signal);
     const seg = new Float32Array(segBuf);
-    const count = layer.count ?? ((seg.length / 4) | 0);
+    const count = layer.count ?? (seg.length / 4) | 0;
 
     const valueField = layer.values ?? null;
-    const values =
-      valueField ? decodeScalarArray(await readBinaryRef(valueField.data, assetResolver ?? null, signal), valueField.format) : null;
+    const values = valueField
+      ? decodeScalarArray(
+          await readBinaryRef(valueField.data, assetResolver ?? null, signal),
+          valueField.format
+        )
+      : null;
 
     const paletteMode = layer.meta?.palette ?? "auto";
     const categoricalColorMap =
       values && paletteMode === "categorical" && !layer.meta?.categories?.length
         ? buildCategoricalColorMap({ values, seedKey })
         : undefined;
-    const statsForMapping = values && valueField ? (valueField.stats ?? computeMinMax(values)) : null;
+    const statsForMapping =
+      values && valueField ? (valueField.stats ?? computeMinMax(values)) : null;
 
     const sourcePositions = new Float32Array(count * 2);
     const targetPositions = new Float32Array(count * 2);
@@ -531,7 +589,8 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
       }
     }
 
-    const stats = values && Number.isFinite(min) && Number.isFinite(max) ? { min, max } : statsForMapping;
+    const stats =
+      values && Number.isFinite(min) && Number.isFinite(max) ? { min, max } : statsForMapping;
 
     return {
       layers: [
@@ -570,9 +629,12 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
     const magFieldKey = vector?.magnitude ?? null;
 
     const chosenScalarKey = magFieldKey ?? uFieldKey ?? Object.keys(layer.fields)[0] ?? null;
-    const chosenScalarField = chosenScalarKey ? layer.fields[chosenScalarKey] ?? null : null;
+    const chosenScalarField = chosenScalarKey ? (layer.fields[chosenScalarKey] ?? null) : null;
     const chosenScalarValues = chosenScalarField
-      ? decodeScalarArray(await readBinaryRef(chosenScalarField.data, assetResolver ?? null, signal), chosenScalarField.format)
+      ? decodeScalarArray(
+          await readBinaryRef(chosenScalarField.data, assetResolver ?? null, signal),
+          chosenScalarField.format
+        )
       : null;
 
     const paletteMode = layer.meta?.palette ?? "auto";
@@ -580,7 +642,10 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
       chosenScalarValues && paletteMode === "categorical" && !layer.meta?.categories?.length
         ? buildCategoricalColorMap({ values: chosenScalarValues, seedKey })
         : undefined;
-    const statsForMapping = chosenScalarValues && chosenScalarField ? (chosenScalarField.stats ?? computeMinMax(chosenScalarValues)) : null;
+    const statsForMapping =
+      chosenScalarValues && chosenScalarField
+        ? (chosenScalarField.stats ?? computeMinMax(chosenScalarValues))
+        : null;
 
     const colors = new Uint8ClampedArray(len * 4);
     let min = Number.POSITIVE_INFINITY;
@@ -613,9 +678,18 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
       }
     }
 
-    const stats = chosenScalarValues && Number.isFinite(min) && Number.isFinite(max) ? { min, max } : statsForMapping;
+    const stats =
+      chosenScalarValues && Number.isFinite(min) && Number.isFinite(max)
+        ? { min, max }
+        : statsForMapping;
 
-    const geometry = await getOrBuildHexGridGeometry({ spaceId: layer.spaceId, width, height, tileSize, tick });
+    const geometry = await getOrBuildHexGridGeometry({
+      spaceId: layer.spaceId,
+      width,
+      height,
+      tileSize,
+      tick,
+    });
     const layersOut: Layer[] = [
       ...baseLayers,
       new PolygonLayer({
@@ -625,7 +699,12 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
         getFillColor: (i) => {
           const idx = Number(i);
           const base = idx * 4;
-          return [colors[base] ?? 0, colors[base + 1] ?? 0, colors[base + 2] ?? 0, colors[base + 3] ?? 255];
+          return [
+            colors[base] ?? 0,
+            colors[base + 1] ?? 0,
+            colors[base + 2] ?? 0,
+            colors[base + 3] ?? 255,
+          ];
         },
         stroked: true,
         // Mesh contract: unfilled tiles draw nothing — the border follows
@@ -637,7 +716,11 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
           const alpha = colors[base + 3] ?? 0;
           return alpha === 0
             ? [0, 0, 0, 0]
-            : tileBorderColorForFill(colors[base] ?? 0, colors[base + 1] ?? 0, colors[base + 2] ?? 0);
+            : tileBorderColorForFill(
+                colors[base] ?? 0,
+                colors[base + 1] ?? 0,
+                colors[base + 2] ?? 0
+              );
         },
         getLineWidth: 1,
         lineWidthUnits: "pixels",
@@ -651,14 +734,28 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
       const vField = layer.fields[vFieldKey] ?? null;
       const magField = magFieldKey ? (layer.fields[magFieldKey] ?? null) : null;
       if (uField && vField) {
-        const uValues = decodeScalarArray(await readBinaryRef(uField.data, assetResolver ?? null, signal), uField.format);
-        const vValues = decodeScalarArray(await readBinaryRef(vField.data, assetResolver ?? null, signal), vField.format);
-        const magValues = magField ? decodeScalarArray(await readBinaryRef(magField.data, assetResolver ?? null, signal), magField.format) : null;
+        const uValues = decodeScalarArray(
+          await readBinaryRef(uField.data, assetResolver ?? null, signal),
+          uField.format
+        );
+        const vValues = decodeScalarArray(
+          await readBinaryRef(vField.data, assetResolver ?? null, signal),
+          vField.format
+        );
+        const magValues = magField
+          ? decodeScalarArray(
+              await readBinaryRef(magField.data, assetResolver ?? null, signal),
+              magField.format
+            )
+          : null;
         const magStats = magValues ? (magField?.stats ?? computeMinMax(magValues) ?? null) : null;
 
         // Subsample vectors aggressively to keep the arrow count reasonable.
         const approxMaxArrows = 4200;
-        const stride = Math.max(1, Math.floor(Math.sqrt((width * height) / Math.max(1, approxMaxArrows))));
+        const stride = Math.max(
+          1,
+          Math.floor(Math.sqrt((width * height) / Math.max(1, approxMaxArrows)))
+        );
 
         const arrowSegments: number[] = [];
         for (let y = 0; y < height; y += stride) {
@@ -675,7 +772,10 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
             const uxN = ux / mag;
             const vyN = vy / mag;
             const unit =
-              magStats && Number.isFinite(magStats.min) && Number.isFinite(magStats.max) && Math.abs(magStats.max - magStats.min) > 1e-6
+              magStats &&
+              Number.isFinite(magStats.min) &&
+              Number.isFinite(magStats.max) &&
+              Math.abs(magStats.max - magStats.min) > 1e-6
                 ? Math.max(0, Math.min(1, (mag - magStats.min) / (magStats.max - magStats.min)))
                 : 0.6;
             const arrowLen = tileSize * (0.25 + 0.85 * unit);
@@ -723,11 +823,21 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
   return { layers: baseLayers, stats: null };
 }
 
-export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<RenderDeckLayersResult> {
-  const { manifest, layer, overlayLayer, overlayOpacity, showEdgeOverlay, assetResolver, signal } = options;
+export async function renderDeckLayers(
+  options: RenderDeckLayersArgs
+): Promise<RenderDeckLayersResult> {
+  const { manifest, layer, overlayLayer, overlayOpacity, showEdgeOverlay, assetResolver, signal } =
+    options;
   if (!manifest || !layer) return { layers: [], stats: null };
 
-  const base = await renderSingleLayer({ manifest, layer, showEdgeOverlay, assetResolver, signal, opacity: 1 });
+  const base = await renderSingleLayer({
+    manifest,
+    layer,
+    showEdgeOverlay,
+    assetResolver,
+    signal,
+    opacity: 1,
+  });
   if (!overlayLayer) return base;
 
   const normalizedOpacity = Math.max(0, Math.min(1, overlayOpacity ?? 0.45));

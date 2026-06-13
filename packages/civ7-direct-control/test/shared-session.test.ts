@@ -61,8 +61,8 @@ describe("caller-owned shared tuner session", () => {
             session,
             command: `burst-${i}`,
             timeoutMs: 1_000,
-          }),
-        ),
+          })
+        )
       );
       expect(results).toHaveLength(8);
       // Without in-flight connect dedup, every concurrent caller dialed its
@@ -110,10 +110,10 @@ describe("caller-owned shared tuner session", () => {
       expect(session.stats.consecutiveResponseTimeouts).toBe(0);
 
       await expect(
-        executeCiv7Command({ port: server.port, session, command: "slow", timeoutMs: 50 }),
+        executeCiv7Command({ port: server.port, session, command: "slow", timeoutMs: 50 })
       ).rejects.toMatchObject({ code: "response-timeout" });
       await expect(
-        executeCiv7Command({ port: server.port, session, command: "slow", timeoutMs: 50 }),
+        executeCiv7Command({ port: server.port, session, command: "slow", timeoutMs: 50 })
       ).rejects.toMatchObject({ code: "response-timeout" });
 
       // Each failed call performs LSQ (succeeds → reset) then CMD (times out),
@@ -154,7 +154,7 @@ describe("caller-owned shared tuner session", () => {
 });
 
 async function startSharedSessionServer(
-  options: Readonly<{ silent?: boolean; silentCommands?: readonly string[] }> = {},
+  options: Readonly<{ silent?: boolean; silentCommands?: readonly string[] }> = {}
 ): Promise<SharedSessionServer> {
   let connections = 0;
   let finReceived = false;
@@ -181,9 +181,7 @@ async function startSharedSessionServer(
         buffer = buffer.subarray(bytesRead);
 
         if (options.silent) continue;
-        const isSilent = options.silentCommands?.some((command) =>
-          message.includes(`:${command}`),
-        );
+        const isSilent = options.silentCommands?.some((command) => message.includes(`:${command}`));
         if (isSilent) continue;
         if (message === "LSQ:") {
           socket.write(encodeResponse(listenerId, ["65535", "App UI", "1", "Tuner"]));

@@ -22,7 +22,9 @@ const ApplyAlbedoFeedbackInputSchema = Type.Object(
     /** Rainfall (0..200) per tile (used as a precipitation signal for snow accumulation). */
     rainfall: TypedArraySchemas.u8({ description: "Rainfall (0..200) per tile." }),
     /** Base surface temperature proxy (C), before albedo feedback. */
-    surfaceTemperatureC: TypedArraySchemas.f32({ description: "Base surface temperature proxy (C)." }),
+    surfaceTemperatureC: TypedArraySchemas.f32({
+      description: "Base surface temperature proxy (C).",
+    }),
   },
   {
     additionalProperties: false,

@@ -1,6 +1,10 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 
-import { createEmptyStore, loadPresetStore, STUDIO_PRESET_STORE_KEY } from "../../src/features/presets/storage";
+import {
+  createEmptyStore,
+  loadPresetStore,
+  STUDIO_PRESET_STORE_KEY,
+} from "../../src/features/presets/storage";
 
 const makeStorage = () => {
   const data = new Map<string, string>();
@@ -64,10 +68,7 @@ describe("preset storage", () => {
   });
 
   it("warns and resets on unknown version", () => {
-    storage.setItem(
-      STUDIO_PRESET_STORE_KEY,
-      JSON.stringify({ version: 2, presetsByRecipeId: {} })
-    );
+    storage.setItem(STUDIO_PRESET_STORE_KEY, JSON.stringify({ version: 2, presetsByRecipeId: {} }));
     const result = loadPresetStore();
     expect(result.store).toEqual(createEmptyStore());
     expect(result.warning).toBeDefined();

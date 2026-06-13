@@ -54,8 +54,8 @@ import { getConfig as getRuntimeConfig } from "./runtime.js";
 /** @typedef {Record<string, any>} AnyObject */
 /** @type {Record<string, AnyObject>} */
 const PRESET_REGISTRY = Object.freeze({
-    classic: CLASSIC_PRESET,
-    temperate: TEMPERATE_PRESET,
+  classic: CLASSIC_PRESET,
+  temperate: TEMPERATE_PRESET,
 });
 /** @type {ReadonlyArray<string>} */
 let ACTIVE_PRESETS = Object.freeze([]);
@@ -63,8 +63,8 @@ let ACTIVE_PRESETS = Object.freeze([]);
 let SNAPSHOT = BASE_CONFIG;
 /** @type {StageManifest} */
 const EMPTY_STAGE_MANIFEST = Object.freeze({
-    order: Object.freeze([]),
-    stages: Object.freeze({}),
+  order: Object.freeze([]),
+  stages: Object.freeze({}),
 });
 /* -----------------------------------------------------------------------------
  * Merge and freeze helpers
@@ -74,10 +74,11 @@ const EMPTY_STAGE_MANIFEST = Object.freeze({
  * @returns {v is AnyObject}
  */
 function isPlainObject(v) {
-    return (v != null &&
-        typeof v === "object" &&
-        (Object.getPrototypeOf(v) === Object.prototype ||
-            Object.getPrototypeOf(v) === null));
+  return (
+    v != null &&
+    typeof v === "object" &&
+    (Object.getPrototypeOf(v) === Object.prototype || Object.getPrototypeOf(v) === null)
+  );
 }
 /**
  * Deeply merge two values into a new value.
@@ -91,32 +92,31 @@ function isPlainObject(v) {
  * @returns {T}
  */
 function deepMerge(base, src) {
-    // Replace primitives and arrays directly
-    if (!isPlainObject(base) || Array.isArray(src)) {
-        return clone(src);
+  // Replace primitives and arrays directly
+  if (!isPlainObject(base) || Array.isArray(src)) {
+    return clone(src);
+  }
+  if (!isPlainObject(src)) {
+    // If source is not a plain object, replace
+    return clone(src);
+  }
+  /** @type {AnyObject} */
+  const out = {};
+  // Copy base keys first
+  for (const k of Object.keys(base)) {
+    out[k] = clone(base[k]);
+  }
+  // Merge/replace from source
+  for (const k of Object.keys(src)) {
+    const b = out[k];
+    const s = src[k];
+    if (isPlainObject(b) && isPlainObject(s)) {
+      out[k] = deepMerge(b, s);
+    } else {
+      out[k] = clone(s);
     }
-    if (!isPlainObject(src)) {
-        // If source is not a plain object, replace
-        return clone(src);
-    }
-    /** @type {AnyObject} */
-    const out = {};
-    // Copy base keys first
-    for (const k of Object.keys(base)) {
-        out[k] = clone(base[k]);
-    }
-    // Merge/replace from source
-    for (const k of Object.keys(src)) {
-        const b = out[k];
-        const s = src[k];
-        if (isPlainObject(b) && isPlainObject(s)) {
-            out[k] = deepMerge(b, s);
-        }
-        else {
-            out[k] = clone(s);
-        }
-    }
-    return /** @type {T} */ (out);
+  }
+  return /** @type {T} */ (out);
 }
 /**
  * Clone a value shallowly (objects/arrays produce new containers).
@@ -124,15 +124,13 @@ function deepMerge(base, src) {
  * @returns {any}
  */
 function clone(v) {
-    if (Array.isArray(v))
-        return v.slice();
-    if (isPlainObject(v)) {
-        const o = {};
-        for (const k of Object.keys(v))
-            o[k] = v[k];
-        return o;
-    }
-    return v;
+  if (Array.isArray(v)) return v.slice();
+  if (isPlainObject(v)) {
+    const o = {};
+    for (const k of Object.keys(v)) o[k] = v[k];
+    return o;
+  }
+  return v;
 }
 /**
  * Deep-freeze an object graph (objects/arrays).
@@ -141,23 +139,21 @@ function clone(v) {
  * @returns {any}
  */
 function deepFreeze(v) {
-    if (v == null)
-        return v;
-    if (typeof Object.isFrozen === "function" && Object.isFrozen(v))
-        return v;
-    if (Array.isArray(v)) {
-        const arr = v.map((item) => deepFreeze(item));
-        return Object.freeze(arr);
+  if (v == null) return v;
+  if (typeof Object.isFrozen === "function" && Object.isFrozen(v)) return v;
+  if (Array.isArray(v)) {
+    const arr = v.map((item) => deepFreeze(item));
+    return Object.freeze(arr);
+  }
+  if (isPlainObject(v)) {
+    /** @type {Record<string, any>} */
+    const out = {};
+    for (const k of Object.keys(v)) {
+      out[k] = deepFreeze(v[k]);
     }
-    if (isPlainObject(v)) {
-        /** @type {Record<string, any>} */
-        const out = {};
-        for (const k of Object.keys(v)) {
-            out[k] = deepFreeze(v[k]);
-        }
-        return Object.freeze(out);
-    }
-    return v;
+    return Object.freeze(out);
+  }
+  return v;
 }
 /**
  * @typedef {Object} StageState
@@ -173,20 +169,17 @@ function deepFreeze(v) {
  * @returns {Array<string>}
  */
 function normalizeStringArray(values) {
-    if (!Array.isArray(values))
-        return [];
-    /** @type {Array<string>} */
-    const out = [];
-    const seen = new Set();
-    for (const val of values) {
-        if (typeof val !== "string")
-            continue;
-        if (seen.has(val))
-            continue;
-        seen.add(val);
-        out.push(val);
-    }
-    return out;
+  if (!Array.isArray(values)) return [];
+  /** @type {Array<string>} */
+  const out = [];
+  const seen = new Set();
+  for (const val of values) {
+    if (typeof val !== "string") continue;
+    if (seen.has(val)) continue;
+    seen.add(val);
+    out.push(val);
+  }
+  return out;
 }
 /**
  * Normalize stage manifest metadata, enforce dependencies, and derive toggle state.
@@ -196,119 +189,106 @@ function normalizeStringArray(values) {
  * @returns {{ manifest: StageManifest, toggles: Record<string, boolean>, warnings: Array<string> }}
  */
 function normalizeStageManifest(manifestInput, togglesInput) {
-    const manifestObj = isPlainObject(manifestInput) ? manifestInput : {};
-    const rawOrder = Array.isArray(manifestObj.order) ? manifestObj.order : [];
-    const rawStages = isPlainObject(manifestObj.stages) ? manifestObj.stages : {};
-    /** @type {Array<StageName>} */
-    const order = [];
-    const seen = new Set();
-    for (const entry of rawOrder) {
-        if (typeof entry !== "string")
-            continue;
-        if (seen.has(entry))
-            continue;
-        order.push(entry);
-        seen.add(entry);
+  const manifestObj = isPlainObject(manifestInput) ? manifestInput : {};
+  const rawOrder = Array.isArray(manifestObj.order) ? manifestObj.order : [];
+  const rawStages = isPlainObject(manifestObj.stages) ? manifestObj.stages : {};
+  /** @type {Array<StageName>} */
+  const order = [];
+  const seen = new Set();
+  for (const entry of rawOrder) {
+    if (typeof entry !== "string") continue;
+    if (seen.has(entry)) continue;
+    order.push(entry);
+    seen.add(entry);
+  }
+  for (const key of Object.keys(rawStages)) {
+    if (seen.has(key)) continue;
+    order.push(key);
+    seen.add(key);
+  }
+  /** @type {Record<string, StageState>} */
+  const states = {};
+  const toggles = isPlainObject(togglesInput) ? togglesInput : {};
+  const orderIndex = new Map(order.map((name, idx) => [name, idx]));
+  for (const name of order) {
+    const rawDescriptor = rawStages[name];
+    const descriptor = isPlainObject(rawDescriptor) ? rawDescriptor : {};
+    const requires = normalizeStringArray(descriptor.requires);
+    const provides = normalizeStringArray(descriptor.provides);
+    const legacyToggles = normalizeStringArray(descriptor.legacyToggles);
+    let enabled = descriptor.enabled !== false;
+    let requested = enabled;
+    for (const key of legacyToggles) {
+      if (Object.prototype.hasOwnProperty.call(toggles, key) && typeof toggles[key] === "boolean") {
+        enabled = !!toggles[key];
+        requested = !!toggles[key];
+      }
     }
-    for (const key of Object.keys(rawStages)) {
-        if (seen.has(key))
-            continue;
-        order.push(key);
-        seen.add(key);
-    }
-    /** @type {Record<string, StageState>} */
-    const states = {};
-    const toggles = isPlainObject(togglesInput) ? togglesInput : {};
-    const orderIndex = new Map(order.map((name, idx) => [name, idx]));
-    for (const name of order) {
-        const rawDescriptor = rawStages[name];
-        const descriptor = isPlainObject(rawDescriptor) ? rawDescriptor : {};
-        const requires = normalizeStringArray(descriptor.requires);
-        const provides = normalizeStringArray(descriptor.provides);
-        const legacyToggles = normalizeStringArray(descriptor.legacyToggles);
-        let enabled = descriptor.enabled !== false;
-        let requested = enabled;
-        for (const key of legacyToggles) {
-            if (Object.prototype.hasOwnProperty.call(toggles, key) &&
-                typeof toggles[key] === "boolean") {
-                enabled = !!toggles[key];
-                requested = !!toggles[key];
-            }
-        }
-        states[name] = {
-            enabled,
-            requested,
-            requires,
-            legacyToggles,
-            provides,
-            blockedBy: undefined,
-        };
-    }
-    for (const name of order) {
-        const state = states[name];
-        if (!state || !state.enabled)
-            continue;
-        for (const dep of state.requires) {
-            const depState = states[dep];
-            if (!depState) {
-                if (!state.blockedBy)
-                    state.blockedBy = `requires missing stage "${dep}"`;
-                state.enabled = false;
-                break;
-            }
-            if (!depState.enabled) {
-                if (!state.blockedBy)
-                    state.blockedBy = `requires disabled stage "${dep}"`;
-                state.enabled = false;
-                break;
-            }
-            const depIdx = orderIndex.get(dep);
-            const stageIdx = orderIndex.get(name);
-            if (depIdx != null && stageIdx != null && depIdx > stageIdx) {
-                if (!state.blockedBy)
-                    state.blockedBy = `dependency "${dep}" executes after stage`;
-                state.enabled = false;
-                break;
-            }
-        }
-    }
-    /** @type {Record<string, boolean>} */
-    const derivedToggles = {};
-    /** @type {Array<string>} */
-    const warnings = [];
-    /** @type {Record<string, StageDescriptor>} */
-    const normalizedStages = {};
-    for (const name of order) {
-        const state = states[name];
-        if (!state)
-            continue;
-        for (const key of state.legacyToggles) {
-            derivedToggles[key] = !!state.enabled;
-        }
-        if (state.blockedBy && state.requested) {
-            warnings.push(`Stage "${name}" disabled: ${state.blockedBy}.`);
-        }
-        const desc = /** @type {StageDescriptor} */ ({
-            enabled: !!state.enabled,
-        });
-        if (state.requires.length)
-            desc.requires = state.requires.slice();
-        if (state.provides.length)
-            desc.provides = state.provides.slice();
-        if (state.legacyToggles.length)
-            desc.legacyToggles = state.legacyToggles.slice();
-        if (state.blockedBy)
-            desc.blockedBy = state.blockedBy;
-        normalizedStages[name] = desc;
-    }
-    return {
-        manifest: {
-            order: order.slice(),
-            stages: normalizedStages,
-        },
-        toggles: derivedToggles,
-        warnings,
+    states[name] = {
+      enabled,
+      requested,
+      requires,
+      legacyToggles,
+      provides,
+      blockedBy: undefined,
     };
+  }
+  for (const name of order) {
+    const state = states[name];
+    if (!state || !state.enabled) continue;
+    for (const dep of state.requires) {
+      const depState = states[dep];
+      if (!depState) {
+        if (!state.blockedBy) state.blockedBy = `requires missing stage "${dep}"`;
+        state.enabled = false;
+        break;
+      }
+      if (!depState.enabled) {
+        if (!state.blockedBy) state.blockedBy = `requires disabled stage "${dep}"`;
+        state.enabled = false;
+        break;
+      }
+      const depIdx = orderIndex.get(dep);
+      const stageIdx = orderIndex.get(name);
+      if (depIdx != null && stageIdx != null && depIdx > stageIdx) {
+        if (!state.blockedBy) state.blockedBy = `dependency "${dep}" executes after stage`;
+        state.enabled = false;
+        break;
+      }
+    }
+  }
+  /** @type {Record<string, boolean>} */
+  const derivedToggles = {};
+  /** @type {Array<string>} */
+  const warnings = [];
+  /** @type {Record<string, StageDescriptor>} */
+  const normalizedStages = {};
+  for (const name of order) {
+    const state = states[name];
+    if (!state) continue;
+    for (const key of state.legacyToggles) {
+      derivedToggles[key] = !!state.enabled;
+    }
+    if (state.blockedBy && state.requested) {
+      warnings.push(`Stage "${name}" disabled: ${state.blockedBy}.`);
+    }
+    const desc = /** @type {StageDescriptor} */ ({
+      enabled: !!state.enabled,
+    });
+    if (state.requires.length) desc.requires = state.requires.slice();
+    if (state.provides.length) desc.provides = state.provides.slice();
+    if (state.legacyToggles.length) desc.legacyToggles = state.legacyToggles.slice();
+    if (state.blockedBy) desc.blockedBy = state.blockedBy;
+    normalizedStages[name] = desc;
+  }
+  return {
+    manifest: {
+      order: order.slice(),
+      stages: normalizedStages,
+    },
+    toggles: derivedToggles,
+    warnings,
+  };
 }
 
 /**
@@ -317,23 +297,19 @@ function normalizeStageManifest(manifestInput, togglesInput) {
  * @returns {Record<string, boolean>}
  */
 function normalizeStageConfigProviders(input) {
-    if (!isPlainObject(input))
-        return {};
-    /** @type {Record<string, boolean>} */
-    const out = {};
-    for (const key of Object.keys(input)) {
-        if (typeof key !== "string")
-            continue;
-        const value = input[key];
-        if (typeof value === "boolean") {
-            if (value)
-                out[key] = true;
-            continue;
-        }
-        if (value != null)
-            out[key] = true;
+  if (!isPlainObject(input)) return {};
+  /** @type {Record<string, boolean>} */
+  const out = {};
+  for (const key of Object.keys(input)) {
+    if (typeof key !== "string") continue;
+    const value = input[key];
+    if (typeof value === "boolean") {
+      if (value) out[key] = true;
+      continue;
     }
-    return out;
+    if (value != null) out[key] = true;
+  }
+  return out;
 }
 
 /**
@@ -343,25 +319,22 @@ function normalizeStageConfigProviders(input) {
  * @returns {Array<string>}
  */
 function deriveStageOverrideWarnings(providers, manifest) {
-    /** @type {Array<string>} */
-    const warnings = [];
-    if (!providers)
-        return warnings;
-    const stages = manifest?.stages || {};
-    for (const name of Object.keys(providers)) {
-        if (!providers[name])
-            continue;
-        const desc = stages[name];
-        if (!desc) {
-            warnings.push(`Stage "${name}" not present in manifest; overrides will not run.`);
-            continue;
-        }
-        if (desc.enabled)
-            continue;
-        const reason = desc.blockedBy ? ` (${desc.blockedBy})` : "";
-        warnings.push(`Stage "${name}" disabled${reason}; overrides for this stage will be ignored.`);
+  /** @type {Array<string>} */
+  const warnings = [];
+  if (!providers) return warnings;
+  const stages = manifest?.stages || {};
+  for (const name of Object.keys(providers)) {
+    if (!providers[name]) continue;
+    const desc = stages[name];
+    if (!desc) {
+      warnings.push(`Stage "${name}" not present in manifest; overrides will not run.`);
+      continue;
     }
-    return warnings;
+    if (desc.enabled) continue;
+    const reason = desc.blockedBy ? ` (${desc.blockedBy})` : "";
+    warnings.push(`Stage "${name}" disabled${reason}; overrides for this stage will be ignored.`);
+  }
+  return warnings;
 }
 
 /**
@@ -371,28 +344,40 @@ function deriveStageOverrideWarnings(providers, manifest) {
  * @returns {Array<string>}
  */
 function normalizeFoundationGroup(merged) {
-    /** @type {Array<string>} */
-    const warnings = [];
-    const foundationInput = isPlainObject(merged.foundation) ? /** @type {AnyObject} */ (merged.foundation) : {};
-    const landmassInput = isPlainObject(merged.landmass) ? /** @type {AnyObject} */ (merged.landmass) : {};
-    /** @type {AnyObject} */
-    const foundationNormalized = deepMerge({}, foundationInput || {});
-    if (Object.keys(landmassInput).length > 0) {
-        if (isPlainObject(foundationNormalized.surface)) {
-            foundationNormalized.surface = deepMerge({ landmass: landmassInput }, foundationNormalized.surface);
-        }
-        else {
-            foundationNormalized.surface = { landmass: landmassInput };
-        }
+  /** @type {Array<string>} */
+  const warnings = [];
+  const foundationInput = isPlainObject(merged.foundation)
+    ? /** @type {AnyObject} */ (merged.foundation)
+    : {};
+  const landmassInput = isPlainObject(merged.landmass)
+    ? /** @type {AnyObject} */ (merged.landmass)
+    : {};
+  /** @type {AnyObject} */
+  const foundationNormalized = deepMerge({}, foundationInput || {});
+  if (Object.keys(landmassInput).length > 0) {
+    if (isPlainObject(foundationNormalized.surface)) {
+      foundationNormalized.surface = deepMerge(
+        { landmass: landmassInput },
+        foundationNormalized.surface
+      );
+    } else {
+      foundationNormalized.surface = { landmass: landmassInput };
     }
-    merged.foundation = foundationNormalized;
-    if (merged.worldModel && isPlainObject(merged.worldModel) && Object.keys(merged.worldModel).length > 0) {
-        warnings.push("Legacy `worldModel` overrides are no longer supported; migrate overrides to `foundation.*`.");
-    }
-    if ("worldModel" in merged) {
-        delete merged.worldModel;
-    }
-    return warnings;
+  }
+  merged.foundation = foundationNormalized;
+  if (
+    merged.worldModel &&
+    isPlainObject(merged.worldModel) &&
+    Object.keys(merged.worldModel).length > 0
+  ) {
+    warnings.push(
+      "Legacy `worldModel` overrides are no longer supported; migrate overrides to `foundation.*`."
+    );
+  }
+  if ("worldModel" in merged) {
+    delete merged.worldModel;
+  }
+  return warnings;
 }
 /* -----------------------------------------------------------------------------
  * Resolution
@@ -407,62 +392,65 @@ function normalizeFoundationGroup(merged) {
  * @returns {{ snapshot: Readonly<AnyObject>, activePresetNames: ReadonlyArray<string> }}
  */
 function buildSnapshot() {
-    // Start from explicit defaults
-    let merged = /** @type {AnyObject} */ (deepMerge({}, BASE_CONFIG));
-    // Read per-entry overrides
-    const rc = /** @type {AnyObject} */ (getRuntimeConfig() || {});
-    // Resolve and apply presets (ordered)
-    const presetNames = Array.isArray(rc.presets)
-        ? rc.presets.filter((n) => typeof n === "string" && !!PRESET_REGISTRY[n])
-        : [];
-    for (const name of presetNames) {
-        const presetObj = PRESET_REGISTRY[name];
-        if (presetObj) {
-            merged = deepMerge(merged, presetObj);
-        }
+  // Start from explicit defaults
+  let merged = /** @type {AnyObject} */ (deepMerge({}, BASE_CONFIG));
+  // Read per-entry overrides
+  const rc = /** @type {AnyObject} */ (getRuntimeConfig() || {});
+  // Resolve and apply presets (ordered)
+  const presetNames = Array.isArray(rc.presets)
+    ? rc.presets.filter((n) => typeof n === "string" && !!PRESET_REGISTRY[n])
+    : [];
+  for (const name of presetNames) {
+    const presetObj = PRESET_REGISTRY[name];
+    if (presetObj) {
+      merged = deepMerge(merged, presetObj);
     }
-    const stageConfigProviders = normalizeStageConfigProviders(rc.stageConfig);
-    // Strip control keys (e.g., 'presets') from overrides before merge
-    /** @type {AnyObject} */
-    const overrides = {};
-    for (const k of Object.keys(rc)) {
-        if (k === "presets" || k === "stageConfig")
-            continue;
-        overrides[k] = rc[k];
+  }
+  const stageConfigProviders = normalizeStageConfigProviders(rc.stageConfig);
+  // Strip control keys (e.g., 'presets') from overrides before merge
+  /** @type {AnyObject} */
+  const overrides = {};
+  for (const k of Object.keys(rc)) {
+    if (k === "presets" || k === "stageConfig") continue;
+    overrides[k] = rc[k];
+  }
+  // Apply per-entry overrides last (highest precedence)
+  merged = deepMerge(merged, overrides);
+  if (Object.keys(stageConfigProviders).length > 0) {
+    merged.stageConfig = stageConfigProviders;
+  }
+  const togglesBase = isPlainObject(merged.toggles)
+    ? /** @type {AnyObject} */ (merged.toggles)
+    : {};
+  const {
+    manifest: normalizedManifest,
+    toggles: manifestToggles,
+    warnings,
+  } = normalizeStageManifest(merged.stageManifest, togglesBase);
+  const overrideWarnings = deriveStageOverrideWarnings(stageConfigProviders, normalizedManifest);
+  merged.stageManifest = normalizedManifest;
+  merged.toggles = { ...togglesBase, ...manifestToggles };
+  for (const msg of [...warnings, ...overrideWarnings]) {
+    try {
+      console.warn(`[StageManifest] ${msg}`);
+    } catch (_) {
+      // Ignore console access issues in restrictive runtimes.
     }
-    // Apply per-entry overrides last (highest precedence)
-    merged = deepMerge(merged, overrides);
-    if (Object.keys(stageConfigProviders).length > 0) {
-        merged.stageConfig = stageConfigProviders;
+  }
+  const foundationWarnings = normalizeFoundationGroup(merged);
+  for (const msg of foundationWarnings) {
+    try {
+      console.warn(`[Foundation] ${msg}`);
+    } catch (_) {
+      // Ignore console access issues in restrictive runtimes.
     }
-    const togglesBase = isPlainObject(merged.toggles) ? /** @type {AnyObject} */ (merged.toggles) : {};
-    const { manifest: normalizedManifest, toggles: manifestToggles, warnings } = normalizeStageManifest(merged.stageManifest, togglesBase);
-    const overrideWarnings = deriveStageOverrideWarnings(stageConfigProviders, normalizedManifest);
-    merged.stageManifest = normalizedManifest;
-    merged.toggles = { ...togglesBase, ...manifestToggles };
-    for (const msg of [...warnings, ...overrideWarnings]) {
-        try {
-            console.warn(`[StageManifest] ${msg}`);
-        }
-        catch (_) {
-            // Ignore console access issues in restrictive runtimes.
-        }
-    }
-    const foundationWarnings = normalizeFoundationGroup(merged);
-    for (const msg of foundationWarnings) {
-        try {
-            console.warn(`[Foundation] ${msg}`);
-        }
-        catch (_) {
-            // Ignore console access issues in restrictive runtimes.
-        }
-    }
-    // Freeze deeply for safety
-    const frozen = deepFreeze(merged);
-    return {
-        snapshot: frozen,
-        activePresetNames: Object.freeze(presetNames.slice()),
-    };
+  }
+  // Freeze deeply for safety
+  const frozen = deepFreeze(merged);
+  return {
+    snapshot: frozen,
+    activePresetNames: Object.freeze(presetNames.slice()),
+  };
 }
 /* -----------------------------------------------------------------------------
  * Public API
@@ -472,23 +460,23 @@ function buildSnapshot() {
  * Should be called at the start of generation (e.g., in generateMap()).
  */
 export function refresh() {
-    const { snapshot, activePresetNames } = buildSnapshot();
-    SNAPSHOT = snapshot;
-    ACTIVE_PRESETS = activePresetNames;
+  const { snapshot, activePresetNames } = buildSnapshot();
+  SNAPSHOT = snapshot;
+  ACTIVE_PRESETS = activePresetNames;
 }
 /**
  * Get the current immutable snapshot (for diagnostics or advanced usage).
  * @returns {Readonly<AnyObject>}
  */
 export function getSnapshot() {
-    return SNAPSHOT;
+  return SNAPSHOT;
 }
 /**
  * Get the currently active preset names (in application order).
  * @returns {ReadonlyArray<string>}
  */
 export function currentActivePresets() {
-    return ACTIVE_PRESETS;
+  return ACTIVE_PRESETS;
 }
 /**
  * Generic group accessor with safe fallback to empty object.
@@ -496,18 +484,18 @@ export function currentActivePresets() {
  * @returns {Readonly<AnyObject>}
  */
 export function getGroup(groupName) {
-    const g = SNAPSHOT && /** @type {AnyObject} */ (SNAPSHOT)[groupName];
-    return /** @type {any} */ (isPlainObject(g) ? g : {});
+  const g = SNAPSHOT && /** @type {AnyObject} */ (SNAPSHOT)[groupName];
+  return /** @type {any} */ (isPlainObject(g) ? g : {});
 }
 /**
  * Retrieve the normalized stage manifest (order + descriptors).
  * @returns {Readonly<StageManifest>}
  */
 export function STAGE_MANIFEST() {
-    const manifest = SNAPSHOT && /** @type {AnyObject} */ (SNAPSHOT).stageManifest;
-    return isPlainObject(manifest)
-        ? /** @type {Readonly<StageManifest>} */ (manifest)
-        : EMPTY_STAGE_MANIFEST;
+  const manifest = SNAPSHOT && /** @type {AnyObject} */ (SNAPSHOT).stageManifest;
+  return isPlainObject(manifest)
+    ? /** @type {Readonly<StageManifest>} */ (manifest)
+    : EMPTY_STAGE_MANIFEST;
 }
 /**
  * Dot-path getter for convenience (e.g., "foundation.dynamics.wind").
@@ -516,141 +504,139 @@ export function STAGE_MANIFEST() {
  * @returns {any}
  */
 export function get(path) {
-    if (!path || typeof path !== "string")
-        return undefined;
-    const parts = path.split(".");
-    /** @type {any} */
-    let cur = SNAPSHOT;
-    for (const p of parts) {
-        if (cur == null)
-            return undefined;
-        cur = cur[p];
-    }
-    return cur;
+  if (!path || typeof path !== "string") return undefined;
+  const parts = path.split(".");
+  /** @type {any} */
+  let cur = SNAPSHOT;
+  for (const p of parts) {
+    if (cur == null) return undefined;
+    cur = cur[p];
+  }
+  return cur;
 }
 /* ---- Named helpers (common groups; return empty objects if missing) ---- */
 /** @returns {Readonly<Toggles>} */
 export function TOGGLES() {
-    return /** @type {Readonly<Toggles>} */ (getGroup("toggles"));
+  return /** @type {Readonly<Toggles>} */ (getGroup("toggles"));
 }
 /** @returns {Readonly<Story>} */
 export function STORY() {
-    return /** @type {Readonly<Story>} */ (getGroup("story"));
+  return /** @type {Readonly<Story>} */ (getGroup("story"));
 }
 /** @returns {Readonly<Microclimate>} */
 export function MICROCLIMATE() {
-    return /** @type {Readonly<Microclimate>} */ (getGroup("microclimate"));
+  return /** @type {Readonly<Microclimate>} */ (getGroup("microclimate"));
 }
 /** @returns {Readonly<Landmass>} */
 export function LANDMASS_CFG() {
-    return /** @type {Readonly<Landmass>} */ (getGroup("landmass"));
+  return /** @type {Readonly<Landmass>} */ (getGroup("landmass"));
 }
 /** @returns {Readonly<Coastlines>} */
 export function COASTLINES_CFG() {
-    return /** @type {Readonly<Coastlines>} */ (getGroup("coastlines"));
+  return /** @type {Readonly<Coastlines>} */ (getGroup("coastlines"));
 }
 /** @returns {Readonly<Margins>} */
 export function MARGINS_CFG() {
-    return /** @type {Readonly<Margins>} */ (getGroup("margins"));
+  return /** @type {Readonly<Margins>} */ (getGroup("margins"));
 }
 /** @returns {Readonly<Islands>} */
 export function ISLANDS_CFG() {
-    return /** @type {Readonly<Islands>} */ (getGroup("islands"));
+  return /** @type {Readonly<Islands>} */ (getGroup("islands"));
 }
 /** @returns {Readonly<any>} */
 export function CLIMATE_CFG() {
-    return /** @type {Readonly<any>} */ (getGroup("climate"));
+  return /** @type {Readonly<any>} */ (getGroup("climate"));
 }
 /** @returns {Readonly<Mountains>} */
 export function MOUNTAINS_CFG() {
-    return /** @type {Readonly<Mountains>} */ (getGroup("mountains"));
+  return /** @type {Readonly<Mountains>} */ (getGroup("mountains"));
 }
 /** @returns {Readonly<Volcanoes>} */
 export function VOLCANOES_CFG() {
-    return /** @type {Readonly<Volcanoes>} */ (getGroup("volcanoes"));
+  return /** @type {Readonly<Volcanoes>} */ (getGroup("volcanoes"));
 }
 /** @returns {Readonly<Biomes>} */
 export function BIOMES_CFG() {
-    return /** @type {Readonly<Biomes>} */ (getGroup("biomes"));
+  return /** @type {Readonly<Biomes>} */ (getGroup("biomes"));
 }
 /** @returns {Readonly<FeaturesDensity>} */
 export function FEATURES_DENSITY_CFG() {
-    return /** @type {Readonly<FeaturesDensity>} */ (getGroup("featuresDensity"));
+  return /** @type {Readonly<FeaturesDensity>} */ (getGroup("featuresDensity"));
 }
 /** @returns {Readonly<Corridors>} */
 export function CORRIDORS_CFG() {
-    return /** @type {Readonly<Corridors>} */ (getGroup("corridors"));
+  return /** @type {Readonly<Corridors>} */ (getGroup("corridors"));
 }
 /** @returns {Readonly<Placement>} */
 export function PLACEMENT_CFG() {
-    return /** @type {Readonly<Placement>} */ (getGroup("placement"));
+  return /** @type {Readonly<Placement>} */ (getGroup("placement"));
 }
 /** @returns {Readonly<DevLogging>} */
 export function DEV_LOG_CFG() {
-    return /** @type {Readonly<DevLogging>} */ (getGroup("dev"));
+  return /** @type {Readonly<DevLogging>} */ (getGroup("dev"));
 }
 /** @returns {Readonly<FoundationConfig>} */
 export function FOUNDATION_CFG() {
-    return /** @type {Readonly<FoundationConfig>} */ (getGroup("foundation"));
+  return /** @type {Readonly<FoundationConfig>} */ (getGroup("foundation"));
 }
 /* ---- Foundation helpers ---- */
 export function FOUNDATION_SEED() {
-    return /** @type {any} */ (get("foundation.seed") || {});
+  return /** @type {any} */ (get("foundation.seed") || {});
 }
 export function FOUNDATION_PLATES() {
-    return /** @type {any} */ (get("foundation.plates") || {});
+  return /** @type {any} */ (get("foundation.plates") || {});
 }
 export function FOUNDATION_DYNAMICS() {
-    return /** @type {any} */ (get("foundation.dynamics") || {});
+  return /** @type {any} */ (get("foundation.dynamics") || {});
 }
 export function FOUNDATION_SURFACE() {
-    return /** @type {any} */ (get("foundation.surface") || {});
+  return /** @type {any} */ (get("foundation.surface") || {});
 }
 export function FOUNDATION_POLICY() {
-    return /** @type {any} */ (get("foundation.policy") || {});
+  return /** @type {any} */ (get("foundation.policy") || {});
 }
 export function FOUNDATION_DIAGNOSTICS() {
-    return /** @type {any} */ (get("foundation.diagnostics") || {});
+  return /** @type {any} */ (get("foundation.diagnostics") || {});
 }
 export function FOUNDATION_DIRECTIONALITY() {
-    return /** @type {any} */ (get("foundation.dynamics.directionality") || {});
+  return /** @type {any} */ (get("foundation.dynamics.directionality") || {});
 }
 export function FOUNDATION_OCEAN_SEPARATION() {
-    return /** @type {any} */ (get("foundation.surface.oceanSeparation") ||
-        get("foundation.policy.oceanSeparation") ||
-        {});
+  return /** @type {any} */ (
+    get("foundation.surface.oceanSeparation") || get("foundation.policy.oceanSeparation") || {}
+  );
 }
 
 /* ---- Default export (optional convenience) ---- */
 export default {
-    refresh,
-    getSnapshot,
-    currentActivePresets,
-    getGroup,
-    get,
-    STAGE_MANIFEST,
-    // Groups
-    TOGGLES,
-    STORY,
-    MICROCLIMATE,
-    LANDMASS_CFG,
-    COASTLINES_CFG,
-    MARGINS_CFG,
-    ISLANDS_CFG,
-    CLIMATE_CFG,
-    BIOMES_CFG,
-    FEATURES_DENSITY_CFG,
-    CORRIDORS_CFG,
-    PLACEMENT_CFG,
-    DEV_LOG_CFG,
-    FOUNDATION_CFG,
-    // Foundation subsets
-    FOUNDATION_SEED,
-    FOUNDATION_PLATES,
-    FOUNDATION_DYNAMICS,
-    FOUNDATION_SURFACE,
-    FOUNDATION_POLICY,
-    FOUNDATION_DIAGNOSTICS,
-    FOUNDATION_DIRECTIONALITY,
-    FOUNDATION_OCEAN_SEPARATION,
+  refresh,
+  getSnapshot,
+  currentActivePresets,
+  getGroup,
+  get,
+  STAGE_MANIFEST,
+  // Groups
+  TOGGLES,
+  STORY,
+  MICROCLIMATE,
+  LANDMASS_CFG,
+  COASTLINES_CFG,
+  MARGINS_CFG,
+  ISLANDS_CFG,
+  CLIMATE_CFG,
+  BIOMES_CFG,
+  FEATURES_DENSITY_CFG,
+  CORRIDORS_CFG,
+  PLACEMENT_CFG,
+  DEV_LOG_CFG,
+  FOUNDATION_CFG,
+  // Foundation subsets
+  FOUNDATION_SEED,
+  FOUNDATION_PLATES,
+  FOUNDATION_DYNAMICS,
+  FOUNDATION_SURFACE,
+  FOUNDATION_POLICY,
+  FOUNDATION_DIAGNOSTICS,
+  FOUNDATION_DIRECTIONALITY,
+  FOUNDATION_OCEAN_SEPARATION,
 };

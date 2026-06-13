@@ -3,9 +3,7 @@ import {
   type Civ7DiplomacyResponsePostcondition,
   waitForCiv7DiplomacyResponseAfter,
 } from "./diplomacy-postconditions.js";
-import type {
-  Civ7OperationValidationResult,
-} from "./types.js";
+import type { Civ7OperationValidationResult } from "./types.js";
 
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
@@ -13,10 +11,7 @@ import { jsLiteral } from "../../runtime/command-serialization.js";
 import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-} from "../../session/types.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
 import { validatePlayerId } from "../../validation.js";
 import {
   getCiv7PlayNotificationView,
@@ -75,16 +70,22 @@ export type Civ7DiplomacyResponseResult = Readonly<{
 type DiplomacyResponseRequestDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
-  getPlayNotificationView: (options: Civ7DirectControlOptions) => Promise<Civ7PlayNotificationViewResult>;
+  getPlayNotificationView: (
+    options: Civ7DirectControlOptions
+  ) => Promise<Civ7PlayNotificationViewResult>;
   canStartPlayerOperation: (
-    input: Readonly<{ playerId: number; operationType: string; args: { ID: number; Type: number } }>,
-    options: Civ7DirectControlOptions,
+    input: Readonly<{
+      playerId: number;
+      operationType: string;
+      args: { ID: number; Type: number };
+    }>,
+    options: Civ7DirectControlOptions
   ) => Promise<Civ7OperationValidationResult>;
   parseDiplomacyPayload: (
     result: Civ7CommandResult,
-    label: string,
+    label: string
   ) => Civ7DiplomacyResponseCommandPayload;
   jsLiteral: (value: unknown) => string;
   invalidActionIdError: () => never;
@@ -94,7 +95,7 @@ type DiplomacyResponseRequestDependencies = Readonly<{
 export async function requestCiv7DiplomacyResponse(
   input: Civ7DiplomacyResponseInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: DiplomacyResponseRequestDependencies = defaultDiplomacyResponseRequestDependencies,
+  dependencies: DiplomacyResponseRequestDependencies = defaultDiplomacyResponseRequestDependencies
 ): Promise<Civ7DiplomacyResponseResult> {
   dependencies.validatePlayerId(input.playerId);
   if (!Number.isInteger(input.actionId)) dependencies.invalidActionIdError();
@@ -134,7 +135,7 @@ export async function requestCiv7DiplomacyResponse(
     options,
     before,
     beforeValidation,
-    dependencies.getPlayNotificationView,
+    dependencies.getPlayNotificationView
   );
   const afterValidation = await dependencies.canStartPlayerOperation(operationInput, options);
   const postcondition = diplomacyResponsePostcondition(
@@ -143,7 +144,7 @@ export async function requestCiv7DiplomacyResponse(
     before,
     after,
     beforeValidation,
-    afterValidation,
+    afterValidation
   );
   return {
     playerId,
@@ -154,7 +155,9 @@ export async function requestCiv7DiplomacyResponse(
     after,
     afterValidation,
     sent: payload.sent === true,
-    verified: postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change",
+    verified:
+      postcondition.classification !== "not-sent" &&
+      postcondition.classification !== "no-state-change",
     postcondition,
   };
 }
@@ -177,7 +180,7 @@ const defaultDiplomacyResponseRequestDependencies: DiplomacyResponseRequestDepen
 
 export function buildDiplomacyResponseCloseoutCommand(
   input: Civ7DiplomacyResponseInput,
-  dependencies: Pick<DiplomacyResponseRequestDependencies, "jsLiteral">,
+  dependencies: Pick<DiplomacyResponseRequestDependencies, "jsLiteral">
 ): string {
   return `(() => {
     ${diplomacyResponseCloseoutSource()}

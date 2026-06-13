@@ -34,7 +34,11 @@ export function mergeDeterministic(base: unknown, overrides: unknown): unknown {
   return out;
 }
 
-export function setAtPath(root: Record<string, unknown>, path: readonly string[], value: unknown): void {
+export function setAtPath(
+  root: Record<string, unknown>,
+  path: readonly string[],
+  value: unknown
+): void {
   let current: unknown = root;
   for (let i = 0; i < path.length; i += 1) {
     const key = path[i];
@@ -124,6 +128,8 @@ export function applyPresetConfig(args: {
   return { value, errors: [] };
 }
 
-export function formatPresetErrors(errors: ReadonlyArray<{ path: string; message: string }>): ReadonlyArray<string> {
+export function formatPresetErrors(
+  errors: ReadonlyArray<{ path: string; message: string }>
+): ReadonlyArray<string> {
   return errors.map((e) => `${e.path}: ${e.message}`);
 }

@@ -73,7 +73,6 @@ describe("unit operation requests", () => {
       await server.close();
     }
   });
-
 });
 
 async function startUnitOperationTunerServer(): Promise<FakeTunerServer> {

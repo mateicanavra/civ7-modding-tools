@@ -107,10 +107,15 @@ function canonicalize(value: unknown): unknown {
 }
 
 function stableHash(value: unknown): string {
-  return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
+  return createHash("sha256")
+    .update(JSON.stringify(canonicalize(value)))
+    .digest("hex");
 }
 
-async function readFreshLogText(logPath: string, snapshot: Awaited<ReturnType<typeof snapshotFile>>): Promise<string> {
+async function readFreshLogText(
+  logPath: string,
+  snapshot: Awaited<ReturnType<typeof snapshotFile>>
+): Promise<string> {
   const current = await snapshotFile(logPath);
   if (!current.exists) return "";
   const fullText = await readFile(logPath, "utf8");
@@ -121,7 +126,11 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function invalidEngineRequest(message: string, code: string, details: Record<string, unknown> = {}): StudioEngineError {
+function invalidEngineRequest(
+  message: string,
+  code: string,
+  details: Record<string, unknown> = {}
+): StudioEngineError {
   return new StudioEngineError(400, message, {
     code,
     ...details,
@@ -133,7 +142,7 @@ function unavailableEngineDependency(
   message: string,
   code: string,
   err?: unknown,
-  details: Record<string, unknown> = {},
+  details: Record<string, unknown> = {}
 ): StudioEngineError {
   const directControlCode = err instanceof Civ7DirectControlError ? err.code : undefined;
   const cause = err instanceof Civ7DirectControlError ? err.details : err;
@@ -161,7 +170,7 @@ async function restartCiv7ProcessViaSteam(): Promise<{
       "Civ7 process restart from Studio is currently supported on macOS only",
       "civ7-process-restart-platform-unavailable",
       undefined,
-      { platform: process.platform },
+      { platform: process.platform }
     );
   }
 
@@ -179,7 +188,7 @@ async function restartCiv7ProcessViaSteam(): Promise<{
     throw unavailableEngineDependency(
       "Unable to shut down Civ7 process before restart",
       "civ7-process-shutdown-unavailable",
-      err,
+      err
     );
   });
 
@@ -198,7 +207,7 @@ async function restartCiv7ProcessViaSteam(): Promise<{
     throw unavailableEngineDependency(
       "Unable to launch Civ7 via Steam",
       "civ7-steam-launch-unavailable",
-      err,
+      err
     );
   });
   const launch = steamLaunch.attempts[steamLaunch.attempts.length - 1]?.launch;
@@ -207,7 +216,7 @@ async function restartCiv7ProcessViaSteam(): Promise<{
       "Civ7 Steam launch did not record an attempt",
       "civ7-steam-launch-attempt-missing",
       undefined,
-      { launchAttempts: steamLaunch.attempts },
+      { launchAttempts: steamLaunch.attempts }
     );
   }
 
@@ -232,7 +241,7 @@ async function restartCiv7ProcessViaSteam(): Promise<{
       {
         setupPhase,
         timeoutMs: CIV7_PROCESS_RESTART_WAIT_TIMEOUT_MS,
-      },
+      }
     );
   }
 
@@ -287,7 +296,10 @@ async function deploySwooperMaps(repoRoot: string): Promise<{
   };
 }
 
-async function deploySwooperMapsForRun(repoRoot: string, requestId: string): Promise<{
+async function deploySwooperMapsForRun(
+  repoRoot: string,
+  requestId: string
+): Promise<{
   build: {
     task: string;
     stdout: string;
@@ -365,25 +377,40 @@ function isNodeNotFound(err: unknown): boolean {
 
 function assertRepoMapEnvelope(envelope: unknown, id: string): void {
   if (!envelope || typeof envelope !== "object" || Array.isArray(envelope)) {
-    throw invalidEngineRequest("Map config envelope must be a JSON object", "map-config-envelope-not-object");
+    throw invalidEngineRequest(
+      "Map config envelope must be a JSON object",
+      "map-config-envelope-not-object"
+    );
   }
   const record = envelope as Record<string, unknown>;
   if (record.id !== id) {
-    throw invalidEngineRequest("Map config envelope id must match the requested id", "map-config-envelope-id-mismatch");
+    throw invalidEngineRequest(
+      "Map config envelope id must match the requested id",
+      "map-config-envelope-id-mismatch"
+    );
   }
   if (typeof record.name !== "string" || record.name.trim().length === 0) {
     throw invalidEngineRequest("Map config name must be non-empty", "map-config-name-empty");
   }
   if (typeof record.description !== "string" || record.description.trim().length === 0) {
-    throw invalidEngineRequest("Map config description must be non-empty", "map-config-description-empty");
+    throw invalidEngineRequest(
+      "Map config description must be non-empty",
+      "map-config-description-empty"
+    );
   }
   if (record.recipe !== "standard") {
     throw invalidEngineRequest('Map config recipe must be "standard"', "map-config-recipe-invalid");
   }
   if (!Number.isInteger(record.sortIndex))
-    throw invalidEngineRequest("Map config sortIndex must be an integer", "map-config-sort-index-invalid");
+    throw invalidEngineRequest(
+      "Map config sortIndex must be an integer",
+      "map-config-sort-index-invalid"
+    );
   if (!record.config || typeof record.config !== "object" || Array.isArray(record.config)) {
-    throw invalidEngineRequest("Map config payload must be a JSON object", "map-config-payload-not-object");
+    throw invalidEngineRequest(
+      "Map config payload must be a JSON object",
+      "map-config-payload-not-object"
+    );
   }
 }
 
@@ -430,7 +457,7 @@ async function materializeRunInGameConfig(args: {
     throw invalidEngineRequest(
       "Map config writes must stay in mods/mod-swooper-maps/src/maps/configs",
       "map-config-path-outside-config-root",
-      { sourcePath: args.sourcePath },
+      { sourcePath: args.sourcePath }
     );
   }
   const path = relative(args.repoRoot, target);
@@ -440,7 +467,7 @@ async function materializeRunInGameConfig(args: {
       "Unable to read existing map config before Run in Game materialization",
       "map-config-read-unavailable",
       err,
-      { path, sourcePath: args.sourcePath },
+      { path, sourcePath: args.sourcePath }
     );
   });
   await mkdir(dirname(target), { recursive: true });
@@ -574,12 +601,16 @@ function publishOperationEvent(eventHub: StudioEngineEventHub, event: StudioOper
   });
 }
 
-function createOperationPublisher(eventHub: StudioEngineEventHub | undefined): OperationPublisher | undefined {
+function createOperationPublisher(
+  eventHub: StudioEngineEventHub | undefined
+): OperationPublisher | undefined {
   if (!eventHub) return undefined;
   return (event) => publishOperationEvent(eventHub, event);
 }
 
-function runInGameStatusForEvent(status: RunInGameOperationState): RunInGameOperationEvent["status"] {
+function runInGameStatusForEvent(
+  status: RunInGameOperationState
+): RunInGameOperationEvent["status"] {
   const { completedPhases, recoveryActions, ...rest } = status;
   return {
     ...rest,
@@ -588,7 +619,9 @@ function runInGameStatusForEvent(status: RunInGameOperationState): RunInGameOper
   };
 }
 
-function saveDeployStatusForEvent(status: SaveDeployEngineResult): SaveDeployOperationEvent["status"] {
+function saveDeployStatusForEvent(
+  status: SaveDeployEngineResult
+): SaveDeployOperationEvent["status"] {
   const { recoveryActions, ...rest } = status;
   return {
     ...rest,
@@ -596,7 +629,9 @@ function saveDeployStatusForEvent(status: SaveDeployEngineResult): SaveDeployOpe
   };
 }
 
-export function createStudioEngines(options: Readonly<{ repoRoot: string; eventHub?: StudioEngineEventHub }>): StudioEngines {
+export function createStudioEngines(
+  options: Readonly<{ repoRoot: string; eventHub?: StudioEngineEventHub }>
+): StudioEngines {
   const { repoRoot } = options;
   const serverStartedAt = new Date().toISOString();
   const serverInstanceId = createCiv7ControlRequestId("studio-server");
@@ -608,23 +643,25 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
     serverStartedAt,
     ttlMs: RUN_IN_GAME_OPERATION_TTL_MS,
     onChange: publishOperation
-      ? (status) => publishOperation({
-        type: "operation",
-        kind: "run-in-game",
-        status: runInGameStatusForEvent(status),
-        observedAt: status.updatedAt,
-      })
+      ? (status) =>
+          publishOperation({
+            type: "operation",
+            kind: "run-in-game",
+            status: runInGameStatusForEvent(status),
+            observedAt: status.updatedAt,
+          })
       : undefined,
   });
   const saveDeployOperations = createMapConfigSaveDeployOperationStore({
     ttlMs: RUN_IN_GAME_OPERATION_TTL_MS,
     onChange: publishOperation
-      ? (status) => publishOperation({
-        type: "operation",
-        kind: "save-deploy",
-        status: saveDeployStatusForEvent(status),
-        observedAt: status.updatedAt,
-      })
+      ? (status) =>
+          publishOperation({
+            type: "operation",
+            kind: "save-deploy",
+            status: saveDeployStatusForEvent(status),
+            observedAt: status.updatedAt,
+          })
       : undefined,
   });
 
@@ -638,7 +675,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
           code: "run-in-game-operation-active",
           activeRequestId: activeRunInGame.requestId,
           activePhase: activeRunInGame.phase,
-        },
+        }
       );
     }
     const activeSaveDeploy = saveDeployOperations.findActive();
@@ -650,7 +687,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
           code: "save-deploy-operation-active",
           activeRequestId: activeSaveDeploy.requestId,
           activePhase: activeSaveDeploy.phase,
-        },
+        }
       );
     }
     const opts = {
@@ -666,7 +703,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
         `Civ7 autoplay ${action} is unavailable`,
         "civ7-autoplay-unavailable",
         err,
-        { action },
+        { action }
       );
     });
     return {
@@ -691,7 +728,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
    * already-tracked operation instead of double-launching.
    */
   async function runRunInGameStartEngine(
-    body: RunInGameStartEngineBody,
+    body: RunInGameStartEngineBody
   ): Promise<RunInGameStartResult> {
     let parsedRequest: ReturnType<typeof parseRunInGameSetupRequest>;
     try {
@@ -700,7 +737,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
       throw new StudioEngineError(
         400,
         err instanceof Error ? err.message : "Invalid Run in Game request",
-        { code: "run-in-game-request-invalid" },
+        { code: "run-in-game-request-invalid" }
       );
     }
     const selected = body.selectedConfig ?? {};
@@ -767,7 +804,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
           code: "run-in-game-operation-active",
           activeRequestId: activeOperation.requestId,
           activePhase: activeOperation.phase,
-        },
+        }
       );
     }
     const activeSaveDeploy = saveDeployOperations.findActive();
@@ -779,7 +816,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
           code: "save-deploy-operation-active",
           activeRequestId: activeSaveDeploy.requestId,
           activePhase: activeSaveDeploy.phase,
-        },
+        }
       );
     }
     const requestId = createCiv7ControlRequestId("studio-run-in-game");
@@ -830,7 +867,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
           configHash,
           envelopeHash,
           ...(await optionalFileIdentity({ repoRoot, path: materialized.path }).then(
-            (sourceConfig) => (sourceConfig ? { sourceConfig } : {}),
+            (sourceConfig) => (sourceConfig ? { sourceConfig } : {})
           )),
         };
         runInGameOperations.update(requestId, { materialization });
@@ -902,7 +939,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
               code: "map-script-materialization-proof-missing",
               unresolvedLinks: materializationScriptUnresolvedLinks,
               materialization,
-            },
+            }
           );
         }
 
@@ -925,7 +962,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
               recoveryHint:
                 "Rebuild map artifacts (gen:maps must see SWOOPER_STUDIO_RUN_ID; check the nx env input/cache for mod-swooper-maps:build), then retry the run.",
               materialization,
-            },
+            }
           );
         }
 
@@ -956,7 +993,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
             waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
             pollIntervalMs: 1_000,
           },
-          { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS },
+          { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }
         );
         if (rowVisibility.refreshed) {
           phase = "reload-needed";
@@ -987,14 +1024,16 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
             seed,
             gameSeed: seed,
             ...(playerCount === undefined ? {} : { playerCount }),
-            ...(setupConfig.savedConfig === undefined ? {} : { savedConfig: setupConfig.savedConfig }),
+            ...(setupConfig.savedConfig === undefined
+              ? {}
+              : { savedConfig: setupConfig.savedConfig }),
             options: setupConfig.gameOptions,
             playerOptions: setupConfig.playerOptions,
             fromRunningGame: "exit-to-shell",
             waitForTuner: true,
             waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
           },
-          { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS },
+          { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }
         ).catch(async (err: unknown) => {
           const mapgenFailure = await waitForCiv7MapgenLogFailure({
             readFreshLogText: () => readFreshLogText(scriptingLogPath, scriptingSnapshot),
@@ -1014,7 +1053,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
             "Civ7 direct-control start is unavailable",
             "direct-control-start-unavailable",
             err,
-            { materialization },
+            { materialization }
           );
         });
 
@@ -1045,11 +1084,11 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
             "Civ7 mapgen log proof is unavailable",
             "direct-control-proof-unavailable",
             err,
-            { materialization },
+            { materialization }
           );
         });
         const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(
-          () => "",
+          () => ""
         );
         const logProof = parseSwooperMapgenLogProof({
           text: freshLogText,
@@ -1072,7 +1111,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
               seed,
               markers: logMarkerProof.matched,
               materialization,
-            },
+            }
           );
         }
         const liveRuntimeStatus = start.start.mapSummary
@@ -1133,7 +1172,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
             exactAuthorshipProof,
           },
           materialization,
-          exactAuthorshipProof,
+          exactAuthorshipProof
         );
       } catch (err) {
         runInGameOperations.fail(requestId, phase, err, materialization);
@@ -1148,7 +1187,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
     const nextRun = studioOperationQueue.then(run, run);
     studioOperationQueue = nextRun.then(
       () => undefined,
-      () => undefined,
+      () => undefined
     );
     return { kind: "accepted", operation };
   }
@@ -1166,11 +1205,13 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
   async function runSaveDeployEngine(body: unknown): Promise<SaveDeployEngineResult> {
     let parsedRequest: ReturnType<typeof parseMapConfigSaveRequest>;
     try {
-      parsedRequest = parseMapConfigSaveRequest(body as Parameters<typeof parseMapConfigSaveRequest>[0]);
+      parsedRequest = parseMapConfigSaveRequest(
+        body as Parameters<typeof parseMapConfigSaveRequest>[0]
+      );
     } catch (err) {
       throw invalidEngineRequest(
         err instanceof Error ? err.message : "Invalid Save/Deploy request",
-        "save-deploy-request-invalid",
+        "save-deploy-request-invalid"
       );
     }
     const activeRunInGame = runInGameOperations.findActive();
@@ -1182,7 +1223,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
           code: "run-in-game-operation-active",
           activeRequestId: activeRunInGame.requestId,
           activePhase: activeRunInGame.phase,
-        },
+        }
       );
     }
     const activeSaveDeploy = saveDeployOperations.findActive();
@@ -1205,7 +1246,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
       throw invalidEngineRequest(
         "Map config writes must stay in mods/mod-swooper-maps/src/maps/configs",
         "map-config-path-outside-config-root",
-        { sourcePath: parsedRequest.sourcePath },
+        { sourcePath: parsedRequest.sourcePath }
       );
     }
     const path = relative(repoRoot, target);
@@ -1222,7 +1263,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
             "Unable to read existing map config before Save/Deploy",
             "save-deploy-existing-config-unavailable",
             err,
-            { path, sourcePath: parsedRequest.sourcePath },
+            { path, sourcePath: parsedRequest.sourcePath }
           );
         });
         await mkdir(dirname(target), { recursive: true });
@@ -1248,7 +1289,9 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
           deployed: false,
           details: {
             ...engineDetails(err),
-            ...(rollbackFailure === undefined ? {} : { rollbackFailure: cloneForJson(rollbackFailure) }),
+            ...(rollbackFailure === undefined
+              ? {}
+              : { rollbackFailure: cloneForJson(rollbackFailure) }),
           },
         });
       }
@@ -1256,7 +1299,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
     const nextRun = studioOperationQueue.then(run, run);
     studioOperationQueue = nextRun.then(
       () => undefined,
-      () => undefined,
+      () => undefined
     );
     return operation;
   }

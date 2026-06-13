@@ -31,13 +31,7 @@ export const Civ7TargetCandidatesProcedureDescriptor = createCiv7ProcedureCoreDe
     owner: "packages/civ7-direct-control/src/play/tactical/target-candidates.ts",
     exportName: "Civ7TargetCandidatesResultSchema",
   },
-  inputFields: [
-    "playerId",
-    "origins",
-    "maxCandidates",
-    "maxPlayers",
-    "unitRadius",
-  ],
+  inputFields: ["playerId", "origins", "maxCandidates", "maxPlayers", "unitRadius"],
   outputFields: [
     "localPlayerId",
     "playerId",
@@ -49,10 +43,7 @@ export const Civ7TargetCandidatesProcedureDescriptor = createCiv7ProcedureCoreDe
     "notes",
   ],
   playerScope: "local-player-scoped",
-  consumerClasses: [
-    "normal-cli-player-agent-view",
-    "effect-orpc-procedure-core",
-  ],
+  consumerClasses: ["normal-cli-player-agent-view", "effect-orpc-procedure-core"],
   proofBoundary: "local-package-test",
   projection: {
     normalCli: "semantic-projection",
@@ -91,13 +82,14 @@ export type Civ7TargetCandidatesProcedureCallOptions = Readonly<{
 
 export function callCiv7TargetCandidatesProcedure(
   input: Civ7TargetCandidatesInput = {},
-  options: Civ7TargetCandidatesProcedureCallOptions = {},
+  options: Civ7TargetCandidatesProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7TargetCandidatesResult>> {
   return callCiv7ProcedureCore<Civ7TargetCandidatesInput, Civ7TargetCandidatesResult>(
     Civ7TargetCandidatesProcedureDescriptor,
     Civ7TargetCandidatesProcedureSchemaArtifacts,
     input,
-    (validInput) => getCiv7TargetCandidates(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    (validInput) =>
+      getCiv7TargetCandidates(validInput, options.directControl, options.dependencies),
+    options.procedure
   );
 }

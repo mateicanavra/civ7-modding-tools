@@ -115,7 +115,8 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
     const boundaryGate = Math.min(0.99, Math.max(0, config.boundaryGate));
     const falloffExponent = config.boundaryExponent;
     const oldBeltHillScale = Math.max(0, Math.min(2, config.oldBeltHillScale));
-    const foothillMaxDistance = Math.max(0, Math.min(255, Math.round(config.foothillMaxDistance))) | 0;
+    const foothillMaxDistance =
+      Math.max(0, Math.min(255, Math.round(config.foothillMaxDistance))) | 0;
     const hillMaxFraction = Math.max(0, Math.min(1, config.hillMaxFraction));
     const foothillMinFraction = Math.max(0, Math.min(1, config.foothillMinFraction));
     const foothillMaxFraction =
@@ -136,7 +137,11 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       if (mountainMask[i] === 1) continue;
 
       const closenessNorm = applyRangeEnvelope(boundaryCloseness[i] / 255, rangeEnvelopeScale);
-      const boundaryStrength = resolveBoundaryStrength(closenessNorm, boundaryGate, falloffExponent);
+      const boundaryStrength = resolveBoundaryStrength(
+        closenessNorm,
+        boundaryGate,
+        falloffExponent
+      );
 
       const collisionUplift = collisionPotential[i] / 255;
       const subductionUplift = subductionPotential[i] / 255;
@@ -178,7 +183,12 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
 
     const distanceToMountains =
       foothillMaxDistance > 0
-        ? computeHexDistanceToMask({ mask: mountainMask, width: w, height: h, maxDistance: foothillMaxDistance })
+        ? computeHexDistanceToMask({
+            mask: mountainMask,
+            width: w,
+            height: h,
+            maxDistance: foothillMaxDistance,
+          })
         : new Uint8Array(size);
     if (foothillMaxDistance <= 0) distanceToMountains.fill(255);
 
@@ -200,7 +210,11 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       // only when physics indicates meaningful deformation. This prevents planet-wide hills when
       // boundaryCloseness is treated as pure proximity (as it should be).
       const closenessNorm = applyRangeEnvelope(boundaryCloseness[i] / 255, rangeEnvelopeScale);
-      const boundaryStrength = resolveBoundaryStrength(closenessNorm, boundaryGate, falloffExponent);
+      const boundaryStrength = resolveBoundaryStrength(
+        closenessNorm,
+        boundaryGate,
+        falloffExponent
+      );
       const closeToBoundary = boundaryStrength > 0;
 
       // Strong boundary deformation signals (byte-space) used to avoid "all hills everywhere".
@@ -212,23 +226,25 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       const stressByte = tectonicStress[i] ?? 0;
       const upliftByte = upliftPotential[i] ?? 0;
 
-      const strongConvergence = collisionByte >= config.driverSignalByteMin || subductionByte >= config.driverSignalByteMin;
-      const strongDivergence = boundary === BOUNDARY_TYPE.divergent && riftByte >= config.driverSignalByteMin;
-      const strongTransform = boundary === BOUNDARY_TYPE.transform && stressByte >= config.driverSignalByteMin;
+      const strongConvergence =
+        collisionByte >= config.driverSignalByteMin || subductionByte >= config.driverSignalByteMin;
+      const strongDivergence =
+        boundary === BOUNDARY_TYPE.divergent && riftByte >= config.driverSignalByteMin;
+      const strongTransform =
+        boundary === BOUNDARY_TYPE.transform && stressByte >= config.driverSignalByteMin;
       const strongBoundaryDeformation = strongConvergence || strongDivergence || strongTransform;
       const relaxedDriverMin = Math.max(1, Math.round(config.driverSignalByteMin * 0.35));
       const relaxedBoundaryDeformation =
-        Math.max(collisionByte, subductionByte, riftByte, stressByte, upliftByte) >= relaxedDriverMin;
+        Math.max(collisionByte, subductionByte, riftByte, stressByte, upliftByte) >=
+        relaxedDriverMin;
 
-      const ridgeSkirt =
-        foothillMaxDistance > 0 && closeToMountains && score > 0;
+      const ridgeSkirt = foothillMaxDistance > 0 && closeToMountains && score > 0;
       const relaxedRidgeSkirt = foothillMaxDistance > 0 && closeToMountains;
       const regionPassOrShoulder =
         insideMountainRegion &&
         namedMountainRegion &&
         score > threshold * (0.5 + Math.min(0.4, dist === 255 ? 0.2 : dist * 0.08));
-      const relaxedRegionPassOrShoulder =
-        insideMountainRegion && namedMountainRegion && score > 0;
+      const relaxedRegionPassOrShoulder = insideMountainRegion && namedMountainRegion && score > 0;
 
       if (
         ((ridgeSkirt || (closeToBoundary && strongBoundaryDeformation)) && score > threshold) ||
@@ -249,7 +265,10 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
     const hillCapacity = Math.max(0, landCount - mountainCount) | 0;
     const hillTarget = Math.max(0, Math.min(candidates.length, hillCapacity, hillTargetRaw)) | 0;
     const hillMinTarget =
-      Math.max(0, Math.min(hillCapacity, hillTargetRaw, Math.round(landCount * foothillMinFraction))) | 0;
+      Math.max(
+        0,
+        Math.min(hillCapacity, hillTargetRaw, Math.round(landCount * foothillMinFraction))
+      ) | 0;
 
     candidates.sort((a, b) => {
       const sa = hillScoreByTile[a] ?? 0;

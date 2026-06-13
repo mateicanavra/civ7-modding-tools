@@ -7,18 +7,16 @@ export type NormalizeContext<TEnv = unknown, TKnobs = unknown> = Readonly<{
 
 export type DomainOpKind = "plan" | "compute" | "score" | "select";
 
-export type StrategySelection<
-  Strategies extends Record<string, { config: TSchema }>,
-> = {
+export type StrategySelection<Strategies extends Record<string, { config: TSchema }>> = {
   [K in keyof Strategies & string]: Readonly<{
     strategy: K;
     config: Static<Strategies[K]["config"]>;
   }>;
 }[keyof Strategies & string];
 
-export type OpConfigSchema<
-  Strategies extends Record<string, { config: TSchema }>,
-> = TUnsafe<StrategySelection<Strategies>>;
+export type OpConfigSchema<Strategies extends Record<string, { config: TSchema }>> = TUnsafe<
+  StrategySelection<Strategies>
+>;
 
 export type DomainOp<
   InputSchema extends TSchema,
@@ -62,7 +60,10 @@ export type DomainOp<
   /**
    * Runtime execution (strategy-dispatch).
    */
-  run: (input: Static<InputSchema>, envelope: StrategySelection<Strategies>) => Static<OutputSchema>;
+  run: (
+    input: Static<InputSchema>,
+    envelope: StrategySelection<Strategies>
+  ) => Static<OutputSchema>;
 }>;
 
 export type DomainOpCompileAny = DomainOp<TSchema, TSchema, Record<string, { config: TSchema }>>;
@@ -78,4 +79,3 @@ export type DomainOpRuntimeAny = DomainOpRuntime<DomainOpCompileAny>;
 export function runtimeOp<Op extends DomainOpCompileAny>(op: Op): DomainOpRuntime<Op> {
   return { id: op.id, kind: op.kind, run: op.run } as DomainOpRuntime<Op>;
 }
-

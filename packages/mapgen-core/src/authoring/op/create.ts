@@ -1,11 +1,7 @@
 import type { Static, TSchema } from "typebox";
 
 import type { NormalizeContext } from "@mapgen/engine/index.js";
-import type {
-  OpStrategy,
-  StrategyImplMapFor,
-  StrategySelection,
-} from "./strategy.js";
+import type { OpStrategy, StrategyImplMapFor, StrategySelection } from "./strategy.js";
 import type { DomainOp, OpConfigSchema } from "./types.js";
 import type { OpContract } from "./contract.js";
 

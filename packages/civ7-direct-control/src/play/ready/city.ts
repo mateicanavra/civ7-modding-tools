@@ -17,108 +17,145 @@ import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
 const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
 
-export const Civ7ReadyCityViewInputSchema = Type.Object({
-  cityId: Type.Optional(Civ7ComponentIdSchema),
-  maxOperations: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
-}, { additionalProperties: false });
+export const Civ7ReadyCityViewInputSchema = Type.Object(
+  {
+    cityId: Type.Optional(Civ7ComponentIdSchema),
+    maxOperations: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
+  },
+  { additionalProperties: false }
+);
 export type Civ7ReadyCityViewInput = Static<typeof Civ7ReadyCityViewInputSchema>;
 
-export const Civ7ReadyCityOperationCandidateSchema = Type.Object({
-  family: Type.Union([Type.Literal("city-operation"), Type.Literal("city-command")]),
-  operationType: Type.String(),
-  enumValue: Type.Unknown(),
-  valid: Type.Boolean(),
-  result: Type.Unknown(),
-}, { additionalProperties: false });
+export const Civ7ReadyCityOperationCandidateSchema = Type.Object(
+  {
+    family: Type.Union([Type.Literal("city-operation"), Type.Literal("city-command")]),
+    operationType: Type.String(),
+    enumValue: Type.Unknown(),
+    valid: Type.Boolean(),
+    result: Type.Unknown(),
+  },
+  { additionalProperties: false }
+);
 export type Civ7ReadyCityOperationCandidate = Static<typeof Civ7ReadyCityOperationCandidateSchema>;
 
-export const Civ7ReadyCityProductionCandidateSchema = Type.Object({
-  kind: Type.Union([Type.Literal("unit"), Type.Literal("constructible"), Type.Literal("project")]),
-  type: Type.Unknown(),
-  typeName: Type.Union([Type.String(), Type.Null()]),
-  name: Type.Union([Type.String(), Type.Null()]),
-  args: Type.Unknown(),
-  cost: Type.Optional(Type.Unknown()),
-  turns: Type.Optional(Type.Unknown()),
-  productionBasis: Type.Optional(Type.Unknown()),
-  baseYieldSummary: Type.Optional(Type.Unknown()),
-  valid: Type.Boolean(),
-  result: Type.Unknown(),
-  placementPlots: Type.Optional(Type.Array(Type.Unknown())),
-}, { additionalProperties: false });
-export type Civ7ReadyCityProductionCandidate = Static<typeof Civ7ReadyCityProductionCandidateSchema>;
+export const Civ7ReadyCityProductionCandidateSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("unit"),
+      Type.Literal("constructible"),
+      Type.Literal("project"),
+    ]),
+    type: Type.Unknown(),
+    typeName: Type.Union([Type.String(), Type.Null()]),
+    name: Type.Union([Type.String(), Type.Null()]),
+    args: Type.Unknown(),
+    cost: Type.Optional(Type.Unknown()),
+    turns: Type.Optional(Type.Unknown()),
+    productionBasis: Type.Optional(Type.Unknown()),
+    baseYieldSummary: Type.Optional(Type.Unknown()),
+    valid: Type.Boolean(),
+    result: Type.Unknown(),
+    placementPlots: Type.Optional(Type.Array(Type.Unknown())),
+  },
+  { additionalProperties: false }
+);
+export type Civ7ReadyCityProductionCandidate = Static<
+  typeof Civ7ReadyCityProductionCandidateSchema
+>;
 
-export const Civ7ReadyCityTownFocusOptionSchema = Type.Object({
-  name: Type.Union([Type.String(), Type.Null()]),
-  description: Type.Union([Type.String(), Type.Null()]),
-  args: Type.Unknown(),
-  valid: Type.Boolean(),
-  result: Type.Unknown(),
-}, { additionalProperties: false });
+export const Civ7ReadyCityTownFocusOptionSchema = Type.Object(
+  {
+    name: Type.Union([Type.String(), Type.Null()]),
+    description: Type.Union([Type.String(), Type.Null()]),
+    args: Type.Unknown(),
+    valid: Type.Boolean(),
+    result: Type.Unknown(),
+  },
+  { additionalProperties: false }
+);
 export type Civ7ReadyCityTownFocusOption = Static<typeof Civ7ReadyCityTownFocusOptionSchema>;
 
-export const Civ7ReadyCityPopulationPlacementSchema = Type.Object({
-  isReadyToPlacePopulation: Civ7RuntimeProbeSchema(Type.Unknown()),
-  cityWorkerCap: Civ7RuntimeProbeSchema(Type.Unknown()),
-  yieldTypeOrder: Type.Array(Type.String()),
-  allPlacementInfo: Civ7RuntimeProbeSchema(Type.Unknown()),
-  workablePlotIndexes: Civ7RuntimeProbeSchema(Type.Array(Type.Unknown())),
-  blockedPlotIndexes: Civ7RuntimeProbeSchema(Type.Array(Type.Unknown())),
-  workablePlots: Civ7RuntimeProbeSchema(Type.Array(Type.Unknown())),
-  expansionCandidates: Civ7RuntimeProbeSchema(Type.Array(Type.Unknown())),
-  expansionResult: Civ7RuntimeProbeSchema(Type.Unknown()),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
-export type Civ7ReadyCityPopulationPlacement = Static<typeof Civ7ReadyCityPopulationPlacementSchema>;
+export const Civ7ReadyCityPopulationPlacementSchema = Type.Object(
+  {
+    isReadyToPlacePopulation: Civ7RuntimeProbeSchema(Type.Unknown()),
+    cityWorkerCap: Civ7RuntimeProbeSchema(Type.Unknown()),
+    yieldTypeOrder: Type.Array(Type.String()),
+    allPlacementInfo: Civ7RuntimeProbeSchema(Type.Unknown()),
+    workablePlotIndexes: Civ7RuntimeProbeSchema(Type.Array(Type.Unknown())),
+    blockedPlotIndexes: Civ7RuntimeProbeSchema(Type.Array(Type.Unknown())),
+    workablePlots: Civ7RuntimeProbeSchema(Type.Array(Type.Unknown())),
+    expansionCandidates: Civ7RuntimeProbeSchema(Type.Array(Type.Unknown())),
+    expansionResult: Civ7RuntimeProbeSchema(Type.Unknown()),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
+export type Civ7ReadyCityPopulationPlacement = Static<
+  typeof Civ7ReadyCityPopulationPlacementSchema
+>;
 
-export const Civ7ReadyCityViewResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: Type.Object({
-    id: Type.String(),
-    name: Type.String(),
-  }, { additionalProperties: false }),
-  localPlayerId: Type.Number(),
-  requestedCityId: nullableComponentIdSchema,
-  selectedCityId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
-  blockingCityId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
-  cityId: nullableComponentIdSchema,
-  city: Civ7RuntimeProbeSchema(Type.Unknown()),
-  legalOperations: Type.Array(Civ7ReadyCityOperationCandidateSchema),
-  productionCandidates: Civ7RuntimeProbeSchema(Type.Array(Civ7ReadyCityProductionCandidateSchema)),
-  townFocusOptions: Civ7RuntimeProbeSchema(Type.Array(Civ7ReadyCityTownFocusOptionSchema)),
-  populationPlacement: Civ7RuntimeProbeSchema(Type.Union([Civ7ReadyCityPopulationPlacementSchema, Type.Null()])),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7ReadyCityViewResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: Type.Object(
+      {
+        id: Type.String(),
+        name: Type.String(),
+      },
+      { additionalProperties: false }
+    ),
+    localPlayerId: Type.Number(),
+    requestedCityId: nullableComponentIdSchema,
+    selectedCityId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+    blockingCityId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+    cityId: nullableComponentIdSchema,
+    city: Civ7RuntimeProbeSchema(Type.Unknown()),
+    legalOperations: Type.Array(Civ7ReadyCityOperationCandidateSchema),
+    productionCandidates: Civ7RuntimeProbeSchema(
+      Type.Array(Civ7ReadyCityProductionCandidateSchema)
+    ),
+    townFocusOptions: Civ7RuntimeProbeSchema(Type.Array(Civ7ReadyCityTownFocusOptionSchema)),
+    populationPlacement: Civ7RuntimeProbeSchema(
+      Type.Union([Civ7ReadyCityPopulationPlacementSchema, Type.Null()])
+    ),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 export type Civ7ReadyCityViewResult = Static<typeof Civ7ReadyCityViewResultSchema>;
 
 export type ReadyCityViewDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
-  parseReadyCityView: (
-    result: Civ7CommandResult,
-    label: string,
-  ) => Civ7ReadyCityViewResult;
+  parseReadyCityView: (result: Civ7CommandResult, label: string) => Civ7ReadyCityViewResult;
 }>;
 
 export async function getCiv7ReadyCityView(
   input: Civ7ReadyCityViewInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: ReadyCityViewDependencies = defaultReadyCityViewDependencies,
+  dependencies: ReadyCityViewDependencies = defaultReadyCityViewDependencies
 ): Promise<Civ7ReadyCityViewResult> {
   const result = await dependencies.executeAppUiCommand({
     ...options,
     command: buildReadyCityViewCommand({
       ...input,
-      maxOperations: dependencies.boundedInteger(input.maxOperations ?? 96, 1, 256, "maxOperations"),
+      maxOperations: dependencies.boundedInteger(
+        input.maxOperations ?? 96,
+        1,
+        256,
+        "maxOperations"
+      ),
     }),
   });
   return dependencies.parseReadyCityView(result, "Civ7 ready city view");
 }
 
-function buildReadyCityViewCommand(input: Civ7ReadyCityViewInput & { maxOperations: number }): string {
+function buildReadyCityViewCommand(
+  input: Civ7ReadyCityViewInput & { maxOperations: number }
+): string {
   return `(() => {
     ${readyCityViewSource()}
     return JSON.stringify(readReadyCityView(${jsLiteral(input)}));

@@ -238,13 +238,19 @@ export const defaultStrategy = createStrategy(PlanCultivatedResourcesContract, "
       const proxyIncomplete = signalFields.length === 0;
       const targetIntentCount = proxyIncomplete
         ? 0
-        : Math.min(expectation.expectedCountRange.max, eligibleTileCount, expectation.expectedCountRange.target);
+        : Math.min(
+            expectation.expectedCountRange.max,
+            eligibleTileCount,
+            expectation.expectedCountRange.target
+          );
       const blockers = [];
       if (proxyIncomplete) {
         blockers.push(`Missing cultivated signal masks: ${signals.primary.join(", ")}.`);
       }
       if (!proxyIncomplete && eligibleTileCount === 0) {
-        blockers.push("No eligible cultivated tiles observed for this resource under supplied masks.");
+        blockers.push(
+          "No eligible cultivated tiles observed for this resource under supplied masks."
+        );
       }
 
       plans.push({
@@ -282,7 +288,9 @@ export const defaultStrategy = createStrategy(PlanCultivatedResourcesContract, "
 function validateGrid(width: number, height: number): number {
   const size = width * height;
   if (!Number.isSafeInteger(size) || size <= 0) {
-    throw new Error(`Invalid grid dimensions for cultivated resource planning: ${width}x${height}.`);
+    throw new Error(
+      `Invalid grid dimensions for cultivated resource planning: ${width}x${height}.`
+    );
   }
   return size;
 }
@@ -314,14 +322,20 @@ function countEligibleTiles(
   return count;
 }
 
-function readMask(input: Record<string, unknown>, field: string, size: number): Uint8Array | undefined {
+function readMask(
+  input: Record<string, unknown>,
+  field: string,
+  size: number
+): Uint8Array | undefined {
   const value = input[field];
   if (value === undefined) return undefined;
   if (!(value instanceof Uint8Array)) {
     throw new Error(`Cultivated resource mask ${field} must be a Uint8Array.`);
   }
   if (value.length !== size) {
-    throw new Error(`Cultivated resource mask ${field} length ${value.length} does not match grid size ${size}.`);
+    throw new Error(
+      `Cultivated resource mask ${field} length ${value.length} does not match grid size ${size}.`
+    );
   }
   return value;
 }

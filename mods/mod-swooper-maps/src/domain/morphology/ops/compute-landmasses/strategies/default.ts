@@ -2,10 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import ComputeLandmassesContract from "../contract.js";
-import {
-  computeCircularBounds,
-  validateLandmassInputs,
-} from "../rules/index.js";
+import { computeCircularBounds, validateLandmassInputs } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeLandmassesContract, "default", {
   run: (input) => {
@@ -104,8 +101,12 @@ export const defaultStrategy = createStrategy(ComputeLandmassesContract, "defaul
       });
 
     const remap = new Int32Array(components.length);
-    const sortedComponents: Array<{ id: number; tileCount: number; coastlineLength: number; bbox: { west: number; east: number; south: number; north: number } }> =
-      [];
+    const sortedComponents: Array<{
+      id: number;
+      tileCount: number;
+      coastlineLength: number;
+      bbox: { west: number; east: number; south: number; north: number };
+    }> = [];
     for (let i = 0; i < ordered.length; i++) {
       const { component, index } = ordered[i];
       remap[index] = i;

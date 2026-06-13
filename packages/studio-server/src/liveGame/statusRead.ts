@@ -3,15 +3,16 @@ import { Effect } from "effect";
 import type { LiveGameStatusBody } from "./model.js";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
 
-export type LiveGameStatusOutput = LiveGameStatusBody & Readonly<{
-  ok: boolean;
-  playable: boolean;
-  observedAt: string;
-  status: Record<string, unknown> | { error: string };
-  appUi: Record<string, unknown> | { error: string };
-  mapSummary: Record<string, unknown> | { error: string };
-  autoplay: Record<string, unknown> | { error: string };
-}>;
+export type LiveGameStatusOutput = LiveGameStatusBody &
+  Readonly<{
+    ok: boolean;
+    playable: boolean;
+    observedAt: string;
+    status: Record<string, unknown> | { error: string };
+    appUi: Record<string, unknown> | { error: string };
+    mapSummary: Record<string, unknown> | { error: string };
+    autoplay: Record<string, unknown> | { error: string };
+  }>;
 
 export const readLiveGameStatusBody: Effect.Effect<LiveGameStatusOutput, never, Civ7TunerClient> =
   Effect.gen(function* () {
@@ -22,7 +23,7 @@ export const readLiveGameStatusBody: Effect.Effect<LiveGameStatusOutput, never, 
         mapSummary: Civ7TunerClient.liveMapSummary().pipe(Effect.either),
         autoplay: Civ7TunerClient.autoplayStatus().pipe(Effect.either),
       },
-      { concurrency: "unbounded" },
+      { concurrency: "unbounded" }
     );
     const playableStatus = settled.status._tag === "Right" ? settled.status.right : undefined;
     return {
@@ -43,7 +44,7 @@ export const readLiveGameStatusBody: Effect.Effect<LiveGameStatusOutput, never, 
  */
 export function fieldOrError<A>(
   either: { _tag: "Left"; left: unknown } | { _tag: "Right"; right: A },
-  override?: A,
+  override?: A
 ): Record<string, unknown> | { error: string } {
   if (either._tag === "Right") return (override ?? either.right) as Record<string, unknown>;
   return { error: String(either.left) };

@@ -82,7 +82,13 @@ class MinHeap {
   }
 }
 
-function distanceSqWrapped(ax: number, ay: number, bx: number, by: number, wrapWidth: number): number {
+function distanceSqWrapped(
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+  wrapWidth: number
+): number {
   const dx = wrapDeltaPeriodic(ax - bx, wrapWidth);
   const dy = ay - by;
   return dx * dx + dy * dy;
@@ -126,7 +132,13 @@ function pickExtremeYCell(params: {
 }
 
 function pickSeedCell(params: {
-  mesh: { cellCount: number; wrapWidth: number; siteX: Float32Array; siteY: Float32Array; bbox: { yt: number; yb: number } };
+  mesh: {
+    cellCount: number;
+    wrapWidth: number;
+    siteX: Float32Array;
+    siteY: Float32Array;
+    bbox: { yt: number; yb: number };
+  };
   crust: { strength: Float32Array; maturity: Float32Array };
   rng: (max: number, label?: string) => number;
   used: Uint8Array;
@@ -314,7 +326,11 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
       },
       run: (input, config: PlateGraphConfig) => {
         const mesh = requireMesh(input.mesh, "foundation/compute-plate-graph");
-        const crust = requireCrust(input.crust, mesh.cellCount | 0, "foundation/compute-plate-graph");
+        const crust = requireCrust(
+          input.crust,
+          mesh.cellCount | 0,
+          "foundation/compute-plate-graph"
+        );
 
         const rngSeed = input.rngSeed | 0;
         const rng = createLabelRng(rngSeed);
@@ -397,8 +413,16 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
           const maxPerPoleByBudget = Math.max(0, Math.floor((platesCount - 4) / 2));
           const requested = Math.min(requestedMicroPerPole, maxPerPoleByBudget);
 
-          northMicroEligibleSized = filterByMinComponentSize({ mesh, allowed: northMicroEligible, minSize: microplateMinAreaCells });
-          southMicroEligibleSized = filterByMinComponentSize({ mesh, allowed: southMicroEligible, minSize: microplateMinAreaCells });
+          northMicroEligibleSized = filterByMinComponentSize({
+            mesh,
+            allowed: northMicroEligible,
+            minSize: microplateMinAreaCells,
+          });
+          southMicroEligibleSized = filterByMinComponentSize({
+            mesh,
+            allowed: southMicroEligible,
+            minSize: microplateMinAreaCells,
+          });
 
           let northCount = 0;
           let southCount = 0;
@@ -412,7 +436,10 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
           microPerPole = Math.min(requested, Math.max(0, maxByArea));
         }
 
-        const roleById: FoundationPlate["role"][] = Array.from({ length: platesCount }, () => "tectonic");
+        const roleById: FoundationPlate["role"][] = Array.from(
+          { length: platesCount },
+          () => "tectonic"
+        );
         roleById[0] = "polarCap";
         roleById[1] = "polarCap";
         for (let i = 0; i < microPerPole; i++) {
@@ -420,7 +447,10 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
           roleById[2 + microPerPole + i] = "polarMicroplate";
         }
 
-        const allowedById: Uint8Array[] = Array.from({ length: platesCount }, () => tectonicEligible);
+        const allowedById: Uint8Array[] = Array.from(
+          { length: platesCount },
+          () => tectonicEligible
+        );
         allowedById[0] = northCapEligible;
         allowedById[1] = southCapEligible;
         for (let i = 0; i < microPerPole; i++) {

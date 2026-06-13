@@ -53,30 +53,39 @@ export const CIV7_KNOWN_DISPLAY_CATEGORIES: ReadonlyArray<string> = [
 export const DEFAULT_CIV7_DISPLAY_BRIDGE_ATTEMPTS = 6;
 export const CIV7_DISPLAY_BRIDGE_RETRY_MS = 500;
 
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7DisplayRequestSchema = Type.Object({
-  category: Type.String(),
-  id: Type.Union([Type.Number(), Type.Null()]),
-}, { additionalProperties: false });
+export const Civ7DisplayRequestSchema = Type.Object(
+  {
+    category: Type.String(),
+    id: Type.Union([Type.Number(), Type.Null()]),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7DisplayRequest = Readonly<{
   category: string;
   id: number | null;
 }>;
 
-export const Civ7DisplayQueueSnapshotSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  active: Type.Array(Civ7DisplayRequestSchema),
-  suspended: Type.Array(Civ7DisplayRequestSchema),
-  isSuspended: Type.Boolean(),
-  handlerCategories: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7DisplayQueueSnapshotSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    active: Type.Array(Civ7DisplayRequestSchema),
+    suspended: Type.Array(Civ7DisplayRequestSchema),
+    isSuspended: Type.Boolean(),
+    handlerCategories: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7DisplayQueueSnapshot = Readonly<{
   host: string;
@@ -93,25 +102,31 @@ export type Civ7CloseDisplaysInput = Readonly<{
   categories?: ReadonlyArray<string>;
 }>;
 
-export const Civ7ClosedDisplaysRowSchema = Type.Object({
-  category: Type.String(),
-  closed: Type.Integer({ minimum: 1 }),
-}, { additionalProperties: false });
+export const Civ7ClosedDisplaysRowSchema = Type.Object(
+  {
+    category: Type.String(),
+    closed: Type.Integer({ minimum: 1 }),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7ClosedDisplaysRow = Readonly<{
   category: string;
   closed: number;
 }>;
 
-export const Civ7CloseDisplaysResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  closed: Type.Array(Civ7ClosedDisplaysRowSchema),
-  closedTotal: Type.Integer({ minimum: 0 }),
-  remainingActive: Type.Array(Civ7DisplayRequestSchema),
-  remainingSuspended: Type.Array(Civ7DisplayRequestSchema),
-}, { additionalProperties: false });
+export const Civ7CloseDisplaysResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    closed: Type.Array(Civ7ClosedDisplaysRowSchema),
+    closedTotal: Type.Integer({ minimum: 0 }),
+    remainingActive: Type.Array(Civ7DisplayRequestSchema),
+    remainingSuspended: Type.Array(Civ7DisplayRequestSchema),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7CloseDisplaysResult = Readonly<{
   host: string;
@@ -133,7 +148,7 @@ export type Civ7DisplayQueueHoldResult = Readonly<{
 
 export type DisplayQueueDependencies = Readonly<{
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
   jsLiteral: (value: unknown) => string;
   parsePayload: <T>(result: Civ7CommandResult, label: string) => T;
@@ -143,7 +158,7 @@ export type DisplayQueueDependencies = Readonly<{
 const defaultDisplayQueueDependencies: DisplayQueueDependencies = {
   executeAppUiCommand: executeCiv7AppUiCommand,
   jsLiteral,
-  parsePayload: <T,>(result: Civ7CommandResult, label: string) =>
+  parsePayload: <T>(result: Civ7CommandResult, label: string) =>
     jsonPayloadFromCommandResult(result, label) as T,
   sleep,
 };
@@ -156,7 +171,7 @@ type BridgePayload = Readonly<{ ready: boolean }>;
  */
 export async function ensureCiv7DisplayQueueBridge(
   options: Civ7DirectControlOptions = {},
-  dependencies: DisplayQueueDependencies = defaultDisplayQueueDependencies,
+  dependencies: DisplayQueueDependencies = defaultDisplayQueueDependencies
 ): Promise<void> {
   for (let attempt = 0; attempt < DEFAULT_CIV7_DISPLAY_BRIDGE_ATTEMPTS; attempt += 1) {
     const payload = dependencies.parsePayload<BridgePayload>(
@@ -164,30 +179,29 @@ export async function ensureCiv7DisplayQueueBridge(
         ...options,
         command: buildDisplayQueueBridgeCommand(),
       }),
-      "Civ7 display-queue bridge",
+      "Civ7 display-queue bridge"
     );
     if (payload.ready) return;
     await dependencies.sleep(CIV7_DISPLAY_BRIDGE_RETRY_MS);
   }
   throw new Civ7DirectControlError(
     "command-failed",
-    "Civ7 display-queue bridge never became ready (module-registry import did not resolve)",
+    "Civ7 display-queue bridge never became ready (module-registry import did not resolve)"
   );
 }
 
 export async function readCiv7DisplayQueue(
   options: Civ7DirectControlOptions = {},
-  dependencies: DisplayQueueDependencies = defaultDisplayQueueDependencies,
+  dependencies: DisplayQueueDependencies = defaultDisplayQueueDependencies
 ): Promise<Civ7DisplayQueueSnapshot> {
   await ensureCiv7DisplayQueueBridge(options, dependencies);
   const result = await dependencies.executeAppUiCommand({
     ...options,
     command: buildDisplayQueueReadCommand(),
   });
-  const payload = dependencies.parsePayload<Omit<Civ7DisplayQueueSnapshot, "host" | "port" | "state">>(
-    result,
-    "Civ7 display-queue read",
-  );
+  const payload = dependencies.parsePayload<
+    Omit<Civ7DisplayQueueSnapshot, "host" | "port" | "state">
+  >(result, "Civ7 display-queue read");
   return { host: result.host, port: result.port, state: result.state, ...payload };
 }
 
@@ -199,17 +213,16 @@ export async function readCiv7DisplayQueue(
 export async function closeCiv7Displays(
   input: Civ7CloseDisplaysInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: DisplayQueueDependencies = defaultDisplayQueueDependencies,
+  dependencies: DisplayQueueDependencies = defaultDisplayQueueDependencies
 ): Promise<Civ7CloseDisplaysResult> {
   await ensureCiv7DisplayQueueBridge(options, dependencies);
   const result = await dependencies.executeAppUiCommand({
     ...options,
     command: buildCloseDisplaysCommand(input.categories ?? null, dependencies),
   });
-  const payload = dependencies.parsePayload<Omit<Civ7CloseDisplaysResult, "host" | "port" | "state">>(
-    result,
-    "Civ7 display close",
-  );
+  const payload = dependencies.parsePayload<
+    Omit<Civ7CloseDisplaysResult, "host" | "port" | "state">
+  >(result, "Civ7 display close");
   return { host: result.host, port: result.port, state: result.state, ...payload };
 }
 
@@ -220,28 +233,44 @@ export async function closeCiv7Displays(
  */
 export async function suspendCiv7DisplayQueue(
   options: Civ7DirectControlOptions = {},
-  dependencies: DisplayQueueDependencies = defaultDisplayQueueDependencies,
+  dependencies: DisplayQueueDependencies = defaultDisplayQueueDependencies
 ): Promise<Civ7DisplayQueueHoldResult> {
   await ensureCiv7DisplayQueueBridge(options, dependencies);
   const result = await dependencies.executeAppUiCommand({
     ...options,
     command: buildDisplayQueueHoldCommand("suspend"),
   });
-  const payload = dependencies.parsePayload<{ isSuspended: boolean }>(result, "Civ7 display-queue suspend");
-  return { host: result.host, port: result.port, state: result.state, isSuspended: payload.isSuspended };
+  const payload = dependencies.parsePayload<{ isSuspended: boolean }>(
+    result,
+    "Civ7 display-queue suspend"
+  );
+  return {
+    host: result.host,
+    port: result.port,
+    state: result.state,
+    isSuspended: payload.isSuspended,
+  };
 }
 
 export async function resumeCiv7DisplayQueue(
   options: Civ7DirectControlOptions = {},
-  dependencies: DisplayQueueDependencies = defaultDisplayQueueDependencies,
+  dependencies: DisplayQueueDependencies = defaultDisplayQueueDependencies
 ): Promise<Civ7DisplayQueueHoldResult> {
   await ensureCiv7DisplayQueueBridge(options, dependencies);
   const result = await dependencies.executeAppUiCommand({
     ...options,
     command: buildDisplayQueueHoldCommand("resume"),
   });
-  const payload = dependencies.parsePayload<{ isSuspended: boolean }>(result, "Civ7 display-queue resume");
-  return { host: result.host, port: result.port, state: result.state, isSuspended: payload.isSuspended };
+  const payload = dependencies.parsePayload<{ isSuspended: boolean }>(
+    result,
+    "Civ7 display-queue resume"
+  );
+  return {
+    host: result.host,
+    port: result.port,
+    state: result.state,
+    isSuspended: payload.isSuspended,
+  };
 }
 
 export function buildDisplayQueueBridgeCommand(): string {
@@ -277,7 +306,7 @@ export function buildDisplayQueueReadCommand(): string {
 
 export function buildCloseDisplaysCommand(
   categories: ReadonlyArray<string> | null,
-  dependencies: Pick<DisplayQueueDependencies, "jsLiteral">,
+  dependencies: Pick<DisplayQueueDependencies, "jsLiteral">
 ): string {
   return `(() => {
     ${displayQueueSnapshotSource}
@@ -313,9 +342,11 @@ export function buildDisplayQueueHoldCommand(action: "suspend" | "resume"): stri
   return `(() => {
     ${displayQueueSnapshotSource}
     const dqm = globalThis[${jsLiteral(CIV7_DISPLAY_QUEUE_BRIDGE_GLOBAL)}];
-    ${action === "suspend"
-      ? `if (!queueIsSuspended(dqm)) dqm.suspend();`
-      : `if (queueIsSuspended(dqm)) dqm.resume();`}
+    ${
+      action === "suspend"
+        ? `if (!queueIsSuspended(dqm)) dqm.suspend();`
+        : `if (queueIsSuspended(dqm)) dqm.resume();`
+    }
     return JSON.stringify({ isSuspended: queueIsSuspended(dqm) });
   })()`;
 }

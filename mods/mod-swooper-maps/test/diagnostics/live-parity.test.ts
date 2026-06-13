@@ -153,8 +153,14 @@ function snapshot(args: {
                     version: 1,
                     plotCount: 2,
                     landMaskHash32: "aaaaaaaa",
-                    elevationHash32: args.naturalWonderPlanInputSurfaceDigests === "diverged" ? "bbbbbbbb" : "22222222",
-                    aridityPpmHash32: args.naturalWonderPlanInputSurfaceDigests === "diverged" ? "cccccccc" : "33333333",
+                    elevationHash32:
+                      args.naturalWonderPlanInputSurfaceDigests === "diverged"
+                        ? "bbbbbbbb"
+                        : "22222222",
+                    aridityPpmHash32:
+                      args.naturalWonderPlanInputSurfaceDigests === "diverged"
+                        ? "cccccccc"
+                        : "33333333",
                     riverClassHash32: "44444444",
                     lakeMaskHash32: "55555555",
                     blockedMaskHash32: "66666666",
@@ -250,21 +256,40 @@ function snapshot(args: {
       resource: { width, height, values: [7, 8] },
     },
     ...(args.riverMetadata === undefined ? {} : { riverMetadata: args.riverMetadata }),
-    ...(args.nativeRiverObjects === undefined ? {} : { nativeRiverObjects: args.nativeRiverObjects }),
-    evidence: args.source === "live-civ7"
-      ? {
-          runtime: { turn: 1, gameHash: args.gameHash ?? 99, width, height, seed: 1234, plotCount: 2 },
-          fullGrid: {
-            plotCount: 2,
-            omitted: args.omitted ?? 0,
-            chunks: [{ bounds: { x: 0, y: 0, width, height }, plotCount: 2, omitted: args.omitted ?? 0 }],
-            identityCheck: {
-              stable: true,
-              checked: ["map.width", "map.height", "map.plotCount", "map.randomSeed", "game.turn", "game.hash"],
+    ...(args.nativeRiverObjects === undefined
+      ? {}
+      : { nativeRiverObjects: args.nativeRiverObjects }),
+    evidence:
+      args.source === "live-civ7"
+        ? {
+            runtime: {
+              turn: 1,
+              gameHash: args.gameHash ?? 99,
+              width,
+              height,
+              seed: 1234,
+              plotCount: 2,
             },
-          },
-        }
-      : localEvidence,
+            fullGrid: {
+              plotCount: 2,
+              omitted: args.omitted ?? 0,
+              chunks: [
+                { bounds: { x: 0, y: 0, width, height }, plotCount: 2, omitted: args.omitted ?? 0 },
+              ],
+              identityCheck: {
+                stable: true,
+                checked: [
+                  "map.width",
+                  "map.height",
+                  "map.plotCount",
+                  "map.randomSeed",
+                  "game.turn",
+                  "game.hash",
+                ],
+              },
+            },
+          }
+        : localEvidence,
   };
 }
 
@@ -285,7 +310,9 @@ function riverMetadata(args: {
   return {
     width,
     height,
-    ...(grid(args.projected) === undefined ? {} : { projectedNavigableTerrain: grid(args.projected) }),
+    ...(grid(args.projected) === undefined
+      ? {}
+      : { projectedNavigableTerrain: grid(args.projected) }),
     ...(grid(args.terrain) === undefined ? {} : { terrainNavigableRiver: grid(args.terrain) }),
     ...(grid(args.riverType) === undefined ? {} : { riverType: grid(args.riverType) }),
     ...(grid(args.river) === undefined ? {} : { river: grid(args.river) }),
@@ -708,7 +735,8 @@ describe("final-surface parity proof", () => {
 
   test("fails active floodplain proof when live feature readback diverges", () => {
     const baseExact = exactProof();
-    const floodplainFeature = CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE;
+    const floodplainFeature =
+      CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE;
     const forestFeature = CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_FOREST;
     const featureApply = {
       attemptedByFeature: { FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE: 1 },
@@ -1218,23 +1246,31 @@ describe("final-surface parity proof", () => {
       live: snapshot({ source: "live-civ7" }),
     });
 
-    expect(validation.unresolvedLinks).toContain("exact-authorship-proof.source-snapshot.pipeline-config");
+    expect(validation.unresolvedLinks).toContain(
+      "exact-authorship-proof.source-snapshot.pipeline-config"
+    );
     expect(proof.status).toBe("unresolved");
     expect(proof.proofClaims.claims["exact-authorship"]).toMatchObject({
       status: "unresolved",
     });
-    expect(proof.unresolvedLinks).toContain("exact-authorship-proof.source-snapshot.pipeline-config");
+    expect(proof.unresolvedLinks).toContain(
+      "exact-authorship-proof.source-snapshot.pipeline-config"
+    );
   });
 
   test("rejects exact-authorship packets when visible config body does not match config hash", () => {
-    const validation = validateExactAuthorshipProofPacket(exactProof({
-      sourceSnapshot: {
-        ...exactProof().sourceSnapshot,
-        configHash: "wrong-config-hash",
-      },
-    }));
+    const validation = validateExactAuthorshipProofPacket(
+      exactProof({
+        sourceSnapshot: {
+          ...exactProof().sourceSnapshot,
+          configHash: "wrong-config-hash",
+        },
+      })
+    );
 
-    expect(validation.unresolvedLinks).toContain("exact-authorship-proof.source-snapshot.config-hash-body-mismatch");
+    expect(validation.unresolvedLinks).toContain(
+      "exact-authorship-proof.source-snapshot.config-hash-body-mismatch"
+    );
   });
 
   test("keeps parity unresolved when live runtime hash drifts from exact-authorship evidence", () => {
@@ -1245,7 +1281,9 @@ describe("final-surface parity proof", () => {
     });
 
     expect(proof.status).toBe("unresolved");
-    expect(proof.unresolvedLinks).toContain("exact-authorship-proof.runtime-game-hash.live-game-hash");
+    expect(proof.unresolvedLinks).toContain(
+      "exact-authorship-proof.runtime-game-hash.live-game-hash"
+    );
   });
 
   test("keeps parity unresolved when live full-grid evidence omitted plots", () => {

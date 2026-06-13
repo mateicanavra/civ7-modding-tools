@@ -1,7 +1,10 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-import { WaterStatsSection, type WaterStatsSectionProps } from "../../src/ui/components/WaterStatsSection";
+import {
+  WaterStatsSection,
+  type WaterStatsSectionProps,
+} from "../../src/ui/components/WaterStatsSection";
 import { TooltipProvider } from "../../src/components/ui/tooltip";
 import type {
   RiverLakeFloodplainInspectorSummary,
@@ -148,9 +151,9 @@ describe("WaterStatsSection (water stats)", () => {
   it("renders nothing when the summary is null or has no informative rows", () => {
     expect(renderSection({ summary: null })).toBe("");
     expect(renderSection({ summary: makeSummary([]) })).toBe("");
-    expect(
-      renderSection({ summary: makeSummary([makeRow({ counts: {}, layerRefs: [] })]) })
-    ).toBe("");
+    expect(renderSection({ summary: makeSummary([makeRow({ counts: {}, layerRefs: [] })]) })).toBe(
+      ""
+    );
   });
 
   it("hides the stats list when collapsed", () => {

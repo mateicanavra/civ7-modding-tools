@@ -31,13 +31,13 @@ describe("Civ7 unit-move-preview procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7UnitMovePreviewProcedureDescriptor,
-      Civ7UnitMovePreviewProcedureSchemaArtifacts,
+      Civ7UnitMovePreviewProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7UnitMovePreviewProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7UnitMovePreviewProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7UnitMovePreviewProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7UnitMovePreviewProcedureDescriptor.outputFields)
     );
     expect(Civ7UnitMovePreviewProcedureDescriptor.outputFields).toEqual(
       expect.arrayContaining([
@@ -46,22 +46,26 @@ describe("Civ7 unit-move-preview procedure descriptor", () => {
         "requestedDestination",
         "requestedPath",
         "relationshipPolicy",
-      ]),
+      ])
     );
-    expect(Value.Check(resolved.inputSchema, {
-      unitId: { owner: 0, id: 65536, type: 26 },
-      destination: { x: 25, y: 35 },
-      maxPlots: 12,
-      maxPathPlots: 8,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        unitId: { owner: 0, id: 65536, type: 26 },
+        destination: { x: 25, y: 35 },
+        maxPlots: 12,
+        maxPathPlots: 8,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { destination: { x: 1.5, y: 0 } })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { destination: { x: -1, y: 0 } })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { destination: { x: 0, y: 1_000_001 } })).toBe(false);
     expect(Value.Check(resolved.outputSchema, unitMovePreviewResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...unitMovePreviewResult(),
-      rawCommand: "readUnitMovePreview()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...unitMovePreviewResult(),
+        rawCommand: "readUnitMovePreview()",
+      })
+    ).toBe(false);
   });
 
   test("calls the unit move-preview atom through the procedure core without touching the live tuner", async () => {
@@ -97,21 +101,24 @@ describe("Civ7 unit-move-preview procedure descriptor", () => {
 
     const unitId = { owner: 0, id: 65536, type: 26 };
     const destination = { x: 25, y: 35 };
-    const result = await callCiv7UnitMovePreviewProcedure({
-      unitId,
-      destination,
-      maxPlots: 12,
-      maxPathPlots: 8,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7UnitMovePreviewProcedure(
+      {
+        unitId,
+        destination,
+        maxPlots: 12,
+        maxPathPlots: 8,
       },
-      procedure: {
-        correlationId: "unit-move-preview-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "unit-move-preview-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(unitMovePreviewResult());
     expect(result.output.relationshipPolicy).toMatchObject({
@@ -159,12 +166,17 @@ describe("Civ7 unit-move-preview procedure descriptor", () => {
       parseUnitMovePreview: () => unitMovePreviewResult(),
     };
 
-    await expect(callCiv7UnitMovePreviewProcedure({
-      destination: { x: 1.5, y: 0 },
-    }, {
-      procedure: { correlationId: "unit-move-preview-invalid-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7UnitMovePreviewProcedure(
+        {
+          destination: { x: 1.5, y: 0 },
+        },
+        {
+          procedure: { correlationId: "unit-move-preview-invalid-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -210,6 +222,8 @@ function unitMovePreviewResult() {
       guidance:
         "This movement preview does not classify other-owner relationships. Use neutral labels unless an official relationship, team, diplomacy, independent-power, or war-state API supplies that proof.",
     },
-    notes: ["Read-only official movement preview. It does not send MOVE_TO, reserve a path, or prove tactical safety."],
+    notes: [
+      "Read-only official movement preview. It does not send MOVE_TO, reserve a path, or prove tactical safety.",
+    ],
   };
 }

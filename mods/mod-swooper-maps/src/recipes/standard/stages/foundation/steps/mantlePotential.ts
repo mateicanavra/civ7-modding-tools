@@ -16,7 +16,11 @@ export default createStep(MantlePotentialStepContract, {
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const stepId = `${MantlePotentialStepContract.phase}/${MantlePotentialStepContract.id}`;
-    const rngSeed = ctxRandom(context, ctxRandomLabel(stepId, "foundation/compute-mantle-potential"), 2_147_483_647);
+    const rngSeed = ctxRandom(
+      context,
+      ctxRandomLabel(stepId, "foundation/compute-mantle-potential"),
+      2_147_483_647
+    );
 
     const mantleResult = ops.computeMantlePotential(
       {

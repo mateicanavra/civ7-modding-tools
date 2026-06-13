@@ -16,23 +16,25 @@ export type WetlandSubstrateMasks = Readonly<{
  * substrate owner so marsh, bog, mangrove, oasis, and watering-hole scoring do
  * not each invent a different hydrology/topography proxy.
  */
-export function computeWetlandSubstrateMasks(args: Readonly<{
-  width: number;
-  height: number;
-  landMask: Uint8Array;
-  elevation: Int16Array;
-  seaLevel: number;
-  riverClass: Uint8Array;
-  discharge: Float32Array;
-  sinkMask: Uint8Array;
-  nearRiverMask: Uint8Array;
-  isolatedRiverMask: Uint8Array;
-  coastalLandMask: Uint8Array;
-  nearRiverRadius: number;
-  lowlandMaxElevationAboveSeaM: number;
-  intertidalMaxElevationAboveSeaM: number;
-  floodplainDischargeMin: number;
-}>): WetlandSubstrateMasks {
+export function computeWetlandSubstrateMasks(
+  args: Readonly<{
+    width: number;
+    height: number;
+    landMask: Uint8Array;
+    elevation: Int16Array;
+    seaLevel: number;
+    riverClass: Uint8Array;
+    discharge: Float32Array;
+    sinkMask: Uint8Array;
+    nearRiverMask: Uint8Array;
+    isolatedRiverMask: Uint8Array;
+    coastalLandMask: Uint8Array;
+    nearRiverRadius: number;
+    lowlandMaxElevationAboveSeaM: number;
+    intertidalMaxElevationAboveSeaM: number;
+    floodplainDischargeMin: number;
+  }>
+): WetlandSubstrateMasks {
   const width = args.width | 0;
   const height = args.height | 0;
   const size = Math.max(0, width * height);
@@ -61,9 +63,7 @@ export function computeWetlandSubstrateMasks(args: Readonly<{
       lowlandMask[i] = isLowland ? 1 : 0;
 
       const isIntertidal =
-        args.coastalLandMask[i] === 1 &&
-        heightAboveSeaM >= 0 &&
-        heightAboveSeaM <= intertidalMax;
+        args.coastalLandMask[i] === 1 && heightAboveSeaM >= 0 && heightAboveSeaM <= intertidalMax;
       intertidalCoastMask[i] = isIntertidal ? 1 : 0;
 
       const hasNearbyFlow = hasRiverFlowNear({
@@ -106,18 +106,20 @@ export function computeWetlandSubstrateMasks(args: Readonly<{
   };
 }
 
-function hasRiverFlowNear(args: Readonly<{
-  x: number;
-  y: number;
-  width: number;
-  x0: number;
-  x1: number;
-  y0: number;
-  y1: number;
-  riverClass: Uint8Array;
-  discharge: Float32Array;
-  dischargeMin: number;
-}>): boolean {
+function hasRiverFlowNear(
+  args: Readonly<{
+    x: number;
+    y: number;
+    width: number;
+    x0: number;
+    x1: number;
+    y0: number;
+    y1: number;
+    riverClass: Uint8Array;
+    discharge: Float32Array;
+    dischargeMin: number;
+  }>
+): boolean {
   for (let ny = args.y0; ny <= args.y1; ny++) {
     const row = ny * args.width;
     for (let nx = args.x0; nx <= args.x1; nx++) {

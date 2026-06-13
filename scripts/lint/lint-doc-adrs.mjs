@@ -84,7 +84,7 @@ async function walkDir(rootDir, onFile) {
       if (entry.isFile()) {
         await onFile(entryPath);
       }
-    }),
+    })
   );
 }
 

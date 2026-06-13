@@ -16,25 +16,27 @@ import {
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7TunerCommand } from "../../session/execute.js";
 import { boundedInteger, validatePlayerId } from "../../validation.js";
-import {
-  DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
-  HARD_CIV7_MAP_GRID_MAX_PLOTS,
-} from "./constants.js";
+import { DEFAULT_CIV7_MAP_GRID_MAX_PLOTS, HARD_CIV7_MAP_GRID_MAX_PLOTS } from "./constants.js";
 import type { Civ7MapBounds, Civ7MapLocation } from "./types.js";
 import { Civ7MapBoundsSchema, Civ7MapLocationSchema } from "./types.js";
 import { validateMapBounds } from "./validation.js";
 
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7VisibilitySummaryInputSchema = Type.Unsafe<Readonly<{
-  playerId: number;
-  bounds?: Civ7MapBounds;
-  includeGrid?: boolean;
-  maxPlots?: number;
-}>>({
+export const Civ7VisibilitySummaryInputSchema = Type.Unsafe<
+  Readonly<{
+    playerId: number;
+    bounds?: Civ7MapBounds;
+    includeGrid?: boolean;
+    maxPlots?: number;
+  }>
+>({
   type: "object",
   additionalProperties: false,
   properties: {
@@ -52,28 +54,39 @@ export const Civ7VisibilitySummaryInputSchema = Type.Unsafe<Readonly<{
 
 export type Civ7VisibilitySummaryInput = Readonly<Static<typeof Civ7VisibilitySummaryInputSchema>>;
 
-export const Civ7VisibilityGridStateSchema = Type.Object({
-  ...Civ7MapLocationSchema.properties,
-  state: Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.String()])),
-  visible: Civ7RuntimeProbeSchema(Type.Boolean()),
-}, { additionalProperties: false });
+export const Civ7VisibilityGridStateSchema = Type.Object(
+  {
+    ...Civ7MapLocationSchema.properties,
+    state: Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.String()])),
+    visible: Civ7RuntimeProbeSchema(Type.Boolean()),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7VisibilitySummaryResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
-  numPlotsRevealed: Civ7RuntimeProbeSchema(Type.Number()),
-  numPlotsVisible: Civ7RuntimeProbeSchema(Type.Number()),
-  mapPlotCount: Civ7RuntimeProbeSchema(Type.Number()),
-  counts: Type.Record(Type.String(), Type.Number()),
-  grid: Type.Optional(Type.Object({
-    bounds: Civ7MapBoundsSchema,
-    plotCount: Type.Number(),
-    omitted: Type.Number(),
-    states: Type.Array(Civ7VisibilityGridStateSchema),
-  }, { additionalProperties: false })),
-}, { additionalProperties: false });
+export const Civ7VisibilitySummaryResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
+    numPlotsRevealed: Civ7RuntimeProbeSchema(Type.Number()),
+    numPlotsVisible: Civ7RuntimeProbeSchema(Type.Number()),
+    mapPlotCount: Civ7RuntimeProbeSchema(Type.Number()),
+    counts: Type.Record(Type.String(), Type.Number()),
+    grid: Type.Optional(
+      Type.Object(
+        {
+          bounds: Civ7MapBoundsSchema,
+          plotCount: Type.Number(),
+          omitted: Type.Number(),
+          states: Type.Array(Civ7VisibilityGridStateSchema),
+        },
+        { additionalProperties: false }
+      )
+    ),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7VisibilitySummaryResult = Readonly<{
   host: string;
@@ -88,10 +101,14 @@ export type Civ7VisibilitySummaryResult = Readonly<{
     bounds: Civ7MapBounds;
     plotCount: number;
     omitted: number;
-    states: ReadonlyArray<Readonly<Civ7MapLocation & {
-      state: Civ7RuntimeProbe<number | string>;
-      visible: Civ7RuntimeProbe<boolean>;
-    }>>;
+    states: ReadonlyArray<
+      Readonly<
+        Civ7MapLocation & {
+          state: Civ7RuntimeProbe<number | string>;
+          visible: Civ7RuntimeProbe<boolean>;
+        }
+      >
+    >;
   }>;
 }>;
 
@@ -134,7 +151,9 @@ export type Civ7ExploreReleaseResult = Readonly<{
 export type VisibilityReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   defaultMapGridMaxPlots: number;
-  executeTunerCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;
+  executeTunerCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
+  ) => Promise<Civ7CommandResult>;
   hardMapGridMaxPlots: number;
   jsLiteral: (value: unknown) => string;
   parseVisibilitySummary: (result: Civ7CommandResult, label: string) => Civ7VisibilitySummaryResult;
@@ -147,14 +166,16 @@ type VisibilityRevealDependencies = VisibilityReadDependencies &
   Readonly<{
     getVisibilitySummary: (
       input: Civ7VisibilitySummaryInput,
-      options?: Civ7DirectControlOptions,
+      options?: Civ7DirectControlOptions
     ) => Promise<Civ7VisibilitySummaryResult>;
     probeValue: <T>(probe: Civ7RuntimeProbe<T>) => T | undefined;
   }>;
 
 export type VisibilityGrantDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
-  executeTunerCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;
+  executeTunerCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
+  ) => Promise<Civ7CommandResult>;
   parseExploreGrant: (result: Civ7CommandResult, label: string) => ExploreGrantPayload;
   parseExploreRelease: (result: Civ7CommandResult, label: string) => ExploreReleasePayload;
   validatePlayerId: (playerId: number) => number;
@@ -173,17 +194,20 @@ type ExploreReleasePayload = Readonly<{
 export async function getCiv7VisibilitySummary(
   input: Civ7VisibilitySummaryInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: VisibilityReadDependencies = defaultVisibilityReadDependencies,
+  dependencies: VisibilityReadDependencies = defaultVisibilityReadDependencies
 ): Promise<Civ7VisibilitySummaryResult> {
   dependencies.validatePlayerId(input.playerId);
   const maxPlots = dependencies.boundedInteger(
     input.maxPlots ?? dependencies.defaultMapGridMaxPlots,
     1,
     dependencies.hardMapGridMaxPlots,
-    "maxPlots",
+    "maxPlots"
   );
   if (input.includeGrid && !input.bounds) {
-    throw new Civ7DirectControlError("command-failed", "Visibility grid reads require explicit bounds");
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "Visibility grid reads require explicit bounds"
+    );
   }
   if (input.bounds) dependencies.validateMapBounds(input.bounds);
   const result = await dependencies.executeTunerCommand({
@@ -193,7 +217,7 @@ export async function getCiv7VisibilitySummary(
         ...input,
         maxPlots,
       },
-      dependencies,
+      dependencies
     ),
   });
   return dependencies.parseVisibilitySummary(result, "Civ7 visibility summary");
@@ -202,7 +226,7 @@ export async function getCiv7VisibilitySummary(
 export async function revealCiv7MapForPlayer(
   input: Readonly<{ playerId: number }>,
   options: Civ7DirectControlOptions = {},
-  dependencies: VisibilityRevealDependencies = defaultVisibilityRevealDependencies,
+  dependencies: VisibilityRevealDependencies = defaultVisibilityRevealDependencies
 ): Promise<Civ7RevealMapResult> {
   const playerId = dependencies.validatePlayerId(input.playerId);
   const before = await dependencies.getVisibilitySummary({ playerId }, options);
@@ -242,7 +266,7 @@ export async function revealCiv7MapForPlayer(
 export async function applyCiv7ExploreGrant(
   input: Civ7ExploreGrantInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: VisibilityGrantDependencies = defaultVisibilityGrantDependencies,
+  dependencies: VisibilityGrantDependencies = defaultVisibilityGrantDependencies
 ): Promise<Civ7ExploreGrantResult> {
   const playerId = dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeTunerCommand({
@@ -267,15 +291,10 @@ export async function applyCiv7ExploreGrant(
 export async function releaseCiv7ExploreGrant(
   input: Civ7ExploreReleaseInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: VisibilityGrantDependencies = defaultVisibilityGrantDependencies,
+  dependencies: VisibilityGrantDependencies = defaultVisibilityGrantDependencies
 ): Promise<Civ7ExploreReleaseResult> {
   const playerId = dependencies.validatePlayerId(input.playerId);
-  const grantId = dependencies.boundedInteger(
-    input.grantId,
-    0,
-    Number.MAX_SAFE_INTEGER,
-    "grantId",
-  );
+  const grantId = dependencies.boundedInteger(input.grantId, 0, Number.MAX_SAFE_INTEGER, "grantId");
   const result = await dependencies.executeTunerCommand({
     ...options,
     command: buildExploreReleaseCommand(playerId, grantId),
@@ -323,7 +342,7 @@ function buildExploreReleaseCommand(playerId: number, grantId: number): string {
 
 function buildVisibilitySummaryCommand(
   input: Civ7VisibilitySummaryInput & { maxPlots: number },
-  dependencies: VisibilityReadDependencies,
+  dependencies: VisibilityReadDependencies
 ): string {
   return `(() => {
     ${dependencies.probeHelperSource()}
@@ -393,7 +412,9 @@ const defaultVisibilityRevealDependencies: VisibilityRevealDependencies = {
 const defaultVisibilityGrantDependencies: VisibilityGrantDependencies = {
   boundedInteger,
   executeTunerCommand: executeCiv7TunerCommand,
-  parseExploreGrant: (result, label) => jsonPayloadFromCommandResult<ExploreGrantPayload>(result, label),
-  parseExploreRelease: (result, label) => jsonPayloadFromCommandResult<ExploreReleasePayload>(result, label),
+  parseExploreGrant: (result, label) =>
+    jsonPayloadFromCommandResult<ExploreGrantPayload>(result, label),
+  parseExploreRelease: (result, label) =>
+    jsonPayloadFromCommandResult<ExploreReleasePayload>(result, label),
   validatePlayerId,
 };

@@ -65,7 +65,7 @@ describe("Vite /rpc dev proxy streaming", () => {
 });
 
 async function listenHttpServer(
-  handler: Parameters<typeof createHttpServer>[0],
+  handler: Parameters<typeof createHttpServer>[0]
 ): Promise<{ server: Server; origin: string }> {
   const server = createHttpServer(handler);
   openHttpServers.push(server);
@@ -114,11 +114,7 @@ function deferred<T = void>(): {
   return { promise, resolve, reject };
 }
 
-async function withTimeout<T>(
-  promise: Promise<T>,
-  timeoutMs: number,
-  label: string,
-): Promise<T> {
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([

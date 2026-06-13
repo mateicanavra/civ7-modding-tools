@@ -5,10 +5,7 @@ import { Civ7DirectControlError, DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "@civ7/dir
 
 import { loadCiv7SetupCatalog } from "../civ7Resources/catalog";
 import { defaultRecipeDagService } from "../recipeDag/service";
-import {
-  StudioEngineError,
-  type StudioEngineFailureKind,
-} from "./engineErrors";
+import { StudioEngineError, type StudioEngineFailureKind } from "./engineErrors";
 import type { StudioEngines } from "./engines";
 
 /**
@@ -75,13 +72,15 @@ function isIdentityMiss(namespace: EngineNamespace, kind: StudioEngineFailureKin
   return (namespace === "runInGame" || namespace === "saveDeploy") && kind === "not-found";
 }
 
-export function toStudioEngineOrpcError(args: Readonly<{
-  err: unknown;
-  namespace: EngineNamespace;
-  fallbackMessage: string;
-  serverInstanceId: string;
-  serverStartedAt: string;
-}>): ORPCError<string, unknown> {
+export function toStudioEngineOrpcError(
+  args: Readonly<{
+    err: unknown;
+    namespace: EngineNamespace;
+    fallbackMessage: string;
+    serverInstanceId: string;
+    serverStartedAt: string;
+  }>
+): ORPCError<string, unknown> {
   const mappings = STUDIO_ENGINE_ERROR_MAPPINGS[args.namespace];
   if (args.err instanceof StudioEngineError) {
     const mapped = mappings[args.err.failure.kind];
@@ -100,9 +99,8 @@ export function toStudioEngineOrpcError(args: Readonly<{
       data,
     });
   }
-  const unknownMapped = args.err instanceof Civ7DirectControlError
-    ? mappings.unavailable
-    : mappings.failed;
+  const unknownMapped =
+    args.err instanceof Civ7DirectControlError ? mappings.unavailable : mappings.failed;
   const unknownDetails = detailsForUnknown(args.err);
   return new ORPCError(unknownMapped.code, {
     status: unknownMapped.status,
@@ -115,7 +113,7 @@ function toOrpc(
   err: unknown,
   namespace: EngineNamespace,
   fallbackMessage: string,
-  identity: Readonly<{ serverInstanceId: string; serverStartedAt: string }>,
+  identity: Readonly<{ serverInstanceId: string; serverStartedAt: string }>
 ): ORPCError<string, unknown> {
   return toStudioEngineOrpcError({
     err,
@@ -143,11 +141,13 @@ const emptyIdentity = {
  * engine-extraction slice; the host (the Bun daemon) injects the engines and
  * its command label.
  */
-export function createStudioServerContext(options: Readonly<{
-  engines: StudioEngines;
-  eventHub: StudioEventHubApi;
-  hostCommand: string;
-}>): StudioServerContext {
+export function createStudioServerContext(
+  options: Readonly<{
+    engines: StudioEngines;
+    eventHub: StudioEventHubApi;
+    hostCommand: string;
+  }>
+): StudioServerContext {
   const { engines, eventHub, hostCommand } = options;
   const identity = {
     serverInstanceId: engines.serverInstanceId,

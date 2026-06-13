@@ -45,8 +45,7 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
   const { schema, value, onChange, disabled, focusPath, collapse } = props;
 
   const buildUiSchema = useMemo(() => {
-    const hasEnum = (node: RJSFSchema): boolean =>
-      Array.isArray(node.enum) && node.enum.length > 0;
+    const hasEnum = (node: RJSFSchema): boolean => Array.isArray(node.enum) && node.enum.length > 0;
 
     const hasEnumItems = (node: RJSFSchema): boolean => {
       if (node.type !== "array") return false;
@@ -134,7 +133,9 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
         },
         formValue: wrappedValue,
         mergeBack: (nextFormValue: unknown) => {
-          const nextObj = isPlainObject(nextFormValue) ? (nextFormValue as Record<string, unknown>) : {};
+          const nextObj = isPlainObject(nextFormValue)
+            ? (nextFormValue as Record<string, unknown>)
+            : {};
           const nextStage = isPlainObject(nextObj[focusKey]) ? nextObj[focusKey] : {};
           return setAtPath(value, [focusKey], nextStage) as TConfig;
         },
@@ -165,11 +166,16 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
   const active = focusView ?? {
     resolved,
     formValue: value,
-    mergeBack: (nextFormValue: unknown) => (nextFormValue as TConfig),
+    mergeBack: (nextFormValue: unknown) => nextFormValue as TConfig,
   };
 
   const uiSchema = useMemo<UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext>>(
-    () => buildUiSchema(active.resolved.schema) as UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext>,
+    () =>
+      buildUiSchema(active.resolved.schema) as UiSchema<
+        TConfig,
+        RJSFSchema,
+        BrowserConfigFormContext
+      >,
     [active.resolved.schema, buildUiSchema]
   );
 

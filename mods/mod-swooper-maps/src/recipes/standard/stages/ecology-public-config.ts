@@ -71,10 +71,18 @@ function defaultMinimum(label: string, type: string): number {
     return 0;
   }
   if (/(pct|percent|coverage)/.test(normalized)) return 0;
-  if (/\b(radius|distance|spacing|count|target|iterations|class|tiles)\b|per resource/.test(normalized)) {
+  if (
+    /\b(radius|distance|spacing|count|target|iterations|class|tiles)\b|per resource/.test(
+      normalized
+    )
+  ) {
     return type === "integer" ? 0 : 0;
   }
-  if (/(moisture|rainfall|normalization|discharge|depth|elevation max|elevation min|sea level)/.test(normalized)) {
+  if (
+    /(moisture|rainfall|normalization|discharge|depth|elevation max|elevation min|sea level)/.test(
+      normalized
+    )
+  ) {
     return -10000;
   }
   if (/(temperature|tempc| c\b|cold|warm|polar|tundra|tropical|lapse|bias)/.test(normalized)) {
@@ -94,7 +102,11 @@ function defaultMaximum(label: string, type: string): number {
     return 1;
   }
   if (/(pct|percent|coverage)/.test(normalized)) return 100;
-  if (/\b(class|tiles|iterations|radius|distance|spacing|count|target)\b|per resource/.test(normalized)) {
+  if (
+    /\b(class|tiles|iterations|radius|distance|spacing|count|target)\b|per resource/.test(
+      normalized
+    )
+  ) {
     return type === "integer" ? 100000 : 100000;
   }
   if (/(moisture|rainfall|normalization|discharge|depth|elevation|sea level)/.test(normalized)) {
@@ -196,9 +208,7 @@ function profileObjectSchema(
 }
 
 function publicObject(value: unknown): PublicObject {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as PublicObject)
-    : {};
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as PublicObject) : {};
 }
 
 function withoutProfile(value: unknown): PublicObject {
@@ -357,8 +367,7 @@ const IceScoringPublicSchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description:
-      "Controls ice suitability scoring before ice placement intent is selected.",
+    description: "Controls ice suitability scoring before ice placement intent is selected.",
   }
 );
 
@@ -409,8 +418,7 @@ const PlotEffectSnowCoveragePublicSchema = Type.Object(
         default: 80,
         minimum: 0,
         maximum: 100,
-        description:
-          "Controls the percent of eligible snow tiles that receive snow plot effects.",
+        description: "Controls the percent of eligible snow tiles that receive snow plot effects.",
       })
     ),
     lightThreshold: Type.Optional(
@@ -445,7 +453,11 @@ const PlotEffectSnowCoveragePublicSchema = Type.Object(
   }
 );
 
-const PlotEffectSimpleCoveragePublicSchema = (label: string, defaultEnabled: boolean, defaultCoverage: number) =>
+const PlotEffectSimpleCoveragePublicSchema = (
+  label: string,
+  defaultEnabled: boolean,
+  defaultCoverage: number
+) =>
   Type.Object(
     {
       enabled: Type.Optional(
@@ -484,8 +496,14 @@ const PlotEffectCoveragePublicSchema = Type.Object(
 
 const PlotEffectScoringPublicSchema = Type.Object(
   {
-    snow: optionalAuthorSchema(ecologyOps.scorePlotEffectsSnow.strategies.default, "snow effect scoring"),
-    sand: optionalAuthorSchema(ecologyOps.scorePlotEffectsSand.strategies.default, "sand effect scoring"),
+    snow: optionalAuthorSchema(
+      ecologyOps.scorePlotEffectsSnow.strategies.default,
+      "snow effect scoring"
+    ),
+    sand: optionalAuthorSchema(
+      ecologyOps.scorePlotEffectsSand.strategies.default,
+      "sand effect scoring"
+    ),
     burned: optionalAuthorSchema(
       ecologyOps.scorePlotEffectsBurned.strategies.default,
       "burned effect scoring"

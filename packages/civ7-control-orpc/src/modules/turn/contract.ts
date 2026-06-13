@@ -7,17 +7,10 @@ import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-const Civ7TurnCompletionInputSchema = Type.Object(
-  {},
-  { additionalProperties: false },
-);
-export type Civ7TurnCompletionInput = Static<
-  typeof Civ7TurnCompletionInputSchema
->;
+const Civ7TurnCompletionInputSchema = Type.Object({}, { additionalProperties: false });
+export type Civ7TurnCompletionInput = Static<typeof Civ7TurnCompletionInputSchema>;
 
-const Civ7TurnCompletionInputStandardSchema = toStandardSchema(
-  Civ7TurnCompletionInputSchema,
-);
+const Civ7TurnCompletionInputStandardSchema = toStandardSchema(Civ7TurnCompletionInputSchema);
 
 export const Civ7TurnCompletionRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
@@ -26,17 +19,15 @@ export const Civ7TurnCompletionRequestStatusSchema = Type.Union([
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7TurnCompletionPostconditionClassificationSchema = Type.Union(
-  [
-    Type.Literal("turn-advanced"),
-    Type.Literal("turn-complete-sent"),
-    Type.Literal("already-complete"),
-    Type.Literal("turn-completion-blocked"),
-    Type.Literal("no-state-change"),
-    Type.Literal("missing-postcondition"),
-    Type.Literal("pending-runtime-proof"),
-  ],
-);
+export const Civ7TurnCompletionPostconditionClassificationSchema = Type.Union([
+  Type.Literal("turn-advanced"),
+  Type.Literal("turn-complete-sent"),
+  Type.Literal("already-complete"),
+  Type.Literal("turn-completion-blocked"),
+  Type.Literal("no-state-change"),
+  Type.Literal("missing-postcondition"),
+  Type.Literal("pending-runtime-proof"),
+]);
 
 export const Civ7TurnCompletionProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
@@ -53,12 +44,9 @@ export const Civ7TurnCompletionProbeSummarySchema = Type.Object(
     hasSentTurnComplete: Type.Union([Type.Boolean(), Type.Null()]),
     canEndTurn: Type.Union([Type.Boolean(), Type.Null()]),
     blocker: Type.Union([Type.Number(), Type.String(), Type.Null()]),
-    firstReadyUnitId: Type.Union([
-      Civ7ControlOrpcComponentIdSchema,
-      Type.Null(),
-    ]),
+    firstReadyUnitId: Type.Union([Civ7ControlOrpcComponentIdSchema, Type.Null()]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7TurnCompletionPostconditionSummarySchema = Type.Object(
@@ -74,7 +62,7 @@ export const Civ7TurnCompletionPostconditionSummarySchema = Type.Object(
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7TurnCompletionNextStepSchema = Type.Object(
@@ -87,7 +75,7 @@ export const Civ7TurnCompletionNextStepSchema = Type.Object(
     source: Type.Literal("turn.complete.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7TurnCompletionResultSchema = Type.Object(
@@ -99,15 +87,11 @@ const Civ7TurnCompletionResultSchema = Type.Object(
     postcondition: Civ7TurnCompletionPostconditionSummarySchema,
     nextSteps: Type.Array(Civ7TurnCompletionNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7TurnCompletionResult = Static<
-  typeof Civ7TurnCompletionResultSchema
->;
+export type Civ7TurnCompletionResult = Static<typeof Civ7TurnCompletionResultSchema>;
 
-const Civ7TurnCompletionResultStandardSchema = toStandardSchema(
-  Civ7TurnCompletionResultSchema,
-);
+const Civ7TurnCompletionResultStandardSchema = toStandardSchema(Civ7TurnCompletionResultSchema);
 
 export type Civ7TurnCompletionContract = ContractProcedure<
   typeof Civ7TurnCompletionInputStandardSchema,
@@ -116,16 +100,15 @@ export type Civ7TurnCompletionContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7TurnCompletionContract: Civ7TurnCompletionContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7TurnCompletionInputStandardSchema)
-    .output(Civ7TurnCompletionResultStandardSchema)
-    .meta({
-      family: "turn",
-      procedureKey: "turn.complete.request",
-      proofBoundary: "local-package-test",
-      risk: "mutation",
-    });
+export const Civ7TurnCompletionContract: Civ7TurnCompletionContract = civ7ControlOrpcContractBase
+  .input(Civ7TurnCompletionInputStandardSchema)
+  .output(Civ7TurnCompletionResultStandardSchema)
+  .meta({
+    family: "turn",
+    procedureKey: "turn.complete.request",
+    proofBoundary: "local-package-test",
+    risk: "mutation",
+  });
 
 export type Civ7TurnContract = Readonly<{
   complete: Readonly<{

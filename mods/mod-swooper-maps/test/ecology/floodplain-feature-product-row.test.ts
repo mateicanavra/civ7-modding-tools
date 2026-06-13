@@ -107,7 +107,11 @@ describe("floodplain feature product row", () => {
       adapter.setBiomeType(x, y, plainsBiome);
       adapter.setTerrainType(x, y, flatTerrain);
     }
-    adapter.setTerrainType(riverIndex % width, Math.floor(riverIndex / width), navigableRiverTerrain);
+    adapter.setTerrainType(
+      riverIndex % width,
+      Math.floor(riverIndex / width),
+      navigableRiverTerrain
+    );
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
     const setupArtifacts = implementArtifacts(

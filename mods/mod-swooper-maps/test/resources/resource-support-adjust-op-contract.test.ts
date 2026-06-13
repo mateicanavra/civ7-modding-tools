@@ -1,10 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import resources from "@mapgen/domain/resources/ops";
-import {
-  getHexRadiusIndicesOddQ,
-  hexDistanceOddQPeriodicX,
-} from "@swooper/mapgen-core/lib/grid";
+import { getHexRadiusIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
 import { runOpValidated } from "../support/compiler-helpers.js";
 
@@ -198,11 +195,7 @@ function run(
   }) as unknown as AdjustResult;
 }
 
-function supportCount(
-  intents: AdjustResult["intents"],
-  seatPlot: number,
-  radius: number
-): number {
+function supportCount(intents: AdjustResult["intents"], seatPlot: number, radius: number): number {
   const zone = new Set(getHexRadiusIndicesOddQ(seatPlot, WIDTH, HEIGHT, radius));
   return intents.filter((intent) => zone.has(intent.plotIndex)).length;
 }
@@ -345,9 +338,17 @@ describe("adjust-resource-support operation contract", () => {
     );
     const seatOne = result.shortfalls.filter((row) => row.seatIndex === 1);
     expect(seatOne.length).toBeGreaterThan(0);
-    expect(seatOne.every((row) =>
-      ["no-movable-site", "no-legal-tile-in-radius", "spacing-floor-preserved", "equity-unresolvable", "adjustment-budget-exhausted"].includes(row.reason)
-    )).toBe(true);
+    expect(
+      seatOne.every((row) =>
+        [
+          "no-movable-site",
+          "no-legal-tile-in-radius",
+          "spacing-floor-preserved",
+          "equity-unresolvable",
+          "adjustment-budget-exhausted",
+        ].includes(row.reason)
+      )
+    ).toBe(true);
   });
 
   it("adds within maxCount headroom when moves are blocked, with support phase provenance", () => {

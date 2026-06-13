@@ -20,10 +20,12 @@ describe("progression choice postconditions", () => {
       id: 52,
       type: 20,
     });
-    expect(technologyChoicePostcondition(
-      before,
-      notificationView("NOTIFICATION_CHOOSE_TECH", {}, { canEndTurn: true }),
-    )).toMatchObject({
+    expect(
+      technologyChoicePostcondition(
+        before,
+        notificationView("NOTIFICATION_CHOOSE_TECH", {}, { canEndTurn: true })
+      )
+    ).toMatchObject({
       classification: "turn-unblocked",
       verified: true,
     });
@@ -31,20 +33,24 @@ describe("progression choice postconditions", () => {
       classification: "technology-choice-cleared",
       verified: true,
     });
-    expect(technologyChoicePostcondition(
-      before,
-      notificationView("NOTIFICATION_CHOOSE_TECH", {}, { id: 53 }),
-    )).toMatchObject({
+    expect(
+      technologyChoicePostcondition(
+        before,
+        notificationView("NOTIFICATION_CHOOSE_TECH", {}, { id: 53 })
+      )
+    ).toMatchObject({
       classification: "technology-choice-transitioned",
       verified: true,
     });
-    expect(technologyChoicePostcondition(
-      before,
-      notificationView("NOTIFICATION_CHOOSE_TECH", {
-        currentResearching: probe(11),
-        targetNode: probe(20),
-      }),
-    )).toMatchObject({
+    expect(
+      technologyChoicePostcondition(
+        before,
+        notificationView("NOTIFICATION_CHOOSE_TECH", {
+          currentResearching: probe(11),
+          targetNode: probe(20),
+        })
+      )
+    ).toMatchObject({
       classification: "technology-state-changed-blocker-still-live",
       verified: false,
     });
@@ -65,12 +71,18 @@ describe("progression choice postconditions", () => {
       id: 52,
       type: 20,
     });
-    expect(cultureChoicePostcondition(
-      before,
-      notificationView("NOTIFICATION_CHOOSE_CULTURE_NODE", {}, {
-        canEndTurn: true,
-      }),
-    )).toMatchObject({
+    expect(
+      cultureChoicePostcondition(
+        before,
+        notificationView(
+          "NOTIFICATION_CHOOSE_CULTURE_NODE",
+          {},
+          {
+            canEndTurn: true,
+          }
+        )
+      )
+    ).toMatchObject({
       classification: "turn-unblocked",
       verified: true,
     });
@@ -78,20 +90,24 @@ describe("progression choice postconditions", () => {
       classification: "culture-choice-cleared",
       verified: true,
     });
-    expect(cultureChoicePostcondition(
-      before,
-      notificationView("NOTIFICATION_CHOOSE_CULTURE_NODE", {}, { id: 53 }),
-    )).toMatchObject({
+    expect(
+      cultureChoicePostcondition(
+        before,
+        notificationView("NOTIFICATION_CHOOSE_CULTURE_NODE", {}, { id: 53 })
+      )
+    ).toMatchObject({
       classification: "culture-choice-transitioned",
       verified: true,
     });
-    expect(cultureChoicePostcondition(
-      before,
-      notificationView("NOTIFICATION_CHOOSE_CULTURE_NODE", {
-        currentResearching: probe(31),
-        targetNode: probe(40),
-      }),
-    )).toMatchObject({
+    expect(
+      cultureChoicePostcondition(
+        before,
+        notificationView("NOTIFICATION_CHOOSE_CULTURE_NODE", {
+          currentResearching: probe(31),
+          targetNode: probe(40),
+        })
+      )
+    ).toMatchObject({
       classification: "culture-state-changed-blocker-still-live",
       verified: false,
     });
@@ -108,16 +124,18 @@ function notificationView(
   options: Readonly<{
     id?: number;
     canEndTurn?: boolean;
-  }> = {},
+  }> = {}
 ): Civ7ProgressionChoiceNotificationView {
   return {
     canEndTurn: probe(options.canEndTurn ?? false),
-    notifications: [{
-      id: { owner: 0, id: options.id ?? 52, type: 20 },
-      typeName,
-      isEndTurnBlocking: true,
-      details,
-    }],
+    notifications: [
+      {
+        id: { owner: 0, id: options.id ?? 52, type: 20 },
+        typeName,
+        isEndTurnBlocking: true,
+        details,
+      },
+    ],
   };
 }
 

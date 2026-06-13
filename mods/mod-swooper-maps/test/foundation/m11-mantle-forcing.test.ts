@@ -25,7 +25,7 @@ describe("foundation mantle forcing (D02r)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2},
+        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
       },
       ctx as any
     );
@@ -73,7 +73,7 @@ describe("foundation mantle forcing (D02r)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 12, cellsPerPlate: 2, relaxationSteps: 2},
+        config: { plateCount: 12, cellsPerPlate: 2, relaxationSteps: 2 },
       },
       ctx as any
     );

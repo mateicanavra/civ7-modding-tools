@@ -13,11 +13,15 @@ import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.
 function median(values: number[]): number {
   const sorted = values.slice().sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 1 ? (sorted[mid] ?? 0) : ((sorted[mid - 1] ?? 0) + (sorted[mid] ?? 0)) / 2;
+  return sorted.length % 2 === 1
+    ? (sorted[mid] ?? 0)
+    : ((sorted[mid - 1] ?? 0) + (sorted[mid] ?? 0)) / 2;
 }
 
 describe("biomes stripes regression (M3-012)", () => {
-  it("has within-row biome variety for fixed seed (no horizontal banding domination)", { timeout: 20_000 }, () => {
+  it("has within-row biome variety for fixed seed (no horizontal banding domination)", {
+    timeout: 20_000,
+  }, () => {
     const width = 106;
     const height = 66;
     const seed = 1337;

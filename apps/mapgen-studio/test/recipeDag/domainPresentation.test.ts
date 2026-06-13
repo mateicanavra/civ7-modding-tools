@@ -26,7 +26,15 @@ describe("recipe DAG domain presentation", () => {
   });
 
   it("returns non-generic presentations for every canonical DAG phase", () => {
-    const phases = ["setup", "foundation", "morphology", "hydrology", "ecology", "gameplay", "placement"] as const;
+    const phases = [
+      "setup",
+      "foundation",
+      "morphology",
+      "hydrology",
+      "ecology",
+      "gameplay",
+      "placement",
+    ] as const;
 
     for (const phase of phases) {
       const presentation = getRecipeDagDomainPresentation(phase);
@@ -81,12 +89,19 @@ describe("recipe DAG domain presentation", () => {
   });
 
   it("does not expose surface-specific artifact icon overrides", () => {
-    expect(getRecipeDagDomainPresentation("hydrology")).toBe(getRecipeDagDomainPresentation("artifact:hydrology.hydrography"));
-    expect(getRecipeDagDomainPresentation("ecology")).toBe(getRecipeDagDomainPresentation("artifact:ecology.biomes"));
+    expect(getRecipeDagDomainPresentation("hydrology")).toBe(
+      getRecipeDagDomainPresentation("artifact:hydrology.hydrography")
+    );
+    expect(getRecipeDagDomainPresentation("ecology")).toBe(
+      getRecipeDagDomainPresentation("artifact:ecology.biomes")
+    );
   });
 
   it("keeps domain lucide imports centralized outside the view", () => {
-    const source = readFileSync(new URL("../../src/features/recipeDag/PipelineStage.tsx", import.meta.url), "utf8");
+    const source = readFileSync(
+      new URL("../../src/features/recipeDag/PipelineStage.tsx", import.meta.url),
+      "utf8"
+    );
     const lucideImport = source.match(/import\s*{([\s\S]*?)}\s*from "lucide-react";/)?.[1] ?? "";
     const importedNames = lucideImport
       .split(",")

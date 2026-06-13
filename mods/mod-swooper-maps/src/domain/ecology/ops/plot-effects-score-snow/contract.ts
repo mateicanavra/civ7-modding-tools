@@ -40,24 +40,43 @@ const PlotEffectsScoreSnowConfigSchema = Type.Object({
     minimum: 0.0001,
     description: "Divisor for raw score normalization before clamping to 0..1.",
   }),
-  scoreBias: Type.Number({ default: 0, description: "Additive bias applied to the raw snow score." }),
+  scoreBias: Type.Number({
+    default: 0,
+    description: "Additive bias applied to the raw snow score.",
+  }),
   elevationStrategy: SnowElevationStrategySchema,
-  elevationMin: Type.Number({ default: 200, description: "Minimum elevation used for elevation normalization (m)." }),
-  elevationMax: Type.Number({ default: 2400, description: "Maximum elevation used for elevation normalization (m)." }),
+  elevationMin: Type.Number({
+    default: 200,
+    description: "Minimum elevation used for elevation normalization (m).",
+  }),
+  elevationMax: Type.Number({
+    default: 2400,
+    description: "Maximum elevation used for elevation normalization (m).",
+  }),
   elevationPercentileMin: Type.Number({
     default: 0.7,
     minimum: 0,
     maximum: 1,
-    description: "Minimum land elevation percentile used when elevationStrategy is percentile (0..1).",
+    description:
+      "Minimum land elevation percentile used when elevationStrategy is percentile (0..1).",
   }),
   elevationPercentileMax: Type.Number({
     default: 0.98,
     minimum: 0,
     maximum: 1,
-    description: "Maximum land elevation percentile used when elevationStrategy is percentile (0..1).",
+    description:
+      "Maximum land elevation percentile used when elevationStrategy is percentile (0..1).",
   }),
-  moistureMin: Type.Number({ default: 40, minimum: 0, description: "Minimum effectiveMoisture used for normalization." }),
-  moistureMax: Type.Number({ default: 160, minimum: 0, description: "Maximum effectiveMoisture used for normalization." }),
+  moistureMin: Type.Number({
+    default: 40,
+    minimum: 0,
+    description: "Minimum effectiveMoisture used for normalization.",
+  }),
+  moistureMax: Type.Number({
+    default: 160,
+    minimum: 0,
+    description: "Maximum effectiveMoisture used for normalization.",
+  }),
 });
 
 const PlotEffectsScoreSnowContract = defineOp({

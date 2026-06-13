@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 // ============================================================================
 // EXPLORE PANEL
 // ============================================================================
@@ -16,15 +16,15 @@ import {
   CircleDot,
   Activity,
   Bug,
-  Flame } from
-'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
-import { WaterStatsSection } from './WaterStatsSection';
+  Flame,
+} from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
+import { WaterStatsSection } from "./WaterStatsSection";
 import type {
   RiverLakeFloodplainInspectorSummary,
-  RiverLakeInspectorLayerRef } from
-'../../features/viz/riverLakeInspector';
-import { LAYOUT } from '../constants';
+  RiverLakeInspectorLayerRef,
+} from "../../features/viz/riverLakeInspector";
+import { LAYOUT } from "../constants";
 import type {
   StageOption,
   StepOption,
@@ -32,8 +32,8 @@ import type {
   SpaceOption,
   VariantOption,
   OverlayOption,
-  RenderModeOption } from
-'../types';
+  RenderModeOption,
+} from "../types";
 // ============================================================================
 // Props
 // ============================================================================
@@ -177,7 +177,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   riverLakeInspectorSummary,
   onRiverLakeInspectorLayerSelect,
   waterStatsExpanded: waterStatsExpandedProp,
-  onWaterStatsExpandedChange
+  onWaterStatsExpandedChange,
 }) => {
   const [localStageExpanded, setLocalStageExpanded] = useState(true);
   const [localStepExpanded, setLocalStepExpanded] = useState(true);
@@ -214,10 +214,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   const currentLayerGroup = currentLayer?.group ?? "";
   // Auto-select data type when only one is available
   useEffect(() => {
-    if (
-    dataTypeOptions.length === 1 &&
-    selectedDataType !== dataTypeOptions[0].value)
-    {
+    if (dataTypeOptions.length === 1 && selectedDataType !== dataTypeOptions[0].value) {
       onSelectedDataTypeChange(dataTypeOptions[0].value);
     }
   }, [dataTypeOptions, selectedDataType, onSelectedDataTypeChange]);
@@ -249,24 +246,27 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   // floats over the deck.gl map, so it rides the `popover` tier. Active list
   // items use the steel contour (a thin rule + `bg-muted`), not a saturated
   // slab.
-  const panelBg = 'bg-popover/95';
-  const panelBorder = 'border-border';
-  const textPrimary = 'text-foreground';
-  const textSecondary = 'text-muted-foreground';
-  const textMuted = 'text-muted-foreground/70';
-  const borderSubtle = 'border-border-subtle';
-  const hoverBg = 'hover:bg-accent';
+  const panelBg = "bg-popover/95";
+  const panelBorder = "border-border";
+  const textPrimary = "text-foreground";
+  const textSecondary = "text-muted-foreground";
+  const textMuted = "text-muted-foreground/70";
+  const borderSubtle = "border-border-subtle";
+  const hoverBg = "hover:bg-accent";
   const listMaxHeight = "max-h-[200px]";
   // Stage list styles
   const stageItemBase = `w-full text-left px-3 py-2 text-data font-medium transition-colors cursor-pointer flex items-center gap-2`;
-  const stageItemActive = 'bg-accent text-foreground';
-  const stageItemInactive = 'text-muted-foreground hover:bg-accent hover:text-foreground';
+  const stageItemActive = "bg-accent text-foreground";
+  const stageItemInactive = "text-muted-foreground hover:bg-accent hover:text-foreground";
   // Step/DataType list styles
   const stepItemBase = `w-full text-left px-3 py-1.5 text-data font-mono transition-colors cursor-pointer flex items-center gap-2 border-l-2`;
-  const stepItemActive = 'border-primary bg-accent text-foreground';
-  const stepItemInactive = 'border-transparent text-muted-foreground hover:bg-accent hover:text-foreground';
-  const iconBtn = 'h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent';
-  const iconBtnActive = 'h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-foreground bg-muted';
+  const stepItemActive = "border-primary bg-accent text-foreground";
+  const stepItemInactive =
+    "border-transparent text-muted-foreground hover:bg-accent hover:text-foreground";
+  const iconBtn =
+    "h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent";
+  const iconBtnActive =
+    "h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-foreground bg-muted";
   // Segmented controls for mutually-exclusive option sets (Render / Space):
   // an inset container on the control-background token bounds the options so
   // they read as one control; the active segment lifts one surface tier
@@ -275,30 +275,33 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   // (View = camera/map, Layer = selected data); row labels sit a tier below.
   const clusterHeading = `text-label font-semibold uppercase tracking-wider ${textSecondary}`;
   const rowLabel = `text-label uppercase tracking-wider ${textMuted}`;
-  const segGroup = 'inline-flex items-center rounded border border-border-subtle bg-input-background p-0.5';
-  const segBtn = 'h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-muted-foreground hover:text-foreground';
-  const segBtnActive = 'h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-foreground bg-muted';
+  const segGroup =
+    "inline-flex items-center rounded border border-border-subtle bg-input-background p-0.5";
+  const segBtn =
+    "h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-muted-foreground hover:text-foreground";
+  const segBtnActive =
+    "h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-foreground bg-muted";
   const stageBadge = (isActive: boolean) => `
     w-5 h-5 flex items-center justify-center rounded-full text-label font-semibold shrink-0
-    ${isActive ? 'bg-muted text-foreground' : 'bg-muted/50 text-muted-foreground'}
+    ${isActive ? "bg-muted text-foreground" : "bg-muted/50 text-muted-foreground"}
   `;
   const stepBadge = (isActive: boolean) => `
     w-4 h-4 flex items-center justify-center rounded text-[9px] font-mono shrink-0
-    ${isActive ? 'bg-muted text-foreground' : 'bg-muted/50 text-muted-foreground'}
+    ${isActive ? "bg-muted text-foreground" : "bg-muted/50 text-muted-foreground"}
   `;
   // Render mode icons map
   const getRenderModeIcon = (value: string) => {
     const kind = value.split(":")[0] ?? value;
     switch (value) {
-      case 'hexagonal':
-      case 'grid':
+      case "hexagonal":
+      case "grid":
         return <Hexagon className="w-3.5 h-3.5" />;
-      case 'points':
+      case "points":
         return <CircleDot className="w-3.5 h-3.5" />;
-      case 'fields':
-      case 'vectors':
+      case "fields":
+      case "vectors":
         return <Activity className="w-3.5 h-3.5" />;
-      case 'heatmap':
+      case "heatmap":
         return <Flame className="w-3.5 h-3.5" />;
       default:
         if (kind === "points") return <CircleDot className="w-3.5 h-3.5" />;
@@ -324,7 +327,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
 
   const groupedDataTypes = (() => {
     const indexByValue = new Map<string, number>();
-    for (let i = 0; i < dataTypeOptions.length; i++) indexByValue.set(dataTypeOptions[i]!.value, i + 1);
+    for (let i = 0; i < dataTypeOptions.length; i++)
+      indexByValue.set(dataTypeOptions[i]!.value, i + 1);
 
     const order: string[] = [];
     const groups = new Map<string, DataTypeOption[]>();
@@ -360,8 +364,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   return (
     <div
       style={{ width: LAYOUT.EXPLORE_PANEL_WIDTH }}
-      className={`flex flex-col max-h-full rounded-lg border overflow-y-auto overflow-x-hidden custom-scrollbar shadow-lg backdrop-blur-sm pointer-events-auto ${panelBg} ${panelBorder}`}>
-
+      className={`flex flex-col max-h-full rounded-lg border overflow-y-auto overflow-x-hidden custom-scrollbar shadow-lg backdrop-blur-sm pointer-events-auto ${panelBg} ${panelBorder}`}
+    >
       {/* 1. STAGE SECTION */}
       <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
         <button
@@ -369,13 +373,11 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           onClick={() => setIsStageExpanded(!isStageExpanded)}
           aria-expanded={isStageExpanded}
           aria-controls="explore-stage-list"
-          className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}>
-
+          className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}
+        >
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <Compass className={`w-4 h-4 shrink-0 ${textSecondary}`} />
-            <span className={`text-[13px] font-semibold ${textPrimary}`}>
-              Stage
-            </span>
+            <span className={`text-[13px] font-semibold ${textPrimary}`}>Stage</span>
             {!isStageExpanded ? (
               <span className={`text-[12px] font-semibold ${textPrimary} truncate`}>
                 {currentStage?.label ?? ""}
@@ -384,9 +386,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <span className={`text-label ${textMuted}`}>
-              {stages.length}
-            </span>
+            <span className={`text-label ${textMuted}`}>{stages.length}</span>
             <ChevronDown
               className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isStageExpanded ? "rotate-180" : ""}`}
             />
@@ -394,17 +394,18 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         </button>
       </div>
       {isStageExpanded ? (
-        <div id="explore-stage-list" className={`flex-shrink-0 py-1 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
+        <div
+          id="explore-stage-list"
+          className={`flex-shrink-0 py-1 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}
+        >
           {stages.map((stage, index) => (
             <button
               key={stage.value}
               onClick={() => handleSelectStage(stage.value)}
               aria-current={stage.value === selectedStage ? "true" : undefined}
-              className={`${stageItemBase} ${stage.value === selectedStage ? stageItemActive : stageItemInactive}`}>
-
-              <span className={stageBadge(stage.value === selectedStage)}>
-                {index + 1}
-              </span>
+              className={`${stageItemBase} ${stage.value === selectedStage ? stageItemActive : stageItemInactive}`}
+            >
+              <span className={stageBadge(stage.value === selectedStage)}>{index + 1}</span>
               <span className="truncate">{stage.label}</span>
             </button>
           ))}
@@ -418,8 +419,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           onClick={() => setIsStepExpanded(!isStepExpanded)}
           aria-expanded={isStepExpanded}
           aria-controls="explore-step-list"
-          className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${hoverBg}`}>
-
+          className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${hoverBg}`}
+        >
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <Layers className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
             <span className={`text-data font-semibold ${textSecondary} uppercase tracking-wider`}>
@@ -433,23 +434,26 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span className={`text-label ${textMuted}`}>{steps.length}</span>
-            <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isStepExpanded ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isStepExpanded ? "rotate-180" : ""}`}
+            />
           </div>
         </button>
       </div>
       {isStepExpanded ? (
-        <div id="explore-step-list" className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
+        <div
+          id="explore-step-list"
+          className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}
+        >
           {steps.length > 0 ? (
             steps.map((step, index) => (
               <button
                 key={`${step.category}-${step.value}`}
                 onClick={() => handleSelectStep(step.value)}
                 aria-current={step.value === selectedStep ? "true" : undefined}
-                className={`${stepItemBase} ${step.value === selectedStep ? stepItemActive : stepItemInactive}`}>
-
-                <span className={stepBadge(step.value === selectedStep)}>
-                  {index + 1}
-                </span>
+                className={`${stepItemBase} ${step.value === selectedStep ? stepItemActive : stepItemInactive}`}
+              >
+                <span className={stepBadge(step.value === selectedStep)}>{index + 1}</span>
                 <span className="truncate">{step.label}</span>
               </button>
             ))
@@ -477,8 +481,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           onClick={() => setIsLayersExpanded(!isLayersExpanded)}
           aria-expanded={isLayersExpanded}
           aria-controls="explore-layers-list"
-          className={`flex-1 min-w-0 flex items-center justify-between pl-3 pr-2 py-2 transition-colors ${hoverBg}`}>
-
+          className={`flex-1 min-w-0 flex items-center justify-between pl-3 pr-2 py-2 transition-colors ${hoverBg}`}
+        >
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <SquareStack className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
             <span className={`text-data font-semibold ${textSecondary} uppercase tracking-wider`}>
@@ -492,7 +496,9 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span className={`text-label ${textMuted}`}>{dataTypeOptions.length}</span>
-            <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isLayersExpanded ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isLayersExpanded ? "rotate-180" : ""}`}
+            />
           </div>
         </button>
         <Tooltip>
@@ -501,15 +507,21 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
               onClick={() => onShowDebugLayersChange(!showDebugLayers)}
               aria-label={showDebugLayers ? "Hide debug layers" : "Show debug layers"}
               aria-pressed={showDebugLayers}
-              className={`mr-2 ${showDebugLayers ? iconBtnActive : iconBtn}`}>
+              className={`mr-2 ${showDebugLayers ? iconBtnActive : iconBtn}`}
+            >
               <Bug className="w-3.5 h-3.5" />
             </button>
           </TooltipTrigger>
-          <TooltipContent>{showDebugLayers ? "Hide debug layers" : "Show debug layers"}</TooltipContent>
+          <TooltipContent>
+            {showDebugLayers ? "Hide debug layers" : "Show debug layers"}
+          </TooltipContent>
         </Tooltip>
       </div>
       {isLayersExpanded ? (
-        <div id="explore-layers-list" className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
+        <div
+          id="explore-layers-list"
+          className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}
+        >
           {groupedDataTypes.map((group) => {
             const expanded = !group.key || isGroupExpanded(group.key);
             return (
@@ -529,7 +541,10 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                     <span className="truncate">{group.label}</span>
                     <div className="flex items-center gap-2">
                       <span className={`text-label ${textMuted}`}>{group.items.length}</span>
-                      <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden="true" />
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 ${textMuted} transition-transform ${expanded ? "rotate-180" : ""}`}
+                        aria-hidden="true"
+                      />
                     </div>
                   </button>
                 ) : null}
@@ -581,14 +596,14 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
               <TooltipTrigger asChild>
                 <button
                   onClick={() => onShowEdgesChange(!showEdges)}
-                  aria-label={showEdges ? 'Hide edges' : 'Show edges'}
+                  aria-label={showEdges ? "Hide edges" : "Show edges"}
                   aria-pressed={showEdges}
-                  className={showEdges ? iconBtnActive : iconBtn}>
-
+                  className={showEdges ? iconBtnActive : iconBtn}
+                >
                   <GitBranch className="w-3.5 h-3.5" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>{showEdges ? 'Hide edges' : 'Show edges'}</TooltipContent>
+              <TooltipContent>{showEdges ? "Hide edges" : "Show edges"}</TooltipContent>
             </Tooltip>
           </div>
         </div>
@@ -659,7 +674,9 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                     Auto
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{eraMode === "auto" ? "Auto (follow selected layer)" : "Manual era"}</TooltipContent>
+                <TooltipContent>
+                  {eraMode === "auto" ? "Auto (follow selected layer)" : "Manual era"}
+                </TooltipContent>
               </Tooltip>
             </div>
             <input
@@ -686,13 +703,17 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
             <select
               value={selectedVariant}
               onChange={(e) => onSelectedVariantChange(e.target.value)}
-              className="h-8 rounded px-2 text-data bg-input-background border border-input text-foreground">
+              className="h-8 rounded px-2 text-data bg-input-background border border-input text-foreground"
+            >
               {variantOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
             <span className={`text-label ${textMuted}`}>
-              Semantic slices like <span className="text-muted-foreground">era:2</span>, not styling.
+              Semantic slices like <span className="text-muted-foreground">era:2</span>, not
+              styling.
             </span>
           </label>
         ) : null}
@@ -703,9 +724,12 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
             <select
               value={selectedOverlay}
               onChange={(e) => onSelectedOverlayChange(e.target.value)}
-              className="h-8 rounded px-2 text-data bg-input-background border border-input text-foreground">
+              className="h-8 rounded px-2 text-data bg-input-background border border-input text-foreground"
+            >
               {overlayOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
             {selectedOverlay ? (
@@ -729,6 +753,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           </label>
         ) : null}
       </div>
-    </div>);
-
+    </div>
+  );
 };

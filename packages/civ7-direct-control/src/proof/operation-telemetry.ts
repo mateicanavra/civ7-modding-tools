@@ -39,7 +39,7 @@ const CIV7_OPERATION_LIVE_PROOF_CLASSES = new Set<Civ7OperationProofClass>([
   "in-game-observation",
 ]);
 
-export type Civ7OperationProofTelemetrySlot = typeof CIV7_OPERATION_PROOF_TELEMETRY_SLOTS[number];
+export type Civ7OperationProofTelemetrySlot = (typeof CIV7_OPERATION_PROOF_TELEMETRY_SLOTS)[number];
 
 export type Civ7OperationProofClass =
   | "local-package-test"
@@ -71,7 +71,12 @@ export type Civ7OperationTelemetryPlayerScope =
 export type Civ7OperationTelemetryEvidence<T = unknown> = Readonly<{
   evidenceClass: Civ7OperationProofClass;
   source: string;
-  freshness?: "fixture" | "read-before-send" | "read-after-send" | "runtime-observation" | "unknown";
+  freshness?:
+    | "fixture"
+    | "read-before-send"
+    | "read-after-send"
+    | "runtime-observation"
+    | "unknown";
   value: T;
 }>;
 
@@ -225,7 +230,7 @@ export function createCiv7OperationProofTelemetryRecord(
 
 export function projectCiv7OperationProofTelemetry(
   record: Civ7OperationProofTelemetryRecord,
-  consumer: Civ7OperationTelemetryProjectionConsumer,
+  consumer: Civ7OperationTelemetryProjectionConsumer
 ): Civ7OperationTelemetryProjection {
   switch (consumer) {
     case "normal-cli-player-agent":
@@ -254,14 +259,16 @@ export function projectCiv7OperationProofTelemetry(
         consumer,
         surface: "blocked-until-ai-ingestion-contract",
         allowed: false,
-        reason: "AI ingestion must use its accepted machine contract, not normal CLI or raw debug telemetry output.",
+        reason:
+          "AI ingestion must use its accepted machine contract, not normal CLI or raw debug telemetry output.",
       };
     case "procedure-core-middleware":
       return {
         consumer,
         surface: "blocked-until-procedure-middleware",
         allowed: false,
-        reason: "Procedure cores may attach telemetry only after the procedure middleware contract owns schema, context, and projection policy.",
+        reason:
+          "Procedure cores may attach telemetry only after the procedure middleware contract owns schema, context, and projection policy.",
       };
   }
 }
@@ -284,13 +291,19 @@ export function summarizeCiv7OperationProofTelemetry(
   };
 }
 
-function summarizeStatus(record: Civ7OperationProofTelemetryRecord): Civ7OperationProofTelemetrySummary["status"] {
+function summarizeStatus(
+  record: Civ7OperationProofTelemetryRecord
+): Civ7OperationProofTelemetrySummary["status"] {
   if (hasValidationBlocked(record.validation_pre)) return "validation-blocked";
   if (record.send_receipt.status !== "sent") return "not-sent";
-  if (record.evidencePolicy.proofBoundary === "pending-runtime-proof") return "pending-runtime-proof";
+  if (record.evidencePolicy.proofBoundary === "pending-runtime-proof")
+    return "pending-runtime-proof";
   if (!record.postcondition) return "sent-unverified";
   if (record.postcondition.confidence !== "confirmed") return "sent-unverified";
-  if (record.postcondition.outcome === "cleared" || record.postcondition.outcome === "state-changed") {
+  if (
+    record.postcondition.outcome === "cleared" ||
+    record.postcondition.outcome === "state-changed"
+  ) {
     return "sent-confirmed";
   }
   return "sent-unverified";
@@ -317,7 +330,9 @@ function normalizePostcondition(
   return { classification, reason, outcome, noRepeatAfterUnverified, confidence };
 }
 
-function uniqueProofClasses(values: readonly Civ7OperationProofClass[]): readonly Civ7OperationProofClass[] {
+function uniqueProofClasses(
+  values: readonly Civ7OperationProofClass[]
+): readonly Civ7OperationProofClass[] {
   return Array.from(new Set(values));
 }
 
@@ -360,7 +375,7 @@ function collectLiveProofLabels(
 
 function collectProofClass(
   labels: Civ7OperationProofClass[],
-  proofClass: Civ7OperationProofClass | undefined,
+  proofClass: Civ7OperationProofClass | undefined
 ): void {
   if (proofClass && CIV7_OPERATION_LIVE_PROOF_CLASSES.has(proofClass)) {
     labels.push(proofClass);

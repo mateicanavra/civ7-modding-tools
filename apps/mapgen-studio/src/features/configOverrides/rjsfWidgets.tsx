@@ -1,13 +1,7 @@
 import type { WidgetProps, RJSFSchema } from "@rjsf/utils";
 
 import { Checkbox, Input, Switch, Textarea } from "../../components/ui";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../components/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui";
 import type { BrowserConfigFormContext } from "./rjsfTemplates";
 
 type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormContext>;
@@ -25,10 +19,7 @@ type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormConte
 // the real empty selection on change.
 const SELECT_EMPTY_SENTINEL = "__rjsf-select-empty__";
 
-function normalizeEmptyValue(
-  next: string,
-  emptyValue: unknown
-): string | unknown {
+function normalizeEmptyValue(next: string, emptyValue: unknown): string | unknown {
   return next === "" ? emptyValue : next;
 }
 
@@ -82,8 +73,20 @@ export function TextWidget(props: ConfigWidgetProps) {
 }
 
 export function TextareaWidget(props: ConfigWidgetProps) {
-  const { id, name, autoComplete, value, required, disabled, readonly, autofocus, onChange, options, placeholder, rawErrors } =
-    props;
+  const {
+    id,
+    name,
+    autoComplete,
+    value,
+    required,
+    disabled,
+    readonly,
+    autofocus,
+    onChange,
+    options,
+    placeholder,
+    rawErrors,
+  } = props;
   return (
     <Textarea
       id={id}
@@ -104,8 +107,20 @@ export function TextareaWidget(props: ConfigWidgetProps) {
 }
 
 export function NumberWidget(props: ConfigWidgetProps) {
-  const { id, name, autoComplete, value, required, disabled, readonly, autofocus, onChange, options, placeholder, rawErrors } =
-    props;
+  const {
+    id,
+    name,
+    autoComplete,
+    value,
+    required,
+    disabled,
+    readonly,
+    autofocus,
+    onChange,
+    options,
+    placeholder,
+    rawErrors,
+  } = props;
   return (
     <Input
       id={id}

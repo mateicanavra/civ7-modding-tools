@@ -11,12 +11,16 @@ const ScoreAtollContract = defineOp({
     bathymetry: TypedArraySchemas.i16({
       description: "Bathymetry in meters (0 on land; <=0 in water; more negative is deeper).",
     }),
-    shelfMask: TypedArraySchemas.u8({ description: "Mask (1/0): water tile is on shallow shelf or bank." }),
+    shelfMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): water tile is on shallow shelf or bank.",
+    }),
     openOceanMask: TypedArraySchemas.u8({
       description:
         "Mask (1/0): downstream engine surface treats this water tile as open ocean rather than coast/shelf.",
     }),
-    coastalWater: TypedArraySchemas.u8({ description: "Mask (1/0): water tile is adjacent to existing land." }),
+    coastalWater: TypedArraySchemas.u8({
+      description: "Mask (1/0): water tile is adjacent to existing land.",
+    }),
     distanceToCoast: TypedArraySchemas.u16({ description: "Tile distance from nearest coast." }),
   }),
   output: Type.Object({

@@ -14,49 +14,62 @@ import {
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7TunerCommand } from "../../session/execute.js";
 import { boundedInteger, validateIdentifier } from "../../validation.js";
-import {
-  DEFAULT_CIV7_GAMEINFO_LIMIT,
-  HARD_CIV7_GAMEINFO_LIMIT,
-} from "./constants.js";
+import { DEFAULT_CIV7_GAMEINFO_LIMIT, HARD_CIV7_GAMEINFO_LIMIT } from "./constants.js";
 
 const civ7GameInfoIdentifierSchema = Type.String({ pattern: "^[A-Za-z_][A-Za-z0-9_]*$" });
 
-export const Civ7GameInfoRowsInputSchema = Type.Object({
-  table: civ7GameInfoIdentifierSchema,
-  limit: Type.Optional(Type.Integer({ minimum: 1, maximum: HARD_CIV7_GAMEINFO_LIMIT })),
-  offset: Type.Optional(Type.Integer({ minimum: 0, maximum: 1_000_000 })),
-  lookup: Type.Optional(Type.Union([
-    Type.String(),
-    Type.Number(),
-    Type.Array(Type.Union([Type.String(), Type.Number()])),
-  ])),
-  filter: Type.Optional(Type.Object({
-    key: civ7GameInfoIdentifierSchema,
-    equals: Type.Union([Type.String(), Type.Number(), Type.Boolean()]),
-  }, { additionalProperties: false })),
-  includeSchema: Type.Optional(Type.Boolean()),
-  includePrimaryKeys: Type.Optional(Type.Boolean()),
-}, { additionalProperties: false });
+export const Civ7GameInfoRowsInputSchema = Type.Object(
+  {
+    table: civ7GameInfoIdentifierSchema,
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: HARD_CIV7_GAMEINFO_LIMIT })),
+    offset: Type.Optional(Type.Integer({ minimum: 0, maximum: 1_000_000 })),
+    lookup: Type.Optional(
+      Type.Union([
+        Type.String(),
+        Type.Number(),
+        Type.Array(Type.Union([Type.String(), Type.Number()])),
+      ])
+    ),
+    filter: Type.Optional(
+      Type.Object(
+        {
+          key: civ7GameInfoIdentifierSchema,
+          equals: Type.Union([Type.String(), Type.Number(), Type.Boolean()]),
+        },
+        { additionalProperties: false }
+      )
+    ),
+    includeSchema: Type.Optional(Type.Boolean()),
+    includePrimaryKeys: Type.Optional(Type.Boolean()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7GameInfoRowsInput = Readonly<Static<typeof Civ7GameInfoRowsInputSchema>>;
 
-export const Civ7GameInfoRowsResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: Type.Object({
-    id: Type.String(),
-    name: Type.String(),
-  }, { additionalProperties: false }),
-  table: civ7GameInfoIdentifierSchema,
-  source: Type.Literal("GameInfo"),
-  rows: Type.Array(Type.Record(Type.String(), Type.Unknown())),
-  limit: Type.Integer({ minimum: 1, maximum: HARD_CIV7_GAMEINFO_LIMIT }),
-  offset: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
-  total: Civ7RuntimeProbeSchema(Type.Number()),
-  omittedUnknown: Type.Boolean(),
-  schema: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
-  primaryKeys: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
-}, { additionalProperties: false });
+export const Civ7GameInfoRowsResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: Type.Object(
+      {
+        id: Type.String(),
+        name: Type.String(),
+      },
+      { additionalProperties: false }
+    ),
+    table: civ7GameInfoIdentifierSchema,
+    source: Type.Literal("GameInfo"),
+    rows: Type.Array(Type.Record(Type.String(), Type.Unknown())),
+    limit: Type.Integer({ minimum: 1, maximum: HARD_CIV7_GAMEINFO_LIMIT }),
+    offset: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+    total: Civ7RuntimeProbeSchema(Type.Number()),
+    omittedUnknown: Type.Boolean(),
+    schema: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
+    primaryKeys: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7GameInfoRowsResult = Readonly<{
   host: string;
@@ -76,7 +89,9 @@ export type Civ7GameInfoRowsResult = Readonly<{
 export type GameInfoReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   defaultGameInfoLimit: number;
-  executeTunerCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;
+  executeTunerCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
+  ) => Promise<Civ7CommandResult>;
   hardGameInfoLimit: number;
   jsLiteral: (value: unknown) => string;
   parseGameInfoRows: (result: Civ7CommandResult, label: string) => Civ7GameInfoRowsResult;
@@ -87,10 +102,12 @@ export type GameInfoReadDependencies = Readonly<{
 export async function getCiv7GameInfoRows(
   input: Civ7GameInfoRowsInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: GameInfoReadDependencies = defaultGameInfoReadDependencies,
+  dependencies: GameInfoReadDependencies = defaultGameInfoReadDependencies
 ): Promise<Civ7GameInfoRowsResult> {
   const table = dependencies.validateIdentifier(input.table, "GameInfo table");
-  const filterKey = input.filter ? dependencies.validateIdentifier(input.filter.key, "GameInfo filter key") : undefined;
+  const filterKey = input.filter
+    ? dependencies.validateIdentifier(input.filter.key, "GameInfo filter key")
+    : undefined;
   const result = await dependencies.executeTunerCommand({
     ...options,
     command: buildGameInfoRowsCommand(
@@ -102,21 +119,24 @@ export async function getCiv7GameInfoRows(
           input.limit ?? dependencies.defaultGameInfoLimit,
           1,
           dependencies.hardGameInfoLimit,
-          "limit",
+          "limit"
         ),
         offset: dependencies.boundedInteger(input.offset ?? 0, 0, 1_000_000, "offset"),
       },
-      dependencies,
+      dependencies
     ),
   });
   return dependencies.parseGameInfoRows(result, "Civ7 GameInfo rows");
 }
 
-function buildGameInfoRowsCommand(input: Civ7GameInfoRowsInput & {
-  table: string;
-  limit: number;
-  offset: number;
-}, dependencies: GameInfoReadDependencies): string {
+function buildGameInfoRowsCommand(
+  input: Civ7GameInfoRowsInput & {
+    table: string;
+    limit: number;
+    offset: number;
+  },
+  dependencies: GameInfoReadDependencies
+): string {
   return `(() => {
     ${dependencies.probeHelperSource()}
     const input = ${dependencies.jsLiteral(input)};

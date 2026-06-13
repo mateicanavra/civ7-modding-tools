@@ -77,7 +77,7 @@ describe("population placement proof policy", () => {
           sent: classification !== "not-sent",
           populationPostcondition: populationPostcondition(classification),
         }),
-        undefined,
+        undefined
       );
 
       expect(populationPlacementRequestVerified(classification)).toBe(requestVerified);
@@ -98,17 +98,27 @@ describe("population placement proof policy", () => {
   });
 
   test("omits postconditions for no-send population requests without postcondition evidence", () => {
-    expect(populationPlacementProofPostcondition(operationRequestResult({
-      sent: false,
-      populationPostcondition: undefined,
-    }), undefined)).toBeUndefined();
+    expect(
+      populationPlacementProofPostcondition(
+        operationRequestResult({
+          sent: false,
+          populationPostcondition: undefined,
+        }),
+        undefined
+      )
+    ).toBeUndefined();
   });
 
   test("keeps sent population placement without postcondition evidence no-repeat guarded", () => {
-    expect(populationPlacementProofPostcondition(operationRequestResult({
-      sent: true,
-      populationPostcondition: undefined,
-    }), undefined)).toMatchObject({
+    expect(
+      populationPlacementProofPostcondition(
+        operationRequestResult({
+          sent: true,
+          populationPostcondition: undefined,
+        }),
+        undefined
+      )
+    ).toMatchObject({
       classification: "missing-postcondition",
       outcome: "unknown",
       confidence: "unverified",
@@ -117,10 +127,15 @@ describe("population placement proof policy", () => {
   });
 
   test("keeps pending runtime proof no-repeat guarded even for cleared population readiness", () => {
-    expect(populationPlacementProofPostcondition(operationRequestResult({
-      sent: true,
-      populationPostcondition: populationPostcondition("population-ready-cleared"),
-    }), "pending-runtime-proof")).toMatchObject({
+    expect(
+      populationPlacementProofPostcondition(
+        operationRequestResult({
+          sent: true,
+          populationPostcondition: populationPostcondition("population-ready-cleared"),
+        }),
+        "pending-runtime-proof"
+      )
+    ).toMatchObject({
       classification: "population-ready-cleared",
       outcome: "unknown",
       confidence: "pending-runtime-proof",
@@ -130,7 +145,7 @@ describe("population placement proof policy", () => {
 });
 
 function operationRequestResult(
-  overrides: Partial<Civ7OperationRequestResult>,
+  overrides: Partial<Civ7OperationRequestResult>
 ): Civ7OperationRequestResult {
   return {
     sent: true,
@@ -142,7 +157,7 @@ function operationRequestResult(
 }
 
 function populationPostcondition(
-  classification: Civ7PopulationPlacementPostconditionClassification,
+  classification: Civ7PopulationPlacementPostconditionClassification
 ): Civ7PopulationPlacementPostcondition {
   return {
     family: "player-operation",

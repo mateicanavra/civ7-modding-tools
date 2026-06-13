@@ -4,14 +4,21 @@ import type { FoundationTectonicSegments } from "../../compute-tectonic-segments
 import type { TectonicEventRecord } from "../../../lib/tectonics/internal-contract.js";
 
 import { BOUNDARY_TYPE } from "../../../constants.js";
-import { requireCrust as requireCrustInput, requireMesh as requireMeshInput } from "../../../lib/require.js";
+import {
+  requireCrust as requireCrustInput,
+  requireMesh as requireMeshInput,
+} from "../../../lib/require.js";
 import { EVENT_TYPE } from "../../../lib/tectonics/constants.js";
 
-export function requireMesh(...args: Parameters<typeof requireMeshInput>): ReturnType<typeof requireMeshInput> {
+export function requireMesh(
+  ...args: Parameters<typeof requireMeshInput>
+): ReturnType<typeof requireMeshInput> {
   return requireMeshInput(...args);
 }
 
-export function requireCrust(...args: Parameters<typeof requireCrustInput>): ReturnType<typeof requireCrustInput> {
+export function requireCrust(
+  ...args: Parameters<typeof requireCrustInput>
+): ReturnType<typeof requireCrustInput> {
   return requireCrustInput(...args);
 }
 
@@ -70,7 +77,10 @@ export function buildBoundaryEventsFromSegments(params: {
     let originPlateId = -1;
     if (eventType === EVENT_TYPE.convergenceSubduction) {
       originPlateId = polarity < 0 ? plateB : polarity > 0 ? plateA : -1;
-    } else if (eventType === EVENT_TYPE.divergenceRift || eventType === EVENT_TYPE.convergenceCollision) {
+    } else if (
+      eventType === EVENT_TYPE.divergenceRift ||
+      eventType === EVENT_TYPE.convergenceCollision
+    ) {
       originPlateId = Math.min(plateA, plateB);
     }
 

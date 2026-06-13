@@ -43,9 +43,11 @@ const CATEGORY_PALETTE: ReadonlyArray<[number, number, number, number]> = [
 
 /** Deterministic categorical color for an index (cycles a fixed palette). */
 export function placementCategoryColor(index: number): [number, number, number, number] {
-  return CATEGORY_PALETTE[((index % CATEGORY_PALETTE.length) + CATEGORY_PALETTE.length) % CATEGORY_PALETTE.length] ?? [
-    148, 163, 184, 220,
-  ];
+  return (
+    CATEGORY_PALETTE[
+      ((index % CATEGORY_PALETTE.length) + CATEGORY_PALETTE.length) % CATEGORY_PALETTE.length
+    ] ?? [148, 163, 184, 220]
+  );
 }
 
 /** Human label for an official RESOURCE_* symbol (policy-table identity). */

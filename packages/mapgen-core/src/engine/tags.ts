@@ -76,7 +76,10 @@ export class TagRegistry<TContext = EngineContext> {
   }
 }
 
-export function validateDependencyTag<TContext>(tag: string, registry: TagRegistry<TContext>): void {
+export function validateDependencyTag<TContext>(
+  tag: string,
+  registry: TagRegistry<TContext>
+): void {
   registry.validateTag(tag);
 }
 

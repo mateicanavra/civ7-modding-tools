@@ -33,7 +33,10 @@ export function listEraVariants(variants: readonly LayerVariant[]): EraVariantSu
   return out.sort((a, b) => a.era - b.era);
 }
 
-export function snapEraToAvailable(variants: readonly LayerVariant[], requestedEra: number): number | null {
+export function snapEraToAvailable(
+  variants: readonly LayerVariant[],
+  requestedEra: number
+): number | null {
   if (!Number.isFinite(requestedEra) || requestedEra <= 0) return null;
   const eraVariants = listEraVariants(variants);
   if (!eraVariants.length) return null;
@@ -61,7 +64,10 @@ export function findVariantIdForEra(variants: readonly LayerVariant[], era: numb
   return null;
 }
 
-export function findVariantKeyForEra(variants: readonly LayerVariant[], era: number): string | null {
+export function findVariantKeyForEra(
+  variants: readonly LayerVariant[],
+  era: number
+): string | null {
   const snappedEra = snapEraToAvailable(variants, era);
   if (snappedEra == null) return null;
   for (const variant of variants) {

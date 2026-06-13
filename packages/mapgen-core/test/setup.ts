@@ -41,8 +41,8 @@ mock.module("/base-standard/scripts/kd-tree.js", () => ({
       for (let id = 0; id < count; id++) {
         const seed1 = (id * 1664525 + 1013904223) >>> 0;
         const seed2 = (seed1 * 1664525 + 1013904223) >>> 0;
-        const x = (seed1 % 10000) / 10000 * width;
-        const y = (seed2 % 10000) / 10000 * height;
+        const x = ((seed1 % 10000) / 10000) * width;
+        const y = ((seed2 % 10000) / 10000) * height;
         sites.push({ x, y, voronoiId: id });
       }
       return sites;
@@ -162,31 +162,141 @@ mock.module("/base-standard/scripts/kd-tree.js", () => ({
     length: 5,
     [Symbol.iterator]: function* () {},
   },
-  Terrains: { find: () => null, lookup: () => null, length: 10, [Symbol.iterator]: function* () {} },
+  Terrains: {
+    find: () => null,
+    lookup: () => null,
+    length: 10,
+    [Symbol.iterator]: function* () {},
+  },
   Biomes: { find: () => null, lookup: () => null, length: 8, [Symbol.iterator]: function* () {} },
-  Features: { find: () => null, lookup: () => null, length: 20, [Symbol.iterator]: function* () {} },
-  Resources: { find: () => null, lookup: () => null, length: 30, [Symbol.iterator]: function* () {} },
+  Features: {
+    find: () => null,
+    lookup: () => null,
+    length: 20,
+    [Symbol.iterator]: function* () {},
+  },
+  Resources: {
+    find: () => null,
+    lookup: () => null,
+    length: 30,
+    [Symbol.iterator]: function* () {},
+  },
   Ages: { find: () => null, lookup: () => null, length: 3, [Symbol.iterator]: function* () {} },
-  Civilizations: { find: () => null, lookup: () => null, length: 10, [Symbol.iterator]: function* () {} },
+  Civilizations: {
+    find: () => null,
+    lookup: () => null,
+    length: 10,
+    [Symbol.iterator]: function* () {},
+  },
   Leaders: { find: () => null, lookup: () => null, length: 10, [Symbol.iterator]: function* () {} },
-  FeatureClasses: { find: () => null, lookup: () => null, length: 5, [Symbol.iterator]: function* () {} },
-  Feature_NaturalWonders: { find: () => null, lookup: () => null, length: 10, [Symbol.iterator]: function* () {} },
-  StartBiasBiomes: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  StartBiasTerrains: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  StartBiasRivers: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  StartBiasLakes: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  StartBiasAdjacentToCoasts: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  StartBiasFeatureClasses: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  StartBiasNaturalWonders: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  StartBiasResources: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  Resource_Distribution: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  MapResourceMinimumAmountModifier: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  MapIslandBehavior: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  DiscoverySiftingImprovements: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  GlobalParameters: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  AdvancedStartParameters: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  NarrativeStories: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
-  Unit_ShadowReplacements: { find: () => null, lookup: () => null, length: 0, [Symbol.iterator]: function* () {} },
+  FeatureClasses: {
+    find: () => null,
+    lookup: () => null,
+    length: 5,
+    [Symbol.iterator]: function* () {},
+  },
+  Feature_NaturalWonders: {
+    find: () => null,
+    lookup: () => null,
+    length: 10,
+    [Symbol.iterator]: function* () {},
+  },
+  StartBiasBiomes: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  StartBiasTerrains: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  StartBiasRivers: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  StartBiasLakes: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  StartBiasAdjacentToCoasts: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  StartBiasFeatureClasses: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  StartBiasNaturalWonders: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  StartBiasResources: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  Resource_Distribution: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  MapResourceMinimumAmountModifier: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  MapIslandBehavior: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  DiscoverySiftingImprovements: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  GlobalParameters: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  AdvancedStartParameters: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  NarrativeStories: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
+  Unit_ShadowReplacements: {
+    find: () => null,
+    lookup: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  },
 };
 
 // Mock Configuration

@@ -8,9 +8,7 @@ import {
   civ7ControlOrpcErrorCorrelationData,
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
-import {
-  civ7CloseoutMutationProjection,
-} from "../../../policy/mutation-result";
+import { civ7CloseoutMutationProjection } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7CityTownFocusChangeInput,
@@ -19,89 +17,75 @@ import type {
   Civ7CityTownFocusReviewResult,
 } from "../contract";
 
-type TownFocusSource =
-  | "city.townFocus.change.request"
-  | "city.townFocus.review.request";
+type TownFocusSource = "city.townFocus.change.request" | "city.townFocus.review.request";
 
-type TownFocusResult =
-  | Civ7CityTownFocusChangeResult
-  | Civ7CityTownFocusReviewResult;
+type TownFocusResult = Civ7CityTownFocusChangeResult | Civ7CityTownFocusReviewResult;
 type TownFocusRuntimeResult = Awaited<
   ReturnType<Civ7ControlOrpcDirectControlFacade["requestCiv7TownFocusChange"]>
 >;
 
-export const cityTownFocusChangeRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.city.townFocus.change.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    const source = "city.townFocus.change.request";
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const result = await context.directControl.requestCiv7TownFocusChange(
-          input,
-          context.endpointDefaults,
-        );
-        return townFocusResult(source, input, result);
-      },
-      catch: (cause) =>
-        errors.TOWN_FOCUS_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: source,
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const cityTownFocusChangeRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.city.townFocus.change.request
+).effect(function* ({ context, errors, input }) {
+  const source = "city.townFocus.change.request";
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const result = await context.directControl.requestCiv7TownFocusChange(
+        input,
+        context.endpointDefaults
+      );
+      return townFocusResult(source, input, result);
+    },
+    catch: (cause) =>
+      errors.TOWN_FOCUS_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: source,
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-export const cityTownFocusReviewRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.city.townFocus.review.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    const source = "city.townFocus.review.request";
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const result = await context.directControl.requestCiv7TownFocusReviewCloseout(
-          input,
-          context.endpointDefaults,
-        );
-        return townFocusResult(source, input, result);
-      },
-      catch: (cause) =>
-        errors.TOWN_FOCUS_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: source,
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const cityTownFocusReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.city.townFocus.review.request
+).effect(function* ({ context, errors, input }) {
+  const source = "city.townFocus.review.request";
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const result = await context.directControl.requestCiv7TownFocusReviewCloseout(
+        input,
+        context.endpointDefaults
+      );
+      return townFocusResult(source, input, result);
+    },
+    catch: (cause) =>
+      errors.TOWN_FOCUS_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: source,
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
 function townFocusResult(
   source: "city.townFocus.change.request",
   input: Civ7CityTownFocusChangeInput,
-  result: TownFocusRuntimeResult,
+  result: TownFocusRuntimeResult
 ): Civ7CityTownFocusChangeResult;
 function townFocusResult(
   source: "city.townFocus.review.request",
   input: Civ7CityTownFocusReviewInput,
-  result: TownFocusRuntimeResult,
+  result: TownFocusRuntimeResult
 ): Civ7CityTownFocusReviewResult;
 function townFocusResult(
   source: TownFocusSource,
   input: Civ7CityTownFocusChangeInput | Civ7CityTownFocusReviewInput,
-  result: TownFocusRuntimeResult,
+  result: TownFocusRuntimeResult
 ): TownFocusResult {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
@@ -113,8 +97,10 @@ function townFocusResult(
     },
     source,
     inspectKind: "inspect-town-focus",
-    inspectLabel: "Inspect current ready-city town focus evidence before attempting another town focus request.",
-    doNotRepeatLabel: "Do not repeat this town focus request until fresh city readiness evidence is read.",
+    inspectLabel:
+      "Inspect current ready-city town focus evidence before attempting another town focus request.",
+    doNotRepeatLabel:
+      "Do not repeat this town focus request until fresh city readiness evidence is read.",
   });
 
   const base = {
@@ -130,9 +116,9 @@ function townFocusResult(
   };
 
   if (
-    source === "city.townFocus.change.request"
-    && result.kind === "town-focus-change"
-    && "growthType" in input
+    source === "city.townFocus.change.request" &&
+    result.kind === "town-focus-change" &&
+    "growthType" in input
   ) {
     return {
       ...base,

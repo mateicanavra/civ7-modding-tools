@@ -25,9 +25,11 @@ function commandResult(payload: unknown): Civ7CommandResult {
   };
 }
 
-function fakeDependencies(
-  payloads: ReadonlyArray<unknown>,
-): { dependencies: DisplayQueueDependencies; commands: string[]; slept: number[] } {
+function fakeDependencies(payloads: ReadonlyArray<unknown>): {
+  dependencies: DisplayQueueDependencies;
+  commands: string[];
+  slept: number[];
+} {
   const commands: string[] = [];
   const slept: number[] = [];
   const queue = [...payloads];
@@ -39,7 +41,7 @@ function fakeDependencies(
       return commandResult(payload);
     },
     jsLiteral,
-    parsePayload: <T,>(result: Civ7CommandResult) => JSON.parse(result.output[0] ?? "{}") as T,
+    parsePayload: <T>(result: Civ7CommandResult) => JSON.parse(result.output[0] ?? "{}") as T,
     sleep: async (ms) => {
       slept.push(ms);
     },
@@ -62,7 +64,7 @@ describe("display queue primitives", () => {
       expect(command).not.toContain(".click(");
     }
     expect(buildDisplayQueueBridgeCommand()).toContain(
-      "/core/ui/context-manager/display-queue-manager.js",
+      "/core/ui/context-manager/display-queue-manager.js"
     );
     expect(buildCloseDisplaysCommand(null, { jsLiteral })).toContain("closeMatching");
     expect(buildDisplayQueueHoldCommand("suspend")).toContain("dqm.suspend()");
@@ -84,7 +86,7 @@ describe("display queue primitives", () => {
   test("ensure bridge fails loudly when the import never resolves", async () => {
     const { dependencies } = fakeDependencies(Array(10).fill({ ready: false }));
     await expect(ensureCiv7DisplayQueueBridge({}, dependencies)).rejects.toThrow(
-      /bridge never became ready/,
+      /bridge never became ready/
     );
   });
 

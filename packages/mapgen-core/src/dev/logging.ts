@@ -13,10 +13,7 @@ type TraceEventPayload = {
   [key: string]: unknown;
 };
 
-function emitTrace(
-  trace: TraceScope | null | undefined,
-  payload: TraceEventPayload
-): void {
+function emitTrace(trace: TraceScope | null | undefined, payload: TraceEventPayload): void {
   if (!trace?.isVerbose) return;
   trace.event(() => payload);
 }

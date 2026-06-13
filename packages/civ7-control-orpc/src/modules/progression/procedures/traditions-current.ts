@@ -6,10 +6,7 @@ import {
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
-import type {
-  Civ7ProgressionTraditionsInput,
-  Civ7ProgressionTraditionsResult,
-} from "../contract";
+import type { Civ7ProgressionTraditionsInput, Civ7ProgressionTraditionsResult } from "../contract";
 
 export const progressionTraditionsCurrentProcedure =
   civ7ControlOrpcImplementer.progression.traditions.current.effect(function* ({
@@ -21,7 +18,7 @@ export const progressionTraditionsCurrentProcedure =
       try: async () => {
         const traditions = await context.directControl.getCiv7TraditionsView(
           input,
-          context.endpointDefaults,
+          context.endpointDefaults
         );
         return progressionTraditionsResult(input, traditions);
       },
@@ -39,7 +36,7 @@ export const progressionTraditionsCurrentProcedure =
 
 function progressionTraditionsResult(
   _input: Civ7ProgressionTraditionsInput,
-  view: Civ7ControlOrpcTraditionsViewResult,
+  view: Civ7ControlOrpcTraditionsViewResult
 ): Civ7ProgressionTraditionsResult {
   const active = view.active.map(traditionRow);
   const available = view.available.map(traditionRow);
@@ -59,10 +56,10 @@ function progressionTraditionsResult(
       recentUnlockCount: recentUnlocks.length,
       openSlotCount: view.slots.open,
       enabledAvailableCount: available.filter((tradition) =>
-        tradition.actions.some((action) => action.validationSuccess === true),
+        tradition.actions.some((action) => action.validationSuccess === true)
       ).length,
-      disabledAvailableCount: available.filter((tradition) =>
-        !tradition.actions.some((action) => action.validationSuccess === true),
+      disabledAvailableCount: available.filter(
+        (tradition) => !tradition.actions.some((action) => action.validationSuccess === true)
       ).length,
       nextStepCount: nextSteps.length,
     },
@@ -79,7 +76,8 @@ function progressionTraditionsResult(
     omitted: [
       {
         path: "presentation.commandSuggestions",
-        reason: "Command-string suggestions are caller presentation, not progression service output.",
+        reason:
+          "Command-string suggestions are caller presentation, not progression service output.",
       },
       {
         path: "presentation.actionDirections",
@@ -87,7 +85,8 @@ function progressionTraditionsResult(
       },
       {
         path: "runtime.validationProbe",
-        reason: "Validation probe details remain low-level runtime evidence; service rows expose validationSuccess.",
+        reason:
+          "Validation probe details remain low-level runtime evidence; service rows expose validationSuccess.",
       },
     ],
     notes: [
@@ -99,7 +98,7 @@ function progressionTraditionsResult(
 }
 
 function traditionRow(
-  tradition: Civ7ControlOrpcTraditionsViewResult["traditions"][number],
+  tradition: Civ7ControlOrpcTraditionsViewResult["traditions"][number]
 ): Civ7ProgressionTraditionsResult["traditions"][number] {
   return {
     id: tradition.id,
@@ -148,29 +147,36 @@ function traditionRow(
 function traditionsNextSteps(
   view: Civ7ControlOrpcTraditionsViewResult,
   available: Civ7ProgressionTraditionsResult["available"],
-  active: Civ7ProgressionTraditionsResult["active"],
+  active: Civ7ProgressionTraditionsResult["active"]
 ): Civ7ProgressionTraditionsResult["nextSteps"] {
   if (available.some((tradition) => tradition.actions.length > 0)) {
-    return [{
-      kind: "inspect-tradition-change",
-      source: "progression.traditions.current",
-      label: "Inspect available tradition action descriptors before requesting a tradition change.",
-    }];
+    return [
+      {
+        kind: "inspect-tradition-change",
+        source: "progression.traditions.current",
+        label:
+          "Inspect available tradition action descriptors before requesting a tradition change.",
+      },
+    ];
   }
 
   if (view.slots.open === 0 && active.some((tradition) => tradition.actions.length > 0)) {
-    return [{
-      kind: "free-policy-slot",
-      source: "progression.traditions.current",
-      label: "If a policy slot is full, inspect active traditions before deactivating one.",
-    }];
+    return [
+      {
+        kind: "free-policy-slot",
+        source: "progression.traditions.current",
+        label: "If a policy slot is full, inspect active traditions before deactivating one.",
+      },
+    ];
   }
 
-  return [{
-    kind: "observe",
-    source: "progression.traditions.current",
-    label: "Observe current attention before selecting a progression follow-up.",
-  }];
+  return [
+    {
+      kind: "observe",
+      source: "progression.traditions.current",
+      label: "Observe current attention before selecting a progression follow-up.",
+    },
+  ];
 }
 
 function validationSuccess(validation: unknown): boolean | null {

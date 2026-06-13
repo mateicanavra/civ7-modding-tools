@@ -60,20 +60,32 @@ type FeaturePolicy = Readonly<{
   naturalWonderDirection?: number;
 }>;
 
-const FEATURE_VALID_TERRAIN_TYPE_INDICES = CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as
-  Record<string, readonly number[] | undefined>;
+const FEATURE_VALID_TERRAIN_TYPE_INDICES =
+  CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as Record<
+    string,
+    readonly number[] | undefined
+  >;
 
-const FEATURE_VALID_BIOME_TYPE_INDICES = CIV7_BROWSER_TABLES_V0.featureValidBiomeTypeIndices as
-  Record<string, readonly number[] | undefined>;
+const FEATURE_VALID_BIOME_TYPE_INDICES =
+  CIV7_BROWSER_TABLES_V0.featureValidBiomeTypeIndices as Record<
+    string,
+    readonly number[] | undefined
+  >;
 
-const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as
-  Record<string, FeaturePolicy | undefined>;
+const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
+  string,
+  FeaturePolicy | undefined
+>;
 
-const FEATURE_TAGS_BY_FEATURE_TYPE = CIV7_BROWSER_TABLES_V0.featureTagsByFeatureType as
-  Record<string, readonly string[] | undefined>;
+const FEATURE_TAGS_BY_FEATURE_TYPE = CIV7_BROWSER_TABLES_V0.featureTagsByFeatureType as Record<
+  string,
+  readonly string[] | undefined
+>;
 
-const RESOURCE_VALID_PLACEMENT_ROWS = CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows as
-  Record<string, readonly ResourceValidPlacementRow[] | undefined>;
+const RESOURCE_VALID_PLACEMENT_ROWS = CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows as Record<
+  string,
+  readonly ResourceValidPlacementRow[] | undefined
+>;
 
 const RESOURCE_PLACEMENT_FLAGS = CIV7_BROWSER_TABLES_V0.resourcePlacementFlags as Record<
   string,
@@ -87,7 +99,7 @@ const MOCK_RIVER_NAVIGABLE = RIVER_TYPE_NAVIGABLE;
 const hashMockRngLabel = (label: string): number => {
   let hash = 5381;
   for (let i = 0; i < label.length; i++) {
-    hash = (hash << 5) + hash ^ label.charCodeAt(i);
+    hash = ((hash << 5) + hash) ^ label.charCodeAt(i);
   }
   return hash | 0;
 };
@@ -847,9 +859,7 @@ export class MockAdapter implements EngineAdapter {
   getResourceCatalog(): ResourceCatalogEntry[] {
     // Mock runtime catalog: served from the static policy tables so telemetry
     // enrichment behaves the same offline as against GameInfo.Resources.
-    return Object.entries(
-      CIV7_BROWSER_TABLES_V0.resourceTypes as Record<string, number>
-    )
+    return Object.entries(CIV7_BROWSER_TABLES_V0.resourceTypes as Record<string, number>)
       .map(([resourceType, index]) => ({
         index: index | 0,
         resourceType,
@@ -1242,7 +1252,12 @@ export class MockAdapter implements EngineAdapter {
         if (!isWithinStandardCoastExpansionBand(x, resolvedWidth)) continue;
         const idx = this.idx(x, y);
         if ((this.terrainTypes[idx] | 0) !== this.oceanTerrainId) continue;
-        const adjacentCoastRegionId = this.adjacentCoastRegionId(x, y, resolvedWidth, resolvedHeight);
+        const adjacentCoastRegionId = this.adjacentCoastRegionId(
+          x,
+          y,
+          resolvedWidth,
+          resolvedHeight
+        );
         if (adjacentCoastRegionId === null) continue;
         if (this.rngFn(4, "Shallow Water Scatter") !== 0) continue;
         this.terrainTypes[idx] = coastTerrain & 0xff;

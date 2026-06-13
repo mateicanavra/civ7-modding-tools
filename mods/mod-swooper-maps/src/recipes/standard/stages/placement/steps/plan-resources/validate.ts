@@ -49,16 +49,22 @@ export function validateResourceDemandPlanArtifact(value: unknown): ValidationIs
     const maxCount = Number(row.maxCount);
     const targetCount = Number(row.targetCount);
     if (minCount > maxCount) {
-      issues.push(issue(`Demand ${String(row.resourceType)} minCount ${minCount} > maxCount ${maxCount}.`));
+      issues.push(
+        issue(`Demand ${String(row.resourceType)} minCount ${minCount} > maxCount ${maxCount}.`)
+      );
     }
     if (targetCount > maxCount) {
       issues.push(
-        issue(`Demand ${String(row.resourceType)} targetCount ${targetCount} > maxCount ${maxCount}.`)
+        issue(
+          `Demand ${String(row.resourceType)} targetCount ${targetCount} > maxCount ${maxCount}.`
+        )
       );
     }
     if (Number(row.legalTileCount) <= 0) {
       issues.push(
-        issue(`Demand ${String(row.resourceType)} has zero policy-legal tiles; it must be excluded, not planned.`)
+        issue(
+          `Demand ${String(row.resourceType)} has zero policy-legal tiles; it must be excluded, not planned.`
+        )
       );
     }
   }
@@ -72,7 +78,11 @@ export function validateResourceEligibilityArtifact(value: unknown): ValidationI
   const height = Number(value.height);
   const size = width * height;
   if (!Number.isSafeInteger(size) || size <= 0) {
-    return [issue(`resourceEligibility has invalid dimensions ${String(value.width)}x${String(value.height)}.`)];
+    return [
+      issue(
+        `resourceEligibility has invalid dimensions ${String(value.width)}x${String(value.height)}.`
+      ),
+    ];
   }
   const rows = Array.isArray(value.rows) ? value.rows : null;
   if (!rows) return [issue("resourceEligibility.rows must be an array.")];
@@ -83,7 +93,8 @@ export function validateResourceEligibilityArtifact(value: unknown): ValidationI
       continue;
     }
     const type = String(row.resourceType);
-    if (seenTypes.has(type)) issues.push(issue(`resourceEligibility row ${type} appears more than once.`));
+    if (seenTypes.has(type))
+      issues.push(issue(`resourceEligibility row ${type} appears more than once.`));
     seenTypes.add(type);
     for (const field of ["habitatMask", "legalMask", "intensity"] as const) {
       const mask = row[field] as { length?: number } | undefined;
@@ -102,7 +113,9 @@ export function validateResourcePlanArtifact(value: unknown): ValidationIssue[] 
   const height = Number(value.height);
   const size = width * height;
   if (!Number.isSafeInteger(size) || size <= 0) {
-    return [issue(`resourcePlan has invalid dimensions ${String(value.width)}x${String(value.height)}.`)];
+    return [
+      issue(`resourcePlan has invalid dimensions ${String(value.width)}x${String(value.height)}.`),
+    ];
   }
   const intents = Array.isArray(value.intents) ? value.intents : null;
   const perType = Array.isArray(value.perType) ? value.perType : null;
@@ -111,7 +124,9 @@ export function validateResourcePlanArtifact(value: unknown): ValidationIssue[] 
 
   if (value.plannedCount !== intents.length) {
     issues.push(
-      issue(`resourcePlan.plannedCount ${String(value.plannedCount)} != intents.length ${intents.length}.`)
+      issue(
+        `resourcePlan.plannedCount ${String(value.plannedCount)} != intents.length ${intents.length}.`
+      )
     );
   }
 
@@ -121,7 +136,9 @@ export function validateResourcePlanArtifact(value: unknown): ValidationIssue[] 
     if (!isRecord(intent)) continue;
     const plotIndex = Number(intent.plotIndex);
     if (!Number.isInteger(plotIndex) || plotIndex < 0 || plotIndex >= size) {
-      issues.push(issue(`resourcePlan intent plotIndex ${String(intent.plotIndex)} out of bounds.`));
+      issues.push(
+        issue(`resourcePlan intent plotIndex ${String(intent.plotIndex)} out of bounds.`)
+      );
       continue;
     }
     if (seenPlots.has(plotIndex)) {
@@ -138,11 +155,15 @@ export function validateResourcePlanArtifact(value: unknown): ValidationIssue[] 
     const planned = Number(row.plannedCount);
     const observed = countsByType.get(type) ?? 0;
     if (planned !== observed) {
-      issues.push(issue(`resourcePlan perType ${type} plannedCount ${planned} != intent count ${observed}.`));
+      issues.push(
+        issue(`resourcePlan perType ${type} plannedCount ${planned} != intent count ${observed}.`)
+      );
     }
     const maxCount = Number(row.maxCount);
     if (planned > maxCount) {
-      issues.push(issue(`resourcePlan perType ${type} plannedCount ${planned} exceeds maxCount ${maxCount}.`));
+      issues.push(
+        issue(`resourcePlan perType ${type} plannedCount ${planned} exceeds maxCount ${maxCount}.`)
+      );
     }
   }
   return issues;

@@ -19,12 +19,12 @@ export type Civ7GameUiTownFocusTarget = Readonly<{
         cityId: Civ7ControlOrpcComponentId,
         commandType: unknown,
         args: Readonly<Record<string, number>>,
-        queue?: boolean,
+        queue?: boolean
       ) => unknown;
       sendRequest?: (
         cityId: Civ7ControlOrpcComponentId,
         commandType: unknown,
-        args: Readonly<Record<string, number>>,
+        args: Readonly<Record<string, number>>
       ) => unknown;
     };
     CityOperations?: {
@@ -32,12 +32,12 @@ export type Civ7GameUiTownFocusTarget = Readonly<{
         cityId: Civ7ControlOrpcComponentId,
         operationType: unknown,
         args: Readonly<Record<string, number>>,
-        queue?: boolean,
+        queue?: boolean
       ) => unknown;
       sendRequest?: (
         cityId: Civ7ControlOrpcComponentId,
         operationType: unknown,
-        args: Readonly<Record<string, number>>,
+        args: Readonly<Record<string, number>>
       ) => unknown;
     };
   };
@@ -46,15 +46,15 @@ export type Civ7GameUiTownFocusTarget = Readonly<{
   };
 }>;
 
-export function civ7GameUiTownFocusAvailable(
-  target: Civ7GameUiTownFocusTarget,
-): boolean {
-  return typeof target.Game?.CityCommands?.canStart === "function"
-    && typeof target.Game.CityCommands.sendRequest === "function"
-    && target.CityCommandTypes?.CHANGE_GROWTH_MODE !== undefined
-    && typeof target.Game?.CityOperations?.canStart === "function"
-    && typeof target.Game.CityOperations.sendRequest === "function"
-    && target.CityOperationTypes?.CONSIDER_TOWN_PROJECT !== undefined;
+export function civ7GameUiTownFocusAvailable(target: Civ7GameUiTownFocusTarget): boolean {
+  return (
+    typeof target.Game?.CityCommands?.canStart === "function" &&
+    typeof target.Game.CityCommands.sendRequest === "function" &&
+    target.CityCommandTypes?.CHANGE_GROWTH_MODE !== undefined &&
+    typeof target.Game?.CityOperations?.canStart === "function" &&
+    typeof target.Game.CityOperations.sendRequest === "function" &&
+    target.CityOperationTypes?.CONSIDER_TOWN_PROJECT !== undefined
+  );
 }
 
 export async function requestCiv7GameUiTownFocusChange(
@@ -64,7 +64,7 @@ export async function requestCiv7GameUiTownFocusChange(
     projectType: number;
     city?: number;
   }>,
-  target: Civ7GameUiTownFocusTarget = globalThis as Civ7GameUiTownFocusTarget,
+  target: Civ7GameUiTownFocusTarget = globalThis as Civ7GameUiTownFocusTarget
 ): Promise<TownFocusResult> {
   const cityId = toComponentId(input.cityId);
   if (cityId == null) {
@@ -77,9 +77,10 @@ export async function requestCiv7GameUiTownFocusChange(
     City: city,
   };
   const localPlayerId = target.GameContext?.localPlayerID;
-  const before = cityId.owner === localPlayerId
-    ? gameUiTownFocusCityCommandValidation(cityId, args, target)
-    : gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args, "city-command");
+  const before =
+    cityId.owner === localPlayerId
+      ? gameUiTownFocusCityCommandValidation(cityId, args, target)
+      : gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args, "city-command");
 
   if (!before.valid) {
     return townFocusResult({
@@ -96,14 +97,13 @@ export async function requestCiv7GameUiTownFocusChange(
   }
 
   const sendRequest = target.Game?.CityCommands?.sendRequest;
-  const sendResult = typeof sendRequest === "function"
-    ? safeValue(() =>
-      sendRequest(
-      cityId,
-      target.CityCommandTypes?.CHANGE_GROWTH_MODE,
-      args,
-    ), false)
-    : false;
+  const sendResult =
+    typeof sendRequest === "function"
+      ? safeValue(
+          () => sendRequest(cityId, target.CityCommandTypes?.CHANGE_GROWTH_MODE, args),
+          false
+        )
+      : false;
   const sent = sendResult !== false;
   const after = gameUiTownFocusCityCommandValidation(cityId, args, target);
 
@@ -124,7 +124,7 @@ export async function requestCiv7GameUiTownFocusReviewCloseout(
   input: Readonly<{
     cityId: Civ7ControlOrpcComponentId;
   }>,
-  target: Civ7GameUiTownFocusTarget = globalThis as Civ7GameUiTownFocusTarget,
+  target: Civ7GameUiTownFocusTarget = globalThis as Civ7GameUiTownFocusTarget
 ): Promise<TownFocusResult> {
   const cityId = toComponentId(input.cityId);
   if (cityId == null) {
@@ -132,9 +132,10 @@ export async function requestCiv7GameUiTownFocusReviewCloseout(
   }
   const args: Readonly<Record<string, number>> = {};
   const localPlayerId = target.GameContext?.localPlayerID;
-  const before = cityId.owner === localPlayerId
-    ? gameUiTownFocusCityOperationValidation(cityId, args, target)
-    : gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args, "city-operation");
+  const before =
+    cityId.owner === localPlayerId
+      ? gameUiTownFocusCityOperationValidation(cityId, args, target)
+      : gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args, "city-operation");
 
   if (!before.valid) {
     return townFocusResult({
@@ -148,14 +149,13 @@ export async function requestCiv7GameUiTownFocusReviewCloseout(
   }
 
   const sendRequest = target.Game?.CityOperations?.sendRequest;
-  const sendResult = typeof sendRequest === "function"
-    ? safeValue(() =>
-      sendRequest(
-      cityId,
-      target.CityOperationTypes?.CONSIDER_TOWN_PROJECT,
-      args,
-    ), false)
-    : false;
+  const sendResult =
+    typeof sendRequest === "function"
+      ? safeValue(
+          () => sendRequest(cityId, target.CityOperationTypes?.CONSIDER_TOWN_PROJECT, args),
+          false
+        )
+      : false;
   const sent = sendResult !== false;
   const after = gameUiTownFocusCityOperationValidation(cityId, args, target);
 
@@ -172,7 +172,7 @@ export async function requestCiv7GameUiTownFocusReviewCloseout(
 function gameUiTownFocusCityCommandValidation(
   cityId: Civ7ControlOrpcComponentId,
   args: Readonly<Record<string, number>>,
-  target: Civ7GameUiTownFocusTarget,
+  target: Civ7GameUiTownFocusTarget
 ): TownFocusValidation {
   const result = safeValue(
     () =>
@@ -180,9 +180,9 @@ function gameUiTownFocusCityCommandValidation(
         cityId,
         target.CityCommandTypes?.CHANGE_GROWTH_MODE,
         args,
-        false,
+        false
       ),
-    null,
+    null
   );
   return townFocusValidation({
     family: "city-command",
@@ -198,7 +198,7 @@ function gameUiTownFocusCityCommandValidation(
 function gameUiTownFocusCityOperationValidation(
   cityId: Civ7ControlOrpcComponentId,
   args: Readonly<Record<string, number>>,
-  target: Civ7GameUiTownFocusTarget,
+  target: Civ7GameUiTownFocusTarget
 ): TownFocusValidation {
   const result = safeValue(
     () =>
@@ -206,9 +206,9 @@ function gameUiTownFocusCityOperationValidation(
         cityId,
         target.CityOperationTypes?.CONSIDER_TOWN_PROJECT,
         args,
-        false,
+        false
       ),
-    null,
+    null
   );
   return townFocusValidation({
     family: "city-operation",
@@ -225,16 +225,12 @@ function gameUiTownFocusLocalCityMismatch(
   cityId: Civ7ControlOrpcComponentId,
   localPlayerId: number | undefined,
   args: Readonly<Record<string, number>>,
-  family: "city-command" | "city-operation",
+  family: "city-command" | "city-operation"
 ): TownFocusValidation {
   return townFocusValidation({
     family,
-    operationType: family === "city-command"
-      ? "CHANGE_GROWTH_MODE"
-      : "CONSIDER_TOWN_PROJECT",
-    enumValue: family === "city-command"
-      ? "CHANGE_GROWTH_MODE"
-      : "CONSIDER_TOWN_PROJECT",
+    operationType: family === "city-command" ? "CHANGE_GROWTH_MODE" : "CONSIDER_TOWN_PROJECT",
+    enumValue: family === "city-command" ? "CHANGE_GROWTH_MODE" : "CONSIDER_TOWN_PROJECT",
     cityId,
     args,
     valid: false,
@@ -256,7 +252,7 @@ function townFocusValidation(
     args: Readonly<Record<string, number>>;
     valid: boolean;
     result: unknown;
-  }>,
+  }>
 ): TownFocusValidation {
   return {
     host: "game-ui",
@@ -275,25 +271,25 @@ function townFocusValidation(
 function townFocusResult(
   input: Readonly<
     | {
-      kind: "town-focus-change";
-      cityId: Civ7ControlOrpcComponentId;
-      growthType: number;
-      projectType: number;
-      city: number;
-      operationType: "CHANGE_GROWTH_MODE";
-      before: TownFocusValidation;
-      after: TownFocusValidation;
-      sent: boolean;
-    }
+        kind: "town-focus-change";
+        cityId: Civ7ControlOrpcComponentId;
+        growthType: number;
+        projectType: number;
+        city: number;
+        operationType: "CHANGE_GROWTH_MODE";
+        before: TownFocusValidation;
+        after: TownFocusValidation;
+        sent: boolean;
+      }
     | {
-      kind: "town-focus-review";
-      cityId: Civ7ControlOrpcComponentId;
-      operationType: "CONSIDER_TOWN_PROJECT";
-      before: TownFocusValidation;
-      after: TownFocusValidation;
-      sent: boolean;
-    }
-  >,
+        kind: "town-focus-review";
+        cityId: Civ7ControlOrpcComponentId;
+        operationType: "CONSIDER_TOWN_PROJECT";
+        before: TownFocusValidation;
+        after: TownFocusValidation;
+        sent: boolean;
+      }
+  >
 ): TownFocusResult {
   const common = {
     cityId: input.cityId,
@@ -327,7 +323,7 @@ function townFocusResult(
 
 function townFocusPostcondition(
   sent: boolean,
-  kind: "town-focus-change" | "town-focus-review",
+  kind: "town-focus-change" | "town-focus-review"
 ): TownFocusResult["postcondition"] {
   if (!sent) {
     return {
@@ -358,9 +354,9 @@ function toComponentId(input: unknown): Civ7ControlOrpcComponentId | null {
   if (input == null || typeof input !== "object") return null;
   const record = input as Record<string, unknown>;
   if (
-    Number.isInteger(record.owner)
-    && Number.isInteger(record.id)
-    && Number.isInteger(record.type)
+    Number.isInteger(record.owner) &&
+    Number.isInteger(record.id) &&
+    Number.isInteger(record.type)
   ) {
     return {
       owner: record.owner as number,

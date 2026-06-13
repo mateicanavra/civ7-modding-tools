@@ -198,7 +198,6 @@ function scanStepDir(dir: string, repoRoot: string): Finding[] {
         }
       }
     }
-
   }
 
   return findings;

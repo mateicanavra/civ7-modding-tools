@@ -50,13 +50,13 @@ import { PLACEMENT_CFG } from "../bootstrap/tunables.js";
  * @returns {number}
  */
 function resolveNaturalWonderCount(mapInfo, wondersPlusOne = true) {
-    if (!mapInfo || typeof mapInfo.NumNaturalWonders !== "number") {
-        return 1;
-    }
-    if (wondersPlusOne) {
-        return Math.max(mapInfo.NumNaturalWonders + 1, mapInfo.NumNaturalWonders);
-    }
-    return mapInfo.NumNaturalWonders;
+  if (!mapInfo || typeof mapInfo.NumNaturalWonders !== "number") {
+    return 1;
+  }
+  if (wondersPlusOne) {
+    return Math.max(mapInfo.NumNaturalWonders + 1, mapInfo.NumNaturalWonders);
+  }
+  return mapInfo.NumNaturalWonders;
 }
 /**
  * Run late-stage placement and finalization passes.
@@ -76,118 +76,142 @@ function resolveNaturalWonderCount(mapInfo, wondersPlusOne = true) {
  * @param {Array<any>} params.starts.startSectors
  * @returns {Array<any>} startPositions
  */
-export function runPlacement(iWidth, iHeight, { mapInfo, wondersPlusOne = true, floodplains = { minLength: 4, maxLength: 10 }, starts, } = {}) {
-    console.log("[SWOOPER_MOD] === runPlacement() CALLED ===");
-    console.log(`[SWOOPER_MOD] Map size: ${iWidth}x${iHeight}`);
-    const startPositions = [];
-    // 1) Natural Wonders
-    try {
-        const wonders = resolveNaturalWonderCount(mapInfo, typeof wondersPlusOne === "boolean"
-            ? wondersPlusOne
-            : PLACEMENT_CFG &&
-                typeof PLACEMENT_CFG.wondersPlusOne === "boolean"
-                ? PLACEMENT_CFG.wondersPlusOne
-                : true);
-        addNaturalWonders(iWidth, iHeight, wonders);
-    }
-    catch (err) {
-        console.log("[Placement] addNaturalWonders failed:", err);
-    }
-    // 2) Floodplains
-    try {
-        const minLen = floodplains && typeof floodplains.minLength === "number"
-            ? floodplains.minLength
-            : PLACEMENT_CFG &&
-                PLACEMENT_CFG.floodplains &&
-                typeof PLACEMENT_CFG.floodplains.minLength === "number"
-                ? PLACEMENT_CFG.floodplains.minLength
-                : 4;
-        const maxLen = floodplains && typeof floodplains.maxLength === "number"
-            ? floodplains.maxLength
-            : PLACEMENT_CFG &&
-                PLACEMENT_CFG.floodplains &&
-                typeof PLACEMENT_CFG.floodplains.maxLength === "number"
-                ? PLACEMENT_CFG.floodplains.maxLength
-                : 10;
-        TerrainBuilder.addFloodplains(minLen, maxLen);
-    }
-    catch (err) {
-        console.log("[Placement] addFloodplains failed:", err);
-    }
-    // 3) Snow (post-water/terrain stabilization)
-    try {
-        generateSnow(iWidth, iHeight);
-    }
-    catch (err) {
-        console.log("[Placement] generateSnow failed:", err);
-    }
-    // 4) Resources (after snow)
-    try {
-        generateResources(iWidth, iHeight);
-    }
-    catch (err) {
-        console.log("[Placement] generateResources failed:", err);
-    }
-    // 5) Start positions (vanilla-compatible)
-    try {
-        if (!starts) {
-            console.log("[Placement] Start placement skipped (no starts config provided).");
-        }
-        else {
-            const { playersLandmass1, playersLandmass2, westContinent, eastContinent, startSectorRows, startSectorCols, startSectors, } = starts;
+export function runPlacement(
+  iWidth,
+  iHeight,
+  { mapInfo, wondersPlusOne = true, floodplains = { minLength: 4, maxLength: 10 }, starts } = {}
+) {
+  console.log("[SWOOPER_MOD] === runPlacement() CALLED ===");
+  console.log(`[SWOOPER_MOD] Map size: ${iWidth}x${iHeight}`);
+  const startPositions = [];
+  // 1) Natural Wonders
+  try {
+    const wonders = resolveNaturalWonderCount(
+      mapInfo,
+      typeof wondersPlusOne === "boolean"
+        ? wondersPlusOne
+        : PLACEMENT_CFG && typeof PLACEMENT_CFG.wondersPlusOne === "boolean"
+          ? PLACEMENT_CFG.wondersPlusOne
+          : true
+    );
+    addNaturalWonders(iWidth, iHeight, wonders);
+  } catch (err) {
+    console.log("[Placement] addNaturalWonders failed:", err);
+  }
+  // 2) Floodplains
+  try {
+    const minLen =
+      floodplains && typeof floodplains.minLength === "number"
+        ? floodplains.minLength
+        : PLACEMENT_CFG &&
+            PLACEMENT_CFG.floodplains &&
+            typeof PLACEMENT_CFG.floodplains.minLength === "number"
+          ? PLACEMENT_CFG.floodplains.minLength
+          : 4;
+    const maxLen =
+      floodplains && typeof floodplains.maxLength === "number"
+        ? floodplains.maxLength
+        : PLACEMENT_CFG &&
+            PLACEMENT_CFG.floodplains &&
+            typeof PLACEMENT_CFG.floodplains.maxLength === "number"
+          ? PLACEMENT_CFG.floodplains.maxLength
+          : 10;
+    TerrainBuilder.addFloodplains(minLen, maxLen);
+  } catch (err) {
+    console.log("[Placement] addFloodplains failed:", err);
+  }
+  // 3) Snow (post-water/terrain stabilization)
+  try {
+    generateSnow(iWidth, iHeight);
+  } catch (err) {
+    console.log("[Placement] generateSnow failed:", err);
+  }
+  // 4) Resources (after snow)
+  try {
+    generateResources(iWidth, iHeight);
+  } catch (err) {
+    console.log("[Placement] generateResources failed:", err);
+  }
+  // 5) Start positions (vanilla-compatible)
+  try {
+    if (!starts) {
+      console.log("[Placement] Start placement skipped (no starts config provided).");
+    } else {
+      const {
+        playersLandmass1,
+        playersLandmass2,
+        westContinent,
+        eastContinent,
+        startSectorRows,
+        startSectorCols,
+        startSectors,
+      } = starts;
 
-            // DIAGNOSTIC LOGGING - Start placement parameters
-            const totalPlayers = playersLandmass1 + playersLandmass2;
-            console.log(`[START_DEBUG] === Beginning Start Placement ===`);
-            console.log(`[START_DEBUG] Players: ${totalPlayers} total (${playersLandmass1} landmass1, ${playersLandmass2} landmass2)`);
-            console.log(`[START_DEBUG] Continents: west=${westContinent}, east=${eastContinent}`);
-            console.log(`[START_DEBUG] Sectors: ${startSectorRows}x${startSectorCols} grid, ${startSectors.length} sectors chosen`);
+      // DIAGNOSTIC LOGGING - Start placement parameters
+      const totalPlayers = playersLandmass1 + playersLandmass2;
+      console.log(`[START_DEBUG] === Beginning Start Placement ===`);
+      console.log(
+        `[START_DEBUG] Players: ${totalPlayers} total (${playersLandmass1} landmass1, ${playersLandmass2} landmass2)`
+      );
+      console.log(`[START_DEBUG] Continents: west=${westContinent}, east=${eastContinent}`);
+      console.log(
+        `[START_DEBUG] Sectors: ${startSectorRows}x${startSectorCols} grid, ${startSectors.length} sectors chosen`
+      );
 
-            const pos = assignStartPositions(playersLandmass1, playersLandmass2, westContinent, eastContinent, startSectorRows, startSectorCols, startSectors);
+      const pos = assignStartPositions(
+        playersLandmass1,
+        playersLandmass2,
+        westContinent,
+        eastContinent,
+        startSectorRows,
+        startSectorCols,
+        startSectors
+      );
 
-            // DIAGNOSTIC LOGGING - Placement results
-            const successCount = pos ? pos.filter(p => p !== undefined && p >= 0).length : 0;
-            console.log(`[START_DEBUG] Result: ${successCount}/${totalPlayers} civilizations placed successfully`);
-            if (successCount < totalPlayers) {
-                console.log(`[START_DEBUG] WARNING: ${totalPlayers - successCount} civilizations failed to find valid start locations!`);
-            }
-            console.log(`[START_DEBUG] === End Start Placement ===`);
+      // DIAGNOSTIC LOGGING - Placement results
+      const successCount = pos ? pos.filter((p) => p !== undefined && p >= 0).length : 0;
+      console.log(
+        `[START_DEBUG] Result: ${successCount}/${totalPlayers} civilizations placed successfully`
+      );
+      if (successCount < totalPlayers) {
+        console.log(
+          `[START_DEBUG] WARNING: ${totalPlayers - successCount} civilizations failed to find valid start locations!`
+        );
+      }
+      console.log(`[START_DEBUG] === End Start Placement ===`);
 
-            if (Array.isArray(pos)) {
-                startPositions.push(...pos);
-            }
-            if (successCount === totalPlayers) {
-                console.log("[Placement] Start positions assigned successfully");
-            }
-            else {
-                console.log(`[Placement] Start positions assignment incomplete: ${totalPlayers - successCount} failures`);
-            }
-        }
+      if (Array.isArray(pos)) {
+        startPositions.push(...pos);
+      }
+      if (successCount === totalPlayers) {
+        console.log("[Placement] Start positions assigned successfully");
+      } else {
+        console.log(
+          `[Placement] Start positions assignment incomplete: ${totalPlayers - successCount} failures`
+        );
+      }
     }
-    catch (err) {
-        console.log("[Placement] assignStartPositions failed:", err);
-    }
-    // 6) Discoveries (post-starts to seed exploration)
-    try {
-        generateDiscoveries(iWidth, iHeight, startPositions);
-        console.log("[Placement] Discoveries generated successfully");
-    }
-    catch (err) {
-        console.log("[Placement] generateDiscoveries failed:", err);
-    }
-    // 7) Fertility + Advanced Start
-    try {
-        FertilityBuilder.recalculate();
-    }
-    catch (err) {
-        console.log("[Placement] FertilityBuilder.recalculate failed:", err);
-    }
-    try {
-        assignAdvancedStartRegions();
-    }
-    catch (err) {
-        console.log("[Placement] assignAdvancedStartRegions failed:", err);
-    }
-    return startPositions;
+  } catch (err) {
+    console.log("[Placement] assignStartPositions failed:", err);
+  }
+  // 6) Discoveries (post-starts to seed exploration)
+  try {
+    generateDiscoveries(iWidth, iHeight, startPositions);
+    console.log("[Placement] Discoveries generated successfully");
+  } catch (err) {
+    console.log("[Placement] generateDiscoveries failed:", err);
+  }
+  // 7) Fertility + Advanced Start
+  try {
+    FertilityBuilder.recalculate();
+  } catch (err) {
+    console.log("[Placement] FertilityBuilder.recalculate failed:", err);
+  }
+  try {
+    assignAdvancedStartRegions();
+  } catch (err) {
+    console.log("[Placement] assignAdvancedStartRegions failed:", err);
+  }
+  return startPositions;
 }
 export default runPlacement;

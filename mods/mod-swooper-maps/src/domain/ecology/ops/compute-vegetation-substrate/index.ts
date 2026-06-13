@@ -12,4 +12,3 @@ const computeVegetationSubstrate = createOp(ComputeVegetationSubstrateContract, 
 export type * from "./contract.js";
 
 export default computeVegetationSubstrate;
-

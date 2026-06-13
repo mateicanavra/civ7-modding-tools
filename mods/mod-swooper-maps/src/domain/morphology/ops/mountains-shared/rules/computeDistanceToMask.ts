@@ -45,4 +45,3 @@ export function computeHexDistanceToMask(params: {
 
   return distance;
 }
-

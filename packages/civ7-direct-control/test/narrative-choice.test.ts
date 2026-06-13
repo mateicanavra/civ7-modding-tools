@@ -159,7 +159,9 @@ describe("narrative choice requests", () => {
   });
 
   test("classifies narrative panel closeout when panel clears but blocker identity changes", async () => {
-    const server = await startNarrativeChoiceTunerServer({ mode: "panel-cleared-notification-changed" });
+    const server = await startNarrativeChoiceTunerServer({
+      mode: "panel-cleared-notification-changed",
+    });
     try {
       const { port } = server.address();
       const target = { owner: 0, id: 421, type: 24 };
@@ -172,7 +174,8 @@ describe("narrative choice requests", () => {
       expect(request.verified).toBe(true);
       expect(request.postcondition).toMatchObject({
         classification: "narrative-panel-cleared",
-        reason: "The visible narrative panel for the selected story target was closed after the choice.",
+        reason:
+          "The visible narrative panel for the selected story target was closed after the choice.",
       });
       expect(request.after.notifications).toEqual([
         expect.objectContaining({
@@ -348,7 +351,13 @@ async function startNarrativeChoiceTunerServer(
           const operationValid = operationValidationValid({ valid, mode, narrativeChoiceSent });
           socket.write(
             encodeResponse(frame.listenerId, [
-              JSON.stringify(operationValidation(operationCall, operationValid, narrativeChoiceSent ? "post-send drift" : "test rejection")),
+              JSON.stringify(
+                operationValidation(
+                  operationCall,
+                  operationValid,
+                  narrativeChoiceSent ? "post-send drift" : "test rejection"
+                )
+              ),
             ])
           );
         } else if (narrativeChoiceRequest) {
@@ -540,7 +549,10 @@ function narrativeChoicePayload(request: NarrativeChoiceRequest, mode: Narrative
       after,
       panelClose: {
         ok: true,
-        value: { attempted: 1, results: [{ panelType: "SMALL-NARRATIVE-EVENT", closed: mode !== "stale" }] },
+        value: {
+          attempted: 1,
+          results: [{ panelType: "SMALL-NARRATIVE-EVENT", closed: mode !== "stale" }],
+        },
       },
       popupClose: { ok: true, value: { available: true } },
     },
@@ -576,11 +588,12 @@ function playNotificationView(input: { sent: boolean; mode: NarrativeChoiceMode 
 
 function narrativeNotification(mode: NarrativeChoiceMode) {
   if (mode === "blocker-cleared" || mode === "turn-unblocked") return undefined;
-  const id = mode === "panel-cleared-notification-changed"
-    ? { owner: 0, id: 902, type: 20 }
-    : mode === "validation-changed"
-      ? { owner: 0, id: 903, type: 20 }
-      : { owner: 0, id: 901, type: 20 };
+  const id =
+    mode === "panel-cleared-notification-changed"
+      ? { owner: 0, id: 902, type: 20 }
+      : mode === "validation-changed"
+        ? { owner: 0, id: 903, type: 20 }
+        : { owner: 0, id: 901, type: 20 };
   return {
     id,
     type: 2345,

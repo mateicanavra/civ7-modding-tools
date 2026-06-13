@@ -1,42 +1,48 @@
-import { spawn } from 'node:child_process';
-import { existsSync, watch } from 'node:fs';
-import { resolve } from 'node:path';
+import { spawn } from "node:child_process";
+import { existsSync, watch } from "node:fs";
+import { resolve } from "node:path";
 
-function runCommand(command: string, args: string[], options: { cwd?: string } = {}): Promise<void> {
+function runCommand(
+  command: string,
+  args: string[],
+  options: { cwd?: string } = {}
+): Promise<void> {
   return new Promise((resolvePromise, rejectPromise) => {
     const child = spawn(command, args, {
       cwd: options.cwd ?? process.cwd(),
       shell: false,
-      stdio: 'inherit',
+      stdio: "inherit",
       env: process.env,
     });
 
     const handleSignal = (signal: NodeJS.Signals) => {
-      try { child.kill(signal); } catch {}
+      try {
+        child.kill(signal);
+      } catch {}
     };
-    process.on('SIGINT', handleSignal);
-    process.on('SIGTERM', handleSignal);
+    process.on("SIGINT", handleSignal);
+    process.on("SIGTERM", handleSignal);
 
-    child.on('exit', (code) => {
-      process.removeListener('SIGINT', handleSignal);
-      process.removeListener('SIGTERM', handleSignal);
-      if (typeof code === 'number' && code !== 0) {
+    child.on("exit", (code) => {
+      process.removeListener("SIGINT", handleSignal);
+      process.removeListener("SIGTERM", handleSignal);
+      if (typeof code === "number" && code !== 0) {
         rejectPromise(new Error(`${command} exited with code ${code}`));
         return;
       }
       resolvePromise();
     });
-    child.on('error', (err) => rejectPromise(err));
+    child.on("error", (err) => rejectPromise(err));
   });
 }
 
 async function main(): Promise<void> {
   // Normalize code blocks once before starting dev server
   try {
-    console.log('🧹 Normalizing code blocks (pre-dev)...');
-    await runCommand('bun', ['run', 'scripts/update-code-blocks.ts']);
+    console.log("🧹 Normalizing code blocks (pre-dev)...");
+    await runCommand("bun", ["run", "scripts/update-code-blocks.ts"]);
   } catch (e) {
-    console.warn('⚠️  Code block normalization failed (continuing):', e);
+    console.warn("⚠️  Code block normalization failed (continuing):", e);
   }
 
   // Watch docs for changes and re-run code block normalization
@@ -49,35 +55,35 @@ async function main(): Promise<void> {
       };
     };
     const reNormalize = debounce(() => {
-      runCommand('bun', ['run', 'scripts/update-code-blocks.ts']).catch(() => {});
+      runCommand("bun", ["run", "scripts/update-code-blocks.ts"]).catch(() => {});
     }, 200);
     const watchDir = (dir: string) => {
       if (!existsSync(dir)) return;
       watch(dir, { recursive: true }, (event, filename) => {
         if (!filename) return;
         const lower = filename.toLowerCase();
-        if (lower.endsWith('.md') || lower.endsWith('.mdx')) {
+        if (lower.endsWith(".md") || lower.endsWith(".mdx")) {
           reNormalize();
         }
       });
     };
-    watchDir(resolve(process.cwd(), 'official'));
-    watchDir(resolve(process.cwd(), 'community'));
+    watchDir(resolve(process.cwd(), "official"));
+    watchDir(resolve(process.cwd(), "community"));
     // Also watch the code-blocks config so toggling options (e.g., lines) re-normalizes immediately
-    const configPath = resolve(process.cwd(), 'code-blocks.config.json');
+    const configPath = resolve(process.cwd(), "code-blocks.config.json");
     if (existsSync(configPath)) {
       watch(configPath, { persistent: true }, () => {
         reNormalize();
       });
     }
-    console.log('👀 Watching docs for code block changes...');
+    console.log("👀 Watching docs for code block changes...");
   } catch (e) {
-    console.warn('⚠️  Failed to start watcher (continuing):', e);
+    console.warn("⚠️  Failed to start watcher (continuing):", e);
   }
 
-  const mintBin = resolve(process.cwd(), 'node_modules/.bin/mint');
-  const command = existsSync(mintBin) ? mintBin : 'mint';
-  await runCommand(command, ['dev', '-p', '4000', '--no-open']);
+  const mintBin = resolve(process.cwd(), "node_modules/.bin/mint");
+  const command = existsSync(mintBin) ? mintBin : "mint";
+  await runCommand(command, ["dev", "-p", "4000", "--no-open"]);
 }
 
 main().catch((err) => {

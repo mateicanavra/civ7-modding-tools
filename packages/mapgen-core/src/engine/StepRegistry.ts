@@ -44,5 +44,4 @@ export class StepRegistry<TContext> {
   has(stepId: string): boolean {
     return this.steps.has(stepId);
   }
-
 }

@@ -101,13 +101,11 @@ export {
   PlotEffectsScoreBurnedContract,
   FeaturesApplyContract,
   PedologyClassifyContract,
-
   PlanIceContract,
   PlanFloodplainsContract,
   PlanPlotEffectsContract,
   PlanReefsContract,
   PlanVegetationContract,
-
   PlanWetlandsContract,
   RefineBiomeEdgesContract,
   ResourcePlanBasinsContract,

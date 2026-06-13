@@ -1,4 +1,9 @@
-import { defineVizMeta, logElevationSummary, logLandmassAscii, snapshotEngineHeightfield } from "@swooper/mapgen-core";
+import {
+  defineVizMeta,
+  logElevationSummary,
+  logLandmassAscii,
+  snapshotEngineHeightfield,
+} from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import BuildElevationStepContract from "./buildElevation.contract.js";
 import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
@@ -135,7 +140,13 @@ export default createStep(BuildElevationStepContract, {
       });
     }
 
-    logElevationSummary(context.trace, context.adapter, width, height, "map-elevation/build-elevation");
+    logElevationSummary(
+      context.trace,
+      context.adapter,
+      width,
+      height,
+      "map-elevation/build-elevation"
+    );
     logLandmassAscii(context.trace, context.adapter, width, height);
   },
 });

@@ -10,7 +10,10 @@ export interface SpawnResult {
  * Argument-array spawning only (no shell interpolation, ever).
  * cwd defaults to the repo root resolved by the caller.
  */
-export function run(argv: string[], opts: { cwd: string; env?: Record<string, string> }): SpawnResult {
+export function run(
+  argv: string[],
+  opts: { cwd: string; env?: Record<string, string> }
+): SpawnResult {
   const [cmd, ...args] = argv;
   const res = spawnSync(cmd, args, {
     cwd: opts.cwd,

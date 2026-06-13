@@ -221,7 +221,11 @@ export default createStep(PlanResourcesStepContract, {
     // S7 (E4.2/E4.3): the selected plan, the habitat fields it was thinned
     // by, and the policy eligibility surface it was constrained by.
     emitResourcePlanViz(context, { width, height }, plan.intents, demandResult);
-    emitHabitatIntensityViz(context, { width, height }, habitat as unknown as Record<string, unknown>);
+    emitHabitatIntensityViz(
+      context,
+      { width, height },
+      habitat as unknown as Record<string, unknown>
+    );
   },
 });
 

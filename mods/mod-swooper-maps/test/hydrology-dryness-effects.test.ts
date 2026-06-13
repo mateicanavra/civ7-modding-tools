@@ -39,15 +39,21 @@ describe("hydrology dryness knob effects (integration)", () => {
         "hydrology-climate-baseline": { knobs: { dryness } },
         "hydrology-climate-refine": { knobs: { dryness } },
       };
-      const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+      const adapter = createMockAdapter({
+        width,
+        height,
+        mapInfo,
+        mapSizeId: 1,
+        rng: createLabelRng(seed),
+      });
       const context = createExtendedMapContext({ width, height }, adapter, env);
       initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
 
       standardRecipe.run(context, env, config, { log: () => {} });
 
-      const climateField = context.artifacts.get(hydrologyClimateBaselineArtifacts.climateField.id) as
-        | { rainfall?: Uint8Array; humidity?: Uint8Array }
-        | undefined;
+      const climateField = context.artifacts.get(
+        hydrologyClimateBaselineArtifacts.climateField.id
+      ) as { rainfall?: Uint8Array; humidity?: Uint8Array } | undefined;
       const rainfall = climateField?.rainfall;
       const humidity = climateField?.humidity;
       if (!(rainfall instanceof Uint8Array) || !(humidity instanceof Uint8Array)) {

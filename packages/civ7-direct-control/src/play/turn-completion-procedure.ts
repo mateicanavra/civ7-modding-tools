@@ -88,13 +88,13 @@ export type Civ7TurnCompletionStatusProcedureCallOptions = Readonly<{
 
 export function callCiv7TurnCompletionStatusProcedure(
   input: Civ7TurnCompletionStatusInput = {},
-  options: Civ7TurnCompletionStatusProcedureCallOptions = {},
+  options: Civ7TurnCompletionStatusProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7TurnCompletionStatusResult>> {
   return callCiv7ProcedureCore<Civ7TurnCompletionStatusInput, Civ7TurnCompletionStatusResult>(
     Civ7TurnCompletionStatusProcedureDescriptor,
     Civ7TurnCompletionStatusProcedureSchemaArtifacts,
     input,
     () => getCiv7TurnCompletionStatus(options.directControl, options.dependencies),
-    options.procedure,
+    options.procedure
   );
 }

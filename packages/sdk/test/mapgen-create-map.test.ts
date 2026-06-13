@@ -3,17 +3,20 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 vi.mock("@civ7/adapter/civ7", async () => {
   const { MockAdapter } = await vi.importActual<typeof import("@civ7/adapter")>("@civ7/adapter");
   return {
-    createCiv7Adapter: vi.fn(() => new MockAdapter({
-      width: 2,
-      height: 2,
-      mapSizeId: 4,
-      mapInfo: {
-        GridWidth: 2,
-        GridHeight: 2,
-        MinLatitude: -60,
-        MaxLatitude: 60,
-      },
-    })),
+    createCiv7Adapter: vi.fn(
+      () =>
+        new MockAdapter({
+          width: 2,
+          height: 2,
+          mapSizeId: 4,
+          mapInfo: {
+            GridWidth: 2,
+            GridHeight: 2,
+            MinLatitude: -60,
+            MaxLatitude: 60,
+          },
+        })
+    ),
   };
 });
 

@@ -23,8 +23,7 @@ export const MapHydrologyKnobsSchema = Type.Object(
   {},
   {
     additionalProperties: false,
-    description:
-      "Map hydrology knobs. Lake projection currently has no author-facing stage knobs.",
+    description: "Map hydrology knobs. Lake projection currently has no author-facing stage knobs.",
   }
 );
 

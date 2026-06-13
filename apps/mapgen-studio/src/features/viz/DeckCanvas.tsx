@@ -1,9 +1,9 @@
-import { Deck, OrthographicView, type OrthographicViewState } from '@deck.gl/core';
-import type { Layer } from '@deck.gl/core';
-import { LineLayer } from '@deck.gl/layers';
-import type { MutableRefObject } from 'react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { DEFAULT_VIEW_STATE, type Bounds, type VizLayerEntryV1 } from './model';
+import { Deck, OrthographicView, type OrthographicViewState } from "@deck.gl/core";
+import type { Layer } from "@deck.gl/core";
+import { LineLayer } from "@deck.gl/layers";
+import type { MutableRefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { DEFAULT_VIEW_STATE, type Bounds, type VizLayerEntryV1 } from "./model";
 
 function niceStep(target: number): number {
   const t = Math.max(1e-9, target);
@@ -74,7 +74,7 @@ export function DeckCanvas(props: DeckCanvasProps) {
   // toggles — the interactivity effect below handles those via setProps).
   const interactiveRef = useRef(interactive);
 
-  const views = useMemo(() => new OrthographicView({ id: 'ortho' }), []);
+  const views = useMemo(() => new OrthographicView({ id: "ortho" }), []);
 
   const gridEnabled = useMemo(() => {
     if (!showBackgroundGrid) return false;
@@ -125,37 +125,39 @@ export function DeckCanvas(props: DeckCanvasProps) {
       }
     }
 
-    const gridColor: [number, number, number, number] = lightMode ? [0, 0, 0, 16] : [255, 255, 255, 12];
+    const gridColor: [number, number, number, number] = lightMode
+      ? [0, 0, 0, 16]
+      : [255, 255, 255, 12];
 
     return new LineLayer({
-      id: 'bg.mesh.grid',
+      id: "bg.mesh.grid",
       data: segments,
       getSourcePosition: (d: any) => d.source,
       getTargetPosition: (d: any) => d.target,
       getColor: gridColor,
       getWidth: 1,
-      widthUnits: 'pixels',
+      widthUnits: "pixels",
       pickable: false,
     });
   }, [gridParams, lightMode]);
 
-  const deckLayers = useMemo<Layer[]>(() => [...(gridLayer ? [gridLayer] : []), ...layers], [gridLayer, layers]);
-
-  const applyViewState = useCallback(
-    (next: OrthographicViewState) => {
-      const deck = deckRef.current as any;
-      if (!deck) return;
-
-      // deck.gl stores internal viewState when initialViewState is provided and no external viewState prop is used.
-      // We update the internal mapping to allow programmatic "fit" without controlling camera during interactions.
-      const viewId = 'ortho';
-      deck.viewState = { ...(deck.viewState || {}), [viewId]: next };
-      deck.viewManager?.setProps({ viewState: deck.viewState });
-      deck.setProps({});
-      deck.redraw(true);
-    },
-    []
+  const deckLayers = useMemo<Layer[]>(
+    () => [...(gridLayer ? [gridLayer] : []), ...layers],
+    [gridLayer, layers]
   );
+
+  const applyViewState = useCallback((next: OrthographicViewState) => {
+    const deck = deckRef.current as any;
+    if (!deck) return;
+
+    // deck.gl stores internal viewState when initialViewState is provided and no external viewState prop is used.
+    // We update the internal mapping to allow programmatic "fit" without controlling camera during interactions.
+    const viewId = "ortho";
+    deck.viewState = { ...(deck.viewState || {}), [viewId]: next };
+    deck.viewManager?.setProps({ viewState: deck.viewState });
+    deck.setProps({});
+    deck.redraw(true);
+  }, []);
 
   const fitToBounds = useCallback(
     (bounds: Bounds) => {
@@ -237,5 +239,5 @@ export function DeckCanvas(props: DeckCanvasProps) {
     deckRef.current?.setProps({ width: viewportSize.width, height: viewportSize.height });
   }, [viewportSize.height, viewportSize.width]);
 
-  return <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />;
+  return <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />;
 }

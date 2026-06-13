@@ -56,7 +56,12 @@ const productionChoiceProofCases: readonly ProductionChoiceProofCase[] = [
 ];
 
 describe("production choice proof policy", () => {
-  for (const { classification, requestVerified, proofConfirmed, outcome } of productionChoiceProofCases) {
+  for (const {
+    classification,
+    requestVerified,
+    proofConfirmed,
+    outcome,
+  } of productionChoiceProofCases) {
     test(`classifies ${classification} without collapsing legacy request status into proof confidence`, () => {
       expect(productionChoiceRequestVerified(classification)).toBe(requestVerified);
       expect(productionChoicePostconditionConfirmed(classification)).toBe(proofConfirmed);

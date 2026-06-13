@@ -239,9 +239,15 @@ describe("geological resource operation contract", () => {
       resources.ops.planGeologicalResources.defaultConfig
     );
 
-    expect(result.plans.find((plan) => plan.resourceType === "RESOURCE_GOLD")?.eligibleTileCount).toBe(3);
-    expect(result.plans.find((plan) => plan.resourceType === "RESOURCE_OIL")?.eligibleTileCount).toBe(3);
-    expect(result.plans.find((plan) => plan.resourceType === "RESOURCE_LIMESTONE")?.eligibleTileCount).toBe(3);
+    expect(
+      result.plans.find((plan) => plan.resourceType === "RESOURCE_GOLD")?.eligibleTileCount
+    ).toBe(3);
+    expect(
+      result.plans.find((plan) => plan.resourceType === "RESOURCE_OIL")?.eligibleTileCount
+    ).toBe(3);
+    expect(
+      result.plans.find((plan) => plan.resourceType === "RESOURCE_LIMESTONE")?.eligibleTileCount
+    ).toBe(3);
   });
 
   it("reports missing expectation rows instead of silently dropping resources", () => {
@@ -249,7 +255,9 @@ describe("geological resource operation contract", () => {
       {
         width: 2,
         height: 2,
-        expectations: geologicalExpectations().filter((row) => row.resourceType === "RESOURCE_GOLD"),
+        expectations: geologicalExpectations().filter(
+          (row) => row.resourceType === "RESOURCE_GOLD"
+        ),
         orogenyMask: every(4),
       },
       resources.ops.planGeologicalResources.defaultConfig

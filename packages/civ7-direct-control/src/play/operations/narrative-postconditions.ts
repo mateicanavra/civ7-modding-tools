@@ -31,14 +31,24 @@ export async function waitForCiv7NarrativeChoiceAfter(
   options: Civ7DirectControlOptions,
   before: Civ7PlayNotificationViewResult,
   beforeValidation: Civ7OperationValidationResult,
-  readPlayNotifications: (options: Civ7DirectControlOptions) => Promise<Civ7PlayNotificationViewResult>,
+  readPlayNotifications: (
+    options: Civ7DirectControlOptions
+  ) => Promise<Civ7PlayNotificationViewResult>
 ): Promise<Civ7PlayNotificationViewResult> {
   const waitTimeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
   const pollIntervalMs = 250;
   const startedAt = Date.now();
   let last = await readPlayNotifications(options);
   while (Date.now() - startedAt <= waitTimeoutMs) {
-    const candidate = narrativeChoicePostcondition(input, true, before, last, beforeValidation, beforeValidation, undefined);
+    const candidate = narrativeChoicePostcondition(
+      input,
+      true,
+      before,
+      last,
+      beforeValidation,
+      beforeValidation,
+      undefined
+    );
     if (candidate.classification !== "no-state-change") return last;
     await sleep(pollIntervalMs);
     last = await readPlayNotifications(options);
@@ -53,9 +63,17 @@ export function narrativeChoicePostcondition(
   after: Civ7PlayNotificationViewResult,
   beforeValidation: Civ7OperationValidationResult,
   afterValidation: Civ7OperationValidationResult,
-  payload: Civ7NarrativeChoiceCommandPayload | undefined,
+  payload: Civ7NarrativeChoiceCommandPayload | undefined
 ): Civ7NarrativeChoicePostcondition {
-  const classification = classifyNarrativeChoicePostcondition(input, sent, before, after, beforeValidation, afterValidation, payload);
+  const classification = classifyNarrativeChoicePostcondition(
+    input,
+    sent,
+    before,
+    after,
+    beforeValidation,
+    afterValidation,
+    payload
+  );
   return {
     classification,
     reason: narrativeChoicePostconditionReason(classification),
@@ -69,7 +87,7 @@ function classifyNarrativeChoicePostcondition(
   after: Civ7PlayNotificationViewResult,
   beforeValidation: Civ7OperationValidationResult,
   afterValidation: Civ7OperationValidationResult,
-  payload: Civ7NarrativeChoiceCommandPayload | undefined,
+  payload: Civ7NarrativeChoiceCommandPayload | undefined
 ): Civ7NarrativeChoicePostconditionClassification {
   if (!sent) return "not-sent";
   if (probeValue(after.canEndTurn) === true) return "turn-unblocked";
@@ -78,13 +96,18 @@ function classifyNarrativeChoicePostcondition(
   if (sameNarrativeChoiceNotification(beforeMatch, afterMatch)) return "no-state-change";
   if (beforeMatch && !afterMatch) return "narrative-blocker-cleared";
   if (payload && narrativePanelCleared(payload)) return "narrative-panel-cleared";
-  if (beforeValidation.valid !== afterValidation.valid || stableJson(beforeValidation.result) !== stableJson(afterValidation.result)) {
+  if (
+    beforeValidation.valid !== afterValidation.valid ||
+    stableJson(beforeValidation.result) !== stableJson(afterValidation.result)
+  ) {
     return "validation-changed";
   }
   return "no-state-change";
 }
 
-function narrativeChoicePostconditionReason(classification: Civ7NarrativeChoicePostconditionClassification): string {
+function narrativeChoicePostconditionReason(
+  classification: Civ7NarrativeChoicePostconditionClassification
+): string {
   switch (classification) {
     case "not-sent":
       return "The narrative choice was not sent, either because validation failed before send or the App UI closeout reported no send.";
@@ -101,14 +124,18 @@ function narrativeChoicePostconditionReason(classification: Civ7NarrativeChoiceP
   }
 }
 
-function findNarrativeChoiceNotification(view: Civ7PlayNotificationViewResult): Civ7PlayNotificationSummary | undefined {
+function findNarrativeChoiceNotification(
+  view: Civ7PlayNotificationViewResult
+): Civ7PlayNotificationSummary | undefined {
   return view.notifications.find((notification) => {
     const typeName = String(notification.typeName ?? "").toUpperCase();
-    return notification.isEndTurnBlocking === true
-      && typeName.includes("CHOOSE")
-      && (typeName.includes("NARRATIVE_STORY_DIRECTION")
-        || typeName.includes("DISCOVERY_STORY_DIRECTION")
-        || typeName.includes("AUTO_NARRATIVE_STORY_DIRECTION"));
+    return (
+      notification.isEndTurnBlocking === true &&
+      typeName.includes("CHOOSE") &&
+      (typeName.includes("NARRATIVE_STORY_DIRECTION") ||
+        typeName.includes("DISCOVERY_STORY_DIRECTION") ||
+        typeName.includes("AUTO_NARRATIVE_STORY_DIRECTION"))
+    );
   });
 }
 
@@ -120,7 +147,7 @@ function narrativePanelCleared(payload: Civ7NarrativeChoiceCommandPayload): bool
 
 function sameNarrativeChoiceNotification(
   before: Civ7PlayNotificationSummary | undefined,
-  after: Civ7PlayNotificationSummary | undefined,
+  after: Civ7PlayNotificationSummary | undefined
 ): boolean {
   if (!before || !after) return false;
   return sameComponentId(before.id, after.id);

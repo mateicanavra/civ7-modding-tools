@@ -35,7 +35,7 @@ export function createCiv7DiplomacyResponseTelemetryRecord(
   const evidenceClass = input.allowedProofClasses?.[0] ?? "local-package-test";
   const evidence = <T>(
     value: T,
-    freshness: Civ7OperationTelemetryEvidence<T>["freshness"],
+    freshness: Civ7OperationTelemetryEvidence<T>["freshness"]
   ): Civ7OperationTelemetryEvidence<T> => ({
     evidenceClass,
     source: input.source,

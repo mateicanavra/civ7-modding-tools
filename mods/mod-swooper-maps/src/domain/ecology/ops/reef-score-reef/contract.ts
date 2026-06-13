@@ -11,8 +11,12 @@ const ScoreReefContract = defineOp({
     bathymetry: TypedArraySchemas.i16({
       description: "Bathymetry in meters (0 on land; <=0 in water; more negative is deeper).",
     }),
-    shelfMask: TypedArraySchemas.u8({ description: "Mask (1/0): water tile is on continental shelf." }),
-    coastalWater: TypedArraySchemas.u8({ description: "Mask (1/0): water tile is adjacent to land." }),
+    shelfMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): water tile is on continental shelf.",
+    }),
+    coastalWater: TypedArraySchemas.u8({
+      description: "Mask (1/0): water tile is adjacent to land.",
+    }),
     distanceToCoast: TypedArraySchemas.u16({ description: "Tile distance from nearest coast." }),
   }),
   output: Type.Object({

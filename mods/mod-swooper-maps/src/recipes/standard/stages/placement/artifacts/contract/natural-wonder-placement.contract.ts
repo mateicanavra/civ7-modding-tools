@@ -52,8 +52,7 @@ const NaturalWonderPlacementCoordinateRowSchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description:
-      "Bounded natural-wonder placement row identity for exact/local proof comparison.",
+    description: "Bounded natural-wonder placement row identity for exact/local proof comparison.",
   }
 );
 

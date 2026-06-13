@@ -39,4 +39,3 @@ export function computeCoastalLandMask(args: {
 
   return mask;
 }
-

@@ -1,13 +1,9 @@
 import type { Civ7AdvisorWarningViewedResult } from "../play/notifications/advisor-warning-request.js";
 
-export type Civ7AdvisorWarningProofOutcome =
-  | "not-sent"
-  | "unknown";
+export type Civ7AdvisorWarningProofOutcome = "not-sent" | "unknown";
 
 export type Civ7AdvisorWarningProofPostcondition = Readonly<{
-  classification:
-    | "not-sent"
-    | "pending-runtime-proof";
+  classification: "not-sent" | "pending-runtime-proof";
   reason: string;
   outcome: Civ7AdvisorWarningProofOutcome;
   confidence: "unverified" | "pending-runtime-proof";
@@ -15,7 +11,7 @@ export type Civ7AdvisorWarningProofPostcondition = Readonly<{
 }>;
 
 export function advisorWarningProofPostcondition(
-  result: Civ7AdvisorWarningViewedResult,
+  result: Civ7AdvisorWarningViewedResult
 ): Civ7AdvisorWarningProofPostcondition {
   if (result.postcondition.classification === "not-sent") {
     return {

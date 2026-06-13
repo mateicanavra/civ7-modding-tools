@@ -1,9 +1,15 @@
-import { requireMesh as requireMeshInput, requirePlateGraph as requirePlateGraphInput, requirePlateMotion as requirePlateMotionInput } from "../../../lib/require.js";
+import {
+  requireMesh as requireMeshInput,
+  requirePlateGraph as requirePlateGraphInput,
+  requirePlateMotion as requirePlateMotionInput,
+} from "../../../lib/require.js";
 
 export { ERA_COUNT_MAX, ERA_COUNT_MIN } from "./constants.js";
 export { computePlateIdByEra } from "./compute-plate-id-by-era.js";
 
-export function requireMesh(...args: Parameters<typeof requireMeshInput>): ReturnType<typeof requireMeshInput> {
+export function requireMesh(
+  ...args: Parameters<typeof requireMeshInput>
+): ReturnType<typeof requireMeshInput> {
   return requireMeshInput(...args);
 }
 

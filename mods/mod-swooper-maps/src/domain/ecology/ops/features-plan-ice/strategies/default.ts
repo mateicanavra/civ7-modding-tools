@@ -1,9 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import {
-  confidenceFromScore01,
-  validateGridSize,
-} from "../../score-shared/index.js";
+import { confidenceFromScore01, validateGridSize } from "../../score-shared/index.js";
 import PlanIceContract from "../contract.js";
 import { admitIceIntent } from "../policies/index.js";
 

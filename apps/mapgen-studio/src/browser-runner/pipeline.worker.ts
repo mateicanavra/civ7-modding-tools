@@ -67,7 +67,12 @@ function readObjectProp(value: unknown, key: string): unknown {
   return (value as Record<string, unknown>)[key];
 }
 
-function describeThrown(e: unknown): { name?: string; message: string; details?: string; stack?: string } {
+function describeThrown(e: unknown): {
+  name?: string;
+  message: string;
+  details?: string;
+  stack?: string;
+} {
   if (e instanceof Error) {
     const details = safeStringify(e);
     return {
@@ -79,10 +84,14 @@ function describeThrown(e: unknown): { name?: string; message: string; details?:
   }
 
   if (typeof e === "string") return { message: e };
-  if (typeof e === "number" || typeof e === "boolean" || typeof e === "bigint") return { message: String(e) };
+  if (typeof e === "number" || typeof e === "boolean" || typeof e === "bigint")
+    return { message: String(e) };
 
   const maybeMessage = readObjectProp(e, "message");
-  const message = typeof maybeMessage === "string" && maybeMessage.trim().length > 0 ? maybeMessage : "Non-Error thrown";
+  const message =
+    typeof maybeMessage === "string" && maybeMessage.trim().length > 0
+      ? maybeMessage
+      : "Non-Error thrown";
   const details = safeStringify(e);
   const maybeStack = readObjectProp(e, "stack");
   const stack = typeof maybeStack === "string" ? maybeStack : undefined;
@@ -106,7 +115,16 @@ async function runRecipe(
   request: Extract<BrowserRunRequest, { type: "run.start" }>,
   abortSignal: { readonly aborted: boolean }
 ): Promise<{ didEmitFinished: boolean }> {
-  const { runToken, generation, recipeId, seed, mapSizeId, dimensions, latitudeBounds, configOverrides } = request;
+  const {
+    runToken,
+    generation,
+    recipeId,
+    seed,
+    mapSizeId,
+    dimensions,
+    latitudeBounds,
+    configOverrides,
+  } = request;
   const recipeEntry = getRuntimeRecipe(recipeId);
 
   const envBase = {
@@ -171,7 +189,12 @@ async function runRecipe(
     if (event.type === "run.finished") didEmitFinished = true;
     post(event, transfer);
   };
-  const traceSink = createWorkerTraceSink({ runToken, generation, post: postFromTrace, abortSignal });
+  const traceSink = createWorkerTraceSink({
+    runToken,
+    generation,
+    post: postFromTrace,
+    abortSignal,
+  });
 
   // Ensure the worker posts a stable run identity early, even if a failure occurs.
   post({ type: "run.started", runToken, generation, runId, planFingerprint: runId });
@@ -221,12 +244,14 @@ self.onmessage = (ev: MessageEvent<BrowserRunRequest>) => {
           // Some pipelines may not emit a trace `run.finish` event. Ensure the UI always receives run completion.
           post({ type: "run.finished", runToken: msg.runToken, generation: msg.generation });
         }
-        if (active?.runToken === msg.runToken && active.generation === msg.generation) active = null;
+        if (active?.runToken === msg.runToken && active.generation === msg.generation)
+          active = null;
       },
       (e: unknown) => {
         if (abortController.signal.aborted || isAbortError(e)) {
           post({ type: "run.canceled", runToken: msg.runToken, generation: msg.generation });
-          if (active?.runToken === msg.runToken && active.generation === msg.generation) active = null;
+          if (active?.runToken === msg.runToken && active.generation === msg.generation)
+            active = null;
           return;
         }
 
@@ -240,7 +265,8 @@ self.onmessage = (ev: MessageEvent<BrowserRunRequest>) => {
           details: err.details,
           stack: err.stack,
         });
-        if (active?.runToken === msg.runToken && active.generation === msg.generation) active = null;
+        if (active?.runToken === msg.runToken && active.generation === msg.generation)
+          active = null;
       }
     );
   }

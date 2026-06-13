@@ -31,12 +31,7 @@ export const Civ7VisibilitySummaryProcedureDescriptor = createCiv7ProcedureCoreD
     owner: "packages/civ7-direct-control/src/play/map/visibility.ts",
     exportName: "Civ7VisibilitySummaryResultSchema",
   },
-  inputFields: [
-    "playerId",
-    "bounds",
-    "includeGrid",
-    "maxPlots",
-  ],
+  inputFields: ["playerId", "bounds", "includeGrid", "maxPlots"],
   outputFields: [
     "host",
     "port",
@@ -92,13 +87,14 @@ export type Civ7VisibilitySummaryProcedureCallOptions = Readonly<{
 
 export function callCiv7VisibilitySummaryProcedure(
   input: Civ7VisibilitySummaryInput,
-  options: Civ7VisibilitySummaryProcedureCallOptions = {},
+  options: Civ7VisibilitySummaryProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7VisibilitySummaryResult>> {
   return callCiv7ProcedureCore<Civ7VisibilitySummaryInput, Civ7VisibilitySummaryResult>(
     Civ7VisibilitySummaryProcedureDescriptor,
     Civ7VisibilitySummaryProcedureSchemaArtifacts,
     input,
-    (validInput) => getCiv7VisibilitySummary(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    (validInput) =>
+      getCiv7VisibilitySummary(validInput, options.directControl, options.dependencies),
+    options.procedure
   );
 }

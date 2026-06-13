@@ -5,4 +5,3 @@ export function rollUnit(rng: RngFn, label: string): number {
   const roll = rng(scale, label);
   return (roll % scale) / scale;
 }
-

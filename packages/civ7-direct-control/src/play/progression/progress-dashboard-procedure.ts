@@ -31,9 +31,7 @@ export const Civ7ProgressDashboardProcedureDescriptor = createCiv7ProcedureCoreD
     owner: "packages/civ7-direct-control/src/play/progression/reads.ts",
     exportName: "Civ7ProgressDashboardResultSchema",
   },
-  inputFields: [
-    "playerId",
-  ],
+  inputFields: ["playerId"],
   outputFields: [
     "localPlayerId",
     "playerId",
@@ -49,10 +47,7 @@ export const Civ7ProgressDashboardProcedureDescriptor = createCiv7ProcedureCoreD
     "notes",
   ],
   playerScope: "local-player-scoped",
-  consumerClasses: [
-    "normal-cli-player-agent-view",
-    "effect-orpc-procedure-core",
-  ],
+  consumerClasses: ["normal-cli-player-agent-view", "effect-orpc-procedure-core"],
   proofBoundary: "local-package-test",
   projection: {
     normalCli: "semantic-projection",
@@ -91,13 +86,14 @@ export type Civ7ProgressDashboardProcedureCallOptions = Readonly<{
 
 export function callCiv7ProgressDashboardProcedure(
   input: Civ7ProgressDashboardInput = {},
-  options: Civ7ProgressDashboardProcedureCallOptions = {},
+  options: Civ7ProgressDashboardProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7ProgressDashboardResult>> {
   return callCiv7ProcedureCore<Civ7ProgressDashboardInput, Civ7ProgressDashboardResult>(
     Civ7ProgressDashboardProcedureDescriptor,
     Civ7ProgressDashboardProcedureSchemaArtifacts,
     input,
-    (validInput) => getCiv7ProgressDashboard(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    (validInput) =>
+      getCiv7ProgressDashboard(validInput, options.directControl, options.dependencies),
+    options.procedure
   );
 }

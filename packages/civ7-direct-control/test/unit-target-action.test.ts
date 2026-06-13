@@ -42,10 +42,11 @@ describe("unit target action requests", () => {
         port,
         timeoutMs: 1_000,
       });
-      const request = await requestCiv7UnitTargetAction(
-        input,
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
+      const request = await requestCiv7UnitTargetAction(input, {
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+      });
 
       expect(plan).toMatchObject({
         unitId,
@@ -107,10 +108,11 @@ describe("unit target action requests", () => {
       const { port } = server.address();
       const unitId = { owner: 0, id: 65536, type: 26 };
       const input = { unitId, x: 23, y: 33 };
-      const request = await requestCiv7UnitTargetAction(
-        input,
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
+      const request = await requestCiv7UnitTargetAction(input, {
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+      });
 
       expect(request.selected).toMatchObject({
         family: "unit-operation",

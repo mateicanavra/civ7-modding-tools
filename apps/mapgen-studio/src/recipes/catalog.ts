@@ -109,7 +109,8 @@ export const STUDIO_RECIPE_OPTIONS: readonly RecipeOption[] = STUDIO_RECIPE_ARTI
   label: r.label,
 }));
 
-export const DEFAULT_STUDIO_RECIPE_ID: StudioRecipeId = STUDIO_RECIPE_ARTIFACTS[0]?.id ?? "unknown/unknown";
+export const DEFAULT_STUDIO_RECIPE_ID: StudioRecipeId =
+  STUDIO_RECIPE_ARTIFACTS[0]?.id ?? "unknown/unknown";
 
 export function findRecipeArtifacts(recipeId: StudioRecipeId): RecipeArtifacts | null {
   return STUDIO_RECIPE_ARTIFACTS.find((r) => r.id === recipeId) ?? null;

@@ -5,7 +5,7 @@ const ArtifactRefSchema = Type.Object(
     id: Type.String(),
     name: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const EndpointSchema = Type.Object(
@@ -14,7 +14,7 @@ const EndpointSchema = Type.Object(
     stepId: Type.String(),
     fullStepId: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const StepSchema = Type.Object(
@@ -31,7 +31,7 @@ const StepSchema = Type.Object(
     tagRequires: Type.Array(Type.String()),
     tagProvides: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const StageSchema = Type.Object(
@@ -48,7 +48,7 @@ const StageSchema = Type.Object(
     internalArtifactEdgeCount: Type.Integer({ minimum: 0 }),
     diagnosticCount: Type.Integer({ minimum: 0 }),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const PhaseSchema = Type.Object(
@@ -58,7 +58,7 @@ const PhaseSchema = Type.Object(
     stageIds: Type.Array(Type.String()),
     stepCount: Type.Integer({ minimum: 0 }),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const EdgeSchema = Type.Object(
@@ -69,7 +69,7 @@ const EdgeSchema = Type.Object(
     to: EndpointSchema,
     internal: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const DiagnosticSchema = Type.Union([
@@ -79,7 +79,7 @@ const DiagnosticSchema = Type.Union([
       artifact: ArtifactRefSchema,
       consumer: EndpointSchema,
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   ),
   Type.Object(
     {
@@ -88,7 +88,7 @@ const DiagnosticSchema = Type.Union([
       providers: Type.Array(EndpointSchema),
       consumer: Type.Optional(EndpointSchema),
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   ),
   Type.Object(
     {
@@ -96,7 +96,7 @@ const DiagnosticSchema = Type.Union([
       artifact: ArtifactRefSchema,
       provider: EndpointSchema,
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   ),
 ]);
 
@@ -104,7 +104,7 @@ export const RecipeDagGetInputSchema = Type.Object(
   {
     recipeId: Type.String({ minLength: 1 }),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type RecipeDagGetInput = Static<typeof RecipeDagGetInputSchema>;
 
@@ -119,6 +119,6 @@ export const RecipeDagResultSchema = Type.Object(
     edges: Type.Array(EdgeSchema),
     diagnostics: Type.Array(DiagnosticSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type RecipeDagResult = Static<typeof RecipeDagResultSchema>;

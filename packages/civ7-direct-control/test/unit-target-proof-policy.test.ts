@@ -56,11 +56,16 @@ const unitTargetProofCases: readonly UnitTargetProofCase[] = [
 ];
 
 describe("unit target proof policy", () => {
-  for (const { verification, outcome, confidence, noRepeatAfterUnverified } of unitTargetProofCases) {
+  for (const {
+    verification,
+    outcome,
+    confidence,
+    noRepeatAfterUnverified,
+  } of unitTargetProofCases) {
     test(`maps ${verification.status}/${verification.classification} into proof confidence and outcome`, () => {
       const postcondition = unitTargetProofPostcondition(
         unitTargetResult({ sent: true, verification }),
-        undefined,
+        undefined
       );
 
       expect(unitTargetProofOutcome(verification.classification)).toBe(outcome);
@@ -74,17 +79,27 @@ describe("unit target proof policy", () => {
   }
 
   test("omits postconditions for read-only unit target plans", () => {
-    expect(unitTargetProofPostcondition(unitTargetResult({
-      sent: false,
-      verification: unitTargetVerification("not-sent", "not-sent"),
-    }), undefined)).toBeUndefined();
+    expect(
+      unitTargetProofPostcondition(
+        unitTargetResult({
+          sent: false,
+          verification: unitTargetVerification("not-sent", "not-sent"),
+        }),
+        undefined
+      )
+    ).toBeUndefined();
   });
 
   test("keeps sent unit target actions without postcondition evidence no-repeat guarded", () => {
-    expect(unitTargetProofPostcondition(unitTargetResult({
-      sent: true,
-      verification: undefined,
-    }), undefined)).toMatchObject({
+    expect(
+      unitTargetProofPostcondition(
+        unitTargetResult({
+          sent: true,
+          verification: undefined,
+        }),
+        undefined
+      )
+    ).toMatchObject({
       classification: "missing-postcondition",
       outcome: "unknown",
       confidence: "unverified",
@@ -93,10 +108,15 @@ describe("unit target proof policy", () => {
   });
 
   test("keeps pending runtime proof no-repeat guarded even for otherwise confirmed target reaches", () => {
-    expect(unitTargetProofPostcondition(unitTargetResult({
-      sent: true,
-      verification: unitTargetVerification("verified", "target-reached"),
-    }), "pending-runtime-proof")).toMatchObject({
+    expect(
+      unitTargetProofPostcondition(
+        unitTargetResult({
+          sent: true,
+          verification: unitTargetVerification("verified", "target-reached"),
+        }),
+        "pending-runtime-proof"
+      )
+    ).toMatchObject({
       classification: "target-reached",
       outcome: "unknown",
       confidence: "pending-runtime-proof",
@@ -106,7 +126,7 @@ describe("unit target proof policy", () => {
 });
 
 function unitTargetResult(
-  overrides: Partial<Civ7UnitTargetActionResult>,
+  overrides: Partial<Civ7UnitTargetActionResult>
 ): Civ7UnitTargetActionResult {
   return {
     sent: true,
@@ -116,7 +136,7 @@ function unitTargetResult(
 
 function unitTargetVerification(
   status: Civ7UnitTargetActionVerification["status"],
-  classification: Civ7UnitTargetActionVerification["classification"],
+  classification: Civ7UnitTargetActionVerification["classification"]
 ): Civ7UnitTargetActionVerification {
   return {
     status,
@@ -125,11 +145,12 @@ function unitTargetVerification(
     targetUnitsChanged: classification === "target-state-changed",
     destinationReached: classification === "target-reached",
     requestedLocation: { x: 23, y: 33 },
-    landedLocation: classification === "target-reached"
-      ? { x: 23, y: 33 }
-      : classification === "path-shortfall"
-        ? { x: 22, y: 33 }
-        : null,
+    landedLocation:
+      classification === "target-reached"
+        ? { x: 23, y: 33 }
+        : classification === "path-shortfall"
+          ? { x: 22, y: 33 }
+          : null,
     reason: `test ${classification}`,
   };
 }

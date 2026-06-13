@@ -1,11 +1,11 @@
-import { Command, Flags } from '@oclif/core';
-import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
-import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
-import { buildDirectControlOptions } from '../../../utils/game-play-shared';
+import { Command, Flags } from "@oclif/core";
+import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
+import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import { buildDirectControlOptions } from "../../../utils/game-play-shared";
 
 type TraditionsServiceResult = Awaited<
   ReturnType<
-    ReturnType<typeof createCiv7ControlOrpcServerClient>['progression']['traditions']['current']
+    ReturnType<typeof createCiv7ControlOrpcServerClient>["progression"]["traditions"]["current"]
   >
 >;
 type CompactTraditionAction = {
@@ -46,36 +46,37 @@ type TraditionRow = Readonly<{
 }>;
 
 export default class GamePlayTraditions extends Command {
-  static id = 'game play traditions';
-  static summary = 'Read current tradition slots and available policy actions';
+  static id = "game play traditions";
+  static summary = "Read current tradition slots and available policy actions";
   static description =
-    'Builds a read-only policy decision packet from the live player Culture API and GameInfo catalog.';
+    "Builds a read-only policy decision packet from the live player Culture API and GameInfo catalog.";
 
   static examples = [
-    '<%= config.bin %> game play traditions --json',
-    '<%= config.bin %> game play traditions --player-id 0',
+    "<%= config.bin %> game play traditions --json",
+    "<%= config.bin %> game play traditions --player-id 0",
   ];
 
   static flags = {
     host: Flags.string({
-      description: 'Civ7 tuner socket host',
+      description: "Civ7 tuner socket host",
     }),
     port: Flags.integer({
-      description: 'Civ7 tuner socket port',
+      description: "Civ7 tuner socket port",
     }),
-    'player-id': Flags.integer({
-      description: 'Player id to inspect. Defaults to GameContext.localPlayerID.',
+    "player-id": Flags.integer({
+      description: "Player id to inspect. Defaults to GameContext.localPlayerID.",
     }),
-    'timeout-ms': Flags.integer({
-      description: 'Socket timeout',
+    "timeout-ms": Flags.integer({
+      description: "Socket timeout",
       default: 45_000,
     }),
     compact: Flags.boolean({
-      description: 'In JSON mode, emit a compact option surface instead of the full traditions packet',
+      description:
+        "In JSON mode, emit a compact option surface instead of the full traditions packet",
       default: false,
     }),
     json: Flags.boolean({
-      description: 'Emit machine-readable JSON',
+      description: "Emit machine-readable JSON",
       default: false,
     }),
   };
@@ -86,26 +87,32 @@ export default class GamePlayTraditions extends Command {
       directControl: liveCiv7ControlOrpcDirectControlFacade,
       endpointDefaults: buildDirectControlOptions(flags),
     }).progression.traditions.current({
-      playerId: flags['player-id'],
+      playerId: flags["player-id"],
     });
 
     if (flags.json) {
-      this.log(JSON.stringify(flags.compact ? buildCompactTraditionsView(view) : { ok: true, view }));
+      this.log(
+        JSON.stringify(flags.compact ? buildCompactTraditionsView(view) : { ok: true, view })
+      );
       return;
     }
 
-    this.log(`Turn ${formatProbe(view.turn)} (${formatProbe(view.turnDate)}); player ${view.playerId}`);
-    this.log(`Government: ${view.government.name ?? view.government.type ?? '<unknown>'}`);
-    this.log(`Slots: ${view.slots.active}/${formatProbe(view.slots.total)} active; available=${view.slots.available}; open=${view.slots.open}`);
+    this.log(
+      `Turn ${formatProbe(view.turn)} (${formatProbe(view.turnDate)}); player ${view.playerId}`
+    );
+    this.log(`Government: ${view.government.name ?? view.government.type ?? "<unknown>"}`);
+    this.log(
+      `Slots: ${view.slots.active}/${formatProbe(view.slots.total)} active; available=${view.slots.available}; open=${view.slots.open}`
+    );
     this.log(`Actions: activate=${view.actions.activate}; deactivate=${view.actions.deactivate}`);
     if (view.recentUnlocks.length > 0) {
-      this.log('Recent unlocks:');
+      this.log("Recent unlocks:");
       for (const tradition of view.recentUnlocks) this.log(`- ${formatTradition(tradition)}`);
     }
-    this.log('Active:');
+    this.log("Active:");
     for (const tradition of view.active) this.log(`- ${formatTradition(tradition)}`);
     if (view.available.length > 0) {
-      this.log('Available:');
+      this.log("Available:");
       for (const tradition of view.available) this.log(`- ${formatTradition(tradition)}`);
     }
     for (const step of view.nextSteps) this.log(`Next: ${step.label}`);
@@ -115,8 +122,8 @@ export default class GamePlayTraditions extends Command {
 
 function buildCompactTraditionsView(view: TraditionsServiceResult): {
   ok: true;
-  contractVersion: 'play-agent-v0';
-  surface: 'traditions';
+  contractVersion: "play-agent-v0";
+  surface: "traditions";
   playerId: number;
   turn: unknown;
   turnDate: unknown;
@@ -129,7 +136,7 @@ function buildCompactTraditionsView(view: TraditionsServiceResult): {
   enabledAvailableCount: number;
   disabledAvailableCount: number;
   recommendedActions: CompactTraditionAction[];
-  nextSteps: TraditionsServiceResult['nextSteps'];
+  nextSteps: TraditionsServiceResult["nextSteps"];
   omitted: Array<{ path: string; reason: string }>;
   hiddenInfoPolicy: unknown;
   notes: ReadonlyArray<string>;
@@ -137,19 +144,22 @@ function buildCompactTraditionsView(view: TraditionsServiceResult): {
   const active = view.active.map((tradition: TraditionRow) =>
     compactTraditionRow(tradition, {
       sendCloseout: false,
-    }));
+    })
+  );
   const available = view.available.map((tradition: TraditionRow) =>
     compactTraditionRow(tradition, {
       sendCloseout: true,
-    }));
+    })
+  );
   const recentUnlocks = view.recentUnlocks.map((tradition: TraditionRow) =>
     compactTraditionRow(tradition, {
       sendCloseout: true,
-    }));
+    })
+  );
   return {
     ok: true,
-    contractVersion: 'play-agent-v0',
-    surface: 'traditions',
+    contractVersion: "play-agent-v0",
+    surface: "traditions",
     playerId: view.playerId,
     turn: view.turn,
     turnDate: view.turnDate,
@@ -159,30 +169,37 @@ function buildCompactTraditionsView(view: TraditionsServiceResult): {
     active,
     available,
     recentUnlocks,
-    enabledAvailableCount: available.filter((tradition: CompactTraditionRow) => tradition.validationSuccess === true).length,
-    disabledAvailableCount: available.filter((tradition: CompactTraditionRow) => tradition.validationSuccess !== true).length,
+    enabledAvailableCount: available.filter(
+      (tradition: CompactTraditionRow) => tradition.validationSuccess === true
+    ).length,
+    disabledAvailableCount: available.filter(
+      (tradition: CompactTraditionRow) => tradition.validationSuccess !== true
+    ).length,
     recommendedActions: available
       .map((tradition: CompactTraditionRow) => tradition.nextAction)
-      .filter((action: CompactTraditionAction | null): action is CompactTraditionAction => action != null)
-      .filter((action: CompactTraditionAction) => action.sendsMutation && action.validationSuccess === true),
+      .filter(
+        (action: CompactTraditionAction | null): action is CompactTraditionAction => action != null
+      )
+      .filter(
+        (action: CompactTraditionAction) =>
+          action.sendsMutation && action.validationSuccess === true
+      ),
     nextSteps: view.nextSteps,
     omitted: view.omitted,
     hiddenInfoPolicy: view.hiddenInfoPolicy,
     notes: [
-      'Read-only compact tradition option surface. It does not choose or send CHANGE_TRADITION.',
-      'If slots are full, deactivate an active tradition first, re-read, then activate the selected available tradition.',
+      "Read-only compact tradition option surface. It does not choose or send CHANGE_TRADITION.",
+      "If slots are full, deactivate an active tradition first, re-read, then activate the selected available tradition.",
     ],
   };
 }
 
 function compactTraditionRow(
   tradition: TraditionRow,
-  options: { sendCloseout: boolean },
+  options: { sendCloseout: boolean }
 ): CompactTraditionRow {
   const action = tradition.actions[0];
-  const nextAction = action
-    ? compactTraditionAction(action, options.sendCloseout)
-    : null;
+  const nextAction = action ? compactTraditionAction(action, options.sendCloseout) : null;
   return {
     id: tradition.id,
     type: tradition.type,
@@ -203,15 +220,16 @@ function compactTraditionRow(
 
 function compactTraditionAction(
   action: TraditionAction,
-  closeout: boolean,
+  closeout: boolean
 ): CompactTraditionAction {
   return {
-    kind: action.validationSuccess === true ? action.kind : 'validate-tradition-change',
-    label: action.validationSuccess === true
-      ? action.kind === 'activate'
-        ? 'Activate this tradition.'
-        : 'Deactivate this tradition.'
-      : 'Review validation before treating this tradition as a mutation action.',
+    kind: action.validationSuccess === true ? action.kind : "validate-tradition-change",
+    label:
+      action.validationSuccess === true
+        ? action.kind === "activate"
+          ? "Activate this tradition."
+          : "Deactivate this tradition."
+        : "Review validation before treating this tradition as a mutation action.",
     parameters: {
       traditionType: action.parameters.traditionType,
       action: action.parameters.action,
@@ -228,11 +246,15 @@ function formatTradition(tradition: {
   type: string | null;
   name: string | null;
   description: string | null;
-  actions: ReadonlyArray<{ kind: string; action: number | null; validationSuccess: boolean | null }>;
+  actions: ReadonlyArray<{
+    kind: string;
+    action: number | null;
+    validationSuccess: boolean | null;
+  }>;
 }): string {
   const action = tradition.actions[0];
-  const validation = action ? String(action.validationSuccess) : 'no action';
-  return `${tradition.name ?? tradition.type ?? tradition.id} (${tradition.id}) ${action?.kind ?? ''}=${action?.action ?? '<none>'}; validation=${validation}${tradition.description ? `; ${tradition.description}` : ''}`;
+  const validation = action ? String(action.validationSuccess) : "no action";
+  return `${tradition.name ?? tradition.type ?? tradition.id} (${tradition.id}) ${action?.kind ?? ""}=${action?.action ?? "<none>"}; validation=${validation}${tradition.description ? `; ${tradition.description}` : ""}`;
 }
 
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {

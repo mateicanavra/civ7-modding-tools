@@ -47,8 +47,10 @@ type FeaturePolicy = Readonly<{
   naturalWonderDirection?: number;
 }>;
 
-const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as
-  Record<string, FeaturePolicy | undefined>;
+const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
+  string,
+  FeaturePolicy | undefined
+>;
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
 // resolved by the game's module loader, not TypeScript
@@ -59,7 +61,10 @@ import { VoronoiUtils as CivVoronoiUtils } from "/base-standard/scripts/voronoi-
 // Vanilla Civ7 biomes/features live in feature-biome-generator.js
 // @ts-ignore - resolved only at Civ7 runtime
 // prettier-ignore
-import { designateBiomes as civ7DesignateBiomes, addFeatures as civ7AddFeatures } from "/base-standard/maps/feature-biome-generator.js";
+import {
+  designateBiomes as civ7DesignateBiomes,
+  addFeatures as civ7AddFeatures,
+} from "/base-standard/maps/feature-biome-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { generateSnow as civ7GenerateSnow } from "/base-standard/maps/snow-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
@@ -68,7 +73,10 @@ import { generateDiscoveries as civ7GenerateDiscoveries } from "/base-standard/m
 import * as civ7ResourceGeneratorModule from "/base-standard/maps/resource-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
 // prettier-ignore
-import { assignStartPositions as civ7AssignStartPositions, chooseStartSectors as civ7ChooseStartSectors } from "/base-standard/maps/assign-starting-plots.js";
+import {
+  assignStartPositions as civ7AssignStartPositions,
+  chooseStartSectors as civ7ChooseStartSectors,
+} from "/base-standard/maps/assign-starting-plots.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { needHumanNearEquator as civ7NeedHumanNearEquator } from "/base-standard/maps/map-utilities.js";
 // @ts-ignore - resolved only at Civ7 runtime
@@ -76,7 +84,10 @@ import { assignAdvancedStartRegions as civ7AssignAdvancedStartRegions } from "/b
 // Elevation terrain generator (lakes/coasts)
 // @ts-ignore - resolved only at Civ7 runtime
 // prettier-ignore
-import { generateLakes as civ7GenerateLakes, expandCoasts as civ7ExpandCoasts } from "/base-standard/maps/elevation-terrain-generator.js";
+import {
+  generateLakes as civ7GenerateLakes,
+  expandCoasts as civ7ExpandCoasts,
+} from "/base-standard/maps/elevation-terrain-generator.js";
 
 /**
  * Production adapter wrapping GameplayMap, TerrainBuilder, AreaBuilder, FractalBuilder
@@ -205,9 +216,11 @@ export class Civ7Adapter implements EngineAdapter {
     const map = GameplayMap as unknown as {
       getRiverType?: (x: number, y: number) => number;
     };
-    const riverTypes = (globalThis as typeof globalThis & {
-      RiverTypes?: Record<string, number>;
-    }).RiverTypes;
+    const riverTypes = (
+      globalThis as typeof globalThis & {
+        RiverTypes?: Record<string, number>;
+      }
+    ).RiverTypes;
     const noRiverType =
       typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER | 0 : NO_RIVER_TYPE;
     return typeof map.getRiverType === "function" ? map.getRiverType(x, y) | 0 : noRiverType;
@@ -218,9 +231,11 @@ export class Civ7Adapter implements EngineAdapter {
       isRiver?: (x: number, y: number) => boolean;
     };
     if (typeof map.isRiver === "function") return map.isRiver(x, y);
-    const riverTypes = (globalThis as typeof globalThis & {
-      RiverTypes?: Record<string, number>;
-    }).RiverTypes;
+    const riverTypes = (
+      globalThis as typeof globalThis & {
+        RiverTypes?: Record<string, number>;
+      }
+    ).RiverTypes;
     const noRiverType =
       typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER | 0 : NO_RIVER_TYPE;
     return this.getRiverType(x, y) !== noRiverType;
@@ -231,9 +246,11 @@ export class Civ7Adapter implements EngineAdapter {
       isNavigableRiver?: (x: number, y: number) => boolean;
     };
     if (typeof map.isNavigableRiver === "function") return map.isNavigableRiver(x, y);
-    const riverTypes = (globalThis as typeof globalThis & {
-      RiverTypes?: Record<string, number>;
-    }).RiverTypes;
+    const riverTypes = (
+      globalThis as typeof globalThis & {
+        RiverTypes?: Record<string, number>;
+      }
+    ).RiverTypes;
     const navigableRiverType =
       typeof riverTypes?.RIVER_NAVIGABLE === "number"
         ? riverTypes.RIVER_NAVIGABLE
@@ -599,9 +616,11 @@ export class Civ7Adapter implements EngineAdapter {
     }
 
     const navigableRiverTerrain = this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
-    const riverTypes = (globalThis as typeof globalThis & {
-      RiverTypes?: Record<string, number>;
-    }).RiverTypes;
+    const riverTypes = (
+      globalThis as typeof globalThis & {
+        RiverTypes?: Record<string, number>;
+      }
+    ).RiverTypes;
     const noRiverType =
       typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER : NO_RIVER_TYPE;
     const minorRiverType =
@@ -640,9 +659,7 @@ export class Civ7Adapter implements EngineAdapter {
         const terrain = this.getTerrainType(x, y) | 0;
         const riverType = this.getRiverType(x, y) | 0;
         const isRiver = this.isRiver(x, y);
-        const isNavigable =
-          this.isNavigableRiver(x, y) ||
-          riverType === navigableRiverType;
+        const isNavigable = this.isNavigableRiver(x, y) || riverType === navigableRiverType;
         const hasNavigableTerrain = terrain === navigableRiverTerrain;
         const isMinor = isRiver && riverType === minorRiverType;
         const hasRiverMetadata = riverType !== noRiverType;

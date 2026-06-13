@@ -11,7 +11,8 @@ import * as http from "node:http";
 export default class Explore extends Command {
   static id = "explore";
   static summary = "Crawl + render + open a visualization in one pipeline.";
-  static description = `Runs the full pipeline: crawl resources for a seed, emit graph.json/graph.dot, render SVG, and optionally open a visualizer (local SVG or Graphviz Online).`;
+  static description =
+    `Runs the full pipeline: crawl resources for a seed, emit graph.json/graph.dot, render SVG, and optionally open a visualizer (local SVG or Graphviz Online).`;
 
   static examples = [
     "<%= config.bin %> explore LEADER_AMINA",

@@ -5,4 +5,4 @@
 import { UnlockBuilder } from "@mateicanavra/civ7-sdk";
 
 // Collection of shared unlocks
-export const sharedUnlocks: UnlockBuilder[] = []; 
+export const sharedUnlocks: UnlockBuilder[] = [];

@@ -47,11 +47,16 @@ function extractResourcesRows(relativePath: string): string[] {
 
 function extractResourceTypesRows(relativePath: string): string[] {
   const section = extractSection(readOfficial(relativePath), "Types");
-  return Array.from(section.matchAll(/<Row\s+Type="(RESOURCE_[^"]+)"\s+Kind="KIND_RESOURCE"/g), (match) => match[1]!);
+  return Array.from(
+    section.matchAll(/<Row\s+Type="(RESOURCE_[^"]+)"\s+Kind="KIND_RESOURCE"/g),
+    (match) => match[1]!
+  );
 }
 
 function parseAttrs(row: string): Record<string, string> {
-  return Object.fromEntries(Array.from(row.matchAll(/([A-Za-z_]+)="([^"]*)"/g), (match) => [match[1]!, match[2]!]));
+  return Object.fromEntries(
+    Array.from(row.matchAll(/([A-Za-z_]+)="([^"]*)"/g), (match) => [match[1]!, match[2]!])
+  );
 }
 
 function normalizeDistribution(attrs: Record<string, string>) {
@@ -84,7 +89,9 @@ function collectOfficialFacts() {
 
   for (const file of resourceFiles) {
     const xml = readOfficial(file);
-    for (const match of extractSection(xml, "Resources").matchAll(/<Row\s+([^>]*ResourceType="RESOURCE_[^"]+"[^>]*)\/>/g)) {
+    for (const match of extractSection(xml, "Resources").matchAll(
+      /<Row\s+([^>]*ResourceType="RESOURCE_[^"]+"[^>]*)\/>/g
+    )) {
       const attrs = parseAttrs(match[0]!);
       attrs.sourceFile = file;
       rows.set(attrs.ResourceType as OfficialResourceType, attrs);
@@ -94,12 +101,16 @@ function collectOfficialFacts() {
       const resourceType = attrs.ResourceType as OfficialResourceType;
       ages.set(resourceType, [...(ages.get(resourceType) ?? []), attrs.AgeType!]);
     }
-    for (const match of extractSection(xml, "Resource_ValidBiomes").matchAll(/<Row\s+([^>]*)\/>/g)) {
+    for (const match of extractSection(xml, "Resource_ValidBiomes").matchAll(
+      /<Row\s+([^>]*)\/>/g
+    )) {
       const attrs = parseAttrs(match[0]!);
       const resourceType = attrs.ResourceType as OfficialResourceType;
       biomeCounts.set(resourceType, (biomeCounts.get(resourceType) ?? 0) + 1);
     }
-    for (const match of extractSection(xml, "Resource_YieldChanges").matchAll(/<Row\s+([^>]*)\/>/g)) {
+    for (const match of extractSection(xml, "Resource_YieldChanges").matchAll(
+      /<Row\s+([^>]*)\/>/g
+    )) {
       const attrs = parseAttrs(match[0]!);
       const resourceType = attrs.ResourceType as OfficialResourceType;
       yields.set(resourceType, [
@@ -162,7 +173,9 @@ describe("official resource corpus contract", () => {
 
   it("keeps caveats explicit for runtime id proof and no-biome-row resources", () => {
     const artifact = OFFICIAL_RESOURCE_CORPUS_ARTIFACT;
-    const rubies = OFFICIAL_RESOURCE_CORPUS.find((entry) => entry.resourceType === "RESOURCE_RUBIES");
+    const rubies = OFFICIAL_RESOURCE_CORPUS.find(
+      (entry) => entry.resourceType === "RESOURCE_RUBIES"
+    );
     const lotus = OFFICIAL_RESOURCE_CORPUS.find((entry) => entry.resourceType === "RESOURCE_LOTUS");
     const blocked = OFFICIAL_RESOURCE_CORPUS.filter(
       (entry) => entry.strategyRequired.status === "blocked"

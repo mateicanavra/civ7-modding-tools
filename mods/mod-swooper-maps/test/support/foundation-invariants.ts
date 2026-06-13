@@ -127,7 +127,12 @@ function countAbove(values: Uint8Array, threshold: number): number {
   return count;
 }
 
-function eraHasSignal(perEra: Array<any>, eraIndex: number, cellIndex: number, threshold: number): boolean {
+function eraHasSignal(
+  perEra: Array<any>,
+  eraIndex: number,
+  cellIndex: number,
+  threshold: number
+): boolean {
   const era = perEra[eraIndex];
   if (!era) return false;
   const boundaryType = era.boundaryType?.[cellIndex] ?? 0;
@@ -191,21 +196,23 @@ function requireArtifact<T>(ctx: ValidationInvariantContext, id: string, label: 
 }
 
 let cachedMountainsConfigKey: string | null = null;
-let cachedMountainsOpConfig:
-  | {
-      ridges: { strategy: string; config: Record<string, unknown> };
-      foothills: { strategy: string; config: Record<string, unknown> };
-    }
-  | null = null;
+let cachedMountainsOpConfig: {
+  ridges: { strategy: string; config: Record<string, unknown> };
+  foothills: { strategy: string; config: Record<string, unknown> };
+} | null = null;
 
-function resolveRuntimeMountainsOpConfig(
-  ctx: ValidationInvariantContext
-): {
+function resolveRuntimeMountainsOpConfig(ctx: ValidationInvariantContext): {
   ridges: { strategy: string; config: Record<string, unknown> };
   foothills: { strategy: string; config: Record<string, unknown> };
 } {
-  const defaultRidges = planRidges.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
-  const defaultFoothills = planFoothills.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
+  const defaultRidges = planRidges.defaultConfig as {
+    strategy?: string;
+    config?: Record<string, unknown>;
+  };
+  const defaultFoothills = planFoothills.defaultConfig as {
+    strategy?: string;
+    config?: Record<string, unknown>;
+  };
 
   const defaultResolved = {
     ridges: {
@@ -272,7 +279,11 @@ const mantlePotentialInvariant: ValidationInvariant = {
       "mantlePotential"
     );
     if (!mantle || !(mantle.potential instanceof Float32Array)) {
-      return { name: "foundation-mantle-potential-range", ok: false, message: "Missing mantlePotential.potential." };
+      return {
+        name: "foundation-mantle-potential-range",
+        ok: false,
+        message: "Missing mantlePotential.potential.",
+      };
     }
     const stats = scanFloat(mantle.potential);
     if (stats.nonFinite > 0) {
@@ -284,7 +295,11 @@ const mantlePotentialInvariant: ValidationInvariant = {
       };
     }
     const range = stats.max - stats.min;
-    if (stats.max < POTENTIAL_MIN_ABS || stats.min > -POTENTIAL_MIN_ABS || range < POTENTIAL_MIN_ABS * 2) {
+    if (
+      stats.max < POTENTIAL_MIN_ABS ||
+      stats.min > -POTENTIAL_MIN_ABS ||
+      range < POTENTIAL_MIN_ABS * 2
+    ) {
       return {
         name: "foundation-mantle-potential-range",
         ok: false,
@@ -327,7 +342,11 @@ const mantleForcingInvariant: ValidationInvariant = {
       !(forcing.forcingV instanceof Float32Array) ||
       !(forcing.divergence instanceof Float32Array)
     ) {
-      return { name: "foundation-mantle-forcing-nonzero", ok: false, message: "Missing mantleForcing arrays." };
+      return {
+        name: "foundation-mantle-forcing-nonzero",
+        ok: false,
+        message: "Missing mantleForcing arrays.",
+      };
     }
     const magStats = scanFloat(forcing.forcingMag);
     const stressStats = scanFloat(forcing.stress);
@@ -338,7 +357,13 @@ const mantleForcingInvariant: ValidationInvariant = {
         name: "foundation-mantle-forcing-nonzero",
         ok: false,
         message: "mantleForcing contains non-finite values.",
-        details: { nonFinite: { mag: magStats.nonFinite, stress: stressStats.nonFinite, divergence: divStats.nonFinite } },
+        details: {
+          nonFinite: {
+            mag: magStats.nonFinite,
+            stress: stressStats.nonFinite,
+            divergence: divStats.nonFinite,
+          },
+        },
       };
     }
 
@@ -388,7 +413,11 @@ const mantleForcingInvariant: ValidationInvariant = {
     return {
       name: "foundation-mantle-forcing-nonzero",
       ok: true,
-      details: { forcingMag: { max: magStats.max, mean: magStats.mean }, stressMax: stressStats.max, speedMean },
+      details: {
+        forcingMag: { max: magStats.max, mean: magStats.mean },
+        stressMax: stressStats.max,
+        speedMean,
+      },
     };
   },
 };
@@ -416,7 +445,11 @@ const plateCouplingInvariant: ValidationInvariant = {
       !(motion.plateQuality instanceof Uint8Array) ||
       !(motion.cellFitError instanceof Uint8Array)
     ) {
-      return { name: "foundation-plate-motion-coupling", ok: false, message: "Missing plate motion arrays." };
+      return {
+        name: "foundation-plate-motion-coupling",
+        ok: false,
+        message: "Missing plate motion arrays.",
+      };
     }
 
     const meanForcing = meanSpeed(forcing.forcingU, forcing.forcingV);
@@ -504,7 +537,11 @@ const eventProvenanceInvariant: ValidationInvariant = {
     const fractureTotal: Uint8Array = rollups.fractureTotal ?? new Uint8Array(size);
     const volcanismTotal: Uint8Array = rollups.volcanismTotal ?? new Uint8Array(size);
 
-    if (upliftTotal.length !== size || fractureTotal.length !== size || volcanismTotal.length !== size) {
+    if (
+      upliftTotal.length !== size ||
+      fractureTotal.length !== size ||
+      volcanismTotal.length !== size
+    ) {
       return {
         name: "foundation-event-provenance-causality",
         ok: false,
@@ -519,7 +556,11 @@ const eventProvenanceInvariant: ValidationInvariant = {
     let boundaryCoverageCount = 0;
 
     for (let i = 0; i < size; i++) {
-      const eventSignal = Math.max(upliftTotal[i] ?? 0, fractureTotal[i] ?? 0, volcanismTotal[i] ?? 0);
+      const eventSignal = Math.max(
+        upliftTotal[i] ?? 0,
+        fractureTotal[i] ?? 0,
+        volcanismTotal[i] ?? 0
+      );
       if (eventSignal > EVENT_SIGNAL_THRESHOLD) {
         eventCount += 1;
         if ((lastBoundaryEra[i] ?? 255) !== 255) boundaryCoverageCount += 1;
@@ -565,7 +606,10 @@ const eventProvenanceInvariant: ValidationInvariant = {
         details: { originCount, originFraction },
       };
     }
-    if (boundaryEraCount >= EVENT_CORRIDOR_MIN_TILES && boundaryEraFraction < EVENT_BOUNDARY_FRACTION_MIN) {
+    if (
+      boundaryEraCount >= EVENT_CORRIDOR_MIN_TILES &&
+      boundaryEraFraction < EVENT_BOUNDARY_FRACTION_MIN
+    ) {
       return {
         name: "foundation-event-provenance-causality",
         ok: false,
@@ -597,7 +641,11 @@ const beltContinuityInvariant: ValidationInvariant = {
       "tectonicProvenanceTiles"
     );
     if (!historyTiles || !provenanceTiles) {
-      return { name: "morphology-belt-continuity", ok: false, message: "Missing belt driver inputs." };
+      return {
+        name: "morphology-belt-continuity",
+        ok: false,
+        message: "Missing belt driver inputs.",
+      };
     }
     const width = ctx.context.dimensions.width | 0;
     const height = ctx.context.dimensions.height | 0;
@@ -644,7 +692,10 @@ const beltContinuityInvariant: ValidationInvariant = {
     }
 
     if (beltCellCount > 0) {
-      if (meanComponentSize < BELT_COMPONENT_MEAN_MIN || maxComponentSize < BELT_COMPONENT_MAX_MIN) {
+      if (
+        meanComponentSize < BELT_COMPONENT_MEAN_MIN ||
+        maxComponentSize < BELT_COMPONENT_MAX_MIN
+      ) {
         return {
           name: "morphology-belt-continuity",
           ok: false,
@@ -686,21 +737,34 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
     );
     const topography = requireArtifact<any>(ctx, morphologyArtifacts.topography.id, "topography");
     if (!historyTiles || !provenanceTiles || !topography) {
-      return { name: "morphology-driver-correlation", ok: false, message: "Missing morphology driver inputs." };
+      return {
+        name: "morphology-driver-correlation",
+        ok: false,
+        message: "Missing morphology driver inputs.",
+      };
     }
 
     const { width, height } = ctx.context.dimensions;
     const size = Math.max(0, width * height);
     const landMask: Uint8Array = topography.landMask ?? new Uint8Array(size);
     if (landMask.length !== size) {
-      return { name: "morphology-driver-correlation", ok: false, message: "Topography landMask size mismatch." };
+      return {
+        name: "morphology-driver-correlation",
+        ok: false,
+        message: "Topography landMask size mismatch.",
+      };
     }
 
     const baseSeed = deriveStepSeed(ctx.context.env.seed, "morphology:planMountains");
     const fractalMountain = buildFractalArray(width, height, baseSeed ^ 0x3d, 5);
     const fractalHill = buildFractalArray(width, height, baseSeed ^ 0x5f, 5);
 
-    const beltDrivers = deriveBeltDriversFromHistory({ width, height, historyTiles, provenanceTiles });
+    const beltDrivers = deriveBeltDriversFromHistory({
+      width,
+      height,
+      historyTiles,
+      provenanceTiles,
+    });
     const mountainsOpConfig = resolveRuntimeMountainsOpConfig(ctx);
     const ridges = planRidges.run(
       {
@@ -749,7 +813,11 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
     const plan = { mountainMask: ridges.mountainMask, hillMask: foothills.hillMask } as const;
 
     if (!(plan.mountainMask instanceof Uint8Array)) {
-      return { name: "morphology-driver-correlation", ok: false, message: "Missing mountainMask output." };
+      return {
+        name: "morphology-driver-correlation",
+        ok: false,
+        message: "Missing mountainMask output.",
+      };
     }
 
     let strongDriverCount = 0;
@@ -790,7 +858,8 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
 
     const driverCoverage = strongDriverCount > 0 ? mountainOnStrong / strongDriverCount : 1;
     const mountainDriverFraction = mountainCount > 0 ? 1 - mountainOffDrivers / mountainCount : 1;
-    const meanDriverMountain = driverCountMountain > 0 ? driverSumMountain / driverCountMountain : 0;
+    const meanDriverMountain =
+      driverCountMountain > 0 ? driverSumMountain / driverCountMountain : 0;
     const meanDriverOther = driverCountOther > 0 ? driverSumOther / driverCountOther : 0;
 
     if (strongDriverCount >= DRIVER_MIN_TILES && driverCoverage < DRIVER_COVERAGE_MIN) {
@@ -839,12 +908,17 @@ const couplingDiagnostics: ValidationInvariant = {
       !(motion.plateFitRms instanceof Float32Array) ||
       !(motion.plateQuality instanceof Uint8Array)
     ) {
-      return { name: "foundation-plate-motion-diagnostics", ok: false, message: "Missing diagnostic arrays." };
+      return {
+        name: "foundation-plate-motion-diagnostics",
+        ok: false,
+        message: "Missing diagnostic arrays.",
+      };
     }
     const p90Stats = scanFloat(motion.plateFitP90);
     const rmsStats = scanFloat(motion.plateFitRms);
     const qualityStats = scanBytes(motion.plateQuality);
-    const cellStats = motion.cellFitError instanceof Uint8Array ? scanBytes(motion.cellFitError) : null;
+    const cellStats =
+      motion.cellFitError instanceof Uint8Array ? scanBytes(motion.cellFitError) : null;
     let okFraction = 0;
     if (motion.cellFitError instanceof Uint8Array && motion.cellFitError.length > 0) {
       let okCount = 0;
@@ -853,7 +927,8 @@ const couplingDiagnostics: ValidationInvariant = {
       }
       okFraction = okCount / motion.cellFitError.length;
     }
-    const ok = qualityStats.mean >= PLATE_QUALITY_MEAN_MIN && okFraction >= CELL_FIT_OK_FRACTION_MIN;
+    const ok =
+      qualityStats.mean >= PLATE_QUALITY_MEAN_MIN && okFraction >= CELL_FIT_OK_FRACTION_MIN;
     return {
       name: "foundation-plate-motion-diagnostics",
       ok,

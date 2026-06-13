@@ -15,7 +15,9 @@ import {
 
 describe("Civ7 unit-target action request procedure descriptor", () => {
   test("records unit-target validator, postcondition, and no-repeat metadata and resolves schemas", () => {
-    const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7UnitTargetActionRequestProcedureDescriptor);
+    const summary = summarizeCiv7ProcedureCoreDescriptor(
+      Civ7UnitTargetActionRequestProcedureDescriptor
+    );
     expect(summary).toMatchObject({
       procedureKey: "unit.target.action.request",
       family: "unit",
@@ -35,38 +37,50 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7UnitTargetActionRequestProcedureDescriptor,
-      Civ7UnitTargetActionRequestProcedureSchemaArtifacts,
+      Civ7UnitTargetActionRequestProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7UnitTargetActionRequestProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7UnitTargetActionRequestProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7UnitTargetActionRequestProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7UnitTargetActionRequestProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      unitId: { owner: 0, id: 65536, type: 26 },
-      x: 23,
-      y: 33,
-    })).toBe(true);
-    expect(Value.Check(resolved.inputSchema, { unitId: { owner: 0, id: 65536 }, x: 1.5, y: 0 })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { unitId: { owner: 0, id: 65536 }, x: 0, y: 1_000_001 })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      unitId: { owner: 0, id: 65536 },
-      x: 0,
-      y: 0,
-      rawCommand: "Game.UnitOperations.sendRequest(...)",
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      unitId: { owner: 0, id: 65536 },
-      x: 0,
-      y: 0,
-      state: { role: "tuner" },
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        unitId: { owner: 0, id: 65536, type: 26 },
+        x: 23,
+        y: 33,
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, { unitId: { owner: 0, id: 65536 }, x: 1.5, y: 0 })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, { unitId: { owner: 0, id: 65536 }, x: 0, y: 1_000_001 })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        unitId: { owner: 0, id: 65536 },
+        x: 0,
+        y: 0,
+        rawCommand: "Game.UnitOperations.sendRequest(...)",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        unitId: { owner: 0, id: 65536 },
+        x: 0,
+        y: 0,
+        state: { role: "tuner" },
+      })
+    ).toBe(false);
     expect(Value.Check(resolved.outputSchema, unitTargetActionResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...unitTargetActionResult(),
-      rawCommand: "Game.UnitOperations.sendRequest(...)",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...unitTargetActionResult(),
+        rawCommand: "Game.UnitOperations.sendRequest(...)",
+      })
+    ).toBe(false);
   });
 
   test("calls the unit-target atom through the procedure core", async () => {
@@ -76,27 +90,30 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
       port?: number;
     }> = [];
 
-    const result = await callCiv7UnitTargetActionRequestProcedure({
-      unitId: { owner: 0, id: 65536, type: 26 },
-      x: 23,
-      y: 33,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7UnitTargetActionRequestProcedure(
+      {
+        unitId: { owner: 0, id: 65536, type: 26 },
+        x: 23,
+        y: 33,
       },
-      procedure: {
-        correlationId: "unit-target-action-procedure-test",
-      },
-      request: async (input, options) => {
-        calls.push({
-          input,
-          host: options.host,
-          port: options.port,
-        });
-        return unitTargetActionResult();
-      },
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "unit-target-action-procedure-test",
+        },
+        request: async (input, options) => {
+          calls.push({
+            input,
+            host: options.host,
+            port: options.port,
+          });
+          return unitTargetActionResult();
+        },
+      }
+    );
 
     expect(result.output).toEqual(unitTargetActionResult());
     expect(result.diagnostics).toMatchObject({
@@ -107,11 +124,13 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
       debugServiceCorrelation: true,
       telemetryCorrelation: true,
     });
-    expect(calls).toEqual([{
-      input: { unitId: { owner: 0, id: 65536, type: 26 }, x: 23, y: 33 },
-      host: "127.0.0.1",
-      port: 4318,
-    }]);
+    expect(calls).toEqual([
+      {
+        input: { unitId: { owner: 0, id: 65536, type: 26 }, x: 23, y: 33 },
+        host: "127.0.0.1",
+        port: 4318,
+      },
+    ]);
   });
 
   test("rejects invalid procedure input before request dependencies run", async () => {
@@ -127,13 +146,15 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
         command: "Game.UnitOperations.sendRequest(...)",
       },
     ]) {
-      await expect(callCiv7UnitTargetActionRequestProcedure(input as never, {
-        procedure: { correlationId: "unit-target-action-invalid-input" },
-        request: async () => {
-          requested = true;
-          throw new Error("request should not run after procedure input rejection");
-        },
-      })).rejects.toMatchObject({
+      await expect(
+        callCiv7UnitTargetActionRequestProcedure(input as never, {
+          procedure: { correlationId: "unit-target-action-invalid-input" },
+          request: async () => {
+            requested = true;
+            throw new Error("request should not run after procedure input rejection");
+          },
+        })
+      ).rejects.toMatchObject({
         code: "procedure-descriptor-invalid",
         details: {
           reason: "input-schema-invalid",
@@ -147,16 +168,21 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
 
   test("requires caller-provided correlation before mutation handler execution", async () => {
     let requested = false;
-    await expect(callCiv7UnitTargetActionRequestProcedure({
-      unitId: { owner: 0, id: 65536, type: 26 },
-      x: 23,
-      y: 33,
-    }, {
-      request: async () => {
-        requested = true;
-        return unitTargetActionResult();
-      },
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7UnitTargetActionRequestProcedure(
+        {
+          unitId: { owner: 0, id: 65536, type: 26 },
+          x: 23,
+          y: 33,
+        },
+        {
+          request: async () => {
+            requested = true;
+            return unitTargetActionResult();
+          },
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "correlation-id-missing",
@@ -180,14 +206,16 @@ function unitTargetActionResult(): Civ7UnitTargetActionResult {
     },
     beforeUnit: { ok: true, value: { location: { x: 22, y: 33 }, attacksRemaining: 1 } },
     beforeTargetUnits: { ok: true, value: [{ owner: 62, id: 123, type: 26 }] },
-    candidates: [{
-      family: "unit-operation",
-      operationType: "UNITOPERATION_RANGE_ATTACK",
-      args: { X: 23, Y: 33, Modifiers: 3 },
-      valid: true,
-      result: { Success: true, Plots: [1457] },
-      targetInReturnedPlots: true,
-    }],
+    candidates: [
+      {
+        family: "unit-operation",
+        operationType: "UNITOPERATION_RANGE_ATTACK",
+        args: { X: 23, Y: 33, Modifiers: 3 },
+        valid: true,
+        result: { Success: true, Plots: [1457] },
+        targetInReturnedPlots: true,
+      },
+    ],
     selected: {
       family: "unit-operation",
       operationType: "UNITOPERATION_RANGE_ATTACK",
@@ -214,8 +242,6 @@ function unitTargetActionResult(): Civ7UnitTargetActionResult {
       observedAfterMs: 0,
       reason: "unit state changed after send",
     },
-    notes: [
-      "Selection follows the official right-click WorldInput target order.",
-    ],
+    notes: ["Selection follows the official right-click WorldInput target order."],
   };
 }

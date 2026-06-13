@@ -12,4 +12,3 @@ const scorePlotEffectsSand = createOp(PlotEffectsScoreSandContract, {
 export type * from "./contract.js";
 
 export default scorePlotEffectsSand;
-

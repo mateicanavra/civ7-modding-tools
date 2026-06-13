@@ -50,7 +50,9 @@ type StageLike = Readonly<{
   public?: TObject;
   surfaceSchema: TObject;
   authoring: StageAuthoringModel;
-  toInternal: (args: { env: unknown; stageConfig: unknown }) => { rawSteps: Record<string, unknown> };
+  toInternal: (args: { env: unknown; stageConfig: unknown }) => {
+    rawSteps: Record<string, unknown>;
+  };
 }>;
 
 type StudioRecipeUiMeta = Readonly<{
@@ -237,7 +239,6 @@ async function loadBuiltInPresets(args: {
   return presets;
 }
 
-
 function formatKebabIdLabel(id: string): string {
   return id
     .split("-")
@@ -405,11 +406,9 @@ const browserTestUiMeta = deriveStudioRecipeUiMeta({
   stages: browserTestMod.BROWSER_TEST_STAGES,
 });
 const browserTestDefaultsSeed = buildDefaultsSkeleton(browserTestUiMeta);
-const { value: browserTestDefaults, errors: browserTestDefaultsErrors } = normalizeStrict<Record<string, unknown>>(
-  browserTestSchema,
-  browserTestDefaultsSeed,
-  "/defaults"
-);
+const { value: browserTestDefaults, errors: browserTestDefaultsErrors } = normalizeStrict<
+  Record<string, unknown>
+>(browserTestSchema, browserTestDefaultsSeed, "/defaults");
 if (browserTestDefaultsErrors.length > 0) {
   throw new Error(
     `[recipe:mod-swooper-maps.browser-test] derived defaults do not validate: ${JSON.stringify(
@@ -492,8 +491,16 @@ const standardUiMeta = deriveStudioRecipeUiMeta({
   stages: standardMod.STANDARD_STAGES,
 });
 const transientStudioCurrentConfig = "studio-current.config.json";
-const standardDefaultPresetPath = resolve(pkgRoot, "src", "maps", "configs", "swooper-earthlike.config.json");
-const standardDefaultPresetRaw = JSON.parse(await readFile(standardDefaultPresetPath, "utf-8")) as unknown;
+const standardDefaultPresetPath = resolve(
+  pkgRoot,
+  "src",
+  "maps",
+  "configs",
+  "swooper-earthlike.config.json"
+);
+const standardDefaultPresetRaw = JSON.parse(
+  await readFile(standardDefaultPresetPath, "utf-8")
+) as unknown;
 const standardDefaultMapConfig = validateCanonicalMapConfig({
   fileName: "swooper-earthlike.config.json",
   raw: standardDefaultPresetRaw,
@@ -501,11 +508,9 @@ const standardDefaultMapConfig = validateCanonicalMapConfig({
   stages: standardMod.STANDARD_STAGES,
 });
 const standardDefaultPresetClean = stripSchemaMetadataRoot(standardDefaultMapConfig.config);
-const { value: standardDefaults, errors: standardDefaultsErrors } = normalizeStrict<Record<string, unknown>>(
-  standardSchema,
-  standardDefaultPresetClean,
-  "/defaults"
-);
+const { value: standardDefaults, errors: standardDefaultsErrors } = normalizeStrict<
+  Record<string, unknown>
+>(standardSchema, standardDefaultPresetClean, "/defaults");
 if (standardDefaultsErrors.length > 0) {
   throw new Error(
     `[recipe:mod-swooper-maps.standard] derived defaults do not validate: ${JSON.stringify(

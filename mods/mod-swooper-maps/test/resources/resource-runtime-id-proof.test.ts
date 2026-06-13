@@ -29,8 +29,8 @@ describe("resource runtime id proof (placement-realignment S3)", () => {
   });
 
   it("hard-fails on unresolvable symbolic ids instead of degrading", () => {
-    expect(() =>
-      requireResourceRuntimeId("RESOURCE_DOES_NOT_EXIST" as never)
-    ).toThrow(/No proven runtime id/);
+    expect(() => requireResourceRuntimeId("RESOURCE_DOES_NOT_EXIST" as never)).toThrow(
+      /No proven runtime id/
+    );
   });
 });

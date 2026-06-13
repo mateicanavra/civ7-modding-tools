@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 // ============================================================================
 // VIEW CONTROLS
 // ============================================================================
@@ -9,10 +9,10 @@ import React from 'react';
 // `bg-accent` on hover / `bg-muted` when active. Native `title=` hints are now
 // the shadcn Tooltip (token-styled, delay-grouped under the shell provider).
 // ============================================================================
-import { Grid3x3, Sun, Moon, Monitor } from 'lucide-react';
-import { cn } from '../utils';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
-import type { ThemePreference } from '../types';
+import { Grid3x3, Sun, Moon, Monitor } from "lucide-react";
+import { cn } from "../utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
+import type { ThemePreference } from "../types";
 // ============================================================================
 // Props
 // ============================================================================
@@ -34,31 +34,31 @@ const THEME_CONFIG: Record<
   {
     icon: typeof Monitor;
     tooltip: string;
-  }> =
-{
+  }
+> = {
   system: {
     icon: Monitor,
-    tooltip: 'Theme: Auto'
+    tooltip: "Theme: Auto",
   },
   light: {
     icon: Sun,
-    tooltip: 'Theme: Light'
+    tooltip: "Theme: Light",
   },
   dark: {
     icon: Moon,
-    tooltip: 'Theme: Dark'
-  }
+    tooltip: "Theme: Dark",
+  },
 };
 // ============================================================================
 // Styles (token-driven; theme follows the `.dark` class)
 // ============================================================================
 const iconBtn = cn(
-  'h-7 w-7 flex items-center justify-center rounded transition-colors',
-  'text-muted-foreground hover:bg-accent hover:text-foreground'
+  "h-7 w-7 flex items-center justify-center rounded transition-colors",
+  "text-muted-foreground hover:bg-accent hover:text-foreground"
 );
 const iconBtnActive = cn(
-  'h-7 w-7 flex items-center justify-center rounded transition-colors',
-  'bg-muted text-foreground'
+  "h-7 w-7 flex items-center justify-center rounded transition-colors",
+  "bg-muted text-foreground"
 );
 // ============================================================================
 // Component
@@ -67,11 +67,10 @@ export const ViewControls: React.FC<ViewControlsProps> = ({
   themePreference,
   onThemeCycle,
   showGrid,
-  onShowGridChange
+  onShowGridChange,
 }) => {
-  const { icon: ThemeIcon, tooltip: themeTooltip } =
-  THEME_CONFIG[themePreference];
-  const gridTooltip = showGrid ? 'Hide grid' : 'Show grid';
+  const { icon: ThemeIcon, tooltip: themeTooltip } = THEME_CONFIG[themePreference];
+  const gridTooltip = showGrid ? "Hide grid" : "Show grid";
   // ==========================================================================
   // Render
   // ==========================================================================
@@ -79,16 +78,12 @@ export const ViewControls: React.FC<ViewControlsProps> = ({
     <div
       className="h-10 inline-flex items-center gap-1 px-1.5 rounded-lg border border-border bg-popover/95 backdrop-blur-sm"
       role="toolbar"
-      aria-label="View controls">
-
+      aria-label="View controls"
+    >
       {/* Theme toggle */}
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
-            onClick={onThemeCycle}
-            aria-label={themeTooltip}
-            className={iconBtn}>
-
+          <button onClick={onThemeCycle} aria-label={themeTooltip} className={iconBtn}>
             <ThemeIcon className="w-4 h-4" />
           </button>
         </TooltipTrigger>
@@ -104,13 +99,13 @@ export const ViewControls: React.FC<ViewControlsProps> = ({
             onClick={() => onShowGridChange(!showGrid)}
             aria-label={gridTooltip}
             aria-pressed={showGrid}
-            className={showGrid ? iconBtnActive : iconBtn}>
-
+            className={showGrid ? iconBtnActive : iconBtn}
+          >
             <Grid3x3 className="w-4 h-4" />
           </button>
         </TooltipTrigger>
         <TooltipContent>{gridTooltip}</TooltipContent>
       </Tooltip>
-    </div>);
-
+    </div>
+  );
 };

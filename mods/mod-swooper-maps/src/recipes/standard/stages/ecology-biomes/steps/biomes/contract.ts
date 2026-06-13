@@ -23,11 +23,9 @@ const BiomesStepContract = defineStep({
     classify: ecology.ops.classifyBiomes,
   },
   schema: Type.Object(
+    {},
     {
-    },
-    {
-      description:
-        "Biome classification configuration.",
+      description: "Biome classification configuration.",
     }
   ),
 });

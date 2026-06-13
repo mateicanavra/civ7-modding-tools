@@ -80,7 +80,8 @@ describe("core/utils", () => {
     });
 
     it("round-trips with storyKey", () => {
-      const x = 42, y = 99;
+      const x = 42,
+        y = 99;
       const key = storyKey(x, y);
       const parsed = parseStoryKey(key);
       expect(parsed).toEqual({ x, y });

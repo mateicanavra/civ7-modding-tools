@@ -6,7 +6,8 @@ export const ShelfMaskConfigSchema = Type.Object(
       default: 3,
       minimum: 0,
       maximum: 64,
-      description: "Controls candidate nearshore water distance cap used to sample shelf bathymetry.",
+      description:
+        "Controls candidate nearshore water distance cap used to sample shelf bathymetry.",
     }),
     shallowQuantile: Type.Number({
       default: 0.7,
@@ -32,7 +33,8 @@ export const ShelfMaskConfigSchema = Type.Object(
       default: 4,
       minimum: 0,
       maximum: 64,
-      description: "Controls max distance to coast for shelf classification away from active margins.",
+      description:
+        "Controls max distance to coast for shelf classification away from active margins.",
     }),
     capTilesMax: Type.Integer({
       default: 8,
@@ -63,13 +65,18 @@ const ComputeShelfMaskContract = defineOp({
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
     bathymetry: TypedArraySchemas.i16({
-      description: "Bathymetry per tile (meters): 0 on land; <=0 in water; closer to 0 is shallower.",
+      description:
+        "Bathymetry per tile (meters): 0 on land; <=0 in water; closer to 0 is shallower.",
     }),
     distanceToCoast: TypedArraySchemas.u16({
       description: "Distance to coast per tile (0=coast).",
     }),
-    boundaryCloseness: TypedArraySchemas.u8({ description: "Boundary proximity per tile (0..255)." }),
-    boundaryType: TypedArraySchemas.u8({ description: "Boundary type per tile (1=conv,2=div,3=trans)." }),
+    boundaryCloseness: TypedArraySchemas.u8({
+      description: "Boundary proximity per tile (0..255).",
+    }),
+    boundaryType: TypedArraySchemas.u8({
+      description: "Boundary type per tile (1=conv,2=div,3=trans).",
+    }),
   }),
   output: Type.Object({
     shelfMask: TypedArraySchemas.u8({
@@ -88,7 +95,8 @@ const ComputeShelfMaskContract = defineOp({
         "Mask (1/0): water tiles within nearshoreDistance used to sample bathymetry for the shallow cutoff.",
     }),
     depthGateMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): water tiles passing the shallow bathymetry cutoff (bathymetry >= shallowCutoff).",
+      description:
+        "Mask (1/0): water tiles passing the shallow bathymetry cutoff (bathymetry >= shallowCutoff).",
     }),
     shallowCutoff: Type.Number({
       description:

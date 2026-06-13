@@ -17,12 +17,12 @@ export async function waitForCiv7NotificationDismissal(
   initial: Civ7NotificationDismissalResult,
   readDismissal: (
     input: Civ7NotificationDismissInput,
-    options: Civ7DirectControlOptions,
-  ) => Promise<Civ7NotificationDismissalResult>,
+    options: Civ7DirectControlOptions
+  ) => Promise<Civ7NotificationDismissalResult>
 ): Promise<Civ7NotificationDismissalResult> {
   const timeoutMs = Math.min(
     Math.max(options.timeoutMs ?? DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS, 1_000),
-    DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS,
+    DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS
   );
   const verificationAttempts = [...(initial.verificationAttempts ?? [])];
   const startedAt = Date.now();
@@ -42,7 +42,7 @@ export async function waitForCiv7NotificationDismissal(
         verified: true,
         notes: appendNote(
           initial.notes,
-          "Dismissal verification yielded between App UI reads so frame-driven notification/display queues could advance before the final identity check.",
+          "Dismissal verification yielded between App UI reads so frame-driven notification/display queues could advance before the final identity check."
         ),
       };
     }
@@ -55,7 +55,7 @@ export async function waitForCiv7NotificationDismissal(
     verified: false,
     notes: appendNote(
       initial.notes,
-      "Dismissal verification yielded between App UI reads, but the target notification was still present/front/queued by the final identity check.",
+      "Dismissal verification yielded between App UI reads, but the target notification was still present/front/queued by the final identity check."
     ),
   };
 }

@@ -29,4 +29,3 @@ export const defaultStrategy = createStrategy(ScoreVegetationSagebrushSteppeCont
     return { score01 };
   },
 });
-

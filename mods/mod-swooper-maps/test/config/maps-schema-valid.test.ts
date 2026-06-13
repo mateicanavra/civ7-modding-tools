@@ -226,8 +226,9 @@ const PLACEMENT_INTERNAL_STAGE_KEYS = [
 ] as const;
 
 function stageProps(schema: unknown, stageId: string): Record<string, unknown> {
-  const stage = (schema as { properties?: Record<string, { properties?: Record<string, unknown> }> })
-    .properties?.[stageId];
+  const stage = (
+    schema as { properties?: Record<string, { properties?: Record<string, unknown> }> }
+  ).properties?.[stageId];
   return stage?.properties ?? {};
 }
 
@@ -235,7 +236,10 @@ function hasRawOpEnvelope(value: unknown): boolean {
   if (!value || typeof value !== "object") return false;
   if (Array.isArray(value)) return value.some(hasRawOpEnvelope);
   const obj = value as Record<string, unknown>;
-  if (Object.prototype.hasOwnProperty.call(obj, "strategy") && Object.prototype.hasOwnProperty.call(obj, "config")) {
+  if (
+    Object.prototype.hasOwnProperty.call(obj, "strategy") &&
+    Object.prototype.hasOwnProperty.call(obj, "config")
+  ) {
     return true;
   }
   return Object.values(obj).some(hasRawOpEnvelope);
@@ -269,7 +273,8 @@ function collectMissingDescriptions(schema: unknown, path: string[] = []): strin
     oneOf?: unknown[];
   };
   const missing: string[] = [];
-  const literalVariant = Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
+  const literalVariant =
+    Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
   if (path.length > 0 && !literalVariant && typeof node.description !== "string") {
     missing.push(path.join("."));
   }
@@ -302,7 +307,8 @@ function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []):
     oneOf?: unknown[];
   };
   const missing: string[] = [];
-  const literalVariant = Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
+  const literalVariant =
+    Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
   if (
     !literalVariant &&
     (node.type === "number" || node.type === "integer") &&
@@ -324,7 +330,9 @@ function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []):
 function collectStringLeavesMissingEnum(schema: unknown, path: string[] = []): string[] {
   if (!schema || typeof schema !== "object") return [];
   if (Array.isArray(schema)) {
-    return schema.flatMap((item, index) => collectStringLeavesMissingEnum(item, [...path, String(index)]));
+    return schema.flatMap((item, index) =>
+      collectStringLeavesMissingEnum(item, [...path, String(index)])
+    );
   }
   const node = schema as {
     const?: unknown;
@@ -336,7 +344,8 @@ function collectStringLeavesMissingEnum(schema: unknown, path: string[] = []): s
     oneOf?: unknown[];
   };
   const missing: string[] = [];
-  const literalVariant = Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
+  const literalVariant =
+    Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
   const enumValues = Array.isArray(node.enum) ? node.enum : null;
   if (
     !literalVariant &&
@@ -382,7 +391,8 @@ function collectDescriptionsMatching(
   for (const [key, child] of Object.entries(node.properties ?? {})) {
     matches.push(...collectDescriptionsMatching(child, pattern, [...path, key]));
   }
-  if (node.items) matches.push(...collectDescriptionsMatching(node.items, pattern, [...path, "items"]));
+  if (node.items)
+    matches.push(...collectDescriptionsMatching(node.items, pattern, [...path, "items"]));
   for (const variant of [...(node.anyOf ?? []), ...(node.oneOf ?? [])]) {
     matches.push(...collectDescriptionsMatching(variant, pattern, path));
   }
@@ -429,9 +439,15 @@ describe("Shipped map configs", () => {
     expect(mountainPatchConfig.id).toBe("mountain-patch");
     expect(mountainRiversPatchConfig.id).toBe("mountain-rivers-patch");
     expect((mountainPatchConfig.config as any)["map-rivers"].knobs.riverDensity).toBeUndefined();
-    expect((mountainPatchConfig.config as any)["map-rivers"].knobs.navigableRiverDensity).toBe("normal");
-    expect((mountainRiversPatchConfig.config as any)["map-rivers"].knobs.riverDensity).toBeUndefined();
-    expect((mountainRiversPatchConfig.config as any)["map-rivers"].knobs.navigableRiverDensity).toBe("normal");
+    expect((mountainPatchConfig.config as any)["map-rivers"].knobs.navigableRiverDensity).toBe(
+      "normal"
+    );
+    expect(
+      (mountainRiversPatchConfig.config as any)["map-rivers"].knobs.riverDensity
+    ).toBeUndefined();
+    expect(
+      (mountainRiversPatchConfig.config as any)["map-rivers"].knobs.navigableRiverDensity
+    ).toBe("normal");
     expect(normalizeComparison(mountainRiversPatchConfig)).toEqual(
       normalizeComparison(mountainPatchConfig)
     );
@@ -462,8 +478,8 @@ describe("Shipped map configs", () => {
       for (const internalKey of MORPHOLOGY_INTERNAL_STAGE_KEYS) {
         expect(props).not.toHaveProperty(internalKey);
       }
-      expect(JSON.stringify(props)).not.toContain("\"strategy\"");
-      expect(JSON.stringify(props)).not.toContain("\"config\"");
+      expect(JSON.stringify(props)).not.toContain('"strategy"');
+      expect(JSON.stringify(props)).not.toContain('"config"');
     }
   });
 
@@ -476,8 +492,8 @@ describe("Shipped map configs", () => {
       for (const internalKey of HYDROLOGY_INTERNAL_STAGE_KEYS[stageId] ?? []) {
         expect(props).not.toHaveProperty(internalKey);
       }
-      expect(JSON.stringify(props)).not.toContain("\"strategy\"");
-      expect(JSON.stringify(props)).not.toContain("\"config\"");
+      expect(JSON.stringify(props)).not.toContain('"strategy"');
+      expect(JSON.stringify(props)).not.toContain('"config"');
     }
   });
 
@@ -490,8 +506,8 @@ describe("Shipped map configs", () => {
       for (const internalKey of ECOLOGY_INTERNAL_STAGE_KEYS[stageId] ?? []) {
         expect(props).not.toHaveProperty(internalKey);
       }
-      expect(JSON.stringify(props)).not.toContain("\"strategy\"");
-      expect(JSON.stringify(props)).not.toContain("\"config\"");
+      expect(JSON.stringify(props)).not.toContain('"strategy"');
+      expect(JSON.stringify(props)).not.toContain('"config"');
     }
   });
 
@@ -504,8 +520,8 @@ describe("Shipped map configs", () => {
       for (const internalKey of PROJECTION_INTERNAL_STAGE_KEYS[stageId] ?? []) {
         expect(props).not.toHaveProperty(internalKey);
       }
-      expect(JSON.stringify(props)).not.toContain("\"strategy\"");
-      expect(JSON.stringify(props)).not.toContain("\"config\"");
+      expect(JSON.stringify(props)).not.toContain('"strategy"');
+      expect(JSON.stringify(props)).not.toContain('"config"');
     }
   });
 
@@ -517,8 +533,8 @@ describe("Shipped map configs", () => {
     for (const internalKey of PLACEMENT_INTERNAL_STAGE_KEYS) {
       expect(props).not.toHaveProperty(internalKey);
     }
-    expect(JSON.stringify(props)).not.toContain("\"strategy\"");
-    expect(JSON.stringify(props)).not.toContain("\"config\"");
+    expect(JSON.stringify(props)).not.toContain('"strategy"');
+    expect(JSON.stringify(props)).not.toContain('"config"');
     expect(JSON.stringify(props)).not.toContain("candidateResourceTypes");
     expect(JSON.stringify(props)).not.toContain("startSectors");
   });
@@ -533,10 +549,12 @@ describe("Shipped map configs", () => {
         const child = props[key];
         expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
         expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
-        expect(collectDescriptionsMatching(child, /\b(step\/op|envelope|internal|strategy)\b/i, [
-          stageId,
-          key,
-        ])).toEqual([]);
+        expect(
+          collectDescriptionsMatching(child, /\b(step\/op|envelope|internal|strategy)\b/i, [
+            stageId,
+            key,
+          ])
+        ).toEqual([]);
       }
     }
   });
@@ -551,10 +569,12 @@ describe("Shipped map configs", () => {
         const child = props[key];
         expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
         expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
-        expect(collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
-          stageId,
-          key,
-        ])).toEqual([]);
+        expect(
+          collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
+            stageId,
+            key,
+          ])
+        ).toEqual([]);
       }
     }
   });
@@ -569,10 +589,12 @@ describe("Shipped map configs", () => {
         const child = props[key];
         expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
         expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
-        expect(collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
-          stageId,
-          key,
-        ])).toEqual([]);
+        expect(
+          collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
+            stageId,
+            key,
+          ])
+        ).toEqual([]);
       }
     }
   });
@@ -588,10 +610,12 @@ describe("Shipped map configs", () => {
         expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
         expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
         expect(collectStringLeavesMissingEnum(child, [stageId, key])).toEqual([]);
-        expect(collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
-          stageId,
-          key,
-        ])).toEqual([]);
+        expect(
+          collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
+            stageId,
+            key,
+          ])
+        ).toEqual([]);
       }
     }
   });
@@ -605,10 +629,12 @@ describe("Shipped map configs", () => {
       const child = props[key];
       expect(collectMissingDescriptions(child, ["placement", key])).toEqual([]);
       expect(collectNumericLeavesMissingRange(child, ["placement", key])).toEqual([]);
-      expect(collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
-        "placement",
-        key,
-      ])).toEqual([]);
+      expect(
+        collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
+          "placement",
+          key,
+        ])
+      ).toEqual([]);
     }
   });
 
@@ -629,8 +655,8 @@ describe("Shipped map configs", () => {
       (props.platePartition as { properties?: Record<string, unknown> }).properties ?? {};
     expect(platePartitionProps).not.toHaveProperty("referenceArea");
     expect(platePartitionProps).not.toHaveProperty("plateScalePower");
-    expect(JSON.stringify(props)).not.toContain("\"strategy\"");
-    expect(JSON.stringify(props)).not.toContain("\"config\"");
+    expect(JSON.stringify(props)).not.toContain('"strategy"');
+    expect(JSON.stringify(props)).not.toContain('"config"');
   });
 
   it("documents every Foundation public schema field", () => {
@@ -755,24 +781,25 @@ describe("Shipped map configs", () => {
       swooperEarthlikeConfig.config
     ) as any;
 
-    expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computeRadiativeForcing.strategy).toBe(
-      "default"
-    );
-    expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computeAtmosphericCirculation.strategy).toBe(
-      "default"
-    );
-    expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.strategy).toBe(
-      "default"
-    );
+    expect(
+      compiled["hydrology-climate-baseline"]["climate-baseline"].computeRadiativeForcing.strategy
+    ).toBe("default");
+    expect(
+      compiled["hydrology-climate-baseline"]["climate-baseline"].computeAtmosphericCirculation
+        .strategy
+    ).toBe("default");
+    expect(
+      compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.strategy
+    ).toBe("default");
     expect(compiled["hydrology-hydrography"].rivers.accumulateDischarge.strategy).toBe("default");
     expect(compiled["hydrology-hydrography"].rivers.projectRiverNetwork.strategy).toBe("default");
     expect(compiled["hydrology-hydrography"].lakes.planLakes.strategy).toBe("default");
-    expect(compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.strategy).toBe(
-      "refine"
-    );
-    expect(compiled["hydrology-climate-refine"]["climate-refine"].computeCryosphereState.strategy).toBe(
-      "default"
-    );
+    expect(
+      compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.strategy
+    ).toBe("refine");
+    expect(
+      compiled["hydrology-climate-refine"]["climate-refine"].computeCryosphereState.strategy
+    ).toBe("default");
   });
 
   it("compiles public Ecology config to internal executable step/op envelopes", () => {
@@ -796,9 +823,7 @@ describe("Shipped map configs", () => {
     expect(compiled["ecology-features"]["plan-ice"].planIce.strategy).toBe("continentality");
     expect(compiled["ecology-features"]["plan-reefs"].planReefs.strategy).toBe("default");
     expect(compiled["ecology-features"]["plan-wetlands"].planWetlands.strategy).toBe("default");
-    expect(compiled["ecology-features"]["plan-vegetation"].planVegetation.strategy).toBe(
-      "default"
-    );
+    expect(compiled["ecology-features"]["plan-vegetation"].planVegetation.strategy).toBe("default");
     expect(compiled["ecology-features"]["plan-plot-effects"].plotEffects.strategy).toBe("default");
     expect(
       compiled["ecology-features"]["plan-plot-effects"].plotEffects.config.snow.selectors.light
@@ -934,9 +959,7 @@ describe("Shipped map configs", () => {
     ) as any;
 
     expect(compiled.foundation.mesh.computeMesh.strategy).toBe("default");
-    expect(compiled.foundation["mantle-potential"].computeMantlePotential.strategy).toBe(
-      "default"
-    );
+    expect(compiled.foundation["mantle-potential"].computeMantlePotential.strategy).toBe("default");
     expect(compiled.foundation["mantle-forcing"].computeMantleForcing.strategy).toBe("default");
     expect(compiled.foundation.crust.computeCrust.strategy).toBe("default");
     expect(compiled.foundation["plate-graph"].computePlateGraph.strategy).toBe("default");

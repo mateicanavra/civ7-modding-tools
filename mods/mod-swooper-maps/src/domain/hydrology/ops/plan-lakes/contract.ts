@@ -18,7 +18,8 @@ const PlanLakesContract = defineOp({
         "Hydrology-conditioned receiver index per tile (or -1 for typed terminal basins).",
     }),
     discharge: TypedArraySchemas.f32({
-      description: "Accumulated drainage proxy per tile, used to admit only meaningful terminal basins.",
+      description:
+        "Accumulated drainage proxy per tile, used to admit only meaningful terminal basins.",
     }),
     sinkMask: TypedArraySchemas.u8({
       description:

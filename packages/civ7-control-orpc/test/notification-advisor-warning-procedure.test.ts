@@ -9,14 +9,12 @@ import {
   createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
 } from "../src/index";
-import type {
-  Civ7ControlOrpcAdvisorWarningViewedResult,
-} from "../src/dependencies/direct-control";
+import type { Civ7ControlOrpcAdvisorWarningViewedResult } from "../src/dependencies/direct-control";
 import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 const target = { owner: 0, id: 12345, type: 99 };
 const AdvisorWarningInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.notifications.advisorWarning.viewed.request,
+  Civ7ControlOrpcContract.notifications.advisorWarning.viewed.request
 );
 
 describe("notifications.advisorWarning.viewed.request control-oRPC procedure", () => {
@@ -35,14 +33,16 @@ describe("notifications.advisorWarning.viewed.request control-oRPC procedure", (
     });
 
     expect(fake.calls.notifications).toHaveLength(1);
-    expect(fake.calls.requests).toEqual([{
-      input: { playerId: 0, target },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+    expect(fake.calls.requests).toEqual([
+      {
+        input: { playerId: 0, target },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-    }]);
+    ]);
     expect(result).toMatchObject({
       playerId: 0,
       target,
@@ -59,10 +59,12 @@ describe("notifications.advisorWarning.viewed.request control-oRPC procedure", (
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "notifications.advisorWarning.viewed.request",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "notifications.advisorWarning.viewed.request",
+        },
+      ],
     });
     expectSafeAdvisorWarningOutput(result);
   });
@@ -80,7 +82,7 @@ describe("notifications.advisorWarning.viewed.request control-oRPC procedure", (
     const result = await call(
       Civ7ControlOrpcRouter.notifications.advisorWarning.viewed.request,
       { target },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -95,10 +97,12 @@ describe("notifications.advisorWarning.viewed.request control-oRPC procedure", (
         outcome: "not-sent",
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "inspect-notification",
-        source: "notifications.advisorWarning.viewed.request",
-      }],
+      nextSteps: [
+        {
+          kind: "inspect-notification",
+          source: "notifications.advisorWarning.viewed.request",
+        },
+      ],
     });
     expectSafeAdvisorWarningOutput(result);
   });
@@ -121,11 +125,9 @@ describe("notifications.advisorWarning.viewed.request control-oRPC procedure", (
         result: advisorWarningResult({ playerId: 0, target, sent: true }),
       });
       await expect(
-        call(
-          Civ7ControlOrpcRouter.notifications.advisorWarning.viewed.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.notifications.advisorWarning.viewed.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.notifications).toEqual([]);
       expect(fake.calls.requests).toEqual([]);
@@ -138,7 +140,7 @@ describe("notifications.advisorWarning.viewed.request control-oRPC procedure", (
   test("maps source failures to tagged errors without raw command details", async () => {
     const fake = fakeContext({
       error: new Error(
-        "Timed out waiting for Civ7 tuner response to CMD:1:sendOperation('player-operation') VIEWED_ADVISOR_WARNING",
+        "Timed out waiting for Civ7 tuner response to CMD:1:sendOperation('player-operation') VIEWED_ADVISOR_WARNING"
       ),
     });
 
@@ -146,8 +148,8 @@ describe("notifications.advisorWarning.viewed.request control-oRPC procedure", (
       call(
         Civ7ControlOrpcRouter.notifications.advisorWarning.viewed.request,
         { target },
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({
       code: "NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE",
       status: 503,
@@ -161,7 +163,7 @@ describe("notifications.advisorWarning.viewed.request control-oRPC procedure", (
       await call(
         Civ7ControlOrpcRouter.notifications.advisorWarning.viewed.request,
         { target },
-        { context: fake.context },
+        { context: fake.context }
       );
     } catch (err) {
       const serialized = JSON.stringify(err);
@@ -174,7 +176,7 @@ describe("notifications.advisorWarning.viewed.request control-oRPC procedure", (
 
   test("publishes a contract-first advisor warning notification leaf", () => {
     expect(
-      Civ7ControlOrpcContract.notifications.advisorWarning.viewed.request["~orpc"],
+      Civ7ControlOrpcContract.notifications.advisorWarning.viewed.request["~orpc"]
     ).toMatchObject({
       meta: {
         family: "notifications",
@@ -184,11 +186,10 @@ describe("notifications.advisorWarning.viewed.request control-oRPC procedure", (
       },
     });
     expect(
-      Civ7ControlOrpcContract.notifications.advisorWarning.viewed.request["~orpc"]
-        .errorMap,
+      Civ7ControlOrpcContract.notifications.advisorWarning.viewed.request["~orpc"].errorMap
     ).toHaveProperty("NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE");
     expect(Civ7NotificationAdvisorWarningUnavailableError.code).toBe(
-      "NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE",
+      "NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE"
     );
   });
 });
@@ -228,23 +229,28 @@ function fakeContext(options: {
         requestCiv7AdvisorWarningViewed: async (input, endpointDefaults) => {
           calls.requests.push({ input, options: endpointDefaults });
           if (options.error) throw options.error;
-          return options.result ?? advisorWarningResult({
-            playerId: input.playerId,
-            target: input.target,
-            sent: true,
-          });
+          return (
+            options.result ??
+            advisorWarningResult({
+              playerId: input.playerId,
+              target: input.target,
+              sent: true,
+            })
+          );
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
   };
 }
 
-function advisorWarningResult(options: Readonly<{
-  playerId: number;
-  target: typeof target;
-  sent: boolean;
-  valid?: boolean;
-}>): Civ7ControlOrpcAdvisorWarningViewedResult {
+function advisorWarningResult(
+  options: Readonly<{
+    playerId: number;
+    target: typeof target;
+    sent: boolean;
+    valid?: boolean;
+  }>
+): Civ7ControlOrpcAdvisorWarningViewedResult {
   const valid = options.valid ?? true;
   return {
     playerId: options.playerId,
@@ -273,7 +279,7 @@ function validationResult(
     playerId: number;
     target: typeof target;
   }>,
-  valid: boolean,
+  valid: boolean
 ): Civ7ControlOrpcAdvisorWarningViewedResult["beforeValidation"] {
   return {
     host: "127.0.0.1",
@@ -293,14 +299,14 @@ function expectSafeAdvisorWarningOutput(value: unknown): void {
   const serialized = JSON.stringify(value);
   expect(serialized).not.toContain("127.0.0.1");
   expect(serialized).not.toContain("4318");
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
-  expect(serialized).not.toContain("\"operation\"");
-  expect(serialized).not.toContain("\"operationType\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"operation"');
+  expect(serialized).not.toContain('"operationType"');
   expect(serialized).not.toContain("VIEWED_ADVISOR_WARNING");
-  expect(serialized).not.toContain("\"Target\"");
-  expect(serialized).not.toContain("\"result\"");
-  expect(serialized).not.toContain("\"verified\"");
+  expect(serialized).not.toContain('"Target"');
+  expect(serialized).not.toContain('"result"');
+  expect(serialized).not.toContain('"verified"');
   expect(serialized).not.toContain("approval");
 }

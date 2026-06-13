@@ -3,11 +3,7 @@ import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 
-import {
-  NO_RIVER_TYPE,
-  RIVER_TYPE_MINOR,
-  RIVER_TYPE_NAVIGABLE,
-} from "@civ7/map-policy";
+import { NO_RIVER_TYPE, RIVER_TYPE_MINOR, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
 import {
   Civ7MapGridInputSchema,
   Civ7MapGridResultSchema,
@@ -41,153 +37,212 @@ type FakeTunerServer = {
 
 describe("map and visibility reads", () => {
   test("validates map summary schema boundaries beside the read atom", () => {
-    expect(Value.Check(Civ7MapSummaryInputSchema, {
-      includeAreaRegionCounts: true,
-      maxIds: 512,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7MapSummaryInputSchema, {
+        includeAreaRegionCounts: true,
+        maxIds: 512,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: 1.5 })).toBe(false);
     expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: -1 })).toBe(false);
     expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: 1_000_001 })).toBe(false);
     expect(Value.Check(Civ7MapSummaryInputSchema, { host: "127.0.0.1" })).toBe(false);
     expect(Value.Check(Civ7MapSummaryInputSchema, { port: 4318 })).toBe(false);
     expect(Value.Check(Civ7MapSummaryInputSchema, { state: { role: "tuner" } })).toBe(false);
-    expect(Value.Check(Civ7MapSummaryInputSchema, { rawCommand: "GameplayMap.getGridWidth()" })).toBe(false);
+    expect(
+      Value.Check(Civ7MapSummaryInputSchema, { rawCommand: "GameplayMap.getGridWidth()" })
+    ).toBe(false);
     expect(Value.Check(Civ7MapSummaryResultSchema, mapSummaryResult())).toBe(true);
-    expect(Value.Check(Civ7MapSummaryResultSchema, {
-      ...mapSummaryResult(),
-      rawCommand: "GameplayMap.getGridWidth()",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7MapSummaryResultSchema, {
+        ...mapSummaryResult(),
+        rawCommand: "GameplayMap.getGridWidth()",
+      })
+    ).toBe(false);
   });
 
   test("validates plot snapshot schema boundaries beside the read atom", () => {
-    expect(Value.Check(Civ7PlotSnapshotInputSchema, {
-      x: 3,
-      y: 4,
-      playerId: 0,
-      fields: ["terrain", "resource", "visibility"],
-      includeHidden: false,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7PlotSnapshotInputSchema, {
+        x: 3,
+        y: 4,
+        playerId: 0,
+        fields: ["terrain", "resource", "visibility"],
+        includeHidden: false,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 1.5, y: 4 })).toBe(false);
     expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: -1, y: 4 })).toBe(false);
     expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 1_000_001 })).toBe(false);
     expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, fields: ["enemy"] })).toBe(false);
     expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, host: "127.0.0.1" })).toBe(false);
     expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, port: 4318 })).toBe(false);
-    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, state: { role: "tuner" } })).toBe(false);
-    expect(Value.Check(Civ7PlotSnapshotInputSchema, {
-      x: 3,
-      y: 4,
-      rawCommand: "GameplayMap.getTerrainType(3, 4)",
-    })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, state: { role: "tuner" } })).toBe(
+      false
+    );
+    expect(
+      Value.Check(Civ7PlotSnapshotInputSchema, {
+        x: 3,
+        y: 4,
+        rawCommand: "GameplayMap.getTerrainType(3, 4)",
+      })
+    ).toBe(false);
     expect(Value.Check(Civ7PlotSnapshotResultSchema, plotSnapshotResult())).toBe(true);
-    expect(Value.Check(Civ7PlotSnapshotResultSchema, {
-      ...plotSnapshotResult(),
-      session: { stateName: "Tuner" },
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7PlotSnapshotResultSchema, {
+        ...plotSnapshotResult(),
+        session: { stateName: "Tuner" },
+      })
+    ).toBe(false);
   });
 
   test("validates map grid schema boundaries beside the read atom", () => {
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain"],
-      maxPlots: 1,
-    })).toBe(true);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      locations: [{ x: 0, y: 0 }],
-      fields: ["terrain"],
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain"],
+        maxPlots: 1,
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        locations: [{ x: 0, y: 0 }],
+        fields: ["terrain"],
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7MapGridInputSchema, { fields: ["terrain"] })).toBe(false);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      locations: [{ x: 0, y: 0 }],
-      fields: ["terrain"],
-    })).toBe(false);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 0, height: 1 },
-      fields: ["terrain"],
-    })).toBe(false);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 10_001 },
-      fields: ["terrain"],
-    })).toBe(false);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      locations: [{ x: 0, y: 1_000_001 }],
-      fields: ["terrain"],
-    })).toBe(false);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["enemy"],
-    })).toBe(false);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain"],
-      maxPlots: 10_001,
-    })).toBe(false);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain"],
-      host: "127.0.0.1",
-    })).toBe(false);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain"],
-      rawCommand: "GameplayMap.getGridWidth()",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        locations: [{ x: 0, y: 0 }],
+        fields: ["terrain"],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 0, height: 1 },
+        fields: ["terrain"],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 10_001 },
+        fields: ["terrain"],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        locations: [{ x: 0, y: 1_000_001 }],
+        fields: ["terrain"],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["enemy"],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain"],
+        maxPlots: 10_001,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain"],
+        host: "127.0.0.1",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain"],
+        rawCommand: "GameplayMap.getGridWidth()",
+      })
+    ).toBe(false);
     expect(Value.Check(Civ7MapGridResultSchema, mapGridResult())).toBe(true);
-    expect(Value.Check(Civ7MapGridResultSchema, {
-      ...mapGridResult(),
-      session: { stateName: "Tuner" },
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridResultSchema, {
+        ...mapGridResult(),
+        session: { stateName: "Tuner" },
+      })
+    ).toBe(false);
   });
 
   test("validates native river object schema boundaries beside the read atom", () => {
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 16 })).toBe(true);
-    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 16, maxPlotsPerRiver: 128 })).toBe(true);
+    expect(
+      Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 16, maxPlotsPerRiver: 128 })
+    ).toBe(true);
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, {})).toBe(true);
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: -1 })).toBe(false);
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 257 })).toBe(false);
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 1.5 })).toBe(false);
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxPlotsPerRiver: 2049 })).toBe(false);
-    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { command: "MapRivers.numRivers()" })).toBe(false);
+    expect(
+      Value.Check(Civ7NativeRiverObjectsInputSchema, { command: "MapRivers.numRivers()" })
+    ).toBe(false);
     expect(Value.Check(Civ7NativeRiverObjectsResultSchema, nativeRiverObjectsResult())).toBe(true);
-    expect(Value.Check(Civ7NativeRiverObjectsResultSchema, {
-      ...nativeRiverObjectsResult(),
-      rawCommand: "MapRivers.numRivers()",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7NativeRiverObjectsResultSchema, {
+        ...nativeRiverObjectsResult(),
+        rawCommand: "MapRivers.numRivers()",
+      })
+    ).toBe(false);
   });
 
   test("validates visibility summary schema boundaries beside the read atom", () => {
-    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
-      playerId: 0,
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      includeGrid: true,
-      maxPlots: 2,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7VisibilitySummaryInputSchema, {
+        playerId: 0,
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        includeGrid: true,
+        maxPlots: 2,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0 })).toBe(true);
     expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 1.5 })).toBe(false);
     expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: -1 })).toBe(false);
     expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 1_025 })).toBe(false);
-    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
-      playerId: 0,
-      includeGrid: true,
-    })).toBe(false);
-    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
-      playerId: 0,
-      bounds: { x: 0, y: 0, width: 0, height: 1 },
-      includeGrid: true,
-    })).toBe(false);
-    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
-      playerId: 0,
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      maxPlots: 10_001,
-    })).toBe(false);
-    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, rawCommand: "Visibility.revealAllPlots(0)" })).toBe(false);
+    expect(
+      Value.Check(Civ7VisibilitySummaryInputSchema, {
+        playerId: 0,
+        includeGrid: true,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7VisibilitySummaryInputSchema, {
+        playerId: 0,
+        bounds: { x: 0, y: 0, width: 0, height: 1 },
+        includeGrid: true,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7VisibilitySummaryInputSchema, {
+        playerId: 0,
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        maxPlots: 10_001,
+      })
+    ).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, host: "127.0.0.1" })).toBe(
+      false
+    );
+    expect(
+      Value.Check(Civ7VisibilitySummaryInputSchema, {
+        playerId: 0,
+        rawCommand: "Visibility.revealAllPlots(0)",
+      })
+    ).toBe(false);
     expect(Value.Check(Civ7VisibilitySummaryResultSchema, visibilitySummaryResult())).toBe(true);
-    expect(Value.Check(Civ7VisibilitySummaryResultSchema, {
-      ...visibilitySummaryResult(),
-      command: "Visibility.revealAllPlots(0)",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7VisibilitySummaryResultSchema, {
+        ...visibilitySummaryResult(),
+        command: "Visibility.revealAllPlots(0)",
+      })
+    ).toBe(false);
   });
 
   test("wraps bounded Tuner map and plot reads", async () => {
@@ -342,7 +397,6 @@ describe("map and visibility reads", () => {
   });
 });
 
-
 describe("explore grant atoms", () => {
   function grantDependencies(overrides: Partial<Record<string, unknown>> = {}) {
     const commands: string[] = [];
@@ -379,11 +433,7 @@ describe("explore grant atoms", () => {
 
   test("applyCiv7ExploreGrant issues one tracked-grant exec and parses the payload", async () => {
     const { commands, dependencies } = grantDependencies();
-    const result = await applyCiv7ExploreGrant(
-      { playerId: 0 },
-      {},
-      dependencies as never,
-    );
+    const result = await applyCiv7ExploreGrant({ playerId: 0 }, {}, dependencies as never);
     expect(commands).toHaveLength(1);
     expect(commands[0]).toContain("Visibility.setTrackedVisibilityGrant(playerId, 1, plots)");
     expect(commands[0]).toContain("GameplayMap.getIndexFromXY(x, y)");
@@ -402,7 +452,7 @@ describe("explore grant atoms", () => {
     const result = await releaseCiv7ExploreGrant(
       { playerId: 0, grantId: 1 },
       {},
-      dependencies as never,
+      dependencies as never
     );
     expect(commands).toHaveLength(1);
     expect(commands[0]).toContain("Visibility.removeTrackedVisibilityGrant(0, 1)");
@@ -417,11 +467,7 @@ describe("explore grant atoms", () => {
   test("releaseCiv7ExploreGrant rejects non-integer grant ids before any exec", async () => {
     const { commands, dependencies } = grantDependencies();
     await expect(
-      releaseCiv7ExploreGrant(
-        { playerId: 0, grantId: 1.5 },
-        {},
-        dependencies as never,
-      ),
+      releaseCiv7ExploreGrant({ playerId: 0, grantId: 1.5 }, {}, dependencies as never)
     ).rejects.toThrow(/grantId/);
     expect(commands).toHaveLength(0);
   });
@@ -452,7 +498,9 @@ async function startMapTunerServer(): Promise<FakeTunerServer> {
         } else if (frame.message.includes("locationsFromBounds")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(mapGridPayload())]));
         } else if (frame.message.includes("MapRivers") && frame.message.includes("numRivers")) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(nativeRiverObjectsPayload())]));
+          socket.write(
+            encodeResponse(frame.listenerId, [JSON.stringify(nativeRiverObjectsPayload())])
+          );
         } else if (frame.message.includes("readPlotSnapshot")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(plotSnapshotPayload())]));
         } else if (frame.message === "CMD:1:Visibility.revealAllPlots(0)") {

@@ -19,21 +19,27 @@ import { Civ7MapLocationSchema } from "../map/types.js";
 export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS = 1_500;
 export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS = 250;
 
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
 const Civ7UnitTargetActionFamilySchema = Type.Union([
   Type.Literal("unit-operation"),
   Type.Literal("unit-command"),
 ]);
 
-export const Civ7UnitTargetActionInputSchema = Type.Object({
-  unitId: Civ7ComponentIdSchema,
-  x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
-  y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
-}, { additionalProperties: false });
+export const Civ7UnitTargetActionInputSchema = Type.Object(
+  {
+    unitId: Civ7ComponentIdSchema,
+    x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+    y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7UnitTargetActionInput = Readonly<{
   unitId: Civ7ComponentId;
@@ -41,22 +47,30 @@ export type Civ7UnitTargetActionInput = Readonly<{
   y: number;
 }>;
 
-export const Civ7UnitTargetActionRequestInputSchema = Type.Object({
-  unitId: Civ7ComponentIdSchema,
-  x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
-  y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
-}, { additionalProperties: false });
-export type Civ7UnitTargetActionRequestInput = Readonly<Static<typeof Civ7UnitTargetActionRequestInputSchema>>;
+export const Civ7UnitTargetActionRequestInputSchema = Type.Object(
+  {
+    unitId: Civ7ComponentIdSchema,
+    x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+    y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  },
+  { additionalProperties: false }
+);
+export type Civ7UnitTargetActionRequestInput = Readonly<
+  Static<typeof Civ7UnitTargetActionRequestInputSchema>
+>;
 
-export const Civ7UnitTargetActionCandidateSchema = Type.Object({
-  family: Civ7UnitTargetActionFamilySchema,
-  operationType: Type.String(),
-  args: Type.Unknown(),
-  valid: Type.Boolean(),
-  result: Type.Unknown(),
-  targetInReturnedPlots: Type.Union([Type.Boolean(), Type.Null()]),
-  rejectedReason: Type.Optional(Type.String()),
-}, { additionalProperties: false });
+export const Civ7UnitTargetActionCandidateSchema = Type.Object(
+  {
+    family: Civ7UnitTargetActionFamilySchema,
+    operationType: Type.String(),
+    args: Type.Unknown(),
+    valid: Type.Boolean(),
+    result: Type.Unknown(),
+    targetInReturnedPlots: Type.Union([Type.Boolean(), Type.Null()]),
+    rejectedReason: Type.Optional(Type.String()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7UnitTargetActionCandidate = Readonly<{
   family: "unit-operation" | "unit-command";
@@ -68,56 +82,62 @@ export type Civ7UnitTargetActionCandidate = Readonly<{
   rejectedReason?: string;
 }>;
 
-export const Civ7UnitTargetActionVerificationSchema = Type.Object({
-  status: Type.Union([
-    Type.Literal("verified"),
-    Type.Literal("no-state-change"),
-    Type.Literal("not-sent"),
-  ]),
-  classification: Type.Union([
-    Type.Literal("target-reached"),
-    Type.Literal("path-shortfall"),
-    Type.Literal("unit-state-changed"),
-    Type.Literal("target-state-changed"),
-    Type.Literal("no-state-change"),
-    Type.Literal("not-sent"),
-  ]),
-  unitChanged: Type.Boolean(),
-  targetUnitsChanged: Type.Boolean(),
-  destinationReached: Type.Union([Type.Boolean(), Type.Null()]),
-  requestedLocation: Civ7MapLocationSchema,
-  landedLocation: Type.Optional(Type.Union([Civ7MapLocationSchema, Type.Null()])),
-  source: Type.Optional(Type.Union([
-    Type.Literal("immediate"),
-    Type.Literal("bounded-poll"),
-  ])),
-  attempts: Type.Optional(Type.Integer({ minimum: 0 })),
-  observedAfterMs: Type.Optional(Type.Number({ minimum: 0 })),
-  reason: Type.String(),
-}, { additionalProperties: false });
+export const Civ7UnitTargetActionVerificationSchema = Type.Object(
+  {
+    status: Type.Union([
+      Type.Literal("verified"),
+      Type.Literal("no-state-change"),
+      Type.Literal("not-sent"),
+    ]),
+    classification: Type.Union([
+      Type.Literal("target-reached"),
+      Type.Literal("path-shortfall"),
+      Type.Literal("unit-state-changed"),
+      Type.Literal("target-state-changed"),
+      Type.Literal("no-state-change"),
+      Type.Literal("not-sent"),
+    ]),
+    unitChanged: Type.Boolean(),
+    targetUnitsChanged: Type.Boolean(),
+    destinationReached: Type.Union([Type.Boolean(), Type.Null()]),
+    requestedLocation: Civ7MapLocationSchema,
+    landedLocation: Type.Optional(Type.Union([Civ7MapLocationSchema, Type.Null()])),
+    source: Type.Optional(Type.Union([Type.Literal("immediate"), Type.Literal("bounded-poll")])),
+    attempts: Type.Optional(Type.Integer({ minimum: 0 })),
+    observedAfterMs: Type.Optional(Type.Number({ minimum: 0 })),
+    reason: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7UnitTargetActionResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  unitId: Civ7ComponentIdSchema,
-  target: Type.Object({
-    x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
-    y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
-    index: Civ7RuntimeProbeSchema(Type.Number()),
-  }, { additionalProperties: false }),
-  beforeUnit: Civ7RuntimeProbeSchema(Type.Unknown()),
-  beforeTargetUnits: Civ7RuntimeProbeSchema(Type.Unknown()),
-  candidates: Type.Array(Civ7UnitTargetActionCandidateSchema),
-  selected: Type.Union([Civ7UnitTargetActionCandidateSchema, Type.Null()]),
-  sent: Type.Boolean(),
-  sendResult: Type.Optional(Type.Unknown()),
-  afterUnit: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
-  afterTargetUnits: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
-  verified: Type.Optional(Type.Boolean()),
-  verification: Type.Optional(Civ7UnitTargetActionVerificationSchema),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7UnitTargetActionResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    unitId: Civ7ComponentIdSchema,
+    target: Type.Object(
+      {
+        x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+        y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+        index: Civ7RuntimeProbeSchema(Type.Number()),
+      },
+      { additionalProperties: false }
+    ),
+    beforeUnit: Civ7RuntimeProbeSchema(Type.Unknown()),
+    beforeTargetUnits: Civ7RuntimeProbeSchema(Type.Unknown()),
+    candidates: Type.Array(Civ7UnitTargetActionCandidateSchema),
+    selected: Type.Union([Civ7UnitTargetActionCandidateSchema, Type.Null()]),
+    sent: Type.Boolean(),
+    sendResult: Type.Optional(Type.Unknown()),
+    afterUnit: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
+    afterTargetUnits: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
+    verified: Type.Optional(Type.Boolean()),
+    verification: Type.Optional(Civ7UnitTargetActionVerificationSchema),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7UnitTargetActionResult = Readonly<{
   host: string;
@@ -136,7 +156,13 @@ export type Civ7UnitTargetActionResult = Readonly<{
   verified?: boolean;
   verification?: Readonly<{
     status: "verified" | "no-state-change" | "not-sent";
-    classification: "target-reached" | "path-shortfall" | "unit-state-changed" | "target-state-changed" | "no-state-change" | "not-sent";
+    classification:
+      | "target-reached"
+      | "path-shortfall"
+      | "unit-state-changed"
+      | "target-state-changed"
+      | "no-state-change"
+      | "not-sent";
     unitChanged: boolean;
     targetUnitsChanged: boolean;
     destinationReached: boolean | null;
@@ -152,12 +178,9 @@ export type Civ7UnitTargetActionResult = Readonly<{
 
 type UnitTargetActionDependencies = Readonly<{
   executeTunerCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
-  parseUnitTargetAction: (
-    result: Civ7CommandResult,
-    label: string,
-  ) => Civ7UnitTargetActionResult;
+  parseUnitTargetAction: (result: Civ7CommandResult, label: string) => Civ7UnitTargetActionResult;
   verificationWaitMs: number;
   verificationPollIntervalMs: number;
 }>;
@@ -165,7 +188,7 @@ type UnitTargetActionDependencies = Readonly<{
 export async function getCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: UnitTargetActionDependencies = defaultUnitTargetActionDependencies,
+  dependencies: UnitTargetActionDependencies = defaultUnitTargetActionDependencies
 ): Promise<Civ7UnitTargetActionResult> {
   const result = await dependencies.executeTunerCommand({
     ...options,
@@ -177,7 +200,7 @@ export async function getCiv7UnitTargetAction(
 export async function requestCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: UnitTargetActionDependencies = defaultUnitTargetActionDependencies,
+  dependencies: UnitTargetActionDependencies = defaultUnitTargetActionDependencies
 ): Promise<Civ7UnitTargetActionResult> {
   const result = await dependencies.executeTunerCommand({
     ...options,
@@ -199,7 +222,7 @@ async function stabilizeCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions,
   immediate: Civ7UnitTargetActionResult,
-  dependencies: UnitTargetActionDependencies,
+  dependencies: UnitTargetActionDependencies
 ): Promise<Civ7UnitTargetActionResult> {
   if (immediate.sent !== true || immediate.verification?.status !== "no-state-change") {
     return withUnitTargetVerificationSource(immediate, "immediate", 0, 0);
@@ -210,13 +233,20 @@ async function stabilizeCiv7UnitTargetAction(
   let last = immediate;
   while (Date.now() - startedAt < dependencies.verificationWaitMs) {
     const elapsed = Date.now() - startedAt;
-    await sleep(Math.min(
-      dependencies.verificationPollIntervalMs,
-      Math.max(0, dependencies.verificationWaitMs - elapsed),
-    ));
+    await sleep(
+      Math.min(
+        dependencies.verificationPollIntervalMs,
+        Math.max(0, dependencies.verificationWaitMs - elapsed)
+      )
+    );
     attempts += 1;
     const observed = await getCiv7UnitTargetAction(input, options, dependencies);
-    const reconciled = reconcilePolledUnitTargetAction(immediate, observed, attempts, Date.now() - startedAt);
+    const reconciled = reconcilePolledUnitTargetAction(
+      immediate,
+      observed,
+      attempts,
+      Date.now() - startedAt
+    );
     last = reconciled;
     if (reconciled.verified === true) return reconciled;
   }
@@ -229,10 +259,14 @@ async function stabilizeCiv7UnitTargetAction(
           source: "bounded-poll",
           attempts,
           observedAfterMs: Date.now() - startedAt,
-          reason: "Bounded verification polling observed no unit or target-plot change after send; re-read current HUD and ready unit before repeating.",
+          reason:
+            "Bounded verification polling observed no unit or target-plot change after send; re-read current HUD and ready unit before repeating.",
         }
       : last.verification,
-    notes: appendNote(last.notes, `Post-send verification polled ${attempts} time(s) for ${Date.now() - startedAt}ms before returning no-state-change.`),
+    notes: appendNote(
+      last.notes,
+      `Post-send verification polled ${attempts} time(s) for ${Date.now() - startedAt}ms before returning no-state-change.`
+    ),
   };
 }
 
@@ -240,10 +274,11 @@ function reconcilePolledUnitTargetAction(
   immediate: Civ7UnitTargetActionResult,
   observed: Civ7UnitTargetActionResult,
   attempts: number,
-  observedAfterMs: number,
+  observedAfterMs: number
 ): Civ7UnitTargetActionResult {
   const unitChanged = stableJson(immediate.beforeUnit) !== stableJson(observed.beforeUnit);
-  const targetUnitsChanged = stableJson(immediate.beforeTargetUnits) !== stableJson(observed.beforeTargetUnits);
+  const targetUnitsChanged =
+    stableJson(immediate.beforeTargetUnits) !== stableJson(observed.beforeTargetUnits);
   if (!unitChanged && !targetUnitsChanged) {
     return withUnitTargetVerificationSource(immediate, "bounded-poll", attempts, observedAfterMs);
   }
@@ -251,8 +286,13 @@ function reconcilePolledUnitTargetAction(
   const requestedLocation = { x: immediate.target.x, y: immediate.target.y };
   const beforeLocation = locationFromUnitProbeValue(immediate.beforeUnit);
   const landedLocation = locationFromUnitProbeValue(observed.beforeUnit);
-  const destinationReached = landedLocation ? sameMapLocation(landedLocation, requestedLocation) : null;
-  const originChanged = beforeLocation && landedLocation ? !sameMapLocation(beforeLocation, landedLocation) : unitChanged;
+  const destinationReached = landedLocation
+    ? sameMapLocation(landedLocation, requestedLocation)
+    : null;
+  const originChanged =
+    beforeLocation && landedLocation
+      ? !sameMapLocation(beforeLocation, landedLocation)
+      : unitChanged;
   const operationType = immediate.selected?.operationType;
   const classification =
     operationType === "MOVE_TO" && destinationReached === true
@@ -281,7 +321,10 @@ function reconcilePolledUnitTargetAction(
       observedAfterMs,
       reason: unitTargetVerificationReason(classification),
     },
-    notes: appendNote(immediate.notes, `Post-send verification stabilized after ${attempts} poll attempt(s) and ${observedAfterMs}ms.`),
+    notes: appendNote(
+      immediate.notes,
+      `Post-send verification stabilized after ${attempts} poll attempt(s) and ${observedAfterMs}ms.`
+    ),
   };
 }
 
@@ -289,7 +332,7 @@ function withUnitTargetVerificationSource(
   result: Civ7UnitTargetActionResult,
   source: "immediate" | "bounded-poll",
   attempts: number,
-  observedAfterMs: number,
+  observedAfterMs: number
 ): Civ7UnitTargetActionResult {
   if (!result.verification) return result;
   return {
@@ -303,7 +346,9 @@ function withUnitTargetVerificationSource(
   };
 }
 
-function unitTargetVerificationReason(classification: NonNullable<Civ7UnitTargetActionResult["verification"]>["classification"]): string {
+function unitTargetVerificationReason(
+  classification: NonNullable<Civ7UnitTargetActionResult["verification"]>["classification"]
+): string {
   switch (classification) {
     case "target-reached":
       return "unit reached the requested target tile after bounded post-send polling";
@@ -320,7 +365,10 @@ function unitTargetVerificationReason(classification: NonNullable<Civ7UnitTarget
   }
 }
 
-function buildUnitTargetActionCommand(input: Civ7UnitTargetActionInput, options: { send: boolean }): string {
+function buildUnitTargetActionCommand(
+  input: Civ7UnitTargetActionInput,
+  options: { send: boolean }
+): string {
   return `(() => {
     ${unitTargetActionSource()}
     return JSON.stringify(readUnitTargetAction(${jsLiteral(input)}, ${jsLiteral(options)}));
@@ -544,7 +592,9 @@ function unitTargetActionSource(): string {
     };`;
 }
 
-function locationFromUnitProbeValue(probe: Civ7RuntimeProbe<unknown> | undefined): Civ7MapLocation | null {
+function locationFromUnitProbeValue(
+  probe: Civ7RuntimeProbe<unknown> | undefined
+): Civ7MapLocation | null {
   const value = probe?.ok === true ? probe.value : null;
   if (!value || typeof value !== "object") return null;
   const location = (value as { location?: unknown }).location;

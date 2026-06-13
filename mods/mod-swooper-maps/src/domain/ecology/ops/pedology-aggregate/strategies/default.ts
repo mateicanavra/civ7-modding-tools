@@ -22,7 +22,8 @@ export const defaultStrategy = createStrategy(AggregatePedologyContract, "defaul
           }
         }
         const dominantSoil = Object.entries(soilCounts).reduce(
-          (best, [soil, soilCount]) => (soilCount > best.count ? { soil: Number(soil), count: soilCount } : best),
+          (best, [soil, soilCount]) =>
+            soilCount > best.count ? { soil: Number(soil), count: soilCount } : best,
           { soil: 0, count: -1 }
         ).soil;
         cells.push({

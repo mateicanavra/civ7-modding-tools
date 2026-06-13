@@ -12,29 +12,29 @@ import { isCiv7ControlOrpcCorrelationId } from "./model/correlation";
 
 export const civ7ControlOrpcEffectRuntime = ManagedRuntime.make(Layer.empty);
 
-const civ7ControlOrpcBaseImplementer =
-  implementEffect(
-    Civ7ControlOrpcContract,
-    civ7ControlOrpcEffectRuntime,
-  ).$context<Civ7ControlOrpcContext>() satisfies EffectImplementer<
-    typeof Civ7ControlOrpcContract,
-    Civ7ControlOrpcContext & Record<never, never>,
-    Civ7ControlOrpcContext,
-    never,
-    never
-  >;
+const civ7ControlOrpcBaseImplementer = implementEffect(
+  Civ7ControlOrpcContract,
+  civ7ControlOrpcEffectRuntime
+).$context<Civ7ControlOrpcContext>() satisfies EffectImplementer<
+  typeof Civ7ControlOrpcContract,
+  Civ7ControlOrpcContext & Record<never, never>,
+  Civ7ControlOrpcContext,
+  never,
+  never
+>;
 
-const civ7ControlOrpcSafeErrorMiddleware =
-  civ7ControlOrpcBaseImplementer.middleware(async ({ next }) => {
+const civ7ControlOrpcSafeErrorMiddleware = civ7ControlOrpcBaseImplementer.middleware(
+  async ({ next }) => {
     try {
       return await next();
     } catch (err) {
       throw civ7ControlOrpcPublicError(err);
     }
-  });
+  }
+);
 
-const civ7ControlOrpcCorrelationMiddleware =
-  civ7ControlOrpcBaseImplementer.middleware(({ context, errors, next }) => {
+const civ7ControlOrpcCorrelationMiddleware = civ7ControlOrpcBaseImplementer.middleware(
+  ({ context, errors, next }) => {
     const correlationId = context.correlation?.correlationId;
     if (correlationId == null) return next();
     if (!isCiv7ControlOrpcCorrelationId(correlationId)) {
@@ -47,7 +47,8 @@ const civ7ControlOrpcCorrelationMiddleware =
     }
 
     return next({ context: { correlation: { correlationId } } });
-  });
+  }
+);
 
 export type Civ7ControlOrpcImplementer = EffectImplementerInternal<
   typeof Civ7ControlOrpcContract,
@@ -57,10 +58,9 @@ export type Civ7ControlOrpcImplementer = EffectImplementerInternal<
   never
 >;
 
-export const civ7ControlOrpcImplementer: Civ7ControlOrpcImplementer =
-  civ7ControlOrpcBaseImplementer
-    .use(civ7ControlOrpcCorrelationMiddleware)
-    .use(civ7ControlOrpcSafeErrorMiddleware);
+export const civ7ControlOrpcImplementer: Civ7ControlOrpcImplementer = civ7ControlOrpcBaseImplementer
+  .use(civ7ControlOrpcCorrelationMiddleware)
+  .use(civ7ControlOrpcSafeErrorMiddleware);
 
 function civ7ControlOrpcPublicError(err: unknown): ORPCError<any, any> {
   if (err instanceof ORPCError) return err;

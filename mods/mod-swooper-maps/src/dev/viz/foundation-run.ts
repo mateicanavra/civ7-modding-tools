@@ -38,7 +38,9 @@ const envBase = {
 } as const;
 
 const plan = browserTestRecipe.compile(envBase, BROWSER_TEST_RECIPE_CONFIG);
-const verboseSteps = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
+const verboseSteps = Object.fromEntries(
+  plan.nodes.map((node) => [node.stepId, "verbose"] as const)
+);
 
 const env = {
   ...envBase,

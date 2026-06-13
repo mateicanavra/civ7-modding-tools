@@ -34,13 +34,17 @@ describe("attention.priorities control-oRPC procedure", () => {
       battlefield: battlefieldScanResult(),
     });
 
-    const result = await call(Civ7ControlOrpcRouter.attention.priorities, {
-      maxNotifications: 12,
-      includeBattlefield: true,
-      battlefieldRadius: 6,
-    }, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.priorities,
+      {
+        maxNotifications: 12,
+        includeBattlefield: true,
+        battlefieldRadius: 6,
+      },
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result).toMatchObject({
       playable: true,
@@ -72,15 +76,13 @@ describe("attention.priorities control-oRPC procedure", () => {
         operationFamily: "city-operation",
       },
     });
-    expect(result.nextSteps.map((step) => step.kind)).toContain(
-      "inspect-battlefield-point",
-    );
+    expect(result.nextSteps.map((step) => step.kind)).toContain("inspect-battlefield-point");
     expect(JSON.stringify(result)).not.toContain("game play");
     expect(JSON.stringify(result)).not.toContain("127.0.0.1");
     expect(JSON.stringify(result)).not.toContain("65535");
-    expect(JSON.stringify(result)).not.toContain("\"host\"");
-    expect(JSON.stringify(result)).not.toContain("\"port\"");
-    expect(JSON.stringify(result)).not.toContain("\"state\"");
+    expect(JSON.stringify(result)).not.toContain('"host"');
+    expect(JSON.stringify(result)).not.toContain('"port"');
+    expect(JSON.stringify(result)).not.toContain('"state"');
     expect(JSON.stringify(result)).not.toContain("rawCommand");
 
     expect(fake.calls.notifications).toEqual([
@@ -119,9 +121,13 @@ describe("attention.priorities control-oRPC procedure", () => {
       readyCity: emptyReadyCityViewResult(),
     });
 
-    const result = await call(Civ7ControlOrpcRouter.attention.priorities, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.priorities,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result.priorities[0]).toMatchObject({
       kind: "runtime-state-error",
@@ -130,9 +136,7 @@ describe("attention.priorities control-oRPC procedure", () => {
         kind: "observe",
       },
     });
-    expect(result.priorities.map((item) => item.kind)).not.toContain(
-      "clean-read",
-    );
+    expect(result.priorities.map((item) => item.kind)).not.toContain("clean-read");
     expect(result.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
   });
 
@@ -178,12 +182,10 @@ describe("attention.priorities control-oRPC procedure", () => {
         risk: "read-only",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.attention.priorities["~orpc"].errorMap,
-    ).toHaveProperty("ATTENTION_PRIORITIES_UNAVAILABLE");
-    expect(Civ7AttentionPrioritiesUnavailableError.code).toBe(
-      "ATTENTION_PRIORITIES_UNAVAILABLE",
+    expect(Civ7ControlOrpcContract.attention.priorities["~orpc"].errorMap).toHaveProperty(
+      "ATTENTION_PRIORITIES_UNAVAILABLE"
     );
+    expect(Civ7AttentionPrioritiesUnavailableError.code).toBe("ATTENTION_PRIORITIES_UNAVAILABLE");
   });
 });
 
@@ -265,7 +267,7 @@ function fakeContext(options: FakeContextOptions): {
 }
 
 function playableStatusResult(
-  overrides: Partial<Civ7ControlOrpcPlayableStatusResult> = {},
+  overrides: Partial<Civ7ControlOrpcPlayableStatusResult> = {}
 ): Civ7ControlOrpcPlayableStatusResult {
   return {
     host: "127.0.0.1",
@@ -283,7 +285,7 @@ function notificationViewResult(
   ids: {
     unitId?: { owner: number; id: number; type?: number };
     cityId?: { owner: number; id: number; type?: number };
-  } = {},
+  } = {}
 ): Civ7ControlOrpcPlayNotificationViewResult {
   const unitId = ids.unitId ?? { owner: 0, id: 458_752, type: 26 };
   const cityId = ids.cityId ?? { owner: 0, id: 131_073, type: 1 };
@@ -358,7 +360,7 @@ function cleanNotificationViewResult(): Civ7ControlOrpcPlayNotificationViewResul
 }
 
 function turnCompletionStatusResult(
-  overrides: Partial<Civ7ControlOrpcTurnCompletionStatusResult> = {},
+  overrides: Partial<Civ7ControlOrpcTurnCompletionStatusResult> = {}
 ): Civ7ControlOrpcTurnCompletionStatusResult {
   return {
     host: "127.0.0.1",
@@ -375,9 +377,11 @@ function turnCompletionStatusResult(
   };
 }
 
-function readyUnitViewResult(
-  unitId: { owner: number; id: number; type?: number },
-): Civ7ControlOrpcReadyUnitViewResult {
+function readyUnitViewResult(unitId: {
+  owner: number;
+  id: number;
+  type?: number;
+}): Civ7ControlOrpcReadyUnitViewResult {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -422,9 +426,11 @@ function emptyReadyUnitViewResult(): Civ7ControlOrpcReadyUnitViewResult {
   };
 }
 
-function readyCityViewResult(
-  cityId: { owner: number; id: number; type?: number },
-): Civ7ControlOrpcReadyCityViewResult {
+function readyCityViewResult(cityId: {
+  owner: number;
+  id: number;
+  type?: number;
+}): Civ7ControlOrpcReadyCityViewResult {
   return {
     host: "127.0.0.1",
     port: 4318,

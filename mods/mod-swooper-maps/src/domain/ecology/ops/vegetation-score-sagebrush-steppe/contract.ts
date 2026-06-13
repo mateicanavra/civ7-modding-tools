@@ -28,4 +28,3 @@ const ScoreVegetationSagebrushSteppeContract = defineOp({
 });
 
 export default ScoreVegetationSagebrushSteppeContract;
-

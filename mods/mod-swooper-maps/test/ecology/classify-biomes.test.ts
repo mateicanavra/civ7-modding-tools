@@ -27,7 +27,10 @@ describe("classifyBiomes operation", () => {
     const soilType = new Uint8Array(size).fill(0);
     const fertility = new Float32Array(size).fill(0.5);
 
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.classifyBiomes, ecology.ops.classifyBiomes.defaultConfig);
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.classifyBiomes,
+      ecology.ops.classifyBiomes.defaultConfig
+    );
 
     const result = ecology.ops.classifyBiomes.run(
       {

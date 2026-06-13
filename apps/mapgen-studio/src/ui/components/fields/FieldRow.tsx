@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 // ============================================================================
 // FIELD ROW
 // ============================================================================
@@ -7,5 +7,6 @@ import React from 'react';
 export interface FieldRowProps {
   children: React.ReactNode;
 }
-export const FieldRow: React.FC<FieldRowProps> = ({ children }) =>
-<div className="flex items-center justify-between gap-3 py-1">{children}</div>;
+export const FieldRow: React.FC<FieldRowProps> = ({ children }) => (
+  <div className="flex items-center justify-between gap-3 py-1">{children}</div>
+);

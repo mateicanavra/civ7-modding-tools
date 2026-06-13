@@ -9,7 +9,9 @@ import { pointsFromTileCentroids, segmentsFromTileTopologyNeighbors } from "../v
 
 const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
 
-function validateTopologySymmetry(plates: ReadonlyArray<{ id: number; neighbors: number[] }>): void {
+function validateTopologySymmetry(
+  plates: ReadonlyArray<{ id: number; neighbors: number[] }>
+): void {
   const neighborSets = new Map<number, Set<number>>();
   for (const p of plates) neighborSets.set(p.id, new Set(p.neighbors));
 

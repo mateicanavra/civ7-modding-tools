@@ -41,7 +41,9 @@ function canonicalize(value: unknown): unknown {
 }
 
 function stableHash(value: unknown): string {
-  return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
+  return createHash("sha256")
+    .update(JSON.stringify(canonicalize(value)))
+    .digest("hex");
 }
 
 function configHashFor(config: ValidatedMapConfig): string {
@@ -172,7 +174,9 @@ ${rows}
 }
 
 function renderModInfo(configs: readonly ValidatedMapConfig[]): string {
-  const imports = configs.map((config) => `\t\t\t\t\t<Item>maps/${config.outputFile}</Item>`).join("\n");
+  const imports = configs
+    .map((config) => `\t\t\t\t\t<Item>maps/${config.outputFile}</Item>`)
+    .join("\n");
   return `<?xml version="1.0" encoding="utf-8"?>
 <Mod id="swooper-maps" version="1" xmlns="ModInfo">
 \t<Properties>
@@ -287,8 +291,14 @@ async function main(): Promise<void> {
   await writeFile(resolve(modConfigDir, "config.xml"), renderConfigXml(configs));
   await writeFile(resolve(pkgRoot, "mod/swooper-maps.modinfo"), renderModInfo(configs));
   await writeFile(resolve(modTextDir, "MapText.xml"), renderMapText(configs));
-  await writeFile(resolve(distRecipesDir, "standard-map-config.schema.json"), stableJson(envelopeSchema));
-  await writeFile(resolve(distRecipesDir, "standard-map-configs.js"), renderMapConfigsArtifact(configs));
+  await writeFile(
+    resolve(distRecipesDir, "standard-map-config.schema.json"),
+    stableJson(envelopeSchema)
+  );
+  await writeFile(
+    resolve(distRecipesDir, "standard-map-configs.js"),
+    renderMapConfigsArtifact(configs)
+  );
   await writeFile(resolve(distRecipesDir, "standard-map-configs.d.ts"), renderMapConfigsDts());
 
   const rel = (path: string) => path.replace(`${repoRoot}/`, "");

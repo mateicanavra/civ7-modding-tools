@@ -17,7 +17,10 @@ describe("final-surface parity verifier output", () => {
           envelopeHash: "envelope-hash",
         },
       },
-      blockedBy: ["exact-authorship-proof.complete", "exact-authorship-proof.unresolved-links-empty"],
+      blockedBy: [
+        "exact-authorship-proof.complete",
+        "exact-authorship-proof.unresolved-links-empty",
+      ],
       dimensions: { width: 106, height: 66, seed: 138503614 },
     });
 

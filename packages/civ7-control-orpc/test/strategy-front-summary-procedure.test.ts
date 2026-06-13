@@ -22,64 +22,74 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
       destinationAnalysis: destinationAnalysisResult(),
     });
 
-    const result = await call(Civ7ControlOrpcRouter.strategy.frontSummary, {
-      playerId: 0,
-      origins: [{ x: 10, y: 20 }],
-      candidateLimit: 3,
-      scanRadius: 6,
-      maxPlayers: 12,
-      target: { x: 15, y: 20 },
-    }, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.strategy.frontSummary,
+      {
+        playerId: 0,
+        origins: [{ x: 10, y: 20 }],
+        candidateLimit: 3,
+        scanRadius: 6,
+        maxPlayers: 12,
+        target: { x: 15, y: 20 },
+      },
+      {
+        context: fake.context,
+      }
+    );
 
     expect(fake.calls).toEqual({
-      targetCandidates: [{
-        input: {
-          playerId: 0,
-          origins: [{ x: 10, y: 20 }],
-          maxCandidates: 3,
-          maxPlayers: 12,
-          unitRadius: 6,
+      targetCandidates: [
+        {
+          input: {
+            playerId: 0,
+            origins: [{ x: 10, y: 20 }],
+            maxCandidates: 3,
+            maxPlayers: 12,
+            unitRadius: 6,
+          },
+          options: {
+            host: "127.0.0.1",
+            port: 4318,
+            timeoutMs: 1_000,
+          },
         },
-        options: {
-          host: "127.0.0.1",
-          port: 4318,
-          timeoutMs: 1_000,
+      ],
+      battlefieldScan: [
+        {
+          input: {
+            playerId: 0,
+            origins: [{ x: 10, y: 20 }],
+            radius: 6,
+            maxPlayers: 12,
+            maxUnits: 48,
+            maxCities: 24,
+          },
+          options: {
+            host: "127.0.0.1",
+            port: 4318,
+            timeoutMs: 1_000,
+          },
         },
-      }],
-      battlefieldScan: [{
-        input: {
-          playerId: 0,
-          origins: [{ x: 10, y: 20 }],
-          radius: 6,
-          maxPlayers: 12,
-          maxUnits: 48,
-          maxCities: 24,
+      ],
+      destinationAnalysis: [
+        {
+          input: {
+            playerId: 0,
+            origin: { x: 10, y: 20 },
+            destination: { x: 15, y: 20 },
+            corridorRadius: 2,
+            destinationRadius: 4,
+            maxPlayers: 12,
+            maxUnits: undefined,
+            maxCities: undefined,
+          },
+          options: {
+            host: "127.0.0.1",
+            port: 4318,
+            timeoutMs: 1_000,
+          },
         },
-        options: {
-          host: "127.0.0.1",
-          port: 4318,
-          timeoutMs: 1_000,
-        },
-      }],
-      destinationAnalysis: [{
-        input: {
-          playerId: 0,
-          origin: { x: 10, y: 20 },
-          destination: { x: 15, y: 20 },
-          corridorRadius: 2,
-          destinationRadius: 4,
-          maxPlayers: 12,
-          maxUnits: undefined,
-          maxCities: undefined,
-        },
-        options: {
-          host: "127.0.0.1",
-          port: 4318,
-          timeoutMs: 1_000,
-        },
-      }],
+      ],
     });
     expect(result).toMatchObject({
       playerId: 0,
@@ -103,32 +113,37 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
       },
       target: { x: 15, y: 20 },
     });
-    expect(result.targetCandidates).toEqual([{
-      owner: 1,
-      relationship: "relationship-unproven",
-      relationshipProof: "none",
-      nearestDistance: 5,
-      cityCount: 1,
-      unitCount: 3,
-      nearbyUnitCount: 2,
-      apparentStrength: 17.5,
-      routeKind: "land",
-      routeHint: "near",
-      reasons: ["nearest target distance 5"],
-    }]);
-    expect(result.pointsOfInterest).toEqual([{
-      kind: "nearby-other-owners",
-      severity: "medium",
-      location: { x: 11, y: 21 },
-      summary: "2 other-owner units within 3 tiles of an origin",
-      source: "battlefield",
-    }, {
-      kind: "destination-contact",
-      severity: "high",
-      location: { x: 15, y: 20 },
-      summary: "destination contact near intended front",
-      source: "destination",
-    }]);
+    expect(result.targetCandidates).toEqual([
+      {
+        owner: 1,
+        relationship: "relationship-unproven",
+        relationshipProof: "none",
+        nearestDistance: 5,
+        cityCount: 1,
+        unitCount: 3,
+        nearbyUnitCount: 2,
+        apparentStrength: 17.5,
+        routeKind: "land",
+        routeHint: "near",
+        reasons: ["nearest target distance 5"],
+      },
+    ]);
+    expect(result.pointsOfInterest).toEqual([
+      {
+        kind: "nearby-other-owners",
+        severity: "medium",
+        location: { x: 11, y: 21 },
+        summary: "2 other-owner units within 3 tiles of an origin",
+        source: "battlefield",
+      },
+      {
+        kind: "destination-contact",
+        severity: "high",
+        location: { x: 15, y: 20 },
+        summary: "destination contact near intended front",
+        source: "destination",
+      },
+    ]);
     expect(result.front).toMatchObject({
       posture: "stage-before-entering-target-contact",
       headline: "origin (10,20) toward target/front (15,20); leading candidate: owner 1",
@@ -168,9 +183,9 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
     ]);
 
     const serialized = JSON.stringify(result);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
     expect(serialized).not.toContain("Game.turn");
     expect(serialized).not.toContain("rawCommand");
     expect(serialized).not.toMatch(/\benemy\b/i);
@@ -200,11 +215,13 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
       pointOfInterestCount: 0,
       observedOwnerCount: 0,
     });
-    expect(result.nextSteps).toEqual([{
-      kind: "observe",
-      source: "strategy.frontSummary",
-      label: "No front planning evidence found; refresh attention or narrow the scan origins.",
-    }]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "observe",
+        source: "strategy.frontSummary",
+        label: "No front planning evidence found; refresh attention or narrow the scan origins.",
+      },
+    ]);
   });
 
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
@@ -227,7 +244,7 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
       await expect(
         call(Civ7ControlOrpcRouter.strategy.frontSummary, input as never, {
           context: fake.context,
-        }),
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls).toEqual({
         targetCandidates: [],
@@ -241,9 +258,7 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
     const context: Civ7ControlOrpcContext = {
       directControl: {
         getCiv7TargetCandidates: async () => {
-          throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:1:Game.turn",
-          );
+          throw new Error("Timed out waiting for Civ7 tuner response to CMD:1:Game.turn");
         },
         getCiv7BattlefieldScan: async () => battlefieldScanResult(),
         getCiv7DestinationAnalysis: async () => destinationAnalysisResult(),
@@ -251,7 +266,7 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
     };
 
     await expect(
-      call(Civ7ControlOrpcRouter.strategy.frontSummary, {}, { context }),
+      call(Civ7ControlOrpcRouter.strategy.frontSummary, {}, { context })
     ).rejects.toMatchObject({
       code: "STRATEGY_FRONT_SUMMARY_UNAVAILABLE",
       status: 503,
@@ -281,11 +296,11 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
         risk: "read-only",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.strategy.frontSummary["~orpc"].errorMap,
-    ).toHaveProperty("STRATEGY_FRONT_SUMMARY_UNAVAILABLE");
+    expect(Civ7ControlOrpcContract.strategy.frontSummary["~orpc"].errorMap).toHaveProperty(
+      "STRATEGY_FRONT_SUMMARY_UNAVAILABLE"
+    );
     expect(Civ7StrategyFrontSummaryUnavailableError.code).toBe(
-      "STRATEGY_FRONT_SUMMARY_UNAVAILABLE",
+      "STRATEGY_FRONT_SUMMARY_UNAVAILABLE"
     );
   });
 });
@@ -295,37 +310,49 @@ function fakeContext(
     targetCandidates: Civ7ControlOrpcTargetCandidatesResult;
     battlefieldScan: Civ7ControlOrpcBattlefieldScanResult;
     destinationAnalysis: Civ7ControlOrpcDestinationAnalysisResult;
-  }>,
+  }>
 ): {
   calls: {
-    targetCandidates: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
-    battlefieldScan: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
-    destinationAnalysis: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
+    targetCandidates: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
+    battlefieldScan: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
+    destinationAnalysis: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
   };
   context: Civ7ControlOrpcContext;
 } {
   const calls = {
-    targetCandidates: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
-    battlefieldScan: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
-    destinationAnalysis: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
+    targetCandidates: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
+    battlefieldScan: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
+    destinationAnalysis: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
   };
 
   return {
@@ -355,7 +382,7 @@ function fakeContext(
 }
 
 function targetCandidatesResult(
-  overrides: Partial<Civ7ControlOrpcTargetCandidatesResult> = {},
+  overrides: Partial<Civ7ControlOrpcTargetCandidatesResult> = {}
 ): Civ7ControlOrpcTargetCandidatesResult {
   return {
     host: "127.0.0.1",
@@ -372,40 +399,42 @@ function targetCandidatesResult(
       unprovenLabel: "relationship-unproven",
       guidance: "neutral",
     },
-    candidates: [{
-      owner: 1,
-      leaderName: { ok: true, value: "Leader" },
-      civilizationName: { ok: true, value: "Civilization" },
-      isHuman: { ok: true, value: false },
-      cityCount: 1,
-      unitCount: 3,
-      cities: [],
-      nearestCity: null,
-      nearestDistance: 5,
-      nearbyUnits: [],
-      nearbyUnitCount: 2,
-      apparentStrength: 17.5,
-      approach: {
-        nearestOrigin: { x: 10, y: 20 },
-        targetLocation: { x: 15, y: 20 },
-        directGridDistance: 5,
-        routeHint: "near",
-        routeKind: "land",
-        originWater: null,
-        targetWater: null,
-        waterSampleCount: 0,
-        landSampleCount: 4,
-        notes: ["Use validators before sends."],
+    candidates: [
+      {
+        owner: 1,
+        leaderName: { ok: true, value: "Leader" },
+        civilizationName: { ok: true, value: "Civilization" },
+        isHuman: { ok: true, value: false },
+        cityCount: 1,
+        unitCount: 3,
+        cities: [],
+        nearestCity: null,
+        nearestDistance: 5,
+        nearbyUnits: [],
+        nearbyUnitCount: 2,
+        apparentStrength: 17.5,
+        approach: {
+          nearestOrigin: { x: 10, y: 20 },
+          targetLocation: { x: 15, y: 20 },
+          directGridDistance: 5,
+          routeHint: "near",
+          routeKind: "land",
+          originWater: null,
+          targetWater: null,
+          waterSampleCount: 0,
+          landSampleCount: 4,
+          notes: ["Use validators before sends."],
+        },
+        reasons: ["nearest target distance 5"],
       },
-      reasons: ["nearest target distance 5"],
-    }],
+    ],
     notes: ["Target candidates are planning support."],
     ...overrides,
   };
 }
 
 function destinationAnalysisResult(
-  overrides: Partial<Civ7ControlOrpcDestinationAnalysisResult> = {},
+  overrides: Partial<Civ7ControlOrpcDestinationAnalysisResult> = {}
 ): Civ7ControlOrpcDestinationAnalysisResult {
   return {
     host: "127.0.0.1",
@@ -439,19 +468,21 @@ function destinationAnalysisResult(
       cityCount: 1,
       apparentOtherStrength: 10,
     },
-    pointsOfInterest: [{
-      kind: "destination-contact",
-      severity: "high",
-      location: { x: 15, y: 20 },
-      summary: "destination pressure near intended front",
-    }],
+    pointsOfInterest: [
+      {
+        kind: "destination-contact",
+        severity: "high",
+        location: { x: 15, y: 20 },
+        summary: "destination pressure near intended front",
+      },
+    ],
     notes: ["Destination analysis is read-only."],
     ...overrides,
   };
 }
 
 function battlefieldScanResult(
-  overrides: Partial<Civ7ControlOrpcBattlefieldScanResult> = {},
+  overrides: Partial<Civ7ControlOrpcBattlefieldScanResult> = {}
 ): Civ7ControlOrpcBattlefieldScanResult {
   return {
     host: "127.0.0.1",
@@ -496,12 +527,14 @@ function battlefieldScanResult(
         nearestCity: { distance: 4 },
       },
     ],
-    pointsOfInterest: [{
-      kind: "nearby-other-owners",
-      severity: "medium",
-      location: { x: 11, y: 21 },
-      summary: "2 other-owner units within 3 tiles of an origin",
-    }],
+    pointsOfInterest: [
+      {
+        kind: "nearby-other-owners",
+        severity: "medium",
+        location: { x: 11, y: 21 },
+        summary: "2 other-owner units within 3 tiles of an origin",
+      },
+    ],
     notes: ["Battlefield scan is read-only."],
     ...overrides,
   };

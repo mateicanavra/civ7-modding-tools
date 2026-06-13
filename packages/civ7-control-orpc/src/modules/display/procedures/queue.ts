@@ -9,22 +9,14 @@ import {
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
-import type {
-  Civ7DisplayQueueCloseResult,
-  Civ7DisplayQueueCurrentResult,
-} from "../contract";
+import type { Civ7DisplayQueueCloseResult, Civ7DisplayQueueCurrentResult } from "../contract";
 
-export const displayQueueCurrentProcedure =
-  civ7ControlOrpcImplementer.display.queue.current.effect(function* ({
-    context,
-    errors,
-  }) {
+export const displayQueueCurrentProcedure = civ7ControlOrpcImplementer.display.queue.current.effect(
+  function* ({ context, errors }) {
     return yield* Effect.tryPromise({
       try: async () =>
         displayQueueCurrentResult(
-          await context.directControl.readCiv7DisplayQueue(
-            context.endpointDefaults,
-          ),
+          await context.directControl.readCiv7DisplayQueue(context.endpointDefaults)
         ),
       catch: (cause) =>
         errors.DISPLAY_QUEUE_UNAVAILABLE({
@@ -36,21 +28,18 @@ export const displayQueueCurrentProcedure =
           },
         }),
     });
-  });
+  }
+);
 
-export const displayQueueCloseProcedure =
-  civ7ControlOrpcImplementer.display.queue.close.effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
+export const displayQueueCloseProcedure = civ7ControlOrpcImplementer.display.queue.close.effect(
+  function* ({ context, errors, input }) {
     return yield* Effect.tryPromise({
       try: async () =>
         displayQueueCloseResult(
           await context.directControl.closeCiv7Displays(
             input.categories == null ? {} : { categories: input.categories },
-            context.endpointDefaults,
-          ),
+            context.endpointDefaults
+          )
         ),
       catch: (cause) =>
         errors.DISPLAY_QUEUE_UNAVAILABLE({
@@ -62,10 +51,11 @@ export const displayQueueCloseProcedure =
           },
         }),
     });
-  });
+  }
+);
 
 function displayQueueCurrentResult(
-  snapshot: Civ7ControlOrpcDisplayQueueSnapshotResult,
+  snapshot: Civ7ControlOrpcDisplayQueueSnapshotResult
 ): Civ7DisplayQueueCurrentResult {
   return {
     active: snapshot.active.map(displayRequestRow),
@@ -76,7 +66,7 @@ function displayQueueCurrentResult(
 }
 
 function displayQueueCloseResult(
-  result: Civ7ControlOrpcCloseDisplaysResult,
+  result: Civ7ControlOrpcCloseDisplaysResult
 ): Civ7DisplayQueueCloseResult {
   return {
     closed: result.closed.map((row) => ({
@@ -89,8 +79,9 @@ function displayQueueCloseResult(
   };
 }
 
-function displayRequestRow(
-  request: Readonly<{ category: string; id: number | null }>,
-): { category: string; id: number | null } {
+function displayRequestRow(request: Readonly<{ category: string; id: number | null }>): {
+  category: string;
+  id: number | null;
+} {
   return { category: request.category, id: request.id };
 }

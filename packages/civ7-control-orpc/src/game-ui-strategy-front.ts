@@ -5,18 +5,15 @@ import type {
 } from "./dependencies/direct-control";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 
-type RuntimeProbe<T> = Readonly<
-  | { ok: true; value: T }
-  | { ok: false; error: string }
->;
+type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
 type MapLocation = Readonly<{ x: number; y: number }>;
-type StrategyUnit = Civ7ControlOrpcBattlefieldScanResult["units"] extends
-  ReadonlyArray<infer Unit> ? Unit : never;
-type StrategyCity = Civ7ControlOrpcBattlefieldScanResult["cities"] extends
-  ReadonlyArray<infer City> ? City : never;
-type StrategyOwner = Civ7ControlOrpcBattlefieldScanResult["owners"] extends
-  ReadonlyArray<infer Owner> ? Owner : never;
+type StrategyUnit =
+  Civ7ControlOrpcBattlefieldScanResult["units"] extends ReadonlyArray<infer Unit> ? Unit : never;
+type StrategyCity =
+  Civ7ControlOrpcBattlefieldScanResult["cities"] extends ReadonlyArray<infer City> ? City : never;
+type StrategyOwner =
+  Civ7ControlOrpcBattlefieldScanResult["owners"] extends ReadonlyArray<infer Owner> ? Owner : never;
 
 export type Civ7GameUiStrategyFrontTarget = Readonly<{
   Cities?: {
@@ -58,16 +55,16 @@ export type Civ7GameUiStrategyFrontTarget = Readonly<{
   };
 }>;
 
-export function civ7GameUiStrategyFrontAvailable(
-  target: Civ7GameUiStrategyFrontTarget,
-): boolean {
-  return typeof target.GameContext?.localPlayerID === "number"
-    && typeof target.Players?.getAliveIds === "function"
-    && typeof target.Players?.get === "function"
-    && typeof target.Players?.Units?.get === "function"
-    && typeof target.Players?.Cities?.get === "function"
-    && typeof target.Units?.get === "function"
-    && typeof target.Cities?.get === "function";
+export function civ7GameUiStrategyFrontAvailable(target: Civ7GameUiStrategyFrontTarget): boolean {
+  return (
+    typeof target.GameContext?.localPlayerID === "number" &&
+    typeof target.Players?.getAliveIds === "function" &&
+    typeof target.Players?.get === "function" &&
+    typeof target.Players?.Units?.get === "function" &&
+    typeof target.Players?.Cities?.get === "function" &&
+    typeof target.Units?.get === "function" &&
+    typeof target.Cities?.get === "function"
+  );
 }
 
 export async function getCiv7GameUiTargetCandidates(
@@ -78,8 +75,7 @@ export async function getCiv7GameUiTargetCandidates(
     maxPlayers?: number;
     unitRadius?: number;
   }> = {},
-  target: Civ7GameUiStrategyFrontTarget =
-    globalThis as Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget = globalThis as Civ7GameUiStrategyFrontTarget
 ): Promise<Civ7ControlOrpcTargetCandidatesResult> {
   if (!civ7GameUiStrategyFrontAvailable(target)) {
     throw new Error("Civ7 game UI strategy front dependency is unavailable.");
@@ -95,9 +91,7 @@ export async function getCiv7GameUiTargetCandidates(
     .filter((owner) => owner !== playerId)
     .slice(0, maxPlayers)
     .map((owner) => targetCandidateFor(owner, { playerId, origins, unitRadius }, target))
-    .filter((candidate): candidate is NonNullable<typeof candidate> =>
-      candidate != null
-    )
+    .filter((candidate): candidate is NonNullable<typeof candidate> => candidate != null)
     .sort((left, right) => {
       const leftDistance = left.nearestDistance ?? 9_999;
       const rightDistance = right.nearestDistance ?? 9_999;
@@ -138,8 +132,7 @@ export async function getCiv7GameUiBattlefieldScan(
     maxUnits?: number;
     maxCities?: number;
   }> = {},
-  target: Civ7GameUiStrategyFrontTarget =
-    globalThis as Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget = globalThis as Civ7GameUiStrategyFrontTarget
 ): Promise<Civ7ControlOrpcBattlefieldScanResult> {
   if (!civ7GameUiStrategyFrontAvailable(target)) {
     throw new Error("Civ7 game UI strategy front dependency is unavailable.");
@@ -212,8 +205,7 @@ export async function getCiv7GameUiDestinationAnalysis(
     maxUnits?: number;
     maxCities?: number;
   }>,
-  target: Civ7GameUiStrategyFrontTarget =
-    globalThis as Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget = globalThis as Civ7GameUiStrategyFrontTarget
 ): Promise<Civ7ControlOrpcDestinationAnalysisResult> {
   if (!civ7GameUiStrategyFrontAvailable(target)) {
     throw new Error("Civ7 game UI strategy front dependency is unavailable.");
@@ -222,14 +214,17 @@ export async function getCiv7GameUiDestinationAnalysis(
   const playerId = input.playerId ?? localPlayerId;
   const destinationRadius = boundedInteger(input.destinationRadius ?? 4, 1, 16);
   const corridorRadius = boundedInteger(input.corridorRadius ?? 2, 0, 8);
-  const scan = await getCiv7GameUiBattlefieldScan({
-    playerId,
-    origins: [input.destination],
-    radius: destinationRadius,
-    maxPlayers: input.maxPlayers,
-    maxUnits: input.maxUnits,
-    maxCities: input.maxCities,
-  }, target);
+  const scan = await getCiv7GameUiBattlefieldScan(
+    {
+      playerId,
+      origins: [input.destination],
+      radius: destinationRadius,
+      maxPlayers: input.maxPlayers,
+      maxUnits: input.maxUnits,
+      maxCities: input.maxCities,
+    },
+    target
+  );
   const destinationUnits = scan.units.map((unit) => ({
     ...unit,
     destinationDistance: unit.distance,
@@ -254,13 +249,9 @@ export async function getCiv7GameUiDestinationAnalysis(
     relationshipLabelPolicy,
     corridor: {
       routeHint: "direct-grid",
-      directGridDistance: input.origin == null
-        ? null
-        : distance(input.origin, input.destination),
+      directGridDistance: input.origin == null ? null : distance(input.origin, input.destination),
       sampleCount: input.origin == null ? 0 : 2,
-      sampledPlots: input.origin == null
-        ? []
-        : [input.origin, input.destination],
+      sampledPlots: input.origin == null ? [] : [input.origin, input.destination],
       units: [],
       unitCount: 0,
     },
@@ -304,7 +295,7 @@ function targetCandidateFor(
     origins: readonly MapLocation[];
     unitRadius: number;
   }>,
-  target: Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget
 ): Civ7ControlOrpcTargetCandidatesResult["candidates"][number] | null {
   const player = target.Players?.get?.(owner);
   const units = ownerUnitIds(owner, target)
@@ -325,22 +316,20 @@ function targetCandidateFor(
         nearestOrigin: cityTargets[0].nearestOrigin,
       }
     : null;
-  const fallbackUnit = nearestCity == null
-    ? nearestUnitTarget(units, input.origins)
-    : null;
+  const fallbackUnit = nearestCity == null ? nearestUnitTarget(units, input.origins) : null;
   const selected = nearestCity ?? fallbackUnit;
-  const targetLocation = selected == null
-    ? null
-    : selected.city?.location ?? ("unit" in selected ? selected.unit.location : null);
-  const nearbyUnits = targetLocation == null
-    ? []
-    : units.filter((unit) => {
-        const value = distance(unit.location, targetLocation);
-        return value != null && value <= input.unitRadius;
-      });
-  const apparentStrength = round1(
-    nearbyUnits.reduce((sum, unit) => sum + unit.strength, 0),
-  );
+  const targetLocation =
+    selected == null
+      ? null
+      : (selected.city?.location ?? ("unit" in selected ? selected.unit.location : null));
+  const nearbyUnits =
+    targetLocation == null
+      ? []
+      : units.filter((unit) => {
+          const value = distance(unit.location, targetLocation);
+          return value != null && value <= input.unitRadius;
+        });
+  const apparentStrength = round1(nearbyUnits.reduce((sum, unit) => sum + unit.strength, 0));
   const route = routeApproach(selected?.nearestOrigin ?? null, targetLocation, target);
   const reasons: string[] = [];
   if (selected?.distance != null) reasons.push(`nearest target distance ${selected.distance}`);
@@ -350,12 +339,15 @@ function targetCandidateFor(
 
   return {
     owner,
-    leaderName: probe(() => readValue(player, ["leaderName", "name"], ["getLeaderName", "getName"])),
+    leaderName: probe(() =>
+      readValue(player, ["leaderName", "name"], ["getLeaderName", "getName"])
+    ),
     civilizationName: probe(() =>
-      readValue(player, ["civilizationName", "civilizationType"], [
-        "getCivilizationName",
-        "getCivilizationType",
-      ])
+      readValue(
+        player,
+        ["civilizationName", "civilizationType"],
+        ["getCivilizationName", "getCivilizationType"]
+      )
     ),
     isHuman: probe(() => readValue(player, ["isHuman"], ["isHuman"])),
     cityCount: cities.length,
@@ -391,10 +383,7 @@ function targetCandidateFor(
   };
 }
 
-function candidateUnit(
-  id: Civ7ControlOrpcComponentId,
-  target: Civ7GameUiStrategyFrontTarget,
-) {
+function candidateUnit(id: Civ7ControlOrpcComponentId, target: Civ7GameUiStrategyFrontTarget) {
   const unit = target.Units?.get?.(id);
   if (unit == null || typeof unit !== "object") return null;
   const record = unit as Record<string, any>;
@@ -413,10 +402,7 @@ function candidateUnit(
   };
 }
 
-function candidateCity(
-  id: Civ7ControlOrpcComponentId,
-  target: Civ7GameUiStrategyFrontTarget,
-) {
+function candidateCity(id: Civ7ControlOrpcComponentId, target: Civ7GameUiStrategyFrontTarget) {
   const city = target.Cities?.get?.(id);
   if (city == null || typeof city !== "object") return null;
   const record = city as Record<string, any>;
@@ -426,7 +412,7 @@ function candidateCity(
     id: toComponentId(id) ?? id,
     observedCityId: toComponentId(record.id),
     owner: Number(record.owner ?? record.player ?? record.getOwner?.()),
-    name: typeof record.getName === "function" ? record.getName() : record.name ?? null,
+    name: typeof record.getName === "function" ? record.getName() : (record.name ?? null),
     location,
     population: record.population ?? null,
     isTown: record.isTown ?? null,
@@ -438,7 +424,7 @@ function battlefieldUnit(
   playerId: number,
   origins: readonly MapLocation[],
   radius: number,
-  target: Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget
 ): StrategyUnit | null {
   const unit = candidateUnit(id, target);
   if (unit == null) return null;
@@ -469,7 +455,7 @@ function battlefieldCity(
   playerId: number,
   origins: readonly MapLocation[],
   radius: number,
-  target: Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget
 ): StrategyCity | null {
   const city = candidateCity(id, target);
   if (city == null) return null;
@@ -495,7 +481,7 @@ function ownerSummary(
   owner: number,
   playerId: number,
   units: readonly StrategyUnit[],
-  cities: readonly StrategyCity[],
+  cities: readonly StrategyCity[]
 ): StrategyOwner {
   const roles = units.reduce<Record<string, number>>((out, unit) => {
     out[unit.role] = (out[unit.role] ?? 0) + 1;
@@ -511,9 +497,7 @@ function ownerSummary(
     unitCount: units.length,
     cityCount: cities.length,
     roles,
-    apparentStrength: round1(
-      units.reduce((sum, unit) => sum + (Number(unit.strength) || 0), 0),
-    ),
+    apparentStrength: round1(units.reduce((sum, unit) => sum + (Number(unit.strength) || 0), 0)),
     nearestUnit,
     nearestCity,
   } as StrategyOwner;
@@ -523,7 +507,7 @@ function pointsOfInterest(
   playerId: number,
   units: readonly StrategyUnit[],
   cities: readonly StrategyCity[],
-  owners: readonly StrategyOwner[],
+  owners: readonly StrategyOwner[]
 ): Civ7ControlOrpcBattlefieldScanResult["pointsOfInterest"] {
   const points: Civ7ControlOrpcBattlefieldScanResult["pointsOfInterest"] = [];
   const otherUnits = units.filter((unit) => unit.owner !== playerId);
@@ -584,7 +568,7 @@ function pointsOfInterest(
 function collectOrigins(
   requested: readonly MapLocation[] | undefined,
   playerId: number,
-  target: Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget
 ): MapLocation[] {
   const inputOrigins = requested?.map(toLocation).filter(isLocation) ?? [];
   if (inputOrigins.length > 0) return inputOrigins.slice(0, 12);
@@ -609,8 +593,9 @@ function collectOrigins(
 
 function alivePlayerIds(target: Civ7GameUiStrategyFrontTarget): number[] {
   try {
-    return [...(target.Players?.getAliveIds?.() ?? [])]
-      .filter((id): id is number => Number.isInteger(id));
+    return [...(target.Players?.getAliveIds?.() ?? [])].filter((id): id is number =>
+      Number.isInteger(id)
+    );
   } catch {
     return [];
   }
@@ -618,7 +603,7 @@ function alivePlayerIds(target: Civ7GameUiStrategyFrontTarget): number[] {
 
 function ownerUnitIds(
   owner: number,
-  target: Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget
 ): Civ7ControlOrpcComponentId[] {
   try {
     return [...(target.Players?.Units?.get?.(owner)?.getUnitIds?.() ?? [])]
@@ -631,7 +616,7 @@ function ownerUnitIds(
 
 function ownerCityIds(
   owner: number,
-  target: Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget
 ): Civ7ControlOrpcComponentId[] {
   try {
     return [...(target.Players?.Cities?.get?.(owner)?.getCityIds?.() ?? [])]
@@ -644,7 +629,7 @@ function ownerCityIds(
 
 function nearestUnitTarget(
   units: readonly ReturnType<typeof candidateUnit>[],
-  origins: readonly MapLocation[],
+  origins: readonly MapLocation[]
 ) {
   return units.reduce<null | {
     city: null;
@@ -654,9 +639,10 @@ function nearestUnitTarget(
   }>((best, unit) => {
     if (unit == null) return best;
     const score = bestDistance(unit.location, origins);
-    if (best == null || (
-      score.distance != null && (best.distance == null || score.distance < best.distance)
-    )) {
+    if (
+      best == null ||
+      (score.distance != null && (best.distance == null || score.distance < best.distance))
+    ) {
       return { city: null, unit, ...score };
     }
     return best;
@@ -665,7 +651,7 @@ function nearestUnitTarget(
 
 function bestDistance(
   location: MapLocation | null,
-  origins: readonly MapLocation[],
+  origins: readonly MapLocation[]
 ): { distance: number | null; nearestOrigin: MapLocation | null } {
   let best: number | null = null;
   let nearestOrigin: MapLocation | null = null;
@@ -682,7 +668,7 @@ function bestDistance(
 
 function distance(
   left: MapLocation | null | undefined,
-  right: MapLocation | null | undefined,
+  right: MapLocation | null | undefined
 ): number | null {
   if (left == null || right == null) return null;
   return Math.max(Math.abs(left.x - right.x), Math.abs(left.y - right.y));
@@ -691,16 +677,13 @@ function distance(
 function routeApproach(
   origin: MapLocation | null,
   targetLocation: MapLocation | null,
-  target: Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget
 ) {
   const samples = lineSamples(origin, targetLocation);
   const waterValues = samples
     .map((location) => plotWater(location, target))
     .filter((value): value is RuntimeProbe<unknown> => value != null)
-    .map((value) => value.ok === true && typeof value.value === "boolean"
-      ? value.value
-      : null
-    )
+    .map((value) => (value.ok === true && typeof value.value === "boolean" ? value.value : null))
     .filter((value): value is boolean => value != null);
   const originWater = origin == null ? null : plotWater(origin, target);
   const targetWater = targetLocation == null ? null : plotWater(targetLocation, target);
@@ -727,10 +710,7 @@ function routeApproach(
   };
 }
 
-function lineSamples(
-  from: MapLocation | null,
-  to: MapLocation | null,
-): MapLocation[] {
+function lineSamples(from: MapLocation | null, to: MapLocation | null): MapLocation[] {
   if (from == null || to == null) return [];
   const direct = distance(from, to);
   if (direct == null) return [];
@@ -751,7 +731,7 @@ function lineSamples(
 
 function plotWater(
   location: MapLocation,
-  target: Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget
 ): RuntimeProbe<unknown> {
   return probe(() => target.GameplayMap?.isWater?.(location.x, location.y) ?? null);
 }
@@ -760,11 +740,7 @@ function booleanProbeValue(input: RuntimeProbe<unknown> | null): boolean | null 
   return input?.ok === true && typeof input.value === "boolean" ? input.value : null;
 }
 
-function routeHint(
-  distanceValue: number | null,
-  unitCount: number,
-  cityCount: number,
-): string {
+function routeHint(distanceValue: number | null, unitCount: number, cityCount: number): string {
   if (distanceValue == null) return "unknown";
   if (distanceValue <= 6 && unitCount <= 6) return "near-low-density";
   if (distanceValue <= 10) return "near";
@@ -787,10 +763,10 @@ function roleForUnit(typeName: string | null): string {
   if (name.includes("SHIP") || name.includes("GALLEY") || name.includes("NAVAL")) return "naval";
   if (name.includes("AIR") || name.includes("BOMBER") || name.includes("FIGHTER")) return "air";
   if (
-    name.includes("WARRIOR")
-    || name.includes("SPEARMAN")
-    || name.includes("INFANTRY")
-    || name.includes("CAVALRY")
+    name.includes("WARRIOR") ||
+    name.includes("SPEARMAN") ||
+    name.includes("INFANTRY") ||
+    name.includes("CAVALRY")
   ) {
     return "melee";
   }
@@ -800,13 +776,14 @@ function roleForUnit(typeName: string | null): string {
 function unitStrength(
   unit: Record<string, any>,
   typeName: string | null,
-  target: Civ7GameUiStrategyFrontTarget,
+  target: Civ7GameUiStrategyFrontTarget
 ): number {
-  const definition = unit.type == null
-    ? null
-    : probe(() => target.GameInfo?.Units?.lookup?.(unit.type)).ok
-      ? target.GameInfo?.Units?.lookup?.(unit.type)
-      : null;
+  const definition =
+    unit.type == null
+      ? null
+      : probe(() => target.GameInfo?.Units?.lookup?.(unit.type)).ok
+        ? target.GameInfo?.Units?.lookup?.(unit.type)
+        : null;
   const values = [
     Number((definition as Record<string, unknown> | null)?.Combat),
     Number((definition as Record<string, unknown> | null)?.RangedCombat),
@@ -820,10 +797,7 @@ function unitStrength(
   return round1(Math.max(0, best * Math.max(0.1, (100 - damage) / 100)));
 }
 
-function unitTypeName(
-  type: unknown,
-  target: Civ7GameUiStrategyFrontTarget,
-): string | null {
+function unitTypeName(type: unknown, target: Civ7GameUiStrategyFrontTarget): string | null {
   if (type == null) return null;
   const definition = probe(() => target.GameInfo?.Units?.lookup?.(type));
   return definition.ok && definition.value != null && typeof definition.value === "object"
@@ -831,14 +805,12 @@ function unitTypeName(
     : String(type);
 }
 
-function nearestByDistance<T extends { distance?: number }>(
-  values: readonly T[],
-): T | null {
-  return values.reduce<T | null>((best, value) =>
-    best == null || (value.distance ?? 9_999) < (best.distance ?? 9_999)
-      ? value
-      : best
-  , null);
+function nearestByDistance<T extends { distance?: number }>(values: readonly T[]): T | null {
+  return values.reduce<T | null>(
+    (best, value) =>
+      best == null || (value.distance ?? 9_999) < (best.distance ?? 9_999) ? value : best,
+    null
+  );
 }
 
 function unitLocation(value: unknown): MapLocation | null {
@@ -877,11 +849,7 @@ function toComponentId(value: unknown): Civ7ControlOrpcComponentId | null {
   return { owner, id, type };
 }
 
-function readValue(
-  value: unknown,
-  props: readonly string[],
-  methods: readonly string[],
-): unknown {
+function readValue(value: unknown, props: readonly string[], methods: readonly string[]): unknown {
   if (value == null || typeof value !== "object") return undefined;
   const record = value as Record<string, any>;
   for (const prop of props) {

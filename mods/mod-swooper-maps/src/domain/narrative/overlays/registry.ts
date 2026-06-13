@@ -39,15 +39,11 @@ const ensureOverlayRegistry = (
     return ctx.overlays;
   }
 
-  ctx.overlays.corridors = Array.isArray(ctx.overlays.corridors)
-    ? ctx.overlays.corridors
-    : [];
-  ctx.overlays.swatches = Array.isArray(ctx.overlays.swatches)
-    ? ctx.overlays.swatches
-    : [];
+  ctx.overlays.corridors = Array.isArray(ctx.overlays.corridors) ? ctx.overlays.corridors : [];
+  ctx.overlays.swatches = Array.isArray(ctx.overlays.swatches) ? ctx.overlays.swatches : [];
   ctx.overlays.motifs = Array.isArray(ctx.overlays.motifs) ? ctx.overlays.motifs : [];
   return ctx.overlays;
-}
+};
 
 export function publishStoryOverlay(
   ctx: OverlayContext | null | undefined,

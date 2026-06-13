@@ -123,10 +123,7 @@ export function buildSchemaDefaults(schema: TSchema): unknown {
   return undefined;
 }
 
-export function applySchemaDefaults<T extends TSchema>(
-  schema: T,
-  input: unknown
-): Static<T> {
+export function applySchemaDefaults<T extends TSchema>(schema: T, input: unknown): Static<T> {
   const typed = schema as SchemaWithDefaults;
   if (input == null) {
     const defaults = buildSchemaDefaults(typed);

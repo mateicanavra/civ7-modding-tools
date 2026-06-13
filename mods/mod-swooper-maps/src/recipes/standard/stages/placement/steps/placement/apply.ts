@@ -11,31 +11,31 @@ import {
 } from "../../viz.js";
 
 type LandmassRegionSlotByTile = Static<
-  (typeof import("../../../../map-artifacts.js").mapArtifacts)["landmassRegionSlotByTile"]["schema"]
+  typeof import("../../../../map-artifacts.js").mapArtifacts["landmassRegionSlotByTile"]["schema"]
 >;
 type NaturalWonderPlacement = Static<
-  (typeof import("../../artifacts.js").placementArtifacts)["naturalWonderPlacement"]["schema"]
+  typeof import("../../artifacts.js").placementArtifacts["naturalWonderPlacement"]["schema"]
 >;
 type EngineTerrainSnapshot = Static<
-  (typeof import("../../../../map-artifacts.js").mapArtifacts)["placementEngineTerrainSnapshot"]["schema"]
+  typeof import("../../../../map-artifacts.js").mapArtifacts["placementEngineTerrainSnapshot"]["schema"]
 >;
 type PlacementEngineState = Static<
-  (typeof import("../../artifacts.js").placementArtifacts)["engineState"]["schema"]
+  typeof import("../../artifacts.js").placementArtifacts["engineState"]["schema"]
 >;
 type PlacementSurfacePreparation = Static<
-  (typeof import("../../artifacts.js").placementArtifacts)["placementSurfacePreparation"]["schema"]
+  typeof import("../../artifacts.js").placementArtifacts["placementSurfacePreparation"]["schema"]
 >;
 type ResourcePlacementOutcomes = Static<
-  (typeof import("../../artifacts.js").placementArtifacts)["resourcePlacementOutcomes"]["schema"]
+  typeof import("../../artifacts.js").placementArtifacts["resourcePlacementOutcomes"]["schema"]
 >;
 type DiscoveryPlacementOutcomes = Static<
-  (typeof import("../../artifacts.js").placementArtifacts)["discoveryPlacementOutcomes"]["schema"]
+  typeof import("../../artifacts.js").placementArtifacts["discoveryPlacementOutcomes"]["schema"]
 >;
 type AdvancedStartAssignment = Static<
-  (typeof import("../../artifacts.js").placementArtifacts)["advancedStartAssignment"]["schema"]
+  typeof import("../../artifacts.js").placementArtifacts["advancedStartAssignment"]["schema"]
 >;
 type StartAssignment = Static<
-  (typeof import("../../artifacts.js").placementArtifacts)["startAssignment"]["schema"]
+  typeof import("../../artifacts.js").placementArtifacts["startAssignment"]["schema"]
 >;
 
 type ApplyPlacementArgs = {

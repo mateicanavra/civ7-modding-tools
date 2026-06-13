@@ -135,7 +135,9 @@ async function main(): Promise<number> {
   if (!args.proofFile) throw new Error("Expected --proof-file");
 
   const proof = extractFinalSurfaceParityProof(JSON.parse(readFileSync(args.proofFile, "utf8")));
-  const contextArtifact = args.contextFile ? JSON.parse(readFileSync(args.contextFile, "utf8")) : undefined;
+  const contextArtifact = args.contextFile
+    ? JSON.parse(readFileSync(args.contextFile, "utf8"))
+    : undefined;
   const contextRowsByPlot = readContextRowsByPlot(contextArtifact);
   const requestIdentity = resolveRequestIdentity(proof);
   if (requestIdentity.blockedBy.length > 0) {
@@ -173,7 +175,9 @@ async function main(): Promise<number> {
   const deltaRows = buildFeatureDeltaPlacementContexts({ local: proof.local, live: proof.live });
   if (deltaRows.length === 0) throw new Error("Expected at least one feature delta row");
   if (deltaRows.length > args.maxCells) {
-    throw new Error(`Feature delta row count ${deltaRows.length} exceeds --max-cells ${args.maxCells}`);
+    throw new Error(
+      `Feature delta row count ${deltaRows.length} exceeds --max-cells ${args.maxCells}`
+    );
   }
 
   const livePlotContext = await getCiv7MapGrid(
@@ -243,7 +247,7 @@ function resolveRequestIdentity(proof: FinalSurfaceParityProof) {
         : [];
   return {
     requestId: uniqueValues.length === 1 ? uniqueValues[0] : undefined,
-    status: blockedBy.length === 0 ? "matched" as const : "blocked" as const,
+    status: blockedBy.length === 0 ? ("matched" as const) : ("blocked" as const),
     blockedBy,
     sources,
   };
@@ -274,7 +278,7 @@ async function readAndCompareRuntimeIdentity(
     .sort((left, right) => left.localeCompare(right));
 
   return {
-    status: blockedBy.length === 0 ? "matched" as const : "blocked" as const,
+    status: blockedBy.length === 0 ? ("matched" as const) : ("blocked" as const),
     blockedBy,
     saved,
     observed,
@@ -437,12 +441,15 @@ function classifyFeatureFeasibility(args: {
     args.evidenceClass === "natural-wonder-offset-local-anchor" ||
     args.evidenceClass === "natural-wonder-offset-live-anchor"
   ) {
-    if (local?.value === true && live?.value === true) return "natural-wonder-offset-both-civ-feasible";
+    if (local?.value === true && live?.value === true)
+      return "natural-wonder-offset-both-civ-feasible";
     if (local?.value === true && live === null) return "natural-wonder-offset-local-civ-feasible";
     if (local === null && live?.value === true) return "natural-wonder-offset-live-civ-feasible";
-    if (local?.value === false && live === null) return "natural-wonder-offset-local-civ-infeasible";
+    if (local?.value === false && live === null)
+      return "natural-wonder-offset-local-civ-infeasible";
     if (local === null && live?.value === false) return "natural-wonder-offset-live-civ-infeasible";
-    if (local?.value === false && live?.value === false) return "natural-wonder-offset-both-civ-infeasible";
+    if (local?.value === false && live?.value === false)
+      return "natural-wonder-offset-both-civ-infeasible";
   }
   return "unclassified";
 }
@@ -451,13 +458,18 @@ function uniqueNumbers(values: ReadonlyArray<number | null>): ReadonlyArray<numb
   return [...new Set(values.filter((value): value is number => typeof value === "number"))];
 }
 
-function countBy<T>(values: ReadonlyArray<T>, keyFor: (value: T) => string): Record<string, number> {
+function countBy<T>(
+  values: ReadonlyArray<T>,
+  keyFor: (value: T) => string
+): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const value of values) {
     const key = keyFor(value);
     counts[key] = (counts[key] ?? 0) + 1;
   }
-  return Object.fromEntries(Object.entries(counts).sort(([left], [right]) => left.localeCompare(right)));
+  return Object.fromEntries(
+    Object.entries(counts).sort(([left], [right]) => left.localeCompare(right))
+  );
 }
 
 function feasibilityValue(probe: FeatureFeasibilityProbe | null): string {

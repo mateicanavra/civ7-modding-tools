@@ -16,7 +16,9 @@ export const defaultStrategy = createStrategy(ComputeCryosphereStateContract, "d
       !(input.surfaceTemperatureC instanceof Float32Array) ||
       input.surfaceTemperatureC.length !== size
     ) {
-      throw new Error("[Hydrology] Invalid surfaceTemperatureC for hydrology/compute-cryosphere-state.");
+      throw new Error(
+        "[Hydrology] Invalid surfaceTemperatureC for hydrology/compute-cryosphere-state."
+      );
     }
     if (!(input.rainfall instanceof Uint8Array) || input.rainfall.length !== size) {
       throw new Error("[Hydrology] Invalid rainfall for hydrology/compute-cryosphere-state.");
@@ -66,7 +68,9 @@ export const defaultStrategy = createStrategy(ComputeCryosphereStateContract, "d
         const permafrost = clamp01((freeze - permafrostStart) / permafrostDenom);
         permafrost01[i] = permafrost;
 
-        groundIce01[i] = clamp01(freeze * (1 - groundIceSnowInfluence + groundIceSnowInfluence * snowF));
+        groundIce01[i] = clamp01(
+          freeze * (1 - groundIceSnowInfluence + groundIceSnowInfluence * snowF)
+        );
 
         const melt = lerp01(temp, config.meltStartC, config.meltFullC);
         meltPotential01[i] = clamp01(melt * snowF);
@@ -77,6 +81,14 @@ export const defaultStrategy = createStrategy(ComputeCryosphereStateContract, "d
       }
     }
 
-    return { snowCover, seaIceCover, albedo, freezeIndex, groundIce01, permafrost01, meltPotential01 } as const;
+    return {
+      snowCover,
+      seaIceCover,
+      albedo,
+      freezeIndex,
+      groundIce01,
+      permafrost01,
+      meltPotential01,
+    } as const;
   },
 });

@@ -13,8 +13,7 @@ const StrategySchema = Type.Object(
       default: 8,
       minimum: 1,
       maximum: 64,
-      description:
-        "Controls how far tectonic belt influence spreads across mesh-neighbor steps.",
+      description: "Controls how far tectonic belt influence spreads across mesh-neighbor steps.",
     }),
     beltDecay: Type.Number({
       default: 0.55,

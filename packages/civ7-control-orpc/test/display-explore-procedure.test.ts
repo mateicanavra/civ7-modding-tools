@@ -23,7 +23,7 @@ describe("display.explore.request control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.display.explore.request,
       { playerId: 0, ...fastDrain },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     // suspend is verified BEFORE the grant; the drain purges each poll and
@@ -67,7 +67,7 @@ describe("display.explore.request control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.display.explore.request,
       { playerId: 0, restoreFog: true, ...fastDrain },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     // Resume precedes the grant release so late displays cannot re-queue
@@ -91,14 +91,12 @@ describe("display.explore.request control-oRPC procedure", () => {
 
   test("hits the hard cap when the queue never quiesces", async () => {
     const fake = fakeContext({
-      closeDisplays: () => closeDisplaysResult([
-        { category: "Cinematic", closed: 1 },
-      ]),
+      closeDisplays: () => closeDisplaysResult([{ category: "Cinematic", closed: 1 }]),
     });
     const result = await call(
       Civ7ControlOrpcRouter.display.explore.request,
       { playerId: 0, settleMs: 0, pollMs: 250, quiescePolls: 2, maxExtraWaitMs: 500 },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -115,8 +113,8 @@ describe("display.explore.request control-oRPC procedure", () => {
       call(
         Civ7ControlOrpcRouter.display.explore.request,
         { playerId: 0, ...fastDrain },
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({
       code: "EXPLORE_SUSPENSION_UNVERIFIED",
       data: {
@@ -136,8 +134,8 @@ describe("display.explore.request control-oRPC procedure", () => {
       call(
         Civ7ControlOrpcRouter.display.explore.request,
         { playerId: 0, ...fastDrain },
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({
       code: "EXPLORE_FAILED",
       data: {
@@ -160,7 +158,7 @@ describe("display.explore.request control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.display.explore.request,
       { playerId: 0, ...fastDrain },
-      { context: fake.context },
+      { context: fake.context }
     );
     expect(fake.calls).toEqual(["summary"]);
     expect(result).toEqual({
@@ -183,7 +181,7 @@ describe("display.explore.request control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.display.explore.request,
       { playerId: 0, restoreFog: true, ...fastDrain },
-      { context: fake.context },
+      { context: fake.context }
     );
     expect(fake.calls).toContain("grant");
     expect(fake.calls).toContain("release");
@@ -192,15 +190,12 @@ describe("display.explore.request control-oRPC procedure", () => {
 
   test("classifies an unchanged revealed count as already-explored", async () => {
     const fake = fakeContext({
-      summaries: [
-        visibilitySummary(6996),
-        visibilitySummary(6996),
-      ],
+      summaries: [visibilitySummary(6996), visibilitySummary(6996)],
     });
     const result = await call(
       Civ7ControlOrpcRouter.display.explore.request,
       { playerId: 0, ...fastDrain },
-      { context: fake.context },
+      { context: fake.context }
     );
     expect(result.classification).toBe("already-explored");
   });
@@ -218,7 +213,7 @@ describe("display.explore.request control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.display.explore.request,
       { playerId: 0, ...fastDrain },
-      { context: fake.context },
+      { context: fake.context }
     );
     expect(result.classification).toBe("unverified");
     expect(result.after).toEqual({ revealed: null, visible: 7 });
@@ -237,20 +232,16 @@ describe("display.explore.request control-oRPC procedure", () => {
     for (const input of invalidInputs) {
       const fake = fakeContext();
       await expect(
-        call(
-          Civ7ControlOrpcRouter.display.explore.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.display.explore.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls).toEqual([]);
     }
   });
 
   test("publishes the contract-first explore leaf with typed errors", () => {
-    expect(
-      Civ7ControlOrpcContract.display.explore.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.display.explore.request["~orpc"]).toMatchObject({
       meta: {
         family: "display",
         procedureKey: "display.explore.request",
@@ -258,31 +249,30 @@ describe("display.explore.request control-oRPC procedure", () => {
         risk: "mutation",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.display.explore.request["~orpc"].errorMap,
-    ).toHaveProperty("EXPLORE_SUSPENSION_UNVERIFIED");
-    expect(
-      Civ7ControlOrpcContract.display.explore.request["~orpc"].errorMap,
-    ).toHaveProperty("EXPLORE_FAILED");
-    expect(Civ7ExploreSuspensionUnverifiedError.code).toBe(
-      "EXPLORE_SUSPENSION_UNVERIFIED",
+    expect(Civ7ControlOrpcContract.display.explore.request["~orpc"].errorMap).toHaveProperty(
+      "EXPLORE_SUSPENSION_UNVERIFIED"
     );
+    expect(Civ7ControlOrpcContract.display.explore.request["~orpc"].errorMap).toHaveProperty(
+      "EXPLORE_FAILED"
+    );
+    expect(Civ7ExploreSuspensionUnverifiedError.code).toBe("EXPLORE_SUSPENSION_UNVERIFIED");
     expect(Civ7ExploreFailedError.code).toBe("EXPLORE_FAILED");
   });
 });
 
-function fakeContext(options: {
-  summaries?: Civ7ControlOrpcVisibilitySummaryResult[];
-  suspendIsSuspended?: boolean;
-  applyGrantError?: Error;
-  closeDisplays?: () => Civ7ControlOrpcCloseDisplaysResult;
-} = {}): {
+function fakeContext(
+  options: {
+    summaries?: Civ7ControlOrpcVisibilitySummaryResult[];
+    suspendIsSuspended?: boolean;
+    applyGrantError?: Error;
+    closeDisplays?: () => Civ7ControlOrpcCloseDisplaysResult;
+  } = {}
+): {
   context: Civ7ControlOrpcContext;
   calls: string[];
 } {
   const calls: string[] = [];
-  const summaries = options.summaries
-    ?? [visibilitySummary(29), visibilitySummary(6996)];
+  const summaries = options.summaries ?? [visibilitySummary(29), visibilitySummary(6996)];
   // First purge finds the suppressed discovery displays; later purges are empty.
   const purges = [
     closeDisplaysResult([
@@ -346,10 +336,7 @@ function fakeContext(options: {
   };
 }
 
-function visibilitySummary(
-  revealed: number,
-  visible = 7,
-): Civ7ControlOrpcVisibilitySummaryResult {
+function visibilitySummary(revealed: number, visible = 7): Civ7ControlOrpcVisibilitySummaryResult {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -363,7 +350,7 @@ function visibilitySummary(
 }
 
 function closeDisplaysResult(
-  closed: Array<{ category: string; closed: number }>,
+  closed: Array<{ category: string; closed: number }>
 ): Civ7ControlOrpcCloseDisplaysResult {
   return {
     ...appUiEnvelope(),
@@ -390,8 +377,8 @@ function expectSafeExploreOutput(output: unknown): void {
   const serialized = JSON.stringify(output);
   expect(serialized).not.toContain("127.0.0.1");
   expect(serialized).not.toContain("65535");
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
   expect(serialized).not.toContain("rawCommand");
 }

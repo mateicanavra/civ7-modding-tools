@@ -78,9 +78,7 @@ export class UnsatisfiedProvidesError extends Error {
   readonly missingProvides: readonly string[];
 
   constructor(stepId: string, missingProvides: readonly string[]) {
-    super(
-      `Step "${stepId}" did not satisfy declared provides: ${missingProvides.join(", ")}`
-    );
+    super(`Step "${stepId}" did not satisfy declared provides: ${missingProvides.join(", ")}`);
     this.name = "UnsatisfiedProvidesError";
     this.stepId = stepId;
     this.missingProvides = missingProvides;

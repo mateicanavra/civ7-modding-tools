@@ -25,16 +25,17 @@ const blockedResources = [
 ] as const;
 
 const repoRoot = join(import.meta.dir, "../../../..");
-const sourceRoot = join(repoRoot, "mods/mod-swooper-maps/src/domain/resources/lib/earthlike-expectations");
+const sourceRoot = join(
+  repoRoot,
+  "mods/mod-swooper-maps/src/domain/resources/lib/earthlike-expectations"
+);
 
 describe("resource earthlike expectations artifact", () => {
   it("declares the resource-owned earthlike expectations artifact id", () => {
     expect(resourceEarthlikeExpectationsArtifact.id).toBe(
       "artifact:resources.earthlikeExpectations"
     );
-    expect(resourceEarthlikeExpectationsArtifact.name).toBe(
-      "resourceEarthlikeExpectations"
-    );
+    expect(resourceEarthlikeExpectationsArtifact.name).toBe("resourceEarthlikeExpectations");
   });
 
   it("covers the official corpus exactly once in corpus order without feature leakage", () => {
@@ -144,7 +145,10 @@ describe("resource earthlike expectations artifact", () => {
 
   it("validates the artifact with a strict schema and rejects overclaims", () => {
     expect(
-      Value.Check(ResourceEarthlikeExpectationsArtifactSchema, EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT)
+      Value.Check(
+        ResourceEarthlikeExpectationsArtifactSchema,
+        EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT
+      )
     ).toBe(true);
 
     const first = EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT.resources[0]!;
@@ -238,22 +242,35 @@ describe("resource earthlike expectations artifact", () => {
       ],
     };
 
-    expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidExtraRuntimeField)).toBe(false);
+    expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidExtraRuntimeField)).toBe(
+      false
+    );
     expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidFeature)).toBe(false);
     expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidStatus)).toBe(false);
-    expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidMissingRangeField)).toBe(false);
-    expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidBlockedLeak)).toBe(false);
-    expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidBlockedAsActive)).toBe(false);
-    expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidRangeOrdering)).toBe(false);
-    expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidRuntimeCalibratedWithoutTelemetry)).toBe(false);
+    expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidMissingRangeField)).toBe(
+      false
+    );
+    expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidBlockedLeak)).toBe(
+      false
+    );
+    expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidBlockedAsActive)).toBe(
+      false
+    );
+    expect(Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidRangeOrdering)).toBe(
+      false
+    );
+    expect(
+      Value.Check(
+        ResourceEarthlikeExpectationsArtifactSchema,
+        invalidRuntimeCalibratedWithoutTelemetry
+      )
+    ).toBe(false);
   });
 
   it("keeps the expectation artifact outside placement runtime behavior", () => {
-    const source = [
-      "index.ts",
-      "official-earthlike.ts",
-      "types.ts",
-    ].map((file) => readFileSync(join(sourceRoot, file), "utf8")).join("\n");
+    const source = ["index.ts", "official-earthlike.ts", "types.ts"]
+      .map((file) => readFileSync(join(sourceRoot, file), "utf8"))
+      .join("\n");
 
     expect(source).not.toContain("@civ7/adapter");
     expect(source).not.toContain("ResourceBuilder");

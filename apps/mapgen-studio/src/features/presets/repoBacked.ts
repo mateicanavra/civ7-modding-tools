@@ -5,7 +5,7 @@ import type { BuiltInPreset } from "../../recipes/catalog";
 
 export function mergeBuiltInPresets(
   base: ReadonlyArray<BuiltInPreset>,
-  overrides: Readonly<Record<string, BuiltInPreset>>,
+  overrides: Readonly<Record<string, BuiltInPreset>>
 ): ReadonlyArray<BuiltInPreset> {
   const overrideIds = new Set(Object.keys(overrides));
   if (overrideIds.size === 0) return base;

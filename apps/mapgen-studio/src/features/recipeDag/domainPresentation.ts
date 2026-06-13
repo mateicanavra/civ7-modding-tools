@@ -122,7 +122,13 @@ const LANE_COLORS: Record<string, RecipeDagDomainLaneColors> = {
 const DOMAIN_PRESENTATIONS: Record<string, RecipeDagDomainPresentation> = {
   setup: { id: "setup", label: "Setup", Icon: Settings2, lane: LANE_COLORS.setup },
   foundation: { id: "foundation", label: "Foundation", Icon: Blocks, lane: LANE_COLORS.foundation },
-  morphology: { id: "morphology", label: "Morphology", Icon: Stone, lane: LANE_COLORS.morphology, strokeWidth: 1.9 },
+  morphology: {
+    id: "morphology",
+    label: "Morphology",
+    Icon: Stone,
+    lane: LANE_COLORS.morphology,
+    strokeWidth: 1.9,
+  },
   hydrology: {
     id: "hydrology",
     label: "Hydrology",
@@ -140,7 +146,13 @@ const DOMAIN_PRESENTATIONS: Record<string, RecipeDagDomainPresentation> = {
   gameplay: { id: "gameplay", label: "Gameplay", Icon: Bolt, lane: LANE_COLORS.gameplay },
   placement: { id: "placement", label: "Placement", Icon: MapPin, lane: LANE_COLORS.placement },
   finish: { id: "finish", label: "Finish", Icon: Flag, lane: LANE_COLORS.finish },
-  climate: { id: "climate", label: "Climate", Icon: SunSnow, lane: LANE_COLORS.climate, strokeWidth: 1.8 },
+  climate: {
+    id: "climate",
+    label: "Climate",
+    Icon: SunSnow,
+    lane: LANE_COLORS.climate,
+    strokeWidth: 1.8,
+  },
   routing: { id: "routing", label: "Routing", Icon: Route, lane: LANE_COLORS.routing },
   artifact: { id: "artifact", label: "Artifact", Icon: Package, lane: LANE_COLORS.artifact },
 };
@@ -158,12 +170,17 @@ const ORDERED_DOMAIN_IDS = [
   "routing",
 ] as const;
 
-export function getRecipeDagDomainPresentation(domainId: string | null): RecipeDagDomainPresentation {
+export function getRecipeDagDomainPresentation(
+  domainId: string | null
+): RecipeDagDomainPresentation {
   const normalized = normalizeRecipeDagDomainId(domainId);
   return DOMAIN_PRESENTATIONS[normalized] ?? DOMAIN_PRESENTATIONS.artifact;
 }
 
-export function getRecipeDagPhaseLaneColors(phaseId: string | null, lightMode: boolean): Readonly<{
+export function getRecipeDagPhaseLaneColors(
+  phaseId: string | null,
+  lightMode: boolean
+): Readonly<{
   fill: string;
   accent: string;
 }> {
@@ -174,20 +191,34 @@ export function getRecipeDagPhaseLaneColors(phaseId: string | null, lightMode: b
   };
 }
 
-export function normalizeRecipeDagDomainId(domainId: string | null): keyof typeof DOMAIN_PRESENTATIONS {
+export function normalizeRecipeDagDomainId(
+  domainId: string | null
+): keyof typeof DOMAIN_PRESENTATIONS {
   const normalized = normalizeDomainText(domainId);
   if (!normalized) return "artifact";
   if (normalized.includes("shape")) return "morphology";
-  if (normalized.includes("foundation") || normalized.includes("tectonic") || normalized.includes("plate")) return "foundation";
+  if (
+    normalized.includes("foundation") ||
+    normalized.includes("tectonic") ||
+    normalized.includes("plate")
+  )
+    return "foundation";
   if (
     normalized.includes("hydrology") ||
     normalized.includes("hydro") ||
     normalized.includes("river") ||
     normalized.includes("lake") ||
     normalized.includes("water")
-  ) return "hydrology";
-  if (normalized.includes("placement") || normalized.includes("start") || normalized.includes("discovery")) return "placement";
-  if (normalized.includes("setup") || normalized.includes("config") || normalized.includes("input")) return "setup";
+  )
+    return "hydrology";
+  if (
+    normalized.includes("placement") ||
+    normalized.includes("start") ||
+    normalized.includes("discovery")
+  )
+    return "placement";
+  if (normalized.includes("setup") || normalized.includes("config") || normalized.includes("input"))
+    return "setup";
   if (
     normalized.includes("morphology") ||
     normalized.includes("terrain") ||
@@ -197,7 +228,8 @@ export function normalizeRecipeDagDomainId(domainId: string | null): keyof typeo
     normalized.includes("landmass") ||
     normalized.includes("mountain") ||
     normalized.includes("volcano")
-  ) return "morphology";
+  )
+    return "morphology";
   if (
     normalized.includes("ecology") ||
     normalized.includes("biome") ||
@@ -207,33 +239,42 @@ export function normalizeRecipeDagDomainId(domainId: string | null): keyof typeo
     normalized.includes("reef") ||
     normalized.includes("floodplain") ||
     normalized.includes("resource")
-  ) return "ecology";
+  )
+    return "ecology";
   if (
     normalized.includes("climate") ||
     normalized.includes("temperature") ||
     normalized.includes("rain") ||
     normalized.includes("wind") ||
     normalized.includes("cryosphere")
-  ) return "climate";
-  if (normalized.includes("route") || normalized.includes("routing") || normalized.includes("path")) return "routing";
-  if (normalized.includes("gameplay") || normalized.includes("projection") || normalized.includes("engine")) return "gameplay";
+  )
+    return "climate";
+  if (normalized.includes("route") || normalized.includes("routing") || normalized.includes("path"))
+    return "routing";
+  if (
+    normalized.includes("gameplay") ||
+    normalized.includes("projection") ||
+    normalized.includes("engine")
+  )
+    return "gameplay";
   if (normalized.includes("finish") || normalized.includes("final")) return "finish";
   return "artifact";
 }
 
-export function chooseRecipeDagDomainId(candidates: readonly (string | null | undefined)[]): string | null {
+export function chooseRecipeDagDomainId(
+  candidates: readonly (string | null | undefined)[]
+): string | null {
   for (const candidate of candidates) {
     const normalized = normalizeRecipeDagDomainId(candidate ?? null);
     if (normalized !== "artifact") return normalized;
   }
   for (const fallback of ORDERED_DOMAIN_IDS) {
-    if (candidates.some((candidate) => normalizeRecipeDagDomainId(candidate ?? null) === fallback)) return fallback;
+    if (candidates.some((candidate) => normalizeRecipeDagDomainId(candidate ?? null) === fallback))
+      return fallback;
   }
   return null;
 }
 
 function normalizeDomainText(value: string | null | undefined): string {
-  return (value ?? "")
-    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
-    .toLowerCase();
+  return (value ?? "").replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 }

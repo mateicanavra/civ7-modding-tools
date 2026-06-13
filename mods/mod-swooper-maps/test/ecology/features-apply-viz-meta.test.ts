@@ -64,4 +64,3 @@ describe("features apply viz meta (engine featureType)", () => {
     }
   });
 });
-

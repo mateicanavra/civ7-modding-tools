@@ -1,17 +1,17 @@
-import { Command, Flags } from '@oclif/core';
-import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
-import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
-import { getCiv7PlayNotificationView } from '@civ7/direct-control';
+import { Command, Flags } from "@oclif/core";
+import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
+import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import { getCiv7PlayNotificationView } from "@civ7/direct-control";
 import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from '../../../utils/game-play-shared';
+} from "../../../utils/game-play-shared";
 
-const CHANGE_GOVERNMENT = 'CHANGE_GOVERNMENT';
+const CHANGE_GOVERNMENT = "CHANGE_GOVERNMENT";
 
 type GovernmentOptionAction = {
-  kind: 'choose-government' | 'validate-government-choice';
+  kind: "choose-government" | "validate-government-choice";
   label: string;
   parameters: Record<string, unknown>;
   readOnly: boolean;
@@ -19,47 +19,47 @@ type GovernmentOptionAction = {
 };
 
 export default class GamePlayChooseGovernment extends Command {
-  static id = 'game play choose-government';
-  static summary = 'Validate or choose a government';
+  static id = "game play choose-government";
+  static summary = "Validate or choose a government";
   static description =
-    'Wraps player-operation CHANGE_GOVERNMENT with the official GovernmentType and Activate action from the live government picker.';
+    "Wraps player-operation CHANGE_GOVERNMENT with the official GovernmentType and Activate action from the live government picker.";
 
   static examples = [
-    '<%= config.bin %> game play choose-government --options --json',
-    '<%= config.bin %> game play choose-government --player-id 0 --government-type 0 --json',
-    '<%= config.bin %> game play choose-government --government-type 0 --send --json',
+    "<%= config.bin %> game play choose-government --options --json",
+    "<%= config.bin %> game play choose-government --player-id 0 --government-type 0 --json",
+    "<%= config.bin %> game play choose-government --government-type 0 --send --json",
   ];
 
   static flags = {
     host: Flags.string({
-      description: 'Civ7 tuner socket host',
+      description: "Civ7 tuner socket host",
     }),
     port: Flags.integer({
-      description: 'Civ7 tuner socket port',
+      description: "Civ7 tuner socket port",
     }),
-    'player-id': Flags.integer({
-      description: 'Player id',
+    "player-id": Flags.integer({
+      description: "Player id",
     }),
-    'government-type': Flags.integer({
-      description: 'GovernmentType index from the live government picker options',
+    "government-type": Flags.integer({
+      description: "GovernmentType index from the live government picker options",
     }),
     action: Flags.integer({
-      description: 'PlayerOperationParameters action. Defaults to Activate.',
+      description: "PlayerOperationParameters action. Defaults to Activate.",
     }),
     options: Flags.boolean({
-      description: 'Read government choice options from the live notification HUD without sending',
+      description: "Read government choice options from the live notification HUD without sending",
       default: false,
     }),
     send: Flags.boolean({
-      description: 'Send CHANGE_GOVERNMENT after validator success',
+      description: "Send CHANGE_GOVERNMENT after validator success",
       default: false,
     }),
-    'timeout-ms': Flags.integer({
-      description: 'Socket timeout',
+    "timeout-ms": Flags.integer({
+      description: "Socket timeout",
       default: 45_000,
     }),
     json: Flags.boolean({
-      description: 'Emit machine-readable JSON',
+      description: "Emit machine-readable JSON",
       default: false,
     }),
   };
@@ -68,68 +68,86 @@ export default class GamePlayChooseGovernment extends Command {
     const { flags } = await this.parse(GamePlayChooseGovernment);
     const options = buildDirectControlOptions(flags);
     if (flags.options) {
-      if (flags.send) throw new Error('game play choose-government --options is read-only; omit --send');
+      if (flags.send)
+        throw new Error("game play choose-government --options is read-only; omit --send");
       const view = await getCiv7PlayNotificationView(options);
       const details = governmentChoiceDetails(view);
       const surfaces = details.map(compactGovernmentChoiceSurface);
       emitPlayResult(this.log.bind(this), flags.json, {
-        surface: 'government-choice-options',
+        surface: "government-choice-options",
         surfaces,
-        enabledOptionCount: surfaces.reduce((count, surface) => count + surface.enabledOptions.length, 0),
-        disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
+        enabledOptionCount: surfaces.reduce(
+          (count, surface) => count + surface.enabledOptions.length,
+          0
+        ),
+        disabledOptionCount: surfaces.reduce(
+          (count, surface) => count + surface.disabledOptionCount,
+          0
+        ),
         omitted: [
-          { path: 'details[].options', reason: 'enabled rows carry semantic government fields and validation descriptors' },
-          { path: 'details[].disabledOptions', reason: 'disabled governments are counted but kept out of mutation action recommendations' },
+          {
+            path: "details[].options",
+            reason: "enabled rows carry semantic government fields and validation descriptors",
+          },
+          {
+            path: "details[].disabledOptions",
+            reason:
+              "disabled governments are counted but kept out of mutation action recommendations",
+          },
         ],
-        notes: [
-          'Rows come from live HUD choices with official government validation evidence.',
-        ],
+        notes: ["Rows come from live HUD choices with official government validation evidence."],
       });
       return;
     }
-    if (typeof flags['government-type'] !== 'number') {
-      throw new Error('game play choose-government requires --government-type unless --options is used');
+    if (typeof flags["government-type"] !== "number") {
+      throw new Error(
+        "game play choose-government requires --government-type unless --options is used"
+      );
     }
     if (flags.send) {
       const result = await createCiv7ControlOrpcServerClient({
         directControl: liveCiv7ControlOrpcDirectControlFacade,
         endpointDefaults: options,
       }).government.choice.request({
-        governmentType: flags['government-type'],
+        governmentType: flags["government-type"],
         ...(flags.action === undefined ? {} : { action: flags.action }),
       });
       emitPlayResult(this.log.bind(this), flags.json, result);
       return;
     }
-    if (typeof flags['player-id'] !== 'number') {
-      throw new Error('game play choose-government requires --player-id unless --options is used');
+    if (typeof flags["player-id"] !== "number") {
+      throw new Error("game play choose-government requires --player-id unless --options is used");
     }
     const input = {
       operationType: CHANGE_GOVERNMENT,
-      playerId: flags['player-id'],
+      playerId: flags["player-id"],
       args: {
-        GovernmentType: flags['government-type'],
+        GovernmentType: flags["government-type"],
         Action: flags.action ?? -1326475004,
       },
     };
-    const result = await validatePlayOperation('player-operation', input, options);
+    const result = await validatePlayOperation("player-operation", input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }
 }
 
-function governmentChoiceDetails(view: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>): Record<string, unknown>[] {
+function governmentChoiceDetails(
+  view: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>
+): Record<string, unknown>[] {
   const details = [
     ...view.notifications.map((notification) => notification.details),
     view.hud?.nextDecision?.details,
-    ...((view.hud?.decisionQueue ?? []).map((decision) => decision.details)),
+    ...(view.hud?.decisionQueue ?? []).map((decision) => decision.details),
   ];
   const seen = new Set<string>();
   return details.filter((detail): detail is Record<string, unknown> => {
-    if (!detail || typeof detail !== 'object') return false;
+    if (!detail || typeof detail !== "object") return false;
     const record = detail as Record<string, unknown>;
-    if (record.kind !== 'government-choice-options') return false;
-    const key = JSON.stringify(record.notificationId ?? record.currentGovernmentType ?? record.localPlayerId);
+    if (record.kind !== "government-choice-options") return false;
+    const key = JSON.stringify(
+      record.notificationId ?? record.currentGovernmentType ?? record.localPlayerId
+    );
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -137,7 +155,7 @@ function governmentChoiceDetails(view: Awaited<ReturnType<typeof getCiv7PlayNoti
 }
 
 function compactGovernmentChoiceSurface(details: Record<string, unknown>): {
-  kind: 'government-choice-options';
+  kind: "government-choice-options";
   notificationId: unknown;
   localPlayerId: unknown;
   currentGovernmentType: unknown;
@@ -147,7 +165,9 @@ function compactGovernmentChoiceSurface(details: Record<string, unknown>): {
   disabledOptionCount: number;
 } {
   const enabledOptions = asArray(details.enabledOptions)
-    .filter((option): option is Record<string, unknown> => Boolean(option && typeof option === 'object'))
+    .filter((option): option is Record<string, unknown> =>
+      Boolean(option && typeof option === "object")
+    )
     .map((option) => ({
       governmentType: option.governmentType,
       governmentTypeName: option.governmentTypeName,
@@ -155,11 +175,11 @@ function compactGovernmentChoiceSurface(details: Record<string, unknown>): {
       description: option.description,
       action: option.action,
       celebrationOptions: option.celebrationOptions,
-      nextAction: governmentOptionAction('choose-government', option),
-      validationAction: governmentOptionAction('validate-government-choice', option),
+      nextAction: governmentOptionAction("choose-government", option),
+      validationAction: governmentOptionAction("validate-government-choice", option),
     }));
   return {
-    kind: 'government-choice-options',
+    kind: "government-choice-options",
     notificationId: details.notificationId ?? null,
     localPlayerId: details.localPlayerId ?? null,
     currentGovernmentType: probeValue(details.currentGovernmentType),
@@ -171,15 +191,13 @@ function compactGovernmentChoiceSurface(details: Record<string, unknown>): {
 }
 
 function governmentOptionAction(
-  kind: GovernmentOptionAction['kind'],
-  option: Record<string, unknown>,
+  kind: GovernmentOptionAction["kind"],
+  option: Record<string, unknown>
 ): GovernmentOptionAction {
-  const readOnly = kind === 'validate-government-choice';
+  const readOnly = kind === "validate-government-choice";
   return {
     kind,
-    label: readOnly
-      ? 'Validate government choice.'
-      : 'Choose government.',
+    label: readOnly ? "Validate government choice." : "Choose government.",
     parameters: {
       governmentType: option.governmentType,
       governmentTypeName: option.governmentTypeName,
@@ -195,9 +213,9 @@ function asArray(value: unknown): unknown[] {
 }
 
 function probeValue(value: unknown): unknown {
-  if (value && typeof value === 'object' && 'ok' in value) {
+  if (value && typeof value === "object" && "ok" in value) {
     const probe = value as { ok?: unknown; value?: unknown };
-    return probe.ok === true ? probe.value ?? null : null;
+    return probe.ok === true ? (probe.value ?? null) : null;
   }
   return value ?? null;
 }

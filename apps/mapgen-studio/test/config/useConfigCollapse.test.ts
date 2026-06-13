@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { computeActiveChain, pointerPrefixes } from "../../src/features/configOverrides/useConfigCollapse";
+import {
+  computeActiveChain,
+  pointerPrefixes,
+} from "../../src/features/configOverrides/useConfigCollapse";
 
 // The sticky engine's pure core (Pass-4 config-collapse design): the
 // candidate is the LAST header at/above the focus line; the active chain is
@@ -30,7 +33,10 @@ describe("computeActiveChain", () => {
   });
 
   it("activates the first header before any crosses the focus line", () => {
-    const chain = computeActiveChain(headers.map((h) => ({ ...h, top: h.top + 200 })), 100);
+    const chain = computeActiveChain(
+      headers.map((h) => ({ ...h, top: h.top + 200 })),
+      100
+    );
     expect([...chain]).toEqual(["/foundation"]);
   });
 

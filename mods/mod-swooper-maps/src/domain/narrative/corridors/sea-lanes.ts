@@ -59,7 +59,11 @@ export function hasPerpWidth(
   return false;
 }
 
-export function longestWaterRunColumn(ctx: ExtendedMapContext, x: number, height: number): { start: number; end: number; len: number } {
+export function longestWaterRunColumn(
+  ctx: ExtendedMapContext,
+  x: number,
+  height: number
+): { start: number; end: number; len: number } {
   let bestStart = -1;
   let bestEnd = -1;
   let bestLen = 0;
@@ -81,7 +85,11 @@ export function longestWaterRunColumn(ctx: ExtendedMapContext, x: number, height
   return { start: bestStart, end: bestEnd, len: bestLen };
 }
 
-export function longestWaterRunRow(ctx: ExtendedMapContext, y: number, width: number): { start: number; end: number; len: number } {
+export function longestWaterRunRow(
+  ctx: ExtendedMapContext,
+  y: number,
+  width: number
+): { start: number; end: number; len: number } {
   let bestStart = -1;
   let bestEnd = -1;
   let bestLen = 0;
@@ -183,7 +191,15 @@ export function tagSeaLanes(
 
   const laneBias = (_orient: Orient): number => 0;
 
-  const candidates: Array<{ orient: Orient; index: number; start: number; end: number; len: number; minWidth: number; score: number }> = [];
+  const candidates: Array<{
+    orient: Orient;
+    index: number;
+    start: number;
+    end: number;
+    len: number;
+    minWidth: number;
+    score: number;
+  }> = [];
 
   const minCol = Math.floor(height * minLenFrac);
   for (let x = 1; x < width - 1; x += stride) {
@@ -201,7 +217,15 @@ export function tagSeaLanes(
     const coverage = run.len / height;
     let score = run.len + 3 * minW + Math.round(coverage * 10);
     score += laneBias("col");
-    candidates.push({ orient: "col", index: x, start: run.start, end: run.end, len: run.len, minWidth: minW, score });
+    candidates.push({
+      orient: "col",
+      index: x,
+      start: run.start,
+      end: run.end,
+      len: run.len,
+      minWidth: minW,
+      score,
+    });
   }
 
   const minRow = Math.floor(width * minLenFrac);
@@ -220,11 +244,19 @@ export function tagSeaLanes(
     const coverage = run.len / width;
     let score = run.len + 3 * minW + Math.round(coverage * 10);
     score += laneBias("row");
-    candidates.push({ orient: "row", index: y, start: run.start, end: run.end, len: run.len, minWidth: minW, score });
+    candidates.push({
+      orient: "row",
+      index: y,
+      start: run.start,
+      end: run.end,
+      len: run.len,
+      minWidth: minW,
+      score,
+    });
   }
 
   if (preferDiagonals) {
-    const kMax = (width - 1) + (height - 1);
+    const kMax = width - 1 + (height - 1);
     for (let k = 0; k <= kMax; k += Math.max(2, stride)) {
       const run = longestWaterRunDiagSum(ctx, k, width, height);
       const minDiag = Math.floor(run.axisLen * minLenFrac);
@@ -242,7 +274,15 @@ export function tagSeaLanes(
       const coverage = run.len / run.axisLen;
       let score = run.len + 2 * minW + Math.round(coverage * 10);
       score += laneBias("diagNE");
-      candidates.push({ orient: "diagNE", index: k, start: run.startX, end: run.endX, len: run.len, minWidth: minW, score });
+      candidates.push({
+        orient: "diagNE",
+        index: k,
+        start: run.startX,
+        end: run.endX,
+        len: run.len,
+        minWidth: minW,
+        score,
+      });
     }
 
     const dMin = -(height - 1);
@@ -264,7 +304,15 @@ export function tagSeaLanes(
       const coverage = run.len / run.axisLen;
       let score = run.len + 2 * minW + Math.round(coverage * 10);
       score += laneBias("diagNW");
-      candidates.push({ orient: "diagNW", index: d, start: run.startY, end: run.endY, len: run.len, minWidth: minW, score });
+      candidates.push({
+        orient: "diagNW",
+        index: d,
+        start: run.startY,
+        end: run.endY,
+        len: run.len,
+        minWidth: minW,
+        score,
+      });
     }
   }
 

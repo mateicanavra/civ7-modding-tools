@@ -33,9 +33,7 @@ describe("derive placement inputs", () => {
       mapSizeId: 1,
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      naturalWonderCatalog: [
-        { featureType: featureTypes.FEATURE_KILIMANJARO, direction: -1 },
-      ],
+      naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_KILIMANJARO, direction: -1 }],
       resourceTypeCatalog: [],
       discoveryCatalog: [],
     });
@@ -58,11 +56,13 @@ describe("derive placement inputs", () => {
       | undefined;
     const ops = {
       wonders: () => ({ wondersCount: 1 }),
-      naturalWonders: (input: typeof capturedNaturalWonderInput & {
-        width: number;
-        height: number;
-        wondersCount: number;
-      }) => {
+      naturalWonders: (
+        input: typeof capturedNaturalWonderInput & {
+          width: number;
+          height: number;
+          wondersCount: number;
+        }
+      ) => {
         capturedNaturalWonderInput = input;
         return {
           width: input.width,
@@ -89,28 +89,23 @@ describe("derive placement inputs", () => {
       }),
     } as never;
 
-    buildPlacementInputs(
-      context,
-      {},
-      ops,
-      {
-        topography: {
-          landMask: new Uint8Array(size).fill(1),
-          elevation: new Int16Array(size).fill(500),
-        },
-        hydrography: { riverClass: new Uint8Array(size) },
-        lakePlan: { lakeMask: new Uint8Array(size) },
-        biomeClassification: {
-          effectiveMoisture: new Float32Array(size).fill(0.5),
-          surfaceTemperature: new Float32Array(size).fill(0.5),
-          aridityIndex: new Float32Array(size).fill(0.5),
-        },
-        biomeBindings: {
-          engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
-        },
-        pedology: { fertility: new Float32Array(size).fill(0.5) },
-      }
-    );
+    buildPlacementInputs(context, {}, ops, {
+      topography: {
+        landMask: new Uint8Array(size).fill(1),
+        elevation: new Int16Array(size).fill(500),
+      },
+      hydrography: { riverClass: new Uint8Array(size) },
+      lakePlan: { lakeMask: new Uint8Array(size) },
+      biomeClassification: {
+        effectiveMoisture: new Float32Array(size).fill(0.5),
+        surfaceTemperature: new Float32Array(size).fill(0.5),
+        aridityIndex: new Float32Array(size).fill(0.5),
+      },
+      biomeBindings: {
+        engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
+      },
+      pedology: { fertility: new Float32Array(size).fill(0.5) },
+    });
 
     expect(capturedNaturalWonderInput?.featureCatalog).toHaveLength(1);
     expect(capturedNaturalWonderInput?.featureCatalog?.[0]).toMatchObject({
@@ -145,9 +140,7 @@ describe("derive placement inputs", () => {
       mapSizeId: 1,
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      naturalWonderCatalog: [
-        { featureType: featureTypes.FEATURE_BARRIER_REEF, direction: -1 },
-      ],
+      naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_BARRIER_REEF, direction: -1 }],
       resourceTypeCatalog: [],
       discoveryCatalog: [],
     });
@@ -170,11 +163,13 @@ describe("derive placement inputs", () => {
       | undefined;
     const ops = {
       wonders: () => ({ wondersCount: 1 }),
-      naturalWonders: (input: typeof capturedNaturalWonderInput & {
-        width: number;
-        height: number;
-        wondersCount: number;
-      }) => {
+      naturalWonders: (
+        input: typeof capturedNaturalWonderInput & {
+          width: number;
+          height: number;
+          wondersCount: number;
+        }
+      ) => {
         capturedNaturalWonderInput = input;
         return {
           width: input.width,
@@ -201,28 +196,23 @@ describe("derive placement inputs", () => {
       }),
     } as never;
 
-    buildPlacementInputs(
-      context,
-      {},
-      ops,
-      {
-        topography: {
-          landMask: new Uint8Array(size).fill(1),
-          elevation: new Int16Array(size).fill(500),
-        },
-        hydrography: { riverClass: new Uint8Array(size) },
-        lakePlan: { lakeMask: new Uint8Array(size) },
-        biomeClassification: {
-          effectiveMoisture: new Float32Array(size).fill(0.5),
-          surfaceTemperature: new Float32Array(size).fill(0.5),
-          aridityIndex: new Float32Array(size).fill(0.5),
-        },
-        biomeBindings: {
-          engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
-        },
-        pedology: { fertility: new Float32Array(size).fill(0.5) },
-      }
-    );
+    buildPlacementInputs(context, {}, ops, {
+      topography: {
+        landMask: new Uint8Array(size).fill(1),
+        elevation: new Int16Array(size).fill(500),
+      },
+      hydrography: { riverClass: new Uint8Array(size) },
+      lakePlan: { lakeMask: new Uint8Array(size) },
+      biomeClassification: {
+        effectiveMoisture: new Float32Array(size).fill(0.5),
+        surfaceTemperature: new Float32Array(size).fill(0.5),
+        aridityIndex: new Float32Array(size).fill(0.5),
+      },
+      biomeBindings: {
+        engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
+      },
+      pedology: { fertility: new Float32Array(size).fill(0.5) },
+    });
 
     expect(capturedNaturalWonderInput?.featureCatalog).toEqual([]);
   });
@@ -267,7 +257,9 @@ describe("derive placement inputs", () => {
       },
     });
     expect(telemetry.coordinateProof.plannedHash32).toMatch(/^[0-9a-f]{8}$/);
-    expect(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(700);
+    expect(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(
+      700
+    );
   });
 
   it("builds compact natural-wonder plan input telemetry for exact runtime proof", () => {
@@ -370,6 +362,8 @@ describe("derive placement inputs", () => {
         ],
       ],
     });
-    expect(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(800);
+    expect(
+      `[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 ${JSON.stringify(telemetry)}`.length
+    ).toBeLessThan(800);
   });
 });

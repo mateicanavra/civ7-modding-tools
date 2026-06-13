@@ -12,4 +12,3 @@ export type * from "./contract.js";
 export type * from "./types.js";
 
 export default planVegetation;
-

@@ -96,7 +96,7 @@ export function createLiveGameWatcher(args: LiveGameWatcherDeps): LiveGameWatche
           error: err,
           observedAt: now().toISOString(),
           failureCount,
-        }),
+        })
       );
     } finally {
       running = false;

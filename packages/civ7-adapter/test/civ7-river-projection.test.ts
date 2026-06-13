@@ -36,8 +36,7 @@ mock.module("/base-standard/maps/elevation-terrain-generator.js", () => ({
   expandCoasts: () => {},
 }));
 
-const NAVIGABLE_RIVER_TERRAIN =
-  CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_NAVIGABLE_RIVER;
+const NAVIGABLE_RIVER_TERRAIN = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_NAVIGABLE_RIVER;
 
 let Civ7AdapterCtor: typeof import("../src/civ7-adapter.js").Civ7Adapter;
 

@@ -7,7 +7,7 @@ export function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
 
 export function probeValueChanged(
   left: Civ7RuntimeProbe<unknown> | undefined,
-  right: Civ7RuntimeProbe<unknown> | undefined,
+  right: Civ7RuntimeProbe<unknown> | undefined
 ): boolean {
   if (!left || !right) return false;
   if (left.ok !== right.ok) return true;

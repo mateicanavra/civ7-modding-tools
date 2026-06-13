@@ -42,7 +42,10 @@ export default createStep(LakesStepContract, {
     const { width, height } = context.dimensions;
     const topography = deps.artifacts.topography.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
-    if (!(topography.landMask instanceof Uint8Array) || !(topography.elevation instanceof Int16Array)) {
+    if (
+      !(topography.landMask instanceof Uint8Array) ||
+      !(topography.elevation instanceof Int16Array)
+    ) {
       throw new Error("[Hydrology] Missing topography inputs for hydrology-hydrography/lakes.");
     }
     if (

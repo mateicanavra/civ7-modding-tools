@@ -150,7 +150,11 @@ export function buildDelaunayMesh(input: DelaunayMeshInput): DelaunayMesh {
 
   for (let step = 0; step < relaxationSteps; step++) {
     const expandedSites = buildExpandedSites(sites, wrapWidth);
-    const delaunay = Delaunay.from(expandedSites, (p) => p.x, (p) => p.y);
+    const delaunay = Delaunay.from(
+      expandedSites,
+      (p) => p.x,
+      (p) => p.y
+    );
     const voronoi = delaunay.voronoi([-wrapWidth, bbox.yt, wrapWidth * 2, bbox.yb]);
     const nextSites: Point2D[] = Array.from({ length: cellCount }, () => ({ x: 0, y: 0 }));
 
@@ -175,7 +179,11 @@ export function buildDelaunayMesh(input: DelaunayMeshInput): DelaunayMesh {
   }
 
   const expandedSites = buildExpandedSites(sites, wrapWidth);
-  const delaunay = Delaunay.from(expandedSites, (p) => p.x, (p) => p.y);
+  const delaunay = Delaunay.from(
+    expandedSites,
+    (p) => p.x,
+    (p) => p.y
+  );
   const voronoi = delaunay.voronoi([bbox.xl, bbox.yt, bbox.xr, bbox.yb]);
 
   const siteX = new Float32Array(cellCount);

@@ -187,7 +187,7 @@ describe("Civ7 direct control public API", () => {
     expect(Value.Check(Civ7ComponentIdSchema, { owner: 0, type: 1 })).toBe(false);
     expect(assertCiv7ComponentId(componentId)).toEqual(componentId);
     expect(() => assertCiv7ComponentId({ owner: 0, type: 1 }, "--city-id")).toThrow(
-      /--city-id must be a Civ7 ComponentID/,
+      /--city-id must be a Civ7 ComponentID/
     );
   });
 
@@ -200,45 +200,49 @@ describe("Civ7 direct control public API", () => {
   });
 
   test("exports map summary procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7MapSummaryInputSchema, {
-      includeAreaRegionCounts: true,
-      maxIds: 512,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7MapSummaryInputSchema, {
+        includeAreaRegionCounts: true,
+        maxIds: 512,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: 1.5 })).toBe(false);
     expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: 1_000_001 })).toBe(false);
     expect(Value.Check(Civ7MapSummaryInputSchema, { host: "127.0.0.1" })).toBe(false);
     expect(Value.Check(Civ7MapSummaryInputSchema, { state: { role: "tuner" } })).toBe(false);
-    expect(Value.Check(Civ7MapSummaryInputSchema, { rawCommand: "GameplayMap.getGridWidth()" })).toBe(false);
+    expect(
+      Value.Check(Civ7MapSummaryInputSchema, { rawCommand: "GameplayMap.getGridWidth()" })
+    ).toBe(false);
     expect(Civ7MapSummaryResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
-      required: expect.arrayContaining([
-        "host",
-        "port",
-        "state",
-        "map",
-        "game",
-      ]),
+      required: expect.arrayContaining(["host", "port", "state", "map", "game"]),
     });
   });
 
   test("exports plot snapshot procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7PlotSnapshotInputSchema, {
-      x: 3,
-      y: 4,
-      playerId: 0,
-      fields: ["terrain", "resource", "visibility"],
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7PlotSnapshotInputSchema, {
+        x: 3,
+        y: 4,
+        playerId: 0,
+        fields: ["terrain", "resource", "visibility"],
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 1.5, y: 4 })).toBe(false);
     expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: -1 })).toBe(false);
     expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, fields: ["enemy"] })).toBe(false);
     expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, state: { role: "tuner" } })).toBe(false);
-    expect(Value.Check(Civ7PlotSnapshotInputSchema, {
-      x: 3,
-      y: 4,
-      rawCommand: "GameplayMap.getTerrainType(3, 4)",
-    })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, state: { role: "tuner" } })).toBe(
+      false
+    );
+    expect(
+      Value.Check(Civ7PlotSnapshotInputSchema, {
+        x: 3,
+        y: 4,
+        rawCommand: "GameplayMap.getTerrainType(3, 4)",
+      })
+    ).toBe(false);
     expect(Civ7PlotSnapshotResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
@@ -254,30 +258,40 @@ describe("Civ7 direct control public API", () => {
   });
 
   test("exports map grid procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain"],
-      maxPlots: 1,
-    })).toBe(true);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      locations: [{ x: 0, y: 0 }],
-      fields: ["terrain"],
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain"],
+        maxPlots: 1,
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        locations: [{ x: 0, y: 0 }],
+        fields: ["terrain"],
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7MapGridInputSchema, { fields: ["terrain"] })).toBe(false);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      locations: [{ x: 0, y: 0 }],
-      fields: ["terrain"],
-    })).toBe(false);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["enemy"],
-    })).toBe(false);
-    expect(Value.Check(Civ7MapGridInputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain"],
-      rawCommand: "GameplayMap.getGridWidth()",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        locations: [{ x: 0, y: 0 }],
+        fields: ["terrain"],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["enemy"],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7MapGridInputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain"],
+        rawCommand: "GameplayMap.getGridWidth()",
+      })
+    ).toBe(false);
     expect(Civ7MapGridResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
@@ -297,7 +311,9 @@ describe("Civ7 direct control public API", () => {
   test("exports native river object read schemas from the public facade", () => {
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 16 })).toBe(true);
     expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { maxSamples: 257 })).toBe(false);
-    expect(Value.Check(Civ7NativeRiverObjectsInputSchema, { rawCommand: "MapRivers.numRivers()" })).toBe(false);
+    expect(
+      Value.Check(Civ7NativeRiverObjectsInputSchema, { rawCommand: "MapRivers.numRivers()" })
+    ).toBe(false);
     expect(Civ7NativeRiverObjectsResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
@@ -314,21 +330,29 @@ describe("Civ7 direct control public API", () => {
   });
 
   test("exports visibility summary procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
-      playerId: 0,
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      includeGrid: true,
-      maxPlots: 2,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7VisibilitySummaryInputSchema, {
+        playerId: 0,
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        includeGrid: true,
+        maxPlots: 2,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0 })).toBe(true);
     expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 1.5 })).toBe(false);
     expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 1_025 })).toBe(false);
-    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, includeGrid: true })).toBe(false);
-    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
-      playerId: 0,
-      rawCommand: "Visibility.revealAllPlots(0)",
-    })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, includeGrid: true })).toBe(
+      false
+    );
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, host: "127.0.0.1" })).toBe(
+      false
+    );
+    expect(
+      Value.Check(Civ7VisibilitySummaryInputSchema, {
+        playerId: 0,
+        rawCommand: "Visibility.revealAllPlots(0)",
+      })
+    ).toBe(false);
     expect(Civ7VisibilitySummaryResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
@@ -346,88 +370,91 @@ describe("Civ7 direct control public API", () => {
   });
 
   test("exports unit summary procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7UnitSummaryInputSchema, {
-      playerId: 0,
-      unitIds: [{ owner: -1, id: -1, type: 26 }],
-      maxItems: 128,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7UnitSummaryInputSchema, {
+        playerId: 0,
+        unitIds: [{ owner: -1, id: -1, type: 26 }],
+        maxItems: 128,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7UnitSummaryInputSchema, { playerId: 1025 })).toBe(false);
     expect(Value.Check(Civ7UnitSummaryInputSchema, { maxItems: 1_001 })).toBe(false);
     expect(Value.Check(Civ7UnitSummaryInputSchema, { rawCommand: "Units.get(id)" })).toBe(false);
     expect(Civ7UnitSummaryResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
-      required: expect.arrayContaining([
-        "host",
-        "port",
-        "state",
-        "units",
-        "omitted",
-      ]),
+      required: expect.arrayContaining(["host", "port", "state", "units", "omitted"]),
     });
   });
 
   test("exports player summary procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7PlayerSummaryInputSchema, {
-      playerIds: [0],
-      includeUnits: true,
-      includeCities: true,
-      maxItems: 64,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7PlayerSummaryInputSchema, {
+        playerIds: [0],
+        includeUnits: true,
+        includeCities: true,
+        maxItems: 64,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7PlayerSummaryInputSchema, { playerIds: [1025] })).toBe(false);
     expect(Value.Check(Civ7PlayerSummaryInputSchema, { maxItems: 513 })).toBe(false);
-    expect(Value.Check(Civ7PlayerSummaryInputSchema, { rawCommand: "Players.getAliveIds()" })).toBe(false);
+    expect(Value.Check(Civ7PlayerSummaryInputSchema, { rawCommand: "Players.getAliveIds()" })).toBe(
+      false
+    );
     expect(Civ7PlayerSummaryResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
-      required: expect.arrayContaining([
-        "host",
-        "port",
-        "state",
-        "players",
-        "omitted",
-      ]),
+      required: expect.arrayContaining(["host", "port", "state", "players", "omitted"]),
     });
   });
 
   test("exports city summary procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7CitySummaryInputSchema, {
-      playerId: 0,
-      cityIds: [{ owner: -1, id: -1, type: 1 }],
-      maxItems: 128,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7CitySummaryInputSchema, {
+        playerId: 0,
+        cityIds: [{ owner: -1, id: -1, type: 1 }],
+        maxItems: 128,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7CitySummaryInputSchema, { playerId: 1025 })).toBe(false);
     expect(Value.Check(Civ7CitySummaryInputSchema, { maxItems: 1_001 })).toBe(false);
     expect(Value.Check(Civ7CitySummaryInputSchema, { rawCommand: "Cities.get(id)" })).toBe(false);
     expect(Civ7CitySummaryResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
-      required: expect.arrayContaining([
-        "host",
-        "port",
-        "state",
-        "cities",
-        "omitted",
-      ]),
+      required: expect.arrayContaining(["host", "port", "state", "cities", "omitted"]),
     });
   });
 
   test("exports GameInfo rows procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7GameInfoRowsInputSchema, {
-      table: "Resources",
-      limit: 2,
-      filter: { key: "ResourceType", equals: "RESOURCE_COTTON" },
-      includeSchema: true,
-      includePrimaryKeys: true,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7GameInfoRowsInputSchema, {
+        table: "Resources",
+        limit: 2,
+        filter: { key: "ResourceType", equals: "RESOURCE_COTTON" },
+        includeSchema: true,
+        includePrimaryKeys: true,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources;DROP" })).toBe(false);
-    expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", limit: 1_001 })).toBe(false);
-    expect(Value.Check(Civ7GameInfoRowsInputSchema, {
-      table: "Resources",
-      filter: { key: "Resource-Type", equals: "RESOURCE_COTTON" },
-    })).toBe(false);
-    expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", rawCommand: "GameInfo.Resources" })).toBe(false);
+    expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", limit: 1_001 })).toBe(
+      false
+    );
+    expect(
+      Value.Check(Civ7GameInfoRowsInputSchema, {
+        table: "Resources",
+        filter: { key: "Resource-Type", equals: "RESOURCE_COTTON" },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", host: "127.0.0.1" })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7GameInfoRowsInputSchema, {
+        table: "Resources",
+        rawCommand: "GameInfo.Resources",
+      })
+    ).toBe(false);
     expect(Civ7GameInfoRowsResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
@@ -460,7 +487,9 @@ describe("Civ7 direct control public API", () => {
 
   test("exports the direct-control request id helper", () => {
     expect(createCiv7ControlRequestId()).toMatch(/^civ7-control-[a-z0-9]+-[a-z0-9]+$/);
-    expect(createCiv7ControlRequestId("civ7-restart")).toMatch(/^civ7-restart-[a-z0-9]+-[a-z0-9]+$/);
+    expect(createCiv7ControlRequestId("civ7-restart")).toMatch(
+      /^civ7-restart-[a-z0-9]+-[a-z0-9]+$/
+    );
   });
 
   test("exports stable loading-state labels and public root catalogs", () => {
@@ -502,13 +531,20 @@ describe("Civ7 direct control public API", () => {
         "Database",
         "UnitOperationTypes",
         "PlayerOperationTypes",
-      ]),
+      ])
     );
     expect(DEFAULT_CIV7_GAMEINFO_TABLES).toEqual(
-      expect.arrayContaining(["Resources", "UnitOperations", "CityCommands", "MapSizes"]),
+      expect.arrayContaining(["Resources", "UnitOperations", "CityCommands", "MapSizes"])
     );
     expect(DEFAULT_CIV7_SETUP_PARAMETER_IDS).toEqual(
-      expect.arrayContaining(["Ruleset", "Difficulty", "Map", "MapSize", "MapRandomSeed", "GameRandomSeed"]),
+      expect.arrayContaining([
+        "Ruleset",
+        "Difficulty",
+        "Map",
+        "MapSize",
+        "MapRandomSeed",
+        "GameRandomSeed",
+      ])
     );
   });
 
@@ -552,7 +588,9 @@ describe("Civ7 direct control public API", () => {
 
     expect(Value.Check(Civ7CapabilityCatalogEntrySchema, entry)).toBe(true);
     expect(Value.Check(Civ7CapabilityCatalogSchema, catalog)).toBe(true);
-    expect(Value.Check(Civ7CapabilityCatalogEntrySchema, { ...entry, risk: "runtime-proof" })).toBe(false);
+    expect(Value.Check(Civ7CapabilityCatalogEntrySchema, { ...entry, risk: "runtime-proof" })).toBe(
+      false
+    );
   });
 
   test("exports playable-status procedure candidate schemas from the public facade", () => {
@@ -581,8 +619,14 @@ describe("Civ7 direct control public API", () => {
     expect(Value.Check(Civ7TurnCompletionStatusInputSchema, {})).toBe(true);
     expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { host: "127.0.0.1" })).toBe(false);
     expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { port: 4318 })).toBe(false);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { state: { role: "app-ui" } })).toBe(false);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { rawCommand: "GameContext.sendTurnComplete()" })).toBe(false);
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { state: { role: "app-ui" } })).toBe(
+      false
+    );
+    expect(
+      Value.Check(Civ7TurnCompletionStatusInputSchema, {
+        rawCommand: "GameContext.sendTurnComplete()",
+      })
+    ).toBe(false);
     expect(Civ7TurnCompletionStatusResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
@@ -611,22 +655,18 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7TunerHealthResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
-      required: expect.arrayContaining([
-        "host",
-        "port",
-        "state",
-        "ready",
-        "snapshot",
-      ]),
+      required: expect.arrayContaining(["host", "port", "state", "ready", "snapshot"]),
     });
   });
 
   test("exports ready-unit view procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7ReadyUnitViewInputSchema, {
-      unitId: { owner: 0, id: 458752, type: 26 },
-      radius: 2,
-      maxOperations: 96,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7ReadyUnitViewInputSchema, {
+        unitId: { owner: 0, id: 458752, type: 26 },
+        radius: 2,
+        maxOperations: 96,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7ReadyUnitViewInputSchema, { radius: 6 })).toBe(false);
     expect(Civ7ReadyUnitViewResultSchema).toMatchObject({
       type: "object",
@@ -642,10 +682,12 @@ describe("Civ7 direct control public API", () => {
   });
 
   test("exports ready-city view procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7ReadyCityViewInputSchema, {
-      cityId: { owner: 0, id: 131073, type: 1 },
-      maxOperations: 96,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7ReadyCityViewInputSchema, {
+        cityId: { owner: 0, id: 131073, type: 1 },
+        maxOperations: 96,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7ReadyCityViewInputSchema, { maxOperations: 257 })).toBe(false);
     expect(Civ7ReadyCityViewResultSchema).toMatchObject({
       type: "object",
@@ -662,13 +704,17 @@ describe("Civ7 direct control public API", () => {
   });
 
   test("exports unit move-preview procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7UnitMovePreviewInputSchema, {
-      unitId: { owner: 0, id: 65536, type: 26 },
-      destination: { x: 25, y: 35 },
-      maxPlots: 12,
-      maxPathPlots: 8,
-    })).toBe(true);
-    expect(Value.Check(Civ7UnitMovePreviewInputSchema, { destination: { x: 1.5, y: 0 } })).toBe(false);
+    expect(
+      Value.Check(Civ7UnitMovePreviewInputSchema, {
+        unitId: { owner: 0, id: 65536, type: 26 },
+        destination: { x: 25, y: 35 },
+        maxPlots: 12,
+        maxPathPlots: 8,
+      })
+    ).toBe(true);
+    expect(Value.Check(Civ7UnitMovePreviewInputSchema, { destination: { x: 1.5, y: 0 } })).toBe(
+      false
+    );
     expect(Value.Check(Civ7UnitMovePreviewInputSchema, { maxPathPlots: 257 })).toBe(false);
     expect(Civ7UnitMovePreviewResultSchema).toMatchObject({
       type: "object",
@@ -688,7 +734,9 @@ describe("Civ7 direct control public API", () => {
     expect(Value.Check(Civ7PlayNotificationViewInputSchema, { maxNotifications: 25 })).toBe(true);
     expect(Value.Check(Civ7PlayNotificationViewInputSchema, { maxNotifications: 101 })).toBe(false);
     expect(Value.Check(Civ7PlayNotificationViewInputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { rawCommand: "readPlayNotifications()" })).toBe(false);
+    expect(
+      Value.Check(Civ7PlayNotificationViewInputSchema, { rawCommand: "readPlayNotifications()" })
+    ).toBe(false);
     expect(Civ7PlayNotificationViewResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
@@ -704,16 +752,24 @@ describe("Civ7 direct control public API", () => {
   });
 
   test("exports settlement recommendation procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7SettlementRecommendationInputSchema, {
-      locations: [{ x: 18, y: 27 }],
-      count: 3,
-      includeSettlers: false,
-      includeCities: false,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7SettlementRecommendationInputSchema, {
+        locations: [{ x: 18, y: 27 }],
+        count: 3,
+        includeSettlers: false,
+        includeCities: false,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7SettlementRecommendationInputSchema, { count: 13 })).toBe(false);
-    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { locations: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(
+      Value.Check(Civ7SettlementRecommendationInputSchema, { locations: [{ x: 1.5, y: 0 }] })
+    ).toBe(false);
     expect(Value.Check(Civ7SettlementRecommendationInputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { rawCommand: "readSettlementRecommendations()" })).toBe(false);
+    expect(
+      Value.Check(Civ7SettlementRecommendationInputSchema, {
+        rawCommand: "readSettlementRecommendations()",
+      })
+    ).toBe(false);
     expect(Civ7SettlementRecommendationResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
@@ -731,16 +787,22 @@ describe("Civ7 direct control public API", () => {
   });
 
   test("exports target-candidates procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7TargetCandidatesInputSchema, {
-      origins: [{ x: 18, y: 20 }],
-      maxCandidates: 4,
-      maxPlayers: 12,
-      unitRadius: 3,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7TargetCandidatesInputSchema, {
+        origins: [{ x: 18, y: 20 }],
+        maxCandidates: 4,
+        maxPlayers: 12,
+        unitRadius: 3,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7TargetCandidatesInputSchema, { maxCandidates: 65 })).toBe(false);
-    expect(Value.Check(Civ7TargetCandidatesInputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(
+      false
+    );
     expect(Value.Check(Civ7TargetCandidatesInputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7TargetCandidatesInputSchema, { rawCommand: "readTargetCandidates()" })).toBe(false);
+    expect(
+      Value.Check(Civ7TargetCandidatesInputSchema, { rawCommand: "readTargetCandidates()" })
+    ).toBe(false);
     expect(Civ7TargetCandidatesResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
@@ -756,7 +818,9 @@ describe("Civ7 direct control public API", () => {
         "notes",
       ]),
     });
-    expect(Civ7TargetCandidatesResultSchema.properties.relationshipLabelPolicy.properties).toMatchObject({
+    expect(
+      Civ7TargetCandidatesResultSchema.properties.relationshipLabelPolicy.properties
+    ).toMatchObject({
       relationshipSource: { const: "not-classified" },
       relationshipProof: { const: "none" },
       unprovenLabel: { const: "relationship-unproven" },
@@ -764,18 +828,24 @@ describe("Civ7 direct control public API", () => {
   });
 
   test("exports battlefield-scan procedure candidate schemas from the public facade", () => {
-    expect(Value.Check(Civ7BattlefieldScanInputSchema, {
-      origins: [{ x: 17, y: 20 }],
-      radius: 8,
-      maxPlayers: 12,
-      maxUnits: 16,
-      maxCities: 8,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7BattlefieldScanInputSchema, {
+        origins: [{ x: 17, y: 20 }],
+        radius: 8,
+        maxPlayers: 12,
+        maxUnits: 16,
+        maxCities: 8,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7BattlefieldScanInputSchema, { radius: 33 })).toBe(false);
     expect(Value.Check(Civ7BattlefieldScanInputSchema, { maxUnits: 257 })).toBe(false);
-    expect(Value.Check(Civ7BattlefieldScanInputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(
+      false
+    );
     expect(Value.Check(Civ7BattlefieldScanInputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7BattlefieldScanInputSchema, { rawCommand: "readBattlefieldScan()" })).toBe(false);
+    expect(
+      Value.Check(Civ7BattlefieldScanInputSchema, { rawCommand: "readBattlefieldScan()" })
+    ).toBe(false);
     expect(Civ7BattlefieldScanResultSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
@@ -794,7 +864,9 @@ describe("Civ7 direct control public API", () => {
         "notes",
       ]),
     });
-    expect(Civ7BattlefieldScanResultSchema.properties.relationshipLabelPolicy.properties).toMatchObject({
+    expect(
+      Civ7BattlefieldScanResultSchema.properties.relationshipLabelPolicy.properties
+    ).toMatchObject({
       relationshipSource: { const: "not-classified" },
       relationshipProof: { const: "none" },
       unprovenLabel: { const: "relationship-unproven" },
@@ -806,26 +878,8 @@ describe("Civ7 direct control public API", () => {
     expect(Value.Check(Civ7ProcedureFamilySchema, "raw-command")).toBe(false);
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "direct-control-facade")).toBe(true);
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "raw-socket")).toBe(false);
-    expect(Value.Check(Civ7ProcedureCoreCallDiagnosticsSchema, {
-      procedureKey: "unit.ready.view",
-      correlationId: "corr-1",
-      proofBoundary: "local-package-test",
-      playerScope: "local-player-scoped",
-      schemaTechnology: "typebox",
-      projection: {
-        normalCli: "semantic-projection",
-        debugService: "omitted",
-        aiIngestion: "blocked-until-ingestion-contract",
-        telemetry: "blocked-until-procedure-middleware",
-        procedureCore: "typed-procedure-core",
-      },
-      context: ["direct-control-facade"],
-      debugServiceCorrelation: true,
-      telemetryCorrelation: false,
-    })).toBe(true);
-    expect(Value.Check(Civ7ProcedureCoreCallResultSchema, {
-      output: { ok: true },
-      diagnostics: {
+    expect(
+      Value.Check(Civ7ProcedureCoreCallDiagnosticsSchema, {
         procedureKey: "unit.ready.view",
         correlationId: "corr-1",
         proofBoundary: "local-package-test",
@@ -841,57 +895,91 @@ describe("Civ7 direct control public API", () => {
         context: ["direct-control-facade"],
         debugServiceCorrelation: true,
         telemetryCorrelation: false,
-      },
-    })).toBe(true);
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7ProcedureCoreCallResultSchema, {
+        output: { ok: true },
+        diagnostics: {
+          procedureKey: "unit.ready.view",
+          correlationId: "corr-1",
+          proofBoundary: "local-package-test",
+          playerScope: "local-player-scoped",
+          schemaTechnology: "typebox",
+          projection: {
+            normalCli: "semantic-projection",
+            debugService: "omitted",
+            aiIngestion: "blocked-until-ingestion-contract",
+            telemetry: "blocked-until-procedure-middleware",
+            procedureCore: "typed-procedure-core",
+          },
+          context: ["direct-control-facade"],
+          debugServiceCorrelation: true,
+          telemetryCorrelation: false,
+        },
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7ProcedureCoreErrorReasonSchema, "handler-failed")).toBe(true);
     expect(Value.Check(Civ7ProcedureCoreErrorReasonSchema, "raw-error-dump")).toBe(false);
-    expect(Value.Check(Civ7ProcedureCoreErrorSummarySchema, {
-      code: "procedure-call-failed",
-      message: "Civ7 procedure unit.ready.view handler failed",
-      reason: "handler-failed",
-      procedureKey: "unit.ready.view",
-      correlationId: "corr-1",
-      errorCode: "command-failed",
-    })).toBe(true);
-    expect(Value.Check(Civ7ProcedureCoreCallEnvelopeSchema, {
-      ok: false,
-      error: {
+    expect(
+      Value.Check(Civ7ProcedureCoreErrorSummarySchema, {
         code: "procedure-call-failed",
         message: "Civ7 procedure unit.ready.view handler failed",
         reason: "handler-failed",
         procedureKey: "unit.ready.view",
         correlationId: "corr-1",
         errorCode: "command-failed",
-      },
-    })).toBe(true);
-    expect(Value.Check(Civ7ProcedureCoreCallContextSchema, {
-      descriptor: Civ7ReadyUnitViewProcedureDescriptor,
-      procedureKey: "unit.ready.view",
-      correlationId: "corr-1",
-      proofBoundary: "local-package-test",
-      playerScope: "local-player-scoped",
-      context: ["direct-control-facade"],
-    })).toBe(true);
-    expect(Value.Check(Civ7ProcedureCoreCallContextSchema, {
-      descriptor: Civ7ReadyUnitViewProcedureDescriptor,
-      procedureKey: "unit.ready.view",
-      correlationId: "corr-1",
-      proofBoundary: "local-package-test",
-      playerScope: "local-player-scoped",
-      context: ["direct-control-facade"],
-      rawCommand: "Game.turn",
-    })).toBe(false);
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7ProcedureCoreCallEnvelopeSchema, {
+        ok: false,
+        error: {
+          code: "procedure-call-failed",
+          message: "Civ7 procedure unit.ready.view handler failed",
+          reason: "handler-failed",
+          procedureKey: "unit.ready.view",
+          correlationId: "corr-1",
+          errorCode: "command-failed",
+        },
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7ProcedureCoreCallContextSchema, {
+        descriptor: Civ7ReadyUnitViewProcedureDescriptor,
+        procedureKey: "unit.ready.view",
+        correlationId: "corr-1",
+        proofBoundary: "local-package-test",
+        playerScope: "local-player-scoped",
+        context: ["direct-control-facade"],
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7ProcedureCoreCallContextSchema, {
+        descriptor: Civ7ReadyUnitViewProcedureDescriptor,
+        procedureKey: "unit.ready.view",
+        correlationId: "corr-1",
+        proofBoundary: "local-package-test",
+        playerScope: "local-player-scoped",
+        context: ["direct-control-facade"],
+        rawCommand: "Game.turn",
+      })
+    ).toBe(false);
     expect(summarizeCiv7ProcedureCoreError(new Error("not direct-control"))).toBe(null);
     expect(typeof settleCiv7ProcedureCoreCall).toBe("function");
-    expect(Value.Check(Civ7ProcedureSchemaReferenceSchema, {
-      owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
-      exportName: "Civ7ReadyUnitViewInputSchema",
-    })).toBe(true);
-    expect(Value.Check(Civ7ProcedureSchemaReferenceSchema, {
-      owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
-      exportName: "Civ7ReadyUnitViewInputSchema",
-      rawCommand: "readReadyUnitView()",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7ProcedureSchemaReferenceSchema, {
+        owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+        exportName: "Civ7ReadyUnitViewInputSchema",
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7ProcedureSchemaReferenceSchema, {
+        owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+        exportName: "Civ7ReadyUnitViewInputSchema",
+        rawCommand: "readReadyUnitView()",
+      })
+    ).toBe(false);
   });
 
   test("exports procedure schema reference resolution helpers from the public facade", () => {
@@ -905,13 +993,15 @@ describe("Civ7 direct control public API", () => {
     };
 
     expect(civ7ProcedureSchemaReferenceKey(inputSchema)).toBe(
-      "packages/civ7-direct-control/src/play/ready/unit.ts#Civ7ReadyUnitViewInputSchema",
+      "packages/civ7-direct-control/src/play/ready/unit.ts#Civ7ReadyUnitViewInputSchema"
     );
     expect(typeof resolveCiv7ProcedureCoreSchemas).toBe("function");
     expect(typeof validateCiv7ProcedureCoreInput).toBe("function");
     expect(typeof validateCiv7ProcedureCoreOutput).toBe("function");
     expect(typeof callCiv7ProcedureCore).toBe("function");
-    expect(civ7ProcedureSchemaReferenceKey(outputSchema)).toContain("Civ7ReadyUnitViewResultSchema");
+    expect(civ7ProcedureSchemaReferenceKey(outputSchema)).toContain(
+      "Civ7ReadyUnitViewResultSchema"
+    );
   });
 
   test("exports procedure schema technology ownership from the public facade", () => {
@@ -927,15 +1017,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7ReadyUnitView",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7ReadyUnitViewProcedure).toBe("function");
-    expect(Civ7ReadyUnitViewProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7ReadyUnitViewInputSchema);
-    expect(Civ7ReadyUnitViewProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7ReadyUnitViewResultSchema);
+    expect(
+      Civ7ReadyUnitViewProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7ReadyUnitViewInputSchema);
+    expect(
+      Civ7ReadyUnitViewProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7ReadyUnitViewResultSchema);
   });
 
   test("exports the ready-city procedure descriptor artifact from the public facade", () => {
@@ -944,15 +1042,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7ReadyCityView",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7ReadyCityViewProcedure).toBe("function");
-    expect(Civ7ReadyCityViewProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7ReadyCityViewInputSchema);
-    expect(Civ7ReadyCityViewProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7ReadyCityViewResultSchema);
+    expect(
+      Civ7ReadyCityViewProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7ReadyCityViewInputSchema);
+    expect(
+      Civ7ReadyCityViewProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7ReadyCityViewResultSchema);
   });
 
   test("exports the unit move-preview procedure descriptor artifact from the public facade", () => {
@@ -961,15 +1067,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7UnitMovePreview",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7UnitMovePreviewProcedure).toBe("function");
-    expect(Civ7UnitMovePreviewProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7UnitMovePreviewInputSchema);
-    expect(Civ7UnitMovePreviewProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7UnitMovePreviewResultSchema);
+    expect(
+      Civ7UnitMovePreviewProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7UnitMovePreviewInputSchema);
+    expect(
+      Civ7UnitMovePreviewProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7UnitMovePreviewResultSchema);
   });
 
   test("exports the play-notification view procedure descriptor artifact from the public facade", () => {
@@ -978,15 +1092,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7PlayNotificationView",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7PlayNotificationViewProcedure).toBe("function");
-    expect(Civ7PlayNotificationViewProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7PlayNotificationViewProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7PlayNotificationViewInputSchema);
-    expect(Civ7PlayNotificationViewProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7PlayNotificationViewProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7PlayNotificationViewResultSchema);
+    expect(
+      Civ7PlayNotificationViewProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7PlayNotificationViewProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7PlayNotificationViewInputSchema);
+    expect(
+      Civ7PlayNotificationViewProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7PlayNotificationViewProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7PlayNotificationViewResultSchema);
   });
 
   test("exports the settlement recommendations procedure descriptor artifact from the public facade", () => {
@@ -996,15 +1118,27 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7SettlementRecommendations",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7SettlementRecommendationsProcedure).toBe("function");
-    expect(Civ7SettlementRecommendationsProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7SettlementRecommendationsProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7SettlementRecommendationInputSchema);
-    expect(Civ7SettlementRecommendationsProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7SettlementRecommendationsProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7SettlementRecommendationResultSchema);
+    expect(
+      Civ7SettlementRecommendationsProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(
+          Civ7SettlementRecommendationsProcedureDescriptor.inputSchema
+        )
+      ]
+    ).toBe(Civ7SettlementRecommendationInputSchema);
+    expect(
+      Civ7SettlementRecommendationsProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(
+          Civ7SettlementRecommendationsProcedureDescriptor.outputSchema
+        )
+      ]
+    ).toBe(Civ7SettlementRecommendationResultSchema);
   });
 
   test("exports the target-candidates procedure descriptor artifact from the public facade", () => {
@@ -1014,15 +1148,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7TargetCandidates",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7TargetCandidatesProcedure).toBe("function");
-    expect(Civ7TargetCandidatesProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7TargetCandidatesProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7TargetCandidatesInputSchema);
-    expect(Civ7TargetCandidatesProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7TargetCandidatesProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7TargetCandidatesResultSchema);
+    expect(
+      Civ7TargetCandidatesProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7TargetCandidatesProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7TargetCandidatesInputSchema);
+    expect(
+      Civ7TargetCandidatesProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7TargetCandidatesProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7TargetCandidatesResultSchema);
   });
 
   test("exports the battlefield-scan procedure descriptor artifact from the public facade", () => {
@@ -1032,15 +1174,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7BattlefieldScan",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7BattlefieldScanProcedure).toBe("function");
-    expect(Civ7BattlefieldScanProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7BattlefieldScanProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7BattlefieldScanInputSchema);
-    expect(Civ7BattlefieldScanProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7BattlefieldScanProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7BattlefieldScanResultSchema);
+    expect(
+      Civ7BattlefieldScanProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7BattlefieldScanProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7BattlefieldScanInputSchema);
+    expect(
+      Civ7BattlefieldScanProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7BattlefieldScanProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7BattlefieldScanResultSchema);
   });
 
   test("exports the destination-analysis procedure descriptor artifact from the public facade", () => {
@@ -1050,15 +1200,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7DestinationAnalysis",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7DestinationAnalysisProcedure).toBe("function");
-    expect(Civ7DestinationAnalysisProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7DestinationAnalysisProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7DestinationAnalysisInputSchema);
-    expect(Civ7DestinationAnalysisProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7DestinationAnalysisProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7DestinationAnalysisResultSchema);
+    expect(
+      Civ7DestinationAnalysisProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7DestinationAnalysisProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7DestinationAnalysisInputSchema);
+    expect(
+      Civ7DestinationAnalysisProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7DestinationAnalysisProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7DestinationAnalysisResultSchema);
   });
 
   test("exports the traditions-view procedure descriptor artifact from the public facade", () => {
@@ -1068,15 +1226,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7TraditionsView",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7TraditionsViewProcedure).toBe("function");
-    expect(Civ7TraditionsViewProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7TraditionsViewProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7TraditionsViewInputSchema);
-    expect(Civ7TraditionsViewProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7TraditionsViewProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7TraditionsViewResultSchema);
+    expect(
+      Civ7TraditionsViewProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7TraditionsViewProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7TraditionsViewInputSchema);
+    expect(
+      Civ7TraditionsViewProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7TraditionsViewProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7TraditionsViewResultSchema);
   });
 
   test("exports the progress-dashboard procedure descriptor artifact from the public facade", () => {
@@ -1086,15 +1252,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7ProgressDashboard",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7ProgressDashboardProcedure).toBe("function");
-    expect(Civ7ProgressDashboardProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7ProgressDashboardProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7ProgressDashboardInputSchema);
-    expect(Civ7ProgressDashboardProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7ProgressDashboardProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7ProgressDashboardResultSchema);
+    expect(
+      Civ7ProgressDashboardProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7ProgressDashboardProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7ProgressDashboardInputSchema);
+    expect(
+      Civ7ProgressDashboardProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7ProgressDashboardProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7ProgressDashboardResultSchema);
   });
 
   test("exports the playable-status procedure descriptor artifact from the public facade", () => {
@@ -1111,12 +1285,16 @@ describe("Civ7 direct control public API", () => {
       ]),
     });
     expect(typeof callCiv7PlayableStatusProcedure).toBe("function");
-    expect(Civ7PlayableStatusProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7PlayableStatusInputSchema);
-    expect(Civ7PlayableStatusProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7PlayableStatusResultSchema);
+    expect(
+      Civ7PlayableStatusProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7PlayableStatusInputSchema);
+    expect(
+      Civ7PlayableStatusProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7PlayableStatusResultSchema);
   });
 
   test("exports the turn-completion status procedure descriptor artifact from the public facade", () => {
@@ -1125,15 +1303,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7TurnCompletionStatus",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7TurnCompletionStatusProcedure).toBe("function");
-    expect(Civ7TurnCompletionStatusProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7TurnCompletionStatusProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7TurnCompletionStatusInputSchema);
-    expect(Civ7TurnCompletionStatusProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7TurnCompletionStatusProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7TurnCompletionStatusResultSchema);
+    expect(
+      Civ7TurnCompletionStatusProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7TurnCompletionStatusProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7TurnCompletionStatusInputSchema);
+    expect(
+      Civ7TurnCompletionStatusProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7TurnCompletionStatusProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7TurnCompletionStatusResultSchema);
   });
 
   test("exports the unit summary procedure descriptor artifact from the public facade", () => {
@@ -1142,34 +1328,48 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7UnitSummary",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7UnitSummaryProcedure).toBe("function");
-    expect(Civ7UnitSummaryProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7UnitSummaryProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7UnitSummaryInputSchema);
-    expect(Civ7UnitSummaryProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7UnitSummaryProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7UnitSummaryResultSchema);
+    expect(
+      Civ7UnitSummaryProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7UnitSummaryProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7UnitSummaryInputSchema);
+    expect(
+      Civ7UnitSummaryProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7UnitSummaryProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7UnitSummaryResultSchema);
   });
 
   test("exports the unit-target action request procedure descriptor artifact from the public facade", () => {
-    expect(Value.Check(Civ7UnitTargetActionRequestInputSchema, {
-      unitId: { owner: 0, id: 65536, type: 26 },
-      x: 23,
-      y: 33,
-    })).toBe(true);
-    expect(Value.Check(Civ7UnitTargetActionRequestInputSchema, {
-      unitId: { owner: 0, id: 65536 },
-      x: 23,
-      y: 1_000_001,
-    })).toBe(false);
-    expect(Value.Check(Civ7UnitTargetActionRequestInputSchema, {
-      unitId: { owner: 0, id: 65536 },
-      x: 23,
-      y: 33,
-      rawCommand: "Game.UnitOperations.sendRequest(...)",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7UnitTargetActionRequestInputSchema, {
+        unitId: { owner: 0, id: 65536, type: 26 },
+        x: 23,
+        y: 33,
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7UnitTargetActionRequestInputSchema, {
+        unitId: { owner: 0, id: 65536 },
+        x: 23,
+        y: 1_000_001,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7UnitTargetActionRequestInputSchema, {
+        unitId: { owner: 0, id: 65536 },
+        x: 23,
+        y: 33,
+        rawCommand: "Game.UnitOperations.sendRequest(...)",
+      })
+    ).toBe(false);
     expect(Civ7UnitTargetActionRequestProcedureDescriptor).toMatchObject({
       procedureKey: "unit.target.action.request",
       family: "unit",
@@ -1183,28 +1383,38 @@ describe("Civ7 direct control public API", () => {
       context: expect.arrayContaining(["direct-control-facade", "live-session-policy"]),
     });
     expect(typeof callCiv7UnitTargetActionRequestProcedure).toBe("function");
-    expect(Civ7UnitTargetActionRequestProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7UnitTargetActionRequestProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7UnitTargetActionRequestInputSchema);
-    expect(Civ7UnitTargetActionRequestProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7UnitTargetActionRequestProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7UnitTargetActionResultSchema);
+    expect(
+      Civ7UnitTargetActionRequestProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7UnitTargetActionRequestProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7UnitTargetActionRequestInputSchema);
+    expect(
+      Civ7UnitTargetActionRequestProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7UnitTargetActionRequestProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7UnitTargetActionResultSchema);
   });
 
   test("exports the production-choice request procedure descriptor artifact from the public facade", () => {
-    expect(Value.Check(Civ7ProductionChoiceRequestInputSchema, {
-      cityId: { owner: 0, id: 65536, type: 1 },
-      args: { ConstructibleType: 713967338, X: 22, Y: 31 },
-    })).toBe(true);
-    expect(Value.Check(Civ7ProductionChoiceRequestInputSchema, {
-      cityId: { owner: 0, id: 65536, type: 1 },
-      args: { UnitType: 102, ConstructibleType: 713967338 },
-    })).toBe(false);
-    expect(Value.Check(Civ7ProductionChoiceRequestInputSchema, {
-      cityId: { owner: 0, id: 65536, type: 1 },
-      args: { ConstructibleType: 713967338 },
-      rawCommand: "Game.CityOperations.sendRequest(...)",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7ProductionChoiceRequestInputSchema, {
+        cityId: { owner: 0, id: 65536, type: 1 },
+        args: { ConstructibleType: 713967338, X: 22, Y: 31 },
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7ProductionChoiceRequestInputSchema, {
+        cityId: { owner: 0, id: 65536, type: 1 },
+        args: { UnitType: 102, ConstructibleType: 713967338 },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7ProductionChoiceRequestInputSchema, {
+        cityId: { owner: 0, id: 65536, type: 1 },
+        args: { ConstructibleType: 713967338 },
+        rawCommand: "Game.CityOperations.sendRequest(...)",
+      })
+    ).toBe(false);
     expect(Civ7ProductionChoiceRequestProcedureDescriptor).toMatchObject({
       procedureKey: "city.production.choice.request",
       family: "city",
@@ -1218,55 +1428,67 @@ describe("Civ7 direct control public API", () => {
       context: expect.arrayContaining(["direct-control-facade", "live-session-policy"]),
     });
     expect(Civ7ProductionChoiceRequestProcedureDescriptor.outputFields).not.toContain("command");
-    expect(Value.Check(Civ7ProductionChoiceResultSchema, {
-      before: {
-        host: "127.0.0.1",
-        port: 4318,
-        state: { id: "65535", name: "App UI" },
-        family: "city-operation",
-        operationType: "BUILD",
-        enumValue: "BUILD",
-        target: { cityId: { owner: 0, id: 65536, type: 1 } },
-        args: { ConstructibleType: 713967338 },
-        valid: true,
-        result: { Success: true },
-      },
-      after: {
-        host: "127.0.0.1",
-        port: 4318,
-        state: { id: "65535", name: "App UI" },
-        family: "city-operation",
-        operationType: "BUILD",
-        enumValue: "BUILD",
-        target: { cityId: { owner: 0, id: 65536, type: 1 } },
-        args: { ConstructibleType: 713967338 },
-        valid: true,
-        result: { Success: true },
-      },
-      sent: true,
-      verified: true,
-      command: { output: ["{}"] },
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7ProductionChoiceResultSchema, {
+        before: {
+          host: "127.0.0.1",
+          port: 4318,
+          state: { id: "65535", name: "App UI" },
+          family: "city-operation",
+          operationType: "BUILD",
+          enumValue: "BUILD",
+          target: { cityId: { owner: 0, id: 65536, type: 1 } },
+          args: { ConstructibleType: 713967338 },
+          valid: true,
+          result: { Success: true },
+        },
+        after: {
+          host: "127.0.0.1",
+          port: 4318,
+          state: { id: "65535", name: "App UI" },
+          family: "city-operation",
+          operationType: "BUILD",
+          enumValue: "BUILD",
+          target: { cityId: { owner: 0, id: 65536, type: 1 } },
+          args: { ConstructibleType: 713967338 },
+          valid: true,
+          result: { Success: true },
+        },
+        sent: true,
+        verified: true,
+        command: { output: ["{}"] },
+      })
+    ).toBe(false);
     expect(typeof callCiv7ProductionChoiceRequestProcedure).toBe("function");
-    expect(Civ7ProductionChoiceRequestProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7ProductionChoiceRequestProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7ProductionChoiceRequestInputSchema);
-    expect(Civ7ProductionChoiceRequestProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7ProductionChoiceRequestProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7ProductionChoiceResultSchema);
+    expect(
+      Civ7ProductionChoiceRequestProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7ProductionChoiceRequestProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7ProductionChoiceRequestInputSchema);
+    expect(
+      Civ7ProductionChoiceRequestProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7ProductionChoiceRequestProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7ProductionChoiceResultSchema);
   });
 
   test("exports the notification dismissal request procedure descriptor artifact from the public facade", () => {
-    expect(Value.Check(Civ7NotificationDismissRequestInputSchema, {
-      notificationId: { owner: 0, id: 113, type: 20 },
-    })).toBe(true);
-    expect(Value.Check(Civ7NotificationDismissRequestInputSchema, {
-      notificationId: { owner: 0, type: 20 },
-    })).toBe(false);
-    expect(Value.Check(Civ7NotificationDismissRequestInputSchema, {
-      notificationId: { owner: 0, id: 113, type: 20 },
-      rawCommand: "Game.Notifications.dismiss(...)",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7NotificationDismissRequestInputSchema, {
+        notificationId: { owner: 0, id: 113, type: 20 },
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7NotificationDismissRequestInputSchema, {
+        notificationId: { owner: 0, type: 20 },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7NotificationDismissRequestInputSchema, {
+        notificationId: { owner: 0, id: 113, type: 20 },
+        rawCommand: "Game.Notifications.dismiss(...)",
+      })
+    ).toBe(false);
     expect(Civ7NotificationDismissRequestProcedureDescriptor).toMatchObject({
       procedureKey: "notifications.dismiss.request",
       family: "notifications",
@@ -1281,12 +1503,20 @@ describe("Civ7 direct control public API", () => {
     });
     expect(Civ7NotificationDismissRequestProcedureDescriptor.outputFields).not.toContain("command");
     expect(typeof callCiv7NotificationDismissRequestProcedure).toBe("function");
-    expect(Civ7NotificationDismissRequestProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7NotificationDismissRequestProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7NotificationDismissRequestInputSchema);
-    expect(Civ7NotificationDismissRequestProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7NotificationDismissRequestProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7NotificationDismissalResultSchema);
+    expect(
+      Civ7NotificationDismissRequestProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(
+          Civ7NotificationDismissRequestProcedureDescriptor.inputSchema
+        )
+      ]
+    ).toBe(Civ7NotificationDismissRequestInputSchema);
+    expect(
+      Civ7NotificationDismissRequestProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(
+          Civ7NotificationDismissRequestProcedureDescriptor.outputSchema
+        )
+      ]
+    ).toBe(Civ7NotificationDismissalResultSchema);
   });
 
   test("exports the player summary procedure descriptor artifact from the public facade", () => {
@@ -1296,15 +1526,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7PlayerSummary",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7PlayerSummaryProcedure).toBe("function");
-    expect(Civ7PlayerSummaryProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7PlayerSummaryProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7PlayerSummaryInputSchema);
-    expect(Civ7PlayerSummaryProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7PlayerSummaryProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7PlayerSummaryResultSchema);
+    expect(
+      Civ7PlayerSummaryProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7PlayerSummaryProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7PlayerSummaryInputSchema);
+    expect(
+      Civ7PlayerSummaryProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7PlayerSummaryProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7PlayerSummaryResultSchema);
   });
 
   test("exports the city summary procedure descriptor artifact from the public facade", () => {
@@ -1313,15 +1551,23 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "getCiv7CitySummary",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+      ]),
     });
     expect(typeof callCiv7CitySummaryProcedure).toBe("function");
-    expect(Civ7CitySummaryProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7CitySummaryProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7CitySummaryInputSchema);
-    expect(Civ7CitySummaryProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7CitySummaryProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7CitySummaryResultSchema);
+    expect(
+      Civ7CitySummaryProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7CitySummaryProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7CitySummaryInputSchema);
+    expect(
+      Civ7CitySummaryProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7CitySummaryProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7CitySummaryResultSchema);
   });
 
   test("exports the App UI snapshot procedure descriptor artifact from the public facade", () => {
@@ -1338,12 +1584,16 @@ describe("Civ7 direct control public API", () => {
       ]),
     });
     expect(typeof callCiv7AppUiSnapshotProcedure).toBe("function");
-    expect(Civ7AppUiSnapshotProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7AppUiSnapshotProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7AppUiSnapshotInputSchema);
-    expect(Civ7AppUiSnapshotProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7AppUiSnapshotProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7AppUiSnapshotResultSchema);
+    expect(
+      Civ7AppUiSnapshotProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7AppUiSnapshotProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7AppUiSnapshotInputSchema);
+    expect(
+      Civ7AppUiSnapshotProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7AppUiSnapshotProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7AppUiSnapshotResultSchema);
   });
 
   test("exports the Tuner health procedure descriptor artifact from the public facade", () => {
@@ -1360,11 +1610,15 @@ describe("Civ7 direct control public API", () => {
       ]),
     });
     expect(typeof callCiv7TunerHealthProcedure).toBe("function");
-    expect(Civ7TunerHealthProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7TunerHealthProcedureDescriptor.inputSchema)
-    ]).toBe(Civ7TunerHealthInputSchema);
-    expect(Civ7TunerHealthProcedureSchemaArtifacts[
-      civ7ProcedureSchemaReferenceKey(Civ7TunerHealthProcedureDescriptor.outputSchema)
-    ]).toBe(Civ7TunerHealthResultSchema);
+    expect(
+      Civ7TunerHealthProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7TunerHealthProcedureDescriptor.inputSchema)
+      ]
+    ).toBe(Civ7TunerHealthInputSchema);
+    expect(
+      Civ7TunerHealthProcedureSchemaArtifacts[
+        civ7ProcedureSchemaReferenceKey(Civ7TunerHealthProcedureDescriptor.outputSchema)
+      ]
+    ).toBe(Civ7TunerHealthResultSchema);
   });
 });

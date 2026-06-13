@@ -20,10 +20,12 @@ export function computeOrogenyPotential(params: {
   const divergence = regime === BOUNDARY_TYPE.divergent ? boundaryStrength : 0;
 
   const collisionSignal =
-    collision * (config.orogenyCollisionStressWeight * stress + config.orogenyCollisionUpliftWeight * uplift);
+    collision *
+    (config.orogenyCollisionStressWeight * stress + config.orogenyCollisionUpliftWeight * uplift);
   const transformSignal = transform * (config.orogenyTransformStressWeight * stress);
   const divergenceSignal =
-    divergence * (config.orogenyDivergentRiftWeight * rift + config.orogenyDivergentStressWeight * stress);
+    divergence *
+    (config.orogenyDivergentRiftWeight * rift + config.orogenyDivergentStressWeight * stress);
 
   return clamp01(collisionSignal + transformSignal + divergenceSignal);
 }

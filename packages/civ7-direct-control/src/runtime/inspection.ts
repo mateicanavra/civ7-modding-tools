@@ -1,7 +1,4 @@
-import {
-  CIV7_TUNER_APP_UI_STATE_NAME,
-  CIV7_TUNER_STATE_NAME,
-} from "../session/constants.js";
+import { CIV7_TUNER_APP_UI_STATE_NAME, CIV7_TUNER_STATE_NAME } from "../session/constants.js";
 import { executeCiv7Command } from "../session/execute.js";
 import type {
   Civ7CommandResult,
@@ -44,7 +41,8 @@ type RuntimeInspectionDependencies = Readonly<{
   defaultAppUiApiRoots: ReadonlyArray<string>;
   defaultTunerApiRoots: ReadonlyArray<string>;
   executeCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string; state?: Civ7TunerStateSelection }>,
+    options: Civ7DirectControlOptions &
+      Readonly<{ command: string; state?: Civ7TunerStateSelection }>
   ) => Promise<Civ7CommandResult>;
   tunerStateName: string;
 }>;
@@ -54,7 +52,7 @@ export async function inspectCiv7RuntimeApi(
     state?: Civ7TunerStateSelection;
     roots?: ReadonlyArray<string>;
   } = {},
-  dependencies: RuntimeInspectionDependencies = defaultRuntimeInspectionDependencies,
+  dependencies: RuntimeInspectionDependencies = defaultRuntimeInspectionDependencies
 ): Promise<Civ7RuntimeApiInspection> {
   const selection = options.state ?? { role: "app-ui" };
   const roots = options.roots ?? defaultRootsForSelection(selection, dependencies);
@@ -82,7 +80,7 @@ const defaultRuntimeInspectionDependencies: RuntimeInspectionDependencies = {
 
 function defaultRootsForSelection(
   selection: Civ7TunerStateSelection,
-  dependencies: RuntimeInspectionDependencies,
+  dependencies: RuntimeInspectionDependencies
 ): ReadonlyArray<string> {
   const normalized = normalizeStateSelection(selection, dependencies);
   return normalized.name === dependencies.tunerStateName
@@ -92,7 +90,7 @@ function defaultRootsForSelection(
 
 function normalizeStateSelection(
   selection: Civ7TunerStateSelection,
-  dependencies: RuntimeInspectionDependencies,
+  dependencies: RuntimeInspectionDependencies
 ): { id?: string; name?: string } {
   if (typeof selection === "string") {
     return selection === dependencies.appUiStateName || selection === dependencies.tunerStateName

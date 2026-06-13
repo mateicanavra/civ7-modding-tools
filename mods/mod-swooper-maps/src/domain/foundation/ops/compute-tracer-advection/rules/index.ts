@@ -2,11 +2,16 @@ import type { FoundationMantleForcing } from "../../compute-mantle-forcing/contr
 import type { FoundationMesh } from "../../compute-mesh/contract.js";
 import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
 
-import { requireMantleForcing as requireMantleForcingInput, requireMesh as requireMeshInput } from "../../../lib/require.js";
+import {
+  requireMantleForcing as requireMantleForcingInput,
+  requireMesh as requireMeshInput,
+} from "../../../lib/require.js";
 import { ADVECTION_STEPS_PER_ERA } from "../../../lib/tectonics/constants.js";
 import { chooseDriftNeighbor, normalizeToInt8 } from "../../../lib/tectonics/shared.js";
 
-export function requireMesh(...args: Parameters<typeof requireMeshInput>): ReturnType<typeof requireMeshInput> {
+export function requireMesh(
+  ...args: Parameters<typeof requireMeshInput>
+): ReturnType<typeof requireMeshInput> {
   return requireMeshInput(...args);
 }
 
@@ -69,7 +74,10 @@ export function computeTracerIndexByEra(params: {
   const mantleDriftU = new Int8Array(cellCount);
   const mantleDriftV = new Int8Array(cellCount);
   for (let i = 0; i < cellCount; i++) {
-    const drift = normalizeToInt8(params.mantleForcing.forcingU[i] ?? 0, params.mantleForcing.forcingV[i] ?? 0);
+    const drift = normalizeToInt8(
+      params.mantleForcing.forcingU[i] ?? 0,
+      params.mantleForcing.forcingV[i] ?? 0
+    );
     mantleDriftU[i] = drift.u;
     mantleDriftV[i] = drift.v;
   }

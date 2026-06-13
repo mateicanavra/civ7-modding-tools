@@ -40,10 +40,7 @@ type ScoreStats = {
 
 const pickPercentile = (sorted: number[], ratio: number): number => {
   if (sorted.length === 0) return 0;
-  const idx = Math.min(
-    sorted.length - 1,
-    Math.max(0, Math.floor(ratio * (sorted.length - 1)))
-  );
+  const idx = Math.min(sorted.length - 1, Math.max(0, Math.floor(ratio * (sorted.length - 1))));
   return sorted[idx]!;
 };
 
@@ -172,10 +169,8 @@ const resolveSnowElevationRange = (input: PlotEffectsInput, snow: SnowResolvedCo
   if (snow.elevationStrategy === "percentile") {
     const minPercentile = clamp01(snow.elevationPercentileMin);
     const maxPercentile = clamp01(snow.elevationPercentileMax);
-    const min =
-      sorted.length > 0 ? pickPercentile(sorted, minPercentile) : snow.elevationMin;
-    const max =
-      sorted.length > 0 ? pickPercentile(sorted, maxPercentile) : snow.elevationMax;
+    const min = sorted.length > 0 ? pickPercentile(sorted, minPercentile) : snow.elevationMin;
+    const max = sorted.length > 0 ? pickPercentile(sorted, maxPercentile) : snow.elevationMax;
 
     return {
       strategy: "percentile",
@@ -298,11 +293,7 @@ export function logSnowEligibilitySummary(
       const elevation = input.elevation[idx];
 
       const elevationFactor = normalizeRange(elevation, elevationMin, elevationMax);
-      const moistureFactor = normalizeRange(
-        moisture,
-        snow.moistureMin,
-        snow.moistureMax
-      );
+      const moistureFactor = normalizeRange(moisture, snow.moistureMin, snow.moistureMax);
       const scoreRaw =
         freeze * snow.freezeWeight +
         elevationFactor * snow.elevationWeight +

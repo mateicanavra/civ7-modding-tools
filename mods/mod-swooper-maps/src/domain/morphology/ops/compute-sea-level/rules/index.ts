@@ -16,9 +16,7 @@ const MAX_TARGET_ADJUSTMENT_PCT = 20; // percentage points
 /**
  * Ensures sea-level inputs match the expected map size.
  */
-export function validateSeaLevelInputs(
-  input: ComputeSeaLevelTypes["input"]
-): {
+export function validateSeaLevelInputs(input: ComputeSeaLevelTypes["input"]): {
   size: number;
   elevation: Int16Array;
   crustType: Uint8Array;
@@ -79,7 +77,10 @@ export function resolveSeaLevel(params: {
   const clampPct = (pct: number): number => clamp(pct, 0, 100);
   const resolveSeaLevelAtPct = (pct: number): number => {
     const clamped = clampPct(pct);
-    const idx = Math.min(values.length - 1, Math.max(0, Math.floor((clamped / 100) * values.length)));
+    const idx = Math.min(
+      values.length - 1,
+      Math.max(0, Math.floor((clamped / 100) * values.length))
+    );
     return values[idx] ?? 0;
   };
   const resolveDistinctCandidate = (
@@ -117,7 +118,8 @@ export function resolveSeaLevel(params: {
     const continentalOk = continentalTarget == null || continentalShare >= continentalTarget;
 
     const boundaryErr = boundaryTarget == null ? 0 : Math.max(0, boundaryTarget - boundaryShare);
-    const continentalErr = continentalTarget == null ? 0 : Math.max(0, continentalTarget - continentalShare);
+    const continentalErr =
+      continentalTarget == null ? 0 : Math.max(0, continentalTarget - continentalShare);
     const constraintError = boundaryErr + continentalErr;
 
     return { constraintError, seaLevel: candidateSeaLevel };
@@ -125,7 +127,9 @@ export function resolveSeaLevel(params: {
 
   const initialPct = clampPct(initialTarget);
 
-  const scoreCandidate = (pct: number): { constraintError: number; pctDelta: number; seaLevel: number } => {
+  const scoreCandidate = (
+    pct: number
+  ): { constraintError: number; pctDelta: number; seaLevel: number } => {
     const clampedPct = clampPct(pct);
     const seaLevel = resolveSeaLevelAtPct(clampedPct);
     const evald = evaluate(seaLevel);

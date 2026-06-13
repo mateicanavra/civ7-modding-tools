@@ -39,7 +39,7 @@ export const liveGameStateSchema = Type.Object(
     bindingStatus: Type.Optional(liveGameBindingStatusSchema),
     failureCount: Type.Optional(Type.Number()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export type LiveGameStatusKind = Static<typeof liveGameStatusKindSchema>;
@@ -95,9 +95,15 @@ export function buildLiveGameState(args: {
   bindingStatus?: LiveGameBindingStatus;
 }): LiveGameState {
   const observedAt = args.body.observedAt ?? args.observedAtFallback;
-  const turn = args.body.mapSummary?.game?.turn?.ok ? args.body.mapSummary.game.turn.value : undefined;
-  const gameHash = args.body.mapSummary?.game?.hash?.ok ? args.body.mapSummary.game.hash.value : undefined;
-  const seed = args.body.mapSummary?.map?.randomSeed?.ok ? args.body.mapSummary.map.randomSeed.value : undefined;
+  const turn = args.body.mapSummary?.game?.turn?.ok
+    ? args.body.mapSummary.game.turn.value
+    : undefined;
+  const gameHash = args.body.mapSummary?.game?.hash?.ok
+    ? args.body.mapSummary.game.hash.value
+    : undefined;
+  const seed = args.body.mapSummary?.map?.randomSeed?.ok
+    ? args.body.mapSummary.map.randomSeed.value
+    : undefined;
   const readiness = args.body.status?.readiness;
   const ok = Boolean(args.body.ok);
   const snapshotHash = hashLiveGameValue({
@@ -120,9 +126,11 @@ export function buildLiveGameState(args: {
     snapshotStatus: ok ? "idle" : "error",
     snapshotHash,
     snapshotId: `status:${turn ?? "unknown"}:${snapshotHash}`,
-    bindingStatus: ok ? args.bindingStatus ?? "unbound-runtime" : "failed",
+    bindingStatus: ok ? (args.bindingStatus ?? "unbound-runtime") : "failed",
     failureCount: args.failureCount ?? 0,
-    error: ok ? undefined : args.body.status?.error ?? args.body.mapSummary?.error ?? "Live status unavailable",
+    error: ok
+      ? undefined
+      : (args.body.status?.error ?? args.body.mapSummary?.error ?? "Live status unavailable"),
   };
 }
 

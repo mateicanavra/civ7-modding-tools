@@ -123,7 +123,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function parseRecipeSettings(value: unknown): RecipeSettings | null {
   if (!isRecord(value)) return null;
-  if (typeof value.recipe !== "string" || typeof value.preset !== "string" || typeof value.seed !== "string") {
+  if (
+    typeof value.recipe !== "string" ||
+    typeof value.preset !== "string" ||
+    typeof value.seed !== "string"
+  ) {
     return null;
   }
   return {
@@ -135,7 +139,11 @@ function parseRecipeSettings(value: unknown): RecipeSettings | null {
 
 function parseWorldSettings(value: unknown): WorldSettings | null {
   if (!isRecord(value)) return null;
-  if (typeof value.mapSize !== "string" || typeof value.playerCount !== "number" || typeof value.resources !== "string") {
+  if (
+    typeof value.mapSize !== "string" ||
+    typeof value.playerCount !== "number" ||
+    typeof value.resources !== "string"
+  ) {
     return null;
   }
   return {
@@ -145,7 +153,9 @@ function parseWorldSettings(value: unknown): WorldSettings | null {
   };
 }
 
-function parseSelectedConfig(value: unknown): RunInGameSourceSnapshot["selectedConfig"] | undefined {
+function parseSelectedConfig(
+  value: unknown
+): RunInGameSourceSnapshot["selectedConfig"] | undefined {
   if (value === undefined) return undefined;
   if (!isRecord(value)) return undefined;
   return {
@@ -176,7 +186,9 @@ export function parseRunInGameClientSnapshot(value: string | null): RunInGameCli
     }
     return {
       ...parsed,
-      setupConfig: normalizeStudioSetupConfig(parsed.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG),
+      setupConfig: normalizeStudioSetupConfig(
+        parsed.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG
+      ),
     } as RunInGameClientSnapshot;
   } catch {
     return null;
@@ -206,9 +218,13 @@ export function parseRunInGameSourceSnapshot(value: string | null): RunInGameSou
       recipeSettings,
       worldSettings,
       pipelineConfig: migratePipelineConfig(parsed.pipelineConfig as PipelineConfig),
-      setupConfig: normalizeStudioSetupConfig(parsed.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG),
+      setupConfig: normalizeStudioSetupConfig(
+        parsed.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG
+      ),
       materializationMode: parsed.materializationMode,
-      ...(parsed.selectedConfig === undefined ? {} : { selectedConfig: parseSelectedConfig(parsed.selectedConfig) }),
+      ...(parsed.selectedConfig === undefined
+        ? {}
+        : { selectedConfig: parseSelectedConfig(parsed.selectedConfig) }),
     };
   } catch {
     return null;

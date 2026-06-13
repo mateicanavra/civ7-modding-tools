@@ -93,7 +93,7 @@ describe("live runtime model", () => {
     expect(second.gameHash).toBe(222);
     expect(first.snapshotId).not.toBe(second.snapshotId);
     expect(buildLiveRuntimeSnapshotRequest({ status: first })?.key).not.toBe(
-      buildLiveRuntimeSnapshotRequest({ status: second })?.key,
+      buildLiveRuntimeSnapshotRequest({ status: second })?.key
     );
   });
 
@@ -112,19 +112,25 @@ describe("live runtime model", () => {
 
     expect(request?.maxPlots).toBe(64);
     expect(buildLiveRuntimeSnapshotQuery(request!)).toContain("maxPlots=64");
-    expect(shouldCommitLiveRuntimeSnapshot({
-      activeRequestKey: request!.key,
-      resultRequestKey: request!.key,
-    })).toBe(true);
-    expect(shouldCommitLiveRuntimeSnapshot({
-      activeRequestKey: "newer-request",
-      resultRequestKey: request!.key,
-    })).toBe(false);
-    expect(shouldCommitLiveRuntimeSnapshot({
-      activeRequestKey: request!.key,
-      resultRequestKey: request!.key,
-      aborted: true,
-    })).toBe(false);
+    expect(
+      shouldCommitLiveRuntimeSnapshot({
+        activeRequestKey: request!.key,
+        resultRequestKey: request!.key,
+      })
+    ).toBe(true);
+    expect(
+      shouldCommitLiveRuntimeSnapshot({
+        activeRequestKey: "newer-request",
+        resultRequestKey: request!.key,
+      })
+    ).toBe(false);
+    expect(
+      shouldCommitLiveRuntimeSnapshot({
+        activeRequestKey: request!.key,
+        resultRequestKey: request!.key,
+        aborted: true,
+      })
+    ).toBe(false);
   });
 
   it("hashes snapshot payloads and keeps request identity in the state", () => {
@@ -163,7 +169,10 @@ describe("live runtime model", () => {
     });
 
     expect(records).toHaveLength(2);
-    expect(records.map((record) => record.affectedConfigPath)).toEqual(["recipeSettings.seed", "setupConfig"]);
+    expect(records.map((record) => record.affectedConfigPath)).toEqual([
+      "recipeSettings.seed",
+      "setupConfig",
+    ]);
     expect(records.every((record) => record.applyPath === "visible-studio-control")).toBe(true);
   });
 });

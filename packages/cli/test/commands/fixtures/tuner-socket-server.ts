@@ -1,6 +1,6 @@
-import { once } from 'node:events';
-import { type AddressInfo, createServer, type Socket } from 'node:net';
-import { encodeCiv7TunerRequest, parseCiv7TunerFrame } from '@civ7/direct-control';
+import { once } from "node:events";
+import { type AddressInfo, createServer, type Socket } from "node:net";
+import { encodeCiv7TunerRequest, parseCiv7TunerFrame } from "@civ7/direct-control";
 
 export type FakeTunerRequest = {
   listenerId: number;
@@ -21,15 +21,15 @@ export async function startFakeTunerServer(options: {
   fallback?: FakeTunerResponse | ((request: FakeTunerRequest) => FakeTunerResponse);
   handle(request: FakeTunerRequest): FakeTunerResponse | undefined;
 }): Promise<FakeTunerServer> {
-  const states = options.states ?? ['65535', 'App UI', '1', 'Tuner'];
+  const states = options.states ?? ["65535", "App UI", "1", "Tuner"];
   const fallback = options.fallback ?? [JSON.stringify(null)];
   const received: string[] = [];
   const sockets = new Set<Socket>();
   const server = createServer((socket) => {
     sockets.add(socket);
-    socket.on('close', () => sockets.delete(socket));
+    socket.on("close", () => sockets.delete(socket));
     let buffer = Buffer.alloc(0);
-    socket.on('data', (chunk) => {
+    socket.on("data", (chunk) => {
       buffer = Buffer.concat([buffer, chunk]);
       for (;;) {
         const parsed = parseCiv7TunerFrame(buffer);
@@ -37,19 +37,21 @@ export async function startFakeTunerServer(options: {
         buffer = buffer.subarray(parsed.bytesRead);
         const request = {
           listenerId: parsed.frame.listenerId,
-          message: parsed.frame.parts.join('\0'),
+          message: parsed.frame.parts.join("\0"),
           parts: parsed.frame.parts,
         };
         received.push(request.message);
-        const response = request.message === 'LSQ:'
-          ? states
-          : options.handle(request) ?? (typeof fallback === 'function' ? fallback(request) : fallback);
-        socket.write(encodeCiv7TunerRequest(request.listenerId, response.join('\0')));
+        const response =
+          request.message === "LSQ:"
+            ? states
+            : (options.handle(request) ??
+              (typeof fallback === "function" ? fallback(request) : fallback));
+        socket.write(encodeCiv7TunerRequest(request.listenerId, response.join("\0")));
       }
     });
   });
-  server.listen(0, '127.0.0.1');
-  await once(server, 'listening');
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
   const address = server.address.bind(server);
   const close = server.close.bind(server);
   return {
@@ -60,7 +62,7 @@ export async function startFakeTunerServer(options: {
     async close() {
       for (const socket of sockets) socket.destroy();
       await new Promise<void>((resolve, reject) => {
-        close((error) => error ? reject(error) : resolve());
+        close((error) => (error ? reject(error) : resolve()));
       });
     },
   };

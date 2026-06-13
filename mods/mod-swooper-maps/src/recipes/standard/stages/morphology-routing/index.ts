@@ -15,7 +15,13 @@ const knobsSchema = Type.Object(
 export default createStage({
   id: "morphology-routing",
   knobsSchema,
-  public: Type.Object({}, { additionalProperties: false, description: "Morphology routing has no authored controls today." }),
+  public: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description: "Morphology routing has no authored controls today.",
+    }
+  ),
   steps: [routing],
   compile: () => ({
     routing: {

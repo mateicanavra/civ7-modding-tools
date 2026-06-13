@@ -8,7 +8,7 @@ import type {
 
 export function diplomacyResponseProofPostcondition(
   result: Civ7DiplomacyResponseResult,
-  proofBoundary: Civ7OperationProofBoundary | undefined,
+  proofBoundary: Civ7OperationProofBoundary | undefined
 ): Civ7OperationTelemetryPostcondition | undefined {
   if (!result.sent && !result.postcondition) return undefined;
   if (proofBoundary === "pending-runtime-proof") {
@@ -48,7 +48,7 @@ export function diplomacyResponseProofPostcondition(
 }
 
 export function diplomacyResponsePostconditionConfirmed(
-  classification: Civ7DiplomacyResponsePostconditionClassification,
+  classification: Civ7DiplomacyResponsePostconditionClassification
 ): boolean {
   switch (classification) {
     case "turn-unblocked":
@@ -63,7 +63,7 @@ export function diplomacyResponsePostconditionConfirmed(
 }
 
 export function diplomacyResponseProofOutcome(
-  classification: Civ7DiplomacyResponsePostconditionClassification,
+  classification: Civ7DiplomacyResponsePostconditionClassification
 ): Civ7OperationTelemetryPostconditionOutcome {
   switch (classification) {
     case "not-sent":

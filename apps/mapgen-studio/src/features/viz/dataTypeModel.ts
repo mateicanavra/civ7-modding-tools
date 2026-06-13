@@ -68,7 +68,10 @@ function formatRenderModeLabel(renderModeId: RenderModeId): string {
   return role ? `${base} · ${role}` : base;
 }
 
-function reduceVisibility(current: VizLayerVisibility, next: VizLayerVisibility): VizLayerVisibility {
+function reduceVisibility(
+  current: VizLayerVisibility,
+  next: VizLayerVisibility
+): VizLayerVisibility {
   // Most visible wins: default > debug > hidden.
   if (current === "default" || next === "default") return "default";
   if (current === "debug" || next === "debug") return "debug";

@@ -41,11 +41,15 @@ export function validateMeshArtifact(value: unknown): void {
     neighbors?: unknown;
     areas?: unknown;
   };
-  const cellCount = typeof mesh.cellCount === "number" ? (mesh.cellCount | 0) : 0;
+  const cellCount = typeof mesh.cellCount === "number" ? mesh.cellCount | 0 : 0;
   if (cellCount <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation mesh cellCount.");
   }
-  if (typeof mesh.wrapWidth !== "number" || !Number.isFinite(mesh.wrapWidth) || mesh.wrapWidth <= 0) {
+  if (
+    typeof mesh.wrapWidth !== "number" ||
+    !Number.isFinite(mesh.wrapWidth) ||
+    mesh.wrapWidth <= 0
+  ) {
     throw new Error("[FoundationArtifact] Invalid foundation mesh.wrapWidth.");
   }
   if (!(mesh.siteX instanceof Float32Array) || mesh.siteX.length !== cellCount) {
@@ -57,7 +61,10 @@ export function validateMeshArtifact(value: unknown): void {
   if (!(mesh.areas instanceof Float32Array) || mesh.areas.length !== cellCount) {
     throw new Error("[FoundationArtifact] Invalid foundation mesh.areas.");
   }
-  if (!(mesh.neighborsOffsets instanceof Int32Array) || mesh.neighborsOffsets.length !== cellCount + 1) {
+  if (
+    !(mesh.neighborsOffsets instanceof Int32Array) ||
+    mesh.neighborsOffsets.length !== cellCount + 1
+  ) {
     throw new Error("[FoundationArtifact] Invalid foundation mesh.neighborsOffsets.");
   }
   if (!(mesh.neighbors instanceof Int32Array)) {
@@ -137,11 +144,11 @@ export function validateMantlePotentialArtifact(value: unknown): void {
     sourceAmplitude?: unknown;
     sourceRadius?: unknown;
   };
-  const version = typeof mantle.version === "number" ? (mantle.version | 0) : 0;
+  const version = typeof mantle.version === "number" ? mantle.version | 0 : 0;
   if (version <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.version.");
   }
-  const cellCount = typeof mantle.cellCount === "number" ? (mantle.cellCount | 0) : 0;
+  const cellCount = typeof mantle.cellCount === "number" ? mantle.cellCount | 0 : 0;
   if (cellCount <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.cellCount.");
   }
@@ -149,7 +156,7 @@ export function validateMantlePotentialArtifact(value: unknown): void {
     throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.potential.");
   }
 
-  const sourceCount = typeof mantle.sourceCount === "number" ? (mantle.sourceCount | 0) : -1;
+  const sourceCount = typeof mantle.sourceCount === "number" ? mantle.sourceCount | 0 : -1;
   if (sourceCount < 0) {
     throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.sourceCount.");
   }
@@ -159,10 +166,16 @@ export function validateMantlePotentialArtifact(value: unknown): void {
   if (!(mantle.sourceCell instanceof Uint32Array) || mantle.sourceCell.length !== sourceCount) {
     throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.sourceCell.");
   }
-  if (!(mantle.sourceAmplitude instanceof Float32Array) || mantle.sourceAmplitude.length !== sourceCount) {
+  if (
+    !(mantle.sourceAmplitude instanceof Float32Array) ||
+    mantle.sourceAmplitude.length !== sourceCount
+  ) {
     throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.sourceAmplitude.");
   }
-  if (!(mantle.sourceRadius instanceof Float32Array) || mantle.sourceRadius.length !== sourceCount) {
+  if (
+    !(mantle.sourceRadius instanceof Float32Array) ||
+    mantle.sourceRadius.length !== sourceCount
+  ) {
     throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.sourceRadius.");
   }
 }
@@ -181,11 +194,11 @@ export function validateMantleForcingArtifact(value: unknown): void {
     upwellingClass?: unknown;
     divergence?: unknown;
   };
-  const version = typeof forcing.version === "number" ? (forcing.version | 0) : 0;
+  const version = typeof forcing.version === "number" ? forcing.version | 0 : 0;
   if (version <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.version.");
   }
-  const cellCount = typeof forcing.cellCount === "number" ? (forcing.cellCount | 0) : 0;
+  const cellCount = typeof forcing.cellCount === "number" ? forcing.cellCount | 0 : 0;
   if (cellCount <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.cellCount.");
   }
@@ -201,7 +214,10 @@ export function validateMantleForcingArtifact(value: unknown): void {
   if (!(forcing.forcingMag instanceof Float32Array) || forcing.forcingMag.length !== cellCount) {
     throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.forcingMag.");
   }
-  if (!(forcing.upwellingClass instanceof Int8Array) || forcing.upwellingClass.length !== cellCount) {
+  if (
+    !(forcing.upwellingClass instanceof Int8Array) ||
+    forcing.upwellingClass.length !== cellCount
+  ) {
     throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.upwellingClass.");
   }
   if (!(forcing.divergence instanceof Float32Array) || forcing.divergence.length !== cellCount) {
@@ -228,15 +244,15 @@ export function validatePlateMotionArtifact(value: unknown): void {
     cellFitError?: unknown;
   };
 
-  const version = typeof motion.version === "number" ? (motion.version | 0) : 0;
+  const version = typeof motion.version === "number" ? motion.version | 0 : 0;
   if (version <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation plateMotion.version.");
   }
-  const cellCount = typeof motion.cellCount === "number" ? (motion.cellCount | 0) : 0;
+  const cellCount = typeof motion.cellCount === "number" ? motion.cellCount | 0 : 0;
   if (cellCount <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation plateMotion.cellCount.");
   }
-  const plateCount = typeof motion.plateCount === "number" ? (motion.plateCount | 0) : 0;
+  const plateCount = typeof motion.plateCount === "number" ? motion.plateCount | 0 : 0;
   if (plateCount <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation plateMotion.plateCount.");
   }
@@ -337,7 +353,9 @@ export function validateCrustTilesArtifact(value: unknown, dims: MapDimensions):
 
 export function validateTectonicHistoryTilesArtifact(value: unknown, dims: MapDimensions): void {
   if (!value || typeof value !== "object") {
-    throw new Error("[FoundationArtifact] Missing foundation tectonicHistoryTiles artifact payload.");
+    throw new Error(
+      "[FoundationArtifact] Missing foundation tectonicHistoryTiles artifact payload."
+    );
   }
   const history = value as {
     version?: unknown;
@@ -346,13 +364,15 @@ export function validateTectonicHistoryTilesArtifact(value: unknown, dims: MapDi
     rollups?: unknown;
   };
 
-  const version = typeof history.version === "number" ? (history.version | 0) : 0;
+  const version = typeof history.version === "number" ? history.version | 0 : 0;
   if (version <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.version.");
   }
-  const eraCount = typeof history.eraCount === "number" ? (history.eraCount | 0) : -1;
+  const eraCount = typeof history.eraCount === "number" ? history.eraCount | 0 : -1;
   if (eraCount < 5 || eraCount > 8) {
-    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.eraCount (expected 5..8).");
+    throw new Error(
+      "[FoundationArtifact] Invalid foundation tectonicHistoryTiles.eraCount (expected 5..8)."
+    );
   }
   if (!Array.isArray(history.perEra) || history.perEra.length !== eraCount) {
     throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra.");
@@ -362,13 +382,26 @@ export function validateTectonicHistoryTilesArtifact(value: unknown, dims: MapDi
   for (let e = 0; e < history.perEra.length; e++) {
     const era = history.perEra[e] as Record<string, unknown> | undefined;
     if (!era) {
-      throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra payload.");
+      throw new Error(
+        "[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra payload."
+      );
     }
-    const fields = ["boundaryType", "upliftPotential", "collisionPotential", "subductionPotential", "riftPotential", "shearStress", "volcanism", "fracture"] as const;
+    const fields = [
+      "boundaryType",
+      "upliftPotential",
+      "collisionPotential",
+      "subductionPotential",
+      "riftPotential",
+      "shearStress",
+      "volcanism",
+      "fracture",
+    ] as const;
     for (const field of fields) {
       const v = era[field] as unknown;
       if (!(v instanceof Uint8Array) || v.length !== expectedLen) {
-        throw new Error(`[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra.${field}.`);
+        throw new Error(
+          `[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra.${field}.`
+        );
       }
     }
   }
@@ -392,23 +425,31 @@ export function validateTectonicHistoryTilesArtifact(value: unknown, dims: MapDi
   ] as const;
   for (const [label, arr] of rollupFields) {
     if (!(arr instanceof Uint8Array) || arr.length !== expectedLen) {
-      throw new Error(`[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.${label}.`);
+      throw new Error(
+        `[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.${label}.`
+      );
     }
   }
 
   const movementU = (rollups as { movementU?: unknown }).movementU;
   if (!(movementU instanceof Int8Array) || movementU.length !== expectedLen) {
-    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.movementU.");
+    throw new Error(
+      "[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.movementU."
+    );
   }
   const movementV = (rollups as { movementV?: unknown }).movementV;
   if (!(movementV instanceof Int8Array) || movementV.length !== expectedLen) {
-    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.movementV.");
+    throw new Error(
+      "[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.movementV."
+    );
   }
 }
 
 export function validateTectonicProvenanceTilesArtifact(value: unknown, dims: MapDimensions): void {
   if (!value || typeof value !== "object") {
-    throw new Error("[FoundationArtifact] Missing foundation tectonicProvenanceTiles artifact payload.");
+    throw new Error(
+      "[FoundationArtifact] Missing foundation tectonicProvenanceTiles artifact payload."
+    );
   }
   const provenance = value as {
     version?: unknown;
@@ -418,26 +459,49 @@ export function validateTectonicProvenanceTilesArtifact(value: unknown, dims: Ma
     lastBoundaryEra?: unknown;
     lastBoundaryType?: unknown;
   };
-  const version = typeof provenance.version === "number" ? (provenance.version | 0) : 0;
+  const version = typeof provenance.version === "number" ? provenance.version | 0 : 0;
   if (version <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.version.");
   }
 
   const expectedLen = Math.max(0, (dims.width | 0) * (dims.height | 0));
-  if (!(provenance.originEra instanceof Uint8Array) || provenance.originEra.length !== expectedLen) {
+  if (
+    !(provenance.originEra instanceof Uint8Array) ||
+    provenance.originEra.length !== expectedLen
+  ) {
     throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.originEra.");
   }
-  if (!(provenance.originPlateId instanceof Int16Array) || provenance.originPlateId.length !== expectedLen) {
-    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.originPlateId.");
+  if (
+    !(provenance.originPlateId instanceof Int16Array) ||
+    provenance.originPlateId.length !== expectedLen
+  ) {
+    throw new Error(
+      "[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.originPlateId."
+    );
   }
-  if (!(provenance.driftDistance instanceof Uint8Array) || provenance.driftDistance.length !== expectedLen) {
-    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.driftDistance.");
+  if (
+    !(provenance.driftDistance instanceof Uint8Array) ||
+    provenance.driftDistance.length !== expectedLen
+  ) {
+    throw new Error(
+      "[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.driftDistance."
+    );
   }
-  if (!(provenance.lastBoundaryEra instanceof Uint8Array) || provenance.lastBoundaryEra.length !== expectedLen) {
-    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.lastBoundaryEra.");
+  if (
+    !(provenance.lastBoundaryEra instanceof Uint8Array) ||
+    provenance.lastBoundaryEra.length !== expectedLen
+  ) {
+    throw new Error(
+      "[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.lastBoundaryEra."
+    );
   }
-  if (!(provenance.lastBoundaryType instanceof Uint8Array) || provenance.lastBoundaryType.length !== expectedLen) {
-    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.lastBoundaryType.");
+  if (
+    !(provenance.lastBoundaryType instanceof Uint8Array) ||
+    provenance.lastBoundaryType.length !== expectedLen
+  ) {
+    throw new Error(
+      "[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.lastBoundaryType."
+    );
   }
 }
 
@@ -459,7 +523,7 @@ export function validateTectonicSegmentsArtifact(value: unknown): void {
     throw new Error("[FoundationArtifact] Missing foundation tectonicSegments artifact payload.");
   }
   const seg = value as Record<string, unknown> & { segmentCount?: unknown };
-  const segmentCount = typeof seg.segmentCount === "number" ? (seg.segmentCount | 0) : -1;
+  const segmentCount = typeof seg.segmentCount === "number" ? seg.segmentCount | 0 : -1;
   if (segmentCount < 0) {
     throw new Error("[FoundationArtifact] Invalid foundation tectonicSegments.segmentCount.");
   }
@@ -516,7 +580,7 @@ export function validateTectonicHistoryArtifact(value: unknown): void {
     lastSubductionEra?: unknown;
   };
 
-  const eraCount = typeof history.eraCount === "number" ? (history.eraCount | 0) : -1;
+  const eraCount = typeof history.eraCount === "number" ? history.eraCount | 0 : -1;
   const minEraCount = 5;
   const maxEraCount = 8;
   if (eraCount < minEraCount || eraCount > maxEraCount) {
@@ -553,15 +617,29 @@ export function validateTectonicHistoryArtifact(value: unknown): void {
 
   for (let e = 0; e < history.eras.length; e++) {
     const era = history.eras[e] as Record<string, unknown> | undefined;
-    if (!era) throw new Error("[FoundationArtifact] Invalid foundation tectonicHistory era payload.");
-    const fields = ["boundaryType", "upliftPotential", "collisionPotential", "subductionPotential", "riftPotential", "shearStress", "volcanism", "fracture"] as const;
+    if (!era)
+      throw new Error("[FoundationArtifact] Invalid foundation tectonicHistory era payload.");
+    const fields = [
+      "boundaryType",
+      "upliftPotential",
+      "collisionPotential",
+      "subductionPotential",
+      "riftPotential",
+      "shearStress",
+      "volcanism",
+      "fracture",
+    ] as const;
     for (const field of fields) {
       const v = era[field] as unknown;
       if (!(v instanceof Uint8Array)) {
-        throw new Error(`[FoundationArtifact] Invalid foundation tectonicHistory.eras[${e}].${field}.`);
+        throw new Error(
+          `[FoundationArtifact] Invalid foundation tectonicHistory.eras[${e}].${field}.`
+        );
       }
       if (cellCount != null && v.length !== cellCount) {
-        throw new Error(`[FoundationArtifact] Invalid foundation tectonicHistory.eras[${e}].${field} length.`);
+        throw new Error(
+          `[FoundationArtifact] Invalid foundation tectonicHistory.eras[${e}].${field} length.`
+        );
       }
     }
   }
@@ -580,19 +658,19 @@ export function validateTectonicProvenanceArtifact(value: unknown): void {
     provenance?: unknown;
   };
 
-  const version = typeof provenance.version === "number" ? (provenance.version | 0) : 0;
+  const version = typeof provenance.version === "number" ? provenance.version | 0 : 0;
   if (version <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenance.version.");
   }
 
-  const eraCount = typeof provenance.eraCount === "number" ? (provenance.eraCount | 0) : -1;
+  const eraCount = typeof provenance.eraCount === "number" ? provenance.eraCount | 0 : -1;
   const minEraCount = 5;
   const maxEraCount = 8;
   if (eraCount < minEraCount || eraCount > maxEraCount) {
     throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenance.eraCount.");
   }
 
-  const cellCount = typeof provenance.cellCount === "number" ? (provenance.cellCount | 0) : -1;
+  const cellCount = typeof provenance.cellCount === "number" ? provenance.cellCount | 0 : -1;
   if (cellCount <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenance.cellCount.");
   }
@@ -604,7 +682,9 @@ export function validateTectonicProvenanceArtifact(value: unknown): void {
   for (let e = 0; e < provenance.tracerIndex.length; e++) {
     const trace = provenance.tracerIndex[e] as unknown;
     if (!(trace instanceof Uint32Array) || trace.length !== cellCount) {
-      throw new Error(`[FoundationArtifact] Invalid foundation tectonicProvenance.tracerIndex[${e}].`);
+      throw new Error(
+        `[FoundationArtifact] Invalid foundation tectonicProvenance.tracerIndex[${e}].`
+      );
     }
   }
 
@@ -629,10 +709,14 @@ export function validateTectonicProvenanceArtifact(value: unknown): void {
       (kind === "i8" && value instanceof Int8Array) ||
       (kind === "i16" && value instanceof Int16Array);
     if (!ok) {
-      throw new Error(`[FoundationArtifact] Invalid foundation tectonicProvenance.provenance.${label}.`);
+      throw new Error(
+        `[FoundationArtifact] Invalid foundation tectonicProvenance.provenance.${label}.`
+      );
     }
     if ((value as { length: number }).length !== cellCount) {
-      throw new Error(`[FoundationArtifact] Invalid foundation tectonicProvenance.provenance.${label} length.`);
+      throw new Error(
+        `[FoundationArtifact] Invalid foundation tectonicProvenance.provenance.${label} length.`
+      );
     }
   }
 }
@@ -645,7 +729,7 @@ export function validatePlateTopologyArtifact(value: unknown): void {
     plateCount?: unknown;
     plates?: unknown;
   };
-  const plateCount = typeof topology.plateCount === "number" ? (topology.plateCount | 0) : 0;
+  const plateCount = typeof topology.plateCount === "number" ? topology.plateCount | 0 : 0;
   if (plateCount <= 0) {
     throw new Error("[FoundationArtifact] Invalid foundation plateTopology.plateCount.");
   }
@@ -656,11 +740,11 @@ export function validatePlateTopologyArtifact(value: unknown): void {
     const plate = topology.plates[i] as
       | { id?: unknown; area?: unknown; centroid?: unknown; neighbors?: unknown }
       | undefined;
-    const id = typeof plate?.id === "number" ? (plate.id | 0) : -1;
+    const id = typeof plate?.id === "number" ? plate.id | 0 : -1;
     if (id < 0 || id >= plateCount) {
       throw new Error("[FoundationArtifact] Invalid foundation plateTopology plate id.");
     }
-    const area = typeof plate?.area === "number" ? (plate.area | 0) : -1;
+    const area = typeof plate?.area === "number" ? plate.area | 0 : -1;
     if (area < 0) {
       throw new Error("[FoundationArtifact] Invalid foundation plateTopology plate area.");
     }

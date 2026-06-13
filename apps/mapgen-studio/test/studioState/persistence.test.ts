@@ -56,23 +56,26 @@ const setupConfig = {
 describe("Studio authoring-state persistence", () => {
   it("saves and reloads selected config, seed, setup config, world settings, and repo-backed overrides", () => {
     const storage = memoryStorage();
-    saveStudioAuthoringState({
-      worldSettings,
-      recipeSettings,
-      setupConfig,
-      pipelineConfig,
-      overridesDisabled: false,
-      repoBackedPresetOverridesByRecipe: {
-        "mod-swooper-maps/standard": {
-          "swooper-earthlike": {
-            id: "swooper-earthlike",
-            label: "Swooper Earthlike",
-            sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-            config: pipelineConfig,
+    saveStudioAuthoringState(
+      {
+        worldSettings,
+        recipeSettings,
+        setupConfig,
+        pipelineConfig,
+        overridesDisabled: false,
+        repoBackedPresetOverridesByRecipe: {
+          "mod-swooper-maps/standard": {
+            "swooper-earthlike": {
+              id: "swooper-earthlike",
+              label: "Swooper Earthlike",
+              sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+              config: pipelineConfig,
+            },
           },
         },
       },
-    }, storage);
+      storage
+    );
 
     const saved = storage.getItem(STUDIO_AUTHORING_STATE_KEY);
     expect(saved).toContain("987654321");
@@ -94,12 +97,15 @@ describe("Studio authoring-state persistence", () => {
   });
 
   it("rejects partial snapshots instead of falling back to none/123-shaped data", () => {
-    expect(parseStudioAuthoringState(JSON.stringify({
-      schemaVersion: 1,
-      savedAt: "2026-06-01T00:00:00.000Z",
-      recipeSettings,
-      pipelineConfig,
-    }))).toBeNull();
+    expect(
+      parseStudioAuthoringState(
+        JSON.stringify({
+          schemaVersion: 1,
+          savedAt: "2026-06-01T00:00:00.000Z",
+          recipeSettings,
+          pipelineConfig,
+        })
+      )
+    ).toBeNull();
   });
-
 });

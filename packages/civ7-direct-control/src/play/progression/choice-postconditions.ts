@@ -24,9 +24,7 @@ export type Civ7CultureChoicePostconditionClassification =
   | "culture-state-changed-blocker-still-live"
   | "culture-choice-sticky-blocker";
 
-export type Civ7ProgressionChoicePostcondition<
-  Classification extends string,
-> = Readonly<{
+export type Civ7ProgressionChoicePostcondition<Classification extends string> = Readonly<{
   classification: Classification;
   verified: boolean;
   reason: string;
@@ -47,20 +45,16 @@ type ProgressionChoicePolicy<Classification extends string> = Readonly<{
 
 export function technologyChoicePostcondition(
   before: Civ7ProgressionChoiceNotificationView,
-  after: Civ7ProgressionChoiceNotificationView,
-): Civ7ProgressionChoicePostcondition<
-  Civ7TechnologyChoicePostconditionClassification
-> {
+  after: Civ7ProgressionChoiceNotificationView
+): Civ7ProgressionChoicePostcondition<Civ7TechnologyChoicePostconditionClassification> {
   return progressionChoicePostcondition(before, after, {
     typeToken: "CHOOSE_TECH",
     cleared: "technology-choice-cleared",
     transitioned: "technology-choice-transitioned",
-    stateChangedBlockerStillLive:
-      "technology-state-changed-blocker-still-live",
+    stateChangedBlockerStillLive: "technology-state-changed-blocker-still-live",
     stickyBlocker: "technology-choice-sticky-blocker",
     unblockedReason: "The technology choice workflow left the turn unblocked.",
-    clearedReason:
-      "The end-turn-blocking technology choice notification is no longer present.",
+    clearedReason: "The end-turn-blocking technology choice notification is no longer present.",
     transitionedReason:
       "The end-turn-blocking technology choice notification changed after the selection.",
     stateChangedBlockerStillLiveReason:
@@ -72,10 +66,8 @@ export function technologyChoicePostcondition(
 
 export function cultureChoicePostcondition(
   before: Civ7ProgressionChoiceNotificationView,
-  after: Civ7ProgressionChoiceNotificationView,
-): Civ7ProgressionChoicePostcondition<
-  Civ7CultureChoicePostconditionClassification
-> {
+  after: Civ7ProgressionChoiceNotificationView
+): Civ7ProgressionChoicePostcondition<Civ7CultureChoicePostconditionClassification> {
   return progressionChoicePostcondition(before, after, {
     typeToken: "CHOOSE_CULTURE",
     cleared: "culture-choice-cleared",
@@ -83,8 +75,7 @@ export function cultureChoicePostcondition(
     stateChangedBlockerStillLive: "culture-state-changed-blocker-still-live",
     stickyBlocker: "culture-choice-sticky-blocker",
     unblockedReason: "The culture choice workflow left the turn unblocked.",
-    clearedReason:
-      "The end-turn-blocking culture choice notification is no longer present.",
+    clearedReason: "The end-turn-blocking culture choice notification is no longer present.",
     transitionedReason:
       "The end-turn-blocking culture choice notification changed after the selection.",
     stateChangedBlockerStillLiveReason:
@@ -95,13 +86,13 @@ export function cultureChoicePostcondition(
 }
 
 export function findTechnologyChoiceNotification(
-  view: Civ7ProgressionChoiceNotificationView,
+  view: Civ7ProgressionChoiceNotificationView
 ): Civ7ProgressionChoiceNotification | null {
   return findProgressionChoiceNotification(view, "CHOOSE_TECH");
 }
 
 export function findCultureChoiceNotification(
-  view: Civ7ProgressionChoiceNotificationView,
+  view: Civ7ProgressionChoiceNotificationView
 ): Civ7ProgressionChoiceNotification | null {
   return findProgressionChoiceNotification(view, "CHOOSE_CULTURE");
 }
@@ -109,7 +100,7 @@ export function findCultureChoiceNotification(
 function progressionChoicePostcondition<Classification extends string>(
   before: Civ7ProgressionChoiceNotificationView,
   after: Civ7ProgressionChoiceNotificationView,
-  policy: ProgressionChoicePolicy<Classification>,
+  policy: ProgressionChoicePolicy<Classification>
 ): Civ7ProgressionChoicePostcondition<Classification | "turn-unblocked"> {
   if (probeValue(after.canEndTurn) === true) {
     return {
@@ -119,10 +110,7 @@ function progressionChoicePostcondition<Classification extends string>(
     };
   }
 
-  const beforeBlocker = findProgressionChoiceNotification(
-    before,
-    policy.typeToken,
-  );
+  const beforeBlocker = findProgressionChoiceNotification(before, policy.typeToken);
   const afterBlocker = findProgressionChoiceNotification(after, policy.typeToken);
   if (beforeBlocker && !afterBlocker) {
     return {
@@ -132,10 +120,7 @@ function progressionChoicePostcondition<Classification extends string>(
     };
   }
 
-  if (
-    beforeBlocker && afterBlocker
-    && !sameNotificationId(beforeBlocker.id, afterBlocker.id)
-  ) {
+  if (beforeBlocker && afterBlocker && !sameNotificationId(beforeBlocker.id, afterBlocker.id)) {
     return {
       classification: policy.transitioned,
       verified: true,
@@ -144,8 +129,9 @@ function progressionChoicePostcondition<Classification extends string>(
   }
 
   if (
-    beforeBlocker && afterBlocker
-    && progressionChoiceDetailsChanged(beforeBlocker.details, afterBlocker.details)
+    beforeBlocker &&
+    afterBlocker &&
+    progressionChoiceDetailsChanged(beforeBlocker.details, afterBlocker.details)
   ) {
     return {
       classification: policy.stateChangedBlockerStillLive,
@@ -163,45 +149,43 @@ function progressionChoicePostcondition<Classification extends string>(
 
 function findProgressionChoiceNotification(
   view: Civ7ProgressionChoiceNotificationView,
-  typeToken: string,
+  typeToken: string
 ): Civ7ProgressionChoiceNotification | null {
-  return view.notifications.find((notification) => {
-    const typeName = String(notification.typeName ?? "").toUpperCase();
-    return notification.isEndTurnBlocking === true && typeName.includes(typeToken);
-  }) ?? null;
+  return (
+    view.notifications.find((notification) => {
+      const typeName = String(notification.typeName ?? "").toUpperCase();
+      return notification.isEndTurnBlocking === true && typeName.includes(typeToken);
+    }) ?? null
+  );
 }
 
 function sameNotificationId(left: unknown, right: unknown): boolean {
   if (!isRecord(left) || !isRecord(right)) return left == null && right == null;
-  return left.owner === right.owner && left.id === right.id
-    && left.type === right.type;
+  return left.owner === right.owner && left.id === right.id && left.type === right.type;
 }
 
 function progressionChoiceDetailsChanged(left: unknown, right: unknown): boolean {
   if (!isRecord(left) || !isRecord(right)) return false;
-  return stableJson(probeValue(left.currentResearching))
-      !== stableJson(probeValue(right.currentResearching))
-    || stableJson(probeValue(left.targetNode))
-      !== stableJson(probeValue(right.targetNode));
+  return (
+    stableJson(probeValue(left.currentResearching)) !==
+      stableJson(probeValue(right.currentResearching)) ||
+    stableJson(probeValue(left.targetNode)) !== stableJson(probeValue(right.targetNode))
+  );
 }
 
 function probeValue(value: unknown): unknown {
   if (value && typeof value === "object" && "ok" in value) {
     const probe = value as { ok?: unknown; value?: unknown };
-    return probe.ok === true ? probe.value ?? null : null;
+    return probe.ok === true ? (probe.value ?? null) : null;
   }
   return value ?? null;
 }
 
 function stableJson(value: unknown): string {
-  return JSON.stringify(value, Object.keys(flattenKeys(value)).sort())
-    ?? String(value);
+  return JSON.stringify(value, Object.keys(flattenKeys(value)).sort()) ?? String(value);
 }
 
-function flattenKeys(
-  value: unknown,
-  keys: Record<string, true> = {},
-): Record<string, true> {
+function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<string, true> {
   if (Array.isArray(value)) {
     for (const item of value) flattenKeys(item, keys);
     return keys;

@@ -33,15 +33,15 @@ describe("PipelineStage", () => {
     expect(html).toContain("climate");
     expect(html).toContain("Sources");
     expect(html).toContain(">hydrography<");
-    expect(html).toContain("aria-pressed=\"true\"");
-    expect(html).toContain("aria-expanded=\"true\"");
-    expect(html).toContain("aria-controls=\"recipe-dag-stage-shape-steps\"");
-    expect(html).toContain("data-stage-expanded=\"true\"");
+    expect(html).toContain('aria-pressed="true"');
+    expect(html).toContain('aria-expanded="true"');
+    expect(html).toContain('aria-controls="recipe-dag-stage-shape-steps"');
+    expect(html).toContain('data-stage-expanded="true"');
     expect(html).toContain("z-index:95");
-    expect(html).toContain("marker-end=\"url(#recipe-dag-arrow-active)\"");
-    expect(html).toContain("stroke=\"#f59e0b\"");
-    expect(html).toContain("aria-label=\"Select dependency hydrography\"");
-    expect(html).toContain("data-edge-label-selected=\"false\"");
+    expect(html).toContain('marker-end="url(#recipe-dag-arrow-active)"');
+    expect(html).toContain('stroke="#f59e0b"');
+    expect(html).toContain('aria-label="Select dependency hydrography"');
+    expect(html).toContain('data-edge-label-selected="false"');
     expect(html).toContain("Step 1: seed");
     expect(html).toContain("Creates");
   });
@@ -68,7 +68,7 @@ describe("PipelineStage", () => {
     expect(html).toContain(`stroke="${PIPELINE_EDGE_INK}"`);
     expect(html).toContain("border-border bg-popover text-muted-foreground");
     expect(html).toContain(" L ");
-    expect(html).toContain("marker-end=\"url(#recipe-dag-arrow)\"");
+    expect(html).toContain('marker-end="url(#recipe-dag-arrow)"');
     expect(html).not.toContain("border-color:#f59e0b");
   });
 
@@ -140,7 +140,9 @@ function recipeDag(): RecipeDagResult {
             orderInStage: 0,
             phase: "shape",
             artifactRequires: [],
-            artifactProvides: [{ id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" }],
+            artifactProvides: [
+              { id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" },
+            ],
             tagRequires: [],
             tagProvides: [],
           },
@@ -166,7 +168,9 @@ function recipeDag(): RecipeDagResult {
             order: 1,
             orderInStage: 0,
             phase: "climate",
-            artifactRequires: [{ id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" }],
+            artifactRequires: [
+              { id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" },
+            ],
             artifactProvides: [],
             tagRequires: [],
             tagProvides: [],

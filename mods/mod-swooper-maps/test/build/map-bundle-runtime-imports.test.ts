@@ -14,8 +14,10 @@ const authoredRiverMaterializationMarkers = [
 
 function listedModMapFiles(): string[] {
   const modInfo = readFileSync(modInfoPath, "utf8");
-  return Array.from(modInfo.matchAll(/<Item>maps\/([^<]+\.js)<\/Item>/g), (match) => match[1]!)
-    .sort();
+  return Array.from(
+    modInfo.matchAll(/<Item>maps\/([^<]+\.js)<\/Item>/g),
+    (match) => match[1]!
+  ).sort();
 }
 
 describe("built map runtime imports", () => {
@@ -42,7 +44,10 @@ describe("built map runtime imports", () => {
 
     for (const mapFile of mapFiles) {
       const source = readFileSync(join(mapOutputDir, mapFile), "utf8");
-      const bareImports = Array.from(source.matchAll(bareWorkspaceImportPattern), (match) => match[1]);
+      const bareImports = Array.from(
+        source.matchAll(bareWorkspaceImportPattern),
+        (match) => match[1]
+      );
 
       expect(bareImports, `${mapFile} contains Civ7-unresolvable workspace imports`).toEqual([]);
     }
@@ -60,7 +65,10 @@ describe("built map runtime imports", () => {
       const bootstrapIndex = source.indexOf("globalThis.TextEncoder = class TextEncoder");
       const firstUseIndex = source.indexOf("new TextEncoder");
 
-      expect(bootstrapIndex, `${mapFile} is missing the Civ7 TextEncoder bootstrap`).toBeGreaterThanOrEqual(0);
+      expect(
+        bootstrapIndex,
+        `${mapFile} is missing the Civ7 TextEncoder bootstrap`
+      ).toBeGreaterThanOrEqual(0);
       if (firstUseIndex >= 0) {
         expect(
           bootstrapIndex,

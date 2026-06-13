@@ -23,11 +23,9 @@ const Civ7StrategyFrontSummaryInputSchema = Type.Object(
     maxUnits: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
     maxCities: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7StrategyFrontSummaryInput = Static<
-  typeof Civ7StrategyFrontSummaryInputSchema
->;
+export type Civ7StrategyFrontSummaryInput = Static<typeof Civ7StrategyFrontSummaryInputSchema>;
 
 export const Civ7StrategyRelationshipClassificationSchema = Type.Union([
   Type.Literal("self"),
@@ -41,19 +39,16 @@ export const Civ7StrategyRelationshipLabelPolicySchema = Type.Object(
     unprovenLabel: Type.Literal("relationship-unproven"),
     guidance: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7StrategyFrontSourceStatusSchema = Type.Object(
   {
     targetCandidates: Type.Literal("read"),
     battlefieldScan: Type.Literal("read"),
-    destinationAnalysis: Type.Union([
-      Type.Literal("read"),
-      Type.Literal("skipped-no-target"),
-    ]),
+    destinationAnalysis: Type.Union([Type.Literal("read"), Type.Literal("skipped-no-target")]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7StrategyFrontTargetCandidateSchema = Type.Object(
@@ -70,7 +65,7 @@ export const Civ7StrategyFrontTargetCandidateSchema = Type.Object(
     routeHint: Type.String(),
     reasons: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7StrategyFrontPointOfInterestSchema = Type.Object(
@@ -79,12 +74,9 @@ export const Civ7StrategyFrontPointOfInterestSchema = Type.Object(
     severity: Type.String(),
     location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
     summary: Type.String(),
-    source: Type.Union([
-      Type.Literal("battlefield"),
-      Type.Literal("destination"),
-    ]),
+    source: Type.Union([Type.Literal("battlefield"), Type.Literal("destination")]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyFrontPressureSchema = Type.Object(
@@ -93,12 +85,9 @@ const Civ7StrategyFrontPressureSchema = Type.Object(
     severity: Type.String(),
     summary: Type.String(),
     location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
-    source: Type.Union([
-      Type.Literal("battlefield"),
-      Type.Literal("destination"),
-    ]),
+    source: Type.Union([Type.Literal("battlefield"), Type.Literal("destination")]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7StrategyObservedOwnerSchema = Type.Object(
@@ -111,7 +100,7 @@ export const Civ7StrategyObservedOwnerSchema = Type.Object(
     apparentStrength: Type.Number(),
     nearestDistance: Type.Union([Type.Number(), Type.Null()]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7StrategyFrontSummaryNextStepSchema = Type.Object(
@@ -126,7 +115,7 @@ export const Civ7StrategyFrontSummaryNextStepSchema = Type.Object(
     source: Type.Literal("strategy.frontSummary"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyFrontSummaryResultSchema = Type.Object(
@@ -144,7 +133,7 @@ const Civ7StrategyFrontSummaryResultSchema = Type.Object(
         observedOwnerCount: Type.Integer({ minimum: 0 }),
         nextStepCount: Type.Integer({ minimum: 0 }),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     front: Type.Object(
       {
@@ -154,7 +143,7 @@ const Civ7StrategyFrontSummaryResultSchema = Type.Object(
         nextInspections: Type.Array(Civ7StrategyFrontSummaryNextStepSchema),
         pressure: Type.Array(Civ7StrategyFrontPressureSchema),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     targetCandidates: Type.Array(Civ7StrategyFrontTargetCandidateSchema),
     pointsOfInterest: Type.Array(Civ7StrategyFrontPointOfInterestSchema),
@@ -162,11 +151,9 @@ const Civ7StrategyFrontSummaryResultSchema = Type.Object(
     notes: Type.Array(Type.String()),
     nextSteps: Type.Array(Civ7StrategyFrontSummaryNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7StrategyFrontSummaryResult = Static<
-  typeof Civ7StrategyFrontSummaryResultSchema
->;
+export type Civ7StrategyFrontSummaryResult = Static<typeof Civ7StrategyFrontSummaryResultSchema>;
 
 const Civ7StrategyTargetCandidatesInputSchema = Type.Object(
   {
@@ -176,7 +163,7 @@ const Civ7StrategyTargetCandidatesInputSchema = Type.Object(
     maxPlayers: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
     unitRadius: Type.Optional(Type.Integer({ minimum: 0, maximum: 16 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7StrategyTargetCandidatesInput = Static<
   typeof Civ7StrategyTargetCandidatesInputSchema
@@ -197,10 +184,10 @@ const Civ7StrategyTargetCandidatesNextStepSchema = Type.Object(
         owner: Type.Optional(Type.Integer({ minimum: 0 })),
         target: Type.Optional(Civ7ControlOrpcMapLocationSchema),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyTargetCandidateApproachSchema = Type.Object(
@@ -214,7 +201,7 @@ const Civ7StrategyTargetCandidateApproachSchema = Type.Object(
     landSampleCount: Type.Integer({ minimum: 0 }),
     notes: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyTargetCandidateResultSchema = Type.Object(
@@ -230,14 +217,11 @@ const Civ7StrategyTargetCandidateResultSchema = Type.Object(
     nearestDistance: Type.Union([Type.Number(), Type.Null()]),
     nearbyUnitCount: Type.Integer({ minimum: 0 }),
     apparentStrength: Type.Number(),
-    nearestCityLocation: Type.Union([
-      Civ7ControlOrpcMapLocationSchema,
-      Type.Null(),
-    ]),
+    nearestCityLocation: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
     approach: Civ7StrategyTargetCandidateApproachSchema,
     reasons: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyTargetCandidatesResultSchema = Type.Object(
@@ -256,20 +240,22 @@ const Civ7StrategyTargetCandidatesResultSchema = Type.Object(
         apparentStrengthTotal: Type.Number(),
         nextStepCount: Type.Integer({ minimum: 0 }),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     candidates: Type.Array(Civ7StrategyTargetCandidateResultSchema),
-    omitted: Type.Array(Type.Object(
-      {
-        path: Type.String(),
-        reason: Type.String(),
-      },
-      { additionalProperties: false },
-    )),
+    omitted: Type.Array(
+      Type.Object(
+        {
+          path: Type.String(),
+          reason: Type.String(),
+        },
+        { additionalProperties: false }
+      )
+    ),
     notes: Type.Array(Type.String()),
     nextSteps: Type.Array(Civ7StrategyTargetCandidatesNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7StrategyTargetCandidatesResult = Static<
   typeof Civ7StrategyTargetCandidatesResultSchema
@@ -286,7 +272,7 @@ const Civ7StrategyDestinationAnalysisInputSchema = Type.Object(
     maxUnits: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
     maxCities: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7StrategyDestinationAnalysisInput = Static<
   typeof Civ7StrategyDestinationAnalysisInputSchema
@@ -307,10 +293,10 @@ const Civ7StrategyDestinationAnalysisNextStepSchema = Type.Object(
         origin: Type.Optional(Civ7ControlOrpcMapLocationSchema),
         destination: Type.Optional(Civ7ControlOrpcMapLocationSchema),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyDestinationPointOfInterestSchema = Type.Object(
@@ -320,7 +306,7 @@ const Civ7StrategyDestinationPointOfInterestSchema = Type.Object(
     location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
     summary: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyDestinationAnalysisResultSchema = Type.Object(
@@ -342,7 +328,7 @@ const Civ7StrategyDestinationAnalysisResultSchema = Type.Object(
         apparentOtherStrength: Type.Number(),
         nextStepCount: Type.Integer({ minimum: 0 }),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     corridor: Type.Object(
       {
@@ -351,7 +337,7 @@ const Civ7StrategyDestinationAnalysisResultSchema = Type.Object(
         sampleCount: Type.Integer({ minimum: 0 }),
         unitCount: Type.Integer({ minimum: 0 }),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     destinationPressure: Type.Object(
       {
@@ -359,20 +345,22 @@ const Civ7StrategyDestinationAnalysisResultSchema = Type.Object(
         cityCount: Type.Integer({ minimum: 0 }),
         apparentOtherStrength: Type.Number(),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     pointsOfInterest: Type.Array(Civ7StrategyDestinationPointOfInterestSchema),
-    omitted: Type.Array(Type.Object(
-      {
-        path: Type.String(),
-        reason: Type.String(),
-      },
-      { additionalProperties: false },
-    )),
+    omitted: Type.Array(
+      Type.Object(
+        {
+          path: Type.String(),
+          reason: Type.String(),
+        },
+        { additionalProperties: false }
+      )
+    ),
     notes: Type.Array(Type.String()),
     nextSteps: Type.Array(Civ7StrategyDestinationAnalysisNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7StrategyDestinationAnalysisResult = Static<
   typeof Civ7StrategyDestinationAnalysisResultSchema
@@ -387,7 +375,7 @@ const Civ7StrategyBattlefieldScanInputSchema = Type.Object(
     maxUnits: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
     maxCities: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7StrategyBattlefieldScanInput = Static<
   typeof Civ7StrategyBattlefieldScanInputSchema
@@ -408,10 +396,10 @@ const Civ7StrategyBattlefieldNextStepSchema = Type.Object(
         origin: Type.Optional(Civ7ControlOrpcMapLocationSchema),
         location: Type.Optional(Civ7ControlOrpcMapLocationSchema),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyBattlefieldOwnerSchema = Type.Object(
@@ -425,7 +413,7 @@ const Civ7StrategyBattlefieldOwnerSchema = Type.Object(
     nearestDistance: Type.Union([Type.Number(), Type.Null()]),
     roles: Type.Record(Type.String(), Type.Integer({ minimum: 0 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyBattlefieldPointOfInterestSchema = Type.Object(
@@ -435,7 +423,7 @@ const Civ7StrategyBattlefieldPointOfInterestSchema = Type.Object(
     location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
     summary: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyBattlefieldScanResultSchema = Type.Object(
@@ -455,49 +443,51 @@ const Civ7StrategyBattlefieldScanResultSchema = Type.Object(
         apparentStrengthTotal: Type.Number(),
         nextStepCount: Type.Integer({ minimum: 0 }),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     owners: Type.Array(Civ7StrategyBattlefieldOwnerSchema),
     pointsOfInterest: Type.Array(Civ7StrategyBattlefieldPointOfInterestSchema),
-    omitted: Type.Array(Type.Object(
-      {
-        path: Type.String(),
-        reason: Type.String(),
-      },
-      { additionalProperties: false },
-    )),
+    omitted: Type.Array(
+      Type.Object(
+        {
+          path: Type.String(),
+          reason: Type.String(),
+        },
+        { additionalProperties: false }
+      )
+    ),
     notes: Type.Array(Type.String()),
     nextSteps: Type.Array(Civ7StrategyBattlefieldNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7StrategyBattlefieldScanResult = Static<
   typeof Civ7StrategyBattlefieldScanResultSchema
 >;
 
 const Civ7StrategyFrontSummaryInputStandardSchema = toStandardSchema(
-  Civ7StrategyFrontSummaryInputSchema,
+  Civ7StrategyFrontSummaryInputSchema
 );
 const Civ7StrategyFrontSummaryResultStandardSchema = toStandardSchema(
-  Civ7StrategyFrontSummaryResultSchema,
+  Civ7StrategyFrontSummaryResultSchema
 );
 const Civ7StrategyTargetCandidatesInputStandardSchema = toStandardSchema(
-  Civ7StrategyTargetCandidatesInputSchema,
+  Civ7StrategyTargetCandidatesInputSchema
 );
 const Civ7StrategyTargetCandidatesResultStandardSchema = toStandardSchema(
-  Civ7StrategyTargetCandidatesResultSchema,
+  Civ7StrategyTargetCandidatesResultSchema
 );
 const Civ7StrategyDestinationAnalysisInputStandardSchema = toStandardSchema(
-  Civ7StrategyDestinationAnalysisInputSchema,
+  Civ7StrategyDestinationAnalysisInputSchema
 );
 const Civ7StrategyDestinationAnalysisResultStandardSchema = toStandardSchema(
-  Civ7StrategyDestinationAnalysisResultSchema,
+  Civ7StrategyDestinationAnalysisResultSchema
 );
 const Civ7StrategyBattlefieldScanInputStandardSchema = toStandardSchema(
-  Civ7StrategyBattlefieldScanInputSchema,
+  Civ7StrategyBattlefieldScanInputSchema
 );
 const Civ7StrategyBattlefieldScanResultStandardSchema = toStandardSchema(
-  Civ7StrategyBattlefieldScanResultSchema,
+  Civ7StrategyBattlefieldScanResultSchema
 );
 
 const Civ7StrategyCivilianRouteTriageInputSchema = Type.Object(
@@ -512,7 +502,7 @@ const Civ7StrategyCivilianRouteTriageInputSchema = Type.Object(
     maxUnits: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
     maxCities: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7StrategyCivilianRouteTriageInput = Static<
   typeof Civ7StrategyCivilianRouteTriageInputSchema
@@ -533,7 +523,7 @@ const Civ7StrategyCivilianRouteTriageSourceStatusSchema = Type.Object(
       Type.Literal("skipped-no-origin-or-destination"),
     ]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyCivilianRouteNextStepSchema = Type.Object(
@@ -554,10 +544,10 @@ const Civ7StrategyCivilianRouteNextStepSchema = Type.Object(
         origin: Type.Optional(Civ7ControlOrpcMapLocationSchema),
         destination: Type.Optional(Civ7ControlOrpcMapLocationSchema),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyCivilianRouteTriageStatusSchema = Type.Union([
@@ -583,7 +573,7 @@ const Civ7StrategyCivilianRouteTriageResultSchema = Type.Object(
           location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
           legalOperationCount: Type.Integer({ minimum: 0 }),
         },
-        { additionalProperties: false },
+        { additionalProperties: false }
       ),
       Type.Null(),
     ]),
@@ -593,7 +583,7 @@ const Civ7StrategyCivilianRouteTriageResultSchema = Type.Object(
         recommendationCount: Type.Integer({ minimum: 0 }),
         firstSuggestion: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     battlefield: Type.Object(
       {
@@ -601,7 +591,7 @@ const Civ7StrategyCivilianRouteTriageResultSchema = Type.Object(
         observedOwnerCount: Type.Integer({ minimum: 0 }),
         hiddenInfoPolicy: Type.String(),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     destinationAnalysis: Type.Union([
       Type.Object(
@@ -611,7 +601,7 @@ const Civ7StrategyCivilianRouteTriageResultSchema = Type.Object(
           destinationCityCount: Type.Integer({ minimum: 0 }),
           apparentOtherStrength: Type.Number(),
         },
-        { additionalProperties: false },
+        { additionalProperties: false }
       ),
       Type.Null(),
     ]),
@@ -622,22 +612,22 @@ const Civ7StrategyCivilianRouteTriageResultSchema = Type.Object(
         reasons: Type.Array(Type.String()),
         nextSteps: Type.Array(Civ7StrategyCivilianRouteNextStepSchema),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     notes: Type.Array(Type.String()),
     nextSteps: Type.Array(Civ7StrategyCivilianRouteNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7StrategyCivilianRouteTriageResult = Static<
   typeof Civ7StrategyCivilianRouteTriageResultSchema
 >;
 
 const Civ7StrategyCivilianRouteTriageInputStandardSchema = toStandardSchema(
-  Civ7StrategyCivilianRouteTriageInputSchema,
+  Civ7StrategyCivilianRouteTriageInputSchema
 );
 const Civ7StrategyCivilianRouteTriageResultStandardSchema = toStandardSchema(
-  Civ7StrategyCivilianRouteTriageResultSchema,
+  Civ7StrategyCivilianRouteTriageResultSchema
 );
 
 const Civ7StrategyFormationSnapshotInputSchema = Type.Object(
@@ -650,7 +640,7 @@ const Civ7StrategyFormationSnapshotInputSchema = Type.Object(
     maxUnits: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
     maxCities: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7StrategyFormationSnapshotInput = Static<
   typeof Civ7StrategyFormationSnapshotInputSchema
@@ -666,7 +656,7 @@ const Civ7StrategyFormationSourceStatusSchema = Type.Object(
     ]),
     battlefieldScan: Type.Literal("read"),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyFormationPostureSchema = Type.Union([
@@ -687,7 +677,7 @@ const Civ7StrategyFormationUnitSchema = Type.Object(
     location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
     distance: Type.Union([Type.Number(), Type.Null()]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyFormationNextStepSchema = Type.Object(
@@ -707,10 +697,10 @@ const Civ7StrategyFormationNextStepSchema = Type.Object(
         civilian: Type.Optional(Civ7ControlOrpcMapLocationSchema),
         contact: Type.Optional(Civ7ControlOrpcMapLocationSchema),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7StrategyFormationSnapshotResultSchema = Type.Object(
@@ -731,7 +721,7 @@ const Civ7StrategyFormationSnapshotResultSchema = Type.Object(
           location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
           legalNoTargetOperationCount: Type.Integer({ minimum: 0 }),
         },
-        { additionalProperties: false },
+        { additionalProperties: false }
       ),
       Type.Null(),
     ]),
@@ -742,7 +732,7 @@ const Civ7StrategyFormationSnapshotResultSchema = Type.Object(
         pointOfInterestCount: Type.Integer({ minimum: 0 }),
         hiddenInfoPolicy: Type.String(),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     formation: Type.Object(
       {
@@ -756,22 +746,22 @@ const Civ7StrategyFormationSnapshotResultSchema = Type.Object(
         nearbyContacts: Type.Array(Civ7StrategyFormationUnitSchema),
         nextSteps: Type.Array(Civ7StrategyFormationNextStepSchema),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     notes: Type.Array(Type.String()),
     nextSteps: Type.Array(Civ7StrategyFormationNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7StrategyFormationSnapshotResult = Static<
   typeof Civ7StrategyFormationSnapshotResultSchema
 >;
 
 const Civ7StrategyFormationSnapshotInputStandardSchema = toStandardSchema(
-  Civ7StrategyFormationSnapshotInputSchema,
+  Civ7StrategyFormationSnapshotInputSchema
 );
 const Civ7StrategyFormationSnapshotResultStandardSchema = toStandardSchema(
-  Civ7StrategyFormationSnapshotResultSchema,
+  Civ7StrategyFormationSnapshotResultSchema
 );
 
 export type Civ7StrategyFrontSummaryContract = ContractProcedure<
@@ -799,17 +789,16 @@ export type Civ7StrategyTargetCandidatesContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7StrategyTargetCandidatesContract:
-  Civ7StrategyTargetCandidatesContract =
-    civ7ControlOrpcContractBase
-      .input(Civ7StrategyTargetCandidatesInputStandardSchema)
-      .output(Civ7StrategyTargetCandidatesResultStandardSchema)
-      .meta({
-        family: "strategy",
-        procedureKey: "strategy.targetCandidates",
-        proofBoundary: "local-package-test",
-        risk: "read-only",
-      });
+export const Civ7StrategyTargetCandidatesContract: Civ7StrategyTargetCandidatesContract =
+  civ7ControlOrpcContractBase
+    .input(Civ7StrategyTargetCandidatesInputStandardSchema)
+    .output(Civ7StrategyTargetCandidatesResultStandardSchema)
+    .meta({
+      family: "strategy",
+      procedureKey: "strategy.targetCandidates",
+      proofBoundary: "local-package-test",
+      risk: "read-only",
+    });
 
 export type Civ7StrategyDestinationAnalysisContract = ContractProcedure<
   typeof Civ7StrategyDestinationAnalysisInputStandardSchema,
@@ -818,17 +807,16 @@ export type Civ7StrategyDestinationAnalysisContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7StrategyDestinationAnalysisContract:
-  Civ7StrategyDestinationAnalysisContract =
-    civ7ControlOrpcContractBase
-      .input(Civ7StrategyDestinationAnalysisInputStandardSchema)
-      .output(Civ7StrategyDestinationAnalysisResultStandardSchema)
-      .meta({
-        family: "strategy",
-        procedureKey: "strategy.destinationAnalysis",
-        proofBoundary: "local-package-test",
-        risk: "read-only",
-      });
+export const Civ7StrategyDestinationAnalysisContract: Civ7StrategyDestinationAnalysisContract =
+  civ7ControlOrpcContractBase
+    .input(Civ7StrategyDestinationAnalysisInputStandardSchema)
+    .output(Civ7StrategyDestinationAnalysisResultStandardSchema)
+    .meta({
+      family: "strategy",
+      procedureKey: "strategy.destinationAnalysis",
+      proofBoundary: "local-package-test",
+      risk: "read-only",
+    });
 
 export type Civ7StrategyBattlefieldScanContract = ContractProcedure<
   typeof Civ7StrategyBattlefieldScanInputStandardSchema,
@@ -837,17 +825,16 @@ export type Civ7StrategyBattlefieldScanContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7StrategyBattlefieldScanContract:
-  Civ7StrategyBattlefieldScanContract =
-    civ7ControlOrpcContractBase
-      .input(Civ7StrategyBattlefieldScanInputStandardSchema)
-      .output(Civ7StrategyBattlefieldScanResultStandardSchema)
-      .meta({
-        family: "strategy",
-        procedureKey: "strategy.battlefieldScan",
-        proofBoundary: "local-package-test",
-        risk: "read-only",
-      });
+export const Civ7StrategyBattlefieldScanContract: Civ7StrategyBattlefieldScanContract =
+  civ7ControlOrpcContractBase
+    .input(Civ7StrategyBattlefieldScanInputStandardSchema)
+    .output(Civ7StrategyBattlefieldScanResultStandardSchema)
+    .meta({
+      family: "strategy",
+      procedureKey: "strategy.battlefieldScan",
+      proofBoundary: "local-package-test",
+      risk: "read-only",
+    });
 
 export type Civ7StrategyCivilianRouteTriageContract = ContractProcedure<
   typeof Civ7StrategyCivilianRouteTriageInputStandardSchema,
@@ -856,17 +843,16 @@ export type Civ7StrategyCivilianRouteTriageContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7StrategyCivilianRouteTriageContract:
-  Civ7StrategyCivilianRouteTriageContract =
-    civ7ControlOrpcContractBase
-      .input(Civ7StrategyCivilianRouteTriageInputStandardSchema)
-      .output(Civ7StrategyCivilianRouteTriageResultStandardSchema)
-      .meta({
-        family: "strategy",
-        procedureKey: "strategy.civilianRouteTriage",
-        proofBoundary: "local-package-test",
-        risk: "read-only",
-      });
+export const Civ7StrategyCivilianRouteTriageContract: Civ7StrategyCivilianRouteTriageContract =
+  civ7ControlOrpcContractBase
+    .input(Civ7StrategyCivilianRouteTriageInputStandardSchema)
+    .output(Civ7StrategyCivilianRouteTriageResultStandardSchema)
+    .meta({
+      family: "strategy",
+      procedureKey: "strategy.civilianRouteTriage",
+      proofBoundary: "local-package-test",
+      risk: "read-only",
+    });
 
 export type Civ7StrategyFormationSnapshotContract = ContractProcedure<
   typeof Civ7StrategyFormationSnapshotInputStandardSchema,
@@ -875,17 +861,16 @@ export type Civ7StrategyFormationSnapshotContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7StrategyFormationSnapshotContract:
-  Civ7StrategyFormationSnapshotContract =
-    civ7ControlOrpcContractBase
-      .input(Civ7StrategyFormationSnapshotInputStandardSchema)
-      .output(Civ7StrategyFormationSnapshotResultStandardSchema)
-      .meta({
-        family: "strategy",
-        procedureKey: "strategy.formationSnapshot",
-        proofBoundary: "local-package-test",
-        risk: "read-only",
-      });
+export const Civ7StrategyFormationSnapshotContract: Civ7StrategyFormationSnapshotContract =
+  civ7ControlOrpcContractBase
+    .input(Civ7StrategyFormationSnapshotInputStandardSchema)
+    .output(Civ7StrategyFormationSnapshotResultStandardSchema)
+    .meta({
+      family: "strategy",
+      procedureKey: "strategy.formationSnapshot",
+      proofBoundary: "local-package-test",
+      risk: "read-only",
+    });
 
 export type Civ7StrategyContract = Readonly<{
   battlefieldScan: Civ7StrategyBattlefieldScanContract;

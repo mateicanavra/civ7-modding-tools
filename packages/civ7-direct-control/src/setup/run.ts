@@ -7,32 +7,21 @@ import {
   type Civ7PreparedSetupResult,
   type Civ7SinglePlayerSetupInput,
 } from "./prepare.js";
-import type {
-  Civ7SetupPhase,
-  Civ7SetupSnapshotResult,
-} from "./reads.js";
-import {
-  getCiv7SetupSnapshot,
-  waitForCiv7SetupPhase,
-} from "./reads.js";
-import type {
-  Civ7PreparedStartInput,
-  Civ7SinglePlayerStartResult,
-} from "./start.js";
+import type { Civ7SetupPhase, Civ7SetupSnapshotResult } from "./reads.js";
+import { getCiv7SetupSnapshot, waitForCiv7SetupPhase } from "./reads.js";
+import type { Civ7PreparedStartInput, Civ7SinglePlayerStartResult } from "./start.js";
 import { startPreparedCiv7SinglePlayerGame } from "./start.js";
 import { CIV7_EXIT_TO_MAIN_MENU_COMMAND } from "./constants.js";
 
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-} from "../session/types.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../session/types.js";
 
-export type Civ7SinglePlayerRunInput = Civ7SinglePlayerSetupInput & Readonly<{
-  fromRunningGame?: "reject" | "exit-to-shell";
-  waitForTuner?: boolean;
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-}>;
+export type Civ7SinglePlayerRunInput = Civ7SinglePlayerSetupInput &
+  Readonly<{
+    fromRunningGame?: "reject" | "exit-to-shell";
+    waitForTuner?: boolean;
+    waitTimeoutMs?: number;
+    pollIntervalMs?: number;
+  }>;
 
 export type Civ7SinglePlayerRunResult = Readonly<{
   shellExit?: Civ7CommandResult;
@@ -43,16 +32,18 @@ export type Civ7SinglePlayerRunResult = Readonly<{
 
 type SetupRunDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
-  executeAppUiCommand: (options: Civ7DirectControlOptions & { command: string }) => Promise<Civ7CommandResult>;
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & { command: string }
+  ) => Promise<Civ7CommandResult>;
   exitToMainMenuCommand: string;
   getSetupSnapshot: (options: Civ7DirectControlOptions) => Promise<Civ7SetupSnapshotResult>;
   prepareSetup: (
     input: Civ7SinglePlayerSetupInput,
-    options: Civ7DirectControlOptions,
+    options: Civ7DirectControlOptions
   ) => Promise<Civ7PreparedSetupResult>;
   startPreparedGame: (
     input: Civ7PreparedStartInput,
-    options: Civ7DirectControlOptions,
+    options: Civ7DirectControlOptions
   ) => Promise<Civ7SinglePlayerStartResult>;
   validateIdentifier: (value: string, label: string) => string;
   waitForSetupPhase: (
@@ -61,14 +52,14 @@ type SetupRunDependencies = Readonly<{
     waitOptions: Readonly<{
       waitTimeoutMs: number;
       pollIntervalMs: number;
-    }>,
+    }>
   ) => Promise<Civ7SetupSnapshotResult>;
 }>;
 
 export async function runCiv7SinglePlayerFromSetup(
   input: Civ7SinglePlayerRunInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: SetupRunDependencies = defaultSetupRunDependencies,
+  dependencies: SetupRunDependencies = defaultSetupRunDependencies
 ): Promise<Civ7SinglePlayerRunResult> {
   const normalized = normalizeSinglePlayerSetupInput(input, dependencies);
   let shellExit: Civ7CommandResult | undefined;
@@ -78,7 +69,7 @@ export async function runCiv7SinglePlayerFromSetup(
       throw new Civ7DirectControlError(
         "setup-phase-invalid",
         `Civ7 is ${initial.snapshot.phase}; pass fromRunningGame: "exit-to-shell" to leave the current game`,
-        { details: initial },
+        { details: initial }
       );
     }
     shellExit = await dependencies.executeAppUiCommand({
@@ -90,10 +81,7 @@ export async function runCiv7SinglePlayerFromSetup(
       pollIntervalMs: input.pollIntervalMs ?? 1_000,
     });
   }
-  const prepare = await dependencies.prepareSetup(
-    { ...normalized, requireShell: true },
-    options,
-  );
+  const prepare = await dependencies.prepareSetup({ ...normalized, requireShell: true }, options);
   const start = await dependencies.startPreparedGame(
     {
       expected: normalized,
@@ -101,7 +89,7 @@ export async function runCiv7SinglePlayerFromSetup(
       waitTimeoutMs: input.waitTimeoutMs,
       pollIntervalMs: input.pollIntervalMs,
     },
-    options,
+    options
   );
   return {
     shellExit,

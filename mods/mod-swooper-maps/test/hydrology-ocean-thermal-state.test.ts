@@ -24,16 +24,27 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     currentU.fill(0);
     currentV.fill(0);
 
-    const out = computeOceanThermalState(width, height, latitudeByRow, isWaterMask, shelfMask, currentU, currentV, {
-      equatorTempC: 28,
-      poleTempC: -2,
-      advectIters: 0,
-      diffusion: 0,
-      secondaryWeightMin: 0.25,
-      seaIceThresholdC: -1,
-    });
+    const out = computeOceanThermalState(
+      width,
+      height,
+      latitudeByRow,
+      isWaterMask,
+      shelfMask,
+      currentU,
+      currentV,
+      {
+        equatorTempC: 28,
+        poleTempC: -2,
+        advectIters: 0,
+        diffusion: 0,
+        secondaryWeightMin: 0.25,
+        seaIceThresholdC: -1,
+      }
+    );
 
-    expect(out.sstC[idx(0, 0, width)]).toBeLessThan(out.sstC[idx(0, Math.floor(height / 2), width)]);
+    expect(out.sstC[idx(0, 0, width)]).toBeLessThan(
+      out.sstC[idx(0, Math.floor(height / 2), width)]
+    );
     expect(out.seaIceMask[idx(0, 0, width)]).toBe(1);
   });
 
@@ -62,22 +73,40 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     // Negative y direction pulls from south neighbor (warmer) toward north.
     advectV.fill(-80);
 
-    const still = computeOceanThermalState(width, height, latitudeByRow, isWaterMask, shelfMask, stillU, stillV, {
-      equatorTempC: 28,
-      poleTempC: -2,
-      advectIters: 24,
-      diffusion: 0.1,
-      secondaryWeightMin: 0.25,
-      seaIceThresholdC: -1,
-    });
-    const advected = computeOceanThermalState(width, height, latitudeByRow, isWaterMask, shelfMask, advectU, advectV, {
-      equatorTempC: 28,
-      poleTempC: -2,
-      advectIters: 24,
-      diffusion: 0.1,
-      secondaryWeightMin: 0.25,
-      seaIceThresholdC: -1,
-    });
+    const still = computeOceanThermalState(
+      width,
+      height,
+      latitudeByRow,
+      isWaterMask,
+      shelfMask,
+      stillU,
+      stillV,
+      {
+        equatorTempC: 28,
+        poleTempC: -2,
+        advectIters: 24,
+        diffusion: 0.1,
+        secondaryWeightMin: 0.25,
+        seaIceThresholdC: -1,
+      }
+    );
+    const advected = computeOceanThermalState(
+      width,
+      height,
+      latitudeByRow,
+      isWaterMask,
+      shelfMask,
+      advectU,
+      advectV,
+      {
+        equatorTempC: 28,
+        poleTempC: -2,
+        advectIters: 24,
+        diffusion: 0.1,
+        secondaryWeightMin: 0.25,
+        seaIceThresholdC: -1,
+      }
+    );
 
     expect(advected.sstC[idx(0, 1, width)]).toBeGreaterThan(still.sstC[idx(0, 1, width)]);
   });
@@ -106,14 +135,23 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     // Negative y pulls from the south; previously this could select the land tile and inject 0.
     currentV[center] = -80;
 
-    const out = computeOceanThermalState(width, height, latitudeByRow, isWaterMask, shelfMask, currentU, currentV, {
-      equatorTempC: 20,
-      poleTempC: 20,
-      advectIters: 1,
-      diffusion: 0,
-      secondaryWeightMin: 0.25,
-      seaIceThresholdC: -1,
-    });
+    const out = computeOceanThermalState(
+      width,
+      height,
+      latitudeByRow,
+      isWaterMask,
+      shelfMask,
+      currentU,
+      currentV,
+      {
+        equatorTempC: 20,
+        poleTempC: 20,
+        advectIters: 1,
+        diffusion: 0,
+        secondaryWeightMin: 0.25,
+        seaIceThresholdC: -1,
+      }
+    );
 
     expect(out.sstC[center]).toBeGreaterThan(10);
   });
@@ -137,33 +175,60 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     const t = idx(Math.floor(width / 2), Math.floor(height / 2), width);
     shelfOn[t] = 1;
 
-    const base = computeOceanThermalState(width, height, latitudeByRow, isWaterMask, shelfOff, currentU, currentV, {
-      equatorTempC: 30,
-      poleTempC: 0,
-      advectIters: 1,
-      diffusion: 0.5,
-      secondaryWeightMin: 0.25,
-      seaIceThresholdC: -1,
-    });
-    const shelf = computeOceanThermalState(width, height, latitudeByRow, isWaterMask, shelfOn, currentU, currentV, {
-      equatorTempC: 30,
-      poleTempC: 0,
-      advectIters: 1,
-      diffusion: 0.5,
-      secondaryWeightMin: 0.25,
-      seaIceThresholdC: -1,
-    });
+    const base = computeOceanThermalState(
+      width,
+      height,
+      latitudeByRow,
+      isWaterMask,
+      shelfOff,
+      currentU,
+      currentV,
+      {
+        equatorTempC: 30,
+        poleTempC: 0,
+        advectIters: 1,
+        diffusion: 0.5,
+        secondaryWeightMin: 0.25,
+        seaIceThresholdC: -1,
+      }
+    );
+    const shelf = computeOceanThermalState(
+      width,
+      height,
+      latitudeByRow,
+      isWaterMask,
+      shelfOn,
+      currentU,
+      currentV,
+      {
+        equatorTempC: 30,
+        poleTempC: 0,
+        advectIters: 1,
+        diffusion: 0.5,
+        secondaryWeightMin: 0.25,
+        seaIceThresholdC: -1,
+      }
+    );
 
     expect(Math.abs((shelf.sstC[t] ?? 0) - (base.sstC[t] ?? 0))).toBeGreaterThan(1e-4);
     // Determinism sanity: rerun matches exactly for the same inputs.
-    const shelf2 = computeOceanThermalState(width, height, latitudeByRow, isWaterMask, shelfOn, currentU, currentV, {
-      equatorTempC: 30,
-      poleTempC: 0,
-      advectIters: 1,
-      diffusion: 0.5,
-      secondaryWeightMin: 0.25,
-      seaIceThresholdC: -1,
-    });
+    const shelf2 = computeOceanThermalState(
+      width,
+      height,
+      latitudeByRow,
+      isWaterMask,
+      shelfOn,
+      currentU,
+      currentV,
+      {
+        equatorTempC: 30,
+        poleTempC: 0,
+        advectIters: 1,
+        diffusion: 0.5,
+        secondaryWeightMin: 0.25,
+        seaIceThresholdC: -1,
+      }
+    );
     expect(Array.from(shelf2.sstC)).toEqual(Array.from(shelf.sstC));
   });
 });

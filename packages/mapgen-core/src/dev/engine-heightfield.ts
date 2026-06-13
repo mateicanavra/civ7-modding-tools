@@ -6,7 +6,9 @@ export type EngineHeightfieldSnapshot = {
   landMask: Uint8Array;
 };
 
-export function snapshotEngineHeightfield(ctx: ExtendedMapContext): EngineHeightfieldSnapshot | null {
+export function snapshotEngineHeightfield(
+  ctx: ExtendedMapContext
+): EngineHeightfieldSnapshot | null {
   if (!ctx?.adapter) return null;
 
   const { width, height } = ctx.dimensions;
@@ -32,4 +34,3 @@ export function snapshotEngineHeightfield(ctx: ExtendedMapContext): EngineHeight
 
   return { terrain, elevation, landMask };
 }
-

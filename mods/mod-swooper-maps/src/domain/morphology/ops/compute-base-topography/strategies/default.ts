@@ -13,7 +13,8 @@ import {
 export const defaultStrategy = createStrategy(ComputeBaseTopographyContract, "default", {
   run: (input, config) => {
     const { width, height } = input;
-    const { size, crustBaseElevation, uplift, rift, closeness } = validateBaseTopographyInputs(input);
+    const { size, crustBaseElevation, uplift, rift, closeness } =
+      validateBaseTopographyInputs(input);
 
     const rng = createLabelRng(input.rngSeed | 0);
     const noiseAmplitude = config.crustNoiseAmplitude;

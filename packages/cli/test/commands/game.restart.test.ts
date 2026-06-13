@@ -1,123 +1,127 @@
-import { describe, expect, test, vi } from 'vitest';
-import { once } from 'node:events';
-import { type AddressInfo, createServer } from 'node:net';
-import GameRestart from '../../src/commands/game/restart';
-import { CIV7_RESTART_COMMAND } from '@civ7/direct-control';
+import { describe, expect, test, vi } from "vitest";
+import { once } from "node:events";
+import { type AddressInfo, createServer } from "node:net";
+import GameRestart from "../../src/commands/game/restart";
+import { CIV7_RESTART_COMMAND } from "@civ7/direct-control";
 
-describe('game restart command', () => {
-  test('requests direct socket restart by default', async () => {
+describe("game restart command", () => {
+  test("requests direct socket restart by default", async () => {
     const received: string[] = [];
     const server = createServer((socket) => {
       let buffer = Buffer.alloc(0);
-      socket.on('data', (chunk) => {
+      socket.on("data", (chunk) => {
         buffer = Buffer.concat([buffer, chunk]);
         for (;;) {
           const frame = parseRequest(buffer);
           if (!frame) return;
           buffer = buffer.subarray(frame.bytesRead);
           received.push(frame.message);
-          if (frame.message === 'LSQ:') {
-            socket.write(encodeResponse(frame.listenerId, ['65535', 'App UI', '1', 'Tuner']));
+          if (frame.message === "LSQ:") {
+            socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
           } else if (frame.message === `CMD:65535:${CIV7_RESTART_COMMAND}`) {
-            socket.write(encodeResponse(frame.listenerId, ['true']));
+            socket.write(encodeResponse(frame.listenerId, ["true"]));
           }
         }
       });
     });
-    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
 
     try {
       const { port } = server.address() as AddressInfo;
       await GameRestart.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--request-id',
-        'codex-cli-direct-test',
-        '--agent',
-        'Codex',
-        '--json',
+        "--request-id",
+        "codex-cli-direct-test",
+        "--agent",
+        "Codex",
+        "--json",
       ]);
 
-      expect(received).toEqual(['LSQ:', `CMD:65535:${CIV7_RESTART_COMMAND}`]);
+      expect(received).toEqual(["LSQ:", `CMD:65535:${CIV7_RESTART_COMMAND}`]);
     } finally {
       server.close();
-      await once(server, 'close');
+      await once(server, "close");
     }
   });
 
-  test('can follow restart with native begin and tuner readiness', async () => {
+  test("can follow restart with native begin and tuner readiness", async () => {
     const received: string[] = [];
     let loadingState = 6;
     const server = createServer((socket) => {
       let buffer = Buffer.alloc(0);
-      socket.on('data', (chunk) => {
+      socket.on("data", (chunk) => {
         buffer = Buffer.concat([buffer, chunk]);
         for (;;) {
           const frame = parseRequest(buffer);
           if (!frame) return;
           buffer = buffer.subarray(frame.bytesRead);
           received.push(frame.message);
-          if (frame.message === 'LSQ:') {
-            socket.write(encodeResponse(frame.listenerId, ['65535', 'App UI', '1', 'Tuner']));
+          if (frame.message === "LSQ:") {
+            socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
           } else if (frame.message === `CMD:65535:${CIV7_RESTART_COMMAND}`) {
             loadingState = 6;
-            socket.write(encodeResponse(frame.listenerId, ['true']));
-          } else if (frame.message === 'CMD:65535:UI.notifyUIReady()') {
+            socket.write(encodeResponse(frame.listenerId, ["true"]));
+          } else if (frame.message === "CMD:65535:UI.notifyUIReady()") {
             loadingState = 8;
-            socket.write(encodeResponse(frame.listenerId, ['null']));
-          } else if (frame.message.includes('Network.isInSession')) {
-            socket.write(encodeResponse(frame.listenerId, [JSON.stringify(appUiSnapshot(loadingState))]));
-          } else if (frame.message.includes('evalOk: 1 + 1')) {
+            socket.write(encodeResponse(frame.listenerId, ["null"]));
+          } else if (frame.message.includes("Network.isInSession")) {
+            socket.write(
+              encodeResponse(frame.listenerId, [JSON.stringify(appUiSnapshot(loadingState))])
+            );
+          } else if (frame.message.includes("evalOk: 1 + 1")) {
             socket.write(encodeResponse(frame.listenerId, [JSON.stringify(tunerHealth())]));
           }
         }
       });
     });
-    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
 
     try {
       const { port } = server.address() as AddressInfo;
       await GameRestart.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--begin',
-        '--wait-tuner',
-        '--json',
+        "--begin",
+        "--wait-tuner",
+        "--json",
       ]);
 
       expect(received).toContain(`CMD:65535:${CIV7_RESTART_COMMAND}`);
-      expect(received).toContain('CMD:65535:UI.notifyUIReady()');
-      expect(received.some((message) => message.startsWith('CMD:1:(() =>'))).toBe(true);
+      expect(received).toContain("CMD:65535:UI.notifyUIReady()");
+      expect(received.some((message) => message.startsWith("CMD:1:(() =>"))).toBe(true);
     } finally {
       server.close();
-      await once(server, 'close');
+      await once(server, "close");
     }
   });
 
-  test('dry-run validates direct config without sending', async () => {
+  test("dry-run validates direct config without sending", async () => {
     const writes: string[] = [];
-    const log = vi.spyOn(GameRestart.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameRestart.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
-      await expect(GameRestart.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        '4318',
-        '--request-id',
-        'codex-dry-run',
-        '--agent',
-        'Codex',
-        '--dry-run',
-        '--json',
-      ])).resolves.toBeUndefined();
+      await expect(
+        GameRestart.run([
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "4318",
+          "--request-id",
+          "codex-dry-run",
+          "--agent",
+          "Codex",
+          "--dry-run",
+          "--json",
+        ])
+      ).resolves.toBeUndefined();
 
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         dryRun: true;
         line: string;
@@ -135,12 +139,12 @@ describe('game restart command', () => {
         dryRun: true,
         line: `DIRECT codex-dry-run AGENT=Codex HOSTS=127.0.0.1 PORT=4318 STATE=App UI RUN ${CIV7_RESTART_COMMAND}`,
         request: {
-          requestId: 'codex-dry-run',
-          agent: 'Codex',
+          requestId: "codex-dry-run",
+          agent: "Codex",
           command: CIV7_RESTART_COMMAND,
-          hosts: ['127.0.0.1'],
+          hosts: ["127.0.0.1"],
           port: 4318,
-          state: 'App UI',
+          state: "App UI",
         },
       });
     } finally {
@@ -171,7 +175,7 @@ function appUiSnapshot(loadingState: number) {
       turn: 1,
       age: 0,
       maxTurns: 0,
-      turnDate: { ok: true, value: '4000 BCE' },
+      turnDate: { ok: true, value: "4000 BCE" },
       hash: { ok: true, value: 0 },
     },
     ui: {
@@ -179,9 +183,9 @@ function appUiSnapshot(loadingState: number) {
       inShell: { ok: true, value: false },
       inLoading: { ok: true, value: loadingState !== 8 },
       loadingState: { ok: true, value: loadingState },
-      loadingStateName: loadingState === 8 ? 'GameStarted' : 'WaitingForUIReady',
+      loadingStateName: loadingState === 8 ? "GameStarted" : "WaitingForUIReady",
       canBeginGame: { ok: true, value: loadingState === 6 },
-      canNotifyUIReady: 'function',
+      canNotifyUIReady: "function",
       skipStartButton: { ok: true, value: false },
       automationActive: { ok: true, value: false },
     },
@@ -211,14 +215,14 @@ function tunerHealth() {
     evalOk: 2,
     ready: true,
     globals: {
-      Game: 'object',
-      Autoplay: 'object',
-      GameplayMap: 'object',
-      Players: 'object',
-      Network: 'undefined',
+      Game: "object",
+      Autoplay: "object",
+      GameplayMap: "object",
+      Players: "object",
+      Network: "undefined",
     },
     turn: { ok: true, value: 1 },
-    turnDate: { ok: true, value: '4000 BCE' },
+    turnDate: { ok: true, value: "4000 BCE" },
     width: { ok: true, value: 84 },
     height: { ok: true, value: 54 },
     aliveIds: { ok: true, value: [0] },
@@ -227,26 +231,24 @@ function tunerHealth() {
   };
 }
 
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
+function parseRequest(buffer: Buffer): {
+  listenerId: number;
+  message: string;
+  bytesRead: number;
+} | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);
   const bytesRead = 8 + messageLength;
   if (buffer.length < bytesRead) return null;
   return {
     listenerId: buffer.readUInt32LE(4),
-    message: buffer.subarray(8, bytesRead).toString('utf8').replace(/\0$/, ''),
+    message: buffer.subarray(8, bytesRead).toString("utf8").replace(/\0$/, ""),
     bytesRead,
   };
 }
 
 function encodeResponse(listenerId: number, parts: string[]): Buffer {
-  const messageBytes = Buffer.from(`${parts.join('\0')}\0`, 'utf8');
+  const messageBytes = Buffer.from(`${parts.join("\0")}\0`, "utf8");
   const frame = Buffer.alloc(8 + messageBytes.length);
   frame.writeUInt32LE(messageBytes.length, 0);
   frame.writeUInt32LE(listenerId, 4);

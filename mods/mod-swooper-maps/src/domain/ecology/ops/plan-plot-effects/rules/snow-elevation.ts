@@ -86,8 +86,10 @@ export function resolveSnowElevationRange(
   if (config.snow.elevationStrategy === "percentile") {
     const minPercentile = clamp01(config.snow.elevationPercentileMin);
     const maxPercentile = clamp01(config.snow.elevationPercentileMax);
-    const min = sorted.length > 0 ? pickPercentile(sorted, minPercentile) : config.snow.elevationMin;
-    const max = sorted.length > 0 ? pickPercentile(sorted, maxPercentile) : config.snow.elevationMax;
+    const min =
+      sorted.length > 0 ? pickPercentile(sorted, minPercentile) : config.snow.elevationMin;
+    const max =
+      sorted.length > 0 ? pickPercentile(sorted, maxPercentile) : config.snow.elevationMax;
 
     return {
       strategy: "percentile",

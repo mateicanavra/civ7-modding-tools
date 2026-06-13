@@ -59,4 +59,3 @@ export function computeVegetationSubstrateFields(args: {
 
   return { energy01, water01, waterStress01, coldStress01, biomass01, fertility01 };
 }
-

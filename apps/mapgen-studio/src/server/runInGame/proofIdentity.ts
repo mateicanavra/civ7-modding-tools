@@ -34,10 +34,7 @@ export async function fileIdentity(args: {
   exposeAs?: "relative-to-repo" | "absolute";
 }): Promise<RunInGameFileIdentity> {
   const absolutePath = isAbsolute(args.path) ? args.path : resolve(args.repoRoot, args.path);
-  const [metadata, bytes] = await Promise.all([
-    stat(absolutePath),
-    readFile(absolutePath),
-  ]);
+  const [metadata, bytes] = await Promise.all([stat(absolutePath), readFile(absolutePath)]);
   return {
     path: args.exposeAs === "absolute" ? absolutePath : relative(args.repoRoot, absolutePath),
     sha256: createHash("sha256").update(bytes).digest("hex"),
@@ -115,14 +112,24 @@ export function buildRunInGameSourceSnapshotProof(args: {
       envelopeHash: args.envelopeHash,
     }),
     requestId: args.requestId,
-    ...(args.sourceSnapshot.recipeSettings === undefined ? {} : { recipeSettings: args.sourceSnapshot.recipeSettings }),
-    ...(args.sourceSnapshot.worldSettings === undefined ? {} : { worldSettings: args.sourceSnapshot.worldSettings }),
-    ...(args.sourceSnapshot.pipelineConfig === undefined ? {} : { pipelineConfig: args.sourceSnapshot.pipelineConfig }),
-    ...(args.sourceSnapshot.setupConfig === undefined ? {} : { setupConfig: args.sourceSnapshot.setupConfig }),
+    ...(args.sourceSnapshot.recipeSettings === undefined
+      ? {}
+      : { recipeSettings: args.sourceSnapshot.recipeSettings }),
+    ...(args.sourceSnapshot.worldSettings === undefined
+      ? {}
+      : { worldSettings: args.sourceSnapshot.worldSettings }),
+    ...(args.sourceSnapshot.pipelineConfig === undefined
+      ? {}
+      : { pipelineConfig: args.sourceSnapshot.pipelineConfig }),
+    ...(args.sourceSnapshot.setupConfig === undefined
+      ? {}
+      : { setupConfig: args.sourceSnapshot.setupConfig }),
     ...(typeof args.sourceSnapshot.materializationMode === "string"
       ? { materializationMode: args.sourceSnapshot.materializationMode }
       : {}),
-    ...(args.sourceSnapshot.selectedConfig === undefined ? {} : { selectedConfig: args.sourceSnapshot.selectedConfig }),
+    ...(args.sourceSnapshot.selectedConfig === undefined
+      ? {}
+      : { selectedConfig: args.sourceSnapshot.selectedConfig }),
     configHash: args.configHash,
     envelopeHash: args.envelopeHash,
   };
@@ -154,17 +161,19 @@ export function buildRunInGameExactAuthorshipProof(args: {
   const runtimeTurn = runtimeSummary.turn ?? args.liveRuntimeSnapshot?.turn;
   const runtimeGameHash = runtimeSummary.gameHash ?? args.liveRuntimeSnapshot?.gameHash;
   const sourceConfig = args.sourceConfig ?? args.materialization.sourceConfig;
-  const generatedSourceScript = args.generatedSourceScript ?? args.materialization.generatedSourceScript;
+  const generatedSourceScript =
+    args.generatedSourceScript ?? args.materialization.generatedSourceScript;
   const localModScript = args.localModScript ?? args.materialization.localModScript;
   const deployedModScript = args.deployedModScript ?? args.materialization.deployedModScript;
   const unresolvedLinks: string[] = [];
-  const requiredMaterializationMarkers = args.materialization.configHash && args.materialization.envelopeHash
-    ? runInGameRequiredMaterializationMarkers({
-        requestId: args.requestId,
-        configHash: args.materialization.configHash,
-        envelopeHash: args.materialization.envelopeHash,
-      })
-    : undefined;
+  const requiredMaterializationMarkers =
+    args.materialization.configHash && args.materialization.envelopeHash
+      ? runInGameRequiredMaterializationMarkers({
+          requestId: args.requestId,
+          configHash: args.materialization.configHash,
+          envelopeHash: args.materialization.envelopeHash,
+        })
+      : undefined;
   const materializationScriptLinks = runInGameMaterializationScriptUnresolvedLinks({
     materialization: args.materialization,
     localModScript,
@@ -172,54 +181,197 @@ export function buildRunInGameExactAuthorshipProof(args: {
     requiredMarkers: requiredMaterializationMarkers,
   });
 
-  addMissing(unresolvedLinks, Boolean(args.sourceSnapshot?.identityHash), "source-snapshot.identity-hash");
-  addMissing(unresolvedLinks, args.sourceSnapshot?.recipeSettings !== undefined, "source-snapshot.recipe-settings");
-  addMissing(unresolvedLinks, args.sourceSnapshot?.worldSettings !== undefined, "source-snapshot.world-settings");
-  addMissing(unresolvedLinks, args.sourceSnapshot?.pipelineConfig !== undefined, "source-snapshot.pipeline-config");
-  addMissing(unresolvedLinks, args.sourceSnapshot?.setupConfig !== undefined, "source-snapshot.setup-config");
-  addMissing(unresolvedLinks, Boolean(args.sourceSnapshot?.materializationMode), "source-snapshot.materialization-mode");
-  addMissing(unresolvedLinks, args.sourceSnapshot?.selectedConfig !== undefined, "source-snapshot.selected-config");
-  addMissing(unresolvedLinks, Boolean(args.sourceSnapshot?.configHash), "source-snapshot.config-hash");
-  addMissing(unresolvedLinks, Boolean(args.sourceSnapshot?.envelopeHash), "source-snapshot.envelope-hash");
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.sourceSnapshot?.identityHash),
+    "source-snapshot.identity-hash"
+  );
+  addMissing(
+    unresolvedLinks,
+    args.sourceSnapshot?.recipeSettings !== undefined,
+    "source-snapshot.recipe-settings"
+  );
+  addMissing(
+    unresolvedLinks,
+    args.sourceSnapshot?.worldSettings !== undefined,
+    "source-snapshot.world-settings"
+  );
+  addMissing(
+    unresolvedLinks,
+    args.sourceSnapshot?.pipelineConfig !== undefined,
+    "source-snapshot.pipeline-config"
+  );
+  addMissing(
+    unresolvedLinks,
+    args.sourceSnapshot?.setupConfig !== undefined,
+    "source-snapshot.setup-config"
+  );
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.sourceSnapshot?.materializationMode),
+    "source-snapshot.materialization-mode"
+  );
+  addMissing(
+    unresolvedLinks,
+    args.sourceSnapshot?.selectedConfig !== undefined,
+    "source-snapshot.selected-config"
+  );
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.sourceSnapshot?.configHash),
+    "source-snapshot.config-hash"
+  );
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.sourceSnapshot?.envelopeHash),
+    "source-snapshot.envelope-hash"
+  );
   addMissing(unresolvedLinks, Boolean(args.request?.fingerprint), "request.fingerprint");
   addMissing(unresolvedLinks, args.request?.seed !== undefined, "request.seed");
   addMissing(unresolvedLinks, Boolean(args.request?.mapSize), "request.map-size");
-  addMissing(unresolvedLinks, Boolean(args.materialization.mapScript), "materialization.map-script");
-  addMissing(unresolvedLinks, Boolean(args.materialization.configHash), "materialization.config-hash");
-  addMissing(unresolvedLinks, Boolean(args.materialization.envelopeHash), "materialization.envelope-hash");
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.materialization.mapScript),
+    "materialization.map-script"
+  );
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.materialization.configHash),
+    "materialization.config-hash"
+  );
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.materialization.envelopeHash),
+    "materialization.envelope-hash"
+  );
   addMissing(unresolvedLinks, Boolean(sourceConfig), "materialization.source-config-file");
-  addMissing(unresolvedLinks, Boolean(generatedSourceScript), "materialization.generated-source-script");
+  addMissing(
+    unresolvedLinks,
+    Boolean(generatedSourceScript),
+    "materialization.generated-source-script"
+  );
   addMissing(unresolvedLinks, Boolean(localModScript), "materialization.local-mod-script");
   addMissing(unresolvedLinks, Boolean(deployedModScript), "materialization.deployed-mod-script");
   addMissing(unresolvedLinks, hasRows(args.rowProof), "civ-setup.map-row");
-  addMissing(unresolvedLinks, setupReadback.mapScript !== undefined, "civ-setup.map-script-readback");
+  addMissing(
+    unresolvedLinks,
+    setupReadback.mapScript !== undefined,
+    "civ-setup.map-script-readback"
+  );
   addMissing(unresolvedLinks, setupReadback.mapSize !== undefined, "civ-setup.map-size-readback");
   addMissing(unresolvedLinks, setupReadback.mapSeed !== undefined, "civ-setup.map-seed-readback");
   addMissing(unresolvedLinks, setupReadback.gameSeed !== undefined, "civ-setup.game-seed-readback");
   if (args.request?.playerCount !== undefined) {
-    addMissing(unresolvedLinks, setupReadback.playerCount !== undefined, "civ-setup.player-count-readback");
+    addMissing(
+      unresolvedLinks,
+      setupReadback.playerCount !== undefined,
+      "civ-setup.player-count-readback"
+    );
   }
   addMissing(unresolvedLinks, runtimeSummary.seed !== undefined, "runtime.seed-readback");
-  addMissing(unresolvedLinks, runtimeSummary.width !== undefined && runtimeSummary.height !== undefined, "runtime.dimensions");
+  addMissing(
+    unresolvedLinks,
+    runtimeSummary.width !== undefined && runtimeSummary.height !== undefined,
+    "runtime.dimensions"
+  );
   addMissing(unresolvedLinks, runtimeGameHash !== undefined, "runtime.game-hash");
-  addMissing(unresolvedLinks, Boolean(args.liveRuntimeSnapshot?.snapshotId), "runtime.live-snapshot-id");
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.liveRuntimeSnapshot?.snapshotId),
+    "runtime.live-snapshot-id"
+  );
   addMissing(unresolvedLinks, Boolean(args.logProof), "swooper-log.parsed-proof");
 
-  addStringMismatch(unresolvedLinks, args.sourceSnapshot?.requestId, args.requestId, "source-snapshot.request-id-mismatch");
-  addStringMismatch(unresolvedLinks, args.sourceSnapshot?.configHash, args.materialization.configHash, "source-snapshot.config-hash-mismatch");
-  addStringMismatch(unresolvedLinks, args.sourceSnapshot?.envelopeHash, args.materialization.envelopeHash, "source-snapshot.envelope-hash-mismatch");
-  addStringMismatch(unresolvedLinks, setupReadback.mapScript, args.materialization.mapScript, "civ-setup.map-script-mismatch");
-  addStringMismatch(unresolvedLinks, setupReadback.mapSize, args.request?.mapSize, "civ-setup.map-size-mismatch");
-  addNumberMismatch(unresolvedLinks, setupReadback.mapSeed, args.request?.seed, "civ-setup.map-seed-mismatch");
-  addNumberMismatch(unresolvedLinks, setupReadback.gameSeed, args.request?.seed, "civ-setup.game-seed-mismatch");
-  addNumberMismatch(unresolvedLinks, setupReadback.playerCount, args.request?.playerCount, "civ-setup.player-count-mismatch");
-  addNumberMismatch(unresolvedLinks, runtimeSummary.seed, args.request?.seed, "runtime.seed-mismatch");
-  addNumberMismatch(unresolvedLinks, args.logProof?.seed, args.request?.seed, "swooper-log.seed-mismatch");
-  addStringMismatch(unresolvedLinks, args.logProof?.requestId, args.requestId, "swooper-log.request-id-mismatch");
-  addStringMismatch(unresolvedLinks, args.logProof?.configHash, args.materialization.configHash, "swooper-log.config-hash-mismatch");
-  addStringMismatch(unresolvedLinks, args.logProof?.envelopeHash, args.materialization.envelopeHash, "swooper-log.envelope-hash-mismatch");
-  addNumberMismatch(unresolvedLinks, args.logProof?.dimensions.width, runtimeSummary.width, "runtime.log-width-mismatch");
-  addNumberMismatch(unresolvedLinks, args.logProof?.dimensions.height, runtimeSummary.height, "runtime.log-height-mismatch");
+  addStringMismatch(
+    unresolvedLinks,
+    args.sourceSnapshot?.requestId,
+    args.requestId,
+    "source-snapshot.request-id-mismatch"
+  );
+  addStringMismatch(
+    unresolvedLinks,
+    args.sourceSnapshot?.configHash,
+    args.materialization.configHash,
+    "source-snapshot.config-hash-mismatch"
+  );
+  addStringMismatch(
+    unresolvedLinks,
+    args.sourceSnapshot?.envelopeHash,
+    args.materialization.envelopeHash,
+    "source-snapshot.envelope-hash-mismatch"
+  );
+  addStringMismatch(
+    unresolvedLinks,
+    setupReadback.mapScript,
+    args.materialization.mapScript,
+    "civ-setup.map-script-mismatch"
+  );
+  addStringMismatch(
+    unresolvedLinks,
+    setupReadback.mapSize,
+    args.request?.mapSize,
+    "civ-setup.map-size-mismatch"
+  );
+  addNumberMismatch(
+    unresolvedLinks,
+    setupReadback.mapSeed,
+    args.request?.seed,
+    "civ-setup.map-seed-mismatch"
+  );
+  addNumberMismatch(
+    unresolvedLinks,
+    setupReadback.gameSeed,
+    args.request?.seed,
+    "civ-setup.game-seed-mismatch"
+  );
+  addNumberMismatch(
+    unresolvedLinks,
+    setupReadback.playerCount,
+    args.request?.playerCount,
+    "civ-setup.player-count-mismatch"
+  );
+  addNumberMismatch(
+    unresolvedLinks,
+    runtimeSummary.seed,
+    args.request?.seed,
+    "runtime.seed-mismatch"
+  );
+  addNumberMismatch(
+    unresolvedLinks,
+    args.logProof?.seed,
+    args.request?.seed,
+    "swooper-log.seed-mismatch"
+  );
+  addStringMismatch(
+    unresolvedLinks,
+    args.logProof?.requestId,
+    args.requestId,
+    "swooper-log.request-id-mismatch"
+  );
+  addStringMismatch(
+    unresolvedLinks,
+    args.logProof?.configHash,
+    args.materialization.configHash,
+    "swooper-log.config-hash-mismatch"
+  );
+  addStringMismatch(
+    unresolvedLinks,
+    args.logProof?.envelopeHash,
+    args.materialization.envelopeHash,
+    "swooper-log.envelope-hash-mismatch"
+  );
+  addNumberMismatch(
+    unresolvedLinks,
+    args.logProof?.dimensions.width,
+    runtimeSummary.width,
+    "runtime.log-width-mismatch"
+  );
+  addNumberMismatch(
+    unresolvedLinks,
+    args.logProof?.dimensions.height,
+    runtimeSummary.height,
+    "runtime.log-height-mismatch"
+  );
   unresolvedLinks.push(...materializationScriptLinks);
 
   return {
@@ -233,29 +385,45 @@ export function buildRunInGameExactAuthorshipProof(args: {
       ...(args.request?.mapSize === undefined ? {} : { mapSize: args.request.mapSize }),
       ...(args.request?.playerCount === undefined ? {} : { playerCount: args.request.playerCount }),
       ...(args.request?.resources === undefined ? {} : { resources: args.request.resources }),
-      ...(args.request?.selectedConfigId === undefined ? {} : { selectedConfigId: args.request.selectedConfigId }),
-      ...(args.request?.setupConfigSource === undefined ? {} : { setupConfigSource: args.request.setupConfigSource }),
+      ...(args.request?.selectedConfigId === undefined
+        ? {}
+        : { selectedConfigId: args.request.selectedConfigId }),
+      ...(args.request?.setupConfigSource === undefined
+        ? {}
+        : { setupConfigSource: args.request.setupConfigSource }),
       ...(args.request?.fingerprint === undefined ? {} : { fingerprint: args.request.fingerprint }),
     },
     materialization: {
       ...(args.materialization.mode === undefined ? {} : { mode: args.materialization.mode }),
       ...(args.materialization.path === undefined ? {} : { path: args.materialization.path }),
-      ...(args.materialization.mapScript === undefined ? {} : { mapScript: args.materialization.mapScript }),
-      ...(args.materialization.configHash === undefined ? {} : { configHash: args.materialization.configHash }),
-      ...(args.materialization.envelopeHash === undefined ? {} : { envelopeHash: args.materialization.envelopeHash }),
+      ...(args.materialization.mapScript === undefined
+        ? {}
+        : { mapScript: args.materialization.mapScript }),
+      ...(args.materialization.configHash === undefined
+        ? {}
+        : { configHash: args.materialization.configHash }),
+      ...(args.materialization.envelopeHash === undefined
+        ? {}
+        : { envelopeHash: args.materialization.envelopeHash }),
       ...(sourceConfig ? { sourceConfig } : {}),
       ...(generatedSourceScript ? { generatedSourceScript } : {}),
       ...(localModScript ? { localModScript } : {}),
       ...(deployedModScript ? { deployedModScript } : {}),
-      ...(args.materialization.localModScriptContent ? { localModScriptContent: args.materialization.localModScriptContent } : {}),
-      ...(args.materialization.deployedModScriptContent ? { deployedModScriptContent: args.materialization.deployedModScriptContent } : {}),
+      ...(args.materialization.localModScriptContent
+        ? { localModScriptContent: args.materialization.localModScriptContent }
+        : {}),
+      ...(args.materialization.deployedModScriptContent
+        ? { deployedModScriptContent: args.materialization.deployedModScriptContent }
+        : {}),
     },
     civSetup: {
       ...(setupReadback.mapScript === undefined ? {} : { mapScript: setupReadback.mapScript }),
       ...(setupReadback.mapSize === undefined ? {} : { mapSize: setupReadback.mapSize }),
       ...(setupReadback.mapSeed === undefined ? {} : { mapSeed: setupReadback.mapSeed }),
       ...(setupReadback.gameSeed === undefined ? {} : { gameSeed: setupReadback.gameSeed }),
-      ...(setupReadback.playerCount === undefined ? {} : { playerCount: setupReadback.playerCount }),
+      ...(setupReadback.playerCount === undefined
+        ? {}
+        : { playerCount: setupReadback.playerCount }),
       ...(rowCount(args.rowProof) === undefined ? {} : { rowCount: rowCount(args.rowProof) }),
     },
     runtime: {
@@ -265,8 +433,12 @@ export function buildRunInGameExactAuthorshipProof(args: {
       ...(runtimeSummary.plotCount === undefined ? {} : { plotCount: runtimeSummary.plotCount }),
       ...(runtimeTurn === undefined ? {} : { turn: runtimeTurn }),
       ...(runtimeGameHash === undefined ? {} : { gameHash: runtimeGameHash }),
-      ...(args.liveRuntimeSnapshot?.snapshotId ? { sourceSnapshotId: args.liveRuntimeSnapshot.snapshotId } : {}),
-      ...(args.liveRuntimeSnapshot?.snapshotHash ? { snapshotHash: args.liveRuntimeSnapshot.snapshotHash } : {}),
+      ...(args.liveRuntimeSnapshot?.snapshotId
+        ? { sourceSnapshotId: args.liveRuntimeSnapshot.snapshotId }
+        : {}),
+      ...(args.liveRuntimeSnapshot?.snapshotHash
+        ? { snapshotHash: args.liveRuntimeSnapshot.snapshotHash }
+        : {}),
     },
     ...(args.logProof ? { log: args.logProof } : {}),
     unresolvedLinks,
@@ -282,32 +454,45 @@ export function runInGameMaterializationScriptUnresolvedLinks(args: {
   const localModScript = args.localModScript ?? args.materialization.localModScript;
   const deployedModScript = args.deployedModScript ?? args.materialization.deployedModScript;
   const links: string[] = [];
-  addStringMismatch(links, localModScript?.sha256, deployedModScript?.sha256, "materialization.deployed-mod-script-hash-mismatch");
-  addMissing(links, Boolean(args.materialization.localModScriptContent), "materialization.local-mod-script-content-proof");
-  addMissing(links, Boolean(args.materialization.deployedModScriptContent), "materialization.deployed-mod-script-content-proof");
+  addStringMismatch(
+    links,
+    localModScript?.sha256,
+    deployedModScript?.sha256,
+    "materialization.deployed-mod-script-hash-mismatch"
+  );
+  addMissing(
+    links,
+    Boolean(args.materialization.localModScriptContent),
+    "materialization.local-mod-script-content-proof"
+  );
+  addMissing(
+    links,
+    Boolean(args.materialization.deployedModScriptContent),
+    "materialization.deployed-mod-script-content-proof"
+  );
   addStringMismatch(
     links,
     args.materialization.localModScriptContent?.path,
     localModScript?.path,
-    "materialization.local-mod-script-content-path-mismatch",
+    "materialization.local-mod-script-content-path-mismatch"
   );
   addStringMismatch(
     links,
     args.materialization.deployedModScriptContent?.path,
     deployedModScript?.path,
-    "materialization.deployed-mod-script-content-path-mismatch",
+    "materialization.deployed-mod-script-content-path-mismatch"
   );
   pushMissingContentMarkers(
     links,
     args.materialization.localModScriptContent?.markers,
     "materialization.local-mod-script-marker",
-    args.requiredMarkers,
+    args.requiredMarkers
   );
   pushMissingContentMarkers(
     links,
     args.materialization.deployedModScriptContent?.markers,
     "materialization.deployed-mod-script-marker",
-    args.requiredMarkers,
+    args.requiredMarkers
   );
   return links;
 }
@@ -316,7 +501,7 @@ function pushMissingContentMarkers(
   links: string[],
   markers: ReadonlyArray<RunInGameContentMarkerProof> | undefined,
   prefix: string,
-  requiredMarkers: ReadonlyArray<RunInGameRequiredContentMarker> | undefined,
+  requiredMarkers: ReadonlyArray<RunInGameRequiredContentMarker> | undefined
 ): void {
   if (markers === undefined) return;
   for (const required of requiredMarkers ?? []) {
@@ -421,7 +606,13 @@ export function parseSwooperMapgenLogProof(args: {
     ...(naturalWonderPlan ? { naturalWonderPlan } : {}),
     ...(naturalWonderPlanInput ? { naturalWonderPlanInput } : {}),
     ...(naturalWonderPlacement ? { naturalWonderPlacement } : {}),
-    matched: ["[mapgen-proof]", args.requestId, args.configHash, args.envelopeHash, "[mapgen-complete]"],
+    matched: [
+      "[mapgen-proof]",
+      args.requestId,
+      args.configHash,
+      args.envelopeHash,
+      "[mapgen-complete]",
+    ],
   };
 }
 
@@ -430,7 +621,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function hashProofValue(value: unknown): string {
-  return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
+  return createHash("sha256")
+    .update(JSON.stringify(canonicalize(value)))
+    .digest("hex");
 }
 
 function canonicalize(value: unknown): unknown {
@@ -462,9 +655,10 @@ function stringValue(value: unknown): string | undefined {
 }
 
 function setupParameterValue(snapshot: unknown, id: string): unknown {
-  if (!isRecord(snapshot) || !isRecord(snapshot.setup) || !Array.isArray(snapshot.setup.parameters)) return undefined;
-  const parameter = snapshot.setup.parameters.find((item) =>
-    isRecord(item) && item.id === id && item.exists !== false
+  if (!isRecord(snapshot) || !isRecord(snapshot.setup) || !Array.isArray(snapshot.setup.parameters))
+    return undefined;
+  const parameter = snapshot.setup.parameters.find(
+    (item) => isRecord(item) && item.id === id && item.exists !== false
   );
   return isRecord(parameter) ? parameter.value : undefined;
 }
@@ -481,7 +675,8 @@ function setupReadbackFromSnapshot(snapshot: unknown): {
   const mapSeed = setupParameterValue(snapshot, "MapRandomSeed");
   const gameSeed = setupParameterValue(snapshot, "GameRandomSeed");
   const config = isRecord(snapshot) && isRecord(snapshot.config) ? snapshot.config : {};
-  const playerCount = setupParameterValue(snapshot, "PlayerCount") ?? probeValue(config.playerCount);
+  const playerCount =
+    setupParameterValue(snapshot, "PlayerCount") ?? probeValue(config.playerCount);
   return {
     ...(typeof mapScript === "string" ? { mapScript } : {}),
     ...(mapSize === undefined ? {} : { mapSize }),
@@ -503,12 +698,22 @@ function runtimeSummaryFromMapSummary(summary: unknown): {
   const map = isRecord(summary.map) ? summary.map : {};
   const game = isRecord(summary.game) ? summary.game : {};
   return {
-    ...(typeof probeValue(map.randomSeed) === "number" ? { seed: probeValue(map.randomSeed) as number } : {}),
-    ...(typeof probeValue(map.width) === "number" ? { width: probeValue(map.width) as number } : {}),
-    ...(typeof probeValue(map.height) === "number" ? { height: probeValue(map.height) as number } : {}),
-    ...(typeof probeValue(map.plotCount) === "number" ? { plotCount: probeValue(map.plotCount) as number } : {}),
+    ...(typeof probeValue(map.randomSeed) === "number"
+      ? { seed: probeValue(map.randomSeed) as number }
+      : {}),
+    ...(typeof probeValue(map.width) === "number"
+      ? { width: probeValue(map.width) as number }
+      : {}),
+    ...(typeof probeValue(map.height) === "number"
+      ? { height: probeValue(map.height) as number }
+      : {}),
+    ...(typeof probeValue(map.plotCount) === "number"
+      ? { plotCount: probeValue(map.plotCount) as number }
+      : {}),
     ...(typeof probeValue(game.turn) === "number" ? { turn: probeValue(game.turn) as number } : {}),
-    ...(typeof probeValue(game.hash) === "number" ? { gameHash: probeValue(game.hash) as number } : {}),
+    ...(typeof probeValue(game.hash) === "number"
+      ? { gameHash: probeValue(game.hash) as number }
+      : {}),
   };
 }
 
@@ -525,12 +730,16 @@ function hasRows(rowProof: unknown): boolean {
 function lastSwooperPayloadLine(
   lines: readonly string[],
   marker: "[mapgen-proof]" | "[mapgen-complete]",
-  expected: Pick<Parameters<typeof parseSwooperMapgenLogProof>[0], "requestId" | "configHash" | "envelopeHash" | "seed">,
-  options: { beforeIndex?: number } = {},
+  expected: Pick<
+    Parameters<typeof parseSwooperMapgenLogProof>[0],
+    "requestId" | "configHash" | "envelopeHash" | "seed"
+  >,
+  options: { beforeIndex?: number } = {}
 ): { index: number; payload: Record<string, unknown> } | null {
-  const startIndex = options.beforeIndex === undefined
-    ? lines.length - 1
-    : Math.min(options.beforeIndex - 1, lines.length - 1);
+  const startIndex =
+    options.beforeIndex === undefined
+      ? lines.length - 1
+      : Math.min(options.beforeIndex - 1, lines.length - 1);
   for (let index = startIndex; index >= 0; index -= 1) {
     const line = lines[index] ?? "";
     if (!line.includes(marker)) continue;
@@ -569,7 +778,9 @@ function parsePlacementSurfacePreparationTelemetryBetween(
   lines: readonly string[],
   proofIndex: number,
   completionIndex: number
-): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["placementSurfacePreparation"]> | undefined {
+):
+  | NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["placementSurfacePreparation"]>
+  | undefined {
   for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
     const line = lines[index] ?? "";
     if (!line.includes("PLACEMENT_SURFACE_PREPARATION_V1")) continue;
@@ -577,7 +788,9 @@ function parsePlacementSurfacePreparationTelemetryBetween(
     if (!payload) continue;
     const acceptedLakeTileCount = numberValue(payload.acceptedLakeTileCount);
     const finalLakeWaterDriftCount = numberValue(payload.finalLakeWaterDriftCount);
-    const finalLakeClassificationDriftCount = numberValue(payload.finalLakeClassificationDriftCount);
+    const finalLakeClassificationDriftCount = numberValue(
+      payload.finalLakeClassificationDriftCount
+    );
     if (
       acceptedLakeTileCount === undefined ||
       finalLakeWaterDriftCount === undefined ||
@@ -619,7 +832,9 @@ function parseNaturalWonderPlacementTelemetryBetween(
   lines: readonly string[],
   proofIndex: number,
   completionIndex: number
-): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]> | undefined {
+):
+  | NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>
+  | undefined {
   for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
     const line = lines[index] ?? "";
     if (!line.includes("NATURAL_WONDER_PLACEMENT_V1")) continue;
@@ -661,7 +876,9 @@ function parseNaturalWonderPlanInputTelemetryBetween(
   lines: readonly string[],
   proofIndex: number,
   completionIndex: number
-): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]> | undefined {
+):
+  | NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]>
+  | undefined {
   for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
     const line = lines[index] ?? "";
     if (!line.includes("NATURAL_WONDER_PLAN_INPUT_V1")) continue;
@@ -678,11 +895,11 @@ function parseNaturalWonderPlanInputTelemetryBetween(
   return undefined;
 }
 
-function featureApplyStats(
-  payload: Record<string, unknown>
-):
+function featureApplyStats(payload: Record<string, unknown>):
   | {
-      stats: NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["featureApply"]>["stats"];
+      stats: NonNullable<
+        NonNullable<RunInGameExactAuthorshipProof["log"]>["featureApply"]
+      >["stats"];
     }
   | undefined {
   const attempted = numberValue(payload.attempted);
@@ -710,9 +927,7 @@ function featureApplyStats(
   };
 }
 
-function naturalWonderPlanStats(
-  payload: Record<string, unknown>
-):
+function naturalWonderPlanStats(payload: Record<string, unknown>):
   | {
       stats: NonNullable<
         NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]>["stats"]
@@ -741,12 +956,12 @@ function naturalWonderPlanStats(
   };
 }
 
-function naturalWonderPlacementStats(
-  payload: Record<string, unknown>
-):
+function naturalWonderPlacementStats(payload: Record<string, unknown>):
   | {
       stats: NonNullable<
-        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>["stats"]
+        NonNullable<
+          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]
+        >["stats"]
       >;
     }
   | undefined {
@@ -759,7 +974,9 @@ function naturalWonderPlacementStats(
   const rejectedCount = numberValue(payload.rejectedCount);
   const shortfallCount = numberValue(payload.shortfallCount);
   const rejectionExamples = Array.isArray(payload.rejectionExamples)
-    ? payload.rejectionExamples.filter((entry): entry is string => typeof entry === "string").slice(0, 8)
+    ? payload.rejectionExamples
+        .filter((entry): entry is string => typeof entry === "string")
+        .slice(0, 8)
     : undefined;
   if (
     version === undefined ||
@@ -790,12 +1007,12 @@ function naturalWonderPlacementStats(
   };
 }
 
-function naturalWonderPlanCoordinateProof(
-  payload: Record<string, unknown>
-):
+function naturalWonderPlanCoordinateProof(payload: Record<string, unknown>):
   | {
       coordinateProof: NonNullable<
-        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]>["coordinateProof"]
+        NonNullable<
+          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]
+        >["coordinateProof"]
       >;
     }
   | undefined {
@@ -815,57 +1032,59 @@ function naturalWonderPlanCoordinateProof(
   };
 }
 
-function naturalWonderPlanRows(
-  payload: Record<string, unknown>
-):
+function naturalWonderPlanRows(payload: Record<string, unknown>):
   | {
       planRows: NonNullable<
-        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]>["planRows"]
+        NonNullable<
+          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]
+        >["planRows"]
       >;
     }
   | undefined {
   if (!Array.isArray(payload.planRows)) return undefined;
-  const planRows = payload.planRows.flatMap((row) => {
-    if (!Array.isArray(row)) return [];
-    const status = row[0] === "p" ? "planned" : undefined;
-    const plotIndex = numberValue(row[1]);
-    const x = numberValue(row[2]);
-    const y = numberValue(row[3]);
-    const featureType = numberValue(row[4]);
-    const direction = numberValue(row[5]);
-    const elevation = row[6] === null ? undefined : numberValue(row[6]);
-    const priorityPpm = row[7] === null ? undefined : numberValue(row[7]);
-    if (
-      status === undefined ||
-      plotIndex === undefined ||
-      x === undefined ||
-      y === undefined ||
-      featureType === undefined ||
-      direction === undefined
-    ) {
-      return [];
-    }
-    return [
-      {
-        plotIndex,
-        x,
-        y,
-        featureType,
-        direction,
-        ...(elevation === undefined ? {} : { elevation }),
-        ...(priorityPpm === undefined ? {} : { priorityPpm }),
-      },
-    ];
-  }).slice(0, 16);
+  const planRows = payload.planRows
+    .flatMap((row) => {
+      if (!Array.isArray(row)) return [];
+      const status = row[0] === "p" ? "planned" : undefined;
+      const plotIndex = numberValue(row[1]);
+      const x = numberValue(row[2]);
+      const y = numberValue(row[3]);
+      const featureType = numberValue(row[4]);
+      const direction = numberValue(row[5]);
+      const elevation = row[6] === null ? undefined : numberValue(row[6]);
+      const priorityPpm = row[7] === null ? undefined : numberValue(row[7]);
+      if (
+        status === undefined ||
+        plotIndex === undefined ||
+        x === undefined ||
+        y === undefined ||
+        featureType === undefined ||
+        direction === undefined
+      ) {
+        return [];
+      }
+      return [
+        {
+          plotIndex,
+          x,
+          y,
+          featureType,
+          direction,
+          ...(elevation === undefined ? {} : { elevation }),
+          ...(priorityPpm === undefined ? {} : { priorityPpm }),
+        },
+      ];
+    })
+    .slice(0, 16);
   return planRows.length === 0 ? undefined : { planRows };
 }
 
-function naturalWonderPlanInputStats(
-  payload: Record<string, unknown>
-):
+function naturalWonderPlanInputStats(payload: Record<string, unknown>):
   | {
       stats: NonNullable<
-        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]>["stats"]
+        NonNullable<
+          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]
+        >["stats"]
       >;
     }
   | undefined {
@@ -882,12 +1101,12 @@ function naturalWonderPlanInputStats(
   };
 }
 
-function naturalWonderPlanInputSurfaceDigests(
-  payload: Record<string, unknown>
-):
+function naturalWonderPlanInputSurfaceDigests(payload: Record<string, unknown>):
   | {
       surfaceDigests: NonNullable<
-        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]>["surfaceDigests"]
+        NonNullable<
+          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]
+        >["surfaceDigests"]
       >;
     }
   | undefined {
@@ -935,74 +1154,74 @@ function naturalWonderPlanInputSurfaceDigests(
   };
 }
 
-function naturalWonderPlanInputRows(
-  payload: Record<string, unknown>
-):
+function naturalWonderPlanInputRows(payload: Record<string, unknown>):
   | {
       inputRows: NonNullable<
-        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]>["inputRows"]
+        NonNullable<
+          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]
+        >["inputRows"]
       >;
     }
   | undefined {
   if (!Array.isArray(payload.inputRows)) return undefined;
-  const inputRows = payload.inputRows.flatMap((row) => {
-    if (!Array.isArray(row)) return [];
-    const status = row[0] === "p" ? "planned" : undefined;
-    const plotIndex = numberValue(row[1]);
-    const x = numberValue(row[2]);
-    const y = numberValue(row[3]);
-    const featureType = numberValue(row[4]);
-    const terrainType = numberValue(row[5]);
-    const biomeType = numberValue(row[6]);
-    const occupiedFeatureType = numberValue(row[7]);
-    const elevation = numberValue(row[8]);
-    const aridityPpm = numberValue(row[9]);
-    const riverClass = numberValue(row[10]);
-    const lakeMask = numberValue(row[11]);
-    const blockedMask = numberValue(row[12]);
-    const landMask = numberValue(row[13]);
-    if (
-      status === undefined ||
-      plotIndex === undefined ||
-      x === undefined ||
-      y === undefined ||
-      featureType === undefined ||
-      terrainType === undefined ||
-      biomeType === undefined ||
-      occupiedFeatureType === undefined ||
-      elevation === undefined ||
-      aridityPpm === undefined ||
-      riverClass === undefined ||
-      lakeMask === undefined ||
-      blockedMask === undefined ||
-      landMask === undefined
-    ) {
-      return [];
-    }
-    return [
-      {
-        plotIndex,
-        x,
-        y,
-        featureType,
-        terrainType,
-        biomeType,
-        occupiedFeatureType,
-        elevation,
-        aridityPpm,
-        riverClass,
-        lakeMask,
-        blockedMask,
-        landMask,
-      },
-    ];
-  }).slice(0, 16);
+  const inputRows = payload.inputRows
+    .flatMap((row) => {
+      if (!Array.isArray(row)) return [];
+      const status = row[0] === "p" ? "planned" : undefined;
+      const plotIndex = numberValue(row[1]);
+      const x = numberValue(row[2]);
+      const y = numberValue(row[3]);
+      const featureType = numberValue(row[4]);
+      const terrainType = numberValue(row[5]);
+      const biomeType = numberValue(row[6]);
+      const occupiedFeatureType = numberValue(row[7]);
+      const elevation = numberValue(row[8]);
+      const aridityPpm = numberValue(row[9]);
+      const riverClass = numberValue(row[10]);
+      const lakeMask = numberValue(row[11]);
+      const blockedMask = numberValue(row[12]);
+      const landMask = numberValue(row[13]);
+      if (
+        status === undefined ||
+        plotIndex === undefined ||
+        x === undefined ||
+        y === undefined ||
+        featureType === undefined ||
+        terrainType === undefined ||
+        biomeType === undefined ||
+        occupiedFeatureType === undefined ||
+        elevation === undefined ||
+        aridityPpm === undefined ||
+        riverClass === undefined ||
+        lakeMask === undefined ||
+        blockedMask === undefined ||
+        landMask === undefined
+      ) {
+        return [];
+      }
+      return [
+        {
+          plotIndex,
+          x,
+          y,
+          featureType,
+          terrainType,
+          biomeType,
+          occupiedFeatureType,
+          elevation,
+          aridityPpm,
+          riverClass,
+          lakeMask,
+          blockedMask,
+          landMask,
+        },
+      ];
+    })
+    .slice(0, 16);
   return inputRows.length === 0 ? undefined : { inputRows };
 }
 
-function resourcePlacementStats(
-  payload: Record<string, unknown>
-):
+function resourcePlacementStats(payload: Record<string, unknown>):
   | {
       stats: NonNullable<
         NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["resourcePlacement"]>["stats"]
@@ -1015,7 +1234,9 @@ function resourcePlacementStats(
   const rejectedCount = numberValue(payload.rejectedCount);
   const mismatchCount = numberValue(payload.mismatchCount);
   const rejectionExamples = Array.isArray(payload.rejectionExamples)
-    ? payload.rejectionExamples.filter((entry): entry is string => typeof entry === "string").slice(0, 8)
+    ? payload.rejectionExamples
+        .filter((entry): entry is string => typeof entry === "string")
+        .slice(0, 8)
     : undefined;
   if (
     version === undefined ||
@@ -1050,76 +1271,79 @@ function resourcePlacementRejectionRows(
   >["rejectionRows"]
 > {
   if (!Array.isArray(payload.rejectionRows)) return [];
-  return payload.rejectionRows.flatMap((value) => {
-    if (!isRecord(value)) return [];
-    const status: "rejected" | "mismatch" | undefined =
-      value.status === "rejected" || value.status === "mismatch" ? value.status : undefined;
-    const resourceType = numberValue(value.resourceType);
-    const plotIndex = numberValue(value.plotIndex);
-    const x = numberValue(value.x);
-    const y = numberValue(value.y);
-    const preferredValue = Object.hasOwn(value, "preferredResourceType")
-      ? value.preferredResourceType
-      : value.preferred;
-    const preferredResourceType =
-      preferredValue === null ? null : numberValue(preferredValue);
-    if (
-      status === undefined ||
-      resourceType === undefined ||
-      plotIndex === undefined ||
-      x === undefined ||
-      y === undefined
-    ) {
-      return [];
-    }
-    const observedResourceType = numberValue(value.observedResourceType);
-    return [
-      {
-        status,
-        resourceType,
-        ...(stringValue(value.resource) === undefined ? {} : { resource: stringValue(value.resource) }),
-        plotIndex,
-        x,
-        y,
-        ...(stringValue(value.reason) === undefined ? {} : { reason: stringValue(value.reason) }),
-        ...(observedResourceType === undefined ? {} : { observedResourceType }),
-        ...(stringValue(value.observedResource) === undefined
-          ? {}
-          : { observedResource: stringValue(value.observedResource) }),
-        ...(stringValue(value.assignmentPhase ?? value.phase) === undefined
-          ? {}
-          : { assignmentPhase: stringValue(value.assignmentPhase ?? value.phase) }),
-        ...(numberValue(value.assignmentOrder ?? value.order) === undefined
-          ? {}
-          : { assignmentOrder: numberValue(value.assignmentOrder ?? value.order) }),
-        ...(numberValue(value.initialResourceType ?? value.initial) === undefined
-          ? {}
-          : { initialResourceType: numberValue(value.initialResourceType ?? value.initial) }),
-        ...(preferredResourceType === undefined ? {} : { preferredResourceType }),
-        ...(numberValue(value.perTypeCountBefore ?? value.countBefore) === undefined
-          ? {}
-          : { perTypeCountBefore: numberValue(value.perTypeCountBefore ?? value.countBefore) }),
-        ...(numberValue(value.legalPlotCountForResource ?? value.legalPlots) === undefined
-          ? {}
-          : {
-              legalPlotCountForResource: numberValue(
-                value.legalPlotCountForResource ?? value.legalPlots
-              ),
-            }),
-        ...(numberValue(value.targetMinPerType ?? value.targetMin) === undefined
-          ? {}
-          : { targetMinPerType: numberValue(value.targetMinPerType ?? value.targetMin) }),
-      },
-    ];
-  }).slice(0, 8);
+  return payload.rejectionRows
+    .flatMap((value) => {
+      if (!isRecord(value)) return [];
+      const status: "rejected" | "mismatch" | undefined =
+        value.status === "rejected" || value.status === "mismatch" ? value.status : undefined;
+      const resourceType = numberValue(value.resourceType);
+      const plotIndex = numberValue(value.plotIndex);
+      const x = numberValue(value.x);
+      const y = numberValue(value.y);
+      const preferredValue = Object.hasOwn(value, "preferredResourceType")
+        ? value.preferredResourceType
+        : value.preferred;
+      const preferredResourceType = preferredValue === null ? null : numberValue(preferredValue);
+      if (
+        status === undefined ||
+        resourceType === undefined ||
+        plotIndex === undefined ||
+        x === undefined ||
+        y === undefined
+      ) {
+        return [];
+      }
+      const observedResourceType = numberValue(value.observedResourceType);
+      return [
+        {
+          status,
+          resourceType,
+          ...(stringValue(value.resource) === undefined
+            ? {}
+            : { resource: stringValue(value.resource) }),
+          plotIndex,
+          x,
+          y,
+          ...(stringValue(value.reason) === undefined ? {} : { reason: stringValue(value.reason) }),
+          ...(observedResourceType === undefined ? {} : { observedResourceType }),
+          ...(stringValue(value.observedResource) === undefined
+            ? {}
+            : { observedResource: stringValue(value.observedResource) }),
+          ...(stringValue(value.assignmentPhase ?? value.phase) === undefined
+            ? {}
+            : { assignmentPhase: stringValue(value.assignmentPhase ?? value.phase) }),
+          ...(numberValue(value.assignmentOrder ?? value.order) === undefined
+            ? {}
+            : { assignmentOrder: numberValue(value.assignmentOrder ?? value.order) }),
+          ...(numberValue(value.initialResourceType ?? value.initial) === undefined
+            ? {}
+            : { initialResourceType: numberValue(value.initialResourceType ?? value.initial) }),
+          ...(preferredResourceType === undefined ? {} : { preferredResourceType }),
+          ...(numberValue(value.perTypeCountBefore ?? value.countBefore) === undefined
+            ? {}
+            : { perTypeCountBefore: numberValue(value.perTypeCountBefore ?? value.countBefore) }),
+          ...(numberValue(value.legalPlotCountForResource ?? value.legalPlots) === undefined
+            ? {}
+            : {
+                legalPlotCountForResource: numberValue(
+                  value.legalPlotCountForResource ?? value.legalPlots
+                ),
+              }),
+          ...(numberValue(value.targetMinPerType ?? value.targetMin) === undefined
+            ? {}
+            : { targetMinPerType: numberValue(value.targetMinPerType ?? value.targetMin) }),
+        },
+      ];
+    })
+    .slice(0, 8);
 }
 
-function naturalWonderPlacementCoordinateProof(
-  payload: Record<string, unknown>
-):
+function naturalWonderPlacementCoordinateProof(payload: Record<string, unknown>):
   | {
       coordinateProof: NonNullable<
-        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>["coordinateProof"]
+        NonNullable<
+          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]
+        >["coordinateProof"]
       >;
     }
   | undefined {
@@ -1128,7 +1352,8 @@ function naturalWonderPlacementCoordinateProof(
   const version = numberValue(coordinateProof.version);
   const placedCount = numberValue(coordinateProof.placedCount);
   const placedHash32 = hash32Value(coordinateProof.placedHash32);
-  if (version === undefined || placedCount === undefined || placedHash32 === undefined) return undefined;
+  if (version === undefined || placedCount === undefined || placedHash32 === undefined)
+    return undefined;
   const rejectedCount = numberValue(coordinateProof.rejectedCount);
   const rejectedHash32 = hash32Value(coordinateProof.rejectedHash32);
   return {
@@ -1142,12 +1367,12 @@ function naturalWonderPlacementCoordinateProof(
   };
 }
 
-function naturalWonderPlacementCoordinateRows(
-  payload: Record<string, unknown>
-):
+function naturalWonderPlacementCoordinateRows(payload: Record<string, unknown>):
   | {
       coordinateRows: NonNullable<
-        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>["coordinateRows"]
+        NonNullable<
+          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]
+        >["coordinateRows"]
       >;
     }
   | undefined {
@@ -1161,7 +1386,9 @@ function naturalWonderPlacementCoordinateRows(
 function naturalWonderVerboseCoordinateRows(
   value: unknown
 ): NonNullable<
-  NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>["coordinateRows"]
+  NonNullable<
+    NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]
+  >["coordinateRows"]
 > {
   if (!Array.isArray(value)) return [];
   return value.flatMap((value) => {
@@ -1206,7 +1433,9 @@ function naturalWonderVerboseCoordinateRows(
         ...(observedFeatureType === undefined ? {} : { observedFeatureType }),
         ...(observedPlotIndex === undefined ? {} : { observedPlotIndex }),
         ...(expectedFootprintReadback.length === 0 ? {} : { expectedFootprintReadback }),
-        ...(expectedFootprintReadbackStatus === undefined ? {} : { expectedFootprintReadbackStatus }),
+        ...(expectedFootprintReadbackStatus === undefined
+          ? {}
+          : { expectedFootprintReadbackStatus }),
       },
     ];
   });
@@ -1215,7 +1444,9 @@ function naturalWonderVerboseCoordinateRows(
 function naturalWonderCompactRejectedRows(
   value: unknown
 ): NonNullable<
-  NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>["coordinateRows"]
+  NonNullable<
+    NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]
+  >["coordinateRows"]
 > {
   if (!Array.isArray(value)) return [];
   return value.flatMap((row) => {
@@ -1254,7 +1485,9 @@ function naturalWonderCompactRejectedRows(
         reason,
         ...(observedFeatureType === undefined ? {} : { observedFeatureType }),
         ...(observedPlotIndex === undefined ? {} : { observedPlotIndex }),
-        ...(expectedFootprintReadbackStatus === undefined ? {} : { expectedFootprintReadbackStatus }),
+        ...(expectedFootprintReadbackStatus === undefined
+          ? {}
+          : { expectedFootprintReadbackStatus }),
       },
     ];
   });
@@ -1265,13 +1498,15 @@ function naturalWonderFootprintReadbackRows(value: unknown): ReadonlyArray<{
   observedFeatureType: number;
 }> {
   if (!Array.isArray(value)) return [];
-  return value.flatMap((entry) => {
-    if (!isRecord(entry)) return [];
-    const plotIndex = numberValue(entry.plotIndex);
-    const observedFeatureType = numberValue(entry.observedFeatureType);
-    if (plotIndex === undefined || observedFeatureType === undefined) return [];
-    return [{ plotIndex, observedFeatureType }];
-  }).slice(0, 8);
+  return value
+    .flatMap((entry) => {
+      if (!isRecord(entry)) return [];
+      const plotIndex = numberValue(entry.plotIndex);
+      const observedFeatureType = numberValue(entry.observedFeatureType);
+      if (plotIndex === undefined || observedFeatureType === undefined) return [];
+      return [{ plotIndex, observedFeatureType }];
+    })
+    .slice(0, 8);
 }
 
 function naturalWonderFootprintReadbackStatus(
@@ -1282,12 +1517,12 @@ function naturalWonderFootprintReadbackStatus(
     : undefined;
 }
 
-function resourcePlacementCoordinateProof(
-  payload: Record<string, unknown>
-):
+function resourcePlacementCoordinateProof(payload: Record<string, unknown>):
   | {
       coordinateProof: NonNullable<
-        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["resourcePlacement"]>["coordinateProof"]
+        NonNullable<
+          NonNullable<RunInGameExactAuthorshipProof["log"]>["resourcePlacement"]
+        >["coordinateProof"]
       >;
     }
   | undefined {
@@ -1296,7 +1531,8 @@ function resourcePlacementCoordinateProof(
   const version = numberValue(coordinateProof.version);
   const placedCount = numberValue(coordinateProof.placedCount);
   const placedHash32 = hash32Value(coordinateProof.placedHash32);
-  if (version === undefined || placedCount === undefined || placedHash32 === undefined) return undefined;
+  if (version === undefined || placedCount === undefined || placedHash32 === undefined)
+    return undefined;
   const rejectedCount = numberValue(coordinateProof.rejectedCount);
   const rejectedHash32 = hash32Value(coordinateProof.rejectedHash32);
   const mismatchCount = numberValue(coordinateProof.mismatchCount);
@@ -1345,7 +1581,9 @@ function hash32Value(value: unknown): string | undefined {
   return typeof value === "string" && /^[0-9a-f]{8}$/.test(value) ? value : undefined;
 }
 
-function dimensionsFromPayload(payload: Record<string, unknown>): { width: number; height: number } | null {
+function dimensionsFromPayload(
+  payload: Record<string, unknown>
+): { width: number; height: number } | null {
   if (!isRecord(payload.dimensions)) return null;
   const { width, height } = payload.dimensions;
   return typeof width === "number" && typeof height === "number" ? { width, height } : null;

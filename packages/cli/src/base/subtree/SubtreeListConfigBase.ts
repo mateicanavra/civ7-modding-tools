@@ -1,15 +1,15 @@
-import { Flags } from '@oclif/core';
-import BaseCommand from '../BaseCommand.js';
-import { listSubtreeConfigs } from '../../utils/git.js';
+import { Flags } from "@oclif/core";
+import BaseCommand from "../BaseCommand.js";
+import { listSubtreeConfigs } from "../../utils/git.js";
 
 export default abstract class SubtreeListConfigBase extends BaseCommand {
   static enableJsonFlag = true;
 
   static flags = {
     verbose: Flags.boolean({
-      description: 'Show underlying git commands',
+      description: "Show underlying git commands",
       default: false,
-      char: 'v',
+      char: "v",
     }),
   } as const;
 
@@ -25,11 +25,11 @@ export default abstract class SubtreeListConfigBase extends BaseCommand {
       return configs;
     }
     if (configs.length === 0) {
-      this.log('No stored config entries.');
+      this.log("No stored config entries.");
       return;
     }
     for (const cfg of configs) {
-      this.log(`${cfg.slug}: ${cfg.repoUrl ?? '(no repoUrl)'} branch=${cfg.branch ?? '(none)'}`);
+      this.log(`${cfg.slug}: ${cfg.repoUrl ?? "(no repoUrl)"} branch=${cfg.branch ?? "(none)"}`);
     }
   }
 }

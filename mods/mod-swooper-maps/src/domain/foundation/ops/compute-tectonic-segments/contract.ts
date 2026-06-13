@@ -41,18 +41,35 @@ export const FoundationTectonicSegmentsSchema = Type.Object(
       description:
         "Polarity for convergent segments (-1=plateA subducts, +1=plateB subducts, 0=unknown/non-convergent).",
     }),
-    compression: TypedArraySchemas.u8({ shape: null, description: "Compression intensity per segment (0..255)." }),
-    extension: TypedArraySchemas.u8({ shape: null, description: "Extension intensity per segment (0..255)." }),
-    shear: TypedArraySchemas.u8({ shape: null, description: "Shear intensity per segment (0..255)." }),
-    volcanism: TypedArraySchemas.u8({ shape: null, description: "Volcanism potential per segment (0..255)." }),
-    fracture: TypedArraySchemas.u8({ shape: null, description: "Fracture potential per segment (0..255)." }),
+    compression: TypedArraySchemas.u8({
+      shape: null,
+      description: "Compression intensity per segment (0..255).",
+    }),
+    extension: TypedArraySchemas.u8({
+      shape: null,
+      description: "Extension intensity per segment (0..255).",
+    }),
+    shear: TypedArraySchemas.u8({
+      shape: null,
+      description: "Shear intensity per segment (0..255).",
+    }),
+    volcanism: TypedArraySchemas.u8({
+      shape: null,
+      description: "Volcanism potential per segment (0..255).",
+    }),
+    fracture: TypedArraySchemas.u8({
+      shape: null,
+      description: "Fracture potential per segment (0..255).",
+    }),
     driftU: TypedArraySchemas.i8({
       shape: null,
-      description: "Normalized drift direction U per segment (-127..127), used for pseudo-evolution across eras.",
+      description:
+        "Normalized drift direction U per segment (-127..127), used for pseudo-evolution across eras.",
     }),
     driftV: TypedArraySchemas.i8({
       shape: null,
-      description: "Normalized drift direction V per segment (-127..127), used for pseudo-evolution across eras.",
+      description:
+        "Normalized drift direction V per segment (-127..127), used for pseudo-evolution across eras.",
     }),
   },
   { additionalProperties: false }
@@ -70,7 +87,10 @@ const ComputeTectonicSegmentsContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  output: Type.Object({ segments: FoundationTectonicSegmentsSchema }, { additionalProperties: false }),
+  output: Type.Object(
+    { segments: FoundationTectonicSegmentsSchema },
+    { additionalProperties: false }
+  ),
   strategies: {
     default: StrategySchema,
   },

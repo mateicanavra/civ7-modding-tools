@@ -51,10 +51,7 @@ const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
     "placement.starts.seatRung",
     "placement.starts.startPosition",
   ],
-  "adjust-resources": [
-    "placement.resources.supportAdjustment",
-    "placement.starts.supportRadius",
-  ],
+  "adjust-resources": ["placement.resources.supportAdjustment", "placement.starts.supportRadius"],
   "place-resources": ["placement.resources.outcome"],
   "place-discoveries": ["placement.discoveries.outcome"],
   placement: ["map.placement.engine.landMask", "map.placement.engine.waterDrift"],

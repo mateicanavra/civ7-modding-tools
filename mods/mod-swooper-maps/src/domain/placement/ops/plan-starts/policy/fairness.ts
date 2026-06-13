@@ -1,10 +1,6 @@
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
-import type {
-  RelaxationEntry,
-  SeatSelection,
-  SelectableTile,
-} from "./selection-ladder.js";
+import type { RelaxationEntry, SeatSelection, SelectableTile } from "./selection-ladder.js";
 
 /**
  * Fairness balancing pass (placement-realignment S4, target card step 7,

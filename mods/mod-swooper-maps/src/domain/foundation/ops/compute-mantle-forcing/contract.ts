@@ -30,22 +30,19 @@ const StrategySchema = Type.Object(
       default: 0.35,
       minimum: 0,
       maximum: 2,
-      description:
-        "Controls how much curvature contributes to the mantle stress proxy.",
+      description: "Controls how much curvature contributes to the mantle stress proxy.",
     }),
     upwellingThreshold: Type.Number({
       default: 0.35,
       minimum: 0,
       maximum: 1,
-      description:
-        "Sets the local-maximum threshold used to classify cells as upwelling sources.",
+      description: "Sets the local-maximum threshold used to classify cells as upwelling sources.",
     }),
     downwellingThreshold: Type.Number({
       default: 0.35,
       minimum: 0,
       maximum: 1,
-      description:
-        "Sets the local-minimum threshold used to classify cells as downwelling sinks.",
+      description: "Sets the local-minimum threshold used to classify cells as downwelling sinks.",
     }),
   },
   { additionalProperties: false }
@@ -73,7 +70,8 @@ export const FoundationMantleForcingSchema = Type.Object(
     }),
     upwellingClass: TypedArraySchemas.i8({
       shape: null,
-      description: "Upwelling classification per mesh cell (+1 upwelling, -1 downwelling, 0 neutral).",
+      description:
+        "Upwelling classification per mesh cell (+1 upwelling, -1 downwelling, 0 neutral).",
     }),
     divergence: TypedArraySchemas.f32({
       shape: null,
@@ -93,7 +91,10 @@ const ComputeMantleForcingContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  output: Type.Object({ mantleForcing: FoundationMantleForcingSchema }, { additionalProperties: false }),
+  output: Type.Object(
+    { mantleForcing: FoundationMantleForcingSchema },
+    { additionalProperties: false }
+  ),
   strategies: {
     default: StrategySchema,
   },

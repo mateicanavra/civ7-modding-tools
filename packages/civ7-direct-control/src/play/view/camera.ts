@@ -2,10 +2,7 @@ import { Type, type Static } from "typebox";
 
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
-import {
-  Civ7RuntimeProbeSchema,
-  probeHelperSource,
-} from "../../runtime/probe.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import type {
@@ -35,51 +32,69 @@ import { validateMapLocation } from "../map/validation.js";
 // target center or the requested zoom, the state is re-read on a short settle
 // loop until both verify or the retry budget runs out.
 
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
-const Civ7CameraPointSchema = Type.Object({
-  x: Type.Number(),
-  y: Type.Number(),
-}, { additionalProperties: false });
+const Civ7CameraPointSchema = Type.Object(
+  {
+    x: Type.Number(),
+    y: Type.Number(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7CameraFocusInputSchema = Type.Object({
-  ...Civ7MapLocationSchema.properties,
-  zoom: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-  instantaneous: Type.Optional(Type.Boolean()),
-}, { additionalProperties: false });
+export const Civ7CameraFocusInputSchema = Type.Object(
+  {
+    ...Civ7MapLocationSchema.properties,
+    zoom: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+    instantaneous: Type.Optional(Type.Boolean()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7CameraFocusInput = Readonly<Static<typeof Civ7CameraFocusInputSchema>>;
 
-export const Civ7CameraStateSnapshotSchema = Type.Object({
-  exists: Type.Boolean(),
-  zoomLevel: Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.Null()])),
-  focusPoint: Civ7RuntimeProbeSchema(Type.Union([Civ7CameraPointSchema, Type.Null()])),
-  centerPlot: Civ7RuntimeProbeSchema(Type.Union([Civ7MapLocationSchema, Type.Null()])),
-}, { additionalProperties: false });
+export const Civ7CameraStateSnapshotSchema = Type.Object(
+  {
+    exists: Type.Boolean(),
+    zoomLevel: Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.Null()])),
+    focusPoint: Civ7RuntimeProbeSchema(Type.Union([Civ7CameraPointSchema, Type.Null()])),
+    centerPlot: Civ7RuntimeProbeSchema(Type.Union([Civ7MapLocationSchema, Type.Null()])),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7CameraStateSnapshot = Readonly<Static<typeof Civ7CameraStateSnapshotSchema>>;
 
-export const Civ7CameraFocusOptionsSchema = Type.Object({
-  zoom: Type.Optional(Type.Number()),
-  instantaneous: Type.Boolean(),
-}, { additionalProperties: false });
+export const Civ7CameraFocusOptionsSchema = Type.Object(
+  {
+    zoom: Type.Optional(Type.Number()),
+    instantaneous: Type.Boolean(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7CameraFocusResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  source: Type.Literal("app-ui-camera"),
-  target: Civ7MapLocationSchema,
-  targetIndex: Civ7RuntimeProbeSchema(Type.Number()),
-  options: Civ7CameraFocusOptionsSchema,
-  before: Civ7CameraStateSnapshotSchema,
-  lookAt: Civ7RuntimeProbeSchema(Type.Boolean()),
-  after: Civ7CameraStateSnapshotSchema,
-  centerMatchesTarget: Type.Boolean(),
-}, { additionalProperties: false });
+export const Civ7CameraFocusResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    source: Type.Literal("app-ui-camera"),
+    target: Civ7MapLocationSchema,
+    targetIndex: Civ7RuntimeProbeSchema(Type.Number()),
+    options: Civ7CameraFocusOptionsSchema,
+    before: Civ7CameraStateSnapshotSchema,
+    lookAt: Civ7RuntimeProbeSchema(Type.Boolean()),
+    after: Civ7CameraStateSnapshotSchema,
+    centerMatchesTarget: Type.Boolean(),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7CameraFocusResult = Readonly<{
   host: string;
@@ -99,7 +114,9 @@ export type Civ7CameraFocusResult = Readonly<{
 }>;
 
 export type CameraFocusDependencies = Readonly<{
-  executeAppUiCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
+  ) => Promise<Civ7CommandResult>;
   jsLiteral: (value: unknown) => string;
   parseCameraFocus: (result: Civ7CommandResult, label: string) => Civ7CameraFocusResult;
   probeHelperSource: () => string;
@@ -109,7 +126,7 @@ export type CameraFocusDependencies = Readonly<{
 export async function focusCiv7CameraOnPlot(
   input: Civ7CameraFocusInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: CameraFocusDependencies = defaultCameraFocusDependencies,
+  dependencies: CameraFocusDependencies = defaultCameraFocusDependencies
 ): Promise<Civ7CameraFocusResult> {
   dependencies.validateMapLocation(input);
   validateCameraFocusInput(input);
@@ -125,8 +142,8 @@ export async function focusCiv7CameraOnPlot(
   });
   const immediate = dependencies.parseCameraFocus(result, "Civ7 camera focus");
   if (
-    cameraFocusCenterMatchesTarget(immediate)
-    && cameraFocusZoomSettled(immediate, normalized.zoom)
+    cameraFocusCenterMatchesTarget(immediate) &&
+    cameraFocusZoomSettled(immediate, normalized.zoom)
   ) {
     return { ...immediate, centerMatchesTarget: true };
   }
@@ -142,7 +159,7 @@ export async function focusCiv7CameraOnPlot(
           ...options,
           command: buildCameraFocusStateReadCommand(normalized, dependencies),
         }),
-        "Civ7 camera focus settled state",
+        "Civ7 camera focus settled state"
       );
       merged = {
         ...immediate,
@@ -152,10 +169,7 @@ export async function focusCiv7CameraOnPlot(
           after: settled.after,
         }),
       };
-      if (
-        merged.centerMatchesTarget
-        && cameraFocusZoomSettled(merged, normalized.zoom)
-      ) {
+      if (merged.centerMatchesTarget && cameraFocusZoomSettled(merged, normalized.zoom)) {
         return merged;
       }
     }
@@ -173,27 +187,31 @@ const CAMERA_FOCUS_ZOOM_EPSILON = 0.01;
 
 function cameraFocusZoomSettled(
   result: Pick<Civ7CameraFocusResult, "after">,
-  zoom: number | undefined,
+  zoom: number | undefined
 ): boolean {
   if (zoom === undefined) return true;
   const level = result.after.zoomLevel;
-  return level.ok
-    && level.value !== null
-    && Math.abs(level.value - zoom) <= CAMERA_FOCUS_ZOOM_EPSILON;
+  return (
+    level.ok && level.value !== null && Math.abs(level.value - zoom) <= CAMERA_FOCUS_ZOOM_EPSILON
+  );
 }
 
 function validateCameraFocusInput(input: Civ7CameraFocusInput): void {
-  if (input.zoom !== undefined && (!Number.isFinite(input.zoom) || input.zoom < 0 || input.zoom > 1)) {
+  if (
+    input.zoom !== undefined &&
+    (!Number.isFinite(input.zoom) || input.zoom < 0 || input.zoom > 1)
+  ) {
     throw new Civ7DirectControlError(
       "command-failed",
-      "camera zoom must be a finite number between 0 (closest) and 1 (fully zoomed out) — the engine's normalized zoom level",
+      "camera zoom must be a finite number between 0 (closest) and 1 (fully zoomed out) — the engine's normalized zoom level"
     );
   }
 }
 
 function buildCameraFocusCommand(
-  input: Required<Pick<Civ7CameraFocusInput, "x" | "y" | "instantaneous">> & Pick<Civ7CameraFocusInput, "zoom">,
-  dependencies: CameraFocusDependencies,
+  input: Required<Pick<Civ7CameraFocusInput, "x" | "y" | "instantaneous">> &
+    Pick<Civ7CameraFocusInput, "zoom">,
+  dependencies: CameraFocusDependencies
 ): string {
   return `(() => {
     ${dependencies.probeHelperSource()}
@@ -260,8 +278,9 @@ function buildCameraFocusCommand(
 }
 
 function buildCameraFocusStateReadCommand(
-  input: Required<Pick<Civ7CameraFocusInput, "x" | "y" | "instantaneous">> & Pick<Civ7CameraFocusInput, "zoom">,
-  dependencies: CameraFocusDependencies,
+  input: Required<Pick<Civ7CameraFocusInput, "x" | "y" | "instantaneous">> &
+    Pick<Civ7CameraFocusInput, "zoom">,
+  dependencies: CameraFocusDependencies
 ): string {
   return `(() => {
     ${dependencies.probeHelperSource()}
@@ -318,15 +337,23 @@ function buildCameraFocusStateReadCommand(
   })()`;
 }
 
-function cameraFocusCenterMatchesTarget(result: Pick<Civ7CameraFocusResult, "target" | "after">): boolean {
+function cameraFocusCenterMatchesTarget(
+  result: Pick<Civ7CameraFocusResult, "target" | "after">
+): boolean {
   const center = result.after.centerPlot;
-  return center.ok && center.value !== null && center.value.x === result.target.x && center.value.y === result.target.y;
+  return (
+    center.ok &&
+    center.value !== null &&
+    center.value.x === result.target.x &&
+    center.value.y === result.target.y
+  );
 }
 
 const defaultCameraFocusDependencies: CameraFocusDependencies = {
   executeAppUiCommand: executeCiv7AppUiCommand,
   jsLiteral,
-  parseCameraFocus: (result, label) => jsonPayloadFromCommandResult<Civ7CameraFocusResult>(result, label),
+  parseCameraFocus: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7CameraFocusResult>(result, label),
   probeHelperSource,
   validateMapLocation,
 };

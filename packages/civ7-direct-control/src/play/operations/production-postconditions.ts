@@ -39,15 +39,18 @@ export type Civ7ProductionPostconditionSnapshot = Readonly<{
   blockingProductionNotification: Civ7RuntimeProbe<unknown>;
 }>;
 
-export const Civ7ProductionPostconditionSnapshotSchema = Type.Object({
-  cityId: Type.Union([Civ7ComponentIdSchema, Type.Null()]),
-  city: Civ7RuntimeProbeSchema(Type.Unknown()),
-  buildQueue: Civ7RuntimeProbeSchema(Type.Unknown()),
-  selectedCityId: Civ7RuntimeProbeSchema(Type.Union([Civ7ComponentIdSchema, Type.Null()])),
-  blocker: Civ7RuntimeProbeSchema(Type.Unknown()),
-  canEndTurn: Civ7RuntimeProbeSchema(Type.Unknown()),
-  blockingProductionNotification: Civ7RuntimeProbeSchema(Type.Unknown()),
-}, { additionalProperties: false });
+export const Civ7ProductionPostconditionSnapshotSchema = Type.Object(
+  {
+    cityId: Type.Union([Civ7ComponentIdSchema, Type.Null()]),
+    city: Civ7RuntimeProbeSchema(Type.Unknown()),
+    buildQueue: Civ7RuntimeProbeSchema(Type.Unknown()),
+    selectedCityId: Civ7RuntimeProbeSchema(Type.Union([Civ7ComponentIdSchema, Type.Null()])),
+    blocker: Civ7RuntimeProbeSchema(Type.Unknown()),
+    canEndTurn: Civ7RuntimeProbeSchema(Type.Unknown()),
+    blockingProductionNotification: Civ7RuntimeProbeSchema(Type.Unknown()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7ProductionPostcondition = Readonly<{
   family: "city-operation";
@@ -60,17 +63,22 @@ export type Civ7ProductionPostcondition = Readonly<{
   reason: string;
 }>;
 
-export const Civ7ProductionPostconditionSchema = Type.Object({
-  family: Type.Literal("city-operation"),
-  operationType: Type.Literal("BUILD"),
-  classification: Civ7ProductionPostconditionClassificationSchema,
-  before: Type.Optional(Civ7ProductionPostconditionSnapshotSchema),
-  after: Type.Optional(Civ7ProductionPostconditionSnapshotSchema),
-  productionStateChanged: Type.Boolean(),
-  blockerStillLive: Type.Boolean(),
-  reason: Type.String(),
-}, { additionalProperties: false });
-export type Civ7ProductionPostconditionSchemaType = Static<typeof Civ7ProductionPostconditionSchema>;
+export const Civ7ProductionPostconditionSchema = Type.Object(
+  {
+    family: Type.Literal("city-operation"),
+    operationType: Type.Literal("BUILD"),
+    classification: Civ7ProductionPostconditionClassificationSchema,
+    before: Type.Optional(Civ7ProductionPostconditionSnapshotSchema),
+    after: Type.Optional(Civ7ProductionPostconditionSnapshotSchema),
+    productionStateChanged: Type.Boolean(),
+    blockerStillLive: Type.Boolean(),
+    reason: Type.String(),
+  },
+  { additionalProperties: false }
+);
+export type Civ7ProductionPostconditionSchemaType = Static<
+  typeof Civ7ProductionPostconditionSchema
+>;
 
 export function productionPostconditionFor(
   family: Civ7OperationFamily,
@@ -79,12 +87,18 @@ export function productionPostconditionFor(
   before: Civ7OperationValidationResult,
   after: Civ7OperationValidationResult,
   beforeSnapshot: Civ7ProductionPostconditionSnapshot | undefined,
-  afterSnapshot: Civ7ProductionPostconditionSnapshot | undefined,
+  afterSnapshot: Civ7ProductionPostconditionSnapshot | undefined
 ): Civ7ProductionPostcondition | undefined {
   if (family !== "city-operation" || input.operationType !== "BUILD") return undefined;
   const productionStateChanged = productionSnapshotChanged(beforeSnapshot, afterSnapshot);
   const blockerStillLive = productionBlockerStillLive(afterSnapshot);
-  const classification = classifyProductionPostcondition(sent, before, after, productionStateChanged, blockerStillLive);
+  const classification = classifyProductionPostcondition(
+    sent,
+    before,
+    after,
+    productionStateChanged,
+    blockerStillLive
+  );
   return {
     family: "city-operation",
     operationType: "BUILD",
@@ -99,15 +113,19 @@ export function productionPostconditionFor(
 
 function productionSnapshotChanged(
   before: Civ7ProductionPostconditionSnapshot | undefined,
-  after: Civ7ProductionPostconditionSnapshot | undefined,
+  after: Civ7ProductionPostconditionSnapshot | undefined
 ): boolean {
   if (!before || !after) return false;
-  return probeValueChanged(before.city, after.city)
-    || probeValueChanged(before.buildQueue, after.buildQueue)
-    || probeValueChanged(before.selectedCityId, after.selectedCityId);
+  return (
+    probeValueChanged(before.city, after.city) ||
+    probeValueChanged(before.buildQueue, after.buildQueue) ||
+    probeValueChanged(before.selectedCityId, after.selectedCityId)
+  );
 }
 
-function productionBlockerStillLive(snapshot: Civ7ProductionPostconditionSnapshot | undefined): boolean {
+function productionBlockerStillLive(
+  snapshot: Civ7ProductionPostconditionSnapshot | undefined
+): boolean {
   const value = snapshot ? probeValue(snapshot.blockingProductionNotification) : undefined;
   if (!value || typeof value !== "object") return false;
   const record = value as Record<string, unknown>;
@@ -119,17 +137,21 @@ function classifyProductionPostcondition(
   before: Civ7OperationValidationResult,
   after: Civ7OperationValidationResult,
   productionStateChanged: boolean,
-  blockerStillLive: boolean,
+  blockerStillLive: boolean
 ): Civ7ProductionPostconditionClassification {
   if (!sent) return "not-sent";
-  if (productionStateChanged && blockerStillLive) return "production-state-changed-blocker-still-live";
+  if (productionStateChanged && blockerStillLive)
+    return "production-state-changed-blocker-still-live";
   if (!blockerStillLive) return "production-choice-cleared";
   if (productionStateChanged) return "production-state-changed";
-  if (before.valid !== after.valid || stableJson(before.result) !== stableJson(after.result)) return "validation-changed";
+  if (before.valid !== after.valid || stableJson(before.result) !== stableJson(after.result))
+    return "validation-changed";
   return "no-state-change";
 }
 
-function productionPostconditionReason(classification: Civ7ProductionPostconditionClassification): string {
+function productionPostconditionReason(
+  classification: Civ7ProductionPostconditionClassification
+): string {
   switch (classification) {
     case "not-sent":
       return "The production request was not sent, so no production postcondition can be verified.";

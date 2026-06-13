@@ -1,8 +1,5 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
-import {
-  executeCiv7AppUiCommand,
-  executeCiv7Command,
-} from "../session/execute.js";
+import { executeCiv7AppUiCommand, executeCiv7Command } from "../session/execute.js";
 import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
 import { withCiv7DirectControlSession } from "../session/session.js";
 import {
@@ -37,12 +34,14 @@ export type Civ7RestartAndBeginResult = Readonly<{
 type RestartBeginDependencies = Readonly<{
   appUiState: Civ7TunerStateSelection;
   beginGameCommand: string;
-  executeAppUiCommand: (options: Civ7DirectControlOptions & { command: string }) => Promise<Civ7CommandResult>;
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & { command: string }
+  ) => Promise<Civ7CommandResult>;
   executeCommand: (
     options: Civ7DirectControlOptions & {
       command: string;
       state?: Civ7TunerStateSelection;
-    },
+    }
   ) => Promise<Civ7CommandResult>;
   executeSessionCommandWithReconnect: (
     session: Civ7DirectControlSession,
@@ -51,7 +50,7 @@ type RestartBeginDependencies = Readonly<{
       state?: Civ7TunerStateSelection;
       timeoutMs?: number;
     }>,
-    attempts?: number,
+    attempts?: number
   ) => Promise<Civ7CommandResult>;
   restartCommand: string;
   uiLoadingStates: Readonly<{
@@ -65,17 +64,20 @@ type RestartBeginDependencies = Readonly<{
       timeoutMs?: number;
       waitTimeoutMs?: number;
       pollIntervalMs?: number;
-    },
+    }
   ) => Promise<Civ7TunerHealthResult & { ready: true }>;
   withSession: <T>(
     options: Civ7DirectControlOptions,
-    run: (session: Civ7DirectControlSession) => Promise<T>,
+    run: (session: Civ7DirectControlSession) => Promise<T>
   ) => Promise<T>;
 }>;
 
 export async function beginCiv7Game(
   options: Civ7DirectControlOptions = {},
-  dependencies: Pick<RestartBeginDependencies, "beginGameCommand" | "executeAppUiCommand"> = defaultRestartBeginDependencies,
+  dependencies: Pick<
+    RestartBeginDependencies,
+    "beginGameCommand" | "executeAppUiCommand"
+  > = defaultRestartBeginDependencies
 ): Promise<Civ7CommandResult> {
   return await dependencies.executeAppUiCommand({
     ...options,
@@ -87,7 +89,10 @@ export async function restartCiv7Game(
   options: Civ7DirectControlOptions & {
     state?: Civ7TunerStateSelection;
   } = {},
-  dependencies: Pick<RestartBeginDependencies, "executeCommand" | "restartCommand"> = defaultRestartBeginDependencies,
+  dependencies: Pick<
+    RestartBeginDependencies,
+    "executeCommand" | "restartCommand"
+  > = defaultRestartBeginDependencies
 ): Promise<Civ7CommandResult> {
   const result = await dependencies.executeCommand({
     ...options,
@@ -104,17 +109,21 @@ export async function restartCiv7GameAndBegin(
     waitTimeoutMs?: number;
     pollIntervalMs?: number;
   } = {},
-  dependencies: RestartBeginDependencies = defaultRestartBeginDependencies,
+  dependencies: RestartBeginDependencies = defaultRestartBeginDependencies
 ): Promise<Civ7RestartAndBeginResult> {
   const waitTimeoutMs = options.waitTimeoutMs ?? options.timeoutMs ?? 120_000;
   const pollIntervalMs = options.pollIntervalMs ?? 1_000;
   const observations: Civ7AppUiSnapshot[] = [];
   return await dependencies.withSession(options, async (session) => {
-    const restart = await dependencies.executeSessionCommandWithReconnect(session, {
-      state: dependencies.appUiState,
-      command: dependencies.restartCommand,
-      timeoutMs: options.timeoutMs,
-    }, 1);
+    const restart = await dependencies.executeSessionCommandWithReconnect(
+      session,
+      {
+        state: dependencies.appUiState,
+        command: dependencies.restartCommand,
+        timeoutMs: options.timeoutMs,
+      },
+      1
+    );
     assertRestartConfirmed(restart);
 
     let begin: Civ7CommandResult | undefined;
@@ -129,18 +138,25 @@ export async function restartCiv7GameAndBegin(
             state: dependencies.appUiState,
             command: buildAppUiSnapshotCommand(),
             timeoutMs: options.timeoutMs,
-          }),
+          })
         );
         observations.push(snapshotResult.snapshot);
         const loadingState = probeValue(snapshotResult.snapshot.ui.loadingState);
-        if (!beginAttempted && isCiv7BeginReadyLoadingState(loadingState, dependencies.uiLoadingStates)) {
+        if (
+          !beginAttempted &&
+          isCiv7BeginReadyLoadingState(loadingState, dependencies.uiLoadingStates)
+        ) {
           beginAttempted = true;
           try {
-            begin = await dependencies.executeSessionCommandWithReconnect(session, {
-              state: dependencies.appUiState,
-              command: dependencies.beginGameCommand,
-              timeoutMs: options.timeoutMs,
-            }, 1);
+            begin = await dependencies.executeSessionCommandWithReconnect(
+              session,
+              {
+                state: dependencies.appUiState,
+                command: dependencies.beginGameCommand,
+                timeoutMs: options.timeoutMs,
+              },
+              1
+            );
           } catch (err) {
             beginError = errorMessage(err);
             throw err;
@@ -165,7 +181,7 @@ export async function restartCiv7GameAndBegin(
       throw new Civ7DirectControlError(
         "connection-timeout",
         `Timed out waiting for Civ7 App UI to reach GameStarted after ${waitTimeoutMs}ms`,
-        { details: { observations, beginAttempted, beginError } },
+        { details: { observations, beginAttempted, beginError } }
       );
     }
 
@@ -192,19 +208,19 @@ function assertRestartConfirmed(result: Civ7CommandResult): void {
     throw new Civ7DirectControlError(
       "command-failed",
       `Civ7 restart returned: ${result.output.join("\n") || "<empty>"}`,
-      { details: result },
+      { details: result }
     );
   }
 }
 
 function isCiv7BeginReadyLoadingState(
   state: number | undefined,
-  loadingStates: Pick<RestartBeginDependencies["uiLoadingStates"], "WaitingForUIReady" | "WaitingToStart">,
+  loadingStates: Pick<
+    RestartBeginDependencies["uiLoadingStates"],
+    "WaitingForUIReady" | "WaitingToStart"
+  >
 ): boolean {
-  return (
-    state === loadingStates.WaitingForUIReady ||
-    state === loadingStates.WaitingToStart
-  );
+  return state === loadingStates.WaitingForUIReady || state === loadingStates.WaitingToStart;
 }
 
 function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {

@@ -8,9 +8,7 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
-import {
-  hydrologyClimateBaselineArtifacts,
-} from "../artifacts.js";
+import { hydrologyClimateBaselineArtifacts } from "../artifacts.js";
 import {
   validateClimateFieldArtifact,
   validateClimateSeasonalityArtifact,

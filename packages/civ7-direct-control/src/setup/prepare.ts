@@ -32,7 +32,7 @@ export const DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR = join(
   "Application Support",
   "Civilization VII",
   "Saves",
-  "Single",
+  "Single"
 );
 
 export type Civ7PlayerSetupOptions = Readonly<{
@@ -69,14 +69,15 @@ export type Civ7SavedGameConfigurationSummary = Readonly<{
   gameSeed?: number;
 }>;
 
-export type Civ7SavedGameConfiguration = Civ7SavedGameConfigurationRef & Readonly<{
-  sizeBytes: number;
-  modifiedAt: string;
-  source: "local-disk";
-  summary: Civ7SavedGameConfigurationSummary;
-  setupOptions: Readonly<Record<string, Civ7SetupOptionValue>>;
-  playerOptions: ReadonlyArray<Civ7PlayerSetupOptions>;
-}>;
+export type Civ7SavedGameConfiguration = Civ7SavedGameConfigurationRef &
+  Readonly<{
+    sizeBytes: number;
+    modifiedAt: string;
+    source: "local-disk";
+    summary: Civ7SavedGameConfigurationSummary;
+    setupOptions: Readonly<Record<string, Civ7SetupOptionValue>>;
+    playerOptions: ReadonlyArray<Civ7PlayerSetupOptions>;
+  }>;
 
 export type Civ7SavedGameConfigurationListInput = Readonly<{
   directory?: string;
@@ -118,20 +119,21 @@ type SetupPreparePayload = Readonly<{
   applied: Record<string, Civ7SetupOptionValue>;
 }>;
 
-type SetupPrepareDependencies = SetupReadDependencies & Readonly<{
-  loadSavedGameConfiguration: (
-    input: Civ7SavedGameConfigurationRef,
-    options?: Civ7DirectControlOptions,
-    wait?: Readonly<{ waitTimeoutMs?: number; pollIntervalMs?: number }>,
-  ) => Promise<Civ7SavedGameConfigurationLoadResult>;
-  parseSetupPreparation: (result: Civ7CommandResult, label: string) => SetupPreparePayload;
-  validateIdentifier: (value: string, label: string) => string;
-}>;
+type SetupPrepareDependencies = SetupReadDependencies &
+  Readonly<{
+    loadSavedGameConfiguration: (
+      input: Civ7SavedGameConfigurationRef,
+      options?: Civ7DirectControlOptions,
+      wait?: Readonly<{ waitTimeoutMs?: number; pollIntervalMs?: number }>
+    ) => Promise<Civ7SavedGameConfigurationLoadResult>;
+    parseSetupPreparation: (result: Civ7CommandResult, label: string) => SetupPreparePayload;
+    validateIdentifier: (value: string, label: string) => string;
+  }>;
 
 export async function prepareCiv7SinglePlayerSetup(
   input: Civ7SinglePlayerSetupInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: SetupPrepareDependencies = defaultSetupPrepareDependencies,
+  dependencies: SetupPrepareDependencies = defaultSetupPrepareDependencies
 ): Promise<Civ7PreparedSetupResult> {
   const normalized = normalizeSinglePlayerSetupInput(input, dependencies);
   const savedConfigLoad = normalized.savedConfig
@@ -144,7 +146,7 @@ export async function prepareCiv7SinglePlayerSetup(
     throw new Civ7DirectControlError(
       "setup-config-load-failed",
       `Civ7 did not load saved configuration ${savedConfigLoad.savedConfig.fileName}`,
-      { details: savedConfigLoad },
+      { details: savedConfigLoad }
     );
   }
   const before = await dependencies.parseSetupSnapshot(
@@ -152,13 +154,13 @@ export async function prepareCiv7SinglePlayerSetup(
       ...options,
       command: buildSetupSnapshotCommand(dependencies),
     }),
-    "Civ7 setup snapshot",
+    "Civ7 setup snapshot"
   );
   if (normalized.requireShell !== false && before.snapshot.phase !== "shell") {
     throw new Civ7DirectControlError(
       "setup-phase-invalid",
       `Civ7 setup requires shell/main-menu phase; observed ${before.snapshot.phase}`,
-      { details: before },
+      { details: before }
     );
   }
 
@@ -167,7 +169,7 @@ export async function prepareCiv7SinglePlayerSetup(
     throw new Civ7DirectControlError(
       "setup-map-row-missing",
       `Civ7 setup map row is not visible for ${normalized.mapScript}`,
-      { details: before.snapshot.mapRows },
+      { details: before.snapshot.mapRows }
     );
   }
 
@@ -198,7 +200,7 @@ export async function prepareCiv7SinglePlayerSetup(
 
 export async function listCiv7SavedGameConfigurations(
   input: Civ7SavedGameConfigurationListInput = {},
-  dependencies: Pick<SetupPrepareDependencies, "boundedInteger">,
+  dependencies: Pick<SetupPrepareDependencies, "boundedInteger">
 ): Promise<Civ7SavedGameConfigurationListResult> {
   const directory = resolve(input.directory ?? DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR);
   const entries = await readdir(directory, { withFileTypes: true }).catch((err: unknown) => {
@@ -213,13 +215,15 @@ export async function listCiv7SavedGameConfigurations(
     configurations.push(await readCiv7SavedGameConfiguration(filePath));
     if (configurations.length >= maxFiles) break;
   }
-  configurations.sort((a, b) => b.modifiedAt.localeCompare(a.modifiedAt) || a.displayName.localeCompare(b.displayName));
+  configurations.sort(
+    (a, b) => b.modifiedAt.localeCompare(a.modifiedAt) || a.displayName.localeCompare(b.displayName)
+  );
   return { directory, configurations };
 }
 
 export function buildPrepareSinglePlayerSetupCommand(
   input: Civ7SinglePlayerSetupInput,
-  dependencies: SetupReadDependencies,
+  dependencies: SetupReadDependencies
 ): string {
   return `(() => {
     ${setupSnapshotScriptSource(dependencies)}
@@ -274,24 +278,30 @@ export function buildPrepareSinglePlayerSetupCommand(
 
 export function normalizeSinglePlayerSetupInput(
   input: Civ7SinglePlayerSetupInput,
-  dependencies: Pick<SetupPrepareDependencies, "boundedInteger" | "validateIdentifier">,
+  dependencies: Pick<SetupPrepareDependencies, "boundedInteger" | "validateIdentifier">
 ): Civ7SinglePlayerSetupInput {
   validateMapScript(input.mapScript);
   if (!/^MAPSIZE_[A-Z0-9_]+$/.test(input.mapSize)) {
-    throw new Civ7DirectControlError("setup-parameter-invalid", "mapSize must be a Civ7 MAPSIZE_* value");
+    throw new Civ7DirectControlError(
+      "setup-parameter-invalid",
+      "mapSize must be a Civ7 MAPSIZE_* value"
+    );
   }
   const seed = validateSetupSeed(input.seed, "seed");
-  const gameSeed = input.gameSeed !== undefined
-    ? validateSetupSeed(input.gameSeed, "gameSeed")
-    : undefined;
-  const playerCount = input.playerCount !== undefined
-    ? dependencies.boundedInteger(input.playerCount, 1, 64, "playerCount")
-    : undefined;
+  const gameSeed =
+    input.gameSeed !== undefined ? validateSetupSeed(input.gameSeed, "gameSeed") : undefined;
+  const playerCount =
+    input.playerCount !== undefined
+      ? dependencies.boundedInteger(input.playerCount, 1, 64, "playerCount")
+      : undefined;
   const options: Record<string, Civ7SetupOptionValue> = {};
   for (const [key, value] of Object.entries(input.options ?? {})) {
     dependencies.validateIdentifier(key, "setup option id");
     if (!["string", "number", "boolean"].includes(typeof value)) {
-      throw new Civ7DirectControlError("setup-parameter-invalid", `Unsupported setup option value for ${key}`);
+      throw new Civ7DirectControlError(
+        "setup-parameter-invalid",
+        `Unsupported setup option value for ${key}`
+      );
     }
     options[key] = value;
   }
@@ -302,7 +312,10 @@ export function normalizeSinglePlayerSetupInput(
     for (const [key, value] of Object.entries(player.options ?? {})) {
       dependencies.validateIdentifier(key, "player setup option id");
       if (!["string", "number", "boolean"].includes(typeof value)) {
-        throw new Civ7DirectControlError("setup-parameter-invalid", `Unsupported player setup option value for ${key}`);
+        throw new Civ7DirectControlError(
+          "setup-parameter-invalid",
+          `Unsupported player setup option value for ${key}`
+        );
       }
       normalizedOptions[key] = value;
     }
@@ -317,20 +330,25 @@ export function normalizeSinglePlayerSetupInput(
     seed,
     ...(gameSeed !== undefined ? { gameSeed } : {}),
     ...(playerCount !== undefined ? { playerCount } : {}),
-    ...(input.savedConfig ? { savedConfig: normalizeSavedGameConfigurationRef(input.savedConfig) } : {}),
+    ...(input.savedConfig
+      ? { savedConfig: normalizeSavedGameConfigurationRef(input.savedConfig) }
+      : {}),
     options,
     playerOptions,
   };
 }
 
 export function normalizeSavedGameConfigurationRef(
-  input: Civ7SavedGameConfigurationRef,
+  input: Civ7SavedGameConfigurationRef
 ): Civ7SavedGameConfigurationRef {
   const fileName = validateSavedConfigFileName(input.fileName);
   const displayName = input.displayName.trim() || basename(fileName, extname(fileName));
   const path = input.path.trim();
   if (!path || /[\0\r\n]/.test(path)) {
-    throw new Civ7DirectControlError("setup-parameter-invalid", "saved configuration path must be a non-empty single-line string");
+    throw new Civ7DirectControlError(
+      "setup-parameter-invalid",
+      "saved configuration path must be a non-empty single-line string"
+    );
   }
   return {
     id: input.id.trim() || basename(fileName, extname(fileName)),
@@ -349,7 +367,10 @@ function validateSavedConfigFileName(value: string): string {
     value.includes("\\") ||
     extname(value).toLowerCase() !== ".civ7cfg"
   ) {
-    throw new Civ7DirectControlError("setup-parameter-invalid", "saved configuration fileName must be a Civ7Cfg file name");
+    throw new Civ7DirectControlError(
+      "setup-parameter-invalid",
+      "saved configuration fileName must be a Civ7Cfg file name"
+    );
   }
   return value;
 }
@@ -357,7 +378,10 @@ function validateSavedConfigFileName(value: string): string {
 async function readCiv7SavedGameConfiguration(path: string): Promise<Civ7SavedGameConfiguration> {
   const [info, bytes] = await Promise.all([stat(path), readFile(path)]);
   if (bytes.subarray(0, 4).toString("ascii") !== "CIV7") {
-    throw new Civ7DirectControlError("command-failed", `Saved configuration is not a Civ7 file: ${path}`);
+    throw new Civ7DirectControlError(
+      "command-failed",
+      `Saved configuration is not a Civ7 file: ${path}`
+    );
   }
   const fileName = basename(path);
   const displayName = basename(fileName, extname(fileName));
@@ -373,7 +397,11 @@ async function readCiv7SavedGameConfiguration(path: string): Promise<Civ7SavedGa
   if (summary.difficulty) playerSetupOptions.PlayerDifficulty = summary.difficulty;
 
   return {
-    id: displayName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || fileName,
+    id:
+      displayName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || fileName,
     displayName,
     fileName,
     path,
@@ -382,9 +410,10 @@ async function readCiv7SavedGameConfiguration(path: string): Promise<Civ7SavedGa
     source: "local-disk",
     summary,
     setupOptions,
-    playerOptions: Object.keys(playerSetupOptions).length > 0
-      ? [{ playerId: 0, options: playerSetupOptions }]
-      : [],
+    playerOptions:
+      Object.keys(playerSetupOptions).length > 0
+        ? [{ playerId: 0, options: playerSetupOptions }]
+        : [],
   };
 }
 
@@ -406,7 +435,10 @@ function extractAsciiStrings(bytes: Buffer): string[] {
   return strings;
 }
 
-function firstToken(strings: ReadonlyArray<string>, test: (value: string) => boolean): string | undefined {
+function firstToken(
+  strings: ReadonlyArray<string>,
+  test: (value: string) => boolean
+): string | undefined {
   return strings.find(test);
 }
 
@@ -419,21 +451,27 @@ function firstNumericSeed(strings: ReadonlyArray<string>, afterIndex = 0): numbe
   return undefined;
 }
 
-function summarizeCiv7CfgStrings(strings: ReadonlyArray<string>): Civ7SavedGameConfigurationSummary {
+function summarizeCiv7CfgStrings(
+  strings: ReadonlyArray<string>
+): Civ7SavedGameConfigurationSummary {
   const mapSeedIndex = strings.findIndex((value) => /^\d{6,10}$/.test(value));
   const mapSeed = mapSeedIndex >= 0 ? firstNumericSeed(strings, mapSeedIndex) : undefined;
   const gameSeed = mapSeedIndex >= 0 ? firstNumericSeed(strings, mapSeedIndex + 1) : undefined;
-  const civilization = firstToken(strings, (value) =>
-    /^CIVILIZATION_[A-Z0-9_]+$/.test(value) &&
-    !value.startsWith("CIVILIZATION_LEVEL_") &&
-    value !== "CIVILIZATION_INDEPENDENT" &&
-    value !== "CIVILIZATION_NONE"
+  const civilization = firstToken(
+    strings,
+    (value) =>
+      /^CIVILIZATION_[A-Z0-9_]+$/.test(value) &&
+      !value.startsWith("CIVILIZATION_LEVEL_") &&
+      value !== "CIVILIZATION_INDEPENDENT" &&
+      value !== "CIVILIZATION_NONE"
   );
-  const leader = firstToken(strings, (value) =>
-    /^LEADER_[A-Z0-9_]+$/.test(value) &&
-    value !== "LEADER_DEFAULT" &&
-    !value.startsWith("LEADER_MINOR_CIV_") &&
-    value !== "LEADER_INDEPENDENT"
+  const leader = firstToken(
+    strings,
+    (value) =>
+      /^LEADER_[A-Z0-9_]+$/.test(value) &&
+      value !== "LEADER_DEFAULT" &&
+      !value.startsWith("LEADER_MINOR_CIV_") &&
+      value !== "LEADER_INDEPENDENT"
   );
   const summary: {
     gameSpeed?: string;
@@ -472,21 +510,25 @@ function isNodeNotFound(err: unknown): boolean {
 function validateSetupSeed(value: unknown, label: string): number {
   const seed = assessCiv7SignedIntSeed(value);
   if (seed.ok === false) {
-    const suffix = seed.reason === "not-integer"
-      ? "must be an integer"
-      : `must be an integer between ${seed.min} and ${seed.max}`;
+    const suffix =
+      seed.reason === "not-integer"
+        ? "must be an integer"
+        : `must be an integer between ${seed.min} and ${seed.max}`;
     throw new Civ7DirectControlError("setup-parameter-invalid", `${label} ${suffix}`);
   }
   return seed.value;
 }
 
-export function assertPreparedSetupMatches(input: Civ7SinglePlayerSetupInput, snapshot: Civ7SetupSnapshot): void {
+export function assertPreparedSetupMatches(
+  input: Civ7SinglePlayerSetupInput,
+  snapshot: Civ7SetupSnapshot
+): void {
   const mapRow = findSetupMapRow(snapshot, input.mapScript);
   if (!mapRow) {
     throw new Civ7DirectControlError(
       "setup-map-row-missing",
       `Civ7 setup map row did not read back for ${input.mapScript}`,
-      { details: snapshot.mapRows },
+      { details: snapshot.mapRows }
     );
   }
   const script = setupParameterValue(snapshot, "Map");
@@ -494,31 +536,51 @@ export function assertPreparedSetupMatches(input: Civ7SinglePlayerSetupInput, sn
   const mapSeed = setupParameterValue(snapshot, "MapRandomSeed");
   const gameSeed = setupParameterValue(snapshot, "GameRandomSeed");
   if (script !== input.mapScript) {
-    throw new Civ7DirectControlError("setup-readback-mismatch", `Civ7 setup Map readback mismatch: ${String(script)}`, {
-      details: { expected: input.mapScript, actual: script, snapshot },
-    });
+    throw new Civ7DirectControlError(
+      "setup-readback-mismatch",
+      `Civ7 setup Map readback mismatch: ${String(script)}`,
+      {
+        details: { expected: input.mapScript, actual: script, snapshot },
+      }
+    );
   }
   if (mapSize !== input.mapSize) {
-    throw new Civ7DirectControlError("setup-readback-mismatch", `Civ7 setup MapSize readback mismatch: ${String(mapSize)}`, {
-      details: { expected: input.mapSize, actual: mapSize, snapshot },
-    });
+    throw new Civ7DirectControlError(
+      "setup-readback-mismatch",
+      `Civ7 setup MapSize readback mismatch: ${String(mapSize)}`,
+      {
+        details: { expected: input.mapSize, actual: mapSize, snapshot },
+      }
+    );
   }
   if (Number(mapSeed) !== input.seed) {
-    throw new Civ7DirectControlError("setup-readback-mismatch", `Civ7 setup MapRandomSeed readback mismatch: ${String(mapSeed)}`, {
-      details: { expected: input.seed, actual: mapSeed, snapshot },
-    });
+    throw new Civ7DirectControlError(
+      "setup-readback-mismatch",
+      `Civ7 setup MapRandomSeed readback mismatch: ${String(mapSeed)}`,
+      {
+        details: { expected: input.seed, actual: mapSeed, snapshot },
+      }
+    );
   }
   if (input.gameSeed !== undefined && Number(gameSeed) !== input.gameSeed) {
-    throw new Civ7DirectControlError("setup-readback-mismatch", `Civ7 setup GameRandomSeed readback mismatch: ${String(gameSeed)}`, {
-      details: { expected: input.gameSeed, actual: gameSeed, snapshot },
-    });
+    throw new Civ7DirectControlError(
+      "setup-readback-mismatch",
+      `Civ7 setup GameRandomSeed readback mismatch: ${String(gameSeed)}`,
+      {
+        details: { expected: input.gameSeed, actual: gameSeed, snapshot },
+      }
+    );
   }
   for (const [key, expected] of Object.entries(input.options ?? {})) {
     const actual = setupParameterValue(snapshot, key);
     if (actual !== expected) {
-      throw new Civ7DirectControlError("setup-readback-mismatch", `Civ7 setup ${key} readback mismatch: ${String(actual)}`, {
-        details: { expected, actual, snapshot },
-      });
+      throw new Civ7DirectControlError(
+        "setup-readback-mismatch",
+        `Civ7 setup ${key} readback mismatch: ${String(actual)}`,
+        {
+          details: { expected, actual, snapshot },
+        }
+      );
     }
   }
   for (const player of input.playerOptions ?? []) {
@@ -528,25 +590,31 @@ export function assertPreparedSetupMatches(input: Civ7SinglePlayerSetupInput, sn
         throw new Civ7DirectControlError(
           "setup-readback-mismatch",
           `Civ7 player ${player.playerId} setup ${key} readback mismatch: ${String(actual)}`,
-          { details: { playerId: player.playerId, expected, actual, snapshot } },
+          { details: { playerId: player.playerId, expected, actual, snapshot } }
         );
       }
     }
   }
 }
 
-function findSetupParameter(snapshot: Civ7SetupSnapshot, id: string): Civ7SetupParameterSnapshot | undefined {
+function findSetupParameter(
+  snapshot: Civ7SetupSnapshot,
+  id: string
+): Civ7SetupParameterSnapshot | undefined {
   return snapshot.setup.parameters.find((parameter) => parameter.id === id);
 }
 
-function setupParameterValue(snapshot: Civ7SetupSnapshot, id: string): Civ7SetupParameterValue | undefined {
+function setupParameterValue(
+  snapshot: Civ7SetupSnapshot,
+  id: string
+): Civ7SetupParameterValue | undefined {
   return findSetupParameter(snapshot, id)?.value;
 }
 
 function findPlayerSetupParameter(
   snapshot: Civ7SetupSnapshot,
   playerId: number,
-  id: string,
+  id: string
 ): Civ7SetupParameterSnapshot | undefined {
   return snapshot.setup.playerParameters
     .find((player) => player.playerId === playerId)
@@ -556,7 +624,7 @@ function findPlayerSetupParameter(
 function playerSetupParameterValue(
   snapshot: Civ7SetupSnapshot,
   playerId: number,
-  id: string,
+  id: string
 ): Civ7SetupParameterValue | undefined {
   return findPlayerSetupParameter(snapshot, playerId, id)?.value;
 }
@@ -570,7 +638,7 @@ const defaultSetupPrepareDependencies: SetupPrepareDependencies = {
   loadSavedGameConfiguration: async () => {
     throw new Civ7DirectControlError(
       "setup-config-load-failed",
-      "Saved configuration loading requires caller-provided setup prepare dependencies",
+      "Saved configuration loading requires caller-provided setup prepare dependencies"
     );
   },
   parseSetupPreparation: (result, label) =>

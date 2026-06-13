@@ -12,10 +12,15 @@ const PlanReefsContract = defineOp({
     scoreColdReef01: TypedArraySchemas.f32({
       description: "Cold reef suitability score per tile (0..1).",
     }),
-    scoreAtoll01: TypedArraySchemas.f32({ description: "Atoll suitability score per tile (0..1)." }),
-    scoreLotus01: TypedArraySchemas.f32({ description: "Lotus suitability score per tile (0..1)." }),
+    scoreAtoll01: TypedArraySchemas.f32({
+      description: "Atoll suitability score per tile (0..1).",
+    }),
+    scoreLotus01: TypedArraySchemas.f32({
+      description: "Lotus suitability score per tile (0..1).",
+    }),
     lakeMask: TypedArraySchemas.u8({
-      description: "Hydrology lake mask per tile (1=lake, 0=non-lake); gates lake-only Lotus placement.",
+      description:
+        "Hydrology lake mask per tile (1=lake, 0=non-lake); gates lake-only Lotus placement.",
     }),
     featureIndex: TypedArraySchemas.u16({
       description: "0 = unoccupied, otherwise 1 + FEATURE_KEY_INDEX",
@@ -56,8 +61,7 @@ const PlanReefsContract = defineOp({
         minimum: 1,
         maximum: 12,
         default: 5,
-        description:
-          "Deterministic lane spacing stride for oceanic reef-family intent.",
+        description: "Deterministic lane spacing stride for oceanic reef-family intent.",
       }),
     }),
   },

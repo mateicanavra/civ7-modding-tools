@@ -11,7 +11,8 @@ const SelectNavigableRiverTerrainInputSchema = Type.Object(
       description: "Hydrology discharge per tile used to rank major-river endpoints and trunks.",
     }),
     flowDir: TypedArraySchemas.i32({
-      description: "Hydrology receiver graph per tile (-1=terminal, otherwise destination tile index).",
+      description:
+        "Hydrology receiver graph per tile (-1=terminal, otherwise destination tile index).",
     }),
     mouthType: TypedArraySchemas.u8({
       description:
@@ -87,11 +88,13 @@ const SelectNavigableRiverTerrainOutputSchema = Type.Object(
     targetMajorTileFraction: Type.Number({
       minimum: 0,
       maximum: 1,
-      description: "Requested fraction of eligible major-river tiles to preserve as navigable terrain.",
+      description:
+        "Requested fraction of eligible major-river tiles to preserve as navigable terrain.",
     }),
     selectedEndpointDischargeFloor: Type.Number({
       minimum: 0,
-      description: "Discharge floor imposed on candidate major-river endpoints for this selection run.",
+      description:
+        "Discharge floor imposed on candidate major-river endpoints for this selection run.",
     }),
     nonProjectableMajorTileCount: Type.Integer({
       minimum: 0,

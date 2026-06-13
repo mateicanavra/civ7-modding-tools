@@ -180,7 +180,8 @@ function parseArgs(argv) {
       const next = argv[index + 1];
       if (!next) throw new Error("--max requires a number");
       const parsed = Number(next);
-      if (!Number.isFinite(parsed) || parsed < 0) throw new Error("--max must be a non-negative number");
+      if (!Number.isFinite(parsed) || parsed < 0)
+        throw new Error("--max must be a non-negative number");
       args.maxResults = parsed === 0 ? Infinity : parsed;
       index++;
       continue;
@@ -396,14 +397,14 @@ function printTextReport({ results, baselineInfo }) {
   console.log(
     baselineSummary +
       [
-      `Matches: ${results.length}`,
-      `Files: ${fileCounts.size}`,
-      `Categories: ${[...categoryCounts.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .map(([category, count]) => `${category}=${count}`)
-        .join(", ")}`,
-      "",
-    ].join("\n"),
+        `Matches: ${results.length}`,
+        `Files: ${fileCounts.size}`,
+        `Categories: ${[...categoryCounts.entries()]
+          .sort((a, b) => b[1] - a[1])
+          .map(([category, count]) => `${category}=${count}`)
+          .join(", ")}`,
+        "",
+      ].join("\n")
   );
 
   for (const result of results) {
@@ -418,14 +419,16 @@ function printTextReport({ results, baselineInfo }) {
 
 async function loadBaselineIds(baselinePath) {
   const raw = await readFile(baselinePath, "utf8").catch((error) => {
-    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") return null;
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT")
+      return null;
     throw error;
   });
   if (raw === null) return new Set();
 
   const parsed = JSON.parse(raw);
   if (Array.isArray(parsed)) return new Set(parsed.map((item) => item.id).filter(Boolean));
-  if (parsed && typeof parsed === "object" && Array.isArray(parsed.items)) return new Set(parsed.items.map((item) => item.id).filter(Boolean));
+  if (parsed && typeof parsed === "object" && Array.isArray(parsed.items))
+    return new Set(parsed.items.map((item) => item.id).filter(Boolean));
   return new Set();
 }
 
@@ -450,7 +453,9 @@ async function main() {
 
   const baselinePath = args.writeBaselinePath ?? args.baselinePath;
   const baselineIds =
-    args.baselinePath === null || args.writeBaselinePath !== null ? null : await loadBaselineIds(args.baselinePath);
+    args.baselinePath === null || args.writeBaselinePath !== null
+      ? null
+      : await loadBaselineIds(args.baselinePath);
 
   const results = [];
   const seenFiles = new Set();
@@ -520,14 +525,18 @@ async function main() {
   }
 
   results.sort((a, b) =>
-    a.filePath === b.filePath ? a.startLine - b.startLine : a.filePath.localeCompare(b.filePath),
+    a.filePath === b.filePath ? a.startLine - b.startLine : a.filePath.localeCompare(b.filePath)
   );
 
   if (args.writeBaselinePath !== null) {
     const items = [...baselineItemsById.values()].sort((a, b) =>
-      a.filePath === b.filePath ? a.id.localeCompare(b.id) : a.filePath.localeCompare(b.filePath),
+      a.filePath === b.filePath ? a.id.localeCompare(b.id) : a.filePath.localeCompare(b.filePath)
     );
-    await writeBaselineFile({ baselinePath: args.writeBaselinePath, items, includeNoisy: args.includeNoisy });
+    await writeBaselineFile({
+      baselinePath: args.writeBaselinePath,
+      items,
+      includeNoisy: args.includeNoisy,
+    });
     // eslint-disable-next-line no-console
     console.log(`Wrote baseline: ${args.writeBaselinePath} (entries=${items.length})`);
     return;
@@ -546,8 +555,8 @@ async function main() {
           results,
         },
         null,
-        2,
-      ),
+        2
+      )
     );
     return;
   }

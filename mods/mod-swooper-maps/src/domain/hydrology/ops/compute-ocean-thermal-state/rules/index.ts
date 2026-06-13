@@ -27,8 +27,12 @@ function getNeighborDeltaHexSpaceFrom(baseX: number, dx: number, dy: number): Ve
   return { x: p.x - base.x, y: p.y - base.y };
 }
 
-const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) => getNeighborDeltaHexSpaceFrom(1, dx, dy));
-const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) => getNeighborDeltaHexSpaceFrom(0, dx, dy));
+const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) =>
+  getNeighborDeltaHexSpaceFrom(1, dx, dy)
+);
+const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) =>
+  getNeighborDeltaHexSpaceFrom(0, dx, dy)
+);
 
 type Upcurrent = Readonly<{ i0: number; w0: number; i1: number; w1: number }>;
 
@@ -163,7 +167,16 @@ export function computeOceanThermalState(
 
         const flowX = currentU[i] ?? 0;
         const flowY = currentV[i] ?? 0;
-        const up = selectUpcurrent(x, y, width, height, isWaterMask, flowX, flowY, secondaryWeightMin);
+        const up = selectUpcurrent(
+          x,
+          y,
+          width,
+          height,
+          isWaterMask,
+          flowX,
+          flowY,
+          secondaryWeightMin
+        );
         const advected = (sst[up.i0] ?? 0) * up.w0 + (sst[up.i1] ?? 0) * up.w1;
 
         // Simple diffusion: average neighbor SST over water and mix in.
@@ -182,7 +195,8 @@ export function computeOceanThermalState(
           w += 1;
         }
         const neighborAvg = w > 0 ? sum / w : advected;
-        const tileDiffusion = shelfMask[i] === 1 ? Math.min(1, diffusion * shelfDiffusionScale) : diffusion;
+        const tileDiffusion =
+          shelfMask[i] === 1 ? Math.min(1, diffusion * shelfDiffusionScale) : diffusion;
         next[i] = lerp(advected, neighborAvg, tileDiffusion);
       }
     }

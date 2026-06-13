@@ -10,20 +10,15 @@ import {
 } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-const NullableComponentIdSchema = Type.Union([
-  Civ7ControlOrpcComponentIdSchema,
-  Type.Null(),
-]);
+const NullableComponentIdSchema = Type.Union([Civ7ControlOrpcComponentIdSchema, Type.Null()]);
 
 const Civ7AttentionCurrentInputSchema = Type.Object(
   {
     maxNotifications: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7AttentionCurrentInput = Static<
-  typeof Civ7AttentionCurrentInputSchema
->;
+export type Civ7AttentionCurrentInput = Static<typeof Civ7AttentionCurrentInputSchema>;
 
 export const Civ7AttentionSourceReadStatusSchema = Type.Union([
   Type.Literal("read"),
@@ -42,7 +37,7 @@ export const Civ7AttentionTurnCompletionSchema = Type.Object(
       Type.Literal("unknown"),
     ]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7AttentionBlockerSchema = Type.Object(
@@ -59,7 +54,7 @@ export const Civ7AttentionBlockerSchema = Type.Object(
     componentId: NullableComponentIdSchema,
     evidence: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7AttentionDecisionSchema = Type.Object(
@@ -72,7 +67,7 @@ export const Civ7AttentionDecisionSchema = Type.Object(
     operationType: Type.Optional(Type.String()),
     requiredInputs: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7AttentionReadyActorSchema = Type.Object(
@@ -83,7 +78,7 @@ export const Civ7AttentionReadyActorSchema = Type.Object(
     summary: Type.String(),
     evidence: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7AttentionNextStepSchema = Type.Object(
@@ -105,7 +100,7 @@ export const Civ7AttentionNextStepSchema = Type.Object(
     ]),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7AttentionCurrentResultSchema = Type.Object(
@@ -123,7 +118,7 @@ const Civ7AttentionCurrentResultSchema = Type.Object(
         readyUnit: Civ7AttentionSourceReadStatusSchema,
         readyCity: Civ7AttentionSourceReadStatusSchema,
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     turnCompletion: Civ7AttentionTurnCompletionSchema,
     summary: Type.Object(
@@ -133,18 +128,16 @@ const Civ7AttentionCurrentResultSchema = Type.Object(
         readyActorCount: Type.Integer({ minimum: 0 }),
         nextStepCount: Type.Integer({ minimum: 0 }),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     blockers: Type.Array(Civ7AttentionBlockerSchema),
     decisions: Type.Array(Civ7AttentionDecisionSchema),
     readyActors: Type.Array(Civ7AttentionReadyActorSchema),
     nextSteps: Type.Array(Civ7AttentionNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7AttentionCurrentResult = Static<
-  typeof Civ7AttentionCurrentResultSchema
->;
+export type Civ7AttentionCurrentResult = Static<typeof Civ7AttentionCurrentResultSchema>;
 
 const Civ7AttentionPrioritiesInputSchema = Type.Object(
   {
@@ -155,11 +148,9 @@ const Civ7AttentionPrioritiesInputSchema = Type.Object(
     readyUnitRadius: Type.Optional(Type.Integer({ minimum: 0, maximum: 16 })),
     maxReadyUnitOperations: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7AttentionPrioritiesInput = Static<
-  typeof Civ7AttentionPrioritiesInputSchema
->;
+export type Civ7AttentionPrioritiesInput = Static<typeof Civ7AttentionPrioritiesInputSchema>;
 
 const Civ7AttentionPrioritySourceStatusSchema = Type.Object(
   {
@@ -176,7 +167,7 @@ const Civ7AttentionPrioritySourceStatusSchema = Type.Object(
       Type.Literal("skipped-unsupported"),
     ]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7AttentionPriorityNextStepParametersSchema = Type.Object(
@@ -189,7 +180,7 @@ const Civ7AttentionPriorityNextStepParametersSchema = Type.Object(
     location: Type.Optional(Civ7ControlOrpcMapLocationSchema),
     hasSentTurnComplete: Type.Optional(Type.Boolean()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7AttentionPriorityNextStepSchema = Type.Object(
@@ -220,7 +211,7 @@ const Civ7AttentionPriorityNextStepSchema = Type.Object(
     label: Type.String(),
     parameters: Civ7AttentionPriorityNextStepParametersSchema,
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7AttentionPriorityItemSchema = Type.Object(
@@ -233,7 +224,7 @@ const Civ7AttentionPriorityItemSchema = Type.Object(
     nextStep: Type.Union([Civ7AttentionPriorityNextStepSchema, Type.Null()]),
     evidenceLabels: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7AttentionPriorityReadyUnitSchema = Type.Object(
@@ -243,7 +234,7 @@ const Civ7AttentionPriorityReadyUnitSchema = Type.Object(
     promotionReadinessAvailable: Type.Boolean(),
     summary: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7AttentionPriorityReadyCitySchema = Type.Object(
@@ -255,7 +246,7 @@ const Civ7AttentionPriorityReadyCitySchema = Type.Object(
     populationPlacementAvailable: Type.Boolean(),
     summary: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7AttentionPriorityBattlefieldSchema = Type.Object(
@@ -265,17 +256,19 @@ const Civ7AttentionPriorityBattlefieldSchema = Type.Object(
     hiddenInfoPolicy: Type.String(),
     pointOfInterestCount: Type.Integer({ minimum: 0 }),
     observedOwnerCount: Type.Integer({ minimum: 0 }),
-    pointsOfInterest: Type.Array(Type.Object(
-      {
-        kind: Type.String(),
-        severity: Type.String(),
-        summary: Type.String(),
-        location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
-      },
-      { additionalProperties: false },
-    )),
+    pointsOfInterest: Type.Array(
+      Type.Object(
+        {
+          kind: Type.String(),
+          severity: Type.String(),
+          summary: Type.String(),
+          location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
+        },
+        { additionalProperties: false }
+      )
+    ),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7AttentionPrioritiesResultSchema = Type.Object(
@@ -298,29 +291,23 @@ const Civ7AttentionPrioritiesResultSchema = Type.Object(
         decisionCount: Type.Integer({ minimum: 0 }),
         nextStepCount: Type.Integer({ minimum: 0 }),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     priorities: Type.Array(Civ7AttentionPriorityItemSchema),
     nextSteps: Type.Array(Civ7AttentionPriorityNextStepSchema),
     notes: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7AttentionPrioritiesResult = Static<
-  typeof Civ7AttentionPrioritiesResultSchema
->;
+export type Civ7AttentionPrioritiesResult = Static<typeof Civ7AttentionPrioritiesResultSchema>;
 
-const Civ7AttentionCurrentInputStandardSchema = toStandardSchema(
-  Civ7AttentionCurrentInputSchema,
-);
-const Civ7AttentionCurrentResultStandardSchema = toStandardSchema(
-  Civ7AttentionCurrentResultSchema,
-);
+const Civ7AttentionCurrentInputStandardSchema = toStandardSchema(Civ7AttentionCurrentInputSchema);
+const Civ7AttentionCurrentResultStandardSchema = toStandardSchema(Civ7AttentionCurrentResultSchema);
 const Civ7AttentionPrioritiesInputStandardSchema = toStandardSchema(
-  Civ7AttentionPrioritiesInputSchema,
+  Civ7AttentionPrioritiesInputSchema
 );
 const Civ7AttentionPrioritiesResultStandardSchema = toStandardSchema(
-  Civ7AttentionPrioritiesResultSchema,
+  Civ7AttentionPrioritiesResultSchema
 );
 
 export type Civ7AttentionCurrentContract = ContractProcedure<

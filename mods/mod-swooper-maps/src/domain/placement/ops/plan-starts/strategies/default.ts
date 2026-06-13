@@ -327,7 +327,7 @@ function percentileRanks(values: readonly number[]): number[] {
   while (i < order.length) {
     let j = i;
     while (j + 1 < order.length && order[j + 1]!.value === order[i]!.value) j++;
-    const rank = ((i + j) / 2) / (order.length - 1);
+    const rank = (i + j) / 2 / (order.length - 1);
     for (let k = i; k <= j; k++) ranks[order[k]!.index] = rank;
     i = j + 1;
   }
@@ -617,7 +617,13 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
         ? isClimateExtreme(climateThresholds, aridityHere, temperatureHere)
         : false;
       const components: StartComponents = {
-        freshwater: freshwaterScore({ plotIndex: tile.plotIndex, width, height, riverClass, lakeMask }),
+        freshwater: freshwaterScore({
+          plotIndex: tile.plotIndex,
+          width,
+          height,
+          riverClass,
+          lakeMask,
+        }),
         fertility: fertilityRanks[i] ?? 0.5,
         expansion,
         climate,
@@ -736,10 +742,7 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
       selections: ladder.selections,
       swapPoolsOf: (selection: SeatSelection) =>
         selection.rung === "regional"
-          ? [
-              candidates.filter((tile) => tile.regionSlot === selection.seat.regionSlot),
-              candidates,
-            ]
+          ? [candidates.filter((tile) => tile.regionSlot === selection.seat.regionSlot), candidates]
           : [candidates],
       width,
       spacingFloorTiles,
@@ -838,7 +841,9 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
         swaps: fairness.swaps,
         relaxations,
       },
-      status: seats.every((seat) => seat.status === "full") ? ("full" as const) : ("degraded" as const),
+      status: seats.every((seat) => seat.status === "full")
+        ? ("full" as const)
+        : ("degraded" as const),
       inputCoverage,
     };
   },

@@ -146,15 +146,15 @@ describe("plan-vegetation/apply pipeline", () => {
     planVegetationStep.run(ctx, planConfig, planOps, buildTestDeps(planVegetationStep));
 
     // M3 stages: publish empty lists for non-vegetation families so the apply step has a complete surface.
-    implementArtifacts([ecologyArtifacts.featureIntentsIce], { featureIntentsIce: {} }).featureIntentsIce.publish(ctx, []);
-    implementArtifacts([ecologyArtifacts.featureIntentsReefs], { featureIntentsReefs: {} }).featureIntentsReefs.publish(
-      ctx,
-      []
-    );
-    implementArtifacts([ecologyArtifacts.featureIntentsWetlands], { featureIntentsWetlands: {} }).featureIntentsWetlands.publish(
-      ctx,
-      []
-    );
+    implementArtifacts([ecologyArtifacts.featureIntentsIce], {
+      featureIntentsIce: {},
+    }).featureIntentsIce.publish(ctx, []);
+    implementArtifacts([ecologyArtifacts.featureIntentsReefs], {
+      featureIntentsReefs: {},
+    }).featureIntentsReefs.publish(ctx, []);
+    implementArtifacts([ecologyArtifacts.featureIntentsWetlands], {
+      featureIntentsWetlands: {},
+    }).featureIntentsWetlands.publish(ctx, []);
     implementArtifacts([ecologyArtifacts.featureIntentsFloodplains], {
       featureIntentsFloodplains: {},
     }).featureIntentsFloodplains.publish(ctx, []);
@@ -165,7 +165,10 @@ describe("plan-vegetation/apply pipeline", () => {
     expect((vegetationIntents as unknown[]).length).toBeGreaterThan(0);
 
     const applyConfig = {
-      apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, { strategy: "default", config: {} }),
+      apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, {
+        strategy: "default",
+        config: {},
+      }),
     };
     const applyOps = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
     featuresApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(featuresApplyStep));

@@ -1,6 +1,4 @@
-import {
-  notificationsAdvisorWarningViewedRequestProcedure,
-} from "./procedures/advisor-warning-request";
+import { notificationsAdvisorWarningViewedRequestProcedure } from "./procedures/advisor-warning-request";
 import { notificationsDismissRequestProcedure } from "./procedures/dismiss-request";
 import {
   notificationsQueueCurrentProcedure,

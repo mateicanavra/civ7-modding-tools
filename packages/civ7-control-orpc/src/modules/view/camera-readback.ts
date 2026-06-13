@@ -1,6 +1,4 @@
-import type {
-  Civ7ControlOrpcCameraFocusResult,
-} from "../../dependencies/direct-control";
+import type { Civ7ControlOrpcCameraFocusResult } from "../../dependencies/direct-control";
 import type { Civ7ViewCamera } from "./contract";
 
 type CameraStateSnapshot = Civ7ControlOrpcCameraFocusResult["after"];
@@ -18,9 +16,7 @@ function cameraState(snapshot: CameraStateSnapshot): Civ7ViewCamera["after"] {
  * the verification verdict the caller acts on is `centerMatchesTarget`,
  * which the atom already derives from the raw probes.
  */
-export function viewCameraFromFocusResult(
-  focus: Civ7ControlOrpcCameraFocusResult,
-): Civ7ViewCamera {
+export function viewCameraFromFocusResult(focus: Civ7ControlOrpcCameraFocusResult): Civ7ViewCamera {
   return {
     target: { x: focus.target.x, y: focus.target.y },
     ...(focus.options.zoom === undefined ? {} : { zoom: focus.options.zoom }),

@@ -110,7 +110,9 @@ function emit(report: CheckReport): never {
   const json = JSON.stringify(report, null, 2);
   const schemaErrors = validateCheckReport(report);
   if (schemaErrors.length > 0) {
-    console.error(`habitat internal error: report violates its own schema:\n${schemaErrors.join("\n")}`);
+    console.error(
+      `habitat internal error: report violates its own schema:\n${schemaErrors.join("\n")}`
+    );
     process.exit(2);
   }
   if (out) writeFileSync(path.resolve(repoRoot, out), `${json}\n`);
@@ -156,7 +158,7 @@ switch (command) {
     console.log(`\nhabitat verify: running nx affected (base=${base}) ...`);
     const res = run(
       ["bunx", "nx", "affected", "-t", "build,check,test,boundaries", "--base", base],
-      { cwd: repoRoot },
+      { cwd: repoRoot }
     );
     process.stdout.write(res.stdout);
     process.stderr.write(res.stderr);
@@ -202,11 +204,15 @@ switch (command) {
       .filter((r) => rel === r.root || rel.startsWith(`${r.root}/`))
       .sort((a, b) => b.root.length - a.root.length)[0];
     if (!owner) {
-      console.log(JSON.stringify({ path: rel, project: null, note: "workspace-level path" }, null, 2));
+      console.log(
+        JSON.stringify({ path: rel, project: null, note: "workspace-level path" }, null, 2)
+      );
       process.exit(0);
     }
     const owningRules = rules
-      .filter((r) => r.ownerProject === owner.name || r.ownerProject === "@internal/habitat-harness")
+      .filter(
+        (r) => r.ownerProject === owner.name || r.ownerProject === "@internal/habitat-harness"
+      )
       .map((r) => r.id);
     console.log(
       JSON.stringify(
@@ -224,8 +230,8 @@ switch (command) {
           ],
         },
         null,
-        2,
-      ),
+        2
+      )
     );
     process.exit(0);
     break;
@@ -251,7 +257,7 @@ switch (command) {
         "  hook    <name>",
         "",
         `rule pack: ${rules.length} rules (+ baseline-integrity built-in); eslint fan-out over ${eslintProjects.length} projects`,
-      ].join("\n"),
+      ].join("\n")
     );
     process.exit(command ? 2 : 0);
   }

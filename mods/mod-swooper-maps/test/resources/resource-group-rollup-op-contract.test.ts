@@ -263,7 +263,9 @@ function allGroupPlans(width: number, height: number) {
   };
 }
 
-function expectationsFor(groupId: EarthlikeResourceExpectation["groupId"]): EarthlikeResourceExpectation[] {
+function expectationsFor(
+  groupId: EarthlikeResourceExpectation["groupId"]
+): EarthlikeResourceExpectation[] {
   return EARTHLIKE_RESOURCE_EXPECTATIONS.filter((row) => row.groupId === groupId);
 }
 

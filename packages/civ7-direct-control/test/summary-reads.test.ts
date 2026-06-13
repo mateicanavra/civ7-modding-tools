@@ -23,92 +23,122 @@ type FakeTunerServer = {
 
 describe("player, unit, and city summary reads", () => {
   test("exports player-summary schemas with bounded player input", () => {
-    expect(Value.Check(Civ7PlayerSummaryInputSchema, {
-      playerIds: [0],
-      includeUnits: true,
-      includeCities: true,
-      maxItems: 64,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7PlayerSummaryInputSchema, {
+        playerIds: [0],
+        includeUnits: true,
+        includeCities: true,
+        maxItems: 64,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7PlayerSummaryInputSchema, { playerIds: [1025] })).toBe(false);
     expect(Value.Check(Civ7PlayerSummaryInputSchema, { maxItems: 513 })).toBe(false);
     expect(Value.Check(Civ7PlayerSummaryInputSchema, { state: { role: "tuner" } })).toBe(false);
-    expect(Value.Check(Civ7PlayerSummaryInputSchema, { rawCommand: "Players.getAliveIds()" })).toBe(false);
+    expect(Value.Check(Civ7PlayerSummaryInputSchema, { rawCommand: "Players.getAliveIds()" })).toBe(
+      false
+    );
 
     const summary = playerSummaryResult();
     expect(Value.Check(Civ7PlayerSummaryResultSchema, summary)).toBe(true);
-    expect(Value.Check(Civ7PlayerSummaryResultSchema, {
-      ...summary,
-      command: "Players.getAliveIds()",
-    })).toBe(false);
-    expect(Value.Check(Civ7PlayerSummaryResultSchema, {
-      ...summary,
-      players: [{
-        ...summary.players[0],
-        unitIds: { ok: true, value: [{ owner: 0, id: 65536, type: 26, command: "Units.get" }] },
-      }],
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7PlayerSummaryResultSchema, {
+        ...summary,
+        command: "Players.getAliveIds()",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7PlayerSummaryResultSchema, {
+        ...summary,
+        players: [
+          {
+            ...summary.players[0],
+            unitIds: { ok: true, value: [{ owner: 0, id: 65536, type: 26, command: "Units.get" }] },
+          },
+        ],
+      })
+    ).toBe(false);
   });
 
   test("exports unit-summary schemas with bounded player and unit input", () => {
-    expect(Value.Check(Civ7UnitSummaryInputSchema, {
-      playerIds: [0],
-      unitIds: [{ owner: -1, id: -1, type: 26 }],
-      playerId: 0,
-      maxItems: 128,
-      includeHidden: false,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7UnitSummaryInputSchema, {
+        playerIds: [0],
+        unitIds: [{ owner: -1, id: -1, type: 26 }],
+        playerId: 0,
+        maxItems: 128,
+        includeHidden: false,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7UnitSummaryInputSchema, { playerId: 1025 })).toBe(false);
     expect(Value.Check(Civ7UnitSummaryInputSchema, { maxItems: 1_001 })).toBe(false);
-    expect(Value.Check(Civ7UnitSummaryInputSchema, {
-      unitIds: [{ owner: -1, id: -1, type: 26, command: "Units.get" }],
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7UnitSummaryInputSchema, {
+        unitIds: [{ owner: -1, id: -1, type: 26, command: "Units.get" }],
+      })
+    ).toBe(false);
     expect(Value.Check(Civ7UnitSummaryInputSchema, { state: { role: "tuner" } })).toBe(false);
     expect(Value.Check(Civ7UnitSummaryInputSchema, { rawCommand: "Units.get(id)" })).toBe(false);
 
     const summary = unitSummaryResult();
     expect(Value.Check(Civ7UnitSummaryResultSchema, summary)).toBe(true);
-    expect(Value.Check(Civ7UnitSummaryResultSchema, {
-      ...summary,
-      command: "Units.get(id)",
-    })).toBe(false);
-    expect(Value.Check(Civ7UnitSummaryResultSchema, {
-      ...summary,
-      units: [{
-        ...summary.units[0],
-        location: { ok: true, value: { x: 1.5, y: 11 } },
-      }],
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7UnitSummaryResultSchema, {
+        ...summary,
+        command: "Units.get(id)",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7UnitSummaryResultSchema, {
+        ...summary,
+        units: [
+          {
+            ...summary.units[0],
+            location: { ok: true, value: { x: 1.5, y: 11 } },
+          },
+        ],
+      })
+    ).toBe(false);
   });
 
   test("exports city-summary schemas with bounded player and city input", () => {
-    expect(Value.Check(Civ7CitySummaryInputSchema, {
-      playerIds: [0],
-      cityIds: [{ owner: -1, id: -1, type: 1 }],
-      playerId: 0,
-      maxItems: 128,
-      includeHidden: false,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7CitySummaryInputSchema, {
+        playerIds: [0],
+        cityIds: [{ owner: -1, id: -1, type: 1 }],
+        playerId: 0,
+        maxItems: 128,
+        includeHidden: false,
+      })
+    ).toBe(true);
     expect(Value.Check(Civ7CitySummaryInputSchema, { playerId: 1025 })).toBe(false);
     expect(Value.Check(Civ7CitySummaryInputSchema, { maxItems: 1_001 })).toBe(false);
-    expect(Value.Check(Civ7CitySummaryInputSchema, {
-      cityIds: [{ owner: -1, id: -1, type: 1, command: "Cities.get" }],
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7CitySummaryInputSchema, {
+        cityIds: [{ owner: -1, id: -1, type: 1, command: "Cities.get" }],
+      })
+    ).toBe(false);
     expect(Value.Check(Civ7CitySummaryInputSchema, { state: { role: "tuner" } })).toBe(false);
     expect(Value.Check(Civ7CitySummaryInputSchema, { rawCommand: "Cities.get(id)" })).toBe(false);
 
     const summary = citySummaryResult();
     expect(Value.Check(Civ7CitySummaryResultSchema, summary)).toBe(true);
-    expect(Value.Check(Civ7CitySummaryResultSchema, {
-      ...summary,
-      command: "Cities.get(id)",
-    })).toBe(false);
-    expect(Value.Check(Civ7CitySummaryResultSchema, {
-      ...summary,
-      cities: [{
-        ...summary.cities[0],
-        location: { ok: true, value: { x: 22.5, y: 31 } },
-      }],
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7CitySummaryResultSchema, {
+        ...summary,
+        command: "Cities.get(id)",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7CitySummaryResultSchema, {
+        ...summary,
+        cities: [
+          {
+            ...summary.cities[0],
+            location: { ok: true, value: { x: 22.5, y: 31 } },
+          },
+        ],
+      })
+    ).toBe(false);
   });
 
   test("wraps summary reads without sending operations", async () => {
@@ -120,11 +150,11 @@ describe("player, unit, and city summary reads", () => {
       const players = await getCiv7PlayerSummary({ playerIds: [0], maxItems: 2 }, options);
       const units = await getCiv7UnitSummary(
         { playerId: 0, unitIds: [{ owner: -1, id: -1, type: 26 }], maxItems: 2 },
-        options,
+        options
       );
       const cities = await getCiv7CitySummary(
         { cityIds: [{ owner: -1, id: -1, type: 1 }], maxItems: 2 },
-        options,
+        options
       );
 
       expect(players).toMatchObject({
@@ -317,13 +347,11 @@ function citySummaryResult() {
   };
 }
 
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
+function parseRequest(buffer: Buffer): {
+  listenerId: number;
+  message: string;
+  bytesRead: number;
+} | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);
   const bytesRead = 8 + messageLength;

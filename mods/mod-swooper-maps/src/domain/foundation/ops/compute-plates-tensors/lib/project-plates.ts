@@ -13,13 +13,7 @@ import type {
 } from "../../../lib/tectonics/schemas.js";
 import { BOUNDARY_TYPE } from "../../../constants.js";
 
-function hexDistanceSq(
-  ax: number,
-  ay: number,
-  bx: number,
-  by: number,
-  wrapWidth: number
-): number {
+function hexDistanceSq(ax: number, ay: number, bx: number, by: number, wrapWidth: number): number {
   const dx = wrapAbsDeltaPeriodic(ax - bx, wrapWidth);
   const dy = ay - by;
   return dx * dx + dy * dy;
@@ -249,7 +243,13 @@ export function projectPlatesFromModel(input: {
       let bestCell = 0;
       let bestDist = Infinity;
       for (let c = 0; c < cellCount; c++) {
-        const dist = hexDistanceSq(tileHex.x, tileHex.y, meshHexX[c] ?? 0, meshHexY[c] ?? 0, wrapWidth);
+        const dist = hexDistanceSq(
+          tileHex.x,
+          tileHex.y,
+          meshHexX[c] ?? 0,
+          meshHexY[c] ?? 0,
+          wrapWidth
+        );
         if (dist < bestDist) {
           bestDist = dist;
           bestCell = c;
@@ -310,8 +310,10 @@ export function projectPlatesFromModel(input: {
     historyRollups.fractureTotal[i] = tectonicHistory.fractureTotal[cellId] ?? 0;
     historyRollups.volcanismTotal[i] = tectonicHistory.volcanismTotal[cellId] ?? 0;
     historyRollups.upliftRecentFraction[i] = tectonicHistory.upliftRecentFraction[cellId] ?? 0;
-    historyRollups.collisionRecentFraction[i] = tectonicHistory.collisionRecentFraction[cellId] ?? 0;
-    historyRollups.subductionRecentFraction[i] = tectonicHistory.subductionRecentFraction[cellId] ?? 0;
+    historyRollups.collisionRecentFraction[i] =
+      tectonicHistory.collisionRecentFraction[cellId] ?? 0;
+    historyRollups.subductionRecentFraction[i] =
+      tectonicHistory.subductionRecentFraction[cellId] ?? 0;
     historyRollups.lastActiveEra[i] = tectonicHistory.lastActiveEra[cellId] ?? 255;
     historyRollups.lastCollisionEra[i] = tectonicHistory.lastCollisionEra[cellId] ?? 255;
     historyRollups.lastSubductionEra[i] = tectonicHistory.lastSubductionEra[cellId] ?? 255;

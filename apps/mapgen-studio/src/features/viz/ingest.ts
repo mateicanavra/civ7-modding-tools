@@ -19,7 +19,10 @@ export function ingestVizEvent(prev: VizManifestV1 | null, event: VizEvent): Viz
     if (prev.steps.some((s) => s.stepId === event.stepId)) return prev;
     return {
       ...prev,
-      steps: [...prev.steps, { stepId: event.stepId, phase: event.phase, stepIndex: event.stepIndex }],
+      steps: [
+        ...prev.steps,
+        { stepId: event.stepId, phase: event.phase, stepIndex: event.stepIndex },
+      ],
     };
   }
 

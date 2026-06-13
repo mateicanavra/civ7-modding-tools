@@ -28,7 +28,8 @@ function defaultStrategyConfigSchema(
     return strategy?.const === "default";
   }) as { properties?: { config?: TSchema } } | undefined;
   const config = variant?.properties?.config;
-  if (!config) throw new Error("Foundation public schema expected a default strategy config schema.");
+  if (!config)
+    throw new Error("Foundation public schema expected a default strategy config schema.");
   const publicConfig = omitKeys.length > 0 ? omitObjectProperties(config, omitKeys) : config;
   return Type.Unsafe({
     ...(publicConfig as Record<string, unknown>),
@@ -187,11 +188,7 @@ export default createStage({
       stepOp("computeMantleForcing", config.mantleForcing)
     );
     assignIfDefined(rawSteps, "crust", stepOp("computeCrust", config.lithosphere));
-    assignIfDefined(
-      rawSteps,
-      "plate-graph",
-      stepOp("computePlateGraph", config.platePartition)
-    );
+    assignIfDefined(rawSteps, "plate-graph", stepOp("computePlateGraph", config.platePartition));
     assignIfDefined(rawSteps, "plate-motion", stepOp("computePlateMotion", config.plateMotion));
 
     const tectonicsConfig: Record<string, unknown> = {};

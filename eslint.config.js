@@ -10,18 +10,18 @@ export default [
       "out/**",
       ".nx/**",
       "node_modules/**",
-      "docs/civ7-official/resources/**"
-    ]
+      "docs/civ7-official/resources/**",
+    ],
   },
   {
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       parser: tsParser,
       parserOptions: { ecmaVersion: "latest", sourceType: "module" },
-      globals: globals.node
+      globals: globals.node,
     },
     plugins: { "@typescript-eslint": tseslint },
-    rules: {}
+    rules: {},
   },
   // MapGen Studio is a browser app; keep recipe runtime worker-only.
   {
@@ -29,7 +29,7 @@ export default [
     languageOptions: {
       parser: tsParser,
       parserOptions: { ecmaVersion: "latest", sourceType: "module" },
-      globals: globals.browser
+      globals: globals.browser,
     },
     rules: {
       "no-restricted-imports": [
@@ -39,27 +39,27 @@ export default [
             {
               name: "mod-swooper-maps/recipes/standard",
               message:
-                "MapGen Studio UI must import recipe artifacts (schema/defaults/meta), not runtime recipe modules. Use mod-swooper-maps/recipes/standard-artifacts."
+                "MapGen Studio UI must import recipe artifacts (schema/defaults/meta), not runtime recipe modules. Use mod-swooper-maps/recipes/standard-artifacts.",
             },
             {
               name: "mod-swooper-maps/recipes/browser-test",
               message:
-                "MapGen Studio UI must import recipe artifacts (schema/defaults/meta), not runtime recipe modules. Use mod-swooper-maps/recipes/browser-test-artifacts."
-            }
-          ]
-        }
-      ]
-    }
+                "MapGen Studio UI must import recipe artifacts (schema/defaults/meta), not runtime recipe modules. Use mod-swooper-maps/recipes/browser-test-artifacts.",
+            },
+          ],
+        },
+      ],
+    },
   },
   // Worker-side runtime imports are allowed (they stay out of the main bundle).
   {
     files: [
       "apps/mapgen-studio/src/browser-runner/pipeline.worker.ts",
-      "apps/mapgen-studio/src/browser-runner/recipeRuntime.ts"
+      "apps/mapgen-studio/src/browser-runner/recipeRuntime.ts",
     ],
     rules: {
-      "no-restricted-imports": "off"
-    }
+      "no-restricted-imports": "off",
+    },
   },
   {
     files: ["mods/**/src/**/*.ts"],
@@ -71,7 +71,7 @@ export default [
           patterns: [
             {
               group: ["@mapgen/domain/*/ops/*"],
-              message: "Import domain ops via the domain entrypoint surface."
+              message: "Import domain ops via the domain entrypoint surface.",
             },
             {
               group: [
@@ -80,17 +80,17 @@ export default [
                 "@mapgen/domain/*/strategies/*",
               ],
               message:
-                "Do not deep-import internal domain modules; import from stable public surfaces."
-            }
-          ]
-        }
-      ]
-    }
+                "Do not deep-import internal domain modules; import from stable public surfaces.",
+            },
+          ],
+        },
+      ],
+    },
   },
   {
     files: [
       "mods/**/src/recipes/**/stages/**/steps/**/*.ts",
-      "mods/**/src/domain/**/ops/**/strategies/**/*.ts"
+      "mods/**/src/domain/**/ops/**/strategies/**/*.ts",
     ],
     rules: {
       "no-restricted-imports": [
@@ -99,82 +99,86 @@ export default [
           paths: [
             {
               name: "@sinclair/typebox/value",
-              message: "Runtime layers must not use TypeBox Value.*; use compile-time normalization."
+              message:
+                "Runtime layers must not use TypeBox Value.*; use compile-time normalization.",
             },
             {
               name: "@sinclair/typebox/compiler",
-              message: "Runtime layers must not use TypeBox TypeCompiler; use compile-time normalization."
+              message:
+                "Runtime layers must not use TypeBox TypeCompiler; use compile-time normalization.",
             },
             {
               name: "@swooper/mapgen-core/compiler/normalize",
-              message: "Runtime layers must not import compiler normalization helpers."
+              message: "Runtime layers must not import compiler normalization helpers.",
             },
             {
               name: "@swooper/mapgen-core/authoring/validation",
-              message: "Runtime validation surfaces are forbidden; rely on compile-time normalization."
+              message:
+                "Runtime validation surfaces are forbidden; rely on compile-time normalization.",
             },
             {
               name: "@swooper/mapgen-core/authoring/op/validation-surface",
-              message: "Runtime validation surfaces are forbidden; rely on compile-time normalization."
-            }
+              message:
+                "Runtime validation surfaces are forbidden; rely on compile-time normalization.",
+            },
           ],
           patterns: [
             {
               group: ["@mapgen/domain/*/ops/*"],
-              message: "Import domain ops via the domain entrypoint surface."
-            }
-          ]
-        }
+              message: "Import domain ops via the domain entrypoint surface.",
+            },
+          ],
+        },
       ],
       "no-restricted-syntax": [
         "error",
         {
           selector: "CallExpression[callee.name='runValidated']",
-          message: "Runtime layers must not call runValidated; use compile-time normalization."
+          message: "Runtime layers must not call runValidated; use compile-time normalization.",
         },
         {
           selector: "MemberExpression[property.name='runValidated']",
-          message: "Runtime layers must not call runValidated; use compile-time normalization."
+          message: "Runtime layers must not call runValidated; use compile-time normalization.",
         },
         {
           selector: "VariableDeclarator[id.name='clamp01']",
-          message: "Use clamp01 from @swooper/mapgen-core."
+          message: "Use clamp01 from @swooper/mapgen-core.",
         },
         {
           selector: "FunctionDeclaration[id.name='clamp01']",
-          message: "Use clamp01 from @swooper/mapgen-core."
+          message: "Use clamp01 from @swooper/mapgen-core.",
         },
         {
           selector: "VariableDeclarator[id.name='clampChance']",
-          message: "Use clampChance from @swooper/mapgen-core."
+          message: "Use clampChance from @swooper/mapgen-core.",
         },
         {
           selector: "FunctionDeclaration[id.name='clampChance']",
-          message: "Use clampChance from @swooper/mapgen-core."
+          message: "Use clampChance from @swooper/mapgen-core.",
         },
         {
           selector: "VariableDeclarator[id.name='normalizeRange']",
-          message: "Use normalizeRange from @swooper/mapgen-core."
+          message: "Use normalizeRange from @swooper/mapgen-core.",
         },
         {
           selector: "FunctionDeclaration[id.name='normalizeRange']",
-          message: "Use normalizeRange from @swooper/mapgen-core."
+          message: "Use normalizeRange from @swooper/mapgen-core.",
         },
         {
           selector: "VariableDeclarator[id.name='rollPercent']",
-          message: "Use rollPercent from @swooper/mapgen-core."
+          message: "Use rollPercent from @swooper/mapgen-core.",
         },
         {
           selector: "FunctionDeclaration[id.name='rollPercent']",
-          message: "Use rollPercent from @swooper/mapgen-core."
-        }
-      ]
-    }
+          message: "Use rollPercent from @swooper/mapgen-core.",
+        },
+      ],
+    },
   },
   {
     files: [
       "mods/**/src/recipes/**/stages/**/steps/**/contract.ts",
-      "mods/**/src/recipes/**/stages/**/steps/**/*.contract.ts"
+      "mods/**/src/recipes/**/stages/**/steps/**/*.contract.ts",
     ],
     rules: {
       "no-restricted-imports": [
@@ -184,17 +188,17 @@ export default [
             {
               group: ["@mapgen/domain/*/*"],
               message:
-                "Step contracts must import only from @mapgen/domain/<domain> (no deep imports, no /ops)."
+                "Step contracts must import only from @mapgen/domain/<domain> (no deep imports, no /ops).",
             },
             {
               group: ["@mapgen/domain/*/ops", "@mapgen/domain/*/ops/*"],
               message:
-                "Step contracts must never import runtime ops; import contracts from @mapgen/domain/<domain>."
-            }
-          ]
-        }
-      ]
-    }
+                "Step contracts must never import runtime ops; import contracts from @mapgen/domain/<domain>.",
+            },
+          ],
+        },
+      ],
+    },
   },
   {
     files: ["mods/**/src/recipes/**/recipe.ts"],
@@ -206,12 +210,12 @@ export default [
             {
               regex: "^@mapgen/domain/[^/]+$",
               message:
-                "Recipe compilation must import domain runtime ops from @mapgen/domain/<domain>/ops (not the contract entrypoint)."
-            }
-          ]
-        }
-      ]
-    }
+                "Recipe compilation must import domain runtime ops from @mapgen/domain/<domain>/ops (not the contract entrypoint).",
+            },
+          ],
+        },
+      ],
+    },
   },
   {
     files: [
@@ -221,7 +225,7 @@ export default [
       "mods/**/src/domain/**/ops/**/types.ts",
       "mods/**/src/domain/**/ops/**/index.ts",
       "mods/**/src/domain/**/ops/**/rules/**/*.ts",
-      "mods/**/src/domain/**/ops/**/strategies/**/*.ts"
+      "mods/**/src/domain/**/ops/**/strategies/**/*.ts",
     ],
     rules: {
       "no-restricted-syntax": [
@@ -229,24 +233,26 @@ export default [
         {
           selector: "ExportAllDeclaration:not([exportKind='type'])",
           message:
-            "Do not use value `export *` in contract/public-surface files; use named exports. (`export type *` is OK.)"
-        }
-      ]
-    }
+            "Do not use value `export *` in contract/public-surface files; use named exports. (`export type *` is OK.)",
+        },
+      ],
+    },
   },
   {
     files: [
       "mods/**/src/domain/**/ops/**/*.contract.ts",
-      "mods/**/src/recipes/**/steps/**/*.contract.ts"
+      "mods/**/src/recipes/**/steps/**/*.contract.ts",
     ],
     rules: {
       "no-restricted-syntax": [
         "error",
         {
-          selector: "Property[key.name='default'][value.type='ObjectExpression'][value.properties.length=0]",
-          message: "Do not use empty object defaults in schema definitions; rely on property defaults."
-        }
-      ]
-    }
-  }
+          selector:
+            "Property[key.name='default'][value.type='ObjectExpression'][value.properties.length=0]",
+          message:
+            "Do not use empty object defaults in schema definitions; rely on property defaults.",
+        },
+      ],
+    },
+  },
 ];

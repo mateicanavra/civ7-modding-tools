@@ -52,10 +52,24 @@ describe("recipe DAG artifact presentation", () => {
     });
     expect(formatArtifactLabel("artifact:hydrology.hydrography")).toBe("hydrography");
     expect(formatArtifactLabel("seed-grid")).toBe("seed-grid");
-    expect(formatArtifactGroupLabel(["artifact:hydrology.hydrography", "artifact:hydrology.lakePlan"])).toBe("hydrography +1");
-    expect(resolveArtifactGroupDomainId(["artifact:hydrology.hydrography", "artifact:hydrology.lakePlan"])).toBe("hydrology");
-    expect(resolveArtifactGroupDomainId(["artifact:map.hydrology.engineProjectionLakes", "artifact:map.riversEngineTerrainSnapshot"])).toBe("hydrology");
-    expect(resolveArtifactGroupDomainId(["artifact:hydrology.hydrography", "artifact:ecology.biomes"])).toBeNull();
+    expect(
+      formatArtifactGroupLabel(["artifact:hydrology.hydrography", "artifact:hydrology.lakePlan"])
+    ).toBe("hydrography +1");
+    expect(
+      resolveArtifactGroupDomainId([
+        "artifact:hydrology.hydrography",
+        "artifact:hydrology.lakePlan",
+      ])
+    ).toBe("hydrology");
+    expect(
+      resolveArtifactGroupDomainId([
+        "artifact:map.hydrology.engineProjectionLakes",
+        "artifact:map.riversEngineTerrainSnapshot",
+      ])
+    ).toBe("hydrology");
+    expect(
+      resolveArtifactGroupDomainId(["artifact:hydrology.hydrography", "artifact:ecology.biomes"])
+    ).toBeNull();
   });
 
   it("classifies every bundled standard recipe artifact into a semantic icon domain", async () => {

@@ -31,20 +31,8 @@ export const Civ7CitySummaryProcedureDescriptor = createCiv7ProcedureCoreDescrip
     owner: "packages/civ7-direct-control/src/play/summaries.ts",
     exportName: "Civ7CitySummaryResultSchema",
   },
-  inputFields: [
-    "playerIds",
-    "cityIds",
-    "playerId",
-    "maxItems",
-    "includeHidden",
-  ],
-  outputFields: [
-    "host",
-    "port",
-    "state",
-    "cities",
-    "omitted",
-  ],
+  inputFields: ["playerIds", "cityIds", "playerId", "maxItems", "includeHidden"],
+  outputFields: ["host", "port", "state", "cities", "omitted"],
   playerScope: "local-player-scoped",
   consumerClasses: [
     "normal-cli-player-agent-view",
@@ -89,13 +77,13 @@ export type Civ7CitySummaryProcedureCallOptions = Readonly<{
 
 export function callCiv7CitySummaryProcedure(
   input: Civ7CitySummaryInput = {},
-  options: Civ7CitySummaryProcedureCallOptions = {},
+  options: Civ7CitySummaryProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7CitySummaryResult>> {
   return callCiv7ProcedureCore<Civ7CitySummaryInput, Civ7CitySummaryResult>(
     Civ7CitySummaryProcedureDescriptor,
     Civ7CitySummaryProcedureSchemaArtifacts,
     input,
     (validInput) => getCiv7CitySummary(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    options.procedure
   );
 }

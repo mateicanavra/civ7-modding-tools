@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { mkdtemp, writeFile, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import * as path from 'node:path';
+import { describe, it, expect } from "vitest";
+import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import * as path from "node:path";
 // In this package's own tests, import from the local source to avoid self-resolve issues.
-import { crawlGraph, exploreGraph } from '../src';
+import { crawlGraph, exploreGraph } from "../src";
 
 async function setupXml(): Promise<string> {
-  const dir = await mkdtemp(path.join(tmpdir(), 'civ7-test-'));
+  const dir = await mkdtemp(path.join(tmpdir(), "civ7-test-"));
   const xml = `<?xml version="1.0"?>
 <Database>
   <Leaders>
@@ -21,15 +21,15 @@ async function setupXml(): Promise<string> {
     </Modifier>
   </GameEffects>
 </Database>`;
-  await writeFile(path.join(dir, 'test.xml'), xml, 'utf8');
+  await writeFile(path.join(dir, "test.xml"), xml, "utf8");
   return dir;
 }
 
-describe('graph workflows', () => {
-  it('crawlGraph builds graph and manifest', async () => {
+describe("graph workflows", () => {
+  it("crawlGraph builds graph and manifest", async () => {
     const dir = await setupXml();
     try {
-      const { graph, manifestFiles } = await crawlGraph(dir, 'LEADER_TEST');
+      const { graph, manifestFiles } = await crawlGraph(dir, "LEADER_TEST");
       expect(graph.nodes.size).toBeGreaterThan(0);
       expect(manifestFiles.length).toBe(1);
     } finally {
@@ -37,34 +37,38 @@ describe('graph workflows', () => {
     }
   });
 
-  it('exploreGraph produces dot, svg, and optional html', async () => {
+  it("exploreGraph produces dot, svg, and optional html", async () => {
     const dir = await setupXml();
     try {
-      const res = await exploreGraph({ rootDir: dir, seed: 'LEADER_TEST', emitHtml: true });
-      expect(res.dot).toContain('digraph');
-      expect(res.svg).toContain('<svg');
+      const res = await exploreGraph({ rootDir: dir, seed: "LEADER_TEST", emitHtml: true });
+      expect(res.dot).toContain("digraph");
+      expect(res.svg).toContain("<svg");
       expect(res.html).toBeTruthy();
     } finally {
       await rm(dir, { recursive: true, force: true });
     }
   });
 
-  it('crawlGraph logs progress and errors on bad seed', async () => {
+  it("crawlGraph logs progress and errors on bad seed", async () => {
     const dir = await setupXml();
     const logs: string[] = [];
     try {
-      await expect(crawlGraph(dir, 'BAD_SEED', (m) => logs.push(m))).rejects.toThrow(/crawlGraph failed: Could not parse seed/);
+      await expect(crawlGraph(dir, "BAD_SEED", (m) => logs.push(m))).rejects.toThrow(
+        /crawlGraph failed: Could not parse seed/
+      );
       expect(logs.length).toBeGreaterThan(0);
     } finally {
       await rm(dir, { recursive: true, force: true });
     }
   });
 
-  it('exploreGraph surfaces crawl errors and logs', async () => {
+  it("exploreGraph surfaces crawl errors and logs", async () => {
     const dir = await setupXml();
     const logs: string[] = [];
     try {
-      await expect(exploreGraph({ rootDir: dir, seed: 'BAD', log: (m) => logs.push(m) })).rejects.toThrow(/exploreGraph failed: crawlGraph failed: Could not parse seed/);
+      await expect(
+        exploreGraph({ rootDir: dir, seed: "BAD", log: (m) => logs.push(m) })
+      ).rejects.toThrow(/exploreGraph failed: crawlGraph failed: Could not parse seed/);
       expect(logs.length).toBeGreaterThan(0);
     } finally {
       await rm(dir, { recursive: true, force: true });

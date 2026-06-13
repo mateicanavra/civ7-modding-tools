@@ -7,7 +7,10 @@ import type { Plugin } from "esbuild";
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 // Reuse mapgen-core’s TypeBox format shim to avoid Unicode regexes in Civ7’s V8 (built-in format validation is disabled).
 const typeboxFormatShim = join(__dirname, "../../packages/mapgen-core/src/shims/typebox-format.ts");
-const typeboxGuardEmitShim = join(__dirname, "../../packages/mapgen-core/src/shims/typebox-guard-emit.ts");
+const typeboxGuardEmitShim = join(
+  __dirname,
+  "../../packages/mapgen-core/src/shims/typebox-guard-emit.ts"
+);
 const civ7TextEncoderBootstrap = `
 // Civ7's MapGeneration V8 does not expose Web TextEncoder. This bundle-level
 // bootstrap must run before bundled dependencies evaluate because TypeBox and
@@ -58,7 +61,8 @@ const typeboxFormatPlugin: Plugin = {
     build.onResolve({ filter: /(^|[/\\])emit\.mjs$/ }, (args) => {
       if (
         args.path.endsWith("emit.mjs") &&
-        (args.importer.includes("/typebox/build/guard/") || args.importer.includes("\\typebox\\build\\guard\\"))
+        (args.importer.includes("/typebox/build/guard/") ||
+          args.importer.includes("\\typebox\\build\\guard\\"))
       ) {
         return { path: typeboxGuardEmitShim };
       }
@@ -75,8 +79,8 @@ export default defineConfig({
   // Generated from canonical src/maps/configs/*.config.json by `bun run gen:maps`.
   entry: Object.fromEntries(
     readdirSync(join(__dirname, "src/maps/generated"))
-    .filter((file) => file.endsWith(".ts"))
-    .sort()
+      .filter((file) => file.endsWith(".ts"))
+      .sort()
       .map((file) => [file.replace(/\.ts$/, ""), `src/maps/generated/${file}`])
   ),
 
@@ -103,7 +107,13 @@ export default defineConfig({
   // Civ7 loads each generated map file as a self-contained game script. SDK/core/adapter
   // authoring packages must be bundled into that script; only engine virtual modules may
   // remain as imports for the game loader to resolve.
-  noExternal: ["@swooper/mapgen-core", "@civ7/adapter", "@civ7/map-policy", "@mateicanavra/civ7-sdk", "typebox"],
+  noExternal: [
+    "@swooper/mapgen-core",
+    "@civ7/adapter",
+    "@civ7/map-policy",
+    "@mateicanavra/civ7-sdk",
+    "typebox",
+  ],
 
   esbuildOptions(options) {
     // Shim TypeBox format registry so no Unicode-property regexes reach the game engine (built-in format validation disabled).

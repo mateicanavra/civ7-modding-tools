@@ -57,18 +57,22 @@ describe("Civ7 Studio setup config", () => {
   });
 
   it("updates player setup values without dropping neighboring choices", () => {
-    const updated = updateStudioSetupPlayerOption({
-      gameOptions: {},
-      playerOptions: [
-        {
-          playerId: 0,
-          options: {
-            PlayerLeader: "LEADER_HARRIET_TUBMAN",
-            PlayerCivilization: "CIVILIZATION_AMERICA",
+    const updated = updateStudioSetupPlayerOption(
+      {
+        gameOptions: {},
+        playerOptions: [
+          {
+            playerId: 0,
+            options: {
+              PlayerLeader: "LEADER_HARRIET_TUBMAN",
+              PlayerCivilization: "CIVILIZATION_AMERICA",
+            },
           },
-        },
-      ],
-    }, "PlayerLeader", "LEADER_ASHOKA");
+        ],
+      },
+      "PlayerLeader",
+      "LEADER_ASHOKA"
+    );
 
     expect(updated.playerOptions[0]?.options).toEqual({
       PlayerLeader: "LEADER_ASHOKA",

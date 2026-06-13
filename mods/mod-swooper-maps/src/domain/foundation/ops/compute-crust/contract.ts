@@ -16,31 +16,38 @@ const StrategySchema = Type.Object(
       default: 0.25,
       minimum: 0,
       maximum: 1,
-      description: "Basaltic lid thickness proxy (0..1). Controls baseline lithosphere strength and buoyancy.",
+      description:
+        "Basaltic lid thickness proxy (0..1). Controls baseline lithosphere strength and buoyancy.",
     }),
     /** Yield strength scalar for the lithosphere (0..1). */
     yieldStrength01: Type.Number({
       default: 0.55,
       minimum: 0,
       maximum: 1,
-      description: "Controls lithosphere yield strength before mantle coupling and rift weakening are applied.",
+      description:
+        "Controls lithosphere yield strength before mantle coupling and rift weakening are applied.",
     }),
     /** Mantle coupling scalar (0..1) used to scale initial strength (mantle-coupled baseline). */
     mantleCoupling01: Type.Number({
       default: 0.6,
       minimum: 0,
       maximum: 1,
-      description: "Mantle coupling scalar (0..1) used to scale initial strength (mantle-coupled baseline).",
+      description:
+        "Mantle coupling scalar (0..1) used to scale initial strength (mantle-coupled baseline).",
     }),
     /** Rift weakening scalar (0..1). Reserved for event-driven weakening in later slices. */
     riftWeakening01: Type.Number({
       default: 0.35,
       minimum: 0,
       maximum: 1,
-      description: "Controls how strongly rift contexts weaken crust strength in downstream tectonic shaping.",
+      description:
+        "Controls how strongly rift contexts weaken crust strength in downstream tectonic shaping.",
     }),
   },
-  { description: "Default strategy configuration for computing basaltic-lid crust truth + derived drivers." }
+  {
+    description:
+      "Default strategy configuration for computing basaltic-lid crust truth + derived drivers.",
+  }
 );
 
 /** Crust truth + derived drivers per mesh cell. */

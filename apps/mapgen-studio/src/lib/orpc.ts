@@ -28,8 +28,7 @@ const link = new RPCLink({
 });
 
 /** Typed RPC client mirroring the unified contract tree. */
-export const orpcClient: ContractRouterClient<StudioContract> =
-  createORPCClient(link);
+export const orpcClient: ContractRouterClient<StudioContract> = createORPCClient(link);
 
 /**
  * oRPC-native TanStack Query utils. Use directly per architecture/10 §2:

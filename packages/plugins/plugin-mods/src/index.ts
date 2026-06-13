@@ -25,19 +25,28 @@ import {
 async function setLinkedBranch(slug: string, branch: string, opts: { verbose?: boolean } = {}) {
   await setLocalConfig(`civ7.mod.${slug}.branch`, branch, { verbose: opts.verbose });
 }
-async function getLinkedBranch(slug: string, opts: { verbose?: boolean } = {}): Promise<string | null> {
+async function getLinkedBranch(
+  slug: string,
+  opts: { verbose?: boolean } = {}
+): Promise<string | null> {
   return getLocalConfig(`civ7.mod.${slug}.branch`, { verbose: opts.verbose });
 }
 async function setLinkedRepoUrl(slug: string, repoUrl: string, opts: { verbose?: boolean } = {}) {
   await setLocalConfig(`civ7.mod.${slug}.repoUrl`, repoUrl, { verbose: opts.verbose });
 }
-async function getLinkedRepoUrl(slug: string, opts: { verbose?: boolean } = {}): Promise<string | null> {
+async function getLinkedRepoUrl(
+  slug: string,
+  opts: { verbose?: boolean } = {}
+): Promise<string | null> {
   return getLocalConfig(`civ7.mod.${slug}.repoUrl`, { verbose: opts.verbose });
 }
 async function setLinkedTrunk(slug: string, branch: string, opts: { verbose?: boolean } = {}) {
   await setLocalConfig(`civ7.mod.${slug}.trunk`, branch, { verbose: opts.verbose });
 }
-async function getLinkedTrunk(slug: string, opts: { verbose?: boolean } = {}): Promise<string | null> {
+async function getLinkedTrunk(
+  slug: string,
+  opts: { verbose?: boolean } = {}
+): Promise<string | null> {
   return getLocalConfig(`civ7.mod.${slug}.trunk`, { verbose: opts.verbose });
 }
 
@@ -93,7 +102,13 @@ export async function getModStatus(params: {
   shallow: boolean;
   clean: boolean;
   hasSubtree: boolean;
-  remotes: Array<{ name: string; url: string | null; defaultBranch: string | null; resolvedTrunk: string | null; trunkPushAllowed: boolean | null }>;
+  remotes: Array<{
+    name: string;
+    url: string | null;
+    defaultBranch: string | null;
+    resolvedTrunk: string | null;
+    trunkPushAllowed: boolean | null;
+  }>;
   // Mod-level (may be null if no slug provided)
   modsPrefix: string | null;
   modsPathExists: boolean;
@@ -169,7 +184,7 @@ export function deployMod(options: DeployOptions): DeployResult {
   const modsDir = options.modsDir ?? resolveModsDir().modsDir;
   ensureDirectory(modsDir);
   const targetDir = path.join(modsDir, modId);
-  
+
   // Wholesale replacement: remove target directory before copying
   if (fs.existsSync(targetDir)) {
     fs.rmSync(targetDir, { recursive: true, force: true });
@@ -222,7 +237,13 @@ export async function importModFromRemote(opts: ImportModOptions): Promise<void>
   await configureRemoteAndFetch(rName, existing ? undefined : url, { tags: true }, { verbose });
   await initRemotePushConfig(rName, { verbose });
 
-  await subtreeAddFromRemote(prefix, rName, branch, { squash, autoUnshallow, allowDirty }, { verbose });
+  await subtreeAddFromRemote(
+    prefix,
+    rName,
+    branch,
+    { squash, autoUnshallow, allowDirty },
+    { verbose }
+  );
   await setLinkedBranch(slug, branch, { verbose });
   await setLinkedRepoUrl(slug, url, { verbose });
 }
@@ -244,7 +265,15 @@ export interface PushModOptions {
   prDraft?: boolean;
 }
 export async function pushModToRemote(opts: PushModOptions): Promise<void> {
-  const { slug, branch, verbose = false, allowDirty = false, autoUnshallow = false, autoFastForwardTrunk = false, trunk } = opts;
+  const {
+    slug,
+    branch,
+    verbose = false,
+    allowDirty = false,
+    autoUnshallow = false,
+    autoFastForwardTrunk = false,
+    trunk,
+  } = opts;
 
   const root = await getRepoRoot({ allowNonZeroExit: true, verbose });
   if (!root) throw new Error("Not inside a git repository.");
@@ -264,7 +293,9 @@ export async function pushModToRemote(opts: PushModOptions): Promise<void> {
   const effectiveBranch = branch ?? (await getLinkedBranch(slug, { verbose }));
   if (!effectiveBranch) {
     const branches = await listRemoteBranches(rName, { verbose });
-    const hint = branches.length ? `Available remote branches for ${rName}:\n- ${branches.join("\n- ")}` : `No heads found on remote ${rName}.`;
+    const hint = branches.length
+      ? `Available remote branches for ${rName}:\n- ${branches.join("\n- ")}`
+      : `No heads found on remote ${rName}.`;
     throw new Error(
       `No branch specified and none configured for slug "${slug}". Re-run with --branch <name> or set a default via setup.\n\n${hint}`
     );
@@ -285,7 +316,7 @@ export async function pushModToRemote(opts: PushModOptions): Promise<void> {
       prBody: opts.prBody,
       prDraft: opts.prDraft,
     },
-    { verbose },
+    { verbose }
   );
 }
 
@@ -301,7 +332,14 @@ export interface PullModOptions {
   autoUnshallow?: boolean;
 }
 export async function pullModFromRemote(opts: PullModOptions): Promise<void> {
-  const { slug, branch, squash = false, verbose = false, allowDirty = false, autoUnshallow = false } = opts;
+  const {
+    slug,
+    branch,
+    squash = false,
+    verbose = false,
+    allowDirty = false,
+    autoUnshallow = false,
+  } = opts;
 
   const root = await getRepoRoot({ allowNonZeroExit: true, verbose });
   if (!root) throw new Error("Not inside a git repository.");
@@ -321,13 +359,21 @@ export async function pullModFromRemote(opts: PullModOptions): Promise<void> {
   const effectiveBranch = branch ?? (await getLinkedBranch(slug, { verbose }));
   if (!effectiveBranch) {
     const branches = await listRemoteBranches(rName, { verbose });
-    const hint = branches.length ? `Available remote branches for ${rName}:\n- ${branches.join("\n- ")}` : `No heads found on remote ${rName}.`;
+    const hint = branches.length
+      ? `Available remote branches for ${rName}:\n- ${branches.join("\n- ")}`
+      : `No heads found on remote ${rName}.`;
     throw new Error(
       `No branch specified and none configured for slug "${slug}". Re-run with --branch <name> or set a default via setup.\n\n${hint}`
     );
   }
 
-  await subtreePullWithFetch(prefix, rName, effectiveBranch, { squash, autoUnshallow, allowDirty }, { verbose });
+  await subtreePullWithFetch(
+    prefix,
+    rName,
+    effectiveBranch,
+    { squash, autoUnshallow, allowDirty },
+    { verbose }
+  );
 }
 
 /**
@@ -363,7 +409,9 @@ function inferSlugFromRemoteUrl(remoteUrl: string): string {
   return kebab || "mod";
 }
 
-export async function link(opts: LinkModOptions): Promise<{ slug: string; remoteName: string; branch: string; prefix: string }> {
+export async function link(
+  opts: LinkModOptions
+): Promise<{ slug: string; remoteName: string; branch: string; prefix: string }> {
   const {
     remoteUrl,
     branch = "main",
@@ -381,7 +429,12 @@ export async function link(opts: LinkModOptions): Promise<{ slug: string; remote
   const autoUnshallow = opts.autoUnshallow ?? true; // default to full history
   const prefix = path.posix.join("mods", slug);
 
-  await configureRemoteAndFetch(remoteName, existing ? undefined : remoteUrl, { tags: true }, { verbose });
+  await configureRemoteAndFetch(
+    remoteName,
+    existing ? undefined : remoteUrl,
+    { tags: true },
+    { verbose }
+  );
   await initRemotePushConfig(remoteName, { verbose });
 
   // Idempotent: if the subtree path already exists and is non-empty, treat monorepo as source of truth and push;
@@ -444,7 +497,10 @@ export async function link(opts: LinkModOptions): Promise<{ slug: string; remote
 /** List registered slugs from local git config (civ7.mod.<slug>.*). */
 export async function listRegisteredSlugs(opts: { verbose?: boolean } = {}): Promise<string[]> {
   try {
-    const res = await execGit(["config", "--local", "--list", "--name-only"], { allowNonZeroExit: true, verbose: opts.verbose });
+    const res = await execGit(["config", "--local", "--list", "--name-only"], {
+      allowNonZeroExit: true,
+      verbose: opts.verbose,
+    });
     if (res.code !== 0) return [];
     const slugs = new Set<string>();
     for (const line of (res.stdout || "").split("\n")) {

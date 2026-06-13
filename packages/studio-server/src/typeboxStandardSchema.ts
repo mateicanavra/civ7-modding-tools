@@ -4,7 +4,7 @@ import type { Static, TSchema } from "typebox";
 import { Value } from "typebox/value";
 
 export function toStandardSchema<TypeSchema extends TSchema>(
-  schema: TypeSchema,
+  schema: TypeSchema
 ): StandardSchemaV1<Static<TypeSchema>, Static<TypeSchema>> {
   const validator = Compile(schema);
 
@@ -33,7 +33,10 @@ export function toStandardSchema<TypeSchema extends TSchema>(
 
 function pathSegments(path: string): StandardSchemaV1.PathSegment[] {
   if (path.length === 0) return [];
-  return path.split("/").slice(1).map((segment) => ({ key: pathKey(segment) }));
+  return path
+    .split("/")
+    .slice(1)
+    .map((segment) => ({ key: pathKey(segment) }));
 }
 
 function pathKey(segment: string): string | number {

@@ -12,4 +12,3 @@ const scoreWetMarsh = createOp(ScoreWetMarshContract, {
 export type * from "./contract.js";
 
 export default scoreWetMarsh;
-

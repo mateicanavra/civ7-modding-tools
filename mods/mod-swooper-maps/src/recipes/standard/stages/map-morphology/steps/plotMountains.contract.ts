@@ -16,7 +16,8 @@ const PlotMountainsStepContract = defineStep({
     {},
     {
       additionalProperties: false,
-      description: "Gameplay mountain projection config. Mountain intent is produced by Morphology.",
+      description:
+        "Gameplay mountain projection config. Mountain intent is produced by Morphology.",
     }
   ),
 });

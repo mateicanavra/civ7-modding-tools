@@ -13,22 +13,19 @@ const Civ7DiplomacyResponseInputSchema = Type.Object(
     responseType: Type.Integer(),
     notificationId: Type.Optional(Civ7ControlOrpcComponentIdSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7DiplomacyResponseInput = Static<
-  typeof Civ7DiplomacyResponseInputSchema
->;
+export type Civ7DiplomacyResponseInput = Static<typeof Civ7DiplomacyResponseInputSchema>;
 
-export const Civ7DiplomacyResponsePostconditionClassificationSchema =
-  Type.Union([
-    Type.Literal("not-sent"),
-    Type.Literal("turn-unblocked"),
-    Type.Literal("diplomacy-blocker-cleared"),
-    Type.Literal("blocking-notification-changed"),
-    Type.Literal("validation-changed"),
-    Type.Literal("no-state-change"),
-    Type.Literal("missing-postcondition"),
-  ]);
+export const Civ7DiplomacyResponsePostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("turn-unblocked"),
+  Type.Literal("diplomacy-blocker-cleared"),
+  Type.Literal("blocking-notification-changed"),
+  Type.Literal("validation-changed"),
+  Type.Literal("no-state-change"),
+  Type.Literal("missing-postcondition"),
+]);
 
 export const Civ7DiplomacyResponseProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
@@ -51,7 +48,7 @@ export const Civ7DiplomacyResponseValidationSummarySchema = Type.Object(
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7DiplomacyResponsePostconditionSummarySchema = Type.Object(
@@ -67,7 +64,7 @@ export const Civ7DiplomacyResponsePostconditionSummarySchema = Type.Object(
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7DiplomacyResponseNextStepSchema = Type.Object(
@@ -80,7 +77,7 @@ export const Civ7DiplomacyResponseNextStepSchema = Type.Object(
     source: Type.Literal("diplomacy.response.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7DiplomacyResponseResultSchema = Type.Object(
@@ -95,33 +92,28 @@ const Civ7DiplomacyResponseResultSchema = Type.Object(
     postcondition: Civ7DiplomacyResponsePostconditionSummarySchema,
     nextSteps: Type.Array(Civ7DiplomacyResponseNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7DiplomacyResponseResult = Static<
-  typeof Civ7DiplomacyResponseResultSchema
->;
+export type Civ7DiplomacyResponseResult = Static<typeof Civ7DiplomacyResponseResultSchema>;
 
 const Civ7FirstMeetResponseInputSchema = Type.Object(
   {
     metPlayerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     responseType: Type.Integer(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7FirstMeetResponseInput = Static<
-  typeof Civ7FirstMeetResponseInputSchema
->;
+export type Civ7FirstMeetResponseInput = Static<typeof Civ7FirstMeetResponseInputSchema>;
 
-export const Civ7FirstMeetResponsePostconditionClassificationSchema =
-  Type.Union([
-    Type.Literal("not-sent"),
-    Type.Literal("turn-unblocked"),
-    Type.Literal("first-meet-cleared"),
-    Type.Literal("first-meet-blocker-transitioned"),
-    Type.Literal("first-meet-sticky-blocker"),
-    Type.Literal("first-meet-blocker-unmatched"),
-    Type.Literal("missing-postcondition"),
-  ]);
+export const Civ7FirstMeetResponsePostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("turn-unblocked"),
+  Type.Literal("first-meet-cleared"),
+  Type.Literal("first-meet-blocker-transitioned"),
+  Type.Literal("first-meet-sticky-blocker"),
+  Type.Literal("first-meet-blocker-unmatched"),
+  Type.Literal("missing-postcondition"),
+]);
 
 export const Civ7FirstMeetResponseProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
@@ -142,7 +134,7 @@ export const Civ7FirstMeetResponseValidationSummarySchema = Type.Object(
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7FirstMeetResponsePostconditionSummarySchema = Type.Object(
@@ -150,14 +142,11 @@ export const Civ7FirstMeetResponsePostconditionSummarySchema = Type.Object(
     classification: Civ7FirstMeetResponsePostconditionClassificationSchema,
     reason: Type.String(),
     outcome: Civ7FirstMeetResponseProofOutcomeSchema,
-    confidence: Type.Union([
-      Type.Literal("confirmed"),
-      Type.Literal("unverified"),
-    ]),
+    confidence: Type.Union([Type.Literal("confirmed"), Type.Literal("unverified")]),
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7FirstMeetResponseNextStepSchema = Type.Object(
@@ -170,7 +159,7 @@ export const Civ7FirstMeetResponseNextStepSchema = Type.Object(
     source: Type.Literal("diplomacy.firstMeet.response.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7FirstMeetResponseResultSchema = Type.Object(
@@ -184,23 +173,17 @@ const Civ7FirstMeetResponseResultSchema = Type.Object(
     postcondition: Civ7FirstMeetResponsePostconditionSummarySchema,
     nextSteps: Type.Array(Civ7FirstMeetResponseNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7FirstMeetResponseResult = Static<
-  typeof Civ7FirstMeetResponseResultSchema
->;
+export type Civ7FirstMeetResponseResult = Static<typeof Civ7FirstMeetResponseResultSchema>;
 
-const Civ7DiplomacyResponseInputStandardSchema = toStandardSchema(
-  Civ7DiplomacyResponseInputSchema,
-);
+const Civ7DiplomacyResponseInputStandardSchema = toStandardSchema(Civ7DiplomacyResponseInputSchema);
 const Civ7DiplomacyResponseResultStandardSchema = toStandardSchema(
-  Civ7DiplomacyResponseResultSchema,
+  Civ7DiplomacyResponseResultSchema
 );
-const Civ7FirstMeetResponseInputStandardSchema = toStandardSchema(
-  Civ7FirstMeetResponseInputSchema,
-);
+const Civ7FirstMeetResponseInputStandardSchema = toStandardSchema(Civ7FirstMeetResponseInputSchema);
 const Civ7FirstMeetResponseResultStandardSchema = toStandardSchema(
-  Civ7FirstMeetResponseResultSchema,
+  Civ7FirstMeetResponseResultSchema
 );
 
 export type Civ7DiplomacyResponseContract = ContractProcedure<

@@ -84,14 +84,18 @@ describe("start-position readback", () => {
       notes: ["..."],
     };
     expect(Value.Check(Civ7StartPositionsResultSchema, result)).toBe(true);
-    expect(Value.Check(Civ7StartPositionsResultSchema, {
-      ...result,
-      startPlots: [],
-    })).toBe(false);
-    expect(Value.Check(Civ7StartPositionsResultSchema, {
-      ...result,
-      method: "engine-start-plot",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7StartPositionsResultSchema, {
+        ...result,
+        startPlots: [],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7StartPositionsResultSchema, {
+        ...result,
+        method: "engine-start-plot",
+      })
+    ).toBe(false);
   });
 });
 

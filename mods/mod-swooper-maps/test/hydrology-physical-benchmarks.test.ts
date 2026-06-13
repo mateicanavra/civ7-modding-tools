@@ -304,7 +304,14 @@ describe("hydrology physical river benchmarks", () => {
     expect(lakes.sinkLakeCount).toBe(1);
     expect(lakes.plannedLakeTileCount).toBe(3);
     expect(Array.from(lakes.lakeMask)).toEqual([0, 0, 1, 1, 1]);
-    assertDrainageInvariants({ width, height, landMask, flowDir, lakeMask: lakes.lakeMask, ...accumulated });
+    assertDrainageInvariants({
+      width,
+      height,
+      landMask,
+      flowDir,
+      lakeMask: lakes.lakeMask,
+      ...accumulated,
+    });
   });
 
   it("uses saddle spill and lake-chain topology to grow lakes from admitted terminal basins", () => {
@@ -337,7 +344,14 @@ describe("hydrology physical river benchmarks", () => {
     expect(accumulated.discharge[5]).toBeGreaterThan(accumulated.discharge[2]);
     expect(lakes.sinkLakeCount).toBe(1);
     expect(Array.from(lakes.lakeMask)).toEqual([0, 0, 0, 0, 1, 1, 1]);
-    assertDrainageInvariants({ width, height, landMask, flowDir, lakeMask: lakes.lakeMask, ...accumulated });
+    assertDrainageInvariants({
+      width,
+      height,
+      landMask,
+      flowDir,
+      lakeMask: lakes.lakeMask,
+      ...accumulated,
+    });
   });
 
   it("turns rain-shadow coasts into stronger windward rivers than dry leeward slopes", () => {

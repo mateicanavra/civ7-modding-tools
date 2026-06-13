@@ -7,9 +7,7 @@
     "recoveryRoot": "codex/swooper-mapgen-recovery-drain",
     "recoveryTop": "codex/swooper-source-route-accounting-closure",
     "mainHead": "9d5ce882ef691291263abcef4024c0823eb07972",
-    "excludedFamilies": [
-      "GT stack-inspect/toolkit"
-    ],
+    "excludedFamilies": ["GT stack-inspect/toolkit"],
     "policy": "Sparse reconciliation moves only. Done means source intent is represented by an explicit sink: the local recovery stack, live-control stack, merged mainline PRs, or an explicit terminal exclusion. Already-merged/represented work is not parked. Cleanup remains gated by the sink: source branches adopted only by the local recovery stack cannot be pruned until the recovery stack is submitted or merged."
   },
   "moves": [
@@ -41,10 +39,7 @@
         "kind": "stack-slice",
         "id": "predecessor-start-resource-policy",
         "root": "codex/start-placement-viability",
-        "branches": [
-          "codex/start-placement-viability",
-          "codex/resource-initial-map-policy"
-        ]
+        "branches": ["codex/start-placement-viability", "codex/resource-initial-map-policy"]
       },
       "sink": {
         "kind": "branch",
@@ -66,10 +61,7 @@
         "kind": "stack-slice",
         "id": "studio-setup-and-seed-sync",
         "root": "codex/studio-setup-config-sync",
-        "branches": [
-          "codex/studio-setup-config-sync",
-          "06-05-fix_studio_validate_civ7_setup_seeds"
-        ]
+        "branches": ["codex/studio-setup-config-sync", "06-05-fix_studio_validate_civ7_setup_seeds"]
       },
       "sink": {
         "kind": "branch",
@@ -214,10 +206,7 @@
         "kind": "stack-slice",
         "id": "swooper-recovery-planning-context",
         "root": "codex/swooper-dra-takeover-handoff",
-        "branches": [
-          "codex/swooper-dra-takeover-handoff",
-          "codex/swooper-recovery-openspec-plan"
-        ]
+        "branches": ["codex/swooper-dra-takeover-handoff", "codex/swooper-recovery-openspec-plan"]
       },
       "sink": {
         "kind": "branch",

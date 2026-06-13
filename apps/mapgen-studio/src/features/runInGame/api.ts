@@ -98,16 +98,14 @@ export async function runCurrentConfigInGame(args: {
 }
 
 export async function fetchRunInGameStatus(
-  requestId: string,
+  requestId: string
 ): Promise<RunInGameOperationStatus | { ok: false; error: string; code?: string }> {
   const { error, data } = await safe(orpcClient.runInGame.status({ requestId }));
   if (error) {
     return {
       ok: false,
       error:
-        error instanceof Error && error.message
-          ? error.message
-          : "Run in Game status unavailable",
+        error instanceof Error && error.message ? error.message : "Run in Game status unavailable",
       // `code === "RUN_IN_GAME_STATUS_NOT_FOUND"` is the restart-detection signal
       // (the former `statusCode === 404` branch in StudioShell).
       ...(isDefinedError(error) ? { code: error.code } : {}),

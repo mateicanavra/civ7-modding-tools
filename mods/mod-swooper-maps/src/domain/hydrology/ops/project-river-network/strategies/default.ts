@@ -1,9 +1,5 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import {
-  RIVER_CLASS_MAJOR,
-  RIVER_CLASS_MINOR,
-  RIVER_CLASS_NONE,
-} from "../../../river-class.js";
+import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR, RIVER_CLASS_NONE } from "../../../river-class.js";
 import ProjectRiverNetworkContract from "../contract.js";
 import { clamp01 } from "../rules/index.js";
 
@@ -99,12 +95,7 @@ export const defaultStrategy = createStrategy(ProjectRiverNetworkContract, "defa
     for (const endpoint of majorEndpoints) {
       let current = endpoint;
       const seen = new Set<number>();
-      while (
-        current >= 0 &&
-        current < size &&
-        minorMask[current] === 1 &&
-        !seen.has(current)
-      ) {
+      while (current >= 0 && current < size && minorMask[current] === 1 && !seen.has(current)) {
         seen.add(current);
         riverClass[current] = RIVER_CLASS_MAJOR;
         current = strongestUpstreamMinor(upstream[current]!, input.discharge, minorMask);

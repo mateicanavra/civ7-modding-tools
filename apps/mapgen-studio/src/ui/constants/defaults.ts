@@ -5,16 +5,16 @@
 // Backend engineers: These can be overridden by server-provided defaults.
 // ============================================================================
 
-import type { WorldSettings, RecipeSettings, ViewState } from '../types';
+import type { WorldSettings, RecipeSettings, ViewState } from "../types";
 
 // ============================================================================
 // Default World Settings
 // ============================================================================
 
 export const DEFAULT_WORLD_SETTINGS: WorldSettings = {
-  mapSize: 'MAPSIZE_STANDARD',
+  mapSize: "MAPSIZE_STANDARD",
   playerCount: 6,
-  resources: 'balanced'
+  resources: "balanced",
 };
 
 // ============================================================================
@@ -22,9 +22,9 @@ export const DEFAULT_WORLD_SETTINGS: WorldSettings = {
 // ============================================================================
 
 export const DEFAULT_RECIPE_SETTINGS: RecipeSettings = {
-  recipe: 'mod-swooper-maps/standard',
-  preset: 'none',
-  seed: '123'
+  recipe: "mod-swooper-maps/standard",
+  preset: "none",
+  seed: "123",
 };
 
 // ============================================================================
@@ -35,8 +35,8 @@ export const DEFAULT_RECIPE_SETTINGS: RecipeSettings = {
 export const DEFAULT_VIEW_STATE: ViewState = {
   showEdges: true,
   showGrid: true,
-  selectedStage: 'foundation',
-  selectedStep: 'computeMesh',
-  selectedDataType: 'mesh',
-  selectedRenderMode: 'hexagonal'
+  selectedStage: "foundation",
+  selectedStep: "computeMesh",
+  selectedDataType: "mesh",
+  selectedRenderMode: "hexagonal",
 };

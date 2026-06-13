@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 // ============================================================================
 // WATER STATS SECTION
 // ============================================================================
@@ -10,12 +10,12 @@ import React from 'react';
 // the run compares to its baseline (plan vs engine counts, mismatches) plus
 // jump-to-layer chips for the underlying evidence.
 // ============================================================================
-import { ChevronDown, Droplets } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
+import { ChevronDown, Droplets } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
 import type {
   RiverLakeFloodplainInspectorSummary,
-  RiverLakeInspectorLayerRef } from
-'../../features/viz/riverLakeInspector';
+  RiverLakeInspectorLayerRef,
+} from "../../features/viz/riverLakeInspector";
 
 // ============================================================================
 // Props
@@ -33,7 +33,7 @@ export interface WaterStatsSectionProps {
 
 // Inventory keys ('how many layers exist / are shown / are debug') are
 // manifest bookkeeping, not run information — only semantic counts render.
-const INVENTORY_COUNT_KEYS = new Set(['layers', 'default', 'debug']);
+const INVENTORY_COUNT_KEYS = new Set(["layers", "default", "debug"]);
 
 /**
  * Baseline-matching emphasis: counts that MEASURE divergence from the plan
@@ -43,20 +43,20 @@ const INVENTORY_COUNT_KEYS = new Set(['layers', 'default', 'debug']);
 const isDivergenceCount = (key: string): boolean => /mismatch|reject|drift/i.test(key);
 
 const formatLayerButtonLabel = (ref: RiverLakeInspectorLayerRef): string => {
-  if (ref.dataTypeKey.includes('projectedRiverMask')) return 'projected';
-  if (ref.dataTypeKey.includes('plannedMinorRiverMask')) return 'minor';
-  if (ref.dataTypeKey.includes('plannedMajorRiverMask')) return 'major';
-  if (ref.dataTypeKey.includes('engineRiverMask')) return 'terrain';
-  if (ref.dataTypeKey.includes('Metadata')) return 'metadata';
-  if (ref.dataTypeKey.includes('engineMinorRiverMask')) return 'minor meta';
-  if (ref.dataTypeKey.includes('riverMismatchMask')) return 'mismatch';
-  if (ref.dataTypeKey.includes('lakePlan')) return 'lake plan';
-  if (ref.dataTypeKey.includes('plannedLakeMask')) return 'planned';
-  if (ref.dataTypeKey.includes('engineLakeMask')) return 'engine';
-  if (ref.dataTypeKey.includes('rejectedLakeMask')) return 'rejected';
-  if (ref.dataTypeKey.includes('featureType')) return 'features';
-  if (ref.dataTypeKey.includes('rejectionMask')) return 'rejects';
-  const parts = ref.dataTypeKey.split('.');
+  if (ref.dataTypeKey.includes("projectedRiverMask")) return "projected";
+  if (ref.dataTypeKey.includes("plannedMinorRiverMask")) return "minor";
+  if (ref.dataTypeKey.includes("plannedMajorRiverMask")) return "major";
+  if (ref.dataTypeKey.includes("engineRiverMask")) return "terrain";
+  if (ref.dataTypeKey.includes("Metadata")) return "metadata";
+  if (ref.dataTypeKey.includes("engineMinorRiverMask")) return "minor meta";
+  if (ref.dataTypeKey.includes("riverMismatchMask")) return "mismatch";
+  if (ref.dataTypeKey.includes("lakePlan")) return "lake plan";
+  if (ref.dataTypeKey.includes("plannedLakeMask")) return "planned";
+  if (ref.dataTypeKey.includes("engineLakeMask")) return "engine";
+  if (ref.dataTypeKey.includes("rejectedLakeMask")) return "rejected";
+  if (ref.dataTypeKey.includes("featureType")) return "features";
+  if (ref.dataTypeKey.includes("rejectionMask")) return "rejects";
+  const parts = ref.dataTypeKey.split(".");
   return parts[parts.length - 1] ?? ref.dataTypeKey;
 };
 
@@ -76,7 +76,7 @@ export const WaterStatsSection: React.FC<WaterStatsSectionProps> = ({
   summary,
   onLayerSelect,
   expanded,
-  onExpandedChange
+  onExpandedChange,
 }) => {
   const allRows = summary?.rows ?? [];
   const rows = allRows
@@ -84,22 +84,24 @@ export const WaterStatsSection: React.FC<WaterStatsSectionProps> = ({
       rowKey: row.rowKey,
       label: row.label,
       counts: Object.entries(row.counts).filter(([key]) => !INVENTORY_COUNT_KEYS.has(key)),
-      layerRefs: row.layerRefs
+      layerRefs: row.layerRefs,
     }))
     .filter((row) => row.counts.length > 0 || row.layerRefs.length > 0);
   if (rows.length === 0) return null;
 
-  const textSecondary = 'text-muted-foreground';
-  const textMuted = 'text-muted-foreground/70';
-  const borderSubtle = 'border-border-subtle';
-  const hoverBg = 'hover:bg-accent';
+  const textSecondary = "text-muted-foreground";
+  const textMuted = "text-muted-foreground/70";
+  const borderSubtle = "border-border-subtle";
+  const hoverBg = "hover:bg-accent";
 
   const divergenceTotal = rows.reduce(
     (total, row) =>
-      total + row.counts.reduce((sum, [key, value]) => (isDivergenceCount(key) ? sum + value : sum), 0),
+      total +
+      row.counts.reduce((sum, [key, value]) => (isDivergenceCount(key) ? sum + value : sum), 0),
     0
   );
-  const collapsedSummary = divergenceTotal > 0 ? `${divergenceTotal} mismatched` : 'matches baseline';
+  const collapsedSummary =
+    divergenceTotal > 0 ? `${divergenceTotal} mismatched` : "matches baseline";
 
   return (
     <>
@@ -109,33 +111,39 @@ export const WaterStatsSection: React.FC<WaterStatsSectionProps> = ({
           onClick={() => onExpandedChange(!expanded)}
           aria-expanded={expanded}
           aria-controls="explore-water-stats-list"
-          className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${hoverBg}`}>
-
+          className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${hoverBg}`}
+        >
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <Droplets className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
             <span className={`text-data font-semibold ${textSecondary} uppercase tracking-wider`}>
               Water stats
             </span>
             {!expanded ? (
-              <span className={`text-label truncate ${divergenceTotal > 0 ? 'text-warning' : textMuted}`}>
+              <span
+                className={`text-label truncate ${divergenceTotal > 0 ? "text-warning" : textMuted}`}
+              >
                 {collapsedSummary}
               </span>
             ) : null}
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span className={`text-label ${textMuted}`}>{rows.length}</span>
-            <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${expanded ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`w-3.5 h-3.5 ${textMuted} transition-transform ${expanded ? "rotate-180" : ""}`}
+            />
           </div>
         </button>
       </div>
       {expanded ? (
         <div
           id="explore-water-stats-list"
-          className={`flex-shrink-0 border-b ${borderSubtle} max-h-[220px] overflow-y-auto custom-scrollbar`}>
+          className={`flex-shrink-0 border-b ${borderSubtle} max-h-[220px] overflow-y-auto custom-scrollbar`}
+        >
           {rows.map((row) => (
             <div
               key={row.rowKey}
-              className={`px-3 py-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 border-b last:border-b-0 ${borderSubtle}`}>
+              className={`px-3 py-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 border-b last:border-b-0 ${borderSubtle}`}
+            >
               <span className={`text-data min-w-[88px] ${textSecondary}`}>{row.label}</span>
               {row.counts.map(([key, value]) => {
                 const diverged = isDivergenceCount(key) && value > 0;
@@ -144,9 +152,10 @@ export const WaterStatsSection: React.FC<WaterStatsSectionProps> = ({
                     key={key}
                     className={`rounded px-1.5 py-0.5 text-label ${
                       diverged
-                        ? 'border border-warning/40 text-warning'
-                        : 'bg-muted/50 text-muted-foreground'
-                    }`}>
+                        ? "border border-warning/40 text-warning"
+                        : "bg-muted/50 text-muted-foreground"
+                    }`}
+                  >
                     {key} {value}
                   </span>
                 );
@@ -160,7 +169,8 @@ export const WaterStatsSection: React.FC<WaterStatsSectionProps> = ({
                         type="button"
                         onClick={() => onLayerSelect?.(ref)}
                         aria-label={refTitle}
-                        className="inline-flex max-w-[112px] items-center gap-1 truncate rounded px-1.5 py-0.5 text-label transition-colors bg-input-background border border-border-subtle text-muted-foreground hover:bg-accent hover:text-foreground">
+                        className="inline-flex max-w-[112px] items-center gap-1 truncate rounded px-1.5 py-0.5 text-label transition-colors bg-input-background border border-border-subtle text-muted-foreground hover:bg-accent hover:text-foreground"
+                      >
                         {/* Module-owned DATA color: the palette hue travels with
                             the semantic layer ref (it matches how the mask renders
                             on the map), so an inline style is legal here per the
@@ -181,6 +191,6 @@ export const WaterStatsSection: React.FC<WaterStatsSectionProps> = ({
           ))}
         </div>
       ) : null}
-    </>);
-
+    </>
+  );
 };

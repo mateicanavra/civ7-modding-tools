@@ -17,9 +17,11 @@ type TownFocusRuntimeResult = Awaited<
 
 describe("city.townFocus.*.request control-oRPC procedures", () => {
   test("routes town focus changes through the city-domain service leaf", async () => {
-    const fake = fakeContext(townFocusResult("town-focus-change", {
-      sent: true,
-    }));
+    const fake = fakeContext(
+      townFocusResult("town-focus-change", {
+        sent: true,
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.city.townFocus.change.request,
@@ -28,22 +30,24 @@ describe("city.townFocus.*.request control-oRPC procedures", () => {
         growthType: -284_569_333,
         projectType: -548_685_232,
       },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(fake.calls.readiness).toHaveLength(1);
-    expect(fake.calls.change).toEqual([{
-      input: {
-        cityId,
-        growthType: -284_569_333,
-        projectType: -548_685_232,
+    expect(fake.calls.change).toEqual([
+      {
+        input: {
+          cityId,
+          growthType: -284_569_333,
+          projectType: -548_685_232,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expect(fake.calls.review).toEqual([]);
     expect(result).toEqual({
       cityId,
@@ -64,32 +68,39 @@ describe("city.townFocus.*.request control-oRPC procedures", () => {
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "city.townFocus.change.request",
-        label: "Do not repeat this town focus request until fresh city readiness evidence is read.",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "city.townFocus.change.request",
+          label:
+            "Do not repeat this town focus request until fresh city readiness evidence is read.",
+        },
+      ],
     });
     expectSemanticTownFocusOmitsRawRuntimeDetails(result);
   });
 
   test("routes town project review through the server-side router client", async () => {
-    const fake = fakeContext(townFocusResult("town-focus-review", {
-      sent: false,
-      valid: false,
-    }));
+    const fake = fakeContext(
+      townFocusResult("town-focus-review", {
+        sent: false,
+        valid: false,
+      })
+    );
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
     const result = await client.city.townFocus.review.request({ cityId });
 
-    expect(fake.calls.review).toEqual([{
-      input: { cityId },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+    expect(fake.calls.review).toEqual([
+      {
+        input: { cityId },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-    }]);
+    ]);
     expect(result).toMatchObject({
       cityId,
       sent: false,
@@ -105,10 +116,12 @@ describe("city.townFocus.*.request control-oRPC procedures", () => {
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "inspect-town-focus",
-        source: "city.townFocus.review.request",
-      }],
+      nextSteps: [
+        {
+          kind: "inspect-town-focus",
+          source: "city.townFocus.review.request",
+        },
+      ],
     });
     expect(fake.calls.change).toEqual([]);
   });
@@ -171,16 +184,16 @@ describe("city.townFocus.*.request control-oRPC procedures", () => {
     ];
 
     for (const input of invalidInputs) {
-      const fake = fakeContext(townFocusResult("town-focus-change", {
-        sent: true,
-      }));
+      const fake = fakeContext(
+        townFocusResult("town-focus-change", {
+          sent: true,
+        })
+      );
 
       await expect(
-        call(
-          Civ7ControlOrpcRouter.city.townFocus.change.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.city.townFocus.change.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.readiness).toEqual([]);
       expect(fake.calls.change).toEqual([]);
@@ -190,9 +203,7 @@ describe("city.townFocus.*.request control-oRPC procedures", () => {
 
   test("maps town focus source failures to a tagged error without raw details", async () => {
     const fake = fakeContext(
-      new Error(
-        "Timed out waiting for Civ7 tuner response to CMD:65535:CHANGE_GROWTH_MODE",
-      ),
+      new Error("Timed out waiting for Civ7 tuner response to CMD:65535:CHANGE_GROWTH_MODE")
     );
 
     await expect(
@@ -203,8 +214,8 @@ describe("city.townFocus.*.request control-oRPC procedures", () => {
           growthType: -284_569_333,
           projectType: -548_685_232,
         },
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({
       code: "TOWN_FOCUS_UNAVAILABLE",
       status: 503,
@@ -222,7 +233,7 @@ describe("city.townFocus.*.request control-oRPC procedures", () => {
           growthType: -284_569_333,
           projectType: -548_685_232,
         },
-        { context: fake.context },
+        { context: fake.context }
       );
     } catch (err) {
       const serialized = JSON.stringify(err);
@@ -234,9 +245,7 @@ describe("city.townFocus.*.request control-oRPC procedures", () => {
   });
 
   test("publishes domain-first town-focus contract leaves", () => {
-    expect(
-      Civ7ControlOrpcContract.city.townFocus.change.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.city.townFocus.change.request["~orpc"]).toMatchObject({
       meta: {
         family: "city",
         procedureKey: "city.townFocus.change.request",
@@ -244,9 +253,7 @@ describe("city.townFocus.*.request control-oRPC procedures", () => {
         risk: "mutation",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.city.townFocus.review.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.city.townFocus.review.request["~orpc"]).toMatchObject({
       meta: {
         family: "city",
         procedureKey: "city.townFocus.review.request",
@@ -254,63 +261,67 @@ describe("city.townFocus.*.request control-oRPC procedures", () => {
         risk: "mutation",
       },
     });
+    expect(Civ7ControlOrpcContract.city.townFocus.change.request["~orpc"].errorMap).toHaveProperty(
+      "TOWN_FOCUS_UNAVAILABLE"
+    );
     expect(
-      Civ7ControlOrpcContract.city.townFocus.change.request["~orpc"].errorMap,
-    ).toHaveProperty("TOWN_FOCUS_UNAVAILABLE");
-    expect(
-      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).operations,
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).operations
     ).toBeUndefined();
-    expect(
-      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).actions,
-    ).toBeUndefined();
+    expect((Civ7ControlOrpcContract as unknown as Record<string, unknown>).actions).toBeUndefined();
     expect(Civ7TownFocusUnavailableError.code).toBe("TOWN_FOCUS_UNAVAILABLE");
   });
 });
 
 function expectSemanticTownFocusOmitsRawRuntimeDetails(result: unknown) {
   const serialized = JSON.stringify(result);
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
-  expect(serialized).not.toContain("\"session\"");
-  expect(serialized).not.toContain("\"rawCommand\"");
-  expect(serialized).not.toContain("\"command\"");
-  expect(serialized).not.toContain("\"operation\"");
-  expect(serialized).not.toContain("\"verified\"");
-  expect(serialized).not.toContain("\"before\"");
-  expect(serialized).not.toContain("\"after\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"operation"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
   expect(serialized).not.toContain("Game.CityCommands");
   expect(serialized).not.toContain("Game.CityOperations");
   expect(serialized).not.toContain("CHANGE_GROWTH_MODE");
   expect(serialized).not.toContain("CONSIDER_TOWN_PROJECT");
 }
 
-function fakeContext(
-  resultOrError: TownFocusRuntimeResult | Error,
-): {
+function fakeContext(resultOrError: TownFocusRuntimeResult | Error): {
   calls: {
     readiness: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
-    change: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
-    review: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
+    change: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
+    review: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
   };
   context: Civ7ControlOrpcContext;
 } {
   const calls = {
     readiness: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
-    change: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
-    review: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
+    change: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
+    review: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
   };
 
   return {
@@ -349,35 +360,36 @@ function townFocusResult(
   options: Readonly<{
     sent: boolean;
     valid?: boolean;
-  }>,
+  }>
 ): TownFocusRuntimeResult {
   const valid = options.valid ?? true;
-  const operationType = kind === "town-focus-change"
-    ? "CHANGE_GROWTH_MODE"
-    : "CONSIDER_TOWN_PROJECT";
-  const args = kind === "town-focus-change"
-    ? {
-      Type: -284_569_333,
-      ProjectType: -548_685_232,
-      City: 131_073,
-    }
-    : {};
+  const operationType =
+    kind === "town-focus-change" ? "CHANGE_GROWTH_MODE" : "CONSIDER_TOWN_PROJECT";
+  const args =
+    kind === "town-focus-change"
+      ? {
+          Type: -284_569_333,
+          ProjectType: -548_685_232,
+          City: 131_073,
+        }
+      : {};
   const operation = {
     before: validationResult(operationType, args, valid),
     command: options.sent
       ? {
-        host: "127.0.0.1",
-        port: 4318,
-        state: { id: "65535", name: "App UI" },
-        output: [
-          JSON.stringify({
-            sent: true,
-            rawCommand: kind === "town-focus-change"
-              ? "Game.CityCommands.sendRequest(...)"
-              : "Game.CityOperations.sendRequest(...)",
-          }),
-        ],
-      }
+          host: "127.0.0.1",
+          port: 4318,
+          state: { id: "65535", name: "App UI" },
+          output: [
+            JSON.stringify({
+              sent: true,
+              rawCommand:
+                kind === "town-focus-change"
+                  ? "Game.CityCommands.sendRequest(...)"
+                  : "Game.CityOperations.sendRequest(...)",
+            }),
+          ],
+        }
       : undefined,
     after: validationResult(operationType, args, valid),
     sent: options.sent,
@@ -388,10 +400,10 @@ function townFocusResult(
     cityId,
     ...(kind === "town-focus-change"
       ? {
-        growthType: -284_569_333,
-        projectType: -548_685_232,
-        city: 131_073,
-      }
+          growthType: -284_569_333,
+          projectType: -548_685_232,
+          city: 131_073,
+        }
       : {}),
     operation,
     beforeValidation: operation.before,
@@ -400,9 +412,7 @@ function townFocusResult(
     verified: false,
     postcondition: {
       classification: options.sent ? "pending-runtime-proof" : "not-sent",
-      reason: options.sent
-        ? `${kind} pending runtime proof`
-        : `${kind} not sent`,
+      reason: options.sent ? `${kind} pending runtime proof` : `${kind} not sent`,
     },
   } as TownFocusRuntimeResult;
 }
@@ -410,15 +420,13 @@ function townFocusResult(
 function validationResult(
   operationType: string,
   args: Readonly<Record<string, number>>,
-  valid: boolean,
+  valid: boolean
 ): TownFocusRuntimeResult["beforeValidation"] {
   return {
     host: "127.0.0.1",
     port: 4318,
     state: { id: "65535", name: "App UI" },
-    family: operationType === "CHANGE_GROWTH_MODE"
-      ? "city-command"
-      : "city-operation",
+    family: operationType === "CHANGE_GROWTH_MODE" ? "city-command" : "city-operation",
     operationType,
     enumValue: operationType,
     target: { cityId },

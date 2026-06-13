@@ -13,14 +13,8 @@ export type ResourceExpectationGroupId =
   | "geological-mineral-gemstone-industrial";
 
 export type ResourceExpectationStatus = "expected" | "conditional" | "blocked";
-export type ResourceExpectationRangeEvidence =
-  | "source-backed"
-  | "inference-backed"
-  | "blocked";
-export type ResourceExpectationEvidenceStrength =
-  | "official"
-  | "external"
-  | "inferred";
+export type ResourceExpectationRangeEvidence = "source-backed" | "inference-backed" | "blocked";
+export type ResourceExpectationEvidenceStrength = "official" | "external" | "inferred";
 
 export type ResourceExpectedCountRange = {
   readonly baseline: "standard-earthlike-map";

@@ -39,7 +39,11 @@ function runHydrologyTruth(config: Record<string, unknown>) {
     rng: createLabelRng(env.seed),
   });
   const context = createExtendedMapContext({ width, height }, adapter, env);
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[hydrology-knobs]", storyEnabled: false });
+  initializeStandardRuntime(context, {
+    mapInfo,
+    logPrefix: "[hydrology-knobs]",
+    storyEnabled: false,
+  });
   standardRecipe.run(context, env, withFoundation(config), { log: () => {} });
 
   return context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
@@ -59,7 +63,10 @@ const withFoundation = (config: Record<string, unknown>) => ({
   ...config,
 });
 
-const navigableProfile = (endpointDischargePercentileMin: number, targetMajorTileFraction: number) => ({
+const navigableProfile = (
+  endpointDischargePercentileMin: number,
+  targetMajorTileFraction: number
+) => ({
   selectNavigableRiverTerrain: {
     strategy: "default",
     config: { endpointDischargePercentileMin, targetMajorTileFraction },
@@ -312,7 +319,9 @@ describe("hydrology knobs compilation", () => {
     expect(
       compiled["hydrology-hydrography"].lakes.planLakes.config.sinkDischargePercentileMin
     ).toBe(0.9);
-    expect(compiled["hydrology-hydrography"].lakes.planLakes.config.maxLakeLandFraction).toBe(0.006);
+    expect(compiled["hydrology-hydrography"].lakes.planLakes.config.maxLakeLandFraction).toBe(
+      0.006
+    );
     // - dryness=wet scales rainfallScale by 1.15 (wetter climate).
     expect(
       compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config

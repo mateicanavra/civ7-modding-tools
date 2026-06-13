@@ -12,4 +12,3 @@ const scorePlotEffectsSnow = createOp(PlotEffectsScoreSnowContract, {
 export type * from "./contract.js";
 
 export default scorePlotEffectsSnow;
-

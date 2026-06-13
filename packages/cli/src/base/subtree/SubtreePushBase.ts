@@ -1,33 +1,33 @@
-import { Args, Flags } from '@oclif/core';
-import SubtreeCommand from './SubtreeCommand.js';
-import { pushSubtree } from '../../utils/git.js';
+import { Args, Flags } from "@oclif/core";
+import SubtreeCommand from "./SubtreeCommand.js";
+import { pushSubtree } from "../../utils/git.js";
 
 export default abstract class SubtreePushBase extends SubtreeCommand {
   static flags = {
     ...SubtreeCommand.baseFlags,
     yes: Flags.boolean({
-      description: 'Assume yes to safety prompts',
+      description: "Assume yes to safety prompts",
       default: false,
-      char: 'y',
+      char: "y",
     }),
     autoUnshallow: Flags.boolean({
-      description: 'Automatically unshallow the repo if needed',
+      description: "Automatically unshallow the repo if needed",
       default: undefined,
-      char: 'U',
+      char: "U",
     }),
     autoFastForwardTrunk: Flags.boolean({
-      description: 'After push, attempt to fast-forward the remote trunk branch',
+      description: "After push, attempt to fast-forward the remote trunk branch",
       default: false,
-      char: 'f',
+      char: "f",
     }),
     trunk: Flags.string({
-      description: 'Override trunk branch name',
-      char: 't',
+      description: "Override trunk branch name",
+      char: "t",
     }),
   } as const;
 
   static args = {
-    slug: Args.string({ description: 'Subtree slug', required: true }),
+    slug: Args.string({ description: "Subtree slug", required: true }),
   } as const;
 
   protected getPrefix(slug: string): string {

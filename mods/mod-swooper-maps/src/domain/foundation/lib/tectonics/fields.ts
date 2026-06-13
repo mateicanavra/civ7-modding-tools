@@ -1,7 +1,10 @@
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "../../constants.js";
-import type { FoundationTectonicEraFieldsInternal, TectonicEventRecord } from "./internal-contract.js";
+import type {
+  FoundationTectonicEraFieldsInternal,
+  TectonicEventRecord,
+} from "./internal-contract.js";
 
 import { EVENT_TYPE } from "./constants.js";
 import {
@@ -258,7 +261,7 @@ export function buildEraFields(params: {
     const currentScore = params.scores[cellId] ?? -1;
     const currentIntensity = params.intensities[cellId] ?? 0;
     const currentEventType = params.eventTypes[cellId] ?? 255;
-    const currentEventIndex = params.eventIndices[cellId] ?? (1 << 30);
+    const currentEventIndex = params.eventIndices[cellId] ?? 1 << 30;
 
     const eventType = params.eventType | 0;
     const eventIndex = params.eventIndex | 0;
@@ -295,7 +298,8 @@ export function buildEraFields(params: {
     const event = params.events[e]!;
     const eventType = event.eventType | 0;
     const isConvergent =
-      eventType === EVENT_TYPE.convergenceSubduction || eventType === EVENT_TYPE.convergenceCollision;
+      eventType === EVENT_TYPE.convergenceSubduction ||
+      eventType === EVENT_TYPE.convergenceCollision;
 
     const upliftGain = isConvergent ? eraGain : 1;
     const volcanismGain = eventType === EVENT_TYPE.convergenceSubduction ? eraGain : 1;
@@ -321,7 +325,13 @@ export function buildEraFields(params: {
     }
     const token = ++visitToken;
 
-    const driftedSeeds = driftSeedCells(event.seedCells, event.driftU, event.driftV, params.driftSteps, params.mesh);
+    const driftedSeeds = driftSeedCells(
+      event.seedCells,
+      event.driftU,
+      event.driftV,
+      params.driftSteps,
+      params.mesh
+    );
 
     heapIds.length = 0;
     heapDists.length = 0;

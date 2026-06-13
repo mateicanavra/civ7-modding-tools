@@ -216,7 +216,8 @@ function relaxUndrivenInteriorDomes(args: {
   riftPotential: Uint8Array;
   tectonicStress: Uint8Array;
 }): void {
-  const { elevation, landMask, distanceToCoast, upliftPotential, riftPotential, tectonicStress } = args;
+  const { elevation, landMask, distanceToCoast, upliftPotential, riftPotential, tectonicStress } =
+    args;
   let maxLandDistance = 0;
   for (let i = 0; i < landMask.length; i++) {
     if (landMask[i] !== 1) continue;

@@ -87,7 +87,8 @@ export function generateBaseHeightfield(
     for (let x = 0; x < width; x++) {
       const i = rowOffset + x;
       const plateId = plateIds[i];
-      const crust = plateId >= 0 && plateId < crustTypes.length ? crustTypes[plateId] : CrustType.OCEANIC;
+      const crust =
+        plateId >= 0 && plateId < crustTypes.length ? crustTypes[plateId] : CrustType.OCEANIC;
       const base = crust === CrustType.CONTINENTAL ? continentalHeight : oceanicHeight;
 
       // Edge blend: move height toward neighbor average to soften Voronoi seams
@@ -97,7 +98,8 @@ export function generateBaseHeightfield(
       for (const ni of neighbors) {
         const nPlate = plateIds[ni];
         if (nPlate < 0 || nPlate >= crustTypes.length) continue;
-        neighborSum += crustTypes[nPlate] === CrustType.CONTINENTAL ? continentalHeight : oceanicHeight;
+        neighborSum +=
+          crustTypes[nPlate] === CrustType.CONTINENTAL ? continentalHeight : oceanicHeight;
         neighborCount++;
       }
 

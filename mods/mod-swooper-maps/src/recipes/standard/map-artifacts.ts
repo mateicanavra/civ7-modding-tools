@@ -24,8 +24,7 @@ const ProjectionMetaArtifactSchema = Type.Object(
 const LandmassRegionSlotByTileArtifactSchema = Type.Object(
   {
     slotByTile: TypedArraySchemas.u8({
-      description:
-        "Per-tile landmass region slot (0=none, 1=west, 2=east), in tileIndex order.",
+      description: "Per-tile landmass region slot (0=none, 1=west, 2=east), in tileIndex order.",
     }),
   },
   {

@@ -16,12 +16,8 @@ type ProgressionPlayerChoiceKind =
 type ProgressionResult =
   | Civ7ControlOrpcTechnologyChoiceCloseoutResult
   | Civ7ControlOrpcCultureChoiceCloseoutResult;
-type ProgressionValidation =
-  Civ7ControlOrpcProgressionTargetResult["beforeValidation"];
-type RuntimeProbe<T> = Readonly<
-  | { ok: true; value: T }
-  | { ok: false; error: string }
->;
+type ProgressionValidation = Civ7ControlOrpcProgressionTargetResult["beforeValidation"];
+type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
 export type Civ7GameUiProgressionTarget = Readonly<{
   Game?: {
@@ -37,12 +33,12 @@ export type Civ7GameUiProgressionTarget = Readonly<{
         playerId: number,
         operationType: unknown,
         args: Readonly<Record<string, number>>,
-        queue?: boolean,
+        queue?: boolean
       ) => unknown;
       sendRequest?: (
         playerId: number,
         operationType: unknown,
-        args: Readonly<Record<string, number>>,
+        args: Readonly<Record<string, number>>
       ) => unknown;
     };
     ProgressionTrees?: {
@@ -70,40 +66,42 @@ export type Civ7GameUiProgressionTarget = Readonly<{
   };
 }>;
 
-export function civ7GameUiProgressionChoiceAvailable(
-  target: Civ7GameUiProgressionTarget,
-): boolean {
-  return typeof target.Game?.PlayerOperations?.canStart === "function"
-    && typeof target.Game.PlayerOperations.sendRequest === "function"
-    && target.PlayerOperationTypes?.SET_TECH_TREE_NODE !== undefined
-    && target.PlayerOperationTypes.SET_TECH_TREE_TARGET_NODE !== undefined
-    && target.PlayerOperationTypes.SET_CULTURE_TREE_NODE !== undefined
-    && target.PlayerOperationTypes.SET_CULTURE_TREE_TARGET_NODE !== undefined
-    && typeof target.ProgressionTreeNodeTypes?.NO_NODE === "number"
-    && typeof target.Game?.Notifications?.activate === "function"
-    && typeof target.Game.Notifications.getIdsForPlayer === "function"
-    && typeof target.Game.Notifications.getType === "function"
-    && typeof target.Game.Notifications.getTypeName === "function"
-    && typeof target.Game.Notifications.find === "function"
-    && typeof target.Players?.get === "function";
+export function civ7GameUiProgressionChoiceAvailable(target: Civ7GameUiProgressionTarget): boolean {
+  return (
+    typeof target.Game?.PlayerOperations?.canStart === "function" &&
+    typeof target.Game.PlayerOperations.sendRequest === "function" &&
+    target.PlayerOperationTypes?.SET_TECH_TREE_NODE !== undefined &&
+    target.PlayerOperationTypes.SET_TECH_TREE_TARGET_NODE !== undefined &&
+    target.PlayerOperationTypes.SET_CULTURE_TREE_NODE !== undefined &&
+    target.PlayerOperationTypes.SET_CULTURE_TREE_TARGET_NODE !== undefined &&
+    typeof target.ProgressionTreeNodeTypes?.NO_NODE === "number" &&
+    typeof target.Game?.Notifications?.activate === "function" &&
+    typeof target.Game.Notifications.getIdsForPlayer === "function" &&
+    typeof target.Game.Notifications.getType === "function" &&
+    typeof target.Game.Notifications.getTypeName === "function" &&
+    typeof target.Game.Notifications.find === "function" &&
+    typeof target.Players?.get === "function"
+  );
 }
 
 export function civ7GameUiProgressionRequestAvailable(
-  target: Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget
 ): boolean {
-  return typeof target.Game?.PlayerOperations?.canStart === "function"
-    && typeof target.Game.PlayerOperations.sendRequest === "function"
-    && target.PlayerOperationTypes?.SET_TECH_TREE_TARGET_NODE !== undefined
-    && target.PlayerOperationTypes.SET_CULTURE_TREE_TARGET_NODE !== undefined
-    && target.PlayerOperationTypes.BUY_ATTRIBUTE_TREE_NODE !== undefined
-    && target.PlayerOperationTypes.CONSIDER_ASSIGN_ATTRIBUTE !== undefined
-    && target.PlayerOperationTypes.CHANGE_TRADITION !== undefined
-    && target.PlayerOperationTypes.CONSIDER_ASSIGN_TRADITIONS !== undefined
-    && typeof target.Game?.Notifications?.getIdsForPlayer === "function"
-    && typeof target.Game.Notifications.find === "function"
-    && typeof target.Game.Notifications.getType === "function"
-    && typeof target.Game.Notifications.getTypeName === "function"
-    && typeof target.GameContext?.localPlayerID === "number";
+  return (
+    typeof target.Game?.PlayerOperations?.canStart === "function" &&
+    typeof target.Game.PlayerOperations.sendRequest === "function" &&
+    target.PlayerOperationTypes?.SET_TECH_TREE_TARGET_NODE !== undefined &&
+    target.PlayerOperationTypes.SET_CULTURE_TREE_TARGET_NODE !== undefined &&
+    target.PlayerOperationTypes.BUY_ATTRIBUTE_TREE_NODE !== undefined &&
+    target.PlayerOperationTypes.CONSIDER_ASSIGN_ATTRIBUTE !== undefined &&
+    target.PlayerOperationTypes.CHANGE_TRADITION !== undefined &&
+    target.PlayerOperationTypes.CONSIDER_ASSIGN_TRADITIONS !== undefined &&
+    typeof target.Game?.Notifications?.getIdsForPlayer === "function" &&
+    typeof target.Game.Notifications.find === "function" &&
+    typeof target.Game.Notifications.getType === "function" &&
+    typeof target.Game.Notifications.getTypeName === "function" &&
+    typeof target.GameContext?.localPlayerID === "number"
+  );
 }
 
 export async function requestCiv7GameUiTechnologyChoiceCloseout(
@@ -112,12 +110,12 @@ export async function requestCiv7GameUiTechnologyChoiceCloseout(
     node: number;
     notificationId?: Civ7ControlOrpcComponentId;
   }>,
-  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget
 ): Promise<Civ7ControlOrpcTechnologyChoiceCloseoutResult> {
   return gameUiProgressionChoiceCloseout(
     "technology",
     input,
-    target,
+    target
   ) as Civ7ControlOrpcTechnologyChoiceCloseoutResult;
 }
 
@@ -127,12 +125,12 @@ export async function requestCiv7GameUiCultureChoiceCloseout(
     node: number;
     notificationId?: Civ7ControlOrpcComponentId;
   }>,
-  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget
 ): Promise<Civ7ControlOrpcCultureChoiceCloseoutResult> {
   return gameUiProgressionChoiceCloseout(
     "culture",
     input,
-    target,
+    target
   ) as Civ7ControlOrpcCultureChoiceCloseoutResult;
 }
 
@@ -141,7 +139,7 @@ export async function requestCiv7GameUiTechnologyTarget(
     playerId: number;
     node: number;
   }>,
-  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget
 ): Promise<Civ7ControlOrpcProgressionTargetResult> {
   return gameUiProgressionTarget("technology", input, target);
 }
@@ -151,7 +149,7 @@ export async function requestCiv7GameUiCultureTarget(
     playerId: number;
     node: number;
   }>,
-  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget
 ): Promise<Civ7ControlOrpcProgressionTargetResult> {
   return gameUiProgressionTarget("culture", input, target);
 }
@@ -161,7 +159,7 @@ export async function requestCiv7GameUiAttributePurchase(
     playerId: number;
     node: number;
   }>,
-  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget
 ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult> {
   return gameUiProgressionPlayerChoice("attribute-purchase", input, target);
 }
@@ -170,7 +168,7 @@ export async function requestCiv7GameUiAttributeReviewCloseout(
   input: Readonly<{
     playerId: number;
   }>,
-  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget
 ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult> {
   return gameUiProgressionPlayerChoice("attribute-review", input, target);
 }
@@ -181,7 +179,7 @@ export async function requestCiv7GameUiTraditionChange(
     traditionType: number;
     action: number;
   }>,
-  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget
 ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult> {
   return gameUiProgressionPlayerChoice("tradition-change", input, target);
 }
@@ -190,7 +188,7 @@ export async function requestCiv7GameUiTraditionReviewCloseout(
   input: Readonly<{
     playerId: number;
   }>,
-  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget = globalThis as Civ7GameUiProgressionTarget
 ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult> {
   return gameUiProgressionPlayerChoice("tradition-review", input, target);
 }
@@ -202,7 +200,7 @@ function gameUiProgressionChoiceCloseout(
     node: number;
     notificationId?: Civ7ControlOrpcComponentId;
   }>,
-  target: Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget
 ): ProgressionResult {
   if (!Number.isInteger(input.node)) {
     throw new Error("Progression choice node must be an integer.");
@@ -211,8 +209,8 @@ function gameUiProgressionChoiceCloseout(
   const policy = progressionPolicy(kind, target);
   const localPlayerId = target.GameContext?.localPlayerID;
   const playerId = typeof localPlayerId === "number" ? localPlayerId : input.playerId;
-  const selectedNotification = toComponentId(input.notificationId)
-    ?? currentProgressionNotification(kind, playerId, target);
+  const selectedNotification =
+    toComponentId(input.notificationId) ?? currentProgressionNotification(kind, playerId, target);
   const beforeProgression = readProgressionState(kind, playerId, target);
   const activationResult = probe(() =>
     selectedNotification == null
@@ -222,47 +220,31 @@ function gameUiProgressionChoiceCloseout(
   const chooseArgs = { ProgressionTreeNodeType: input.node };
   const clearArgs = { ProgressionTreeNodeType: target.ProgressionTreeNodeTypes?.NO_NODE ?? -1 };
   const canChoose = probe(() =>
-    target.Game?.PlayerOperations?.canStart?.(
-      playerId,
-      policy.chooseOperation,
-      chooseArgs,
-      false,
-    )
+    target.Game?.PlayerOperations?.canStart?.(playerId, policy.chooseOperation, chooseArgs, false)
   );
-  const chooseResult = canChoose.ok && successFromCanStart(canChoose.value)
-    ? probe(() =>
-      target.Game?.PlayerOperations?.sendRequest?.(
-        playerId,
-        policy.chooseOperation,
-        chooseArgs,
-      )
-    )
-    : skippedProbe(`${policy.chooseLabel} did not validate`);
+  const chooseResult =
+    canChoose.ok && successFromCanStart(canChoose.value)
+      ? probe(() =>
+          target.Game?.PlayerOperations?.sendRequest?.(playerId, policy.chooseOperation, chooseArgs)
+        )
+      : skippedProbe(`${policy.chooseLabel} did not validate`);
   const chooseSent = chooseResult.ok === true && chooseResult.value !== false;
   const canClearTarget = chooseSent
     ? probe(() =>
-      target.Game?.PlayerOperations?.canStart?.(
-        playerId,
-        policy.clearOperation,
-        clearArgs,
-        false,
+        target.Game?.PlayerOperations?.canStart?.(playerId, policy.clearOperation, clearArgs, false)
       )
-    )
     : skippedProbe(`${policy.clearLabel} skipped because ${policy.chooseLabel} did not send`);
-  const clearTargetResult = chooseSent
-      && canClearTarget.ok
-      && successFromCanStart(canClearTarget.value)
-    ? probe(() =>
-      target.Game?.PlayerOperations?.sendRequest?.(
-        playerId,
-        policy.clearOperation,
-        clearArgs,
-      )
-    )
-    : skippedProbe(`${policy.clearLabel} did not validate`);
-  const sent = chooseResult.ok === true && clearTargetResult.ok === true
-    && chooseResult.value !== false
-    && clearTargetResult.value !== false;
+  const clearTargetResult =
+    chooseSent && canClearTarget.ok && successFromCanStart(canClearTarget.value)
+      ? probe(() =>
+          target.Game?.PlayerOperations?.sendRequest?.(playerId, policy.clearOperation, clearArgs)
+        )
+      : skippedProbe(`${policy.clearLabel} did not validate`);
+  const sent =
+    chooseResult.ok === true &&
+    clearTargetResult.ok === true &&
+    chooseResult.value !== false &&
+    clearTargetResult.value !== false;
 
   return {
     host: "game-ui",
@@ -302,19 +284,19 @@ function gameUiProgressionTarget(
     playerId: number;
     node: number;
   }>,
-  target: Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget
 ): Civ7ControlOrpcProgressionTargetResult {
   if (!Number.isInteger(input.node)) {
     throw new Error("Progression target node must be an integer.");
   }
   const request = progressionRuntimeRequest({
     playerId: input.playerId,
-    operationType: kind === "technology"
-      ? "SET_TECH_TREE_TARGET_NODE"
-      : "SET_CULTURE_TREE_TARGET_NODE",
-    operationValue: kind === "technology"
-      ? target.PlayerOperationTypes?.SET_TECH_TREE_TARGET_NODE
-      : target.PlayerOperationTypes?.SET_CULTURE_TREE_TARGET_NODE,
+    operationType:
+      kind === "technology" ? "SET_TECH_TREE_TARGET_NODE" : "SET_CULTURE_TREE_TARGET_NODE",
+    operationValue:
+      kind === "technology"
+        ? target.PlayerOperationTypes?.SET_TECH_TREE_TARGET_NODE
+        : target.PlayerOperationTypes?.SET_CULTURE_TREE_TARGET_NODE,
     args: { ProgressionTreeNodeType: input.node },
     target,
   });
@@ -340,7 +322,7 @@ function gameUiProgressionPlayerChoice(
     traditionType?: number;
     action?: number;
   }>,
-  target: Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget
 ): Civ7ControlOrpcProgressionPlayerChoiceResult {
   const policy = progressionPlayerChoicePolicy(kind, input, target);
   const request = progressionRuntimeRequest({
@@ -388,7 +370,7 @@ function progressionPlayerChoicePolicy(
     traditionType?: number;
     action?: number;
   }>,
-  target: Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget
 ): Readonly<{
   operationType:
     | "BUY_ATTRIBUTE_TREE_NODE"
@@ -421,10 +403,7 @@ function progressionPlayerChoicePolicy(
     };
   }
   if (kind === "tradition-change") {
-    if (
-      typeof input.traditionType !== "number"
-      || !Number.isInteger(input.traditionType)
-    ) {
+    if (typeof input.traditionType !== "number" || !Number.isInteger(input.traditionType)) {
       throw new Error("Progression traditionType must be an integer.");
     }
     if (typeof input.action !== "number" || !Number.isInteger(input.action)) {
@@ -457,7 +436,7 @@ function progressionRuntimeRequest(
     operationValue: unknown;
     args: Readonly<Record<string, number>>;
     target: Civ7GameUiProgressionTarget;
-  }>,
+  }>
 ): Readonly<{
   before: ProgressionValidation;
   after: ProgressionValidation;
@@ -465,9 +444,10 @@ function progressionRuntimeRequest(
   sent: boolean;
 }> {
   const localPlayerId = input.target.GameContext?.localPlayerID;
-  const before = localPlayerId === input.playerId
-    ? gameUiProgressionValidation(input)
-    : gameUiProgressionLocalPlayerMismatch(input, localPlayerId);
+  const before =
+    localPlayerId === input.playerId
+      ? gameUiProgressionValidation(input)
+      : gameUiProgressionLocalPlayerMismatch(input, localPlayerId);
   if (!before.valid) {
     return {
       before,
@@ -483,15 +463,10 @@ function progressionRuntimeRequest(
   }
 
   const sendRequest = input.target.Game?.PlayerOperations?.sendRequest;
-  const sendResult = typeof sendRequest === "function"
-    ? probe(() =>
-      sendRequest(
-        input.playerId,
-        input.operationValue,
-        input.args,
-      )
-    )
-    : { ok: false as const, error: "PlayerOperations.sendRequest is unavailable" };
+  const sendResult =
+    typeof sendRequest === "function"
+      ? probe(() => sendRequest(input.playerId, input.operationValue, input.args))
+      : { ok: false as const, error: "PlayerOperations.sendRequest is unavailable" };
   const sent = sendResult.ok === true && sendResult.value !== false;
   const after = gameUiProgressionValidation(input);
   return {
@@ -514,14 +489,14 @@ function gameUiProgressionValidation(
     operationValue: unknown;
     args: Readonly<Record<string, number>>;
     target: Civ7GameUiProgressionTarget;
-  }>,
+  }>
 ): ProgressionValidation {
   const result = probe(() =>
     input.target.Game?.PlayerOperations?.canStart?.(
       input.playerId,
       input.operationValue,
       input.args,
-      false,
+      false
     )
   );
   return {
@@ -545,7 +520,7 @@ function gameUiProgressionLocalPlayerMismatch(
     operationValue: unknown;
     args: Readonly<Record<string, number>>;
   }>,
-  localPlayerId: number | undefined,
+  localPlayerId: number | undefined
 ): ProgressionValidation {
   return {
     host: "game-ui",
@@ -568,7 +543,7 @@ function gameUiProgressionLocalPlayerMismatch(
 
 function progressionRuntimePostcondition(
   sent: boolean,
-  label: string,
+  label: string
 ): Readonly<{
   classification: "not-sent" | "pending-runtime-proof";
   reason: string;
@@ -587,7 +562,7 @@ function progressionRuntimePostcondition(
 
 function progressionPolicy(
   kind: ProgressionKind,
-  target: Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget
 ): Readonly<{
   token: string;
   chooseOperation: unknown;
@@ -616,23 +591,22 @@ function progressionPolicy(
 function currentProgressionNotification(
   kind: ProgressionKind,
   playerId: number,
-  target: Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget
 ): Civ7ControlOrpcComponentId | null {
   const token = progressionPolicy(kind, target).token;
-  const ids = safeValue(() =>
-    target.Game?.Notifications?.getIdsForPlayer?.(playerId),
-    [],
-  );
+  const ids = safeValue(() => target.Game?.Notifications?.getIdsForPlayer?.(playerId), []);
   if (!Array.isArray(ids)) return null;
   for (const rawId of ids) {
     const id = toComponentId(rawId);
     if (id == null) continue;
     const type = safeValue(() => target.Game?.Notifications?.getType?.(id), null);
-    const typeName = safeValue(
-      () => target.Game?.Notifications?.getTypeName?.(type),
-      null,
-    );
-    if (String(typeName ?? "").toUpperCase().includes(token)) return id;
+    const typeName = safeValue(() => target.Game?.Notifications?.getTypeName?.(type), null);
+    if (
+      String(typeName ?? "")
+        .toUpperCase()
+        .includes(token)
+    )
+      return id;
   }
   return null;
 }
@@ -640,16 +614,14 @@ function currentProgressionNotification(
 function readProgressionState(
   kind: ProgressionKind,
   playerId: number,
-  target: Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget
 ): unknown {
   return kind === "technology"
     ? {
-        currentResearching: probe(() =>
-          playerRecord(playerId, target)?.Techs?.getResearching?.() ?? null
+        currentResearching: probe(
+          () => playerRecord(playerId, target)?.Techs?.getResearching?.() ?? null
         ),
-        targetNode: probe(() =>
-          playerRecord(playerId, target)?.Techs?.getTargetNode?.() ?? null
-        ),
+        targetNode: probe(() => playerRecord(playerId, target)?.Techs?.getTargetNode?.() ?? null),
       }
     : {
         currentResearching: probe(() => {
@@ -657,34 +629,28 @@ function readProgressionState(
           const activeTree = culture?.getActiveTree?.();
           if (activeTree == null) return null;
           const tree = target.Game?.ProgressionTrees?.getTree?.(playerId, activeTree);
-          const activeNodeIndex = (tree as { activeNodeIndex?: unknown } | null)
-            ?.activeNodeIndex;
+          const activeNodeIndex = (tree as { activeNodeIndex?: unknown } | null)?.activeNodeIndex;
           if (typeof activeNodeIndex !== "number" || activeNodeIndex < 0) {
             return null;
           }
           const nodes = (tree as { nodes?: unknown[] } | null)?.nodes;
           return Array.isArray(nodes)
-            ? (nodes[activeNodeIndex] as { nodeType?: unknown } | undefined)
-              ?.nodeType ?? null
+            ? ((nodes[activeNodeIndex] as { nodeType?: unknown } | undefined)?.nodeType ?? null)
             : null;
         }),
-        targetNode: probe(() =>
-          playerRecord(playerId, target)?.Culture?.getTargetNode?.() ?? null
-        ),
-        availableNodeTypes: probe(() =>
-          playerRecord(playerId, target)?.Culture?.getAllAvailableNodeTypes?.() ?? []
+        targetNode: probe(() => playerRecord(playerId, target)?.Culture?.getTargetNode?.() ?? null),
+        availableNodeTypes: probe(
+          () => playerRecord(playerId, target)?.Culture?.getAllAvailableNodeTypes?.() ?? []
         ),
       };
 }
 
 function playerRecord(
   playerId: number,
-  target: Civ7GameUiProgressionTarget,
+  target: Civ7GameUiProgressionTarget
 ): Record<string, any> | null {
   const player = safeValue(() => target.Players?.get?.(playerId), null);
-  return player != null && typeof player === "object"
-    ? player as Record<string, any>
-    : null;
+  return player != null && typeof player === "object" ? (player as Record<string, any>) : null;
 }
 
 function successFromCanStart(result: unknown): boolean {
@@ -710,10 +676,12 @@ function toComponentId(value: unknown): Civ7ControlOrpcComponentId | null {
     : { owner: record.owner, id: record.id };
 }
 
-function skippedProbe(reason: string): RuntimeProbe<Readonly<{
-  skipped: true;
-  reason: string;
-}>> {
+function skippedProbe(reason: string): RuntimeProbe<
+  Readonly<{
+    skipped: true;
+    reason: string;
+  }>
+> {
   return { ok: false, error: reason };
 }
 

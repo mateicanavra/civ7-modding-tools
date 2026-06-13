@@ -17,40 +17,35 @@ import {
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7CityProductionChoiceResult } from "../contract";
 
-export const cityProductionChoiceRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.city.production.choice.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const result = await context.directControl.requestCiv7ProductionChoice(
-          input,
-          context.endpointDefaults,
-        );
-        return cityProductionChoiceResult(input, result);
-      },
-      catch: (cause) =>
-        errors.PRODUCTION_CHOICE_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: "city.production.choice.request",
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const cityProductionChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.city.production.choice.request
+).effect(function* ({ context, errors, input }) {
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const result = await context.directControl.requestCiv7ProductionChoice(
+        input,
+        context.endpointDefaults
+      );
+      return cityProductionChoiceResult(input, result);
+    },
+    catch: (cause) =>
+      errors.PRODUCTION_CHOICE_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: "city.production.choice.request",
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
 function cityProductionChoiceResult(
   input: Readonly<{
     cityId: Civ7CityProductionChoiceResult["cityId"];
     args: Readonly<Record<string, number>>;
   }>,
-  result: Civ7ControlOrpcProductionChoiceResult,
+  result: Civ7ControlOrpcProductionChoiceResult
 ): Civ7CityProductionChoiceResult {
   const postcondition = productionPostconditionSummary(result);
   const status = civ7MutationRequestStatusWithoutGuarded({
@@ -74,13 +69,14 @@ function cityProductionChoiceResult(
       source: "city.production.choice.request",
       inspectKind: "inspect-production",
       inspectLabel: "Inspect production options before attempting another production request.",
-      doNotRepeatLabel: "Do not repeat this production request until fresh attention and production evidence is read.",
+      doNotRepeatLabel:
+        "Do not repeat this production request until fresh attention and production evidence is read.",
     }),
   };
 }
 
 function productionPostconditionSummary(
-  result: Civ7ControlOrpcProductionChoiceResult,
+  result: Civ7ControlOrpcProductionChoiceResult
 ): Civ7CityProductionChoiceResult["postcondition"] {
   const postcondition = result.productionPostcondition;
   if (postcondition == null) {
@@ -96,9 +92,7 @@ function productionPostconditionSummary(
     };
   }
 
-  const confirmed = productionChoicePostconditionConfirmed(
-    postcondition.classification,
-  );
+  const confirmed = productionChoicePostconditionConfirmed(postcondition.classification);
   return {
     classification: postcondition.classification,
     reason: postcondition.reason,

@@ -47,15 +47,23 @@ describe("hydrology/compute-ocean-surface-currents (default)", () => {
       smoothIters: 0,
       projectionIters: 0,
     });
-    const projected = computeCurrentsEarthlike(width, height, latitudeByRow, isWaterMask, windU, windV, {
-      maxSpeed: 80,
-      windStrength: 0.55,
-      ekmanStrength: 0.35,
-      gyreStrength: 0,
-      coastStrength: 0,
-      smoothIters: 0,
-      projectionIters: 12,
-    });
+    const projected = computeCurrentsEarthlike(
+      width,
+      height,
+      latitudeByRow,
+      isWaterMask,
+      windU,
+      windV,
+      {
+        maxSpeed: 80,
+        windStrength: 0.55,
+        ekmanStrength: 0.35,
+        gyreStrength: 0,
+        coastStrength: 0,
+        smoothIters: 0,
+        projectionIters: 12,
+      }
+    );
 
     // Land must be zero.
     for (let i = 0; i < size; i++) {

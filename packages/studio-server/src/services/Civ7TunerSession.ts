@@ -1,7 +1,4 @@
-import {
-  Civ7DirectControlSession,
-  type Civ7DirectControlOptions,
-} from "@civ7/direct-control";
+import { Civ7DirectControlSession, type Civ7DirectControlOptions } from "@civ7/direct-control";
 import { Clock, Context, Data, Effect, Layer, Ref, type Scope } from "effect";
 import type { UnknownException } from "effect/Cause";
 
@@ -72,7 +69,7 @@ export interface Civ7TunerSessionApi {
   readonly session: Civ7DirectControlSession;
   /** Run a direct-control promise against the shared session, behind the gate. */
   readonly use: <A>(
-    run: (options: { readonly session: Civ7DirectControlSession }) => Promise<A>,
+    run: (options: { readonly session: Civ7DirectControlSession }) => Promise<A>
   ) => Effect.Effect<A, Civ7TunerBackoffError | UnknownException>;
   readonly health: Effect.Effect<Civ7TunerSessionHealth>;
 }
@@ -83,7 +80,7 @@ export class Civ7TunerSession extends Context.Tag("@civ7/studio-server/Civ7Tuner
 >() {}
 
 const make = (
-  options: Civ7TunerSessionOptions,
+  options: Civ7TunerSessionOptions
 ): Effect.Effect<Civ7TunerSessionApi, never, Scope.Scope> =>
   Effect.gen(function* () {
     const threshold = options.gate?.threshold ?? CIV7_TUNER_GATE_THRESHOLD;
@@ -92,13 +89,11 @@ const make = (
 
     const session = yield* Effect.acquireRelease(
       Effect.sync(() => new Civ7DirectControlSession(directControlOptions)),
-      (s) => Effect.promise(() => s.close()),
+      (s) => Effect.promise(() => s.close())
     );
     const gateOpenUntil = yield* Ref.make(0);
 
-    const use = <A>(
-      run: (o: { readonly session: Civ7DirectControlSession }) => Promise<A>,
-    ) =>
+    const use = <A>(run: (o: { readonly session: Civ7DirectControlSession }) => Promise<A>) =>
       Effect.gen(function* () {
         const now = yield* Clock.currentTimeMillis;
         const openUntil = yield* Ref.get(gateOpenUntil);
@@ -115,10 +110,10 @@ const make = (
             // stays un-gated so readiness keeps reporting fast.
             session.stats.consecutiveResponseTimeouts >= threshold
               ? Effect.flatMap(Clock.currentTimeMillis, (at) =>
-                  Ref.set(gateOpenUntil, at + cooldownMs),
+                  Ref.set(gateOpenUntil, at + cooldownMs)
                 )
-              : Effect.void,
-          ),
+              : Effect.void
+          )
         );
       });
 
@@ -138,11 +133,10 @@ const make = (
 
 /** Parameterized layer (tests inject a fake tuner endpoint + short gate timings). */
 export function makeCiv7TunerSessionLayer(
-  options: Civ7TunerSessionOptions = {},
+  options: Civ7TunerSessionOptions = {}
 ): Layer.Layer<Civ7TunerSession> {
   return Layer.scoped(Civ7TunerSession, make(options));
 }
 
 /** Production layer: env-resolved endpoint, default gate policy. */
-export const Civ7TunerSessionLive: Layer.Layer<Civ7TunerSession> =
-  makeCiv7TunerSessionLayer();
+export const Civ7TunerSessionLive: Layer.Layer<Civ7TunerSession> = makeCiv7TunerSessionLayer();

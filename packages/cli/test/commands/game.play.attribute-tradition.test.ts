@@ -1,68 +1,91 @@
-import { describe, expect, test, vi } from 'vitest';
-import GamePlayBuyAttribute from '../../src/commands/game/play/buy-attribute';
-import GamePlayChangeTradition from '../../src/commands/game/play/change-tradition';
-import GamePlayConsiderAttributes from '../../src/commands/game/play/consider-attributes';
-import GamePlayConsiderTraditions from '../../src/commands/game/play/consider-traditions';
-import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
+import { describe, expect, test, vi } from "vitest";
+import GamePlayBuyAttribute from "../../src/commands/game/play/buy-attribute";
+import GamePlayChangeTradition from "../../src/commands/game/play/change-tradition";
+import GamePlayConsiderAttributes from "../../src/commands/game/play/consider-attributes";
+import GamePlayConsiderTraditions from "../../src/commands/game/play/consider-traditions";
+import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
 
-describe('game play attribute and tradition commands', () => {
-  test('wraps attribute purchase as BUY_ATTRIBUTE_TREE_NODE', async () => {
+describe("game play attribute and tradition commands", () => {
+  test("wraps attribute purchase as BUY_ATTRIBUTE_TREE_NODE", async () => {
     const server = await startAttributeTraditionTunerServer();
     try {
       const { port } = server.address();
       await GamePlayBuyAttribute.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--player-id',
-        '0',
-        '--node',
-        '20',
-        '--json',
+        "--player-id",
+        "0",
+        "--node",
+        "20",
+        "--json",
       ]);
 
-      expect(server.received.some((message) => message.includes('BUY_ATTRIBUTE_TREE_NODE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"ProgressionTreeNodeType":20'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+      expect(server.received.some((message) => message.includes("BUY_ATTRIBUTE_TREE_NODE"))).toBe(
+        true
+      );
+      expect(
+        server.received.some((message) => message.includes('"ProgressionTreeNodeType":20'))
+      ).toBe(true);
+      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
     } finally {
       await server.close();
     }
   });
 
-  test('buys attribute and closes assignment review as one caller workflow', async () => {
+  test("buys attribute and closes assignment review as one caller workflow", async () => {
     const server = await startAttributeTraditionTunerServer();
     try {
       const { port } = server.address();
       const writes: string[] = [];
-      const log = vi.spyOn(GamePlayBuyAttribute.prototype, 'log').mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
+      const log = vi
+        .spyOn(GamePlayBuyAttribute.prototype, "log")
+        .mockImplementation((message?: string) => {
+          if (message) writes.push(message);
+        });
       try {
         await GamePlayBuyAttribute.run([
-          '--host',
-          '127.0.0.1',
-          '--port',
+          "--host",
+          "127.0.0.1",
+          "--port",
           String(port),
-          '--node',
-          '20',
-          '--send',
-          '--closeout',
-          '--json',
+          "--node",
+          "20",
+          "--send",
+          "--closeout",
+          "--json",
         ]);
       } finally {
         log.mockRestore();
       }
 
-      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; status: string; steps: Array<{ result: unknown }> } };
-      expect(payload.result.mode).toBe('send');
+      const payload = JSON.parse(writes.join("")) as {
+        ok: true;
+        result: {
+          mode: string;
+          stepCount: number;
+          status: string;
+          steps: Array<{ result: unknown }>;
+        };
+      };
+      expect(payload.result.mode).toBe("send");
       expect(payload.result.stepCount).toBe(2);
-      expect(payload.result.status).toBe('sent-unverified');
+      expect(payload.result.status).toBe("sent-unverified");
       expect(payload.result.steps).toHaveLength(2);
-      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
-      expect(server.received.some((message) => message.includes('BUY_ATTRIBUTE_TREE_NODE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_ATTRIBUTE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(
+        server.received.filter((message) => message.includes('sendOperation("player-operation"'))
+          .length
+      ).toBe(2);
+      expect(server.received.some((message) => message.includes("BUY_ATTRIBUTE_TREE_NODE"))).toBe(
+        true
+      );
+      expect(server.received.some((message) => message.includes("CONSIDER_ASSIGN_ATTRIBUTE"))).toBe(
+        true
+      );
+      expect(server.received.some((message) => message.includes("readPlayNotifications"))).toBe(
+        true
+      );
       expect(JSON.stringify(payload)).toContain('"playerId":0');
       expect(JSON.stringify(payload)).not.toContain('"verified"');
       expectSemanticProgressionPlayerChoiceOmitsRawRuntimeDetails(payload.result);
@@ -71,68 +94,89 @@ describe('game play attribute and tradition commands', () => {
     }
   });
 
-  test('wraps tradition swaps as CHANGE_TRADITION', async () => {
+  test("wraps tradition swaps as CHANGE_TRADITION", async () => {
     const server = await startAttributeTraditionTunerServer();
     try {
       const { port } = server.address();
       await GamePlayChangeTradition.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--player-id',
-        '0',
-        '--tradition-type',
-        '-331546976',
-        '--action',
-        '-1326475004',
-        '--json',
+        "--player-id",
+        "0",
+        "--tradition-type",
+        "-331546976",
+        "--action",
+        "-1326475004",
+        "--json",
       ]);
 
-      expect(server.received.some((message) => message.includes('CHANGE_TRADITION'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"TraditionType":-331546976'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Action":-1326475004'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+      expect(server.received.some((message) => message.includes("CHANGE_TRADITION"))).toBe(true);
+      expect(
+        server.received.some((message) => message.includes('"TraditionType":-331546976'))
+      ).toBe(true);
+      expect(server.received.some((message) => message.includes('"Action":-1326475004'))).toBe(
+        true
+      );
+      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
     } finally {
       await server.close();
     }
   });
 
-  test('changes tradition and closes assignment review as one caller workflow', async () => {
+  test("changes tradition and closes assignment review as one caller workflow", async () => {
     const server = await startAttributeTraditionTunerServer();
     try {
       const { port } = server.address();
       const writes: string[] = [];
-      const log = vi.spyOn(GamePlayChangeTradition.prototype, 'log').mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
+      const log = vi
+        .spyOn(GamePlayChangeTradition.prototype, "log")
+        .mockImplementation((message?: string) => {
+          if (message) writes.push(message);
+        });
       try {
         await GamePlayChangeTradition.run([
-          '--host',
-          '127.0.0.1',
-          '--port',
+          "--host",
+          "127.0.0.1",
+          "--port",
           String(port),
-          '--tradition-type',
-          '-331546976',
-          '--action',
-          '-1326475004',
-          '--send',
-          '--closeout',
-          '--json',
+          "--tradition-type",
+          "-331546976",
+          "--action",
+          "-1326475004",
+          "--send",
+          "--closeout",
+          "--json",
         ]);
       } finally {
         log.mockRestore();
       }
 
-      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; status: string; steps: Array<{ result: unknown }> } };
-      expect(payload.result.mode).toBe('send');
+      const payload = JSON.parse(writes.join("")) as {
+        ok: true;
+        result: {
+          mode: string;
+          stepCount: number;
+          status: string;
+          steps: Array<{ result: unknown }>;
+        };
+      };
+      expect(payload.result.mode).toBe("send");
       expect(payload.result.stepCount).toBe(2);
-      expect(payload.result.status).toBe('sent-unverified');
+      expect(payload.result.status).toBe("sent-unverified");
       expect(payload.result.steps).toHaveLength(2);
-      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
-      expect(server.received.some((message) => message.includes('CHANGE_TRADITION'))).toBe(true);
-      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_TRADITIONS'))).toBe(true);
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(
+        server.received.filter((message) => message.includes('sendOperation("player-operation"'))
+          .length
+      ).toBe(2);
+      expect(server.received.some((message) => message.includes("CHANGE_TRADITION"))).toBe(true);
+      expect(
+        server.received.some((message) => message.includes("CONSIDER_ASSIGN_TRADITIONS"))
+      ).toBe(true);
+      expect(server.received.some((message) => message.includes("readPlayNotifications"))).toBe(
+        true
+      );
       expect(JSON.stringify(payload)).toContain('"playerId":0');
       expect(JSON.stringify(payload)).not.toContain('"verified"');
       expectSemanticProgressionPlayerChoiceOmitsRawRuntimeDetails(payload.result);
@@ -141,111 +185,127 @@ describe('game play attribute and tradition commands', () => {
     }
   });
 
-  test('wraps attribute review closeout as CONSIDER_ASSIGN_ATTRIBUTE', async () => {
+  test("wraps attribute review closeout as CONSIDER_ASSIGN_ATTRIBUTE", async () => {
     const server = await startAttributeTraditionTunerServer();
     try {
       const { port } = server.address();
       await GamePlayConsiderAttributes.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--player-id',
-        '0',
-        '--json',
+        "--player-id",
+        "0",
+        "--json",
       ]);
 
-      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_ATTRIBUTE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+      expect(server.received.some((message) => message.includes("CONSIDER_ASSIGN_ATTRIBUTE"))).toBe(
+        true
+      );
+      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
     } finally {
       await server.close();
     }
   });
 
-  test('sends attribute review closeout through progression oRPC without caller player id', async () => {
+  test("sends attribute review closeout through progression oRPC without caller player id", async () => {
     const server = await startAttributeTraditionTunerServer();
     try {
       const { port } = server.address();
       const writes: string[] = [];
-      const log = vi.spyOn(GamePlayConsiderAttributes.prototype, 'log').mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
+      const log = vi
+        .spyOn(GamePlayConsiderAttributes.prototype, "log")
+        .mockImplementation((message?: string) => {
+          if (message) writes.push(message);
+        });
       try {
         await GamePlayConsiderAttributes.run([
-          '--host',
-          '127.0.0.1',
-          '--port',
+          "--host",
+          "127.0.0.1",
+          "--port",
           String(port),
-          '--send',
-          '--json',
+          "--send",
+          "--json",
         ]);
       } finally {
         log.mockRestore();
       }
 
-      const payload = JSON.parse(writes.join('')) as { ok: true; result: Record<string, unknown> };
+      const payload = JSON.parse(writes.join("")) as { ok: true; result: Record<string, unknown> };
       expect(payload.result.playerId).toBe(0);
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe('sent-unverified');
+      expect(payload.result.status).toBe("sent-unverified");
       expect(JSON.stringify(payload.result)).not.toContain('"verified"');
       expectSemanticProgressionPlayerChoiceOmitsRawRuntimeDetails(payload.result);
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_ATTRIBUTE'))).toBe(true);
+      expect(server.received.some((message) => message.includes("readPlayNotifications"))).toBe(
+        true
+      );
+      expect(server.received.some((message) => message.includes("CONSIDER_ASSIGN_ATTRIBUTE"))).toBe(
+        true
+      );
     } finally {
       await server.close();
     }
   });
 
-  test('wraps tradition review closeout as CONSIDER_ASSIGN_TRADITIONS', async () => {
+  test("wraps tradition review closeout as CONSIDER_ASSIGN_TRADITIONS", async () => {
     const server = await startAttributeTraditionTunerServer();
     try {
       const { port } = server.address();
       await GamePlayConsiderTraditions.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--player-id',
-        '0',
-        '--json',
+        "--player-id",
+        "0",
+        "--json",
       ]);
 
-      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_TRADITIONS'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+      expect(
+        server.received.some((message) => message.includes("CONSIDER_ASSIGN_TRADITIONS"))
+      ).toBe(true);
+      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
     } finally {
       await server.close();
     }
   });
 
-  test('sends tradition review closeout through progression oRPC without caller player id', async () => {
+  test("sends tradition review closeout through progression oRPC without caller player id", async () => {
     const server = await startAttributeTraditionTunerServer();
     try {
       const { port } = server.address();
       const writes: string[] = [];
-      const log = vi.spyOn(GamePlayConsiderTraditions.prototype, 'log').mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
+      const log = vi
+        .spyOn(GamePlayConsiderTraditions.prototype, "log")
+        .mockImplementation((message?: string) => {
+          if (message) writes.push(message);
+        });
       try {
         await GamePlayConsiderTraditions.run([
-          '--host',
-          '127.0.0.1',
-          '--port',
+          "--host",
+          "127.0.0.1",
+          "--port",
           String(port),
-          '--send',
-          '--json',
+          "--send",
+          "--json",
         ]);
       } finally {
         log.mockRestore();
       }
 
-      const payload = JSON.parse(writes.join('')) as { ok: true; result: Record<string, unknown> };
+      const payload = JSON.parse(writes.join("")) as { ok: true; result: Record<string, unknown> };
       expect(payload.result.playerId).toBe(0);
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe('sent-unverified');
+      expect(payload.result.status).toBe("sent-unverified");
       expect(JSON.stringify(payload.result)).not.toContain('"verified"');
       expectSemanticProgressionPlayerChoiceOmitsRawRuntimeDetails(payload.result);
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_TRADITIONS'))).toBe(true);
+      expect(server.received.some((message) => message.includes("readPlayNotifications"))).toBe(
+        true
+      );
+      expect(
+        server.received.some((message) => message.includes("CONSIDER_ASSIGN_TRADITIONS"))
+      ).toBe(true);
     } finally {
       await server.close();
     }
@@ -255,19 +315,19 @@ describe('game play attribute and tradition commands', () => {
 async function startAttributeTraditionTunerServer(): Promise<FakeTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
-      if (message.includes('Network.isInSession')) {
+      if (message.includes("Network.isInSession")) {
         return [JSON.stringify(appUiSnapshot())];
       }
-      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+      if (message.includes("evalOk") && message.includes("GameplayMap.getGridWidth")) {
         return [JSON.stringify(tunerHealthSnapshot())];
       }
-      if (message.includes('readPlayNotifications')) {
+      if (message.includes("readPlayNotifications")) {
         return [JSON.stringify(playNotificationView())];
       }
-      if (message.includes('return JSON.stringify(validateOperation')) {
+      if (message.includes("return JSON.stringify(validateOperation")) {
         return [JSON.stringify(operationValidation(message))];
       }
-      if (message.includes('return JSON.stringify(sendOperation')) {
+      if (message.includes("return JSON.stringify(sendOperation")) {
         return [JSON.stringify({ sent: true })];
       }
       return undefined;
@@ -290,10 +350,10 @@ function expectSemanticProgressionPlayerChoiceOmitsRawRuntimeDetails(result: unk
 function operationValidation(message: string) {
   const operationType = operationTypeFromMessage(message);
   return {
-    host: '127.0.0.1',
+    host: "127.0.0.1",
     port: 0,
-    state: { id: '1', name: 'Tuner', role: 'tuner' },
-    family: 'player-operation',
+    state: { id: "1", name: "Tuner", role: "tuner" },
+    family: "player-operation",
     operationType,
     enumValue: operationType,
     target: { playerId: 0 },
@@ -308,14 +368,15 @@ function operationTypeFromMessage(message: string) {
   const sendIndex = message.lastIndexOf('sendOperation("');
   const callIndex = Math.max(validateIndex, sendIndex);
   const callSource = callIndex >= 0 ? message.slice(callIndex) : message;
-  return callSource.match(/"operationType":"([^"]+)"/)?.[1] ?? 'BUY_ATTRIBUTE_TREE_NODE';
+  return callSource.match(/"operationType":"([^"]+)"/)?.[1] ?? "BUY_ATTRIBUTE_TREE_NODE";
 }
 
 function operationArgs(operationType: string) {
-  if (operationType === 'BUY_ATTRIBUTE_TREE_NODE') return { ProgressionTreeNodeType: 20 };
-  if (operationType === 'CHANGE_TRADITION') return { TraditionType: -331546976, Action: -1326475004 };
-  if (operationType === 'CONSIDER_ASSIGN_ATTRIBUTE') return {};
-  if (operationType === 'CONSIDER_ASSIGN_TRADITIONS') return {};
+  if (operationType === "BUY_ATTRIBUTE_TREE_NODE") return { ProgressionTreeNodeType: 20 };
+  if (operationType === "CHANGE_TRADITION")
+    return { TraditionType: -331546976, Action: -1326475004 };
+  if (operationType === "CONSIDER_ASSIGN_ATTRIBUTE") return {};
+  if (operationType === "CONSIDER_ASSIGN_TRADITIONS") return {};
   return undefined;
 }
 
@@ -325,7 +386,7 @@ function playNotificationView() {
     localPlayerId: 0,
     turn: 42,
     canEndTurn: { ok: true, value: false },
-    blocker: { kind: 'none' },
+    blocker: { kind: "none" },
     notifications: [],
     current: null,
     recommendations: [],
@@ -364,7 +425,7 @@ function appUiSnapshot() {
       turn: 42,
       age: 0,
       maxTurns: 0,
-      turnDate: { ok: true, value: '3550 BCE' },
+      turnDate: { ok: true, value: "3550 BCE" },
       hash: { ok: true, value: 0 },
     },
     ui: {
@@ -372,9 +433,9 @@ function appUiSnapshot() {
       inShell: { ok: true, value: false },
       inLoading: { ok: true, value: false },
       loadingState: { ok: true, value: 6 },
-      loadingStateName: 'WaitingForUIReady',
+      loadingStateName: "WaitingForUIReady",
       canBeginGame: { ok: true, value: false },
-      canNotifyUIReady: 'function',
+      canNotifyUIReady: "function",
       skipStartButton: { ok: true, value: false },
       automationActive: { ok: true, value: false },
     },
@@ -404,14 +465,14 @@ function tunerHealthSnapshot() {
     evalOk: 2,
     ready: true,
     globals: {
-      Game: 'object',
-      Autoplay: 'object',
-      GameplayMap: 'object',
-      Players: 'object',
-      Network: 'undefined',
+      Game: "object",
+      Autoplay: "object",
+      GameplayMap: "object",
+      Players: "object",
+      Network: "undefined",
     },
     turn: { ok: true, value: 42 },
-    turnDate: { ok: true, value: '3550 BCE' },
+    turnDate: { ok: true, value: "3550 BCE" },
     width: { ok: true, value: 84 },
     height: { ok: true, value: 54 },
     aliveIds: { ok: true, value: [0] },

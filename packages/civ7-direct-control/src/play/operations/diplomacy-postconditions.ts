@@ -28,14 +28,23 @@ export async function waitForCiv7DiplomacyResponseAfter(
   options: Civ7DirectControlOptions,
   before: Civ7PlayNotificationViewResult,
   beforeValidation: Civ7OperationValidationResult,
-  readPlayNotifications: (options: Civ7DirectControlOptions) => Promise<Civ7PlayNotificationViewResult>,
+  readPlayNotifications: (
+    options: Civ7DirectControlOptions
+  ) => Promise<Civ7PlayNotificationViewResult>
 ): Promise<Civ7PlayNotificationViewResult> {
   const waitTimeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
   const pollIntervalMs = 250;
   const startedAt = Date.now();
   let last = await readPlayNotifications(options);
   while (Date.now() - startedAt <= waitTimeoutMs) {
-    const candidate = diplomacyResponsePostcondition(input, true, before, last, beforeValidation, beforeValidation);
+    const candidate = diplomacyResponsePostcondition(
+      input,
+      true,
+      before,
+      last,
+      beforeValidation,
+      beforeValidation
+    );
     if (candidate.classification !== "no-state-change") return last;
     await sleep(pollIntervalMs);
     last = await readPlayNotifications(options);
@@ -49,9 +58,16 @@ export function diplomacyResponsePostcondition(
   before: Civ7PlayNotificationViewResult,
   after: Civ7PlayNotificationViewResult,
   beforeValidation: Civ7OperationValidationResult,
-  afterValidation: Civ7OperationValidationResult,
+  afterValidation: Civ7OperationValidationResult
 ): Civ7DiplomacyResponsePostcondition {
-  const classification = classifyDiplomacyResponsePostcondition(input, sent, before, after, beforeValidation, afterValidation);
+  const classification = classifyDiplomacyResponsePostcondition(
+    input,
+    sent,
+    before,
+    after,
+    beforeValidation,
+    afterValidation
+  );
   return {
     classification,
     reason: diplomacyResponsePostconditionReason(classification),
@@ -64,7 +80,7 @@ function classifyDiplomacyResponsePostcondition(
   before: Civ7PlayNotificationViewResult,
   after: Civ7PlayNotificationViewResult,
   beforeValidation: Civ7OperationValidationResult,
-  afterValidation: Civ7OperationValidationResult,
+  afterValidation: Civ7OperationValidationResult
 ): Civ7DiplomacyResponsePostconditionClassification {
   if (!sent) return "not-sent";
   if (probeValue(after.canEndTurn) === true) return "turn-unblocked";
@@ -74,13 +90,18 @@ function classifyDiplomacyResponsePostcondition(
   const beforeBlocking = probeValue(before.blockingNotificationId);
   const afterBlocking = probeValue(after.blockingNotificationId);
   if (!sameComponentId(beforeBlocking, afterBlocking)) return "blocking-notification-changed";
-  if (beforeValidation.valid !== afterValidation.valid || stableJson(beforeValidation.result) !== stableJson(afterValidation.result)) {
+  if (
+    beforeValidation.valid !== afterValidation.valid ||
+    stableJson(beforeValidation.result) !== stableJson(afterValidation.result)
+  ) {
     return "validation-changed";
   }
   return "no-state-change";
 }
 
-function diplomacyResponsePostconditionReason(classification: Civ7DiplomacyResponsePostconditionClassification): string {
+function diplomacyResponsePostconditionReason(
+  classification: Civ7DiplomacyResponsePostconditionClassification
+): string {
   switch (classification) {
     case "not-sent":
       return "The diplomatic response was not sent, so no postcondition can be verified.";
@@ -99,7 +120,7 @@ function diplomacyResponsePostconditionReason(classification: Civ7DiplomacyRespo
 
 function findDiplomacyResponseNotification(
   view: Civ7PlayNotificationViewResult,
-  input: Civ7DiplomacyResponseInput,
+  input: Civ7DiplomacyResponseInput
 ): Civ7PlayNotificationSummary | undefined {
   return view.notifications.find((notification) => {
     const typeName = String(notification.typeName ?? "").toUpperCase();

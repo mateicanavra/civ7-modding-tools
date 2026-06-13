@@ -13,10 +13,7 @@ import {
   type Civ7MapGridInput,
   type Civ7MapGridResult,
 } from "./types.js";
-import {
-  getCiv7MapGrid,
-  type MapGridReadDependencies,
-} from "./reads.js";
+import { getCiv7MapGrid, type MapGridReadDependencies } from "./reads.js";
 
 export const Civ7MapGridProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "map.grid.read",
@@ -33,14 +30,7 @@ export const Civ7MapGridProcedureDescriptor = createCiv7ProcedureCoreDescriptor(
     owner: "packages/civ7-direct-control/src/play/map/types.ts",
     exportName: "Civ7MapGridResultSchema",
   },
-  inputFields: [
-    "bounds",
-    "locations",
-    "fields",
-    "playerId",
-    "includeHidden",
-    "maxPlots",
-  ],
+  inputFields: ["bounds", "locations", "fields", "playerId", "includeHidden", "maxPlots"],
   outputFields: [
     "host",
     "port",
@@ -97,13 +87,13 @@ export type Civ7MapGridProcedureCallOptions = Readonly<{
 
 export function callCiv7MapGridProcedure(
   input: Civ7MapGridInput,
-  options: Civ7MapGridProcedureCallOptions = {},
+  options: Civ7MapGridProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7MapGridResult>> {
   return callCiv7ProcedureCore<Civ7MapGridInput, Civ7MapGridResult>(
     Civ7MapGridProcedureDescriptor,
     Civ7MapGridProcedureSchemaArtifacts,
     input,
     (validInput) => getCiv7MapGrid(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    options.procedure
   );
 }

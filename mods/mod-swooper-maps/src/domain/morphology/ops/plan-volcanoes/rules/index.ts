@@ -13,9 +13,7 @@ const BOUNDARY_TRANSFORM = 3;
 /**
  * Ensures volcano inputs match the expected map size.
  */
-export function validateVolcanoInputs(
-  input: PlanVolcanoesTypes["input"]
-): {
+export function validateVolcanoInputs(input: PlanVolcanoesTypes["input"]): {
   size: number;
   landMask: Uint8Array;
   boundaryCloseness: Uint8Array;

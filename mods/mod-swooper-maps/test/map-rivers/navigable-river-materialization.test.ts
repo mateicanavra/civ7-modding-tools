@@ -1,9 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import {
-  RIVER_CLASS_MAJOR,
-  RIVER_CLASS_MINOR,
-} from "../../src/domain/hydrology/river-class.js";
+import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../src/domain/hydrology/river-class.js";
 import { HYDROLOGY_MOUTH_OCEAN } from "../../src/domain/hydrology/river-network-metrics.js";
 import selectNavigableRiverTerrain from "../../src/domain/hydrology/ops/select-navigable-river-terrain/index.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
@@ -72,16 +69,8 @@ describe("select navigable river terrain", () => {
     const height = 3;
     const size = width * height;
     const riverClass = new Uint8Array(size).fill(RIVER_CLASS_MAJOR);
-    const discharge = new Float32Array([
-      90, 100,
-      70, 80,
-      50, 60,
-    ]);
-    const flowDir = new Int32Array([
-      1, -1,
-      3, -1,
-      5, -1,
-    ]);
+    const discharge = new Float32Array([90, 100, 70, 80, 50, 60]);
+    const flowDir = new Int32Array([1, -1, 3, -1, 5, -1]);
     const mouthType = new Uint8Array(size).fill(HYDROLOGY_MOUTH_OCEAN);
     const lakeMask = new Uint8Array(size);
     const projectableLandMask = new Uint8Array(size).fill(1);
@@ -114,11 +103,7 @@ describe("select navigable river terrain", () => {
     expect(result.selectedTileCount).toBe(4);
     expect(result.nonProjectableMajorTileCount).toBe(0);
     expect(result.unselectedEligibleMajorTileCount).toBe(2);
-    expect(Array.from(result.riverMask)).toEqual([
-      1, 1,
-      1, 1,
-      0, 0,
-    ]);
+    expect(Array.from(result.riverMask)).toEqual([1, 1, 1, 1, 0, 0]);
   });
 
   it("does not backfill endpoints below the discharge floor", () => {
@@ -126,16 +111,8 @@ describe("select navigable river terrain", () => {
     const height = 3;
     const size = width * height;
     const riverClass = new Uint8Array(size).fill(RIVER_CLASS_MAJOR);
-    const discharge = new Float32Array([
-      90, 100,
-      70, 80,
-      50, 60,
-    ]);
-    const flowDir = new Int32Array([
-      1, -1,
-      3, -1,
-      5, -1,
-    ]);
+    const discharge = new Float32Array([90, 100, 70, 80, 50, 60]);
+    const flowDir = new Int32Array([1, -1, 3, -1, 5, -1]);
     const mouthType = new Uint8Array(size).fill(HYDROLOGY_MOUTH_OCEAN);
     const lakeMask = new Uint8Array(size);
     const projectableLandMask = new Uint8Array(size).fill(1);
@@ -165,11 +142,7 @@ describe("select navigable river terrain", () => {
     expect(Array.from(result.selectedChainLengths)).toEqual([2]);
     expect(result.selectedTileCount).toBe(2);
     expect(result.unselectedEligibleMajorTileCount).toBe(4);
-    expect(Array.from(result.riverMask)).toEqual([
-      1, 1,
-      0, 0,
-      0, 0,
-    ]);
+    expect(Array.from(result.riverMask)).toEqual([1, 1, 0, 0, 0, 0]);
   });
 
   it("does not promote minor rivers into navigable river terrain", () => {

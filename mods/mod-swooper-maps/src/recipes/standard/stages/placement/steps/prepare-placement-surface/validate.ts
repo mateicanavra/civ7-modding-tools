@@ -87,9 +87,7 @@ export function validatePlacementSurfaceValidationBoundaryArtifact(
     for (const field of ["terrain", "waterMask", "lakeMask", "areaId"] as const) {
       const buffer = snapshot[field] as { length?: number } | undefined;
       if (typeof buffer?.length !== "number" || buffer.length !== size) {
-        issues.push(
-          issue(`${key}.${field} length ${String(buffer?.length)} != map size ${size}.`)
-        );
+        issues.push(issue(`${key}.${field} length ${String(buffer?.length)} != map size ${size}.`));
       }
     }
   }

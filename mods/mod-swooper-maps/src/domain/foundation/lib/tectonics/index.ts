@@ -22,4 +22,7 @@ export { computeEraGain, buildTectonicHistoryRollups, buildTectonicsCurrent } fr
 export { computeTracerIndexByEra } from "./tracing.js";
 export { computeTectonicProvenance } from "./provenance.js";
 
-export type { TectonicEventRecord, FoundationTectonicEraFieldsInternal } from "./internal-contract.js";
+export type {
+  TectonicEventRecord,
+  FoundationTectonicEraFieldsInternal,
+} from "./internal-contract.js";

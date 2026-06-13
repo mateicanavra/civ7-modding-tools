@@ -3,9 +3,10 @@ import type { ComputeLandmassesTypes } from "../types.js";
 /**
  * Ensures landmass inputs match the expected map size.
  */
-export function validateLandmassInputs(
-  input: ComputeLandmassesTypes["input"]
-): { size: number; landMask: Uint8Array } {
+export function validateLandmassInputs(input: ComputeLandmassesTypes["input"]): {
+  size: number;
+  landMask: Uint8Array;
+} {
   const { width, height } = input;
   const size = Math.max(0, (width | 0) * (height | 0));
   const landMask = input.landMask as Uint8Array;

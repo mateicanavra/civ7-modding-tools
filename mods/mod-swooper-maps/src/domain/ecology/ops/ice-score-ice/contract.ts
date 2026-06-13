@@ -26,4 +26,3 @@ const ScoreIceContract = defineOp({
 });
 
 export default ScoreIceContract;
-

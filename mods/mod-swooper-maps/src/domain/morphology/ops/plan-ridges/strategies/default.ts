@@ -192,8 +192,19 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
     const { width, height } = input;
     const w = width | 0;
     const h = height | 0;
-    const { size, landMask, boundaryCloseness, boundaryType, upliftPotential, collisionPotential, subductionPotential, riftPotential, tectonicStress, beltAge, fractalMountain } =
-      validateRidgesInputs(input);
+    const {
+      size,
+      landMask,
+      boundaryCloseness,
+      boundaryType,
+      upliftPotential,
+      collisionPotential,
+      subductionPotential,
+      riftPotential,
+      tectonicStress,
+      beltAge,
+      fractalMountain,
+    } = validateRidgesInputs(input);
 
     const mountainMask = new Uint8Array(size);
     const mountainRegionMask = new Uint8Array(size);
@@ -207,7 +218,10 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
     const falloffExponent = config.boundaryExponent;
     const oldBeltMountainScale = Math.max(0, Math.min(1, config.oldBeltMountainScale));
     const mountainMaxFraction = Math.max(0, Math.min(1, config.mountainMaxFraction));
-    const mountainMinFraction = Math.max(0, Math.min(mountainMaxFraction, config.mountainMinFraction));
+    const mountainMinFraction = Math.max(
+      0,
+      Math.min(mountainMaxFraction, config.mountainMinFraction)
+    );
     const mountainSpineFraction = Math.max(0, Math.min(1, config.mountainSpineFraction));
     const mountainRangeSpacingTiles = Math.max(0, config.mountainRangeSpacingTiles);
     const rangeSystemTarget = resolveTileAreaSpacingTarget({
@@ -221,16 +235,16 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
     const mountainShoulderThreshold =
       mountainThreshold * Math.max(0, Math.min(1, config.mountainShoulderThresholdScale));
     const mountainFloorDriverByteMin = Math.max(0, Math.round(config.driverSignalByteMin)) | 0;
-    const dilationSteps = Math.max(0, Math.min(6, Math.round(config.mountainSpineDilationSteps))) | 0;
-    const spineMinDistance = Math.max(0, Math.min(32, Math.round(config.mountainSpineMinDistance))) | 0;
+    const dilationSteps =
+      Math.max(0, Math.min(6, Math.round(config.mountainSpineDilationSteps))) | 0;
+    const spineMinDistance =
+      Math.max(0, Math.min(32, Math.round(config.mountainSpineMinDistance))) | 0;
     const rangeLengthTarget = resolveMapScaledRangeLength(w, h, config.mountainRangeLengthTiles);
     // Range spacing derives how many systems a map should carry. It must not
     // also act as a hidden exclusion radius, or the count knob asks for ranges
     // that the selection pass later forbids from existing.
     const effectiveSpineMinDistance =
-      rangeSystemTarget > 0
-        ? Math.max(spineMinDistance, dilationSteps * 2 + 1)
-        : spineMinDistance;
+      rangeSystemTarget > 0 ? Math.max(spineMinDistance, dilationSteps * 2 + 1) : spineMinDistance;
     const rangeEnvelopeScale = Math.max(0.25, Math.min(4, config.rangeEnvelopeScale));
 
     let landCount = 0;
@@ -240,7 +254,11 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
       if (landMask[i] === 0) continue;
 
       const closenessNorm = applyRangeEnvelope(boundaryCloseness[i] / 255, rangeEnvelopeScale);
-      const boundaryStrength = resolveBoundaryStrength(closenessNorm, boundaryGate, falloffExponent);
+      const boundaryStrength = resolveBoundaryStrength(
+        closenessNorm,
+        boundaryGate,
+        falloffExponent
+      );
       // Diagnostics should remain continuous even when placement is gated.
       // The gate exists to prevent low-signal residual fields from producing mountains everywhere,
       // but the underlying physical proximity signal does not have a discontinuity.
@@ -279,7 +297,12 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
       });
       orogenyPotential[i] = encodeNormalizedToU8(orogeny);
 
-      const fracture = computeFracturePotential({ boundaryStrength: boundaryInfluence, stress, rift, config });
+      const fracture = computeFracturePotential({
+        boundaryStrength: boundaryInfluence,
+        stress,
+        rift,
+        config,
+      });
       fracturePotential[i] = encodeNormalizedToU8(fracture);
 
       const score = computeMountainScore({
@@ -301,8 +324,10 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
       mountainScoreByTile[i] = score * ageScale;
     }
 
-    const mountainTarget = Math.max(0, Math.min(landCount, Math.round(landCount * mountainMaxFraction))) | 0;
-    const mountainMinTarget = Math.max(0, Math.min(mountainTarget, Math.round(landCount * mountainMinFraction))) | 0;
+    const mountainTarget =
+      Math.max(0, Math.min(landCount, Math.round(landCount * mountainMaxFraction))) | 0;
+    const mountainMinTarget =
+      Math.max(0, Math.min(mountainTarget, Math.round(landCount * mountainMinFraction))) | 0;
     if (mountainTarget > 0) {
       const computeRangeSeedPotential = (i: number): number => {
         const score = mountainScoreByTile[i] ?? 0;
@@ -396,7 +421,12 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
       const rangeOwner = new Int32Array(size);
       rangeOwner.fill(-1);
       let mountainCount = 0;
-      const addLocalShoulders = (owner: number, spine: number, maxShoulders: number, target: number): void => {
+      const addLocalShoulders = (
+        owner: number,
+        spine: number,
+        maxShoulders: number,
+        target: number
+      ): void => {
         if (mountainCount >= target) return;
         const localShoulders: number[] = [];
         const x = spine % w;
@@ -461,7 +491,10 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
             const distributionScale =
               selectedSpines.length === 0
                 ? 1
-                : Math.min(1, nearestSelectedDistance / Math.max(1, effectiveSpineMinDistance * 1.5));
+                : Math.min(
+                    1,
+                    nearestSelectedDistance / Math.max(1, effectiveSpineMinDistance * 1.5)
+                  );
             const rank = rangeSeedPotential * (0.35 + distributionScale * 0.65);
             if (rank > bestRank || (rank === bestRank && (bestIdx < 0 || i < bestIdx))) {
               bestIdx = i;
@@ -504,7 +537,8 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
           const owner = rangeOwner[i] ?? -1;
           if (owner < 0 || owner >= selectedSpines.length) continue;
           ownerCorridorCounts[owner] = (ownerCorridorCounts[owner] ?? 0) + 1;
-          if (mountainMask[i] === 1) ownerMountainCounts[owner] = (ownerMountainCounts[owner] ?? 0) + 1;
+          if (mountainMask[i] === 1)
+            ownerMountainCounts[owner] = (ownerMountainCounts[owner] ?? 0) + 1;
         }
 
         const ownerMountainBudget =
@@ -599,7 +633,11 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
           return { index: bestIndex, direction: bestDirection, rank: bestRank };
         };
 
-        const scoreAxisArm = (owner: number, startIndex: number, axisDirection: number): {
+        const scoreAxisArm = (
+          owner: number,
+          startIndex: number,
+          axisDirection: number
+        ): {
           score: number;
           length: number;
         } => {
@@ -630,7 +668,10 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
             const forward = scoreAxisArm(owner, startIndex, direction);
             const reverse = scoreAxisArm(owner, startIndex, opposite);
             const score = (forward.length + reverse.length) * 4 + forward.score + reverse.score;
-            if (score > bestScore || (score === bestScore && (bestDirection < 0 || direction < bestDirection))) {
+            if (
+              score > bestScore ||
+              (score === bestScore && (bestDirection < 0 || direction < bestDirection))
+            ) {
               bestDirection = direction;
               bestScore = score;
             }
@@ -764,7 +805,11 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
         let grew = true;
         while (mountainCount < mountainTarget && grew) {
           grew = false;
-          for (let owner = 0; owner < frontierByOwner.length && mountainCount < mountainTarget; owner++) {
+          for (
+            let owner = 0;
+            owner < frontierByOwner.length && mountainCount < mountainTarget;
+            owner++
+          ) {
             const frontier = frontierByOwner[owner]!;
             while (frontierOffsets[owner]! < frontier.length) {
               const i = frontier[frontierOffsets[owner]++]!;
@@ -837,7 +882,10 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
         let grewAdjacent = true;
         while (mountainCount < mountainMinTarget && grewAdjacent) {
           grewAdjacent = false;
-          const adjacentCandidatesByOwner: number[][] = Array.from({ length: selectedSpines.length }, () => []);
+          const adjacentCandidatesByOwner: number[][] = Array.from(
+            { length: selectedSpines.length },
+            () => []
+          );
           for (let i = 0; i < size; i++) {
             if (landMask[i] === 0) continue;
             if (mountainMask[i] === 1) continue;
@@ -876,7 +924,11 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
           let grewRound = true;
           while (mountainCount < mountainMinTarget && grewRound) {
             grewRound = false;
-            for (let owner = 0; owner < adjacentCandidatesByOwner.length && mountainCount < mountainMinTarget; owner++) {
+            for (
+              let owner = 0;
+              owner < adjacentCandidatesByOwner.length && mountainCount < mountainMinTarget;
+              owner++
+            ) {
               const adjacentCandidates = adjacentCandidatesByOwner[owner]!;
               while (adjacentOffsets[owner]! < adjacentCandidates.length) {
                 const i = adjacentCandidates[adjacentOffsets[owner]++]!;
@@ -947,7 +999,10 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
               const distributionScale =
                 selectedSpines.length === 0 || effectiveSpineMinDistance <= 0
                   ? 1
-                  : Math.min(1, nearestSelectedDistance / Math.max(1, effectiveSpineMinDistance * 1.5));
+                  : Math.min(
+                      1,
+                      nearestSelectedDistance / Math.max(1, effectiveSpineMinDistance * 1.5)
+                    );
               const score = mountainScoreByTile[i] ?? 0;
               const rank = score * (0.35 + distributionScale * 0.65);
               if (rank > bestRank || (rank === bestRank && i < bestIdx)) {
@@ -985,8 +1040,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
         }
       }
 
-      const regionSupportDriverMin =
-        Math.max(1, Math.round(config.driverSignalByteMin * 0.35)) | 0;
+      const regionSupportDriverMin = Math.max(1, Math.round(config.driverSignalByteMin * 0.35)) | 0;
       const regionInnerDistance =
         Math.max(1, Math.floor(Math.max(1, mountainRegionRadiusTiles) * 0.5)) | 0;
       const regionDistance = new Uint8Array(size);
@@ -1047,6 +1101,12 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
       }
     }
 
-    return { mountainMask, mountainRegionMask, mountainRegionIdByTile, orogenyPotential, fracturePotential };
+    return {
+      mountainMask,
+      mountainRegionMask,
+      mountainRegionIdByTile,
+      orogenyPotential,
+      fracturePotential,
+    };
   },
 });

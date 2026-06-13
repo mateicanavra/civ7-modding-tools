@@ -24,7 +24,14 @@ export type ResourceHabitatSignal = {
 
 function withFamily(
   family: ResourceFamilyId,
-  table: Record<string, { readonly laneId?: string; readonly primary: readonly string[]; readonly suppress: readonly string[] }>
+  table: Record<
+    string,
+    {
+      readonly laneId?: string;
+      readonly primary: readonly string[];
+      readonly suppress: readonly string[];
+    }
+  >
 ): ReadonlyArray<readonly [OfficialResourceType, ResourceHabitatSignal]> {
   return Object.entries(table).map(([resourceType, signal]) => [
     resourceType as OfficialResourceType,

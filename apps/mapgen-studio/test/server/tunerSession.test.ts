@@ -37,13 +37,13 @@ describe("Civ7TunerSession (Effect scoped shared session)", () => {
 
     const first = await runtime.runPromise(
       service.use((o) =>
-        executeCiv7Command({ port: tuner.port, command: "first", timeoutMs: 1_000, ...o }),
-      ),
+        executeCiv7Command({ port: tuner.port, command: "first", timeoutMs: 1_000, ...o })
+      )
     );
     const second = await runtime.runPromise(
       service.use((o) =>
-        executeCiv7Command({ port: tuner.port, command: "second", timeoutMs: 1_000, ...o }),
-      ),
+        executeCiv7Command({ port: tuner.port, command: "second", timeoutMs: 1_000, ...o })
+      )
     );
 
     expect(first.output).toEqual(["null"]);
@@ -64,9 +64,7 @@ describe("Civ7TunerSession (Effect scoped shared session)", () => {
 
     const read = (command: string, timeoutMs: number) =>
       runtime.runPromiseExit(
-        service.use((o) =>
-          executeCiv7Command({ port: tuner.port, command, timeoutMs, ...o }),
-        ),
+        service.use((o) => executeCiv7Command({ port: tuner.port, command, timeoutMs, ...o }))
       );
 
     // Warm the connection, then go silent: accumulate response-timeouts.
@@ -103,15 +101,15 @@ describe("Civ7TunerSession (Effect scoped shared session)", () => {
 
     await runtime.runPromise(
       service.use((o) =>
-        executeCiv7Command({ port: tuner.port, command: "warm", timeoutMs: 1_000, ...o }),
-      ),
+        executeCiv7Command({ port: tuner.port, command: "warm", timeoutMs: 1_000, ...o })
+      )
     );
     tuner.setSilent(true);
     for (let i = 0; i < 2; i += 1) {
       await runtime.runPromiseExit(
         service.use((o) =>
-          executeCiv7Command({ port: tuner.port, command: `t${i}`, timeoutMs: 40, ...o }),
-        ),
+          executeCiv7Command({ port: tuner.port, command: `t${i}`, timeoutMs: 40, ...o })
+        )
       );
     }
 
@@ -124,17 +122,15 @@ describe("Civ7TunerSession (Effect scoped shared session)", () => {
 
 async function makeRuntime(
   port: number,
-  options: Parameters<typeof makeCiv7TunerSessionLayer>[0] = {},
+  options: Parameters<typeof makeCiv7TunerSessionLayer>[0] = {}
 ): Promise<{
   runtime: ManagedRuntime.ManagedRuntime<Civ7TunerSession, never>;
   service: Civ7TunerSessionApi;
 }> {
   const runtime = ManagedRuntime.make(
-    makeCiv7TunerSessionLayer({ host: "127.0.0.1", port, env: {}, ...options }),
+    makeCiv7TunerSessionLayer({ host: "127.0.0.1", port, env: {}, ...options })
   );
-  const service = await runtime.runPromise(
-    Effect.map(Civ7TunerSession, (s) => s),
-  );
+  const service = await runtime.runPromise(Effect.map(Civ7TunerSession, (s) => s));
   return { runtime, service };
 }
 

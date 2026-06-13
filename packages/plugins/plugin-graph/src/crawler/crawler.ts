@@ -1,8 +1,10 @@
-import { CrawlResult, Graph, GraphEdge, Index, NodeKey } from '../types';
-import { EXPANDERS, genericEdges } from './expanders';
-import { getByPk } from './queries';
+import { CrawlResult, Graph, GraphEdge, Index, NodeKey } from "../types";
+import { EXPANDERS, genericEdges } from "./expanders";
+import { getByPk } from "./queries";
 
-function nkToStr(nk: NodeKey): string { return `${nk.table}|${nk.id}`; }
+function nkToStr(nk: NodeKey): string {
+  return `${nk.table}|${nk.id}`;
+}
 
 /**
  * Breadth-first crawl from a seed node, materializing nodes and edges while pruning
@@ -30,10 +32,7 @@ export function crawl(idx: Index, seed: NodeKey): CrawlResult {
     const curRR = getByPk(cur.table, cur.id, idx)!;
 
     const ex = (EXPANDERS as any)[cur.table];
-    const nextEdges = [
-      ...(ex ? ex(curRR, idx) : []),
-      ...genericEdges(curRR, idx),
-    ];
+    const nextEdges = [...(ex ? ex(curRR, idx) : []), ...genericEdges(curRR, idx)];
 
     for (const edge of nextEdges) {
       const nk = edge.key;
@@ -44,8 +43,8 @@ export function crawl(idx: Index, seed: NodeKey): CrawlResult {
     }
   }
 
-  const manifestFiles = Array.from(new Set(Array.from(graph.nodes.values()).map(n => n.file))).sort();
+  const manifestFiles = Array.from(
+    new Set(Array.from(graph.nodes.values()).map((n) => n.file))
+  ).sort();
   return { graph, manifestFiles };
 }
-
-

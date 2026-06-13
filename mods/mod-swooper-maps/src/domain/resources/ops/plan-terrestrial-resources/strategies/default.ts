@@ -121,7 +121,12 @@ export const TERRESTRIAL_SIGNALS: Record<TerrestrialResourceType, ResourceSignal
   },
   RESOURCE_WILD_GAME: {
     laneId: "diverse-wild-habitat",
-    primary: ["diverseWildHabitatMask", "tropicalForestMask", "openGrassPlainsMask", "tundraColdEdgeMask"],
+    primary: [
+      "diverseWildHabitatMask",
+      "tropicalForestMask",
+      "openGrassPlainsMask",
+      "tundraColdEdgeMask",
+    ],
     suppress: ["cultivatedPressureMask"],
   },
   RESOURCE_LLAMAS: {
@@ -191,13 +196,19 @@ export const defaultStrategy = createStrategy(PlanTerrestrialResourcesContract, 
       const proxyIncomplete = signalFields.length === 0;
       const targetIntentCount = proxyIncomplete
         ? 0
-        : Math.min(expectation.expectedCountRange.max, eligibleTileCount, expectation.expectedCountRange.target);
+        : Math.min(
+            expectation.expectedCountRange.max,
+            eligibleTileCount,
+            expectation.expectedCountRange.target
+          );
       const blockers = [];
       if (proxyIncomplete) {
         blockers.push(`Missing terrestrial signal masks: ${signals.primary.join(", ")}.`);
       }
       if (!proxyIncomplete && eligibleTileCount === 0) {
-        blockers.push("No eligible terrestrial tiles observed for this resource under supplied masks.");
+        blockers.push(
+          "No eligible terrestrial tiles observed for this resource under supplied masks."
+        );
       }
 
       plans.push({
@@ -235,7 +246,9 @@ export const defaultStrategy = createStrategy(PlanTerrestrialResourcesContract, 
 function validateGrid(width: number, height: number): number {
   const size = width * height;
   if (!Number.isSafeInteger(size) || size <= 0) {
-    throw new Error(`Invalid grid dimensions for terrestrial resource planning: ${width}x${height}.`);
+    throw new Error(
+      `Invalid grid dimensions for terrestrial resource planning: ${width}x${height}.`
+    );
   }
   return size;
 }
@@ -267,14 +280,20 @@ function countEligibleTiles(
   return count;
 }
 
-function readMask(input: Record<string, unknown>, field: string, size: number): Uint8Array | undefined {
+function readMask(
+  input: Record<string, unknown>,
+  field: string,
+  size: number
+): Uint8Array | undefined {
   const value = input[field];
   if (value === undefined) return undefined;
   if (!(value instanceof Uint8Array)) {
     throw new Error(`Terrestrial resource mask ${field} must be a Uint8Array.`);
   }
   if (value.length !== size) {
-    throw new Error(`Terrestrial resource mask ${field} length ${value.length} does not match grid size ${size}.`);
+    throw new Error(
+      `Terrestrial resource mask ${field} length ${value.length} does not match grid size ${size}.`
+    );
   }
   return value;
 }

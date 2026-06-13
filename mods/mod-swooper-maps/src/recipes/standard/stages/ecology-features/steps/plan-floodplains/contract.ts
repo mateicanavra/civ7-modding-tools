@@ -10,10 +10,7 @@ const PlanFloodplainsStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase],
-    provides: [
-      ecologyArtifacts.featureIntentsFloodplains,
-      ecologyArtifacts.occupancyFloodplains,
-    ],
+    provides: [ecologyArtifacts.featureIntentsFloodplains, ecologyArtifacts.occupancyFloodplains],
   },
   ops: {
     planFloodplains: ecology.ops.planFloodplains,

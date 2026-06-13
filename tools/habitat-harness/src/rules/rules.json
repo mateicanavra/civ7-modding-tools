@@ -113,7 +113,17 @@
       "scope": "all workspace project imports",
       "forbids": "cross-project imports that violate docs/projects/habitat-harness/taxonomy.md §3 or bypass package entrypoints with relative/absolute project imports",
       "why": "Project-plane architecture is graph law in H3: every workspace package carries kind:* tags and the tag constraints lock with an empty baseline.",
-      "detect": ["env", "FORCE_COLOR=0", "bunx", "eslint", ".", "--quiet", "--config", "eslint.boundaries.config.mjs", "--no-config-lookup"],
+      "detect": [
+        "env",
+        "FORCE_COLOR=0",
+        "bunx",
+        "eslint",
+        ".",
+        "--quiet",
+        "--config",
+        "eslint.boundaries.config.mjs",
+        "--no-config-lookup"
+      ],
       "remediate": null,
       "message": "Fix the import edge or revise taxonomy.md and eslint.boundaries.config.mjs together with recorded provenance; do not weaken the boundary config ad hoc.",
       "exceptionPath": "none"
@@ -139,7 +149,11 @@
       "scope": "standard recipe + domain",
       "forbids": "engine RNG / official generators in authored generation",
       "why": "Deterministic, seed-stable generation requires the authored RNG authority.",
-      "detect": ["bun", "test", "mods/mod-swooper-maps/test/pipeline/rng-authority-boundary.test.ts"],
+      "detect": [
+        "bun",
+        "test",
+        "mods/mod-swooper-maps/test/pipeline/rng-authority-boundary.test.ts"
+      ],
       "remediate": null,
       "message": "Use the recipe RNG authority, never engine RNG.",
       "exceptionPath": "none"
@@ -152,7 +166,11 @@
       "scope": "mods/mod-swooper-maps/src/recipes/**",
       "forbids": "recipes bypassing public domain surfaces (test-level duplicate of mapgen-recipe-imports; retires in H6 once the grit equivalent locks)",
       "why": "Belt-and-suspenders with the lint script until H5/H6 consolidation.",
-      "detect": ["bun", "test", "mods/mod-swooper-maps/test/pipeline/recipe-import-boundary.test.ts"],
+      "detect": [
+        "bun",
+        "test",
+        "mods/mod-swooper-maps/test/pipeline/recipe-import-boundary.test.ts"
+      ],
       "remediate": null,
       "message": "Import the domain public surface, not its internals.",
       "exceptionPath": "none"
@@ -165,7 +183,11 @@
       "scope": "mods/mod-swooper-maps ecology steps",
       "forbids": "ecology steps deep-importing ops/rules; presence of retired stage dirs",
       "why": "Stage isolation + retired-structure absence.",
-      "detect": ["bun", "test", "mods/mod-swooper-maps/test/ecology/ecology-step-import-guardrails.test.ts"],
+      "detect": [
+        "bun",
+        "test",
+        "mods/mod-swooper-maps/test/ecology/ecology-step-import-guardrails.test.ts"
+      ],
       "remediate": null,
       "message": "Compose via the recipe layer; do not resurrect retired stage directories.",
       "exceptionPath": "none"
@@ -178,7 +200,11 @@
       "scope": "foundation projection",
       "forbids": "projection band algorithm regressions (domain-logic test; stays a test permanently)",
       "why": "Correctness test invoked through the harness for one-stop verification; not harness-owned.",
-      "detect": ["bun", "test", "mods/mod-swooper-maps/test/foundation/m11-projection-boundary-band.test.ts"],
+      "detect": [
+        "bun",
+        "test",
+        "mods/mod-swooper-maps/test/foundation/m11-projection-boundary-band.test.ts"
+      ],
       "remediate": null,
       "message": "Projection algorithm regression; see the test for the expected band.",
       "exceptionPath": "none"
@@ -191,7 +217,11 @@
       "scope": "mods/mod-swooper-maps/mod/** build outputs",
       "forbids": "map bundles missing embedded workspace packages, TextEncoder bootstrap, or river markers",
       "why": "Civ7 loads bundles as self-contained scripts; missing embeds fail only in-game. Requires a built tree.",
-      "detect": ["bun", "test", "mods/mod-swooper-maps/test/build/map-bundle-runtime-imports.test.ts"],
+      "detect": [
+        "bun",
+        "test",
+        "mods/mod-swooper-maps/test/build/map-bundle-runtime-imports.test.ts"
+      ],
       "remediate": "bunx nx run mod-swooper-maps:build",
       "message": "Rebuild mod-swooper-maps; if it persists, the bundling config regressed.",
       "exceptionPath": "none"

@@ -30,32 +30,39 @@ describe("Civ7 map-summary procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7MapSummaryProcedureDescriptor,
-      Civ7MapSummaryProcedureSchemaArtifacts,
+      Civ7MapSummaryProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7MapSummaryProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7MapSummaryProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7MapSummaryProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7MapSummaryProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      includeAreaRegionCounts: true,
-      maxIds: 64,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        includeAreaRegionCounts: true,
+        maxIds: 64,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { maxIds: 1.5 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { maxIds: 1_000_001 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { host: "127.0.0.1" })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { state: { role: "tuner" } })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { rawCommand: "GameplayMap.getGridWidth()" })).toBe(false);
+    expect(Value.Check(resolved.inputSchema, { rawCommand: "GameplayMap.getGridWidth()" })).toBe(
+      false
+    );
     expect(Value.Check(resolved.outputSchema, mapSummaryResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...mapSummaryResult(),
-      command: "GameplayMap.getGridWidth()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...mapSummaryResult(),
+        command: "GameplayMap.getGridWidth()",
+      })
+    ).toBe(false);
   });
 
   test("calls the map-summary atom through the procedure core without touching the live tuner", async () => {
-    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> =
+      [];
     const executeCalls: Array<{
       host?: string;
       port?: number;
@@ -86,19 +93,22 @@ describe("Civ7 map-summary procedure descriptor", () => {
       probeHelperSource: () => "const probe = (fn) => ({ ok: true, value: fn() });",
     };
 
-    const result = await callCiv7MapSummaryProcedure({
-      includeAreaRegionCounts: true,
-      maxIds: 64,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7MapSummaryProcedure(
+      {
+        includeAreaRegionCounts: true,
+        maxIds: 64,
       },
-      procedure: {
-        correlationId: "map-summary-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "map-summary-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(mapSummaryResult());
     expect(result.diagnostics).toMatchObject({
@@ -109,9 +119,7 @@ describe("Civ7 map-summary procedure descriptor", () => {
       debugServiceCorrelation: true,
       telemetryCorrelation: false,
     });
-    expect(boundedIntegerCalls).toEqual([
-      { value: 64, min: 0, max: 1_000_000, label: "maxIds" },
-    ]);
+    expect(boundedIntegerCalls).toEqual([{ value: 64, min: 0, max: 1_000_000, label: "maxIds" }]);
     expect(executeCalls).toHaveLength(1);
     expect(executeCalls[0]).toMatchObject({
       host: "127.0.0.1",
@@ -138,10 +146,15 @@ describe("Civ7 map-summary procedure descriptor", () => {
       probeHelperSource: () => "const probe = () => ({ ok: false, error: 'unused' });",
     };
 
-    await expect(callCiv7MapSummaryProcedure({ maxIds: 1_000_001 }, {
-      procedure: { correlationId: "map-summary-invalid-max" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7MapSummaryProcedure(
+        { maxIds: 1_000_001 },
+        {
+          procedure: { correlationId: "map-summary-invalid-max" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -149,12 +162,17 @@ describe("Civ7 map-summary procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7MapSummaryProcedure({
-      host: "127.0.0.1",
-    } as never, {
-      procedure: { correlationId: "map-summary-context-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7MapSummaryProcedure(
+        {
+          host: "127.0.0.1",
+        } as never,
+        {
+          procedure: { correlationId: "map-summary-context-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

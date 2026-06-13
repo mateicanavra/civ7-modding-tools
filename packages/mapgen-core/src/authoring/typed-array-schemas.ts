@@ -19,7 +19,7 @@ function unsafe<T>(ctor: string, options?: TypedArraySchemaOptions): TUnsafe<T> 
   // We treat typed arrays as POJO-ish runtime values and use `Type.Unsafe<T>` purely for Static typing.
   const { shape, ...rest } = options ?? {};
   const runtimeShape: GridShape | undefined =
-    shape === undefined ? { kind: "grid", dims: ["width", "height"] } : shape ?? undefined;
+    shape === undefined ? { kind: "grid", dims: ["width", "height"] } : (shape ?? undefined);
 
   return Type.Unsafe<T>(
     Type.Any({

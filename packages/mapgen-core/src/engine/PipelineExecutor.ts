@@ -146,9 +146,7 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
 
           const durationMs = nowMs() - t0;
           this.log(
-            `${this.logPrefix} [${index + 1}/${total}] ok ${step.id} (${durationMs.toFixed(
-              2
-            )}ms)`
+            `${this.logPrefix} [${index + 1}/${total}] ok ${step.id} (${durationMs.toFixed(2)}ms)`
           );
           trace.emitStepFinish({ ...stepMeta, durationMs, success: true });
           stepResults.push({ stepId: step.id, success: true, durationMs });
@@ -235,7 +233,8 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
 
     const abortSignal = options.abortSignal ?? null;
     const yieldFn: (() => Promise<void>) | null =
-      options.yieldFn ?? (options.yieldToEventLoop ? () => new Promise((r) => setTimeout(r, 0)) : null);
+      options.yieldFn ??
+      (options.yieldToEventLoop ? () => new Promise((r) => setTimeout(r, 0)) : null);
 
     trace.emitRunStart();
 
@@ -279,9 +278,7 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
 
           const durationMs = nowMs() - t0;
           this.log(
-            `${this.logPrefix} [${index + 1}/${total}] ok ${step.id} (${durationMs.toFixed(
-              2
-            )}ms)`
+            `${this.logPrefix} [${index + 1}/${total}] ok ${step.id} (${durationMs.toFixed(2)}ms)`
           );
           trace.emitStepFinish({ ...stepMeta, durationMs, success: true });
           stepResults.push({ stepId: step.id, success: true, durationMs });

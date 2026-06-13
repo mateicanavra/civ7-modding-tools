@@ -31,9 +31,7 @@ export const Civ7TraditionsViewProcedureDescriptor = createCiv7ProcedureCoreDesc
     owner: "packages/civ7-direct-control/src/play/progression/reads.ts",
     exportName: "Civ7TraditionsViewResultSchema",
   },
-  inputFields: [
-    "playerId",
-  ],
+  inputFields: ["playerId"],
   outputFields: [
     "playerId",
     "turn",
@@ -50,10 +48,7 @@ export const Civ7TraditionsViewProcedureDescriptor = createCiv7ProcedureCoreDesc
     "notes",
   ],
   playerScope: "local-player-scoped",
-  consumerClasses: [
-    "normal-cli-player-agent-view",
-    "effect-orpc-procedure-core",
-  ],
+  consumerClasses: ["normal-cli-player-agent-view", "effect-orpc-procedure-core"],
   proofBoundary: "local-package-test",
   projection: {
     normalCli: "semantic-projection",
@@ -92,13 +87,13 @@ export type Civ7TraditionsViewProcedureCallOptions = Readonly<{
 
 export function callCiv7TraditionsViewProcedure(
   input: Civ7TraditionsViewInput = {},
-  options: Civ7TraditionsViewProcedureCallOptions = {},
+  options: Civ7TraditionsViewProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7TraditionsViewResult>> {
   return callCiv7ProcedureCore<Civ7TraditionsViewInput, Civ7TraditionsViewResult>(
     Civ7TraditionsViewProcedureDescriptor,
     Civ7TraditionsViewProcedureSchemaArtifacts,
     input,
     (validInput) => getCiv7TraditionsView(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    options.procedure
   );
 }

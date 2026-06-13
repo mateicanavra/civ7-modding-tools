@@ -13,7 +13,7 @@ export function encodeCiv7TunerRequest(listenerId: number, message: string): Buf
 }
 
 export function parseCiv7TunerFrame(
-  buffer: Buffer,
+  buffer: Buffer
 ): { frame: Civ7TunerFrame; bytesRead: number } | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);

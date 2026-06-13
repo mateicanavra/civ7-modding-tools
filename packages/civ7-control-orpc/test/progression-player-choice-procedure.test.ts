@@ -38,22 +38,24 @@ describe("progression player-choice control-oRPC procedures", () => {
     const result = await call(
       Civ7ControlOrpcRouter.progression.attribute.purchase.request,
       attributePurchaseInput,
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(fake.calls.readiness).toHaveLength(1);
     expect(fake.calls.views).toHaveLength(1);
-    expect(fake.calls.attributePurchase).toEqual([{
-      input: {
-        playerId: 0,
-        node: 20,
+    expect(fake.calls.attributePurchase).toEqual([
+      {
+        input: {
+          playerId: 0,
+          node: 20,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expect(result).toEqual({
       playerId: 0,
       node: 20,
@@ -71,11 +73,14 @@ describe("progression player-choice control-oRPC procedures", () => {
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "progression.attribute.purchase.request",
-        label: "Do not repeat this progression player-choice request until fresh attention evidence is read.",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "progression.attribute.purchase.request",
+          label:
+            "Do not repeat this progression player-choice request until fresh attention evidence is read.",
+        },
+      ],
     });
     expectSemanticProgressionPlayerChoiceOmitsRawRuntimeDetails(result);
   });
@@ -93,22 +98,22 @@ describe("progression player-choice control-oRPC procedures", () => {
     });
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
-    const result = await client.progression.tradition.change.request(
-      traditionChangeInput,
-    );
+    const result = await client.progression.tradition.change.request(traditionChangeInput);
 
-    expect(fake.calls.traditionChange).toEqual([{
-      input: {
-        playerId: 0,
-        traditionType: -331_546_976,
-        action: -1_326_475_004,
+    expect(fake.calls.traditionChange).toEqual([
+      {
+        input: {
+          playerId: 0,
+          traditionType: -331_546_976,
+          action: -1_326_475_004,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expect(result).toMatchObject({
       playerId: 0,
       traditionType: -331_546_976,
@@ -139,7 +144,7 @@ describe("progression player-choice control-oRPC procedures", () => {
     const result = await call(
       Civ7ControlOrpcRouter.progression.attribute.review.request,
       {},
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -158,11 +163,13 @@ describe("progression player-choice control-oRPC procedures", () => {
         noRepeatAfterUnverified: true,
       },
     });
-    expect(result.nextSteps).toEqual([{
-      kind: "inspect-progression-attribute",
-      source: "progression.attribute.review.request",
-      label: "Inspect current attribute review state before attempting another request.",
-    }]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "inspect-progression-attribute",
+        source: "progression.attribute.review.request",
+        label: "Inspect current attribute review state before attempting another request.",
+      },
+    ]);
   });
 
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
@@ -184,11 +191,9 @@ describe("progression player-choice control-oRPC procedures", () => {
       });
 
       await expect(
-        call(
-          Civ7ControlOrpcRouter.progression.attribute.purchase.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.progression.attribute.purchase.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.readiness).toEqual([]);
       expect(fake.calls.views).toEqual([]);
@@ -206,8 +211,8 @@ describe("progression player-choice control-oRPC procedures", () => {
           playerId: 2,
           args: { TraditionType: -331_546_976 },
         } as never,
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(fake.calls.traditionChange).toEqual([]);
   });
@@ -222,18 +227,16 @@ describe("progression player-choice control-oRPC procedures", () => {
         ...fake.context.directControl,
         requestCiv7TraditionChange: async () => {
           throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:65535:CHANGE_TRADITION",
+            "Timed out waiting for Civ7 tuner response to CMD:65535:CHANGE_TRADITION"
           );
         },
       },
     };
 
     await expect(
-      call(
-        Civ7ControlOrpcRouter.progression.tradition.change.request,
-        traditionChangeInput,
-        { context: failingContext },
-      ),
+      call(Civ7ControlOrpcRouter.progression.tradition.change.request, traditionChangeInput, {
+        context: failingContext,
+      })
     ).rejects.toMatchObject({
       code: "PROGRESSION_PLAYER_CHOICE_UNAVAILABLE",
       status: 503,
@@ -244,11 +247,9 @@ describe("progression player-choice control-oRPC procedures", () => {
     });
 
     try {
-      await call(
-        Civ7ControlOrpcRouter.progression.tradition.change.request,
-        traditionChangeInput,
-        { context: failingContext },
-      );
+      await call(Civ7ControlOrpcRouter.progression.tradition.change.request, traditionChangeInput, {
+        context: failingContext,
+      });
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -259,9 +260,7 @@ describe("progression player-choice control-oRPC procedures", () => {
   });
 
   test("publishes domain-first progression player-choice service leaves", () => {
-    expect(
-      Civ7ControlOrpcContract.progression.attribute.purchase.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.progression.attribute.purchase.request["~orpc"]).toMatchObject({
       meta: {
         family: "progression",
         procedureKey: "progression.attribute.purchase.request",
@@ -269,9 +268,7 @@ describe("progression player-choice control-oRPC procedures", () => {
         risk: "mutation",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.progression.tradition.change.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.progression.tradition.change.request["~orpc"]).toMatchObject({
       meta: {
         family: "progression",
         procedureKey: "progression.tradition.change.request",
@@ -280,34 +277,32 @@ describe("progression player-choice control-oRPC procedures", () => {
       },
     });
     expect(
-      Civ7ControlOrpcContract.progression.attribute.review.request["~orpc"].errorMap,
+      Civ7ControlOrpcContract.progression.attribute.review.request["~orpc"].errorMap
     ).toHaveProperty("PROGRESSION_PLAYER_CHOICE_UNAVAILABLE");
     expect(
-      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).operations,
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).operations
     ).toBeUndefined();
     expect(
-      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions,
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions
     ).toBeUndefined();
     expect(Civ7ProgressionPlayerChoiceUnavailableError.code).toBe(
-      "PROGRESSION_PLAYER_CHOICE_UNAVAILABLE",
+      "PROGRESSION_PLAYER_CHOICE_UNAVAILABLE"
     );
   });
 });
 
-function expectSemanticProgressionPlayerChoiceOmitsRawRuntimeDetails(
-  result: unknown,
-) {
+function expectSemanticProgressionPlayerChoiceOmitsRawRuntimeDetails(result: unknown) {
   const serialized = JSON.stringify(result);
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
-  expect(serialized).not.toContain("\"session\"");
-  expect(serialized).not.toContain("\"rawCommand\"");
-  expect(serialized).not.toContain("\"command\"");
-  expect(serialized).not.toContain("\"operation\"");
-  expect(serialized).not.toContain("\"verified\"");
-  expect(serialized).not.toContain("\"before\"");
-  expect(serialized).not.toContain("\"after\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"operation"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
   expect(serialized).not.toContain("Game.PlayerOperations");
   expect(serialized).not.toContain("BUY_ATTRIBUTE_TREE_NODE");
   expect(serialized).not.toContain("CONSIDER_ASSIGN_ATTRIBUTE");
@@ -315,55 +310,73 @@ function expectSemanticProgressionPlayerChoiceOmitsRawRuntimeDetails(
   expect(serialized).not.toContain("CONSIDER_ASSIGN_TRADITIONS");
 }
 
-function fakeContext(options: Readonly<{
-  view: Civ7ControlOrpcPlayNotificationViewResult;
-  attributePurchaseResult?: Civ7ControlOrpcProgressionPlayerChoiceResult;
-  attributeReviewResult?: Civ7ControlOrpcProgressionPlayerChoiceResult;
-  traditionChangeResult?: Civ7ControlOrpcProgressionPlayerChoiceResult;
-  traditionReviewResult?: Civ7ControlOrpcProgressionPlayerChoiceResult;
-  playable?: boolean;
-}>): {
+function fakeContext(
+  options: Readonly<{
+    view: Civ7ControlOrpcPlayNotificationViewResult;
+    attributePurchaseResult?: Civ7ControlOrpcProgressionPlayerChoiceResult;
+    attributeReviewResult?: Civ7ControlOrpcProgressionPlayerChoiceResult;
+    traditionChangeResult?: Civ7ControlOrpcProgressionPlayerChoiceResult;
+    traditionReviewResult?: Civ7ControlOrpcProgressionPlayerChoiceResult;
+    playable?: boolean;
+  }>
+): {
   calls: {
     readiness: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
-    attributePurchase: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
-    attributeReview: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
-    traditionChange: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
-    traditionReview: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
+    attributePurchase: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
+    attributeReview: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
+    traditionChange: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
+    traditionReview: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
   };
   context: Civ7ControlOrpcContext;
 } {
   const calls = {
     readiness: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
     views: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
-    attributePurchase: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
-    attributeReview: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
-    traditionChange: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
-    traditionReview: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
+    attributePurchase: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
+    attributeReview: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
+    traditionChange: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
+    traditionReview: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
   };
 
   return {
@@ -385,42 +398,50 @@ function fakeContext(options: Readonly<{
         },
         requestCiv7AttributePurchase: async (input, endpointDefaults) => {
           calls.attributePurchase.push({ input, options: endpointDefaults });
-          return options.attributePurchaseResult
-            ?? progressionPlayerChoiceResult({
+          return (
+            options.attributePurchaseResult ??
+            progressionPlayerChoiceResult({
               kind: "attribute-purchase",
               playerId: 0,
               node: 20,
               sent: true,
-            });
+            })
+          );
         },
         requestCiv7AttributeReviewCloseout: async (input, endpointDefaults) => {
           calls.attributeReview.push({ input, options: endpointDefaults });
-          return options.attributeReviewResult
-            ?? progressionPlayerChoiceResult({
+          return (
+            options.attributeReviewResult ??
+            progressionPlayerChoiceResult({
               kind: "attribute-review",
               playerId: 0,
               sent: true,
-            });
+            })
+          );
         },
         requestCiv7TraditionChange: async (input, endpointDefaults) => {
           calls.traditionChange.push({ input, options: endpointDefaults });
-          return options.traditionChangeResult
-            ?? progressionPlayerChoiceResult({
+          return (
+            options.traditionChangeResult ??
+            progressionPlayerChoiceResult({
               kind: "tradition-change",
               playerId: 0,
               traditionType: -331_546_976,
               action: -1_326_475_004,
               sent: true,
-            });
+            })
+          );
         },
         requestCiv7TraditionReviewCloseout: async (input, endpointDefaults) => {
           calls.traditionReview.push({ input, options: endpointDefaults });
-          return options.traditionReviewResult
-            ?? progressionPlayerChoiceResult({
+          return (
+            options.traditionReviewResult ??
+            progressionPlayerChoiceResult({
               kind: "tradition-review",
               playerId: 0,
               sent: true,
-            });
+            })
+          );
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -429,18 +450,14 @@ function fakeContext(options: Readonly<{
 
 function progressionPlayerChoiceResult(
   options: Readonly<{
-    kind:
-      | "attribute-purchase"
-      | "attribute-review"
-      | "tradition-change"
-      | "tradition-review";
+    kind: "attribute-purchase" | "attribute-review" | "tradition-change" | "tradition-review";
     playerId: number;
     node?: number;
     traditionType?: number;
     action?: number;
     sent: boolean;
     valid?: boolean;
-  }>,
+  }>
 ): Civ7ControlOrpcProgressionPlayerChoiceResult {
   const valid = options.valid ?? true;
   const operationType = operationTypeForKind(options.kind);
@@ -448,14 +465,12 @@ function progressionPlayerChoiceResult(
   return {
     kind: options.kind,
     playerId: options.playerId,
-    ...(options.kind === "attribute-purchase"
-      ? { node: options.node ?? 20 }
-      : {}),
+    ...(options.kind === "attribute-purchase" ? { node: options.node ?? 20 } : {}),
     ...(options.kind === "tradition-change"
       ? {
-        traditionType: options.traditionType ?? -331_546_976,
-        action: options.action ?? -1_326_475_004,
-      }
+          traditionType: options.traditionType ?? -331_546_976,
+          action: options.action ?? -1_326_475_004,
+        }
       : {}),
     operation: {
       before: validationResult(operationType, options.playerId, args, valid),
@@ -469,15 +484,13 @@ function progressionPlayerChoiceResult(
     verified: false,
     postcondition: {
       classification: options.sent ? "pending-runtime-proof" : "not-sent",
-      reason: options.sent
-        ? `${options.kind} pending runtime proof`
-        : `${options.kind} not sent`,
+      reason: options.sent ? `${options.kind} pending runtime proof` : `${options.kind} not sent`,
     },
   } as Civ7ControlOrpcProgressionPlayerChoiceResult;
 }
 
 function operationTypeForKind(
-  kind: "attribute-purchase" | "attribute-review" | "tradition-change" | "tradition-review",
+  kind: "attribute-purchase" | "attribute-review" | "tradition-change" | "tradition-review"
 ): string {
   if (kind === "attribute-purchase") return "BUY_ATTRIBUTE_TREE_NODE";
   if (kind === "attribute-review") return "CONSIDER_ASSIGN_ATTRIBUTE";
@@ -491,7 +504,7 @@ function operationArgs(
     node?: number;
     traditionType?: number;
     action?: number;
-  }>,
+  }>
 ): Readonly<Record<string, number>> {
   if (options.kind === "attribute-purchase") {
     return { ProgressionTreeNodeType: options.node ?? 20 };
@@ -509,7 +522,7 @@ function validationResult(
   operationType: string,
   playerId: number,
   args: Readonly<Record<string, number>>,
-  valid: boolean,
+  valid: boolean
 ): Civ7ControlOrpcProgressionPlayerChoiceResult["beforeValidation"] {
   return {
     host: "127.0.0.1",
@@ -526,7 +539,7 @@ function validationResult(
 }
 
 function notificationView(
-  options: Readonly<{ localPlayerId: number }>,
+  options: Readonly<{ localPlayerId: number }>
 ): Civ7ControlOrpcPlayNotificationViewResult {
   return {
     host: "127.0.0.1",

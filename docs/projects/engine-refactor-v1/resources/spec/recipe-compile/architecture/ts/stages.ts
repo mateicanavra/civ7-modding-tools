@@ -40,7 +40,10 @@ export type StageContract<
 > = StageDef<Id, TContext, KnobsSchema, Knobs, TSteps, PublicSchema> &
   Readonly<{
     surfaceSchema: TObject;
-    toInternal: (args: { env: unknown; stageConfig: unknown }) => StageToInternalResult<string, Knobs>;
+    toInternal: (args: {
+      env: unknown;
+      stageConfig: unknown;
+    }) => StageToInternalResult<string, Knobs>;
   }>;
 
 const STEP_ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -76,7 +79,10 @@ function objectProperties(schema: TObject): Record<string, TSchema> {
   return props ?? {};
 }
 
-function buildInternalAsPublicSurfaceSchema(stepIds: readonly string[], knobsSchema: TObject): TObject {
+function buildInternalAsPublicSurfaceSchema(
+  stepIds: readonly string[],
+  knobsSchema: TObject
+): TObject {
   const properties: Record<string, TSchema> = {
     knobs: Type.Optional(knobsSchema),
   };
@@ -120,7 +126,9 @@ export function createStage<const TDef extends StageDef<string, any, TObject, an
 
   const toInternal = ({ env, stageConfig }: { env: unknown; stageConfig: unknown }) => {
     const { knobs = {}, ...configPart } = stageConfig as Record<string, unknown>;
-    const rawSteps = def.public ? ((def as any).compile({ env, knobs, config: configPart }) ?? {}) : configPart;
+    const rawSteps = def.public
+      ? ((def as any).compile({ env, knobs, config: configPart }) ?? {})
+      : configPart;
     if (Object.prototype.hasOwnProperty.call(rawSteps, RESERVED_STAGE_KEY)) {
       throw new Error(`stage("${def.id}") compile returned reserved key "${RESERVED_STAGE_KEY}"`);
     }
@@ -129,4 +137,3 @@ export function createStage<const TDef extends StageDef<string, any, TObject, an
 
   return { ...(def as any), surfaceSchema, toInternal };
 }
-

@@ -183,26 +183,50 @@ function main() {
   const cache = parseGraphiteCache(commonDir);
   const prInfo = readPrInfo(commonDir);
   const graph = buildChildren(cache.branches);
-  const localRefs = parseRefs(run("git", ["for-each-ref", "refs/heads", "--format=%(refname:short)%09%(objectname)"], topLevel));
-  const remoteRefs = parseRefs(tryRun("git", ["for-each-ref", "refs/remotes/origin", "--format=%(refname:short)%09%(objectname)"], topLevel));
-  const worktrees = parseWorktrees(run("git", ["worktree", "list", "--porcelain"], topLevel)).map((worktree) => ({
-    ...worktree,
-    status: existsSync(worktree.path) ? parseStatus(tryRun("git", ["status", "--short", "--branch", "--porcelain=v1"], worktree.path)) : undefined,
-  }));
+  const localRefs = parseRefs(
+    run(
+      "git",
+      ["for-each-ref", "refs/heads", "--format=%(refname:short)%09%(objectname)"],
+      topLevel
+    )
+  );
+  const remoteRefs = parseRefs(
+    tryRun(
+      "git",
+      ["for-each-ref", "refs/remotes/origin", "--format=%(refname:short)%09%(objectname)"],
+      topLevel
+    )
+  );
+  const worktrees = parseWorktrees(run("git", ["worktree", "list", "--porcelain"], topLevel)).map(
+    (worktree) => ({
+      ...worktree,
+      status: existsSync(worktree.path)
+        ? parseStatus(
+            tryRun("git", ["status", "--short", "--branch", "--porcelain=v1"], worktree.path)
+          )
+        : undefined,
+    })
+  );
   const worktreesByBranch = new Map();
   for (const worktree of worktrees) {
     if (!worktree.branch) continue;
     if (!worktreesByBranch.has(worktree.branch)) worktreesByBranch.set(worktree.branch, []);
     worktreesByBranch.get(worktree.branch).push(worktree.path);
   }
-  const needsRestack = parseNeedsRestack(tryRun("gt", ["log", "short", "--no-interactive"], topLevel));
+  const needsRestack = parseNeedsRestack(
+    tryRun("gt", ["log", "short", "--no-interactive"], topLevel)
+  );
   const needsRestackSet = new Set(needsRestack);
   const trunk = cache.branches.has("main") ? "main" : currentBranch;
-  const rootNames = (graph.children.get(trunk) ?? []).filter((branch) => cache.branches.has(branch));
+  const rootNames = (graph.children.get(trunk) ?? []).filter((branch) =>
+    cache.branches.has(branch)
+  );
   const roots = rootNames.map((root) => summarizeRoot(root, graph.children));
   const covered = new Set([trunk]);
   for (const root of roots) for (const node of root.nodes) covered.add(node);
-  const outsideRootModel = [...cache.branches.keys()].filter((branch) => !covered.has(branch)).sort();
+  const outsideRootModel = [...cache.branches.keys()]
+    .filter((branch) => !covered.has(branch))
+    .sort();
   const branches = [...cache.branches.entries()]
     .map(([branch, meta]) => ({
       branch,
@@ -227,7 +251,8 @@ function main() {
       localBranches: localRefs.size,
       remoteBranches: remoteRefs.size,
       worktrees: worktrees.length,
-      dirtyWorktrees: worktrees.filter((worktree) => (worktree.status?.dirtyFileCount ?? 0) > 0).length,
+      dirtyWorktrees: worktrees.filter((worktree) => (worktree.status?.dirtyFileCount ?? 0) > 0)
+        .length,
       rootStacks: roots.length,
       outsideRootModel: outsideRootModel.length,
       needsRestack: needsRestack.length,

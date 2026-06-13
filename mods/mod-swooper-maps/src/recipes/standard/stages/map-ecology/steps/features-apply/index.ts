@@ -32,10 +32,7 @@ export default createStep(FeaturesApplyStepContract, {
       ice: Array.from(deps.artifacts.featureIntentsIce.read(context)),
     };
 
-    const merged = ops.apply(
-      placements,
-      config.apply
-    );
+    const merged = ops.apply(placements, config.apply);
 
     const lookups = resolveFeatureKeyLookups(context.adapter);
     const unknown: string[] = [];
@@ -109,12 +106,7 @@ export default createStep(FeaturesApplyStepContract, {
       if (rejection.reason === "canHaveFeature=false") rejectedCanHaveFeature += 1;
       if (rejection.reason === "out-of-bounds") rejectedOutOfBounds += 1;
       if (rejection.reason === "unknown-feature-index") rejectedUnknownFeature += 1;
-      if (
-        rejection.x >= 0 &&
-        rejection.x < width &&
-        rejection.y >= 0 &&
-        rejection.y < height
-      ) {
+      if (rejection.x >= 0 && rejection.x < width && rejection.y >= 0 && rejection.y < height) {
         const index = rejection.y * width + rejection.x;
         rejectionMask[index] = 1;
         if (isFloodplainFeatureKey(rejection.feature)) floodplainRejectedMask[index] = 1;
@@ -214,11 +206,15 @@ export default createStep(FeaturesApplyStepContract, {
       }),
     });
 
-    const hardRejections = rejections.filter((rejection) => rejection.reason !== "canHaveFeature=false");
+    const hardRejections = rejections.filter(
+      (rejection) => rejection.reason !== "canHaveFeature=false"
+    );
     if (hardRejections.length > 0) {
       const sample = hardRejections
         .slice(0, 12)
-        .map((rejection) => `(${rejection.x},${rejection.y}) ${rejection.feature} ${rejection.reason}`);
+        .map(
+          (rejection) => `(${rejection.x},${rejection.y}) ${rejection.feature} ${rejection.reason}`
+        );
       throw new Error(
         `features-apply hard-rejected ${hardRejections.length}/${resolvedPlacements.length} placements; sample: ${sample.join(
           "; "

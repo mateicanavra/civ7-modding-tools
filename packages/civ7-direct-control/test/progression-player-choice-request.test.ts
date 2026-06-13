@@ -24,7 +24,7 @@ describe("progression player-choice requests", () => {
           playerId: 0,
           args: { ProgressionTreeNodeType: 20 },
         });
-      }),
+      })
     );
 
     expect(result).toMatchObject({
@@ -61,7 +61,7 @@ describe("progression player-choice requests", () => {
           playerId: 0,
           args: {},
         });
-      }),
+      })
     );
 
     expect(result).toMatchObject({
@@ -92,12 +92,12 @@ describe("progression player-choice requests", () => {
         action: -1_326_475_004,
       },
       {},
-      deps,
+      deps
     );
     const review = await requestCiv7ProgressionPlayerChoice(
       { kind: "tradition-review", playerId: 0 },
       {},
-      deps,
+      deps
     );
 
     expect(sentInputs).toEqual([
@@ -139,7 +139,7 @@ describe("progression player-choice requests", () => {
           playerId: 0,
           args: {},
         })
-      ),
+      )
     );
 
     expect(result).toMatchObject({
@@ -164,8 +164,8 @@ describe("progression player-choice requests", () => {
       requestCiv7ProgressionPlayerChoice(
         { kind: "attribute-purchase", playerId: 0, node: 1.5 },
         {},
-        shouldNotSendDependencies(),
-      ),
+        shouldNotSendDependencies()
+      )
     ).rejects.toThrow("node invalid");
 
     await expect(
@@ -177,8 +177,8 @@ describe("progression player-choice requests", () => {
           action: 1,
         },
         {},
-        shouldNotSendDependencies(),
-      ),
+        shouldNotSendDependencies()
+      )
     ).rejects.toThrow("traditionType invalid");
 
     await expect(
@@ -190,8 +190,8 @@ describe("progression player-choice requests", () => {
           action: 1.5,
         },
         {},
-        shouldNotSendDependencies(),
-      ),
+        shouldNotSendDependencies()
+      )
     ).rejects.toThrow("action invalid");
   });
 });
@@ -203,15 +203,14 @@ function dependencies(
       operationType: string;
       args: Readonly<Record<string, number>>;
     }>,
-    options: Readonly<Record<string, unknown>>,
-  ) => Civ7OperationRequestResult,
+    options: Readonly<Record<string, unknown>>
+  ) => Civ7OperationRequestResult
 ) {
   return {
     validatePlayerId: (playerId: number) => {
       if (!Number.isInteger(playerId)) throw new Error("invalid player");
     },
-    requestPlayerOperation: async (input, options) =>
-      requestPlayerOperation(input, options),
+    requestPlayerOperation: async (input, options) => requestPlayerOperation(input, options),
     invalidIntegerError: (field: string) => {
       throw new Error(`${field} invalid`);
     },
@@ -231,7 +230,7 @@ function operationResult(
     operationType: string;
     playerId: number;
     args: Readonly<Record<string, number>>;
-  }>,
+  }>
 ): Civ7OperationRequestResult {
   const valid = options.valid ?? true;
   return {
@@ -248,7 +247,7 @@ function validationResult(
     playerId: number;
     args: Readonly<Record<string, number>>;
   }>,
-  valid: boolean,
+  valid: boolean
 ): Civ7OperationRequestResult["before"] {
   return {
     host: "127.0.0.1",

@@ -9,12 +9,14 @@ export type MaskComponentOddQ = Readonly<{
   diameter: number;
 }>;
 
-export function computeMaskDistanceFieldOddQ(input: Readonly<{
-  mask: Uint8Array;
-  width: number;
-  height: number;
-  sources: readonly number[];
-}>): Int16Array {
+export function computeMaskDistanceFieldOddQ(
+  input: Readonly<{
+    mask: Uint8Array;
+    width: number;
+    height: number;
+    sources: readonly number[];
+  }>
+): Int16Array {
   const width = input.width | 0;
   const height = input.height | 0;
   const size = Math.max(0, width * height);
@@ -46,7 +48,10 @@ export function computeMaskDistanceFieldOddQ(input: Readonly<{
   return distance;
 }
 
-function farthestReachable(indices: readonly number[], distance: Int16Array): { index: number; distance: number } {
+function farthestReachable(
+  indices: readonly number[],
+  distance: Int16Array
+): { index: number; distance: number } {
   let bestIndex = indices[0] ?? -1;
   let bestDistance = -1;
   for (const idx of indices) {
@@ -59,11 +64,13 @@ function farthestReachable(indices: readonly number[], distance: Int16Array): { 
   return { index: bestIndex, distance: Math.max(0, bestDistance) };
 }
 
-export function collectMaskComponentsOddQ(input: Readonly<{
-  mask: Uint8Array;
-  width: number;
-  height: number;
-}>): MaskComponentOddQ[] {
+export function collectMaskComponentsOddQ(
+  input: Readonly<{
+    mask: Uint8Array;
+    width: number;
+    height: number;
+  }>
+): MaskComponentOddQ[] {
   const width = input.width | 0;
   const height = input.height | 0;
   const size = Math.max(0, width * height);

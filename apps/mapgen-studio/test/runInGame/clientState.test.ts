@@ -54,7 +54,14 @@ const status: RunInGameOperationStatus = {
   status: "complete",
   startedAt: "2026-06-01T00:00:00.000Z",
   updatedAt: "2026-06-01T00:00:01.000Z",
-  completedPhases: ["materializing", "deploying", "checking-civ7", "preparing-setup", "starting-game", "waiting-for-proof"],
+  completedPhases: [
+    "materializing",
+    "deploying",
+    "checking-civ7",
+    "preparing-setup",
+    "starting-game",
+    "waiting-for-proof",
+  ],
 };
 
 describe("Run in Game client state", () => {
@@ -77,79 +84,91 @@ describe("Run in Game client state", () => {
     });
 
     expect(relationForRunInGameOperation({ status, snapshot, currentFingerprint })).toBe("current");
-    expect(relationForRunInGameOperation({
-      status,
-      snapshot,
-      currentFingerprint: buildRunInGameFingerprint({
-        recipeSettings: { ...recipeSettings, seed: "456" },
-        worldSettings,
-        pipelineConfig,
-        setupConfig,
-        materializationMode: "durable",
-      }),
-    })).toBe("stale");
-    expect(relationForRunInGameOperation({
-      status,
-      snapshot,
-      currentFingerprint: buildRunInGameFingerprint({
-        recipeSettings,
-        worldSettings,
-        pipelineConfig,
-        setupConfig: {
-          ...setupConfig,
-          playerOptions: [
-            {
-              playerId: 0,
-              options: {
-                ...setupConfig.playerOptions[0]!.options,
-                PlayerLeader: "LEADER_ASHOKA",
+    expect(
+      relationForRunInGameOperation({
+        status,
+        snapshot,
+        currentFingerprint: buildRunInGameFingerprint({
+          recipeSettings: { ...recipeSettings, seed: "456" },
+          worldSettings,
+          pipelineConfig,
+          setupConfig,
+          materializationMode: "durable",
+        }),
+      })
+    ).toBe("stale");
+    expect(
+      relationForRunInGameOperation({
+        status,
+        snapshot,
+        currentFingerprint: buildRunInGameFingerprint({
+          recipeSettings,
+          worldSettings,
+          pipelineConfig,
+          setupConfig: {
+            ...setupConfig,
+            playerOptions: [
+              {
+                playerId: 0,
+                options: {
+                  ...setupConfig.playerOptions[0]!.options,
+                  PlayerLeader: "LEADER_ASHOKA",
+                },
               },
-            },
-          ],
-        },
-        materializationMode: "durable",
-      }),
-    })).toBe("stale");
+            ],
+          },
+          materializationMode: "durable",
+        }),
+      })
+    ).toBe("stale");
   });
 
   it("treats missing or mismatched stored snapshots as unknown instead of current", () => {
-    expect(relationForRunInGameOperation({
-      status,
-      snapshot: null,
-      currentFingerprint: "anything",
-    })).toBe("unknown");
-    expect(relationForRunInGameOperation({
-      status,
-      snapshot: {
-        requestId: "other-request",
-        createdAt: "2026-06-01T00:00:00.000Z",
-        fingerprint: "anything",
-        seed: "123",
-        mapSize: "MAPSIZE_STANDARD",
-        playerCount: 8,
-        resources: "balanced",
-        recipe: "standard",
-        preset: "builtin:swooper-earthlike",
-        setupConfig,
-        materializationMode: "durable",
-      },
-      currentFingerprint: "anything",
-    })).toBe("unknown");
+    expect(
+      relationForRunInGameOperation({
+        status,
+        snapshot: null,
+        currentFingerprint: "anything",
+      })
+    ).toBe("unknown");
+    expect(
+      relationForRunInGameOperation({
+        status,
+        snapshot: {
+          requestId: "other-request",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          fingerprint: "anything",
+          seed: "123",
+          mapSize: "MAPSIZE_STANDARD",
+          playerCount: 8,
+          resources: "balanced",
+          recipe: "standard",
+          preset: "builtin:swooper-earthlike",
+          setupConfig,
+          materializationMode: "durable",
+        },
+        currentFingerprint: "anything",
+      })
+    ).toBe("unknown");
   });
 
   it("parses only complete stored snapshots", () => {
-    expect(parseRunInGameClientSnapshot(JSON.stringify({
-      requestId: "request",
-      createdAt: "2026-06-01T00:00:00.000Z",
-      fingerprint: "fingerprint",
-      seed: "123",
-      mapSize: "MAPSIZE_STANDARD",
-      playerCount: 8,
-      resources: "balanced",
-      recipe: "standard",
-      preset: "none",
-      materializationMode: "disposable",
-    }))).toMatchObject({ requestId: "request" });
+    expect(
+      parseRunInGameClientSnapshot(
+        JSON.stringify({
+          requestId: "request",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          fingerprint: "fingerprint",
+          seed: "123",
+          mapSize: "MAPSIZE_STANDARD",
+          playerCount: 8,
+          resources: "balanced",
+          recipe: "standard",
+          preset: "none",
+          materializationMode: "disposable",
+        })
+      )
+    ).toMatchObject({ requestId: "request" });
     expect(parseRunInGameClientSnapshot('{"requestId":"request"}')).toBeNull();
     expect(parseRunInGameClientSnapshot("not json")).toBeNull();
   });
@@ -170,13 +189,16 @@ describe("Run in Game client state", () => {
     });
 
     expect(parseRunInGameSourceSnapshot(JSON.stringify(source))).toEqual(source);
-    expect(parseRunInGameSourceSnapshot(JSON.stringify({
-      requestId: status.requestId,
-      createdAt: "2026-06-01T00:00:00.000Z",
-      recipeSettings,
-      worldSettings,
-      materializationMode: "disposable",
-    }))).toBeNull();
+    expect(
+      parseRunInGameSourceSnapshot(
+        JSON.stringify({
+          requestId: status.requestId,
+          createdAt: "2026-06-01T00:00:00.000Z",
+          recipeSettings,
+          worldSettings,
+          materializationMode: "disposable",
+        })
+      )
+    ).toBeNull();
   });
-
 });

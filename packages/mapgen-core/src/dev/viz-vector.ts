@@ -39,7 +39,12 @@ export type VectorFieldVariantsOptions = Readonly<{
   visibility?: "default" | "debug" | "hidden";
   palette?: "continuous" | "categorical" | "auto";
   vector?: { debugOnly?: boolean };
-  magnitude?: { fieldKey?: string; format?: VizScalarFormat; values?: ArrayBufferView; debugOnly?: boolean };
+  magnitude?: {
+    fieldKey?: string;
+    format?: VizScalarFormat;
+    values?: ArrayBufferView;
+    debugOnly?: boolean;
+  };
   arrows?: {
     /** Sample step in tile space; defaults to `computeSampleStep(width,height)`. */
     sampleStep?: number;
@@ -72,7 +77,10 @@ export function dumpVectorFieldVariants(
 ): void {
   if (!viz) return;
 
-  const applyDebugOnly = (visibility: "default" | "debug" | "hidden", debugOnly: boolean | undefined) => {
+  const applyDebugOnly = (
+    visibility: "default" | "debug" | "hidden",
+    debugOnly: boolean | undefined
+  ) => {
     if (visibility === "hidden") return "hidden";
     return debugOnly ? "debug" : visibility;
   };

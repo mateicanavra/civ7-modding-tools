@@ -3,15 +3,10 @@ import type {
   Civ7ControlOrpcPlotSnapshotResult,
 } from "./dependencies/direct-control";
 
-type RuntimeProbe<T> = Readonly<
-  | { ok: true; value: T }
-  | { ok: false; error: string }
->;
+type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
 type PlotField =
-  Civ7ControlOrpcMapGridResult["fields"] extends ReadonlyArray<infer Field>
-    ? Field
-    : never;
+  Civ7ControlOrpcMapGridResult["fields"] extends ReadonlyArray<infer Field> ? Field : never;
 
 type MapLocation = Readonly<{ x: number; y: number }>;
 type MapBounds = Readonly<{
@@ -56,13 +51,13 @@ export type Civ7GameUiMapReadTarget = Readonly<{
   };
 }>;
 
-export function civ7GameUiWorldMapReadsAvailable(
-  target: Civ7GameUiMapReadTarget,
-): boolean {
-  return typeof target.GameplayMap?.getGridWidth === "function"
-    && typeof target.GameplayMap?.getGridHeight === "function"
-    && typeof target.GameplayMap?.isValidXY === "function"
-    && typeof target.GameplayMap?.getIndexFromXY === "function";
+export function civ7GameUiWorldMapReadsAvailable(target: Civ7GameUiMapReadTarget): boolean {
+  return (
+    typeof target.GameplayMap?.getGridWidth === "function" &&
+    typeof target.GameplayMap?.getGridHeight === "function" &&
+    typeof target.GameplayMap?.isValidXY === "function" &&
+    typeof target.GameplayMap?.getIndexFromXY === "function"
+  );
 }
 
 export async function getCiv7GameUiPlotSnapshot(
@@ -73,7 +68,7 @@ export async function getCiv7GameUiPlotSnapshot(
     playerId?: number;
     includeHidden?: boolean;
   }>,
-  target: Civ7GameUiMapReadTarget = globalThis as Civ7GameUiMapReadTarget,
+  target: Civ7GameUiMapReadTarget = globalThis as Civ7GameUiMapReadTarget
 ): Promise<Civ7ControlOrpcPlotSnapshotResult> {
   if (!civ7GameUiWorldMapReadsAvailable(target)) {
     throw new Error("Civ7 game UI world map dependency is unavailable.");
@@ -88,7 +83,7 @@ export async function getCiv7GameUiPlotSnapshot(
         playerId: input.playerId,
         includeHidden: input.includeHidden,
       },
-      target,
+      target
     ),
   };
 }
@@ -102,7 +97,7 @@ export async function getCiv7GameUiMapGrid(
     includeHidden?: boolean;
     maxPlots?: number;
   }>,
-  target: Civ7GameUiMapReadTarget = globalThis as Civ7GameUiMapReadTarget,
+  target: Civ7GameUiMapReadTarget = globalThis as Civ7GameUiMapReadTarget
 ): Promise<Civ7ControlOrpcMapGridResult> {
   if (!civ7GameUiWorldMapReadsAvailable(target)) {
     throw new Error("Civ7 game UI world map dependency is unavailable.");
@@ -119,8 +114,10 @@ export async function getCiv7GameUiMapGrid(
   }
 
   const requestedCount = explicitLocations?.length ?? bounds!.width * bounds!.height;
-  const locations = (explicitLocations ?? locationsFromBounds(bounds!, maxPlots))
-    .slice(0, maxPlots);
+  const locations = (explicitLocations ?? locationsFromBounds(bounds!, maxPlots)).slice(
+    0,
+    maxPlots
+  );
 
   return {
     ...gameUiRuntimeIdentity(),
@@ -134,12 +131,15 @@ export async function getCiv7GameUiMapGrid(
       height: probe(() => Number(target.GameplayMap!.getGridHeight!())),
     },
     plots: locations.map((location) =>
-      plotSnapshot({
-        ...location,
-        fields,
-        playerId: input.playerId,
-        includeHidden: input.includeHidden,
-      }, target)
+      plotSnapshot(
+        {
+          ...location,
+          fields,
+          playerId: input.playerId,
+          includeHidden: input.includeHidden,
+        },
+        target
+      )
     ),
   };
 }
@@ -152,7 +152,7 @@ function plotSnapshot(
     playerId?: number;
     includeHidden?: boolean;
   }>,
-  target: Civ7GameUiMapReadTarget,
+  target: Civ7GameUiMapReadTarget
 ): Omit<Civ7ControlOrpcPlotSnapshotResult, "host" | "port" | "state"> {
   const visibility = visibilityFor(input, target);
   if (target.GameplayMap?.isValidXY?.(input.x, input.y) !== true) {
@@ -168,8 +168,7 @@ function plotSnapshot(
   }
 
   const facts: Record<string, RuntimeProbe<unknown>> = {};
-  const include = visibility.policy === "not-player-scoped"
-    || visibility.includeFacts === true;
+  const include = visibility.policy === "not-player-scoped" || visibility.includeFacts === true;
   const add = (key: string, value: RuntimeProbe<unknown>) => {
     facts[key] = value;
   };
@@ -212,22 +211,22 @@ function plotSnapshot(
       add("plotTag", mapProbe(target, "getPlotTag", input));
     }
     if (input.fields.includes("city")) {
-      add("city", probe(() => target.MapCities?.getCity?.(input.x, input.y) ?? null));
+      add(
+        "city",
+        probe(() => target.MapCities?.getCity?.(input.x, input.y) ?? null)
+      );
     }
     if (input.fields.includes("units")) {
-      add("units", probe(() => target.MapUnits?.getUnits?.(input.x, input.y) ?? []));
+      add(
+        "units",
+        probe(() => target.MapUnits?.getUnits?.(input.x, input.y) ?? [])
+      );
     }
   }
 
   if (input.fields.includes("visibility")) {
-    add(
-      "revealedState",
-      visibility.revealedState ?? { ok: false, error: "playerId required" },
-    );
-    add(
-      "visible",
-      visibility.visible ?? { ok: false, error: "playerId required" },
-    );
+    add("revealedState", visibility.revealedState ?? { ok: false, error: "playerId required" });
+    add("visible", visibility.visible ?? { ok: false, error: "playerId required" });
   }
 
   return {
@@ -250,7 +249,7 @@ function visibilityFor(
     playerId?: number;
     includeHidden?: boolean;
   }>,
-  target: Civ7GameUiMapReadTarget,
+  target: Civ7GameUiMapReadTarget
 ): Readonly<{
   policy: Civ7ControlOrpcPlotSnapshotResult["hiddenInfoPolicy"];
   revealedState?: RuntimeProbe<number | string>;
@@ -258,8 +257,9 @@ function visibilityFor(
   includeFacts?: boolean;
 }> {
   if (input.playerId == null) return { policy: "not-player-scoped" };
-  const revealedState = probe(() =>
-    target.GameplayMap!.getRevealedState!(input.playerId!, input.x, input.y) as number | string
+  const revealedState = probe(
+    () =>
+      target.GameplayMap!.getRevealedState!(input.playerId!, input.x, input.y) as number | string
   );
   const visible = probe(() => {
     if (typeof target.Visibility?.isVisible === "function") {
@@ -268,23 +268,23 @@ function visibilityFor(
     return revealedState.ok && revealedState.value !== 0;
   });
   return {
-    policy: input.includeHidden === true
-      ? "include-hidden"
-      : "visibility-filtered",
+    policy: input.includeHidden === true ? "include-hidden" : "visibility-filtered",
     revealedState,
     visible,
-    includeFacts: input.includeHidden === true
-      || (visible.ok && visible.value === true)
-      || (revealedState.ok && revealedState.value !== 0),
+    includeFacts:
+      input.includeHidden === true ||
+      (visible.ok && visible.value === true) ||
+      (revealedState.ok && revealedState.value !== 0),
   };
 }
 
 function mapProbe(
   target: Civ7GameUiMapReadTarget,
-  name: Exclude<keyof NonNullable<Civ7GameUiMapReadTarget["GameplayMap"]>,
-    "getGridWidth" | "getGridHeight" | "isValidXY" | "getIndexFromXY"
-    | "getRevealedState">,
-  location: MapLocation,
+  name: Exclude<
+    keyof NonNullable<Civ7GameUiMapReadTarget["GameplayMap"]>,
+    "getGridWidth" | "getGridHeight" | "isValidXY" | "getIndexFromXY" | "getRevealedState"
+  >,
+  location: MapLocation
 ): RuntimeProbe<unknown> {
   return probe(() => {
     const fn = target.GameplayMap?.[name];
@@ -295,10 +295,7 @@ function mapProbe(
   });
 }
 
-function locationsFromBounds(
-  bounds: MapBounds,
-  maxPlots: number,
-): MapLocation[] {
+function locationsFromBounds(bounds: MapBounds, maxPlots: number): MapLocation[] {
   const out: MapLocation[] = [];
   outer: for (let y = bounds.y; y < bounds.y + bounds.height; y += 1) {
     for (let x = bounds.x; x < bounds.x + bounds.width; x += 1) {
@@ -309,12 +306,8 @@ function locationsFromBounds(
   return out;
 }
 
-function normalizePlotFields(
-  fields: readonly PlotField[] | undefined,
-): readonly PlotField[] {
-  const selected: readonly PlotField[] = fields?.length
-    ? fields
-    : defaultPlotFields;
+function normalizePlotFields(fields: readonly PlotField[] | undefined): readonly PlotField[] {
+  const selected: readonly PlotField[] = fields?.length ? fields : defaultPlotFields;
   for (const field of selected) {
     if (!allPlotFields.includes(field)) {
       throw new Error(`Unsupported Civ7 plot field: ${field}`);
@@ -324,7 +317,7 @@ function normalizePlotFields(
 }
 
 function hiddenInfoPolicy(
-  input: Readonly<{ playerId?: number; includeHidden?: boolean }>,
+  input: Readonly<{ playerId?: number; includeHidden?: boolean }>
 ): Civ7ControlOrpcMapGridResult["hiddenInfoPolicy"] {
   if (input.playerId == null) return "not-player-scoped";
   return input.includeHidden === true ? "include-hidden" : "visibility-filtered";
@@ -346,12 +339,7 @@ function mapLocation(location: MapLocation): MapLocation {
   };
 }
 
-function boundedInteger(
-  value: number,
-  min: number,
-  max: number,
-  label: string,
-): number {
+function boundedInteger(value: number, min: number, max: number, label: string): number {
   if (!Number.isInteger(value) || value < min || value > max) {
     throw new Error(`${label} must be an integer ${min}..${max}.`);
   }

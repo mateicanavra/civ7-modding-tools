@@ -18,7 +18,9 @@ export const defaultStrategy = createStrategy(ApplyAlbedoFeedbackContract, "defa
       !(input.surfaceTemperatureC instanceof Float32Array) ||
       input.surfaceTemperatureC.length !== size
     ) {
-      throw new Error("[Hydrology] Invalid surfaceTemperatureC for hydrology/apply-albedo-feedback.");
+      throw new Error(
+        "[Hydrology] Invalid surfaceTemperatureC for hydrology/apply-albedo-feedback."
+      );
     }
 
     const iterations = config.iterations | 0;
@@ -43,7 +45,8 @@ export const defaultStrategy = createStrategy(ApplyAlbedoFeedbackContract, "defa
         const isLand = input.landMask[i] === 1;
 
         const snowFrac = isLand
-          ? lerp01(base, landSnowStartC, landSnowFullC) * (1 + precipitationInfluence * clamp01(rain))
+          ? lerp01(base, landSnowStartC, landSnowFullC) *
+            (1 + precipitationInfluence * clamp01(rain))
           : 0;
         const seaIceFrac = isLand ? 0 : lerp01(base, seaIceStartC, seaIceFullC);
 

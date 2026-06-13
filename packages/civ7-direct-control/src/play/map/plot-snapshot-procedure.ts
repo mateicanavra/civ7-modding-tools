@@ -13,10 +13,7 @@ import {
   type Civ7PlotSnapshotInput,
   type Civ7PlotSnapshotResult,
 } from "./types.js";
-import {
-  getCiv7PlotSnapshot,
-  type PlotSnapshotReadDependencies,
-} from "./reads.js";
+import { getCiv7PlotSnapshot, type PlotSnapshotReadDependencies } from "./reads.js";
 
 export const Civ7PlotSnapshotProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "map.plot.snapshot",
@@ -33,13 +30,7 @@ export const Civ7PlotSnapshotProcedureDescriptor = createCiv7ProcedureCoreDescri
     owner: "packages/civ7-direct-control/src/play/map/types.ts",
     exportName: "Civ7PlotSnapshotResultSchema",
   },
-  inputFields: [
-    "x",
-    "y",
-    "playerId",
-    "fields",
-    "includeHidden",
-  ],
+  inputFields: ["x", "y", "playerId", "fields", "includeHidden"],
   outputFields: [
     "host",
     "port",
@@ -94,13 +85,13 @@ export type Civ7PlotSnapshotProcedureCallOptions = Readonly<{
 
 export function callCiv7PlotSnapshotProcedure(
   input: Civ7PlotSnapshotInput,
-  options: Civ7PlotSnapshotProcedureCallOptions = {},
+  options: Civ7PlotSnapshotProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7PlotSnapshotResult>> {
   return callCiv7ProcedureCore<Civ7PlotSnapshotInput, Civ7PlotSnapshotResult>(
     Civ7PlotSnapshotProcedureDescriptor,
     Civ7PlotSnapshotProcedureSchemaArtifacts,
     input,
     (validInput) => getCiv7PlotSnapshot(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    options.procedure
   );
 }

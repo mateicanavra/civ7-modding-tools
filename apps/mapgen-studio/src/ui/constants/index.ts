@@ -16,31 +16,28 @@ export {
   DEFAULT_RENDER_MODE_OPTIONS,
   DEFAULT_KNOB_OPTIONS,
   // Types
-  type MapSizeOption } from
-'./options';
+  type MapSizeOption,
+} from "./options";
 
 // Default values
 export {
   DEFAULT_WORLD_SETTINGS,
   DEFAULT_RECIPE_SETTINGS,
-  DEFAULT_VIEW_STATE } from
-'./defaults';
+  DEFAULT_VIEW_STATE,
+} from "./defaults";
 
 // Layout constants
-export { LAYOUT, type LayoutConfig } from './layout';
+export { LAYOUT, type LayoutConfig } from "./layout";
 
 // ============================================================================
 // Utility Lookups
 // ============================================================================
 
-import { MAP_SIZE_OPTIONS } from './options';
+import { MAP_SIZE_OPTIONS } from "./options";
 
 /** Map size value to full label (e.g., 'MAPSIZE_TINY' -> 'Tiny (60×38)') */
 export const MAP_SIZE_LABELS: Record<string, string> = Object.fromEntries(
-  MAP_SIZE_OPTIONS.map((opt) => [
-  opt.value,
-  `${opt.label} (${opt.dimensions})`]
-  )
+  MAP_SIZE_OPTIONS.map((opt) => [opt.value, `${opt.label} (${opt.dimensions})`])
 );
 
 /** Map size value to short label (e.g., 'MAPSIZE_TINY' -> 'Tiny') */

@@ -1,21 +1,21 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach } from "vitest";
 
-vi.mock('@civ7/plugin-graph', () => ({
+vi.mock("@civ7/plugin-graph", () => ({
   crawlGraph: vi.fn(async () => ({ graph: { nodes: [], edges: [] }, manifestFiles: [] })),
   graphToJson: vi.fn((g: any) => g),
-  graphToDot: vi.fn(() => 'digraph {}'),
+  graphToDot: vi.fn(() => "digraph {}"),
 }));
 
-vi.mock('@civ7/config', () => ({
+vi.mock("@civ7/config", () => ({
   loadConfig: vi.fn(async () => ({ raw: {}, path: undefined })),
-  resolveGraphOutDir: vi.fn(() => '/out'),
-  findProjectRoot: vi.fn(() => '/project'),
+  resolveGraphOutDir: vi.fn(() => "/out"),
+  findProjectRoot: vi.fn(() => "/project"),
 }));
-vi.mock('../../src/utils/resolver', () => ({
-  resolveRootFromConfigOrFlag: vi.fn(async () => '/root'),
+vi.mock("../../src/utils/resolver", () => ({
+  resolveRootFromConfigOrFlag: vi.fn(async () => "/root"),
 }));
 
-vi.mock('node:fs', () => ({
+vi.mock("node:fs", () => ({
   existsSync: vi.fn(() => true),
   promises: {
     mkdir: vi.fn(async () => {}),
@@ -23,16 +23,16 @@ vi.mock('node:fs', () => ({
   },
 }));
 
-import Crawl from '../../src/commands/data/crawl';
-import { crawlGraph } from '@civ7/plugin-graph';
+import Crawl from "../../src/commands/data/crawl";
+import { crawlGraph } from "@civ7/plugin-graph";
 
-describe('crawl command', () => {
+describe("crawl command", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test('delegates to plugin-graph crawlGraph', async () => {
-    await Crawl.run(['TEST_SEED']);
-    expect(crawlGraph).toHaveBeenCalledWith('/root', 'TEST_SEED', expect.any(Function));
+  test("delegates to plugin-graph crawlGraph", async () => {
+    await Crawl.run(["TEST_SEED"]);
+    expect(crawlGraph).toHaveBeenCalledWith("/root", "TEST_SEED", expect.any(Function));
   });
 });

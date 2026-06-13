@@ -47,7 +47,9 @@ const envBase = {
 
 const config = canonicalRecipeConfig(swooperEarthlikeConfigRaw);
 const plan = standardRecipe.compile(envBase, config);
-const verboseSteps = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
+const verboseSteps = Object.fromEntries(
+  plan.nodes.map((node) => [node.stepId, "verbose"] as const)
+);
 
 const env = {
   ...envBase,

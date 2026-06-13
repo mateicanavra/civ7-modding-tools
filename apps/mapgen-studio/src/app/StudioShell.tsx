@@ -94,7 +94,11 @@ import {
   PresetSaveDialog,
 } from "../features/presets/PresetDialogs";
 import { resolveImportedPreset } from "../features/presets/importFlow";
-import { buildPresetExportFile, downloadPresetFile, parsePresetExportFile } from "../features/presets/importExport";
+import {
+  buildPresetExportFile,
+  downloadPresetFile,
+  parsePresetExportFile,
+} from "../features/presets/importExport";
 import { parsePresetKey, type PresetKey } from "../features/presets/types";
 import { usePresets } from "../features/presets/usePresets";
 import { migratePipelineConfig } from "../features/configMigrations/pipelineConfig";
@@ -116,16 +120,10 @@ import { useStudioEvents } from "./hooks/useStudioEvents";
 import { readAndAdoptStudioOperationsCurrent } from "./operationAdoption";
 import { isAbortLikeError } from "../shared/async";
 import { clampNumber } from "../shared/number";
-import {
-  toConfigId,
-  saveRepoBackedConfig,
-} from "../features/mapConfigSave/api";
+import { toConfigId, saveRepoBackedConfig } from "../features/mapConfigSave/api";
 import { runCurrentConfigInGame, fetchRunInGameStatus } from "../features/runInGame/api";
 import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
-import {
-  fetchCiv7SetupConfig,
-  requestCiv7Autoplay,
-} from "../features/civ7Setup/api";
+import { fetchCiv7SetupConfig, requestCiv7Autoplay } from "../features/civ7Setup/api";
 import {
   findSetupParameterLike,
   ensureSelectOption,
@@ -180,9 +178,15 @@ function isSaveDeployTerminal(status: MapConfigSaveDeployStatus): boolean {
 
 function saveDeployResultFromTerminalStatus(
   status: MapConfigSaveDeployStatus,
-  fallbackPath?: string,
+  fallbackPath?: string
 ):
-  | { ok: true; path?: string; deploy?: MapConfigSaveDeployStatus["deploy"]; saved?: boolean; deployed?: boolean }
+  | {
+      ok: true;
+      path?: string;
+      deploy?: MapConfigSaveDeployStatus["deploy"];
+      saved?: boolean;
+      deployed?: boolean;
+    }
   | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string } {
   const path = status.path ?? fallbackPath;
   if (!status.ok || status.status === "failed") {
@@ -237,10 +241,10 @@ export function StudioShell(props: StudioShellProps) {
   const overridesDisabled = useAuthoringStore((s) => s.overridesDisabled);
   const setOverridesDisabled = useAuthoringStore((s) => s.setOverridesDisabled);
   const repoBackedPresetOverridesByRecipe = useAuthoringStore(
-    (s) => s.repoBackedPresetOverridesByRecipe,
+    (s) => s.repoBackedPresetOverridesByRecipe
   );
   const setRepoBackedPresetOverridesByRecipe = useAuthoringStore(
-    (s) => s.setRepoBackedPresetOverridesByRecipe,
+    (s) => s.setRepoBackedPresetOverridesByRecipe
   );
 
   const deckApiRef = useRef<DeckCanvasApi | null>(null);
@@ -319,7 +323,11 @@ export function StudioShell(props: StudioShellProps) {
   );
 
   const [presetError, setPresetError] = useState<PresetErrorState | null>(null);
-  const [saveDialogState, setSaveDialogState] = useState<{ open: boolean; label: string; description?: string }>({
+  const [saveDialogState, setSaveDialogState] = useState<{
+    open: boolean;
+    label: string;
+    description?: string;
+  }>({
     open: false,
     label: "",
     description: "",
@@ -334,18 +342,27 @@ export function StudioShell(props: StudioShellProps) {
   // `studio.operations.current` instead.
   const lastRunInGameSource = useRunStore((s) => s.lastRunInGameSource);
   const setLastRunInGameSource = useRunStore((s) => s.setLastRunInGameSource);
-  const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(null);
+  const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(
+    null
+  );
 
-  const overlaySuggestions = useMemo(() => getOverlaySuggestions(recipeSettings.recipe), [recipeSettings.recipe]);
+  const overlaySuggestions = useMemo(
+    () => getOverlaySuggestions(recipeSettings.recipe),
+    [recipeSettings.recipe]
+  );
   const overlaySelection = overlaySuggestions.find((opt) => opt.id === overlaySelectionId) ?? null;
   const overlayDataTypeKey = overlaySelection?.overlayDataTypeKey ?? null;
 
-  const recipeArtifacts = useMemo(() => getRecipeArtifacts(recipeSettings.recipe), [recipeSettings.recipe]);
+  const recipeArtifacts = useMemo(
+    () => getRecipeArtifacts(recipeSettings.recipe),
+    [recipeSettings.recipe]
+  );
   const builtInPresets = useMemo(
-    () => mergeBuiltInPresets(
-      recipeArtifacts.studioBuiltInPresets ?? [],
-      repoBackedPresetOverridesByRecipe[recipeSettings.recipe] ?? {}
-    ),
+    () =>
+      mergeBuiltInPresets(
+        recipeArtifacts.studioBuiltInPresets ?? [],
+        repoBackedPresetOverridesByRecipe[recipeSettings.recipe] ?? {}
+      ),
     [recipeArtifacts.studioBuiltInPresets, recipeSettings.recipe, repoBackedPresetOverridesByRecipe]
   );
   const provedRunInGameSource = useMemo(
@@ -363,11 +380,12 @@ export function StudioShell(props: StudioShellProps) {
         ? [
             {
               id: LIVE_GAME_PRESET_ID,
-              label: lastRunInGameSource.materializationMode === "disposable"
-                ? "Live Game"
-                : lastRunInGameSource.selectedConfig?.label
-                  ? `Live Game (${lastRunInGameSource.selectedConfig.label})`
-                  : "Live Game",
+              label:
+                lastRunInGameSource.materializationMode === "disposable"
+                  ? "Live Game"
+                  : lastRunInGameSource.selectedConfig?.label
+                    ? `Live Game (${lastRunInGameSource.selectedConfig.label})`
+                    : "Live Game",
               description: provedRunInGameSource
                 ? "Config and seed last proved through Run in Game."
                 : "Config and seed from the last Studio Run in Game request.",
@@ -377,7 +395,12 @@ export function StudioShell(props: StudioShellProps) {
         : [],
     [lastRunInGameSource, provedRunInGameSource, recipeSettings.recipe]
   );
-  const { options: presetOptions, resolvePreset, actions: presetActions, loadWarning } = usePresets({
+  const {
+    options: presetOptions,
+    resolvePreset,
+    actions: presetActions,
+    loadWarning,
+  } = usePresets({
     recipeId: recipeSettings.recipe,
     builtIns: builtInPresets,
     livePresets,
@@ -394,7 +417,8 @@ export function StudioShell(props: StudioShellProps) {
     lastPresetKeyRef.current = recipeSettings.preset;
     lastRecipeIdRef.current = recipeSettings.recipe;
     if (parsePresetKey(recipeSettings.preset).kind !== "none") return;
-    if (previousPreset === recipeSettings.preset && previousRecipe === recipeSettings.recipe) return;
+    if (previousPreset === recipeSettings.preset && previousRecipe === recipeSettings.recipe)
+      return;
     const base = buildDefaultConfig(
       recipeArtifacts.configSchema,
       recipeArtifacts.uiMeta,
@@ -475,7 +499,9 @@ export function StudioShell(props: StudioShellProps) {
 
   const browserRunning = browserRunner.state.running;
   const [localError, setLocalError] = useState<string | null>(null);
-  const [saveDeployOperation, setSaveDeployOperation] = useState<MapConfigSaveDeployStatus | null>(null);
+  const [saveDeployOperation, setSaveDeployOperation] = useState<MapConfigSaveDeployStatus | null>(
+    null
+  );
   const saveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(null);
   const saveDeployWaitersRef = useRef<Map<string, SaveDeployTerminalWaiter>>(new Map());
   // Run presentation state is session-only; cross-reload operation recovery is
@@ -497,7 +523,9 @@ export function StudioShell(props: StudioShellProps) {
     failureCount: 0,
   });
   const [, setLiveRuntimeSnapshot] = useState<LiveRuntimeSnapshotState | null>(null);
-  const [liveRuntimeSuggestions, setLiveRuntimeSuggestions] = useState<ReadonlyArray<LiveRuntimeSuggestionRecord>>([]);
+  const [liveRuntimeSuggestions, setLiveRuntimeSuggestions] = useState<
+    ReadonlyArray<LiveRuntimeSuggestionRecord>
+  >([]);
   const [liveSetup, setLiveSetup] = useState<{
     status: "idle" | "ok" | "error";
     setup?: Civ7SetupSnapshotLike;
@@ -533,19 +561,22 @@ export function StudioShell(props: StudioShellProps) {
     };
   }, []);
 
-  const waitForSaveDeployTerminalEvent = useCallback((requestId: string): Promise<MapConfigSaveDeployStatus> => {
-    const current = saveDeployOperationRef.current;
-    if (current?.requestId === requestId && isSaveDeployTerminal(current)) {
-      return Promise.resolve(current);
-    }
-    return new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(() => {
-        saveDeployWaitersRef.current.delete(requestId);
-        reject(new Error("Save/Deploy event stream did not report a terminal status in time"));
-      }, SAVE_DEPLOY_TERMINAL_EVENT_TIMEOUT_MS);
-      saveDeployWaitersRef.current.set(requestId, { resolve, reject, timeoutId });
-    });
-  }, []);
+  const waitForSaveDeployTerminalEvent = useCallback(
+    (requestId: string): Promise<MapConfigSaveDeployStatus> => {
+      const current = saveDeployOperationRef.current;
+      if (current?.requestId === requestId && isSaveDeployTerminal(current)) {
+        return Promise.resolve(current);
+      }
+      return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          saveDeployWaitersRef.current.delete(requestId);
+          reject(new Error("Save/Deploy event stream did not report a terminal status in time"));
+        }, SAVE_DEPLOY_TERMINAL_EVENT_TIMEOUT_MS);
+        saveDeployWaitersRef.current.set(requestId, { resolve, reject, timeoutId });
+      });
+    },
+    []
+  );
 
   // Saved configs + setup catalog are READ through oRPC-native TanStack Query
   // (architecture/10 §2). The query layer owns retry + refetch-on-focus (query client
@@ -589,9 +620,7 @@ export function StudioShell(props: StudioShellProps) {
     hasEverSeenVizManifestRef.current = true;
   }, [deckApiReadyTick, viewportSize.height, viewportSize.width, viz.activeBounds, viz.manifest]);
 
-  const error =
-    localError ??
-    browserRunner.state.error;
+  const error = localError ?? browserRunner.state.error;
 
   const readLiveRuntimeSnapshot = useCallback(async (request: LiveRuntimeSnapshotRequest) => {
     liveSnapshotAbortRef.current?.abort();
@@ -615,7 +644,7 @@ export function StudioShell(props: StudioShellProps) {
             maxPlots: request.maxPlots,
             ...(request.playerId === undefined ? {} : { playerId: request.playerId }),
           },
-          { signal: snapshotAbortController.signal },
+          { signal: snapshotAbortController.signal }
         );
       } catch (snapshotErr) {
         if (!liveRuntimeMountedRef.current || isAbortLikeError(snapshotErr)) throw snapshotErr;
@@ -625,11 +654,13 @@ export function StudioShell(props: StudioShellProps) {
         };
       }
       if (!liveRuntimeMountedRef.current) return;
-      if (!shouldCommitLiveRuntimeSnapshot({
-        activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
-        resultRequestKey: request.key,
-        aborted: snapshotAbortController.signal.aborted,
-      })) {
+      if (
+        !shouldCommitLiveRuntimeSnapshot({
+          activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
+          resultRequestKey: request.key,
+          aborted: snapshotAbortController.signal.aborted,
+        })
+      ) {
         return;
       }
       const snapshotState = buildLiveRuntimeSnapshotState({
@@ -637,7 +668,8 @@ export function StudioShell(props: StudioShellProps) {
         body,
         observedAtFallback: new Date().toISOString(),
       });
-      liveSnapshotFailureCountRef.current = snapshotState.status === "ok" ? 0 : liveSnapshotFailureCountRef.current + 1;
+      liveSnapshotFailureCountRef.current =
+        snapshotState.status === "ok" ? 0 : liveSnapshotFailureCountRef.current + 1;
       setLiveRuntimeSnapshot(snapshotState);
       setLiveRuntime((current) => ({
         ...current,
@@ -649,10 +681,12 @@ export function StudioShell(props: StudioShellProps) {
       }));
     } catch (err) {
       if (!liveRuntimeMountedRef.current || isAbortLikeError(err)) return;
-      if (!shouldCommitLiveRuntimeSnapshot({
-        activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
-        resultRequestKey: request.key,
-      })) {
+      if (
+        !shouldCommitLiveRuntimeSnapshot({
+          activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
+          resultRequestKey: request.key,
+        })
+      ) {
         return;
       }
       liveSnapshotFailureCountRef.current += 1;
@@ -692,12 +726,14 @@ export function StudioShell(props: StudioShellProps) {
           updatedAt: setup.observedAt ?? new Date().toISOString(),
         });
       }
-      setLiveRuntimeSuggestions(buildLiveRuntimeSuggestionRecords({
-        sourceSnapshotId: statusState.snapshotId,
-        seed: statusState.seed,
-        setupConfig: suggestedSetupConfig,
-        provedStudioRun: false,
-      }));
+      setLiveRuntimeSuggestions(
+        buildLiveRuntimeSuggestionRecords({
+          sourceSnapshotId: statusState.snapshotId,
+          seed: statusState.seed,
+          setupConfig: suggestedSetupConfig,
+          provedStudioRun: false,
+        })
+      );
     } catch (err) {
       if (!liveRuntimeMountedRef.current || isAbortLikeError(err)) return;
       const observedAt = new Date().toISOString();
@@ -706,35 +742,40 @@ export function StudioShell(props: StudioShellProps) {
         error: err instanceof Error ? err.message : "Live setup unavailable",
         updatedAt: observedAt,
       });
-      setLiveRuntimeSuggestions(buildLiveRuntimeSuggestionRecords({
-        sourceSnapshotId: statusState.snapshotId,
-        seed: statusState.seed,
-        provedStudioRun: false,
-        now: () => new Date(observedAt),
-      }));
+      setLiveRuntimeSuggestions(
+        buildLiveRuntimeSuggestionRecords({
+          sourceSnapshotId: statusState.snapshotId,
+          seed: statusState.seed,
+          provedStudioRun: false,
+          now: () => new Date(observedAt),
+        })
+      );
     }
   }, []);
 
-  const applyLiveGameState = useCallback((statusState: LiveRuntimeStatusState) => {
-    const snapshotRequest = buildLiveRuntimeSnapshotRequest({ status: statusState });
-    if (!snapshotRequest) {
-      activeLiveSnapshotRequestKeyRef.current = null;
-      liveSnapshotAbortRef.current?.abort();
-    }
+  const applyLiveGameState = useCallback(
+    (statusState: LiveRuntimeStatusState) => {
+      const snapshotRequest = buildLiveRuntimeSnapshotRequest({ status: statusState });
+      if (!snapshotRequest) {
+        activeLiveSnapshotRequestKeyRef.current = null;
+        liveSnapshotAbortRef.current?.abort();
+      }
 
-    setLiveRuntime((current) => ({
-      ...statusState,
-      snapshotStatus:
-        snapshotRequest === null
-          ? statusState.snapshotStatus
-          : current.snapshotId === statusState.snapshotId && current.snapshotStatus === "ok"
-            ? current.snapshotStatus
-            : "loading",
-      failureCount: Math.max(statusState.failureCount ?? 0, liveSnapshotFailureCountRef.current),
-    }));
-    void refreshLiveSetupFromEvent(statusState);
-    if (snapshotRequest) void readLiveRuntimeSnapshot(snapshotRequest);
-  }, [readLiveRuntimeSnapshot, refreshLiveSetupFromEvent]);
+      setLiveRuntime((current) => ({
+        ...statusState,
+        snapshotStatus:
+          snapshotRequest === null
+            ? statusState.snapshotStatus
+            : current.snapshotId === statusState.snapshotId && current.snapshotStatus === "ok"
+              ? current.snapshotStatus
+              : "loading",
+        failureCount: Math.max(statusState.failureCount ?? 0, liveSnapshotFailureCountRef.current),
+      }));
+      void refreshLiveSetupFromEvent(statusState);
+      if (snapshotRequest) void readLiveRuntimeSnapshot(snapshotRequest);
+    },
+    [readLiveRuntimeSnapshot, refreshLiveSetupFromEvent]
+  );
 
   // Saved configs + setup catalog now load via `useSetupDataQueries` (TanStack Query);
   // the prior hand-rolled load/retry/focus-refetch effect is replaced by the query
@@ -860,7 +901,15 @@ export function StudioShell(props: StudioShellProps) {
         configOverrides: overridesDisabled ? undefined : (runPipelineConfig as unknown),
       });
     },
-    [browserRunner.actions, overridesDisabled, pipelineConfig, recipeSettings, toast, worldSettings, viz]
+    [
+      browserRunner.actions,
+      overridesDisabled,
+      pipelineConfig,
+      recipeSettings,
+      toast,
+      worldSettings,
+      viz,
+    ]
   );
 
   useEffect(() => {
@@ -917,7 +966,16 @@ export function StudioShell(props: StudioShellProps) {
     autoRunPendingRef.current = false;
     if (lastRunSnapshot && configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)) return;
     startBrowserRun();
-  }, [autoRunEnabled, browserRunning, lastRunSnapshot, overridesDisabled, pipelineConfig, runInGameRunning, saveDeployRunning, startBrowserRun]);
+  }, [
+    autoRunEnabled,
+    browserRunning,
+    lastRunSnapshot,
+    overridesDisabled,
+    pipelineConfig,
+    runInGameRunning,
+    saveDeployRunning,
+    startBrowserRun,
+  ]);
 
   const openSaveDialog = useCallback((seed?: { label?: string; description?: string }) => {
     setSaveDialogState({
@@ -941,69 +999,88 @@ export function StudioShell(props: StudioShellProps) {
     }));
   }, []);
 
-  const saveRepoBackedConfigWithState = useCallback(async (args: {
-    id: string;
-    name: string;
-    description?: string;
-    sourcePath?: string;
-    sortIndex: number;
-    latitudeBounds?: Readonly<{
-      topLatitude: number;
-      bottomLatitude: number;
-    }>;
-    config: unknown;
-  }) => {
-    if (browserRunning || runInGameRunning || saveDeployRunning) {
-      const reason = browserRunning
-        ? "Map generation is running"
-        : runInGameRunning
-          ? "Run in Game is running"
-          : "Save/deploy is already running";
-      return { ok: false as const, error: `${reason}; finish that operation before saving.`, saved: false, deployed: false };
-    }
+  const saveRepoBackedConfigWithState = useCallback(
+    async (args: {
+      id: string;
+      name: string;
+      description?: string;
+      sourcePath?: string;
+      sortIndex: number;
+      latitudeBounds?: Readonly<{
+        topLatitude: number;
+        bottomLatitude: number;
+      }>;
+      config: unknown;
+    }) => {
+      if (browserRunning || runInGameRunning || saveDeployRunning) {
+        const reason = browserRunning
+          ? "Map generation is running"
+          : runInGameRunning
+            ? "Run in Game is running"
+            : "Save/deploy is already running";
+        return {
+          ok: false as const,
+          error: `${reason}; finish that operation before saving.`,
+          saved: false,
+          deployed: false,
+        };
+      }
 
-    const requestId = `studio-save-deploy-${Date.now().toString(36)}`;
-    const initial = createMapConfigSaveDeployStatus({ requestId, phase: "queued" });
-    setSaveDeployOperation(initial);
+      const requestId = `studio-save-deploy-${Date.now().toString(36)}`;
+      const initial = createMapConfigSaveDeployStatus({ requestId, phase: "queued" });
+      setSaveDeployOperation(initial);
 
-    const result = await saveRepoBackedConfig({
-      ...args,
-      requestId,
-      onStatus: (status) => {
-        setSaveDeployOperation((current) => current?.requestId === requestId ? status : current);
-      },
-    });
-    if (!result.ok) {
-      setSaveDeployOperation((current) => {
-        if (!current || current.requestId !== requestId) return current;
-        return updateMapConfigSaveDeployStatus(current, {
-          phase: "failed",
-          error: result.error,
-          path: result.path,
-          saved: result.saved,
-          deployed: result.deployed,
-        });
+      const result = await saveRepoBackedConfig({
+        ...args,
+        requestId,
+        onStatus: (status) => {
+          setSaveDeployOperation((current) =>
+            current?.requestId === requestId ? status : current
+          );
+        },
       });
-      return result;
-    }
+      if (!result.ok) {
+        setSaveDeployOperation((current) => {
+          if (!current || current.requestId !== requestId) return current;
+          return updateMapConfigSaveDeployStatus(current, {
+            phase: "failed",
+            error: result.error,
+            path: result.path,
+            saved: result.saved,
+            deployed: result.deployed,
+          });
+        });
+        return result;
+      }
 
-    try {
-      const terminal = isSaveDeployTerminal(result.status)
-        ? result.status
-        : await waitForSaveDeployTerminalEvent(requestId);
-      const terminalResult = saveDeployResultFromTerminalStatus(terminal, result.path);
-      if (terminalResult.ok) setLastSaveDeployConfig(stripSchemaMetadataRoot(args.config));
-      return terminalResult;
-    } catch (err) {
-      return {
-        ok: false as const,
-        error: err instanceof Error ? err.message : "Save/Deploy event stream did not report a terminal status",
-        saved: result.status.saved,
-        deployed: result.status.deployed,
-        path: result.path,
-      };
-    }
-  }, [browserRunning, runInGameRunning, saveDeployRunning, setLastSaveDeployConfig, waitForSaveDeployTerminalEvent]);
+      try {
+        const terminal = isSaveDeployTerminal(result.status)
+          ? result.status
+          : await waitForSaveDeployTerminalEvent(requestId);
+        const terminalResult = saveDeployResultFromTerminalStatus(terminal, result.path);
+        if (terminalResult.ok) setLastSaveDeployConfig(stripSchemaMetadataRoot(args.config));
+        return terminalResult;
+      } catch (err) {
+        return {
+          ok: false as const,
+          error:
+            err instanceof Error
+              ? err.message
+              : "Save/Deploy event stream did not report a terminal status",
+          saved: result.status.saved,
+          deployed: result.status.deployed,
+          path: result.path,
+        };
+      }
+    },
+    [
+      browserRunning,
+      runInGameRunning,
+      saveDeployRunning,
+      setLastSaveDeployConfig,
+      waitForSaveDeployTerminalEvent,
+    ]
+  );
 
   const handleSaveDialogConfirm = useCallback(
     async (args: { label: string; description?: string }) => {
@@ -1044,14 +1121,24 @@ export function StudioShell(props: StudioShellProps) {
             : result.saved
               ? `Config saved to ${result.path ?? `${id}.config.json`} but deploy failed: ${result.error}`
               : `Config save failed: ${result.error}`,
-          { variant: "error" },
+          { variant: "error" }
         );
       } else {
-        toast(`Config saved and deployed from ${result.path ?? `${id}.config.json`}`, { variant: "success" });
+        toast(`Config saved and deployed from ${result.path ?? `${id}.config.json`}`, {
+          variant: "success",
+        });
       }
       setSaveDialogState({ open: false, label: "", description: "" });
     },
-    [pipelineConfig, recipeSettings.preset, recipeSettings.recipe, rememberRepoBackedConfig, resolvePreset, saveRepoBackedConfigWithState, toast]
+    [
+      pipelineConfig,
+      recipeSettings.preset,
+      recipeSettings.recipe,
+      rememberRepoBackedConfig,
+      resolvePreset,
+      saveRepoBackedConfigWithState,
+      toast,
+    ]
   );
 
   const handleSaveAsNew = useCallback(() => {
@@ -1087,7 +1174,10 @@ export function StudioShell(props: StudioShellProps) {
             config: sanitized,
           })
         );
-        lastAppliedPresetRef.current = { key: recipeSettings.preset as PresetKey, config: sanitized };
+        lastAppliedPresetRef.current = {
+          key: recipeSettings.preset as PresetKey,
+          config: sanitized,
+        };
         setPipelineConfig(sanitized as PipelineConfig);
       }
       if (!result.ok) {
@@ -1097,16 +1187,21 @@ export function StudioShell(props: StudioShellProps) {
             : result.saved
               ? `Config saved to ${result.path ?? resolved.sourcePath ?? resolved.id} but deploy failed: ${result.error}`
               : `Config save failed: ${result.error}`,
-          { variant: "error" },
+          { variant: "error" }
         );
       } else {
-        toast(`Config saved and deployed from ${result.path ?? resolved.sourcePath ?? resolved.id}`, { variant: "success" });
+        toast(
+          `Config saved and deployed from ${result.path ?? resolved.sourcePath ?? resolved.id}`,
+          { variant: "success" }
+        );
       }
       return;
     }
     if (parsed.kind !== "local") {
       handleSaveAsNew();
-      toast("Save to Current requires a repo config or scratch config. Save as new instead.", { variant: "info" });
+      toast("Save to Current requires a repo config or scratch config. Save as new instead.", {
+        variant: "info",
+      });
       return;
     }
     const result = presetActions.saveToCurrent({
@@ -1119,7 +1214,9 @@ export function StudioShell(props: StudioShellProps) {
       return;
     }
     if (result.persistenceError) {
-      toast(`Scratch config updated but could not persist: ${result.persistenceError}`, { variant: "error" });
+      toast(`Scratch config updated but could not persist: ${result.persistenceError}`, {
+        variant: "error",
+      });
       return;
     }
 
@@ -1159,12 +1256,25 @@ export function StudioShell(props: StudioShellProps) {
           : repoResult.saved
             ? `Config saved to ${repoResult.path ?? `${id}.config.json`} but deploy failed: ${repoResult.error}`
             : `Config save failed: ${repoResult.error}`,
-        { variant: "error" },
+        { variant: "error" }
       );
     } else {
-      toast(`Config saved and deployed from ${repoResult.path ?? `${id}.config.json`}`, { variant: "success" });
+      toast(`Config saved and deployed from ${repoResult.path ?? `${id}.config.json`}`, {
+        variant: "success",
+      });
     }
-  }, [builtInPresets, handleSaveAsNew, pipelineConfig, presetActions, recipeSettings.preset, recipeSettings.recipe, rememberRepoBackedConfig, resolvePreset, saveRepoBackedConfigWithState, toast]);
+  }, [
+    builtInPresets,
+    handleSaveAsNew,
+    pipelineConfig,
+    presetActions,
+    recipeSettings.preset,
+    recipeSettings.recipe,
+    rememberRepoBackedConfig,
+    resolvePreset,
+    saveRepoBackedConfigWithState,
+    toast,
+  ]);
 
   const handleDeletePreset = useCallback(() => {
     const parsed = parsePresetKey(recipeSettings.preset);
@@ -1177,7 +1287,9 @@ export function StudioShell(props: StudioShellProps) {
       presetId: parsed.id,
     });
     if (result.persistenceError) {
-      toast(`Scratch config deleted but could not persist: ${result.persistenceError}`, { variant: "error" });
+      toast(`Scratch config deleted but could not persist: ${result.persistenceError}`, {
+        variant: "error",
+      });
     } else {
       toast("Scratch config deleted", { variant: "success" });
     }
@@ -1233,7 +1345,9 @@ export function StudioShell(props: StudioShellProps) {
         config: resolved.config,
       });
       if (result.persistenceError) {
-        toast(`Preset imported but could not persist: ${result.persistenceError}`, { variant: "error" });
+        toast(`Preset imported but could not persist: ${result.persistenceError}`, {
+          variant: "error",
+        });
       } else {
         toast("Preset imported", { variant: "success" });
       }
@@ -1318,39 +1432,50 @@ export function StudioShell(props: StudioShellProps) {
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
     const currentConfig = stripSchemaMetadataRoot(pipelineConfig);
     const selectedConfigMatches = resolved?.config
-      ? configsEqual(stripSchemaMetadataRoot(resolved.config) as PipelineConfig, currentConfig as PipelineConfig)
+      ? configsEqual(
+          stripSchemaMetadataRoot(resolved.config) as PipelineConfig,
+          currentConfig as PipelineConfig
+        )
       : false;
     const savedConfigMatches = lastSaveDeployConfig
-      ? configsEqual(stripSchemaMetadataRoot(lastSaveDeployConfig) as PipelineConfig, currentConfig as PipelineConfig)
+      ? configsEqual(
+          stripSchemaMetadataRoot(lastSaveDeployConfig) as PipelineConfig,
+          currentConfig as PipelineConfig
+        )
       : false;
-    return parsed.kind === "builtin" && resolved?.sourcePath && (selectedConfigMatches || savedConfigMatches)
+    return parsed.kind === "builtin" &&
+      resolved?.sourcePath &&
+      (selectedConfigMatches || savedConfigMatches)
       ? "durable"
       : "disposable";
   }, [lastSaveDeployConfig, pipelineConfig, recipeSettings.preset, resolvePreset]);
 
   const runInGameCurrentFingerprint = useMemo(
-    () => buildRunInGameFingerprint({
-      recipeSettings,
-      worldSettings,
-      pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
-      setupConfig,
-      materializationMode: runInGameMaterializationMode,
-    }),
+    () =>
+      buildRunInGameFingerprint({
+        recipeSettings,
+        worldSettings,
+        pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
+        setupConfig,
+        materializationMode: runInGameMaterializationMode,
+      }),
     [pipelineConfig, recipeSettings, runInGameMaterializationMode, setupConfig, worldSettings]
   );
 
   const runInGameCurrentRelation = useMemo<RunInGameCurrentRelation>(
-    () => relationForRunInGameOperation({
-      status: runInGameOperation,
-      snapshot: runInGameSnapshot,
-      currentFingerprint: runInGameCurrentFingerprint,
-    }),
+    () =>
+      relationForRunInGameOperation({
+        status: runInGameOperation,
+        snapshot: runInGameSnapshot,
+        currentFingerprint: runInGameCurrentFingerprint,
+      }),
     [runInGameCurrentFingerprint, runInGameOperation, runInGameSnapshot]
   );
 
   const liveGameStudioRelation = useMemo<"current" | "stale" | "unknown">(() => {
     if (liveRuntime.status !== "ok") return "unknown";
-    if (liveRuntime.seed !== undefined && String(liveRuntime.seed) !== recipeSettings.seed) return "stale";
+    if (liveRuntime.seed !== undefined && String(liveRuntime.seed) !== recipeSettings.seed)
+      return "stale";
     if (!provedRunInGameSource) return "unknown";
     if (
       liveRuntime.seed !== undefined &&
@@ -1367,7 +1492,15 @@ export function StudioShell(props: StudioShellProps) {
     })
       ? "current"
       : "stale";
-  }, [liveRuntime.seed, liveRuntime.status, pipelineConfig, provedRunInGameSource, recipeSettings, setupConfig, worldSettings]);
+  }, [
+    liveRuntime.seed,
+    liveRuntime.status,
+    pipelineConfig,
+    provedRunInGameSource,
+    recipeSettings,
+    setupConfig,
+    worldSettings,
+  ]);
 
   const studioMatchesProvedLiveSource = useMemo(() => {
     if (!provedRunInGameSource) return false;
@@ -1380,23 +1513,29 @@ export function StudioShell(props: StudioShellProps) {
     });
   }, [pipelineConfig, provedRunInGameSource, recipeSettings, setupConfig, worldSettings]);
 
-  const displayedPresetOptions = useMemo(
-    () => {
-      const relabelNoneAsLive =
-        studioMatchesProvedLiveSource && provedRunInGameSource?.materializationMode === "disposable";
-      return presetOptions
-        .filter((option) => !(relabelNoneAsLive && option.value === LIVE_GAME_PRESET_KEY))
-        .map((option) => (option.value === "none" && relabelNoneAsLive ? { ...option, label: "Live / Live Game" } : option));
-    },
-    [presetOptions, provedRunInGameSource?.materializationMode, studioMatchesProvedLiveSource]
-  );
+  const displayedPresetOptions = useMemo(() => {
+    const relabelNoneAsLive =
+      studioMatchesProvedLiveSource && provedRunInGameSource?.materializationMode === "disposable";
+    return presetOptions
+      .filter((option) => !(relabelNoneAsLive && option.value === LIVE_GAME_PRESET_KEY))
+      .map((option) =>
+        option.value === "none" && relabelNoneAsLive
+          ? { ...option, label: "Live / Live Game" }
+          : option
+      );
+  }, [presetOptions, provedRunInGameSource?.materializationMode, studioMatchesProvedLiveSource]);
 
   const setupControlOptions = useMemo(() => {
     const setup = liveSetup.setup;
     const parameters = setup?.setup?.parameters ?? [];
-    const localPlayerId = Number(setup?.setup?.localPlayerId?.ok === true ? setup.setup.localPlayerId.value : getLocalPlayerSetup(setupConfig).playerId);
+    const localPlayerId = Number(
+      setup?.setup?.localPlayerId?.ok === true
+        ? setup.setup.localPlayerId.value
+        : getLocalPlayerSetup(setupConfig).playerId
+    );
     const playerParameters =
-      setup?.setup?.playerParameters?.find((player) => player.playerId === localPlayerId)?.parameters ??
+      setup?.setup?.playerParameters?.find((player) => player.playerId === localPlayerId)
+        ?.parameters ??
       setup?.setup?.playerParameters?.[0]?.parameters ??
       [];
     const localPlayer = getLocalPlayerSetup(setupConfig);
@@ -1419,28 +1558,46 @@ export function StudioShell(props: StudioShellProps) {
     const catalog = setupCatalog.catalog;
     return {
       savedConfigOptions: ensureSelectOption(savedConfigOptions, setupConfig.savedConfig?.id),
-      leaderOptions: ensureSelectOption(mergeSelectOptions(
-        [{ value: "", label: "Leader" }],
-        optionRowsFromParameter(findSetupParameterLike(playerParameters, "PlayerLeader")),
-        setupCatalogOptions(catalog?.leaders),
-      ), leader),
-      civilizationOptions: ensureSelectOption(mergeSelectOptions(
-        [{ value: "", label: "Civilization" }],
-        optionRowsFromParameter(findSetupParameterLike(playerParameters, "PlayerCivilization")),
-        setupCatalogOptions(catalog?.civilizations),
-      ), civilization),
-      difficultyOptions: ensureSelectOption(mergeSelectOptions(
-        [{ value: "", label: "Difficulty" }],
-        optionRowsFromParameter(findSetupParameterLike(parameters, "Difficulty")),
-        setupCatalogOptions(catalog?.difficulties),
-      ), difficulty),
-      gameSpeedOptions: ensureSelectOption(mergeSelectOptions(
-        [{ value: "", label: "Speed" }],
-        optionRowsFromParameter(findSetupParameterLike(parameters, "GameSpeeds")),
-        setupCatalogOptions(catalog?.gameSpeeds),
-      ), gameSpeed),
+      leaderOptions: ensureSelectOption(
+        mergeSelectOptions(
+          [{ value: "", label: "Leader" }],
+          optionRowsFromParameter(findSetupParameterLike(playerParameters, "PlayerLeader")),
+          setupCatalogOptions(catalog?.leaders)
+        ),
+        leader
+      ),
+      civilizationOptions: ensureSelectOption(
+        mergeSelectOptions(
+          [{ value: "", label: "Civilization" }],
+          optionRowsFromParameter(findSetupParameterLike(playerParameters, "PlayerCivilization")),
+          setupCatalogOptions(catalog?.civilizations)
+        ),
+        civilization
+      ),
+      difficultyOptions: ensureSelectOption(
+        mergeSelectOptions(
+          [{ value: "", label: "Difficulty" }],
+          optionRowsFromParameter(findSetupParameterLike(parameters, "Difficulty")),
+          setupCatalogOptions(catalog?.difficulties)
+        ),
+        difficulty
+      ),
+      gameSpeedOptions: ensureSelectOption(
+        mergeSelectOptions(
+          [{ value: "", label: "Speed" }],
+          optionRowsFromParameter(findSetupParameterLike(parameters, "GameSpeeds")),
+          setupCatalogOptions(catalog?.gameSpeeds)
+        ),
+        gameSpeed
+      ),
     };
-  }, [liveSetup.setup, savedSetupConfigs.configurations, savedSetupConfigs.status, setupCatalog.catalog, setupConfig]);
+  }, [
+    liveSetup.setup,
+    savedSetupConfigs.configurations,
+    savedSetupConfigs.status,
+    setupCatalog.catalog,
+    setupConfig,
+  ]);
 
   // Config precedence (Y2, hardened in P7): the selector claims the saved
   // config ONLY while the authored setup state equals the file-derived state
@@ -1455,33 +1612,41 @@ export function StudioShell(props: StudioShellProps) {
     return studioSetupDriftsFromSavedConfig(setupConfig, savedConfig);
   }, [savedSetupConfigs.configurations, setupConfig]);
 
-  const handleSavedSetupConfigChange = useCallback((configId: string) => {
-    const savedConfig = savedSetupConfigs.configurations.find((config) => config.id === configId);
-    if (!savedConfig) {
-      setSetupConfig((current) => clearStudioSetupSavedConfig(current));
-      return;
-    }
-    setSetupConfig(studioSetupConfigFromSavedConfigFile(savedConfig));
-    const nextSeed = savedConfig.summary.mapSeed ?? savedConfig.summary.gameSeed;
-    if (nextSeed !== undefined) {
-      const seedPolicy = parseCiv7StudioSeed(nextSeed);
-      if (seedPolicy.ok) {
-        setRecipeSettings((current) => ({ ...current, seed: String(seedPolicy.value) }));
-      } else {
-        toast(`Saved config seed ignored: ${formatCiv7StudioSeedError(seedPolicy)}`, { variant: "info" });
+  const handleSavedSetupConfigChange = useCallback(
+    (configId: string) => {
+      const savedConfig = savedSetupConfigs.configurations.find((config) => config.id === configId);
+      if (!savedConfig) {
+        setSetupConfig((current) => clearStudioSetupSavedConfig(current));
+        return;
       }
-    }
-  }, [savedSetupConfigs.configurations, toast]);
+      setSetupConfig(studioSetupConfigFromSavedConfigFile(savedConfig));
+      const nextSeed = savedConfig.summary.mapSeed ?? savedConfig.summary.gameSeed;
+      if (nextSeed !== undefined) {
+        const seedPolicy = parseCiv7StudioSeed(nextSeed);
+        if (seedPolicy.ok) {
+          setRecipeSettings((current) => ({ ...current, seed: String(seedPolicy.value) }));
+        } else {
+          toast(`Saved config seed ignored: ${formatCiv7StudioSeedError(seedPolicy)}`, {
+            variant: "info",
+          });
+        }
+      }
+    },
+    [savedSetupConfigs.configurations, toast]
+  );
 
-  const refreshRunInGameStatus = useCallback(async (requestId: string) => {
-    const result = await fetchRunInGameStatus(requestId);
-    if (!("requestId" in result)) {
-      setLocalError(result.error);
-      toast(`Run in Game status unavailable: ${result.error}`, { variant: "error" });
-      return;
-    }
-    setRunInGameOperation(result);
-  }, [toast]);
+  const refreshRunInGameStatus = useCallback(
+    async (requestId: string) => {
+      const result = await fetchRunInGameStatus(requestId);
+      if (!("requestId" in result)) {
+        setLocalError(result.error);
+        toast(`Run in Game status unavailable: ${result.error}`, { variant: "error" });
+        return;
+      }
+      setRunInGameOperation(result);
+    },
+    [toast]
+  );
 
   const markRunInGameToastHandled = useCallback((requestId: string) => {
     lastRunInGameToastRef.current = requestId;
@@ -1518,133 +1683,146 @@ export function StudioShell(props: StudioShellProps) {
     toast,
   });
 
-  const handleRunInGame = useCallback(async (options?: { restartCivProcess?: boolean }) => {
-    // Busy gate must never be silent — a click that does nothing is
-    // indistinguishable from a broken launch path.
-    if (runInGameRunning || saveDeployRunning) {
-      toast(
-        runInGameRunning
-          ? "Run in Game is already running — check the status chip in the Game bar."
-          : "Save & Deploy is in progress; wait for it to finish before launching.",
-        { variant: "info" },
-      );
-      return;
-    }
-    setLocalError(null);
-    const seedPolicy = parseCiv7StudioSeed(recipeSettings.seed);
-    if (!seedPolicy.ok) {
-      const message = formatCiv7StudioSeedError(seedPolicy);
-      setLocalError(message);
-      toast(message, { variant: "error" });
-      return;
-    }
-    const sanitized = stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig;
-    const resolved = resolvePreset(recipeSettings.preset as PresetKey);
-    const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
-    const selectedConfig = resolved
-      ? {
-          id: resolved.id,
-          label: resolved.label,
-          description: resolved.description,
-          sourcePath: resolved.sourcePath,
-          sortIndex: resolved.sortIndex,
-          latitudeBounds: resolved.latitudeBounds,
-        }
-      : undefined;
-    const result = await runCurrentConfigInGame({
-      recipeId: "mod-swooper-maps/standard",
-      seed: recipeSettings.seed,
-      mapSize: mapSize.id,
-      playerCount: worldSettings.playerCount,
-      resources: worldSettings.resources,
-      setupConfig,
-      materializationMode: runInGameMaterializationMode,
-      restartCivProcess: options?.restartCivProcess,
-      selectedConfig,
-      config: sanitized,
-      sourceSnapshot: {
+  const handleRunInGame = useCallback(
+    async (options?: { restartCivProcess?: boolean }) => {
+      // Busy gate must never be silent — a click that does nothing is
+      // indistinguishable from a broken launch path.
+      if (runInGameRunning || saveDeployRunning) {
+        toast(
+          runInGameRunning
+            ? "Run in Game is already running — check the status chip in the Game bar."
+            : "Save & Deploy is in progress; wait for it to finish before launching.",
+          { variant: "info" }
+        );
+        return;
+      }
+      setLocalError(null);
+      const seedPolicy = parseCiv7StudioSeed(recipeSettings.seed);
+      if (!seedPolicy.ok) {
+        const message = formatCiv7StudioSeedError(seedPolicy);
+        setLocalError(message);
+        toast(message, { variant: "error" });
+        return;
+      }
+      const sanitized = stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig;
+      const resolved = resolvePreset(recipeSettings.preset as PresetKey);
+      const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
+      const selectedConfig = resolved
+        ? {
+            id: resolved.id,
+            label: resolved.label,
+            description: resolved.description,
+            sourcePath: resolved.sourcePath,
+            sortIndex: resolved.sortIndex,
+            latitudeBounds: resolved.latitudeBounds,
+          }
+        : undefined;
+      const result = await runCurrentConfigInGame({
+        recipeId: "mod-swooper-maps/standard",
+        seed: recipeSettings.seed,
+        mapSize: mapSize.id,
+        playerCount: worldSettings.playerCount,
+        resources: worldSettings.resources,
+        setupConfig,
+        materializationMode: runInGameMaterializationMode,
+        restartCivProcess: options?.restartCivProcess,
+        selectedConfig,
+        config: sanitized,
+        sourceSnapshot: {
+          recipeSettings,
+          worldSettings,
+          pipelineConfig: sanitized,
+          setupConfig: normalizeStudioSetupConfig(setupConfig),
+          materializationMode: runInGameMaterializationMode,
+          selectedConfig,
+        },
+      });
+      if (!("requestId" in result)) {
+        toast(`Run in Game failed: ${result.error}`, { variant: "error" });
+        setRunInGameOperation({
+          ok: false,
+          requestId: `studio-run-in-game-client-error-${Date.now()}`,
+          phase: "failed",
+          status: "failed",
+          startedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          completedPhases: [],
+          error: result.error,
+          details: result.details,
+        });
+        return;
+      }
+      lastRunInGameToastRef.current = null;
+      setRunInGameOperation(result);
+      const snapshot = buildRunInGameClientSnapshot({
+        requestId: result.requestId,
         recipeSettings,
         worldSettings,
         pipelineConfig: sanitized,
-        setupConfig: normalizeStudioSetupConfig(setupConfig),
+        setupConfig,
+        materializationMode: runInGameMaterializationMode,
+      });
+      setRunInGameSnapshot(snapshot);
+      const sourceSnapshot = buildRunInGameSourceSnapshot({
+        requestId: result.requestId,
+        recipeSettings,
+        worldSettings,
+        pipelineConfig: sanitized,
+        setupConfig,
         materializationMode: runInGameMaterializationMode,
         selectedConfig,
-      },
-    });
-    if (!("requestId" in result)) {
-      toast(`Run in Game failed: ${result.error}`, { variant: "error" });
-      setRunInGameOperation({
-        ok: false,
-        requestId: `studio-run-in-game-client-error-${Date.now()}`,
-        phase: "failed",
-        status: "failed",
-        startedAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        completedPhases: [],
-        error: result.error,
-        details: result.details,
       });
-      return;
-    }
-    lastRunInGameToastRef.current = null;
-    setRunInGameOperation(result);
-    const snapshot = buildRunInGameClientSnapshot({
-      requestId: result.requestId,
+      setLastRunInGameSource(sourceSnapshot);
+      toast(`Run in Game started: ${result.materialization?.mapScript ?? result.requestId}`, {
+        variant: "info",
+      });
+    },
+    [
+      pipelineConfig,
+      recipeSettings.preset,
       recipeSettings,
-      worldSettings,
-      pipelineConfig: sanitized,
+      recipeSettings.seed,
+      resolvePreset,
+      runInGameMaterializationMode,
+      runInGameRunning,
+      saveDeployRunning,
+      setLastRunInGameSource,
+      setRunInGameSnapshot,
       setupConfig,
-      materializationMode: runInGameMaterializationMode,
-    });
-    setRunInGameSnapshot(snapshot);
-    const sourceSnapshot = buildRunInGameSourceSnapshot({
-      requestId: result.requestId,
-      recipeSettings,
+      toast,
       worldSettings,
-      pipelineConfig: sanitized,
-      setupConfig,
-      materializationMode: runInGameMaterializationMode,
-      selectedConfig,
-    });
-    setLastRunInGameSource(sourceSnapshot);
-    toast(`Run in Game started: ${result.materialization?.mapScript ?? result.requestId}`, { variant: "info" });
-  }, [
-    pipelineConfig,
-    recipeSettings.preset,
-    recipeSettings,
-    recipeSettings.seed,
-    resolvePreset,
-    runInGameMaterializationMode,
-    runInGameRunning,
-    saveDeployRunning,
-    setLastRunInGameSource,
-    setRunInGameSnapshot,
-    setupConfig,
-    toast,
-    worldSettings,
-    worldSettings.mapSize,
-    worldSettings.playerCount,
-    worldSettings.resources,
-  ]);
+      worldSettings.mapSize,
+      worldSettings.playerCount,
+      worldSettings.resources,
+    ]
+  );
 
   const syncStudioFromLiveGame = useCallback(() => {
     if (liveRuntime.status !== "ok") return;
     if (browserRunning || runInGameRunning || saveDeployRunning) {
-      toast("Finish the current Studio operation before syncing from the live game.", { variant: "info" });
+      toast("Finish the current Studio operation before syncing from the live game.", {
+        variant: "info",
+      });
       return;
     }
     const currentSnapshotSuggestions = liveRuntimeSuggestions.filter(
       (record) =>
         record.applyPath === "visible-studio-control" &&
         record.sourceSnapshotId !== undefined &&
-        record.sourceSnapshotId === liveRuntime.snapshotId,
+        record.sourceSnapshotId === liveRuntime.snapshotId
     );
-    const seedSuggestion = currentSnapshotSuggestions.find((record) => record.affectedConfigPath === "recipeSettings.seed");
-    const setupSuggestion = currentSnapshotSuggestions.find((record) => record.affectedConfigPath === "setupConfig");
+    const seedSuggestion = currentSnapshotSuggestions.find(
+      (record) => record.affectedConfigPath === "recipeSettings.seed"
+    );
+    const setupSuggestion = currentSnapshotSuggestions.find(
+      (record) => record.affectedConfigPath === "setupConfig"
+    );
     const applySuggestedSeed = (value: unknown, source: string): boolean => {
       const parsedSeed = parseCiv7StudioSeed(value);
       if (!parsedSeed.ok) {
-        toast(`${source} seed ignored: ${formatCiv7StudioSeedError(parsedSeed)}`, { variant: "info" });
+        toast(`${source} seed ignored: ${formatCiv7StudioSeedError(parsedSeed)}`, {
+          variant: "info",
+        });
         return false;
       }
       setRecipeSettings((prev) => ({ ...prev, seed: String(parsedSeed.value) }));
@@ -1658,21 +1836,35 @@ export function StudioShell(props: StudioShellProps) {
 
     if (!provedRunInGameSource) {
       if (currentSnapshotSuggestions.length === 0) {
-        toast("Live game suggestions are unavailable; wait for a fresh keyed live snapshot.", { variant: "error" });
+        toast("Live game suggestions are unavailable; wait for a fresh keyed live snapshot.", {
+          variant: "error",
+        });
         return;
       }
-      const didApplySeed = seedSuggestion ? applySuggestedSeed(seedSuggestion.value, "Live runtime suggestion") : false;
+      const didApplySeed = seedSuggestion
+        ? applySuggestedSeed(seedSuggestion.value, "Live runtime suggestion")
+        : false;
       const didApplySetup = setupSuggestion ? applySuggestedSetup(setupSuggestion.value) : false;
       if (!didApplySeed && !didApplySetup) {
-        toast("Live game suggestions did not include an applicable Studio seed or setup change.", { variant: "error" });
+        toast("Live game suggestions did not include an applicable Studio seed or setup change.", {
+          variant: "error",
+        });
         return;
       }
-      toast(didApplySetup ? "Live runtime suggestion applied to Studio setup." : "Live runtime seed suggestion applied.", {
-        variant: "success",
-      });
+      toast(
+        didApplySetup
+          ? "Live runtime suggestion applied to Studio setup."
+          : "Live runtime seed suggestion applied.",
+        {
+          variant: "success",
+        }
+      );
       return;
     }
-    const liveSeed = liveRuntime.seed === undefined ? provedRunInGameSource.recipeSettings.seed : String(liveRuntime.seed);
+    const liveSeed =
+      liveRuntime.seed === undefined
+        ? provedRunInGameSource.recipeSettings.seed
+        : String(liveRuntime.seed);
     if (liveSeed !== provedRunInGameSource.recipeSettings.seed) {
       toast("Live game seed no longer matches the last proved Studio run.", { variant: "error" });
       return;
@@ -1684,14 +1876,18 @@ export function StudioShell(props: StudioShellProps) {
       provedStudioRun: true,
     });
     if (provedSuggestions.length === 0) {
-      toast("The proved Studio run did not include an applicable restore suggestion.", { variant: "error" });
+      toast("The proved Studio run did not include an applicable restore suggestion.", {
+        variant: "error",
+      });
       return;
     }
     const durablePresetKey =
-      provedRunInGameSource.materializationMode === "durable" && provedRunInGameSource.selectedConfig?.id
+      provedRunInGameSource.materializationMode === "durable" &&
+      provedRunInGameSource.selectedConfig?.id
         ? (`builtin:${provedRunInGameSource.selectedConfig.id}` as PresetKey)
         : null;
-    const nextPreset = durablePresetKey && resolvePreset(durablePresetKey) ? durablePresetKey : LIVE_GAME_PRESET_KEY;
+    const nextPreset =
+      durablePresetKey && resolvePreset(durablePresetKey) ? durablePresetKey : LIVE_GAME_PRESET_KEY;
 
     lastAppliedPresetRef.current = {
       key: nextPreset,
@@ -1706,9 +1902,14 @@ export function StudioShell(props: StudioShellProps) {
       seed: liveSeed,
       preset: nextPreset,
     });
-    toast(nextPreset === LIVE_GAME_PRESET_KEY ? "Studio synced to live game config" : "Studio synced to live game preset", {
-      variant: "success",
-    });
+    toast(
+      nextPreset === LIVE_GAME_PRESET_KEY
+        ? "Studio synced to live game config"
+        : "Studio synced to live game preset",
+      {
+        variant: "success",
+      }
+    );
   }, [
     browserRunning,
     liveRuntime.seed,
@@ -1729,7 +1930,9 @@ export function StudioShell(props: StudioShellProps) {
     try {
       const result = await requestCiv7Autoplay(action);
       if (!result.ok) {
-        toast(`Autoplay ${action} failed: ${result.error ?? "unknown error"}`, { variant: "error" });
+        toast(`Autoplay ${action} failed: ${result.error ?? "unknown error"}`, {
+          variant: "error",
+        });
         return;
       }
       setLiveRuntime((current) => ({
@@ -1741,11 +1944,20 @@ export function StudioShell(props: StudioShellProps) {
         updatedAt: new Date().toISOString(),
         error: undefined,
       }));
-      toast(action === "start" ? "Civ7 autoplay started" : "Civ7 autoplay stopped", { variant: "success" });
+      toast(action === "start" ? "Civ7 autoplay started" : "Civ7 autoplay stopped", {
+        variant: "success",
+      });
     } finally {
       setAutoplayActionRunning(false);
     }
-  }, [autoplayActionRunning, browserRunning, liveRuntime.autoplayActive, runInGameRunning, saveDeployRunning, toast]);
+  }, [
+    autoplayActionRunning,
+    browserRunning,
+    liveRuntime.autoplayActive,
+    runInGameRunning,
+    saveDeployRunning,
+    toast,
+  ]);
 
   /**
    * Explore (reveal the map) in the live game via the canonical
@@ -1762,10 +1974,12 @@ export function StudioShell(props: StudioShellProps) {
         result.classification === "already-explored"
           ? "Live map already fully revealed"
           : `Live map revealed — ${result.grantedPlots} plots granted`,
-        { variant: "success" },
+        { variant: "success" }
       );
     } catch (err) {
-      toast(`Explore failed: ${err instanceof Error ? err.message : "live game unavailable"}`, { variant: "error" });
+      toast(`Explore failed: ${err instanceof Error ? err.message : "live game unavailable"}`, {
+        variant: "error",
+      });
     } finally {
       setExploreActionRunning(false);
     }
@@ -1777,14 +1991,21 @@ export function StudioShell(props: StudioShellProps) {
       await navigator.clipboard.writeText(formatRunInGameDiagnostics(runInGameOperation));
       toast("Run in Game diagnostics copied", { variant: "info" });
     } catch (err) {
-      toast(`Could not copy diagnostics: ${err instanceof Error ? err.message : "clipboard unavailable"}`, { variant: "error" });
+      toast(
+        `Could not copy diagnostics: ${err instanceof Error ? err.message : "clipboard unavailable"}`,
+        { variant: "error" }
+      );
     }
   }, [runInGameOperation, toast]);
 
   const dataTypeModel = viz.dataTypeModel;
   const dataTypeOptions: DataTypeOption[] = useMemo(() => {
     if (!dataTypeModel) return [];
-    return dataTypeModel.dataTypes.map((dt) => ({ value: dt.dataTypeId, label: dt.label, group: dt.group }));
+    return dataTypeModel.dataTypes.map((dt) => ({
+      value: dt.dataTypeId,
+      label: dt.label,
+      group: dt.group,
+    }));
   }, [dataTypeModel]);
 
   const riverLakeInspectorSummary = useMemo(
@@ -1830,18 +2051,30 @@ export function StudioShell(props: StudioShellProps) {
 
   const selectedSpace = useMemo(() => {
     if (!selectedDataType || !selection) return null;
-    return selectedDataType.spaces.find((s) => s.spaceId === selection.spaceId) ?? selectedDataType.spaces[0] ?? null;
+    return (
+      selectedDataType.spaces.find((s) => s.spaceId === selection.spaceId) ??
+      selectedDataType.spaces[0] ??
+      null
+    );
   }, [selectedDataType, selection]);
 
   const selectedRenderMode = useMemo(() => {
     if (!selectedSpace || !selection) return null;
-    return selectedSpace.renderModes.find((rm) => rm.renderModeId === selection.renderModeId) ?? selectedSpace.renderModes[0] ?? null;
+    return (
+      selectedSpace.renderModes.find((rm) => rm.renderModeId === selection.renderModeId) ??
+      selectedSpace.renderModes[0] ??
+      null
+    );
   }, [selectedSpace, selection]);
 
   const selectedVariants = selectedRenderMode?.variants ?? [];
   const selectedVariant = useMemo(() => {
     if (!selection) return selectedVariants[0] ?? null;
-    return selectedVariants.find((v) => v.variantId === selection.variantId) ?? selectedVariants[0] ?? null;
+    return (
+      selectedVariants.find((v) => v.variantId === selection.variantId) ??
+      selectedVariants[0] ??
+      null
+    );
   }, [selectedVariants, selection]);
   const selectedVariantKey = selectedVariant?.layer.variantKey ?? null;
 
@@ -1881,7 +2114,7 @@ export function StudioShell(props: StudioShellProps) {
       }),
     [manualEra, selectedVariantKey, selectedVariants]
   );
-  const eraDisplayValue = eraMode === "fixed" ? fixedEraUiValue : autoEra ?? eraRange?.min ?? 1;
+  const eraDisplayValue = eraMode === "fixed" ? fixedEraUiValue : (autoEra ?? eraRange?.min ?? 1);
 
   useEffect(() => {
     if (!eraRange) return;
@@ -1893,7 +2126,9 @@ export function StudioShell(props: StudioShellProps) {
     const out: OverlayOption[] = [];
     for (const suggestion of overlaySuggestions) {
       if (suggestion.primaryDataTypeKey !== selection.dataTypeId) continue;
-      const overlayDt = dataTypeModel.dataTypes.find((dt) => dt.dataTypeId === suggestion.overlayDataTypeKey);
+      const overlayDt = dataTypeModel.dataTypes.find(
+        (dt) => dt.dataTypeId === suggestion.overlayDataTypeKey
+      );
       if (!overlayDt) continue;
       out.push({ value: suggestion.id, label: suggestion.label });
     }
@@ -1939,16 +2174,19 @@ export function StudioShell(props: StudioShellProps) {
     }
 
     const preferredRenderMode =
-      preferredSpace.renderModes.find((renderMode) => renderMode.renderModeId === selection.renderModeId) ??
+      preferredSpace.renderModes.find(
+        (renderMode) => renderMode.renderModeId === selection.renderModeId
+      ) ??
       preferredSpace.renderModes[0] ??
       null;
 
-    const availableVariants =
-      preferredRenderMode?.variants.length
-        ? preferredRenderMode.variants
-        : preferredSpace.renderModes.flatMap((renderMode) => renderMode.variants);
+    const availableVariants = preferredRenderMode?.variants.length
+      ? preferredRenderMode.variants
+      : preferredSpace.renderModes.flatMap((renderMode) => renderMode.variants);
     const resolvedVariantKey = findVariantKeyForEra(availableVariants, manualEra);
-    setOverlayVariantKeyPreference((prev) => (prev === resolvedVariantKey ? prev : resolvedVariantKey));
+    setOverlayVariantKeyPreference((prev) =>
+      prev === resolvedVariantKey ? prev : resolvedVariantKey
+    );
   }, [dataTypeModel, eraMode, manualEra, overlaySelection, selection]);
 
   const selectLayerFor = useCallback(
@@ -1961,16 +2199,20 @@ export function StudioShell(props: StudioShellProps) {
       if (!dataTypeModel) return;
       const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === dataTypeId);
       const space = dt?.spaces.find((s) => s.spaceId === spaceId) ?? dt?.spaces[0];
-      const rm = space?.renderModes.find((x) => x.renderModeId === renderModeId) ?? space?.renderModes[0];
+      const rm =
+        space?.renderModes.find((x) => x.renderModeId === renderModeId) ?? space?.renderModes[0];
       if (!space || !rm) return;
-      let variant =
-        opts?.variantId ? rm.variants.find((v) => v.variantId === opts.variantId) ?? null : null;
+      let variant = opts?.variantId
+        ? (rm.variants.find((v) => v.variantId === opts.variantId) ?? null)
+        : null;
       if (!variant && opts?.variantKey) {
         variant = rm.variants.find((v) => v.layer.variantKey === opts.variantKey) ?? null;
       }
       if (!variant && opts?.era != null) {
         const eraVariantId = findVariantIdForEra(rm.variants, opts.era);
-        variant = eraVariantId ? rm.variants.find((v) => v.variantId === eraVariantId) ?? null : null;
+        variant = eraVariantId
+          ? (rm.variants.find((v) => v.variantId === eraVariantId) ?? null)
+          : null;
       }
       if (!variant) variant = rm.variants[0] ?? null;
       viz.setSelectedLayerKey(variant?.layerKey ?? null);
@@ -2060,7 +2302,9 @@ export function StudioShell(props: StudioShellProps) {
       const parsedEra = parseEraVariantKey(variant?.layer.variantKey ?? null);
       if (parsedEra != null) setManualEra(parsedEra);
       if (parsedEra == null && eraMode === "fixed") setEraMode("auto");
-      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, { variantId: next });
+      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, {
+        variantId: next,
+      });
     },
     [eraMode, selectLayerFor, selection, selectedVariants]
   );
@@ -2079,7 +2323,9 @@ export function StudioShell(props: StudioShellProps) {
       const clampedEra = clampNumber(seedEra, eraRange.min, eraRange.max);
       setManualEra(clampedEra);
       setEraMode("fixed");
-      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, { era: clampedEra });
+      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, {
+        era: clampedEra,
+      });
     },
     [autoEra, eraRange, manualEra, selectLayerFor, selection]
   );
@@ -2090,7 +2336,9 @@ export function StudioShell(props: StudioShellProps) {
       const clampedEra = clampNumber(nextEra, eraRange.min, eraRange.max);
       setManualEra(clampedEra);
       if (eraMode !== "fixed") setEraMode("fixed");
-      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, { era: clampedEra });
+      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, {
+        era: clampedEra,
+      });
     },
     [eraMode, eraRange, selectLayerFor, selection]
   );
@@ -2277,7 +2525,7 @@ export function StudioShell(props: StudioShellProps) {
 
   const [headerHeight, setHeaderHeight] = useState<number>(LAYOUT.HEADER_HEIGHT);
   const handleHeaderHeightChange = useCallback((height: number) => {
-    setHeaderHeight((prev) => prev === height ? prev : height);
+    setHeaderHeight((prev) => (prev === height ? prev : height));
   }, []);
   const panelTop = LAYOUT.SPACING + headerHeight + LAYOUT.SPACING;
   // The docks are pinned between the measured header and the footer bar (which
@@ -2328,7 +2576,9 @@ export function StudioShell(props: StudioShellProps) {
           runInGameStatus={runInGameOperation}
           runInGameCurrentRelation={runInGameCurrentRelation}
           onRunInGame={() => {
-            void handleRunInGame({ restartCivProcess: runInGameRequiresProcessRestart(runInGameOperation) });
+            void handleRunInGame({
+              restartCivProcess: runInGameRequiresProcessRestart(runInGameOperation),
+            });
           }}
           onRunInGameRetryStatus={() => {
             if (runInGameOperation) void refreshRunInGameStatus(runInGameOperation.requestId);
@@ -2362,7 +2612,8 @@ export function StudioShell(props: StudioShellProps) {
         setRecipeSettings((prev) =>
           next.recipe !== prev.recipe ? { ...next, preset: "none" } : next
         );
-        if (next.recipe !== recipeSettings.recipe) toast(`Recipe: ${next.recipe}`, { variant: "info" });
+        if (next.recipe !== recipeSettings.recipe)
+          toast(`Recipe: ${next.recipe}`, { variant: "info" });
       }}
       onSaveToCurrent={handleSaveToCurrent}
       onSaveAsNew={handleSaveAsNew}
@@ -2497,12 +2748,14 @@ export function StudioShell(props: StudioShellProps) {
   const liveStatusAnnouncement = [
     status === "running" ? "Generating map" : status === "error" ? "Generation error" : "Ready",
     liveRuntime.status === "ok"
-      ? `Live Civ7 ${liveRuntime.turn !== undefined || liveRuntime.seed !== undefined ? `turn ${liveRuntime.turn ?? "?"} seed ${liveRuntime.seed ?? "?"}` : liveRuntime.readiness ?? "ready"}`
+      ? `Live Civ7 ${liveRuntime.turn !== undefined || liveRuntime.seed !== undefined ? `turn ${liveRuntime.turn ?? "?"} seed ${liveRuntime.seed ?? "?"}` : (liveRuntime.readiness ?? "ready")}`
       : liveRuntime.status === "error"
         ? "Live Civ7 unavailable"
         : null,
     runInGameOperation ? `Run in Game ${runInGameOperation.phase}` : null,
-    saveDeployOperation && saveDeployOperation.status === "running" ? `Save/deploy ${saveDeployOperation.phase}` : null,
+    saveDeployOperation && saveDeployOperation.status === "running"
+      ? `Save/deploy ${saveDeployOperation.phase}`
+      : null,
   ]
     .filter(Boolean)
     .join(". ");
@@ -2575,11 +2828,15 @@ export function StudioShell(props: StudioShellProps) {
         onChange={handleImportFileChange}
       />
 
-      <LeftDock top={panelTop} bottom={panelBottom}>{leftPanel}</LeftDock>
+      <LeftDock top={panelTop} bottom={panelBottom}>
+        {leftPanel}
+      </LeftDock>
       {/* The Explore dock is map-scoped (run stage/step navigation, layers,
           camera); it leaves the stage when the pipeline view is active. */}
       {stageView === "map" ? (
-        <RightDock top={panelTop} bottom={panelBottom}>{rightPanel}</RightDock>
+        <RightDock top={panelTop} bottom={panelBottom}>
+          {rightPanel}
+        </RightDock>
       ) : null}
 
       <StageViewTabs value={stageView} onValueChange={setStageView} top={panelTop} />

@@ -12,4 +12,3 @@ const scoreColdReef = createOp(ScoreColdReefContract, {
 export type * from "./contract.js";
 
 export default scoreColdReef;
-

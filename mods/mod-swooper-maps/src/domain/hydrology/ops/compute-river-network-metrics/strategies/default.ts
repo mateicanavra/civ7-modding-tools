@@ -17,11 +17,7 @@ import {
   HYDROLOGY_SLOPE_NONE,
   HYDROLOGY_SLOPE_STEEP,
 } from "../../../river-network-metrics.js";
-import {
-  isAnyRiverClass,
-  isMajorRiverClass,
-  isMinorRiverClass,
-} from "../../../river-class.js";
+import { isAnyRiverClass, isMajorRiverClass, isMinorRiverClass } from "../../../river-class.js";
 import ComputeRiverNetworkMetricsContract from "../contract.js";
 
 const FLAT_SLOPE_MAX = 0.5;
@@ -98,7 +94,10 @@ function classifySlopeClass(
   if (landMask[index] !== 1) return HYDROLOGY_SLOPE_NONE;
   const dest = receiver[index] ?? -1;
   if (dest < 0) {
-    if (terminalType[index] === 2 && isMountainBlockedClosedBasin(index, width, height, landMask, elevation)) {
+    if (
+      terminalType[index] === 2 &&
+      isMountainBlockedClosedBasin(index, width, height, landMask, elevation)
+    ) {
       return HYDROLOGY_SLOPE_MOUNTAIN_BLOCKED;
     }
     return HYDROLOGY_SLOPE_FLAT;
@@ -190,7 +189,9 @@ export const defaultStrategy = createStrategy(ComputeRiverNetworkMetricsContract
       if (isAnyRiverClass(input.riverClass[index])) {
         const maxOrder = maxIncomingOrder[index] ?? 0;
         streamOrderProxy[index] =
-          maxOrder === 0 ? 1 : Math.min(255, maxOrder + (maxIncomingOrderCount[index] >= 2 ? 1 : 0));
+          maxOrder === 0
+            ? 1
+            : Math.min(255, maxOrder + (maxIncomingOrderCount[index] >= 2 ? 1 : 0));
       }
 
       if (dest >= 0) {

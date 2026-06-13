@@ -58,7 +58,10 @@ export function computeTracerIndexByEra(params: {
   const mantleDriftU = new Int8Array(cellCount);
   const mantleDriftV = new Int8Array(cellCount);
   for (let i = 0; i < cellCount; i++) {
-    const drift = normalizeToInt8(params.mantleForcing.forcingU[i] ?? 0, params.mantleForcing.forcingV[i] ?? 0);
+    const drift = normalizeToInt8(
+      params.mantleForcing.forcingU[i] ?? 0,
+      params.mantleForcing.forcingV[i] ?? 0
+    );
     mantleDriftU[i] = drift.u;
     mantleDriftV[i] = drift.v;
   }

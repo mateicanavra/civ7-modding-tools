@@ -16,18 +16,24 @@ import type {
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7SettlementRecommendationInputSchema = Type.Object({
-  playerId: Type.Optional(Type.Integer({ minimum: 0 })),
-  locations: Type.Optional(Type.Array(Civ7MapLocationSchema)),
-  count: Type.Optional(Type.Integer({ minimum: 1, maximum: 12 })),
-  includeSettlers: Type.Optional(Type.Boolean()),
-  includeCities: Type.Optional(Type.Boolean()),
-}, { additionalProperties: false });
+export const Civ7SettlementRecommendationInputSchema = Type.Object(
+  {
+    playerId: Type.Optional(Type.Integer({ minimum: 0 })),
+    locations: Type.Optional(Type.Array(Civ7MapLocationSchema)),
+    count: Type.Optional(Type.Integer({ minimum: 1, maximum: 12 })),
+    includeSettlers: Type.Optional(Type.Boolean()),
+    includeCities: Type.Optional(Type.Boolean()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7SettlementRecommendationInput = Readonly<{
   playerId?: number;
@@ -37,11 +43,14 @@ export type Civ7SettlementRecommendationInput = Readonly<{
   includeCities?: boolean;
 }>;
 
-export const Civ7SettlementRecommendationFactorSchema = Type.Object({
-  positive: Type.Boolean(),
-  title: Type.Union([Type.String(), Type.Null()]),
-  description: Type.Union([Type.String(), Type.Null()]),
-}, { additionalProperties: false });
+export const Civ7SettlementRecommendationFactorSchema = Type.Object(
+  {
+    positive: Type.Boolean(),
+    title: Type.Union([Type.String(), Type.Null()]),
+    description: Type.Union([Type.String(), Type.Null()]),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7SettlementRecommendationFactor = Readonly<{
   positive: boolean;
@@ -49,18 +58,17 @@ export type Civ7SettlementRecommendationFactor = Readonly<{
   description: string | null;
 }>;
 
-export const Civ7SettlementRecommendationOriginSchema = Type.Object({
-  kind: Type.Union([
-    Type.Literal("requested"),
-    Type.Literal("settler"),
-    Type.Literal("city"),
-  ]),
-  location: Civ7MapLocationSchema,
-  plotIndex: Civ7RuntimeProbeSchema(Type.Number()),
-  unitId: Type.Optional(Civ7ComponentIdSchema),
-  cityId: Type.Optional(Civ7ComponentIdSchema),
-  name: Type.Optional(Type.Union([Type.String(), Type.Null()])),
-}, { additionalProperties: false });
+export const Civ7SettlementRecommendationOriginSchema = Type.Object(
+  {
+    kind: Type.Union([Type.Literal("requested"), Type.Literal("settler"), Type.Literal("city")]),
+    location: Civ7MapLocationSchema,
+    plotIndex: Civ7RuntimeProbeSchema(Type.Number()),
+    unitId: Type.Optional(Civ7ComponentIdSchema),
+    cityId: Type.Optional(Civ7ComponentIdSchema),
+    name: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7SettlementRecommendationOrigin = Readonly<{
   kind: "requested" | "settler" | "city";
@@ -71,38 +79,51 @@ export type Civ7SettlementRecommendationOrigin = Readonly<{
   name?: string | null;
 }>;
 
-export const Civ7SettlementSuggestionSchema = Type.Object({
-  location: Type.Union([Civ7MapLocationSchema, Type.Null()]),
-  plotIndex: Civ7RuntimeProbeSchema(Type.Number()),
-  factors: Type.Array(Civ7SettlementRecommendationFactorSchema),
-}, { additionalProperties: false });
+export const Civ7SettlementSuggestionSchema = Type.Object(
+  {
+    location: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+    plotIndex: Civ7RuntimeProbeSchema(Type.Number()),
+    factors: Type.Array(Civ7SettlementRecommendationFactorSchema),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7SettlementRecommendationSchema = Type.Object({
-  origin: Civ7SettlementRecommendationOriginSchema,
-  suggestions: Civ7RuntimeProbeSchema(Type.Array(Civ7SettlementSuggestionSchema)),
-}, { additionalProperties: false });
+export const Civ7SettlementRecommendationSchema = Type.Object(
+  {
+    origin: Civ7SettlementRecommendationOriginSchema,
+    suggestions: Civ7RuntimeProbeSchema(Type.Array(Civ7SettlementSuggestionSchema)),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7SettlementRecommendation = Readonly<{
   origin: Civ7SettlementRecommendationOrigin;
-  suggestions: Civ7RuntimeProbe<ReadonlyArray<Readonly<{
-    location: Readonly<{ x: number; y: number }> | null;
-    plotIndex: Civ7RuntimeProbe<number>;
-    factors: ReadonlyArray<Civ7SettlementRecommendationFactor>;
-  }>>>;
+  suggestions: Civ7RuntimeProbe<
+    ReadonlyArray<
+      Readonly<{
+        location: Readonly<{ x: number; y: number }> | null;
+        plotIndex: Civ7RuntimeProbe<number>;
+        factors: ReadonlyArray<Civ7SettlementRecommendationFactor>;
+      }>
+    >
+  >;
 }>;
 
-export const Civ7SettlementRecommendationResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  localPlayerId: Type.Number(),
-  playerId: Type.Number(),
-  count: Type.Number(),
-  requestedLocations: Type.Array(Civ7MapLocationSchema),
-  origins: Type.Array(Civ7SettlementRecommendationOriginSchema),
-  recommendations: Type.Array(Civ7SettlementRecommendationSchema),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7SettlementRecommendationResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    localPlayerId: Type.Number(),
+    playerId: Type.Number(),
+    count: Type.Number(),
+    requestedLocations: Type.Array(Civ7MapLocationSchema),
+    origins: Type.Array(Civ7SettlementRecommendationOriginSchema),
+    recommendations: Type.Array(Civ7SettlementRecommendationSchema),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7SettlementRecommendationResult = Readonly<{
   host: string;
@@ -120,18 +141,18 @@ export type Civ7SettlementRecommendationResult = Readonly<{
 export type SettlementRecommendationDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
   parseSettlementRecommendations: (
     result: Civ7CommandResult,
-    label: string,
+    label: string
   ) => Civ7SettlementRecommendationResult;
 }>;
 
 export async function getCiv7SettlementRecommendations(
   input: Civ7SettlementRecommendationInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: SettlementRecommendationDependencies = defaultSettlementRecommendationDependencies,
+  dependencies: SettlementRecommendationDependencies = defaultSettlementRecommendationDependencies
 ): Promise<Civ7SettlementRecommendationResult> {
   const result = await dependencies.executeAppUiCommand({
     ...options,
@@ -143,7 +164,9 @@ export async function getCiv7SettlementRecommendations(
   return dependencies.parseSettlementRecommendations(result, "Civ7 settlement recommendations");
 }
 
-function buildSettlementRecommendationsCommand(input: Civ7SettlementRecommendationInput & { count: number }): string {
+function buildSettlementRecommendationsCommand(
+  input: Civ7SettlementRecommendationInput & { count: number }
+): string {
   return `(() => {
     ${settlementRecommendationsSource()}
     return JSON.stringify(readSettlementRecommendations(${jsLiteral(input)}));

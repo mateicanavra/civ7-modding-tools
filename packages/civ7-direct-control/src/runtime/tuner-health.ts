@@ -1,6 +1,9 @@
 import { Type, type Static } from "typebox";
 
-import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "../direct-control-error.js";
+import {
+  Civ7DirectControlError,
+  type Civ7DirectControlErrorCode,
+} from "../direct-control-error.js";
 
 import { DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "../session/constants.js";
 import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
@@ -12,31 +15,40 @@ import type {
 } from "../session/types.js";
 import { Civ7RuntimeProbeSchema, probeHelperSource, type Civ7RuntimeProbe } from "./probe.js";
 
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
 export const Civ7TunerHealthInputSchema = Type.Object({}, { additionalProperties: false });
 
-export const Civ7TunerHealthSnapshotSchema = Type.Object({
-  evalOk: Type.Number(),
-  ready: Type.Boolean(),
-  globals: Type.Object({
-    Game: Type.String(),
-    Autoplay: Type.String(),
-    GameplayMap: Type.String(),
-    Players: Type.String(),
-    Network: Type.String(),
-  }, { additionalProperties: false }),
-  turn: Civ7RuntimeProbeSchema(Type.Number()),
-  turnDate: Civ7RuntimeProbeSchema(Type.String()),
-  width: Civ7RuntimeProbeSchema(Type.Number()),
-  height: Civ7RuntimeProbeSchema(Type.Number()),
-  aliveIds: Civ7RuntimeProbeSchema(Type.Array(Type.Number())),
-  aliveHumanIds: Civ7RuntimeProbeSchema(Type.Array(Type.Number())),
-  autoplayActive: Civ7RuntimeProbeSchema(Type.Boolean()),
-}, { additionalProperties: false });
+export const Civ7TunerHealthSnapshotSchema = Type.Object(
+  {
+    evalOk: Type.Number(),
+    ready: Type.Boolean(),
+    globals: Type.Object(
+      {
+        Game: Type.String(),
+        Autoplay: Type.String(),
+        GameplayMap: Type.String(),
+        Players: Type.String(),
+        Network: Type.String(),
+      },
+      { additionalProperties: false }
+    ),
+    turn: Civ7RuntimeProbeSchema(Type.Number()),
+    turnDate: Civ7RuntimeProbeSchema(Type.String()),
+    width: Civ7RuntimeProbeSchema(Type.Number()),
+    height: Civ7RuntimeProbeSchema(Type.Number()),
+    aliveIds: Civ7RuntimeProbeSchema(Type.Array(Type.Number())),
+    aliveHumanIds: Civ7RuntimeProbeSchema(Type.Array(Type.Number())),
+    autoplayActive: Civ7RuntimeProbeSchema(Type.Boolean()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7TunerHealthSnapshot = Readonly<{
   evalOk: number;
@@ -57,13 +69,16 @@ export type Civ7TunerHealthSnapshot = Readonly<{
   autoplayActive: Civ7RuntimeProbe<boolean>;
 }>;
 
-export const Civ7TunerHealthResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  ready: Type.Boolean(),
-  snapshot: Civ7TunerHealthSnapshotSchema,
-}, { additionalProperties: false });
+export const Civ7TunerHealthResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    ready: Type.Boolean(),
+    snapshot: Civ7TunerHealthSnapshotSchema,
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7TunerHealthResult = Readonly<{
   host: string;
@@ -74,7 +89,9 @@ export type Civ7TunerHealthResult = Readonly<{
 }>;
 
 export type Civ7TunerHealthInput = Readonly<Static<typeof Civ7TunerHealthInputSchema>>;
-export type Civ7TunerHealthSnapshotContract = Readonly<Static<typeof Civ7TunerHealthSnapshotSchema>>;
+export type Civ7TunerHealthSnapshotContract = Readonly<
+  Static<typeof Civ7TunerHealthSnapshotSchema>
+>;
 export type Civ7TunerHealthResultContract = Readonly<Static<typeof Civ7TunerHealthResultSchema>>;
 
 export type TunerHealthSessionDependencies = Readonly<{
@@ -85,23 +102,26 @@ export type TunerHealthSessionDependencies = Readonly<{
       state?: Civ7TunerStateSelection;
       timeoutMs?: number;
     }>,
-    attempts?: number,
+    attempts?: number
   ) => Promise<Civ7CommandResult>;
 }>;
 
-export type TunerHealthDependencies = TunerHealthSessionDependencies & Readonly<{
-  withSession: <T>(
-    options: Civ7DirectControlOptions,
-    run: (session: Civ7DirectControlSession) => Promise<T>,
-  ) => Promise<T>;
-}>;
+export type TunerHealthDependencies = TunerHealthSessionDependencies &
+  Readonly<{
+    withSession: <T>(
+      options: Civ7DirectControlOptions,
+      run: (session: Civ7DirectControlSession) => Promise<T>
+    ) => Promise<T>;
+  }>;
 
 export async function checkCiv7TunerHealth(
   options: Civ7DirectControlOptions = {},
-  dependencies: TunerHealthDependencies = defaultTunerHealthDependencies,
+  dependencies: TunerHealthDependencies = defaultTunerHealthDependencies
 ): Promise<Civ7TunerHealthResult> {
-  return await dependencies.withSession(options, async (session) =>
-    await checkCiv7TunerHealthWithSession(session, options.timeoutMs, dependencies)
+  return await dependencies.withSession(
+    options,
+    async (session) =>
+      await checkCiv7TunerHealthWithSession(session, options.timeoutMs, dependencies)
   );
 }
 
@@ -110,10 +130,11 @@ export async function waitForCiv7TunerReady(
     waitTimeoutMs?: number;
     pollIntervalMs?: number;
   } = {},
-  dependencies: TunerHealthDependencies = defaultTunerHealthDependencies,
+  dependencies: TunerHealthDependencies = defaultTunerHealthDependencies
 ): Promise<Civ7TunerHealthResult & { ready: true }> {
-  return await dependencies.withSession(options, async (session) =>
-    await waitForCiv7TunerReadyWithSession(session, options, dependencies)
+  return await dependencies.withSession(
+    options,
+    async (session) => await waitForCiv7TunerReadyWithSession(session, options, dependencies)
   );
 }
 
@@ -175,7 +196,7 @@ export function tunerHealthFromCommandResult(result: Civ7CommandResult): Civ7Tun
     throw new Civ7DirectControlError(
       "command-failed",
       `Civ7 Tuner health returned invalid JSON: ${result.output.join("\n") || "<empty>"}`,
-      { cause: err, details: result },
+      { cause: err, details: result }
     );
   }
 }
@@ -183,14 +204,18 @@ export function tunerHealthFromCommandResult(result: Civ7CommandResult): Civ7Tun
 export async function checkCiv7TunerHealthWithSession(
   session: Civ7DirectControlSession,
   timeoutMs: number | undefined,
-  dependencies: TunerHealthSessionDependencies,
+  dependencies: TunerHealthSessionDependencies
 ): Promise<Civ7TunerHealthResult> {
   return tunerHealthFromCommandResult(
-    await dependencies.executeSessionCommandWithReconnect(session, {
-      state: { role: "tuner" },
-      command: buildTunerHealthCommand(),
-      timeoutMs,
-    }, 1),
+    await dependencies.executeSessionCommandWithReconnect(
+      session,
+      {
+        state: { role: "tuner" },
+        command: buildTunerHealthCommand(),
+        timeoutMs,
+      },
+      1
+    )
   );
 }
 
@@ -201,7 +226,7 @@ export async function waitForCiv7TunerReadyWithSession(
     waitTimeoutMs?: number;
     pollIntervalMs?: number;
   } = {},
-  dependencies: TunerHealthSessionDependencies,
+  dependencies: TunerHealthSessionDependencies
 ): Promise<Civ7TunerHealthResult & { ready: true }> {
   const waitTimeoutMs = options.waitTimeoutMs ?? options.timeoutMs ?? DEFAULT_CIV7_TUNER_TIMEOUT_MS;
   const pollIntervalMs = options.pollIntervalMs ?? 500;
@@ -210,7 +235,11 @@ export async function waitForCiv7TunerReadyWithSession(
   let lastError: Civ7DirectControlError | undefined;
   while (Date.now() - startedAt <= waitTimeoutMs) {
     try {
-      const health = await checkCiv7TunerHealthWithSession(session, options.timeoutMs, dependencies);
+      const health = await checkCiv7TunerHealthWithSession(
+        session,
+        options.timeoutMs,
+        dependencies
+      );
       if (health.ready) return health as Civ7TunerHealthResult & { ready: true };
       lastHealth = health;
     } catch (err) {
@@ -222,11 +251,14 @@ export async function waitForCiv7TunerReadyWithSession(
   throw new Civ7DirectControlError(
     "connection-timeout",
     `Timed out waiting for Civ7 Tuner readiness after ${waitTimeoutMs}ms`,
-    { details: lastHealth ?? lastError },
+    { details: lastHealth ?? lastError }
   );
 }
 
-function toDirectControlError(err: unknown, fallbackCode: Civ7DirectControlErrorCode): Civ7DirectControlError {
+function toDirectControlError(
+  err: unknown,
+  fallbackCode: Civ7DirectControlErrorCode
+): Civ7DirectControlError {
   if (err instanceof Civ7DirectControlError) return err;
   return new Civ7DirectControlError(fallbackCode, errorMessage(err), { cause: err });
 }

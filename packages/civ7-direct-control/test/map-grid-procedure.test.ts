@@ -32,70 +32,93 @@ describe("Civ7 map-grid procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7MapGridProcedureDescriptor,
-      Civ7MapGridProcedureSchemaArtifacts,
+      Civ7MapGridProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7MapGridProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7MapGridProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7MapGridProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7MapGridProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain", "visibility"],
-      maxPlots: 1,
-    })).toBe(true);
-    expect(Value.Check(resolved.inputSchema, {
-      locations: [{ x: 0, y: 0 }],
-      fields: ["terrain"],
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain", "visibility"],
+        maxPlots: 1,
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        locations: [{ x: 0, y: 0 }],
+        fields: ["terrain"],
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { fields: ["terrain"] })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      locations: [{ x: 0, y: 0 }],
-      fields: ["terrain"],
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      bounds: { x: 0, y: 0, width: 10_001, height: 1 },
-      fields: ["terrain"],
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      locations: [{ x: 0, y: 1.5 }],
-      fields: ["terrain"],
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["enemy"],
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain"],
-      maxPlots: 10_001,
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain"],
-      host: "127.0.0.1",
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain"],
-      state: { role: "tuner" },
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain"],
-      rawCommand: "GameplayMap.getGridWidth()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        locations: [{ x: 0, y: 0 }],
+        fields: ["terrain"],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        bounds: { x: 0, y: 0, width: 10_001, height: 1 },
+        fields: ["terrain"],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        locations: [{ x: 0, y: 1.5 }],
+        fields: ["terrain"],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["enemy"],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain"],
+        maxPlots: 10_001,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain"],
+        host: "127.0.0.1",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain"],
+        state: { role: "tuner" },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain"],
+        rawCommand: "GameplayMap.getGridWidth()",
+      })
+    ).toBe(false);
     expect(Value.Check(resolved.outputSchema, mapGridResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...mapGridResult(),
-      session: { stateName: "Tuner" },
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...mapGridResult(),
+        session: { stateName: "Tuner" },
+      })
+    ).toBe(false);
   });
 
   test("calls the map-grid atom through the procedure core without touching the live tuner", async () => {
-    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> =
+      [];
     const validatedBounds: Civ7MapBounds[] = [];
     const validatedLocations: Civ7MapLocation[] = [];
     const executeCalls: Array<{
@@ -134,20 +157,23 @@ describe("Civ7 map-grid procedure descriptor", () => {
       },
     };
 
-    const result = await callCiv7MapGridProcedure({
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      fields: ["terrain"],
-      maxPlots: 1,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7MapGridProcedure(
+      {
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        fields: ["terrain"],
+        maxPlots: 1,
       },
-      procedure: {
-        correlationId: "map-grid-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "map-grid-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(mapGridResult());
     expect(result.diagnostics).toMatchObject({
@@ -158,12 +184,8 @@ describe("Civ7 map-grid procedure descriptor", () => {
       debugServiceCorrelation: true,
       telemetryCorrelation: false,
     });
-    expect(boundedIntegerCalls).toEqual([
-      { value: 1, min: 1, max: 10_000, label: "maxPlots" },
-    ]);
-    expect(validatedBounds).toEqual([
-      { x: 0, y: 0, width: 2, height: 1 },
-    ]);
+    expect(boundedIntegerCalls).toEqual([{ value: 1, min: 1, max: 10_000, label: "maxPlots" }]);
+    expect(validatedBounds).toEqual([{ x: 0, y: 0, width: 2, height: 1 }]);
     expect(validatedLocations).toEqual([]);
     expect(executeCalls).toHaveLength(1);
     expect(executeCalls[0]).toMatchObject({
@@ -172,7 +194,7 @@ describe("Civ7 map-grid procedure descriptor", () => {
     });
     expect(executeCalls[0]?.command).toContain("locationsFromBounds");
     expect(executeCalls[0]?.command).toContain("break outer");
-    expect(executeCalls[0]?.command).toContain("\"maxPlots\":1");
+    expect(executeCalls[0]?.command).toContain('"maxPlots":1');
     expect(executeCalls[0]?.command).not.toContain("sendRequest");
     expect(executeCalls[0]?.command).not.toContain("sendOperation(");
   });
@@ -194,14 +216,19 @@ describe("Civ7 map-grid procedure descriptor", () => {
       validateMapLocation: () => undefined,
     };
 
-    await expect(callCiv7MapGridProcedure({
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      locations: [{ x: 0, y: 0 }],
-      fields: ["terrain"],
-    }, {
-      procedure: { correlationId: "map-grid-exclusive-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7MapGridProcedure(
+        {
+          bounds: { x: 0, y: 0, width: 2, height: 1 },
+          locations: [{ x: 0, y: 0 }],
+          fields: ["terrain"],
+        },
+        {
+          procedure: { correlationId: "map-grid-exclusive-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -209,12 +236,17 @@ describe("Civ7 map-grid procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7MapGridProcedure({
-      fields: ["terrain"],
-    } as never, {
-      procedure: { correlationId: "map-grid-missing-shape" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7MapGridProcedure(
+        {
+          fields: ["terrain"],
+        } as never,
+        {
+          procedure: { correlationId: "map-grid-missing-shape" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

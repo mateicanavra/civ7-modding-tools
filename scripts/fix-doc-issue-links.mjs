@@ -99,7 +99,7 @@ for (const file of markdownFiles) {
       issueIndex,
       issueFrontmatter,
       ssot,
-      warnings,
+      warnings
     );
     nextContent = updateResult.content;
     blockedUpdates += updateResult.updates;
@@ -151,14 +151,7 @@ function issueSort(a, b) {
   return aNum - bNum;
 }
 
-function updateBlockedLists(
-  content,
-  file,
-  issueIndex,
-  issueFrontmatter,
-  ssot,
-  warnings,
-) {
+function updateBlockedLists(content, file, issueIndex, issueFrontmatter, ssot, warnings) {
   const fm = parseFrontmatter(content);
   if (!fm || !fm.id) return { content, updates: 0 };
 
@@ -183,9 +176,7 @@ function updateBlockedLists(
     for (const [issueId, blockers] of blockedByMap) {
       for (const blocker of blockers) {
         if (!issueIndex.has(blocker)) {
-          warnings.add(
-            `${issueId} blocked_by references unknown issue "${blocker}"`,
-          );
+          warnings.add(`${issueId} blocked_by references unknown issue "${blocker}"`);
           continue;
         }
         if (!derivedBlocked.has(blocker)) {
@@ -198,9 +189,7 @@ function updateBlockedLists(
     for (const [issueId, blockees] of blockedMap) {
       for (const blockee of blockees) {
         if (!issueIndex.has(blockee)) {
-          warnings.add(
-            `${issueId} blocked references unknown issue "${blockee}"`,
-          );
+          warnings.add(`${issueId} blocked references unknown issue "${blockee}"`);
           continue;
         }
         if (!derivedBlockedBy.has(blockee)) {
@@ -213,14 +202,10 @@ function updateBlockedLists(
 
   const updates = [];
   if (ssot === "blocked_by") {
-    const nextBlocked = (derivedBlocked.get(targetId) ?? [])
-      .slice()
-      .sort(issueSort);
+    const nextBlocked = (derivedBlocked.get(targetId) ?? []).slice().sort(issueSort);
     updates.push({ key: "blocked", value: nextBlocked });
   } else {
-    const nextBlockedBy = (derivedBlockedBy.get(targetId) ?? [])
-      .slice()
-      .sort(issueSort);
+    const nextBlockedBy = (derivedBlockedBy.get(targetId) ?? []).slice().sort(issueSort);
     updates.push({ key: "blocked_by", value: nextBlockedBy });
   }
 
@@ -250,9 +235,7 @@ function updateLinks(content, file, issueIndex, warnings) {
       return match;
     }
 
-    const nextPath = toPosix(
-      path.relative(path.dirname(file), issuePath),
-    );
+    const nextPath = toPosix(path.relative(path.dirname(file), issuePath));
     const nextTarget = hashPart ? `${nextPath}#${hashPart}` : nextPath;
     if (nextTarget === target) return match;
     updates += 1;
@@ -264,25 +247,20 @@ function updateLinks(content, file, issueIndex, warnings) {
 
 function updateDocPaths(content, file, issueIndex, warnings) {
   let updates = 0;
-  const updated = content.replace(
-    /^(\s*doc:\s*)(\S+)\s*$/gm,
-    (match, prefix, target) => {
-      const idMatch = target.match(/CIV-\d+/);
-      if (!idMatch) return match;
-      const issueId = idMatch[0];
-      const issuePath = issueIndex.get(issueId);
-      if (!issuePath) {
-        warnings.add(`${file}: doc path references unknown issue "${issueId}"`);
-        return match;
-      }
-      const nextPath = toPosix(
-        path.relative(path.dirname(file), issuePath),
-      );
-      if (nextPath === target) return match;
-      updates += 1;
-      return `${prefix}${nextPath}`;
-    },
-  );
+  const updated = content.replace(/^(\s*doc:\s*)(\S+)\s*$/gm, (match, prefix, target) => {
+    const idMatch = target.match(/CIV-\d+/);
+    if (!idMatch) return match;
+    const issueId = idMatch[0];
+    const issuePath = issueIndex.get(issueId);
+    if (!issuePath) {
+      warnings.add(`${file}: doc path references unknown issue "${issueId}"`);
+      return match;
+    }
+    const nextPath = toPosix(path.relative(path.dirname(file), issuePath));
+    if (nextPath === target) return match;
+    updates += 1;
+    return `${prefix}${nextPath}`;
+  });
 
   return { content: updated, updates };
 }

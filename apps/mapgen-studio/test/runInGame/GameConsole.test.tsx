@@ -49,7 +49,13 @@ describe("GameConsole Run in Game status", () => {
       status: "running",
       startedAt: "2026-06-01T00:00:00.000Z",
       updatedAt: "2026-06-01T00:00:01.000Z",
-      completedPhases: ["materializing", "deploying", "checking-civ7", "preparing-setup", "starting-game"],
+      completedPhases: [
+        "materializing",
+        "deploying",
+        "checking-civ7",
+        "preparing-setup",
+        "starting-game",
+      ],
       materialization: {
         mode: "disposable",
         mapScript: "{swooper-maps}/maps/studio-current.js",
@@ -83,41 +89,54 @@ describe("GameConsole Run in Game status", () => {
   });
 
   it("renders restart-Civ recovery as the primary Run in Game action", () => {
-    const html = renderWithStatus({
-      ok: false,
-      requestId: "studio-run-in-game-restart-needed",
-      phase: "blocked",
-      status: "blocked",
-      startedAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      completedPhases: ["materializing", "deploying", "checking-civ7"],
-      error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
-      details: {
-        code: "setup-map-row-not-visible",
-        reloadBoundary: "process-restart-required",
+    const html = renderWithStatus(
+      {
+        ok: false,
+        requestId: "studio-run-in-game-restart-needed",
+        phase: "blocked",
+        status: "blocked",
+        startedAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-01T00:00:01.000Z",
+        completedPhases: ["materializing", "deploying", "checking-civ7"],
+        error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+        details: {
+          code: "setup-map-row-not-visible",
+          reloadBoundary: "process-restart-required",
+        },
       },
-    }, "current");
+      "current"
+    );
 
     expect(html).toContain("Restart Civ &amp; Run");
   });
 
   it("keeps map script fatal recovery on retry instead of process restart", () => {
-    const html = renderWithStatus({
-      ok: false,
-      requestId: "studio-run-in-game-map-script-failed",
-      phase: "failed",
-      status: "failed",
-      startedAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      completedPhases: ["materializing", "deploying", "preparing-setup", "starting-game", "waiting-for-proof"],
-      error: "Civ7 could not load generated map script",
-      details: {
-        code: "map-script-load-failed",
-        dismissNotificationRequired: true,
-        recoveryBoundary: "civ-notification-dismiss",
-        recoveryHint: "Dismiss the Civ fatal notification, fix or regenerate the map script, then retry Run in Game.",
+    const html = renderWithStatus(
+      {
+        ok: false,
+        requestId: "studio-run-in-game-map-script-failed",
+        phase: "failed",
+        status: "failed",
+        startedAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-01T00:00:01.000Z",
+        completedPhases: [
+          "materializing",
+          "deploying",
+          "preparing-setup",
+          "starting-game",
+          "waiting-for-proof",
+        ],
+        error: "Civ7 could not load generated map script",
+        details: {
+          code: "map-script-load-failed",
+          dismissNotificationRequired: true,
+          recoveryBoundary: "civ-notification-dismiss",
+          recoveryHint:
+            "Dismiss the Civ fatal notification, fix or regenerate the map script, then retry Run in Game.",
+        },
       },
-    }, "current");
+      "current"
+    );
 
     expect(html).toContain("Retry Run");
     expect(html).not.toContain("Restart Civ &amp; Run");
@@ -125,15 +144,25 @@ describe("GameConsole Run in Game status", () => {
   });
 
   it("marks a previous operation stale when the authored Studio state has changed", () => {
-    const html = renderWithStatus({
-      ok: true,
-      requestId: "studio-run-in-game-complete",
-      phase: "complete",
-      status: "complete",
-      startedAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      completedPhases: ["materializing", "deploying", "checking-civ7", "preparing-setup", "starting-game", "waiting-for-proof"],
-    }, "stale");
+    const html = renderWithStatus(
+      {
+        ok: true,
+        requestId: "studio-run-in-game-complete",
+        phase: "complete",
+        status: "complete",
+        startedAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-01T00:00:01.000Z",
+        completedPhases: [
+          "materializing",
+          "deploying",
+          "checking-civ7",
+          "preparing-setup",
+          "starting-game",
+          "waiting-for-proof",
+        ],
+      },
+      "stale"
+    );
 
     expect(html).toContain("Stale");
     expect(html).toContain("Studio state: Stale");

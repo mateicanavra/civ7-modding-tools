@@ -16,20 +16,24 @@ const identity = (path: string, sha256: string): MapScriptFileIdentity => ({
 
 describe("studio run-in-game live verifier deployment identity", () => {
   test("resolves Swooper map script paths into local and deployed bundles", () => {
-    expect(resolveSwooperMapScriptPaths({
-      mapScript: "{swooper-maps}/maps/mountain-rivers-patch.js",
-      repoRoot: "/repo",
-      modsDir: "/Users/test/Civ Mods",
-    })).toEqual({
+    expect(
+      resolveSwooperMapScriptPaths({
+        mapScript: "{swooper-maps}/maps/mountain-rivers-patch.js",
+        repoRoot: "/repo",
+        modsDir: "/Users/test/Civ Mods",
+      })
+    ).toEqual({
       localPath: "/repo/mods/mod-swooper-maps/mod/maps/mountain-rivers-patch.js",
       deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js",
     });
 
-    expect(resolveSwooperMapScriptPaths({
-      mapScript: "{base-standard}/maps/continents.js",
-      repoRoot: "/repo",
-      modsDir: "/Users/test/Civ Mods",
-    })).toBeUndefined();
+    expect(
+      resolveSwooperMapScriptPaths({
+        mapScript: "{base-standard}/maps/continents.js",
+        repoRoot: "/repo",
+        modsDir: "/Users/test/Civ Mods",
+      })
+    ).toBeUndefined();
   });
 
   test("passes only when local and deployed map scripts match and carry river markers", () => {
@@ -38,7 +42,10 @@ describe("studio run-in-game live verifier deployment identity", () => {
       localPath: "/repo/mods/mod-swooper-maps/mod/maps/mountain-rivers-patch.js",
       deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js",
       local: identity("/repo/mods/mod-swooper-maps/mod/maps/mountain-rivers-patch.js", "same"),
-      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js", "same"),
+      deployed: identity(
+        "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js",
+        "same"
+      ),
       localMarkers: [
         { marker: "map.rivers.authoredTerrainMaterialization", present: true },
         { marker: "POST-AUTHORED-RIVERS", present: true },
@@ -62,7 +69,10 @@ describe("studio run-in-game live verifier deployment identity", () => {
       localPath: "/repo/mods/mod-swooper-maps/mod/maps/mountain-rivers-patch.js",
       deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js",
       local: identity("/repo/mods/mod-swooper-maps/mod/maps/mountain-rivers-patch.js", "current"),
-      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js", "stale"),
+      deployed: identity(
+        "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js",
+        "stale"
+      ),
       localMarkers: [
         { marker: "map.rivers.authoredTerrainMaterialization", present: true },
         { marker: "POST-AUTHORED-RIVERS", present: true },

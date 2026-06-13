@@ -2,12 +2,7 @@ import { describe, it, expect } from "bun:test";
 import { Type } from "typebox";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@mapgen/core/types.js";
-import {
-  createRecipe,
-  createStage,
-  createStep,
-  defineStep,
-} from "@mapgen/authoring/index.js";
+import { createRecipe, createStage, createStep, defineStep } from "@mapgen/authoring/index.js";
 import {
   PipelineExecutor,
   StepRegistry,
@@ -52,11 +47,7 @@ describe("pipeline tracing", () => {
     });
 
     const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
-    const ctx = createExtendedMapContext(
-      { width: 4, height: 3 },
-      adapter,
-      plan.env
-    );
+    const ctx = createExtendedMapContext({ width: 4, height: 3 }, adapter, plan.env);
 
     const executor = new PipelineExecutor(registry, { log: () => {} });
     executor.executePlan(ctx, plan, { trace: traceSession });
@@ -126,11 +117,7 @@ describe("pipeline tracing", () => {
     });
 
     const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
-    const ctx = createExtendedMapContext(
-      { width: 4, height: 3 },
-      adapter,
-      plan.env
-    );
+    const ctx = createExtendedMapContext({ width: 4, height: 3 }, adapter, plan.env);
 
     const executor = new PipelineExecutor(registry, { log: () => {} });
     executor.executePlan(ctx, plan, { trace: traceSession });

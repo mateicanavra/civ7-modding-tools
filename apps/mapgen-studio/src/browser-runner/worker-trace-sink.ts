@@ -10,7 +10,6 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return proto === Object.prototype || proto === null;
 }
 
-
 function collectTransferablesFromBinaryRef(ref: VizBinaryRef, into: Transferable[]): void {
   if (ref.kind !== "inline") return;
   into.push(ref.buffer);
@@ -27,7 +26,8 @@ function collectTransferables(layer: VizLayerEntryV1): Transferable[] {
     collectTransferablesFromBinaryRef(layer.segments, transfer);
     if (layer.values) collectTransferablesFromBinaryRef(layer.values.data, transfer);
   } else if (layer.kind === "gridFields") {
-    for (const field of Object.values(layer.fields)) collectTransferablesFromBinaryRef(field.data, transfer);
+    for (const field of Object.values(layer.fields))
+      collectTransferablesFromBinaryRef(field.data, transfer);
   }
   return transfer;
 }

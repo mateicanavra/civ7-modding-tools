@@ -54,7 +54,7 @@ describe("Studio event operation adoption", () => {
           ],
         },
       }),
-      state.targets,
+      state.targets
     );
 
     expect(state.runInGame?.requestId).toBe("run-1");
@@ -105,7 +105,7 @@ describe("Studio event operation adoption", () => {
           completedPhases: ["materializing", "complete"],
         },
       }),
-      state.targets,
+      state.targets
     );
 
     expect(state.runInGame?.requestId).toBe("run-pushed-1");
@@ -129,7 +129,7 @@ describe("Studio event operation adoption", () => {
           deployed: true,
         },
       }),
-      state.targets,
+      state.targets
     );
 
     expect(state.saveDeploy?.requestId).toBe("save-pushed-1");
@@ -155,7 +155,7 @@ describe("Studio event operation adoption", () => {
         applyLiveGameState(state) {
           liveRuntime = state;
         },
-      },
+      }
     );
 
     expect(liveRuntime?.status).toBe("ok");
@@ -202,7 +202,7 @@ function adoptionState(initial?: {
 }
 
 function operationEvent(
-  event: Omit<StudioOperationEvent, "type" | "observedAt">,
+  event: Omit<StudioOperationEvent, "type" | "observedAt">
 ): StudioOperationEvent {
   return {
     type: "operation",

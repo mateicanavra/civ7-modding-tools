@@ -22,7 +22,10 @@ export * from "@mapgen/dev/index.js";
 
 // Explicit dev surface exports used by pipeline steps.
 // (Some consumers import these from the package root, not `@swooper/mapgen-core/dev`.)
-export { snapshotEngineHeightfield, type EngineHeightfieldSnapshot } from "@mapgen/dev/engine-heightfield.js";
+export {
+  snapshotEngineHeightfield,
+  type EngineHeightfieldSnapshot,
+} from "@mapgen/dev/engine-heightfield.js";
 
 // Re-export tracing primitives
 export * from "@mapgen/trace/index.js";

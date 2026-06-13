@@ -1,21 +1,23 @@
-import { 
-  UnitBuilder, 
-  AbilityBuilder, 
-  ModifierBuilder, 
-  CivilizationBuilder, 
+import {
+  UnitBuilder,
+  AbilityBuilder,
+  ModifierBuilder,
+  CivilizationBuilder,
   ConstructibleBuilder,
   UnlockBuilder,
   CivilizationUnlockBuilder,
   LeaderUnlockBuilder,
-  ImportFileBuilder
-} from '@mateicanavra/civ7-sdk';
+  ImportFileBuilder,
+} from "@mateicanavra/civ7-sdk";
 
 /**
  * Type for import file configuration
  */
-export type ImportConfig = {
-  path: string;
-} | ImportFileBuilder;
+export type ImportConfig =
+  | {
+      path: string;
+    }
+  | ImportFileBuilder;
 
 /**
  * Interface for unit packages that groups a unit with its optional components
@@ -74,4 +76,4 @@ export interface LeaderUnlockPackage {
   unlock: LeaderUnlockBuilder;
   abilities: AbilityBuilder[];
   modifiers: ModifierBuilder[];
-} 
+}

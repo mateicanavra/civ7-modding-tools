@@ -9,7 +9,11 @@ const PlateMotionStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [foundationArtifacts.mesh, foundationArtifacts.plateGraph, foundationArtifacts.mantleForcing],
+    requires: [
+      foundationArtifacts.mesh,
+      foundationArtifacts.plateGraph,
+      foundationArtifacts.mantleForcing,
+    ],
     provides: [foundationArtifacts.plateMotion],
   },
   ops: {

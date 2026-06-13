@@ -13,7 +13,9 @@ import {
 
 describe("Civ7 settlement recommendations procedure descriptor", () => {
   test("records the read-only settlement atom and resolves its schemas", () => {
-    const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7SettlementRecommendationsProcedureDescriptor);
+    const summary = summarizeCiv7ProcedureCoreDescriptor(
+      Civ7SettlementRecommendationsProcedureDescriptor
+    );
     expect(summary).toMatchObject({
       procedureKey: "strategy.settlement.recommendations",
       family: "strategy",
@@ -30,33 +32,40 @@ describe("Civ7 settlement recommendations procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7SettlementRecommendationsProcedureDescriptor,
-      Civ7SettlementRecommendationsProcedureSchemaArtifacts,
+      Civ7SettlementRecommendationsProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7SettlementRecommendationsProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7SettlementRecommendationsProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7SettlementRecommendationsProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7SettlementRecommendationsProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      locations: [{ x: 18, y: 27 }],
-      count: 3,
-      includeSettlers: false,
-      includeCities: false,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        locations: [{ x: 18, y: 27 }],
+        count: 3,
+        includeSettlers: false,
+        includeCities: false,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { count: 13 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { locations: [{ x: 1.5, y: 0 }] })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { rawCommand: "readSettlementRecommendations()" })).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, { rawCommand: "readSettlementRecommendations()" })
+    ).toBe(false);
     expect(Value.Check(resolved.outputSchema, settlementRecommendationsResult(3))).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...settlementRecommendationsResult(3),
-      rawCommand: "readSettlementRecommendations()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...settlementRecommendationsResult(3),
+        rawCommand: "readSettlementRecommendations()",
+      })
+    ).toBe(false);
   });
 
   test("calls the settlement recommendation atom through the procedure core without touching the live tuner", async () => {
-    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> =
+      [];
     const executeCalls: Array<{ host?: string; port?: number; command: string }> = [];
     const dependencies: SettlementRecommendationDependencies = {
       boundedInteger: (value, min, max, label) => {
@@ -79,21 +88,24 @@ describe("Civ7 settlement recommendations procedure descriptor", () => {
       parseSettlementRecommendations: () => settlementRecommendationsResult(3),
     };
 
-    const result = await callCiv7SettlementRecommendationsProcedure({
-      locations: [{ x: 18, y: 27 }],
-      count: 3,
-      includeSettlers: false,
-      includeCities: false,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7SettlementRecommendationsProcedure(
+      {
+        locations: [{ x: 18, y: 27 }],
+        count: 3,
+        includeSettlers: false,
+        includeCities: false,
       },
-      procedure: {
-        correlationId: "settlement-recommendations-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "settlement-recommendations-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(settlementRecommendationsResult(3));
     expect(result.diagnostics).toMatchObject({
@@ -104,9 +116,7 @@ describe("Civ7 settlement recommendations procedure descriptor", () => {
       debugServiceCorrelation: true,
       telemetryCorrelation: false,
     });
-    expect(boundedIntegerCalls).toEqual([
-      { value: 3, min: 1, max: 12, label: "count" },
-    ]);
+    expect(boundedIntegerCalls).toEqual([{ value: 3, min: 1, max: 12, label: "count" }]);
     expect(executeCalls).toHaveLength(1);
     expect(executeCalls[0]).toMatchObject({
       host: "127.0.0.1",
@@ -130,10 +140,15 @@ describe("Civ7 settlement recommendations procedure descriptor", () => {
       parseSettlementRecommendations: () => settlementRecommendationsResult(),
     };
 
-    await expect(callCiv7SettlementRecommendationsProcedure({ count: 13 }, {
-      procedure: { correlationId: "settlement-recommendations-invalid-count" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7SettlementRecommendationsProcedure(
+        { count: 13 },
+        {
+          procedure: { correlationId: "settlement-recommendations-invalid-count" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -141,12 +156,17 @@ describe("Civ7 settlement recommendations procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7SettlementRecommendationsProcedure({
-      host: "127.0.0.1",
-    } as never, {
-      procedure: { correlationId: "settlement-recommendations-context-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7SettlementRecommendationsProcedure(
+        {
+          host: "127.0.0.1",
+        } as never,
+        {
+          procedure: { correlationId: "settlement-recommendations-context-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

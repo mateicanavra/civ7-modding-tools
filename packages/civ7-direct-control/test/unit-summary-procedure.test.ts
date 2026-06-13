@@ -30,32 +30,37 @@ describe("Civ7 unit-summary procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7UnitSummaryProcedureDescriptor,
-      Civ7UnitSummaryProcedureSchemaArtifacts,
+      Civ7UnitSummaryProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7UnitSummaryProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7UnitSummaryProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7UnitSummaryProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7UnitSummaryProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      playerId: 0,
-      unitIds: [{ owner: -1, id: -1, type: 26 }],
-      maxItems: 2,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        playerId: 0,
+        unitIds: [{ owner: -1, id: -1, type: 26 }],
+        maxItems: 2,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { playerId: 1025 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { maxItems: 1_001 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { state: { role: "tuner" } })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { rawCommand: "Units.get(id)" })).toBe(false);
     expect(Value.Check(resolved.outputSchema, unitSummaryResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...unitSummaryResult(),
-      command: "Units.get(id)",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...unitSummaryResult(),
+        command: "Units.get(id)",
+      })
+    ).toBe(false);
   });
 
   test("calls the unit-summary atom through the procedure core without sending operations", async () => {
-    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> =
+      [];
     const validatePlayerIdCalls: number[] = [];
     const executeCalls: Array<{
       host?: string;
@@ -89,21 +94,24 @@ describe("Civ7 unit-summary procedure descriptor", () => {
       },
     };
 
-    const result = await callCiv7UnitSummaryProcedure({
-      playerIds: [0],
-      playerId: 0,
-      unitIds: [{ owner: -1, id: -1, type: 26 }],
-      maxItems: 2,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7UnitSummaryProcedure(
+      {
+        playerIds: [0],
+        playerId: 0,
+        unitIds: [{ owner: -1, id: -1, type: 26 }],
+        maxItems: 2,
       },
-      procedure: {
-        correlationId: "unit-summary-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "unit-summary-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(unitSummaryResult());
     expect(result.diagnostics).toMatchObject({
@@ -114,9 +122,7 @@ describe("Civ7 unit-summary procedure descriptor", () => {
       debugServiceCorrelation: true,
       telemetryCorrelation: false,
     });
-    expect(boundedIntegerCalls).toEqual([
-      { value: 2, min: 1, max: 1_000, label: "maxItems" },
-    ]);
+    expect(boundedIntegerCalls).toEqual([{ value: 2, min: 1, max: 1_000, label: "maxItems" }]);
     expect(validatePlayerIdCalls).toEqual([0, 0]);
     expect(executeCalls).toHaveLength(1);
     expect(executeCalls[0]).toMatchObject({
@@ -151,10 +157,12 @@ describe("Civ7 unit-summary procedure descriptor", () => {
       { state: { role: "tuner" } },
       { rawCommand: "Units.get(id)" },
     ]) {
-      await expect(callCiv7UnitSummaryProcedure(input as never, {
-        procedure: { correlationId: "unit-summary-invalid-input" },
-        dependencies,
-      })).rejects.toMatchObject({
+      await expect(
+        callCiv7UnitSummaryProcedure(input as never, {
+          procedure: { correlationId: "unit-summary-invalid-input" },
+          dependencies,
+        })
+      ).rejects.toMatchObject({
         code: "procedure-descriptor-invalid",
         details: {
           reason: "input-schema-invalid",

@@ -9,16 +9,20 @@ import type {
 
 type EndpointDiscoveryDependencies = Readonly<{
   errorMessage: (err: unknown) => string;
-  queryTunerStates: (options: Civ7DirectControlOptions & {
-    host: string;
-    port: number;
-    timeoutMs: number;
-  }) => Promise<ReadonlyArray<Civ7TunerState>>;
+  queryTunerStates: (
+    options: Civ7DirectControlOptions & {
+      host: string;
+      port: number;
+      timeoutMs: number;
+    }
+  ) => Promise<ReadonlyArray<Civ7TunerState>>;
 }>;
 
 export async function discoverCiv7DirectControlEndpoint(
-  options: Civ7DirectControlOptions = {},
-): Promise<Readonly<{ endpoint: Civ7DirectControlEndpoint; states: ReadonlyArray<Civ7TunerState> }>> {
+  options: Civ7DirectControlOptions = {}
+): Promise<
+  Readonly<{ endpoint: Civ7DirectControlEndpoint; states: ReadonlyArray<Civ7TunerState> }>
+> {
   return await discoverCiv7DirectControlEndpointWithDependencies(options, {
     errorMessage,
     queryTunerStates: queryCiv7TunerStates,
@@ -27,8 +31,10 @@ export async function discoverCiv7DirectControlEndpoint(
 
 export async function discoverCiv7DirectControlEndpointWithDependencies(
   options: Civ7DirectControlOptions = {},
-  dependencies: EndpointDiscoveryDependencies,
-): Promise<Readonly<{ endpoint: Civ7DirectControlEndpoint; states: ReadonlyArray<Civ7TunerState> }>> {
+  dependencies: EndpointDiscoveryDependencies
+): Promise<
+  Readonly<{ endpoint: Civ7DirectControlEndpoint; states: ReadonlyArray<Civ7TunerState> }>
+> {
   const config = resolveCiv7DirectControlConfig(options);
   const errors: Array<{ host: string; error: string }> = [];
   for (const host of config.hosts) {
@@ -49,7 +55,7 @@ export async function discoverCiv7DirectControlEndpointWithDependencies(
   throw new Civ7DirectControlError(
     "all-hosts-unavailable",
     `Unable to reach Civ7 tuner socket on ${config.hosts.join(", ")}:${config.port}`,
-    { details: errors },
+    { details: errors }
   );
 }
 

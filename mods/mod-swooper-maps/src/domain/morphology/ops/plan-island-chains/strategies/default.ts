@@ -24,14 +24,8 @@ export const defaultStrategy = createStrategy(PlanIslandChainsContract, "default
     const perlin = new PerlinNoise((input.rngSeed | 0) ^ 0x5f356495);
     const noiseScale = 0.1;
     const islandsCfg = config.islands;
-    const {
-      threshold,
-      minDist,
-      baseDenActive,
-      baseDenElse,
-      hotspotDenom,
-      microcontinentChance,
-    } = normalizeIslandTunables(config);
+    const { threshold, minDist, baseDenActive, baseDenElse, hotspotDenom, microcontinentChance } =
+      normalizeIslandTunables(config);
 
     const edits: Array<{ index: number; kind: "coast" | "peak" }> = [];
 

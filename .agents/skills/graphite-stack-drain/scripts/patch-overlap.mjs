@@ -12,7 +12,9 @@ function parseArgs(argv) {
     else if (arg === "--right") args.right = argv[++index];
     else if (arg === "--output") args.output = argv[++index];
     else if (arg === "--help" || arg === "-h") {
-      console.log("Usage: patch-overlap.mjs --left BRANCH --right BRANCH [--repo-root PATH] [--output PATH]");
+      console.log(
+        "Usage: patch-overlap.mjs --left BRANCH --right BRANCH [--repo-root PATH] [--output PATH]"
+      );
       process.exit(0);
     } else {
       throw new Error(`Unknown argument: ${arg}`);
@@ -51,7 +53,11 @@ function main() {
   const args = parseArgs(process.argv);
   const repoRoot = resolve(args.repoRoot);
   const mergeBase = run("git", ["merge-base", args.left, args.right], repoRoot).trim();
-  const [leftAhead, rightAhead] = run("git", ["rev-list", "--left-right", "--count", `${args.left}...${args.right}`], repoRoot)
+  const [leftAhead, rightAhead] = run(
+    "git",
+    ["rev-list", "--left-right", "--count", `${args.left}...${args.right}`],
+    repoRoot
+  )
     .trim()
     .split(/\s+/)
     .map((value) => Number.parseInt(value, 10));

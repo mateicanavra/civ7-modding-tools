@@ -38,7 +38,9 @@ function validNames(
     .filter((value): value is string => typeof value === "string");
 }
 
-function buildEngineFeatureLegality(): Readonly<Partial<Record<FeatureKey, EngineFeatureLegality>>> {
+function buildEngineFeatureLegality(): Readonly<
+  Partial<Record<FeatureKey, EngineFeatureLegality>>
+> {
   const out: Partial<Record<FeatureKey, EngineFeatureLegality>> = {};
   for (const feature of FEATURE_PLACEMENT_KEYS) {
     const featureIndex = CIV7_BROWSER_TABLES_V0.featureTypes[feature];

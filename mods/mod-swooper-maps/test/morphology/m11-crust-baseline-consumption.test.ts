@@ -18,11 +18,18 @@ function quantile(sorted: number[], q: number): number {
 }
 
 function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
-  const mantlePotential = computeMantlePotential.run({ mesh, rngSeed }, computeMantlePotential.defaultConfig)
-    .mantlePotential;
-  const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
-    .mantleForcing;
-  return computePlateMotion.run({ mesh, plateGraph, mantleForcing }, computePlateMotion.defaultConfig).plateMotion;
+  const mantlePotential = computeMantlePotential.run(
+    { mesh, rngSeed },
+    computeMantlePotential.defaultConfig
+  ).mantlePotential;
+  const mantleForcing = computeMantleForcing.run(
+    { mesh, mantlePotential },
+    computeMantleForcing.defaultConfig
+  ).mantleForcing;
+  return computePlateMotion.run(
+    { mesh, plateGraph, mantleForcing },
+    computePlateMotion.defaultConfig
+  ).plateMotion;
 }
 
 describe("m11 morphology baseline consumes crust isostasy prior", () => {
@@ -35,20 +42,27 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2},
+        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
       },
       ctx as any
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 10 }, meshConfig).mesh;
-    const mantlePotential = computeMantlePotential.run({ mesh, rngSeed: 11 }, computeMantlePotential.defaultConfig)
-      .mantlePotential;
-    const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
-      .mantleForcing;
-    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 11 }, computeCrust.defaultConfig).crust;
+    const mantlePotential = computeMantlePotential.run(
+      { mesh, rngSeed: 11 },
+      computeMantlePotential.defaultConfig
+    ).mantlePotential;
+    const mantleForcing = computeMantleForcing.run(
+      { mesh, mantlePotential },
+      computeMantleForcing.defaultConfig
+    ).mantleForcing;
+    const crust = computeCrust.run(
+      { mesh, mantleForcing, rngSeed: 11 },
+      computeCrust.defaultConfig
+    ).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 12 },
-      { strategy: "default", config: { plateCount: 16} }
+      { strategy: "default", config: { plateCount: 16 } }
     ).plateGraph;
     const plateMotion = derivePlateMotion(mesh, plateGraph, 13);
     const historyResult = runTectonicHistoryChain({

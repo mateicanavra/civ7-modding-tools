@@ -7,7 +7,7 @@ export type CommandOutput = {
 export type ExecFileAsync = (
   file: string,
   args: string[],
-  options: { timeout: number; maxBuffer: number },
+  options: { timeout: number; maxBuffer: number }
 ) => Promise<{ stdout: string; stderr: string }>;
 
 export type WaitForMacProcessExitResult = {
@@ -75,14 +75,19 @@ export type Civ7MacSteamLaunchOptions = {
 export class Civ7MacSteamLaunchError extends Error {
   constructor(
     message: string,
-    readonly attempts: Civ7MacSteamLaunchAttempt[],
+    readonly attempts: Civ7MacSteamLaunchAttempt[]
   ) {
     super(message);
     this.name = "Civ7MacSteamLaunchError";
   }
 }
 
-function commandOutput(command: string, stdout: string, stderr: string, tail: (value: string) => string): CommandOutput {
+function commandOutput(
+  command: string,
+  stdout: string,
+  stderr: string,
+  tail: (value: string) => string
+): CommandOutput {
   return { command, stdout: tail(stdout), stderr: tail(stderr) };
 }
 
@@ -105,7 +110,7 @@ function errorOutput(err: unknown): { stdout: string; stderr: string } {
 
 export async function isMacProcessRunning(
   execFileAsync: ExecFileAsync,
-  processPattern: string,
+  processPattern: string
 ): Promise<boolean> {
   try {
     const { stdout } = await execFileAsync("pgrep", ["-f", processPattern], {
@@ -190,17 +195,21 @@ export async function waitForMacProcessExit(options: {
 }
 
 export async function launchCiv7MacViaSteamWithRetries(
-  options: Civ7MacSteamLaunchOptions,
+  options: Civ7MacSteamLaunchOptions
 ): Promise<Civ7MacSteamLaunchResult> {
   const launchCommand = `open steam://rungameid/${options.steamAppId}`;
   const attempts: Civ7MacSteamLaunchAttempt[] = [];
   const maxLaunchAttempts = Math.max(1, Math.floor(options.maxLaunchAttempts));
 
   for (let attempt = 1; attempt <= maxLaunchAttempts; attempt += 1) {
-    const launch = await options.execFileAsync("open", [`steam://rungameid/${options.steamAppId}`], {
-      timeout: options.launchCommandTimeoutMs,
-      maxBuffer: 1024 * 1024,
-    });
+    const launch = await options.execFileAsync(
+      "open",
+      [`steam://rungameid/${options.steamAppId}`],
+      {
+        timeout: options.launchCommandTimeoutMs,
+        maxBuffer: 1024 * 1024,
+      }
+    );
     const processStart = await waitForMacProcessStart({
       execFileAsync: options.execFileAsync,
       sleep: options.sleep,
@@ -218,7 +227,8 @@ export async function launchCiv7MacViaSteamWithRetries(
 
     if (processStart.started) {
       return {
-        command: attempts.length === 1 ? launchCommand : `${launchCommand} (${attempts.length} attempts)`,
+        command:
+          attempts.length === 1 ? launchCommand : `${launchCommand} (${attempts.length} attempts)`,
         attempts,
         processStart,
       };
@@ -231,13 +241,13 @@ export async function launchCiv7MacViaSteamWithRetries(
 
   throw new Civ7MacSteamLaunchError(
     `Civ7 process did not start after ${attempts.length} Steam launch attempt(s)`,
-    attempts,
+    attempts
   );
 }
 
 async function runPossiblyEmptyPkill(
   options: Civ7MacProcessShutdownOptions,
-  args: string[],
+  args: string[]
 ): Promise<{ stdout: string; stderr: string }> {
   try {
     return await options.execFileAsync("pkill", args, {
@@ -252,13 +262,15 @@ async function runPossiblyEmptyPkill(
 }
 
 export async function shutdownCiv7MacProcess(
-  options: Civ7MacProcessShutdownOptions,
+  options: Civ7MacProcessShutdownOptions
 ): Promise<Civ7MacProcessShutdownResult> {
   const quitCommand = "osascript -e 'tell application id \"com.2k.civ7\" to quit'";
-  const quitResult = await options.execFileAsync("osascript", ["-e", 'tell application id "com.2k.civ7" to quit'], {
-    timeout: 10_000,
-    maxBuffer: 1024 * 1024,
-  }).catch((err: unknown) => errorOutput(err));
+  const quitResult = await options
+    .execFileAsync("osascript", ["-e", 'tell application id "com.2k.civ7" to quit'], {
+      timeout: 10_000,
+      maxBuffer: 1024 * 1024,
+    })
+    .catch((err: unknown) => errorOutput(err));
 
   const gracefulExit = await waitForMacProcessExit({
     execFileAsync: options.execFileAsync,
@@ -291,8 +303,17 @@ export async function shutdownCiv7MacProcess(
   if (result.forcedExit.exited) return result;
 
   const forceKillCommand = `pkill -9 -f ${options.processPattern}`;
-  const forceKillResult = await runPossiblyEmptyPkill(options, ["-9", "-f", options.processPattern]);
-  result.forceKill = commandOutput(forceKillCommand, forceKillResult.stdout, forceKillResult.stderr, options.tail);
+  const forceKillResult = await runPossiblyEmptyPkill(options, [
+    "-9",
+    "-f",
+    options.processPattern,
+  ]);
+  result.forceKill = commandOutput(
+    forceKillCommand,
+    forceKillResult.stdout,
+    forceKillResult.stderr,
+    options.tail
+  );
   result.forceKilledExit = await waitForMacProcessExit({
     execFileAsync: options.execFileAsync,
     sleep: options.sleep,
@@ -304,7 +325,9 @@ export async function shutdownCiv7MacProcess(
   });
 
   if (!result.forceKilledExit.exited) {
-    throw new Error(`Civ7 process did not exit after quit, pkill, and pkill -9 for pattern: ${options.processPattern}`);
+    throw new Error(
+      `Civ7 process did not exit after quit, pkill, and pkill -9 for pattern: ${options.processPattern}`
+    );
   }
 
   return result;

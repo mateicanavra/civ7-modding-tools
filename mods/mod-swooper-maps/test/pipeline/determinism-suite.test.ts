@@ -5,7 +5,10 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { M1_FOUNDATION_DIAGNOSTICS, M1_FOUNDATION_GATES } from "../support/foundation-invariants.js";
+import {
+  M1_FOUNDATION_DIAGNOSTICS,
+  M1_FOUNDATION_GATES,
+} from "../support/foundation-invariants.js";
 import { M1_TIER1_ARTIFACT_IDS, runValidationHarness } from "../support/validation-harness.js";
 import { M1_DETERMINISM_CASES, type DeterminismCase } from "../support/determinism-suite.js";
 
@@ -30,9 +33,19 @@ function runStandardContext(caseData: DeterminismCase) {
     },
   };
 
-  const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+  const adapter = createMockAdapter({
+    width,
+    height,
+    mapInfo,
+    mapSizeId: 1,
+    rng: createLabelRng(seed),
+  });
   const context = createExtendedMapContext({ width, height }, adapter, env);
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[determinism-suite]", storyEnabled: true });
+  initializeStandardRuntime(context, {
+    mapInfo,
+    logPrefix: "[determinism-suite]",
+    storyEnabled: true,
+  });
   standardRecipe.run(context, env, config, { log: () => {} });
   return context;
 }
@@ -89,11 +102,16 @@ describe("pipeline determinism suite (M1)", () => {
       });
       if (diagnostics.failures.length > 0) {
         for (const failure of diagnostics.failures) {
-          console.warn(`[diagnostic:${caseData.label}] ${failure.name}: ${failure.message ?? "check failed"}`);
+          console.warn(
+            `[diagnostic:${caseData.label}] ${failure.name}: ${failure.message ?? "check failed"}`
+          );
         }
       }
 
-      const diffs = diffFingerprints(reportA.fingerprints.artifacts, reportB.fingerprints.artifacts);
+      const diffs = diffFingerprints(
+        reportA.fingerprints.artifacts,
+        reportB.fingerprints.artifacts
+      );
       if (reportA.fingerprints.missing.length > 0) {
         diffs.push(`missing artifacts (run A): ${reportA.fingerprints.missing.join(", ")}`);
       }

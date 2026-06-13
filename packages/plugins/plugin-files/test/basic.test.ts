@@ -72,9 +72,13 @@ describe("@civ7/plugin-files error handling", () => {
       return false;
     });
 
-    (fs.readFileSync as any).mockReturnValue(`[submodule \".civ7/outputs/resources\"]\n\tpath = .civ7/outputs/resources\n\turl = https://example.com/repo.git\n`);
+    (fs.readFileSync as any).mockReturnValue(
+      `[submodule \".civ7/outputs/resources\"]\n\tpath = .civ7/outputs/resources\n\turl = https://example.com/repo.git\n`
+    );
 
-    await expect(unzipResources({ projectRoot, zip, dest })).rejects.toThrow(/configured as a git submodule/i);
+    await expect(unzipResources({ projectRoot, zip, dest })).rejects.toThrow(
+      /configured as a git submodule/i
+    );
   });
 
   it("unzipResources clears submodule contents but preserves .git", async () => {
@@ -91,7 +95,7 @@ describe("@civ7/plugin-files error handling", () => {
     });
 
     (fs.readFileSync as any).mockReturnValue(
-      `[submodule \".civ7/outputs/resources\"]\n\tpath = .civ7/outputs/resources\n\turl = https://example.com/repo.git\n`,
+      `[submodule \".civ7/outputs/resources\"]\n\tpath = .civ7/outputs/resources\n\turl = https://example.com/repo.git\n`
     );
 
     (fs.readdirSync as any).mockReturnValue(["Base", "DLC", "resources.json", ".git"]);
@@ -114,14 +118,14 @@ describe("@civ7/plugin-files utilities", () => {
   it("copyDirectoryRecursive respects filter", () => {
     // use fs mock
     const entries = [
-      { name: 'a.js', isDirectory: () => false, isSymbolicLink: () => false },
-      { name: 'b.map', isDirectory: () => false, isSymbolicLink: () => false },
+      { name: "a.js", isDirectory: () => false, isSymbolicLink: () => false },
+      { name: "b.map", isDirectory: () => false, isSymbolicLink: () => false },
     ];
     (fs.existsSync as any) = vi.fn(() => true);
     (fs.readdirSync as any) = vi.fn(() => entries);
     (fs.copyFileSync as any) = vi.fn();
-    const res = copyDirectoryRecursive('/src', '/dest', {
-      filter: (rel, entry) => rel.endsWith('.js') || entry.isDirectory(),
+    const res = copyDirectoryRecursive("/src", "/dest", {
+      filter: (rel, entry) => rel.endsWith(".js") || entry.isDirectory(),
     });
     expect(res.copiedFiles).toBe(1);
     expect(res.skippedEntries).toBe(1);

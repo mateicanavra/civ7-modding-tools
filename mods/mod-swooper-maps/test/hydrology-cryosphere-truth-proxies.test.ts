@@ -29,4 +29,3 @@ describe("hydrology cryosphere truth proxies", () => {
     expect(first.groundIce01[0]).not.toBe(first.groundIce01[1]);
   });
 });
-

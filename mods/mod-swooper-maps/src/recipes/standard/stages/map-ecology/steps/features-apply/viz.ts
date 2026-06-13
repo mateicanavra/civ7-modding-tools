@@ -10,7 +10,9 @@ export type VizCategory = Readonly<{
 export const FEATURE_TYPE_NONE_VALUE = -1;
 const UNKNOWN_FEATURE_COLOR: VizCategory["color"] = [148, 163, 184, 180];
 
-export const FEATURE_TYPE_VIZ_COLORS_BY_KEY: Readonly<Partial<Record<FeatureKey, VizCategory["color"]>>> = {
+export const FEATURE_TYPE_VIZ_COLORS_BY_KEY: Readonly<
+  Partial<Record<FeatureKey, VizCategory["color"]>>
+> = {
   FEATURE_FOREST: [34, 197, 94, 235],
   FEATURE_RAINFOREST: [21, 128, 61, 235],
   FEATURE_TAIGA: [16, 185, 129, 235],

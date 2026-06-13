@@ -1,8 +1,5 @@
 import { createStage } from "@swooper/mapgen-core/authoring";
-import {
-  MapEcologyKnobsSchema,
-  MapEcologyPublicSchema,
-} from "../map-projection-public-config.js";
+import { MapEcologyKnobsSchema, MapEcologyPublicSchema } from "../map-projection-public-config.js";
 import { steps } from "./steps/index.js";
 
 /**

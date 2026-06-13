@@ -16,17 +16,19 @@ describe("progression traditions control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.progression.traditions.current,
       {},
-      { context: fake.context },
+      { context: fake.context }
     );
 
-    expect(fake.calls.traditions).toEqual([{
-      input: {},
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+    expect(fake.calls.traditions).toEqual([
+      {
+        input: {},
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-    }]);
+    ]);
     expect(result).toMatchObject({
       playerId: 0,
       sourceStatus: {
@@ -50,21 +52,26 @@ describe("progression traditions control-oRPC procedure", () => {
     expect(result.available[0]).toMatchObject({
       id: 90243567,
       name: "Oratory",
-      actions: [{
-        kind: "activate",
-        action: -1326475004,
-        validationSuccess: true,
-        parameters: {
-          traditionType: 90243567,
+      actions: [
+        {
+          kind: "activate",
           action: -1326475004,
+          validationSuccess: true,
+          parameters: {
+            traditionType: 90243567,
+            action: -1326475004,
+          },
         },
-      }],
+      ],
     });
-    expect(result.nextSteps).toEqual([{
-      kind: "inspect-tradition-change",
-      source: "progression.traditions.current",
-      label: "Inspect available tradition action descriptors before requesting a tradition change.",
-    }]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "inspect-tradition-change",
+        source: "progression.traditions.current",
+        label:
+          "Inspect available tradition action descriptors before requesting a tradition change.",
+      },
+    ]);
     expect(result.omitted.map((item) => item.path)).toEqual([
       "presentation.commandSuggestions",
       "presentation.actionDirections",
@@ -72,10 +79,10 @@ describe("progression traditions control-oRPC procedure", () => {
     ]);
 
     const serialized = JSON.stringify(result);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
     expect(serialized).not.toContain("cliCommandSuggestions");
     expect(serialized).not.toContain("actionHints[].cli");
     expect(serialized).not.toContain("recommendedCli");
@@ -90,7 +97,7 @@ describe("progression traditions control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.progression.traditions.current,
       { playerId: 2 },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(fake.calls.traditions[0]?.input).toEqual({ playerId: 2 });
@@ -110,9 +117,7 @@ describe("progression traditions control-oRPC procedure", () => {
       { rawCommand: "Game.turn" },
       { approvalReason: "go" },
     ]) {
-      await expect(
-        client.progression.traditions.current(input as never),
-      ).rejects.toMatchObject({
+      await expect(client.progression.traditions.current(input as never)).rejects.toMatchObject({
         code: "BAD_REQUEST",
       });
     }
@@ -122,14 +127,14 @@ describe("progression traditions control-oRPC procedure", () => {
 
   test("maps direct-control failures to tagged unavailable errors without raw cause text", async () => {
     const fake = fakeContext(
-      new Error("Timed out waiting for Civ7 tuner response to CMD:65535:Game.turn"),
+      new Error("Timed out waiting for Civ7 tuner response to CMD:65535:Game.turn")
     );
 
     try {
       await call(
         Civ7ControlOrpcRouter.progression.traditions.current,
         {},
-        { context: fake.context },
+        { context: fake.context }
       );
       throw new Error("expected progression traditions call to fail");
     } catch (err) {
@@ -146,22 +151,24 @@ describe("progression traditions control-oRPC procedure", () => {
   });
 });
 
-function fakeContext(
-  traditions: Civ7ControlOrpcTraditionsViewResult | Error,
-): {
+function fakeContext(traditions: Civ7ControlOrpcTraditionsViewResult | Error): {
   calls: {
-    traditions: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
+    traditions: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
   };
   context: Civ7ControlOrpcContext;
 } {
   const calls = {
-    traditions: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
+    traditions: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
   };
 
   return {
@@ -187,7 +194,7 @@ function fakeContext(
 }
 
 function traditionsViewResult(
-  overrides: Partial<Pick<Civ7ControlOrpcTraditionsViewResult, "playerId">> = {},
+  overrides: Partial<Pick<Civ7ControlOrpcTraditionsViewResult, "playerId">> = {}
 ): Civ7ControlOrpcTraditionsViewResult {
   const activate = -1326475004;
   const deactivate = 1318334332;
@@ -250,17 +257,19 @@ function traditionsViewResult(
   };
 }
 
-function tradition(input: Readonly<{
-  id: number;
-  type: string;
-  name: string;
-  active: boolean;
-  recentUnlock: boolean;
-  action: Readonly<{
-    kind: "activate" | "deactivate";
-    action: number;
-  }>;
-}>): Civ7ControlOrpcTraditionsViewResult["traditions"][number] {
+function tradition(
+  input: Readonly<{
+    id: number;
+    type: string;
+    name: string;
+    active: boolean;
+    recentUnlock: boolean;
+    action: Readonly<{
+      kind: "activate" | "deactivate";
+      action: number;
+    }>;
+  }>
+): Civ7ControlOrpcTraditionsViewResult["traditions"][number] {
   return {
     id: input.id,
     type: input.type,
@@ -273,16 +282,18 @@ function tradition(input: Readonly<{
     active: input.active,
     unlocked: true,
     recentUnlock: input.recentUnlock,
-    actionHints: [{
-      kind: input.action.kind,
-      action: input.action.action,
-      operationType: "CHANGE_TRADITION",
-      args: {
-        TraditionType: input.id,
-        Action: input.action.action,
+    actionHints: [
+      {
+        kind: input.action.kind,
+        action: input.action.action,
+        operationType: "CHANGE_TRADITION",
+        args: {
+          TraditionType: input.id,
+          Action: input.action.action,
+        },
+        validation: probe({ Success: true }),
       },
-      validation: probe({ Success: true }),
-    }],
+    ],
   };
 }
 

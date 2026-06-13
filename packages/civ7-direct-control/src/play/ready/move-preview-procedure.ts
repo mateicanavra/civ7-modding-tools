@@ -43,10 +43,7 @@ export const Civ7UnitMovePreviewProcedureDescriptor = createCiv7ProcedureCoreDes
     "relationshipPolicy",
   ],
   playerScope: "local-player-scoped",
-  consumerClasses: [
-    "normal-cli-player-agent-view",
-    "effect-orpc-procedure-core",
-  ],
+  consumerClasses: ["normal-cli-player-agent-view", "effect-orpc-procedure-core"],
   proofBoundary: "local-package-test",
   projection: {
     normalCli: "semantic-projection",
@@ -71,8 +68,10 @@ export const Civ7UnitMovePreviewProcedureDescriptor = createCiv7ProcedureCoreDes
 });
 
 export const Civ7UnitMovePreviewProcedureSchemaArtifacts = {
-  [civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.inputSchema)]: Civ7UnitMovePreviewInputSchema,
-  [civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.outputSchema)]: Civ7UnitMovePreviewResultSchema,
+  [civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.inputSchema)]:
+    Civ7UnitMovePreviewInputSchema,
+  [civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.outputSchema)]:
+    Civ7UnitMovePreviewResultSchema,
 } satisfies Civ7ProcedureSchemaArtifactMap;
 
 export type Civ7UnitMovePreviewProcedureCallOptions = Readonly<{
@@ -83,17 +82,13 @@ export type Civ7UnitMovePreviewProcedureCallOptions = Readonly<{
 
 export function callCiv7UnitMovePreviewProcedure(
   input: Civ7UnitMovePreviewInput = {},
-  options: Civ7UnitMovePreviewProcedureCallOptions = {},
+  options: Civ7UnitMovePreviewProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7UnitMovePreviewResult>> {
   return callCiv7ProcedureCore<Civ7UnitMovePreviewInput, Civ7UnitMovePreviewResult>(
     Civ7UnitMovePreviewProcedureDescriptor,
     Civ7UnitMovePreviewProcedureSchemaArtifacts,
     input,
-    (validInput) => getCiv7UnitMovePreview(
-      validInput,
-      options.directControl,
-      options.dependencies,
-    ),
-    options.procedure,
+    (validInput) => getCiv7UnitMovePreview(validInput, options.directControl, options.dependencies),
+    options.procedure
   );
 }

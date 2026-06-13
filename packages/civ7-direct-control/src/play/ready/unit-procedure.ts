@@ -34,10 +34,7 @@ export const Civ7ReadyUnitViewProcedureDescriptor = createCiv7ProcedureCoreDescr
   inputFields: ["unitId", "radius", "maxOperations"],
   outputFields: ["unitId", "unit", "legalOperations", "promotionReadiness", "nearby"],
   playerScope: "local-player-scoped",
-  consumerClasses: [
-    "normal-cli-player-agent-view",
-    "effect-orpc-procedure-core",
-  ],
+  consumerClasses: ["normal-cli-player-agent-view", "effect-orpc-procedure-core"],
   proofBoundary: "local-package-test",
   projection: {
     normalCli: "semantic-projection",
@@ -62,8 +59,10 @@ export const Civ7ReadyUnitViewProcedureDescriptor = createCiv7ProcedureCoreDescr
 });
 
 export const Civ7ReadyUnitViewProcedureSchemaArtifacts = {
-  [civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.inputSchema)]: Civ7ReadyUnitViewInputSchema,
-  [civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.outputSchema)]: Civ7ReadyUnitViewResultSchema,
+  [civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.inputSchema)]:
+    Civ7ReadyUnitViewInputSchema,
+  [civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.outputSchema)]:
+    Civ7ReadyUnitViewResultSchema,
 } satisfies Civ7ProcedureSchemaArtifactMap;
 
 export type Civ7ReadyUnitViewProcedureCallOptions = Readonly<{
@@ -74,17 +73,13 @@ export type Civ7ReadyUnitViewProcedureCallOptions = Readonly<{
 
 export function callCiv7ReadyUnitViewProcedure(
   input: Civ7ReadyUnitViewInput = {},
-  options: Civ7ReadyUnitViewProcedureCallOptions = {},
+  options: Civ7ReadyUnitViewProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7ReadyUnitViewResult>> {
   return callCiv7ProcedureCore<Civ7ReadyUnitViewInput, Civ7ReadyUnitViewResult>(
     Civ7ReadyUnitViewProcedureDescriptor,
     Civ7ReadyUnitViewProcedureSchemaArtifacts,
     input,
-    (validInput) => getCiv7ReadyUnitView(
-      validInput,
-      options.directControl,
-      options.dependencies,
-    ),
-    options.procedure,
+    (validInput) => getCiv7ReadyUnitView(validInput, options.directControl, options.dependencies),
+    options.procedure
   );
 }

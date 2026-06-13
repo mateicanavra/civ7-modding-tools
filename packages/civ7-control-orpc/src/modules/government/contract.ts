@@ -11,28 +11,25 @@ const Civ7GovernmentChoiceInputSchema = Type.Object(
     governmentType: Type.Integer(),
     action: Type.Optional(Type.Integer()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7GovernmentChoiceInput = Static<
-  typeof Civ7GovernmentChoiceInputSchema
->;
+export type Civ7GovernmentChoiceInput = Static<typeof Civ7GovernmentChoiceInputSchema>;
 
 const Civ7GovernmentCelebrationChoiceInputSchema = Type.Object(
   {
     goldenAgeType: Type.Integer(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7GovernmentCelebrationChoiceInput = Static<
   typeof Civ7GovernmentCelebrationChoiceInputSchema
 >;
 
-export const Civ7GovernmentChoicePostconditionClassificationSchema =
-  Type.Union([
-    Type.Literal("not-sent"),
-    Type.Literal("pending-runtime-proof"),
-    Type.Literal("missing-postcondition"),
-  ]);
+export const Civ7GovernmentChoicePostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("pending-runtime-proof"),
+  Type.Literal("missing-postcondition"),
+]);
 
 export const Civ7GovernmentChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("not-sent"),
@@ -49,7 +46,7 @@ export const Civ7GovernmentChoiceValidationSummarySchema = Type.Object(
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7GovernmentChoicePostconditionSummarySchema = Type.Object(
@@ -57,38 +54,29 @@ export const Civ7GovernmentChoicePostconditionSummarySchema = Type.Object(
     classification: Civ7GovernmentChoicePostconditionClassificationSchema,
     reason: Type.String(),
     outcome: Civ7GovernmentChoiceProofOutcomeSchema,
-    confidence: Type.Union([
-      Type.Literal("unverified"),
-      Type.Literal("pending-runtime-proof"),
-    ]),
+    confidence: Type.Union([Type.Literal("unverified"), Type.Literal("pending-runtime-proof")]),
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7GovernmentChoiceNextStepSchema = Type.Object(
   {
-    kind: Type.Union([
-      Type.Literal("do-not-repeat"),
-      Type.Literal("inspect-government-choice"),
-    ]),
+    kind: Type.Union([Type.Literal("do-not-repeat"), Type.Literal("inspect-government-choice")]),
     source: Type.Literal("government.choice.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7GovernmentCelebrationChoiceNextStepSchema = Type.Object(
   {
-    kind: Type.Union([
-      Type.Literal("do-not-repeat"),
-      Type.Literal("inspect-government-choice"),
-    ]),
+    kind: Type.Union([Type.Literal("do-not-repeat"), Type.Literal("inspect-government-choice")]),
     source: Type.Literal("government.celebration.choice.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7GovernmentChoiceResultSchema = Type.Object(
@@ -102,11 +90,9 @@ const Civ7GovernmentChoiceResultSchema = Type.Object(
     postcondition: Civ7GovernmentChoicePostconditionSummarySchema,
     nextSteps: Type.Array(Civ7GovernmentChoiceNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7GovernmentChoiceResult = Static<
-  typeof Civ7GovernmentChoiceResultSchema
->;
+export type Civ7GovernmentChoiceResult = Static<typeof Civ7GovernmentChoiceResultSchema>;
 
 const Civ7GovernmentCelebrationChoiceResultSchema = Type.Object(
   {
@@ -118,20 +104,20 @@ const Civ7GovernmentCelebrationChoiceResultSchema = Type.Object(
     postcondition: Civ7GovernmentChoicePostconditionSummarySchema,
     nextSteps: Type.Array(Civ7GovernmentCelebrationChoiceNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7GovernmentCelebrationChoiceResult = Static<
   typeof Civ7GovernmentCelebrationChoiceResultSchema
 >;
 
-const Civ7GovernmentChoiceInputStandardSchema =
-  toStandardSchema(Civ7GovernmentChoiceInputSchema);
-const Civ7GovernmentCelebrationChoiceInputStandardSchema =
-  toStandardSchema(Civ7GovernmentCelebrationChoiceInputSchema);
-const Civ7GovernmentChoiceResultStandardSchema =
-  toStandardSchema(Civ7GovernmentChoiceResultSchema);
-const Civ7GovernmentCelebrationChoiceResultStandardSchema =
-  toStandardSchema(Civ7GovernmentCelebrationChoiceResultSchema);
+const Civ7GovernmentChoiceInputStandardSchema = toStandardSchema(Civ7GovernmentChoiceInputSchema);
+const Civ7GovernmentCelebrationChoiceInputStandardSchema = toStandardSchema(
+  Civ7GovernmentCelebrationChoiceInputSchema
+);
+const Civ7GovernmentChoiceResultStandardSchema = toStandardSchema(Civ7GovernmentChoiceResultSchema);
+const Civ7GovernmentCelebrationChoiceResultStandardSchema = toStandardSchema(
+  Civ7GovernmentCelebrationChoiceResultSchema
+);
 
 export type Civ7GovernmentChoiceContract = ContractProcedure<
   typeof Civ7GovernmentChoiceInputStandardSchema,
@@ -158,8 +144,8 @@ export type Civ7GovernmentCelebrationChoiceContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7GovernmentCelebrationChoiceContract:
-  Civ7GovernmentCelebrationChoiceContract = civ7ControlOrpcContractBase
+export const Civ7GovernmentCelebrationChoiceContract: Civ7GovernmentCelebrationChoiceContract =
+  civ7ControlOrpcContractBase
     .input(Civ7GovernmentCelebrationChoiceInputStandardSchema)
     .output(Civ7GovernmentCelebrationChoiceResultStandardSchema)
     .meta({

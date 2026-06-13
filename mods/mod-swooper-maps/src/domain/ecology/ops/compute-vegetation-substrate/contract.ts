@@ -38,10 +38,14 @@ const ComputeVegetationSubstrateContract = defineOp({
       height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
       effectiveMoisture: TypedArraySchemas.f32({ description: "Effective moisture per tile." }),
-      surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature per tile (C)." }),
+      surfaceTemperature: TypedArraySchemas.f32({
+        description: "Surface temperature per tile (C).",
+      }),
       aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),
       freezeIndex: TypedArraySchemas.f32({ description: "Freeze index per tile (0..1)." }),
-      vegetationDensity: TypedArraySchemas.f32({ description: "Vegetation density per tile (0..1)." }),
+      vegetationDensity: TypedArraySchemas.f32({
+        description: "Vegetation density per tile (0..1).",
+      }),
       fertility: TypedArraySchemas.f32({ description: "Fertility overlay per tile (0..1)." }),
     },
     { additionalProperties: false }
@@ -53,9 +57,15 @@ const ComputeVegetationSubstrateContract = defineOp({
     water01: TypedArraySchemas.f32({
       description: "Normalized water availability proxy from effectiveMoisture (0..1).",
     }),
-    waterStress01: TypedArraySchemas.f32({ description: "Water stress proxy from aridityIndex (0..1)." }),
-    coldStress01: TypedArraySchemas.f32({ description: "Cold stress proxy from freezeIndex (0..1)." }),
-    biomass01: TypedArraySchemas.f32({ description: "Biomass proxy from vegetationDensity (0..1)." }),
+    waterStress01: TypedArraySchemas.f32({
+      description: "Water stress proxy from aridityIndex (0..1).",
+    }),
+    coldStress01: TypedArraySchemas.f32({
+      description: "Cold stress proxy from freezeIndex (0..1).",
+    }),
+    biomass01: TypedArraySchemas.f32({
+      description: "Biomass proxy from vegetationDensity (0..1).",
+    }),
     fertility01: TypedArraySchemas.f32({ description: "Normalized fertility proxy (0..1)." }),
   }),
   strategies: {
@@ -64,4 +74,3 @@ const ComputeVegetationSubstrateContract = defineOp({
 });
 
 export default ComputeVegetationSubstrateContract;
-

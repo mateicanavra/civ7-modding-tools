@@ -3,7 +3,12 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
-import { CIV7_BROWSER_TABLES_V0, NO_RIVER_TYPE, RIVER_TYPE_MINOR, RIVER_TYPE_NAVIGABLE } from "../../packages/civ7-map-policy/src/index.ts";
+import {
+  CIV7_BROWSER_TABLES_V0,
+  NO_RIVER_TYPE,
+  RIVER_TYPE_MINOR,
+  RIVER_TYPE_NAVIGABLE,
+} from "../../packages/civ7-map-policy/src/index.ts";
 import {
   executeCiv7TunerCommand,
   getCiv7FullMapGrid,
@@ -155,18 +160,19 @@ async function main(): Promise<number> {
 
   const directControl = { host: args.host, port: args.port, timeoutMs: args.timeoutMs };
   const inventory = await readRiverWriterRuntimeInventory(directControl);
-  const preReadback = args.readFullGrid || args.confirmDisposableSession
-    ? summarizeRiverMetadataReadback(
-        await getCiv7FullMapGrid(
-          {
-            fields: ["terrain", "hydrology"],
-            includeHidden: true,
-            maxPlotsPerRead: args.maxPlotsPerRead,
-          },
-          directControl
+  const preReadback =
+    args.readFullGrid || args.confirmDisposableSession
+      ? summarizeRiverMetadataReadback(
+          await getCiv7FullMapGrid(
+            {
+              fields: ["terrain", "hydrology"],
+              includeHidden: true,
+              maxPlotsPerRead: args.maxPlotsPerRead,
+            },
+            directControl
+          )
         )
-      )
-    : undefined;
+      : undefined;
 
   if (!args.confirmDisposableSession) {
     const output = buildDryRunOutput({ inventory, preReadback });
@@ -192,8 +198,11 @@ async function main(): Promise<number> {
   return output.ok ? 0 : 2;
 }
 
-export function summarizeRiverMetadataReadback(grid: Civ7FullMapGridResult): RiverMetadataReadbackSummary {
-  const terrainNavigableRiverType = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_NAVIGABLE_RIVER;
+export function summarizeRiverMetadataReadback(
+  grid: Civ7FullMapGridResult
+): RiverMetadataReadbackSummary {
+  const terrainNavigableRiverType =
+    CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_NAVIGABLE_RIVER;
   let terrainNavigableRiver = 0;
   let river = 0;
   let navigableRiver = 0;
@@ -204,9 +213,19 @@ export function summarizeRiverMetadataReadback(grid: Civ7FullMapGridResult): Riv
 
   for (const plot of grid.plots) {
     const terrain = factValue<number>(plot.facts.terrain, "terrain", missingFacts, failedFacts);
-    const riverType = factValue<number>(plot.facts.riverType, "riverType", missingFacts, failedFacts);
+    const riverType = factValue<number>(
+      plot.facts.riverType,
+      "riverType",
+      missingFacts,
+      failedFacts
+    );
     const isRiver = factValue<boolean>(plot.facts.river, "river", missingFacts, failedFacts);
-    const isNavigableRiver = factValue<boolean>(plot.facts.navigableRiver, "navigableRiver", missingFacts, failedFacts);
+    const isNavigableRiver = factValue<boolean>(
+      plot.facts.navigableRiver,
+      "navigableRiver",
+      missingFacts,
+      failedFacts
+    );
 
     if (terrain === terrainNavigableRiverType) terrainNavigableRiver += 1;
     if (riverType === NO_RIVER_TYPE) noRiver += 1;
@@ -288,7 +307,7 @@ export function buildMutationOutput(args: {
   const ok = args.mutation.ok && metadataChanged && readbackComplete;
   return {
     ok,
-    status: ok ? "writer-supported" as const : "unsupported-or-unproven" as const,
+    status: ok ? ("writer-supported" as const) : ("unsupported-or-unproven" as const),
     mutationAttempted: true,
     blockedBy: ok
       ? []
@@ -317,20 +336,30 @@ export function buildMutationOutput(args: {
   };
 }
 
-async function readRiverWriterRuntimeInventory(options: Civ7DirectControlOptions): Promise<RiverWriterRuntimeInventory> {
+async function readRiverWriterRuntimeInventory(
+  options: Civ7DirectControlOptions
+): Promise<RiverWriterRuntimeInventory> {
   const result = await executeCiv7TunerCommand({
     ...options,
     command: buildRuntimeInventoryCommand(),
   });
-  return jsonPayloadFromCommandResult<RiverWriterRuntimeInventory>(result, "river writer runtime inventory");
+  return jsonPayloadFromCommandResult<RiverWriterRuntimeInventory>(
+    result,
+    "river writer runtime inventory"
+  );
 }
 
-async function callSetRiverValidationValues(options: Civ7DirectControlOptions): Promise<RiverWriterMutationResult> {
+async function callSetRiverValidationValues(
+  options: Civ7DirectControlOptions
+): Promise<RiverWriterMutationResult> {
   const result = await executeCiv7TunerCommand({
     ...options,
     command: buildSetRiverValidationValuesCommand(),
   });
-  return jsonPayloadFromCommandResult<RiverWriterMutationResult>(result, "setRiverValidationValues mutation probe");
+  return jsonPayloadFromCommandResult<RiverWriterMutationResult>(
+    result,
+    "setRiverValidationValues mutation probe"
+  );
 }
 
 function buildRuntimeInventoryCommand(): string {
@@ -416,7 +445,7 @@ if (import.meta.main) {
   main().then(
     (code) => process.exit(code),
     (error) => {
-      console.error(error instanceof Error ? error.stack ?? error.message : String(error));
+      console.error(error instanceof Error ? (error.stack ?? error.message) : String(error));
       process.exit(1);
     }
   );

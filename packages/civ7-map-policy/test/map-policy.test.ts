@@ -51,7 +51,11 @@ describe("@civ7/map-policy", () => {
     const violations: string[] = [];
     for (const file of listSourceFiles(sourceRoot)) {
       const source = readFileSync(file, "utf8");
-      const imports = [...source.matchAll(/\b(?:import|export)\s+(?:type\s+)?(?:[^"']*?\s+from\s+)?["']([^"']+)["']/g)];
+      const imports = [
+        ...source.matchAll(
+          /\b(?:import|export)\s+(?:type\s+)?(?:[^"']*?\s+from\s+)?["']([^"']+)["']/g
+        ),
+      ];
       for (const [, specifier] of imports) {
         for (const token of forbiddenImports) {
           if (specifier?.includes(token)) violations.push(`${file}:${specifier}`);
@@ -65,7 +69,9 @@ describe("@civ7/map-policy", () => {
   it("owns the generated Civ7 map policy table", () => {
     expect(CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows).toBe(2);
     expect(CIV7_BROWSER_TABLES_V0.mapGlobals.oceanWaterColumns).toBe(4);
-    expect(CIV7_BROWSER_TABLES_V0.source).toContain("Base/modules/base-standard/maps/map-globals.js");
+    expect(CIV7_BROWSER_TABLES_V0.source).toContain(
+      "Base/modules/base-standard/maps/map-globals.js"
+    );
     expect(CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_BERMUDA_TRIANGLE).toBe(0);
     expect(CIV7_BROWSER_TABLES_V0.resourceTypes.RESOURCE_PITCH).toBe(54);
     expect(CIV7_BROWSER_TABLES_V0.riverTypes.values.RIVER_MINOR).toBe(0);
@@ -83,7 +89,9 @@ describe("@civ7/map-policy", () => {
     expect(RIVER_TYPE_MINOR).toBe(0);
     expect(RIVER_TYPE_NAVIGABLE).toBe(1);
     expect(CIV7_RIVER_TYPES_V0.source).toContain("live-direct-control:2026-06-09:RiverTypes");
-    expect(CIV7_RIVER_TYPES_V0.source).toContain("Base/modules/base-standard/data/unit-movement.xml");
+    expect(CIV7_RIVER_TYPES_V0.source).toContain(
+      "Base/modules/base-standard/data/unit-movement.xml"
+    );
     expect(CIV7_RIVER_TYPES_V0.source).toContain(
       "Base/modules/base-standard/ui-next/tooltips/plot-tooltip/helpers.js"
     );
@@ -127,15 +135,15 @@ describe("@civ7/map-policy", () => {
   });
 
   it("labels generated Civ7 table inputs as source evidence rather than repo truth", () => {
-    const generatedTables = [
-      join(import.meta.dir, "../src/civ7-tables.gen.ts"),
-    ];
+    const generatedTables = [join(import.meta.dir, "../src/civ7-tables.gen.ts")];
 
     for (const path of generatedTables) {
       const source = readFileSync(path, "utf8");
       expect(source).toContain("Source evidence:");
       expect(source).not.toContain("Source of truth: Civ7 official");
-      expect(source).not.toContain("Source of truth: `Base/modules/base-standard/data/terrain.xml`");
+      expect(source).not.toContain(
+        "Source of truth: `Base/modules/base-standard/data/terrain.xml`"
+      );
     }
   });
 
@@ -219,5 +227,4 @@ describe("@civ7/map-policy", () => {
     expect(isResourceAdjacentToLandRuntimeOptional(resourceTypes.RESOURCE_WHALES)).toBe(false);
     expect(isResourceAdjacentToLandRuntimeOptional(resourceTypes.RESOURCE_CRABS)).toBe(false);
   });
-
 });

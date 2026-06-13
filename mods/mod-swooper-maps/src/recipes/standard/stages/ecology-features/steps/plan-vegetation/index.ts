@@ -87,7 +87,9 @@ export default createStep(PlanVegetationStepContract, {
       const feature = placement.feature;
       const index = VEGETATION_FEATURE_INDEX_BY_KEY[feature];
       if (!index) {
-        throw new Error(`plan-vegetation expected vegetation-family placements (received ${feature})`);
+        throw new Error(
+          `plan-vegetation expected vegetation-family placements (received ${feature})`
+        );
       }
       const x = placement.x | 0;
       const y = placement.y | 0;

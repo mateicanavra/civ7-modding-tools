@@ -1,7 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeVegetationSubstrateContract from "../contract.js";
-import { computeVegetationSubstrateFields, validateVegetationSubstrateInputs } from "../rules/index.js";
+import {
+  computeVegetationSubstrateFields,
+  validateVegetationSubstrateInputs,
+} from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeVegetationSubstrateContract, "default", {
   run: (input, config) => {
@@ -32,4 +35,3 @@ export const defaultStrategy = createStrategy(ComputeVegetationSubstrateContract
     });
   },
 });
-

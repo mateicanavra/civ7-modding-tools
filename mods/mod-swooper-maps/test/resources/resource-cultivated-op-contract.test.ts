@@ -164,7 +164,9 @@ describe("cultivated resource operation contract", () => {
       {
         width: 2,
         height: 2,
-        expectations: cultivatedExpectations().filter((row) => row.resourceType === "RESOURCE_COTTON"),
+        expectations: cultivatedExpectations().filter(
+          (row) => row.resourceType === "RESOURCE_COTTON"
+        ),
         warmGrassPlainsMask: every(4),
       },
       resources.ops.planCultivatedResources.defaultConfig

@@ -2,10 +2,22 @@ import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authorin
 
 const LandmassBoundsSchema = Type.Object(
   {
-    west: Type.Integer({ minimum: 0, description: "West bound (inclusive) in tile x-coordinates." }),
-    east: Type.Integer({ minimum: 0, description: "East bound (inclusive) in tile x-coordinates." }),
-    south: Type.Integer({ minimum: 0, description: "South bound (inclusive) in tile y-coordinates." }),
-    north: Type.Integer({ minimum: 0, description: "North bound (inclusive) in tile y-coordinates." }),
+    west: Type.Integer({
+      minimum: 0,
+      description: "West bound (inclusive) in tile x-coordinates.",
+    }),
+    east: Type.Integer({
+      minimum: 0,
+      description: "East bound (inclusive) in tile x-coordinates.",
+    }),
+    south: Type.Integer({
+      minimum: 0,
+      description: "South bound (inclusive) in tile y-coordinates.",
+    }),
+    north: Type.Integer({
+      minimum: 0,
+      description: "North bound (inclusive) in tile y-coordinates.",
+    }),
   },
   {
     description:
@@ -29,11 +41,18 @@ const ComputeLandmassesContract = defineOp({
   output: Type.Object({
     landmasses: Type.Array(
       Type.Object({
-        id: Type.Integer({ minimum: 0, description: "Stable index within this snapshot (0..n-1)." }),
-        tileCount: Type.Integer({ minimum: 0, description: "Number of land tiles in this landmass." }),
+        id: Type.Integer({
+          minimum: 0,
+          description: "Stable index within this snapshot (0..n-1).",
+        }),
+        tileCount: Type.Integer({
+          minimum: 0,
+          description: "Number of land tiles in this landmass.",
+        }),
         coastlineLength: Type.Integer({
           minimum: 0,
-          description: "Count of land↔water adjacency edges along the coastline (canonical hex neighbor graph).",
+          description:
+            "Count of land↔water adjacency edges along the coastline (canonical hex neighbor graph).",
         }),
         bbox: LandmassBoundsSchema,
       })

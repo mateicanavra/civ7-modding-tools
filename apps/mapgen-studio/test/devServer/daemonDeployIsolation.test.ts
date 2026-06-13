@@ -4,7 +4,9 @@ import { describe, expect, it } from "vitest";
 
 import { buildSwooperMapsStudioDeployPlan } from "../../src/server/mapConfigs/deploy";
 
-const servicePath = fileURLToPath(new URL("../../src/server/recipeDag/service.ts", import.meta.url));
+const servicePath = fileURLToPath(
+  new URL("../../src/server/recipeDag/service.ts", import.meta.url)
+);
 
 describe("daemon deploy isolation", () => {
   it("keeps deploy-written recipe dist artifacts out of the daemon recipe-DAG import graph", async () => {
@@ -17,12 +19,14 @@ describe("daemon deploy isolation", () => {
   });
 
   it("does not replay dependency build outputs during Play or Save & Deploy", () => {
-    expect(buildSwooperMapsStudioDeployPlan({ env: { PATH: "/bin" } }).buildArgs).toContain("--only");
+    expect(buildSwooperMapsStudioDeployPlan({ env: { PATH: "/bin" } }).buildArgs).toContain(
+      "--only"
+    );
     expect(
       buildSwooperMapsStudioDeployPlan({
         requestId: "studio-run-in-game-test",
         env: { PATH: "/bin" },
-      }).buildArgs,
+      }).buildArgs
     ).toContain("--only");
   });
 });

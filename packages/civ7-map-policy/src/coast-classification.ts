@@ -28,7 +28,8 @@ const policySources: readonly string[] = CIV7_POLICY_TABLE.source.includes(MAP_G
  */
 export const CIV7_COAST_CLASSIFICATION_POLICY_V0 = {
   version: 0,
-  coastBufferTiles: CIV7_POLICY_TABLE.mapGlobals?.oceanWaterColumns ?? DEFAULT_CIV7_OCEAN_WATER_COLUMNS,
+  coastBufferTiles:
+    CIV7_POLICY_TABLE.mapGlobals?.oceanWaterColumns ?? DEFAULT_CIV7_OCEAN_WATER_COLUMNS,
   source: policySources,
   rationale:
     "Civ7 normalizes shallow/near-coast ocean into coast terrain. MapGen should project a deterministic odd-q coast band before engine maintenance runs.",

@@ -14,7 +14,11 @@ import {
 } from "../../viz.js";
 
 const SUPPORT_ADJUSTMENT_CATEGORIES = [
-  { value: 1, label: "Move Origin", color: [148, 163, 184, 200] as [number, number, number, number] },
+  {
+    value: 1,
+    label: "Move Origin",
+    color: [148, 163, 184, 200] as [number, number, number, number],
+  },
   {
     value: 2,
     label: "Move Destination (Floor)",
@@ -25,8 +29,16 @@ const SUPPORT_ADJUSTMENT_CATEGORIES = [
     label: "Move Destination (Equity)",
     color: [14, 165, 233, 235] as [number, number, number, number],
   },
-  { value: 4, label: "Added (Floor)", color: [245, 158, 11, 235] as [number, number, number, number] },
-  { value: 5, label: "Added (Equity)", color: [168, 85, 247, 235] as [number, number, number, number] },
+  {
+    value: 4,
+    label: "Added (Floor)",
+    color: [245, 158, 11, 235] as [number, number, number, number],
+  },
+  {
+    value: 5,
+    label: "Added (Equity)",
+    color: [168, 85, 247, 235] as [number, number, number, number],
+  },
 ];
 
 export default createStep(AdjustResourcesStepContract, {

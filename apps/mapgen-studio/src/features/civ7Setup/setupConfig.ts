@@ -40,17 +40,21 @@ export type Civ7SetupSnapshotLike = Readonly<{
     file?: unknown;
     value?: unknown;
   };
-  mapRows?: ReadonlyArray<Readonly<{
-    file?: unknown;
-    value?: unknown;
-    name?: unknown;
-  }>>;
+  mapRows?: ReadonlyArray<
+    Readonly<{
+      file?: unknown;
+      value?: unknown;
+      name?: unknown;
+    }>
+  >;
   setup?: {
     parameters?: ReadonlyArray<Civ7SetupParameterSnapshotLike>;
-    playerParameters?: ReadonlyArray<Readonly<{
-      playerId?: unknown;
-      parameters?: ReadonlyArray<Civ7SetupParameterSnapshotLike>;
-    }>>;
+    playerParameters?: ReadonlyArray<
+      Readonly<{
+        playerId?: unknown;
+        parameters?: ReadonlyArray<Civ7SetupParameterSnapshotLike>;
+      }>
+    >;
     localPlayerId?: {
       ok?: unknown;
       value?: unknown;
@@ -58,23 +62,25 @@ export type Civ7SetupSnapshotLike = Readonly<{
   };
 }>;
 
-export type Civ7SavedSetupConfigFile = Readonly<Civ7StudioSavedConfigRef & {
-  sizeBytes: number;
-  modifiedAt: string;
-  source: "local-disk";
-  summary: Readonly<{
-    gameSpeed?: string;
-    mapSize?: string;
-    mapName?: string;
-    leader?: string;
-    civilization?: string;
-    difficulty?: string;
-    mapSeed?: number;
-    gameSeed?: number;
-  }>;
-  setupOptions: Readonly<Record<string, Civ7StudioSetupOptionValue>>;
-  playerOptions: ReadonlyArray<Civ7StudioPlayerSetupConfig>;
-}>;
+export type Civ7SavedSetupConfigFile = Readonly<
+  Civ7StudioSavedConfigRef & {
+    sizeBytes: number;
+    modifiedAt: string;
+    source: "local-disk";
+    summary: Readonly<{
+      gameSpeed?: string;
+      mapSize?: string;
+      mapName?: string;
+      leader?: string;
+      civilization?: string;
+      difficulty?: string;
+      mapSeed?: number;
+      gameSeed?: number;
+    }>;
+    setupOptions: Readonly<Record<string, Civ7StudioSetupOptionValue>>;
+    playerOptions: ReadonlyArray<Civ7StudioPlayerSetupConfig>;
+  }
+>;
 
 export const DEFAULT_CIV7_STUDIO_SETUP_CONFIG: Civ7StudioSetupConfig = {
   gameOptions: {},
@@ -136,7 +142,7 @@ function isSetupOptionValue(value: unknown): value is Civ7StudioSetupOptionValue
 
 function compactOptions(
   value: unknown,
-  allowedIds?: ReadonlySet<string>,
+  allowedIds?: ReadonlySet<string>
 ): Record<string, Civ7StudioSetupOptionValue> {
   if (!isRecord(value)) return {};
   const out: Record<string, Civ7StudioSetupOptionValue> = {};
@@ -187,14 +193,21 @@ export function normalizeStudioSetupConfig(value: unknown): Civ7StudioSetupConfi
   const savedConfig = compactSavedConfigRef(value.savedConfig);
   return {
     ...(savedConfig ? { savedConfig } : {}),
-    ...(typeof value.mapScript === "string" && value.mapScript.length > 0 ? { mapScript: value.mapScript } : {}),
+    ...(typeof value.mapScript === "string" && value.mapScript.length > 0
+      ? { mapScript: value.mapScript }
+      : {}),
     gameOptions: compactOptions(value.gameOptions, GAME_OPTION_ID_SET),
     playerOptions: compactPlayerOptions(value.playerOptions),
   };
 }
 
-export function studioSetupConfigsEqual(a: Civ7StudioSetupConfig, b: Civ7StudioSetupConfig): boolean {
-  return JSON.stringify(normalizeStudioSetupConfig(a)) === JSON.stringify(normalizeStudioSetupConfig(b));
+export function studioSetupConfigsEqual(
+  a: Civ7StudioSetupConfig,
+  b: Civ7StudioSetupConfig
+): boolean {
+  return (
+    JSON.stringify(normalizeStudioSetupConfig(a)) === JSON.stringify(normalizeStudioSetupConfig(b))
+  );
 }
 
 export function isDefaultStudioSetupConfig(config: Civ7StudioSetupConfig): boolean {
@@ -203,20 +216,22 @@ export function isDefaultStudioSetupConfig(config: Civ7StudioSetupConfig): boole
 
 function findParameter(
   parameters: ReadonlyArray<Civ7SetupParameterSnapshotLike> | undefined,
-  id: string,
+  id: string
 ): Civ7SetupParameterSnapshotLike | undefined {
   return parameters?.find((parameter) => parameter.id === id && parameter.exists !== false);
 }
 
 function parameterValue(
   parameters: ReadonlyArray<Civ7SetupParameterSnapshotLike> | undefined,
-  id: string,
+  id: string
 ): Civ7StudioSetupOptionValue | undefined {
   const value = findParameter(parameters, id)?.value;
   return isSetupOptionValue(value) ? value : undefined;
 }
 
-export function studioSetupConfigFromLiveSnapshot(snapshot: Civ7SetupSnapshotLike): Civ7StudioSetupConfig {
+export function studioSetupConfigFromLiveSnapshot(
+  snapshot: Civ7SetupSnapshotLike
+): Civ7StudioSetupConfig {
   const parameters = snapshot.setup?.parameters ?? [];
   const gameOptions: Record<string, Civ7StudioSetupOptionValue> = {};
   for (const id of GAME_OPTION_ID_SET) {
@@ -224,25 +239,32 @@ export function studioSetupConfigFromLiveSnapshot(snapshot: Civ7SetupSnapshotLik
     if (value !== undefined) gameOptions[id] = value;
   }
 
-  const localPlayerId = Number(snapshot.setup?.localPlayerId?.ok === true ? snapshot.setup.localPlayerId.value : 0);
+  const localPlayerId = Number(
+    snapshot.setup?.localPlayerId?.ok === true ? snapshot.setup.localPlayerId.value : 0
+  );
   const selectedPlayer =
     snapshot.setup?.playerParameters?.find((player) => player.playerId === localPlayerId) ??
     snapshot.setup?.playerParameters?.[0];
-  const playerId = Number.isInteger(Number(selectedPlayer?.playerId)) ? Number(selectedPlayer?.playerId) : 0;
+  const playerId = Number.isInteger(Number(selectedPlayer?.playerId))
+    ? Number(selectedPlayer?.playerId)
+    : 0;
   const options: Record<string, Civ7StudioSetupOptionValue> = {};
   for (const id of PLAYER_OPTION_ID_SET) {
     const value = parameterValue(selectedPlayer?.parameters, id);
     if (value !== undefined) options[id] = value;
   }
 
-  const selectedMapScript = typeof snapshot.selectedMapRow?.file === "string"
-    ? snapshot.selectedMapRow.file
-    : typeof snapshot.selectedMapRow?.value === "string"
-      ? snapshot.selectedMapRow.value
-      : parameterValue(parameters, "Map");
+  const selectedMapScript =
+    typeof snapshot.selectedMapRow?.file === "string"
+      ? snapshot.selectedMapRow.file
+      : typeof snapshot.selectedMapRow?.value === "string"
+        ? snapshot.selectedMapRow.value
+        : parameterValue(parameters, "Map");
 
   return {
-    ...(typeof selectedMapScript === "string" && selectedMapScript.length > 0 ? { mapScript: selectedMapScript } : {}),
+    ...(typeof selectedMapScript === "string" && selectedMapScript.length > 0
+      ? { mapScript: selectedMapScript }
+      : {}),
     gameOptions,
     playerOptions: [{ playerId, options }],
   };
@@ -255,7 +277,7 @@ export function getLocalPlayerSetup(config: Civ7StudioSetupConfig): Civ7StudioPl
 export function updateStudioSetupGameOption(
   config: Civ7StudioSetupConfig,
   id: string,
-  value: Civ7StudioSetupOptionValue | undefined,
+  value: Civ7StudioSetupOptionValue | undefined
 ): Civ7StudioSetupConfig {
   const nextOptions = { ...config.gameOptions };
   if (value === undefined) delete nextOptions[id];
@@ -267,9 +289,11 @@ export function updateStudioSetupPlayerOption(
   config: Civ7StudioSetupConfig,
   id: string,
   value: Civ7StudioSetupOptionValue | undefined,
-  playerId = getLocalPlayerSetup(config).playerId,
+  playerId = getLocalPlayerSetup(config).playerId
 ): Civ7StudioSetupConfig {
-  const players = config.playerOptions.length ? [...config.playerOptions] : [...DEFAULT_CIV7_STUDIO_SETUP_CONFIG.playerOptions];
+  const players = config.playerOptions.length
+    ? [...config.playerOptions]
+    : [...DEFAULT_CIV7_STUDIO_SETUP_CONFIG.playerOptions];
   const index = players.findIndex((player) => player.playerId === playerId);
   const current = index >= 0 ? players[index]! : { playerId, options: {} };
   const options = { ...current.options };
@@ -283,7 +307,7 @@ export function updateStudioSetupPlayerOption(
 
 export function updateStudioSetupMapScript(
   config: Civ7StudioSetupConfig,
-  mapScript: string | undefined,
+  mapScript: string | undefined
 ): Civ7StudioSetupConfig {
   return normalizeStudioSetupConfig({
     ...config,
@@ -304,13 +328,16 @@ export function updateStudioSetupMapScript(
  * here. Anything the user changes afterwards flips the selector to "Custom"
  * (see `studioSetupDriftsFromSavedConfig`).
  */
-export function studioSetupConfigFromSavedConfigFile(savedConfig: Civ7SavedSetupConfigFile): Civ7StudioSetupConfig {
+export function studioSetupConfigFromSavedConfigFile(
+  savedConfig: Civ7SavedSetupConfigFile
+): Civ7StudioSetupConfig {
   return normalizeStudioSetupConfig({
     savedConfig,
     gameOptions: savedConfig.setupOptions,
-    playerOptions: savedConfig.playerOptions.length > 0
-      ? savedConfig.playerOptions
-      : DEFAULT_CIV7_STUDIO_SETUP_CONFIG.playerOptions,
+    playerOptions:
+      savedConfig.playerOptions.length > 0
+        ? savedConfig.playerOptions
+        : DEFAULT_CIV7_STUDIO_SETUP_CONFIG.playerOptions,
   });
 }
 
@@ -334,7 +361,7 @@ export function clearStudioSetupSavedConfig(config: Civ7StudioSetupConfig): Civ7
  */
 export function studioSetupDriftsFromSavedConfig(
   config: Civ7StudioSetupConfig,
-  savedConfig: Civ7SavedSetupConfigFile,
+  savedConfig: Civ7SavedSetupConfigFile
 ): boolean {
   return !studioSetupConfigsEqual(config, studioSetupConfigFromSavedConfigFile(savedConfig));
 }
@@ -342,23 +369,30 @@ export function studioSetupDriftsFromSavedConfig(
 export function labelForCiv7SetupValue(value: unknown): string {
   if (typeof value !== "string") return String(value ?? "");
   const stripped = value
-    .replace(/^(?:LOC_|LEADER_|CIVILIZATION_|DIFFICULTY_|GAMESPEED_|MAPSIZE_|AGE_LENGTH_|AGE_COUNTDOWN_LENGTH_|AGE_TRANSITION_SETTING_|REALISM_SETTING_|INDEPENDENT_HOSTILITY_|START_POSITION_)/, "")
+    .replace(
+      /^(?:LOC_|LEADER_|CIVILIZATION_|DIFFICULTY_|GAMESPEED_|MAPSIZE_|AGE_LENGTH_|AGE_COUNTDOWN_LENGTH_|AGE_TRANSITION_SETTING_|REALISM_SETTING_|INDEPENDENT_HOSTILITY_|START_POSITION_)/,
+      ""
+    )
     .replace(/_NAME$/, "")
     .replace(/_/g, " ")
     .toLowerCase();
   return stripped.replace(/\b\w/g, (match) => match.toUpperCase());
 }
 
-export function optionRowsFromParameter(parameter: Civ7SetupParameterSnapshotLike | undefined): ReadonlyArray<{ value: string; label: string }> {
+export function optionRowsFromParameter(
+  parameter: Civ7SetupParameterSnapshotLike | undefined
+): ReadonlyArray<{ value: string; label: string }> {
   const possibleValues = Array.isArray(parameter?.possibleValues) ? parameter.possibleValues : [];
   const rows: Array<{ value: string; label: string }> = [];
   for (const row of possibleValues) {
-    const value = isRecord(row)
-      ? row.value ?? row.Value ?? row.file ?? row.File
-      : row;
+    const value = isRecord(row) ? (row.value ?? row.Value ?? row.file ?? row.File) : row;
     if (typeof value !== "string" || value.length === 0) continue;
-    const name = isRecord(row) ? row.name ?? row.Name : undefined;
-    rows.push({ value, label: typeof name === "string" && !name.startsWith("LOC_") ? name : labelForCiv7SetupValue(value) });
+    const name = isRecord(row) ? (row.name ?? row.Name) : undefined;
+    rows.push({
+      value,
+      label:
+        typeof name === "string" && !name.startsWith("LOC_") ? name : labelForCiv7SetupValue(value),
+    });
   }
   return rows;
 }

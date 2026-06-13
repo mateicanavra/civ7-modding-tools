@@ -1,4 +1,12 @@
-import { parseArgs, loadManifest, listLayers, readU8Grid, readI16Grid, readF32Grid, hammingU8 } from "./shared.js";
+import {
+  parseArgs,
+  loadManifest,
+  listLayers,
+  readU8Grid,
+  readI16Grid,
+  readF32Grid,
+  hammingU8,
+} from "./shared.js";
 
 type DiffRow = Readonly<{
   dataTypeKey: string;
@@ -46,7 +54,9 @@ function main(): void {
   const runDirA = positionals[0];
   const runDirB = positionals[1];
   if (!runDirA || !runDirB) {
-    throw new Error("Usage: bun ./src/dev/diagnostics/diff-layers.ts -- <runDirA> <runDirB> [--prefix ...]");
+    throw new Error(
+      "Usage: bun ./src/dev/diagnostics/diff-layers.ts -- <runDirA> <runDirB> [--prefix ...]"
+    );
   }
 
   const manifestA = loadManifest(runDirA);

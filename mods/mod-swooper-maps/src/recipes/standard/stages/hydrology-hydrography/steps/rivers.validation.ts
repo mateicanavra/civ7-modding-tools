@@ -59,7 +59,9 @@ export function validateHydrographyArtifact(
   };
   validateTypedArray(errors, "hydrography.runoff", candidate.runoff, Float32Array, size);
   validateTypedArray(errors, "hydrography.discharge", candidate.discharge, Float32Array, size);
-  if (validateTypedArray(errors, "hydrography.riverClass", candidate.riverClass, Uint8Array, size)) {
+  if (
+    validateTypedArray(errors, "hydrography.riverClass", candidate.riverClass, Uint8Array, size)
+  ) {
     const invalidIndex = findInvalidRiverClassIndex(candidate.riverClass);
     if (invalidIndex >= 0) {
       errors.push({
@@ -92,7 +94,13 @@ export function validateHydrographyArtifact(
     );
   }
   if (candidate.terminalType != null) {
-    validateTypedArray(errors, "hydrography.terminalType", candidate.terminalType, Uint8Array, size);
+    validateTypedArray(
+      errors,
+      "hydrography.terminalType",
+      candidate.terminalType,
+      Uint8Array,
+      size
+    );
   }
   return errors;
 }

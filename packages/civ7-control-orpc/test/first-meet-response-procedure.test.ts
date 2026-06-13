@@ -26,23 +26,25 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.diplomacy.firstMeet.response.request,
       firstMeetInput,
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(fake.calls.readiness).toHaveLength(1);
     expect(fake.calls.views).toHaveLength(1);
-    expect(fake.calls.request).toEqual([{
-      input: {
-        playerId: 0,
-        metPlayerId: 2,
-        responseType: 673_478_009,
+    expect(fake.calls.request).toEqual([
+      {
+        input: {
+          playerId: 0,
+          metPlayerId: 2,
+          responseType: 673_478_009,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expect(result).toEqual({
       playerId: 0,
       metPlayerId: 2,
@@ -61,34 +63,38 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
         confirmed: true,
         noRepeatAfterUnverified: false,
       },
-      nextSteps: [{
-        kind: "refresh-attention",
-        source: "diplomacy.firstMeet.response.request",
-        label: "Refresh current attention before choosing the next player action.",
-      }],
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "diplomacy.firstMeet.response.request",
+          label: "Refresh current attention before choosing the next player action.",
+        },
+      ],
     });
 
     const serialized = JSON.stringify(result);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"operation\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"operation"');
+    expect(serialized).not.toContain('"verified"');
     expect(serialized).not.toContain("Game.PlayerOperations");
   });
 
   test("keeps sticky first-meet blockers no-repeat guarded", async () => {
-    const fake = fakeContext(firstMeetResponseResult("first-meet-sticky-blocker", {
-      afterValid: true,
-      verified: true,
-    }));
+    const fake = fakeContext(
+      firstMeetResponseResult("first-meet-sticky-blocker", {
+        afterValid: true,
+        verified: true,
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.diplomacy.firstMeet.response.request,
       firstMeetInput,
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result.status).toBe("sent-unverified");
@@ -99,25 +105,30 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
       confirmed: false,
       noRepeatAfterUnverified: true,
     });
-    expect(result.nextSteps).toEqual([{
-      kind: "do-not-repeat",
-      source: "diplomacy.firstMeet.response.request",
-      label: "Do not repeat this first-meet response until fresh attention and first-meet evidence is read.",
-    }]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "do-not-repeat",
+        source: "diplomacy.firstMeet.response.request",
+        label:
+          "Do not repeat this first-meet response until fresh attention and first-meet evidence is read.",
+      },
+    ]);
   });
 
   test("projects validator-blocked first-meet responses as not-sent", async () => {
-    const fake = fakeContext(firstMeetResponseResult("not-sent", {
-      sent: false,
-      beforeValid: false,
-      afterValid: false,
-      verified: false,
-    }));
+    const fake = fakeContext(
+      firstMeetResponseResult("not-sent", {
+        sent: false,
+        beforeValid: false,
+        afterValid: false,
+        verified: false,
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.diplomacy.firstMeet.response.request,
       firstMeetInput,
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -134,11 +145,14 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
         noRepeatAfterUnverified: true,
       },
     });
-    expect(result.nextSteps).toEqual([{
-      kind: "inspect-first-meet-response",
-      source: "diplomacy.firstMeet.response.request",
-      label: "Inspect current attention and first-meet diplomacy state before attempting another first-meet response.",
-    }]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "inspect-first-meet-response",
+        source: "diplomacy.firstMeet.response.request",
+        label:
+          "Inspect current attention and first-meet diplomacy state before attempting another first-meet response.",
+      },
+    ]);
   });
 
   test("rejects caller playerId before facade execution", async () => {
@@ -148,8 +162,8 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
       call(
         Civ7ControlOrpcRouter.diplomacy.firstMeet.response.request,
         { ...firstMeetInput, playerId: 2 } as never,
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(fake.calls.readiness).toEqual([]);
     expect(fake.calls.views).toEqual([]);
@@ -172,11 +186,9 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
       const fake = fakeContext(firstMeetResponseResult("first-meet-cleared"));
 
       await expect(
-        call(
-          Civ7ControlOrpcRouter.diplomacy.firstMeet.response.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.diplomacy.firstMeet.response.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.readiness).toEqual([]);
       expect(fake.calls.views).toEqual([]);
@@ -192,18 +204,16 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
         ...context.directControl,
         requestCiv7FirstMeetResponse: async () => {
           throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:1:Game.PlayerOperations.sendRequest(...)",
+            "Timed out waiting for Civ7 tuner response to CMD:1:Game.PlayerOperations.sendRequest(...)"
           );
         },
       },
     };
 
     await expect(
-      call(
-        Civ7ControlOrpcRouter.diplomacy.firstMeet.response.request,
-        firstMeetInput,
-        { context: failingContext },
-      ),
+      call(Civ7ControlOrpcRouter.diplomacy.firstMeet.response.request, firstMeetInput, {
+        context: failingContext,
+      })
     ).rejects.toMatchObject({
       code: "FIRST_MEET_RESPONSE_UNAVAILABLE",
       status: 503,
@@ -214,11 +224,9 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
     });
 
     try {
-      await call(
-        Civ7ControlOrpcRouter.diplomacy.firstMeet.response.request,
-        firstMeetInput,
-        { context: failingContext },
-      );
+      await call(Civ7ControlOrpcRouter.diplomacy.firstMeet.response.request, firstMeetInput, {
+        context: failingContext,
+      });
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -239,9 +247,7 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
   });
 
   test("publishes a diplomacy first-meet domain service leaf", () => {
-    expect(
-      Civ7ControlOrpcContract.diplomacy.firstMeet.response.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.diplomacy.firstMeet.response.request["~orpc"]).toMatchObject({
       meta: {
         family: "diplomacy",
         procedureKey: "diplomacy.firstMeet.response.request",
@@ -250,41 +256,41 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
       },
     });
     expect(
-      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions,
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions
     ).toBeUndefined();
+    expect((Civ7ControlOrpcRouter as unknown as Record<string, unknown>).decisions).toBeUndefined();
     expect(
-      (Civ7ControlOrpcRouter as unknown as Record<string, unknown>).decisions,
-    ).toBeUndefined();
-    expect(
-      Civ7ControlOrpcContract.diplomacy.firstMeet.response.request["~orpc"].errorMap,
+      Civ7ControlOrpcContract.diplomacy.firstMeet.response.request["~orpc"].errorMap
     ).toHaveProperty("FIRST_MEET_RESPONSE_UNAVAILABLE");
-    expect(Civ7FirstMeetResponseUnavailableError.code).toBe(
-      "FIRST_MEET_RESPONSE_UNAVAILABLE",
-    );
+    expect(Civ7FirstMeetResponseUnavailableError.code).toBe("FIRST_MEET_RESPONSE_UNAVAILABLE");
   });
 });
 
 function fakeContext(
   result: Civ7ControlOrpcFirstMeetResponseResult,
-  options: Partial<{ playable: boolean }> = {},
+  options: Partial<{ playable: boolean }> = {}
 ): {
   calls: {
     readiness: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
-    request: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
+    request: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
   };
   context: Civ7ControlOrpcContext;
 } {
   const calls = {
     readiness: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
     views: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
-    request: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
+    request: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
   };
 
   return {
@@ -322,7 +328,7 @@ function firstMeetResponseResult(
     beforeValid: boolean;
     afterValid: boolean;
     verified: boolean;
-  }> = {},
+  }> = {}
 ): Civ7ControlOrpcFirstMeetResponseResult {
   const sent = options.sent ?? classification !== "not-sent";
   return {
@@ -340,9 +346,9 @@ function firstMeetResponseResult(
           } as unknown as Civ7ControlOrpcFirstMeetResponseResult["operation"]["command"])
         : undefined,
       sent,
-      verified: options.verified ?? (
-        classification === "turn-unblocked" || classification === "first-meet-cleared"
-      ),
+      verified:
+        options.verified ??
+        (classification === "turn-unblocked" || classification === "first-meet-cleared"),
     } as Civ7ControlOrpcFirstMeetResponseResult["operation"],
     after: {} as Civ7ControlOrpcFirstMeetResponseResult["after"],
     beforeValidation: {
@@ -354,9 +360,9 @@ function firstMeetResponseResult(
       result: {},
     } as Civ7ControlOrpcFirstMeetResponseResult["afterValidation"],
     sent,
-    verified: options.verified ?? (
-      classification === "turn-unblocked" || classification === "first-meet-cleared"
-    ),
+    verified:
+      options.verified ??
+      (classification === "turn-unblocked" || classification === "first-meet-cleared"),
     postcondition: {
       classification,
       reason: `${classification} reason`,

@@ -29,4 +29,3 @@ export const defaultStrategy = createStrategy(ScoreVegetationSavannaWoodlandCont
     return { score01 };
   },
 });
-

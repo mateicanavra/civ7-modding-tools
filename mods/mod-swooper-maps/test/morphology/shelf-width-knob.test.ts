@@ -6,14 +6,16 @@ import { standardConfig } from "../support/standard-config.js";
 
 describe("morphology-coasts shelfWidth knob", () => {
   it("scales shelfMask distance caps deterministically in rugged-coasts normalize", () => {
-    const base = (standardRecipe.compileConfig(
-      {
-        seed: 123,
-        dimensions: { width: 80, height: 60 },
-        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-      },
-      standardConfig
-    ) as any)["morphology-coasts"]?.["rugged-coasts"];
+    const base = (
+      standardRecipe.compileConfig(
+        {
+          seed: 123,
+          dimensions: { width: 80, height: 60 },
+          latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+        },
+        standardConfig
+      ) as any
+    )["morphology-coasts"]?.["rugged-coasts"];
     expect(base).toBeTruthy();
 
     const shelfMask = {

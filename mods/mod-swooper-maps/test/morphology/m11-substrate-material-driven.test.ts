@@ -47,4 +47,3 @@ describe("m11 substrate (material-driven)", () => {
     expect(first.erodibilityK[0]).not.toBe(first.erodibilityK[1]);
   });
 });
-

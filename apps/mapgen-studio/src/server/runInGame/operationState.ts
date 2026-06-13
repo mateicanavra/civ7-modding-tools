@@ -10,10 +10,11 @@ import type {
 } from "../../features/runInGame/status";
 import { StudioEngineError } from "../studio/engineErrors";
 
-export type RunInGameOperationState = RunInGameOperationStatus & Readonly<{
-  serverInstanceId: string;
-  serverStartedAt: string;
-}>;
+export type RunInGameOperationState = RunInGameOperationStatus &
+  Readonly<{
+    serverInstanceId: string;
+    serverStartedAt: string;
+  }>;
 
 type StoreOptions = Readonly<{
   serverInstanceId: string;
@@ -47,7 +48,9 @@ export function createRunInGameOperationStore(options: StoreOptions) {
 
   function list(): RunInGameOperationState[] {
     prune();
-    return [...operations.values()].sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt));
+    return [...operations.values()].sort(
+      (left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt)
+    );
   }
 
   function create(requestId: string, request?: RunInGameRequestStatus): RunInGameOperationState {
@@ -73,13 +76,22 @@ export function createRunInGameOperationStore(options: StoreOptions) {
 
   function update(
     requestId: string,
-    patch: Partial<Omit<RunInGameOperationState, "requestId" | "startedAt" | "serverInstanceId" | "serverStartedAt">>,
+    patch: Partial<
+      Omit<
+        RunInGameOperationState,
+        "requestId" | "startedAt" | "serverInstanceId" | "serverStartedAt"
+      >
+    >
   ): RunInGameOperationState {
     const current = operations.get(requestId);
     if (!current) throw new Error(`Unknown Run in Game request id: ${requestId}`);
     const phase = patch.phase ?? current.phase;
     const completedPhases = [...current.completedPhases];
-    if (phase !== current.phase && current.status === "running" && !completedPhases.includes(current.phase)) {
+    if (
+      phase !== current.phase &&
+      current.status === "running" &&
+      !completedPhases.includes(current.phase)
+    ) {
       completedPhases.push(current.phase);
     }
     const status = patch.status ?? statusForPhase(phase);
@@ -90,11 +102,13 @@ export function createRunInGameOperationStore(options: StoreOptions) {
       status,
       completedPhases: patch.completedPhases ? [...patch.completedPhases] : completedPhases,
       updatedAt: nowIso(),
-      recoveryActions: patch.recoveryActions ?? recoveryActionsFor({
-        phase,
-        status,
-        details: patch.details ?? current.details,
-      }),
+      recoveryActions:
+        patch.recoveryActions ??
+        recoveryActionsFor({
+          phase,
+          status,
+          details: patch.details ?? current.details,
+        }),
     };
     operations.set(requestId, next);
     options.onChange?.(next);
@@ -105,7 +119,7 @@ export function createRunInGameOperationStore(options: StoreOptions) {
     requestId: string,
     result: unknown,
     materialization?: RunInGameMaterializationStatus,
-    exactAuthorshipProof?: RunInGameExactAuthorshipProof,
+    exactAuthorshipProof?: RunInGameExactAuthorshipProof
   ): RunInGameOperationState {
     return update(requestId, {
       ok: true,
@@ -122,15 +136,16 @@ export function createRunInGameOperationStore(options: StoreOptions) {
     requestId: string,
     phase: RunInGamePhase,
     err: unknown,
-    materialization?: RunInGameMaterializationStatus,
+    materialization?: RunInGameMaterializationStatus
   ): RunInGameOperationState {
     const current = operations.get(requestId);
     const details = runInGameFailureDetails(err, phase, current, materialization);
-    const status = details.failureClass === "blocked"
-      ? "blocked"
-      : details.failureClass === "uncertain"
-        ? "uncertain"
-        : "failed";
+    const status =
+      details.failureClass === "blocked"
+        ? "blocked"
+        : details.failureClass === "uncertain"
+          ? "uncertain"
+          : "failed";
     return update(requestId, {
       ok: false,
       phase: status,
@@ -162,9 +177,16 @@ export function statusForPhase(phase: RunInGamePhase): RunInGameOperationKind {
   return "running";
 }
 
-export function recoveryActionsFor(state: Pick<RunInGameOperationStatus, "phase" | "status" | "details">): string[] {
+export function recoveryActionsFor(
+  state: Pick<RunInGameOperationStatus, "phase" | "status" | "details">
+): string[] {
   const actions = ["copy-diagnostics"];
-  if (state.status === "running" || state.status === "blocked" || state.status === "failed" || state.status === "uncertain") {
+  if (
+    state.status === "running" ||
+    state.status === "blocked" ||
+    state.status === "failed" ||
+    state.status === "uncertain"
+  ) {
     actions.push("retry-status");
   }
   if (state.status === "failed" || state.status === "blocked" || state.status === "uncertain") {
@@ -176,7 +198,10 @@ export function recoveryActionsFor(state: Pick<RunInGameOperationStatus, "phase"
   if (state.details?.reloadBoundary === "process-restart-required") {
     actions.push("restart-civ-process-and-retry");
   }
-  if (state.details?.dismissNotificationRequired === true || state.details?.recoveryBoundary === "civ-notification-dismiss") {
+  if (
+    state.details?.dismissNotificationRequired === true ||
+    state.details?.recoveryBoundary === "civ-notification-dismiss"
+  ) {
     actions.push("dismiss-civ-notification-and-retry");
   }
   return [...new Set(actions)];
@@ -186,19 +211,21 @@ export function runInGameFailureDetails(
   err: unknown,
   phase: RunInGamePhase,
   state?: RunInGameOperationStatus,
-  materialization?: RunInGameMaterializationStatus,
+  materialization?: RunInGameMaterializationStatus
 ): RunInGameFailureDetails {
   const directControlCode = err instanceof Civ7DirectControlError ? err.code : undefined;
-  const httpDetails = err instanceof StudioEngineError && isRecord(err.details)
-    ? err.details
-    : {};
+  const httpDetails = err instanceof StudioEngineError && isRecord(err.details) ? err.details : {};
   const failureClass = classifyRunInGameFailure(err, phase);
-  const nextMaterialization = materialization ?? (isMaterializationStatus(httpDetails.materialization) ? httpDetails.materialization : undefined);
-  const code = directControlCode ?? (typeof httpDetails.code === "string" ? httpDetails.code : undefined);
+  const nextMaterialization =
+    materialization ??
+    (isMaterializationStatus(httpDetails.materialization)
+      ? httpDetails.materialization
+      : undefined);
+  const code =
+    directControlCode ?? (typeof httpDetails.code === "string" ? httpDetails.code : undefined);
   const publicHttpDetails = sanitizeRunInGameStatusRecord(httpDetails);
-  const cause = err instanceof Civ7DirectControlError
-    ? sanitizeRunInGameStatusValue(err.details)
-    : undefined;
+  const cause =
+    err instanceof Civ7DirectControlError ? sanitizeRunInGameStatusValue(err.details) : undefined;
   return {
     ...publicHttpDetails,
     failureClass,
@@ -211,12 +238,18 @@ export function runInGameFailureDetails(
   };
 }
 
-export function classifyRunInGameFailure(err: unknown, phase: RunInGamePhase): "blocked" | "failed" | "uncertain" {
+export function classifyRunInGameFailure(
+  err: unknown,
+  phase: RunInGamePhase
+): "blocked" | "failed" | "uncertain" {
   if (err instanceof StudioEngineError && err.statusCode === 409) return "blocked";
   const code = err instanceof Civ7DirectControlError ? err.code : undefined;
   if (
     (phase === "starting-game" || phase === "waiting-for-proof") &&
-    (code === "response-timeout" || code === "socket-closed" || code === "connection-timeout" || code === "all-hosts-unavailable")
+    (code === "response-timeout" ||
+      code === "socket-closed" ||
+      code === "connection-timeout" ||
+      code === "all-hosts-unavailable")
   ) {
     return "uncertain";
   }
@@ -228,10 +261,7 @@ function cloneForJson(value: unknown): unknown {
   return JSON.parse(JSON.stringify(value));
 }
 
-function publicRunInGameFailureMessage(
-  err: unknown,
-  details: RunInGameFailureDetails,
-): string {
+function publicRunInGameFailureMessage(err: unknown, details: RunInGameFailureDetails): string {
   const phase = details.phase ?? "failed";
   const phaseLabel = publicRunInGamePhaseLabel(phase);
   if (err instanceof StudioEngineError) {
@@ -307,7 +337,9 @@ function sanitizeClonedRunInGameStatusValue(value: unknown): unknown {
 }
 
 function isRawRuntimeCommandDetailKey(key: string): boolean {
-  return /(?:^|\.)(?:command|rawCommand|jsLiteral|payload|startPayload|state|stateName|session|sessionSelection)(?:$|\.)/i.test(key);
+  return /(?:^|\.)(?:command|rawCommand|jsLiteral|payload|startPayload|state|stateName|session|sessionSelection)(?:$|\.)/i.test(
+    key
+  );
 }
 
 function redactRuntimeCommandText(value: string): string {

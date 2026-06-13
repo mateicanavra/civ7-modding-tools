@@ -2,7 +2,12 @@ import { createOp } from "@swooper/mapgen-core/authoring";
 import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "../../constants.js";
-import { requireCrust, requireMesh, requirePlateGraph, requirePlateMotion } from "../../lib/require.js";
+import {
+  requireCrust,
+  requireMesh,
+  requirePlateGraph,
+  requirePlateMotion,
+} from "../../lib/require.js";
 import { clampByte, normalizeToInt8 } from "../../lib/tectonics/shared.js";
 import type { FoundationPlateMotion } from "../compute-plate-motion/contract.js";
 import ComputeTectonicSegmentsContract from "./contract.js";
@@ -51,8 +56,16 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
     default: {
       run: (input, config) => {
         const mesh = requireMesh(input.mesh, "foundation/compute-tectonic-segments");
-        const crust = requireCrust(input.crust, mesh.cellCount | 0, "foundation/compute-tectonic-segments");
-        const plateGraph = requirePlateGraph(input.plateGraph, mesh.cellCount | 0, "foundation/compute-tectonic-segments");
+        const crust = requireCrust(
+          input.crust,
+          mesh.cellCount | 0,
+          "foundation/compute-tectonic-segments"
+        );
+        const plateGraph = requirePlateGraph(
+          input.plateGraph,
+          mesh.cellCount | 0,
+          "foundation/compute-tectonic-segments"
+        );
         const plateMotion = requirePlateMotion(
           input.plateMotion,
           mesh.cellCount | 0,
@@ -114,8 +127,20 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
             const midX = ax + dx * 0.5;
             const midY = ay + dy * 0.5;
 
-            const vA = velocityAtPoint({ plateId: plateAId, plateMotion, x: midX, y: midY, wrapWidth });
-            const vB = velocityAtPoint({ plateId: plateBId, plateMotion, x: midX, y: midY, wrapWidth });
+            const vA = velocityAtPoint({
+              plateId: plateAId,
+              plateMotion,
+              x: midX,
+              y: midY,
+              wrapWidth,
+            });
+            const vB = velocityAtPoint({
+              plateId: plateBId,
+              plateMotion,
+              x: midX,
+              y: midY,
+              wrapWidth,
+            });
 
             const rvx = (vB.vx ?? 0) - (vA.vx ?? 0);
             const rvy = (vB.vy ?? 0) - (vA.vy ?? 0);
@@ -135,7 +160,12 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
             const c = clampByte(Math.max(0, -vn) * intensityScale * compressionScale);
             const e = clampByte(Math.max(0, vn) * intensityScale * extensionScale);
             const s = clampByte(Math.abs(vt) * intensityScale * shearScale);
-            const kind = boundaryRegimeFromIntensities({ compression: c, extension: e, shear: s, minIntensity: regimeMinIntensity });
+            const kind = boundaryRegimeFromIntensities({
+              compression: c,
+              extension: e,
+              shear: s,
+              minIntensity: regimeMinIntensity,
+            });
 
             let pol = 0;
             if (kind === BOUNDARY_TYPE.convergent) {
@@ -155,7 +185,8 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
             }
 
             const v = (() => {
-              if (kind === BOUNDARY_TYPE.convergent) return clampByte(c * 0.6 + (pol !== 0 ? 40 : 0));
+              if (kind === BOUNDARY_TYPE.convergent)
+                return clampByte(c * 0.6 + (pol !== 0 ? 40 : 0));
               if (kind === BOUNDARY_TYPE.divergent) return clampByte(e * 0.25);
               if (kind === BOUNDARY_TYPE.transform) return clampByte(s * 0.1);
               return 0;
@@ -169,8 +200,10 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
             })();
 
             const drift = normalizeToInt8(
-              (plateMotion.plateVelocityX[plateAId] ?? 0) + (plateMotion.plateVelocityX[plateBId] ?? 0),
-              (plateMotion.plateVelocityY[plateAId] ?? 0) + (plateMotion.plateVelocityY[plateBId] ?? 0)
+              (plateMotion.plateVelocityX[plateAId] ?? 0) +
+                (plateMotion.plateVelocityX[plateBId] ?? 0),
+              (plateMotion.plateVelocityY[plateAId] ?? 0) +
+                (plateMotion.plateVelocityY[plateBId] ?? 0)
             );
 
             aCell.push(i);

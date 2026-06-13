@@ -1,13 +1,8 @@
 import { describe, it, expect } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import {
-  getStoryOverlay,
-  STORY_OVERLAY_KEYS,
-} from "@mapgen/domain/narrative/overlays/index.js";
-import {
-  storyTagOrogenyBelts,
-} from "@mapgen/domain/narrative/orogeny/index.js";
+import { getStoryOverlay, STORY_OVERLAY_KEYS } from "@mapgen/domain/narrative/overlays/index.js";
+import { storyTagOrogenyBelts } from "@mapgen/domain/narrative/orogeny/index.js";
 
 describe("story/orogeny", () => {
   it("publishes an overlay when provided foundation tensors", () => {

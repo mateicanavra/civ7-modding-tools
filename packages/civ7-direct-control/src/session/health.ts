@@ -1,4 +1,7 @@
-import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "../direct-control-error.js";
+import {
+  Civ7DirectControlError,
+  type Civ7DirectControlErrorCode,
+} from "../direct-control-error.js";
 import { DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "./constants.js";
 import { discoverCiv7DirectControlEndpoint } from "./discovery.js";
 import { selectCiv7TunerState } from "./state.js";
@@ -9,9 +12,11 @@ import type {
   Civ7TunerStateSelection,
 } from "./types.js";
 
-export async function checkCiv7DirectControlHealth(options: Civ7DirectControlOptions & {
-  state?: Civ7TunerStateSelection;
-} = {}): Promise<Civ7DirectControlHealth> {
+export async function checkCiv7DirectControlHealth(
+  options: Civ7DirectControlOptions & {
+    state?: Civ7TunerStateSelection;
+  } = {}
+): Promise<Civ7DirectControlHealth> {
   try {
     const discovered = await discoverCiv7DirectControlEndpoint(options);
     if (discovered.states.length === 0) {
@@ -21,7 +26,10 @@ export async function checkCiv7DirectControlHealth(options: Civ7DirectControlOpt
         host: discovered.endpoint.host,
         port: discovered.endpoint.port,
         states: discovered.states,
-        error: new Civ7DirectControlError("state-not-found", "Civ7 tuner returned no scripting states"),
+        error: new Civ7DirectControlError(
+          "state-not-found",
+          "Civ7 tuner returned no scripting states"
+        ),
       };
     }
     let selectedState: Civ7TunerState | undefined;
@@ -57,11 +65,13 @@ export async function checkCiv7DirectControlHealth(options: Civ7DirectControlOpt
   }
 }
 
-export async function waitForCiv7DirectControl(options: Civ7DirectControlOptions & {
-  state?: Civ7TunerStateSelection;
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-} = {}): Promise<Civ7DirectControlHealth & { ok: true }> {
+export async function waitForCiv7DirectControl(
+  options: Civ7DirectControlOptions & {
+    state?: Civ7TunerStateSelection;
+    waitTimeoutMs?: number;
+    pollIntervalMs?: number;
+  } = {}
+): Promise<Civ7DirectControlHealth & { ok: true }> {
   const waitTimeoutMs = options.waitTimeoutMs ?? options.timeoutMs ?? DEFAULT_CIV7_TUNER_TIMEOUT_MS;
   const pollIntervalMs = options.pollIntervalMs ?? 500;
   const startedAt = Date.now();
@@ -72,12 +82,19 @@ export async function waitForCiv7DirectControl(options: Civ7DirectControlOptions
     lastHealth = health;
     await sleep(pollIntervalMs);
   }
-  throw new Civ7DirectControlError("connection-timeout", `Timed out waiting for Civ7 tuner readiness after ${waitTimeoutMs}ms`, {
-    details: lastHealth,
-  });
+  throw new Civ7DirectControlError(
+    "connection-timeout",
+    `Timed out waiting for Civ7 tuner readiness after ${waitTimeoutMs}ms`,
+    {
+      details: lastHealth,
+    }
+  );
 }
 
-function toDirectControlError(err: unknown, fallbackCode: Civ7DirectControlErrorCode): Civ7DirectControlError {
+function toDirectControlError(
+  err: unknown,
+  fallbackCode: Civ7DirectControlErrorCode
+): Civ7DirectControlError {
   if (err instanceof Civ7DirectControlError) return err;
   return new Civ7DirectControlError(fallbackCode, errorMessage(err), { cause: err });
 }

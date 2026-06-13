@@ -20,9 +20,13 @@ function getSchemaAtPath(schema: unknown, path: readonly string[]): unknown {
       continue;
     }
 
-    const variants = (Array.isArray((current as any).anyOf) ? (current as any).anyOf :
-      Array.isArray((current as any).oneOf) ? (current as any).oneOf :
-        null) as any[] | null;
+    const variants = (
+      Array.isArray((current as any).anyOf)
+        ? (current as any).anyOf
+        : Array.isArray((current as any).oneOf)
+          ? (current as any).oneOf
+          : null
+    ) as any[] | null;
     if (variants) {
       const match = variants.find((variant) => {
         const vProps = variant?.properties;
@@ -42,7 +46,10 @@ function getSchemaAtPath(schema: unknown, path: readonly string[]): unknown {
 function expectSchemaHasDescription(schema: unknown, label: string) {
   const node = schema as any;
   expect(typeof node.description, `${label} must define description`).toBe("string");
-  expect((node.description as string).trim().length, `${label} description must be non-empty`).toBeGreaterThan(0);
+  expect(
+    (node.description as string).trim().length,
+    `${label} description must be non-empty`
+  ).toBeGreaterThan(0);
 }
 
 function collectMissingDescriptions(schema: unknown, path: string[] = []): string[] {
@@ -61,7 +68,8 @@ function collectMissingDescriptions(schema: unknown, path: string[] = []): strin
     oneOf?: unknown[];
   };
   const missing: string[] = [];
-  const literalVariant = Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
+  const literalVariant =
+    Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
   if (path.length > 0 && !literalVariant && typeof node.description !== "string") {
     missing.push(path.join("."));
   }
@@ -94,7 +102,8 @@ function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []):
     oneOf?: unknown[];
   };
   const missing: string[] = [];
-  const literalVariant = Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
+  const literalVariant =
+    Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
   if (
     !literalVariant &&
     (node.type === "number" || node.type === "integer") &&
@@ -116,7 +125,9 @@ function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []):
 function collectStringLeavesMissingEnum(schema: unknown, path: string[] = []): string[] {
   if (!schema || typeof schema !== "object") return [];
   if (Array.isArray(schema)) {
-    return schema.flatMap((item, index) => collectStringLeavesMissingEnum(item, [...path, String(index)]));
+    return schema.flatMap((item, index) =>
+      collectStringLeavesMissingEnum(item, [...path, String(index)])
+    );
   }
   const node = schema as {
     const?: unknown;
@@ -128,7 +139,8 @@ function collectStringLeavesMissingEnum(schema: unknown, path: string[] = []): s
     oneOf?: unknown[];
   };
   const missing: string[] = [];
-  const literalVariant = Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
+  const literalVariant =
+    Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
   const enumValues = Array.isArray(node.enum) ? node.enum : null;
   if (
     !literalVariant &&
@@ -152,7 +164,10 @@ function hasRawOpEnvelope(value: unknown): boolean {
   if (!value || typeof value !== "object") return false;
   if (Array.isArray(value)) return value.some(hasRawOpEnvelope);
   const obj = value as Record<string, unknown>;
-  if (Object.prototype.hasOwnProperty.call(obj, "strategy") && Object.prototype.hasOwnProperty.call(obj, "config")) {
+  if (
+    Object.prototype.hasOwnProperty.call(obj, "strategy") &&
+    Object.prototype.hasOwnProperty.call(obj, "config")
+  ) {
     return true;
   }
   return Object.values(obj).some(hasRawOpEnvelope);
@@ -184,7 +199,8 @@ function collectDescriptionsMatching(
   for (const [key, child] of Object.entries(node.properties ?? {})) {
     matches.push(...collectDescriptionsMatching(child, pattern, [...path, key]));
   }
-  if (node.items) matches.push(...collectDescriptionsMatching(node.items, pattern, [...path, "items"]));
+  if (node.items)
+    matches.push(...collectDescriptionsMatching(node.items, pattern, [...path, "items"]));
   for (const variant of [...(node.anyOf ?? []), ...(node.oneOf ?? [])]) {
     matches.push(...collectDescriptionsMatching(variant, pattern, path));
   }
@@ -203,7 +219,11 @@ function expectPublicStageDescription(schema: unknown, stageId: string): void {
 
 describe("Studio default config", () => {
   it("validates against the standard recipe schema (prevents UI drift)", () => {
-    const { errors } = normalizeStrict<Record<string, unknown>>(STANDARD_RECIPE_CONFIG_SCHEMA, STANDARD_RECIPE_CONFIG, "/defaultConfig");
+    const { errors } = normalizeStrict<Record<string, unknown>>(
+      STANDARD_RECIPE_CONFIG_SCHEMA,
+      STANDARD_RECIPE_CONFIG,
+      "/defaultConfig"
+    );
     expect(errors).toEqual([]);
   });
 
@@ -232,14 +252,17 @@ describe("Studio default config", () => {
 
     for (const [stageId, expectedKeys] of Object.entries(expected)) {
       const schemaProps =
-        (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId]) as {
-          properties?: Record<string, unknown>;
-        }).properties ?? {};
+        (
+          getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId]) as {
+            properties?: Record<string, unknown>;
+          }
+        ).properties ?? {};
       expect(Object.keys(schemaProps).sort()).toEqual([...expectedKeys].sort());
-      expect(JSON.stringify(schemaProps)).not.toContain("\"strategy\"");
-      expect(JSON.stringify(schemaProps)).not.toContain("\"config\"");
+      expect(JSON.stringify(schemaProps)).not.toContain('"strategy"');
+      expect(JSON.stringify(schemaProps)).not.toContain('"config"');
 
-      const config = (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
+      const config =
+        (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
       for (const key of Object.keys(config)) {
         expect(expectedKeys).toContain(key);
       }
@@ -268,10 +291,12 @@ describe("Studio default config", () => {
         const schema = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId, key]);
         expect(collectMissingDescriptions(schema, [stageId, key])).toEqual([]);
         expect(collectNumericLeavesMissingRange(schema, [stageId, key])).toEqual([]);
-        expect(collectDescriptionsMatching(schema, /\b(step\/op|envelope|internal|strategy)\b/i, [
-          stageId,
-          key,
-        ])).toEqual([]);
+        expect(
+          collectDescriptionsMatching(schema, /\b(step\/op|envelope|internal|strategy)\b/i, [
+            stageId,
+            key,
+          ])
+        ).toEqual([]);
       }
     }
   });
@@ -306,14 +331,17 @@ describe("Studio default config", () => {
 
     for (const [stageId, expectedKeys] of Object.entries(expected)) {
       const schemaProps =
-        (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId]) as {
-          properties?: Record<string, unknown>;
-        }).properties ?? {};
+        (
+          getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId]) as {
+            properties?: Record<string, unknown>;
+          }
+        ).properties ?? {};
       expect(Object.keys(schemaProps).sort()).toEqual([...expectedKeys].sort());
-      expect(JSON.stringify(schemaProps)).not.toContain("\"strategy\"");
-      expect(JSON.stringify(schemaProps)).not.toContain("\"config\"");
+      expect(JSON.stringify(schemaProps)).not.toContain('"strategy"');
+      expect(JSON.stringify(schemaProps)).not.toContain('"config"');
 
-      const config = (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
+      const config =
+        (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
       for (const key of Object.keys(config)) {
         expect(expectedKeys).toContain(key);
       }
@@ -354,10 +382,12 @@ describe("Studio default config", () => {
         const schema = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId, key]);
         expect(collectMissingDescriptions(schema, [stageId, key])).toEqual([]);
         expect(collectNumericLeavesMissingRange(schema, [stageId, key])).toEqual([]);
-        expect(collectDescriptionsMatching(schema, /\b(step|op|envelope|internal|strategy)\b/i, [
-          stageId,
-          key,
-        ])).toEqual([]);
+        expect(
+          collectDescriptionsMatching(schema, /\b(step|op|envelope|internal|strategy)\b/i, [
+            stageId,
+            key,
+          ])
+        ).toEqual([]);
       }
     }
   });
@@ -389,14 +419,17 @@ describe("Studio default config", () => {
 
     for (const [stageId, expectedKeys] of Object.entries(expected)) {
       const schemaProps =
-        (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId]) as {
-          properties?: Record<string, unknown>;
-        }).properties ?? {};
+        (
+          getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId]) as {
+            properties?: Record<string, unknown>;
+          }
+        ).properties ?? {};
       expect(Object.keys(schemaProps).sort()).toEqual([...expectedKeys].sort());
-      expect(JSON.stringify(schemaProps)).not.toContain("\"strategy\"");
-      expect(JSON.stringify(schemaProps)).not.toContain("\"config\"");
+      expect(JSON.stringify(schemaProps)).not.toContain('"strategy"');
+      expect(JSON.stringify(schemaProps)).not.toContain('"config"');
 
-      const config = (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
+      const config =
+        (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
       for (const key of Object.keys(config)) {
         expect(expectedKeys).toContain(key);
       }
@@ -434,10 +467,12 @@ describe("Studio default config", () => {
         const schema = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId, key]);
         expect(collectMissingDescriptions(schema, [stageId, key])).toEqual([]);
         expect(collectNumericLeavesMissingRange(schema, [stageId, key])).toEqual([]);
-        expect(collectDescriptionsMatching(schema, /\b(step|op|envelope|internal|strategy)\b/i, [
-          stageId,
-          key,
-        ])).toEqual([]);
+        expect(
+          collectDescriptionsMatching(schema, /\b(step|op|envelope|internal|strategy)\b/i, [
+            stageId,
+            key,
+          ])
+        ).toEqual([]);
       }
     }
   });
@@ -453,14 +488,17 @@ describe("Studio default config", () => {
 
     for (const [stageId, expectedKeys] of Object.entries(expected)) {
       const schemaProps =
-        (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId]) as {
-          properties?: Record<string, unknown>;
-        }).properties ?? {};
+        (
+          getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId]) as {
+            properties?: Record<string, unknown>;
+          }
+        ).properties ?? {};
       expect(Object.keys(schemaProps).sort()).toEqual([...expectedKeys].sort());
-      expect(JSON.stringify(schemaProps)).not.toContain("\"strategy\"");
-      expect(JSON.stringify(schemaProps)).not.toContain("\"config\"");
+      expect(JSON.stringify(schemaProps)).not.toContain('"strategy"');
+      expect(JSON.stringify(schemaProps)).not.toContain('"config"');
 
-      const config = (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
+      const config =
+        (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
       for (const key of Object.keys(config)) {
         expect(expectedKeys).toContain(key);
       }
@@ -471,12 +509,14 @@ describe("Studio default config", () => {
   it("exposes semantic Placement authoring keys instead of runtime step/op envelopes", () => {
     const expected = ["knobs", "naturalWonders", "discoveries", "resources", "starts", "support"];
     const schemaProps =
-      (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["placement"]) as {
-        properties?: Record<string, unknown>;
-      }).properties ?? {};
+      (
+        getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["placement"]) as {
+          properties?: Record<string, unknown>;
+        }
+      ).properties ?? {};
     expect(Object.keys(schemaProps).sort()).toEqual([...expected].sort());
-    expect(JSON.stringify(schemaProps)).not.toContain("\"strategy\"");
-    expect(JSON.stringify(schemaProps)).not.toContain("\"config\"");
+    expect(JSON.stringify(schemaProps)).not.toContain('"strategy"');
+    expect(JSON.stringify(schemaProps)).not.toContain('"config"');
     expect(JSON.stringify(schemaProps)).not.toContain("derive-placement-inputs");
     expect(JSON.stringify(schemaProps)).not.toContain("candidateResourceTypes");
     expect(JSON.stringify(schemaProps)).not.toContain("startSectors");
@@ -505,10 +545,12 @@ describe("Studio default config", () => {
         expect(collectMissingDescriptions(schema, [stageId, key])).toEqual([]);
         expect(collectNumericLeavesMissingRange(schema, [stageId, key])).toEqual([]);
         expect(collectStringLeavesMissingEnum(schema, [stageId, key])).toEqual([]);
-        expect(collectDescriptionsMatching(schema, /\b(step|op|envelope|internal|strategy)\b/i, [
-          stageId,
-          key,
-        ])).toEqual([]);
+        expect(
+          collectDescriptionsMatching(schema, /\b(step|op|envelope|internal|strategy)\b/i, [
+            stageId,
+            key,
+          ])
+        ).toEqual([]);
       }
     }
   });
@@ -523,10 +565,12 @@ describe("Studio default config", () => {
       const schema = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["placement", key]);
       expect(collectMissingDescriptions(schema, ["placement", key])).toEqual([]);
       expect(collectNumericLeavesMissingRange(schema, ["placement", key])).toEqual([]);
-      expect(collectDescriptionsMatching(schema, /\b(step|op|envelope|internal|strategy)\b/i, [
-        "placement",
-        key,
-      ])).toEqual([]);
+      expect(
+        collectDescriptionsMatching(schema, /\b(step|op|envelope|internal|strategy)\b/i, [
+          "placement",
+          key,
+        ])
+      ).toEqual([]);
     }
   });
 
@@ -716,23 +760,27 @@ describe("Studio default config", () => {
   });
 
   it("exposes semantic Foundation authoring keys instead of internal op envelopes", () => {
-    const foundationSchema = (STANDARD_RECIPE_CONFIG_SCHEMA as { properties?: Record<string, unknown> }).properties
-      ?.foundation;
+    const foundationSchema = (
+      STANDARD_RECIPE_CONFIG_SCHEMA as { properties?: Record<string, unknown> }
+    ).properties?.foundation;
     expect(foundationSchema).toBeTruthy();
-    const foundationProps = (foundationSchema as { properties?: Record<string, unknown> }).properties ?? {};
-    expect(Object.keys(foundationProps).sort()).toEqual([
-      "knobs",
-      "lithosphere",
-      "mantleForcing",
-      "mantleSources",
-      "meshResolution",
-      "plateMotion",
-      "platePartition",
-      "tectonicEras",
-      "tectonicFields",
-      "tectonicRollups",
-      "tectonicSegmentation",
-    ].sort());
+    const foundationProps =
+      (foundationSchema as { properties?: Record<string, unknown> }).properties ?? {};
+    expect(Object.keys(foundationProps).sort()).toEqual(
+      [
+        "knobs",
+        "lithosphere",
+        "mantleForcing",
+        "mantleSources",
+        "meshResolution",
+        "plateMotion",
+        "platePartition",
+        "tectonicEras",
+        "tectonicFields",
+        "tectonicRollups",
+        "tectonicSegmentation",
+      ].sort()
+    );
     expect(foundationProps).not.toHaveProperty("version");
     expect(foundationProps).not.toHaveProperty("profiles");
     expect(foundationProps).not.toHaveProperty("advanced");
@@ -747,13 +795,16 @@ describe("Studio default config", () => {
     const meshResolutionProps =
       (foundationProps.meshResolution as { properties?: Record<string, unknown> }).properties ?? {};
     expect(meshResolutionProps).not.toHaveProperty("cellCount");
-    expect(JSON.stringify(foundationProps)).not.toContain("\"strategy\"");
-    expect(JSON.stringify(foundationProps)).not.toContain("\"config\"");
+    expect(JSON.stringify(foundationProps)).not.toContain('"strategy"');
+    expect(JSON.stringify(foundationProps)).not.toContain('"config"');
   });
 
   it("documents split Foundation controls with schema descriptions", () => {
     const foundation = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation"]);
-    expectSchemaHasDescription(getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "knobs"]), "foundation.knobs");
+    expectSchemaHasDescription(
+      getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "knobs"]),
+      "foundation.knobs"
+    );
     expectSchemaHasDescription(
       getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "knobs", "plateCount"]),
       "foundation.knobs.plateCount"
@@ -763,17 +814,19 @@ describe("Studio default config", () => {
       "foundation.knobs.plateActivity"
     );
     expectSchemaHasDescription(
-      getSchemaAtPath(
-        STANDARD_RECIPE_CONFIG_SCHEMA,
-        ["foundation", "mantleForcing", "velocityScale"]
-      ),
+      getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [
+        "foundation",
+        "mantleForcing",
+        "velocityScale",
+      ]),
       "foundation.mantleForcing.velocityScale"
     );
     expectSchemaHasDescription(
-      getSchemaAtPath(
-        STANDARD_RECIPE_CONFIG_SCHEMA,
-        ["foundation", "tectonicSegmentation", "regimeMinIntensity"]
-      ),
+      getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [
+        "foundation",
+        "tectonicSegmentation",
+        "regimeMinIntensity",
+      ]),
       "foundation.tectonicSegmentation.regimeMinIntensity"
     );
 

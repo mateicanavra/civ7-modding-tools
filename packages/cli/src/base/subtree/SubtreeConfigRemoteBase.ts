@@ -1,18 +1,18 @@
-import { Args, Flags } from '@oclif/core';
-import SubtreeCommand from './SubtreeCommand.js';
-import { configureRemote } from '../../utils/git.js';
+import { Args, Flags } from "@oclif/core";
+import SubtreeCommand from "./SubtreeCommand.js";
+import { configureRemote } from "../../utils/git.js";
 
 export default abstract class SubtreeConfigRemoteBase extends SubtreeCommand {
   static flags = {
     ...SubtreeCommand.baseFlags,
     repoUrl: Flags.string({
-      description: 'Git repository URL',
-      char: 'u',
+      description: "Git repository URL",
+      char: "u",
     }),
   } as const;
 
   static args = {
-    slug: Args.string({ description: 'Subtree slug', required: true }),
+    slug: Args.string({ description: "Subtree slug", required: true }),
   } as const;
 
   async run() {

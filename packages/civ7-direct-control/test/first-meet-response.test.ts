@@ -19,7 +19,8 @@ describe("first-meet response requests", () => {
         validatePlayerId: (playerId) => {
           if (!Number.isInteger(playerId)) throw new Error("invalid player");
         },
-        getPlayNotificationView: async () => reads.shift() ?? firstMeetNotificationView("ready-unit"),
+        getPlayNotificationView: async () =>
+          reads.shift() ?? firstMeetNotificationView("ready-unit"),
         requestPlayerOperation: async (input) => {
           expect(input).toEqual({
             playerId: 0,
@@ -31,7 +32,7 @@ describe("first-meet response requests", () => {
         invalidResponseTypeError: () => {
           throw new Error("invalid response");
         },
-      },
+      }
     );
 
     expect(result.sent).toBe(true);
@@ -55,14 +56,15 @@ describe("first-meet response requests", () => {
         invalidResponseTypeError: () => {
           throw new Error("invalid response");
         },
-      },
+      }
     );
 
     expect(result.sent).toBe(true);
     expect(result.verified).toBe(false);
     expect(result.postcondition).toMatchObject({
       classification: "first-meet-sticky-blocker",
-      reason: "The first-meet operation returned, but the same first-meet notification still blocks turn flow.",
+      reason:
+        "The first-meet operation returned, but the same first-meet notification still blocks turn flow.",
     });
   });
 
@@ -77,7 +79,7 @@ describe("first-meet response requests", () => {
         invalidResponseTypeError: () => {
           throw new Error("invalid response");
         },
-      },
+      }
     );
 
     expect(result.sent).toBe(false);
@@ -91,7 +93,7 @@ describe("first-meet response requests", () => {
 });
 
 function operationResult(
-  options: Readonly<{ sent: boolean; valid?: boolean }>,
+  options: Readonly<{ sent: boolean; valid?: boolean }>
 ): Civ7OperationRequestResult {
   const valid = options.valid ?? true;
   return {
@@ -125,7 +127,7 @@ function operationResult(
 }
 
 function firstMeetNotificationView(
-  mode: "first-meet" | "ready-unit",
+  mode: "first-meet" | "ready-unit"
 ): Civ7PlayNotificationViewResult {
   const notification = {
     id: { owner: 0, id: 44, type: 20 },

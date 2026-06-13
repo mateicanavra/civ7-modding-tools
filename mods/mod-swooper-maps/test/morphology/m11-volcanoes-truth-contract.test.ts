@@ -56,8 +56,12 @@ describe("m11 volcanoes truth contract", () => {
 
     standardRecipe.run(context, env, realismEarthlikeConfig, { log: () => {} });
 
-    const topography = context.artifacts.get("artifact:morphology.topography") as MorphologyTopographyArtifact | undefined;
-    const volcanoes = context.artifacts.get("artifact:morphology.volcanoes") as MorphologyVolcanoesArtifact | undefined;
+    const topography = context.artifacts.get("artifact:morphology.topography") as
+      | MorphologyTopographyArtifact
+      | undefined;
+    const volcanoes = context.artifacts.get("artifact:morphology.volcanoes") as
+      | MorphologyVolcanoesArtifact
+      | undefined;
     expect(topography?.landMask).toBeInstanceOf(Uint8Array);
     expect(volcanoes?.volcanoMask).toBeInstanceOf(Uint8Array);
     expect(Array.isArray(volcanoes?.volcanoes)).toBe(true);
@@ -79,7 +83,9 @@ describe("m11 volcanoes truth contract", () => {
       expect(entry.tileIndex).toBeGreaterThan(lastTileIndex);
       lastTileIndex = entry.tileIndex;
 
-      expect(entry.kind === "subductionArc" || entry.kind === "rift" || entry.kind === "hotspot").toBe(true);
+      expect(
+        entry.kind === "subductionArc" || entry.kind === "rift" || entry.kind === "hotspot"
+      ).toBe(true);
       expect(entry.strength01).toBeGreaterThanOrEqual(0);
       expect(entry.strength01).toBeLessThanOrEqual(1);
 

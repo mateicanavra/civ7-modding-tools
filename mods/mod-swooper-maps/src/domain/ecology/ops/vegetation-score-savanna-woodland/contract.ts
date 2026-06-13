@@ -28,4 +28,3 @@ const ScoreVegetationSavannaWoodlandContract = defineOp({
 });
 
 export default ScoreVegetationSavannaWoodlandContract;
-

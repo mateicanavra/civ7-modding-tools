@@ -24,7 +24,10 @@ import PreparePlacementSurfaceStepContract from "./contract.js";
 
 export default createStep(PreparePlacementSurfaceStepContract, {
   artifacts: implementArtifacts(
-    [placementArtifacts.placementSurfacePreparation, mapArtifacts.placementSurfaceValidationBoundary],
+    [
+      placementArtifacts.placementSurfacePreparation,
+      mapArtifacts.placementSurfaceValidationBoundary,
+    ],
     {
       placementSurfacePreparation: {
         validate: (value) => validatePlacementSurfacePreparationArtifact(value),
@@ -179,7 +182,8 @@ function emitSurfaceDriftViz(
   for (let i = 0; i < size; i++) {
     const terrainChanged = beforeValidate.terrain[i] !== afterMaintenance.terrain[i];
     const waterChanged = beforeValidate.waterMask[i] !== afterMaintenance.waterMask[i];
-    terrainDrift[i] = terrainChanged && waterChanged ? 3 : waterChanged ? 2 : terrainChanged ? 1 : 0;
+    terrainDrift[i] =
+      terrainChanged && waterChanged ? 3 : waterChanged ? 2 : terrainChanged ? 1 : 0;
   }
   context.viz.dumpGrid(context.trace, {
     dataTypeKey: "map.placement.surface.terrainValidationDrift",

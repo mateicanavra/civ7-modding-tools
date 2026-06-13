@@ -21,25 +21,25 @@ import {
   COLLECTION,
   EFFECT,
   REQUIREMENT,
-} from '@mateicanavra/civ7-sdk';
-import { falxman, murusEngineer } from '@units';
-import { mountainSanctuary, murusDacicus } from '@constructibles';
-import { CivilizationPackage } from '@types';
-import { mod } from '@mod';
+} from "@mateicanavra/civ7-sdk";
+import { falxman, murusEngineer } from "@units";
+import { mountainSanctuary, murusDacicus } from "@constructibles";
+import { CivilizationPackage } from "@types";
+import { mod } from "@mod";
 
 // Define civilization icon
 const civilizationIcon = new ImportFileBuilder({
   actionGroupBundle: ACTION_GROUP_BUNDLE.AGE_ANTIQUITY,
-  content: './assets/Dacia_alt.png',
-  name: 'civ_sym_dacia',
+  content: "./assets/Dacia_alt.png",
+  name: "civ_sym_dacia",
 });
 
 // Define civilization
 const civilization = new CivilizationBuilder({
   actionGroupBundle: ACTION_GROUP_BUNDLE.AGE_ANTIQUITY,
   civilization: {
-    domain: 'AntiquityAgeCivilizations',
-    civilizationType: 'CIVILIZATION_DACIA',
+    domain: "AntiquityAgeCivilizations",
+    civilizationType: "CIVILIZATION_DACIA",
   },
   civilizationTraits: [
     TRAIT.ANTIQUITY_CIV,
@@ -89,29 +89,29 @@ const civilization = new CivilizationBuilder({
   startBiasAdjacentToCoast: 0,
   localizations: [
     {
-      name: 'Dacia',
+      name: "Dacia",
       description:
-        'The Dacian kingdom flourished in the Carpathian Mountains, known for its gold mines, unique falx weapons, and mountain fortresses.',
-      fullName: 'The Dacian Kingdom',
-      adjective: 'Dacian',
-      unlockPlayAs: 'Play as [B]Dacia[/B], masters of mountain warfare.',
+        "The Dacian kingdom flourished in the Carpathian Mountains, known for its gold mines, unique falx weapons, and mountain fortresses.",
+      fullName: "The Dacian Kingdom",
+      adjective: "Dacian",
+      unlockPlayAs: "Play as [B]Dacia[/B], masters of mountain warfare.",
       cityNames: [
-        'Sarmizegetusa',
-        'Apulum',
-        'Napoca',
-        'Piroboridava',
-        'Sucidava',
-        'Buridava',
-        'Cumidava',
-        'Porolissum',
-        'Genucla',
-        'Dierna',
-        'Tibiscum',
-        'Drobeta',
+        "Sarmizegetusa",
+        "Apulum",
+        "Napoca",
+        "Piroboridava",
+        "Sucidava",
+        "Buridava",
+        "Cumidava",
+        "Porolissum",
+        "Genucla",
+        "Dierna",
+        "Tibiscum",
+        "Drobeta",
       ],
-      abilityName: 'Carpathian Defenders',
+      abilityName: "Carpathian Defenders",
       abilityDescription:
-        'Units receive +5 [icon:COMBAT_MELEE] Combat Strength when fighting in Hills or Forest terrain. Gold Mines provide +1 [icon:YIELD_PRODUCTION] Production and +1 [icon:YIELD_CULTURE] Culture.',
+        "Units receive +5 [icon:COMBAT_MELEE] Combat Strength when fighting in Hills or Forest terrain. Gold Mines provide +1 [icon:YIELD_PRODUCTION] Production and +1 [icon:YIELD_CULTURE] Culture.",
     },
   ],
 });
@@ -120,21 +120,21 @@ const civilization = new CivilizationBuilder({
 const terrainCombatModifier = new ModifierBuilder({
   actionGroupBundle: ACTION_GROUP_BUNDLE.AGE_ANTIQUITY,
   modifier: {
-    id: 'DACIA_MOD_TERRAIN_COMBAT_BONUS',
+    id: "DACIA_MOD_TERRAIN_COMBAT_BONUS",
     collection: COLLECTION.PLAYER_UNITS,
     effect: EFFECT.ADJUST_UNIT_STRENGTH_MODIFIER,
     permanent: true,
     requirements: [
       {
         type: REQUIREMENT.PLAYER_TYPE_MATCHES,
-        arguments: [{ name: 'CivilizationType', value: 'CIVILIZATION_DACIA' }],
+        arguments: [{ name: "CivilizationType", value: "CIVILIZATION_DACIA" }],
       },
       {
         type: REQUIREMENT.PLOT_TERRAIN_TYPE_MATCHES,
-        arguments: [{ name: 'TerrainType', value: 'TERRAIN_HILLS' }],
+        arguments: [{ name: "TerrainType", value: "TERRAIN_HILLS" }],
       },
     ],
-    arguments: [{ name: 'Amount', value: 5 }],
+    arguments: [{ name: "Amount", value: 5 }],
   },
 });
 
@@ -142,21 +142,21 @@ const terrainCombatModifier = new ModifierBuilder({
 const forestCombatModifier = new ModifierBuilder({
   actionGroupBundle: ACTION_GROUP_BUNDLE.AGE_ANTIQUITY,
   modifier: {
-    id: 'DACIA_MOD_FOREST_COMBAT_BONUS',
+    id: "DACIA_MOD_FOREST_COMBAT_BONUS",
     collection: COLLECTION.PLAYER_UNITS,
     effect: EFFECT.ADJUST_UNIT_STRENGTH_MODIFIER,
     permanent: true,
     requirements: [
       {
         type: REQUIREMENT.PLAYER_TYPE_MATCHES,
-        arguments: [{ name: 'CivilizationType', value: 'CIVILIZATION_DACIA' }],
+        arguments: [{ name: "CivilizationType", value: "CIVILIZATION_DACIA" }],
       },
       {
         type: REQUIREMENT.PLOT_FEATURE_TYPE_MATCHES,
-        arguments: [{ name: 'FeatureType', value: 'FEATURE_FOREST' }],
+        arguments: [{ name: "FeatureType", value: "FEATURE_FOREST" }],
       },
     ],
-    arguments: [{ name: 'Amount', value: 5 }],
+    arguments: [{ name: "Amount", value: 5 }],
   },
 });
 
@@ -182,16 +182,16 @@ function createResourceYieldModifier({
       requirements: [
         {
           type: REQUIREMENT.PLAYER_TYPE_MATCHES,
-          arguments: [{ name: 'CivilizationType', value: 'CIVILIZATION_DACIA' }],
+          arguments: [{ name: "CivilizationType", value: "CIVILIZATION_DACIA" }],
         },
         {
           type: REQUIREMENT.PLOT_RESOURCE_TYPE_MATCHES,
-          arguments: [{ name: 'ResourceType', value: resourceType }],
+          arguments: [{ name: "ResourceType", value: resourceType }],
         },
       ],
       arguments: [
-        { name: 'YieldType', value: yieldType },
-        { name: 'Amount', value: amount },
+        { name: "YieldType", value: yieldType },
+        { name: "Amount", value: amount },
       ],
     },
   });
@@ -199,64 +199,64 @@ function createResourceYieldModifier({
 
 // Create a gold mine production yield modifier
 const goldMineProductionModifier = createResourceYieldModifier({
-  id: 'DACIA_MOD_GOLD_MINE_PRODUCTION',
-  resourceType: 'RESOURCE_GOLD',
-  yieldType: 'YIELD_PRODUCTION',
+  id: "DACIA_MOD_GOLD_MINE_PRODUCTION",
+  resourceType: "RESOURCE_GOLD",
+  yieldType: "YIELD_PRODUCTION",
   amount: 10,
 });
 
 // Create a gold mine culture yield modifier
 const goldMineCultureModifier = createResourceYieldModifier({
-  id: 'DACIA_MOD_GOLD_MINE_CULTURE',
-  resourceType: 'RESOURCE_GOLD',
-  yieldType: 'YIELD_CULTURE',
+  id: "DACIA_MOD_GOLD_MINE_CULTURE",
+  resourceType: "RESOURCE_GOLD",
+  yieldType: "YIELD_CULTURE",
   amount: 10,
 });
 
 // Create a horses production yield modifier
 const horsesProductionModifier = createResourceYieldModifier({
-  id: 'DACIA_MOD_HORSES_PRODUCTION',
-  resourceType: 'RESOURCE_HORSES',
-  yieldType: 'YIELD_PRODUCTION',
+  id: "DACIA_MOD_HORSES_PRODUCTION",
+  resourceType: "RESOURCE_HORSES",
+  yieldType: "YIELD_PRODUCTION",
   amount: 10,
 });
 
 // Create a horses culture yield modifier
 const horsesCultureModifier = createResourceYieldModifier({
-  id: 'DACIA_MOD_HORSES_CULTURE',
-  resourceType: 'RESOURCE_HORSES',
-  yieldType: 'YIELD_CULTURE',
+  id: "DACIA_MOD_HORSES_CULTURE",
+  resourceType: "RESOURCE_HORSES",
+  yieldType: "YIELD_CULTURE",
   amount: 10,
 });
 
 // Create a salt production yield modifier
 const saltProductionModifier = createResourceYieldModifier({
-  id: 'DACIA_MOD_SALT_PRODUCTION',
-  resourceType: 'RESOURCE_SALT',
-  yieldType: 'YIELD_PRODUCTION',
+  id: "DACIA_MOD_SALT_PRODUCTION",
+  resourceType: "RESOURCE_SALT",
+  yieldType: "YIELD_PRODUCTION",
   amount: 10,
 });
 
 // Create a salt culture yield modifier
 const saltCultureModifier = createResourceYieldModifier({
-  id: 'DACIA_MOD_SALT_CULTURE',
-  resourceType: 'RESOURCE_SALT',
-  yieldType: 'YIELD_CULTURE',
+  id: "DACIA_MOD_SALT_CULTURE",
+  resourceType: "RESOURCE_SALT",
+  yieldType: "YIELD_CULTURE",
   amount: 10,
 });
 /* Create an iron production yield modifier */
 const ironProductionModifier = createResourceYieldModifier({
-  id: 'DACIA_MOD_IRON_PRODUCTION',
-  resourceType: 'RESOURCE_IRON',
-  yieldType: 'YIELD_PRODUCTION',
+  id: "DACIA_MOD_IRON_PRODUCTION",
+  resourceType: "RESOURCE_IRON",
+  yieldType: "YIELD_PRODUCTION",
   amount: 10,
 });
 
 /* Create an iron culture yield modifier */
 const ironCultureModifier = createResourceYieldModifier({
-  id: 'DACIA_MOD_IRON_CULTURE',
-  resourceType: 'RESOURCE_IRON',
-  yieldType: 'YIELD_CULTURE',
+  id: "DACIA_MOD_IRON_CULTURE",
+  resourceType: "RESOURCE_IRON",
+  yieldType: "YIELD_CULTURE",
   amount: 10,
 });
 
@@ -267,7 +267,7 @@ const unlockToMongolia = new CivilizationUnlockBuilder({
     civilizationType: civilization.civilization.civilizationType,
     ageType: AGE.ANTIQUITY,
   },
-  to: { civilizationType: 'CIVILIZATION_MONGOLIA', ageType: AGE.MODERN },
+  to: { civilizationType: "CIVILIZATION_MONGOLIA", ageType: AGE.MODERN },
 });
 
 const unlockToPrussia = new CivilizationUnlockBuilder({
@@ -276,14 +276,14 @@ const unlockToPrussia = new CivilizationUnlockBuilder({
     civilizationType: civilization.civilization.civilizationType,
     ageType: AGE.ANTIQUITY,
   },
-  to: { civilizationType: 'CIVILIZATION_PRUSSIA', ageType: AGE.MODERN },
+  to: { civilizationType: "CIVILIZATION_PRUSSIA", ageType: AGE.MODERN },
 });
 
 // Define leader unlocks
 const catherineUnlock = new LeaderUnlockBuilder({
   actionGroupBundle: ACTION_GROUP_BUNDLE.AGE_EXPLORATION,
   leaderUnlock: {
-    leaderType: 'LEADER_CATHERINE',
+    leaderType: "LEADER_CATHERINE",
     type: civilization.civilization.civilizationType,
     ageType: AGE.EXPLORATION,
   },

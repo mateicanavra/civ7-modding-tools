@@ -12,7 +12,7 @@ type OrpcContractProcedureWithSchemas = Readonly<{
 }>;
 
 export function toStandardSchema<TypeSchema extends TSchema>(
-  schema: TypeSchema,
+  schema: TypeSchema
 ): StandardSchemaV1<Static<TypeSchema>, Static<TypeSchema>> {
   const validator = Compile(schema);
 
@@ -42,29 +42,18 @@ export function toStandardSchema<TypeSchema extends TSchema>(
 
 export function typeboxInputSchemaFromContractProcedure<
   const Procedure extends OrpcContractProcedureWithSchemas,
->(
-  procedure: Procedure,
-): TSchema {
-  return typeboxSchemaFromStandard(
-    procedure["~orpc"].inputSchema,
-    "input",
-  );
+>(procedure: Procedure): TSchema {
+  return typeboxSchemaFromStandard(procedure["~orpc"].inputSchema, "input");
 }
 
 export function typeboxOutputSchemaFromContractProcedure<
   const Procedure extends OrpcContractProcedureWithSchemas,
->(
-  procedure: Procedure,
-): TSchema {
-  return typeboxSchemaFromStandard(
-    procedure["~orpc"].outputSchema,
-    "output",
-  );
+>(procedure: Procedure): TSchema {
+  return typeboxSchemaFromStandard(procedure["~orpc"].outputSchema, "output");
 }
 
 function typeboxSchemaFromStandard(value: unknown, label: string): TSchema {
-  const schema = (value as { [TYPEBOX_SCHEMA]?: TSchema } | null)
-    ?.[TYPEBOX_SCHEMA];
+  const schema = (value as { [TYPEBOX_SCHEMA]?: TSchema } | null)?.[TYPEBOX_SCHEMA];
   if (schema == null) {
     throw new Error(`Civ7 control-oRPC contract ${label} schema is not TypeBox-backed.`);
   }
@@ -76,7 +65,10 @@ function pathSegments(path: string): StandardSchemaV1.PathSegment[] {
     return [];
   }
 
-  return path.split("/").slice(1).map((segment) => ({ key: pathKey(segment) }));
+  return path
+    .split("/")
+    .slice(1)
+    .map((segment) => ({ key: pathKey(segment) }));
 }
 
 function pathKey(segment: string): string | number {

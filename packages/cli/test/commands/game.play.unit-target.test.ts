@@ -1,84 +1,92 @@
-import { describe, expect, test, vi } from 'vitest';
-import GamePlayUnitTarget from '../../src/commands/game/play/unit-target';
-import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
+import { describe, expect, test, vi } from "vitest";
+import GamePlayUnitTarget from "../../src/commands/game/play/unit-target";
+import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
 
-describe('game play unit target command', () => {
-  test('resolves unit target actions without sending by default', async () => {
+describe("game play unit target command", () => {
+  test("resolves unit target actions without sending by default", async () => {
     const server = await startUnitTargetTunerServer();
     try {
       const { port } = server.address();
       await GamePlayUnitTarget.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--unit-id',
+        "--unit-id",
         '{"owner":0,"id":65536,"type":26}',
-        '--x',
-        '23',
-        '--y',
-        '33',
-        '--json',
+        "--x",
+        "23",
+        "--y",
+        "33",
+        "--json",
       ]);
 
-      expect(server.received.some((message) => message.includes('readUnitTargetAction'))).toBe(true);
-      expect(server.received.some((message) => message.includes('operationType.replace(/^UNITOPERATION_/'))).toBe(true);
+      expect(server.received.some((message) => message.includes("readUnitTargetAction"))).toBe(
+        true
+      );
+      expect(
+        server.received.some((message) =>
+          message.includes("operationType.replace(/^UNITOPERATION_/")
+        )
+      ).toBe(true);
       expect(server.received.some((message) => message.includes('"send":true'))).toBe(false);
     } finally {
       await server.close();
     }
   });
 
-  test('surfaces sent unit-target no-ops as postcondition misses', async () => {
-    const server = await startUnitTargetTunerServer({ unitTargetMode: 'no-op-after-send' });
+  test("surfaces sent unit-target no-ops as postcondition misses", async () => {
+    const server = await startUnitTargetTunerServer({ unitTargetMode: "no-op-after-send" });
     const writes: string[] = [];
-    const log = vi.spyOn(GamePlayUnitTarget.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
+    const log = vi
+      .spyOn(GamePlayUnitTarget.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
     try {
       const { port } = server.address();
       await GamePlayUnitTarget.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--unit-id',
+        "--unit-id",
         '{"owner":0,"id":65536,"type":26}',
-        '--x',
-        '23',
-        '--y',
-        '33',
-        '--send',
-        '--json',
+        "--x",
+        "23",
+        "--y",
+        "33",
+        "--send",
+        "--json",
       ]);
 
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         result: UnitTargetActionSendResult;
       };
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe('sent-unverified');
+      expect(payload.result.status).toBe("sent-unverified");
       expect(payload.result.validation).toMatchObject({
         candidateCount: 1,
         acceptedCandidateCount: 1,
         selected: {
-          family: 'unit-operation',
-          operationType: 'UNITOPERATION_RANGE_ATTACK',
+          family: "unit-operation",
+          operationType: "UNITOPERATION_RANGE_ATTACK",
           valid: true,
           targetInReturnedPlots: true,
           rejectedReason: null,
         },
       });
       expect(payload.result.postcondition).toMatchObject({
-        classification: 'no-state-change',
-        outcome: 'no-state-change',
-        confidence: 'unverified',
+        classification: "no-state-change",
+        outcome: "no-state-change",
+        confidence: "unverified",
         confirmed: false,
         noRepeatAfterUnverified: true,
       });
       expect(payload.result.nextSteps[0]).toMatchObject({
-        kind: 'do-not-repeat',
-        source: 'unit.target.action.request',
+        kind: "do-not-repeat",
+        source: "unit.target.action.request",
       });
       expectSemanticUnitTargetOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('"send":true'))).toBe(true);
@@ -88,88 +96,94 @@ describe('game play unit target command', () => {
     }
   });
 
-  test('stabilizes delayed unit-target postconditions before returning', async () => {
-    const server = await startUnitTargetTunerServer({ unitTargetMode: 'delayed-after-send' });
+  test("stabilizes delayed unit-target postconditions before returning", async () => {
+    const server = await startUnitTargetTunerServer({ unitTargetMode: "delayed-after-send" });
     const writes: string[] = [];
-    const log = vi.spyOn(GamePlayUnitTarget.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
+    const log = vi
+      .spyOn(GamePlayUnitTarget.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
     try {
       const { port } = server.address();
       await GamePlayUnitTarget.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--unit-id',
+        "--unit-id",
         '{"owner":0,"id":65536,"type":26}',
-        '--x',
-        '23',
-        '--y',
-        '33',
-        '--send',
-        '--json',
+        "--x",
+        "23",
+        "--y",
+        "33",
+        "--send",
+        "--json",
       ]);
 
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         result: UnitTargetActionSendResult;
       };
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe('sent-confirmed');
+      expect(payload.result.status).toBe("sent-confirmed");
       expect(payload.result.postcondition).toMatchObject({
-        classification: 'unit-state-changed',
-        outcome: 'state-changed',
-        confidence: 'confirmed',
+        classification: "unit-state-changed",
+        outcome: "state-changed",
+        confidence: "confirmed",
         confirmed: true,
         noRepeatAfterUnverified: false,
-        source: 'bounded-poll',
+        source: "bounded-poll",
       });
       expect(payload.result.nextSteps[0]).toMatchObject({
-        kind: 'refresh-attention',
-        source: 'unit.target.action.request',
+        kind: "refresh-attention",
+        source: "unit.target.action.request",
       });
       expectSemanticUnitTargetOmitsRawRuntimeDetails(payload.result);
-      expect(server.received.filter((message) => message.includes('readUnitTargetAction')).length).toBeGreaterThan(1);
+      expect(
+        server.received.filter((message) => message.includes("readUnitTargetAction")).length
+      ).toBeGreaterThan(1);
     } finally {
       log.mockRestore();
       await server.close();
     }
   });
 
-  test('classifies sent MOVE_TO short landings as path shortfalls', async () => {
-    const server = await startUnitTargetTunerServer({ unitTargetMode: 'path-shortfall' });
+  test("classifies sent MOVE_TO short landings as path shortfalls", async () => {
+    const server = await startUnitTargetTunerServer({ unitTargetMode: "path-shortfall" });
     const writes: string[] = [];
-    const log = vi.spyOn(GamePlayUnitTarget.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
+    const log = vi
+      .spyOn(GamePlayUnitTarget.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
     try {
       const { port } = server.address();
       await GamePlayUnitTarget.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--unit-id',
+        "--unit-id",
         '{"owner":0,"id":65536,"type":26}',
-        '--x',
-        '23',
-        '--y',
-        '33',
-        '--send',
-        '--json',
+        "--x",
+        "23",
+        "--y",
+        "33",
+        "--send",
+        "--json",
       ]);
 
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         result: UnitTargetActionSendResult;
       };
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe('sent-guarded');
+      expect(payload.result.status).toBe("sent-guarded");
       expect(payload.result.postcondition).toMatchObject({
-        classification: 'path-shortfall',
-        outcome: 'state-changed',
-        confidence: 'confirmed',
+        classification: "path-shortfall",
+        outcome: "state-changed",
+        confidence: "confirmed",
         confirmed: true,
         noRepeatAfterUnverified: true,
         destinationReached: false,
@@ -177,8 +191,8 @@ describe('game play unit target command', () => {
         landedLocation: { x: 22, y: 34 },
       });
       expect(payload.result.nextSteps[0]).toMatchObject({
-        kind: 'do-not-repeat',
-        source: 'unit.target.action.request',
+        kind: "do-not-repeat",
+        source: "unit.target.action.request",
       });
       expectSemanticUnitTargetOmitsRawRuntimeDetails(payload.result);
     } finally {
@@ -234,28 +248,31 @@ function expectSemanticUnitTargetOmitsRawRuntimeDetails(result: unknown) {
   expect(serialized).not.toContain('"afterUnit"');
   expect(serialized).not.toContain('"beforeTargetUnits"');
   expect(serialized).not.toContain('"afterTargetUnits"');
-  expect(serialized).not.toContain('Game.UnitOperations');
-  expect(serialized).not.toContain('Game.UnitCommands');
+  expect(serialized).not.toContain("Game.UnitOperations");
+  expect(serialized).not.toContain("Game.UnitCommands");
 }
 
-async function startUnitTargetTunerServer(options: {
-  unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
-} = {}): Promise<FakeTunerServer> {
+async function startUnitTargetTunerServer(
+  options: {
+    unitTargetMode?: "verified" | "no-op-after-send" | "path-shortfall" | "delayed-after-send";
+  } = {}
+): Promise<FakeTunerServer> {
   let unitTargetSendObserved = false;
   return startFakeTunerServer({
     handle({ message }) {
-      if (message.includes('Network.isInSession')) {
+      if (message.includes("Network.isInSession")) {
         return [JSON.stringify(appUiSnapshot())];
       }
-      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+      if (message.includes("evalOk") && message.includes("GameplayMap.getGridWidth")) {
         return [JSON.stringify(tunerHealthSnapshot())];
       }
-      if (message.includes('readUnitTargetAction')) {
+      if (message.includes("readUnitTargetAction")) {
         const send = message.includes('"send":true');
         if (send) unitTargetSendObserved = true;
-        const mode = options.unitTargetMode === 'delayed-after-send' && unitTargetSendObserved && !send
-          ? 'delayed-observed'
-          : options.unitTargetMode;
+        const mode =
+          options.unitTargetMode === "delayed-after-send" && unitTargetSendObserved && !send
+            ? "delayed-observed"
+            : options.unitTargetMode;
         return [JSON.stringify(unitTargetAction(send, mode))];
       }
       return undefined;
@@ -285,7 +302,7 @@ function appUiSnapshot() {
       turn: 1,
       age: 0,
       maxTurns: 0,
-      turnDate: { ok: true, value: '4000 BCE' },
+      turnDate: { ok: true, value: "4000 BCE" },
       hash: { ok: true, value: 0 },
     },
     ui: {
@@ -293,9 +310,9 @@ function appUiSnapshot() {
       inShell: { ok: true, value: false },
       inLoading: { ok: true, value: false },
       loadingState: { ok: true, value: 6 },
-      loadingStateName: 'WaitingForUIReady',
+      loadingStateName: "WaitingForUIReady",
       canBeginGame: { ok: true, value: true },
-      canNotifyUIReady: 'function',
+      canNotifyUIReady: "function",
       skipStartButton: { ok: true, value: false },
       automationActive: { ok: true, value: false },
     },
@@ -325,14 +342,14 @@ function tunerHealthSnapshot() {
     evalOk: 2,
     ready: true,
     globals: {
-      Game: 'object',
-      Autoplay: 'object',
-      GameplayMap: 'object',
-      Players: 'object',
-      Network: 'undefined',
+      Game: "object",
+      Autoplay: "object",
+      GameplayMap: "object",
+      Players: "object",
+      Network: "undefined",
     },
     turn: { ok: true, value: 1 },
-    turnDate: { ok: true, value: '4000 BCE' },
+    turnDate: { ok: true, value: "4000 BCE" },
     width: { ok: true, value: 84 },
     height: { ok: true, value: 54 },
     aliveIds: { ok: true, value: [0] },
@@ -341,31 +358,56 @@ function tunerHealthSnapshot() {
   };
 }
 
-function unitTargetAction(send: boolean, mode: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send' | 'delayed-observed' = 'verified') {
+function unitTargetAction(
+  send: boolean,
+  mode:
+    | "verified"
+    | "no-op-after-send"
+    | "path-shortfall"
+    | "delayed-after-send"
+    | "delayed-observed" = "verified"
+) {
   const unitId = { owner: 0, id: 65536, type: 26 };
-  const beforeUnit = { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 1 } };
-  const delayedObservedUnit = { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 0 } };
+  const beforeUnit = {
+    ok: true,
+    value: {
+      id: unitId,
+      location: { x: 22, y: 33 },
+      movementMovesRemaining: 2,
+      attacksRemaining: 1,
+    },
+  };
+  const delayedObservedUnit = {
+    ok: true,
+    value: {
+      id: unitId,
+      location: { x: 22, y: 33 },
+      movementMovesRemaining: 2,
+      attacksRemaining: 0,
+    },
+  };
   const beforeTargetUnits = { ok: true, value: [{ owner: 62, id: 123, type: 26 }] };
-  const verified = send && mode === 'verified';
-  const pathShortfall = send && mode === 'path-shortfall';
-  const delayedObserved = !send && mode === 'delayed-observed';
-  const selected = mode === 'path-shortfall'
-    ? {
-        family: 'unit-operation',
-        operationType: 'MOVE_TO',
-        args: { X: 23, Y: 33, Modifiers: 3 },
-        valid: true,
-        result: { Success: true, Plots: [1457] },
-        targetInReturnedPlots: true,
-      }
-    : {
-        family: 'unit-operation',
-        operationType: 'UNITOPERATION_RANGE_ATTACK',
-        args: { X: 23, Y: 33, Modifiers: 3 },
-        valid: true,
-        result: { Success: true, Plots: [1457] },
-        targetInReturnedPlots: true,
-      };
+  const verified = send && mode === "verified";
+  const pathShortfall = send && mode === "path-shortfall";
+  const delayedObserved = !send && mode === "delayed-observed";
+  const selected =
+    mode === "path-shortfall"
+      ? {
+          family: "unit-operation",
+          operationType: "MOVE_TO",
+          args: { X: 23, Y: 33, Modifiers: 3 },
+          valid: true,
+          result: { Success: true, Plots: [1457] },
+          targetInReturnedPlots: true,
+        }
+      : {
+          family: "unit-operation",
+          operationType: "UNITOPERATION_RANGE_ATTACK",
+          args: { X: 23, Y: 33, Modifiers: 3 },
+          valid: true,
+          result: { Success: true, Plots: [1457] },
+          targetInReturnedPlots: true,
+        };
   return {
     unitId,
     target: { x: 23, y: 33, index: { ok: true, value: 1457 } },
@@ -377,46 +419,51 @@ function unitTargetAction(send: boolean, mode: 'verified' | 'no-op-after-send' |
     ...(send
       ? {
           sendResult: { accepted: true },
-          afterUnit: verified || pathShortfall
-            ? {
-                ok: true,
-                value: {
-                  id: unitId,
-                  location: pathShortfall ? { x: 22, y: 34 } : { x: 22, y: 33 },
-                  movementMovesRemaining: pathShortfall ? 0 : 2,
-                  attacksRemaining: verified ? 0 : 1,
-                },
-              }
-            : beforeUnit,
+          afterUnit:
+            verified || pathShortfall
+              ? {
+                  ok: true,
+                  value: {
+                    id: unitId,
+                    location: pathShortfall ? { x: 22, y: 34 } : { x: 22, y: 33 },
+                    movementMovesRemaining: pathShortfall ? 0 : 2,
+                    attacksRemaining: verified ? 0 : 1,
+                  },
+                }
+              : beforeUnit,
           afterTargetUnits: beforeTargetUnits,
           verified: verified || pathShortfall,
           verification: {
-            status: verified || pathShortfall ? 'verified' : 'no-state-change',
-            classification: pathShortfall ? 'path-shortfall' : verified ? 'unit-state-changed' : 'no-state-change',
+            status: verified || pathShortfall ? "verified" : "no-state-change",
+            classification: pathShortfall
+              ? "path-shortfall"
+              : verified
+                ? "unit-state-changed"
+                : "no-state-change",
             unitChanged: verified || pathShortfall,
             targetUnitsChanged: false,
             destinationReached: pathShortfall ? false : null,
             requestedLocation: { x: 23, y: 33 },
             landedLocation: pathShortfall ? { x: 22, y: 34 } : { x: 22, y: 33 },
             reason: pathShortfall
-              ? 'unit moved, but landed short of the requested target tile; re-read before issuing a follow-up move'
+              ? "unit moved, but landed short of the requested target tile; re-read before issuing a follow-up move"
               : verified
-                ? 'unit state changed after send'
-              : 'send returned but unit and target-plot probes did not change; re-read before repeating',
+                ? "unit state changed after send"
+                : "send returned but unit and target-plot probes did not change; re-read before repeating",
           },
         }
       : {
           verification: {
-            status: 'not-sent',
-            classification: 'not-sent',
+            status: "not-sent",
+            classification: "not-sent",
             unitChanged: false,
             targetUnitsChanged: false,
             destinationReached: null,
             requestedLocation: { x: 23, y: 33 },
             landedLocation: { x: 22, y: 33 },
-            reason: 'read-only target resolution; use --send to mutate',
+            reason: "read-only target resolution; use --send to mutate",
           },
         }),
-    notes: ['Selection follows the official right-click WorldInput target order.'],
+    notes: ["Selection follows the official right-click WorldInput target order."],
   };
 }

@@ -6,5 +6,7 @@ export function delay(ms: number): Promise<void> {
 }
 
 export function isAbortLikeError(err: unknown): boolean {
-  return Boolean(err && typeof err === "object" && (err as { name?: unknown }).name === "AbortError");
+  return Boolean(
+    err && typeof err === "object" && (err as { name?: unknown }).name === "AbortError"
+  );
 }

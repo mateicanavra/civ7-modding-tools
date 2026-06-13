@@ -75,231 +75,237 @@ import { ChargedUnitAbilityNode } from "./ChargedUnitAbilityNode";
 import { Unit_AbilityNode } from "./Unit_AbilityNode";
 import { UnitAbilityModifierNode } from "./UnitAbilityModifierNode";
 
-export type TDatabase = Pick<DatabaseNode,
-    "civilizationItems" |
-    "civilizationTags" |
-    "civilizationTraits" |
-    "civilizations" |
-    "constructibleMaintenances" |
-    "constructibleValidDistricts" |
-    "constructibleYieldChanges" |
-    "constructibles" |
-    "englishText" |
-    "iconDefinitions" |
-    "legacyCivilizationTraits" |
-    "legacyCivilizations" |
-    "civilizationUnlocks" |
-    "tags" |
-    "traitModifiers" |
-    "traits" |
-    "typeTags" |
-    "kinds" |
-    "types" |
-    "unitCosts" |
-    "buildings" |
-    "unitReplaces" |
-    "unitStats" |
-    "units" |
-    "unitUpgrades" |
-    "unitAdvisories" |
-    "unitAbilities" |
-    "chargedUnitAbilities" |
-    "unit_Abilities" |
-    "unitAbilityModifiers" |
-    "unlocks" |
-    "unlockRequirements" |
-    "unlockConfigurationValues" |
-    "requirementSets" |
-    "requirements" |
-    "requirementArguments" |
-    "requirementSetRequirements" |
-    "unlockRewards" |
-    "adjacencyYieldChanges" |
-    "constructibleAdjacencies" |
-    "warehouseYieldChanges" |
-    "progressionTreeAdvisories" |
-    "progressionTrees" |
-    "progressionTreeNodes" |
-    "progressionTreeNodeUnlocks" |
-    "traditions" |
-    "traditionModifiers" |
-    "progressionTreePrereqs" |
-    "constructibleWarehouseYields" |
-    "districtFreeConstructibles" |
-    "constructibleValidBiomes" |
-    "constructibleValidFeatures" |
-    "constructibleValidTerrains" |
-    "constructibleValidResources" |
-    "constructiblePlunders" |
-    "improvements" |
-    "startBiasBiomes" |
-    "startBiasTerrains" |
-    "startBiasRivers" |
-    "startBiasResources" |
-    "startBiasFeatureClasses" |
-    "startBiasAdjacentToCoasts" |
-    "visArtCivilizationBuildingCultures" |
-    "visArtCivilizationUnitCultures" |
-    "uniqueQuarters" |
-    "uniqueQuarterModifiers" |
-    "gameModifiers" |
-    "cityNames" |
-    "leaderUnlocks" |
-    "leaderCivilizationBias" |
-    "visualRemaps"
+export type TDatabase = Pick<
+  DatabaseNode,
+  | "civilizationItems"
+  | "civilizationTags"
+  | "civilizationTraits"
+  | "civilizations"
+  | "constructibleMaintenances"
+  | "constructibleValidDistricts"
+  | "constructibleYieldChanges"
+  | "constructibles"
+  | "englishText"
+  | "iconDefinitions"
+  | "legacyCivilizationTraits"
+  | "legacyCivilizations"
+  | "civilizationUnlocks"
+  | "tags"
+  | "traitModifiers"
+  | "traits"
+  | "typeTags"
+  | "kinds"
+  | "types"
+  | "unitCosts"
+  | "buildings"
+  | "unitReplaces"
+  | "unitStats"
+  | "units"
+  | "unitUpgrades"
+  | "unitAdvisories"
+  | "unitAbilities"
+  | "chargedUnitAbilities"
+  | "unit_Abilities"
+  | "unitAbilityModifiers"
+  | "unlocks"
+  | "unlockRequirements"
+  | "unlockConfigurationValues"
+  | "requirementSets"
+  | "requirements"
+  | "requirementArguments"
+  | "requirementSetRequirements"
+  | "unlockRewards"
+  | "adjacencyYieldChanges"
+  | "constructibleAdjacencies"
+  | "warehouseYieldChanges"
+  | "progressionTreeAdvisories"
+  | "progressionTrees"
+  | "progressionTreeNodes"
+  | "progressionTreeNodeUnlocks"
+  | "traditions"
+  | "traditionModifiers"
+  | "progressionTreePrereqs"
+  | "constructibleWarehouseYields"
+  | "districtFreeConstructibles"
+  | "constructibleValidBiomes"
+  | "constructibleValidFeatures"
+  | "constructibleValidTerrains"
+  | "constructibleValidResources"
+  | "constructiblePlunders"
+  | "improvements"
+  | "startBiasBiomes"
+  | "startBiasTerrains"
+  | "startBiasRivers"
+  | "startBiasResources"
+  | "startBiasFeatureClasses"
+  | "startBiasAdjacentToCoasts"
+  | "visArtCivilizationBuildingCultures"
+  | "visArtCivilizationUnitCultures"
+  | "uniqueQuarters"
+  | "uniqueQuarterModifiers"
+  | "gameModifiers"
+  | "cityNames"
+  | "leaderUnlocks"
+  | "leaderCivilizationBias"
+  | "visualRemaps"
 >;
 
 export class DatabaseNode extends BaseNode<TDatabase> {
-    _name = 'Database';
+  _name = "Database";
 
-    kinds: KindNode[] = [];
-    types: TypeNode[] = [];
-    tags: TagNode[] = [];
-    typeTags: TypeTagNode[] = [];
-    traits: TraitNode[] = [];
-    traitModifiers: TraitModifierNode[] = [];
+  kinds: KindNode[] = [];
+  types: TypeNode[] = [];
+  tags: TagNode[] = [];
+  typeTags: TypeTagNode[] = [];
+  traits: TraitNode[] = [];
+  traitModifiers: TraitModifierNode[] = [];
 
-    civilizations: CivilizationNode[] | ShellCivilizationNodeSlice[] | GameCivilizationNodeSlice[] = [];
-    civilizationItems: CivilizationItemNode[] = [];
-    civilizationTags: CivilizationTagNode[] = [];
-    civilizationTraits: CivilizationTraitNode[] = [];
-    civilizationUnlocks: CivilizationUnlockNode[] = [];
-    legacyCivilizationTraits: LegacyCivilizationTraitNode[] = [];
-    legacyCivilizations: LegacyCivilizationNode[] = [];
+  civilizations: CivilizationNode[] | ShellCivilizationNodeSlice[] | GameCivilizationNodeSlice[] =
+    [];
+  civilizationItems: CivilizationItemNode[] = [];
+  civilizationTags: CivilizationTagNode[] = [];
+  civilizationTraits: CivilizationTraitNode[] = [];
+  civilizationUnlocks: CivilizationUnlockNode[] = [];
+  legacyCivilizationTraits: LegacyCivilizationTraitNode[] = [];
+  legacyCivilizations: LegacyCivilizationNode[] = [];
 
-    leaderUnlocks: LeaderUnlockNode[] = [];
-    leaderCivilizationBias: LeaderCivilizationBiasNode[] = [];
+  leaderUnlocks: LeaderUnlockNode[] = [];
+  leaderCivilizationBias: LeaderCivilizationBiasNode[] = [];
 
-    buildings: BuildingNode[] = [];
-    improvements: ImprovementNode[] = [];
-    constructibles: ConstructibleNode[] = [];
-    constructibleMaintenances: ConstructibleMaintenanceNode[] = [];
-    constructibleValidDistricts: ConstructibleValidDistrictNode[] = [];
-    constructibleValidBiomes: ConstructibleValidBiomeNode[] = [];
-    constructibleValidFeatures: ConstructibleValidFeatureNode[] = [];
-    constructibleValidTerrains: ConstructibleValidTerrainNode[] = [];
-    constructibleValidResources: ConstructibleValidResourceNode[] = [];
-    constructibleYieldChanges: ConstructibleYieldChangeNode[] = [];
-    adjacencyYieldChanges: AdjacencyYieldChangeNode[] = [];
-    constructibleAdjacencies: ConstructibleAdjacencyNode[] = [];
-    warehouseYieldChanges: WarehouseYieldChangeNode[] = [];
-    constructibleWarehouseYields: ConstructibleWarehouseYieldNode[] = [];
-    constructiblePlunders: ConstructiblePlunderNode[] = [];
+  buildings: BuildingNode[] = [];
+  improvements: ImprovementNode[] = [];
+  constructibles: ConstructibleNode[] = [];
+  constructibleMaintenances: ConstructibleMaintenanceNode[] = [];
+  constructibleValidDistricts: ConstructibleValidDistrictNode[] = [];
+  constructibleValidBiomes: ConstructibleValidBiomeNode[] = [];
+  constructibleValidFeatures: ConstructibleValidFeatureNode[] = [];
+  constructibleValidTerrains: ConstructibleValidTerrainNode[] = [];
+  constructibleValidResources: ConstructibleValidResourceNode[] = [];
+  constructibleYieldChanges: ConstructibleYieldChangeNode[] = [];
+  adjacencyYieldChanges: AdjacencyYieldChangeNode[] = [];
+  constructibleAdjacencies: ConstructibleAdjacencyNode[] = [];
+  warehouseYieldChanges: WarehouseYieldChangeNode[] = [];
+  constructibleWarehouseYields: ConstructibleWarehouseYieldNode[] = [];
+  constructiblePlunders: ConstructiblePlunderNode[] = [];
 
-    cityNames: CityNameNode[] = [];
+  cityNames: CityNameNode[] = [];
 
-    districtFreeConstructibles: DistrictFreeConstructibleNode[] = [];
+  districtFreeConstructibles: DistrictFreeConstructibleNode[] = [];
 
-    progressionTreeAdvisories: ProgressionTreeAdvisoryNode[] = [];
-    progressionTrees: ProgressionTreeNode[] = [];
-    progressionTreeNodes: ProgressionTreeNodeNode[] = [];
-    progressionTreeNodeUnlocks: ProgressionTreeNodeUnlockNode[] = [];
-    progressionTreePrereqs: ProgressionTreePrereqNode[] = [];
+  progressionTreeAdvisories: ProgressionTreeAdvisoryNode[] = [];
+  progressionTrees: ProgressionTreeNode[] = [];
+  progressionTreeNodes: ProgressionTreeNodeNode[] = [];
+  progressionTreeNodeUnlocks: ProgressionTreeNodeUnlockNode[] = [];
+  progressionTreePrereqs: ProgressionTreePrereqNode[] = [];
 
-    traditions: TraditionNode[] = [];
-    traditionModifiers: TraditionModifierNode[] = [];
+  traditions: TraditionNode[] = [];
+  traditionModifiers: TraditionModifierNode[] = [];
 
-    units: UnitNode[] = [];
-    unitCosts: UnitCostNode[] = [];
-    unitReplaces: UnitReplaceNode[] = [];
-    unitUpgrades: UnitUpgradeNode[] = [];
-    unitStats: UnitStatNode[] = [];
-    unitAdvisories: UnitAdvisoryNode[] = [];
-    
-    // Unit ability properties
-    unitAbilities: UnitAbilityNode[] = [];
-    chargedUnitAbilities: ChargedUnitAbilityNode[] = [];
-    unit_Abilities: Unit_AbilityNode[] = [];
-    unitAbilityModifiers: UnitAbilityModifierNode[] = [];
+  units: UnitNode[] = [];
+  unitCosts: UnitCostNode[] = [];
+  unitReplaces: UnitReplaceNode[] = [];
+  unitUpgrades: UnitUpgradeNode[] = [];
+  unitStats: UnitStatNode[] = [];
+  unitAdvisories: UnitAdvisoryNode[] = [];
 
-    englishText: EnglishTextNode[] = [];
-    iconDefinitions: IconDefinitionNode[] = [];
-    visualRemaps: VisualRemapNode[] = [];
+  // Unit ability properties
+  unitAbilities: UnitAbilityNode[] = [];
+  chargedUnitAbilities: ChargedUnitAbilityNode[] = [];
+  unit_Abilities: Unit_AbilityNode[] = [];
+  unitAbilityModifiers: UnitAbilityModifierNode[] = [];
 
-    uniqueQuarters: UniqueQuarterNode[] = [];
-    uniqueQuarterModifiers: UniqueQuarterModifierNode[] = [];
+  englishText: EnglishTextNode[] = [];
+  iconDefinitions: IconDefinitionNode[] = [];
+  visualRemaps: VisualRemapNode[] = [];
 
-    gameModifiers: GameModifierNode[] = [];
+  uniqueQuarters: UniqueQuarterNode[] = [];
+  uniqueQuarterModifiers: UniqueQuarterModifierNode[] = [];
 
-    unlocks: UnlockNode[] = [];
-    unlockRewards: UnlockRewardNode[] = [];
-    unlockRequirements: UnlockRequirementNode[] = [];
-    unlockConfigurationValues: UnlockConfigurationValueNode[] = [];
+  gameModifiers: GameModifierNode[] = [];
 
-    requirementSets: RequirementSetNode[] = [];
-    requirements: RequirementNode[] = [];
-    requirementArguments: RequirementArgumentNode[] = [];
-    requirementSetRequirements: RequirementSetRequirementNode[] = [];
+  unlocks: UnlockNode[] = [];
+  unlockRewards: UnlockRewardNode[] = [];
+  unlockRequirements: UnlockRequirementNode[] = [];
+  unlockConfigurationValues: UnlockConfigurationValueNode[] = [];
 
-    startBiasBiomes: StartBiasBiomeNode[] = [];
-    startBiasResources: StartBiasResourceNode[] = [];
-    startBiasTerrains: StartBiasTerrainNode[] = [];
-    startBiasRivers: StartBiasRiverNode[] = [];
-    startBiasFeatureClasses: StartBiasFeatureClassNode[] = [];
-    startBiasAdjacentToCoasts: StartBiasAdjacentToCoastNode[] = [];
-    visArtCivilizationBuildingCultures: VisArtCivilizationBuildingCultureNode[] = [];
-    visArtCivilizationUnitCultures: VisArtCivilizationUnitCultureNode[] = [];
+  requirementSets: RequirementSetNode[] = [];
+  requirements: RequirementNode[] = [];
+  requirementArguments: RequirementArgumentNode[] = [];
+  requirementSetRequirements: RequirementSetRequirementNode[] = [];
 
-    constructor(payload: Partial<TDatabase> = {}) {
-        super();
-        this.fill(payload);
+  startBiasBiomes: StartBiasBiomeNode[] = [];
+  startBiasResources: StartBiasResourceNode[] = [];
+  startBiasTerrains: StartBiasTerrainNode[] = [];
+  startBiasRivers: StartBiasRiverNode[] = [];
+  startBiasFeatureClasses: StartBiasFeatureClassNode[] = [];
+  startBiasAdjacentToCoasts: StartBiasAdjacentToCoastNode[] = [];
+  visArtCivilizationBuildingCultures: VisArtCivilizationBuildingCultureNode[] = [];
+  visArtCivilizationUnitCultures: VisArtCivilizationUnitCultureNode[] = [];
+
+  constructor(payload: Partial<TDatabase> = {}) {
+    super();
+    this.fill(payload);
+  }
+
+  toXmlElement() {
+    //check if all nodes is empty
+    if (
+      Object.keys(this)
+        .filter((key) => Array.isArray(this[key]))
+        .every((key) => this[key].length === 0)
+    ) {
+      return null;
     }
 
-    toXmlElement() {
-        //check if all nodes is empty
-        if (Object.keys(this).filter(key => Array.isArray(this[key])).every(key => this[key].length === 0)) {
-            return null;
-        }
+    const except: string[] = [];
+    const additionalMapping = {
+      constructibleMaintenances: "Constructible_Maintenances",
+      constructibleValidDistricts: "Constructible_ValidDistricts",
+      constructibleValidBiomes: "Constructible_ValidBiomes",
+      constructibleValidFeatures: "Constructible_ValidFeatures",
+      constructibleValidTerrains: "Constructible_ValidTerrains",
+      constructibleValidResources: "Constructible_ValidResources",
+      constructibleYieldChanges: "Constructible_YieldChanges",
+      constructibleAdjacencies: "Constructible_Adjacencies",
+      constructiblePlunders: "Constructible_Plunders",
+      districtFreeConstructibles: "District_FreeConstructibles",
+      adjacencyYieldChanges: "Adjacency_YieldChanges",
+      warehouseYieldChanges: "Warehouse_YieldChanges",
+      constructibleWarehouseYields: "Constructible_WarehouseYields",
+      progressionTreeAdvisories: "ProgressionTree_Advisories",
+      visArtCivilizationBuildingCultures: "VisArt_CivilizationBuildingCultures",
+      visArtCivilizationUnitCultures: "VisArt_CivilizationUnitCultures",
+      unitCosts: "Unit_Costs",
+      unitStats: "Unit_Stats",
+      unitAdvisories: "Unit_Advisories",
+      unitAbilities: "UnitAbilities",
+      chargedUnitAbilities: "ChargedUnitAbilities",
+      unit_Abilities: "Unit_Abilities",
+      unitAbilityModifiers: "UnitAbilityModifiers",
+    };
+    const data = Object.keys(this)
+      .filter((key) => !except.includes(key))
+      .reduce((prev, current) => {
+        if (Array.isArray(this[current])) {
+          if (this[current].length === 0) {
+            return prev;
+          }
 
-        const except: string[] = [];
-        const additionalMapping = {
-            constructibleMaintenances: 'Constructible_Maintenances',
-            constructibleValidDistricts: 'Constructible_ValidDistricts',
-            constructibleValidBiomes: 'Constructible_ValidBiomes',
-            constructibleValidFeatures: 'Constructible_ValidFeatures',
-            constructibleValidTerrains: 'Constructible_ValidTerrains',
-            constructibleValidResources: 'Constructible_ValidResources',
-            constructibleYieldChanges: 'Constructible_YieldChanges',
-            constructibleAdjacencies: 'Constructible_Adjacencies',
-            constructiblePlunders: 'Constructible_Plunders',
-            districtFreeConstructibles: 'District_FreeConstructibles',
-            adjacencyYieldChanges: 'Adjacency_YieldChanges',
-            warehouseYieldChanges: 'Warehouse_YieldChanges',
-            constructibleWarehouseYields: 'Constructible_WarehouseYields',
-            progressionTreeAdvisories: 'ProgressionTree_Advisories',
-            visArtCivilizationBuildingCultures: 'VisArt_CivilizationBuildingCultures',
-            visArtCivilizationUnitCultures: 'VisArt_CivilizationUnitCultures',
-            unitCosts: 'Unit_Costs',
-            unitStats: 'Unit_Stats',
-            unitAdvisories: 'Unit_Advisories',
-            unitAbilities: 'UnitAbilities',
-            chargedUnitAbilities: 'ChargedUnitAbilities',
-            unit_Abilities: 'Unit_Abilities',
-            unitAbilityModifiers: 'UnitAbilityModifiers',
-        }
-        const data = Object.keys(this)
-            .filter(key => !except.includes(key))
-            .reduce((prev, current) => {
-                if (Array.isArray(this[current])) {
-                    if (this[current].length === 0) {
-                        return prev;
-                    }
+          let key = additionalMapping[current]
+            ? additionalMapping[current]
+            : lodash.startCase(current).replace(/ /g, "");
 
-                    let key = additionalMapping[current]
-                        ? additionalMapping[current]
-                        : lodash.startCase(current).replace(/ /g, "");
-
-                    return {
-                        ...prev,
-                        [key]: this[current].map(item => item.toXmlElement())
-                    }
-                }
-                return prev;
-            }, {});
-        return {
-            Database: {
-                ...data,
-            }
+          return {
+            ...prev,
+            [key]: this[current].map((item) => item.toXmlElement()),
+          };
         }
-    }
+        return prev;
+      }, {});
+    return {
+      Database: {
+        ...data,
+      },
+    };
+  }
 }

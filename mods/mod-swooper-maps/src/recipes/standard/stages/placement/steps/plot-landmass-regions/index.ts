@@ -34,7 +34,9 @@ function resolveSlotByTile(input: {
     throw new Error(`Expected landMask length ${size} (received ${landMask.length}).`);
   }
   if (landmassIdByTile.length !== size) {
-    throw new Error(`Expected landmassIdByTile length ${size} (received ${landmassIdByTile.length}).`);
+    throw new Error(
+      `Expected landmassIdByTile length ${size} (received ${landmassIdByTile.length}).`
+    );
   }
 
   const slotByLandmass = new Uint8Array(landmasses.length);
@@ -62,10 +64,7 @@ function resolveSlotByTile(input: {
 
 export default createStep(PlotLandmassRegionsStepContract, {
   artifacts: implementArtifacts(
-    [
-      mapArtifacts.projectionMeta,
-      mapArtifacts.landmassRegionSlotByTile,
-    ],
+    [mapArtifacts.projectionMeta, mapArtifacts.landmassRegionSlotByTile],
     {
       projectionMeta: {
         validate: (value) => validateProjectionMetaArtifact(value),

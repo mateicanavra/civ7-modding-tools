@@ -9,7 +9,7 @@ export const Civ7ComponentIdSchema = Type.Object(
     id: Type.Number(),
     type: Type.Optional(Type.Number()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export type Civ7ComponentId = Static<typeof Civ7ComponentIdSchema>;
@@ -23,6 +23,6 @@ export function assertCiv7ComponentId(value: unknown, label = "ComponentID"): Ci
   throw new Civ7DirectControlError(
     "command-failed",
     `${label} must be a Civ7 ComponentID object with numeric owner, id, and optional type`,
-    { details: { value } },
+    { details: { value } }
   );
 }

@@ -26,10 +26,7 @@ const RiversStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [
-      hydrologyClimateBaselineArtifacts.climateField,
-      morphologyArtifacts.topography,
-    ],
+    requires: [hydrologyClimateBaselineArtifacts.climateField, morphologyArtifacts.topography],
     provides: [hydrologyHydrographyArtifacts.hydrography],
   },
   ops: {

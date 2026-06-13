@@ -186,8 +186,7 @@ function runDecomposedTectonics(params: {
       computeHotspotEvents.defaultConfig
     );
 
-    const t =
-      eraPlateMembership.eraCount > 1 ? era / (eraPlateMembership.eraCount - 1) : 0;
+    const t = eraPlateMembership.eraCount > 1 ? era / (eraPlateMembership.eraCount - 1) : 0;
     const eraGain = OROGENY_ERA_GAIN_MIN + (OROGENY_ERA_GAIN_MAX - OROGENY_ERA_GAIN_MIN) * t;
 
     const eraFields = computeEraTectonicFields.run(
@@ -264,7 +263,9 @@ describe("m11 tectonic events", () => {
     const a = runDecomposedTectonics({ mesh, crust, mantleForcing, plateGraph, plateMotion });
     const b = runDecomposedTectonics({ mesh, crust, mantleForcing, plateGraph, plateMotion });
 
-    expect(Array.from(a.tectonicHistory.upliftTotal)).toEqual(Array.from(b.tectonicHistory.upliftTotal));
+    expect(Array.from(a.tectonicHistory.upliftTotal)).toEqual(
+      Array.from(b.tectonicHistory.upliftTotal)
+    );
 
     const polarity = Array.from(a.tectonicProvenance.provenance.lastBoundaryPolarity);
     expect(polarity.some((value) => value === -1)).toBe(true);

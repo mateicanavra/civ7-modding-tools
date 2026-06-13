@@ -8,7 +8,10 @@ import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import earthlikeRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import desertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
-import { canonicalRecipeConfig, type CanonicalMapConfigWithRecipe } from "../../src/maps/configs/canonical.js";
+import {
+  canonicalRecipeConfig,
+  type CanonicalMapConfigWithRecipe,
+} from "../../src/maps/configs/canonical.js";
 import {
   HYDROLOGY_FLOW_DRY,
   HYDROLOGY_FLOW_EPHEMERAL,
@@ -21,12 +24,14 @@ function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfi
   return canonicalRecipeConfig<StandardRecipeConfig>(config);
 }
 
-function runHydrologyMetrics(args: Readonly<{
-  config: StandardRecipeConfig;
-  width: number;
-  height: number;
-  seed: number;
-}>) {
+function runHydrologyMetrics(
+  args: Readonly<{
+    config: StandardRecipeConfig;
+    width: number;
+    height: number;
+    seed: number;
+  }>
+) {
   const mapInfo = {
     GridWidth: args.width,
     GridHeight: args.height,
@@ -50,8 +55,16 @@ function runHydrologyMetrics(args: Readonly<{
     mapSizeId: 1,
     rng: createLabelRng(args.seed),
   });
-  const context = createExtendedMapContext({ width: args.width, height: args.height }, adapter, env);
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[hydrology-metrics]", storyEnabled: true });
+  const context = createExtendedMapContext(
+    { width: args.width, height: args.height },
+    adapter,
+    env
+  );
+  initializeStandardRuntime(context, {
+    mapInfo,
+    logPrefix: "[hydrology-metrics]",
+    storyEnabled: true,
+  });
   standardRecipe.run(context, env, args.config, { log: () => {} });
 
   const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
@@ -152,9 +165,14 @@ function runHydrologyMetrics(args: Readonly<{
 
 function expectHealthyRouting(stats: ReturnType<typeof runHydrologyMetrics>, label: string): void {
   expect(stats.unresolvedMouthCount, `${label} unresolved mouths`).toBe(0);
-  expect(stats.benchmarkSummary.unresolvedMouthTileCount, `${label} unresolved mouths summary`).toBe(0);
+  expect(
+    stats.benchmarkSummary.unresolvedMouthTileCount,
+    `${label} unresolved mouths summary`
+  ).toBe(0);
   expect(stats.benchmarkSummary.invalidReceiverTileCount, `${label} invalid receivers`).toBe(0);
-  expect(stats.benchmarkSummary.downstreamDischargeDropEdgeCount, `${label} discharge drops`).toBe(0);
+  expect(stats.benchmarkSummary.downstreamDischargeDropEdgeCount, `${label} discharge drops`).toBe(
+    0
+  );
   expect(stats.benchmarkSummary.unassignedBasinLandTileCount, `${label} unassigned basins`).toBe(0);
   expect(stats.benchmarkSummary.assignedBasinLandTileCount, `${label} assigned basins`).toBe(
     stats.benchmarkSummary.landTileCount
@@ -195,7 +213,9 @@ describe("pipeline hydrology river-network metrics", () => {
       expect(stats.benchmarkSummary.invalidReceiverTileCount).toBe(0);
       expect(stats.benchmarkSummary.downstreamDischargeDropEdgeCount).toBe(0);
       expect(stats.benchmarkSummary.unassignedBasinLandTileCount).toBe(0);
-      expect(stats.benchmarkSummary.assignedBasinLandTileCount).toBe(stats.benchmarkSummary.landTileCount);
+      expect(stats.benchmarkSummary.assignedBasinLandTileCount).toBe(
+        stats.benchmarkSummary.landTileCount
+      );
       expect(
         stats.ephemeralCount + stats.intermittentCount + stats.perennialCount,
         `seed ${seed} non-dry flow signal`
@@ -222,12 +242,25 @@ describe("pipeline hydrology river-network metrics", () => {
         expectHealthyRouting(stats, label);
         expect(stats.maxStreamOrder, `${label} stream hierarchy`).toBeGreaterThanOrEqual(2);
         expect(stats.maxUpstreamArea, `${label} watershed accumulation`).toBeGreaterThanOrEqual(18);
-        expect(stats.benchmarkSummary.oceanMouthTileCount, `${label} ocean outlets`).toBeGreaterThan(0);
+        expect(
+          stats.benchmarkSummary.oceanMouthTileCount,
+          `${label} ocean outlets`
+        ).toBeGreaterThan(0);
         expect(stats.benchmarkSummary.riverTileCount, `${label} river tiles`).toBeGreaterThan(80);
-        expect(stats.benchmarkSummary.minorRiverTileCount, `${label} minor/headwater tiles`).toBeGreaterThan(0);
-        expect(stats.benchmarkSummary.majorRiverTileCount, `${label} major tiles`).toBeGreaterThan(0);
+        expect(
+          stats.benchmarkSummary.minorRiverTileCount,
+          `${label} minor/headwater tiles`
+        ).toBeGreaterThan(0);
+        expect(stats.benchmarkSummary.majorRiverTileCount, `${label} major tiles`).toBeGreaterThan(
+          0
+        );
 
-        expectBetween(stats.benchmarkSummary.riverLandShare, 0.18, 0.28, `${label} river land share`);
+        expectBetween(
+          stats.benchmarkSummary.riverLandShare,
+          0.18,
+          0.28,
+          `${label} river land share`
+        );
         expectBetween(
           stats.benchmarkSummary.minorRiverShareOfRiverTiles,
           0.25,
@@ -246,10 +279,16 @@ describe("pipeline hydrology river-network metrics", () => {
           0.55,
           `${label} non-perennial river share`
         );
-        expect(stats.benchmarkSummary.lowOrderRiverShareOfRiverTiles, `${label} low-order hierarchy`).toBeGreaterThan(
-          0.95
+        expect(
+          stats.benchmarkSummary.lowOrderRiverShareOfRiverTiles,
+          `${label} low-order hierarchy`
+        ).toBeGreaterThan(0.95);
+        expectBetween(
+          stats.benchmarkSummary.lakeLandShare,
+          0.005,
+          0.05,
+          `${label} lake land share`
         );
-        expectBetween(stats.benchmarkSummary.lakeLandShare, 0.005, 0.05, `${label} lake land share`);
       }
     }
     // Multi-seed full-pipeline run: 5s default budget flakes under load.
@@ -261,8 +300,18 @@ describe("pipeline hydrology river-network metrics", () => {
     expectHealthyRouting(stats, "desert mountains seed 1018");
     expect(stats.benchmarkSummary.landTileCount).toBeGreaterThan(0);
     expect(stats.benchmarkSummary.oceanMouthTileCount).toBeGreaterThan(0);
-    expectBetween(stats.benchmarkSummary.lakeLandShare, 0, 0.02, "desert mountains lake land share");
-    expectBetween(stats.benchmarkSummary.riverLandShare, 0.04, 0.13, "desert mountains river land share");
+    expectBetween(
+      stats.benchmarkSummary.lakeLandShare,
+      0,
+      0.02,
+      "desert mountains lake land share"
+    );
+    expectBetween(
+      stats.benchmarkSummary.riverLandShare,
+      0.04,
+      0.13,
+      "desert mountains river land share"
+    );
     expect(stats.benchmarkSummary.riverLandShare).toBeLessThan(0.18);
     expect(stats.dryCount).toBeGreaterThan(0);
     expect(stats.maxUpstreamArea).toBeGreaterThan(0);

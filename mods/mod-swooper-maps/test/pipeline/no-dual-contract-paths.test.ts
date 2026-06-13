@@ -30,18 +30,18 @@ function listFilesRecursive(rootDir: string): string[] {
 }
 
 const legacyStageTokens = [
-  "\"hydrology-pre\"",
-  "\"hydrology-core\"",
-  "\"hydrology-post\"",
-  "\"narrative-pre\"",
-  "\"narrative-mid\"",
-  "\"narrative-post\"",
+  '"hydrology-pre"',
+  '"hydrology-core"',
+  '"hydrology-post"',
+  '"narrative-pre"',
+  '"narrative-mid"',
+  '"narrative-post"',
 ] as const;
 
 const dualStagePairs = [
-  { legacy: "\"hydrology-pre\"", target: "\"hydrology-climate-baseline\"" },
-  { legacy: "\"hydrology-core\"", target: "\"hydrology-hydrography\"" },
-  { legacy: "\"hydrology-post\"", target: "\"hydrology-climate-refine\"" },
+  { legacy: '"hydrology-pre"', target: '"hydrology-climate-baseline"' },
+  { legacy: '"hydrology-core"', target: '"hydrology-hydrography"' },
+  { legacy: '"hydrology-post"', target: '"hydrology-climate-refine"' },
 ] as const;
 
 describe("pipeline no-dual-contract-paths guardrails", () => {

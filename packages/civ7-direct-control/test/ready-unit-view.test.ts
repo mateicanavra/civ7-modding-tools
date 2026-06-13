@@ -26,7 +26,7 @@ describe("getCiv7ReadyUnitView", () => {
           host: "127.0.0.1",
           port,
           timeoutMs: 1_000,
-        },
+        }
       );
 
       expect(view).toMatchObject({
@@ -42,18 +42,24 @@ describe("getCiv7ReadyUnitView", () => {
       });
       expect(server.received.some((message) => message.includes("readReadyUnitView"))).toBe(true);
       expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
-      expect(Value.Check(Civ7ReadyUnitViewInputSchema, {
-        unitId: { owner: 0, id: 458752, type: 26 },
-        radius: 2,
-        maxOperations: 96,
-      })).toBe(true);
+      expect(
+        Value.Check(Civ7ReadyUnitViewInputSchema, {
+          unitId: { owner: 0, id: 458752, type: 26 },
+          radius: 2,
+          maxOperations: 96,
+        })
+      ).toBe(true);
       expect(Value.Check(Civ7ReadyUnitViewInputSchema, { radius: 6 })).toBe(false);
-      expect(Value.Check(Civ7ReadyUnitViewInputSchema, { rawCommand: "readReadyUnitView()" })).toBe(false);
+      expect(Value.Check(Civ7ReadyUnitViewInputSchema, { rawCommand: "readReadyUnitView()" })).toBe(
+        false
+      );
       expect(Value.Check(Civ7ReadyUnitViewResultSchema, view)).toBe(true);
-      expect(Value.Check(Civ7ReadyUnitViewResultSchema, {
-        ...view,
-        command: "readReadyUnitView()",
-      })).toBe(false);
+      expect(
+        Value.Check(Civ7ReadyUnitViewResultSchema, {
+          ...view,
+          command: "readReadyUnitView()",
+        })
+      ).toBe(false);
     } finally {
       await server.close();
     }
@@ -92,13 +98,11 @@ async function startReadyUnitTunerServer(): Promise<FakeTunerServer> {
   };
 }
 
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
+function parseRequest(buffer: Buffer): {
+  listenerId: number;
+  message: string;
+  bytesRead: number;
+} | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);
   const bytesRead = 8 + messageLength;

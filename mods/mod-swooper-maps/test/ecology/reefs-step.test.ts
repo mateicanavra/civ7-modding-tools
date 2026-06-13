@@ -48,7 +48,11 @@ describe("ecology-features plan-reefs step", () => {
     layers.FEATURE_REEF.fill(1);
 
     const stageArtifacts = implementArtifacts(
-      [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyIce, hydrologyHydrographyArtifacts.lakePlan],
+      [
+        ecologyArtifacts.scoreLayers,
+        ecologyArtifacts.occupancyIce,
+        hydrologyHydrographyArtifacts.lakePlan,
+      ],
       { scoreLayers: {}, occupancyIce: {}, lakePlan: {} }
     );
     stageArtifacts.scoreLayers.publish(ctx, { width, height, layers });

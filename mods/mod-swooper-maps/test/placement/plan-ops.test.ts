@@ -17,37 +17,44 @@ import {
 } from "../../src/recipes/standard/stages/placement/steps/plan-resources/planning.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
-const {
-  planDiscoveries,
-  planNaturalWonders,
-  planResources,
-  planStarts,
-  planWonders,
-} = placementDomain.ops;
+const { planDiscoveries, planNaturalWonders, planResources, planStarts, planWonders } =
+  placementDomain.ops;
 
 describe("placement plan operations", () => {
   it("plans wonders from map-size defaults without bonus inflation", () => {
-    const result = runOpValidated(planWonders, { mapInfo: { NumNaturalWonders: 2 } }, {
-      strategy: "default",
-      config: {},
-    });
+    const result = runOpValidated(
+      planWonders,
+      { mapInfo: { NumNaturalWonders: 2 } },
+      {
+        strategy: "default",
+        config: {},
+      }
+    );
     expect(result.wondersCount).toBe(2);
   });
 
   it("rejects legacy wondersPlusOne config", () => {
     expect(() =>
-      runOpValidated(planWonders, { mapInfo: { NumNaturalWonders: 2 } }, {
-        strategy: "default",
-        config: { wondersPlusOne: true },
-      })
+      runOpValidated(
+        planWonders,
+        { mapInfo: { NumNaturalWonders: 2 } },
+        {
+          strategy: "default",
+          config: { wondersPlusOne: true },
+        }
+      )
     ).toThrow();
   });
 
   it("plans zero wonders when map-size default is absent", () => {
-    const result = runOpValidated(planWonders, { mapInfo: {} }, {
-      strategy: "default",
-      config: {},
-    });
+    const result = runOpValidated(
+      planWonders,
+      { mapInfo: {} },
+      {
+        strategy: "default",
+        config: {},
+      }
+    );
     expect(result.wondersCount).toBe(0);
   });
 
@@ -55,31 +62,35 @@ describe("placement plan operations", () => {
     const width = 4;
     const height = 3;
     const size = width * height;
-    const result = runOpValidated(planNaturalWonders, {
-      width,
-      height,
-      wondersCount: 2,
-      landMask: new Uint8Array(size).fill(1),
-      elevation: Int16Array.from([5, 20, 30, 40, 10, 100, 70, 20, 0, 10, 15, 60]),
-      aridityIndex: new Float32Array(size).fill(0.3),
-      riverClass: new Uint8Array(size),
-      lakeMask: new Uint8Array(size),
-      coastTerrainType: 2,
-      mountainTerrainType: 3,
-      iceFeatureType: 4,
-      terrainType: new Uint8Array(size).fill(1),
-      biomeType: new Uint8Array(size).fill(1),
-      featureType: new Int16Array(size).fill(-1),
-      noFeatureType: -1,
-      naturalWonderBlockedMask: new Uint8Array(size),
-      featureCatalog: [
-        { featureType: 1001, direction: 0, footprintOffsets: [{ dx: 0, dy: 0 }] },
-        { featureType: 1002, direction: 1, footprintOffsets: [{ dx: 0, dy: 0 }] },
-      ],
-    }, {
-      strategy: "default",
-      config: { minSpacingTiles: 1 },
-    });
+    const result = runOpValidated(
+      planNaturalWonders,
+      {
+        width,
+        height,
+        wondersCount: 2,
+        landMask: new Uint8Array(size).fill(1),
+        elevation: Int16Array.from([5, 20, 30, 40, 10, 100, 70, 20, 0, 10, 15, 60]),
+        aridityIndex: new Float32Array(size).fill(0.3),
+        riverClass: new Uint8Array(size),
+        lakeMask: new Uint8Array(size),
+        coastTerrainType: 2,
+        mountainTerrainType: 3,
+        iceFeatureType: 4,
+        terrainType: new Uint8Array(size).fill(1),
+        biomeType: new Uint8Array(size).fill(1),
+        featureType: new Int16Array(size).fill(-1),
+        noFeatureType: -1,
+        naturalWonderBlockedMask: new Uint8Array(size),
+        featureCatalog: [
+          { featureType: 1001, direction: 0, footprintOffsets: [{ dx: 0, dy: 0 }] },
+          { featureType: 1002, direction: 1, footprintOffsets: [{ dx: 0, dy: 0 }] },
+        ],
+      },
+      {
+        strategy: "default",
+        config: { minSpacingTiles: 1 },
+      }
+    );
 
     expect(result.targetCount).toBe(2);
     expect(result.plannedCount).toBe(2);
@@ -92,59 +103,65 @@ describe("placement plan operations", () => {
     const width = 4;
     const height = 3;
     const size = width * height;
-    const result = runOpValidated(planNaturalWonders, {
-      width,
-      height,
-      wondersCount: 2,
-      landMask: new Uint8Array(size).fill(1),
-      elevation: Int16Array.from([5, 20, 30, 40, 10, 100, 70, 20, 0, 10, 15, 60]),
-      aridityIndex: new Float32Array(size).fill(0.3),
-      riverClass: new Uint8Array(size),
-      lakeMask: new Uint8Array(size),
-      coastTerrainType: 2,
-      mountainTerrainType: 3,
-      iceFeatureType: 4,
-      terrainType: new Uint8Array(size).fill(1),
-      biomeType: new Uint8Array(size).fill(1),
-      featureType: new Int16Array(size).fill(-1),
-      noFeatureType: -1,
-      naturalWonderBlockedMask: new Uint8Array(size),
-      featureCatalog: [
-        { featureType: 1001, direction: 0, footprintOffsets: [] },
-        { featureType: 1002, direction: 1, footprintOffsets: [{ dx: 0, dy: 0 }] },
-      ],
-    }, {
-      strategy: "default",
-      config: { minSpacingTiles: 1 },
-    });
+    const result = runOpValidated(
+      planNaturalWonders,
+      {
+        width,
+        height,
+        wondersCount: 2,
+        landMask: new Uint8Array(size).fill(1),
+        elevation: Int16Array.from([5, 20, 30, 40, 10, 100, 70, 20, 0, 10, 15, 60]),
+        aridityIndex: new Float32Array(size).fill(0.3),
+        riverClass: new Uint8Array(size),
+        lakeMask: new Uint8Array(size),
+        coastTerrainType: 2,
+        mountainTerrainType: 3,
+        iceFeatureType: 4,
+        terrainType: new Uint8Array(size).fill(1),
+        biomeType: new Uint8Array(size).fill(1),
+        featureType: new Int16Array(size).fill(-1),
+        noFeatureType: -1,
+        naturalWonderBlockedMask: new Uint8Array(size),
+        featureCatalog: [
+          { featureType: 1001, direction: 0, footprintOffsets: [] },
+          { featureType: 1002, direction: 1, footprintOffsets: [{ dx: 0, dy: 0 }] },
+        ],
+      },
+      {
+        strategy: "default",
+        config: { minSpacingTiles: 1 },
+      }
+    );
 
     expect(result.targetCount).toBe(1);
     expect(result.plannedCount).toBe(1);
-    expect(result.placements).toEqual([
-      expect.objectContaining({ featureType: 1002 }),
-    ]);
+    expect(result.placements).toEqual([expect.objectContaining({ featureType: 1002 })]);
   });
 
   it("plans deterministic discovery placements from physical fields", () => {
     const width = 5;
     const height = 4;
     const size = width * height;
-    const result = runOpValidated(planDiscoveries, {
-      width,
-      height,
-      landMask: new Uint8Array(size).fill(1),
-      elevation: Int16Array.from(Array.from({ length: size }, (_, i) => (i % width) * 10)),
-      aridityIndex: new Float32Array(size).fill(0.4),
-      riverClass: new Uint8Array(size),
-      lakeMask: new Uint8Array(size),
-      candidateDiscoveries: [
-        { discoveryVisualType: 11, discoveryActivationType: 22 },
-        { discoveryVisualType: 13, discoveryActivationType: 24 },
-      ],
-    }, {
-      strategy: "default",
-      config: { densityPer100Tiles: 10, minSpacingTiles: 1 },
-    });
+    const result = runOpValidated(
+      planDiscoveries,
+      {
+        width,
+        height,
+        landMask: new Uint8Array(size).fill(1),
+        elevation: Int16Array.from(Array.from({ length: size }, (_, i) => (i % width) * 10)),
+        aridityIndex: new Float32Array(size).fill(0.4),
+        riverClass: new Uint8Array(size),
+        lakeMask: new Uint8Array(size),
+        candidateDiscoveries: [
+          { discoveryVisualType: 11, discoveryActivationType: 22 },
+          { discoveryVisualType: 13, discoveryActivationType: 24 },
+        ],
+      },
+      {
+        strategy: "default",
+        config: { densityPer100Tiles: 10, minSpacingTiles: 1 },
+      }
+    );
 
     expect(result.plannedCount).toBeGreaterThan(0);
     expect(result.placements.length).toBe(result.plannedCount);
@@ -174,14 +191,18 @@ describe("placement plan operations", () => {
       playersLandmass2: 1,
     };
 
-    const result = runOpValidated(planStarts, { baseStarts }, {
-      strategy: "default",
-      config: {
-        overrides: {
-          playersLandmass1: 3,
+    const result = runOpValidated(
+      planStarts,
+      { baseStarts },
+      {
+        strategy: "default",
+        config: {
+          overrides: {
+            playersLandmass1: 3,
+          },
         },
-      },
-    });
+      }
+    );
 
     expect(result.playersLandmass1).toBe(3);
     expect(result.playersLandmass2).toBe(1);
@@ -324,9 +345,7 @@ describe("resource demand planning river exclusion", () => {
       riverResourceExclusionMask: new Uint8Array(size).fill(1),
     });
     expect(result.demands.length).toBe(0);
-    expect(result.excluded).toEqual([
-      expect.objectContaining({ reason: "no-policy-legal-tiles" }),
-    ]);
+    expect(result.excluded).toEqual([expect.objectContaining({ reason: "no-policy-legal-tiles" })]);
   });
 
   it("rejects an exclusion mask whose length does not match the grid", () => {

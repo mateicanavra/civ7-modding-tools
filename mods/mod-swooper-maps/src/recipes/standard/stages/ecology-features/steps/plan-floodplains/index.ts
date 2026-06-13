@@ -21,8 +21,7 @@ const FLOODPLAIN_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {
   FEATURE_PLAINS_FLOODPLAIN_MINOR: (FEATURE_KEY_INDEX.FEATURE_PLAINS_FLOODPLAIN_MINOR ?? 0) + 1,
   FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE:
     (FEATURE_KEY_INDEX.FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE ?? 0) + 1,
-  FEATURE_TROPICAL_FLOODPLAIN_MINOR:
-    (FEATURE_KEY_INDEX.FEATURE_TROPICAL_FLOODPLAIN_MINOR ?? 0) + 1,
+  FEATURE_TROPICAL_FLOODPLAIN_MINOR: (FEATURE_KEY_INDEX.FEATURE_TROPICAL_FLOODPLAIN_MINOR ?? 0) + 1,
   FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE:
     (FEATURE_KEY_INDEX.FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE ?? 0) + 1,
   FEATURE_TUNDRA_FLOODPLAIN_MINOR: (FEATURE_KEY_INDEX.FEATURE_TUNDRA_FLOODPLAIN_MINOR ?? 0) + 1,
@@ -81,7 +80,9 @@ export default createStep(PlanFloodplainsStepContract, {
       const feature = placement.feature;
       const index = FLOODPLAIN_FEATURE_INDEX_BY_KEY[feature];
       if (!index) {
-        throw new Error(`plan-floodplains expected floodplain-family placements (received ${feature})`);
+        throw new Error(
+          `plan-floodplains expected floodplain-family placements (received ${feature})`
+        );
       }
       const x = placement.x | 0;
       const y = placement.y | 0;
@@ -90,10 +91,14 @@ export default createStep(PlanFloodplainsStepContract, {
       }
       const idx = y * width + x;
       if (reserved[idx] !== 0) {
-        throw new Error(`plan-floodplains attempted to claim reserved tileIndex=${idx} (${x},${y})`);
+        throw new Error(
+          `plan-floodplains attempted to claim reserved tileIndex=${idx} (${x},${y})`
+        );
       }
       if (featureIndex[idx] !== 0) {
-        throw new Error(`plan-floodplains attempted to claim occupied tileIndex=${idx} (${x},${y})`);
+        throw new Error(
+          `plan-floodplains attempted to claim occupied tileIndex=${idx} (${x},${y})`
+        );
       }
       featureIndex[idx] = index;
       floodplainIntentMask[idx] = 1;

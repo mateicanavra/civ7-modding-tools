@@ -31,27 +31,31 @@ describe("Civ7 ready-unit procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7ReadyUnitViewProcedureDescriptor,
-      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7ReadyUnitViewProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7ReadyUnitViewProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7ReadyUnitViewProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7ReadyUnitViewProcedureDescriptor.outputFields)
     );
     expect(Civ7ReadyUnitViewProcedureDescriptor.outputFields).not.toContain("operationCandidates");
     expect(Civ7ReadyUnitViewProcedureDescriptor.outputFields).toContain("legalOperations");
-    expect(Value.Check(resolved.inputSchema, {
-      unitId: { owner: 0, id: 458752, type: 26 },
-      radius: 2,
-      maxOperations: 96,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        unitId: { owner: 0, id: 458752, type: 26 },
+        radius: 2,
+        maxOperations: 96,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { radius: 6 })).toBe(false);
     expect(Value.Check(resolved.outputSchema, readyUnitViewResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...readyUnitViewResult(),
-      rawCommand: "readReadyUnitView()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...readyUnitViewResult(),
+        rawCommand: "readReadyUnitView()",
+      })
+    ).toBe(false);
   });
 
   test("calls the ready-unit atom through the procedure core without touching the live tuner", async () => {
@@ -81,19 +85,22 @@ describe("Civ7 ready-unit procedure descriptor", () => {
       parseReadyUnitView: () => readyUnitViewResult(),
     };
 
-    const result = await callCiv7ReadyUnitViewProcedure({
-      radius: 2,
-      maxOperations: 96,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7ReadyUnitViewProcedure(
+      {
+        radius: 2,
+        maxOperations: 96,
       },
-      procedure: {
-        correlationId: "ready-unit-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "ready-unit-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(readyUnitViewResult());
     expect(result.diagnostics).toMatchObject({
@@ -131,10 +138,15 @@ describe("Civ7 ready-unit procedure descriptor", () => {
       parseReadyUnitView: () => readyUnitViewResult(),
     };
 
-    await expect(callCiv7ReadyUnitViewProcedure({ radius: 6 }, {
-      procedure: { correlationId: "ready-unit-invalid-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7ReadyUnitViewProcedure(
+        { radius: 6 },
+        {
+          procedure: { correlationId: "ready-unit-invalid-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

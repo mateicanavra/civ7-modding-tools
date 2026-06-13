@@ -3,11 +3,7 @@
   "stageIds": {
     "truth": "ecology",
     "projection": "map-ecology",
-    "truthStages": [
-      "ecology-pedology",
-      "ecology-biomes",
-      "ecology-features"
-    ]
+    "truthStages": ["ecology-pedology", "ecology-biomes", "ecology-features"]
   },
   "stepIds": {
     "ecology": [

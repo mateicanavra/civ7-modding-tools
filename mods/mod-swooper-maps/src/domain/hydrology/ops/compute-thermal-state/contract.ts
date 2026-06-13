@@ -26,7 +26,9 @@ const ComputeThermalStateInputSchema = Type.Object(
      * Intended use:
      * - Coupling ocean currents/SST into downstream thermal + evap/cryosphere without breaking the default posture.
      */
-    sstC: Type.Optional(TypedArraySchemas.f32({ description: "Optional sea surface temperature (C) per tile." })),
+    sstC: Type.Optional(
+      TypedArraySchemas.f32({ description: "Optional sea surface temperature (C) per tile." })
+    ),
   },
   {
     additionalProperties: false,

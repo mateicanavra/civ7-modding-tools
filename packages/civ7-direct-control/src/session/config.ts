@@ -33,15 +33,25 @@ function portFromEnv(env: NodeJS.ProcessEnv): number | undefined {
   if (!env.CIV7_TUNER_PORT) return undefined;
   const port = Number(env.CIV7_TUNER_PORT);
   if (!Number.isInteger(port) || port <= 0 || port > 65_535) {
-    throw new Civ7DirectControlError("invalid-port", `Invalid CIV7_TUNER_PORT: ${env.CIV7_TUNER_PORT}`);
+    throw new Civ7DirectControlError(
+      "invalid-port",
+      `Invalid CIV7_TUNER_PORT: ${env.CIV7_TUNER_PORT}`
+    );
   }
   return port;
 }
 
 function splitEnvList(value: string | undefined): string[] {
-  return value?.split(",").map((entry) => entry.trim()).filter(Boolean) ?? [];
+  return (
+    value
+      ?.split(",")
+      .map((entry) => entry.trim())
+      .filter(Boolean) ?? []
+  );
 }
 
 function uniqueNonEmpty(values: ReadonlyArray<string | undefined>): string[] {
-  return Array.from(new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value))));
+  return Array.from(
+    new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value)))
+  );
 }

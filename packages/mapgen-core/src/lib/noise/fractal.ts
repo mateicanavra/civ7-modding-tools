@@ -17,4 +17,3 @@ export function normalizeFractal(raw: number): number {
   }
   return val / 255;
 }
-

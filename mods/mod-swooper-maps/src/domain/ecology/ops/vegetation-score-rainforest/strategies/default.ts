@@ -30,4 +30,3 @@ export const defaultStrategy = createStrategy(ScoreVegetationRainforestContract,
     return { score01 };
   },
 });
-

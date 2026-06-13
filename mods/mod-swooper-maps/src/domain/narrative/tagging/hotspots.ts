@@ -1,7 +1,10 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import { ctxRandom, inBounds, storyKey } from "@swooper/mapgen-core";
 import type { NarrativeMotifsHotspots } from "@mapgen/domain/narrative/models.js";
-import { publishStoryOverlay, STORY_OVERLAY_KEYS } from "@mapgen/domain/narrative/overlays/index.js";
+import {
+  publishStoryOverlay,
+  STORY_OVERLAY_KEYS,
+} from "@mapgen/domain/narrative/overlays/index.js";
 import { isAdjacentToLand } from "@mapgen/domain/narrative/utils/adjacency.js";
 import { getDims } from "@mapgen/domain/narrative/utils/dims.js";
 import { rand } from "@mapgen/domain/narrative/utils/rng.js";
@@ -31,14 +34,8 @@ export function storyTagHotspotTrails(
   const minDistFromLand = Math.max(0, (hotspotCfg.minDistFromLand ?? 5) | 0);
   const minTrailSeparation = Math.max(1, (hotspotCfg.minTrailSeparation ?? 12) | 0);
 
-  const maxTrails = Math.max(
-    1,
-    Math.round(baseMaxTrails * (0.9 + 0.6 * sqrtHot))
-  );
-  const steps = Math.max(
-    1,
-    Math.round(baseSteps * (0.9 + 0.4 * sqrtHot))
-  );
+  const maxTrails = Math.max(1, Math.round(baseMaxTrails * (0.9 + 0.6 * sqrtHot)));
+  const steps = Math.max(1, Math.round(baseSteps * (0.9 + 0.4 * sqrtHot)));
 
   const hotspotPoints = new Set<string>();
 

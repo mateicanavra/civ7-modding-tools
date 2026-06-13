@@ -23,10 +23,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(PlotCoastsStepContract, {
   artifacts: implementArtifacts(
-    [
-      mapMorphologyArtifacts.coastClassification,
-      mapMorphologyArtifacts.coastEngineTerrainSnapshot,
-    ],
+    [mapMorphologyArtifacts.coastClassification, mapMorphologyArtifacts.coastEngineTerrainSnapshot],
     {
       coastClassification: {},
       coastEngineTerrainSnapshot: {},
@@ -86,11 +83,12 @@ export default createStep(PlotCoastsStepContract, {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
         const cls = waterClass[idx] | 0;
-        const terrain = cls === WATER_CLASS_LAND
-          ? FLAT_TERRAIN
-          : cls === WATER_CLASS_COAST
-            ? COAST_TERRAIN
-            : OCEAN_TERRAIN;
+        const terrain =
+          cls === WATER_CLASS_LAND
+            ? FLAT_TERRAIN
+            : cls === WATER_CLASS_COAST
+              ? COAST_TERRAIN
+              : OCEAN_TERRAIN;
         context.adapter.setTerrainType(x, y, terrain);
       }
     }

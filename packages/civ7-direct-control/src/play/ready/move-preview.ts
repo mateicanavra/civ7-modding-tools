@@ -8,73 +8,81 @@ import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import { boundedInteger } from "../../validation.js";
 
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-} from "../../session/types.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import { Civ7MapLocationSchema, type Civ7MapLocation } from "../map/types.js";
 
 const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
 const nullableMapLocationSchema = Type.Union([Civ7MapLocationSchema, Type.Null()]);
 
-export const Civ7UnitMovePreviewInputSchema = Type.Object({
-  unitId: Type.Optional(Civ7ComponentIdSchema),
-  destination: Type.Optional(Civ7MapLocationSchema),
-  maxPlots: Type.Optional(Type.Integer({ minimum: 1, maximum: 512 })),
-  maxPathPlots: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
-}, { additionalProperties: false });
+export const Civ7UnitMovePreviewInputSchema = Type.Object(
+  {
+    unitId: Type.Optional(Civ7ComponentIdSchema),
+    destination: Type.Optional(Civ7MapLocationSchema),
+    maxPlots: Type.Optional(Type.Integer({ minimum: 1, maximum: 512 })),
+    maxPathPlots: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
+  },
+  { additionalProperties: false }
+);
 export type Civ7UnitMovePreviewInput = Readonly<Static<typeof Civ7UnitMovePreviewInputSchema>>;
 
-export const Civ7UnitMovePreviewRelationshipPolicySchema = Type.Object({
-  relationshipSource: Type.Literal("not-classified"),
-  relationshipProof: Type.Literal("none"),
-  unprovenLabel: Type.Literal("relationship-unproven"),
-  guidance: Type.String(),
-}, { additionalProperties: false });
-export type Civ7UnitMovePreviewRelationshipPolicy = Readonly<Static<typeof Civ7UnitMovePreviewRelationshipPolicySchema>>;
+export const Civ7UnitMovePreviewRelationshipPolicySchema = Type.Object(
+  {
+    relationshipSource: Type.Literal("not-classified"),
+    relationshipProof: Type.Literal("none"),
+    unprovenLabel: Type.Literal("relationship-unproven"),
+    guidance: Type.String(),
+  },
+  { additionalProperties: false }
+);
+export type Civ7UnitMovePreviewRelationshipPolicy = Readonly<
+  Static<typeof Civ7UnitMovePreviewRelationshipPolicySchema>
+>;
 
-export const Civ7UnitMovePreviewResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: Type.Object({
-    id: Type.String(),
-    name: Type.String(),
-  }, { additionalProperties: false }),
-  localPlayerId: Type.Number(),
-  requestedUnitId: nullableComponentIdSchema,
-  selectedUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
-  firstReadyUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
-  unitId: nullableComponentIdSchema,
-  unit: Civ7RuntimeProbeSchema(Type.Unknown()),
-  reachableMovement: Civ7RuntimeProbeSchema(Type.Unknown()),
-  reachableZonesOfControl: Civ7RuntimeProbeSchema(Type.Unknown()),
-  reachableTargets: Civ7RuntimeProbeSchema(Type.Unknown()),
-  queuedDestination: Civ7RuntimeProbeSchema(nullableMapLocationSchema),
-  queuedPath: Civ7RuntimeProbeSchema(Type.Unknown()),
-  requestedDestination: nullableMapLocationSchema,
-  requestedPath: Civ7RuntimeProbeSchema(Type.Unknown()),
-  relationshipPolicy: Civ7UnitMovePreviewRelationshipPolicySchema,
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7UnitMovePreviewResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: Type.Object(
+      {
+        id: Type.String(),
+        name: Type.String(),
+      },
+      { additionalProperties: false }
+    ),
+    localPlayerId: Type.Number(),
+    requestedUnitId: nullableComponentIdSchema,
+    selectedUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+    firstReadyUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+    unitId: nullableComponentIdSchema,
+    unit: Civ7RuntimeProbeSchema(Type.Unknown()),
+    reachableMovement: Civ7RuntimeProbeSchema(Type.Unknown()),
+    reachableZonesOfControl: Civ7RuntimeProbeSchema(Type.Unknown()),
+    reachableTargets: Civ7RuntimeProbeSchema(Type.Unknown()),
+    queuedDestination: Civ7RuntimeProbeSchema(nullableMapLocationSchema),
+    queuedPath: Civ7RuntimeProbeSchema(Type.Unknown()),
+    requestedDestination: nullableMapLocationSchema,
+    requestedPath: Civ7RuntimeProbeSchema(Type.Unknown()),
+    relationshipPolicy: Civ7UnitMovePreviewRelationshipPolicySchema,
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 export type Civ7UnitMovePreviewResult = Readonly<Static<typeof Civ7UnitMovePreviewResultSchema>>;
 
 export type UnitMovePreviewDependencies = Readonly<{
   validateMapLocation: (location: Civ7MapLocation) => void;
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
-  parseUnitMovePreview: (
-    result: Civ7CommandResult,
-    label: string,
-  ) => Civ7UnitMovePreviewResult;
+  parseUnitMovePreview: (result: Civ7CommandResult, label: string) => Civ7UnitMovePreviewResult;
 }>;
 
 export async function getCiv7UnitMovePreview(
   input: Civ7UnitMovePreviewInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: UnitMovePreviewDependencies = defaultUnitMovePreviewDependencies,
+  dependencies: UnitMovePreviewDependencies = defaultUnitMovePreviewDependencies
 ): Promise<Civ7UnitMovePreviewResult> {
   if (input.destination !== undefined) dependencies.validateMapLocation(input.destination);
   const result = await dependencies.executeAppUiCommand({
@@ -88,7 +96,9 @@ export async function getCiv7UnitMovePreview(
   return dependencies.parseUnitMovePreview(result, "Civ7 unit move preview");
 }
 
-function buildUnitMovePreviewCommand(input: Civ7UnitMovePreviewInput & { maxPlots: number; maxPathPlots: number }): string {
+function buildUnitMovePreviewCommand(
+  input: Civ7UnitMovePreviewInput & { maxPlots: number; maxPathPlots: number }
+): string {
   return `(() => {
     ${unitMovePreviewSource()}
     return JSON.stringify(readUnitMovePreview(${jsLiteral(input)}));

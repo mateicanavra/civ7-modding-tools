@@ -24,25 +24,25 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
   test("projects confirmed diplomacy responses without raw command output", async () => {
     const fake = fakeContext(diplomacyResponseResult("diplomacy-blocker-cleared"));
 
-    const result = await call(
-      Civ7ControlOrpcRouter.diplomacy.response.request,
-      diplomacyInput,
-      { context: fake.context },
-    );
+    const result = await call(Civ7ControlOrpcRouter.diplomacy.response.request, diplomacyInput, {
+      context: fake.context,
+    });
 
     expect(fake.calls.readiness).toHaveLength(1);
     expect(fake.calls.views).toHaveLength(1);
-    expect(fake.calls.request).toEqual([{
-      input: {
-        playerId: 0,
-        ...diplomacyInput,
+    expect(fake.calls.request).toEqual([
+      {
+        input: {
+          playerId: 0,
+          ...diplomacyInput,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expect(result).toEqual({
       playerId: 0,
       actionId: 8_821,
@@ -62,33 +62,36 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
         confirmed: true,
         noRepeatAfterUnverified: false,
       },
-      nextSteps: [{
-        kind: "refresh-attention",
-        source: "diplomacy.response.request",
-        label: "Refresh current attention before choosing the next player action.",
-      }],
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "diplomacy.response.request",
+          label: "Refresh current attention before choosing the next player action.",
+        },
+      ],
     });
 
     const serialized = JSON.stringify(result);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"verified"');
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
   });
 
   test("derives send player from live notification evidence", async () => {
-    const fake = fakeContext(diplomacyResponseResult("diplomacy-blocker-cleared", {
-      playerId: 0,
-    }), { localPlayerId: 2 });
-
-    const result = await call(
-      Civ7ControlOrpcRouter.diplomacy.response.request,
-      diplomacyInput,
-      { context: fake.context },
+    const fake = fakeContext(
+      diplomacyResponseResult("diplomacy-blocker-cleared", {
+        playerId: 0,
+      }),
+      { localPlayerId: 2 }
     );
+
+    const result = await call(Civ7ControlOrpcRouter.diplomacy.response.request, diplomacyInput, {
+      context: fake.context,
+    });
 
     expect(fake.calls.request[0]?.input).toEqual({
       playerId: 2,
@@ -104,8 +107,8 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
       call(
         Civ7ControlOrpcRouter.diplomacy.response.request,
         { ...diplomacyInput, playerId: 2 } as never,
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(fake.calls.readiness).toEqual([]);
     expect(fake.calls.views).toEqual([]);
@@ -113,16 +116,16 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
   });
 
   test("keeps sent no-state-change diplomacy responses no-repeat guarded", async () => {
-    const fake = fakeContext(diplomacyResponseResult("no-state-change", {
-      afterValid: true,
-      verified: true,
-    }));
-
-    const result = await call(
-      Civ7ControlOrpcRouter.diplomacy.response.request,
-      diplomacyInput,
-      { context: fake.context },
+    const fake = fakeContext(
+      diplomacyResponseResult("no-state-change", {
+        afterValid: true,
+        verified: true,
+      })
     );
+
+    const result = await call(Civ7ControlOrpcRouter.diplomacy.response.request, diplomacyInput, {
+      context: fake.context,
+    });
 
     expect(result.status).toBe("sent-unverified");
     expect(result.postcondition).toMatchObject({
@@ -132,26 +135,29 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
       confirmed: false,
       noRepeatAfterUnverified: true,
     });
-    expect(result.nextSteps).toEqual([{
-      kind: "do-not-repeat",
-      source: "diplomacy.response.request",
-      label: "Do not repeat this diplomacy response request until fresh attention and diplomacy evidence is read.",
-    }]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "do-not-repeat",
+        source: "diplomacy.response.request",
+        label:
+          "Do not repeat this diplomacy response request until fresh attention and diplomacy evidence is read.",
+      },
+    ]);
   });
 
   test("projects validator-blocked diplomacy responses as not-sent", async () => {
-    const fake = fakeContext(diplomacyResponseResult("not-sent", {
-      sent: false,
-      beforeValid: false,
-      afterValid: false,
-      verified: false,
-    }));
-
-    const result = await call(
-      Civ7ControlOrpcRouter.diplomacy.response.request,
-      diplomacyInput,
-      { context: fake.context },
+    const fake = fakeContext(
+      diplomacyResponseResult("not-sent", {
+        sent: false,
+        beforeValid: false,
+        afterValid: false,
+        verified: false,
+      })
     );
+
+    const result = await call(Civ7ControlOrpcRouter.diplomacy.response.request, diplomacyInput, {
+      context: fake.context,
+    });
 
     expect(result).toMatchObject({
       sent: false,
@@ -167,11 +173,14 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
         noRepeatAfterUnverified: true,
       },
     });
-    expect(result.nextSteps).toEqual([{
-      kind: "inspect-diplomacy-response",
-      source: "diplomacy.response.request",
-      label: "Inspect current attention and diplomacy response state before attempting another diplomacy request.",
-    }]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "inspect-diplomacy-response",
+        source: "diplomacy.response.request",
+        label:
+          "Inspect current attention and diplomacy response state before attempting another diplomacy request.",
+      },
+    ]);
   });
 
   test("keeps endpoint/session/state/raw command fields and UI toggles out of procedure input", async () => {
@@ -190,11 +199,9 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
       const fake = fakeContext(diplomacyResponseResult("diplomacy-blocker-cleared"));
 
       await expect(
-        call(
-          Civ7ControlOrpcRouter.diplomacy.response.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.diplomacy.response.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.readiness).toEqual([]);
       expect(fake.calls.views).toEqual([]);
@@ -210,18 +217,16 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
         ...context.directControl,
         requestCiv7DiplomacyResponse: async () => {
           throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:1:Game.PlayerOperations.sendRequest(...)",
+            "Timed out waiting for Civ7 tuner response to CMD:1:Game.PlayerOperations.sendRequest(...)"
           );
         },
       },
     };
 
     await expect(
-      call(
-        Civ7ControlOrpcRouter.diplomacy.response.request,
-        diplomacyInput,
-        { context: failingContext },
-      ),
+      call(Civ7ControlOrpcRouter.diplomacy.response.request, diplomacyInput, {
+        context: failingContext,
+      })
     ).rejects.toMatchObject({
       code: "DIPLOMACY_RESPONSE_UNAVAILABLE",
       status: 503,
@@ -232,11 +237,9 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
     });
 
     try {
-      await call(
-        Civ7ControlOrpcRouter.diplomacy.response.request,
-        diplomacyInput,
-        { context: failingContext },
-      );
+      await call(Civ7ControlOrpcRouter.diplomacy.response.request, diplomacyInput, {
+        context: failingContext,
+      });
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -257,9 +260,7 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
   });
 
   test("publishes a contract-first diplomacy domain service leaf", () => {
-    expect(
-      Civ7ControlOrpcContract.diplomacy.response.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.diplomacy.response.request["~orpc"]).toMatchObject({
       meta: {
         family: "diplomacy",
         procedureKey: "diplomacy.response.request",
@@ -268,41 +269,41 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
       },
     });
     expect(
-      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions,
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions
     ).toBeUndefined();
-    expect(
-      (Civ7ControlOrpcRouter as unknown as Record<string, unknown>).decisions,
-    ).toBeUndefined();
-    expect(
-      Civ7ControlOrpcContract.diplomacy.response.request["~orpc"].errorMap,
-    ).toHaveProperty("DIPLOMACY_RESPONSE_UNAVAILABLE");
-    expect(Civ7DiplomacyResponseUnavailableError.code).toBe(
-      "DIPLOMACY_RESPONSE_UNAVAILABLE",
+    expect((Civ7ControlOrpcRouter as unknown as Record<string, unknown>).decisions).toBeUndefined();
+    expect(Civ7ControlOrpcContract.diplomacy.response.request["~orpc"].errorMap).toHaveProperty(
+      "DIPLOMACY_RESPONSE_UNAVAILABLE"
     );
+    expect(Civ7DiplomacyResponseUnavailableError.code).toBe("DIPLOMACY_RESPONSE_UNAVAILABLE");
   });
 });
 
 function fakeContext(
   result: Civ7ControlOrpcDiplomacyResponseResult,
-  options: Partial<{ playable: boolean; localPlayerId: number }> = {},
+  options: Partial<{ playable: boolean; localPlayerId: number }> = {}
 ): {
   calls: {
     readiness: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
-    request: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
+    request: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
   };
   context: Civ7ControlOrpcContext;
 } {
   const calls = {
     readiness: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
     views: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
-    request: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
+    request: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
   };
 
   return {
@@ -341,7 +342,7 @@ function diplomacyResponseResult(
     beforeValid: boolean;
     afterValid: boolean;
     verified: boolean;
-  }> = {},
+  }> = {}
 ): Civ7ControlOrpcDiplomacyResponseResult {
   const sent = options.sent ?? classification !== "not-sent";
   return {
@@ -371,9 +372,8 @@ function diplomacyResponseResult(
       result: {},
     } as Civ7ControlOrpcDiplomacyResponseResult["afterValidation"],
     sent,
-    verified: options.verified ?? (
-      classification !== "not-sent" && classification !== "no-state-change"
-    ),
+    verified:
+      options.verified ?? (classification !== "not-sent" && classification !== "no-state-change"),
     postcondition: {
       classification,
       reason: `${classification} reason`,

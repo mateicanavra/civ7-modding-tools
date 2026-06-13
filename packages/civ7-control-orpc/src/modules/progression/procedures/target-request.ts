@@ -8,9 +8,7 @@ import {
   civ7ControlOrpcErrorCorrelationData,
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
-import {
-  civ7CloseoutMutationProjection,
-} from "../../../policy/mutation-result";
+import { civ7CloseoutMutationProjection } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7ProgressionCultureTargetResult,
@@ -25,79 +23,64 @@ type ProgressionTargetSource =
 type ProgressionTargetResult =
   | Civ7ProgressionTechnologyTargetResult
   | Civ7ProgressionCultureTargetResult;
-type ProgressionTargetRuntimeInput =
-  Civ7ProgressionTargetInput & Readonly<{ playerId: number }>;
+type ProgressionTargetRuntimeInput = Civ7ProgressionTargetInput & Readonly<{ playerId: number }>;
 
-export const progressionTechnologyTargetRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.progression.technology.target.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    const kind = "technology";
-    const source = "progression.technology.target.request";
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const localPlayerId = await readLocalPlayerId(context);
-        const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
-        const result = await requestProgressionTarget(kind, requestInput, context);
-        return progressionTargetResult(source, requestInput, result);
-      },
-      catch: (cause) =>
-        errors.PROGRESSION_TARGET_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: source,
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const progressionTechnologyTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.technology.target.request
+).effect(function* ({ context, errors, input }) {
+  const kind = "technology";
+  const source = "progression.technology.target.request";
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context);
+      const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
+      const result = await requestProgressionTarget(kind, requestInput, context);
+      return progressionTargetResult(source, requestInput, result);
+    },
+    catch: (cause) =>
+      errors.PROGRESSION_TARGET_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: source,
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-export const progressionCultureTargetRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.progression.culture.target.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    const kind = "culture";
-    const source = "progression.culture.target.request";
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const localPlayerId = await readLocalPlayerId(context);
-        const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
-        const result = await requestProgressionTarget(kind, requestInput, context);
-        return progressionTargetResult(source, requestInput, result);
-      },
-      catch: (cause) =>
-        errors.PROGRESSION_TARGET_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: source,
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const progressionCultureTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.culture.target.request
+).effect(function* ({ context, errors, input }) {
+  const kind = "culture";
+  const source = "progression.culture.target.request";
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context);
+      const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
+      const result = await requestProgressionTarget(kind, requestInput, context);
+      return progressionTargetResult(source, requestInput, result);
+    },
+    catch: (cause) =>
+      errors.PROGRESSION_TARGET_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: source,
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-async function readLocalPlayerId(
-  context: Civ7ControlOrpcContext,
-): Promise<number> {
-  const view = await context.directControl.getCiv7PlayNotificationView(
-    context.endpointDefaults,
-  );
+async function readLocalPlayerId(context: Civ7ControlOrpcContext): Promise<number> {
+  const view = await context.directControl.getCiv7PlayNotificationView(context.endpointDefaults);
   return view.localPlayerId;
 }
 
 function progressionTargetRuntimeInput(
   input: Civ7ProgressionTargetInput,
-  localPlayerId: number,
+  localPlayerId: number
 ): ProgressionTargetRuntimeInput {
   return {
     playerId: localPlayerId,
@@ -108,48 +91,45 @@ function progressionTargetRuntimeInput(
 async function requestProgressionTarget(
   kind: ProgressionTargetKind,
   input: ProgressionTargetRuntimeInput,
-  context: Civ7ControlOrpcContext,
+  context: Civ7ControlOrpcContext
 ): Promise<Civ7ControlOrpcProgressionTargetResult> {
   if (kind === "technology") {
-    return context.directControl.requestCiv7TechnologyTarget(
-      input,
-      context.endpointDefaults,
-    );
+    return context.directControl.requestCiv7TechnologyTarget(input, context.endpointDefaults);
   }
 
-  return context.directControl.requestCiv7CultureTarget(
-    input,
-    context.endpointDefaults,
-  );
+  return context.directControl.requestCiv7CultureTarget(input, context.endpointDefaults);
 }
 
 function progressionTargetResult(
   source: "progression.technology.target.request",
   input: ProgressionTargetRuntimeInput,
-  result: Civ7ControlOrpcProgressionTargetResult,
+  result: Civ7ControlOrpcProgressionTargetResult
 ): Civ7ProgressionTechnologyTargetResult;
 function progressionTargetResult(
   source: "progression.culture.target.request",
   input: ProgressionTargetRuntimeInput,
-  result: Civ7ControlOrpcProgressionTargetResult,
+  result: Civ7ControlOrpcProgressionTargetResult
 ): Civ7ProgressionCultureTargetResult;
 function progressionTargetResult(
   source: ProgressionTargetSource,
   input: ProgressionTargetRuntimeInput,
-  result: Civ7ControlOrpcProgressionTargetResult,
+  result: Civ7ControlOrpcProgressionTargetResult
 ): ProgressionTargetResult {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
     postcondition: progressionTargetProofPostcondition(result),
     missing: {
       classification: "missing-postcondition",
-      reason: "The progression target request result did not include explicit postcondition evidence.",
+      reason:
+        "The progression target request result did not include explicit postcondition evidence.",
       outcome: result.sent ? "unknown" : "not-sent",
     },
     source,
     inspectKind: "inspect-progression-target",
-    inspectLabel: "Inspect current progression target state before attempting another target request.",
-    doNotRepeatLabel: "Do not repeat this progression target request until fresh progression target evidence is read.",
+    inspectLabel:
+      "Inspect current progression target state before attempting another target request.",
+    doNotRepeatLabel:
+      "Do not repeat this progression target request until fresh progression target evidence is read.",
   });
 
   return {

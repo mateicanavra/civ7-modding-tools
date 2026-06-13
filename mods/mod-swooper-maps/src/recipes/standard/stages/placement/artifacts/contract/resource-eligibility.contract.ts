@@ -14,7 +14,8 @@ const ResourceEligibilityArtifactSchema = Type.Object(
             description: "Habitat lane eligibility (1=in-lane).",
           }),
           legalMask: TypedArraySchemas.u8({
-            description: "Per-resource policy legality from Resource_ValidPlacements rows (1=legal).",
+            description:
+              "Per-resource policy legality from Resource_ValidPlacements rows (1=legal).",
           }),
           intensity: TypedArraySchemas.f32({
             description: "Habitat intensity (0..1).",

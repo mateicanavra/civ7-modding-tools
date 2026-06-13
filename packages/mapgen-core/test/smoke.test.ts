@@ -16,7 +16,6 @@ describe("Test Infrastructure", () => {
     expect(GameInfo).toBeDefined();
     expect(GameInfo.Maps.lookup("MAPSIZE_HUGE")).toBeDefined();
   });
-
 });
 
 describe("MockAdapter", () => {

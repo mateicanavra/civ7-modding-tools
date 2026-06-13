@@ -1,6 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { HILL_TERRAIN, MOUNTAIN_TERRAIN, VOLCANO_FEATURE, createExtendedMapContext, sha256Hex, stableStringify } from "@swooper/mapgen-core";
+import {
+  HILL_TERRAIN,
+  MOUNTAIN_TERRAIN,
+  VOLCANO_FEATURE,
+  createExtendedMapContext,
+  sha256Hex,
+  stableStringify,
+} from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe from "../src/recipes/standard/recipe.js";
@@ -18,8 +25,12 @@ import { placementArtifacts } from "../src/recipes/standard/stages/placement/art
 import { standardConfig } from "./support/standard-config.js";
 
 describe("standard recipe execution", () => {
-	  function runAndGetClimateSignature(options: { seed: number; width: number; height: number }): string {
-	    const { seed, width, height } = options;
+  function runAndGetClimateSignature(options: {
+    seed: number;
+    width: number;
+    height: number;
+  }): string {
+    const { seed, width, height } = options;
     const mapInfo = {
       GridWidth: width,
       GridHeight: height,
@@ -40,53 +51,78 @@ describe("standard recipe execution", () => {
       },
     };
 
-    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+    });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
-	    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
-	    standardRecipe.run(context, env, standardConfig, { log: () => {} });
+    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
-		    const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
-		      | { discharge?: Float32Array; riverClass?: Uint8Array }
-		      | undefined;
-		    const size = width * height;
-		    if (!(hydrography?.discharge instanceof Float32Array) || hydrography.discharge.length !== size) {
-		      throw new Error("Missing artifact:hydrology.hydrography discharge buffer.");
-		    }
-		    if (!(hydrography?.riverClass instanceof Uint8Array) || hydrography.riverClass.length !== size) {
-		      throw new Error("Missing artifact:hydrology.hydrography riverClass buffer.");
-		    }
-		    const riverAdjacency = computeRiverAdjacencyMaskFromRiverClass({
-		      width,
-		      height,
-		      riverClass: hydrography.riverClass,
-		      radius: 1,
-		    });
+    const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
+      | { discharge?: Float32Array; riverClass?: Uint8Array }
+      | undefined;
+    const size = width * height;
+    if (
+      !(hydrography?.discharge instanceof Float32Array) ||
+      hydrography.discharge.length !== size
+    ) {
+      throw new Error("Missing artifact:hydrology.hydrography discharge buffer.");
+    }
+    if (
+      !(hydrography?.riverClass instanceof Uint8Array) ||
+      hydrography.riverClass.length !== size
+    ) {
+      throw new Error("Missing artifact:hydrology.hydrography riverClass buffer.");
+    }
+    const riverAdjacency = computeRiverAdjacencyMaskFromRiverClass({
+      width,
+      height,
+      riverClass: hydrography.riverClass,
+      radius: 1,
+    });
 
-	    const climateField = context.artifacts.get(hydrologyClimateBaselineArtifacts.climateField.id) as
-	      | { rainfall?: Uint8Array; humidity?: Uint8Array }
-	      | undefined;
+    const climateField = context.artifacts.get(hydrologyClimateBaselineArtifacts.climateField.id) as
+      | { rainfall?: Uint8Array; humidity?: Uint8Array }
+      | undefined;
     const rainfall = climateField?.rainfall;
     const humidity = climateField?.humidity;
     if (!(rainfall instanceof Uint8Array) || !(humidity instanceof Uint8Array)) {
       throw new Error("Missing artifact:climateField rainfall/humidity buffers.");
     }
 
-    const climateIndices = context.artifacts.get(hydrologyClimateRefineArtifacts.climateIndices.id) as
-      | { surfaceTemperatureC?: Float32Array; pet?: Float32Array; aridityIndex?: Float32Array; freezeIndex?: Float32Array }
+    const climateIndices = context.artifacts.get(
+      hydrologyClimateRefineArtifacts.climateIndices.id
+    ) as
+      | {
+          surfaceTemperatureC?: Float32Array;
+          pet?: Float32Array;
+          aridityIndex?: Float32Array;
+          freezeIndex?: Float32Array;
+        }
       | undefined;
     const cryosphere = context.artifacts.get(hydrologyClimateRefineArtifacts.cryosphere.id) as
       | { snowCover?: Uint8Array; seaIceCover?: Uint8Array; albedo?: Uint8Array }
       | undefined;
-    const diagnostics = context.artifacts.get(hydrologyClimateRefineArtifacts.climateDiagnostics.id) as
-      | { rainShadowIndex?: Float32Array; continentalityIndex?: Float32Array; convergenceIndex?: Float32Array }
+    const diagnostics = context.artifacts.get(
+      hydrologyClimateRefineArtifacts.climateDiagnostics.id
+    ) as
+      | {
+          rainShadowIndex?: Float32Array;
+          continentalityIndex?: Float32Array;
+          convergenceIndex?: Float32Array;
+        }
       | undefined;
 
-		    const rainfallSha = sha256Hex(Buffer.from(rainfall).toString("base64"));
-		    const humiditySha = sha256Hex(Buffer.from(humidity).toString("base64"));
-		    const dischargeView = hydrography?.discharge ?? new Float32Array();
-		    const riverClassView = hydrography?.riverClass ?? new Uint8Array();
-		    const riverAdjacencyView = riverAdjacency ?? new Uint8Array();
+    const rainfallSha = sha256Hex(Buffer.from(rainfall).toString("base64"));
+    const humiditySha = sha256Hex(Buffer.from(humidity).toString("base64"));
+    const dischargeView = hydrography?.discharge ?? new Float32Array();
+    const riverClassView = hydrography?.riverClass ?? new Uint8Array();
+    const riverAdjacencyView = riverAdjacency ?? new Uint8Array();
     const temperatureView = climateIndices?.surfaceTemperatureC ?? new Float32Array();
     const petView = climateIndices?.pet ?? new Float32Array();
     const aridityView = climateIndices?.aridityIndex ?? new Float32Array();
@@ -96,16 +132,28 @@ describe("standard recipe execution", () => {
     const convergenceView = diagnostics?.convergenceIndex ?? new Float32Array();
 
     const temperatureSha = sha256Hex(
-      Buffer.from(new Uint8Array(temperatureView.buffer, temperatureView.byteOffset, temperatureView.byteLength)).toString("base64")
+      Buffer.from(
+        new Uint8Array(
+          temperatureView.buffer,
+          temperatureView.byteOffset,
+          temperatureView.byteLength
+        )
+      ).toString("base64")
     );
     const petSha = sha256Hex(
-      Buffer.from(new Uint8Array(petView.buffer, petView.byteOffset, petView.byteLength)).toString("base64")
+      Buffer.from(new Uint8Array(petView.buffer, petView.byteOffset, petView.byteLength)).toString(
+        "base64"
+      )
     );
     const ariditySha = sha256Hex(
-      Buffer.from(new Uint8Array(aridityView.buffer, aridityView.byteOffset, aridityView.byteLength)).toString("base64")
+      Buffer.from(
+        new Uint8Array(aridityView.buffer, aridityView.byteOffset, aridityView.byteLength)
+      ).toString("base64")
     );
     const freezeSha = sha256Hex(
-      Buffer.from(new Uint8Array(freezeView.buffer, freezeView.byteOffset, freezeView.byteLength)).toString("base64")
+      Buffer.from(
+        new Uint8Array(freezeView.buffer, freezeView.byteOffset, freezeView.byteLength)
+      ).toString("base64")
     );
     const snowSha = sha256Hex(
       Buffer.from(cryosphere?.snowCover ?? new Uint8Array()).toString("base64")
@@ -117,32 +165,48 @@ describe("standard recipe execution", () => {
       Buffer.from(cryosphere?.albedo ?? new Uint8Array()).toString("base64")
     );
     const rainShadowSha = sha256Hex(
-      Buffer.from(new Uint8Array(rainShadowView.buffer, rainShadowView.byteOffset, rainShadowView.byteLength)).toString("base64")
+      Buffer.from(
+        new Uint8Array(rainShadowView.buffer, rainShadowView.byteOffset, rainShadowView.byteLength)
+      ).toString("base64")
     );
     const continentalitySha = sha256Hex(
-      Buffer.from(new Uint8Array(continentalityView.buffer, continentalityView.byteOffset, continentalityView.byteLength)).toString("base64")
+      Buffer.from(
+        new Uint8Array(
+          continentalityView.buffer,
+          continentalityView.byteOffset,
+          continentalityView.byteLength
+        )
+      ).toString("base64")
     );
-	    const convergenceSha = sha256Hex(
-	      Buffer.from(new Uint8Array(convergenceView.buffer, convergenceView.byteOffset, convergenceView.byteLength)).toString("base64")
-	    );
-	    const dischargeSha = sha256Hex(
-	      Buffer.from(new Uint8Array(dischargeView.buffer, dischargeView.byteOffset, dischargeView.byteLength)).toString("base64")
-	    );
-	    const riverClassSha = sha256Hex(Buffer.from(riverClassView).toString("base64"));
-	    const riverAdjacencySha = sha256Hex(Buffer.from(riverAdjacencyView).toString("base64"));
-	    return sha256Hex(
-	      stableStringify({
-	        width,
-	        height,
-	        seed,
-	        rainfallSha,
-	        humiditySha,
-	        dischargeSha,
-	        riverClassSha,
-	        riverAdjacencySha,
-	        temperatureSha,
-	        petSha,
-	        ariditySha,
+    const convergenceSha = sha256Hex(
+      Buffer.from(
+        new Uint8Array(
+          convergenceView.buffer,
+          convergenceView.byteOffset,
+          convergenceView.byteLength
+        )
+      ).toString("base64")
+    );
+    const dischargeSha = sha256Hex(
+      Buffer.from(
+        new Uint8Array(dischargeView.buffer, dischargeView.byteOffset, dischargeView.byteLength)
+      ).toString("base64")
+    );
+    const riverClassSha = sha256Hex(Buffer.from(riverClassView).toString("base64"));
+    const riverAdjacencySha = sha256Hex(Buffer.from(riverAdjacencyView).toString("base64"));
+    return sha256Hex(
+      stableStringify({
+        width,
+        height,
+        seed,
+        rainfallSha,
+        humiditySha,
+        dischargeSha,
+        riverClassSha,
+        riverAdjacencySha,
+        temperatureSha,
+        petSha,
+        ariditySha,
         freezeSha,
         snowSha,
         seaIceSha,
@@ -186,9 +250,7 @@ describe("standard recipe execution", () => {
     const plan = standardRecipe.compile(env, config);
     expect(plan.nodes.length).toBeGreaterThan(0);
 
-    expect(() =>
-      standardRecipe.run(context, env, config, { log: () => {} })
-    ).not.toThrow();
+    expect(() => standardRecipe.run(context, env, config, { log: () => {} })).not.toThrow();
 
     const climateField = context.artifacts.get(hydrologyClimateBaselineArtifacts.climateField.id) as
       | { humidity?: Uint8Array }
@@ -199,7 +261,11 @@ describe("standard recipe execution", () => {
     expect(humidity?.some((value) => value > 0)).toBe(true);
 
     const indices = context.artifacts.get(hydrologyClimateRefineArtifacts.climateIndices.id) as
-      | { surfaceTemperatureC?: Float32Array; aridityIndex?: Float32Array; freezeIndex?: Float32Array }
+      | {
+          surfaceTemperatureC?: Float32Array;
+          aridityIndex?: Float32Array;
+          freezeIndex?: Float32Array;
+        }
       | undefined;
     expect(indices?.surfaceTemperatureC instanceof Float32Array).toBe(true);
     expect(indices?.surfaceTemperatureC?.length).toBe(width * height);
@@ -244,9 +310,9 @@ describe("standard recipe execution", () => {
           };
         }
       | undefined;
-    const resourcePlacement = context.artifacts.get(placementArtifacts.resourcePlacementOutcomes.id) as
-      | { outcomes?: readonly { resourceType?: number }[] }
-      | undefined;
+    const resourcePlacement = context.artifacts.get(
+      placementArtifacts.resourcePlacementOutcomes.id
+    ) as { outcomes?: readonly { resourceType?: number }[] } | undefined;
     const candidateResourceTypes = placementInputs?.resources?.candidateResourceTypes ?? [];
     const preferredResourceTypes = (placementInputs?.resources?.placements ?? []).map(
       (placement) => placement.preferredResourceType
@@ -255,18 +321,28 @@ describe("standard recipe execution", () => {
       (outcome) => outcome.resourceType
     );
 
-    expect(candidateResourceTypes.filter((resourceType) => deferredResourceTypes.has(resourceType))).toEqual([]);
-    expect(preferredResourceTypes.some((resourceType) => deferredResourceTypes.has(resourceType ?? -1))).toBe(false);
-    expect(authoredResourceTypes.some((resourceType) => deferredResourceTypes.has(resourceType ?? -1))).toBe(false);
+    expect(
+      candidateResourceTypes.filter((resourceType) => deferredResourceTypes.has(resourceType))
+    ).toEqual([]);
+    expect(
+      preferredResourceTypes.some((resourceType) => deferredResourceTypes.has(resourceType ?? -1))
+    ).toBe(false);
+    expect(
+      authoredResourceTypes.some((resourceType) => deferredResourceTypes.has(resourceType ?? -1))
+    ).toBe(false);
   });
 
-  it("produces deterministic climate signatures for same seed + config", { timeout: 20_000 }, () => {
+  it("produces deterministic climate signatures for same seed + config", {
+    timeout: 20_000,
+  }, () => {
     const signatureA = runAndGetClimateSignature({ seed: 123, width: 24, height: 18 });
     const signatureB = runAndGetClimateSignature({ seed: 123, width: 24, height: 18 });
     expect(signatureA).toBe(signatureB);
   });
 
-  it("lowers mean surface temperature when temperature is cold vs hot (same seed)", { timeout: 20_000 }, () => {
+  it("lowers mean surface temperature when temperature is cold vs hot (same seed)", {
+    timeout: 20_000,
+  }, () => {
     const width = 24;
     const height = 18;
     const seed = 123;
@@ -313,7 +389,13 @@ describe("standard recipe execution", () => {
           bottomLatitude: mapInfo.MinLatitude,
         },
       };
-      const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+      const adapter = createMockAdapter({
+        width,
+        height,
+        mapInfo,
+        mapSizeId: 1,
+        rng: createLabelRng(seed),
+      });
       const context = createExtendedMapContext({ width, height }, adapter, env);
       initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
       standardRecipe.run(context, env, cfg, { log: () => {} });
@@ -332,61 +414,69 @@ describe("standard recipe execution", () => {
     expect(meanCold).toBeLessThan(meanHot);
   });
 
-	  it("projects more river tiles when riverDensity is dense vs sparse (same seed)", { timeout: 20_000 }, () => {
-	    const width = 24;
-	    const height = 18;
-	    const seed = 123;
+  it("projects more river tiles when riverDensity is dense vs sparse (same seed)", {
+    timeout: 20_000,
+  }, () => {
+    const width = 24;
+    const height = 18;
+    const seed = 123;
 
-	    const configDense: StandardRecipeConfig = {
-	      ...standardConfig,
-	      "hydrology-hydrography": {
-	        ...standardConfig["hydrology-hydrography"],
-	        knobs: { ...standardConfig["hydrology-hydrography"].knobs, riverDensity: "dense" },
-	      },
-	    };
-	    const configSparse: StandardRecipeConfig = {
-	      ...standardConfig,
-	      "hydrology-hydrography": {
-	        ...standardConfig["hydrology-hydrography"],
-	        knobs: { ...standardConfig["hydrology-hydrography"].knobs, riverDensity: "sparse" },
-	      },
-	    };
+    const configDense: StandardRecipeConfig = {
+      ...standardConfig,
+      "hydrology-hydrography": {
+        ...standardConfig["hydrology-hydrography"],
+        knobs: { ...standardConfig["hydrology-hydrography"].knobs, riverDensity: "dense" },
+      },
+    };
+    const configSparse: StandardRecipeConfig = {
+      ...standardConfig,
+      "hydrology-hydrography": {
+        ...standardConfig["hydrology-hydrography"],
+        knobs: { ...standardConfig["hydrology-hydrography"].knobs, riverDensity: "sparse" },
+      },
+    };
 
-	    const runAndCountRivers = (cfg: StandardRecipeConfig): number => {
-	      const mapInfo = {
-	        GridWidth: width,
-	        GridHeight: height,
-	        MinLatitude: -60,
-	        MaxLatitude: 60,
-	        PlayersLandmass1: 4,
-	        PlayersLandmass2: 4,
-	        StartSectorRows: 4,
-	        StartSectorCols: 4,
-	      };
-	      const env = {
-	        seed,
-	        dimensions: { width, height },
-	        latitudeBounds: {
-	          topLatitude: mapInfo.MaxLatitude,
-	          bottomLatitude: mapInfo.MinLatitude,
-	        },
-	      };
-	      const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
-	      const context = createExtendedMapContext({ width, height }, adapter, env);
-	      initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
-	      standardRecipe.run(context, env, cfg, { log: () => {} });
-	      const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
-	        | { riverClass?: Uint8Array }
-	        | undefined;
-	      const riverClass = hydrography?.riverClass;
-	      if (!(riverClass instanceof Uint8Array)) throw new Error("Missing hydrography riverClass.");
-	      let count = 0;
-	      for (let i = 0; i < riverClass.length; i++) if (isAnyRiverClass(riverClass[i])) count++;
-	      return count;
-	    };
+    const runAndCountRivers = (cfg: StandardRecipeConfig): number => {
+      const mapInfo = {
+        GridWidth: width,
+        GridHeight: height,
+        MinLatitude: -60,
+        MaxLatitude: 60,
+        PlayersLandmass1: 4,
+        PlayersLandmass2: 4,
+        StartSectorRows: 4,
+        StartSectorCols: 4,
+      };
+      const env = {
+        seed,
+        dimensions: { width, height },
+        latitudeBounds: {
+          topLatitude: mapInfo.MaxLatitude,
+          bottomLatitude: mapInfo.MinLatitude,
+        },
+      };
+      const adapter = createMockAdapter({
+        width,
+        height,
+        mapInfo,
+        mapSizeId: 1,
+        rng: createLabelRng(seed),
+      });
+      const context = createExtendedMapContext({ width, height }, adapter, env);
+      initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+      standardRecipe.run(context, env, cfg, { log: () => {} });
+      const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
+        | { riverClass?: Uint8Array }
+        | undefined;
+      const riverClass = hydrography?.riverClass;
+      if (!(riverClass instanceof Uint8Array)) throw new Error("Missing hydrography riverClass.");
+      let count = 0;
+      for (let i = 0; i < riverClass.length; i++) if (isAnyRiverClass(riverClass[i])) count++;
+      return count;
+    };
 
-	    const denseCount = runAndCountRivers(configDense);
-	    const sparseCount = runAndCountRivers(configSparse);
-	    expect(denseCount).toBeGreaterThanOrEqual(sparseCount);
-	  });
-	});
+    const denseCount = runAndCountRivers(configDense);
+    const sparseCount = runAndCountRivers(configSparse);
+    expect(denseCount).toBeGreaterThanOrEqual(sparseCount);
+  });
+});

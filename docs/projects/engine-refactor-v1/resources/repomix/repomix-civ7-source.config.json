@@ -17,8 +17,6 @@
   "ignore": {
     "useGitignore": false,
     "useDefaultPatterns": false,
-    "patterns": [
-      ".civ7/**/*.js.map"
-    ]
+    "patterns": [".civ7/**/*.js.map"]
   }
 }

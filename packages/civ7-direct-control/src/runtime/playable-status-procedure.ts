@@ -64,8 +64,10 @@ export const Civ7PlayableStatusProcedureDescriptor = createCiv7ProcedureCoreDesc
 });
 
 export const Civ7PlayableStatusProcedureSchemaArtifacts = {
-  [civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.inputSchema)]: Civ7PlayableStatusInputSchema,
-  [civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.outputSchema)]: Civ7PlayableStatusResultSchema,
+  [civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.inputSchema)]:
+    Civ7PlayableStatusInputSchema,
+  [civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.outputSchema)]:
+    Civ7PlayableStatusResultSchema,
 } satisfies Civ7ProcedureSchemaArtifactMap;
 
 export type Civ7PlayableStatusProcedureCallOptions = Readonly<{
@@ -76,16 +78,13 @@ export type Civ7PlayableStatusProcedureCallOptions = Readonly<{
 
 export function callCiv7PlayableStatusProcedure(
   input: Civ7PlayableStatusInput = {},
-  options: Civ7PlayableStatusProcedureCallOptions = {},
+  options: Civ7PlayableStatusProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7PlayableStatusResult>> {
   return callCiv7ProcedureCore<Civ7PlayableStatusInput, Civ7PlayableStatusResult>(
     Civ7PlayableStatusProcedureDescriptor,
     Civ7PlayableStatusProcedureSchemaArtifacts,
     input,
-    () => getCiv7PlayableStatus(
-      options.directControl,
-      options.dependencies,
-    ),
-    options.procedure,
+    () => getCiv7PlayableStatus(options.directControl, options.dependencies),
+    options.procedure
   );
 }

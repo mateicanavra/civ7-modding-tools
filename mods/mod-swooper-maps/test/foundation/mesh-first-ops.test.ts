@@ -10,10 +10,13 @@ import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tec
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
 import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
 
-function neighborsFor(mesh: {
-  neighborsOffsets: Int32Array;
-  neighbors: Int32Array;
-}, cellId: number): Int32Array {
+function neighborsFor(
+  mesh: {
+    neighborsOffsets: Int32Array;
+    neighbors: Int32Array;
+  },
+  cellId: number
+): Int32Array {
   const start = mesh.neighborsOffsets[cellId] | 0;
   const end = mesh.neighborsOffsets[cellId + 1] | 0;
   return mesh.neighbors.slice(start, end);
@@ -51,17 +54,27 @@ function variance(values: number[]): number {
 }
 
 function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
-  const mantlePotential = computeMantlePotential.run({ mesh, rngSeed }, computeMantlePotential.defaultConfig)
-    .mantlePotential;
-  const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
-    .mantleForcing;
-  return computePlateMotion.run({ mesh, plateGraph, mantleForcing }, computePlateMotion.defaultConfig).plateMotion;
+  const mantlePotential = computeMantlePotential.run(
+    { mesh, rngSeed },
+    computeMantlePotential.defaultConfig
+  ).mantlePotential;
+  const mantleForcing = computeMantleForcing.run(
+    { mesh, mantlePotential },
+    computeMantleForcing.defaultConfig
+  ).mantleForcing;
+  return computePlateMotion.run(
+    { mesh, plateGraph, mantleForcing },
+    computePlateMotion.defaultConfig
+  ).plateMotion;
 }
 
 function deriveMantleForcing(mesh: any, rngSeed: number) {
-  const mantlePotential = computeMantlePotential.run({ mesh, rngSeed }, computeMantlePotential.defaultConfig)
-    .mantlePotential;
-  return computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig).mantleForcing;
+  const mantlePotential = computeMantlePotential.run(
+    { mesh, rngSeed },
+    computeMantlePotential.defaultConfig
+  ).mantlePotential;
+  return computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
+    .mantleForcing;
 }
 
 describe("foundation mesh-first ops (slice 2)", () => {
@@ -73,7 +86,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2},
+        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
       },
       ctx as any
     );
@@ -106,7 +119,9 @@ describe("foundation mesh-first ops (slice 2)", () => {
     expect(Array.from(first.mesh.siteX)).toEqual(Array.from(second.mesh.siteX));
     expect(Array.from(first.mesh.siteY)).toEqual(Array.from(second.mesh.siteY));
     expect(Array.from(first.mesh.areas)).toEqual(Array.from(second.mesh.areas));
-    expect(Array.from(first.mesh.neighborsOffsets)).toEqual(Array.from(second.mesh.neighborsOffsets));
+    expect(Array.from(first.mesh.neighborsOffsets)).toEqual(
+      Array.from(second.mesh.neighborsOffsets)
+    );
     expect(Array.from(first.mesh.neighbors)).toEqual(Array.from(second.mesh.neighbors));
 
     const expectedArea =
@@ -121,7 +136,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
         const n = neighbors[j]!;
         const back = neighborsFor(first.mesh, n);
         expect(Array.from(back)).toContain(i);
-        if (Math.abs((first.mesh.siteX[n] ?? 0) - (first.mesh.siteX[i] ?? 0)) > first.mesh.wrapWidth * 0.5) {
+        if (
+          Math.abs((first.mesh.siteX[n] ?? 0) - (first.mesh.siteX[i] ?? 0)) >
+          first.mesh.wrapWidth * 0.5
+        ) {
           hasSeamNeighbor = true;
         }
       }
@@ -138,7 +156,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2},
+        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
       },
       ctx as any
     );
@@ -247,7 +265,9 @@ describe("foundation mesh-first ops (slice 2)", () => {
       plateMotion,
     });
 
-    expect(Array.from(histA.tectonics.boundaryType)).toEqual(Array.from(histB.tectonics.boundaryType));
+    expect(Array.from(histA.tectonics.boundaryType)).toEqual(
+      Array.from(histB.tectonics.boundaryType)
+    );
     expect(histA.tectonics.boundaryType.length).toBe(mesh.cellCount);
     expect(histA.tectonics.upliftPotential.length).toBe(mesh.cellCount);
     expect(histA.tectonics.riftPotential.length).toBe(mesh.cellCount);
@@ -265,7 +285,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2},
+        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
       },
       ctx as any
     );
@@ -280,7 +300,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
 
       const plateGraph = computePlateGraph.run(
         { mesh, crust, rngSeed: 3000 + seed },
-        { strategy: "default", config: { plateCount: 16} }
+        { strategy: "default", config: { plateCount: 16 } }
       ).plateGraph;
 
       const plateMotion = derivePlateMotion(mesh, plateGraph, 4000 + seed);
@@ -352,7 +372,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 4, relaxationSteps: 2},
+        config: { plateCount: 16, cellsPerPlate: 4, relaxationSteps: 2 },
       },
       ctx as any
     );
@@ -367,7 +387,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
     ).mesh;
 
     const mantleForcing = deriveMantleForcing(mesh, 11);
-    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 11 }, computeCrust.defaultConfig).crust;
+    const crust = computeCrust.run(
+      { mesh, mantleForcing, rngSeed: 11 },
+      computeCrust.defaultConfig
+    ).crust;
 
     let minStrength = Number.POSITIVE_INFINITY;
     let maxStrength = Number.NEGATIVE_INFINITY;
@@ -407,17 +430,20 @@ describe("foundation mesh-first ops (slice 2)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2},
+        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
       },
       ctx as any
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 10 }, meshConfig).mesh;
     const mantleForcing = deriveMantleForcing(mesh, 11);
-    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 11 }, computeCrust.defaultConfig).crust;
+    const crust = computeCrust.run(
+      { mesh, mantleForcing, rngSeed: 11 },
+      computeCrust.defaultConfig
+    ).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 12 },
-      { strategy: "default", config: { plateCount: 16} }
+      { strategy: "default", config: { plateCount: 16 } }
     ).plateGraph;
     const plateMotion = derivePlateMotion(mesh, plateGraph, 13);
     const segments = computeTectonicSegments.run(

@@ -13,7 +13,7 @@ export const HALF_HEX_HEIGHT = HEX_HEIGHT / 2;
  */
 export function projectOddqToHexSpace(x: number, y: number): { x: number; y: number } {
   const hx = x * HEX_WIDTH;
-  const hy = y * HEX_HEIGHT + ((Math.floor(x) & 1) ? HALF_HEX_HEIGHT : 0);
+  const hy = y * HEX_HEIGHT + (Math.floor(x) & 1 ? HALF_HEX_HEIGHT : 0);
   return { x: hx, y: hy };
 }
 

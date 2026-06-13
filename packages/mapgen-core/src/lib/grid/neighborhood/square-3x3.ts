@@ -36,4 +36,3 @@ export function someNeighbor3x3(
   }
   return false;
 }
-

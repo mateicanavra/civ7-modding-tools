@@ -71,7 +71,9 @@ describe("map-rivers/plot-rivers", () => {
     expect(mapRiversArtifacts.projectedNavigableRivers.id).toBe(
       "artifact:map.rivers.projectedNavigableRivers"
     );
-    expect(mapRiversArtifacts.engineProjectionRivers.id).toBe("artifact:map.rivers.engineProjectionRivers");
+    expect(mapRiversArtifacts.engineProjectionRivers.id).toBe(
+      "artifact:map.rivers.engineProjectionRivers"
+    );
 
     const width = 5;
     const height = 4;
@@ -124,13 +126,14 @@ describe("map-rivers/plot-rivers", () => {
       outletMask: new Uint8Array(size),
     });
     context.artifacts.set("artifact:hydrology.riverNetworkMetrics", {
-      upstreamArea: Int32Array.from({ length: size }, (_value, index) => (index < width ? index + 1 : 1)),
+      upstreamArea: Int32Array.from({ length: size }, (_value, index) =>
+        index < width ? index + 1 : 1
+      ),
       streamOrderProxy: new Uint8Array(size),
       mouthType: Uint8Array.from({ length: size }, (_value, index) => (index < width ? 1 : 0)),
       slopeClass: new Uint8Array(size),
-      flowPermanenceProxy: Uint8Array.from(
-        { length: size },
-        (_value, index) => (index < width ? 3 : index < width * 2 ? 2 : 0)
+      flowPermanenceProxy: Uint8Array.from({ length: size }, (_value, index) =>
+        index < width ? 3 : index < width * 2 ? 2 : 0
       ),
     });
     context.artifacts.set("artifact:hydrology.lakePlan", {

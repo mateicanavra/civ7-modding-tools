@@ -148,13 +148,25 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
     }
 
     placements.push(
-      ...selectTopCoverage(snowCandidates, snow.coveragePct).map(({ x, y, plotEffect }) => ({ x, y, plotEffect }))
+      ...selectTopCoverage(snowCandidates, snow.coveragePct).map(({ x, y, plotEffect }) => ({
+        x,
+        y,
+        plotEffect,
+      }))
     );
     placements.push(
-      ...selectTopCoverage(sandCandidates, sand.coveragePct).map(({ x, y, plotEffect }) => ({ x, y, plotEffect }))
+      ...selectTopCoverage(sandCandidates, sand.coveragePct).map(({ x, y, plotEffect }) => ({
+        x,
+        y,
+        plotEffect,
+      }))
     );
     placements.push(
-      ...selectTopCoverage(burnedCandidates, burned.coveragePct).map(({ x, y, plotEffect }) => ({ x, y, plotEffect }))
+      ...selectTopCoverage(burnedCandidates, burned.coveragePct).map(({ x, y, plotEffect }) => ({
+        x,
+        y,
+        plotEffect,
+      }))
     );
 
     // Stable output order (tile-major, then effect key).

@@ -36,9 +36,7 @@ export type ResourceRuntimeIdResolution = {
   readonly byId: ReadonlyMap<number, ResolvedResourceRuntimeId>;
 };
 
-const V0_RESOURCE_TYPES = CIV7_BROWSER_TABLES_V0.resourceTypes as Readonly<
-  Record<string, number>
->;
+const V0_RESOURCE_TYPES = CIV7_BROWSER_TABLES_V0.resourceTypes as Readonly<Record<string, number>>;
 const V1_RESOURCE_ROWS = CIV7_POLICY_TABLES_V1.resourceRows;
 const V1_REQUIRED_FOR_AGE = CIV7_POLICY_TABLES_V1.isResourceRequiredForAge;
 

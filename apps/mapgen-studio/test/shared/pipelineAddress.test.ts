@@ -35,4 +35,3 @@ describe("pipelineAddress", () => {
     expect(() => assertPipelineAddress("x.y")).toThrowError(/Invalid pipeline step id/);
   });
 });
-

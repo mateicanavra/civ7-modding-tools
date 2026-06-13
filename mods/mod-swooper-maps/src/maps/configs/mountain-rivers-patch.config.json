@@ -63,20 +63,8 @@
         "regimeMinIntensity": 4
       },
       "tectonicEras": {
-        "eraWeights": [
-          0.3,
-          0.25,
-          0.2,
-          0.15,
-          0.1
-        ],
-        "driftStepsByEra": [
-          12,
-          9,
-          6,
-          3,
-          1
-        ]
+        "eraWeights": [0.3, 0.25, 0.2, 0.15, 0.1],
+        "driftStepsByEra": [12, 9, 6, 3, 1]
       },
       "tectonicFields": {
         "beltInfluenceDistance": 8,
@@ -457,12 +445,7 @@
           "tropicalThreshold": 30
         },
         "moisture": {
-          "thresholds": [
-            90,
-            188,
-            228,
-            252
-          ]
+          "thresholds": [90, 188, 228, 252]
         },
         "aridity": {
           "temperatureMin": 0,
@@ -473,10 +456,7 @@
           "rainfallWeight": 1.08,
           "bias": 2,
           "normalization": 118,
-          "moistureShiftThresholds": [
-            0.2,
-            0.66
-          ],
+          "moistureShiftThresholds": [0.2, 0.66],
           "vegetationPenalty": 0.78
         },
         "vegetation": {
@@ -647,10 +627,7 @@
           "maxFreeze": 0.3,
           "maxVegetation": 0.23,
           "maxMoisture": 90,
-          "allowedBiomes": [
-            "desert",
-            "temperateDry"
-          ]
+          "allowedBiomes": ["desert", "temperateDry"]
         },
         "burned": {
           "minAridity": 0.52,
@@ -658,10 +635,7 @@
           "maxFreeze": 0.22,
           "maxVegetation": 0.26,
           "maxMoisture": 98,
-          "allowedBiomes": [
-            "temperateDry",
-            "tropicalSeasonal"
-          ]
+          "allowedBiomes": ["temperateDry", "tropicalSeasonal"]
         }
       },
       "plotEffectCoverage": {

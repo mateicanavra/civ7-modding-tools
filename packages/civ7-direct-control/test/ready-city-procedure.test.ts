@@ -31,13 +31,13 @@ describe("Civ7 ready-city procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7ReadyCityViewProcedureDescriptor,
-      Civ7ReadyCityViewProcedureSchemaArtifacts,
+      Civ7ReadyCityViewProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7ReadyCityViewProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7ReadyCityViewProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7ReadyCityViewProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7ReadyCityViewProcedureDescriptor.outputFields)
     );
     expect(Civ7ReadyCityViewProcedureDescriptor.outputFields).toEqual(
       expect.arrayContaining([
@@ -45,18 +45,22 @@ describe("Civ7 ready-city procedure descriptor", () => {
         "productionCandidates",
         "townFocusOptions",
         "populationPlacement",
-      ]),
+      ])
     );
-    expect(Value.Check(resolved.inputSchema, {
-      cityId: { owner: 0, id: 131073, type: 1 },
-      maxOperations: 96,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        cityId: { owner: 0, id: 131073, type: 1 },
+        maxOperations: 96,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { maxOperations: 257 })).toBe(false);
     expect(Value.Check(resolved.outputSchema, readyCityViewResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...readyCityViewResult(),
-      rawCommand: "readReadyCityView()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...readyCityViewResult(),
+        rawCommand: "readReadyCityView()",
+      })
+    ).toBe(false);
   });
 
   test("calls the ready-city atom through the procedure core without touching the live tuner", async () => {
@@ -87,19 +91,22 @@ describe("Civ7 ready-city procedure descriptor", () => {
     };
 
     const cityId = { owner: 0, id: 131073, type: 1 };
-    const result = await callCiv7ReadyCityViewProcedure({
-      cityId,
-      maxOperations: 96,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7ReadyCityViewProcedure(
+      {
+        cityId,
+        maxOperations: 96,
       },
-      procedure: {
-        correlationId: "ready-city-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "ready-city-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(readyCityViewResult());
     expect(result.diagnostics).toMatchObject({
@@ -110,9 +117,7 @@ describe("Civ7 ready-city procedure descriptor", () => {
       debugServiceCorrelation: true,
       telemetryCorrelation: false,
     });
-    expect(boundedCalls).toEqual([
-      { value: 96, min: 1, max: 256, label: "maxOperations" },
-    ]);
+    expect(boundedCalls).toEqual([{ value: 96, min: 1, max: 256, label: "maxOperations" }]);
     expect(executeCalls).toHaveLength(1);
     expect(executeCalls[0]).toMatchObject({
       host: "127.0.0.1",
@@ -136,10 +141,15 @@ describe("Civ7 ready-city procedure descriptor", () => {
       parseReadyCityView: () => readyCityViewResult(),
     };
 
-    await expect(callCiv7ReadyCityViewProcedure({ maxOperations: 257 }, {
-      procedure: { correlationId: "ready-city-invalid-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7ReadyCityViewProcedure(
+        { maxOperations: 257 },
+        {
+          procedure: { correlationId: "ready-city-invalid-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

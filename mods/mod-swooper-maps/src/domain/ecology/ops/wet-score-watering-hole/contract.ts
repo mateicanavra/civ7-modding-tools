@@ -16,7 +16,9 @@ const ScoreWetWateringHoleContract = defineOp({
     surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature (C)." }),
   }),
   output: Type.Object({
-    score01: TypedArraySchemas.f32({ description: "Watering hole suitability score per tile (0..1)." }),
+    score01: TypedArraySchemas.f32({
+      description: "Watering hole suitability score per tile (0..1).",
+    }),
   }),
   strategies: {
     default: Type.Object({

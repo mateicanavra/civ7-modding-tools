@@ -28,7 +28,10 @@ function gridLayer(args: {
     stepIndex,
     spaceId: "tile.hexOddQ",
     dims: { width: 4, height: 3 },
-    field: { format: "u8", data: buffer ? { kind: "inline", buffer } : { kind: "path", path: `${dataTypeKey}.u8` } },
+    field: {
+      format: "u8",
+      data: buffer ? { kind: "inline", buffer } : { kind: "path", path: `${dataTypeKey}.u8` },
+    },
     bounds: [0, 0, 4, 3],
     meta: { label: dataTypeKey, role, visibility } as any,
   };
@@ -43,8 +46,16 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     const featuresStep = "mod-swooper-maps.standard.map-ecology.features-apply";
     const summary = buildRiverLakeFloodplainInspectorSummary({
       layers: [
-        gridLayer({ stepId: hydroStep, stepIndex: 1, dataTypeKey: "hydrology.hydrography.riverClass" }),
-        gridLayer({ stepId: hydroStep, stepIndex: 1, dataTypeKey: "hydrology.hydrography.discharge" }),
+        gridLayer({
+          stepId: hydroStep,
+          stepIndex: 1,
+          dataTypeKey: "hydrology.hydrography.riverClass",
+        }),
+        gridLayer({
+          stepId: hydroStep,
+          stepIndex: 1,
+          dataTypeKey: "hydrology.hydrography.discharge",
+        }),
         gridLayer({
           stepId: mapRiverStep,
           stepIndex: 2,
@@ -119,7 +130,9 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     expect(projection?.proofClass).toBe("projection-plan");
     expect(projection?.claimStatus).toBe("available");
     expect(projection?.displayStatus).toBe("projection-plan-present");
-    expect(projection?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.projectedRiverMask")).toMatchObject({
+    expect(
+      projection?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.projectedRiverMask")
+    ).toMatchObject({
       role: "projection",
       renderModeId: "grid:projection",
       nonZeroCount: 2,
@@ -140,7 +153,9 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       claimStatus: "available",
       displayStatus: "terrain-readback-present",
     });
-    expect(terrain?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.engineRiverMask")).toMatchObject({
+    expect(
+      terrain?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.engineRiverMask")
+    ).toMatchObject({
       presentation: {
         category: "engine-terrain-readback",
         palette: {
@@ -152,7 +167,9 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     const metadata = byRowKey.get("metadata-readback");
     expect(metadata?.counts).toMatchObject({ layers: 1, debug: 1, metadata: 1 });
     expect(
-      metadata?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.engineNavigableRiverMetadataMask")
+      metadata?.layerRefs.find(
+        (ref) => ref.dataTypeKey === "map.rivers.engineNavigableRiverMetadataMask"
+      )
     ).toMatchObject({
       presentation: {
         category: "engine-metadata-readback",
@@ -167,9 +184,14 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       claimStatus: "available",
       displayStatus: "lake-readback-present",
     });
-    expect(byRowKey.get("lake-plan-readback")?.counts).toMatchObject({ "planned lakes": 2, "engine lakes": 2 });
+    expect(byRowKey.get("lake-plan-readback")?.counts).toMatchObject({
+      "planned lakes": 2,
+      "engine lakes": 2,
+    });
     expect(
-      byRowKey.get("lake-plan-readback")?.layerRefs.find((ref) => ref.dataTypeKey === "map.hydrology.lakes.engineLakeMask")
+      byRowKey
+        .get("lake-plan-readback")
+        ?.layerRefs.find((ref) => ref.dataTypeKey === "map.hydrology.lakes.engineLakeMask")
     ).toMatchObject({
       presentation: {
         category: "lake-plan-readback",
@@ -191,7 +213,9 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     });
     expect(byRowKey.get("floodplain-intent")?.counts).toMatchObject({ "fp intent": 2 });
     expect(
-      byRowKey.get("floodplain-intent")?.layerRefs.find((ref) => ref.dataTypeKey === "map.ecology.features.floodplainIntentMask")
+      byRowKey
+        .get("floodplain-intent")
+        ?.layerRefs.find((ref) => ref.dataTypeKey === "map.ecology.features.floodplainIntentMask")
     ).toMatchObject({
       presentation: {
         category: "floodplain-intent",
@@ -208,7 +232,9 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     });
     expect(byRowKey.get("floodplain-apply")?.counts).toMatchObject({ "fp applied": 2 });
     expect(
-      byRowKey.get("floodplain-apply")?.layerRefs.find((ref) => ref.dataTypeKey === "map.ecology.features.floodplainRejectedMask")
+      byRowKey
+        .get("floodplain-apply")
+        ?.layerRefs.find((ref) => ref.dataTypeKey === "map.ecology.features.floodplainRejectedMask")
     ).toMatchObject({
       presentation: {
         category: "mismatch-debug",
@@ -257,10 +283,15 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
         bottomLatitude: mapInfo.MinLatitude,
       },
     };
-    const standardConfig = standardMapConfigs.find((config) => config.id === "swooper-earthlike")?.config;
-    if (!standardConfig) throw new Error("swooper-earthlike config missing from standard map config catalog");
+    const standardConfig = standardMapConfigs.find(
+      (config) => config.id === "swooper-earthlike"
+    )?.config;
+    if (!standardConfig)
+      throw new Error("swooper-earthlike config missing from standard map config catalog");
     const plan = standardRecipe.compile(envBase, standardConfig);
-    const verboseSteps = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
+    const verboseSteps = Object.fromEntries(
+      plan.nodes.map((node) => [node.stepId, "verbose"] as const)
+    );
     const env = {
       ...envBase,
       trace: {
@@ -268,7 +299,13 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
         steps: verboseSteps,
       },
     };
-    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+    });
     const context = createExtendedMapContext({ width, height }, adapter, env);
     const events: BrowserRunEvent[] = [];
     context.viz = createWorkerVizDumper();
@@ -282,7 +319,9 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       log: () => {},
     });
 
-    const layers = events.flatMap((event) => (event.type === "viz.layer.upsert" ? [event.layer] : []));
+    const layers = events.flatMap((event) =>
+      event.type === "viz.layer.upsert" ? [event.layer] : []
+    );
     const summary = buildRiverLakeFloodplainInspectorSummary({ layers });
     const byRowKey = new Map(summary?.rows.map((row) => [row.rowKey, row]));
 
@@ -307,19 +346,25 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       "map.rivers.engineRiverMask"
     );
     expect(
-      byRowKey.get("terrain-readback")?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.engineRiverMask")
-        ?.presentation.category
+      byRowKey
+        .get("terrain-readback")
+        ?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.engineRiverMask")?.presentation
+        .category
     ).toBe("engine-terrain-readback");
     expect(byRowKey.get("metadata-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(
       "map.rivers.engineNavigableRiverMetadataMask"
     );
     expect(
-      byRowKey.get("metadata-readback")?.layerRefs.find((ref) =>
-        ref.dataTypeKey === "map.rivers.engineNavigableRiverMetadataMask"
-      )?.presentation.category
+      byRowKey
+        .get("metadata-readback")
+        ?.layerRefs.find((ref) => ref.dataTypeKey === "map.rivers.engineNavigableRiverMetadataMask")
+        ?.presentation.category
     ).toBe("engine-metadata-readback");
     expect(byRowKey.get("lake-plan-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toEqual(
-      expect.arrayContaining(["map.hydrology.lakes.plannedLakeMask", "map.hydrology.lakes.engineLakeMask"])
+      expect.arrayContaining([
+        "map.hydrology.lakes.plannedLakeMask",
+        "map.hydrology.lakes.engineLakeMask",
+      ])
     );
     expect(byRowKey.get("lake-exact-counters")?.claimStatus).toBe("unresolved");
     expect(byRowKey.get("floodplain-intent")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(

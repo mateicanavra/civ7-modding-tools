@@ -5,7 +5,9 @@
   "description": "Repo-local enforcement harness: single entrypoint over all structural checks, with ratchet baselines (see docs/projects/habitat-harness/FRAME.md)",
   "type": "module",
   "nx": {
-    "tags": ["kind:tooling"]
+    "tags": [
+      "kind:tooling"
+    ]
   },
   "scripts": {
     "check": "tsc -p tsconfig.json --noEmit"

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from "react";
 // ============================================================================
 // RECIPE PANEL
 // ============================================================================
@@ -6,22 +6,14 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 // Fully controlled component - all options passed via props.
 // Uses path-based patching for efficient state updates.
 // ============================================================================
-import {
-  Eraser,
-  Braces,
-  BookOpen,
-  Focus,
-  ListCollapse,
-  Settings,
-  Save } from
-'lucide-react';
-import { SchemaConfigForm } from '../../features/configOverrides/SchemaConfigForm';
-import { useConfigCollapse } from '../../features/configOverrides/useConfigCollapse';
-import { LAYOUT } from '../constants';
+import { Eraser, Braces, BookOpen, Focus, ListCollapse, Settings, Save } from "lucide-react";
+import { SchemaConfigForm } from "../../features/configOverrides/SchemaConfigForm";
+import { useConfigCollapse } from "../../features/configOverrides/useConfigCollapse";
+import { LAYOUT } from "../constants";
 import {
   formatMapConfigSaveDeployPhaseLabel,
   type MapConfigSaveDeployStatus,
-} from '../../features/mapConfigSave/status';
+} from "../../features/mapConfigSave/status";
 import {
   Button,
   Switch,
@@ -39,14 +31,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator } from
-'../../components/ui';
-import { OptionSelect } from './OptionSelect';
-import type {
-  PipelineConfig,
-  RecipeSettings,
-  SelectOption } from
-'../types';
+  DropdownMenuSeparator,
+} from "../../components/ui";
+import { OptionSelect } from "./OptionSelect";
+import type { PipelineConfig, RecipeSettings, SelectOption } from "../types";
 // ============================================================================
 // Props
 // ============================================================================
@@ -130,7 +118,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   recipeCollapsed: recipeCollapsedProp,
   onRecipeCollapsedChange,
   configCollapsed: configCollapsedProp,
-  onConfigCollapsedChange
+  onConfigCollapsedChange,
 }) => {
   // ==========================================================================
   // Local State
@@ -159,8 +147,14 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
     if (configCollapsedProp === undefined) setLocalConfigCollapsed(next);
   };
   const saveActionDisabled = isSaveDisabled || isSaveDeployRunning;
-  const saveLabel = saveDeployStatus ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase) : 'Save & Deploy Config';
-  const saveTitle = isSaveDeployRunning ? `Save & Deploy Config: ${saveLabel}` : saveActionDisabled ? 'Save unavailable while another operation is running' : 'Save & Deploy Config';
+  const saveLabel = saveDeployStatus
+    ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase)
+    : "Save & Deploy Config";
+  const saveTitle = isSaveDeployRunning
+    ? `Save & Deploy Config: ${saveLabel}`
+    : saveActionDisabled
+      ? "Save unavailable while another operation is running"
+      : "Save & Deploy Config";
 
   useEffect(() => {
     if (saveActionDisabled) setShowSaveMenu(false);
@@ -171,9 +165,9 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const filteredConfig = useMemo(() => {
     if (showAllSteps || !selectedStep) return config;
     if (config[selectedStep])
-    return {
-      [selectedStep]: config[selectedStep]
-    };
+      return {
+        [selectedStep]: config[selectedStep],
+      };
     return config;
   }, [config, selectedStep, showAllSteps]);
   const focusPath = !showAllSteps && selectedStep ? [selectedStep] : null;
@@ -185,18 +179,15 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const collapse = useConfigCollapse({
     scrollRootRef: configScrollRef,
     sticky: stickyAutoExpand,
-    focusRootPointer: focusPath ? `/${focusPath.join('/')}` : null
+    focusRootPointer: focusPath ? `/${focusPath.join("/")}` : null,
   });
   // ==========================================================================
   // Handlers
   // ==========================================================================
-  const updateSetting = <K extends keyof RecipeSettings,>(
-  key: K,
-  value: RecipeSettings[K]) =>
-  {
+  const updateSetting = <K extends keyof RecipeSettings>(key: K, value: RecipeSettings[K]) => {
     onSettingsChange({
       ...settings,
-      [key]: value
+      [key]: value,
     });
   };
   // ==========================================================================
@@ -205,17 +196,19 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   // Token-driven chrome; theme follows the single `.dark` class. The dock
   // floats over the deck.gl map, so it rides the `popover` tier; the sunken
   // section sits on `surface-sunken`.
-  const panelBg = 'bg-popover/95';
-  const panelBorder = 'border-border';
-  const sectionBg = 'bg-surface-sunken/80';
-  const textPrimary = 'text-foreground';
-  const textSecondary = 'text-muted-foreground';
-  const textMuted = 'text-muted-foreground/70';
-  const borderColor = 'border-border';
-  const borderSubtle = 'border-border-subtle';
-  const hoverBg = 'hover:bg-accent';
-  const iconBtn = 'h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent';
-  const iconBtnActive = 'h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-foreground bg-muted';
+  const panelBg = "bg-popover/95";
+  const panelBorder = "border-border";
+  const sectionBg = "bg-surface-sunken/80";
+  const textPrimary = "text-foreground";
+  const textSecondary = "text-muted-foreground";
+  const textMuted = "text-muted-foreground/70";
+  const borderColor = "border-border";
+  const borderSubtle = "border-border-subtle";
+  const hoverBg = "hover:bg-accent";
+  const iconBtn =
+    "h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent";
+  const iconBtnActive =
+    "h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-foreground bg-muted";
   // ==========================================================================
   // Render
   // ==========================================================================
@@ -227,8 +220,8 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
           pass-through dock. */}
       <div
         style={{ width: LAYOUT.PANEL_WIDTH }}
-        className={`flex flex-col max-h-full rounded-lg border overflow-hidden shadow-lg backdrop-blur-sm pointer-events-auto ${panelBg} ${panelBorder}`}>
-
+        className={`flex flex-col max-h-full rounded-lg border overflow-hidden shadow-lg backdrop-blur-sm pointer-events-auto ${panelBg} ${panelBorder}`}
+      >
         {/* Header */}
         <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
           <button
@@ -236,65 +229,63 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             onClick={() => setRecipeCollapsed(!recipeCollapsed)}
             aria-expanded={!recipeCollapsed}
             aria-controls="recipe-panel-recipe-section"
-            className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}>
-
+            className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}
+          >
             <div className="flex items-center gap-2 min-w-0">
               <BookOpen className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />
-              <span className={`text-[13px] font-semibold ${textPrimary}`}>
-                Recipe
-              </span>
+              <span className={`text-[13px] font-semibold ${textPrimary}`}>Recipe</span>
             </div>
-            {isDirty &&
-            <span className="text-[9px] font-medium uppercase tracking-wider text-primary">
+            {isDirty && (
+              <span className="text-[9px] font-medium uppercase tracking-wider text-primary">
                 Modified
               </span>
-            }
+            )}
           </button>
         </div>
 
         {/* Recipe & Preset Selection */}
-        {!recipeCollapsed &&
-        <div
-          id="recipe-panel-recipe-section"
-          className={`flex-shrink-0 px-3 py-3 space-y-2 border-b ${borderSubtle}`}>
+        {!recipeCollapsed && (
+          <div
+            id="recipe-panel-recipe-section"
+            className={`flex-shrink-0 px-3 py-3 space-y-2 border-b ${borderSubtle}`}
+          >
+            <div className="flex items-center gap-3">
+              <span
+                className={`text-label font-medium uppercase tracking-wider w-14 shrink-0 ${textMuted}`}
+              >
+                Recipe
+              </span>
+              <OptionSelect
+                value={settings.recipe}
+                onValueChange={(value) => updateSetting("recipe", value)}
+                ariaLabel="Recipe"
+                options={recipeOptions.map((opt) => ({
+                  value: opt.value,
+                  label: opt.label,
+                }))}
+                className="flex-1"
+              />
+            </div>
 
-          <div className="flex items-center gap-3">
-            <span
-              className={`text-label font-medium uppercase tracking-wider w-14 shrink-0 ${textMuted}`}>
-
-              Recipe
-            </span>
-            <OptionSelect
-              value={settings.recipe}
-              onValueChange={(value) => updateSetting('recipe', value)}
-              ariaLabel="Recipe"
-              options={recipeOptions.map((opt) => ({
-                value: opt.value,
-                label: opt.label
-              }))}
-              className="flex-1" />
-
+            <div className="flex items-center gap-3">
+              <span
+                className={`text-label font-medium uppercase tracking-wider w-14 shrink-0 ${textMuted}`}
+              >
+                Config
+              </span>
+              <OptionSelect
+                value={settings.preset}
+                onValueChange={(value) => updateSetting("preset", value)}
+                ariaLabel="Config"
+                options={presetOptions.map((opt) => ({
+                  value: opt.value,
+                  label: opt.label,
+                }))}
+                className="flex-1"
+              />
+            </div>
           </div>
-
-          <div className="flex items-center gap-3">
-            <span
-              className={`text-label font-medium uppercase tracking-wider w-14 shrink-0 ${textMuted}`}>
-
-              Config
-            </span>
-            <OptionSelect
-              value={settings.preset}
-              onValueChange={(value) => updateSetting('preset', value)}
-              ariaLabel="Config"
-              options={presetOptions.map((opt) => ({
-                value: opt.value,
-                label: opt.label
-              }))}
-              className="flex-1" />
-
-          </div>
-        </div>
-        }
+        )}
 
         {/* Config Section Header */}
         <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
@@ -305,27 +296,22 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             aria-controls="recipe-panel-config-section"
             onClick={() => setConfigCollapsed(!configCollapsed)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 setConfigCollapsed(!configCollapsed);
               }
             }}
-            className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors cursor-pointer ${hoverBg}`}>
-
+            className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors cursor-pointer ${hoverBg}`}
+          >
             <div className="flex items-center gap-2 min-w-0">
               <Settings className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />
-              <span className={`text-[13px] font-semibold ${textPrimary}`}>
-                Config
-              </span>
+              <span className={`text-[13px] font-semibold ${textPrimary}`}>Config</span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <div
-                className="flex items-center gap-2"
-                onClick={(e) => e.stopPropagation()}>
-
+              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 <span
-                  className={`text-[9px] font-medium uppercase tracking-wider ${overridesDisabled ? 'text-primary' : textMuted}`}>
-
+                  className={`text-[9px] font-medium uppercase tracking-wider ${overridesDisabled ? "text-primary" : textMuted}`}
+                >
                   On
                 </span>
                 <Tooltip>
@@ -333,11 +319,13 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     <Switch
                       checked={!overridesDisabled}
                       onCheckedChange={(checked) => setOverridesDisabled(!checked)}
-                      aria-label={overridesDisabled ? "Enable Overrides" : "Disable Overrides"} />
+                      aria-label={overridesDisabled ? "Enable Overrides" : "Disable Overrides"}
+                    />
                   </TooltipTrigger>
-                  <TooltipContent>{overridesDisabled ? 'Enable Overrides' : 'Disable Overrides'}</TooltipContent>
+                  <TooltipContent>
+                    {overridesDisabled ? "Enable Overrides" : "Disable Overrides"}
+                  </TooltipContent>
                 </Tooltip>
-
               </div>
 
               <Tooltip>
@@ -350,49 +338,61 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     }}
                     aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
                     aria-pressed={showAllSteps}
-                    className={!showAllSteps ? iconBtnActive : iconBtn}>
-
+                    className={!showAllSteps ? iconBtnActive : iconBtn}
+                  >
                     <Focus className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{showAllSteps ? 'Focus Current Step' : 'Show All Steps'}</TooltipContent>
+                <TooltipContent>
+                  {showAllSteps ? "Focus Current Step" : "Show All Steps"}
+                </TooltipContent>
               </Tooltip>
             </div>
           </div>
         </div>
 
         {/* Config Content */}
-        {!configCollapsed &&
-        <div id="recipe-panel-config-section" ref={configScrollRef} className="flex-1 overflow-y-auto overflow-x-hidden">
+        {!configCollapsed && (
+          <div
+            id="recipe-panel-config-section"
+            ref={configScrollRef}
+            className="flex-1 overflow-y-auto overflow-x-hidden"
+          >
             {/* Config Actions */}
             <div
-            className={`px-3 py-2 flex items-center gap-2 ${overridesDisabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
-
+              className={`px-3 py-2 flex items-center gap-2 ${overridesDisabled ? "opacity-40 pointer-events-none select-none" : ""}`}
+            >
               <div className="flex-1" />
 
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
-                  type="button"
-                  onClick={() => setStickyAutoExpand(!stickyAutoExpand)}
-                  aria-label={stickyAutoExpand ? "Disable Auto-Expand on Scroll" : "Enable Auto-Expand on Scroll"}
-                  aria-pressed={stickyAutoExpand}
-                  className={stickyAutoExpand ? iconBtnActive : iconBtn}>
-
+                    type="button"
+                    onClick={() => setStickyAutoExpand(!stickyAutoExpand)}
+                    aria-label={
+                      stickyAutoExpand
+                        ? "Disable Auto-Expand on Scroll"
+                        : "Enable Auto-Expand on Scroll"
+                    }
+                    aria-pressed={stickyAutoExpand}
+                    className={stickyAutoExpand ? iconBtnActive : iconBtn}
+                  >
                     <ListCollapse className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{stickyAutoExpand ? 'Auto-Expand on Scroll: On' : 'Auto-Expand on Scroll: Off'}</TooltipContent>
+                <TooltipContent>
+                  {stickyAutoExpand ? "Auto-Expand on Scroll: On" : "Auto-Expand on Scroll: Off"}
+                </TooltipContent>
               </Tooltip>
 
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
-                  type="button"
-                  onClick={() => setShowResetModal(true)}
-                  aria-label="Reset Config to Defaults"
-                  className={iconBtn}>
-
+                    type="button"
+                    onClick={() => setShowResetModal(true)}
+                    aria-label="Reset Config to Defaults"
+                    className={iconBtn}
+                  >
                     <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                 </TooltipTrigger>
@@ -402,16 +402,16 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
-                  type="button"
-                  onClick={() => setShowJson(!showJson)}
-                  aria-label={showJson ? "Show Form View" : "Show JSON View"}
-                  aria-pressed={showJson}
-                  className={showJson ? iconBtnActive : iconBtn}>
-
+                    type="button"
+                    onClick={() => setShowJson(!showJson)}
+                    aria-label={showJson ? "Show Form View" : "Show JSON View"}
+                    aria-pressed={showJson}
+                    className={showJson ? iconBtnActive : iconBtn}
+                  >
                     <Braces className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{showJson ? 'Show Form View' : 'Show JSON View'}</TooltipContent>
+                <TooltipContent>{showJson ? "Show Form View" : "Show JSON View"}</TooltipContent>
               </Tooltip>
             </div>
 
@@ -419,41 +419,40 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 at full scroll the fade overlays only this padding, never the
                 last field row. */}
             <div
-            className={`px-3 pb-6 ${overridesDisabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
-
-              {showJson ?
-            <div className="border border-border-subtle rounded p-2.5 max-h-[240px] overflow-auto bg-surface-sunken">
-
+              className={`px-3 pb-6 ${overridesDisabled ? "opacity-40 pointer-events-none select-none" : ""}`}
+            >
+              {showJson ? (
+                <div className="border border-border-subtle rounded p-2.5 max-h-[240px] overflow-auto bg-surface-sunken">
                   <pre
-                className={`text-label font-mono leading-relaxed ${textMuted} whitespace-pre-wrap break-all`}>
-
+                    className={`text-label font-mono leading-relaxed ${textMuted} whitespace-pre-wrap break-all`}
+                  >
                     {JSON.stringify(filteredConfig, null, 2)}
                   </pre>
-                </div> :
-
-            <SchemaConfigForm
-              schema={configSchema}
-              value={config}
-              focusPath={focusPath}
-              disabled={overridesDisabled}
-              collapse={collapse}
-              onChange={(next) => onConfigChange(next)}
-            />
-
-            }
+                </div>
+              ) : (
+                <SchemaConfigForm
+                  schema={configSchema}
+                  value={config}
+                  focusPath={focusPath}
+                  disabled={overridesDisabled}
+                  collapse={collapse}
+                  onChange={(next) => onConfigChange(next)}
+                />
+              )}
             </div>
             {/* Scroll-edge fade: sticky inside the scroll container so mid-scroll
                 cuts read as "more below" instead of the end of the form. The
                 negative margin keeps it from adding scroll height; it fades to
                 the panel surface (popover) and never intercepts the pointer. */}
-            <div aria-hidden="true" className="sticky bottom-0 -mt-6 h-6 shrink-0 pointer-events-none bg-gradient-to-t from-popover to-transparent" />
+            <div
+              aria-hidden="true"
+              className="sticky bottom-0 -mt-6 h-6 shrink-0 pointer-events-none bg-gradient-to-t from-popover to-transparent"
+            />
           </div>
-        }
+        )}
 
         {/* Footer */}
-        <div
-          className={`flex-shrink-0 px-3 py-2.5 border-t ${borderColor} ${sectionBg}`}>
-
+        <div className={`flex-shrink-0 px-3 py-2.5 border-t ${borderColor} ${sectionBg}`}>
           <div className="flex items-center gap-2">
             {/*
               Save & Deploy menu — Radix `DropdownMenu` (role=menu/menuitem,
@@ -474,8 +473,8 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     <Button
                       variant="outline"
                       disabled={saveActionDisabled}
-                      className={`flex-1 ${isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
-
+                      className={`flex-1 ${isSaveDeployRunning ? "opacity-70 cursor-wait" : ""}`}
+                    >
                       <Save className="w-4 h-4" aria-hidden="true" />
                       <span>Save & Deploy</span>
                     </Button>
@@ -491,18 +490,14 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 <DropdownMenuItem onSelect={() => onSaveAsNew()}>
                   Save & Deploy As…
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onExportPreset()}>
-                  Export…
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onImportPreset()}>
-                  Import…
-                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onExportPreset()}>Export…</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onImportPreset()}>Import…</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={!canDeletePreset}
                   onSelect={() => onDeletePreset()}
-                  className="text-destructive focus:text-destructive">
-
+                  className="text-destructive focus:text-destructive"
+                >
                   Delete Scratch
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -532,13 +527,13 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               onClick={() => {
                 onConfigReset();
                 setShowResetModal(false);
-              }}>
-
+              }}
+            >
               Reset
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>);
-
+    </>
+  );
 };

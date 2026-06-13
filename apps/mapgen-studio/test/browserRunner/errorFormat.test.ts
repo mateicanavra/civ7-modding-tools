@@ -33,4 +33,3 @@ describe("formatErrorForUi", () => {
     expect(formatErrorForUi(true)).toBe("true");
   });
 });
-

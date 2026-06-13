@@ -31,13 +31,7 @@ export const Civ7SettlementRecommendationsProcedureDescriptor = createCiv7Proced
     owner: "packages/civ7-direct-control/src/play/tactical/settlement.ts",
     exportName: "Civ7SettlementRecommendationResultSchema",
   },
-  inputFields: [
-    "playerId",
-    "locations",
-    "count",
-    "includeSettlers",
-    "includeCities",
-  ],
+  inputFields: ["playerId", "locations", "count", "includeSettlers", "includeCities"],
   outputFields: [
     "localPlayerId",
     "playerId",
@@ -48,10 +42,7 @@ export const Civ7SettlementRecommendationsProcedureDescriptor = createCiv7Proced
     "notes",
   ],
   playerScope: "local-player-scoped",
-  consumerClasses: [
-    "normal-cli-player-agent-view",
-    "effect-orpc-procedure-core",
-  ],
+  consumerClasses: ["normal-cli-player-agent-view", "effect-orpc-procedure-core"],
   proofBoundary: "local-package-test",
   projection: {
     normalCli: "semantic-projection",
@@ -90,13 +81,17 @@ export type Civ7SettlementRecommendationsProcedureCallOptions = Readonly<{
 
 export function callCiv7SettlementRecommendationsProcedure(
   input: Civ7SettlementRecommendationInput = {},
-  options: Civ7SettlementRecommendationsProcedureCallOptions = {},
+  options: Civ7SettlementRecommendationsProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7SettlementRecommendationResult>> {
-  return callCiv7ProcedureCore<Civ7SettlementRecommendationInput, Civ7SettlementRecommendationResult>(
+  return callCiv7ProcedureCore<
+    Civ7SettlementRecommendationInput,
+    Civ7SettlementRecommendationResult
+  >(
     Civ7SettlementRecommendationsProcedureDescriptor,
     Civ7SettlementRecommendationsProcedureSchemaArtifacts,
     input,
-    (validInput) => getCiv7SettlementRecommendations(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    (validInput) =>
+      getCiv7SettlementRecommendations(validInput, options.directControl, options.dependencies),
+    options.procedure
   );
 }

@@ -138,7 +138,13 @@ describe("terrestrial resource operation contract", () => {
           {
             ...camels!,
             status: "blocked",
-            expectedCountRange: { baseline: "standard-earthlike-map", min: 0, target: 0, max: 0, evidence: "blocked" },
+            expectedCountRange: {
+              baseline: "standard-earthlike-map",
+              min: 0,
+              target: 0,
+              max: 0,
+              evidence: "blocked",
+            },
             conditionMultipliers: [],
           },
           ...expectations.filter((row) => row.resourceType !== "RESOURCE_CAMELS"),
@@ -176,8 +182,12 @@ describe("terrestrial resource operation contract", () => {
       resources.ops.planTerrestrialResources.defaultConfig
     );
 
-    expect(result.plans.find((plan) => plan.resourceType === "RESOURCE_HORSES")?.eligibleTileCount).toBe(3);
-    expect(result.plans.find((plan) => plan.resourceType === "RESOURCE_WILD_GAME")?.eligibleTileCount).toBe(3);
+    expect(
+      result.plans.find((plan) => plan.resourceType === "RESOURCE_HORSES")?.eligibleTileCount
+    ).toBe(3);
+    expect(
+      result.plans.find((plan) => plan.resourceType === "RESOURCE_WILD_GAME")?.eligibleTileCount
+    ).toBe(3);
   });
 
   it("keeps hardwood caveat visible", () => {
@@ -203,7 +213,9 @@ describe("terrestrial resource operation contract", () => {
       {
         width: 2,
         height: 2,
-        expectations: terrestrialExpectations().filter((row) => row.resourceType === "RESOURCE_CAMELS"),
+        expectations: terrestrialExpectations().filter(
+          (row) => row.resourceType === "RESOURCE_CAMELS"
+        ),
         aridRangelandMask: every(4),
       },
       resources.ops.planTerrestrialResources.defaultConfig

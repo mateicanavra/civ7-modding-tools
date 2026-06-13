@@ -21,7 +21,6 @@ export type VizStore = {
   setShowDebugLayers(next: boolean): void;
 };
 
-
 export function createVizStore(): VizStore {
   const listeners = new Set<() => void>();
 
@@ -125,11 +124,13 @@ export function createVizStore(): VizStore {
     }
 
     if (event.type === "viz.layer.upsert") {
-      const currentStep = pendingSelectedStepId !== undefined ? pendingSelectedStepId : selectedStepId;
+      const currentStep =
+        pendingSelectedStepId !== undefined ? pendingSelectedStepId : selectedStepId;
       const desiredStep = currentStep ?? event.layer.stepId;
       if (!currentStep) pendingSelectedStepId = desiredStep;
 
-      const currentLayer = pendingSelectedLayerKey !== undefined ? pendingSelectedLayerKey : selectedLayerKey;
+      const currentLayer =
+        pendingSelectedLayerKey !== undefined ? pendingSelectedLayerKey : selectedLayerKey;
       if (!currentLayer && event.layer.stepId === desiredStep) {
         pendingSelectedLayerKey = event.layer.layerKey;
       }

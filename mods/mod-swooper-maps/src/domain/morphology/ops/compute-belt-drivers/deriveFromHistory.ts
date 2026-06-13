@@ -242,7 +242,10 @@ export function deriveBeltDriversFromHistory(input: {
     for (let e = 0; e < eraCount; e++) {
       const base = baseWeights[e] ?? 0;
       const weight =
-        base * (boostActive && e === lastActive ? ERA_WEIGHT_LAST_ACTIVE_BOOST : ERA_WEIGHT_NON_ACTIVE_SCALE);
+        base *
+        (boostActive && e === lastActive
+          ? ERA_WEIGHT_LAST_ACTIVE_BOOST
+          : ERA_WEIGHT_NON_ACTIVE_SCALE);
       weights[e] = weight;
       weightSum += weight;
     }
@@ -389,7 +392,8 @@ export function deriveBeltDriversFromHistory(input: {
       if (v > 0) values.push(v);
     }
     const quantile = selectQuantileThreshold(values, targetCount);
-    const intensityFloor = (maxIntensityByType[boundaryType] ?? 0) * ACTIVE_BELT_SEED_MIN_INTENSITY_FRACTION;
+    const intensityFloor =
+      (maxIntensityByType[boundaryType] ?? 0) * ACTIVE_BELT_SEED_MIN_INTENSITY_FRACTION;
     seedThresholdByType[boundaryType] = Math.max(quantile, intensityFloor);
   }
 
@@ -466,7 +470,9 @@ export function deriveBeltDriversFromHistory(input: {
   const minCutoffTiles = Math.max(1, Math.round(Math.sqrt(Math.max(width, height))));
   const maxDistance = Math.max(
     1,
-    Math.round(Math.max(minCutoffTiles, BELT_CUTOFF_SIGMA_MULT * maxSigma) * BELT_MAX_DISTANCE_FUDGE)
+    Math.round(
+      Math.max(minCutoffTiles, BELT_CUTOFF_SIGMA_MULT * maxSigma) * BELT_MAX_DISTANCE_FUDGE
+    )
   );
   // Seed diffusion from the high-intensity spine (not the entire beltMask), otherwise
   // beltDistance collapses to 0 across the belt and boundaryCloseness saturates everywhere.
@@ -498,7 +504,10 @@ export function deriveBeltDriversFromHistory(input: {
     // intensity (intensityBlend), but emit upliftPotential using the strongest of (late-era blend, total).
     const seedUplift = Math.max(upliftBlend[seedIndex] ?? 0, upliftTotal[seedIndex] ?? 0);
     const seedCollision = Math.max(collisionBlend[seedIndex] ?? 0, collisionTotal[seedIndex] ?? 0);
-    const seedSubduction = Math.max(subductionBlend[seedIndex] ?? 0, subductionTotal[seedIndex] ?? 0);
+    const seedSubduction = Math.max(
+      subductionBlend[seedIndex] ?? 0,
+      subductionTotal[seedIndex] ?? 0
+    );
     const seedRift = riftBlend[seedIndex] ?? 0;
     const seedShear = shearBlend[seedIndex] ?? 0;
     const seedType = boundaryTypeBlend[seedIndex] ?? BOUNDARY_TYPE.none;
@@ -507,7 +516,10 @@ export function deriveBeltDriversFromHistory(input: {
     const sigma = BELT_SIGMA_BASE + (BELT_SIGMA_AGE_RANGE * seedAge) / Math.max(1, maxAge);
     // Belt influence should remain wide enough to support foothills/shoulders even for very young belts.
     // Our tile resolution changes with map size, so we enforce a minimum cutoff that grows sublinearly.
-    const cutoff = Math.max(minCutoffTiles, Math.round(BELT_CUTOFF_SIGMA_MULT * sigma * seedWidthScale));
+    const cutoff = Math.max(
+      minCutoffTiles,
+      Math.round(BELT_CUTOFF_SIGMA_MULT * sigma * seedWidthScale)
+    );
 
     const dist = beltDistance[i] ?? 255;
     if (dist > cutoff) continue;

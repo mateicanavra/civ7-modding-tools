@@ -127,19 +127,27 @@ const PlanCultivatedResourcesContract = defineOp({
         TypedArraySchemas.u8({ description: "Oasis, groundwater, or desert water-source mask." })
       ),
       aridDryWoodlandMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Arid woodland, desert edge, or dry resin habitat mask." })
+        TypedArraySchemas.u8({
+          description: "Arid woodland, desert edge, or dry resin habitat mask.",
+        })
       ),
       coastalMarineMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Warm coast, island, or marine biological dye lane mask." })
+        TypedArraySchemas.u8({
+          description: "Warm coast, island, or marine biological dye lane mask.",
+        })
       ),
       humidTropicalForestMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Humid tropical forest, rainforest, or shaded plantation mask." })
+        TypedArraySchemas.u8({
+          description: "Humid tropical forest, rainforest, or shaded plantation mask.",
+        })
       ),
       wetTropicsMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Wet tropical or monsoonal crop belt mask." })
       ),
       highlandOrReliefMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Highland, hill, relief, or montane plantation proxy mask." })
+        TypedArraySchemas.u8({
+          description: "Highland, hill, relief, or montane plantation proxy mask.",
+        })
       ),
       temperateDryPlainsMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Temperate or subtropical dry plains crop mask." })
@@ -151,10 +159,14 @@ const PlanCultivatedResourcesContract = defineOp({
         TypedArraySchemas.u8({ description: "Tropical or subtropical frost-free fruit belt mask." })
       ),
       wetlandPaddyMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Wetland, marsh, mangrove, paddy, or monsoon lowland mask." })
+        TypedArraySchemas.u8({
+          description: "Wetland, marsh, mangrove, paddy, or monsoon lowland mask.",
+        })
       ),
       coolTemperatePlainsMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Cool-temperate or mild subtropical well-drained plains mask." })
+        TypedArraySchemas.u8({
+          description: "Cool-temperate or mild subtropical well-drained plains mask.",
+        })
       ),
       coldMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Cold or frost-limited suppression mask." })

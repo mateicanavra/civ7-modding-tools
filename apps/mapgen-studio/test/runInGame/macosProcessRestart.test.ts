@@ -100,19 +100,21 @@ describe("macOS Civ7 process restart helpers", () => {
   it("throws when Steam never starts the Civ process", async () => {
     const harness = createHarness([false, false]);
 
-    await expect(launchCiv7MacViaSteamWithRetries({
-      execFileAsync: harness.execFileAsync,
-      sleep: harness.sleep,
-      now: harness.now,
-      tail: (value) => value,
-      steamAppId: "1295660",
-      processPattern: "CivilizationVII.app/Contents/MacOS/CivilizationVII",
-      launchCommandTimeoutMs: 10_000,
-      processStartTimeoutMs: 0,
-      pollIntervalMs: 1_000,
-      maxLaunchAttempts: 2,
-      retryDelayMs: 500,
-    })).rejects.toThrow("Civ7 process did not start after 2 Steam launch attempt");
+    await expect(
+      launchCiv7MacViaSteamWithRetries({
+        execFileAsync: harness.execFileAsync,
+        sleep: harness.sleep,
+        now: harness.now,
+        tail: (value) => value,
+        steamAppId: "1295660",
+        processPattern: "CivilizationVII.app/Contents/MacOS/CivilizationVII",
+        launchCommandTimeoutMs: 10_000,
+        processStartTimeoutMs: 0,
+        pollIntervalMs: 1_000,
+        maxLaunchAttempts: 2,
+        retryDelayMs: 500,
+      })
+    ).rejects.toThrow("Civ7 process did not start after 2 Steam launch attempt");
 
     expect(harness.calls.filter((call) => call.file === "open")).toHaveLength(2);
   });
@@ -134,7 +136,9 @@ describe("macOS Civ7 process restart helpers", () => {
     });
 
     expect(result.gracefulExit.exited).toBe(false);
-    expect(result.kill?.command).toBe("pkill -f CivilizationVII.app/Contents/MacOS/CivilizationVII");
+    expect(result.kill?.command).toBe(
+      "pkill -f CivilizationVII.app/Contents/MacOS/CivilizationVII"
+    );
     expect(result.forcedExit).toMatchObject({
       exited: true,
       stableAbsentPolls: 2,
@@ -152,18 +156,20 @@ describe("macOS Civ7 process restart helpers", () => {
   it("throws if Civ remains alive after force kill", async () => {
     const harness = createHarness([true, true, true, true, true, true]);
 
-    await expect(shutdownCiv7MacProcess({
-      execFileAsync: harness.execFileAsync,
-      sleep: harness.sleep,
-      now: harness.now,
-      tail: (value) => value,
-      processPattern: "CivilizationVII.app/Contents/MacOS/CivilizationVII",
-      gracefulQuitTimeoutMs: 0,
-      forceQuitTimeoutMs: 0,
-      forceKillTimeoutMs: 0,
-      pollIntervalMs: 1_000,
-      stableAbsentPolls: 1,
-    })).rejects.toThrow("Civ7 process did not exit");
+    await expect(
+      shutdownCiv7MacProcess({
+        execFileAsync: harness.execFileAsync,
+        sleep: harness.sleep,
+        now: harness.now,
+        tail: (value) => value,
+        processPattern: "CivilizationVII.app/Contents/MacOS/CivilizationVII",
+        gracefulQuitTimeoutMs: 0,
+        forceQuitTimeoutMs: 0,
+        forceKillTimeoutMs: 0,
+        pollIntervalMs: 1_000,
+        stableAbsentPolls: 1,
+      })
+    ).rejects.toThrow("Civ7 process did not exit");
 
     expect(harness.calls.filter((call) => call.file === "pkill").map((call) => call.args)).toEqual([
       ["-f", "CivilizationVII.app/Contents/MacOS/CivilizationVII"],

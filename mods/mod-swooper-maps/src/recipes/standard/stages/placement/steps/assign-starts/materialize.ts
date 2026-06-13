@@ -13,7 +13,7 @@ import {
 
 type PlanStartsOutput = Static<(typeof placement.ops.planStarts)["output"]>;
 type StartAssignmentArtifact = Static<
-  (typeof import("../../artifacts.js").placementArtifacts)["startAssignment"]["schema"]
+  typeof import("../../artifacts.js").placementArtifacts["startAssignment"]["schema"]
 >;
 type StartSeatRecord = PlanStartsOutput["seats"][number];
 
@@ -60,7 +60,11 @@ const START_TIER_CATEGORIES = [
   { value: 0, label: "None", color: [148, 163, 184, 0] as [number, number, number, number] },
   { value: 1, label: "Rejected", color: [100, 116, 139, 120] as [number, number, number, number] },
   { value: 2, label: "Marginal", color: [245, 158, 11, 210] as [number, number, number, number] },
-  { value: 3, label: "Island Cluster", color: [14, 165, 233, 220] as [number, number, number, number] },
+  {
+    value: 3,
+    label: "Island Cluster",
+    color: [14, 165, 233, 220] as [number, number, number, number],
+  },
   { value: 4, label: "Primary", color: [34, 197, 94, 225] as [number, number, number, number] },
 ];
 

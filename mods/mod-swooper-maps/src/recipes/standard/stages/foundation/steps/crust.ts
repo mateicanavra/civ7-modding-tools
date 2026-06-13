@@ -17,7 +17,11 @@ export default createStep(CrustStepContract, {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);
     const stepId = `${CrustStepContract.phase}/${CrustStepContract.id}`;
-    const rngSeed = ctxRandom(context, ctxRandomLabel(stepId, "foundation/compute-crust"), 2_147_483_647);
+    const rngSeed = ctxRandom(
+      context,
+      ctxRandomLabel(stepId, "foundation/compute-crust"),
+      2_147_483_647
+    );
 
     const crustResult = ops.computeCrust(
       {

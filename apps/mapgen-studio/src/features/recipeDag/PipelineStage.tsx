@@ -85,7 +85,10 @@ export function PipelineStage(props: PipelineStageProps) {
     if (!layout) return [];
     return [...layout.edgeGroups].sort((a, b) => a.id.localeCompare(b.id));
   }, [layout]);
-  const baseArtifactLabels = useMemo(() => buildArtifactEdgeLabels(edgeLayerGroups), [edgeLayerGroups]);
+  const baseArtifactLabels = useMemo(
+    () => buildArtifactEdgeLabels(edgeLayerGroups),
+    [edgeLayerGroups]
+  );
   const selectedLabel = useMemo(
     () => baseArtifactLabels.find((label) => label.id === selectedLabelId) ?? null,
     [baseArtifactLabels, selectedLabelId]
@@ -107,7 +110,12 @@ export function PipelineStage(props: PipelineStageProps) {
   const sortedEdgeLayerGroups = useMemo(() => {
     const score = (edge: RoutedStageEdgeGroup) => {
       if (selectedLabel?.edgeIds.includes(edge.id)) return 3;
-      if (!selectedLabel && selectedStageId && (edge.fromStageId === selectedStageId || edge.toStageId === selectedStageId)) return 2;
+      if (
+        !selectedLabel &&
+        selectedStageId &&
+        (edge.fromStageId === selectedStageId || edge.toStageId === selectedStageId)
+      )
+        return 2;
       return 1;
     };
     return [...edgeLayerGroups].sort((a, b) => score(a) - score(b) || a.id.localeCompare(b.id));
@@ -157,10 +165,17 @@ export function PipelineStage(props: PipelineStageProps) {
         <PipelineMetric label="Phases" value={dag?.phases.length ?? 0} />
         <PipelineMetric label="Stages" value={dag?.stages.length ?? 0} />
         <PipelineMetric label="Edges" value={dag?.edges.length ?? 0} />
-        <PipelineMetric label="Issues" value={dag?.diagnostics.length ?? 0} warn={Boolean(dag?.diagnostics.length)} />
+        <PipelineMetric
+          label="Issues"
+          value={dag?.diagnostics.length ?? 0}
+          warn={Boolean(dag?.diagnostics.length)}
+        />
       </div>
 
-      <div className="relative flex h-full min-h-0 flex-col" style={{ paddingTop: topInset, paddingBottom: bottomInset }}>
+      <div
+        className="relative flex h-full min-h-0 flex-col"
+        style={{ paddingTop: topInset, paddingBottom: bottomInset }}
+      >
         <div className="relative min-h-0 flex-1 overflow-auto px-4 pb-4 pt-14 custom-scrollbar">
           {status === "loading" || status === "idle" ? (
             <CenteredState
@@ -267,7 +282,9 @@ export function PipelineStage(props: PipelineStageProps) {
                   const selected = Boolean(selectedLabel?.edgeIds.includes(edge.id));
                   const related = selectedLabel
                     ? selected
-                    : !selectedStageId || edge.fromStageId === selectedStageId || edge.toStageId === selectedStageId;
+                    : !selectedStageId ||
+                      edge.fromStageId === selectedStageId ||
+                      edge.toStageId === selectedStageId;
                   const edgeAccent = getStageAccent(edge.fromStageId);
                   const stroke = focusActive && related ? edgeAccent : PIPELINE_EDGE_INK;
                   return (
@@ -277,8 +294,20 @@ export function PipelineStage(props: PipelineStageProps) {
                         fill="none"
                         stroke={stroke}
                         strokeWidth={selected ? "3" : focusActive && related ? "2.4" : "1.35"}
-                        markerEnd={focusActive && related ? "url(#recipe-dag-arrow-active)" : "url(#recipe-dag-arrow)"}
-                        opacity={selected ? "0.96" : focusActive && related ? "0.82" : focusActive ? "0.22" : "0.42"}
+                        markerEnd={
+                          focusActive && related
+                            ? "url(#recipe-dag-arrow-active)"
+                            : "url(#recipe-dag-arrow)"
+                        }
+                        opacity={
+                          selected
+                            ? "0.96"
+                            : focusActive && related
+                              ? "0.82"
+                              : focusActive
+                                ? "0.22"
+                                : "0.42"
+                        }
                       />
                       <title>{`${edge.fromStageId} provides ${edge.artifacts.join(", ")} to ${edge.toStageId}`}</title>
                     </g>
@@ -290,7 +319,9 @@ export function PipelineStage(props: PipelineStageProps) {
                 const selected = selectedLabelId === label.id;
                 const related = selectedLabel
                   ? selected
-                  : !selectedStageId || label.fromStageId === selectedStageId || label.toStageIds.includes(selectedStageId);
+                  : !selectedStageId ||
+                    label.fromStageId === selectedStageId ||
+                    label.toStageIds.includes(selectedStageId);
                 const visible = selectedLabel ? selected : !selectedStageId || related;
                 if (!visible) return null;
                 const edgeAccent = getStageAccent(label.fromStageId);
@@ -337,7 +368,8 @@ export function PipelineStage(props: PipelineStageProps) {
                 const stageDomainId = chooseRecipeDagDomainId(stage.phases);
                 const stageAccent = getRecipeDagPhaseLaneColors(stageDomainId, isLightMode).accent;
                 const activeNodeAccent = selected || edgeActive ? stageAccent : null;
-                const zIndex = selected || edgeActive ? (expanded ? 95 : 85) : expanded ? 70 : dimmed ? 20 : 30;
+                const zIndex =
+                  selected || edgeActive ? (expanded ? 95 : 85) : expanded ? 70 : dimmed ? 20 : 30;
                 const expandedPanelId = `recipe-dag-stage-${stage.stageId}-steps`;
                 return (
                   <article
@@ -349,7 +381,9 @@ export function PipelineStage(props: PipelineStageProps) {
                       width: position.width,
                       zIndex,
                       borderColor: activeNodeAccent ?? undefined,
-                      boxShadow: activeNodeAccent ? `0 0 0 2px ${activeNodeAccent}38, 0 16px 42px ${activeNodeAccent}18` : undefined,
+                      boxShadow: activeNodeAccent
+                        ? `0 0 0 2px ${activeNodeAccent}38, 0 16px 42px ${activeNodeAccent}18`
+                        : undefined,
                     }}
                     data-stage-id={stage.stageId}
                     data-stage-selected={selected || edgeActive ? "true" : "false"}
@@ -369,9 +403,15 @@ export function PipelineStage(props: PipelineStageProps) {
                           style={activeNodeAccent ? { color: activeNodeAccent } : undefined}
                         />
                         <span className="min-w-0 flex-1">
-                          <span className={`block truncate text-data font-semibold ${headingClass}`}>{stage.stageId}</span>
+                          <span
+                            className={`block truncate text-data font-semibold ${headingClass}`}
+                          >
+                            {stage.stageId}
+                          </span>
                           <span className={`mt-0.5 block truncate text-label ${bodyClass}`}>
-                            Runs {stage.steps.length} {stage.steps.length === 1 ? "step" : "steps"}; creates {stage.artifactProvides.length}; needs {stage.artifactRequires.length}
+                            Runs {stage.steps.length} {stage.steps.length === 1 ? "step" : "steps"};
+                            creates {stage.artifactProvides.length}; needs{" "}
+                            {stage.artifactRequires.length}
                           </span>
                         </span>
                       </button>
@@ -386,7 +426,9 @@ export function PipelineStage(props: PipelineStageProps) {
                           onToggleStage(stage.stageId);
                         }}
                       >
-                        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${expanded ? "rotate-180" : ""} ${iconClass}`} />
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform duration-200 ${expanded ? "rotate-180" : ""} ${iconClass}`}
+                        />
                       </button>
                     </div>
 
@@ -400,22 +442,35 @@ export function PipelineStage(props: PipelineStageProps) {
                       id={expandedPanelId}
                       aria-hidden={!expanded}
                       className={`origin-top overflow-hidden border-t border-border transition-[max-height,opacity,transform] duration-200 ${
-                        expanded ? "max-h-[340px] opacity-100 translate-y-0" : "max-h-0 opacity-0 -translate-y-1"
+                        expanded
+                          ? "max-h-[340px] opacity-100 translate-y-0"
+                          : "max-h-0 opacity-0 -translate-y-1"
                       }`}
                     >
                       <div className="max-h-[320px] overflow-auto px-3 py-2 custom-scrollbar">
                         <ol className="space-y-2">
                           {stage.steps.map((step) => (
-                            <li key={step.fullStepId} className="rounded border border-border bg-muted/40 px-2 py-1.5">
+                            <li
+                              key={step.fullStepId}
+                              className="rounded border border-border bg-muted/40 px-2 py-1.5"
+                            >
                               <div className={`truncate text-label font-medium ${headingClass}`}>
                                 Step {step.orderInStage + 1}: {step.stepId}
                               </div>
-                              <div className={`mt-1 flex items-center gap-1 truncate text-label ${bodyClass}`}>
+                              <div
+                                className={`mt-1 flex items-center gap-1 truncate text-label ${bodyClass}`}
+                              >
                                 <DomainInlineIcon domainId={step.phase} className="h-2.5 w-2.5" />
                                 <span className="truncate">Phase: {step.phase}</span>
                               </div>
-                              <ArtifactList label="Needs" values={step.artifactRequires.map((artifact) => artifact.id)} />
-                              <ArtifactList label="Creates" values={step.artifactProvides.map((artifact) => artifact.id)} />
+                              <ArtifactList
+                                label="Needs"
+                                values={step.artifactRequires.map((artifact) => artifact.id)}
+                              />
+                              <ArtifactList
+                                label="Creates"
+                                values={step.artifactProvides.map((artifact) => artifact.id)}
+                              />
                             </li>
                           ))}
                         </ol>
@@ -433,10 +488,18 @@ export function PipelineStage(props: PipelineStageProps) {
                   </div>
                   <ul className="grid gap-1 sm:grid-cols-2">
                     {dag.diagnostics.slice(0, 6).map((diagnostic, index) => (
-                      <li key={`${diagnostic.kind}-${diagnostic.artifact.id}-${index}`} className="flex min-w-0 items-center gap-1 truncate">
+                      <li
+                        key={`${diagnostic.kind}-${diagnostic.artifact.id}-${index}`}
+                        className="flex min-w-0 items-center gap-1 truncate"
+                      >
                         <span className="truncate">{diagnostic.kind}</span>
-                        <DomainInlineIcon domainId={resolveArtifactGroupDomainId([diagnostic.artifact.id])} className="h-2.5 w-2.5" />
-                        <span className="truncate" title={diagnostic.artifact.id}>{formatArtifactLabel(diagnostic.artifact.id)}</span>
+                        <DomainInlineIcon
+                          domainId={resolveArtifactGroupDomainId([diagnostic.artifact.id])}
+                          className="h-2.5 w-2.5"
+                        />
+                        <span className="truncate" title={diagnostic.artifact.id}>
+                          {formatArtifactLabel(diagnostic.artifact.id)}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -453,10 +516,14 @@ export function PipelineStage(props: PipelineStageProps) {
 function PipelineMetric(props: { label: string; value: number; warn?: boolean }) {
   return (
     <div className="flex items-baseline gap-1.5">
-      <span className={`text-data font-semibold ${props.warn ? "text-warning" : "text-foreground"}`}>
+      <span
+        className={`text-data font-semibold ${props.warn ? "text-warning" : "text-foreground"}`}
+      >
         {props.value}
       </span>
-      <span className="text-label uppercase tracking-wider text-muted-foreground/70">{props.label}</span>
+      <span className="text-label uppercase tracking-wider text-muted-foreground/70">
+        {props.label}
+      </span>
     </div>
   );
 }
@@ -525,29 +592,40 @@ function ArtifactList(props: { label: string; values: readonly string[] }) {
             className={`flex max-w-full items-center gap-1 truncate rounded border px-1 py-0.5 text-label ${chip}`}
             title={value}
           >
-            <DomainInlineIcon domainId={resolveArtifactGroupDomainId([value])} className="h-2.5 w-2.5" />
+            <DomainInlineIcon
+              domainId={resolveArtifactGroupDomainId([value])}
+              className="h-2.5 w-2.5"
+            />
             <span className="truncate">{formatArtifactLabel(value)}</span>
           </span>
         ))}
         {props.values.length > 5 ? (
-          <span className={`rounded border px-1 py-0.5 text-label ${chip}`}>+{props.values.length - 5}</span>
+          <span className={`rounded border px-1 py-0.5 text-label ${chip}`}>
+            +{props.values.length - 5}
+          </span>
         ) : null}
       </div>
     </div>
   );
 }
 
-function DomainInlineIcon(props: { domainId: string | null; className: string; style?: React.CSSProperties }) {
+function DomainInlineIcon(props: {
+  domainId: string | null;
+  className: string;
+  style?: React.CSSProperties;
+}) {
   const { Icon, strokeWidth } = getRecipeDagDomainPresentation(props.domainId);
-  return <Icon className={`shrink-0 text-current ${props.className}`} strokeWidth={strokeWidth} style={props.style} aria-hidden="true" />;
+  return (
+    <Icon
+      className={`shrink-0 text-current ${props.className}`}
+      strokeWidth={strokeWidth}
+      style={props.style}
+      aria-hidden="true"
+    />
+  );
 }
 
-function PhaseLaneLabel(props: {
-  phaseId: string;
-  x: number;
-  y: number;
-  accent: string;
-}) {
+function PhaseLaneLabel(props: { phaseId: string; x: number; y: number; accent: string }) {
   const { Icon, label, strokeWidth } = getRecipeDagDomainPresentation(props.phaseId);
   return (
     <div
@@ -555,17 +633,18 @@ function PhaseLaneLabel(props: {
       style={{ left: props.x, top: props.y }}
       title={`Phase ${label}`}
     >
-      <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={strokeWidth} style={{ color: props.accent }} aria-hidden="true" />
+      <Icon
+        className="h-3.5 w-3.5 shrink-0"
+        strokeWidth={strokeWidth}
+        style={{ color: props.accent }}
+        aria-hidden="true"
+      />
       <span>{props.phaseId}</span>
     </div>
   );
 }
 
-function CenteredState(props: {
-  icon: React.ReactNode;
-  title: string;
-  message: string;
-}) {
+function CenteredState(props: { icon: React.ReactNode; title: string; message: string }) {
   return (
     <div className="absolute inset-0 flex items-center justify-center px-4">
       <div className="flex max-w-[420px] flex-col items-center gap-3 rounded-xl border border-border/60 bg-popover/40 px-8 py-6 text-center backdrop-blur-sm">

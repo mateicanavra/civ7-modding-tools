@@ -17,10 +17,7 @@ import { jsonPayloadFromCommandResult } from "./session/command-result.js";
 import { jsLiteral } from "./runtime/command-serialization.js";
 import { sleep } from "./timing.js";
 import { boundedInteger, validateIdentifier, validatePlayerId } from "./validation.js";
-import {
-  Civ7DirectControlSession,
-  withCiv7DirectControlSession,
-} from "./session/session.js";
+import { Civ7DirectControlSession, withCiv7DirectControlSession } from "./session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
@@ -113,10 +110,7 @@ export type {
   Civ7ProcedureSchemaResolution,
   Civ7ProcedureSchemaTechnology,
 } from "./procedure-core.js";
-import type {
-  Civ7AppUiSnapshot,
-  Civ7AppUiSnapshotResult,
-} from "./runtime/app-ui-snapshot.js";
+import type { Civ7AppUiSnapshot, Civ7AppUiSnapshotResult } from "./runtime/app-ui-snapshot.js";
 import type {
   Civ7RuntimeApiInspection,
   Civ7RuntimeApiMethod,
@@ -128,22 +122,13 @@ import {
   DEFAULT_CIV7_ROOT_MAX_METHODS,
   DEFAULT_CIV7_TUNER_API_ROOTS,
 } from "./runtime/inspection-constants.js";
-import {
-  probeHelperSource,
-  probeValue,
-  type Civ7RuntimeProbe,
-} from "./runtime/probe.js";
+import { probeHelperSource, probeValue, type Civ7RuntimeProbe } from "./runtime/probe.js";
 import type {
   Civ7RootInspectionInput,
   Civ7RootInspectionResult,
 } from "./runtime/root-inspection.js";
-import type {
-  Civ7TunerHealthResult,
-  Civ7TunerHealthSnapshot,
-} from "./runtime/tuner-health.js";
-import type {
-  Civ7PlayableStatusResult,
-} from "./runtime/playable-status.js";
+import type { Civ7TunerHealthResult, Civ7TunerHealthSnapshot } from "./runtime/tuner-health.js";
+import type { Civ7PlayableStatusResult } from "./runtime/playable-status.js";
 import {
   defaultSetupReadDependencies,
   getCiv7SetupMapRows,
@@ -519,10 +504,7 @@ export type {
   Civ7SetupSnapshotResult,
 } from "./setup/reads.js";
 export { ensureCiv7SetupMapRowVisible } from "./setup/reads.js";
-export {
-  getCiv7SetupMapRows,
-  getCiv7SetupSnapshot,
-};
+export { getCiv7SetupMapRows, getCiv7SetupSnapshot };
 export type {
   Civ7PlayerSetupOptions,
   Civ7PreparedSetupResult,
@@ -596,9 +578,7 @@ export {
   Civ7MapSummaryProcedureSchemaArtifacts,
 } from "./play/map/summary-procedure.js";
 export type { Civ7MapSummaryProcedureCallOptions } from "./play/map/summary-procedure.js";
-export type {
-  GameInfoReadDependencies,
-} from "./play/map/gameinfo.js";
+export type { GameInfoReadDependencies } from "./play/map/gameinfo.js";
 export {
   Civ7GameInfoRowsInputSchema,
   Civ7GameInfoRowsResultSchema,
@@ -640,9 +620,7 @@ export {
   Civ7VisibilitySummaryProcedureDescriptor,
   Civ7VisibilitySummaryProcedureSchemaArtifacts,
 } from "./play/map/visibility-procedure.js";
-export type {
-  Civ7VisibilitySummaryProcedureCallOptions,
-} from "./play/map/visibility-procedure.js";
+export type { Civ7VisibilitySummaryProcedureCallOptions } from "./play/map/visibility-procedure.js";
 export type {
   Civ7CitySummary,
   Civ7CitySummaryDependencies,
@@ -668,11 +646,7 @@ export {
   Civ7UnitSummaryResultSchema,
   Civ7UnitSummarySchema,
 } from "./play/summaries.js";
-export {
-  getCiv7CitySummary,
-  getCiv7PlayerSummary,
-  getCiv7UnitSummary,
-};
+export { getCiv7CitySummary, getCiv7PlayerSummary, getCiv7UnitSummary };
 export {
   CIV7_START_POSITIONS_METHOD,
   Civ7StartPositionPlayerSchema,
@@ -790,17 +764,13 @@ export {
   Civ7TraditionsViewProcedureDescriptor,
   Civ7TraditionsViewProcedureSchemaArtifacts,
 } from "./play/progression/traditions-procedure.js";
-export type {
-  Civ7TraditionsViewProcedureCallOptions,
-} from "./play/progression/traditions-procedure.js";
+export type { Civ7TraditionsViewProcedureCallOptions } from "./play/progression/traditions-procedure.js";
 export {
   callCiv7ProgressDashboardProcedure,
   Civ7ProgressDashboardProcedureDescriptor,
   Civ7ProgressDashboardProcedureSchemaArtifacts,
 } from "./play/progression/progress-dashboard-procedure.js";
-export type {
-  Civ7ProgressDashboardProcedureCallOptions,
-} from "./play/progression/progress-dashboard-procedure.js";
+export type { Civ7ProgressDashboardProcedureCallOptions } from "./play/progression/progress-dashboard-procedure.js";
 export type {
   Civ7TechnologyChoiceCloseoutInput,
   Civ7TechnologyChoiceCloseoutResult,
@@ -844,12 +814,7 @@ export type {
   Civ7PlotSnapshotInput,
   Civ7PlotSnapshotResult,
 } from "./play/map/types.js";
-export {
-  getCiv7MapGrid,
-  getCiv7MapSummary,
-  getCiv7NativeRiverObjects,
-  getCiv7PlotSnapshot,
-};
+export { getCiv7MapGrid, getCiv7MapSummary, getCiv7NativeRiverObjects, getCiv7PlotSnapshot };
 export {
   DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
   DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
@@ -890,9 +855,7 @@ export {
   turnCompletionProofOutcome,
   turnCompletionProofPostcondition,
 } from "./proof/turn-completion-proof-policy";
-export type {
-  Civ7TurnCompletionPostconditionClassification,
-} from "./proof/turn-completion-proof-policy";
+export type { Civ7TurnCompletionPostconditionClassification } from "./proof/turn-completion-proof-policy";
 export {
   callCiv7TurnCompletionStatusProcedure,
   Civ7TurnCompletionStatusProcedureDescriptor,
@@ -996,17 +959,13 @@ export type {
   Civ7AdvisorWarningViewedPostconditionClassification,
   Civ7AdvisorWarningViewedResult,
 } from "./play/notifications/advisor-warning-request.js";
-export {
-  requestCiv7AdvisorWarningViewed,
-} from "./play/notifications/advisor-warning-request.js";
+export { requestCiv7AdvisorWarningViewed } from "./play/notifications/advisor-warning-request.js";
 export {
   callCiv7PlayNotificationViewProcedure,
   Civ7PlayNotificationViewProcedureDescriptor,
   Civ7PlayNotificationViewProcedureSchemaArtifacts,
 } from "./play/notifications/view-procedure.js";
-export type {
-  Civ7PlayNotificationViewProcedureCallOptions,
-} from "./play/notifications/view-procedure.js";
+export type { Civ7PlayNotificationViewProcedureCallOptions } from "./play/notifications/view-procedure.js";
 export type {
   Civ7NotificationDismissInput,
   Civ7NotificationDismissRequestInput,
@@ -1033,9 +992,7 @@ export {
   notificationDismissalProofOutcome,
   notificationDismissalProofPostcondition,
 } from "./proof/notification-dismissal-proof-policy.js";
-export {
-  advisorWarningProofPostcondition,
-} from "./proof/advisor-warning-proof-policy.js";
+export { advisorWarningProofPostcondition } from "./proof/advisor-warning-proof-policy.js";
 export type {
   Civ7AdvisorWarningProofOutcome,
   Civ7AdvisorWarningProofPostcondition,
@@ -1045,9 +1002,7 @@ export {
   Civ7NotificationDismissRequestProcedureDescriptor,
   Civ7NotificationDismissRequestProcedureSchemaArtifacts,
 } from "./play/notifications/dismissal-procedure.js";
-export type {
-  Civ7NotificationDismissRequestProcedureCallOptions,
-} from "./play/notifications/dismissal-procedure.js";
+export type { Civ7NotificationDismissRequestProcedureCallOptions } from "./play/notifications/dismissal-procedure.js";
 export type {
   BattlefieldScanDependencies,
   Civ7BattlefieldScanInput,
@@ -1068,9 +1023,7 @@ export {
   Civ7BattlefieldScanProcedureDescriptor,
   Civ7BattlefieldScanProcedureSchemaArtifacts,
 } from "./play/tactical/battlefield-procedure.js";
-export type {
-  Civ7BattlefieldScanProcedureCallOptions,
-} from "./play/tactical/battlefield-procedure.js";
+export type { Civ7BattlefieldScanProcedureCallOptions } from "./play/tactical/battlefield-procedure.js";
 export type {
   DestinationAnalysisDependencies,
   Civ7DestinationAnalysisInput,
@@ -1093,9 +1046,7 @@ export {
   Civ7DestinationAnalysisProcedureDescriptor,
   Civ7DestinationAnalysisProcedureSchemaArtifacts,
 } from "./play/tactical/destination-procedure.js";
-export type {
-  Civ7DestinationAnalysisProcedureCallOptions,
-} from "./play/tactical/destination-procedure.js";
+export type { Civ7DestinationAnalysisProcedureCallOptions } from "./play/tactical/destination-procedure.js";
 export type {
   Civ7SettlementRecommendation,
   Civ7SettlementRecommendationFactor,
@@ -1118,9 +1069,7 @@ export {
   Civ7SettlementRecommendationsProcedureDescriptor,
   Civ7SettlementRecommendationsProcedureSchemaArtifacts,
 } from "./play/tactical/settlement-procedure.js";
-export type {
-  Civ7SettlementRecommendationsProcedureCallOptions,
-} from "./play/tactical/settlement-procedure.js";
+export type { Civ7SettlementRecommendationsProcedureCallOptions } from "./play/tactical/settlement-procedure.js";
 export type {
   Civ7TargetCandidate,
   Civ7TargetCandidatesInput,
@@ -1140,9 +1089,7 @@ export {
   Civ7TargetCandidatesProcedureDescriptor,
   Civ7TargetCandidatesProcedureSchemaArtifacts,
 } from "./play/tactical/target-candidates-procedure.js";
-export type {
-  Civ7TargetCandidatesProcedureCallOptions,
-} from "./play/tactical/target-candidates-procedure.js";
+export type { Civ7TargetCandidatesProcedureCallOptions } from "./play/tactical/target-candidates-procedure.js";
 export {
   Civ7UnitTargetActionCandidateSchema,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
@@ -1166,26 +1113,20 @@ export {
   unitTargetProofOutcome,
   unitTargetProofPostcondition,
 } from "./proof/unit-target-proof-policy";
-export type {
-  Civ7UnitTargetActionVerification,
-} from "./proof/unit-target-proof-policy";
+export type { Civ7UnitTargetActionVerification } from "./proof/unit-target-proof-policy";
 export {
   callCiv7UnitTargetActionRequestProcedure,
   Civ7UnitTargetActionRequestProcedureDescriptor,
   Civ7UnitTargetActionRequestProcedureSchemaArtifacts,
 } from "./play/operations/unit-target-action-procedure.js";
-export type {
-  Civ7UnitTargetActionRequestProcedureCallOptions,
-} from "./play/operations/unit-target-action-procedure.js";
+export type { Civ7UnitTargetActionRequestProcedureCallOptions } from "./play/operations/unit-target-action-procedure.js";
 export type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationTarget,
   Civ7OperationValidationResult,
 } from "./play/operations/types.js";
-export type {
-  Civ7OperationRequestResult,
-} from "./play/operations/validate-request.js";
+export type { Civ7OperationRequestResult } from "./play/operations/validate-request.js";
 export {
   canStartCiv7CityCommand,
   canStartCiv7CityOperation,
@@ -1212,9 +1153,7 @@ export {
   populationPlacementProofOutcome,
   populationPlacementProofPostcondition,
 } from "./proof/population-placement-proof-policy.js";
-export type {
-  Civ7PopulationPlacementProofSource,
-} from "./proof/population-placement-proof-policy.js";
+export type { Civ7PopulationPlacementProofSource } from "./proof/population-placement-proof-policy.js";
 export type {
   Civ7ProductionPostcondition,
   Civ7ProductionPostconditionClassification,
@@ -1265,17 +1204,13 @@ export {
   productionChoicePostconditionOutcome,
   productionChoiceRequestVerified,
 } from "./play/operations/production-choice-proof";
-export type {
-  Civ7ProductionChoicePostconditionOutcome,
-} from "./play/operations/production-choice-proof";
+export type { Civ7ProductionChoicePostconditionOutcome } from "./play/operations/production-choice-proof";
 export {
   callCiv7ProductionChoiceRequestProcedure,
   Civ7ProductionChoiceRequestProcedureDescriptor,
   Civ7ProductionChoiceRequestProcedureSchemaArtifacts,
 } from "./play/operations/production-choice-procedure.js";
-export type {
-  Civ7ProductionChoiceRequestProcedureCallOptions,
-} from "./play/operations/production-choice-procedure.js";
+export type { Civ7ProductionChoiceRequestProcedureCallOptions } from "./play/operations/production-choice-procedure.js";
 export type {
   Civ7DiplomacyResponseCommandPayload,
   Civ7DiplomacyResponseInput,
@@ -1386,7 +1321,11 @@ export type {
   WindowShotDependencies,
 } from "./play/view/window-shot.js";
 
-export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
+export {
+  CIV7_SIGNED_INT_SEED_MAX,
+  CIV7_SIGNED_INT_SEED_MIN,
+  assessCiv7SignedIntSeed,
+} from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
 export const HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 1_000;
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;
@@ -1396,9 +1335,11 @@ export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_CELLS = 1_000;
 export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 256;
 
-export type Civ7ResourcePlacementFeasibilityCellInput = Readonly<Civ7MapLocation & {
-  resourceTypes: ReadonlyArray<number>;
-}>;
+export type Civ7ResourcePlacementFeasibilityCellInput = Readonly<
+  Civ7MapLocation & {
+    resourceTypes: ReadonlyArray<number>;
+  }
+>;
 
 export type Civ7ResourcePlacementFeasibilityInput = Readonly<{
   cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCellInput>;
@@ -1408,9 +1349,11 @@ export type Civ7ResourcePlacementFeasibilityInput = Readonly<{
 }>;
 
 export type Civ7ResourcePlacementFeasibilityCell = Readonly<{
-  location: Readonly<Civ7MapLocation & {
-    index: Civ7RuntimeProbe<number>;
-  }>;
+  location: Readonly<
+    Civ7MapLocation & {
+      index: Civ7RuntimeProbe<number>;
+    }
+  >;
   resourceTypes: ReadonlyArray<number>;
   omittedResourceTypes: number;
   feasibility: Readonly<Record<string, Civ7RuntimeProbe<boolean>>>;
@@ -1426,9 +1369,11 @@ export type Civ7ResourcePlacementFeasibilityResult = Readonly<{
   cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCell>;
 }>;
 
-export type Civ7FeaturePlacementFeasibilityCellInput = Readonly<Civ7MapLocation & {
-  featureTypes: ReadonlyArray<number>;
-}>;
+export type Civ7FeaturePlacementFeasibilityCellInput = Readonly<
+  Civ7MapLocation & {
+    featureTypes: ReadonlyArray<number>;
+  }
+>;
 
 export type Civ7FeaturePlacementFeasibilityInput = Readonly<{
   cells: ReadonlyArray<Civ7FeaturePlacementFeasibilityCellInput>;
@@ -1437,9 +1382,11 @@ export type Civ7FeaturePlacementFeasibilityInput = Readonly<{
 }>;
 
 export type Civ7FeaturePlacementFeasibilityCell = Readonly<{
-  location: Readonly<Civ7MapLocation & {
-    index: Civ7RuntimeProbe<number>;
-  }>;
+  location: Readonly<
+    Civ7MapLocation & {
+      index: Civ7RuntimeProbe<number>;
+    }
+  >;
   featureTypes: ReadonlyArray<number>;
   omittedFeatureTypes: number;
   feasibility: Readonly<Record<string, Civ7RuntimeProbe<boolean>>>;
@@ -1483,9 +1430,11 @@ export type Civ7ResourceBuilderDiagnosticsCellResource = Readonly<{
 }>;
 
 export type Civ7ResourceBuilderDiagnosticsCell = Readonly<{
-  location: Readonly<Civ7MapLocation & {
-    index: Civ7RuntimeProbe<number>;
-  }>;
+  location: Readonly<
+    Civ7MapLocation & {
+      index: Civ7RuntimeProbe<number>;
+    }
+  >;
   resourceTypes: ReadonlyArray<number>;
   omittedResourceTypes: number;
   resources: Readonly<Record<string, Civ7ResourceBuilderDiagnosticsCellResource>>;
@@ -1510,19 +1459,19 @@ export type Civ7ResourceBuilderDiagnosticsResult = Readonly<{
 
 export async function getCiv7ResourcePlacementFeasibility(
   input: Civ7ResourcePlacementFeasibilityInput,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7ResourcePlacementFeasibilityResult> {
   const maxCells = boundedInteger(
     input.maxCells ?? DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS,
     1,
     HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS,
-    "maxCells",
+    "maxCells"
   );
   const maxResourceTypesPerCell = boundedInteger(
     input.maxResourceTypesPerCell ?? DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL,
     1,
     HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL,
-    "maxResourceTypesPerCell",
+    "maxResourceTypesPerCell"
   );
   validateResourcePlacementFeasibilityInput(input, maxCells, maxResourceTypesPerCell);
   const result = await executeCiv7TunerCommand({
@@ -1540,25 +1489,25 @@ export async function getCiv7ResourcePlacementFeasibility(
   });
   return jsonPayloadFromCommandResult<Civ7ResourcePlacementFeasibilityResult>(
     result,
-    "Civ7 resource placement feasibility",
+    "Civ7 resource placement feasibility"
   );
 }
 
 export async function getCiv7FeaturePlacementFeasibility(
   input: Civ7FeaturePlacementFeasibilityInput,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7FeaturePlacementFeasibilityResult> {
   const maxCells = boundedInteger(
     input.maxCells ?? DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_CELLS,
     1,
     HARD_CIV7_FEATURE_FEASIBILITY_MAX_CELLS,
-    "maxCells",
+    "maxCells"
   );
   const maxFeatureTypesPerCell = boundedInteger(
     input.maxFeatureTypesPerCell ?? DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL,
     1,
     HARD_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL,
-    "maxFeatureTypesPerCell",
+    "maxFeatureTypesPerCell"
   );
   validateFeaturePlacementFeasibilityInput(input, maxCells, maxFeatureTypesPerCell);
   const result = await executeCiv7TunerCommand({
@@ -1575,25 +1524,25 @@ export async function getCiv7FeaturePlacementFeasibility(
   });
   return jsonPayloadFromCommandResult<Civ7FeaturePlacementFeasibilityResult>(
     result,
-    "Civ7 feature placement feasibility",
+    "Civ7 feature placement feasibility"
   );
 }
 
 export async function getCiv7ResourceBuilderDiagnostics(
   input: Civ7ResourceBuilderDiagnosticsInput,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7ResourceBuilderDiagnosticsResult> {
   const maxCells = boundedInteger(
     input.maxCells ?? DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS,
     1,
     HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS,
-    "maxCells",
+    "maxCells"
   );
   const maxResourceTypesPerCell = boundedInteger(
     input.maxResourceTypesPerCell ?? DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL,
     1,
     HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL,
-    "maxResourceTypesPerCell",
+    "maxResourceTypesPerCell"
   );
   validateResourcePlacementFeasibilityInput(input, maxCells, maxResourceTypesPerCell);
   const requestedResourceTypes = uniqueBoundedResourceTypes(input.resourceTypes ?? []);
@@ -1612,13 +1561,13 @@ export async function getCiv7ResourceBuilderDiagnostics(
   });
   return jsonPayloadFromCommandResult<Civ7ResourceBuilderDiagnosticsResult>(
     result,
-    "Civ7 ResourceBuilder diagnostics",
+    "Civ7 ResourceBuilder diagnostics"
   );
 }
 
 export async function getCiv7FullMapGrid(
   input: Civ7FullMapGridInput,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7FullMapGridResult> {
   const summary = await getCiv7MapSummary({
     ...options,
@@ -1632,28 +1581,32 @@ export async function getCiv7FullMapGrid(
     input.maxPlotsPerRead ?? HARD_CIV7_MAP_GRID_MAX_PLOTS,
     1,
     HARD_CIV7_MAP_GRID_MAX_PLOTS,
-    "maxPlotsPerRead",
+    "maxPlotsPerRead"
   );
   const readBounds = planCiv7MapGridReadBounds(bounds, maxPlotsPerRead);
   const fields = normalizePlotFields(input.fields);
   const plots: Civ7PlotSnapshot[] = [];
   const chunks: Civ7MapGridReadChunk[] = [];
   let omitted = 0;
-  let hiddenInfoPolicy: Civ7HiddenInfoPolicy = input.playerId === undefined
-    ? "not-player-scoped"
-    : input.includeHidden === true
-      ? "include-hidden"
-      : "visibility-filtered";
+  let hiddenInfoPolicy: Civ7HiddenInfoPolicy =
+    input.playerId === undefined
+      ? "not-player-scoped"
+      : input.includeHidden === true
+        ? "include-hidden"
+        : "visibility-filtered";
   let lastGrid: Civ7MapGridResult | undefined;
 
   for (const chunkBounds of readBounds) {
-    const grid = await getCiv7MapGrid({
-      bounds: chunkBounds,
-      fields,
-      ...(input.playerId === undefined ? {} : { playerId: input.playerId }),
-      ...(input.includeHidden === undefined ? {} : { includeHidden: input.includeHidden }),
-      maxPlots: maxPlotsPerRead,
-    }, options);
+    const grid = await getCiv7MapGrid(
+      {
+        bounds: chunkBounds,
+        fields,
+        ...(input.playerId === undefined ? {} : { playerId: input.playerId }),
+        ...(input.includeHidden === undefined ? {} : { includeHidden: input.includeHidden }),
+        maxPlots: maxPlotsPerRead,
+      },
+      options
+    );
     lastGrid = grid;
     hiddenInfoPolicy = grid.hiddenInfoPolicy;
     omitted += grid.omitted;
@@ -1710,13 +1663,13 @@ function setupReadDependencies() {
 
 export async function prepareCiv7SinglePlayerSetup(
   input: Civ7SinglePlayerSetupInput,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7PreparedSetupResult> {
   return await prepareCiv7SinglePlayerSetupFromModule(input, options, setupReadDependencies());
 }
 
 export async function listCiv7SavedGameConfigurations(
-  input: Civ7SavedGameConfigurationListInput = {},
+  input: Civ7SavedGameConfigurationListInput = {}
 ): Promise<Civ7SavedGameConfigurationListResult> {
   return await listCiv7SavedGameConfigurationsFromModule(input, { boundedInteger });
 }
@@ -1724,7 +1677,7 @@ export async function listCiv7SavedGameConfigurations(
 export async function loadCiv7SavedGameConfiguration(
   input: Civ7SavedGameConfigurationRef,
   options: Civ7DirectControlOptions = {},
-  wait: { waitTimeoutMs?: number; pollIntervalMs?: number } = {},
+  wait: { waitTimeoutMs?: number; pollIntervalMs?: number } = {}
 ): Promise<Civ7SavedGameConfigurationLoadResult> {
   const savedConfig = normalizeSavedGameConfigurationRef(input);
   const before = await getCiv7SetupSnapshot(options);
@@ -1734,7 +1687,10 @@ export async function loadCiv7SavedGameConfiguration(
   });
   const waitTimeoutMs = wait.waitTimeoutMs ?? options.timeoutMs ?? 30_000;
   const pollIntervalMs = wait.pollIntervalMs ?? 1_000;
-  const after = await waitForCiv7SetupRevisionAfter(before, options, { waitTimeoutMs, pollIntervalMs }).catch(async () => {
+  const after = await waitForCiv7SetupRevisionAfter(before, options, {
+    waitTimeoutMs,
+    pollIntervalMs,
+  }).catch(async () => {
     await sleep(Math.min(1_000, pollIntervalMs));
     return getCiv7SetupSnapshot(options);
   });
@@ -1752,7 +1708,7 @@ export async function loadCiv7SavedGameConfiguration(
 
 export async function runCiv7SinglePlayerFromSetup(
   input: Civ7SinglePlayerRunInput,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7SinglePlayerRunResult> {
   return await runCiv7SinglePlayerFromSetupFromModule(input, options, {
     boundedInteger,
@@ -1767,9 +1723,11 @@ export async function runCiv7SinglePlayerFromSetup(
 }
 
 function buildResourcePlacementFeasibilityCommand(input: {
-  cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCellInput & {
-    requestedResourceTypeCount: number;
-  }>;
+  cells: ReadonlyArray<
+    Civ7ResourcePlacementFeasibilityCellInput & {
+      requestedResourceTypeCount: number;
+    }
+  >;
   requestedCellCount: number;
   maxResourceTypesPerCell: number;
   ignoreWeight: boolean;
@@ -1811,9 +1769,11 @@ function buildResourcePlacementFeasibilityCommand(input: {
 }
 
 function buildFeaturePlacementFeasibilityCommand(input: {
-  cells: ReadonlyArray<Civ7FeaturePlacementFeasibilityCellInput & {
-    requestedFeatureTypeCount: number;
-  }>;
+  cells: ReadonlyArray<
+    Civ7FeaturePlacementFeasibilityCellInput & {
+      requestedFeatureTypeCount: number;
+    }
+  >;
   requestedCellCount: number;
   maxFeatureTypesPerCell: number;
 }): string {
@@ -1853,9 +1813,11 @@ function buildFeaturePlacementFeasibilityCommand(input: {
 }
 
 function buildResourceBuilderDiagnosticsCommand(input: {
-  cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCellInput & {
-    requestedResourceTypeCount: number;
-  }>;
+  cells: ReadonlyArray<
+    Civ7ResourcePlacementFeasibilityCellInput & {
+      requestedResourceTypeCount: number;
+    }
+  >;
   resourceTypes: ReadonlyArray<number>;
   requestedCellCount: number;
   maxResourceTypesPerCell: number;
@@ -1989,7 +1951,9 @@ function buildLoadSavedGameConfigurationCommand(input: Civ7SavedGameConfiguratio
     });
   })()`;
 }
-function normalizePlotFields(fields: ReadonlyArray<Civ7PlotSnapshotField> | undefined): ReadonlyArray<Civ7PlotSnapshotField> {
+function normalizePlotFields(
+  fields: ReadonlyArray<Civ7PlotSnapshotField> | undefined
+): ReadonlyArray<Civ7PlotSnapshotField> {
   const selected: ReadonlyArray<Civ7PlotSnapshotField> = fields?.length
     ? fields
     : ["terrain", "biome", "feature", "resource", "owner", "visibility", "areaRegion"];
@@ -2020,18 +1984,18 @@ const ALL_CIV7_PLOT_FIELDS: ReadonlyArray<Civ7PlotSnapshotField> = [
 function validateResourcePlacementFeasibilityInput(
   input: Civ7ResourcePlacementFeasibilityInput,
   maxCells: number,
-  maxResourceTypesPerCell: number,
+  maxResourceTypesPerCell: number
 ): void {
   if (!Array.isArray(input.cells) || input.cells.length === 0) {
     throw new Civ7DirectControlError(
       "command-failed",
-      "Resource placement feasibility reads require at least one cell",
+      "Resource placement feasibility reads require at least one cell"
     );
   }
   if (input.cells.length > HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS) {
     throw new Civ7DirectControlError(
       "command-failed",
-      `Resource placement feasibility cell lists must not exceed ${HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS} entries`,
+      `Resource placement feasibility cell lists must not exceed ${HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS} entries`
     );
   }
   for (const cell of input.cells.slice(0, maxCells)) {
@@ -2039,13 +2003,13 @@ function validateResourcePlacementFeasibilityInput(
     if (!Array.isArray(cell.resourceTypes) || cell.resourceTypes.length === 0) {
       throw new Civ7DirectControlError(
         "command-failed",
-        "Resource placement feasibility cells require at least one resource type",
+        "Resource placement feasibility cells require at least one resource type"
       );
     }
     if (cell.resourceTypes.length > HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL) {
       throw new Civ7DirectControlError(
         "command-failed",
-        `Resource placement feasibility resource type lists must not exceed ${HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL} entries`,
+        `Resource placement feasibility resource type lists must not exceed ${HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL} entries`
       );
     }
     for (const resourceType of cell.resourceTypes.slice(0, maxResourceTypesPerCell)) {
@@ -2057,18 +2021,18 @@ function validateResourcePlacementFeasibilityInput(
 function validateFeaturePlacementFeasibilityInput(
   input: Civ7FeaturePlacementFeasibilityInput,
   maxCells: number,
-  maxFeatureTypesPerCell: number,
+  maxFeatureTypesPerCell: number
 ): void {
   if (!Array.isArray(input.cells) || input.cells.length === 0) {
     throw new Civ7DirectControlError(
       "command-failed",
-      "Feature placement feasibility reads require at least one cell",
+      "Feature placement feasibility reads require at least one cell"
     );
   }
   if (input.cells.length > HARD_CIV7_FEATURE_FEASIBILITY_MAX_CELLS) {
     throw new Civ7DirectControlError(
       "command-failed",
-      `Feature placement feasibility cell lists must not exceed ${HARD_CIV7_FEATURE_FEASIBILITY_MAX_CELLS} entries`,
+      `Feature placement feasibility cell lists must not exceed ${HARD_CIV7_FEATURE_FEASIBILITY_MAX_CELLS} entries`
     );
   }
   for (const cell of input.cells.slice(0, maxCells)) {
@@ -2076,20 +2040,20 @@ function validateFeaturePlacementFeasibilityInput(
     if (!Array.isArray(cell.featureTypes) || cell.featureTypes.length === 0) {
       throw new Civ7DirectControlError(
         "command-failed",
-        "Feature placement feasibility cells require at least one feature type",
+        "Feature placement feasibility cells require at least one feature type"
       );
     }
     if (cell.featureTypes.length > HARD_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL) {
       throw new Civ7DirectControlError(
         "command-failed",
-        `Feature placement feasibility feature type lists must not exceed ${HARD_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL} entries`,
+        `Feature placement feasibility feature type lists must not exceed ${HARD_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL} entries`
       );
     }
     for (const featureType of cell.featureTypes.slice(0, maxFeatureTypesPerCell)) {
       if (!Number.isInteger(featureType) || featureType < 0) {
         throw new Civ7DirectControlError(
           "command-failed",
-          `Feature placement feasibility feature types must be non-negative integers: ${featureType}`,
+          `Feature placement feasibility feature types must be non-negative integers: ${featureType}`
         );
       }
     }
@@ -2100,19 +2064,29 @@ function uniqueBoundedResourceTypes(resourceTypes: ReadonlyArray<number>): numbe
   if (resourceTypes.length > HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL) {
     throw new Civ7DirectControlError(
       "command-failed",
-      `ResourceBuilder diagnostic resource type lists must not exceed ${HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL} entries`,
+      `ResourceBuilder diagnostic resource type lists must not exceed ${HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL} entries`
     );
   }
-  return [...new Set(resourceTypes.map((resourceType) => boundedInteger(resourceType, 0, 1_000_000, "resourceType")))]
-    .sort((left, right) => left - right);
+  return [
+    ...new Set(
+      resourceTypes.map((resourceType) =>
+        boundedInteger(resourceType, 0, 1_000_000, "resourceType")
+      )
+    ),
+  ].sort((left, right) => left - right);
 }
 
 export function planCiv7MapGridReadBounds(
   bounds: Civ7MapBounds,
-  maxPlotsPerRead = HARD_CIV7_MAP_GRID_MAX_PLOTS,
+  maxPlotsPerRead = HARD_CIV7_MAP_GRID_MAX_PLOTS
 ): Civ7MapBounds[] {
   validateMapBounds(bounds);
-  const maxPlots = boundedInteger(maxPlotsPerRead, 1, HARD_CIV7_MAP_GRID_MAX_PLOTS, "maxPlotsPerRead");
+  const maxPlots = boundedInteger(
+    maxPlotsPerRead,
+    1,
+    HARD_CIV7_MAP_GRID_MAX_PLOTS,
+    "maxPlotsPerRead"
+  );
   const chunks: Civ7MapBounds[] = [];
   const chunkWidth = Math.min(bounds.width, maxPlots);
   const chunkHeight = Math.max(1, Math.floor(maxPlots / chunkWidth));
@@ -2137,9 +2111,11 @@ function requiredProbeNumber(probe: Civ7RuntimeProbe<number>, label: string): nu
 
 function assertFullMapGridSummaryIdentityStable(
   before: Civ7MapSummaryResult,
-  after: Civ7MapSummaryResult,
+  after: Civ7MapSummaryResult
 ): Civ7FullMapGridIdentityCheck {
-  const fields: ReadonlyArray<Readonly<{ label: string; before: Civ7RuntimeProbe<unknown>; after: Civ7RuntimeProbe<unknown> }>> = [
+  const fields: ReadonlyArray<
+    Readonly<{ label: string; before: Civ7RuntimeProbe<unknown>; after: Civ7RuntimeProbe<unknown> }>
+  > = [
     { label: "map.width", before: before.map.width, after: after.map.width },
     { label: "map.height", before: before.map.height, after: after.map.height },
     { label: "map.plotCount", before: before.map.plotCount, after: after.map.plotCount },
@@ -2150,13 +2126,16 @@ function assertFullMapGridSummaryIdentityStable(
   const checked: string[] = [];
   for (const field of fields) {
     if (!field.before.ok || !field.after.ok) {
-      throw new Civ7DirectControlError("command-failed", `Civ7 full-grid identity could not verify ${field.label}`);
+      throw new Civ7DirectControlError(
+        "command-failed",
+        `Civ7 full-grid identity could not verify ${field.label}`
+      );
     }
     checked.push(field.label);
     if (field.before.value !== field.after.value) {
       throw new Civ7DirectControlError(
         "command-failed",
-        `Civ7 full-grid identity changed during read: ${field.label} ${String(field.before.value)} -> ${String(field.after.value)}`,
+        `Civ7 full-grid identity changed during read: ${field.label} ${String(field.before.value)} -> ${String(field.after.value)}`
       );
     }
   }
@@ -2172,7 +2151,7 @@ function probeNumberOr(probe: Civ7RuntimeProbe<unknown>, fallback: number): numb
 async function waitForCiv7SetupRevisionAfter(
   before: Civ7SetupSnapshotResult,
   options: Civ7DirectControlOptions,
-  wait: { waitTimeoutMs: number; pollIntervalMs: number },
+  wait: { waitTimeoutMs: number; pollIntervalMs: number }
 ): Promise<Civ7SetupSnapshotResult> {
   const beforeRevision = probeValue(before.snapshot.setup.revision);
   const startedAt = Date.now();
@@ -2204,11 +2183,14 @@ async function waitForCiv7SetupRevisionAfter(
   throw new Civ7DirectControlError(
     "setup-apply-timeout",
     "Timed out waiting for Civ7 saved configuration load to update setup state",
-    { details: before },
+    { details: before }
   );
 }
 
-function toDirectControlError(err: unknown, fallbackCode: Civ7DirectControlErrorCode): Civ7DirectControlError {
+function toDirectControlError(
+  err: unknown,
+  fallbackCode: Civ7DirectControlErrorCode
+): Civ7DirectControlError {
   if (err instanceof Civ7DirectControlError) return err;
   return new Civ7DirectControlError(fallbackCode, errorMessage(err), { cause: err });
 }

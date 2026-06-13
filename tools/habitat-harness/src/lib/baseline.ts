@@ -77,8 +77,7 @@ export function checkBaselineIntegrity(base = "main"): BaselineIntegrityFinding[
   const findings: BaselineIntegrityFinding[] = [];
   const mb = mergeBase(base);
   if (!mb) return findings; // no merge-base (fresh clone edge) — nothing to compare
-  const rulePackAtBase =
-    gitShow(mb, "tools/habitat-harness/src/rules/rules.json") ?? "";
+  const rulePackAtBase = gitShow(mb, "tools/habitat-harness/src/rules/rules.json") ?? "";
   if (!existsSync(baselinesDir)) return findings;
   for (const file of readdirSync(baselinesDir)) {
     if (!file.endsWith(".json")) continue;

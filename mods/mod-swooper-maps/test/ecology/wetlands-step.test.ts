@@ -84,14 +84,23 @@ describe("ecology-features plan-wetlands step", () => {
     });
     stageArtifacts.hydrography.publish(ctx, { width, height, riverClass: new Uint8Array(size) });
     stageArtifacts.lakePlan.publish(ctx, { width, height, lakeMask: new Uint8Array(size) });
-    stageArtifacts.topography.publish(ctx, { width, height, landMask: new Uint8Array(size).fill(1) });
+    stageArtifacts.topography.publish(ctx, {
+      width,
+      height,
+      landMask: new Uint8Array(size).fill(1),
+    });
     stageArtifacts.mountains.publish(ctx, {
       width,
       height,
       mountainMask: new Uint8Array(size),
       hillMask: new Uint8Array(size),
     });
-    stageArtifacts.volcanoes.publish(ctx, { width, height, volcanoMask: new Uint8Array(size), volcanoes: [] });
+    stageArtifacts.volcanoes.publish(ctx, {
+      width,
+      height,
+      volcanoMask: new Uint8Array(size),
+      volcanoes: [],
+    });
 
     const config = {
       planWetlands: normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {

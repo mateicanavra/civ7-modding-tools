@@ -205,7 +205,9 @@ async function startPopulationPlacementTunerServer(): Promise<FakeTunerServer> {
           const operationCall = parseOperationCall(frame.message);
           if (operationCall) operationCalls.push(operationCall);
           if (operationCall?.kind === "validate") {
-            socket.write(encodeResponse(frame.listenerId, [JSON.stringify(operationValidation(operationCall))]));
+            socket.write(
+              encodeResponse(frame.listenerId, [JSON.stringify(operationValidation(operationCall))])
+            );
           } else if (operationCall?.kind === "send") {
             socket.write(
               encodeResponse(frame.listenerId, [
@@ -214,12 +216,12 @@ async function startPopulationPlacementTunerServer(): Promise<FakeTunerServer> {
                   beforePopulationPostcondition: populationPlacementPostconditionSnapshot(
                     operationCall.family,
                     operationCall.input,
-                    true,
+                    true
                   ),
                   afterPopulationPostcondition: populationPlacementPostconditionSnapshot(
                     operationCall.family,
                     operationCall.input,
-                    false,
+                    false
                   ),
                 }),
               ])
@@ -260,9 +262,7 @@ function operationValidation(operationCall: OperationCall) {
     family,
     operationType: input.operationType,
     enumValue: input.operationType,
-    target: family === "city-command"
-      ? { cityId: input.cityId }
-      : { playerId: input.playerId },
+    target: family === "city-command" ? { cityId: input.cityId } : { playerId: input.playerId },
     args: input.args,
     valid: true,
     result: { Success: true },
@@ -272,11 +272,12 @@ function operationValidation(operationCall: OperationCall) {
 function populationPlacementPostconditionSnapshot(
   family: string,
   input: OperationCall["input"],
-  isReadyToPlacePopulation: boolean,
+  isReadyToPlacePopulation: boolean
 ) {
-  const cityId = family === "city-command"
-    ? input.cityId ?? { owner: 0, id: 196610, type: 1 }
-    : { owner: 0, id: 196610, type: 1 };
+  const cityId =
+    family === "city-command"
+      ? (input.cityId ?? { owner: 0, id: 196610, type: 1 })
+      : { owner: 0, id: 196610, type: 1 };
   return {
     cityId,
     city: {
@@ -290,13 +291,14 @@ function populationPlacementPostconditionSnapshot(
     },
     isReadyToPlacePopulation: { ok: true, value: isReadyToPlacePopulation },
     cityWorkerCap: { ok: true, value: isReadyToPlacePopulation ? 4 : 5 },
-    workablePlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [2543, 2544] : [2543, 2544, 2545] },
+    workablePlotIndexes: {
+      ok: true,
+      value: isReadyToPlacePopulation ? [2543, 2544] : [2543, 2544, 2545],
+    },
     blockedPlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [2545] : [] },
     expansionPlotIndexes: {
       ok: true,
-      value: family === "city-command"
-        ? (isReadyToPlacePopulation ? [1660] : [1661])
-        : [],
+      value: family === "city-command" ? (isReadyToPlacePopulation ? [1660] : [1661]) : [],
     },
   };
 }

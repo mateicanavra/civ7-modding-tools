@@ -193,7 +193,8 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
           errors.push({
             code: "normalize.not.shape-preserving",
             path: stepPath,
-            message: "step.normalize returned a value that does not validate against the step schema",
+            message:
+              "step.normalize returned a value that does not validate against the step schema",
             stageId,
             stepId,
           });

@@ -9,29 +9,38 @@ describe("Civ7 setup catalog", () => {
   it("extracts setup options from official resource XML rows", async () => {
     const repoRoot = await mkdtemp(join(tmpdir(), "studio-civ7-catalog-"));
     try {
-      const resourceDir = join(repoRoot, ".civ7", "outputs", "resources", "Base", "modules", "base-standard", "data");
+      const resourceDir = join(
+        repoRoot,
+        ".civ7",
+        "outputs",
+        "resources",
+        "Base",
+        "modules",
+        "base-standard",
+        "data"
+      );
       await mkdir(resourceDir, { recursive: true });
       await writeFile(
         join(resourceDir, "leaders.xml"),
         `<Database><Leaders>
           <Row LeaderType="LEADER_ALEXANDER" Name="LOC_LEADER_ALEXANDER_NAME" IsMajorLeader="true"/>
           <Row LeaderType="LEADER_MINOR_CIV_DEFAULT" Name="LOC_MINOR"/>
-        </Leaders></Database>`,
+        </Leaders></Database>`
       );
       await writeFile(
         join(resourceDir, "civilizations.xml"),
         `<Database><Civilizations>
           <Row CivilizationType="CIVILIZATION_GREECE" Name="LOC_CIVILIZATION_GREECE_NAME" StartingCivilizationLevelType="CIVILIZATION_LEVEL_FULL_CIV"/>
           <Row CivilizationType="CIVILIZATION_INDEPENDENT" Name="LOC_CIVILIZATION_INDEPENDENT_NAME" StartingCivilizationLevelType="CIVILIZATION_LEVEL_INDEPENDENT"/>
-        </Civilizations></Database>`,
+        </Civilizations></Database>`
       );
       await writeFile(
         join(resourceDir, "difficulties.xml"),
-        `<Database><Difficulties><Row DifficultyType="DIFFICULTY_CUSTOM" Name="LOC_DIFFICULTY_CUSTOM_NAME"/></Difficulties></Database>`,
+        `<Database><Difficulties><Row DifficultyType="DIFFICULTY_CUSTOM" Name="LOC_DIFFICULTY_CUSTOM_NAME"/></Difficulties></Database>`
       );
       await writeFile(
         join(resourceDir, "game-speeds.xml"),
-        `<Database><GameSpeeds><Row><GameSpeedType>GAMESPEED_STANDARD</GameSpeedType><Name>LOC_GAMESPEED_STANDARD_NAME</Name></Row></GameSpeeds></Database>`,
+        `<Database><GameSpeeds><Row><GameSpeedType>GAMESPEED_STANDARD</GameSpeedType><Name>LOC_GAMESPEED_STANDARD_NAME</Name></Row></GameSpeeds></Database>`
       );
 
       const catalog = await loadCiv7SetupCatalog({

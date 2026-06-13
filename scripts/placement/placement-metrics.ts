@@ -44,7 +44,11 @@ function parseIntFlag(value: string | true | undefined, fallback: number): numbe
   return Number.isFinite(n) ? n : fallback;
 }
 
-function parseSize(value: string | true | undefined): { width: number; height: number; label: string } {
+function parseSize(value: string | true | undefined): {
+  width: number;
+  height: number;
+  label: string;
+} {
   const raw = typeof value === "string" ? value.trim().toLowerCase() : "standard";
   const explicit = /^(\d+)x(\d+)$/.exec(raw);
   if (explicit) {

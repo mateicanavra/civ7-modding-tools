@@ -15,10 +15,7 @@ function lastSummary(trace: any[], kind: string): unknown {
     .map((e) => e.data);
   return matches.at(-1) ?? null;
 }
-function tryPickLatestGridLayer(
-  manifest: ReturnType<typeof loadManifest>,
-  dataTypeKey: string
-) {
+function tryPickLatestGridLayer(manifest: ReturnType<typeof loadManifest>, dataTypeKey: string) {
   try {
     return pickLatestGridLayer(manifest, dataTypeKey);
   } catch {
@@ -26,10 +23,14 @@ function tryPickLatestGridLayer(
   }
 }
 
-
 function landmaskLayers(manifest: ReturnType<typeof loadManifest>) {
   return manifest.layers
-    .filter((l) => l.kind === "grid" && l.dataTypeKey === "morphology.topography.landMask" && l.field?.format === "u8")
+    .filter(
+      (l) =>
+        l.kind === "grid" &&
+        l.dataTypeKey === "morphology.topography.landMask" &&
+        l.field?.format === "u8"
+    )
     .slice()
     .sort((a, b) => (a.stepIndex ?? 0) - (b.stepIndex ?? 0));
 }
@@ -71,9 +72,15 @@ function maxU8(values: Uint8Array): number {
 
 function summarizeMountains(runDir: string, manifest: ReturnType<typeof loadManifest>) {
   // These keys are the stable, user-facing visualization outputs used in Mapgen Studio.
-  const mountainMaskLayer = tryPickLatestGridLayer(manifest, "map.morphology.mountains.mountainMask");
+  const mountainMaskLayer = tryPickLatestGridLayer(
+    manifest,
+    "map.morphology.mountains.mountainMask"
+  );
   const hillMaskLayer = tryPickLatestGridLayer(manifest, "map.morphology.mountains.hillMask");
-  const orogenyLayer = tryPickLatestGridLayer(manifest, "map.morphology.mountains.orogenyPotential");
+  const orogenyLayer = tryPickLatestGridLayer(
+    manifest,
+    "map.morphology.mountains.orogenyPotential"
+  );
 
   if (!mountainMaskLayer || !hillMaskLayer || !orogenyLayer) return null;
 
@@ -88,7 +95,12 @@ function summarizeMountains(runDir: string, manifest: ReturnType<typeof loadMani
   };
 }
 
-function diffLandmasks(runDirA: string, runDirB: string, manifestA: ReturnType<typeof loadManifest>, manifestB: ReturnType<typeof loadManifest>) {
+function diffLandmasks(
+  runDirA: string,
+  runDirB: string,
+  manifestA: ReturnType<typeof loadManifest>,
+  manifestB: ReturnType<typeof loadManifest>
+) {
   const layersA = landmaskLayers(manifestA);
   const layersB = landmaskLayers(manifestB);
   const byStepA = new Map(layersA.map((l) => [l.stepId, l] as const));
@@ -125,7 +137,8 @@ function main(): void {
   const { positionals } = parseArgs(process.argv.slice(2));
   const runDirA = positionals[0];
   const runDirB = positionals[1];
-  if (!runDirA) throw new Error('Usage: bun ./src/dev/diagnostics/analyze-dump.ts -- <runDirA> [runDirB]');
+  if (!runDirA)
+    throw new Error("Usage: bun ./src/dev/diagnostics/analyze-dump.ts -- <runDirA> [runDirB]");
 
   const manifestA = loadManifest(runDirA);
   const traceA = loadTraceLines(runDirA);

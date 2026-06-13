@@ -30,9 +30,9 @@ export const serverInfo = oc.input(emptyInputSchema).output(
         runInGameApiVersion: Type.Literal(2),
         viteCommand: Type.String(),
       },
-      { additionalProperties: false },
-    ),
-  ),
+      { additionalProperties: false }
+    )
+  )
 );
 
 const runInGamePhaseSchema = Type.Union([
@@ -80,7 +80,7 @@ const runInGameOperationSchema = Type.Object(
     result: Type.Optional(Type.Unknown()),
     recoveryActions: Type.Optional(Type.Array(Type.String())),
   },
-  { additionalProperties: Type.Unknown() },
+  { additionalProperties: Type.Unknown() }
 );
 
 const saveDeployPhaseSchema = Type.Union([
@@ -115,18 +115,20 @@ const saveDeployOperationSchema = Type.Object(
     details: Type.Optional(Type.Unknown()),
     recoveryActions: Type.Optional(Type.Array(Type.String())),
   },
-  { additionalProperties: Type.Unknown() },
+  { additionalProperties: Type.Unknown() }
 );
 
-const operationRegistryCurrentSchema = <OperationSchema extends typeof runInGameOperationSchema | typeof saveDeployOperationSchema>(
-  operationSchema: OperationSchema,
+const operationRegistryCurrentSchema = <
+  OperationSchema extends typeof runInGameOperationSchema | typeof saveDeployOperationSchema,
+>(
+  operationSchema: OperationSchema
 ) =>
   Type.Object(
     {
       active: Type.Union([operationSchema, Type.Null()]),
       recent: Type.Array(operationSchema),
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   );
 
 const operationsCurrentOutputSchema = Type.Object(
@@ -138,7 +140,7 @@ const operationsCurrentOutputSchema = Type.Object(
     runInGame: operationRegistryCurrentSchema(runInGameOperationSchema),
     saveDeploy: operationRegistryCurrentSchema(saveDeployOperationSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const operationsCurrentOutputStandardSchema = toStandardSchema(operationsCurrentOutputSchema);
@@ -152,7 +154,7 @@ const studioHelloEventSchema = Type.Object(
     serverStartedAt: Type.String(),
     observedAt: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const studioOperationEventSchema = Type.Union([
@@ -163,7 +165,7 @@ const studioOperationEventSchema = Type.Union([
       status: runInGameOperationSchema,
       observedAt: Type.String(),
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   ),
   Type.Object(
     {
@@ -172,7 +174,7 @@ const studioOperationEventSchema = Type.Union([
       status: saveDeployOperationSchema,
       observedAt: Type.String(),
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   ),
 ]);
 
@@ -182,7 +184,7 @@ const studioLiveGameEventSchema = Type.Object(
     state: liveGameStateSchema,
     observedAt: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const studioEventSchema = Type.Union([
@@ -212,6 +214,4 @@ export const operationsCurrent = oc
 // ---------------------------------------------------------------------------
 // Request: none. Output: event iterator over the sealed TypeBox event category.
 // The router emits an immediate `hello`, then yields the daemon-owned EventHub.
-export const eventsWatch = oc
-  .input(emptyInputSchema)
-  .output(studioEventIteratorSchema);
+export const eventsWatch = oc.input(emptyInputSchema).output(studioEventIteratorSchema);

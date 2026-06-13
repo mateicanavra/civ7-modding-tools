@@ -48,21 +48,25 @@ export function runTectonicHistoryChain(params) {
       cellToPlate: eraPlateId,
     };
 
-    const eraPlateMotion = computePlateMotion
-      .run({ mesh, plateGraph: eraPlateGraph, mantleForcing }, computePlateMotion.defaultConfig)
-      .plateMotion;
+    const eraPlateMotion = computePlateMotion.run(
+      { mesh, plateGraph: eraPlateGraph, mantleForcing },
+      computePlateMotion.defaultConfig
+    ).plateMotion;
 
-    const eraSegments = computeTectonicSegments
-      .run({ mesh, crust, plateGraph: eraPlateGraph, plateMotion: eraPlateMotion }, computeTectonicSegments.defaultConfig)
-      .segments;
+    const eraSegments = computeTectonicSegments.run(
+      { mesh, crust, plateGraph: eraPlateGraph, plateMotion: eraPlateMotion },
+      computeTectonicSegments.defaultConfig
+    ).segments;
 
-    const segmentEvents = computeSegmentEvents
-      .run({ mesh, crust, segments: eraSegments }, computeSegmentEvents.defaultConfig)
-      .events;
+    const segmentEvents = computeSegmentEvents.run(
+      { mesh, crust, segments: eraSegments },
+      computeSegmentEvents.defaultConfig
+    ).events;
 
-    const hotspotEvents = computeHotspotEvents
-      .run({ mesh, mantleForcing, eraPlateId }, computeHotspotEvents.defaultConfig)
-      .events;
+    const hotspotEvents = computeHotspotEvents.run(
+      { mesh, mantleForcing, eraPlateId },
+      computeHotspotEvents.defaultConfig
+    ).events;
 
     const eraWeight = eraPlateMembership.eraWeights[era] ?? 0;
     const eraT = eraPlateMembership.eraCount > 1 ? era / (eraPlateMembership.eraCount - 1) : 0;
@@ -93,7 +97,9 @@ export function runTectonicHistoryChain(params) {
       plateIdByEra: eraPlateMembership.plateIdByEra,
     },
     mergeConfig(computeTectonicHistoryRollups.defaultConfig, {
-      ...(config?.activityThreshold !== undefined ? { activityThreshold: config.activityThreshold } : {}),
+      ...(config?.activityThreshold !== undefined
+        ? { activityThreshold: config.activityThreshold }
+        : {}),
     })
   );
 
@@ -103,9 +109,10 @@ export function runTectonicHistoryChain(params) {
     throw new Error("[Foundation helper] failed to build tectonic era chain.");
   }
 
-  const tectonics = computeTectonicsCurrent
-    .run({ newestEra, upliftTotal: historyResult.tectonicHistory.upliftTotal }, computeTectonicsCurrent.defaultConfig)
-    .tectonics;
+  const tectonics = computeTectonicsCurrent.run(
+    { newestEra, upliftTotal: historyResult.tectonicHistory.upliftTotal },
+    computeTectonicsCurrent.defaultConfig
+  ).tectonics;
 
   const tracerResult = computeTracerAdvection.run(
     { mesh, mantleForcing, eras: eraFieldsChain, eraCount: eraPlateMembership.eraCount },

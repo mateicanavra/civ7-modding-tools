@@ -1,39 +1,44 @@
-import { describe, expect, test, vi } from 'vitest';
-import GamePlayProgressDashboard from '../../src/commands/game/play/progress-dashboard';
-import GamePlayTraditions from '../../src/commands/game/play/traditions';
-import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
-import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
+import { describe, expect, test, vi } from "vitest";
+import GamePlayProgressDashboard from "../../src/commands/game/play/progress-dashboard";
+import GamePlayTraditions from "../../src/commands/game/play/traditions";
+import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 
-describe('game play progression reads', () => {
-  test('reads live tradition slots and action hints', async () => {
+describe("game play progression reads", () => {
+  test("reads live tradition slots and action hints", async () => {
     const server = await startProgressionReadTunerServer();
     try {
       const { port } = server.address();
       const writes: string[] = [];
-      const log = vi.spyOn(GamePlayTraditions.prototype, 'log').mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
+      const log = vi
+        .spyOn(GamePlayTraditions.prototype, "log")
+        .mockImplementation((message?: string) => {
+          if (message) writes.push(message);
+        });
       try {
         await GamePlayTraditions.run([
-          '--host',
-          '127.0.0.1',
-          '--port',
+          "--host",
+          "127.0.0.1",
+          "--port",
           String(port),
-          '--player-id',
-          '0',
-          '--json',
+          "--player-id",
+          "0",
+          "--json",
         ]);
       } finally {
         log.mockRestore();
       }
 
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         view: {
           slots: { active: number; available: number };
           actions: { activate: number; deactivate: number };
           active: Array<{ id: number; name: string }>;
-          available: Array<{ id: number; actions: Array<{ kind: string; parameters: { traditionType: number; action: number } }> }>;
+          available: Array<{
+            id: number;
+            actions: Array<{ kind: string; parameters: { traditionType: number; action: number } }>;
+          }>;
           recommendedCli?: unknown;
         };
       };
@@ -42,45 +47,51 @@ describe('game play progression reads', () => {
       expect(payload.view.slots.available).toBe(2);
       expect(payload.view.actions.activate).toBe(-1326475004);
       expect(payload.view.actions.deactivate).toBe(1318334332);
-      expect(payload.view.active[0].name).toBe('Honor');
+      expect(payload.view.active[0].name).toBe("Honor");
       expect(payload.view.available[0].actions[0]).toMatchObject({
-        kind: 'activate',
+        kind: "activate",
         parameters: {
           traditionType: 90243567,
           action: -1326475004,
         },
       });
       expect(payload.view.recommendedCli).toBeUndefined();
-      expect(JSON.stringify(payload.view)).not.toContain('game play change-tradition');
-      expect(server.received.some((message) => message.includes('readTraditionsView'))).toBe(true);
+      expect(JSON.stringify(payload.view)).not.toContain("game play change-tradition");
+      expect(server.received.some((message) => message.includes("readTraditionsView"))).toBe(true);
     } finally {
       await server.close();
     }
   });
 
-  test('emits compact tradition option surface', async () => {
+  test("emits compact tradition option surface", async () => {
     const server = await startProgressionReadTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GamePlayTraditions.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
+    const log = vi
+      .spyOn(GamePlayTraditions.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
     try {
       const { port } = server.address();
       await GamePlayTraditions.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--player-id',
-        '0',
-        '--compact',
-        '--json',
+        "--player-id",
+        "0",
+        "--compact",
+        "--json",
       ]);
 
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         surface: string;
-        active: Array<{ id: number; name: string; nextAction: { kind: string; closeout: boolean } | null }>;
+        active: Array<{
+          id: number;
+          name: string;
+          nextAction: { kind: string; closeout: boolean } | null;
+        }>;
         available: Array<{
           id: number;
           name: string;
@@ -93,29 +104,32 @@ describe('game play progression reads', () => {
             sendsMutation: boolean;
           } | null;
         }>;
-        recommendedActions: Array<{ kind: string; parameters: { traditionType: number; action: number } }>;
+        recommendedActions: Array<{
+          kind: string;
+          parameters: { traditionType: number; action: number };
+        }>;
         enabledAvailableCount: number;
         disabledAvailableCount: number;
         omitted: Array<{ path: string }>;
         traditions?: unknown;
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
-      expect(payload.surface).toBe('traditions');
+      expect(payload.surface).toBe("traditions");
       expect(payload.traditions).toBeUndefined();
       expect(payload.active[0]).toMatchObject({
         id: -331546976,
-        name: 'Honor',
+        name: "Honor",
         nextAction: {
-          kind: 'deactivate',
+          kind: "deactivate",
           closeout: false,
         },
       });
       expect(payload.available[0]).toMatchObject({
         id: 90243567,
-        name: 'Oratory',
+        name: "Oratory",
         validationSuccess: true,
         nextAction: {
-          kind: 'activate',
+          kind: "activate",
           parameters: {
             traditionType: 90243567,
             action: -1326475004,
@@ -126,7 +140,7 @@ describe('game play progression reads', () => {
         },
       });
       expect(payload.recommendedActions[0]).toMatchObject({
-        kind: 'activate',
+        kind: "activate",
         parameters: {
           traditionType: 90243567,
           action: -1326475004,
@@ -134,56 +148,66 @@ describe('game play progression reads', () => {
       });
       expect(payload.recommendedActions).toHaveLength(1);
       expect(payload.available.find((tradition) => tradition.id === 111222333)).toMatchObject({
-        name: 'Discipline',
+        name: "Discipline",
         validationSuccess: false,
         nextAction: {
-          kind: 'validate-tradition-change',
+          kind: "validate-tradition-change",
           validationSuccess: false,
           readOnly: true,
           sendsMutation: false,
         },
       });
-      expect(payload.recommendedActions.every((action) => action.kind !== 'validate-tradition-change')).toBe(true);
-      expect(JSON.stringify(payload.recommendedActions)).not.toContain('111222333');
-      expect(JSON.stringify(payload)).not.toContain('game play change-tradition');
+      expect(
+        payload.recommendedActions.every((action) => action.kind !== "validate-tradition-change")
+      ).toBe(true);
+      expect(JSON.stringify(payload.recommendedActions)).not.toContain("111222333");
+      expect(JSON.stringify(payload)).not.toContain("game play change-tradition");
       expect(payload.enabledAvailableCount).toBe(1);
       expect(payload.disabledAvailableCount).toBe(1);
-      expect(payload.omitted.map((item) => item.path)).toContain('presentation.commandSuggestions');
-      expect(payload.omitted.map((item) => item.path)).toContain('presentation.actionDirections');
-      expect(payload.omitted.map((item) => item.path)).toContain('runtime.validationProbe');
-      expect(server.received.some((message) => message.includes('readTraditionsView'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-      expect(server.received.some((message) => message.includes('sendRequest('))).toBe(false);
+      expect(payload.omitted.map((item) => item.path)).toContain("presentation.commandSuggestions");
+      expect(payload.omitted.map((item) => item.path)).toContain("presentation.actionDirections");
+      expect(payload.omitted.map((item) => item.path)).toContain("runtime.validationProbe");
+      expect(server.received.some((message) => message.includes("readTraditionsView"))).toBe(true);
+      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
+      expect(server.received.some((message) => message.includes("sendRequest("))).toBe(false);
     } finally {
       log.mockRestore();
       await server.close();
     }
   });
 
-  test('emits compact progress dashboard from official runtime progress sources', async () => {
+  test("emits compact progress dashboard from official runtime progress sources", async () => {
     const server = await startProgressionReadTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GamePlayProgressDashboard.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
+    const log = vi
+      .spyOn(GamePlayProgressDashboard.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
     try {
       const { port } = server.address();
       await GamePlayProgressDashboard.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--compact',
-        '--json',
+        "--compact",
+        "--json",
       ]);
 
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         contractVersion: string;
         surface: string;
         summary: string;
         age: { ageType: string; ageProgressPercent: number };
-        legacyPaths: Array<{ classType: string; score: number; finalRequiredPathPoints: number; progressPercent: number; nextMilestone: string }>;
+        legacyPaths: Array<{
+          classType: string;
+          score: number;
+          finalRequiredPathPoints: number;
+          progressPercent: number;
+          nextMilestone: string;
+        }>;
         triumphs: { count: number };
         proof: { sources: string[] };
         nextAction: { kind: string; label: string } | null;
@@ -193,25 +217,35 @@ describe('game play progression reads', () => {
         view?: unknown;
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
-      expect(payload.contractVersion).toBe('play-agent-v0');
-      expect(payload.surface).toBe('progress-dashboard');
-      expect(payload.summary).toContain('AGE_ANTIQUITY progress');
-      expect(payload.age.ageType).toBe('AGE_ANTIQUITY');
+      expect(payload.contractVersion).toBe("play-agent-v0");
+      expect(payload.surface).toBe("progress-dashboard");
+      expect(payload.summary).toContain("AGE_ANTIQUITY progress");
+      expect(payload.age.ageType).toBe("AGE_ANTIQUITY");
       expect(payload.age.ageProgressPercent).toBe(2.1);
       expect(payload.legacyPaths).toHaveLength(4);
-      expect(payload.legacyPaths.find((path) => path.classType === 'culture')?.nextMilestone).toContain('ANTIQUITY_CULTURE_MILESTONE_1');
-      expect(payload.legacyPaths.find((path) => path.classType === 'science')?.progressPercent).toBe(10);
+      expect(
+        payload.legacyPaths.find((path) => path.classType === "culture")?.nextMilestone
+      ).toContain("ANTIQUITY_CULTURE_MILESTONE_1");
+      expect(
+        payload.legacyPaths.find((path) => path.classType === "science")?.progressPercent
+      ).toBe(10);
       expect(payload.triumphs.count).toBe(0);
-      expect(payload.proof.sources).toContain('player.LegacyPaths.getScore');
-      expect(payload.nextAction).toMatchObject({ kind: 'read-attention-priorities' });
-      expect(payload.nextSteps[0].kind).toBe('read-attention-priorities');
-      expect(JSON.stringify(payload.nextSteps)).not.toContain('game play ');
-      expect(JSON.stringify(payload)).not.toContain('game play ');
-      expect(payload.warnings.join(' ')).toContain('VictoryManager is module-local');
-      expect(payload.omitted.some((item) => item.path === 'dashboard.legacyPaths[].milestones')).toBe(true);
+      expect(payload.proof.sources).toContain("player.LegacyPaths.getScore");
+      expect(payload.nextAction).toMatchObject({ kind: "read-attention-priorities" });
+      expect(payload.nextSteps[0].kind).toBe("read-attention-priorities");
+      expect(JSON.stringify(payload.nextSteps)).not.toContain("game play ");
+      expect(JSON.stringify(payload)).not.toContain("game play ");
+      expect(payload.warnings.join(" ")).toContain("VictoryManager is module-local");
+      expect(
+        payload.omitted.some((item) => item.path === "dashboard.legacyPaths[].milestones")
+      ).toBe(true);
       expect(payload.view).toBeUndefined();
-      expect(server.received.some((message) => message.includes('readProgressDashboard'))).toBe(true);
-      expect(server.received.some((message) => message.includes('getHistoricalLegacyPointCountForTeam'))).toBe(true);
+      expect(server.received.some((message) => message.includes("readProgressDashboard"))).toBe(
+        true
+      );
+      expect(
+        server.received.some((message) => message.includes("getHistoricalLegacyPointCountForTeam"))
+      ).toBe(true);
     } finally {
       log.mockRestore();
       await server.close();
@@ -222,10 +256,10 @@ describe('game play progression reads', () => {
 async function startProgressionReadTunerServer(): Promise<FakeTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
-      if (message.includes('readTraditionsView')) {
+      if (message.includes("readTraditionsView")) {
         return [JSON.stringify(traditionsView())];
       }
-      if (message.includes('readProgressDashboard')) {
+      if (message.includes("readProgressDashboard")) {
         return [JSON.stringify(progressDashboardView())];
       }
       return undefined;
@@ -238,9 +272,9 @@ function traditionsView() {
   const deactivate = 1318334332;
   const available = {
     id: 90243567,
-    type: 'TRADITION_ORATORY',
-    name: 'Oratory',
-    description: 'Culture-facing policy.',
+    type: "TRADITION_ORATORY",
+    name: "Oratory",
+    description: "Culture-facing policy.",
     ageType: null,
     cultureSlotType: null,
     traitType: null,
@@ -250,9 +284,9 @@ function traditionsView() {
     recentUnlock: true,
     actionHints: [
       {
-        kind: 'activate',
+        kind: "activate",
         action: activate,
-        operationType: 'CHANGE_TRADITION',
+        operationType: "CHANGE_TRADITION",
         args: { TraditionType: 90243567, Action: activate },
         validation: { ok: true, value: { Success: true } },
       },
@@ -260,9 +294,9 @@ function traditionsView() {
   };
   const disabledAvailable = {
     id: 111222333,
-    type: 'TRADITION_DISCIPLINE',
-    name: 'Discipline',
-    description: 'Military-facing policy.',
+    type: "TRADITION_DISCIPLINE",
+    name: "Discipline",
+    description: "Military-facing policy.",
     ageType: null,
     cultureSlotType: null,
     traitType: null,
@@ -272,9 +306,9 @@ function traditionsView() {
     recentUnlock: false,
     actionHints: [
       {
-        kind: 'activate',
+        kind: "activate",
         action: activate,
-        operationType: 'CHANGE_TRADITION',
+        operationType: "CHANGE_TRADITION",
         args: { TraditionType: 111222333, Action: activate },
         validation: { ok: true, value: { Success: false } },
       },
@@ -282,9 +316,9 @@ function traditionsView() {
   };
   const active = {
     id: -331546976,
-    type: 'TRADITION_HONOR',
-    name: 'Honor',
-    description: 'Combat-facing policy.',
+    type: "TRADITION_HONOR",
+    name: "Honor",
+    description: "Combat-facing policy.",
     ageType: null,
     cultureSlotType: null,
     traitType: null,
@@ -294,9 +328,9 @@ function traditionsView() {
     recentUnlock: false,
     actionHints: [
       {
-        kind: 'deactivate',
+        kind: "deactivate",
         action: deactivate,
-        operationType: 'CHANGE_TRADITION',
+        operationType: "CHANGE_TRADITION",
         args: { TraditionType: -331546976, Action: deactivate },
         validation: { ok: true, value: { Success: true } },
       },
@@ -305,11 +339,11 @@ function traditionsView() {
   return {
     playerId: 0,
     turn: { ok: true, value: 92 },
-    turnDate: { ok: true, value: '1780 BCE' },
+    turnDate: { ok: true, value: "1780 BCE" },
     governmentType: { ok: true, value: 101 },
     government: {
-      type: 'GOVERNMENT_CHIEFDOM',
-      name: 'Chiefdom',
+      type: "GOVERNMENT_CHIEFDOM",
+      name: "Chiefdom",
     },
     slots: {
       total: { ok: true, value: 1 },
@@ -325,13 +359,21 @@ function traditionsView() {
     available: [available, disabledAvailable],
     recentUnlocks: [available],
     traditions: [active, available, disabledAvailable],
-    hiddenInfoPolicy: 'player-culture-runtime',
-    notes: ['Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.'],
+    hiddenInfoPolicy: "player-culture-runtime",
+    notes: [
+      "Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.",
+    ],
   };
 }
 
 function progressDashboardView() {
-  const milestone = (type: string, path: string, required: number, finalMilestone: boolean, complete = false) => ({
+  const milestone = (
+    type: string,
+    path: string,
+    required: number,
+    finalMilestone: boolean,
+    complete = false
+  ) => ({
     ageProgressionMilestoneType: type,
     legacyPathType: path,
     requiredPathPoints: required,
@@ -345,32 +387,47 @@ function progressDashboardView() {
     legacyPathClassType: string,
     score: number,
     finalRequiredPathPoints: number,
-    nextRequired: number,
+    nextRequired: number
   ) => ({
     legacyPathType,
     legacyPathClassType,
-    ageType: 'AGE_ANTIQUITY',
-    name: legacyPathType.replace('LEGACY_PATH_ANTIQUITY_', 'Antiquity '),
+    ageType: "AGE_ANTIQUITY",
+    name: legacyPathType.replace("LEGACY_PATH_ANTIQUITY_", "Antiquity "),
     description: null,
     enabledByDefault: true,
     enabledForPlayer: null,
     score: { ok: true, value: score },
     finalRequiredPathPoints,
-    nextMilestone: milestone(`${legacyPathType.replace('LEGACY_PATH_', '')}_MILESTONE_1`, legacyPathType, nextRequired, false),
+    nextMilestone: milestone(
+      `${legacyPathType.replace("LEGACY_PATH_", "")}_MILESTONE_1`,
+      legacyPathType,
+      nextRequired,
+      false
+    ),
     milestones: [
-      milestone(`${legacyPathType.replace('LEGACY_PATH_', '')}_MILESTONE_1`, legacyPathType, nextRequired, false),
-      milestone(`${legacyPathType.replace('LEGACY_PATH_', '')}_MILESTONE_3`, legacyPathType, finalRequiredPathPoints, true),
+      milestone(
+        `${legacyPathType.replace("LEGACY_PATH_", "")}_MILESTONE_1`,
+        legacyPathType,
+        nextRequired,
+        false
+      ),
+      milestone(
+        `${legacyPathType.replace("LEGACY_PATH_", "")}_MILESTONE_3`,
+        legacyPathType,
+        finalRequiredPathPoints,
+        true
+      ),
     ],
   });
   return {
     localPlayerId: 0,
     playerId: 0,
     turn: { ok: true, value: 5 },
-    turnDate: { ok: true, value: '3900 BCE' },
+    turnDate: { ok: true, value: "3900 BCE" },
     age: {
       hash: 2077444219,
-      ageType: 'AGE_ANTIQUITY',
-      name: 'Antiquity Age',
+      ageType: "AGE_ANTIQUITY",
+      name: "Antiquity Age",
       chronologyIndex: 0,
       isFinalAge: { ok: true, value: false },
       isSingleAge: { ok: true, value: false },
@@ -385,34 +442,46 @@ function progressDashboardView() {
       historicalLegacyPointCountForTeam: { ok: true, value: 0 },
     },
     legacyPaths: [
-      legacyPath('LEGACY_PATH_ANTIQUITY_CULTURE', 'LEGACY_PATH_CLASS_CULTURE', 0, 7, 2),
-      legacyPath('LEGACY_PATH_ANTIQUITY_MILITARY', 'LEGACY_PATH_CLASS_MILITARY', 0, 12, 6),
-      legacyPath('LEGACY_PATH_ANTIQUITY_SCIENCE', 'LEGACY_PATH_CLASS_SCIENCE', 1, 10, 3),
-      legacyPath('LEGACY_PATH_ANTIQUITY_ECONOMIC', 'LEGACY_PATH_CLASS_ECONOMIC', 0, 20, 7),
+      legacyPath("LEGACY_PATH_ANTIQUITY_CULTURE", "LEGACY_PATH_CLASS_CULTURE", 0, 7, 2),
+      legacyPath("LEGACY_PATH_ANTIQUITY_MILITARY", "LEGACY_PATH_CLASS_MILITARY", 0, 12, 6),
+      legacyPath("LEGACY_PATH_ANTIQUITY_SCIENCE", "LEGACY_PATH_CLASS_SCIENCE", 1, 10, 3),
+      legacyPath("LEGACY_PATH_ANTIQUITY_ECONOMIC", "LEGACY_PATH_CLASS_ECONOMIC", 0, 20, 7),
     ],
     victories: {
       rows: [
-        { victoryType: 'VICTORY_DOMINATION', victoryClassType: 'VICTORY_CLASS_DOMINATION', name: 'Domination', description: null },
-        { victoryType: 'VICTORY_SCORE', victoryClassType: 'VICTORY_CLASS_SCORE', name: 'Score', description: null },
+        {
+          victoryType: "VICTORY_DOMINATION",
+          victoryClassType: "VICTORY_CLASS_DOMINATION",
+          name: "Domination",
+          description: null,
+        },
+        {
+          victoryType: "VICTORY_SCORE",
+          victoryClassType: "VICTORY_CLASS_SCORE",
+          name: "Score",
+          description: null,
+        },
       ],
     },
     triumphs: {
       count: 0,
       rows: [],
-      source: 'runtime-gameinfo',
+      source: "runtime-gameinfo",
     },
     proof: {
-      victoryManagerGlobal: { ok: true, value: 'undefined' },
+      victoryManagerGlobal: { ok: true, value: "undefined" },
       sources: [
-        'GameInfo.LegacyPaths',
-        'player.LegacyPaths.getScore',
-        'GameInfo.AgeProgressionMilestones',
-        'Game.AgeProgressManager',
-        'GameInfo.Victories',
-        'GameInfo.Triumphs',
+        "GameInfo.LegacyPaths",
+        "player.LegacyPaths.getScore",
+        "GameInfo.AgeProgressionMilestones",
+        "Game.AgeProgressManager",
+        "GameInfo.Victories",
+        "GameInfo.Triumphs",
       ],
     },
-    hiddenInfoPolicy: 'local-player-runtime-progress',
-    notes: ['Read-only progress dashboard; it does not choose technologies, civics, productions, policies, or victory strategy.'],
+    hiddenInfoPolicy: "local-player-runtime-progress",
+    notes: [
+      "Read-only progress dashboard; it does not choose technologies, civics, productions, policies, or victory strategy.",
+    ],
   };
 }

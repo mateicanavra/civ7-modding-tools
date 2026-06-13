@@ -13,7 +13,9 @@ import {
 
 describe("Civ7 destination-analysis procedure descriptor", () => {
   test("records the neutral read-only destination analysis atom and resolves its schemas", () => {
-    const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7DestinationAnalysisProcedureDescriptor);
+    const summary = summarizeCiv7ProcedureCoreDescriptor(
+      Civ7DestinationAnalysisProcedureDescriptor
+    );
     expect(summary).toMatchObject({
       procedureKey: "strategy.destination.analysis",
       family: "strategy",
@@ -30,69 +32,86 @@ describe("Civ7 destination-analysis procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7DestinationAnalysisProcedureDescriptor,
-      Civ7DestinationAnalysisProcedureSchemaArtifacts,
+      Civ7DestinationAnalysisProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7DestinationAnalysisProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7DestinationAnalysisProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7DestinationAnalysisProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7DestinationAnalysisProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      playerId: 0,
-      origin: { x: 20, y: 14 },
-      destination: { x: 13, y: 17 },
-      corridorRadius: 2,
-      destinationRadius: 4,
-      maxPlayers: 12,
-      maxUnits: 16,
-      maxCities: 8,
-    })).toBe(true);
-    expect(Value.Check(resolved.inputSchema, {
-      origin: { x: 20, y: 14 },
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        playerId: 0,
+        origin: { x: 20, y: 14 },
+        destination: { x: 13, y: 17 },
+        corridorRadius: 2,
+        destinationRadius: 4,
+        maxPlayers: 12,
+        maxUnits: 16,
+        maxCities: 8,
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        origin: { x: 20, y: 14 },
+      })
+    ).toBe(false);
     expect(Value.Check(resolved.inputSchema, { destination: { x: 1.5, y: 0 } })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { destination: { x: 0, y: 0 }, corridorRadius: 9 })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { destination: { x: 0, y: 0 }, host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      destination: { x: 0, y: 0 },
-      rawCommand: "readDestinationAnalysis()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, { destination: { x: 0, y: 0 }, corridorRadius: 9 })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, { destination: { x: 0, y: 0 }, host: "127.0.0.1" })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        destination: { x: 0, y: 0 },
+        rawCommand: "readDestinationAnalysis()",
+      })
+    ).toBe(false);
     expect(Value.Check(resolved.outputSchema, destinationAnalysisResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...destinationAnalysisResult(),
-      destinationPressure: {
-        ...destinationAnalysisResult().destinationPressure,
-        units: [
-          {
-            ...destinationAnalysisResult().destinationPressure.units[0],
-            relationshipProof: "owner-mismatch",
-          },
-        ],
-      },
-    })).toBe(false);
-    expect(Value.Check(resolved.outputSchema, {
-      ...destinationAnalysisResult(),
-      destinationPressure: {
-        ...destinationAnalysisResult().destinationPressure,
-        units: [
-          {
-            ...destinationAnalysisResult().destinationPressure.units[0],
-            relationshipLabel: "enemy",
-          },
-        ],
-      },
-    })).toBe(false);
-    expect(Value.Check(resolved.outputSchema, {
-      ...destinationAnalysisResult(),
-      rawCommand: "readDestinationAnalysis()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...destinationAnalysisResult(),
+        destinationPressure: {
+          ...destinationAnalysisResult().destinationPressure,
+          units: [
+            {
+              ...destinationAnalysisResult().destinationPressure.units[0],
+              relationshipProof: "owner-mismatch",
+            },
+          ],
+        },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...destinationAnalysisResult(),
+        destinationPressure: {
+          ...destinationAnalysisResult().destinationPressure,
+          units: [
+            {
+              ...destinationAnalysisResult().destinationPressure.units[0],
+              relationshipLabel: "enemy",
+            },
+          ],
+        },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...destinationAnalysisResult(),
+        rawCommand: "readDestinationAnalysis()",
+      })
+    ).toBe(false);
   });
 
   test("calls the destination analysis atom through the procedure core without touching the live tuner", async () => {
     const validatedPlayers: number[] = [];
     const validatedLocations: Array<{ x: number; y: number }> = [];
-    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> =
+      [];
     const executeCalls: Array<{ host?: string; port?: number; command: string }> = [];
     const dependencies: DestinationAnalysisDependencies = {
       validatePlayerId: (playerId) => {
@@ -121,25 +140,28 @@ describe("Civ7 destination-analysis procedure descriptor", () => {
       parseDestinationAnalysis: () => destinationAnalysisResult(),
     };
 
-    const result = await callCiv7DestinationAnalysisProcedure({
-      playerId: 0,
-      origin: { x: 20, y: 14 },
-      destination: { x: 13, y: 17 },
-      corridorRadius: 2,
-      destinationRadius: 4,
-      maxPlayers: 12,
-      maxUnits: 16,
-      maxCities: 8,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7DestinationAnalysisProcedure(
+      {
+        playerId: 0,
+        origin: { x: 20, y: 14 },
+        destination: { x: 13, y: 17 },
+        corridorRadius: 2,
+        destinationRadius: 4,
+        maxPlayers: 12,
+        maxUnits: 16,
+        maxCities: 8,
       },
-      procedure: {
-        correlationId: "destination-analysis-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "destination-analysis-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(destinationAnalysisResult());
     expect(result.output.relationshipLabelPolicy).toEqual({
@@ -205,13 +227,18 @@ describe("Civ7 destination-analysis procedure descriptor", () => {
       parseDestinationAnalysis: () => destinationAnalysisResult(),
     };
 
-    await expect(callCiv7DestinationAnalysisProcedure({
-      destination: { x: 0, y: 0 },
-      corridorRadius: 9,
-    }, {
-      procedure: { correlationId: "destination-analysis-invalid-radius" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7DestinationAnalysisProcedure(
+        {
+          destination: { x: 0, y: 0 },
+          corridorRadius: 9,
+        },
+        {
+          procedure: { correlationId: "destination-analysis-invalid-radius" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -219,12 +246,17 @@ describe("Civ7 destination-analysis procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7DestinationAnalysisProcedure({
-      host: "127.0.0.1",
-    } as never, {
-      procedure: { correlationId: "destination-analysis-context-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7DestinationAnalysisProcedure(
+        {
+          host: "127.0.0.1",
+        } as never,
+        {
+          procedure: { correlationId: "destination-analysis-context-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

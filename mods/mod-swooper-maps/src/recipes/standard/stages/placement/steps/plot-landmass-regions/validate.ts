@@ -19,7 +19,9 @@ export function validateProjectionMetaArtifact(value: unknown): ValidationIssue[
     issues.push(issue(`projectionMeta.height ${String(value.height)} must be a positive integer.`));
   }
   if (value.wrapX !== true || value.wrapY !== false) {
-    issues.push(issue("projectionMeta must carry the Civ7 topology locks (wrapX=true, wrapY=false)."));
+    issues.push(
+      issue("projectionMeta must carry the Civ7 topology locks (wrapX=true, wrapY=false).")
+    );
   }
   return issues;
 }

@@ -11,7 +11,9 @@ import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike
 type KindEvent = { kind: string };
 
 function isKindEvent(value: unknown): value is KindEvent {
-  return Boolean(value) && typeof value === "object" && typeof (value as KindEvent).kind === "string";
+  return (
+    Boolean(value) && typeof value === "object" && typeof (value as KindEvent).kind === "string"
+  );
 }
 
 describe("Morphology tracing (observability hardening smoke)", () => {
@@ -31,7 +33,8 @@ describe("Morphology tracing (observability hardening smoke)", () => {
       StartSectorCols: 4,
     };
 
-    const full = (stageId: string, stepId: string) => `mod-swooper-maps.standard.${stageId}.${stepId}`;
+    const full = (stageId: string, stepId: string) =>
+      `mod-swooper-maps.standard.${stageId}.${stepId}`;
     const verboseSteps = [
       full("morphology-coasts", "landmass-plates"),
       full("morphology-routing", "routing"),

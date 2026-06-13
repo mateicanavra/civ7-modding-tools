@@ -229,7 +229,11 @@ describe("map-elevation/build-elevation", () => {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
-        adapter.setTerrainType(x, y, lakeMask[idx] === 1 ? adapter.getTerrainTypeIndex("TERRAIN_COAST") : FLAT_TERRAIN);
+        adapter.setTerrainType(
+          x,
+          y,
+          lakeMask[idx] === 1 ? adapter.getTerrainTypeIndex("TERRAIN_COAST") : FLAT_TERRAIN
+        );
         adapter.setWater(x, y, lakeMask[idx] === 1);
       }
     }

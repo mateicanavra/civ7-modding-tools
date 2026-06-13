@@ -25,7 +25,9 @@ const TransportMoistureInputSchema = Type.Object(
     /** Wind V component per tile (-127..127). */
     windV: TypedArraySchemas.i8({ description: "Wind V component per tile (-127..127)." }),
     /** Evaporation sources proxy (0..1) per tile. */
-    evaporation: TypedArraySchemas.f32({ description: "Evaporation sources proxy (0..1) per tile." }),
+    evaporation: TypedArraySchemas.f32({
+      description: "Evaporation sources proxy (0..1) per tile.",
+    }),
   },
   {
     additionalProperties: false,

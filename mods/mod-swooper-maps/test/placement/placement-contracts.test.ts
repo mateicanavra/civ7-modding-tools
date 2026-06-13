@@ -98,9 +98,7 @@ describe("placement product/effect contracts", () => {
     );
     expect(
       placementStepIds.indexOf("mod-swooper-maps.standard.placement.adjust-resources")
-    ).toBeLessThan(
-      placementStepIds.indexOf("mod-swooper-maps.standard.placement.place-resources")
-    );
+    ).toBeLessThan(placementStepIds.indexOf("mod-swooper-maps.standard.placement.place-resources"));
     expect(
       placementStepIds.indexOf("mod-swooper-maps.standard.placement.place-resources")
     ).toBeLessThan(

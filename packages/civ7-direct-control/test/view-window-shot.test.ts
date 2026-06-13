@@ -14,7 +14,7 @@ import { Civ7DirectControlError } from "../src/direct-control-error";
 // same parsing path as production captures.
 const PNG_1X1 = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-  "base64",
+  "base64"
 );
 
 const CAPTURE_ROW = {
@@ -121,7 +121,9 @@ describe("window-shot helper lifecycle", () => {
   });
 
   test("the embedded helper is window-scoped ScreenCaptureKit with TCC prompt + structured errors", () => {
-    expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).toContain("SCContentFilter(desktopIndependentWindow: window)");
+    expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).toContain(
+      "SCContentFilter(desktopIndependentWindow: window)"
+    );
     expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).toContain("SCScreenshotManager.captureImage");
     expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).toContain("CGPreflightScreenCaptureAccess()");
     expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).toContain("CGRequestScreenCaptureAccess()");
@@ -134,7 +136,9 @@ describe("window-shot helper lifecycle", () => {
     // Off-screen windows have stale backing stores: a temporary SCStream
     // forces fresh compositing WITHOUT activating the game or moving focus.
     expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).toContain("captureViaStream");
-    expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).toContain("SCStream(filter: filter, configuration: configuration, delegate: nil)");
+    expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).toContain(
+      "SCStream(filter: filter, configuration: configuration, delegate: nil)"
+    );
     expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).not.toContain("NSRunningApplication");
     expect(CIV7_WINDOW_SHOT_SWIFT_SOURCE).not.toContain("activate()");
     // The whole display is never a capture target.
@@ -167,10 +171,7 @@ describe("window-shot helper lifecycle", () => {
 describe("captureCiv7WindowShot", () => {
   test("captures the matched window and reports a hashable manifest", async () => {
     const { dependencies, execCalls } = fakeDependencies({ helperExists: true });
-    const result = await captureCiv7WindowShot(
-      { outputPath: "/tmp/out.png" },
-      dependencies,
-    );
+    const result = await captureCiv7WindowShot({ outputPath: "/tmp/out.png" }, dependencies);
     expect(execCalls[0]?.args.slice(0, 3)).toEqual(["capture", "--out", "/tmp/out.png"]);
     expect(execCalls[0]?.args).toContain("civilization");
     expect(result).toEqual({
@@ -198,14 +199,10 @@ describe("captureCiv7WindowShot", () => {
 
   test("passes an explicit window id through to the helper", async () => {
     const { dependencies, execCalls } = fakeDependencies({ helperExists: true });
-    await captureCiv7WindowShot(
-      { outputPath: "/tmp/out.png", windowId: 4242 },
-      dependencies,
-    );
+    await captureCiv7WindowShot({ outputPath: "/tmp/out.png", windowId: 4242 }, dependencies);
     expect(execCalls[0]?.args).toContain("--window-id");
     expect(execCalls[0]?.args).toContain("4242");
   });
-
 
   test("maps the helper's structured TCC failure to window-shot-permission-required", async () => {
     const { dependencies } = fakeDependencies({
@@ -218,7 +215,7 @@ describe("captureCiv7WindowShot", () => {
       }),
     });
     await expect(
-      captureCiv7WindowShot({ outputPath: "/tmp/out.png" }, dependencies),
+      captureCiv7WindowShot({ outputPath: "/tmp/out.png" }, dependencies)
     ).rejects.toMatchObject({
       name: "Civ7DirectControlError",
       code: "window-shot-permission-required",
@@ -237,7 +234,7 @@ describe("captureCiv7WindowShot", () => {
       }),
     });
     await expect(
-      captureCiv7WindowShot({ outputPath: "/tmp/out.png" }, dependencies),
+      captureCiv7WindowShot({ outputPath: "/tmp/out.png" }, dependencies)
     ).rejects.toMatchObject({
       code: "window-shot-window-not-found",
     });
@@ -250,7 +247,7 @@ describe("captureCiv7WindowShot", () => {
       helperStdout: "",
     });
     await expect(
-      captureCiv7WindowShot({ outputPath: "/tmp/out.png" }, dependencies),
+      captureCiv7WindowShot({ outputPath: "/tmp/out.png" }, dependencies)
     ).rejects.toMatchObject({ code: "window-shot-failed" });
   });
 
@@ -260,7 +257,7 @@ describe("captureCiv7WindowShot", () => {
       helperStdout: "not-json",
     });
     await expect(
-      captureCiv7WindowShot({ outputPath: "/tmp/out.png" }, dependencies),
+      captureCiv7WindowShot({ outputPath: "/tmp/out.png" }, dependencies)
     ).rejects.toBeInstanceOf(Civ7DirectControlError);
   });
 });
@@ -269,11 +266,7 @@ describe("appshot retention", () => {
   test("the managed default destination self-cleans: appshots past retention are dropped", async () => {
     const { dependencies, removed } = fakeDependencies({
       helperExists: true,
-      directoryEntries: [
-        "civ7-appshot-old.png",
-        "civ7-appshot-fresh.png",
-        "user-file.png",
-      ],
+      directoryEntries: ["civ7-appshot-old.png", "civ7-appshot-fresh.png", "user-file.png"],
       stalePaths: ["civ7-appshot-old.png"],
     });
     const result = await captureCiv7WindowShot({}, dependencies);

@@ -1,9 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  progressionTargetProofPostcondition,
-  requestCiv7ProgressionTarget,
-} from "../src/index";
+import { progressionTargetProofPostcondition, requestCiv7ProgressionTarget } from "../src/index";
 import type { Civ7OperationRequestResult } from "../src/play/operations/validate-request";
 
 describe("progression target requests", () => {
@@ -32,7 +29,7 @@ describe("progression target requests", () => {
         invalidNodeError: () => {
           throw new Error("invalid node");
         },
-      },
+      }
     );
 
     expect(result).toMatchObject({
@@ -75,7 +72,7 @@ describe("progression target requests", () => {
         invalidNodeError: () => {
           throw new Error("invalid node");
         },
-      },
+      }
     );
 
     expect(result.postcondition).toMatchObject({
@@ -100,7 +97,7 @@ describe("progression target requests", () => {
         invalidNodeError: () => {
           throw new Error("invalid node");
         },
-      },
+      }
     );
 
     expect(result).toMatchObject({
@@ -133,8 +130,8 @@ describe("progression target requests", () => {
           invalidNodeError: () => {
             throw new Error("invalid node");
           },
-        },
-      ),
+        }
+      )
     ).rejects.toThrow("invalid node");
   });
 });
@@ -146,7 +143,7 @@ function operationResult(
     operationType: string;
     playerId: number;
     node: number;
-  }>,
+  }>
 ): Civ7OperationRequestResult {
   const valid = options.valid ?? true;
   return {
@@ -163,7 +160,7 @@ function validationResult(
     playerId: number;
     node: number;
   }>,
-  valid: boolean,
+  valid: boolean
 ): Civ7OperationRequestResult["before"] {
   return {
     host: "127.0.0.1",

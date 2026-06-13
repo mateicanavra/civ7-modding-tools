@@ -64,7 +64,8 @@ function resolveJsToTsInRepo(): Plugin {
     setup(build) {
       build.onResolve({ filter: /\.[mc]?js$/ }, (args) => {
         if (!args.importer) return null;
-        if (args.importer.includes("/node_modules/") || args.importer.includes("\\node_modules\\")) return null;
+        if (args.importer.includes("/node_modules/") || args.importer.includes("\\node_modules\\"))
+          return null;
         if (!args.path.startsWith(".") && !args.path.startsWith("/")) return null;
 
         const qIndex = args.path.indexOf("?");

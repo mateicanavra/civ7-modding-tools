@@ -35,7 +35,7 @@ export function createCiv7NarrativeChoiceTelemetryRecord(
   const evidenceClass = input.allowedProofClasses?.[0] ?? "local-package-test";
   const evidence = <T>(
     value: T,
-    freshness: Civ7OperationTelemetryEvidence<T>["freshness"],
+    freshness: Civ7OperationTelemetryEvidence<T>["freshness"]
   ): Civ7OperationTelemetryEvidence<T> => ({
     evidenceClass,
     source: input.source,
@@ -106,20 +106,21 @@ export function createCiv7NarrativeChoiceTelemetryRecord(
             requestFamily: "player-operation",
             reason: input.result.postcondition?.reason ?? "Narrative choice was not sent.",
           },
-    post_read: input.result.sent || input.result.payload
-      ? evidence(
-          {
-            beforeBlockingNotificationId: input.result.before.blockingNotificationId,
-            afterBlockingNotificationId: input.result.after.blockingNotificationId,
-            beforeCanEndTurn: input.result.before.canEndTurn,
-            afterCanEndTurn: input.result.after.canEndTurn,
-            beforeNotifications: input.result.before.notifications,
-            afterNotifications: input.result.after.notifications,
-            ui: input.result.payload?.ui,
-          },
-          input.result.sent ? "read-after-send" : "read-before-send"
-        )
-      : undefined,
+    post_read:
+      input.result.sent || input.result.payload
+        ? evidence(
+            {
+              beforeBlockingNotificationId: input.result.before.blockingNotificationId,
+              afterBlockingNotificationId: input.result.after.blockingNotificationId,
+              beforeCanEndTurn: input.result.before.canEndTurn,
+              afterCanEndTurn: input.result.after.canEndTurn,
+              beforeNotifications: input.result.before.notifications,
+              afterNotifications: input.result.after.notifications,
+              ui: input.result.payload?.ui,
+            },
+            input.result.sent ? "read-after-send" : "read-before-send"
+          )
+        : undefined,
     validation_post: input.result.sent
       ? evidence(
           {

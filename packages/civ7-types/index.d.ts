@@ -247,13 +247,7 @@ declare global {
   // FractalBuilder - Fractal noise generation
   // ---------------------------------------------------------------------------
   const FractalBuilder: {
-    create(
-      fractalId: number,
-      width: number,
-      height: number,
-      grain: number,
-      flags: number
-    ): void;
+    create(fractalId: number, width: number, height: number, grain: number, flags: number): void;
     getHeight(fractalId: number, x: number, y: number): number;
     getHeightFromPercent(fractalId: number, percent: number): number;
   };
@@ -412,11 +406,7 @@ declare module "/base-standard/maps/assign-starting-plots.js" {
 
 declare module "/base-standard/maps/elevation-terrain-generator.js" {
   export function expandCoasts(width: number, height: number): void;
-  export function generateLakes(
-    width: number,
-    height: number,
-    tilesPerLake: number
-  ): void;
+  export function generateLakes(width: number, height: number, tilesPerLake: number): void;
 }
 
 declare module "/base-standard/maps/map-globals.js" {
@@ -470,11 +460,7 @@ declare module "/base-standard/scripts/voronoi-utils.js" {
   export type RegionCellPosGetter = (cell: RegionCell) => [number, number];
 
   export const VoronoiUtils: {
-    assignCellsToRegions(
-      cells: RegionCell[],
-      regions: any[],
-      posGetter: RegionCellPosGetter
-    ): void;
+    assignCellsToRegions(cells: RegionCell[], regions: any[], posGetter: RegionCellPosGetter): void;
   };
 }
 

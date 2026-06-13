@@ -45,7 +45,12 @@ function boundsFromPositions(positions: Float32Array): Bounds {
     if (y > maxY) maxY = y;
   }
 
-  if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
+  if (
+    !Number.isFinite(minX) ||
+    !Number.isFinite(minY) ||
+    !Number.isFinite(maxX) ||
+    !Number.isFinite(maxY)
+  ) {
     return [0, 0, 1, 1];
   }
 
@@ -114,7 +119,12 @@ export function createTraceDumpSink(options: { outputRoot: string }): TraceSink 
       if (data.type !== "viz.layer.dump.v1") return;
       const payload = data as unknown as { type: "viz.layer.dump.v1"; layer: VizLayerEmissionV1 };
       const stepIndex = stepIndexById.get(event.stepId) ?? -1;
-      const layer: VizLayerEntryV1 = { ...payload.layer, stepId: event.stepId, phase: event.phase, stepIndex };
+      const layer: VizLayerEntryV1 = {
+        ...payload.layer,
+        stepId: event.stepId,
+        phase: event.phase,
+        stepIndex,
+      };
       manifest.layers.push(layer);
       writeFileSync(join(runDir, "manifest.json"), JSON.stringify(manifest, null, 2));
     } catch {
@@ -140,7 +150,11 @@ function scalarField(args: {
     format: args.format,
     stats:
       args.stats ??
-      computeVizScalarStats({ format: args.format, values: args.values, noData: args.valueSpec?.noData }) ??
+      computeVizScalarStats({
+        format: args.format,
+        values: args.values,
+        noData: args.valueSpec?.noData,
+      }) ??
       undefined,
     valueSpec: args.valueSpec,
     data: pathRef(args.path),

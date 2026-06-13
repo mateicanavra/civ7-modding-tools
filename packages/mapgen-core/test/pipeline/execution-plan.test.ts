@@ -25,9 +25,7 @@ const baseEnv = {
 describe("compileExecutionPlan", () => {
   it("compiles a linear recipe into ordered plan nodes", () => {
     const registry = new StepRegistry<unknown>();
-    registry.registerTags([
-      { id: TEST_TAGS.artifact.foundationPlates, kind: "artifact" },
-    ]);
+    registry.registerTags([{ id: TEST_TAGS.artifact.foundationPlates, kind: "artifact" }]);
     registry.register({
       id: "alpha",
       phase: "foundation",
@@ -235,11 +233,7 @@ describe("compileExecutionPlan", () => {
     );
 
     const adapter = createMockAdapter({ width: 2, height: 2, rng: () => 0 });
-    const context = createExtendedMapContext(
-      { width: 2, height: 2 },
-      adapter,
-      baseEnv
-    );
+    const context = createExtendedMapContext({ width: 2, height: 2 }, adapter, baseEnv);
     const executor = new PipelineExecutor(registry, { log: () => {} });
     executor.executePlan(context, plan);
 

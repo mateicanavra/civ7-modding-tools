@@ -69,7 +69,8 @@ const PlotEffectsBurnedPlanSchema = Type.Object({
     default: 8,
     minimum: 0,
     maximum: 100,
-    description: "Percent of eligible burned tiles to place (deterministic top-coverage selection).",
+    description:
+      "Percent of eligible burned tiles to place (deterministic top-coverage selection).",
   }),
 });
 

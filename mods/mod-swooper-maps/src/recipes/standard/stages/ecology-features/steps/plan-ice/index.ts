@@ -10,14 +10,17 @@ import {
 import PlanIceStepContract from "./contract.js";
 
 export default createStep(PlanIceStepContract, {
-  artifacts: implementArtifacts([ecologyArtifacts.featureIntentsIce, ecologyArtifacts.occupancyIce], {
-    featureIntentsIce: {
-      validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
-    },
-    occupancyIce: {
-      validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
-    },
-  }),
+  artifacts: implementArtifacts(
+    [ecologyArtifacts.featureIntentsIce, ecologyArtifacts.occupancyIce],
+    {
+      featureIntentsIce: {
+        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+      },
+      occupancyIce: {
+        validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
+      },
+    }
+  ),
   run: (context, config, ops, deps) => {
     const base = deps.artifacts.occupancyFloodplains.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);

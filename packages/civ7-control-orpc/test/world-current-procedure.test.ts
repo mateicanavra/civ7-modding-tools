@@ -14,15 +14,21 @@ describe("world.current control-oRPC procedure", () => {
   test("projects bounded current-world facts from playable status snapshot evidence", async () => {
     const fake = fakeContext(playableStatusResult());
 
-    const result = await call(Civ7ControlOrpcRouter.world.current, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.world.current,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
-    expect(fake.calls).toEqual([{
-      host: "127.0.0.1",
-      port: 4318,
-      timeoutMs: 1_000,
-    }]);
+    expect(fake.calls).toEqual([
+      {
+        host: "127.0.0.1",
+        port: 4318,
+        timeoutMs: 1_000,
+      },
+    ]);
     expect(result).toEqual({
       playable: true,
       readiness: "tuner-ready",
@@ -61,17 +67,19 @@ describe("world.current control-oRPC procedure", () => {
         alivePlayerCount: 3,
         nextStepCount: 1,
       },
-      nextSteps: [{
-        kind: "read-attention",
-        source: "world.current",
-        label: "Read current attention before choosing support actions.",
-      }],
+      nextSteps: [
+        {
+          kind: "read-attention",
+          source: "world.current",
+          label: "Read current attention before choosing support actions.",
+        },
+      ],
     });
 
     const serialized = JSON.stringify(result);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
     expect(serialized).not.toContain("App UI");
     expect(serialized).not.toContain("Tuner");
     expect(serialized).not.toContain("relationship");
@@ -80,10 +88,12 @@ describe("world.current control-oRPC procedure", () => {
   });
 
   test("supports the in-process server-side router client for shell state", async () => {
-    const fake = fakeContext(playableStatusResult({
-      playable: false,
-      readiness: "shell",
-    }));
+    const fake = fakeContext(
+      playableStatusResult({
+        playable: false,
+        readiness: "shell",
+      })
+    );
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
     const result = await client.world.current({});
@@ -101,10 +111,12 @@ describe("world.current control-oRPC procedure", () => {
         width: null,
         height: null,
       },
-      nextSteps: [{
-        kind: "enter-game",
-        source: "world.current",
-      }],
+      nextSteps: [
+        {
+          kind: "enter-game",
+          source: "world.current",
+        },
+      ],
     });
     expect(result.players.alivePlayerIds).toEqual([]);
   });
@@ -125,7 +137,7 @@ describe("world.current control-oRPC procedure", () => {
       await expect(
         call(Civ7ControlOrpcRouter.world.current, input as never, {
           context: fake.context,
-        }),
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls).toEqual([]);
     }
@@ -135,16 +147,12 @@ describe("world.current control-oRPC procedure", () => {
     const context: Civ7ControlOrpcContext = {
       directControl: {
         getCiv7PlayableStatus: async () => {
-          throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:1:Game.turn",
-          );
+          throw new Error("Timed out waiting for Civ7 tuner response to CMD:1:Game.turn");
         },
       } as Civ7ControlOrpcContext["directControl"],
     };
 
-    await expect(
-      call(Civ7ControlOrpcRouter.world.current, {}, { context }),
-    ).rejects.toMatchObject({
+    await expect(call(Civ7ControlOrpcRouter.world.current, {}, { context })).rejects.toMatchObject({
       code: "WORLD_CURRENT_UNAVAILABLE",
       status: 503,
       data: {
@@ -173,17 +181,14 @@ describe("world.current control-oRPC procedure", () => {
         risk: "read-only",
       },
     });
-    expect(Civ7ControlOrpcContract.world.current["~orpc"].errorMap)
-      .toHaveProperty("WORLD_CURRENT_UNAVAILABLE");
-    expect(Civ7WorldCurrentUnavailableError.code).toBe(
-      "WORLD_CURRENT_UNAVAILABLE",
+    expect(Civ7ControlOrpcContract.world.current["~orpc"].errorMap).toHaveProperty(
+      "WORLD_CURRENT_UNAVAILABLE"
     );
+    expect(Civ7WorldCurrentUnavailableError.code).toBe("WORLD_CURRENT_UNAVAILABLE");
   });
 });
 
-function fakeContext(
-  result: Civ7ControlOrpcPlayableStatusResult,
-): {
+function fakeContext(result: Civ7ControlOrpcPlayableStatusResult): {
   calls: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
   context: Civ7ControlOrpcContext;
 } {
@@ -211,7 +216,7 @@ function playableStatusResult(
   overrides: Partial<{
     playable: boolean;
     readiness: Civ7ControlOrpcPlayableStatusResult["readiness"];
-  }> = {},
+  }> = {}
 ): Civ7ControlOrpcPlayableStatusResult {
   return {
     host: "127.0.0.1",

@@ -7,9 +7,7 @@ import {
   type Civ7OperationRequestResult,
 } from "../operations/validate-request";
 
-export type Civ7TownFocusRequestKind =
-  | "town-focus-change"
-  | "town-focus-review";
+export type Civ7TownFocusRequestKind = "town-focus-change" | "town-focus-review";
 
 export type Civ7TownFocusChangeInput = Readonly<{
   kind: "town-focus-change";
@@ -24,13 +22,9 @@ export type Civ7TownFocusReviewInput = Readonly<{
   cityId: Civ7ComponentId;
 }>;
 
-export type Civ7TownFocusRequestInput =
-  | Civ7TownFocusChangeInput
-  | Civ7TownFocusReviewInput;
+export type Civ7TownFocusRequestInput = Civ7TownFocusChangeInput | Civ7TownFocusReviewInput;
 
-export type Civ7TownFocusPostconditionClassification =
-  | "not-sent"
-  | "pending-runtime-proof";
+export type Civ7TownFocusPostconditionClassification = "not-sent" | "pending-runtime-proof";
 
 export type Civ7TownFocusPostcondition = Readonly<{
   classification: Civ7TownFocusPostconditionClassification;
@@ -48,15 +42,17 @@ type Civ7TownFocusRequestResultBase = Readonly<{
 }>;
 
 export type Civ7TownFocusRequestResult =
-  | Civ7TownFocusRequestResultBase & Readonly<{
-    kind: "town-focus-change";
-    growthType: number;
-    projectType: number;
-    city: number;
-  }>
-  | Civ7TownFocusRequestResultBase & Readonly<{
-    kind: "town-focus-review";
-  }>;
+  | (Civ7TownFocusRequestResultBase &
+      Readonly<{
+        kind: "town-focus-change";
+        growthType: number;
+        projectType: number;
+        city: number;
+      }>)
+  | (Civ7TownFocusRequestResultBase &
+      Readonly<{
+        kind: "town-focus-review";
+      }>);
 
 type TownFocusDependencies = Readonly<{
   requestCityCommand: (
@@ -65,7 +61,7 @@ type TownFocusDependencies = Readonly<{
       operationType: string;
       args: Readonly<Record<string, number>>;
     }>,
-    options: Civ7DirectControlOptions,
+    options: Civ7DirectControlOptions
   ) => Promise<Civ7OperationRequestResult>;
   requestCityOperation: (
     input: Readonly<{
@@ -73,7 +69,7 @@ type TownFocusDependencies = Readonly<{
       operationType: string;
       args: Readonly<Record<string, number>>;
     }>,
-    options: Civ7DirectControlOptions,
+    options: Civ7DirectControlOptions
   ) => Promise<Civ7OperationRequestResult>;
   invalidIntegerError: (field: string) => never;
 }>;
@@ -81,20 +77,27 @@ type TownFocusDependencies = Readonly<{
 export async function requestCiv7TownFocus(
   input: Civ7TownFocusRequestInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: TownFocusDependencies = defaultTownFocusDependencies,
+  dependencies: TownFocusDependencies = defaultTownFocusDependencies
 ): Promise<Civ7TownFocusRequestResult> {
   const request = townFocusOperation(input, dependencies);
-  const operation = input.kind === "town-focus-change"
-    ? await dependencies.requestCityCommand({
-      cityId: input.cityId,
-      operationType: request.operationType,
-      args: request.args,
-    }, options)
-    : await dependencies.requestCityOperation({
-      cityId: input.cityId,
-      operationType: request.operationType,
-      args: request.args,
-    }, options);
+  const operation =
+    input.kind === "town-focus-change"
+      ? await dependencies.requestCityCommand(
+          {
+            cityId: input.cityId,
+            operationType: request.operationType,
+            args: request.args,
+          },
+          options
+        )
+      : await dependencies.requestCityOperation(
+          {
+            cityId: input.cityId,
+            operationType: request.operationType,
+            args: request.args,
+          },
+          options
+        );
   const sent = operation.sent === true;
   const common = {
     cityId: input.cityId,
@@ -124,27 +127,33 @@ export async function requestCiv7TownFocus(
 
 export async function requestCiv7TownFocusChange(
   input: Omit<Civ7TownFocusChangeInput, "kind">,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7TownFocusRequestResult> {
-  return await requestCiv7TownFocus({
-    ...input,
-    kind: "town-focus-change",
-  }, options);
+  return await requestCiv7TownFocus(
+    {
+      ...input,
+      kind: "town-focus-change",
+    },
+    options
+  );
 }
 
 export async function requestCiv7TownFocusReviewCloseout(
   input: Omit<Civ7TownFocusReviewInput, "kind">,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7TownFocusRequestResult> {
-  return await requestCiv7TownFocus({
-    ...input,
-    kind: "town-focus-review",
-  }, options);
+  return await requestCiv7TownFocus(
+    {
+      ...input,
+      kind: "town-focus-review",
+    },
+    options
+  );
 }
 
 function townFocusOperation(
   input: Civ7TownFocusRequestInput,
-  dependencies: Pick<TownFocusDependencies, "invalidIntegerError">,
+  dependencies: Pick<TownFocusDependencies, "invalidIntegerError">
 ): Readonly<{
   operationType: string;
   args: Readonly<Record<string, number>>;
@@ -176,7 +185,7 @@ function townFocusOperation(
 
 function townFocusPostcondition(
   sent: boolean,
-  kind: Civ7TownFocusRequestKind,
+  kind: Civ7TownFocusRequestKind
 ): Civ7TownFocusPostcondition {
   if (!sent) {
     return {

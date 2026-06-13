@@ -26,4 +26,3 @@ const ScoreVegetationTaigaContract = defineOp({
 });
 
 export default ScoreVegetationTaigaContract;
-

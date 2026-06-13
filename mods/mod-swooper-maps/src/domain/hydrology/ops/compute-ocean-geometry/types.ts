@@ -11,4 +11,3 @@ export type ComputeOceanGeometryOutput = Readonly<{
   coastTangentU: Int8Array;
   coastTangentV: Int8Array;
 }>;
-

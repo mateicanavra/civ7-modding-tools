@@ -31,43 +31,56 @@ describe("Civ7 GameInfo rows procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7GameInfoRowsProcedureDescriptor,
-      Civ7GameInfoRowsProcedureSchemaArtifacts,
+      Civ7GameInfoRowsProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7GameInfoRowsProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7GameInfoRowsProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7GameInfoRowsProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7GameInfoRowsProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      table: "Resources",
-      limit: 2,
-      offset: 0,
-      lookup: ["RESOURCE_COTTON"],
-      filter: { key: "ResourceType", equals: "RESOURCE_COTTON" },
-      includeSchema: true,
-      includePrimaryKeys: true,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        table: "Resources",
+        limit: 2,
+        offset: 0,
+        lookup: ["RESOURCE_COTTON"],
+        filter: { key: "ResourceType", equals: "RESOURCE_COTTON" },
+        includeSchema: true,
+        includePrimaryKeys: true,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { table: "Resources;DROP" })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { table: "Resources", limit: 0 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { table: "Resources", limit: 1_001 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { table: "Resources", offset: -1 })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      table: "Resources",
-      filter: { key: "Resource-Type", equals: "RESOURCE_COTTON" },
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { table: "Resources", host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { table: "Resources", state: { role: "tuner" } })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { table: "Resources", rawCommand: "GameInfo.Resources" })).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        table: "Resources",
+        filter: { key: "Resource-Type", equals: "RESOURCE_COTTON" },
+      })
+    ).toBe(false);
+    expect(Value.Check(resolved.inputSchema, { table: "Resources", host: "127.0.0.1" })).toBe(
+      false
+    );
+    expect(
+      Value.Check(resolved.inputSchema, { table: "Resources", state: { role: "tuner" } })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, { table: "Resources", rawCommand: "GameInfo.Resources" })
+    ).toBe(false);
     expect(Value.Check(resolved.outputSchema, gameInfoRowsResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...gameInfoRowsResult(),
-      command: "GameInfo.Resources",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...gameInfoRowsResult(),
+        command: "GameInfo.Resources",
+      })
+    ).toBe(false);
   });
 
   test("calls the GameInfo rows atom through the procedure core without touching the live tuner", async () => {
-    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> =
+      [];
     const identifiers: Array<{ value: string; label: string }> = [];
     const executeCalls: Array<{
       host?: string;
@@ -103,23 +116,26 @@ describe("Civ7 GameInfo rows procedure descriptor", () => {
       },
     };
 
-    const result = await callCiv7GameInfoRowsProcedure({
-      table: "Resources",
-      limit: 2,
-      offset: 0,
-      filter: { key: "ResourceType", equals: "RESOURCE_COTTON" },
-      includeSchema: true,
-      includePrimaryKeys: true,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7GameInfoRowsProcedure(
+      {
+        table: "Resources",
+        limit: 2,
+        offset: 0,
+        filter: { key: "ResourceType", equals: "RESOURCE_COTTON" },
+        includeSchema: true,
+        includePrimaryKeys: true,
       },
-      procedure: {
-        correlationId: "gameinfo-rows-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "gameinfo-rows-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(gameInfoRowsResult());
     expect(result.diagnostics).toMatchObject({
@@ -166,10 +182,15 @@ describe("Civ7 GameInfo rows procedure descriptor", () => {
       validateIdentifier: (value) => value,
     };
 
-    await expect(callCiv7GameInfoRowsProcedure({ table: "Resources;DROP" }, {
-      procedure: { correlationId: "gameinfo-rows-invalid-table" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7GameInfoRowsProcedure(
+        { table: "Resources;DROP" },
+        {
+          procedure: { correlationId: "gameinfo-rows-invalid-table" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -177,13 +198,18 @@ describe("Civ7 GameInfo rows procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7GameInfoRowsProcedure({
-      table: "Resources",
-      rawCommand: "GameInfo.Resources",
-    } as never, {
-      procedure: { correlationId: "gameinfo-rows-raw-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7GameInfoRowsProcedure(
+        {
+          table: "Resources",
+          rawCommand: "GameInfo.Resources",
+        } as never,
+        {
+          procedure: { correlationId: "gameinfo-rows-raw-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

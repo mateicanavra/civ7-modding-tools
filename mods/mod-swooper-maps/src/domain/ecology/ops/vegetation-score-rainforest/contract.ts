@@ -18,7 +18,9 @@ const ScoreVegetationRainforestContract = defineOp({
     { additionalProperties: false }
   ),
   output: Type.Object({
-    score01: TypedArraySchemas.f32({ description: "Rainforest suitability score per tile (0..1)." }),
+    score01: TypedArraySchemas.f32({
+      description: "Rainforest suitability score per tile (0..1).",
+    }),
   }),
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),
@@ -26,4 +28,3 @@ const ScoreVegetationRainforestContract = defineOp({
 });
 
 export default ScoreVegetationRainforestContract;
-

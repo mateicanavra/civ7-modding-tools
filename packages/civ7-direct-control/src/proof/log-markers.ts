@@ -10,7 +10,7 @@ export const DEFAULT_CIV7_SCRIPTING_LOG = join(
   "Application Support",
   "Civilization VII",
   "Logs",
-  "Scripting.log",
+  "Scripting.log"
 );
 
 export type FileSnapshot = Readonly<{
@@ -43,7 +43,10 @@ export async function snapshotFile(path: string): Promise<FileSnapshot> {
     : { exists: false, size: 0, mtimeMs: 0, prefix: "", prefixBytes: 0 };
 }
 
-async function filePrefixSnapshot(path: string, size: number): Promise<Pick<FileSnapshot, "prefix" | "prefixBytes">> {
+async function filePrefixSnapshot(
+  path: string,
+  size: number
+): Promise<Pick<FileSnapshot, "prefix" | "prefixBytes">> {
   const prefixBytes = Math.min(size, 4096);
   if (prefixBytes === 0) return { prefix: "", prefixBytes: 0 };
   const handle = await open(path, "r");
@@ -72,7 +75,8 @@ export function logTextFromSnapshot(args: {
   if (current.size > snapshot.size) {
     return { text: fullText.slice(snapshot.size), startOffset: snapshot.size, rewritten: false };
   }
-  if (current.mtimeMs > snapshot.mtimeMs) return { text: fullText, startOffset: 0, rewritten: true };
+  if (current.mtimeMs > snapshot.mtimeMs)
+    return { text: fullText, startOffset: 0, rewritten: true };
   return { text: "", startOffset: snapshot.size, rewritten: false };
 }
 
@@ -93,7 +97,10 @@ export async function waitForFreshLogMarkers(options: {
 
   while (Date.now() - startedAt <= timeoutMs) {
     const current = await snapshotFile(options.logPath);
-    if (current.exists && (current.size > snapshotOffset || current.mtimeMs > options.snapshot.mtimeMs)) {
+    if (
+      current.exists &&
+      (current.size > snapshotOffset || current.mtimeMs > options.snapshot.mtimeMs)
+    ) {
       const fullText = await readFile(options.logPath, "utf8");
       const freshLog = logTextFromSnapshot({ fullText, snapshot: options.snapshot, current });
       lastStartOffset = freshLog.startOffset;
@@ -115,7 +122,7 @@ export async function waitForFreshLogMarkers(options: {
   throw new Civ7DirectControlError(
     "log-timeout",
     lastError ?? `Timed out waiting for fresh log markers in ${options.logPath}`,
-    { details: { markers: options.markers, startOffset: lastStartOffset, snapshotOffset } },
+    { details: { markers: options.markers, startOffset: lastStartOffset, snapshotOffset } }
   );
 }
 
@@ -128,7 +135,10 @@ function isNodeNotFound(err: unknown): boolean {
   );
 }
 
-function matchOrderedMarkers(text: string, markers: ReadonlyArray<string>): { ok: boolean; matched: string[] } {
+function matchOrderedMarkers(
+  text: string,
+  markers: ReadonlyArray<string>
+): { ok: boolean; matched: string[] } {
   const matched: string[] = [];
   let cursor = 0;
   for (const marker of markers) {

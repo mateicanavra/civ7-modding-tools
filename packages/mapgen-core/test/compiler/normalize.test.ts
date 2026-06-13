@@ -18,9 +18,9 @@ describe("compiler normalize helpers", () => {
     );
 
     const result = normalizeStrict(schema, { foo: "ok", extra: 1 }, "/config");
-    expect(result.errors.some((err) => err.path === "/config/extra" && err.message === "Unknown key")).toBe(
-      true
-    );
+    expect(
+      result.errors.some((err) => err.path === "/config/extra" && err.message === "Unknown key")
+    ).toBe(true);
   });
 
   it("handles null input with deterministic error paths", () => {

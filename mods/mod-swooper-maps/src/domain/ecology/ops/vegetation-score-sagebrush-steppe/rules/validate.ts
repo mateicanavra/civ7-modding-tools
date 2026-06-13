@@ -29,4 +29,3 @@ export function validateVegetationScoreInputs(args: {
 
   return size;
 }
-

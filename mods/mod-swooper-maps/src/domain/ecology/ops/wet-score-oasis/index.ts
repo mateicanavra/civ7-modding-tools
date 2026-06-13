@@ -12,4 +12,3 @@ const scoreWetOasis = createOp(ScoreWetOasisContract, {
 export type * from "./contract.js";
 
 export default scoreWetOasis;
-

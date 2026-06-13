@@ -19,10 +19,21 @@ export interface Index {
   tables: Map<string, TableIndex>;
 }
 
-export interface NodeKey { table: string; id: string }
+export interface NodeKey {
+  table: string;
+  id: string;
+}
 
-export interface GraphNode { key: NodeKey; row: Row; file: string }
-export interface GraphEdge { from: NodeKey; to: NodeKey; label?: string }
+export interface GraphNode {
+  key: NodeKey;
+  row: Row;
+  file: string;
+}
+export interface GraphEdge {
+  from: NodeKey;
+  to: NodeKey;
+  label?: string;
+}
 
 export interface Graph {
   nodes: Map<string, GraphNode>;
@@ -33,5 +44,3 @@ export interface CrawlResult {
   graph: Graph;
   manifestFiles: string[];
 }
-
-

@@ -27,17 +27,15 @@ export const CIV7_STANDARD_ROW_LATITUDE_BOUNDS: Civ7LatitudeBounds = {
 } as const;
 
 const STANDARD_84X54_ROW_LATITUDES = Object.freeze([
-  -90, -89, -85, -81, -78, -74, -71, -69, -65, -62, -58, -54, -51, -47, -45, -42,
-  -38, -35, -31, -27, -24, -22, -18, -15, -11, -8, -4, 0, 1, 5, 9, 12, 16, 19,
-  21, 25, 28, 32, 36, 39, 43, 45, 48, 52, 55, 59, 63, 66, 68, 72, 75, 79, 82,
-  86,
+  -90, -89, -85, -81, -78, -74, -71, -69, -65, -62, -58, -54, -51, -47, -45, -42, -38, -35, -31,
+  -27, -24, -22, -18, -15, -11, -8, -4, 0, 1, 5, 9, 12, 16, 19, 21, 25, 28, 32, 36, 39, 43, 45, 48,
+  52, 55, 59, 63, 66, 68, 72, 75, 79, 82, 86,
 ] as const);
 
 const HUGE_106X66_ROW_LATITUDES = Object.freeze([
-  -90, -89, -85, -83, -80, -78, -74, -72, -69, -67, -63, -62, -58, -56, -53,
-  -51, -47, -45, -42, -40, -36, -35, -31, -29, -26, -24, -20, -18, -15, -13,
-  -9, -8, -4, 0, 1, 5, 7, 10, 12, 16, 18, 21, 23, 27, 28, 32, 34, 37, 39, 43,
-  45, 48, 50, 54, 55, 59, 61, 64, 66, 70, 72, 75, 77, 81, 82, 86,
+  -90, -89, -85, -83, -80, -78, -74, -72, -69, -67, -63, -62, -58, -56, -53, -51, -47, -45, -42,
+  -40, -36, -35, -31, -29, -26, -24, -20, -18, -15, -13, -9, -8, -4, 0, 1, 5, 7, 10, 12, 16, 18, 21,
+  23, 27, 28, 32, 34, 37, 39, 43, 45, 48, 50, 54, 55, 59, 61, 64, 66, 70, 72, 75, 77, 81, 82, 86,
 ] as const);
 
 export const CIV7_STANDARD_MAP_SIZE_PRESETS: readonly Civ7StandardMapSizePreset[] = [
@@ -156,7 +154,9 @@ export function getCiv7StandardMapSizePresetForDimensions(
   );
 }
 
-export function getCiv7MapInfoLatitudeBounds(mapInfo: MapInfo | null | undefined): Civ7LatitudeBounds {
+export function getCiv7MapInfoLatitudeBounds(
+  mapInfo: MapInfo | null | undefined
+): Civ7LatitudeBounds {
   const min = typeof mapInfo?.MinLatitude === "number" ? mapInfo.MinLatitude : undefined;
   const max = typeof mapInfo?.MaxLatitude === "number" ? mapInfo.MaxLatitude : undefined;
   if (Number.isFinite(min) && Number.isFinite(max) && min !== max) {

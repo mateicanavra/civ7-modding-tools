@@ -64,7 +64,10 @@ describe("Map config save/deploy operation store", () => {
     const { store } = createStore({ onChange: (status) => events.push(status) });
 
     store.create("studio-save-deploy-1");
-    store.update("studio-save-deploy-1", { phase: "saving", path: "configs/studio-current.config.json" });
+    store.update("studio-save-deploy-1", {
+      phase: "saving",
+      path: "configs/studio-current.config.json",
+    });
     store.complete("studio-save-deploy-1", { path: "configs/studio-current.config.json" });
     store.create("studio-save-deploy-2");
     store.fail("studio-save-deploy-2", "deploying", "Deploy failed");

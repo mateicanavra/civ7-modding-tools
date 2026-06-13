@@ -1,12 +1,12 @@
-import { crawlGraph, CrawlGraphResult } from './crawl';
-import { graphToDot, graphToJson } from '../graph';
-import { renderSvg } from '../render';
-import { buildGraphViewerHtml } from '../viewer';
+import { crawlGraph, CrawlGraphResult } from "./crawl";
+import { graphToDot, graphToJson } from "../graph";
+import { renderSvg } from "../render";
+import { buildGraphViewerHtml } from "../viewer";
 
 export interface ExploreGraphOptions {
   rootDir: string;
   seed: string;
-  engine?: 'dot' | 'neato' | 'fdp' | 'sfdp' | 'circo' | 'twopi';
+  engine?: "dot" | "neato" | "fdp" | "sfdp" | "circo" | "twopi";
   emitHtml?: boolean;
   log?: (msg: string) => void;
 }
@@ -19,10 +19,10 @@ export interface ExploreGraphResult extends CrawlGraphResult {
 }
 
 export async function exploreGraph(opts: ExploreGraphOptions): Promise<ExploreGraphResult> {
-  const { rootDir, seed, engine = 'dot', emitHtml, log = () => {} } = opts;
+  const { rootDir, seed, engine = "dot", emitHtml, log = () => {} } = opts;
   try {
     const { graph, manifestFiles } = await crawlGraph(rootDir, seed, log);
-    log('converting graph to DOT');
+    log("converting graph to DOT");
     const dot = graphToDot(graph);
     log(`rendering SVG with engine: ${engine}`);
     const svg = await renderSvg(dot, engine);
@@ -38,5 +38,3 @@ export async function exploreGraph(opts: ExploreGraphOptions): Promise<ExploreGr
     throw err;
   }
 }
-
-

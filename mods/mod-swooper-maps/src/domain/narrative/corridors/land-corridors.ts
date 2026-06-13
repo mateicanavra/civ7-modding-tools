@@ -65,7 +65,12 @@ export function tagLandCorridorsFromRifts(
         const eS = ctx.adapter.getElevation(cx, Math.min(height - 1, y + 1));
         const eW = ctx.adapter.getElevation(Math.max(0, cx - 1), y);
         const eE = ctx.adapter.getElevation(Math.min(width - 1, cx + 1), y);
-        const dMax = Math.max(Math.abs(e - eN), Math.abs(e - eS), Math.abs(e - eW), Math.abs(e - eE));
+        const dMax = Math.max(
+          Math.abs(e - eN),
+          Math.abs(e - eS),
+          Math.abs(e - eW),
+          Math.abs(e - eE)
+        );
         if (dMax >= 60) reliefHits++;
       }
 

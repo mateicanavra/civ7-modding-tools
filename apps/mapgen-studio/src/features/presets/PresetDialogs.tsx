@@ -83,7 +83,9 @@ export function PresetSaveDialog(props: PresetSaveDialogProps) {
         </DialogHeader>
         <div className="space-y-2">
           <div>
-            <div className="mb-1 text-label uppercase tracking-wide text-muted-foreground">Label</div>
+            <div className="mb-1 text-label uppercase tracking-wide text-muted-foreground">
+              Label
+            </div>
             <Input
               value={label}
               onChange={(e) => setLabel(e.target.value)}
@@ -91,7 +93,9 @@ export function PresetSaveDialog(props: PresetSaveDialogProps) {
             />
           </div>
           <div>
-            <div className="mb-1 text-label uppercase tracking-wide text-muted-foreground">Description (optional)</div>
+            <div className="mb-1 text-label uppercase tracking-wide text-muted-foreground">
+              Description (optional)
+            </div>
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -138,7 +142,9 @@ export function PresetConfirmDialog(props: PresetConfirmDialogProps) {
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline" onClick={onCancel}>Cancel</Button>
+            <Button variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
           </DialogClose>
           <Button onClick={onConfirm}>{confirmLabel}</Button>
         </DialogFooter>

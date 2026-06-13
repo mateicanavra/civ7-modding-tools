@@ -19,7 +19,11 @@ const OROGENY_ERA_GAIN_MIN = 0.85;
 const OROGENY_ERA_GAIN_MAX = 1.15;
 
 const BOUNDARY_TYPE_CATEGORIES = [
-  { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] as [number, number, number, number] },
+  {
+    value: 0,
+    label: "None/Unknown",
+    color: [107, 114, 128, 180] as [number, number, number, number],
+  },
   { value: 1, label: "Convergent", color: [239, 68, 68, 240] as [number, number, number, number] },
   { value: 2, label: "Divergent", color: [59, 130, 246, 240] as [number, number, number, number] },
   { value: 3, label: "Transform", color: [245, 158, 11, 240] as [number, number, number, number] },
@@ -41,7 +45,8 @@ export default createStep(TectonicsStepContract, {
         validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicHistoryArtifact),
       },
       foundationTectonicProvenance: {
-        validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicProvenanceArtifact),
+        validate: (value) =>
+          wrapFoundationValidateNoDims(value, validateTectonicProvenanceArtifact),
       },
       foundationTectonics: {
         validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicsArtifact),
@@ -182,7 +187,10 @@ export default createStep(TectonicsStepContract, {
     );
 
     deps.artifacts.foundationTectonicHistory.publish(context, historyResult.tectonicHistory);
-    deps.artifacts.foundationTectonicProvenance.publish(context, provenanceResult.tectonicProvenance);
+    deps.artifacts.foundationTectonicProvenance.publish(
+      context,
+      provenanceResult.tectonicProvenance
+    );
     deps.artifacts.foundationTectonics.publish(context, tectonicsResult.tectonics);
 
     const positions = interleaveXY(mesh.siteX, mesh.siteY);

@@ -15,14 +15,20 @@ import type {
 } from "../../session/types.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7TraditionsViewInputSchema = Type.Object({
-  playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
-}, { additionalProperties: false });
+export const Civ7TraditionsViewInputSchema = Type.Object(
+  {
+    playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7TraditionActionKind = "activate" | "deactivate";
 
@@ -31,16 +37,22 @@ export const Civ7TraditionActionKindSchema = Type.Union([
   Type.Literal("deactivate"),
 ]);
 
-export const Civ7TraditionActionSchema = Type.Object({
-  kind: Civ7TraditionActionKindSchema,
-  action: Type.Union([Type.Number(), Type.Null()]),
-  operationType: Type.Literal("CHANGE_TRADITION"),
-  args: Type.Object({
-    TraditionType: Type.Number(),
-    Action: Type.Union([Type.Number(), Type.Null()]),
-  }, { additionalProperties: false }),
-  validation: Civ7RuntimeProbeSchema(Type.Unknown()),
-}, { additionalProperties: false });
+export const Civ7TraditionActionSchema = Type.Object(
+  {
+    kind: Civ7TraditionActionKindSchema,
+    action: Type.Union([Type.Number(), Type.Null()]),
+    operationType: Type.Literal("CHANGE_TRADITION"),
+    args: Type.Object(
+      {
+        TraditionType: Type.Number(),
+        Action: Type.Union([Type.Number(), Type.Null()]),
+      },
+      { additionalProperties: false }
+    ),
+    validation: Civ7RuntimeProbeSchema(Type.Unknown()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7TraditionAction = Readonly<{
   kind: Civ7TraditionActionKind;
@@ -53,20 +65,23 @@ export type Civ7TraditionAction = Readonly<{
   validation: Civ7RuntimeProbe<unknown>;
 }>;
 
-export const Civ7TraditionSummarySchema = Type.Object({
-  id: Type.Number(),
-  type: Type.Union([Type.String(), Type.Null()]),
-  name: Type.Union([Type.String(), Type.Null()]),
-  description: Type.Union([Type.String(), Type.Null()]),
-  ageType: Type.Union([Type.String(), Type.Null()]),
-  cultureSlotType: Type.Union([Type.String(), Type.Null()]),
-  traitType: Type.Union([Type.String(), Type.Null()]),
-  isCrisis: Type.Boolean(),
-  active: Type.Boolean(),
-  unlocked: Type.Boolean(),
-  recentUnlock: Type.Boolean(),
-  actionHints: Type.Array(Civ7TraditionActionSchema),
-}, { additionalProperties: false });
+export const Civ7TraditionSummarySchema = Type.Object(
+  {
+    id: Type.Number(),
+    type: Type.Union([Type.String(), Type.Null()]),
+    name: Type.Union([Type.String(), Type.Null()]),
+    description: Type.Union([Type.String(), Type.Null()]),
+    ageType: Type.Union([Type.String(), Type.Null()]),
+    cultureSlotType: Type.Union([Type.String(), Type.Null()]),
+    traitType: Type.Union([Type.String(), Type.Null()]),
+    isCrisis: Type.Boolean(),
+    active: Type.Boolean(),
+    unlocked: Type.Boolean(),
+    recentUnlock: Type.Boolean(),
+    actionHints: Type.Array(Civ7TraditionActionSchema),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7TraditionSummary = Readonly<{
   id: number;
@@ -87,38 +102,50 @@ export type Civ7TraditionsViewInput = Readonly<{
   playerId?: number;
 }>;
 
-export const Civ7TraditionsViewResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  playerId: Type.Number(),
-  turn: Civ7RuntimeProbeSchema(Type.Number()),
-  turnDate: Civ7RuntimeProbeSchema(Type.String()),
-  governmentType: Civ7RuntimeProbeSchema(Type.Number()),
-  government: Type.Object({
-    type: Type.Union([Type.String(), Type.Null()]),
-    name: Type.Union([Type.String(), Type.Null()]),
-  }, { additionalProperties: false }),
-  slots: Type.Object({
-    total: Civ7RuntimeProbeSchema(Type.Number()),
-    normal: Civ7RuntimeProbeSchema(Type.Number()),
-    crisis: Civ7RuntimeProbeSchema(Type.Number()),
-    active: Type.Number(),
-    unlocked: Type.Number(),
-    available: Type.Number(),
-    open: Type.Number(),
-  }, { additionalProperties: false }),
-  actions: Type.Object({
-    activate: Type.Union([Type.Number(), Type.Null()]),
-    deactivate: Type.Union([Type.Number(), Type.Null()]),
-  }, { additionalProperties: false }),
-  active: Type.Array(Civ7TraditionSummarySchema),
-  available: Type.Array(Civ7TraditionSummarySchema),
-  recentUnlocks: Type.Array(Civ7TraditionSummarySchema),
-  traditions: Type.Array(Civ7TraditionSummarySchema),
-  hiddenInfoPolicy: Type.Literal("player-culture-runtime"),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7TraditionsViewResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    playerId: Type.Number(),
+    turn: Civ7RuntimeProbeSchema(Type.Number()),
+    turnDate: Civ7RuntimeProbeSchema(Type.String()),
+    governmentType: Civ7RuntimeProbeSchema(Type.Number()),
+    government: Type.Object(
+      {
+        type: Type.Union([Type.String(), Type.Null()]),
+        name: Type.Union([Type.String(), Type.Null()]),
+      },
+      { additionalProperties: false }
+    ),
+    slots: Type.Object(
+      {
+        total: Civ7RuntimeProbeSchema(Type.Number()),
+        normal: Civ7RuntimeProbeSchema(Type.Number()),
+        crisis: Civ7RuntimeProbeSchema(Type.Number()),
+        active: Type.Number(),
+        unlocked: Type.Number(),
+        available: Type.Number(),
+        open: Type.Number(),
+      },
+      { additionalProperties: false }
+    ),
+    actions: Type.Object(
+      {
+        activate: Type.Union([Type.Number(), Type.Null()]),
+        deactivate: Type.Union([Type.Number(), Type.Null()]),
+      },
+      { additionalProperties: false }
+    ),
+    active: Type.Array(Civ7TraditionSummarySchema),
+    available: Type.Array(Civ7TraditionSummarySchema),
+    recentUnlocks: Type.Array(Civ7TraditionSummarySchema),
+    traditions: Type.Array(Civ7TraditionSummarySchema),
+    hiddenInfoPolicy: Type.Literal("player-culture-runtime"),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7TraditionsViewResult = Readonly<{
   host: string;
@@ -157,33 +184,42 @@ export type Civ7ProgressDashboardInput = Readonly<{
   playerId?: number;
 }>;
 
-export const Civ7ProgressDashboardInputSchema = Type.Object({
-  playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
-}, { additionalProperties: false });
+export const Civ7ProgressDashboardInputSchema = Type.Object(
+  {
+    playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7ProgressDashboardMilestoneSchema = Type.Object({
-  ageProgressionMilestoneType: Type.Union([Type.String(), Type.Null()]),
-  legacyPathType: Type.Union([Type.String(), Type.Null()]),
-  requiredPathPoints: Type.Union([Type.Number(), Type.Null()]),
-  finalMilestone: Type.Boolean(),
-  progressionPoints: Civ7RuntimeProbeSchema(Type.Unknown()),
-  complete: Civ7RuntimeProbeSchema(Type.Unknown()),
-  reachedByScore: Type.Union([Type.Boolean(), Type.Null()]),
-}, { additionalProperties: false });
+export const Civ7ProgressDashboardMilestoneSchema = Type.Object(
+  {
+    ageProgressionMilestoneType: Type.Union([Type.String(), Type.Null()]),
+    legacyPathType: Type.Union([Type.String(), Type.Null()]),
+    requiredPathPoints: Type.Union([Type.Number(), Type.Null()]),
+    finalMilestone: Type.Boolean(),
+    progressionPoints: Civ7RuntimeProbeSchema(Type.Unknown()),
+    complete: Civ7RuntimeProbeSchema(Type.Unknown()),
+    reachedByScore: Type.Union([Type.Boolean(), Type.Null()]),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7ProgressDashboardLegacyPathSchema = Type.Object({
-  legacyPathType: Type.Union([Type.String(), Type.Null()]),
-  legacyPathClassType: Type.Union([Type.String(), Type.Null()]),
-  ageType: Type.Union([Type.String(), Type.Null()]),
-  name: Type.Union([Type.String(), Type.Null()]),
-  description: Type.Union([Type.String(), Type.Null()]),
-  enabledByDefault: Type.Boolean(),
-  enabledForPlayer: Type.Union([Type.Boolean(), Type.Null()]),
-  score: Civ7RuntimeProbeSchema(Type.Number()),
-  finalRequiredPathPoints: Type.Union([Type.Number(), Type.Null()]),
-  nextMilestone: Type.Union([Civ7ProgressDashboardMilestoneSchema, Type.Null()]),
-  milestones: Type.Array(Civ7ProgressDashboardMilestoneSchema),
-}, { additionalProperties: false });
+export const Civ7ProgressDashboardLegacyPathSchema = Type.Object(
+  {
+    legacyPathType: Type.Union([Type.String(), Type.Null()]),
+    legacyPathClassType: Type.Union([Type.String(), Type.Null()]),
+    ageType: Type.Union([Type.String(), Type.Null()]),
+    name: Type.Union([Type.String(), Type.Null()]),
+    description: Type.Union([Type.String(), Type.Null()]),
+    enabledByDefault: Type.Boolean(),
+    enabledForPlayer: Type.Union([Type.Boolean(), Type.Null()]),
+    score: Civ7RuntimeProbeSchema(Type.Number()),
+    finalRequiredPathPoints: Type.Union([Type.Number(), Type.Null()]),
+    nextMilestone: Type.Union([Civ7ProgressDashboardMilestoneSchema, Type.Null()]),
+    milestones: Type.Array(Civ7ProgressDashboardMilestoneSchema),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7ProgressDashboardLegacyPath = Readonly<{
   legacyPathType: string | null;
@@ -199,56 +235,84 @@ export type Civ7ProgressDashboardLegacyPath = Readonly<{
   milestones: ReadonlyArray<unknown>;
 }>;
 
-export const Civ7ProgressDashboardResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  localPlayerId: Type.Number(),
-  playerId: Type.Number(),
-  turn: Civ7RuntimeProbeSchema(Type.Number()),
-  turnDate: Civ7RuntimeProbeSchema(Type.String()),
-  age: Type.Object({
-    hash: Type.Unknown(),
-    ageType: Type.Union([Type.String(), Type.Null()]),
-    name: Type.Union([Type.String(), Type.Null()]),
-    chronologyIndex: Type.Unknown(),
-    isFinalAge: Civ7RuntimeProbeSchema(Type.Boolean()),
-    isSingleAge: Civ7RuntimeProbeSchema(Type.Boolean()),
-    isExtendedGame: Civ7RuntimeProbeSchema(Type.Boolean()),
-    isAgeOver: Civ7RuntimeProbeSchema(Type.Boolean()),
-    currentAgeProgressionPoints: Civ7RuntimeProbeSchema(Type.Number()),
-    maxAgeProgressionPoints: Civ7RuntimeProbeSchema(Type.Number()),
-    primaryAgeProgression: Civ7RuntimeProbeSchema(Type.Unknown()),
-  }, { additionalProperties: false }),
-  player: Type.Object({
-    team: Type.Unknown(),
-    historicalLegacyPointCountForTeam: Civ7RuntimeProbeSchema(Type.Number()),
-  }, { additionalProperties: false }),
-  legacyPaths: Type.Array(Civ7ProgressDashboardLegacyPathSchema),
-  victories: Type.Object({
-    rows: Type.Array(Type.Object({
-      victoryType: Type.Union([Type.String(), Type.Null()]),
-      victoryClassType: Type.Union([Type.String(), Type.Null()]),
-      name: Type.Union([Type.String(), Type.Null()]),
-      description: Type.Union([Type.String(), Type.Null()]),
-    }, { additionalProperties: false })),
-  }, { additionalProperties: false }),
-  triumphs: Type.Object({
-    count: Type.Number(),
-    rows: Type.Array(Type.Object({
-      type: Type.Union([Type.String(), Type.Null()]),
-      name: Type.Union([Type.String(), Type.Null()]),
-      description: Type.Union([Type.String(), Type.Null()]),
-    }, { additionalProperties: false })),
-    source: Type.Literal("runtime-gameinfo"),
-  }, { additionalProperties: false }),
-  proof: Type.Object({
-    victoryManagerGlobal: Civ7RuntimeProbeSchema(Type.String()),
-    sources: Type.Array(Type.String()),
-  }, { additionalProperties: false }),
-  hiddenInfoPolicy: Type.Literal("local-player-runtime-progress"),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7ProgressDashboardResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    localPlayerId: Type.Number(),
+    playerId: Type.Number(),
+    turn: Civ7RuntimeProbeSchema(Type.Number()),
+    turnDate: Civ7RuntimeProbeSchema(Type.String()),
+    age: Type.Object(
+      {
+        hash: Type.Unknown(),
+        ageType: Type.Union([Type.String(), Type.Null()]),
+        name: Type.Union([Type.String(), Type.Null()]),
+        chronologyIndex: Type.Unknown(),
+        isFinalAge: Civ7RuntimeProbeSchema(Type.Boolean()),
+        isSingleAge: Civ7RuntimeProbeSchema(Type.Boolean()),
+        isExtendedGame: Civ7RuntimeProbeSchema(Type.Boolean()),
+        isAgeOver: Civ7RuntimeProbeSchema(Type.Boolean()),
+        currentAgeProgressionPoints: Civ7RuntimeProbeSchema(Type.Number()),
+        maxAgeProgressionPoints: Civ7RuntimeProbeSchema(Type.Number()),
+        primaryAgeProgression: Civ7RuntimeProbeSchema(Type.Unknown()),
+      },
+      { additionalProperties: false }
+    ),
+    player: Type.Object(
+      {
+        team: Type.Unknown(),
+        historicalLegacyPointCountForTeam: Civ7RuntimeProbeSchema(Type.Number()),
+      },
+      { additionalProperties: false }
+    ),
+    legacyPaths: Type.Array(Civ7ProgressDashboardLegacyPathSchema),
+    victories: Type.Object(
+      {
+        rows: Type.Array(
+          Type.Object(
+            {
+              victoryType: Type.Union([Type.String(), Type.Null()]),
+              victoryClassType: Type.Union([Type.String(), Type.Null()]),
+              name: Type.Union([Type.String(), Type.Null()]),
+              description: Type.Union([Type.String(), Type.Null()]),
+            },
+            { additionalProperties: false }
+          )
+        ),
+      },
+      { additionalProperties: false }
+    ),
+    triumphs: Type.Object(
+      {
+        count: Type.Number(),
+        rows: Type.Array(
+          Type.Object(
+            {
+              type: Type.Union([Type.String(), Type.Null()]),
+              name: Type.Union([Type.String(), Type.Null()]),
+              description: Type.Union([Type.String(), Type.Null()]),
+            },
+            { additionalProperties: false }
+          )
+        ),
+        source: Type.Literal("runtime-gameinfo"),
+      },
+      { additionalProperties: false }
+    ),
+    proof: Type.Object(
+      {
+        victoryManagerGlobal: Civ7RuntimeProbeSchema(Type.String()),
+        sources: Type.Array(Type.String()),
+      },
+      { additionalProperties: false }
+    ),
+    hiddenInfoPolicy: Type.Literal("local-player-runtime-progress"),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7ProgressDashboardResult = Readonly<{
   host: string;
@@ -295,22 +359,27 @@ export type Civ7ProgressDashboardResult = Readonly<{
 type ProgressionReadBaseDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
 }>;
 
-export type TraditionsViewDependencies = ProgressionReadBaseDependencies & Readonly<{
-  parseTraditionsView: (result: Civ7CommandResult, label: string) => Civ7TraditionsViewResult;
-}>;
+export type TraditionsViewDependencies = ProgressionReadBaseDependencies &
+  Readonly<{
+    parseTraditionsView: (result: Civ7CommandResult, label: string) => Civ7TraditionsViewResult;
+  }>;
 
-export type ProgressDashboardDependencies = ProgressionReadBaseDependencies & Readonly<{
-  parseProgressDashboard: (result: Civ7CommandResult, label: string) => Civ7ProgressDashboardResult;
-}>;
+export type ProgressDashboardDependencies = ProgressionReadBaseDependencies &
+  Readonly<{
+    parseProgressDashboard: (
+      result: Civ7CommandResult,
+      label: string
+    ) => Civ7ProgressDashboardResult;
+  }>;
 
 export async function getCiv7TraditionsView(
   input: Civ7TraditionsViewInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: TraditionsViewDependencies = defaultTraditionsViewDependencies,
+  dependencies: TraditionsViewDependencies = defaultTraditionsViewDependencies
 ): Promise<Civ7TraditionsViewResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeAppUiCommand({
@@ -323,7 +392,7 @@ export async function getCiv7TraditionsView(
 export async function getCiv7ProgressDashboard(
   input: Civ7ProgressDashboardInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: ProgressDashboardDependencies = defaultProgressDashboardDependencies,
+  dependencies: ProgressDashboardDependencies = defaultProgressDashboardDependencies
 ): Promise<Civ7ProgressDashboardResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeAppUiCommand({

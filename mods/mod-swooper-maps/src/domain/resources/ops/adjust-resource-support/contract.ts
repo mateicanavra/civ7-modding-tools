@@ -55,7 +55,8 @@ const SupportProvenanceSchema = Type.Object(
     }),
     seatIndex: Type.Integer({
       minimum: 0,
-      description: "Seat the adjustment serves (deficit seat for floor; trimmed/filled seat for equity).",
+      description:
+        "Seat the adjustment serves (deficit seat for floor; trimmed/filled seat for equity).",
     }),
     fromPlotIndex: Type.Optional(
       Type.Integer({
@@ -216,7 +217,8 @@ const AdjustResourceSupportContract = defineOp({
         },
         {
           additionalProperties: false,
-          description: "Cross-player max−min support gap before/after the pass (null with <2 seats).",
+          description:
+            "Cross-player max−min support gap before/after the pass (null with <2 seats).",
         }
       ),
       settings: Type.Object(
@@ -251,7 +253,8 @@ const AdjustResourceSupportContract = defineOp({
           minimum: 1,
           maximum: 8,
           default: 4,
-          description: "Hex radius around each start within which support sites are counted (E3.1 measures 4).",
+          description:
+            "Hex radius around each start within which support sites are counted (E3.1 measures 4).",
         }),
         equityTolerance: Type.Integer({
           minimum: 0,

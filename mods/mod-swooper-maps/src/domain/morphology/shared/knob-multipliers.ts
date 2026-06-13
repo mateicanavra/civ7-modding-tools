@@ -15,12 +15,11 @@ export const MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA: Readonly<
   "water-heavy": 15,
 };
 
-export const MORPHOLOGY_EROSION_RATE_MULTIPLIER: Readonly<Record<MorphologyErosionKnob, number>> =
-  {
-    low: 0.75,
-    normal: 1.0,
-    high: 1.35,
-  };
+export const MORPHOLOGY_EROSION_RATE_MULTIPLIER: Readonly<Record<MorphologyErosionKnob, number>> = {
+  low: 0.75,
+  normal: 1.0,
+  high: 1.35,
+};
 
 export const MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER: Readonly<
   Record<MorphologyCoastRuggednessKnob, number>
@@ -69,16 +68,18 @@ export const MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER: Readonly<
   high: 1.25,
 };
 
-export const MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA: Readonly<Record<MorphologyOrogenyKnob, number>> =
-  {
-    low: 0.05,
-    normal: 0,
-    high: -0.05,
-  };
+export const MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA: Readonly<
+  Record<MorphologyOrogenyKnob, number>
+> = {
+  low: 0.05,
+  normal: 0,
+  high: -0.05,
+};
 
-export const MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA: Readonly<Record<MorphologyOrogenyKnob, number>> =
-  {
-    low: 0.03,
-    normal: 0,
-    high: -0.03,
-  };
+export const MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA: Readonly<
+  Record<MorphologyOrogenyKnob, number>
+> = {
+  low: 0.03,
+  normal: 0,
+  high: -0.03,
+};

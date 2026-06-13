@@ -44,7 +44,8 @@ const StrategySchema = Type.Object(
       default: 2,
       minimum: 0,
       maximum: 4,
-      description: "Controls how many Laplacian smoothing iterations are applied to mantle potential.",
+      description:
+        "Controls how many Laplacian smoothing iterations are applied to mantle potential.",
     }),
     smoothingAlpha: Type.Number({
       default: 0.35,
@@ -56,7 +57,8 @@ const StrategySchema = Type.Object(
       default: 0.85,
       minimum: 0,
       maximum: 2,
-      description: "Sets the minimum source separation scale relative to radius for Poisson-disk placement.",
+      description:
+        "Sets the minimum source separation scale relative to radius for Poisson-disk placement.",
     }),
   },
   { additionalProperties: false }
@@ -105,7 +107,10 @@ const ComputeMantlePotentialContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  output: Type.Object({ mantlePotential: FoundationMantlePotentialSchema }, { additionalProperties: false }),
+  output: Type.Object(
+    { mantlePotential: FoundationMantlePotentialSchema },
+    { additionalProperties: false }
+  ),
   strategies: {
     default: StrategySchema,
   },

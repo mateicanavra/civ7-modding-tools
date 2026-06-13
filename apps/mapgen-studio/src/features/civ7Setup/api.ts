@@ -29,12 +29,14 @@ export type Civ7SetupCatalog = Readonly<{
   gameSpeeds: ReadonlyArray<Civ7SetupCatalogOption>;
 }>;
 
-export async function fetchCiv7SetupConfig(options: { signal?: AbortSignal } = {}): Promise<
+export async function fetchCiv7SetupConfig(
+  options: { signal?: AbortSignal } = {}
+): Promise<
   | { ok: true; observedAt: string; setup: Civ7SetupSnapshotLike }
   | { ok: false; error: string; observedAt?: string; code?: string }
 > {
   const { error, data } = await safe(
-    orpcClient.civ7.setupConfig({}, options.signal ? { signal: options.signal } : undefined),
+    orpcClient.civ7.setupConfig({}, options.signal ? { signal: options.signal } : undefined)
   );
   if (error) {
     if (isDefinedError(error)) {
@@ -51,7 +53,8 @@ export async function fetchCiv7SetupConfig(options: { signal?: AbortSignal } = {
     }
     return {
       ok: false,
-      error: error instanceof Error && error.message ? error.message : "Civ7 setup config unavailable",
+      error:
+        error instanceof Error && error.message ? error.message : "Civ7 setup config unavailable",
     };
   }
   return {

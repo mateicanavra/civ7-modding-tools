@@ -94,8 +94,7 @@ export function storyTagContinentalMargins(
 
       if (segLen >= minSegLen) {
         const roll = rand(ctx, "MarginSelect", 100);
-        const pickActive =
-          (preferActive && roll < 60) || (!preferActive && roll < 40);
+        const pickActive = (preferActive && roll < 60) || (!preferActive && roll < 40);
 
         if (pickActive && markedActive < targetActive) {
           markSegment(y, start, end, true);

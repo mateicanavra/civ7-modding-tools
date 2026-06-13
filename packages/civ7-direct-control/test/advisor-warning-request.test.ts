@@ -26,7 +26,7 @@ describe("advisor warning viewed request", () => {
           playerId: 0,
           args: { Target: target },
         });
-      }),
+      })
     );
 
     expect(result).toMatchObject({
@@ -57,7 +57,7 @@ describe("advisor warning viewed request", () => {
           playerId: input.playerId,
           args: input.args,
         })
-      ),
+      )
     );
 
     expect(result).toMatchObject({
@@ -79,19 +79,15 @@ describe("advisor warning viewed request", () => {
 
   test("validates player and target before command construction", async () => {
     await expect(
-      requestCiv7AdvisorWarningViewed(
-        { playerId: 1.5, target },
-        {},
-        shouldNotSendDependencies(),
-      ),
+      requestCiv7AdvisorWarningViewed({ playerId: 1.5, target }, {}, shouldNotSendDependencies())
     ).rejects.toThrow("invalid player");
 
     await expect(
       requestCiv7AdvisorWarningViewed(
         { playerId: 0, target: { owner: 0, id: 12345 } as never },
         {},
-        shouldNotSendDependencies(),
-      ),
+        shouldNotSendDependencies()
+      )
     ).rejects.toThrow("invalid target");
   });
 });
@@ -103,20 +99,23 @@ function dependencies(
       operationType: "VIEWED_ADVISOR_WARNING";
       args: Readonly<{ Target: Civ7ComponentId }>;
     }>,
-    options: Readonly<Record<string, unknown>>,
-  ) => Civ7OperationRequestResult,
+    options: Readonly<Record<string, unknown>>
+  ) => Civ7OperationRequestResult
 ) {
   return {
     validatePlayerId: (playerId: number) => {
       if (!Number.isInteger(playerId)) throw new Error("invalid player");
     },
     assertComponentId: (value: Civ7ComponentId, label: string) => {
-      if (!Number.isInteger(value.owner) || !Number.isInteger(value.id) || !Number.isInteger(value.type)) {
+      if (
+        !Number.isInteger(value.owner) ||
+        !Number.isInteger(value.id) ||
+        !Number.isInteger(value.type)
+      ) {
         throw new Error(`invalid ${label}`);
       }
     },
-    requestPlayerOperation: async (input, options) =>
-      requestPlayerOperation(input, options),
+    requestPlayerOperation: async (input, options) => requestPlayerOperation(input, options),
   };
 }
 
@@ -132,7 +131,7 @@ function operationResult(
     valid?: boolean;
     playerId: number;
     args: Readonly<{ Target: Civ7ComponentId }>;
-  }>,
+  }>
 ): Civ7OperationRequestResult {
   const valid = options.valid ?? true;
   return {
@@ -148,7 +147,7 @@ function validationResult(
     playerId: number;
     args: Readonly<{ Target: Civ7ComponentId }>;
   }>,
-  valid: boolean,
+  valid: boolean
 ): Civ7OperationRequestResult["before"] {
   return {
     host: "127.0.0.1",

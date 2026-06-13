@@ -32,7 +32,7 @@ describe("narrative choice proof policy", () => {
           sent: true,
           postcondition: narrativePostcondition(classification),
         }),
-        undefined,
+        undefined
       );
       const confirmed = narrativeChoicePostconditionConfirmed(classification);
 
@@ -47,17 +47,27 @@ describe("narrative choice proof policy", () => {
   }
 
   test("omits postconditions for read-only narrative choices without postcondition evidence", () => {
-    expect(narrativeChoiceProofPostcondition(narrativeChoiceResult({
-      sent: false,
-      postcondition: undefined,
-    }), undefined)).toBeUndefined();
+    expect(
+      narrativeChoiceProofPostcondition(
+        narrativeChoiceResult({
+          sent: false,
+          postcondition: undefined,
+        }),
+        undefined
+      )
+    ).toBeUndefined();
   });
 
   test("keeps sent narrative choices without postcondition evidence no-repeat guarded", () => {
-    expect(narrativeChoiceProofPostcondition(narrativeChoiceResult({
-      sent: true,
-      postcondition: undefined,
-    }), undefined)).toMatchObject({
+    expect(
+      narrativeChoiceProofPostcondition(
+        narrativeChoiceResult({
+          sent: true,
+          postcondition: undefined,
+        }),
+        undefined
+      )
+    ).toMatchObject({
       classification: "missing-postcondition",
       outcome: "unknown",
       confidence: "unverified",
@@ -66,10 +76,15 @@ describe("narrative choice proof policy", () => {
   });
 
   test("keeps pending runtime proof no-repeat guarded even for confirmed classifications", () => {
-    expect(narrativeChoiceProofPostcondition(narrativeChoiceResult({
-      sent: true,
-      postcondition: narrativePostcondition("narrative-blocker-cleared"),
-    }), "pending-runtime-proof")).toMatchObject({
+    expect(
+      narrativeChoiceProofPostcondition(
+        narrativeChoiceResult({
+          sent: true,
+          postcondition: narrativePostcondition("narrative-blocker-cleared"),
+        }),
+        "pending-runtime-proof"
+      )
+    ).toMatchObject({
       classification: "narrative-blocker-cleared",
       outcome: "unknown",
       confidence: "pending-runtime-proof",
@@ -79,7 +94,7 @@ describe("narrative choice proof policy", () => {
 });
 
 function narrativeChoiceResult(
-  overrides: Partial<Civ7NarrativeChoiceResult>,
+  overrides: Partial<Civ7NarrativeChoiceResult>
 ): Civ7NarrativeChoiceResult {
   return {
     sent: true,
@@ -88,7 +103,7 @@ function narrativeChoiceResult(
 }
 
 function narrativePostcondition(
-  classification: Civ7NarrativeChoicePostconditionClassification,
+  classification: Civ7NarrativeChoicePostconditionClassification
 ): NonNullable<Civ7NarrativeChoiceResult["postcondition"]> {
   return {
     classification,

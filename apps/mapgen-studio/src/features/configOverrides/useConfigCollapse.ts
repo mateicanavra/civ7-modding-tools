@@ -139,7 +139,9 @@ export function useConfigCollapse(args: UseConfigCollapseArgs): ConfigCollapseCo
         }
         const anchorEl = deepest ? headers.find((h) => h.pointer === deepest)?.el : undefined;
         anchorRef.current =
-          deepest && anchorEl ? { pointer: deepest, top: anchorEl.getBoundingClientRect().top } : null;
+          deepest && anchorEl
+            ? { pointer: deepest, top: anchorEl.getBoundingClientRect().top }
+            : null;
         return chain;
       });
     };

@@ -32,7 +32,13 @@ describe("standard pipeline viz emissions", () => {
       },
     };
 
-    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+    });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
     const seenLayers = new Set<string>();
@@ -59,7 +65,9 @@ describe("standard pipeline viz emissions", () => {
     // Regression guard: never encode temporal slices into `dataTypeKey`.
     // Those should be `variantKey` instead (e.g. `era:<n>`), so the UI can
     // declutter by default while preserving depth behind a debug toggle.
-    const explodedHistoryKeys = [...seenLayers].filter((key) => /^foundation\.tectonicHistory\.era\d+\./.test(key));
+    const explodedHistoryKeys = [...seenLayers].filter((key) =>
+      /^foundation\.tectonicHistory\.era\d+\./.test(key)
+    );
     expect(explodedHistoryKeys).toEqual([]);
 
     const expected = [
@@ -122,7 +130,13 @@ describe("standard pipeline viz emissions", () => {
       },
     };
 
-    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+    });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
     const variantsByKey = new Map<string, Set<string>>();
@@ -145,13 +159,16 @@ describe("standard pipeline viz emissions", () => {
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
-    const historyBoundaryVariants = variantsByKey.get("foundation.history.boundaryType") ?? new Set<string>();
+    const historyBoundaryVariants =
+      variantsByKey.get("foundation.history.boundaryType") ?? new Set<string>();
     expect([...historyBoundaryVariants].some((key) => /^era:\d+$/.test(key))).toBe(true);
 
-    const snapshotBoundaryVariants = variantsByKey.get("foundation.tectonics.boundaryType") ?? new Set<string>();
+    const snapshotBoundaryVariants =
+      variantsByKey.get("foundation.tectonics.boundaryType") ?? new Set<string>();
     expect(snapshotBoundaryVariants.has("snapshot:latest")).toBe(true);
 
-    const upliftVariants = variantsByKey.get("foundation.history.upliftPotential") ?? new Set<string>();
+    const upliftVariants =
+      variantsByKey.get("foundation.history.upliftPotential") ?? new Set<string>();
     expect([...upliftVariants].some((key) => /^era:\d+$/.test(key))).toBe(true);
   });
 
@@ -179,23 +196,41 @@ describe("standard pipeline viz emissions", () => {
       },
     };
 
-    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+    });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
     const metasByKey = new Map<string, unknown[]>();
     const viz: VizDumper = {
       outputRoot: "<test>",
       dumpGrid: (_trace, layer) => {
-        metasByKey.set(layer.dataTypeKey, [...(metasByKey.get(layer.dataTypeKey) ?? []), layer.meta]);
+        metasByKey.set(layer.dataTypeKey, [
+          ...(metasByKey.get(layer.dataTypeKey) ?? []),
+          layer.meta,
+        ]);
       },
       dumpPoints: (_trace, layer) => {
-        metasByKey.set(layer.dataTypeKey, [...(metasByKey.get(layer.dataTypeKey) ?? []), layer.meta]);
+        metasByKey.set(layer.dataTypeKey, [
+          ...(metasByKey.get(layer.dataTypeKey) ?? []),
+          layer.meta,
+        ]);
       },
       dumpSegments: (_trace, layer) => {
-        metasByKey.set(layer.dataTypeKey, [...(metasByKey.get(layer.dataTypeKey) ?? []), layer.meta]);
+        metasByKey.set(layer.dataTypeKey, [
+          ...(metasByKey.get(layer.dataTypeKey) ?? []),
+          layer.meta,
+        ]);
       },
       dumpGridFields: (_trace, layer) => {
-        metasByKey.set(layer.dataTypeKey, [...(metasByKey.get(layer.dataTypeKey) ?? []), layer.meta]);
+        metasByKey.set(layer.dataTypeKey, [
+          ...(metasByKey.get(layer.dataTypeKey) ?? []),
+          layer.meta,
+        ]);
       },
     };
 
@@ -206,15 +241,27 @@ describe("standard pipeline viz emissions", () => {
     const plateIdMetas = metasByKey.get("foundation.plates.tilePlateId") as any[] | undefined;
     expect(plateIdMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
-    const boundaryTypeMetas = metasByKey.get("foundation.tectonics.boundaryType") as any[] | undefined;
-    expect(boundaryTypeMetas?.some((m) => m?.visibility === "default" && m?.role === "edges")).toBe(true);
+    const boundaryTypeMetas = metasByKey.get("foundation.tectonics.boundaryType") as
+      | any[]
+      | undefined;
+    expect(boundaryTypeMetas?.some((m) => m?.visibility === "default" && m?.role === "edges")).toBe(
+      true
+    );
     expect(boundaryTypeMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const movementMetas = metasByKey.get("foundation.plates.tileMovement") as any[] | undefined;
-    expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
-    expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
-    expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(true);
-    expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
+    expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(
+      true
+    );
+    expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(
+      true
+    );
+    expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(
+      true
+    );
+    expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(
+      true
+    );
 
     const flowMetas = metasByKey.get("morphology.routing.flow") as any[] | undefined;
     expect(flowMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
@@ -222,10 +269,14 @@ describe("standard pipeline viz emissions", () => {
     expect(flowMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(true);
     expect(flowMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
 
-    const closenessMetas = metasByKey.get("foundation.plates.tileBoundaryCloseness") as any[] | undefined;
+    const closenessMetas = metasByKey.get("foundation.plates.tileBoundaryCloseness") as
+      | any[]
+      | undefined;
     expect(closenessMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
-    const baseElevationMetas = metasByKey.get("foundation.crustTiles.baseElevation") as any[] | undefined;
+    const baseElevationMetas = metasByKey.get("foundation.crustTiles.baseElevation") as
+      | any[]
+      | undefined;
     expect(baseElevationMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const crustTypeMetas = metasByKey.get("foundation.crustTiles.type") as any[] | undefined;
@@ -234,19 +285,31 @@ describe("standard pipeline viz emissions", () => {
     const sedimentMetas = metasByKey.get("morphology.substrate.sedimentDepth") as any[] | undefined;
     expect(sedimentMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
-    const erodibilityMetas = metasByKey.get("morphology.substrate.erodibilityK") as any[] | undefined;
+    const erodibilityMetas = metasByKey.get("morphology.substrate.erodibilityK") as
+      | any[]
+      | undefined;
     expect(erodibilityMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const albedoMetas = metasByKey.get("hydrology.cryosphere.albedo") as any[] | undefined;
     expect(albedoMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
-    const plannedLakeMetas = metasByKey.get("map.hydrology.lakes.plannedLakeMask") as any[] | undefined;
-    expect(plannedLakeMetas?.some((m) => m?.role === "physics" && m?.visibility === "default")).toBe(true);
+    const plannedLakeMetas = metasByKey.get("map.hydrology.lakes.plannedLakeMask") as
+      | any[]
+      | undefined;
+    expect(
+      plannedLakeMetas?.some((m) => m?.role === "physics" && m?.visibility === "default")
+    ).toBe(true);
 
-    const engineLakeMetas = metasByKey.get("map.hydrology.lakes.engineLakeMask") as any[] | undefined;
-    expect(engineLakeMetas?.some((m) => m?.role === "engine" && m?.visibility === "default")).toBe(true);
+    const engineLakeMetas = metasByKey.get("map.hydrology.lakes.engineLakeMask") as
+      | any[]
+      | undefined;
+    expect(engineLakeMetas?.some((m) => m?.role === "engine" && m?.visibility === "default")).toBe(
+      true
+    );
 
-    const rejectedLakeMetas = metasByKey.get("map.hydrology.lakes.rejectedLakeMask") as any[] | undefined;
+    const rejectedLakeMetas = metasByKey.get("map.hydrology.lakes.rejectedLakeMask") as
+      | any[]
+      | undefined;
     expect(rejectedLakeMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const permafrostMetas = metasByKey.get("ecology.biome.permafrost01") as any[] | undefined;
@@ -254,29 +317,43 @@ describe("standard pipeline viz emissions", () => {
 
     const vegetationMetas = metasByKey.get("ecology.biome.vegetationDensity") as any[] | undefined;
     expect(vegetationMetas?.some((m) => m?.visibility === "default")).toBe(true);
-    expect(vegetationMetas?.some((m) => m?.visibility === "default" && m?.role === "centroids")).toBe(true);
+    expect(
+      vegetationMetas?.some((m) => m?.visibility === "default" && m?.role === "centroids")
+    ).toBe(true);
 
     const fertilityMetas = metasByKey.get("ecology.pedology.fertility") as any[] | undefined;
     expect(fertilityMetas?.some((m) => m?.visibility === "default")).toBe(true);
-    expect(fertilityMetas?.some((m) => m?.visibility === "default" && m?.role === "centroids")).toBe(true);
+    expect(
+      fertilityMetas?.some((m) => m?.visibility === "default" && m?.role === "centroids")
+    ).toBe(true);
 
     // Inert start-sector machinery (and its always-on grid viz) was removed in
     // placement-realignment S4; landmass-region slots are the real regional layer.
     expect(metasByKey.has("placement.starts.sectorId")).toBe(false);
 
-    const startViabilityMetas = metasByKey.get("placement.starts.viabilityScore") as any[] | undefined;
+    const startViabilityMetas = metasByKey.get("placement.starts.viabilityScore") as
+      | any[]
+      | undefined;
     expect(startViabilityMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
     const startTierMetas = metasByKey.get("placement.starts.viabilityTier") as any[] | undefined;
-    expect(startTierMetas?.some((m) => m?.visibility === "default" && m?.palette === "categorical")).toBe(true);
+    expect(
+      startTierMetas?.some((m) => m?.visibility === "default" && m?.palette === "categorical")
+    ).toBe(true);
 
     const startMetas = metasByKey.get("placement.starts.startPosition") as any[] | undefined;
-    expect(startMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")).toBe(true);
+    expect(startMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")).toBe(
+      true
+    );
 
-    const rainfallAmpMetas = metasByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as any[] | undefined;
+    const rainfallAmpMetas = metasByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as
+      | any[]
+      | undefined;
     expect(rainfallAmpMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
-    const humidityAmpMetas = metasByKey.get("hydrology.climate.seasonality.humidityAmplitude") as any[] | undefined;
+    const humidityAmpMetas = metasByKey.get("hydrology.climate.seasonality.humidityAmplitude") as
+      | any[]
+      | undefined;
     expect(humidityAmpMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
     const snowMetas = metasByKey.get("hydrology.cryosphere.snowCover") as any[] | undefined;
@@ -288,14 +365,30 @@ describe("standard pipeline viz emissions", () => {
     const rainfallMetas = metasByKey.get("hydrology.climate.rainfall") as any[] | undefined;
     expect(rainfallMetas?.some((m) => m?.visibility === "default")).toBe(true);
     expect(
-      rainfallMetas?.some((m) => m?.role === "centroids" && m?.label === "Rainfall (Baseline)" && m?.visibility === "default")
+      rainfallMetas?.some(
+        (m) =>
+          m?.role === "centroids" &&
+          m?.label === "Rainfall (Baseline)" &&
+          m?.visibility === "default"
+      )
     ).toBe(true);
-    expect(rainfallMetas?.some((m) => m?.role === "centroids" && m?.label === "Rainfall" && m?.visibility === "default")).toBe(true);
+    expect(
+      rainfallMetas?.some(
+        (m) => m?.role === "centroids" && m?.label === "Rainfall" && m?.visibility === "default"
+      )
+    ).toBe(true);
 
-    const temperatureMetas = metasByKey.get("hydrology.climate.indices.surfaceTemperatureC") as any[] | undefined;
+    const temperatureMetas = metasByKey.get("hydrology.climate.indices.surfaceTemperatureC") as
+      | any[]
+      | undefined;
     expect(temperatureMetas?.some((m) => m?.visibility === "default")).toBe(true);
     expect(
-      temperatureMetas?.some((m) => m?.role === "centroids" && m?.label === "Surface Temperature (C)" && m?.visibility === "default")
+      temperatureMetas?.some(
+        (m) =>
+          m?.role === "centroids" &&
+          m?.label === "Surface Temperature (C)" &&
+          m?.visibility === "default"
+      )
     ).toBe(true);
 
     const windMetas = metasByKey.get("hydrology.wind.wind") as any[] | undefined;
@@ -305,48 +398,92 @@ describe("standard pipeline viz emissions", () => {
     expect(windMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
 
     const currentMetas = metasByKey.get("hydrology.current.current") as any[] | undefined;
-    expect(currentMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
-    expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
-    expect(currentMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(true);
-    expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
+    expect(currentMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(
+      true
+    );
+    expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(
+      true
+    );
+    expect(currentMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(
+      true
+    );
+    expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(
+      true
+    );
 
-    const shelfMaskMetas = metasByKey.get("morphology.coastlineMetrics.shelfMask") as any[] | undefined;
-    expect(shelfMaskMetas?.some((m) => m?.visibility === "default" && m?.palette === "categorical")).toBe(true);
+    const shelfMaskMetas = metasByKey.get("morphology.coastlineMetrics.shelfMask") as
+      | any[]
+      | undefined;
+    expect(
+      shelfMaskMetas?.some((m) => m?.visibility === "default" && m?.palette === "categorical")
+    ).toBe(true);
 
-    const activeMarginMetas = metasByKey.get("morphology.shelf.activeMarginMask") as any[] | undefined;
-    expect(activeMarginMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")).toBe(true);
+    const activeMarginMetas = metasByKey.get("morphology.shelf.activeMarginMask") as
+      | any[]
+      | undefined;
+    expect(
+      activeMarginMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")
+    ).toBe(true);
 
     const capTilesMetas = metasByKey.get("morphology.shelf.capTiles") as any[] | undefined;
-    expect(capTilesMetas?.some((m) => m?.visibility === "default" && m?.palette === "continuous")).toBe(true);
+    expect(
+      capTilesMetas?.some((m) => m?.visibility === "default" && m?.palette === "continuous")
+    ).toBe(true);
 
-    const nearshoreMetas = metasByKey.get("morphology.shelf.nearshoreCandidateMask") as any[] | undefined;
+    const nearshoreMetas = metasByKey.get("morphology.shelf.nearshoreCandidateMask") as
+      | any[]
+      | undefined;
     expect(nearshoreMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const depthGateMetas = metasByKey.get("morphology.shelf.depthGateMask") as any[] | undefined;
     expect(depthGateMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const waterClassMetas = metasByKey.get("map.morphology.coasts.waterClass") as any[] | undefined;
-    expect(waterClassMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")).toBe(true);
+    expect(
+      waterClassMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")
+    ).toBe(true);
 
-    const projectedRiverMetas = metasByKey.get("map.rivers.projectedRiverMask") as any[] | undefined;
-    expect(projectedRiverMetas?.some((m) => m?.visibility === "default" && m?.role === "projection")).toBe(true);
+    const projectedRiverMetas = metasByKey.get("map.rivers.projectedRiverMask") as
+      | any[]
+      | undefined;
+    expect(
+      projectedRiverMetas?.some((m) => m?.visibility === "default" && m?.role === "projection")
+    ).toBe(true);
 
-    const minorRiverIntentMetas = metasByKey.get("map.rivers.plannedMinorRiverMask") as any[] | undefined;
-    expect(minorRiverIntentMetas?.some((m) => m?.visibility === "default" && m?.role === "physics")).toBe(true);
+    const minorRiverIntentMetas = metasByKey.get("map.rivers.plannedMinorRiverMask") as
+      | any[]
+      | undefined;
+    expect(
+      minorRiverIntentMetas?.some((m) => m?.visibility === "default" && m?.role === "physics")
+    ).toBe(true);
 
-    const majorRiverIntentMetas = metasByKey.get("map.rivers.plannedMajorRiverMask") as any[] | undefined;
-    expect(majorRiverIntentMetas?.some((m) => m?.visibility === "default" && m?.role === "physics")).toBe(true);
+    const majorRiverIntentMetas = metasByKey.get("map.rivers.plannedMajorRiverMask") as
+      | any[]
+      | undefined;
+    expect(
+      majorRiverIntentMetas?.some((m) => m?.visibility === "default" && m?.role === "physics")
+    ).toBe(true);
 
     const engineRiverMetas = metasByKey.get("map.rivers.engineRiverMask") as any[] | undefined;
-    expect(engineRiverMetas?.some((m) => m?.visibility === "default" && m?.role === "engine")).toBe(true);
+    expect(engineRiverMetas?.some((m) => m?.visibility === "default" && m?.role === "engine")).toBe(
+      true
+    );
 
-    const engineNavigableMetadataMetas = metasByKey.get("map.rivers.engineNavigableRiverMetadataMask") as any[] | undefined;
-    expect(engineNavigableMetadataMetas?.some((m) => m?.visibility === "debug" && m?.role === "engine")).toBe(true);
+    const engineNavigableMetadataMetas = metasByKey.get(
+      "map.rivers.engineNavigableRiverMetadataMask"
+    ) as any[] | undefined;
+    expect(
+      engineNavigableMetadataMetas?.some((m) => m?.visibility === "debug" && m?.role === "engine")
+    ).toBe(true);
 
     const riverMismatchMetas = metasByKey.get("map.rivers.riverMismatchMask") as any[] | undefined;
     expect(riverMismatchMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
-    const engineMinorRiverMetas = metasByKey.get("map.rivers.engineMinorRiverMask") as any[] | undefined;
-    expect(engineMinorRiverMetas?.some((m) => m?.visibility === "debug" && m?.role === "engine")).toBe(true);
+    const engineMinorRiverMetas = metasByKey.get("map.rivers.engineMinorRiverMask") as
+      | any[]
+      | undefined;
+    expect(
+      engineMinorRiverMetas?.some((m) => m?.visibility === "debug" && m?.role === "engine")
+    ).toBe(true);
   });
 });

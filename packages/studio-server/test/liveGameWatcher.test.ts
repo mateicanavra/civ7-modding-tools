@@ -35,7 +35,9 @@ describe("live-game watcher", () => {
     await watcher.tick();
     await watcher.tick();
 
-    const liveGameEvents = events.filter((event): event is StudioLiveGameEvent => event.type === "live-game");
+    const liveGameEvents = events.filter(
+      (event): event is StudioLiveGameEvent => event.type === "live-game"
+    );
     expect(liveGameEvents).toHaveLength(2);
     expect(liveGameEvents[0]?.state.gameHash).toBe(111);
     expect(liveGameEvents[1]?.state.gameHash).toBe(222);

@@ -36,7 +36,8 @@ export const createNodesV2 = [
       };
       const harnessProject = ensureProject(OWNER_ROOTS["@internal/habitat-harness"]);
       harnessProject.targets[boundariesTargetName] = {
-        command: "FORCE_COLOR=0 bunx eslint . --quiet --config eslint.boundaries.config.mjs --no-config-lookup",
+        command:
+          "FORCE_COLOR=0 bunx eslint . --quiet --config eslint.boundaries.config.mjs --no-config-lookup",
         options: { cwd: "{workspaceRoot}" },
         cache: true,
         inputs: [

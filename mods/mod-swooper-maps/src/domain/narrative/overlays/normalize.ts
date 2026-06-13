@@ -1,6 +1,9 @@
 import type { StoryOverlaySnapshot } from "@swooper/mapgen-core";
 
-export function normalizeOverlay(key: string, overlay: Partial<StoryOverlaySnapshot>): StoryOverlaySnapshot {
+export function normalizeOverlay(
+  key: string,
+  overlay: Partial<StoryOverlaySnapshot>
+): StoryOverlaySnapshot {
   const base = overlay && typeof overlay === "object" ? overlay : {};
   const width = Number.isFinite(base.width) ? (base.width as number) : 0;
   const height = Number.isFinite(base.height) ? (base.height as number) : 0;
@@ -46,4 +49,3 @@ function freezeSummary(
   }
   return Object.freeze({ ...summary });
 }
-

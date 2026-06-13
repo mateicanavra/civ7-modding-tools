@@ -1,7 +1,5 @@
-export const CIV7_INTELLIGENCE_BRIDGE_MOD_ID =
-  "civ7-intelligence-bridge";
-export const CIV7_INTELLIGENCE_BRIDGE_UI_SCRIPT =
-  "ui/civ7-intelligence-bridge.js";
+export const CIV7_INTELLIGENCE_BRIDGE_MOD_ID = "civ7-intelligence-bridge";
+export const CIV7_INTELLIGENCE_BRIDGE_UI_SCRIPT = "ui/civ7-intelligence-bridge.js";
 
 export function renderCiv7IntelligenceBridgeModinfo(): string {
   return `<?xml version="1.0" encoding="utf-8"?>

@@ -15,4 +15,3 @@ export type RecipeConfig = Readonly<Record<string, Readonly<Record<string, unkno
 export type RecipeConfigInput = Readonly<Partial<Record<string, unknown>>>;
 
 export type CompiledRecipeConfig = RecipeConfig;
-

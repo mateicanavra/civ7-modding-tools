@@ -31,19 +31,22 @@ type TechnologyChoiceCloseoutCommandDependencies = Readonly<{
   jsLiteral: (value: unknown) => string;
 }>;
 
-type TechnologyChoiceCloseoutRequestDependencies = TechnologyChoiceCloseoutCommandDependencies & Readonly<{
-  executeAppUiCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;
-  invalidNodeError: () => never;
-  parseTechnologyChoiceCloseout: (
-    result: Civ7CommandResult,
-    label: string,
-  ) => { sent?: boolean; chooseResult?: { ok?: boolean }; clearTargetResult?: { ok?: boolean } };
-  validatePlayerId: (playerId: number) => void;
-}>;
+type TechnologyChoiceCloseoutRequestDependencies = TechnologyChoiceCloseoutCommandDependencies &
+  Readonly<{
+    executeAppUiCommand: (
+      options: Civ7DirectControlOptions & Readonly<{ command: string }>
+    ) => Promise<Civ7CommandResult>;
+    invalidNodeError: () => never;
+    parseTechnologyChoiceCloseout: (
+      result: Civ7CommandResult,
+      label: string
+    ) => { sent?: boolean; chooseResult?: { ok?: boolean }; clearTargetResult?: { ok?: boolean } };
+    validatePlayerId: (playerId: number) => void;
+  }>;
 
 export function buildTechnologyChoiceCloseoutCommand(
   input: Civ7TechnologyChoiceCloseoutInput,
-  dependencies: TechnologyChoiceCloseoutCommandDependencies,
+  dependencies: TechnologyChoiceCloseoutCommandDependencies
 ): string {
   return `(() => {
     ${technologyChoiceCloseoutSource()}
@@ -150,7 +153,7 @@ export function technologyChoiceCloseoutSource(): string {
 export async function requestCiv7TechnologyChoiceCloseout(
   input: Civ7TechnologyChoiceCloseoutInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: TechnologyChoiceCloseoutRequestDependencies = defaultTechnologyChoiceCloseoutDependencies,
+  dependencies: TechnologyChoiceCloseoutRequestDependencies = defaultTechnologyChoiceCloseoutDependencies
 ): Promise<Civ7TechnologyChoiceCloseoutResult> {
   dependencies.validatePlayerId(input.playerId);
   if (!Number.isInteger(input.node)) dependencies.invalidNodeError();
@@ -158,7 +161,10 @@ export async function requestCiv7TechnologyChoiceCloseout(
     ...options,
     command: buildTechnologyChoiceCloseoutCommand(input, dependencies),
   });
-  const payload = dependencies.parseTechnologyChoiceCloseout(command, "Civ7 technology choice closeout");
+  const payload = dependencies.parseTechnologyChoiceCloseout(
+    command,
+    "Civ7 technology choice closeout"
+  );
   const sent = payload.sent === true;
   return {
     host: command.host,

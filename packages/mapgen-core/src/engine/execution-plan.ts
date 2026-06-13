@@ -61,9 +61,7 @@ export interface ExecutionPlan {
   nodes: ExecutionPlanNode[];
 }
 
-export type ExecutionPlanCompileErrorCode =
-  | "runRequest.invalid"
-  | "step.unknown";
+export type ExecutionPlanCompileErrorCode = "runRequest.invalid" | "step.unknown";
 
 export interface ExecutionPlanCompileErrorItem {
   code: ExecutionPlanCompileErrorCode;

@@ -24,18 +24,26 @@ const ComputeOceanSurfaceCurrentsInputSchema = Type.Object(
     /** Wind V component per tile (-127..127). */
     windV: TypedArraySchemas.i8({ description: "Wind V component per tile (-127..127)." }),
     /** Optional basin id per tile (0 on land). */
-    basinId: Type.Optional(TypedArraySchemas.i32({ description: "Optional basin id per tile (0 on land)." })),
+    basinId: Type.Optional(
+      TypedArraySchemas.i32({ description: "Optional basin id per tile (0 on land)." })
+    ),
     /** Optional coast distance over water (0 at coastal water; 65535 elsewhere). */
     coastDistance: Type.Optional(
-      TypedArraySchemas.u16({ description: "Optional coast distance over water (0 at coastal water; 65535 elsewhere)." })
+      TypedArraySchemas.u16({
+        description: "Optional coast distance over water (0 at coastal water; 65535 elsewhere).",
+      })
     ),
     /** Optional advisory coast tangent U component per tile (-127..127). */
     coastTangentU: Type.Optional(
-      TypedArraySchemas.i8({ description: "Optional advisory coast tangent U component per tile (-127..127)." })
+      TypedArraySchemas.i8({
+        description: "Optional advisory coast tangent U component per tile (-127..127).",
+      })
     ),
     /** Optional advisory coast tangent V component per tile (-127..127). */
     coastTangentV: Type.Optional(
-      TypedArraySchemas.i8({ description: "Optional advisory coast tangent V component per tile (-127..127)." })
+      TypedArraySchemas.i8({
+        description: "Optional advisory coast tangent V component per tile (-127..127).",
+      })
     ),
   },
   {
@@ -98,7 +106,8 @@ const ComputeOceanSurfaceCurrentsEarthlikeStrategySchema = Type.Object(
       default: 80,
       minimum: 1,
       maximum: 400,
-      description: "Max speed used for quantization to i8 (higher = weaker output for same internal field).",
+      description:
+        "Max speed used for quantization to i8 (higher = weaker output for same internal field).",
     }),
     /** Wind imprint strength (along-wind component). */
     windStrength: Type.Number({
@@ -126,7 +135,8 @@ const ComputeOceanSurfaceCurrentsEarthlikeStrategySchema = Type.Object(
       default: 32,
       minimum: 0,
       maximum: 200,
-      description: "Coast-aligned boundary current strength (requires coastTangent; ignored if absent).",
+      description:
+        "Coast-aligned boundary current strength (requires coastTangent; ignored if absent).",
     }),
     /** Bounded smoothing passes over water tiles. */
     smoothIters: Type.Integer({

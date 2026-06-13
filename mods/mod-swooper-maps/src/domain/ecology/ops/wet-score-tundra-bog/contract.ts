@@ -16,7 +16,9 @@ const ScoreWetTundraBogContract = defineOp({
     freezeIndex: TypedArraySchemas.f32({ description: "Freeze index (0..1)." }),
   }),
   output: Type.Object({
-    score01: TypedArraySchemas.f32({ description: "Tundra bog suitability score per tile (0..1)." }),
+    score01: TypedArraySchemas.f32({
+      description: "Tundra bog suitability score per tile (0..1).",
+    }),
   }),
   strategies: {
     default: Type.Object({

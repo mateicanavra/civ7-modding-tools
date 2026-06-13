@@ -10,10 +10,7 @@ import type {
   Civ7TunerStateSelection,
 } from "../../session/types.js";
 import { boundedInteger } from "../../validation.js";
-import {
-  DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
-  HARD_CIV7_MAP_GRID_MAX_PLOTS,
-} from "./constants.js";
+import { DEFAULT_CIV7_MAP_GRID_MAX_PLOTS, HARD_CIV7_MAP_GRID_MAX_PLOTS } from "./constants.js";
 import type {
   Civ7MapBounds,
   Civ7MapGridInput,
@@ -34,14 +31,20 @@ type MapReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   defaultMapGridMaxPlots: number;
   executeCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string; state?: Civ7TunerStateSelection }>,
+    options: Civ7DirectControlOptions &
+      Readonly<{ command: string; state?: Civ7TunerStateSelection }>
   ) => Promise<Civ7CommandResult>;
-  executeTunerCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;
+  executeTunerCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
+  ) => Promise<Civ7CommandResult>;
   hardMapGridMaxPlots: number;
   jsLiteral: (value: unknown) => string;
   parseMapGrid: (result: Civ7CommandResult, label: string) => Civ7MapGridResult;
   parseMapSummary: (result: Civ7CommandResult, label: string) => Civ7MapSummaryResult;
-  parseNativeRiverObjects: (result: Civ7CommandResult, label: string) => Civ7NativeRiverObjectsResult;
+  parseNativeRiverObjects: (
+    result: Civ7CommandResult,
+    label: string
+  ) => Civ7NativeRiverObjectsResult;
   parsePlotSnapshot: (result: Civ7CommandResult, label: string) => Civ7PlotSnapshotResult;
   probeHelperSource: () => string;
   validateMapBounds: (bounds: Civ7MapBounds) => void;
@@ -55,7 +58,11 @@ export type MapSummaryReadDependencies = Pick<
 
 export type PlotSnapshotReadDependencies = Pick<
   MapReadDependencies,
-  "executeTunerCommand" | "jsLiteral" | "parsePlotSnapshot" | "probeHelperSource" | "validateMapLocation"
+  | "executeTunerCommand"
+  | "jsLiteral"
+  | "parsePlotSnapshot"
+  | "probeHelperSource"
+  | "validateMapLocation"
 >;
 
 export type MapGridReadDependencies = Pick<
@@ -73,12 +80,16 @@ export type MapGridReadDependencies = Pick<
 
 export type NativeRiverObjectsReadDependencies = Pick<
   MapReadDependencies,
-  "boundedInteger" | "executeTunerCommand" | "jsLiteral" | "parseNativeRiverObjects" | "probeHelperSource"
+  | "boundedInteger"
+  | "executeTunerCommand"
+  | "jsLiteral"
+  | "parseNativeRiverObjects"
+  | "probeHelperSource"
 >;
 
 export async function getCiv7MapSummary(
   options: Civ7MapSummaryOptions = {},
-  dependencies: MapSummaryReadDependencies = defaultMapReadDependencies,
+  dependencies: MapSummaryReadDependencies = defaultMapReadDependencies
 ): Promise<Civ7MapSummaryResult> {
   const result = await dependencies.executeCommand({
     ...options,
@@ -88,7 +99,7 @@ export async function getCiv7MapSummary(
         includeAreaRegionCounts: options.includeAreaRegionCounts === true,
         maxIds: dependencies.boundedInteger(options.maxIds ?? 512, 0, 1_000_000, "maxIds"),
       },
-      dependencies,
+      dependencies
     ),
   });
   return dependencies.parseMapSummary(result, "Civ7 map summary");
@@ -97,7 +108,7 @@ export async function getCiv7MapSummary(
 export async function getCiv7PlotSnapshot(
   input: Civ7PlotSnapshotInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: PlotSnapshotReadDependencies = defaultMapReadDependencies,
+  dependencies: PlotSnapshotReadDependencies = defaultMapReadDependencies
 ): Promise<Civ7PlotSnapshotResult> {
   dependencies.validateMapLocation(input);
   const fields = normalizePlotFields(input.fields);
@@ -111,13 +122,13 @@ export async function getCiv7PlotSnapshot(
 export async function getCiv7MapGrid(
   input: Civ7MapGridInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: MapGridReadDependencies = defaultMapReadDependencies,
+  dependencies: MapGridReadDependencies = defaultMapReadDependencies
 ): Promise<Civ7MapGridResult> {
   const maxPlots = dependencies.boundedInteger(
     input.maxPlots ?? dependencies.defaultMapGridMaxPlots,
     1,
     dependencies.hardMapGridMaxPlots,
-    "maxPlots",
+    "maxPlots"
   );
   validateMapGridInput(input, maxPlots, dependencies);
   const result = await dependencies.executeTunerCommand({
@@ -128,7 +139,7 @@ export async function getCiv7MapGrid(
         fields: normalizePlotFields(input.fields),
         maxPlots,
       },
-      dependencies,
+      dependencies
     ),
   });
   return dependencies.parseMapGrid(result, "Civ7 map grid");
@@ -137,10 +148,15 @@ export async function getCiv7MapGrid(
 export async function getCiv7NativeRiverObjects(
   input: Civ7NativeRiverObjectsInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: NativeRiverObjectsReadDependencies = defaultMapReadDependencies,
+  dependencies: NativeRiverObjectsReadDependencies = defaultMapReadDependencies
 ): Promise<Civ7NativeRiverObjectsResult> {
   const maxSamples = dependencies.boundedInteger(input.maxSamples ?? 16, 0, 256, "maxSamples");
-  const maxPlotsPerRiver = dependencies.boundedInteger(input.maxPlotsPerRiver ?? 256, 0, 2048, "maxPlotsPerRiver");
+  const maxPlotsPerRiver = dependencies.boundedInteger(
+    input.maxPlotsPerRiver ?? 256,
+    0,
+    2048,
+    "maxPlotsPerRiver"
+  );
   const result = await dependencies.executeTunerCommand({
     ...options,
     command: buildNativeRiverObjectsCommand({ maxSamples, maxPlotsPerRiver }, dependencies),
@@ -150,7 +166,7 @@ export async function getCiv7NativeRiverObjects(
 
 function buildMapSummaryCommand(
   options: Civ7MapSummaryInput & { includeAreaRegionCounts: boolean; maxIds: number },
-  dependencies: MapSummaryReadDependencies,
+  dependencies: MapSummaryReadDependencies
 ): string {
   return `(() => {
     ${dependencies.probeHelperSource()}
@@ -193,7 +209,7 @@ function buildMapSummaryCommand(
 
 function buildPlotSnapshotCommand(
   input: Civ7PlotSnapshotInput & { fields: ReadonlyArray<Civ7PlotSnapshotField> },
-  dependencies: PlotSnapshotReadDependencies,
+  dependencies: PlotSnapshotReadDependencies
 ): string {
   return `(() => {
     ${plotSnapshotScriptSource(dependencies)}
@@ -201,10 +217,13 @@ function buildPlotSnapshotCommand(
   })()`;
 }
 
-function buildMapGridCommand(input: Civ7MapGridInput & {
-  fields: ReadonlyArray<Civ7PlotSnapshotField>;
-  maxPlots: number;
-}, dependencies: MapGridReadDependencies): string {
+function buildMapGridCommand(
+  input: Civ7MapGridInput & {
+    fields: ReadonlyArray<Civ7PlotSnapshotField>;
+    maxPlots: number;
+  },
+  dependencies: MapGridReadDependencies
+): string {
   return `(() => {
     ${plotSnapshotScriptSource(dependencies)}
     const input = ${dependencies.jsLiteral(input)};
@@ -237,7 +256,7 @@ function buildMapGridCommand(input: Civ7MapGridInput & {
 
 function buildNativeRiverObjectsCommand(
   input: Required<Civ7NativeRiverObjectsInput>,
-  dependencies: NativeRiverObjectsReadDependencies,
+  dependencies: NativeRiverObjectsReadDependencies
 ): string {
   return `(() => {
     ${dependencies.probeHelperSource()}
@@ -342,7 +361,9 @@ function buildNativeRiverObjectsCommand(
   })()`;
 }
 
-function plotSnapshotScriptSource(dependencies: Pick<MapReadDependencies, "probeHelperSource">): string {
+function plotSnapshotScriptSource(
+  dependencies: Pick<MapReadDependencies, "probeHelperSource">
+): string {
   return `${dependencies.probeHelperSource()}
     const callPlot = (name, x, y) => {
       const fn = GameplayMap[name];
@@ -430,7 +451,9 @@ function plotSnapshotScriptSource(dependencies: Pick<MapReadDependencies, "probe
     };`;
 }
 
-function normalizePlotFields(fields: ReadonlyArray<Civ7PlotSnapshotField> | undefined): ReadonlyArray<Civ7PlotSnapshotField> {
+function normalizePlotFields(
+  fields: ReadonlyArray<Civ7PlotSnapshotField> | undefined
+): ReadonlyArray<Civ7PlotSnapshotField> {
   const selected: ReadonlyArray<Civ7PlotSnapshotField> = fields?.length
     ? fields
     : ["terrain", "biome", "feature", "resource", "owner", "visibility", "areaRegion"];
@@ -442,19 +465,29 @@ function normalizePlotFields(fields: ReadonlyArray<Civ7PlotSnapshotField> | unde
   return Array.from(new Set(selected));
 }
 
-function validateMapGridInput(input: Civ7MapGridInput, maxPlots: number, dependencies: MapGridReadDependencies): void {
+function validateMapGridInput(
+  input: Civ7MapGridInput,
+  maxPlots: number,
+  dependencies: MapGridReadDependencies
+): void {
   if (!input.bounds && !input.locations) {
-    throw new Civ7DirectControlError("command-failed", "Map grid reads require explicit bounds or locations");
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "Map grid reads require explicit bounds or locations"
+    );
   }
   if (input.bounds && input.locations) {
-    throw new Civ7DirectControlError("command-failed", "Map grid reads accept bounds or locations, not both");
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "Map grid reads accept bounds or locations, not both"
+    );
   }
   if (input.bounds) dependencies.validateMapBounds(input.bounds);
   const locations = input.locations ?? [];
   if (locations.length > dependencies.hardMapGridMaxPlots) {
     throw new Civ7DirectControlError(
       "command-failed",
-      `Map grid location lists must not exceed ${dependencies.hardMapGridMaxPlots} entries`,
+      `Map grid location lists must not exceed ${dependencies.hardMapGridMaxPlots} entries`
     );
   }
   for (const location of locations.slice(0, maxPlots)) dependencies.validateMapLocation(location);
@@ -483,8 +516,7 @@ const defaultMapReadDependencies: MapReadDependencies = {
   executeTunerCommand: executeCiv7TunerCommand,
   hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
   jsLiteral,
-  parseMapGrid: (result, label) =>
-    jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
+  parseMapGrid: (result, label) => jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
   parseMapSummary: (result, label) =>
     jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
   parseNativeRiverObjects: (result, label) =>

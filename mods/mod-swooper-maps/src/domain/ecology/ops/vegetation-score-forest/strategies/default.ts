@@ -31,4 +31,3 @@ export const defaultStrategy = createStrategy(ScoreVegetationForestContract, "de
     return { score01 };
   },
 });
-

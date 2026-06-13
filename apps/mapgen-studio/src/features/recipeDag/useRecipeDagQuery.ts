@@ -28,7 +28,7 @@ export type RecipeDagQueryView = Readonly<{
 
 export function useRecipeDagQuery(
   recipeId: string,
-  options: Readonly<{ enabled: boolean }>,
+  options: Readonly<{ enabled: boolean }>
 ): RecipeDagQueryView {
   const query = useQuery<RecipeDagResult, Error>({
     queryKey: ["recipeDag", recipeId],

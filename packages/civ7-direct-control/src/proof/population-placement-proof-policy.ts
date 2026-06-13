@@ -20,7 +20,7 @@ export type Civ7PopulationPlacementProofSource = Readonly<{
 
 export function populationPlacementProofPostcondition(
   result: Civ7PopulationPlacementProofSource,
-  proofBoundary: Civ7OperationProofBoundary | undefined,
+  proofBoundary: Civ7OperationProofBoundary | undefined
 ): Civ7OperationTelemetryPostcondition | undefined {
   const postcondition = result.populationPostcondition;
   if (!result.sent && !postcondition) return undefined;
@@ -56,20 +56,20 @@ export function populationPlacementProofPostcondition(
     reason: postcondition.reason,
     outcome: populationPlacementProofOutcome(postcondition.classification),
     noRepeatAfterUnverified: populationPlacementProofNoRepeatAfterConfirmed(
-      postcondition.classification,
+      postcondition.classification
     ),
     confidence: "confirmed",
   };
 }
 
 export function populationPlacementProofOutcome(
-  classification: Civ7PopulationPlacementPostconditionClassification,
+  classification: Civ7PopulationPlacementPostconditionClassification
 ): Civ7OperationTelemetryPostconditionOutcome {
   return populationPlacementPostconditionOutcome(classification);
 }
 
 function populationPlacementProofNoRepeatAfterConfirmed(
-  classification: Civ7PopulationPlacementPostconditionClassification,
+  classification: Civ7PopulationPlacementPostconditionClassification
 ): boolean {
   return classification === "placement-state-changed";
 }

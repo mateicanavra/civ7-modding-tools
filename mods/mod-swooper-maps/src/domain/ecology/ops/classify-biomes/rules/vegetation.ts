@@ -44,10 +44,16 @@ export function vegetationDensityForBiome(
   // Soils: fertility (0..1) and soil palette bucket gently modulate vegetation density.
   // Deterministic and local: we consume soils artifact without re-deriving Hydrology indices.
   const soilTypeDelta =
-    soilType === 0 ? -0.15 : // rocky
-    soilType === 1 ? -0.08 : // sandy
-    soilType === 3 ? 0.02 : // clayish / wet
-    0.05; // loam/default
+    soilType === 0
+      ? -0.15
+      : // rocky
+        soilType === 1
+        ? -0.08
+        : // sandy
+          soilType === 3
+          ? 0.02
+          : // clayish / wet
+            0.05; // loam/default
   const fertilityFactor = 0.6 + 0.5 * clamp01(fertility01);
   const soilFactor = Math.max(0, fertilityFactor + soilTypeDelta);
   density *= soilFactor;

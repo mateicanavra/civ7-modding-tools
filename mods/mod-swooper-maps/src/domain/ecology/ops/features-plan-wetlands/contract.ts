@@ -9,12 +9,18 @@ const PlanWetlandsContract = defineOp({
     height: Type.Integer({ minimum: 1 }),
     seed: Type.Integer({ minimum: 0 }),
 
-    scoreMarsh01: TypedArraySchemas.f32({ description: "Marsh suitability score per tile (0..1)." }),
+    scoreMarsh01: TypedArraySchemas.f32({
+      description: "Marsh suitability score per tile (0..1).",
+    }),
     scoreTundraBog01: TypedArraySchemas.f32({
       description: "Tundra bog suitability score per tile (0..1).",
     }),
-    scoreMangrove01: TypedArraySchemas.f32({ description: "Mangrove suitability score per tile (0..1)." }),
-    scoreOasis01: TypedArraySchemas.f32({ description: "Oasis suitability score per tile (0..1)." }),
+    scoreMangrove01: TypedArraySchemas.f32({
+      description: "Mangrove suitability score per tile (0..1).",
+    }),
+    scoreOasis01: TypedArraySchemas.f32({
+      description: "Oasis suitability score per tile (0..1).",
+    }),
     scoreWateringHole01: TypedArraySchemas.f32({
       description: "Watering hole suitability score per tile (0..1).",
     }),

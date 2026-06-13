@@ -11,14 +11,26 @@ export const defaultStrategy = createStrategy(ComputeAtmosphericCirculationContr
     const rngSeed = input.rngSeed | 0;
 
     if (!(input.latitudeByRow instanceof Float32Array) || input.latitudeByRow.length !== height) {
-      throw new Error("[Hydrology] Invalid latitudeByRow for hydrology/compute-atmospheric-circulation.");
+      throw new Error(
+        "[Hydrology] Invalid latitudeByRow for hydrology/compute-atmospheric-circulation."
+      );
     }
 
-    if (input.landMask !== undefined && (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size)) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/compute-atmospheric-circulation.");
+    if (
+      input.landMask !== undefined &&
+      (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size)
+    ) {
+      throw new Error(
+        "[Hydrology] Invalid landMask for hydrology/compute-atmospheric-circulation."
+      );
     }
-    if (input.elevation !== undefined && (!(input.elevation instanceof Int16Array) || input.elevation.length !== size)) {
-      throw new Error("[Hydrology] Invalid elevation for hydrology/compute-atmospheric-circulation.");
+    if (
+      input.elevation !== undefined &&
+      (!(input.elevation instanceof Int16Array) || input.elevation.length !== size)
+    ) {
+      throw new Error(
+        "[Hydrology] Invalid elevation for hydrology/compute-atmospheric-circulation."
+      );
     }
 
     const seasonPhase01 =

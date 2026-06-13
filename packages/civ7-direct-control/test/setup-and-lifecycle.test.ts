@@ -97,10 +97,11 @@ describe("Civ7 setup and lifecycle orchestration", () => {
         gameSeed: 223,
       };
 
-      const prepare = await prepareCiv7SinglePlayerSetup(
-        expected,
-        { host: HOST, port, timeoutMs: 1_000 }
-      );
+      const prepare = await prepareCiv7SinglePlayerSetup(expected, {
+        host: HOST,
+        port,
+        timeoutMs: 1_000,
+      });
       const start = await startPreparedCiv7SinglePlayerGame(
         { expected, waitForTuner: true, waitTimeoutMs: 2_000, pollIntervalMs: 10 },
         { host: HOST, port, timeoutMs: 1_000 }
@@ -236,10 +237,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     try {
       const { port } = beginFailure.address();
       const expected = { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 222 };
-      await prepareCiv7SinglePlayerSetup(
-        expected,
-        { host: HOST, port, timeoutMs: 1_000 }
-      );
+      await prepareCiv7SinglePlayerSetup(expected, { host: HOST, port, timeoutMs: 1_000 });
       await expect(
         startPreparedCiv7SinglePlayerGame(
           { expected, waitForTuner: true, waitTimeoutMs: 500, pollIntervalMs: 10 },
@@ -259,10 +257,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     try {
       const { port } = server.address();
       const expected = { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 222 };
-      await prepareCiv7SinglePlayerSetup(
-        expected,
-        { host: HOST, port, timeoutMs: 1_000 }
-      );
+      await prepareCiv7SinglePlayerSetup(expected, { host: HOST, port, timeoutMs: 1_000 });
 
       await expect(
         startPreparedCiv7SinglePlayerGame(

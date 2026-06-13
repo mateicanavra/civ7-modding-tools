@@ -7,7 +7,10 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 import { createLabelRng } from "@swooper/mapgen-core";
 
-import { canonicalRecipeConfig, isPlainObject as isCanonicalMapConfigObject } from "../../maps/configs/canonical.js";
+import {
+  canonicalRecipeConfig,
+  isPlainObject as isCanonicalMapConfigObject,
+} from "../../maps/configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
@@ -73,9 +76,18 @@ async function main(): Promise<void> {
   // alive-major count possibly below the slot sum — Milestone A evidence).
   const players1 = parseIntOr(typeof flags.players1 === "string" ? flags.players1 : undefined, 4);
   const players2 = parseIntOr(typeof flags.players2 === "string" ? flags.players2 : undefined, 4);
-  const sectorRows = parseIntOr(typeof flags.sectorRows === "string" ? flags.sectorRows : undefined, 4);
-  const sectorCols = parseIntOr(typeof flags.sectorCols === "string" ? flags.sectorCols : undefined, 4);
-  const aliveMajorCount = parseIntOr(typeof flags.alive === "string" ? flags.alive : undefined, players1 + players2);
+  const sectorRows = parseIntOr(
+    typeof flags.sectorRows === "string" ? flags.sectorRows : undefined,
+    4
+  );
+  const sectorCols = parseIntOr(
+    typeof flags.sectorCols === "string" ? flags.sectorCols : undefined,
+    4
+  );
+  const aliveMajorCount = parseIntOr(
+    typeof flags.alive === "string" ? flags.alive : undefined,
+    players1 + players2
+  );
   // Live engine init params carry +/-90 on HUGE (probed via getPlotLatitude,
   // Milestone A7); the historical default here stays +/-60 for old labels.
   const minLat = parseIntOr(typeof flags.minLat === "string" ? flags.minLat : undefined, -60);
@@ -107,10 +119,14 @@ async function main(): Promise<void> {
       : loadedConfig;
   const override = loadOverride(flags);
   const merged =
-    override && isPlainObject(baseConfig) && isPlainObject(override) ? mergeDeep(baseConfig, override) : baseConfig;
+    override && isPlainObject(baseConfig) && isPlainObject(override)
+      ? mergeDeep(baseConfig, override)
+      : baseConfig;
 
   const plan = standardRecipe.compile(envBase, merged);
-  const verboseSteps = Object.fromEntries(plan.nodes.map((node: any) => [node.stepId, "verbose"] as const));
+  const verboseSteps = Object.fromEntries(
+    plan.nodes.map((node: any) => [node.stepId, "verbose"] as const)
+  );
   const env = { ...envBase, trace: { enabled: true, steps: verboseSteps } } as const;
 
   const adapter = createMockAdapter({

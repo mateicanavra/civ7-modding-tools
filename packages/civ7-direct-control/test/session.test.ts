@@ -30,7 +30,7 @@ describe("Civ7 direct control session framing", () => {
         state: { id: "1", name: "Tuner" },
         output: ['{"ok":true}'],
       },
-      "Civ7 test payload",
+      "Civ7 test payload"
     );
 
     expect(payload).toEqual({
@@ -50,8 +50,8 @@ describe("Civ7 direct control session framing", () => {
           state: { id: "65535", name: "App UI" },
           output: ["{not-json"],
         },
-        "Civ7 bad payload",
-      ),
+        "Civ7 bad payload"
+      )
     ).toThrow(/Civ7 bad payload returned invalid JSON: \{not-json/);
 
     try {
@@ -62,7 +62,7 @@ describe("Civ7 direct control session framing", () => {
           state: { id: "65535", name: "App UI" },
           output: ["{not-json"],
         },
-        "Civ7 bad payload",
+        "Civ7 bad payload"
       );
     } catch (err) {
       expect(err).toMatchObject({
@@ -146,7 +146,7 @@ describe("Civ7 direct control session framing", () => {
         timeoutMs: 25,
         waitTimeoutMs: 25,
         pollIntervalMs: 1,
-      }),
+      })
     ).rejects.toMatchObject({
       name: "Civ7DirectControlError",
       code: "connection-timeout",
@@ -164,7 +164,7 @@ describe("Civ7 direct control session framing", () => {
           CIV7_TUNER_PORT: "65535",
         },
         timeoutMs: 12_345,
-      }),
+      })
     ).toEqual({
       hosts: ["127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"],
       port: 65_535,
@@ -174,7 +174,7 @@ describe("Civ7 direct control session framing", () => {
     expect(() =>
       resolveCiv7DirectControlConfig({
         env: { CIV7_TUNER_PORT: "0" },
-      }),
+      })
     ).toThrow(/Invalid CIV7_TUNER_PORT/);
   });
 
@@ -188,7 +188,7 @@ describe("Civ7 direct control session framing", () => {
         env: {},
       },
       {
-        errorMessage: (err) => err instanceof Error ? err.message : String(err),
+        errorMessage: (err) => (err instanceof Error ? err.message : String(err)),
         queryTunerStates: async (options) => {
           queried.push(`${options.host}:${options.port}:${options.timeoutMs}`);
           if (options.host === "127.0.0.2") throw new Error("first host unavailable");
@@ -197,7 +197,7 @@ describe("Civ7 direct control session framing", () => {
             { id: "1", name: "Tuner" },
           ];
         },
-      },
+      }
     );
 
     expect(discovered).toEqual({
@@ -220,12 +220,12 @@ describe("Civ7 direct control session framing", () => {
           env: {},
         },
         {
-          errorMessage: (err) => err instanceof Error ? err.message : String(err),
+          errorMessage: (err) => (err instanceof Error ? err.message : String(err)),
           queryTunerStates: async (options) => {
             throw new Error(`unavailable ${options.host}`);
           },
-        },
-      ),
+        }
+      )
     ).rejects.toMatchObject({
       name: "Civ7DirectControlError",
       code: "all-hosts-unavailable",
@@ -252,7 +252,7 @@ describe("Civ7 direct control session framing", () => {
         host: "127.0.0.1",
         port,
         timeoutMs: 100,
-      }),
+      })
     ).rejects.toMatchObject({
       name: "Civ7DirectControlError",
       code: "connection-failed",
@@ -300,7 +300,10 @@ describe("Civ7 direct control session framing", () => {
     const parsedFirst = parseCiv7TunerFrame(combined);
     expect(parsedFirst?.frame).toEqual({ listenerId: 1, parts: ["LSQ:"] });
     const parsedSecond = parseCiv7TunerFrame(combined.subarray(parsedFirst?.bytesRead ?? 0));
-    expect(parsedSecond?.frame).toEqual({ listenerId: 2, parts: [`CMD:65535:${CIV7_RESTART_COMMAND}`] });
+    expect(parsedSecond?.frame).toEqual({
+      listenerId: 2,
+      parts: [`CMD:65535:${CIV7_RESTART_COMMAND}`],
+    });
   });
 
   test("issues framed commands and interprets the server response", async () => {
@@ -340,7 +343,7 @@ describe("Civ7 direct control session framing", () => {
           state: { name: "Missing" },
           command: "1 + 1",
           timeoutMs: 1_000,
-        }),
+        })
       ).rejects.toMatchObject({
         name: "Civ7DirectControlError",
         code: "state-not-found",
@@ -356,7 +359,10 @@ describe("Civ7 direct control session framing", () => {
       const logPath = join(dir, "Scripting.log");
       await writeFile(logPath, "old\n");
       const snapshot = await snapshotFile(logPath);
-      await writeFile(logPath, "old\nCreating Context -  MapGeneration\nDestroying Context -  MapGeneration\n");
+      await writeFile(
+        logPath,
+        "old\nCreating Context -  MapGeneration\nDestroying Context -  MapGeneration\n"
+      );
 
       const proof = await waitForFreshLogMarkers({
         logPath,
@@ -366,7 +372,10 @@ describe("Civ7 direct control session framing", () => {
         pollIntervalMs: 10,
       });
 
-      expect(proof.matched).toEqual(["Creating Context -  MapGeneration", "Destroying Context -  MapGeneration"]);
+      expect(proof.matched).toEqual([
+        "Creating Context -  MapGeneration",
+        "Destroying Context -  MapGeneration",
+      ]);
     } finally {
       await rm(dir, { force: true, recursive: true });
     }
@@ -423,13 +432,11 @@ async function startTunerServer(): Promise<TunerTestServer> {
   };
 }
 
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
+function parseRequest(buffer: Buffer): {
+  listenerId: number;
+  message: string;
+  bytesRead: number;
+} | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);
   const bytesRead = 8 + messageLength;
