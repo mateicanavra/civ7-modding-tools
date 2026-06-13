@@ -7,7 +7,7 @@
 - Owner: Codex DRA implementation lane
 - Branch/Graphite stack: `codex/error-spine` stacked on `main`
 - Started: 2026-06-13
-- Status: implementation complete; Graphite submit pending
+- Status: closed; merged via Graphite PR #1680
 
 ## Objective
 
@@ -29,10 +29,9 @@
 
 ## Current State
 
-- Repo/Graphite state: fresh clean clone at `origin/main` merge commit
-  `e4419c42`, branch `codex/error-spine`, Graphite parent `main`.
-- Dirty files and owner: S1.2 implementation and OpenSpec workstream records
-  only.
+- Repo/Graphite state: started from `origin/main` merge commit `e4419c42`;
+  merged through PR #1680 at `ec1a88250`.
+- Dirty files and owner: none at S1.2 merge.
 - Initial code evidence: `createStudioServerContext` mapped only a subset of
   engine failures to declared oRPC errors; Save&Deploy status 404 lacked the
   daemon identity echo that Run in Game status 404 carries.
@@ -52,7 +51,7 @@
 
 ## Review
 
-- Review lanes: watcher active.
+- Review lanes: watcher lanes complete.
 - Blocking findings: none known after final closure watcher recheck.
 - Accepted/repaired findings: WATCH-1, WATCH-2, WATCH-3, USER-1, and USER-2 are
   repaired.
@@ -74,7 +73,7 @@
   Studio-owned engine error bridge, exhaustive namespace mapping, Save&Deploy
   404 identity echo, recovery-action preservation, TypeBox/Standard Schema
   error data, downstream spec/contract realignment, and focused gates.
-- Remaining tasks: explicit staging and Graphite submit/merge/drain.
+- Remaining tasks: none.
 - Stop conditions triggered: none.
 
 ## Verification
@@ -99,11 +98,7 @@
   behavior; they do not claim a fresh in-game successful deploy smoke for this
   slice.
 
-## Next Action
+## Closure
 
-- Exact next step: stage explicit S1.2 files and commit/submit through Graphite.
-- First files to inspect: `apps/mapgen-studio/src/server/studio/context.ts`,
-  `apps/mapgen-studio/src/server/studio/engines.ts`,
-  `apps/mapgen-studio/src/server/studio/engineErrors.ts`,
-  `packages/studio-server/src/contract/errors.ts`, and adjacent tests.
-- Stop condition: staging/diff review reveals an unrelated or generated file.
+- Graphite: PR #1680 merged; branch drained from the active program path.
+- Handoff: S2.1 `operations-current` starts from merged `origin/main`.

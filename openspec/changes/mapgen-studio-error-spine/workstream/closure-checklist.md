@@ -4,7 +4,7 @@
 
 - Project: Studio runtime simplification
 - Phase: S1.2 `error-spine`
-- Phase state: implementation complete; Graphite closure pending
+- Phase state: closed; merged via Graphite PR #1680
 - Artifact path: `openspec/changes/mapgen-studio-error-spine/`
 
 ## Review
@@ -51,15 +51,14 @@
 
 ## Repo State
 
-- Branch/Graphite stack: `codex/error-spine` on `main`
-- Dirty files: S1.2 implementation and workstream records before final staging
-- Untracked files: `engineErrors.ts`, `engineErrorSpine.test.ts`,
-  `typeboxStandardSchema.ts`, downstream ledger
-- Commit made: pending final explicit staging
+- Branch/Graphite stack: `codex/error-spine` on `main`; PR #1680 merged into
+  `origin/main` at `ec1a88250`
+- Dirty files: none at S1.2 merge
+- Untracked files: none at S1.2 merge
+- Commit made: `68111dbea` (`fix(mapgen-studio): seal studio engine error spine`)
 
 ## Handoff
 
-- Next Packet written: not needed if S1.2 closes in this branch
-- Exact next action: stage explicit files, commit, submit through Graphite
-- Stop condition: strict validation fails or watcher finds an unresolved
-  material closure blocker
+- Next Packet written: not needed; S2.1 proceeds from merged `origin/main`
+- Exact next action: open S2.1 `operations-current`
+- Stop condition: none for S1.2
