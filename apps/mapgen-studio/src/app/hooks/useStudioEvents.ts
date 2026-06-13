@@ -5,10 +5,12 @@ import type { StudioEvent } from "@civ7/studio-server";
 
 import { orpc, orpcClient } from "../../lib/orpc";
 import {
+  applyStudioLiveGameEvent,
   applyStudioOperationEvent,
   readAndAdoptStudioOperationsCurrent,
   type StudioOperationAdoptionTargets,
 } from "../operationAdoption";
+import type { LiveRuntimeStatusState } from "../../features/liveRuntime/model";
 
 export const STUDIO_EVENT_STREAM_RETRY_ATTEMPTS = Number.POSITIVE_INFINITY;
 
@@ -30,9 +32,11 @@ export function studioEventsWatchLiveOptions() {
 }
 
 export function useStudioEvents(args: StudioOperationAdoptionTargets & {
+  applyLiveGameState(state: LiveRuntimeStatusState): void;
   setLocalError(message: string | null): void;
 }): void {
   const {
+    applyLiveGameState,
     setRunInGameOperation,
     setSaveDeployOperation,
     markRunInGameToastHandled,
@@ -45,6 +49,9 @@ export function useStudioEvents(args: StudioOperationAdoptionTargets & {
     : null;
   const operationKey = event?.type === "operation"
     ? `${event.kind}:${event.status.requestId}:${event.observedAt}`
+    : null;
+  const liveGameKey = event?.type === "live-game"
+    ? `${event.state.snapshotId ?? event.state.snapshotHash ?? event.state.status}:${event.observedAt}`
     : null;
 
   useEffect(() => {
@@ -72,6 +79,13 @@ export function useStudioEvents(args: StudioOperationAdoptionTargets & {
       setSaveDeployOperation,
     });
   }, [event, operationKey, setRunInGameOperation, setSaveDeployOperation]);
+
+  useEffect(() => {
+    if (!liveGameKey || event?.type !== "live-game") return;
+    applyStudioLiveGameEvent(event, {
+      applyLiveGameState,
+    });
+  }, [applyLiveGameState, event, liveGameKey]);
 
   useEffect(() => {
     if (!eventQuery.error) return;

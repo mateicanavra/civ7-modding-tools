@@ -9,6 +9,11 @@ import {
 
 import type { StudioContract, StudioEffectContract } from "./contract/index.js";
 import type { StudioServerContext } from "./context.js";
+import {
+  createRuntimeLiveGameWatcher,
+  type LiveGameWatcher,
+  type LiveGameWatcherOptions,
+} from "./liveGame/watcher.js";
 import { createStudioRouter } from "./router/index.js";
 import { makeStudioRuntime } from "./runtime.js";
 import {
@@ -56,7 +61,14 @@ export interface StudioRpcHandle {
   dispose(): Promise<void>;
 }
 
-export function createStudioRpcHandler(context: StudioServerContext): StudioRpcHandle {
+export interface StudioRpcHandlerOptions {
+  liveGameWatch?: LiveGameWatcherOptions;
+}
+
+export function createStudioRpcHandler(
+  context: StudioServerContext,
+  options: StudioRpcHandlerOptions = {},
+): StudioRpcHandle {
   const runtime = makeStudioRuntime(context);
   const effectRouter = createStudioRouter(runtime);
   // `Router<…>` types every node as `Lazyable<…>`; our effect router never
@@ -96,6 +108,16 @@ export function createStudioRpcHandler(context: StudioServerContext): StudioRpcH
   // the session object itself is acquired without I/O — but the memo must
   // not be the thing that makes a failure sticky).
   let sessionPromise: Promise<Civ7ControlOrpcContext["endpointDefaults"]> | undefined;
+  let liveGameWatcher: LiveGameWatcher | undefined;
+  if (options.liveGameWatch) {
+    liveGameWatcher = createRuntimeLiveGameWatcher({
+      runtime,
+      eventHub: context.eventHub,
+      options: options.liveGameWatch,
+    });
+    liveGameWatcher.start();
+  }
+
   const controlEndpointDefaults = () =>
     (sessionPromise ??= runtime
       .runPromise(Effect.map(Civ7TunerSession, (tuner) => tuner.session))
@@ -121,6 +143,9 @@ export function createStudioRpcHandler(context: StudioServerContext): StudioRpcH
       health: () =>
         runtime.runPromise(Effect.flatMap(Civ7TunerSession, (tuner) => tuner.health)),
     },
-    dispose: () => runtime.dispose(),
+    dispose: async () => {
+      liveGameWatcher?.stop();
+      await runtime.dispose();
+    },
   };
 }

@@ -1,6 +1,11 @@
-import type { StudioOperationEvent, StudioOperationsCurrent } from "@civ7/studio-server";
+import type {
+  StudioLiveGameEvent,
+  StudioOperationEvent,
+  StudioOperationsCurrent,
+} from "@civ7/studio-server";
 
 import type { MapConfigSaveDeployStatus } from "../features/mapConfigSave/status";
+import type { LiveRuntimeStatusState } from "../features/liveRuntime/model";
 import {
   isRunInGameTerminalPhase,
   type RunInGameOperationStatus,
@@ -40,6 +45,13 @@ export function applyStudioOperationEvent(
     return;
   }
   targets.setSaveDeployOperation(event.status as MapConfigSaveDeployStatus);
+}
+
+export function applyStudioLiveGameEvent(
+  event: StudioLiveGameEvent,
+  targets: { applyLiveGameState(state: LiveRuntimeStatusState): void },
+): void {
+  targets.applyLiveGameState(event.state as LiveRuntimeStatusState);
 }
 
 export async function readAndAdoptStudioOperationsCurrent(args: Readonly<{

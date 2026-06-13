@@ -3,6 +3,7 @@ import { Type, type Static } from "typebox";
 import { z } from "zod";
 
 import { toStandardSchema } from "../typeboxStandardSchema.js";
+import { liveGameStateSchema } from "../liveGame/model.js";
 import { isoTimestamp } from "./shared.js";
 
 /**
@@ -176,11 +177,8 @@ const studioOperationEventSchema = Type.Union([
 const studioLiveGameEventSchema = Type.Object(
   {
     type: Type.Literal("live-game"),
-    status: Type.Union([Type.Literal("ok"), Type.Literal("unavailable"), Type.Literal("error")]),
+    state: liveGameStateSchema,
     observedAt: Type.String(),
-    snapshot: Type.Optional(Type.Unknown()),
-    error: Type.Optional(Type.String()),
-    details: Type.Optional(Type.Unknown()),
   },
   { additionalProperties: false },
 );

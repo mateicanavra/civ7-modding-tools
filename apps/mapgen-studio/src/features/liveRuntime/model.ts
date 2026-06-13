@@ -1,30 +1,22 @@
-export type LiveRuntimeStatusKind = "idle" | "ok" | "error";
+import {
+  buildLiveGameErrorState,
+  buildLiveGameState,
+  hashLiveGameValue,
+  stableLiveGameStringify,
+  type LiveGameBindingStatus,
+  type LiveGameSnapshotStatus,
+  type LiveGameState,
+  type LiveGameStatusBody,
+  type LiveGameStatusKind,
+} from "@civ7/studio-server/live-game";
 
-export type LiveRuntimeSnapshotStatus = "idle" | "loading" | "ok" | "stale" | "error";
+export type LiveRuntimeStatusKind = LiveGameStatusKind;
 
-export type LiveRuntimeBindingStatus =
-  | "unbound-runtime"
-  | "proven-studio-run"
-  | "stale"
-  | "partial"
-  | "failed";
+export type LiveRuntimeSnapshotStatus = LiveGameSnapshotStatus;
 
-export type LiveRuntimeStatusState = Readonly<{
-  status: LiveRuntimeStatusKind;
-  turn?: number;
-  gameHash?: number;
-  seed?: number;
-  readiness?: string;
-  autoplayActive?: boolean;
-  autoplayPaused?: boolean;
-  updatedAt?: string;
-  error?: string;
-  snapshotStatus?: LiveRuntimeSnapshotStatus;
-  snapshotId?: string;
-  snapshotHash?: string;
-  bindingStatus?: LiveRuntimeBindingStatus;
-  failureCount?: number;
-}>;
+export type LiveRuntimeBindingStatus = LiveGameBindingStatus;
+
+export type LiveRuntimeStatusState = LiveGameState;
 
 export type LiveRuntimeSnapshotBounds = Readonly<{
   x: number;
@@ -62,32 +54,7 @@ export type LiveRuntimeSuggestionRecord = Readonly<{
   applyPath: "visible-studio-control";
 }>;
 
-type LiveStatusBody = Readonly<{
-  ok?: boolean;
-  observedAt?: string;
-  status?: {
-    readiness?: string;
-    error?: string;
-  };
-  mapSummary?: {
-    error?: string;
-    map?: {
-      randomSeed?: { ok?: boolean; value?: number };
-      width?: { ok?: boolean; value?: number };
-      height?: { ok?: boolean; value?: number };
-    };
-    game?: {
-      turn?: { ok?: boolean; value?: number };
-      hash?: { ok?: boolean; value?: number };
-    };
-  };
-  autoplay?: {
-    autoplay?: {
-      isActive?: boolean;
-      isPaused?: boolean;
-    };
-  };
-}>;
+type LiveStatusBody = LiveGameStatusBody;
 
 const DEFAULT_VISIBLE_SNAPSHOT_BOUNDS: LiveRuntimeSnapshotBounds = {
   x: 0,
@@ -99,17 +66,11 @@ const DEFAULT_VISIBLE_SNAPSHOT_BOUNDS: LiveRuntimeSnapshotBounds = {
 const DEFAULT_VISIBLE_SNAPSHOT_FIELDS = ["terrain", "biome", "feature", "resource"] as const;
 
 export function stableLiveRuntimeStringify(value: unknown): string {
-  return JSON.stringify(canonicalize(value));
+  return stableLiveGameStringify(value);
 }
 
 export function hashLiveRuntimeValue(value: unknown): string {
-  const input = stableLiveRuntimeStringify(value);
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < input.length; i += 1) {
-    hash ^= input.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  return (hash >>> 0).toString(16).padStart(8, "0");
+  return hashLiveGameValue(value);
 }
 
 export function buildLiveRuntimeStatusState(args: {
@@ -118,36 +79,7 @@ export function buildLiveRuntimeStatusState(args: {
   failureCount?: number;
   bindingStatus?: LiveRuntimeBindingStatus;
 }): LiveRuntimeStatusState {
-  const observedAt = args.body.observedAt ?? args.observedAtFallback;
-  const turn = args.body.mapSummary?.game?.turn?.ok ? args.body.mapSummary.game.turn.value : undefined;
-  const gameHash = args.body.mapSummary?.game?.hash?.ok ? args.body.mapSummary.game.hash.value : undefined;
-  const seed = args.body.mapSummary?.map?.randomSeed?.ok ? args.body.mapSummary.map.randomSeed.value : undefined;
-  const readiness = args.body.status?.readiness;
-  const ok = Boolean(args.body.ok);
-  const snapshotHash = hashLiveRuntimeValue({
-    turn,
-    gameHash,
-    seed,
-    readiness,
-    map: args.body.mapSummary?.map,
-    autoplay: args.body.autoplay?.autoplay,
-  });
-  return {
-    status: ok ? "ok" : "error",
-    ...(turn === undefined ? {} : { turn }),
-    ...(gameHash === undefined ? {} : { gameHash }),
-    ...(seed === undefined ? {} : { seed }),
-    ...(readiness === undefined ? {} : { readiness }),
-    autoplayActive: args.body.autoplay?.autoplay?.isActive,
-    autoplayPaused: args.body.autoplay?.autoplay?.isPaused,
-    updatedAt: observedAt,
-    snapshotStatus: ok ? "idle" : "error",
-    snapshotHash,
-    snapshotId: `status:${turn ?? "unknown"}:${snapshotHash}`,
-    bindingStatus: ok ? args.bindingStatus ?? "unbound-runtime" : "failed",
-    failureCount: args.failureCount ?? 0,
-    error: ok ? undefined : args.body.status?.error ?? args.body.mapSummary?.error ?? "Live status unavailable",
-  };
+  return buildLiveGameState(args);
 }
 
 export function buildLiveRuntimeErrorState(args: {
@@ -155,23 +87,7 @@ export function buildLiveRuntimeErrorState(args: {
   observedAt: string;
   failureCount: number;
 }): LiveRuntimeStatusState {
-  return {
-    status: "error",
-    updatedAt: args.observedAt,
-    error: args.error instanceof Error ? args.error.message : "Live status unavailable",
-    snapshotStatus: "error",
-    bindingStatus: "failed",
-    failureCount: args.failureCount,
-  };
-}
-
-export function nextLiveRuntimePollDelayMs(args: {
-  failureCount: number;
-  documentHidden: boolean;
-}): number {
-  if (args.documentHidden) return Math.min(30_000, 5_000 * Math.max(1, args.failureCount + 1));
-  if (args.failureCount <= 0) return 3_000;
-  return Math.min(30_000, 3_000 * 2 ** Math.min(args.failureCount - 1, 4));
+  return buildLiveGameErrorState(args);
 }
 
 export function buildLiveRuntimeSnapshotRequest(args: {
@@ -289,17 +205,4 @@ export function buildLiveRuntimeSuggestionRecords(args: {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function canonicalize(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonicalize);
-  if (value && typeof value === "object") {
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
-      const item = (value as Record<string, unknown>)[key];
-      if (item !== undefined) out[key] = canonicalize(item);
-    }
-    return out;
-  }
-  return value;
 }

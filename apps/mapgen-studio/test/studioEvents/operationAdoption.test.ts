@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest";
 
-import type { StudioOperationEvent, StudioOperationsCurrent } from "@civ7/studio-server";
+import type {
+  StudioLiveGameEvent,
+  StudioOperationEvent,
+  StudioOperationsCurrent,
+} from "@civ7/studio-server";
 
 import {
   STUDIO_EVENT_STREAM_RETRY_ATTEMPTS,
@@ -8,9 +12,11 @@ import {
   studioEventsWatchLiveOptions,
 } from "../../src/app/hooks/useStudioEvents";
 import {
+  applyStudioLiveGameEvent,
   adoptStudioOperationsCurrent,
   applyStudioOperationEvent,
 } from "../../src/app/operationAdoption";
+import type { LiveRuntimeStatusState } from "../../src/features/liveRuntime/model";
 import type { MapConfigSaveDeployStatus } from "../../src/features/mapConfigSave/status";
 import type { RunInGameOperationStatus } from "../../src/features/runInGame/status";
 
@@ -129,6 +135,34 @@ describe("Studio event operation adoption", () => {
     expect(state.saveDeploy?.requestId).toBe("save-pushed-1");
   });
 
+  test("applies pushed live-game events", () => {
+    let liveRuntime: LiveRuntimeStatusState | null = null;
+
+    applyStudioLiveGameEvent(
+      liveGameEvent({
+        status: "ok",
+        turn: 12,
+        gameHash: 987654,
+        seed: 123,
+        readiness: "ready",
+        snapshotStatus: "idle",
+        snapshotId: "status:12:abcdef01",
+        snapshotHash: "abcdef01",
+        bindingStatus: "unbound-runtime",
+        failureCount: 0,
+      }),
+      {
+        applyLiveGameState(state) {
+          liveRuntime = state;
+        },
+      },
+    );
+
+    expect(liveRuntime?.status).toBe("ok");
+    expect(liveRuntime?.turn).toBe(12);
+    expect(liveRuntime?.snapshotId).toBe("status:12:abcdef01");
+  });
+
   test("builds live event query options with scoped stream retry context", () => {
     const options = studioEventsWatchLiveOptions();
 
@@ -175,6 +209,14 @@ function operationEvent(
     observedAt: "2026-06-13T00:00:02.000Z",
     ...event,
   } as StudioOperationEvent;
+}
+
+function liveGameEvent(state: StudioLiveGameEvent["state"]): StudioLiveGameEvent {
+  return {
+    type: "live-game",
+    observedAt: "2026-06-13T00:00:02.000Z",
+    state,
+  };
 }
 
 function currentOperations(overrides?: Partial<StudioOperationsCurrent>): StudioOperationsCurrent {

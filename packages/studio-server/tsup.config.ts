@@ -13,7 +13,7 @@ import { defineConfig } from "tsup";
  * `zod` ship proper JS and stay external.
  */
 export default defineConfig({
-  entry: ["src/index.ts", "src/contract/index.ts"],
+  entry: ["src/index.ts", "src/contract/index.ts", "src/liveGame/model.ts"],
   format: ["esm"],
   dts: true,
   clean: true,
