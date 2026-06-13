@@ -25,13 +25,17 @@ function collectTsFiles(dir: string): string[] {
 
 describe("morphology catalog ownership", () => {
   it("keeps the domain config facade limited to recipe-facing knobs", () => {
-    const configText = readFileSync(join(MORPHOLOGY_ROOT, "config.ts"), "utf8").trim();
+    const configExports = readFileSync(join(MORPHOLOGY_ROOT, "config.ts"), "utf8")
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .sort();
+    const expectedConfigExports = [
+      'export * from "./shared/knob-multipliers.js";',
+      'export * from "./shared/knobs.js";',
+    ].sort();
 
-    expect(configText).toBe(
-      ['export * from "./shared/knobs.js";', 'export * from "./shared/knob-multipliers.js";'].join(
-        "\n"
-      )
-    );
+    expect(configExports).toEqual(expectedConfigExports);
   });
 
   it("keeps op strategy schemas out of domain config facades", () => {
