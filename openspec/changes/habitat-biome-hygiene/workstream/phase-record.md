@@ -7,7 +7,7 @@
 - Owner: workstream owner agent (Codex continuation)
 - Branch/Graphite stack: `agent-F-habitat-biome-hygiene` -> `agent-F-habitat-boundary-tags` -> `agent-F-habitat-harness-scaffold` -> `agent-F-habitat-nx-adoption` -> `agent-F-habitat-harness-workstream` -> `main`
 - Started: 2026-06-13
-- Status: OPEN — Biome setup, format commit, blame shield, Prettier retirement, lint lane, and harness/Nx/CI integration complete; DL-15/DL-16 promoted repairs are verified, and the repo-wide `mapgen-studio:test` timeout class has a local repair slice. Task 2.4 and closure still require a final root-test proof before a green H4 claim.
+- Status: OPEN — Biome setup, format commit, blame shield, Prettier retirement, lint lane, and harness/Nx/CI integration complete; DL-15/DL-16 promoted repairs are verified; the first mapgen timeout class and CLI timeout class have local repair slices. Task 2.4 and closure remain blocked by a second `mapgen-studio:test` root-load class.
 
 ## Objective
 
@@ -60,10 +60,10 @@
 ## Implementation
 
 - Completed tasks: 1.1, 1.2, 2.1, 2.2, 2.3, 3.1, 3.2, 4.2.
-- Remaining tasks: 2.4, 4.1, 4.3. Task 2.4 has partial evidence: root build green; tracked pre/post format hashes match; fresh root build has no generated drift after DL-16 repair; plugin package tests and SDK package tests are green after DL-15 repairs. The `mapgen-studio:test` timeout class has been repaired in `mapgen-studio-test-timeouts`, with direct project proof and a representative Nx load proof, but full root test has not been rerun green, so 2.4 is not marked complete.
+- Remaining tasks: 2.4, 4.1, 4.3. Task 2.4 has partial evidence: root build green; tracked pre/post format hashes match; fresh root build has no generated drift after DL-16 repair; plugin package tests and SDK package tests are green after DL-15 repairs. The first `mapgen-studio:test` timeout class has been repaired in `mapgen-studio-test-timeouts`; the CLI root-load timeout class has been repaired in `cli-root-load-test-timeouts`; full root test now fails in a second mapgen root-load class, so 2.4 is not marked complete.
 - Biome lint lane: minimal green bug-risk rule set is enabled in `biome.json` with `recommended: false`; no desired red Biome rule was silently disabled after selection. The red assist class (`organizeImports`) was repaired mechanically by applying the safe assist and committing it separately; no ratchet baseline is required for `biome-ci` because the rule is locked with zero diagnostics.
 - Harness integration: `@internal/habitat-harness` now infers `biome:format`, `biome:check`, and `biome:ci`; `habitat fix` runs `biome check --write .` and `--dry-run` runs non-writing `biome check .`; `habitat check` includes locked `biome-ci`; `habitat verify` composes `build,check,test,boundaries,biome:ci`; CI runs `bunx nx run-many -t biome:ci`; README documents editor setup and the never-plain-`lint` target convention.
-- Stop conditions triggered: task 2.4 cannot close as green yet. The earlier DL-15 package-local Vitest fan-out / SDK teardown defects and DL-16 intelligence-bridge bundle drift are repaired. The root-test `mapgen-studio:test` timeout class is now isolated and locally repaired, but H4 still needs a final root-test proof before the proposal's strict build/test green claim.
+- Stop conditions triggered: task 2.4 cannot close as green yet. The earlier DL-15 package-local Vitest fan-out / SDK teardown defects and DL-16 intelligence-bridge bundle drift are repaired. The first root-test `mapgen-studio:test` timeout class and CLI timeout class are locally repaired, but a second mapgen root-load class remains: `standardLayerVisibility` can still exceed 240s under full/root-load execution, and `Civ7TunerSession` can fail its first shared-session test under that same load.
 
 ## Verification
 
@@ -214,6 +214,19 @@
   `mod-civ7-intelligence-bridge` passes with `mapgen-studio:test` at 47 files /
   233 tests in 381.19s. A full root test rerun is still required before H4 task
   2.4 can be marked complete.
+- CLI timeout repair evidence: `cli-root-load-test-timeouts` gives only the
+  root `cli` Vitest project a 30s timeout budget. Direct CLI proof passed 53
+  files / 234 tests in 278.03s before the change; focused Nx CLI reproduced
+  5s timeout failures before the change; after the change, focused Nx CLI
+  passed 53 files / 234 tests in 309.74s. Under a heavier uncached load probe,
+  CLI passed 53 files / 234 tests in 445.71s while `mapgen-studio:test` failed
+  separately.
+- Root test after CLI timeout repair: `NX_DAEMON=false bunx nx run-many -t
+  test --outputStyle=static` no longer exposes the CLI timeout class. It fails
+  in `mapgen-studio:test` with `standardLayerVisibility` timing out at 240s and
+  `Civ7TunerSession` failing the first shared-session test. The wrapper was
+  interrupted only after the root proof was already red and another child had
+  continued running.
 - Minimal Biome rule promotion result: selected green correctness/suspicious
   bug-risk rules pass under `biome ci`; nested `**/_archive/**` is excluded so
   live code can keep `noGlobalIsFinite` without historical archive churn.
@@ -247,16 +260,17 @@
 
 - Downstream docs/specs/issues updated: top-level workstream record reconciled from stale pre-execution state to H4-active state; H4 tasks updated for 3.1/3.2/4.2; DL-12 updated from pending to enforced Biome hygiene reality; DL-15/DL-16 moved to resolved-by-promoted-repair after the SDK/plugin/intelligence slices.
 - Tests/guards updated: Swooper Maps import guard now parses imports structurally; Habitat rule pack now includes locked `biome-ci`; CI includes `biome:ci`.
-- Deferrals/triage updated: the user/Fable suggested DL-15 SDK teardown, DL-16 intelligence bundle, and adapter-boundary river metadata repairs were promoted into separate Graphite/OpenSpec slices. The H4 `mapgen-studio:test` timeout blocker is promoted into and locally repaired by the `mapgen-studio-test-timeouts` slice; full root-test closure remains pending.
+- Deferrals/triage updated: the user/Fable suggested DL-15 SDK teardown, DL-16 intelligence bundle, and adapter-boundary river metadata repairs were promoted into separate Graphite/OpenSpec slices. The first H4 `mapgen-studio:test` timeout blocker and the CLI root-load timeout blocker are promoted into local repair slices; a second mapgen root-load blocker remains and should be isolated in the next slice.
 - Downstream realignment ledger: N/A at phase open.
 
 ## Next Action
 
-- Exact next step: validate and commit the `mapgen-studio-test-timeouts`
-  repair slice, then rerun the full root test before claiming H4 task 2.4 or
-  closure.
-- First files to inspect for closure blockers if root test remains red:
-  the new root-test log, `mods/mod-swooper-maps` long-running test behavior,
-  and any remaining non-mapgen timeout or assertion class surfaced by the full
-  run.
+- Exact next step: validate and commit the `cli-root-load-test-timeouts`
+  repair slice, then isolate the remaining `mapgen-studio:test` root-load
+  failures before claiming H4 task 2.4 or closure.
+- First files to inspect for the remaining mapgen blocker:
+  `apps/mapgen-studio/test/browserRunner/standardLayerVisibility.test.ts`,
+  `apps/mapgen-studio/test/server/tunerSession.test.ts`, and the new root-test
+  logs under `/tmp/habitat-root-test-after-cli-timeout-budget.log` and
+  `/tmp/cli-mapgen-root-load-after-timeout-budget-skip-cache.log`.
 - Stop condition: Biome config would format generated/protected zones, create non-format semantic diff, or require hygiene ownership that overlaps Nx/Grit.

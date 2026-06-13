@@ -13,6 +13,7 @@ export default defineConfig({
         root: r("packages/cli"),
         test: {
           name: "cli",
+          testTimeout: 30_000,
           env: {
             // Ensure oclif does not attempt to load dev plugins (like @oclif/plugin-plugins)
             // during tests; treat tests as production to suppress noisy warnings.
