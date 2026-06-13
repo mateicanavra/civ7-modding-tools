@@ -2,7 +2,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { createStudioRpcHandler } from "@civ7/studio-server";
+import { createStudioEventHub, createStudioRpcHandler } from "@civ7/studio-server";
 
 import { createStudioServerContext } from "../studio/context";
 import { createStudioEngines } from "../studio/engines";
@@ -153,7 +153,8 @@ export function createStudioDaemonFetch(
 
 export async function createStudioDaemon(args: StudioDaemonArgs) {
   const engines = createStudioEngines({ repoRoot: args.repoRoot });
-  const context = createStudioServerContext({ engines, hostCommand: "daemon" });
+  const eventHub = createStudioEventHub();
+  const context = createStudioServerContext({ engines, eventHub, hostCommand: "daemon" });
   // The ONE handler over the ONE runtime. Session sharing is structural now:
   // the handler resolves the shared tuner connection from its runtime and
   // threads it into every control procedure's endpointDefaults — every
@@ -179,8 +180,11 @@ export async function createStudioDaemon(args: StudioDaemonArgs) {
 
   return {
     engines,
-    /** Closes the studio runtime scope — graceful FIN to the game. */
-    dispose: () => studioRpc.dispose(),
+    /** Closes the studio runtime scope — graceful FIN to the game — and event bus. */
+    dispose: async () => {
+      await studioRpc.dispose();
+      await eventHub.shutdown();
+    },
     start() {
       const server = Bun.serve({
         hostname: args.host,

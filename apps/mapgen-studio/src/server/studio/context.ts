@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/client";
-import type { StudioServerContext } from "@civ7/studio-server";
+import type { StudioEventHubApi, StudioServerContext } from "@civ7/studio-server";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Civ7DirectControlError, DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "@civ7/direct-control";
 
@@ -145,9 +145,10 @@ const emptyIdentity = {
  */
 export function createStudioServerContext(options: Readonly<{
   engines: StudioEngines;
+  eventHub: StudioEventHubApi;
   hostCommand: string;
 }>): StudioServerContext {
-  const { engines, hostCommand } = options;
+  const { engines, eventHub, hostCommand } = options;
   const identity = {
     serverInstanceId: engines.serverInstanceId,
     serverStartedAt: engines.serverStartedAt,
@@ -166,6 +167,7 @@ export function createStudioServerContext(options: Readonly<{
       directControl: liveCiv7ControlOrpcDirectControlFacade,
       timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
     },
+    eventHub,
     loadSetupCatalog: async () => {
       // `Civ7SetupCatalog` is deeply `readonly`; the contract's zod-derived catalog
       // type is structurally identical but mutable. Cross the boundary by value

@@ -35,7 +35,13 @@ export type {
   StudioOutputs,
   SetupCatalog,
 } from "./context.js";
-export type { StudioOperationsCurrent } from "./contract/studio.js";
+export type {
+  StudioEvent,
+  StudioHelloEvent,
+  StudioLiveGameEvent,
+  StudioOperationEvent,
+  StudioOperationsCurrent,
+} from "./contract/studio.js";
 export { createStudioRpcHandler, type StudioRpcHandle } from "./handler.js";
 export { createStudioRouter, type StudioRouter } from "./router/index.js";
 export { makeStudioRuntime, type StudioRuntime } from "./runtime.js";
@@ -52,3 +58,8 @@ export {
   type Civ7TunerSessionOptions,
 } from "./services/Civ7TunerSession.js";
 export { StudioConfig } from "./services/StudioConfig.js";
+export {
+  createStudioEventHub,
+  StudioEventHub,
+  type StudioEventHubApi,
+} from "./services/StudioEventHub.js";

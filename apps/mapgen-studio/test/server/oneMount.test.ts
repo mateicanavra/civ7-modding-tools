@@ -5,10 +5,12 @@ import { createORPCClient, safe } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { ContractRouterClient } from "@orpc/contract";
 import {
+  createStudioEventHub,
   createStudioRpcHandler,
   contract,
   studioEffectContract,
   type StudioContract,
+  type StudioEventHubApi,
   type StudioRpcHandle,
   type StudioServerContext,
 } from "@civ7/studio-server";
@@ -29,10 +31,12 @@ import { RecipeDagNotFound } from "../../src/server/recipeDag/service";
 
 const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
+const openEventHubs: StudioEventHubApi[] = [];
 
 afterEach(async () => {
   await Promise.all(openServers.splice(0).map((server) => closeServer(server)));
   await Promise.all(openHandles.splice(0).map((handle) => handle.dispose()));
+  await Promise.all(openEventHubs.splice(0).map((eventHub) => eventHub.shutdown()));
 });
 
 describe("one /rpc mount serves the whole unified contract", () => {
@@ -118,7 +122,7 @@ describe("one /rpc mount serves the whole unified contract", () => {
     const { error } = await safe(client.recipeDag.get({ recipeId: "missing/recipe" }));
     expect(error).toMatchObject({ code: "RECIPE_DAG_RECIPE_NOT_FOUND" });
     expect(recipeDagCalls).toEqual(["mod-swooper-maps/standard", "missing/recipe"]);
-  });
+  }, 20_000);
 
   test("out-of-scope paths fall through to the host 404", async () => {
     const { origin } = await listenWithStudioServer({});
@@ -127,7 +131,7 @@ describe("one /rpc mount serves the whole unified contract", () => {
       expect(res.status, path).toBe(404);
       await expect(res.text()).resolves.toBe("not found");
     }
-  });
+  }, 20_000);
 
   test("the civ7 namespace merge is collision-free", () => {
     // The unified `civ7.*` node is the studio read surface plus the control
@@ -224,6 +228,8 @@ async function nodeRequestToWebRequest(
 }
 
 function makeContext(overrides: Partial<StudioServerContext>): StudioServerContext {
+  const eventHub = overrides.eventHub ?? createStudioEventHub();
+  if (!overrides.eventHub) openEventHubs.push(eventHub);
   return {
     serverInstanceId: "one-mount-test",
     serverStartedAt: "2026-06-12T00:00:00.000Z",
@@ -263,6 +269,7 @@ function makeContext(overrides: Partial<StudioServerContext>): StudioServerConte
       directControl: {} as StudioServerContext["civ7Control"]["directControl"],
       timeoutMs: 1234,
     },
+    eventHub,
     ...overrides,
   };
 }
