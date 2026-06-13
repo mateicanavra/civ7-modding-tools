@@ -1,8 +1,8 @@
 import { createMockAdapter } from "@civ7/adapter";
 import {
   createExtendedMapContext,
-  type TraceSink,
   type TraceScope,
+  type TraceSink,
   type VizDumper,
 } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";

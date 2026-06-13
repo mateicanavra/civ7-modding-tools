@@ -1,7 +1,6 @@
 import { Effect } from "effect";
-
-import type { LiveGameStatusBody } from "./model.js";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
+import type { LiveGameStatusBody } from "./model.js";
 
 export type LiveGameStatusOutput = LiveGameStatusBody &
   Readonly<{

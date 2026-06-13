@@ -1,8 +1,7 @@
 import type { FoundationMantleForcing } from "../../ops/compute-mantle-forcing/contract.js";
 import type { FoundationMesh } from "../../ops/compute-mesh/contract.js";
-import type { FoundationTectonicEraFieldsInternal } from "./internal-contract.js";
-
 import { ADVECTION_STEPS_PER_ERA } from "./constants.js";
+import type { FoundationTectonicEraFieldsInternal } from "./internal-contract.js";
 import { chooseDriftNeighbor, normalizeToInt8 } from "./shared.js";
 
 function advectTracerIndex(params: {

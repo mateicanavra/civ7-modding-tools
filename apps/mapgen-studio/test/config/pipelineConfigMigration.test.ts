@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
 import type { StudioPresetExportFileV1 } from "@swooper/mapgen-core/authoring";
+import { describe, expect, it } from "vitest";
 import {
-  PipelineConfigMigrationError,
   migratePipelineConfigUnknown,
+  PipelineConfigMigrationError,
 } from "../../src/features/configMigrations/pipelineConfig";
 import { resolveImportedPreset } from "../../src/features/presets/importFlow";
 import { findRecipeArtifacts } from "../../src/recipes/catalog";

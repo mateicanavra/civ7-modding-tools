@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { Layer } from "@deck.gl/core";
+import type { VizScalarStats } from "@swooper/mapgen-viz";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { type PipelineAddress, parsePipelineAddress } from "../../shared/pipelineAddress";
 import type { VizEvent } from "../../shared/vizEvents";
-import { parsePipelineAddress, type PipelineAddress } from "../../shared/pipelineAddress";
-import { boundsForLayerInRenderSpace, renderDeckLayers } from "./deckgl/render";
 import { buildStepDataTypeModel, type StepDataTypeModel } from "./dataTypeModel";
-import {
-  formatLayerLabel,
-  formatStepLabel,
-  legendForLayer,
-  resolveLayerVisibility,
-} from "./presentation";
+import { boundsForLayerInRenderSpace, renderDeckLayers } from "./deckgl/render";
 import {
   type Bounds,
   type VizAssetResolver,
   type VizLayerEntryV1,
   type VizManifestV1,
 } from "./model";
+import {
+  formatLayerLabel,
+  formatStepLabel,
+  legendForLayer,
+  resolveLayerVisibility,
+} from "./presentation";
 import { getVizStore } from "./vizStore";
-import type { VizScalarStats } from "@swooper/mapgen-viz";
 
 function isAbortError(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;

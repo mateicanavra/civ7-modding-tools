@@ -1,15 +1,3 @@
-import {
-  createCiv7OperationProofTelemetryRecord,
-  type Civ7OperationProofBoundary,
-  type Civ7OperationProofClass,
-  type Civ7OperationProofTelemetryRecord,
-  type Civ7OperationTelemetryEvidence,
-  type Civ7OperationTelemetryEvidencePolicy,
-  type Civ7OperationTelemetryObservationLink,
-  type Civ7OperationTelemetryPlayerScope,
-  type Civ7OperationTelemetryPostcondition,
-} from "./operation-telemetry.js";
-
 import type {
   Civ7ProductionChoiceInput,
   Civ7ProductionChoiceResult,
@@ -18,6 +6,17 @@ import {
   productionChoicePostconditionConfirmed,
   productionChoicePostconditionOutcome,
 } from "../play/operations/production-choice-proof.js";
+import {
+  type Civ7OperationProofBoundary,
+  type Civ7OperationProofClass,
+  type Civ7OperationProofTelemetryRecord,
+  type Civ7OperationTelemetryEvidence,
+  type Civ7OperationTelemetryEvidencePolicy,
+  type Civ7OperationTelemetryObservationLink,
+  type Civ7OperationTelemetryPlayerScope,
+  type Civ7OperationTelemetryPostcondition,
+  createCiv7OperationProofTelemetryRecord,
+} from "./operation-telemetry.js";
 
 export type Civ7ProductionChoiceTelemetryAdapterInput = Readonly<{
   input: Civ7ProductionChoiceInput;

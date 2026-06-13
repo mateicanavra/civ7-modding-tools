@@ -1,4 +1,3 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
 // ============================================================================
 // RECIPE PANEL
 // ============================================================================
@@ -6,35 +5,36 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 // Fully controlled component - all options passed via props.
 // Uses path-based patching for efficient state updates.
 // ============================================================================
-import { Eraser, Braces, BookOpen, Focus, ListCollapse, Settings, Save } from "lucide-react";
-import { SchemaConfigForm } from "../../features/configOverrides/SchemaConfigForm";
-import { useConfigCollapse } from "../../features/configOverrides/useConfigCollapse";
-import { LAYOUT } from "../constants";
-import {
-  formatMapConfigSaveDeployPhaseLabel,
-  type MapConfigSaveDeployStatus,
-} from "../../features/mapConfigSave/status";
+import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   Switch,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
 } from "../../components/ui";
-import { OptionSelect } from "./OptionSelect";
+import { SchemaConfigForm } from "../../features/configOverrides/SchemaConfigForm";
+import { useConfigCollapse } from "../../features/configOverrides/useConfigCollapse";
+import {
+  formatMapConfigSaveDeployPhaseLabel,
+  type MapConfigSaveDeployStatus,
+} from "../../features/mapConfigSave/status";
+import { LAYOUT } from "../constants";
 import type { PipelineConfig, RecipeSettings, SelectOption } from "../types";
+import { OptionSelect } from "./OptionSelect";
 // ============================================================================
 // Props
 // ============================================================================

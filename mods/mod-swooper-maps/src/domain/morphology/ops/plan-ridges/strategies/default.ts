@@ -5,19 +5,18 @@ import {
   hexDistanceOddQPeriodicX,
   resolveTileAreaSpacingTarget,
 } from "@swooper/mapgen-core/lib/grid";
-
-import PlanRidgesContract from "../contract.js";
-import type { PlanRidgesTypes } from "../types.js";
 import {
   computeFracturePotential,
   computeMountainScore,
   computeOrogenyPotential,
-  isStrictLocalMaximumHexWithTies,
   encodeNormalizedToU8,
+  isStrictLocalMaximumHexWithTies,
   normalizeMountainFractal,
   resolveBoundaryStrength,
   resolveDriverStrength,
 } from "../../mountains-shared/rules.js";
+import PlanRidgesContract from "../contract.js";
+import type { PlanRidgesTypes } from "../types.js";
 
 function validateRidgesInputs(input: PlanRidgesTypes["input"]): {
   size: number;

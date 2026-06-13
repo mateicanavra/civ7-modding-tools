@@ -1,6 +1,6 @@
-import { BaseNode } from "./BaseNode";
-import { TObjectValues } from "../types";
 import { KIND } from "../constants";
+import { TObjectValues } from "../types";
+import { BaseNode } from "./BaseNode";
 
 export type TCivilizationItemNode = Pick<
   CivilizationItemNode,

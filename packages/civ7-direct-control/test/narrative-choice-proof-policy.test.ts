@@ -1,13 +1,12 @@
 import { describe, expect, test } from "vitest";
+import type { Civ7NarrativeChoicePostconditionClassification } from "../src/play/operations/narrative-postconditions";
 
+import type { Civ7NarrativeChoiceResult } from "../src/play/operations/narrative-request";
 import {
   narrativeChoicePostconditionConfirmed,
   narrativeChoiceProofOutcome,
   narrativeChoiceProofPostcondition,
 } from "../src/proof/narrative-choice-proof-policy";
-
-import type { Civ7NarrativeChoiceResult } from "../src/play/operations/narrative-request";
-import type { Civ7NarrativeChoicePostconditionClassification } from "../src/play/operations/narrative-postconditions";
 import type { Civ7OperationTelemetryPostconditionOutcome } from "../src/proof/operation-telemetry";
 
 type NarrativeChoiceProofCase = Readonly<{

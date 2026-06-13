@@ -1,7 +1,7 @@
 import { DuplicateStepError, UnknownStepError } from "@mapgen/engine/errors.js";
 import {
-  TagRegistry,
   type DependencyTagDefinition,
+  TagRegistry,
   validateDependencyTags,
 } from "@mapgen/engine/tags.js";
 import type { MapGenStep } from "@mapgen/engine/types.js";

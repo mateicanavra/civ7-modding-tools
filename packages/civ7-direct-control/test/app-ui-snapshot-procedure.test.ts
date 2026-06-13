@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type AppUiSnapshotDependencies,
   Civ7AppUiSnapshotProcedureDescriptor,
   Civ7AppUiSnapshotProcedureSchemaArtifacts,
   callCiv7AppUiSnapshotProcedure,
   getCiv7AppUiSnapshot,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type AppUiSnapshotDependencies,
 } from "../src/index";
 
 describe("Civ7 App UI snapshot procedure descriptor", () => {

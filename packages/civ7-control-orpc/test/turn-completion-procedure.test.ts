@@ -1,15 +1,14 @@
 import { call, ORPCError } from "@orpc/server";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
-
+import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../src/dependencies/direct-control";
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   Civ7TurnCompletionUnavailableError,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
 } from "../src/index";
-import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../src/dependencies/direct-control";
 import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 type TurnCompletionServiceResult = Awaited<

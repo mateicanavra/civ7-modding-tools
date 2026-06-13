@@ -1,5 +1,3 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import type { DiscoveryCatalogEntry } from "@civ7/adapter";
 import {
   CIV7_BROWSER_TABLES_V0,
@@ -7,8 +5,10 @@ import {
   resolveNaturalWonderMaterializationDirection,
 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
-import type { PlacementInputsV1 } from "../../placement-inputs.js";
+import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import { getStandardRuntime } from "../../../../runtime.js";
+import type { PlacementInputsV1 } from "../../placement-inputs.js";
 
 import DerivePlacementInputsContract from "./contract.js";
 

@@ -5,26 +5,35 @@ import { dirname, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import {
   Civ7DirectControlError,
+  createCiv7ControlRequestId,
   DEFAULT_CIV7_SCRIPTING_LOG,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
-  createCiv7ControlRequestId,
+  ensureCiv7SetupMapRowVisible,
   getCiv7PlayableStatus,
   getCiv7SetupSnapshot,
-  ensureCiv7SetupMapRowVisible,
+  logTextFromSnapshot,
   runCiv7SinglePlayerFromSetup,
+  snapshotFile,
   startCiv7Autoplay,
   stopCiv7Autoplay,
-  logTextFromSnapshot,
-  snapshotFile,
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
-
+import { deployMod, resolveModsDir } from "@civ7/plugin-mods";
+import type { StudioEventHubApi, StudioOperationEvent } from "@civ7/studio-server";
+import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
+import type { RunInGamePhase, RunInGameRequestStatus } from "../../features/runInGame/status";
+import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
+import { createMapConfigSaveDeployOperationStore } from "../mapConfigs/operationState";
+import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
+import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
+import {
+  launchCiv7MacViaSteamWithRetries,
+  shutdownCiv7MacProcess,
+} from "../runInGame/macosProcessRestart";
 import {
   createRunInGameOperationStore,
   type RunInGameOperationState,
 } from "../runInGame/operationState";
-import { StudioEngineError } from "./engineErrors";
-import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
 import {
   buildRunInGameExactAuthorshipProof,
   buildRunInGameSourceSnapshotProof,
@@ -36,17 +45,7 @@ import {
   runInGameRequiredMaterializationMarkers,
 } from "../runInGame/proofIdentity";
 import { parseRunInGameSetupRequest } from "../runInGame/requestValidation";
-import {
-  launchCiv7MacViaSteamWithRetries,
-  shutdownCiv7MacProcess,
-} from "../runInGame/macosProcessRestart";
-import { deployMod, resolveModsDir } from "@civ7/plugin-mods";
-import type { StudioEventHubApi, StudioOperationEvent } from "@civ7/studio-server";
-import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
-import { createMapConfigSaveDeployOperationStore } from "../mapConfigs/operationState";
-import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
-import type { RunInGamePhase, RunInGameRequestStatus } from "../../features/runInGame/status";
-import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
+import { StudioEngineError } from "./engineErrors";
 
 // ============================================================================
 // Studio engines — the stateful server core (bun-server workstream, slice 2)

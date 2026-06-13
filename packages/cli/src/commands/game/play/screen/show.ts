@@ -1,6 +1,6 @@
-import { Command, Flags } from "@oclif/core";
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import { Command, Flags } from "@oclif/core";
 
 // Truth source: the official DisplayQueueManager in the App UI scripting state
 // (core/ui/context-manager/display-queue-manager.js, reached through the shared

@@ -1,7 +1,7 @@
 #!/usr/bin/env -S bun run
 
-import { promises as fs } from "node:fs";
 import * as fssync from "node:fs";
+import { promises as fs } from "node:fs";
 import * as path from "node:path";
 
 async function listMdxFiles(rootDir: string): Promise<string[]> {

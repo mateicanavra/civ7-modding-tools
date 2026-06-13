@@ -1,5 +1,5 @@
-import { Command, Flags } from "@oclif/core";
 import { getCiv7SettlementRecommendations } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 import { buildDirectControlOptions } from "../../../utils/game-play-shared";
 
 export default class GamePlaySettlementRecommendations extends Command {

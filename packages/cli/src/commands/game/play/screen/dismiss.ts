@@ -1,6 +1,6 @@
-import { Command, Flags } from "@oclif/core";
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import { Command, Flags } from "@oclif/core";
 
 // Closes display requests through the official DisplayQueueManager.closeMatching
 // path, which runs each category handler's real teardown (e.g. the Cinematic

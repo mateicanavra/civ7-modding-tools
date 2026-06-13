@@ -1,13 +1,13 @@
 import type { MapDimensions } from "@civ7/adapter";
+import { FEATURE_PLACEMENT_KEYS } from "@mapgen/domain/ecology";
 import type {
   BiomeClassificationArtifact,
-  OccupancyArtifact,
   FeatureIntentsListArtifact,
+  OccupancyArtifact,
   PedologyArtifact,
   ResourceBasinsArtifact,
   ScoreLayersArtifact,
 } from "./artifacts.js";
-import { FEATURE_PLACEMENT_KEYS } from "@mapgen/domain/ecology";
 
 export type ArtifactValidationIssue = Readonly<{ message: string }>;
 

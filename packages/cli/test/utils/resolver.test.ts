@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import * as path from "node:path";
 import * as fssync from "node:fs";
 import { promises as fs } from "node:fs";
 import type * as os from "node:os";
+import * as path from "node:path";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("node:os", () => ({
   homedir: vi.fn(),
@@ -10,20 +10,20 @@ vi.mock("node:os", () => ({
 }));
 
 import {
-  DEFAULT_OUTPUT_BASE_DIR,
-  DEFAULT_ZIP_DIR,
-  DEFAULT_UNZIP_DIR,
-  DEFAULT_GRAPH_DIR,
   DEFAULT_ARCHIVE_NAME,
+  DEFAULT_GRAPH_DIR,
   DEFAULT_INSTALL_DIR_DARWIN,
   DEFAULT_INSTALL_DIR_WIN32,
+  DEFAULT_OUTPUT_BASE_DIR,
+  DEFAULT_UNZIP_DIR,
+  DEFAULT_ZIP_DIR,
   expandPath,
   findProjectRoot,
   loadConfig,
-  resolveInstallDir,
-  resolveZipPath,
-  resolveUnzipDir,
   resolveGraphOutDir,
+  resolveInstallDir,
+  resolveUnzipDir,
+  resolveZipPath,
 } from "@civ7/config";
 import { resolveRootFromConfigOrFlag } from "../../src/utils/resolver";
 

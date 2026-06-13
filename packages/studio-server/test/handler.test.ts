@@ -1,5 +1,5 @@
 import { createServer, type Server } from "node:http";
-import { createORPCClient, isDefinedError, safe, ORPCError } from "@orpc/client";
+import { createORPCClient, isDefinedError, ORPCError, safe } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import { afterEach, describe, expect, test } from "vitest";
@@ -8,8 +8,8 @@ import {
   createStudioEventHub,
   createStudioRpcHandler,
   type StudioEventHubApi,
-  type StudioRpcHandle,
   type StudioRouter,
+  type StudioRpcHandle,
   type StudioServerContext,
 } from "../src/index";
 

@@ -6,9 +6,9 @@ import type {
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../session/types.js";
-import type { Civ7RuntimeApiInspection } from "./inspection.js";
 import { boundedInteger, validateIdentifier } from "../validation.js";
 import { jsLiteral } from "./command-serialization.js";
+import type { Civ7RuntimeApiInspection } from "./inspection.js";
 import {
   DEFAULT_CIV7_ROOT_MAX_KEYS,
   DEFAULT_CIV7_ROOT_MAX_METHODS,

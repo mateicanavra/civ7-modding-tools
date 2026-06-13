@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../procedure-core";
 import type { Civ7DirectControlOptions } from "../session/types";
 import {
-  Civ7PlayerSummaryInputSchema,
-  Civ7PlayerSummaryResultSchema,
-  getCiv7PlayerSummary,
   type Civ7PlayerSummaryDependencies,
   type Civ7PlayerSummaryInput,
+  Civ7PlayerSummaryInputSchema,
   type Civ7PlayerSummaryResult,
+  Civ7PlayerSummaryResultSchema,
+  getCiv7PlayerSummary,
 } from "./summaries";
 
 export const Civ7PlayerSummaryProcedureDescriptor = createCiv7ProcedureCoreDescriptor({

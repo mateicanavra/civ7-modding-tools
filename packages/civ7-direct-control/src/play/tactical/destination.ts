@@ -1,19 +1,17 @@
 import { Type } from "typebox";
-
-import { battlefieldScanSource } from "./battlefield.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
-import { validateMapLocation } from "../map/validation.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import { boundedInteger, validatePlayerId } from "../../validation.js";
-import { Civ7MapLocationSchema } from "../map/types.js";
-
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
+import { boundedInteger, validatePlayerId } from "../../validation.js";
 import type { Civ7MapLocation } from "../map/types.js";
+import { Civ7MapLocationSchema } from "../map/types.js";
+import { validateMapLocation } from "../map/validation.js";
+import { battlefieldScanSource } from "./battlefield.js";
 
 const civ7TunerStateSchema = Type.Object(
   {

@@ -1,17 +1,15 @@
 import { Type } from "typebox";
-
+import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import { Civ7RuntimeProbeSchema, probeHelperSource } from "../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../session/command-result.js";
 import { executeCiv7TunerCommand } from "../session/execute.js";
-import { Civ7MapLocationSchema } from "./map/types.js";
-
-import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../session/types.js";
 import type { Civ7MapLocation } from "./map/types.js";
+import { Civ7MapLocationSchema } from "./map/types.js";
 
 // Live-verified against a running Civ7 game on 2026-06-11
 // (docs/projects/placement-realignment/evidence/milestone-b-2026-06-11.md, placement stack):

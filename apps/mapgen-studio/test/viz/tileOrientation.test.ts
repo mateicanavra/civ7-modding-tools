@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
 import type { Layer } from "@deck.gl/core";
-import type { VizLayerEntryV1, VizManifestV1 } from "../../src/features/viz/model";
+import { describe, expect, it } from "vitest";
 import { boundsForTileGrid, renderDeckLayers } from "../../src/features/viz/deckgl/render";
+import type { VizLayerEntryV1, VizManifestV1 } from "../../src/features/viz/model";
 import { TILE_BORDER_FILL_RATIO } from "../../src/features/viz/presentation";
 
 function polygonCenterY(layer: Layer, index: number): number {

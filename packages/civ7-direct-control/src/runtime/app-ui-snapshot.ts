@@ -1,10 +1,10 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { executeCiv7AppUiCommand } from "../session/execute.js";
 
 import type { Civ7CommandResult, Civ7DirectControlOptions } from "../session/types.js";
-import { Civ7RuntimeProbeSchema, probeHelperSource, type Civ7RuntimeProbe } from "./probe.js";
+import { type Civ7RuntimeProbe, Civ7RuntimeProbeSchema, probeHelperSource } from "./probe.js";
 
 const civ7TunerStateSchema = Type.Object(
   {

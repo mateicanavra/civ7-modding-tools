@@ -1,7 +1,7 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import {
-  ArtifactMissingError,
   type ArtifactContract,
+  ArtifactMissingError,
   type StepDeps,
   type StepModule,
 } from "@swooper/mapgen-core/authoring";

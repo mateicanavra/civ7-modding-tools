@@ -4,10 +4,10 @@ import {
   CIV7_OPERATION_PROOF_TELEMETRY_RAW_DEBUG_SLOTS,
   CIV7_OPERATION_PROOF_TELEMETRY_RECORD_VERSION,
   CIV7_OPERATION_PROOF_TELEMETRY_SLOTS,
+  type Civ7OperationProofTelemetryRecordInput,
   createCiv7OperationProofTelemetryRecord,
   projectCiv7OperationProofTelemetry,
   summarizeCiv7OperationProofTelemetry,
-  type Civ7OperationProofTelemetryRecordInput,
 } from "../src/proof/operation-telemetry";
 
 describe("Civ7 operation proof telemetry owner", () => {

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  type ExecFileAsync,
   launchCiv7MacViaSteamWithRetries,
   shutdownCiv7MacProcess,
   waitForMacProcessExit,
   waitForMacProcessStart,
-  type ExecFileAsync,
 } from "../../src/server/runInGame/macosProcessRestart";
 
 function createPgrepMiss(): Error & { code: number; stdout: string; stderr: string } {

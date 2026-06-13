@@ -1,6 +1,6 @@
-import { expandPath } from "@civ7/config";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { expandPath } from "@civ7/config";
 import { expect, test } from "vitest";
 
 test("expandPath resolves tilde to home directory", () => {

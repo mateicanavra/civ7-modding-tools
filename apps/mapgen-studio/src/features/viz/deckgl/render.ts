@@ -1,17 +1,17 @@
 import type { Layer } from "@deck.gl/core";
-import { LineLayer, ScatterplotLayer, PolygonLayer } from "@deck.gl/layers";
-import {
-  buildCategoricalColorMap,
-  tileBorderColorForFill,
-  writeColorForScalarValue,
-} from "../presentation";
-import type { Bounds, VizAssetResolver, VizLayerEntryV1, VizManifestV1 } from "../model";
+import { LineLayer, PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import type {
   VizBinaryRef,
   VizScalarFormat,
   VizScalarStats,
   VizSpaceId,
 } from "@swooper/mapgen-viz";
+import type { Bounds, VizAssetResolver, VizLayerEntryV1, VizManifestV1 } from "../model";
+import {
+  buildCategoricalColorMap,
+  tileBorderColorForFill,
+  writeColorForScalarValue,
+} from "../presentation";
 
 type HexGridGeometry = {
   indices: Uint32Array;

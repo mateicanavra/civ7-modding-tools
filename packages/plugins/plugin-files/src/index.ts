@@ -1,14 +1,14 @@
-import * as path from "node:path";
-import * as fsSync from "node:fs";
 import { spawn } from "node:child_process";
+import type { Dirent } from "node:fs";
+import * as fsSync from "node:fs";
+import * as path from "node:path";
 import {
+  findProjectRoot,
   loadConfig,
   resolveInstallDir,
   resolveUnzipDir,
   resolveZipPath,
-  findProjectRoot,
 } from "@civ7/config";
-import type { Dirent } from "node:fs";
 
 export interface ZipOptions {
   projectRoot?: string;

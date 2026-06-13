@@ -1,5 +1,6 @@
-import type { TraceEvent, TraceSink, TraceScope, VizDumper } from "@swooper/mapgen-core";
-import { computeVizScalarStats, createVizLayerKey } from "@swooper/mapgen-viz";
+import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import type { TraceEvent, TraceScope, TraceSink, VizDumper } from "@swooper/mapgen-core";
 import type {
   Bounds,
   VizBinaryRef,
@@ -9,8 +10,7 @@ import type {
   VizManifestV1,
   VizScalarField,
 } from "@swooper/mapgen-viz";
-import { mkdirSync, writeFileSync, appendFileSync } from "node:fs";
-import { join } from "node:path";
+import { computeVizScalarStats, createVizLayerKey } from "@swooper/mapgen-viz";
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return false;

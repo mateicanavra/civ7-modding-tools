@@ -1,20 +1,19 @@
+import {
+  applyCiv7CoastClassificationPolicy,
+  WATER_CLASS_COAST,
+  WATER_CLASS_LAND,
+  WATER_CLASS_OCEAN,
+} from "@civ7/map-policy";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
 import { clamp01, ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
-import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
-import {
-  WATER_CLASS_COAST,
-  WATER_CLASS_LAND,
-  WATER_CLASS_OCEAN,
-  applyCiv7CoastClassificationPolicy,
-} from "@civ7/map-policy";
-
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import {
   validateOccupancyArtifact,
   validateScoreLayersArtifact,
 } from "../../../ecology/artifact-validation.js";
+import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import ScoreLayersStepContract from "./contract.js";
 
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

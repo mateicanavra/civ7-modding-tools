@@ -1,5 +1,5 @@
-import { Type } from "@swooper/mapgen-core/authoring";
 import { BiomeEngineBindingsSchema } from "@mapgen/domain/ecology";
+import { Type } from "@swooper/mapgen-core/authoring";
 
 export const MapMorphologyKnobsSchema = Type.Object(
   {},

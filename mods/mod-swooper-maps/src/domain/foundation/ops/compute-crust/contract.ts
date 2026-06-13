@@ -1,7 +1,7 @@
-import { TypedArraySchemas, Type, defineOp } from "@swooper/mapgen-core/authoring";
 import type { Static, TSchema } from "@swooper/mapgen-core/authoring";
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
+import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
   const { additionalProperties: _additionalProperties, default: _default, ...rest } = schema as any;

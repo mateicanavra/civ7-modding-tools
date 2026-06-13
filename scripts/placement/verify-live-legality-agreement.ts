@@ -41,18 +41,17 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-
-import {
-  executeCiv7TunerCommand,
-  type Civ7CommandResult,
-  type Civ7DirectControlOptions,
-} from "../../packages/civ7-direct-control/src/index.ts";
 import {
   buildResourceLegalityMask,
-  resolveResourceRuntimeIds,
   type OfficialResourceType,
   type ResourceLegalitySurface,
+  resolveResourceRuntimeIds,
 } from "../../mods/mod-swooper-maps/src/domain/resources/index.js";
+import {
+  type Civ7CommandResult,
+  type Civ7DirectControlOptions,
+  executeCiv7TunerCommand,
+} from "../../packages/civ7-direct-control/src/index.ts";
 
 const AGREEMENT_GATE_THRESHOLD = 0.95;
 const DEFAULT_SAMPLE_SIZE = 400;

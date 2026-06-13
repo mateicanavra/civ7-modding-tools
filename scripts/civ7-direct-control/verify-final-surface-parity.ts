@@ -2,24 +2,23 @@
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-
-import {
-  getCiv7FullMapGrid,
-  getCiv7NativeRiverObjects,
-  type Civ7NativeRiverObjectsResult,
-  type Civ7RuntimeProbe,
-} from "../../packages/civ7-direct-control/src/index.ts";
 import {
   buildFinalSurfaceParityProof,
   configFromExactAuthorshipProof,
   dimensionsFromExactAuthorshipProof,
+  type ExactAuthorshipProofLike,
   hashParityValue,
   liveGridToFinalSurfaceSnapshot,
+  type NativeRiverObjectSnapshot,
   runLocalFinalSurfaceSnapshot,
   validateExactAuthorshipProofPacket,
-  type ExactAuthorshipProofLike,
-  type NativeRiverObjectSnapshot,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
+import {
+  type Civ7NativeRiverObjectsResult,
+  type Civ7RuntimeProbe,
+  getCiv7FullMapGrid,
+  getCiv7NativeRiverObjects,
+} from "../../packages/civ7-direct-control/src/index.ts";
 
 type Args = Readonly<{
   requestId?: string;

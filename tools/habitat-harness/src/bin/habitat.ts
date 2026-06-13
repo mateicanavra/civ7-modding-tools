@@ -5,11 +5,8 @@
  * Commands: graph | classify <path> | check | fix | verify | hook <name>
  * Every rule emits normalized JSON diagnostics; see lib/diagnostics.ts.
  */
-import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { repoRoot, toRepoRelative } from "../lib/paths.js";
-import { run } from "../lib/spawn.js";
-import { rules, executeRule, eslintProjects, type HarnessRule } from "../rules/architecture.js";
 import {
   applyBaseline,
   checkBaselineIntegrity,
@@ -20,6 +17,9 @@ import {
 } from "../lib/baseline.js";
 import type { CheckReport, RuleReport } from "../lib/diagnostics.js";
 import { validateCheckReport } from "../lib/diagnostics.js";
+import { repoRoot, toRepoRelative } from "../lib/paths.js";
+import { run } from "../lib/spawn.js";
+import { eslintProjects, executeRule, type HarnessRule, rules } from "../rules/architecture.js";
 import { renderReport } from "../rules/messages.js";
 
 const argv = process.argv.slice(2);

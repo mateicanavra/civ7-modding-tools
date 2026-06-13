@@ -1,10 +1,10 @@
+import type { InitialMapResourceAuthoringStatus } from "../../policy/initial-map-authoring.js";
 import type {
   OfficialAgeType,
   OfficialPlacementConstraintSummary,
   OfficialResourceType,
   ResourceRuntimeIdStatus,
 } from "../corpus/types.js";
-import type { InitialMapResourceAuthoringStatus } from "../../policy/initial-map-authoring.js";
 
 export type ResourceExpectationGroupId =
   | "aquatic-coastal-navigable-river"

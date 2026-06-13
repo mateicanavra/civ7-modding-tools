@@ -1,20 +1,20 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
+import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
-  getCiv7ReadyUnitView,
-  Civ7ReadyUnitViewInputSchema,
-  Civ7ReadyUnitViewResultSchema,
   type Civ7ReadyUnitViewInput,
+  Civ7ReadyUnitViewInputSchema,
   type Civ7ReadyUnitViewResult,
+  Civ7ReadyUnitViewResultSchema,
+  getCiv7ReadyUnitView,
   type ReadyUnitViewDependencies,
 } from "./unit.js";
-import type { Civ7DirectControlOptions } from "../../session/types.js";
 
 export const Civ7ReadyUnitViewProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "unit.ready.view",

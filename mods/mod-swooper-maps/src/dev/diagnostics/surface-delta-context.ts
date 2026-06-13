@@ -1,9 +1,9 @@
 import {
   CIV7_BROWSER_TABLES_V0,
-  NATURAL_WONDER_CATALOG,
-  getNaturalWonderFootprintOffsets,
   getNaturalWonderFootprintIndices,
+  getNaturalWonderFootprintOffsets,
   isResourceAdjacentToLandRuntimeOptional,
+  NATURAL_WONDER_CATALOG,
 } from "@civ7/map-policy";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 

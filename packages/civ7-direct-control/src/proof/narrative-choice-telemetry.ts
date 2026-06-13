@@ -1,5 +1,9 @@
+import type {
+  Civ7NarrativeChoiceInput,
+  Civ7NarrativeChoiceResult,
+} from "../play/operations/narrative-request.js";
+import { narrativeChoiceProofPostcondition } from "./narrative-choice-proof-policy.js";
 import {
-  createCiv7OperationProofTelemetryRecord,
   type Civ7OperationProofBoundary,
   type Civ7OperationProofClass,
   type Civ7OperationProofTelemetryRecord,
@@ -7,13 +11,8 @@ import {
   type Civ7OperationTelemetryEvidencePolicy,
   type Civ7OperationTelemetryObservationLink,
   type Civ7OperationTelemetryPlayerScope,
+  createCiv7OperationProofTelemetryRecord,
 } from "./operation-telemetry.js";
-import { narrativeChoiceProofPostcondition } from "./narrative-choice-proof-policy.js";
-
-import type {
-  Civ7NarrativeChoiceInput,
-  Civ7NarrativeChoiceResult,
-} from "../play/operations/narrative-request.js";
 
 export type Civ7NarrativeChoiceTelemetryAdapterInput = Readonly<{
   input: Civ7NarrativeChoiceInput;

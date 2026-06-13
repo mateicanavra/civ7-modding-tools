@@ -1,9 +1,8 @@
 import * as lodash from "lodash-es";
-
-import { TObjectValues } from "../types";
 import { LANGUAGE } from "../constants";
-import { locale } from "../utils";
 import { EnglishTextNode } from "../nodes";
+import { TObjectValues } from "../types";
+import { locale } from "../utils";
 
 export class BaseLocalization<T> {
   locale?: TObjectValues<typeof LANGUAGE> | null = LANGUAGE.en_US;

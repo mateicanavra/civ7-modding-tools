@@ -1,12 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { Type } from "typebox";
-
 import { defineOp } from "@mapgen/authoring/index.js";
 import {
   normalizeOpsTopLevel,
   normalizeStrict,
   prefillOpDefaults,
 } from "@mapgen/compiler/normalize.js";
+import { Type } from "typebox";
 
 describe("compiler normalize helpers", () => {
   it("reports unknown keys with stable paths", () => {

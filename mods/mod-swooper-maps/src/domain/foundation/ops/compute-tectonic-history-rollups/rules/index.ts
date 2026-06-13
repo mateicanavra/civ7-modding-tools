@@ -1,5 +1,5 @@
-import type { FoundationTectonicHistory } from "../../../lib/tectonics/schemas.js";
 import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
+import type { FoundationTectonicHistory } from "../../../lib/tectonics/schemas.js";
 
 import { clampByte } from "../../../lib/tectonics/shared.js";
 

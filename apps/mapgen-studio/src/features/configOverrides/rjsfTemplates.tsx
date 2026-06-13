@@ -4,8 +4,8 @@ import type {
   ObjectFieldTemplateProps,
   RJSFSchema,
 } from "@rjsf/utils";
-import type { ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
 import { FieldRow } from "../../ui/components/fields";
 import { pathToPointer } from "./schemaPresentation";
 

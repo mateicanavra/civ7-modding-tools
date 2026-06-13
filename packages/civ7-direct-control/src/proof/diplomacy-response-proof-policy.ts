@@ -1,5 +1,5 @@
-import type { Civ7DiplomacyResponseResult } from "../play/operations/diplomacy-request.js";
 import type { Civ7DiplomacyResponsePostconditionClassification } from "../play/operations/diplomacy-postconditions.js";
+import type { Civ7DiplomacyResponseResult } from "../play/operations/diplomacy-request.js";
 import type {
   Civ7OperationProofBoundary,
   Civ7OperationTelemetryPostcondition,

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { HEX_WIDTH } from "@swooper/mapgen-core/lib/grid";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
 

@@ -1,15 +1,15 @@
 import { useCallback, useMemo, useState } from "react";
-import type { SelectOption } from "../../ui/types";
 import type { BuiltInPreset } from "../../recipes/catalog";
+import type { SelectOption } from "../../ui/types";
 import {
+  type LocalPresetV1,
   loadPresetStore,
   persistPresetStore,
   removeLocalPreset,
-  upsertLocalPreset,
-  type LocalPresetV1,
   type StudioPresetStoreV1,
+  upsertLocalPreset,
 } from "./storage";
-import { parsePresetKey, type PresetKey, type ResolvedPreset } from "./types";
+import { type PresetKey, parsePresetKey, type ResolvedPreset } from "./types";
 
 export type LivePreset = Readonly<{
   id: string;

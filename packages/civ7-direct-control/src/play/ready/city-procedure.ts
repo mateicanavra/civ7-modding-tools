@@ -1,20 +1,20 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
+import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
-  getCiv7ReadyCityView,
-  Civ7ReadyCityViewInputSchema,
-  Civ7ReadyCityViewResultSchema,
   type Civ7ReadyCityViewInput,
+  Civ7ReadyCityViewInputSchema,
   type Civ7ReadyCityViewResult,
+  Civ7ReadyCityViewResultSchema,
+  getCiv7ReadyCityView,
   type ReadyCityViewDependencies,
 } from "./city.js";
-import type { Civ7DirectControlOptions } from "../../session/types.js";
 
 export const Civ7ReadyCityViewProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "city.ready.view",

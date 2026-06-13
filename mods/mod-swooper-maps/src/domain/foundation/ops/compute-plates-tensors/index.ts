@@ -1,6 +1,4 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
-
-import { projectPlatesFromModel } from "./lib/project-plates.js";
 import {
   requireCrust,
   requireMesh,
@@ -11,6 +9,7 @@ import {
   requireTectonics,
 } from "../../lib/require.js";
 import ComputePlatesTensorsContract from "./contract.js";
+import { projectPlatesFromModel } from "./lib/project-plates.js";
 
 const computePlatesTensors = createOp(ComputePlatesTensorsContract, {
   strategies: {

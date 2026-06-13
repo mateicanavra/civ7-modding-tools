@@ -8,25 +8,24 @@
  * Uses lazy provider pattern for test isolation.
  */
 
-import type {
-  ExtendedMapContext,
-  FoundationPlateFields,
-  StoryOverlaySnapshot,
-} from "@swooper/mapgen-core";
 import type { StoryConfig } from "@mapgen/domain/narrative/config.js";
-import { storyKey } from "@swooper/mapgen-core";
 import type { NarrativeMotifsOrogeny } from "@mapgen/domain/narrative/models.js";
+import {
+  getOrogenyCache,
+  type OrogenyCacheInstance,
+} from "@mapgen/domain/narrative/orogeny/cache.js";
 import {
   publishStoryOverlay,
   STORY_OVERLAY_KEYS,
 } from "@mapgen/domain/narrative/overlays/index.js";
 import { getDims } from "@mapgen/domain/narrative/utils/dims.js";
 import { isWaterAt } from "@mapgen/domain/narrative/utils/water.js";
-
-import {
-  getOrogenyCache,
-  type OrogenyCacheInstance,
-} from "@mapgen/domain/narrative/orogeny/cache.js";
+import type {
+  ExtendedMapContext,
+  FoundationPlateFields,
+  StoryOverlaySnapshot,
+} from "@swooper/mapgen-core";
+import { storyKey } from "@swooper/mapgen-core";
 
 export interface OrogenySummary {
   belts: number;

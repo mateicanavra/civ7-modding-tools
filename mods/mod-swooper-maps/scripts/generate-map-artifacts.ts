@@ -1,17 +1,16 @@
-import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
-
-import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
 import {
   buildCanonicalMapConfigSchema,
   mapLocalizationTag,
-  validateCanonicalMapConfig,
   type ValidatedMapConfig,
+  validateCanonicalMapConfig,
 } from "../src/maps/configs/canonical.js";
+import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

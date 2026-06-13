@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@civ7/config", () => ({
   expandPath: (p: string) => p,
@@ -18,8 +18,9 @@ vi.mock("node:fs", () => ({
   },
 }));
 
-import Slice from "../../src/commands/data/slice";
 import * as fs from "node:fs";
+import Slice from "../../src/commands/data/slice";
+
 const copyFile = (fs.promises as any).copyFile as any;
 
 describe("slice command", () => {

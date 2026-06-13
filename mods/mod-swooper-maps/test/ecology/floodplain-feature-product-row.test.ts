@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
+import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import ecology from "@mapgen/domain/ecology/ops";
 import { RIVER_CLASS_MAJOR } from "../../src/domain/hydrology/index.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
 import planFloodplainsStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-floodplains/index.js";

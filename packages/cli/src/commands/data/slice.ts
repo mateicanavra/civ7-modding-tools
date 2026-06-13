@@ -1,8 +1,8 @@
-import { Args, Command, Flags } from "@oclif/core";
+import * as fssync from "node:fs";
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
-import * as fssync from "node:fs";
 import { expandPath, findProjectRoot } from "@civ7/config";
+import { Args, Command, Flags } from "@oclif/core";
 import { resolveRootFromConfigOrFlag } from "../../utils";
 
 export default class Slice extends Command {

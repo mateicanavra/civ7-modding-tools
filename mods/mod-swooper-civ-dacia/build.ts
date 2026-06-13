@@ -2,18 +2,18 @@
 import {
   allCivilizations,
   civilizationAbilities,
-  civilizationModifiers,
   civilizationImports,
+  civilizationModifiers,
 } from "@civilizations";
-import { allUnits, unitAbilities, unitModifiers, unitImports } from "@units";
 import {
   allConstructibles,
   constructibleAbilities,
-  constructibleModifiers,
   constructibleImports,
+  constructibleModifiers,
 } from "@constructibles";
-import { sharedModifiers, sharedAbilities, sharedUnlocks } from "@shared";
 import { mod } from "@mod";
+import { sharedAbilities, sharedModifiers, sharedUnlocks } from "@shared";
+import { allUnits, unitAbilities, unitImports, unitModifiers } from "@units";
 
 // Add all components to the mod
 mod.add([

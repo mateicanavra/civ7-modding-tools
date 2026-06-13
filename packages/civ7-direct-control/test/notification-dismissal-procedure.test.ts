@@ -1,17 +1,17 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7NotificationDismissalResult,
+  Civ7NotificationDismissalResultSchema,
+  type Civ7NotificationDismissalSummary,
+  type Civ7NotificationDismissInput,
   Civ7NotificationDismissRequestInputSchema,
   Civ7NotificationDismissRequestProcedureDescriptor,
   Civ7NotificationDismissRequestProcedureSchemaArtifacts,
-  Civ7NotificationDismissalResultSchema,
   callCiv7NotificationDismissRequestProcedure,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7NotificationDismissInput,
-  type Civ7NotificationDismissalResult,
-  type Civ7NotificationDismissalSummary,
 } from "../src/index";
 
 describe("Civ7 notification dismissal request procedure descriptor", () => {

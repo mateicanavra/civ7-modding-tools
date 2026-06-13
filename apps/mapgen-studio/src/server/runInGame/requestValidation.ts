@@ -1,12 +1,12 @@
 import {
-  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
-  normalizeStudioSetupConfig,
-  type Civ7StudioSetupConfig,
-} from "../../features/civ7Setup/setupConfig";
-import {
   formatCiv7StudioSeedError,
   parseCiv7StudioSeed,
 } from "../../features/civ7Setup/seedPolicy";
+import {
+  type Civ7StudioSetupConfig,
+  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
+  normalizeStudioSetupConfig,
+} from "../../features/civ7Setup/setupConfig";
 
 export function assertNoRawControlFields(value: unknown): void {
   if (!value || typeof value !== "object") return;

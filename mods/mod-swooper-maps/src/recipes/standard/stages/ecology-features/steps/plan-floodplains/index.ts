@@ -1,13 +1,11 @@
-import { ctxStepSeed } from "@swooper/mapgen-core";
-import { defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
-
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import {
   validateFeatureIntentsListArtifact,
   validateOccupancyArtifact,
 } from "../../../ecology/artifact-validation.js";
+import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import PlanFloodplainsStepContract from "./contract.js";
 
 const FLOODPLAIN_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {

@@ -1,13 +1,12 @@
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "../../../constants.js";
+import { requireMesh as requireMeshInput } from "../../../lib/require.js";
+import { EVENT_TYPE } from "../../../lib/tectonics/constants.js";
 import type {
   FoundationTectonicEraFieldsInternal,
   TectonicEventRecord,
 } from "../../../lib/tectonics/internal-contract.js";
-import { requireMesh as requireMeshInput } from "../../../lib/require.js";
-
-import { EVENT_TYPE } from "../../../lib/tectonics/constants.js";
 import {
   chooseDriftNeighbor,
   clampByte,

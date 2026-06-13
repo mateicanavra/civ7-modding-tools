@@ -1,12 +1,12 @@
-import { setTimeout as sleep } from "node:timers/promises";
 import { appendFile, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
-import { Command, Flags } from "@oclif/core";
+import { setTimeout as sleep } from "node:timers/promises";
 import {
   getCiv7PlayNotificationView,
   getCiv7ReadyCityView,
   getCiv7ReadyUnitView,
 } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GameWatch extends Command {
   static id = "game watch";

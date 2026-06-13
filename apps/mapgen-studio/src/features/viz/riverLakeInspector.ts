@@ -1,9 +1,9 @@
 import type {
   VizLayerEntryV1,
   VizLayerKind,
-  VizScalarFormat,
   VizLayerVisibility,
   VizManifestV1,
+  VizScalarFormat,
   VizSpaceId,
 } from "@swooper/mapgen-viz";
 

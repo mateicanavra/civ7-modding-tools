@@ -4,9 +4,9 @@
 // Manages generation state and actions.
 // ============================================================================
 
-import { useState, useCallback, useMemo } from "react";
-import type { PipelineConfig, WorldSettings, RecipeSettings, GenerationStatus } from "../types";
-import { configsEqual, worldSettingsEqual, recipeSettingsEqual, generateSeed } from "../utils";
+import { useCallback, useMemo, useState } from "react";
+import type { GenerationStatus, PipelineConfig, RecipeSettings, WorldSettings } from "../types";
+import { configsEqual, generateSeed, recipeSettingsEqual, worldSettingsEqual } from "../utils";
 
 export interface GenerationSnapshot {
   config: PipelineConfig;

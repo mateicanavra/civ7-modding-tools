@@ -5,14 +5,13 @@ import {
   UnsatisfiedProvidesError,
 } from "@mapgen/engine/errors.js";
 import type { ExecutionPlan } from "@mapgen/engine/execution-plan.js";
+import type { StepRegistry } from "@mapgen/engine/StepRegistry.js";
 import {
   computeInitialSatisfiedTags,
   isDependencyTagSatisfied,
   validateDependencyTags,
 } from "@mapgen/engine/tags.js";
-import type { EngineContext, MapGenStep } from "@mapgen/engine/types.js";
-import type { StepRegistry } from "@mapgen/engine/StepRegistry.js";
-import type { PipelineStepResult } from "@mapgen/engine/types.js";
+import type { EngineContext, MapGenStep, PipelineStepResult } from "@mapgen/engine/types.js";
 import type { TraceSession } from "@mapgen/trace/index.js";
 import { createNoopTraceSession } from "@mapgen/trace/index.js";
 

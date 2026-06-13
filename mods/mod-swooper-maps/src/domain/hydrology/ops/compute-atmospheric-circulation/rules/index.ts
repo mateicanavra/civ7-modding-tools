@@ -1,6 +1,5 @@
-import { clampInt, idx } from "@swooper/mapgen-core";
+import { clampInt, createLabelRng, idx } from "@swooper/mapgen-core";
 import { projectOddqToHexSpace, wrapX } from "@swooper/mapgen-core/lib/grid";
-import { createLabelRng } from "@swooper/mapgen-core";
 
 export function computeWinds(
   width: number,

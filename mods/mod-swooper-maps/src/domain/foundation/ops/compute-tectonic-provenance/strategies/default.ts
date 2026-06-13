@@ -1,7 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
-import { computeTectonicProvenance, requireMesh, requirePlateGraph } from "../rules/index.js";
 import ComputeTectonicProvenanceContract from "../contract.js";
+import { computeTectonicProvenance, requireMesh, requirePlateGraph } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeTectonicProvenanceContract, "default", {
   run: (input) => {

@@ -1,38 +1,38 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { getCiv7MapSummary } from "../play/map/reads.js";
+import type { Civ7MapSummaryResult } from "../play/map/types.js";
 import {
   appUiSnapshotFromCommandResult,
   buildAppUiSnapshotCommand,
   type Civ7AppUiSnapshot,
   type Civ7AppUiSnapshotResult,
 } from "../runtime/app-ui-snapshot.js";
-import {
-  waitForCiv7TunerReadyWithSession,
-  type Civ7TunerHealthResult,
-} from "../runtime/tuner-health.js";
-import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
-import { withCiv7DirectControlSession, type Civ7DirectControlSession } from "../session/session.js";
-import { jsonPayloadFromCommandResult } from "../session/command-result.js";
-import { validateIdentifier } from "../validation.js";
-import {
-  assertPreparedSetupMatches,
-  normalizeSinglePlayerSetupInput,
-  type Civ7SinglePlayerSetupInput,
-} from "./prepare.js";
-import {
-  buildSetupSnapshotCommand,
-  defaultSetupReadDependencies,
-  type Civ7SetupSnapshotResult,
-  type SetupReadDependencies,
-} from "./reads.js";
-import type { Civ7MapSummaryResult } from "../play/map/types.js";
 import type { Civ7RuntimeProbe } from "../runtime/probe.js";
-import { CIV7_BEGIN_GAME_COMMAND, CIV7_UI_LOADING_STATES } from "./constants.js";
+import {
+  type Civ7TunerHealthResult,
+  waitForCiv7TunerReadyWithSession,
+} from "../runtime/tuner-health.js";
+import { jsonPayloadFromCommandResult } from "../session/command-result.js";
+import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
+import { type Civ7DirectControlSession, withCiv7DirectControlSession } from "../session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../session/types.js";
+import { validateIdentifier } from "../validation.js";
+import { CIV7_BEGIN_GAME_COMMAND, CIV7_UI_LOADING_STATES } from "./constants.js";
+import {
+  assertPreparedSetupMatches,
+  type Civ7SinglePlayerSetupInput,
+  normalizeSinglePlayerSetupInput,
+} from "./prepare.js";
+import {
+  buildSetupSnapshotCommand,
+  type Civ7SetupSnapshotResult,
+  defaultSetupReadDependencies,
+  type SetupReadDependencies,
+} from "./reads.js";
 
 export type Civ7PreparedStartInput = Readonly<{
   expected: Civ7SinglePlayerSetupInput;

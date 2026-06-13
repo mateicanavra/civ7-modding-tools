@@ -1,14 +1,13 @@
 import type { Stats } from "node:fs";
 
 import { describe, expect, test } from "vitest";
-
+import { Civ7DirectControlError } from "../src/direct-control-error";
 import {
-  captureCiv7WindowShot,
   CIV7_WINDOW_SHOT_SWIFT_SOURCE,
+  captureCiv7WindowShot,
   ensureCiv7WindowShotHelper,
   type WindowShotDependencies,
 } from "../src/play/view/window-shot";
-import { Civ7DirectControlError } from "../src/direct-control-error";
 
 // 1x1 transparent PNG — real bytes so sha256/dimension extraction run on the
 // same parsing path as production captures.

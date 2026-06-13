@@ -1,6 +1,5 @@
-import { BaseLocalization } from "./BaseLocalization";
-
 import { TClassProperties } from "../types";
+import { BaseLocalization } from "./BaseLocalization";
 
 export type TProgressionTreeLocalization = TClassProperties<ProgressionTreeLocalization>;
 export class ProgressionTreeLocalization extends BaseLocalization<TProgressionTreeLocalization> {

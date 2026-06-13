@@ -2,12 +2,12 @@ import {
   buildLiveGameErrorState,
   buildLiveGameState,
   hashLiveGameValue,
-  stableLiveGameStringify,
   type LiveGameBindingStatus,
   type LiveGameSnapshotStatus,
   type LiveGameState,
   type LiveGameStatusBody,
   type LiveGameStatusKind,
+  stableLiveGameStringify,
 } from "@civ7/studio-server/live-game";
 
 export type LiveRuntimeStatusKind = LiveGameStatusKind;

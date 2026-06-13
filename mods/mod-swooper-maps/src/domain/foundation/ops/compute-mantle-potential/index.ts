@@ -1,6 +1,6 @@
+import { createLabelRng } from "@swooper/mapgen-core";
 import { createOp } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampInt, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
-import { createLabelRng } from "@swooper/mapgen-core";
 
 import { requireMesh } from "../../lib/require.js";
 import ComputeMantlePotentialContract from "./contract.js";

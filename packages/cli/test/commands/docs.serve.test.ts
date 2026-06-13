@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@civ7/plugin-files", () => ({
   unzipResources: vi.fn(async () => {}),
@@ -24,9 +24,10 @@ vi.mock("node:fs", () => ({
   },
 }));
 
-import DocsServe from "../../src/commands/docs/serve";
-import { unzipResources } from "@civ7/plugin-files";
 import * as fs from "node:fs";
+import { unzipResources } from "@civ7/plugin-files";
+import DocsServe from "../../src/commands/docs/serve";
+
 declare global {
   var Bun: any;
 }

@@ -1,4 +1,8 @@
-import { TClassProperties, TObjectValues, TPartialRequired } from "../types";
+import { ADVISORY, KIND } from "../constants";
+import {
+  ProgressionTreeNodeLocalization,
+  TProgressionTreeNodeLocalization,
+} from "../localizations";
 import {
   DatabaseNode,
   GameEffectNode,
@@ -8,18 +12,13 @@ import {
   TProgressionTreeNodeNode,
   TypeNode,
 } from "../nodes";
-import { ADVISORY, KIND } from "../constants";
-
-import { BaseBuilder } from "./BaseBuilder";
+import { TClassProperties, TObjectValues, TPartialRequired } from "../types";
 import { locale } from "../utils";
-import { ModifierBuilder } from "./ModifierBuilder";
+import { BaseBuilder } from "./BaseBuilder";
 import { ConstructibleBuilder } from "./ConstructibleBuilder";
-import { UnitBuilder } from "./UnitBuilder";
-import {
-  ProgressionTreeNodeLocalization,
-  TProgressionTreeNodeLocalization,
-} from "../localizations";
+import { ModifierBuilder } from "./ModifierBuilder";
 import { TraditionBuilder } from "./TraditionBuilder";
+import { UnitBuilder } from "./UnitBuilder";
 
 type TProgressionTreeNodeBuilder = TClassProperties<ProgressionTreeNodeBuilder>;
 

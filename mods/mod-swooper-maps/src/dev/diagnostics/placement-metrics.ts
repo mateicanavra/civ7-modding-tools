@@ -14,9 +14,9 @@
  * explicit non-"computed" status instead of being silently omitted.
  */
 
-import { createMockAdapter } from "@civ7/adapter";
 import type { GameMapAdapter } from "@civ7/adapter";
-import { VOLCANO_FEATURE, createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
+import { createMockAdapter } from "@civ7/adapter";
+import { createExtendedMapContext, createLabelRng, VOLCANO_FEATURE } from "@swooper/mapgen-core";
 import {
   getHexNeighborIndicesOddQ,
   getHexRadiusIndicesOddQ,
@@ -29,14 +29,14 @@ import {
   canonicalRecipeConfig,
   isPlainObject as isCanonicalMapConfigObject,
 } from "../../maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
-import { placementArtifacts } from "../../recipes/standard/stages/placement/artifacts.js";
-import { morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts.js";
 import { ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { hydrologyClimateRefineArtifacts } from "../../recipes/standard/stages/hydrology-climate-refine/artifacts.js";
+import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";
+import { morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts.js";
+import { placementArtifacts } from "../../recipes/standard/stages/placement/artifacts.js";
 
 export const PLACEMENT_METRICS_SCHEMA_VERSION = 1;
 

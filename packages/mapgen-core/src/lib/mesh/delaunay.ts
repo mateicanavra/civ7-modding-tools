@@ -1,7 +1,7 @@
-import { Delaunay } from "d3-delaunay";
-import { createLabelRng } from "@mapgen/lib/rng/label.js";
-import { rollUnit, type RngFn } from "@mapgen/lib/rng/unit.js";
 import { HEX_HEIGHT, HEX_WIDTH } from "@mapgen/lib/grid/hex-space.js";
+import { createLabelRng } from "@mapgen/lib/rng/label.js";
+import { type RngFn, rollUnit } from "@mapgen/lib/rng/unit.js";
+import { Delaunay } from "d3-delaunay";
 
 export type MeshBBox = {
   xl: number;

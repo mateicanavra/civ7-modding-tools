@@ -1,3 +1,4 @@
+export { ABILITY } from "./ABILITY";
 export { ACTION_GROUP } from "./ACTION_GROUP";
 export { ACTION_GROUP_ACTION } from "./ACTION_GROUP_ACTION";
 export { ACTION_GROUP_BUNDLE } from "./ACTION_GROUP_BUNDLE";
@@ -34,4 +35,3 @@ export { UNIT_CLASS } from "./UNIT_CLASS";
 export { UNIT_CULTURE } from "./UNIT_CULTURE";
 export { UNIT_MOVEMENT_CLASS } from "./UNIT_MOVEMENT_CLASS";
 export { YIELD } from "./YIELD";
-export { ABILITY } from "./ABILITY";

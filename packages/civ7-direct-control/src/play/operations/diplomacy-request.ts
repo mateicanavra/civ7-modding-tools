@@ -1,10 +1,3 @@
-import {
-  diplomacyResponsePostcondition,
-  type Civ7DiplomacyResponsePostcondition,
-  waitForCiv7DiplomacyResponseAfter,
-} from "./diplomacy-postconditions.js";
-import type { Civ7OperationValidationResult } from "./types.js";
-
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
@@ -14,9 +7,15 @@ import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
 import { validatePlayerId } from "../../validation.js";
 import {
-  getCiv7PlayNotificationView,
   type Civ7PlayNotificationViewResult,
+  getCiv7PlayNotificationView,
 } from "../notifications/view.js";
+import {
+  type Civ7DiplomacyResponsePostcondition,
+  diplomacyResponsePostcondition,
+  waitForCiv7DiplomacyResponseAfter,
+} from "./diplomacy-postconditions.js";
+import type { Civ7OperationValidationResult } from "./types.js";
 import { canStartCiv7PlayerOperation } from "./validate-request.js";
 
 export type Civ7DiplomacyResponseInput = Readonly<{

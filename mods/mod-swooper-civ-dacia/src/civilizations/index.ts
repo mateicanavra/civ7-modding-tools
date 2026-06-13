@@ -20,4 +20,4 @@ const {
   imports: civilizationImports,
 } = extractComponents(civilizationPackages, "civilization");
 
-export { allCivilizations, civilizationAbilities, civilizationModifiers, civilizationImports };
+export { allCivilizations, civilizationAbilities, civilizationImports, civilizationModifiers };

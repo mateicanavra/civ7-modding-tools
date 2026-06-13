@@ -1,12 +1,10 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-
-import { TClassProperties, TObjectValues } from "../types";
-import { ImportFile } from "../files";
 import { ACTION_GROUP_ACTION } from "../constants";
-
-import { BaseBuilder } from "./BaseBuilder";
+import { ImportFile } from "../files";
 import { ActionGroupNode } from "../nodes";
+import { TClassProperties, TObjectValues } from "../types";
+import { BaseBuilder } from "./BaseBuilder";
 
 type TImportFileBuilder = TClassProperties<ImportFileBuilder>;
 

@@ -1,4 +1,3 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import {
   isAdjacentToLand,
   isAdjacentToShallowWater,
@@ -7,6 +6,7 @@ import {
 import { getDims } from "@mapgen/domain/narrative/utils/dims.js";
 import { rand as baseRand } from "@mapgen/domain/narrative/utils/rng.js";
 import { isWaterAt } from "@mapgen/domain/narrative/utils/water.js";
+import type { ExtendedMapContext } from "@swooper/mapgen-core";
 
 export { getDims, isAdjacentToLand, isAdjacentToShallowWater, isCoastalLand, isWaterAt };
 

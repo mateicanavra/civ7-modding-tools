@@ -1,9 +1,9 @@
-import { Command, Flags } from "@oclif/core";
 import {
   checkCiv7DirectControlHealth,
   checkCiv7TunerHealth,
   resolveCiv7DirectControlConfig,
 } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GameHealth extends Command {
   static id = "game health";

@@ -2,7 +2,7 @@
  * Smoke test - verifies the test infrastructure works
  */
 
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 
 describe("Test Infrastructure", () => {

@@ -1,14 +1,14 @@
 import type { BuiltInPreset } from "../../recipes/catalog";
+import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../ui/types";
 import {
+  type Civ7StudioSetupConfig,
   DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
   normalizeStudioSetupConfig,
-  type Civ7StudioSetupConfig,
 } from "../civ7Setup/setupConfig";
 import {
   migratePipelineConfig,
   migratePipelineConfigUnknown,
 } from "../configMigrations/pipelineConfig";
-import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../ui/types";
 
 export const STUDIO_AUTHORING_STATE_KEY = "mapgen-studio.authoring-state.v1";
 

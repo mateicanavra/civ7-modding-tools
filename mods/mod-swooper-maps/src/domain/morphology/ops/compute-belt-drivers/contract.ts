@@ -1,9 +1,8 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
-
 import type {
   FoundationTectonicHistoryTiles,
   FoundationTectonicProvenanceTiles,
 } from "@mapgen/domain/foundation/ops/compute-plates-tensors/contract.js";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const BeltComponentSummarySchema = Type.Object(
   {

@@ -1,10 +1,10 @@
-import type { EngineContext, GenerationPhase } from "@mapgen/engine/types.js";
 import {
   DuplicateDependencyTagError,
   InvalidDependencyTagDemoError,
   InvalidDependencyTagError,
   UnknownDependencyTagError,
 } from "@mapgen/engine/errors.js";
+import type { EngineContext, GenerationPhase } from "@mapgen/engine/types.js";
 
 export type DependencyTagKind = "artifact" | "field" | "effect";
 

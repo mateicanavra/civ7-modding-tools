@@ -1,4 +1,4 @@
-import { parseArgs, loadManifest, listLayers } from "./shared.js";
+import { listLayers, loadManifest, parseArgs } from "./shared.js";
 
 /**
  * List layers in a viz dump manifest.

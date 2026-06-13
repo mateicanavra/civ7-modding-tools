@@ -1,7 +1,6 @@
-import type { FoundationTectonicHistory, FoundationTectonics } from "./schemas.js";
-import type { FoundationTectonicEraFieldsInternal } from "./internal-contract.js";
-
 import { OROGENY_ERA_GAIN_MAX, OROGENY_ERA_GAIN_MIN } from "./constants.js";
+import type { FoundationTectonicEraFieldsInternal } from "./internal-contract.js";
+import type { FoundationTectonicHistory, FoundationTectonics } from "./schemas.js";
 import { clampByte } from "./shared.js";
 
 export function computeEraGain(era: number, eraCount: number): number {

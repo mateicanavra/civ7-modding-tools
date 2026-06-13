@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ProgressionChoiceNotificationView,
   cultureChoicePostcondition,
   findCultureChoiceNotification,
   findTechnologyChoiceNotification,
   technologyChoicePostcondition,
-  type Civ7ProgressionChoiceNotificationView,
 } from "../src/index.js";
 
 describe("progression choice postconditions", () => {

@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from "vitest";
 import GamePlayChooseTech from "../../src/commands/game/play/choose-tech";
 import GamePlaySetTechTarget from "../../src/commands/game/play/set-tech-target";
-import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 
 describe("game play technology commands", () => {
   test("wraps technology choice as SET_TECH_TREE_NODE", async () => {

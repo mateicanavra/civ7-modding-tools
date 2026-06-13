@@ -1,8 +1,8 @@
-import { Flags } from "@oclif/core";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import BaseCommand from "../BaseCommand.js";
+import { Flags } from "@oclif/core";
 import { listSubtreeConfigs, removeSubtreeConfig } from "../../utils/git.js";
+import BaseCommand from "../BaseCommand.js";
 
 export default abstract class SubtreeClearConfigBase extends BaseCommand {
   static flags = {

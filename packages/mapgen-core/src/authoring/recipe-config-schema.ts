@@ -1,4 +1,4 @@
-import { Type, type TObject, type TSchema } from "typebox";
+import { type TObject, type TSchema, Type } from "typebox";
 
 import type { StageContractAny } from "./types.js";
 

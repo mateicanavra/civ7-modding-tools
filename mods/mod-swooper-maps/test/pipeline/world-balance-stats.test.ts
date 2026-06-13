@@ -1,15 +1,15 @@
 import { describe, expect, it } from "bun:test";
 
 import { OFFICIAL_RESOURCE_CORPUS } from "../../src/domain/resources/index.js";
-import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
+import {
+  type CanonicalMapConfigWithRecipe,
+  canonicalRecipeConfig,
+} from "../../src/maps/configs/canonical.js";
 import shatteredRingRaw from "../../src/maps/configs/shattered-ring.config.json";
 import sunderedArchipelagoRaw from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
-import {
-  canonicalRecipeConfig,
-  type CanonicalMapConfigWithRecipe,
-} from "../../src/maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
+import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import {
   collectWorldBalanceStats,

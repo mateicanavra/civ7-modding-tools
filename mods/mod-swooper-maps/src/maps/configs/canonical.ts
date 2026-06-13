@@ -1,6 +1,5 @@
-import { Type, type TObject, type TSchema } from "typebox";
-
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import { type TObject, type TSchema, Type } from "typebox";
 
 type JsonObject = Record<string, unknown>;
 

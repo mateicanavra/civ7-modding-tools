@@ -5,6 +5,20 @@
  * in unit tests without the Civ7 game engine.
  */
 
+import {
+  NO_RESOURCE as ADAPTER_NO_RESOURCE,
+  CIV7_BROWSER_TABLES_V0,
+  getNaturalWonderFootprintIndices,
+  hasUnsupportedNaturalWonderPolicyTags,
+  isResourceAdjacentToLandRuntimeOptional,
+  NATURAL_WONDER_CATALOG,
+  NO_RIVER_TYPE,
+  PLACEABLE_RESOURCE_TYPE_IDS,
+  RIVER_TYPE_MINOR,
+  RIVER_TYPE_NAVIGABLE,
+} from "@civ7/map-policy";
+import { ENGINE_EFFECT_TAGS } from "./effects.js";
+import { getCiv7RowLatitude } from "./map-metadata.js";
 import type {
   DiscoveryCatalogEntry,
   DiscoveryPlacementIntent,
@@ -30,20 +44,6 @@ import type {
   VoronoiSite,
   VoronoiUtils,
 } from "./types.js";
-import { ENGINE_EFFECT_TAGS } from "./effects.js";
-import {
-  CIV7_BROWSER_TABLES_V0,
-  NATURAL_WONDER_CATALOG,
-  NO_RIVER_TYPE,
-  NO_RESOURCE as ADAPTER_NO_RESOURCE,
-  PLACEABLE_RESOURCE_TYPE_IDS,
-  RIVER_TYPE_MINOR,
-  RIVER_TYPE_NAVIGABLE,
-  getNaturalWonderFootprintIndices,
-  hasUnsupportedNaturalWonderPolicyTags,
-  isResourceAdjacentToLandRuntimeOptional,
-} from "@civ7/map-policy";
-import { getCiv7RowLatitude } from "./map-metadata.js";
 
 type MockRandomFn = (max: number, label: string) => number;
 type ResourceValidPlacementRow = readonly [

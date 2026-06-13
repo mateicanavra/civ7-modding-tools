@@ -1,4 +1,9 @@
 import {
+  assertCiv7ComponentId,
+  type Civ7ComponentId,
+  type Civ7DirectControlOptions,
+  type Civ7OperationFamily,
+  type Civ7OperationInput,
   canStartCiv7CityCommand,
   canStartCiv7CityOperation,
   canStartCiv7PlayerOperation,
@@ -9,11 +14,6 @@ import {
   requestCiv7PlayerOperation,
   requestCiv7UnitCommand,
   requestCiv7UnitOperation,
-  assertCiv7ComponentId,
-  type Civ7ComponentId,
-  type Civ7DirectControlOptions,
-  type Civ7OperationFamily,
-  type Civ7OperationInput,
 } from "@civ7/direct-control";
 
 export type PlayOperationFamilyAlias = Civ7OperationFamily | "unit" | "city" | "player";

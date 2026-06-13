@@ -1,18 +1,18 @@
 import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
+import { RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
 import {
+  createExtendedMapContext,
   FLAT_TERRAIN,
   NAVIGABLE_RIVER_TERRAIN,
-  createExtendedMapContext,
 } from "@swooper/mapgen-core";
-import { RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
 import selectNavigableRiverTerrain from "../../src/domain/hydrology/ops/select-navigable-river-terrain/index.js";
-import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
 import { mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts.js";
+import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
 class RiverCacheRefreshAdapter extends MockAdapter {

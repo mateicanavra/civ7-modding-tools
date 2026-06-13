@@ -9,9 +9,9 @@
   Usage: bun run scripts/update-code-blocks.ts
 */
 
-import { readdirSync, readFileSync, writeFileSync, statSync, existsSync } from "node:fs";
-import { join, extname, relative } from "node:path";
 import { createHash } from "node:crypto";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { extname, join, relative } from "node:path";
 
 // This script is executed from apps/docs; use that as the root for docs
 const OFFICIAL_DIR = join(process.cwd(), "official");

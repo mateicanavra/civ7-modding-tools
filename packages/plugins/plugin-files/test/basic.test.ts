@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
 import * as path from "node:path";
+import { describe, expect, it, vi } from "vitest";
 
 // For unit tests we focus on error handling (no system deps)
 
@@ -50,9 +50,9 @@ vi.mock("node:fs", async () => {
   };
 });
 
-import { zipResources, unzipResources, copyDirectoryRecursive, resolveModsDir } from "../src/index";
-import * as os from "node:os";
 import * as fs from "node:fs";
+import * as os from "node:os";
+import { copyDirectoryRecursive, resolveModsDir, unzipResources, zipResources } from "../src/index";
 
 describe("@civ7/plugin-files error handling", () => {
   it("unzipResources throws when archive is missing", async () => {

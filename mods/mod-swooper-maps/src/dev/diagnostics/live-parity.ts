@@ -19,9 +19,9 @@ import {
   canonicalRecipeConfig,
   isPlainObject as isCanonicalMapConfigObject,
 } from "../../maps/configs/canonical.js";
+import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import { ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { mapElevationArtifacts } from "../../recipes/standard/stages/map-elevation/artifacts.js";

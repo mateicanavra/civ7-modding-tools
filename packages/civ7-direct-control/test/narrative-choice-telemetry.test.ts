@@ -1,19 +1,17 @@
 import { describe, expect, test } from "vitest";
-
-import {
-  createCiv7NarrativeChoiceTelemetryRecord,
-  type Civ7NarrativeChoiceTelemetryAdapterInput,
-} from "../src/proof/narrative-choice-telemetry";
-import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
-
 import type { Civ7ComponentId } from "../src/civ7-component-id";
-import type { Civ7NarrativeChoiceResult } from "../src/play/operations/narrative-request";
+import type { Civ7PlayNotificationViewResult } from "../src/play/notifications/view";
 import type {
   Civ7NarrativeChoicePostcondition,
   Civ7NarrativeChoicePostconditionClassification,
 } from "../src/play/operations/narrative-postconditions";
+import type { Civ7NarrativeChoiceResult } from "../src/play/operations/narrative-request";
 import type { Civ7OperationValidationResult } from "../src/play/operations/types";
-import type { Civ7PlayNotificationViewResult } from "../src/play/notifications/view";
+import {
+  type Civ7NarrativeChoiceTelemetryAdapterInput,
+  createCiv7NarrativeChoiceTelemetryRecord,
+} from "../src/proof/narrative-choice-telemetry";
+import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
 
 describe("narrative-choice telemetry adapter", () => {
   test("adapts a confirmed narrative choice into separated operation telemetry", () => {

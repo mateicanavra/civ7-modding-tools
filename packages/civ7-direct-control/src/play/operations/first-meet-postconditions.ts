@@ -1,11 +1,11 @@
 import type { Civ7ComponentId } from "../../civ7-component-id";
-import { sameComponentId } from "./component-id";
-import { probeValue } from "./probe-values";
 import type { Civ7DirectControlOptions } from "../../session/types";
 import type {
   Civ7PlayNotificationSummary,
   Civ7PlayNotificationViewResult,
 } from "../notifications/view";
+import { sameComponentId } from "./component-id";
+import { probeValue } from "./probe-values";
 
 export type Civ7FirstMeetResponsePostconditionClassification =
   | "not-sent"

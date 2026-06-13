@@ -1,16 +1,15 @@
-import type { Civ7OperationRequestResult } from "./validate-request";
-import { requestCiv7PlayerOperation } from "./validate-request";
-import {
-  firstMeetResponsePostcondition,
-  type Civ7FirstMeetResponsePostcondition,
-  waitForCiv7FirstMeetResponseAfter,
-} from "./first-meet-postconditions";
-
 import { Civ7DirectControlError } from "../../direct-control-error";
 import type { Civ7DirectControlOptions } from "../../session/types";
 import { validatePlayerId } from "../../validation";
 import type { Civ7PlayNotificationViewResult } from "../notifications/view";
 import { getCiv7PlayNotificationView } from "../notifications/view";
+import {
+  type Civ7FirstMeetResponsePostcondition,
+  firstMeetResponsePostcondition,
+  waitForCiv7FirstMeetResponseAfter,
+} from "./first-meet-postconditions";
+import type { Civ7OperationRequestResult } from "./validate-request";
+import { requestCiv7PlayerOperation } from "./validate-request";
 
 const RESPOND_DIPLOMATIC_FIRST_MEET = "RESPOND_DIPLOMATIC_FIRST_MEET";
 

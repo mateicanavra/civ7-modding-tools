@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7ProgressDashboardProcedureDescriptor,
   Civ7ProgressDashboardProcedureSchemaArtifacts,
   callCiv7ProgressDashboardProcedure,
   getCiv7ProgressDashboard,
+  type ProgressDashboardDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type ProgressDashboardDependencies,
 } from "../src/index";
 
 describe("Civ7 progress-dashboard procedure descriptor", () => {

@@ -1,5 +1,5 @@
-import { Command, Flags } from "@oclif/core";
 import { getCiv7ReadyUnitView } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 import { buildDirectControlOptions, parseComponentId } from "../../../utils/game-play-shared";
 
 export default class GamePlayReadyUnit extends Command {

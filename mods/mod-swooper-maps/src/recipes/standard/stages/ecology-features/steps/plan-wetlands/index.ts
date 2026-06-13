@@ -1,13 +1,13 @@
+import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 
 import { isAnyRiverClass } from "../../../../../../domain/hydrology/index.js";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import {
   validateFeatureIntentsListArtifact,
   validateOccupancyArtifact,
 } from "../../../ecology/artifact-validation.js";
+import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import PlanWetlandsStepContract from "./contract.js";
 
 const WETLANDS_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {

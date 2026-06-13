@@ -1,15 +1,13 @@
+import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-
-import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
-
-import PlanRoughLandsContract from "../contract.js";
-import type { PlanRoughLandsTypes } from "../types.js";
 import {
   encodeNormalizedToU8,
   normalizeMountainFractal,
   resolveDriverStrength,
 } from "../../mountains-shared/rules.js";
+import PlanRoughLandsContract from "../contract.js";
+import type { PlanRoughLandsTypes } from "../types.js";
 
 type RoughLandInputs = Readonly<{
   size: number;

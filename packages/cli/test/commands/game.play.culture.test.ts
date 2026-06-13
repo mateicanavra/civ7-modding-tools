@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from "vitest";
 import GamePlayChooseCulture from "../../src/commands/game/play/choose-culture";
 import GamePlaySetCultureTarget from "../../src/commands/game/play/set-culture-target";
-import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 
 describe("game play culture commands", () => {
   test("wraps culture choice as SET_CULTURE_TREE_NODE", async () => {

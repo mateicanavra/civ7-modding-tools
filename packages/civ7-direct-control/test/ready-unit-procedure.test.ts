@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7DirectControlError,
@@ -7,9 +7,9 @@ import {
   Civ7ReadyUnitViewProcedureSchemaArtifacts,
   callCiv7ReadyUnitViewProcedure,
   getCiv7ReadyUnitView,
+  type ReadyUnitViewDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type ReadyUnitViewDependencies,
 } from "../src/index";
 
 describe("Civ7 ready-unit procedure descriptor", () => {

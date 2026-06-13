@@ -3,7 +3,7 @@ import { ORPCError } from "@orpc/server";
 import { Effect } from "effect";
 import { implementEffect } from "effect-orpc";
 
-import { studioEffectContract, type StudioEffectContract } from "../contract/index.js";
+import { type StudioEffectContract, studioEffectContract } from "../contract/index.js";
 import { errorMessage } from "../errors.js";
 import { readLiveGameStatusBody } from "../liveGame/statusRead.js";
 import type { StudioRuntime } from "../runtime.js";

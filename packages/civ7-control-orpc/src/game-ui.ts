@@ -1,34 +1,67 @@
+import type {
+  Civ7ControllerBridgeContextFactory,
+  Civ7ControllerBridgeMutationProof,
+} from "./bridge/controller-ingress";
 import {
-  requestCiv7GameUiNotificationDismissal,
-  type Civ7GameUiNotificationDismissalTarget,
-} from "./game-ui-notification-dismissal";
-
-import type { Civ7ControllerBridgeContextFactory } from "./bridge/controller-ingress";
-import type { Civ7ControllerBridgeMutationProof } from "./bridge/controller-ingress";
-import {
-  installCiv7IntelligenceBridge,
   type Civ7IntelligenceBridge,
+  installCiv7IntelligenceBridge,
 } from "./bridge/intelligence-bridge";
+import type {
+  Civ7ControlOrpcDirectControlFacade,
+  Civ7ControlOrpcPlayableStatusResult,
+} from "./dependencies/direct-control";
 import {
+  type Civ7GameUiAttentionTarget,
   getCiv7GameUiPlayNotificationView,
   getCiv7GameUiReadyCityView,
   getCiv7GameUiReadyUnitView,
   getCiv7GameUiTurnCompletionStatus,
   requestCiv7GameUiTurnComplete,
-  type Civ7GameUiAttentionTarget,
 } from "./game-ui-attention";
 import {
+  type Civ7GameUiDiplomacyTarget,
+  civ7GameUiDiplomacyResponseAvailable,
+  requestCiv7GameUiDiplomacyResponse,
+} from "./game-ui-diplomacy";
+import {
+  type Civ7GameUiFirstMeetTarget,
+  civ7GameUiFirstMeetResponseAvailable,
+  requestCiv7GameUiFirstMeetResponse,
+} from "./game-ui-first-meet";
+import {
+  type Civ7GameUiGovernmentTarget,
+  civ7GameUiGovernmentAvailable,
+  requestCiv7GameUiCelebrationChoice,
+  requestCiv7GameUiGovernmentChoice,
+} from "./game-ui-government";
+import {
+  type Civ7GameUiMapReadTarget,
+  civ7GameUiWorldMapReadsAvailable,
+  getCiv7GameUiMapGrid,
+  getCiv7GameUiPlotSnapshot,
+} from "./game-ui-map";
+import {
+  type Civ7GameUiNarrativeTarget,
+  civ7GameUiNarrativeChoiceAvailable,
+  requestCiv7GameUiNarrativeChoice,
+} from "./game-ui-narrative";
+import {
+  type Civ7GameUiNotificationDismissalTarget,
+  requestCiv7GameUiNotificationDismissal,
+} from "./game-ui-notification-dismissal";
+import {
+  type Civ7GameUiPopulationTarget,
+  civ7GameUiPopulationPlacementAvailable,
+  requestCiv7GameUiAssignWorkerPlacement,
+  requestCiv7GameUiExpandCityPlacement,
+} from "./game-ui-population";
+import {
+  type Civ7GameUiProductionTarget,
   civ7GameUiProductionChoiceAvailable,
   requestCiv7GameUiProductionChoice,
-  type Civ7GameUiProductionTarget,
 } from "./game-ui-production";
 import {
-  civ7GameUiTownFocusAvailable,
-  requestCiv7GameUiTownFocusChange,
-  requestCiv7GameUiTownFocusReviewCloseout,
-  type Civ7GameUiTownFocusTarget,
-} from "./game-ui-town-focus";
-import {
+  type Civ7GameUiProgressionTarget,
   civ7GameUiProgressionChoiceAvailable,
   civ7GameUiProgressionRequestAvailable,
   requestCiv7GameUiAttributePurchase,
@@ -39,63 +72,31 @@ import {
   requestCiv7GameUiTechnologyTarget,
   requestCiv7GameUiTraditionChange,
   requestCiv7GameUiTraditionReviewCloseout,
-  type Civ7GameUiProgressionTarget,
 } from "./game-ui-progression";
 import {
-  civ7GameUiPopulationPlacementAvailable,
-  requestCiv7GameUiAssignWorkerPlacement,
-  requestCiv7GameUiExpandCityPlacement,
-  type Civ7GameUiPopulationTarget,
-} from "./game-ui-population";
-import {
-  civ7GameUiNarrativeChoiceAvailable,
-  requestCiv7GameUiNarrativeChoice,
-  type Civ7GameUiNarrativeTarget,
-} from "./game-ui-narrative";
-import {
-  civ7GameUiDiplomacyResponseAvailable,
-  requestCiv7GameUiDiplomacyResponse,
-  type Civ7GameUiDiplomacyTarget,
-} from "./game-ui-diplomacy";
-import {
-  civ7GameUiFirstMeetResponseAvailable,
-  requestCiv7GameUiFirstMeetResponse,
-  type Civ7GameUiFirstMeetTarget,
-} from "./game-ui-first-meet";
-import {
-  civ7GameUiGovernmentAvailable,
-  requestCiv7GameUiCelebrationChoice,
-  requestCiv7GameUiGovernmentChoice,
-  type Civ7GameUiGovernmentTarget,
-} from "./game-ui-government";
-import {
-  civ7GameUiUnitTargetActionAvailable,
-  requestCiv7GameUiUnitTargetAction,
-  type Civ7GameUiUnitTargetActionTarget,
-} from "./game-ui-unit-target";
-import {
-  civ7GameUiUnitCommandAvailable,
-  requestCiv7GameUiUnitCommand,
-  type Civ7GameUiUnitCommandTarget,
-} from "./game-ui-unit-command";
-import {
+  type Civ7GameUiStrategyFrontTarget,
   civ7GameUiStrategyFrontAvailable,
   getCiv7GameUiBattlefieldScan,
   getCiv7GameUiDestinationAnalysis,
   getCiv7GameUiTargetCandidates,
-  type Civ7GameUiStrategyFrontTarget,
 } from "./game-ui-strategy-front";
 import {
-  civ7GameUiWorldMapReadsAvailable,
-  getCiv7GameUiMapGrid,
-  getCiv7GameUiPlotSnapshot,
-  type Civ7GameUiMapReadTarget,
-} from "./game-ui-map";
+  type Civ7GameUiTownFocusTarget,
+  civ7GameUiTownFocusAvailable,
+  requestCiv7GameUiTownFocusChange,
+  requestCiv7GameUiTownFocusReviewCloseout,
+} from "./game-ui-town-focus";
+import {
+  type Civ7GameUiUnitCommandTarget,
+  civ7GameUiUnitCommandAvailable,
+  requestCiv7GameUiUnitCommand,
+} from "./game-ui-unit-command";
+import {
+  type Civ7GameUiUnitTargetActionTarget,
+  civ7GameUiUnitTargetActionAvailable,
+  requestCiv7GameUiUnitTargetAction,
+} from "./game-ui-unit-target";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
-import type {
-  Civ7ControlOrpcDirectControlFacade,
-  Civ7ControlOrpcPlayableStatusResult,
-} from "./dependencies/direct-control";
 
 type Civ7GameUiNotifications = NonNullable<
   NonNullable<Civ7GameUiNotificationDismissalTarget["Game"]>["Notifications"]

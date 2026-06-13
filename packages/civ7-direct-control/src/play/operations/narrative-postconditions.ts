@@ -1,17 +1,17 @@
-import { sameComponentId } from "./component-id.js";
-import { probeValue } from "./probe-values.js";
-import { isRecord, stableJson } from "./stable-json.js";
-import type { Civ7OperationValidationResult } from "./types.js";
-import type {
-  Civ7NarrativeChoiceCommandPayload,
-  Civ7NarrativeChoiceInput,
-} from "./narrative-request.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import type {
   Civ7PlayNotificationSummary,
   Civ7PlayNotificationViewResult,
 } from "../notifications/view.js";
+import { sameComponentId } from "./component-id.js";
+import type {
+  Civ7NarrativeChoiceCommandPayload,
+  Civ7NarrativeChoiceInput,
+} from "./narrative-request.js";
+import { probeValue } from "./probe-values.js";
+import { isRecord, stableJson } from "./stable-json.js";
+import type { Civ7OperationValidationResult } from "./types.js";
 
 export type Civ7NarrativeChoicePostconditionClassification =
   | "not-sent"

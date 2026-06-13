@@ -24,6 +24,10 @@ import {
   type Civ7NarrativeContract as Civ7NarrativeContractType,
 } from "./modules/narrative/contract";
 import {
+  Civ7NotificationsContract,
+  type Civ7NotificationsContract as Civ7NotificationsContractType,
+} from "./modules/notifications/contract";
+import {
   Civ7ProgressionContract,
   type Civ7ProgressionContract as Civ7ProgressionContractType,
 } from "./modules/progression/contract";
@@ -31,10 +35,6 @@ import {
   Civ7ReadinessContract,
   type Civ7ReadinessContract as Civ7ReadinessContractType,
 } from "./modules/readiness/contract";
-import {
-  Civ7NotificationsContract,
-  type Civ7NotificationsContract as Civ7NotificationsContractType,
-} from "./modules/notifications/contract";
 import {
   Civ7StrategyContract,
   type Civ7StrategyContract as Civ7StrategyContractType,

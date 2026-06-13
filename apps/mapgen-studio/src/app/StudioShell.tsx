@@ -1,16 +1,127 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
-  stripSchemaMetadataRoot,
   type StudioPresetExportFileV1,
+  stripSchemaMetadataRoot,
 } from "@swooper/mapgen-core/authoring";
-
-import { AppHeader } from "../ui/components/AppHeader";
+import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { getCiv7MapSizePreset } from "../features/browserRunner/mapSizes";
+import { capturePinnedSelection } from "../features/browserRunner/retention";
+import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
+import { fetchCiv7SetupConfig, requestCiv7Autoplay } from "../features/civ7Setup/api";
+import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
+import {
+  formatCiv7StudioSeedError,
+  parseCiv7StudioSeed,
+  randomCiv7StudioSeed,
+} from "../features/civ7Setup/seedPolicy";
+import {
+  type Civ7SetupSnapshotLike,
+  type Civ7StudioSetupConfig,
+  clearStudioSetupSavedConfig,
+  getLocalPlayerSetup,
+  normalizeStudioSetupConfig,
+  optionRowsFromParameter,
+  studioSetupConfigFromLiveSnapshot,
+  studioSetupConfigFromSavedConfigFile,
+  studioSetupDriftsFromSavedConfig,
+} from "../features/civ7Setup/setupConfig";
+import {
+  ensureSelectOption,
+  findSetupParameterLike,
+  mergeSelectOptions,
+  setupCatalogOptions,
+} from "../features/civ7Setup/setupOptions";
+import { migratePipelineConfig } from "../features/configMigrations/pipelineConfig";
+import {
+  type AppliedPresetSnapshot,
+  applyPresetConfig,
+  buildDefaultConfig,
+  formatPresetErrors,
+  isPlainObject,
+} from "../features/configOverrides/configBuilders";
+import {
+  buildLiveRuntimeSnapshotRequest,
+  buildLiveRuntimeSnapshotState,
+  buildLiveRuntimeSuggestionRecords,
+  type LiveRuntimeSnapshotRequest,
+  type LiveRuntimeSnapshotState,
+  type LiveRuntimeStatusState,
+  type LiveRuntimeSuggestionRecord,
+  shouldCommitLiveRuntimeSnapshot,
+} from "../features/liveRuntime/model";
+import { saveRepoBackedConfig, toConfigId } from "../features/mapConfigSave/api";
+import {
+  createMapConfigSaveDeployStatus,
+  type MapConfigSaveDeployStatus,
+  updateMapConfigSaveDeployStatus,
+} from "../features/mapConfigSave/status";
+import type { PresetErrorState } from "../features/presets/dialogState";
+import {
+  buildPresetExportFile,
+  downloadPresetFile,
+  parsePresetExportFile,
+} from "../features/presets/importExport";
+import { resolveImportedPreset } from "../features/presets/importFlow";
+import {
+  PresetConfirmDialog,
+  PresetErrorDialog,
+  PresetSaveDialog,
+} from "../features/presets/PresetDialogs";
+import { mergeBuiltInPresets, toRepoBackedPreset } from "../features/presets/repoBacked";
+import { type PresetKey, parsePresetKey } from "../features/presets/types";
+import { usePresets } from "../features/presets/usePresets";
+import { PipelineStage } from "../features/recipeDag/PipelineStage";
+import { useRecipeDagQuery } from "../features/recipeDag/useRecipeDagQuery";
+import { fetchRunInGameStatus, runCurrentConfigInGame } from "../features/runInGame/api";
+import {
+  buildRunInGameClientSnapshot,
+  buildRunInGameFingerprint,
+  buildRunInGameSourceSnapshot,
+  type RunInGameCurrentRelation,
+  relationForRunInGameOperation,
+} from "../features/runInGame/clientState";
+import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
+import {
+  formatRunInGameDiagnostics,
+  type RunInGameOperationStatus,
+  runInGameRequiresProcessRestart,
+} from "../features/runInGame/status";
+import { type DeckCanvasApi } from "../features/viz/DeckCanvas";
+import {
+  findVariantIdForEra,
+  findVariantKeyForEra,
+  listEraVariants,
+  parseEraVariantKey,
+  resolveFixedEraUiValue,
+} from "../features/viz/era";
+import { applyRiverLakeInspectorSelection } from "../features/viz/inspectorSelection";
+import {
+  buildRiverLakeFloodplainInspectorSummary,
+  type RiverLakeInspectorLayerRef,
+} from "../features/viz/riverLakeInspector";
+import { useVizState } from "../features/viz/useVizState";
+import { liveControlPort } from "../lib/control/liveControlPort";
+import { orpcClient } from "../lib/orpc";
+import {
+  type BuiltInPreset,
+  findRecipeArtifacts,
+  getRecipeArtifacts,
+  STUDIO_RECIPE_OPTIONS,
+} from "../recipes/catalog";
+import { getOverlaySuggestions } from "../recipes/overlaySuggestions";
+import { isAbortLikeError } from "../shared/async";
+import { formatErrorForUi } from "../shared/errorFormat";
+import { clampNumber } from "../shared/number";
+import { shouldIgnoreGlobalShortcutsInEditableTarget } from "../shared/shortcuts/shortcutPolicy";
+import type { VizEvent } from "../shared/vizEvents";
+import { useAuthoringStore } from "../stores/authoringStore";
+import { useRunStore } from "../stores/runStore";
+import { useViewStore } from "../stores/viewStore";
 import { AppFooter } from "../ui/components/AppFooter";
-import { GameConsole } from "../ui/components/GameConsole";
+import { AppHeader } from "../ui/components/AppHeader";
 import { ExplorePanel } from "../ui/components/ExplorePanel";
+import { GameConsole } from "../ui/components/GameConsole";
 import { RecipePanel } from "../ui/components/RecipePanel";
-import { configsEqual, recipeSettingsEqual, worldSettingsEqual } from "../ui/utils/config";
-import { formatStageName } from "../ui/utils/formatting";
+import { StageViewTabs } from "../ui/components/StageViewTabs";
 import { LAYOUT } from "../ui/constants/layout";
 import type {
   DataTypeOption,
@@ -23,134 +134,17 @@ import type {
   StepOption,
   VariantOption,
 } from "../ui/types";
-
-import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
-import { capturePinnedSelection } from "../features/browserRunner/retention";
-import { getCiv7MapSizePreset } from "../features/browserRunner/mapSizes";
-import {
-  buildRunInGameClientSnapshot,
-  buildRunInGameFingerprint,
-  buildRunInGameSourceSnapshot,
-  relationForRunInGameOperation,
-  type RunInGameCurrentRelation,
-} from "../features/runInGame/clientState";
-import {
-  formatRunInGameDiagnostics,
-  runInGameRequiresProcessRestart,
-  type RunInGameOperationStatus,
-} from "../features/runInGame/status";
-import {
-  clearStudioSetupSavedConfig,
-  getLocalPlayerSetup,
-  normalizeStudioSetupConfig,
-  optionRowsFromParameter,
-  studioSetupConfigFromLiveSnapshot,
-  studioSetupConfigFromSavedConfigFile,
-  studioSetupDriftsFromSavedConfig,
-  type Civ7SetupSnapshotLike,
-  type Civ7StudioSetupConfig,
-} from "../features/civ7Setup/setupConfig";
-import {
-  formatCiv7StudioSeedError,
-  parseCiv7StudioSeed,
-  randomCiv7StudioSeed,
-} from "../features/civ7Setup/seedPolicy";
-import {
-  createMapConfigSaveDeployStatus,
-  updateMapConfigSaveDeployStatus,
-  type MapConfigSaveDeployStatus,
-} from "../features/mapConfigSave/status";
-import {
-  buildLiveRuntimeSnapshotRequest,
-  buildLiveRuntimeSnapshotState,
-  buildLiveRuntimeSuggestionRecords,
-  shouldCommitLiveRuntimeSnapshot,
-  type LiveRuntimeSnapshotRequest,
-  type LiveRuntimeSnapshotState,
-  type LiveRuntimeStatusState,
-  type LiveRuntimeSuggestionRecord,
-} from "../features/liveRuntime/model";
-import { type DeckCanvasApi } from "../features/viz/DeckCanvas";
-import { useVizState } from "../features/viz/useVizState";
-import {
-  buildRiverLakeFloodplainInspectorSummary,
-  type RiverLakeInspectorLayerRef,
-} from "../features/viz/riverLakeInspector";
-import { applyRiverLakeInspectorSelection } from "../features/viz/inspectorSelection";
-import {
-  findVariantIdForEra,
-  findVariantKeyForEra,
-  listEraVariants,
-  parseEraVariantKey,
-  resolveFixedEraUiValue,
-} from "../features/viz/era";
-import { formatErrorForUi } from "../shared/errorFormat";
-import { shouldIgnoreGlobalShortcutsInEditableTarget } from "../shared/shortcuts/shortcutPolicy";
-import type { VizEvent } from "../shared/vizEvents";
-
-import {
-  PresetConfirmDialog,
-  PresetErrorDialog,
-  PresetSaveDialog,
-} from "../features/presets/PresetDialogs";
-import { resolveImportedPreset } from "../features/presets/importFlow";
-import {
-  buildPresetExportFile,
-  downloadPresetFile,
-  parsePresetExportFile,
-} from "../features/presets/importExport";
-import { parsePresetKey, type PresetKey } from "../features/presets/types";
-import { usePresets } from "../features/presets/usePresets";
-import { migratePipelineConfig } from "../features/configMigrations/pipelineConfig";
-import {
-  findRecipeArtifacts,
-  getRecipeArtifacts,
-  STUDIO_RECIPE_OPTIONS,
-  type BuiltInPreset,
-} from "../recipes/catalog";
-import { getOverlaySuggestions } from "../recipes/overlaySuggestions";
-
-import { orpcClient } from "../lib/orpc";
-import { useViewStore } from "../stores/viewStore";
-import { useAuthoringStore } from "../stores/authoringStore";
-import { useRunStore } from "../stores/runStore";
-import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
-import { useRunInGameTerminalToast } from "./hooks/useRunInGameTerminalToast";
-import { useStudioEvents } from "./hooks/useStudioEvents";
-import { readAndAdoptStudioOperationsCurrent } from "./operationAdoption";
-import { isAbortLikeError } from "../shared/async";
-import { clampNumber } from "../shared/number";
-import { toConfigId, saveRepoBackedConfig } from "../features/mapConfigSave/api";
-import { runCurrentConfigInGame, fetchRunInGameStatus } from "../features/runInGame/api";
-import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
-import { fetchCiv7SetupConfig, requestCiv7Autoplay } from "../features/civ7Setup/api";
-import {
-  findSetupParameterLike,
-  ensureSelectOption,
-  mergeSelectOptions,
-  setupCatalogOptions,
-} from "../features/civ7Setup/setupOptions";
-import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
-import {
-  isPlainObject,
-  buildDefaultConfig,
-  applyPresetConfig,
-  formatPresetErrors,
-  type AppliedPresetSnapshot,
-} from "../features/configOverrides/configBuilders";
-import { mergeBuiltInPresets, toRepoBackedPreset } from "../features/presets/repoBacked";
-import type { PresetErrorState } from "../features/presets/dialogState";
-import { liveControlPort } from "../lib/control/liveControlPort";
-
-import { PipelineStage } from "../features/recipeDag/PipelineStage";
-import { useRecipeDagQuery } from "../features/recipeDag/useRecipeDagQuery";
-import { StageViewTabs } from "../ui/components/StageViewTabs";
-
+import { configsEqual, recipeSettingsEqual, worldSettingsEqual } from "../ui/utils/config";
+import { formatStageName } from "../ui/utils/formatting";
 import { CanvasStage } from "./CanvasStage";
 import { ErrorBanner } from "./ErrorBanner";
-import { LeftDock } from "./LeftDock";
-import { RightDock } from "./RightDock";
+import { useRunInGameTerminalToast } from "./hooks/useRunInGameTerminalToast";
+import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
+import { useStudioEvents } from "./hooks/useStudioEvents";
 import { useToast } from "./hooks/useToast";
+import { LeftDock } from "./LeftDock";
+import { readAndAdoptStudioOperationsCurrent } from "./operationAdoption";
+import { RightDock } from "./RightDock";
 
 export type StudioShellProps = {
   themePreference: "system" | "light" | "dark";

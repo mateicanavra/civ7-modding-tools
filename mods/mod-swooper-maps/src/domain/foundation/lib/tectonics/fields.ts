@@ -1,12 +1,11 @@
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "../../constants.js";
+import { EVENT_TYPE } from "./constants.js";
 import type {
   FoundationTectonicEraFieldsInternal,
   TectonicEventRecord,
 } from "./internal-contract.js";
-
-import { EVENT_TYPE } from "./constants.js";
 import {
   chooseDriftNeighbor,
   clampByte,

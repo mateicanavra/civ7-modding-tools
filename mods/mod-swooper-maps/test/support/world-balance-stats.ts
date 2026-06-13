@@ -10,7 +10,8 @@ import {
   hexDistanceOddQPeriodicX,
 } from "@swooper/mapgen-core/lib/grid";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
+import { getEngineFeatureLegality } from "../../src/domain/ecology/feature-engine-legality.js";
+import { biomeSymbolFromIndex } from "../../src/domain/ecology/types.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
@@ -20,8 +21,6 @@ import { mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map-hyd
 import { mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
-import { getEngineFeatureLegality } from "../../src/domain/ecology/feature-engine-legality.js";
-import { biomeSymbolFromIndex } from "../../src/domain/ecology/types.js";
 
 export type WorldBalanceStats = Readonly<{
   label: string;

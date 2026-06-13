@@ -1,17 +1,16 @@
-import type { ExtendedMapContext, StoryOverlaySnapshot } from "@swooper/mapgen-core";
-import { storyKey } from "@swooper/mapgen-core";
 import type { NarrativeMotifsMargins } from "@mapgen/domain/narrative/models.js";
 import {
-  STORY_OVERLAY_KEYS,
   finalizeStoryOverlay,
   publishStoryOverlay,
+  STORY_OVERLAY_KEYS,
 } from "@mapgen/domain/narrative/overlays/index.js";
+import type { ContinentalMarginsConfig } from "@mapgen/domain/narrative/tagging/config.js";
+import type { ContinentalMarginsOptions } from "@mapgen/domain/narrative/tagging/types.js";
 import { isCoastalLand } from "@mapgen/domain/narrative/utils/adjacency.js";
 import { getDims } from "@mapgen/domain/narrative/utils/dims.js";
 import { rand } from "@mapgen/domain/narrative/utils/rng.js";
-
-import type { ContinentalMarginsOptions } from "@mapgen/domain/narrative/tagging/types.js";
-import type { ContinentalMarginsConfig } from "@mapgen/domain/narrative/tagging/config.js";
+import type { ExtendedMapContext, StoryOverlaySnapshot } from "@swooper/mapgen-core";
+import { storyKey } from "@swooper/mapgen-core";
 
 export interface ContinentalMarginsResult {
   snapshot: StoryOverlaySnapshot;

@@ -1,19 +1,18 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { executeCiv7AppUiCommand } from "../session/execute.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../session/types.js";
 import { boundedInteger, validateIdentifier } from "../validation.js";
+import { CIV7_EXIT_TO_MAIN_MENU_COMMAND } from "./constants.js";
 import {
-  normalizeSinglePlayerSetupInput,
-  prepareCiv7SinglePlayerSetup,
   type Civ7PreparedSetupResult,
   type Civ7SinglePlayerSetupInput,
+  normalizeSinglePlayerSetupInput,
+  prepareCiv7SinglePlayerSetup,
 } from "./prepare.js";
 import type { Civ7SetupPhase, Civ7SetupSnapshotResult } from "./reads.js";
 import { getCiv7SetupSnapshot, waitForCiv7SetupPhase } from "./reads.js";
 import type { Civ7PreparedStartInput, Civ7SinglePlayerStartResult } from "./start.js";
 import { startPreparedCiv7SinglePlayerGame } from "./start.js";
-import { CIV7_EXIT_TO_MAIN_MENU_COMMAND } from "./constants.js";
-
-import type { Civ7CommandResult, Civ7DirectControlOptions } from "../session/types.js";
 
 export type Civ7SinglePlayerRunInput = Civ7SinglePlayerSetupInput &
   Readonly<{

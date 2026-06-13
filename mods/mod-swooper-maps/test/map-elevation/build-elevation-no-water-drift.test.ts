@@ -1,9 +1,13 @@
 import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import {
+  createExtendedMapContext,
+  FLAT_TERRAIN,
+  HILL_TERRAIN,
+  OCEAN_TERRAIN,
+} from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { FLAT_TERRAIN, HILL_TERRAIN, OCEAN_TERRAIN } from "@swooper/mapgen-core";
 
 import buildElevation from "../../src/recipes/standard/stages/map-elevation/steps/buildElevation.js";
 import { buildTestDeps } from "../support/step-deps.js";

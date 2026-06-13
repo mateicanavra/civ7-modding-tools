@@ -2,7 +2,6 @@ import { describe, expect, it } from "bun:test";
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import * as ts from "typescript";
 import {
   FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
   FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG,
@@ -11,6 +10,7 @@ import {
   FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
   FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
 } from "@swooper/mapgen-core";
+import * as ts from "typescript";
 import foundation from "../../src/domain/foundation/index.js";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";

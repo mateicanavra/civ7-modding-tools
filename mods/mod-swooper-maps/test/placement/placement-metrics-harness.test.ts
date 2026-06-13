@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import {
-  PLACEMENT_METRICS_SCHEMA_VERSION,
   aggregatePlacementMetrics,
-  runPlacementMetrics,
+  PLACEMENT_METRICS_SCHEMA_VERSION,
   type PlacementMetricStatus,
+  runPlacementMetrics,
 } from "../../src/dev/diagnostics/placement-metrics.js";
 
 /**

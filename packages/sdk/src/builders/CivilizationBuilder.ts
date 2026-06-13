@@ -1,6 +1,18 @@
 import * as lodash from "lodash-es";
-
-import { TClassProperties, TObjectValues, TPartialRequired } from "../types";
+import {
+  ACTION_GROUP_ACTION,
+  AGE,
+  BUILDING_CULTURES,
+  CIVILIZATION_DOMAIN,
+  EFFECT,
+  KIND,
+  REQUIREMENT,
+  TAG_TRAIT,
+  TRAIT,
+  UNIT_CULTURE,
+} from "../constants";
+import { XmlFile } from "../files";
+import { CivilizationLocalization, TCivilizationLocalization } from "../localizations";
 import {
   CityNameNode,
   CivilizationItemNode,
@@ -40,30 +52,17 @@ import {
   VisArtCivilizationBuildingCultureNode,
   VisArtCivilizationUnitCultureNode,
 } from "../nodes";
-import {
-  ACTION_GROUP_ACTION,
-  AGE,
-  BUILDING_CULTURES,
-  CIVILIZATION_DOMAIN,
-  EFFECT,
-  KIND,
-  REQUIREMENT,
-  TAG_TRAIT,
-  TRAIT,
-  UNIT_CULTURE,
-} from "../constants";
+import { TClassProperties, TObjectValues, TPartialRequired } from "../types";
 import { locale, trim } from "../utils";
-import { XmlFile } from "../files";
-import { CivilizationLocalization, TCivilizationLocalization } from "../localizations";
 
 import { BaseBuilder } from "./BaseBuilder";
-import { UnitBuilder } from "./UnitBuilder";
-import { ConstructibleBuilder } from "./ConstructibleBuilder";
-import { ProgressionTreeBuilder } from "./ProgressionTreeBuilder";
-import { ModifierBuilder } from "./ModifierBuilder";
-import { UniqueQuarterBuilder } from "./UniqueQuarterBuilder";
 import { CivilizationUnlockBuilder } from "./CivilizationUnlockBuilder";
+import { ConstructibleBuilder } from "./ConstructibleBuilder";
 import { LeaderUnlockBuilder } from "./LeaderUnlockBuilder";
+import { ModifierBuilder } from "./ModifierBuilder";
+import { ProgressionTreeBuilder } from "./ProgressionTreeBuilder";
+import { UniqueQuarterBuilder } from "./UniqueQuarterBuilder";
+import { UnitBuilder } from "./UnitBuilder";
 
 type TCivilizationBuilder = TClassProperties<CivilizationBuilder>;
 

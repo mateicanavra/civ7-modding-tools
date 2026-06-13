@@ -1,22 +1,22 @@
 import { createStage } from "@swooper/mapgen-core/authoring";
 import {
+  compilePlacementPublicConfig,
+  PlacementKnobsSchema,
+  PlacementPublicSchema,
+} from "../placement-public-config.js";
+import {
   adjustResources,
   assignAdvancedStarts,
   assignStarts,
   derivePlacementInputs,
   placeDiscoveries,
+  placement,
   placeNaturalWonders,
   placeResources,
-  placement,
   planResources,
   plotLandmassRegions,
   preparePlacementSurface,
 } from "./steps/index.js";
-import {
-  PlacementKnobsSchema,
-  PlacementPublicSchema,
-  compilePlacementPublicConfig,
-} from "../placement-public-config.js";
 
 /**
  * Placement exposes each gameplay product as a step boundary. Surface

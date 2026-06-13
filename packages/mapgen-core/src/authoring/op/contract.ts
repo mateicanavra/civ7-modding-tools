@@ -1,9 +1,8 @@
 import type { Static, TSchema, TUnsafe } from "typebox";
 
 import { applySchemaConventions } from "../schema.js";
-
-import type { DomainOpKind, OpTypeBag, StrategyConfigSchemas } from "./types.js";
 import { buildOpEnvelopeSchema } from "./envelope.js";
+import type { DomainOpKind, OpTypeBag, StrategyConfigSchemas } from "./types.js";
 
 export type { StrategyConfigSchemas } from "./types.js";
 

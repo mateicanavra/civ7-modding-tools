@@ -1,16 +1,16 @@
-import React from "react";
 import { Gamepad2, Settings } from "lucide-react";
-import { AppBrand } from "./AppBrand";
-import { ViewControls } from "./ViewControls";
-import { OptionSelect } from "./OptionSelect";
+import React from "react";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
 import {
+  type Civ7StudioSetupConfig,
   getLocalPlayerSetup,
   updateStudioSetupGameOption,
   updateStudioSetupPlayerOption,
-  type Civ7StudioSetupConfig,
 } from "../../features/civ7Setup/setupConfig";
 import type { ThemePreference } from "../types";
+import { AppBrand } from "./AppBrand";
+import { OptionSelect } from "./OptionSelect";
+import { ViewControls } from "./ViewControls";
 
 /**
  * Sentinel selector value for the drifted state: the authored game setup no

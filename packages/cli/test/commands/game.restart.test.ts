@@ -1,8 +1,8 @@
-import { describe, expect, test, vi } from "vitest";
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
-import GameRestart from "../../src/commands/game/restart";
 import { CIV7_RESTART_COMMAND } from "@civ7/direct-control";
+import { describe, expect, test, vi } from "vitest";
+import GameRestart from "../../src/commands/game/restart";
 
 describe("game restart command", () => {
   test("requests direct socket restart by default", async () => {

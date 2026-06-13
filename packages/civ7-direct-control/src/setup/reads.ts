@@ -1,8 +1,15 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
+import type { Civ7AppUiSnapshot } from "../runtime/app-ui-snapshot.js";
+import { jsLiteral } from "../runtime/command-serialization.js";
+import type { Civ7RuntimeProbe } from "../runtime/probe.js";
+import { probeHelperSource } from "../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../session/execute.js";
-import { jsLiteral } from "../runtime/command-serialization.js";
-import { probeHelperSource } from "../runtime/probe.js";
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7TunerState,
+} from "../session/types.js";
 import { boundedInteger } from "../validation.js";
 import {
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
@@ -10,13 +17,6 @@ import {
   DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
   DEFAULT_CIV7_SETUP_PARAMETER_IDS,
 } from "./constants.js";
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-  Civ7TunerState,
-} from "../session/types.js";
-import type { Civ7RuntimeProbe } from "../runtime/probe.js";
-import type { Civ7AppUiSnapshot } from "../runtime/app-ui-snapshot.js";
 
 export type Civ7SetupPhase = "shell" | "running-game" | "loading" | "begin-ready" | "unavailable";
 

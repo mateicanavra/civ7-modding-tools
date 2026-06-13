@@ -1,9 +1,8 @@
-import {
-  notificationDismissalPostconditionConfirmed,
-  type Civ7NotificationDismissalPostconditionClassification,
-} from "../play/notifications/postconditions";
-
 import type { Civ7NotificationDismissalResult } from "../play/notifications/dismissal-request";
+import {
+  type Civ7NotificationDismissalPostconditionClassification,
+  notificationDismissalPostconditionConfirmed,
+} from "../play/notifications/postconditions";
 import type {
   Civ7OperationProofBoundary,
   Civ7OperationTelemetryPostcondition,

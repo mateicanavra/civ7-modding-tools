@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
-import {
-  Civ7PlotSnapshotInputSchema,
-  Civ7PlotSnapshotResultSchema,
-  type Civ7PlotSnapshotInput,
-  type Civ7PlotSnapshotResult,
-} from "./types.js";
 import { getCiv7PlotSnapshot, type PlotSnapshotReadDependencies } from "./reads.js";
+import {
+  type Civ7PlotSnapshotInput,
+  Civ7PlotSnapshotInputSchema,
+  type Civ7PlotSnapshotResult,
+  Civ7PlotSnapshotResultSchema,
+} from "./types.js";
 
 export const Civ7PlotSnapshotProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "map.plot.snapshot",

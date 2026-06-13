@@ -2,8 +2,8 @@ import { Civ7DirectControlError } from "../../direct-control-error";
 import type { Civ7DirectControlOptions } from "../../session/types";
 import { validatePlayerId } from "../../validation";
 import {
-  requestCiv7PlayerOperation,
   type Civ7OperationRequestResult,
+  requestCiv7PlayerOperation,
 } from "../operations/validate-request";
 
 export const CIV7_GOVERNMENT_ACTIVATE_ACTION = -1_326_475_004;

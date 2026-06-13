@@ -1,10 +1,9 @@
 import { Civ7DirectControlError } from "@civ7/direct-control";
 import { describe, expect, it } from "vitest";
-
-import { createRunInGameOperationStore } from "../../src/server/runInGame/operationState";
-import { StudioEngineError } from "../../src/server/studio/engineErrors";
 import { formatRunInGameDiagnostics } from "../../src/features/runInGame/status";
 import type { RunInGameOperationState } from "../../src/server/runInGame/operationState";
+import { createRunInGameOperationStore } from "../../src/server/runInGame/operationState";
+import { StudioEngineError } from "../../src/server/studio/engineErrors";
 
 function createStore(options: { onChange?: (state: RunInGameOperationState) => void } = {}) {
   let nowMs = Date.parse("2026-06-01T00:00:00.000Z");

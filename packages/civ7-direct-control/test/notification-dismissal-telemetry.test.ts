@@ -1,11 +1,4 @@
 import { describe, expect, test } from "vitest";
-
-import {
-  createCiv7NotificationDismissalTelemetryRecord,
-  type Civ7NotificationDismissalTelemetryAdapterInput,
-} from "../src/proof/notification-dismissal-telemetry";
-import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
-
 import type { Civ7ComponentId } from "../src/civ7-component-id";
 import type {
   Civ7NotificationDismissalResult,
@@ -15,6 +8,11 @@ import type {
   Civ7NotificationDismissalPostcondition,
   Civ7NotificationDismissalPostconditionClassification,
 } from "../src/play/notifications/postconditions";
+import {
+  type Civ7NotificationDismissalTelemetryAdapterInput,
+  createCiv7NotificationDismissalTelemetryRecord,
+} from "../src/proof/notification-dismissal-telemetry";
+import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
 
 describe("notification-dismissal telemetry adapter", () => {
   test("adapts confirmed notification disappearance into separated telemetry", () => {

@@ -22,4 +22,4 @@ const {
   imports: constructibleImports,
 } = extractComponents(constructiblePackages, "constructible");
 
-export { allConstructibles, constructibleAbilities, constructibleModifiers, constructibleImports };
+export { allConstructibles, constructibleAbilities, constructibleImports, constructibleModifiers };

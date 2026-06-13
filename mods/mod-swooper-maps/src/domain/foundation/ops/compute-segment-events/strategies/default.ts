@@ -1,7 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
-import { buildBoundaryEventsFromSegments, requireCrust, requireMesh } from "../rules/index.js";
 import ComputeSegmentEventsContract from "../contract.js";
+import { buildBoundaryEventsFromSegments, requireCrust, requireMesh } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeSegmentEventsContract, "default", {
   run: (input) => {

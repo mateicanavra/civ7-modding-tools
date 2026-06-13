@@ -9,10 +9,10 @@ import {
 import {
   buildFinalSurfaceParityProof,
   createFinalSurfaceParityMapInfo,
-  hashParityValue,
-  validateExactAuthorshipProofPacket,
   type ExactAuthorshipProofLike,
   type FinalSurfaceSnapshot,
+  hashParityValue,
+  validateExactAuthorshipProofPacket,
 } from "../../src/dev/diagnostics/live-parity";
 
 const pipelineConfig = { landmasses: { kind: "test" } } as const;

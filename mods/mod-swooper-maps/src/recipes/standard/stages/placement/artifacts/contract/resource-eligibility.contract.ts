@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 /** Per-type eligibility fields (`artifact:placement.resourceEligibility`). One artifact per file by repo convention. */
 const ResourceEligibilityArtifactSchema = Type.Object(

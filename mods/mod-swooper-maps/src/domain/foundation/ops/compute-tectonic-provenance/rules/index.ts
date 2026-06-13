@@ -1,9 +1,8 @@
 import { BOUNDARY_TYPE } from "../../../constants.js";
-import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
-import type { FoundationMesh } from "../../compute-mesh/contract.js";
-import type { FoundationTectonicProvenance } from "../../../lib/tectonics/schemas.js";
-import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
-
+import {
+  requireMesh as requireMeshInput,
+  requirePlateGraph as requirePlateGraphInput,
+} from "../../../lib/require.js";
 import {
   ARC_RESET_THRESHOLD_FRAC_OF_MAX,
   ARC_RESET_THRESHOLD_MIN,
@@ -13,11 +12,11 @@ import {
   RIFT_RESET_THRESHOLD_FRAC_OF_MAX,
   RIFT_RESET_THRESHOLD_MIN,
 } from "../../../lib/tectonics/constants.js";
-import {
-  requireMesh as requireMeshInput,
-  requirePlateGraph as requirePlateGraphInput,
-} from "../../../lib/require.js";
+import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
+import type { FoundationTectonicProvenance } from "../../../lib/tectonics/schemas.js";
 import { clampByte, deriveResetThreshold } from "../../../lib/tectonics/shared.js";
+import type { FoundationMesh } from "../../compute-mesh/contract.js";
+import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
 
 export function computeTectonicProvenance(params: {
   mesh: FoundationMesh;

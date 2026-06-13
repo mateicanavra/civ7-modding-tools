@@ -2,8 +2,8 @@ import { describe, expect, test } from "bun:test";
 
 import {
   buildSwooperMapScriptDeploymentStage,
-  resolveSwooperMapScriptPaths,
   type MapScriptFileIdentity,
+  resolveSwooperMapScriptPaths,
 } from "./verify-studio-run-in-game-live";
 
 const identity = (path: string, sha256: string): MapScriptFileIdentity => ({

@@ -4,9 +4,9 @@ import {
   DEBUG_SERVICE_PROJECTION_FIELD_CLASSES,
   DEBUG_SERVICE_PROJECTION_OWNER,
   DEBUG_SERVICE_PROJECTION_VERSION,
+  type DebugServiceProjectionExpectation,
   debugServiceProjectionFieldHits,
   debugServiceProjectionMissingPaths,
-  type DebugServiceProjectionExpectation,
 } from "../../../src/game-debug/debug-service-projection";
 
 describe("debug service projection owner", () => {

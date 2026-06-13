@@ -13,9 +13,9 @@ import {
   REQUIREMENT,
   TAG_TRAIT,
   TRAIT,
+  TraditionBuilder,
   UNIT_CLASS,
 } from "@mateicanavra/civ7-sdk";
-import { TraditionBuilder } from "@mateicanavra/civ7-sdk";
 
 let mod = new Mod({
   id: "mod-test",

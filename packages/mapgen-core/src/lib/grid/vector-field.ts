@@ -1,5 +1,5 @@
-import { clampInt } from "@mapgen/lib/math/clamp.js";
 import { projectOddqToHexSpace } from "@mapgen/lib/grid/hex-space.js";
+import { clampInt } from "@mapgen/lib/math/clamp.js";
 
 export type Vec2 = Readonly<{ x: number; y: number }>;
 

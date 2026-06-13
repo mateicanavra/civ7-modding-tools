@@ -1,8 +1,8 @@
-import { Mod, BaseBuilder, XmlFile, ActionGroupNode, ACTION_GROUP_ACTION } from "../src";
-import { expect, test } from "vitest";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import { join } from "node:path";
+import { expect, test } from "vitest";
+import { ACTION_GROUP_ACTION, ActionGroupNode, BaseBuilder, Mod, XmlFile } from "../src";
 
 class FileBuilder extends BaseBuilder {
   build() {

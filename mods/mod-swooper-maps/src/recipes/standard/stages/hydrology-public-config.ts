@@ -1,5 +1,5 @@
-import { Type, type TSchema } from "@swooper/mapgen-core/authoring";
 import hydrology from "@mapgen/domain/hydrology";
+import { type TSchema, Type } from "@swooper/mapgen-core/authoring";
 
 type MutableSchemaNode = TSchema & {
   description?: string;

@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../session/types.js";
 import {
-  Civ7UnitSummaryInputSchema,
-  Civ7UnitSummaryResultSchema,
-  getCiv7UnitSummary,
   type Civ7UnitSummaryDependencies,
   type Civ7UnitSummaryInput,
+  Civ7UnitSummaryInputSchema,
   type Civ7UnitSummaryResult,
+  Civ7UnitSummaryResultSchema,
+  getCiv7UnitSummary,
 } from "./summaries.js";
 
 export const Civ7UnitSummaryProcedureDescriptor = createCiv7ProcedureCoreDescriptor({

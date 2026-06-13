@@ -1,13 +1,12 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
+import type { Civ7ControlOrpcProgressDashboardResult } from "../src/dependencies/direct-control";
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
 } from "../src/index";
-import type { Civ7ControlOrpcProgressDashboardResult } from "../src/dependencies/direct-control";
 
 describe("progression dashboard control-oRPC procedure", () => {
   test("projects runtime progress evidence into a semantic dashboard result", async () => {

@@ -1,4 +1,4 @@
-import { defaultExploreSettleMs, type Civ7RuntimeProbe } from "@civ7/direct-control";
+import { type Civ7RuntimeProbe, defaultExploreSettleMs } from "@civ7/direct-control";
 import { Effect, Ref } from "effect";
 
 import type { Civ7ControlOrpcVisibilitySummaryResult } from "../../../dependencies/direct-control";

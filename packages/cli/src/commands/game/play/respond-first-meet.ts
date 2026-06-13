@@ -1,12 +1,12 @@
-import { Command, Flags } from "@oclif/core";
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import { type Civ7DirectControlOptions, executeCiv7AppUiCommand } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
 } from "../../../utils/game-play-shared";
-import { executeCiv7AppUiCommand, type Civ7DirectControlOptions } from "@civ7/direct-control";
 
 const RESPOND_DIPLOMATIC_FIRST_MEET = "RESPOND_DIPLOMATIC_FIRST_MEET";
 const FIRST_MEET_RESPONSE_KEYS = {

@@ -4,12 +4,11 @@ import { readFileSync } from "node:fs";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
-import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { canonicalRecipeConfig } from "../../src/maps/configs/canonical.js";
+import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
+import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 
 const PROBE_WIDTH = 106;

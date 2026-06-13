@@ -4,8 +4,8 @@ import type { FinalSurfaceSnapshot } from "../../src/dev/diagnostics/live-parity
 import {
   buildFeatureDeltaPlacementContexts,
   buildNaturalWonderFootprintCatalogContexts,
-  buildNaturalWonderLiveProofBoundaryContext,
   buildNaturalWonderFootprintReadbackContexts,
+  buildNaturalWonderLiveProofBoundaryContext,
   buildResourceDeltaFeasibilityContexts,
   buildResourceDeltaPlacementContexts,
   buildSurfaceDeltaContext,

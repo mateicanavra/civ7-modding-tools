@@ -1,6 +1,7 @@
 import * as lodash from "lodash-es";
-
-import { TClassProperties, TPartialRequired } from "../types";
+import { ACTION_GROUP_ACTION, KIND, REQUIREMENT_SET } from "../constants";
+import { XmlFile } from "../files";
+import { TLeaderUnlockLocalization } from "../localizations";
 import {
   ActionGroupNode,
   DatabaseNode,
@@ -20,12 +21,9 @@ import {
   UnlockRequirementNode,
   UnlockRewardNode,
 } from "../nodes";
-import { TLeaderUnlockLocalization } from "../localizations";
-import { ACTION_GROUP_ACTION, KIND, REQUIREMENT_SET } from "../constants";
-
-import { BaseBuilder } from "./BaseBuilder";
-import { XmlFile } from "../files";
+import { TClassProperties, TPartialRequired } from "../types";
 import { locale, trim } from "../utils";
+import { BaseBuilder } from "./BaseBuilder";
 
 type TUnlockRewardBuilder = TClassProperties<UnlockBuilder>;
 

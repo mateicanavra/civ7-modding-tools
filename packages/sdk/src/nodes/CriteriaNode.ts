@@ -1,9 +1,8 @@
 import { randomUUID } from "node:crypto";
-
-import { BaseNode } from "./BaseNode";
+import { AGE } from "../constants";
 
 import { TObjectValues } from "../types";
-import { AGE } from "../constants";
+import { BaseNode } from "./BaseNode";
 
 export type TCriteriaNode = Pick<CriteriaNode, "id" | "any" | "ages">;
 

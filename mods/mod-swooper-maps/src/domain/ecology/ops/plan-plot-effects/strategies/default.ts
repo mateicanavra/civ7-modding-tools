@@ -1,7 +1,6 @@
+import type { PlotEffectKey } from "@mapgen/domain/ecology/types.js";
 import { createLabelRng } from "@swooper/mapgen-core";
 import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
-
-import type { PlotEffectKey } from "@mapgen/domain/ecology/types.js";
 
 import PlanPlotEffectsContract from "../contract.js";
 

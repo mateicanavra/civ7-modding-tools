@@ -2,8 +2,8 @@ import { assertCiv7ComponentId, type Civ7ComponentId } from "../../civ7-componen
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import { validatePlayerId } from "../../validation.js";
 import {
-  requestCiv7PlayerOperation,
   type Civ7OperationRequestResult,
+  requestCiv7PlayerOperation,
 } from "../operations/validate-request.js";
 
 export type Civ7AdvisorWarningViewedInput = Readonly<{

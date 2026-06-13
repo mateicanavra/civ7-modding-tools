@@ -1,5 +1,5 @@
-import { TObjectValues } from "../types";
 import { TERRAIN } from "../constants";
+import { TObjectValues } from "../types";
 
 import { BaseNode } from "./BaseNode";
 

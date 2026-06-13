@@ -1,11 +1,11 @@
+import * as ecology from "@mapgen/domain/ecology";
 import { defineVizMeta, logBiomeSummary } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import * as ecology from "@mapgen/domain/ecology";
-import PlotBiomesStepContract from "./plotBiomes.contract.js";
+import { ecologyArtifacts } from "../../ecology/artifacts.js";
 import { clampToByte } from "./plot-biomes/helpers/apply.js";
 import { resolveEngineBiomeIds } from "./plot-biomes/helpers/engine-bindings.js";
 import { buildEngineBiomeIdVizCategories } from "./plot-biomes/viz.js";
-import { ecologyArtifacts } from "../../ecology/artifacts.js";
+import PlotBiomesStepContract from "./plotBiomes.contract.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

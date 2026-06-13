@@ -1,5 +1,5 @@
-import { Args, Command, Flags } from "@oclif/core";
 import { getCiv7GameInfoRows } from "@civ7/direct-control";
+import { Args, Command, Flags } from "@oclif/core";
 
 export default class GameGameInfo extends Command {
   static id = "game gameinfo";

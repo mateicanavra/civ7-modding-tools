@@ -1,3 +1,8 @@
+import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/config.js";
+import {
+  resolvePlateActivityBoundaryDelta,
+  resolvePlateActivityKinematicsMultiplier,
+} from "@mapgen/domain/foundation/config.js";
 import {
   computeSampleStep,
   defineVizMeta,
@@ -5,6 +10,7 @@ import {
   renderAsciiGrid,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { clampFinite, clampInt } from "@swooper/mapgen-core/lib/math";
 import { mapArtifacts } from "../../../map-artifacts.js";
 import ProjectionStepContract from "./projection.contract.js";
 import {
@@ -15,12 +21,6 @@ import {
   validateTileToCellIndexArtifact,
   wrapFoundationValidate,
 } from "./validation.js";
-import {
-  resolvePlateActivityBoundaryDelta,
-  resolvePlateActivityKinematicsMultiplier,
-} from "@mapgen/domain/foundation/config.js";
-import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/config.js";
-import { clampFinite, clampInt } from "@swooper/mapgen-core/lib/math";
 
 const GROUP_PLATES = "Foundation / Plates";
 const GROUP_CRUST_TILES = "Foundation / Crust Tiles";

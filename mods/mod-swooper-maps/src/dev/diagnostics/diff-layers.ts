@@ -1,11 +1,11 @@
 import {
-  parseArgs,
-  loadManifest,
-  listLayers,
-  readU8Grid,
-  readI16Grid,
-  readF32Grid,
   hammingU8,
+  listLayers,
+  loadManifest,
+  parseArgs,
+  readF32Grid,
+  readI16Grid,
+  readU8Grid,
 } from "./shared.js";
 
 type DiffRow = Readonly<{

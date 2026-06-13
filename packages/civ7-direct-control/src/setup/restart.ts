@@ -1,27 +1,27 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
-import { executeCiv7AppUiCommand, executeCiv7Command } from "../session/execute.js";
-import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
-import { withCiv7DirectControlSession } from "../session/session.js";
 import {
   appUiSnapshotFromCommandResult,
   buildAppUiSnapshotCommand,
   type Civ7AppUiSnapshot,
   type Civ7AppUiSnapshotResult,
 } from "../runtime/app-ui-snapshot.js";
-import { waitForCiv7TunerReadyWithSession } from "../runtime/tuner-health.js";
 import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import type { Civ7TunerHealthResult } from "../runtime/tuner-health.js";
+import { waitForCiv7TunerReadyWithSession } from "../runtime/tuner-health.js";
+import { executeCiv7AppUiCommand, executeCiv7Command } from "../session/execute.js";
+import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
 import type { Civ7DirectControlSession } from "../session/session.js";
-import {
-  CIV7_BEGIN_GAME_COMMAND,
-  CIV7_RESTART_COMMAND,
-  CIV7_UI_LOADING_STATES,
-} from "./constants.js";
+import { withCiv7DirectControlSession } from "../session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../session/types.js";
+import {
+  CIV7_BEGIN_GAME_COMMAND,
+  CIV7_RESTART_COMMAND,
+  CIV7_UI_LOADING_STATES,
+} from "./constants.js";
 
 export type Civ7RestartAndBeginResult = Readonly<{
   restart: Civ7CommandResult;

@@ -7,9 +7,9 @@ import {
 } from "@swooper/mapgen-core/lib/grid";
 
 import {
+  isAnyRiverClass,
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_NONE,
-  isAnyRiverClass,
 } from "../../../../hydrology/index.js";
 import PlanStartsContract from "../contract.js";
 import {
@@ -21,8 +21,8 @@ import { balanceFairness } from "../policy/fairness.js";
 import { buildSeatIdentities } from "../policy/seat-identity.js";
 import {
   compareSelectableTiles,
-  runSelectionLadder,
   type RelaxationEntry,
+  runSelectionLadder,
   type SeatSelection,
   type SelectableTile,
   type StartComponents,

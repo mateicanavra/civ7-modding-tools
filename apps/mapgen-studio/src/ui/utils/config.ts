@@ -5,15 +5,15 @@
 // ============================================================================
 
 import type {
-  PipelineConfig,
-  ConfigValue,
   ConfigPatch,
-  WorldSettings,
+  ConfigValue,
+  DataTypeOption,
+  PipelineConfig,
   RecipeSettings,
   StageOption,
-  StepOption,
-  DataTypeOption,
   StepConfig,
+  StepOption,
+  WorldSettings,
 } from "../types";
 import { formatStageName } from "./formatting";
 

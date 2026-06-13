@@ -1,10 +1,10 @@
-import type { NaturalWonderCatalogEntry } from "../types.js";
 import { CIV7_BROWSER_TABLES_V0 } from "../civ7-tables.gen.js";
 import {
   getNaturalWonderFootprintOffsets,
   hasUnsupportedNaturalWonderPolicyTags,
   resolveNaturalWonderPlacementDirection,
 } from "../natural-wonder-footprints.js";
+import type { NaturalWonderCatalogEntry } from "../types.js";
 
 /**
  * Generated natural-wonder catalog, const-backed to avoid runtime reads.

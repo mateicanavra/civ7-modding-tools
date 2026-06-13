@@ -1,17 +1,16 @@
 import { defineVizMeta, deriveStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
-import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import AdjustResourcesStepContract from "./contract.js";
+import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { placementArtifacts } from "../../artifacts.js";
-import { validateResourcePlanAdjustedArtifact } from "./validate.js";
 import { warnLog } from "../../log.js";
 import {
+  buildPlacementPointBuffers,
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
-  buildPlacementPointBuffers,
   transparentNoneCategory,
 } from "../../viz.js";
+import AdjustResourcesStepContract from "./contract.js";
+import { validateResourcePlanAdjustedArtifact } from "./validate.js";
 
 const SUPPORT_ADJUSTMENT_CATEGORIES = [
   {

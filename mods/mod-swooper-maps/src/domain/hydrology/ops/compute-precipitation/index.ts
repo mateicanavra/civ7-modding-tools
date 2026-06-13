@@ -10,7 +10,7 @@ const computePrecipitation = createOp(ComputePrecipitationContract, {
   },
 });
 
-export type * from "./types.js";
 export type * from "./contract.js";
+export type * from "./types.js";
 
 export default computePrecipitation;

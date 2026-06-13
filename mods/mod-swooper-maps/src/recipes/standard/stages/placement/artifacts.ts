@@ -17,8 +17,8 @@ import { placementSurfacePreparationArtifact } from "./artifacts/contract/placem
 import { resourceDemandPlanArtifact } from "./artifacts/contract/resource-demand-plan.contract.js";
 import { resourceEligibilityArtifact } from "./artifacts/contract/resource-eligibility.contract.js";
 import { resourcePlacementOutcomesArtifact } from "./artifacts/contract/resource-placement-outcomes.contract.js";
-import { resourcePlanAdjustedArtifact } from "./artifacts/contract/resource-plan-adjusted.contract.js";
 import { resourcePlanArtifact } from "./artifacts/contract/resource-plan.contract.js";
+import { resourcePlanAdjustedArtifact } from "./artifacts/contract/resource-plan-adjusted.contract.js";
 import { startAssignmentArtifact } from "./artifacts/contract/start-assignment.contract.js";
 
 export const placementArtifacts = {

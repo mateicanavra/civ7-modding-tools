@@ -1,5 +1,5 @@
 import { Type } from "typebox";
-import { defineArtifact, type ArtifactReadValueOf } from "../artifact/contract.js";
+import { type ArtifactReadValueOf, defineArtifact } from "../artifact/contract.js";
 
 const artifact = defineArtifact({
   name: "artifactFoo",

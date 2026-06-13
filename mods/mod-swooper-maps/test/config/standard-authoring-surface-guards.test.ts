@@ -1,15 +1,15 @@
+import { describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "bun:test";
 
 import {
   deriveRecipeConfigSchema,
   deriveStageAuthoringModel,
 } from "@swooper/mapgen-core/authoring";
 import {
-  validateCanonicalMapConfig,
   type ValidatedMapConfig,
+  validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical.js";
 import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 

@@ -1,6 +1,6 @@
-import { Hook } from "@oclif/core";
-import readline from "node:readline/promises";
 import process from "node:process";
+import readline from "node:readline/promises";
+import { Hook } from "@oclif/core";
 
 const repoUrlCommands = new Set([
   "mod:git:setup",

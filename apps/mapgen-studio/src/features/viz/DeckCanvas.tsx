@@ -1,9 +1,9 @@
-import { Deck, OrthographicView, type OrthographicViewState } from "@deck.gl/core";
 import type { Layer } from "@deck.gl/core";
+import { Deck, OrthographicView, type OrthographicViewState } from "@deck.gl/core";
 import { LineLayer } from "@deck.gl/layers";
 import type { MutableRefObject } from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { DEFAULT_VIEW_STATE, type Bounds, type VizLayerEntryV1 } from "./model";
+import { type Bounds, DEFAULT_VIEW_STATE, type VizLayerEntryV1 } from "./model";
 
 function niceStep(target: number): number {
   const t = Math.max(1e-9, target);

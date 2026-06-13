@@ -1,4 +1,4 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
@@ -11,7 +11,7 @@ import type {
   Civ7TunerState,
 } from "../../session/types.js";
 import { sleep } from "../../timing.js";
-import { Civ7MapLocationSchema, type Civ7MapLocation } from "../map/types.js";
+import { type Civ7MapLocation, Civ7MapLocationSchema } from "../map/types.js";
 import { validateMapLocation } from "../map/validation.js";
 
 // Live-verified camera navigation: Camera.lookAtPlot moves the in-game camera

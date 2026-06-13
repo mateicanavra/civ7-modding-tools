@@ -1,10 +1,9 @@
-import { collectMaskComponentsOddQ, forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-
 import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
 import type {
   FoundationTectonicHistoryTiles,
   FoundationTectonicProvenanceTiles,
 } from "@mapgen/domain/foundation/ops/compute-plates-tensors/contract.js";
+import { collectMaskComponentsOddQ, forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import type { BeltComponentSummary, BeltDriverOutputs } from "./types.js";
 

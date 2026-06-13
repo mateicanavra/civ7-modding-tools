@@ -1,9 +1,9 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import { getDims, isAdjacentToShallowWater } from "@mapgen/domain/narrative/corridors/runtime.js";
 import type { CorridorState } from "@mapgen/domain/narrative/corridors/state.js";
 
 import { assignCorridorMetadata } from "@mapgen/domain/narrative/corridors/style-cache.js";
 import type { CorridorKind } from "@mapgen/domain/narrative/corridors/types.js";
-import { getDims, isAdjacentToShallowWater } from "@mapgen/domain/narrative/corridors/runtime.js";
+import type { ExtendedMapContext } from "@swooper/mapgen-core";
 
 export function backfillCorridorKinds(
   ctx: ExtendedMapContext,

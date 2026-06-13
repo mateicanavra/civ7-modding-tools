@@ -2,11 +2,11 @@ import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   Civ7PopulationPlacementUnavailableError,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
 } from "../src/index";
 
 const cityId = { owner: 0, id: 196_610, type: 1 };

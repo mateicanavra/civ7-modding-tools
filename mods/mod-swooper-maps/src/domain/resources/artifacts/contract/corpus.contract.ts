@@ -1,4 +1,4 @@
-import { Type, defineArtifact, type Static } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring";
 import type { OfficialResourceCorpusArtifact } from "../../lib/corpus/types.js";
 
 /**

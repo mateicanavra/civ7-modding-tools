@@ -1,5 +1,5 @@
-import React from "react";
 import { Map as MapIcon, Workflow } from "lucide-react";
+import React from "react";
 import type { StageView } from "../../stores/viewStore";
 
 // ============================================================================

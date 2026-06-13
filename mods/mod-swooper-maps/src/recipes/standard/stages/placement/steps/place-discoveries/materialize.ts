@@ -1,8 +1,7 @@
 import type { DiscoveryPlacementIntent, DiscoveryPlacementOutcome } from "@civ7/adapter";
+import placement from "@mapgen/domain/placement";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
-
-import placement from "@mapgen/domain/placement";
 
 type PlanDiscoveriesOutput = Static<(typeof placement.ops.planDiscoveries)["output"]>;
 type DiscoveryPlacementOutcomes = Static<

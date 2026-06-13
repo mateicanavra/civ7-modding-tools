@@ -1,10 +1,10 @@
+import { FEATURE_PLACEMENT_KEYS, type PlotEffectKey } from "@mapgen/domain/ecology";
 import {
-  TypedArraySchemas,
-  Type,
   defineArtifact,
   type Static,
+  Type,
+  TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring";
-import { FEATURE_PLACEMENT_KEYS, type PlotEffectKey } from "@mapgen/domain/ecology";
 
 export const BiomeClassificationArtifactSchema = Type.Object({
   width: Type.Integer({ minimum: 1 }),

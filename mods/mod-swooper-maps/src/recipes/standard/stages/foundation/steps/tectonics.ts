@@ -2,6 +2,7 @@ import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { foundationArtifacts } from "../artifacts.js";
+import { interleaveXY, segmentsFromCellPairs } from "../viz.js";
 import TectonicsStepContract from "./tectonics.contract.js";
 import {
   validateTectonicHistoryArtifact,
@@ -10,7 +11,6 @@ import {
   validateTectonicsArtifact,
   wrapFoundationValidateNoDims,
 } from "./validation.js";
-import { interleaveXY, segmentsFromCellPairs } from "../viz.js";
 
 const GROUP_TECTONICS = "Foundation / Tectonics";
 const GROUP_TECTONIC_HISTORY = "Foundation / Tectonic History";

@@ -1,5 +1,5 @@
-import { Command, Flags } from "@oclif/core";
 import { getCiv7AppUiSnapshot, inspectCiv7RuntimeApi } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GameInspect extends Command {
   static id = "game inspect";

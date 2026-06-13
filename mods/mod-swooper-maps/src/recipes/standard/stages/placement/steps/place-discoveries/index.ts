@@ -1,16 +1,15 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import { runPlacementProductStep } from "../product-runtime.js";
-import { placeDiscoveriesWithTypedOutcomes } from "./materialize.js";
 import { placementArtifacts } from "../../artifacts.js";
-import { validateDiscoveryPlacementOutcomesArtifact } from "./validate.js";
-import PlaceDiscoveriesStepContract from "./contract.js";
 import {
+  buildPlacementPointBuffers,
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
-  buildPlacementPointBuffers,
 } from "../../viz.js";
+import { runPlacementProductStep } from "../product-runtime.js";
+import PlaceDiscoveriesStepContract from "./contract.js";
+import { placeDiscoveriesWithTypedOutcomes } from "./materialize.js";
+import { validateDiscoveryPlacementOutcomesArtifact } from "./validate.js";
 
 const DISCOVERY_OUTCOME_CATEGORIES = [
   { value: 1, label: "Placed", color: [34, 197, 94, 235] as [number, number, number, number] },

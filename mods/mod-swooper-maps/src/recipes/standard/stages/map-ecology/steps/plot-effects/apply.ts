@@ -1,5 +1,5 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { PlotEffectKey } from "@mapgen/domain/ecology";
+import type { ExtendedMapContext } from "@swooper/mapgen-core";
 
 type PlotEffectPlacement = {
   x: number;

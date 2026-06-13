@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@civ7/plugin-files", () => ({
   zipResources: vi.fn(async () => ({
@@ -23,8 +23,8 @@ vi.mock("node:fs", async () => {
   };
 });
 
-import Zip from "../../src/commands/data/zip";
 import { zipResources } from "@civ7/plugin-files";
+import Zip from "../../src/commands/data/zip";
 
 describe("zip command", () => {
   beforeEach(() => {

@@ -4,12 +4,12 @@ import {
   Droplet,
   Flag,
   Leaf,
+  type LucideIcon,
   MapPin,
   Package,
   Route,
   Settings2,
   SunSnow,
-  type LucideIcon,
 } from "lucide-react";
 
 export type RecipeDagDomainPresentation = Readonly<{

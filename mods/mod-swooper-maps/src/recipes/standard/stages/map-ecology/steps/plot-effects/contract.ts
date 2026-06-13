@@ -1,7 +1,6 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
-
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../tags.js";
+import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 
 /**
  * Plot-effect projection contract.

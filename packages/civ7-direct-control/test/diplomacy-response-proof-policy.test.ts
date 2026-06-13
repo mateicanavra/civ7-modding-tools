@@ -1,13 +1,12 @@
 import { describe, expect, test } from "vitest";
+import type { Civ7DiplomacyResponsePostconditionClassification } from "../src/play/operations/diplomacy-postconditions.js";
 
+import type { Civ7DiplomacyResponseResult } from "../src/play/operations/diplomacy-request.js";
 import {
   diplomacyResponsePostconditionConfirmed,
   diplomacyResponseProofOutcome,
   diplomacyResponseProofPostcondition,
 } from "../src/proof/diplomacy-response-proof-policy.js";
-
-import type { Civ7DiplomacyResponseResult } from "../src/play/operations/diplomacy-request.js";
-import type { Civ7DiplomacyResponsePostconditionClassification } from "../src/play/operations/diplomacy-postconditions.js";
 import type { Civ7OperationTelemetryPostconditionOutcome } from "../src/proof/operation-telemetry.js";
 
 type DiplomacyResponseProofCase = Readonly<{

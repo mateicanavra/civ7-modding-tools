@@ -1,5 +1,5 @@
-import type { InferContractRouterInputs, InferContractRouterOutputs } from "@orpc/contract";
 import type { Civ7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import type { InferContractRouterInputs, InferContractRouterOutputs } from "@orpc/contract";
 
 import type { studioEffectContract as contract } from "./contract/index.js";
 import type { RecipeDagService } from "./recipeDag/service.js";

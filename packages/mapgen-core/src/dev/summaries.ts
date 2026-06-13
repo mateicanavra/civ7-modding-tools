@@ -7,8 +7,6 @@
  */
 
 import type { EngineAdapter } from "@civ7/adapter";
-import type { TraceScope } from "@mapgen/trace/index.js";
-import { devLog, devLogJson } from "@mapgen/dev/logging.js";
 import {
   COAST_TERRAIN,
   FLAT_TERRAIN,
@@ -17,6 +15,8 @@ import {
   NAVIGABLE_RIVER_TERRAIN,
   OCEAN_TERRAIN,
 } from "@mapgen/core/terrain-constants.js";
+import { devLog, devLogJson } from "@mapgen/dev/logging.js";
+import type { TraceScope } from "@mapgen/trace/index.js";
 
 type ElevationStats = {
   count: number;

@@ -1,5 +1,5 @@
-import { turnCompletionProofPostcondition } from "@civ7/direct-control/proof/turn-completion-proof-policy";
 import type { Civ7RuntimeProbe } from "@civ7/direct-control";
+import { turnCompletionProofPostcondition } from "@civ7/direct-control/proof/turn-completion-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../../../dependencies/direct-control";

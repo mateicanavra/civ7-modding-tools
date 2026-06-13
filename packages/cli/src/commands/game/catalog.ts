@@ -1,8 +1,8 @@
-import { Command, Flags } from "@oclif/core";
 import {
   createStaticCiv7CapabilityCatalog,
   generateCiv7CapabilityCatalog,
 } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GameCatalog extends Command {
   static id = "game catalog";

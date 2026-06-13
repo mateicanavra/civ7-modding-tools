@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
-
-import ruggedCoasts from "../../src/recipes/standard/stages/morphology-coasts/steps/ruggedCoasts.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
+import ruggedCoasts from "../../src/recipes/standard/stages/morphology-coasts/steps/ruggedCoasts.js";
 import { standardConfig } from "../support/standard-config.js";
 
 describe("morphology-coasts shelfWidth knob", () => {

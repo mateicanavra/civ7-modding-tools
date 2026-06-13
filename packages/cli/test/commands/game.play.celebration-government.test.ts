@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from "vitest";
 import GamePlayChooseCelebration from "../../src/commands/game/play/choose-celebration";
 import GamePlayChooseGovernment from "../../src/commands/game/play/choose-government";
-import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 
 describe("game play celebration and government commands", () => {
   test("wraps celebration choice as CHOOSE_GOLDEN_AGE", async () => {

@@ -1,12 +1,11 @@
-import * as lodash from "lodash-es";
 import * as fs from "node:fs";
-
-import { fill } from "../utils";
-import { TClassProperties, TObjectValues } from "../types";
-import { ACTION_GROUP_ACTION } from "../constants";
+import * as lodash from "lodash-es";
 import { BaseBuilder } from "../builders";
-import { ActionGroupNode } from "../nodes";
+import { ACTION_GROUP_ACTION } from "../constants";
 import { BaseFile, XmlFile } from "../files";
+import { ActionGroupNode } from "../nodes";
+import { TClassProperties, TObjectValues } from "../types";
+import { fill } from "../utils";
 
 type TMod = TClassProperties<Mod>;
 

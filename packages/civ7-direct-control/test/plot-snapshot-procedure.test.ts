@@ -1,15 +1,15 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7MapLocation,
   Civ7PlotSnapshotProcedureDescriptor,
   Civ7PlotSnapshotProcedureSchemaArtifacts,
   callCiv7PlotSnapshotProcedure,
   getCiv7PlotSnapshot,
+  type PlotSnapshotReadDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7MapLocation,
-  type PlotSnapshotReadDependencies,
 } from "../src/index";
 
 describe("Civ7 plot-snapshot procedure descriptor", () => {

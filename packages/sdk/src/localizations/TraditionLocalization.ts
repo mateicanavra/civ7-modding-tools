@@ -1,6 +1,5 @@
-import { BaseLocalization } from "./BaseLocalization";
-
 import { TClassProperties } from "../types";
+import { BaseLocalization } from "./BaseLocalization";
 
 export type TTraditionLocalization = TClassProperties<TraditionLocalization>;
 export class TraditionLocalization extends BaseLocalization<TTraditionLocalization> {

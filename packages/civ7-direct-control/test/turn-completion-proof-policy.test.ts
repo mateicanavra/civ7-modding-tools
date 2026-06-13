@@ -1,13 +1,11 @@
 import { describe, expect, test } from "vitest";
-
+import type { Civ7TurnCompletionActionResult, Civ7TurnCompletionStatusResult } from "../src/index";
 import {
+  type Civ7TurnCompletionPostconditionClassification,
   turnCompletionPostconditionConfirmed,
   turnCompletionProofOutcome,
   turnCompletionProofPostcondition,
-  type Civ7TurnCompletionPostconditionClassification,
 } from "../src/index";
-
-import type { Civ7TurnCompletionActionResult, Civ7TurnCompletionStatusResult } from "../src/index";
 import type { Civ7OperationTelemetryPostconditionOutcome } from "../src/proof/operation-telemetry";
 
 type TurnCompletionProofCase = Readonly<{

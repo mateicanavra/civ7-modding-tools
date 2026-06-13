@@ -1,3 +1,5 @@
+import type { MorphologyErosionKnob } from "@mapgen/domain/morphology/config.js";
+import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/config.js";
 import {
   BYTE_SHADE_RAMP,
   computeSampleStep,
@@ -8,10 +10,7 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
-
 import GeomorphologyStepContract from "./geomorphology.contract.js";
-import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/config.js";
-import type { MorphologyErosionKnob } from "@mapgen/domain/morphology/config.js";
 
 const GROUP_GEOMORPHOLOGY = "Morphology / Geomorphology";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

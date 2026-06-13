@@ -1,10 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import {
   estimateDivergenceOddQ,
   projectOddqToHexSpace,
   wrapX,
 } from "@swooper/mapgen-core/lib/grid";
+import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
 import ComputePrecipitationContract from "../contract.js";
 import { clampRainfall, computeDistanceToWater, rainfallToHumidityU8 } from "../rules/index.js";

@@ -1,14 +1,12 @@
-import { describe, expect, it } from "vitest";
-
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
-import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
+import { describe, expect, it } from "vitest";
 import {
-  validateCanonicalMapConfig,
   type CanonicalMapConfigEnvelope,
+  validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical";
-
 import earthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
+import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 
 describe("Studio built-in map configs", () => {
   it("load from canonical shipped map configs instead of duplicate preset wrappers", () => {

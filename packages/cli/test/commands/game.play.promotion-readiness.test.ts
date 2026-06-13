@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import GamePlayPromotionReadiness from "../../src/commands/game/play/promotion-readiness";
-import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 
 describe("game play promotion readiness command", () => {
   test("reads promotion readiness without sending promotion commands", async () => {

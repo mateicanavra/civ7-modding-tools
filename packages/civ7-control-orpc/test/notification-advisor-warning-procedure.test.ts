@@ -1,15 +1,14 @@
 import { call } from "@orpc/server";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
-
+import { describe, expect, test } from "vitest";
+import type { Civ7ControlOrpcAdvisorWarningViewedResult } from "../src/dependencies/direct-control";
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   Civ7NotificationAdvisorWarningUnavailableError,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
 } from "../src/index";
-import type { Civ7ControlOrpcAdvisorWarningViewedResult } from "../src/dependencies/direct-control";
 import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 const target = { owner: 0, id: 12345, type: 99 };

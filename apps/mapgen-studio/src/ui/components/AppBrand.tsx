@@ -1,5 +1,5 @@
-import React, { useState } from "react";
 import { ExternalLink, Github, User } from "lucide-react";
+import React, { useState } from "react";
 
 /**
  * AppBrand — the identity pill in the header, with a hover info card.

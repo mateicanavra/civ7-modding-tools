@@ -1,8 +1,8 @@
-import { defineConfig } from "tsup";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve as resolvePath } from "node:path";
 import { existsSync, statSync } from "node:fs";
+import { dirname, resolve as resolvePath } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { Plugin } from "esbuild";
+import { defineConfig } from "tsup";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

@@ -1,7 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
-import { computeTracerIndexByEra, requireMantleForcing, requireMesh } from "../rules/index.js";
 import ComputeTracerAdvectionContract from "../contract.js";
+import { computeTracerIndexByEra, requireMantleForcing, requireMesh } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeTracerAdvectionContract, "default", {
   run: (input) => {

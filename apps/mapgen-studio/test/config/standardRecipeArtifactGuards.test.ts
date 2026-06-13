@@ -1,17 +1,17 @@
-import { describe, expect, it } from "vitest";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
   studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
 } from "mod-swooper-maps/recipes/standard-artifacts";
+import { describe, expect, it } from "vitest";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
+import { migratePipelineConfigUnknown } from "../../src/features/configMigrations/pipelineConfig";
 import {
   DEFAULT_STUDIO_RECIPE_ID,
   getRecipeArtifacts,
   STUDIO_RECIPE_ARTIFACTS,
 } from "../../src/recipes/catalog";
-import { migratePipelineConfigUnknown } from "../../src/features/configMigrations/pipelineConfig";
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);

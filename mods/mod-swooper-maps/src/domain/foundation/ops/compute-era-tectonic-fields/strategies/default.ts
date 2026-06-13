@@ -1,8 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
-import { buildEraFields, deriveEmissionParams, requireMesh } from "../rules/index.js";
-import type { TectonicEventRecord } from "../rules/index.js";
 import ComputeEraTectonicFieldsContract from "../contract.js";
+import type { TectonicEventRecord } from "../rules/index.js";
+import { buildEraFields, deriveEmissionParams, requireMesh } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeEraTectonicFieldsContract, "default", {
   run: (input, config) => {

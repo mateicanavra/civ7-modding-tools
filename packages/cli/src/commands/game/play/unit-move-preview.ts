@@ -1,5 +1,5 @@
-import { Command, Flags } from "@oclif/core";
 import { getCiv7UnitMovePreview } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 import {
   buildDirectControlOptions,
   parseComponentId,

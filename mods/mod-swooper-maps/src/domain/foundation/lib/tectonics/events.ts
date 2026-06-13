@@ -3,9 +3,8 @@ import type { FoundationCrust } from "../../ops/compute-crust/contract.js";
 import type { FoundationMantleForcing } from "../../ops/compute-mantle-forcing/contract.js";
 import type { FoundationMesh } from "../../ops/compute-mesh/contract.js";
 import type { FoundationTectonicSegments } from "../../ops/compute-tectonic-segments/contract.js";
-import type { TectonicEventRecord } from "./internal-contract.js";
-
 import { EVENT_TYPE } from "./constants.js";
+import type { TectonicEventRecord } from "./internal-contract.js";
 import { clamp01, clampByte, normalizeToInt8 } from "./shared.js";
 
 export function buildBoundaryEventsFromSegments(params: {

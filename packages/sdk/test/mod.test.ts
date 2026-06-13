@@ -1,8 +1,8 @@
-import { Mod, BaseBuilder, BaseFile } from "../src";
-import { expect, test } from "vitest";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import { join } from "node:path";
+import { expect, test } from "vitest";
+import { BaseBuilder, BaseFile, Mod } from "../src";
 
 test("Mod has default id", () => {
   const mod = new Mod();

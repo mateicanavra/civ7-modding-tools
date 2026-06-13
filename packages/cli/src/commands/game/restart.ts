@@ -1,12 +1,12 @@
-import { Command, Flags } from "@oclif/core";
 import {
   CIV7_RESTART_COMMAND,
   createCiv7ControlRequestId,
+  resolveCiv7DirectControlConfig,
   restartCiv7Game,
   restartCiv7GameAndBegin,
-  resolveCiv7DirectControlConfig,
   waitForCiv7DirectControl,
 } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GameRestart extends Command {
   static id = "game restart";

@@ -5,11 +5,11 @@ import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import placementDomain from "../../src/domain/placement/ops.js";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
-  RESOURCE_HABITAT_SIGNALS,
   getInitialMapResourcePolicyForType,
+  RESOURCE_HABITAT_SIGNALS,
+  type ResourceLegalitySurface,
   resolveActiveResourceAge,
   resolveResourceRuntimeIds,
-  type ResourceLegalitySurface,
 } from "../../src/domain/resources/index.js";
 import {
   buildResourceDemands,

@@ -1,6 +1,6 @@
 import { Flags } from "@oclif/core";
-import BaseCommand from "../BaseCommand.js";
 import { listSubtreeConfigs } from "../../utils/git.js";
+import BaseCommand from "../BaseCommand.js";
 
 export default abstract class SubtreeListConfigBase extends BaseCommand {
   static enableJsonFlag = true;

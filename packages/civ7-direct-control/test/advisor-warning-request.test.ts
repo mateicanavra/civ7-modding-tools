@@ -2,8 +2,8 @@ import { describe, expect, test } from "vitest";
 
 import {
   advisorWarningProofPostcondition,
-  requestCiv7AdvisorWarningViewed,
   type Civ7ComponentId,
+  requestCiv7AdvisorWarningViewed,
 } from "../src/index";
 import type { Civ7OperationRequestResult } from "../src/play/operations/validate-request";
 

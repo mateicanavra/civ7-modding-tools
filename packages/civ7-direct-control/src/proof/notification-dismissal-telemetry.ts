@@ -1,5 +1,9 @@
+import type {
+  Civ7NotificationDismissalResult,
+  Civ7NotificationDismissInput,
+} from "../play/notifications/dismissal-request";
+import { notificationDismissalProofPostcondition } from "./notification-dismissal-proof-policy";
 import {
-  createCiv7OperationProofTelemetryRecord,
   type Civ7OperationProofBoundary,
   type Civ7OperationProofClass,
   type Civ7OperationProofTelemetryRecord,
@@ -7,13 +11,8 @@ import {
   type Civ7OperationTelemetryEvidencePolicy,
   type Civ7OperationTelemetryObservationLink,
   type Civ7OperationTelemetryPlayerScope,
+  createCiv7OperationProofTelemetryRecord,
 } from "./operation-telemetry";
-import { notificationDismissalProofPostcondition } from "./notification-dismissal-proof-policy";
-
-import type {
-  Civ7NotificationDismissInput,
-  Civ7NotificationDismissalResult,
-} from "../play/notifications/dismissal-request";
 
 export type Civ7NotificationDismissalTelemetryAdapterInput = Readonly<{
   input: Civ7NotificationDismissInput;

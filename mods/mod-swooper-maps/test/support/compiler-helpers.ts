@@ -1,7 +1,7 @@
-import type { Static, TSchema, DomainOp, StrategySelection } from "@swooper/mapgen-core/authoring";
-import type { NormalizeContext } from "@swooper/mapgen-core/engine";
-import type { CompileErrorItem } from "@swooper/mapgen-core/compiler/recipe-compile";
+import type { DomainOp, Static, StrategySelection, TSchema } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import type { CompileErrorItem } from "@swooper/mapgen-core/compiler/recipe-compile";
+import type { NormalizeContext } from "@swooper/mapgen-core/engine";
 
 const DEFAULT_NORMALIZE_CTX: NormalizeContext = { env: {}, knobs: {} };
 

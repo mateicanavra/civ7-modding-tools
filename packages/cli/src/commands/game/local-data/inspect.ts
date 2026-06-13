@@ -1,9 +1,9 @@
 import { Command, Flags } from "@oclif/core";
 import {
   type Civ7LocalDataInventory,
+  inspectCiv7LocalData,
   type LocalDatabaseEntry,
   type LocalFileEntry,
-  inspectCiv7LocalData,
 } from "../../../utils/civ7LocalData";
 
 export default class GameLocalDataInspect extends Command {

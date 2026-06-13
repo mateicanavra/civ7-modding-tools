@@ -1,12 +1,11 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
-
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
+import { mapArtifacts } from "../../../../map-artifacts.js";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
-  STANDARD_ENGINE_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
+  STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tags.js";
 import { placementArtifacts } from "../../artifacts.js";
-import { mapArtifacts } from "../../../../map-artifacts.js";
 
 /**
  * Terminal placement evidence step. DECLARED parity read (ADR-009): this step

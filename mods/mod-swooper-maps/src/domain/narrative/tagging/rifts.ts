@@ -1,17 +1,16 @@
-import type { ExtendedMapContext, FoundationPlateFields } from "@swooper/mapgen-core";
-import { inBounds, storyKey } from "@swooper/mapgen-core";
-import { idx } from "@swooper/mapgen-core/lib/grid";
+import type { StoryConfig } from "@mapgen/domain/narrative/config.js";
 import type { NarrativeMotifsRifts } from "@mapgen/domain/narrative/models.js";
 import {
   publishStoryOverlay,
   STORY_OVERLAY_KEYS,
 } from "@mapgen/domain/narrative/overlays/index.js";
+import type { RiftValleysSummary } from "@mapgen/domain/narrative/tagging/types.js";
 import { getDims } from "@mapgen/domain/narrative/utils/dims.js";
 import { latitudeAbsDeg } from "@mapgen/domain/narrative/utils/latitude.js";
 import { isWaterAt } from "@mapgen/domain/narrative/utils/water.js";
-
-import type { RiftValleysSummary } from "@mapgen/domain/narrative/tagging/types.js";
-import type { StoryConfig } from "@mapgen/domain/narrative/config.js";
+import type { ExtendedMapContext, FoundationPlateFields } from "@swooper/mapgen-core";
+import { inBounds, storyKey } from "@swooper/mapgen-core";
+import { idx } from "@swooper/mapgen-core/lib/grid";
 
 export interface RiftValleysResult {
   summary: RiftValleysSummary;

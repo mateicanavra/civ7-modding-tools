@@ -2,30 +2,29 @@
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-
 import {
-  getCiv7MapGrid,
-  getCiv7MapSummary,
-  getCiv7ResourceBuilderDiagnostics,
-  getCiv7ResourcePlacementFeasibility,
-  type Civ7MapGridResult,
-  type Civ7PlotSnapshotField,
-  type Civ7MapSummaryResult,
-  type Civ7ResourcePlacementFeasibilityCellInput,
-  type Civ7ResourceBuilderDiagnosticsResult,
-  type Civ7ResourcePlacementFeasibilityResult,
-  type Civ7RuntimeProbe,
-} from "../../packages/civ7-direct-control/src/index.ts";
-import {
+  type FinalSurfaceParityProof,
   hashParityValue,
   stableParityProofStringify,
-  type FinalSurfaceParityProof,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
 import {
   buildResourceDeltaFeasibilityContexts,
   buildResourceDeltaPlacementContexts,
   type ResourceDeltaFeasibilityContext,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/surface-delta-context.ts";
+import {
+  type Civ7MapGridResult,
+  type Civ7MapSummaryResult,
+  type Civ7PlotSnapshotField,
+  type Civ7ResourceBuilderDiagnosticsResult,
+  type Civ7ResourcePlacementFeasibilityCellInput,
+  type Civ7ResourcePlacementFeasibilityResult,
+  type Civ7RuntimeProbe,
+  getCiv7MapGrid,
+  getCiv7MapSummary,
+  getCiv7ResourceBuilderDiagnostics,
+  getCiv7ResourcePlacementFeasibility,
+} from "../../packages/civ7-direct-control/src/index.ts";
 
 type Args = Readonly<{
   proofFile?: string;

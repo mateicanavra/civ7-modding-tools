@@ -4,8 +4,8 @@ import {
   requirePlateMotion as requirePlateMotionInput,
 } from "../../../lib/require.js";
 
-export { ERA_COUNT_MAX, ERA_COUNT_MIN } from "./constants.js";
 export { computePlateIdByEra } from "./compute-plate-id-by-era.js";
+export { ERA_COUNT_MAX, ERA_COUNT_MIN } from "./constants.js";
 
 export function requireMesh(
   ...args: Parameters<typeof requireMeshInput>

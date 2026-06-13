@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7UnitSummaryDependencies,
   Civ7UnitSummaryProcedureDescriptor,
   Civ7UnitSummaryProcedureSchemaArtifacts,
   callCiv7UnitSummaryProcedure,
   getCiv7UnitSummary,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7UnitSummaryDependencies,
 } from "../src/index";
 
 describe("Civ7 unit-summary procedure descriptor", () => {

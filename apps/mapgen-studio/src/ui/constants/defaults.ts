@@ -5,7 +5,7 @@
 // Backend engineers: These can be overridden by server-provided defaults.
 // ============================================================================
 
-import type { WorldSettings, RecipeSettings, ViewState } from "../types";
+import type { RecipeSettings, ViewState, WorldSettings } from "../types";
 
 // ============================================================================
 // Default World Settings

@@ -1,8 +1,7 @@
-import { TObjectValues } from "../types";
 import { REQUIREMENT } from "../constants";
-
-import { BaseNode } from "./BaseNode";
+import { TObjectValues } from "../types";
 import { ArgumentNode, TArgumentNode } from "./ArgumentNode";
+import { BaseNode } from "./BaseNode";
 
 export type TModifierRequirementNode = Pick<ModifierRequirementNode, "type" | "arguments">;
 

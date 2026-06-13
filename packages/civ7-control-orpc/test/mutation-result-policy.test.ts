@@ -1,11 +1,10 @@
 import { describe, expect, test } from "vitest";
-
+import { civ7MutationProofBoundaryViolation as civ7MutationMiddlewareProofBoundaryViolation } from "../src/middleware/mutation-proof-boundary";
 import {
   civ7CloseoutMutationProjection,
   civ7MutationPostconditionSummary,
   civ7MutationRequestStatusWithoutGuarded,
 } from "../src/policy/mutation-result";
-import { civ7MutationProofBoundaryViolation as civ7MutationMiddlewareProofBoundaryViolation } from "../src/middleware/mutation-proof-boundary";
 
 describe("control-oRPC mutation result policy", () => {
   test("keeps missing postcondition summaries no-repeat guarded", () => {

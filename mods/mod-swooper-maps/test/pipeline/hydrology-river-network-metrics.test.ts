@@ -2,16 +2,6 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
-import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
-import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
-import earthlikeRaw from "../../src/maps/configs/swooper-earthlike.config.json";
-import desertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
-import {
-  canonicalRecipeConfig,
-  type CanonicalMapConfigWithRecipe,
-} from "../../src/maps/configs/canonical.js";
 import {
   HYDROLOGY_FLOW_DRY,
   HYDROLOGY_FLOW_EPHEMERAL,
@@ -19,6 +9,15 @@ import {
   HYDROLOGY_FLOW_PERENNIAL,
   HYDROLOGY_MOUTH_UNRESOLVED,
 } from "../../src/domain/hydrology/index.js";
+import {
+  type CanonicalMapConfigWithRecipe,
+  canonicalRecipeConfig,
+} from "../../src/maps/configs/canonical.js";
+import desertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
+import earthlikeRaw from "../../src/maps/configs/swooper-earthlike.config.json";
+import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
+import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
+import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 
 function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
   return canonicalRecipeConfig<StandardRecipeConfig>(config);

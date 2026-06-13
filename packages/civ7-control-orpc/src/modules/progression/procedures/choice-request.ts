@@ -18,8 +18,8 @@ import {
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
 import {
-  civ7CloseoutMutationProjection,
   type Civ7MutationProofPostcondition,
+  civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {

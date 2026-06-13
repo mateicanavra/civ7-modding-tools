@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as fs from "node:fs";
-import * as path from "node:path";
 import * as os from "node:os";
+import * as path from "node:path";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@civ7/plugin-git", () => ({
   configureRemoteAndFetch: vi.fn().mockResolvedValue("added"),
@@ -15,26 +15,26 @@ vi.mock("@civ7/plugin-git", () => ({
 }));
 
 import {
-  findRemoteNameForSlug,
-  requireRemoteNameForSlug,
-  isNonEmptyDir,
-  importSubtree,
-  pushSubtree,
-  pullSubtree,
-  resolveBranch,
-  requireBranch,
-  configureRemote,
-} from "../../src/utils/git";
-import {
   configureRemoteAndFetch,
-  subtreeAddFromRemote,
-  subtreePushWithFetch,
-  subtreePullWithFetch,
   getLocalConfig,
   getRemotePushConfig,
   getRemoteUrl,
   setLocalConfig,
+  subtreeAddFromRemote,
+  subtreePullWithFetch,
+  subtreePushWithFetch,
 } from "@civ7/plugin-git";
+import {
+  configureRemote,
+  findRemoteNameForSlug,
+  importSubtree,
+  isNonEmptyDir,
+  pullSubtree,
+  pushSubtree,
+  requireBranch,
+  requireRemoteNameForSlug,
+  resolveBranch,
+} from "../../src/utils/git";
 
 describe("git utilities", () => {
   describe("isNonEmptyDir", () => {

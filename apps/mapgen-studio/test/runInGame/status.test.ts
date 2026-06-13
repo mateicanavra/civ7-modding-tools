@@ -4,10 +4,10 @@ import {
   formatRunInGamePhaseLabel,
   isRunInGameTerminalPhase,
   kindForRunInGamePhase,
+  type RunInGameOperationStatus,
   runInGameCanRetryStatus,
   runInGamePrimaryActionLabel,
   runInGameRequiresProcessRestart,
-  type RunInGameOperationStatus,
 } from "../../src/features/runInGame/status";
 
 describe("Run in Game status helpers", () => {

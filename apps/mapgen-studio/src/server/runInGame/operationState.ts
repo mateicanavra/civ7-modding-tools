@@ -1,7 +1,7 @@
 import { Civ7DirectControlError } from "@civ7/direct-control";
 import type {
-  RunInGameFailureDetails,
   RunInGameExactAuthorshipProof,
+  RunInGameFailureDetails,
   RunInGameMaterializationStatus,
   RunInGameOperationKind,
   RunInGameOperationStatus,

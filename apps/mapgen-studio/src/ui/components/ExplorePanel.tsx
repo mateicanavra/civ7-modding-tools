@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 // ============================================================================
 // EXPLORE PANEL
 // ============================================================================
@@ -6,34 +5,35 @@ import React, { useEffect, useState } from "react";
 // Fully controlled component - all options passed via props.
 // ============================================================================
 import {
-  Compass,
-  GitBranch,
-  ChevronDown,
-  Maximize,
-  Layers,
-  SquareStack,
-  Hexagon,
-  CircleDot,
   Activity,
   Bug,
+  ChevronDown,
+  CircleDot,
+  Compass,
   Flame,
+  GitBranch,
+  Hexagon,
+  Layers,
+  Maximize,
+  SquareStack,
 } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
-import { WaterStatsSection } from "./WaterStatsSection";
 import type {
   RiverLakeFloodplainInspectorSummary,
   RiverLakeInspectorLayerRef,
 } from "../../features/viz/riverLakeInspector";
 import { LAYOUT } from "../constants";
 import type {
-  StageOption,
-  StepOption,
   DataTypeOption,
-  SpaceOption,
-  VariantOption,
   OverlayOption,
   RenderModeOption,
+  SpaceOption,
+  StageOption,
+  StepOption,
+  VariantOption,
 } from "../types";
+import { WaterStatsSection } from "./WaterStatsSection";
 // ============================================================================
 // Props
 // ============================================================================

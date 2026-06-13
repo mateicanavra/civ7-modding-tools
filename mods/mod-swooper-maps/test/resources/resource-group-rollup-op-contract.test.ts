@@ -5,7 +5,7 @@ import {
   type EarthlikeResourceExpectation,
 } from "../../src/domain/resources/index.js";
 
-import { TestCompileError, normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
+import { normalizeOpSelectionOrThrow, TestCompileError } from "../support/compiler-helpers.js";
 
 describe("resource group rollup operation contract", () => {
   it("publishes one warning-only group plan artifact across all symbolic resource groups", () => {

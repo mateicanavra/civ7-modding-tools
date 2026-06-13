@@ -1,5 +1,6 @@
-import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
+import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
+import { isAnyRiverClass, isMajorRiverClass, isMinorRiverClass } from "../../../river-class.js";
 import {
   HYDROLOGY_FLOW_DRY,
   HYDROLOGY_FLOW_EPHEMERAL,
@@ -17,7 +18,6 @@ import {
   HYDROLOGY_SLOPE_NONE,
   HYDROLOGY_SLOPE_STEEP,
 } from "../../../river-network-metrics.js";
-import { isAnyRiverClass, isMajorRiverClass, isMinorRiverClass } from "../../../river-class.js";
 import ComputeRiverNetworkMetricsContract from "../contract.js";
 
 const FLAT_SLOPE_MAX = 0.5;

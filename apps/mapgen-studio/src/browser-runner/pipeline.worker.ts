@@ -1,17 +1,16 @@
 /// <reference lib="webworker" />
 
 import { createMockAdapter } from "@civ7/adapter/mock";
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
+import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
-
-import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+import { migratePipelineConfigUnknown } from "../features/configMigrations/pipelineConfig";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
 import { getRuntimeRecipe } from "./recipeRuntime";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { createWorkerTraceSink } from "./worker-trace-sink";
 import { createWorkerVizDumper } from "./worker-viz-dumper";
-import { migratePipelineConfigUnknown } from "../features/configMigrations/pipelineConfig";
 
 function post(event: BrowserRunEvent, transfer?: Transferable[]): void {
   (self as DedicatedWorkerGlobalScope).postMessage(event, transfer ?? []);

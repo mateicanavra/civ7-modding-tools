@@ -8,8 +8,8 @@
  * All helpers are no-op unless trace verbosity is enabled.
  */
 
-import type { TraceScope } from "@mapgen/trace/index.js";
 import { devLogPrefixed } from "@mapgen/dev/logging.js";
+import type { TraceScope } from "@mapgen/trace/index.js";
 
 /**
  * Collect a sorted list of own + prototype property names for an object.

@@ -1,9 +1,9 @@
-import { Command, Flags } from "@oclif/core";
-import * as path from "node:path";
-import { promises as fs } from "node:fs";
 import * as fssync from "node:fs";
+import { promises as fs } from "node:fs";
+import * as path from "node:path";
 import { findProjectRoot } from "@civ7/config";
 import { unzipResources } from "@civ7/plugin-files";
+import { Command, Flags } from "@oclif/core";
 
 export default class DocsServe extends Command {
   static id = "docs serve";

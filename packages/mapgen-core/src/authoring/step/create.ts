@@ -1,10 +1,10 @@
-import type { Static } from "typebox";
+import type { ExtendedMapContext } from "@mapgen/core/types.js";
 
 import type { NormalizeContext } from "@mapgen/engine/index.js";
-import type { ExtendedMapContext } from "@mapgen/core/types.js";
+import type { Static } from "typebox";
+import type { StepDeps, StepModule, StepProvidedArtifactsRuntime } from "../types.js";
 import type { StepContract } from "./contract.js";
 import type { StepRuntimeOps } from "./ops.js";
-import type { StepDeps, StepModule, StepProvidedArtifactsRuntime } from "../types.js";
 
 type StepConfigOf<C extends StepContract<any, any, any, any>> = Static<C["schema"]>;
 type StepOpsOf<C extends StepContract<any, any, any, any>> = StepRuntimeOps<NonNullable<C["ops"]>>;

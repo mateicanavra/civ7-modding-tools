@@ -2,7 +2,7 @@ import type { Socket } from "node:net";
 
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { resolveCiv7DirectControlConfig } from "./config.js";
-import { encodeCiv7TunerRequest, parseCiv7TunerFrame, type Civ7TunerFrame } from "./framing.js";
+import { type Civ7TunerFrame, encodeCiv7TunerRequest, parseCiv7TunerFrame } from "./framing.js";
 import { allocateListenerId } from "./listener-id.js";
 import { openCiv7TunerSocket } from "./socket.js";
 import { selectCiv7TunerState, tunerStatesFromParts } from "./state.js";

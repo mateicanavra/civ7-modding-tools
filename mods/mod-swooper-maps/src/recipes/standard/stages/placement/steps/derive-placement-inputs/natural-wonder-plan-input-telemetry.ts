@@ -1,8 +1,7 @@
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+import placement from "@mapgen/domain/placement";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
-
-import placement from "@mapgen/domain/placement";
 
 type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 

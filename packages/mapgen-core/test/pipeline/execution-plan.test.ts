@@ -1,14 +1,13 @@
-import { describe, it, expect } from "bun:test";
-import { Type } from "typebox";
+import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@mapgen/core/types.js";
-
 import {
   compileExecutionPlan,
   ExecutionPlanCompileError,
   PipelineExecutor,
   StepRegistry,
 } from "@mapgen/engine/index.js";
+import { Type } from "typebox";
 
 const TEST_TAGS = {
   artifact: {

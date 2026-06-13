@@ -1,6 +1,5 @@
-import { BaseLocalization } from "./BaseLocalization";
-
 import { TClassProperties } from "../types";
+import { BaseLocalization } from "./BaseLocalization";
 
 export type TCivilizationUnlockLocalization = TClassProperties<CivilizationUnlockLocalization>;
 export class CivilizationUnlockLocalization extends BaseLocalization<TCivilizationUnlockLocalization> {

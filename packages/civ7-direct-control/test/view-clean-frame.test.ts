@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-
+import { Civ7DirectControlError } from "../src/direct-control-error";
 import {
   buildCleanFrameEnterCommand,
   buildCleanFrameExitCommand,
@@ -9,12 +9,11 @@ import {
   CIV7_CLEAN_FRAME_PREVIOUS_VIEW_GLOBAL,
   CIV7_CLEAN_FRAME_VIEW_NAME,
   CIV7_VIEW_MANAGER_BRIDGE_GLOBAL,
+  type CleanFrameDependencies,
   ensureCiv7ViewManagerBridge,
   enterCiv7CleanFrame,
   exitCiv7CleanFrame,
-  type CleanFrameDependencies,
 } from "../src/play/view/clean-frame";
-import { Civ7DirectControlError } from "../src/direct-control-error";
 import { jsLiteral } from "../src/runtime/command-serialization";
 import type { Civ7CommandResult } from "../src/session/types";
 

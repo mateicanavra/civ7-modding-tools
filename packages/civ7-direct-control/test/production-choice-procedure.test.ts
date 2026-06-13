@@ -1,16 +1,16 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ProductionChoiceInput,
   Civ7ProductionChoiceRequestInputSchema,
   Civ7ProductionChoiceRequestProcedureDescriptor,
   Civ7ProductionChoiceRequestProcedureSchemaArtifacts,
+  type Civ7ProductionChoiceResult,
   Civ7ProductionChoiceResultSchema,
   callCiv7ProductionChoiceRequestProcedure,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7ProductionChoiceInput,
-  type Civ7ProductionChoiceResult,
 } from "../src/index";
 
 describe("Civ7 production choice request procedure descriptor", () => {

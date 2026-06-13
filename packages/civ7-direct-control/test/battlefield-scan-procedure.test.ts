@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type BattlefieldScanDependencies,
   Civ7BattlefieldScanProcedureDescriptor,
   Civ7BattlefieldScanProcedureSchemaArtifacts,
   callCiv7BattlefieldScanProcedure,
   getCiv7BattlefieldScan,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type BattlefieldScanDependencies,
 } from "../src/index";
 
 describe("Civ7 battlefield-scan procedure descriptor", () => {

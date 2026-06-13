@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { promisify } from "node:util";
 
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 

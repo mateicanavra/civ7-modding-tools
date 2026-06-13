@@ -1,14 +1,14 @@
-import { describe, expect, it } from "vitest";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import type { VizLayerEntryV1 } from "../../src/features/viz/model";
-import { createWorkerTraceSink } from "../../src/browser-runner/worker-trace-sink";
-import { createWorkerVizDumper } from "../../src/browser-runner/worker-viz-dumper";
-import { buildRiverLakeFloodplainInspectorSummary } from "../../src/features/viz/riverLakeInspector";
-import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
 import standardRecipe from "mod-swooper-maps/recipes/standard";
 import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
+import { describe, expect, it } from "vitest";
+import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
+import { createWorkerTraceSink } from "../../src/browser-runner/worker-trace-sink";
+import { createWorkerVizDumper } from "../../src/browser-runner/worker-viz-dumper";
+import type { VizLayerEntryV1 } from "../../src/features/viz/model";
+import { buildRiverLakeFloodplainInspectorSummary } from "../../src/features/viz/riverLakeInspector";
 
 function gridLayer(args: {
   stepId: string;

@@ -1,6 +1,6 @@
-import { Command, Flags } from "@oclif/core";
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import { Command, Flags } from "@oclif/core";
 
 // Moves the live Civ7 camera to a plot through the engine Camera API and
 // reports the VERIFIED outcome: the viewport-center plot is read back and

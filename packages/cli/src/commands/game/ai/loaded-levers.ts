@@ -1,5 +1,5 @@
-import { Command, Flags } from "@oclif/core";
 import { getCiv7GameInfoRows } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GameAiLoadedLevers extends Command {
   static id = "game ai loaded-levers";

@@ -1,17 +1,16 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
-import {
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  Civ7ExploreFailedError,
-  Civ7ExploreSuspensionUnverifiedError,
-  type Civ7ControlOrpcContext,
-} from "../src/index";
 import type {
   Civ7ControlOrpcCloseDisplaysResult,
   Civ7ControlOrpcVisibilitySummaryResult,
 } from "../src/dependencies/direct-control";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  Civ7ControlOrpcRouter,
+  Civ7ExploreFailedError,
+  Civ7ExploreSuspensionUnverifiedError,
+} from "../src/index";
 
 // Fast drain settings: the procedure sleeps for real (Effect.sleep), so the
 // tests pin pollMs to the schema minimum and settleMs to zero.

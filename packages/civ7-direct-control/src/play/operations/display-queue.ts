@@ -4,13 +4,12 @@ import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import { sleep } from "../../timing.js";
-
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
+import { sleep } from "../../timing.js";
 
 // Live-verified against a running Civ7 game on 2026-06-11 (fresh session, three runs):
 // every popup-like screen (wonder-discovery cinematics, unlock popups, triumph/challenge

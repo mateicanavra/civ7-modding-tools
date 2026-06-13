@@ -1,10 +1,10 @@
-import { Command, Flags } from "@oclif/core";
 import {
   configureCiv7Autoplay,
   getCiv7AutoplayStatus,
   startCiv7Autoplay,
   stopCiv7Autoplay,
 } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GameAutoplay extends Command {
   static id = "game autoplay";

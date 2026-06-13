@@ -1,4 +1,4 @@
-import { Socket, createConnection } from "node:net";
+import { createConnection, Socket } from "node:net";
 
 import { Civ7DirectControlError } from "../direct-control-error.js";
 

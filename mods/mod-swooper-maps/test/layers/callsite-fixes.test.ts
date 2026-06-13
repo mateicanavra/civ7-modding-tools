@@ -6,7 +6,7 @@
  * 2. Climate adapter stubs blocking fallback execution
  */
 
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import type { ClimateAdapter } from "@mapgen/domain/hydrology/climate/index.js";
 
 describe("CIV-18: Call-site Fixes", () => {

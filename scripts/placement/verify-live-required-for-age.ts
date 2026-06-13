@@ -44,9 +44,9 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import {
-  executeCiv7TunerCommand,
   type Civ7CommandResult,
   type Civ7DirectControlOptions,
+  executeCiv7TunerCommand,
 } from "../../packages/civ7-direct-control/src/index.ts";
 import {
   CIV7_BROWSER_TABLES_V0,

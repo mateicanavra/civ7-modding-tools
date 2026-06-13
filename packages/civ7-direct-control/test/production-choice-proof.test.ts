@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ProductionChoicePostconditionOutcome,
   productionChoicePostconditionConfirmed,
   productionChoicePostconditionOutcome,
   productionChoiceRequestVerified,
-  type Civ7ProductionChoicePostconditionOutcome,
 } from "../src/play/operations/production-choice-proof.js";
 
 import type { Civ7ProductionPostconditionClassification } from "../src/play/operations/production-postconditions.js";

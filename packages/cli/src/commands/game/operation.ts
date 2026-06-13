@@ -1,5 +1,7 @@
-import { Command, Flags } from "@oclif/core";
 import {
+  assertCiv7ComponentId,
+  type Civ7ComponentId,
+  type Civ7OperationInput,
   canStartCiv7CityCommand,
   canStartCiv7CityOperation,
   canStartCiv7PlayerOperation,
@@ -10,10 +12,8 @@ import {
   requestCiv7PlayerOperation,
   requestCiv7UnitCommand,
   requestCiv7UnitOperation,
-  assertCiv7ComponentId,
-  type Civ7ComponentId,
-  type Civ7OperationInput,
 } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GameOperation extends Command {
   static id = "game operation";

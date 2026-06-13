@@ -1,17 +1,14 @@
-import { createStrategy } from "@swooper/mapgen-core/authoring";
-
 import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
-
-import PlanFoothillsContract from "../contract.js";
-import type { PlanFoothillsTypes } from "../types.js";
-
+import { createStrategy } from "@swooper/mapgen-core/authoring";
 import {
-  computeHillScore,
   computeHexDistanceToMask,
+  computeHillScore,
   normalizeMountainFractal,
   resolveBoundaryStrength,
   resolveDriverStrength,
 } from "../../mountains-shared/rules.js";
+import PlanFoothillsContract from "../contract.js";
+import type { PlanFoothillsTypes } from "../types.js";
 
 function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
   size: number;

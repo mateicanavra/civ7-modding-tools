@@ -1,16 +1,16 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7UnitTargetActionInput,
   Civ7UnitTargetActionRequestInputSchema,
   Civ7UnitTargetActionRequestProcedureDescriptor,
   Civ7UnitTargetActionRequestProcedureSchemaArtifacts,
+  type Civ7UnitTargetActionResult,
   Civ7UnitTargetActionResultSchema,
   callCiv7UnitTargetActionRequestProcedure,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7UnitTargetActionInput,
-  type Civ7UnitTargetActionResult,
 } from "../src/index";
 
 describe("Civ7 unit-target action request procedure descriptor", () => {

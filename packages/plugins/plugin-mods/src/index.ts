@@ -1,24 +1,24 @@
-import * as path from "node:path";
 import * as fs from "node:fs";
+import * as path from "node:path";
 import {
   copyDirectoryRecursive,
   ensureDirectory,
   resolveModsDir as resolveModsDirFs,
 } from "@civ7/plugin-files";
 import {
+  configureRemoteAndFetch,
+  execGit,
+  findRemoteByUrl,
+  getLocalConfig,
   getRepoRoot,
   getStatusSnapshot,
+  initRemotePushConfig,
   listRemoteBranches,
   resolveTrunkBranch,
   setLocalConfig,
-  getLocalConfig,
-  configureRemoteAndFetch,
-  initRemotePushConfig,
   subtreeAddFromRemote,
-  subtreePushWithFetch,
   subtreePullWithFetch,
-  execGit,
-  findRemoteByUrl,
+  subtreePushWithFetch,
 } from "@civ7/plugin-git";
 
 // Persistent link configuration (stored in local git config)

@@ -1,12 +1,12 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
-import { climateBaseline } from "./steps/index.js";
 import {
   HydrologyDrynessKnobSchema,
   HydrologyOceanCouplingKnobSchema,
   HydrologySeasonalityKnobSchema,
   HydrologyTemperatureKnobSchema,
 } from "@mapgen/domain/hydrology/config.js";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { HydrologyClimateBaselinePublicSchema } from "../hydrology-public-config.js";
+import { climateBaseline } from "./steps/index.js";
 
 const knobsSchema = Type.Object(
   {

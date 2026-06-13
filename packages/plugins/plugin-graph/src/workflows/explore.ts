@@ -1,7 +1,7 @@
-import { crawlGraph, CrawlGraphResult } from "./crawl";
 import { graphToDot, graphToJson } from "../graph";
 import { renderSvg } from "../render";
 import { buildGraphViewerHtml } from "../viewer";
+import { CrawlGraphResult, crawlGraph } from "./crawl";
 
 export interface ExploreGraphOptions {
   rootDir: string;

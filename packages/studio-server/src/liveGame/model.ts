@@ -1,4 +1,4 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 export const liveGameStatusKindSchema = Type.Union([
   Type.Literal("idle"),

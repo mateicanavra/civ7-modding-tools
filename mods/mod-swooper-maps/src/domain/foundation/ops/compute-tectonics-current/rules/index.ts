@@ -1,5 +1,5 @@
-import type { FoundationTectonics } from "../../../lib/tectonics/schemas.js";
 import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
+import type { FoundationTectonics } from "../../../lib/tectonics/schemas.js";
 
 export function buildTectonicsCurrent(params: {
   newestEra: FoundationTectonicEraFieldsInternal;

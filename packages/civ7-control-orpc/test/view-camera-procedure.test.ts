@@ -1,14 +1,13 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
+import type { Civ7ControlOrpcCameraFocusResult } from "../src/dependencies/direct-control";
 import {
   Civ7CameraFocusFailedError,
   Civ7CameraFocusUnverifiedError,
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
-  type Civ7ControlOrpcContext,
 } from "../src/index";
-import type { Civ7ControlOrpcCameraFocusResult } from "../src/dependencies/direct-control";
 
 describe("view.camera.focus control-oRPC procedure", () => {
   test("moves the camera and returns the flattened verified readback", async () => {

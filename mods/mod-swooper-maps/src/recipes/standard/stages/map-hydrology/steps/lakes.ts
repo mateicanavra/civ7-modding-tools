@@ -1,7 +1,7 @@
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
-import LakesStepContract from "./lakes.contract.js";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { mapHydrologyArtifacts } from "../artifacts.js";
+import LakesStepContract from "./lakes.contract.js";
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

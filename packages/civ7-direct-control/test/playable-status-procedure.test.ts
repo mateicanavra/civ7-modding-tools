@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7PlayableStatusProcedureDescriptor,
   Civ7PlayableStatusProcedureSchemaArtifacts,
   callCiv7PlayableStatusProcedure,
   getCiv7PlayableStatus,
+  type PlayableStatusDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type PlayableStatusDependencies,
 } from "../src/index";
 
 describe("Civ7 playable-status procedure descriptor", () => {

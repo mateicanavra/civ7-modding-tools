@@ -1,11 +1,11 @@
 // Ensure environments without Web TextEncoder (e.g., Civ7 embedded V8) have a compatible implementation.
 import "../polyfills/text-encoder";
 
-import { Type, type Static } from "typebox";
+import { type Env, EnvSchema } from "@mapgen/core/env.js";
 
 import type { StepRegistry } from "@mapgen/engine/StepRegistry.js";
 import type { GenerationPhase } from "@mapgen/engine/types.js";
-import { EnvSchema, type Env } from "@mapgen/core/env.js";
+import { type Static, Type } from "typebox";
 
 const UnknownRecord = Type.Record(Type.String(), Type.Unknown(), { default: {} });
 

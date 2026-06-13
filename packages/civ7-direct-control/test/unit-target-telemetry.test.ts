@@ -1,12 +1,10 @@
 import { describe, expect, test } from "vitest";
-
-import {
-  createCiv7UnitTargetActionTelemetryRecord,
-  type Civ7UnitTargetActionTelemetryAdapterInput,
-} from "../src/proof/unit-target-telemetry";
-import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
-
 import type { Civ7UnitTargetActionResult } from "../src/play/operations/unit-target-action";
+import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
+import {
+  type Civ7UnitTargetActionTelemetryAdapterInput,
+  createCiv7UnitTargetActionTelemetryRecord,
+} from "../src/proof/unit-target-telemetry";
 
 describe("unit-target telemetry adapter", () => {
   test("adapts a verified unit-target result into separated operation telemetry", () => {

@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
-
+import selectNavigableRiverTerrain from "../../src/domain/hydrology/ops/select-navigable-river-terrain/index.js";
 import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../src/domain/hydrology/river-class.js";
 import { HYDROLOGY_MOUTH_OCEAN } from "../../src/domain/hydrology/river-network-metrics.js";
-import selectNavigableRiverTerrain from "../../src/domain/hydrology/ops/select-navigable-river-terrain/index.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
 describe("select navigable river terrain", () => {

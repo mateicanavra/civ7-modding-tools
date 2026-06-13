@@ -1,7 +1,15 @@
-import type { WidgetProps, RJSFSchema } from "@rjsf/utils";
-
-import { Checkbox, Input, Switch, Textarea } from "../../components/ui";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui";
+import type { RJSFSchema, WidgetProps } from "@rjsf/utils";
+import {
+  Checkbox,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Textarea,
+} from "../../components/ui";
 import type { BrowserConfigFormContext } from "./rjsfTemplates";
 
 type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormContext>;

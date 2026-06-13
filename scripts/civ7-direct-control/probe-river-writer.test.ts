@@ -10,9 +10,9 @@ import {
 import {
   buildDryRunOutput,
   buildMutationOutput,
-  summarizeRiverMetadataReadback,
   type RiverMetadataReadbackSummary,
   type RiverWriterRuntimeInventory,
+  summarizeRiverMetadataReadback,
 } from "./probe-river-writer";
 
 const NAVIGABLE_RIVER_TERRAIN = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_NAVIGABLE_RIVER;

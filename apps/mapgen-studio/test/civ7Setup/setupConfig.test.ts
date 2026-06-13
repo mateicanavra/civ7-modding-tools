@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   clearStudioSetupSavedConfig,
-  studioSetupConfigFromSavedConfigFile,
   studioSetupConfigFromLiveSnapshot,
+  studioSetupConfigFromSavedConfigFile,
   studioSetupDriftsFromSavedConfig,
   updateStudioSetupGameOption,
   updateStudioSetupPlayerOption,

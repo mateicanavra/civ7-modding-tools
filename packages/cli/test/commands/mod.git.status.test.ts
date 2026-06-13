@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("../../src/utils/git", () => ({
   findRemoteNameForSlug: vi.fn().mockResolvedValue("cfg-remote"),
@@ -12,8 +12,8 @@ vi.mock("@civ7/plugin-mods", () => ({
     .mockResolvedValue({ repoRoot: "/tmp", modsPrefix: "mods/foo", remoteName: "cfg-remote" }),
 }));
 
-import ModGitStatus from "../../src/commands/mod/git/status";
 import { getModStatus } from "@civ7/plugin-mods";
+import ModGitStatus from "../../src/commands/mod/git/status";
 
 describe("mod git status command", () => {
   beforeEach(() => {

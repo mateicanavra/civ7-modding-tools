@@ -1,8 +1,8 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import DerivePlacementInputsContract from "./contract.js";
+import { placementArtifacts } from "../../artifacts.js";
 import { PLACEMENT_TILE_SPACE_ID, PLACEMENT_VIZ_GROUP, UNIT_SCORE_VALUE_SPEC } from "../../viz.js";
+import DerivePlacementInputsContract from "./contract.js";
 import { buildPlacementInputs } from "./inputs.js";
 import {
   buildNaturalWonderPlanInputRuntimeTelemetry,
@@ -15,7 +15,6 @@ import {
   validateNaturalWonderPlanArtifact,
   validatePlacementInputsArtifact,
 } from "./validate.js";
-import { placementArtifacts } from "../../artifacts.js";
 
 export default createStep(DerivePlacementInputsContract, {
   artifacts: implementArtifacts(

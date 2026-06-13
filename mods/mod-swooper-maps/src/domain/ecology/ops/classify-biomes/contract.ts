@@ -1,8 +1,7 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
-
-import { TemperatureSchema } from "./rules/temperature.schema.js";
-import { MoistureSchema } from "./rules/moisture.schema.js";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 import { AriditySchema } from "./rules/aridity.schema.js";
+import { MoistureSchema } from "./rules/moisture.schema.js";
+import { TemperatureSchema } from "./rules/temperature.schema.js";
 import { VegetationSchema } from "./rules/vegetation.schema.js";
 
 /** Biome classification parameters for temperature, moisture, aridity, vegetation, and edge refinement. */

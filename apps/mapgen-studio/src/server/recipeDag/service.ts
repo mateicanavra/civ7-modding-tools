@@ -1,6 +1,5 @@
-import { buildRecipeDag, type StageContractAny } from "@swooper/mapgen-core/authoring";
-
 import type { RecipeDagResult, RecipeDagService } from "@civ7/studio-server";
+import { buildRecipeDag, type StageContractAny } from "@swooper/mapgen-core/authoring";
 
 type RecipeDagSource = Readonly<{
   id: string;

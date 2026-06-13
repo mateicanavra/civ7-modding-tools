@@ -1,10 +1,10 @@
 import type { VizDumper } from "@swooper/mapgen-core";
-import { computeVizScalarStats, createVizLayerKey } from "@swooper/mapgen-viz";
 import type {
   VizGridFieldsLayerEmissionV1,
   VizLayerEmissionV1,
   VizScalarField,
 } from "@swooper/mapgen-viz";
+import { computeVizScalarStats, createVizLayerKey } from "@swooper/mapgen-viz";
 
 type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
 

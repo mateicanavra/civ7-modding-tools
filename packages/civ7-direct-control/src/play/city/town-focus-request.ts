@@ -2,9 +2,9 @@ import type { Civ7ComponentId } from "../../civ7-component-id";
 import { Civ7DirectControlError } from "../../direct-control-error";
 import type { Civ7DirectControlOptions } from "../../session/types";
 import {
+  type Civ7OperationRequestResult,
   requestCiv7CityCommand,
   requestCiv7CityOperation,
-  type Civ7OperationRequestResult,
 } from "../operations/validate-request";
 
 export type Civ7TownFocusRequestKind = "town-focus-change" | "town-focus-review";

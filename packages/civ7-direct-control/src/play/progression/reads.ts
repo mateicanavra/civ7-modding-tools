@@ -1,19 +1,17 @@
 import { Type } from "typebox";
-
-import { progressDashboardSource } from "./progress-dashboard.js";
-import { traditionsViewSource } from "./traditions.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { Civ7RuntimeProbeSchema } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import { validatePlayerId } from "../../validation.js";
-import { Civ7RuntimeProbeSchema } from "../../runtime/probe.js";
-
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { validatePlayerId } from "../../validation.js";
+import { progressDashboardSource } from "./progress-dashboard.js";
+import { traditionsViewSource } from "./traditions.js";
 
 const civ7TunerStateSchema = Type.Object(
   {

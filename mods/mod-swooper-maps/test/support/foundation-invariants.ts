@@ -1,16 +1,15 @@
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
-
-import type { ValidationInvariant, ValidationInvariantContext } from "./validation-harness.js";
+import { deriveBeltDriversFromHistory } from "../../src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.js";
 import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
 import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
+import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
-import { deriveBeltDriversFromHistory } from "../../src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.js";
-import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { standardConfig } from "./standard-config.js";
+import type { ValidationInvariant, ValidationInvariantContext } from "./validation-harness.js";
 
 const EPS = 1e-6;
 const POTENTIAL_MIN_ABS = 0.12;

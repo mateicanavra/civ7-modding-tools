@@ -1,7 +1,7 @@
-import { Args, Command, Flags } from "@oclif/core";
 import * as fs from "node:fs";
 import { findProjectRoot, loadConfig, resolveInstallDir, resolveZipPath } from "@civ7/config";
 import { zipResources } from "@civ7/plugin-files";
+import { Args, Command, Flags } from "@oclif/core";
 
 export default class Zip extends Command {
   static id = "zip";

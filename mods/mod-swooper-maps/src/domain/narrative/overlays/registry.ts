@@ -1,6 +1,6 @@
-import type { StoryOverlaySnapshot, StoryOverlayRegistry } from "@swooper/mapgen-core";
-import { STORY_OVERLAY_KEYS, type StoryOverlayKey } from "./keys.js";
 import { normalizeOverlay } from "@mapgen/domain/narrative/overlays/normalize.js";
+import type { StoryOverlayRegistry, StoryOverlaySnapshot } from "@swooper/mapgen-core";
+import { STORY_OVERLAY_KEYS, type StoryOverlayKey } from "./keys.js";
 
 interface OverlayContext {
   overlays?: StoryOverlayRegistry;

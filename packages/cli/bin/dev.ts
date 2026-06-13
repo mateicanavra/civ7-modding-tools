@@ -1,6 +1,6 @@
 #!/usr/bin/env -S bun run
 
-import { run, handle } from "@oclif/core";
+import { handle, run } from "@oclif/core";
 
 const argv = process.argv.slice(2);
 

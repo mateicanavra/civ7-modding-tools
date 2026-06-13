@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
-import {
-  Civ7MapSummaryInputSchema,
-  Civ7MapSummaryResultSchema,
-  type Civ7MapSummaryInput,
-  type Civ7MapSummaryResult,
-} from "./types.js";
 import { getCiv7MapSummary, type MapSummaryReadDependencies } from "./reads.js";
+import {
+  type Civ7MapSummaryInput,
+  Civ7MapSummaryInputSchema,
+  type Civ7MapSummaryResult,
+  Civ7MapSummaryResultSchema,
+} from "./types.js";
 
 export const Civ7MapSummaryProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "map.summary.read",

@@ -1,9 +1,9 @@
-import { Command, Flags } from "@oclif/core";
 import {
   type Civ7PlayDecisionAction,
   type Civ7PlayDecisionInput,
   getCiv7PlayNotificationView,
 } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GamePlayNotifications extends Command {
   static id = "game play notifications";

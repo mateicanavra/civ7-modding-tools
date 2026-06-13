@@ -5,7 +5,7 @@ import {
   type EarthlikeResourceExpectation,
 } from "../../src/domain/resources/index.js";
 
-import { TestCompileError, normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
+import { normalizeOpSelectionOrThrow, TestCompileError } from "../support/compiler-helpers.js";
 
 const TERRESTRIAL_RESOURCE_TYPES = [
   "RESOURCE_CAMELS",

@@ -1,19 +1,18 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import {
-  logNaturalWonderPlacementRuntimeTelemetry,
-  stampNaturalWondersFromPlan,
-  type NaturalWonderStampingStats,
-} from "./materialize.js";
 import { placementArtifacts } from "../../artifacts.js";
-import { validateNaturalWonderPlacementArtifact } from "./validate.js";
-import PlaceNaturalWondersStepContract from "./contract.js";
 import {
+  buildPlacementPointBuffers,
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
-  buildPlacementPointBuffers,
 } from "../../viz.js";
+import PlaceNaturalWondersStepContract from "./contract.js";
+import {
+  logNaturalWonderPlacementRuntimeTelemetry,
+  type NaturalWonderStampingStats,
+  stampNaturalWondersFromPlan,
+} from "./materialize.js";
+import { validateNaturalWonderPlacementArtifact } from "./validate.js";
 
 const WONDER_OUTCOME_CATEGORIES = [
   { value: 1, label: "Placed", color: [34, 197, 94, 235] as [number, number, number, number] },

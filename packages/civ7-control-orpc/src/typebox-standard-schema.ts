@@ -1,6 +1,6 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { Compile } from "typebox/compile";
 import type { Static, TSchema } from "typebox";
+import { Compile } from "typebox/compile";
 
 const TYPEBOX_SCHEMA = Symbol.for("@civ7/control-orpc/typebox-schema");
 

@@ -1,7 +1,7 @@
-import { BaseNode } from "./BaseNode";
-import { TObjectValues } from "../types";
-import { REQUIREMENT_SET } from "../constants";
 import { randomUUID } from "node:crypto";
+import { REQUIREMENT_SET } from "../constants";
+import { TObjectValues } from "../types";
+import { BaseNode } from "./BaseNode";
 
 export type TRequirementSetNode = Pick<
   RequirementSetNode,

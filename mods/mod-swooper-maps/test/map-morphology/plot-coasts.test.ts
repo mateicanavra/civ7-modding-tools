@@ -1,12 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { COAST_TERRAIN, createExtendedMapContext, FLAT_TERRAIN } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { COAST_TERRAIN, FLAT_TERRAIN } from "@swooper/mapgen-core";
-
-import plotCoasts from "../../src/recipes/standard/stages/map-morphology/steps/plotCoasts.js";
 import { mapMorphologyArtifacts } from "../../src/recipes/standard/stages/map-morphology/artifacts.js";
+import plotCoasts from "../../src/recipes/standard/stages/map-morphology/steps/plotCoasts.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
 describe("map-morphology/plot-coasts", () => {

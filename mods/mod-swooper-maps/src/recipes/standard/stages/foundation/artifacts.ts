@@ -1,14 +1,14 @@
-import { TypedArraySchemas, Type, defineArtifact } from "@swooper/mapgen-core/authoring";
 import {
   FOUNDATION_CRUST_ARTIFACT_TAG,
   FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
   FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG,
   FOUNDATION_MESH_ARTIFACT_TAG,
-  FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
   FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG,
+  FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
   FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
   FOUNDATION_TECTONICS_ARTIFACT_TAG,
 } from "@swooper/mapgen-core";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const FOUNDATION_TECTONIC_SEGMENTS_ARTIFACT_TAG = "artifact:foundation.tectonicSegments";
 const FOUNDATION_TECTONIC_HISTORY_ARTIFACT_TAG = "artifact:foundation.tectonicHistory";

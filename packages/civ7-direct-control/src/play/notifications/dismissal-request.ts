@@ -1,25 +1,23 @@
-import { Type, type Static } from "typebox";
-
+import { type Static, Type } from "typebox";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { assertCiv7ComponentId, Civ7ComponentIdSchema } from "../../civ7-component-id.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7TunerState,
+} from "../../session/types.js";
 import { notificationDismissalSource } from "./dismissal.js";
+import type { Civ7NotificationDismissalPostcondition } from "./postconditions.js";
 import {
   Civ7NotificationDismissalPostconditionSchema,
   Civ7NotificationDismissalSummarySchema,
   notificationDismissalPostcondition,
 } from "./postconditions.js";
 import { waitForCiv7NotificationDismissal } from "./verification.js";
-import { jsLiteral } from "../../runtime/command-serialization.js";
-import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
-import { executeCiv7AppUiCommand } from "../../session/execute.js";
-
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
-import type { Civ7NotificationDismissalPostcondition } from "./postconditions.js";
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-  Civ7TunerState,
-} from "../../session/types.js";
 
 export type Civ7NotificationDismissInput = Readonly<{
   notificationId: Civ7ComponentId;

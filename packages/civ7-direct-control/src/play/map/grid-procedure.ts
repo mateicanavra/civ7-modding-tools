@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
-import {
-  Civ7MapGridInputSchema,
-  Civ7MapGridResultSchema,
-  type Civ7MapGridInput,
-  type Civ7MapGridResult,
-} from "./types.js";
 import { getCiv7MapGrid, type MapGridReadDependencies } from "./reads.js";
+import {
+  type Civ7MapGridInput,
+  Civ7MapGridInputSchema,
+  type Civ7MapGridResult,
+  Civ7MapGridResultSchema,
+} from "./types.js";
 
 export const Civ7MapGridProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "map.grid.read",

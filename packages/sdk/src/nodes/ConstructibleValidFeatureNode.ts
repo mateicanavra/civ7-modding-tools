@@ -1,5 +1,5 @@
-import { TObjectValues } from "../types";
 import { FEATURE } from "../constants";
+import { TObjectValues } from "../types";
 
 import { BaseNode } from "./BaseNode";
 

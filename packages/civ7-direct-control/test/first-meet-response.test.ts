@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
 import { requestCiv7FirstMeetResponse } from "../src/index";
-import type { Civ7OperationRequestResult } from "../src/play/operations/validate-request";
 import type { Civ7PlayNotificationViewResult } from "../src/play/notifications/view";
+import type { Civ7OperationRequestResult } from "../src/play/operations/validate-request";
 
 describe("first-meet response requests", () => {
   test("records source-owned first-meet blocker clearance proof", async () => {

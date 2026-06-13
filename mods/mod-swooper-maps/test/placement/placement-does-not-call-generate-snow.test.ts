@@ -1,11 +1,11 @@
 import { describe, expect, it } from "bun:test";
 
 import {
-  MockAdapter,
   createMockAdapter,
   type DiscoveryPlacementIntent,
   type DiscoveryPlacementOutcome,
   type MapInfo,
+  MockAdapter,
   type ResourcePlacementIntent,
   type ResourcePlacementOutcome,
 } from "@civ7/adapter";

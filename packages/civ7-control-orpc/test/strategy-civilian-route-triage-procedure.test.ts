@@ -1,13 +1,5 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
-import {
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  Civ7StrategyCivilianRouteTriageUnavailableError,
-  createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-} from "../src/index";
 import type {
   Civ7ControlOrpcBattlefieldScanResult,
   Civ7ControlOrpcDestinationAnalysisResult,
@@ -15,6 +7,13 @@ import type {
   Civ7ControlOrpcReadyUnitViewResult,
   Civ7ControlOrpcSettlementRecommendationsResult,
 } from "../src/dependencies/direct-control";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  Civ7ControlOrpcRouter,
+  Civ7StrategyCivilianRouteTriageUnavailableError,
+  createCiv7ControlOrpcServerClient,
+} from "../src/index";
 
 describe("strategy.civilianRouteTriage control-oRPC procedure", () => {
   test("composes route evidence into semantic civilian triage", async () => {

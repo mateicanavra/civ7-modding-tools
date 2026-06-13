@@ -1,4 +1,4 @@
-import { Type, type TSchemaOptions, type TUnsafe } from "typebox";
+import { type TSchemaOptions, type TUnsafe, Type } from "typebox";
 
 type GridShape = Readonly<{ kind: "grid"; dims: readonly [string, string] }>;
 

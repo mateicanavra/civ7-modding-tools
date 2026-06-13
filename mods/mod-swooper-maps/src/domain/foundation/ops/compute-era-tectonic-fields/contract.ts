@@ -1,11 +1,10 @@
-import { Type, defineOp } from "@swooper/mapgen-core/authoring";
 import type { Static } from "@swooper/mapgen-core/authoring";
-
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring";
 import {
   FoundationTectonicEraFieldsInternalSchema,
   TectonicEventsSchema,
 } from "../../lib/tectonics/internal-contract.js";
+import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 
 const StrategySchema = Type.Object(
   {

@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../session/types.js";
 import {
-  Civ7AppUiSnapshotInputSchema,
-  Civ7AppUiSnapshotResultSchema,
-  getCiv7AppUiSnapshot,
   type AppUiSnapshotDependencies,
   type Civ7AppUiSnapshotInput,
+  Civ7AppUiSnapshotInputSchema,
   type Civ7AppUiSnapshotResult,
+  Civ7AppUiSnapshotResultSchema,
+  getCiv7AppUiSnapshot,
 } from "./app-ui-snapshot.js";
 
 export const Civ7AppUiSnapshotProcedureDescriptor = createCiv7ProcedureCoreDescriptor({

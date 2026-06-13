@@ -1,5 +1,5 @@
-import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { idx } from "@swooper/mapgen-core";
+import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { projectOddqToHexSpace, wrapX } from "@swooper/mapgen-core/lib/grid";
 
 import TransportMoistureContract from "../contract.js";

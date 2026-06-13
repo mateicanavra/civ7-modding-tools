@@ -1,5 +1,5 @@
 import type { ContractProcedure } from "@orpc/contract";
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { civ7ControlOrpcContractBase } from "../../contract-base";
 import type { Civ7ControlOrpcErrorMap } from "../../errors";

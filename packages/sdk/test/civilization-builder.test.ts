@@ -1,5 +1,5 @@
-import { CivilizationBuilder } from "../src";
 import { expect, test } from "vitest";
+import { CivilizationBuilder } from "../src";
 
 const civPayload = {
   civilization: {

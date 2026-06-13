@@ -1,5 +1,5 @@
-import { BaseBuilder } from "../src/builders";
 import { expect, test } from "vitest";
+import { BaseBuilder } from "../src/builders";
 
 class DummyBuilder extends BaseBuilder<{ foo: string; bar: string }> {
   foo = "initial";

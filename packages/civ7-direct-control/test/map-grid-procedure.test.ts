@@ -1,16 +1,16 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7MapBounds,
   Civ7MapGridProcedureDescriptor,
   Civ7MapGridProcedureSchemaArtifacts,
+  type Civ7MapLocation,
   callCiv7MapGridProcedure,
   getCiv7MapGrid,
+  type MapGridReadDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7MapBounds,
-  type Civ7MapLocation,
-  type MapGridReadDependencies,
 } from "../src/index";
 
 describe("Civ7 map-grid procedure descriptor", () => {

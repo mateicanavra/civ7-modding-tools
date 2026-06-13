@@ -1,6 +1,6 @@
+import { createLabelRng } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
-import { createLabelRng } from "@swooper/mapgen-core";
 
 import PlanIslandChainsContract from "../contract.js";
 import {

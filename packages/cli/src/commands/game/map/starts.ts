@@ -1,5 +1,5 @@
-import { Command, Flags } from "@oclif/core";
 import { readCiv7StartPositions } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GameMapStarts extends Command {
   static id = "game map starts";

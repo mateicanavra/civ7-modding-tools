@@ -1,13 +1,12 @@
-import type { FoundationMantleForcing } from "../../compute-mantle-forcing/contract.js";
-import type { FoundationMesh } from "../../compute-mesh/contract.js";
-import type { TectonicEventRecord } from "../../../lib/tectonics/internal-contract.js";
-
 import {
   requireMantleForcing as requireMantleForcingInput,
   requireMesh as requireMeshInput,
 } from "../../../lib/require.js";
 import { EVENT_TYPE } from "../../../lib/tectonics/constants.js";
+import type { TectonicEventRecord } from "../../../lib/tectonics/internal-contract.js";
 import { clamp01, clampByte, normalizeToInt8 } from "../../../lib/tectonics/shared.js";
+import type { FoundationMantleForcing } from "../../compute-mantle-forcing/contract.js";
+import type { FoundationMesh } from "../../compute-mesh/contract.js";
 
 export function requireMesh(
   ...args: Parameters<typeof requireMeshInput>

@@ -1,6 +1,5 @@
-import { BaseLocalization } from "./BaseLocalization";
-
 import { TClassProperties } from "../types";
+import { BaseLocalization } from "./BaseLocalization";
 
 export type TUniqueQuarterLocalization = TClassProperties<UniqueQuarterLocalization>;
 export class UniqueQuarterLocalization extends BaseLocalization<TUniqueQuarterLocalization> {

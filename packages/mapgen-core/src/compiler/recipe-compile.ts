@@ -1,8 +1,8 @@
 import type { TSchema } from "typebox";
 
 import type { DomainOpCompileAny } from "../authoring/bindings.js";
-import type { CompiledRecipeConfigOf, RecipeConfigInputOf } from "../authoring/types.js";
 import type { StepOpsDecl } from "../authoring/step/ops.js";
+import type { CompiledRecipeConfigOf, RecipeConfigInputOf } from "../authoring/types.js";
 import type { CompileErrorItem } from "./errors.js";
 import type { NormalizeCtx } from "./normalize.js";
 import { normalizeOpsTopLevel, normalizeStrict, prefillOpDefaults } from "./normalize.js";

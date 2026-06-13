@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 
 import {
-  createCiv7IntelligenceBridge,
-  installCiv7IntelligenceBridge,
   type Civ7ControlOrpcContext,
   type Civ7ControlOrpcPlayableStatusResult,
   type Civ7IntelligenceBridge,
   type Civ7IntelligenceBridgeGlobalTarget,
+  createCiv7IntelligenceBridge,
+  installCiv7IntelligenceBridge,
 } from "../src/index";
 
 describe("Civ7IntelligenceBridge global adapter", () => {

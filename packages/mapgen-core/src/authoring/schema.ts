@@ -1,4 +1,4 @@
-import { Type, type Static, type TSchema } from "typebox";
+import { type Static, type TSchema, Type } from "typebox";
 
 import type { DomainOpSchema } from "./op/schema.js";
 

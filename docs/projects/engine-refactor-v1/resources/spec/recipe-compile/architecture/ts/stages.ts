@@ -1,4 +1,4 @@
-import { Type, type Static, type TObject, type TSchema } from "typebox";
+import { type Static, type TObject, type TSchema, Type } from "typebox";
 
 import type { StepModule } from "./steps";
 

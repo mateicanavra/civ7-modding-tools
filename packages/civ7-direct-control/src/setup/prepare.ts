@@ -4,25 +4,24 @@ import { basename, extname, join, resolve } from "node:path";
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { assessCiv7SignedIntSeed } from "../policy/setup.js";
 import { jsonPayloadFromCommandResult } from "../session/command-result.js";
-import { validateIdentifier } from "../validation.js";
-import {
-  buildSetupSnapshotCommand,
-  defaultSetupReadDependencies,
-  setupSnapshotScriptSource,
-  validateMapScript,
-  type Civ7SetupMapRow,
-  type Civ7SetupParameterSnapshot,
-  type Civ7SetupParameterValue,
-  type Civ7SetupSnapshot,
-  type Civ7SetupSnapshotResult,
-  type SetupReadDependencies,
-} from "./reads.js";
-
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../session/types.js";
+import { validateIdentifier } from "../validation.js";
+import {
+  buildSetupSnapshotCommand,
+  type Civ7SetupMapRow,
+  type Civ7SetupParameterSnapshot,
+  type Civ7SetupParameterValue,
+  type Civ7SetupSnapshot,
+  type Civ7SetupSnapshotResult,
+  defaultSetupReadDependencies,
+  type SetupReadDependencies,
+  setupSnapshotScriptSource,
+  validateMapScript,
+} from "./reads.js";
 
 export type Civ7SetupOptionValue = string | number | boolean;
 

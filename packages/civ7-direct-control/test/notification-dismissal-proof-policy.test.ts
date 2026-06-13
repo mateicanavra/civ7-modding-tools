@@ -1,13 +1,11 @@
 import { describe, expect, test } from "vitest";
-
+import type { Civ7NotificationDismissalResult } from "../src/play/notifications/dismissal-request";
+import type { Civ7NotificationDismissalPostconditionClassification } from "../src/play/notifications/postconditions";
+import { notificationDismissalPostconditionConfirmed } from "../src/play/notifications/postconditions";
 import {
   notificationDismissalProofOutcome,
   notificationDismissalProofPostcondition,
 } from "../src/proof/notification-dismissal-proof-policy";
-import { notificationDismissalPostconditionConfirmed } from "../src/play/notifications/postconditions";
-
-import type { Civ7NotificationDismissalResult } from "../src/play/notifications/dismissal-request";
-import type { Civ7NotificationDismissalPostconditionClassification } from "../src/play/notifications/postconditions";
 import type { Civ7OperationTelemetryPostconditionOutcome } from "../src/proof/operation-telemetry";
 
 type NotificationDismissalProofCase = Readonly<{

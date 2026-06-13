@@ -1,5 +1,5 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
+import ComputeEraPlateMembershipContract from "../contract.js";
 import {
   computePlateIdByEra,
   ERA_COUNT_MAX,
@@ -8,7 +8,6 @@ import {
   requirePlateGraph,
   requirePlateMotion,
 } from "../rules/index.js";
-import ComputeEraPlateMembershipContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(ComputeEraPlateMembershipContract, "default", {
   run: (input, config) => {

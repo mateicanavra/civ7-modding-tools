@@ -1,5 +1,5 @@
-import { Type, type Static } from "@swooper/mapgen-core/authoring";
 import type { MountainsConfig } from "@mapgen/domain/morphology/ops";
+import { type Static, Type } from "@swooper/mapgen-core/authoring";
 
 function clamp(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min;

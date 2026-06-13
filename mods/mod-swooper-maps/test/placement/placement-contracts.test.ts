@@ -1,22 +1,22 @@
 import { describe, expect, it } from "bun:test";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 import standardRecipe from "../../src/recipes/standard/recipe.js";
-import {
-  PLACEMENT_PRODUCT_EFFECT_TAGS,
-  STANDARD_ENGINE_EFFECT_TAGS,
-} from "../../src/recipes/standard/tags.js";
 import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
 import adjustResourcesStep from "../../src/recipes/standard/stages/placement/steps/adjust-resources/index.js";
 import assignAdvancedStartsStep from "../../src/recipes/standard/stages/placement/steps/assign-advanced-starts/index.js";
 import assignStartsStep from "../../src/recipes/standard/stages/placement/steps/assign-starts/index.js";
-import planResourcesStep from "../../src/recipes/standard/stages/placement/steps/plan-resources/index.js";
-import placeNaturalWondersStep from "../../src/recipes/standard/stages/placement/steps/place-natural-wonders/index.js";
 import placeDiscoveriesStep from "../../src/recipes/standard/stages/placement/steps/place-discoveries/index.js";
+import placeNaturalWondersStep from "../../src/recipes/standard/stages/placement/steps/place-natural-wonders/index.js";
 import placeResourcesStep from "../../src/recipes/standard/stages/placement/steps/place-resources/index.js";
 import placementStep from "../../src/recipes/standard/stages/placement/steps/placement/index.js";
+import planResourcesStep from "../../src/recipes/standard/stages/placement/steps/plan-resources/index.js";
 import preparePlacementSurfaceStep from "../../src/recipes/standard/stages/placement/steps/prepare-placement-surface/index.js";
+import {
+  PLACEMENT_PRODUCT_EFFECT_TAGS,
+  STANDARD_ENGINE_EFFECT_TAGS,
+} from "../../src/recipes/standard/tags.js";
 
 const PLACEMENT_STEPS_DIR = join(
   import.meta.dir,

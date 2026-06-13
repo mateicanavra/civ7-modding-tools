@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../session/types.js";
 import {
-  Civ7TurnCompletionStatusInputSchema,
-  Civ7TurnCompletionStatusResultSchema,
-  getCiv7TurnCompletionStatus,
   type Civ7TurnCompletionStatusDependencies,
   type Civ7TurnCompletionStatusInput,
+  Civ7TurnCompletionStatusInputSchema,
   type Civ7TurnCompletionStatusResult,
+  Civ7TurnCompletionStatusResultSchema,
+  getCiv7TurnCompletionStatus,
 } from "./turn-completion.js";
 
 export const Civ7TurnCompletionStatusProcedureDescriptor = createCiv7ProcedureCoreDescriptor({

@@ -1,6 +1,4 @@
 import { BIOME_SYMBOL_TO_INDEX, type BiomeSymbol } from "@mapgen/domain/ecology/types.js";
-
-import type { BiomeClassificationTypes } from "../types.js";
 import {
   aridityShiftForIndex,
   biomeSymbolForZones,
@@ -10,6 +8,7 @@ import {
   temperatureZoneOf,
   vegetationDensityForBiome,
 } from "../rules/index.js";
+import type { BiomeClassificationTypes } from "../types.js";
 
 type DefaultConfig = BiomeClassificationTypes["config"]["default"];
 

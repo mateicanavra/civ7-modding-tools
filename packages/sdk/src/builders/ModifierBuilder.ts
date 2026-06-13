@@ -1,15 +1,13 @@
 import * as lodash from "lodash-es";
-
-import { TClassProperties } from "../types";
-import { DatabaseNode, GameEffectNode, ModifierNode, StringNode, TModifierNode } from "../nodes";
-
-import { BaseBuilder } from "./BaseBuilder";
 import {
   CivilizationLocalization,
   ModifierLocalization,
   TModifierLocalization,
 } from "../localizations";
+import { DatabaseNode, GameEffectNode, ModifierNode, StringNode, TModifierNode } from "../nodes";
+import { TClassProperties } from "../types";
 import { locale } from "../utils";
+import { BaseBuilder } from "./BaseBuilder";
 
 type TModifierBuilder = TClassProperties<ModifierBuilder>;
 

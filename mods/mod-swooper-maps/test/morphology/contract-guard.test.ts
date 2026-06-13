@@ -2,12 +2,11 @@ import { describe, expect, it } from "bun:test";
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-
+import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
+import PlotMountainsStepContract from "../../src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.js";
+import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import LandmassPlatesStepContract from "../../src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.js";
 import MountainsStepContract from "../../src/recipes/standard/stages/morphology-features/steps/mountains.contract.js";
-import PlotMountainsStepContract from "../../src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.js";
-import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 
 function listFilesRecursive(rootDir: string): string[] {
   const out: string[] = [];

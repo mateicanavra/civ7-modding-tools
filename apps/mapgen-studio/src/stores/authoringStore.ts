@@ -1,19 +1,18 @@
 import { create } from "zustand";
-import { persist, type PersistStorage, type StorageValue } from "zustand/middleware";
-
-import type { BuiltInPreset } from "../recipes/catalog";
-import { DEFAULT_STUDIO_RECIPE_ID, getRecipeArtifacts } from "../recipes/catalog";
+import { type PersistStorage, persist, type StorageValue } from "zustand/middleware";
 import {
-  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
   type Civ7StudioSetupConfig,
+  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
 } from "../features/civ7Setup/setupConfig";
 import { buildDefaultConfig } from "../features/configOverrides/configBuilders";
 import {
-  STUDIO_AUTHORING_STATE_KEY,
   loadStudioAuthoringState,
-  saveStudioAuthoringState,
+  STUDIO_AUTHORING_STATE_KEY,
   type StudioAuthoringStateSnapshot,
+  saveStudioAuthoringState,
 } from "../features/studioState/persistence";
+import type { BuiltInPreset } from "../recipes/catalog";
+import { DEFAULT_STUDIO_RECIPE_ID, getRecipeArtifacts } from "../recipes/catalog";
 import type { PipelineConfig, RecipeSettings, WorldSettings } from "../ui/types";
 
 /**

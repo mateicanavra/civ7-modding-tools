@@ -1,11 +1,11 @@
-import type { StudioEventHubApi } from "../services/StudioEventHub.js";
 import type { StudioRuntime } from "../runtime.js";
+import type { StudioEventHubApi } from "../services/StudioEventHub.js";
 import {
   buildLiveGameErrorState,
   buildLiveGameState,
-  liveGameStateKey,
   type LiveGameState,
   type LiveGameStatusBody,
+  liveGameStateKey,
 } from "./model.js";
 import { readLiveGameStatusBody } from "./statusRead.js";
 

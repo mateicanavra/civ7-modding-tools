@@ -1,15 +1,14 @@
+import type { RecipeDagResult } from "@civ7/studio-server/contract";
 import { describe, expect, it } from "vitest";
-
 import {
   buildArtifactEdgeLabels,
   buildRecipeDagLayout,
   groupStageEdges,
   pointsToPath,
+  type RoutedStageEdgeGroup,
   resolveEdgeLabelPosition,
   resolveEdgeLabelPositions,
-  type RoutedStageEdgeGroup,
 } from "../../src/features/recipeDag/layout";
-import type { RecipeDagResult } from "@civ7/studio-server/contract";
 
 describe("recipe DAG layout", () => {
   it("places stages by dependency rank while preserving phase grouping", () => {

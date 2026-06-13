@@ -1,20 +1,19 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
-import { Civ7ComponentIdSchema, type Civ7ComponentId } from "../../civ7-component-id.js";
+import { type Civ7ComponentId, Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7TunerCommand } from "../../session/execute.js";
-
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
-import { stableJson } from "./stable-json.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type { Civ7MapLocation } from "../map/types.js";
 import { Civ7MapLocationSchema } from "../map/types.js";
+import { stableJson } from "./stable-json.js";
 
 export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS = 1_500;
 export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS = 250;

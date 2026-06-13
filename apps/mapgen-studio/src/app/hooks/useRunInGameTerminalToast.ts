@@ -1,4 +1,4 @@
-import { useEffect, type MutableRefObject } from "react";
+import { type MutableRefObject, useEffect } from "react";
 
 import {
   isRunInGameTerminalPhase,

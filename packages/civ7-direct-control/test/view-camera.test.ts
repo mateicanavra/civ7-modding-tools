@@ -1,15 +1,14 @@
 import { describe, expect, test } from "vitest";
-
+import { Civ7DirectControlError } from "../src/direct-control-error";
+import { validateMapLocation } from "../src/play/map/validation";
 import {
-  focusCiv7CameraOnPlot,
   type CameraFocusDependencies,
   type Civ7CameraFocusResult,
+  focusCiv7CameraOnPlot,
 } from "../src/play/view/camera";
-import { Civ7DirectControlError } from "../src/direct-control-error";
 import { jsLiteral } from "../src/runtime/command-serialization";
 import { probeHelperSource } from "../src/runtime/probe";
 import { jsonPayloadFromCommandResult } from "../src/session/command-result";
-import { validateMapLocation } from "../src/play/map/validation";
 import type { Civ7CommandResult } from "../src/session/types";
 
 function commandResult(payload: unknown): Civ7CommandResult {

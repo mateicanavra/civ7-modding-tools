@@ -1,6 +1,6 @@
 import { Args, Flags } from "@oclif/core";
-import SubtreeCommand from "./SubtreeCommand.js";
 import { pullSubtree } from "../../utils/git.js";
+import SubtreeCommand from "./SubtreeCommand.js";
 
 export default abstract class SubtreePullBase extends SubtreeCommand {
   static flags = {

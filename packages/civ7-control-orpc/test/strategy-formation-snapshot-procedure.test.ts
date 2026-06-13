@@ -1,18 +1,17 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
-import {
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  Civ7StrategyFormationSnapshotUnavailableError,
-  createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-} from "../src/index";
 import type {
   Civ7ControlOrpcBattlefieldScanResult,
   Civ7ControlOrpcPlayNotificationViewResult,
   Civ7ControlOrpcReadyUnitViewResult,
 } from "../src/dependencies/direct-control";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  Civ7ControlOrpcRouter,
+  Civ7StrategyFormationSnapshotUnavailableError,
+  createCiv7ControlOrpcServerClient,
+} from "../src/index";
 
 describe("strategy.formationSnapshot control-oRPC procedure", () => {
   test("composes ready-unit and battlefield evidence into a safe formation view", async () => {

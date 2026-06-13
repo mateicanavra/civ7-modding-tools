@@ -1,5 +1,5 @@
-import { defineArtifact } from "@swooper/mapgen-core/authoring";
 import placement from "@mapgen/domain/placement";
+import { defineArtifact } from "@swooper/mapgen-core/authoring";
 
 /** Natural-wonder plan (`artifact:placement.naturalWonderPlan`). One artifact per file by repo convention. */
 export const naturalWonderPlanArtifact = defineArtifact({

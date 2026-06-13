@@ -1,7 +1,7 @@
 import {
-  createCiv7ControllerBridgeIngress,
   type Civ7ControllerBridgeContextFactory,
   type Civ7ControllerBridgeResponse,
+  createCiv7ControllerBridgeIngress,
 } from "./controller-ingress";
 
 export const CIV7_INTELLIGENCE_BRIDGE_GLOBAL_KEY = "Civ7IntelligenceBridge";

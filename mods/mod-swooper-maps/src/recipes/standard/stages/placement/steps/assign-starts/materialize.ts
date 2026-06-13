@@ -1,14 +1,13 @@
+import placement from "@mapgen/domain/placement";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
-
-import placement from "@mapgen/domain/placement";
 import { warnLog } from "../../log.js";
 
 import {
+  buildPlacementPointBuffers,
   PLACEMENT_VIZ_GROUP,
   UNIT_SCORE_VALUE_SPEC,
-  buildPlacementPointBuffers,
 } from "../../viz.js";
 
 type PlanStartsOutput = Static<(typeof placement.ops.planStarts)["output"]>;

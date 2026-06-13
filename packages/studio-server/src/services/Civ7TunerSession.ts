@@ -1,4 +1,4 @@
-import { Civ7DirectControlSession, type Civ7DirectControlOptions } from "@civ7/direct-control";
+import { type Civ7DirectControlOptions, Civ7DirectControlSession } from "@civ7/direct-control";
 import { Clock, Context, Data, Effect, Layer, Ref, type Scope } from "effect";
 import type { UnknownException } from "effect/Cause";
 

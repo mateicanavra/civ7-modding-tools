@@ -1,5 +1,5 @@
-import { ingestVizEvent } from "./ingest";
 import type { VizEvent } from "../../shared/vizEvents";
+import { ingestVizEvent } from "./ingest";
 import type { VizManifestV1 } from "./model";
 
 export type VizStoreSnapshot = Readonly<{

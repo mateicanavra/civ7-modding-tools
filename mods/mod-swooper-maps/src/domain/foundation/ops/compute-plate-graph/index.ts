@@ -1,11 +1,11 @@
+import { createLabelRng } from "@swooper/mapgen-core";
 import { createOp, type Static } from "@swooper/mapgen-core/authoring";
 import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
-import { createLabelRng } from "@swooper/mapgen-core";
 
 import { deriveFoundationReferenceArea, requireEnvDimensions } from "../../lib/normalize.js";
 import { requireCrust, requireMesh } from "../../lib/require.js";
-import ComputePlateGraphContract from "./contract.js";
 import type { FoundationPlate } from "./contract.js";
+import ComputePlateGraphContract from "./contract.js";
 
 type MinHeapItem = Readonly<{ cost: number; plateId: number; cellId: number; seq: number }>;
 

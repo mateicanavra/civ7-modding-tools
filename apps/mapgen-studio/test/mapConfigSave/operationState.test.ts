@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
-
-import { createMapConfigSaveDeployOperationStore } from "../../src/server/mapConfigs/operationState";
 import type { MapConfigSaveDeployStatus } from "../../src/features/mapConfigSave/status";
+import { createMapConfigSaveDeployOperationStore } from "../../src/server/mapConfigs/operationState";
 
 function createStore(options: { onChange?: (status: MapConfigSaveDeployStatus) => void } = {}) {
   let nowMs = Date.parse("2026-06-01T00:00:00.000Z");

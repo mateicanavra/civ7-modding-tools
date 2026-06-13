@@ -1,11 +1,4 @@
 import { describe, expect, test } from "vitest";
-
-import {
-  createCiv7ProductionChoiceTelemetryRecord,
-  type Civ7ProductionChoiceTelemetryAdapterInput,
-} from "../src/proof/production-choice-telemetry";
-import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
-
 import type { Civ7ProductionChoiceResult } from "../src/play/operations/production-choice";
 import type {
   Civ7ProductionPostcondition,
@@ -13,6 +6,11 @@ import type {
   Civ7ProductionPostconditionSnapshot,
 } from "../src/play/operations/production-postconditions";
 import type { Civ7OperationValidationResult } from "../src/play/operations/types";
+import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
+import {
+  type Civ7ProductionChoiceTelemetryAdapterInput,
+  createCiv7ProductionChoiceTelemetryRecord,
+} from "../src/proof/production-choice-telemetry";
 
 describe("production-choice telemetry adapter", () => {
   test("adapts a cleared production choice into separated telemetry slots", () => {

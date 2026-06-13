@@ -1,18 +1,18 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
+  type Civ7SettlementRecommendationInput,
   Civ7SettlementRecommendationInputSchema,
+  type Civ7SettlementRecommendationResult,
   Civ7SettlementRecommendationResultSchema,
   getCiv7SettlementRecommendations,
-  type Civ7SettlementRecommendationInput,
-  type Civ7SettlementRecommendationResult,
   type SettlementRecommendationDependencies,
 } from "./settlement.js";
 

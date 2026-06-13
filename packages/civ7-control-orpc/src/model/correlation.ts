@@ -1,5 +1,5 @@
 import { Civ7DirectControlError } from "@civ7/direct-control";
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 export const Civ7ControlOrpcCorrelationIdSchema = Type.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",

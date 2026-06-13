@@ -1,6 +1,6 @@
+import { unzipResources } from "@civ7/plugin-files";
 import { promises as fs } from "fs";
 import path from "path";
-import { unzipResources } from "@civ7/plugin-files";
 
 // When run from apps/docs (package cwd), resolve central outputs under repo root
 const SOURCE_DIR = path.resolve(process.cwd(), "../../.civ7/outputs/resources");

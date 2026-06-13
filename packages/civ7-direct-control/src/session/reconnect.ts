@@ -2,8 +2,8 @@ import {
   Civ7DirectControlError,
   type Civ7DirectControlErrorCode,
 } from "../direct-control-error.js";
-import type { Civ7CommandResult, Civ7TunerStateSelection } from "./types.js";
 import type { Civ7DirectControlSession } from "./session.js";
+import type { Civ7CommandResult, Civ7TunerStateSelection } from "./types.js";
 
 export async function executeSessionCommandWithReconnect(
   session: Civ7DirectControlSession,

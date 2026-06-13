@@ -1,17 +1,17 @@
+import type { Civ7AppUiSnapshot, Civ7AppUiSnapshotResult } from "../runtime/app-ui-snapshot.js";
 import {
   appUiSnapshotFromCommandResult,
   buildAppUiSnapshotCommand,
 } from "../runtime/app-ui-snapshot.js";
 import { jsLiteral } from "../runtime/command-serialization.js";
 import { executeCiv7AppUiCommand } from "../session/execute.js";
-import { sleep } from "../timing.js";
-import { boundedInteger, validatePlayerId } from "../validation.js";
-import type { Civ7AppUiSnapshot, Civ7AppUiSnapshotResult } from "../runtime/app-ui-snapshot.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../session/types.js";
+import { sleep } from "../timing.js";
+import { boundedInteger, validatePlayerId } from "../validation.js";
 
 export const DEFAULT_CIV7_AUTOPLAY_MAX_TURNS = 50;
 export const DEFAULT_CIV7_AUTOPLAY_WAIT_MS = 5_000;

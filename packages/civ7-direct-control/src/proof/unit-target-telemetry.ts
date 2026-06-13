@@ -1,5 +1,8 @@
+import type {
+  Civ7UnitTargetActionInput,
+  Civ7UnitTargetActionResult,
+} from "../play/operations/unit-target-action";
 import {
-  createCiv7OperationProofTelemetryRecord,
   type Civ7OperationProofBoundary,
   type Civ7OperationProofClass,
   type Civ7OperationProofTelemetryRecord,
@@ -7,13 +10,9 @@ import {
   type Civ7OperationTelemetryEvidencePolicy,
   type Civ7OperationTelemetryObservationLink,
   type Civ7OperationTelemetryPlayerScope,
+  createCiv7OperationProofTelemetryRecord,
 } from "./operation-telemetry";
 import { unitTargetProofPostcondition } from "./unit-target-proof-policy";
-
-import type {
-  Civ7UnitTargetActionInput,
-  Civ7UnitTargetActionResult,
-} from "../play/operations/unit-target-action";
 
 export type Civ7UnitTargetActionTelemetryAdapterInput = Readonly<{
   input: Civ7UnitTargetActionInput;

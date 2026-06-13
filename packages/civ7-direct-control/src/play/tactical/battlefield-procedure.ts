@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
-  Civ7BattlefieldScanInputSchema,
-  Civ7BattlefieldScanResultSchema,
-  getCiv7BattlefieldScan,
   type BattlefieldScanDependencies,
   type Civ7BattlefieldScanInput,
+  Civ7BattlefieldScanInputSchema,
   type Civ7BattlefieldScanResult,
+  Civ7BattlefieldScanResultSchema,
+  getCiv7BattlefieldScan,
 } from "./battlefield.js";
 
 export const Civ7BattlefieldScanProcedureDescriptor = createCiv7ProcedureCoreDescriptor({

@@ -3,9 +3,9 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexNeighborIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
 import {
+  isAnyRiverClass,
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_NONE,
-  isAnyRiverClass,
 } from "../../../../hydrology/index.js";
 import PlanNaturalWondersContract from "../contract.js";
 

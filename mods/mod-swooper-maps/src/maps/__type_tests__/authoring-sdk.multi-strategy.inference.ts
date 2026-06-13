@@ -7,12 +7,12 @@ import type {
   StepRuntimeOps,
 } from "@swooper/mapgen-core/authoring";
 import {
-  Type,
   createRecipe,
   createStage,
   createStep,
   defineOp,
   defineStep,
+  Type,
 } from "@swooper/mapgen-core/authoring";
 
 // This file exists purely to lock in critical authoring type paths:

@@ -1,21 +1,20 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7PopulationPlacementPostconditionOutcome,
   populationPlacementPostconditionConfirmed,
   populationPlacementPostconditionOutcome,
   populationPlacementRequestVerified,
-  type Civ7PopulationPlacementPostconditionOutcome,
 } from "../src/play/operations/population-placement-proof.js";
-import {
-  populationPlacementProofOutcome,
-  populationPlacementProofPostcondition,
-} from "../src/proof/population-placement-proof-policy.js";
-
 import type {
   Civ7PopulationPlacementPostcondition,
   Civ7PopulationPlacementPostconditionClassification,
 } from "../src/play/operations/population-postconditions.js";
 import type { Civ7OperationRequestResult } from "../src/play/operations/validate-request.js";
+import {
+  populationPlacementProofOutcome,
+  populationPlacementProofPostcondition,
+} from "../src/proof/population-placement-proof-policy.js";
 
 type PopulationPlacementProofCase = Readonly<{
   classification: Civ7PopulationPlacementPostconditionClassification;

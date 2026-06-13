@@ -1,4 +1,4 @@
-import { TypedArraySchemas, Type, defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const MorphologyTopographyArtifactSchema = Type.Object(
   {

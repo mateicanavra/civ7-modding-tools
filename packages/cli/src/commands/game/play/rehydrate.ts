@@ -1,4 +1,3 @@
-import { Command, Flags } from "@oclif/core";
 import {
   type Civ7ComponentId,
   type Civ7PlayNotificationViewResult,
@@ -7,6 +6,7 @@ import {
   getCiv7PlayNotificationView,
   getCiv7ReadyUnitView,
 } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 import { buildDirectControlOptions, parseComponentId } from "../../../utils/game-play-shared";
 
 type ContinuityStatus = "unchecked" | "matches" | "mismatch";

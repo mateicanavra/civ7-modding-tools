@@ -1,28 +1,25 @@
 export {
-  EVENT_TYPE,
-  OROGENY_ERA_GAIN_MIN,
-  OROGENY_ERA_GAIN_MAX,
-  ERA_COUNT_MIN,
   ERA_COUNT_MAX,
+  ERA_COUNT_MIN,
+  EVENT_TYPE,
+  OROGENY_ERA_GAIN_MAX,
+  OROGENY_ERA_GAIN_MIN,
 } from "./constants.js";
-
+export { buildBoundaryEventsFromSegments, buildHotspotEvents } from "./events.js";
+export { buildEraFields, deriveEmissionParams } from "./fields.js";
+export type {
+  FoundationTectonicEraFieldsInternal,
+  TectonicEventRecord,
+} from "./internal-contract.js";
 export {
+  FoundationTectonicEraFieldsInternalListSchema,
+  FoundationTectonicEraFieldsInternalSchema,
+  PlateIdByEraSchema,
   TectonicEventSchema,
   TectonicEventsSchema,
-  FoundationTectonicEraFieldsInternalSchema,
-  FoundationTectonicEraFieldsInternalListSchema,
-  PlateIdByEraSchema,
   TracerIndexByEraSchema,
 } from "./internal-contract.js";
-
 export { computePlateIdByEra } from "./membership.js";
-export { buildBoundaryEventsFromSegments, buildHotspotEvents } from "./events.js";
-export { deriveEmissionParams, buildEraFields } from "./fields.js";
-export { computeEraGain, buildTectonicHistoryRollups, buildTectonicsCurrent } from "./rollups.js";
-export { computeTracerIndexByEra } from "./tracing.js";
 export { computeTectonicProvenance } from "./provenance.js";
-
-export type {
-  TectonicEventRecord,
-  FoundationTectonicEraFieldsInternal,
-} from "./internal-contract.js";
+export { buildTectonicHistoryRollups, buildTectonicsCurrent, computeEraGain } from "./rollups.js";
+export { computeTracerIndexByEra } from "./tracing.js";

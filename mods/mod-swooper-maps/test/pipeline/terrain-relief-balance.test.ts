@@ -1,10 +1,9 @@
 import { describe, expect, it } from "bun:test";
-
-import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import {
-  canonicalRecipeConfig,
   type CanonicalMapConfigWithRecipe,
+  canonicalRecipeConfig,
 } from "../../src/maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { collectWorldBalanceStats } from "../support/world-balance-stats.js";
 

@@ -1,18 +1,16 @@
 import { describe, expect, it } from "bun:test";
-
-import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
 import computeCrust from "../../src/domain/foundation/ops/compute-crust/index.js";
-import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
 import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
+import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
+import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
 import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
-import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
-
 import computeBaseTopography from "../../src/domain/morphology/ops/compute-base-topography/index.js";
 import computeSeaLevel from "../../src/domain/morphology/ops/compute-sea-level/index.js";
-import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
 import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
+import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
+import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
 
 function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
   const mantlePotential = computeMantlePotential.run(

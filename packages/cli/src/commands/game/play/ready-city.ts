@@ -1,5 +1,5 @@
-import { Command, Flags } from "@oclif/core";
 import { getCiv7ReadyCityView } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 import { buildDirectControlOptions, parseComponentId } from "../../../utils/game-play-shared";
 
 type Probe<T = unknown> = { ok: true; value: T } | { ok: false; error: string };

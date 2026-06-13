@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@civ7/plugin-graph", () => ({
   renderSvg: vi.fn(async () => "<svg />"),
@@ -17,8 +17,8 @@ vi.mock("node:fs", () => ({
   },
 }));
 
-import Render from "../../src/commands/data/render";
 import { renderSvg } from "@civ7/plugin-graph";
+import Render from "../../src/commands/data/render";
 
 describe("render command", () => {
   beforeEach(() => {

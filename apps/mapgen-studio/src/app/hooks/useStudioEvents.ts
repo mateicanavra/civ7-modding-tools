@@ -1,8 +1,7 @@
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-
 import type { StudioEvent } from "@civ7/studio-server";
-
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import type { LiveRuntimeStatusState } from "../../features/liveRuntime/model";
 import { orpc, orpcClient } from "../../lib/orpc";
 import {
   applyStudioLiveGameEvent,
@@ -10,7 +9,6 @@ import {
   readAndAdoptStudioOperationsCurrent,
   type StudioOperationAdoptionTargets,
 } from "../operationAdoption";
-import type { LiveRuntimeStatusState } from "../../features/liveRuntime/model";
 
 export const STUDIO_EVENT_STREAM_RETRY_ATTEMPTS = Number.POSITIVE_INFINITY;
 

@@ -1,12 +1,12 @@
+import type { Civ7DirectControlOptions } from "../../session/types.js";
 import type {
-  Civ7NotificationDismissInput,
   Civ7NotificationDismissalResult,
+  Civ7NotificationDismissInput,
 } from "./dismissal-request.js";
 import {
   notificationDismissalPostcondition,
   notificationDismissalPostconditionConfirmed,
 } from "./postconditions.js";
-import type { Civ7DirectControlOptions } from "../../session/types.js";
 
 const DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS = 2_000;
 const DEFAULT_CIV7_NOTIFICATION_DISMISSAL_POLL_MS = 250;

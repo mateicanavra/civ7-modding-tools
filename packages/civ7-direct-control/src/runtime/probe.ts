@@ -1,4 +1,4 @@
-import { Type, type TSchema } from "typebox";
+import { type TSchema, Type } from "typebox";
 
 export type Civ7RuntimeProbe<T> = Readonly<
   | {

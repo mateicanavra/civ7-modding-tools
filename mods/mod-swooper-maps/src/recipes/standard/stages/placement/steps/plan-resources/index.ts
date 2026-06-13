@@ -1,30 +1,29 @@
+import resourcesDomain from "@mapgen/domain/resources";
 import { defineVizMeta, deriveStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import resourcesDomain from "@mapgen/domain/resources";
-
+import { placementArtifacts } from "../../artifacts.js";
+import {
+  buildPlacementPointBuffers,
+  PLACEMENT_TILE_SPACE_ID,
+  PLACEMENT_VIZ_GROUP,
+  placementCategoryColor,
+  resourceTypeLabel,
+  UNIT_SCORE_VALUE_SPEC,
+} from "../../viz.js";
 import PlanResourcesStepContract from "./contract.js";
 import {
   buildResourceDemands,
   buildRiverResourceExclusionMask,
   expectationsForGroup,
   pickPlannerMasks,
-  readResourceLegalitySurface,
   type ResourceDemandBuildResult,
+  readResourceLegalitySurface,
 } from "./planning.js";
-import { placementArtifacts } from "../../artifacts.js";
 import {
   validateResourceDemandPlanArtifact,
   validateResourceEligibilityArtifact,
   validateResourcePlanArtifact,
 } from "./validate.js";
-import {
-  PLACEMENT_TILE_SPACE_ID,
-  PLACEMENT_VIZ_GROUP,
-  UNIT_SCORE_VALUE_SPEC,
-  buildPlacementPointBuffers,
-  placementCategoryColor,
-  resourceTypeLabel,
-} from "../../viz.js";
 
 export default createStep(PlanResourcesStepContract, {
   artifacts: implementArtifacts(

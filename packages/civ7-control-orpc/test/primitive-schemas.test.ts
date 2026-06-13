@@ -1,6 +1,6 @@
 import { Civ7ComponentIdSchema, Civ7MapLocationSchema } from "@civ7/direct-control";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7ControlOrpcComponentIdSchema,

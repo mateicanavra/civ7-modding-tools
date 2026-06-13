@@ -1,11 +1,10 @@
-import { describe, expect, it } from "vitest";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
-
 import {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
   studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
 } from "mod-swooper-maps/recipes/standard-artifacts";
+import { describe, expect, it } from "vitest";
 
 function getSchemaAtPath(schema: unknown, path: readonly string[]): unknown {
   let current: any = schema as any;

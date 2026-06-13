@@ -1,3 +1,12 @@
+import type {
+  HydrologyCryosphereKnob,
+  HydrologyDrynessKnob,
+  HydrologyTemperatureKnob,
+} from "@mapgen/domain/hydrology/config.js";
+import {
+  HYDROLOGY_DRYNESS_WETNESS_SCALE,
+  HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
+} from "@mapgen/domain/hydrology/config.js";
 import {
   ctxRandom,
   ctxRandomLabel,
@@ -6,23 +15,14 @@ import {
   writeClimateField,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import ClimateRefineStepContract from "./climateRefine.contract.js";
-import { hydrologyClimateRefineArtifacts } from "../artifacts.js";
-import { computeRiverAdjacencyMaskFromRiverClass } from "../../hydrology-hydrography/river-adjacency.js";
 import {
-  HYDROLOGY_DRYNESS_WETNESS_SCALE,
-  HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
-} from "@mapgen/domain/hydrology/config.js";
-import type {
-  HydrologyCryosphereKnob,
-  HydrologyDrynessKnob,
-  HydrologyTemperatureKnob,
-} from "@mapgen/domain/hydrology/config.js";
-import {
-  RIVER_CLASS_NONE,
   isMajorRiverClass,
   isMinorRiverClass,
+  RIVER_CLASS_NONE,
 } from "../../../../../domain/hydrology/index.js";
+import { computeRiverAdjacencyMaskFromRiverClass } from "../../hydrology-hydrography/river-adjacency.js";
+import { hydrologyClimateRefineArtifacts } from "../artifacts.js";
+import ClimateRefineStepContract from "./climateRefine.contract.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 

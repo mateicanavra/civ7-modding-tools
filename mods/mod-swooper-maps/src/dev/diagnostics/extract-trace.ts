@@ -1,4 +1,4 @@
-import { parseArgs, loadTraceLines } from "./shared.js";
+import { loadTraceLines, parseArgs } from "./shared.js";
 
 function asString(value: unknown): string | null {
   return typeof value === "string" ? value : null;

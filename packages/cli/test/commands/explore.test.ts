@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@civ7/plugin-graph", () => ({
   exploreGraph: vi.fn(async () => ({
@@ -29,8 +29,8 @@ vi.mock("node:fs", () => ({
   },
 }));
 
-import Explore from "../../src/commands/data/explore";
 import { exploreGraph } from "@civ7/plugin-graph";
+import Explore from "../../src/commands/data/explore";
 
 describe("explore command", () => {
   beforeEach(() => {

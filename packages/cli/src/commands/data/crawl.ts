@@ -1,9 +1,9 @@
-import { Args, Command, Flags } from "@oclif/core";
+import * as fssync from "node:fs";
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
-import * as fssync from "node:fs";
-import { crawlGraph, graphToJson, graphToDot } from "@civ7/plugin-graph";
 import { findProjectRoot, loadConfig, resolveGraphOutDir } from "@civ7/config";
+import { crawlGraph, graphToDot, graphToJson } from "@civ7/plugin-graph";
+import { Args, Command, Flags } from "@oclif/core";
 import { resolveRootFromConfigOrFlag } from "../../utils";
 
 export default class Crawl extends Command {

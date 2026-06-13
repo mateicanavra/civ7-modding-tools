@@ -1,18 +1,17 @@
-import { readFile, readdir, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { compile } from "json-schema-to-typescript";
-import type { TObject, TSchema } from "typebox";
-
 import {
   derivePresetLabel,
   deriveRecipeConfigSchema,
   deriveStageAuthoringModel,
-  stripSchemaMetadataRoot,
   type RecipePresetDefinitionV1,
   type StageAuthoringModel,
+  stripSchemaMetadataRoot,
 } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import { compile } from "json-schema-to-typescript";
+import type { TObject, TSchema } from "typebox";
 import { validateCanonicalMapConfig } from "../src/maps/configs/canonical.js";
 
 type JsonObject = Record<string, unknown>;

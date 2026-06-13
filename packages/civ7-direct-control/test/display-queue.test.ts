@@ -7,11 +7,11 @@ import {
   buildDisplayQueueReadCommand,
   CIV7_DISPLAY_QUEUE_BRIDGE_GLOBAL,
   closeCiv7Displays,
+  type DisplayQueueDependencies,
   ensureCiv7DisplayQueueBridge,
   readCiv7DisplayQueue,
   resumeCiv7DisplayQueue,
   suspendCiv7DisplayQueue,
-  type DisplayQueueDependencies,
 } from "../src/play/operations/display-queue";
 import { jsLiteral } from "../src/runtime/command-serialization";
 import type { Civ7CommandResult } from "../src/session/types";

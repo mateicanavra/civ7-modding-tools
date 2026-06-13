@@ -5,10 +5,9 @@ import type {
   ResourcePlacementOutcome,
   ResourcePlacementRejectionReason,
 } from "@civ7/adapter";
+import resources from "@mapgen/domain/resources";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
-
-import resources from "@mapgen/domain/resources";
 
 type ResourcePlanOutput = Static<(typeof resources.ops.adjustResourceSupport)["output"]>;
 type ResourcePlacementOutcomes = Static<

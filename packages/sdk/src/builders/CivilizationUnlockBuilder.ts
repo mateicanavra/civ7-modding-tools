@@ -1,4 +1,6 @@
-import { TClassProperties, TObjectValues } from "../types";
+import { ACTION_GROUP_ACTION, AGE, KIND, REQUIREMENT, REQUIREMENT_SET } from "../constants";
+import { XmlFile } from "../files";
+import { TCivilizationUnlockLocalization } from "../localizations";
 import {
   DatabaseNode,
   KindNode,
@@ -12,9 +14,7 @@ import {
   UnlockRequirementNode,
   UnlockRewardNode,
 } from "../nodes";
-import { TCivilizationUnlockLocalization } from "../localizations";
-import { XmlFile } from "../files";
-import { ACTION_GROUP_ACTION, AGE, KIND, REQUIREMENT, REQUIREMENT_SET } from "../constants";
+import { TClassProperties, TObjectValues } from "../types";
 import { locale, trim } from "../utils";
 
 import { BaseBuilder } from "./BaseBuilder";

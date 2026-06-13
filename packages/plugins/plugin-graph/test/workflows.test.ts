@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
+import { describe, expect, it } from "vitest";
 // In this package's own tests, import from the local source to avoid self-resolve issues.
 import { crawlGraph, exploreGraph } from "../src";
 

@@ -6,6 +6,8 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  type Civ7DirectControlOptions,
+  type Civ7SetupOptionValue,
   checkCiv7DirectControlHealth,
   createCiv7ControlRequestId,
   DEFAULT_CIV7_SCRIPTING_LOG,
@@ -13,8 +15,6 @@ import {
   getCiv7SetupSnapshot,
   runCiv7SinglePlayerFromSetup,
   snapshotFile,
-  type Civ7DirectControlOptions,
-  type Civ7SetupOptionValue,
   waitForFreshLogMarkers,
 } from "../../packages/civ7-direct-control/src/index.ts";
 import { resolveModsDir } from "../../packages/plugins/plugin-mods/src/index.ts";

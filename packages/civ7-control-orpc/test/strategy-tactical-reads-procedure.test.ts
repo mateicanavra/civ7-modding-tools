@@ -1,18 +1,17 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
-import {
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  Civ7StrategyTacticalReadUnavailableError,
-  createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-} from "../src/index";
 import type {
   Civ7ControlOrpcBattlefieldScanResult,
   Civ7ControlOrpcDestinationAnalysisResult,
   Civ7ControlOrpcTargetCandidatesResult,
 } from "../src/dependencies/direct-control";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  Civ7ControlOrpcRouter,
+  Civ7StrategyTacticalReadUnavailableError,
+  createCiv7ControlOrpcServerClient,
+} from "../src/index";
 
 describe("strategy tactical read control-oRPC procedures", () => {
   test("projects battlefield scan into bounded owner and point summaries", async () => {

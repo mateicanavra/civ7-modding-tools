@@ -1,10 +1,3 @@
-import {
-  HILL_TERRAIN,
-  MOUNTAIN_TERRAIN,
-  NAVIGABLE_RIVER_TERRAIN,
-  defineVizMeta,
-  snapshotEngineHeightfield,
-} from "@swooper/mapgen-core";
 import { CIV7_DEFAULT_RIVER_MODELING_ARGS } from "@civ7/map-policy";
 import {
   HYDROLOGY_FLOW_INTERMITTENT,
@@ -13,9 +6,16 @@ import {
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
 } from "@mapgen/domain/hydrology";
+import {
+  defineVizMeta,
+  HILL_TERRAIN,
+  MOUNTAIN_TERRAIN,
+  NAVIGABLE_RIVER_TERRAIN,
+  snapshotEngineHeightfield,
+} from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import PlotRiversStepContract from "./plotRivers.contract.js";
 import { mapRiversArtifacts } from "../artifacts.js";
+import PlotRiversStepContract from "./plotRivers.contract.js";
 
 const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

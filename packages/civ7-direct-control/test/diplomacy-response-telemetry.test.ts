@@ -1,16 +1,14 @@
 import { describe, expect, test } from "vitest";
-
+import type { Civ7ComponentId } from "../src/civ7-component-id";
+import type { Civ7PlayNotificationViewResult } from "../src/play/notifications/view";
+import type { Civ7DiplomacyResponsePostcondition } from "../src/play/operations/diplomacy-postconditions";
+import type { Civ7DiplomacyResponseResult } from "../src/play/operations/diplomacy-request";
+import type { Civ7OperationValidationResult } from "../src/play/operations/types";
 import {
-  createCiv7DiplomacyResponseTelemetryRecord,
   type Civ7DiplomacyResponseTelemetryAdapterInput,
+  createCiv7DiplomacyResponseTelemetryRecord,
 } from "../src/proof/diplomacy-response-telemetry";
 import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
-
-import type { Civ7ComponentId } from "../src/civ7-component-id";
-import type { Civ7DiplomacyResponseResult } from "../src/play/operations/diplomacy-request";
-import type { Civ7DiplomacyResponsePostcondition } from "../src/play/operations/diplomacy-postconditions";
-import type { Civ7PlayNotificationViewResult } from "../src/play/notifications/view";
-import type { Civ7OperationValidationResult } from "../src/play/operations/types";
 
 describe("diplomacy-response telemetry adapter", () => {
   test("adapts a confirmed diplomacy response into separated operation telemetry", () => {

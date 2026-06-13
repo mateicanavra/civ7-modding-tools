@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { HabitatDiagnostic } from "../lib/diagnostics.js";
 import { repoRoot } from "../lib/paths.js";
 import { run, type SpawnResult } from "../lib/spawn.js";
-import type { HabitatDiagnostic } from "../lib/diagnostics.js";
 
 /**
  * The rule pack. Data lives in rules.json (shared with the Nx plugin); this

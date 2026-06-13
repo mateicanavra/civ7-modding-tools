@@ -1,16 +1,16 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { Civ7ComponentIdSchema } from "../../civ7-component-id";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { Civ7RuntimeProbeSchema } from "../../runtime/probe";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { probeValue, probeValueChanged } from "./probe-values.js";
+import { stableJson } from "./stable-json.js";
 import type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./types.js";
-import { probeValue, probeValueChanged } from "./probe-values.js";
-import { stableJson } from "./stable-json.js";
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
 export type Civ7ProductionPostconditionClassification =
   | "not-sent"

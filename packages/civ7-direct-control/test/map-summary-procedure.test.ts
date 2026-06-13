@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7MapSummaryProcedureDescriptor,
   Civ7MapSummaryProcedureSchemaArtifacts,
   callCiv7MapSummaryProcedure,
   getCiv7MapSummary,
+  type MapSummaryReadDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type MapSummaryReadDependencies,
 } from "../src/index";
 
 describe("Civ7 map-summary procedure descriptor", () => {

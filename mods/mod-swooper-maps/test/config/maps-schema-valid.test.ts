@@ -1,19 +1,17 @@
-import { describe, expect, it } from "vitest";
-
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
-import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
+import { describe, expect, it } from "vitest";
 import {
-  validateCanonicalMapConfig,
   type CanonicalMapConfigEnvelope,
+  validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical";
-
 import mountainPatchConfig from "../../src/maps/configs/mountain-patch.config.json";
 import mountainRiversPatchConfig from "../../src/maps/configs/mountain-rivers-patch.config.json";
 import shatteredRingConfig from "../../src/maps/configs/shattered-ring.config.json";
 import sunderedArchipelagoConfig from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsConfig from "../../src/maps/configs/swooper-desert-mountains.config.json";
 import swooperEarthlikeConfig from "../../src/maps/configs/swooper-earthlike.config.json";
+import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 
 const shippedMapConfigs = [
   ["shattered-ring.config.json", shatteredRingConfig],

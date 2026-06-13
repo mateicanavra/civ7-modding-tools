@@ -1,13 +1,5 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
-import {
-  Civ7AttentionPrioritiesUnavailableError,
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-} from "../src/index";
 import type {
   Civ7ControlOrpcBattlefieldScanResult,
   Civ7ControlOrpcPlayableStatusResult,
@@ -16,6 +8,13 @@ import type {
   Civ7ControlOrpcReadyUnitViewResult,
   Civ7ControlOrpcTurnCompletionStatusResult,
 } from "../src/dependencies/direct-control";
+import {
+  Civ7AttentionPrioritiesUnavailableError,
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  Civ7ControlOrpcRouter,
+  createCiv7ControlOrpcServerClient,
+} from "../src/index";
 
 describe("attention.priorities control-oRPC procedure", () => {
   test("composes current attention and battlefield evidence into semantic priorities", async () => {

@@ -3,17 +3,16 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
-import { createLabelRng } from "@swooper/mapgen-core";
 
 import {
   canonicalRecipeConfig,
   isPlainObject as isCanonicalMapConfigObject,
 } from "../../maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import { createTraceDumpSink, createVizDumper } from "../viz/dump.js";
 import { isPlainObject, mergeDeep, parseArgs } from "./shared.js";
 

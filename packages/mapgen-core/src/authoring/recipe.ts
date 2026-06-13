@@ -1,21 +1,19 @@
+import type { ExtendedMapContext } from "@mapgen/core/types.js";
 import {
   compileExecutionPlan,
   createTraceSessionFromPlan,
-  PipelineExecutor,
-  StepRegistry,
-  TagRegistry,
   type DependencyTagDefinition,
+  type Env,
   type ExecutionPlan,
   type MapGenStep,
+  PipelineExecutor,
   type RecipeV2,
   type RunRequest,
-  type Env,
+  StepRegistry,
+  TagRegistry,
 } from "@mapgen/engine/index.js";
-
-import { createConsoleTraceSink } from "@mapgen/trace/index.js";
 import type { TraceSession, TraceSink } from "@mapgen/trace/index.js";
-import type { ExtendedMapContext } from "@mapgen/core/types.js";
-import { bindRuntimeOps, runtimeOp, type DomainOpRuntimeAny } from "./bindings.js";
+import { createConsoleTraceSink } from "@mapgen/trace/index.js";
 import { compileRecipeConfig } from "../compiler/recipe-compile.js";
 import type { ArtifactContract, ArtifactReadValueOf } from "./artifact/contract.js";
 import {
@@ -23,6 +21,7 @@ import {
   type ProvidedArtifactRuntime,
   type RequiredArtifactRuntime,
 } from "./artifact/runtime.js";
+import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./bindings.js";
 import type {
   CompiledRecipeConfigOf,
   RecipeConfig,

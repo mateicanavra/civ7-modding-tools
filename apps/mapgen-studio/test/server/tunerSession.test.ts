@@ -1,13 +1,12 @@
 import { createServer, type Socket } from "node:net";
-import { ManagedRuntime, Effect } from "effect";
-import { afterEach, describe, expect, test } from "vitest";
-
 import { executeCiv7Command } from "@civ7/direct-control";
 import {
   Civ7TunerSession,
-  makeCiv7TunerSessionLayer,
   type Civ7TunerSessionApi,
+  makeCiv7TunerSessionLayer,
 } from "@civ7/studio-server";
+import { Effect, ManagedRuntime } from "effect";
+import { afterEach, describe, expect, test } from "vitest";
 
 // Pins for the Effect-scoped shared tuner session (mapgen-studio-tuner-session):
 // one connection shared across uses; backoff gate opens after the threshold of

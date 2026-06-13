@@ -1,11 +1,9 @@
-import { Type, type TObject, type TSchema } from "typebox";
-
-import { applySchemaConventions } from "../schema.js";
+import type { DependencyTag, GenerationPhase } from "@mapgen/engine/index.js";
+import { type TObject, type TSchema, Type } from "typebox";
 import type { ArtifactContract } from "../artifact/contract.js";
 import { buildOpEnvelopeSchemaWithDefaultStrategy } from "../op/envelope.js";
-
-import type { DependencyTag, GenerationPhase } from "@mapgen/engine/index.js";
-import type { StepOpUse, StepOpsDecl, StepOpsDeclInput } from "./ops.js";
+import { applySchemaConventions } from "../schema.js";
+import type { StepOpsDecl, StepOpsDeclInput, StepOpUse } from "./ops.js";
 
 type PropsOf<T extends TObject> = T extends TObject<infer P> ? P : never;
 

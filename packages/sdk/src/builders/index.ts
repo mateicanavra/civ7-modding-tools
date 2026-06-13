@@ -1,3 +1,4 @@
+export { AbilityBuilder } from "./AbilityBuilder";
 export { BaseBuilder } from "./BaseBuilder";
 export { CivilizationBuilder } from "./CivilizationBuilder";
 export { CivilizationUnlockBuilder } from "./CivilizationUnlockBuilder";
@@ -11,4 +12,3 @@ export { TraditionBuilder } from "./TraditionBuilder";
 export { UniqueQuarterBuilder } from "./UniqueQuarterBuilder";
 export { UnitBuilder } from "./UnitBuilder";
 export { UnlockBuilder } from "./UnlockBuilder";
-export { AbilityBuilder } from "./AbilityBuilder";

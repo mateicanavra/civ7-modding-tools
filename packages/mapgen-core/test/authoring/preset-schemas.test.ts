@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import {
-  RecipePresetDefinitionV1Schema,
-  StudioPresetExportFileV1Schema,
   derivePresetLabel,
   isPresetWrapper,
+  RecipePresetDefinitionV1Schema,
+  StudioPresetExportFileV1Schema,
 } from "@mapgen/authoring/index.js";
 
 function readSchemaTitle(schema: { title?: unknown }): string {

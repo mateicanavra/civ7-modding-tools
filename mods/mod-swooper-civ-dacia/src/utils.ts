@@ -1,7 +1,7 @@
 /**
  * Utility functions for package management
  */
-import { UnitPackage, CivilizationPackage, ConstructiblePackage, UnlockPackage } from "@types";
+import { CivilizationPackage, ConstructiblePackage, UnitPackage, UnlockPackage } from "@types";
 
 /**
  * Extracts components from packages of any type

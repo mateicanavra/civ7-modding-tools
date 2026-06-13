@@ -20,86 +20,78 @@
  * @module dev
  */
 
-// Logging
-export {
-  devLog,
-  devLogIf,
-  devLogPrefixed,
-  devWarn,
-  devError,
-  devLogJson,
-  devLogLines,
-} from "@mapgen/dev/logging.js";
-
-// Timing
-export {
-  timeSection,
-  timeStart,
-  timeEnd,
-  measureMs,
-  type TimingToken,
-} from "@mapgen/dev/timing.js";
-
-// Engine surface introspection
-export { logEngineSurfaceApisOnce } from "@mapgen/dev/introspection.js";
-export {
-  snapshotEngineHeightfield,
-  type EngineHeightfieldSnapshot,
-} from "@mapgen/dev/engine-heightfield.js";
-
-// General-purpose visualization helpers
-export { BYTE_SHADE_RAMP, shadeByte } from "@mapgen/dev/shading.js";
-
 // ASCII visualization
 export {
   ASCII_CHARS,
+  type AsciiCell,
+  type AsciiGridConfig,
   computeSampleStep,
-  renderAsciiGrid,
   logAsciiGrid,
+  logBiomeAscii,
   logFoundationAscii,
   logLandmassAscii,
-  logReliefAscii,
   logRainfallAscii,
-  logBiomeAscii,
-  type AsciiGridConfig,
-  type AsciiCell,
+  logReliefAscii,
+  renderAsciiGrid,
 } from "@mapgen/dev/ascii.js";
-
+export {
+  type EngineHeightfieldSnapshot,
+  snapshotEngineHeightfield,
+} from "@mapgen/dev/engine-heightfield.js";
 // Histograms
 export {
   buildHistogram,
   formatHistogramPercent,
+  logBoundaryMetrics,
+  logFoundationHistograms,
   logRainfallHistogram,
   logRainfallStats,
-  logFoundationHistograms,
-  logBoundaryMetrics,
 } from "@mapgen/dev/histograms.js";
-
+// Engine surface introspection
+export { logEngineSurfaceApisOnce } from "@mapgen/dev/introspection.js";
+// Logging
+export {
+  devError,
+  devLog,
+  devLogIf,
+  devLogJson,
+  devLogLines,
+  devLogPrefixed,
+  devWarn,
+} from "@mapgen/dev/logging.js";
+// General-purpose visualization helpers
+export { BYTE_SHADE_RAMP, shadeByte } from "@mapgen/dev/shading.js";
 // Summaries
 export {
-  logFoundationSummary,
+  type FoundationPlates,
   logBiomeSummary,
+  logElevationSummary,
+  logFoundationSummary,
+  logLandmassWindows,
   logMountainSummary,
   logVolcanoSummary,
-  logElevationSummary,
-  logLandmassWindows,
-  type FoundationPlates,
 } from "@mapgen/dev/summaries.js";
+// Timing
+export {
+  measureMs,
+  type TimingToken,
+  timeEnd,
+  timeSection,
+  timeStart,
+} from "@mapgen/dev/timing.js";
 
 // Visualization metadata helpers
 export { defineVizMeta } from "@mapgen/dev/viz-meta.js";
-
-// Vector visualization helpers
-export {
-  dumpVectorFieldVariants,
-  type VectorFieldVariantsOptions,
-} from "@mapgen/dev/viz-vector.js";
-
 // Scalar visualization helpers
 export {
   dumpScalarFieldVariants,
   type ScalarFieldVariantsOptions,
 } from "@mapgen/dev/viz-scalar.js";
+// Vector visualization helpers
+export {
+  dumpVectorFieldVariants,
+  type VectorFieldVariantsOptions,
+} from "@mapgen/dev/viz-vector.js";
 
 /** Module version */
 export const DEV_MODULE_VERSION = "1.0.0";

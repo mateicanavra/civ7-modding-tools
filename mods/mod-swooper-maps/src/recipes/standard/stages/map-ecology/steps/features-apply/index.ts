@@ -1,11 +1,11 @@
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import type { FeatureKey } from "@mapgen/domain/ecology";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
-import FeaturesApplyStepContract from "./contract.js";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import { reifyFeatureField } from "../features/apply.js";
 import { resolveFeatureKeyLookups } from "../features/feature-keys.js";
+import FeaturesApplyStepContract from "./contract.js";
 import { buildFeatureTypeVizCategories } from "./viz.js";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

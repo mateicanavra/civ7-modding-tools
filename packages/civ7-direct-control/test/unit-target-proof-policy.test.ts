@@ -1,13 +1,11 @@
 import { describe, expect, test } from "vitest";
-
-import {
-  unitTargetProofOutcome,
-  unitTargetProofPostcondition,
-  type Civ7UnitTargetActionVerification,
-} from "../src/proof/unit-target-proof-policy";
-
 import type { Civ7UnitTargetActionResult } from "../src/play/operations/unit-target-action";
 import type { Civ7OperationTelemetryPostconditionOutcome } from "../src/proof/operation-telemetry";
+import {
+  type Civ7UnitTargetActionVerification,
+  unitTargetProofOutcome,
+  unitTargetProofPostcondition,
+} from "../src/proof/unit-target-proof-policy";
 
 type UnitTargetProofCase = Readonly<{
   verification: Civ7UnitTargetActionVerification;

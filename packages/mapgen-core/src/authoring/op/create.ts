@@ -1,9 +1,8 @@
-import type { Static, TSchema } from "typebox";
-
 import type { NormalizeContext } from "@mapgen/engine/index.js";
+import type { Static, TSchema } from "typebox";
+import type { OpContract } from "./contract.js";
 import type { OpStrategy, StrategyImplMapFor, StrategySelection } from "./strategy.js";
 import type { DomainOp, OpConfigSchema } from "./types.js";
-import type { OpContract } from "./contract.js";
 
 type RuntimeStrategiesForContract<C extends OpContract<any, any, any, any, any>> = Readonly<{
   [K in keyof C["strategies"] & string]: OpStrategy<

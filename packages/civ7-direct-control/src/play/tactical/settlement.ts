@@ -1,20 +1,19 @@
 import { Type } from "typebox";
-
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import { boundedInteger } from "../../validation.js";
-import { Civ7MapLocationSchema } from "../map/types.js";
 
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { boundedInteger } from "../../validation.js";
+import { Civ7MapLocationSchema } from "../map/types.js";
 
 const civ7TunerStateSchema = Type.Object(
   {

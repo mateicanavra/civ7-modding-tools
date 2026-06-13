@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7GameInfoRowsProcedureDescriptor,
   Civ7GameInfoRowsProcedureSchemaArtifacts,
   callCiv7GameInfoRowsProcedure,
+  type GameInfoReadDependencies,
   getCiv7GameInfoRows,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type GameInfoReadDependencies,
 } from "../src/index";
 
 describe("Civ7 GameInfo rows procedure descriptor", () => {

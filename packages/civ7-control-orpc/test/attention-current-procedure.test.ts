@@ -3,15 +3,15 @@ import { describe, expect, test } from "vitest";
 
 import {
   Civ7AttentionCurrentUnavailableError,
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
   type Civ7ControlOrpcPlayableStatusResult,
   type Civ7ControlOrpcPlayNotificationViewResult,
   type Civ7ControlOrpcReadyCityViewResult,
   type Civ7ControlOrpcReadyUnitViewResult,
+  Civ7ControlOrpcRouter,
   type Civ7ControlOrpcTurnCompletionStatusResult,
+  createCiv7ControlOrpcServerClient,
 } from "../src/index";
 
 describe("attention.current control-oRPC procedure", () => {

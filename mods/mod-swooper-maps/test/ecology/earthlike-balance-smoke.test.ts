@@ -1,13 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/types.js";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
+import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
-import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/types.js";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 
 describe("Earthlike ecology balance (smoke)", () => {
   it("has biome variety and non-zero vegetation without drowning coasts", {

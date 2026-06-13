@@ -1,10 +1,10 @@
 import { Args, Flags } from "@oclif/core";
-import BaseCommand from "../BaseCommand.js";
 import {
   findRemoteNameForSlug,
   getRemotePushConfig,
   logRemotePushConfig,
 } from "../../utils/git.js";
+import BaseCommand from "../BaseCommand.js";
 
 export default abstract class SubtreeStatusBase extends BaseCommand {
   static enableJsonFlag = true;

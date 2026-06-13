@@ -1,4 +1,4 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import {
   Civ7DirectControlError,
@@ -7,13 +7,13 @@ import {
 
 import { DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "../session/constants.js";
 import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
-import { withCiv7DirectControlSession, type Civ7DirectControlSession } from "../session/session.js";
+import { type Civ7DirectControlSession, withCiv7DirectControlSession } from "../session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../session/types.js";
-import { Civ7RuntimeProbeSchema, probeHelperSource, type Civ7RuntimeProbe } from "./probe.js";
+import { type Civ7RuntimeProbe, Civ7RuntimeProbeSchema, probeHelperSource } from "./probe.js";
 
 const civ7TunerStateSchema = Type.Object(
   {

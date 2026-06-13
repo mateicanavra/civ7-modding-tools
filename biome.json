@@ -19,6 +19,7 @@
       "!.nx/**",
       "!.civ7/outputs/**",
       "!docs/_archive/**",
+      "!**/_archive/**",
       "!mods/mod-swooper-maps/src/maps/generated/**",
       "!packages/civ7-types/generated/**",
       "!packages/civ7-map-policy/src/civ7-tables.gen.ts"
@@ -36,7 +37,31 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": false
+      "recommended": false,
+      "correctness": {
+        "noConstAssign": "error",
+        "noSelfAssign": "error",
+        "noUnreachable": "error",
+        "noUnreachableSuper": "error",
+        "noUnsafeFinally": "error",
+        "noUnsafeOptionalChaining": "error",
+        "useIsNan": "error",
+        "useValidTypeof": "error"
+      },
+      "suspicious": {
+        "noDebugger": "error",
+        "noDuplicateCase": "error",
+        "noDuplicateClassMembers": "error",
+        "noDuplicateJsxProps": "error",
+        "noDuplicateObjectKeys": "error",
+        "noDuplicateParameters": "error",
+        "noFallthroughSwitchClause": "error",
+        "noGlobalIsFinite": "error",
+        "noGlobalIsNan": "error",
+        "noSparseArray": "error",
+        "noWith": "error",
+        "useGetterReturn": "error"
+      }
     }
   },
   "javascript": {

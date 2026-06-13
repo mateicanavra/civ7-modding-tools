@@ -1,3 +1,5 @@
+import type { PlotEffectKey } from "@mapgen/domain/ecology";
+import type { TraceScope } from "@swooper/mapgen-core";
 import {
   clamp01,
   devLogJson,
@@ -6,8 +8,6 @@ import {
   MOUNTAIN_TERRAIN,
   normalizeRange,
 } from "@swooper/mapgen-core";
-import type { TraceScope } from "@swooper/mapgen-core";
-import type { PlotEffectKey } from "@mapgen/domain/ecology";
 import type { PlotEffectsStepInput } from "./inputs.js";
 
 type PlotEffectsInput = PlotEffectsStepInput;

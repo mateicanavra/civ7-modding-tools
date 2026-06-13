@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
-
-import { RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
 import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
+import { RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
 function broadVegetationHabitatFields(size: number) {

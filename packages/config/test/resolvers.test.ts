@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest";
-import * as path from "node:path";
 import * as os from "node:os";
+import * as path from "node:path";
+import { describe, expect, it } from "vitest";
 
 import {
   expandPath,
-  resolveZipPath,
-  resolveUnzipDir,
   resolveGraphOutDir,
   resolveInstallDir,
+  resolveUnzipDir,
+  resolveZipPath,
 } from "../src/index";
 
 describe("@civ7/config path helpers", () => {

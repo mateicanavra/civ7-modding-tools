@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { Type } from "typebox";
+import type { DomainOpCompileAny } from "@mapgen/authoring/index.js";
 
 import { defineOp } from "@mapgen/authoring/index.js";
-import type { DomainOpCompileAny } from "@mapgen/authoring/index.js";
 import { compileRecipeConfig, RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
+import { Type } from "typebox";
 
 describe("compileRecipeConfig", () => {
   it("applies canonicalization ordering and op defaults", () => {

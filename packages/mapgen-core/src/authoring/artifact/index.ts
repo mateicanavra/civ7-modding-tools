@@ -1,12 +1,10 @@
-export { defineArtifact } from "./contract.js";
-export { implementArtifacts } from "./runtime.js";
-
 export type {
   ArtifactContract,
-  ArtifactValueOf,
   ArtifactReadValueOf,
+  ArtifactValueOf,
   DeepReadonly,
 } from "./contract.js";
+export { defineArtifact } from "./contract.js";
 export type {
   ArtifactRuntimeImpl,
   ProvidedArtifactRuntime,
@@ -16,4 +14,5 @@ export {
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
+  implementArtifacts,
 } from "./runtime.js";

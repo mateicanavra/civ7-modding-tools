@@ -3,8 +3,8 @@ import type {
   Civ7ControlOrpcPlayNotificationViewResult,
 } from "./dependencies/direct-control";
 import {
-  getCiv7GameUiPlayNotificationView,
   type Civ7GameUiAttentionTarget,
+  getCiv7GameUiPlayNotificationView,
 } from "./game-ui-attention";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 

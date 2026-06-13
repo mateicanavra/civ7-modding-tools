@@ -1,10 +1,10 @@
+import foundationDomain from "@mapgen/domain/foundation/ops";
 import {
+  type CompiledRecipeConfigOf,
   collectCompileOps,
   createRecipe,
-  type CompiledRecipeConfigOf,
   type RecipeConfigInputOf,
 } from "@swooper/mapgen-core/authoring";
-import foundationDomain from "@mapgen/domain/foundation/ops";
 
 import foundation from "../standard/stages/foundation/index.js";
 import { STANDARD_TAG_DEFINITIONS } from "../standard/tags.js";

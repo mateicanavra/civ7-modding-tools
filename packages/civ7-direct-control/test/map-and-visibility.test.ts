@@ -1,9 +1,8 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
-import { describe, expect, test } from "vitest";
-import { Value } from "typebox/value";
-
 import { NO_RIVER_TYPE, RIVER_TYPE_MINOR, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
+import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 import {
   Civ7MapGridInputSchema,
   Civ7MapGridResultSchema,

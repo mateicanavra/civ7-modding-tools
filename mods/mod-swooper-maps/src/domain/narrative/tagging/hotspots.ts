@@ -1,17 +1,16 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import { ctxRandom, inBounds, storyKey } from "@swooper/mapgen-core";
 import type { NarrativeMotifsHotspots } from "@mapgen/domain/narrative/models.js";
 import {
   publishStoryOverlay,
   STORY_OVERLAY_KEYS,
 } from "@mapgen/domain/narrative/overlays/index.js";
+import type { NarrativeHotspotTunables } from "@mapgen/domain/narrative/tagging/config.js";
+import type { HotspotTrailsSummary } from "@mapgen/domain/narrative/tagging/types.js";
 import { isAdjacentToLand } from "@mapgen/domain/narrative/utils/adjacency.js";
 import { getDims } from "@mapgen/domain/narrative/utils/dims.js";
 import { rand } from "@mapgen/domain/narrative/utils/rng.js";
 import { isWaterAt } from "@mapgen/domain/narrative/utils/water.js";
-
-import type { HotspotTrailsSummary } from "@mapgen/domain/narrative/tagging/types.js";
-import type { NarrativeHotspotTunables } from "@mapgen/domain/narrative/tagging/config.js";
+import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import { ctxRandom, inBounds, storyKey } from "@swooper/mapgen-core";
 
 export interface HotspotTrailsResult {
   summary: HotspotTrailsSummary;

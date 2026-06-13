@@ -1,4 +1,8 @@
-import { Type, createStage, type TSchema } from "@swooper/mapgen-core/authoring";
+import {
+  FoundationPlateActivityKnobSchema,
+  FoundationPlateCountKnobSchema,
+} from "@mapgen/domain/foundation/config.js";
+import { createStage, type TSchema, Type } from "@swooper/mapgen-core/authoring";
 import {
   crust,
   crustEvolution,
@@ -11,10 +15,6 @@ import {
   projection,
   tectonics,
 } from "./steps/index.js";
-import {
-  FoundationPlateActivityKnobSchema,
-  FoundationPlateCountKnobSchema,
-} from "@mapgen/domain/foundation/config.js";
 
 function defaultStrategyConfigSchema(
   opConfig: TSchema,

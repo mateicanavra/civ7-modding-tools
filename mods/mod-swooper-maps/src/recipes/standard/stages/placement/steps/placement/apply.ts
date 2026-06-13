@@ -2,13 +2,13 @@ import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
-import { logAsciiMap, logTerrainStats } from "../terrain-diagnostics.js";
 import type { PlacementOutputsV1 } from "../../placement-outputs.js";
 import {
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
   transparentNoneCategory,
 } from "../../viz.js";
+import { logAsciiMap, logTerrainStats } from "../terrain-diagnostics.js";
 
 type LandmassRegionSlotByTile = Static<
   typeof import("../../../../map-artifacts.js").mapArtifacts["landmassRegionSlotByTile"]["schema"]

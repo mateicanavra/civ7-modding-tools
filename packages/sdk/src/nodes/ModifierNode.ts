@@ -1,10 +1,8 @@
 import { randomUUID } from "node:crypto";
-
-import { TObjectValues, TPartialRequired } from "../types";
 import { COLLECTION, EFFECT } from "../constants";
-
-import { BaseNode } from "./BaseNode";
+import { TObjectValues, TPartialRequired } from "../types";
 import { ArgumentNode, TArgumentNode } from "./ArgumentNode";
+import { BaseNode } from "./BaseNode";
 import { ModifierRequirementNode, TModifierRequirementNode } from "./ModifierRequirementNode";
 import { StringNode, TStringNode } from "./StringNode";
 

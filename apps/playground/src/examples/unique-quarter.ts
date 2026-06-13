@@ -1,25 +1,23 @@
 import {
   ACTION_GROUP_BUNDLE,
   CivilizationBuilder,
+  COLLECTION,
   CONSTRUCTIBLE_TYPE_TAG,
   ConstructibleBuilder,
   ConstructibleLocalization,
   DISTRICT,
+  EFFECT,
   ImportFileBuilder,
   Mod,
+  ModifierBuilder,
+  REQUIREMENT,
   TAG_TRAIT,
   TRAIT,
   UNIT,
   UNIT_CLASS,
+  UniqueQuarterBuilder,
   UnitBuilder,
   YIELD,
-} from "@mateicanavra/civ7-sdk";
-import {
-  COLLECTION,
-  EFFECT,
-  ModifierBuilder,
-  REQUIREMENT,
-  UniqueQuarterBuilder,
 } from "@mateicanavra/civ7-sdk";
 
 let mod = new Mod({

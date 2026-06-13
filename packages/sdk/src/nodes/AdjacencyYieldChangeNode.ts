@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
-
-import { TObjectValues } from "../types";
 import { AGE, YIELD } from "../constants";
+import { TObjectValues } from "../types";
 
 import { BaseNode } from "./BaseNode";
 

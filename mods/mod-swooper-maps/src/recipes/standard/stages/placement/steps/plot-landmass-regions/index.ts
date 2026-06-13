@@ -1,12 +1,12 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../../map-artifacts.js";
+import { PLACEMENT_VIZ_GROUP, transparentNoneCategory } from "../../viz.js";
+import PlotLandmassRegionsStepContract from "./contract.js";
 import {
   validateLandmassRegionSlotByTileArtifact,
   validateProjectionMetaArtifact,
 } from "./validate.js";
-import PlotLandmassRegionsStepContract from "./contract.js";
-import { PLACEMENT_VIZ_GROUP, transparentNoneCategory } from "../../viz.js";
 
 type RegionSlot = 0 | 1 | 2;
 

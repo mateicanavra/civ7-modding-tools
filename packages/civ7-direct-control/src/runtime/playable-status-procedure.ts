@@ -1,20 +1,20 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../procedure-core.js";
+import type { Civ7DirectControlOptions } from "../session/types.js";
 import {
-  getCiv7PlayableStatus,
-  Civ7PlayableStatusInputSchema,
-  Civ7PlayableStatusResultSchema,
   type Civ7PlayableStatusInput,
+  Civ7PlayableStatusInputSchema,
   type Civ7PlayableStatusResult,
+  Civ7PlayableStatusResultSchema,
+  getCiv7PlayableStatus,
   type PlayableStatusDependencies,
 } from "./playable-status.js";
-import type { Civ7DirectControlOptions } from "../session/types.js";
 
 export const Civ7PlayableStatusProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "runtime.playable.status",

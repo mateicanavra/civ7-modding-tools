@@ -1,15 +1,15 @@
-import { describe, it, expect } from "bun:test";
-import { Type } from "typebox";
+import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@mapgen/core/types.js";
 import { createRecipe, createStage, createStep, defineStep } from "@mapgen/authoring/index.js";
+import { createExtendedMapContext } from "@mapgen/core/types.js";
 import {
-  PipelineExecutor,
-  StepRegistry,
   compileExecutionPlan,
   createTraceSessionFromPlan,
+  PipelineExecutor,
+  StepRegistry,
 } from "@mapgen/engine/index.js";
 import type { TraceEvent } from "@mapgen/trace/index.js";
+import { Type } from "typebox";
 
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false, default: {} });
 

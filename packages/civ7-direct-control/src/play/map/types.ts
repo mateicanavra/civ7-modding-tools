@@ -1,12 +1,11 @@
-import { Type, type Static } from "typebox";
-
+import { type Static, Type } from "typebox";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { Civ7RuntimeProbeSchema } from "../../runtime/probe.js";
 import type {
   Civ7DirectControlOptions,
   Civ7TunerState,
   Civ7TunerStateSelection,
 } from "../../session/types.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
-import { Civ7RuntimeProbeSchema } from "../../runtime/probe.js";
 
 export const Civ7MapLocationSchema = Type.Object(
   {

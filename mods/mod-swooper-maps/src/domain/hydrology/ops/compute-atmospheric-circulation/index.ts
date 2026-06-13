@@ -6,7 +6,7 @@ const computeAtmosphericCirculation = createOp(ComputeAtmosphericCirculationCont
   strategies: { default: defaultStrategy, latitude: latitudeStrategy },
 });
 
-export type * from "./types.js";
 export type * from "./contract.js";
+export type * from "./types.js";
 
 export default computeAtmosphericCirculation;

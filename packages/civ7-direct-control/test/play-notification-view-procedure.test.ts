@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7PlayNotificationViewProcedureDescriptor,
   Civ7PlayNotificationViewProcedureSchemaArtifacts,
   callCiv7PlayNotificationViewProcedure,
   getCiv7PlayNotificationView,
+  type PlayNotificationViewDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type PlayNotificationViewDependencies,
 } from "../src/index";
 
 describe("Civ7 play-notification view procedure descriptor", () => {

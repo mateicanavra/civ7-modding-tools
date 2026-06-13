@@ -3,12 +3,12 @@ import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
+  type Civ7ControlOrpcUnitTargetActionResult,
   Civ7UnitTargetActionUnavailableError,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-  type Civ7ControlOrpcUnitTargetActionResult,
 } from "../src/index";
 import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 

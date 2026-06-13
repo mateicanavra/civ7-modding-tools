@@ -1,14 +1,14 @@
 import { ORPCError } from "@orpc/server";
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 
 import { createCiv7ControlOrpcServerClient } from "../client";
-import { Civ7ControlOrpcContract } from "../contract";
 import type { Civ7ControlOrpcContext } from "../context";
+import { Civ7ControlOrpcContract } from "../contract";
 import {
+  type Civ7ControllerMutationProof,
   Civ7ControllerMutationProofSchema,
   isCiv7ControllerMutationProof,
-  type Civ7ControllerMutationProof,
 } from "../model/controller-proof";
 import { Civ7ControlOrpcCorrelationIdSchema } from "../model/correlation";
 import {

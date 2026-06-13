@@ -1,8 +1,8 @@
 import {
   createMapConfigSaveDeployStatus,
-  updateMapConfigSaveDeployStatus,
-  type MapConfigSaveDeployStatus,
   type MapConfigSaveDeployPhase,
+  type MapConfigSaveDeployStatus,
+  updateMapConfigSaveDeployStatus,
 } from "../../features/mapConfigSave/status";
 
 function recoveryActionsForSaveDeploy(phase: MapConfigSaveDeployPhase): string[] {

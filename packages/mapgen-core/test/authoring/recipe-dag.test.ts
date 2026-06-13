@@ -1,7 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { Type } from "typebox";
-
-import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import {
   buildRecipeDag,
   createStage,
@@ -9,6 +6,9 @@ import {
   defineArtifact,
   defineStep,
 } from "@mapgen/authoring/index.js";
+
+import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
+import { Type } from "typebox";
 
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false, default: {} });
 

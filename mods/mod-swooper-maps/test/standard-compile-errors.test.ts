@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import {
-  RecipeCompileError,
   compileRecipeConfig,
+  RecipeCompileError,
 } from "@swooper/mapgen-core/compiler/recipe-compile";
 
 import standardRecipe, { compileOpsById } from "../src/recipes/standard/recipe.js";

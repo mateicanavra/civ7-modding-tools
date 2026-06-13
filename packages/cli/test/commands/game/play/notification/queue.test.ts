@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import GamePlayNotificationQueue from "../../../../../src/commands/game/play/notification-queue";
-import { expectNormalPlayPayloadToOmitDebugInternals } from "../normal-output-boundary";
 import { type FakeTunerServer, startFakeTunerServer } from "../../../fixtures/tuner-socket-server";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "../normal-output-boundary";
 
 type QueueMode =
   | "mixed-queue"

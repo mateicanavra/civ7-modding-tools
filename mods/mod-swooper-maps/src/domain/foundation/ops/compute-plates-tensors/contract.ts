@@ -1,15 +1,14 @@
-import { TypedArraySchemas, Type, defineOp } from "@swooper/mapgen-core/authoring";
 import type { Static, TSchema } from "@swooper/mapgen-core/authoring";
-
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
-import { FoundationCrustSchema } from "../compute-crust/contract.js";
-import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
-import { FoundationPlateMotionSchema } from "../compute-plate-motion/contract.js";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 import {
   FoundationTectonicHistorySchema,
   FoundationTectonicProvenanceSchema,
   FoundationTectonicsSchema,
 } from "../../lib/tectonics/schemas.js";
+import { FoundationCrustSchema } from "../compute-crust/contract.js";
+import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
+import { FoundationPlateMotionSchema } from "../compute-plate-motion/contract.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
   const { additionalProperties: _additionalProperties, default: _default, ...rest } = schema as any;

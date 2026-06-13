@@ -1,9 +1,9 @@
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
-import { buildPlotEffectsInput } from "./inputs.js";
-import { logSnowEligibilitySummary } from "./diagnostics.js";
 import PlanPlotEffectsStepContract from "./contract.js";
+import { logSnowEligibilitySummary } from "./diagnostics.js";
+import { buildPlotEffectsInput } from "./inputs.js";
 
 export default createStep(PlanPlotEffectsStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.plotEffectPlan], {

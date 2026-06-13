@@ -1,6 +1,7 @@
 import * as lodash from "lodash-es";
-
-import { TClassProperties, TPartialRequired } from "../types";
+import { ACTION_GROUP_ACTION, KIND } from "../constants";
+import { XmlFile } from "../files";
+import { TUniqueQuarterLocalization, UniqueQuarterLocalization } from "../localizations";
 import {
   DatabaseNode,
   GameEffectNode,
@@ -11,14 +12,11 @@ import {
   UniqueQuarterModifierNode,
   UniqueQuarterNode,
 } from "../nodes";
-import { TUniqueQuarterLocalization, UniqueQuarterLocalization } from "../localizations";
-import { XmlFile } from "../files";
-import { ACTION_GROUP_ACTION, KIND } from "../constants";
+import { TClassProperties, TPartialRequired } from "../types";
 import { locale } from "../utils";
-
-import { ModifierBuilder } from "./ModifierBuilder";
-import { ConstructibleBuilder } from "./ConstructibleBuilder";
 import { BaseBuilder } from "./BaseBuilder";
+import { ConstructibleBuilder } from "./ConstructibleBuilder";
+import { ModifierBuilder } from "./ModifierBuilder";
 
 type TUniqueQuarterBuilder = TClassProperties<UniqueQuarterBuilder>;
 

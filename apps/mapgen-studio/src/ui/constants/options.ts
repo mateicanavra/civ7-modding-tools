@@ -6,12 +6,12 @@
 // ============================================================================
 
 import type {
+  DataTypeOption,
+  KnobOptionsMap,
   MapSize,
+  RenderModeOption,
   ResourceMode,
   SelectOption,
-  DataTypeOption,
-  RenderModeOption,
-  KnobOptionsMap,
 } from "../types";
 
 export interface MapSizeOption extends SelectOption<MapSize> {

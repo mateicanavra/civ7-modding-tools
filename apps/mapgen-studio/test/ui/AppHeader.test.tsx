@@ -1,8 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-
-import { AppHeader, type AppHeaderProps } from "../../src/ui/components/AppHeader";
 import { TooltipProvider } from "../../src/components/ui/tooltip";
+import { AppHeader, type AppHeaderProps } from "../../src/ui/components/AppHeader";
 
 // Config-precedence pins (P7): the saved-config selector claims the file only
 // while the authored setup state equals the file-derived state. Once drifted,

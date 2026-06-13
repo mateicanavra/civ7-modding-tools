@@ -1,7 +1,6 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
-
-import { MAP_PROJECTION_EFFECT_TAGS, PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tags.js";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../../map-artifacts.js";
+import { MAP_PROJECTION_EFFECT_TAGS, PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tags.js";
 import { mapHydrologyArtifacts } from "../../../map-hydrology/artifacts.js";
 import { placementArtifacts } from "../../artifacts.js";
 

@@ -1,5 +1,5 @@
-import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
 import resources from "@mapgen/domain/resources";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 /** Resource demand plan (`artifact:placement.resourceDemandPlan`). One artifact per file by repo convention. */
 const ResourceFamilySchema = Type.Union([

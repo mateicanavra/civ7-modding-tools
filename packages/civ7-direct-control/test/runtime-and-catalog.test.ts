@@ -1,10 +1,10 @@
 import { once } from "node:events";
 import { mkdtemp, rm, utimes, writeFile } from "node:fs/promises";
+import { type AddressInfo, createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { type AddressInfo, createServer } from "node:net";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 import {
   Civ7AppUiSnapshotResultSchema,
   Civ7GameInfoRowsInputSchema,

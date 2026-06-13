@@ -1,5 +1,5 @@
-import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 import type { Static } from "@swooper/mapgen-core/authoring";
+import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 export const TectonicEventSchema = Type.Object(
   {

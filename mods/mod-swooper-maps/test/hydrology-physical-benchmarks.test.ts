@@ -1,9 +1,8 @@
 import { describe, expect, it } from "bun:test";
-
+import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "../src/domain/hydrology/config.js";
 import { defaultStrategy as accumulateDischarge } from "../src/domain/hydrology/ops/accumulate-discharge/strategies/default.js";
 import { defaultStrategy as planLakes } from "../src/domain/hydrology/ops/plan-lakes/strategies/default.js";
 import { defaultStrategy as projectRiverNetwork } from "../src/domain/hydrology/ops/project-river-network/strategies/default.js";
-import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "../src/domain/hydrology/config.js";
 
 const SIMPLE_DISCHARGE_CONFIG = {
   runoffScale: 1,

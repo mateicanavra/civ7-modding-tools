@@ -1,5 +1,5 @@
-import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 import type { ExtendedMapContext } from "@mapgen/core/types.js";
+import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 
 import type { ArtifactContract, ArtifactReadValueOf, ArtifactValueOf } from "./contract.js";
 

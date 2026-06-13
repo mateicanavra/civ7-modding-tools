@@ -1,7 +1,7 @@
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { defineVizMeta } from "@swooper/mapgen-core";
-import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/config.js";
 import type { HydrologyLakeinessKnob } from "@mapgen/domain/hydrology/config.js";
+import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/config.js";
+import { defineVizMeta } from "@swooper/mapgen-core";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { hydrologyHydrographyArtifacts } from "../artifacts.js";
 import LakesStepContract from "./lakes.contract.js";

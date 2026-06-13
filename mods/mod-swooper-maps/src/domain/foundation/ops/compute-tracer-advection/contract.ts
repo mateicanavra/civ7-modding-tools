@@ -1,11 +1,10 @@
-import { Type, defineOp } from "@swooper/mapgen-core/authoring";
-
-import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring";
 import {
   FoundationTectonicEraFieldsInternalListSchema,
   TracerIndexByEraSchema,
 } from "../../lib/tectonics/internal-contract.js";
+import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
+import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 
 const ComputeTracerAdvectionContract = defineOp({
   kind: "compute",

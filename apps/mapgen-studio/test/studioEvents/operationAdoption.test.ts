@@ -1,10 +1,9 @@
-import { describe, expect, test } from "vitest";
-
 import type {
   StudioLiveGameEvent,
   StudioOperationEvent,
   StudioOperationsCurrent,
 } from "@civ7/studio-server";
+import { describe, expect, test } from "vitest";
 
 import {
   STUDIO_EVENT_STREAM_RETRY_ATTEMPTS,
@@ -12,8 +11,8 @@ import {
   studioEventsWatchLiveOptions,
 } from "../../src/app/hooks/useStudioEvents";
 import {
-  applyStudioLiveGameEvent,
   adoptStudioOperationsCurrent,
+  applyStudioLiveGameEvent,
   applyStudioOperationEvent,
 } from "../../src/app/operationAdoption";
 import type { LiveRuntimeStatusState } from "../../src/features/liveRuntime/model";

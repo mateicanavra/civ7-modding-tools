@@ -1,8 +1,6 @@
-import React, { useMemo, useState } from "react";
-import { AlertTriangle, ChevronDown, Loader2, Workflow } from "lucide-react";
-
 import type { RecipeDagResult } from "@civ7/studio-server/contract";
-import type { RecipeDagLoadStatus } from "./useRecipeDagQuery";
+import { AlertTriangle, ChevronDown, Loader2, Workflow } from "lucide-react";
+import React, { useMemo, useState } from "react";
 import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation";
 import {
   chooseRecipeDagDomainId,
@@ -15,6 +13,7 @@ import {
   pointsToPath,
   type RoutedStageEdgeGroup,
 } from "./layout";
+import type { RecipeDagLoadStatus } from "./useRecipeDagQuery";
 
 // ============================================================================
 // PIPELINE STAGE — the recipe DAG as a first-class stage view

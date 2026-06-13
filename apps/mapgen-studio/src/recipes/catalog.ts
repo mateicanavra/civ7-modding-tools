@@ -68,22 +68,22 @@ function makeRecipeId(namespace: string, recipeId: string): StudioRecipeId {
   return `${namespace}/${recipeId}`;
 }
 
+import {
+  studioBuiltInPresets as swooperBrowserTestBuiltInPresets,
+  BROWSER_TEST_RECIPE_CONFIG_SCHEMA as swooperBrowserTestConfigSchema,
+  BROWSER_TEST_RECIPE_CONFIG as swooperBrowserTestDefaultConfig,
+  studioRecipeUiMeta as swooperBrowserTestUiMeta,
+} from "mod-swooper-maps/recipes/browser-test-artifacts";
 // This is a bundled catalog for the current Studio build. Recipe schema/default
 // contracts are generated from recipe package source by `build:studio-recipes`
 // and exported as first-class package artifacts; Studio does not treat `dist/`
 // or generated output as editable policy.
 import {
-  STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,
+  STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
   studioRecipeUiMeta as swooperStandardUiMeta,
 } from "mod-swooper-maps/recipes/standard-artifacts";
 import { standardMapConfigs as swooperStandardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
-import {
-  BROWSER_TEST_RECIPE_CONFIG as swooperBrowserTestDefaultConfig,
-  BROWSER_TEST_RECIPE_CONFIG_SCHEMA as swooperBrowserTestConfigSchema,
-  studioBuiltInPresets as swooperBrowserTestBuiltInPresets,
-  studioRecipeUiMeta as swooperBrowserTestUiMeta,
-} from "mod-swooper-maps/recipes/browser-test-artifacts";
 
 export const STUDIO_RECIPE_ARTIFACTS: readonly RecipeArtifacts[] = [
   {

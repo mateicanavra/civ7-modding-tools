@@ -1,19 +1,19 @@
+import { ACTION_GROUP_ACTION, KIND } from "../constants";
 import { ActionGroupBundle } from "../core";
-import { BaseBuilder } from "./BaseBuilder";
 import { BaseFile, XmlFile } from "../files";
 import {
   ChargedUnitAbilityNode,
   DatabaseNode,
   TypeNode,
-  UnitAbilityNode,
   Unit_AbilityNode,
   UnitAbilityModifierNode,
+  UnitAbilityNode,
 } from "../nodes";
 import { TClassProperties } from "../types";
-import { ACTION_GROUP_ACTION, KIND } from "../constants";
 import { locale } from "../utils";
-import { UnitBuilder } from "./UnitBuilder";
+import { BaseBuilder } from "./BaseBuilder";
 import { ModifierBuilder } from "./ModifierBuilder";
+import { UnitBuilder } from "./UnitBuilder";
 
 export type TAbilityBuilderOptions = {
   actionGroupBundle: ActionGroupBundle;

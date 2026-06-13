@@ -1,32 +1,31 @@
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7TunerCommand } from "../../session/execute.js";
-import {
-  populationPlacementPostcondition,
-  type Civ7PopulationPlacementPostcondition,
-  type Civ7PopulationPlacementPostconditionSnapshot,
-} from "./population-postconditions.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
 import { populationPlacementRequestVerified } from "./population-placement-proof.js";
 import {
-  productionPostconditionFor,
+  type Civ7PopulationPlacementPostcondition,
+  type Civ7PopulationPlacementPostconditionSnapshot,
+  populationPlacementPostcondition,
+} from "./population-postconditions.js";
+import {
   type Civ7ProductionPostcondition,
   type Civ7ProductionPostconditionSnapshot,
+  productionPostconditionFor,
 } from "./production-postconditions.js";
 import { operationRouterSource } from "./router.js";
-import {
-  unitOperationPostcondition,
-  type Civ7UnitOperationPostcondition,
-  type Civ7UnitOperationPostconditionSnapshot,
-} from "./unit-postconditions.js";
 import type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./types.js";
-
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
+import {
+  type Civ7UnitOperationPostcondition,
+  type Civ7UnitOperationPostconditionSnapshot,
+  unitOperationPostcondition,
+} from "./unit-postconditions.js";
 
 export type Civ7OperationRequestResult = Readonly<{
   before: Civ7OperationValidationResult;

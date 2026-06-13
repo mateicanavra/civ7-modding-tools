@@ -1,19 +1,19 @@
-import { describe, expect, test, vi } from "vitest";
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
+import { describe, expect, test, vi } from "vitest";
+import GameAiLoadedLevers from "../../src/commands/game/ai/loaded-levers";
+import GameCatalog from "../../src/commands/game/catalog";
 import GameExec from "../../src/commands/game/exec";
+import GameGameInfo from "../../src/commands/game/gameinfo";
 import GameHealth from "../../src/commands/game/health";
 import GameInspect from "../../src/commands/game/inspect";
-import GameStatus from "../../src/commands/game/status";
-import GameCatalog from "../../src/commands/game/catalog";
 import GameMap from "../../src/commands/game/map";
-import GameGameInfo from "../../src/commands/game/gameinfo";
 import GameMapVisibility from "../../src/commands/game/map/visibility";
-import GameAiLoadedLevers from "../../src/commands/game/ai/loaded-levers";
 import GameOperation from "../../src/commands/game/operation";
+import GameStatus from "../../src/commands/game/status";
 import {
-  debugServiceProjectionMissingPaths,
   type DebugServiceProjectionExpectation,
+  debugServiceProjectionMissingPaths,
 } from "../../src/game-debug/debug-service-projection";
 
 describe("game direct-control commands", () => {

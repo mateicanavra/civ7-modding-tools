@@ -1,13 +1,12 @@
-import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/map-policy";
 import type {
   NaturalWonderFootprintReadback,
   NaturalWonderFootprintReadbackStatus,
   NaturalWonderPlacementOutcome,
 } from "@civ7/adapter";
+import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/map-policy";
+import placement from "@mapgen/domain/placement";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
-
-import placement from "@mapgen/domain/placement";
 
 type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 

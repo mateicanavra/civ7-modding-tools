@@ -1,6 +1,15 @@
 import * as lodash from "lodash-es";
-
-import { TClassProperties, TObjectValues, TPartialRequired } from "../types";
+import {
+  ACTION_GROUP_ACTION,
+  BIOME,
+  CONSTRUCTIBLE_TYPE_TAG,
+  DISTRICT,
+  FEATURE,
+  KIND,
+  TERRAIN,
+} from "../constants";
+import { XmlFile } from "../files";
+import { ConstructibleLocalization, TConstructibleLocalization } from "../localizations";
 import {
   BuildingNode,
   ConstructibleMaintenanceNode,
@@ -28,24 +37,13 @@ import {
   TypeTagNode,
 } from "../nodes";
 import {
-  ACTION_GROUP_ACTION,
-  BIOME,
-  CONSTRUCTIBLE_TYPE_TAG,
-  DISTRICT,
-  FEATURE,
-  KIND,
-  TERRAIN,
-} from "../constants";
-import { XmlFile } from "../files";
-import { ConstructibleLocalization, TConstructibleLocalization } from "../localizations";
-import { locale, trim } from "../utils";
-
-import { BaseBuilder } from "./BaseBuilder";
-import {
   AdjacencyYieldChangeNode,
   TAdjacencyYieldChangeNode,
 } from "../nodes/AdjacencyYieldChangeNode";
 import { ConstructibleAdjacencyNode } from "../nodes/ConstructibleAdjacencyNode";
+import { TClassProperties, TObjectValues, TPartialRequired } from "../types";
+import { locale, trim } from "../utils";
+import { BaseBuilder } from "./BaseBuilder";
 
 type TConstructibleBuilder = TClassProperties<ConstructibleBuilder>;
 

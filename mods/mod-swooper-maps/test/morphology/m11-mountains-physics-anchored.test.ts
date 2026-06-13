@@ -1,6 +1,6 @@
-import { describe, it, expect } from "bun:test";
-import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
+import { describe, expect, it } from "bun:test";
 import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
+import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
 
 function countMask(mask: Uint8Array, start: number, end: number): number {
   let count = 0;

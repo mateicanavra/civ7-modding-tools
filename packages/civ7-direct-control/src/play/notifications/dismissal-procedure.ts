@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
-  Civ7NotificationDismissRequestInputSchema,
+  type Civ7NotificationDismissalResult,
   Civ7NotificationDismissalResultSchema,
-  requestCiv7NotificationDismissal,
   type Civ7NotificationDismissInput,
   type Civ7NotificationDismissRequestInput,
-  type Civ7NotificationDismissalResult,
+  Civ7NotificationDismissRequestInputSchema,
+  requestCiv7NotificationDismissal,
 } from "./dismissal-request.js";
 
 export const Civ7NotificationDismissRequestProcedureDescriptor = createCiv7ProcedureCoreDescriptor({

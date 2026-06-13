@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7GameUiRuntimeTarget,
   createCiv7GameUiControllerContextFactory,
   installCiv7GameUiIntelligenceBridge,
-  type Civ7GameUiRuntimeTarget,
 } from "../src/game-ui";
 import { requestCiv7GameUiTechnologyTarget } from "../src/game-ui-progression";
 import { requestCiv7GameUiTownFocusChange } from "../src/game-ui-town-focus";

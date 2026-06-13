@@ -1,5 +1,5 @@
-import React from "react";
 import { Bolt, Dices, Globe, History, Play } from "lucide-react";
+import React from "react";
 import {
   Button,
   Input,
@@ -8,10 +8,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../components/ui";
-import { OptionSelect } from "./OptionSelect";
-import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS, LAYOUT } from "../constants";
-import type { RecipeSettings, WorldSettings, GenerationStatus } from "../types";
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../../features/civ7Setup/seedPolicy";
+import { LAYOUT, MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS } from "../constants";
+import type { GenerationStatus, RecipeSettings, WorldSettings } from "../types";
+import { OptionSelect } from "./OptionSelect";
 
 // ============================================================================
 // APP FOOTER — the World/Map console (Pass-5 toolbar-architecture-v2 spec)

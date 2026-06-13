@@ -1,7 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
-import { buildTectonicsCurrent } from "../rules/index.js";
 import ComputeTectonicsCurrentContract from "../contract.js";
+import { buildTectonicsCurrent } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeTectonicsCurrentContract, "default", {
   run: (input) => {

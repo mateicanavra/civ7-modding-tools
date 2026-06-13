@@ -1,6 +1,5 @@
-import { Type, defineOp, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
-
 import type { PlotEffectKey } from "@mapgen/domain/ecology/types.js";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const createPlotEffectSelectorSchema = (defaultValue: { typeName: PlotEffectKey }) =>
   Type.Object(

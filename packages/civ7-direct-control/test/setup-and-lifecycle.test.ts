@@ -2,19 +2,19 @@ import { once } from "node:events";
 import { type AddressInfo, createServer, type Socket } from "node:net";
 import { describe, expect, test } from "vitest";
 import {
-  CIV7_SIGNED_INT_SEED_MAX,
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
   CIV7_RELOAD_UI_COMMAND,
+  CIV7_SIGNED_INT_SEED_MAX,
+  type Civ7SetupMapRow,
+  type Civ7SetupSnapshot,
+  type Civ7SinglePlayerSetupInput,
   ensureCiv7SetupMapRowVisible,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   prepareCiv7SinglePlayerSetup,
   runCiv7SinglePlayerFromSetup,
   startPreparedCiv7SinglePlayerGame,
-  type Civ7SinglePlayerSetupInput,
-  type Civ7SetupMapRow,
-  type Civ7SetupSnapshot,
 } from "../src/index";
 
 const HOST = "127.0.0.1";

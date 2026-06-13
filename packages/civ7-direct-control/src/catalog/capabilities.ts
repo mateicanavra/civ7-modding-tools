@@ -1,14 +1,13 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { Type, type Static } from "typebox";
-
-import type { Civ7DirectControlOptions } from "../session/types.js";
+import { type Static, Type } from "typebox";
+import { DEFAULT_CIV7_GAMEINFO_TABLES } from "../play/map/constants.js";
 import type {
   Civ7RootInspectionInput,
   Civ7RootInspectionResult,
 } from "../runtime/root-inspection.js";
 import { inspectCiv7Root } from "../runtime/root-inspection.js";
-import { DEFAULT_CIV7_GAMEINFO_TABLES } from "../play/map/constants.js";
+import type { Civ7DirectControlOptions } from "../session/types.js";
 
 export const Civ7CapabilityCatalogEntrySchema = Type.Object({
   id: Type.String(),

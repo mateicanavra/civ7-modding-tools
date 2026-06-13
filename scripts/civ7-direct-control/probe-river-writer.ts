@@ -2,21 +2,20 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-
+import {
+  type Civ7CommandResult,
+  type Civ7DirectControlOptions,
+  type Civ7FullMapGridResult,
+  type Civ7RuntimeProbe,
+  executeCiv7TunerCommand,
+  getCiv7FullMapGrid,
+} from "../../packages/civ7-direct-control/src/index.ts";
 import {
   CIV7_BROWSER_TABLES_V0,
   NO_RIVER_TYPE,
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
 } from "../../packages/civ7-map-policy/src/index.ts";
-import {
-  executeCiv7TunerCommand,
-  getCiv7FullMapGrid,
-  type Civ7CommandResult,
-  type Civ7DirectControlOptions,
-  type Civ7FullMapGridResult,
-  type Civ7RuntimeProbe,
-} from "../../packages/civ7-direct-control/src/index.ts";
 
 type Args = Readonly<{
   host?: string;

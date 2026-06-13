@@ -1,4 +1,4 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { morphologyArtifacts } from "../../morphology/artifacts.js";

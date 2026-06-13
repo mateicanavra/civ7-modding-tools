@@ -1,5 +1,5 @@
-import { readdirSync, readFileSync, writeFileSync, statSync } from "node:fs";
-import { join, extname } from "node:path";
+import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { extname, join } from "node:path";
 
 const OFFICIAL_DIR = join(process.cwd(), "official");
 const COMMUNITY_DIR = join(process.cwd(), "community");

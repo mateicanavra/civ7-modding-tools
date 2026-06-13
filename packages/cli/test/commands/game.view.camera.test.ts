@@ -1,7 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
-import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
-
 import GameViewCamera from "../../src/commands/game/view/camera";
+import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
 
 describe("game view camera", () => {
   test("moves the camera and reports the flattened verified readback", async () => {

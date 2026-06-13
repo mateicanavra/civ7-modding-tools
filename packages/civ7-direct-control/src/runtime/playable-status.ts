@@ -1,17 +1,17 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { errorMessage } from "../error-message.js";
 import type { Civ7DirectControlOptions } from "../session/types.js";
 import {
+  type Civ7AppUiSnapshotResult,
   Civ7AppUiSnapshotResultSchema,
   getCiv7AppUiSnapshot,
-  type Civ7AppUiSnapshotResult,
 } from "./app-ui-snapshot.js";
 import type { Civ7RuntimeProbe } from "./probe.js";
 import {
-  checkCiv7TunerHealth,
-  Civ7TunerHealthResultSchema,
   type Civ7TunerHealthResult,
+  Civ7TunerHealthResultSchema,
+  checkCiv7TunerHealth,
 } from "./tuner-health.js";
 
 export const Civ7PlayableStatusInputSchema = Type.Object({}, { additionalProperties: false });

@@ -1,7 +1,7 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { resolveModsDir, listMods, deployMod } from "../src/index";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { deployMod, listMods, resolveModsDir } from "../src/index";
 
 vi.mock("node:fs", async () => {
   const actual = await vi.importActual<any>("node:fs");

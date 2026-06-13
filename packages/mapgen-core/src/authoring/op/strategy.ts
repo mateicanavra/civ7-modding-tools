@@ -1,6 +1,5 @@
-import type { Static, TSchema } from "typebox";
-
 import type { NormalizeContext } from "@mapgen/engine/index.js";
+import type { Static, TSchema } from "typebox";
 import type { OpContract } from "./contract.js";
 
 type NoInfer<T> = [T][T extends any ? 0 : never];

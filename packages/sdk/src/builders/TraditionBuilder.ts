@@ -1,6 +1,7 @@
 import * as lodash from "lodash-es";
-
-import { TClassProperties, TPartialRequired } from "../types";
+import { ACTION_GROUP_ACTION, KIND } from "../constants";
+import { XmlFile } from "../files";
+import { TraditionLocalization, TTraditionLocalization } from "../localizations";
 import {
   DatabaseNode,
   GameEffectNode,
@@ -9,15 +10,12 @@ import {
   TTraditionNode,
   TypeNode,
 } from "../nodes";
-import { TraditionLocalization, TTraditionLocalization } from "../localizations";
-import { XmlFile } from "../files";
-import { ACTION_GROUP_ACTION, KIND } from "../constants";
+import { TClassProperties, TPartialRequired } from "../types";
 import { locale, trim } from "../utils";
-
-import { ModifierBuilder } from "./ModifierBuilder";
-import { ConstructibleBuilder } from "./ConstructibleBuilder";
-import { UnitBuilder } from "./UnitBuilder";
 import { BaseBuilder } from "./BaseBuilder";
+import { ConstructibleBuilder } from "./ConstructibleBuilder";
+import { ModifierBuilder } from "./ModifierBuilder";
+import { UnitBuilder } from "./UnitBuilder";
 
 type TTraditionBuilder = TClassProperties<TraditionBuilder>;
 

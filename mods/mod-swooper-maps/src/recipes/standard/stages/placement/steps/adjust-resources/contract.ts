@@ -1,8 +1,7 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import resources from "@mapgen/domain/resources";
-
-import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tags.js";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../../map-artifacts.js";
+import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tags.js";
 import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 import { placementArtifacts } from "../../artifacts.js";
 

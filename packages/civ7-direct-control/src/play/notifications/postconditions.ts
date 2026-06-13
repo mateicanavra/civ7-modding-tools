@@ -1,7 +1,7 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { Civ7ComponentIdSchema } from "../../civ7-component-id.js";
-import { Civ7RuntimeProbeSchema, type Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { type Civ7RuntimeProbe, Civ7RuntimeProbeSchema } from "../../runtime/probe.js";
 import type { Civ7NotificationDismissalSummary } from "./dismissal-request.js";
 
 export const Civ7NotificationDismissalPostconditionClassificationSchema = Type.Union([

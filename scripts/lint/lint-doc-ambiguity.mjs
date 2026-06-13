@@ -1,7 +1,7 @@
 #!/usr/bin/env node
+import { createHash } from "node:crypto";
 import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { createHash } from "node:crypto";
 
 const DEFAULT_ROOTS = ["docs"];
 const DEFAULT_BASELINE_PATH = "docs/.doc-ambiguity-lint-baseline.json";

@@ -1,12 +1,12 @@
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { probeValueChanged } from "./probe-values.js";
+import { isRecord, stableJson } from "./stable-json.js";
 import type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./types.js";
-import { probeValueChanged } from "./probe-values.js";
-import { isRecord, stableJson } from "./stable-json.js";
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
 export type Civ7UnitOperationPostconditionClassification =
   | "not-sent"

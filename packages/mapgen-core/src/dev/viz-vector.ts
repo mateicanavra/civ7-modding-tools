@@ -7,17 +7,17 @@
  * @module dev/viz-vector
  */
 
-import type { TraceScope } from "@mapgen/trace/index.js";
 import type {
-  VizDumper,
   VizDataTypeKey,
   VizDims,
+  VizDumper,
   VizScalarFormat,
   VizSpaceId,
   VizVariantKey,
 } from "@mapgen/core/types.js";
 import { computeSampleStep } from "@mapgen/dev/ascii.js";
 import { defineVizMeta } from "@mapgen/dev/viz-meta.js";
+import type { TraceScope } from "@mapgen/trace/index.js";
 
 function safeLen(view: ArrayBufferView | null | undefined): number {
   return (view as any)?.length ?? 0;

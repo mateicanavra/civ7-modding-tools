@@ -1,5 +1,5 @@
-import { TObjectValues } from "../types";
 import { BIOME } from "../constants";
+import { TObjectValues } from "../types";
 
 import { BaseNode } from "./BaseNode";
 

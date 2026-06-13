@@ -16,9 +16,9 @@ import {
   REQUIREMENT,
   TAG_TRAIT,
   TRAIT,
-  UniqueQuarterBuilder,
   UNIT,
   UNIT_CLASS,
+  UniqueQuarterBuilder,
   UnitBuilder,
   YIELD,
 } from "@mateicanavra/civ7-sdk";

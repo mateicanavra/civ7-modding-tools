@@ -5,8 +5,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import type {
-  RunInGameFileContentProof,
   RunInGameExactAuthorshipProof,
+  RunInGameFileContentProof,
   RunInGameFileIdentity,
   RunInGameMaterializationStatus,
   RunInGameRequestStatus,

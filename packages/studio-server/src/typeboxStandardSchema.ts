@@ -1,6 +1,6 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { Compile } from "typebox/compile";
 import type { Static, TSchema } from "typebox";
+import { Compile } from "typebox/compile";
 import { Value } from "typebox/value";
 
 export function toStandardSchema<TypeSchema extends TSchema>(

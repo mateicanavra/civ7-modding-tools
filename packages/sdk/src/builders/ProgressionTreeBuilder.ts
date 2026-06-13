@@ -1,6 +1,7 @@
 import * as lodash from "lodash-es";
-
-import { TClassProperties, TPartialRequired } from "../types";
+import { ACTION_GROUP_ACTION, AGE, KIND } from "../constants";
+import { XmlFile } from "../files";
+import { ProgressionTreeLocalization, TProgressionTreeLocalization } from "../localizations";
 import {
   DatabaseNode,
   GameEffectNode,
@@ -10,13 +11,10 @@ import {
   TProgressionTreePrereqNode,
   TypeNode,
 } from "../nodes";
-import { ACTION_GROUP_ACTION, AGE, KIND } from "../constants";
+import { TClassProperties, TPartialRequired } from "../types";
 import { locale, trim } from "../utils";
-import { XmlFile } from "../files";
-
-import { ProgressionTreeNodeBuilder } from "./ProgressionTreeNodeBuilder";
 import { BaseBuilder } from "./BaseBuilder";
-import { ProgressionTreeLocalization, TProgressionTreeLocalization } from "../localizations";
+import { ProgressionTreeNodeBuilder } from "./ProgressionTreeNodeBuilder";
 
 type TProgressionTreeBuilder = TClassProperties<ProgressionTreeBuilder>;
 

@@ -1,4 +1,4 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { routing } from "./steps/index.js";
 
 /**

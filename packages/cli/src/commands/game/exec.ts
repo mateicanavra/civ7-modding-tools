@@ -1,5 +1,5 @@
-import { Args, Command, Flags } from "@oclif/core";
 import { executeCiv7Command, resolveCiv7DirectControlConfig } from "@civ7/direct-control";
+import { Args, Command, Flags } from "@oclif/core";
 
 export default class GameExec extends Command {
   static id = "game exec";

@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@civ7/plugin-graph", () => ({
   crawlGraph: vi.fn(async () => ({ graph: { nodes: [], edges: [] }, manifestFiles: [] })),
@@ -23,8 +23,8 @@ vi.mock("node:fs", () => ({
   },
 }));
 
-import Crawl from "../../src/commands/data/crawl";
 import { crawlGraph } from "@civ7/plugin-graph";
+import Crawl from "../../src/commands/data/crawl";
 
 describe("crawl command", () => {
   beforeEach(() => {

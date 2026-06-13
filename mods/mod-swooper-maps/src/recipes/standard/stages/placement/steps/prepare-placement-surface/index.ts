@@ -1,26 +1,25 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import { runPlacementProductStep } from "../product-runtime.js";
-import { logTerrainStats } from "../terrain-diagnostics.js";
-import { applyLandmassRegionSlots } from "./landmass-regions.js";
-import { readFinalLakeProjection } from "./lake-readback.js";
-import {
-  readTerrainValidationBoundarySnapshot,
-  type TerrainValidationBoundarySnapshot,
-} from "./terrain-validation-readback.js";
+import { mapArtifacts } from "../../../../map-artifacts.js";
+import { placementArtifacts } from "../../artifacts.js";
 import {
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
   transparentNoneCategory,
 } from "../../viz.js";
+import { runPlacementProductStep } from "../product-runtime.js";
+import { logTerrainStats } from "../terrain-diagnostics.js";
+import PreparePlacementSurfaceStepContract from "./contract.js";
+import { readFinalLakeProjection } from "./lake-readback.js";
+import { applyLandmassRegionSlots } from "./landmass-regions.js";
+import {
+  readTerrainValidationBoundarySnapshot,
+  type TerrainValidationBoundarySnapshot,
+} from "./terrain-validation-readback.js";
 import {
   validatePlacementSurfacePreparationArtifact,
   validatePlacementSurfaceValidationBoundaryArtifact,
 } from "./validate.js";
-import { placementArtifacts } from "../../artifacts.js";
-import { mapArtifacts } from "../../../../map-artifacts.js";
-import PreparePlacementSurfaceStepContract from "./contract.js";
 
 export default createStep(PreparePlacementSurfaceStepContract, {
   artifacts: implementArtifacts(

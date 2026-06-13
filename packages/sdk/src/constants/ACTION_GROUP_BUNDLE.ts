@@ -1,7 +1,6 @@
 import { ActionGroupBundle } from "../core/ActionGroupBundle";
-
-import { AGE } from "./AGE";
 import { ACTION_GROUP } from "./ACTION_GROUP";
+import { AGE } from "./AGE";
 
 export const ACTION_GROUP_BUNDLE = {
   [AGE.ANTIQUITY]: new ActionGroupBundle({

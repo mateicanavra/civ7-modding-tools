@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 
 import type {
-  Civ7ControlOrpcDirectControlFacade,
   Civ7ControlOrpcBattlefieldScanResult,
   Civ7ControlOrpcDestinationAnalysisResult,
+  Civ7ControlOrpcDirectControlFacade,
   Civ7ControlOrpcTargetCandidatesResult,
 } from "../../../dependencies/direct-control";
 import {

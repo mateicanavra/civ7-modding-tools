@@ -1,4 +1,3 @@
-import React from "react";
 // ============================================================================
 // WATER STATS SECTION
 // ============================================================================
@@ -11,6 +10,7 @@ import React from "react";
 // jump-to-layer chips for the underlying evidence.
 // ============================================================================
 import { ChevronDown, Droplets } from "lucide-react";
+import React from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
 import type {
   RiverLakeFloodplainInspectorSummary,

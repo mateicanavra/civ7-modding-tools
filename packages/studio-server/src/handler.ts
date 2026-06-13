@@ -1,11 +1,9 @@
-import { Effect } from "effect";
+import { type Civ7ControlOrpcContext, Civ7ControlOrpcRouter } from "@civ7/control-orpc";
 import { onError, type Router } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
-
-import { Civ7ControlOrpcRouter, type Civ7ControlOrpcContext } from "@civ7/control-orpc";
-
-import type { StudioContract, StudioEffectContract } from "./contract/index.js";
+import { Effect } from "effect";
 import type { StudioServerContext } from "./context.js";
+import type { StudioContract, StudioEffectContract } from "./contract/index.js";
 import {
   createRuntimeLiveGameWatcher,
   type LiveGameWatcher,

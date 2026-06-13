@@ -1,14 +1,14 @@
+import type { TSchema } from "@swooper/mapgen-core/authoring";
 import browserTestRecipe from "mod-swooper-maps/recipes/browser-test";
 import {
-  BROWSER_TEST_RECIPE_CONFIG as swooperBrowserTestDefaultConfig,
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA as swooperBrowserTestConfigSchema,
+  BROWSER_TEST_RECIPE_CONFIG as swooperBrowserTestDefaultConfig,
 } from "mod-swooper-maps/recipes/browser-test-artifacts";
 import standardRecipe from "mod-swooper-maps/recipes/standard";
 import {
-  STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,
+  STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
 } from "mod-swooper-maps/recipes/standard-artifacts";
-import type { TSchema } from "@swooper/mapgen-core/authoring";
 
 export type StudioRecipeId = string;
 

@@ -2,25 +2,24 @@
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-
 import {
-  getCiv7FeaturePlacementFeasibility,
-  getCiv7MapGrid,
-  getCiv7MapSummary,
-  type Civ7FeaturePlacementFeasibilityResult,
-  type Civ7MapGridResult,
-  type Civ7MapSummaryResult,
-  type Civ7PlotSnapshotField,
-} from "../../packages/civ7-direct-control/src/index.ts";
-import {
+  type FinalSurfaceParityProof,
   hashParityValue,
   stableParityProofStringify,
-  type FinalSurfaceParityProof,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
 import {
   buildFeatureDeltaPlacementContexts,
   type FeatureDeltaPlacementContext,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/surface-delta-context.ts";
+import {
+  type Civ7FeaturePlacementFeasibilityResult,
+  type Civ7MapGridResult,
+  type Civ7MapSummaryResult,
+  type Civ7PlotSnapshotField,
+  getCiv7FeaturePlacementFeasibility,
+  getCiv7MapGrid,
+  getCiv7MapSummary,
+} from "../../packages/civ7-direct-control/src/index.ts";
 
 type Args = Readonly<{
   proofFile?: string;

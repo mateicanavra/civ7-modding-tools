@@ -15,5 +15,5 @@ export {
   TProgressionTreeNodeLocalization,
 } from "./ProgressionTreeNodeLocalization";
 export { TraditionLocalization, TTraditionLocalization } from "./TraditionLocalization";
-export { UniqueQuarterLocalization, TUniqueQuarterLocalization } from "./UniqueQuarterLocalization";
-export { UnitLocalization, TUnitLocalization } from "./UnitLocalization";
+export { TUniqueQuarterLocalization, UniqueQuarterLocalization } from "./UniqueQuarterLocalization";
+export { TUnitLocalization, UnitLocalization } from "./UnitLocalization";

@@ -1,14 +1,13 @@
-import type { FoundationCrust } from "../../compute-crust/contract.js";
-import type { FoundationMesh } from "../../compute-mesh/contract.js";
-import type { FoundationTectonicSegments } from "../../compute-tectonic-segments/contract.js";
-import type { TectonicEventRecord } from "../../../lib/tectonics/internal-contract.js";
-
 import { BOUNDARY_TYPE } from "../../../constants.js";
 import {
   requireCrust as requireCrustInput,
   requireMesh as requireMeshInput,
 } from "../../../lib/require.js";
 import { EVENT_TYPE } from "../../../lib/tectonics/constants.js";
+import type { TectonicEventRecord } from "../../../lib/tectonics/internal-contract.js";
+import type { FoundationCrust } from "../../compute-crust/contract.js";
+import type { FoundationMesh } from "../../compute-mesh/contract.js";
+import type { FoundationTectonicSegments } from "../../compute-tectonic-segments/contract.js";
 
 export function requireMesh(
   ...args: Parameters<typeof requireMeshInput>

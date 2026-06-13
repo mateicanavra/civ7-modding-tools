@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@civ7/plugin-files", () => ({
   unzipResources: vi.fn(async () => ({
@@ -15,8 +15,8 @@ vi.mock("@civ7/config", () => ({
   findProjectRoot: vi.fn(() => "/project"),
 }));
 
-import Unzip from "../../src/commands/data/unzip";
 import { unzipResources } from "@civ7/plugin-files";
+import Unzip from "../../src/commands/data/unzip";
 
 describe("unzip command", () => {
   beforeEach(() => {

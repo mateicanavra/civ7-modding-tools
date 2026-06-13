@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../procedure-core";
 import type { Civ7DirectControlOptions } from "../session/types";
 import {
-  Civ7CitySummaryInputSchema,
-  Civ7CitySummaryResultSchema,
-  getCiv7CitySummary,
   type Civ7CitySummaryDependencies,
   type Civ7CitySummaryInput,
+  Civ7CitySummaryInputSchema,
   type Civ7CitySummaryResult,
+  Civ7CitySummaryResultSchema,
+  getCiv7CitySummary,
 } from "./summaries";
 
 export const Civ7CitySummaryProcedureDescriptor = createCiv7ProcedureCoreDescriptor({

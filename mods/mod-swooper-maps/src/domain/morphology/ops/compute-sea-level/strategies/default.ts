@@ -1,5 +1,5 @@
-import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core";
+import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeSeaLevelContract from "../contract.js";
 import { resolveSeaLevel, resolveTargetPercent, validateSeaLevelInputs } from "../rules/index.js";

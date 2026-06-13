@@ -1,7 +1,7 @@
-import { TObjectValues } from "../types";
-import { fill } from "../utils";
 import { ACTION_GROUP_ACTION } from "../constants";
 import { ActionGroupNode } from "../nodes";
+import { TObjectValues } from "../types";
+import { fill } from "../utils";
 
 export class BaseFile<T = any> {
   path: string = "/";

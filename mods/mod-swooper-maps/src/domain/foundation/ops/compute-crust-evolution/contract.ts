@@ -1,12 +1,11 @@
-import { Type, defineOp } from "@swooper/mapgen-core/authoring";
 import type { Static } from "@swooper/mapgen-core/authoring";
-
-import { FoundationCrustSchema } from "../compute-crust/contract.js";
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring";
 import {
   FoundationTectonicHistorySchema,
   FoundationTectonicsSchema,
 } from "../../lib/tectonics/schemas.js";
+import { FoundationCrustSchema } from "../compute-crust/contract.js";
+import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 
 const StrategySchema = Type.Object(
   {},

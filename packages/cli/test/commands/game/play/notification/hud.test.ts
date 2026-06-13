@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import GamePlayNotifications from "../../../../../src/commands/game/play/notifications";
-import { expectNormalPlayPayloadToOmitDebugInternals } from "../normal-output-boundary";
 import { type FakeTunerServer, startFakeTunerServer } from "../../../fixtures/tuner-socket-server";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "../normal-output-boundary";
 
 type NotificationHudMode =
   | "default"

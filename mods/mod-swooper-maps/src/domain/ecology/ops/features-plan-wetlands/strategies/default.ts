@@ -1,12 +1,11 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
+import { isEngineCompatibleInternalBiome } from "../../../feature-engine-legality.js";
 import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
   validateGridSize,
 } from "../../score-shared/index.js";
-import { isEngineCompatibleInternalBiome } from "../../../feature-engine-legality.js";
 import PlanWetlandsContract from "../contract.js";
 import { admitWetlandIntent } from "../policies/index.js";
 

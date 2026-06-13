@@ -1,10 +1,9 @@
 import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
 
 import { clamp } from "@swooper/mapgen-core/lib/math";
-
-import type { MountainsConfig } from "./types.js";
-import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
 import { computeOrogenyPotential } from "./computeOrogenyPotential.js";
+import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
+import type { MountainsConfig } from "./types.js";
 
 /**
  * Computes mountain score from tectonic signals and fractal noise.

@@ -1,5 +1,5 @@
-import { TObjectValues } from "../types";
 import { CORE_CLASS, DOMAIN, FORMATION_CLASS, UNIT_MOVEMENT_CLASS } from "../constants";
+import { TObjectValues } from "../types";
 
 import { BaseNode } from "./BaseNode";
 

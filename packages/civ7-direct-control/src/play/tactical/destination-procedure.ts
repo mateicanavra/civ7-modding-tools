@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
-  Civ7DestinationAnalysisInputSchema,
-  Civ7DestinationAnalysisResultSchema,
-  getCiv7DestinationAnalysis,
   type Civ7DestinationAnalysisInput,
+  Civ7DestinationAnalysisInputSchema,
   type Civ7DestinationAnalysisResult,
+  Civ7DestinationAnalysisResultSchema,
   type DestinationAnalysisDependencies,
+  getCiv7DestinationAnalysis,
 } from "./destination.js";
 
 export const Civ7DestinationAnalysisProcedureDescriptor = createCiv7ProcedureCoreDescriptor({

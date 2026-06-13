@@ -1,5 +1,5 @@
-import { describe, expect, test, vi } from "vitest";
 import type { Command } from "@oclif/core";
+import { describe, expect, test, vi } from "vitest";
 import GameMap from "../../src/commands/game/map";
 import GameMapGrid from "../../src/commands/game/map/grid";
 import GameMapPlot from "../../src/commands/game/map/plot";

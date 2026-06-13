@@ -1,6 +1,6 @@
-import { BaseNode } from "./BaseNode";
 import { AGE, KIND } from "../constants";
 import { TObjectValues } from "../types";
+import { BaseNode } from "./BaseNode";
 
 export type TLeaderUnlockNode = Pick<
   LeaderUnlockNode,

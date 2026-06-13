@@ -1,6 +1,7 @@
 import * as lodash from "lodash-es";
-
-import { TClassProperties, TObjectValues, TPartialRequired } from "../types";
+import { ACTION_GROUP_ACTION, KIND, UNIT_CLASS } from "../constants";
+import { XmlFile } from "../files";
+import { TUnitLocalization, UnitLocalization } from "../localizations";
 import {
   DatabaseNode,
   IconDefinitionNode,
@@ -23,10 +24,8 @@ import {
   UnitUpgradeNode,
   VisualRemapNode,
 } from "../nodes";
-import { ACTION_GROUP_ACTION, KIND, UNIT_CLASS } from "../constants";
+import { TClassProperties, TObjectValues, TPartialRequired } from "../types";
 import { locale, trim } from "../utils";
-import { XmlFile } from "../files";
-import { TUnitLocalization, UnitLocalization } from "../localizations";
 
 import { BaseBuilder } from "./BaseBuilder";
 

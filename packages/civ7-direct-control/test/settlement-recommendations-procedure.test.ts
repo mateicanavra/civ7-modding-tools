@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7SettlementRecommendationsProcedureDescriptor,
@@ -7,8 +7,8 @@ import {
   callCiv7SettlementRecommendationsProcedure,
   getCiv7SettlementRecommendations,
   resolveCiv7ProcedureCoreSchemas,
-  summarizeCiv7ProcedureCoreDescriptor,
   type SettlementRecommendationDependencies,
+  summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
 describe("Civ7 settlement recommendations procedure descriptor", () => {

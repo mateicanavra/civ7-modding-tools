@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import GamePlayRehydrate from "../../src/commands/game/play/rehydrate";
-import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 
 describe("game play rehydrate command", () => {
   test("materializes restart rehydration continuity without sending operations", async () => {

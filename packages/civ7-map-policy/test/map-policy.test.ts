@@ -1,26 +1,26 @@
 import { describe, expect, it } from "bun:test";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 import {
+  applyCiv7CoastClassificationPolicy,
   CIV7_BROWSER_TABLES_V0,
   CIV7_COAST_CLASSIFICATION_POLICY_V0,
   CIV7_DEFAULT_RIVER_MODELING_ARGS,
   CIV7_RIVER_MODELING_POLICY_V0,
   CIV7_RIVER_TYPE_METADATA_SOURCE,
   CIV7_RIVER_TYPES_V0,
+  getNaturalWonderFootprintIndices,
+  isResourceAdjacentToLandRuntimeOptional,
   NATURAL_WONDER_CATALOG,
   NO_RIVER_TYPE,
   RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS,
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
-  WATER_CLASS_COAST,
-  WATER_CLASS_OCEAN,
-  applyCiv7CoastClassificationPolicy,
-  getNaturalWonderFootprintIndices,
-  isResourceAdjacentToLandRuntimeOptional,
   resolveNaturalWonderMaterializationDirection,
   resolveNaturalWonderPlacementDirection,
+  WATER_CLASS_COAST,
+  WATER_CLASS_OCEAN,
 } from "../src/index.js";
 
 function listSourceFiles(dir: string): string[] {

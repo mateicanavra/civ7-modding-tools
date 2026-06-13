@@ -1,24 +1,22 @@
-import { Type, type Static } from "typebox";
-
+import { type Static, Type } from "typebox";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { assertCiv7ComponentId, Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
+import { productionChoiceRequestVerified } from "./production-choice-proof.js";
 import {
   Civ7ProductionPostconditionSchema,
+  type Civ7ProductionPostconditionSnapshot,
   Civ7ProductionPostconditionSnapshotSchema,
   productionPostconditionFor,
-  type Civ7ProductionPostconditionSnapshot,
 } from "./production-postconditions.js";
-import { productionChoiceRequestVerified } from "./production-choice-proof.js";
-import { canStartCiv7CityOperation, type Civ7OperationRequestResult } from "./validate-request.js";
 import type { Civ7OperationInput, Civ7OperationValidationResult } from "./types.js";
-
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
-import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
+import { type Civ7OperationRequestResult, canStartCiv7CityOperation } from "./validate-request.js";
 
 const civ7TunerStateSchema = Type.Object(
   {

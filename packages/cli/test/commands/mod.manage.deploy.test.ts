@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@civ7/plugin-mods", () => ({
   deployMod: vi.fn((opts: any) => ({
@@ -17,8 +17,8 @@ vi.mock("node:fs", async () => {
   };
 });
 
-import ModManageDeploy from "../../src/commands/mod/manage/deploy";
 import { deployMod } from "@civ7/plugin-mods";
+import ModManageDeploy from "../../src/commands/mod/manage/deploy";
 
 describe("mod manage deploy command", () => {
   beforeEach(() => vi.clearAllMocks());

@@ -1,12 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import type { TraceEvent } from "@swooper/mapgen-core";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import type { TraceEvent } from "@swooper/mapgen-core";
-
+import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 
 type KindEvent = { kind: string };
 

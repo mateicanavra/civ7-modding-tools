@@ -1,18 +1,18 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
+  type Civ7TraditionsViewInput,
   Civ7TraditionsViewInputSchema,
+  type Civ7TraditionsViewResult,
   Civ7TraditionsViewResultSchema,
   getCiv7TraditionsView,
-  type Civ7TraditionsViewInput,
-  type Civ7TraditionsViewResult,
   type TraditionsViewDependencies,
 } from "./reads.js";
 

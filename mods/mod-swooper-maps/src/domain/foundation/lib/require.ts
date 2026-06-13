@@ -1,9 +1,9 @@
-import type { FoundationMesh } from "../ops/compute-mesh/contract.js";
 import type { FoundationCrust } from "../ops/compute-crust/contract.js";
 import type { FoundationMantleForcing } from "../ops/compute-mantle-forcing/contract.js";
 import type { FoundationMantlePotential } from "../ops/compute-mantle-potential/contract.js";
-import type { FoundationPlateMotion } from "../ops/compute-plate-motion/contract.js";
+import type { FoundationMesh } from "../ops/compute-mesh/contract.js";
 import type { FoundationPlateGraph } from "../ops/compute-plate-graph/contract.js";
+import type { FoundationPlateMotion } from "../ops/compute-plate-motion/contract.js";
 import type {
   FoundationTectonicHistory,
   FoundationTectonicProvenance,

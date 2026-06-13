@@ -1,11 +1,10 @@
 import { describe, expect, it } from "bun:test";
-
-import { defaultStrategy as computeDrainageRouting } from "../../src/domain/hydrology/ops/compute-drainage-routing/strategies/default.js";
 import {
+  computeDrainageAccumulation,
   HYDROLOGY_TERMINAL_CLOSED_BASIN,
   HYDROLOGY_TERMINAL_OCEAN,
-  computeDrainageAccumulation,
 } from "../../src/domain/hydrology/ops/compute-drainage-routing/rules/index.js";
+import { defaultStrategy as computeDrainageRouting } from "../../src/domain/hydrology/ops/compute-drainage-routing/strategies/default.js";
 
 describe("hydrology/compute-drainage-routing", () => {
   it("routes a raw pit through its spill path to ocean without making it a terminal river sink", () => {

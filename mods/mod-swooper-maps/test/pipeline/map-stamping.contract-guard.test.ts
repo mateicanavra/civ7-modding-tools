@@ -2,9 +2,8 @@ import { describe, expect, it } from "bun:test";
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../src/recipes/standard/tags.js";
 import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/recipe.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../src/recipes/standard/tags.js";
 
 function listFilesRecursive(rootDir: string): string[] {
   const out: string[] = [];

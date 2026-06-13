@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7TurnCompletionStatusDependencies,
   Civ7TurnCompletionStatusProcedureDescriptor,
   Civ7TurnCompletionStatusProcedureSchemaArtifacts,
   callCiv7TurnCompletionStatusProcedure,
   getCiv7TurnCompletionStatus,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7TurnCompletionStatusDependencies,
 } from "../src/index";
 
 describe("Civ7 turn-completion status procedure descriptor", () => {

@@ -4,16 +4,16 @@
  * Tests for idx, inBounds, storyKey, clamp, lerp, wrapX, fillBuffer functions.
  */
 
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import {
+  clamp,
+  fillBuffer,
   idx,
   inBounds,
-  storyKey,
-  parseStoryKey,
-  clamp,
   lerp,
+  parseStoryKey,
+  storyKey,
   wrapX,
-  fillBuffer,
 } from "@mapgen/core/index.js";
 
 describe("core/utils", () => {

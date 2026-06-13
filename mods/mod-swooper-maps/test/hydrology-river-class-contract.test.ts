@@ -1,14 +1,14 @@
 import { describe, expect, it } from "bun:test";
 
 import {
-  RIVER_CLASS_MAJOR,
-  RIVER_CLASS_MINOR,
-  RIVER_CLASS_NONE,
   findInvalidRiverClassIndex,
   isAnyRiverClass,
   isMajorRiverClass,
   isMinorRiverClass,
   isValidRiverClass,
+  RIVER_CLASS_MAJOR,
+  RIVER_CLASS_MINOR,
+  RIVER_CLASS_NONE,
 } from "../src/domain/hydrology/river-class.js";
 import { validateHydrographyArtifact } from "../src/recipes/standard/stages/hydrology-hydrography/steps/rivers.validation.js";
 

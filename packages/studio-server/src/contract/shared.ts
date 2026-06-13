@@ -1,4 +1,4 @@
-import { Type, type TSchema } from "typebox";
+import { type TSchema, Type } from "typebox";
 
 import { toStandardSchema } from "../typeboxStandardSchema.js";
 
