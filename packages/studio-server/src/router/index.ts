@@ -14,16 +14,16 @@ import { StudioEventHub } from "../services/StudioEventHub.js";
 /**
  * effect-orpc router for `@civ7/studio-server` (slice A3).
  *
- * This is the ONLY module that imports `effect-orpc` (research/01 §6 isolation
- * rule). Each leaf is `implementEffect(...).<ns>.<proc>.effect(function*(){…})`.
+ * This is the ONLY module that imports `effect-orpc` (research/01 section 6 isolation
+ * rule). Each leaf is `implementEffect(...).<ns>.<proc>.effect(function*(){...})`.
  * The procedure bodies lift the corresponding `/api/*` handler logic from
  * `apps/mapgen-studio/vite.config.ts` verbatim:
  *
- *   - Read procedures call `Civ7TunerClient` (→ `@civ7/direct-control`) and map a
+ *   - Read procedures call `Civ7TunerClient` (-> `@civ7/direct-control`) and map a
  *     failure to its DECLARED contract error via the typed `errors.CODE(...)`
  *     constructor param (contract/errors.ts). The codes pin the EXACT legacy
- *     status — they are NON-UNIFORM (gameInfo/live.* → 400, setupConfig → 503,
- *     most → 500), the do-not-break registry (architecture/10 §7).
+ *     status - they are NON-UNIFORM (gameInfo/live.* -> 400, setupConfig -> 503,
+ *     most -> 500), the do-not-break registry (architecture/10 section 7).
  *   - `civ7.live.status` runs the four reads under `Effect.all({ mode: "either" })`
  *     (the `Promise.allSettled` analogue) and embeds `{ error }` per field at 200;
  *     only an outer defect yields a transport error. PARITY INVARIANT.
@@ -37,11 +37,11 @@ import { StudioEventHub } from "../services/StudioEventHub.js";
  * Query parsing parity (clamps, csv split/trim/filter, playerId omit) that the
  * legacy handlers did from the URL is reproduced here against the typed input.
  */
-// Return type is the CONTRACT-DERIVED `Router<StudioContract, …>` rather than the
+// Return type is the CONTRACT-DERIVED `Router<StudioContract, ...>` rather than the
 // lossy `AnyRouter`: the effect-orpc `oe.router(...)` result is pinned to
 // `StudioContract`, and its initial context is fully provided by the injected
 // `ManagedRuntime` (so `Record<never, never>`). Annotating it portably (instead of
-// inferring `EnhancedRouter<…>`, which would reference effect-orpc internals and
+// inferring `EnhancedRouter<...>`, which would reference effect-orpc internals and
 // trip TS2742 in the emitted `.d.ts`) keeps `StudioRouter` contract-typed.
 export function createStudioRouter(
   runtime: StudioRuntime,
@@ -50,7 +50,7 @@ export function createStudioRouter(
 
   return oe.router({
     civ7: {
-      // #1 GET /api/civ7/status — error 500
+      // #1 GET /api/civ7/status - error 500
       status: oe.civ7.status.effect(function* ({ errors }) {
         const status = yield* Civ7TunerClient.playableStatus().pipe(
           Effect.mapError((err) =>
@@ -62,7 +62,7 @@ export function createStudioRouter(
         return { ok: status.playable, status: status as Record<string, unknown> };
       }),
 
-      // #2 GET /api/civ7/map-summary — error 500
+      // #2 GET /api/civ7/map-summary - error 500
       mapSummary: oe.civ7.mapSummary.effect(function* ({ errors }) {
         const summary = yield* Civ7TunerClient.mapSummary().pipe(
           Effect.mapError((err) =>
@@ -74,9 +74,9 @@ export function createStudioRouter(
         return { ok: true as const, summary: summary as Record<string, unknown> };
       }),
 
-      // #3 GET /api/civ7/gameinfo?table=&limit= — error 400 (NOT 500)
+      // #3 GET /api/civ7/gameinfo?table=&limit= - error 400 (NOT 500)
       gameInfo: oe.civ7.gameInfo.effect(function* ({ input, errors }) {
-        const rows = yield* Civ7TunerClient.gameInfoRows(input.table, input.limit).pipe(
+        const rows = yield* Civ7TunerClient.gameInfoRows(input.table, input.limit ?? 100).pipe(
           Effect.mapError((err) =>
             errors.CIV7_GAMEINFO_FAILED({
               message: errorMessage(err, "Civ7 GameInfo request failed"),
@@ -87,7 +87,7 @@ export function createStudioRouter(
         return { ok: true as const, rows: rows as unknown as Record<string, unknown> };
       }),
 
-      // #8 POST /api/civ7/autoplay — host engine; 409 mutex / 500
+      // #8 POST /api/civ7/autoplay - host engine; 409 mutex / 500
       autoplay: oe.civ7.autoplay.effect(function* ({ input, errors }) {
         const config = yield* StudioConfig;
         return yield* Effect.tryPromise({
@@ -104,7 +104,7 @@ export function createStudioRouter(
         );
       }),
 
-      // #10 GET /api/civ7/setup-config — error 503 (UNIQUE), body carries observedAt
+      // #10 GET /api/civ7/setup-config - error 503 (UNIQUE), body carries observedAt
       setupConfig: oe.civ7.setupConfig.effect(function* ({ errors }) {
         const snapshot = yield* Civ7TunerClient.setupSnapshot().pipe(
           Effect.mapError((err) =>
@@ -124,7 +124,7 @@ export function createStudioRouter(
         };
       }),
 
-      // #11 GET /api/civ7/saved-configs — error 500, body carries observedAt
+      // #11 GET /api/civ7/saved-configs - error 500, body carries observedAt
       savedConfigs: oe.civ7.savedConfigs.effect(function* ({ errors }) {
         const result = yield* Civ7TunerClient.savedConfigurations().pipe(
           Effect.mapError((err) =>
@@ -142,7 +142,7 @@ export function createStudioRouter(
         };
       }),
 
-      // #12 GET /api/civ7/setup-catalog — host loader; error 500
+      // #12 GET /api/civ7/setup-catalog - host loader; error 500
       setupCatalog: oe.civ7.setupCatalog.effect(function* ({ errors }) {
         const config = yield* StudioConfig;
         const catalog = yield* Effect.tryPromise(() => config.loadSetupCatalog()).pipe(
@@ -157,20 +157,25 @@ export function createStudioRouter(
       }),
 
       live: {
-        // #4 GET /api/civ7/live/status — 200-with-embedded-{error}; allSettled
+        // #4 GET /api/civ7/live/status - 200-with-embedded-{error}; allSettled
         status: oe.civ7.live.status.effect(function* () {
           return yield* readLiveGameStatusBody;
         }),
 
-        // #5 GET /api/civ7/live/snapshot — error 400; clamps + csv parse parity
+        // #5 GET /api/civ7/live/snapshot - error 400; clamps + csv parse parity
         snapshot: oe.civ7.live.snapshot.effect(function* ({ input, errors }) {
-          const fields = input.fields
+          const fields = (input.fields ?? "terrain,biome,feature,resource,visibility,owner")
             .split(",")
             .map((field) => field.trim())
             .filter(Boolean) as Parameters<Civ7TunerClient["mapGrid"]>[0]["fields"];
-          const maxPlots = Math.min(512, Math.max(1, input.maxPlots));
+          const maxPlots = Math.min(512, Math.max(1, input.maxPlots ?? 512));
           const grid = yield* Civ7TunerClient.mapGrid({
-            bounds: { x: input.x, y: input.y, width: input.width, height: input.height },
+            bounds: {
+              x: input.x ?? 0,
+              y: input.y ?? 0,
+              width: input.width ?? 24,
+              height: input.height ?? 18,
+            },
             fields,
             maxPlots,
             ...(input.playerId === undefined ? {} : { playerId: input.playerId }),
@@ -188,9 +193,9 @@ export function createStudioRouter(
           };
         }),
 
-        // #6 GET /api/civ7/live/entities — error 400; Promise.all (any failure → 400)
+        // #6 GET /api/civ7/live/entities - error 400; Promise.all (any failure -> 400)
         entities: oe.civ7.live.entities.effect(function* ({ input, errors }) {
-          const maxItems = Math.min(128, Math.max(1, input.maxItems));
+          const maxItems = Math.min(128, Math.max(1, input.maxItems ?? 128));
           const playerId = input.playerId;
           const result = yield* Effect.all(
             {
@@ -224,14 +229,14 @@ export function createStudioRouter(
           };
         }),
 
-        // #7 GET /api/civ7/live/gameinfo — error 400; 8-table cap, N parallel reads
+        // #7 GET /api/civ7/live/gameinfo - error 400; 8-table cap, N parallel reads
         gameInfo: oe.civ7.live.gameInfo.effect(function* ({ input, errors }) {
-          const tables = input.tables
+          const tables = (input.tables ?? "Terrains,Biomes,Features,Resources,Maps,MapSizes")
             .split(",")
             .map((table) => table.trim())
             .filter(Boolean)
             .slice(0, 8);
-          const limit = Math.min(200, Math.max(1, input.limit));
+          const limit = Math.min(200, Math.max(1, input.limit ?? 100));
           const entries = yield* Effect.all(
             tables.map((table) =>
               Civ7TunerClient.gameInfoRows(table, limit).pipe(
@@ -260,7 +265,7 @@ export function createStudioRouter(
     },
 
     runInGame: {
-      // #14 POST /api/civ7/run-in-game — host engine; 409/400/500/503
+      // #14 POST /api/civ7/run-in-game - host engine; 409/400/500/503
       start: oe.runInGame.start.effect(function* ({ input, errors }) {
         const config = yield* StudioConfig;
         return yield* Effect.tryPromise({
@@ -275,7 +280,7 @@ export function createStudioRouter(
         );
       }),
 
-      // #13 GET /api/civ7/run-in-game/status — host store; 404 echoes server id
+      // #13 GET /api/civ7/run-in-game/status - host store; 404 echoes server id
       status: oe.runInGame.status.effect(function* ({ input, errors }) {
         const config = yield* StudioConfig;
         return yield* Effect.tryPromise({
@@ -294,7 +299,7 @@ export function createStudioRouter(
     },
 
     mapConfigs: {
-      // #16 POST /api/map-configs — host engine; 409 mutex / 400 validation
+      // #16 POST /api/map-configs - host engine; 409 mutex / 400 validation
       saveDeploy: oe.mapConfigs.saveDeploy.effect(function* ({ input, errors }) {
         const config = yield* StudioConfig;
         return yield* Effect.tryPromise({
@@ -309,7 +314,7 @@ export function createStudioRouter(
         );
       }),
 
-      // #15 GET /api/map-configs/status — host store; 404 (no server id echo)
+      // #15 GET /api/map-configs/status - host store; 404 echoes server id
       status: oe.mapConfigs.status.effect(function* ({ input, errors }) {
         const config = yield* StudioConfig;
         return yield* Effect.tryPromise({
@@ -328,7 +333,7 @@ export function createStudioRouter(
     },
 
     studio: {
-      // #9 GET /api/studio/server-info — pure; no errors
+      // #9 GET /api/studio/server-info - pure; no errors
       serverInfo: oe.studio.serverInfo.effect(function* () {
         const config = yield* StudioConfig;
         return {
@@ -366,7 +371,7 @@ export function createStudioRouter(
     recipeDag: {
       // Recipe-DAG projection (runtime-one-mount slice; formerly the
       // `/api/recipe-dag/rpc` satellite mount). The service is host-injected
-      // through the StudioConfig layer — the ONE runtime serves this
+      // through the StudioConfig layer - the ONE runtime serves this
       // namespace too; the former private empty ManagedRuntime is gone.
       get: oe.recipeDag.get.effect(function* ({ input, errors }) {
         const config = yield* StudioConfig;
@@ -396,7 +401,7 @@ export function createStudioRouter(
 }
 
 /**
- * The studio router type, contract-derived (`Router<StudioContract, …>`) rather
+ * The studio router type, contract-derived (`Router<StudioContract, ...>`) rather
  * than the lossy `AnyRouter`. `RPCHandler` accepts it (`AnyRouter` is its lower
  * bound), and the handler module re-exports it.
  */

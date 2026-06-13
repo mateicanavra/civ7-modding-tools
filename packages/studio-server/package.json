@@ -42,8 +42,7 @@
     "@orpc/server": "1.14.5",
     "@orpc/tanstack-query": "1.14.5",
     "effect": "3.21.3",
-    "effect-orpc": "0.2.2",
-    "zod": "3.25.76"
+    "effect-orpc": "0.2.2"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

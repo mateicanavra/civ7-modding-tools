@@ -132,6 +132,14 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 **Scope:** Decide which knobs scale with map area (spacing, support radius, density), add declared scaling knobs, predeclare per-size expectation ranges, extend the metrics harness windows.
 **Impact:** Non-standard sizes run with standard-tuned defaults and unverified gate behavior.
 
+## DEF-015: Studio Civ7 restart recovery affordance
+
+**Deferred:** 2026-06-13
+**Trigger:** The next MapGen Studio recovery/UX slice that surfaces daemon health or tuner wedge state to the operator.
+**Context:** The runtime simplification program made tuner wedge state observable through the daemon's shared `Civ7TunerSession` health (`wedgeSuspected`, gate state, consecutive response timeouts). S4.1 closed the ownership invariant by keeping Studio session construction restricted to the shared daemon service and the direct-control package per-flow wrapper; adding a "Restart Civ7" UI/action affordance is a product interaction decision, not part of the runtime ownership closeout. Owner: MapGen Studio product/runtime.
+**Scope:** Design the operator-facing recovery surface, decide whether restart is a button, guided action, or linked run flow, wire it to the existing direct-control restart capability, and prove it against tuner-wedged and game-not-running states.
+**Impact:** Studio can report wedge suspicion, but it does not yet give the operator a first-class one-click recovery affordance from that health signal.
+
 ## Project-scoped deferrals
 
 Some deferrals are intentionally scoped to a specific project/milestone (e.g., Engine Refactor v1) rather than the whole system. Keep those in the project’s deferrals doc:

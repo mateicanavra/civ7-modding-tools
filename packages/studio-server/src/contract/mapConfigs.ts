@@ -1,59 +1,76 @@
 import { oc } from "@orpc/contract";
-import { z } from "zod";
+import { Type } from "typebox";
 
 import { mapConfigsErrors } from "./errors.js";
+import { contractSchema } from "./shared.js";
 
 /**
- * `mapConfigs.*` namespace — save config to repo + deploy (no Civ restart).
+ * `mapConfigs.*` namespace - save config to repo + deploy (no Civ restart).
  *
  * Source of truth: audit/05-server-contracts.md endpoints #15 (status) and #16
  * (saveDeploy). The output schema reproduces `MapConfigSaveDeployStatus` from
  * apps/mapgen-studio/src/features/mapConfigSave/status.ts faithfully.
  */
 
-const saveDeployPhase = z.enum([
-  "idle",
-  "queued",
-  "saving",
-  "deploying",
-  "complete",
-  "failed",
+const saveDeployPhase = Type.Union([
+  Type.Literal("idle"),
+  Type.Literal("queued"),
+  Type.Literal("saving"),
+  Type.Literal("deploying"),
+  Type.Literal("complete"),
+  Type.Literal("failed"),
 ]);
 
-const saveDeployKind = z.enum(["idle", "running", "complete", "failed"]);
+const saveDeployKind = Type.Union([
+  Type.Literal("idle"),
+  Type.Literal("running"),
+  Type.Literal("complete"),
+  Type.Literal("failed"),
+]);
 
-/** `MapConfigSaveDeployStatus` — returned by both saveDeploy (#16, 202) and status (#15, 200). */
-export const saveDeployStatusSchema = z.object({
-  ok: z.boolean(),
-  requestId: z.string(),
-  phase: saveDeployPhase,
-  status: saveDeployKind,
-  startedAt: z.string(),
-  updatedAt: z.string(),
-  path: z.string().optional(),
-  saved: z.boolean().optional(),
-  deployed: z.boolean().optional(),
-  error: z.string().optional(),
-  deploy: z
-    .object({
-      build: z
-        .object({
-          task: z.string().optional(),
-          stdout: z.string().optional(),
-          stderr: z.string().optional(),
-        })
-        .optional(),
-      targetDir: z.string().optional(),
-      modsDir: z.string().optional(),
-      filesCopied: z.number().optional(),
-    })
-    .optional(),
-  details: z.record(z.string(), z.unknown()).optional(),
-  recoveryActions: z.array(z.string()).optional(),
-});
+/** `MapConfigSaveDeployStatus` - returned by both saveDeploy (#16, 202) and status (#15, 200). */
+const saveDeployStatusTypeSchema = Type.Object(
+  {
+    ok: Type.Boolean(),
+    requestId: Type.String(),
+    phase: saveDeployPhase,
+    status: saveDeployKind,
+    startedAt: Type.String(),
+    updatedAt: Type.String(),
+    path: Type.Optional(Type.String()),
+    saved: Type.Optional(Type.Boolean()),
+    deployed: Type.Optional(Type.Boolean()),
+    error: Type.Optional(Type.String()),
+    deploy: Type.Optional(
+      Type.Object(
+        {
+          build: Type.Optional(
+            Type.Object(
+              {
+                task: Type.Optional(Type.String()),
+                stdout: Type.Optional(Type.String()),
+                stderr: Type.Optional(Type.String()),
+              },
+              { additionalProperties: false },
+            ),
+          ),
+          targetDir: Type.Optional(Type.String()),
+          modsDir: Type.Optional(Type.String()),
+          filesCopied: Type.Optional(Type.Number()),
+        },
+        { additionalProperties: false },
+      ),
+    ),
+    details: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+    recoveryActions: Type.Optional(Type.Array(Type.String())),
+  },
+  { additionalProperties: false },
+);
+
+export const saveDeployStatusSchema = contractSchema(saveDeployStatusTypeSchema);
 
 // ---------------------------------------------------------------------------
-// #15 mapConfigs.status — GET /api/map-configs/status?requestId=
+// #15 mapConfigs.status - GET /api/map-configs/status?requestId=
 // ---------------------------------------------------------------------------
 // Query: requestId (REQUIRED). Success 200: MapConfigSaveDeployStatus.
 // Errors: 400 (missing); 404 { ok:false, error, serverInstanceId,
@@ -65,20 +82,25 @@ export const saveDeployStatusSchema = z.object({
 export const status = oc
   .errors(mapConfigsErrors)
   .input(
-    z.object({
-      requestId: z.string().min(1),
-    }),
+    contractSchema(
+      Type.Object(
+        {
+          requestId: Type.String({ minLength: 1 }),
+        },
+        { additionalProperties: false },
+      ),
+    ),
   )
   .output(saveDeployStatusSchema);
 
 // ---------------------------------------------------------------------------
-// #16 mapConfigs.saveDeploy — POST /api/map-configs
+// #16 mapConfigs.saveDeploy - POST /api/map-configs
 // ---------------------------------------------------------------------------
 // Body: { requestId?, id, sourcePath?, envelope, restart?, verifyRestart? }.
-// `restart`/`verifyRestart` MUST be falsy → else 400.
+// `restart`/`verifyRestart` MUST be falsy -> else 400.
 // Success 202: MapConfigSaveDeployStatus (async). 202 idempotent (same active
 // requestId returns current). Errors: 409 (run-in-game active OR different save/
-// deploy active); 400 on validation — declared as the defined
+// deploy active); 400 on validation - declared as the defined
 // SAVE_DEPLOY_BLOCKED/INVALID/UNAVAILABLE/FAILED codes (./errors.ts).
 //
 // PARITY NOTE (audit/05 #16): write-then-deploy with ROLLBACK on deploy-phase
@@ -90,13 +112,18 @@ export const status = oc
 export const saveDeploy = oc
   .errors(mapConfigsErrors)
   .input(
-    z.object({
-      requestId: z.string().optional(),
-      id: z.string(),
-      sourcePath: z.string().optional(),
-      envelope: z.unknown(),
-      restart: z.boolean().optional(),
-      verifyRestart: z.boolean().optional(),
-    }),
+    contractSchema(
+      Type.Object(
+        {
+          requestId: Type.Optional(Type.String()),
+          id: Type.String(),
+          sourcePath: Type.Optional(Type.String()),
+          envelope: Type.Unknown(),
+          restart: Type.Optional(Type.Boolean()),
+          verifyRestart: Type.Optional(Type.Boolean()),
+        },
+        { additionalProperties: false },
+      ),
+    ),
   )
   .output(saveDeployStatusSchema);

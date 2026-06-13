@@ -18,30 +18,28 @@ export type StudioOutputs = InferContractRouterOutputs<typeof contract>;
 export type SetupCatalog = StudioOutputs["civ7"]["setupCatalog"]["catalog"];
 
 /**
- * `StudioServerContext` — the dependency seam the host (the Vite dev middleware,
+ * `StudioServerContext` - the dependency seam the host (the Vite dev middleware,
  * later a Bun server) supplies to the studio-server oRPC router.
  *
- * WHY a context seam instead of fully self-owned services: this run keeps the
- * legacy `/api/*` handlers **alive alongside** `/rpc` (coexistence; cutover is a
- * later supervised step). The stateful run-in-game / save-deploy / autoplay
- * surface shares ONE serialized operation queue and ONE pair of operation stores
- * (the dual-store 409 mutex, architecture/10 §7). If the oRPC router instantiated
- * its own stores, `/api` and `/rpc` would diverge and the cross-mutex parity would
- * break. So the host owns the singletons and the verbatim engine bodies, and
- * injects them here; the package owns the oRPC/Effect wiring + the read surface.
+ * WHY a context seam instead of fully self-owned services: the stateful
+ * run-in-game / save-deploy / autoplay surface shares ONE serialized operation
+ * queue and ONE pair of operation stores (the dual-store 409 mutex,
+ * architecture/10 section 7). The daemon is now one `/rpc` surface; the host
+ * still owns those process-lifetime singletons and injects them here so the
+ * package owns the oRPC/Effect wiring without duplicating engine state.
  *
  * The read surface (status, mapSummary, gameInfo, live.*, setupConfig,
  * savedConfigs, serverInfo) is implemented inside the package from
- * `@civ7/direct-control` directly — only the catalog loader and the three
+ * `@civ7/direct-control` directly - only the catalog loader and the three
  * stateful engines cross this seam.
  *
  * Each engine fn returns the SAME success shape its `/api` handler wrote, OR
  * throws an `ORPCError` whose code/status/data MATCH the procedure's DECLARED
- * contract errors (./contract/errors.ts) — `AUTOPLAY_BLOCKED`/
+ * contract errors (./contract/errors.ts) - `AUTOPLAY_BLOCKED`/
  * `AUTOPLAY_UNAVAILABLE`/`AUTOPLAY_FAILED`,
  * `RUN_IN_GAME_BLOCKED`/`_INVALID`/`_FAILED`/`_UNAVAILABLE`/`_STATUS_NOT_FOUND`,
  * `SAVE_DEPLOY_BLOCKED`/`_INVALID`/`_UNAVAILABLE`/`_FAILED`/
- * `_STATUS_NOT_FOUND` — so oRPC
+ * `_STATUS_NOT_FOUND` - so oRPC
  * validates them into DEFINED typed errors client-side. The package re-throws
  * engine `ORPCError`s unchanged.
  */
@@ -54,7 +52,7 @@ export interface StudioServerContext {
 
   /**
    * Recipe-DAG projection service (runtime-one-mount slice). The
-   * implementation stays host-side — it imports `mod-swooper-maps` recipe
+   * implementation stays host-side - it imports `mod-swooper-maps` recipe
    * stages, a dependency this package must not take. `recipeDag.get` reads
    * it through the `StudioConfig` layer.
    */
@@ -63,7 +61,7 @@ export interface StudioServerContext {
   /**
    * Civ7 control-oRPC dependencies (runtime-one-mount slice). The handler
    * builds the control procedures' per-request context from these plus the
-   * runtime's shared `Civ7TunerSession` — session sharing is structural,
+   * runtime's shared `Civ7TunerSession` - session sharing is structural,
    * not a host-side patch. Hosts pass the live facade; tests pass fakes.
    */
   readonly civ7Control: Readonly<{

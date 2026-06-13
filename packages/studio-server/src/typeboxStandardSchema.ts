@@ -1,6 +1,7 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { Compile } from "typebox/compile";
 import type { Static, TSchema } from "typebox";
+import { Value } from "typebox/value";
 
 export function toStandardSchema<TypeSchema extends TSchema>(
   schema: TypeSchema,
@@ -12,7 +13,13 @@ export function toStandardSchema<TypeSchema extends TSchema>(
       version: 1,
       vendor: "typebox",
       validate(value) {
-        if (validator.Check(value)) return { value: value as Static<TypeSchema> };
+        try {
+          return { value: Value.Parse(schema, value) as Static<TypeSchema> };
+        } catch {
+          // Fall through to TypeBox's structural errors. `Value.Parse` is used
+          // first so contract schemas retain parser behavior such as stripping
+          // closed-object extras, matching the legacy Zod surface.
+        }
         return {
           issues: [...validator.Errors(value)].map((error) => ({
             message: error.message,
