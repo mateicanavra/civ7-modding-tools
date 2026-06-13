@@ -90,7 +90,11 @@ export function createStudioRpcHandler(context: StudioServerContext): StudioRpcH
 
   // The ONE shared tuner session, memoized for the handler's lifetime. The
   // runtime layer builds on first resolution; lifecycle stays with the
-  // runtime scope (dispose() runs the release finalizer).
+  // runtime scope (dispose() runs the release finalizer). A rejection clears
+  // the memo so the next request retries instead of serving a cached failure
+  // forever (today the only rejection path is deterministic env misconfig —
+  // the session object itself is acquired without I/O — but the memo must
+  // not be the thing that makes a failure sticky).
   let sessionPromise: Promise<Civ7ControlOrpcContext["endpointDefaults"]> | undefined;
   const controlEndpointDefaults = () =>
     (sessionPromise ??= runtime
@@ -98,7 +102,11 @@ export function createStudioRpcHandler(context: StudioServerContext): StudioRpcH
       .then((session) => ({
         timeoutMs: context.civ7Control.timeoutMs,
         session,
-      })));
+      }))
+      .catch((error: unknown) => {
+        sessionPromise = undefined;
+        throw error;
+      }));
 
   return {
     handle: async (request, options) =>

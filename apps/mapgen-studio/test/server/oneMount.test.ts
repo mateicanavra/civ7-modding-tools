@@ -40,6 +40,16 @@ describe("one /rpc mount serves the whole unified contract", () => {
     const facadeCalls: Array<Civ7ControlOrpcContext["endpointDefaults"]> = [];
     const recipeDagCalls: string[] = [];
     const { client } = await listenWithStudioServer({
+      loadSetupCatalog: async () =>
+        ({
+          observedAt: "2026-06-12T00:00:00.000Z",
+          roots: [],
+          sourceFileCount: 0,
+          leaders: [],
+          civilizations: [],
+          difficulties: [],
+          gameSpeeds: [],
+        }) as Awaited<ReturnType<StudioServerContext["loadSetupCatalog"]>>,
       civ7Control: {
         directControl: {
           getCiv7PlayableStatus: async (options: Civ7ControlOrpcContext["endpointDefaults"]) => {
@@ -62,6 +72,15 @@ describe("one /rpc mount serves the whole unified contract", () => {
     await expect(client.studio.serverInfo({})).resolves.toMatchObject({
       ok: true,
       serverInstanceId: "one-mount-test",
+    });
+
+    // (a2) the STUDIO half of the merged `civ7.*` node — this is the half the
+    // handler's spread can silently drop (review P2-1: a mutation removing
+    // `...studioCiv7` from the merge must fail HERE, not just at the contract
+    // collision pin below).
+    await expect(client.civ7.setupCatalog({})).resolves.toMatchObject({
+      ok: true,
+      catalog: { leaders: [], sourceFileCount: 0 },
     });
 
     // (b) civ7 control namespace — twice, to pin session memoization.

@@ -36,7 +36,10 @@ are TypeBox via standard-schema — oRPC consumes both.
 - Studio procedures: unchanged effect-orpc implementations.
 - Recipe-DAG procedure: re-implemented against the same `implementEffect`
   builder (its former private `ManagedRuntime.make(Layer.empty)` is deleted),
-  reading `context.recipeDagService` per request.
+  reading the host's `recipeDagService` through the `StudioConfig` layer (the
+  host context is ALREADY a runtime layer — no per-request context needed for
+  recipeDag, and the effect router keeps its `Record<never, never>` initial
+  context).
 - Control procedures: the prebuilt `Civ7ControlOrpcRouter` merged in as plain
   oRPC procedures (they are not Effect; their per-request context carries the
   facade + endpoint defaults). The 347-test control package is untouched.
@@ -58,10 +61,12 @@ handle: async (request, options) =>
         timeoutMs: context.civ7Control.timeoutMs,
         session: await session,
       },
-      recipeDagService: context.recipeDagService,
-    },
+    } satisfies Civ7ControlOrpcContext,
   }),
 ```
+
+The per-request context is the CONTROL context only; a rejected session
+resolution clears the memo (no sticky cached failure).
 
 The public `tuner.session()` port is deleted — its only consumer was the
 daemon patch this change removes. `tuner.health()` and `dispose()` remain.
@@ -119,9 +124,10 @@ typeboxStandardSchema,context,procedure,router}.ts`, `server/http/nodeWebBridge.
    consumers since the daemon cutover (vite-middleware-era gate). Module +
    test die together.
 2. **`studioServerClient.ts`: DELETE.** Same archaeology — a second `/rpc`
-   client used only by its own test. Its transport pins (default URL against
-   `location.origin`, non-rpc fallthrough) migrate into the new single-mount
-   contract pin.
+   client used only by its own test. Its non-rpc fallthrough pin migrates
+   into the new single-mount contract pin; its default-URL pin dies with the
+   dead twin client (the live client's URL resolution is exercised by every
+   browser session, not unit-pinned — net coverage unchanged).
 3. **Client `DedupeRequestsPlugin`: deferred.** Evidence: the plugin's
    default filter dedupes only `GET` requests; the RPC link sends POST.
    Enabling it would be a no-op. Re-evaluate with `BatchLinkPlugin` after
