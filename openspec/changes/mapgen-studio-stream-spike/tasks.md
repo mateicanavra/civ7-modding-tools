@@ -43,4 +43,4 @@
 - [x] 5.1 `bun run openspec -- validate mapgen-studio-stream-spike --strict`.
 - [x] 5.2 Focused package/app gates for the reference proofs.
 - [x] 5.3 Watcher/review disposition recorded; no P1/P2 findings unresolved.
-- [ ] 5.4 Graphite submit/merge/drain according to repo rules.
+- [x] 5.4 Graphite submit/merge/drain according to repo rules.

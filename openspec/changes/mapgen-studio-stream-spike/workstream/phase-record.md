@@ -7,7 +7,7 @@
 - Owner: Codex DRA implementation lane
 - Branch/Graphite stack: `codex/stream-spike` stacked on `main`
 - Started: 2026-06-13
-- Status: implemented; final validation and Graphite closure pending
+- Status: closed; merged and drained through Graphite
 
 ## Objective
 
@@ -35,10 +35,10 @@
 
 ## Current State
 
-- Repo/Graphite state: clean `codex/stream-spike` over `main` at
-  `ecd1eed571917db1d1c76d42c7d48f4c89eaa361`.
-- Dirty files and owner: S3.0 OpenSpec/findings, program plan API-name
-  correction, and focused stream/proxy proof tests owned by this branch.
+- Repo/Graphite state: `codex/stream-spike` merged via PR #1684 into `main` at
+  `9c0ba47acea904f2348293d0945e1868a6810ecc`, then retired from the local
+  Graphite stack.
+- Dirty files and owner: none for S3.0 after merge/drain.
 - Current code evidence: one `/rpc` surface exists; `operations.current`
   exists for reconnect adoption; status polls/watchdog remain for S3.2/S3.3.
 - Generated outputs affected: none expected.
@@ -95,7 +95,7 @@
 - Completed tasks: initial S3.0 frame, strict OpenSpec validation, watcher lane
   start/disposition, evidence map, reference proof, findings, and downstream
   plan realignment.
-- Remaining tasks: final strict validation and Graphite drain.
+- Remaining tasks: none for S3.0; continue S3.1.
 - Stop conditions triggered: none.
 
 ## Verification
@@ -127,8 +127,7 @@
 
 ## Next Action
 
-- Exact next step: run final validation/package gates, stage exact S3.0 files,
-  commit/submit/merge through Graphite, then open S3.1 `event-hub`.
+- Exact next step: open S3.1 `event-hub`.
 - First files to inspect for implementation:
   `packages/studio-server/src/handler.ts`,
   `packages/studio-server/src/contract/index.ts`,
