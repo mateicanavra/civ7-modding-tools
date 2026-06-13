@@ -5,10 +5,10 @@
 
 ## 2. direct-control seam (`design/tuner-session-seam`)
 
-- [x] 2.1 `Civ7DirectControlOptions.session?` — caller-owned session;
-      `withCiv7DirectControlSession` reuses without closing; absent →
+- [x] 2.1 `Civ7DirectControlOptions.session?` - caller-owned session;
+      `withCiv7DirectControlSession` reuses without closing; absent ->
       unchanged behavior.
-- [x] 2.2 Graceful `close()`: reject pending → `end()` (FIN) → await
+- [x] 2.2 Graceful `close()`: reject pending -> `end()` (FIN) -> await
       `close` with 1s fallback `destroy()`; idempotent.
 - [x] 2.3 `session.stats`: consecutive response-timeouts (increment on
       response-timeout, reset on any resolved frame).
@@ -33,11 +33,11 @@
 
 ## 4. Daemon wiring (`design/tuner-daemon-wiring`)
 
-- [x] 4.1 Control mount options gain `session?` → merged into
+- [x] 4.1 Control mount options gain `session?` -> merged into
       `endpointDefaults` (no control-orpc package changes).
 - [x] 4.2 `daemon.ts`: inject the shared session into the control
       handler; `/healthz` tuner block (consecutive timeouts, gate,
-      `wedgeSuspected`); SIGINT/SIGTERM → `dispose()` → stop.
+      `wedgeSuspected`); SIGINT/SIGTERM -> `dispose()` -> stop.
 - [x] 4.3 Tests: daemon health/dispatch updates; existing pins green.
 - [x] 4.4 Gates: tsc, studio tests, mod tests, build + worker bundle,
       `--strict` valid.
@@ -47,13 +47,18 @@
       soak; healthz tuner block live; daemon stop sends FIN.
 - [x] 4.6 Workstream record closed with evidence; goal-ledger entry.
 
-## 5. Deferred (explicit)
+## 5. S4.1 closeout dispositions
 
-- [ ] 5.1 Run-in-game flow convergence onto the shared session — OUT OF
-      SCOPE (behavior parity); revisit only with a dedicated parity
-      harness.
-- [ ] 5.2 "Restart Civ7" recovery affordance in the Studio UI driven by
-      `wedgeSuspected` — follow-up surface work.
+- [x] 5.1 Run-in-game flow convergence onto the shared session is closed by
+      the S4.1 `studio-runtime/CIV7-GAME-DOOR` invariant rather than by
+      convergence: Studio code may not construct sessions, and bounded
+      per-flow sessions remain sanctioned only through
+      `withCiv7DirectControlSession` in `@civ7/direct-control`. Evidence:
+      `docs/system/direct-control/GAME-DOOR-INVARIANT.md` and
+      `packages/studio-server/test/gameDoorInvariant.test.ts`.
+- [x] 5.2 "Restart Civ7" recovery affordance in the Studio UI driven by
+      `wedgeSuspected` moved to durable deferral `DEF-015` in
+      `docs/system/DEFERRALS.md` with owner, trigger, scope, and impact.
 
 ## 6. Superseded by runtime-one-mount (2026-06-12)
 
@@ -61,5 +66,5 @@
       was DELETED by `mapgen-studio-runtime-one-mount`: the unified
       handler now resolves the shared session from its own runtime and
       builds the control per-request context internally (structural
-      session sharing — no daemon-side injection seam remains).
+      session sharing - no daemon-side injection seam remains).
       `tuner.health()` and `dispose()` are unchanged.
