@@ -16,7 +16,7 @@ describe("live runtime model", () => {
       body: {
         ok: true,
         observedAt: "2026-06-06T00:00:01.000Z",
-        status: { readiness: "ready" },
+        status: { readiness: "tuner-ready" },
         mapSummary: {
           game: { turn: { ok: true, value: 12 }, hash: { ok: true, value: 987654 } },
           map: {
@@ -32,7 +32,7 @@ describe("live runtime model", () => {
       observedAtFallback: "2026-06-06T00:00:02.000Z",
       body: {
         ok: true,
-        status: { readiness: "ready" },
+        status: { readiness: "tuner-ready" },
         mapSummary: {
           game: { hash: { ok: true, value: 987654 }, turn: { ok: true, value: 12 } },
           map: {
@@ -56,7 +56,7 @@ describe("live runtime model", () => {
     const baseBody = {
       ok: true,
       observedAt: "2026-06-06T00:00:01.000Z",
-      status: { readiness: "ready" },
+      status: { readiness: "tuner-ready" },
       mapSummary: {
         game: { turn: { ok: true, value: 12 } },
         map: {
@@ -102,6 +102,7 @@ describe("live runtime model", () => {
       observedAtFallback: "2026-06-06T00:00:00.000Z",
       body: {
         ok: true,
+        status: { readiness: "tuner-ready" },
         mapSummary: {
           game: { turn: { ok: true, value: 7 } },
           map: { randomSeed: { ok: true, value: 44 } },
@@ -127,11 +128,32 @@ describe("live runtime model", () => {
     })).toBe(false);
   });
 
+  it("does not request terrain grid snapshots until tuner readiness is available", () => {
+    for (const readiness of ["app-ui-game", "begin-ready", "loading", "shell", "unavailable"]) {
+      const status = buildLiveRuntimeStatusState({
+        observedAtFallback: "2026-06-06T00:00:00.000Z",
+        body: {
+          ok: true,
+          status: { readiness },
+          mapSummary: {
+            game: { turn: { ok: true, value: 8 } },
+            map: { randomSeed: { ok: true, value: 77 } },
+          },
+        },
+      });
+
+      expect(status.status).toBe("ok");
+      expect(status.snapshotId).toBeDefined();
+      expect(buildLiveRuntimeSnapshotRequest({ status })).toBeNull();
+    }
+  });
+
   it("hashes snapshot payloads and keeps request identity in the state", () => {
     const status = buildLiveRuntimeStatusState({
       observedAtFallback: "2026-06-06T00:00:00.000Z",
       body: {
         ok: true,
+        status: { readiness: "tuner-ready" },
         mapSummary: {
           game: { turn: { ok: true, value: 8 } },
           map: { randomSeed: { ok: true, value: 77 } },

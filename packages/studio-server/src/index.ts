@@ -10,7 +10,7 @@
  *   connection, with the backoff gate and the host injection/health ports.
  * - effect-orpc router (A3): `createStudioRouter` + non-uniform error mapping.
  * - Host handler (A4-lite): `createStudioRpcHandler(context)` → an `RPCHandler`
- *   the host (the studio Bun daemon) mounts at `/rpc`, plus `tuner.*` ports and
+ *   the host Studio server mounts at `/rpc`, plus `tuner.*` ports and
  *   the `dispose()` shutdown obligation.
  *
  * The host supplies a {@link StudioServerContext} carrying the process singletons,

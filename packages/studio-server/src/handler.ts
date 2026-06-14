@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { onError, type Router } from "@orpc/server";
+import { ORPCError, onError, type Router } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 
 import {
@@ -39,11 +39,11 @@ import {
  * acquired UNCONNECTED (`connect()` runs on first command and is
  * reuse-idempotent), so constructing the handler — including in tests — opens
  * no socket. There is no session-extraction port anymore; the former
- * `tuner.session()` consumer (the daemon's control-mount patch) is gone.
+ * `tuner.session()` consumer (the Studio server's control-mount patch) is gone.
  *
  * Remaining host obligations:
  * - `tuner.health()` — consecutive response-timeouts + backoff-gate state
- *   (the daemon's `/healthz` probe).
+ *   (the Studio server's `/healthz` probe).
  * - `dispose()` — closes the runtime scope (graceful FIN to the game). The
  *   host MUST call this on shutdown or the release finalizer never runs.
  *
@@ -95,6 +95,7 @@ export function createStudioRpcHandler(
       onError((error) => {
         // Surface unexpected (non-ORPCError) defects in the host console; expected
         // status-mapped errors flow through quietly.
+        if (error instanceof ORPCError) return;
         console.error("[studio-server] rpc error", error);
       }),
     ],

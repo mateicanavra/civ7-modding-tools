@@ -187,7 +187,11 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     liveGameStudioRelation === "stale" &&
     Boolean(onSyncFromLiveGame) &&
     !operationControlsDisabled;
-  const autoplayControlDisabled = operationControlsDisabled || isAutoplayActionRunning || liveRuntime?.status !== "ok" || !onToggleAutoplay;
+  const liveActiveGame =
+    liveRuntime?.status === "ok" &&
+    (liveRuntime.readiness === "tuner-ready" || liveRuntime.readiness === "app-ui-game");
+  const liveTunerReady = liveRuntime?.status === "ok" && liveRuntime.readiness === "tuner-ready";
+  const autoplayControlDisabled = operationControlsDisabled || isAutoplayActionRunning || !liveActiveGame || !onToggleAutoplay;
   // Icon-only contract (Pass-4): the start/stop/in-flight wording the label
   // used to carry lives entirely in the accessible name + tooltip.
   const autoplayTitle = isAutoplayActionRunning
@@ -199,6 +203,8 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     ? "Explore: tile visibility control is not yet available"
     : isExploreActionRunning
       ? "Explore request in flight"
+      : !liveTunerReady
+        ? "Explore requires an active game with Tuner readiness"
       : "Explore: reveal the full map in the live game";
   const saveDeployLabel = saveDeployStatus ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase) : null;
   const saveDeployActive = saveDeployStatus?.status === "running";
@@ -328,7 +334,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
             variant="outline"
             size="icon"
             onClick={onExplore}
-            disabled={operationControlsDisabled || isExploreActionRunning || liveRuntime?.status !== "ok" || !onExplore}
+            disabled={operationControlsDisabled || isExploreActionRunning || !liveTunerReady || !onExplore}
             aria-label={exploreTitle}
             title={exploreTitle}
             className="shrink-0">

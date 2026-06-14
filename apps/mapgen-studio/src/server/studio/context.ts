@@ -140,7 +140,7 @@ const emptyIdentity = {
  * unexpected exceptions to `*_FAILED` — so oRPC validates them into DEFINED typed errors at the client
  * without this module importing the contract. Moved verbatim from
  * `vite.config.ts` (`createStudioServerContextForApp`) in the bun-server
- * engine-extraction slice; the host (the Bun daemon) injects the engines and
+ * engine-extraction slice; the host (the Bun Studio server) injects the engines and
  * its command label.
  */
 export function createStudioServerContext(options: Readonly<{
@@ -156,13 +156,13 @@ export function createStudioServerContext(options: Readonly<{
   return {
     serverInstanceId: engines.serverInstanceId,
     serverStartedAt: engines.serverStartedAt,
-    viteCommand: hostCommand,
+    hostCommand,
     // Recipe-DAG projection: the implementation stays app-side (it imports
     // mod-swooper-maps recipe stages); the package reads it via StudioConfig.
     recipeDagService: defaultRecipeDagService,
     // Civ7 control surface dependencies: the unified handler builds the
     // control procedures' per-request context from these plus the runtime's
-    // shared tuner session (structural session sharing — no daemon patch).
+    // shared tuner session (structural session sharing — no host-side patch).
     civ7Control: {
       directControl: liveCiv7ControlOrpcDirectControlFacade,
       timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,

@@ -4,13 +4,13 @@ import { fileURLToPath } from "node:url";
 
 import { createStudioEventHub, createStudioRpcHandler } from "@civ7/studio-server";
 
-import { createStudioServerContext } from "../studio/context";
-import { createStudioEngines } from "../studio/engines";
+import { createStudioServerContext } from "./studio/context";
+import { createStudioEngines } from "./studio/engines";
 
 // ============================================================================
-// Studio daemon — the standalone Bun server owning the studio server surface
-// (bun-server workstream daemon slice; runtime-one-mount slice collapsed the
-// surface to ONE oRPC mount).
+// Studio server — the standalone Bun server owning the studio server surface
+// (bun-server workstream; runtime-one-mount slice collapsed the surface to ONE
+// oRPC mount).
 // ----------------------------------------------------------------------------
 // This process owns EVERY `/rpc` byte and ALL server state (the one
 // `createStudioEngines` instance — queue, operation stores, instance
@@ -23,8 +23,8 @@ import { createStudioEngines } from "../studio/engines";
 // (`/api/civ7/rpc`, `/api/recipe-dag/rpc`) and the 16 hand-rolled legacy
 // `/api/*` REST handlers are RETIRED — every non-`/rpc` API path is a 404.
 //
-// Executed with `bun src/server/daemon/daemon.ts` (never under node). The
-// fetch composition (`createStudioDaemonFetch`) is pure and unit-tested under
+// Executed with `bun src/server/studioServer.ts` (never under node). The
+// fetch composition (`createStudioServerFetch`) is pure and unit-tested under
 // vitest; only `main()` touches `Bun.serve`.
 // ============================================================================
 
@@ -37,14 +37,14 @@ declare const Bun: {
   }): { hostname: string; port: number; stop(force?: boolean): void };
 };
 
-export type StudioDaemonArgs = Readonly<{
+export type StudioServerArgs = Readonly<{
   host: string;
   port: number;
   repoRoot: string;
   assetsRoot?: string;
 }>;
 
-export const STUDIO_DAEMON_DEFAULT_PORT = 5174;
+export const STUDIO_SERVER_DEFAULT_PORT = 5174;
 
 const mimeTypes: Record<string, string> = {
   ".css": "text/css; charset=utf-8",
@@ -56,10 +56,10 @@ const mimeTypes: Record<string, string> = {
   ".woff2": "font/woff2",
 };
 
-export function parseStudioDaemonArgs(
+export function parseStudioServerArgs(
   argv: readonly string[],
   defaults: Readonly<{ repoRoot: string }>,
-): StudioDaemonArgs {
+): StudioServerArgs {
   const options = new Map<string, string>();
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -73,7 +73,7 @@ export function parseStudioDaemonArgs(
   const assetsRoot = options.get("assets-root");
   return {
     host: options.get("host") ?? "127.0.0.1",
-    port: Number(options.get("port") ?? STUDIO_DAEMON_DEFAULT_PORT),
+    port: Number(options.get("port") ?? STUDIO_SERVER_DEFAULT_PORT),
     repoRoot: resolve(options.get("repo-root") ?? defaults.repoRoot),
     ...(assetsRoot ? { assetsRoot: resolve(assetsRoot) } : {}),
   };
@@ -108,7 +108,7 @@ function staticResponse(assetsRoot: string, pathname: string): Response {
   });
 }
 
-export interface StudioDaemonDeps {
+export interface StudioServerDeps {
   studioRpc: {
     handle(
       request: Request,
@@ -122,8 +122,8 @@ export interface StudioDaemonDeps {
 }
 
 /** Pure fetch router over the injected handler — unit-testable without Bun.serve. */
-export function createStudioDaemonFetch(
-  deps: StudioDaemonDeps,
+export function createStudioServerFetch(
+  deps: StudioServerDeps,
 ): (request: Request) => Promise<Response> {
   return async (request) => {
     const url = new URL(request.url);
@@ -151,17 +151,17 @@ export function createStudioDaemonFetch(
   };
 }
 
-export async function createStudioDaemon(args: StudioDaemonArgs) {
+export async function createStudioServer(args: StudioServerArgs) {
   const eventHub = createStudioEventHub();
   const engines = createStudioEngines({ repoRoot: args.repoRoot, eventHub });
-  const context = createStudioServerContext({ engines, eventHub, hostCommand: "daemon" });
+  const context = createStudioServerContext({ engines, eventHub, hostCommand: "studio-server" });
   // The ONE handler over the ONE runtime. Session sharing is structural now:
   // the handler resolves the shared tuner connection from its runtime and
   // threads it into every control procedure's endpointDefaults — every
   // polling read multiplexes over that socket instead of opening its own
   // (the churn that wedged the game).
   const studioRpc = createStudioRpcHandler(context, { liveGameWatch: {} });
-  const deps: StudioDaemonDeps = {
+  const deps: StudioServerDeps = {
     studioRpc,
     health: async () => ({
       ok: true,
@@ -169,14 +169,14 @@ export async function createStudioDaemon(args: StudioDaemonArgs) {
       startedAt: engines.serverStartedAt,
       repoRoot: args.repoRoot,
       assetsRoot: args.assetsRoot ?? null,
-      runtimeMode: "studio-daemon-effect-orpc",
+      runtimeMode: "studio-server-effect-orpc",
       // Wedge observability: consecutive response-timeouts on the shared
       // socket + backoff gate state (tuner-session workstream).
       tuner: await studioRpc.tuner.health(),
     }),
     ...(args.assetsRoot ? { assetsRoot: args.assetsRoot } : {}),
   };
-  const fetch = createStudioDaemonFetch(deps);
+  const fetch = createStudioServerFetch(deps);
 
   return {
     engines,
@@ -200,14 +200,14 @@ export async function createStudioDaemon(args: StudioDaemonArgs) {
 }
 
 function defaultRepoRoot(): string {
-  // src/server/daemon/daemon.ts → apps/mapgen-studio → repo root.
-  return fileURLToPath(new URL("../../../../..", import.meta.url));
+  // src/server/studioServer.ts → apps/mapgen-studio → repo root.
+  return fileURLToPath(new URL("../../../..", import.meta.url));
 }
 
 if ((import.meta as { main?: boolean }).main) {
-  const args = parseStudioDaemonArgs(process.argv.slice(2), { repoRoot: defaultRepoRoot() });
-  const daemon = await createStudioDaemon(args);
-  const server = daemon.start();
+  const args = parseStudioServerArgs(process.argv.slice(2), { repoRoot: defaultRepoRoot() });
+  const studioServer = await createStudioServer(args);
+  const server = studioServer.start();
   // Shutdown = dispose the runtime scope FIRST (graceful FIN on the shared
   // tuner socket — the whole point of scoped release), then stop serving.
   let shuttingDown = false;
@@ -215,7 +215,7 @@ if ((import.meta as { main?: boolean }).main) {
     if (shuttingDown) return;
     shuttingDown = true;
     try {
-      await daemon.dispose();
+      await studioServer.dispose();
     } finally {
       server.stop(true);
       process.exit(0);
@@ -224,6 +224,6 @@ if ((import.meta as { main?: boolean }).main) {
   process.once("SIGINT", () => void shutdown());
   process.once("SIGTERM", () => void shutdown());
   process.stdout.write(
-    `mapgen-studio daemon listening on http://${server.hostname}:${server.port} (repoRoot ${args.repoRoot})\n`,
+    `mapgen-studio server listening on http://${server.hostname}:${server.port} (repoRoot ${args.repoRoot})\n`,
   );
 }

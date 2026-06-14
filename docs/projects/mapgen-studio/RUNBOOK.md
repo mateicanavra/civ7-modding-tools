@@ -16,6 +16,12 @@ bun run --cwd apps/mapgen-studio dev
 ```
 Use it only after the root Turbo graph has prepared dependencies.
 
+For a detached local session that has already prepared dependencies, prefer the
+direct watcher entrypoint to avoid extra package-manager/Turbo wrapper layers:
+```bash
+bun --cwd apps/mapgen-studio --watch src/server/dev.ts
+```
+
 ## Build Smoke
 Via Turbo:
 ```bash

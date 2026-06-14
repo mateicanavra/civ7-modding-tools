@@ -8,15 +8,17 @@ import { fileURLToPath } from "node:url";
 // ---------------------------------------------------------------------------
 // The studio server surface is ONE oRPC mount — `/rpc`, hosting the unified
 // `@civ7/studio-server` contract (studio + `civ7.*` control + `recipeDag.*`)
-// — and ALL server state lives in the standalone Bun daemon
-// (src/server/daemon/daemon.ts). Dev runs both via `bun run dev`
-// (src/server/daemon/devLive.ts); this config proxies exactly `/rpc` to the
-// daemon. The legacy `/api/*` REST handlers and the former satellite mounts
-// are RETIRED — `/api` paths 404 at the daemon and are not proxied.
+// — and ALL server state lives in the standalone Bun Studio server
+// (src/server/studioServer.ts). Dev runs both backend and frontend through
+// `src/server/dev.ts`; this config proxies exactly `/rpc` to the Studio server.
+// In dev, `dev.ts` starts this Vite server in-process so Bun watch owns one
+// backend entrypoint while Vite owns frontend HMR. The legacy `/api/*` REST
+// handlers and the former satellite mounts are RETIRED — `/api` paths 404 at
+// the Studio server and are not proxied.
 //
 // No server modules are imported here anymore: config evaluation is cheap,
 // restarts are safe, and the effect-orpc TS-source constraint is gone (the
-// daemon runs under Bun, which loads TS natively).
+// Studio server runs under Bun, which loads TS natively).
 // ===========================================================================
 
 const STUDIO_DEV_RPC_TARGET = process.env.STUDIO_DEV_RPC_TARGET ?? "http://127.0.0.1:5174";

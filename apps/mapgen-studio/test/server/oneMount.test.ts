@@ -233,7 +233,7 @@ function makeContext(overrides: Partial<StudioServerContext>): StudioServerConte
   return {
     serverInstanceId: "one-mount-test",
     serverStartedAt: "2026-06-12T00:00:00.000Z",
-    viteCommand: "serve",
+    hostCommand: "serve",
     loadSetupCatalog: async () => {
       throw new Error("Unexpected setup-catalog call");
     },
