@@ -287,7 +287,7 @@
   33 tasks and reported historical flaky-task flags for
   `@mateicanavra/civ7-cli:test` and `@civ7/direct-control:test`, but no task
   failed. This closes H4 task 2.4 locally.
-- Minimal Biome rule promotion result: selected green correctness/suspicious
+- Biome rule promotion result: selected green correctness/suspicious
   bug-risk rules pass under `biome ci`; nested `**/_archive/**` is excluded so
   live code can keep `noGlobalIsFinite` without historical archive churn.
 - Import organization result: `biome check --write .` applied safe import

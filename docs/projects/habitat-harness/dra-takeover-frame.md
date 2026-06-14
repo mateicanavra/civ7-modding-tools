@@ -211,7 +211,7 @@ repair branches. Required row contract:
 | Owner | accountable workstream owner. |
 | First verification command | first command or inspection that can disprove the row. |
 
-Minimum initial rows:
+Required starting rows:
 
 - H1: "Turbo fully retired; Nx is graph authority."
 - H2: scaffold preserved ratchet/baseline/diagnostic semantics.

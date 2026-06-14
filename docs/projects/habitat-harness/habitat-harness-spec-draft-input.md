@@ -883,7 +883,7 @@ agent changes API shape
 
 CI is authoritative. Husky is only local friction reduction.
 
-Minimum CI command:
+Required CI command:
 
 ```sh
 bun ci
@@ -1128,7 +1128,7 @@ Required:
 Prefer Bun isolated installs. Declare every dependency in the project that imports it.
 ```
 
-## 13. Minimal command reference
+## 13. Command reference
 
 ```sh
 # graph / orientation
