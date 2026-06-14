@@ -34,8 +34,8 @@ contract for repo paths, absolute paths, literal diffs, `.diff` files, and
 - **WHEN** an agent classifies a path under a workspace project
 - **THEN** the output includes `path`, `project`, `projectRoot`, `tags`,
   `rulesInScope`, and `requiredTargets`
-- **AND** required project targets use the established `bun run nx run
-  <project>:check` and `bun run nx run <project>:test` command strings
+- **AND** required project targets use the established `nx run
+  <project>:check` and `nx run <project>:test` command strings
 - **AND** workspace-level Habitat targets are included
 
 #### Scenario: H8 classify matrix stays stable

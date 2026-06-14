@@ -32,27 +32,27 @@ truth.
 
 - `bun run habitat classify packages/civ7-adapter/src/index.ts` reports
   `@civ7/adapter:check` and `@civ7/adapter:test`.
-- `bun run nx show project @civ7/adapter --json` reports targets `build`,
+- `nx show project @civ7/adapter --json` reports targets `build`,
   `check`, and `nx-release-publish`.
-- `bun run nx show target @civ7/adapter:test` exits 1 because the target is not
+- `nx show target @civ7/adapter:test` exits 1 because the target is not
   found.
-- `bun run nx show projects --with-target test --json` excludes
+- `nx show projects --with-target test --json` excludes
   `@civ7/adapter`, confirming the target absence through a second resolved Nx
   surface.
 - A package inventory found four projects with no package `test` script:
   `@civ7/adapter`, `@civ7/types`, `@swooper/mapgen-viz`, and `civ-mod-dacia`.
-- `bun run nx show target mod-swooper-maps:test` resolves, proving the target
+- `nx show target mod-swooper-maps:test` resolves, proving the target
   exists for some classified project kinds.
-- `bun run nx show target @internal/habitat-harness:biome:ci` resolves,
+- `nx show target @internal/habitat-harness:biome:ci` resolves,
   proving one workspace/Habitat gate exists.
-- `bun run nx --version` reports local Nx v22.7.5 in this worktree. Any
+- `nx --version` reports local Nx v22.7.5 in this worktree. Any
   sidecar claim that the active worktree is not an Nx workspace is invalid for
   this packet.
 - `bun run habitat classify package.json` reports workspace-level gates and no
   project-local target.
-- `bun run nx g @internal/habitat-harness:project unsupported-mod-probe --kind=mod --dry-run`
+- `nx g @internal/habitat-harness:project unsupported-mod-probe --kind=mod --dry-run`
   refuses before writes.
-- `bun run nx g @internal/habitat-harness:project misplaced-probe --kind=app --directory=packages/misplaced-app-probe --dry-run`
+- `nx g @internal/habitat-harness:project misplaced-probe --kind=app --directory=packages/misplaced-app-probe --dry-run`
   plans files under `packages/`, showing kind/root mismatch is not refused yet.
 
 ## Official Documentation Evidence
@@ -112,4 +112,4 @@ truth.
   decision becomes required before implementation closure.
 - One earlier Nx sidecar local-workspace claim was invalidated because it came
   from the wrong checkout. The official-doc constraints remain useful, but
-  current local proof comes from this worktree's `bun run nx ...` probes.
+  current local proof comes from this worktree's `nx ...` probes.

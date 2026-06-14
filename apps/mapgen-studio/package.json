@@ -23,14 +23,13 @@
         "continuous": true
       },
       "build": {
+        "command": "node -e \"\"",
+        "cache": false,
+        "outputs": [
+          "{projectRoot}/dist/**"
+        ],
         "dependsOn": [
-          "^build",
-          {
-            "projects": [
-              "mod-swooper-maps"
-            ],
-            "target": "build:studio-recipes"
-          }
+          "check:worker-bundle"
         ]
       },
       "check": {
@@ -54,6 +53,28 @@
             "target": "build:studio-recipes"
           }
         ]
+      },
+      "build:vite": {
+        "dependsOn": [
+          "check",
+          "^build",
+          {
+            "projects": [
+              "mod-swooper-maps"
+            ],
+            "target": "build:studio-recipes"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/dist/**"
+        ]
+      },
+      "check:worker-bundle": {
+        "dependsOn": [
+          "build:vite"
+        ],
+        "cache": true,
+        "outputs": []
       }
     }
   },
@@ -66,8 +87,9 @@
     "check:worker-bundle": "node scripts/check-worker-bundle.mjs",
     "check": "tsc --noEmit",
     "test": "vitest run --config ../../vitest.config.ts --project mapgen-studio",
-    "build": "tsc && vite build && bun run check:worker-bundle",
-    "preview": "vite preview"
+    "build": "vite build",
+    "preview": "vite preview",
+    "build:vite": "vite build"
   },
   "dependencies": {
     "@civ7/adapter": "workspace:*",

@@ -31,6 +31,12 @@
 		<Row Tag="LOC_MAP_MOUNTAIN_PATCH_DESCRIPTION">
 			<Text>Config and seed last proved through Run in Game.</Text>
 		</Row>
+		<Row Tag="LOC_MAP_STUDIO_CURRENT_NAME">
+			<Text>Mountains of Time (Earthlike)</Text>
+		</Row>
+		<Row Tag="LOC_MAP_STUDIO_CURRENT_DESCRIPTION">
+			<Text>A strong, highly diverse earthlike map</Text>
+		</Row>
 		<Row Tag="LOC_MAP_MOUNTAIN_RIVERS_PATCH_NAME">
 			<Text>Mountain Rivers Patch</Text>
 		</Row>

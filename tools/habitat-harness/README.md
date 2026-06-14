@@ -18,13 +18,16 @@ pattern: command classes live under `src/commands/**`, local repo scripts run
 
 ```bash
 bun run habitat            # command help
-bun run habitat:check      # all rules, human output (add -- --json for JSON)
+bun run lint               # graph-owned package lint + Habitat rule aggregate
+bun run habitat:check      # graph-owned Habitat rule aggregate
 bun run habitat:fix        # Biome safe writes: format + organize imports + safe fixes
-bun run habitat:verify     # check + nx affected build/test/boundaries/biome:ci/grit/generated
+bun run verify             # graph-owned package verifier aggregate
+bun run check              # graph-owned build/check/lint/test/verify aggregate
+bun run habitat check      # diagnostic Habitat CLI loop (add --json for JSON)
+bun run habitat verify     # diagnostic Habitat CLI verify loop
 bun run habitat classify packages/config/src/index.ts
-bun run nx run-many -t habitat:check        # the same rules, per owning project, cached
-bun run nx run-many -t boundaries           # project-plane tag boundaries
-bun run nx run-many -t biome:ci             # hygiene-layer CI gate
+nx run @internal/habitat-harness:boundaries  # project-plane tag boundaries
+bun run biome:ci                                       # hygiene-layer CI gate
 bun run habitat hook pre-commit     # local staged hook path
 bun run habitat hook pre-push       # local affected pre-push path
 ```
@@ -32,7 +35,10 @@ bun run habitat hook pre-push       # local affected pre-push path
 Notes:
 
 - `habitat check` assumes a built tree for the bundle-output test rules
-  (`bun run nx run-many -t build` first, or use `habitat verify`).
+  (`bun run build` first, or use graph proof through `bun run verify` /
+  `bun run check`).
+- `bun run lint` includes Habitat checks through Nx. A lint failure can be a
+  locked Habitat/Grit architecture finding, not only Biome or style hygiene.
 - Advisory-lane rules (`adr-lint`, `doc-ambiguity`) report but never fail —
   matching their pre-harness enforcement reality.
 - Baselines (`baselines/<rule-id>.json`) are shrink-only. Additions are valid
@@ -59,16 +65,16 @@ bun run habitat classify <path-or-diff>
 The JSON output names the owning workspace project, its `kind:*` tags,
 in-scope Habitat rules, and required verification targets. For literal diffs
 or `.diff`/`.patch` files, the command returns one classification per changed
-path. Treat those targets as the minimum handoff set, then add narrower
+path. Treat those targets as the required handoff set, then add narrower
 package-local checks for the behavior you changed.
 
 For supported uniform project kinds, generate structure instead of hand
 creating it:
 
 ```bash
-bun run nx g @internal/habitat-harness:project my-lib --kind=foundation
-bun run nx g @internal/habitat-harness:project my-plugin --kind=plugin
-bun run nx g @internal/habitat-harness:project my-app --kind=app
+nx g @internal/habitat-harness:project my-lib --kind=foundation
+nx g @internal/habitat-harness:project my-plugin --kind=plugin
+nx g @internal/habitat-harness:project my-app --kind=app
 ```
 
 Supported kinds are currently `foundation`, `plugin`, and `app`. The generator
@@ -82,7 +88,7 @@ For new Grit-backed rules, generate the native pattern and Habitat rule-pack
 entry together:
 
 ```bash
-bun run nx g @internal/habitat-harness:pattern grit-my-rule \
+nx g @internal/habitat-harness:pattern grit-my-rule \
   --ownerProject=@internal/habitat-harness \
   --scope="source scope" \
   --forbids="forbidden shape" \
@@ -95,7 +101,7 @@ empty locked baseline, and a `grit-check` rule-pack entry. Native Grit samples
 remain the pattern authority:
 
 ```bash
-GRIT_TELEMETRY_DISABLED=true ./node_modules/.bin/grit patterns test --verbose
+GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --verbose
 ```
 
 Harness migrations are declared in `migrations.json`. Because this package is
@@ -103,7 +109,7 @@ repo-local and unpublished, migration proof uses a hand-authored run file whose
 `package` field points at `./tools/habitat-harness`, then executes:
 
 ```bash
-bun run nx migrate --run-migrations=<run-file>.json --skip-install
+nx migrate --run-migrations=<run-file>.json --skip-install
 ```
 
 ## Git Hooks
@@ -124,9 +130,8 @@ Pre-push runs Nx affected targets for the local branch slice. In a Graphite
 stack it uses the Graphite parent branch as the affected base; outside
 Graphite it falls back to the merge-base with `main`. The hook pins
 `--head=HEAD` so uncommitted or untracked worktree files do not change the
-push scope, and it excludes Nx task dependencies so local hooks stay on the
-named feedback targets. CI and explicit verification own dependency-expanded
-proof.
+push scope, and Nx expands task dependencies from the declared graph.
+CI and explicit verification remain authoritative proof.
 
 `--no-verify` remains a local escape hatch. CI remains authoritative.
 
@@ -142,7 +147,7 @@ Use:
 ```bash
 bun run habitat:fix -- --dry-run   # report hygiene drift without writes
 bun run habitat:fix                # apply Biome format + safe assists
-bun run nx run-many -t biome:ci    # CI-equivalent hygiene gate
+nx run-many -t biome:ci # CI-equivalent hygiene gate
 ```
 
 Editor setup:

@@ -4,7 +4,119 @@
   "nx": {
     "tags": [
       "kind:app"
-    ]
+    ],
+    "targets": {
+      "build:tsc": {
+        "dependsOn": [
+          "clean:dist"
+        ],
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist/**"
+        ]
+      },
+      "build:manifest": {
+        "dependsOn": [
+          "build:tsc"
+        ],
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/oclif.manifest.json"
+        ]
+      },
+      "build:bin-mode": {
+        "dependsOn": [
+          "build:manifest"
+        ],
+        "cache": false,
+        "outputs": []
+      },
+      "build": {
+        "command": "node -e \"\"",
+        "cache": false,
+        "outputs": [
+          "{projectRoot}/dist/**",
+          "{projectRoot}/oclif.manifest.json"
+        ],
+        "dependsOn": [
+          "build:bin-mode"
+        ]
+      },
+      "test:play": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true,
+        "outputs": []
+      },
+      "link:global": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": false,
+        "outputs": []
+      },
+      "unlink:global": {
+        "cache": false,
+        "outputs": []
+      },
+      "readme": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": false,
+        "outputs": [
+          "{projectRoot}/README.md"
+        ]
+      },
+      "pack:prepare": {
+        "command": "node -e \"\"",
+        "cache": false,
+        "outputs": [],
+        "dependsOn": [
+          "build",
+          "readme"
+        ]
+      },
+      "version:readme": {
+        "dependsOn": [
+          "readme"
+        ],
+        "cache": false,
+        "outputs": []
+      },
+      "data:zip:default": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": false,
+        "outputs": []
+      },
+      "data:unzip:default": {
+        "dependsOn": [
+          "data:zip:default"
+        ],
+        "cache": false,
+        "outputs": []
+      },
+      "mod:git:import": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": false,
+        "outputs": []
+      },
+      "publish:npm": {
+        "dependsOn": [
+          "build",
+          "lint",
+          "test",
+          "check"
+        ],
+        "cache": false,
+        "outputs": []
+      }
+    }
   },
   "description": "CLI for managing Civilization VII modding resources.",
   "author": "Your Name",
@@ -19,19 +131,31 @@
     "oclif.manifest.json"
   ],
   "scripts": {
-    "build": "rimraf dist && tsc -b --force && oclif manifest && chmod +x bin/run.js",
+    "build": "tsc -b --force",
     "dev": "bun run bin/dev.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "lint": "biome check .",
     "test": "vitest run --project cli",
     "link:global": "bun link",
     "unlink:global": "bun unlink",
-    "prepublishOnly": "bun run build",
+    "prepublishOnly": "node -e \"\"",
     "publish": "bun publish",
-    "prepack": "bun run build && oclif readme",
+    "prepack": "node -e \"\"",
     "pack": "bun pm pack",
     "postpack": "rimraf oclif.manifest.json",
-    "version": "oclif readme && git add README.md"
+    "version": "node -e \"\"",
+    "clean:dist": "rimraf dist",
+    "build:tsc": "tsc -b --force",
+    "build:manifest": "oclif manifest",
+    "build:bin-mode": "chmod +x bin/run.js",
+    "test:play": "vitest run --project cli game.play.end-turn.test.ts game.play.population-placement.test.ts game.play.attribute-tradition.test.ts game.play.town-focus.test.ts game.play.unit-target.test.ts game.play.progression-read.test.ts game.play.tactical-read.test.ts game.play.watch.test.ts game.play.topics.test.ts game.play.promotion-readiness.test.ts game.play.rehydrate.test.ts game.play.settlement-recommendations.test.ts game/play/ready-city.test.ts game/play/unit-move-preview.test.ts game/play/ready-unit.test.ts game/play/notification/queue.test.ts game/play/notification/dismiss-queue.test.ts game/play/notification/dismiss.test.ts game/play/notification/hud.test.ts game/play/priorities.test.ts game/play/semantic-envelope.test.ts game.play.first-meet.test.ts game.play.operation-wrappers.test.ts game.play.technology.test.ts game.play.culture.test.ts game.play.narrative.test.ts game.play.diplomacy-response.test.ts game.play.production.test.ts game.play.celebration-government.test.ts",
+    "readme": "oclif readme",
+    "pack:prepare": "node -e \"\"",
+    "version:readme": "git add README.md",
+    "data:zip:default": "node bin/run.js data zip default",
+    "data:unzip:default": "node bin/run.js data unzip default",
+    "mod:git:import": "node bin/run.js mod git import",
+    "publish:npm": "bun publish --access public"
   },
   "dependencies": {
     "@civ7/config": "workspace:*",
@@ -41,8 +165,8 @@
     "@civ7/plugin-git": "workspace:*",
     "@civ7/plugin-graph": "workspace:*",
     "@civ7/plugin-mods": "workspace:*",
-    "@oclif/core": "^4.8.0",
-    "@oclif/plugin-help": "^6.2.37",
+    "@oclif/core": "^4.11.4",
+    "@oclif/plugin-help": "^6.2.50",
     "effect": "3.21.3",
     "tslib": "^2.8.1"
   },

@@ -88,7 +88,7 @@ or pre-commit-scoped rule.
 Fresh dry-run evidence:
 
 ```text
-bun run nx g @internal/habitat-harness:pattern grit-dra-metadata-probe --dry-run
+nx g @internal/habitat-harness:pattern grit-dra-metadata-probe --dry-run
 ```
 
 reports creation of `.grit/patterns/habitat/checks/dra_metadata_probe.md`,

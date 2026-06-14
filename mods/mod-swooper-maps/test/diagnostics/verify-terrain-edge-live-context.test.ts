@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
-import { NO_RIVER_TYPE } from "../../packages/civ7-map-policy/src/index.ts";
-import { summarizeTerrainEdgeReadbackCompleteness } from "./verify-terrain-edge-live-context";
+import { NO_RIVER_TYPE } from "@civ7/map-policy";
+import { summarizeTerrainEdgeReadbackCompleteness } from "../../scripts/live/verify-terrain-edge-live-context";
 
 type TerrainRows = Parameters<typeof summarizeTerrainEdgeReadbackCompleteness>[0];
 type MapGrid = Parameters<typeof summarizeTerrainEdgeReadbackCompleteness>[1];

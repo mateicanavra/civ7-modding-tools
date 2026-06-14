@@ -107,7 +107,7 @@ Retrieval date for all URLs: 2026-06-14.
 
 - **License gap:** The docs are clear that Conformance and Owners require Enterprise. The repo's license status is not established by official docs and must be checked before assigning invariants to those plugins.
 
-- **Current behavior gap:** Official docs say what Nx supports, but Habitat specs must still verify current repo behavior with `bun run nx ...` using the pinned local Nx binary.
+- **Current behavior gap:** Official docs say what Nx supports, but Habitat specs must still verify current repo behavior with `nx ...` using the pinned local Nx binary.
 
 - **Boundary naming gap:** The repo mentions an `nx-boundaries`/Habitat `boundaries` target in local AGENTS guidance. This evidence pack does not verify whether that target maps exactly to official `@nx/enforce-module-boundaries`, Conformance, or custom Habitat logic.
 

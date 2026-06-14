@@ -165,7 +165,7 @@ reconciled before deletion:
   - `bun run biome:check` — checked 2333 files, no fixes.
   - `bun run openspec -- validate habitat-enforcement-consolidation --strict`
     — valid.
-  - `GRIT_TELEMETRY_DISABLED=true ./node_modules/.bin/grit patterns test
+  - `GRIT_TELEMETRY_DISABLED=true grit patterns test
     --verbose` — 23 patterns / 45 samples passed.
   - `bun tools/habitat-harness/bin/dev.ts check --tool grit-check --json` —
     pass, including `grit-contract-export-all`.

@@ -15,7 +15,7 @@
     "dist"
   ],
   "dependencies": {
-    "@hpcc-js/wasm": "^2.32.3",
+    "@hpcc-js/wasm": "^2.34.0",
     "fast-xml-parser": "^5.3.3"
   },
   "scripts": {

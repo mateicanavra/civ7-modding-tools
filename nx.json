@@ -75,6 +75,10 @@
       "dependsOn": ["^build"],
       "cache": true
     },
+    "verify": {
+      "dependsOn": ["build", "^build"],
+      "cache": false
+    },
     "clean": {
       "cache": true
     }

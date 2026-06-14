@@ -20,7 +20,7 @@ Current evidence:
 - current `HarnessRule` metadata has no accepted authority/proving source,
   scan roots, false-positive model, fixture strategy, current-tree scan proof,
   or baseline policy fields.
-- `bun run nx g @internal/habitat-harness:pattern grit-dra-metadata-probe --dry-run`
+- `nx g @internal/habitat-harness:pattern grit-dra-metadata-probe --dry-run`
   reports that the current sparse invocation would create a Grit check pattern,
   create a baseline file, and update `rules.json`.
 

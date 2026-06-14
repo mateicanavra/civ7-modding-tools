@@ -23,6 +23,12 @@ const normalEntrypointNames = new Set([
 
 const hiddenDependencyOrchestrationPatterns = [
   {
+    id: "shell-task-sequencing",
+    pattern: /(?:&&|\|\|)/,
+    reason: "task ordering belongs in Nx dependsOn, not package-script shell chaining",
+    scope: "all",
+  },
+  {
     id: "preflight-script",
     pattern: /(?:^|\s)(?:node|bun)\s+\.{1,2}\/.*scripts\/preflight\/|scripts\/preflight\//,
     reason: "normal package entrypoints must not run dependency-freshness preflights",

@@ -115,7 +115,7 @@ Core synthesis:
 - Commands run for design evidence:
   - `git status --short --branch`
   - `gt log short`
-  - `bun run nx g @internal/habitat-harness:pattern grit-dra-metadata-probe --dry-run`
+  - `nx g @internal/habitat-harness:pattern grit-dra-metadata-probe --dry-run`
   - `bun run openspec -- validate habitat-pattern-generator-metadata-repair --strict`
   - `bun run openspec:validate`
   - `git diff --check`

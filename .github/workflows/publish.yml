@@ -100,45 +100,13 @@ jobs:
             if [[ "$CLI" != "$TAG" ]]; then echo "CLI version mismatch: tag=$TAG package.json=$CLI"; exit 1; fi
           fi
 
-      - name: Build SDK
-        if: steps.target.outputs.target == 'sdk' || steps.target.outputs.target == 'all'
-        run: bun run build:sdk
-
-      - name: Build CLI
-        if: steps.target.outputs.target == 'cli' || steps.target.outputs.target == 'all'
-        run: bun run build:cli
-
-      - name: Lint SDK
-        if: steps.target.outputs.target == 'sdk' || steps.target.outputs.target == 'all'
-        run: bun run lint:sdk
-
-      - name: Lint CLI
-        if: steps.target.outputs.target == 'cli' || steps.target.outputs.target == 'all'
-        run: bun run lint:cli
-
-      - name: Test SDK
-        if: steps.target.outputs.target == 'sdk' || steps.target.outputs.target == 'all'
-        run: bun run test:sdk
-
-      - name: Test CLI
-        if: steps.target.outputs.target == 'cli' || steps.target.outputs.target == 'all'
-        run: bun run test:cli
-
-      - name: Typecheck SDK
-        if: steps.target.outputs.target == 'sdk' || steps.target.outputs.target == 'all'
-        run: bun run check:sdk
-
-      - name: Typecheck CLI
-        if: steps.target.outputs.target == 'cli' || steps.target.outputs.target == 'all'
-        run: bun run check:cli
-
       - name: Publish SDK
         if: steps.target.outputs.target == 'sdk' || steps.target.outputs.target == 'all'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_SDK }}
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN_SDK }}
           NPM_CONFIG_REGISTRY: https://npm.pkg.github.com
-        run: bun publish --cwd packages/sdk --access public
+        run: bun run publish:sdk
 
       - name: Publish CLI
         if: steps.target.outputs.target == 'cli' || steps.target.outputs.target == 'all'
@@ -146,4 +114,4 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_CLI }}
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN_CLI }}
           NPM_CONFIG_REGISTRY: https://npm.pkg.github.com
-        run: bun publish --cwd packages/cli --access public
+        run: bun run publish:cli

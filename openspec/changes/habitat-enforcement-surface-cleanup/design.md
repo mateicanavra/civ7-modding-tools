@@ -80,10 +80,10 @@ proof returns only `baseline-integrity`.
 
 | Surface | Current evidence | Design consequence |
 | --- | --- | --- |
-| Root `check` | `package.json` maps `check` to `bun run habitat:verify`. | Canonical root verification exists and must be whole-command proven. |
-| CI verification | `.github/workflows/ci.yml` runs `bun run habitat:verify` and uploads `habitat-diagnostics.json`. | CI wiring is structurally aligned, but future proof must include run evidence when available. |
-| Main CI job | `.github/workflows/ci.yml` also runs direct build, Biome, lint, and test steps in the `ci` job. | CI green is not a single Habitat proof class; each step needs a surface label and non-claim. |
-| Root `lint` | `package.json` maps `lint` to `bun run habitat:check`. | Acceptable alias if documented as Habitat check, not separate enforcement. |
+| Root `check` | `package.json` maps `check` to `nx run-many --targets=build,check,lint,test,verify`. | Canonical root aggregate proof exists through Nx, but it is multi-class proof and must not be collapsed into Habitat-only proof. |
+| CI verification | `.github/workflows/ci.yml` runs `bun run ci`, which delegates to root `check`; `architecture-strict-core` runs the strict-core diagnostic alias and uploads Habitat diagnostics. | CI wiring is graph-aligned, but future proof must distinguish aggregate graph proof, strict-core diagnostic proof, and Habitat JSON diagnostics. |
+| Main CI job | `.github/workflows/ci.yml` main job has one `CI graph` step after setup/install. | CI green means the root Nx aggregate passed; its sub-proof classes are build, check, lint, test, and verify. |
+| Root `lint` | `package.json` maps `lint` to `nx run-many --targets=lint,habitat:check`. | This is the current graph-owned structural lint gate. It runs project lint and Habitat checks; failure can mean locked Habitat/Grit rule debt. |
 | Direct docs lint | `lint:mapgen-docs` runs `python3 ./scripts/lint/lint-mapgen-docs.py`; direct output exits 0 with 3 warnings. | Either keep as non-canonical diagnostics or route through Habitat with an accepted warning policy. |
 | Habitat docs lint | `habitat check --rule mapgen-docs` exits 0 with `mapgen-docs` and `baseline-integrity`, both pass and diagnostics-empty. | Wrapper parser policy must decide whether direct warnings are out-of-claim or should become advisory/enforced diagnostics. |
 | Strict-core alias | `lint:domain-refactor-guardrails:strict-core` runs the legacy shell script and currently exits 1 with 29 violation groups. | This is live red diagnostic evidence, not current canonical structural verification. It needs owner and trigger records. |
@@ -91,7 +91,8 @@ proof returns only `baseline-integrity`.
 | Wrapped tests | `check --tool wrapped-test` passes six architecture-test wrappers plus `baseline-integrity`. | Test wrappers remain part of default Habitat check and must be labeled by proof class. |
 | Stale owner tool | `check --tool wrapped-eslint` exits 0 with only `baseline-integrity`. | Empty selector truth belongs to command repair, but this cleanup must reject stale owner-tool proof. |
 | Baselines | Only `tools/habitat-harness/baselines/adapter-boundary.json` exists. | Baseline explicitness is owned by scaffold/baseline repair; this packet consumes that dependency. |
-| `habitat verify` | Current run exited 0: Habitat check passed 42 rules, then Nx affected ran build/check/test/boundaries/biome:ci/grit:check/generated:check for 22 projects plus one dependency task; one task read from cache. | Whole-command proof exists for this local state, but implementation needs bounded proof logs and cache/fresh labels. |
+| Root `verify` | Current root `verify` runs `nx run-many --targets=verify`, selecting package-owned verifier targets. | Package-owned verifier proof is graph-owned and separate from direct Habitat CLI verify. |
+| `habitat verify` CLI | The Habitat CLI verify surface may still be invoked as `bun run habitat verify` for diagnostics. | It is not a root script alias; cite it only when the direct CLI command was actually run and recorded. |
 
 ## Official Tool Constraints
 
@@ -135,7 +136,10 @@ Balancing loop introduced by this repair:
 
 | Surface class | Examples | Accepted role | Closure requirement |
 | --- | --- | --- | --- |
-| Canonical Habitat command | `bun run habitat:check`, `bun run habitat:verify`, `bun run check` | Structural verification entrypoint | Requested selectors validated; whole command exits 0; JSON proof contains selected rules. |
+| Graph-owned structural lint | `bun run lint` | Current Habitat structural check entrypoint | Nx executes project `lint` targets and `habitat:check` targets; requested Habitat rule debt is surfaced, not hidden. |
+| Graph-owned verifier aggregate | `bun run verify` | Package-owned verifier proof | Package `verify` targets run through Nx with declared dependencies and owner-specific modes. |
+| Graph-owned full aggregate | `bun run check` / `bun run ci` | Build/check/lint/test/verify aggregate | Proof classes are recorded separately; aggregate success is not a Habitat-only claim. |
+| Direct Habitat diagnostic command | `bun run habitat:check`, `bun run habitat check`, `bun run habitat verify` | Direct CLI diagnostics and selector proof | Requested selectors validated; JSON proof contains selected rules when the command is cited directly. |
 | Habitat-owned Nx target | `@internal/habitat-harness:boundaries`, `grit:check`, `biome:ci`, `generated:check`, owner `habitat:check` targets | Schedulable proof component | Target metadata and command output recorded; cache/fresh state labeled. |
 | Wrapped script through Habitat | `mapgen-docs`, `adapter-boundary`, `domain-refactor-guardrails` | Legacy mechanism still mediated by Habitat | Wrapper table names owner, output parser policy, debt state, and trigger. |
 | Wrapped test through Habitat | `arch-test-*` rules | Test proof class surfaced in Habitat | Each row states why test remains the owner and what it does not prove. |
@@ -146,17 +150,18 @@ Balancing loop introduced by this repair:
 
 The current CI workflow has two jobs:
 
-- `ci`: setup, pnpm-artifact guard, dependency install, `bun run build`,
-  `bun run biome:ci`, `bun run lint`, and `bun run test:ci`.
-- `architecture-strict-core`: setup, `bun run habitat:verify`,
-  `bun run habitat:check -- --json --output habitat-diagnostics.json`, and
+- `ci`: setup, pnpm-artifact guard, dependency install, and `bun run ci`
+  through the root Nx aggregate.
+- `architecture-strict-core`: setup, strict-core architecture diagnostic,
+  `bun run habitat check --json --output habitat-diagnostics.json`, and
   diagnostics upload.
 
 Detailed step classification is recorded in
 `workstream/ci-classification.md`. H6 proof may cite the
-`architecture-strict-core` Habitat verify step as the current CI structural
-gate, but it must not imply that every main `ci` green signal is Habitat
-structural proof.
+main `CI graph` step as the current root aggregate gate and `bun run lint` as
+the current graph-owned Habitat structural check lane. The
+`architecture-strict-core` job is a stricter diagnostic lane plus Habitat JSON
+artifact upload, not the sole root structural proof.
 
 ## Implementation Decision Points
 
@@ -206,7 +211,8 @@ Rejected outcomes:
 
 ### Verify Proof Policy
 
-`habitat verify` implementation proof must record:
+When `habitat verify` CLI proof is cited directly, its implementation proof
+must record:
 
 - base selection;
 - command argv, cwd, selected env, duration, and outer exit code;

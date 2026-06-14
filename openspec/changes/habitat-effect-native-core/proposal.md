@@ -197,7 +197,7 @@ runtime lifecycle behavior.
 - `bun run --cwd tools/habitat-harness check`
 - `bun run --cwd tools/habitat-harness test`
 - `bun run habitat:check -- --json`
-- `bun run habitat:verify -- --base <Graphite parent or explicit test ref>`
+- `bun run habitat verify -- --base <Graphite parent or explicit test ref>`
 - Hook parity probes from H7: staged/unstaged isolation, partially staged
   format-eligible file, foreign staged file, generated-zone block, Graphite base.
 - H8 classify probes for path, workspace path, literal diff, `.diff`/`.patch`
@@ -208,5 +208,5 @@ runtime lifecycle behavior.
 - H8 pattern-generator probe for native Grit pattern, empty baseline,
   rule-pack entry, duplicate artifact refusal, and native Grit fixture proof.
 - H8 local migration probe via package `./tools/habitat-harness` and
-  `bun run nx migrate --run-migrations=<run-file>.json --skip-install`.
+  `nx migrate --run-migrations=<run-file>.json --skip-install`.
 - Generated-zone drift check.

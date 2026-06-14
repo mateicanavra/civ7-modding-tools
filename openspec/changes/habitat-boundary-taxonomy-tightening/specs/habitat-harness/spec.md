@@ -74,12 +74,14 @@ the proof.
 - **AND** the phase SHALL NOT claim the command path is green from target output
   alone
 
-#### Scenario: Daemon and no-daemon behavior differ
-- **WHEN** daemon-enabled and `NX_DAEMON=false` boundary runs produce different
-  command outcomes
-- **THEN** the implementation SHALL record the difference, select an accepted
-  proof command policy, and patch stale records that imply a broader command
-  claim
+#### Scenario: Focused and aggregate boundary behavior differ
+- **WHEN** a focused boundary target and normal Nx aggregate boundary run
+  produce different command outcomes
+- **THEN** the implementation SHALL record the difference, diagnose or assign
+  the root-cause repair, select a truthful proof command policy, and patch
+  stale records that imply a broader command claim
+- **AND** daemon disabling, cache disabling, socket overrides, symlink repair,
+  and routine cache reset SHALL NOT be accepted as steady-state proof policy
 
 #### Scenario: Habitat JSON boundary proof is used
 - **WHEN** `bun run habitat:check -- --json --rule nx-boundaries` is cited as

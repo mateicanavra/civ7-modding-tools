@@ -122,11 +122,34 @@ WIP limits:
 | Baseline-ratchet confidence loop | Locked baselines make checks green while hiding unverified semantics or missing baseline files. | Explicit baseline policy, injected probes, and shrink-only evidence. |
 | Hook side-effect loop | Pre-commit performs broad or irreversible mutation before normal local verification. | Hooks are local and reversible by default; publish/push actions require explicit commands or proof. |
 
+## Nx Settlement Addendum
+
+The `habitat-nx-worktree-state-contract` pass after this recovery reference
+settled the graph/workflow layer. Future recovery work should consume this as
+the current baseline:
+
+- no active Turbo orchestrator, root `turbo.json`, Turbo dependency, or Turbo
+  cache workflow;
+- root scripts enter the Nx DAG directly (`build`, `check`, `lint`, `test`,
+  `verify`, `ci`);
+- `lint` now includes both project lint and `habitat:check` targets, so locked
+  Habitat/Grit rule failures are intentionally surfaced by `bun run lint`;
+- `verify` is a package-owned `verify` target aggregate, not a root
+  `habitat:verify` alias;
+- ad hoc and Habitat-spawned Nx commands use `nx ...` with the repo-local
+  devDependency through Nx's standard global-to-local handoff;
+- package metadata, lockfile surgery, symlink repair, direct distribution
+  binaries, custom Nx socket/cache/workspace-data placement, daemon disabling,
+  and routine cache resets remain rejected paths.
+
+The H1 cleanup row below is therefore demoted from active repair to
+records-only closure unless fresh evidence finds an active Turbo workflow.
+
 ## Prior Closure Claims That Must Be Repaired
 
 | Claim | Repair acceptance | Grit obligation | Blocks recovery? |
 | --- | --- | --- | --- |
-| H1 fully retired Turbo. | Nx is the only active graph authority or remaining Turbo references are explicitly scoped. | None. | Blocks graph/classify trust. |
+| H1 fully retired Turbo. | Settled by `habitat-nx-worktree-state-contract`; consume current Nx DAG workflow as graph baseline and patch stale records only. | None. | Does not block unless new active Turbo workflow appears. |
 | H2 scaffold preserved original rule semantics. | Ratchet, baseline, diagnostic, staged, and target-inference behavior match specs and tests. | Possible later rule migrations only. | Blocks rule evidence trust. |
 | H3 boundary taxonomy encoded current architecture. | Unproven allowances are removed or backed by architecture authority. | Possible boundary-pattern backfill later. | Blocks dependency governance. |
 | H4 Biome excluded protected archives and quarantined ESLint. | Protected-zone proof matches real config; surviving scripts are intentional. | None. | Blocks formatter/lint trust. |
@@ -145,7 +168,7 @@ WIP limits:
 | `habitat-scaffold-contract-repair` | Ratchet/baseline/diagnostic contract mismatch. | `openspec/changes/habitat-harness-scaffold/**` | Decide explicit baseline semantics and diagnostic schema. | `tools/habitat-harness/src/lib/baseline.ts`, `src/plugin.js`, baselines, tests | P1 |
 | `habitat-classify-generator-repair` | Agent guidance is not precise enough. | `openspec/changes/habitat-generators-migrations/**` | Decide supported generator kinds and path-aware rule scope. | `tools/habitat-harness/src/commands/classify.ts`, generators, tests, README | P1 |
 | `habitat-boundary-taxonomy-tightening` | Boundary taxonomy allows unproven edges. | `openspec/changes/habitat-boundary-tags/**`, `docs/projects/habitat-harness/taxonomy.md` | Remove speculative edges or add architecture authority. | `eslint.boundaries.config.mjs`, taxonomy, review ledger | P1 |
-| `habitat-nx-adoption-cleanup` | Turbo residues contradict Nx-only claim. | `openspec/changes/habitat-nx-adoption/**` | Decide what remains external versus retired. | `package.json`, `nx.json`, CI, docs, `apps/docs/turbo.json` | P2 |
+| `habitat-nx-adoption-cleanup` | Historical Turbo/Nx command examples and pre-remediation records can mislead implementers. | `openspec/changes/habitat-nx-adoption/**`, `habitat-nx-worktree-state-contract/**` | Treat active graph cleanup as settled; patch or supersede stale guidance without reopening package metadata/cache work. | H1 docs/spec notes, project ledgers, active guidance docs | records-only |
 | `habitat-biome-closure-repair` | Protected archives and lint script ownership are unclear. | `openspec/changes/habitat-biome-hygiene/**` | Decide package-local lint script policy and archive proof. | `biome.json`, package scripts, `.git-blame-ignore-revs`, phase record | P2 |
 | `habitat-git-hook-hardening` | Hooks are useful but under-tested and side-effectful. | `openspec/changes/habitat-git-hooks/**` | Decide warning/fail budgets and whether publish belongs in hooks. | `.husky/**`, `tools/habitat-harness/src/lib/hooks.ts`, hook tests | P2 |
 | `habitat-enforcement-surface-cleanup` | Direct aliases still bypass the harness model. | `openspec/changes/habitat-enforcement-consolidation/**` | Decide surviving direct aliases and retirement triggers. | root/package scripts, package scripts, docs, CI | P2 |
@@ -169,30 +192,37 @@ Every repair OpenSpec uses this contract:
   wrong shape.
 - **Coupling notes:** workstreams that must precede, follow, or share records.
 
-### H1 Repair: Nx Adoption Cleanup
+### H1 Records-Only Cleanup: Nx Adoption Supersession
 
-**Suggested change id:** `habitat-nx-adoption-cleanup`
+**Suggested change id:** no new implementation change by default; use the
+existing `habitat-nx-worktree-state-contract` records unless an active Turbo
+workflow reappears.
 
 **Source trace:** `openspec/changes/habitat-nx-adoption/proposal.md`,
 `tasks.md`, `specs/habitat-harness/spec.md`,
 `workstream/phase-record.md`, `package.json`, `nx.json`,
-`.github/workflows/**`, `apps/docs/turbo.json`, docs mentioning `bunx turbo`,
-and scripts that write `.turbo/**`.
+`.github/workflows/**`, docs mentioning `bunx turbo`, and
+`habitat-nx-worktree-state-contract/**`.
 
-**Pre-implementation decision:** decide whether the remaining Turbo references
-are active repo workflow, external app state, or stale docs.
+**Pre-implementation decision:** no implementation decision remains unless a
+fresh search finds active Turbo workflow. Historical `bunx nx`/Turbo examples
+should receive supersession notes or remain marked as historical proof logs.
 
-**Accepted outcomes:** Nx is the graph/cache/task authority, and any surviving
-Turbo surface is explicitly classified with owner and retirement trigger.
+**Accepted outcomes:** Nx is the graph/cache/task authority; stale records
+point to the current command contract; future repair packets do not reopen
+package metadata, lockfile, symlink, cache, daemon, or binary-distribution
+paths.
 
-**Rejected outcomes:** editing only the phase record, deleting docs without
-checking current scripts, or claiming affected CI if CI still runs full scope.
+**Rejected outcomes:** rebuilding the H1 migration, adding workarounds for
+package-manager layout, manually editing lockfiles, or treating historical
+proof logs as current command guidance.
 
-**Verification commands:** active-reference search for `turbo`, `turbo.json`,
-`.turbo`, and `bunx turbo`; focused Nx target checks; OpenSpec strict
-validation.
+**Verification commands:** root script inspection, active-reference search for
+active Turbo workflow, `bun run verify`, `bun run build`, and OpenSpec strict
+validation for any edited records.
 
-**Coupling notes:** graph authority should precede a strong H8 classify claim.
+**Coupling notes:** classify/generator repair should consume the current Nx
+workflow contract and resolved target evidence rather than reopening H1.
 
 ### H2 Repair: Scaffold Contract And Ratchet Semantics
 

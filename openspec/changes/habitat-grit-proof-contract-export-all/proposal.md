@@ -184,7 +184,7 @@ the current predicate follow the same policy.
 ## Verification Gates
 
 - `bun run openspec -- validate habitat-grit-proof-contract-export-all --strict`
-- `GRIT_TELEMETRY_DISABLED=true PATH="$PWD/node_modules/.bin:$PATH" grit patterns test --filter contract_export_all --json`
+- `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter contract_export_all --json`
 - `bun run habitat:check -- --json --rule grit-contract-export-all`
 - exact Habitat wrapper scan-root inventory
 - bounded direct raw Grit check with explicit relation to wrapper roots

@@ -43,7 +43,9 @@
   `codex/habitat-dra-takeover-frame`.
 - `CLAIM-H6-ONE-PATH` remains mixed in Stage 0.
 - Historical H6 says Habitat is the single structural enforcement path.
-- Current root `check` and CI route through `habitat:verify`.
+- Current root `check` and CI route through the Nx graph. Root `lint` is the
+  graph-owned Habitat structural-check lane; root `verify` is the
+  package-owned verifier aggregate. There is no root `habitat:verify` script.
 - Current root direct diagnostic aliases remain for `mapgen-docs` and
   strict-core domain refactor guardrails.
 - Current rule pack still contains wrapped scripts and wrapped tests.
@@ -132,7 +134,8 @@ Core synthesis:
   - `bun run lint:mapgen-docs`
   - `bun run habitat:check -- --json --rule mapgen-docs`
   - `bun run lint:domain-refactor-guardrails:strict-core`
-  - `bun run habitat:verify`
+  - `bun run verify`
+  - `bun run lint`
   - `bun run resources:status`
   - `sed -n '1,180p' .github/workflows/ci.yml`
   - `sed -n '150,240p' docs/projects/habitat-harness/effect-orchestration-evaluation.md`

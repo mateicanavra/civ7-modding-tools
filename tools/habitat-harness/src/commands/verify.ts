@@ -29,7 +29,7 @@ export default class Verify extends HabitatCommand {
     this.log(renderCheckReport(report));
     if (!report.ok) this.exit(1);
 
-    this.log(`\nhabitat verify: running nx affected (base=${base}) ...`);
+    this.log(`\nhabitat verify: running repo Nx affected (base=${base}) ...`);
     const result = runAffectedVerification(base);
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);

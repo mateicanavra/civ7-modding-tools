@@ -28,7 +28,7 @@ bun run test
 - Docs:
   ```bash
   bun run dev:docs
-  bun run --filter @civ7/docs fix:mdx-links
+  nx run @civ7/docs:fix:mdx-links
   ```
 - CLI:
   ```bash
@@ -46,7 +46,7 @@ bun run test
 - MapGen Studio:
   ```bash
   bun run dev:mapgen-studio
-  bun run nx run mapgen-studio:build
+  nx run mapgen-studio:build
   ```
 
 ### Root convenience scripts

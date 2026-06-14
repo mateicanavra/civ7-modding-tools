@@ -101,7 +101,7 @@
 ## Grit Findings
 
 - 2026-06-13 export-star probe: the repo-local `@getgrit/cli`
-  (`./node_modules/.bin/grit` → `grit 0.1.1`) can express the
+  (`grit` → `grit 0.1.1`) can express the
   value-star/type-star distinction in `grit check`. The current
   `sdk_mapgen_entrypoint` snippet guard matches `export * from "./mapgen"` and
   does not flag `export type * from "./mapgen"`; AST `export_statement()`,
@@ -148,7 +148,7 @@
 ## Verification
 
 - Green:
-  - `GRIT_TELEMETRY_DISABLED=true ./node_modules/.bin/grit patterns test --verbose`
+  - `GRIT_TELEMETRY_DISABLED=true grit patterns test --verbose`
     — 22 patterns, 43 samples, all passed; latest measured run completed in
     ~0.5s.
   - `bun run --cwd tools/habitat-harness test -- grit-patterns.test.ts` — 1

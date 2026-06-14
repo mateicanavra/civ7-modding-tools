@@ -2,11 +2,6 @@
   "name": "@civ7/direct-control",
   "version": "0.1.0",
   "private": true,
-  "nx": {
-    "tags": [
-      "kind:control"
-    ]
-  },
   "description": "Direct Civ7 tuner-socket control API for developer tooling.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -98,7 +93,7 @@
     }
   },
   "scripts": {
-    "build": "tsup --config tsup.config.ts && tsc -b tsconfig.json --force --emitDeclarationOnly",
+    "build": "tsup --config tsup.config.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --config vitest.config.ts",
     "clean": "rimraf dist"

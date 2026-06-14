@@ -1,19 +1,18 @@
-import { describe, expect, test } from "bun:test";
-
 import {
   CIV7_BROWSER_TABLES_V0,
   CIV7_RIVER_TYPE_METADATA_SOURCE,
   NO_RIVER_TYPE,
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
-} from "../../packages/civ7-map-policy/src/index.ts";
+} from "@civ7/map-policy";
+import { describe, expect, test } from "vitest";
 import {
   buildDryRunOutput,
   buildMutationOutput,
   type RiverMetadataReadbackSummary,
   type RiverWriterRuntimeInventory,
   summarizeRiverMetadataReadback,
-} from "./probe-river-writer";
+} from "../scripts/probe-river-writer";
 
 const NAVIGABLE_RIVER_TERRAIN = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_NAVIGABLE_RIVER;
 

@@ -3,22 +3,23 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
+  type Civ7FeaturePlacementFeasibilityResult,
+  type Civ7MapGridResult,
+  type Civ7MapSummaryResult,
+  type Civ7PlotSnapshotField,
+  getCiv7FeaturePlacementFeasibility,
+  getCiv7MapGrid,
+  getCiv7MapSummary,
+} from "@civ7/direct-control";
+import {
   type FinalSurfaceParityProof,
   hashParityValue,
   stableParityProofStringify,
-} from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
+} from "../../src/dev/diagnostics/live-parity.js";
 import {
-  buildTerrainDeltaEdgeContexts,
-  type TerrainDeltaEdgeContext,
-} from "../../mods/mod-swooper-maps/src/dev/diagnostics/surface-delta-context.ts";
-import {
-  type Civ7MapGridResult,
-  type Civ7MapSummaryResult,
-  type Civ7PlotSnapshot,
-  type Civ7PlotSnapshotField,
-  getCiv7MapGrid,
-  getCiv7MapSummary,
-} from "../../packages/civ7-direct-control/src/index.ts";
+  buildFeatureDeltaPlacementContexts,
+  type FeatureDeltaPlacementContext,
+} from "../../src/dev/diagnostics/surface-delta-context.js";
 
 type Args = Readonly<{
   proofFile?: string;
@@ -31,33 +32,35 @@ type Args = Readonly<{
   help: boolean;
 }>;
 
+type FeatureFeasibilityProbe = Readonly<{
+  ok: boolean;
+  value: boolean | null;
+  error: string | null;
+}>;
+
 const usage = `Usage:
-  bun scripts/civ7-direct-control/verify-terrain-edge-live-context.ts --proof-file <final-surface-proof.json>
+  nx run mod-swooper-maps:verify -- --mode feature-delta-feasibility --proof-file <final-surface-proof.json>
 
 Options:
-  --context-file <path> Optional terrain edge context artifact to join by plot index
+  --context-file <path> Optional feature delta context artifact to join by plot index
   --host <host>       Civ7 tuner host
   --port <port>       Civ7 tuner port
   --timeout-ms <ms>   Direct-control timeout (default: 45000)
-  --max-cells <n>     Safety cap for terrain delta cells (default: 16)
+  --max-cells <n>     Safety cap for feature delta cells (default: 64)
   --output <path>     Write full proof JSON to path
 `;
 
-const LIVE_TERRAIN_EDGE_FIELDS = [
+const LIVE_FEATURE_CONTEXT_FIELDS = [
   "terrain",
+  "biome",
+  "feature",
+  "resource",
+  "climate",
   "hydrology",
   "areaRegion",
+  "tags",
+  "owner",
 ] as const satisfies ReadonlyArray<Civ7PlotSnapshotField>;
-
-const REQUIRED_LIVE_TERRAIN_EDGE_FACTS = [
-  "terrain",
-  "water",
-  "lake",
-  "riverType",
-  "areaId",
-  "regionId",
-  "landmassId",
-] as const;
 
 function parseArgs(argv: string[]): Args {
   const args: {
@@ -71,7 +74,7 @@ function parseArgs(argv: string[]): Args {
     help: boolean;
   } = {
     timeoutMs: 45_000,
-    maxCells: 16,
+    maxCells: 64,
     help: false,
   };
 
@@ -142,7 +145,6 @@ async function main(): Promise<number> {
       status: "blocked" as const,
       requestId: requestIdentity.requestId,
       sourceProofHash: hashParityValue(proof),
-      sourceContextHash: contextArtifact === undefined ? null : hashParityValue(contextArtifact),
       blockedBy: requestIdentity.blockedBy,
       requestIdentity,
     };
@@ -159,7 +161,6 @@ async function main(): Promise<number> {
       status: "blocked" as const,
       requestId: requestIdentity.requestId,
       sourceProofHash: hashParityValue(proof),
-      sourceContextHash: contextArtifact === undefined ? null : hashParityValue(contextArtifact),
       blockedBy: runtimeIdentity.blockedBy,
       requestIdentity,
       runtimeIdentity,
@@ -170,55 +171,45 @@ async function main(): Promise<number> {
     return 2;
   }
 
-  const terrainRows = buildTerrainDeltaEdgeContexts({ local: proof.local, live: proof.live });
-  if (terrainRows.length === 0) throw new Error("Expected at least one terrain edge delta row");
-  if (terrainRows.length > args.maxCells) {
+  const deltaRows = buildFeatureDeltaPlacementContexts({ local: proof.local, live: proof.live });
+  if (deltaRows.length === 0) throw new Error("Expected at least one feature delta row");
+  if (deltaRows.length > args.maxCells) {
     throw new Error(
-      `Terrain edge row count ${terrainRows.length} exceeds --max-cells ${args.maxCells}`
+      `Feature delta row count ${deltaRows.length} exceeds --max-cells ${args.maxCells}`
     );
   }
 
   const livePlotContext = await getCiv7MapGrid(
     {
-      locations: terrainRows.map((row) => ({ x: row.x, y: row.y })),
-      fields: LIVE_TERRAIN_EDGE_FIELDS,
+      locations: deltaRows.map((row) => ({ x: row.x, y: row.y })),
+      fields: LIVE_FEATURE_CONTEXT_FIELDS,
       maxPlots: args.maxCells,
     },
     { host: args.host, port: args.port, timeoutMs: args.timeoutMs }
   );
-  const completeness = summarizeTerrainEdgeReadbackCompleteness(terrainRows, livePlotContext);
-  if (completeness.blockedBy.length > 0) {
-    const outputWithoutHash = {
-      ok: false,
-      status: "blocked" as const,
-      requestId: requestIdentity.requestId,
-      sourceProofHash: hashParityValue(proof),
-      sourceContextHash: contextArtifact === undefined ? null : hashParityValue(contextArtifact),
-      blockedBy: completeness.blockedBy,
-      requestIdentity,
-      runtimeIdentity,
-      livePlotContext: summarizeLivePlotContext(livePlotContext),
-      completeness,
-    };
-    const output = { ...outputWithoutHash, proofHash: hashParityValue(outputWithoutHash) };
-    writeOutput(args.output, output);
-    console.log(stableParityProofStringify(output));
-    return 2;
-  }
+  const cells = deltaRows.map((row) => ({
+    x: row.x,
+    y: row.y,
+    featureTypes: uniqueNumbers([row.local.value, row.live.value]),
+  }));
+  const feasibility = await getCiv7FeaturePlacementFeasibility(
+    { cells, maxCells: args.maxCells },
+    { host: args.host, port: args.port, timeoutMs: args.timeoutMs }
+  );
 
+  const featureFeasibility = summarizeFeatureFeasibility(deltaRows, feasibility, contextRowsByPlot);
   const outputWithoutHash = {
     ok: true,
-    status: "complete" as const,
     requestId: requestIdentity.requestId,
     sourceProofHash: hashParityValue(proof),
     sourceContextHash: contextArtifact === undefined ? null : hashParityValue(contextArtifact),
     evidenceBoundary:
-      "Diagnostic context only: live terrain/hydrology/area readback is exact-runtime-bound evidence for terrain edge source-authority classification. It does not authorize terrain repair, parity closure, product acceptance, or tuning by itself.",
+      "Diagnostic context only: TerrainBuilder.canHaveFeature readback is exact-runtime-bound evidence for feature delta source-authority classification. It does not authorize feature, natural-wonder, terrain, parity, product, or tuning closure by itself.",
     requestIdentity,
     runtimeIdentity,
-    rowCount: terrainRows.length,
+    rowCount: deltaRows.length,
     livePlotContext: summarizeLivePlotContext(livePlotContext),
-    rows: summarizeRows(terrainRows, livePlotContext, contextRowsByPlot),
+    featureFeasibility,
   };
   const output = { ...outputWithoutHash, proofHash: hashParityValue(outputWithoutHash) };
   writeOutput(args.output, output);
@@ -330,63 +321,6 @@ function compareIdentityValue(saved: number | undefined, observed: number | unde
   return { status: "matched" as const, saved, observed };
 }
 
-export function summarizeTerrainEdgeReadbackCompleteness(
-  rows: ReadonlyArray<TerrainDeltaEdgeContext>,
-  readback: Civ7MapGridResult
-) {
-  const plotsByLocation = plotsByLocationKey(readback.plots);
-  const missingRows = rows.filter((row) => !plotsByLocation.has(locationKey(row.x, row.y)));
-  const factIssues = rows.flatMap((row) => {
-    const plot = plotsByLocation.get(locationKey(row.x, row.y));
-    if (plot === undefined) return [];
-    return REQUIRED_LIVE_TERRAIN_EDGE_FACTS.flatMap((field) => {
-      const fact = plot.facts[field];
-      if (fact === undefined) {
-        return [
-          {
-            x: row.x,
-            y: row.y,
-            plotIndex: row.plotIndex,
-            field,
-            status: "missing" as const,
-            link: `live-terrain-readback.${field}.missing`,
-          },
-        ];
-      }
-      if (!isRecord(fact) || fact.ok !== true || !("value" in fact) || fact.value === undefined) {
-        return [
-          {
-            x: row.x,
-            y: row.y,
-            plotIndex: row.plotIndex,
-            field,
-            status: "failed" as const,
-            link: `live-terrain-readback.${field}.failed`,
-            fact,
-          },
-        ];
-      }
-      return [];
-    });
-  });
-  const blockedBy = [
-    ...(readback.omitted > 0 ? ["live-terrain-readback.omitted"] : []),
-    ...(missingRows.length > 0 ? ["live-terrain-readback.missing-rows"] : []),
-    ...factIssues.map((issue) => issue.link),
-  ]
-    .filter((link, index, links) => links.indexOf(link) === index)
-    .sort((left, right) => left.localeCompare(right));
-  return {
-    status: blockedBy.length === 0 ? ("complete" as const) : ("blocked" as const),
-    blockedBy,
-    expectedRows: rows.length,
-    observedRows: readback.plots.length,
-    omitted: readback.omitted,
-    missingRows: missingRows.map((row) => ({ x: row.x, y: row.y, plotIndex: row.plotIndex })),
-    factIssues,
-  };
-}
-
 function summarizeLivePlotContext(readback: Civ7MapGridResult) {
   return {
     readback: {
@@ -406,51 +340,58 @@ function summarizeLivePlotContext(readback: Civ7MapGridResult) {
   };
 }
 
-function summarizeRows(
-  rows: ReadonlyArray<TerrainDeltaEdgeContext>,
-  readback: Civ7MapGridResult,
+function summarizeFeatureFeasibility(
+  rows: ReadonlyArray<FeatureDeltaPlacementContext>,
+  readback: Civ7FeaturePlacementFeasibilityResult,
   contextRowsByPlot: ReadonlyMap<number, Record<string, unknown>>
 ) {
-  const plotsByLocation = plotsByLocationKey(readback.plots);
-  return rows.map((row) => {
-    const plot = plotsByLocation.get(locationKey(row.x, row.y));
+  const cellsByLocation = new Map(
+    readback.cells.map((cell) => [`${cell.location.x},${cell.location.y}`, cell] as const)
+  );
+  const summarizedRows = rows.map((row) => {
+    const cell = cellsByLocation.get(`${row.x},${row.y}`);
+    const localFeasibleInCiv =
+      row.local.value === null ? null : readFeatureFeasibilityProbe(cell, row.local.value);
+    const liveFeasibleInCiv =
+      row.live.value === null ? null : readFeatureFeasibilityProbe(cell, row.live.value);
     const contextRow = contextRowsByPlot.get(row.plotIndex);
     return {
       x: row.x,
       y: row.y,
       plotIndex: row.plotIndex,
-      localTerrain: row.localTerrain,
-      liveTerrain: row.liveTerrain,
+      localFeature: row.local,
+      liveFeature: row.live,
+      localContext: row.local.context,
+      liveContext: row.live.context,
       evidenceClass: row.evidenceClass,
-      neighborhood: row.neighborhood,
-      localProjection: contextRow?.localProjection ?? row.localProjection ?? null,
-      liveReadback:
-        plot === undefined
-          ? null
-          : {
-              location: plot.location,
-              hiddenInfoPolicy: plot.hiddenInfoPolicy,
-              terrain: plot.facts.terrain,
-              water: plot.facts.water,
-              lake: plot.facts.lake,
-              riverType: plot.facts.riverType,
-              areaId: plot.facts.areaId,
-              regionId: plot.facts.regionId,
-              landmassId: plot.facts.landmassId,
-            },
-      sourceAuthorityStatus: "unresolved",
+      localFeatureIntent: contextRow?.localFeatureIntent ?? row.localFeatureIntent,
+      naturalWonderFootprint: contextRow?.naturalWonderFootprint ?? row.naturalWonderFootprint,
+      pairedSameFeatureDelta: row.pairedSameFeatureDelta,
+      localFeasibleInCiv,
+      liveFeasibleInCiv,
+      feasibilityClass: classifyFeatureFeasibility({
+        evidenceClass: row.evidenceClass,
+        localFeasibleInCiv,
+        liveFeasibleInCiv,
+      }),
     };
   });
-}
-
-function plotsByLocationKey(plots: ReadonlyArray<Civ7PlotSnapshot>): Map<string, Civ7PlotSnapshot> {
-  return new Map(
-    plots.map((plot) => [locationKey(plot.location.x, plot.location.y), plot] as const)
-  );
-}
-
-function locationKey(x: number, y: number): string {
-  return `${x},${y}`;
+  return {
+    readback: {
+      host: readback.host,
+      port: readback.port,
+      state: readback.state,
+      cellCount: readback.cellCount,
+      omittedCells: readback.omittedCells,
+    },
+    classCounts: countBy(summarizedRows, (row) => row.feasibilityClass),
+    evidenceAndFeasibilityCounts: countBy(
+      summarizedRows,
+      (row) =>
+        `${row.evidenceClass}|local:${feasibilityValue(row.localFeasibleInCiv)}|live:${feasibilityValue(row.liveFeasibleInCiv)}`
+    ),
+    rows: summarizedRows,
+  };
 }
 
 function readContextRowsByPlot(payload: unknown): ReadonlyMap<number, Record<string, unknown>> {
@@ -463,6 +404,77 @@ function readContextRowsByPlot(payload: unknown): ReadonlyMap<number, Record<str
     byPlot.set(plotIndex, row);
   }
   return byPlot;
+}
+
+function readFeatureFeasibilityProbe(
+  cell: Civ7FeaturePlacementFeasibilityResult["cells"][number] | undefined,
+  featureType: number
+): FeatureFeasibilityProbe {
+  const probe = cell?.feasibility[String(featureType)];
+  if (probe === undefined) return { ok: false, value: null, error: "missing-probe" };
+  const ok = probe.ok === true;
+  return {
+    ok,
+    value: ok && typeof probe.value === "boolean" ? probe.value : null,
+    error: typeof probe.error === "string" ? probe.error : ok ? null : "probe-failed",
+  };
+}
+
+function classifyFeatureFeasibility(args: {
+  evidenceClass: FeatureDeltaPlacementContext["evidenceClass"];
+  localFeasibleInCiv: FeatureFeasibilityProbe | null;
+  liveFeasibleInCiv: FeatureFeasibilityProbe | null;
+}): string {
+  const local = args.localFeasibleInCiv;
+  const live = args.liveFeasibleInCiv;
+  if ((local !== null && !local.ok) || (live !== null && !live.ok)) return "feasibility-missing";
+  if (args.evidenceClass === "local-only-ecology-feature") {
+    if (local?.value === true) return "local-feature-civ-feasible-live-empty";
+    if (local?.value === false) return "local-feature-civ-infeasible-live-empty";
+  }
+  if (args.evidenceClass === "live-only-ecology-feature") {
+    if (live?.value === true) return "live-feature-civ-feasible-local-empty";
+    if (live?.value === false) return "live-feature-civ-infeasible-local-empty";
+  }
+  if (
+    args.evidenceClass === "natural-wonder-offset-local-anchor" ||
+    args.evidenceClass === "natural-wonder-offset-live-anchor"
+  ) {
+    if (local?.value === true && live?.value === true)
+      return "natural-wonder-offset-both-civ-feasible";
+    if (local?.value === true && live === null) return "natural-wonder-offset-local-civ-feasible";
+    if (local === null && live?.value === true) return "natural-wonder-offset-live-civ-feasible";
+    if (local?.value === false && live === null)
+      return "natural-wonder-offset-local-civ-infeasible";
+    if (local === null && live?.value === false) return "natural-wonder-offset-live-civ-infeasible";
+    if (local?.value === false && live?.value === false)
+      return "natural-wonder-offset-both-civ-infeasible";
+  }
+  return "unclassified";
+}
+
+function uniqueNumbers(values: ReadonlyArray<number | null>): ReadonlyArray<number> {
+  return [...new Set(values.filter((value): value is number => typeof value === "number"))];
+}
+
+function countBy<T>(
+  values: ReadonlyArray<T>,
+  keyFor: (value: T) => string
+): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const value of values) {
+    const key = keyFor(value);
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+  return Object.fromEntries(
+    Object.entries(counts).sort(([left], [right]) => left.localeCompare(right))
+  );
+}
+
+function feasibilityValue(probe: FeatureFeasibilityProbe | null): string {
+  if (probe === null) return "not-applicable";
+  if (!probe.ok) return `error:${probe.error ?? "unknown"}`;
+  return probe.value === true ? "true" : "false";
 }
 
 function writeOutput(path: string | undefined, output: unknown): void {
@@ -493,13 +505,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-if (import.meta.main) {
-  main()
-    .then((code) => {
-      process.exitCode = code;
-    })
-    .catch((error: unknown) => {
-      console.error(error instanceof Error ? error.message : String(error));
-      process.exitCode = 1;
-    });
-}
+main()
+  .then((code) => {
+    process.exitCode = code;
+  })
+  .catch((error: unknown) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  });

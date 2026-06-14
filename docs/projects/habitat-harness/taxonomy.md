@@ -18,6 +18,7 @@ Two enforcement planes — do not conflate them:
 
 | Tag | Definition | Provenance (existing rule/doc) |
 |---|---|---|
+| `kind:workspace` | Repo-root orchestration and proof entrypoints: owns root Nx aggregate targets and root `scripts/**`; consumes public package surfaces only | root `AGENTS.md` Tooling Defaults; Habitat `workspace-entrypoints`; Nx DAG normalization |
 | `kind:app` | User-facing applications and entry surfaces (CLI included): own caller-specific transports/workflows; consume public surfaces only | `apps/*` layout; `docs/system/ARCHITECTURE.md`; Habitat `workspace-entrypoints` |
 | `kind:sdk` | High-level authoring/builder APIs for mod generation; mapgen runtime only via `@civ7/sdk/mapgen` subpath | `packages/sdk/AGENTS.md`; Habitat `grit-sdk-mapgen-entrypoint` |
 | `kind:engine` | Pure TS engine/domain logic (no Civ7 runtime values, no engine globals) | `core-purity.test.ts`; normalization guardrail G3 |
@@ -54,6 +55,7 @@ Provenance: `packages/civ7-direct-control/AGENTS.md`,
 
 | Project | Path | Tags |
 |---|---|---|
+| civ7-modding-tools | `.` | `kind:workspace` |
 | @mateicanavra/civ7-cli | `packages/cli` | `kind:app` |
 | @civ7/docs | `apps/docs` | `kind:app` |
 | @civ7/playground | `apps/playground` | `kind:app` |
@@ -86,6 +88,7 @@ and become the grit rule's baseline).
 
 | sourceTag | onlyDependOnLibsWithTags | Generalizes |
 |---|---|---|
+| `kind:workspace` | everything except `kind:app` and `kind:workspace` | root orchestration/proof scripts may consume public package surfaces, but app code remains a caller surface rather than a library |
 | `kind:foundation` | `kind:foundation` | leaf purity (types/config/policy/viz import nothing higher) |
 | `kind:adapter` | `kind:foundation` | adapter translates engine↔types; owns `/base-standard/` exclusively (`lint-adapter-boundary.sh`) |
 | `kind:engine` | `kind:adapter`, `kind:foundation` | core purity: mapgen-core sees adapter *types* only, never runtime values (`core-purity.test.ts`, G3 — runtime-value ban stays grit/test-owned) |

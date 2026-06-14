@@ -1,0 +1,36 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "@civ7/direct-control",
+  "tags": ["kind:control"],
+  "targets": {
+    "build-bundle": {
+      "command": "tsup --config tsup.config.ts",
+      "options": {
+        "cwd": "packages/civ7-direct-control"
+      },
+      "cache": true,
+      "outputs": ["{projectRoot}/dist/**"]
+    },
+    "build-types": {
+      "command": "tsc -b tsconfig.json --force --emitDeclarationOnly",
+      "options": {
+        "cwd": "packages/civ7-direct-control"
+      },
+      "dependsOn": [
+        "build-bundle",
+        {
+          "projects": ["@civ7/map-policy"],
+          "target": "build"
+        }
+      ],
+      "cache": true,
+      "outputs": ["{projectRoot}/dist/**"]
+    },
+    "build": {
+      "executor": "nx:noop",
+      "dependsOn": ["build-types"],
+      "cache": false,
+      "outputs": ["{projectRoot}/dist/**"]
+    }
+  }
+}

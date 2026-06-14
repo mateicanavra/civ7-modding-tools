@@ -12,9 +12,9 @@
 
 - [x] 2.1 Wire the plugin's `migrations.json` + a no-op baseline migration;
   proof: hand-author a migration run file using package
-  `./tools/habitat-harness` and execute `bun run nx migrate
+  `./tools/habitat-harness` and execute `nx migrate
   --run-migrations=<run-file>.json --skip-install` (the package is
-  unpublished, so `bun run nx migrate @internal/habitat-harness` registry
+  unpublished, so `nx migrate @internal/habitat-harness` registry
   resolution does not apply). Note: the migration requirement's demonstrable
   gate in this slice is the no-op migration execution only.
 

@@ -70,7 +70,7 @@
   - wrapped-test: 7 pass.
   - wrapped-eslint: 1 pass.
 - Fresh Nx scheduling probe:
-  - `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static`
+  - `nx run @internal/habitat-harness:grit:check --outputStyle=static`
     passed from Nx cache.
 - Baseline corpus:
   - only `tools/habitat-harness/baselines/adapter-boundary.json` exists.
@@ -164,7 +164,7 @@ implementation tasks 4, 6, or adapter tests begin.
   - raw `grit --json check` probe over declared roots, interrupted
   - `bun run habitat:fix -- --dry-run`
   - wrapped-script/wrapped-test/wrapped-eslint JSON probes
-  - `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static`
+  - `nx run @internal/habitat-harness:grit:check --outputStyle=static`
   - `find tools/habitat-harness/baselines -maxdepth 1 -type f`
   - `bun run openspec -- validate habitat-grit-proof-repair --strict`
   - full-depth-language guardrail scan over Habitat initiative docs

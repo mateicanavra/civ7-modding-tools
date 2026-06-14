@@ -7,9 +7,12 @@ tests, selector-empty false greens, and wrapper output that can differ from the
 direct tool output.
 
 This change opens the enforcement-surface cleanup design. Its product movement
-is command and proof trust: agents should have one truthful Habitat path for
-structural verification, with every surviving legacy mechanism explicitly
-owned, labeled, and bounded.
+is command and proof trust: agents should have one truthful graph-owned
+structural verification path, with every surviving legacy mechanism explicitly
+owned, labeled, and bounded. After `habitat-nx-worktree-state-contract`, that
+path is no longer a root `habitat:verify` alias: root `lint` runs project lint
+plus Habitat checks, root `verify` runs package-owned verifier targets, and
+root `check` aggregates build/check/lint/test/verify through Nx.
 
 ## Target Authority Refs
 
@@ -172,8 +175,12 @@ Agents get a truthful structural verification contract:
 - Effect adoption decision record for every implementation slice that modifies
   command orchestration, wrapper execution, proof provenance, cleanup scopes,
   service-injected tests, or typed error states
-- `bun run habitat:verify` structured `VerifyProof` artifact with cache/fresh
-  labeling
+- `bun run lint` selected-rule proof for the graph-owned Habitat structural
+  check lane
+- `bun run verify` package-owned verifier proof with cache/fresh labeling
+- `bun run check` aggregate graph proof with explicit non-claims
+- optional `bun run habitat verify` structured `VerifyProof` artifact when the
+  Habitat CLI verify surface is cited directly
 - CI workflow inspection and, when available, CI run evidence
 - stale H6 record scan and patch
 - full-depth-language guardrail scan over this packet

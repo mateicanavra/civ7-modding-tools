@@ -127,15 +127,15 @@ Core synthesis:
   - `bun run habitat classify packages/civ7-adapter/src/index.ts`
   - `bun run habitat classify mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
   - `bun run habitat classify package.json`
-  - `bun run nx show project @civ7/adapter --json`
-  - `bun run nx show target @civ7/adapter:check`
-  - `bun run nx show target @civ7/adapter:test`
-  - `bun run nx show target mod-swooper-maps:test`
-  - `bun run nx show projects --with-target test --json`
-  - `bun run nx show target @internal/habitat-harness:biome:ci`
-  - `bun run nx --version`
-  - `bun run nx g @internal/habitat-harness:project unsupported-mod-probe --kind=mod --dry-run`
-  - `bun run nx g @internal/habitat-harness:project misplaced-probe --kind=app --directory=packages/misplaced-app-probe --dry-run`
+  - `nx show project @civ7/adapter --json`
+  - `nx show target @civ7/adapter:check`
+  - `nx show target @civ7/adapter:test`
+  - `nx show target mod-swooper-maps:test`
+  - `nx show projects --with-target test --json`
+  - `nx show target @internal/habitat-harness:biome:ci`
+  - `nx --version`
+  - `nx g @internal/habitat-harness:project unsupported-mod-probe --kind=mod --dry-run`
+  - `nx g @internal/habitat-harness:project misplaced-probe --kind=app --directory=packages/misplaced-app-probe --dry-run`
   - package inventory for projects without `test` scripts
   - official Nx docs refresh for `nx show`, inferred tasks, and generator dry-run
   - `bun run habitat -- --help`

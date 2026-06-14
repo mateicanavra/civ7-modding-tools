@@ -118,7 +118,7 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
   not active turn execution.
 - Dev run:
   - Via bin: `node packages/cli/bin/run.js <command>`
-  - Via scripts: `bun run --filter @mateicanavra/civ7-cli dev -- data:crawl --help`
+  - Via root script: `bun run dev:cli -- data:crawl --help`
 
 ### Code structure (key paths)
 

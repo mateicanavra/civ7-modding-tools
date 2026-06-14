@@ -22,7 +22,7 @@ Fresh command proof captured in this pass:
 
 - `rg --files -uu .grit/patterns/habitat` found 23 pattern files: 22 under
   `checks/` and 1 under `apply/`.
-- `GRIT_TELEMETRY_DISABLED=true GRIT_CACHE_DIR=<tmp> PATH="$PWD/node_modules/.bin:$PATH" grit patterns test --json`
+- `GRIT_TELEMETRY_DISABLED=true GRIT_CACHE_DIR=<tmp> grit patterns test --json`
   returned exit 0 and parsed 23 successful pattern reports with 45 passing
   samples.
 - A broad raw current-tree `grit --json check` probe was stopped after it ran

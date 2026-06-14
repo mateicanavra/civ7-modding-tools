@@ -49,7 +49,7 @@
   duplicate pattern paths, baseline paths, or rule ids.
 - Migration proof is local because `@internal/habitat-harness` is unpublished:
   a hand-authored run file points at package `./tools/habitat-harness`, then
-  `bun run nx migrate --run-migrations=<run-file>.json --skip-install` runs.
+  `nx migrate --run-migrations=<run-file>.json --skip-install` runs.
 
 ## Design Consequences
 

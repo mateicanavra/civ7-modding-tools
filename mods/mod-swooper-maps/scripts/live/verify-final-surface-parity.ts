@@ -3,6 +3,12 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
+  type Civ7NativeRiverObjectsResult,
+  type Civ7RuntimeProbe,
+  getCiv7FullMapGrid,
+  getCiv7NativeRiverObjects,
+} from "@civ7/direct-control";
+import {
   buildFinalSurfaceParityProof,
   configFromExactAuthorshipProof,
   dimensionsFromExactAuthorshipProof,
@@ -12,13 +18,7 @@ import {
   type NativeRiverObjectSnapshot,
   runLocalFinalSurfaceSnapshot,
   validateExactAuthorshipProofPacket,
-} from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
-import {
-  type Civ7NativeRiverObjectsResult,
-  type Civ7RuntimeProbe,
-  getCiv7FullMapGrid,
-  getCiv7NativeRiverObjects,
-} from "../../packages/civ7-direct-control/src/index.ts";
+} from "../../src/dev/diagnostics/live-parity.js";
 
 type Args = Readonly<{
   requestId?: string;
@@ -33,8 +33,8 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  bun scripts/civ7-direct-control/verify-final-surface-parity.ts --request-id <id>
-  bun scripts/civ7-direct-control/verify-final-surface-parity.ts --proof-file <status-or-proof.json>
+  nx run mod-swooper-maps:verify -- --mode final-surface-parity --request-id <id>
+  nx run mod-swooper-maps:verify -- --mode final-surface-parity --proof-file <status-or-proof.json>
 
 Options:
   --studio-url <url>          Studio URL for request status lookup (default: http://127.0.0.1:5174)

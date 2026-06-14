@@ -2,7 +2,7 @@
 
 import { createHash } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
-import { resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
@@ -16,8 +16,7 @@ import {
   runCiv7SinglePlayerFromSetup,
   snapshotFile,
   waitForFreshLogMarkers,
-} from "../../packages/civ7-direct-control/src/index.ts";
-import { resolveModsDir } from "../../packages/plugins/plugin-mods/src/index.ts";
+} from "@civ7/direct-control";
 
 type LiveProofArgs = {
   host?: string;
@@ -36,8 +35,22 @@ type LiveProofArgs = {
   help: boolean;
 };
 
+function resolveLocalModsDir(): string {
+  const platform = process.platform;
+  if (platform === "darwin") {
+    const home = process.env.HOME || process.env.USERPROFILE || "";
+    return join(home, "Library", "Application Support", "Civilization VII", "Mods");
+  }
+  if (platform === "win32") {
+    const userProfile = process.env.USERPROFILE || "";
+    return join(userProfile, "Documents", "My Games", "Sid Meier's Civilization VII", "Mods");
+  }
+  const home = process.env.HOME || process.env.USERPROFILE || "";
+  return join(home, ".local", "share", "civ7", "Mods");
+}
+
 const usage = `Usage:
-  bun run verify:studio-run-in-game:live -- [flags]
+  nx run mod-swooper-maps:verify -- --mode studio-run-in-game-live [flags]
 
 Read-only default:
   --host <host> --port <port> --timeout-ms <ms>
@@ -262,7 +275,7 @@ export function buildSwooperMapScriptDeploymentStage(args: {
       ? {}
       : {
           recoveryHint:
-            "Build and deploy the current Swooper Maps bundle before live verification: bun run --cwd mods/mod-swooper-maps build && bun run --cwd mods/mod-swooper-maps deploy",
+            "Build and deploy the current Swooper Maps bundle before live verification: nx run mod-swooper-maps:deploy",
         }),
   };
 }
@@ -274,7 +287,7 @@ async function checkSwooperMapScriptDeployment(args: {
   const paths = resolveSwooperMapScriptPaths({
     mapScript: args.mapScript,
     repoRoot: args.repoRoot,
-    modsDir: resolveModsDir().modsDir,
+    modsDir: resolveLocalModsDir(),
   });
   if (!paths) {
     return buildSwooperMapScriptDeploymentStage({ mapScript: args.mapScript });
@@ -381,7 +394,7 @@ async function main(): Promise<number> {
     stages: [],
   };
   const stages = report.stages as unknown[];
-  const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
+  const repoRoot = fileURLToPath(new URL("../../../..", import.meta.url));
 
   try {
     const health = await checkCiv7DirectControlHealth(options);

@@ -28,7 +28,7 @@
 ## 3. Native Fixture And Parser-Edge Proof
 
 - [ ] 3.1 Run
-  `GRIT_TELEMETRY_DISABLED=true PATH="$PWD/node_modules/.bin:$PATH" grit patterns test --filter contract_export_all --json`.
+  `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter contract_export_all --json`.
 - [ ] 3.2 Add or record proof for positive value-star fixtures in step
   contract, dotted step contract, domain op index, domain op contract/types,
   rules directory, strategies directory, and non-index rules/strategies paths.

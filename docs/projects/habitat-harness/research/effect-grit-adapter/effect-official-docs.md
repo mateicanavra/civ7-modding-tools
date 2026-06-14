@@ -135,7 +135,7 @@ These are applications inferred from official capabilities plus local Habitat de
 
 - **Exact dependency set:** official docs prove capabilities, not the exact package versions to use in this repo. Fast verification: in the Habitat worktree, add candidate versions with Bun, inspect peer output, and prove dev plus built oclif commands execute.
 
-- **Platform package choice:** docs support Node/Deno/Bun platform layers. Habitat's built oclif runner is Node-oriented while local scripts run through Bun. Fast verification: run the same minimal command/file/path program under Bun dev and built Node invocation.
+- **Platform package choice:** docs support Node/Deno/Bun platform layers. Habitat's built oclif runner is Node-oriented while local scripts run through Bun. Fast verification: prove the same command/file/path parity case under Bun dev and built Node invocation.
 
 - **Command parity:** official docs do not prove stdout/stderr/exit-code parity against current `spawnSync`. Fast verification: golden parity tests for `check --json`, `fix --dry-run`, `graph --json`, hook pre-commit/pre-push, and Grit parse-failure cases.
 

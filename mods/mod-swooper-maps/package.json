@@ -33,7 +33,8 @@
     "targets": {
       "build": {
         "dependsOn": [
-          "^build"
+          "^build",
+          "gen:maps"
         ],
         "inputs": [
           "default",
@@ -48,12 +49,14 @@
         ]
       },
       "build:studio-recipes": {
-        "dependsOn": [
-          "^build"
-        ],
+        "command": "node -e \"\"",
+        "cache": false,
         "outputs": [
           "{projectRoot}/dist/**",
           "{projectRoot}/src/maps/generated/**"
+        ],
+        "dependsOn": [
+          "build:studio-recipes:maps"
         ]
       },
       "build:studio-deploy": {
@@ -66,6 +69,10 @@
         "outputs": [
           "{projectRoot}/mod/**",
           "{projectRoot}/src/maps/generated/**"
+        ],
+        "dependsOn": [
+          "^build",
+          "gen:maps"
         ]
       },
       "check": {
@@ -79,13 +86,84 @@
           "^build",
           "build:studio-recipes"
         ]
+      },
+      "build:studio-recipes:bundle": {
+        "dependsOn": [
+          "^build"
+        ],
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist/**"
+        ]
+      },
+      "gen:studio-recipes-types": {
+        "dependsOn": [
+          "build:studio-recipes:bundle"
+        ],
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist/recipes/browser-test.schema.json",
+          "{projectRoot}/dist/recipes/browser-test.defaults.json",
+          "{projectRoot}/dist/recipes/browser-test.presets.json",
+          "{projectRoot}/dist/recipes/browser-test.d.ts",
+          "{projectRoot}/dist/recipes/browser-test-artifacts.js",
+          "{projectRoot}/dist/recipes/browser-test-artifacts.d.ts",
+          "{projectRoot}/dist/recipes/standard.schema.json",
+          "{projectRoot}/dist/recipes/standard.defaults.json",
+          "{projectRoot}/dist/recipes/standard.presets.json",
+          "{projectRoot}/dist/recipes/standard.d.ts",
+          "{projectRoot}/dist/recipes/standard-artifacts.js",
+          "{projectRoot}/dist/recipes/standard-artifacts.d.ts"
+        ]
+      },
+      "build:studio-recipes:maps": {
+        "dependsOn": [
+          "gen:studio-recipes-types"
+        ],
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist/recipes/standard-map-config.schema.json",
+          "{projectRoot}/dist/recipes/standard-map-configs.js",
+          "{projectRoot}/dist/recipes/standard-map-configs.d.ts",
+          "{projectRoot}/src/maps/generated/**"
+        ]
+      },
+      "viz:foundation": {
+        "dependsOn": [
+          "viz:runtime-deps"
+        ],
+        "cache": false
+      },
+      "viz:standard": {
+        "dependsOn": [
+          "viz:runtime-deps"
+        ],
+        "cache": false
+      },
+      "diag:dump": {
+        "dependsOn": [
+          "viz:runtime-deps"
+        ],
+        "cache": false
+      },
+      "deploy": {
+        "dependsOn": [
+          "build",
+          {
+            "projects": [
+              "@mateicanavra/civ7-cli"
+            ],
+            "target": "build"
+          }
+        ],
+        "cache": false
       }
     }
   },
   "scripts": {
-    "build": "bun run gen:maps && tsup",
-    "build:studio-deploy": "bun run gen:maps && tsup",
-    "build:studio-recipes": "tsup --config tsup.studio-recipes.config.ts && bun run gen:studio-recipes-types && bun run gen:maps",
+    "build": "tsup",
+    "build:studio-deploy": "tsup",
+    "build:studio-recipes": "node -e \"\"",
     "gen:maps": "bun ./scripts/generate-map-artifacts.ts",
     "gen:studio-recipes-types": "bun ./scripts/generate-studio-recipe-types.ts",
     "lint": "biome check .",
@@ -93,14 +171,18 @@
     "test": "bun test",
     "test:studio-run-in-game": "bun test test/standard-run.test.ts test/build/map-bundle-runtime-imports.test.ts test/config/maps-schema-valid.test.ts test/config/shipped-map-identity.test.ts",
     "test:architecture-cutover": "bun test test/foundation/no-op-calls-op-tectonics.test.ts test/pipeline/no-dual-contract-paths.test.ts test/pipeline/no-shim-surfaces.test.ts test/pipeline/foundation-topology-lock.test.ts",
-    "viz:foundation": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && bun ./src/dev/viz/foundation-run.ts",
-    "viz:standard": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && bun ./src/dev/viz/standard-run.ts",
-    "diag:dump": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && bun ./src/dev/diagnostics/run-standard-dump.ts",
+    "viz:foundation": "bun ./src/dev/viz/foundation-run.ts",
+    "viz:standard": "bun ./src/dev/viz/standard-run.ts",
+    "diag:dump": "bun ./src/dev/diagnostics/run-standard-dump.ts",
     "diag:analyze": "bun ./src/dev/diagnostics/analyze-dump.ts",
     "diag:list": "bun ./src/dev/diagnostics/list-layers.ts",
     "diag:diff": "bun ./src/dev/diagnostics/diff-layers.ts",
     "diag:trace": "bun ./src/dev/diagnostics/extract-trace.ts",
-    "deploy": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"
+    "deploy": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
+    "build:studio-recipes:bundle": "tsup --config tsup.studio-recipes.config.ts",
+    "build:studio-recipes:maps": "bun ./scripts/generate-map-artifacts.ts",
+    "viz:runtime-deps": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs",
+    "verify": "bun ./scripts/verify.ts"
   },
   "dependencies": {
     "@swooper/mapgen-core": "workspace:*",
@@ -111,6 +193,8 @@
     "typebox": "^1.0.80"
   },
   "devDependencies": {
+    "@civ7/direct-control": "workspace:*",
+    "@civ7/plugin-mods": "workspace:*",
     "@civ7/types": "workspace:*",
     "json-schema-to-typescript": "^15.0.4"
   }

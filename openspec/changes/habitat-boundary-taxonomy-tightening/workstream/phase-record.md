@@ -5,7 +5,8 @@
 - Project: Habitat Harness
 - Phase: boundary taxonomy tightening / `habitat-boundary-taxonomy-tightening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `codex/habitat-dra-takeover-frame`
+- Branch/Graphite stack: originally `codex/habitat-dra-takeover-frame`; packet
+  realignment on `agent-F-habitat-nx-worktree-state`
 - Started: 2026-06-14
 - Status: design packet opened; adversarial review disposition applied;
   implementation not started
@@ -36,15 +37,20 @@
 
 - Repo state at phase open: clean worktree on
   `codex/habitat-dra-takeover-frame`.
+- Current packet realignment follows the Nx workflow settlement on
+  `agent-F-habitat-nx-worktree-state`: repo-local pinned `nx`, normal Nx
+  defaults, no daemon/cache/socket/link workaround policy, no root
+  `habitat:verify` alias.
 - `CLAIM-H3-TAXONOMY` remains unknown in Stage 0.
 - Historical H3 says project-plane taxonomy is locked and green.
 - Current package tag inventory matches the expected 22 projects at source
   inspection time.
 - Current resolved Nx graph contains 44 workspace dependency edges.
-- Direct boundary target proof passes.
-- No-daemon run-many proof passes.
-- One daemon/default run-many proof produced a post-target Nx SQLite
-  transaction failure.
+- Historical direct boundary target proof passed with `--skipNxCache`.
+- Historical no-daemon run-many proof passed, but is diagnostic context only.
+- One historical normal/default run-many proof with `--skipNxCache` produced a
+  post-target Nx SQLite transaction failure. Forward proof must use normal Nx
+  defaults and either pass or assign a root-cause repair.
 - Habitat `nx-boundaries` JSON proof passes.
 - Dual-tag probe failed as expected through `kind:control` and was removed.
 
@@ -59,6 +65,7 @@ Core synthesis:
 - current proof must use resolved Nx state, not only historical records;
 - command reliability is part of the claim because a target can succeed inside
   a failing Nx command;
+- normal Nx defaults are the only accepted steady-state proof surface;
 - downstream classify/Grit packets need exact taxonomy proof boundaries.
 
 ## Scope
@@ -111,12 +118,12 @@ Core synthesis:
   - `sed -n '1,360p' openspec/changes/habitat-boundary-tags/workstream/phase-record.md`
   - `sed -n '1,360p' eslint.boundaries.config.mjs`
   - package tag inventory from workspace manifests
-  - `bun run nx show project @internal/habitat-harness --json`
-  - `bun run nx show project mod-civ7-intelligence-bridge --json`
-  - `bun run nx graph --file /tmp/habitat-boundary-graph.json`
-  - `bun run nx run-many -t boundaries --all --skipNxCache`
-  - `NX_DAEMON=false bun run nx run-many -t boundaries --all --skipNxCache`
-  - `bun run nx run @internal/habitat-harness:boundaries --skipNxCache`
+  - `nx show project @internal/habitat-harness --json`
+  - `nx show project mod-civ7-intelligence-bridge --json`
+  - `nx graph --file /tmp/habitat-boundary-graph.json`
+  - historical `nx run-many -t boundaries --all --skipNxCache`
+  - historical `NX_DAEMON=false nx run-many -t boundaries --all --skipNxCache`
+  - historical `nx run @internal/habitat-harness:boundaries --skipNxCache`
   - `bun run habitat:check -- --json --rule nx-boundaries`
   - created-and-reverted dual-tag probe and clean rerun
   - `cat package.json | jq -r '.devDependencies.nx // .dependencies.nx // empty'`
@@ -134,6 +141,9 @@ Core synthesis:
   - Resources submodule status: clean.
 - Evidence boundary: current phase has design evidence and diagnosis. It does
   not prove implementation repair.
+- Nx settlement boundary: daemon disabling, cache disabling, socket overrides,
+  symlink repair, and routine cache reset are excluded from future accepted
+  proof policy.
 
 ## Realignment
 

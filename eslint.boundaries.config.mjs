@@ -17,6 +17,19 @@ import nxPlugin from "@nx/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 
 const depConstraints = [
+  {
+    sourceTag: "kind:workspace",
+    onlyDependOnLibsWithTags: [
+      "kind:sdk",
+      "kind:engine",
+      "kind:adapter",
+      "kind:control",
+      "kind:foundation",
+      "kind:plugin",
+      "kind:mod",
+      "kind:tooling",
+    ],
+  },
   { sourceTag: "kind:foundation", onlyDependOnLibsWithTags: ["kind:foundation"] },
   { sourceTag: "kind:adapter", onlyDependOnLibsWithTags: ["kind:foundation"] },
   { sourceTag: "kind:engine", onlyDependOnLibsWithTags: ["kind:adapter", "kind:foundation"] },

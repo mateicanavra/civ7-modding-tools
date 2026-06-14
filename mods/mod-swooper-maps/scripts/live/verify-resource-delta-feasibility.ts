@@ -3,16 +3,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
-  type FinalSurfaceParityProof,
-  hashParityValue,
-  stableParityProofStringify,
-} from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
-import {
-  buildResourceDeltaFeasibilityContexts,
-  buildResourceDeltaPlacementContexts,
-  type ResourceDeltaFeasibilityContext,
-} from "../../mods/mod-swooper-maps/src/dev/diagnostics/surface-delta-context.ts";
-import {
   type Civ7MapGridResult,
   type Civ7MapSummaryResult,
   type Civ7PlotSnapshotField,
@@ -24,7 +14,17 @@ import {
   getCiv7MapSummary,
   getCiv7ResourceBuilderDiagnostics,
   getCiv7ResourcePlacementFeasibility,
-} from "../../packages/civ7-direct-control/src/index.ts";
+} from "@civ7/direct-control";
+import {
+  type FinalSurfaceParityProof,
+  hashParityValue,
+  stableParityProofStringify,
+} from "../../src/dev/diagnostics/live-parity.js";
+import {
+  buildResourceDeltaFeasibilityContexts,
+  buildResourceDeltaPlacementContexts,
+  type ResourceDeltaFeasibilityContext,
+} from "../../src/dev/diagnostics/surface-delta-context.js";
 
 type Args = Readonly<{
   proofFile?: string;
@@ -37,7 +37,7 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  bun scripts/civ7-direct-control/verify-resource-delta-feasibility.ts --proof-file <final-surface-proof.json>
+  nx run mod-swooper-maps:verify -- --mode resource-delta-feasibility --proof-file <final-surface-proof.json>
 
 Options:
   --host <host>       Civ7 tuner host

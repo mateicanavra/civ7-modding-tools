@@ -14,29 +14,26 @@ const mapArtifactPaths = [
 const trackedMapFiles = git(["ls-files", "-z", "--", ...mapArtifactPaths])
   .stdout.split("\0")
   .filter(Boolean);
-const snapshot = new Map(
-  trackedMapFiles.map((file) => [file, readFileSync(path.join(repoRoot, file))])
-);
+const preexistingUntrackedMapFiles = untrackedFiles(mapArtifactPaths);
+const preexistingUntrackedSet = new Set(preexistingUntrackedMapFiles);
+const trackedSnapshot = snapshotFiles(trackedMapFiles);
+const untrackedSnapshot = snapshotFiles(preexistingUntrackedMapFiles);
 
 let exitCode = 0;
 try {
-  const mapGen = run(["bun", "run", "--cwd", "mods/mod-swooper-maps", "gen:maps"]);
+  const mapGen = run(["bun", "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts"]);
   if (mapGen.status !== 0) exitCode = 1;
-  const mapDrift = git(["diff", "--name-only", "--", ...mapArtifactPaths])
-    .stdout.split(/\r?\n/)
-    .filter(Boolean);
+  const mapDrift = generatedDrift(trackedSnapshot, untrackedSnapshot, mapArtifactPaths);
   if (mapDrift.length > 0) {
     exitCode = 1;
     console.error("[habitat generated:check] gen:maps drift:");
     for (const file of mapDrift) console.error(`  - ${file}`);
   }
 } finally {
-  restoreSnapshot(snapshot);
-  removeUntracked(mapArtifactPaths);
+  restoreSnapshot(trackedSnapshot);
+  restoreSnapshot(untrackedSnapshot);
+  removeNewUntracked(mapArtifactPaths, preexistingUntrackedSet);
 }
-
-const policy = run(["bun", "run", "verify:civ7-map-policy-tables"]);
-if (policy.status !== 0) exitCode = 1;
 
 process.exit(exitCode);
 
@@ -64,6 +61,28 @@ function git(args) {
   return { stdout: result.stdout ?? "" };
 }
 
+function snapshotFiles(files) {
+  return new Map(files.map((file) => [file, readFileSync(path.join(repoRoot, file))]));
+}
+
+function generatedDrift(trackedSnapshot, untrackedSnapshot, paths) {
+  const drift = [];
+  for (const [file, before] of trackedSnapshot) {
+    const full = path.join(repoRoot, file);
+    if (!existsSync(full) || !readFileSync(full).equals(before)) drift.push(file);
+  }
+
+  const previousUntracked = new Set(untrackedSnapshot.keys());
+  for (const file of untrackedFiles(paths)) {
+    const full = path.join(repoRoot, file);
+    const before = untrackedSnapshot.get(file);
+    if (!previousUntracked.has(file) || !before || !readFileSync(full).equals(before)) {
+      drift.push(file);
+    }
+  }
+  return drift;
+}
+
 function restoreSnapshot(files) {
   for (const [file, contents] of files) {
     const full = path.join(repoRoot, file);
@@ -72,10 +91,14 @@ function restoreSnapshot(files) {
   }
 }
 
-function removeUntracked(paths) {
-  const files = git(["ls-files", "--others", "--exclude-standard", "-z", "--", ...paths])
+function untrackedFiles(paths) {
+  return git(["ls-files", "--others", "--exclude-standard", "-z", "--", ...paths])
     .stdout.split("\0")
     .filter(Boolean);
+}
+
+function removeNewUntracked(paths, preexisting) {
+  const files = untrackedFiles(paths).filter((file) => !preexisting.has(file));
   for (const file of files) {
     const full = path.join(repoRoot, file);
     if (existsSync(full)) rmSync(full, { force: true });

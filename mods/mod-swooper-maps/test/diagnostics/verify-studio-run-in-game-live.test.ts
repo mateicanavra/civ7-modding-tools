@@ -4,7 +4,7 @@ import {
   buildSwooperMapScriptDeploymentStage,
   type MapScriptFileIdentity,
   resolveSwooperMapScriptPaths,
-} from "./verify-studio-run-in-game-live";
+} from "../../scripts/live/verify-studio-run-in-game-live";
 
 const identity = (path: string, sha256: string): MapScriptFileIdentity => ({
   path,
@@ -89,6 +89,6 @@ describe("studio run-in-game live verifier deployment identity", () => {
       "deployed-mod-script.marker-missing.map-rivers-authoredterrainmaterialization",
       "deployed-mod-script.marker-missing.post-authored-rivers",
     ]);
-    expect(stage.recoveryHint).toContain("bun run --cwd mods/mod-swooper-maps deploy");
+    expect(stage.recoveryHint).toContain("nx run mod-swooper-maps:deploy");
   });
 });

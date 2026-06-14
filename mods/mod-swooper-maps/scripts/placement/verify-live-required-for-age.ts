@@ -36,7 +36,7 @@
  * game is restarting. `--help` exits before any socket work.
  *
  * Usage:
- *   bun scripts/placement/verify-live-required-for-age.ts [--host h] [--port p] \
+ *   nx run mod-swooper-maps:verify -- --mode placement-live-required-for-age [--host h] [--port p] \
  *     [--timeout-ms 45000] [--output out.json]
  */
 
@@ -47,11 +47,8 @@ import {
   type Civ7CommandResult,
   type Civ7DirectControlOptions,
   executeCiv7TunerCommand,
-} from "../../packages/civ7-direct-control/src/index.ts";
-import {
-  CIV7_BROWSER_TABLES_V0,
-  CIV7_POLICY_TABLES_V1,
-} from "../../packages/civ7-map-policy/src/index.ts";
+} from "@civ7/direct-control";
+import { CIV7_BROWSER_TABLES_V0, CIV7_POLICY_TABLES_V1 } from "@civ7/map-policy";
 
 type Args = Readonly<{
   host?: string;
@@ -62,7 +59,7 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  bun scripts/placement/verify-live-required-for-age.ts [options]
+  nx run mod-swooper-maps:verify -- --mode placement-live-required-for-age [options]
 
 Reads live age + leaders, sweeps ResourceBuilder.isResourceRequiredForAge for
 every resource index, and compares against the static @civ7/map-policy

@@ -46,13 +46,15 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 
 ## Tooling Defaults
 
-- Use `bun` workspace scripts for build, type‑checks, lint, and tests unless a closer `AGENTS.md` says otherwise.
+- Use root `bun` workspace scripts for build, type‑checks, lint, and tests unless a closer `AGENTS.md` says otherwise.
 - Prefer root Nx-orchestrated scripts for cross-workspace workflows (apps,
-  multi-package builds). Use root `package.json` scripts first; for ad hoc
-  terminal Nx commands, use `bun run nx ...` so the repo-local pinned binary is
-  used without requiring a global install. Inside package scripts and
-  Habitat-spawned commands, direct `nx`/`biome`/`grit` names are valid because
-  the local tool PATH is provided.
+  multi-package builds). Use root `package.json` scripts first; those scripts
+  are thin entrypoints into owning Nx targets. For ad hoc terminal Nx commands,
+  use `nx <args>` so the repo-local pinned Nx package is used through standard
+  Nx local override behavior. Habitat-spawned Nx commands must use the same root entrypoint. Package
+  scripts may still call non-Nx local tools such as `biome` and `grit` through
+  the script PATH, but package scripts must not hide dependency ordering that
+  belongs in Nx `dependsOn`.
 - Git hooks are Husky delegators into `habitat hook <name>`; hooks reduce local friction, while CI remains authoritative. Pre-commit may restage formatter-touched files only, plus the preserved resources-submodule publish gitlink behavior documented in `docs/process/resources-submodule.md`.
 - Project-plane import boundaries are enforced by the Habitat `boundaries`
   target and `nx-boundaries` rule. See
@@ -60,13 +62,15 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
   boundary constraints.
 - For unfamiliar structure, start with `bun run habitat classify <path-or-diff>`
   before editing. For supported new uniform projects, scaffold with
-  `bun run nx g @internal/habitat-harness:project <name> --kind=<plugin|foundation|app>`;
+  `nx g @internal/habitat-harness:project <name> --kind=<plugin|foundation|app>`;
   for new Grit-backed rules, scaffold with
-  `bun run nx g @internal/habitat-harness:pattern <rule-id>`. Unsupported
+  `nx g @internal/habitat-harness:pattern <rule-id>`. Unsupported
   kinds are intentionally refused until their owning domain defines a uniform
   generator shape. After authoring, run the targets reported by `habitat
   classify` plus the nearest package-local checks.
-- Use package scripts (`bun run --cwd <path> <script>`) for package-local tasks.
+- Use package scripts (`bun run --cwd <path> <script>`) for leaf-local debugging
+  when dependency freshness is already established. Use root Nx-orchestrated
+  scripts for proof.
 - Runtime Civ7 control belongs in `@civ7/direct-control`; agents should not
   add alternate runtime transports or caller-local control scripts.
 
