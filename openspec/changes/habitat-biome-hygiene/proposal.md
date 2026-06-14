@@ -21,7 +21,7 @@ now, not deferred; trade-offs recorded. Biome 2.4.x verified working under Bun
   `mod`, `.nx`, generated zones, `.civ7/outputs`, `docs/_archive`).
 - Translate `.prettierrc` settings (semi, double quotes, trailing comma es5,
   printWidth 100) into Biome formatter config so the reformat diff is
-  minimal; then remove `.prettierrc` and any prettier devDependencies.
+  targeted; then remove `.prettierrc` and any prettier devDependencies.
 - One dedicated repo-wide reformat commit
   (`bunx --bun @biomejs/biome format --write .`), recorded in a new
   `.git-blame-ignore-revs`.

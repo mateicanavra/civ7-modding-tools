@@ -75,7 +75,7 @@ Bun does not run arbitrary lifecycle scripts for installed dependencies unless t
 
 ## 3. Design rationale
 
-A useful agent-facing repository needs more than instructions. It needs executable structure. The reusable Habitat design notes frame this as making the environment enforceable, queryable, generatable, observable, and diagnosable rather than merely documented. The graph/query/diagnostics layer is especially relevant here: agents need to ask what a file is, what may import what, what breaks when a thing changes, and which gates must run. This harness implements that narrow mechanical slice, without adopting the broader coordination or governance layers.
+A useful agent-facing repository needs more than instructions. It needs executable structure. The reusable Habitat design notes frame this as making the environment enforceable, queryable, generatable, observable, and diagnosable rather than merely documented. The graph/query/diagnostics layer is especially relevant here: agents need to ask what a file is, what may import what, what breaks when a thing changes, and which gates must run. This harness implements that structural operating slice, without adopting the broader coordination or governance layers.
 
 The harness distribution argument is also load-bearing: a harness is a set of generators, rules, structural tests, discovery mechanisms, composition helpers, and migrations. Those map directly onto Nx extension points: generators scaffold, module-boundary rules enforce, executors verify, project graph plugins infer nodes and dependencies, and migrations propagate harness evolution.
 
@@ -113,7 +113,7 @@ bunx nx g @nx/plugin:plugin tools/habitat-harness --importPath=@internal/habitat
 
 If the repo is migrating from pnpm, remove `pnpm-lock.yaml` and `pnpm-workspace.yaml` after verifying `bun.lock`, `package.json` workspaces, and the Nx project graph. Do not keep competing lockfiles.
 
-Exact package versions may vary, but the harness must create one local plugin under `tools/`, one root Biome config, one minimal ESLint boundary config, one GritQL pattern catalog, and thin Husky hook delegators.
+Exact package versions may vary, but the harness must create one local plugin under `tools/`, one root Biome config, one purpose-limited ESLint boundary config, one GritQL pattern catalog, and thin Husky hook delegators.
 
 ### 4.2 Required root package fields
 
@@ -506,7 +506,7 @@ ESLint does not own formatting, ordinary lint hygiene, stylistic rules, architec
 
 ### Integration glue
 
-The harness owns the `boundaries` target. That target invokes ESLint with the minimal boundary config. The target name must be `boundaries`, not `lint`, so the repository does not accidentally treat ESLint as the primary linter.
+The harness owns the `boundaries` target. That target invokes ESLint with the purpose-limited boundary config. The target name must be `boundaries`, not `lint`, so the repository does not accidentally treat ESLint as the primary linter.
 
 ### Exit path
 
@@ -518,7 +518,7 @@ a custom graph-boundary executor in tools/habitat-harness;
 a future Biome/Nx boundary integration that fully covers the required rules.
 ```
 
-Until then, keep ESLint narrow and boring.
+Until then, keep ESLint purpose-limited and boring.
 
 ## 5.5 GritQL
 
@@ -719,7 +719,7 @@ intent or change
   -> generate missing structure through Nx generators
   -> rewrite stale structure through GritQL
   -> clean output through Biome
-  -> prove import/project boundaries through Nx + minimal ESLint
+  -> prove import/project boundaries through Nx + purpose-limited ESLint
   -> prove file-shape invariants through GritQL checks
   -> run affected typecheck/test targets through Nx
   -> trigger cheap local subsets through Husky
@@ -746,7 +746,7 @@ The harness enforces architecture across five layers:
 
 ```text
 repository layer  -> Nx project graph and project tags
-import layer      -> Nx module boundaries through minimal ESLint or replacement executor
+import layer      -> Nx module boundaries through purpose-limited ESLint or replacement executor
 file layer        -> path rules, generated-zone rules, ownership metadata
 syntax layer      -> GritQL structural checks and rewrites
 hygiene layer     -> Biome format/lint/import organization
@@ -978,7 +978,8 @@ bunx nx run-many -t biome:ci,boundaries,grit:check --all
 
 ### Phase 3: Boundary rules
 
-Add project tags and minimal dep constraints. Keep the first rule set small.
+Add project tags and complete initial dependency constraints. Keep the first
+rule set focused on proven architecture edges.
 
 ```text
 kind:app

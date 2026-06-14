@@ -116,12 +116,12 @@ Record before wiring hooks per task 1.1:
 Timing note: the same pre-push target set measured against `main` took 62.45s and affected 18 projects plus dependencies because the whole Graphite downstack differs from `main`. H7 therefore resolves the local hook base to the Graphite parent when available, falling back to the merge-base with `main` only outside a tracked stack.
 
 Post-wiring timing boundary: the original 5.22s pre-push budget was derived
-from a narrow one-package probe. The broad H7 branch itself changes root
+from a bounded one-package probe. The broad H7 branch itself changes root
 scripts, docs, Husky files, and Habitat sources, so Nx correctly marks a much
 larger set affected. The broad H7 committed-range hook passed functionally but
 timed at 42.51s cold-ish and 18.40s hot-cache. That is recorded as an
 operational boundary, not a hidden failure: local hooks are fast for the
-declared narrow probe class, while broad harness/root slices can exceed the
+declared bounded probe class, while broad harness/root slices can exceed the
 budget and rely on Nx cache plus CI/explicit verification. Classification:
 the 42s wait is an edge case of modifying the harness/root environment itself,
 not the normal contributor path. Normal pre-push input is the committed range
@@ -179,8 +179,8 @@ files and untracked probes are deliberately outside the hook's scope.
 - Results: implementation gates, safety probes, Graphite commit hook proof,
   and committed-range pre-push functional proof passed.
 - Skipped gates and rationale: none. Timing boundary is recorded above: broad
-  harness/root slices exceed the narrow probe budget by design of the affected
-  surface and are not treated as the narrow one-package timing class.
+  harness/root slices exceed the bounded probe budget by design of the affected
+  surface and are not treated as the bounded one-package timing class.
 - Evidence boundary: local Git/hooks behavior only; CI proof remains post-submit.
 
 ## Realignment
@@ -205,4 +205,4 @@ files and untracked probes are deliberately outside the hook's scope.
   `tools/habitat-harness/src/rules/rules.json`.
 - Stop condition: if future local hooks need broad/root slices under a strict
   sub-5s budget, split the pre-push target set or add a dedicated
-  narrow-hook target rather than weakening Habitat rules.
+  hook-local target rather than weakening Habitat rules.
