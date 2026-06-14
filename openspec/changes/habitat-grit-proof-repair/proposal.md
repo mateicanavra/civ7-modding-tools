@@ -104,7 +104,7 @@ adapter tests. Those concerns match `habitat-effect-grit-adapter` and
 - Effect Grit adapter design can run in parallel if the trigger matrix fires.
 - The first new Grit pilot cannot use the current pattern generator to create
   enforced rules until pattern-generator metadata repair lands or this repair
-  records an explicit stop-gate workaround with review.
+  records an explicit reviewed stop-gate path.
 
 ## Affected Owners
 

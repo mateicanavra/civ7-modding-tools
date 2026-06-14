@@ -190,6 +190,8 @@ implementation tasks 4, 6, or adapter tests begin.
 
 ## Next Action
 
-- Run OpenSpec validation for the draft packet.
-- Send Grit corpus, evidence/system, and Effect/substrate review agents.
-- Patch accepted P1/P2 findings before implementation is declared ready.
+- Keep implementation tasks 4, 6, 7, and adapter tests blocked until
+  `habitat-effect-grit-adapter` is reviewed and accepted.
+- After that substrate packet is accepted, resume this repair from the
+  injected-harness and apply-proof tasks using the adapter contract rather than
+  adding new manual Grit plumbing.

@@ -158,7 +158,7 @@ services, apply transactions, cleanup, or fake-service tests.
 
 Habitat SHALL NOT use the current pattern generator to create new enforced
 Grit rules for the first pilot unless the generator requires the proof metadata
-from the Grit proof matrix or the pilot records a reviewed stop-gate workaround.
+from the Grit proof matrix or the pilot records a reviewed stop-gate path.
 
 #### Scenario: New pilot uses generated Grit rule
 - **WHEN** a new Grit pilot creates a rule through the pattern generator

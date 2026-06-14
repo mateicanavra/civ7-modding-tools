@@ -42,7 +42,7 @@
 
 ## 4. Injected Violation Harness
 
-- [ ] 4.1 Add a controlled probe harness that creates and removes temporary
+- [ ] 4.1 Add a controlled probe harness that creates and removes ephemeral
   source files under approved scan roots.
 - [ ] 4.2 Prove every current enforced Grit check fails on an injected matching
   source shape with the expected Habitat rule id.
@@ -111,7 +111,7 @@
   rules change user-facing behavior.
 - [ ] 8.5 Block the first new Grit pilot from using generated enforced rules
   until `habitat-pattern-generator-metadata-repair` lands or this repair
-  records a reviewed stop-gate workaround.
+  records a reviewed stop-gate path.
 
 ## 9. Verification
 

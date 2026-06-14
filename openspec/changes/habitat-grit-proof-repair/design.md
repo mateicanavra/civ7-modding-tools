@@ -299,10 +299,10 @@ uses generated enforced rules, either:
 1. `habitat-pattern-generator-metadata-repair` must require authority source,
    proving source, exact scan roots, fixture coverage model, false-positive
    model, baseline policy, and hook-scope decision; or
-2. this repair must record an explicit reviewed stop-gate workaround that keeps
+2. this repair must record an explicit reviewed stop-gate path that keeps
    generated output advisory/unwired until those fields are supplied.
 
-This is a downstream realignment blocker, not optional README cleanup.
+This is a downstream realignment blocker, not discretionary README cleanup.
 
 ## Write Set
 

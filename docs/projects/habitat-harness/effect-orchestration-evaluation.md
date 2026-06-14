@@ -6,7 +6,7 @@
 **Frame:** `docs/projects/habitat-harness/dra-takeover-frame.md`
 **Related claim row:** `CLAIM-P1-EFFECT-FIT` in
 `docs/projects/habitat-harness/recovery-claim-ledger.md`
-**Mode:** design/specification only; no implementation approval yet
+**Mode:** active design/specification decision record
 
 This record exists because "Habitat does not currently use Effect" is not a
 valid reason to preserve manual internals if those internals structurally
@@ -145,6 +145,36 @@ The same local fit evidence also protects against over-adoption:
 | `habitat-effect-grit-adapter` | Typed Grit check/apply adapter with scan roots, parse results, dry-run no-write proof, and apply transaction records. | Grit proof repair and official Grit docs. | Native samples, current-tree scan, injected violation, dry-run/apply proof, rollback story. |
 | `habitat-effect-hook-transaction` | Rebuild hook sequencing around typed staged-file state, side-effect policy, formatter writes, restage, and Grit checks. | Hook hardening decision and Biome/Grit proof repairs. | Publish side effect is explicitly retained/delayed/removed; partial staging and write set proof are deterministic. |
 | `habitat-no-effect-p0-command-repair` | Deliberate non-adoption slice for the oclif root/dev/prod command-surface repair if the design can provide typed selector failures, real entrypoint tests, and command provenance without adding Effect. | Accepted Effect evaluation and P0 command trust packet. | Records explain why Effect is deferred for this slice, what typed/provenance properties the manual repair still provides, and which triggers reopen Effect adoption. |
+
+## Current Selection - 2026-06-14
+
+`habitat-effect-grit-adapter` is the first provisionally selected Effect
+adoption packet for this recovery program. Design review findings have been
+dispositioned, and live dependency adoption remains unclaimed until the packet
+completes its dependency/platform parity tasks.
+
+Decision boundary:
+
+- Provisionally adopt Effect for the Grit adapter substrate: typed adapter failures,
+  services/layers, scoped cleanup/finalizers, command-result provenance, parser
+  boundaries, injected-probe cleanup, and apply transactions.
+- Keep oclif as the command shell and keep CheckReport schemaVersion 1 as the
+  command/report boundary.
+- Fold the first typed command-result contract into the Grit adapter rather than
+  opening a broad shared command-runner migration first.
+- Open `habitat-effect-command-runner` later only if another workstream proves
+  the same command-result contract is needed outside Grit.
+- Do not move GritQL semantics, Biome formatting semantics, Nx scheduling/cache
+  semantics, baseline policy, hooks, generated-output policy, or product
+  runtime proof into Effect.
+
+This provisional selection is controlled by:
+
+- `openspec/changes/habitat-effect-grit-adapter/proposal.md`
+- `openspec/changes/habitat-effect-grit-adapter/design.md`
+- `openspec/changes/habitat-grit-proof-repair/workstream/reviews/effect-substrate-review.md`
+- official Effect/GritQL/Biome/Nx evidence packs under
+  `docs/projects/habitat-harness/research/`
 
 ## Required Decision Before Implementation
 
