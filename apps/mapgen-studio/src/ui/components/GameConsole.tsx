@@ -181,6 +181,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
           ? "bg-warning"
           : "bg-muted-foreground";
   const runInGameButtonText = runInGamePrimaryActionLabel(runInGameStatus, runInGameCurrentRelation);
+  const visibleRunInGameButtonText = runInGameStatus ? runInGameButtonText : "Play";
   const liveSyncAvailable =
     liveRuntime?.status === "ok" &&
     liveGameStudioRelation === "stale" &&
@@ -353,7 +354,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
         className={isRunInGameRunning ? 'shrink-0 opacity-70 cursor-wait' : 'shrink-0'}>
 
         <Rocket className="w-3 h-3" />
-        <span>{isRunInGameRunning ? 'Playing...' : 'Play'}</span>
+        <span>{isRunInGameRunning ? 'Playing...' : visibleRunInGameButtonText}</span>
       </Button>
 
       {statusOpen ? (

@@ -54,11 +54,9 @@ export function parseRunInGameSetupRequest(body: {
   }
   const requestedMode = body.materialization?.mode === "durable" ? "durable" : "disposable";
   const selected = body.selectedConfig ?? {};
-  const id = requestedMode === "disposable"
-    ? "studio-current"
-    : typeof selected.id === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selected.id)
-      ? selected.id
-      : "studio-current";
+  const id = typeof selected.id === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selected.id)
+    ? selected.id
+    : "studio-current";
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) throw new Error("Run in Game map config id must be kebab-case");
   const seedPolicy = parseCiv7StudioSeed(body.seed);
   if (!seedPolicy.ok) throw new Error(`Run in Game ${formatCiv7StudioSeedError(seedPolicy)}`);

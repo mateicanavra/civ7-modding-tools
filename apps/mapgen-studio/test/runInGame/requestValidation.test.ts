@@ -25,7 +25,7 @@ describe("Run in Game request validation", () => {
     })).toThrow("raw control commands");
   });
 
-  it("normalizes disposable setup requests to studio-current", () => {
+  it("keeps disposable setup requests on the selected shell-visible config id", () => {
     expect(parseRunInGameSetupRequest({
       recipeId: "mod-swooper-maps/standard",
       seed: "123",
@@ -36,7 +36,7 @@ describe("Run in Game request validation", () => {
       config: { ok: true },
     })).toEqual({
       requestedMode: "disposable",
-      id: "studio-current",
+      id: "swooper-earthlike",
       seed: 123,
       mapSize: "MAPSIZE_STANDARD",
       playerCount: 8,
@@ -45,6 +45,20 @@ describe("Run in Game request validation", () => {
         gameOptions: {},
         playerOptions: [{ playerId: 0, options: {} }],
       },
+    });
+  });
+
+  it("falls disposable setup requests back to studio-current when no selected config id exists", () => {
+    expect(parseRunInGameSetupRequest({
+      recipeId: "mod-swooper-maps/standard",
+      seed: "123",
+      mapSize: "MAPSIZE_STANDARD",
+      materialization: { mode: "disposable" },
+      config: { ok: true },
+    })).toMatchObject({
+      requestedMode: "disposable",
+      id: "studio-current",
+      restartCivProcess: false,
     });
   });
 
