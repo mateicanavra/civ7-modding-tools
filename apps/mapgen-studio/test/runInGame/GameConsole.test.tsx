@@ -99,6 +99,7 @@ describe("GameConsole Run in Game status", () => {
     }, "current");
 
     expect(html).toContain("Restart Civ &amp; Run");
+    expect(html).not.toContain(">Play<");
   });
 
   it("keeps map script fatal recovery on retry instead of process restart", () => {

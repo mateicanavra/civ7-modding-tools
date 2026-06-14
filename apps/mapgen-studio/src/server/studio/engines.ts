@@ -816,10 +816,7 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
         materialized = await materializeRunInGameConfig({
           repoRoot,
           id,
-          sourcePath:
-            requestedMode === "durable" && typeof selected.sourcePath === "string"
-              ? selected.sourcePath
-              : undefined,
+          sourcePath: typeof selected.sourcePath === "string" ? selected.sourcePath : undefined,
           envelope,
           mode: requestedMode,
         });
