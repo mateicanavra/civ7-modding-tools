@@ -58,6 +58,14 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
   target and `nx-boundaries` rule. See
   `docs/projects/habitat-harness/taxonomy.md` before changing `kind:*` tags or
   boundary constraints.
+- For unfamiliar structure, start with `bun run habitat classify <path-or-diff>`
+  before editing. For supported new uniform projects, scaffold with
+  `bun run nx g @internal/habitat-harness:project <name> --kind=<plugin|foundation|app>`;
+  for new Grit-backed rules, scaffold with
+  `bun run nx g @internal/habitat-harness:pattern <rule-id>`. Unsupported
+  kinds are intentionally refused until their owning domain defines a uniform
+  generator shape. After authoring, run the targets reported by `habitat
+  classify` plus the nearest package-local checks.
 - Use package scripts (`bun run --cwd <path> <script>`) for package-local tasks.
 - Runtime Civ7 control belongs in `@civ7/direct-control`; agents should not
   add alternate runtime transports or caller-local control scripts.

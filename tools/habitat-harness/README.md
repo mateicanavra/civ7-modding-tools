@@ -21,6 +21,7 @@ bun run habitat            # command help
 bun run habitat:check      # all rules, human output (add -- --json for JSON)
 bun run habitat:fix        # Biome safe writes: format + organize imports + safe fixes
 bun run habitat:verify     # check + nx affected build/test/boundaries/biome:ci/grit/generated
+bun run habitat classify packages/config/src/index.ts
 bun run nx run-many -t habitat:check        # the same rules, per owning project, cached
 bun run nx run-many -t boundaries           # project-plane tag boundaries
 bun run nx run-many -t biome:ci             # hygiene-layer CI gate
@@ -43,7 +44,67 @@ Notes:
   moved the command shell to oclif. H5 added the GritQL/file-layer catalog.
   H6 retires duplicated scripts, root ESLint, and structural test copies where
   parity is proven. H7 adds Husky hook delegators to the same Habitat command
-  surface; hooks are local friction reduction, not verification truth.
+  surface; hooks are local friction reduction, not verification truth. H8 adds
+  classify-first orientation, Nx generators for supported structure, and
+  migration wiring for future harness convention changes.
+
+## Agent Operating Loop
+
+Use Habitat as the structural entrypoint before authoring:
+
+```bash
+bun run habitat classify <path-or-diff>
+```
+
+The JSON output names the owning workspace project, its `kind:*` tags,
+in-scope Habitat rules, and required verification targets. For literal diffs
+or `.diff`/`.patch` files, the command returns one classification per changed
+path. Treat those targets as the minimum handoff set, then add narrower
+package-local checks for the behavior you changed.
+
+For supported uniform project kinds, generate structure instead of hand
+creating it:
+
+```bash
+bun run nx g @internal/habitat-harness:project my-lib --kind=foundation
+bun run nx g @internal/habitat-harness:project my-plugin --kind=plugin
+bun run nx g @internal/habitat-harness:project my-app --kind=app
+```
+
+Supported kinds are currently `foundation`, `plugin`, and `app`. The generator
+emits `package.json` with the correct `kind:*` tag, `tsconfig.json`,
+`src/index.ts`, a Bun test stub, and package-local `build`, `check`, `test`,
+and `clean` scripts. Non-uniform kinds (`mod`, `engine`, `control`, `adapter`,
+`sdk`, `tooling`) are refused until their owning domain supplies a real shape;
+do not guess those layouts in Habitat.
+
+For new Grit-backed rules, generate the native pattern and Habitat rule-pack
+entry together:
+
+```bash
+bun run nx g @internal/habitat-harness:pattern grit-my-rule \
+  --ownerProject=@internal/habitat-harness \
+  --scope="source scope" \
+  --forbids="forbidden shape" \
+  --why="architectural rationale" \
+  --message="diagnostic message"
+```
+
+The pattern generator writes `.grit/patterns/habitat/checks/<pattern>.md`, an
+empty locked baseline, and a `grit-check` rule-pack entry. Native Grit samples
+remain the pattern authority:
+
+```bash
+GRIT_TELEMETRY_DISABLED=true ./node_modules/.bin/grit patterns test --verbose
+```
+
+Harness migrations are declared in `migrations.json`. Because this package is
+repo-local and unpublished, migration proof uses a hand-authored run file whose
+`package` field points at `./tools/habitat-harness`, then executes:
+
+```bash
+bun run nx migrate --run-migrations=<run-file>.json --skip-install
+```
 
 ## Git Hooks
 

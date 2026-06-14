@@ -9,13 +9,13 @@ const mockReport = vi.hoisted(() => ({
 }));
 
 vi.mock("../../src/lib/command-engine.js", () => ({
-  classifyPath: vi.fn((target: string) => ({
+  classifyTarget: vi.fn((target: string) => ({
     path: target,
     project: "@internal/habitat-harness",
     projectRoot: "tools/habitat-harness",
     tags: ["kind:tooling"],
     rulesInScope: ["biome-ci"],
-    verifyTargets: ["habitat check"],
+    requiredTargets: ["bun run habitat:check"],
   })),
   createCheckReport: vi.fn(() => mockReport),
   expandBaselines: vi.fn(() => ["baseline written: demo-rule (1 entry)"]),
@@ -143,6 +143,9 @@ describe("Habitat oclif commands", () => {
     const payload = JSON.parse(capturedOutput()) as { project: string; tags: string[] };
     expect(payload.project).toBe("@internal/habitat-harness");
     expect(payload.tags).toEqual(["kind:tooling"]);
+    expect(engine.classifyTarget).toHaveBeenCalledWith(
+      "tools/habitat-harness/src/commands/check.ts"
+    );
   });
 
   test("hook dispatches to the Habitat hook runner", async () => {
