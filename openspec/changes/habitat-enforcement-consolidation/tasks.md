@@ -4,11 +4,12 @@
   its harness owner × parity evidence pointer (from H3/H5 phase records);
   each row MUST cite the H5 parity form (`empty/empty + probe-confirmed`, or
   identical non-empty finding sets); any row without evidence blocks. Owners
-  per the corrected corpus: G1/G2/G5/G8/G9/G10/G11 and the G3 runtime-value
-  ban retire only against LOCKED grit equivalents (H5 ports all of them);
-  G3's project-edge context is the nx `kind:engine` tag rule; G6/G7 move
-  habitat-native; no row may cite nx-boundaries as covering G10/G11 (they
-  are intra-project; grit owns them).
+  per the corrected corpus: G2/G5/G8/G9/G10/G11 and the G3 runtime-value ban
+  retire only against LOCKED grit equivalents; G3's project-edge context is
+  the nx `kind:engine` tag rule; G6/G7 move habitat-native; G1
+  milestone-prefixed recipe IDs remain original-owned until H6 ports them
+  natively or keeps the original wrapped; no row may cite nx-boundaries as
+  covering G10/G11 (they are intra-project; grit owns them).
 - [ ] 1.2 Decide and record: `bun run lint` becomes `habitat check` alias vs
   removed (default: alias, to keep muscle memory working).
 
@@ -20,16 +21,24 @@
   `scripts/lint/` originals. `lint-mapgen-docs.py` is NOT rewritten in TS —
   it relocates (or stays in place) wrapped as-is per corpus disposition
   ("port py→TS only if touched").
-- [ ] 2.2 Delete ported scripts (adapter-boundary, mapgen-recipe-imports,
-  control-orpc-contract-ownership) and the ported guardrail families from the
-  two big guardrail scripts, consuming H5's explicit enumeration: only the
-  BOUNDARY-profile families of `lint-domain-refactor-guardrails.sh`
-  (ops-import bans, cross-domain deep imports, RNG/engine import bans) are
-  ported and retire here; the FULL-profile-only families (JSDoc presence,
-  schema descriptions, config-merge bans) stay wrapped and MUST NOT be
-  deleted; delete whole scripts only when fully emptied.
-- [ ] 2.3 Delete `eslint.config.js`; remove `@typescript-eslint/*` deps if now
-  unused; confirm `eslint.boundaries.config.mjs` is the only ESLint surface.
+- [ ] 2.2 Delete or slim ported scripts (adapter-boundary,
+  mapgen-recipe-imports, control-orpc-contract-ownership) and the ported
+  guardrail families from the two big guardrail scripts, consuming H5's
+  explicit enumeration: only the BOUNDARY-profile families of
+  `lint-domain-refactor-guardrails.sh` (ops/adapter/context crossing,
+  map projection/effect dependency keys, and domain-root config imports) are
+  ported and retire here; the FULL-profile-only families (cross-domain deep
+  imports, RNG/engine import bans, config-merge bans, JSDoc/schema,
+  foundation/ecology special cases) stay wrapped unless separately ported;
+  delete whole scripts only when fully emptied. Adapter-boundary broad
+  provenance-string scanning requires an explicit H6 disposition before script
+  deletion.
+- [ ] 2.3 Reduce `eslint.config.js` only after preserving all semantics:
+  ported families retire to Grit/boundaries, but the value `export *`
+  contract/public-surface guard must be absorbed into Habitat-native or kept
+  wrapped before `eslint.config.js` can be deleted. Remove
+  `@typescript-eslint/*` deps only if truly unused; note
+  `eslint.boundaries.config.mjs` may still require parser support.
 - [ ] 2.4 Disposition the orphan data file
   `scripts/lint/no-legacy-m4-foundation-tokens.txt`: verify at execution time
   with a `git grep` that no consumer exists anywhere in the repo, then delete

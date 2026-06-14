@@ -17,26 +17,31 @@ the harness the only enforcement path, and re-points `check`/CI at
 
 ## What Changes
 
-- Retire ported lint scripts: `lint-adapter-boundary.sh`,
-  `lint-mapgen-recipe-imports.sh`, the grit-ported BOUNDARY-profile guardrail
-  families of `lint-domain-refactor-guardrails.sh`, and the grit-ported
-  guardrails of `lint-normalization-guardrails.mjs` — G1/G2/G5/G8/G9/G10/G11
-  and the G3 runtime-value ban retire only against their LOCKED grit
-  equivalents ported in H5 (H5 ports all of them); G3's project-edge context
-  is the nx `kind:engine` tag rule; G10/G11 are intra-project shapes — grit
-  owns them, and no retirement may cite nx-boundaries as covering them; G6/G7
-  move habitat-native. Also retire
-  `lint-control-orpc-contract-ownership.mjs`. Habitat-native survivors
-  (workspace-entrypoints, G6/G7 doc-sync, JS doc lints) move INTO
-  `tools/habitat-harness/src/rules/` as native TS rules and their scripts are
-  deleted; `lint-mapgen-docs.py` is NOT rewritten in TS — it relocates (or
-  stays in place) wrapped as-is per corpus disposition ("port py→TS only if
-  touched").
-- Replace `eslint.config.js` with nothing: the 8 rule families are
-  grit/boundaries-owned; ESLint remains only via
-  `eslint.boundaries.config.mjs` (single boundary rule, from H3); `bun run
-  lint` becomes an alias for `habitat check` (or is removed; decided and
-  recorded in tasks (task 1.2)).
+- Retire or slim lint scripts only where H3/H5 evidence proves a Habitat owner
+  now enforces the same invariant. `lint-mapgen-recipe-imports.sh` and
+  `lint-control-orpc-contract-ownership.mjs` are expected to retire to locked
+  Grit rules. `lint-adapter-boundary.sh` retires only for runtime
+  `/base-standard/` imports; its broader provenance-string scan requires an
+  explicit H6 disposition. `lint-domain-refactor-guardrails.sh` retires only
+  H5's enumerated boundary families (ops/adapter/context crossing, map
+  projection/effect dependency keys, and domain-root config imports);
+  full-profile-only families stay wrapped unless separately ported.
+  `lint-normalization-guardrails.mjs` splits: G2, G3 runtime-value, G5, G8,
+  G9, G10, and G11 retire to locked Grit rules; G6/G7 move Habitat-native;
+  G1 milestone-prefixed recipe IDs remain original-owned until H6 ports them
+  natively or keeps the original wrapped. G3's project-edge context is the Nx
+  `kind:engine` tag rule; G10/G11 are intra-project shapes — Grit owns them,
+  and no retirement may cite nx-boundaries as covering them. Habitat-native
+  survivors (workspace-entrypoints, G6/G7 doc-sync, JS doc lints) move into
+  `tools/habitat-harness/src/rules/`; `lint-mapgen-docs.py` is NOT rewritten
+  in TS — it stays wrapped unless relocation is necessary.
+- Reduce ESLint only after preserving all semantics. The ported rule families
+  retire to Grit/boundaries, but the value `export *` contract/public-surface
+  guard remains original-owned after H5's safe-port stop until H6 absorbs it
+  into Habitat-native or keeps it wrapped. `eslint.boundaries.config.mjs`
+  remains the boundary ESLint surface from H3; `bun run lint` becomes an alias
+  for `habitat check` (or is removed; decided and recorded in tasks
+  (task 1.2)).
 - Architecture-test dedup per corpus §C: `recipe-import-boundary.test.ts`
   retires (grit equivalent locked);
   `ecology-step-import-guardrails.test.ts` slims — the deep-import assertions
@@ -57,6 +62,8 @@ the harness the only enforcement path, and re-points `check`/CI at
   supersession; the enforced invariant set is identical before/after.
 - No baselines reset; ratchet state carries over.
 - Kept tests keep running where they run today.
+- No raw Grit target replaces Habitat enforcement: Grit owns matching, Habitat
+  owns rule IDs, baselines, and nonzero failure semantics.
 
 ## Requires
 
@@ -91,6 +98,12 @@ the harness the only enforcement path, and re-points `check`/CI at
 - A parity gap is discovered during retirement (the legacy mechanism catches
   something the port does not on a probe) — stop, restore the legacy check,
   log, repair the port first.
+- A proposed deletion contradicts H5 evidence (for example G1 milestone IDs,
+  value `export *`, domain full-profile-only families, or broad adapter
+  provenance strings) — stop and patch the design before deleting.
+- Root `check` re-pointing would make `habitat verify` recurse through the
+  `check` target — stop and fix verify composition before changing the root
+  script.
 - `habitat verify` exceeds 1.25× the retired aggregate's wall-clock on CI
   (bound pre-stated here; both timings measured and recorded in the phase
   record) — stop and fix caching before retiring.
