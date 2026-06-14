@@ -130,6 +130,10 @@ Violating any of these forces a reframe:
    manual.
 6. **Fresh proof beats stale records.** Closure records are not evidence unless
    current code or commands still support them.
+7. **Implementation substrate is evidence-owned.** If current Habitat internals
+   structurally produce false-green checks, untyped failures, weak test seams,
+   unsafe side effects, or brittle proof records, the workstream must evaluate
+   Effect or an accepted typed substrate before preserving that manual plumbing.
 
 ## Protective Belt
 
