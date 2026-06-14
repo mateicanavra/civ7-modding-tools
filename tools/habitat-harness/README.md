@@ -1,8 +1,9 @@
 # @internal/habitat-harness
 
-The repo's single enforcement entrypoint. Wraps every structural check
-(lint scripts, ESLint, architecture tests) behind one CLI with normalized
-JSON diagnostics and shrink-only ratchet baselines.
+The repo's single enforcement entrypoint. Runs structural checks through their
+owning layers (Nx boundaries, Biome, Grit, file-layer, Habitat-native rules,
+and the few remaining wrapped compatibility checks) behind one CLI with
+normalized JSON diagnostics and shrink-only ratchet baselines.
 
 Authority: `docs/projects/habitat-harness/FRAME.md` (five-layer ownership,
 ratchet invariant, settled decisions). Migration map:
@@ -19,7 +20,7 @@ pattern: command classes live under `src/commands/**`, local repo scripts run
 bun run habitat            # command help
 bun run habitat:check      # all rules, human output (add -- --json for JSON)
 bun run habitat:fix        # Biome safe writes: format + organize imports + safe fixes
-bun run habitat:verify     # check + nx affected build/check/test/boundaries/biome:ci
+bun run habitat:verify     # check + nx affected build/test/boundaries/biome:ci/grit/generated
 bunx nx run-many -t habitat:check   # the same rules, per owning project, cached
 bunx nx run-many -t boundaries      # project-plane tag boundaries
 bunx nx run-many -t biome:ci        # hygiene-layer CI gate
@@ -37,9 +38,9 @@ Notes:
   else). An empty baseline means the rule is locked: any violation fails.
 - H2 wrapped existing mechanisms verbatim (zero new rules, zero semantic
   change). H3 added Nx boundaries; H4 makes Biome the hygiene owner. H4.5
-  moved the command shell to oclif before downstream GritQL, hook, and
-  generator slices extend the CLI surface. GritQL and file-layer rules land in
-  H5/H6.
+  moved the command shell to oclif. H5 added the GritQL/file-layer catalog.
+  H6 retires duplicated scripts, root ESLint, and structural test copies where
+  parity is proven.
 
 ## Biome Hygiene
 

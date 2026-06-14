@@ -105,4 +105,6 @@ open per workstream-record.md.
 Collision check: normalize-import-boundaries / normalize-guardrails-promotion
 (archived 2026-05-30) define only intra-mod policy — no project-plane overlap.
 Config resolution: `eslint.boundaries.config.mjs` is non-default (never
-auto-discovered); package `lint` scripts keep resolving root eslint.config.js.
+auto-discovered). H6 removed the ordinary root `eslint.config.js`; package
+`lint` scripts now use Biome directly, while the boundary target invokes
+`eslint.boundaries.config.mjs` explicitly.

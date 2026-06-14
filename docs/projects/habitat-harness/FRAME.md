@@ -174,7 +174,8 @@ Gotchas captured for implementation:
 
 ### Biome under Bun — WORKS
 
-`bunx --bun @biomejs/biome --version` → `2.4.16`.
+`biome --version` through the repo-local package-script/tool PATH →
+`2.4.16`.
 
 ### Nx ⟂ Turbo — NO CONFLICT (verified from official docs)
 

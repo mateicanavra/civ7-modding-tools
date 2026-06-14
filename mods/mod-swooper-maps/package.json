@@ -75,7 +75,7 @@
     "build:studio-recipes": "tsup --config tsup.studio-recipes.config.ts && bun run gen:studio-recipes-types && bun run gen:maps",
     "gen:maps": "bun ./scripts/generate-map-artifacts.ts",
     "gen:studio-recipes-types": "bun ./scripts/generate-studio-recipe-types.ts",
-    "lint": "eslint .",
+    "lint": "biome check .",
     "check": "tsc --noEmit",
     "test": "bun test",
     "test:studio-run-in-game": "bun test test/standard-run.test.ts test/build/map-bundle-runtime-imports.test.ts test/config/maps-schema-valid.test.ts test/config/shipped-map-identity.test.ts",

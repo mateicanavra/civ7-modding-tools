@@ -205,10 +205,10 @@ function parseArgs(argv) {
 
 function printHelp() {
   // eslint-disable-next-line no-console
-  console.log(`lint-doc-ambiguity
+  console.log(`habitat-native doc-ambiguity
 
 Usage:
-  node scripts/lint/lint-doc-ambiguity.mjs [--root <path>] [--include-noisy] [--max <n>] [--json] [--baseline [path]] [--write-baseline [path]]
+  bun tools/habitat-harness/src/rules/native/doc-ambiguity.mjs [--root <path>] [--include-noisy] [--max <n>] [--json] [--baseline [path]] [--write-baseline [path]]
 
 Defaults:
   --root docs

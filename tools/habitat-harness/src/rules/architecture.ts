@@ -40,19 +40,6 @@ export function ruleById(id: string): HarnessRule | undefined {
   return rules.find((r) => r.id === id);
 }
 
-/** Projects with a package-local `lint: eslint .` script (the __eslint_multi__ fan-out). */
-export const eslintProjects: Array<{ name: string; root: string }> = [
-  { name: "@mateicanavra/civ7-cli", root: "packages/cli" },
-  { name: "@civ7/config", root: "packages/config" },
-  { name: "@mateicanavra/civ7-sdk", root: "packages/sdk" },
-  { name: "@civ7/plugin-files", root: "packages/plugins/plugin-files" },
-  { name: "@civ7/plugin-git", root: "packages/plugins/plugin-git" },
-  { name: "@civ7/plugin-graph", root: "packages/plugins/plugin-graph" },
-  { name: "@civ7/plugin-mods", root: "packages/plugins/plugin-mods" },
-  { name: "civ-mod-dacia", root: "mods/mod-swooper-civ-dacia" },
-  { name: "mod-swooper-maps", root: "mods/mod-swooper-maps" },
-];
-
 function coarse(rule: HarnessRule, res: SpawnResult): HabitatDiagnostic[] {
   if (res.exitCode === 0) return [];
   const tail = (res.stdout + res.stderr).trim().split("\n").slice(-12).join("\n");
@@ -107,26 +94,6 @@ function parseAdapterBoundary(rule: HarnessRule, res: SpawnResult): HabitatDiagn
   return diags;
 }
 
-function runEslintMulti(rule: HarnessRule): { diags: HabitatDiagnostic[]; exitCode: number } {
-  const diags: HabitatDiagnostic[] = [];
-  let exitCode = 0;
-  for (const proj of eslintProjects) {
-    const res = run(["bunx", "eslint", "."], { cwd: path.join(repoRoot, proj.root) });
-    if (res.exitCode !== 0) {
-      exitCode = 1;
-      const tail = (res.stdout + res.stderr).trim().split("\n").slice(-15).join("\n");
-      diags.push({
-        ruleId: rule.id,
-        path: proj.root,
-        message: `eslint failed in ${proj.name}\n--- eslint output (tail) ---\n${tail}`,
-        severity: "error",
-        baselined: false,
-      });
-    }
-  }
-  return { diags, exitCode };
-}
-
 export interface RuleRunResult {
   exitCode: number;
   diagnostics: HabitatDiagnostic[];
@@ -136,10 +103,6 @@ export interface RuleRunResult {
 export function executeRule(rule: HarnessRule, context: FileLayerContext = {}): RuleRunResult {
   if (rule.ownerTool === "grit-check") return runGritRule(rule);
   if (rule.ownerTool === "file-layer") return runGeneratedZoneRule(rule, context);
-  if (rule.detect[0] === "__eslint_multi__") {
-    const { diags, exitCode } = runEslintMulti(rule);
-    return { exitCode, diagnostics: diags };
-  }
   const res = run(rule.detect, { cwd: repoRoot });
   const diagnostics =
     rule.id === "adapter-boundary" ? parseAdapterBoundary(rule, res) : coarse(rule, res);

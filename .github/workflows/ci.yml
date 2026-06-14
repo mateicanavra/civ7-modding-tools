@@ -101,28 +101,11 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Strict lint
-        run: bun run lint
+      - name: Habitat verify
+        run: bun run habitat:verify
 
-      - name: Strict adapter boundary
-        run: bun run lint:adapter-boundary
-
-      - name: Boundary tags
-        run: bunx nx run-many -t boundaries
-
-      - name: Biome hygiene
-        run: bunx nx run-many -t biome:ci
-
-      - name: Architecture cutover scans
-        run: bun run test:architecture-cutover
-
-      - name: Domain refactor guardrails
-        run: bun run lint:domain-refactor-guardrails
-
-      - name: Strict check
-        run: bun run check
-
-      - name: Habitat check (wrapped enforcement, JSON diagnostics)
+      - name: Habitat JSON diagnostics
+        if: always()
         run: bun run habitat:check -- --json --output habitat-diagnostics.json
 
       - name: Upload habitat diagnostics

@@ -63,4 +63,5 @@ Forbidden shapes:
 - Viz manifest contract types: `packages/mapgen-viz/src/index.ts`
 - Viz dump sink (mod-owned): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
 - Standard-recipe stage/step ownership guard:
-  `scripts/lint/lint-normalization-guardrails.mjs`
+  Habitat `grit-viz-contract-ownership` in
+  `tools/habitat-harness/src/rules/rules.json`

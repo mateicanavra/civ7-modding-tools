@@ -53,7 +53,7 @@ export const createNodesV2 = [
         "{workspaceRoot}/vitest.config.ts",
       ];
       harnessProject.targets[biomeFormatTargetName] = {
-        command: "bunx --bun @biomejs/biome format --write .",
+        command: "biome format --write .",
         options: { cwd: "{workspaceRoot}" },
         cache: false,
         inputs: biomeInputs,
@@ -62,7 +62,7 @@ export const createNodesV2 = [
         },
       };
       harnessProject.targets[biomeCheckTargetName] = {
-        command: "bunx --bun @biomejs/biome check .",
+        command: "biome check .",
         options: { cwd: "{workspaceRoot}" },
         cache: true,
         inputs: biomeInputs,
@@ -71,7 +71,7 @@ export const createNodesV2 = [
         },
       };
       harnessProject.targets[biomeCiTargetName] = {
-        command: "bunx --bun @biomejs/biome ci .",
+        command: "biome ci .",
         options: { cwd: "{workspaceRoot}" },
         cache: true,
         inputs: biomeInputs,
@@ -81,7 +81,7 @@ export const createNodesV2 = [
       };
       harnessProject.targets[boundariesTargetName] = {
         command:
-          "FORCE_COLOR=0 bunx eslint . --quiet --config eslint.boundaries.config.mjs --no-config-lookup",
+          "FORCE_COLOR=0 eslint . --quiet --config eslint.boundaries.config.mjs --no-config-lookup",
         options: { cwd: "{workspaceRoot}" },
         cache: true,
         inputs: [
@@ -163,7 +163,6 @@ export const createNodesV2 = [
             "{workspaceRoot}/package.json",
             "{workspaceRoot}/bun.lock",
             "{workspaceRoot}/scripts/lint/**",
-            "{workspaceRoot}/eslint.config.js",
             "{workspaceRoot}/packages/**",
             "{workspaceRoot}/apps/**",
             "{workspaceRoot}/mods/**",

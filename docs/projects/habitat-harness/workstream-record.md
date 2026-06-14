@@ -6,7 +6,8 @@
 - **Controlling frame:** `docs/projects/habitat-harness/FRAME.md` (hard core, falsifier, settled decisions D1–D6)
 - **Stack root:** `agent-F-habitat-harness-workstream` (worktree `wt-agent-F-habitat-harness-workstream`, parent `main`, Graphite-tracked)
 - **Current execution branch:** `agent-F-habitat-enforcement-consolidation` stacked above locally closed H5
-- **Status:** IN EXECUTION — H1/H2/H3/H4/H4.5/H5 are locally closed on the Graphite stack. H6 enforcement consolidation is open: first action is phase-record setup, stale design reconciliation, and a retirement table before any legacy enforcement deletion.
+- **Status:** IN EXECUTION — H1/H2/H3/H4/H4.5/H5/H6 are locally closed on
+  the Graphite stack. H7 git hooks is next after H6 submission/restack.
 
 ## Gate state (systematic-workstream)
 
@@ -19,11 +20,11 @@
 | 5 Grouping | DONE | corpus §A–F families; taxonomy.md scope:* families |
 | 6 Expectations | DONE | per-slice verification gates; ratchet baselines predeclared (project plane green; adapter-boundary baseline = 6) |
 | 7 Architecture translation | DONE | taxonomy.md (tags/constraints); five-layer ownership in FRAME hard core #2 |
-| 8 Slices | IN TRAIN | OpenSpec train below; H1-H5 closed locally; H6 active with retirement inventory/spec reconciliation underway |
-| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes; H5 Grit/file-layer parity and root closure gates green; H6 retirement table pending |
+| 8 Slices | IN TRAIN | OpenSpec train below; H1-H6 closed locally; H7 next |
+| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes; H5 Grit/file-layer parity and root closure gates green; H6 retirement table/probe matrix complete |
 | 10 Runtime proof | N/A by design | harness touches structure only; byte-parity gates stand in (H1/H4) |
-| 11 Review | IN TRAIN | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice; H6 inventory/reconciliation lane opened |
-| 12 Closure | IN TRAIN | H1-H5 have local phase closure records; H6 phase record open |
+| 11 Review | IN TRAIN | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice; H6 inventory/probe closure complete |
+| 12 Closure | IN TRAIN | H1-H6 have local phase closure records |
 
 ## The change train (slices)
 
@@ -46,15 +47,15 @@ prerequisites; phase continuity records go in
 
 Execution state on 2026-06-14: H1 (`habitat-nx-adoption`), H2
 (`habitat-harness-scaffold`), H3 (`habitat-boundary-tags`), H4
-(`habitat-biome-hygiene`), H4.5 (`habitat-oclif-cli`), and H5
-(`habitat-grit-catalog`) are locally closed on the Graphite stack. H5 closed
-with native Grit patterns under `.grit/patterns/habitat/**`, one native Grit
-JSON scan per Habitat `grit-check` invocation, file-layer generated-zone
-guards, and root `build/check/test` closure gates green. H6
-(`habitat-enforcement-consolidation`) is now active on
-`agent-F-habitat-enforcement-consolidation`; its first requirement is a
-retirement table/probe matrix and correction of stale H6 text before any
-legacy scripts, ESLint semantics, or structural tests are deleted.
+(`habitat-biome-hygiene`), H4.5 (`habitat-oclif-cli`), H5
+(`habitat-grit-catalog`), and H6 (`habitat-enforcement-consolidation`) are
+locally closed on the Graphite stack. H5 closed with native Grit patterns
+under `.grit/patterns/habitat/**`, one native Grit JSON scan per Habitat
+`grit-check` invocation, file-layer generated-zone guards, and root
+`build/check/test` closure gates green. H6 closed with root ESLint retired,
+duplicate scripts/tests deleted or slimmed only with replacement probes,
+direct local tool resolution centralized in Habitat subprocess spawning, and
+root `build/check/test` closure gates green.
 
 ## Proof classes per slice (predeclared)
 
@@ -113,6 +114,8 @@ train redefines the other's authority.
    adapter-boundary repairs~~ DONE locally on the stack.
 4. ~~H4/H4.5/H5 local execution and closure~~ DONE (see each slice's
    `workstream/phase-record.md`).
-5. H6: reconcile stale proposal/tasks against H5 evidence, build the
-   retirement table/probe matrix, then retire or slim duplicate enforcement
-   only after parity proof.
+5. ~~H6 enforcement consolidation~~ DONE locally (retirement table/probe
+   matrix, root ESLint retirement, duplicate structural checks retired/slimmed,
+   closure gates green).
+6. H7: open git-hooks phase, preserve existing resource-publish hook behavior,
+   and wire staged/affected Habitat hook paths.

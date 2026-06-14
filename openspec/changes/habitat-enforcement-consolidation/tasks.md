@@ -1,6 +1,6 @@
 ## 1. Retirement Preconditions
 
-- [ ] 1.1 Build the retirement table: every mechanism slated for deletion ×
+- [x] 1.1 Build the retirement table: every mechanism slated for deletion ×
   its harness owner × parity evidence pointer (from H3/H5 phase records);
   each row MUST cite the H5 parity form (`empty/empty + probe-confirmed`, or
   identical non-empty finding sets); any row without evidence blocks. Owners
@@ -10,18 +10,18 @@
   milestone-prefixed recipe IDs remain original-owned until H6 ports them
   natively or keeps the original wrapped; no row may cite nx-boundaries as
   covering G10/G11 (they are intra-project; grit owns them).
-- [ ] 1.2 Decide and record: `bun run lint` becomes `habitat check` alias vs
+- [x] 1.2 Decide and record: `bun run lint` becomes `habitat check` alias vs
   removed (default: alias, to keep muscle memory working).
 
 ## 2. Script And ESLint Retirement
 
-- [ ] 2.1 Move habitat-native survivors (workspace-entrypoints, G6/G7
+- [x] 2.1 Move habitat-native survivors (workspace-entrypoints, G6/G7
   doc-sync, adr-lint, doc-ambiguity) into
   `tools/habitat-harness/src/rules/` as native TS rules; delete their
   `scripts/lint/` originals. `lint-mapgen-docs.py` is NOT rewritten in TS —
   it relocates (or stays in place) wrapped as-is per corpus disposition
   ("port py→TS only if touched").
-- [ ] 2.2 Delete or slim ported scripts (adapter-boundary,
+- [x] 2.2 Delete or slim ported scripts (adapter-boundary,
   mapgen-recipe-imports, control-orpc-contract-ownership) and the ported
   guardrail families from the two big guardrail scripts, consuming H5's
   explicit enumeration: only the BOUNDARY-profile families of
@@ -33,43 +33,45 @@
   delete whole scripts only when fully emptied. Adapter-boundary broad
   provenance-string scanning requires an explicit H6 disposition before script
   deletion.
-- [ ] 2.3 Reduce `eslint.config.js` only after preserving all semantics:
-  ported families retire to Grit/boundaries, but the value `export *`
-  contract/public-surface guard must be absorbed into Habitat-native or kept
-  wrapped before `eslint.config.js` can be deleted. Remove
+- [x] 2.3 Reduce `eslint.config.js` only after preserving all semantics:
+  ported families retire to Grit/boundaries, and the value `export *`
+  contract/public-surface guard must be absorbed into Grit (with
+  `export type *` still allowed) or kept wrapped before `eslint.config.js`
+  can be deleted. Remove
   `@typescript-eslint/*` deps only if truly unused; note
   `eslint.boundaries.config.mjs` may still require parser support.
-- [ ] 2.4 Disposition the orphan data file
+- [x] 2.4 Disposition the suspected orphan data file
   `scripts/lint/no-legacy-m4-foundation-tokens.txt`: verify at execution time
-  with a `git grep` that no consumer exists anywhere in the repo, then delete
-  it in the sweep with that evidence recorded in the phase record.
+  with a `git grep` whether consumers exist anywhere in the repo; delete only
+  if no consumers remain, otherwise keep it and record the consumer evidence.
 
 ## 3. Test Dedup
 
-- [ ] 3.1 Retire `recipe-import-boundary.test.ts` citing its locked grit
+- [x] 3.1 Retire `recipe-import-boundary.test.ts` citing its locked grit
   rule; slim `ecology-step-import-guardrails.test.ts` — retire the
   deep-import assertions (locked grit equivalent), KEEP the
   retired-stage-dirs-absent assertions (no grit/file rule covers directory
   absence); slim `core-purity.test.ts` to runtime-value semantics.
-- [ ] 3.2 Confirm kept tests (rng-authority, m11 band, bundle-runtime) still
+- [x] 3.2 Confirm kept tests (rng-authority, m11 band, bundle-runtime) still
   run in their suites.
 
 ## 4. Single-Path Wiring
 
-- [ ] 4.1 Re-point root `check` and `ci:architecture-strict-core` to
+- [x] 4.1 Re-point root `check` and `ci:architecture-strict-core` to
   `habitat verify`; CI uploads habitat JSON diagnostics; record CI timing vs
   the retired aggregate (stop-condition bound: ≤ 1.25× the retired
   aggregate's wall-clock on CI; both timings in the phase record).
-- [ ] 4.2 Docs/AGENTS sweep for retired-script references.
+- [x] 4.2 Docs/AGENTS sweep for retired-script references.
 
 ## 5. Verification And Closure
 
-- [ ] 5.1 Per-retired-RULE probe matrix: every retirement-table row gets a
+- [x] 5.1 Per-retired-RULE probe matrix: every retirement-table row gets a
   probe entry (probe file path, injected violation, expected harness rule id)
   demonstrating the replacement rule catches what the retired mechanism
   caught; probes fail through the harness, matrix recorded in the phase
   record, probes removed.
-- [ ] 5.2 `bun run build && bun run check && bun run test` green; CI green;
-  `git grep` shows no stale references.
-- [ ] 5.3 `bun run openspec -- validate habitat-enforcement-consolidation
+- [x] 5.2 `bun run build && bun run check && bun run test` green; CI
+  observation remains post-submission; `git grep` shows no stale active
+  references.
+- [x] 5.3 `bun run openspec -- validate habitat-enforcement-consolidation
   --strict`; realignment + closure per workstream record.

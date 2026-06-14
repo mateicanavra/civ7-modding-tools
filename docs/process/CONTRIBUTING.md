@@ -145,7 +145,9 @@ bun run publish:all   # SDK then CLI
 
 ## Coding style
 - 2-space indentation (see `.editorconfig`)
-- ESLint flat config at root (`eslint.config.js`)
+- Biome owns formatting and ordinary lint hygiene.
+- Habitat owns structural checks; ESLint is quarantined to
+  `eslint.boundaries.config.mjs` for Nx project-boundary enforcement.
 - Prefer small, focused PRs
 
 ## Commit

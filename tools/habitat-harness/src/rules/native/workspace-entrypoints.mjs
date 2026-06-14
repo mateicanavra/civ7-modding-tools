@@ -4,7 +4,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
-const repoRoot = path.resolve(new URL("../..", import.meta.url).pathname);
+const repoRoot = path.resolve(new URL("../../../../..", import.meta.url).pathname);
 const packageJsonFiles = walkFiles(
   repoRoot,
   (file) => path.basename(file) === "package.json"

@@ -36,12 +36,11 @@ the harness the only enforcement path, and re-points `check`/CI at
   `tools/habitat-harness/src/rules/`; `lint-mapgen-docs.py` is NOT rewritten
   in TS — it stays wrapped unless relocation is necessary.
 - Reduce ESLint only after preserving all semantics. The ported rule families
-  retire to Grit/boundaries, but the value `export *` contract/public-surface
-  guard remains original-owned after H5's safe-port stop until H6 absorbs it
-  into Habitat-native or keeps it wrapped. `eslint.boundaries.config.mjs`
-  remains the boundary ESLint surface from H3; `bun run lint` becomes an alias
-  for `habitat check` (or is removed; decided and recorded in tasks
-  (task 1.2)).
+  retire to Grit/boundaries; the value `export *` contract/public-surface
+  guard retires to `grit-contract-export-all`, with `export type *` allowed by
+  a native Grit text guard. `eslint.boundaries.config.mjs` remains the boundary
+  ESLint surface from H3; `bun run lint` becomes an alias for `habitat check`
+  (or is removed; decided and recorded in tasks (task 1.2)).
 - Architecture-test dedup per corpus §C: `recipe-import-boundary.test.ts`
   retires (grit equivalent locked);
   `ecology-step-import-guardrails.test.ts` slims — the deep-import assertions
