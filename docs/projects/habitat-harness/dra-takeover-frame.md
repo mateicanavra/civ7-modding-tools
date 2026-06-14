@@ -98,7 +98,7 @@ realignment, and ship.
 - Separate proof classes: OpenSpec validation, source inspection, command
   behavior, local stats/parity, generated-output proof, runtime proof when
   applicable, Graphite state, and product proof.
-- Review findings as control inputs, not optional commentary.
+- Review findings as control inputs, not side commentary.
 
 ### What This Frame Makes Exterior
 
@@ -206,7 +206,7 @@ repair branches. Required row contract:
 | Source | File path and section, phase record, task, code, command, or user-facing claim. |
 | Current evidence | Fresh command output or direct code inspection summary. |
 | Evidence class | verified current behavior / historical claim / architecture target / hypothesis. |
-| Still true? | yes / no / partial / unknown. |
+| Still true? | yes / no / mixed-with-blockers / unknown. |
 | Disposition | repair / records-only / reject / defer with trigger. |
 | Owner | accountable workstream owner. |
 | First verification command | first command or inspection that can disprove the row. |
@@ -281,8 +281,9 @@ Initial groups for the pattern ledger:
   control app surface, generated bundle Node builtins.
 - Legacy full-profile guardrail candidates from
   `scripts/lint/lint-domain-refactor-guardrails.sh`: domain entrypoint
-  re-exports, domain tag/artifact shims, hydrology/narrative config surfaces,
-  foundation decomposed-tectonics shims/import/helper redeclarations, ecology
+  re-exports, domain tag/artifact wrapper layers, hydrology/narrative config
+  surfaces, foundation decomposed-tectonics wrappers/import/helper
+  redeclarations, ecology
   op skeleton files, JSDoc coverage, and schema descriptions. Each requires a
   disposition as grit-check, generator/file-layer/test/manual, or explicit
   non-goal.
