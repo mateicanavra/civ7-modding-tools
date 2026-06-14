@@ -36,8 +36,8 @@ Fields requiring manual decisions (converter does not map): any `env`/
 ## Posture rules
 
 - Nx runs on Node (`bunx nx`); never `bunx --bun nx`. Bun stays package
-  manager and script runner. Pin both in `mise.toml`
-  (node per `engines` ≥22.14, bun per `packageManager` field).
+  manager and script runner. Pin Node in `.nvmrc`/`engines.node` and Bun in
+  `.bun-version`/`packageManager`.
 - Projects remain package.json-based (Nx infers from workspaces). No
   `project.json` files; per-project Nx config goes in the package.json `"nx"`
   field when needed.

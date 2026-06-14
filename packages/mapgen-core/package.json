@@ -86,11 +86,7 @@
   },
   "devDependencies": {
     "@civ7/map-policy": "workspace:*",
-    "@types/d3-delaunay": "^6.0.4",
-    "bun-types": "^1.3.7",
-    "esbuild": "^0.27.2",
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "@types/d3-delaunay": "^6.0.4"
   },
   "keywords": [
     "civ7",

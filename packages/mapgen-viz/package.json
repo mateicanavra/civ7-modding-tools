@@ -27,13 +27,7 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "clean": "rimraf dist"
   },
-  "devDependencies": {
-    "@types/node": "^22.14.0",
-    "rimraf": "^6.1.2",
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
-  },
   "engines": {
-    "node": ">=22.14.0"
+    "node": "22.22.0"
   }
 }

@@ -30,8 +30,8 @@ FRAME.md §4.
   `mod-swooper-maps#build:studio-recipes` / `mapgen-studio#dev` dependency.
 - Manual conversion pass for fields the converter does not map: env-var
   inputs, explicit `cache: true`, `persistent` → `continuous`.
-- Pin runtimes in a new root `mise.toml` (node + bun); Nx runs on Node via
-  `bunx nx`; Bun remains the only package manager.
+- Pin runtimes with root `.nvmrc`, `.bun-version`, and `packageManager`; Nx
+  runs on Node via `bunx nx`; Bun remains the only package manager.
 - Add `tools/*` to root `package.json` workspaces (empty until
   `habitat-harness-scaffold`).
 - Re-point root scripts (`build`, `check`, `test`, `lint`, `test:ci`,
@@ -65,7 +65,7 @@ FRAME.md §4.
 ## Affected Owners
 
 - Root config: `package.json`, `nx.json` (new), `turbo.json` (removed),
-  `mise.toml` (new), `.github/workflows/ci.yml`
+  `.nvmrc`, `.bun-version`, `.github/workflows/ci.yml`
 - `scripts/lint/lint-workspace-entrypoints.mjs`
 - Root `AGENTS.md`, `docs/PROCESS.md`-adjacent tooling docs that name turbo
 

@@ -20,8 +20,9 @@ configured after this change.
 ### Requirement: Bun Remains The Package Manager With Nx On Node
 
 Bun SHALL remain the only package manager and package-script runner. Nx SHALL
-run on the Node runtime invoked through `bunx nx`. Both runtimes SHALL be
-pinned in a committed `mise.toml`.
+run on the Node runtime invoked through `bunx nx`. Node SHALL be pinned in
+`.nvmrc` and `engines.node`; Bun SHALL be pinned in `.bun-version` and
+`packageManager`.
 
 #### Scenario: Installing and running
 - **WHEN** dependencies are installed or root scripts run

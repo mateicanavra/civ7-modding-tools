@@ -54,23 +54,16 @@
   },
   "dependencies": {
     "@civ7/direct-control": "workspace:*",
-    "@orpc/client": "^1.14.4",
-    "@orpc/contract": "^1.14.4",
-    "@orpc/server": "^1.14.4",
+    "@orpc/client": "1.14.6",
+    "@orpc/contract": "1.14.6",
+    "@orpc/server": "1.14.6",
     "@orpc/shared": "^1.14.4",
     "@standard-schema/spec": "^1.1.0",
     "effect": "3.21.3",
-    "effect-orpc": "^0.2.2",
+    "effect-orpc": "0.3.0",
     "typebox": "^1.0.80"
   },
-  "devDependencies": {
-    "@types/node": "^22.14.0",
-    "rimraf": "^6.1.2",
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
-  },
   "engines": {
-    "node": ">=22.14.0"
+    "node": "22.22.0"
   }
 }

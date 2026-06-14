@@ -32,10 +32,6 @@
     "@civ7/map-policy": "workspace:*",
     "@civ7/types": "workspace:*"
   },
-  "devDependencies": {
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
-  },
   "keywords": [
     "civ7",
     "civilization",

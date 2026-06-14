@@ -16,9 +16,6 @@
   "scripts": {
     "check": "tsc --noEmit"
   },
-  "devDependencies": {
-    "typescript": "^5.9.3"
-  },
   "keywords": [
     "civ7",
     "civilization",

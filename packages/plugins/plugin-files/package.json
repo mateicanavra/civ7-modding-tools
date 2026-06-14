@@ -25,13 +25,7 @@
   "dependencies": {
     "@civ7/config": "workspace:*"
   },
-  "devDependencies": {
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
-    "@types/node": "^22.14.0",
-    "vitest": "^4.0.18"
-  },
   "engines": {
-    "node": ">=22.14.0"
+    "node": "22.22.0"
   }
 }

@@ -19,14 +19,20 @@ describe("daemon deploy isolation", () => {
   });
 
   it("does not replay dependency build outputs during Play or Save & Deploy", () => {
-    expect(buildSwooperMapsStudioDeployPlan({ env: { PATH: "/bin" } }).buildArgs).toContain(
-      "--only"
+    expect(buildSwooperMapsStudioDeployPlan({ env: { PATH: "/bin" } }).buildTask).toBe(
+      "mod-swooper-maps:build:studio-deploy"
     );
+    expect(buildSwooperMapsStudioDeployPlan({ env: { PATH: "/bin" } }).buildArgs).toEqual([
+      "x",
+      "nx",
+      "run",
+      "mod-swooper-maps:build:studio-deploy",
+    ]);
     expect(
       buildSwooperMapsStudioDeployPlan({
         requestId: "studio-run-in-game-test",
         env: { PATH: "/bin" },
-      }).buildArgs
-    ).toContain("--only");
+      }).buildTask
+    ).toBe("mod-swooper-maps:build:studio-deploy");
   });
 });

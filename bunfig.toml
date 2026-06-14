@@ -2,4 +2,5 @@ env = false
 
 [install]
 linker = "isolated"
+minimumReleaseAgeExcludes = ["@orpc/client", "@orpc/contract", "@orpc/server", "effect-orpc"]
 trustedDependencies = ["docsify", "esbuild", "puppeteer", "sharp"]

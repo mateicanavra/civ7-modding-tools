@@ -31,7 +31,7 @@
 
 | # | Change id | One-line scope | Requires | Parallel? |
 |---|---|---|---|---|
-| H1 | `habitat-nx-adoption` | Nx fully adopted via native Turbo migration; turbo retired; mise pin; tools/* workspace | — | train root |
+| H1 | `habitat-nx-adoption` | Nx fully adopted via native Turbo migration; turbo retired; runtime pins; tools/* workspace | — | train root |
 | H2 | `habitat-harness-scaffold` | tools/habitat-harness package: habitat CLI, rule pack, ratchet/baselines, Nx plugin; wrap ALL existing checks (zero new rules) | H1 | — |
 | H3 | `habitat-boundary-tags` | tags on all projects + enforce-module-boundaries (locked at empty baseline); ESLint quarantined to that one rule | H1, H2 | — |
 | H4 | `habitat-biome-hygiene` | Biome owns hygiene; prettier retired; one blame-shielded reformat commit; ratcheted lint lane | H1, H2, H3 | — (serialized after H3: shared writes on `package.json` files, `ci.yml`, rule pack — reformat would conflict with tag edits; ledger F1) |
