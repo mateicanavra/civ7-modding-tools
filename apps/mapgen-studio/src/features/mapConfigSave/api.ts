@@ -3,7 +3,7 @@
 // EVERYTHING talks oRPC (FRAME §4.7): these callers speak the studio's own
 // `@civ7/studio-server` contract through the typed oRPC client (`src/lib/orpc.ts`)
 // — there is NO manual `fetch` of `/api/map-configs*` here anymore. The request
-// shapes are preserved. Operation recovery and progress are daemon-owned through
+// shapes are preserved. Operation recovery and progress are Studio-server-owned through
 // `studio.operations.current` and `studio.events.watch`, not localStorage or a
 // private client-side status loop. Failures are read through oRPC's NATIVE typed
 // contract errors: `safe(...)` +

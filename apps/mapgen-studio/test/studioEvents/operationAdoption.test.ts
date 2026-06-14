@@ -21,7 +21,7 @@ import type { MapConfigSaveDeployStatus } from "../../src/features/mapConfigSave
 import type { RunInGameOperationStatus } from "../../src/features/runInGame/status";
 
 describe("Studio event operation adoption", () => {
-  test("adopts daemon current operations and marks terminal run-in-game toast as handled", () => {
+  test("adopts Studio server current operations and marks terminal run-in-game toast as handled", () => {
     const state = adoptionState();
 
     adoptStudioOperationsCurrent(
@@ -62,7 +62,7 @@ describe("Studio event operation adoption", () => {
     expect(state.handledRunInGameToasts).toEqual(["run-1"]);
   });
 
-  test("clears stale displayed operations when daemon current truth is empty", () => {
+  test("clears stale displayed operations when Studio server current truth is empty", () => {
     const state = adoptionState({
       runInGame: {
         ok: true,

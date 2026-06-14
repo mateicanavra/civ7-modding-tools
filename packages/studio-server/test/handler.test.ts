@@ -2,7 +2,7 @@ import { createServer, type Server } from "node:http";
 import { createORPCClient, isDefinedError, safe, ORPCError } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import {
   createStudioEventHub,
@@ -48,7 +48,7 @@ describe("studio-server RPC handler", () => {
       serverInstanceId: "studio-server-test",
       startedAt: "2026-06-10T00:00:00.000Z",
       runInGameApiVersion: 2,
-      viteCommand: "serve",
+      hostCommand: "serve",
     });
     await expect(client.mapConfigs.status({ requestId: "save-1" })).resolves.toMatchObject({
       ok: true,
@@ -112,6 +112,36 @@ describe("studio-server RPC handler", () => {
         activeRequestId: "save-0",
       },
     });
+  });
+
+  test("does not log defined ORPC errors as server defects", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const context = makeContext({
+        mapConfigSaveDeploy: async () => {
+          throw new ORPCError("SAVE_DEPLOY_BLOCKED", {
+            status: 409,
+            message: "Save/Deploy is already running.",
+            data: {
+              details: {
+                code: "save-deploy-operation-active",
+                activeRequestId: "save-0",
+              },
+            },
+          });
+        },
+      });
+      const client = await listenWithClient(context);
+
+      const { error } = await safe(
+        client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} }),
+      );
+
+      expect(error).toBeInstanceOf(ORPCError);
+      expect(errorSpy).not.toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   test("delivers a run-in-game status miss as RUN_IN_GAME_STATUS_NOT_FOUND with the server-identity echo", async () => {
@@ -386,7 +416,7 @@ function makeContext(
   return {
     serverInstanceId: "studio-server-test",
     serverStartedAt: "2026-06-10T00:00:00.000Z",
-    viteCommand: "serve",
+    hostCommand: "serve",
     loadSetupCatalog: async () => ({
       leaders: [],
       civilizations: [],

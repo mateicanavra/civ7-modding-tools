@@ -6,7 +6,7 @@ import type { ContractRouterClient } from "@orpc/contract";
 import type { StudioContract } from "@civ7/studio-server/contract";
 
 /**
- * Studio oRPC client — the ONE typed seam to the daemon's `/rpc` mount
+ * Studio oRPC client — the ONE typed seam to the Studio server's `/rpc` mount
  * (runtime-one-mount slice, DP-1).
  *
  * The unified `StudioContract` covers the entire server surface: the studio
@@ -21,7 +21,7 @@ import type { StudioContract } from "@civ7/studio-server/contract";
  * contract's VALUE graph) can reach the browser bundle.
  */
 
-/** RPC transport link. `/rpc` is same-origin (Vite dev proxy → daemon). */
+/** RPC transport link. `/rpc` is same-origin (Vite dev proxy → Studio server). */
 const link = new RPCLink({
   url: () => `${window.location.origin}/rpc`,
   plugins: [new ClientRetryPlugin()],

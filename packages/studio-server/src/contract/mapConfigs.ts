@@ -78,7 +78,7 @@ export const saveDeployStatusSchema = contractSchema(saveDeployStatusTypeSchema)
 //
 // S1.2 PARITY INVARIANT: the 404 now matches runInGame.status and echoes
 // `serverInstanceId`/`serverStartedAt` so the client can distinguish a missing
-// request id from a daemon restart.
+// request id from a Studio server restart.
 export const status = oc
   .errors(mapConfigsErrors)
   .input(

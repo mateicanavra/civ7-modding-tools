@@ -9,7 +9,7 @@ import * as runInGame from "./runInGame.js";
 import * as studio from "./studio.js";
 
 /**
- * Root oRPC contract for `@civ7/studio-server` — the ONE surface the daemon
+ * Root oRPC contract for `@civ7/studio-server` — the ONE surface the Studio server
  * mounts at `/rpc` (runtime-one-mount slice, DP-1).
  *
  * Two layers:

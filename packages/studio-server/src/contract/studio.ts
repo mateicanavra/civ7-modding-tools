@@ -15,7 +15,7 @@ import { contractSchema, emptyInputSchema, isoTimestampSchema } from "./shared.j
 // #9 studio.serverInfo - GET /api/studio/server-info
 // ---------------------------------------------------------------------------
 // Request: none. Success 200: { ok:true, serverInstanceId, startedAt,
-// runInGameApiVersion: 2, viteCommand }. No errors (pure).
+// runInGameApiVersion: 2, hostCommand }. No errors (pure).
 //
 // PARITY NOTE (audit/05 #9, target-arch section 1): `serverInstanceId`/`startedAt` are
 // process-lifetime singletons; clients reconcile run-in-game state against them
@@ -28,7 +28,7 @@ export const serverInfo = oc.input(emptyInputSchema).output(
         serverInstanceId: Type.String(),
         startedAt: isoTimestampSchema,
         runInGameApiVersion: Type.Literal(2),
-        viteCommand: Type.String(),
+        hostCommand: Type.String(),
       },
       { additionalProperties: false },
     ),
@@ -198,20 +198,20 @@ export type StudioLiveGameEvent = Static<typeof studioLiveGameEventSchema>;
 export type StudioEvent = Static<typeof studioEventSchema>;
 
 // ---------------------------------------------------------------------------
-// S2.1 studio.operations.current - daemon-owned operation recovery
+// S2.1 studio.operations.current - Studio-server-owned operation recovery
 // ---------------------------------------------------------------------------
-// Request: none. Success 200: daemon identity + active/recent Run in Game and
-// Save&Deploy operation snapshots. Fresh daemon truthfully returns empty
+// Request: none. Success 200: Studio server identity + active/recent Run in Game and
+// Save&Deploy operation snapshots. Fresh Studio server truthfully returns empty
 // registries; operation durability across restart is out of scope by design.
 export const operationsCurrent = oc
   .input(emptyInputSchema)
   .output(operationsCurrentOutputStandardSchema);
 
 // ---------------------------------------------------------------------------
-// S3.1 studio.events.watch - daemon-owned runtime event stream
+// S3.1 studio.events.watch - Studio-server-owned runtime event stream
 // ---------------------------------------------------------------------------
 // Request: none. Output: event iterator over the sealed TypeBox event category.
-// The router emits an immediate `hello`, then yields the daemon-owned EventHub.
+// The router emits an immediate `hello`, then yields the Studio-server-owned EventHub.
 export const eventsWatch = oc
   .input(emptyInputSchema)
   .output(studioEventIteratorSchema);

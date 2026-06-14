@@ -55,8 +55,8 @@ import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
 // queue, both operation stores (the dual-store 409 mutex), the server instance
 // identity, and the five engine functions (autoplay, run-in-game start/status,
 // save-deploy start/status). `createStudioEngines` owns ALL process-singleton
-// server state — exactly one instance may exist per server process (the Bun
-// daemon), shared by every oRPC mount, or the queue/mutex semantics diverge
+// server state — exactly one instance may exist per Studio server process,
+// shared by every oRPC mount, or the queue/mutex semantics diverge
 // (architecture/10 §7).
 //
 // Each engine returns its success body, or THROWS:
@@ -553,7 +553,7 @@ export type StudioOperationsCurrent = Readonly<{
  * operation stores keyed by request id, and throw `StudioEngineError`
  * (legacy HTTP status + structured `details`) for every client-visible
  * failure — transports map it 1:1, so error codes stay stable across the
- * Vite middleware and Bun daemon mounts.
+ * Vite middleware and Bun Studio server mounts.
  */
 export interface StudioEngines {
   /** Process-lifetime identity — clients reconcile run-in-game state against it. */
@@ -658,6 +658,26 @@ export function createStudioEngines(options: Readonly<{ repoRoot: string; eventH
       waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
       pollIntervalMs: 1_000,
     };
+    const readiness = await getCiv7PlayableStatus({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }).catch((err: unknown) => {
+      throw unavailableEngineDependency(
+        `Civ7 autoplay ${action} is unavailable`,
+        "civ7-autoplay-unavailable",
+        err,
+        { action },
+      );
+    });
+    if (readiness.readiness !== "tuner-ready" && readiness.readiness !== "app-ui-game") {
+      throw new StudioEngineError(
+        503,
+        `Civ7 autoplay ${action} requires an active game; current readiness is ${readiness.readiness}.`,
+        {
+          code: "civ7-autoplay-readiness-unavailable",
+          action,
+          readiness: readiness.readiness,
+          errors: readiness.errors,
+        },
+      );
+    }
     const result = await (action === "start"
       ? startCiv7Autoplay(opts)
       : stopCiv7Autoplay(opts)

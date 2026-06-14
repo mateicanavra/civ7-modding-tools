@@ -6,8 +6,8 @@ import { buildSwooperMapsStudioDeployPlan } from "../../src/server/mapConfigs/de
 
 const servicePath = fileURLToPath(new URL("../../src/server/recipeDag/service.ts", import.meta.url));
 
-describe("daemon deploy isolation", () => {
-  it("keeps deploy-written recipe dist artifacts out of the daemon recipe-DAG import graph", async () => {
+describe("Studio server deploy isolation", () => {
+  it("keeps deploy-written recipe dist artifacts out of the Studio server recipe-DAG import graph", async () => {
     const serviceSource = await readFile(servicePath, "utf8");
 
     expect(serviceSource).not.toMatch(/from\s+["']mod-swooper-maps\/recipes\//);

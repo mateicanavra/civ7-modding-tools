@@ -163,7 +163,7 @@ describe("GameConsole live runtime and save/deploy", () => {
 
   it("renders a Civ7 autoplay start button from live runtime status", () => {
     const html = renderConsole({
-      liveRuntime: { status: "ok", readiness: "ready", autoplayActive: false },
+      liveRuntime: { status: "ok", readiness: "tuner-ready", autoplayActive: false },
       onToggleAutoplay: vi.fn(),
     });
 
@@ -172,7 +172,7 @@ describe("GameConsole live runtime and save/deploy", () => {
 
   it("renders a Civ7 autoplay stop button when autoplay is active", () => {
     const html = renderConsole({
-      liveRuntime: { status: "ok", readiness: "ready", autoplayActive: true },
+      liveRuntime: { status: "ok", readiness: "app-ui-game", autoplayActive: true },
       onToggleAutoplay: vi.fn(),
     });
 
@@ -188,16 +188,27 @@ describe("GameConsole live runtime and save/deploy", () => {
 
   it("renders the wired Explore reveal action when live and a handler exists", () => {
     const html = renderConsole({
-      liveRuntime: { status: "ok", readiness: "ready" },
+      liveRuntime: { status: "ok", readiness: "tuner-ready" },
       onExplore: vi.fn(),
     });
 
     expect(html).toContain("Explore: reveal the full map in the live game");
   });
 
+  it("disables active-game controls while Civ7 is only in shell", () => {
+    const html = renderConsole({
+      liveRuntime: { status: "ok", readiness: "shell", autoplayActive: false },
+      onToggleAutoplay: vi.fn(),
+      onExplore: vi.fn(),
+    });
+
+    expect(html).toContain("Explore requires an active game with Tuner readiness");
+    expect(html).toContain("disabled");
+  });
+
   it("disables Explore and narrates the in-flight request while revealing", () => {
     const html = renderConsole({
-      liveRuntime: { status: "ok", readiness: "ready" },
+      liveRuntime: { status: "ok", readiness: "tuner-ready" },
       onExplore: vi.fn(),
       isExploreActionRunning: true,
     });

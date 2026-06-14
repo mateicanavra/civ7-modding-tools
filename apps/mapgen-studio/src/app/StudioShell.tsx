@@ -330,7 +330,7 @@ export function StudioShell(props: StudioShellProps) {
   const lastPresetKeyRef = useRef(recipeSettings.preset);
   const lastRecipeIdRef = useRef(recipeSettings.recipe);
   // `lastRunInGameSource` is session-only UI state. S2.1 deleted the
-  // localStorage recovery bridge; daemon-retained operations are adopted from
+  // localStorage recovery bridge; Studio-server-retained operations are adopted from
   // `studio.operations.current` instead.
   const lastRunInGameSource = useRunStore((s) => s.lastRunInGameSource);
   const setLastRunInGameSource = useRunStore((s) => s.setLastRunInGameSource);
@@ -479,7 +479,7 @@ export function StudioShell(props: StudioShellProps) {
   const saveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(null);
   const saveDeployWaitersRef = useRef<Map<string, SaveDeployTerminalWaiter>>(new Map());
   // Run presentation state is session-only; cross-reload operation recovery is
-  // daemon-owned through `studio.operations.current`.
+  // Studio-server-owned through `studio.operations.current`.
   const runInGameSnapshot = useRunStore((s) => s.runInGameSnapshot);
   const setRunInGameSnapshot = useRunStore((s) => s.setRunInGameSnapshot);
   const lastSaveDeployConfig = useRunStore((s) => s.lastSaveDeployConfig);

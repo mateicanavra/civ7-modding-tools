@@ -9,7 +9,7 @@ import type { LastRunSnapshot } from "../features/runInGame/liveSource";
 /**
  * `runStore` — tab-session RUN / SAVE presentation state.
  *
- * S2.1 moved operation recovery to daemon-owned `studio.operations.current`.
+ * S2.1 moved operation recovery to Studio-server-owned `studio.operations.current`.
  * This store no longer reads or writes operation request ids, run snapshots, or
  * source snapshots through localStorage. The fields here are session-only aids
  * for the current tab's stale/current relation and Live Game preset display.

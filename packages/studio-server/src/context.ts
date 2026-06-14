@@ -24,7 +24,7 @@ export type SetupCatalog = StudioOutputs["civ7"]["setupCatalog"]["catalog"];
  * WHY a context seam instead of fully self-owned services: the stateful
  * run-in-game / save-deploy / autoplay surface shares ONE serialized operation
  * queue and ONE pair of operation stores (the dual-store 409 mutex,
- * architecture/10 section 7). The daemon is now one `/rpc` surface; the host
+ * architecture/10 section 7). The Studio server is now one `/rpc` surface; the host
  * still owns those process-lifetime singletons and injects them here so the
  * package owns the oRPC/Effect wiring without duplicating engine state.
  *
@@ -47,8 +47,8 @@ export interface StudioServerContext {
   /** Process-lifetime singletons surfaced by `studio.serverInfo` + run-in-game 404 echo. */
   readonly serverInstanceId: string;
   readonly serverStartedAt: string;
-  /** The Vite `command` ("serve" | "build") echoed by `studio.serverInfo`. */
-  readonly viteCommand: string;
+  /** Host command label echoed by `studio.serverInfo`. */
+  readonly hostCommand: string;
 
   /**
    * Recipe-DAG projection service (runtime-one-mount slice). The
@@ -120,7 +120,7 @@ export interface StudioServerContext {
   ): Promise<StudioOutputs["mapConfigs"]["status"]>;
 
   /**
-   * Current retained operation truth (S2.1). Fresh daemons return empty
+   * Current retained operation truth (S2.1). Fresh Studio servers return empty
    * registries; retained active/recent operations are adopted by the client
    * instead of replaying browser-persisted request ids.
    */

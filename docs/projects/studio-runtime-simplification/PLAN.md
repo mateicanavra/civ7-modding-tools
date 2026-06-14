@@ -6,18 +6,18 @@
 
 ## 1. The frame
 
-One sentence: **the daemon owns all ephemeral truth and pushes it; the client renders.**
+One sentence: **the Studio server owns all ephemeral truth and pushes it; the client renders.**
 
-Today the browser tab compensates for the daemon not owning state: a four-key
+Today the browser tab compensates for the Studio server not owning state: a four-key
 localStorage operation bridge with resume/re-adoption logic
 (`apps/mapgen-studio/src/stores/runStore.ts`,
 `features/runInGame/sourceSnapshotStorage.ts`, `features/mapConfigSave/api.ts`),
 five concurrent polling loops with three different scheduling strategies
-(`app/hooks/useOperationStatusPolls.ts` 1s/3s ×2, `useDaemonInstanceWatchdog.ts`
+(`app/hooks/useOperationStatusPolls.ts` 1s/3s ×2, `useServerInstanceWatchdog.ts`
 10s, two custom setTimeout loops in `StudioShell.tsx` for live status/snapshot),
 identity-echo restart detection, three oRPC mounts each with its own handler +
-context + error seam (`server/daemon/daemon.ts:144-160`), and a session-sharing
-post-hoc patch (`daemon.ts:183-186` manually threads the tuner session into the
+context + error seam (`server/studioServer.ts:144-160`), and a session-sharing
+post-hoc patch (`studioServer.ts:183-186` manually threads the tuner session into the
 control mount; the recipe-DAG mount never gets it).
 
 Every one of those is a beam that bends. The target frame has four spines, each
@@ -27,7 +27,7 @@ small enough to see through:
 |---|---|---|
 | **Transport** | ONE oRPC surface (`/rpc`), one runtime, one client | two mounts, the path-dispatch if-chain, the session patch, one of two proxy rules |
 | **Error** | Sealed failure unions, exhaustive mapping, zero unmapped 500s | the 14 bare-`Error` throw sites; the "internal server error" click |
-| **State** | Daemon-owned `operations.current` read; restart = honest empty | localStorage bridge, resume logic, identity echoes |
+| **State** | Studio server-owned `operations.current` read; restart = honest empty | localStorage bridge, resume logic, identity echoes |
 | **Event** | ONE typed event channel (SSE/eventIterator) | all five polls + the watchdog |
 
 **KEEP (strong beams, untouched):** the run-in-game phase machine
@@ -35,9 +35,9 @@ small enough to see through:
 operation mutex queue, the shared tuner Effect session
 (`packages/studio-server/src/services/Civ7TunerSession.ts` — fd-wedge fix), the
 proof-identity system (correctness boundary), turbo deploy graph, the
-daemon+vite two-process dev shape, TTL pruning semantics.
+Studio server + Vite one-process dev host, TTL pruning semantics.
 
-**Explicit non-goals:** operation durability across daemon restarts (no
+**Explicit non-goals:** operation durability across Studio server restarts (no
 database/Redis/file ledger — dev-honest "restart → nothing running" is the
 design, not a gap); preset-layer kill (separate decision, operator scope
 pending); CLI/control-orpc package surface changes beyond what the unified
@@ -48,7 +48,7 @@ runtime needs.
 **DP-1 Unified router host — RESOLVED.** The unified router lives in
 `packages/studio-server` (effect-orpc `implementEffect`, one `ManagedRuntime`).
 Namespaces: `studio.*` (existing), `civ7.*` (absorbs the control mount),
-`recipeDag.*` (absorbs the DAG mount). The daemon mounts ONE `RPCHandler` at
+`recipeDag.*` (absorbs the DAG mount). The Studio server mounts ONE `RPCHandler` at
 `/rpc`. Session sharing becomes structural (all procedures `yield*` the same
 scoped `Civ7TunerSession`) instead of the post-hoc context patch. Contracts do
 not change shape — they merge under one router.
@@ -56,21 +56,21 @@ not change shape — they merge under one router.
 **DP-2 Operation state durability — RESOLVED (against).** Registries stay
 in-memory with TTL. What changes is OWNERSHIP of recovery: the client stops
 persisting request ids; on boot (and on stream reconnect) it calls
-`studio.operations.current` and adopts whatever the daemon reports. A fresh
-daemon truthfully reports nothing running. This is the level-6 intervention
+`studio.operations.current` and adopts whatever the Studio server reports. A fresh
+Studio server truthfully reports nothing running. This is the level-6 intervention
 (change the rules: server owns truth) — not a level-2 buffer (add a database).
 
 **DP-3 Stream granularity — RESOLVED.** ONE multiplexed channel:
 `studio.events.watch` (contract `eventIterator`), carrying a sealed event union
 built as a CATEGORY first: `{ type: "hello", serverInstanceId, startedAt } |
 { type: "operation", kind: "run-in-game" | "save-deploy", status } |
-{ type: "live-game", state }`. Daemon side: one Effect `PubSub` in the runtime
+{ type: "live-game", state }`. Studio server side: one Effect `PubSub` in the runtime
 layer (the EventHub service); publishers are instances filling the category.
 Client side: one subscription via `experimental_liveOptions` (TanStack Query) +
 `ClientRetryPlugin` for reconnect; `hello` events replace the watchdog and
 serverInfo poll; reconnect triggers `operations.current` re-adoption. The
 older `streamedOptions` wording is stale for this installed package and would
-accumulate events rather than model latest daemon state.
+accumulate events rather than model latest Studio server state.
 
 **DP-4 Civ7 interface hybrid — RESOLVED (coherence, not rewrite).** The
 inventory verdict: the shape is right (one shared socket multiplexing
@@ -78,7 +78,7 @@ everything), the abstraction leaks. Actions: structural session unification
 falls out of DP-1; name the invariant ("every game wire call flows through the
 runtime's Civ7TunerSession — no session construction outside it") as a guard
 test + doc; keep the game-process restart flow in-band (correctly synchronous).
-The daemon-side live-game watcher (WS-3) moves the status-poll loop server-side
+The Studio server-side live-game watcher (WS-3) moves the status-poll loop server-side
 onto the same session.
 
 **DP-5 Error spine — RESOLVED.** Sealed engine failure union with exhaustive
@@ -108,14 +108,14 @@ deletes their subject — never before, never after.
 - studio-server contract/router absorb `civ7.*` (from
   `apps/mapgen-studio/src/server/civ7ControlOrpc.ts`) and `recipeDag.*` (from
   `server/recipeDag/orpc.ts`); one `RPCHandler` at `/rpc` in
-  `server/daemon/daemon.ts`; delete the prefix if-chain and the session patch;
+  `server/studioServer.ts`; delete the prefix if-chain and the session patch;
   vite proxy shrinks to `/rpc`; ONE `orpcClient` in `lib/orpc.ts` (the
   `lib/control/liveControlPort.ts` seam retargets to it).
 - Enable server `StrictGetMethodPlugin` (already on) + client
   `DedupeRequestsPlugin`; evaluate `BatchLinkPlugin` after polls die (not before
   — batching polls hides the real fix).
-- Tests: REWRITE `server/daemonFetch.test.ts` (single mount route table; legacy
-  `/api/*` 404 pins move here — the daemon HTTP layer STAYS, audit's deletion
+- Tests: REWRITE `server/studioServerFetch.test.ts` (single mount route table; legacy
+  `/api/*` 404 pins move here — the Studio server HTTP layer STAYS, audit's deletion
   call corrected). NEW PIN: all three namespaces respond on one
   mount; out-of-scope paths 404.
 - EXECUTED 2026-06-12 (`mapgen-studio-runtime-one-mount`): two grounding
@@ -136,9 +136,9 @@ deletes their subject — never before, never after.
 **S1.1a `dev-watch-deploy-isolation` (HOTFIX, inserted 2026-06-12)** — Root
 cause of the operator's "launch click → error" found DURING S1.1 live proof,
 with restart-identity evidence: the run-in-game/save-deploy engines rebuild
-`mod-swooper-maps` dist, which sits in the daemon's own import graph (static
+`mod-swooper-maps` dist, which sits in the Studio server's own import graph (static
 recipeDag service import of `mod-swooper-maps/recipes/*` → dist), so `bun
---watch` (#1676) restarts the daemon MID-OPERATION (observed at +84s into a
+--watch` (#1676) restarts the Studio server MID-OPERATION (observed at +84s into a
 launch; child deploy process killed; registry wiped; watchdog reloads the
 tab). Pre-existing since #1676 — every dev-mode launch/deploy dies this way.
 Fix candidates (decide in the slice): import recipe stages from mod SOURCE
@@ -148,7 +148,7 @@ slices — run BEFORE S1.2.
 
 ### WS-2 “Server Truth” (state spine)
 
-**S2.1 `operations-current`** — Daemon-owned operation recovery.
+**S2.1 `operations-current`** — Studio server-owned operation recovery.
 - `studio.operations.current` procedure: both registries' active + recent
   operations, full status shapes. Client boot adoption replaces localStorage
   read; DELETE the four-key bridge, `sourceSnapshotStorage.ts`, resume
@@ -195,7 +195,7 @@ slices — run BEFORE S1.2.
   test must fail).
 
 **S3.3 `live-game-watch`** — Instance 2: game state.
-- Daemon-side watcher loop (server polls the game over the SHARED session on
+- Studio server-side watcher loop (server polls the game over the SHARED session on
   its own cadence, publishes `live-game` deltas keyed by turn+hash — keying
   logic survives from `liveRuntime/model.test.ts` DURABLE pins); client drops
   the status setTimeout loop; on-demand snapshot read STAYS request/response.
@@ -220,7 +220,7 @@ TypeBox/Standard Schema.
 
 - 39 files DURABLE — untouched (config, phase machines, proof identity, viz,
   presets, UI components).
-- 7 REWRITE-WITH-SLICE: `daemonFetch` (S1.1, rewrite NOT delete — daemon HTTP
+- 7 REWRITE-WITH-SLICE: `studioServerFetch` (S1.1, rewrite NOT delete — Studio server HTTP
   layer survives), `rpcPath` (S1.1), `recipeDag/orpc` (S1.1), two fallthrough
   groups (S1.1), `clientState` resumption parts (S2.1), `liveRuntime/model`
   poll-delay (S3.2).
@@ -232,7 +232,7 @@ TypeBox/Standard Schema.
   (S3.3).
 - Layering: package-level = contract shapes + error unions + session/stream
   lifecycle; app-level = state machines, adoption, store feeds; live-proof =
-  the operator's click-through (Play, Save&Deploy, Explore, daemon-restart
+  the operator's click-through (Play, Save&Deploy, Explore, server-restart
   recovery) recorded per slice closure.
 
 ## 5. Execution discipline

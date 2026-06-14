@@ -341,7 +341,7 @@ export function createStudioRouter(
           serverInstanceId: config.serverInstanceId,
           startedAt: config.serverStartedAt,
           runInGameApiVersion: 2 as const,
-          viteCommand: config.viteCommand,
+          hostCommand: config.hostCommand,
         };
       }),
       events: {

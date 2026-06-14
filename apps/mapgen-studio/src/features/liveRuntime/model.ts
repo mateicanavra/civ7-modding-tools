@@ -98,6 +98,7 @@ export function buildLiveRuntimeSnapshotRequest(args: {
   playerId?: number;
 }): LiveRuntimeSnapshotRequest | null {
   if (args.status.status !== "ok" || !args.status.snapshotId) return null;
+  if (args.status.readiness !== "tuner-ready") return null;
   const bounds = args.bounds ?? DEFAULT_VISIBLE_SNAPSHOT_BOUNDS;
   const fields = args.fields ?? DEFAULT_VISIBLE_SNAPSHOT_FIELDS;
   const maxPlots = Math.min(512, Math.max(1, args.maxPlots ?? 64));
