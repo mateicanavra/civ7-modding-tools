@@ -348,14 +348,17 @@ export function createStudioRouter(
         watch: oe.studio.events.watch.effect(function* () {
           const config = yield* StudioConfig;
           const eventHub = yield* StudioEventHub;
+          const observedAt = new Date().toISOString();
+          const latestLiveGame = eventHub.latestLiveGameEvent();
           return eventHub.subscribe({
             initialEvents: [
               {
                 type: "hello",
                 serverInstanceId: config.serverInstanceId,
                 serverStartedAt: config.serverStartedAt,
-                observedAt: new Date().toISOString(),
+                observedAt,
               },
+              ...(latestLiveGame ? [latestLiveGame] : []),
             ],
           });
         }),
