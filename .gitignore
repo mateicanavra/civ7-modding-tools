@@ -62,6 +62,7 @@ apps/docs/public/civ7-official/resources/
 
 # Turbo cache
 .turbo/
+.nx/
 
 # AI-generated artifacts and archives
 .ai/*
