@@ -12,7 +12,6 @@ const DEFAULT_EXCLUDE_DIR_NAMES = new Set([
   "dist",
   "build",
   "coverage",
-  ".turbo",
   ".next",
   "out",
   "mod",

@@ -11,9 +11,7 @@ async function listMdxFiles(rootDir: string): Promise<string[]> {
       const fullPath = path.join(rootDir, entry.name);
       if (entry.isDirectory()) {
         // Skip common non-content directories
-        if (
-          ["node_modules", ".archive", ".turbo", "public", "test", "scripts"].includes(entry.name)
-        )
+        if (["node_modules", ".archive", "public", "test", "scripts"].includes(entry.name))
           return [];
         return listMdxFiles(fullPath);
       }

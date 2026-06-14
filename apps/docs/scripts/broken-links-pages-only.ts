@@ -22,12 +22,7 @@ async function run(): Promise<void> {
         const srcPath = join(srcDir, entry.name);
         const dstPath = join(dstDir, entry.name);
         if (entry.isDirectory()) {
-          if (
-            entry.name === "node_modules" ||
-            entry.name === ".archive" ||
-            entry.name.startsWith(".turbo")
-          )
-            return;
+          if (entry.name === "node_modules" || entry.name === ".archive") return;
           mkdirSync(dstPath, { recursive: true });
           copyMdx(srcPath, dstPath);
         } else if (entry.isFile()) {
