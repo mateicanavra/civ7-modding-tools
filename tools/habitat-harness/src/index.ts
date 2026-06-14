@@ -11,12 +11,12 @@ export {
   commandSummary,
   createCheckReport,
   expandBaselines,
-  hookMessage,
   renderCheckReport,
   resolveVerifyBase,
   runAffectedVerification,
   runFix,
   runGraph,
+  runHook,
   selectRules,
   stringifyCheckReport,
 } from "./lib/command-engine.js";

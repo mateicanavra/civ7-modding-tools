@@ -21,6 +21,9 @@ hooks are friction reduction, never verification truth.
   `bun run habitat hook <name>`.
 - Implement `habitat hook pre-commit`: Biome format/check on staged files
   only; cheap grit checks on staged files; generated-zone staged guard.
+  Format-eligible files with both staged and unstaged hunks fail fast rather
+  than being formatted, because the hook does not stash or rewrite unstaged
+  content.
   Auto-restage policy (D3): the hook captures the exact file list it formats
   and re-stages **only those paths** (`git add -- <formatted files>`); it
   never stages other dirty or foreign files (multi-lane worktree safety —
@@ -37,13 +40,20 @@ hooks are friction reduction, never verification truth.
   decision in the phase record), then retire `scripts/git-hooks/` and the
   `setup:git-hooks` root script in the same slice so the two mechanisms
   never coexist.
-- Implement `habitat hook pre-push`: `bunx nx affected -t
-  biome:ci,boundaries,grit:check,habitat:check,test --base=<merge-base>`
-  bounded to a pre-measured time budget. Budget derivation: BEFORE wiring
+- Implement `habitat hook pre-push`: `nx affected -t
+  biome:ci,boundaries,grit:check,habitat:check,test --base=<stack-parent-or-merge-base>
+  --head=HEAD --excludeTaskDependencies` bounded to a pre-measured time
+  budget. `--head=HEAD` keeps pre-push scoped to the committed range being
+  pushed instead of uncommitted/untracked worktree files; excluding task
+  dependencies keeps the local hook on the named feedback targets while
+  CI/explicit verification own dependency build expansion. Budget derivation:
+  BEFORE wiring
   hooks, measure baseline wall-clock on two declared probe sets — (a) a
   10-file staged set for pre-commit, (b) a one-package change for pre-push;
   budget = 2× measured baseline, recorded in the phase record FIRST; the
   timing gate then fails if the wired hooks exceed those budgets.
+  For Graphite-tracked branches, `stack-parent` is the Graphite parent branch;
+  outside Graphite, the fallback remains the merge-base with `main`.
   Instructions for `--no-verify` escape recorded as policy (allowed; CI
   catches). "Cheap grit checks" is defined by a rule-pack attribute
   `hookScope: 'pre-commit'`; the tasks enumerate which pattern families get

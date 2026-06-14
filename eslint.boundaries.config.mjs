@@ -8,7 +8,7 @@
  * rules belong to GritQL, hygiene to Biome).
  *
  * Run via the `boundaries` Nx target (never `lint`):
- *   bunx nx run-many -t boundaries
+ *   bun run nx run-many -t boundaries
  * Locked at adoption: any red edge is a violation, not negotiable debt.
  * Revising the taxonomy is a deliberate change to taxonomy.md + this file
  * together (revision protocol in tools/habitat-harness/README.md).

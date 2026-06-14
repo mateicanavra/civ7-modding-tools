@@ -46,7 +46,7 @@ bun run test
 - MapGen Studio:
   ```bash
   bun run dev:mapgen-studio
-  bunx nx run mapgen-studio:build
+  bun run nx run mapgen-studio:build
   ```
 
 ### Root convenience scripts
@@ -74,9 +74,9 @@ bun run test
   - Unzip directory: `.civ7/outputs/resources` (**git submodule**)
 - Graph exports: `.civ7/outputs/graph/<seed>`
 - The unzip directory is a git submodule that publishes snapshots to `mateicanavra/civ7-official-resources`.
-  - One-time setup: `bun run setup:git-hooks`
+  - One-time setup: `bun install` (Husky installs Habitat hooks via the root `prepare` script)
   - Init on a fresh clone: `bun run resources:init` (or `git submodule update --init --recursive`)
-  - `civ7 data unzip` writes into the submodule working tree; diffs show up in the submodule and are auto-committed/pushed on monorepo commit (via `scripts/git-hooks/pre-commit`).
+  - `civ7 data unzip` writes into the submodule working tree; diffs show up in the submodule and are auto-committed/pushed on monorepo commit (via `habitat hook pre-commit`).
 - Docs: served directly from `apps/docs/site` (no build/dist by default)
 - SDK: emits to `packages/sdk/dist`
 - Playground: generated content remains under its app directory

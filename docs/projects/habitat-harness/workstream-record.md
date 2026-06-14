@@ -117,5 +117,8 @@ train redefines the other's authority.
 5. ~~H6 enforcement consolidation~~ DONE locally (retirement table/probe
    matrix, root ESLint retirement, duplicate structural checks retired/slimmed,
    closure gates green).
-6. H7: open git-hooks phase, preserve existing resource-publish hook behavior,
-   and wire staged/affected Habitat hook paths.
+6. ~~H7 git hooks~~ DONE locally (Husky delegators, staged pre-commit,
+   committed-range pre-push, legacy resources publish preserved, safety
+   probes and Graphite hook proof recorded).
+7. H8: open generators/migrations phase and finish the remaining Habitat
+   project/migration ergonomics slice.

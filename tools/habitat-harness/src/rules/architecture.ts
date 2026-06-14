@@ -28,6 +28,8 @@ export interface HarnessRule {
   exceptionPath: string;
   gritPattern?: string;
   generatedZone?: string;
+  forbiddenFileNames?: string[];
+  hookScope?: "pre-commit";
 }
 
 const rulesJsonPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "rules.json");

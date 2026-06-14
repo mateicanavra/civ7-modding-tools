@@ -53,7 +53,7 @@ jobs:
         run: bun run build
 
       - name: Biome hygiene
-        run: bunx nx run-many -t biome:ci
+        run: bun run biome:ci
 
       - name: Lint
         run: bun run lint

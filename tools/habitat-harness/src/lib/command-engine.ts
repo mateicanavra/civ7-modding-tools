@@ -14,6 +14,9 @@ import {
 import type { CheckReport, RuleReport } from "./diagnostics.js";
 import { validateCheckReport } from "./diagnostics.js";
 import { runGritApplyPatterns } from "./grit.js";
+
+export { runHook } from "./hooks.js";
+
 import { repoRoot, toRepoRelative } from "./paths.js";
 import { run, type SpawnResult } from "./spawn.js";
 
@@ -253,10 +256,6 @@ export function classifyPath(target: string): Classification {
       "habitat check",
     ],
   };
-}
-
-export function hookMessage(name = ""): string {
-  return `habitat hook '${name}': not wired yet (lands in habitat-git-hooks/H7)`;
 }
 
 export function commandSummary(): string {

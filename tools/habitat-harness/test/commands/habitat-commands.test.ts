@@ -19,9 +19,9 @@ vi.mock("../../src/lib/command-engine.js", () => ({
   })),
   createCheckReport: vi.fn(() => mockReport),
   expandBaselines: vi.fn(() => ["baseline written: demo-rule (1 entry)"]),
-  hookMessage: vi.fn((name = "") => `habitat hook '${name}': not wired yet`),
   renderCheckReport: vi.fn(() => '{"ok":true}'),
   resolveVerifyBase: vi.fn((base?: string) => base ?? "merge-base"),
+  runHook: vi.fn(() => ({ exitCode: 0, stdout: "hook ok\n", stderr: "" })),
   runAffectedVerification: vi.fn(() => ({ exitCode: 0, stdout: "affected ok\n", stderr: "" })),
   runFix: vi.fn(() => ({ exitCode: 0, stdout: "biome ok\n", stderr: "" })),
   runGraph: vi.fn(() => ({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" })),
@@ -145,11 +145,11 @@ describe("Habitat oclif commands", () => {
     expect(payload.tags).toEqual(["kind:tooling"]);
   });
 
-  test("hook preserves the H7 stub surface", async () => {
-    await Hook.run(["pre-commit"]);
+  test("hook dispatches to the Habitat hook runner", async () => {
+    await Hook.run(["pre-push", "--base", "HEAD~1"]);
 
-    expect(engine.hookMessage).toHaveBeenCalledWith("pre-commit");
-    expect(capturedOutput()).toContain("pre-commit");
+    expect(engine.runHook).toHaveBeenCalledWith("pre-push", { base: "HEAD~1" });
+    expect(stdout.join("")).toContain("hook ok");
   });
 
   test("classify uses oclif parse errors for missing required path", async () => {
