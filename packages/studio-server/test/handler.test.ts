@@ -227,6 +227,56 @@ describe("studio-server RPC handler", () => {
     await iterator.return?.();
     await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
   }, 10_000);
+
+  test("replays latest live-game event to late studio.events.watch subscribers", async () => {
+    const eventHub = trackEventHub(createStudioEventHub());
+    await eventHub.publish({
+      type: "live-game",
+      observedAt: "2026-06-13T01:00:00.000Z",
+      state: {
+        status: "ok",
+        readiness: "tuner-ready",
+        turn: 160,
+        seed: 298035825,
+        updatedAt: "2026-06-13T01:00:00.000Z",
+        snapshotStatus: "idle",
+        snapshotId: "status:160:live",
+        snapshotHash: "live",
+        bindingStatus: "unbound-runtime",
+        failureCount: 0,
+      },
+    });
+    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const client = directClient(handler);
+
+    const iterator = await client.studio.events.watch({});
+
+    await expect(iterator.next()).resolves.toMatchObject({
+      done: false,
+      value: { type: "hello" },
+    });
+    await expect(iterator.next()).resolves.toEqual({
+      done: false,
+      value: {
+        type: "live-game",
+        observedAt: "2026-06-13T01:00:00.000Z",
+        state: {
+          status: "ok",
+          readiness: "tuner-ready",
+          turn: 160,
+          seed: 298035825,
+          updatedAt: "2026-06-13T01:00:00.000Z",
+          snapshotStatus: "idle",
+          snapshotId: "status:160:live",
+          snapshotHash: "live",
+          bindingStatus: "unbound-runtime",
+          failureCount: 0,
+        },
+      },
+    });
+
+    await iterator.return?.();
+  }, 10_000);
 });
 
 function trackHandle(handle: StudioRpcHandle): StudioRpcHandle {
