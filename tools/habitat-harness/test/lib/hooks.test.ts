@@ -122,6 +122,114 @@ describe("Habitat hook resource policy", () => {
   });
 });
 
+describe("Habitat pre-commit staged mutation policy", () => {
+  test("propagates generated-zone file-layer failure before Biome, Grit, or publish commands", () => {
+    const fake = makeFakeRuntime({
+      fileLayerExitCode: 1,
+      fileLayerStdout: '{"ok":false,"diagnostics":[{"message":"generated zone"}]}\n',
+      stagedPaths: ["mods/mod-swooper-maps/mod/maps/studio-current.js"],
+    });
+
+    const result = runPreCommit(fake.runtime);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain("[file-layer staged check]");
+    expect(result.stdout).toContain("generated zone");
+    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
+    expect(fake.calls.some((call) => call.startsWith("biome "))).toBe(false);
+    expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
+  });
+
+  test("propagates package-manager artifact file-layer failure before Biome, Grit, or publish commands", () => {
+    const fake = makeFakeRuntime({
+      fileLayerExitCode: 1,
+      fileLayerStdout: '{"ok":false,"diagnostics":[{"message":"package manager artifact"}]}\n',
+      stagedPaths: ["pnpm-lock.yaml"],
+    });
+
+    const result = runPreCommit(fake.runtime);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain("[file-layer staged check]");
+    expect(result.stdout).toContain("package manager artifact");
+    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
+    expect(fake.calls.some((call) => call.startsWith("biome "))).toBe(false);
+    expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
+  });
+
+  test("refuses partially staged Biome-supported files before formatting", () => {
+    const fake = makeFakeRuntime({
+      stagedPaths: ["packages/example/src/index.ts"],
+      unstagedPaths: ["packages/example/src/index.ts"],
+    });
+
+    const result = runPreCommit(fake.runtime);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("refusing to format partially staged files");
+    expect(result.stderr).toContain("- packages/example/src/index.ts");
+    expect(fake.calls.some((call) => call.startsWith("biome format"))).toBe(false);
+    expect(fake.calls.some((call) => call.startsWith("git add --"))).toBe(false);
+    expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
+  });
+
+  test("restages only formatter-touched Biome paths and leaves foreign staged paths untouched", () => {
+    const fake = makeFakeRuntime({
+      stagedPaths: [
+        "packages/example/src/index.ts",
+        "packages/example/src/unchanged.ts",
+        "README.md",
+      ],
+      fileHashes: {
+        "packages/example/src/index.ts": ["before", "after"],
+        "packages/example/src/unchanged.ts": ["same", "same"],
+        "README.md": ["foreign-before", "foreign-after"],
+      },
+      gritStdout: '{"results":[]}\n',
+    });
+
+    const result = runPreCommit(fake.runtime);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("formatter restage: 1 path(s)");
+    expect(fake.calls).toContain(
+      "git add -- packages/example/src/index.ts"
+    );
+    expect(fake.calls).not.toContain("git add -- packages/example/src/unchanged.ts");
+    expect(fake.calls).not.toContain("git add -- README.md");
+    expect(fake.calls).toContain(
+      "biome check --no-errors-on-unmatched packages/example/src/index.ts packages/example/src/unchanged.ts"
+    );
+    expect(fake.calls).toContain(
+      "grit --json check --level error packages/example/src/index.ts packages/example/src/unchanged.ts"
+    );
+  });
+
+  test("fails closed when Grit emits malformed JSON", () => {
+    const fake = makeFakeRuntime({
+      stagedPaths: ["packages/example/src/index.ts"],
+      gritStdout: "wrapper {\"results\":[]} text\n",
+    });
+
+    const result = runPreCommit(fake.runtime);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("could not parse Grit JSON output");
+  });
+
+  test("fails closed when Grit reports findings", () => {
+    const fake = makeFakeRuntime({
+      stagedPaths: ["packages/example/src/index.ts"],
+      gritStdout: '{"results":[{"message":"finding"}]}\n',
+    });
+
+    const result = runPreCommit(fake.runtime);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain("[grit check]");
+  });
+});
+
 interface FakeRuntimeOptions {
   gitmodulesExists?: boolean;
   resourcesRootExists?: boolean;
@@ -130,6 +238,16 @@ interface FakeRuntimeOptions {
   unstagedGitlink?: boolean;
   stagedGitlink?: boolean;
   resourcesTopLevel?: string;
+  stagedPaths?: string[];
+  unstagedPaths?: string[];
+  fileLayerExitCode?: number;
+  fileLayerStdout?: string;
+  fileHashes?: Record<string, string[]>;
+  biomeFormatExitCode?: number;
+  biomeCheckExitCode?: number;
+  gritExitCode?: number;
+  gritStdout?: string;
+  gritStderr?: string;
 }
 
 function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
@@ -137,6 +255,7 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
   calls: string[];
 } {
   const calls: string[] = [];
+  const hashReads = new Map<string, number>();
   const runCommand: RunCommand = (argv, _opts) => {
     const call = argv.join(" ");
     calls.push(call);
@@ -162,10 +281,33 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
       return options.stagedGitlink ? failure(1) : ok();
     }
     if (call === "git diff --cached --name-status -z") {
-      return ok();
+      return ok(renderNameStatus(options.stagedPaths ?? []));
     }
     if (call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json") {
-      return ok('{"ok":true}\n');
+      return {
+        exitCode: options.fileLayerExitCode ?? 0,
+        stdout: options.fileLayerStdout ?? '{"ok":true}\n',
+        stderr: "",
+      };
+    }
+    if (call.startsWith("git diff --name-only -z --")) {
+      return ok(renderPathList(options.unstagedPaths ?? []));
+    }
+    if (call.startsWith("biome format --write --no-errors-on-unmatched")) {
+      return options.biomeFormatExitCode ? failure(options.biomeFormatExitCode) : ok();
+    }
+    if (call.startsWith("git add --")) {
+      return ok();
+    }
+    if (call.startsWith("biome check --no-errors-on-unmatched")) {
+      return options.biomeCheckExitCode ? failure(options.biomeCheckExitCode) : ok();
+    }
+    if (call.startsWith("grit --json check --level error")) {
+      return {
+        exitCode: options.gritExitCode ?? 0,
+        stdout: options.gritStdout ?? '{"results":[]}\n',
+        stderr: options.gritStderr ?? "",
+      };
     }
     throw new Error(`Unexpected hook test command: ${call}`);
   };
@@ -180,10 +322,28 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
           return options.resourcesRootExists ?? true;
         }
         if (target.endsWith("index.lock")) return options.indexLockExists ?? false;
+        if ((options.stagedPaths ?? []).some((candidate) => target.endsWith(candidate))) {
+          return true;
+        }
         return false;
+      },
+      fileHash: (repoRelativePath) => {
+        const sequence = options.fileHashes?.[repoRelativePath];
+        if (!sequence) return `stable:${repoRelativePath}`;
+        const readCount = hashReads.get(repoRelativePath) ?? 0;
+        hashReads.set(repoRelativePath, readCount + 1);
+        return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
       },
     },
   };
+}
+
+function renderNameStatus(paths: string[]): string {
+  return paths.map((target) => `A\0${target}\0`).join("");
+}
+
+function renderPathList(paths: string[]): string {
+  return paths.length === 0 ? "" : `${paths.join("\0")}\0`;
 }
 
 function ok(stdout = ""): SpawnResult {

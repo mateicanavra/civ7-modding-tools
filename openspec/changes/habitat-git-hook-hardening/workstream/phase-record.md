@@ -5,10 +5,11 @@
 - Project: Habitat Harness
 - Phase: git hook hardening / `habitat-git-hook-hardening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-hook-resource-policy`
+- Branch/Graphite stack: `agent-HR-habitat-hook-staged-mutation`
 - Started: 2026-06-14
-- Status: resource-publish policy checkpoint implemented and verified locally,
-  with supervisor acceptance pending
+- Status: resource-publish policy checkpoint supervisor-accepted; staged
+  mutation checkpoint implemented and locally verified, pending supervisor
+  review
 
 ## Objective
 
@@ -51,8 +52,9 @@
   unstaged-gitlink resources with explicit remediation commands.
 - Clean resources and clean staged resource gitlinks continue through local
   staged hook checks without publishing.
-- Focused hook tests exercise resource-state classification through a fake
-  command/filesystem boundary; broader hook transaction proof remains open.
+- Focused hook tests exercise resource-state classification and staged
+  mutation boundaries through a fake command/filesystem/hash boundary; broader
+  hook transaction proof remains open.
 - H7 phase record says hooks are closed locally, but Stage 0 classifies
   `CLAIM-H7-HOOKS` as mixed with blockers.
 
@@ -105,16 +107,16 @@ Core synthesis:
 
 ## Implementation
 
-- Completed tasks for this checkpoint: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6,
-  3.7, 5.1, 6.2, 6.3, 6.4, 6.10, 7.1, 7.2, 7.3, 7.4, 8.6, 8.9, and
-  8.12, plus previously completed design/source tasks.
+- Completed tasks for the accepted resource checkpoint: 3.1, 3.2, 3.3, 3.4,
+  3.5, 3.6, 3.7, 5.1, 6.2, 6.3, 6.4, 6.10, 7.1, 7.2, 7.3, 7.4, 8.6, 8.9,
+  and 8.12, plus previously completed design/source tasks.
+- Completed tasks for this staged-mutation checkpoint: 2.5, 6.5, 6.6, 6.7,
+  and 6.8.
 - Remaining tasks: full hook transaction model, full fake-service matrix,
-  generated-zone and package-manager artifact probe proof, partial-staging and
-  formatter-restage proof, Grit hook parse/finding proof, pre-push base/range
-  proof, historical H7 record realignment, aggregate verification, and packet
-  closure.
-- Implementation status: resource-publish policy checkpoint implemented;
-  pending Graphite commit and supervisor review.
+  pre-commit current-tree staged probe matrix, pre-push base/range proof,
+  historical H7 record realignment, aggregate verification, and packet closure.
+- Implementation status: staged-mutation unit checkpoint implemented and
+  locally verified for supervisor review.
 
 ## Verification
 
@@ -155,13 +157,35 @@ Core synthesis:
     `packages/plugins/plugin-hr-scratch-discovery-plugin` returned no paths.
   - stale hook-resource guidance scan over root AGENTS, Habitat README, and
     resources-submodule docs
-- Evidence boundary: this checkpoint proves the default pre-commit resource
-  publish removal, typed resource-state classification, fail-closed remediation
-  for dirty/uninitialized/locked/unstaged states, clean/staged-gitlink
-  continuation, root/dev pre-commit clean-resource command behavior, and
-  adjacent record truth. It does not prove full hook transaction safety, Grit
-  hook parse/finding behavior, pre-push range behavior, CI authority, or
-  product/runtime behavior.
+- New implementation evidence for the staged-mutation checkpoint:
+  - `bun run biome --version` exited 0 and reported Biome `2.4.16`; the
+    staged-mutation tests preserve the existing `biome format --write
+    --no-errors-on-unmatched` and `biome check --no-errors-on-unmatched`
+    command contracts.
+  - `bun run --cwd tools/habitat-harness test -- hooks.test.ts` exited 0 with
+    15 tests, including generated-zone and package-manager artifact file-layer
+    ordering, partial-staging refusal before format, formatter-touched restage
+    only, malformed Grit JSON refusal, and Grit finding refusal.
+  - `bun run --cwd tools/habitat-harness check` exited 0.
+  - `bun run habitat hook pre-commit` exited 0 with `resources: clean`,
+    staged file-layer pass, no staged Biome-supported files, no staged
+    TypeScript/JavaScript Grit paths, and no resource publish path.
+  - `bun run openspec -- validate habitat-git-hook-hardening --strict` exited
+    0.
+  - `bun run openspec:validate` exited 0 with 181 items passed.
+  - `git diff --check` exited 0.
+  - scratch/proof residue scan over the previously observed generator/apply
+    proof paths and Habitat baseline backup files returned no paths.
+- Evidence boundary: the accepted resource checkpoint proves the default
+  pre-commit resource publish removal, typed resource-state classification,
+  fail-closed remediation for dirty/uninitialized/locked/unstaged states,
+  clean/staged-gitlink continuation, root/dev pre-commit clean-resource command
+  behavior, and adjacent record truth. This staged-mutation checkpoint proves
+  focused unit behavior for file-layer ordering before mutation, partial
+  staging refusal, formatter-touched restage scope, and Grit parse/finding
+  fail-closed behavior. It does not prove full hook transaction safety,
+  pre-commit current-tree staged probe behavior, pre-push range behavior, CI
+  authority, or product/runtime behavior.
 
 ## Realignment
 
@@ -170,5 +194,6 @@ Core synthesis:
 
 ## Next Action
 
-- Commit the resource-publish policy checkpoint through Graphite and hold for
-  supervisor review.
+- Hold the staged-mutation checkpoint for supervisor review. Do not claim full
+  hook transaction architecture, current-tree staged probe closure, pre-push
+  proof, CI authority, or packet closure from this slice.

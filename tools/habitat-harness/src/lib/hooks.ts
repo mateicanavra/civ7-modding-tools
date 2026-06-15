@@ -16,6 +16,7 @@ type RunCommand = typeof run;
 interface HookRuntime {
   runCommand?: RunCommand;
   pathExists?: (target: string) => boolean;
+  fileHash?: (repoRelativePath: string) => string | null;
 }
 
 interface GritReport {
@@ -94,8 +95,10 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
     };
   }
 
+  const pathExists = runtime.pathExists ?? existsSync;
+  const hashFile = runtime.fileHash ?? fileHash;
   const staged = stagedPaths(runCommand).filter((candidate) =>
-    existsSync(path.join(repoRoot, candidate))
+    pathExists(path.join(repoRoot, candidate))
   );
 
   const fileLayer = runCommand(
@@ -133,7 +136,7 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
     };
   }
 
-  const beforeHashes = new Map(biomePaths.map((candidate) => [candidate, fileHash(candidate)]));
+  const beforeHashes = new Map(biomePaths.map((candidate) => [candidate, hashFile(candidate)]));
   if (biomePaths.length > 0) {
     const format = runCommand(
       ["biome", "format", "--write", "--no-errors-on-unmatched", ...biomePaths],
@@ -146,7 +149,7 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
     if (format.exitCode !== 0) return { exitCode: format.exitCode, stdout, stderr };
 
     const touched = biomePaths.filter(
-      (candidate) => beforeHashes.get(candidate) !== fileHash(candidate)
+      (candidate) => beforeHashes.get(candidate) !== hashFile(candidate)
     );
     if (touched.length > 0) {
       const restage = gitAdd(touched, runCommand);
@@ -430,18 +433,12 @@ function fileHash(repoRelativePath: string): string | null {
 function parseGritJson(output: string): GritReport | undefined {
   const trimmed = output.trim();
   if (!trimmed) return undefined;
-  for (const candidate of [
-    trimmed,
-    trimmed.slice(trimmed.indexOf("{"), trimmed.lastIndexOf("}") + 1),
-  ]) {
-    if (!candidate.startsWith("{") || !candidate.endsWith("}")) continue;
-    try {
-      return JSON.parse(candidate) as GritReport;
-    } catch {
-      // Grit can emit wrapper text around JSON; try the next candidate.
-    }
+  if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return undefined;
+  try {
+    return JSON.parse(trimmed) as GritReport;
+  } catch {
+    return undefined;
   }
-  return undefined;
 }
 
 function section(label: string, output: string): string {

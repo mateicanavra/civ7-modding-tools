@@ -21,7 +21,7 @@
   before staged path collection and file-layer checks.
 - [x] 2.4 Capture current evidence that the resources script may commit, push,
   and stage the monorepo submodule pointer.
-- [ ] 2.5 Refresh local Biome version and command behavior before implementation
+- [x] 2.5 Refresh local Biome version and command behavior before implementation
   selects exact staged/write command contracts.
 - [ ] 2.6 Refresh Effect package/runtime fit before implementation selects
   Effect or an equivalent hook transaction architecture.
@@ -73,11 +73,11 @@
 - [x] 6.3 Add dirty resources explicit publish refusal test.
 - [x] 6.4 Add uninitialized resources, resources lock, unstaged gitlink, staged
   gitlink, and staged-gitlink-plus-dirty-submodule tests.
-- [ ] 6.5 Add generated-zone and pnpm artifact tests that prove no resources
+- [x] 6.5 Add generated-zone and pnpm artifact tests that prove no resources
   publish happened first.
-- [ ] 6.6 Add partially staged Biome-supported file test.
-- [ ] 6.7 Add formatter-touched restage and foreign staged path tests.
-- [ ] 6.8 Add Grit parse failure and Grit finding tests.
+- [x] 6.6 Add partially staged Biome-supported file test.
+- [x] 6.7 Add formatter-touched restage and foreign staged path tests.
+- [x] 6.8 Add Grit parse failure and Grit finding tests.
 - [ ] 6.9 Add pre-push Graphite parent and non-Graphite base tests.
 - [x] 6.10 Add docs/guidance scan for stale hook-resource claims.
 
