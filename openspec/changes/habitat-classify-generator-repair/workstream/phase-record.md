@@ -9,12 +9,12 @@
   Pattern Authority Effect decision layer. HG descendants may be moved by
   supervisor coordination only.
 - Started: 2026-06-14
-- Status: classify target-truth, path-aware rule-scope, and generator
-  support/refusal checkpoints accepted; generator scratch Nx discovery and
-  generated target-matrix proof accepted; migration proof-boundary checkpoint
-  supervisor-accepted; committed scratch discovery test coverage
-  supervisor-accepted; classify matrix test coverage implemented in the
-  current slice; downstream realignment and packet closure remain open.
+- Status: classify target-truth, path-aware rule-scope, generator
+  support/refusal, generator scratch discovery/target-matrix, migration
+  proof-boundary, committed scratch discovery tests, classify matrix, and
+  representative Nx target-existence checkpoints are supervisor-accepted.
+  Stale guidance and downstream realignment are implemented in the current
+  slice; final packet acceptance remains pending supervisor review.
 
 ## Objective
 
@@ -99,8 +99,11 @@
   `bun run nx show target`; unavailable targets such as `@civ7/adapter:test`
   and `@civ7/types:test` are reported by classify as missing and rejected by
   Nx.
-- README and root AGENTS still contain H8-era generator guidance that must be
-  realigned with resolved target and pattern metadata contracts.
+- README, root AGENTS, recovery ledger rows, and H8 historical records now
+  distinguish resolved classify target truth, supported generator roots,
+  candidate-only pattern generation, and no-op migration wiring proof from
+  still-open registered promotion, convention migration, and product/runtime
+  proof.
 
 ## Source Synthesis
 
@@ -165,9 +168,8 @@ Core synthesis:
 ## Implementation
 
 - Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 4.1-4.5, 5.1-5.7,
-  6.1-6.3, 7.1-7.10, 9.1-9.9, 9.11, and 9.13.
-- Remaining tasks: stale guidance scan, downstream realignment, final
-  verification, and supervisor acceptance.
+  6.1-6.3, 7.1-7.11, 8.1-8.7, 9.1-9.13, and 10.1-10.4.
+- Remaining tasks: final supervisor review/acceptance.
 - Implementation status: target-truth slice committed as a bounded checkpoint;
   path-aware rule-scope slice committed and supervisor-accepted; generator
   support/refusal slice committed and supervisor-accepted; generator scratch
@@ -175,8 +177,10 @@ Core synthesis:
   checkpoint and supervisor-accepted; migration proof-boundary slice
   committed and supervisor-accepted; committed generator scratch discovery test
   coverage committed and supervisor-accepted; classify matrix test coverage
-  committed and supervisor-accepted; Nx target-existence proof matrix
-  implemented in the current slice. Full packet closure remains open.
+  committed and supervisor-accepted; Nx target-existence proof matrix committed
+  and supervisor-accepted; stale guidance/downstream realignment implemented in
+  the current slice. Full packet acceptance remains open until supervisor
+  review.
 
 ## Verification
 
@@ -273,6 +277,26 @@ Core synthesis:
   - `bun run nx show projects --with-target test --json` and
     `bun run nx show projects --with-target check --json` -> current resolved
     project inventory used as native Nx target-existence evidence
+  - stale guidance scan over root `AGENTS.md`,
+    `tools/habitat-harness/README.md`,
+    `docs/projects/habitat-harness/recovery-claim-ledger.md`,
+    `openspec/changes/habitat-generators-migrations/**`,
+    `openspec/changes/habitat-pattern-generator-metadata-repair/**`, and this
+    packet's records -> repaired current-read ambiguity around resolved
+    targets, supported generator roots, candidate-only pattern generation, and
+    migration proof boundaries
+  - `bun run --cwd tools/habitat-harness test -- classify.test.ts project-generator.test.ts migration-boundary.test.ts`
+    -> pass, 3 files / 31 tests
+  - `bun run --cwd tools/habitat-harness check` -> pass
+  - `bun run openspec -- validate habitat-classify-generator-repair --strict`
+    -> pass
+  - `bun run openspec -- validate habitat-generators-migrations --strict`
+    -> pass
+  - `bun run openspec -- validate habitat-pattern-generator-metadata-repair --strict`
+    -> pass
+  - `bun run openspec:validate` -> pass, 181/181
+  - `git diff --check` -> pass
+  - `git ls-files --deleted | wc -l` -> 0
 - Evidence boundary: current implementation proves resolved Nx target truth for
   the adapter missing-target case, structured target proof output, unavailable
   target reporting, workspace-only target handling, literal diff target
@@ -302,6 +326,5 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor review of the committed Nx target-existence proof matrix
-  checkpoint before proceeding to stale guidance, downstream realignment, or
-  packet closure work.
+- Hold for supervisor review of the committed stale-guidance/downstream
+  realignment and final packet-record checkpoint.

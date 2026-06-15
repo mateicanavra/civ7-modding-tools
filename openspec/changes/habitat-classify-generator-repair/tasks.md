@@ -27,7 +27,7 @@
   scripts.
 - [x] 2.6 Refresh official Nx docs and local Nx command behavior before
   implementation selects exact metadata APIs.
-- [ ] 2.7 Refresh Effect fit evidence if implementation crosses into external
+- [x] 2.7 Refresh Effect fit evidence if implementation crosses into external
   command orchestration, provenance, service-runtime, scoped resource,
   retry/concurrency, or typed failure-channel boundaries.
 - [x] 2.8 Refresh command-surface dependency evidence: the upstream
@@ -91,21 +91,21 @@
 - [x] 7.8 Add generator refusal tests for mismatched kind/root pairs.
 - [x] 7.9 Add generator scratch discovery tests for supported kinds.
 - [x] 7.10 Add migration proof-boundary tests or fixture records.
-- [ ] 7.11 Add README/AGENTS stale guidance scan.
+- [x] 7.11 Add README/AGENTS stale guidance scan.
 
 ## 8. Downstream Realignment
 
-- [ ] 8.1 Update root AGENTS classify/generator guidance.
-- [ ] 8.2 Update `tools/habitat-harness/README.md` classify/generator guidance.
-- [ ] 8.3 Update `docs/projects/habitat-harness/recovery-claim-ledger.md` after
+- [x] 8.1 Update root AGENTS classify/generator guidance.
+- [x] 8.2 Update `tools/habitat-harness/README.md` classify/generator guidance.
+- [x] 8.3 Update `docs/projects/habitat-harness/recovery-claim-ledger.md` after
   implementation proof.
-- [ ] 8.4 Update `openspec/changes/habitat-generators-migrations/**` to mark H8
+- [x] 8.4 Update `openspec/changes/habitat-generators-migrations/**` to mark H8
   target/generator closure as historical where this repair supersedes it.
-- [ ] 8.5 Update `habitat-pattern-generator-metadata-repair` downstream records
+- [x] 8.5 Update `habitat-pattern-generator-metadata-repair` downstream records
   if classify target proof changes its dependency wording.
-- [ ] 8.6 Update Nx adoption or boundary taxonomy packets only if resolved graph
+- [x] 8.6 Update Nx adoption or boundary taxonomy packets only if resolved graph
   proof changes their assumptions.
-- [ ] 8.7 Consume implemented root/dev/prod command-surface proof from
+- [x] 8.7 Consume implemented root/dev/prod command-surface proof from
   `habitat-oclif-entrypoint-repair` before closing canonical classify command
   proof.
 
@@ -120,9 +120,9 @@
 - [x] 9.7 generator scratch discovery proof
 - [x] 9.8 generator refusal proof
 - [x] 9.9 migration proof-boundary proof
-- [ ] 9.10 README/AGENTS stale guidance scan
+- [x] 9.10 README/AGENTS stale guidance scan
 - [x] 9.11 full-depth-language guardrail scan over this packet
-- [ ] 9.12 Effect fit decision proof if the implementation crosses its
+- [x] 9.12 Effect fit decision proof if the implementation crosses its
   substrate decision boundary
 - [x] 9.13 Upstream command-surface proof consumed: root/dev/prod Habitat
   entrypoints and selector behavior are repaired before this packet claims
@@ -130,9 +130,9 @@
 
 ## 10. Closure
 
-- [ ] 10.1 Record verification results and proof boundaries in
+- [x] 10.1 Record verification results and proof boundaries in
   `workstream/phase-record.md`.
-- [ ] 10.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
-- [ ] 10.3 Ensure downstream realignment ledger is patched or has exact
+- [x] 10.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
+- [x] 10.3 Ensure downstream realignment ledger is patched or has exact
   remaining actions.
-- [ ] 10.4 Commit through Graphite with a clean worktree.
+- [x] 10.4 Commit through Graphite with a clean worktree.

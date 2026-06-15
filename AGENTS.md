@@ -61,7 +61,9 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
   `docs/projects/habitat-harness/taxonomy.md` before changing `kind:*` tags or
   boundary constraints.
 - For unfamiliar structure, start with `bun run habitat classify <path-or-diff>`
-  before editing. For supported new uniform projects, scaffold with
+  before editing. Treat emitted project targets as runnable only when classify
+  reports them from resolved Nx metadata; unavailable targets are routing facts,
+  not commands to run. For supported new uniform projects, scaffold with
   `nx g @internal/habitat-harness:project <name> --kind=<plugin|foundation|app>`;
   for new Grit-backed rules, use
   `nx g @internal/habitat-harness:pattern <rule-id>` only to create a

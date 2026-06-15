@@ -7,12 +7,17 @@
 - Owner: workstream owner agent
 - Branch/Graphite stack: `agent-F-habitat-generators-migrations` stacked above locally closed H7 `agent-F-habitat-git-hooks`
 - Started: 2026-06-14T00:00:00Z
-- Status: CLOSED locally - implementation, probes, docs, OpenSpec, and final
-  gates verified; Graphite commit pending
+- Status: historical H8 closure record; superseded where later Habitat repair
+  packets define stricter classify target truth, Pattern Authority registration,
+  baseline, and migration proof boundaries.
 
 ## Objective
 
 - Target movement: make supported new structure generative, make `habitat classify` the agent orientation entry point, and wire harness migrations so future convention changes can propagate mechanically.
+- Current interpretation: later repair packets refine this H8 closure. Classify
+  targets must be resolved from current Nx metadata; sparse pattern generation
+  is candidate-only until registered-promotion gates are accepted; no-op
+  migration proof remains wiring-only.
 - Non-goals: no retroactive restructuring of existing projects, no domain-specific mod/engine/control scaffolding, no new enforcement semantics beyond generated clean output, no generated-output hand edits.
 - Done condition: project and pattern generators exist with probes removed after verification, no-op migration wiring executes via local migration run file, classify returns project/tags/rules/targets for path and diff inputs, AGENTS/README procedure is current, OpenSpec/tasks/records are aligned, gates pass, and the branch is committed via Graphite with a clean worktree.
 
@@ -63,7 +68,8 @@
   accepted authority for new enforced rules. The no-op migration remains
   wiring proof only; any future convention migration requires a named source
   shape, target shape, planned file operations, and idempotence proof.
-- Remaining tasks: Graphite commit/clean proof only.
+- Remaining tasks: none in H8; current repair obligations live in downstream
+  Habitat repair packets.
 - Stop conditions triggered: none.
 - Timing interpretation carried from H7: broad self-edits to root/Habitat inputs are an operational boundary, not the normal hook path. H8 should keep normal checks scoped and explicit rather than optimizing around the broad self-edit case.
 
@@ -138,5 +144,6 @@
 
 ## Next Action
 
-- Stage H8 changes, run Graphite commit path, restack upstack, and verify clean
-  worktree.
+- Use H8 as historical source evidence only. Current classify/generator,
+  Pattern Authority, baseline, and migration proof claims are owned by their
+  downstream repair packets.
