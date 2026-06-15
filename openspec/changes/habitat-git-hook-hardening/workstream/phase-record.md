@@ -5,11 +5,11 @@
 - Project: Habitat Harness
 - Phase: git hook hardening / `habitat-git-hook-hardening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-hook-staged-mutation`
+- Branch/Graphite stack: `agent-HR-habitat-hook-pre-push-proof`
 - Started: 2026-06-14
-- Status: resource-publish policy checkpoint supervisor-accepted; staged
-  mutation checkpoint implemented and locally verified, pending supervisor
-  review
+- Status: resource-publish and staged-mutation checkpoints supervisor-accepted;
+  pre-push base/range checkpoint implemented and locally verified for
+  supervisor review
 
 ## Objective
 
@@ -52,9 +52,9 @@
   unstaged-gitlink resources with explicit remediation commands.
 - Clean resources and clean staged resource gitlinks continue through local
   staged hook checks without publishing.
-- Focused hook tests exercise resource-state classification and staged
-  mutation boundaries through a fake command/filesystem/hash boundary; broader
-  hook transaction proof remains open.
+- Focused hook tests exercise resource-state classification, staged mutation
+  boundaries, and pre-push base selection through a fake command/filesystem/hash
+  boundary; broader hook transaction proof remains open.
 - H7 phase record says hooks are closed locally, but Stage 0 classifies
   `CLAIM-H7-HOOKS` as mixed with blockers.
 
@@ -112,10 +112,11 @@ Core synthesis:
   and 8.12, plus previously completed design/source tasks.
 - Completed tasks for this staged-mutation checkpoint: 2.5, 6.5, 6.6, 6.7,
   and 6.8.
+- Completed tasks for this pre-push checkpoint: 6.9 and 8.7.
 - Remaining tasks: full hook transaction model, full fake-service matrix,
-  pre-commit current-tree staged probe matrix, pre-push base/range proof,
-  historical H7 record realignment, aggregate verification, and packet closure.
-- Implementation status: staged-mutation unit checkpoint implemented and
+  pre-commit current-tree staged probe matrix, historical H7 record
+  realignment, aggregate verification, and packet closure.
+- Implementation status: pre-push base/range checkpoint implemented and
   locally verified for supervisor review.
 
 ## Verification
@@ -176,6 +177,17 @@ Core synthesis:
   - `git diff --check` exited 0.
   - scratch/proof residue scan over the previously observed generator/apply
     proof paths and Habitat baseline backup files returned no paths.
+- New implementation evidence for the pre-push checkpoint:
+  - `bun run --cwd tools/habitat-harness test -- hooks.test.ts` exited 0 with
+    20 tests. New tests prove explicit `--base` bypasses Graphite/merge-base
+    probes, Graphite parent output selects the default affected base,
+    non-Graphite fallback uses `git merge-base HEAD main`, literal `main`
+    fallback is used when both merge-base probes fail, and Nx affected failures
+    propagate with base provenance.
+  - `bun run --cwd tools/habitat-harness check` exited 0.
+  - `bun run habitat hook pre-push --base HEAD` exited 0 and rendered `habitat
+    hook pre-push: repo Nx affected base=HEAD`; Nx reported no tasks were run
+    for the empty explicit range.
 - Evidence boundary: the accepted resource checkpoint proves the default
   pre-commit resource publish removal, typed resource-state classification,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
@@ -183,9 +195,13 @@ Core synthesis:
   behavior, and adjacent record truth. This staged-mutation checkpoint proves
   focused unit behavior for file-layer ordering before mutation, partial
   staging refusal, formatter-touched restage scope, and Grit parse/finding
-  fail-closed behavior. It does not prove full hook transaction safety,
-  pre-commit current-tree staged probe behavior, pre-push range behavior, CI
-  authority, or product/runtime behavior.
+  fail-closed behavior. This pre-push checkpoint proves unit behavior for
+  Graphite parent, non-Graphite merge-base, literal-main fallback, explicit
+  base override, Nx command provenance, and Nx failure propagation; it also
+  proves the explicit-base wrapper path on an empty current-tree range. It does
+  not prove full hook transaction safety, pre-commit current-tree staged probe
+  behavior, CI authority, broad Nx affected coverage, or product/runtime
+  behavior.
 
 ## Realignment
 
@@ -194,6 +210,6 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the staged-mutation checkpoint for supervisor review. Do not claim full
-  hook transaction architecture, current-tree staged probe closure, pre-push
-  proof, CI authority, or packet closure from this slice.
+- Hold the pre-push base/range checkpoint for supervisor review. Do not claim
+  full hook transaction architecture, current-tree staged probe closure, CI
+  authority, broad Nx affected coverage, or packet closure from this slice.

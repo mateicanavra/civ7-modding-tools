@@ -78,7 +78,7 @@
 - [x] 6.6 Add partially staged Biome-supported file test.
 - [x] 6.7 Add formatter-touched restage and foreign staged path tests.
 - [x] 6.8 Add Grit parse failure and Grit finding tests.
-- [ ] 6.9 Add pre-push Graphite parent and non-Graphite base tests.
+- [x] 6.9 Add pre-push Graphite parent and non-Graphite base tests.
 - [x] 6.10 Add docs/guidance scan for stale hook-resource claims.
 
 ## 7. Downstream Realignment
@@ -102,7 +102,7 @@
 - [x] 8.6 Explicit resource publish policy proof across dirty submodule,
   uninitialized resources, locked resources, unstaged gitlink, staged gitlink,
   clean resources, and not-configured resources
-- [ ] 8.7 Pre-push base/range proof
+- [x] 8.7 Pre-push base/range proof
 - [x] 8.8 Root/dev `habitat hook` proof after command-surface repair is
   consumed
 - [x] 8.9 README/AGENTS/resources docs stale guidance scan

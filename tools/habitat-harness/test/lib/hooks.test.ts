@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { classifyResourcesState, runPreCommit } from "../../src/lib/hooks.js";
+import { classifyResourcesState, runPreCommit, runPrePush } from "../../src/lib/hooks.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import type { SpawnResult } from "../../src/lib/spawn.js";
 
@@ -230,6 +230,86 @@ describe("Habitat pre-commit staged mutation policy", () => {
   });
 });
 
+describe("Habitat pre-push base policy", () => {
+  test("uses the explicit base override without probing Graphite or merge-base", () => {
+    const fake = makeFakeRuntime();
+
+    const result = runPrePush({ base: "HEAD~1" }, fake.runtime);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=HEAD~1");
+    expect(fake.calls).toContain(
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base HEAD~1 --head HEAD --outputStyle=static"
+    );
+    expect(fake.calls).not.toContain("gt branch info --no-interactive");
+    expect(fake.calls.some((call) => call.startsWith("git merge-base"))).toBe(false);
+  });
+
+  test("uses the Graphite parent as the default affected base when available", () => {
+    const fake = makeFakeRuntime({ graphiteParent: "agent-HR-parent" });
+
+    const result = runPrePush({}, fake.runtime);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain(
+      "habitat hook pre-push: repo Nx affected base=agent-HR-parent"
+    );
+    expect(fake.calls).toContain("gt branch info --no-interactive");
+    expect(fake.calls).toContain(
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base agent-HR-parent --head HEAD --outputStyle=static"
+    );
+    expect(fake.calls.some((call) => call.startsWith("git merge-base"))).toBe(false);
+  });
+
+  test("falls back to the main merge-base when Graphite parent is unavailable", () => {
+    const fake = makeFakeRuntime({ mergeBase: "abc123mergebase" });
+
+    const result = runPrePush({}, fake.runtime);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain(
+      "habitat hook pre-push: repo Nx affected base=abc123mergebase"
+    );
+    expect(fake.calls).toContain("gt branch info --no-interactive");
+    expect(fake.calls).toContain("git merge-base HEAD main");
+    expect(fake.calls).toContain(
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base abc123mergebase --head HEAD --outputStyle=static"
+    );
+  });
+
+  test("falls back to literal main when Graphite and merge-base probes fail", () => {
+    const fake = makeFakeRuntime({ mergeBaseExitCode: 1, originMergeBaseExitCode: 1 });
+
+    const result = runPrePush({}, fake.runtime);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=main");
+    expect(fake.calls).toContain("git merge-base HEAD main");
+    expect(fake.calls).toContain("git merge-base HEAD origin/main");
+    expect(fake.calls).toContain(
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base main --head HEAD --outputStyle=static"
+    );
+  });
+
+  test("propagates Nx affected failures with base provenance", () => {
+    const fake = makeFakeRuntime({
+      graphiteParent: "agent-HR-parent",
+      nxAffectedExitCode: 1,
+      nxAffectedStdout: "affected failed\n",
+      nxAffectedStderr: "target failed\n",
+    });
+
+    const result = runPrePush({}, fake.runtime);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain(
+      "habitat hook pre-push: repo Nx affected base=agent-HR-parent"
+    );
+    expect(result.stdout).toContain("affected failed");
+    expect(result.stderr).toContain("target failed");
+  });
+});
+
 interface FakeRuntimeOptions {
   gitmodulesExists?: boolean;
   resourcesRootExists?: boolean;
@@ -248,6 +328,13 @@ interface FakeRuntimeOptions {
   gritExitCode?: number;
   gritStdout?: string;
   gritStderr?: string;
+  graphiteParent?: string;
+  mergeBase?: string;
+  mergeBaseExitCode?: number;
+  originMergeBaseExitCode?: number;
+  nxAffectedExitCode?: number;
+  nxAffectedStdout?: string;
+  nxAffectedStderr?: string;
 }
 
 function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
@@ -309,6 +396,28 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
         stderr: options.gritStderr ?? "",
       };
     }
+    if (call === "gt branch info --no-interactive") {
+      return options.graphiteParent
+        ? ok(`Parent: ${options.graphiteParent}\n`)
+        : failure(1, "", "no graphite parent\n");
+    }
+    if (call === "git merge-base HEAD main") {
+      return options.mergeBaseExitCode
+        ? failure(options.mergeBaseExitCode)
+        : ok(`${options.mergeBase ?? "mainmergebase"}\n`);
+    }
+    if (call === "git merge-base HEAD origin/main") {
+      return options.originMergeBaseExitCode
+        ? failure(options.originMergeBaseExitCode)
+        : ok(`${options.mergeBase ?? "originmainmergebase"}\n`);
+    }
+    if (call.startsWith("nx affected ")) {
+      return {
+        exitCode: options.nxAffectedExitCode ?? 0,
+        stdout: options.nxAffectedStdout ?? "affected ok\n",
+        stderr: options.nxAffectedStderr ?? "",
+      };
+    }
     throw new Error(`Unexpected hook test command: ${call}`);
   };
 
@@ -350,6 +459,6 @@ function ok(stdout = ""): SpawnResult {
   return { exitCode: 0, stdout, stderr: "" };
 }
 
-function failure(exitCode: number): SpawnResult {
-  return { exitCode, stdout: "", stderr: "" };
+function failure(exitCode: number, stdout = "", stderr = ""): SpawnResult {
+  return { exitCode, stdout, stderr };
 }

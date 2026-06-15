@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { mergeBase } from "./baseline.js";
-import { repoRoot, toRepoRelative } from "./paths.js";
+import { baselinesDir, repoRoot, toRepoRelative } from "./paths.js";
 import { run, type SpawnResult } from "./spawn.js";
 
 type HookName = "pre-commit" | "pre-push";
@@ -202,9 +202,10 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
   return { exitCode: 0, stdout, stderr };
 }
 
-function runPrePush(options: HookOptions): SpawnResult {
-  const base = options.base ?? resolvePrePushBase();
-  const result = run(
+export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {}): SpawnResult {
+  const runCommand = runtime.runCommand ?? run;
+  const base = options.base ?? resolvePrePushBase(runCommand);
+  const result = runCommand(
     [
       "nx",
       "affected",
@@ -375,14 +376,23 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
   };
 }
 
-function resolvePrePushBase(): string {
-  const parent = graphiteParent();
+function resolvePrePushBase(runCommand: RunCommand = run): string {
+  const parent = graphiteParent(runCommand);
   if (parent) return parent;
-  return mergeBase("main") ?? "main";
+  return (
+    mergeBase("main", {
+      repoRoot,
+      baselinesDir,
+      registry: [],
+      externalSources: {},
+      ruleIntroductionManifests: [],
+      runCommand: (argv, options) => runCommand(argv, { cwd: options?.cwd ?? repoRoot }),
+    }) ?? "main"
+  );
 }
 
-function graphiteParent(): string | null {
-  const info = run(["gt", "branch", "info", "--no-interactive"], { cwd: repoRoot });
+function graphiteParent(runCommand: RunCommand = run): string | null {
+  const info = runCommand(["gt", "branch", "info", "--no-interactive"], { cwd: repoRoot });
   if (info.exitCode !== 0) return null;
   return info.stdout.match(/Parent:\s*([^\s]+)/)?.[1] ?? null;
 }
