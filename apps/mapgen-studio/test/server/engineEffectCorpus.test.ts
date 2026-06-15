@@ -58,6 +58,13 @@ function studioContextMethods(source: string): string[] {
     .sort();
 }
 
+function studioContextProperties(source: string): string[] {
+  return [...source.matchAll(/^\s{2}readonly\s+([a-z][A-Za-z0-9]*):/gm)]
+    .map((match) => match[1])
+    .filter((value): value is string => value !== undefined)
+    .sort();
+}
+
 type LedgerRow = {
   readonly cells: readonly string[];
   readonly raw: string;
@@ -119,16 +126,20 @@ describe("D2 engine Effect corpus", () => {
       [
         "apps/mapgen-studio/src/server/studio/engines.ts",
         "apps/mapgen-studio/src/server/studio/context.ts",
-        "apps/mapgen-studio/src/server/runInGame/operationState.ts",
         "apps/mapgen-studio/src/server/runInGame/logFailure.ts",
         "apps/mapgen-studio/src/server/runInGame/proofIdentity.ts",
         "apps/mapgen-studio/src/features/liveRuntime/model.ts",
-        "apps/mapgen-studio/src/server/mapConfigs/operationState.ts",
         "apps/mapgen-studio/src/server/mapConfigs/deploy.ts",
         "apps/mapgen-studio/src/server/daemon/daemon.ts",
         "packages/studio-server/src/context.ts",
         "packages/studio-server/src/handler.ts",
         "packages/studio-server/src/runtime.ts",
+        "packages/studio-server/src/operationRuntime/StudioOperationRuntime.ts",
+        "packages/studio-server/src/operationRuntime/index.ts",
+        "packages/studio-server/src/operationRuntime/model.ts",
+        "packages/studio-server/src/operationRuntime/ports.ts",
+        "packages/studio-server/src/operationRuntime/projection.ts",
+        "packages/studio-server/src/operationRuntime/registry.ts",
         "packages/studio-server/src/liveGame/statusRead.ts",
         "packages/studio-server/src/liveGame/watcher.ts",
         "packages/studio-server/src/services/StudioEventHub.ts",
@@ -136,20 +147,41 @@ describe("D2 engine Effect corpus", () => {
         "packages/studio-server/src/services/Civ7TunerSession.ts",
       ].map((path) => join(repoRoot, path))
     );
-    const requiredRuntimeTokens: CorpusToken[] = [
+    const deletedLifecycleTokens: CorpusToken[] = [
       "createStudioEngines",
       "StudioEngines",
       "studioOperationQueue",
       "runInGameOperations",
       "saveDeployOperations",
-      "serverInstanceId",
-      "serverStartedAt",
       "runAutoplayEngine",
       "runRunInGameStartEngine",
       "runRunInGameStatusEngine",
       "runSaveDeployEngine",
       "runSaveDeployStatusEngine",
       "currentOperations",
+      "createOperationPublisher",
+      "publishOperationEvent",
+    ];
+    const deletedStudioContextMethods = [
+      "autoplay",
+      "runInGameStart",
+      "runInGameStatus",
+      "mapConfigSaveDeploy",
+      "mapConfigStatus",
+      "operationsCurrent",
+    ];
+    const requiredRuntimeTokens: CorpusToken[] = [
+      "createStudioOperationRuntimePorts",
+      "StudioOperationRuntime",
+      "StudioOperationRuntimePorts",
+      "makeStudioOperationRuntimeLayer",
+      "SynchronizedRef",
+      "Effect.makeSemaphore",
+      "FiberSet",
+      "operationEvent",
+      "operationRuntime",
+      "serverInstanceId",
+      "serverStartedAt",
       "StudioRuntimeFailure",
       "deploySwooperMaps",
       "deploySwooperMapsForRun",
@@ -169,8 +201,6 @@ describe("D2 engine Effect corpus", () => {
       "snapshotId",
       "snapshotHash",
       "gameHash",
-      "createOperationPublisher",
-      "publishOperationEvent",
       "StudioEventHub",
       "Civ7TunerSession",
       "Civ7TunerClient",
@@ -182,6 +212,19 @@ describe("D2 engine Effect corpus", () => {
       "Civ7ControlOrpcRouter",
       "loadCiv7SetupCatalog",
     ];
+
+    for (const token of deletedLifecycleTokens) {
+      expect(
+        source,
+        `${ledgerToken(token)} should no longer exist in the scanned D4 production corpus`
+      ).not.toContain(sourceToken(token));
+      expectLedgerRow(runtimeRows, ledgerToken(token), runtimeRowShape);
+    }
+    const contextSource = await readRepoFile("packages/studio-server/src/context.ts");
+    for (const method of deletedStudioContextMethods) {
+      expect(studioContextMethods(contextSource)).not.toContain(method);
+      expectLedgerRow(runtimeRows, `StudioServerContext.${method}`, runtimeRowShape);
+    }
 
     for (const token of requiredRuntimeTokens) {
       expect(
@@ -220,19 +263,13 @@ describe("D2 engine Effect corpus", () => {
     const runtimeRows = parseMarkdownRows(runtimeLedger);
     const contextSource = await readRepoFile("packages/studio-server/src/context.ts");
 
-    expect(studioContextMethods(contextSource)).toEqual([
-      "autoplay",
-      "loadSetupCatalog",
-      "mapConfigSaveDeploy",
-      "mapConfigStatus",
-      "operationsCurrent",
-      "runInGameStart",
-      "runInGameStatus",
-    ]);
+    expect(studioContextMethods(contextSource)).toEqual(["loadSetupCatalog"]);
+    expect(studioContextProperties(contextSource)).toContain("operationRuntime");
 
     for (const method of studioContextMethods(contextSource)) {
       expectLedgerRow(runtimeRows, `StudioServerContext.${method}`, runtimeRowShape);
     }
+    expectLedgerRow(runtimeRows, "StudioServerContext.operationRuntime", runtimeRowShape);
   });
 
   it("keeps every production control-oRPC mutation helper declaration classified", async () => {

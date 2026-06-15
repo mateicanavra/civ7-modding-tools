@@ -7,6 +7,7 @@ import {
   createStudioRpcHandler,
   type StudioContract,
   type StudioEventHubApi,
+  type StudioOperationRuntimePorts,
   type StudioRpcHandle,
   type StudioServerContext,
   studioEffectContract,
@@ -72,13 +73,14 @@ describe("one /rpc mount serves the whole unified contract", () => {
     });
 
     // (a) studio namespace.
-    await expect(client.studio.serverInfo({})).resolves.toMatchObject({
+    const serverInfo = await client.studio.serverInfo({});
+    expect(serverInfo).toMatchObject({
       ok: true,
-      serverInstanceId: "one-mount-test",
+      serverInstanceId: expect.stringMatching(/^studio-server-/),
     });
     await expect(client.studio.operations.current({})).resolves.toMatchObject({
       ok: true,
-      serverInstanceId: "one-mount-test",
+      serverInstanceId: serverInfo.serverInstanceId,
       runInGame: { active: null, recent: [] },
       saveDeploy: { active: null, recent: [] },
     });
@@ -228,35 +230,10 @@ function makeContext(overrides: Partial<StudioServerContext>): StudioServerConte
   const eventHub = overrides.eventHub ?? createStudioEventHub();
   if (!overrides.eventHub) openEventHubs.push(eventHub);
   return {
-    serverInstanceId: "one-mount-test",
-    serverStartedAt: "2026-06-12T00:00:00.000Z",
     viteCommand: "serve",
     loadSetupCatalog: async () => {
       throw new Error("Unexpected setup-catalog call");
     },
-    autoplay: async () => {
-      throw new Error("Unexpected autoplay call");
-    },
-    runInGameStart: async () => {
-      throw new Error("Unexpected run-in-game start call");
-    },
-    runInGameStatus: async () => {
-      throw new Error("Unexpected run-in-game status call");
-    },
-    mapConfigSaveDeploy: async () => {
-      throw new Error("Unexpected map-config save/deploy call");
-    },
-    mapConfigStatus: async () => {
-      throw new Error("Unexpected map-config status call");
-    },
-    operationsCurrent: async () => ({
-      ok: true,
-      serverInstanceId: "one-mount-test",
-      serverStartedAt: "2026-06-12T00:00:00.000Z",
-      observedAt: "2026-06-12T00:00:00.000Z",
-      runInGame: { active: null, recent: [] },
-      saveDeploy: { active: null, recent: [] },
-    }),
     recipeDagService: {
       getRecipeDag: async () => {
         throw new Error("Unexpected recipe-DAG call");
@@ -267,7 +244,33 @@ function makeContext(overrides: Partial<StudioServerContext>): StudioServerConte
       timeoutMs: 1234,
     },
     eventHub,
+    operationRuntime: makeOperationRuntimePorts(),
     ...overrides,
+  };
+}
+
+function makeOperationRuntimePorts(): StudioOperationRuntimePorts {
+  return {
+    clock: {
+      now: () => new Date("2026-06-12T00:00:00.000Z"),
+    },
+    materializeRunInGame: async () => ({}),
+    deployRunInGame: async () => ({}),
+    checkCiv7ForRunInGame: async () => undefined,
+    prepareSetupForRunInGame: async () => ({}),
+    startGameForRunInGame: async () => ({}),
+    waitForRunInGameProof: async () => ({ result: { ok: true } }),
+    prepareSaveDeployStart: async () => ({}),
+    saveMapConfig: async () => ({ saved: true }),
+    deploySavedMapConfig: async () => ({ deployed: true }),
+    runAutoplay: async (input) => ({
+      ok: true,
+      action: input.action,
+      autoplay: {},
+      game: {},
+      gameContext: {},
+      result: {},
+    }),
   };
 }
 

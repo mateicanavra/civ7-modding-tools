@@ -9,6 +9,7 @@ import {
   type LiveGameWatcher,
   type LiveGameWatcherOptions,
 } from "./liveGame/watcher.js";
+import { StudioOperationRuntime, type StudioDaemonIdentity } from "./operationRuntime/index.js";
 import { createStudioRouter } from "./router/index.js";
 import { makeStudioRuntime } from "./runtime.js";
 import { Civ7TunerSession, type Civ7TunerSessionHealth } from "./services/Civ7TunerSession.js";
@@ -49,6 +50,9 @@ export interface StudioRpcHandle {
   ): Promise<{ matched: boolean; response?: Response }>;
   readonly tuner: {
     health(): Promise<Civ7TunerSessionHealth>;
+  };
+  readonly operationRuntime: {
+    identity(): Promise<StudioDaemonIdentity>;
   };
   dispose(): Promise<void>;
 }
@@ -133,6 +137,10 @@ export function createStudioRpcHandler(
       }),
     tuner: {
       health: () => runtime.runPromise(Effect.flatMap(Civ7TunerSession, (tuner) => tuner.health)),
+    },
+    operationRuntime: {
+      identity: () =>
+        runtime.runPromise(Effect.map(StudioOperationRuntime, (operationRuntime) => operationRuntime.identity)),
     },
     dispose: async () => {
       liveGameWatcher?.stop();

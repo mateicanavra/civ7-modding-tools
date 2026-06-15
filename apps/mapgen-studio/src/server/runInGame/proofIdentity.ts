@@ -12,6 +12,8 @@ import type {
 } from "@civ7/studio-server";
 import type { RunInGameDetailedExactAuthorshipProof } from "./proofTypes";
 
+export { buildRunInGameSourceSnapshotProof } from "@civ7/studio-server";
+
 export type RunInGameRequiredContentMarker = Readonly<{
   id: string;
   marker: string;
@@ -96,43 +98,6 @@ export function runInGameRequiredMaterializationMarkers(args: {
  */
 export function mapScriptEmbedsRequestId(bundleText: string, requestId: string): boolean {
   return bundleText.includes(requestId);
-}
-
-export function buildRunInGameSourceSnapshotProof(args: {
-  requestId: string;
-  sourceSnapshot: unknown;
-  configHash: string;
-  envelopeHash: string;
-}): RunInGameSourceSnapshotProof | undefined {
-  if (!isRecord(args.sourceSnapshot)) return undefined;
-  return {
-    identityHash: hashProofValue({
-      sourceSnapshot: args.sourceSnapshot,
-      configHash: args.configHash,
-      envelopeHash: args.envelopeHash,
-    }),
-    requestId: args.requestId,
-    ...(args.sourceSnapshot.recipeSettings === undefined
-      ? {}
-      : { recipeSettings: args.sourceSnapshot.recipeSettings }),
-    ...(args.sourceSnapshot.worldSettings === undefined
-      ? {}
-      : { worldSettings: args.sourceSnapshot.worldSettings }),
-    ...(args.sourceSnapshot.pipelineConfig === undefined
-      ? {}
-      : { pipelineConfig: args.sourceSnapshot.pipelineConfig }),
-    ...(args.sourceSnapshot.setupConfig === undefined
-      ? {}
-      : { setupConfig: args.sourceSnapshot.setupConfig }),
-    ...(typeof args.sourceSnapshot.materializationMode === "string"
-      ? { materializationMode: args.sourceSnapshot.materializationMode }
-      : {}),
-    ...(args.sourceSnapshot.selectedConfig === undefined
-      ? {}
-      : { selectedConfig: args.sourceSnapshot.selectedConfig }),
-    configHash: args.configHash,
-    envelopeHash: args.envelopeHash,
-  };
 }
 
 export function buildRunInGameExactAuthorshipProof(args: {
@@ -618,25 +583,6 @@ export function parseSwooperMapgenLogProof(args: {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function hashProofValue(value: unknown): string {
-  return createHash("sha256")
-    .update(JSON.stringify(canonicalize(value)))
-    .digest("hex");
-}
-
-function canonicalize(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonicalize);
-  if (value && typeof value === "object") {
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
-      const item = (value as Record<string, unknown>)[key];
-      if (item !== undefined) out[key] = canonicalize(item);
-    }
-    return out;
-  }
-  return value;
 }
 
 function probeValue(value: unknown): unknown {

@@ -1,7 +1,7 @@
 # D4 Testing Ledger
 
-Status: accepted
-Date: 2026-06-14
+Status: accepted; implementation proof pass complete and committed on current branch tip
+Date: 2026-06-14; implementation refresh 2026-06-15
 
 | Layer | Required proof | Adequacy criterion |
 | --- | --- | --- |
@@ -60,3 +60,73 @@ rg -n "\"exports\"|@civ7/studio-server/runtime|src/runtime|operationTypes|runtim
 ```
 
 Hits are not automatically failures. D4 implementation must classify them as removed lifecycle ownership, leaf adapter code, router/runtime ownership, D10 live-watcher ownership, historical evidence, or a blocker. Do not run background-worker searches globally against the existing live-game watcher and treat that as a D4 blocker unless D4 code starts owning it.
+
+## Implementation Proof Results
+
+Passed on 2026-06-15:
+
+```bash
+bun run --cwd packages/studio-server check
+bun run --cwd packages/studio-server test
+bun run --cwd packages/studio-server test -- test/operationRuntime.test.ts test/handler.test.ts
+bun run --cwd packages/studio-server test -- test/operationRuntime.test.ts -t "returns duplicate Run in Game fingerprint after a failed terminal record"
+bun run --cwd packages/studio-server build
+bun run --cwd apps/mapgen-studio check
+bun run --cwd apps/mapgen-studio build
+bun run --cwd apps/mapgen-studio test -- test/server/oneMount.test.ts test/server/engineEffectCorpus.test.ts test/runInGame/proofIdentity.test.ts
+```
+
+Exact public declaration privacy proof after `packages/studio-server` build:
+
+```bash
+rg --pcre2 -n "\b(RunInGameInternalOperation|SaveDeployInternalOperation|RegistryState|RuntimeActiveSlot|RuntimeTombstone|RuntimeRegistry|StudioOperationRuntime|StudioOperationRuntimeApi|makeStudioOperationRuntimeLayer)\b" packages/studio-server/dist/index.d.ts packages/studio-server/dist/contract/index.d.ts packages/studio-server/dist/liveGame/model.d.ts packages/studio-server/dist/index-*.d.ts packages/studio-server/package.json
+```
+
+Result: zero hits. The bundled public DTS still exports the host leaf-port type
+`StudioOperationRuntimePorts`; that is the app-to-package port contract, not an
+internal registry/state ADT or the private `StudioOperationRuntime` service
+graph. `packages/studio-server/package.json` declares only `.`, `./contract`,
+and `./live-game` exports; there is no `./runtime` or `./operationRuntime`
+public package subpath.
+
+Lifecycle-island scan:
+
+```bash
+rg -n "createStudioEngines|StudioEngines|createRunInGameOperationStore|createMapConfigSaveDeployOperationStore|studioOperationQueue|runRunInGameStartEngine|runRunInGameStatusEngine|runSaveDeployEngine|runSaveDeployStatusEngine|runAutoplayEngine|operationsCurrent\(|publishOperation|operationEvent" apps/mapgen-studio/src/server/studio apps/mapgen-studio/src/server/daemon -g "*.ts" -g "*.tsx"
+```
+
+Result: zero hits. The old app operation-state source/tests are deletion
+evidence in this slice, not retained proof truth.
+
+Runtime-private import scan:
+
+```bash
+rg -n "@civ7/studio-server/(operationRuntime|runtime)|src/operationRuntime|src/runtime|@civ7/studio-server/runtime" apps/mapgen-studio packages -g "*.ts" -g "*.tsx" -g "*.d.ts" -g "package.json"
+```
+
+Result/classification: app code has no private package-runtime imports. Hits are
+limited to D4 corpus tests/ledgers, package-local runtime tests, and unrelated
+`@civ7/direct-control` runtime source names.
+
+Bridge-residue scan:
+
+```bash
+rg -n "RunInGameHttpError|StudioEngineError|run-in-game-operation-active|save-deploy-operation-active|details\?: unknown|Type\.Unknown\(\)" apps/mapgen-studio/src/server packages/studio-server/src -g "*.ts" -g "*.tsx"
+```
+
+Result/classification: no D3 bridge error hits. Remaining `Type.Unknown()`
+hits are D2.5 public contract open-value fields such as setup/config/envelope
+payloads, not the old `details?: unknown` error bridge.
+
+Browser-runner / preview residual scan:
+
+```bash
+rg -n "browser-runner|watchdog|poll|preview|devLive|browser test|browser-test|browserTest" apps/mapgen-studio/src apps/mapgen-studio/test packages/studio-server/src openspec/changes/mapgen-studio-engine-runtime-services -g "*.ts" -g "*.tsx" -g "*.md"
+```
+
+Result/classification: browser-runner/preview/devLive residue remains outside
+D4. D4 claims only removal of the old app operation lifecycle island and package
+operation-runtime ownership; D6, D9, D10, and D12 own browser recovery,
+poll/watchdog, live-status cadence, and final residue classification.
+
+Live Civ7 Play/Save&Deploy proof is not claimed by D4.

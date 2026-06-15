@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { createStudioEventHub, createStudioRpcHandler } from "@civ7/studio-server";
 
 import { createStudioServerContext } from "../studio/context";
-import { createStudioEngines } from "../studio/engines";
+import { createStudioOperationRuntimePorts } from "../studio/engines";
 
 // ============================================================================
 // Studio daemon — the standalone Bun server owning the studio server surface
@@ -13,8 +13,8 @@ import { createStudioEngines } from "../studio/engines";
 // surface to ONE oRPC mount).
 // ----------------------------------------------------------------------------
 // This process owns EVERY `/rpc` byte and ALL server state (the one
-// `createStudioEngines` instance — queue, operation stores, instance
-// identity). Vite is frontend-only and proxies `/rpc` here.
+// package-owned operation runtime). Vite is frontend-only and proxies `/rpc`
+// here.
 //
 // The server surface is ONE oRPC mount (runtime-simplification DP-1): `/rpc`
 // hosts the unified `@civ7/studio-server` contract — the studio surface,
@@ -153,8 +153,13 @@ export function createStudioDaemonFetch(
 
 export async function createStudioDaemon(args: StudioDaemonArgs) {
   const eventHub = createStudioEventHub();
-  const engines = createStudioEngines({ repoRoot: args.repoRoot, eventHub });
-  const context = createStudioServerContext({ engines, eventHub, hostCommand: "daemon" });
+  const operationRuntime = createStudioOperationRuntimePorts({ repoRoot: args.repoRoot });
+  const context = createStudioServerContext({
+    operationRuntime,
+    eventHub,
+    hostCommand: "daemon",
+    repoRoot: args.repoRoot,
+  });
   // The ONE handler over the ONE runtime. Session sharing is structural now:
   // the handler resolves the shared tuner connection from its runtime and
   // threads it into every control procedure's endpointDefaults — every
@@ -163,23 +168,25 @@ export async function createStudioDaemon(args: StudioDaemonArgs) {
   const studioRpc = createStudioRpcHandler(context, { liveGameWatch: {} });
   const deps: StudioDaemonDeps = {
     studioRpc,
-    health: async () => ({
-      ok: true,
-      serverInstanceId: engines.serverInstanceId,
-      startedAt: engines.serverStartedAt,
-      repoRoot: args.repoRoot,
-      assetsRoot: args.assetsRoot ?? null,
-      runtimeMode: "studio-daemon-effect-orpc",
-      // Wedge observability: consecutive response-timeouts on the shared
-      // socket + backoff gate state (tuner-session workstream).
-      tuner: await studioRpc.tuner.health(),
-    }),
+    health: async () => {
+      const identity = await studioRpc.operationRuntime.identity();
+      return {
+        ok: true,
+        serverInstanceId: identity.serverInstanceId,
+        startedAt: identity.serverStartedAt,
+        repoRoot: args.repoRoot,
+        assetsRoot: args.assetsRoot ?? null,
+        runtimeMode: "studio-daemon-effect-orpc",
+        // Wedge observability: consecutive response-timeouts on the shared
+        // socket + backoff gate state (tuner-session workstream).
+        tuner: await studioRpc.tuner.health(),
+      };
+    },
     ...(args.assetsRoot ? { assetsRoot: args.assetsRoot } : {}),
   };
   const fetch = createStudioDaemonFetch(deps);
 
   return {
-    engines,
     /** Closes the studio runtime scope — graceful FIN to the game — and event bus. */
     dispose: async () => {
       await studioRpc.dispose();
