@@ -25,7 +25,7 @@ out/**
 !.civ7/outputs/resources/
 packages/cli/oclif.manifest.json
 
-# Docs build output (for Turbo outputs)
+# Docs build output (declared as Nx outputs)
 apps/docs/dist/
 
 # Playground generated examples
@@ -60,8 +60,6 @@ Thumbs.db
 apps/docs/public/civ7-official/resources/
 .early.coverage/
 
-# Turbo cache
-.turbo/
 
 # AI-generated artifacts and archives
 .ai/*
@@ -79,3 +77,7 @@ apps/docs/public/civ7-official/resources/
 .worktrees/
 **/*.scratch.md
 .scratch/
+
+# Nx
+.nx/cache
+.nx/workspace-data

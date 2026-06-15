@@ -1,6 +1,6 @@
 # Contributing to Civ7 Modding Tools
 
-This repository is a Bun + Turborepo monorepo.
+This repository is a Bun + Nx monorepo.
 
 ## Prerequisites
 - Node 22.14+ (see `.nvmrc`)
@@ -46,7 +46,7 @@ bun run test
 - MapGen Studio:
   ```bash
   bun run dev:mapgen-studio
-  bunx turbo run build --filter=mapgen-studio
+  bunx nx run mapgen-studio:build
   ```
 
 ### Root convenience scripts
@@ -87,7 +87,7 @@ bun run test
 
 ## Package Validation
 
-Use root scripts for package validation so Turborepo builds workspace
+Use root scripts for package validation so Nx builds workspace
 dependencies before running package tests:
 
 ```bash
@@ -103,16 +103,16 @@ packages like `@civ7/direct-control`, so package-local tests can otherwise read
 stale `dist/` output.
 
 `bun run link:cli` follows the same rule: it builds `@mateicanavra/civ7-cli`
-through Turborepo first, including the oclif manifest generation in the package
+through Nx first, including the oclif manifest generation in the package
 build, then registers the package binary as the global `civ7` command.
 
 Normal package-local `dev`, `build`, `check`, and `test` scripts must stay
 leaf-local. They should not call `scripts/preflight`, run `bun --filter`, run
-`bun --cwd` against sibling workspaces, or invoke Turbo recursively. If a task
-needs workspace dependency freshness, add the dependency edge in `turbo.json`
-and expose a root script. Package-local deploy scripts follow the same
+`bun --cwd` against sibling workspaces, or invoke Nx recursively. If a task
+needs workspace dependency freshness, add the dependency edge in `nx.json`
+(or the package's `"nx"` field) and expose a root script. Package-local deploy scripts follow the same
 dependency-authority rule: they perform the deploy action only, while root
-Turbo tasks provide build prerequisites such as mod builds and the Civ7 CLI.
+Nx tasks provide build prerequisites such as mod builds and the Civ7 CLI.
 Explicit diagnostics may perform domain-specific setup when that setup is part
 of the named diagnostic path, but not by hiding dependency freshness inside
 normal app entrypoints.

@@ -3,7 +3,7 @@
 This directory hosts colocated Civilization VII mod projects that consume the SDK from `packages/sdk`. Each mod is a separate workspace under `mods/<mod-name>` and builds into a local `./mod/` folder that mirrors the in-game Mods layout.
 
 - Workspaces: `mods/*` are included in the monorepo workspaces.
-- Caching: Turbo caches `mods/*/mod/**`.
+- Caching: Nx caches `mods/*/mod/**`.
 - Git hygiene: `mods/*/mod/` is ignored by `.gitignore`.
 
 Conventions
@@ -71,7 +71,7 @@ git subtree add \
 - Ensure `mods/my-civ-mod/package.json` has:
   - `"private": true`
   - `dependencies: { "@mateicanavra/civ7-sdk": "workspace:*" }`
-  - A build that writes to `./mod/` (aligns with `.gitignore` and Turbo caching)
+  - A build that writes to `./mod/` (aligns with `.gitignore` and Nx caching)
 
 If the imported mod builds elsewhere, adjust its output path to `./mod/`.
 

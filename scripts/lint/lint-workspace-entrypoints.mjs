@@ -30,7 +30,7 @@ const hiddenDependencyOrchestrationPatterns = [
   {
     id: "workspace-filter-build",
     pattern: /\bbun\s+run\s+--filter\b/,
-    reason: "cross-workspace package selection belongs in root Turbo scripts",
+    reason: "cross-workspace package selection belongs in root Nx scripts",
     scope: "all",
   },
   {
@@ -40,9 +40,9 @@ const hiddenDependencyOrchestrationPatterns = [
     scope: "all",
   },
   {
-    id: "nested-turbo",
-    pattern: /\b(?:bunx\s+)?turbo\s+run\b/,
-    reason: "package-local scripts must not invoke Turbo recursively",
+    id: "nested-nx",
+    pattern: /\b(?:bunx\s+)?nx\s+(?:run|run-many|affected)\b/,
+    reason: "package-local scripts must not invoke Nx orchestration recursively",
     scope: "all",
   },
 ];
@@ -76,7 +76,7 @@ for (const file of packageJsonFiles) {
 
 if (failures.length > 0) {
   console.error("Package-local scripts contain hidden workspace dependency orchestration.");
-  console.error("Use root Turbo scripts for dependency freshness; keep package-local scripts leaf-local.");
+  console.error("Use root Nx scripts for dependency freshness; keep package-local scripts leaf-local.");
   for (const failure of failures) {
     console.error(
       `\n- ${failure.file} (${failure.package}) script '${failure.script}' violates ${failure.rule}`

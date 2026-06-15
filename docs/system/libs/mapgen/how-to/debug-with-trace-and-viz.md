@@ -51,7 +51,7 @@ bun run --cwd mods/mod-swooper-maps viz:standard
 ```
 
 Notes:
-- Canonical deploy-equivalent builds use Turbo from repo root (see `bun run dev:mapgen-studio` / `bunx turbo run build --filter=mapgen-studio`).
+- Canonical deploy-equivalent builds use Nx from repo root (see `bun run dev:mapgen-studio` / `bunx nx run mapgen-studio:build`).
 - The `viz:*` scripts run a small preflight to build dist-exported workspace deps (adapter/core/viz) when needed in a fresh checkout.
 
 Both scripts accept optional CLI args: `width height seed` (see code in the anchors).
