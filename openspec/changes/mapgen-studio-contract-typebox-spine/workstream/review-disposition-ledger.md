@@ -1,7 +1,9 @@
 # D2.5 Review Disposition Ledger
 
-Status: accepted
+Status: packet accepted; implementation-diff review complete with no blocking P1/P2; live Civ7 proof unclaimed and Habitat lower-slice debt retained as stack-owned non-closure evidence
 Date: 2026-06-14
+
+The rows below record packet-acceptance and pre-implementation review findings. They are not a substitute for fresh review of the current implementation diff after the final Run-in-Game DTO/proof-type split.
 
 | ID | Lane | Finding | Severity | Disposition | Repair |
 | --- | --- | --- | --- | --- | --- |
@@ -33,3 +35,23 @@ Date: 2026-06-14
 ## Acceptance Summary
 
 D2.5 has no unresolved P1/P2 findings. The final targeted reviews accepted the split between packet acceptance and future implementation closure, the explicit entrance/build/Graphite proof gates, router-only `effect-orpc` ownership, and the D3 bridge timing rule.
+
+## Implementation-Diff Review
+
+| ID | Lane | Finding | Severity | Disposition | Repair |
+| --- | --- | --- | --- | --- | --- |
+| D2.5-I1 | Locke implementation review | Public Run-in-Game wire state was still partly app-server local: `proofTypes.ts` redefined public sub-DTO names and context/event casts crossed the package seam. | P1 | accepted | `proofTypes.ts` now imports public sub-DTOs from `@civ7/studio-server`; package entrypoints export all public Run-in-Game proof subtypes; runInGame context/event casts were removed; `RunInGameFailureDetails` and `RunInGameProcessRestartStatus` TS types now reflect their open TypeBox records. |
+| D2.5-I2 | Locke implementation review | Negative residue proof missed context/event casts and public sub-DTO redefinitions. | P2 | accepted | `contractTypeboxSpine.test.ts` now scans `context.ts`, `engines.ts`, and `proofTypes.ts` for runInGame seam casts, server imports from `features/runInGame/status`, and local public DTO aliases. |
+| D2.5-I3 | Locke implementation review | Closure records overclaimed 3A.4 while local public sub-DTO replacements remained. | P2 | accepted | Schema/testing/closure ledgers now distinguish package-owned public DTOs from server-owned detailed proof extensions and keep implementation review as a separate closure gate. |
+| D2.5-I4 | Socrates implementation review | `proofTypes.ts` still exported a local `RunInGameExactAuthorshipProof` detailed subtype under the package public DTO name. | P2 | accepted | The local server extension is now named `RunInGameDetailedExactAuthorshipProof`; package keeps the public `RunInGameExactAuthorshipProof` name. The guard rejects local non-detailed `RunInGame*` public DTO exports. |
+| D2.5-I5 | Socrates implementation review | Operation event schema reuse was implemented but not proved; only `operations.current` identity was tested. | P2 | accepted | `studioOperationEventSchema` is exported for package-level testing, and `contractTypeboxSpine.test.ts` asserts Run-in-Game and Save&Deploy operation-event status schemas reuse the canonical operation DTO schemas. |
+| D2.5-I6 | Socrates implementation review | Raw-control comment omitted `session` and `stateName` even though parser/tests reject them. | P3 | accepted | `packages/studio-server/src/contract/runInGame.ts` security comment now includes `session` and `stateName`. |
+| D2.5-I7 | Maxwell implementation review | Public Run-in-Game DTO type use sites still imported through `features/runInGame/status.ts`, leaving the feature helper as a public DTO barrel. | P2 | accepted | App/test Run-in-Game public DTO type imports now come directly from `@civ7/studio-server`; `features/runInGame/status.ts` no longer re-exports public DTO types and remains a helper module. |
+| D2.5-I8 | Maxwell implementation review | The DTO authority guard scanned too few server Run-in-Game files and did not reject non-exported local public proof aliases. | P2 | accepted | `contractTypeboxSpine.test.ts` now scans all server Run-in-Game sources plus Studio context/engines for status-helper imports and seam casts, and rejects local non-detailed `RunInGame*` type/interface definitions in `proofTypes.ts`. |
+| D2.5-I9 | supervisor boundary check | Save&Deploy public DTO type imports still flowed through `features/mapConfigSave/status.ts`, making the helper-only claim asymmetric and untrue. | P2 | accepted | App/server/test Save&Deploy public DTO type imports now come directly from `@civ7/studio-server`; `features/mapConfigSave/status.ts` no longer re-exports public DTO types, and the guard rejects `MapConfigSaveDeploy*` DTO type imports through the feature status helper. |
+| D2.5-I10 | Gauss implementation review | DTO import guard covered `apps/mapgen-studio/src` but not `apps/mapgen-studio/test`, while closure docs claim app/server/test public DTO use sites. | P3 | accepted | `contractTypeboxSpine.test.ts` now includes `apps/mapgen-studio/test` in the public DTO import-through-feature-status negative scan. |
+| D2.5-I11 | Gauss implementation review | Feature status helper proof did not explicitly reject `export type { ... } from "@civ7/studio-server"` re-export barrels. | P3 | accepted | `contractTypeboxSpine.test.ts` now rejects package DTO type re-export barrels in both Run-in-Game and Save&Deploy feature status helpers. |
+| D2.5-I12 | Nash implementation review | Feature status helper proof rejected only direct `export type { ... } from "@civ7/studio-server"` barrels and would miss local re-export shapes after importing package types for helper signatures. | P3 | accepted | `contractTypeboxSpine.test.ts` now rejects local `export type { RunInGame* }` and `export type { MapConfigSaveDeploy* }` re-export shapes in the feature status helper modules. |
+| D2.5-I13 | Mencius implementation review | Feature status helper proof would still miss valid TypeScript `export { type RunInGameOperationStatus }` / `export { type MapConfigSaveDeployStatus }` forms. | P3 | accepted | `contractTypeboxSpine.test.ts` now rejects `export { type RunInGame* }` and `export { type MapConfigSaveDeploy* }` forms, including `from` re-export variants. |
+
+Final implementation-diff review complete: Mencius found no blocking P1/P2 in the current D2.5 diff. All P1/P2/P3 findings recorded above are accepted and repaired. Live Civ7 Play/Save&Deploy proof remains unclaimed, and the Habitat lower-slice grit failure remains stack-owned debt outside D2.5 closure.

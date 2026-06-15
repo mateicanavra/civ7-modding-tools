@@ -4,13 +4,13 @@ import { isAbsolute, relative, resolve } from "node:path";
 
 import type {
   RunInGameContentMarkerProof,
-  RunInGameExactAuthorshipProof,
   RunInGameFileContentProof,
   RunInGameFileIdentity,
   RunInGameMaterializationStatus,
   RunInGameRequestStatus,
   RunInGameSourceSnapshotProof,
-} from "../../features/runInGame/status";
+} from "@civ7/studio-server";
+import type { RunInGameDetailedExactAuthorshipProof } from "./proofTypes";
 
 export type RunInGameRequiredContentMarker = Readonly<{
   id: string;
@@ -147,7 +147,7 @@ export function buildRunInGameExactAuthorshipProof(args: {
   rowProof?: unknown;
   setupSnapshot?: unknown;
   startMapSummary?: unknown;
-  logProof?: RunInGameExactAuthorshipProof["log"];
+  logProof?: RunInGameDetailedExactAuthorshipProof["log"];
   liveRuntimeSnapshot?: {
     snapshotId?: string;
     snapshotHash?: string;
@@ -155,7 +155,7 @@ export function buildRunInGameExactAuthorshipProof(args: {
     gameHash?: number;
   };
   createdAt?: string;
-}): RunInGameExactAuthorshipProof {
+}): RunInGameDetailedExactAuthorshipProof {
   const setupReadback = setupReadbackFromSnapshot(args.setupSnapshot);
   const runtimeSummary = runtimeSummaryFromMapSummary(args.startMapSummary);
   const runtimeTurn = runtimeSummary.turn ?? args.liveRuntimeSnapshot?.turn;
@@ -540,7 +540,7 @@ export function parseSwooperMapgenLogProof(args: {
   configHash: string;
   envelopeHash: string;
   seed: number;
-}): RunInGameExactAuthorshipProof["log"] | undefined {
+}): RunInGameDetailedExactAuthorshipProof["log"] | undefined {
   const lines = args.text.split(/\r?\n/);
   const completionLine = lastSwooperPayloadLine(lines, "[mapgen-complete]", args);
   const proofLine = completionLine
@@ -758,7 +758,9 @@ function parseResourcePlacementTelemetryBetween(
   lines: readonly string[],
   proofIndex: number,
   completionIndex: number
-): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["resourcePlacement"]> | undefined {
+):
+  | NonNullable<NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["resourcePlacement"]>
+  | undefined {
   for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
     const line = lines[index] ?? "";
     if (!line.includes("RESOURCE_PLACEMENT_V1")) continue;
@@ -779,7 +781,9 @@ function parsePlacementSurfacePreparationTelemetryBetween(
   proofIndex: number,
   completionIndex: number
 ):
-  | NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["placementSurfacePreparation"]>
+  | NonNullable<
+      NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["placementSurfacePreparation"]
+    >
   | undefined {
   for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
     const line = lines[index] ?? "";
@@ -813,7 +817,9 @@ function parseFeatureApplyTelemetryBetween(
   lines: readonly string[],
   proofIndex: number,
   completionIndex: number
-): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["featureApply"]> | undefined {
+):
+  | NonNullable<NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["featureApply"]>
+  | undefined {
   for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
     const line = lines[index] ?? "";
     if (!line.includes("FEATURE_APPLY_V1")) continue;
@@ -833,7 +839,7 @@ function parseNaturalWonderPlacementTelemetryBetween(
   proofIndex: number,
   completionIndex: number
 ):
-  | NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>
+  | NonNullable<NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlacement"]>
   | undefined {
   for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
     const line = lines[index] ?? "";
@@ -855,7 +861,9 @@ function parseNaturalWonderPlanTelemetryBetween(
   lines: readonly string[],
   proofIndex: number,
   completionIndex: number
-): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]> | undefined {
+):
+  | NonNullable<NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlan"]>
+  | undefined {
   for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
     const line = lines[index] ?? "";
     if (!line.includes("NATURAL_WONDER_PLAN_V1")) continue;
@@ -877,7 +885,7 @@ function parseNaturalWonderPlanInputTelemetryBetween(
   proofIndex: number,
   completionIndex: number
 ):
-  | NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]>
+  | NonNullable<NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlanInput"]>
   | undefined {
   for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
     const line = lines[index] ?? "";
@@ -898,7 +906,7 @@ function parseNaturalWonderPlanInputTelemetryBetween(
 function featureApplyStats(payload: Record<string, unknown>):
   | {
       stats: NonNullable<
-        NonNullable<RunInGameExactAuthorshipProof["log"]>["featureApply"]
+        NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["featureApply"]
       >["stats"];
     }
   | undefined {
@@ -930,7 +938,9 @@ function featureApplyStats(payload: Record<string, unknown>):
 function naturalWonderPlanStats(payload: Record<string, unknown>):
   | {
       stats: NonNullable<
-        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]>["stats"]
+        NonNullable<
+          NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlan"]
+        >["stats"]
       >;
     }
   | undefined {
@@ -960,7 +970,7 @@ function naturalWonderPlacementStats(payload: Record<string, unknown>):
   | {
       stats: NonNullable<
         NonNullable<
-          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]
+          NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlacement"]
         >["stats"]
       >;
     }
@@ -1011,7 +1021,7 @@ function naturalWonderPlanCoordinateProof(payload: Record<string, unknown>):
   | {
       coordinateProof: NonNullable<
         NonNullable<
-          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]
+          NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlan"]
         >["coordinateProof"]
       >;
     }
@@ -1036,7 +1046,7 @@ function naturalWonderPlanRows(payload: Record<string, unknown>):
   | {
       planRows: NonNullable<
         NonNullable<
-          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]
+          NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlan"]
         >["planRows"]
       >;
     }
@@ -1083,7 +1093,7 @@ function naturalWonderPlanInputStats(payload: Record<string, unknown>):
   | {
       stats: NonNullable<
         NonNullable<
-          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]
+          NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlanInput"]
         >["stats"]
       >;
     }
@@ -1105,7 +1115,7 @@ function naturalWonderPlanInputSurfaceDigests(payload: Record<string, unknown>):
   | {
       surfaceDigests: NonNullable<
         NonNullable<
-          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]
+          NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlanInput"]
         >["surfaceDigests"]
       >;
     }
@@ -1158,7 +1168,7 @@ function naturalWonderPlanInputRows(payload: Record<string, unknown>):
   | {
       inputRows: NonNullable<
         NonNullable<
-          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]
+          NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlanInput"]
         >["inputRows"]
       >;
     }
@@ -1224,7 +1234,9 @@ function naturalWonderPlanInputRows(payload: Record<string, unknown>):
 function resourcePlacementStats(payload: Record<string, unknown>):
   | {
       stats: NonNullable<
-        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["resourcePlacement"]>["stats"]
+        NonNullable<
+          NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["resourcePlacement"]
+        >["stats"]
       >;
     }
   | undefined {
@@ -1267,7 +1279,9 @@ function resourcePlacementRejectionRows(
   payload: Record<string, unknown>
 ): NonNullable<
   NonNullable<
-    NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["resourcePlacement"]>["stats"]
+    NonNullable<
+      NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["resourcePlacement"]
+    >["stats"]
   >["rejectionRows"]
 > {
   if (!Array.isArray(payload.rejectionRows)) return [];
@@ -1342,7 +1356,7 @@ function naturalWonderPlacementCoordinateProof(payload: Record<string, unknown>)
   | {
       coordinateProof: NonNullable<
         NonNullable<
-          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]
+          NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlacement"]
         >["coordinateProof"]
       >;
     }
@@ -1371,7 +1385,7 @@ function naturalWonderPlacementCoordinateRows(payload: Record<string, unknown>):
   | {
       coordinateRows: NonNullable<
         NonNullable<
-          NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]
+          NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlacement"]
         >["coordinateRows"]
       >;
     }
@@ -1387,7 +1401,7 @@ function naturalWonderVerboseCoordinateRows(
   value: unknown
 ): NonNullable<
   NonNullable<
-    NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]
+    NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlacement"]
   >["coordinateRows"]
 > {
   if (!Array.isArray(value)) return [];
@@ -1445,7 +1459,7 @@ function naturalWonderCompactRejectedRows(
   value: unknown
 ): NonNullable<
   NonNullable<
-    NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]
+    NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["naturalWonderPlacement"]
   >["coordinateRows"]
 > {
   if (!Array.isArray(value)) return [];
@@ -1521,7 +1535,7 @@ function resourcePlacementCoordinateProof(payload: Record<string, unknown>):
   | {
       coordinateProof: NonNullable<
         NonNullable<
-          NonNullable<RunInGameExactAuthorshipProof["log"]>["resourcePlacement"]
+          NonNullable<RunInGameDetailedExactAuthorshipProof["log"]>["resourcePlacement"]
         >["coordinateProof"]
       >;
     }

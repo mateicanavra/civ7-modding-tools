@@ -1,5 +1,5 @@
+import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
 import { describe, expect, it } from "vitest";
-import type { MapConfigSaveDeployStatus } from "../../src/features/mapConfigSave/status";
 import { createMapConfigSaveDeployOperationStore } from "../../src/server/mapConfigs/operationState";
 
 function createStore(options: { onChange?: (status: MapConfigSaveDeployStatus) => void } = {}) {

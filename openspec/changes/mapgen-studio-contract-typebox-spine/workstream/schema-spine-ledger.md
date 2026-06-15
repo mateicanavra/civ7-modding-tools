@@ -23,6 +23,26 @@ Date: 2026-06-14
 | Studio events | `packages/studio-server/src/contract/studio.ts` has TypeBox `hello | operation | live-game` event union through `eventIterator(toStandardSchema(...))` | partially complete TypeBox spine | event union has Value.Check/Parse and stream client proof | D8/D9 event payloads can bypass schema ownership | event schema and handler/client tests |
 | Live-game state | `packages/studio-server/src/liveGame/model.ts` exports TypeBox state schema | partially complete TypeBox spine | live status/event schemas are contract-tested and consumed by D10 | live watcher payload drifts from public contract | live status and live event schema tests |
 
+## Implementation Progress - 2026-06-15
+
+| Surface | Current implementation evidence | Closure status |
+| --- | --- | --- |
+| TypeBox-to-Standard Schema adapter | `packages/studio-server/src/typeboxStandardSchema.ts` now stores recoverable TypeBox origin metadata and exports schema recovery helpers for Standard Schema wrappers and oRPC procedure input/output schemas. `packages/studio-server/test/contractTypeboxSpine.test.ts` proves identity recovery, closed-object stripping, and nested issue paths. | closed for D2.5 adapter-origin proof |
+| Operation-current/event operation schemas | `packages/studio-server/src/contract/studio.ts` reuses `operationStatusTypeSchema` and `saveDeployStatusTypeSchema`; the contract-spine test asserts object identity for `studio.operations.current` active/recent schemas. | closed for canonical current-schema reuse; event schema sample coverage still needs broad package test coverage before full closure |
+| Recipe DAG `effect-orpc` residue | `packages/studio-server/src/recipeDag/{contract,errors}.ts` now use native `@orpc/contract` builders and TypeBox-backed native error maps; active package scan leaves `effect-orpc` import ownership in `packages/studio-server/src/router/index.ts`. | closed for import ownership |
+| Save&Deploy app DTO authority | `apps/mapgen-studio/src/features/mapConfigSave/status.ts` imports package-owned status/phase/kind types and phase constants from `@civ7/studio-server` for helper signatures but does not re-export public DTO types; app/server/test use sites import `MapConfigSaveDeploy*` public DTO types directly from `@civ7/studio-server`; `api.ts` and `operationAdoption.ts` no longer cast Save&Deploy responses/events into app-local public DTOs. | closed for Save&Deploy type derivation |
+| Run in Game app DTO authority | `apps/mapgen-studio/src/features/runInGame/status.ts` imports package-owned status/phase/kind types and phase constants from `@civ7/studio-server` for helper signatures but does not re-export public DTO types; app/test use sites import `RunInGame*` public DTO types directly from `@civ7/studio-server`; package entrypoints export public Run-in-Game proof subtypes; server-only rich log proof state is named `RunInGameDetailed*` under `apps/mapgen-studio/src/server/runInGame/proofTypes.ts`; `api.ts`, `operationAdoption.ts`, `context.ts`, and operation-event publication no longer cast Run-in-Game responses/events across app-local public DTO seams. | closed for Run-in-Game type derivation; detailed proof-only state remains server-internal until later runtime packets contract it or delete it |
+| `runInGame.start` open input | Public TypeBox input remains open. `apps/mapgen-studio/test/runInGame/requestValidation.test.ts` recovers the TypeBox input schema and proves host parser rejection for top-level and nested `command`, `script`, `javascript`, `rawCommand`, `rawJs`, `session`, and `stateName`. | closed for open-input raw-control proof |
+| Expected error `details?: unknown` | `packages/studio-server/src/contract/errors.ts` still keeps permissive `details?: Type.Unknown()`. D3 `mapgen-studio-error-spine` already contains the same-stack deletion/narrowing target and closure blockers for expected-failure unknown details. | closed for D2.5 classification only; D3 cannot close while this bridge remains |
+
+## Residue Classification - 2026-06-15
+
+- Direct `/api` operation path hits are comments in `packages/studio-server/src/router/index.ts` and `packages/studio-server/src/contract/runInGame.ts` that label historical endpoint parity. They are not app callers, route handlers, or alternate runtime surfaces.
+- Raw-field hits are either public request/client description fields, non-executable status/proof evidence (`RunInGameProcessRestartStatus.command`), raw-control rejection policy text/tests, or existing server runtime implementation internals outside the public contract surface. The open public mutation input is paired with the recovered-schema rejection proof.
+- oRPC response/event casts into app-local operation DTOs are absent after the Run-in-Game and Save&Deploy API/adoption updates.
+- `features/runInGame/status.ts` and `features/mapConfigSave/status.ts` are helper modules only for public operation DTO authority: both import package DTO types internally for helper signatures and constants, but public `RunInGame*` and `MapConfigSaveDeploy*` DTO type use sites import from `@civ7/studio-server`.
+- `effect-orpc` import ownership is router/runtime-only in `packages/studio-server/src/router/index.ts`; comments elsewhere are documentation of that package/runtime ownership.
+
 ## Residue Searches
 
 ```bash

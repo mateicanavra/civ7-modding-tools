@@ -1,10 +1,10 @@
+import type { RunInGameOperationStatus } from "@civ7/studio-server";
 import { describe, expect, it } from "vitest";
 import {
   formatRunInGameDiagnostics,
   formatRunInGamePhaseLabel,
   isRunInGameTerminalPhase,
   kindForRunInGamePhase,
-  type RunInGameOperationStatus,
   runInGameCanRetryStatus,
   runInGamePrimaryActionLabel,
   runInGameRequiresProcessRestart,

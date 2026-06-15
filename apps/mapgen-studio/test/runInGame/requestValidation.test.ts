@@ -1,3 +1,5 @@
+import { runInGame, typeboxInputSchemaFromContractProcedure } from "@civ7/studio-server";
+import { Value } from "typebox/value";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -6,6 +8,35 @@ import {
 } from "../../src/server/runInGame/requestValidation";
 
 describe("Run in Game request validation", () => {
+  it("pairs the open public start schema with host-side raw-control rejection", () => {
+    const startInputSchema = typeboxInputSchemaFromContractProcedure(runInGame.start);
+    const rawKeys = [
+      "command",
+      "script",
+      "javascript",
+      "rawCommand",
+      "rawJs",
+      "session",
+      "stateName",
+    ] as const;
+
+    for (const key of rawKeys) {
+      const topLevelPayload = validRunInGameRequest({ [key]: "raw-control" });
+      expect(Value.Check(startInputSchema, topLevelPayload)).toBe(true);
+      expect(() => parseRunInGameSetupRequest(topLevelPayload)).toThrow("raw control commands");
+
+      const nestedPayload = validRunInGameRequest({
+        config: {
+          nested: {
+            [key]: "raw-control",
+          },
+        },
+      });
+      expect(Value.Check(startInputSchema, nestedPayload)).toBe(true);
+      expect(() => parseRunInGameSetupRequest(nestedPayload)).toThrow("raw control commands");
+    }
+  });
+
   it("rejects raw control command fields anywhere in the payload", () => {
     expect(() =>
       assertNoRawControlFields({
@@ -177,3 +208,15 @@ describe("Run in Game request validation", () => {
     ).toThrow("supports only mod-swooper-maps/standard");
   });
 });
+
+function validRunInGameRequest(
+  extra?: Record<string, unknown>
+): Parameters<typeof parseRunInGameSetupRequest>[0] {
+  return {
+    recipeId: "mod-swooper-maps/standard",
+    seed: 123,
+    mapSize: "MAPSIZE_STANDARD",
+    config: { ok: true },
+    ...extra,
+  };
+}

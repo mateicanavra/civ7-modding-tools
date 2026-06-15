@@ -1,3 +1,4 @@
+import type { RunInGameOperationStatus } from "@civ7/studio-server";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -8,7 +9,6 @@ import {
   parseRunInGameSourceSnapshot,
   relationForRunInGameOperation,
 } from "../../src/features/runInGame/clientState";
-import type { RunInGameOperationStatus } from "../../src/features/runInGame/status";
 import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../src/ui/types";
 
 const recipeSettings: RecipeSettings = {

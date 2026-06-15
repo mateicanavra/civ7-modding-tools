@@ -85,6 +85,30 @@ export type StudioContract = typeof contract;
 
 export type { RecipeDagResult } from "../recipeDag/schema.js";
 export type {
+  MapConfigSaveDeployKind,
+  MapConfigSaveDeployPhase,
+  MapConfigSaveDeployStatus,
+} from "./mapConfigs.js";
+export {
+  MAP_CONFIG_SAVE_DEPLOY_PHASES,
+  saveDeployStatusTypeSchema,
+} from "./mapConfigs.js";
+export type {
+  RunInGameContentMarkerProof,
+  RunInGameExactAuthorshipProof,
+  RunInGameFailureDetails,
+  RunInGameFileContentProof,
+  RunInGameFileIdentity,
+  RunInGameMaterializationStatus,
+  RunInGameOperationKind,
+  RunInGameOperationStatus,
+  RunInGamePhase,
+  RunInGameProcessRestartStatus,
+  RunInGameRequestStatus,
+  RunInGameSourceSnapshotProof,
+} from "./runInGame.js";
+export { operationStatusTypeSchema, RUN_IN_GAME_PHASES } from "./runInGame.js";
+export type {
   StudioEvent,
   StudioHelloEvent,
   StudioLiveGameEvent,

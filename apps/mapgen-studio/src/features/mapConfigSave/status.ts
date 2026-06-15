@@ -1,40 +1,11 @@
-export const MAP_CONFIG_SAVE_DEPLOY_PHASES = [
-  "idle",
-  "queued",
-  "saving",
-  "deploying",
-  "complete",
-  "failed",
-] as const;
+import type {
+  MapConfigSaveDeployKind,
+  MapConfigSaveDeployPhase,
+  MapConfigSaveDeployStatus,
+} from "@civ7/studio-server";
+import { MAP_CONFIG_SAVE_DEPLOY_PHASES } from "@civ7/studio-server";
 
-export type MapConfigSaveDeployPhase = (typeof MAP_CONFIG_SAVE_DEPLOY_PHASES)[number];
-
-export type MapConfigSaveDeployKind = "idle" | "running" | "complete" | "failed";
-
-export type MapConfigSaveDeployStatus = Readonly<{
-  ok: boolean;
-  requestId: string;
-  phase: MapConfigSaveDeployPhase;
-  status: MapConfigSaveDeployKind;
-  startedAt: string;
-  updatedAt: string;
-  path?: string;
-  saved?: boolean;
-  deployed?: boolean;
-  error?: string;
-  deploy?: {
-    build?: {
-      task?: string;
-      stdout?: string;
-      stderr?: string;
-    };
-    targetDir?: string;
-    modsDir?: string;
-    filesCopied?: number;
-  };
-  details?: Record<string, unknown>;
-  recoveryActions?: ReadonlyArray<string>;
-}>;
+export { MAP_CONFIG_SAVE_DEPLOY_PHASES };
 
 export function kindForMapConfigSaveDeployPhase(
   phase: MapConfigSaveDeployPhase
@@ -89,7 +60,7 @@ export function createMapConfigSaveDeployStatus(args: {
     ...(args.error === undefined ? {} : { error: args.error }),
     ...(args.deploy === undefined ? {} : { deploy: args.deploy }),
     ...(args.details === undefined ? {} : { details: args.details }),
-    ...(args.recoveryActions === undefined ? {} : { recoveryActions: args.recoveryActions }),
+    ...(args.recoveryActions === undefined ? {} : { recoveryActions: [...args.recoveryActions] }),
   };
 }
 
@@ -120,6 +91,6 @@ export function updateMapConfigSaveDeployStatus(
     ...(patch.error === undefined ? {} : { error: patch.error }),
     ...(patch.deploy === undefined ? {} : { deploy: patch.deploy }),
     ...(patch.details === undefined ? {} : { details: patch.details }),
-    ...(patch.recoveryActions === undefined ? {} : { recoveryActions: patch.recoveryActions }),
+    ...(patch.recoveryActions === undefined ? {} : { recoveryActions: [...patch.recoveryActions] }),
   };
 }

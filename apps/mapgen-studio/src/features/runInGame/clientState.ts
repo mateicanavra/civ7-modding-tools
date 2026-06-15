@@ -1,3 +1,4 @@
+import type { RunInGameOperationStatus } from "@civ7/studio-server";
 import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../ui/types";
 import {
   type Civ7StudioSetupConfig,
@@ -5,7 +6,7 @@ import {
   normalizeStudioSetupConfig,
 } from "../civ7Setup/setupConfig";
 import { migratePipelineConfig } from "../configMigrations/pipelineConfig";
-import { type RunInGameOperationStatus, stableRunInGameStringify } from "./status";
+import { stableRunInGameStringify } from "./status";
 
 export type RunInGameClientSnapshot = Readonly<{
   requestId: string;

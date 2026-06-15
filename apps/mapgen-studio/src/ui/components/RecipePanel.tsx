@@ -5,6 +5,8 @@
 // Fully controlled component - all options passed via props.
 // Uses path-based patching for efficient state updates.
 // ============================================================================
+
+import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
 import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -28,10 +30,7 @@ import {
 } from "../../components/ui";
 import { SchemaConfigForm } from "../../features/configOverrides/SchemaConfigForm";
 import { useConfigCollapse } from "../../features/configOverrides/useConfigCollapse";
-import {
-  formatMapConfigSaveDeployPhaseLabel,
-  type MapConfigSaveDeployStatus,
-} from "../../features/mapConfigSave/status";
+import { formatMapConfigSaveDeployPhaseLabel } from "../../features/mapConfigSave/status";
 import { LAYOUT } from "../constants";
 import type { PipelineConfig, RecipeSettings, SelectOption } from "../types";
 import { OptionSelect } from "./OptionSelect";

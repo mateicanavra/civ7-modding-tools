@@ -1,17 +1,26 @@
 import { Civ7DirectControlError } from "@civ7/direct-control";
 import type {
-  RunInGameExactAuthorshipProof,
   RunInGameFailureDetails,
   RunInGameMaterializationStatus,
   RunInGameOperationKind,
   RunInGameOperationStatus,
   RunInGamePhase,
+  RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
-} from "../../features/runInGame/status";
+} from "@civ7/studio-server";
 import { StudioEngineError } from "../studio/engineErrors";
+import type { RunInGameDetailedExactAuthorshipProof } from "./proofTypes";
 
-export type RunInGameOperationState = RunInGameOperationStatus &
+export type RunInGameOperationState = Omit<
+  RunInGameOperationStatus,
+  "details" | "exactAuthorshipProof" | "materialization" | "processRestart" | "request"
+> &
   Readonly<{
+    details?: RunInGameFailureDetails;
+    exactAuthorshipProof?: RunInGameDetailedExactAuthorshipProof;
+    materialization?: RunInGameMaterializationStatus;
+    processRestart?: RunInGameProcessRestartStatus;
+    request?: RunInGameRequestStatus;
     serverInstanceId: string;
     serverStartedAt: string;
   }>;
@@ -119,7 +128,7 @@ export function createRunInGameOperationStore(options: StoreOptions) {
     requestId: string,
     result: unknown,
     materialization?: RunInGameMaterializationStatus,
-    exactAuthorshipProof?: RunInGameExactAuthorshipProof
+    exactAuthorshipProof?: RunInGameDetailedExactAuthorshipProof
   ): RunInGameOperationState {
     return update(requestId, {
       ok: true,
@@ -178,7 +187,7 @@ export function statusForPhase(phase: RunInGamePhase): RunInGameOperationKind {
 }
 
 export function recoveryActionsFor(
-  state: Pick<RunInGameOperationStatus, "phase" | "status" | "details">
+  state: Pick<RunInGameOperationState, "phase" | "status" | "details">
 ): string[] {
   const actions = ["copy-diagnostics"];
   if (
@@ -210,7 +219,7 @@ export function recoveryActionsFor(
 export function runInGameFailureDetails(
   err: unknown,
   phase: RunInGamePhase,
-  state?: RunInGameOperationStatus,
+  state?: RunInGameOperationState,
   materialization?: RunInGameMaterializationStatus
 ): RunInGameFailureDetails {
   const directControlCode = err instanceof Civ7DirectControlError ? err.code : undefined;
