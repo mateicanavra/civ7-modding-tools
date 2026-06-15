@@ -5,12 +5,14 @@
 - Project: Habitat Harness
 - Phase: git hook hardening / `habitat-git-hook-hardening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-hook-prepost-trace`
+- Branch/Graphite stack: `agent-HR-habitat-hook-reporter-service` above
+  `agent-HR-habitat-hook-h7-realignment`
 - Started: 2026-06-14
 - Status: resource-publish, staged-mutation, pre-push base/range,
-  current-tree staged-probe, native Grit finding staged-probe, and hook
-  transaction trace checkpoints supervisor-accepted; hook pre/post-state trace
-  checkpoint implemented and locally verified for supervisor review
+  current-tree staged-probe, native Grit finding staged-probe, hook transaction
+  trace, hook pre/post-state trace, and H7 historical realignment checkpoints
+  supervisor-accepted; hook reporter-service checkpoint implemented locally for
+  supervisor review
 
 ## Objective
 
@@ -56,8 +58,8 @@
 - Focused hook tests exercise resource-state classification, staged mutation
   boundaries, and pre-push base selection through a fake command/filesystem/hash
   boundary; broader hook transaction proof remains open.
-- H7 phase record says hooks are closed locally, but Stage 0 classifies
-  `CLAIM-H7-HOOKS` as mixed with blockers.
+- H7 historical records are realigned and supervisor-accepted as historical hook
+  wiring/staged containment evidence, not current resource side-effect proof.
 
 ## Source Synthesis
 
@@ -132,10 +134,17 @@ Core synthesis:
   and clock services. This closes 4.1 for hook pre/post-state modeling and
   keeps reporter/resource-publisher services and full transaction architecture
   open.
+- Hook reporter-service progress for this checkpoint: `runPreCommit()` and
+  `runPrePush()` now accept an optional typed reporter service that receives
+  stdout/stderr report events while preserving the returned `SpawnResult`
+  output. Focused tests prove pre-commit and pre-push reporter substitution
+  through fake services. This advances 6.1 and 8.4 for the reporter boundary but
+  leaves resource-publisher service proof and full transaction architecture
+  open.
 - Remaining tasks: full hook transaction model, full fake-service matrix,
-  Grit parse-output current-tree staged proof, historical H7 record
-  realignment, aggregate verification, and packet closure.
-- Implementation status: hook pre/post-state trace checkpoint
+  Grit parse-output current-tree staged proof, resource-publisher service proof,
+  aggregate verification, and packet closure.
+- Implementation status: hook reporter-service checkpoint
   implemented and locally verified for supervisor review.
 
 ## Verification
@@ -299,9 +308,20 @@ Core synthesis:
     behavior is superseded by the current hook-hardening policy: default
     pre-commit performs read-only resource-state checks, and resource publishing
     is explicit.
-  - `workstream/downstream-realignment-ledger.md` marks the H7 row realigned
-    pending supervisor review. This is record-truth proof only; it adds no new
-    hook behavior.
+	  - `workstream/downstream-realignment-ledger.md` marks the H7 row realigned
+	    pending supervisor review. This is record-truth proof only; it adds no new
+	    hook behavior.
+- New implementation evidence for the hook reporter-service checkpoint:
+  - `tools/habitat-harness/src/lib/hooks.ts` now exports `HookReporter` and
+    `HookReportEvent`. `HookRuntime` accepts an optional reporter service.
+  - Pre-commit and pre-push output flows through the reporter service and the
+    same buffered output is returned in `SpawnResult`, preserving the public
+    command contract.
+  - `bun run --cwd tools/habitat-harness test -- hooks.test.ts` exited 0 with
+    25 tests. New tests prove reporter substitution for pre-commit Grit parse
+    failure output and pre-push Nx failure output.
+  - `bun run --cwd tools/habitat-harness check` exited 0 after the reporter
+    service implementation.
 - Evidence boundary: the accepted resource checkpoint proves the default
   pre-commit resource publish removal, typed resource-state classification,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
@@ -329,7 +349,11 @@ Core synthesis:
   product/runtime behavior. This historical H7 realignment checkpoint proves
   record truth for the superseded H7 resource-publish policy only; it does not
   prove new hook behavior, current-tree Grit parse-output staged behavior,
-  CI authority, or product/runtime behavior.
+  CI authority, or product/runtime behavior. This reporter-service checkpoint
+  proves typed reporter substitution for hook output in focused unit tests; it
+  does not prove resource-publisher service behavior, full transaction
+  architecture, current-tree Grit parse-output staged behavior, CI authority, or
+  product/runtime behavior.
 
 ## Realignment
 
@@ -338,7 +362,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the historical H7 realignment checkpoint for supervisor review. Do not
-  claim new hook behavior, full hook transaction architecture, Grit parse-output
-  staged probe closure, CI authority, broad Nx affected coverage, or packet
-  closure from this slice.
+- Hold the hook reporter-service checkpoint for supervisor review. Do not claim
+  resource-publisher service proof, full hook transaction architecture, Grit
+  parse-output staged probe closure, CI authority, broad Nx affected coverage,
+  or packet closure from this slice.

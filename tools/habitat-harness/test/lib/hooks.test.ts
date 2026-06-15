@@ -5,6 +5,7 @@ import {
   runPreCommit,
   runPrePush,
 } from "../../src/lib/hooks.js";
+import type { HookReportEvent } from "../../src/lib/hooks.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import type { SpawnResult } from "../../src/lib/spawn.js";
 
@@ -317,6 +318,27 @@ describe("Habitat pre-commit staged mutation policy", () => {
       },
     });
   });
+
+  test("reports pre-commit output through an injected reporter service", () => {
+    const events: HookReportEvent[] = [];
+    const fake = makeFakeRuntime({
+      stagedPaths: ["packages/example/src/index.ts"],
+      gritStdout: "wrapper {\"results\":[]} text\n",
+    });
+
+    const result = runPreCommit({
+      ...fake.runtime,
+      reporter: { write: (event) => events.push(event) },
+    });
+
+    expect(result.exitCode).toBe(1);
+    expect(renderReported(events, "stdout")).toBe(result.stdout);
+    expect(renderReported(events, "stderr")).toBe(result.stderr);
+    expect(events).toContainEqual({
+      channel: "stderr",
+      text: "habitat hook pre-commit: could not parse Grit JSON output.\n",
+    });
+  });
 });
 
 describe("Habitat pre-push base policy", () => {
@@ -442,6 +464,32 @@ describe("Habitat pre-push base policy", () => {
       cwd: repoRoot,
       env: undefined,
       exitCode: 0,
+    });
+  });
+
+  test("reports pre-push output through an injected reporter service", () => {
+    const events: HookReportEvent[] = [];
+    const fake = makeFakeRuntime({
+      graphiteParent: "agent-HR-parent",
+      nxAffectedExitCode: 1,
+      nxAffectedStdout: "affected failed\n",
+      nxAffectedStderr: "target failed\n",
+    });
+
+    const result = runPrePush(
+      {},
+      {
+        ...fake.runtime,
+        reporter: { write: (event) => events.push(event) },
+      }
+    );
+
+    expect(result.exitCode).toBe(1);
+    expect(renderReported(events, "stdout")).toBe(result.stdout);
+    expect(renderReported(events, "stderr")).toBe(result.stderr);
+    expect(events).toContainEqual({
+      channel: "stderr",
+      text: "target failed\n",
     });
   });
 });
@@ -606,6 +654,13 @@ function renderNameStatus(paths: string[]): string {
 
 function renderPathList(paths: string[]): string {
   return paths.length === 0 ? "" : `${paths.join("\0")}\0`;
+}
+
+function renderReported(events: HookReportEvent[], channel: HookReportEvent["channel"]): string {
+  return events
+    .filter((event) => event.channel === channel)
+    .map((event) => event.text)
+    .join("");
 }
 
 function ok(stdout = ""): SpawnResult {

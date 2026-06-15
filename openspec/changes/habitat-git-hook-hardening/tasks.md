@@ -70,7 +70,8 @@
   reporter, and resource publisher services where the accepted architecture
   supports service substitution. Current tests cover fake command,
   filesystem/path-existence, file hashing, fake clock/timing, and typed trace
-  provenance; reporter and resource publisher services remain open.
+  provenance; the reporter service is covered for pre-commit and pre-push
+  output substitution, and the resource publisher service remains open.
 - [x] 6.2 Add clean resources pre-commit test.
 - [x] 6.3 Add dirty resources explicit publish refusal test.
 - [x] 6.4 Add uninitialized resources, resources lock, unstaged gitlink, staged
@@ -101,8 +102,9 @@
 - [x] 8.3 `git diff --check`
 - [ ] 8.4 Hook unit/service test matrix. Focused trace tests cover fake command,
   filesystem/path-existence, file hashing, fake clock/timing, command
-  provenance, pre/post-state snapshots, and terminal outcomes; full service
-  matrix remains open.
+  provenance, pre/post-state snapshots, reporter output substitution, and
+  terminal outcomes; full service matrix remains open until the resource
+  publisher boundary is proven or explicitly rescheduled.
 - [ ] 8.5 Pre-commit staged probe matrix. Current-tree probes for
   generated-zone, pnpm artifact, partial-staging refusal, formatter-touched
   restage, and native Grit finding refusal are recorded; Grit parse-output

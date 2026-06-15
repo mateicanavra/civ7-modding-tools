@@ -18,6 +18,7 @@ interface HookRuntime {
   pathExists?: (target: string) => boolean;
   fileHash?: (repoRelativePath: string) => string | null;
   nowMs?: () => number;
+  reporter?: HookReporter;
   trace?: HookTrace;
 }
 
@@ -120,6 +121,17 @@ export interface HookTrace {
   prePush?: PrePushTrace;
 }
 
+export type HookReportChannel = "stdout" | "stderr";
+
+export interface HookReportEvent {
+  channel: HookReportChannel;
+  text: string;
+}
+
+export interface HookReporter {
+  write(event: HookReportEvent): void;
+}
+
 export function createHookTrace(): HookTrace {
   return { commands: [] };
 }
@@ -167,8 +179,8 @@ export function runHook(name: string | undefined, options: HookOptions = {}): Sp
 
 export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
   const startedAtMs = hookNow(runtime);
-  let stdout = "habitat hook pre-commit\n";
-  let stderr = "";
+  const output = createHookOutput(runtime.reporter);
+  output.writeStdout("habitat hook pre-commit\n");
 
   const resources = classifyResourcesState(runtime);
   if (runtime.trace) {
@@ -185,12 +197,12 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
     };
     runtime.trace.preCommit.preState = captureRepoSnapshot(runtime, resources.kind);
   }
-  stdout += `resources: ${resources.kind}\n`;
+  output.writeStdout(`resources: ${resources.kind}\n`);
   if (!resources.allowPreCommit) {
+    output.writeStderr(renderResourceStateFailure(resources));
     return finalizePreCommit(runtime, "resource-blocked", {
       exitCode: 1,
-      stdout,
-      stderr: stderr + renderResourceStateFailure(resources),
+      ...output.result(),
     });
   }
 
@@ -215,13 +227,12 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
     ],
     { cwd: repoRoot }
   );
-  stdout += section("file-layer staged check", fileLayer.stdout);
-  stderr += fileLayer.stderr;
+  output.writeStdout(section("file-layer staged check", fileLayer.stdout));
+  output.writeStderr(fileLayer.stderr);
   if (fileLayer.exitCode !== 0) {
     return finalizePreCommit(runtime, "file-layer-failed", {
       exitCode: fileLayer.exitCode,
-      stdout,
-      stderr,
+      ...output.result(),
     });
   }
 
@@ -232,17 +243,17 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
   const partials = unstagedAmong(biomePaths, runtime);
   if (runtime.trace?.preCommit) runtime.trace.preCommit.partialPaths = partials;
   if (partials.length > 0) {
+    output.writeStderr(
+      [
+        "habitat hook pre-commit: refusing to format partially staged files.",
+        "Stage or unstage each whole file before committing; Habitat does not stash or rewrite unstaged hunks.",
+        ...partials.map((file) => `- ${file}`),
+        "",
+      ].join("\n")
+    );
     return finalizePreCommit(runtime, "partial-staging-refused", {
       exitCode: 1,
-      stdout,
-      stderr:
-        stderr +
-        [
-          "habitat hook pre-commit: refusing to format partially staged files.",
-          "Stage or unstage each whole file before committing; Habitat does not stash or rewrite unstaged hunks.",
-          ...partials.map((file) => `- ${file}`),
-          "",
-        ].join("\n"),
+      ...output.result(),
     });
   }
 
@@ -256,13 +267,12 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
         cwd: repoRoot,
       }
     );
-    stdout += section("biome format", format.stdout);
-    stderr += format.stderr;
+    output.writeStdout(section("biome format", format.stdout));
+    output.writeStderr(format.stderr);
     if (format.exitCode !== 0) {
       return finalizePreCommit(runtime, "biome-format-failed", {
         exitCode: format.exitCode,
-        stdout,
-        stderr,
+        ...output.result(),
       });
     }
 
@@ -272,19 +282,18 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
     if (runtime.trace?.preCommit) runtime.trace.preCommit.formatterTouchedPaths = touched;
     if (touched.length > 0) {
       const restage = gitAdd(touched, runtime);
-      stdout += section("formatter restage", restage.stdout);
-      stderr += restage.stderr;
+      output.writeStdout(section("formatter restage", restage.stdout));
+      output.writeStderr(restage.stderr);
       if (restage.exitCode !== 0) {
         return finalizePreCommit(runtime, "formatter-restage-failed", {
           exitCode: restage.exitCode,
-          stdout,
-          stderr,
+          ...output.result(),
         });
       }
       if (runtime.trace?.preCommit) runtime.trace.preCommit.restagedPaths = touched;
-      stdout += `formatter restage: ${touched.length} path(s)\n`;
+      output.writeStdout(`formatter restage: ${touched.length} path(s)\n`);
     } else {
-      stdout += "formatter restage: 0 paths\n";
+      output.writeStdout("formatter restage: 0 paths\n");
     }
 
     const check = runHookCommand(
@@ -295,17 +304,16 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
         cwd: repoRoot,
       }
     );
-    stdout += section("biome check", check.stdout);
-    stderr += check.stderr;
+    output.writeStdout(section("biome check", check.stdout));
+    output.writeStderr(check.stderr);
     if (check.exitCode !== 0) {
       return finalizePreCommit(runtime, "biome-check-failed", {
         exitCode: check.exitCode,
-        stdout,
-        stderr,
+        ...output.result(),
       });
     }
   } else {
-    stdout += "biome: no staged supported files\n";
+    output.writeStdout("biome: no staged supported files\n");
   }
 
   const gritPaths = staged.filter((candidate) =>
@@ -320,35 +328,35 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
         GRIT_TELEMETRY_DISABLED: "true",
       },
     });
-    stdout += section("grit check", grit.stdout);
-    stderr += grit.stderr;
+    output.writeStdout(section("grit check", grit.stdout));
+    output.writeStderr(grit.stderr);
     if (grit.exitCode !== 0) {
       return finalizePreCommit(runtime, "grit-command-failed", {
         exitCode: grit.exitCode,
-        stdout,
-        stderr,
+        ...output.result(),
       });
     }
     const report = parseGritJson(grit.stdout) ?? parseGritJson(grit.stderr);
     if (!report) {
+      output.writeStderr("habitat hook pre-commit: could not parse Grit JSON output.\n");
       return finalizePreCommit(runtime, "grit-parse-failed", {
         exitCode: 1,
-        stdout,
-        stderr: `${stderr}habitat hook pre-commit: could not parse Grit JSON output.\n`,
+        ...output.result(),
       });
     }
     if ((report.results?.length ?? 0) > 0) {
-      return finalizePreCommit(runtime, "grit-finding", { exitCode: 1, stdout, stderr });
+      return finalizePreCommit(runtime, "grit-finding", { exitCode: 1, ...output.result() });
     }
   } else {
-    stdout += "grit: no staged TypeScript/JavaScript files\n";
+    output.writeStdout("grit: no staged TypeScript/JavaScript files\n");
   }
 
-  stdout += "habitat hook pre-commit: PASS\n";
-  return finalizePreCommit(runtime, "pass", { exitCode: 0, stdout, stderr });
+  output.writeStdout("habitat hook pre-commit: PASS\n");
+  return finalizePreCommit(runtime, "pass", { exitCode: 0, ...output.result() });
 }
 
 export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {}): SpawnResult {
+  const output = createHookOutput(runtime.reporter);
   if (runtime.trace) {
     runtime.trace.prePush = { outcome: "started", startedAtMs: hookNow(runtime) };
     runtime.trace.prePush.preState = captureRepoSnapshot(runtime);
@@ -371,10 +379,11 @@ export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {})
     ],
     { cwd: repoRoot }
   );
+  output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
+  output.writeStderr(result.stderr);
   return finalizePrePush(runtime, result.exitCode === 0 ? "pass" : "affected-failed", {
     exitCode: result.exitCode,
-    stdout: `habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`,
-    stderr: result.stderr,
+    ...output.result(),
   });
 }
 
@@ -730,6 +739,30 @@ function parseGritJson(output: string): GritReport | undefined {
   } catch {
     return undefined;
   }
+}
+
+function createHookOutput(reporter?: HookReporter): {
+  writeStdout: (text: string) => void;
+  writeStderr: (text: string) => void;
+  result: () => Pick<SpawnResult, "stdout" | "stderr">;
+} {
+  let stdout = "";
+  let stderr = "";
+  return {
+    writeStdout(text) {
+      if (!text) return;
+      stdout += text;
+      reporter?.write({ channel: "stdout", text });
+    },
+    writeStderr(text) {
+      if (!text) return;
+      stderr += text;
+      reporter?.write({ channel: "stderr", text });
+    },
+    result() {
+      return { stdout, stderr };
+    },
+  };
 }
 
 function section(label: string, output: string): string {
