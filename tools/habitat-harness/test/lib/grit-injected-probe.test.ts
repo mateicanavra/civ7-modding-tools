@@ -1,6 +1,6 @@
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, rmdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, test } from "vitest";
+import { afterAll, afterEach, describe, expect, test } from "vitest";
 import { runInjectedGritProbe, type InjectedProbeScope } from "../../src/lib/grit-injected-probe.js";
 import { injectedProbeRoot, runGritRules } from "../../src/lib/grit.js";
 import {
@@ -15,6 +15,9 @@ import type { HarnessRule } from "../../src/rules/architecture.js";
 const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
 const probePath = "packages/config/src/__habitat_probe__/matching.ts";
 const controlPath = "packages/config/src/__habitat_probe__/control.ts";
+
+afterEach(removeEmptyInjectedProbeRoot);
+afterAll(removeEmptyInjectedProbeRoot);
 
 describe("injected Grit probe harness", () => {
   test("creates scoped probe files, runs the adapter, asserts exact projection, and cleans up", async () => {
@@ -202,6 +205,7 @@ describe("injected Grit probe harness", () => {
       expect(existsSync(absoluteRoot)).toBe(true);
     } finally {
       rmSync(absoluteRoot, { recursive: true, force: true });
+      removeEmptyInjectedProbeRoot();
     }
   });
 
@@ -260,6 +264,7 @@ describe("injected Grit probe harness", () => {
       expect(existsSync(absoluteRoot)).toBe(true);
     } finally {
       rmSync(absoluteRoot, { recursive: true, force: true });
+      removeEmptyInjectedProbeRoot();
     }
   });
 
@@ -344,4 +349,19 @@ function fakeGritRule(id: string, pattern: string): HarnessRule {
     message: "test rule",
     exceptionPath: "none",
   };
+}
+
+function removeEmptyInjectedProbeRoot(): void {
+  try {
+    rmdirSync(path.join(repoRoot, injectedProbeRoot));
+  } catch (error) {
+    if (
+      typeof error !== "object" ||
+      error === null ||
+      !("code" in error) ||
+      (error.code !== "ENOENT" && error.code !== "ENOTEMPTY")
+    ) {
+      throw error;
+    }
+  }
 }
