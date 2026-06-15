@@ -9,9 +9,10 @@
   `agent-HR-habitat-effect-grit-adapter` over
   `agent-HR-habitat-repair-chain` over `main`
 - Started: 2026-06-14
-- Status: selector/current-tree wrapper, native-sample, and explicit baseline
-  implementation slices recorded; injected, apply, parity, broader downstream
-  realignment, and closure remain open
+- Status: selector/current-tree wrapper, native-sample, explicit baseline, and
+  supervisor-accepted injected-probe safety/cache repair slices recorded;
+  current old-mechanism parity probe failed and remains open; injected row
+  proof, apply, broader downstream realignment, and closure remain open
 
 ## Objective
 
@@ -100,6 +101,25 @@
   - exit 0; Vitest passed 1 file / 3 tests for explicit empty baselines,
     rejection of added entries for existing rules, and allowance only for
     rule-introduction changes.
+- Current old-mechanism parity probe is recorded as:
+  - `HGPR-PARITY-WRAPPED-SCRIPT-2026-06-15`: `bun run habitat:check -- --json
+    --tool wrapped-script` exited 0 with CheckReport schemaVersion 1,
+    `ok:true`, `mapgen-docs`, `adapter-boundary`,
+    `domain-refactor-guardrails`, and `baseline-integrity` all `pass`.
+    `adapter-boundary` still reports 8 allowlisted diagnostics while passing.
+  - `HGPR-PARITY-WRAPPED-ESLINT-2026-06-15`: `bun run habitat:check --
+    --json --tool wrapped-eslint` exited 1 through
+    `rule-selection-integrity`; current `rules.json` has no
+    `ownerTool: "wrapped-eslint"` entries. This makes the historical H5/H6
+    `wrapped-eslint` parity command stale under the repaired selector
+    contract.
+  - `HGPR-PARITY-WRAPPED-TEST-2026-06-15`: `bun run habitat:check -- --json
+    --tool wrapped-test` exited 1. `arch-test-core-purity`,
+    `arch-test-rng-authority`, `arch-test-ecology-step-imports`, and
+    `baseline-integrity` passed; `arch-test-m11-projection-band`,
+    `arch-test-map-bundle-runtime-imports`, and `arch-test-cutover` failed.
+  - Parity closure remains blocked; this evidence is current command truth,
+    not row-level Grit parity or retirement proof.
 - Dry-run apply proof remains design-seed only until this packet runs the
   required apply row. Accepted adapter isolated-copy dry-run/apply-match
   behavior is substrate proof, not row semantic proof.
@@ -133,9 +153,13 @@
     on the normal workspace cache policy and requires injected/proof callers
     that create ephemeral files to opt into `cacheMode: "fresh"` plus
     observable freshness.
-  - Blocked claims until supervisor re-review: injected violation proof,
-    cleanup-to-clean-worktree, safe probe path controls, public wrapper cache
-    policy, and any checkpoint after `00204ede1`.
+  - Supervisor acceptance after re-review: `SUP-INJECT-P1-01` path ownership
+    and cleanup repair and `SUP-INJECT-P2-02` cache-policy repair are accepted
+    for the safety/cache slice at `e2a6fd029`.
+  - Remaining non-claims: injected row proof, all-row injected proof,
+    cleanup-to-clean-worktree for a full row run, safe probe path controls
+    beyond the accepted unit/adapter boundary, row semantic proof, and packet
+    closure remain open.
 
 ## Scope
 
@@ -196,10 +220,11 @@ implementation tasks 4, 6, or adapter tests begin.
   - `workstream/reviews/evidence-system-review.md`
   - `workstream/reviews/effect-substrate-review.md`
   - `workstream/review-disposition-ledger.md`
-- Blocking findings: SUP-INJECT-P1-01 and SUP-INJECT-P2-02 are repaired in
-  this checkpoint, but injected proof claims and public wrapper cache-policy
-  acceptance remain blocked until supervisor re-review. Earlier accepted P1/P2
-  findings are dispositioned in
+- Blocking findings: SUP-INJECT-P1-01 and SUP-INJECT-P2-02 are
+  supervisor-accepted for the safety/cache slice at `e2a6fd029`; they no
+  longer block the public wrapper cache-policy repair claim for that slice.
+  Injected row proof, all-row proof, and packet closure remain open. Earlier
+  accepted P1/P2 findings are dispositioned in
   `workstream/review-disposition-ledger.md`.
 
 ## Agent Fleet State
@@ -246,8 +271,15 @@ implementation tasks 4, 6, or adapter tests begin.
   SUP-INJECT-P2-02 repair:
   tracked source deletions restored; focused cleanup/path-control tests pass;
   normal public wrapper checks are no longer forced through fresh temporary
-  cache; injected proof execution and row claims remain paused pending
-  supervisor review of the repaired boundary.
+  cache; the supervisor accepted this safety/cache boundary. Injected proof
+  execution and row claims remain future packet work, not accepted by the
+  safety/cache review.
+- Current parity state:
+  `wrapped-script` is current-green, but the named `wrapped-eslint` probe is a
+  repaired-selector unknown-tool failure and `wrapped-test` is current-red.
+  Task 9.8 and any H5/H6 retirement/parity claim remain open until the stale
+  command identity and failing wrapped-test causes are repaired or formally
+  re-scoped.
 
 ## Verification
 
@@ -320,16 +352,33 @@ implementation tasks 4, 6, or adapter tests begin.
     - `bun run openspec -- validate habitat-grit-proof-repair --strict`
       passed.
     - `git diff --check` passed.
+  - Old-mechanism parity probe, current failed state:
+    - Capture wrapper executed `bun run habitat:check -- --json --tool
+      wrapped-script`, `wrapped-eslint`, and `wrapped-test` on clean
+      `agent-HR-habitat-grit-proof-repair` at `e2a6fd029`, with artifacts under
+      `/tmp/habitat-grit-proof-repair-parity-e2a6fd029/`.
+    - `wrapped-script` exited 0; schemaVersion 1; `ok:true`; 4 reports all
+      `pass`; artifact
+      `sha256=8dd858c5376769c63f659d71a0a03e2c8033fd2ea36add9c253366293616566d`.
+    - `wrapped-eslint` exited 1; schemaVersion 1; `ok:false`;
+      `rule-selection-integrity` failed on unknown tool id; artifact
+      `sha256=860cc7788738f3b8e08e7247f41965a8b1d13c0adf504e8a050a3eb16ace8b3d`.
+    - `wrapped-test` exited 1; schemaVersion 1; `ok:false`; 7 reports with 3
+      failures; artifact
+      `sha256=8b9915407ea08a2bdd75a3caa8da01a2eb095dfebf75cc8d07a3edb7a194e423`.
+    - Batch summary artifact:
+      `/tmp/habitat-grit-proof-repair-parity-e2a6fd029/summary.json`,
+      `sha256=ec170888eff50373aba0489063548ce3a044ea92f434ccb6552e4d50b8c0282e`.
 - Evidence boundary: current implementation slice proves native Grit sample
   success and Habitat wrapper selector/current-tree zero-finding projection
   through CheckReport schemaVersion 1 on the branch that contains the accepted
   command-trust and Effect adapter layers. It also proves explicit empty Grit
   baseline files exist for the 22 current Grit checks, `baseline-integrity`
   accepts them, and unit shrink-only policy rejects added entries for existing
-  rules. It does not prove raw direct Grit current-tree acquisition, injected
-  violations, live baseline writes, apply safety, semantic target exports,
-  parity retirement, broader downstream realignment, or product/runtime Civ7
-  behavior.
+  rules. It records the current failed old-mechanism parity state. It does not
+  prove raw direct Grit current-tree acquisition, injected violations, live
+  baseline writes, apply safety, semantic target exports, parity retirement,
+  broader downstream realignment, or product/runtime Civ7 behavior.
 
 ## Realignment
 

@@ -126,6 +126,12 @@
 - [x] 9.7 explicit Grit baseline behavior proof suite
 - [ ] 9.8 old-mechanism parity probes:
   `wrapped-script`, `wrapped-eslint`, and `wrapped-test`
+  - 2026-06-15 current probe evidence is recorded as
+    `HGPR-PARITY-WRAPPED-SCRIPT-2026-06-15`,
+    `HGPR-PARITY-WRAPPED-ESLINT-2026-06-15`, and
+    `HGPR-PARITY-WRAPPED-TEST-2026-06-15`. The gate remains open:
+    `wrapped-script` passes, `wrapped-eslint` is now an unknown tool id, and
+    `wrapped-test` fails three wrapped test rules.
 - [ ] 9.9 `nx run @internal/habitat-harness:grit:check --outputStyle=static`
 - [ ] 9.10 `bun run habitat:fix -- --dry-run`
 - [ ] 9.11 controlled apply proof for `deep_import_to_public_surface`

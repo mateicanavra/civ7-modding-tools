@@ -86,3 +86,10 @@ Each current check row carries:
 - Raw direct Grit scan proof `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`: direct raw
   Grit current-tree acquisition remains unclaimed. Habitat wrapper proof
   controls current-tree wrapper claims only.
+- Old-mechanism parity probe `HGPR-PARITY-WRAPPED-*-2026-06-15`: current
+  wrapper evidence is mixed and does not satisfy parity closure.
+  `wrapped-script` passed through the repaired command surface, but
+  `wrapped-eslint` is no longer a known Habitat tool id and `wrapped-test`
+  failed three current wrapped-test rules. Rows that cite H5/H6 original
+  mechanisms remain pending for parity disposition; no row may use historical
+  H5/H6 green wording as current parity proof.
