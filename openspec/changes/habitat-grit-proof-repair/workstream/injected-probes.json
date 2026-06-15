@@ -348,5 +348,19 @@
       "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
       "body": "import recipe from \"../recipe.js\";\n\nexport const value = recipe;\n"
     }
+  },
+  {
+    "ruleId": "grit-stage-contract-dependencies",
+    "patternIdentity": "stage_contract_dependencies",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/{contract.ts,*.contract.ts}",
+    "sourcePredicate": "standard stage step contract string literal dependency key",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts",
+      "body": "import { defineStep, Type } from \"@swooper/mapgen-core/authoring\";\n\nexport default defineStep({\n  id: \"plot-rivers\",\n  phase: \"gameplay\",\n  requires: [\"effect:map.elevationBuilt\"],\n  provides: [],\n  schema: Type.Object({}),\n});\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRiversControl.contract.ts",
+      "body": "import { defineStep, Type } from \"@swooper/mapgen-core/authoring\";\nimport { MAP_PROJECTION_EFFECT_TAGS } from \"../../../../tags.js\";\n\nexport default defineStep({\n  id: \"plot-rivers\",\n  phase: \"gameplay\",\n  requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],\n  provides: [],\n  schema: Type.Object({}),\n});\n"
+    }
   }
 ]
