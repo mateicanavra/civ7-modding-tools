@@ -16,8 +16,8 @@ The intended flow is:
    - `bun run resources:init`
    - Or: `git submodule update --init --recursive`
 
-2. Enable auto-publish hooks:
-   - `bun run setup:git-hooks`
+2. Install dependencies so Husky installs the repo hooks:
+   - `bun install`
 
 ## Daily usage
 
@@ -31,9 +31,10 @@ The intended flow is:
 
 ## Auto-publish behavior (source of truth = local)
 
-When `core.hooksPath` is configured via `bun run setup:git-hooks`, every monorepo commit runs:
+When Husky is installed by `bun install`, every monorepo commit runs:
 
-- `scripts/civ7-resources/publish-submodule.sh`
+- `bun run habitat hook pre-commit`
+- Inside that hook, `scripts/civ7-resources/publish-submodule.sh`
 
 If `.civ7/outputs/resources` is dirty, it will:
 
@@ -51,12 +52,14 @@ If `.civ7/outputs/resources` is dirty, it will:
 
 ## Temporarily disabling auto-publish (escape hatch)
 
-- Disable hook routing:
+- Bypass one commit:
+  - `git commit --no-verify`
+- Disable hook routing for the clone:
   - `git config --unset core.hooksPath`
 
 Re-enable with:
 
-- `bun run setup:git-hooks`
+- `bun run prepare`
 
 ## Notes / risks
 

@@ -47,7 +47,13 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 ## Tooling Defaults
 
 - Use `bun` workspace scripts for build, type‑checks, lint, and tests unless a closer `AGENTS.md` says otherwise.
-- Prefer root `nx`-orchestrated scripts (via `bunx nx run-many -t ...` / root `package.json` scripts) for cross-workspace workflows (apps, multi-package builds).
+- Prefer root Nx-orchestrated scripts for cross-workspace workflows (apps,
+  multi-package builds). Use root `package.json` scripts first; for ad hoc
+  terminal Nx commands, use `bun run nx ...` so the repo-local pinned binary is
+  used without requiring a global install. Inside package scripts and
+  Habitat-spawned commands, direct `nx`/`biome`/`grit` names are valid because
+  the local tool PATH is provided.
+- Git hooks are Husky delegators into `habitat hook <name>`; hooks reduce local friction, while CI remains authoritative. Pre-commit may restage formatter-touched files only, plus the preserved resources-submodule publish gitlink behavior documented in `docs/process/resources-submodule.md`.
 - Project-plane import boundaries are enforced by the Habitat `boundaries`
   target and `nx-boundaries` rule. See
   `docs/projects/habitat-harness/taxonomy.md` before changing `kind:*` tags or

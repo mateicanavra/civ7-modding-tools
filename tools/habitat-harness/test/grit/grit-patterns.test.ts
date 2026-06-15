@@ -7,12 +7,6 @@ const repoRoot = path.resolve(import.meta.dirname, "../../../..");
 const patternRoot = path.join(repoRoot, ".grit", "patterns", "habitat");
 const checkRoot = path.join(patternRoot, "checks");
 const applyRoot = path.join(patternRoot, "apply");
-const gritBin = path.join(
-  repoRoot,
-  "node_modules",
-  ".bin",
-  process.platform === "win32" ? "grit.cmd" : "grit"
-);
 
 interface GritPatternSample {
   state?: string;
@@ -33,11 +27,14 @@ const applyPatternNames = readdirSync(applyRoot)
 
 describe("Habitat GritQL pattern catalog", () => {
   test("native Grit samples pass", () => {
-    const result = spawnSync(gritBin, ["patterns", "test", "--json"], {
+    const result = spawnSync("grit", ["patterns", "test", "--json"], {
       cwd: repoRoot,
       env: {
         ...process.env,
         GRIT_TELEMETRY_DISABLED: "true",
+        PATH: [path.join(repoRoot, "node_modules", ".bin"), process.env.PATH]
+          .filter(Boolean)
+          .join(path.delimiter),
       },
       encoding: "utf8",
       maxBuffer: 32 * 1024 * 1024,

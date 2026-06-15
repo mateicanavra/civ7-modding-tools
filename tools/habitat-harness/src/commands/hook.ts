@@ -1,6 +1,6 @@
-import { Args } from "@oclif/core";
+import { Args, Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { hookMessage } from "../lib/command-engine.js";
+import { runHook } from "../lib/command-engine.js";
 
 export default class Hook extends HabitatCommand {
   static override summary = "Run a Habitat git-hook entrypoint";
@@ -12,8 +12,17 @@ export default class Hook extends HabitatCommand {
     name: Args.string({ required: false, description: "Hook name, such as pre-commit." }),
   };
 
+  static override flags = {
+    base: Flags.string({
+      description: "Override the pre-push affected base. Intended for probes and CI diagnostics.",
+    }),
+  };
+
   async run(): Promise<void> {
-    const { args } = await this.parse(Hook);
-    this.log(hookMessage(args.name));
+    const { args, flags } = await this.parse(Hook);
+    const result = runHook(args.name, { base: flags.base });
+    process.stdout.write(result.stdout);
+    process.stderr.write(result.stderr);
+    this.exitWith(result.exitCode);
   }
 }
