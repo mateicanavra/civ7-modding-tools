@@ -347,6 +347,29 @@ describe("Studio event operation adoption", () => {
     expect(liveRuntime?.snapshotId).toBe("status:12:abcdef01");
   });
 
+  test("StudioShell live-game events trigger bounded follow-up reads without a cadence", () => {
+    const shellSource = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/app/StudioShell.tsx"),
+      "utf8"
+    );
+
+    const applyLiveGameState = sourceSliceAround(shellSource, "const applyLiveGameState", 1_600);
+    expect(applyLiveGameState).toContain("buildLiveRuntimeSnapshotRequest");
+    expect(applyLiveGameState).toContain("void refreshLiveSetupFromEvent(statusState)");
+    expect(applyLiveGameState).toContain("void readLiveRuntimeSnapshot(snapshotRequest)");
+    expect(applyLiveGameState).not.toMatch(
+      /setTimeout|setInterval|civ7\.live\.status|liveControlPort\.readiness\.current|refetchInterval/
+    );
+
+    const setupFollowUp = sourceSliceAround(shellSource, "const refreshLiveSetupFromEvent", 1_600);
+    expect(setupFollowUp).toContain("buildLiveRuntimeSetupRequestKey(statusState)");
+    expect(setupFollowUp).toContain("shouldCommitLiveRuntimeSetup");
+    expect(setupFollowUp).toContain("activeLiveSetupRequestKeyRef.current");
+    expect(setupFollowUp).not.toMatch(
+      /setTimeout|setInterval|civ7\.live\.status|liveControlPort\.readiness\.current|refetchInterval/
+    );
+  });
+
   test("builds live event query options with scoped stream retry context", () => {
     const options = studioEventsWatchLiveOptions();
 

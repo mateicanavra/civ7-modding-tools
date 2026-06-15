@@ -242,6 +242,48 @@ describe("studio-server RPC handler", () => {
     await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
   }, 10_000);
 
+  test("replays latest live-game event to new studio.events.watch subscribers after hello", async () => {
+    const eventHub = trackEventHub(createStudioEventHub());
+    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const client = directClient(handler);
+
+    await eventHub.publish({
+      type: "live-game",
+      observedAt: "2026-06-10T00:00:01.000Z",
+      state: {
+        status: "ok",
+        turn: 12,
+        gameHash: 987654,
+        seed: 123,
+        readiness: "ready",
+        snapshotStatus: "idle",
+        snapshotId: "status:12:abcdef01",
+        snapshotHash: "abcdef01",
+        bindingStatus: "unbound-runtime",
+        failureCount: 0,
+      },
+    });
+
+    const iterator = await client.studio.events.watch({});
+    await expect(iterator.next()).resolves.toMatchObject({
+      done: false,
+      value: { type: "hello" },
+    });
+    await expect(iterator.next()).resolves.toMatchObject({
+      done: false,
+      value: {
+        type: "live-game",
+        state: {
+          status: "ok",
+          turn: 12,
+          snapshotId: "status:12:abcdef01",
+        },
+      },
+    });
+    await iterator.return?.();
+    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
+  }, 10_000);
+
   test("operation mutations push through the watched RPC event stream", async () => {
     const eventHub = trackEventHub(createStudioEventHub());
     const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));

@@ -130,16 +130,16 @@ export {
   stableLiveGameStringify,
 } from "./liveGame/model.js";
 export {
-  createLiveGameWatcher,
-  createRuntimeLiveGameWatcher,
   LIVE_GAME_WATCH_INITIAL_DELAY_MS,
   LIVE_GAME_WATCH_INTERVAL_MS,
+  makeStudioLiveGameWatcherLayer,
+  StudioLiveGameWatcher,
   type LiveGameWatcher,
   type LiveGameWatcherOptions,
 } from "./liveGame/watcher.js";
 export type { RecipeDagService } from "./recipeDag/service.js";
 export { createStudioRouter, type StudioRouter } from "./router/index.js";
-export { makeStudioRuntime, type StudioRuntime } from "./runtime.js";
+export { makeStudioRuntime, type StudioRuntime, type StudioRuntimeOptions } from "./runtime.js";
 export { Civ7TunerClient } from "./services/Civ7TunerClient.js";
 export {
   CIV7_TUNER_GATE_COOLDOWN_MS,

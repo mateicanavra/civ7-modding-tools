@@ -1,4 +1,6 @@
-import type { StudioRuntime } from "../runtime.js";
+import { Context, Effect, Layer, Ref, type Scope } from "effect";
+import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
+
 import type { StudioEventHubApi } from "../services/StudioEventHub.js";
 import {
   buildLiveGameErrorState,
@@ -13,10 +15,12 @@ export const LIVE_GAME_WATCH_INITIAL_DELAY_MS = 250;
 export const LIVE_GAME_WATCH_INTERVAL_MS = 3_000;
 
 export interface LiveGameWatcher {
-  start(): void;
-  stop(): void;
-  tick(): Promise<void>;
+  tick: Effect.Effect<void>;
 }
+
+export class StudioLiveGameWatcher extends Context.Tag(
+  "@civ7/studio-server/StudioLiveGameWatcher"
+)<StudioLiveGameWatcher, LiveGameWatcher>() {}
 
 export interface LiveGameWatcherOptions {
   initialDelayMs?: number;
@@ -26,98 +30,115 @@ export interface LiveGameWatcherOptions {
 
 export interface LiveGameWatcherDeps {
   eventHub: Pick<StudioEventHubApi, "publish">;
-  readLiveStatus(): Promise<LiveGameStatusBody>;
+  readLiveStatus: Effect.Effect<LiveGameStatusBody, unknown, never>;
   options?: LiveGameWatcherOptions;
 }
 
-export function createRuntimeLiveGameWatcher(args: {
-  runtime: StudioRuntime;
+export function makeStudioLiveGameWatcherLayer(args: {
   eventHub: Pick<StudioEventHubApi, "publish">;
   options?: LiveGameWatcherOptions;
-}): LiveGameWatcher {
-  return createLiveGameWatcher({
-    eventHub: args.eventHub,
-    readLiveStatus: () => args.runtime.runPromise(readLiveGameStatusBody),
-    options: args.options,
-  });
+}): Layer.Layer<StudioLiveGameWatcher, never, Civ7TunerClient> {
+  return Layer.scoped(
+    StudioLiveGameWatcher,
+    Effect.gen(function* () {
+      const tunerClient = yield* Civ7TunerClient;
+      return yield* makeLiveGameWatcher({
+        eventHub: args.eventHub,
+        readLiveStatus: readLiveGameStatusBody.pipe(
+          Effect.provideService(Civ7TunerClient, tunerClient)
+        ),
+        options: args.options,
+      });
+    })
+  );
 }
 
-export function createLiveGameWatcher(args: LiveGameWatcherDeps): LiveGameWatcher {
+export function makeLiveGameWatcherLayer(
+  args: LiveGameWatcherDeps
+): Layer.Layer<StudioLiveGameWatcher, never> {
+  return Layer.scoped(StudioLiveGameWatcher, makeLiveGameWatcher(args));
+}
+
+function makeLiveGameWatcher(args: LiveGameWatcherDeps): Effect.Effect<LiveGameWatcher, never, Scope.Scope> {
   const initialDelayMs = args.options?.initialDelayMs ?? LIVE_GAME_WATCH_INITIAL_DELAY_MS;
   const intervalMs = args.options?.intervalMs ?? LIVE_GAME_WATCH_INTERVAL_MS;
   const now = args.options?.now ?? (() => new Date());
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  let running = false;
-  let stopped = false;
-  let started = false;
-  let lastPublishedKey: string | null = null;
-  let failureCount = 0;
 
-  const schedule = (delayMs: number) => {
-    if (stopped) return;
-    if (timer !== null) clearTimeout(timer);
-    timer = setTimeout(() => {
-      timer = null;
-      void tick();
-    }, delayMs);
-  };
+  return Effect.gen(function* () {
+    const lastPublishedKey = yield* Ref.make<string | null>(null);
+    const failureCount = yield* Ref.make(0);
+    const tickGate = yield* Effect.makeSemaphore(1);
+    const readLiveStatus = args.readLiveStatus;
 
-  const publishIfChanged = async (state: LiveGameState) => {
-    const key = liveGameStateKey(state);
-    if (key === lastPublishedKey) return;
-    lastPublishedKey = key;
-    await args.eventHub.publish({
-      type: "live-game",
-      state,
-      observedAt: state.updatedAt ?? now().toISOString(),
-    });
-  };
-
-  const tick = async () => {
-    if (running || stopped) return;
-    running = true;
-    try {
-      const body = await args.readLiveStatus();
-      const baseState = buildLiveGameState({
-        body,
-        observedAtFallback: now().toISOString(),
-        failureCount: 0,
+    const publishIfChanged = (state: LiveGameState) =>
+      Effect.gen(function* () {
+        const key = liveGameStateKey(state);
+        const lastKey = yield* Ref.get(lastPublishedKey);
+        const shouldPublish = key !== lastKey;
+        if (!shouldPublish) return;
+        yield* Effect.tryPromise({
+          try: () =>
+            args.eventHub.publish({
+              type: "live-game",
+              state,
+              observedAt: state.updatedAt ?? now().toISOString(),
+            }),
+          catch: (error) => error,
+        }).pipe(
+          Effect.tap(() => Ref.set(lastPublishedKey, key)),
+          Effect.catchAll((error) =>
+            Effect.sync(() => {
+              console.error("[studio-server] failed to publish live-game event", error);
+            })
+          )
+        );
       });
-      failureCount = baseState.status === "ok" ? 0 : failureCount + 1;
-      const state = {
-        ...baseState,
-        failureCount,
-      };
-      await publishIfChanged(state);
-    } catch (err) {
-      failureCount += 1;
-      await publishIfChanged(
-        buildLiveGameErrorState({
-          error: err,
-          observedAt: now().toISOString(),
-          failureCount,
-        })
-      );
-    } finally {
-      running = false;
-      if (started && !stopped) schedule(intervalMs);
-    }
-  };
 
-  return {
-    start() {
-      if (started) return;
-      started = true;
-      stopped = false;
-      schedule(initialDelayMs);
-    },
-    stop() {
-      stopped = true;
-      if (timer !== null) {
-        clearTimeout(timer);
-        timer = null;
+    const tick = tickGate.withPermits(1)(
+      Effect.gen(function* () {
+        const baseState = yield* readLiveStatus.pipe(
+          Effect.map((body) =>
+            buildLiveGameState({
+              body,
+              observedAtFallback: now().toISOString(),
+              failureCount: 0,
+            })
+          ),
+          Effect.catchAll((error) =>
+            Effect.gen(function* () {
+              const nextFailureCount = yield* Ref.updateAndGet(failureCount, (count) => count + 1);
+              return buildLiveGameErrorState({
+                error,
+                observedAt: now().toISOString(),
+                failureCount: nextFailureCount,
+              });
+            })
+          )
+        );
+        const nextFailureCount =
+          baseState.status === "ok"
+            ? 0
+            : baseState.failureCount === undefined || baseState.failureCount <= 0
+              ? yield* Ref.updateAndGet(failureCount, (count) => count + 1)
+              : baseState.failureCount;
+        if (baseState.status === "ok") yield* Ref.set(failureCount, 0);
+        yield* publishIfChanged({
+          ...baseState,
+          failureCount: nextFailureCount,
+        });
+      })
+    );
+
+    const loop = Effect.gen(function* () {
+      if (initialDelayMs > 0) yield* Effect.sleep(initialDelayMs);
+      while (true) {
+        yield* tick;
+        yield* Effect.sleep(intervalMs);
       }
-    },
-    tick,
-  };
+    });
+
+    yield* Effect.forkScoped(loop);
+
+    return { tick };
+  });
 }

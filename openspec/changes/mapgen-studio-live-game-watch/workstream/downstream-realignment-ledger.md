@@ -1,7 +1,7 @@
 # D10 Downstream Realignment Ledger - Studio Live Game Watch
 
-Status: packet accepted; implementation pending
-Date: 2026-06-14
+Status: implementation evidence recorded before Graphite commit; live Civ7 proof remains a D12/next-packet handoff.
+Date: 2026-06-15
 
 ## D11 - Nx Dev Runner
 
@@ -51,7 +51,7 @@ Date: 2026-06-14
 
 ## Proof Boundary
 
-D10 packet acceptance proves implementation readiness. D10 implementation proves
-live-game event cadence, browser live-status cadence deletion, and live proof or
-not-green handoff. D11 proves Nx dev runner/process ownership. D12 proves final
-game-door invariant closure.
+D10 implementation proves live-game event cadence, browser live-status cadence
+deletion, and a not-green live-proof handoff. D11 proves Nx dev runner/process
+ownership. D12 proves final game-door invariant closure, including live Civ7
+proof if it remains unrun when D12 starts.

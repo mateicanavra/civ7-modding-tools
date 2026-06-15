@@ -42,11 +42,13 @@ import {
 import {
   buildLiveRuntimeSnapshotRequest,
   buildLiveRuntimeSnapshotState,
+  buildLiveRuntimeSetupRequestKey,
   buildLiveRuntimeSuggestionRecords,
   type LiveRuntimeSnapshotRequest,
   type LiveRuntimeSnapshotState,
   type LiveRuntimeStatusState,
   type LiveRuntimeSuggestionRecord,
+  shouldCommitLiveRuntimeSetup,
   shouldCommitLiveRuntimeSnapshot,
 } from "../features/liveRuntime/model";
 import { saveRepoBackedConfig, toConfigId } from "../features/mapConfigSave/api";
@@ -506,6 +508,7 @@ export function StudioShell(props: StudioShellProps) {
   const lastRunInGameToastRef = useRef<string | null>(null);
   const liveSnapshotFailureCountRef = useRef(0);
   const activeLiveSnapshotRequestKeyRef = useRef<string | null>(null);
+  const activeLiveSetupRequestKeyRef = useRef<string | null>(null);
   const liveSnapshotAbortRef = useRef<AbortController | null>(null);
   const liveSetupAbortRef = useRef<AbortController | null>(null);
   const liveRuntimeMountedRef = useRef(true);
@@ -703,10 +706,19 @@ export function StudioShell(props: StudioShellProps) {
     liveSetupAbortRef.current?.abort();
     const setupAbortController = new AbortController();
     liveSetupAbortRef.current = setupAbortController;
+    const setupRequestKey = buildLiveRuntimeSetupRequestKey(statusState);
+    activeLiveSetupRequestKeyRef.current = setupRequestKey;
+    const shouldCommitSetup = () =>
+      liveRuntimeMountedRef.current &&
+      shouldCommitLiveRuntimeSetup({
+        activeRequestKey: activeLiveSetupRequestKeyRef.current,
+        resultRequestKey: setupRequestKey,
+        aborted: setupAbortController.signal.aborted,
+      });
 
     try {
       const setup = await fetchCiv7SetupConfig({ signal: setupAbortController.signal });
-      if (!liveRuntimeMountedRef.current || setupAbortController.signal.aborted) return;
+      if (!shouldCommitSetup()) return;
       const suggestedSetupConfig = setup.ok
         ? normalizeStudioSetupConfig(studioSetupConfigFromLiveSnapshot(setup.setup))
         : undefined;
@@ -729,6 +741,7 @@ export function StudioShell(props: StudioShellProps) {
       );
     } catch (err) {
       if (!liveRuntimeMountedRef.current || isAbortLikeError(err)) return;
+      if (!shouldCommitSetup()) return;
       const observedAt = new Date().toISOString();
       setLiveSetup({
         status: "error",

@@ -1,67 +1,103 @@
 # D10 Testing Ledger - Studio Live Game Watch
 
-Status: packet accepted; implementation pending
-Date: 2026-06-14
+Status: implementation evidence recorded before Graphite commit; live Civ7 Play/SaveDeploy proof is not run or claimed.
+Date: 2026-06-15
 
-| Layer | Required proof | Adequacy criterion |
+## Proof Matrix
+
+| Layer | Proof | Result |
 | --- | --- | --- |
-| Packet/spec | OpenSpec strict + full validation | proposal/design/spec/tasks agree and no stale implementation closeout remains |
-| Contract | TypeBox schema test or compile/runtime contract test | `live-game` belongs to existing `StudioEvent` union without Zod mirror |
-| Watcher behavior | package tests | first observation publishes, changed key publishes, unchanged key and clock-only changes stay quiet |
-| Watcher lifecycle | package tests with scoped runtime/disposal | daemon disposal interrupts watcher and no publication occurs after disposal |
-| Production composition | handler/daemon composition test | production path supplies shared `Civ7TunerSession`, `Civ7TunerClient`, EventHub, and no alternate status reader |
-| Client event application | app hook/shell scenario tests | pushed `live-game` updates rendered live runtime state |
-| Snapshot follow-up | app scenario/model tests | pushed state triggers bounded `civ7.live.snapshot` request/response only when stale, with request-key commit guard |
-| Setup follow-up | app scenario tests | pushed state triggers bounded setup request/response and aborts/supersedes stale work |
-| Deletion | negative searches | browser live-status freshness has no timer, status caller, readiness cadence, polling hook, or refetch interval |
-| Live proof | bounded Civ7 runtime proof | branch/commit/API/log/timestamp/payload evidence shows first/change/quiet behavior and shared-session ownership |
+| Packet/spec | `bun run openspec -- validate mapgen-studio-live-game-watch --strict` | passed |
+| Full OpenSpec | `bun run openspec:validate` | passed |
+| Watcher behavior/lifecycle | `bun run --cwd packages/studio-server test -- test/liveGameWatcher.test.ts test/handler.test.ts` | passed; 20 tests after D10 replay/failure-count repairs |
+| Client event/follow-up model | `bun run --cwd apps/mapgen-studio test -- test/liveRuntime/model.test.ts test/studioEvents/operationAdoption.test.ts` | passed; 19 tests after D10 shell follow-up source guard |
+| Package check | `bun run --cwd packages/studio-server check` | passed |
+| App check | `bun run --cwd apps/mapgen-studio check` | passed |
+| Nx package check | `bun run nx run @civ7/studio-server:check --outputStyle=static` | passed; graph-owned Habitat/Grit dependencies green |
+| Nx app check | `bun run nx run mapgen-studio:check --outputStyle=static` | passed; rebuilt `@civ7/studio-server` outputs through Nx dependency graph |
+| Negative search | cadence/status/session scans below | passed with classified non-D10 hits only |
+| Live Civ7 proof | local game/FireTuner proof | not run; see `workstream/next-packet.md` |
 
-## Future Implementation Commands
+## Focused Behavior Evidence
+
+- `packages/studio-server/test/liveGameWatcher.test.ts` proves first publish,
+  changed-key publish, clock-only quiet behavior, EventHub publish failure as
+  diagnostics-only, non-throwing live-status failures increment
+  `failureCount`, latest live-game replay for late subscribers, and runtime
+  scope disposal stopping automatic watcher publication.
+- `packages/studio-server/test/handler.test.ts` proves the actual
+  `studio.events.watch` route delivers hello first and replays a retained
+  `live-game` event to new subscribers after a pre-subscription publish.
+- `apps/mapgen-studio/test/liveRuntime/model.test.ts` proves live-runtime
+  snapshot/setup request keys and stale/newer-event commit guards.
+- `apps/mapgen-studio/test/studioEvents/operationAdoption.test.ts` proves pushed
+  live-game event application and source-guards the `StudioShell`
+  `applyLiveGameState` path: pushed state calls setup and snapshot
+  request/response follow-ups, uses setup request keys, and does not introduce
+  timers, `civ7.live.status`, `liveControlPort.readiness.current`, or
+  `refetchInterval`.
+
+## Negative Search Evidence
+
+Command:
 
 ```bash
-bun run openspec -- validate mapgen-studio-live-game-watch --strict
-bun run openspec:validate
-bun run nx run @civ7/studio-server:test --outputStyle=static
-bun run nx run @civ7/studio-server:check --outputStyle=static
-bun run nx run mapgen-studio:test --outputStyle=static
-bun run nx run mapgen-studio:check --outputStyle=static
-rg -n "nextLiveRuntimePollDelayMs|liveStatusFailureCountRef" apps/mapgen-studio/src apps/mapgen-studio/test packages/studio-server/src packages/studio-server/test -S
-rg -n "setTimeout\\(|setInterval\\(" apps/mapgen-studio/src/app apps/mapgen-studio/src/features -S
-rg -n "civ7\\.live\\.status\\(" apps/mapgen-studio/src apps/mapgen-studio/test -S
-rg -n "liveControlPort\\.readiness\\.current|refetchInterval|polling|status poll|status-poll" apps/mapgen-studio/src apps/mapgen-studio/test -S
-rg -n "new Civ7Tuner|create.*Tuner|direct-control.*live|EventSource|text/event-stream|/events|/sse" packages/studio-server/src apps/mapgen-studio/src -S
-git diff --check
+rg -n "nextLiveRuntimePollDelayMs|liveStatusFailureCountRef|civ7\\.live\\.status\\(|fetchLiveRuntimeStatus|useLive.*Poll|refetchInterval|polling|status poll|status-poll|liveControlPort\\.readiness\\.current|setInterval\\(|setTimeout\\(" apps/mapgen-studio/src apps/mapgen-studio/test packages/studio-server/src packages/studio-server/test -S
 ```
 
-Focused file evidence should include watcher, handler, live runtime model, and
-event-adoption paths, but repo-local Nx targets remain the closure commands. If
-implementation adds stronger tests under different files, update this ledger
-before closure.
+Result classification:
 
-## Live Proof Requirements
+- no `nextLiveRuntimePollDelayMs`, `liveStatusFailureCountRef`,
+  background browser `civ7.live.status(` caller, `fetchLiveRuntimeStatus`,
+  live polling hook, `refetchInterval`, or `liveControlPort.readiness.current`
+  cadence call remains;
+- retained `setTimeout` hits are unrelated server/test timeouts, D9 Save/Deploy
+  event waiter timeout, autorun timer, viz/render backstops, and generic async
+  helpers; none are live-status freshness cadence;
+- retained comments mentioning polling are tuner/session historical comments or
+  contract prose, not browser live-status cadence code.
 
-When Civ7 is available, D10 implementation closure must record:
+Command:
 
-- branch and commit;
-- daemon URL or API path used to observe events;
-- timestamps around watcher start and observed event delivery;
-- relevant daemon/game log paths;
-- parsed `live-game` payload shape;
-- evidence that an unchanged key stays quiet;
-- evidence that the browser cadence deletion searches remain clean.
+```bash
+rg -n "@civ7/direct-control|Civ7DirectControlSession|Civ7TunerSessionLive|setTimeout|setInterval" packages/studio-server/src/liveGame packages/studio-server/src/runtime.ts packages/studio-server/src/handler.ts -S
+```
 
-If Civ7 is unavailable, create `workstream/next-packet.md` with:
+Result classification:
 
-- missing proof class;
-- environment prerequisite;
-- exact re-entry commands;
-- log paths to inspect;
-- closure claim that remains blocked.
+- `packages/studio-server/src/liveGame/**` has no direct-control import, no
+  `Civ7DirectControlSession`, no `Civ7TunerSessionLive`, no `setTimeout`, and
+  no `setInterval`;
+- `runtime.ts` retains the top-level named `Civ7TunerSessionLive` owner and
+  named `Civ7TunerClient.Default` layer reference;
+- handler lifecycle starts/acquires `StudioLiveGameWatcher` through the runtime
+  service and disposes by closing the runtime scope plus the daemon event hub.
 
-## Proof Labels
+Command:
 
-- OpenSpec validation proves packet shape only.
-- Package tests prove watcher mechanics and lifecycle.
-- App tests prove client event behavior and request/response follow-ups.
-- Negative searches prove deletion of browser cadence symbols.
-- Live proof proves product/runtime behavior.
+```bash
+rg -n "readiness\\.current|liveControlPort" apps/mapgen-studio/src apps/mapgen-studio/test -S
+```
+
+Result classification:
+
+- `liveControlPort.readiness.current` was deleted from the browser port;
+- remaining `readiness.current` hits are the protected control-oRPC route tests
+  and `orpc.ts` route taxonomy comment;
+- `StudioShell` uses `liveControlPort.display.explore.request` only.
+
+## Live Proof Boundary
+
+No live Civ7/FireTuner product proof was run in this D10 implementation pass.
+D10 therefore does not claim live game green. `workstream/next-packet.md`
+records the missing proof class, environment prerequisites, re-entry commands,
+log paths, and closure rule for the D12 game-door invariant lane or an earlier
+live-proof lane.
+
+## Notes
+
+- The production watcher source-composition test is intentionally source-shape
+  proof, not live shared-socket proof. It proves no direct-control bypass or
+  internal session owner exists in `liveGame/watcher.ts`, and that runtime
+  composition uses the named `Civ7TunerClient`/`Civ7TunerSession` layers.
+- Live shared-socket behavior remains a D12 live game-door proof item.
