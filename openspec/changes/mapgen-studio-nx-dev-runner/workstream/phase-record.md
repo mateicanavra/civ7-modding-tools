@@ -5,9 +5,10 @@
 - Project: Studio runtime Effect refactor
 - Domino: D11
 - OpenSpec change: `mapgen-studio-nx-dev-runner`
-- Owner: Codex DRA packet-authoring lane
+- Owner: Codex DRA implementation lane
 - Branch/Graphite stack: `codex/runtime-effect-nx-dev-runner`
-- Status: packet accepted; implementation pending
+- Status: implementation committed at current branch tip; live Civ7
+  Play/SaveDeploy proof is not-green and handed off in `next-packet.md`
 
 ## Objective
 
@@ -16,16 +17,17 @@
 - Non-goals: general Nx migration, D1 import-graph isolation, D10 live-game
   runtime ownership, D12 final invariant closeout, runtime operation workflow
   changes.
-- Done condition: packet can be handed to a D11 implementer with explicit Nx
+- Done condition: D11 implementation lands as its own Graphite slice with Nx
   target topology, process deletion targets, proof gates, live operation
-  stability oracles, baseline stop conditions, and downstream handoff.
+  stability handoff, baseline stop conditions, and downstream D12 residue
+  realignment recorded truthfully.
 
 ## Gate 1 - Frame
 
 - Hard core: accepted Nx/Habitat baseline, continuous backend serve target,
-  frontend dev depends on backend serve, generated/build dependencies modeled by
-  Nx, app-local child supervisor deleted, no daemon-internal Bun watcher, Play
-  and Save&Deploy stable under Nx dev.
+  user-facing frontend dev target depends on backend serve, generated/build
+  dependencies modeled by Nx, app-local child supervisor deleted, no
+  daemon-internal Bun watcher, Play and Save&Deploy stable under Nx dev.
 - Exterior: broad Nx/Habitat migration, D1 watch-graph isolation, D10 runtime
   watcher implementation, D12 game-door invariant, non-Studio dev scripts.
 - Falsifier: implementation preserves `devLive.ts` as supervisor, keeps
@@ -39,24 +41,25 @@
 
 ## Gate 2 - Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`
+- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`
 - Branch: `codex/runtime-effect-nx-dev-runner`
-- Entrance status: clean after D10 commit `a357ae914`.
-- Dirty-file quarantine: none at entrance; D11 packet edits are restricted to
-  `openspec/changes/mapgen-studio-nx-dev-runner/**` and
-  `docs/projects/studio-runtime-simplification/OPENSPEC-PACKET-TRAIN.md`.
-- Baseline note: this packet branch is pre-Nx authoring context. D11
-  implementation execution requires the accepted migrated Nx/Habitat baseline;
-  absence of that baseline is a stop condition, not a supported command path.
+- Entrance status: clean after D10 commit
+  `9a715e0e7 feat(studio): push live game state from runtime`.
+- Dirty-file quarantine: none at entrance; D11 implementation edits are
+  restricted to the Studio app dev target/write set, D11 OpenSpec workstream,
+  and the `.gitignore` transient `studio-current` proof-output policy.
+- Baseline note: this implementation branch is on the accepted migrated
+  Nx/Habitat baseline. A checkout without that baseline remains a stop
+  condition, not a supported command path.
 
 ## Gate 3 - Diagnosis
 
-The current pre-Nx app dev path puts process orchestration inside
+Pre-implementation diagnosis found process orchestration inside
 `apps/mapgen-studio/src/server/daemon/devLive.ts`: it spawns the daemon, waits
 for `/healthz`, starts Vite, and launches the daemon with `bun --watch`. This
-made sense during the Bun-server bootstrap, but after D1 and D10 the remaining
-nested process shape is the problem. The app is carrying task-runner work, and
-the daemon appears to be watched by a daemon-adjacent supervisor.
+made sense during the Bun-server bootstrap, but after D1 and D10 that nested
+process shape became the problem. The app was carrying task-runner work, and
+the daemon appeared to be watched by a daemon-adjacent supervisor.
 
 D11 moves that concern into Nx, which is the accepted workspace task owner.
 
@@ -69,7 +72,7 @@ D11 moves that concern into Nx, which is the accepted workspace task owner.
 | backend serve target | Nx project metadata | Nx continuous orchestration | `nx show project`, graph proof |
 | frontend dev target | Nx project metadata | developer browser | `nx show project`, Vite smoke |
 | generated/build prerequisites | Nx target dependencies/watch | Studio dev | graph proof |
-| `devLive.ts` | deleted or non-supervising app entrypoint | none or serve path | negative search/source review |
+| `devLive.ts` | deleted app-local supervisor | none | negative search/source review |
 | daemon entrypoint | Studio app | backend serve target | process proof |
 | Vite proxy | app Vite config | frontend dev | config/test proof |
 | process tree | OS process list | proof ledger | `ps` proof |
@@ -106,9 +109,10 @@ D11 moves that concern into Nx, which is the accepted workspace task owner.
 
 ## Gate 8 - Slice Plan
 
-D11 is one OpenSpec change and one future implementation Graphite branch. It
-removes the dev process topology residue after D1 and D10. D12 consumes D11 to
-prove no process/runtime bridge remains unowned.
+D11 is one OpenSpec change and one implementation Graphite branch. It removes
+the dev process topology residue after D1 and D10. D12 consumes D11's process
+proof, live-proof gap, root-lint disposition, and residual runtime-bridge
+classifications to prove no process/runtime bridge remains unowned.
 
 ## Gates 9-10 - Proof Labels
 
@@ -120,24 +124,36 @@ prove no process/runtime bridge remains unowned.
 
 ## Gate 11 - Review
 
-- Prework/corpus scout: completed during packet authoring.
-- Hardening/black-ice reviewer: completed during packet authoring.
-- Testing/Nx-native reviewer: completed during packet authoring.
-- Review ledger captured all P1/P2 findings before packet acceptance.
+- Packet-authoring prework/corpus, hardening/black-ice, and testing/Nx-native
+  reviews completed before packet acceptance.
+- Implementation-diff findings from the supervisor/read-only explorer sweep
+  were accepted and repaired or carried forward:
+  - static target proof was strengthened with running Nx process proof;
+  - orphan `dev-frontend` target semantics were removed from the active
+    contract;
+  - `nx.json` analytics prompt residue was excluded from the D11 diff;
+  - transient `studio-current` proof-run generated output was ignored while
+    saved authoring configs remain tracked;
+  - the EventHub lifecycle island candidate is deferred to D12.
+- Review ledger has no unresolved P1/P2 findings for D11 closure.
 
 ## Gate 12 - Closure
 
-Packet acceptance required:
+D11 implementation closure requires:
 
 - D11 proposal/design/spec/tasks/ledgers agree.
 - `review-disposition-ledger.md` has no unresolved P1/P2 finding.
-- strict and full OpenSpec validation pass.
+- strict and full OpenSpec validation pass on the implementation diff.
 - shortcut scan has no active fallback/dual-path/Turbo/app-supervisor target.
-- `OPENSPEC-PACKET-TRAIN.md` marks D11 accepted.
+- running process proof shows Nx-owned daemon/frontend, no `devLive.ts`, and
+  no daemon `bun --watch`.
+- live Play/SaveDeploy proof is either run or carried as an explicit not-green
+  next packet; current D11 does not claim live product proof.
 - Graphite/worktree state is clean after commit.
 
 ## Next Action
 
-Implementation opens D11 on its own Graphite branch and runs the gates in
-`tasks.md`. D12 consumes D11's process-proof and residue outputs for final
-closeout.
+After the closure-record/message amend, verify `git status --short --branch`
+is clean on D11 before moving to D12. D12 consumes D11's process-proof,
+live-proof gap, lint disposition, and EventHub/runtime-residue outputs for
+final closeout.

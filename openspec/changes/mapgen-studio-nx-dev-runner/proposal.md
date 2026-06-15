@@ -45,7 +45,7 @@ watcher and the app no longer carries a child-process supervisor.
   Habitat/classification gates are unavailable, D11 stops rather than adding a
   pre-Nx command path.
 - Define `mapgen-studio` Nx targets so backend serve is a continuous task and
-  frontend dev depends on it.
+  the user-facing frontend dev target depends on it.
 - Model generated/build prerequisites, including Studio recipe/build inputs, as
   Nx target dependencies or workspace-watch ownership rather than app-local
   child process behavior.

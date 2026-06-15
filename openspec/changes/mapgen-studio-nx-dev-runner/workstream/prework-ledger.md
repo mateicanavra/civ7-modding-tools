@@ -1,7 +1,8 @@
 # D11 Prework Ledger - Studio Nx Dev Runner
 
-Status: packet accepted; implementation pending
-Date: 2026-06-14
+Status: implementation prework consumed; D11 dev-process implementation
+complete before Graphite commit
+Date: 2026-06-15
 
 ## Packet-Authoring Prework Completed
 
@@ -56,11 +57,16 @@ runtime text outside the D11 write set.
 1. Use the adopted worktree based on the accepted Nx/Habitat baseline.
 2. Run `bun install --frozen-lockfile`, baseline build/check, `bun run nx
    --version`, and `bun run nx show project mapgen-studio --json`.
-3. Identify the existing mapgen-studio target names and decide whether to keep
-   them or normalize to `serve-daemon`, `dev-frontend`, and `dev`.
-4. Identify generated/build target dependencies needed before Studio dev starts.
-5. Plan the process proof command and the live Play/Save&Deploy proof while Nx
-   dev is running.
+3. Existing target names were inspected through
+   `bun run nx show project mapgen-studio --json`.
+4. D11 normalized to two active targets: `serve-daemon` and user-facing `dev`.
+   The frontend is the `dev` target itself; the tentative `dev-frontend` target
+   was removed so no orphan frontend authority remains.
+5. Generated/build prerequisites are modeled on `serve-daemon` through
+   `mod-swooper-maps:build:studio-recipes` plus `^build`.
+6. Process proof was run with `bun run nx run mapgen-studio:dev
+   --outputStyle=stream` and `ps`; live Play/SaveDeploy proof remains
+   not-green in `next-packet.md`.
 
 ## Resolved Black-Ice Decisions
 
@@ -74,6 +80,10 @@ runtime text outside the D11 write set.
 - Railway `bunx turbo` build text is deployment residue on this authoring
   branch. It is not local dev orchestration proof and must be classified or
   handed off rather than silently preserved as an active D11 dev target.
+- `studio-current.config.json` and `studio-current.ts` are Studio live-run
+  transient outputs, not shipped built-in map presets. The config remains
+  ignored, the generated output is now ignored, and saved authoring configs
+  remain tracked.
 
 ## Remaining Human Decisions
 

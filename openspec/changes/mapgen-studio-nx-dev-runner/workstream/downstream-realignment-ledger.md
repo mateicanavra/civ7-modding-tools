@@ -1,7 +1,7 @@
 # D11 Downstream Realignment Ledger - Studio Nx Dev Runner
 
-Status: packet accepted; implementation pending
-Date: 2026-06-14
+Status: D11 implementation handoff recorded before Graphite commit
+Date: 2026-06-15
 
 ## D12 - Game Door Invariant
 
@@ -13,16 +13,23 @@ Date: 2026-06-14
   - confirm active runtime docs/specs do not preserve Turbo/devLive/Bun watcher
     as final Studio dev owners;
   - consume D11 process proof outputs: Nx target metadata, process tree output,
-    negative-search output, and live Play/Save&Deploy `serverInstanceId` proof;
+    and negative-search output;
+  - consume `workstream/next-packet.md` as the explicit missing live
+    Play/SaveDeploy `serverInstanceId` proof instead of treating D11 as live
+    product-green;
   - consume surviving dev/deploy command classifications, including
     deployment-only Turbo residue if it remains;
   - classify any remaining public/manual status endpoints and direct-control
     session owners;
   - close final no-orphan bridge/residue ledger.
+  - classify or repair the `StudioEventHub` Promise-owned lifecycle island
+    concern raised during D11 whole-system review; D11 does not resolve that
+    D12-level invariant.
 - D12 stop conditions:
   - D11 leaves an app-local supervisor active;
   - D11 keeps pre-Nx command branches;
-  - D11 cannot prove Play/Save&Deploy stable under Nx dev.
+  - D11 cannot prove Play/Save&Deploy stable under Nx dev and D12 attempts to
+    claim final live product closure without running the handoff proof.
   - deployment-only Turbo residue, such as Railway build commands, remains
     unclassified after D11 implementation.
 
@@ -38,5 +45,6 @@ Date: 2026-06-14
 ## Proof Boundary
 
 D11 packet acceptance proves implementation readiness. D11 implementation proves
-dev task/process topology and operation identity stability under Nx dev. D12
-proves final runtime closeout.
+dev task/process topology. Operation identity stability under Nx dev remains a
+not-green live proof handoff in `next-packet.md` until it is run. D12 proves
+final runtime closeout.

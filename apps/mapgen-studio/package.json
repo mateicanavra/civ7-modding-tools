@@ -10,6 +10,21 @@
     ],
     "targets": {
       "dev": {
+        "executor": "nx:run-script",
+        "options": {
+          "script": "dev:frontend"
+        },
+        "dependsOn": [
+          "serve-daemon"
+        ],
+        "cache": false,
+        "continuous": true
+      },
+      "serve-daemon": {
+        "executor": "nx:run-script",
+        "options": {
+          "script": "dev:server"
+        },
         "dependsOn": [
           "^build",
           {
@@ -79,7 +94,7 @@
     }
   },
   "scripts": {
-    "dev": "bun src/server/daemon/devLive.ts",
+    "dev": "vite",
     "dev:frontend": "vite",
     "dev:server": "bun src/server/daemon/daemon.ts",
     "serve": "bun src/server/daemon/daemon.ts --assets-root dist",
