@@ -1,143 +1,142 @@
-# Phase Record
+# D9 Phase Record - Studio Operations Push
 
 ## Phase
 
-- Project: Studio runtime simplification
-- Phase: S3.2 `operations-push`
-- Owner: Codex DRA implementation lane
-- Branch/Graphite stack: `codex/operations-push` stacked on `main`
-- Started: 2026-06-13
-- Status: complete; merged and drained
+- Project: Studio runtime Effect refactor
+- Domino: D9
+- OpenSpec change: `mapgen-studio-operations-push`
+- Owner: Codex DRA packet-authoring lane
+- Branch/Graphite stack: `codex/runtime-effect-operations-push`
+- Status: accepted; pending Graphite commit
 
 ## Objective
 
-- Target movement: operation registries publish status transitions through the
-  S3.1 EventHub, the client applies operation events, and operation polling
-  plus daemon `serverInfo` identity polling are deleted.
-- Non-goals: live-game watcher/poll deletion, alternate transports, browser
-  localStorage recovery, broad status contract removal without proof.
-- Done condition: pushed operation transitions update client state, operation
-  polling/watchdog deletion proofs are green, strict OpenSpec validates, and
-  Graphite branch closes cleanly.
+- Target movement: specify operation transition publication through the D8
+  `StudioEventHub`, client pushed-operation application, and deletion of
+  operation polling/watchdog authority.
+- Non-goals: live-game event publication, browser live-game polling/timer
+  deletion, alternate transports, browser operation recovery, public/manual
+  status endpoint deletion without separate proof.
+- Done condition: D9 can be implemented without chat context, with publisher
+  owners, deletion targets, terminal-toast parity, tests, stop conditions, and
+  downstream D10/D12 handoffs explicit.
 
-## Authority
+## Gate 1 - Frame
 
-- Root/subtree `AGENTS.md`: exact staging, Graphite process, no dirty closure.
-- Product refs: `docs/projects/studio-runtime-simplification/PLAN.md` WS-3
-  S3.2.
-- Upstream refs: S3.1 EventHub and event watch; S2.1
-  `studio.operations.current`.
-- Watcher refs: S3.2 watcher `019ec130-bde5-7133-be61-282814556152`.
-- Excluded/stale inputs: operation polling as a fallback, `serverInfo`
-  watchdog as client identity authority, hidden Save&Deploy status loop.
+- Hard core: Run in Game and Save&Deploy transitions publish `operation` events
+  through D8 EventHub; client applies pushed events; operation polling/watchdog
+  authority is deleted.
+- Exterior: D10 live-game watch, D12 game-door invariant, D8 transport/hub
+  semantics, public/manual status endpoint closeout.
+- Falsifier: an implementer can leave a hidden status poll, keep the daemon
+  identity watchdog, publish only one operation family, lose terminal toast
+  parity, or add a second operation bus.
+- Proof labels: OpenSpec validation, publisher falsification tests, client
+  event-application tests, terminal toast parity tests, negative deletion
+  searches, downstream realignment, Graphite/worktree cleanliness.
+- Review lanes: operation publisher ownership, deletion/black-ice, testing,
+  downstream realignment.
 
-## Current State
+## Gate 2 - Repo State
 
-- Repo/Graphite state: `codex/operations-push` merged via PR #1688; `main`
-  fast-forwarded by `gt sync --no-restack` to merge commit
-  `1be1d760e3c5374194ad86cf124a8ffc81964a0e`; closeout branch
-  `codex/operations-push-closeout` marks final task completion.
-- Dirty files and owner: S3.2 source/docs/tests only.
-- Current code evidence: operation registries publish through the injected
-  EventHub; client event hook applies `operation` events; operation polling,
-  hidden Save&Deploy status polling, and client `serverInfo` identity polling
-  are deleted.
-- Generated outputs affected: none expected for source edits; ignored outputs
-  may be regenerated only by verification gates.
-- Tests/guards affected: operation store tests, event hook/adoption tests,
-  handler tests if polling-only status pins are deleted.
+- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`
+- Branch: `codex/runtime-effect-operations-push`
+- Entrance status: clean before D9 edits after D8 commit `3ed082058`.
+- Dirty-file quarantine: none at entrance; D9 edits are restricted to
+  `openspec/changes/mapgen-studio-operations-push/**` and
+  `docs/projects/studio-runtime-simplification/OPENSPEC-PACKET-TRAIN.md`.
+- Dependency/build entrance: D6 refreshed dependency/build/check baseline;
+  D7-D9 are docs-only packet repairs and require OpenSpec/Graphite/status gates
+  unless code is touched.
 
-## Scope
+## Gate 3 - Diagnosis
 
-- Write set: `openspec/changes/mapgen-studio-operations-push/**`,
-  `apps/mapgen-studio/src/server/studio/engines.ts`,
-  operation stores under `apps/mapgen-studio/src/server/{runInGame,mapConfigs}`,
-  `apps/mapgen-studio/src/server/daemon/daemon.ts`, client event/adoption
-  hooks/helpers, `StudioShell`, focused app/server tests.
-- Protected files: live-game polling owners, generated outputs, unrelated
-  localStorage owners, unrelated status contracts.
-- Owners: daemon/store owns transition publication; client event hook owns
-  pushed operation application; hello/current owns reconnect adoption.
-- Forbidden owners: alternate SSE routes, operation-specific second stream,
-  Zod for new event contracts, orphaned "for now" fallback polling without a
-  closeout target.
+The existing change is useful implementation-closure history but not a D9
+packet-standard spec. It uses stale stage vocabulary, overstates complete/merged
+state, embeds material watcher findings in historical rows, and does not clearly
+separate D9 deletion authority from D10 live-game work or public/manual status
+endpoint closeout.
 
-## Spec/Tasks
+## Gate 4 - Corpus / Action Surfaces
 
-- Spec/proposal: `openspec/changes/mapgen-studio-operations-push/`.
-- Tasks: `tasks.md`.
-- Validation status: `bun run openspec -- validate mapgen-studio-operations-push --strict`
-  passed before implementation and after closeout record updates.
+| Surface | Owner | Consumer | Verification |
+| --- | --- | --- | --- |
+| Run in Game store transition | app daemon operation store/engine | D8 EventHub, Studio client | publisher falsification test |
+| Save&Deploy store transition | app daemon operation store/engine | D8 EventHub, Studio client | publisher falsification test |
+| operation event DTO | `@civ7/studio-server` contract/D6 operation DTOs | app event hook | schema/DTO parity tests |
+| client operation event application | `useStudioEvents` / `operationAdoption` | StudioShell state surfaces | app tests |
+| terminal toast parity | StudioShell operation effects | user notification behavior | parity test |
+| `useOperationStatusPolls` deletion | Studio app | background freshness removal | negative search |
+| hidden Save&Deploy loop deletion | map config save API | background freshness removal | negative search |
+| polling-only 404 handling deletion | StudioShell | status-miss behavior | negative search/tests |
+| `useDaemonInstanceWatchdog` deletion | Studio app | identity authority removal | negative search |
+| D10 live-game protection | live runtime surfaces | D10 packet | downstream ledger |
 
-## Review
+## Gate 5 - Grouping
 
-- Review lanes: watcher lane `019ec130-bde5-7133-be61-282814556152`.
-- Blocking findings: none after repair.
-- Accepted findings repaired: `S3.2-W1` through `S3.2-W6`.
-- Rejected/invalidated/waived/deferred findings: none.
+- Publisher group: Run in Game and Save&Deploy transition-to-event paths.
+- Client group: event hook application, operation adoption, terminal toast
+  parity.
+- Deletion group: polling hook, hidden loop, status-miss callbacks, watchdog.
+- Boundary group: D10 live-game and public/manual status endpoint protection.
 
-## Agent Fleet State
+## Gate 6 - Expected Behavior
 
-- Active agents: none after watcher completion.
-- Completed agents: watcher `019ec130-bde5-7133-be61-282814556152`.
-- Assigned write sets: watcher was read-only.
-- Latest evidence by agent: subagent notification findings.
-- Open findings by agent: none after accepted-repaired dispositions.
-- Integration owner: Codex DRA implementation lane.
+- Every retained operation transition for both families publishes one operation
+  event on the D8 hub.
+- Publisher failure is diagnostic and does not reverse the state transition or
+  reopen polling.
+- Pushed operation events update visible operation state.
+- Boot/reconnect adopted terminal Run in Game operations do not replay old
+  terminal toasts; live pushed terminal operations still trigger the existing
+  toast effect.
+- No background operation freshness or identity polling remains after D9.
 
-## Implementation
+## Gate 7 - Architecture Translation
 
-- Completed tasks: OpenSpec frame, watcher disposition, operation publisher
-  injection, client operation event application, operation poll deletion,
-  hidden Save&Deploy status loop deletion, `serverInfo` watchdog deletion,
-  focused tests, app/package checks, negative search proofs.
-- Remaining tasks: none for S3.2 after closeout branch merges.
-- Stop conditions triggered: none.
+- Owning packages/modules: `apps/mapgen-studio` operation stores/engines and
+  client event hook, with public event DTOs from `@civ7/studio-server`.
+- Forbidden owners: second operation bus, browser storage recovery, polling
+  retained path, app-local event DTO mirror, Zod event schema.
+- Public surface: unchanged `studio.events.watch` event stream and canonical
+  operation DTOs.
+- Protected surfaces: D10 live-game cadence and public/manual diagnostic status
+  endpoints unless proven unused by a future packet.
 
-## Verification
+## Gate 8 - Slice Plan
 
-- Commands run:
-  - `bun run openspec -- validate mapgen-studio-operations-push --strict`
-- `bun run --cwd apps/mapgen-studio test -- test/runInGame/operationState.test.ts`
-- `bun run --cwd apps/mapgen-studio test -- test/mapConfigSave/operationState.test.ts`
-- `bun run --cwd apps/mapgen-studio test -- test/studioEvents/operationAdoption.test.ts`
-- `bun run --cwd apps/mapgen-studio check`
-- `bun run --cwd apps/mapgen-studio test -- test/runInGame/operationState.test.ts test/mapConfigSave/operationState.test.ts test/studioEvents/operationAdoption.test.ts`
-- `bun run --cwd apps/mapgen-studio test -- test/server/oneMount.test.ts`
-- `bun run --cwd packages/studio-server test -- test/handler.test.ts`
-- `bun run --cwd packages/studio-server check`
-- `rg "useOperationStatusPolls|useDaemonInstanceWatchdog|fetchMapConfigSaveDeployStatus|operation-status-missing|status-poll" apps/mapgen-studio/src apps/mapgen-studio/test packages/studio-server/test -n`
-- `rg "studio\\.serverInfo|serverInfo" apps/mapgen-studio/src -n`
-- `git diff --check`
-- `bun run openspec -- validate mapgen-studio-operations-push --strict`
-- `gt submit --dry-run --stack --branch codex/operations-push --no-interactive`
-- `gt submit --stack --branch codex/operations-push --ai --no-interactive`
-- `gt submit --publish --no-edit --no-interactive --ai`
-- `gt merge --no-interactive`
-- `gt sync --no-restack --no-interactive`
-- Results: listed tests/checks passed; negative searches returned no matches
-  for deleted client poll/watchdog paths.
-- Gate disposition: green; feature branch merged via Graphite.
-- Evidence boundary: live Civ7 proof not expected for S3.2 unless package/app
-  tests reveal a daemon restart risk; S1.1 one-mount guarantees remain part of
-  selected regression gates.
+D9 is one OpenSpec change and one Graphite branch stacked on D8. It specifies
+operation push and deletion of operation polling authority; D10 owns live-game
+cadence and D12 owns final runtime invariant closeout.
 
-## Realignment
+## Gates 9-10 - Proof Labels
 
-- Downstream docs/specs/issues updated: S3.2 OpenSpec and review ledger.
-- Tests/guards updated: store transition callback tests and operation event
-  application tests.
-- Deferrals/triage updated: S3.3 still owns live-game event publishing and
-  live-game poll deletion.
-- Downstream realignment ledger: S3.3 still owns live-game event publishing and
-  live-game poll deletion; S4.1 owns final runtime invariant cleanup. S3.2
-  leaves status procedures available as explicit API/manual diagnostic
-  contracts, not as background freshness or identity authority.
+- OpenSpec validation proves packet/spec shape only.
+- Publisher tests prove daemon operation transitions publish through EventHub.
+- Client tests prove event application and terminal toast parity.
+- Negative searches prove deleted polling/watchdog symbols are gone.
+- Live Civ7 proof is not required for D9 packet acceptance because D9 does not
+  claim live game-state behavior.
+
+## Gate 11 - Review
+
+- Prework/event surface scout: launched.
+- Testing/vendor alignment reviewer: launched.
+- Hardening/prework/black-ice reviewer: launched.
+- Review ledger must capture all P1/P2 findings before packet acceptance.
+
+## Gate 12 - Closure
+
+Closure is blocked until:
+
+- D9 docs/spec/tasks/ledgers agree.
+- Review disposition ledger has no unresolved P1/P2 finding.
+- strict OpenSpec validation and full OpenSpec validation pass.
+- shortcut/black-ice scan has no unowned retained-path or deferral language.
+- `OPENSPEC-PACKET-TRAIN.md` marks D9 accepted with an accurate owner note.
+- Graphite/worktree state is clean after commit.
 
 ## Next Action
 
-- Exact next step: submit/merge the closeout branch, then proceed to S3.3
-  `live-game-watch`.
-- Stop condition: do not reopen operation polling or client `serverInfo`
-  identity polling; S3.3 owns live-game event publication and live-game poll
-  deletion.
+Finish D9 review loop, repair accepted findings, validate, update the packet
+train ledger, and commit D9 through Graphite.

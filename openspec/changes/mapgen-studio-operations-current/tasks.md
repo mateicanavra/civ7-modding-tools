@@ -1,47 +1,58 @@
-## 1. Frame
+## 1. Packet Entrance
 
-- [x] 1.1 Create S2.1 proposal/design/tasks/spec delta from the accepted
-      runtime simplification plan and merged S1.1/S1.1a/S1.2 context.
-- [x] 1.2 Run strict OpenSpec validation before implementation.
-- [x] 1.3 Start watcher/review lane before code changes.
+- [x] 1.1 Confirm D0-D5 are accepted in `OPENSPEC-PACKET-TRAIN.md`.
+- [x] 1.2 Confirm `mapgen-studio-operations-current` exists but requires repair from stale S2.1 implementation closure to D6 frame-standard packet.
+- [ ] 1.3 Run D6 runtime projection, browser recovery deletion, TypeBox/schema, testing/parity, hardening/prework, black-ice, and downstream review lanes.
+- [ ] 1.4 Record packet entrance proof: dependency install freshness, baseline build/check, `git status --short --branch`, `gt status`, `gt log --no-interactive`, dirty-file quarantine, and selected baseline.
 
-## 2. Server Truth
+## 2. Packet Scope
 
-- [x] 2.1 Add operation-store enumeration/current methods with existing TTL
-      pruning semantics.
-- [x] 2.2 Extend `StudioEngines` and `StudioServerContext` with a
-      daemon-owned `operations.current` snapshot over Run in Game and
-      Save&Deploy registries.
-- [x] 2.3 Add `studio.operations.current` contract/router entry using
-      TypeBox/Standard Schema for new durable output schema.
-- [x] 2.4 Add focused tests for fresh-daemon empty current, active mutex
-      visibility, recent terminal visibility, and TTL/status miss truthfulness.
+- [x] 2.1 Specify `studio.operations.current` as a D4 `StudioOperationRuntime` read projection.
+- [x] 2.2 Specify active and terminal-only recent operation projection for Run in Game and Save/Deploy.
+- [x] 2.3 Specify fresh-daemon empty truth and daemon identity.
+- [x] 2.4 Specify TTL/status matrix for active, retained terminal, expired-known tombstone, physically pruned or never-known id, and daemon identity mismatch.
+- [x] 2.5 Specify client boot adoption from daemon current truth.
+- [x] 2.6 Specify browser operation recovery bridge deletion.
+- [x] 2.7 Preserve unrelated localStorage owners outside the deletion boundary.
+- [x] 2.8 Specify TypeBox/Standard Schema origin and D3 typed not-found/error discipline.
+- [x] 2.9 Preserve status polling/watchdog only as D8/D9 deletion-targeted behavior.
+- [x] 2.10 Specify D8/D9 and D12 downstream handoff obligations, including `useStudioEvents.ts` protection.
 
-## 3. Client Adoption And Bridge Deletion
+## 3. Packet Proof Strategy
 
-- [x] 3.1 Replace mount-time localStorage request-id restore in `StudioShell`
-      with one boot adoption from `studio.operations.current`.
-- [x] 3.2 Delete persisted operation recovery fields from `runStore`; keep only
-      session-only run UI fields.
-- [x] 3.3 Delete `features/runInGame/sourceSnapshotStorage.ts` and the
-      map-config save request-id key export.
-- [x] 3.4 Delete or rewrite localStorage resumption/serializer tests tied to
-      the four-key operation bridge; keep snapshot fingerprint/relation pins.
-- [x] 3.5 Keep status polls and daemon watchdog intact with written deletion
-      targets S3.2/S3.3.
+- [x] 3.1 Define runtime projection tests with real D4 runtime and fake retained operations.
+- [x] 3.2 Define fresh-daemon empty current test.
+- [x] 3.3 Define active and retained terminal operation tests.
+- [x] 3.4 Define TTL/status agreement tests.
+- [x] 3.5 Define boot adoption tests.
+- [x] 3.6 Define browser operation recovery deletion tests and expanded symbol/API negative searches.
+- [x] 3.7 Define TypeBox/schema origin and canonical DTO reuse guard tests.
+- [x] 3.8 Define unrelated localStorage owner protection tests for authoring, preset, theme, and non-operation UI state.
+- [x] 3.9 Define no new polling/event transport scope tests.
 
-## 4. Verification + Closure
+## 3A. Future Implementation Closure Gates
 
-- [x] 4.1 `bun run openspec -- validate mapgen-studio-operations-current --strict`.
-- [x] 4.2 Focused app tests for operation stores, client state, boot adoption,
-      and one-mount current procedure.
-- [x] 4.3 App gate disposition: `bun run --cwd apps/mapgen-studio check`
-      failed before S2.1 code on missing built workspace package exports, then
-      remained long-running after dependency builds and was stopped after no
-      S2.1 diagnostics surfaced. Focused app tests and package gates are green.
-- [x] 4.4 Package gate: `bun x turbo run check --filter=@civ7/studio-server`,
-      `bun x turbo run build --filter=@civ7/studio-server`, and
-      `bun run --cwd packages/studio-server test -- test/handler.test.ts`.
-- [x] 4.5 Downstream realignment: plan/workstream notes, stale bridge language
-      scan, watcher disposition.
-- [x] 4.6 Graphite submit/merge/drain according to repo rules.
+These are D6 implementation obligations recorded by this packet, not pre-acceptance authoring tasks.
+
+- [ ] 3A.1 Implement/repair `StudioOperationRuntime.current`.
+- [ ] 3A.2 Route `studio.operations.current` router leaf through the managed runtime.
+- [ ] 3A.3 Define TypeBox request/response schemas for operation current.
+- [ ] 3A.4 Delete browser operation recovery localStorage keys/modules.
+- [ ] 3A.5 Replace boot request-id replay with one current adoption read.
+- [ ] 3A.6 Preserve status polling only for active operations until D8/D9.
+- [ ] 3A.7 Run package/app tests, negative searches, and schema guards.
+
+## 4. Verification
+
+- [ ] 4.1 `bun run openspec -- validate mapgen-studio-operations-current --strict`.
+- [ ] 4.2 `bun run openspec:validate`.
+- [ ] 4.3 `git diff --check`.
+- [ ] 4.4 `bun install --frozen-lockfile`.
+- [ ] 4.5 Current packet-authoring base: `bun run build` and `bun run check`.
+- [ ] 4.6 `git status --short --branch`, `gt status`, and `gt log --no-interactive`.
+
+## 5. Closure
+
+- [ ] 5.1 Record review acceptance in `review-disposition-ledger.md`.
+- [ ] 5.2 Mark D6 accepted in `OPENSPEC-PACKET-TRAIN.md`.
+- [ ] 5.3 Commit accepted D6 packet through Graphite with clean/quarantined worktree state.

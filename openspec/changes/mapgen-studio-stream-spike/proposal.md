@@ -1,80 +1,90 @@
-# MapGen Studio stream spike
+# MapGen Studio Stream Transport Decision
 
 ## Why
 
-The runtime simplification program's event spine depends on one typed daemon
-event channel: `studio.events.watch`. S3.1 should implement that channel as
-execution, not discovery. S3.0 proves the unknown transport bridge first:
+D8 and D9 depend on one daemon-owned event channel that can carry runtime truth without reopening browser polling or alternate transports. D7 locks the stream transport decision before production EventHub semantics are treated as stable.
 
-- whether `effect-orpc` `implementEffect` can serve an `eventIterator` output
-  from an Effect handler;
-- whether an Effect `PubSub` can be adapted to an async iterator with
-  disconnect-tied cleanup;
-- whether the Studio daemon/vite development path preserves SSE/event-iterator
-  streaming without buffering;
-- whether the installed TanStack oRPC client helpers and `ClientRetryPlugin`
-  support the intended client consumption and reconnect behavior.
+The selected transport is the S3.0-proven path: `effect-orpc` `.effect()` returns an `eventIterator(...)` async iterator on the existing `/rpc` mount, backed by an Effect `PubSub` subscription whose scope closes when the iterator closes or the watch fiber is interrupted. The Studio client consumes the channel with the installed `@orpc/tanstack-query` live helper and an explicit nonzero retry policy.
 
-The product outcome is simple: the daemon owns ephemeral truth and pushes it;
-the browser renders and re-adopts on reconnect. This spike prevents the event
-spine from inheriting a speculative API assumption.
+## Authority
 
-## Target Authority Refs
-
-- `docs/projects/studio-runtime-simplification/PLAN.md` — WS-3 S3.0 requires
-  a small stream feasibility spike before `event-hub`.
-- `openspec/changes/mapgen-studio-runtime-one-mount/` — the one `/rpc` surface
-  that the future watch procedure must use.
-- `openspec/changes/mapgen-studio-operations-current/` — `operations.current`
-  remains the reconnect/re-adoption source after stream reconnects.
-- Installed package evidence in this repo:
-  `@orpc/contract`, `@orpc/tanstack-query`, `@orpc/client/plugins`, and
-  `effect-orpc`.
-- Current daemon/vite development routing under `apps/mapgen-studio/src/server`
-  and `apps/mapgen-studio` tests.
+- `docs/projects/studio-runtime-simplification/RUNTIME-EFFECT-REFACTOR-FRAME.md`
+- `docs/projects/studio-runtime-simplification/OPENSPEC-PACKET-TRAIN.md`
+- `openspec/changes/mapgen-studio-runtime-one-mount/`
+- `openspec/changes/mapgen-studio-operations-current/`
+- `openspec/changes/mapgen-studio-stream-spike/workstream/findings.md`
+- Current evidence:
+  - `packages/studio-server/src/contract/studio.ts`
+  - `packages/studio-server/src/router/index.ts`
+  - `packages/studio-server/src/services/StudioEventHub.ts`
+  - `apps/mapgen-studio/src/app/hooks/useStudioEvents.ts`
+  - `apps/mapgen-studio/test/devServer/viteProxyStream.test.ts`
 
 ## What Changes
 
-- Add a working reference proof for the selected watch-procedure bridge. The
-  reference may be test-local or spike-scoped, but it must not become a hidden
-  production route outside S3.1. S3.1 either promotes the selected approach into
-  `studio.events.watch` or deletes the spike-only reference.
-- Prove or reject `effect-orpc` `.effect()` returning an `eventIterator`
-  async iterator.
-- Prove Effect `PubSub` subscription cleanup when the client stops reading.
-- Prove server transport and dev proxy behavior for event streaming.
-- Prove client consumption against the installed oRPC TanStack API names and
-  `ClientRetryPlugin` behavior, or record a bounded incompatibility with source
-  evidence.
-- Produce `workstream/findings.md` with the verdict, integration touchpoints,
-  constraints, selected S3.1 path, and any deletion/promotion target.
+- Repair the existing `mapgen-studio-stream-spike` change from S3.0 implementation-closure history into the D7 normative packet.
+- Select `effect-orpc` `.effect()` plus `eventIterator(...)` as the only production watch-procedure bridge.
+- Select Effect `PubSub` plus scoped async iterator cleanup as the only EventHub subscription bridge.
+- Select the existing one `/rpc` transport path; no parallel SSE route, second RPC mount, or app-local event server is allowed.
+- Select `experimental_liveOptions` as the client consumption helper for latest daemon state. `experimental_streamedOptions` remains a source-backed non-fit for the Studio event spine.
+- Require the actual event-watch path to configure nonzero retry. Installing `ClientRetryPlugin` with its default retry policy is not sufficient.
+- Preserve the durable Vite `/rpc` stream passthrough guard as D7 transport proof.
+- Require every spike-only reference fixture to have one terminal disposition: promoted into D8/D9 production tests or deleted.
 
 ## Non-Goals
 
-- No production EventHub service in this slice.
-- No deletion of operation polls, watchdog, or live-game polling in this slice.
-  S3.2/S3.3 own those deletions.
-- No second runtime surface or alternate transport.
-- No Zod expansion for new event contracts; any new durable schema introduced
-  after the spike uses TypeBox/Standard Schema.
-- No long-lived dual path. If the spike selects plain oRPC `.handler()` for
-  `studio.events.watch`, that is the S3.1 implementation path and the
-  `.effect()` route remains rejected evidence, not a compatibility lane.
+- No production EventHub behavior is specified here beyond the selected transport bridge; D8 owns production EventHub/watch semantics.
+- No operation event publication or operation-poll deletion; D9 owns that.
+- No live-game event publication or live-game polling deletion; D10 owns that.
+- No browser localStorage recovery.
+- No Zod expansion for stream or event contracts.
+- No retained alternate bridge for plain oRPC `.handler()`. The handler path is rejected evidence because `.effect()` plus `eventIterator(...)` is the selected path.
 
-## Impact
+## Future Implementation Write Set
 
-- `openspec/changes/mapgen-studio-stream-spike/**`
-- Focused reference/test files under `packages/studio-server/test/**` and/or
-  `apps/mapgen-studio/test/**`
-- Minimal spike-only helper code if required to exercise the real handler
-  stack; any such helper must name its S3.1 promotion or deletion target.
+- `packages/studio-server/src/contract/**`
+- `packages/studio-server/src/router/**`
+- `packages/studio-server/src/services/**`
+- `packages/studio-server/test/**`
+- `apps/mapgen-studio/src/lib/orpc.ts`
+- `apps/mapgen-studio/src/app/hooks/useStudioEvents.ts`
+- `apps/mapgen-studio/test/devServer/viteProxyStream.test.ts`
+- `apps/mapgen-studio/test/studioEvents/**`
+
+Protected paths:
+
+- Alternate HTTP/SSE servers or second RPC mounts.
+- Browser storage owners and D6 operation-current adoption logic except reconnect call sites.
+- D9 operation publisher logic and D10 live-game watcher logic.
+- Generated outputs and built bundles.
 
 ## Verification Gates
 
+### Packet Acceptance Gates
+
 - `bun run openspec -- validate mapgen-studio-stream-spike --strict`
-- Focused package/app test proving event-iterator server behavior.
-- Focused adapter test proving unsubscribe/finalizer cleanup.
-- Focused transport/client proof or source-backed disposition for the dev proxy
-  and TanStack client/retry pieces.
-- `workstream/findings.md` cites the files/package declarations that support
-  the final S3.1 decision.
+- `bun run openspec:validate`
+- `git diff --check`
+- `git status --short --branch`
+- `gt status`
+- `gt log --no-interactive`
+- Transport/API, downstream realignment, testing/proof, and hardening/black-ice reviews have no unresolved P1/P2 findings.
+
+### Future Implementation Closure Gates
+
+- Package/app gates:
+  - `bun run --cwd packages/studio-server test -- test/handler.test.ts`
+  - `bun run --cwd packages/studio-server check`
+  - `bun run --cwd apps/mapgen-studio test -- test/devServer/viteProxyStream.test.ts test/studioEvents/operationAdoption.test.ts`
+  - `bun run --cwd apps/mapgen-studio check`
+- Watch procedure contract uses `eventIterator(TypeBoxStudioEventSchema)` through the owned Standard Schema adapter.
+- Router implements `studio.events.watch` through `oe.studio.events.watch.effect(...)`; no production `.handler()` watch bridge remains.
+- Subscription cleanup proof covers iterator `return()`, client abort/disconnect, and runtime/fiber interruption.
+- Repeated subscribe/close proof shows no subscriber/dequeue growth.
+- Vite `/rpc` passthrough proof reads at least two ordered stream chunks before upstream close.
+- Client watch path uses `experimental_liveOptions` with explicit nonzero retry context or link policy.
+- Negative searches:
+  - no parallel SSE endpoint or second Studio event route;
+  - no bare `streamedOptions` production use for Studio events;
+  - no default-only retry claim for event watch;
+  - no S3.0 spike fixture remains without D8/D9 promotion or deletion evidence.

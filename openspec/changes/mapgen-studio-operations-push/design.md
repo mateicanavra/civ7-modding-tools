@@ -1,77 +1,101 @@
-# Design - operations push (S3.2)
+# Design - Studio Operations Push
 
-## D1. Operation event authority
+## Component Role
 
-S3.2 makes daemon operation registries the publishing authority for operation
-freshness. Run in Game and Save&Deploy stores emit a `StudioEvent` with
-`type: "operation"` whenever the retained operation state changes.
+D9 is the operation freshness component. It connects daemon operation
+registries to the D8 event spine and deletes browser polling authority:
 
-The published event contains:
+```text
+Run in Game store ----\
+                      operation publisher -> StudioEventHub -> studio.events.watch
+Save/Deploy store ----/
 
-- `kind`: `run-in-game` or `save-deploy`;
-- `status`: the daemon-owned operation status snapshot;
-- `observedAt`: the operation state's `updatedAt` timestamp.
+Studio client
+  applies operation events directly
+  keeps hello/current adoption for reconnect
+  no longer polls operation status for freshness
+```
 
-The operation status object remains the existing typed status shape. S3.2 does
-not introduce a parallel client model or a second operation transport.
+## Operation Event Authority
 
-## D2. Publisher injection
+Daemon operation registries publish operation events whenever retained operation
+state changes. The event payload is the canonical operation status shape already
+used by `studio.operations.current`:
 
-The daemon creates the S3.1 EventHub before constructing Studio engines and
-passes the hub into `createStudioEngines`.
+- `kind: "run-in-game"` uses the Run in Game operation DTO.
+- `kind: "save-deploy"` uses the Save/Deploy operation DTO.
+- `observedAt` is the transition observation time, normally the operation
+  state's `updatedAt`.
 
-The app-side operation stores receive a small publisher callback. Stores stay
-focused on state transitions; the engine/context wiring owns translation from
-store updates to EventHub publication. The callback runs on create/update, and
-complete/fail publish through their existing update path.
+D9 does not introduce a client-only operation model, catch-all event details
+blob, Zod event schema, or operation-specific transport.
 
-Publication must not block or rewrite operation execution. If EventHub publish
-unexpectedly rejects, the transition remains recorded in the daemon registry
-and the rejection is surfaced through the daemon diagnostics path rather than
-silently spawning a second status-poll fallback.
+## Publisher Injection
 
-## D3. Client operation application
+The daemon creates the D8 `StudioEventHub` before constructing Studio engines
+and passes a small publisher capability into the operation stores or engine
+composition boundary.
 
-The S3.1 event hook keeps `hello` behavior: hello re-reads
-`studio.operations.current` for reconnect adoption. S3.2 adds explicit
-`operation` handling:
+Production daemon composition must always supply the EventHub. Any optional
+publisher seam is test/composition-only and must be fenced so it cannot become a
+production no-publish mode.
+
+The store owns state transitions. The publisher owns event publication. The
+bridge must be narrow enough that a transition can be recorded even if event
+publication fails. A publish rejection is diagnostic output, not permission to
+reopen polling or retry the transition through another path.
+
+The falsifier is simple: removing the publisher callback or EventHub bridge from
+either operation family must fail a focused publisher test.
+
+## Client Operation Application
+
+The D8 event hook keeps `hello` behavior: `hello` calls
+`studio.operations.current` for boot/reconnect adoption. D9 adds operation event
+application:
 
 - Run in Game events set Run in Game operation state.
-- Save&Deploy events set Save&Deploy operation state.
-- Terminal Run in Game events preserve the existing terminal toast behavior for
-  live operations.
+- Save/Deploy events set Save/Deploy operation state.
+- Live pushed terminal Run in Game events are not pre-marked as toast-handled.
+- Boot/reconnect adopted terminal Run in Game operations remain pre-marked to
+  avoid replaying old toasts.
 
-Boot/reconnect adoption still suppresses old terminal toasts by marking adopted
-terminal Run in Game operations as already handled. Live pushed terminal events
-must not be pre-marked before the toast effect sees them.
+Client state is therefore:
 
-## D4. Polling deletion boundary
+- initial/reconnect truth: `studio.operations.current`;
+- ongoing freshness: pushed `operation` events;
+- no background operation status polling.
 
-S3.2 deletes operation polling authority:
+## Deletion Boundary
+
+D9 deletes operation freshness and identity polling authority:
 
 - `useOperationStatusPolls`;
-- `StudioShell` refresh callbacks used only by that hook;
-- synthetic 404-to-terminal status-missing mapping for operation polling;
-- the private Save&Deploy `while (running) { sleep; status }` completion loop;
-- `useDaemonInstanceWatchdog` and its `serverInfo` polling identity path.
+- `StudioShell` callbacks used only by that polling hook;
+- synthetic polling-only status-miss recovery;
+- hidden Save/Deploy sleep/status completion loop;
+- `useDaemonInstanceWatchdog`;
+- client `studio.serverInfo` identity polling.
 
-Manual/public status procedures may remain as API contracts if still used by
-tests or deliberate UI diagnostics, but they are not background freshness or
-identity authority after S3.2.
+Manual request-response status procedures may remain if they still serve public,
+diagnostic, or test contracts. They are not background freshness authority after
+D9.
 
-## D5. Live-game deferral
+## Live-Game Boundary
 
-Live-game polling and live-game watcher behavior are intentionally untouched.
-S3.3 owns live-game event publication and deletion of live-game polling. S3.2
-must not smuggle live-game changes into the operation-push branch.
+Live-game browser polling and the daemon live-game watcher are outside D9. D10
+owns publishing `live-game` events and deleting browser live-game cadence. D9
+must not change live-game polling/timer behavior except to avoid coupling it to
+deleted operation polling paths.
 
-## D6. Falsification proof
+## Packet Blockers
 
-The primary falsification pin is transition publication:
+D9 is not accepted while any of the following remain:
 
-- a store/engine test observes an operation event after a phase transition;
-- if the publisher callback/EventHub bridge is removed, that test fails.
-
-Client tests must prove `operation` events update both operation states without
-calling the deleted polling hooks. Negative search is part of the closeout
-evidence because the deletion target is architectural, not only behavioral.
+- operation publisher ownership is vague or split across multiple buses;
+- Run in Game and Save/Deploy do not both have publisher proof obligations;
+- publisher failure semantics permit polling to reappear as a retained path;
+- client operation event handling lacks terminal toast parity;
+- deletion targets are optional, partial, or described as temporary;
+- live-game deletion leaks into D9 or D10 handoff is unnamed;
+- review finds unresolved P1/P2 ambiguity.

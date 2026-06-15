@@ -1,82 +1,110 @@
-# MapGen Studio operations current
+# MapGen Studio Operations Current
 
 ## Why
 
-The runtime simplification program's state spine is daemon-owned operation
-truth. Today the browser tab still owns recovery for Run in Game and
-Save&Deploy through persisted request ids and snapshots in four localStorage
-keys. On mount it replays those request ids into status calls and synthesizes
-uncertain client state when the daemon no longer knows the operation.
+D4 makes operation lifecycle daemon-owned. D5 moves Play, Save/Deploy, and Autoplay mutation pipelines into package-owned Effect workflows. D6 makes that runtime truth the only boot-recovery and current-operation read model exposed to the Studio app.
 
-That is the wrong owner. The daemon already owns the operation registries, TTL
-pruning, operation mutex, and server identity. S2.1 exposes that truth directly
-as `studio.operations.current` so the client adopts active/recent daemon
-operations on boot and the four-key browser recovery bridge can be deleted.
+The browser must not rediscover operation state by replaying persisted request ids, source snapshots, or localStorage recovery keys into status endpoints. `studio.operations.current` is the read projection over daemon-owned operation truth: active operations, retained terminal operations, daemon identity, and expiry behavior. A fresh daemon truthfully reports no operations.
 
-## Target Authority Refs
+## Authority
 
-- `docs/projects/studio-runtime-simplification/PLAN.md` — WS-2 S2.1 requires
-  daemon-owned operation recovery, deletes the localStorage bridge, and keeps
-  the watchdog until S3.2.
-- `openspec/changes/mapgen-studio-runtime-one-mount/` — the one `/rpc`
-  surface that receives the new procedure.
-- `openspec/changes/mapgen-studio-error-spine/` — status misses carry typed
-  `*_STATUS_NOT_FOUND` errors with daemon identity.
-- `apps/mapgen-studio/src/server/studio/engines.ts` — current in-memory
-  operation stores and mutex truth.
-- `apps/mapgen-studio/src/stores/runStore.ts`,
-  `apps/mapgen-studio/src/app/StudioShell.tsx` — current client recovery
-  bridge and mount-time re-adoption logic.
+- `docs/projects/studio-runtime-simplification/RUNTIME-EFFECT-REFACTOR-FRAME.md`
+- `docs/projects/studio-runtime-simplification/OPENSPEC-PACKET-TRAIN.md`
+- `openspec/changes/mapgen-studio-contract-typebox-spine/`
+- `openspec/changes/mapgen-studio-error-spine/`
+- `openspec/changes/mapgen-studio-engine-runtime-services/`
+- `openspec/changes/mapgen-studio-pipeline-effect-services/`
+- Current evidence:
+  - `packages/studio-server/src/contract/studio.ts`
+  - `packages/studio-server/src/router/index.ts`
+  - `apps/mapgen-studio/src/server/studio/engines.ts`
+  - `apps/mapgen-studio/src/server/studio/context.ts`
+  - `apps/mapgen-studio/src/app/StudioShell.tsx`
+  - `apps/mapgen-studio/src/app/operationAdoption.ts`
+  - `apps/mapgen-studio/src/stores/runStore.ts`
+  - `apps/mapgen-studio/src/app/hooks/useStudioEvents.ts`
 
 ## What Changes
 
-- Add `studio.operations.current` to the unified Studio contract and router.
-  It returns daemon identity plus the active and recent Run in Game and
-  Save&Deploy operation statuses currently retained by the daemon registries.
-- Extend the engine stores with current snapshot enumeration that runs through
-  the same TTL pruning semantics as status lookups.
-- Replace client mount-time localStorage request-id restore with a
-  `studio.operations.current` boot adoption query.
-- Delete the four-key operation recovery bridge:
-  `runInGameRequestId`, `runInGameSnapshot`, `lastRunInGameSource`, and
-  `saveDeployRequestId` persistence for operation recovery; delete
-  `features/runInGame/sourceSnapshotStorage.ts`.
-- Preserve durable snapshot/fingerprint relation helpers and tests that
-  classify a completed operation as current/stale/unknown against authored
-  state.
-- Keep operation status polling and the daemon-instance watchdog in this slice.
-  They have named deletion slices: S3.2 for operation polls/watchdog and S3.3
-  for live-game polling.
+- Repair the existing `mapgen-studio-operations-current` change into D6 frame-standard shape.
+- Specify `studio.operations.current` as an Effect-managed read projection over D4 `StudioOperationRuntime`, not app-local operation-store enumeration.
+- Specify boot adoption as a one-shot client read of daemon current truth, followed by existing active-operation status polling until D8/D9 event/push packets replace it.
+- Delete browser-owned operation recovery:
+  - Run in Game request-id recovery;
+  - Run in Game snapshot recovery;
+  - last Run in Game source recovery;
+  - Save/Deploy request-id recovery;
+  - any production `sourceSnapshotStorage.ts` operation recovery storage module.
+- Preserve unrelated localStorage owners: authoring, view, theme, presets, and non-operation UI preferences.
+- Preserve snapshot/fingerprint relation helpers as pure proof/UI logic only. They cannot be cross-reload operation recovery channels.
+- Require TypeBox/Standard Schema origin for the `operations.current` request/response DTOs.
+- Require D3 typed not-found/error data for status misses and D4 daemon identity on current/status agreement.
 
 ## Non-Goals
 
-- No operation durability across daemon restarts. A fresh daemon truthfully
-  reports no operations.
-- No SSE/EventHub, event subscription, or push conversion; WS-3 owns that.
-- No deletion of unrelated localStorage owners such as authoring, view, theme,
-  or preset state.
-- No schema-tech drift: new S2.1 contract schemas use TypeBox/Standard Schema.
+- No durable operation history across daemon restarts.
+- No browser localStorage operation recovery bridge.
+- No event transport, SSE, EventHub, or push conversion; D8/D9 own that.
+- No D10 live-game watcher lifetime migration.
+- No mutation workflow orchestration; D5 owns workflow pipelines.
+- No app-owned registry, TTL, current projection, request fingerprint, or status miss truth.
+- No rewrite of unrelated localStorage owners.
 
-## Impact
+## Future Implementation Write Set
 
-- `packages/studio-server/src/contract/*`
-- `packages/studio-server/src/router/index.ts`
+- `packages/studio-server/src/contract/**`
+- `packages/studio-server/src/router/**`
+- `packages/studio-server/src/services/**`
 - `packages/studio-server/src/context.ts`
-- `apps/mapgen-studio/src/server/*/operationState.ts`
-- `apps/mapgen-studio/src/server/studio/{engines,context}.ts`
-- `apps/mapgen-studio/src/stores/runStore.ts`
+- `apps/mapgen-studio/src/server/studio/context.ts`
 - `apps/mapgen-studio/src/app/StudioShell.tsx`
-- Run in Game / Save&Deploy operation tests and localStorage bridge tests
+- `apps/mapgen-studio/src/app/operationAdoption.ts`
+- `apps/mapgen-studio/src/stores/runStore.ts`
+- `apps/mapgen-studio/src/features/runInGame/**`
+- `apps/mapgen-studio/src/features/mapConfigSave/**`
+- `apps/mapgen-studio/test/**`
+- `packages/studio-server/test/**`
+
+Protected paths:
+
+- Generated outputs and built bundles.
+- `apps/mapgen-studio/src/app/hooks/useStudioEvents.ts` and D8/D9 event/push implementation surfaces, except explicit deletion-target notes that identify existing active status polling handoff.
+- Unrelated localStorage state owners: authoring, view, theme, preset, layout, and non-operation UI state.
+- D5 workflow internals except current projection consumption.
 
 ## Verification Gates
 
+### Packet Acceptance Gates
+
+- `bun install --frozen-lockfile`
+- Current packet-authoring base: `bun run build` and `bun run check`
+- `git status --short --branch`
+- `gt status`
+- `gt log --no-interactive`
 - `bun run openspec -- validate mapgen-studio-operations-current --strict`
-- Focused store/router tests for `operations.current` active/recent/TTL
-  behavior and fresh-daemon truthfulness.
-- Focused client/store tests proving no operation recovery localStorage bridge
-  remains while snapshot relation pins stay green.
-- App gate: `bun x turbo run check --filter=mapgen-studio`
-- Package gate: `bun x turbo run check test --filter=@civ7/studio-server`
-- Live proof disposition: this slice changes boot recovery ownership, not
-  operation execution. Existing S1.1a Play/Save&Deploy execution proof remains
-  the execution guard unless implementation touches deploy/launch paths.
+- `bun run openspec:validate`
+- `git diff --check`
+- Operation-current, browser recovery deletion, TypeBox/schema, testing/parity, hardening/prework, and black-ice reviews have no unresolved P1/P2 findings.
+
+### Future Implementation Closure Gates
+
+- Package/app gates:
+  - `bun run --cwd packages/studio-server test`
+  - `bun run --cwd packages/studio-server check`
+  - `bun run --cwd packages/studio-server build`
+  - `bun run --cwd apps/mapgen-studio test -- test/server/operationsCurrent.test.ts test/studioEvents/operationAdoption.test.ts test/runInGame/clientState.test.ts test/studioState/persistence.test.ts test/presets/presetStore.test.ts`
+  - `bun run --cwd apps/mapgen-studio check`
+  - `bun run --cwd apps/mapgen-studio build`
+- `studio.operations.current` returns D4 daemon identity, observed timestamp, active operation projections, terminal-only retained recent projections, and expiry-consistent empty truth after pruning.
+- Fresh daemon reports no operations and no browser recovery path is attempted.
+- Current/status tests cover active, retained terminal, expired-known tombstone, physically pruned or never-known id, and daemon-identity-mismatched id states. Expired-known ids return D3 `OperationExpired` with current daemon identity until D4 physically prunes them; physically pruned or never-known ids return D3 typed not-found with current daemon identity.
+- Boot adoption reads daemon current once and does not replay localStorage operation request ids into status calls.
+- Protected storage owners remain green: authoring state key `mapgen-studio.authoring-state.v1`, preset key `mapgen-studio.scratchConfigs`, theme key `theme-preference`, and non-operation UI storage owners.
+- Negative searches:
+  - no `runInGameRequestId`, `saveDeployRequestId`, `runInGameSnapshot`, `lastRunInGameSource`, `setRunInGameSnapshot`, `setLastRunInGameSource`, `RUN_IN_GAME_LAST`, `MAP_CONFIG_SAVE_LAST_REQUEST`, `sourceSnapshotStorage`, `readStoredRunInGameSourceSnapshot`, or operation recovery localStorage bridge remains as production recovery code;
+  - any retained `parseRunInGameClientSnapshot` or `parseRunInGameSourceSnapshot` helper is pure relation/proof logic with no storage read/write path;
+  - D6 write-set files have no unclassified operation-recovery `localStorage`, `sessionStorage`, `persist(`, `createJSONStorage`, `getItem(`, or `setItem(` usage;
+  - no browser code constructs operation current from request-id replay;
+  - no app server code owns D4 registry/current/TTL truth;
+  - no new Zod schema is introduced for `operations.current`;
+  - no public DTO exposes app-store private state or `details?: unknown` as operation truth.

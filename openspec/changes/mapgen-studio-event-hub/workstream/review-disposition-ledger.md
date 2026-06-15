@@ -1,8 +1,17 @@
-# Review Disposition Ledger
+# D8 Review Disposition Ledger - Studio Event Hub
 
 | ID | Severity | Reviewer/Lane | Finding | Blocker Class | Disposition | Repair Demand | Evidence | Blocks Closure |
 |---|---|---|---|---|---|---|---|---|
-| S3.1-W1 | P1 | watcher `019ec0b9-a018-7c40-b9eb-cca19a890555` | `ClientRetryPlugin` was installed with default retry behavior; default retry is `0`, so reconnect would be inert if no call context owned retry. | reconnect guarantee false-positive | accepted-repaired | Keep nonzero retry policy on the actual `studio.events.watch` subscription path and test that policy. | `apps/mapgen-studio/src/app/hooks/useStudioEvents.ts` uses `orpc.studio.events.watch.experimental_liveOptions(...)` with `context: studioEventsWatchClientContext()` returning `retry: Number.POSITIVE_INFINITY`; `apps/mapgen-studio/test/studioEvents/operationAdoption.test.ts` asserts the actual watch live options carry a live query key/queryFn and the retry helper is infinite; `openspec/changes/mapgen-studio-event-hub/NOTE-TO-DRA.md`; `workstream/dra-watcher-corrections.md`. | No |
+| D8-BI-01 | P1 | hardening/black-ice `019ec809-81f9-77e0-9175-15e0c9f925b3` | Packet used stale historical vocabulary instead of D8/D9/D10/D12 handoffs. | stale authority | accepted-repaired | Rewrite packet to D8 vocabulary and cite the frame/packet train as controlling authority. | `proposal.md`, `design.md`, `tasks.md`, `specs/mapgen-studio/spec.md`, and `phase-record.md` now use D8/D9/D10/D12 ownership. | No |
+| D8-BI-02 | P1 | hardening/black-ice `019ec809-81f9-77e0-9175-15e0c9f925b3` | Tasks and phase record falsely claimed complete/merged implementation closure. | proof inflation | accepted-repaired | Reset to packet-authoring state and separate packet acceptance from future implementation closure gates. | `tasks.md` has packet entrance/scope/proof plus unchecked `3A` implementation gates; `phase-record.md` status is draft pending review acceptance. | No |
+| D8-BI-03 | P1 | hardening/black-ice `019ec809-81f9-77e0-9175-15e0c9f925b3` | Retry ownership could be satisfied by default plugin installation even though default retry is inert. | reconnect false-positive | accepted-repaired | Require nonzero retry on the actual `studio.events.watch` path and an oracle that fails if it is removed. | `proposal.md`, `design.md`, `spec.md`, `tasks.md`, `testing-ledger.md`, and `NOTE-TO-DRA.md` require actual-path nonzero retry. | No |
+| D8-BI-04 | P1 | hardening/black-ice `019ec809-81f9-77e0-9175-15e0c9f925b3` | Cleanup proof collapsed iterator close, abort/disconnect, interruption, and repeated cycles. | lifecycle proof gap | accepted-repaired | Add explicit requirements/tasks/test oracles for each cleanup path with observable baseline proof. | `design.md`, `spec.md`, `tasks.md`, and `testing-ledger.md` require close, abort/disconnect, interruption, shutdown, and repeated-cycle proof. | No |
+| D8-BI-05 | P2 | hardening/black-ice `019ec809-81f9-77e0-9175-15e0c9f925b3` | Required prework and downstream records were missing or embedded in prose. | compaction risk | accepted-repaired | Add prework and downstream realignment ledgers with owners, triggers, risks, and proof boundaries. | `workstream/prework-ledger.md` and `workstream/downstream-realignment-ledger.md`. | No |
+| D8-BI-06 | P2 | hardening/black-ice `019ec809-81f9-77e0-9175-15e0c9f925b3` | Verification used stale package-runner gates. | tooling baseline drift | accepted-repaired | Use repo-local package/Nx/Habitat baseline wording and reject legacy package-runner substitutes as closure proof. | `proposal.md` and `testing-ledger.md` list package-local gates and require migrated baseline replacement when applicable. | No |
+| D8-BI-07 | P2 | hardening/black-ice `019ec809-81f9-77e0-9175-15e0c9f925b3` | Event union named future categories without tying payloads to canonical DTO owners. | schema owner ambiguity | accepted-repaired | Name canonical DTO owners and forbid catch-all blobs/app-local DTOs/Zod expansion. | `design.md` and `spec.md` tie operation events to D6 operation DTOs and live-game events to canonical live-game state schema. | No |
+| D8-TEST-01 | P1 | testing/vendor `019ec809-b5e9-7483-8fbf-e58031a8470a` | Current historical tests do not prove the full D8 cleanup matrix. | implementation proof gap | accepted-repaired as packet gate | Do not claim current tests satisfy D8; encode the missing cleanup tests as future implementation closure gates. | `tasks.md` `3A.6`; `testing-ledger.md` cleanup matrix. | No |
+| D8-TEST-02 | P1 | testing/vendor `019ec809-b5e9-7483-8fbf-e58031a8470a` | TypeBox origin proof must be recoverable for the event union. | schema proof gap | accepted-repaired as packet gate | Require TypeBox-origin/adapter proof and forbid Zod/app-local mirrors. | `proposal.md`, `design.md`, `spec.md`, `tasks.md`, `testing-ledger.md`. | No |
+| D8-TEST-03 | P2 | testing/vendor `019ec809-b5e9-7483-8fbf-e58031a8470a` | One-route proof needs event-specific negative searches. | route proof gap | accepted-repaired as packet gate | Add negative searches for event routes/transports and one-route proof. | `prework-ledger.md`, `testing-ledger.md`, `tasks.md`. | No |
 
 ## Disposition Rules
 
@@ -12,7 +21,10 @@
 - `user-decision`: record the user or authority decision that resolves the finding.
 - `waived`: allowed only for P3/nonblocking findings; record risk, owner, and trigger.
 - `deferred`: allowed only for P3/nonblocking findings; record destination, owner, and context.
-- `accepted-repaired`: accepted material finding repaired inside this slice with
-  evidence and no remaining closure block.
+- `accepted-repaired`: accepted material finding repaired inside this packet with
+  evidence and no remaining packet-acceptance block.
+- `accepted-repaired as packet gate`: accepted finding is an implementation
+  proof obligation, repaired for packet acceptance by making it an explicit
+  future implementation closure gate rather than overclaiming current proof.
 
 No material finding may remain undispositioned at phase closure.

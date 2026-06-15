@@ -1,9 +1,13 @@
-# Downstream Realignment Ledger
+# D3 Downstream Realignment Ledger
 
-| ID | Downstream Surface | S1.2 Impact | Disposition | Evidence |
-|---|---|---|---|---|
-| DR-1 | `openspec/changes/mapgen-studio-server-orpc/` | Older S1.1 text still described Save&Deploy status misses without daemon identity echo. | Patched inside S1.2 because the active contract now requires parity with Run in Game. | Save&Deploy status 404 scenarios and proposal/design/tasks now require `serverInstanceId` and `serverStartedAt`. |
-| DR-2 | `openspec/changes/mapgen-studio-server-orpc/design.md` | Design residue named the old Run-in-Game-specific error bridge. | Patched to Studio-owned engine error terminology. | The retired bridge symbol is no longer an active source or contract name. |
-| DR-3 | `packages/studio-server/src/contract/*`, `packages/studio-server/src/context.ts`, and `packages/studio-server/src/errors.ts` | Contract package comments/data schemas encoded the old Save&Deploy one-sided identity rule and Zod growth risk. | Patched error data to TypeBox/Standard Schema and updated comments for identity echo/unavailable codes. | `contract/errors.ts`, `contract/mapConfigs.ts`, `contract/civ7.ts`, `contract/runInGame.ts`, `contract/shared.ts`, `context.ts`, `errors.ts`, `index.ts`. |
-| DR-4 | `docs/projects/studio-runtime-simplification/PLAN.md` | S1.2 intentionally does not migrate pre-existing legacy Zod success I/O schemas. | Added S4.1 program closeout target so schema-tech debt is not orphaned. | S4.1 now requires migrating remaining legacy Zod success I/O to TypeBox/Standard Schema or retaining it with durable rationale. |
-| DR-5 | Tests/guards | Error-spine behavior needs durable regression proof. | Added focused mapper/store/handler tests and kept S1.1 one-mount guard in the app test set. | `apps/mapgen-studio/test/server/engineErrorSpine.test.ts`, `apps/mapgen-studio/test/mapConfigSave/operationState.test.ts`, `apps/mapgen-studio/test/runInGame/operationState.test.ts`, `packages/studio-server/test/handler.test.ts`, `apps/mapgen-studio/test/server/oneMount.test.ts`. |
+Status: draft
+Date: 2026-06-14
+
+| Downstream surface | D3 impact | Required disposition |
+| --- | --- | --- |
+| D2.5 `mapgen-studio-contract-typebox-spine` | D2.5 names permissive expected-error details as D3-bound bridge residue. | D3 implementation deletes or narrows the bridge and records proof; if implementation cannot, D3 is not closed. |
+| D4 `mapgen-studio-engine-runtime-services` | D4 must use D3 failure ADTs as Effect typed failures. | D4 packet consumes D3 module names and failure tag vocabulary, including operation lifecycle variants; no new expected-failure taxonomy. Defect containment remains router-edge only. |
+| D6 `mapgen-studio-operations-current` | Current-operation public projections include failure status/details. | D6 consumes D3 typed failure projection and recovery-action vocabulary; if D3 implementation already updates operation-state projections, D6 treats that as baseline instead of reintroducing a second taxonomy. |
+| D8/D9 event/push packets | Operation events may carry terminal failure payloads. | Events reuse D3 typed public failure data, not app-local details. |
+| Existing `mapgen-studio-server-orpc` docs | Older parity/error wording may describe old S1.2 behavior. | D3 implementation updates or explicitly dispositions any live conflicting text. |
+| Package/app comments | Current comments mention raw `ORPCError`, permissive details, legacy Zod allowance, or host bridge behavior. | D3 implementation deletes/corrects stale target language while preserving historical audit notes only when labeled as provenance. |

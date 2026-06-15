@@ -1,77 +1,110 @@
-# Design - live game watch (S3.3)
+# D10 Design - Live Game Watch
 
-## D1. Event contract ownership
+## D1. Component Role
 
-`live-game` stays inside the S3.1 `StudioEvent` union and is expressed with
+`StudioLiveGameWatcher` is a daemon-runtime component, not a browser feature and
+not a handler-local timer. It is composed as an Effect-scoped service/layer with
+the daemon's `ManagedRuntime`, `Civ7TunerClient`, `Civ7TunerSession`, and D8
+`StudioEventHub`.
+
+The component has one job: observe live Civ7 status at the daemon boundary and
+publish meaningful `live-game` deltas. It does not own snapshots, setup
+suggestion rendering, operation transitions, or dev-process supervision.
+
+## D2. Event Contract Ownership
+
+`live-game` stays inside the D8 `StudioEvent` union and is expressed with
 TypeBox/Standard Schema. The event payload is:
 
 - `type: "live-game"`;
 - `state`: daemon-owned live runtime state;
 - `observedAt`: the watcher observation timestamp.
 
-The state is the same category the client already renders: status, turn, Civ
-game hash, seed, readiness, autoplay flags, snapshot id/hash, binding status,
-failure count, and error when unavailable. This is not a raw FireTuner response
-and not a second client model.
+The state is the category the client renders: status, turn, Civ game hash, seed,
+readiness, autoplay flags, snapshot id/hash, binding status, failure content,
+and unavailable/error state. It is not a raw FireTuner response and not a second
+client-only model.
 
-## D2. Shared keying model
+## D3. Shared Keying Model
 
-The live-game key excludes `observedAt` and other clock-only data. For healthy
-states it is based on the existing snapshot id derived from turn plus a stable
-hash of Civ game hash, seed, readiness, map metadata, and autoplay state. For
-error states it is based on status plus error content, not the incrementing
-failure count. Repeated identical observations stay quiet.
+The live-game key excludes `observedAt` and other clock-only data. Healthy-state
+keys derive from turn, Civ game hash, seed, readiness, relevant map metadata,
+autoplay state, and the snapshot identity already pinned by the live runtime
+model. Error-state keys derive from stable status/error content. Incrementing
+failure counters or retry timestamps alone cannot produce events.
 
-The app's existing `liveRuntime/model.test.ts` durable pins remain the proof
-for turn/hash identity and snapshot commit gating. The package watcher uses the
-same helper rather than duplicating a second keying algorithm.
+The watcher and the client model use the same package-owned keying helper. A
+duplicate app-local or test-only keying algorithm is a blocker because it lets
+the daemon and browser disagree about what "changed" means.
 
-## D3. Watcher lifecycle and shared session
+## D4. Watcher Lifecycle And Shared Session
 
-The watcher starts from `createStudioRpcHandler` only when the host enables it.
-MapGen Studio's daemon enables it; package handler tests and non-daemon hosts
-default to disabled.
+The daemon composes `StudioLiveGameWatcher` under the same runtime lifecycle as
+the RPC handler and event hub. Starting the daemon starts the watcher; disposing
+the daemon scope interrupts the watcher fiber, releases timer/schedule state,
+and closes publication resources before the runtime is torn down.
 
-Each tick reads the same logical live status as `civ7.live.status` through the
-runtime's `Civ7TunerClient`, so every FireTuner call routes through the runtime
-`Civ7TunerSession`. The watcher publishes through the already injected
-EventHub. Disposal stops the timer before disposing the runtime and shutting
-down the EventHub.
+Each observation reads the same logical status as `civ7.live.status` through the
+runtime's `Civ7TunerClient`/`Civ7TunerSession` layer. Package tests may inject a
+fake read service, but production daemon composition must not construct an
+alternate FireTuner session, direct-control client, or ad-hoc status reader.
 
-## D4. Client event application
+The implementation may use Effect scheduling primitives or scoped sleeps inside
+the service. It may not use browser timers, app-shell timers, app-local polling
+hooks, or a non-scoped package timer that outlives daemon disposal.
+
+## D5. Client Event Application
 
 The single `useStudioEvents` subscription remains the only event consumer. It
-keeps `hello` reconnect adoption and `operation` handling, and adds `live-game`
-application through a callback supplied by `StudioShell`.
+keeps D8 `hello` adoption and D9 `operation` handling, and adds `live-game`
+application through `StudioShell`.
 
-On a live-game event, `StudioShell` updates displayed live runtime state. If
-the pushed state has a snapshot request and the current snapshot is not already
-fresh for that state, it reads `civ7.live.snapshot` request/response and
-commits the result through the existing request-key guard. Setup config is read
-request/response after a pushed event for live-to-Studio suggestions. Neither
-read has its own cadence loop.
+On a `live-game` event, `StudioShell` updates displayed live runtime state from
+the event payload. If the pushed state makes a snapshot visibly stale, the app
+may read `civ7.live.snapshot` request/response. That read uses a request key
+derived from the pushed state, aborts or ignores older work when a newer
+live-game event arrives, and commits only through the existing stale-result
+guard.
 
-## D5. Deletion boundary
+Setup suggestions are also request/response follow-ups triggered by pushed
+state. Their trigger predicate is the pushed state that can affect setup
+visibility/suggestions; their owner is the event application path; they have no
+independent interval, timeout, retry loop, or refetch cadence.
 
-S3.3 deletes client live status scheduling:
+## D6. Deletion Boundary
+
+D10 deletes browser live-status freshness authority:
 
 - `nextLiveRuntimePollDelayMs`;
-- the browser `setTimeout(poll, ...)` live status loop in `StudioShell`;
-- background readiness overlay calls from that loop.
+- browser live-status `setTimeout` and `setInterval` loops;
+- background browser `civ7.live.status` calls;
+- `liveControlPort.readiness.current` cadence calls;
+- polling hooks and `refetchInterval` live-status paths;
+- tests that pin deleted browser cadence behavior.
 
-`liveControlPort` may remain for deliberate user-triggered control actions such
-as Explore. Snapshot reads remain on oRPC request/response. Operation events
-and `hello` identity behavior are unchanged.
+Deliberate user-triggered actions such as Explore may keep request/response
+reads if they are visibly tied to the command. Snapshot and setup reads remain
+request/response. Operation events and `hello` identity behavior are unchanged.
 
-## D6. Falsification proof
+## D7. Falsification Proof
 
-The primary watcher pin is quiet/loud behavior:
+The core watcher pins are:
 
 - first observation publishes;
-- changed turn/hash publishes;
-- unchanged key does not publish.
+- changed live-game key publishes;
+- unchanged key stays quiet;
+- clock-only changes stay quiet;
+- production composition supplies the shared session and event hub;
+- daemon disposal stops watcher publication.
 
-If the watcher publishes every tick, stops publishing changes, bypasses the
-EventHub, or uses clock-only keying, the focused test must fail. Negative
-search closes the deletion target because removing a scheduler is an
-architectural claim.
+The core client pins are:
+
+- a pushed `live-game` event updates rendered state;
+- snapshot/setup follow-ups are event-triggered request/response reads with
+  request keys, abort/newer-event handling, and stale commit guards;
+- no browser cadence path survives under a renamed helper or hook.
+
+OpenSpec validation proves packet shape only. Focused tests prove component
+behavior. Negative searches prove deletion. Live Civ7 proof is required for
+implementation closure when Civ7 is available; without that environment, the
+implementation writes a `next-packet.md` and remains not-green for live proof.
