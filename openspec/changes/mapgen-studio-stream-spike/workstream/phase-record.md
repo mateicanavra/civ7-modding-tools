@@ -1,10 +1,11 @@
 # D7 Packet Phase Record - Stream Transport Decision
 
-Status: accepted
+Status: packet accepted; implementation committed at current branch tip
 Date: 2026-06-14
 Domino: D7
 OpenSpec change: `mapgen-studio-stream-spike`
 Graphite packet branch: `codex/runtime-effect-openspec-packets`
+Graphite implementation branch: `codex/runtime-effect-stream-spike`
 
 ## Frame
 
@@ -52,18 +53,21 @@ D7 must be reframed if `effect-orpc` `.effect()` cannot return an event iterator
 
 ## Repo State / Baseline
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`.
-- Branch: `codex/runtime-effect-openspec-packets`.
-- Stack position: packet branch above accepted D0-D6 packet commits.
-- Dirty-file owner during packet drafting: D7 packet docs under `openspec/changes/mapgen-studio-stream-spike/**`.
-- Selected authoring baseline: current packet branch after D6 commit `82fe38319`.
-- Dependency/build entrance evidence for this branch was refreshed at D6 acceptance: `bun install --frozen-lockfile`, `bun run build`, and `bun run check` passed on 2026-06-14. D7 acceptance requires OpenSpec/Graphite/status gates because D7 is docs-only and does not change package code.
+- Packet-authoring worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`.
+- Packet-authoring branch: `codex/runtime-effect-openspec-packets`.
+- Implementation worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`.
+- Implementation branch: `codex/runtime-effect-stream-spike`, stacked above D6 current-operations commit `f6df0bea1`.
+- Implementation write set changes `StudioEventHub` cleanup behavior plus package/app stream tests and D7 workstream docs. D7 is no longer a docs-only slice during implementation.
+- Dirty-file owner during implementation: D7 stream transport files and D7 packet/workstream docs only.
 
 ## Write Set / Protected Paths
 
 Write set:
 
 - `openspec/changes/mapgen-studio-stream-spike/**`
+- `packages/studio-server/src/services/StudioEventHub.ts`
+- `packages/studio-server/test/handler.test.ts`
+- `apps/mapgen-studio/test/devServer/viteProxyStream.test.ts`
 - `docs/projects/studio-runtime-simplification/OPENSPEC-PACKET-TRAIN.md` when marking acceptance
 
 Protected paths:

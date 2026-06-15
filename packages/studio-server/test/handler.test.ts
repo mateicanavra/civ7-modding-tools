@@ -202,6 +202,79 @@ describe("studio-server RPC handler", () => {
     await iterator.return?.();
     await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
   }, 10_000);
+
+  test("repeated studio.events.watch subscribe and close returns subscriber count to baseline", async () => {
+    const eventHub = trackEventHub(createStudioEventHub());
+    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const client = directClient(handler);
+
+    for (let index = 0; index < 3; index += 1) {
+      const iterator = await client.studio.events.watch({});
+      await expect(iterator.next()).resolves.toMatchObject({
+        done: false,
+        value: { type: "hello" },
+      });
+      expect(eventHub.activeSubscriberCount()).toBe(1);
+      await iterator.return?.();
+      await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
+    }
+  }, 10_000);
+
+  test("cancelling the watch response body releases the subscription", async () => {
+    const eventHub = trackEventHub(createStudioEventHub());
+    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const result = await handler.handle(
+      new Request("http://studio.test/rpc/studio/events/watch", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ json: {} }),
+      }),
+      { prefix: "/rpc" }
+    );
+
+    expect(result.matched).toBe(true);
+    expect(result.response?.status).toBe(200);
+    expect(result.response?.headers.get("content-type")).toContain("text/event-stream");
+    expect(result.response?.body).not.toBeNull();
+
+    const reader = result.response!.body!.getReader();
+    const text = await readUntil(reader, "hello");
+    expect(text).toContain("hello");
+    expect(eventHub.activeSubscriberCount()).toBe(1);
+
+    await reader.cancel();
+    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
+  }, 10_000);
+
+  test("event hub shutdown interrupts open watch subscriptions and releases scopes", async () => {
+    const eventHub = trackEventHub(createStudioEventHub());
+    const iterator = eventHub.subscribe({
+      initialEvents: [
+        {
+          type: "hello",
+          serverInstanceId: "studio-server-test",
+          serverStartedAt: "2026-06-10T00:00:00.000Z",
+          observedAt: "2026-06-10T00:00:00.000Z",
+        },
+      ],
+    });
+
+    await expect(iterator.next()).resolves.toMatchObject({
+      done: false,
+      value: { type: "hello" },
+    });
+    expect(eventHub.activeSubscriberCount()).toBe(1);
+
+    const pendingNext = settle(iterator.next());
+    await eventHub.shutdown();
+    const pendingOutcome = await withTimeout(pendingNext, 1_000, "pending event iterator read to settle");
+    expect(pendingOutcome.status).toBe("rejected");
+    if (pendingOutcome.status === "rejected") {
+      expect(String(pendingOutcome.reason)).toMatch(/interrupted|FiberFailure|shutdown/i);
+    }
+    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
+    await iterator.return?.();
+  });
 });
 
 function trackHandle(handle: StudioRpcHandle): StudioRpcHandle {
@@ -355,4 +428,43 @@ function deferred<T>() {
     reject = rejectPromise;
   });
   return { promise, resolve, reject };
+}
+
+async function readUntil(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  needle: string
+): Promise<string> {
+  const decoder = new TextDecoder();
+  let text = "";
+  while (!text.includes(needle)) {
+    const chunk = await withTimeout(reader.read(), 1_000, `event stream chunk containing ${needle}`);
+    if (chunk.done) break;
+    text += decoder.decode(chunk.value, { stream: true });
+  }
+  text += decoder.decode();
+  return text;
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error(`Timed out waiting for ${label}`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout !== undefined) clearTimeout(timeout);
+  }
+}
+
+async function settle<T>(
+  promise: Promise<T>
+): Promise<{ status: "fulfilled"; value: T } | { status: "rejected"; reason: unknown }> {
+  try {
+    return { status: "fulfilled", value: await promise };
+  } catch (reason) {
+    return { status: "rejected", reason };
+  }
 }

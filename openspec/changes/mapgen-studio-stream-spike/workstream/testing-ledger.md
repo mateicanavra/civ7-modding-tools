@@ -1,6 +1,6 @@
 # D7 Testing Ledger - Stream Transport Decision
 
-Status: packet proof contract accepted; implementation evidence pending
+Status: implementation evidence committed at current branch tip; live Civ7 proof is not run or claimed
 Date: 2026-06-14; accounting update 2026-06-15
 
 | Layer | Required proof | Adequacy criterion |
@@ -25,6 +25,31 @@ bun run --cwd apps/mapgen-studio test -- test/devServer/viteProxyStream.test.ts 
 bun run --cwd apps/mapgen-studio check
 ```
 
+## Implementation Evidence - 2026-06-15
+
+Commands run:
+
+```bash
+bun run --cwd packages/studio-server test -- test/handler.test.ts test/contractTypeboxSpine.test.ts
+bun run --cwd apps/mapgen-studio test -- test/devServer/viteProxyStream.test.ts test/studioEvents/operationAdoption.test.ts
+bun run --cwd packages/studio-server check
+bun run --cwd apps/mapgen-studio check
+```
+
+Results:
+
+- Package tests passed: `test/handler.test.ts` and `test/contractTypeboxSpine.test.ts` passed 13 tests.
+- App tests passed: `test/devServer/viteProxyStream.test.ts` and `test/studioEvents/operationAdoption.test.ts` passed 12 tests.
+- Package and app TypeScript checks passed.
+
+Proof disposition:
+
+- `test/contractTypeboxSpine.test.ts` proves the public event iterator is TypeBox-origin through the owned Standard Schema adapter.
+- `test/handler.test.ts` proves `studio.events.watch` delivery over the native effect-oRPC handler, iterator `return()` cleanup, response-body cancel/disconnect cleanup, pending-read interruption on EventHub shutdown, and repeated subscribe/close returning subscriber count to baseline.
+- `test/devServer/viteProxyStream.test.ts` proves Vite `/rpc` forwards at least two ordered event-stream chunks before upstream close without assuming one read equals one chunk.
+- `test/studioEvents/operationAdoption.test.ts` proves the actual watch hook uses `experimental_liveOptions` and that the generated live query function invokes `studio.events.watch` with nonzero retry context.
+- No live Civ7 Play/SaveDeploy proof was run or claimed; D7 is transport/lifecycle proof only.
+
 ## Negative Search Gates
 
 ```bash
@@ -33,6 +58,12 @@ rg -n "streamedOptions|experimental_streamedOptions" apps/mapgen-studio/src pack
 rg -n "retry: 0|default retry|ClientRetryPlugin\\(\\).*reconnect" apps/mapgen-studio/src packages/studio-server/src openspec/changes/mapgen-studio-stream-spike -g "*.{ts,tsx,md}"
 rg -n "streamSpike|spike-only|proof-only" packages/studio-server/test apps/mapgen-studio/test openspec/changes/mapgen-studio-event-hub openspec/changes/mapgen-studio-operations-push -g "*.{ts,tsx,md}"
 ```
+
+Negative scan disposition from implementation pass:
+
+- Alternate transport/stale streamed helper scans produced no production source hits.
+- Retry scan hit `apps/mapgen-studio/src/lib/query.ts:30` (`retry: 0`) for the generic QueryClient default, plus D7 docs that intentionally forbid default-only retry claims. The actual watch path proof remains `apps/mapgen-studio/src/app/hooks/useStudioEvents.ts` / `test/studioEvents/operationAdoption.test.ts`, where watch context supplies nonzero retry.
+- Spike scan hit downstream D8/D9 packet text that explicitly records promotion/deletion obligations. No D7 production code or D7 test fixture introduces a hidden spike-only runtime path.
 
 ## Proof Labels
 

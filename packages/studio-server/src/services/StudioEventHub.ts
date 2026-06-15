@@ -19,6 +19,7 @@ export class StudioEventHub extends Context.Tag("@civ7/studio-server/StudioEvent
 
 export function createStudioEventHub(): StudioEventHubApi {
   let activeSubscribers = 0;
+  const activeReleases = new Set<() => Promise<void>>();
   const pubsubPromise = Effect.runPromise(PubSub.unbounded<StudioEvent>());
 
   return {
@@ -35,14 +36,23 @@ export function createStudioEventHub(): StudioEventHubApi {
       const subscription = pubsubPromise.then(async (pubsub) => {
         const scope = await Effect.runPromise(Scope.make());
         const queue = await Effect.runPromise(PubSub.subscribe(pubsub).pipe(Scope.extend(scope)));
+        let released = false;
+        const release = async () => {
+          if (released) return;
+          released = true;
+          activeReleases.delete(release);
+          await Effect.runPromise(Scope.close(scope, Exit.void));
+          activeSubscribers -= 1;
+        };
 
         if (closed) {
           await Effect.runPromise(Scope.close(scope, Exit.void));
-          return { queue, scope, counted: false };
+          return { queue, release: undefined };
         }
 
         activeSubscribers += 1;
-        return { queue, scope, counted: true };
+        activeReleases.add(release);
+        return { queue, release };
       });
 
       return new AsyncIteratorClass<StudioEvent>(
@@ -62,9 +72,8 @@ export function createStudioEventHub(): StudioEventHubApi {
           if (closed) return;
           closed = true;
 
-          const { scope, counted } = await subscription;
-          await Effect.runPromise(Scope.close(scope, Exit.void));
-          if (counted) activeSubscribers -= 1;
+          const { release } = await subscription;
+          await release?.();
         }
       );
     },
@@ -74,6 +83,7 @@ export function createStudioEventHub(): StudioEventHubApi {
     },
 
     async shutdown() {
+      await Promise.all([...activeReleases].map((release) => release()));
       const pubsub = await pubsubPromise;
       await Effect.runPromise(PubSub.shutdown(pubsub));
     },

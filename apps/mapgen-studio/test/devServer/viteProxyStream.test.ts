@@ -54,13 +54,19 @@ describe("Vite /rpc dev proxy streaming", () => {
     expect(response.body).not.toBeNull();
 
     const reader = response.body!.getReader();
-    const firstRead = await withTimeout(reader.read(), 1_000, "first proxied SSE chunk");
-    const firstText = new TextDecoder().decode(firstRead.value);
-    expect(firstText).toContain("data: first");
+    try {
+      const firstText = await readUntil(reader, "data: first");
+      expect(firstText).toContain("data: first");
 
-    await expect(secondChunkWritten.promise).resolves.toBeUndefined();
-    releaseUpstream.resolve();
-    await reader.cancel();
+      await expect(secondChunkWritten.promise).resolves.toBeUndefined();
+      const fullText = firstText.includes("data: second")
+        ? firstText
+        : `${firstText}${await readUntil(reader, "data: second")}`;
+      expect(fullText.indexOf("data: first")).toBeLessThan(fullText.indexOf("data: second"));
+    } finally {
+      releaseUpstream.resolve();
+      await reader.cancel();
+    }
   });
 });
 
@@ -126,4 +132,19 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: str
   } finally {
     if (timeout !== undefined) clearTimeout(timeout);
   }
+}
+
+async function readUntil(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  needle: string
+): Promise<string> {
+  const decoder = new TextDecoder();
+  let text = "";
+  while (!text.includes(needle)) {
+    const chunk = await withTimeout(reader.read(), 1_000, `proxied SSE chunk containing ${needle}`);
+    if (chunk.done) break;
+    text += decoder.decode(chunk.value, { stream: true });
+  }
+  text += decoder.decode();
+  return text;
 }

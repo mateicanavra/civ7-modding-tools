@@ -8,12 +8,14 @@ import type {
   StudioOperationEvent,
   StudioOperationsCurrent,
 } from "@civ7/studio-server";
+import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { describe, expect, test } from "vitest";
 
 import {
   STUDIO_EVENT_STREAM_RETRY_ATTEMPTS,
   studioEventsWatchClientContext,
   studioEventsWatchLiveOptions,
+  studioEventsWatchLiveOptionsFor,
 } from "../../src/app/hooks/useStudioEvents";
 import {
   adoptStudioOperationsCurrent,
@@ -319,6 +321,46 @@ describe("Studio event operation adoption", () => {
     expect(JSON.stringify(options.queryKey)).toContain('"watch"');
     expect(typeof options.queryFn).toBe("function");
   });
+
+  test("live event query function invokes watch with scoped stream retry context", async () => {
+    const calls: Array<{ input: unknown; options: { signal?: AbortSignal; context?: unknown } }> = [];
+    const fakeClient = {
+      studio: {
+        events: {
+          watch: async (input: unknown, options: { signal?: AbortSignal; context?: unknown } = {}) => {
+            calls.push({ input, options });
+            return oneEventIterator({
+              type: "hello",
+              serverInstanceId: "studio-test",
+              serverStartedAt: "2026-06-13T00:00:00.000Z",
+              observedAt: "2026-06-13T00:00:01.000Z",
+            });
+          },
+        },
+      },
+    };
+    const fakeOrpc = createTanstackQueryUtils(fakeClient);
+    const options = studioEventsWatchLiveOptionsFor(fakeOrpc.studio.events.watch);
+    if (typeof options.queryFn !== "function") {
+      throw new Error("expected a live query function");
+    }
+
+    await options.queryFn({
+      signal: new AbortController().signal,
+      queryKey: options.queryKey,
+      client: {
+        setQueryData() {
+          return undefined;
+        },
+      },
+    } as Parameters<typeof options.queryFn>[0]);
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.input).toEqual({});
+    expect(calls[0]?.options.context).toMatchObject({
+      retry: STUDIO_EVENT_STREAM_RETRY_ATTEMPTS,
+    });
+  });
 });
 
 function adoptionState(initial?: {
@@ -360,6 +402,15 @@ function liveGameEvent(state: StudioLiveGameEvent["state"]): StudioLiveGameEvent
     observedAt: "2026-06-13T00:00:02.000Z",
     state,
   };
+}
+
+type TestStudioEvent =
+  | StudioLiveGameEvent
+  | StudioOperationEvent
+  | { type: "hello"; serverInstanceId: string; serverStartedAt: string; observedAt: string };
+
+async function* oneEventIterator(event: TestStudioEvent) {
+  yield event;
 }
 
 function currentOperations(overrides?: Partial<StudioOperationsCurrent>): StudioOperationsCurrent {
