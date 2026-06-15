@@ -306,5 +306,19 @@
       "path": "mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts",
       "body": "import config from \"../../config.js\";\n\nexport const value = config;\n"
     }
+  },
+  {
+    "ruleId": "grit-op-calls-op",
+    "patternIdentity": "op_calls_op",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
+    "sourcePredicate": "domain op runtime entrypoint imports sibling op runtime or domain ops barrel",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts",
+      "body": "import computeMesh from \"../compute-mesh/index.js\";\n\nexport const value = computeMesh;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/rules/index.ts",
+      "body": "import computeMesh from \"../compute-mesh/index.js\";\n\nexport const value = computeMesh;\n"
+    }
   }
 ]
