@@ -82,7 +82,7 @@ Builder -> Nodes -> XML Files -> Mod Output
 
 ## Testing & Validation
 
-- Run `bun run --filter @mateicanavra/civ7-sdk test` to execute the Vitest suite (see `TESTING.md`).
+- Run `nx run @mateicanavra/civ7-sdk:test` to execute the Vitest suite (see `TESTING.md`).
 
 ### Type Checking
 ```bash

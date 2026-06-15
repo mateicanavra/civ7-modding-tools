@@ -25,7 +25,7 @@
 ## 3. Native Grit Fixture Proof
 
 - [ ] 3.1 Run
-  `GRIT_TELEMETRY_DISABLED=true PATH="$PWD/node_modules/.bin:$PATH" grit patterns test --filter deep_import_to_public_surface --json`.
+  `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter deep_import_to_public_surface --json`.
 - [ ] 3.2 Expand fixtures for positive value imports, positive type imports,
   mixed imports, already-public imports, out-of-scope paths, missing exports,
   and alias/default edge cases where the current sample does not prove the

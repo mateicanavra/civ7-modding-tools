@@ -35,6 +35,7 @@ This design selects:
 - Project-plane owner boundaries over broad architecture prose.
 - Dual-tag and false-negative probes over spot checks.
 - Whole-command success over target-internal success.
+- Normal Nx defaults over daemon/cache workaround policy.
 - Records truth for downstream classify and Grit workstreams.
 
 ### Exterior
@@ -63,8 +64,8 @@ Alternative: treat historical H3 as already closed and patch only the Stage 0
 ledger row to records-only.
 
 Rejected because current evidence found an enclosing Nx command failure on one
-default run-many path, while the direct target and no-daemon path passed. That
-kind of distinction is exactly what the recovery frame is meant to preserve.
+historical run-many path, while a focused target path passed. That kind of
+distinction is exactly what the recovery frame is meant to preserve.
 Records-only acceptance would keep the false-confidence loop alive.
 
 ### Falsifier
@@ -81,12 +82,12 @@ nonzero.
 | Stage 0 claim | `CLAIM-H3-TAXONOMY` remains unknown and owned by `habitat-boundary-taxonomy-tightening`. | A repair packet is required before downstream work can cite H3 as current truth. |
 | Historical H3 | `openspec/changes/habitat-boundary-tags` is complete and records green gates. | Useful source, but must be reconciled against current command behavior. |
 | Package tags | Fresh manifest audit found 22 workspace projects with expected `kind:*` tags, including `@internal/habitat-harness` and dual-tagged `mod-civ7-intelligence-bridge`. | Implementation must codify this as repeatable proof, not a one-time table. |
-| Resolved tags | `bun run nx show project @internal/habitat-harness --json` reports `kind:tooling`; `mod-civ7-intelligence-bridge` reports `kind:mod` and `kind:control`. | Resolved Nx tags, not package JSON alone, must be proof source. |
-| Resolved edges | `bun run nx graph --file /tmp/habitat-boundary-graph.json` produced 44 workspace edges. | Every edge must be evaluated against the depConstraint matrix. |
+| Resolved tags | `nx show project @internal/habitat-harness --json` reports `kind:tooling`; `mod-civ7-intelligence-bridge` reports `kind:mod` and `kind:control`. | Resolved Nx tags, not package JSON alone, must be proof source. |
+| Resolved edges | `nx graph --file /tmp/habitat-boundary-graph.json` produced 44 workspace edges. | Every edge must be evaluated against the depConstraint matrix. |
 | Boundary config | `eslint.boundaries.config.mjs` contains only `@nx/enforce-module-boundaries` and the `kind:*` depConstraints. | Config parity with taxonomy must be machine-checked or reviewed line-by-line. |
-| Direct target | `bun run nx run @internal/habitat-harness:boundaries --skipNxCache` exits 0. | Direct target remains a valid focused proof. |
-| Default run-many | One fresh `bun run nx run-many -t boundaries --all --skipNxCache` ran the target successfully but exited 1 with SQLite foreign-key transaction failure. | A target-internal success is not enough; daemon/cache path must be repaired or bounded in records. |
-| No-daemon run-many | `NX_DAEMON=false bun run nx run-many -t boundaries --all --skipNxCache` exits 0. | Verification matrix must separate daemon and no-daemon behavior. |
+| Direct target | Historical `nx run @internal/habitat-harness:boundaries --skipNxCache` exited 0. Current proof should use normal `nx run @internal/habitat-harness:boundaries` unless a documented target-specific reason requires otherwise. | Direct target remains a valid focused proof, but cache flags are not the steady-state proof contract. |
+| Normal run-many | One historical `nx run-many -t boundaries --all --skipNxCache` ran the target successfully but exited 1 with SQLite foreign-key transaction failure. | A target-internal success is not enough; the normal aggregate path must either exit 0 or receive a root-cause repair/escalation record. |
+| No-daemon run-many | Historical `NX_DAEMON=false nx run-many -t boundaries --all --skipNxCache` exited 0. | This is diagnostic evidence only. It is not accepted steady-state proof policy after the Nx workflow settlement. |
 | Habitat rule | `bun run habitat:check -- --json --rule nx-boundaries` exits 0 and the parsed `rules` array contains `nx-boundaries` and `baseline-integrity`, both locked, passing, and diagnostics-empty. | Habitat rule proof requires JSON shape assertions; command-surface selector repair still owns invalid selector behavior. |
 | Dual-tag probe | Created-and-reverted probe in `mod-civ7-intelligence-bridge` importing `@mateicanavra/civ7-sdk` failed on `kind:control`; probe was removed and boundary rerun passed. | The live `kind:mod` plus `kind:control` SDK-negative case is currently enforced and must become a required proof. |
 
@@ -129,14 +130,14 @@ Implementation must provide a repeatable proof matrix.
 
 | Proof area | Required evidence | Closure claim allowed |
 | --- | --- | --- |
-| Project inventory | Workspace package manifests plus `bun run nx show projects --json`. | All workspace projects in taxonomy are present and no unclassified project exists. |
+| Project inventory | Workspace package manifests plus `nx show projects --json`. | All workspace projects in taxonomy are present and no unclassified project exists. |
 | Tag parity | Manifest `nx.tags`, resolved Nx project tags, and taxonomy table comparison. | `kind:*` assignments are current. |
 | Config parity | Parsed `eslint.boundaries.config.mjs` depConstraints compared to taxonomy table. | Boundary config implements the documented taxonomy. |
 | Graph edge legality | Resolved `nx graph --file` workspace edges evaluated against matching source tag constraints. | Current graph has no illegal project-plane edge. |
 | Dual-tag sentinel | Probe from `mod-civ7-intelligence-bridge` to an SDK-only-allowed target fails on `kind:control`. | Live `kind:mod` plus `kind:control` SDK-negative case is enforced; broader dual-tag claims require broader proof. |
 | False-negative probes | Foundation-to-adapter and dual-tag-control-to-sdk probes fail and are reverted. | Boundary rule fails for selected forbidden edges that cover distinct constraint shapes. |
 | Direct command | `nx run @internal/habitat-harness:boundaries` exits 0 on clean tree. | Focused boundary target works. |
-| Run-many command | Daemon and no-daemon run-many behavior recorded. | Aggregate boundary command is reliable, or records name the accepted command policy. |
+| Run-many command | Normal `nx run-many -t boundaries --all` behavior recorded. | Aggregate boundary command is reliable, or records name the root-cause repair/escalation. |
 | Habitat rule | `habitat:check -- --json --rule nx-boundaries` reports `nx-boundaries` in `rules[]` with locked pass, owner metadata, and empty diagnostics. | Habitat exposes the boundary owner without selector false-green proof inflation. |
 | Downstream records | Stage 0, H3 proposal/tasks/phase record, Habitat workstream record, review-disposition architecture lane, README/AGENTS when command policy changes, and dependent packets patched or marked historical until repair lands. | Future agents see current proof boundaries. |
 
@@ -164,22 +165,25 @@ Accepted no-verifier criteria:
 
 ### Command Reliability
 
-The implementation must settle the run-many daemon failure observed during
-diagnosis.
+The implementation must settle the historical run-many failure observed during
+diagnosis against the current Nx workflow contract.
 
 Accepted outcomes:
 
-- default daemon run-many exits 0 after repair and is used as proof;
-- no-daemon run-many becomes the recorded proof command with rationale and CI
-  alignment;
+- normal run-many exits 0 after repair and is used as proof;
+- normal run-many still fails, with an exact root cause and owning repair
+  workstream recorded before any broader command claim is made;
 - a Habitat-owned command wraps the boundary check and records Nx command
-  provenance and post-target failures explicitly.
+  provenance and post-target failures explicitly, while still using normal Nx
+  command resolution.
 
 Rejected outcomes:
 
 - treating target-internal success text as proof when the outer command exits
   nonzero;
-- hiding Nx daemon/cache failures by omitting the failing command from records;
+- hiding Nx command failures by omitting the failing command from records;
+- selecting `NX_DAEMON=false`, cache disabling, socket overrides, symlink
+  repair, or routine cache reset as the accepted steady-state policy;
 - weakening boundary checks because one command path is unreliable.
 
 ### Effect Substrate
@@ -277,12 +281,12 @@ Implementation must record:
 - cwd, argv, environment variables that affect Nx daemon/cache behavior, exit
   code, output class, and touched paths;
 - direct target result;
-- daemon and no-daemon run-many result;
+- normal run-many result;
 - Habitat `nx-boundaries` result;
 - parsed Habitat JSON assertion that `rules[]` contains `nx-boundaries` with
   `ownerTool: nx-boundaries`, `lane: enforced`, `status: pass`, `locked: true`,
   and zero diagnostics;
-- `habitat verify` result after command-surface repair is consumed;
+- optional `habitat verify` result after command-surface repair is consumed;
 - OpenSpec validation and guardrail scan results.
 
 ## Downstream Proof Boundaries
@@ -317,8 +321,7 @@ lands and must patch or explicitly downgrade them before claiming
   Architecture-Review Lane verdict language that says lock-safe from declared
   manifest edges without the current resolved-graph and command proof matrix.
 - `tools/habitat-harness/README.md` and root `AGENTS.md` command guidance if
-  implementation selects a specific daemon/no-daemon proof policy or verifier
-  command.
+  implementation selects a new verifier command.
 - `openspec/changes/habitat-classify-generator-repair/**`,
   `openspec/changes/habitat-grit-proof-repair/**`, and later Grit pattern
   packets where they cite taxonomy as current proof rather than project-plane
@@ -331,8 +334,8 @@ lands and must patch or explicitly downgrade them before claiming
 - Taxonomy/architecture: are every tag, constraint, and dual-tag rule backed
   by current authority?
 - Nx/evidence: does the proof use resolved Nx state and official Nx limits?
-- Command reliability: are daemon/cache and whole-command exit behavior
-  treated honestly?
+- Command reliability: are normal Nx command behavior and whole-command exit
+  status treated honestly?
 - Owner-layer boundaries: are Nx, Grit, file-layer, Biome, tests, and Habitat
   separated correctly?
 - Downstream records: are stale H3 and dependent records repaired or watched?

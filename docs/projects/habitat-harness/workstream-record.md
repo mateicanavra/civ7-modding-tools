@@ -3,12 +3,20 @@
 - **Workstream:** habitat-harness (enforcement/codemod harness over the whole repo)
 - **Owner:** workstream owner agent (single accountable synthesizer; agents assist)
 - **Method:** `civ7-systematic-workstream` (12 gates) composed with `civ7-open-spec-workstream` (per-slice phase loop)
-- **Controlling frame:** `docs/projects/habitat-harness/FRAME.md` (hard core, falsifier, settled decisions D1–D6)
-- **Stack root:** `agent-F-habitat-harness-workstream` (worktree `wt-agent-F-habitat-harness-workstream`, parent `main`, Graphite-tracked)
-- **Current execution branch:** `agent-F-habitat-generators-migrations` stacked above locally closed H7
-- **Status:** TRAIN LOCALLY CLOSED — H1/H2/H3/H4/H4.5/H5/H6/H7/H8 are locally
-  closed on the Graphite stack; H8 Graphite commit/stack hygiene is the final
-  local step before submission/drain.
+- **Controlling frame:** `docs/projects/habitat-harness/FRAME.md` plus the
+  active recovery frame in `docs/projects/habitat-harness/dra-takeover-frame.md`
+- **Original stack root:** `agent-F-habitat-harness-workstream` (historical
+  H1-H8 execution train)
+- **Current execution branch:** `agent-F-habitat-nx-worktree-state`
+- **Status:** RECOVERY ACTIVE. The H1-H8 records are historical implementation
+  evidence, not current closure authority by themselves. Current closure must
+  be taken from the recovery claim ledger, the Grit pattern corpus ledger, and
+  the active repair/pattern OpenSpec packets after fresh proof.
+- **Settled current baseline:** `habitat-nx-worktree-state-contract` has
+  normalized root workflows onto the Nx DAG: no Turbo, no root `nx` wrapper, no
+  symlink/cache/socket workaround, package-owned `verify` targets, root
+  `build/check/lint/test/verify/ci` through Nx, and standard repo-local Nx CLI
+  resolution.
 
 ## Gate state (systematic-workstream)
 
@@ -21,11 +29,11 @@
 | 5 Grouping | DONE | corpus §A–F families; taxonomy.md scope:* families |
 | 6 Expectations | DONE | per-slice verification gates; ratchet baselines predeclared (project plane green; adapter-boundary baseline = 6) |
 | 7 Architecture translation | DONE | taxonomy.md (tags/constraints); five-layer ownership in FRAME hard core #2 |
-| 8 Slices | DONE LOCALLY | OpenSpec train below; H1-H8 closed locally |
-| 9 Local stats | DONE LOCALLY | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes; H5 Grit/file-layer parity and root closure gates green; H6 retirement table/probe matrix complete; H8 generated project/pattern/migration/classify probes complete |
+| 8 Slices | HISTORICAL + RECOVERY OPEN | H1-H8 historical train exists; active recovery slices and per-pattern packets now control implementation readiness. |
+| 9 Local stats | PARTIAL CURRENT PROOF | Nx normalization has current `build` and `verify` proof; original H5/H6/H8 proof claims remain historical until their repair packets reprove them. |
 | 10 Runtime proof | N/A by design | harness touches structure only; byte-parity gates stand in (H1/H4) |
-| 11 Review | DONE LOCALLY | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice; H8 closure record complete |
-| 12 Closure | DONE LOCALLY | H1-H8 have local phase closure records |
+| 11 Review | RECOVERY REVIEW ACTIVE | pre-execution spec/architecture reviews remain historical; active repair packets require fresh product/evidence/system review. |
+| 12 Closure | OPEN | Close only by repair/pattern packet after current command, graph, baseline, Grit, generator, hook, and record-proof requirements are met. |
 
 ## The change train (slices)
 
@@ -46,22 +54,20 @@ prerequisites; phase continuity records go in
 `openspec/changes/<id>/workstream/` at execution time per
 `civ7-open-spec-workstream`.
 
-Execution state on 2026-06-14: H1 (`habitat-nx-adoption`), H2
-(`habitat-harness-scaffold`), H3 (`habitat-boundary-tags`), H4
-(`habitat-biome-hygiene`), H4.5 (`habitat-oclif-cli`), H5
-(`habitat-grit-catalog`), H6 (`habitat-enforcement-consolidation`), H7
-(`habitat-git-hooks`), and H8 (`habitat-generators-migrations`) are locally
-closed on the Graphite stack. H5 closed with native Grit patterns under
-`.grit/patterns/habitat/**`, one native Grit JSON scan per Habitat
-`grit-check` invocation, file-layer generated-zone guards, and root
-`build/check/test` closure gates green. H6 closed with root ESLint retired,
-duplicate scripts/tests deleted or slimmed only with replacement probes,
-direct local tool resolution centralized in Habitat subprocess spawning, and
-root `build/check/test` closure gates green. H7 closed with Husky delegators
-to Habitat hook commands, staged pre-commit checks, and committed-range
-pre-push affected checks. H8 closed with Nx generators for supported uniform
-projects, native Grit pattern scaffolding, no-op migration wiring,
-classify-first agent routing, and generated-output probes removed after proof.
+Execution state on 2026-06-14 after recovery review and Nx workflow
+normalization: H1-H8 have useful local phase records, but those records are
+not sufficient current proof. The active truth is:
+
+- Nx graph/root workflow settlement is current and implemented on
+  `agent-F-habitat-nx-worktree-state`.
+- `bun run build` and `bun run verify` pass through the Nx DAG.
+- `bun run lint` now intentionally runs both project `lint` targets and
+  `habitat:check` targets; it fails on existing locked Habitat/Grit rule
+  violations. That failure is architecture-rule debt, not Biome formatting,
+  yargs, package metadata, or Nx invocation failure.
+- Command trust, baseline semantics, Grit current-tree proof, classify target
+  truth, hook side effects, pattern generator metadata, and individual locked
+  Grit violations remain active repair/pattern workstreams.
 
 ## Proof classes per slice (predeclared)
 
@@ -113,19 +119,11 @@ train redefines the other's authority.
 
 ## Next exact action
 
-1. ~~Pre-execution spec-review lane~~ DONE (`review-disposition-ledger.md`, all repairs applied).
-2. ~~H1/H2/H3 local execution and closure~~ DONE (see each slice's
-   `workstream/phase-record.md`).
-3. ~~H4.5 oclif CLI migration and promoted DL-16 / SDK teardown /
-   adapter-boundary repairs~~ DONE locally on the stack.
-4. ~~H4/H4.5/H5 local execution and closure~~ DONE (see each slice's
-   `workstream/phase-record.md`).
-5. ~~H6 enforcement consolidation~~ DONE locally (retirement table/probe
-   matrix, root ESLint retirement, duplicate structural checks retired/slimmed,
-   closure gates green).
-6. ~~H7 git hooks~~ DONE locally (Husky delegators, staged pre-commit,
-   committed-range pre-push, legacy resources publish preserved, safety
-   probes and Graphite hook proof recorded).
-7. ~~H8 generators/migrations/classify~~ DONE locally (native Nx generators,
-   no-op migration proof, classify matrix, AGENTS/README operating loop,
-   final gates green). Next: Graphite commit/restack/submission flow.
+1. Finish packet realignment for the Nx DAG settlement and commit it cleanly.
+2. Close or correct `habitat-nx-worktree-state-contract` records: the change
+   is implemented, but lint status and fresh-worktree closure language must
+   match current evidence.
+3. Resume implementation only through the active recovery order:
+   command trust, baseline/scaffold contract, Grit proof repair, boundary
+   taxonomy proof, classify/generator repair, hook hardening, enforcement
+   surface cleanup, and then individual Grit proof/apply pattern workstreams.

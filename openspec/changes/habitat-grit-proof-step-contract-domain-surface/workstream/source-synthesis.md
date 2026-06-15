@@ -146,7 +146,7 @@ provenance, and cleanup proof.
 | --- | --- | --- | --- |
 | SCDS-E1 | `tools/habitat-harness/src/rules/rules.json` | Rule id `grit-step-contract-domain-surface` is registered as enforced `grit-check` with `mods/*` step-contract scope. | Rule identity and intended metadata exist. |
 | SCDS-E2 | `.grit/patterns/habitat/checks/step_contract_domain_surface.md` | Pattern matches import and re-export declarations from source specifiers containing non-root domain package strings in filenames ending in `contract.ts`. | Authored predicate exists and must be proven exactly. |
-| SCDS-E3 | `GRIT_TELEMETRY_DISABLED=true PATH="$PWD/node_modules/.bin:$PATH" grit patterns test --filter step_contract_domain_surface --json` | Exit 0; one testable pattern succeeds with one positive and one negative sample. | Native fixture proof seed exists. |
+| SCDS-E3 | `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter step_contract_domain_surface --json` | Exit 0; one testable pattern succeeds with one positive and one negative sample. | Native fixture proof seed exists. |
 | SCDS-E4 | `bun run habitat:check -- --json --rule grit-step-contract-domain-surface` | Exit 0; `grit-step-contract-domain-surface` and `baseline-integrity` pass. | Valid wrapper selection currently passes. |
 | SCDS-E5 | Direct raw Grit over `mods/mod-swooper-maps/src/recipes` | Exit 0 with `results: []`. | Bounded raw zero-result seed exists for the current Swooper recipe root. |
 | SCDS-E6 | `tools/habitat-harness/src/lib/grit.ts` | Adapter scans existing roots from `packages`, `apps/mapgen-studio/src`, Swooper recipes, Swooper maps, and Swooper domain. | Wrapper roots and raw acquisition roots must be recorded separately. |

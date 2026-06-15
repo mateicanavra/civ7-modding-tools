@@ -25,14 +25,56 @@
   "nx": {
     "tags": [
       "kind:tooling"
-    ]
+    ],
+    "targets": {
+      "build:tsc": {
+        "dependsOn": [
+          "clean:dist"
+        ],
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist/**"
+        ]
+      },
+      "build:manifest": {
+        "dependsOn": [
+          "build:tsc"
+        ],
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/oclif.manifest.json"
+        ]
+      },
+      "build:bin-mode": {
+        "dependsOn": [
+          "build:manifest"
+        ],
+        "cache": false,
+        "outputs": []
+      },
+      "build": {
+        "command": "node -e \"\"",
+        "cache": false,
+        "outputs": [
+          "{projectRoot}/dist/**",
+          "{projectRoot}/oclif.manifest.json"
+        ],
+        "dependsOn": [
+          "build:bin-mode"
+        ]
+      }
+    }
   },
   "scripts": {
-    "build": "rimraf dist && tsc -p tsconfig.json && oclif manifest && chmod +x bin/run.js",
+    "build": "tsc -p tsconfig.json",
     "dev": "bun run bin/dev.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --project habitat-harness",
-    "clean": "rimraf dist oclif.manifest.json"
+    "clean": "rimraf dist oclif.manifest.json",
+    "clean:dist": "rimraf dist oclif.manifest.json",
+    "build:tsc": "tsc -p tsconfig.json",
+    "build:manifest": "oclif manifest",
+    "build:bin-mode": "chmod +x bin/run.js"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -41,8 +83,8 @@
   },
   "dependencies": {
     "@nx/devkit": "22.7.5",
-    "@oclif/core": "^4.8.0",
-    "@oclif/plugin-help": "^6.2.37"
+    "@oclif/core": "^4.11.4",
+    "@oclif/plugin-help": "^6.2.50"
   },
   "oclif": {
     "bin": "habitat",

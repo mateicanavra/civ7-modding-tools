@@ -15,23 +15,28 @@ taxonomy has current proof.
 
 ## Current Evidence Captured
 
-- Worktree clean on `codex/habitat-dra-takeover-frame`.
+- Historical design evidence was captured on
+  `codex/habitat-dra-takeover-frame`.
+- Current packet realignment follows the Nx workflow settlement on
+  `agent-F-habitat-nx-worktree-state`.
 - `bun run openspec -- list` shows `habitat-boundary-tags` complete and this
   repair row still unopened before this packet.
 - Package manifest audit found 22 workspace projects with expected `kind:*`
   tags.
-- `bun run nx show project @internal/habitat-harness --json` reports
+- `nx show project @internal/habitat-harness --json` reports
   `kind:tooling`.
-- `bun run nx show project mod-civ7-intelligence-bridge --json` reports
+- `nx show project mod-civ7-intelligence-bridge --json` reports
   `kind:mod` and `kind:control`.
-- `bun run nx graph --file /tmp/habitat-boundary-graph.json` produced a graph
+- `nx graph --file /tmp/habitat-boundary-graph.json` produced a graph
   with 44 workspace dependency edges.
-- `bun run nx run @internal/habitat-harness:boundaries --skipNxCache` exits 0.
-- One fresh default
-  `bun run nx run-many -t boundaries --all --skipNxCache` ran the target
-  successfully but exited 1 with an Nx SQLite foreign-key transaction failure.
-- `NX_DAEMON=false bun run nx run-many -t boundaries --all --skipNxCache`
-  exits 0.
+- Historical `nx run @internal/habitat-harness:boundaries --skipNxCache`
+  exited 0.
+- One historical
+  `nx run-many -t boundaries --all --skipNxCache` ran the target successfully
+  but exited 1 with an Nx SQLite foreign-key transaction failure.
+- Historical `NX_DAEMON=false nx run-many -t boundaries --all --skipNxCache`
+  exited 0. This is diagnostic context only after the Nx workflow settlement;
+  it is not an accepted steady-state proof policy.
 - `bun run habitat:check -- --json --rule nx-boundaries` exits 0 and reports
   `nx-boundaries` locked pass plus `baseline-integrity` in `rules[]`.
 - Created-and-reverted probe
@@ -62,8 +67,8 @@ passes. The remaining risk is proof drift:
 
 1. `CLAIM-H3-TAXONOMY` has not been promoted from unknown to a reviewed
    evidence state.
-2. Historical records can overclaim command paths that now show daemon/cache
-   sensitivity.
+2. Historical records can overclaim command paths that now show normal
+   aggregate command sensitivity.
 3. Dual-tag semantics are load-bearing and must stay as an executable probe.
 4. Downstream classify and Grit packets depend on taxonomy proof but do not own
    taxonomy repair.
@@ -74,16 +79,20 @@ passes. The remaining risk is proof drift:
 - Implementation must prove current state through resolved Nx graph and command
   behavior.
 - Whole-command exit status is part of proof.
+- Forward proof uses normal Nx defaults. If the normal aggregate command fails,
+  implementation must diagnose or assign the root-cause repair rather than
+  accepting daemon/cache/link/socket overrides.
 - A dedicated verifier script is allowed only if it preserves owner boundaries
   and produces deterministic proof.
 - Effect is relevant only if Habitat command orchestration around Nx becomes a
-  typed command/provenance/daemon-error problem. It does not own taxonomy
+  typed command/provenance/error-boundary problem. It does not own taxonomy
   semantics.
 
 ## Uncertainties
 
-- Whether the daemon SQLite transaction failure is transient local state,
-  pinned Nx behavior, or a command configuration issue.
+- Whether the historical SQLite transaction failure still reproduces under the
+  current normal Nx workflow, and if so whether it is local state, pinned Nx
+  behavior, or command configuration.
 - Whether a structured taxonomy verifier is worth adding now or whether exact
   proof commands and probe tests are sufficient for implementation.
 - Whether any downstream records outside the known H3/H8/Grit packets cite H3

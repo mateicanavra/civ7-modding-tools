@@ -1,11 +1,11 @@
-import { DISCOVERY_CATALOG } from "../../packages/civ7-adapter/src/manual-catalogs/discoveries.ts";
+import { DISCOVERY_CATALOG } from "@civ7/adapter/manual-catalogs/discoveries";
 import {
   CIV7_BROWSER_TABLES_V0,
   getNaturalWonderFootprintOffsets,
   hasUnsupportedNaturalWonderPolicyTags,
   NATURAL_WONDER_CATALOG,
   resolveNaturalWonderPlacementDirection,
-} from "../../packages/civ7-map-policy/src/index.ts";
+} from "@civ7/map-policy";
 
 const featureTable = CIV7_BROWSER_TABLES_V0.featureTypes;
 const featurePolicies = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<

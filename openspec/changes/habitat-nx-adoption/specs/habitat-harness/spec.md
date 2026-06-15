@@ -1,5 +1,14 @@
 ## ADDED Requirements
 
+### Supersession Note
+
+This spec delta records the original H1 adoption contract. Current command
+guidance is supplied by `habitat-nx-worktree-state-contract`: root workflows use
+root Bun scripts that call Nx targets, ad hoc Nx commands use `nx <args>`, root
+`verify` is an Nx target aggregate, and root `lint` includes Habitat checks.
+Scenarios below that name `bunx nx` are historical H1 evidence, not current
+guidance for future packets.
+
 ### Requirement: Nx Owns The Repository Graph
 
 The repository SHALL use Nx as the single task orchestrator and project-graph

@@ -33,7 +33,7 @@ The takeover frame requires generated structure to be supported and truthful:
 - `tools/habitat-harness/README.md` presents the pattern generator as the path
   for new Grit-backed rules without stating the metadata gate this packet
   introduces.
-- `bun run nx g @internal/habitat-harness:pattern grit-dra-metadata-probe --dry-run`
+- `nx g @internal/habitat-harness:pattern grit-dra-metadata-probe --dry-run`
   reports a planned Grit check pattern creation, baseline creation, and
   `rules.json` update from only the sparse generator invocation. Nx dry-run
   prevented writes.

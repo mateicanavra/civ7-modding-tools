@@ -5,7 +5,19 @@
   "nx": {
     "tags": [
       "kind:sdk"
-    ]
+    ],
+    "targets": {
+      "publish:npm": {
+        "dependsOn": [
+          "build",
+          "lint",
+          "test",
+          "check"
+        ],
+        "cache": false,
+        "outputs": []
+      }
+    }
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -33,7 +45,8 @@
     "lint": "biome check .",
     "check": "tsc -p tsconfig.json --noEmit",
     "clean": "rimraf dist",
-    "prepublishOnly": "bun run build"
+    "prepublishOnly": "node -e \"\"",
+    "publish:npm": "bun publish --access public"
   },
   "dependencies": {
     "@civ7/adapter": "workspace:*",

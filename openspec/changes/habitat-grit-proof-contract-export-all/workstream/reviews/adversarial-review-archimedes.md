@@ -16,6 +16,6 @@ Status: completed, findings accepted and patched.
 
 - `bun run openspec -- validate habitat-grit-proof-contract-export-all --strict`
 - `bun run openspec:validate`
-- `GRIT_TELEMETRY_DISABLED=true PATH="$PWD/node_modules/.bin:$PATH" grit patterns test --filter contract_export_all --json`
+- `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter contract_export_all --json`
 - `bun run habitat:check -- --json --rule grit-contract-export-all`
 - bounded raw Grit acquisition returned `results: []`

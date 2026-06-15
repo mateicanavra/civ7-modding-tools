@@ -19,8 +19,11 @@ substrate wherever its native capabilities match the failure mode.
 ### Selection
 
 Evaluate whether Habitat's command, check, fix, hook, baseline, Grit, Biome,
-Nx, and proof-record orchestration should remain as manual TypeScript functions
-or move behind an Effect-based execution core.
+Nx-command invocation, and proof-record orchestration should remain as manual
+TypeScript functions or move behind an Effect-based execution core. Nx itself
+remains the graph, target, `dependsOn`, affected-scope, and cache authority;
+Effect may only own typed command execution/provenance around Nx calls when a
+slice proves that is the right substrate.
 
 ### Foreground
 

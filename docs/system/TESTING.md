@@ -29,7 +29,7 @@ bun run test:mapgen
 To run only the mod tests:
 
 ```bash
-bun --cwd mods/mod-swooper-maps test
+nx run mod-swooper-maps:test
 ```
 
 ## Visualizing test runs

@@ -8,8 +8,8 @@ they author. The current H8 surface is useful, but it still overclaims:
 - `classify` reports project-local `check` and `test` targets by static string
   construction.
 - Fresh proof shows `classify packages/civ7-adapter/src/index.ts` reports
-  `bun run nx run @civ7/adapter:test`, while
-  `bun run nx show target @civ7/adapter:test` exits 1 because that target does
+  `nx run @civ7/adapter:test`, while
+  `nx show target @civ7/adapter:test` exits 1 because that target does
   not exist.
 - A local package inventory found four workspace projects without a package
   `test` script: `@civ7/adapter`, `@civ7/types`, `@swooper/mapgen-viz`, and

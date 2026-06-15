@@ -16,7 +16,7 @@ be recorded as separate proof classes.
   safety from that result alone
 
 #### Scenario: Nx grit target passes
-- **WHEN** `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static`
+- **WHEN** `nx run @internal/habitat-harness:grit:check --outputStyle=static`
   exits 0
 - **THEN** Habitat records Nx scheduling proof and separately records whether
   the task used fresh execution or cache

@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   buildBlockedFinalSurfaceParityOutput,
   extractExactAuthorshipProof,
-} from "./verify-final-surface-parity";
+} from "../../scripts/live/verify-final-surface-parity";
 
 describe("final-surface parity verifier output", () => {
   test("preserves upstream exact-authorship unresolved links in blocked output", () => {

@@ -60,25 +60,25 @@
   - `git status --short --branch` -> clean on `agent-F-habitat-generators-migrations` at open.
   - `git log -1 --oneline` -> `9c20ffd99 feat(habitat): add git hook enforcement path`.
   - `gt log short --stack` -> H8 inserted above H7 and below `agent-F-habitat-effect-core`.
-  - `bun run nx g @internal/habitat-harness:project h8-probe-foundation --kind=foundation`
+  - `nx g @internal/habitat-harness:project h8-probe-foundation --kind=foundation`
     -> generated `packages/h8-probe-foundation`.
-  - `bun run nx g @internal/habitat-harness:project h8-probe-plugin --kind=plugin`
+  - `nx g @internal/habitat-harness:project h8-probe-plugin --kind=plugin`
     -> generated `packages/plugins/plugin-h8-probe-plugin`.
-  - `bun run nx g @internal/habitat-harness:project h8-probe-app --kind=app`
+  - `nx g @internal/habitat-harness:project h8-probe-app --kind=app`
     -> generated `apps/h8-probe-app` with unscoped app project name
     `h8-probe-app`.
-  - `bun run nx run-many -t build,check,test
+  - `nx run-many -t build,check,test
     --projects=@civ7/h8-probe-foundation,@civ7/plugin-h8-probe-plugin,h8-probe-app
     --skip-nx-cache --outputStyle=static` -> pass cold; all three generated
     projects built, typechecked, and ran Bun test stubs.
-  - `bun run nx g @internal/habitat-harness:project h8-probe-mod
+  - `nx g @internal/habitat-harness:project h8-probe-mod
     --kind=mod --dry-run` -> refused with rationale: only uniform
     plugin/foundation/app kinds are supported; mod/engine/control/adapter/sdk/tooling
     are domain-owned shapes.
-  - `bun run nx g @internal/habitat-harness:pattern grit-h8-probe ...` ->
+  - `nx g @internal/habitat-harness:pattern grit-h8-probe ...` ->
     generated `.grit/patterns/habitat/checks/h8_probe.md`, empty baseline,
     and rule-pack entry.
-  - `GRIT_TELEMETRY_DISABLED=true ./node_modules/.bin/grit patterns test
+  - `GRIT_TELEMETRY_DISABLED=true grit patterns test
     --filter=h8_probe --verbose` -> pass, 1 pattern / 2 samples.
   - Rule-pack registration probe via Node JSON read -> `grit-h8-probe`
     present with `ownerTool: grit-check`, `gritPattern: h8_probe`, owner
@@ -88,22 +88,22 @@
   - `bun run habitat:check` with probes present -> pass, 43 rules, 0 failing,
     1 advisory doc-ambiguity finding.
   - Temporary migration run file with package `./tools/habitat-harness` +
-    `bun run nx migrate --run-migrations=migrations.h8-probe.json
+    `nx migrate --run-migrations=migrations.h8-probe.json
     --skip-install` -> pass; no-op migration made no changes. Probe file
     removed.
   - `bun run habitat classify packages/civ7-adapter/src/index.ts` -> project
     `@civ7/adapter`, tag `kind:adapter`, `adapter-boundary` in scope, required
-    targets include `bun run nx run @civ7/adapter:check`.
+    targets include `nx run @civ7/adapter:check`.
   - `bun run habitat classify
     mods/mod-swooper-maps/src/recipes/standard/recipe.ts` -> project
     `mod-swooper-maps`, tag `kind:mod`, recipe-surface rules in scope,
-    required targets include `bun run nx run mod-swooper-maps:check`.
+    required targets include `nx run mod-swooper-maps:check`.
   - `bun run habitat classify packages/config/src/index.ts` -> project
     `@civ7/config`, tag `kind:foundation`, internal harness rules in scope,
-    required targets include `bun run nx run @civ7/config:check`.
+    required targets include `nx run @civ7/config:check`.
   - `bun run habitat classify apps/mapgen-studio/src/main.tsx` -> project
     `mapgen-studio`, tag `kind:app`, `grit-studio-recipe-artifacts` in scope,
-    required targets include `bun run nx run mapgen-studio:check`.
+    required targets include `nx run mapgen-studio:check`.
   - `bun run --cwd tools/habitat-harness check` -> pass.
   - `bun run --cwd tools/habitat-harness test` -> pass, 3 files / 14 tests.
   - `bun run openspec -- validate habitat-generators-migrations --strict` ->

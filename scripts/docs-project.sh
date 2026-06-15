@@ -38,4 +38,4 @@ with open('_sidebar.md', 'w') as f:
 print('Done')
 "
 
-echo "Starting docsify server..."
+echo "Sidebar generated."

@@ -19,8 +19,7 @@ export const generatedZones: GeneratedZone[] = [
     id: "swooper-map-generated",
     kind: "prefix",
     path: "mods/mod-swooper-maps/src/maps/generated/",
-    remediation:
-      "Run `bun run --cwd mods/mod-swooper-maps gen:maps` and commit the generated output.",
+    remediation: "Run `nx run mod-swooper-maps:gen:maps` and commit the generated output.",
   },
   {
     id: "civ7-types-generated",
@@ -33,7 +32,7 @@ export const generatedZones: GeneratedZone[] = [
     id: "civ7-map-policy-tables",
     kind: "exact",
     path: "packages/civ7-map-policy/src/civ7-tables.gen.ts",
-    remediation: "Run `bun run civ7-map-policy:gen-tables` and commit the generated table.",
+    remediation: "Run `nx run @civ7/map-policy:verify -- --write` and commit the generated table.",
   },
 ];
 

@@ -179,13 +179,12 @@ function runPrePush(options: HookOptions): SpawnResult {
       "--head",
       "HEAD",
       "--outputStyle=static",
-      "--excludeTaskDependencies",
     ],
     { cwd: repoRoot }
   );
   return {
     exitCode: result.exitCode,
-    stdout: `habitat hook pre-push: nx affected base=${base}\n${result.stdout}`,
+    stdout: `habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`,
     stderr: result.stderr,
   };
 }

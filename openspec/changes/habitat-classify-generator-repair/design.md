@@ -90,11 +90,11 @@ Fresh command evidence:
 
 ```text
 bun run habitat classify packages/civ7-adapter/src/index.ts
-bun run nx show project @civ7/adapter --json
-bun run nx show target @civ7/adapter:test
-bun run nx show projects --with-target test --json
-bun run nx g @internal/habitat-harness:project unsupported-mod-probe --kind=mod --dry-run
-bun run nx g @internal/habitat-harness:project misplaced-probe --kind=app --directory=packages/misplaced-app-probe --dry-run
+nx show project @civ7/adapter --json
+nx show target @civ7/adapter:test
+nx show projects --with-target test --json
+nx g @internal/habitat-harness:project unsupported-mod-probe --kind=mod --dry-run
+nx g @internal/habitat-harness:project misplaced-probe --kind=app --directory=packages/misplaced-app-probe --dry-run
 ```
 
 The first command reports both `@civ7/adapter:check` and

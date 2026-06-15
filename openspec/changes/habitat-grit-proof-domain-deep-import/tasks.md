@@ -34,7 +34,7 @@
 ## 3. Native Fixture Proof
 
 - [ ] 3.1 Run
-  `GRIT_TELEMETRY_DISABLED=true PATH="$PWD/node_modules/.bin:$PATH" grit patterns test --filter domain_deep_import --json`.
+  `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter domain_deep_import --json`.
 - [ ] 3.2 Add positive fixtures for named imports, `ops-by-id`, `rules`,
   `strategies`, recipe paths, map paths, `export { ... } from`, and
   `export * from`.

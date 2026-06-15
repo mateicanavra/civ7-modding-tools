@@ -19,7 +19,8 @@
   "scripts": {
     "build": "tsup",
     "check": "tsc --noEmit",
-    "test": "bun test"
+    "test": "bun test",
+    "verify": "bun ./scripts/verify.ts"
   },
   "dependencies": {},
   "devDependencies": {

@@ -44,8 +44,8 @@ truthful project-plane guidance before they classify, generate, or author.
   - dual-tag semantics are proven for `mod-civ7-intelligence-bridge`;
   - false-negative probes fail for at least foundation-to-adapter and
     dual-tag-control-to-sdk edges;
-  - command proof distinguishes direct target success, run-many success, Nx
-    daemon/no-daemon behavior, Habitat `nx-boundaries`, and `habitat verify`.
+  - command proof distinguishes focused target success, normal Nx aggregate
+    success, Habitat `nx-boundaries`, and direct Habitat diagnostic proof.
 - Require repair of stale H3 records where they overclaim green state, branch
   state, test posture, command proof, or closure semantics beyond current
   evidence.
@@ -77,8 +77,29 @@ truthful project-plane guidance before they classify, generate, or author.
 - Current Stage 0 row `CLAIM-H3-TAXONOMY`.
 - Official Nx docs for project tags and module-boundary enforcement.
 - Current resolved Nx graph output, not only package manifest inspection.
-- Existing command-surface repair packet before root/dev/prod Habitat command
-  proof can close.
+- Existing command-surface repair packet before any direct Habitat CLI proof
+  can close.
+
+## Nx Workflow Settlement Update
+
+This packet was opened while the recovery train was still separating Nx daemon,
+cache, command-resolution, and worktree behavior. The current repo contract is
+now narrower and stronger:
+
+- normal Nx defaults are the proof surface;
+- repo scripts use the repo-local pinned `nx` binary through normal package
+  script PATH resolution;
+- daemon disabling, cache disabling, symlink repair, socket overrides, and
+  routine `nx reset` are not accepted proof policy;
+- `bun run lint` reaches the Nx graph and currently fails on locked
+  Habitat/Grit rule debt, not on Nx invocation or dependency resolution;
+- root `verify` is an Nx `verify` target aggregate, not a root
+  `habitat:verify` alias.
+
+Older boundary-taxonomy evidence that compares daemon and no-daemon paths is
+historical diagnostic context only. Implementation must either prove the normal
+Nx aggregate path green or record an exact root-cause repair/escalation. It
+must not select `NX_DAEMON=false` or cache disabling as the steady-state answer.
 
 ## Enables Parallel Work
 
@@ -150,21 +171,21 @@ Agents get a trustworthy project-plane contract:
 - `bun run openspec -- validate habitat-boundary-taxonomy-tightening --strict`
 - `bun run openspec:validate`
 - package-manifest tag audit against `taxonomy.md`
-- resolved Nx tag audit from `bun run nx show projects --json` and
-  `bun run nx show project <project> --json`
-- resolved graph edge audit from `bun run nx graph --file <path>`
+- resolved Nx tag audit from `nx show projects --json` and
+  `nx show project <project> --json`
+- resolved graph edge audit from `nx graph --file <path>`
 - boundary config parity audit against `taxonomy.md`
 - false-negative violation probes:
   - foundation source importing `@civ7/adapter`;
   - `mod-civ7-intelligence-bridge` importing `@mateicanavra/civ7-sdk`
-- `bun run nx run @internal/habitat-harness:boundaries --skipNxCache`
-- `NX_DAEMON=false bun run nx run-many -t boundaries --all --skipNxCache`
-- default daemon `bun run nx run-many -t boundaries --all --skipNxCache`
-  either exits 0 or is recorded with a repaired/accepted command policy
+- `nx run @internal/habitat-harness:boundaries`
+- `nx run-many -t boundaries --all`
+  either exits 0 or is recorded with a root-cause repair/escalation plan
 - `bun run habitat:check -- --json --rule nx-boundaries` with parsed assertion
   that the `nx-boundaries` rule entry is present, locked, passing, and
   diagnostics-empty
-- `bun run habitat:verify` after command-surface repair is consumed
+- optional direct `bun run habitat verify` proof after command-surface repair
+  is consumed
 - stale-record scan and patch for H3/taxonomy claims
 - full-depth-language guardrail scan over this packet
 - `git diff --check`

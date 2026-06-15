@@ -124,7 +124,7 @@
 - [ ] 9.7 explicit Grit baseline behavior proof suite
 - [ ] 9.8 old-mechanism parity probes:
   `wrapped-script`, `wrapped-eslint`, and `wrapped-test`
-- [ ] 9.9 `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static`
+- [ ] 9.9 `nx run @internal/habitat-harness:grit:check --outputStyle=static`
 - [ ] 9.10 `bun run habitat:fix -- --dry-run`
 - [ ] 9.11 controlled apply proof for `deep_import_to_public_surface`
 - [ ] 9.12 selected typecheck/test gates for the applied-diff surface

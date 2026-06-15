@@ -47,7 +47,7 @@ command-trust design checkpoint:
 | `bun tools/habitat-harness/bin/dev.ts check --tool wrapped-script --json` | 4 pass | current wrapper state | no per-rule parity mapping |
 | `bun tools/habitat-harness/bin/dev.ts check --tool wrapped-test --json` | 7 pass | current wrapper state | no retirement proof |
 | `bun tools/habitat-harness/bin/dev.ts check --tool wrapped-eslint --json` | 1 pass | current wrapper state | no deleted-rule parity proof |
-| `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static` | green, served from Nx cache | Nx scheduling/target path | no fresh Grit scan unless cache policy is recorded |
+| `nx run @internal/habitat-harness:grit:check --outputStyle=static` | green, served from Nx cache | Nx scheduling/target path | no fresh Grit scan unless cache policy is recorded |
 | `find tools/habitat-harness/baselines` | only `adapter-boundary.json` exists | baseline corpus proof | H5 "empty baseline" claims are not explicit files |
 
 System dynamic: the previous H5/H6 closure loop converted green samples,

@@ -17,7 +17,7 @@ host adapter boundary and SHALL NOT require oclif command execution.
   platform filesystem for tree-owned files
 
 #### Scenario: Supported project kinds generate clean structure
-- **WHEN** `bun run nx g @internal/habitat-harness:project <name>
+- **WHEN** `nx g @internal/habitat-harness:project <name>
   --kind=<foundation|plugin|app>` runs
 - **THEN** the generated project carries the correct default package name and
   root for its kind: `packages/<name>` for foundation,
@@ -56,7 +56,7 @@ locked baseline creation, and Habitat rule-pack registration as one Nx
 generator operation.
 
 #### Scenario: New Grit-backed rule scaffold is atomic
-- **WHEN** `bun run nx g @internal/habitat-harness:pattern <rule-id>` runs
+- **WHEN** `nx g @internal/habitat-harness:pattern <rule-id>` runs
 - **THEN** Habitat writes `.grit/patterns/habitat/checks/<pattern>.md`
 - **AND** writes `tools/habitat-harness/baselines/<rule-id>.json` as an empty
   locked baseline
@@ -104,7 +104,7 @@ resolution.
 
 #### Scenario: Local migration run file executes
 - **WHEN** a harness migration is proved locally
-- **THEN** the proof runs `bun run nx migrate --run-migrations=<run-file>.json
+- **THEN** the proof runs `nx migrate --run-migrations=<run-file>.json
   --skip-install`
 - **AND** the run file uses package `./tools/habitat-harness`
 - **AND** migration behavior is recorded without changing generator or command

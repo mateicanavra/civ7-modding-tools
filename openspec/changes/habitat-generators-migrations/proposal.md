@@ -30,10 +30,10 @@ procedure wiring (AGENTS.md routing) that makes classify-first the default.
   the `--expand-baseline` gate from H2).
 - Harness migrations wiring: migrations ship in the plugin's
   `migrations.json`; because `@internal/habitat-harness` is unpublished,
-  `bun run nx migrate @internal/habitat-harness` (npm-registry version
+  `nx migrate @internal/habitat-harness` (npm-registry version
   resolution) does not apply — migrations are executed via a hand-authored
   migration run file whose `package` field points at
-  `./tools/habitat-harness`, then `bun run nx migrate
+  `./tools/habitat-harness`, then `nx migrate
   --run-migrations=<run-file>.json --skip-install`; versioned migration stubs
   so future harness convention changes propagate.
 - `habitat classify <path-or-diff>` completes: maps any path/diff to project,
@@ -88,13 +88,13 @@ impossible for supported kinds.
 
 - `bun run openspec -- validate habitat-generators-migrations --strict`
 - Probe: generate one project per supported kind in a scratch branch →
-  `bun run habitat:check` and `bun run nx run-many -t build,check,test` green on
+  `bun run habitat:check` and `nx run-many -t build,check,test` green on
   generated output → probes removed.
 - Probe: pattern generator output passes the fixture runner and registers in
   the rule pack.
 - The no-op baseline migration executes successfully via a hand-authored
   migration run file using package `./tools/habitat-harness` +
-  `bun run nx migrate --run-migrations=<run-file>.json --skip-install` (no
+  `nx migrate --run-migrations=<run-file>.json --skip-install` (no
   registry resolution; the package is unpublished).
 - `habitat classify` spot-check matrix — four probe paths with expected
   outputs (per `docs/projects/habitat-harness/taxonomy.md`), each naming the

@@ -16,11 +16,13 @@ structural verification path and exact labels for anything outside it.
 ## Current Evidence Captured
 
 - Worktree clean on `codex/habitat-dra-takeover-frame`.
-- Root `check` routes to `bun run habitat:verify`.
-- CI `architecture-strict-core` runs `bun run habitat:verify` and uploads
-  Habitat JSON diagnostics; the main `ci` job separately runs build, Biome,
-  lint, and test commands.
-- Root `lint` routes to `bun run habitat:check`.
+- Root `check` routes to `nx run-many --targets=build,check,lint,test,verify`.
+- Root `verify` routes to `nx run-many --targets=verify`, selecting
+  package-owned verifier targets.
+- Root `lint` routes to `nx run-many --targets=lint,habitat:check`, so it is
+  the current graph-owned project-lint plus Habitat structural-check lane.
+- CI main job runs `bun run ci`; `architecture-strict-core` runs the strict-core
+  diagnostic alias and uploads Habitat JSON diagnostics.
 - Root `lint:mapgen-docs` runs direct Python and exits 0 with 3 warnings.
 - Habitat `mapgen-docs` wrapper exits 0 with no diagnostics.
 - Root `lint:domain-refactor-guardrails:strict-core` runs direct shell and
@@ -40,9 +42,11 @@ structural verification path and exact labels for anything outside it.
   `baseline-integrity`.
 - `check --tool wrapped-eslint --json` exits 0 with only
   `baseline-integrity`.
-- `habitat verify` exits 0 in the current local state after Habitat check and
-  Nx affected build/check/test/boundaries/biome:ci/grit:check/generated:check
-  for 22 projects plus one dependency task; one task read from cache.
+- `bun run verify` passes in the current local state through package-owned Nx
+  `verify` targets.
+- `bun run lint` currently fails because locked Habitat/Grit rules report
+  findings through `habitat:check`; this is structural debt surfacing through
+  the graph, not an Nx/dependency/Biome failure.
 - `bun run resources:status` remains clean after the verify run.
 - Current `Verify` prints rendered Habitat check output plus raw Nx output and
   exits with Nx's result; it does not emit a structured verify-proof artifact.
@@ -78,10 +82,12 @@ sharper proof:
 1. A stale owner tool can still green-pass with only `baseline-integrity`.
 2. Direct wrapper output can differ from Habitat diagnostics.
 3. Some direct legacy aliases remain and need command-surface labels.
-4. CI has multiple proof classes; only the `architecture-strict-core` Habitat
-   verify step is the current CI structural gate.
-5. `habitat verify` is broad and green now, but closure needs a structured
-   proof artifact, not a terminal summary.
+4. CI has multiple proof classes; the main `CI graph` step is the current root
+   aggregate, root `lint` is the Habitat structural-check lane, and
+   `architecture-strict-core` is stricter diagnostic evidence.
+5. `bun run verify` is package-owned graph proof; direct `bun run habitat
+   verify` proof is a separate CLI diagnostic/proof surface and must be cited
+   only when actually run.
 6. H6 phase records remain historical until current proof patches them.
 7. Effect can remove repeated manual orchestration error classes, but only when
    adopted with runtime-edge discipline, typed failures, command provenance,
@@ -96,7 +102,9 @@ sharper proof:
 - Wrapped-test rows need direct-vs-Habitat parity just like wrapped scripts,
   including skip/warning/debt output handling.
 - Empty selector truth must be consumed from command repair before H6 closure.
-- `habitat verify` proof needs a structured `VerifyProof` artifact contract.
+- Direct `habitat verify` proof needs a structured `VerifyProof` artifact
+  contract if a packet cites that CLI surface. Root `verify` proof needs
+  package-owned target evidence.
 - CI proof records need step classification so direct build/Biome/lint/test
   signals are not conflated with Habitat structural proof.
 - Effect must be reconsidered for any slice that changes command orchestration,

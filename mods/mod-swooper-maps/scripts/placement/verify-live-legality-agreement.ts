@@ -35,23 +35,23 @@
  * game is restarting. `--help` exits before any socket work.
  *
  * Usage:
- *   bun scripts/placement/verify-live-legality-agreement.ts [--host h] [--port p] \
+ *   nx run mod-swooper-maps:verify -- --mode placement-live-legality-agreement [--host h] [--port p] \
  *     [--sample-size 400] [--timeout-ms 45000] [--output out.json]
  */
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
+  type Civ7CommandResult,
+  type Civ7DirectControlOptions,
+  executeCiv7TunerCommand,
+} from "@civ7/direct-control";
+import {
   buildResourceLegalityMask,
   type OfficialResourceType,
   type ResourceLegalitySurface,
   resolveResourceRuntimeIds,
-} from "../../mods/mod-swooper-maps/src/domain/resources/index.js";
-import {
-  type Civ7CommandResult,
-  type Civ7DirectControlOptions,
-  executeCiv7TunerCommand,
-} from "../../packages/civ7-direct-control/src/index.ts";
+} from "../../src/domain/resources/index.js";
 
 const AGREEMENT_GATE_THRESHOLD = 0.95;
 const DEFAULT_SAMPLE_SIZE = 400;
@@ -69,7 +69,7 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  bun scripts/placement/verify-live-legality-agreement.ts [options]
+  nx run mod-swooper-maps:verify -- --mode placement-live-legality-agreement [options]
 
 Measures mock-vs-live ResourceBuilder.canHaveResource agreement over a
 deterministic stratified plot sample (Milestone A3 / E4.4) and counts

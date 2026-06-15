@@ -468,7 +468,7 @@
       "forbids": "staged hand-edits to generated Civ7 map-policy tables",
       "why": "Map-policy tables must be regenerated from official resources.",
       "detect": ["habitat", "check", "--staged", "--tool", "file-layer"],
-      "remediate": "bun run civ7-map-policy:gen-tables",
+      "remediate": "nx run @civ7/map-policy:verify -- --write",
       "message": "Generated Civ7 map-policy tables are protected from hand edit.",
       "exceptionPath": "none",
       "generatedZone": "civ7-map-policy-tables"
@@ -564,7 +564,7 @@
         "test",
         "mods/mod-swooper-maps/test/build/map-bundle-runtime-imports.test.ts"
       ],
-      "remediate": "bun run nx run mod-swooper-maps:build",
+      "remediate": "nx run mod-swooper-maps:build",
       "message": "Rebuild mod-swooper-maps; if it persists, the bundling config regressed.",
       "exceptionPath": "none"
     },

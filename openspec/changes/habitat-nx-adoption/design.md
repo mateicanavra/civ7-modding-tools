@@ -1,5 +1,15 @@
 # Design — Nx Adoption (Turbo Retirement)
 
+## Current Guidance Supersession
+
+This design describes the original H1 migration from Turbo to Nx. Current repo
+guidance is controlled by
+`openspec/changes/habitat-nx-worktree-state-contract/`: use root
+`bun run <script>` entrypoints for normal workflows, direct `nx <args>` for ad
+hoc Nx, package-owned `verify` targets for focused verifiers, and no
+package-manager/link/cache/socket/daemon workaround. `bunx nx` below is
+historical migration proof language, not the current command contract.
+
 ## Conversion map (turbo.json → nx.json)
 
 Current `turbo.json` tasks and their Nx equivalents:

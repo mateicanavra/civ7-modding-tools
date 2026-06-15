@@ -3,19 +3,19 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
+  CIV7_BROWSER_TABLES_V0,
+  NO_RIVER_TYPE,
+  RIVER_TYPE_MINOR,
+  RIVER_TYPE_NAVIGABLE,
+} from "@civ7/map-policy";
+import {
   type Civ7CommandResult,
   type Civ7DirectControlOptions,
   type Civ7FullMapGridResult,
   type Civ7RuntimeProbe,
   executeCiv7TunerCommand,
   getCiv7FullMapGrid,
-} from "../../packages/civ7-direct-control/src/index.ts";
-import {
-  CIV7_BROWSER_TABLES_V0,
-  NO_RIVER_TYPE,
-  RIVER_TYPE_MINOR,
-  RIVER_TYPE_NAVIGABLE,
-} from "../../packages/civ7-map-policy/src/index.ts";
+} from "../src/index.js";
 
 type Args = Readonly<{
   host?: string;
@@ -71,9 +71,9 @@ type RiverWriterMutationResult = Readonly<{
 }>;
 
 const usage = `Usage:
-  bun scripts/civ7-direct-control/probe-river-writer.ts
-  bun scripts/civ7-direct-control/probe-river-writer.ts --read-full-grid
-  bun scripts/civ7-direct-control/probe-river-writer.ts --confirm-disposable-session --read-full-grid
+  bun packages/civ7-direct-control/scripts/probe-river-writer.ts
+  bun packages/civ7-direct-control/scripts/probe-river-writer.ts --read-full-grid
+  bun packages/civ7-direct-control/scripts/probe-river-writer.ts --confirm-disposable-session --read-full-grid
 
 Options:
   --host <host>                    Civ7 tuner host

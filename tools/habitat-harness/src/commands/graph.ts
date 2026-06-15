@@ -4,7 +4,8 @@ import { runGraph } from "../lib/command-engine.js";
 
 export default class Graph extends HabitatCommand {
   static override summary = "Emit the current Nx project graph";
-  static override description = "Runs nx graph and prints the machine-readable graph JSON.";
+  static override description =
+    "Runs the repo Nx graph command and prints the machine-readable graph JSON.";
   static override examples = ["<%= config.bin %> <%= command.id %> --json"];
 
   static override flags = {

@@ -33,8 +33,8 @@ describe("Habitat classify", () => {
     expect(result.project).toBe(project);
     expect(result.tags).toContain(tag);
     expect(result.rulesInScope).toContain(rule);
-    expect(result.requiredTargets).toContain(`bun run nx run ${project}:check`);
-    expect(result.requiredTargets).toContain("bun run habitat:check");
+    expect(result.requiredTargets).toContain(`nx run ${project}:check`);
+    expect(result.requiredTargets).toContain("bun run lint");
   });
 
   test("classifies literal diffs by changed path", () => {

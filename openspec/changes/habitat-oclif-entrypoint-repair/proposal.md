@@ -162,7 +162,7 @@ orientation and verification primitive:
 - `bun tools/habitat-harness/bin/dev.ts --help`
 - `bun tools/habitat-harness/bin/dev.ts check --help`
 - `bun tools/habitat-harness/bin/dev.ts definitely-not-a-command`
-- `bun run nx run @internal/habitat-harness:build`
+- `nx run @internal/habitat-harness:build`
 - `bun tools/habitat-harness/bin/run.js --help`
 - `bun tools/habitat-harness/bin/run.js check --help`
 - `bun tools/habitat-harness/bin/run.js definitely-not-a-command`

@@ -173,7 +173,7 @@ repair lands:
 - baseline behavior proof for explicit or missing Grit baselines
 - old-mechanism parity probes for wrapped-script, wrapped-eslint, and
   wrapped-test surfaces that H5/H6 used as parity evidence
-- `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static`
+- `nx run @internal/habitat-harness:grit:check --outputStyle=static`
 - `bun run habitat:fix -- --dry-run`
 - controlled apply proof for `deep_import_to_public_surface`
 - typecheck/test gates selected by the applied-diff surface

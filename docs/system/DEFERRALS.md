@@ -103,7 +103,7 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 ## DEF-011: Official resources submodule refresh (D4)
 
 **Deferred:** 2026-06-10
-**Trigger:** Access to a machine with the Civ7 game install (`bun run refresh:data`); rerun `bun run civ7-map-policy:gen-tables` + `verify:civ7-map-policy-tables` and re-prove byte-stability/diffs immediately after.
+**Trigger:** Access to a machine with the Civ7 game install (`bun run refresh:data`); rerun `nx run @civ7/map-policy:verify -- --write` and `nx run @civ7/map-policy:verify`, then re-prove byte-stability/diffs immediately after.
 **Context:** The `.civ7/outputs/resources` snapshot dates to 2026-01-24; all S2 policy tables ground against it and say so in their generated headers. Refresh requires the game install, which the workstream environment lacks. Owner: placement-realignment (refactor-plan D4, user dependency).
 **Scope:** Refresh submodule; regenerate tables; disposition any new/changed rows (the generator fails loudly on new DLC resource types); rerun placement gates.
 **Impact:** Policy data may lag official patches; any balance changes since 2026-01-24 are invisible to planning.

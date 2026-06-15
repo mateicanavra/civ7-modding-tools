@@ -30,7 +30,7 @@
 ## 3. Native Fixture And Parser-Edge Proof
 
 - [ ] 3.1 Run
-  `GRIT_TELEMETRY_DISABLED=true PATH="$PWD/node_modules/.bin:$PATH" grit patterns test --filter recipe_domain_surface --json`.
+  `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter recipe_domain_surface --json`.
 - [ ] 3.2 Add or record proof for positive default import, named import,
   namespace import, type import, side-effect import, named re-export, type
   re-export, and star re-export fixtures.

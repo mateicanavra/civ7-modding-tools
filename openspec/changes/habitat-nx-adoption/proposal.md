@@ -12,6 +12,23 @@ converts tasks to `targetDefaults`) and officially supports Bun workspaces
 with Nx running on Node via `bunx nx`. Verified 2026-06-12; sources in
 FRAME.md §4.
 
+## Supersession Note
+
+This H1 packet records the original Turbo-to-Nx adoption work and should remain
+as historical migration evidence. The current command contract is superseded by
+`openspec/changes/habitat-nx-worktree-state-contract/`:
+
+- root scripts call `nx ...` directly through normal Bun package scripts;
+- ad hoc and Habitat-spawned Nx commands use `nx <args>` with the repo-local
+  `devDependencies.nx` version selected by Nx's standard global-to-local
+  handoff;
+- root `verify` is an Nx `verify` target aggregate, not a `habitat:verify`
+  alias;
+- `bun run lint` includes Habitat checks through
+  `nx run-many --targets=lint,habitat:check`;
+- `bunx nx` examples below describe the original adoption proof, not current
+  guidance for new work.
+
 ## Target Authority Refs
 
 - `docs/projects/habitat-harness/FRAME.md` (hard core #2, #5; decisions D1)

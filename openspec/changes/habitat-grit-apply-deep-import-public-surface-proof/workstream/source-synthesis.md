@@ -78,7 +78,7 @@ that selection.
 | Evidence id | Source | Result | Implication |
 | --- | --- | --- | --- |
 | DIPS-E1 | local pattern file | one native rewrite sample exists | fixture proof exists, but only one class |
-| DIPS-E2 | `PATH="$PWD/node_modules/.bin:$PATH" command -v grit` | local Grit binary resolves under `node_modules/.bin` | direct shell proof must include local PATH |
+| DIPS-E2 | `command -v grit` | repo-local `grit` command resolves through the normal tool PATH | direct shell proof uses the normal tool PATH |
 | DIPS-E3 | `grit patterns test --filter deep_import_to_public_surface --json` | exits 0 and reports success | native fixture proof passes |
 | DIPS-E4 | `rg "@mapgen/domain/.../ops/..."` over recipe/map roots | no output, exit 1 | live tree has no obvious current candidates |
 | DIPS-E5 | direct `grit apply ... --dry-run --output compact` | processed 234 files and found 0 matches | direct dry-run hygiene proof only |

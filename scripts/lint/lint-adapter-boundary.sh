@@ -34,6 +34,7 @@ ALLOWLIST=(
   "packages/civ7-map-policy/src/resource-constants.ts"
   "packages/civ7-map-policy/src/river-constants.ts"
   "packages/civ7-map-policy/src/river-type-metadata.source.ts"
+  "packages/civ7-map-policy/scripts/verify.ts"
   "packages/civ7-map-policy/test/map-policy.test.ts"
 )
 

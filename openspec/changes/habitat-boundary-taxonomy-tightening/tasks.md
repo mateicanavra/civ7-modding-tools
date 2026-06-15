@@ -18,15 +18,15 @@
 - [x] 2.3 Capture current resolved Nx tags for `@internal/habitat-harness` and
   `mod-civ7-intelligence-bridge`.
 - [x] 2.4 Capture current resolved Nx graph edge count and proof command.
-- [x] 2.5 Capture current direct boundary target, run-many daemon, run-many
-  no-daemon, Habitat `nx-boundaries`, and dual-tag probe evidence.
+- [x] 2.5 Capture current direct boundary target, normal run-many, historical
+  no-daemon diagnostic, Habitat `nx-boundaries`, and dual-tag probe evidence.
 - [x] 2.6 Refresh current pinned Nx version and official command support before
   implementation selects exact proof commands.
 
 ## 3. Taxonomy Corpus And Config Proof
 
 - [ ] 3.1 Build a current project inventory from workspace manifests,
-  taxonomy rows, and `bun run nx show projects --json`.
+  taxonomy rows, and `nx show projects --json`.
 - [ ] 3.2 Prove every project has the expected `kind:*` tag set in package
   manifests and resolved Nx project metadata.
 - [ ] 3.3 Prove `eslint.boundaries.config.mjs` depConstraints match
@@ -52,12 +52,13 @@
 ## 5. Command Reliability
 
 - [ ] 5.1 Run direct boundary target proof and record whole-command exit status.
-- [ ] 5.2 Run daemon-enabled run-many boundary proof and record whole-command
+- [ ] 5.2 Run normal run-many boundary proof and record whole-command
   exit status.
-- [ ] 5.3 Run `NX_DAEMON=false` run-many boundary proof and record
-  whole-command exit status.
-- [ ] 5.4 Decide accepted command policy for boundary proof when daemon/no-daemon
-  behavior differs.
+- [ ] 5.3 If normal run-many fails, diagnose the root cause and record the
+  owner repair; do not adopt daemon/cache/socket/link overrides as proof
+  policy.
+- [ ] 5.4 Decide accepted command policy for boundary proof when focused target
+  and normal aggregate behavior differ.
 - [ ] 5.5 Patch target metadata, command wiring, or docs if the accepted proof
   command differs from historical H3 records.
 - [ ] 5.6 Record Habitat `nx-boundaries` JSON proof and assert the selected
@@ -103,7 +104,7 @@
 - [ ] 8.7 Boundary config parity audit
 - [ ] 8.8 Dual-tag and false-negative probes
 - [ ] 8.9 Direct target boundary proof
-- [ ] 8.10 Run-many daemon/no-daemon boundary proof
+- [ ] 8.10 Normal run-many boundary proof
 - [ ] 8.11 Habitat `nx-boundaries` JSON proof with selected-rule assertion
 - [ ] 8.12 `habitat verify` proof after command-surface dependency is consumed
 - [ ] 8.13 Stale-record scan and patches

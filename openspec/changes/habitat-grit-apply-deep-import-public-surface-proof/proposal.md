@@ -158,7 +158,7 @@ sample passes, but it is not yet safe-transform product evidence.
 
 - `bun run openspec -- validate habitat-grit-apply-deep-import-public-surface-proof --strict`
 - local Grit binary resolution proof
-- `GRIT_TELEMETRY_DISABLED=true PATH="$PWD/node_modules/.bin:$PATH" grit patterns test --filter deep_import_to_public_surface --json`
+- `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter deep_import_to_public_surface --json`
 - direct live match inventory over `mods/*/src/{recipes,maps}`
 - `bun run habitat:fix -- --dry-run`
 - injected dry-run no-write proof through the Habitat fix path

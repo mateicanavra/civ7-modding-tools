@@ -4,7 +4,29 @@
   "nx": {
     "tags": [
       "kind:mod"
-    ]
+    ],
+    "targets": {
+      "deploy": {
+        "dependsOn": [
+          "build",
+          {
+            "projects": [
+              "@mateicanavra/civ7-cli"
+            ],
+            "target": "build"
+          }
+        ],
+        "cache": false
+      },
+      "build:deploy": {
+        "command": "node -e \"\"",
+        "cache": false,
+        "outputs": [],
+        "dependsOn": [
+          "deploy"
+        ]
+      }
+    }
   },
   "version": "1.0.0",
   "description": "This mod adds the Dacia civilization to Civilization VII, including Decebalus as a leader, along with unique abilities, units, and buildings.",
@@ -15,7 +37,7 @@
     "docs": "docsify serve docs",
     "lint": "biome check .",
     "check": "tsc -p tsconfig.json --noEmit",
-    "build:deploy": "bun run build && bun run deploy"
+    "build:deploy": "node -e \"\""
   },
   "repository": {
     "type": "git",

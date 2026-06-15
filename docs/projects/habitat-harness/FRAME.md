@@ -201,6 +201,33 @@ Gotchas captured for implementation:
 - Residual (minor, verified at slice H1): whether the converter handles every
   field of our specific turbo.json — H1's first task is the init + diff.
 
+### Nx final settlement — CURRENT CONTRACT (2026-06-14)
+
+H1's official migration path completed and the later
+`habitat-nx-worktree-state-contract` pass settled the current repo contract:
+
+- Nx is the only active repository task graph and orchestrator. Turbo has no
+  active package dependency, root config, cache, CI, or root-script role.
+- Root workflows are thin `bun run <script>` entrypoints into Nx targets:
+  `build`, `check`, `lint`, `test`, `verify`, and `ci` all enter the Nx DAG.
+- Package-owned proofs live in package targets. Root verifier sprawl does not
+  come back; focused proof uses package `verify` modes or explicit Nx targets.
+- Root package scripts and Habitat-spawned graph commands invoke `nx ...`
+  through the standard Nx global-to-local handoff to the repo-local
+  `devDependencies.nx` version.
+- No normal workflow sets custom Nx socket/cache/workspace-data overrides,
+  disables the daemon globally, repairs package-manager link state, runs
+  direct distribution binaries, or resets the Nx cache as a routine step.
+- The yargs/string-width install failure was resolved through normal dependency
+  hygiene: Nx remains a root dev dependency, `string-width@4.2.3` anchors the
+  yargs 17 CJS path, and modern ESM consumers keep scoped `string-width@7`
+  copies.
+- Current local proof after the settlement: `bun run build` and
+  `bun run verify` pass. `bun run lint` intentionally runs
+  `nx run-many --targets=lint,habitat:check` and currently fails on existing
+  locked Habitat/Grit rule violations, not on Biome, Nx invocation, or package
+  dependency resolution.
+
 ## 5. Spec draft disposition
 
 Input: `habitat-harness-spec-draft-input.md` (local baseline copy derived from
@@ -259,9 +286,16 @@ and agent operating procedure. We **amend**:
 
 ## 8. Workstream status
 
-- **Branch:** `agent-F-habitat-harness-workstream` (worktree, off `main`, Graphite-tracked)
-- **Phase:** preparation complete, execution not started
-- **Current gate:** systematic-workstream gates 1–7 complete (frame, repo
-  state, diagnosis, corpus, grouping, expectations, architecture translation);
-  gate 8 (slices) recorded in the OpenSpec train; gates 9–12 begin with
-  execution.
+- **Original H1-H8 train:** historical implementation evidence, not current
+  closure authority by itself. The recovery frame and claim ledgers decide
+  which claims remain true after fresh proof.
+- **Current branch:** `agent-F-habitat-nx-worktree-state`.
+- **Current phase:** final packet realignment after Nx workflow normalization.
+- **Settled tooling baseline:** Nx is fully adopted, Turbo is retired from
+  active workflow, root scripts are Nx DAG entrypoints, package-specific
+  verifiers live with their owning package, and normal worktree setup uses
+  `bun install` plus the standard repo-local Nx CLI path.
+- **Open product work:** command-surface truth, baseline contract repair,
+  Grit proof/backfill, classify/generator repair, hook hardening, and per-rule
+  locked-violation remediation remain active recovery workstreams until their
+  current proof packets close.

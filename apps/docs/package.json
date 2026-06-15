@@ -8,30 +8,50 @@
     "targets": {
       "dev": {
         "dependsOn": [
-          "^build"
+          "^build",
+          "sync"
         ],
         "cache": false,
         "continuous": true
+      },
+      "validate": {
+        "command": "node -e \"\"",
+        "cache": false,
+        "outputs": [],
+        "dependsOn": [
+          "validate:docs",
+          "check:links"
+        ]
+      },
+      "build": {
+        "command": "node -e \"\"",
+        "cache": false,
+        "outputs": [],
+        "dependsOn": [
+          "sync",
+          "validate"
+        ]
       }
     }
   },
   "scripts": {
-    "dev": "bun run scripts/sync-resources.ts && bun run scripts/dev-staged.ts",
+    "dev": "bun run scripts/dev-staged.ts",
     "start": "mint dev -p 6660 --no-open",
     "normalize": "bun run scripts/update-code-blocks.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "check:ts": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --config ../../vitest.config.ts --project docs",
     "check:links": "bun run scripts/broken-links-pages-only.ts",
-    "validate": "bun run scripts/validate-docs.ts && bun run scripts/broken-links-pages-only.ts",
+    "validate": "node -e \"\"",
     "fix:duplicate-h1": "bun run scripts/remove-duplicate-h1.ts",
     "fix:title-prefixes": "bun run scripts/remove-title-prefixes.ts",
     "fix:mdx-links": "bun run scripts/fix-mdx-links.ts",
     "sync": "bun run scripts/sync-resources.ts",
-    "build": "bun run sync && bun run validate"
+    "build": "node -e \"\"",
+    "validate:docs": "bun run scripts/validate-docs.ts"
   },
   "devDependencies": {
-    "mintlify": "^4.2.303"
+    "mintlify": "^4.2.616"
   },
   "dependencies": {
     "@civ7/config": "workspace:*",

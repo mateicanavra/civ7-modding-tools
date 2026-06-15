@@ -3,10 +3,13 @@
 **Change:** `habitat-enforcement-surface-cleanup`
 **Source:** `.github/workflows/ci.yml`
 
-CI contains more than one proof class. The `architecture-strict-core` job is
-the current Habitat structural gate. The main `ci` job still runs direct build,
-Biome, lint, and test commands; those may be valid gates, but they are not all
-Habitat structural proof.
+CI contains more than one proof class. After
+`habitat-nx-worktree-state-contract`, the main `ci` job runs one root Nx
+aggregate through `bun run ci`. Root `lint` inside that aggregate is the
+graph-owned Habitat structural check lane because it runs
+`nx run-many --targets=lint,habitat:check`. The `architecture-strict-core` job
+is a stricter diagnostic lane plus Habitat JSON artifact capture; it is not the
+root `verify` path.
 
 ## Current CI Steps
 
@@ -18,21 +21,21 @@ Habitat structural proof.
 | `ci` | Setup Bun | `oven-sh/setup-bun@v2` | setup | Bun version selected. | No structural proof. |
 | `ci` | Cache Nx | `actions/cache@v4` | cache infrastructure | Nx cache may be restored. | Cache hit is not proof that Habitat selected real rules. |
 | `ci` | Install dependencies | `bun install --frozen-lockfile` | dependency integrity gate | Lockfile install succeeds. | No Habitat structural rule proof. |
-| `ci` | Build | `bun run build` | build proof | Workspace build succeeds. | Not proof of Habitat rule selection. |
-| `ci` | Biome hygiene | `bun run biome:ci` | direct Biome hygiene gate | Biome read-only CI check succeeds. | Not a Habitat structural gate unless routed through Habitat/Nx target proof. |
-| `ci` | Lint | `bun run lint` | Habitat alias today | Root lint invokes `bun run habitat:check`. | Does not by itself prove `habitat verify` or Nx affected targets. |
-| `ci` | Test | `bun run test:ci` | test proof | Workspace CI tests succeed. | Not a Habitat structural gate unless tests are wrapped and classified. |
+| `ci` | CI graph | `bun run ci` | root Nx aggregate | Runs root `check`, which schedules build/check/lint/test/verify targets through Nx. | Aggregate green must be decomposed by target class; it is not Habitat-only proof. |
 | `architecture-strict-core` | Checkout/setup/cache/install | same setup steps | setup/cache | Environment prepared. | No structural proof by itself. |
-| `architecture-strict-core` | Habitat verify | `bun run habitat:verify` | canonical Habitat structural gate | Current CI structural verification path. | Needs `VerifyProof` artifact to classify selectors, targets, cache, and post-state. |
-| `architecture-strict-core` | Habitat JSON diagnostics | `bun run habitat:check -- --json --output habitat-diagnostics.json` | diagnostic artifact | Publishes Habitat check diagnostics even after failure. | Does not prove Nx affected targets or outer verify exit. |
+| `architecture-strict-core` | Architecture strict-core graph | `bun run ci:architecture-strict-core` | direct strict diagnostic | Runs the strict-core domain-refactor guardrail profile through its explicit root diagnostic alias. | Not the normal green structural gate; current red output remains diagnostic/backlog evidence. |
+| `architecture-strict-core` | Habitat JSON diagnostics | `bun run habitat check --json --output habitat-diagnostics.json` | diagnostic artifact | Publishes Habitat check diagnostics even after failure. | Does not prove root `verify`, full `check`, or strict-core success. |
 | `architecture-strict-core` | Upload habitat diagnostics | `actions/upload-artifact@v4` | artifact transport | Makes diagnostics downloadable. | Artifact upload is not rule execution. |
 
 ## Implementation Consequences
 
-- Future records must say "CI Habitat structural verification" when referring
-  to the `architecture-strict-core` Habitat job, not all CI green signals.
-- Main `ci` build, Biome, lint, and test steps remain separate proof classes.
-- `bun run lint` in CI is a Habitat check alias today; it is not a verify alias.
-- The diagnostics artifact records Habitat check output, not full verify proof.
+- Future records must say whether they cite the main `CI graph` aggregate, the
+  root `lint` Habitat-check lane inside it, the package-owned `verify` target
+  aggregate, the strict-core diagnostic job, or the Habitat diagnostics
+  artifact.
+- `bun run lint` in CI is not a direct Habitat CLI alias; it is an Nx
+  `lint,habitat:check` aggregate.
+- The diagnostics artifact records Habitat check output, not full root
+  `check` or `verify` proof.
 - Full CI closure requires workflow inspection plus either CI run evidence or a
   recorded reason that local proof is the current boundary.

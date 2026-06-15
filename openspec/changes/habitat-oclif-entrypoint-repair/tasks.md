@@ -66,7 +66,7 @@
 - [ ] 5.6 `bun tools/habitat-harness/bin/dev.ts check --help`
 - [ ] 5.7 `bun run habitat -- definitely-not-a-command`
 - [ ] 5.8 `bun tools/habitat-harness/bin/dev.ts definitely-not-a-command`
-- [ ] 5.9 `bun run nx run @internal/habitat-harness:build`
+- [ ] 5.9 `nx run @internal/habitat-harness:build`
 - [ ] 5.10 `bun tools/habitat-harness/bin/run.js --help`
 - [ ] 5.11 `bun tools/habitat-harness/bin/run.js check --help`
 - [ ] 5.12 `bun tools/habitat-harness/bin/run.js definitely-not-a-command`

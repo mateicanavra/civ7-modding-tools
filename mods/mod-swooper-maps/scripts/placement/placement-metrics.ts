@@ -7,7 +7,7 @@
  * metrics (E2.9). REPORTS only; never gates.
  *
  * Usage:
- *   bun scripts/placement/placement-metrics.ts [--seed 1337] [--seeds 5] \
+ *   nx run mod-swooper-maps:verify -- --mode placement-metrics [--seed 1337] [--seeds 5] \
  *     [--size standard|tiny|small|large|huge|WxH] [--players N] \
  *     [--studio-mapinfo] [--json out.json]
  *
@@ -29,13 +29,13 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import {
   aggregatePlacementMetrics,
   type PlacementMetricsRun,
   runPlacementMetrics,
-} from "../../mods/mod-swooper-maps/src/dev/diagnostics/placement-metrics.js";
-import { parseArgs } from "../../mods/mod-swooper-maps/src/dev/diagnostics/shared.js";
-import { getCiv7StandardMapSizePreset } from "../../packages/civ7-adapter/src/map-metadata.ts";
+} from "../../src/dev/diagnostics/placement-metrics.js";
+import { parseArgs } from "../../src/dev/diagnostics/shared.js";
 
 function parseIntFlag(value: string | true | undefined, fallback: number): number {
   if (typeof value !== "string") return fallback;

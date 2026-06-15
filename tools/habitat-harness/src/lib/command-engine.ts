@@ -206,7 +206,9 @@ export function runGraph(options: { json?: boolean } = {}): SpawnResult {
   const dir = mkdtempSync(path.join(tmpdir(), "habitat-graph-"));
   const graphPath = path.join(dir, "graph.json");
   try {
-    const graphResult = run(["nx", "graph", "--file", graphPath], { cwd: repoRoot });
+    const graphResult = run(["nx", "graph", "--file", graphPath], {
+      cwd: repoRoot,
+    });
     if (graphResult.exitCode !== 0) return graphResult;
     const graph = JSON.parse(readFileSync(graphPath, "utf8"));
     return {
@@ -276,21 +278,11 @@ export function classifyPath(target: string): Classification {
 }
 
 function projectTargets(projectName: string): string[] {
-  return [
-    `bun run nx run ${projectName}:check`,
-    `bun run nx run ${projectName}:test`,
-    ...workspaceTargets(),
-  ];
+  return [`nx run ${projectName}:check`, `nx run ${projectName}:test`, ...workspaceTargets()];
 }
 
 function workspaceTargets(): string[] {
-  return [
-    "bun run nx run @internal/habitat-harness:boundaries",
-    "bun run nx run-many -t biome:ci --projects=@internal/habitat-harness",
-    "bun run nx run @internal/habitat-harness:grit:check",
-    "bun run nx run @internal/habitat-harness:generated:check",
-    "bun run habitat:check",
-  ];
+  return ["bun run lint"];
 }
 
 function diffText(target: string): string | undefined {

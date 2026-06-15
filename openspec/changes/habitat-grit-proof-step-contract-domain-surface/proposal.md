@@ -218,7 +218,7 @@ predicate expansion, neighboring proof ids, or downstream blocked records.
 ## Verification Gates
 
 - `bun run openspec -- validate habitat-grit-proof-step-contract-domain-surface --strict`
-- `GRIT_TELEMETRY_DISABLED=true PATH="$PWD/node_modules/.bin:$PATH" grit patterns test --filter step_contract_domain_surface --json`
+- `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter step_contract_domain_surface --json`
 - `bun run habitat:check -- --json --rule grit-step-contract-domain-surface`
 - exact Habitat wrapper scan-root inventory
 - bounded direct raw Grit check over the recipe root
