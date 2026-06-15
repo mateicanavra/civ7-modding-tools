@@ -10,11 +10,12 @@
   `agent-HR-habitat-repair-chain` over `main`
 - Started: 2026-06-14
 - Status: selector/current-tree wrapper, native-sample, explicit baseline, and
-  supervisor-accepted injected-probe safety/cache repair slices recorded;
-  old-mechanism parity has a partial Nx dependency-freshness repair and remains
-  open on stale `wrapped-eslint` identity plus generated map-bundle freshness;
-  injected row proof, apply, broader downstream realignment, and closure remain
-  open
+  supervisor-accepted injected-probe safety/cache repair slices recorded; Nx
+  `grit:check` target scheduling is repaired for current-tree wrapper
+  projection; old-mechanism parity has a partial Nx dependency-freshness repair
+  and remains open on stale `wrapped-eslint` identity plus generated map-bundle
+  freshness; injected row proof, apply, broader downstream realignment, and
+  closure remain open
 
 ## Objective
 
@@ -315,15 +316,18 @@ implementation tasks 4, 6, or adapter tests begin.
   until the generated map-bundle output owner path is repaired or formally
   re-scoped.
 - Current Nx Grit target state:
-  `nx run @internal/habitat-harness:grit:check --outputStyle=static` is
-  current-red and task 9.9 remains open. The same direct Habitat Grit wrapper
-  command (`bun tools/habitat-harness/bin/dev.ts check --tool grit-check`, and
-  the JSON/root-script wrapper) passes in this worktree, but the Nx target
-  launch path projects every selected Grit row as fail-closed
-  `GritMalformedJson` infrastructure diagnostics because the adapter sees
-  wrapper text around exact Grit JSON. A draft resolver experiment that routed
-  `grit` through `bun x --no-install` did not repair the target and was
-  discarded before this record layer.
+  `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static`
+  is current-green for task 9.9 after the machine-output environment repair.
+  The accepted failed probe at `d98e77fbc` remains historical evidence:
+  inherited Nx task env set `FORCE_COLOR=true`, while this local environment has
+  `NO_COLOR=1`; the pinned Grit CLI emitted a Node warning before JSON, and the
+  Habitat parser correctly rejected that as wrapper text. The repair adds a
+  shared Grit machine-output env (`CLICOLOR=0`, `FORCE_COLOR=0`, `NO_COLOR=1`)
+  to Grit check and apply process requests. The repo-local Nx target and direct
+  wrapper comparison now pass with CheckReport schemaVersion 1, 22 Grit rows
+  plus `baseline-integrity`, all `pass`. This is Nx-scheduled current-tree
+  wrapper proof only, not raw direct Grit acquisition, injected proof, apply
+  proof, generated-output freshness, parity closure, or product proof.
 
 ## Verification
 
@@ -336,7 +340,16 @@ implementation tasks 4, 6, or adapter tests begin.
   - raw `grit --json check` probe over declared roots, interrupted
   - `bun run habitat:fix -- --dry-run`
   - wrapped-script/wrapped-test/wrapped-eslint JSON probes
-  - `nx run @internal/habitat-harness:grit:check --outputStyle=static`
+  - `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static
+    --skipNxCache -- --json` repo-local reproduction of the historical failed
+    diagnostic at `07e721e69`
+  - `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static
+    --skipNxCache`
+  - `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static
+    --skipNxCache -- --json`
+  - `FORCE_COLOR=true bun tools/habitat-harness/bin/dev.ts check --tool
+    grit-check --json`
+  - `bun tools/habitat-harness/bin/dev.ts check --tool grit-check --json`
   - `find tools/habitat-harness/baselines -maxdepth 1 -type f`
   - `bun run openspec -- validate habitat-grit-proof-repair --strict`
   - full-depth-language guardrail scan over Habitat initiative docs
@@ -437,8 +450,9 @@ implementation tasks 4, 6, or adapter tests begin.
       only intentional implementation/packet edits; `git ls-files --deleted |
       wc -l` showed `0`.
   - Nx Grit target failed probe:
-    - `nx run @internal/habitat-harness:grit:check --outputStyle=static` exited
-      1 on `07e721e69`; artifact
+    - Historical blocker: `bun run nx run
+      @internal/habitat-harness:grit:check --outputStyle=static` exited 1 on
+      `07e721e69`; artifact
       `/tmp/habitat-grit-nx-target-07e721e69.stdout`,
       `sha256=e0446d84121ee2f63ccc6e921b35837ee279a1517ac7145d4aa9c7d4859abf78`;
       stderr `sha256=91251068e168b9e362b8e49e9becf10b061d7902594806fb64555e689011a928`.
@@ -461,18 +475,56 @@ implementation tasks 4, 6, or adapter tests begin.
       direct Habitat wrapper current-tree proof, and it does not prove raw
       direct Grit acquisition, injected row proof, apply safety, or product
       behavior. It blocks only task 9.9 and any Nx-scheduled Grit target claim.
+  - Nx Grit target repair proof:
+    - Root-cause diagnostic: `FORCE_COLOR=true bun
+      tools/habitat-harness/bin/dev.ts check --tool grit-check --json` reproduced
+      the all-row `GritMalformedJson` failure before repair. After the
+      machine-output env repair, the same command exited 0 with CheckReport
+      schemaVersion 1, `ok:true`, 23 reports, zero failures, and no
+      `GritMalformedJson`; artifact
+      `/tmp/habitat-grit-force-color-final-clean.json`,
+      `sha256=a9a86f7bf0a58fc2146ca784579b85877005ec8a69ede1a5e40dfbbedd61d85c`.
+    - Direct comparison: `bun tools/habitat-harness/bin/dev.ts check --tool
+      grit-check --json` exited 0 with CheckReport schemaVersion 1, `ok:true`,
+      23 reports, zero failures, and no `GritMalformedJson`; artifact
+      `/tmp/habitat-grit-direct-final-clean.json`,
+      `sha256=b08a6b248bc1e0ce91b57793107aaeb406c3c7c3b6e9209f4aaf1f6c1f2a09ec`.
+    - Repo-local Nx target JSON proof: `bun run nx run
+      @internal/habitat-harness:grit:check --outputStyle=static --skipNxCache
+      -- --json` exited 0 with CheckReport schemaVersion 1, `ok:true`, 23
+      reports, zero failures, and no `GritMalformedJson`; artifact
+      `/tmp/habitat-nx-grit-target-json-final-clean2.stdout`,
+      `sha256=2efa005d9a80ddebbe42da0d54301bdf4403eb5a0f7b380913f580d1fb85908a`.
+      Stderr contained only Nx's flaky-task advisory from an earlier failed
+      diagnostic in this worktree; stderr
+      `sha256=0646316e6542d505f4268504be50aee519c938b10bcce345f822f4321c249629`.
+    - Repo-local Nx target human proof: `bun run nx run
+      @internal/habitat-harness:grit:check --outputStyle=static --skipNxCache`
+      exited 0; human output reports all 22 Grit rows plus
+      `baseline-integrity` passing; artifact
+      `/tmp/habitat-nx-grit-target-human-final-clean.stdout`,
+      `sha256=a48de5e11fa75e9ebf57b0dd1c36e4380caef1971d7300570e191b02a6e6f2a4`.
+    - Focused unit proof: `bun run --cwd tools/habitat-harness test --
+      grit-adapter.test.ts grit-apply.test.ts` passed: 2 files / 33 tests,
+      including Grit check and apply request env assertions for
+      `CLICOLOR=0`, `FORCE_COLOR=0`, and `NO_COLOR=1`.
+    - Non-claim: this closes task 9.9 only. It does not prove raw direct Grit
+      acquisition, injected violations, live baseline writes, apply safety,
+      generated-output freshness, old-mechanism parity closure, or product
+      behavior.
 - Evidence boundary: current implementation slice proves native Grit sample
   success and Habitat wrapper selector/current-tree zero-finding projection
   through CheckReport schemaVersion 1 on the branch that contains the accepted
   command-trust and Effect adapter layers. It also proves explicit empty Grit
   baseline files exist for the 22 current Grit checks, `baseline-integrity`
-  accepts them, and unit shrink-only policy rejects added entries for existing
-  rules. It records the current failed old-mechanism parity state and a partial
-  Nx dependency-freshness repair for wrapped-test. It does not prove raw direct
-  Grit current-tree acquisition, injected violations, live baseline writes,
-  apply safety, semantic target exports, generated-output freshness,
-  parity retirement, broader downstream realignment, or product/runtime Civ7
-  behavior.
+  accepts them, unit shrink-only policy rejects added entries for existing
+  rules, and the repo-local Nx `grit:check` target now preserves exact Grit JSON
+  acquisition under Nx task color env. It records the current failed
+  old-mechanism parity state and a partial Nx dependency-freshness repair for
+  wrapped-test. It does not prove raw direct Grit current-tree acquisition,
+  injected violations, live baseline writes, apply safety, semantic target
+  exports, generated-output freshness, parity retirement, broader downstream
+  realignment, or product/runtime Civ7 behavior.
 
 ## Realignment
 
@@ -498,8 +550,12 @@ implementation tasks 4, 6, or adapter tests begin.
 
 ## Next Action
 
-- After the explicit baseline slice is committed via Graphite, continue with
-  the injected-violation harness using the accepted adapter contract.
+- After the task 9.9 Nx Grit target repair checkpoint is committed and reviewed,
+  continue the next dependency-valid slice. Current open blockers are
+  old-mechanism parity on generated map-bundle freshness, injected row proof,
+  apply semantic proof, broader downstream realignment, and stale-record scans.
+- For injected proof, use the accepted probe path/cache controls and keep raw
+  direct Grit acquisition and row semantic closure separate.
 - For apply proof, consume the isolated transaction-copy diff evidence as
-  command/apply safety proof only; keep target-export and symbol/import
-  semantic proof in this Grit proof packet.
+  command/apply safety proof only; keep target-export and symbol/import semantic
+  proof in this Grit proof packet.

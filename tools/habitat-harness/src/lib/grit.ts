@@ -5,6 +5,7 @@ import { Effect, Layer } from "effect";
 import type { HarnessRule, RuleRunResult } from "../rules/architecture.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { runHabitatEffect } from "./effect-runtime.js";
+import { gritMachineOutputEnv } from "./grit-env.js";
 import { renderGritAdapterFailure } from "./grit-failures.js";
 import { generatedZones } from "./generated-zones.js";
 import {
@@ -207,6 +208,7 @@ export function gritCheckRequest(
     argv: ["--json", "check", "--level", "error", ...scanRoots],
     cwd: repoRoot,
     env: {
+      ...gritMachineOutputEnv,
       GRIT_CACHE_DIR: cacheDir,
       GRIT_TELEMETRY_DISABLED: "true",
     },

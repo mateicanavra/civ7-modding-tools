@@ -13,6 +13,7 @@ import path from "node:path";
 import { Effect, Layer } from "effect";
 import { runHabitatEffect } from "./effect-runtime.js";
 import { type HabitatGitState, readGitState } from "./git-state.js";
+import { gritMachineOutputEnv } from "./grit-env.js";
 import {
   type GritAdapterFailureTag,
   isGritAdapterFailureTag,
@@ -545,6 +546,7 @@ function makeGritApplyRequest(options: {
     ],
     cwd: repoRoot,
     env: {
+      ...gritMachineOutputEnv,
       GRIT_CACHE_DIR: options.cacheDir,
       GRIT_TELEMETRY_DISABLED: "true",
     },

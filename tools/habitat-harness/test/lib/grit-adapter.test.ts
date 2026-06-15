@@ -266,6 +266,11 @@ describe("Grit check adapter parser and projection", () => {
     });
     expect(observedRequest?.cachePolicy?.cacheDir).toBe(`${repoRoot}/.grit/cache`);
     expect(observedRequest?.env?.GRIT_CACHE_DIR).toBe(observedRequest?.cachePolicy?.cacheDir);
+    expect(observedRequest?.env).toMatchObject({
+      CLICOLOR: "0",
+      FORCE_COLOR: "0",
+      NO_COLOR: "1",
+    });
     expect(results.get(rule.id)?.diagnostics[0]?.message).toBe("adapter finding");
   });
 

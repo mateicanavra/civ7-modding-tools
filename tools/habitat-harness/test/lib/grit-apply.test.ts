@@ -57,6 +57,27 @@ describe("Grit apply transaction", () => {
     expect(result.proof.inventory).toEqual([]);
   });
 
+  test("runs Grit apply requests with machine-output color disabled", async () => {
+    let observedRequest: HabitatProcessRequest | undefined;
+    const result = await runGritApplyTransaction({
+      dryRun: true,
+      gitStateReader: () => gitState(""),
+      processLayer: makeFakeHabitatProcessLayer((request) => {
+        observedRequest = request;
+        return makeHabitatCommandResult(request, {
+          stdout: output("Processed 1 files and found 0 matches\n"),
+        });
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    expect(observedRequest?.env).toMatchObject({
+      CLICOLOR: "0",
+      FORCE_COLOR: "0",
+      NO_COLOR: "1",
+    });
+  });
+
   test("fails closed when dry-run output is not structured inventory or zero matches", () => {
     const parsed = parseApplyRewriteInventory(
       makeHabitatCommandResult(applyRequest(), {

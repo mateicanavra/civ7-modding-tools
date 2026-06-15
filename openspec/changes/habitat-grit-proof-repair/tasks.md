@@ -145,14 +145,20 @@
     `mod-swooper-maps:build`, which dirtied generated/tracked outputs; this
     packet records that as a generated-output freshness blocker, not parity
     closure.
-- [ ] 9.9 `nx run @internal/habitat-harness:grit:check --outputStyle=static`
+- [x] 9.9 `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static`
   - 2026-06-15 current probe evidence is recorded as
-    `HGPR-NX-GRIT-TARGET-FAILED-2026-06-15`. The gate remains open: the direct
-    Habitat Grit wrapper path passes, but the Nx `grit:check` target currently
-    fails all selected Grit rows through fail-closed `GritMalformedJson`
-    diagnostics because the target launch path presents wrapper text around the
-    inner Grit JSON. A draft resolver change to route Grit through `bun x
-    --no-install` did not clear this target failure and was not retained.
+    `HGPR-NX-GRIT-TARGET-FAILED-2026-06-15`, and repair proof is recorded as
+    `HGPR-NX-GRIT-TARGET-FIXED-2026-06-15`. The repaired gate proves the
+    repo-local Nx target exits 0 with the 22 Grit rows plus
+    `baseline-integrity` passing. Root cause was inherited Nx presentation env:
+    `FORCE_COLOR=true` combined with the local `NO_COLOR=1` environment made
+    the pinned Grit CLI emit a Node warning before JSON, which Habitat
+    correctly rejected as wrapper text. Grit machine-output requests now
+    explicitly set `CLICOLOR=0`, `FORCE_COLOR=0`, and `NO_COLOR=1` for both
+    check and apply subprocesses. This closes only the Nx-scheduled current-tree
+    wrapper target gate; raw direct Grit acquisition, injected proof, apply
+    proof, generated-output freshness, parity closure, and product proof remain
+    non-claims.
 - [ ] 9.10 `bun run habitat:fix -- --dry-run`
 - [ ] 9.11 controlled apply proof for `deep_import_to_public_surface`
 - [ ] 9.12 selected typecheck/test gates for the applied-diff surface
