@@ -82,18 +82,20 @@ export function projectCurrent(state: RegistryState, observedAt: string): Studio
   const saveDeploy = Object.values(state.saveDeploy)
     .map(projectSaveDeploy)
     .sort(byUpdatedAtDesc);
+  const activeRunInGame = runInGame.find(isRunningOperation) ?? null;
+  const activeSaveDeploy = saveDeploy.find(isRunningOperation) ?? null;
   return {
     ok: true,
     serverInstanceId: state.identity.serverInstanceId,
     serverStartedAt: state.identity.serverStartedAt,
     observedAt,
     runInGame: {
-      active: runInGame.find((operation) => operation.status === "running") ?? null,
-      recent: runInGame,
+      active: activeRunInGame,
+      recent: runInGame.filter(isTerminalOperation),
     },
     saveDeploy: {
-      active: saveDeploy.find((operation) => operation.status === "running") ?? null,
-      recent: saveDeploy,
+      active: activeSaveDeploy,
+      recent: saveDeploy.filter(isTerminalOperation),
     },
   };
 }
@@ -124,6 +126,14 @@ function byUpdatedAtDesc(
   right: { updatedAt: string }
 ): number {
   return Date.parse(right.updatedAt) - Date.parse(left.updatedAt);
+}
+
+function isRunningOperation(operation: { status: string }): boolean {
+  return operation.status === "running";
+}
+
+function isTerminalOperation(operation: { status: string }): boolean {
+  return operation.status !== "running";
 }
 
 function runInGameFailureDetails(

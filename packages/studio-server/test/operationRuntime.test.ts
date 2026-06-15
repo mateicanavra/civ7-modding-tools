@@ -40,6 +40,95 @@ describe("StudioOperationRuntime", () => {
     expect(eventHub.activeSubscriberCount()).toBe(0);
   });
 
+  test("reports active operations only in active and excludes them from recent", async () => {
+    const runBlocker = deferred<void>();
+    const { runtime: runRuntime } = makeRuntime({
+      ports: {
+        deployRunInGame: async () => {
+          await runBlocker.promise;
+          return {};
+        },
+      },
+    });
+    const runService = await runRuntime.runPromise(StudioOperationRuntime);
+    const run = await runRuntime.runPromise(
+      runService.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+    );
+
+    await expect
+      .poll(async () => {
+        const current = await runRuntime.runPromise(runService.operationsCurrent);
+        return current.runInGame.active?.requestId;
+      })
+      .toBe(run.requestId);
+    const runCurrent = await runRuntime.runPromise(runService.operationsCurrent);
+    expect(runCurrent.runInGame.active?.requestId).toBe(run.requestId);
+    expect(runCurrent.runInGame.recent).toEqual([]);
+    runBlocker.resolve();
+
+    const saveBlocker = deferred<void>();
+    const { runtime: saveRuntime } = makeRuntime({
+      ports: {
+        prepareSaveDeployStart: async () => {
+          await saveBlocker.promise;
+          return {};
+        },
+      },
+    });
+    const saveService = await saveRuntime.runPromise(StudioOperationRuntime);
+    const save = await saveRuntime.runPromise(
+      saveService.saveDeployStart({ requestId: "save-active", id: "test-config", envelope: {} })
+    );
+
+    const saveCurrent = await saveRuntime.runPromise(saveService.operationsCurrent);
+    expect(saveCurrent.saveDeploy.active?.requestId).toBe(save.requestId);
+    expect(saveCurrent.saveDeploy.recent).toEqual([]);
+    saveBlocker.resolve();
+  });
+
+  test("retains terminal operations in recent and direct status agrees with current", async () => {
+    const { runtime } = makeRuntime();
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const run = await runtime.runPromise(
+      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+    );
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: run.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("complete");
+    const save = await runtime.runPromise(
+      service.saveDeployStart({ requestId: "save-terminal", id: "test-config", envelope: {} })
+    );
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.saveDeployStatus({ requestId: save.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("complete");
+
+    const current = await runtime.runPromise(service.operationsCurrent);
+    const runStatus = await runtime.runPromise(
+      service.runInGameStatus({ requestId: run.requestId })
+    );
+    const saveStatus = await runtime.runPromise(
+      service.saveDeployStatus({ requestId: save.requestId })
+    );
+
+    expect(current.runInGame.active).toBeNull();
+    expect(current.runInGame.recent).toHaveLength(1);
+    expect(current.runInGame.recent[0]).toEqual(runStatus);
+    expect(current.saveDeploy.active).toBeNull();
+    expect(current.saveDeploy.recent).toHaveLength(1);
+    expect(current.saveDeploy.recent[0]).toEqual(saveStatus);
+  });
+
   test("preserves source snapshot proof in the runtime-owned request projection", async () => {
     const { runtime } = makeRuntime();
     const service = await runtime.runPromise(StudioOperationRuntime);
@@ -696,6 +785,9 @@ describe("StudioOperationRuntime", () => {
       .toBe("complete");
 
     now = new Date("2026-06-10T00:00:00.100Z");
+    const currentAfterExpiry = await runtime.runPromise(service.operationsCurrent);
+    expect(currentAfterExpiry.runInGame.active).toBeNull();
+    expect(currentAfterExpiry.runInGame.recent).toEqual([]);
     await expect(
       expectFailure(runtime, service.runInGameStatus({ requestId: accepted.requestId }))
     ).resolves.toMatchObject({

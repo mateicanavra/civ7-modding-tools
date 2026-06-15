@@ -1,3 +1,6 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import type {
   MapConfigSaveDeployStatus,
   RunInGameOperationStatus,
@@ -16,11 +19,14 @@ import {
   adoptStudioOperationsCurrent,
   applyStudioLiveGameEvent,
   applyStudioOperationEvent,
+  readAndAdoptStudioOperationsCurrent,
 } from "../../src/app/operationAdoption";
 import type { LiveRuntimeStatusState } from "../../src/features/liveRuntime/model";
 
+const repoRoot = fileURLToPath(new URL("../../../..", import.meta.url));
+
 describe("Studio event operation adoption", () => {
-  test("adopts daemon current operations and marks terminal run-in-game toast as handled", () => {
+  test("adopts active daemon current operations without marking terminal toasts", () => {
     const state = adoptionState();
 
     adoptStudioOperationsCurrent(
@@ -29,11 +35,11 @@ describe("Studio event operation adoption", () => {
           active: {
             ok: true,
             requestId: "run-1",
-            phase: "complete",
-            status: "complete",
+            phase: "deploying",
+            status: "running",
             startedAt: "2026-06-13T00:00:00.000Z",
             updatedAt: "2026-06-13T00:00:01.000Z",
-            completedPhases: ["materializing", "complete"],
+            completedPhases: ["materializing"],
           },
           recent: [],
         },
@@ -58,7 +64,34 @@ describe("Studio event operation adoption", () => {
 
     expect(state.runInGame?.requestId).toBe("run-1");
     expect(state.saveDeploy?.requestId).toBe("save-1");
-    expect(state.handledRunInGameToasts).toEqual(["run-1"]);
+    expect(state.handledRunInGameToasts).toEqual([]);
+  });
+
+  test("adopts retained terminal current operations as recent display state", () => {
+    const state = adoptionState();
+
+    adoptStudioOperationsCurrent(
+      currentOperations({
+        runInGame: {
+          active: null,
+          recent: [
+            {
+              ok: true,
+              requestId: "run-terminal",
+              phase: "complete",
+              status: "complete",
+              startedAt: "2026-06-13T00:00:00.000Z",
+              updatedAt: "2026-06-13T00:00:01.000Z",
+              completedPhases: ["materializing", "complete"],
+            },
+          ],
+        },
+      }),
+      state.targets
+    );
+
+    expect(state.runInGame?.requestId).toBe("run-terminal");
+    expect(state.handledRunInGameToasts).toEqual(["run-terminal"]);
   });
 
   test("clears stale displayed operations when daemon current truth is empty", () => {
@@ -86,6 +119,117 @@ describe("Studio event operation adoption", () => {
 
     expect(state.runInGame).toBeNull();
     expect(state.saveDeploy).toBeNull();
+  });
+
+  test("shell boot adoption reads daemon current without status replay", async () => {
+    const state = adoptionState();
+    let currentReads = 0;
+
+    await readAndAdoptStudioOperationsCurrent({
+      readCurrent: async () => {
+        currentReads += 1;
+        return currentOperations({
+          runInGame: {
+            active: {
+              ok: true,
+              requestId: "run-active",
+              phase: "starting-game",
+              status: "running",
+              startedAt: "2026-06-13T00:00:00.000Z",
+              updatedAt: "2026-06-13T00:00:01.000Z",
+              completedPhases: ["materializing"],
+            },
+            recent: [],
+          },
+        });
+      },
+      targets: state.targets,
+      onError: () => {
+        throw new Error("unexpected current read failure");
+      },
+    });
+
+    expect(currentReads).toBe(1);
+    expect(state.runInGame?.requestId).toBe("run-active");
+
+    const adoptionSource = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/app/operationAdoption.ts"),
+      "utf8"
+    );
+    expect(adoptionSource).not.toMatch(
+      /fetchRunInGameStatus|fetchSaveDeployStatus|runInGame\.status|mapConfigs\.status/
+    );
+
+    const shellSource = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/app/StudioShell.tsx"),
+      "utf8"
+    );
+    const bootEffect = sourceBlockAround(shellSource, "void readAndAdoptStudioOperationsCurrent");
+    expect(bootEffect).toContain("orpcClient.studio.operations.current({})");
+    expect(bootEffect).not.toMatch(
+      /fetchRunInGameStatus|fetchSaveDeployStatus|runInGame\.status|mapConfigs\.status/
+    );
+  });
+
+  test("keeps browser operation recovery out of persisted storage", () => {
+    const srcRoot = join(repoRoot, "apps/mapgen-studio/src");
+    const storageOwnerAllowlist = new Set([
+      "apps/mapgen-studio/src/features/studioState/persistence.ts",
+      "apps/mapgen-studio/src/features/presets/storage.ts",
+      "apps/mapgen-studio/src/ui/hooks/useTheme.ts",
+      "apps/mapgen-studio/src/stores/authoringStore.ts",
+    ]);
+    const storageApiPattern =
+      /\b(?:window\.)?(?:localStorage|sessionStorage)\s*\.|\bpersist\s*\(|\bcreateJSONStorage\s*\(/;
+    const operationRecoveryPattern =
+      /runInGameRequestId|saveDeployRequestId|sourceSnapshotStorage|readStoredRunInGameSourceSnapshot|RUN_IN_GAME_LAST|MAP_CONFIG_SAVE_LAST_REQUEST/;
+
+    const offenders = sourceFiles(srcRoot)
+      .map((file) => ({
+        file,
+        relativePath: relative(repoRoot, file),
+        text: readFileSync(file, "utf8"),
+      }))
+      .filter(({ relativePath, text }) => {
+        if (storageOwnerAllowlist.has(relativePath)) return false;
+        return storageApiPattern.test(text) || operationRecoveryPattern.test(text);
+      })
+      .map(({ relativePath }) => relativePath);
+
+    expect(offenders).toEqual([]);
+  });
+
+  test("classifies retained Run in Game snapshot helpers as session-only proof state", () => {
+    const runStore = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/stores/runStore.ts"),
+      "utf8"
+    );
+    const studioShell = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/app/StudioShell.tsx"),
+      "utf8"
+    );
+    const clientState = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/features/runInGame/clientState.ts"),
+      "utf8"
+    );
+
+    expect(runStore).toContain("runInGameSnapshot");
+    expect(runStore).toContain("lastRunInGameSource");
+    expect(runStore).toContain("setRunInGameSnapshot");
+    expect(runStore).toContain("setLastRunInGameSource");
+    expect(runStore).toMatch(/session-only aids/);
+    expect(runStore).not.toMatch(/localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\(/);
+
+    expect(studioShell).toContain("setRunInGameSnapshot(snapshot)");
+    expect(studioShell).toContain("setLastRunInGameSource(sourceSnapshot)");
+    expect(studioShell).toMatch(/session-only UI state/);
+    expect(studioShell).not.toMatch(
+      /runInGameSnapshot[\s\S]{0,240}(?:localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\()|lastRunInGameSource[\s\S]{0,240}(?:localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\()/
+    );
+
+    expect(clientState).toContain("parseRunInGameClientSnapshot");
+    expect(clientState).toContain("parseRunInGameSourceSnapshot");
+    expect(clientState).not.toMatch(/localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\(/);
   });
 
   test("applies pushed Run in Game operation events without pre-handling terminal toasts", () => {
@@ -234,4 +378,22 @@ function currentOperations(overrides?: Partial<StudioOperationsCurrent>): Studio
     },
     ...overrides,
   };
+}
+
+function sourceFiles(root: string): string[] {
+  return readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(root, entry.name);
+    if (entry.isDirectory()) return sourceFiles(path);
+    if (!entry.isFile() || (!path.endsWith(".ts") && !path.endsWith(".tsx"))) return [];
+    return [path];
+  });
+}
+
+function sourceBlockAround(source: string, marker: string): string {
+  const markerIndex = source.indexOf(marker);
+  if (markerIndex < 0) throw new Error(`Missing source marker: ${marker}`);
+  const effectStart = source.lastIndexOf("useEffect(() =>", markerIndex);
+  if (effectStart < 0) throw new Error(`Missing useEffect before marker: ${marker}`);
+  const nextEffect = source.indexOf("useEffect(() =>", markerIndex + marker.length);
+  return source.slice(effectStart, nextEffect < 0 ? undefined : nextEffect);
 }

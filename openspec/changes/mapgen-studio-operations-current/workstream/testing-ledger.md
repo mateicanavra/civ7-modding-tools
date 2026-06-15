@@ -8,7 +8,7 @@ Date: 2026-06-14
 | Runtime service | real D4 `StudioOperationRuntime` with fake retained operations | active, retained terminal, expired-known tombstone, physically pruned or never-known id, daemon-identity mismatch, disposed, and fresh-daemon states project correctly |
 | Router/contract | package handler tests | `studio.operations.current` resolves runtime service and returns TypeBox-valid public DTOs |
 | TTL/status agreement | runtime + status route tests | lifecycle matrix below has exact D3 tag/data/status and current daemon identity |
-| Browser boot adoption | app shell/hook tests | boot reads current once and seeds display from daemon truth without request-id replay |
+| Browser boot adoption | app shell/adoption tests | shell boot adoption reads current and seeds display from daemon truth without request-id replay; D8/D9-owned event-hook hello adoption is classified separately |
 | Recovery bridge deletion | storage tests and negative searches | operation recovery keys/modules have no production read/write path |
 | Protected storage owners | targeted store tests | authoring/view/theme/preset/non-operation UI localStorage behavior remains unchanged |
 | D8/D9 handoff | scan and docs assertion | remaining active status polling is explicitly deletion-targeted and no current polling loop is added |
@@ -66,4 +66,36 @@ Hits are classified as blocker, historical OpenSpec/test evidence, unrelated loc
 - `test/studioState/persistence.test.ts` covers `mapgen-studio.authoring-state.v1`.
 - `test/presets/presetStore.test.ts` covers `mapgen-studio.scratchConfigs`.
 - `git diff --exit-code -- apps/mapgen-studio/src/ui/hooks/useTheme.ts` proves D6 leaves `theme-preference` ownership untouched.
-- Stale run/save operation recovery keys injected into browser storage during boot tests trigger exactly one `studio.operations.current` call and zero status replay calls.
+- Shell boot adoption tests prove `StudioShell.tsx` calls `studio.operations.current({})` through `operationAdoption.ts` without calling status procedures from persisted ids. The existing `useStudioEvents.ts` hello-current read is D8/D9-owned residual behavior, not D6 proof that the entire mounted app performs only one current read.
+
+## Implementation Evidence
+
+Status: implementation evidence committed at current D6 branch tip; live Civ7 Play/SaveDeploy proof is not run or claimed.
+
+Passed locally:
+
+```bash
+bun run --cwd packages/studio-server test -- test/operationRuntime.test.ts test/contractTypeboxSpine.test.ts
+bun run --cwd apps/mapgen-studio test -- test/studioEvents/operationAdoption.test.ts test/runInGame/clientState.test.ts test/studioState/persistence.test.ts test/presets/presetStore.test.ts
+bun run --cwd packages/studio-server check
+bun run --cwd apps/mapgen-studio check
+bun run --cwd packages/studio-server test -- test/operationRuntime.test.ts test/handler.test.ts test/contractTypeboxSpine.test.ts
+bun run --cwd packages/studio-server build
+bun run --cwd apps/mapgen-studio build
+```
+
+Focused scan evidence:
+
+```bash
+rg -n "setRunInGameRequestId|setSaveDeployRequestId|runInGameRequestId|saveDeployRequestId|RUN_IN_GAME_LAST|MAP_CONFIG_SAVE_LAST_REQUEST|sourceSnapshotStorage|readStoredRunInGameSourceSnapshot|localStorage recovery bridge|request-id bridge" apps/mapgen-studio/src packages/studio-server/src -g '*.ts' -g '*.tsx'
+# no production hits
+
+rg -n "localStorage|sessionStorage|persist\\(|createJSONStorage\\(|getItem\\(|setItem\\(" apps/mapgen-studio/src/app apps/mapgen-studio/src/stores apps/mapgen-studio/src/features/runInGame apps/mapgen-studio/src/features/mapConfigSave -g '*.ts' -g '*.tsx'
+# classified hits only: authoring/view protected storage comments or owner code, mapConfigSave/StudioShell comments; no operation recovery storage path
+
+rg -n "runInGameSnapshot|lastRunInGameSource|setRunInGameSnapshot|setLastRunInGameSource|parseRunInGameClientSnapshot|parseRunInGameSourceSnapshot" apps/mapgen-studio/src -g '*.ts' -g '*.tsx'
+# classified hits only: session-only runStore/StudioShell state and pure clientState parse helpers; executable test asserts no storage adapter/read/write path
+
+rg -n "currentOperations\\(|findActive\\(|createRunInGameOperationStore|createMapConfigSaveDeployOperationStore|RunInGameHttpError|StudioEngineError" apps/mapgen-studio/src/server packages/studio-server/src -g '*.ts' -g '*.tsx'
+# no production hits
+```

@@ -36,13 +36,15 @@ Date: 2026-06-14
 
 ## Future Implementation Closure Gates
 
-- [ ] `studio.operations.current` resolves D4 `StudioOperationRuntime.current`.
-- [ ] operation current DTOs are TypeBox-backed and D3/D4-aligned.
-- [ ] fresh daemon empty truth is tested.
-- [ ] active operation and terminal-only recent retained operations are tested.
-- [ ] TTL/status matrix is tested: active, retained terminal, expired-known tombstone, physically pruned or never-known id, and daemon identity mismatch.
-- [ ] browser operation recovery localStorage is deleted.
-- [ ] app boot adoption does not replay request ids.
-- [ ] unrelated localStorage owners remain green: authoring, preset, theme, and non-operation UI state.
-- [ ] remaining active status polling is D8/D9 deletion-targeted.
-- [ ] package/app gates and negative searches are recorded.
+- [x] `studio.operations.current` resolves D4 `StudioOperationRuntime.current`.
+- [x] operation current DTOs are TypeBox-backed and D3/D4-aligned.
+- [x] fresh daemon empty truth is tested.
+- [x] active operation and terminal-only recent retained operations are tested.
+- [x] TTL/status matrix is tested: active, retained terminal, expired-known tombstone, physically pruned or never-known id, and daemon identity mismatch.
+- [x] browser operation recovery localStorage is deleted.
+- [x] shell boot adoption does not replay request ids; D8/D9 event-hook hello adoption remains protected residual behavior.
+- [x] unrelated localStorage owners remain green: authoring, preset, theme, and non-operation UI state.
+- [x] remaining active status polling is D8/D9 deletion-targeted.
+- [x] package/app gates and negative searches are recorded.
+- [x] Graphite implementation commit exists: initial D6 implementation commit `bb16004f5`, amended closure docs into current branch tip.
+- [x] post-commit `git status --short --branch` is clean after the D6 Graphite commit/amend.

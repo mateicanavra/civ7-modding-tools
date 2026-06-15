@@ -19,9 +19,9 @@ Date: 2026-06-14
 | --- | --- | --- |
 | `StudioOperationRuntime.current` | `@civ7/studio-server` Effect service | returns daemon identity, observed timestamp, active operations, retained terminal operations, and TTL-pruned truth |
 | `studio.operations.current` route | package router leaf | resolves runtime service and projects TypeBox DTOs; owns no registry or recovery logic |
-| `apps/mapgen-studio/src/app/operationAdoption.ts` | Studio app adoption helper | one boot read from daemon truth; no request-id replay |
-| `apps/mapgen-studio/src/app/StudioShell.tsx` | Studio app shell | calls adoption once and wires display state |
-| `apps/mapgen-studio/src/app/hooks/useStudioEvents.ts` | D8/D9 event/push owner | protected from D6 edits except explicit deletion-target notes |
+| `apps/mapgen-studio/src/app/operationAdoption.ts` | Studio app adoption helper | shell boot adoption from daemon truth; no request-id replay |
+| `apps/mapgen-studio/src/app/StudioShell.tsx` | Studio app shell | calls boot adoption and wires display state |
+| `apps/mapgen-studio/src/app/hooks/useStudioEvents.ts` | D8/D9 event/push owner | protected from D6 edits except explicit deletion-target notes; hello-current read remains D8/D9-owned residual behavior |
 | status polling | existing app active-operation loop | remains only for active operations until D8/D9 deletion |
 
 ### Browser Recovery Deletion Corpus
@@ -78,7 +78,7 @@ Hits are classified as blocker, historical OpenSpec/test evidence, unrelated loc
 - A fresh daemon reports no operations; browser storage cannot make missing daemon truth uncertain or active.
 - D6 current truth comes from D4 runtime, not app-local engine stores.
 - D6 deletes operation recovery localStorage but leaves unrelated localStorage owners untouched.
-- Active status polling remains only as D8/D9 deletion-targeted behavior; D6 does not add a new current polling loop.
+- Active status polling and event-hook hello adoption remain only as D8/D9 deletion-targeted behavior; D6 does not add a new current polling loop.
 - Snapshot/fingerprint helpers are pure relation/proof helpers only, not recovery storage.
 
 ## Remaining Human Decisions
