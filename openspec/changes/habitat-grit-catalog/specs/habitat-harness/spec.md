@@ -10,13 +10,20 @@ with fixtures and an agent-readable failure message, surfaced through
 #### Scenario: Forbidden source shape introduced
 - **WHEN** a change introduces a non-baselined match of a catalog pattern
   (e.g. a deep `@mapgen/domain/*/ops/*` import)
-- **THEN** `grit:check` fails via the harness with the pattern's message and
-  remediation, derived from grit JSON results (not exit codes)
+- **THEN** `grit:check` runs through `habitat check --tool grit-check`, fails
+  via the harness with the pattern's message and remediation, and derives
+  pass/fail from Grit JSON results rather than raw Grit exit codes
 
 #### Scenario: Pattern without fixtures
 - **WHEN** a pattern lacks fixtures
 - **THEN** it may run only in check mode and cannot be wired into
   `habitat fix`
+
+#### Scenario: Grit report contains findings
+- **WHEN** native `grit check --json --level error` reports one or more
+  findings in `results[]`
+- **THEN** Habitat maps each finding to the matching rule-pack entry, applies
+  the rule baseline, and returns nonzero for any unbaselined enforced finding
 
 ### Requirement: Codemods Are Deterministic Fixture-Gated Remediation
 

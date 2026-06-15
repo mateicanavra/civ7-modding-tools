@@ -1,6 +1,6 @@
 /**
  * Nx inference plugin (createNodesV2): gives the harness project repo-wide
- * `boundaries` and `biome:*` targets, and every project that owns at least one
+ * `boundaries`, `biome:*`, `grit:check`, and `generated:check` targets, and every project that owns at least one
  * habitat rule a `habitat:check` target running only that project's rules.
  *
  * Plain ESM JS on purpose: Nx loads workspace plugins on Node, and a JS file
@@ -30,6 +30,8 @@ export const createNodesV2 = [
     const biomeFormatTargetName = options?.biomeFormatTargetName ?? "biome:format";
     const biomeCheckTargetName = options?.biomeCheckTargetName ?? "biome:check";
     const biomeCiTargetName = options?.biomeCiTargetName ?? "biome:ci";
+    const gritCheckTargetName = options?.gritCheckTargetName ?? "grit:check";
+    const generatedCheckTargetName = options?.generatedCheckTargetName ?? "generated:check";
     const owners = new Set(rulesJson.rules.map((r) => r.ownerProject));
     return configFiles.map((configFile) => {
       const projects = {};
@@ -101,6 +103,46 @@ export const createNodesV2 = [
             "project-plane module boundaries via @nx/enforce-module-boundaries (habitat-boundary-tags/H3)",
         },
       };
+      harnessProject.targets[gritCheckTargetName] = {
+        command: "bun tools/habitat-harness/bin/dev.ts check --tool grit-check",
+        options: { cwd: "{workspaceRoot}" },
+        cache: true,
+        inputs: [
+          "{workspaceRoot}/.grit/grit.yaml",
+          "{workspaceRoot}/.gritignore",
+          "{workspaceRoot}/.gitignore",
+          "{workspaceRoot}/package.json",
+          "{workspaceRoot}/bun.lock",
+          "{workspaceRoot}/.grit/patterns/habitat/**",
+          "{workspaceRoot}/tools/habitat-harness/src/**",
+          "{workspaceRoot}/tools/habitat-harness/baselines/**",
+          "{workspaceRoot}/apps/**",
+          "{workspaceRoot}/packages/**",
+          "{workspaceRoot}/mods/**",
+        ],
+        metadata: {
+          description: "Habitat-owned GritQL source-shape catalog (habitat-grit-catalog/H5)",
+        },
+      };
+      harnessProject.targets[generatedCheckTargetName] = {
+        command: "bun tools/habitat-harness/scripts/verify-generated-zones.mjs",
+        options: { cwd: "{workspaceRoot}" },
+        cache: false,
+        inputs: [
+          "{workspaceRoot}/mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
+          "{workspaceRoot}/mods/mod-swooper-maps/src/maps/configs/**",
+          "{workspaceRoot}/mods/mod-swooper-maps/src/maps/generated/**",
+          "{workspaceRoot}/mods/mod-swooper-maps/mod/config/**",
+          "{workspaceRoot}/mods/mod-swooper-maps/mod/text/**",
+          "{workspaceRoot}/mods/mod-swooper-maps/mod/swooper-maps.modinfo",
+          "{workspaceRoot}/scripts/civ7-map-policy/generate-tables.ts",
+          "{workspaceRoot}/packages/civ7-map-policy/src/civ7-tables.gen.ts",
+          "{workspaceRoot}/.civ7/outputs/resources/**",
+        ],
+        metadata: {
+          description: "Generated-zone regeneration drift gate (habitat-grit-catalog/H5)",
+        },
+      };
       for (const owner of owners) {
         const root = OWNER_ROOTS[owner];
         if (!root) continue;
@@ -115,6 +157,11 @@ export const createNodesV2 = [
           inputs: [
             "{workspaceRoot}/tools/habitat-harness/src/**",
             "{workspaceRoot}/tools/habitat-harness/baselines/**",
+            "{workspaceRoot}/.grit/patterns/habitat/**",
+            "{workspaceRoot}/.grit/grit.yaml",
+            "{workspaceRoot}/.gritignore",
+            "{workspaceRoot}/package.json",
+            "{workspaceRoot}/bun.lock",
             "{workspaceRoot}/scripts/lint/**",
             "{workspaceRoot}/eslint.config.js",
             "{workspaceRoot}/packages/**",

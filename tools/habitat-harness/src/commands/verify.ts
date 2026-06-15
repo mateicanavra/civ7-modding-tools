@@ -10,7 +10,7 @@ import {
 export default class Verify extends HabitatCommand {
   static override summary = "Run Habitat check plus affected verification targets";
   static override description =
-    "Runs Habitat checks first, then Nx affected build/check/test/boundaries/biome:ci for the selected base.";
+    "Runs Habitat checks first, then Nx affected build/check/test/boundaries/biome:ci/grit:check/generated:check for the selected base.";
   static override examples = [
     "<%= config.bin %> <%= command.id %>",
     "<%= config.bin %> <%= command.id %> --base HEAD~1",

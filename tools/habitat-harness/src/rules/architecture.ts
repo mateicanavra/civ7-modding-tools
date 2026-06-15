@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { HabitatDiagnostic } from "../lib/diagnostics.js";
+import { type FileLayerContext, runGeneratedZoneRule } from "../lib/generated-zones.js";
+import { runGritRule } from "../lib/grit.js";
 import { repoRoot } from "../lib/paths.js";
 import { run, type SpawnResult } from "../lib/spawn.js";
 
@@ -24,6 +26,8 @@ export interface HarnessRule {
   remediate: string | null;
   message: string;
   exceptionPath: string;
+  gritPattern?: string;
+  generatedZone?: string;
 }
 
 const rulesJsonPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "rules.json");
@@ -129,7 +133,9 @@ export interface RuleRunResult {
 }
 
 /** Execute a rule's detect command and parse its output into diagnostics. */
-export function executeRule(rule: HarnessRule): RuleRunResult {
+export function executeRule(rule: HarnessRule, context: FileLayerContext = {}): RuleRunResult {
+  if (rule.ownerTool === "grit-check") return runGritRule(rule);
+  if (rule.ownerTool === "file-layer") return runGeneratedZoneRule(rule, context);
   if (rule.detect[0] === "__eslint_multi__") {
     const { diags, exitCode } = runEslintMulti(rule);
     return { exitCode, diagnostics: diags };

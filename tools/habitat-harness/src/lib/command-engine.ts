@@ -13,17 +13,20 @@ import {
 } from "./baseline.js";
 import type { CheckReport, RuleReport } from "./diagnostics.js";
 import { validateCheckReport } from "./diagnostics.js";
+import { runGritApplyPatterns } from "./grit.js";
 import { repoRoot, toRepoRelative } from "./paths.js";
 import { run, type SpawnResult } from "./spawn.js";
 
 export interface RuleSelection {
   owner?: string;
   rule?: string;
+  tool?: string;
 }
 
 export interface CheckOptions extends RuleSelection {
   base?: string;
   commandArgs?: readonly string[];
+  staged?: boolean;
 }
 
 export interface EmitCheckOptions {
@@ -54,6 +57,7 @@ export function selectRules(selection: RuleSelection = {}): HarnessRule[] {
   let selected = rules;
   if (selection.owner) selected = selected.filter((rule) => rule.ownerProject === selection.owner);
   if (selection.rule) selected = selected.filter((rule) => rule.id === selection.rule);
+  if (selection.tool) selected = selected.filter((rule) => rule.ownerTool === selection.tool);
   return selected;
 }
 
@@ -68,7 +72,7 @@ export function createCheckReport(options: CheckOptions = {}): CheckReport {
   for (const rule of selected) {
     const started = Date.now();
     const baseline = loadBaseline(rule.id);
-    const { diagnostics } = executeRule(rule);
+    const { diagnostics } = executeRule(rule, { staged: options.staged });
     applyBaseline(diagnostics, baseline);
     const newViolations = diagnostics.filter(
       (diagnostic) => !diagnostic.baselined && diagnostic.severity === "error"
@@ -158,10 +162,17 @@ export function stringifyCheckReport(report: CheckReport): string {
 }
 
 export function runFix(options: FixOptions = {}): SpawnResult {
+  const grit = runGritApplyPatterns({ dryRun: options.dryRun });
+  if (grit.exitCode !== 0) return grit;
   const argv = options.dryRun
     ? ["bunx", "--bun", "@biomejs/biome", "check", "."]
     : ["bunx", "--bun", "@biomejs/biome", "check", "--write", "."];
-  return run(argv, { cwd: repoRoot });
+  const biome = run(argv, { cwd: repoRoot });
+  return {
+    exitCode: biome.exitCode,
+    stdout: `${grit.stdout}${biome.stdout}`,
+    stderr: `${grit.stderr}${biome.stderr}`,
+  };
 }
 
 export function resolveVerifyBase(base?: string): string {
@@ -170,7 +181,15 @@ export function resolveVerifyBase(base?: string): string {
 
 export function runAffectedVerification(base: string): SpawnResult {
   return run(
-    ["bunx", "nx", "affected", "-t", "build,check,test,boundaries,biome:ci", "--base", base],
+    [
+      "bunx",
+      "nx",
+      "affected",
+      "-t",
+      "build,check,test,boundaries,biome:ci,grit:check,generated:check",
+      "--base",
+      base,
+    ],
     {
       cwd: repoRoot,
     }
@@ -232,6 +251,8 @@ export function classifyPath(target: string): Classification {
       `nx run ${owner.name}:test`,
       "nx run @internal/habitat-harness:boundaries",
       "nx run-many -t biome:ci --projects=@internal/habitat-harness",
+      "nx run @internal/habitat-harness:grit:check",
+      "nx run @internal/habitat-harness:generated:check",
       "habitat check",
     ],
   };

@@ -76,6 +76,9 @@ describe("Habitat oclif commands", () => {
       "doc-ambiguity",
       "--owner",
       "@internal/habitat-harness",
+      "--tool",
+      "grit-check",
+      "--staged",
       "--base",
       "HEAD",
     ]);
@@ -85,6 +88,8 @@ describe("Habitat oclif commands", () => {
         base: "HEAD",
         owner: "@internal/habitat-harness",
         rule: "doc-ambiguity",
+        tool: "grit-check",
+        staged: true,
         commandArgs: expect.arrayContaining(["--json", "--rule", "doc-ambiguity"]),
       })
     );
@@ -98,7 +103,11 @@ describe("Habitat oclif commands", () => {
   test("check expand-baseline uses the authoring path instead of report emission", async () => {
     await Check.run(["--expand-baseline", "--rule", "demo-rule"]);
 
-    expect(engine.expandBaselines).toHaveBeenCalledWith({ owner: undefined, rule: "demo-rule" });
+    expect(engine.expandBaselines).toHaveBeenCalledWith({
+      owner: undefined,
+      rule: "demo-rule",
+      tool: undefined,
+    });
     expect(engine.createCheckReport).not.toHaveBeenCalled();
     expect(capturedOutput()).toContain("baseline written: demo-rule");
   });
