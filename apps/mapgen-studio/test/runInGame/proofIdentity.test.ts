@@ -1,17 +1,14 @@
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-
-import { describe, expect, it } from "vitest";
-
 import type {
-  RunInGameExactAuthorshipProof,
   RunInGameFileContentProof,
   RunInGameFileIdentity,
   RunInGameMaterializationStatus,
   RunInGameRequestStatus,
   RunInGameSourceSnapshotProof,
-} from "../../src/features/runInGame/status";
+} from "@civ7/studio-server";
+import { describe, expect, it } from "vitest";
 import {
   buildRunInGameExactAuthorshipProof,
   buildRunInGameSourceSnapshotProof,
@@ -21,6 +18,7 @@ import {
   runInGameMaterializationScriptUnresolvedLinks,
   runInGameRequiredMaterializationMarkers,
 } from "../../src/server/runInGame/proofIdentity";
+import type { RunInGameDetailedExactAuthorshipProof } from "../../src/server/runInGame/proofTypes";
 
 const requestId = "studio-run-in-game-test";
 const configHash = "config-hash";
@@ -797,7 +795,7 @@ function mapSummary(overrides: { seed?: number } = {}): unknown {
   };
 }
 
-function logProof(): NonNullable<RunInGameExactAuthorshipProof["log"]> {
+function logProof(): NonNullable<RunInGameDetailedExactAuthorshipProof["log"]> {
   return {
     logPath: "/tmp/Scripting.log",
     observedAt: "2026-06-06T00:00:00.000Z",

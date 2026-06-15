@@ -19,9 +19,13 @@ import {
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
 import { deployMod, resolveModsDir } from "@civ7/plugin-mods";
-import type { StudioEventHubApi, StudioOperationEvent } from "@civ7/studio-server";
+import type {
+  RunInGamePhase,
+  RunInGameRequestStatus,
+  StudioEventHubApi,
+  StudioOperationEvent,
+} from "@civ7/studio-server";
 import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
-import type { RunInGamePhase, RunInGameRequestStatus } from "../../features/runInGame/status";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { createMapConfigSaveDeployOperationStore } from "../mapConfigs/operationState";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
@@ -610,10 +614,32 @@ function createOperationPublisher(
 function runInGameStatusForEvent(
   status: RunInGameOperationState
 ): RunInGameOperationEvent["status"] {
-  const { completedPhases, recoveryActions, ...rest } = status;
+  const {
+    completedPhases,
+    recoveryActions,
+    details,
+    exactAuthorshipProof,
+    materialization,
+    ...rest
+  } = status;
   return {
     ...rest,
     completedPhases: [...completedPhases],
+    ...(materialization === undefined
+      ? {}
+      : {
+          materialization: mutableJsonClone(materialization),
+        }),
+    ...(details === undefined
+      ? {}
+      : {
+          details: mutableJsonClone(details),
+        }),
+    ...(exactAuthorshipProof === undefined
+      ? {}
+      : {
+          exactAuthorshipProof: mutableJsonClone(exactAuthorshipProof),
+        }),
     ...(recoveryActions === undefined ? {} : { recoveryActions: [...recoveryActions] }),
   };
 }
@@ -626,6 +652,10 @@ function saveDeployStatusForEvent(
     ...rest,
     ...(recoveryActions === undefined ? {} : { recoveryActions: [...recoveryActions] }),
   };
+}
+
+function mutableJsonClone<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
 }
 
 export function createStudioEngines(

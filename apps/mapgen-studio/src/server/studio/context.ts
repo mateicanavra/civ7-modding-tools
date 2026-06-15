@@ -169,8 +169,8 @@ export function createStudioServerContext(
     },
     eventHub,
     loadSetupCatalog: async () => {
-      // `Civ7SetupCatalog` is deeply `readonly`; the contract's zod-derived catalog
-      // type is structurally identical but mutable. Cross the boundary by value
+      // `Civ7SetupCatalog` is deeply `readonly`; the package TypeBox contract
+      // exposes the same wire shape as mutable data. Cross the boundary by value
       // (JSON serialization erases readonly); cast to satisfy the seam type.
       return loadCiv7SetupCatalog({ repoRoot: engines.repoRoot }) as unknown as Awaited<
         ReturnType<StudioServerContext["loadSetupCatalog"]>
@@ -188,16 +188,14 @@ export function createStudioServerContext(
     runInGameStart: async (input) => {
       try {
         const result = await engines.runRunInGameStartEngine(input);
-        return result.operation as Awaited<ReturnType<StudioServerContext["runInGameStart"]>>;
+        return result.operation;
       } catch (err) {
         throw toOrpc(err, "runInGame", "Run in Game failed", identity);
       }
     },
     runInGameStatus: async (input) => {
       try {
-        return engines.runRunInGameStatusEngine(input.requestId) as Awaited<
-          ReturnType<StudioServerContext["runInGameStatus"]>
-        >;
+        return engines.runRunInGameStatusEngine(input.requestId);
       } catch (err) {
         throw toOrpc(err, "runInGame", "Run in Game status failed", identity);
       }

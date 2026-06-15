@@ -1,3 +1,4 @@
+import type { MapConfigSaveDeployStatus, RunInGameOperationStatus } from "@civ7/studio-server";
 import {
   type StudioPresetExportFileV1,
   stripSchemaMetadataRoot,
@@ -51,7 +52,6 @@ import {
 import { saveRepoBackedConfig, toConfigId } from "../features/mapConfigSave/api";
 import {
   createMapConfigSaveDeployStatus,
-  type MapConfigSaveDeployStatus,
   updateMapConfigSaveDeployStatus,
 } from "../features/mapConfigSave/status";
 import type { PresetErrorState } from "../features/presets/dialogState";
@@ -82,7 +82,6 @@ import {
 import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
 import {
   formatRunInGameDiagnostics,
-  type RunInGameOperationStatus,
   runInGameRequiresProcessRestart,
 } from "../features/runInGame/status";
 import { type DeckCanvasApi } from "../features/viz/DeckCanvas";

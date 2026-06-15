@@ -1,7 +1,6 @@
+import type { MapConfigSaveDeployPhase, MapConfigSaveDeployStatus } from "@civ7/studio-server";
 import {
   createMapConfigSaveDeployStatus,
-  type MapConfigSaveDeployPhase,
-  type MapConfigSaveDeployStatus,
   updateMapConfigSaveDeployStatus,
 } from "../../features/mapConfigSave/status";
 

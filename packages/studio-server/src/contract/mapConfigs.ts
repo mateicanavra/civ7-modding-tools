@@ -1,5 +1,5 @@
 import { oc } from "@orpc/contract";
-import { Type } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { mapConfigsErrors } from "./errors.js";
 import { contractSchema } from "./shared.js";
@@ -8,11 +8,25 @@ import { contractSchema } from "./shared.js";
  * `mapConfigs.*` namespace - save config to repo + deploy (no Civ restart).
  *
  * Source of truth: audit/05-server-contracts.md endpoints #15 (status) and #16
- * (saveDeploy). The output schema reproduces `MapConfigSaveDeployStatus` from
- * apps/mapgen-studio/src/features/mapConfigSave/status.ts faithfully.
+ * (saveDeploy). The package TypeBox schema is the public wire DTO authority;
+ * app modules derive their operation-status types from this contract and keep
+ * only UI formatting/presentation helpers locally.
  */
 
-const saveDeployPhase = Type.Union([
+export const MAP_CONFIG_SAVE_DEPLOY_PHASES = [
+  "idle",
+  "queued",
+  "saving",
+  "deploying",
+  "complete",
+  "failed",
+] as const;
+
+export type MapConfigSaveDeployPhase = (typeof MAP_CONFIG_SAVE_DEPLOY_PHASES)[number];
+
+export type MapConfigSaveDeployKind = "idle" | "running" | "complete" | "failed";
+
+export const saveDeployPhase = Type.Union([
   Type.Literal("idle"),
   Type.Literal("queued"),
   Type.Literal("saving"),
@@ -21,7 +35,7 @@ const saveDeployPhase = Type.Union([
   Type.Literal("failed"),
 ]);
 
-const saveDeployKind = Type.Union([
+export const saveDeployKind = Type.Union([
   Type.Literal("idle"),
   Type.Literal("running"),
   Type.Literal("complete"),
@@ -29,7 +43,7 @@ const saveDeployKind = Type.Union([
 ]);
 
 /** `MapConfigSaveDeployStatus` - returned by both saveDeploy (#16, 202) and status (#15, 200). */
-const saveDeployStatusTypeSchema = Type.Object(
+export const saveDeployStatusTypeSchema = Type.Object(
   {
     ok: Type.Boolean(),
     requestId: Type.String(),
@@ -66,6 +80,7 @@ const saveDeployStatusTypeSchema = Type.Object(
   },
   { additionalProperties: false }
 );
+export type MapConfigSaveDeployStatus = Static<typeof saveDeployStatusTypeSchema>;
 
 export const saveDeployStatusSchema = contractSchema(saveDeployStatusTypeSchema);
 

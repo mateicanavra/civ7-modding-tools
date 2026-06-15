@@ -10,10 +10,10 @@
 // `isDefinedError(...)` expose the DECLARED code
 // (SAVE_DEPLOY_BLOCKED/INVALID/FAILED/STATUS_NOT_FOUND, statuses pinned in
 // packages/studio-server/src/contract/errors.ts).
-import { safe } from "@orpc/client";
 
+import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
+import { safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
-import type { MapConfigSaveDeployStatus } from "./status";
 
 export function toConfigId(label: string): string {
   const id = label
@@ -70,7 +70,7 @@ export async function saveRepoBackedConfig(args: {
             : "Repo config save failed",
       };
     }
-    const status = saveResult.data as MapConfigSaveDeployStatus;
+    const status = saveResult.data;
     args.onStatus?.(status);
     return { ok: true, status, path: status.path ?? path };
   } catch (err) {

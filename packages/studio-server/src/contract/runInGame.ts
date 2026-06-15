@@ -1,5 +1,5 @@
 import { oc } from "@orpc/contract";
-import { Type } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { runInGameErrors } from "./errors.js";
 import { contractSchema, unknownRecordSchema } from "./shared.js";
@@ -8,14 +8,38 @@ import { contractSchema, unknownRecordSchema } from "./shared.js";
  * `runInGame.*` namespace - launch + poll the run-current-config-in-Civ7 pipeline.
  *
  * Source of truth: audit/05-server-contracts.md endpoints #13 (status) and #14
- * (start). The output schema reproduces `RunInGameOperationStatus` from
- * apps/mapgen-studio/src/features/runInGame/status.ts faithfully (the package must
- * NOT import app code - the schema is mirrored here).
+ * (start). The package TypeBox schema is the public wire DTO authority; app
+ * modules derive their operation-status types from this contract and keep only
+ * UI formatting/presentation helpers locally.
  */
 
-// --- enums mirrored from features/runInGame/status.ts -----------------------
+export const RUN_IN_GAME_PHASES = [
+  "idle",
+  "materializing",
+  "deploying",
+  "restarting-civ",
+  "checking-civ7",
+  "reload-needed",
+  "preparing-setup",
+  "starting-game",
+  "waiting-for-proof",
+  "complete",
+  "blocked",
+  "failed",
+  "uncertain",
+] as const;
 
-const runInGamePhase = Type.Union([
+export type RunInGamePhase = (typeof RUN_IN_GAME_PHASES)[number];
+
+export type RunInGameOperationKind =
+  | "idle"
+  | "running"
+  | "complete"
+  | "blocked"
+  | "failed"
+  | "uncertain";
+
+export const runInGamePhase = Type.Union([
   Type.Literal("idle"),
   Type.Literal("materializing"),
   Type.Literal("deploying"),
@@ -31,7 +55,7 @@ const runInGamePhase = Type.Union([
   Type.Literal("uncertain"),
 ]);
 
-const runInGameOperationKind = Type.Union([
+export const runInGameOperationKind = Type.Union([
   Type.Literal("idle"),
   Type.Literal("running"),
   Type.Literal("complete"),
@@ -41,7 +65,7 @@ const runInGameOperationKind = Type.Union([
 ]);
 
 // RunInGameFileIdentity
-const fileIdentity = Type.Object(
+export const fileIdentity = Type.Object(
   {
     path: Type.String(),
     sha256: Type.String(),
@@ -51,8 +75,9 @@ const fileIdentity = Type.Object(
   },
   { additionalProperties: false }
 );
+export type RunInGameFileIdentity = Static<typeof fileIdentity>;
 
-const contentMarkerProof = Type.Object(
+export const contentMarkerProof = Type.Object(
   {
     id: Type.String(),
     marker: Type.String(),
@@ -60,17 +85,19 @@ const contentMarkerProof = Type.Object(
   },
   { additionalProperties: false }
 );
+export type RunInGameContentMarkerProof = Static<typeof contentMarkerProof>;
 
-const fileContentProof = Type.Object(
+export const fileContentProof = Type.Object(
   {
     path: Type.String(),
     markers: Type.Array(contentMarkerProof),
   },
   { additionalProperties: false }
 );
+export type RunInGameFileContentProof = Static<typeof fileContentProof>;
 
 // RunInGameSourceSnapshotProof
-const sourceSnapshotProof = Type.Object(
+export const sourceSnapshotProof = Type.Object(
   {
     identityHash: Type.String(),
     requestId: Type.String(),
@@ -85,9 +112,10 @@ const sourceSnapshotProof = Type.Object(
   },
   { additionalProperties: false }
 );
+export type RunInGameSourceSnapshotProof = Static<typeof sourceSnapshotProof>;
 
 // RunInGameMaterializationStatus
-const materializationStatus = Type.Object(
+export const materializationStatus = Type.Object(
   {
     mode: Type.Optional(Type.String()),
     path: Type.Optional(Type.String()),
@@ -103,9 +131,10 @@ const materializationStatus = Type.Object(
   },
   { additionalProperties: false }
 );
+export type RunInGameMaterializationStatus = Static<typeof materializationStatus>;
 
 // RunInGameRequestStatus
-const requestStatus = Type.Object(
+export const requestStatus = Type.Object(
   {
     recipeId: Type.Optional(Type.String()),
     seed: Type.Optional(Type.Number()),
@@ -122,18 +151,21 @@ const requestStatus = Type.Object(
   },
   { additionalProperties: false }
 );
+export type RunInGameRequestStatus = Static<typeof requestStatus>;
 
 // RunInGameProcessRestartStatus - { command?, launchAttempts?, [key]: unknown }
-const processRestartStatus = Type.Object(
+export const processRestartStatus = Type.Object(
   {
     command: Type.Optional(Type.String()),
     launchAttempts: Type.Optional(Type.Unknown()),
   },
   { additionalProperties: Type.Unknown() }
 );
+export type RunInGameProcessRestartStatus = Static<typeof processRestartStatus> &
+  Readonly<Record<string, unknown>>;
 
 // RunInGameFailureDetails - open record with known optional fields.
-const failureDetails = Type.Object(
+export const failureDetails = Type.Object(
   {
     failureClass: Type.Optional(Type.String()),
     code: Type.Optional(Type.String()),
@@ -152,12 +184,14 @@ const failureDetails = Type.Object(
   },
   { additionalProperties: Type.Unknown() }
 );
+export type RunInGameFailureDetails = Static<typeof failureDetails> &
+  Readonly<Record<string, unknown>>;
 
 // RunInGameExactAuthorshipProof - large nested proof. The `log` sub-tree is deep
 // and opaque (proof markers, per-domain stats) - modelled permissively; the stable
 // top-level shape (status/requestId/createdAt/request/materialization/civSetup/
 // runtime/unresolvedLinks) is reproduced.
-const exactAuthorshipProof = Type.Object(
+export const exactAuthorshipProof = Type.Object(
   {
     status: Type.Union([Type.Literal("complete"), Type.Literal("unresolved")]),
     requestId: Type.String(),
@@ -207,12 +241,13 @@ const exactAuthorshipProof = Type.Object(
   },
   { additionalProperties: false }
 );
+export type RunInGameExactAuthorshipProof = Static<typeof exactAuthorshipProof>;
 
 /**
- * `RunInGameOperationStatus` - the operation state returned by BOTH start (#14,
- * 202) and status-poll (#13, 200), reproduced from features/runInGame/status.ts.
+ * `RunInGameOperationStatus` - the package-owned operation state returned by
+ * BOTH start (#14, 202) and status-poll (#13, 200).
  */
-const operationStatusTypeSchema = Type.Object(
+export const operationStatusTypeSchema = Type.Object(
   {
     ok: Type.Boolean(),
     requestId: Type.String(),
@@ -234,6 +269,7 @@ const operationStatusTypeSchema = Type.Object(
   },
   { additionalProperties: false }
 );
+export type RunInGameOperationStatus = Static<typeof operationStatusTypeSchema>;
 
 export const operationStatusSchema = contractSchema(operationStatusTypeSchema);
 
@@ -272,7 +308,7 @@ export const status = oc
 // RUN_IN_GAME_BLOCKED/INVALID/FAILED/UNAVAILABLE codes (./errors.ts).
 //
 // SECURITY BOUNDARY (target-arch section 1): the handler runs `assertNoRawControlFields`
-// - a deep scan rejecting `command|script|javascript|rawJs|rawCommand` keys. The
+// - a deep scan rejecting `command|script|javascript|rawJs|rawCommand|session|stateName` keys. The
 // input is therefore intentionally permissive at the contract layer (the deep scan
 // + recipe pinning + kebab-case id + seed/mapSize/playerCount validation live in
 // `parseRunInGameSetupRequest`, ported in A2/A3). Known top-level fields are typed;

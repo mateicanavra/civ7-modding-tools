@@ -11,11 +11,11 @@
 // (`details`, and the STATUS_NOT_FOUND server-identity echo). The caller's
 // server-restart detection branches on `code === "RUN_IN_GAME_STATUS_NOT_FOUND"`
 // instead of a raw 404 status code.
-import { isDefinedError, safe } from "@orpc/client";
 
+import type { RunInGameFailureDetails, RunInGameOperationStatus } from "@civ7/studio-server";
+import { isDefinedError, safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
 import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7Setup/setupConfig";
-import type { RunInGameFailureDetails, RunInGameOperationStatus } from "./status";
 
 /**
  * Read the engine-attached `RunInGameFailureDetails` from a defined error's typed
@@ -94,7 +94,7 @@ export async function runCurrentConfigInGame(args: {
       error: error instanceof Error && error.message ? error.message : "Run in Game failed",
     };
   }
-  return data as RunInGameOperationStatus;
+  return data;
 }
 
 export async function fetchRunInGameStatus(
@@ -111,5 +111,5 @@ export async function fetchRunInGameStatus(
       ...(isDefinedError(error) ? { code: error.code } : {}),
     };
   }
-  return data as RunInGameOperationStatus;
+  return data;
 }

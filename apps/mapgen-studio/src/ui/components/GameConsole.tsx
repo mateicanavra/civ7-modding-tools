@@ -1,3 +1,4 @@
+import type { MapConfigSaveDeployStatus, RunInGameOperationStatus } from "@civ7/studio-server";
 import {
   Bug,
   ChevronDown,
@@ -11,14 +12,10 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
-import {
-  formatMapConfigSaveDeployPhaseLabel,
-  type MapConfigSaveDeployStatus,
-} from "../../features/mapConfigSave/status";
+import { formatMapConfigSaveDeployPhaseLabel } from "../../features/mapConfigSave/status";
 import type { RunInGameCurrentRelation } from "../../features/runInGame/clientState";
 import {
   formatRunInGamePhaseLabel,
-  type RunInGameOperationStatus,
   runInGameCanRetryStatus,
   runInGamePrimaryActionLabel,
 } from "../../features/runInGame/status";

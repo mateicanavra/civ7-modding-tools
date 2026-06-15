@@ -1,4 +1,3 @@
-import { type EffectErrorMap, type EffectErrorMapToErrorMap, ORPCTaggedError } from "effect-orpc";
 import { type Static, Type } from "typebox";
 
 import { toStandardSchema } from "../typeboxStandardSchema.js";
@@ -12,13 +11,6 @@ const RecipeDagRecipeNotFoundDataSchema = Type.Object(
 );
 export type RecipeDagRecipeNotFoundData = Static<typeof RecipeDagRecipeNotFoundDataSchema>;
 
-export class RecipeDagRecipeNotFoundError extends ORPCTaggedError("RecipeDagRecipeNotFoundError", {
-  code: "RECIPE_DAG_RECIPE_NOT_FOUND",
-  message: "Recipe DAG recipe not found.",
-  schema: toStandardSchema(RecipeDagRecipeNotFoundDataSchema),
-  status: 404,
-}) {}
-
 const RecipeDagUnavailableDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("recipeDag.get"),
@@ -29,17 +21,17 @@ const RecipeDagUnavailableDataSchema = Type.Object(
 );
 export type RecipeDagUnavailableData = Static<typeof RecipeDagUnavailableDataSchema>;
 
-export class RecipeDagUnavailableError extends ORPCTaggedError("RecipeDagUnavailableError", {
-  code: "RECIPE_DAG_UNAVAILABLE",
-  message: "Recipe DAG unavailable.",
-  schema: toStandardSchema(RecipeDagUnavailableDataSchema),
-  status: 503,
-}) {}
-
 export const recipeDagErrorMap = {
-  RECIPE_DAG_RECIPE_NOT_FOUND: RecipeDagRecipeNotFoundError,
-  RECIPE_DAG_UNAVAILABLE: RecipeDagUnavailableError,
-} satisfies EffectErrorMap;
+  RECIPE_DAG_RECIPE_NOT_FOUND: {
+    status: 404,
+    message: "Recipe DAG recipe not found.",
+    data: toStandardSchema(RecipeDagRecipeNotFoundDataSchema),
+  },
+  RECIPE_DAG_UNAVAILABLE: {
+    status: 503,
+    message: "Recipe DAG unavailable.",
+    data: toStandardSchema(RecipeDagUnavailableDataSchema),
+  },
+} as const;
 
-export type RecipeDagEffectErrorMap = typeof recipeDagErrorMap;
-export type RecipeDagErrorMap = EffectErrorMapToErrorMap<RecipeDagEffectErrorMap>;
+export type RecipeDagErrorMap = typeof recipeDagErrorMap;

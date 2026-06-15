@@ -1,10 +1,10 @@
 /**
  * `@civ7/studio-server` — public entrypoint.
  *
- * - Contract surface (slice A1): legacy Studio success I/O schemas for the
- *   original endpoints remain Zod; error data and recipe-DAG schemas are
- *   TypeBox/Standard Schema. Do not extend Zod for new durable contract schema
- *   surfaces without an explicit schema-tech decision.
+ * - Contract surface (D2.5): Studio public inputs, outputs, stream events, and
+ *   declared error data are TypeBox-owned and exposed to oRPC through the
+ *   package Standard Schema adapter. App modules derive public operation DTO
+ *   types from this package rather than defining wire shapes locally.
  * - Effect services (A2): `Civ7TunerClient`, `StudioConfig`; `Civ7TunerSession`
  *   (tuner-session workstream) — the scoped owner of the ONE shared FireTuner
  *   connection, with the backoff gate and the host injection/health ports.
@@ -34,6 +34,27 @@ export {
   studio,
   studioEffectContract,
 } from "./contract/index.js";
+export type {
+  MapConfigSaveDeployKind,
+  MapConfigSaveDeployPhase,
+  MapConfigSaveDeployStatus,
+} from "./contract/mapConfigs.js";
+export { MAP_CONFIG_SAVE_DEPLOY_PHASES } from "./contract/mapConfigs.js";
+export type {
+  RunInGameContentMarkerProof,
+  RunInGameExactAuthorshipProof,
+  RunInGameFailureDetails,
+  RunInGameFileContentProof,
+  RunInGameFileIdentity,
+  RunInGameMaterializationStatus,
+  RunInGameOperationKind,
+  RunInGameOperationStatus,
+  RunInGamePhase,
+  RunInGameProcessRestartStatus,
+  RunInGameRequestStatus,
+  RunInGameSourceSnapshotProof,
+} from "./contract/runInGame.js";
+export { RUN_IN_GAME_PHASES } from "./contract/runInGame.js";
 export type {
   StudioEvent,
   StudioHelloEvent,
@@ -84,3 +105,9 @@ export {
   StudioEventHub,
   type StudioEventHubApi,
 } from "./services/StudioEventHub.js";
+export {
+  toStandardSchema,
+  typeboxInputSchemaFromContractProcedure,
+  typeboxOutputSchemaFromContractProcedure,
+  typeboxSchemaFromStandardSchema,
+} from "./typeboxStandardSchema.js";

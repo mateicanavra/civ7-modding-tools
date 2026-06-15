@@ -1,14 +1,12 @@
 import type {
+  MapConfigSaveDeployStatus,
+  RunInGameOperationStatus,
   StudioLiveGameEvent,
   StudioOperationEvent,
   StudioOperationsCurrent,
 } from "@civ7/studio-server";
 import type { LiveRuntimeStatusState } from "../features/liveRuntime/model";
-import type { MapConfigSaveDeployStatus } from "../features/mapConfigSave/status";
-import {
-  isRunInGameTerminalPhase,
-  type RunInGameOperationStatus,
-} from "../features/runInGame/status";
+import { isRunInGameTerminalPhase } from "../features/runInGame/status";
 
 export interface StudioOperationAdoptionTargets {
   setRunInGameOperation(operation: RunInGameOperationStatus | null): void;
@@ -22,7 +20,7 @@ export function adoptStudioOperationsCurrent(
 ): void {
   const runInGame = current.runInGame.active ?? current.runInGame.recent[0] ?? null;
   if (runInGame) {
-    const operation = runInGame as RunInGameOperationStatus;
+    const operation = runInGame;
     targets.setRunInGameOperation(operation);
     if (isRunInGameTerminalPhase(operation.phase)) {
       targets.markRunInGameToastHandled(operation.requestId);
@@ -32,7 +30,7 @@ export function adoptStudioOperationsCurrent(
   }
 
   const saveDeploy = current.saveDeploy.active ?? current.saveDeploy.recent[0] ?? null;
-  targets.setSaveDeployOperation(saveDeploy as MapConfigSaveDeployStatus | null);
+  targets.setSaveDeployOperation(saveDeploy);
 }
 
 export function applyStudioOperationEvent(
@@ -40,10 +38,10 @@ export function applyStudioOperationEvent(
   targets: Pick<StudioOperationAdoptionTargets, "setRunInGameOperation" | "setSaveDeployOperation">
 ): void {
   if (event.kind === "run-in-game") {
-    targets.setRunInGameOperation(event.status as RunInGameOperationStatus);
+    targets.setRunInGameOperation(event.status);
     return;
   }
-  targets.setSaveDeployOperation(event.status as MapConfigSaveDeployStatus);
+  targets.setSaveDeployOperation(event.status);
 }
 
 export function applyStudioLiveGameEvent(

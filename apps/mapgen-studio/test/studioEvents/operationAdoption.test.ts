@@ -1,4 +1,6 @@
 import type {
+  MapConfigSaveDeployStatus,
+  RunInGameOperationStatus,
   StudioLiveGameEvent,
   StudioOperationEvent,
   StudioOperationsCurrent,
@@ -16,8 +18,6 @@ import {
   applyStudioOperationEvent,
 } from "../../src/app/operationAdoption";
 import type { LiveRuntimeStatusState } from "../../src/features/liveRuntime/model";
-import type { MapConfigSaveDeployStatus } from "../../src/features/mapConfigSave/status";
-import type { RunInGameOperationStatus } from "../../src/features/runInGame/status";
 
 describe("Studio event operation adoption", () => {
   test("adopts daemon current operations and marks terminal run-in-game toast as handled", () => {

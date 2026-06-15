@@ -34,14 +34,14 @@
 
 These are D2.5 implementation obligations recorded by this packet, not pre-acceptance authoring tasks.
 
-- [ ] 3A.1 Implement Studio adapter origin recovery and schema extraction tests.
-- [ ] 3A.2 Replace stale Zod comments in package and app/server code.
-- [ ] 3A.3 Compose canonical Run in Game / Save&Deploy operation DTO schemas into endpoint status, `studio.operations.current`, and operation events.
-- [ ] 3A.4 Replace app-local public operation DTO authority and response/event casts with package-derived types.
-- [ ] 3A.5 Classify or narrow permissive expected-error `details?: unknown` data.
-- [ ] 3A.6 Classify raw-field and direct `/api` search hits, and remove/move `effect-orpc` import hits outside router/runtime implementation ownership.
-- [ ] 3A.7 Update D3 `mapgen-studio-error-spine` in the same implementation stack if D2.5 keeps permissive error-detail bridge residue.
-- [ ] 3A.8 Close `runInGame.start` input schema or prove raw-control rejection with recovered-schema adversarial samples.
+- [x] 3A.1 Implement Studio adapter origin recovery and schema extraction tests.
+- [x] 3A.2 Replace stale Zod comments in package and app/server code.
+- [x] 3A.3 Compose canonical Run in Game / Save&Deploy operation DTO schemas into endpoint status, `studio.operations.current`, and operation events.
+- [x] 3A.4 Replace app-local public operation DTO authority and response/event casts with package-derived types.
+- [x] 3A.5 Classify or narrow permissive expected-error `details?: unknown` data.
+- [x] 3A.6 Classify raw-field and direct `/api` search hits, and remove/move `effect-orpc` import hits outside router/runtime implementation ownership.
+- [x] 3A.7 Update D3 `mapgen-studio-error-spine` in the same implementation stack if D2.5 keeps permissive error-detail bridge residue.
+- [x] 3A.8 Close `runInGame.start` input schema or prove raw-control rejection with recovered-schema adversarial samples.
 
 ## 4. Verification
 

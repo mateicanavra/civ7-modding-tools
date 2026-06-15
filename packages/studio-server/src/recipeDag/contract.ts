@@ -1,11 +1,7 @@
-import type { ContractProcedure, Schema } from "@orpc/contract";
-import { type EffectContractBuilder, eoc } from "effect-orpc";
+import type { ContractProcedure } from "@orpc/contract";
+import { oc } from "@orpc/contract";
 import { toStandardSchema } from "../typeboxStandardSchema.js";
-import {
-  type RecipeDagEffectErrorMap,
-  type RecipeDagErrorMap,
-  recipeDagErrorMap,
-} from "./errors.js";
+import { type RecipeDagErrorMap, recipeDagErrorMap } from "./errors.js";
 import { RecipeDagGetInputSchema, RecipeDagResultSchema } from "./schema.js";
 
 export type RecipeDagProcedureMeta = Readonly<{
@@ -15,12 +11,7 @@ export type RecipeDagProcedureMeta = Readonly<{
   risk?: "read-only";
 }>;
 
-const recipeDagContractBase: EffectContractBuilder<
-  Schema<unknown, unknown>,
-  Schema<unknown, unknown>,
-  RecipeDagEffectErrorMap,
-  RecipeDagProcedureMeta
-> = eoc.$meta<RecipeDagProcedureMeta>({}).errors(recipeDagErrorMap);
+const recipeDagContractBase = oc.$meta<RecipeDagProcedureMeta>({}).errors(recipeDagErrorMap);
 
 const RecipeDagGetInputStandardSchema = toStandardSchema(RecipeDagGetInputSchema);
 const RecipeDagResultStandardSchema = toStandardSchema(RecipeDagResultSchema);
