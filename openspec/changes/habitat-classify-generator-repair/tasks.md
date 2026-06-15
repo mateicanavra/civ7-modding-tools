@@ -89,7 +89,7 @@
 - [ ] 7.6 Add tests for missing paths and multi-path diffs.
 - [x] 7.7 Add generator refusal tests for unsupported kinds.
 - [x] 7.8 Add generator refusal tests for mismatched kind/root pairs.
-- [ ] 7.9 Add generator scratch discovery tests for supported kinds.
+- [x] 7.9 Add generator scratch discovery tests for supported kinds.
 - [x] 7.10 Add migration proof-boundary tests or fixture records.
 - [ ] 7.11 Add README/AGENTS stale guidance scan.
 

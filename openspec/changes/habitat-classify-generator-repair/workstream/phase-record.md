@@ -12,8 +12,8 @@
 - Status: classify target-truth, path-aware rule-scope, and generator
   support/refusal checkpoints accepted; generator scratch Nx discovery and
   generated target-matrix proof accepted; migration proof-boundary checkpoint
-  implemented and locally verified; downstream realignment and packet closure
-  remain open.
+  supervisor-accepted; committed scratch discovery test coverage implemented
+  in the current slice; downstream realignment and packet closure remain open.
 
 ## Objective
 
@@ -73,6 +73,10 @@
   discoverable by Nx from the normal HR implementation worktree and expose the
   accepted `build`, `check`, and `test` targets. The scratch project roots were
   removed with targeted cleanup after proof and are not committed fixtures.
+- Committed generator scratch discovery coverage now creates supported scratch
+  projects through the repo-local Nx generator, proves Nx discovers each
+  generated project with the accepted `build`, `check`, and `test` targets, and
+  removes only the exact scratch roots.
 - Current migration metadata declares a no-op baseline migration. It proves
   migration wiring only: the registered implementation returns no file changes,
   and `nx migrate --run-migrations=<run-file>.json --skip-install` executes
@@ -149,17 +153,16 @@ Core synthesis:
 ## Implementation
 
 - Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 4.1-4.5, 5.1-5.7,
-  6.1-6.3, 7.2-7.5, 7.7-7.8, 7.10, 9.1-9.3, 9.6-9.9, 9.11, and 9.13.
-- Remaining tasks: generator scratch discovery test coverage, full classify
-  matrix, full Nx target matrix, downstream realignment, final verification,
-  and supervisor acceptance.
+  6.1-6.3, 7.2-7.5, 7.7-7.10, 9.1-9.3, 9.6-9.9, 9.11, and 9.13.
+- Remaining tasks: full classify matrix, full Nx target matrix, downstream
+  realignment, final verification, and supervisor acceptance.
 - Implementation status: target-truth slice committed as a bounded checkpoint;
   path-aware rule-scope slice committed and supervisor-accepted; generator
   support/refusal slice committed and supervisor-accepted; generator scratch
   discovery/target-matrix command proof recorded as the current local
   checkpoint and supervisor-accepted; migration proof-boundary slice
-  implemented locally. Committed test coverage for scratch discovery remains
-  open. Full packet closure remains open.
+  committed and supervisor-accepted; committed generator scratch discovery test
+  coverage implemented in the current slice. Full packet closure remains open.
 
 ## Verification
 
@@ -230,6 +233,11 @@ Core synthesis:
     -> pass; reported no changes
   - targeted deletion of `migrations.hr-proof-noop.json`, followed by clean
     source status except the committed test/record edits
+  - `bun run --cwd tools/habitat-harness test -- project-generator.test.ts`
+    -> pass; generated supported `plugin`, `foundation`, and `app` scratch
+    projects through `bun run nx g @internal/habitat-harness:project`, proved
+    `nx show project --json` discovery and `build`/`check`/`test` targets for
+    each generated project, then removed the exact scratch roots
 - Evidence boundary: current implementation proves resolved Nx target truth for
   the adapter missing-target case, structured target proof output, unavailable
   target reporting, workspace-only target handling, literal diff target
@@ -244,10 +252,10 @@ Core synthesis:
   package-name collisions. It also proves through command evidence that scratch
   projects generated from the normal HR implementation worktree are discovered
   by Nx and expose `build`, `check`, and `test` targets for `plugin`,
-  `foundation`, and `app`. It does not add committed scratch discovery tests,
-  and it proves only no-op migration wiring, not convention migration
-  capability. It does not prove current-tree Grit row proof, baseline behavior,
-  hook behavior, or product/runtime behavior.
+  `foundation`, and `app`, and adds committed test coverage for that scratch
+  discovery boundary. It proves only no-op migration wiring, not convention
+  migration capability. It does not prove current-tree Grit row proof, baseline
+  behavior, hook behavior, or product/runtime behavior.
 
 ## Realignment
 
@@ -256,6 +264,6 @@ Core synthesis:
 
 ## Next Action
 
-- Graphite-commit the bounded migration proof-boundary checkpoint, then hold
-  for supervisor review before proceeding to classify matrix, stale guidance,
-  downstream realignment, or packet closure work.
+- Hold for supervisor review of the committed scratch discovery test checkpoint
+  before proceeding to classify matrix, stale guidance, downstream realignment,
+  or packet closure work.

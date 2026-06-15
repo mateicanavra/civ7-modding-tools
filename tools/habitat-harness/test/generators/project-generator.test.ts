@@ -1,10 +1,38 @@
+import { spawnSync } from "node:child_process";
+import { existsSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
+import path from "node:path";
 import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";
 
 const require = createRequire(import.meta.url);
 const { projectGenerator } = require("../../src/generators/project/generator.cjs");
+const repoRoot = path.resolve(import.meta.dirname, "../../../..");
+
+const scratchDiscoveryProjects = [
+  {
+    kind: "plugin",
+    name: "hr-scratch-discovery-plugin",
+    root: "packages/plugins/plugin-hr-scratch-discovery-plugin",
+    projectName: "@civ7/plugin-hr-scratch-discovery-plugin",
+    tag: "kind:plugin",
+  },
+  {
+    kind: "foundation",
+    name: "hr-scratch-discovery-foundation",
+    root: "packages/hr-scratch-discovery-foundation",
+    projectName: "@civ7/hr-scratch-discovery-foundation",
+    tag: "kind:foundation",
+  },
+  {
+    kind: "app",
+    name: "hr-scratch-discovery-app",
+    root: "apps/hr-scratch-discovery-app",
+    projectName: "hr-scratch-discovery-app",
+    tag: "kind:app",
+  },
+];
 
 describe("Habitat project generator", () => {
   test.each([
@@ -123,6 +151,36 @@ describe("Habitat project generator", () => {
     expect(tree.read("apps/occupied/README.md", "utf8")).toBe("occupied\n");
     expect(tree.exists("apps/occupied/package.json")).toBe(false);
   });
+
+  test("generated supported scratch projects are discovered by Nx with the accepted target matrix", () => {
+    cleanupScratchDiscoveryProjects();
+
+    try {
+      for (const fixture of scratchDiscoveryProjects) {
+        runNx([
+          "g",
+          "@internal/habitat-harness:project",
+          fixture.name,
+          `--kind=${fixture.kind}`,
+          "--no-interactive",
+        ]);
+      }
+
+      for (const fixture of scratchDiscoveryProjects) {
+        const project = JSON.parse(runNx(["show", "project", fixture.projectName, "--json"]).stdout);
+
+        expect(project.root).toBe(fixture.root);
+        expect(project.tags).toContain(fixture.tag);
+        expect(Object.keys(project.targets)).toEqual(expect.arrayContaining(["build", "check", "test"]));
+      }
+    } finally {
+      cleanupScratchDiscoveryProjects();
+    }
+
+    for (const fixture of scratchDiscoveryProjects) {
+      expect(existsSync(path.join(repoRoot, fixture.root))).toBe(false);
+    }
+  }, 60_000);
 });
 
 function createProjectTree() {
@@ -132,4 +190,30 @@ function createProjectTree() {
   tree.write("packages/.keep", "");
   tree.write("tools/.keep", "");
   return tree;
+}
+
+function cleanupScratchDiscoveryProjects(): void {
+  for (const fixture of scratchDiscoveryProjects) {
+    rmSync(path.join(repoRoot, fixture.root), { recursive: true, force: true });
+  }
+}
+
+function runNx(args: string[]): { stdout: string; stderr: string } {
+  const result = spawnSync("bun", ["run", "nx", ...args], {
+    cwd: repoRoot,
+    env: process.env,
+    encoding: "utf8",
+    maxBuffer: 32 * 1024 * 1024,
+  });
+
+  if (result.status !== 0) {
+    throw new Error(
+      `Nx command failed (${result.status}): bun run nx ${args.join(" ")}\n${result.stdout}\n${result.stderr}`
+    );
+  }
+
+  return {
+    stdout: result.stdout,
+    stderr: result.stderr,
+  };
 }
