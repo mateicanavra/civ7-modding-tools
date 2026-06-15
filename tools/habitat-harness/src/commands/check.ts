@@ -37,7 +37,7 @@ export default class Check extends HabitatCommand {
     const { flags } = await this.parse(Check);
     const selection = { owner: flags.owner, rule: flags.rule, tool: flags.tool };
     if (flags["expand-baseline"]) {
-      const expansion = await expandBaselines(selection);
+      const expansion = await expandBaselines(selection, { base: flags.base });
       if (!expansion.ok) this.error(describeRuleSelectionFailure(expansion), { exit: 1 });
       for (const message of expansion.messages) this.log(message);
       return;

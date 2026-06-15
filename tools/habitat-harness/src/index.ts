@@ -1,9 +1,21 @@
 export {
   applyBaseline,
+  baselineFailureDiagnostic,
   checkBaselineIntegrity,
+  guardBaselineExpansion,
+  isBaselineLocked,
   loadBaseline,
+  loadBaselineState,
   mergeBase,
+  validateBaselineContract,
   violationKey,
+} from "./lib/baseline.js";
+export type {
+  BaselineContractFailure,
+  BaselineContractFailureReason,
+  BaselineContractValidation,
+  BaselineState,
+  RuleIntroductionBaselineManifest,
 } from "./lib/baseline.js";
 export {
   buildHabitatCommand,

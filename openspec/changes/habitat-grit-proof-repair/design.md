@@ -170,13 +170,15 @@ not accepted merely because the adapter exists.
 
 ## Baseline Decision
 
-Current code treats a missing baseline file as an empty locked baseline. That
-is executable behavior, but it is not the same as H5's historical wording that
-every introduced rule has an explicit ratchet entry.
+Seed evidence for this packet showed current code treating a missing baseline
+file as an empty locked baseline. That executable behavior was not the same as
+H5's historical wording that every introduced rule has an explicit ratchet
+entry.
 
-This repair chooses explicit committed empty baseline files for every current
-enforced Grit check. Empty JSON arrays keep the rule locked, align the filesystem
-with the record claim, and avoid using missing-file behavior as hidden proof.
+This repair chose explicit committed empty baseline files for every current
+enforced Grit check. Empty JSON arrays keep the rule locked, align the
+filesystem with the record claim, and avoid using missing-file behavior as
+hidden proof.
 
 Implementation must:
 
@@ -188,9 +190,13 @@ Implementation must:
 - update H5/H6 records to distinguish historical missing-file behavior from the
   new explicit Grit baseline record.
 
-The broader scaffold contract may still decide whether missing baseline files
-remain an accepted future policy, but this Grit proof repair will not rely on
-that policy for the current tranche.
+The broader scaffold contract is now owned by
+`habitat-scaffold-contract-repair`: missing registered-rule baselines become
+contract failures, current non-external rules require explicit committed
+baseline files, and external exception sources must be modeled. Grit row proof
+may consume that contract only when the branch/stack contains the scaffold
+repair; this Grit proof repair still does not claim row semantics from baseline
+state alone.
 
 ## Apply Safety Boundary
 

@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import type { HabitatGitState } from "../../src/lib/git-state.js";
 import {
   classifyApplyDiffEvidence,
@@ -27,6 +27,14 @@ const isolatedTypeProbeFile =
   "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof/type-only.ts";
 const isolatedMissingExportProbeFile =
   "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof/missing-export.ts";
+
+beforeEach(() => {
+  cleanupIsolatedCopyProbe();
+});
+
+afterEach(() => {
+  cleanupIsolatedCopyProbe();
+});
 
 describe("Grit apply transaction", () => {
   test("refuses live apply against a dirty worktree before executing Grit", async () => {

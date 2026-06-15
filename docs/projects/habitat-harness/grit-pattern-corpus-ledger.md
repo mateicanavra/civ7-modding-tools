@@ -59,7 +59,7 @@ apply safety disposition, and review.
 | Scan roots | Exact roots and exclusions. |
 | Fixture strategy | Positive, negative, parser-edge, and false-positive samples. |
 | Current-tree scan | observed findings or zero-findings proof. |
-| Baseline action | empty locked / shrink-only / immediate remediation / rejected. |
+| Baseline action | explicit empty locked file / explicit debt file / modeled external exception source / immediate remediation / rejected. Missing files are not accepted baseline proof after `habitat-scaffold-contract-repair`. |
 | Apply safety | mechanical transform conditions or explicit non-apply disposition. |
 | OpenSpec id | one change id per pattern/codemod unless justified. |
 
@@ -70,6 +70,12 @@ All current rows are **status: implemented, under-proof** until
 baseline semantics, old-mechanism parity, and injected violation proof for the
 family. Native sample proof is currently available from the local extraction;
 the remaining proof classes are not satisfied by that fixture result.
+
+Baseline note for repair-chain consumers: every current Grit check row has a
+committed `tools/habitat-harness/baselines/<rule-id>.json` file containing
+`[]` on the accepted Grit proof stack. After
+`habitat-scaffold-contract-repair`, "empty locked" means that explicit file and
+`baseline-integrity` contract proof, not missing-file convention.
 
 | Pattern candidate | Architecture obligation | Normative source | Proving source | Owner layer | Scan roots | Fixture strategy | Current-tree scan | Baseline action | Apply safety | OpenSpec id |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

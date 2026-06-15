@@ -90,11 +90,11 @@ The current baseline system has four separable behaviors:
 | Shrink-only | `checkBaselineIntegrity()` compares baseline files against merge-base and rejects additions for existing rules. | The core shrink-only loop exists, but write-time refusal, malformed/orphan/missing contract proof, comparison-source failures, and Graphite stack-parent cases are incomplete. |
 | Key format | `violationKey()` currently emits `path::message`. H2 prose also references richer rule/path/fingerprint keys. | v1 must lock the current executable key format or open a separate migration before changing it. |
 
-Fresh probes on this branch:
+Seed probes at packet open:
 
 - `bun run habitat:check -- --json --rule adapter-boundary` exits 0, reports
-  `adapter-boundary` pass, locked false, seven baselined diagnostics, and
-  `baseline-integrity` pass.
+  `adapter-boundary` pass, locked false, parser/exception supplied baselined
+  diagnostics, and `baseline-integrity` pass.
 - `bun run habitat:check -- --json --rule adapter-boundary --base HEAD` exits
   0, reports seven diagnostics and zero unbaselined findings.
 - `bun run habitat:check -- --json --rule workspace-entrypoints` exits 0,
@@ -102,6 +102,16 @@ Fresh probes on this branch:
   baseline file.
 - `bun run --cwd tools/habitat-harness test` passes 14 tests, but the command
   tests mock the command engine and do not prove the baseline contract matrix.
+
+Implementation-start evidence after the accepted Grit proof checkpoints:
+
+- the rule pack has 41 registered rules;
+- 22 current Grit check rules already have committed empty baseline files from
+  `habitat-grit-proof-repair`;
+- non-Grit registered rules still needed explicit empty baseline files or
+  modeled external exception state;
+- the only current non-`none` external exception sources are
+  `adapter-boundary` and `doc-ambiguity`.
 
 ## System Dynamics
 
@@ -217,7 +227,7 @@ mechanism for a rule's debt and the repair records:
 The current required inventory includes:
 
 - `adapter-boundary`:
-  `scripts/lint/lint-adapter-boundary.sh#ALLOWLIST (transitional; migrates to baselines/ in H5)`.
+  `scripts/lint/lint-adapter-boundary.sh#ALLOWLIST`.
 - `doc-ambiguity`: `docs/.doc-ambiguity-lint-baseline.json`.
 
 The repair must inventory every current non-`none` `exceptionPath`, then either
@@ -245,8 +255,12 @@ metadata. It records:
 - downstream metadata owner.
 
 Missing, malformed, placeholder, or contradicted manifest data blocks baseline
-writes. The baseline layer verifies the manifest is present and internally
-coherent; it does not decide the rule's architecture authority.
+writes. This packet provides the baseline-layer manifest gate and fake-input
+tests. The current public `--expand-baseline` command has no manifest source,
+so introduced-rule seeded writes are refused by default until a future
+generator/metadata owner supplies an accepted manifest. The baseline layer
+verifies the manifest is present and internally coherent; it does not decide
+the rule's architecture authority.
 
 ### Baseline Mutation
 
@@ -278,8 +292,9 @@ write paths closed.
 - fail when the comparison base is unavailable;
 - fail when base `rules.json` is missing or malformed;
 - fail when a base baseline file is unreadable;
-- compare against the trusted Graphite stack parent or an explicit trusted
-  comparison base when trunk merge-base would make a downstack rule appear new;
+- compare against the explicit trusted comparison base supplied by the caller
+  when trunk merge-base would make a downstack rule appear new; this packet
+  does not implement automatic Graphite parent discovery;
 - detect orphan baseline files;
 - detect missing explicit baseline state for registered rules;
 - detect malformed, duplicate, and unsorted baseline arrays;
@@ -369,8 +384,9 @@ Protected paths:
 - comparison base unavailable emits a contract failure;
 - base rule registry missing or malformed emits a contract failure;
 - base baseline unreadable emits a contract failure;
-- Graphite child-branch growth for a downstack rule is detected against the
-  trusted stack parent or explicit comparison base.
+- Graphite child-branch growth for a downstack rule is detected when the
+  trusted stack parent is supplied as the explicit comparison base; automatic
+  Graphite parent discovery is a non-claim for this packet.
 
 ### Command Proofs
 

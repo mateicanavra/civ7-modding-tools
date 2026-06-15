@@ -1,32 +1,38 @@
 ## Why
 
-Stage 0 found that the H2 scaffold/ratchet claim is not current executable
-truth. Current code treats a missing baseline file as an empty locked baseline,
-while
-the recovery frame requires every hardened baseline to be explicit, committed,
-and backed by documented missing-file semantics. That gap matters because
+Stage 0 found that the H2 scaffold/ratchet claim was not current executable
+truth at packet open. Seed code treated a missing baseline file as an empty
+locked baseline, while the recovery frame requires every hardened baseline to
+be explicit, committed, and backed by documented missing-file semantics. That
+gap matters because
 future agents use Habitat output as structural truth: if a rule's baseline
 state is implicit, stale, malformed, orphaned, or supplied by an unmodeled
 external exception source, the harness can look trustworthy while proof depends
 on hidden convention.
 
-Current evidence:
+Seed evidence at packet open:
 
 - `tools/habitat-harness/src/lib/baseline.ts` says missing baseline file means
   empty locked baseline.
 - `tools/habitat-harness/src/lib/command-engine.ts` marks a rule locked when
   the loaded baseline set is empty and `exceptionPath` is `none`.
-- only `tools/habitat-harness/baselines/adapter-boundary.json` exists today.
+- only `tools/habitat-harness/baselines/adapter-boundary.json` existed in the
+  seed capture.
 - `bun run habitat:check -- --json --rule workspace-entrypoints` reports
   `workspace-entrypoints` locked with no diagnostics, even though no explicit
   baseline file exists for that rule.
 - `bun run habitat:check -- --json --rule adapter-boundary` reports seven
   baselined adapter-boundary diagnostics and `baseline-integrity` passing.
 
-This change opens the baseline/scaffold contract repair. It does not implement
-the repair yet. It defines the implementation packet that will make baseline
-state explicit, typed, testable, and aligned with downstream Grit proof and
-generator metadata repairs.
+Post-downstack current evidence at implementation start is different: the
+accepted Grit proof stack has 22 committed empty Grit baseline files, while
+non-Grit registered rules and external exception sources still require this
+packet's explicit contract repair. Treat the bullets above as seed evidence for
+why the packet exists, not as current behavior after this branch closes.
+
+This change opened the baseline/scaffold contract repair and now carries the
+implementation branch that makes baseline state explicit, typed, testable, and
+aligned with downstream Grit proof and generator metadata repairs.
 
 ## Target Authority Refs
 

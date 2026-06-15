@@ -108,6 +108,8 @@ describe("Habitat oclif commands", () => {
       owner: undefined,
       rule: "demo-rule",
       tool: undefined,
+    }, {
+      base: "main",
     });
     expect(engine.createCheckReport).not.toHaveBeenCalled();
     expect(capturedOutput()).toContain("baseline written: demo-rule");
