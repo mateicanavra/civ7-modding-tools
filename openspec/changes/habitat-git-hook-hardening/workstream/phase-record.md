@@ -5,11 +5,12 @@
 - Project: Habitat Harness
 - Phase: git hook hardening / `habitat-git-hook-hardening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-hook-staged-probes`
+- Branch/Graphite stack: `agent-HR-habitat-hook-grit-staged-probe`
 - Started: 2026-06-14
-- Status: resource-publish, staged-mutation, and pre-push base/range
-  checkpoints supervisor-accepted; current-tree staged-probe checkpoint
-  implemented and locally verified for supervisor review
+- Status: resource-publish, staged-mutation, pre-push base/range, and
+  current-tree staged-probe checkpoints supervisor-accepted; native Grit
+  finding staged-probe checkpoint implemented and locally verified for
+  supervisor review
 
 ## Objective
 
@@ -114,15 +115,15 @@ Core synthesis:
   and 6.8.
 - Completed tasks for the accepted pre-push checkpoint: 6.9 and 8.7.
 - Current-tree staged-probe progress for this checkpoint: row-owned
-  generated-zone, pnpm artifact, partial-staging refusal, and
-  formatter-touched restage probes are recorded toward 8.5. Task 8.5 remains
-  open until Grit parse/finding staged probes are also proven or explicitly
-  rescheduled.
+  generated-zone, pnpm artifact, partial-staging refusal, formatter-touched
+  restage, and native Grit finding probes are recorded toward 8.5. Task 8.5
+  remains open until Grit parse-output staged proof is also proven or
+  explicitly rescheduled.
 - Remaining tasks: full hook transaction model, full fake-service matrix,
-  Grit parse/finding current-tree staged probes, historical H7 record
+  Grit parse-output current-tree staged proof, historical H7 record
   realignment, aggregate verification, and packet closure.
-- Implementation status: current-tree staged-probe checkpoint implemented and
-  locally verified for supervisor review.
+- Implementation status: native Grit finding staged-probe checkpoint
+  implemented and locally verified for supervisor review.
 
 ## Verification
 
@@ -221,6 +222,27 @@ Core synthesis:
     before cleanup. The scratch directory was unstaged and removed.
   - Post-probe clean check: `bun run habitat hook pre-commit` exited 0 from a
     clean initialized resources state after the scratch probes were removed.
+- New implementation evidence for the native Grit finding staged-probe
+  checkpoint:
+  - Direct native Grit discovery: scratch
+    `packages/mapgen-core/src/core/hr-hook-grit-probe.ts` containing
+    `GameplayMap.getGridWidth();` produced exact JSON from
+    `GRIT_TELEMETRY_DISABLED=true bunx grit --json check --level error
+    packages/mapgen-core/src/core/hr-hook-grit-probe.ts`, exited 0, and
+    returned one `mapgen_core_runtime_civ7` error result for that path. This
+    proves the scratch path exercises a committed row-owned native Grit pattern
+    rather than hook-local domain logic.
+  - Staged hook proof: the same scratch file was staged and
+    `bun run habitat hook pre-commit` exited 1 after `resources: clean`,
+    passing the staged file-layer check, passing Biome format/check with no
+    formatter changes, and emitting the native Grit JSON result for
+    `mapgen_core_runtime_civ7`. The scratch file was unstaged and removed.
+  - Parse-output non-proof: scratch
+    `packages/mapgen-core/src/core/hr-hook-grit-parse-probe.ts` containing
+    malformed TypeScript caused `bun run habitat hook pre-commit` to exit 1 in
+    `biome format` before native Grit ran. This is recorded only as evidence
+    that malformed source does not prove the Grit JSON parse-output path;
+    current-tree Grit parse-output proof remains open.
 - Evidence boundary: the accepted resource checkpoint proves the default
   pre-commit resource publish removal, typed resource-state classification,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
@@ -235,10 +257,11 @@ Core synthesis:
   not prove full hook transaction safety, CI authority, broad Nx affected
   coverage, or product/runtime behavior. This current-tree staged-probe
   checkpoint proves staged file-layer generated-zone and pnpm artifact
-  failures, partial-staging refusal, formatter-touched restage, and targeted
-  cleanup for the exercised scratch paths. It does not prove Grit parse/finding
-  staged probes, full hook transaction safety, CI authority, or product/runtime
-  behavior.
+  failures, partial-staging refusal, formatter-touched restage, native Grit
+  finding refusal for a row-owned `mapgen_core_runtime_civ7` scratch path, and
+  targeted cleanup for the exercised scratch paths. It does not prove Grit
+  parse-output current-tree staged behavior, full hook transaction safety, CI
+  authority, or product/runtime behavior.
 
 ## Realignment
 
@@ -247,7 +270,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the current-tree staged-probe checkpoint for supervisor review. Do not
-  claim full hook transaction architecture, Grit parse/finding staged probe
-  closure, CI authority, broad Nx affected coverage, or packet closure from
-  this slice.
+- Hold the native Grit finding staged-probe checkpoint for supervisor review.
+  Do not claim full hook transaction architecture, Grit parse-output staged
+  probe closure, CI authority, broad Nx affected coverage, or packet closure
+  from this slice.
