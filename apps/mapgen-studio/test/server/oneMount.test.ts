@@ -1,4 +1,6 @@
 import { createServer, type Server } from "node:http";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { type Civ7ControlOrpcContext, Civ7ControlOrpcContract } from "@civ7/control-orpc";
 import { Civ7DirectControlSession, type Civ7PlayableStatusResult } from "@civ7/direct-control";
 import {
@@ -147,6 +149,19 @@ describe("one /rpc mount serves the whole unified contract", () => {
     for (const key of [...studioKeys, ...controlKeys]) {
       expect(unifiedKeys).toContain(key);
     }
+  });
+
+  test("production daemon composes one EventHub into the Studio RPC context", () => {
+    const daemonSource = readFileSync(
+      fileURLToPath(new URL("../../src/server/daemon/daemon.ts", import.meta.url)),
+      "utf8"
+    );
+
+    expect(daemonSource).toContain("const eventHub = createStudioEventHub();");
+    expect(daemonSource).toContain("eventHub,");
+    expect(daemonSource).toContain("createStudioRpcHandler(context");
+    expect(daemonSource).not.toMatch(/eventHub\?:|createStudioRpcHandler\([^)]*\{[^}]*eventHub/);
+    expect(daemonSource).not.toContain("eventHub.shutdown();");
   });
 });
 

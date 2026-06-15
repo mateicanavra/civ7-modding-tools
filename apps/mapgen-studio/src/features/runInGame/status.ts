@@ -64,16 +64,6 @@ export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
   }
 }
 
-export function runInGameCanRetryStatus(status?: RunInGameOperationStatus | null): boolean {
-  if (!status) return false;
-  return (
-    status.status === "running" ||
-    status.status === "blocked" ||
-    status.status === "failed" ||
-    status.status === "uncertain"
-  );
-}
-
 export function runInGameRequiresProcessRestart(status?: RunInGameOperationStatus | null): boolean {
   return status?.details?.reloadBoundary === "process-restart-required";
 }

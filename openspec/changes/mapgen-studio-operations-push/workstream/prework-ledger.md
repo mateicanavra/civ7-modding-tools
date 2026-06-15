@@ -1,7 +1,7 @@
 # D9 Prework Ledger - Studio Operations Push
 
-Status: packet accepted; implementation pending
-Date: 2026-06-14
+Status: packet accepted; D9 implementation prework consumed on 2026-06-15
+Date: 2026-06-15
 
 ## Packet-Authoring Prework Completed
 
@@ -45,15 +45,26 @@ fixture text that is intentionally proving deletion.
 ## Implementation Prework Required Before Code Edits
 
 1. Re-run the negative search set on the selected implementation base.
+   - Status: completed during implementation; current classified scan evidence
+     is recorded in `testing-ledger.md`.
 2. Identify exact store/engine seams where both operation families publish
    transitions without duplicating state-machine logic.
+   - Status: completed; package `StudioOperationRuntime` publishes operation
+     projections through the D8 `StudioEventHub`.
 3. Prove production daemon construction supplies EventHub and no no-publisher
    production path exists.
+   - Status: completed in `apps/mapgen-studio/test/server/oneMount.test.ts`.
 4. Define publisher failure diagnostics and prove they do not start polling.
+   - Status: completed in `packages/studio-server/test/operationRuntime.test.ts`
+     for both operation families.
 5. Partition public/manual status endpoint users from background freshness
    polling users before deleting call sites.
+   - Status: completed; browser status readback was deleted while public/manual
+     server status procedures remain D12-classified.
 6. Confirm D10 live-game polling/timer symbols are protected and not deleted in
    D9.
+   - Status: completed; D10 live-game cadence remains outside the D9 deletion
+     claim.
 
 ## Peer-Agent Prework Lanes
 

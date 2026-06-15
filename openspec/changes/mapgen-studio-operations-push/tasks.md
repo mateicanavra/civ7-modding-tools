@@ -54,21 +54,21 @@
 These are D9 implementation obligations recorded by this packet, not
 pre-acceptance authoring tasks.
 
-- [ ] 3A.1 Implement or preserve Run in Game transition publication through the
+- [x] 3A.1 Implement or preserve Run in Game transition publication through the
       D8 `StudioEventHub`.
-- [ ] 3A.2 Implement or preserve Save&Deploy transition publication through the
+- [x] 3A.2 Implement or preserve Save&Deploy transition publication through the
       D8 `StudioEventHub`.
-- [ ] 3A.3 Prove publisher path falsification for both operation families.
-- [ ] 3A.3a Prove production daemon composition supplies EventHub and no
+- [x] 3A.3 Prove publisher path falsification for both operation families.
+- [x] 3A.3a Prove production daemon composition supplies EventHub and no
       no-publisher production path exists.
-- [ ] 3A.4 Prove pushed Run in Game events update client state.
-- [ ] 3A.5 Prove pushed Save&Deploy events update client state.
-- [ ] 3A.6 Prove terminal toast parity for adopted terminal vs live pushed
+- [x] 3A.4 Prove pushed Run in Game events update client state.
+- [x] 3A.5 Prove pushed Save&Deploy events update client state.
+- [x] 3A.6 Prove terminal toast parity for adopted terminal vs live pushed
       terminal Run in Game operations.
-- [ ] 3A.7 Delete operation polling/watchdog symbols and prove with negative
+- [x] 3A.7 Delete operation polling/watchdog symbols and prove with negative
       searches.
-- [ ] 3A.8 Prove no hidden Save&Deploy sleep/status completion loop remains.
-- [ ] 3A.9 Prove D10 live-game polling/timer behavior is untouched by D9.
+- [x] 3A.8 Prove no hidden Save&Deploy sleep/status completion loop remains.
+- [x] 3A.9 Prove D10 live-game polling/timer behavior is untouched by D9.
 
 ## 4. Verification
 
@@ -81,7 +81,8 @@ pre-acceptance authoring tasks.
 
 ## 5. Closure
 
-- [x] 5.1 Record review acceptance in `review-disposition-ledger.md`.
+- [x] 5.1 Record fresh implementation-diff review acceptance in
+      `review-disposition-ledger.md`.
 - [x] 5.2 Mark D9 accepted in `OPENSPEC-PACKET-TRAIN.md`.
-- [ ] 5.3 Commit accepted D9 packet through Graphite with clean/quarantined
+- [x] 5.3 Commit D9 implementation through Graphite with clean/quarantined
       worktree state.

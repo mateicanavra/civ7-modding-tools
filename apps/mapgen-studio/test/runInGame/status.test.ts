@@ -5,7 +5,6 @@ import {
   formatRunInGamePhaseLabel,
   isRunInGameTerminalPhase,
   kindForRunInGamePhase,
-  runInGameCanRetryStatus,
   runInGamePrimaryActionLabel,
   runInGameRequiresProcessRestart,
 } from "../../src/features/runInGame/status";
@@ -49,10 +48,6 @@ describe("Run in Game status helpers", () => {
     expect(diagnostics).toContain('"requestId": "studio-run-in-game-test"');
     expect(diagnostics).toContain('"phase": "failed"');
     expect(diagnostics.indexOf('"completedPhases"')).toBeLessThan(diagnostics.indexOf('"details"'));
-    expect(runInGameCanRetryStatus(status)).toBe(true);
-    expect(
-      runInGameCanRetryStatus({ ...status, phase: "complete", status: "complete", ok: true })
-    ).toBe(false);
   });
 
   it("marks process-restart recovery as an explicit Run in Game action", () => {

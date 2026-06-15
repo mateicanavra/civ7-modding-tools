@@ -7,6 +7,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import {
   createStudioEventHub,
   createStudioRpcHandler,
+  type StudioEvent,
   type StudioEventHubApi,
   type StudioOperationRuntimePorts,
   type StudioRouter,
@@ -237,6 +238,57 @@ describe("studio-server RPC handler", () => {
         status: { requestId: "run-event-1", phase: "complete" },
       },
     });
+    await iterator.return?.();
+    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
+  }, 10_000);
+
+  test("operation mutations push through the watched RPC event stream", async () => {
+    const eventHub = trackEventHub(createStudioEventHub());
+    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const client = directClient(handler);
+
+    const iterator = await client.studio.events.watch({});
+    await expect(iterator.next()).resolves.toMatchObject({
+      done: false,
+      value: { type: "hello" },
+    });
+
+    const save = await client.mapConfigs.saveDeploy({
+      requestId: "save-watch-1",
+      id: "test-config",
+      envelope: {},
+    });
+    const saveEvent = await readOperationEvent(
+      iterator,
+      (event) => event.kind === "save-deploy" && event.status.requestId === save.requestId
+    );
+    expect(saveEvent).toMatchObject({
+      type: "operation",
+      kind: "save-deploy",
+      status: {
+        requestId: "save-watch-1",
+        status: "running",
+      },
+    });
+
+    await expect
+      .poll(async () => (await client.mapConfigs.status({ requestId: save.requestId })).phase)
+      .toBe("complete");
+
+    const run = await client.runInGame.start({ recipeId: "mod-swooper-maps/standard" });
+    const runEvent = await readOperationEvent(
+      iterator,
+      (event) => event.kind === "run-in-game" && event.status.requestId === run.requestId
+    );
+    expect(runEvent).toMatchObject({
+      type: "operation",
+      kind: "run-in-game",
+      status: {
+        requestId: run.requestId,
+        status: "running",
+      },
+    });
+
     await iterator.return?.();
     await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
   }, 10_000);
@@ -510,6 +562,18 @@ async function readUntil(
   }
   text += decoder.decode();
   return text;
+}
+
+async function readOperationEvent(
+  iterator: AsyncIterator<StudioEvent>,
+  predicate: (event: Extract<StudioEvent, { type: "operation" }>) => boolean
+): Promise<Extract<StudioEvent, { type: "operation" }>> {
+  for (let index = 0; index < 10; index += 1) {
+    const next = await withTimeout(iterator.next(), 1_000, "operation event");
+    if (next.done) throw new Error("event stream closed before operation event");
+    if (next.value.type === "operation" && predicate(next.value)) return next.value;
+  }
+  throw new Error("operation event did not arrive");
 }
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {

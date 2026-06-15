@@ -1,4 +1,5 @@
-// Run-in-game data surface: start a run and poll its status.
+// Run-in-game data surface: start a run. Ongoing operation freshness is
+// daemon-pushed through `studio.operations.current` and `studio.events.watch`.
 //
 // EVERYTHING talks oRPC (FRAME §4.7): these callers speak the studio's own
 // `@civ7/studio-server` contract through the typed oRPC client (`src/lib/orpc.ts`)
@@ -8,13 +9,9 @@
 // errors: `safe(...)` + `isDefinedError(...)` expose the DECLARED code
 // (RUN_IN_GAME_BLOCKED/INVALID/FAILED/UNAVAILABLE/STATUS_NOT_FOUND, statuses
 // pinned in packages/studio-server/src/contract/errors.ts) and sealed typed
-// failure data. The caller's server-restart detection branches on
-// `code === "RUN_IN_GAME_STATUS_NOT_FOUND"` instead of a raw 404 status code.
+// failure data.
 
-import type {
-  RunInGameFailureDetails,
-  RunInGameOperationStatus,
-} from "@civ7/studio-server/contract";
+import type { RunInGameFailureDetails, RunInGameOperationStatus } from "@civ7/studio-server/contract";
 import { isDefinedError, safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
 import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7Setup/setupConfig";
@@ -100,23 +97,6 @@ export async function runCurrentConfigInGame(args: {
     return {
       ok: false,
       error: error instanceof Error && error.message ? error.message : "Run in Game failed",
-    };
-  }
-  return data;
-}
-
-export async function fetchRunInGameStatus(
-  requestId: string
-): Promise<RunInGameOperationStatus | { ok: false; error: string; code?: string }> {
-  const { error, data } = await safe(orpcClient.runInGame.status({ requestId }));
-  if (error) {
-    return {
-      ok: false,
-      error:
-        error instanceof Error && error.message ? error.message : "Run in Game status unavailable",
-      // `code === "RUN_IN_GAME_STATUS_NOT_FOUND"` is the restart-detection signal
-      // (the former `statusCode === 404` branch in StudioShell).
-      ...(isDefinedError(error) ? { code: error.code } : {}),
     };
   }
   return data;

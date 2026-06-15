@@ -837,6 +837,42 @@ describe("StudioOperationRuntime", () => {
       .toBe("complete");
   });
 
+  test("Save/Deploy event publish failure does not change registry truth", async () => {
+    const eventHub = createStudioEventHub();
+    openEventHubs.push(eventHub);
+    const failingEventHub: StudioEventHubApi = {
+      ...eventHub,
+      publish: async () => {
+        throw new Error("event sink failed");
+      },
+    };
+    const runtime = ManagedRuntime.make(
+      makeStudioOperationRuntimeLayer({
+        ports: makePorts(),
+        eventHub: failingEventHub,
+        civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
+      })
+    );
+    openRuntimes.push(runtime);
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.saveDeployStart({
+        requestId: "save-publish-failure",
+        id: "test-config",
+        envelope: {},
+      })
+    );
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.saveDeployStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("complete");
+  });
+
   test("publishes accepted and transition events from runtime projections", async () => {
     const events: StudioEvent[] = [];
     const eventHub = createStudioEventHub();
@@ -938,6 +974,9 @@ describe("StudioOperationRuntime", () => {
         return status.phase;
       })
       .toBe("complete");
+
+    const operationEvents = events.filter((event) => event.type === "operation");
+    expect(operationEvents.map((event) => event.status.phase)).toContain("complete");
   });
 });
 
