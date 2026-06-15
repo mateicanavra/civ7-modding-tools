@@ -83,17 +83,17 @@
 
 ## 6. Apply Codemod Proof
 
-- [ ] 6.1 Prove target public `/ops` exports exist for injected
+- [x] 6.1 Prove target public `/ops` exports exist for injected
   `deep_import_to_public_surface` cases.
-- [ ] 6.2 Inventory live matches before any apply proof and prove every matched
+- [x] 6.2 Inventory live matches before any apply proof and prove every matched
   imported symbol has a public target export or is refused.
-- [ ] 6.3 Add a missing-export negative fixture/probe proving Habitat refuses
+- [x] 6.3 Add a missing-export negative fixture/probe proving Habitat refuses
   or leaves an unsafe deep import unchanged.
-- [ ] 6.4 Prove `habitat fix --dry-run` on an injected matching file produces
+- [x] 6.4 Prove `habitat fix --dry-run` on an injected matching file produces
   no file changes.
 - [ ] 6.5 Prove real `habitat fix` on an injected matching file produces only
   the approved import-specifier and Biome-format diff.
-- [ ] 6.6 Prove `import type` remains type-only after the rewrite.
+- [x] 6.6 Prove `import type` remains type-only after the rewrite.
 - [ ] 6.7 Run selected typecheck/test gates after the applied diff.
 - [ ] 6.8 Revert probe changes through normal Git cleanup and prove the
   worktree is clean.
@@ -178,8 +178,24 @@
     wrapper target gate; raw direct Grit acquisition, injected proof, apply
     proof, generated-output freshness, parity closure, and product proof remain
     non-claims.
-- [ ] 9.10 `bun run habitat:fix -- --dry-run`
+- [x] 9.10 `bun run habitat:fix -- --dry-run`
+  - 2026-06-15 apply dry-run evidence is recorded as
+    `HGPR-APPLY-LIVE-INVENTORY-2026-06-15`,
+    `HGPR-APPLY-POSITIVE-DRY-RUN-2026-06-15`, and
+    `HGPR-APPLY-MISSING-EXPORT-2026-06-15`. Clean-tree dry-run exits 0 and
+    finds zero live matches; a separate `rg` live inventory finds no
+    recipe/map deep domain imports. An injected safe morphology import exits 0
+    under `--dry-run` and leaves the probe file hash unchanged. An injected
+    unsafe ecology import exits 1 with
+    `GritApplyMissingTargetExport` and leaves the probe file hash unchanged.
+    These close the dry-run and target-export refusal boundary only; live
+    worktree apply remains open.
 - [ ] 9.11 controlled apply proof for `deep_import_to_public_surface`
+  - Unit/isolated-copy evidence in `grit-apply.test.ts` now covers safe value
+    import rewrite, type-only preservation, and missing public export refusal.
+    Live `habitat fix` against the shared implementation worktree remains
+    unclaimed because probe insertion makes the worktree dirty and the
+    committed apply path correctly requires a clean worktree for writes.
 - [ ] 9.12 selected typecheck/test gates for the applied-diff surface
 - [ ] 9.13 stale-record scan:
   `rg -n "H5|grit|Grit|baseline|parity|fixture|current-tree|apply|codemod|retired|closed|CLOSED|green|proof" docs/projects/habitat-harness openspec/changes/habitat-* -g '*.md'`

@@ -11,11 +11,13 @@
 - Started: 2026-06-14
 - Status: selector/current-tree wrapper, native-sample, explicit baseline, and
   supervisor-accepted injected-probe safety/cache repair slices recorded; clean
-  22-row injected-violation proof is recorded for local review; Nx
-  `grit:check` target scheduling is repaired for current-tree wrapper
-  projection; old-mechanism parity has a partial Nx dependency-freshness repair
-  and remains open on stale `wrapped-eslint` identity plus generated map-bundle
-  freshness; apply, broader downstream realignment, and closure remain open
+  22-row injected-violation proof is supervisor-accepted for the injected row
+  proof cleanup boundary; Nx `grit:check` target scheduling is repaired for
+  current-tree wrapper projection; old-mechanism parity has a partial Nx
+  dependency-freshness repair and remains open on stale `wrapped-eslint`
+  identity plus generated map-bundle freshness; apply target-export/dry-run
+  refusal proof is recorded, while live apply, broader downstream realignment,
+  and closure remain open
 
 ## Objective
 
@@ -170,9 +172,30 @@
     implementation worktree. Those artifacts were restored from `HEAD`; this
     packet treats map-bundle generated-output freshness as a blocker/non-claim,
     not as a green parity repair.
-- Dry-run apply proof remains design-seed only until this packet runs the
-  required apply row. Accepted adapter isolated-copy dry-run/apply-match
-  behavior is substrate proof, not row semantic proof.
+- Apply target-export and dry-run proof is recorded as:
+  - `HGPR-APPLY-LIVE-INVENTORY-2026-06-15`: clean-tree
+    `bun run habitat:fix -- --dry-run` exited 0 and found zero matches, and a
+    separate live `rg` scan over recipes/maps found no deep
+    `@mapgen/domain/*/ops/*` imports. This proves the current live inventory is
+    empty for the apply row, not that future matches are safe.
+  - `HGPR-APPLY-POSITIVE-DRY-RUN-2026-06-15`: an injected safe morphology
+    import for `MountainsConfigSchema` exited 0 under public `--dry-run`,
+    reported one rewrite, and left the probe file SHA unchanged. This proves
+    dry-run/no-write behavior for a public-export value case.
+  - `HGPR-APPLY-MISSING-EXPORT-2026-06-15`: an injected unsafe ecology import
+    for `planFloodplains` exited 1 with
+    `GritApplyMissingTargetExport` and left the probe file SHA unchanged. This
+    repairs the `GCR-P1-03` target-export gap at the Habitat apply proof
+    boundary instead of adding product exports outside the packet write set.
+  - `HGPR-APPLY-TARGET-EXPORT-UNIT-2026-06-15`: focused
+    `grit-apply.test.ts` proof covers isolated-copy safe value rewrite,
+    type-only preservation, missing public export refusal, and unchanged source
+    on refusal.
+  Accepted adapter isolated-copy dry-run/apply-match behavior remains substrate
+  proof; this packet now adds the target-export and type-only semantic guard.
+  Live worktree `habitat fix` remains open because adding a probe file dirties
+  the shared implementation worktree and the committed write path correctly
+  requires a clean worktree.
 - Baseline corpus:
   - `tools/habitat-harness/baselines/adapter-boundary.json` continues to cover
     the non-Grit adapter-boundary rule.
@@ -319,12 +342,18 @@ implementation tasks 4, 6, or adapter tests begin.
     wrong-namespace selector command gates.
   - 5.1-5.5 explicit Grit baseline files, tests, baseline-integrity proof,
     shrink-only growth policy proof, and H5/H6 baseline wording realignment.
+  - 6.1-6.4 and 6.6 apply target-export public dry-run proof: live match
+    inventory, missing-export fail-closed behavior, dry-run no-write behavior,
+    and type-only preservation.
   - 8.1-8.2 H5/H6 downstream records patched for the baseline historical/current
     split.
   - 9.7 explicit Grit baseline behavior proof suite.
   - 9.6 all-row injected-violation proof suite.
+  - 9.10 public `habitat:fix -- --dry-run` proof for the clean live tree plus
+    injected safe and missing-export probes.
 - Remaining tasks: matrix fields 2.1-2.2 and 2.5-2.7, apply codemod proof,
-  broader downstream realignment, parity generated-output freshness, remaining
+  including live applied-diff proof and post-apply type/test gates, broader
+  downstream realignment, parity generated-output freshness, remaining
   verification, Graphite commit, and closure.
 - Stop/non-claim state: direct raw current-tree Grit acquisition remains
   unresolved and explicitly unclaimed; wrapper proof controls only the Habitat
@@ -390,6 +419,16 @@ implementation tasks 4, 6, or adapter tests begin.
   - `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts
     --require-clean-start`
   - `find tools/habitat-harness/injected-probe-roots -maxdepth 8 -print`
+  - `bun run --cwd tools/habitat-harness test -- grit-apply.test.ts`
+    (`HGPR-APPLY-TARGET-EXPORT-UNIT-2026-06-15`)
+  - `bun run habitat:fix -- --dry-run`
+    (`HGPR-APPLY-LIVE-INVENTORY-2026-06-15`,
+    `HGPR-APPLY-POSITIVE-DRY-RUN-2026-06-15`, and
+    `HGPR-APPLY-MISSING-EXPORT-2026-06-15`)
+  - `rg -n "@mapgen/domain/[^\"']+/ops/"
+    mods/mod-swooper-maps/src/recipes mods/mod-swooper-maps/src/maps -g
+    '*.ts'` (`HGPR-APPLY-LIVE-INVENTORY-2026-06-15`; exit 1 with empty
+    output expected for zero matches)
   - `find tools/habitat-harness/baselines -maxdepth 1 -type f`
   - `bun run openspec -- validate habitat-grit-proof-repair --strict`
   - full-depth-language guardrail scan over Habitat initiative docs
