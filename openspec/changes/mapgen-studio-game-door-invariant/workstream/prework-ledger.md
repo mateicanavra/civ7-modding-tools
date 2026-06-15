@@ -39,8 +39,9 @@ rg -n "RunInGameHttpError|StudioEngineError|useOperationStatusPolls|useDaemonIns
 rg -n 'devLive\\.ts|"dev": "bun src/server/daemon/devLive\\.ts"|turbo run dev --filter=mapgen-studio|bunx turbo|bun x turbo|bun --watch src/server/daemon/daemon\\.ts' package.json apps/mapgen-studio docs openspec -S
 rg -n "from ['\\\"]zod['\\\"]|\\bz\\." packages/studio-server/src/contract packages/studio-server/src -g '*.{ts,tsx}'
 rg -n "new\\s+Civ7DirectControlSession\\s*\\(" apps packages -g '*.{ts,tsx}'
-rg -n "operationType\\s*\\+\\s*args|Record<string, number>|runtime-port|Run in Game convergence.*out of scope|run-in-game convergence.*out of scope" packages apps docs openspec -S
-rg -n "RunInGameHttpError|StudioEngineError|operation polling|daemon watchdog|browser live-status|devLive\\.ts|Run in Game convergence.*out of scope|run-in-game convergence.*out of scope" docs openspec -S
+rg -n 'bunx nx|bun x nx|\\["x",\\s*"nx"\\]|\\['"'"'x'"'"',\\s*'"'"'nx'"'"'\\]|node_modules/.bin/nx|global-only Nx|on-the-fly Nx|shimmed Nx|direct binary Nx' package.json apps packages docs openspec -S
+rg -n -i "operationType\\s*\\+\\s*args|Record<string, number>|runtime-port|run[- ]in[- ]game.*(convergence|session|out of scope|deferred)|(convergence|session|out of scope|deferred).*run[- ]in[- ]game" packages apps docs openspec -S
+rg -n -i "RunInGameHttpError|StudioEngineError|operation polling|daemon watchdog|browser live-status|devLive\\.ts|run[- ]in[- ]game.*(convergence|session|out of scope|deferred)|(convergence|session|out of scope|deferred).*run[- ]in[- ]game" docs openspec -S
 ```
 
 ## Implementation Prework Required Before Code Edits

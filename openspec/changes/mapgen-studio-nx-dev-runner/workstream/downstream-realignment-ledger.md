@@ -1,6 +1,6 @@
 # D11 Downstream Realignment Ledger - Studio Nx Dev Runner
 
-Status: draft pending review
+Status: packet accepted; implementation pending
 Date: 2026-06-14
 
 ## D12 - Game Door Invariant

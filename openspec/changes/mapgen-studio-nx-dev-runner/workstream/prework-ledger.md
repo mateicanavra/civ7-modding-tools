@@ -1,6 +1,6 @@
 # D11 Prework Ledger - Studio Nx Dev Runner
 
-Status: draft pending review
+Status: packet accepted; implementation pending
 Date: 2026-06-14
 
 ## Packet-Authoring Prework Completed
@@ -10,6 +10,20 @@ Date: 2026-06-14
 - Inspected current pre-Nx root/app scripts and `devLive.ts` process topology.
 - Launched fresh prework, hardening/black-ice, and testing/Nx-native review
   lanes.
+
+## Restack Adoption Update
+
+Date: 2026-06-15
+
+- The selected implementation worktree is now on the accepted Nx/Habitat
+  baseline. `bun run nx --version` reports local Nx `v22.7.5`, and
+  `bun run nx show project mapgen-studio --json` succeeds.
+- Root `dev:mapgen-studio` enters Nx, but the current inferred
+  `mapgen-studio:dev` target still resolves to package `dev`, which runs
+  `bun src/server/daemon/devLive.ts`.
+- `devLive.ts` is still the app-local process supervisor and still launches the
+  daemon with `bun --watch`. This is the current D11 implementation gap, not a
+  baseline blocker.
 
 ## Implementation-Shaping Decisions
 
@@ -39,7 +53,7 @@ runtime text outside the D11 write set.
 
 ## Implementation Prework Required Before Code Edits
 
-1. Select a worktree based on the accepted Nx/Habitat baseline.
+1. Use the adopted worktree based on the accepted Nx/Habitat baseline.
 2. Run `bun install --frozen-lockfile`, baseline build/check, `bun run nx
    --version`, and `bun run nx show project mapgen-studio --json`.
 3. Identify the existing mapgen-studio target names and decide whether to keep

@@ -21,8 +21,8 @@ In Studio dev mode, Play and Save&Deploy SHALL NOT mutate files in the daemon's 
 #### Scenario: Operation deploy uses the mod package build target
 
 - **WHEN** Play or Save&Deploy builds the Swooper Maps mod during a Studio dev operation
-- **THEN** the build command is `bun run nx run mod-swooper-maps:build --outputStyle=static` through the repo-local accepted Nx/Habitat baseline
-- **AND** it does not run broad root build orchestration, generated recipe targets, Turbo commands, global-only/on-the-fly Nx commands, direct binary Nx commands, shimmed Nx commands, or dual-path command selection while the daemon process owns an active operation
+- **THEN** the build command is `bun run nx run mod-swooper-maps:build:studio-deploy --outputStyle=static` through the repo-local accepted Nx/Habitat baseline
+- **AND** it does not run broad root build orchestration, the broad mod package build target, generated recipe targets, Turbo commands, global-only/on-the-fly Nx commands, direct binary Nx commands, shimmed Nx commands, or dual-path command selection while the daemon process owns an active operation
 
 #### Scenario: Deploy output writes preserve daemon identity
 

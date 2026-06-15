@@ -141,7 +141,9 @@ class Civ7TunerSession extends Effect.Service<Civ7TunerSession>()(
    consumer change).
 2. Effect service + Civ7TunerClient convergence (the /rpc poll surface).
 3. Daemon wiring (control facade shares the socket; health; dispose).
-4. Run-in-game convergence: explicitly deferred — out of scope.
+4. Run-in-game convergence: owned by D12 closeout. This slice did not move the
+   flow, and the accepted runtime refactor train no longer treats it as an
+   unbounded deferral or out-of-scope escape.
 
 ## Implementation addenda (as built)
 

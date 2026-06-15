@@ -108,10 +108,12 @@ Protected paths:
 
 ### Future Implementation Closure Gates
 
-- Package/app gates:
-  - `bun run --cwd apps/mapgen-studio test -- test/studioEvents/operationAdoption.test.ts`
+- Package/app gates are repo-local Nx/Habitat-selected targets for touched
+  projects. Direct package scripts may be focused additional evidence, but they
+  are not substitutes for graph-owned dependency ordering:
+  - `bun run nx run mapgen-studio:test --outputStyle=static`
   - focused server operation publisher tests covering both stores
-  - `bun run --cwd apps/mapgen-studio check`
+  - `bun run nx run mapgen-studio:check --outputStyle=static`
 - Publisher path falsification test fails if the EventHub publisher bridge is
   removed from either operation family.
 - Production-composition proof fails if daemon `createStudioEngines` is invoked

@@ -1,7 +1,7 @@
 # D1 Packet Closure Checklist
 
-Status: accepted
-Date: 2026-06-14
+Status: packet accepted; implementation pending
+Date: 2026-06-14; restack adoption update 2026-06-15
 
 ## Packet Shape
 
@@ -24,13 +24,14 @@ Date: 2026-06-14
 
 ## Execution Gates For Future Implementation
 
+- [ ] contract-only recipe surface replaces full recipe source imports in the daemon recipe-DAG path
 - [ ] `bun install --frozen-lockfile`
 - [ ] accepted migrated Nx/Habitat baseline proof
 - [ ] baseline build/check for the selected implementation base
 - [ ] `bun run nx show project mapgen-studio --json`
 - [ ] `bun run nx show project mod-swooper-maps --json`
 - [ ] `bun run nx run mapgen-studio:check --outputStyle=static`
-- [ ] `bun run nx run mod-swooper-maps:build --outputStyle=static`
+- [ ] `bun run nx run mod-swooper-maps:build:studio-deploy --outputStyle=static`
 - [ ] `bun run habitat classify <path-or-diff>` for D1 implementation paths, followed by any reported Habitat/Nx/Biome/GritQL gates
 - [ ] focused tests for contract-only recipe-DAG import, transitive daemon import graph, deploy write-set disjointness, exact deploy command, daemon watch/import trigger, frontend watcher ignores, and D0 one-mount regression
 - [ ] live Play and Save&Deploy same-operation phase-sampled proofs with stable `serverInstanceId`, deploy command/log pointer, and restart-recovery exclusion

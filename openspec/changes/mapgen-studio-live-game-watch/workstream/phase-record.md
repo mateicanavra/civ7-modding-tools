@@ -7,7 +7,7 @@
 - OpenSpec change: `mapgen-studio-live-game-watch`
 - Owner: Codex DRA packet-authoring lane
 - Branch/Graphite stack: `codex/runtime-effect-live-game-watch`
-- Status: draft pending validation and commit
+- Status: packet accepted; implementation pending
 
 ## Objective
 
@@ -57,9 +57,10 @@
 
 The existing `mapgen-studio-live-game-watch` record was historical S3.3
 implementation-closure evidence, not a D10 packet. It claimed all tasks done,
-merged PR state, and green verification even though the current train marks D10
-pending. That stale closure would mislead implementation agents into treating
-unit tests and old merge state as current live proof.
+merged PR state, and green verification even though the current train now treats
+D10 as an accepted packet with implementation pending. That stale closure would
+mislead implementation agents into treating unit tests and old merge state as
+current live proof.
 
 The design risk D10 must remove is not only one helper name. It is hidden
 browser-owned live status freshness: timers, polling hooks, refetch intervals,
@@ -139,14 +140,14 @@ residue closeout.
 
 ## Gate 11 - Review
 
-- Prework scout: `019ec81c-856e-7910-8ca0-0cca286ae393`.
-- Hardening/black-ice reviewer: `019ec81c-a226-72c1-9111-2323262d8ea7`.
-- Testing/vendor alignment reviewer: `019ec81c-bd15-7df0-b7c6-3d9e87711810`.
-- Review ledger must capture all P1/P2 findings before packet acceptance.
+- Prework scout: completed during packet authoring.
+- Hardening/black-ice reviewer: completed during packet authoring.
+- Testing/vendor alignment reviewer: completed during packet authoring.
+- Review ledger captured all P1/P2 findings before packet acceptance.
 
 ## Gate 12 - Closure
 
-Closure is blocked until:
+Packet acceptance required:
 
 - D10 proposal/design/spec/tasks/ledgers agree.
 - `review-disposition-ledger.md` has no unresolved P1/P2 finding.
@@ -158,6 +159,6 @@ Closure is blocked until:
 
 ## Next Action
 
-Finish D10 ledger repairs, validate, update the packet train ledger, and commit
-D10 through Graphite. Then open D11 `mapgen-studio-nx-dev-runner` on the next
-stack branch.
+Implementation opens D10 on its own Graphite branch and runs the gates in
+`tasks.md`. If live Civ7 proof is unavailable, D10 remains not-green for live
+behavior and writes `workstream/next-packet.md`.

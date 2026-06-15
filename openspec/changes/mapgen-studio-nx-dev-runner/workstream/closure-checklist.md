@@ -1,6 +1,6 @@
 # D11 Closure Checklist - Studio Nx Dev Runner
 
-Status: draft pending validation
+Status: packet accepted; implementation pending
 Date: 2026-06-14
 
 - [x] Proposal, design, tasks, and spec delta agree on D11 ownership.
@@ -27,6 +27,11 @@ Date: 2026-06-14
 
 Residual implementation risk:
 
-- This authoring branch is pre-Nx. D11 implementation must run on the accepted
-  migrated Nx/Habitat baseline or stop with a baseline blocker; it must not add
-  a pre-Nx implementation path.
+- The adopted implementation worktree is on the accepted Nx/Habitat baseline,
+  and root `dev:mapgen-studio` routes through Nx. D11 is still not implemented:
+  the inferred `mapgen-studio:dev` target delegates to package `dev`, whose
+  current script runs `bun src/server/daemon/devLive.ts`; `devLive.ts` still
+  supervises backend/frontend processes and launches the daemon with
+  `bun --watch`.
+- D11 implementation must replace that with Nx-owned continuous backend and
+  frontend targets, delete app-local supervision, and prove the process tree.

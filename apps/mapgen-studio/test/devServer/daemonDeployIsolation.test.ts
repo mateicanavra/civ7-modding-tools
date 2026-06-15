@@ -23,10 +23,11 @@ describe("daemon deploy isolation", () => {
       "mod-swooper-maps:build:studio-deploy"
     );
     expect(buildSwooperMapsStudioDeployPlan({ env: { PATH: "/bin" } }).buildArgs).toEqual([
-      "x",
+      "run",
       "nx",
       "run",
       "mod-swooper-maps:build:studio-deploy",
+      "--outputStyle=static",
     ]);
     expect(
       buildSwooperMapsStudioDeployPlan({

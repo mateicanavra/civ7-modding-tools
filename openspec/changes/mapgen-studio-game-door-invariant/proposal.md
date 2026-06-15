@@ -99,7 +99,8 @@ which legacy paths are gone.
 - `bun run openspec -- validate mapgen-studio-tuner-session --strict`.
 - `bun run openspec:validate`.
 - Habitat classify for the D12 write set and all reported package/app gates.
-- Package/app check, test, and build gates for touched code.
+- Repo-local Nx package/app check, test, and build targets for touched code;
+  direct package scripts may be focused additional evidence only.
 - Guard tests for sanctioned direct-control session constructors.
 - Final negative search set:
   - `RunInGameHttpError`;
@@ -111,14 +112,18 @@ which legacy paths are gone.
   - `nextLiveRuntimePollDelayMs`;
   - `devLive.ts`, package scripts that route to `devLive.ts`, active local-dev
     Turbo route, and daemon `bun --watch`;
+  - `bunx nx`, `bun x nx`, `["x", "nx"]` / `['x', 'nx']` deploy-plan residue,
+    global/on-the-fly Nx, direct `node_modules/.bin/nx`, and shimmed Nx command
+    paths;
   - unsanctioned `new Civ7DirectControlSession(`;
   - old satellite client/path symbols;
   - public `operationType + args` generic mutation routes;
   - public `Record<string, number>` mutation arg DTOs where runtime schema is a
     closed semantic union;
   - direct-control runtime-port aliases exported from public root packages;
-  - active runtime docs/OpenSpec text that says Run in Game convergence is out
-    of scope without accepted disposition.
+  - case-insensitive active runtime docs/OpenSpec text matching
+    `run[- ]in[- ]game` plus `convergence`, `session`, `out of scope`, or
+    `deferred` without accepted D12 disposition.
 - Final proof ledger separates OpenSpec validation, source guards, package/app
   tests, negative searches, consumed live proof, new live proof if required,
   Graphite submit/merge/drain, and residual risks.

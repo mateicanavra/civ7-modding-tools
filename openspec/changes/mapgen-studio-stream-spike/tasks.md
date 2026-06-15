@@ -3,8 +3,8 @@
 - [x] 1.1 Confirm D0-D6 are accepted in `OPENSPEC-PACKET-TRAIN.md`.
 - [x] 1.2 Classify the existing `mapgen-studio-stream-spike` change as S3.0 implementation-closure history requiring D7 frame-standard repair.
 - [x] 1.3 Complete D7 transport/API and hardening/black-ice prework scouts.
-- [ ] 1.4 Run D7 transport/API, testing/proof, downstream realignment, hardening/prework, and black-ice review lanes.
-- [ ] 1.5 Record packet entrance proof: branch/status, selected baseline, dirty-file quarantine, and Graphite stack state.
+- [x] 1.4 Run D7 transport/API, testing/proof, downstream realignment, hardening/prework, and black-ice review lanes.
+- [x] 1.5 Record packet entrance proof: branch/status, selected baseline, dirty-file quarantine, and Graphite stack state.
 
 ## 2. Packet Scope
 
@@ -40,14 +40,14 @@ These are D7 implementation obligations recorded by this packet, not pre-accepta
 
 ## 4. Verification
 
-- [ ] 4.1 `bun run openspec -- validate mapgen-studio-stream-spike --strict`.
-- [ ] 4.2 `bun run openspec:validate`.
-- [ ] 4.3 `git diff --check`.
-- [ ] 4.4 Shortcut/black-ice scan.
-- [ ] 4.5 `git status --short --branch`, `gt status`, and `gt log --no-interactive`.
+- [x] 4.1 `bun run openspec -- validate mapgen-studio-stream-spike --strict`.
+- [x] 4.2 `bun run openspec:validate`.
+- [x] 4.3 `git diff --check`.
+- [x] 4.4 Shortcut/black-ice scan.
+- [x] 4.5 `git status --short --branch`, `gt status`, and `gt log --no-interactive`.
 
 ## 5. Closure
 
-- [ ] 5.1 Record review acceptance in `review-disposition-ledger.md`.
-- [ ] 5.2 Mark D7 accepted in `OPENSPEC-PACKET-TRAIN.md`.
-- [ ] 5.3 Commit accepted D7 packet through Graphite with clean/quarantined worktree state.
+- [x] 5.1 Record review acceptance in `review-disposition-ledger.md`.
+- [x] 5.2 Mark D7 accepted in `OPENSPEC-PACKET-TRAIN.md`.
+- [x] 5.3 Commit accepted D7 packet through Graphite with clean/quarantined worktree state.

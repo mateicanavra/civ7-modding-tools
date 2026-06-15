@@ -12,7 +12,7 @@ export function buildSwooperMapsStudioDeployPlan(
     : (options.env ?? process.env);
   return {
     buildTask: "mod-swooper-maps:build:studio-deploy",
-    buildArgs: ["x", "nx", "run", "mod-swooper-maps:build:studio-deploy"],
+    buildArgs: ["run", "nx", "run", "mod-swooper-maps:build:studio-deploy", "--outputStyle=static"],
     env,
   };
 }

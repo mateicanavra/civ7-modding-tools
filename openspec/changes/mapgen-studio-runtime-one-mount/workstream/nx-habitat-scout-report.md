@@ -3,6 +3,11 @@
 Date: 2026-06-14
 Status: accepted as D0 baseline evidence; not an implementation base by itself
 
+Historical pre-settlement scout. Habitat/Nx has since landed on `main`, so the
+branch guidance below is evidence of the packet-authoring decision only. Current
+implementation entrance is the accepted Habitat/Nx baseline on `main` or a
+worktree/stack based on it.
+
 ## Recommendation
 
 Do not restack the runtime packet branch onto the Habitat migration tail now.

@@ -1,6 +1,6 @@
 # D9 Testing Ledger - Studio Operations Push
 
-Status: draft pending review
+Status: packet accepted; implementation pending
 Date: 2026-06-14
 
 | Layer | Required proof | Adequacy criterion |
@@ -18,14 +18,15 @@ Date: 2026-06-14
 ## Future Implementation Commands
 
 ```bash
-bun run --cwd apps/mapgen-studio test -- test/studioEvents/operationAdoption.test.ts
-bun run --cwd apps/mapgen-studio check
+bun run nx run mapgen-studio:test --outputStyle=static
+bun run nx run mapgen-studio:check --outputStyle=static
 bun run openspec -- validate mapgen-studio-operations-push --strict
 ```
 
 Implementation should add or run the focused server/store tests that own the
-publisher seam. If those tests land in a new file, record the exact command in
-this ledger before D9 implementation closure.
+publisher seam through the repo-local Nx test target. If those tests land in a
+new file, record the exact file path in this ledger before D9 implementation
+closure; direct package-local commands are supporting evidence only.
 
 Helper-only tests are insufficient for implementation closure when the behavior
 is owned by a hook, bridge, or Effect/event path. D9 implementation must either

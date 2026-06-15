@@ -1,7 +1,7 @@
 # D12 Closure Checklist - Game Door Invariant
 
-Status: accepted pending final validation
-Date: 2026-06-14
+Status: packet accepted; implementation pending
+Date: 2026-06-14; accounting update 2026-06-15
 
 - [x] Proposal, design, tasks, and spec delta agree on D12 ownership.
 - [x] D12 packet uses the runtime Effect refactor frame and packet train as

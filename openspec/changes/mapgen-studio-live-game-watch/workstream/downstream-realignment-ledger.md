@@ -1,6 +1,6 @@
 # D10 Downstream Realignment Ledger - Studio Live Game Watch
 
-Status: draft pending review
+Status: packet accepted; implementation pending
 Date: 2026-06-14
 
 ## D11 - Nx Dev Runner

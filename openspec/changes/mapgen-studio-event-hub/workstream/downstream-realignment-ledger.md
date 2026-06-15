@@ -1,6 +1,6 @@
 # D8 Downstream Realignment Ledger - Studio Event Hub
 
-Status: draft pending review
+Status: packet accepted; implementation pending
 Date: 2026-06-14
 
 ## D9 - Operations Push

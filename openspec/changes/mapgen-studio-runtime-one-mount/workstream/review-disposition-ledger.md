@@ -1,7 +1,7 @@
 # D0 Review Disposition Ledger
 
-Status: accepted; no open P1/P2
-Date: 2026-06-14
+Status: accepted; no open P1/P2; restack adoption reviewed
+Date: 2026-06-14; restack adoption update 2026-06-15
 
 | ID | Lane | Finding | Severity | Disposition | Repair |
 | --- | --- | --- | --- | --- | --- |
@@ -15,6 +15,9 @@ Date: 2026-06-14
 | D0-R8 | Runtime artifact classification | D0 classified D0-D12 but omitted retained/superseded disposition for preexisting runtime changes such as `mapgen-studio-bun-server` and `mapgen-studio-tuner-session`. | P1 | accepted, repaired | Expanded `artifact-classification-ledger.md` with retained/superseded requirements and owner/re-entry rows. |
 | D0-R9 | Generated-output guard | D0 noted generated bundle churn but did not add a closure guard. | P2 | accepted, repaired | `baseline-oracle-ledger.md` now records generated-output disposition; closure checklist requires no tracked generated output in the D0 write set. |
 | D0-R10 | One-mount residue | Dedupe/BatchLink and bare 500 deferrals needed explicit downstream ownership. | P2 | accepted, repaired | Added `residue-ledger.md` mapping residue to D3, D9, D11, D12 owners and blocking status. |
+| D0-R11 | Restack adoption | D0 workstream records still described the current implementation base as a pre-Nx authoring branch after the runtime stack was restacked onto Habitat/Nx `main`. | P1 | accepted, repaired | Updated phase record, closure checklist, artifact classification, and baseline oracle text to preserve June 14 evidence as historical and record the June 15 adopted Nx/Habitat baseline proof. |
+| D0-R12 | Graphite accounting | Several packet branch names currently point at the same packet-authority commit and the runtime stack has no remote upstream refs in this clone. | P2 | accepted, tracked | No branch rename, fold, combine, or unusual topology rewrite is allowed here. Recheck Graphite state before submit/handoff and use Graphite-native stack submission; treat shared commit pointers as an accounting caveat, not an implementation blocker. |
+| D0-R13 | Habitat/Nx gate | Habitat classify for the D0 workstream reports root `bun run lint`; the full lint gate is non-green on the adopted baseline. | P2 | accepted, tracked | Record non-green lint honestly. `@mateicanavra/civ7-sdk:habitat:check` fails `grit-sdk-mapgen-entrypoint`; `@internal/habitat-harness:habitat:check` fails `workspace-entrypoints`. The committed `deploy.ts` Biome formatting failure was repaired in this alignment slice. |
 
 ## Required Fresh Reviews
 
@@ -22,3 +25,6 @@ Date: 2026-06-14
 - Dev-platform/Nx/Biome/GritQL scout review dispositioned.
 - Testing-design review accepted.
 - Adversarial orphan/complexity review accepted.
+- Restack adoption review: accepted after current worktree, Graphite stack, local Nx, project metadata, and strict D0 OpenSpec validation were rechecked on 2026-06-15.
+- Graphite topology sidecar review: accepted with no P1; D0-R12 remains a submit/handoff accounting caveat.
+- Habitat/Nx gate review: accepted with D0-R13 tracked as non-green root lint, while affected OpenSpec validation, `mapgen-studio:check`, build, and direct Biome checks pass.

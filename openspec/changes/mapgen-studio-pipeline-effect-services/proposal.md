@@ -85,20 +85,25 @@ Protected paths:
 
 ### Future Implementation Closure Gates
 
-- Package/app gates:
-  - `bun run --cwd packages/studio-server test`
-  - `bun run --cwd packages/studio-server check`
-  - `bun run --cwd packages/studio-server build`
-  - `bun run --cwd apps/mapgen-studio test -- test/server/pipelineEffectServices.test.ts test/server/runInGameWorkflow.test.ts test/server/saveDeployWorkflow.test.ts test/server/autoplayWorkflow.test.ts`
-  - `bun run --cwd apps/mapgen-studio check`
-  - `bun run --cwd apps/mapgen-studio build`
+- Package/app gates are repo-local Nx/Habitat-selected targets for touched
+  projects. Direct package scripts may be focused additional evidence, but they
+  are not substitutes for graph-owned dependency ordering:
+  - `bun run nx run @civ7/studio-server:test --outputStyle=static`
+  - `bun run nx run @civ7/studio-server:check --outputStyle=static`
+  - `bun run nx run @civ7/studio-server:build --outputStyle=static`
+  - `bun run nx run mapgen-studio:test --outputStyle=static`
+  - `bun run nx run mapgen-studio:check --outputStyle=static`
+  - `bun run nx run mapgen-studio:build --outputStyle=static`
 - Focused Run in Game success/failure tests for each phase boundary and D3 failure family.
 - Focused Save/Deploy success/failure/rollback tests.
 - Focused Autoplay conflict, unavailable, start failed, stop failed, and verification failed tests.
 - D4 integration tests proving workflows enter through `StudioOperationRuntime` and do not create their own gate, registry, active lookup, or background worker owner.
 - D3 mapper/projection tests proving workflow failures are typed values and no known workflow outcome is thrown as `Error`, `StudioEngineError`, raw `ORPCError`, or status-code truth.
 - Game-wire tests proving workflow game calls route through `Civ7TunerSession` or a package-owned service backed by it.
-- Direct-control package gates for `@civ7/control-orpc` and `@civ7/direct-control`, or explicit untouched-package dispositions backed by negative scans. When touched, run check/test/build for both packages.
+- Direct-control Nx package gates for `@civ7/control-orpc` and
+  `@civ7/direct-control`, or explicit untouched-package dispositions backed by
+  negative scans. When touched, run repo-local Nx check/test/build targets for
+  both packages.
 - Direct-control descriptor guard tests remain green: validator-first, send-receipt, post-read proof, no-repeat-after-unverified metadata, no context-owned public inputs, and raw command tunnel rejection.
 - Static public DTO types remain schema-derived and no broader than TypeBox runtime validation for touched routes.
 - Live Play proof with branch, commit, API path, timestamps, operation id, server identity, materialization proof, setup proof, log proof, and game/map evidence.

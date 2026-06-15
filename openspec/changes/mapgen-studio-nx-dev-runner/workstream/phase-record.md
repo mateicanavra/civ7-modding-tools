@@ -7,7 +7,7 @@
 - OpenSpec change: `mapgen-studio-nx-dev-runner`
 - Owner: Codex DRA packet-authoring lane
 - Branch/Graphite stack: `codex/runtime-effect-nx-dev-runner`
-- Status: draft pending review and validation
+- Status: packet accepted; implementation pending
 
 ## Objective
 
@@ -120,14 +120,14 @@ prove no process/runtime bridge remains unowned.
 
 ## Gate 11 - Review
 
-- Prework/corpus scout: launched.
-- Hardening/black-ice reviewer: launched.
-- Testing/Nx-native reviewer: launched.
-- Review ledger must capture all P1/P2 findings before packet acceptance.
+- Prework/corpus scout: completed during packet authoring.
+- Hardening/black-ice reviewer: completed during packet authoring.
+- Testing/Nx-native reviewer: completed during packet authoring.
+- Review ledger captured all P1/P2 findings before packet acceptance.
 
 ## Gate 12 - Closure
 
-Closure is blocked until:
+Packet acceptance required:
 
 - D11 proposal/design/spec/tasks/ledgers agree.
 - `review-disposition-ledger.md` has no unresolved P1/P2 finding.
@@ -138,6 +138,6 @@ Closure is blocked until:
 
 ## Next Action
 
-Finish D11 review loop, repair accepted findings, validate, update the packet
-train ledger, and commit D11 through Graphite. Then open D12
-`mapgen-studio-game-door-invariant`.
+Implementation opens D11 on its own Graphite branch and runs the gates in
+`tasks.md`. D12 consumes D11's process-proof and residue outputs for final
+closeout.

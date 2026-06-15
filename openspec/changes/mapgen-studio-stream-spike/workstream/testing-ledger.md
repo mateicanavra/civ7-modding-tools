@@ -1,7 +1,7 @@
 # D7 Testing Ledger - Stream Transport Decision
 
-Status: draft
-Date: 2026-06-14
+Status: packet proof contract accepted; implementation evidence pending
+Date: 2026-06-14; accounting update 2026-06-15
 
 | Layer | Required proof | Adequacy criterion |
 | --- | --- | --- |

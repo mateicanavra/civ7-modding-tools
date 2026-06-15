@@ -7,7 +7,7 @@
 - OpenSpec change: `mapgen-studio-game-door-invariant`
 - Owner: Codex DRA packet-authoring lane
 - Branch/Graphite stack: `codex/runtime-effect-game-door-invariant`
-- Status: accepted pending final validation and Graphite commit
+- Status: packet accepted; implementation pending
 
 ## Objective
 
@@ -120,15 +120,16 @@ review/merge policy allows closure.
 
 ## Gate 11 - Review
 
-- Direct-control/prework scout: launched.
-- Hardening/orphan/black-ice reviewer: launched.
-- Testing/schema/runtime reviewer: launched.
-- Fresh D12 prework/black-ice corpus reviewer: launched and repaired.
-- Review ledger must capture all P1/P2 findings before packet acceptance.
+- Direct-control/prework scout: completed during packet authoring.
+- Hardening/orphan/black-ice reviewer: completed during packet authoring.
+- Testing/schema/runtime reviewer: completed during packet authoring.
+- Fresh D12 prework/black-ice corpus reviewer: completed during packet
+  authoring.
+- Review ledger captured all P1/P2 findings before packet acceptance.
 
 ## Gate 12 - Closure
 
-Closure is blocked until:
+Packet acceptance required:
 
 - D12 proposal/design/spec/tasks/ledgers agree.
 - review ledger has no unresolved P1/P2.
@@ -139,5 +140,6 @@ Closure is blocked until:
 
 ## Next Action
 
-Finish D12 review loop, repair findings, validate, update packet train ledger,
-and commit D12 through Graphite.
+Implementation opens D12 on its own Graphite branch after D0-D11 implementation
+work is complete, runs the final residue/proof ledger, and drains the runtime
+refactor stack only after review and live-proof policy allow closure.

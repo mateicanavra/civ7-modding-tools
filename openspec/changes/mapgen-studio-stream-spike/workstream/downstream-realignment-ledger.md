@@ -1,7 +1,7 @@
 # D7 Downstream Realignment Ledger
 
-Status: draft
-Date: 2026-06-14
+Status: packet downstream realignment accepted; implementation evidence pending
+Date: 2026-06-14; accounting update 2026-06-15
 
 | Downstream surface | D7 impact | Required disposition |
 | --- | --- | --- |

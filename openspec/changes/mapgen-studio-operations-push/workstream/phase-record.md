@@ -7,7 +7,7 @@
 - OpenSpec change: `mapgen-studio-operations-push`
 - Owner: Codex DRA packet-authoring lane
 - Branch/Graphite stack: `codex/runtime-effect-operations-push`
-- Status: accepted; pending Graphite commit
+- Status: packet accepted; implementation pending
 
 ## Objective
 
@@ -120,14 +120,14 @@ cadence and D12 owns final runtime invariant closeout.
 
 ## Gate 11 - Review
 
-- Prework/event surface scout: launched.
-- Testing/vendor alignment reviewer: launched.
-- Hardening/prework/black-ice reviewer: launched.
-- Review ledger must capture all P1/P2 findings before packet acceptance.
+- Prework/event surface scout: completed during packet authoring.
+- Testing/vendor alignment reviewer: completed during packet authoring.
+- Hardening/prework/black-ice reviewer: completed during packet authoring.
+- Review ledger captured all P1/P2 findings before packet acceptance.
 
 ## Gate 12 - Closure
 
-Closure is blocked until:
+Packet acceptance required:
 
 - D9 docs/spec/tasks/ledgers agree.
 - Review disposition ledger has no unresolved P1/P2 finding.
@@ -138,5 +138,5 @@ Closure is blocked until:
 
 ## Next Action
 
-Finish D9 review loop, repair accepted findings, validate, update the packet
-train ledger, and commit D9 through Graphite.
+Implementation opens D9 on its own Graphite branch after D8 EventHub exists,
+then runs the gates in `tasks.md` before claiming operation-push closure.

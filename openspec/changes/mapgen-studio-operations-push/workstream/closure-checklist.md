@@ -1,6 +1,6 @@
 # D9 Closure Checklist - Studio Operations Push
 
-Status: draft pending validation
+Status: packet accepted; implementation pending
 Date: 2026-06-14
 
 - [x] Proposal, design, tasks, and spec delta agree on D9 ownership.
