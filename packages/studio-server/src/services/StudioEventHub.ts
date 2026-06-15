@@ -19,6 +19,7 @@ export class StudioEventHub extends Context.Tag("@civ7/studio-server/StudioEvent
 
 export function createStudioEventHub(): StudioEventHubApi {
   let activeSubscribers = 0;
+  let shutdownStarted = false;
   const activeReleases = new Set<() => Promise<void>>();
   const pubsubPromise = Effect.runPromise(PubSub.unbounded<StudioEvent>());
 
@@ -83,6 +84,8 @@ export function createStudioEventHub(): StudioEventHubApi {
     },
 
     async shutdown() {
+      if (shutdownStarted) return;
+      shutdownStarted = true;
       await Promise.all([...activeReleases].map((release) => release()));
       const pubsub = await pubsubPromise;
       await Effect.runPromise(PubSub.shutdown(pubsub));

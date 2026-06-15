@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 
 import { saveDeployStatusTypeSchema } from "../src/contract/mapConfigs";
 import { operationStatusTypeSchema } from "../src/contract/runInGame";
-import { operationsCurrent, studioOperationEventSchema } from "../src/contract/studio";
+import { operationsCurrent, studioEventSchema, studioOperationEventSchema } from "../src/contract/studio";
 import { RecipeDagGetContract } from "../src/recipeDag/contract";
 import {
   toStandardSchema,
@@ -117,6 +117,41 @@ describe("studio-server TypeBox contract spine", () => {
     const saveDeployOperationEvent = unionOption(studioOperationEventSchema, 1);
     expect(schemaProperty(runInGameOperationEvent, "status")).toBe(operationStatusTypeSchema);
     expect(schemaProperty(saveDeployOperationEvent, "status")).toBe(saveDeployStatusTypeSchema);
+  });
+
+  test("keeps the Studio event union TypeBox-owned and sealed to hello, operation, and live-game", () => {
+    expect(unionOption(studioEventSchema, 0)).toBeTruthy();
+    expect(unionOption(studioEventSchema, 1)).toBe(studioOperationEventSchema);
+    expect(unionOption(studioEventSchema, 2)).toBeTruthy();
+
+    expect(
+      Value.Check(studioEventSchema, {
+        type: "hello",
+        serverInstanceId: "studio-test",
+        serverStartedAt: "2026-06-15T00:00:00.000Z",
+        observedAt: "2026-06-15T00:00:01.000Z",
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(studioEventSchema, {
+        type: "live-game",
+        observedAt: "2026-06-15T00:00:01.000Z",
+        state: {
+          status: "ok",
+          readiness: "ready",
+          snapshotStatus: "idle",
+          bindingStatus: "unbound-runtime",
+          failureCount: 0,
+        },
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(studioEventSchema, {
+        type: "diagnostic",
+        observedAt: "2026-06-15T00:00:01.000Z",
+        details: {},
+      })
+    ).toBe(false);
   });
 
   test("keeps active Studio contract modules free of stale schema-tech residue", async () => {

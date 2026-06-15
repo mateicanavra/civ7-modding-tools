@@ -106,7 +106,7 @@ const studioLiveGameEventSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const studioEventSchema = Type.Union([
+export const studioEventSchema = Type.Union([
   studioHelloEventSchema,
   studioOperationEventSchema,
   studioLiveGameEventSchema,

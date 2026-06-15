@@ -187,10 +187,9 @@ export async function createStudioDaemon(args: StudioDaemonArgs) {
   const fetch = createStudioDaemonFetch(deps);
 
   return {
-    /** Closes the studio runtime scope — graceful FIN to the game — and event bus. */
+    /** Closes the Studio RPC handle, which owns runtime scope and event-hub shutdown. */
     dispose: async () => {
       await studioRpc.dispose();
-      await eventHub.shutdown();
     },
     start() {
       const server = Bun.serve({

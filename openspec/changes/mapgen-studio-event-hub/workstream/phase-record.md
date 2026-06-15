@@ -153,3 +153,19 @@ Packet acceptance required:
 Implementation opens D8 on its own Graphite branch and runs the gates in
 `tasks.md`. D9 implementation cannot claim operation-push proof until D8
 EventHub exists.
+
+## Implementation Addendum - 2026-06-15
+
+- Implementation branch: `codex/runtime-effect-event-hub`, parented above the
+  separate lower repair slice
+  `codex/runtime-effect-domain-contract-import-surface`.
+- This implementation slice is not docs-only. It changes the package event
+  schema export, handler/EventHub lifecycle behavior, daemon disposal ownership,
+  handler/contract tests, and D8 workstream records.
+- The packet-authoring branch/status evidence above remains historical context
+  for packet acceptance only. Current implementation evidence is in
+  `tasks.md`, `testing-ledger.md`, `review-disposition-ledger.md`, and
+  `closure-checklist.md`.
+- D8 implementation proves event hub/watch/hello/retry/cleanup mechanics. It
+  does not claim D9 operation publisher parity, D9 polling/watchdog deletion,
+  D10 live-game cadence parity, or D10 browser timer deletion.

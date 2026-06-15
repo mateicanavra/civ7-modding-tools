@@ -58,21 +58,46 @@
 These are D8 implementation obligations recorded by this packet, not
 pre-acceptance authoring tasks.
 
-- [ ] 3A.1 Implement or preserve one daemon-owned `StudioEventHub` instance.
-- [ ] 3A.2 Implement or preserve TypeBox `hello | operation | live-game` event
+- [x] 3A.1 Implement or preserve one daemon-owned `StudioEventHub` instance.
+- [x] 3A.2 Implement or preserve TypeBox `hello | operation | live-game` event
       union through the owned Standard Schema adapter.
-- [ ] 3A.3 Implement or preserve `studio.events.watch` with `.effect()` and
+- [x] 3A.3 Implement or preserve `studio.events.watch` with `.effect()` and
       `eventIterator(...)` on the one `/rpc` mount.
-- [ ] 3A.4 Prove `hello` is the first event and includes daemon identity.
-- [ ] 3A.5 Prove subsequent hub events flow through the same watch iterator.
-- [ ] 3A.6 Prove iterator close, client abort/disconnect, runtime/fiber
+- [x] 3A.4 Prove `hello` is the first event and includes daemon identity.
+- [x] 3A.5 Prove subsequent hub events flow through the same watch iterator.
+- [x] 3A.6 Prove iterator close, client abort/disconnect, runtime/fiber
       interruption, hub shutdown, and repeated subscribe/close cleanup.
-- [ ] 3A.7 Prove client `experimental_liveOptions` and explicit nonzero retry
+- [x] 3A.7 Prove client `experimental_liveOptions` and explicit nonzero retry
       on the actual watch path.
-- [ ] 3A.8 Prove `hello` calls `studio.operations.current` adoption without
+- [x] 3A.8 Prove `hello` calls `studio.operations.current` adoption without
       page reload or browser request-id recovery.
-- [ ] 3A.9 Promote or delete D7 spike-only fixtures after equivalent production
+- [x] 3A.9 Promote or delete D7 spike-only fixtures after equivalent production
       watch tests exist.
+
+Implementation evidence:
+
+- `StudioEventHub` remains the daemon-owned bus created by
+  `apps/mapgen-studio/src/server/daemon/daemon.ts` and supplied through
+  `StudioServerContext` into the package runtime. The daemon owns the single
+  `StudioRpcHandle`; `createStudioRpcHandler(...).dispose()` now stops the
+  live-game watcher, disposes the ManagedRuntime, and shuts down the daemon hub
+  so open watch readers settle without a second daemon-side shutdown path.
+- `packages/studio-server/src/contract/studio.ts` exports the TypeBox
+  `studioEventSchema`, and `contractTypeboxSpine.test.ts` proves the sealed
+  `hello | operation | live-game` union while retaining canonical operation DTO
+  reuse.
+- `handler.test.ts` proves `studio.events.watch` hello-first delivery,
+  published hub-event delivery after hello, iterator close, response-body
+  cancel, hub shutdown/pending-read interruption, RPC-handle disposal
+  interruption, and repeated subscribe/close cleanup.
+- `operationAdoption.test.ts` proves actual watch-path nonzero retry,
+  `experimental_liveOptions`, and `hello` adoption through
+  `studio.operations.current` without request-id/status replay.
+- D7 spike delivery/hello/cleanup/one-route/retry assertions are now covered by
+  production handler, Vite proxy, and app hook tests. This does not claim D9/D10
+  product parity: operation publisher parity, operation polling/watchdog
+  deletion, live-game publisher cadence, and browser live-game timer deletion
+  remain owned by D9/D10.
 
 ## 4. Verification
 
@@ -82,10 +107,29 @@ pre-acceptance authoring tasks.
 - [x] 4.4 Shortcut/black-ice scan.
 - [x] 4.5 `git status --short --branch`, `gt status`, and
       `gt log --no-interactive`.
+- [x] 4.6 `bun run --cwd packages/studio-server test -- test/handler.test.ts
+      test/contractTypeboxSpine.test.ts`.
+- [x] 4.7 `bun run --cwd apps/mapgen-studio test --
+      test/studioEvents/operationAdoption.test.ts test/server/oneMount.test.ts`.
+- [x] 4.8 `bun run nx run @civ7/studio-server:test --outputStyle=static`.
+- [x] 4.9 `bun run nx run mapgen-studio:test --outputStyle=static`.
+- [x] 4.10 `bun run nx run mapgen-studio:check --outputStyle=static`.
+- [x] 4.11 `bun run --cwd packages/studio-server check`.
+- [x] 4.12 `bun run --cwd packages/studio-server build`.
+- [x] 4.13 `bun run nx run @civ7/studio-server:check --outputStyle=static`.
+      The graph-owned Habitat/Grit dependency was repaired in the separate
+      lower Graphite slice `codex/runtime-effect-domain-contract-import-surface`
+      (`af366fbd0 fix(mapgen): align recipe domain contract imports`), which
+      reconciles the current Habitat domain-root import policy with the D1
+      daemon import-graph isolation oracle before this D8 event-hub slice.
 
 ## 5. Closure
 
 - [x] 5.1 Record review acceptance in `review-disposition-ledger.md`.
 - [x] 5.2 Mark D8 accepted in `OPENSPEC-PACKET-TRAIN.md`.
-- [ ] 5.3 Commit accepted D8 packet through Graphite with clean/quarantined
+- [x] 5.3 Record fresh implementation-diff review disposition.
+- [x] 5.4 Resolve or formally disposition the graph-owned
+      `@civ7/studio-server:check` Habitat/Grit failure without claiming D8
+      green.
+- [x] 5.5 Commit D8 implementation through Graphite with clean/quarantined
       worktree state.
