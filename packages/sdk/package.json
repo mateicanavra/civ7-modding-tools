@@ -42,17 +42,12 @@
     "lodash-es": "^4.17.23"
   },
   "devDependencies": {
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.18",
-    "@types/node": "^22.14.0",
-    "eslint": "^9.39.2",
     "@types/lodash": "^4.17.23",
     "@types/jstoxml": "^5.0.0",
     "@civ7/types": "workspace:*"
   },
   "engines": {
-    "node": ">=22.14.0"
+    "node": "22.22.0"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/",

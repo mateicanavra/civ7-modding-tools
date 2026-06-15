@@ -15,10 +15,5 @@
   },
   "dependencies": {
     "@mateicanavra/civ7-sdk": "workspace:*"
-  },
-  "devDependencies": {
-    "typescript": "^5.9.3",
-    "rimraf": "^6.1.2",
-    "vitest": "^4.0.18"
   }
 }

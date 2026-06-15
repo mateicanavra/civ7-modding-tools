@@ -13,8 +13,9 @@
   `mapgen-studio#dev`/`#build`/`#check`/`#test`) plus the
   `build:studio-recipes` target into the respective package.json `"nx"`
   fields.
-- [x] 1.5 Add `tools/*` to root workspaces; add root `mise.toml` pinning node
-  and bun; gitignore `.nx/cache` and `.nx/workspace-data`.
+- [x] 1.5 Add `tools/*` to root workspaces; pin node and bun with root
+  `.nvmrc`, `.bun-version`, and `packageManager`; gitignore `.nx/cache` and
+  `.nx/workspace-data`.
 
 ## 2. Script And CI Re-Pointing
 

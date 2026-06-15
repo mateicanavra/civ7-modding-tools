@@ -23,9 +23,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@civ7/types": "workspace:*",
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "@civ7/types": "workspace:*"
   },
   "license": "MIT"
 }

@@ -56,6 +56,18 @@
           "{projectRoot}/src/maps/generated/**"
         ]
       },
+      "build:studio-deploy": {
+        "inputs": [
+          "default",
+          {
+            "env": "SWOOPER_STUDIO_RUN_ID"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/mod/**",
+          "{projectRoot}/src/maps/generated/**"
+        ]
+      },
       "check": {
         "dependsOn": [
           "^build",
@@ -72,6 +84,7 @@
   },
   "scripts": {
     "build": "bun run gen:maps && tsup",
+    "build:studio-deploy": "bun run gen:maps && tsup",
     "build:studio-recipes": "tsup --config tsup.studio-recipes.config.ts && bun run gen:studio-recipes-types && bun run gen:maps",
     "gen:maps": "bun ./scripts/generate-map-artifacts.ts",
     "gen:studio-recipes-types": "bun ./scripts/generate-studio-recipe-types.ts",
@@ -99,9 +112,6 @@
   },
   "devDependencies": {
     "@civ7/types": "workspace:*",
-    "esbuild": "^0.27.2",
-    "json-schema-to-typescript": "^15.0.4",
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "json-schema-to-typescript": "^15.0.4"
   }
 }

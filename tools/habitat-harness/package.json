@@ -39,12 +39,6 @@
     "./plugin": "./src/plugin.js",
     "./rules": "./src/rules/rules.json"
   },
-  "devDependencies": {
-    "@types/node": "^22.14.0",
-    "oclif": "^4.22.70",
-    "rimraf": "^6.1.2",
-    "typescript": "^5.9.3"
-  },
   "dependencies": {
     "@nx/devkit": "22.7.5",
     "@oclif/core": "^4.8.0",

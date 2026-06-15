@@ -98,7 +98,7 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
 
 ### Development setup
 
-- Prereqs: Node 22.14+ and Bun.
+- Prereqs: Node 22.22.0 and Bun 1.3.14.
 - Install from repo root: `bun install --frozen-lockfile`
 - Build this package from the repo root:
   - `bun run build:cli`

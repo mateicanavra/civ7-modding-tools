@@ -70,12 +70,8 @@ function packageJson(options) {
       test: "bun test",
       clean: "rimraf dist",
     },
-    devDependencies: {
-      rimraf: "^6.1.2",
-      typescript: "^5.9.3",
-    },
     engines: {
-      node: ">=22.14.0",
+      node: "22.22.0",
     },
   };
 }

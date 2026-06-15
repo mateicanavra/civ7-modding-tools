@@ -50,14 +50,15 @@ Node CLIs:            Nx, ESLint, and often Grit should run normally through bun
 Biome CLI:            use bunx --bun @biomejs/biome, matching Biome's Bun docs
 ```
 
-The harness should pin both Node and Bun. Bun is the package manager and the runtime for the local `habitat` CLI, but Nx and ESLint remain Node-ecosystem CLIs. Nx's own Bun CI guide pins both `node` and `bun` with `mise.toml`, then runs Nx via `bunx`. That is the posture this spec uses.
+The harness should pin both Node and Bun. Bun is the package manager and the runtime for the local `habitat` CLI, but Nx and ESLint remain Node-ecosystem CLIs. This repo uses `.nvmrc` and `engines.node` for Node, plus `.bun-version` and `packageManager` for Bun.
 
-Recommended root `mise.toml`:
+Recommended root pins:
 
-```toml
-[tools]
-node = "24.11.0"
-bun = "1.3.11"
+```text
+.nvmrc: 22.22.0
+.bun-version: 1.3.14
+package.json packageManager: bun@1.3.14
+package.json engines.node: 22.22.0
 ```
 
 The exact versions should be updated intentionally by maintainers. The point is not those specific numbers; the point is that the repo pins both runtimes instead of assuming Bun removes the need for Node.
@@ -69,7 +70,7 @@ Recommended root `bunfig.toml`:
 linker = "isolated"
 ```
 
-For a new Bun workspace/monorepo, isolated installs are the right default because they reduce phantom dependency leakage. If an existing repository cannot yet run isolated, the harness may temporarily use `linker = "hoisted"`, but that should be treated as migration debt because hidden dependencies weaken file-level enforcement.
+For this Bun workspace/monorepo, isolated installs are the right default because they reduce phantom dependency leakage. Do not change linker strategy as a repair path for dependency-resolution failures; fix declarations, versions, and lockfile state directly.
 
 Bun does not run arbitrary lifecycle scripts for installed dependencies unless they are trusted. The root project's own `prepare` script is still expected to install Husky hooks, but any binary package that relies on dependency lifecycle scripts may require either a different installation route or an explicit `trustedDependencies` entry. Treat this as a supply-chain hardening feature, not as a nuisance.
 
@@ -120,7 +121,7 @@ Exact package versions may vary, but the harness must create one local plugin un
 ```jsonc
 {
   "private": true,
-  "packageManager": "bun@1.3.11",
+  "packageManager": "bun@1.3.14",
   "workspaces": [
     "apps/*",
     "packages/*",
@@ -205,7 +206,8 @@ repo/
   bun.lock
   bunfig.toml
   eslint.boundaries.config.mjs
-  mise.toml
+  .bun-version
+  .nvmrc
   nx.json
   package.json
 ```
@@ -218,7 +220,7 @@ This is deliberately local. The harness begins as repository infrastructure, not
 
 ### Setup
 
-Install Bun through the official installer, package manager, or CI image, then pin it through `mise.toml` or an equivalent toolchain manager. Commit `bun.lock` and remove other package-manager lockfiles after migration.
+Install Bun through the official installer, package manager, or CI image, then pin Bun with `.bun-version` and root `packageManager`. Pin Node with `.nvmrc` and `engines.node`. Commit `bun.lock` and remove other package-manager lockfiles after migration.
 
 Root `bunfig.toml`:
 
@@ -1119,7 +1121,7 @@ Codemods rewrite known structure. Humans/agents author business logic.
 Forbidden:
 
 ```text
-The workspace relies on hoisted or phantom dependencies as a normal operating mode.
+The workspace relies on undeclared or phantom dependencies as a normal operating mode.
 ```
 
 Required:

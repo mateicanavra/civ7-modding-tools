@@ -219,7 +219,7 @@ and agent operating procedure. We **amend**:
 | Existing ESLint config | Unaware | Current restricted-import/syntax blocks migrate to Grit + file layer; ESLint keeps only the Nx boundary rule |
 | Hooks | Generic pre-commit restage | D3 condition: restage only formatter-touched files; Graphite-aware |
 | Workspaces | `apps/*, packages/*, services/*, tools/*` | This repo's globs + add `tools/*` |
-| mise.toml | Recommended | Adopted (pin node + bun) — new file |
+| Runtime pins | Recommended | Adopted through `.nvmrc`, `.bun-version`, and root `packageManager` |
 | `bun ci` | Suggested | Keep `bun install --frozen-lockfile` (already in CI) |
 
 ## 6. Grounding insights (what the repo actually has)
