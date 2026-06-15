@@ -1,6 +1,6 @@
 # D10 Testing Ledger - Studio Live Game Watch
 
-Status: draft pending review
+Status: packet accepted; implementation pending
 Date: 2026-06-14
 
 | Layer | Required proof | Adequacy criterion |
@@ -21,10 +21,10 @@ Date: 2026-06-14
 ```bash
 bun run openspec -- validate mapgen-studio-live-game-watch --strict
 bun run openspec:validate
-bun run --cwd packages/studio-server test -- test/liveGameWatcher.test.ts test/handler.test.ts
-bun run --cwd packages/studio-server check
-bun run --cwd apps/mapgen-studio test -- test/liveRuntime/model.test.ts test/studioEvents/operationAdoption.test.ts
-bun run --cwd apps/mapgen-studio check
+bun run nx run @civ7/studio-server:test --outputStyle=static
+bun run nx run @civ7/studio-server:check --outputStyle=static
+bun run nx run mapgen-studio:test --outputStyle=static
+bun run nx run mapgen-studio:check --outputStyle=static
 rg -n "nextLiveRuntimePollDelayMs|liveStatusFailureCountRef" apps/mapgen-studio/src apps/mapgen-studio/test packages/studio-server/src packages/studio-server/test -S
 rg -n "setTimeout\\(|setInterval\\(" apps/mapgen-studio/src/app apps/mapgen-studio/src/features -S
 rg -n "civ7\\.live\\.status\\(" apps/mapgen-studio/src apps/mapgen-studio/test -S
@@ -33,8 +33,10 @@ rg -n "new Civ7Tuner|create.*Tuner|direct-control.*live|EventSource|text/event-s
 git diff --check
 ```
 
-The exact test file list may change during implementation. If implementation
-adds stronger tests under different files, update this ledger before closure.
+Focused file evidence should include watcher, handler, live runtime model, and
+event-adoption paths, but repo-local Nx targets remain the closure commands. If
+implementation adds stronger tests under different files, update this ledger
+before closure.
 
 ## Live Proof Requirements
 

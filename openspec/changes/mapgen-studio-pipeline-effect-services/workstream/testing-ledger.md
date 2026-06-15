@@ -67,19 +67,23 @@ git diff --check
 ## Future Implementation Commands
 
 ```bash
-bun run --cwd packages/studio-server test
-bun run --cwd packages/studio-server check
-bun run --cwd packages/studio-server build
-bun run --cwd apps/mapgen-studio test -- test/server/pipelineEffectServices.test.ts test/server/runInGameWorkflow.test.ts test/server/saveDeployWorkflow.test.ts test/server/autoplayWorkflow.test.ts
-bun run --cwd apps/mapgen-studio check
-bun run --cwd apps/mapgen-studio build
-bun run --cwd packages/civ7-control-orpc check
-bun run --cwd packages/civ7-control-orpc test
-bun run --cwd packages/civ7-control-orpc build
-bun run --cwd packages/civ7-direct-control check
-bun run --cwd packages/civ7-direct-control test
-bun run --cwd packages/civ7-direct-control build
+bun run nx run @civ7/studio-server:test --outputStyle=static
+bun run nx run @civ7/studio-server:check --outputStyle=static
+bun run nx run @civ7/studio-server:build --outputStyle=static
+bun run nx run mapgen-studio:test --outputStyle=static
+bun run nx run mapgen-studio:check --outputStyle=static
+bun run nx run mapgen-studio:build --outputStyle=static
+bun run nx run @civ7/control-orpc:check --outputStyle=static
+bun run nx run @civ7/control-orpc:test --outputStyle=static
+bun run nx run @civ7/control-orpc:build --outputStyle=static
+bun run nx run @civ7/direct-control:check --outputStyle=static
+bun run nx run @civ7/direct-control:test --outputStyle=static
+bun run nx run @civ7/direct-control:build --outputStyle=static
 ```
+
+Focused file evidence should include pipelineEffectServices, Run in Game,
+SaveDeploy, and Autoplay workflow paths, but repo-local Nx targets remain the
+closure commands. Direct package-local scripts are supporting evidence only.
 
 Implementation negative-search gates:
 

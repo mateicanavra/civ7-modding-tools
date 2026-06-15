@@ -4,12 +4,24 @@
 - [x] 1.2 Reframe D1 as watch-graph isolation on the accepted migrated baseline, not as a Turbo-era hotfix.
 - [ ] 1.3 Run fresh D1 review lanes and disposition all P1/P2 findings before D2 starts.
 
+Restack adoption note, 2026-06-15:
+
+- Packet authority is accepted, but implementation closure is still pending.
+- Current code already routes Studio deploy through the dedicated repo-local Nx
+  target shape, but the D1 proof set has not been rerun on this slice.
+- Known implementation gap: `apps/mapgen-studio/src/server/recipeDag/service.ts`
+  still imports full source recipe modules from
+  `mods/mod-swooper-maps/src/recipes/*/recipe.js` rather than a contract-only
+  Studio recipe surface. Tasks below remain unchecked until the contract-only
+  import graph, deploy write-set isolation, and live Play/Save&Deploy proofs
+  are completed.
+
 ## 2. Implementation Shape
 
 - [ ] 2.1 Add a package-owned Studio recipe contract surface under `mods/mod-swooper-maps/src/recipes/studio-contracts/**`, with one module per recipe and a shared index.
 - [ ] 2.2 Keep daemon recipe-DAG imports on the contract-only Studio recipe entrypoint, not full recipe runtime modules.
 - [ ] 2.3 Prove the transitive daemon import graph is disjoint from operation-written roots: `mods/mod-swooper-maps/dist/**`, `mods/mod-swooper-maps/mod/**`, and `mods/mod-swooper-maps/src/maps/generated/**`.
-- [ ] 2.4 Express operation deploy builds through `bun run nx run mod-swooper-maps:build --outputStyle=static` on the accepted Nx/Habitat baseline, not Turbo-era root orchestration or generated recipe targets.
+- [ ] 2.4 Express operation deploy builds through `bun run nx run mod-swooper-maps:build:studio-deploy --outputStyle=static` on the accepted Nx/Habitat baseline, not the broad package build target, Turbo-era root orchestration, or generated recipe targets.
 - [ ] 2.5 Prove no daemon import uses `mod-swooper-maps/recipes/*` package exports, full recipe runtime modules, generated recipe files, generated map outputs, or deployable mod outputs.
 - [ ] 2.6 Keep deploy-written mod outputs outside daemon/frontend watch authority through source-boundary ownership and watch-ignore guards.
 

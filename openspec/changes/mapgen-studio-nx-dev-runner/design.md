@@ -23,10 +23,9 @@ Use scale-continuous target names:
 - `mapgen-studio:dev`: user-facing dev target that depends on
   `serve-daemon` and runs the frontend target.
 
-If the accepted Nx baseline already uses different names, implementation may
-keep those names only when the semantics are identical and the target graph is
-equally legible. The packet proof must then record the chosen target names and
-why they satisfy the topology.
+These target names are the D11 implementation contract. Existing baseline
+targets with overlapping behavior are migrated to this topology or deleted; D11
+does not preserve alternate names as an implementation option.
 
 Generated recipe/build prerequisites are Nx dependencies, not app-supervisor
 logic. `mapgen-studio:dev` or its dependency chain must account for the Studio

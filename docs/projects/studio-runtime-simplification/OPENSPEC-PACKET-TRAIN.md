@@ -50,7 +50,7 @@ Historical local packet-authoring evidence captured before the Habitat/Nx settle
 Post-Habitat/Nx settlement implementation baseline:
 
 - The accepted baseline is the settled Habitat/Nx stack, with Nx declared in root dev dependencies, root build/check/lint/test/verify scripts entering the Nx DAG, and no Turbo, `bunx nx`, shim, symlink, direct `node_modules` binary, daemon/cache bypass, or routine cache-reset command path.
-- Runtime implementation work must use the root Nx/Habitat contract present on the selected worktree. Package-local tests/checks/builds remain valid closure gates, but cross-workspace orchestration belongs in Nx targets and `dependsOn`, not shell-level sequencing.
+- Runtime implementation work must use the root Nx/Habitat contract present on the selected worktree. Repo-local Nx targets selected by Habitat/classification own dependency ordering and closure authority; direct package-local scripts may be focused additional evidence only, not substitutes for graph-owned gates.
 - `bun run build`, `bun run verify`, and the relevant package/app gates are the normal baseline proofs. `bun run lint` is graph-owned and may fail on locked Habitat/Grit rule debt; such failures are architectural enforcement findings, not evidence that runtime packets should bypass Nx.
 - Scout evidence remains recorded in `openspec/changes/mapgen-studio-runtime-one-mount/workstream/nx-habitat-scout-report.md`, but any pre-settlement Turbo or `bunx nx` command text is historical evidence only.
 

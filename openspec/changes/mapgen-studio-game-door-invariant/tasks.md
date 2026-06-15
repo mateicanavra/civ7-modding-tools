@@ -42,7 +42,8 @@
 - [ ] 4.1 Run final negative searches for browser operation recovery,
       operation polling/watchdog, browser live-status cadence, dev supervisor,
       old satellite clients/paths, generic mutation DTOs, direct-control public
-      aliases, and stale convergence comments.
+      aliases, Nx command residue, and case-insensitive run-in-game
+      convergence/session/out-of-scope/deferred comments.
 - [ ] 4.2 Patch active docs/comments that describe deleted runtime paths as
       current.
 - [ ] 4.3 Record final residue ledger with every hit classified as deleted,
@@ -58,7 +59,8 @@
 - [ ] 5.1 `bun run openspec -- validate mapgen-studio-game-door-invariant --strict`.
 - [ ] 5.2 `bun run openspec -- validate mapgen-studio-tuner-session --strict`.
 - [ ] 5.3 `bun run openspec:validate`.
-- [ ] 5.4 Package/app check, test, and build gates for touched code.
+- [ ] 5.4 Repo-local Nx package/app check, test, and build targets for touched
+      code; direct package scripts may be additional focused evidence only.
 - [ ] 5.5 Guard tests for direct-control session ownership.
 - [ ] 5.6 Final negative search set from `proposal.md`.
 - [ ] 5.7 New live proof if D12 implementation changes live behavior or final

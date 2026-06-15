@@ -9,7 +9,7 @@ This ledger classifies terms that appear in D1 packet scans but are not active t
 
 - `proposal.md`, `design.md`, `tasks.md`, and `specs/mapgen-studio/spec.md` define the implementation target.
 - `packet-phase-record.md`, `packet-review-disposition-ledger.md`, `packet-closure-checklist.md`, and this ledger define packet governance.
-- The final deploy command owner is the accepted Nx/Habitat baseline, routed through the mod package build target.
+- The final deploy command owner is the accepted Nx/Habitat baseline, routed through the mod package's dedicated `build:studio-deploy` target.
 - Turbo-era `--only` commands are not an active D1 target.
 - Watch ignores are guardrails only; daemon import graph isolation is the system invariant.
 

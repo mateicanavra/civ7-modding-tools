@@ -18,7 +18,7 @@ Recipe-DAG stage metadata is source truth, not deploy output. The daemon may loa
 
 The contract module shape is deliberately narrower than "any source recipe module." It is a Studio-facing source contract surface. It can expose ids, stage order, TypeBox schemas, public authoring metadata, and artifact metadata. It cannot expose executable recipe runtime, compile functions, direct-control behavior, generated map bundles, or deploy output. If a future recipe is added, it gets its own contract module beside the current ones and is exported through the index with the same contract type.
 
-Operation deploy is an operation-scoped mod build, not a root dependency build. On the accepted migrated baseline, the command shape is Nx-native and targets the mod package build directly. Broad root orchestration, dependency-output replay, and Turbo-era command paths are historical pre-Nx evidence only.
+Operation deploy is an operation-scoped mod build, not a root dependency build. On the accepted migrated baseline, the command shape is Nx-native and targets the mod package's dedicated `build:studio-deploy` target directly. Broad root orchestration, broad package build, dependency-output replay, and Turbo-era command paths are historical pre-Nx evidence only.
 
 ## Rejected Shapes
 
@@ -52,7 +52,7 @@ Layered oracles:
 
 - Contract-surface oracle: Studio imports only the Swooper Maps Studio recipe contract entrypoint; the entrypoint exports contract data and TypeBox-backed schemas, not executable recipe runtime or generated outputs.
 - Transitive import-graph oracle: daemon entrypoints and daemon-owned service entrypoints are traced, then compared with the operation deploy write-set. The graph cannot include operation-written paths under `mods/mod-swooper-maps/dist/**`, `mods/mod-swooper-maps/mod/**`, or `mods/mod-swooper-maps/src/maps/generated/**`.
-- Build command oracle: operation deploy uses exactly `bun run nx run mod-swooper-maps:build --outputStyle=static` on the accepted migrated baseline and does not run broad root dependency orchestration, generated recipe targets, Turbo, global-only/on-the-fly Nx, direct binary, shimmed Nx, or dual-path command selection.
+- Build command oracle: operation deploy uses exactly `bun run nx run mod-swooper-maps:build:studio-deploy --outputStyle=static` on the accepted migrated baseline and does not run broad root dependency orchestration, the broad mod package build target, generated recipe targets, Turbo, global-only/on-the-fly Nx, direct binary, shimmed Nx, or dual-path command selection.
 - Daemon watch oracle: deploy-written `dist/**`, `mod/**`, and generated map outputs do not trigger the daemon watcher because they are absent from the daemon import graph. Frontend watch ignores remain secondary churn guards.
 - Regression oracle: D0 one-mount focused tests still pass.
 - Live oracle: Play and Save&Deploy are sampled through `/rpc` on the same operation id at accepted, deploy-entered, deploy-exited, and terminal phases. Each sample preserves daemon identity and records the deploy command and log pointer. A new daemon accepting a new operation or a browser-restored terminal state is not valid proof.

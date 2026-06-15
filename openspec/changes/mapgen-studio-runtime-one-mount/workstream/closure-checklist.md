@@ -1,7 +1,7 @@
 # D0 Closure Checklist
 
-Status: accepted
-Date: 2026-06-14
+Status: accepted; restack adoption reviewed
+Date: 2026-06-14; restack adoption update 2026-06-15
 
 ## Packet Shape
 
@@ -30,15 +30,23 @@ Date: 2026-06-14
 - [x] `git diff --check` after packet edits
 - [x] `git status --short --branch` clean or expected before commit
 - [x] generated-output churn reverted; no tracked generated output remains in D0 write set
+- [x] restacked implementation worktree adopted on accepted Habitat/Nx `main`
+- [x] `bun run nx --version`
+- [x] `bun run nx show project mapgen-studio --json`
+- [x] `bun run nx show project mod-swooper-maps --json`
+- [x] `bun run habitat classify openspec/changes/mapgen-studio-runtime-one-mount/workstream`
+- [ ] `bun run lint` green (non-green on 2026-06-15: `grit-sdk-mapgen-entrypoint` and `workspace-entrypoints`; committed `deploy.ts` Biome formatting repaired in this alignment slice)
 
 ## Baseline Decisions
 
-- [x] Current packet branch classified as pre-Nx authoring baseline only.
+- [x] Historical packet-authoring branch classified as pre-Nx authoring baseline only.
 - [x] Nx/Biome/GritQL scout report dispositioned.
-- [x] Decision recorded: do not restack onto stale Habitat tail now; author packets here and block Nx-dependent implementation-ready execution until accepted Nx/Habitat baseline is selected.
+- [x] Decision recorded: the runtime stack has since been restacked onto the accepted Habitat/Nx baseline; Nx-dependent implementation is no longer blocked for lack of baseline.
+- [x] Current `mapgen-studio:dev` still routes through package `devLive.ts`; D11 owns deletion and Nx-native continuous target replacement.
 
 ## Downstream Realignment
 
 - [x] D1 depends on D0 baseline classification.
 - [x] D11 owns Studio dev-runner cleanup after accepted Nx/Habitat baseline exists.
-- [x] D1 packet consumes final D0 baseline decision as an entrance requirement.
+- [x] D1 packet consumes final D0 baseline decision as an entrance requirement on the adopted restacked worktree.
+- [x] D0 records non-green root lint separately from packet/OpenSpec/build/check proof.

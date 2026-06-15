@@ -51,7 +51,7 @@ Forbidden owners:
 
 - Contract-surface oracle: daemon recipe-DAG service imports only the Swooper Maps Studio recipe contract entrypoint and does not consume full recipe runtime/default exports.
 - Transitive import graph oracle: daemon entrypoints and daemon-owned service entrypoints are disjoint from operation-written `dist/**`, `mod/**`, and `src/maps/generated/**` roots.
-- Build command oracle: operation deploy targets exactly `bun run nx run mod-swooper-maps:build --outputStyle=static` through repo-local Nx/Habitat.
+- Build command oracle: operation deploy targets exactly `bun run nx run mod-swooper-maps:build:studio-deploy --outputStyle=static` through repo-local Nx/Habitat.
 - Daemon watch oracle: deploy-written outputs do not trigger daemon restart because they are absent from the daemon import graph; frontend watch ignores are secondary guards only.
 - D0 regression oracle: one-mount focused tests remain green.
 - Live state-machine oracle: Play and Save&Deploy sample the same operation id through accepted, deploy-entered, deploy-exited, and terminal phases with stable daemon identity and recorded deploy command/log pointer.

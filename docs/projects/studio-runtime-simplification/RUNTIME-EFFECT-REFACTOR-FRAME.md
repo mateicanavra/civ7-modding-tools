@@ -614,7 +614,7 @@ Required gates:
 - `bun run openspec -- validate mapgen-studio-game-door-invariant --strict`
 - `bun run openspec -- validate mapgen-studio-tuner-session --strict`
 - `bun run openspec:validate`
-- package/app check, test, and build gates
+- repo-local Nx/Habitat-selected package/app check, test, and build gates
 - negative search for:
   - `RunInGameHttpError`
   - Zod imports in `packages/studio-server/src/contract`
@@ -661,8 +661,9 @@ Every OpenSpec slice:
 
 Runtime code slices:
 
-- package-local `check`, `test`, and `build` for touched packages
-- app-local `check`, `test`, and `build` for touched app code
+- repo-local Nx `check`, `test`, and `build` targets selected by Habitat/classification for touched packages
+- repo-local Nx `check`, `test`, and `build` targets selected by Habitat/classification for touched app code
+- direct package-local scripts may be run as focused additional evidence when useful, but they do not substitute for Nx/Habitat-selected gates on the settled baseline
 - backend endpoint/in-process router tests for Play/Save/Deploy/Autoplay behavior
 - no browser automation for backend endpoint truth
 

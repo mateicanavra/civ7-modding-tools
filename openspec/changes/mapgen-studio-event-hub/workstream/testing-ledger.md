@@ -1,6 +1,6 @@
 # D8 Testing Ledger - Studio Event Hub
 
-Status: draft pending review
+Status: packet accepted; implementation pending
 Date: 2026-06-14
 
 | Layer | Required proof | Adequacy criterion |
@@ -22,16 +22,16 @@ Date: 2026-06-14
 ## Future Implementation Commands
 
 ```bash
-bun run --cwd packages/studio-server test -- test/handler.test.ts
-bun run --cwd packages/studio-server check
-bun run --cwd apps/mapgen-studio test -- test/studioEvents/operationAdoption.test.ts test/server/oneMount.test.ts
-bun run --cwd apps/mapgen-studio check
+bun run nx run @civ7/studio-server:test --outputStyle=static
+bun run nx run @civ7/studio-server:check --outputStyle=static
+bun run nx run mapgen-studio:test --outputStyle=static
+bun run nx run mapgen-studio:check --outputStyle=static
 ```
 
-If the current Nx/Habitat migration stack changes package-local command names,
-D8 implementation must replace these with the repo-local Nx/Habitat equivalents
-and record the replacement in this ledger. Legacy package-runner substitutes are
-not accepted as D8 closure evidence.
+D8 implementation records the focused test files that exercise
+`test/handler.test.ts`, `test/studioEvents/operationAdoption.test.ts`, and
+`test/server/oneMount.test.ts`, but repo-local Nx targets remain the closure
+commands. Direct package-local scripts are supporting evidence only.
 
 ## Negative Search Gates
 

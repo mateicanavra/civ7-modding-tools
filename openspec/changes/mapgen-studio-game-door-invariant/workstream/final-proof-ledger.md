@@ -14,7 +14,7 @@ Date: 2026-06-14
 | Status corpus proof | `workstream/status-endpoint-corpus.md` plus negative searches for polling/watchdogs | Retained status reads are diagnostic/request-response only. | Live state freshness. |
 | Control-oRPC corpus proof | `workstream/control-orpc-surface-corpus.md` plus procedure-key/risk search | Control game-action/effect surfaces are classified. | Studio operation workflow correctness. |
 | Residue searches | final negative-search set | Deleted/guarded/historical/diagnostic/deferral classification is complete for named residue. | Absence of unrelated future debt. |
-| Package/app gates | touched package/app check/test/build commands | Local code health for changed implementation. | Live Civ7 behavior unless explicitly live. |
+| Package/app gates | repo-local Nx package/app check/test/build targets selected by Habitat/classification | Local code health and dependency ordering for changed implementation. | Live Civ7 behavior unless explicitly live. |
 | Live proof | consumed D1/D9/D10/D11 proof or new D12 live proof | Behavior-changing runtime claims hold against Civ7 when required. | Graphite stack state. |
 | Graphite proof | `gt submit --ai`, merge/drain, `gt sync --no-restack --no-interactive --force`, status/log/worktree checks | Stack closure and branch hygiene. | Runtime correctness. |
 
@@ -23,10 +23,11 @@ Date: 2026-06-14
 ```bash
 rg -n "RunInGameHttpError|StudioEngineError|useOperationStatusPolls|useDaemonInstanceWatchdog|nextLiveRuntimePollDelayMs|sourceSnapshotStorage|liveStatusFailureCountRef|setTimeout\\(poll|civ7\\.live\\.status\\(\\{\\}|liveControlPort\\.readiness\\.current\\(|civ7ControlOrpcClient|studioServerClient|nodeWebBridge|rpcPath" apps/mapgen-studio/src packages/studio-server/src packages/studio-server/test apps/mapgen-studio/test -g '*.{ts,tsx}'
 rg -n 'devLive\\.ts|"dev": "bun src/server/daemon/devLive\\.ts"|turbo run dev --filter=mapgen-studio|bunx turbo|bun x turbo|bun --watch src/server/daemon/daemon\\.ts' package.json apps/mapgen-studio docs openspec -S
+rg -n 'bunx nx|bun x nx|\\["x",\\s*"nx"\\]|\\['"'"'x'"'"',\\s*'"'"'nx'"'"'\\]|node_modules/.bin/nx|global-only Nx|on-the-fly Nx|shimmed Nx|direct binary Nx' package.json apps packages docs openspec -S
 rg -n "from ['\\\"]zod['\\\"]|\\bz\\." packages/studio-server/src/contract packages/studio-server/src -g '*.{ts,tsx}'
 rg -n "new\\s+Civ7DirectControlSession\\s*\\(" apps packages -g '*.{ts,tsx}'
-rg -n "operationType\\s*\\+\\s*args|Record<string, number>|runtime-port|Run in Game convergence.*out of scope|run-in-game convergence.*out of scope" packages apps docs openspec -S
-rg -n "RunInGameHttpError|StudioEngineError|operation polling|daemon watchdog|browser live-status|devLive\\.ts|Run in Game convergence.*out of scope|run-in-game convergence.*out of scope" docs openspec -S
+rg -n -i "operationType\\s*\\+\\s*args|Record<string, number>|runtime-port|run[- ]in[- ]game.*(convergence|session|out of scope|deferred)|(convergence|session|out of scope|deferred).*run[- ]in[- ]game" packages apps docs openspec -S
+rg -n -i "RunInGameHttpError|StudioEngineError|operation polling|daemon watchdog|browser live-status|devLive\\.ts|run[- ]in[- ]game.*(convergence|session|out of scope|deferred)|(convergence|session|out of scope|deferred).*run[- ]in[- ]game" docs openspec -S
 ```
 
 ## Residue Classification Rules
@@ -39,6 +40,7 @@ rg -n "RunInGameHttpError|StudioEngineError|operation polling|daemon watchdog|br
 | browser recovery/polling/watchdog | deleted or historical evidence | any browser background freshness/recovery loop |
 | live-status cadence | deleted or diagnostic manual call only | any timer/refetch/cadence using `civ7.live.status` as freshness source |
 | dev supervision | deleted or deployment-only classified outside local dev | active app-local `devLive.ts`, `bun --watch` daemon, or Turbo local dev path |
+| Nx command residue | removed or explicitly classified as historical docs evidence | active deploy/dev code using `bunx nx`, `bun x nx`, `["x", "nx"]`, global/on-the-fly Nx, direct binary Nx, or shimmed Nx |
 | satellite clients/paths | deleted or historical evidence | active old mount/path/client route around the one `/rpc` mount |
 | generic mutation protocol | internal control-oRPC/direct-control package protocol or tests only | public Studio mutation DTO bypassing semantic TypeBox unions |
 | direct-control aliases | package-internal or guarded allowlist only | public root alias that lets Studio bypass the game door |

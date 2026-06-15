@@ -1,7 +1,7 @@
 # D0 Phase Record - Runtime One Mount Baseline Packet
 
-Status: packet accepted
-Date: 2026-06-14
+Status: packet accepted; restack adoption reviewed
+Date: 2026-06-14; restack adoption update 2026-06-15
 Domino: D0
 OpenSpec change: `mapgen-studio-runtime-one-mount`
 Graphite packet branch: `codex/runtime-effect-openspec-packets`
@@ -10,7 +10,7 @@ Graphite packet branch: `codex/runtime-effect-openspec-packets`
 
 D0 establishes the implementation base that all later Studio runtime Effect-refactor packets stand on. It does not reopen the one-mount implementation. It classifies the already completed one `/rpc` change, proves the local toolchain and build baseline, records active OpenSpec/Graphite/worktree state, and routes later dev-tooling assumptions to the correct owner.
 
-Operational goal: make the packet train honest about its starting point so D1-D12 do not smuggle stale transport, stale dev orchestration, or unclassified branch state into their specifications. A pre-Nx checkout is not an implementation lane for the final runtime train; it is either an authoring convenience that must be restacked before acceptance or a blocker that routes the packet branch to the accepted migrated baseline.
+Operational goal: make the packet train honest about its starting point so D1-D12 do not smuggle stale transport, stale dev orchestration, or unclassified branch state into their specifications. The packet train has now been restacked onto the accepted Habitat/Nx baseline on `main` (`db4a0ea68`) and adopted in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`; pre-Nx packet-authoring evidence below remains historical only.
 
 ## Authority
 
@@ -19,7 +19,7 @@ Operational goal: make the packet train honest about its starting point so D1-D1
 - `docs/projects/studio-runtime-simplification/PLAN.md`, especially S1.1 and S1.1a.
 - `openspec/changes/mapgen-studio-runtime-one-mount/`.
 - `openspec/config.yaml`.
-- Root `AGENTS.md`. Its tooling-default line is Turbo-era on this authoring branch; it is historical baseline evidence and does not override the accepted Nx/Habitat implementation baseline required by this packet train.
+- Root `AGENTS.md`. Current tooling defaults require repo-local Nx/Habitat orchestration; any older Turbo-era wording in packet-authoring evidence is historical only.
 - `civ7-open-spec-workstream`, `civ7-systematic-workstream`, `testing-design`, `system-design`, `solution-design`, `typescript`, `graphite`, and `git-worktrees` skills.
 
 ## Scope
@@ -29,8 +29,8 @@ In scope:
 - Treat `mapgen-studio-runtime-one-mount` as the accepted transport baseline.
 - Add a workstream packet around the completed OpenSpec change.
 - Record current toolchain, dependency, build, OpenSpec, Git, Graphite, and worktree evidence.
-- Classify the current dev-orchestrator baseline as pre-Nx unless the Nx scout proves the packet branch should restack.
-- Record pre-Nx state as a stop/reroute condition when it affects packet gates.
+- Record the June 14 packet-authoring branch classification as historical evidence.
+- Confirm the adopted June 15 implementation worktree is based on the accepted Nx/Habitat baseline.
 - Make D11 assume the accepted Nx/Habitat baseline and own removal of remaining Studio app-local supervision.
 
 Out of scope:
@@ -63,7 +63,7 @@ Commands run on 2026-06-14 from `/Users/mateicanavra/Documents/.nosync/DEV/workt
 | --- | --- | --- |
 | `git status --short --branch` | clean branch before edits, then clean after generated build churn was reverted | Packet branch starts with no foreign dirty files. |
 | `bun install --frozen-lockfile` | passed | Repo-local dependencies are installed without lockfile mutation. |
-| `bun run build` | passed | Current pre-Nx/Turbo baseline builds before packet authoring. |
+| `bun run build` | passed | Historical packet-authoring baseline built before packet authoring. |
 | `bun run openspec -- list` | passed after dependency install | OpenSpec CLI is available from repo-local dependencies. |
 | `bun run openspec -- validate mapgen-studio-runtime-one-mount --strict` | passed | Existing one-mount OpenSpec artifact shape is valid. |
 | `bun run --cwd apps/mapgen-studio test -- test/server/oneMount.test.ts test/server/daemonFetch.test.ts` | passed: 2 files, 10 tests | One `/rpc` routing, retired-mount 404 behavior, namespace collision guard, session injection, and recipe-DAG typed error baseline are pinned by focused tests. |
@@ -81,18 +81,30 @@ Build side effect:
 
 ## Dev-Orchestrator Classification
 
-Current packet branch baseline:
+Historical packet-authoring baseline:
 
 - No `nx.json` or `apps/mapgen-studio/project.json` is present on this branch at D0 packet draft time.
 - Root `package.json` still uses Turbo-era scripts such as `turbo run build` and `turbo run dev --filter=mapgen-studio`.
 - Therefore D0 classifies this branch as pre-Nx for packet-authoring purposes only. This is not an accepted implementation base for runtime packets whose gates depend on Nx/Habitat behavior.
 
-Open scout lane:
+Restack adoption update, 2026-06-15:
+
+- The selected implementation worktree is `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`.
+- `main` is `db4a0ea68` (`fix(habitat): normalize Nx workflow graph`), and the runtime Effect packet stack is based on it.
+- `bun install --frozen-lockfile` completed with no lockfile or workspace mutation.
+- `bun run nx --version` reports local Nx `v22.7.5`.
+- `bun run nx show project mapgen-studio --json` succeeds and shows the inferred `mapgen-studio` targets, including current `dev`, `dev:frontend`, `dev:server`, `check`, `test`, `build`, and `build:vite`.
+- `bun run nx show project mod-swooper-maps --json` succeeds and shows `build:studio-deploy` and `build:studio-recipes` targets needed by D1/D11 gates.
+- `bun run openspec -- validate mapgen-studio-runtime-one-mount --strict` passes on the adopted worktree.
+- The current `mapgen-studio:dev` target still runs the package `dev` script, whose metadata is `bun src/server/daemon/devLive.ts`; this is not a D0 blocker because D11 owns deleting the app-local supervisor and replacing it with Nx-native continuous backend/frontend orchestration.
+- `bun run habitat classify openspec/changes/mapgen-studio-runtime-one-mount/workstream` classifies the D0 workstream path as workspace-level and reports `bun run lint`.
+- `bun run lint` is non-green on the adopted baseline: `@mateicanavra/civ7-sdk:habitat:check` fails `grit-sdk-mapgen-entrypoint`; `@internal/habitat-harness:habitat:check` fails `workspace-entrypoints`. A committed formatting issue in `apps/mapgen-studio/src/server/mapConfigs/deploy.ts` also failed `biome-ci` and was repaired in this alignment slice.
+
+Closed scout lane:
 
 - Scout evidence is recorded in `nx-habitat-scout-report.md`.
-- The runtime packet branch should not restack onto the Habitat migration tail now because the H4+ Biome/Grit portion is stale relative to current runtime history.
-- H1-H3 Nx facts and H4+ Biome/Grit facts are pulled forward as expected migrated-baseline facts. When those baseline changes are accepted/drained, D0/D11 packets use their native commands directly.
-- If the packet branch remains on this base for packet authoring, D0 records execution of Nx/Habitat-dependent packets as blocked until the accepted migrated baseline is selected. Later packets may cite current Turbo commands only as historical baseline evidence, never as executable guidance for implementation.
+- The original "do not restack onto the stale Habitat migration tail" decision is now closed by the accepted restack onto the settled Habitat/Nx baseline.
+- D0 no longer blocks Nx-dependent implementation for lack of baseline. D0 instead records the current baseline proof and hands the remaining app-local dev-supervisor deletion to D11.
 
 ## Stop Conditions
 
@@ -100,8 +112,8 @@ D0 cannot be accepted if:
 
 - One-mount validation fails.
 - The packet branch has unexplained dirty files.
-- The Nx/Biome/GritQL scout identifies a better accepted implementation base and this packet has not been repaired to account for it.
-- The selected implementation base is still pre-Nx for a packet that requires Nx/Habitat dev/process gates.
+- The selected implementation worktree does not contain the accepted Nx/Habitat baseline.
+- D0 or later packets treat historical Turbo/pre-Nx authoring evidence as executable implementation guidance.
 - Any review lane finds a P1/P2 classification gap that would mislead D1-D12.
 
 ## Downstream Effects
@@ -124,5 +136,7 @@ D0 packet accepted on 2026-06-14 after:
 - `bun run openspec -- validate mapgen-studio-runtime-one-mount --strict` passed.
 - `bun run openspec:validate` passed, 147 items.
 - `git diff --check` passed.
+- 2026-06-15 restack adoption gates passed: affected strict OpenSpec validations, `bun run openspec:validate`, `bun run nx run mapgen-studio:check --outputStyle=static`, `git diff --check`, and direct Biome CI for the changed deploy file.
+- 2026-06-15 `bun run lint` remains non-green for Habitat enforcement failures outside D0 implementation closure; do not claim root lint green from this packet.
 
-D1 may start. D1 must consume the D0 decision that this packet branch is an authoring base only for Nx-dependent gates, while implementation execution waits for the accepted migrated Nx/Habitat baseline.
+D1 may start on the adopted restacked implementation worktree. D1 must consume the D0 decision that the accepted Nx/Habitat baseline is present, while D11 remains the deletion owner for app-local `devLive.ts` supervision and Bun watcher residue.

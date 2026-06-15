@@ -58,7 +58,8 @@ runtime ownership promises after D12.
 - **AND** Restart Civ7 recovery is implemented, rejected with product authority,
   or tracked in a durable deferral with owner, trigger, scope, risk, and re-entry
   action
-- **AND** active runtime docs do not say Run in Game convergence is out of scope
+- **AND** active runtime docs classify every Run in Game convergence/session
+  residue through D12 or a durable owner
   without pointing to that disposition
 
 ### Requirement: Runtime Simplification Residue Stays Deleted

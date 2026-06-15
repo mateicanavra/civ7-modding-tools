@@ -1,7 +1,7 @@
 # D7 Prework Ledger - Stream Transport Decision
 
-Status: draft
-Date: 2026-06-14
+Status: packet prework accepted; implementation evidence pending
+Date: 2026-06-14; accounting update 2026-06-15
 
 ## Packet-Authoring Prework Completed
 

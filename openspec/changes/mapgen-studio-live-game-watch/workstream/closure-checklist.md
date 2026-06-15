@@ -1,6 +1,6 @@
 # D10 Closure Checklist - Studio Live Game Watch
 
-Status: draft pending validation
+Status: packet accepted; implementation pending
 Date: 2026-06-14
 
 - [x] Proposal, design, tasks, and spec delta agree on D10 ownership.

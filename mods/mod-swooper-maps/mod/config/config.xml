@@ -32,12 +32,6 @@
 			SortIndex="1900"
 		/>
 		<Row
-			File="{swooper-maps}/maps/studio-current.js"
-			Name="LOC_MAP_STUDIO_CURRENT_NAME"
-			Description="LOC_MAP_STUDIO_CURRENT_DESCRIPTION"
-			SortIndex="1900"
-		/>
-		<Row
 			File="{swooper-maps}/maps/mountain-rivers-patch.js"
 			Name="LOC_MAP_MOUNTAIN_RIVERS_PATCH_NAME"
 			Description="LOC_MAP_MOUNTAIN_RIVERS_PATCH_DESCRIPTION"

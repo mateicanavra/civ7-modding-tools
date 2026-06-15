@@ -119,11 +119,13 @@ Protected paths:
 
 ### Future Implementation Closure Gates
 
-- Package/app gates:
-  - `bun run --cwd packages/studio-server test -- test/handler.test.ts`
-  - `bun run --cwd packages/studio-server check`
-  - `bun run --cwd apps/mapgen-studio test -- test/studioEvents/operationAdoption.test.ts test/server/oneMount.test.ts`
-  - `bun run --cwd apps/mapgen-studio check`
+- Package/app gates are repo-local Nx/Habitat-selected targets for touched
+  projects. Direct package scripts may be focused additional evidence, but they
+  are not substitutes for graph-owned dependency ordering:
+  - `bun run nx run @civ7/studio-server:test --outputStyle=static`
+  - `bun run nx run @civ7/studio-server:check --outputStyle=static`
+  - `bun run nx run mapgen-studio:test --outputStyle=static`
+  - `bun run nx run mapgen-studio:check --outputStyle=static`
 - `studio.events.watch` emits `hello` first with `serverInstanceId`,
   `serverStartedAt`, and `observedAt`.
 - TypeBox remains the event schema origin and reaches oRPC through the owned

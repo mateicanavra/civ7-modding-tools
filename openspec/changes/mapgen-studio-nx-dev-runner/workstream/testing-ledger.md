@@ -1,6 +1,6 @@
 # D11 Testing Ledger - Studio Nx Dev Runner
 
-Status: draft pending review
+Status: packet accepted; implementation pending
 Date: 2026-06-14
 
 | Layer | Required proof | Adequacy criterion |
