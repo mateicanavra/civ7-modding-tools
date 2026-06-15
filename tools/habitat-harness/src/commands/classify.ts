@@ -1,6 +1,6 @@
 import { Args } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { classifyPath } from "../lib/command-engine.js";
+import { classifyTarget } from "../lib/command-engine.js";
 
 export default class Classify extends HabitatCommand {
   static override summary = "Classify a repo path into Habitat project ownership";
@@ -11,12 +11,13 @@ export default class Classify extends HabitatCommand {
   static override args = {
     path: Args.string({
       required: true,
-      description: "Repo-relative or absolute path to classify.",
+      description:
+        "Repo-relative path, absolute path, literal diff, or .diff/.patch file to classify.",
     }),
   };
 
   async run(): Promise<void> {
     const { args } = await this.parse(Classify);
-    this.log(JSON.stringify(classifyPath(args.path), null, 2));
+    this.log(JSON.stringify(classifyTarget(args.path), null, 2));
   }
 }

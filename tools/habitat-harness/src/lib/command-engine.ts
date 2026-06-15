@@ -52,8 +52,14 @@ export interface Classification {
   projectRoot?: string;
   tags?: string[];
   rulesInScope?: string[];
-  verifyTargets?: string[];
+  requiredTargets?: string[];
   note?: string;
+}
+
+export interface DiffClassification {
+  schemaVersion: 1;
+  inputKind: "diff";
+  paths: Classification[];
 }
 
 export function selectRules(selection: RuleSelection = {}): HarnessRule[] {
@@ -213,6 +219,18 @@ export function runGraph(options: { json?: boolean } = {}): SpawnResult {
   }
 }
 
+export function classifyTarget(target: string): Classification | DiffClassification {
+  const diff = diffText(target);
+  if (diff) {
+    return {
+      schemaVersion: 1,
+      inputKind: "diff",
+      paths: extractDiffPaths(diff).map(classifyPath),
+    };
+  }
+  return classifyPath(target);
+}
+
 export function classifyPath(target: string): Classification {
   const rel = toRepoRelative(target);
   const roots: Array<{ name: string; root: string; tags: string[] }> = [];
@@ -233,7 +251,14 @@ export function classifyPath(target: string): Classification {
   const owner = roots
     .filter((root) => rel === root.root || rel.startsWith(`${root.root}/`))
     .sort((a, b) => b.root.length - a.root.length)[0];
-  if (!owner) return { path: rel, project: null, note: "workspace-level path" };
+  if (!owner) {
+    return {
+      path: rel,
+      project: null,
+      note: "workspace-level path",
+      requiredTargets: workspaceTargets(),
+    };
+  }
   const owningRules = rules
     .filter(
       (rule) =>
@@ -246,16 +271,50 @@ export function classifyPath(target: string): Classification {
     projectRoot: owner.root,
     tags: owner.tags,
     rulesInScope: owningRules,
-    verifyTargets: [
-      `nx run ${owner.name}:check`,
-      `nx run ${owner.name}:test`,
-      "nx run @internal/habitat-harness:boundaries",
-      "nx run-many -t biome:ci --projects=@internal/habitat-harness",
-      "nx run @internal/habitat-harness:grit:check",
-      "nx run @internal/habitat-harness:generated:check",
-      "habitat check",
-    ],
+    requiredTargets: projectTargets(owner.name),
   };
+}
+
+function projectTargets(projectName: string): string[] {
+  return [
+    `bun run nx run ${projectName}:check`,
+    `bun run nx run ${projectName}:test`,
+    ...workspaceTargets(),
+  ];
+}
+
+function workspaceTargets(): string[] {
+  return [
+    "bun run nx run @internal/habitat-harness:boundaries",
+    "bun run nx run-many -t biome:ci --projects=@internal/habitat-harness",
+    "bun run nx run @internal/habitat-harness:grit:check",
+    "bun run nx run @internal/habitat-harness:generated:check",
+    "bun run habitat:check",
+  ];
+}
+
+function diffText(target: string): string | undefined {
+  if (target.includes("\n") || target.startsWith("diff --git ")) return target;
+  const candidate = path.resolve(repoRoot, target);
+  if (existsSync(candidate) && (candidate.endsWith(".diff") || candidate.endsWith(".patch"))) {
+    const text = readFileSync(candidate, "utf8");
+    if (text.includes("diff --git ") || text.includes("\n+++ b/")) return text;
+  }
+  return undefined;
+}
+
+function extractDiffPaths(diff: string): string[] {
+  const paths = new Set<string>();
+  for (const line of diff.split("\n")) {
+    const gitHeader = line.match(/^diff --git a\/(.+?) b\/(.+)$/);
+    if (gitHeader) {
+      paths.add(gitHeader[2]);
+      continue;
+    }
+    const changedFile = line.match(/^\+\+\+ b\/(.+)$/);
+    if (changedFile && changedFile[1] !== "/dev/null") paths.add(changedFile[1]);
+  }
+  return [...paths].sort();
 }
 
 export function commandSummary(): string {

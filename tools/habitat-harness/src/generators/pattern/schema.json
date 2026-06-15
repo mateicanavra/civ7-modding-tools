@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "HabitatPatternGenerator",
+  "title": "Habitat Grit pattern generator",
+  "type": "object",
+  "properties": {
+    "ruleId": {
+      "type": "string",
+      "description": "Habitat rule id to register.",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      }
+    },
+    "ownerProject": {
+      "type": "string",
+      "description": "Owning Nx project for the Habitat rule.",
+      "default": "@internal/habitat-harness"
+    },
+    "patternName": {
+      "type": "string",
+      "description": "Optional Grit pattern name; defaults to the rule id without a grit- prefix."
+    },
+    "scope": {
+      "type": "string",
+      "description": "Human-readable source scope for the rule.",
+      "default": "generated scaffold scope"
+    },
+    "forbids": {
+      "type": "string",
+      "description": "Human-readable forbidden shape.",
+      "default": "generated scaffold forbidden shape"
+    },
+    "why": {
+      "type": "string",
+      "description": "Rule rationale.",
+      "default": "Generated rule scaffold; replace with the architectural rationale before merging production use."
+    },
+    "message": {
+      "type": "string",
+      "description": "Diagnostic message.",
+      "default": "Generated Habitat Grit rule scaffold matched."
+    }
+  },
+  "required": ["ruleId"]
+}

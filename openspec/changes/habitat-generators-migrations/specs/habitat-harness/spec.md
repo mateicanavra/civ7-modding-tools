@@ -8,7 +8,7 @@ entries. Unsupported kinds SHALL be refused with a documented rationale rather
 than scaffolded by guess.
 
 #### Scenario: New plugin project
-- **WHEN** `bunx nx g @internal/habitat-harness:project my-lib --kind=plugin`
+- **WHEN** `bun run nx g @internal/habitat-harness:project my-lib --kind=plugin`
   runs
 - **THEN** the generated project carries correct tags, layout, and config, and
   `habitat check` plus build/check/test pass without modification
@@ -32,6 +32,7 @@ configuration updates are generated, not hand-applied.
 
 #### Scenario: Harness convention change
 - **WHEN** a harness version changes a convention consumed by projects
-- **THEN** running the migration via a hand-authored `migrations.json` run
-  file (`bunx nx migrate --run-migrations=migrations.json`; the package is
+- **THEN** running the migration via a hand-authored migration run file whose
+  package is `./tools/habitat-harness` (`bun run nx migrate
+  --run-migrations=<run-file>.json --skip-install`; the package is
   unpublished, so no registry resolution) applies the update mechanically

@@ -30,11 +30,12 @@ procedure wiring (AGENTS.md routing) that makes classify-first the default.
   the `--expand-baseline` gate from H2).
 - Harness migrations wiring: migrations ship in the plugin's
   `migrations.json`; because `@internal/habitat-harness` is unpublished,
-  `bunx nx migrate @internal/habitat-harness` (npm-registry version
+  `bun run nx migrate @internal/habitat-harness` (npm-registry version
   resolution) does not apply — migrations are executed via a hand-authored
-  `migrations.json` run file + `bunx nx migrate
-  --run-migrations=migrations.json` (no registry resolution); versioned
-  migration stubs so future harness convention changes propagate.
+  migration run file whose `package` field points at
+  `./tools/habitat-harness`, then `bun run nx migrate
+  --run-migrations=<run-file>.json --skip-install`; versioned migration stubs
+  so future harness convention changes propagate.
 - `habitat classify <path-or-diff>` completes: maps any path/diff to project,
   tags, owning rules, and required targets (the agent entry point).
 - Agent operating procedure: root `AGENTS.md` Tooling Defaults section gains
@@ -87,14 +88,14 @@ impossible for supported kinds.
 
 - `bun run openspec -- validate habitat-generators-migrations --strict`
 - Probe: generate one project per supported kind in a scratch branch →
-  `bun run habitat check` and `bunx nx run-many -t build,check,test` green on
+  `bun run habitat:check` and `bun run nx run-many -t build,check,test` green on
   generated output → probes removed.
 - Probe: pattern generator output passes the fixture runner and registers in
   the rule pack.
 - The no-op baseline migration executes successfully via a hand-authored
-  `migrations.json` run file + `bunx nx migrate
-  --run-migrations=migrations.json` (no registry resolution; the package is
-  unpublished).
+  migration run file using package `./tools/habitat-harness` +
+  `bun run nx migrate --run-migrations=<run-file>.json --skip-install` (no
+  registry resolution; the package is unpublished).
 - `habitat classify` spot-check matrix — four probe paths with expected
   outputs (per `docs/projects/habitat-harness/taxonomy.md`), each naming the
   owning project, tags, in-scope rules, and required verification targets:

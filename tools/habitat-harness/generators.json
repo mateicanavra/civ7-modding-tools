@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "name": "internal/habitat-harness",
+  "version": "0.1",
+  "generators": {
+    "project": {
+      "factory": "./src/generators/project/generator.cjs#projectGenerator",
+      "schema": "./src/generators/project/schema.json",
+      "description": "Scaffold a Habitat-conformant workspace project for supported uniform kinds."
+    },
+    "pattern": {
+      "factory": "./src/generators/pattern/generator.cjs#patternGenerator",
+      "schema": "./src/generators/pattern/schema.json",
+      "description": "Scaffold a Habitat Grit pattern and matching rule-pack entry."
+    }
+  }
+}

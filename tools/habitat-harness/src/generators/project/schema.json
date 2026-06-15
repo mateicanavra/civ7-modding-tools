@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "HabitatProjectGenerator",
+  "title": "Habitat project generator",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Project slug without workspace prefix.",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      }
+    },
+    "kind": {
+      "type": "string",
+      "description": "Project kind. Uniform kinds are scaffolded; non-uniform kinds are refused with rationale.",
+      "enum": [
+        "adapter",
+        "app",
+        "control",
+        "engine",
+        "foundation",
+        "mod",
+        "plugin",
+        "sdk",
+        "tooling",
+        "kind:adapter",
+        "kind:app",
+        "kind:control",
+        "kind:engine",
+        "kind:foundation",
+        "kind:mod",
+        "kind:plugin",
+        "kind:sdk",
+        "kind:tooling"
+      ]
+    },
+    "packageName": {
+      "type": "string",
+      "description": "Optional package name override."
+    },
+    "directory": {
+      "type": "string",
+      "description": "Optional repo-relative project root override."
+    }
+  },
+  "required": ["name", "kind"]
+}
