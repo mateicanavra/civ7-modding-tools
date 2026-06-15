@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import {
   injectedProbeRoot,
@@ -43,16 +43,25 @@ const corpusText = readFileSync(corpusPath, "utf8");
 const corpus = JSON.parse(corpusText) as ProbeRow[];
 const runSlug = `${proofId.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${process.pid}`;
 const runRoot = `${injectedProbeRoot}/__habitat_${runSlug}`;
+const probeRootAbsolute = path.join(repoRoot, injectedProbeRoot);
 
+removeIfEmpty(probeRootAbsolute);
+const initialFilesystemResidue = listResidue(probeRootAbsolute);
 const initialGitState = readGitState();
-if (requireCleanStart && initialGitState.dirty) {
+if (requireCleanStart && (initialGitState.dirty || initialFilesystemResidue.length > 0)) {
   console.log(
     JSON.stringify(
       {
         proofId,
         ok: false,
-        failure: "dirty-start",
+        failure: initialGitState.dirty ? "dirty-start" : "filesystem-residue-start",
         initialGitState,
+        filesystemCleanup: {
+          injectedProbeRoot,
+          clean: false,
+          initialResiduePaths: initialFilesystemResidue,
+          finalResiduePaths: initialFilesystemResidue,
+        },
       },
       null,
       2
@@ -120,14 +129,24 @@ try {
   }
 } finally {
   rmSync(path.join(repoRoot, runRoot), { recursive: true, force: true });
+  removeIfEmpty(probeRootAbsolute);
 }
 
 const finalGitState = readGitState();
+const finalFilesystemResidue = listResidue(probeRootAbsolute);
+const filesystemCleanup = {
+  injectedProbeRoot,
+  clean: finalFilesystemResidue.length === 0,
+  initialResiduePaths: initialFilesystemResidue,
+  finalResiduePaths: finalFilesystemResidue,
+};
 const failedRows = rows.filter((row) => !row.ok);
 const report = {
   proofId,
   schemaVersion: 1,
-  ok: failedRows.length === 0 && (!requireCleanStart || !finalGitState.dirty),
+  ok:
+    failedRows.length === 0 &&
+    (!requireCleanStart || (!finalGitState.dirty && filesystemCleanup.clean)),
   corpusSha256: createHash("sha256").update(corpusText).digest("hex"),
   rowCount: rows.length,
   passCount: rows.length - failedRows.length,
@@ -135,6 +154,7 @@ const report = {
   requireCleanStart,
   initialGitState,
   finalGitState,
+  filesystemCleanup,
   rows,
   nonClaims: [
     "does-not-prove-raw-direct-grit-acquisition",
@@ -147,3 +167,32 @@ const report = {
 
 console.log(JSON.stringify(report, null, 2));
 process.exit(report.ok ? 0 : 1);
+
+function removeIfEmpty(directory: string): void {
+  try {
+    rmdirSync(directory);
+  } catch (error) {
+    if (!isIgnorableCleanupError(error)) throw error;
+  }
+}
+
+function isIgnorableCleanupError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error.code === "ENOENT" || error.code === "ENOTEMPTY")
+  );
+}
+
+function listResidue(directory: string): string[] {
+  if (!existsSync(directory)) return [];
+  const entries: string[] = [path.relative(repoRoot, directory).split(path.sep).join("/")];
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const absolute = path.join(directory, entry.name);
+    const relative = path.relative(repoRoot, absolute).split(path.sep).join("/");
+    entries.push(relative);
+    if (entry.isDirectory()) entries.push(...listResidue(absolute));
+  }
+  return entries;
+}
