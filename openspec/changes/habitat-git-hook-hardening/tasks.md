@@ -44,9 +44,10 @@
 ## 4. Hook Transaction Model
 
 - [x] 4.1 Model hook pre-state and post-state.
-- [ ] 4.2 Preserve partial-staging refusal before formatting.
-- [ ] 4.3 Preserve formatter-touched restage only.
-- [ ] 4.4 Make Grit parse failure a failing proof class.
+- [x] 4.2 Preserve partial-staging refusal before formatting.
+- [x] 4.3 Preserve formatter-touched restage only.
+- [x] 4.4 Make Grit parse failure a failing proof class. Unit/service proof is
+  closed; current-tree Grit parse-output staged proof remains open under 8.5.
 - [x] 4.5 Record command provenance for Biome, Grit, Git, Nx, Bun, and resource
   publish commands where relevant.
 - [x] 4.6 Preserve CI-authority non-claims in output or docs.
@@ -56,13 +57,16 @@
 - [x] 5.1 Record the resource-policy checkpoint Effect decision: this slice
   does not introduce hook transaction orchestration and does not adopt Effect;
   full hook transaction architecture remains open.
-- [ ] 5.2 If adopting Effect, add accepted dependency/runtime/service shape,
+- [x] 5.2 If adopting Effect, add accepted dependency/runtime/service shape,
   hook service boundaries, package dependency surfaces, version pinning,
-  package-manager-generated lockfile proof, and runtime-edge proof.
-- [ ] 5.3 If rejecting Effect, add architecture proof for equivalent typed hook
+  package-manager-generated lockfile proof, and runtime-edge proof. Effect is
+  not adopted for this packet, so dependency/version/lockfile proof remains a
+  non-claim and no package surfaces change.
+- [x] 5.3 If rejecting Effect, add architecture proof for equivalent typed hook
   states, command provenance, service substitution, scoped cleanup, and tests.
-- [ ] 5.4 Keep `Effect.run*` or runtime construction at hook/CLI/runtime adapter
-  boundaries if Effect is adopted.
+- [x] 5.4 Keep `Effect.run*` or runtime construction at hook/CLI/runtime adapter
+  boundaries if Effect is adopted. Effect is not adopted for this packet, so no
+  `Effect.run*` hook runtime boundary exists or is claimed.
 
 ## 6. Tests
 
@@ -120,9 +124,9 @@
 - [x] 8.9 README/AGENTS/resources docs stale guidance scan
 - [x] 8.10 Historical H7 record realignment
 - [x] 8.11 Full-depth-language guardrail scan over this packet
-- [x] 8.12 Resource-policy checkpoint Effect non-adoption decision proof, with
-  dependency/version/lockfile proof left as a non-claim because Effect is not
-  adopted in this slice
+- [x] 8.12 Hook-hardening Effect non-adoption decision proof, with
+  dependency/version/lockfile/runtime-edge proof left as a non-claim because
+  Effect is not adopted in this packet
 
 ## 9. Closure
 

@@ -5,14 +5,15 @@
 - Project: Habitat Harness
 - Phase: git hook hardening / `habitat-git-hook-hardening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-hook-ci-nonclaim` above
-  `agent-HR-habitat-hook-reporter-service`
+- Branch/Graphite stack: `agent-HR-habitat-hook-resource-publisher` above
+  `agent-HR-habitat-hook-ci-nonclaim`
 - Started: 2026-06-14
 - Status: resource-publish, staged-mutation, pre-push base/range,
   current-tree staged-probe, native Grit finding staged-probe, hook transaction
-  trace, hook pre/post-state trace, H7 historical realignment, and hook
-  reporter-service checkpoints supervisor-accepted; hook CI-authority non-claim
-  checkpoint implemented locally for supervisor review
+  trace, hook pre/post-state trace, H7 historical realignment,
+  hook reporter-service, hook CI-authority non-claim, and hook
+  resource-publisher service checkpoints supervisor-accepted; hook Effect
+  substrate decision checkpoint implemented locally for supervisor review
 
 ## Objective
 
@@ -154,9 +155,21 @@ Core synthesis:
   path and records command provenance only when directly invoked. This closes
   6.1 and 8.4 for the hook unit/service matrix without claiming implicit
   publishing or full hook transaction architecture.
-- Remaining tasks: full hook transaction model, Grit parse-output current-tree
-  staged proof, aggregate verification, and packet closure.
-- Implementation status: hook resource-publisher service checkpoint
+- Hook Effect substrate decision progress for this checkpoint:
+  `workstream/effect-substrate-decision.md` records non-adoption for the
+  current hook-hardening packet. The decision is bounded by the accepted
+  product shape: default pre-commit no longer publishes resources, the hook
+  path remains synchronous and local-feedback-only, and the owner layer now
+  has typed outcomes, pre/post snapshots, command provenance, deterministic
+  timing, and fake-service substitution for command, filesystem/path
+  existence, file hashing, reporter output, and resource publisher command
+  policy. Automatic resource publishing, remote push, staged snapshot
+  rollback, hook-owned temporary resource cleanup, parallel orchestration, and
+  registered hook-scope activation remain reopen triggers for Effect or an
+  equivalent runtime substrate.
+- Remaining tasks: Grit parse-output current-tree staged proof, aggregate
+  verification, and packet closure.
+- Implementation status: hook Effect substrate decision checkpoint
   implemented and locally verified for supervisor review.
 
 ## Verification
@@ -357,6 +370,17 @@ Core synthesis:
   - `bun run --cwd tools/habitat-harness test -- hooks.test.ts` exited 0 with
     27 tests.
   - `bun run --cwd tools/habitat-harness check` exited 0.
+- New record-truth evidence for the hook Effect substrate decision checkpoint:
+  - `workstream/effect-substrate-decision.md` records the bounded non-adoption
+    decision for this packet. It names the accepted equivalent typed proof
+    surface and the reopen triggers that would require Effect or an equivalent
+    runtime substrate before further hook orchestration changes.
+  - `tasks.md` now marks 4.2, 4.3, and 4.4 complete from the previously
+    accepted staged-mutation/current-tree and unit/service evidence while
+    keeping current-tree Grit parse-output staged proof open under 8.5.
+  - `tasks.md` now marks 5.2, 5.3, 5.4, and 8.12 current for the non-adoption
+    decision without claiming Effect dependency/version/lockfile or
+    `Effect.run*` runtime-edge proof.
 - Evidence boundary: the accepted resource checkpoint proves the default
   pre-commit resource publish removal, typed resource-state classification,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
@@ -395,7 +419,11 @@ Core synthesis:
   explicit resource command remediation and direct explicit-publish command
   provenance; it does not prove implicit hook publishing, full hook transaction
   architecture, current-tree Grit parse-output staged behavior, CI authority, or
-  product/runtime behavior.
+  product/runtime behavior. This Effect substrate decision checkpoint proves
+  record truth for the packet's non-adoption decision and equivalent typed hook
+  proof boundary; it does not prove Effect package adoption,
+  dependency/version/lockfile changes, current-tree Grit parse-output staged
+  behavior, CI execution, packet closure, or product/runtime behavior.
 
 ## Realignment
 
@@ -404,7 +432,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the hook resource-publisher service checkpoint for supervisor review. Do
-  not claim implicit hook publishing, full hook transaction architecture, Grit
-  parse-output staged probe closure, CI execution proof, broad Nx affected
-  coverage, or packet closure from this slice.
+- Hold the hook Effect substrate decision checkpoint for supervisor review. Do
+  not claim Effect adoption, implicit hook publishing, Grit parse-output staged
+  probe closure, CI execution proof, broad Nx affected coverage, or packet
+  closure from this slice.
