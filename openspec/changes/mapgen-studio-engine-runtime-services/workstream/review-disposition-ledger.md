@@ -1,7 +1,7 @@
 # D4 Review Disposition Ledger
 
-Status: accepted
-Date: 2026-06-14
+Status: accepted; implementation-diff review blockers repaired and committed on current branch tip
+Date: 2026-06-14; implementation refresh 2026-06-15
 
 | ID | Lane | Finding | Severity | Disposition | Repair |
 | --- | --- | --- | --- | --- | --- |
@@ -17,6 +17,14 @@ Date: 2026-06-14
 | D4-R10 | hardening/black-ice review | Parent frame still allowed interrupted-or-drained disposal outcomes that contradicted D4. | P2 | accepted | Frame now matches D4: scoped runtime, interrupt-and-project disposal, D3 `RuntimeDisposed`, and post-disposal admission rejection without registry/event/leaf calls. |
 | D4-R11 | hardening/black-ice review | Duplicate Run in Game fingerprint behavior was left implementation-selected. | P2 | accepted | Packet now preserves duplicate fingerprint idempotency as runtime-owned behavior with table tests and app-owner negative searches. |
 | D4-R12 | hardening/black-ice review | “Leaf workflow bodies” was broad enough to preserve app-owned phase/failure/worker lifecycle. | P2 | accepted | Packet now enumerates app leaf adapter ports and forbids app adapters from owning registry updates, phase transitions, workflow failure classification, fingerprints, conflicts, or background workers. |
+| D4-I1 | supervisor / Effect lifecycle | Initial package runtime prototype stored public DTOs in plain Maps, used active-store checks instead of one Effect gate, and manually forked fibers. | P1 | accepted | Rewritten to private package internal ADTs, `SynchronizedRef` registry, `Effect.makeSemaphore(1)` admission, `FiberSet` workers inside `Layer.scoped`, and runtime-owned projection. |
+| D4-I2 | supervisor / app boundary | App host still owned `StudioEngines`, server identity, operation stores, status/current engines, conflict checks, event callbacks, and worker orchestration. | P1 | accepted | Production path now creates `createStudioOperationRuntimePorts` leaf adapters only; `StudioServerContext` passes `operationRuntime`; daemon composes package runtime/handler; old app operation-state source/tests were deleted. |
+| D4-I3 | supervisor / identity authority | `SaveDeployPreparedRequest` let leaf prepare return `requestId`, preserving hidden app identity authority. | P1 | accepted | Prepared Save/Deploy result no longer carries identity; runtime-owned `requestId` is passed explicitly to save/deploy leaves and covered by focused tests. |
+| D4-I4 | supervisor / cleanup risk | Save/Deploy leaf scratch state could survive save-phase failure. | P2 | accepted | Save/Deploy prepared context now carries a cleanup finalizer and worker `ensuring` runs cleanup on success, failure, or interruption. |
+| D4-I5 | supervisor / source-snapshot parity | Runtime request `sourceSnapshot` proof used different hash/envelope semantics from the exact-authorship proof helper. | P1 | accepted | Package now owns the canonical source-snapshot proof helper; runtime request projection and app exact-authorship proof use the same implementation, with parity regression coverage. |
+| D4-I6 | supervisor / public DTS privacy | A temporary tsc declaration build emitted private `operationRuntime/*.d.ts` artifacts with internal ADT/state names. | P1 | accepted | Reverted to bundled `tsup` declarations and made `StudioRuntime` exported type opaque; exact bundled-DTS scan is clean for internal ADTs and the private operation runtime service names. |
+| D4-I7 | Leibniz implementation review | Worker leaf-port failures were swallowed by Effect failure-channel handling, leaving operations stuck `running`; app check was red from declaration fallout; docs overclaimed review completion. | P1/P2 | accepted | Workers now handle failures with `Effect.catchAll` around the worker effect and preserve cleanup with `Effect.ensuring`; duplicate-after-failed and Save/Deploy leaf-failure tests pass; package build/check and app check/build pass; this ledger records the BLOCK and repair. |
+| D4-I8 | supervisor / scope guard | Browser-runner/preview recovery and watchdog residue exists outside the operation runtime path. | P2 | accepted | D4 closure does not claim browser cleanup; residual browser-runner/preview work is explicitly owned by later D6/D9/D10/D12 packets. |
 
 ## Required Fresh Reviews
 
@@ -26,4 +34,5 @@ Date: 2026-06-14
 - Testing/parity review: accepted after D4-R5/D4-R6 repairs.
 - Hardening/prework philosophy review: accepted after D4-R10/D4-R11/D4-R12 repairs.
 - Black-ice disambiguation review: accepted after D4-R10/D4-R11/D4-R12 repairs.
-- Adversarial residue/orphan review: accepted through runtime ownership, TypeScript/schema, and hardening lanes; no unresolved P1/P2 findings remain.
+- Implementation-diff review: Leibniz returned `Decision: BLOCK` on worker failure projection and app declaration/privacy proof; both blockers are accepted and repaired in D4-I7.
+- Adversarial residue/orphan review: accepted through runtime ownership, TypeScript/schema, hardening lanes, and the D4-I implementation repair loop; no unresolved D4 P1/P2 findings remain after the Graphite implementation commit.

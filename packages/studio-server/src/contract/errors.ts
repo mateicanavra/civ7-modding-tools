@@ -133,7 +133,7 @@ export const setupCatalogErrors = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// civ7.autoplay — host engine (409 dual-store mutex / 400 invalid / 503 unavailable / 500 unexpected)
+// civ7.autoplay — package runtime command (409 runtime gate / 400 invalid / 503 unavailable / 500 unexpected)
 // ---------------------------------------------------------------------------
 
 export const autoplayErrors = {
@@ -160,7 +160,7 @@ export const autoplayErrors = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// runInGame.* — host engine (409/400/500/503; 404 with server-identity echo)
+// runInGame.* — package operation runtime (409/400/500/503; 404 with server-identity echo)
 // ---------------------------------------------------------------------------
 
 export const runInGameErrors = {
@@ -192,7 +192,7 @@ export const runInGameErrors = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// mapConfigs.* — host engine (409 mutex / 400 validation / 503 unavailable; 404 with identity echo)
+// mapConfigs.* — package operation runtime (409 runtime gate / 400 validation / 503 unavailable; 404 with identity echo)
 // ---------------------------------------------------------------------------
 
 export const mapConfigsErrors = {

@@ -1,5 +1,4 @@
 import type { Router } from "@orpc/server";
-import { ORPCError } from "@orpc/server";
 import { Effect } from "effect";
 import { implementEffect } from "effect-orpc";
 
@@ -7,9 +6,12 @@ import { type StudioEffectContract, studioEffectContract } from "../contract/ind
 import { errorMessage } from "../errors.js";
 import {
   type StudioOperationProcedure,
+  mapStudioFailureToDefinedError,
   mapUnexpectedDefectToDefinedError,
+  type StudioRuntimeFailure,
 } from "../errors/index.js";
 import { readLiveGameStatusBody } from "../liveGame/statusRead.js";
+import { StudioOperationRuntime } from "../operationRuntime/index.js";
 import type { StudioRuntime } from "../runtime.js";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
 import { StudioConfig } from "../services/StudioConfig.js";
@@ -31,14 +33,12 @@ import { StudioEventHub } from "../services/StudioEventHub.js";
  *   - `civ7.live.status` runs the four reads under `Effect.all({ mode: "either" })`
  *     (the `Promise.allSettled` analogue) and embeds `{ error }` per field at 200;
  *     only an outer defect yields a transport error. PARITY INVARIANT.
- *   - The three stateful surfaces (autoplay #8, runInGame #13/#14, mapConfigs
- *     #15/#16) delegate to the host-injected `StudioConfig` fns (shared queue +
- *     dual-store mutex live host-side; see ../context.ts). App engines throw
- *     package-owned `StudioRuntimeFailure` values for known outcomes; the app
- *     host context maps them to declared `ORPCError`s before this router sees
- *     them. The router rethrows those declared errors unchanged; any
- *     non-ORPCError defect is contained here as the namespace `*_FAILED`
- *     code with package-projected `UnexpectedDefectData`.
+ *   - The stateful surfaces (autoplay #8, runInGame #13/#14, mapConfigs
+ *     #15/#16, operations.current) use the package-owned
+ *     the package operation runtime. Expected outcomes are typed
+ *     `StudioRuntimeFailure`s mapped here to declared oRPC errors. Defects are
+ *     contained as namespace `*_FAILED` with package-projected
+ *     `UnexpectedDefectData`.
  *
  * Query parsing parity (clamps, csv split/trim/filter, playerId omit) that the
  * legacy handlers did from the URL is reproduced here against the typed input.
@@ -93,27 +93,18 @@ export function createStudioRouter(
         return { ok: true as const, rows: rows as unknown as Record<string, unknown> };
       }),
 
-      // #8 POST /api/civ7/autoplay - host engine; 409 mutex / 500
+      // #8 POST /api/civ7/autoplay - package runtime command; 409 mutex / 500
       autoplay: oe.civ7.autoplay.effect(function* ({ input, errors }) {
-        const config = yield* StudioConfig;
-        return yield* Effect.tryPromise({
-          try: () => config.autoplay(input),
-          catch: (err) => err,
-        }).pipe(
-          Effect.mapError((err) =>
-            err instanceof ORPCError
-              ? err
-              : (() => {
-                  const projected = statefulDefect(
-                    err,
-                    "autoplay.command",
-                    "Civ7 autoplay request failed"
-                  );
-                  return errors.AUTOPLAY_FAILED({
-                    message: projected.message,
-                    data: projected.data,
-                  });
-                })()
+        const operationRuntime = yield* StudioOperationRuntime;
+        return yield* operationRuntime.autoplay(input).pipe(
+          Effect.mapError((failure) =>
+            statefulFailure(
+              errors,
+              failure,
+              "autoplay.command",
+              "Civ7 autoplay request failed",
+              operationRuntime.identity
+            )
           )
         );
       }),
@@ -279,96 +270,68 @@ export function createStudioRouter(
     },
 
     runInGame: {
-      // #14 POST /api/civ7/run-in-game - host engine; 409/400/500/503
+      // #14 POST /api/civ7/run-in-game - package runtime operation; 409/400/500/503
       start: oe.runInGame.start.effect(function* ({ input, errors }) {
-        const config = yield* StudioConfig;
-        return yield* Effect.tryPromise({
-          try: () => config.runInGameStart(input),
-          catch: (err) => err,
-        }).pipe(
-          Effect.mapError((err) =>
-            err instanceof ORPCError
-              ? err
-              : (() => {
-                  const projected = statefulDefect(err, "runInGame.start", "Run in Game failed");
-                  return errors.RUN_IN_GAME_FAILED({
-                    message: projected.message,
-                    data: projected.data,
-                  });
-                })()
+        const operationRuntime = yield* StudioOperationRuntime;
+        return yield* operationRuntime.runInGameStart(input).pipe(
+          Effect.mapError((failure) =>
+            statefulFailure(
+              errors,
+              failure,
+              "runInGame.start",
+              "Run in Game failed",
+              operationRuntime.identity
+            )
           )
         );
       }),
 
-      // #13 GET /api/civ7/run-in-game/status - host store; 404 echoes server id
+      // #13 GET /api/civ7/run-in-game/status - package runtime status; 404 echoes server id
       status: oe.runInGame.status.effect(function* ({ input, errors }) {
-        const config = yield* StudioConfig;
-        return yield* Effect.tryPromise({
-          try: () => config.runInGameStatus(input),
-          catch: (err) => err,
-        }).pipe(
-          Effect.mapError((err) =>
-            err instanceof ORPCError
-              ? err
-              : (() => {
-                  const projected = statefulDefect(
-                    err,
-                    "runInGame.status",
-                    "Run in Game status failed"
-                  );
-                  return errors.RUN_IN_GAME_FAILED({
-                    message: projected.message,
-                    data: projected.data,
-                  });
-                })()
+        const operationRuntime = yield* StudioOperationRuntime;
+        return yield* operationRuntime.runInGameStatus(input).pipe(
+          Effect.mapError((failure) =>
+            statefulFailure(
+              errors,
+              failure,
+              "runInGame.status",
+              "Run in Game status failed",
+              operationRuntime.identity
+            )
           )
         );
       }),
     },
 
     mapConfigs: {
-      // #16 POST /api/map-configs - host engine; 409 mutex / 400 validation
+      // #16 POST /api/map-configs - package runtime operation; 409 mutex / 400 validation
       saveDeploy: oe.mapConfigs.saveDeploy.effect(function* ({ input, errors }) {
-        const config = yield* StudioConfig;
-        return yield* Effect.tryPromise({
-          try: () => config.mapConfigSaveDeploy(input),
-          catch: (err) => err,
-        }).pipe(
-          Effect.mapError((err) =>
-            err instanceof ORPCError
-              ? err
-              : (() => {
-                  const projected = statefulDefect(err, "saveDeploy.start", "Save failed");
-                  return errors.SAVE_DEPLOY_FAILED({
-                    message: projected.message,
-                    data: projected.data,
-                  });
-                })()
+        const operationRuntime = yield* StudioOperationRuntime;
+        return yield* operationRuntime.saveDeployStart(input).pipe(
+          Effect.mapError((failure) =>
+            statefulFailure(
+              errors,
+              failure,
+              "saveDeploy.start",
+              "Save failed",
+              operationRuntime.identity
+            )
           )
         );
       }),
 
-      // #15 GET /api/map-configs/status - host store; 404 echoes server id
+      // #15 GET /api/map-configs/status - package runtime status; 404 echoes server id
       status: oe.mapConfigs.status.effect(function* ({ input, errors }) {
-        const config = yield* StudioConfig;
-        return yield* Effect.tryPromise({
-          try: () => config.mapConfigStatus(input),
-          catch: (err) => err,
-        }).pipe(
-          Effect.mapError((err) =>
-            err instanceof ORPCError
-              ? err
-              : (() => {
-                  const projected = statefulDefect(
-                    err,
-                    "saveDeploy.status",
-                    "Save/Deploy status failed"
-                  );
-                  return errors.SAVE_DEPLOY_FAILED({
-                    message: projected.message,
-                    data: projected.data,
-                  });
-                })()
+        const operationRuntime = yield* StudioOperationRuntime;
+        return yield* operationRuntime.saveDeployStatus(input).pipe(
+          Effect.mapError((failure) =>
+            statefulFailure(
+              errors,
+              failure,
+              "saveDeploy.status",
+              "Save/Deploy status failed",
+              operationRuntime.identity
+            )
           )
         );
       }),
@@ -378,24 +341,25 @@ export function createStudioRouter(
       // #9 GET /api/studio/server-info - pure; no errors
       serverInfo: oe.studio.serverInfo.effect(function* () {
         const config = yield* StudioConfig;
+        const operationRuntime = yield* StudioOperationRuntime;
         return {
           ok: true as const,
-          serverInstanceId: config.serverInstanceId,
-          startedAt: config.serverStartedAt,
+          serverInstanceId: operationRuntime.identity.serverInstanceId,
+          startedAt: operationRuntime.identity.serverStartedAt,
           runInGameApiVersion: 2 as const,
           viteCommand: config.viteCommand,
         };
       }),
       events: {
         watch: oe.studio.events.watch.effect(function* () {
-          const config = yield* StudioConfig;
+          const operationRuntime = yield* StudioOperationRuntime;
           const eventHub = yield* StudioEventHub;
           return eventHub.subscribe({
             initialEvents: [
               {
                 type: "hello",
-                serverInstanceId: config.serverInstanceId,
-                serverStartedAt: config.serverStartedAt,
+                serverInstanceId: operationRuntime.identity.serverInstanceId,
+                serverStartedAt: operationRuntime.identity.serverStartedAt,
                 observedAt: new Date().toISOString(),
               },
             ],
@@ -404,8 +368,8 @@ export function createStudioRouter(
       },
       operations: {
         current: oe.studio.operations.current.effect(function* () {
-          const config = yield* StudioConfig;
-          return yield* Effect.promise(() => config.operationsCurrent());
+          const operationRuntime = yield* StudioOperationRuntime;
+          return yield* operationRuntime.operationsCurrent;
         }),
       },
     },
@@ -452,6 +416,30 @@ function statefulDefect(
     procedure,
     fallbackMessage: errorMessage(err, fallbackMessage),
   });
+}
+
+function statefulFailure(
+  errors: unknown,
+  failure: StudioRuntimeFailure,
+  procedure: StudioOperationProcedure,
+  fallbackMessage: string,
+  identity: Readonly<{ serverInstanceId: string; serverStartedAt: string }>
+): any {
+  const projected = mapStudioFailureToDefinedError({
+    failure,
+    procedure,
+    identity,
+  });
+  const constructors = errors as Record<string, (args: { message?: string; data?: unknown }) => unknown>;
+  const constructor = constructors[projected.code];
+  if (constructor) {
+    return constructor({
+      message: projected.message || fallbackMessage,
+      data: projected.data,
+    });
+  }
+  const defect = statefulDefect(failure, procedure, fallbackMessage);
+  return constructors[defect.code]?.({ message: defect.message, data: defect.data }) ?? defect;
 }
 
 /**

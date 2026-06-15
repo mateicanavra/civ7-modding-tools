@@ -42,19 +42,21 @@
 - [x] 3.16 Define duplicate Run in Game fingerprint table tests and app fingerprint-owner negative searches.
 - [x] 3.17 Define app leaf adapter boundary tests and negative gates for phase/failure/fingerprint/background-worker ownership.
 
-## 3A. Future Implementation Closure Gates
+## 3A. Implementation Closure Gates
 
-These are D4 implementation obligations recorded by this packet, not pre-acceptance authoring tasks.
+These are D4 implementation obligations recorded by this packet. Implementation
+evidence is recorded in `workstream/testing-ledger.md` and review disposition is
+recorded in `workstream/review-disposition-ledger.md`.
 
-- [ ] 3A.1 Implement package-owned `StudioOperationRuntime` with Effect Layer/Ref/SynchronizedRef/Semaphore-or-Queue ownership.
-- [ ] 3A.2 Move server identity, Run in Game registry, Save/Deploy registry, TTL, current projection, and operation event publication into the runtime service.
-- [ ] 3A.3 Route Run in Game, Save/Deploy, and Autoplay admission through the runtime mutation gate.
-- [ ] 3A.4 Replace public-shape mutation stores with internal ADTs plus projection.
-- [ ] 3A.5 Implement scoped worker supervision and disposal projection.
-- [ ] 3A.6 Delete app-local lifecycle ownership from `createStudioEngines` and app operation stores.
-- [ ] 3A.7 Preserve D3 typed failure semantics and D2.5 TypeBox public DTO ownership.
-- [ ] 3A.8 Replace mutation lifecycle engine callbacks in `StudioServerContext` with package runtime services and leaf adapter ports.
-- [ ] 3A.9 Run package/app/scenario tests and negative searches.
+- [x] 3A.1 Implement package-owned `StudioOperationRuntime` with Effect Layer/Ref/SynchronizedRef/Semaphore-or-Queue ownership.
+- [x] 3A.2 Move server identity, Run in Game registry, Save/Deploy registry, TTL, current projection, and operation event publication into the runtime service.
+- [x] 3A.3 Route Run in Game, Save/Deploy, and Autoplay admission through the runtime mutation gate.
+- [x] 3A.4 Replace public-shape mutation stores with internal ADTs plus projection.
+- [x] 3A.5 Implement scoped worker supervision and disposal projection.
+- [x] 3A.6 Delete app-local lifecycle ownership from `createStudioEngines` and app operation stores.
+- [x] 3A.7 Preserve D3 typed failure semantics and D2.5 TypeBox public DTO ownership.
+- [x] 3A.8 Replace mutation lifecycle engine callbacks in `StudioServerContext` with package runtime services and leaf adapter ports.
+- [x] 3A.9 Run package/app/scenario tests and negative searches.
 
 ## 4. Verification
 
@@ -70,3 +72,12 @@ These are D4 implementation obligations recorded by this packet, not pre-accepta
 - [x] 5.1 Record review acceptance in `review-disposition-ledger.md`.
 - [x] 5.2 Mark D4 accepted in `OPENSPEC-PACKET-TRAIN.md`.
 - [x] 5.3 Commit accepted D4 packet through Graphite with clean/quarantined worktree state.
+
+## 6. Implementation Closure
+
+- [x] 6.1 Record fresh implementation-diff review findings and dispositions.
+- [x] 6.2 Repair worker Effect failure-channel handling so leaf failures project terminal state and clear active state.
+- [x] 6.3 Repair public declaration privacy so generated DTS does not expose internal operation ADTs or the internal runtime service graph.
+- [x] 6.4 Record browser-runner/preview recovery residue as outside D4 and owned by D6/D9/D10/D12.
+- [x] 6.5 Run focused package/app gates and D4 negative-search proof.
+- [x] 6.6 Commit D4 implementation through Graphite with clean/quarantined post-commit worktree state; proof is the current branch-tip implementation commit plus clean `git status --short --branch` on `codex/runtime-effect-engine-runtime-services` after amendment.

@@ -7,7 +7,10 @@ import { afterEach, describe, expect, test } from "vitest";
 import {
   createStudioEventHub,
   createStudioRpcHandler,
+  invalidRequest,
+  operationBlocked,
   type StudioEventHubApi,
+  type StudioOperationRuntimePorts,
   type StudioRouter,
   type StudioRpcHandle,
   type StudioServerContext,
@@ -27,29 +30,42 @@ describe("studio-server RPC handler", () => {
   test("serves stateful Studio operations through the native effect-oRPC handler", async () => {
     const calls: string[] = [];
     const context = makeContext({
-      mapConfigStatus: async ({ requestId }) => {
-        calls.push(`status:${requestId}`);
-        return {
-          ok: true,
-          requestId,
-          phase: "complete",
-          status: "complete",
-          startedAt: "2026-06-10T00:00:00.000Z",
-          updatedAt: "2026-06-10T00:00:01.000Z",
-          saved: true,
-          deployed: true,
-        };
-      },
+      operationRuntime: makeOperationRuntimePorts({
+        prepareSaveDeployStart: async ({ requestId }) => {
+          calls.push(`prepare:${requestId}`);
+          return {};
+        },
+        saveMapConfig: async ({ requestId }) => {
+          calls.push(`save:${requestId}`);
+          return { saved: true };
+        },
+        deploySavedMapConfig: async ({ requestId }) => {
+          calls.push(`deploy:${requestId}`);
+          return { deployed: true };
+        },
+      }),
     });
     const client = await listenWithClient(context);
 
-    await expect(client.studio.serverInfo({})).resolves.toEqual({
+    const serverInfo = await client.studio.serverInfo({});
+    expect(serverInfo).toEqual({
       ok: true,
-      serverInstanceId: "studio-server-test",
+      serverInstanceId: expect.stringMatching(/^studio-server-/),
       startedAt: "2026-06-10T00:00:00.000Z",
       runInGameApiVersion: 2,
       viteCommand: "serve",
     });
+    await expect(
+      client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} })
+    ).resolves.toMatchObject({
+      ok: true,
+      requestId: "save-1",
+      phase: "queued",
+      status: "running",
+    });
+    await expect
+      .poll(async () => (await client.mapConfigs.status({ requestId: "save-1" })).phase)
+      .toBe("complete");
     await expect(client.mapConfigs.status({ requestId: "save-1" })).resolves.toMatchObject({
       ok: true,
       requestId: "save-1",
@@ -60,7 +76,7 @@ describe("studio-server RPC handler", () => {
     });
     await expect(client.studio.operations.current({})).resolves.toMatchObject({
       ok: true,
-      serverInstanceId: "studio-server-test",
+      serverInstanceId: serverInfo.serverInstanceId,
       runInGame: { active: null, recent: [] },
       saveDeploy: {
         active: null,
@@ -73,72 +89,44 @@ describe("studio-server RPC handler", () => {
         ],
       },
     });
-    expect(calls).toEqual(["status:save-1"]);
+    expect(calls).toEqual(["prepare:save-1", "save:save-1", "deploy:save-1"]);
   }, 10_000);
 
-  test("delivers a mapped engine 409 as the DEFINED SAVE_DEPLOY_BLOCKED error", async () => {
-    // The app host context maps package StudioRuntimeFailure values to declared
-    // ORPCError payloads before they cross into this package. This fake asserts
-    // the router preserves that declared payload unchanged.
+  test("maps runtime operation conflicts as the DEFINED SAVE_DEPLOY_BLOCKED error", async () => {
+    const blocker = deferred<void>();
     const context = makeContext({
-      mapConfigSaveDeploy: async () => {
-        throw new ORPCError("SAVE_DEPLOY_BLOCKED", {
-          status: 409,
-          message: "Save/Deploy is already running.",
-          data: {
-            tag: "OperationBlocked",
-            namespace: "saveDeploy",
-            reason: "active-operation-conflict",
-            message: "Save/Deploy is already running.",
-            recoveryActions: ["retry-status", "copy-diagnostics"],
-            activeRequestId: "save-0",
-            diagnostics: { code: "save-deploy-operation-active" },
-          },
-        });
-      },
+      operationRuntime: makeOperationRuntimePorts({
+        deployRunInGame: async () => {
+          await blocker.promise;
+          return {};
+        },
+      }),
     });
     const client = await listenWithClient(context);
+    const run = await client.runInGame.start({ recipeId: "mod-swooper-maps/standard" });
 
     const { error } = await safe(
       client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} })
     );
+    blocker.resolve();
 
     expect(error).toBeInstanceOf(ORPCError);
     if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
     expect(isDefinedError(error)).toBe(true);
     expect(error.code).toBe("SAVE_DEPLOY_BLOCKED");
     expect(error.status).toBe(409);
-    expect(error.message).toBe("Save/Deploy is already running.");
-    expect(error.data).toEqual({
+    expect(error.message).toBe("run-in-game is running; wait for it to finish before starting another Studio operation.");
+    expect(error.data).toMatchObject({
       tag: "OperationBlocked",
       namespace: "saveDeploy",
       reason: "active-operation-conflict",
-      message: "Save/Deploy is already running.",
-      recoveryActions: ["retry-status", "copy-diagnostics"],
-      activeRequestId: "save-0",
-      diagnostics: { code: "save-deploy-operation-active" },
+      activeRequestId: run.requestId,
+      diagnostics: { code: "studio-operation-active" },
     });
   });
 
   test("delivers a run-in-game status miss as RUN_IN_GAME_STATUS_NOT_FOUND with the server-identity echo", async () => {
-    const context = makeContext({
-      runInGameStatus: async () => {
-        throw new ORPCError("RUN_IN_GAME_STATUS_NOT_FOUND", {
-          status: 404,
-          message: "Run in Game request not found: run-1",
-          data: {
-            tag: "OperationNotFound",
-            namespace: "runInGame",
-            reason: "status-not-found",
-            message: "Run in Game request not found: run-1",
-            recoveryActions: ["retry-status", "copy-diagnostics"],
-            requestId: "run-1",
-            serverInstanceId: "studio-server-test",
-            serverStartedAt: "2026-06-10T00:00:00.000Z",
-          },
-        });
-      },
-    });
+    const context = makeContext();
     const client = await listenWithClient(context);
 
     const { error } = await safe(client.runInGame.status({ requestId: "run-1" }));
@@ -156,31 +144,14 @@ describe("studio-server RPC handler", () => {
       message: "Run in Game request not found: run-1",
       recoveryActions: ["retry-status", "copy-diagnostics"],
       requestId: "run-1",
-      serverInstanceId: "studio-server-test",
+      diagnostics: { code: "run-in-game-request-not-found" },
+      serverInstanceId: expect.stringMatching(/^studio-server-/),
       serverStartedAt: "2026-06-10T00:00:00.000Z",
     });
   });
 
   test("delivers a save/deploy status miss as SAVE_DEPLOY_STATUS_NOT_FOUND with the server-identity echo", async () => {
-    const context = makeContext({
-      mapConfigStatus: async () => {
-        throw new ORPCError("SAVE_DEPLOY_STATUS_NOT_FOUND", {
-          status: 404,
-          message: "Save/Deploy request not found: save-1",
-          data: {
-            tag: "OperationNotFound",
-            namespace: "saveDeploy",
-            reason: "status-not-found",
-            message: "Save/Deploy request not found: save-1",
-            recoveryActions: ["retry-status", "copy-diagnostics"],
-            requestId: "save-1",
-            serverInstanceId: "studio-server-test",
-            serverStartedAt: "2026-06-10T00:00:00.000Z",
-            diagnostics: { code: "save-deploy-status-not-found" },
-          },
-        });
-      },
-    });
+    const context = makeContext();
     const client = await listenWithClient(context);
 
     const { error } = await safe(client.mapConfigs.status({ requestId: "save-1" }));
@@ -197,35 +168,42 @@ describe("studio-server RPC handler", () => {
       message: "Save/Deploy request not found: save-1",
       recoveryActions: ["retry-status", "copy-diagnostics"],
       requestId: "save-1",
-      serverInstanceId: "studio-server-test",
+      serverInstanceId: expect.stringMatching(/^studio-server-/),
       serverStartedAt: "2026-06-10T00:00:00.000Z",
-      diagnostics: { code: "save-deploy-status-not-found" },
+      diagnostics: { code: "save-deploy-request-not-found" },
     });
   });
 
-  test("wraps an unexpected engine throw as the namespace FAILED defined error", async () => {
+  test("maps typed runtime leaf failures through the package error spine", async () => {
     const context = makeContext({
-      runInGameStart: async () => {
-        throw new Error("engine exploded");
-      },
+      operationRuntime: makeOperationRuntimePorts({
+        runAutoplay: async () => {
+          throw operationBlocked({
+            message: "Autoplay blocked by test",
+            activeRequestId: "run-1",
+            activePhase: "deploying",
+            diagnostics: { code: "autoplay-test-blocked" },
+          });
+        },
+      }),
     });
     const client = await listenWithClient(context);
 
-    const { error } = await safe(client.runInGame.start({ recipeId: "mod-swooper-maps/standard" }));
+    const { error } = await safe(client.civ7.autoplay({ action: "start" }));
 
     expect(error).toBeInstanceOf(ORPCError);
     if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
     expect(isDefinedError(error)).toBe(true);
-    expect(error.code).toBe("RUN_IN_GAME_FAILED");
-    expect(error.status).toBe(500);
-    expect(error.message).toBe("engine exploded");
-    expect(error.data).toEqual({
-      tag: "UnexpectedDefect",
-      namespace: "runInGame",
-      message: "engine exploded",
-      recoveryActions: ["copy-diagnostics"],
-      causeName: "Error",
-      causeMessage: "engine exploded",
+    expect(error.code).toBe("AUTOPLAY_BLOCKED");
+    expect(error.status).toBe(409);
+    expect(error.data).toMatchObject({
+      tag: "OperationBlocked",
+      namespace: "autoplay",
+      reason: "active-operation-conflict",
+      message: "Autoplay blocked by test",
+      activeRequestId: "run-1",
+      activePhase: "deploying",
+      diagnostics: { code: "autoplay-test-blocked" },
     });
   });
 
@@ -249,7 +227,7 @@ describe("studio-server RPC handler", () => {
       done: false,
       value: {
         type: "hello",
-        serverInstanceId: "studio-server-test",
+        serverInstanceId: expect.stringMatching(/^studio-server-/),
         serverStartedAt: "2026-06-10T00:00:00.000Z",
         observedAt: expect.any(String),
       },
@@ -358,8 +336,6 @@ async function nodeRequestToWebRequest(req: import("node:http").IncomingMessage)
 function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServerContext {
   const eventHub = overrides.eventHub ?? trackEventHub(createStudioEventHub());
   return {
-    serverInstanceId: "studio-server-test",
-    serverStartedAt: "2026-06-10T00:00:00.000Z",
     viteCommand: "serve",
     loadSetupCatalog: async () =>
       ({
@@ -372,46 +348,6 @@ function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServer
         difficulties: [],
         age: [],
       }) as any,
-    autoplay: async () => {
-      throw new Error("Unexpected autoplay call");
-    },
-    runInGameStart: async () => {
-      throw new Error("Unexpected run-in-game start call");
-    },
-    runInGameStatus: async () => {
-      throw new Error("Unexpected run-in-game status call");
-    },
-    mapConfigSaveDeploy: async () => {
-      throw new Error("Unexpected map-config save/deploy call");
-    },
-    mapConfigStatus: async () => {
-      throw new Error("Unexpected map-config status call");
-    },
-    operationsCurrent: async () => ({
-      ok: true,
-      serverInstanceId: "studio-server-test",
-      serverStartedAt: "2026-06-10T00:00:00.000Z",
-      observedAt: "2026-06-10T00:00:00.000Z",
-      runInGame: {
-        active: null,
-        recent: [],
-      },
-      saveDeploy: {
-        active: null,
-        recent: [
-          {
-            ok: true,
-            requestId: "save-1",
-            phase: "complete",
-            status: "complete",
-            startedAt: "2026-06-10T00:00:00.000Z",
-            updatedAt: "2026-06-10T00:00:01.000Z",
-            saved: true,
-            deployed: true,
-          },
-        ],
-      },
-    }),
     recipeDagService: {
       getRecipeDag: async () => {
         throw new Error("Unexpected recipe-DAG call");
@@ -422,6 +358,50 @@ function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServer
       timeoutMs: 1234,
     },
     eventHub,
+    operationRuntime: makeOperationRuntimePorts(),
     ...overrides,
   };
+}
+
+function makeOperationRuntimePorts(
+  overrides: Partial<StudioOperationRuntimePorts> = {}
+): StudioOperationRuntimePorts {
+  return {
+    clock: {
+      now: () => new Date("2026-06-10T00:00:00.000Z"),
+    },
+    materializeRunInGame: async () => ({}),
+    deployRunInGame: async () => ({}),
+    checkCiv7ForRunInGame: async () => undefined,
+    prepareSetupForRunInGame: async () => ({}),
+    startGameForRunInGame: async () => ({}),
+    waitForRunInGameProof: async () => ({ result: { ok: true } }),
+    prepareSaveDeployStart: async () => ({}),
+    saveMapConfig: async () => ({ saved: true }),
+    deploySavedMapConfig: async () => ({ deployed: true }),
+    runAutoplay: async (input) => ({
+      ok: true,
+      action: input.action,
+      autoplay: {},
+      game: {},
+      gameContext: {},
+      result: {},
+    }),
+    normalizeSaveDeployFailure: ({ err }) =>
+      invalidRequest({
+        message: err instanceof Error ? err.message : "Save failed",
+        diagnostics: { code: "save-deploy-test-failed" },
+      }),
+    ...overrides,
+  };
+}
+
+function deferred<T>() {
+  let resolve: (value: T | PromiseLike<T>) => void = () => undefined;
+  let reject: (reason?: unknown) => void = () => undefined;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
 }

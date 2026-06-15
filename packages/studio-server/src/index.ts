@@ -13,9 +13,9 @@
  *   the host (the studio Bun daemon) mounts at `/rpc`, plus `tuner.*` ports and
  *   the `dispose()` shutdown obligation.
  *
- * The host supplies a {@link StudioServerContext} carrying the process singletons,
- * the catalog loader, and the three stateful engine fns (shared queue + dual-store
- * mutex live host-side) — see ./context.ts.
+ * The host supplies a {@link StudioServerContext} carrying leaf filesystem,
+ * resource, control, recipe-DAG, event, and operation adapter ports. The
+ * package runtime owns stateful operation lifecycle.
  */
 
 export type {
@@ -110,6 +110,12 @@ export {
   toStudioDefinedOrpcError,
 } from "./errors/index.js";
 export { createStudioRpcHandler, type StudioRpcHandle } from "./handler.js";
+export type { StudioOperationRuntimePorts } from "./operationRuntime/index.js";
+export {
+  buildRunInGameSourceSnapshotProof,
+  buildStandardRunInGameSourceSnapshotProof,
+  hashRunInGameProofValue,
+} from "./operationRuntime/index.js";
 export {
   buildLiveGameErrorState,
   buildLiveGameState,

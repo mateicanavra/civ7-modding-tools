@@ -5,7 +5,6 @@ import { dirname, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import {
   Civ7DirectControlError,
-  createCiv7ControlRequestId,
   DEFAULT_CIV7_SCRIPTING_LOG,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
   ensureCiv7SetupMapRowVisible,
@@ -20,11 +19,9 @@ import {
 } from "@civ7/direct-control";
 import { deployMod, resolveModsDir } from "@civ7/plugin-mods";
 import type {
-  RunInGamePhase,
   RunInGameRequestStatus,
   StudioBoundedDiagnostics,
-  StudioEventHubApi,
-  StudioOperationEvent,
+  StudioOperationRuntimePorts,
   StudioRuntimeFailure,
 } from "@civ7/studio-server";
 import {
@@ -36,22 +33,16 @@ import {
   isStudioRuntimeFailure,
   materializationFailed,
   operationBlocked,
-  operationNotFound,
   proofFailed,
 } from "@civ7/studio-server";
 import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
-import { createMapConfigSaveDeployOperationStore } from "../mapConfigs/operationState";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
 import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
 import {
   launchCiv7MacViaSteamWithRetries,
   shutdownCiv7MacProcess,
 } from "../runInGame/macosProcessRestart";
-import {
-  createRunInGameOperationStore,
-  type RunInGameOperationState,
-} from "../runInGame/operationState";
 import {
   buildRunInGameExactAuthorshipProof,
   buildRunInGameSourceSnapshotProof,
@@ -65,19 +56,13 @@ import {
 import { parseRunInGameSetupRequest } from "../runInGame/requestValidation";
 
 // ============================================================================
-// Studio engines — the stateful server core (bun-server workstream, slice 2)
+// Studio operation leaf ports — app-side filesystem/deploy/direct-control atoms
 // ----------------------------------------------------------------------------
-// Moved VERBATIM out of `vite.config.ts` module scope: the serialized operation
-// queue, both operation stores (the dual-store 409 mutex), the server instance
-// identity, and the five engine functions (autoplay, run-in-game start/status,
-// save-deploy start/status). `createStudioEngines` owns ALL process-singleton
-// server state — exactly one instance may exist per server process (the Bun
-// daemon), shared by every oRPC mount, or the queue/mutex semantics diverge
-// (architecture/10 §7).
-//
-// Each engine returns its success body, or throws a package-owned
-// `StudioRuntimeFailure` for known runtime outcomes. Unexpected exceptions are
-// defect-contained by the oRPC context as namespace `*_FAILED` errors.
+// D4 moves lifecycle truth into `@civ7/studio-server`'s Effect runtime. This
+// file deliberately does not own operation ids, admission, queues, registries,
+// status/current projections, event publication, or runtime disposal. It only
+// implements leaf work the package cannot own: repository writes, mod deploys,
+// Civ7 direct-control calls, and proof gathering.
 // ============================================================================
 
 const execFileAsync = promisify(execFile);
@@ -86,7 +71,6 @@ const SCRIPTING_LOG_WAIT_TIMEOUT_MS = 90_000;
 const SCRIPTING_LOG_FAILURE_GRACE_MS = 5_000;
 const SCRIPTING_LOG_FAILURE_POLL_INTERVAL_MS = 250;
 const MAX_DEPLOY_OUTPUT_CHARS = 8_000;
-const RUN_IN_GAME_OPERATION_TTL_MS = 30 * 60_000;
 const CIV7_STEAM_APP_ID = "1295660";
 const CIV7_PROCESS_PATTERN = "CivilizationVII.app/Contents/MacOS/CivilizationVII";
 const CIV7_PROCESS_GRACEFUL_QUIT_TIMEOUT_MS = 45_000;
@@ -545,12 +529,8 @@ function boundedDiagnostics(details: Record<string, unknown>): StudioBoundedDiag
   return out;
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value != null && typeof value === "object" && !Array.isArray(value);
-}
-
-function failureDiagnostics(err: unknown): Record<string, unknown> {
-  return isStudioRuntimeFailure(err) && isRecord(err.diagnostics) ? err.diagnostics : {};
+function failureDiagnostics(err: unknown): StudioBoundedDiagnostics | undefined {
+  return isStudioRuntimeFailure(err) ? err.diagnostics : undefined;
 }
 
 function saveDeployFailureForOperation(
@@ -599,274 +579,494 @@ async function restoreRepoConfig(target: string, previous: string | null): Promi
   await writeFile(target, previous);
 }
 
-/** Request body accepted by the run-in-game start engine (legacy + oRPC shape). */
-export interface RunInGameStartEngineBody {
-  recipeId?: unknown;
-  seed?: unknown;
-  mapSize?: unknown;
-  playerCount?: unknown;
-  resources?: unknown;
-  materialization?: { mode?: unknown };
-  recovery?: { restartCivProcess?: unknown };
-  setupConfig?: unknown;
-  config?: unknown;
-  sourceSnapshot?: unknown;
-  selectedConfig?: {
-    id?: unknown;
-    label?: unknown;
-    description?: unknown;
-    sourcePath?: unknown;
-    sortIndex?: unknown;
-    latitudeBounds?: unknown;
-  };
-}
+type RunInGameInput = Parameters<StudioOperationRuntimePorts["materializeRunInGame"]>[0]["input"];
+type RunInGameMaterialized = Awaited<ReturnType<StudioOperationRuntimePorts["materializeRunInGame"]>>;
+type RunInGameDeployment = Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>;
+type RunInGameStarted = Awaited<ReturnType<StudioOperationRuntimePorts["startGameForRunInGame"]>>;
+type SaveDeployPrepared = Awaited<ReturnType<StudioOperationRuntimePorts["prepareSaveDeployStart"]>>;
 
-export type RunInGameStartResult =
-  | { kind: "accepted"; operation: RunInGameOperationState }
-  | { kind: "duplicate"; operation: RunInGameOperationState };
+type RunInGameLeafContext = Readonly<{
+  id: string;
+  seed: number;
+  mapSize: string;
+  playerCount?: number;
+  restartCivProcess: boolean;
+  setupConfig: ReturnType<typeof parseRunInGameSetupRequest>["setupConfig"];
+  requestedMode: ReturnType<typeof parseRunInGameSetupRequest>["requestedMode"];
+  configHash: string;
+  envelopeHash: string;
+  envelope: Record<string, unknown>;
+  sourceSnapshotProof?: ReturnType<typeof buildRunInGameSourceSnapshotProof>;
+  requestStatus: RunInGameRequestStatus;
+}> & {
+  materialization?: NonNullable<RunInGameMaterialized["materialization"]>;
+  scriptingLogPath?: string;
+  scriptingSnapshot?: Awaited<ReturnType<typeof snapshotFile>>;
+  deployment?: RunInGameDeployment;
+  launchMapScript?: string;
+  rowProof?: unknown;
+  rowVisibility?: unknown;
+  started?: RunInGameStarted;
+};
 
-export interface AutoplayEngineResult {
-  ok: boolean;
-  action: "start" | "stop";
-  autoplay: unknown;
-  game: unknown;
-  gameContext: unknown;
-  result: unknown;
-}
-
-type SaveDeployOperationStore = ReturnType<typeof createMapConfigSaveDeployOperationStore>;
-export type SaveDeployEngineResult = ReturnType<SaveDeployOperationStore["create"]>;
-type StudioEngineEventHub = Pick<StudioEventHubApi, "publish">;
-type OperationPublisher = (event: StudioOperationEvent) => void;
-type RunInGameOperationEvent = Extract<StudioOperationEvent, { kind: "run-in-game" }>;
-type SaveDeployOperationEvent = Extract<StudioOperationEvent, { kind: "save-deploy" }>;
-export type StudioOperationsCurrent = Readonly<{
-  ok: true;
-  serverInstanceId: string;
-  serverStartedAt: string;
-  observedAt: string;
-  runInGame: Readonly<{
-    active: RunInGameOperationState | null;
-    recent: readonly RunInGameOperationState[];
-  }>;
-  saveDeploy: Readonly<{
-    active: SaveDeployEngineResult | null;
-    recent: readonly SaveDeployEngineResult[];
-  }>;
+type SaveDeployLeafContext = SaveDeployPrepared & Readonly<{
+  parsedRequest: ReturnType<typeof parseMapConfigSaveRequest>;
+  target: string;
+  previous: string | null;
 }>;
 
-/**
- * The studio's stateful server engines — the one place long-running Civ7
- * operations (run-in-game, save/deploy, autoplay) execute and are tracked.
- *
- * Contract: engines serialize through a process-wide operation queue (one
- * Civ7-mutating operation at a time), record progress in TTL-bounded
- * operation stores keyed by request id, and throw package-owned
- * `StudioRuntimeFailure` values for every known client-visible failure.
- * The context maps those failures to declared oRPC errors by procedure, so
- * legacy status/error-code behavior stays stable without a status-code bridge.
- */
-export interface StudioEngines {
-  /** Process-lifetime identity — clients reconcile run-in-game state against it. */
-  readonly serverInstanceId: string;
-  readonly serverStartedAt: string;
-  readonly repoRoot: string;
-  runAutoplayEngine(action: "start" | "stop"): Promise<AutoplayEngineResult>;
-  runRunInGameStartEngine(body: RunInGameStartEngineBody): Promise<RunInGameStartResult>;
-  runRunInGameStatusEngine(requestId: string): RunInGameOperationState;
-  runSaveDeployEngine(body: unknown): Promise<SaveDeployEngineResult>;
-  runSaveDeployStatusEngine(requestId: string): SaveDeployEngineResult;
-  currentOperations(): StudioOperationsCurrent;
-}
-
-function publishOperationEvent(eventHub: StudioEngineEventHub, event: StudioOperationEvent): void {
-  void eventHub.publish(event).catch((error: unknown) => {
-    console.error("[mapgen-studio] failed to publish operation event", error);
-  });
-}
-
-function createOperationPublisher(
-  eventHub: StudioEngineEventHub | undefined
-): OperationPublisher | undefined {
-  if (!eventHub) return undefined;
-  return (event) => publishOperationEvent(eventHub, event);
-}
-
-function runInGameStatusForEvent(
-  status: RunInGameOperationState
-): RunInGameOperationEvent["status"] {
-  const {
-    completedPhases,
-    recoveryActions,
-    details,
-    exactAuthorshipProof,
-    materialization,
-    ...rest
-  } = status;
-  return {
-    ...rest,
-    completedPhases: [...completedPhases],
-    ...(materialization === undefined
-      ? {}
-      : {
-          materialization: mutableJsonClone(materialization),
-        }),
-    ...(details === undefined
-      ? {}
-      : {
-          details: mutableJsonClone(details),
-        }),
-    ...(exactAuthorshipProof === undefined
-      ? {}
-      : {
-          exactAuthorshipProof: mutableJsonClone(exactAuthorshipProof),
-        }),
-    ...(recoveryActions === undefined ? {} : { recoveryActions: [...recoveryActions] }),
-  };
-}
-
-function saveDeployStatusForEvent(
-  status: SaveDeployEngineResult
-): SaveDeployOperationEvent["status"] {
-  const { recoveryActions, ...rest } = status;
-  return {
-    ...rest,
-    ...(recoveryActions === undefined ? {} : { recoveryActions: [...recoveryActions] }),
-  };
-}
-
-function mutableJsonClone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
-}
-
-export function createStudioEngines(
-  options: Readonly<{ repoRoot: string; eventHub?: StudioEngineEventHub }>
-): StudioEngines {
+export function createStudioOperationRuntimePorts(
+  options: Readonly<{ repoRoot: string }>
+): StudioOperationRuntimePorts {
   const { repoRoot } = options;
-  const serverStartedAt = new Date().toISOString();
-  const serverInstanceId = createCiv7ControlRequestId("studio-server");
-  const publishOperation = createOperationPublisher(options.eventHub);
+  const runContexts = new Map<string, RunInGameLeafContext>();
+  const saveContexts = new Map<string, SaveDeployLeafContext>();
 
-  let studioOperationQueue = Promise.resolve();
-  const runInGameOperations = createRunInGameOperationStore({
-    serverInstanceId,
-    serverStartedAt,
-    ttlMs: RUN_IN_GAME_OPERATION_TTL_MS,
-    onChange: publishOperation
-      ? (status) =>
-          publishOperation({
-            type: "operation",
-            kind: "run-in-game",
-            status: runInGameStatusForEvent(status),
-            observedAt: status.updatedAt,
+  return {
+    materializeRunInGame: async ({ requestId, input, prepared }) => {
+      const context = makeRunInGameLeafContext({ requestId, input, prepared });
+      let materialized: Awaited<ReturnType<typeof materializeRunInGameConfig>> | undefined;
+      materialized = await materializeRunInGameConfig({
+        repoRoot,
+        id: context.id,
+        sourcePath:
+          context.requestedMode === "durable" && typeof input.selectedConfig?.sourcePath === "string"
+            ? input.selectedConfig.sourcePath
+            : undefined,
+        envelope: context.envelope,
+        mode: context.requestedMode,
+      });
+      const materialization = {
+        mode: context.requestedMode,
+        path: materialized.path,
+        mapScript: materialized.mapScript,
+        configHash: context.configHash,
+        envelopeHash: context.envelopeHash,
+        ...(await optionalFileIdentity({ repoRoot, path: materialized.path }).then((sourceConfig) =>
+          sourceConfig ? { sourceConfig } : {}
+        )),
+      };
+      context.materialization = materialization;
+      runContexts.set(requestId, context);
+      return {
+        materialization,
+        cleanup: async () => {
+          runContexts.delete(requestId);
+          await materialized?.cleanup();
+        },
+      };
+    },
+    deployRunInGame: async ({ requestId }) => {
+      const context = requireRunContext(runContexts, requestId);
+      const materialization = requireMaterialization(context, requestId);
+      context.scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
+      context.scriptingSnapshot = await snapshotFile(context.scriptingLogPath);
+      const deploy = await deploySwooperMapsForRun(repoRoot, requestId);
+      const generatedSourceScript = await optionalFileIdentity({
+        repoRoot,
+        path: generatedSourceScriptPath(repoRoot, context.id),
+      });
+      const localModScript = await optionalFileIdentity({
+        repoRoot,
+        path: localModScriptPath(repoRoot, context.id),
+      });
+      const deployedModScript = deploy.targetDir
+        ? await optionalFileIdentity({
+            repoRoot,
+            path: deployedModScriptPath(deploy.targetDir, context.id),
+            exposeAs: "absolute",
           })
-      : undefined,
-  });
-  const saveDeployOperations = createMapConfigSaveDeployOperationStore({
-    ttlMs: RUN_IN_GAME_OPERATION_TTL_MS,
-    onChange: publishOperation
-      ? (status) =>
-          publishOperation({
-            type: "operation",
-            kind: "save-deploy",
-            status: saveDeployStatusForEvent(status),
-            observedAt: status.updatedAt,
+        : undefined;
+      const requiredMaterializationMarkers = runInGameRequiredMaterializationMarkers({
+        requestId,
+        configHash: context.configHash,
+        envelopeHash: context.envelopeHash,
+      });
+      const localModScriptContent = await optionalFileContentMarkerProof({
+        repoRoot,
+        path: localModScriptPath(repoRoot, context.id),
+        markers: requiredMaterializationMarkers,
+      });
+      const deployedModScriptContent = deploy.targetDir
+        ? await optionalFileContentMarkerProof({
+            repoRoot,
+            path: deployedModScriptPath(deploy.targetDir, context.id),
+            exposeAs: "absolute",
+            markers: requiredMaterializationMarkers,
           })
-      : undefined,
-  });
+        : undefined;
+      context.materialization = {
+        ...materialization,
+        ...(generatedSourceScript ? { generatedSourceScript } : {}),
+        ...(localModScript ? { localModScript } : {}),
+        ...(deployedModScript ? { deployedModScript } : {}),
+        ...(localModScriptContent ? { localModScriptContent } : {}),
+        ...(deployedModScriptContent ? { deployedModScriptContent } : {}),
+      };
+      const unresolved = runInGameMaterializationScriptUnresolvedLinks({
+        materialization: context.materialization,
+        localModScript,
+        deployedModScript,
+        requiredMarkers: requiredMaterializationMarkers,
+      });
+      if (unresolved.length > 0) {
+        throw materializationFailed({
+          message: "Generated Swooper map script is missing current materialization proof markers",
+          diagnostics: boundedDiagnostics({
+            code: "map-script-materialization-proof-missing",
+            unresolvedLinks: unresolved,
+            materialization: context.materialization,
+          }),
+        });
+      }
 
-  async function runAutoplayEngine(action: "start" | "stop"): Promise<AutoplayEngineResult> {
-    const activeRunInGame = runInGameOperations.findActive();
-    if (activeRunInGame) {
-      throw operationBlocked({
-        message: "Run in Game is running; wait for it to finish before changing autoplay.",
-        activeRequestId: activeRunInGame.requestId,
-        activePhase: activeRunInGame.phase,
-        diagnostics: boundedDiagnostics({
-          code: "run-in-game-operation-active",
-        }),
-      });
-    }
-    const activeSaveDeploy = saveDeployOperations.findActive();
-    if (activeSaveDeploy) {
-      throw operationBlocked({
-        message: "Save/Deploy is running; wait for it to finish before changing autoplay.",
-        activeRequestId: activeSaveDeploy.requestId,
-        activePhase: activeSaveDeploy.phase,
-        diagnostics: boundedDiagnostics({
-          code: "save-deploy-operation-active",
-        }),
-      });
-    }
-    const opts = {
-      timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
-      waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
-      pollIntervalMs: 1_000,
-    };
-    const result = await (action === "start"
-      ? startCiv7Autoplay(opts)
-      : stopCiv7Autoplay(opts)
-    ).catch((err: unknown) => {
-      throw autoplayStartStopFailed({
-        message: `Civ7 autoplay ${action} failed`,
-        reason: action === "start" ? "start-failed" : "stop-failed",
-        diagnostics: boundedDiagnostics({
-          code: `civ7-autoplay-${action}-failed`,
-          action,
-          ...failureDiagnostics(err),
-          cause: err,
-        }),
-      });
-    });
-    if (!result.verified) {
-      throw autoplayVerificationFailed({
-        message: `Civ7 autoplay ${action} verification failed`,
-        diagnostics: boundedDiagnostics({
-          code: "civ7-autoplay-verification-failed",
-          action,
-          autoplay: result.after.autoplay,
-          game: result.after.game,
-          gameContext: result.after.gameContext,
-        }),
-      });
-    }
-    return {
-      ok: true,
-      action,
-      autoplay: result.after.autoplay,
-      game: result.after.game,
-      gameContext: result.after.gameContext,
-      result,
-    };
-  }
+      const localBundlePath = localModScriptPath(repoRoot, context.id);
+      const localBundleText = await readFile(localBundlePath, "utf8").catch(() => "");
+      if (!mapScriptEmbedsRequestId(localBundleText, requestId)) {
+        throw materializationFailed({
+          message:
+            "Deployed map bundle does not embed the Run in Game request id; the in-game proof could never match.",
+          diagnostics: boundedDiagnostics({
+            code: "run-request-id-not-materialized",
+            requestId,
+            mapScript: materialization.mapScript,
+            localModScript: relative(repoRoot, localBundlePath),
+            recoveryHint:
+              "Rebuild map artifacts (gen:maps must see SWOOPER_STUDIO_RUN_ID; check the nx env input/cache for mod-swooper-maps:build), then retry the run.",
+            materialization: context.materialization,
+          }),
+        });
+      }
 
-  /**
-   * The Run-in-Game orchestrator: validate the request, materialize the map
-   * config + generated script, build-and-deploy the swooper mod, prove the
-   * deployed script carries this run's materialization markers (request id /
-   * config hash / envelope hash / native river markers — the correctness
-   * boundary: a launch must never run a stale script), restart or exit Civ7
-   * to shell as needed, start the prepared single-player game, and wait for
-   * the in-game mapgen log proof. Progress is recorded phase-by-phase in the
-   * operation store under the request id; duplicate requests return the
-   * already-tracked operation instead of double-launching.
-   */
-  async function runRunInGameStartEngine(
-    body: RunInGameStartEngineBody
-  ): Promise<RunInGameStartResult> {
+      context.deployment = { materialization: context.materialization, deploy };
+      context.launchMapScript = materialization.mapScript;
+      return context.deployment;
+    },
+    restartCivForRunInGame: async () => ({ processRestart: await restartCiv7ProcessViaSteam() }),
+    checkCiv7ForRunInGame: async ({ requestId }) => {
+      const context = requireRunContext(runContexts, requestId);
+      await getCiv7PlayableStatus({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }).catch((err) => {
+        throw unavailableEngineDependency(
+          "Civ7 direct-control status is unavailable",
+          "direct-control-status-unavailable",
+          err,
+          { materialization: context.materialization }
+        );
+      });
+    },
+    prepareSetupForRunInGame: async ({ requestId }) => {
+      const context = requireRunContext(runContexts, requestId);
+      const materialization = requireMaterialization(context, requestId);
+      const launchMapScript = requireContextValue(
+        context.launchMapScript ?? materialization.mapScript,
+        "Run in Game map script",
+        requestId
+      );
+      const rowVisibility = await ensureCiv7SetupMapRowVisible(
+        {
+          file: launchMapScript,
+          limit: 20,
+          reloadIfMissing: context.requestedMode === "disposable" ? "exit-to-shell" : "none",
+          waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+          pollIntervalMs: 1_000,
+        },
+        { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }
+      );
+      const rowProof = rowVisibility.final;
+      if (rowProof.rows.length === 0) {
+        throw operationBlocked({
+          message: `Civ7 setup cannot see ${launchMapScript}`,
+          diagnostics: boundedDiagnostics({
+            code: "setup-map-row-not-visible",
+            reloadRequired: true,
+            reloadBoundary:
+              context.requestedMode === "disposable" ? "process-restart-required" : "setup-row-missing",
+            reloadAttempted: rowVisibility.refreshed,
+            mapScript: launchMapScript,
+            materialization: { mode: context.requestedMode, path: materialization.path },
+          }),
+        });
+      }
+      context.rowProof = rowProof;
+      context.rowVisibility = rowVisibility;
+      return { rowProof, rowVisibility, reloadRequired: rowVisibility.refreshed };
+    },
+    startGameForRunInGame: async ({ requestId }) => {
+      const context = requireRunContext(runContexts, requestId);
+      const materialization = requireMaterialization(context, requestId);
+      const scriptingLogPath = requireContextValue(
+        context.scriptingLogPath,
+        "Run in Game scripting log path",
+        requestId
+      );
+      const scriptingSnapshot = requireContextValue(
+        context.scriptingSnapshot,
+        "Run in Game scripting log snapshot",
+        requestId
+      );
+      const launchMapScript = requireContextValue(
+        context.launchMapScript ?? materialization.mapScript,
+        "Run in Game map script",
+        requestId
+      );
+      const start = await runCiv7SinglePlayerFromSetup(
+        {
+          mapScript: launchMapScript,
+          mapSize: context.mapSize,
+          seed: context.seed,
+          gameSeed: context.seed,
+          ...(context.playerCount === undefined ? {} : { playerCount: context.playerCount }),
+          ...(context.setupConfig.savedConfig === undefined
+            ? {}
+            : { savedConfig: context.setupConfig.savedConfig }),
+          options: context.setupConfig.gameOptions,
+          playerOptions: context.setupConfig.playerOptions,
+          fromRunningGame: "exit-to-shell",
+          waitForTuner: true,
+          waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+        },
+        { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }
+      ).catch(async (err: unknown) => {
+        const mapgenFailure = await waitForCiv7MapgenLogFailure({
+          readFreshLogText: () => readFreshLogText(scriptingLogPath, scriptingSnapshot),
+          sleep,
+          timeoutMs: SCRIPTING_LOG_FAILURE_GRACE_MS,
+          pollIntervalMs: SCRIPTING_LOG_FAILURE_POLL_INTERVAL_MS,
+          mapScript: launchMapScript,
+        });
+        if (mapgenFailure) {
+          throw proofFailed({
+            message: mapgenFailure.message,
+            reason: "start-game-failed",
+            diagnostics: boundedDiagnostics({
+              ...mapgenFailure,
+              materialization,
+              cause: cloneForJson(err instanceof Civ7DirectControlError ? err.details : err),
+            }),
+          });
+        }
+        throw unavailableEngineDependency(
+          "Civ7 direct-control start is unavailable",
+          "direct-control-start-unavailable",
+          err,
+          { materialization }
+        );
+      });
+      context.started = { start };
+      return context.started;
+    },
+    waitForRunInGameProof: async ({ requestId }) => {
+      const context = requireRunContext(runContexts, requestId);
+      const materialization = requireMaterialization(context, requestId);
+      const scriptingLogPath = requireContextValue(
+        context.scriptingLogPath,
+        "Run in Game scripting log path",
+        requestId
+      );
+      const scriptingSnapshot = requireContextValue(
+        context.scriptingSnapshot,
+        "Run in Game scripting log snapshot",
+        requestId
+      );
+      const launchMapScript = context.launchMapScript ?? materialization.mapScript;
+      const logMarkerProof = await waitForFreshLogMarkers({
+        logPath: scriptingLogPath,
+        snapshot: scriptingSnapshot,
+        markers: ["[mapgen-proof]", requestId, context.configHash, context.envelopeHash, "[mapgen-complete]"],
+        timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+        rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
+      }).catch(async (err: unknown) => {
+        const mapgenFailure = await waitForCiv7MapgenLogFailure({
+          readFreshLogText: () => readFreshLogText(scriptingLogPath, scriptingSnapshot),
+          sleep,
+          timeoutMs: SCRIPTING_LOG_FAILURE_GRACE_MS,
+          pollIntervalMs: SCRIPTING_LOG_FAILURE_POLL_INTERVAL_MS,
+          mapScript: launchMapScript,
+        });
+        if (mapgenFailure) {
+          throw proofFailed({
+            message: mapgenFailure.message,
+            reason: "log-proof-missing",
+            diagnostics: boundedDiagnostics({
+              ...mapgenFailure,
+              materialization,
+              cause: err instanceof Error ? err.message : String(err),
+            }),
+          });
+        }
+        throw unavailableEngineDependency(
+          "Civ7 mapgen log proof is unavailable",
+          "direct-control-proof-unavailable",
+          err,
+          { materialization }
+        );
+      });
+      const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(() => "");
+      const logProof = parseSwooperMapgenLogProof({
+        text: freshLogText,
+        logPath: logMarkerProof.logPath,
+        observedAt: logMarkerProof.observedAt,
+        requestId,
+        configHash: context.configHash,
+        envelopeHash: context.envelopeHash,
+        seed: context.seed,
+      });
+      if (!logProof) {
+        throw proofFailed({
+          message: "Swooper log proof payload did not match the Studio Run in Game request",
+          reason: "log-proof-missing",
+          diagnostics: boundedDiagnostics({
+            code: "swooper-log-proof-missing",
+            requestId,
+            configHash: context.configHash,
+            envelopeHash: context.envelopeHash,
+            seed: context.seed,
+            markers: logMarkerProof.matched,
+            materialization,
+          }),
+        });
+      }
+      const started = context.started?.start as Awaited<ReturnType<typeof runCiv7SinglePlayerFromSetup>> | undefined;
+      const liveRuntimeStatus = started?.start.mapSummary
+        ? buildLiveRuntimeStatusState({
+            body: {
+              ok: true,
+              observedAt: new Date().toISOString(),
+              status: { readiness: "running-game" },
+              mapSummary: started.start.mapSummary,
+            },
+            observedAtFallback: new Date().toISOString(),
+          })
+        : undefined;
+      const exactAuthorshipProof = buildRunInGameExactAuthorshipProof({
+        requestId,
+        request: context.requestStatus,
+        sourceSnapshot: context.sourceSnapshotProof,
+        materialization,
+        sourceConfig: materialization.sourceConfig,
+        generatedSourceScript: materialization.generatedSourceScript,
+        localModScript: materialization.localModScript,
+        deployedModScript: materialization.deployedModScript,
+        rowProof: context.rowProof,
+        setupSnapshot: started?.prepare.after.snapshot,
+        startMapSummary: started?.start.mapSummary,
+        logProof,
+        ...(liveRuntimeStatus
+          ? {
+              liveRuntimeSnapshot: {
+                ...(liveRuntimeStatus.snapshotId ? { snapshotId: liveRuntimeStatus.snapshotId } : {}),
+                ...(liveRuntimeStatus.snapshotHash ? { snapshotHash: liveRuntimeStatus.snapshotHash } : {}),
+                ...(liveRuntimeStatus.turn === undefined ? {} : { turn: liveRuntimeStatus.turn }),
+                ...(liveRuntimeStatus.gameHash === undefined ? {} : { gameHash: liveRuntimeStatus.gameHash }),
+              },
+            }
+          : {}),
+      });
+      return {
+        result: {
+          ok: true,
+          requestId,
+          materialization,
+          deploy: context.deployment?.deploy,
+          rowProof: context.rowProof,
+          rowVisibility: context.rowVisibility,
+          start: started,
+          logMarkerProof,
+          logProof,
+          exactAuthorshipProof,
+        },
+        materialization,
+        exactAuthorshipProof,
+      };
+    },
+    prepareSaveDeployStart: async ({ requestId, input }) => {
+      const parsedRequest = parseSaveDeployInput(input);
+      assertRepoMapEnvelope(parsedRequest.envelope, parsedRequest.id);
+      const configRoot = resolve(repoRoot, "mods/mod-swooper-maps/src/maps/configs");
+      const target = parsedRequest.sourcePath
+        ? resolve(repoRoot, parsedRequest.sourcePath)
+        : resolve(configRoot, `${parsedRequest.id}.config.json`);
+      if (!target.startsWith(`${configRoot}/`) || !target.endsWith(".config.json")) {
+        throw invalidEngineRequest(
+          "Map config writes must stay in mods/mod-swooper-maps/src/maps/configs",
+          "map-config-path-outside-config-root",
+          { sourcePath: parsedRequest.sourcePath }
+        );
+      }
+      const path = relative(repoRoot, target);
+      const previous = await readFile(target, "utf8").catch((err: unknown) => {
+        if (isNodeNotFound(err)) return null;
+        throw unavailableEngineDependency(
+          "Unable to read existing map config before Save/Deploy",
+          "save-deploy-existing-config-unavailable",
+          err,
+          { path, sourcePath: parsedRequest.sourcePath }
+        );
+      });
+      const prepared = {
+        path,
+        cleanup: async () => {
+          saveContexts.delete(requestId);
+        },
+      };
+      saveContexts.set(requestId, { ...prepared, parsedRequest, target, previous });
+      return prepared;
+    },
+    saveMapConfig: async ({ requestId }) => {
+      const context = requireSaveContext(saveContexts, requestId);
+      await mkdir(dirname(context.target), { recursive: true });
+      await writeFile(context.target, `${JSON.stringify(context.parsedRequest.envelope, null, 2)}\n`);
+      return { path: context.path, saved: true };
+    },
+    deploySavedMapConfig: async ({ requestId }) => {
+      const context = requireSaveContext(saveContexts, requestId);
+      try {
+        const deploy = await deploySwooperMaps(repoRoot);
+        saveContexts.delete(requestId);
+        return { path: context.path, saved: true, deployed: true, deploy };
+      } catch (err) {
+        let rollbackFailure: unknown;
+        try {
+          await restoreRepoConfig(context.target, context.previous);
+        } catch (restoreErr) {
+          rollbackFailure = restoreErr;
+        } finally {
+          saveContexts.delete(requestId);
+        }
+        throw saveDeployFailureForOperation(err, "deploying", {
+          path: context.path ?? "",
+          sourcePath: context.parsedRequest.sourcePath,
+          rollbackFailure,
+        });
+      }
+    },
+    runAutoplay: async (input) => runAutoplayLeaf(input.action),
+    normalizeSaveDeployFailure: ({ err, phase }) =>
+      isStudioRuntimeFailure(err)
+        ? err
+        : saveDeployFailureForOperation(err, phase, {
+            path: "",
+          }),
+    failureDiagnostics,
+  };
+
+  function makeRunInGameLeafContext(args: Readonly<{
+    requestId: string;
+    input: RunInGameInput;
+    prepared: Parameters<StudioOperationRuntimePorts["materializeRunInGame"]>[0]["prepared"];
+  }>): RunInGameLeafContext {
     let parsedRequest: ReturnType<typeof parseRunInGameSetupRequest>;
     try {
-      parsedRequest = parseRunInGameSetupRequest(body);
+      parsedRequest = parseRunInGameSetupRequest(args.input);
     } catch (err) {
       throw invalidEngineRequest(
         err instanceof Error ? err.message : "Invalid Run in Game request",
         "run-in-game-request-invalid"
       );
     }
-    const selected = body.selectedConfig ?? {};
-    const { requestedMode, id, seed, mapSize, playerCount, restartCivProcess, setupConfig } =
-      parsedRequest;
-    const configHash = stableHash(body.config);
+    const selected = args.input.selectedConfig ?? {};
+    const { requestedMode, id, seed, mapSize, playerCount, restartCivProcess, setupConfig } = parsedRequest;
+    const configHash = stableHash(args.input.config);
     const envelope = makeRepoMapEnvelope({
       id,
       name: typeof selected.label === "string" ? selected.label : id,
@@ -878,7 +1078,7 @@ export function createStudioEngines(
             ? 9999
             : 900,
       latitudeBounds: selected.latitudeBounds,
-      config: body.config,
+      config: args.input.config,
     });
     assertRepoMapEnvelope(envelope, id);
     const envelopeHash = stableHash({
@@ -887,596 +1087,134 @@ export function createStudioEngines(
       latitudeBounds: selected.latitudeBounds ?? null,
       configHash,
     });
-    const sourceSnapshotIdentityHash =
-      body.sourceSnapshot === undefined
-        ? undefined
-        : stableHash({ sourceSnapshot: body.sourceSnapshot, configHash, envelopeHash });
-    const requestFingerprint = stableHash({
-      recipeId: "mod-swooper-maps/standard",
-      seed,
-      mapSize,
-      playerCount: playerCount ?? null,
-      resources: typeof body.resources === "string" ? body.resources : null,
-      selectedConfigId: typeof selected.id === "string" ? selected.id : null,
-      setupConfig,
-      materializationMode: requestedMode,
-      configHash,
-      envelopeHash,
-      sourceSnapshotIdentityHash: sourceSnapshotIdentityHash ?? null,
-    });
-    const activeOperation = runInGameOperations.findActive();
-    if (activeOperation) {
-      if (activeOperation.request?.fingerprint === requestFingerprint) {
-        return {
-          kind: "duplicate",
-          operation: {
-            ...activeOperation,
-            details: {
-              ...activeOperation.details,
-              duplicateRequest: true,
-              code: "run-in-game-operation-active",
-              activeRequestId: activeOperation.requestId,
-            },
-          },
-        };
-      }
-      throw operationBlocked({
-        message:
-          "Another Run in Game request is already running; wait for it to finish before launching a different config.",
-        activeRequestId: activeOperation.requestId,
-        activePhase: activeOperation.phase,
-        diagnostics: boundedDiagnostics({
-          code: "run-in-game-operation-active",
-        }),
-      });
-    }
-    const activeSaveDeploy = saveDeployOperations.findActive();
-    if (activeSaveDeploy) {
-      throw operationBlocked({
-        message: "Save/Deploy is running; wait for it to finish before Run in Game.",
-        activeRequestId: activeSaveDeploy.requestId,
-        activePhase: activeSaveDeploy.phase,
-        diagnostics: boundedDiagnostics({
-          code: "save-deploy-operation-active",
-        }),
-      });
-    }
-    const requestId = createCiv7ControlRequestId("studio-run-in-game");
     const sourceSnapshotProof = buildRunInGameSourceSnapshotProof({
-      requestId,
-      sourceSnapshot: body.sourceSnapshot,
+      requestId: args.requestId,
+      sourceSnapshot: args.input.sourceSnapshot,
       configHash,
       envelopeHash,
     });
     const requestStatus: RunInGameRequestStatus = {
+      ...args.prepared.request,
       recipeId: "mod-swooper-maps/standard",
       seed,
       mapSize,
       ...(playerCount === undefined ? {} : { playerCount }),
-      ...(typeof body.resources === "string" ? { resources: body.resources } : {}),
+      ...(typeof args.input.resources === "string" ? { resources: args.input.resources } : {}),
       ...(typeof selected.id === "string" ? { selectedConfigId: selected.id } : {}),
       setupConfig,
       materializationMode: requestedMode,
       ...(restartCivProcess ? { restartCivProcess } : {}),
-      fingerprint: requestFingerprint,
       ...(sourceSnapshotProof ? { sourceSnapshot: sourceSnapshotProof } : {}),
     };
-    const operation = runInGameOperations.create(requestId, requestStatus);
-    const run = async () => {
-      let materialized: Awaited<ReturnType<typeof materializeRunInGameConfig>> | undefined;
-      let materialization: RunInGameOperationState["materialization"] = {
-        mode: requestedMode,
-        configHash,
-        envelopeHash,
-      };
-      let phase: RunInGamePhase = "materializing";
-      try {
-        runInGameOperations.update(requestId, { phase });
-        materialized = await materializeRunInGameConfig({
-          repoRoot,
-          id,
-          sourcePath:
-            requestedMode === "durable" && typeof selected.sourcePath === "string"
-              ? selected.sourcePath
-              : undefined,
-          envelope,
-          mode: requestedMode,
-        });
-        materialization = {
-          mode: requestedMode,
-          path: materialized.path,
-          mapScript: materialized.mapScript,
-          configHash,
-          envelopeHash,
-          ...(await optionalFileIdentity({ repoRoot, path: materialized.path }).then(
-            (sourceConfig) => (sourceConfig ? { sourceConfig } : {})
-          )),
-        };
-        runInGameOperations.update(requestId, { materialization });
-
-        const scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
-        const scriptingSnapshot = await snapshotFile(scriptingLogPath);
-
-        phase = "deploying";
-        runInGameOperations.update(requestId, { phase, materialization });
-        let deploy;
-        deploy = await deploySwooperMapsForRun(repoRoot, requestId);
-        const generatedSourceScript = await optionalFileIdentity({
-          repoRoot,
-          path: generatedSourceScriptPath(repoRoot, id),
-        });
-        const localModScript = await optionalFileIdentity({
-          repoRoot,
-          path: localModScriptPath(repoRoot, id),
-        });
-        const deployedModScript = deploy.targetDir
-          ? await optionalFileIdentity({
-              repoRoot,
-              path: deployedModScriptPath(deploy.targetDir, id),
-              exposeAs: "absolute",
-            })
-          : undefined;
-        // Materialization CONTENT proof (rivers-era correctness boundary):
-        // the request/config/envelope markers — including the native-river
-        // markers — must be present in the local AND deployed map JS before
-        // Civ launches, or the in-game proof could never bind to this run.
-        const requiredMaterializationMarkers = runInGameRequiredMaterializationMarkers({
-          requestId,
-          configHash,
-          envelopeHash,
-        });
-        const localModScriptContent = await optionalFileContentMarkerProof({
-          repoRoot,
-          path: localModScriptPath(repoRoot, id),
-          markers: requiredMaterializationMarkers,
-        });
-        const deployedModScriptContent = deploy.targetDir
-          ? await optionalFileContentMarkerProof({
-              repoRoot,
-              path: deployedModScriptPath(deploy.targetDir, id),
-              exposeAs: "absolute",
-              markers: requiredMaterializationMarkers,
-            })
-          : undefined;
-        materialization = {
-          ...materialization,
-          ...(generatedSourceScript ? { generatedSourceScript } : {}),
-          ...(localModScript ? { localModScript } : {}),
-          ...(deployedModScript ? { deployedModScript } : {}),
-          ...(localModScriptContent ? { localModScriptContent } : {}),
-          ...(deployedModScriptContent ? { deployedModScriptContent } : {}),
-        };
-        runInGameOperations.update(requestId, { phase, materialization });
-        const materializationScriptUnresolvedLinks = runInGameMaterializationScriptUnresolvedLinks({
-          materialization,
-          localModScript,
-          deployedModScript,
-          requiredMarkers: requiredMaterializationMarkers,
-        });
-        if (materializationScriptUnresolvedLinks.length > 0) {
-          throw materializationFailed({
-            message: "Generated Swooper map script is missing current materialization proof markers",
-            diagnostics: boundedDiagnostics({
-              code: "map-script-materialization-proof-missing",
-              unresolvedLinks: materializationScriptUnresolvedLinks,
-              materialization,
-            }),
-          });
-        }
-
-        // Fail fast if the freshly built bundle does not embed this request's
-        // id. The in-game [mapgen-proof] line echoes the embedded id and the
-        // proof waiter matches on it — a bundle without it (the historical
-        // cached/strict-env regression) would otherwise zombie in
-        // "waiting-for-proof" until the log timeout while the game plays on.
-        const localBundlePath = localModScriptPath(repoRoot, id);
-        const localBundleText = await readFile(localBundlePath, "utf8").catch(() => "");
-        if (!mapScriptEmbedsRequestId(localBundleText, requestId)) {
-          throw materializationFailed({
-            message:
-              "Deployed map bundle does not embed the Run in Game request id; the in-game proof could never match.",
-            diagnostics: boundedDiagnostics({
-              code: "run-request-id-not-materialized",
-              requestId,
-              mapScript: materialized.mapScript,
-              localModScript: relative(repoRoot, localBundlePath),
-              recoveryHint:
-                "Rebuild map artifacts (gen:maps must see SWOOPER_STUDIO_RUN_ID; check the nx env input/cache for mod-swooper-maps:build), then retry the run.",
-              materialization,
-            }),
-          });
-        }
-
-        let processRestart;
-        if (restartCivProcess) {
-          phase = "restarting-civ";
-          runInGameOperations.update(requestId, { phase, materialization });
-          processRestart = await restartCiv7ProcessViaSteam();
-          runInGameOperations.update(requestId, { phase, materialization, processRestart });
-        }
-
-        phase = "checking-civ7";
-        runInGameOperations.update(requestId, { phase, materialization });
-        await getCiv7PlayableStatus({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }).catch((err) => {
-          throw unavailableEngineDependency(
-            "Civ7 direct-control status is unavailable",
-            "direct-control-status-unavailable",
-            err,
-            { materialization }
-          );
-        });
-
-        const launchMapScript = materialized.mapScript;
-        const rowVisibility = await ensureCiv7SetupMapRowVisible(
-          {
-            file: launchMapScript,
-            limit: 20,
-            reloadIfMissing: requestedMode === "disposable" ? "exit-to-shell" : "none",
-            waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
-            pollIntervalMs: 1_000,
-          },
-          { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }
-        );
-        if (rowVisibility.refreshed) {
-          phase = "reload-needed";
-          runInGameOperations.update(requestId, { phase, materialization });
-        }
-        const rowProof = rowVisibility.final;
-        if (rowProof.rows.length === 0) {
-          throw operationBlocked({
-            message: `Civ7 setup cannot see ${launchMapScript}`,
-            diagnostics: boundedDiagnostics({
-              code: "setup-map-row-not-visible",
-              reloadRequired: true,
-              reloadBoundary:
-                requestedMode === "disposable" ? "process-restart-required" : "setup-row-missing",
-              reloadAttempted: rowVisibility.refreshed,
-              mapScript: launchMapScript,
-              materialization: { mode: requestedMode, path: materialized.path },
-            }),
-          });
-        }
-
-        phase = "preparing-setup";
-        runInGameOperations.update(requestId, { phase, materialization });
-
-        phase = "starting-game";
-        runInGameOperations.update(requestId, { phase, materialization });
-        const start = await runCiv7SinglePlayerFromSetup(
-          {
-            mapScript: launchMapScript,
-            mapSize,
-            seed,
-            gameSeed: seed,
-            ...(playerCount === undefined ? {} : { playerCount }),
-            ...(setupConfig.savedConfig === undefined
-              ? {}
-              : { savedConfig: setupConfig.savedConfig }),
-            options: setupConfig.gameOptions,
-            playerOptions: setupConfig.playerOptions,
-            fromRunningGame: "exit-to-shell",
-            waitForTuner: true,
-            waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
-          },
-          { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }
-        ).catch(async (err: unknown) => {
-          const mapgenFailure = await waitForCiv7MapgenLogFailure({
-            readFreshLogText: () => readFreshLogText(scriptingLogPath, scriptingSnapshot),
-            sleep,
-            timeoutMs: SCRIPTING_LOG_FAILURE_GRACE_MS,
-            pollIntervalMs: SCRIPTING_LOG_FAILURE_POLL_INTERVAL_MS,
-            mapScript: launchMapScript,
-          });
-          if (mapgenFailure) {
-            throw proofFailed({
-              message: mapgenFailure.message,
-              reason: "start-game-failed",
-              diagnostics: boundedDiagnostics({
-                ...mapgenFailure,
-                materialization,
-                cause: cloneForJson(err instanceof Civ7DirectControlError ? err.details : err),
-              }),
-            });
-          }
-          throw unavailableEngineDependency(
-            "Civ7 direct-control start is unavailable",
-            "direct-control-start-unavailable",
-            err,
-            { materialization }
-          );
-        });
-
-        phase = "waiting-for-proof";
-        runInGameOperations.update(requestId, { phase, materialization });
-        const logMarkerProof = await waitForFreshLogMarkers({
-          logPath: scriptingLogPath,
-          snapshot: scriptingSnapshot,
-          markers: ["[mapgen-proof]", requestId, configHash, envelopeHash, "[mapgen-complete]"],
-          timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
-          rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
-        }).catch(async (err: unknown) => {
-          const mapgenFailure = await waitForCiv7MapgenLogFailure({
-            readFreshLogText: () => readFreshLogText(scriptingLogPath, scriptingSnapshot),
-            sleep,
-            timeoutMs: SCRIPTING_LOG_FAILURE_GRACE_MS,
-            pollIntervalMs: SCRIPTING_LOG_FAILURE_POLL_INTERVAL_MS,
-            mapScript: launchMapScript,
-          });
-          if (mapgenFailure) {
-            throw proofFailed({
-              message: mapgenFailure.message,
-              reason: "log-proof-missing",
-              diagnostics: boundedDiagnostics({
-                ...mapgenFailure,
-                materialization,
-                cause: err instanceof Error ? err.message : String(err),
-              }),
-            });
-          }
-          throw unavailableEngineDependency(
-            "Civ7 mapgen log proof is unavailable",
-            "direct-control-proof-unavailable",
-            err,
-            { materialization }
-          );
-        });
-        const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(
-          () => ""
-        );
-        const logProof = parseSwooperMapgenLogProof({
-          text: freshLogText,
-          logPath: logMarkerProof.logPath,
-          observedAt: logMarkerProof.observedAt,
-          requestId,
-          configHash,
-          envelopeHash,
-          seed,
-        });
-        if (!logProof) {
-          throw proofFailed({
-            message: "Swooper log proof payload did not match the Studio Run in Game request",
-            reason: "log-proof-missing",
-            diagnostics: boundedDiagnostics({
-              code: "swooper-log-proof-missing",
-              requestId,
-              configHash,
-              envelopeHash,
-              seed,
-              markers: logMarkerProof.matched,
-              materialization,
-            }),
-          });
-        }
-        const liveRuntimeStatus = start.start.mapSummary
-          ? buildLiveRuntimeStatusState({
-              body: {
-                ok: true,
-                observedAt: new Date().toISOString(),
-                status: { readiness: "running-game" },
-                mapSummary: start.start.mapSummary,
-              },
-              observedAtFallback: new Date().toISOString(),
-            })
-          : undefined;
-        const exactAuthorshipProof = buildRunInGameExactAuthorshipProof({
-          requestId,
-          request: requestStatus,
-          sourceSnapshot: sourceSnapshotProof,
-          materialization,
-          sourceConfig: materialization.sourceConfig,
-          generatedSourceScript: materialization.generatedSourceScript,
-          localModScript: materialization.localModScript,
-          deployedModScript: materialization.deployedModScript,
-          rowProof,
-          setupSnapshot: start.prepare.after.snapshot,
-          startMapSummary: start.start.mapSummary,
-          logProof,
-          ...(liveRuntimeStatus
-            ? {
-                liveRuntimeSnapshot: {
-                  ...(liveRuntimeStatus.snapshotId
-                    ? { snapshotId: liveRuntimeStatus.snapshotId }
-                    : {}),
-                  ...(liveRuntimeStatus.snapshotHash
-                    ? { snapshotHash: liveRuntimeStatus.snapshotHash }
-                    : {}),
-                  ...(liveRuntimeStatus.turn === undefined ? {} : { turn: liveRuntimeStatus.turn }),
-                  ...(liveRuntimeStatus.gameHash === undefined
-                    ? {}
-                    : { gameHash: liveRuntimeStatus.gameHash }),
-                },
-              }
-            : {}),
-        });
-
-        runInGameOperations.complete(
-          requestId,
-          {
-            ok: true,
-            requestId,
-            materialization,
-            deploy,
-            ...(processRestart === undefined ? {} : { processRestart }),
-            rowProof,
-            rowVisibility,
-            start,
-            logMarkerProof,
-            logProof,
-            exactAuthorshipProof,
-          },
-          materialization,
-          exactAuthorshipProof
-        );
-      } catch (err) {
-        runInGameOperations.fail(requestId, phase, err, materialization);
-      } finally {
-        try {
-          await materialized?.cleanup();
-        } finally {
-          await regenerateSwooperMapArtifacts(repoRoot);
-        }
-      }
+    return {
+      id,
+      seed,
+      mapSize,
+      ...(playerCount === undefined ? {} : { playerCount }),
+      restartCivProcess,
+      setupConfig,
+      requestedMode,
+      configHash,
+      envelopeHash,
+      envelope,
+      ...(sourceSnapshotProof ? { sourceSnapshotProof } : {}),
+      requestStatus,
     };
-    const nextRun = studioOperationQueue.then(run, run);
-    studioOperationQueue = nextRun.then(
-      () => undefined,
-      () => undefined
-    );
-    return { kind: "accepted", operation };
   }
+}
 
-  function runRunInGameStatusEngine(requestId: string): RunInGameOperationState {
-    const status = runInGameOperations.get(requestId);
-    if (!status) {
-      throw operationNotFound({
-        message: `Run in Game request not found: ${requestId}`,
-        requestId,
-        diagnostics: boundedDiagnostics({ code: "run-in-game-request-not-found" }),
-      });
-    }
-    return status;
-  }
-
-  async function runSaveDeployEngine(body: unknown): Promise<SaveDeployEngineResult> {
-    let parsedRequest: ReturnType<typeof parseMapConfigSaveRequest>;
-    try {
-      parsedRequest = parseMapConfigSaveRequest(
-        body as Parameters<typeof parseMapConfigSaveRequest>[0]
-      );
-    } catch (err) {
-      throw invalidEngineRequest(
-        err instanceof Error ? err.message : "Invalid Save/Deploy request",
-        "save-deploy-request-invalid"
-      );
-    }
-    const activeRunInGame = runInGameOperations.findActive();
-    if (activeRunInGame) {
-      throw operationBlocked({
-        message: "Run in Game is running; wait for it to finish before Save/Deploy.",
-        activeRequestId: activeRunInGame.requestId,
-        activePhase: activeRunInGame.phase,
+async function runAutoplayLeaf(action: "start" | "stop") {
+  const opts = {
+    timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+    waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+    pollIntervalMs: 1_000,
+  };
+  const result = await (action === "start" ? startCiv7Autoplay(opts) : stopCiv7Autoplay(opts)).catch(
+    (err: unknown) => {
+      throw autoplayStartStopFailed({
+        message: `Civ7 autoplay ${action} failed`,
+        reason: action === "start" ? "start-failed" : "stop-failed",
         diagnostics: boundedDiagnostics({
-          code: "run-in-game-operation-active",
+          code: `civ7-autoplay-${action}-failed`,
+          action,
+          ...failureDiagnostics(err),
+          cause: err,
         }),
       });
     }
-    const activeSaveDeploy = saveDeployOperations.findActive();
-    if (activeSaveDeploy && activeSaveDeploy.requestId !== parsedRequest.requestId) {
-      throw operationBlocked({
-        message: "Save/Deploy is already running.",
-        activeRequestId: activeSaveDeploy.requestId,
-        activePhase: activeSaveDeploy.phase,
-        diagnostics: boundedDiagnostics({ code: "save-deploy-operation-active" }),
-      });
-    }
-    if (activeSaveDeploy && activeSaveDeploy.requestId === parsedRequest.requestId) {
-      return activeSaveDeploy;
-    }
-    assertRepoMapEnvelope(parsedRequest.envelope, parsedRequest.id);
-    const configRoot = resolve(repoRoot, "mods/mod-swooper-maps/src/maps/configs");
-    const target = parsedRequest.sourcePath
-      ? resolve(repoRoot, parsedRequest.sourcePath)
-      : resolve(configRoot, `${parsedRequest.id}.config.json`);
-    if (!target.startsWith(`${configRoot}/`) || !target.endsWith(".config.json")) {
-      throw invalidEngineRequest(
-        "Map config writes must stay in mods/mod-swooper-maps/src/maps/configs",
-        "map-config-path-outside-config-root",
-        { sourcePath: parsedRequest.sourcePath }
-      );
-    }
-    const path = relative(repoRoot, target);
-    const requestId = parsedRequest.requestId ?? createCiv7ControlRequestId("studio-save-deploy");
-    const operation = saveDeployOperations.create(requestId);
-    const run = async () => {
-      let phase: "saving" | "deploying" = "saving";
-      let previous: string | null = null;
-      try {
-        saveDeployOperations.update(requestId, { phase, path });
-        previous = await readFile(target, "utf8").catch((err: unknown) => {
-          if (isNodeNotFound(err)) return null;
-          throw unavailableEngineDependency(
-            "Unable to read existing map config before Save/Deploy",
-            "save-deploy-existing-config-unavailable",
-            err,
-            { path, sourcePath: parsedRequest.sourcePath }
-          );
-        });
-        await mkdir(dirname(target), { recursive: true });
-        await writeFile(target, `${JSON.stringify(parsedRequest.envelope, null, 2)}\n`);
-        phase = "deploying";
-        saveDeployOperations.update(requestId, { phase, path, saved: true });
-        let deploy;
-        deploy = await deploySwooperMaps(repoRoot);
-        saveDeployOperations.complete(requestId, { path, saved: true, deployed: true, deploy });
-      } catch (err) {
-        let rollbackFailure: unknown;
-        if (phase === "deploying") {
-          try {
-            await restoreRepoConfig(target, previous);
-          } catch (restoreErr) {
-            rollbackFailure = restoreErr;
-          }
-        }
-        const failure = saveDeployFailureForOperation(err, phase, {
-          path,
-          sourcePath: parsedRequest.sourcePath,
-          rollbackFailure,
-        });
-        saveDeployOperations.fail(requestId, phase, failure, {
-          path,
-          saved: false,
-          deployed: false,
-        });
-      }
-    };
-    const nextRun = studioOperationQueue.then(run, run);
-    studioOperationQueue = nextRun.then(
-      () => undefined,
-      () => undefined
-    );
-    return operation;
+  );
+  if (!result.verified) {
+    throw autoplayVerificationFailed({
+      message: `Civ7 autoplay ${action} verification failed`,
+      diagnostics: boundedDiagnostics({
+        code: "civ7-autoplay-verification-failed",
+        action,
+        autoplay: result.after.autoplay,
+        game: result.after.game,
+        gameContext: result.after.gameContext,
+      }),
+    });
   }
-
-  function runSaveDeployStatusEngine(requestId: string): SaveDeployEngineResult {
-    const status = saveDeployOperations.get(requestId);
-    if (!status) {
-      throw operationNotFound({
-        message: `Save/Deploy request not found: ${requestId}`,
-        requestId,
-        diagnostics: boundedDiagnostics({ code: "save-deploy-request-not-found" }),
-      });
-    }
-    return status;
-  }
-
-  function currentOperations(): StudioOperationsCurrent {
-    const runInGameRecent = runInGameOperations.list();
-    const saveDeployRecent = saveDeployOperations.list();
-    return {
-      ok: true,
-      serverInstanceId,
-      serverStartedAt,
-      observedAt: new Date().toISOString(),
-      runInGame: {
-        active: runInGameRecent.find((operation) => operation.status === "running") ?? null,
-        recent: runInGameRecent,
-      },
-      saveDeploy: {
-        active: saveDeployRecent.find((operation) => operation.status === "running") ?? null,
-        recent: saveDeployRecent,
-      },
-    };
-  }
-
   return {
-    serverInstanceId,
-    serverStartedAt,
-    repoRoot,
-    runAutoplayEngine,
-    runRunInGameStartEngine,
-    runRunInGameStatusEngine,
-    runSaveDeployEngine,
-    runSaveDeployStatusEngine,
-    currentOperations,
+    ok: true,
+    action,
+    autoplay: result.after.autoplay,
+    game: result.after.game,
+    gameContext: result.after.gameContext,
+    result,
   };
+}
+
+function parseSaveDeployInput(
+  input: Parameters<StudioOperationRuntimePorts["prepareSaveDeployStart"]>[0]["input"]
+) {
+  try {
+    return parseMapConfigSaveRequest(input as Parameters<typeof parseMapConfigSaveRequest>[0]);
+  } catch (err) {
+    throw invalidEngineRequest(
+      err instanceof Error ? err.message : "Invalid Save/Deploy request",
+      "save-deploy-request-invalid"
+    );
+  }
+}
+
+function requireRunContext(
+  contexts: ReadonlyMap<string, RunInGameLeafContext>,
+  requestId: string
+): RunInGameLeafContext {
+  const context = contexts.get(requestId);
+  if (!context) {
+    throw invalidEngineRequest("Run in Game leaf context is missing", "run-in-game-leaf-context-missing", {
+      requestId,
+    });
+  }
+  return context;
+}
+
+function requireSaveContext(
+  contexts: ReadonlyMap<string, SaveDeployLeafContext>,
+  requestId: string
+): SaveDeployLeafContext {
+  const context = contexts.get(requestId);
+  if (!context) {
+    throw invalidEngineRequest("Save/Deploy leaf context is missing", "save-deploy-leaf-context-missing", {
+      requestId,
+    });
+  }
+  return context;
+}
+
+function requireMaterialization(
+  context: RunInGameLeafContext,
+  requestId: string
+): NonNullable<RunInGameMaterialized["materialization"]> {
+  return requireContextValue(context.materialization, "Run in Game materialization", requestId);
+}
+
+function requireContextValue<T>(value: T | undefined, label: string, requestId: string): T {
+  if (value !== undefined) return value;
+  throw invalidEngineRequest(`${label} is missing`, "run-in-game-leaf-context-incomplete", {
+    requestId,
+    label,
+  });
 }
