@@ -7,30 +7,11 @@
       "kind:control"
     ],
     "targets": {
-      "build:bundle": {
-        "cache": true,
-        "outputs": [
-          "{projectRoot}/dist/**"
-        ]
-      },
-      "clean:tsbuildinfo": {
+      "build": {
         "dependsOn": [
-          "build:bundle"
+          "clean",
+          "^build"
         ],
-        "cache": false,
-        "outputs": []
-      },
-      "build:types": {
-        "dependsOn": [
-          "clean:tsbuildinfo",
-          {
-            "projects": [
-              "@civ7/direct-control"
-            ],
-            "target": "build"
-          }
-        ],
-        "cache": true,
         "outputs": [
           "{projectRoot}/dist/**"
         ]
@@ -46,16 +27,6 @@
         ],
         "cache": true,
         "outputs": []
-      },
-      "build": {
-        "command": "node -e \"\"",
-        "cache": false,
-        "outputs": [
-          "{projectRoot}/dist/**"
-        ],
-        "dependsOn": [
-          "build:types"
-        ]
       },
       "lint:contract-ownership": {
         "command": "node -e \"\"",
@@ -120,14 +91,11 @@
     }
   },
   "scripts": {
-    "build": "tsup --config tsup.config.ts",
+    "build": "tsup --config tsup.config.ts && tsc -p tsconfig.json --emitDeclarationOnly --noEmit false",
     "check": "tsc -p tsconfig.json --noEmit",
     "lint:contract-ownership": "node -e \"\"",
     "test": "vitest run --config vitest.config.ts",
-    "clean": "rimraf dist",
-    "build:bundle": "tsup --config tsup.config.ts",
-    "clean:tsbuildinfo": "rimraf tsconfig.tsbuildinfo",
-    "build:types": "tsc -p tsconfig.json --emitDeclarationOnly --noEmit false",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
     "check:types": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
