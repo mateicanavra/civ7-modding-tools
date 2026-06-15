@@ -16,8 +16,8 @@
   current-tree wrapper projection; old-mechanism parity has a partial Nx
   dependency-freshness repair and remains open on stale `wrapped-eslint`
   identity plus generated map-bundle freshness; apply target-export/dry-run
-  refusal proof is recorded, while live apply, broader downstream realignment,
-  and closure remain open
+  refusal proof and live applied-diff proof are recorded, while broader
+  downstream realignment and closure remain open
 
 ## Objective
 
@@ -193,9 +193,59 @@
     on refusal.
   Accepted adapter isolated-copy dry-run/apply-match behavior remains substrate
   proof; this packet now adds the target-export and type-only semantic guard.
-  Live worktree `habitat fix` remains open because adding a probe file dirties
-  the shared implementation worktree and the committed write path correctly
-  requires a clean worktree.
+- Live applied-diff proof is recorded as:
+  - `HGPR-APPLY-LIVE-CURRENT-BLOCKED-2026-06-15`: named proof worktree
+    `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-live-da0252153`
+    was created detached from `agent-HR-habitat-grit-proof-repair` at
+    `da0252153`, installed with `bun install --frozen-lockfile`, and given a
+    committed tracked safe morphology probe. Current public `bun run
+    habitat:fix` exited 1 with `GritApplyDryRunMismatch` before writing because
+    live apply could not consume compact Grit dry-run output as an approval
+    contract.
+  - Implementation repair: non-dry-run apply now uses the accepted
+    isolated-copy proof as the approval contract when dry-run output is compact
+    rather than structured. The approved path set, diff evidence, target-export
+    validation, and file digests are threaded into the live apply proof. Live
+    apply still fails closed on isolated-copy failure, dry-run/apply mismatch,
+    missing public target export, unexpected live changed path, Biome failure,
+    selected gate failure, and rollback failure.
+  - `HGPR-APPLY-LIVE-FIXED-2026-06-15`: after applying the repair inside the
+    same proof worktree, public `bun run habitat:fix` exited 0 and changed only
+    `mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-live-proof/matching.ts`,
+    rewriting
+    `@mapgen/domain/morphology/ops/mountains-shared/config` to
+    `@mapgen/domain/morphology/ops`. Biome handoff checked/fixed that one file.
+  - `HGPR-APPLY-LIVE-GATES-2026-06-15`: selected post-apply gates in the proof
+    worktree passed for `mod-swooper-maps:check --skipNxCache` and
+    `mod-swooper-maps:test:architecture-ecology-step-imports --skipNxCache`.
+    Supervisor cold-worktree review found this initial check proof was
+    insufficient because a clean proof worktree could run
+    `mod-swooper-maps:gen:maps` before the `@swooper/mapgen-core/authoring`
+    build output existed.
+  - `HGPR-APPLY-P2-SELECTED-CHECK-GATE-COLD-PROOF-2026-06-15`: accepted P2
+    blocker recorded against the warm-state selected-gate proof. The repair is
+    at the native Nx owner layer: `mod-swooper-maps:gen:maps` now depends on
+    `@swooper/mapgen-core:build`, matching the package-output contract required
+    by `mods/mod-swooper-maps/scripts/generate-map-artifacts.ts`.
+  - `HGPR-APPLY-LIVE-COLD-GATES-2026-06-15`: fresh serial proof worktree
+    `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-check-c87963cb`
+    was created detached from `c87963cb`, installed with
+    `bun install --frozen-lockfile`, given local proof commit `c3b0f4f65` for
+    the Nx dependency repair and local proof commit `5a0b267f7` for the tracked
+    safe morphology probe, then public `bun run habitat:fix` exited 0 and
+    changed only the tracked probe import. Cold
+    `bun run nx run mod-swooper-maps:check --outputStyle=static --skipNxCache`
+    exited 0 and showed `@swooper/mapgen-core:build` before
+    `mod-swooper-maps:gen:maps`; the focused
+    `mod-swooper-maps:test:architecture-ecology-step-imports --skipNxCache`
+    gate exited 0. The check still dirtied generated mod/map outputs in the
+    proof worktree, so generated-output freshness and broad full-mod-test
+    closure remain non-claims. Git cleanup restored the probe and generated
+    output side effects before the proof worktree was removed.
+  - `HGPR-APPLY-LIVE-ROLLBACK-2026-06-15`: normal Git cleanup in the proof
+    worktree restored the applied diff and generated-output side effects to a
+    clean status. The proof worktree was removed with `git worktree remove`,
+    pruned, and is absent from `git worktree list --porcelain`.
 - Baseline corpus:
   - `tools/habitat-harness/baselines/adapter-boundary.json` continues to cover
     the non-Grit adapter-boundary rule.
@@ -345,16 +395,20 @@ implementation tasks 4, 6, or adapter tests begin.
   - 6.1-6.4 and 6.6 apply target-export public dry-run proof: live match
     inventory, missing-export fail-closed behavior, dry-run no-write behavior,
     and type-only preservation.
+  - 6.5, 6.7, and 6.8 live applied-diff proof: named Git proof worktrees,
+    tracked probe clean starts, public live `habitat:fix` applied-diff proof,
+    cold selected post-apply gates, normal Git cleanup, and proof worktree
+    removal.
   - 8.1-8.2 H5/H6 downstream records patched for the baseline historical/current
     split.
   - 9.7 explicit Grit baseline behavior proof suite.
   - 9.6 all-row injected-violation proof suite.
   - 9.10 public `habitat:fix -- --dry-run` proof for the clean live tree plus
     injected safe and missing-export probes.
-- Remaining tasks: matrix fields 2.1-2.2 and 2.5-2.7, apply codemod proof,
-  including live applied-diff proof and post-apply type/test gates, broader
-  downstream realignment, parity generated-output freshness, remaining
-  verification, Graphite commit, and closure.
+  - 9.11-9.12 controlled live apply proof and selected post-apply gates.
+- Remaining tasks: matrix fields 2.1-2.2 and 2.5-2.7, broader downstream
+  realignment, parity generated-output freshness, remaining verification,
+  Graphite commit, and closure.
 - Stop/non-claim state: direct raw current-tree Grit acquisition remains
   unresolved and explicitly unclaimed; wrapper proof controls only the Habitat
   current-tree wrapper claim. Explicit empty Grit baselines are accepted only as
@@ -429,6 +483,63 @@ implementation tasks 4, 6, or adapter tests begin.
     mods/mod-swooper-maps/src/recipes mods/mod-swooper-maps/src/maps -g
     '*.ts'` (`HGPR-APPLY-LIVE-INVENTORY-2026-06-15`; exit 1 with empty
     output expected for zero matches)
+  - `git worktree add --detach
+    /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-live-da0252153
+    agent-HR-habitat-grit-proof-repair`
+  - `bun install --frozen-lockfile` in the proof worktree.
+  - Proof-worktree local commit `d95a1ba90 proof: add Habitat apply live
+    probe`.
+  - `bun run habitat:fix` in the proof worktree at `da0252153` plus probe
+    commit (`HGPR-APPLY-LIVE-CURRENT-BLOCKED-2026-06-15`; exit 1 with
+    `GritApplyDryRunMismatch`).
+  - Proof-worktree local commit `eadadb51f proof: apply live approval repair`.
+  - `bun run habitat:fix` in the proof worktree after repair
+    (`HGPR-APPLY-LIVE-FIXED-2026-06-15`; exit 0 with one approved probe-file
+    import rewrite).
+  - `bun run nx run mod-swooper-maps:check --outputStyle=static --skipNxCache`
+    in the proof worktree after applied diff (`HGPR-APPLY-LIVE-GATES-2026-06-15`;
+    exit 0).
+  - `bun run nx run mod-swooper-maps:test:architecture-ecology-step-imports
+    --outputStyle=static --skipNxCache` in the proof worktree after applied
+    diff (`HGPR-APPLY-LIVE-GATES-2026-06-15`; exit 0).
+  - `bun run nx run mod-swooper-maps:test --outputStyle=static --skipNxCache`
+    in the proof worktree after applied diff; exit 1 on four official resource
+    corpus contract tests, recorded as broad-test non-claim.
+  - `git worktree add --detach
+    /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-check-c87963cb
+    HEAD` from implementation checkpoint `c87963cb`.
+  - `bun install --frozen-lockfile` in the cold check proof worktree.
+  - Proof-worktree local commit `c3b0f4f65 proof: repair mod map generation
+    dependency`.
+  - Proof-worktree local commit `5a0b267f7 proof: add Habitat apply check
+    probe`.
+  - `bun run nx show project mod-swooper-maps --json | jq
+    '.targets["gen:maps"].dependsOn'` in the proof worktree
+    (`HGPR-APPLY-LIVE-COLD-GATES-2026-06-15`; shows
+    `@swooper/mapgen-core:build`; no scratch artifact retained).
+  - `bun run habitat:fix` in the cold check proof worktree
+    (`HGPR-APPLY-LIVE-COLD-GATES-2026-06-15`; exit 0 with one approved
+    probe-file import rewrite; output facts recorded in the command proof log,
+    no scratch artifact retained).
+  - `bun run nx run mod-swooper-maps:check --outputStyle=static --skipNxCache`
+    in the cold check proof worktree after applied diff
+    (`HGPR-APPLY-LIVE-COLD-GATES-2026-06-15`; exit 0; output showed
+    `@swooper/mapgen-core:build` before `mod-swooper-maps:gen:maps`, no
+    scratch artifact retained).
+  - `bun run nx run mod-swooper-maps:test:architecture-ecology-step-imports
+    --outputStyle=static --skipNxCache` in the cold check proof worktree after
+    applied diff (`HGPR-APPLY-LIVE-COLD-GATES-2026-06-15`; exit 0 with 1
+    passing ecology-step import guardrail test, no scratch artifact retained).
+  - `git restore --worktree --staged -- .` in the cold check proof worktree;
+    follow-up `git status --short --branch` was `## HEAD (no branch)`.
+  - `git worktree remove
+    /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-check-c87963cb`
+    and `git worktree prune`; proof worktree absent afterward.
+  - `git restore --worktree --staged -- .` in the proof worktree
+    (`HGPR-APPLY-LIVE-ROLLBACK-2026-06-15`; clean status).
+  - `git worktree remove
+    /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-live-da0252153`
+    and `git worktree prune`; proof worktree absent afterward.
   - `find tools/habitat-harness/baselines -maxdepth 1 -type f`
   - `bun run openspec -- validate habitat-grit-proof-repair --strict`
   - full-depth-language guardrail scan over Habitat initiative docs

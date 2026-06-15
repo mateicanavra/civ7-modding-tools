@@ -107,6 +107,16 @@
         ],
         "cache": true
       },
+      "gen:maps": {
+        "dependsOn": [
+          {
+            "projects": [
+              "@swooper/mapgen-core"
+            ],
+            "target": "build"
+          }
+        ]
+      },
       "build:studio-recipes:bundle": {
         "dependsOn": [
           "^build"

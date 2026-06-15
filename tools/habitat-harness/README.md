@@ -20,7 +20,7 @@ pattern: command classes live under `src/commands/**`, local repo scripts run
 bun run habitat            # command help
 bun run lint               # graph-owned package lint + Habitat rule aggregate
 bun run habitat:check      # graph-owned Habitat rule aggregate
-bun run habitat:fix        # Biome safe writes: format + organize imports + safe fixes
+bun run habitat:fix        # approved Grit codemods, then Biome safe writes
 bun run verify             # graph-owned package verifier aggregate
 bun run check              # graph-owned build/check/lint/test/verify aggregate
 bun run habitat check      # diagnostic Habitat CLI loop (add --json for JSON)
@@ -151,8 +151,8 @@ Biome-owned rules into ESLint.
 Use:
 
 ```bash
-bun run habitat:fix -- --dry-run   # report hygiene drift without writes
-bun run habitat:fix                # apply Biome format + safe assists
+bun run habitat:fix -- --dry-run   # report approved Grit codemods + hygiene drift without writes
+bun run habitat:fix                # apply approved Grit codemods, then Biome format + safe assists
 nx run-many -t biome:ci # CI-equivalent hygiene gate
 ```
 

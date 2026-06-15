@@ -139,39 +139,51 @@ export async function runGritApplyTransaction(
   }
 
   const parsedInventory = parseApplyRewriteInventory(dryRunCommand);
+  let inventory: GritApplyRewriteInventoryEntry[] = [];
+  let approvedApplyPaths: string[] = [];
+  let approvalDiffEvidence: GritApplyDiffEvidence[] = [];
+  let approvalFileDigests: GritApplyFileDigest[] = [];
+  let approvalCopyCommand: HabitatCommandResult | null = null;
+  let approvalAppliedDiff = "";
+
   if (!parsedInventory.ok) {
+    const copyProof = await runIsolatedCopyApplyProof(roots, options);
+    if (!copyProof.ok) {
+      return transactionFailure({
+        tag: copyProof.failureTag,
+        message: copyProof.message,
+        roots,
+        beforeGitState,
+        afterGitState: gitStateReader(),
+        dryRunCommand,
+        transactionCopyCommand: copyProof.command,
+        diffEvidence: copyProof.diffEvidence,
+        changedPaths: copyProof.changedPaths,
+        fileDigests: copyProof.fileDigests,
+        appliedDiff: copyProof.normalizedDiff,
+      });
+    }
+    if (reportedMatchCount(dryRunCommand) > 0 && copyProof.changedPaths.length === 0) {
+      return transactionFailure({
+        tag: "GritApplyDryRunMismatch",
+        message: "Grit dry-run reported matches, but isolated apply copy produced no diff.",
+        roots,
+        beforeGitState,
+        afterGitState: gitStateReader(),
+        dryRunCommand,
+        transactionCopyCommand: copyProof.command,
+        diffEvidence: copyProof.diffEvidence,
+        changedPaths: copyProof.changedPaths,
+        fileDigests: copyProof.fileDigests,
+        appliedDiff: copyProof.normalizedDiff,
+      });
+    }
+    approvalCopyCommand = copyProof.command;
+    approvedApplyPaths = [...copyProof.changedPaths];
+    approvalDiffEvidence = [...copyProof.diffEvidence];
+    approvalFileDigests = [...copyProof.fileDigests];
+    approvalAppliedDiff = copyProof.normalizedDiff;
     if (options.dryRun) {
-      const copyProof = await runIsolatedCopyApplyProof(roots, options);
-      if (!copyProof.ok) {
-        return transactionFailure({
-          tag: copyProof.failureTag,
-          message: copyProof.message,
-          roots,
-          beforeGitState,
-          afterGitState: gitStateReader(),
-          dryRunCommand,
-          transactionCopyCommand: copyProof.command,
-          diffEvidence: copyProof.diffEvidence,
-          changedPaths: copyProof.changedPaths,
-          fileDigests: copyProof.fileDigests,
-          appliedDiff: copyProof.normalizedDiff,
-        });
-      }
-      if (reportedMatchCount(dryRunCommand) > 0 && copyProof.changedPaths.length === 0) {
-        return transactionFailure({
-          tag: "GritApplyDryRunMismatch",
-          message: "Grit dry-run reported matches, but isolated apply copy produced no diff.",
-          roots,
-          beforeGitState,
-          afterGitState: gitStateReader(),
-          dryRunCommand,
-          transactionCopyCommand: copyProof.command,
-          diffEvidence: copyProof.diffEvidence,
-          changedPaths: copyProof.changedPaths,
-          fileDigests: copyProof.fileDigests,
-          appliedDiff: copyProof.normalizedDiff,
-        });
-      }
       return transactionSuccess({
         stdout: dryRunCommand.stdout.text,
         stderr: dryRunCommand.stderr.text,
@@ -187,31 +199,24 @@ export async function runGritApplyTransaction(
         appliedDiff: copyProof.normalizedDiff,
       });
     }
-    return transactionFailure({
-      tag: parsedInventory.failureTag,
-      message: parsedInventory.message,
-      roots,
-      beforeGitState,
-      afterGitState: gitStateReader(),
-      dryRunCommand,
-    });
+  } else {
+    inventory = classifyApplyRewriteInventory(parsedInventory.entries, roots);
+    const blocked = inventory.find((entry) => entry.classification === "blocked");
+    if (blocked) {
+      return transactionFailure({
+        tag: blocked.failureTag ?? "GritApplyDryRunMismatch",
+        message: blocked.failureReason ?? "Grit apply dry-run inventory was not approved.",
+        roots,
+        beforeGitState,
+        afterGitState: gitStateReader(),
+        dryRunCommand,
+        inventory,
+      });
+    }
+    approvedApplyPaths = inventory.map((entry) => entry.file);
   }
 
-  const inventory = classifyApplyRewriteInventory(parsedInventory.entries, roots);
-  const blocked = inventory.find((entry) => entry.classification === "blocked");
-  if (blocked) {
-    return transactionFailure({
-      tag: blocked.failureTag ?? "GritApplyDryRunMismatch",
-      message: blocked.failureReason ?? "Grit apply dry-run inventory was not approved.",
-      roots,
-      beforeGitState,
-      afterGitState: gitStateReader(),
-      dryRunCommand,
-      inventory,
-    });
-  }
-
-  if (options.dryRun || inventory.length === 0) {
+  if (options.dryRun || approvedApplyPaths.length === 0) {
     const afterGitState = gitStateReader();
     return transactionSuccess({
       stdout: dryRunCommand.stdout.text,
@@ -220,14 +225,16 @@ export async function runGritApplyTransaction(
       beforeGitState,
       afterGitState,
       dryRunCommand,
+      transactionCopyCommand: approvalCopyCommand,
       inventory,
-      fileDigests: fileDigests(new Map(), []),
-      appliedDiff: "",
+      diffEvidence: approvalDiffEvidence,
+      changedPaths: approvedApplyPaths,
+      fileDigests: approvalFileDigests,
+      appliedDiff: approvalAppliedDiff,
     });
   }
 
-  const inventoryPaths = inventory.map((entry) => entry.file);
-  const beforeFileDigestMap = captureFileDigestMap(inventoryPaths);
+  const beforeFileDigestMap = captureFileDigestMap(approvedApplyPaths);
   const applyCommand = await runProcess(gritApplyRequest({ roots, dryRun: false }), options);
   if (applyCommand.exit.code !== 0 || applyCommand.exit.interrupted) {
     const rollback = await rollbackApplyTransaction(gitStateReader(), options);
@@ -239,9 +246,13 @@ export async function runGritApplyTransaction(
       afterGitState: gitStateReader(),
       dryRunCommand,
       applyCommand,
+      transactionCopyCommand: approvalCopyCommand,
       rollbackCommand: rollback.command,
       inventory,
+      diffEvidence: approvalDiffEvidence,
+      changedPaths: approvedApplyPaths,
       fileDigests: fileDigests(beforeFileDigestMap, statusPaths(gitStateReader().statusShort)),
+      appliedDiff: approvalAppliedDiff,
     });
   }
 
@@ -249,7 +260,7 @@ export async function runGritApplyTransaction(
   const afterFileDigests = fileDigests(beforeFileDigestMap, changedPaths);
   const appliedDiff = diffForPaths(changedPaths);
   const unexpectedPath = changedPaths.find(
-    (changedPath) => !inventory.some((entry) => entry.file === changedPath)
+    (changedPath) => !approvedApplyPaths.includes(changedPath)
   );
   if (unexpectedPath) {
     const rollback = await rollbackApplyTransaction(gitStateReader(), options);
@@ -261,8 +272,10 @@ export async function runGritApplyTransaction(
       afterGitState: gitStateReader(),
       dryRunCommand,
       applyCommand,
+      transactionCopyCommand: approvalCopyCommand,
       rollbackCommand: rollback.command,
       inventory,
+      diffEvidence: approvalDiffEvidence,
       changedPaths,
       fileDigests: afterFileDigests,
       appliedDiff,
@@ -282,8 +295,10 @@ export async function runGritApplyTransaction(
       dryRunCommand,
       applyCommand,
       biomeCommand,
+      transactionCopyCommand: approvalCopyCommand,
       rollbackCommand: rollback.command,
       inventory,
+      diffEvidence: approvalDiffEvidence,
       changedPaths,
       fileDigests: afterFileDigests,
       appliedDiff,
@@ -306,8 +321,10 @@ export async function runGritApplyTransaction(
         applyCommand,
         biomeCommand,
         gateCommands,
+        transactionCopyCommand: approvalCopyCommand,
         rollbackCommand: rollback.command,
         inventory,
+        diffEvidence: approvalDiffEvidence,
         changedPaths,
         fileDigests: afterFileDigests,
         appliedDiff,
@@ -330,9 +347,10 @@ export async function runGritApplyTransaction(
       applyCommand,
       biomeCommand,
       gateCommands,
+      transactionCopyCommand: approvalCopyCommand,
       rollbackCommand: rollback.command,
       inventory,
-      diffEvidence: [],
+      diffEvidence: approvalDiffEvidence,
       changedPaths,
       fileDigests: afterFileDigests,
       appliedDiff,
@@ -349,8 +367,10 @@ export async function runGritApplyTransaction(
     applyCommand,
     biomeCommand,
     gateCommands,
+    transactionCopyCommand: approvalCopyCommand,
     rollbackCommand: rollback.command,
     inventory,
+    diffEvidence: approvalDiffEvidence,
     changedPaths,
     fileDigests: afterFileDigests,
     appliedDiff,

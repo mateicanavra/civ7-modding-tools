@@ -91,11 +91,11 @@
   or leaves an unsafe deep import unchanged.
 - [x] 6.4 Prove `habitat fix --dry-run` on an injected matching file produces
   no file changes.
-- [ ] 6.5 Prove real `habitat fix` on an injected matching file produces only
+- [x] 6.5 Prove real `habitat fix` on an injected matching file produces only
   the approved import-specifier and Biome-format diff.
 - [x] 6.6 Prove `import type` remains type-only after the rewrite.
-- [ ] 6.7 Run selected typecheck/test gates after the applied diff.
-- [ ] 6.8 Revert probe changes through normal Git cleanup and prove the
+- [x] 6.7 Run selected typecheck/test gates after the applied diff.
+- [x] 6.8 Revert probe changes through normal Git cleanup and prove the
   worktree is clean.
 - [x] 6.9 Do not run destructive apply proof until `habitat-effect-grit-adapter`
   is supervisor-accepted. Consume its isolated transaction-copy diff evidence
@@ -125,7 +125,7 @@
   where H6 retirements rely on H5 proof.
 - [ ] 8.3 Update Habitat project records and ledgers listed in
   `workstream/downstream-realignment-ledger.md`.
-- [ ] 8.4 Update README/generator guidance if proof, baseline, or apply safety
+- [x] 8.4 Update README/generator guidance if proof, baseline, or apply safety
   rules change user-facing behavior.
 - [ ] 8.5 Block the first new Grit pilot from using generated enforced rules
   until `habitat-pattern-generator-metadata-repair` lands or this repair
@@ -190,13 +190,36 @@
     `GritApplyMissingTargetExport` and leaves the probe file hash unchanged.
     These close the dry-run and target-export refusal boundary only; live
     worktree apply remains open.
-- [ ] 9.11 controlled apply proof for `deep_import_to_public_surface`
-  - Unit/isolated-copy evidence in `grit-apply.test.ts` now covers safe value
-    import rewrite, type-only preservation, and missing public export refusal.
-    Live `habitat fix` against the shared implementation worktree remains
-    unclaimed because probe insertion makes the worktree dirty and the
-    committed apply path correctly requires a clean worktree for writes.
-- [ ] 9.12 selected typecheck/test gates for the applied-diff surface
+- [x] 9.11 controlled apply proof for `deep_import_to_public_surface`
+  - `HGPR-APPLY-LIVE-CURRENT-BLOCKED-2026-06-15` records the current blocker at
+    `da0252153`: a named detached Git proof worktree with a committed tracked
+    safe morphology probe started clean, but public `bun run habitat:fix`
+    exited 1 with `GritApplyDryRunMismatch` before writing because compact Grit
+    dry-run output was not consumable as live approval.
+  - `HGPR-APPLY-LIVE-FIXED-2026-06-15` records the repaired behavior in the
+    same named proof worktree after applying the adapter repair: public
+    `bun run habitat:fix` exited 0 and changed only the committed tracked probe
+    file, rewriting the import source from
+    `@mapgen/domain/morphology/ops/mountains-shared/config` to
+    `@mapgen/domain/morphology/ops`; Biome checked/fixed that one file. The
+    proof worktree was removed before checkpoint closure.
+- [x] 9.12 selected typecheck/test gates for the applied-diff surface
+  - `HGPR-APPLY-P2-SELECTED-CHECK-GATE-COLD-PROOF-2026-06-15` records the
+    supervisor cold-worktree blocker: the initial `HGPR-APPLY-LIVE-GATES` row
+    depended on a warm `mod-swooper-maps:check` state and did not reproduce from
+    a clean cold proof worktree because `mod-swooper-maps:gen:maps` could run
+    before the `@swooper/mapgen-core/authoring` package output existed.
+  - `HGPR-APPLY-LIVE-COLD-GATES-2026-06-15` records the repair: the native Nx
+    target graph now makes `mod-swooper-maps:gen:maps` depend on
+    `@swooper/mapgen-core:build`. In a fresh serial detached proof worktree
+    after locked install, the tracked probe live rewrite, and the dependency
+    repair, `bun run nx run mod-swooper-maps:check --outputStyle=static
+    --skipNxCache` exited 0 and showed `@swooper/mapgen-core:build` before
+    `mod-swooper-maps:gen:maps`; `bun run nx run
+    mod-swooper-maps:test:architecture-ecology-step-imports --outputStyle=static
+    --skipNxCache` also exited 0. Generated mod/map output dirtiness from the
+    check remains a generated-output freshness non-claim and was restored in the
+    proof worktree before removal.
 - [ ] 9.13 stale-record scan:
   `rg -n "H5|grit|Grit|baseline|parity|fixture|current-tree|apply|codemod|retired|closed|CLOSED|green|proof" docs/projects/habitat-harness openspec/changes/habitat-* -g '*.md'`
 - [ ] 9.14 full-depth-language scan over Habitat initiative docs
