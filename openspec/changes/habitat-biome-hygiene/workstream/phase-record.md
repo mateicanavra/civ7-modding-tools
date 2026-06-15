@@ -7,7 +7,7 @@
 - Owner: workstream owner agent (Codex continuation)
 - Branch/Graphite stack: `agent-F-habitat-biome-hygiene` -> `agent-F-habitat-boundary-tags` -> `agent-F-habitat-harness-scaffold` -> `agent-F-habitat-nx-adoption` -> `agent-F-habitat-harness-workstream` -> `main`
 - Started: 2026-06-13
-- Status: OPEN — Biome setup, format commit, blame shield, Prettier retirement, lint lane, and harness/Nx/CI integration complete; DL-15/DL-16 promoted repairs are verified; the first mapgen timeout class, CLI timeout class, and second mapgen root-load class have local repair slices. A fresh full root-test rerun passed `mapgen-studio:test` and now fails in a separate deterministic `mod-swooper-maps:test` catalog facade order proof; task 2.4 and closure remain open.
+- Status: OPEN — Biome setup, format commit, blame shield, Prettier retirement, lint lane, and harness/Nx/CI integration complete; DL-15/DL-16 promoted repairs are verified; the first mapgen timeout class, CLI timeout class, second mapgen root-load class, and Swooper Maps catalog-order proof have local repair slices. A fresh full root-test rerun now fails in a separate `mod-swooper-maps:test` generated recipe artifact race; task 2.4 and closure remain open.
 
 ## Objective
 
@@ -60,10 +60,10 @@
 ## Implementation
 
 - Completed tasks: 1.1, 1.2, 2.1, 2.2, 2.3, 3.1, 3.2, 4.2.
-- Remaining tasks: 2.4, 4.1, 4.3. Task 2.4 has partial evidence: root build green; tracked pre/post format hashes match; fresh root build has no generated drift after DL-16 repair; plugin package tests and SDK package tests are green after DL-15 repairs. The first `mapgen-studio:test` timeout class has been repaired in `mapgen-studio-test-timeouts`; the CLI root-load timeout class has been repaired in `cli-root-load-test-timeouts`; the second mapgen root-load class has focused/direct/representative proof in `mapgen-studio-root-load-followup`, and the next full root-test rerun passed `mapgen-studio:test`. That full root proof now fails in `mod-swooper-maps:test`, so task 2.4 is not marked complete.
+- Remaining tasks: 2.4, 4.1, 4.3. Task 2.4 has partial evidence: root build green; tracked pre/post format hashes match; fresh root build has no generated drift after DL-16 repair; plugin package tests and SDK package tests are green after DL-15 repairs. The first `mapgen-studio:test` timeout class has been repaired in `mapgen-studio-test-timeouts`; the CLI root-load timeout class has been repaired in `cli-root-load-test-timeouts`; the second mapgen root-load class has focused/direct/representative proof in `mapgen-studio-root-load-followup`, and the next full root-test rerun passed `mapgen-studio:test`. The Swooper Maps catalog-order proof has focused and Nx project proof in `mod-swooper-catalog-order-proof`. The full root proof now fails in a separate `mod-swooper-maps:test` generated recipe artifact race, so task 2.4 is not marked complete.
 - Biome lint lane: minimal green bug-risk rule set is enabled in `biome.json` with `recommended: false`; no desired red Biome rule was silently disabled after selection. The red assist class (`organizeImports`) was repaired mechanically by applying the safe assist and committing it separately; no ratchet baseline is required for `biome-ci` because the rule is locked with zero diagnostics.
 - Harness integration: `@internal/habitat-harness` now infers `biome:format`, `biome:check`, and `biome:ci`; `habitat fix` runs `biome check --write .` and `--dry-run` runs non-writing `biome check .`; `habitat check` includes locked `biome-ci`; `habitat verify` composes `build,check,test,boundaries,biome:ci`; CI runs `bunx nx run-many -t biome:ci`; README documents editor setup and the never-plain-`lint` target convention.
-- Stop conditions triggered: task 2.4 cannot close as green yet. The earlier DL-15 package-local Vitest fan-out / SDK teardown defects and DL-16 intelligence-bridge bundle drift are repaired. The first root-test `mapgen-studio:test` timeout class, CLI timeout class, and second mapgen root-load class are locally repaired. The current stop condition is a separate deterministic `mod-swooper-maps:test` morphology catalog ownership proof: the domain config facade exports the same allowed recipe-facing modules, but in Biome-organized order.
+- Stop conditions triggered: task 2.4 cannot close as green yet. The earlier DL-15 package-local Vitest fan-out / SDK teardown defects and DL-16 intelligence-bridge bundle drift are repaired. The first root-test `mapgen-studio:test` timeout class, CLI timeout class, second mapgen root-load class, and Swooper Maps catalog-order proof are locally repaired. The current stop condition is a separate `mod-swooper-maps:test` generated recipe artifact race: under full root execution, the package test can import `dist/recipes/standard-artifacts.js` while another target is cleaning/rebuilding `build:studio-recipes`.
 
 ## Verification
 
@@ -252,6 +252,24 @@
   (`./shared/knobs.js` and `./shared/knob-multipliers.js`) in different order.
   This is the next promoted H4 proof repair; no H4 task 2.4 green claim is
   made from this root run.
+- Swooper Maps catalog-order proof evidence: `mod-swooper-catalog-order-proof`
+  keeps the morphology config facade source unchanged and changes the
+  ownership proof to compare the exact set of non-empty export lines. Focused
+  `bun test test/morphology/catalog-ownership.test.ts` passed 3 tests / 6
+  expects. `NX_DAEMON=false bunx nx run mod-swooper-maps:test --skip-nx-cache
+  --outputStyle=static` passed 567 tests, 2 skipped, 0 failed across 145 files
+  with 31,867 expects. No generated/protected tracked drift was present after
+  the Nx project proof.
+- Root test after Swooper Maps catalog-order proof:
+  `NX_DAEMON=false bunx nx run-many -t test --outputStyle=static` failed with
+  exit 1. `mapgen-studio:test` still passed 47 files / 233 tests. The failed
+  task remained `mod-swooper-maps:test`, but the catalog-order proof no longer
+  failed; the new failure was an unhandled ENOENT reading
+  `mods/mod-swooper-maps/dist/recipes/standard-artifacts.js` during
+  `test/config/standard-recipe-artifact-guards.test.ts`. The file exists after
+  the run completes, pointing to a root-load target/output race around
+  `build:studio-recipes`, not catalog facade ownership. This is the next
+  promoted H4 proof repair.
 - Minimal Biome rule promotion result: selected green correctness/suspicious
   bug-risk rules pass under `biome ci`; nested `**/_archive/**` is excluded so
   live code can keep `noGlobalIsFinite` without historical archive churn.
@@ -285,18 +303,25 @@
 
 - Downstream docs/specs/issues updated: top-level workstream record reconciled from stale pre-execution state to H4-active state; H4 tasks updated for 3.1/3.2/4.2; DL-12 updated from pending to enforced Biome hygiene reality; DL-15/DL-16 moved to resolved-by-promoted-repair after the SDK/plugin/intelligence slices.
 - Tests/guards updated: Swooper Maps import guard now parses imports structurally; Habitat rule pack now includes locked `biome-ci`; CI includes `biome:ci`.
-- Deferrals/triage updated: the user/Fable suggested DL-15 SDK teardown, DL-16 intelligence bundle, and adapter-boundary river metadata repairs were promoted into separate Graphite/OpenSpec slices. The first H4 `mapgen-studio:test` timeout blocker, the CLI root-load timeout blocker, and the second mapgen root-load blocker are promoted into local repair slices. The remaining root-test blocker is `mod-swooper-maps:test` morphology catalog facade order proof and should be isolated in the next slice.
+- Deferrals/triage updated: the user/Fable suggested DL-15 SDK teardown, DL-16 intelligence bundle, and adapter-boundary river metadata repairs were promoted into separate Graphite/OpenSpec slices. The first H4 `mapgen-studio:test` timeout blocker, the CLI root-load timeout blocker, the second mapgen root-load blocker, and the Swooper Maps catalog-order proof are promoted into local repair slices. The remaining root-test blocker is `mod-swooper-maps:test` generated recipe artifact race and should be isolated in the next slice.
+- Structural-test migration note: the catalog ownership proof and standard
+  recipe artifact guard are not intended to remain ordinary tests at workstream
+  end. H4 may repair them only as inherited root-proof blockers; H5/H6 should
+  port them to the harness owner that fits, prove parity, and retire the
+  normal-test copy.
 - Downstream realignment ledger: N/A at phase open.
 
 ## Next Action
 
-- Exact next step: validate and commit the `mapgen-studio-root-load-followup`
-  repair slice, then promote the current `mod-swooper-maps:test` morphology
-  catalog facade order proof into its own root-test repair slice before
-  claiming H4 task 2.4 or closure.
-- First files to inspect for the remaining Swooper Maps blocker:
-  `mods/mod-swooper-maps/AGENTS.md`,
-  `mods/mod-swooper-maps/test/morphology/catalog-ownership.test.ts`,
-  `mods/mod-swooper-maps/src/domain/morphology/config.ts`, and the focused
-  reproduction log at `/tmp/mod-swooper-maps-test-after-mapgen-followup.log`.
+- Exact next step: validate and commit the `mod-swooper-catalog-order-proof`
+  repair slice, then promote the current `mod-swooper-maps:test` generated
+  recipe artifact race into its own root-test repair slice before claiming H4
+  task 2.4 or closure.
+- First files to inspect for the remaining Swooper Maps artifact-race blocker:
+  `mods/mod-swooper-maps/package.json`,
+  `mods/mod-swooper-maps/tsup.studio-recipes.config.ts`,
+  `mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts`,
+  `mods/mod-swooper-maps/test/config/standard-recipe-artifact-guards.test.ts`,
+  `apps/mapgen-studio/package.json`, `nx.json`, and the full root log at
+  `/tmp/h4-root-test-after-swooper-catalog-proof.log`.
 - Stop condition: Biome config would format generated/protected zones, create non-format semantic diff, or require hygiene ownership that overlaps Nx/Grit.
