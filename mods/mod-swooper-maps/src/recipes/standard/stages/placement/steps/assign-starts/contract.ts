@@ -1,7 +1,7 @@
-import placement from "@mapgen/domain/placement";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
+import placement from "@mapgen/domain/placement/contract";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { mapArtifacts } from "../../../../map-artifacts.js";
-import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tags.js";
+import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 import { morphologyArtifacts } from "../../../morphology/artifacts.js";

@@ -1,4 +1,4 @@
-import { type Static, Type } from "@swooper/mapgen-core/authoring";
+import { type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Base relief shaping controls (tectonic expression into elevation).

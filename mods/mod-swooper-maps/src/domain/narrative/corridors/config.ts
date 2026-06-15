@@ -1,4 +1,4 @@
-import { type Static, Type } from "@swooper/mapgen-core/authoring";
+import { type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Corridor config lives with the corridor owner because these policies decide

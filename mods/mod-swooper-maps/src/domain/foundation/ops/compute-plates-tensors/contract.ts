@@ -1,5 +1,5 @@
-import type { Static, TSchema } from "@swooper/mapgen-core/authoring";
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import type { Static, TSchema } from "@swooper/mapgen-core/authoring/contracts";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import {
   FoundationTectonicHistorySchema,
   FoundationTectonicProvenanceSchema,

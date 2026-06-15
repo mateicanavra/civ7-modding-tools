@@ -20,25 +20,18 @@ const staleLockMs = 5 * 60_000;
 const requiredArtifacts = [
   // Bundled recipe modules (tsup output).
   "mods/mod-swooper-maps/dist/recipes/standard.js",
-  "mods/mod-swooper-maps/dist/recipes/browser-test.js",
 
   // Recipe module declarations (written by generate-studio-recipe-types).
   "mods/mod-swooper-maps/dist/recipes/standard.d.ts",
-  "mods/mod-swooper-maps/dist/recipes/browser-test.d.ts",
 
   // Generated Studio config artifacts (schema/defaults/presets).
   "mods/mod-swooper-maps/dist/recipes/standard.schema.json",
   "mods/mod-swooper-maps/dist/recipes/standard.defaults.json",
   "mods/mod-swooper-maps/dist/recipes/standard.presets.json",
-  "mods/mod-swooper-maps/dist/recipes/browser-test.schema.json",
-  "mods/mod-swooper-maps/dist/recipes/browser-test.defaults.json",
-  "mods/mod-swooper-maps/dist/recipes/browser-test.presets.json",
 
   // Artifacts modules consumed by Studio for schema + defaults + UI metadata.
   "mods/mod-swooper-maps/dist/recipes/standard-artifacts.js",
   "mods/mod-swooper-maps/dist/recipes/standard-artifacts.d.ts",
-  "mods/mod-swooper-maps/dist/recipes/browser-test-artifacts.js",
-  "mods/mod-swooper-maps/dist/recipes/browser-test-artifacts.d.ts",
 ];
 
 const artifactSources = [

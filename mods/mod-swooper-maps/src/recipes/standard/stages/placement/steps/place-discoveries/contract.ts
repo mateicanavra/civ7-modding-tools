@@ -1,6 +1,6 @@
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tags.js";
+import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 import { placementArtifacts } from "../../artifacts.js";
 
 const PlaceDiscoveriesStepContract = defineStep({

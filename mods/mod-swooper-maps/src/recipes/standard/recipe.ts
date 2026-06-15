@@ -10,6 +10,7 @@ import {
   createRecipe,
   type RecipeConfigInputOf,
 } from "@swooper/mapgen-core/authoring";
+import { orderStandardStages } from "./contract-manifest.js";
 import ecologyBiomes from "./stages/ecology-biomes/index.js";
 import ecologyFeatures from "./stages/ecology-features/index.js";
 import ecologyPedology from "./stages/ecology-pedology/index.js";
@@ -30,25 +31,25 @@ import placement from "./stages/placement/index.js";
 import { STANDARD_TAG_DEFINITIONS } from "./tags.js";
 
 const NAMESPACE = "mod-swooper-maps";
-const stages = [
+const stages = orderStandardStages({
   foundation,
-  morphologyCoasts,
-  morphologyRouting,
-  morphologyErosion,
-  morphologyFeatures,
-  hydrologyClimateBaseline,
-  hydrologyHydrography,
-  hydrologyClimateRefine,
-  ecologyPedology,
-  ecologyBiomes,
-  mapMorphology,
-  mapHydrology,
-  mapElevation,
-  mapRivers,
-  ecologyFeatures,
-  mapEcology,
+  "morphology-coasts": morphologyCoasts,
+  "morphology-routing": morphologyRouting,
+  "morphology-erosion": morphologyErosion,
+  "morphology-features": morphologyFeatures,
+  "hydrology-climate-baseline": hydrologyClimateBaseline,
+  "hydrology-hydrography": hydrologyHydrography,
+  "hydrology-climate-refine": hydrologyClimateRefine,
+  "ecology-pedology": ecologyPedology,
+  "ecology-biomes": ecologyBiomes,
+  "map-morphology": mapMorphology,
+  "map-hydrology": mapHydrology,
+  "map-elevation": mapElevation,
+  "map-rivers": mapRivers,
+  "ecology-features": ecologyFeatures,
+  "map-ecology": mapEcology,
   placement,
-] as const;
+} as const);
 
 export const STANDARD_STAGES = stages;
 

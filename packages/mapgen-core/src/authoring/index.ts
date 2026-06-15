@@ -74,7 +74,9 @@ export type {
   RecipeDagEndpoint,
   RecipeDagPhase,
   RecipeDagStage,
+  RecipeDagStageInput,
   RecipeDagStep,
+  RecipeDagStepContractInput,
 } from "./recipe-dag.js";
 export { buildRecipeDag } from "./recipe-dag.js";
 export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";

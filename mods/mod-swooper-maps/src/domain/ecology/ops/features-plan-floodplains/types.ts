@@ -1,4 +1,4 @@
-import type { OpTypeBagOf } from "@swooper/mapgen-core/authoring";
+import type { OpTypeBagOf } from "@swooper/mapgen-core/authoring/contracts";
 import PlanFloodplainsContract from "./contract.js";
 
 type Contract = typeof PlanFloodplainsContract;

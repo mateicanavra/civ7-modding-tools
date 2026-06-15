@@ -1,4 +1,4 @@
-import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 import type { EarthlikeResourceExpectationsArtifact } from "../../lib/earthlike-expectations/types.js";
 import { PlacementConstraintsSchema } from "./corpus.contract.js";
 

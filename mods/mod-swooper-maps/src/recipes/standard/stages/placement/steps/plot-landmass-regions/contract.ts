@@ -1,6 +1,6 @@
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { mapArtifacts } from "../../../../map-artifacts.js";
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tag-contracts.js";
 import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 
 const PlotLandmassRegionsStepContract = defineStep({

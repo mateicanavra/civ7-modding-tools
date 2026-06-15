@@ -1,4 +1,4 @@
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 const SnowElevationStrategySchema = Type.Union(
   [Type.Literal("absolute"), Type.Literal("percentile")],

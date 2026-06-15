@@ -27,6 +27,14 @@
       "types": "./dist/authoring/index.d.ts",
       "import": "./dist/authoring/index.js"
     },
+    "./authoring/recipe-dag": {
+      "types": "./dist/authoring/recipe-dag.d.ts",
+      "import": "./dist/authoring/recipe-dag.js"
+    },
+    "./authoring/contracts": {
+      "types": "./dist/authoring/contracts.d.ts",
+      "import": "./dist/authoring/contracts.js"
+    },
     "./compiler/normalize": {
       "types": "./dist/compiler/normalize.d.ts",
       "import": "./dist/compiler/normalize.js"

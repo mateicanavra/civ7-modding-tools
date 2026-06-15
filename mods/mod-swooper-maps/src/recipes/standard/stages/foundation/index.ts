@@ -3,6 +3,7 @@ import {
   FoundationPlateCountKnobSchema,
 } from "@mapgen/domain/foundation/config.js";
 import { createStage, type TSchema, Type } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   crust,
   crustEvolution,
@@ -160,18 +161,18 @@ export default createStage({
         "Foundation authoring controls for the visible tectonic setup. Public fields are semantic groups that compile into internal step/op configs; projection, topology, and empty maintenance ops remain internal.",
     }
   ),
-  steps: [
+  steps: orderStandardStageSteps("foundation", {
     mesh,
-    mantlePotential,
-    mantleForcing,
+    "mantle-potential": mantlePotential,
+    "mantle-forcing": mantleForcing,
     crust,
-    plateGraph,
-    plateMotion,
+    "plate-graph": plateGraph,
+    "plate-motion": plateMotion,
     tectonics,
-    crustEvolution,
+    "crust-evolution": crustEvolution,
     projection,
-    plateTopology,
-  ],
+    "plate-topology": plateTopology,
+  }),
   compile: ({ config }: { config: Record<string, unknown> }) => {
     const rawSteps: Record<string, unknown> = {
       projection: {},

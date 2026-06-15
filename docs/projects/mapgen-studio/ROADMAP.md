@@ -79,12 +79,10 @@ Implementation plan: `docs/projects/mapgen-studio/V0-IMPLEMENTATION-PLAN.md`.
 - Full step scrubbing, diffing runs, or deep layer taxonomy coverage.
 - Complex geometry layers (rivers/paths/polygons/meshes) beyond the one proven slice.
 
-## V0.1 — In-Browser Runner (Foundation First)
-
-Goal: shift MapGen Studio from “replay viewer” to “run + inspect” for Foundation, entirely in the browser, with a pure Worker → in-memory → deck.gl loop.
+## V0.1 — In-Browser Runner
 
 Deliverables:
-- Run the `browser-test` recipe (currently Foundation-only) in a Web Worker:
+- Run the Standard recipe in a Web Worker:
   - deterministic seed + MAPSIZE_HUGE 106×66 by default
   - progress reporting + cancellation
 - Stream intermediate layers as steps run through `VizSink` (primary: `DeckGlSink`).
@@ -99,8 +97,8 @@ Design notes:
   - `docs/projects/mapgen-studio/V0.1-SLICE-TILESPACE-HEIGHT-LANDMASK-DECKGL.md`
 
 Status:
-- [x] V0.1 slice: Web Worker runs `browser-test` (Foundation-only) and streams 1–2 layers directly to deck.gl (no dump required).
-- [x] V0.1 slice 2: `browser-test` emits tile-space `height` + `landmask` grid layers to deck.gl.
+- [x] V0.1 slice: Web Worker runs the active Standard recipe and streams layers directly to deck.gl (no dump required).
+- [x] V0.1 slice 2: the active recipe emits tile-space `height` + `landmask` grid layers to deck.gl.
 
 Notes (for later slices):
 - Recipes are currently bundled into the worker (TS/ESM) and can accept runtime config overrides (UI → worker message → `recipe.compile/run`).

@@ -17,8 +17,7 @@
 
 - [x] 3.1 Add Studio-local recipe DAG contract, errors, implementer, service, and
   router using `effect-orpc` patterns.
-- [x] 3.2 Add source-backed recipe loading for `mod-swooper-maps/standard` and
-  `mod-swooper-maps/browser-test`.
+- [x] 3.2 Add source-backed recipe loading for `mod-swooper-maps/standard`.
 - [x] 3.3 Mount the Studio recipe DAG RPC handler without replacing existing
   Vite server endpoints.
 - [x] 3.4 Add no-network oRPC tests for success, unknown recipe, and public error

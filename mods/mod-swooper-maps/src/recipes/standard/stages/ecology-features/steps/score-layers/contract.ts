@@ -1,5 +1,5 @@
-import ecology from "@mapgen/domain/ecology";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
+import ecology from "@mapgen/domain/ecology/contract";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";

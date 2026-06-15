@@ -1,4 +1,4 @@
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Indices derived from climate signals intended for downstream consumption (Ecology/Narrative/Placement).

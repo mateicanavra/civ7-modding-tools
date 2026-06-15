@@ -63,7 +63,7 @@ These are the couplings that make `App.tsx` hard to shrink without first introdu
 - **Config schema normalization/rendering lives inside `App.tsx`**:
   - Custom RJSF templates, CSS string, schema normalization functions, and AJV validator instantiation are all in `App.tsx`.
 - **Config validation is tied to runner**:
-  - Uses `normalizeStrict` with `BROWSER_TEST_RECIPE_CONFIG_SCHEMA` and default `BROWSER_TEST_RECIPE_CONFIG`.
+  - Uses `normalizeStrict` with the active recipe config schema and default config.
   - The “invalid JSON” path bubbles into global error state, affecting the entire app shell.
 
 ### D. Dump viewer couplings (file picking)

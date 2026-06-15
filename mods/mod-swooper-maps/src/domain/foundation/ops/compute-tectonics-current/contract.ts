@@ -1,4 +1,4 @@
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FoundationTectonicEraFieldsInternalSchema } from "../../lib/tectonics/internal-contract.js";
 import { FoundationTectonicsSchema } from "../../lib/tectonics/schemas.js";
 

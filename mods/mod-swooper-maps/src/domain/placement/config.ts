@@ -1,5 +1,5 @@
 import placement from "@mapgen/domain/placement";
-import { type Static, Type } from "@swooper/mapgen-core/authoring";
+import { type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Late-stage placement config (wonders, resources, starts).

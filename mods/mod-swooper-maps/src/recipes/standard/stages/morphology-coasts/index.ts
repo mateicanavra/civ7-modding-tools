@@ -12,6 +12,7 @@ import {
   SubstrateConfigSchema,
 } from "@mapgen/domain/morphology/ops";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { landmassPlates, ruggedCoasts } from "./steps/index.js";
 
 /**
@@ -55,7 +56,10 @@ export default createStage({
   id: "morphology-coasts",
   knobsSchema,
   public: publicSchema,
-  steps: [landmassPlates, ruggedCoasts],
+  steps: orderStandardStageSteps("morphology-coasts", {
+    "landmass-plates": landmassPlates,
+    "rugged-coasts": ruggedCoasts,
+  }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "landmass-plates": {
       beltDrivers: defaultEnvelope({}),

@@ -4,6 +4,7 @@ import {
   HydrologyTemperatureKnobSchema,
 } from "@mapgen/domain/hydrology/config.js";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { HydrologyClimateRefinePublicSchema } from "../hydrology-public-config.js";
 import { climateRefine } from "./steps/index.js";
 
@@ -42,7 +43,9 @@ export default createStage({
   id: "hydrology-climate-refine",
   knobsSchema,
   public: HydrologyClimateRefinePublicSchema,
-  steps: [climateRefine],
+  steps: orderStandardStageSteps("hydrology-climate-refine", {
+    "climate-refine": climateRefine,
+  }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "climate-refine": {
       computePrecipitation: {

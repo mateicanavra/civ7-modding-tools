@@ -20,7 +20,7 @@ Canonical entrypoints:
 - `mods/mod-swooper-maps/src/dev/viz/dump.ts`
   - V0 dump writer: `manifest.json` + `data/*.bin` + `trace.jsonl`
   - path conventions for `path` / `positionsPath` / `segmentsPath`
-- `mods/mod-swooper-maps/src/dev/viz/foundation-run.ts`
+- `mods/mod-swooper-maps/src/dev/viz/standard-run.ts`
   - where dumps land by default: `dist/visualization/<runId>/...`
 - `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
   - in-browser “streamed layer” equivalent of the V0 manifest layer model (in-memory `ArrayBuffer`s)

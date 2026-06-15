@@ -1,4 +1,4 @@
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../shared/placement-schema.js";
 
 const floodplainScore = (description: string) => TypedArraySchemas.f32({ description });

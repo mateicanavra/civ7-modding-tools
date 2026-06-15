@@ -50,8 +50,8 @@
 
 ## Corpus Gate
 
-- Corpus source(s): `STANDARD_STAGES`, `BROWSER_TEST_STAGES`, authored stage
-  arrays, step contracts, and explicit artifact contracts.
+- Corpus source(s): `STANDARD_STAGES`, authored stage arrays, step contracts,
+  and explicit artifact contracts.
 - Corpus shape: mixed action surface/materialization target graph; stages are
   graph nodes and artifacts are dependency edges.
 - Coverage ledger: pending implementation tests must enumerate cross-stage,

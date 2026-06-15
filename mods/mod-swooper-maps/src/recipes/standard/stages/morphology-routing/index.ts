@@ -1,4 +1,5 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { routing } from "./steps/index.js";
 
 /**
@@ -22,7 +23,7 @@ export default createStage({
       description: "Morphology routing has no authored controls today.",
     }
   ),
-  steps: [routing],
+  steps: orderStandardStageSteps("morphology-routing", { routing }),
   compile: () => ({
     routing: {
       routing: { strategy: "default", config: {} },

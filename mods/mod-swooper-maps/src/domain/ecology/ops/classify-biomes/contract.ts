@@ -1,4 +1,4 @@
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { AriditySchema } from "./rules/aridity.schema.js";
 import { MoistureSchema } from "./rules/moisture.schema.js";
 import { TemperatureSchema } from "./rules/temperature.schema.js";
