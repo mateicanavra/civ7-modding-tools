@@ -20,6 +20,8 @@ vi.mock("@civ7/adapter/civ7", async () => {
   };
 });
 
+import { createMap } from "../src/mapgen/createMap";
+
 describe("createMap", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -27,7 +29,7 @@ describe("createMap", () => {
     delete (globalThis as any).GameplayMap;
   });
 
-  test("emits exact-authorship proof and completion markers around a successful recipe run", async () => {
+  test("emits exact-authorship proof and completion markers around a successful recipe run", () => {
     const handlers = new Map<string, (...args: unknown[]) => void>();
     const engineCalls: Array<{ method: string; args: unknown[] }> = [];
     (globalThis as any).engine = {
@@ -50,7 +52,6 @@ describe("createMap", () => {
     };
 
     try {
-      const { createMap } = await import("../src/mapgen/createMap");
       const recipeRun = vi.fn(() => {
         logs.push("recipe-run");
       });

@@ -18,13 +18,12 @@ class FileBuilder extends BaseBuilder {
   }
 }
 
-test("Mod.build writes modinfo referencing builder files", async () => {
+test("Mod.build writes modinfo referencing builder files", () => {
   const mod = new Mod({ id: "my-mod" });
   mod.add(new FileBuilder());
   const tmp = fs.mkdtempSync(join(os.tmpdir(), "mod-build-"));
   try {
     mod.build(tmp);
-    await new Promise((r) => setTimeout(r, 50));
     const modinfoPath = join(tmp, "my-mod.modinfo");
     const xml = fs.readFileSync(modinfoPath, "utf-8");
     expect(xml).toContain("<UpdateDatabase>");
