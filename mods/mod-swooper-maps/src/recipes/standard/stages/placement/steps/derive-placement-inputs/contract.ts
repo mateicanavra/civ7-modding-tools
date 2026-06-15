@@ -1,4 +1,4 @@
-import placement from "@mapgen/domain/placement/contract";
+import placement from "@mapgen/domain/placement";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import {

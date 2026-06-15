@@ -1,4 +1,4 @@
-import placement from "@mapgen/domain/placement/contract";
+import placement from "@mapgen/domain/placement";
 import { defineArtifact } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Discovery plan (`artifact:placement.discoveryPlan`). One artifact per file by repo convention. */

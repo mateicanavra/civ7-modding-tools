@@ -1,4 +1,4 @@
-import ecology from "@mapgen/domain/ecology/contract";
+import ecology from "@mapgen/domain/ecology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";

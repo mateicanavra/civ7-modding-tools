@@ -1,4 +1,4 @@
-import { HydrologyWindFieldSchema } from "@mapgen/domain/hydrology/contract";
+import { HydrologyWindFieldSchema } from "@mapgen/domain/hydrology";
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
