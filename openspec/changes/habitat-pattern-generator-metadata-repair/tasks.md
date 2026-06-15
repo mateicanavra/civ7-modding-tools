@@ -114,7 +114,7 @@
   docs touched by this packet
 - [x] 8.11 `git diff --check`
 - [x] 8.12 `bun run openspec:validate`
-- [ ] 8.13 Effect fit decision proof for registered promotion, including typed
+- [x] 8.13 Effect fit decision proof for registered promotion, including typed
   failures, command provenance, service substitution, scoped cleanup, and
   no-write behavior.
 
