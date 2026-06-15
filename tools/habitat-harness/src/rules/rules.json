@@ -222,6 +222,21 @@
       "hookScope": "pre-commit"
     },
     {
+      "id": "grit-ops-bind-runvalidated",
+      "ownerTool": "grit-check",
+      "ownerProject": "mod-swooper-maps",
+      "lane": "enforced",
+      "scope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
+      "forbids": "domain op runtime entrypoints calling ops.bind or runValidated",
+      "why": "Domain ops are atomic runtime units; orchestration belongs in step/stage composition, not inside op entrypoints.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Domain op runtime entrypoints must not call ops.bind or runValidated.",
+      "exceptionPath": "none",
+      "gritPattern": "ops_bind_runvalidated",
+      "hookScope": "pre-commit"
+    },
+    {
       "id": "grit-runtime-helper-redeclarations",
       "ownerTool": "grit-check",
       "ownerProject": "mod-swooper-maps",

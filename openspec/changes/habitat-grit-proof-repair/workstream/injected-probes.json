@@ -320,5 +320,19 @@
       "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/rules/index.ts",
       "body": "import computeMesh from \"../compute-mesh/index.js\";\n\nexport const value = computeMesh;\n"
     }
+  },
+  {
+    "ruleId": "grit-ops-bind-runvalidated",
+    "patternIdentity": "ops_bind_runvalidated",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
+    "sourcePredicate": "domain op runtime entrypoint calls ops.bind or runValidated",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts",
+      "body": "ops.bind(computeMesh, input);\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/strategies/default.ts",
+      "body": "ops.bind(computeMesh, input);\n"
+    }
   }
 ]
