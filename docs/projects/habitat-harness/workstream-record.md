@@ -5,8 +5,8 @@
 - **Method:** `civ7-systematic-workstream` (12 gates) composed with `civ7-open-spec-workstream` (per-slice phase loop)
 - **Controlling frame:** `docs/projects/habitat-harness/FRAME.md` (hard core, falsifier, settled decisions D1–D6)
 - **Stack root:** `agent-F-habitat-harness-workstream` (worktree `wt-agent-F-habitat-harness-workstream`, parent `main`, Graphite-tracked)
-- **Current execution branch:** `agent-F-cli-root-load-test-timeouts` stacked above the promoted H4 proof repairs
-- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 Biome setup/lint/integration is complete and DL-15/DL-16 promoted repairs are verified; the first `mapgen-studio:test` timeout class and the CLI root-load timeout class are locally repaired, but H4 2.4 and closure remain blocked by a second `mapgen-studio:test` root-load class. H4.5 oclif CLI slice is implemented and verified before downstream CLI surface hardening.
+- **Current execution branch:** `agent-F-mapgen-studio-root-load-followup` stacked above the promoted H4 proof repairs
+- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 Biome setup/lint/integration is complete and DL-15/DL-16 promoted repairs are verified; the first `mapgen-studio:test` timeout class, the CLI root-load timeout class, and the second `mapgen-studio:test` root-load class are locally repaired. A fresh full root-test rerun passed `mapgen-studio:test` but exposed a separate deterministic `mod-swooper-maps:test` catalog facade order proof. H4 2.4 and closure remain open until that blocker is repaired and full root-test proof is green. H4.5 oclif CLI slice is implemented and verified before downstream CLI surface hardening.
 
 ## Gate state (systematic-workstream)
 
@@ -20,7 +20,7 @@
 | 6 Expectations | DONE | per-slice verification gates; ratchet baselines predeclared (project plane green; adapter-boundary baseline = 6) |
 | 7 Architecture translation | DONE | taxonomy.md (tags/constraints); five-layer ownership in FRAME hard core #2 |
 | 8 Slices | IN TRAIN | OpenSpec train below; H1/H2/H3 closed locally; H4 active with Biome integration complete; H4.5 oclif CLI migration implemented locally; promoted proof repairs are stacked above H4 |
-| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes; post-repair root build has no generated drift; first `mapgen-studio` and CLI timeout classes have local repair proof; final root test still red on second mapgen class |
+| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes; post-repair root build has no generated drift; first `mapgen-studio`, CLI, and second `mapgen-studio` root-load classes have local repair proof; fresh full root now fails in `mod-swooper-maps:test` catalog-order proof |
 | 10 Runtime proof | N/A by design | harness touches structure only; byte-parity gates stand in (H1/H4) |
 | 11 Review | IN TRAIN | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice |
 | 12 Closure | IN TRAIN | H1/H2/H3 have local phase closure records; H4 open on root-test proof; H4.5 and promoted proof repairs are implemented/verified locally above H4 |
@@ -56,11 +56,15 @@ proof repairs for DL-16 (`intelligence-bridge-ui-bundle`), SDK async teardown
 (`civ7-sdk-mod-build-sync-writes`), adapter-boundary river metadata, and
 DL-15 plugin Vitest project scoping are stacked above H4. H4 task 2.4 remains
 open because the full root test is not yet green after the
-`mapgen-studio-test-timeouts` and `cli-root-load-test-timeouts` repairs. Root
-build/parity is green, the CLI root-load timeout class is repaired, and direct
-plus representative Nx-load `mapgen-studio:test` proof is green for the first
-mapgen class; the latest full root proof now fails in a second mapgen
-root-load class.
+`mapgen-studio-test-timeouts`, `cli-root-load-test-timeouts`, and
+`mapgen-studio-root-load-followup` repairs. Root build/parity is green, the
+CLI root-load timeout class is repaired, and direct plus representative
+Nx-load `mapgen-studio:test` proof is green for both known mapgen classes. A
+fresh full root-test rerun passed `mapgen-studio:test` but failed in
+`mod-swooper-maps:test`: the morphology catalog ownership proof expects the
+domain config facade exports in pre-Biome order while the source now exports
+the same two recipe-facing modules in Biome-organized order. No H4 green claim
+is made until that separate proof is repaired and full root test passes.
 
 ## Proof classes per slice (predeclared)
 
@@ -104,6 +108,6 @@ train redefines the other's authority.
    `workstream/phase-record.md`).
 3. ~~H4.5 oclif CLI migration and promoted DL-16 / SDK teardown /
    adapter-boundary repairs~~ DONE locally on the stack.
-4. Validate and commit `cli-root-load-test-timeouts`, then isolate the remaining
-   `mapgen-studio:test` root-load failures before claiming H4 task 2.4 or
-   moving into H5.
+4. Validate and commit `mapgen-studio-root-load-followup`, then promote the
+   `mod-swooper-maps:test` morphology catalog-order proof into the next
+   root-test repair slice before claiming H4 task 2.4 or moving into H5.
