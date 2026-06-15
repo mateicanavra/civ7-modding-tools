@@ -93,6 +93,12 @@
   metadata and inferred targets as the target-truth source; Habitat uses
   `@nx/devkit` project graph metadata for implementation and `nx show`
   commands as native proof.
+- Native Nx target-existence proof now covers representative emitted and
+  refused targets across adapter, foundation, app, tooling, plugin,
+  generated-zone, and mod rows. Emitted project targets resolve through
+  `bun run nx show target`; unavailable targets such as `@civ7/adapter:test`
+  and `@civ7/types:test` are reported by classify as missing and rejected by
+  Nx.
 - README and root AGENTS still contain H8-era generator guidance that must be
   realigned with resolved target and pattern metadata contracts.
 
@@ -159,8 +165,8 @@ Core synthesis:
 ## Implementation
 
 - Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 4.1-4.5, 5.1-5.7,
-  6.1-6.3, 7.1-7.10, 9.1-9.4, 9.6-9.9, 9.11, and 9.13.
-- Remaining tasks: full Nx target matrix, downstream realignment, final
+  6.1-6.3, 7.1-7.10, 9.1-9.9, 9.11, and 9.13.
+- Remaining tasks: stale guidance scan, downstream realignment, final
   verification, and supervisor acceptance.
 - Implementation status: target-truth slice committed as a bounded checkpoint;
   path-aware rule-scope slice committed and supervisor-accepted; generator
@@ -169,6 +175,7 @@ Core synthesis:
   checkpoint and supervisor-accepted; migration proof-boundary slice
   committed and supervisor-accepted; committed generator scratch discovery test
   coverage committed and supervisor-accepted; classify matrix test coverage
+  committed and supervisor-accepted; Nx target-existence proof matrix
   implemented in the current slice. Full packet closure remains open.
 
 ## Verification
@@ -249,6 +256,23 @@ Core synthesis:
     -> pass; classify matrix covers adapter, mod, foundation, app, tooling,
     plugin, generated-zone, and workspace-level paths, plus missing-path and
     multi-path diff behavior
+  - `bun run habitat classify packages/civ7-adapter/src/index.ts`,
+    `packages/config/src/index.ts`, `apps/mapgen-studio/src/main.tsx`,
+    `tools/habitat-harness/src/plugin.js`,
+    `packages/plugins/plugin-graph/src/index.ts`,
+    `packages/civ7-types/generated/foo.d.ts`, and
+    `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
+    -> emitted only resolved project targets plus `bun run lint`; adapter and
+    Civ7 types test targets were recorded as unavailable
+  - `bun run nx show target` probes for `@civ7/adapter:check`,
+    `@civ7/config:test`, `mapgen-studio:test`,
+    `@internal/habitat-harness:test`, `@civ7/plugin-graph:test`,
+    `@civ7/types:check`, `mod-swooper-maps:check`, and
+    `mod-swooper-maps:test` -> resolved; probes for `@civ7/adapter:test` and
+    `@civ7/types:test` rejected with missing-target output
+  - `bun run nx show projects --with-target test --json` and
+    `bun run nx show projects --with-target check --json` -> current resolved
+    project inventory used as native Nx target-existence evidence
 - Evidence boundary: current implementation proves resolved Nx target truth for
   the adapter missing-target case, structured target proof output, unavailable
   target reporting, workspace-only target handling, literal diff target
@@ -278,6 +302,6 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor review of the committed classify matrix test checkpoint
-  before proceeding to stale guidance, downstream realignment, or packet
-  closure work.
+- Hold for supervisor review of the committed Nx target-existence proof matrix
+  checkpoint before proceeding to stale guidance, downstream realignment, or
+  packet closure work.

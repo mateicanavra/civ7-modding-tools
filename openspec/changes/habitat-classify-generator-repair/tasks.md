@@ -115,7 +115,7 @@
 - [x] 9.2 `bun run openspec:validate`
 - [x] 9.3 `git diff --check`
 - [x] 9.4 classify matrix proof
-- [ ] 9.5 Nx target-existence proof matrix
+- [x] 9.5 Nx target-existence proof matrix
 - [x] 9.6 generator dry-run proof
 - [x] 9.7 generator scratch discovery proof
 - [x] 9.8 generator refusal proof
