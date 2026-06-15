@@ -3,8 +3,8 @@ import { Context, Effect, FiberSet, Layer, type Scope } from "effect";
 
 import type { StudioInputs, StudioOutputs } from "../context.js";
 import {
-  validateRunInGameSetupConfig,
   type RunInGameRequestStatus,
+  validateRunInGameSetupConfig,
 } from "../contract/runInGame.js";
 import type { StudioOperationsCurrent } from "../contract/studio.js";
 import { invalidRequest, runtimeDisposed, type StudioRuntimeFailure } from "../errors/index.js";
@@ -334,8 +334,7 @@ function prepareRunInGameRequest(
       })
     );
   }
-  const playerCount =
-    input.playerCount === undefined ? undefined : Number(input.playerCount);
+  const playerCount = input.playerCount === undefined ? undefined : Number(input.playerCount);
   if (
     playerCount !== undefined &&
     (!Number.isInteger(playerCount) || playerCount < 1 || playerCount > 64)

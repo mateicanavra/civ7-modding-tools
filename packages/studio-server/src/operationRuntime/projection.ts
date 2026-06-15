@@ -185,9 +185,7 @@ function sanitizeRunInGameFailureDiagnostics(
   return out as NonNullable<RunInGameOperationStatus["details"]>;
 }
 
-function isMaterializationStatus(
-  value: unknown
-): value is RunInGameMaterializationStatus {
+function isMaterializationStatus(value: unknown): value is RunInGameMaterializationStatus {
   return Value.Check(materializationStatus, value);
 }
 
