@@ -660,6 +660,19 @@ async function runIsolatedCopyApplyProof(
         normalizedDiff,
       };
     }
+    const targetExportFailure = validateAppliedTargetExports(afterRoot, changedPaths);
+    if (targetExportFailure) {
+      return {
+        ok: false,
+        failureTag: "GritApplyMissingTargetExport",
+        message: targetExportFailure,
+        command,
+        changedPaths,
+        fileDigests: fileDigestsForCopy,
+        diffEvidence,
+        normalizedDiff,
+      };
+    }
 
     return {
       ok: true,
@@ -672,6 +685,118 @@ async function runIsolatedCopyApplyProof(
   } finally {
     rmSync(tempRoot, { recursive: true, force: true });
   }
+}
+
+function validateAppliedTargetExports(copyRoot: string, changedPaths: readonly string[]): string | null {
+  for (const changedPath of changedPaths) {
+    const absolute = path.join(copyRoot, changedPath);
+    if (!existsSync(absolute)) continue;
+    const sourceText = readFileSync(absolute, "utf8");
+    const imports = publicOpsImports(sourceText);
+    for (const importEntry of imports) {
+      const exportSet = exportedNamesForPublicOps(importEntry.domainPath);
+      if (!exportSet) {
+        return `Missing public ops target for ${importEntry.source} imported by ${changedPath}.`;
+      }
+      for (const specifier of importEntry.specifiers) {
+        const exported = exportSet.get(specifier.exportedName);
+        if (!exported || (!specifier.typeOnly && exported === "type")) {
+          return `Missing public export ${specifier.exportedName} from ${importEntry.source} for ${changedPath}.`;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+interface PublicOpsImport {
+  source: string;
+  domainPath: string;
+  specifiers: PublicOpsImportSpecifier[];
+}
+
+interface PublicOpsImportSpecifier {
+  exportedName: string;
+  typeOnly: boolean;
+}
+
+function publicOpsImports(sourceText: string): PublicOpsImport[] {
+  const imports: PublicOpsImport[] = [];
+  const importPattern =
+    /import\s+(type\s+)?\{([^}]+)\}\s+from\s+["'](@mapgen\/domain\/([^"']+)\/ops)["']/g;
+  for (const match of sourceText.matchAll(importPattern)) {
+    const declarationTypeOnly = Boolean(match[1]);
+    const specifiers = match[2]
+      .split(",")
+      .map((rawSpecifier) => parseImportSpecifier(rawSpecifier, declarationTypeOnly))
+      .filter((specifier): specifier is PublicOpsImportSpecifier => Boolean(specifier));
+    if (specifiers.length === 0) continue;
+    imports.push({
+      source: match[3],
+      domainPath: match[4],
+      specifiers,
+    });
+  }
+  return imports;
+}
+
+function parseImportSpecifier(
+  rawSpecifier: string,
+  declarationTypeOnly: boolean
+): PublicOpsImportSpecifier | null {
+  const trimmed = rawSpecifier.trim();
+  if (!trimmed) return null;
+  const specifierTypeOnly = trimmed.startsWith("type ");
+  const withoutType = specifierTypeOnly ? trimmed.slice("type ".length).trim() : trimmed;
+  const exportedName = withoutType.split(/\s+as\s+/)[0]?.trim();
+  if (!exportedName) return null;
+  return { exportedName, typeOnly: declarationTypeOnly || specifierTypeOnly };
+}
+
+type ExportKind = "type" | "value";
+
+function exportedNamesForPublicOps(domainPath: string): Map<string, ExportKind> | null {
+  if (domainPath.includes("..")) return null;
+  const target = publicOpsTargetPath(domainPath);
+  if (!target) return null;
+  return exportedNames(readFileSync(target, "utf8"));
+}
+
+function publicOpsTargetPath(domainPath: string): string | null {
+  for (const candidate of [
+    path.join(repoRoot, "mods", "mod-swooper-maps", "src", "domain", domainPath, "ops.ts"),
+    path.join(repoRoot, "mods", "mod-swooper-maps", "src", "domain", domainPath, "ops", "index.ts"),
+  ]) {
+    if (existsSync(candidate)) return candidate;
+  }
+  return null;
+}
+
+function exportedNames(sourceText: string): Map<string, ExportKind> {
+  const names = new Map<string, ExportKind>();
+  for (const match of sourceText.matchAll(/export\s+(const|let|var|function|class|enum)\s+([A-Za-z_$][\w$]*)/g)) {
+    names.set(match[2], "value");
+  }
+  for (const match of sourceText.matchAll(/export\s+(type|interface)\s+([A-Za-z_$][\w$]*)/g)) {
+    if (!names.has(match[2])) names.set(match[2], "type");
+  }
+  for (const match of sourceText.matchAll(/export\s+(type\s+)?\{([^}]+)\}/g)) {
+    const kind: ExportKind = match[1] ? "type" : "value";
+    for (const rawSpecifier of match[2].split(",")) {
+      const exportedName = parseExportSpecifier(rawSpecifier);
+      if (!exportedName) continue;
+      if (kind === "value" || !names.has(exportedName)) names.set(exportedName, kind);
+    }
+  }
+  return names;
+}
+
+function parseExportSpecifier(rawSpecifier: string): string | null {
+  const trimmed = rawSpecifier.trim();
+  if (!trimmed) return null;
+  const withoutType = trimmed.startsWith("type ") ? trimmed.slice("type ".length).trim() : trimmed;
+  const aliasParts = withoutType.split(/\s+as\s+/);
+  return (aliasParts[1] ?? aliasParts[0])?.trim() || null;
 }
 
 function biomeHandoffRequest(changedPaths: readonly string[]): HabitatProcessRequest {

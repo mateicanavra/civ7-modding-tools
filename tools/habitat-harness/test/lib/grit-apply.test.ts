@@ -22,7 +22,11 @@ const approvedFile = "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts"
 const existingApprovedFile =
   "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-floodplains/index.ts";
 const isolatedCopyProbeFile =
-  "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof/index.ts";
+  "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof/matching.ts";
+const isolatedTypeProbeFile =
+  "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof/type-only.ts";
+const isolatedMissingExportProbeFile =
+  "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof/missing-export.ts";
 
 describe("Grit apply transaction", () => {
   test("refuses live apply against a dirty worktree before executing Grit", async () => {
@@ -381,7 +385,7 @@ describe("Grit apply transaction", () => {
     const absoluteProbeFile = path.join(repoRoot, isolatedCopyProbeFile);
     const absoluteProbeDir = path.dirname(absoluteProbeFile);
     const sourceText =
-      'import { planFloodplains } from "@mapgen/domain/ecology/ops/private-plan-floodplains";\n\nexport const demo = () => planFloodplains;\n';
+      'import { MountainsConfigSchema } from "@mapgen/domain/morphology/ops/mountains-shared/config";\n\nexport const demo = () => MountainsConfigSchema;\n';
     mkdirSync(absoluteProbeDir, { recursive: true });
     writeFileSync(absoluteProbeFile, sourceText);
     try {
@@ -399,19 +403,58 @@ describe("Grit apply transaction", () => {
           classification: "pre-approved",
         })
       );
-      expect(result.proof.appliedDiff).toContain("@mapgen/domain/ecology/ops");
+      expect(result.proof.appliedDiff).toContain("@mapgen/domain/morphology/ops");
       expect(readFileSync(absoluteProbeFile, "utf8")).toBe(sourceText);
     } finally {
-      rmSync(
-        path.join(
-          repoRoot,
-          "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof"
-        ),
-        {
-          recursive: true,
-          force: true,
-        }
+      cleanupIsolatedCopyProbe();
+    }
+  });
+
+  test("preserves type-only imports through isolated copy apply proof", async () => {
+    const absoluteProbeFile = path.join(repoRoot, isolatedTypeProbeFile);
+    const absoluteProbeDir = path.dirname(absoluteProbeFile);
+    const sourceText =
+      'import type { MountainsConfig } from "@mapgen/domain/morphology/ops/mountains-shared/config";\n\nexport type Demo = MountainsConfig;\n';
+    mkdirSync(absoluteProbeDir, { recursive: true });
+    writeFileSync(absoluteProbeFile, sourceText);
+    try {
+      const result = await runGritApplyTransaction({
+        dryRun: true,
+        gitStateReader: () => gitState(`?? ${isolatedTypeProbeFile}\n`),
+      });
+
+      expect(result.ok).toBe(true);
+      expect(result.proof.changedPaths).toContain(isolatedTypeProbeFile);
+      expect(result.proof.appliedDiff).toContain(
+        'import type { MountainsConfig } from "@mapgen/domain/morphology/ops"'
       );
+      expect(readFileSync(absoluteProbeFile, "utf8")).toBe(sourceText);
+    } finally {
+      cleanupIsolatedCopyProbe();
+    }
+  });
+
+  test("blocks isolated copy apply proof when the public ops target lacks a named export", async () => {
+    const absoluteProbeFile = path.join(repoRoot, isolatedMissingExportProbeFile);
+    const absoluteProbeDir = path.dirname(absoluteProbeFile);
+    const sourceText =
+      'import { planFloodplains } from "@mapgen/domain/ecology/ops/features-plan-floodplains";\n\nexport const demo = () => planFloodplains;\n';
+    mkdirSync(absoluteProbeDir, { recursive: true });
+    writeFileSync(absoluteProbeFile, sourceText);
+    try {
+      const result = await runGritApplyTransaction({
+        dryRun: true,
+        gitStateReader: () => gitState(`?? ${isolatedMissingExportProbeFile}\n`),
+      });
+
+      expect(result.ok).toBe(false);
+      expect(result.failureTag).toBe("GritApplyMissingTargetExport");
+      expect(result.proof.changedPaths).toContain(isolatedMissingExportProbeFile);
+      expect(result.proof.appliedDiff).toContain("@mapgen/domain/ecology/ops");
+      expect(result.stderr).toContain("Missing public export planFloodplains");
+      expect(readFileSync(absoluteProbeFile, "utf8")).toBe(sourceText);
+    } finally {
+      cleanupIsolatedCopyProbe();
     }
   });
 });
@@ -519,4 +562,17 @@ async function runFailureRollbackScenario(options: {
 
 function approvedInventoryLine(): string {
   return "HABITAT_REWRITE file=mods%2Fmod-swooper-maps%2Fsrc%2Frecipes%2Fstandard%2Fstages%2Fecology-features%2Fsteps%2Fplan-floodplains%2Findex.ts symbol=planFloodplains current=%40example%2Fprivate-plan-floodplains proposed=%40example%2Fpublic-surface range=1%3A1-1%3A70 approved=true pattern=deep_import_to_public_surface\n";
+}
+
+function cleanupIsolatedCopyProbe(): void {
+  rmSync(
+    path.join(
+      repoRoot,
+      "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof"
+    ),
+    {
+      recursive: true,
+      force: true,
+    }
+  );
 }
