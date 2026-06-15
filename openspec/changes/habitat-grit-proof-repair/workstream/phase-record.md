@@ -314,6 +314,16 @@ implementation tasks 4, 6, or adapter tests begin.
   output freshness. Task 9.8 and any H5/H6 retirement/parity claim remain open
   until the generated map-bundle output owner path is repaired or formally
   re-scoped.
+- Current Nx Grit target state:
+  `nx run @internal/habitat-harness:grit:check --outputStyle=static` is
+  current-red and task 9.9 remains open. The same direct Habitat Grit wrapper
+  command (`bun tools/habitat-harness/bin/dev.ts check --tool grit-check`, and
+  the JSON/root-script wrapper) passes in this worktree, but the Nx target
+  launch path projects every selected Grit row as fail-closed
+  `GritMalformedJson` infrastructure diagnostics because the adapter sees
+  wrapper text around exact Grit JSON. A draft resolver experiment that routed
+  `grit` through `bun x --no-install` did not repair the target and was
+  discarded before this record layer.
 
 ## Verification
 
@@ -426,6 +436,31 @@ implementation tasks 4, 6, or adapter tests begin.
     - `git status --short --branch` after the narrowed repair probe showed
       only intentional implementation/packet edits; `git ls-files --deleted |
       wc -l` showed `0`.
+  - Nx Grit target failed probe:
+    - `nx run @internal/habitat-harness:grit:check --outputStyle=static` exited
+      1 on `07e721e69`; artifact
+      `/tmp/habitat-grit-nx-target-07e721e69.stdout`,
+      `sha256=e0446d84121ee2f63ccc6e921b35837ee279a1517ac7145d4aa9c7d4859abf78`;
+      stderr `sha256=91251068e168b9e362b8e49e9becf10b061d7902594806fb64555e689011a928`.
+      It selected 22 Grit rows plus `baseline-integrity`; every Grit row failed
+      through adapter infrastructure diagnostics and `baseline-integrity`
+      passed.
+    - `nx run @internal/habitat-harness:grit:check --outputStyle=static
+      --skipNxCache -- --json` also exited 1; the JSON-forwarded report showed
+      `GritMalformedJson` with `Grit output contains wrapper text around JSON;
+      Habitat requires exact JSON.`
+    - Direct comparison evidence: `bun tools/habitat-harness/bin/dev.ts check
+      --tool grit-check` exited 0 with all 22 Grit rows plus
+      `baseline-integrity` passing (`/tmp/habitat-grit-direct-human-07e721e69.stdout`,
+      `sha256=efc26633a532fe683582bba7991b0ca318b4e61323a5a85333d8acdb23b58d7d`);
+      `bun tools/habitat-harness/bin/dev.ts check --tool grit-check --json`
+      exited 0 with schemaVersion 1, `ok:true`, and 23 reports
+      (`/tmp/habitat-grit-direct-json-07e721e69.json`,
+      `sha256=82618c936afca9c121e644b5f29ad7042ace6a04d8c8d5ecd635758bf8093245`).
+    - Non-claim: this failed Nx target probe does not contradict the accepted
+      direct Habitat wrapper current-tree proof, and it does not prove raw
+      direct Grit acquisition, injected row proof, apply safety, or product
+      behavior. It blocks only task 9.9 and any Nx-scheduled Grit target claim.
 - Evidence boundary: current implementation slice proves native Grit sample
   success and Habitat wrapper selector/current-tree zero-finding projection
   through CheckReport schemaVersion 1 on the branch that contains the accepted

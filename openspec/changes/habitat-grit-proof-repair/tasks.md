@@ -146,6 +146,13 @@
     packet records that as a generated-output freshness blocker, not parity
     closure.
 - [ ] 9.9 `nx run @internal/habitat-harness:grit:check --outputStyle=static`
+  - 2026-06-15 current probe evidence is recorded as
+    `HGPR-NX-GRIT-TARGET-FAILED-2026-06-15`. The gate remains open: the direct
+    Habitat Grit wrapper path passes, but the Nx `grit:check` target currently
+    fails all selected Grit rows through fail-closed `GritMalformedJson`
+    diagnostics because the target launch path presents wrapper text around the
+    inner Grit JSON. A draft resolver change to route Grit through `bun x
+    --no-install` did not clear this target failure and was not retained.
 - [ ] 9.10 `bun run habitat:fix -- --dry-run`
 - [ ] 9.11 controlled apply proof for `deep_import_to_public_surface`
 - [ ] 9.12 selected typecheck/test gates for the applied-diff surface
