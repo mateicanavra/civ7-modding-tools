@@ -89,7 +89,7 @@
 - [x] 7.2 Update `tools/habitat-harness/README.md`.
 - [x] 7.3 Update `docs/process/resources-submodule.md`.
 - [x] 7.4 Update `docs/projects/habitat-harness/recovery-claim-ledger.md`.
-- [ ] 7.5 Update `openspec/changes/habitat-git-hooks/**` historical records so
+- [x] 7.5 Update `openspec/changes/habitat-git-hooks/**` historical records so
   old H7 closure does not overclaim side-effect proof.
 - [ ] 7.6 Update `habitat-pattern-generator-metadata-repair` or Grit pilot
   records only if hook-scope acceptance wording changes their dependencies.
@@ -114,7 +114,7 @@
 - [x] 8.8 Root/dev `habitat hook` proof after command-surface repair is
   consumed
 - [x] 8.9 README/AGENTS/resources docs stale guidance scan
-- [ ] 8.10 Historical H7 record realignment
+- [x] 8.10 Historical H7 record realignment
 - [x] 8.11 Full-depth-language guardrail scan over this packet
 - [x] 8.12 Resource-policy checkpoint Effect non-adoption decision proof, with
   dependency/version/lockfile proof left as a non-claim because Effect is not

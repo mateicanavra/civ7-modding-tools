@@ -289,6 +289,19 @@ Core synthesis:
     existence, fake file hashing, and Grit parse-failure outcome.
   - `bun run --cwd tools/habitat-harness check` exited 0 after the pre/post
     trace implementation.
+- New record-truth evidence for the historical H7 realignment checkpoint:
+  - `openspec/changes/habitat-git-hooks/proposal.md`, `tasks.md`, and
+    `workstream/phase-record.md` now state that H7 is historical evidence for
+    Husky delegation, staged-scope containment, formatter-touched restage,
+    generated-zone/package-manager staged guards, and local pre-push affected
+    wiring.
+  - The same records now state that H7's original resource-publish-in-pre-commit
+    behavior is superseded by the current hook-hardening policy: default
+    pre-commit performs read-only resource-state checks, and resource publishing
+    is explicit.
+  - `workstream/downstream-realignment-ledger.md` marks the H7 row realigned
+    pending supervisor review. This is record-truth proof only; it adds no new
+    hook behavior.
 - Evidence boundary: the accepted resource checkpoint proves the default
   pre-commit resource publish removal, typed resource-state classification,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
@@ -313,7 +326,10 @@ Core synthesis:
   staged/unstaged path, resource-state, and timing capture through fake
   services for the covered phases; it does not prove the full transaction
   architecture, reporter/resource-publisher services, CI authority, or
-  product/runtime behavior.
+  product/runtime behavior. This historical H7 realignment checkpoint proves
+  record truth for the superseded H7 resource-publish policy only; it does not
+  prove new hook behavior, current-tree Grit parse-output staged behavior,
+  CI authority, or product/runtime behavior.
 
 ## Realignment
 
@@ -322,7 +338,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the hook pre/post-state trace checkpoint for supervisor review. Do not
-  claim full hook transaction architecture, Grit parse-output staged probe
-  closure, CI authority, broad Nx affected coverage, or packet closure from
-  this slice.
+- Hold the historical H7 realignment checkpoint for supervisor review. Do not
+  claim new hook behavior, full hook transaction architecture, Grit parse-output
+  staged probe closure, CI authority, broad Nx affected coverage, or packet
+  closure from this slice.

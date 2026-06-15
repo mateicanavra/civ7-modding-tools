@@ -1,5 +1,11 @@
 ## 1. Budget Baseline And Husky Wiring
 
+Historical status note: this packet remains evidence for hook wiring,
+staged-scope containment, and local pre-push affected behavior. Its original
+resource-publish preservation tasks are superseded by
+`habitat-git-hook-hardening`, which makes default pre-commit read-only for
+resources and leaves publication to the explicit `resources:publish` workflow.
+
 - [x] 1.1 BEFORE wiring hooks: measure baseline wall-clock on two declared
   probe sets — (a) a 10-file staged set for pre-commit, (b) a one-package
   change for pre-push; set budget = 2× measured baseline per hook; record
@@ -30,15 +36,17 @@
   targets.
 - [x] 2.3 Record the commit-msg non-installation decision and the deferred
   optional hooks (post-checkout/post-merge) in the rule pack docs.
-- [x] 2.4 Legacy hook disposition: fold the
+- [x] 2.4 Historical legacy hook disposition: fold the
   `scripts/civ7-resources/publish-submodule.sh` invocation from
   `scripts/git-hooks/pre-commit` (installed via `git config core.hooksPath
   scripts/git-hooks` by `scripts/git-hooks/setup.sh`, root script
   `setup:git-hooks`) into `habitat hook pre-commit`, preserving current
-  behavior — inspect the script at execution time; if it requires opt-in
+  behavior at the time — inspect the script at execution time; if it requires opt-in
   state, preserve the opt-in semantics and record the decision in the phase
   record; then retire `scripts/git-hooks/` and the `setup:git-hooks` root
-  script in the same slice so the two mechanisms never coexist.
+  script in the same slice so the two mechanisms never coexist. Current hook
+  policy supersedes this behavior and does not publish resources from default
+  pre-commit.
 
 ## 3. Safety Probes
 

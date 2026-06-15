@@ -75,7 +75,7 @@ failed commit.
 | Biome mutation | Hook refuses partially staged Biome-supported files, hashes staged paths, formats, and restages touched paths. | This is the strongest existing containment behavior and should be preserved with tests. |
 | Grit hook check | Hook runs `grit --json check --level error` on staged TS/JS paths and parses JSON with a heuristic. | It needs proof of parse failure behavior and must consume Grit proof contracts for hook scope. |
 | Pre-push | Hook runs `nx affected` over named targets with `--head HEAD` and Graphite parent when available. | It needs explicit proof of branch parent and non-Graphite base selection, plus non-claims. |
-| Historical record | H7 phase record says CLOSED locally and records resource publish as preserved behavior. | Recovery must reclassify H7 closure as historical until side-effect policy is settled. |
+| Historical record | H7 phase record had recorded a local closure and resource publish as preserved behavior. | Recovery reclassifies H7 closure as historical hook wiring/staged containment proof, not current side-effect policy proof. |
 
 Fresh source inspections:
 
