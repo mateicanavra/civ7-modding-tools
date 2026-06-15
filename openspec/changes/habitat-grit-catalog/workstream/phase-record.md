@@ -91,7 +91,8 @@
   JSON output schema, fixture format, apply-mode behavior, and Bun/Nx
   integration constraints.
 - File-layer lane: inspect existing Habitat rule-pack/baseline/check/staged
-  APIs and design the smallest generated-zone write-protection integration.
+  APIs and design the complete generated-zone write-protection integration for
+  this slice.
 - Structural-test migration lane: identify H4-discovered structural tests
   (`catalog-ownership`, `standard-recipe-artifact-guards`) as H5/H6 migration
   candidates, but do not retire normal-test copies in H5 without parity and

@@ -61,7 +61,7 @@
 
 - Completed tasks: 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 4.1, 4.2, 4.3.
 - Remaining tasks: none. Task 2.4 is now locally green: root build passed after promoted repairs; tracked pre/post format hashes match; fresh root build produced no generated drift after DL-16 repair; plugin package tests and SDK package tests are green after DL-15 repairs; the `mapgen-studio:test`, CLI root-load, second mapgen root-load, Swooper catalog-order, and generated recipe artifact race blockers all have local repair slices; and full root `test` passes after `swooper-recipe-artifact-race`.
-- Biome lint lane: minimal green bug-risk rule set is enabled in `biome.json` with `recommended: false`; no desired red Biome rule was silently disabled after selection. The red assist class (`organizeImports`) was repaired mechanically by applying the safe assist and committing it separately; no ratchet baseline is required for `biome-ci` because the rule is locked with zero diagnostics.
+- Biome lint lane: selected green bug-risk rule set is enabled in `biome.json` with `recommended: false`; no desired red Biome rule was silently disabled after selection. The red assist class (`organizeImports`) was repaired mechanically by applying the safe assist and committing it separately; no ratchet baseline is required for `biome-ci` because the rule is locked with zero diagnostics.
 - Harness integration: `@internal/habitat-harness` now infers `biome:format`, `biome:check`, and `biome:ci`; `habitat fix` runs `biome check --write .` and `--dry-run` runs non-writing `biome check .`; `habitat check` includes locked `biome-ci`; `habitat verify` composes `build,check,test,boundaries,biome:ci`; CI runs `bunx nx run-many -t biome:ci`; README documents editor setup and the never-plain-`lint` target convention.
 - Stop conditions triggered and resolved: DL-15 package-local Vitest fan-out / SDK teardown defects, DL-16 intelligence-bridge bundle drift, first root-test `mapgen-studio:test` timeout class, CLI timeout class, second mapgen root-load class, Swooper Maps catalog-order proof, and Swooper Maps generated recipe artifact race are all repaired by promoted slices. No H4 stop condition remains after the final strict validations pass.
 
@@ -99,7 +99,7 @@
   - `bun test test/foundation/contract-guard.test.ts -t "keeps decomposed tectonics strategy imports local"` (from `mods/mod-swooper-maps`)
   - `bunx nx run mod-swooper-maps:test --skip-nx-cache`
   - `bun run test > /tmp/h4-root-test-after-guard.log 2>&1`
-  - `bunx --bun @biomejs/biome lint . --only=<candidate-rule>` for each promoted minimal green Biome linter rule
+  - `bunx --bun @biomejs/biome lint . --only=<candidate-rule>` for each promoted selected green Biome linter rule
   - `bunx --bun @biomejs/biome check --write . --max-diagnostics=80`
   - `git diff --name-only | rg '(^|/)dist/|(^|/)types/|(^|/)mod/|^\\.civ7/outputs/|(^|/)_archive/|src/maps/generated|packages/civ7-types/generated|civ7-tables\\.gen\\.ts' || true`
   - `bunx --bun @biomejs/biome ci . --max-diagnostics=20`
@@ -287,7 +287,7 @@
   33 tasks and reported historical flaky-task flags for
   `@mateicanavra/civ7-cli:test` and `@civ7/direct-control:test`, but no task
   failed. This closes H4 task 2.4 locally.
-- Minimal Biome rule promotion result: selected green correctness/suspicious
+- Biome rule promotion result: selected green correctness/suspicious
   bug-risk rules pass under `biome ci`; nested `**/_archive/**` is excluded so
   live code can keep `noGlobalIsFinite` without historical archive churn.
 - Import organization result: `biome check --write .` applied safe import

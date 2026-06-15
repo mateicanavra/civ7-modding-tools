@@ -119,7 +119,7 @@
                   {
                     "label": "Project imports",
                     "value": "Nx boundaries",
-                    "description": "Graph-level dependency law through a minimal ESLint boundary config.",
+                    "description": "Graph-level dependency law through a deliberate ESLint boundary config.",
                     "color": "purple"
                   },
                   {
@@ -427,7 +427,7 @@
                   "Area,Caveat,What to do next",
                   "Graphite lifecycle,H1-H8 are locally closed; stack submission/drain remains,Submit or drain bottom-up through the repo's Graphite process",
                   "Lower stack note,`agent-F-habitat-harness-workstream` still shows needs restack,Inspect before stack submission instead of blindly rewriting",
-                  "Broad hook timing,Broad root/Habitat self-edits can exceed narrow pre-push budget,Treat as an operational boundary; normal path is scoped classify/affected checks",
+                  "Broad hook timing,Broad root/Habitat self-edits can exceed the pre-push budget,Treat as an operational boundary; normal path is scoped classify/affected checks",
                   "Domain generators,mod/engine/control/adapter/sdk/tooling generators are refused,Let domain owners define real shapes before generating them",
                   "Habitat-native budget,Doc/manifest/cross-file checks remain native by design,Watch the degeneration trigger if this list grows",
                   "Strict domain-refactor profile,Full profile remains manual because it has existing findings,Promote families only with parity and baseline ceremony",

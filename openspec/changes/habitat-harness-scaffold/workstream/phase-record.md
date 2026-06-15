@@ -65,7 +65,7 @@ N/A - solo phase
   projects (harness, mod-swooper-maps, mapgen-core, control-orpc), command
   `habitat check --owner <project>`, cache:true with deliberately WIDE inputs
   (wrapped rules scan broad surfaces; a cache hit must never mask a
-  violation). Narrows when rules port (H5/H6).
+  violation). Scope becomes more specific when rules port (H5/H6).
 
 ## Verification
 

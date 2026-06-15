@@ -460,7 +460,7 @@ Each pattern moves through these states:
 5. **Applied:** for codemods, dry-run and applied diffs are recorded, then
    typecheck/test proof runs.
 6. **Retired or replaced:** old tests, scripts, or docs are removed only after
-   parity or intentional narrowing is recorded.
+   parity or evidence-backed scope correction is recorded.
 
 Each pattern must define false-positive handling, false-negative probes,
 baseline shrink behavior, owner, and downgrade evidence.
@@ -562,14 +562,15 @@ Use lanes, not a rigid serial list. The first step is always Stage 0.
 | Trust rule evidence | `habitat-scaffold-contract-repair`, `habitat-grit-proof-repair` | Rule retirement, Grit pilot closure | Entrypoint repair | Green checks may hide baseline or parity mismatch. |
 | Contain local mutation | `habitat-git-hook-hardening` | Hook adoption as trusted workflow | Later Grit pilots after H5 standards | Hooks may mutate or broaden scope unexpectedly. |
 | Repair stale records | All repair workstreams | Final closure | All lanes | Old claims keep misleading future agents. |
-| Run first Grit pilot | One strong candidate, preferably `habitat-grit-stage-contract-dependencies` or `habitat-grit-generated-bundle-node-builtins` after evidence check | Broad Grit backlog | H1/H3/H8 if pilot scope is narrow | Pattern backlog becomes speculative architecture instead of executable proof. |
+| Run first Grit pilot | One fully specified candidate, preferably `habitat-grit-stage-contract-dependencies` or `habitat-grit-generated-bundle-node-builtins` after evidence check | Broad Grit backlog | H1/H3/H8 if pilot scope is bounded by proven authority | Pattern backlog becomes speculative architecture instead of executable proof. |
 
 Recommended first recovery slice:
 
 1. Create the claim ledger.
 2. Open `habitat-oclif-entrypoint-repair`.
 3. Open `habitat-grit-proof-repair`.
-4. Run one narrow Grit pilot only after H5 proof semantics are repaired.
+4. Run one fully specified Grit pilot only after H5 proof semantics are
+   repaired.
 
 ## Recovery Health Metrics
 
@@ -597,8 +598,8 @@ The recovery program is complete only when:
 - every new Grit backfill has its own OpenSpec change and proof record;
 - apply-mode Grit transforms are actually applied to controlled codebase diffs
   or explicitly classified as manual/generator-owned;
-- old scripts and tests are not retired without parity or intentional narrowing
-  recorded;
+- old scripts and tests are not retired without parity or evidence-backed scope
+  correction recorded;
 - root docs no longer present H1-H8 as closed beyond the repaired evidence.
 
 ## Review Prompts For The Next Agent Team
@@ -609,8 +610,8 @@ Dispatch review agents before implementation:
   generators, hooks, CI, and agent behavior as feedback loops. Identify loops
   that create false confidence, bypasses, duplicate enforcement, or irreversible
   side effects.
-- **Solution-design reviewer:** challenge the sequence. Identify the smallest
-  recovery slice that restores trust without hiding product gaps.
+- **Solution-design reviewer:** challenge the sequence. Identify the first
+  complete recovery slice that restores trust without hiding product gaps.
 - **Grit catalog reviewer:** audit one candidate pattern at a time. Confirm
   authority, owner layer, false-positive model, fixture requirements, scan
   roots, and apply-mode safety.

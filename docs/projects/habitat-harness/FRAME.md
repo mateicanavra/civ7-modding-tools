@@ -77,7 +77,8 @@ derived taxonomy, the ratchet mechanism, and the slice train.
    implied architecture; it never invents target architecture or domain
    behavior. Codemods rewrite known structure; they fail closed on ambiguity.
 2. **Five layers, one owner each.** Repository layer = Nx graph + tags;
-   import layer = Nx `enforce-module-boundaries` via a minimal, quarantined
+   import layer = Nx `enforce-module-boundaries` via a purpose-limited,
+   quarantined
    ESLint config; file layer = path/generated-zone rules; syntax layer =
    GritQL; hygiene layer = Biome. A concern lives in exactly one layer.
 3. **Ratchet invariant.** Every rule lands with an explicit baseline
@@ -146,7 +147,7 @@ file contents, command flags, or task order.
 |---|---|---|
 | Biome reformat churn | One dedicated reformat commit + `.git-blame-ignore-revs`; Prettier removed in same slice | Never (one-time cost) |
 | Pre-commit scope | Format + cheap grit checks on staged files only; full affected verification at pre-push; auto-restage only formatter-touched files | If multi-lane worktree staging conflicts appear in practice |
-| ESLint survives (minimal) | Only as the runner for `@nx/enforce-module-boundaries`; all other current ESLint rules migrate to Grit/file-layer | When Nx Conformance or a Biome-native boundary integration covers it |
+| ESLint survives (purpose-limited) | Only as the runner for `@nx/enforce-module-boundaries`; all other current ESLint rules migrate to Grit/file-layer | When Nx Conformance or a Biome-native boundary integration covers it |
 | Harness CLI framework | Use oclif as the outer command adapter for `habitat`; keep rule/check logic in reusable libraries, not command classes | Revisit only if oclif becomes incompatible with the repo's Node/Bun execution model |
 | Doc-lint scripts (`lint-doc-*`, `lint-mapgen-docs.py`) | Wrapped as habitat-native checks, not force-fitted into a tool layer | If they grow; they are doc tooling, not architecture enforcement |
 | By-design habitat-native set (excluded from the degeneration-trigger count) | Exactly: adr-lint, doc-ambiguity, mapgen-docs (doc tooling); workspace-entrypoints (manifest rule); G6/G7 (semantic doc/code sync). Everything else must live on its tool layer | If this list grows beyond these six, the growth counts toward the degeneration trigger |
@@ -202,8 +203,9 @@ Gotchas captured for implementation:
 
 ## 5. Spec draft disposition
 
-Input: `habitat-harness-spec-draft-input.md` (vendored verbatim from the RAWR
-draft, 2026-06-12). Assessment: sound as a target tool-composition spec
+Input: `habitat-harness-spec-draft-input.md` (local baseline copy derived from
+the RAWR draft, 2026-06-12; wording amended on 2026-06-14 for the full-depth
+scope correction). Assessment: sound as a target tool-composition spec
 (~70%); blind to this repo (~30%). We **adopt** its tool ownership model,
 forbidden patterns, invariant-record format, remediation rules, CI posture,
 and agent operating procedure. We **amend**:
@@ -248,7 +250,7 @@ and agent operating procedure. We **amend**:
 
 | File | Contents |
 |---|---|
-| `habitat-harness-spec-draft-input.md` | Vendored input spec draft (read-only baseline) |
+| `habitat-harness-spec-draft-input.md` | Local baseline copy of the input spec draft, with scope-language correction |
 | `taxonomy.md` | Derived tag taxonomy, per-project assignments, dep constraints, initial violation backlog |
 | `invariant-corpus.md` | Complete corpus of existing checks → harness-owner migration map |
 | `discrepancy-log.md` | Doc-vs-code discrepancies (logged per D5, decided later) |

@@ -1,0 +1,154 @@
+# Habitat Harness Grit Pattern Corpus Ledger
+
+**Status:** Stage 0 opened; corpus/design artifact for Grit and codemod work
+**Owner:** DRA Habitat recovery owner
+**Created:** 2026-06-14
+**Frame:** `docs/projects/habitat-harness/dra-takeover-frame.md`
+**Mode:** design/specification only; this ledger does not approve enforcement
+or rewriting changes
+
+This ledger records the current Grit tranche and the candidate pattern/codemod
+program. A pattern OpenSpec opens only after its row has authority, proof,
+owner layer, scan roots, fixtures, current-tree scan status, baseline action,
+apply safety disposition, and review.
+
+## Corpus Seed Summary
+
+- Current implemented corpus: 22 check patterns under
+  `.grit/patterns/habitat/checks/`.
+- Current implemented apply corpus: 1 apply pattern under
+  `.grit/patterns/habitat/apply/`.
+- Rule-pack owner: `tools/habitat-harness/src/rules/rules.json`.
+- Current scan adapter: `tools/habitat-harness/src/lib/grit.ts`.
+- Current scan roots: `packages`, `apps/mapgen-studio/src`,
+  `mods/mod-swooper-maps/src/recipes`, `mods/mod-swooper-maps/src/maps`,
+  `mods/mod-swooper-maps/src/domain`.
+- Current apply roots: discovered `mods/*/src/{recipes,maps}` roots.
+- Fresh local native fixture proof on 2026-06-14:
+  `GRIT_TELEMETRY_DISABLED=true grit patterns test --json` passed 23 pattern
+  reports and 45 samples.
+- Known proof boundary: native `grit patterns test` proves sample syntax and
+  sample pass/fail shape only. It does not prove current-tree scan scope,
+  injected violations, baseline behavior, filter truthfulness, old-mechanism
+  parity, or apply safety.
+- Unresolved current-tree proof: a broad raw current-tree Grit scan was
+  attempted during local extraction and stopped for runtime. This ledger must
+  continue to treat zero-finding proof as pending until a bounded, repeatable
+  proof command is captured.
+
+## Official Documentation Constraints
+
+| Source pack | Constraint for every pattern/codemod row |
+| --- | --- |
+| `research/official-docs-gritql.md` | Declare explicit target language/parser support, pattern identity, scan roots, ignore/suppression policy, and whether the pattern is check-only or rewriting. Treat `raw`, `$new_files`, `multifile`, `sequential`, JavaScript functions, remote modules, and `--force` as escalated surfaces requiring separate proof. |
+| `research/official-docs-gritql.md` | Safe rewrites should match broad context but rewrite specific metavariables, preserve syntax details, and include native expected-output tests plus local dry-run/apply evidence. Official dry-run docs are not detailed enough to substitute for local no-write proof. |
+| `research/official-docs-gritql.md` | Hosted Grit CI trend behavior does not supply Habitat's repo-local shrink-only baseline contract. Baseline comparison, filter truthfulness, and ratchet records stay Habitat-owned. |
+| `research/official-docs-biome.md` | Biome owns formatting, import sorting, lint diagnostics, declared safe fixes, and configured plugin rewrites under Biome semantics. Habitat/Grit codemods must not borrow Biome's safe-fix claim without independent proof. |
+| `research/official-docs-nx.md` | Nx owns project/task graph and generator/codemod mechanics, not Grit pattern semantics. Use Nx resolved target evidence for classify/generator rows, but use Grit/Habitat proof for source-shape checks and rewrites. |
+| `research/official-docs-effect.md` and `research/local-effect-adoption-fit.md` | Effect cannot define Grit pattern semantics or rewrite safety, but it may become the right execution substrate for running Grit/Nx/Biome with typed errors, bounded resources, service injection, and truthful command provenance. Pattern rows must keep Grit semantics separate from orchestration design. |
+
+## Row Contract
+
+| Field | Required content |
+| --- | --- |
+| Pattern candidate | Stable candidate id. |
+| Architecture obligation | Desired shape in plain language. |
+| Normative source | Frame, taxonomy, invariant corpus, AGENTS, canonical doc, accepted spec, or ADR. |
+| Proving source | Existing test/script, current exemplar/counterexample, injected probe, or retired mechanism. |
+| Owner layer | grit-check / grit-apply / generator / migration / file-layer / test / manual. |
+| Scan roots | Exact roots and exclusions. |
+| Fixture strategy | Positive, negative, parser-edge, and false-positive samples. |
+| Current-tree scan | observed findings or zero-findings proof. |
+| Baseline action | empty locked / shrink-only / immediate remediation / rejected. |
+| Apply safety | mechanical transform conditions or explicit non-apply disposition. |
+| OpenSpec id | one change id per pattern/codemod unless justified. |
+
+## Current Implemented Check Rows
+
+All current rows are **status: implemented, under-proof** until
+`habitat-grit-proof-repair` records native sample proof, current-tree scan proof,
+baseline semantics, old-mechanism parity, and injected violation proof for the
+family. Native sample proof is currently available from the local extraction;
+the remaining proof classes are not satisfied by that fixture result.
+
+| Pattern candidate | Architecture obligation | Normative source | Proving source | Owner layer | Scan roots | Fixture strategy | Current-tree scan | Baseline action | Apply safety | OpenSpec id |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `grit-contract-export-all` / `contract_export_all` | Contract/public surfaces use named value exports; type-star exports remain type-only. | `rules.json`; H5 Grit catalog; contract surface docs to verify. | Native Grit samples; retired guard intent to verify. | grit-check | contract/public-surface TypeScript files under current Grit scan roots | Positive value `export *`; negative `export type *`; parser-edge re-export forms; false-positive contract-only paths. | pending repair scan | empty locked unless findings prove otherwise | non-apply unless named export target is proven | `habitat-grit-proof-contract-export-all` |
+| `grit-domain-deep-import` / `domain_deep_import` | Recipes/maps compose domains through public surfaces, not deep internals. | `taxonomy.md`; `invariant-corpus.md`; H5 records. | Native Grit samples; `scripts/lint/lint-domain-refactor-guardrails.sh`; current source scan. | grit-check | `mods/*/src/{recipes,maps}/**/*.ts` | Positive import/export deep ops/rules/strategies; negative public `/ops`; parser-edge type imports; false-positive test paths. | pending repair scan | empty locked unless findings prove otherwise | covered by separate apply row for exact ops imports | `habitat-grit-proof-domain-deep-import` |
+| `grit-recipe-domain-surface` / `recipe_domain_surface` | Recipes import only approved domain entrypoints. | `rules.json`; recovery reference candidate authority requirement. | Native Grit samples; current recipe imports. | grit-check | `mods/mod-swooper-maps/src/recipes/**/*.ts` | Positive non-public subpath; negative root, `/ops`, `/config.js`; parser-edge alias imports. | pending repair scan | empty locked unless findings prove otherwise | non-apply unless target export exists | `habitat-grit-proof-recipe-domain-surface` |
+| `grit-studio-recipe-artifacts` / `studio_recipe_artifacts` | Studio UI imports recipe artifacts, not runtime recipes. | DL records; H5 records; Studio artifact contract docs to verify. | Native Grit samples; current Studio imports. | grit-check | `apps/mapgen-studio/src/**/*.{ts,tsx}` excluding browser runner and server paths | Positive app runtime recipe import; negative artifacts and allowed runtime/server roots. | pending repair scan | empty locked unless findings prove otherwise | non-apply unless artifact import mapping is exact | `habitat-grit-proof-studio-recipe-artifacts` |
+| `grit-step-contract-domain-surface` / `step_contract_domain_surface` | Step contracts bind domain contracts only through approved public domain surface. | `rules.json`; stage/step contract authority to verify. | Native Grit samples; current contract scan. | grit-check | `mods/*/src/recipes/**/stages/**/steps/**/{contract.ts,*.contract.ts}` | Positive deep domain import; negative approved domain root; parser-edge type-only contract imports. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-step-contract-domain-surface` |
+| `grit-recipe-runtime-domain-ops` / `recipe_runtime_domain_ops` | Runtime recipe files import runtime domain ops through approved `/ops` surface. | `rules.json`; recipe composition docs to verify. | Native Grit samples; current recipe runtime scan. | grit-check | `mods/*/src/recipes/**/recipe.ts` | Positive direct runtime import shape; negative approved `/ops`; false-positive non-runtime recipe files. | pending repair scan | empty locked unless findings prove otherwise | possible apply only for exact import normalization | `habitat-grit-proof-recipe-runtime-domain-ops` |
+| `grit-runtime-validation-imports` / `runtime_validation_imports` | Runtime layers do not import TypeBox runtime validation or compiler normalization helpers. | `rules.json`; runtime purity authority to verify. | Native Grit samples; guardrail script full profile. | grit-check | runtime recipe steps and domain strategies | Positive forbidden imports; negative contract/config files; parser-edge type-only imports if allowed. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-runtime-validation-imports` |
+| `grit-runtime-run-validated` / `runtime_run_validated` | Runtime layers do not call `runValidated`. | `rules.json`; guardrail script full profile. | Native Grit samples; current runtime scan. | grit-check | runtime recipe steps and domain strategies | Positive direct and member calls; negative allowed helper names; parser-edge nested calls. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-runtime-run-validated` |
+| `grit-runtime-helper-redeclarations` / `runtime_helper_redeclarations` | Runtime source uses canonical helpers instead of redeclaring exact helpers. | `rules.json`; foundation full-profile guardrails. | Native Grit samples; `lint-domain-refactor-guardrails.sh`. | grit-check | runtime recipe steps and domain strategies | Positive exact helper redeclarations; negative unrelated helper names; parser-edge function expressions. | pending repair scan | empty locked unless findings prove otherwise | candidate exact helper apply row owns rewriting | `habitat-grit-proof-runtime-helper-redeclarations` |
+| `grit-empty-schema-default` / `empty_schema_default` | Schema definitions avoid empty object defaults where property defaults should own behavior. | `rules.json`; schema contract authority to verify. | Native Grit samples; current schema scan. | grit-check | contract schema files | Positive `Type.Object` default `{}` shape; negative property defaults; parser-edge nested schemas. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-empty-schema-default` |
+| `grit-mapgen-core-runtime-civ7` / `mapgen_core_runtime_civ7` | mapgen-core core/engine stays free of Civ7 runtime coupling. | `taxonomy.md`; mapgen-core AGENTS/docs; H5 records. | Native Grit samples; current mapgen-core scan. | grit-check | `packages/mapgen-core/src/{core,engine}/**/*.ts` | Positive Civ7 runtime imports; negative authoring/adapter boundaries; parser-edge type imports. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-mapgen-core-runtime-civ7` |
+| `grit-sibling-stage-step-imports` / `sibling_stage_step_imports` | Stage steps do not import sibling steps; shared contract/domain surfaces own reuse. | `rules.json`; stage topology docs to verify. | Native Grit samples; current stage scan. | grit-check | `mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts` | Positive sibling step import; negative stage contract/domain import; parser-edge relative depth. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-sibling-stage-step-imports` |
+| `grit-domain-root-catalogs` / `domain_root_catalogs` | Domain-root catalogs move to owning public surface. | `rules.json`; domain surface docs to verify. | Native Grit samples; current domain scan. | grit-check | `mods/mod-swooper-maps/src/domain/**/{tags,artifacts}.ts` | Positive root catalog files; negative approved generated/artifact surfaces. | pending repair scan | empty locked unless findings prove otherwise | generator/migration if structural move is needed | `habitat-grit-proof-domain-root-catalogs` |
+| `grit-wrapper-advanced-stage-config` / `wrapper_advanced_stage_config` | Wrapper-only `advanced` stage config surfaces stay retired. | H5 records; foundation guardrail script. | Native Grit samples; current recipe/map config scan. | grit-check | standard recipe and map config source | Positive wrapper advanced config; negative current step-id config; false-positive ordinary advanced words. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-wrapper-advanced-stage-config` |
+| `grit-placement-outcome-boundary` / `placement_outcome_boundary` | Placement implementation uses typed outcomes instead of direct official generator calls. | `discrepancy-log.md`; placement architecture records to verify. | Native Grit samples; current placement implementation scan. | grit-check | placement apply implementation | Positive direct official generator calls; negative typed outcome use. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-placement-outcome-boundary` |
+| `grit-adapter-base-standard-import` / `adapter_base_standard_import` | `/base-standard/` runtime imports stay inside `@civ7/adapter`. | `discrepancy-log.md`; adapter boundary script. | Native Grit samples; `scripts/lint/lint-adapter-boundary.sh`; current package scan. | grit-check | `packages/**/*.ts` outside `packages/civ7-adapter` | Positive non-adapter base-standard import; negative adapter-owned import. | pending repair scan | existing adapter baseline must be reconciled | non-apply | `habitat-grit-proof-adapter-base-standard-import` |
+| `grit-control-orpc-contract-ownership` / `control_orpc_contract_ownership` | control-oRPC contracts stay transport-pure and module-local schemas stay private. | control-oRPC OpenSpec records; package docs to verify. | Native Grit samples; current control-oRPC scan. | grit-check | `packages/civ7-control-orpc/src/modules/**/contract.ts` and root index | Positive transport/runtime import in contract; negative schema-private module use. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-control-orpc-contract-ownership` |
+| `grit-viz-contract-ownership` / `viz_contract_ownership` | Visualization contracts live in owning stage contract surfaces. | `discrepancy-log.md`; visualization ownership docs to verify. | Native Grit samples; current stage visualization scan. | grit-check | standard recipe stage visualization files | Positive shared viz hub/private cross-step import; negative stage-local viz contract. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-viz-contract-ownership` |
+| `grit-sdk-mapgen-entrypoint` / `sdk_mapgen_entrypoint` | Civ7 map runtime bindings stay behind SDK mapgen subpath. | SDK AGENTS; DL-1; H5 records. | Native Grit samples; current SDK/mapgen-core scan. | grit-check | `packages/sdk/src/**/*.ts` and `packages/mapgen-core/src/**/*.ts` | Positive root SDK mapgen import; negative `@mateicanavra/civ7-sdk/mapgen`. | pending repair scan | empty locked unless findings prove otherwise | possible apply if import target proven | `habitat-grit-proof-sdk-mapgen-entrypoint` |
+| `grit-domain-ops-boundary-imports` / `domain_ops_boundary_imports` | Domain ops do not cross into adapter/context surfaces. | `lint-domain-refactor-guardrails.sh`; taxonomy/invariant corpus. | Native Grit samples; guardrail boundary profile. | grit-check | `mods/mod-swooper-maps/src/domain/**/ops/**/*.ts` | Positive adapter/context import; negative authoring/core imports. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-domain-ops-boundary-imports` |
+| `grit-domain-ops-projection-effects` / `domain_ops_projection_effects` | Domain ops do not own map projection/effect dependency keys. | `lint-domain-refactor-guardrails.sh`; stage contract authority to verify. | Native Grit samples; guardrail boundary profile. | grit-check | `mods/mod-swooper-maps/src/domain/**/ops/**/*.ts` | Positive `artifact:map.*` or `effect:map.*`; negative domain-owned artifact keys. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-domain-ops-projection-effects` |
+| `grit-domain-ops-root-config` / `domain_ops_root_config` | Domain ops do not import domain-root config facades. | `lint-domain-refactor-guardrails.sh`; domain config authority to verify. | Native Grit samples; guardrail boundary profile. | grit-check | `mods/mod-swooper-maps/src/domain/**/ops/**/*.ts` | Positive upward config facade import; negative op-local contract/config. | pending repair scan | empty locked unless findings prove otherwise | non-apply | `habitat-grit-proof-domain-ops-root-config` |
+
+## Current Apply Row
+
+| Pattern candidate | Architecture obligation | Normative source | Proving source | Owner layer | Scan roots | Fixture strategy | Current-tree scan | Baseline action | Apply safety | OpenSpec id |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `deep_import_to_public_surface` | Mechanically rewrite domain ops deep imports in recipes/maps to the public `/ops` surface. | Domain public-surface authority from `taxonomy.md`, H5 records, and current exports to verify. | Native Grit samples; dry-run/apply command; typecheck/test proof after controlled diff. | grit-apply | discovered `mods/*/src/{recipes,maps}` roots | Positive value and type imports; negative already-public imports; parser-edge mixed imports and aliases; false-positive missing target exports. | pending dry-run and injected apply proof | not a baseline rule; applied-diff proof required | allowed only when target export exists, import remains semantically equivalent, type-only preservation is proved, and Git diff is reviewable | `habitat-grit-apply-deep-import-public-surface-proof` |
+
+## Recovery Candidate Rows
+
+| Pattern candidate | Architecture obligation | Normative source | Proving source | Owner layer | Scan roots | Fixture strategy | Current-tree scan | Baseline action | Apply safety | OpenSpec id |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `habitat-grit-domain-engine-imports` | Domain ops stay engine/adapter clean except explicitly allowed type-only surfaces. | recovery reference; `lint-domain-refactor-guardrails.sh`; taxonomy to verify. | current scan plus guardrail full profile. | grit-check | domain ops roots | Positive non-type engine import; negative type-only if allowed; parser-edge import forms. | pending | empty locked or remediation | non-apply | `habitat-grit-domain-engine-imports` |
+| `habitat-grit-runtime-config-merge` | Runtime steps/ops do not hide config defaults through merge/default patterns where contracts should own inputs. | recovery reference; guardrail full profile; contract docs to verify. | current scan and exemplars. | grit-check | runtime steps and domain ops | Positive `?? {}` / `Value.Default`; negative contract-owned defaults; false-positive ordinary object fallback. | pending | decide after scan | non-apply | `habitat-grit-runtime-config-merge` |
+| `habitat-grit-op-calls-op` | Private sibling op composition does not bypass orchestration ownership. | recovery reference; domain op architecture to verify. | current scan; false-positive study. | grit-check | domain ops `index.ts` and strategy roots | Positive sibling op import/call; negative exported orchestration surface. | pending | decide after scan | non-apply | `habitat-grit-op-calls-op` |
+| `habitat-grit-ops-bind-runvalidated` | Forbidden `ops.bind` / `runValidated` runtime orchestration shapes stay out of restricted layers. | recovery reference; existing `runtime_run_validated`; guardrail script. | current scan; injected violation. | grit-check | domain ops and recipe steps | Positive both call forms; negative allowed wrapper tests if any. | pending | empty locked or merge with existing only if same owner/proof shape | non-apply | `habitat-grit-ops-bind-runvalidated` |
+| `habitat-grit-stage-contract-dependencies` | Stage contracts use typed/declarative dependency keys without drift. | recovery reference; standard recipe artifact guards to verify. | old/new parity proof; current contract scan. | grit-check or test | stage contract files | Positive literal drift; negative allowed dependency factory; parser-edge multiline arrays. | pending | empty locked or remediation | non-apply | `habitat-grit-stage-contract-dependencies` |
+| `habitat-grit-domain-deep-import-tests` | Tests use public domain surfaces unless an architecture decision allows deeper access. | recovery reference; testing docs/AGENTS to verify. | current test scan; authority decision. | grit-check or manual | mod tests and package tests | Positive forbidden test deep import; negative approved test helper import. | pending | rejected if tests require deeper access | non-apply | `habitat-grit-domain-deep-import-tests` |
+| `habitat-grit-recipe-imports-in-domain` | Domain code must not import recipe modules. | recovery reference; taxonomy/invariant corpus. | current domain scan. | grit-check | domain source roots | Positive recipe import; negative domain public import. | pending | empty locked or remediation | non-apply | `habitat-grit-recipe-imports-in-domain` |
+| `habitat-grit-rng-authority-static` | RNG and official-generator authority stays in approved generation surfaces. | recovery reference; product/architecture authority to verify. | current examples; tests around RNG authority. | grit-check or test | authored generation source | Positive static RNG/official-generator calls; negative injected RNG dependency. | pending | decide after authority | non-apply unless exact replacement exists | `habitat-grit-rng-authority-static` |
+| `habitat-grit-shim-cutover-terms` | Runtime source does not hide architectural debt behind cutover vocabulary without tracked deferral. | recovery reference; explicit policy still required. | manual review sample; keyword scan. | manual unless precise authority exists | runtime source and docs | Positive terms with code context; negative historical docs and forbidden-language sections. | pending | rejected unless precision improves | non-apply | `habitat-grit-shim-cutover-terms` |
+| `habitat-grit-control-app-surface` | Browser/app code uses canonical control clients and does not add bespoke control/RPC paths. | recovery reference; control architecture authority to verify. | current scan and false-positive study. | grit-check | app/browser/control source roots | Positive bespoke transport/control import; negative canonical clients. | pending | empty locked or remediation | non-apply | `habitat-grit-control-app-surface` |
+| `habitat-grit-generated-bundle-node-builtins` | Generated UI/game bundles remain free of Node builtins and runtime transports. | DL-16 repair records; generated-output policy. | current generated bundle scan; known intelligence-bridge repair. | file-layer or grit-check | generated bundle paths, only if generated scan is accepted | Positive Node builtin or RPC transport; negative browser-safe bundle. | pending | immediate remediation if live issue | non-apply; generator/build owner repairs output | `habitat-grit-generated-bundle-node-builtins` |
+
+## Candidate Apply Codemod Rows
+
+| Pattern candidate | Architecture obligation | Normative source | Proving source | Owner layer | Scan roots | Fixture strategy | Current-tree scan | Baseline action | Apply safety | OpenSpec id |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `habitat-grit-apply-domain-public-imports` | Normalize approved domain deep imports to canonical public surfaces. | domain public-surface authority; current exports. | dry-run/apply diff; typecheck; targeted tests. | grit-apply | recipes/maps and maybe tests only after decision | Positive import forms; negative missing exports; parser-edge alias/type imports. | pending | not baseline-owned | target export exists; no symbol rename; type-only behavior preserved | `habitat-grit-apply-domain-public-imports` |
+| `habitat-grit-apply-type-only-imports` | Convert value imports to `import type` where usage is provably type-only. | TypeScript semantics and repo import policy to verify. | applied diff plus typecheck; parser/type usage probes. | grit-apply or Biome if Biome owns it | roots selected after authority | Positive type-only usage; negative value usage; parser-edge decorators/enums. | pending | not baseline-owned | no name-based guessing; typecheck proves behavior | `habitat-grit-apply-type-only-imports` |
+| `habitat-grit-apply-helper-redeclarations` | Replace exact helper redeclarations with canonical helper imports. | canonical helper authority; guardrail full profile. | exact body matching; applied diff; tests. | grit-apply | decomposed tectonics/runtime helper roots | Positive exact body; negative similar helper; parser-edge overload/export forms. | pending | not baseline-owned | exact body match and unambiguous import target | `habitat-grit-apply-helper-redeclarations` |
+
+## Generator, Migration, Test, And Manual Disposition Rows
+
+| Candidate | Disposition | Rationale | Required follow-up |
+| --- | --- | --- | --- |
+| Project scaffolds and package tags | generator | Requires filesystem/package topology, not Grit pattern rewriting. | `habitat-classify-generator-repair` must prove supported kinds and refusal boundaries. |
+| Domain op skeletons | generator | File topology and domain semantics require owning generator or manual architecture work. | Open generator workstream only after domain skeleton authority exists. |
+| Stage/step topology | generator or migration | Cross-file structure and recipe topology exceed safe Grit apply unless exact syntax-only case is proven. | Separate topology workstream with fixtures and rollback. |
+| Contract file creation | generator | Creation of new contract files is not a match/replace codemod. | Generator spec with owner and proof boundaries. |
+| Generated artifact updates | generator/build owner or file-layer check | Generated outputs are read-only to agents; repair source generator or enforce file-layer drift. | Pair generated-zone proof with Habitat records. |
+| Broad export-surface normalization | migration/manual | Requires cross-file symbol synthesis unless a specific exact pattern proves otherwise. | Candidate split into exact safe codemods only. |
+| Doc/code sync and ADR quality | manual/test | Natural-language quality and authority decisions are not Grit syntax shapes. | Keep in docs/tests with explicit owner. |
+| Runtime proof and product acceptance | test/runtime proof | Grit cannot prove live Civ7 behavior or product acceptance. | Record proof class separately in each workstream. |
+
+## Pattern Workstream Acceptance Gates
+
+Before any row is accepted for implementation:
+
+1. The row has a cited normative source and a cited proving source.
+2. The owner layer is exclusive; duplicate Nx/Biome/Grit/file-layer/test
+   ownership is rejected or explicitly realigned.
+3. Scan roots and exclusions are exact and runnable.
+4. Fixtures include positive, negative, parser-edge, and false-positive samples.
+5. Current-tree scan is captured with command, output class, and baseline action.
+6. Apply rows have dry-run, applied diff, rollback, and type/test proof plan.
+7. OpenSpec proposal/design/tasks name stale records to update.
+8. Product/evidence/system review findings have disposition before code repair.

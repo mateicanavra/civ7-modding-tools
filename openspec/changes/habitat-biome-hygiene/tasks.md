@@ -24,7 +24,7 @@
 
 ## 3. Lint Hygiene Lane
 
-- [x] 3.1 Enable Biome linter with the minimal green rule set; for each
+- [x] 3.1 Enable Biome linter with the selected green rule set; for each
   desired-but-red recommended rule, register a rule-pack entry with a ratchet
   baseline instead of disabling silently (list in phase record).
 - [x] 3.2 Wire harness: `biome:format|check|ci` inferred targets; `habitat

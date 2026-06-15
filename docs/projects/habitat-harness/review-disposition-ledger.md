@@ -56,7 +56,7 @@
 | F34 | R2 | H5 "grit init artifacts committed as appropriate" | Exact: commit `.grit/grit.yaml`; gitignore `.grit/.gritmodules`/cache |
 | F35 | R3 | `scripts/lint/no-legacy-m4-foundation-tokens.txt` orphan data file unowned | Added to H6 deletion-sweep disposition |
 | F36 | R3 | Taxonomy §2 heading says 21, table has 22 rows | Heading clarified (21 projects + new harness package) |
-| F37 | R4 | FRAME §3 by-design habitat-native set narrower than corpus reality (degeneration accounting ambiguity) | FRAME §3 row added enumerating the full by-design native set (doc lints ×3, workspace-entrypoints, G6/G7, H7 bun-only guard) |
+| F37 | R4 | FRAME §3 by-design habitat-native set underrepresented the corpus reality (degeneration accounting ambiguity) | FRAME §3 row added enumerating the full by-design native set (doc lints ×3, workspace-entrypoints, G6/G7, H7 bun-only guard) |
 | F38 | R4 | H2 spec "every rule carries a baseline" not literally satisfiable for the wrapped adapter-boundary allowlist until H5 | Design sentence added: wrapped rules may reference a legacy allowlist as transitional exception source until their port migrates it |
 | F39 | R4 | H1 task 2.3 edits a rule pre-ratchet with no ceremony | Task notes expected-green-at-landing, recorded in phase record |
 | F40 | R1 | H7∥H8 "prep" parallelism undefined; both write `AGENTS.md`/README | Parallelism dropped; H8 strictly follows H7 |
@@ -95,7 +95,7 @@ open per workstream-record.md.
 
 | ID | Sev | Finding | Disposition |
 |---|---|---|---|
-| A1 | P2 | `kind:control → kind:mod` allowance falsely provenanced: no such edge exists, and main `331534895` forbids the direction in studio-server code comments | ACCEPT — allowance dropped from taxonomy §3 pre-lock (narrowing is lock-safe) |
+| A1 | P2 | `kind:control → kind:mod` allowance falsely provenanced: no such edge exists, and main `331534895` forbids the direction in studio-server code comments | ACCEPT — allowance dropped from taxonomy §3 pre-lock as a lock-safe correction |
 | A2 | P2 | devDependencies constraint scope unstated in H3 | ACCEPT — stated in taxonomy §3 (constrained identically; 4 edges green) |
 | A3 | P2 | Taxonomy §2 named the project `mod-swooper-civ-dacia`; Nx graph identity is `civ-mod-dacia` | ACCEPT — corrected |
 | A4 | P3 | Dual-tag semantics are intersection | ACCEPT — documented in §3 |
