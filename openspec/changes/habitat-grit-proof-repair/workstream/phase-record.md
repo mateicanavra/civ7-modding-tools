@@ -116,11 +116,11 @@ implementation tasks 4, 6, or adapter tests begin.
 
 | Concern | Current-code capability | Required proof | Chosen substrate | Trigger result | Evidence path | Reviewer |
 | --- | --- | --- | --- | --- | --- | --- |
-| Injected violation harness | pending | exact rule id, path control, cleanup | pending | blocked | pending | Effect/substrate |
-| Grit command provenance | pending | argv/cwd/env/cache/duration/failure class | pending | blocked | pending | Effect/substrate |
-| Parse/schema classification | pending | no JSON, malformed JSON, wrapper noise, schema drift, empty roots, pattern miss | pending | blocked | pending | Effect/substrate |
-| Apply transaction | pending | clean precheck, target export preflight, dry-run, diff, rollback, cleanup | pending | blocked | pending | Effect/substrate |
-| Fake-service tests | pending | fake command/fs/baseline/clock or accepted no-fake rationale | pending | blocked | pending | Effect/substrate |
+| Injected violation harness | pending in this packet | exact rule id, path control, cleanup | `habitat-effect-grit-adapter` after supervisor acceptance | substrate available | `openspec/changes/habitat-effect-grit-adapter/workstream/phase-record.md` | Effect/substrate |
+| Grit command provenance | pending in this packet | argv/cwd/env/cache/duration/failure class | `habitat-effect-grit-adapter` after supervisor acceptance | substrate available | `tools/habitat-harness/src/lib/habitat-process.ts`; adapter phase record | Effect/substrate |
+| Parse/schema classification | pending in this packet | no JSON, malformed JSON, wrapper noise, schema drift, empty roots, pattern miss | `habitat-effect-grit-adapter` after supervisor acceptance | substrate available | `tools/habitat-harness/src/lib/grit.ts`; adapter tests | Effect/substrate |
+| Apply transaction | pending in this packet | clean precheck, pattern-owned approval/failure intake, isolated-copy dry-run diff proof, rollback, cleanup | `habitat-effect-grit-adapter` after supervisor acceptance | substrate available | `tools/habitat-harness/src/lib/grit-apply.ts`; adapter phase record | Effect/substrate |
+| Fake-service tests | pending in this packet | fake command/fs/baseline/clock or accepted no-fake rationale | `habitat-effect-grit-adapter` after supervisor acceptance | substrate available | `tools/habitat-harness/test/lib/*` adapter tests | Effect/substrate |
 
 ## Review
 
@@ -194,4 +194,6 @@ implementation tasks 4, 6, or adapter tests begin.
   `habitat-effect-grit-adapter` is reviewed and accepted.
 - After that substrate packet is accepted, resume this repair from the
   injected-harness and apply-proof tasks using the adapter contract rather than
-  adding new manual Grit plumbing.
+  adding new manual Grit plumbing. For apply proof, consume the isolated
+  transaction-copy diff evidence as command/apply safety proof only; keep
+  target-export and symbol/import semantic proof in this Grit proof packet.

@@ -117,7 +117,10 @@ limits:
 - public docs do not define a stable JSON/JSONL schema for audit-grade Habitat
   proof.
 - apply `--dry-run` and `--force` exist, but Habitat must own transaction
-  policy, target export checks, approved diffs, and rollback.
+  policy, pattern-owned approval intake, approved diffs, and rollback.
+  Pattern/domain semantics such as target export checks must be supplied by the
+  Grit-owned output contract or another accepted owner layer, not reimplemented
+  in core harness JavaScript.
 
 Official Biome and Nx docs define non-Effect owner boundaries:
 
@@ -217,9 +220,11 @@ Every Grit command result must carry:
 | --- | --- |
 | command id | stable id referenced by proof logs |
 | command kind | grit-check / grit-apply / grit-pattern-test / biome-handoff / git-proof |
-| executable | resolved command name/path and version/hash when available |
+| requested executable | logical tool requested by the adapter, such as `grit`, `biome`, `openspec`, or `git` |
+| effective executable | resolved process executable, such as `bun` for workspace-owned tools or `git` for system prerequisites |
+| execution plane | `workspace-bun-run`, `workspace-bunx-binary`, or `system` |
 | argv | argument array, no shell interpolation |
-| cwd | absolute working directory |
+| cwd | effective absolute working directory used by the spawned process |
 | git state | branch, HEAD commit, dirty marker, status digest, and before/after status when a probe or apply flow mutates files |
 | env delta | selected env keys added/changed, with sensitive values redacted |
 | scan roots | exact roots passed to Grit and effective exclusions known to Habitat |
@@ -230,6 +235,26 @@ Every Grit command result must carry:
 | parse status | unparsed / parsed / no-json / malformed / schema-drift / unsupported-mode |
 | failure tag | none or a tagged adapter failure |
 | non-claims | proof classes this command does not establish |
+
+Workspace-owned tool acquisition is centralized in the Habitat process layer.
+The accepted default for repo-local tools is Bun's workspace command plane:
+`bun run --cwd <repoRoot> <tool> ...`, invoked as an argument-array subprocess
+with the effective process cwd set to the repo root. This matches the repo's
+root-script/Nx policy and avoids caller-local `PATH` mutation.
+
+When the intended command is a package binary and a same-named root package
+script exists, the adapter must not rely on script-first `bun run` resolution.
+Those tools use the binary-only local plane `bun x --no-install <tool> ...`
+from the repo root. `openspec` is the current collision case. Plain `bunx`
+without `--no-install`, direct `node_modules/.bin` path construction, and
+ambient `PATH` injection are not accepted proof surfaces for workspace-owned
+Habitat tools.
+
+Nx remains the owner for graph-aware, cacheable, or dependency-fresh tasks:
+root proof scripts, `affected`, `run-many`, generated Habitat targets, and
+selected apply gates. Habitat does not wrap every low-level Grit subprocess in
+an Nx target; doing so would add scheduling/cache semantics where the adapter
+needs direct command/output provenance.
 
 ### Proof Artifact Contract
 
@@ -308,8 +333,10 @@ The first implementation must model at least:
 - `GritAdapterInternalContractViolation`
 
 Failure rendering must normalize these into Habitat diagnostics or command
-failures. Raw Effect/Schema parse errors must not leak as the durable proof
-format.
+failures. `GritApplyMissingTargetExport` may be preserved from pattern-owned
+structured output, but the core harness must not derive it by inspecting
+domain-specific import/export files. Raw Effect/Schema parse errors must not
+leak as the durable proof format.
 
 ## Check Adapter Flow
 
@@ -368,19 +395,25 @@ The apply path is fail-closed:
 
 1. Verify clean worktree unless running inside an isolated transaction copy.
 2. Resolve candidate roots and protected path exclusions.
-3. Validate target public exports for every expected rewrite.
+3. Require pattern-owned structured approval or failure tags for every expected
+   rewrite.
 4. Run dry-run with machine-readable output when supported by the pinned Grit
    version; otherwise run a transaction-copy apply and classify the resulting
-   diff as dry-run evidence.
-5. Inventory every candidate rewrite over the exact live and injected roots:
-   file, symbol, current import source, proposed import source, range, rewrite
+   file/diff evidence as dry-run evidence.
+5. Inventory every candidate rewrite or transaction-copy diff over the exact
+   live and injected roots. Structured pattern-owned inventory records file,
+   symbol, current import source, proposed import source, range, rewrite
    reason, raw output digest, and whether the candidate is expected,
-   pre-approved, rejected, or blocked.
-6. Run target-export preflight and approval classification for every candidate,
-   not only injected expected cases.
-7. Validate rewrite set: expected files, approved specifier changes, approved
-   ranges, no unexpected create/remove file, no unapproved raw output, no
-   missing export.
+   pre-approved, rejected, or blocked. Transaction-copy diff evidence records
+   changed path, before/after digests, diff digest, classification, and the
+   raw command provenance without claiming symbol/import semantics. A
+   transaction-copy create or delete is blocked unless a future pattern-owned
+   approval contract explicitly authorizes that operation.
+6. Preserve pattern-owned failure tags for every candidate, not only injected
+   expected cases.
+7. Validate rewrite set: expected files, pattern-approved candidate metadata,
+   approved ranges, no unexpected file, no isolated-copy create/remove file
+   without pattern-owned create/delete approval, and no unapproved raw output.
 8. Apply in the approved transaction context.
 9. Run Biome handoff only over the approved changed paths.
 10. Run selected type/test gates.
@@ -393,6 +426,16 @@ The apply path is fail-closed:
 precheck has accepted the write set. Grit's prompt or dirty-tree behavior is not
 the Habitat safety boundary.
 
+The adapter may validate structured rewrite inventory supplied by the apply
+pattern/output contract, but it must not rediscover matches or reconstruct a
+pattern's semantic intent from source text in core harness code. If the pinned
+Grit CLI emits only compact human output for a matching dry-run, Habitat may
+run the same Grit pattern against an isolated transaction copy and classify the
+resulting file/diff evidence. Habitat must fail closed when neither
+pattern-owned inventory nor isolated diff evidence is available, and it must
+not parse TypeScript imports or hardcode domain-specific match logic to turn
+human output into semantic proof.
+
 Rollback primitive:
 
 - default apply proof runs in an isolated transaction copy or temp worktree
@@ -400,6 +443,8 @@ Rollback primitive:
 - live-worktree apply proof is allowed only after clean status, exact allowed
   path inventory, before-digest capture, and explicit rollback command
   recording;
+- this packet does not claim live-worktree create/delete rejection; the repaired
+  create/delete proof is isolated-copy diff evidence only;
 - downstream Biome/type/test gate failure after writes must still invoke
   rollback and final clean-status proof;
 - interruption or signal during apply must still invoke scoped finalizers;

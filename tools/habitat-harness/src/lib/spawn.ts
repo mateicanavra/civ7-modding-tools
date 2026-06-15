@@ -1,6 +1,5 @@
 import { spawnSync } from "node:child_process";
-import path from "node:path";
-import { repoRoot } from "./paths.js";
+import { materializeHabitatCommand } from "./workspace-tools.js";
 
 export interface SpawnResult {
   exitCode: number;
@@ -18,11 +17,9 @@ export function run(
 ): SpawnResult {
   const [cmd, ...args] = argv;
   const env = { ...process.env, ...opts.env };
-  env.PATH = [path.join(repoRoot, "node_modules", ".bin"), env.PATH]
-    .filter(Boolean)
-    .join(path.delimiter);
-  const res = spawnSync(cmd, args, {
-    cwd: opts.cwd,
+  const command = materializeHabitatCommand(cmd, args);
+  const res = spawnSync(command.executable, command.argv, {
+    cwd: command.cwd ?? opts.cwd,
     env,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
@@ -30,6 +27,6 @@ export function run(
   return {
     exitCode: res.status ?? (res.error ? 127 : 0),
     stdout: res.stdout ?? "",
-    stderr: res.stderr ?? "",
+    stderr: res.stderr ?? (res.error ? `${String(res.error)}\n` : ""),
   };
 }

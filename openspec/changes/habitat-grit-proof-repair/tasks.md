@@ -50,9 +50,9 @@
   not cover the row's false-positive model.
 - [ ] 4.4 Prove probe cleanup leaves `git status --short` clean.
 - [ ] 4.5 Record generated-output and protected-path non-claims.
-- [ ] 4.6 Do not implement this harness until `habitat-effect-grit-adapter` or
-  a reviewed typed Grit adapter design accepts scan-root injection, command
-  provenance, exact rule mapping, path-control probes, and cleanup.
+- [ ] 4.6 Do not implement this harness until `habitat-effect-grit-adapter` is
+  supervisor-accepted with scan-root injection, command provenance, exact rule
+  mapping, path-control probes, and cleanup.
 
 ## 5. Baseline Contract
 
@@ -82,7 +82,9 @@
 - [ ] 6.8 Revert probe changes through normal Git cleanup and prove the
   worktree is clean.
 - [ ] 6.9 Do not run destructive apply proof until `habitat-effect-grit-adapter`
-  or a reviewed transaction design is accepted.
+  is supervisor-accepted. Consume its isolated transaction-copy diff evidence
+  for dry-run/apply safety proof only; keep target-export and symbol/import
+  semantic proof in this packet.
 
 ## 7. Effect/Substrate Gate
 

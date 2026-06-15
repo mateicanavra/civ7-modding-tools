@@ -201,6 +201,30 @@ This provisional selection is controlled by:
 - official Effect/GritQL/Biome/Nx evidence packs under
   `docs/projects/habitat-harness/research/`
 
+### Grit Adapter Implementation Checkpoint - 2026-06-15
+
+`habitat-effect-grit-adapter` now implements the selected Grit substrate in the
+implementation worktree, pending supervisor review and Graphite commit:
+
+- Effect runtime edge is centralized in the Habitat runtime bridge.
+- `HabitatProcess` records command provenance, output digests, Git state,
+  cache policy, failure tags, and non-claims through live/fake services.
+- Workspace-owned tools resolve through repo-local Bun/Nx-aware command planes
+  rather than ambient `PATH`.
+- The Grit check adapter uses exact JSON parsing, typed failure tags, scan-root
+  validation, and CheckReport schemaVersion 1 projection.
+- The injected-probe harness creates scoped probes, runs the real Habitat Grit
+  adapter path, asserts exact rule projection, and cleans up probes.
+- The apply transaction supports structured pattern-owned inventory and an
+  isolated transaction-copy diff proof for compact Grit apply output. The diff
+  proof records changed paths and digests without claiming symbol/import
+  semantics or live worktree apply.
+
+This checkpoint proves the selected Effect substrate for Habitat's Grit adapter
+slice. It does not prove Grit row closure, all-row injected violations,
+baseline shrink behavior, live worktree apply, Nx scheduling/cache behavior,
+Biome semantics beyond selected gates, or product/runtime Civ7 behavior.
+
 ## Required Decision Before Implementation
 
 For each repair workstream touching command/check/fix/hook orchestration, decide

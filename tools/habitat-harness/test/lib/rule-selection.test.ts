@@ -96,8 +96,8 @@ describe("rule selector boundary", () => {
     });
   });
 
-  test("renders invalid selectors as schemaVersion 1 failing CheckReports", () => {
-    const report = createCheckReport({
+  test("renders invalid selectors as schemaVersion 1 failing CheckReports", async () => {
+    const report = await createCheckReport({
       commandArgs: ["--json", "--rule", "definitely-not-a-rule"],
       rule: "definitely-not-a-rule",
     });

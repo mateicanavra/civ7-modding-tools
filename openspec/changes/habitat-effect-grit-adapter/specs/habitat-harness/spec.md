@@ -25,15 +25,30 @@ Effect execution at command, hook, or adapter host boundaries.
 ### Requirement: Grit Command Results Carry Proof Provenance
 
 Every Grit command used as Habitat proof SHALL produce a typed command result
-that records executable, argv, cwd, Git state, env delta, scan roots, cache
-policy, timing, exit status, stdout/stderr artifact or digest, parse status,
-failure tag, and non-claims.
+that records requested executable, effective executable, execution plane, argv,
+effective cwd, Git state, env delta, scan roots, cache policy, timing, exit
+status, stdout/stderr artifact or digest, parse status, failure tag, and
+non-claims.
 
 #### Scenario: Grit check command succeeds
 - **WHEN** the adapter runs a Grit check command
-- **THEN** the command result records exact argv, cwd, Git branch and commit,
-  dirty-state marker, env delta, scan roots, cache policy, duration, exit code,
+- **THEN** the command result records the requested tool, effective executable,
+  execution plane, exact argv, effective cwd, Git branch and commit, dirty-state
+  marker, env delta, scan roots, cache policy, duration, exit code,
   stdout/stderr capture, raw output digest, and proof non-claims
+
+#### Scenario: Workspace-owned tool is executed
+- **WHEN** Habitat runs a repo-local workspace tool such as Grit, Biome, Nx, or
+  OpenSpec
+- **THEN** Habitat uses the central workspace command materializer rather than
+  caller-local `PATH` mutation, and the command result records whether the tool
+  used the `workspace-bun-run` or `workspace-bunx-binary` execution plane
+
+#### Scenario: Package script collides with package binary
+- **WHEN** the requested workspace tool has a same-named root package script but
+  the proof requires the package binary
+- **THEN** Habitat executes the local binary through a no-install Bun binary
+  plane and SHALL NOT depend on script-first `bun run` resolution
 
 #### Scenario: Grit executable is unavailable
 - **WHEN** the adapter cannot execute the Grit command
@@ -177,20 +192,26 @@ all probe files under every outcome.
 ### Requirement: Existing Grit Apply Pattern Runs Through Transaction
 
 Habitat SHALL run `deep_import_to_public_surface` apply proof through a
-transaction boundary that validates clean state, target exports, dry-run
-candidate rewrites, approved diff shape, Biome handoff, selected type/test
-gates, rollback, and final clean status.
+transaction boundary that validates clean state, pattern-owned rewrite approval,
+dry-run candidate rewrites, approved diff shape, Biome handoff, selected
+type/test gates, rollback, and final clean status.
 
 #### Scenario: Worktree is dirty before apply
 - **WHEN** the adapter is asked to apply the codemod against a dirty developer
   tree without an isolated transaction copy
 - **THEN** it records `GritApplyDirtyWorktree` and refuses the write
 
-#### Scenario: Public target export is missing
-- **WHEN** a candidate rewrite imports a symbol that is not exported from the
-  public `/ops` surface
-- **THEN** the adapter records `GritApplyMissingTargetExport` and refuses that
-  rewrite
+#### Scenario: Pattern-owned approval is missing
+- **WHEN** structured rewrite inventory does not explicitly mark a candidate as
+  approved by the pattern-owned output contract
+- **THEN** the adapter records an apply transaction failure and refuses that
+  rewrite without deriving pattern/domain semantics from source files
+
+#### Scenario: Pattern-owned failure tag is supplied
+- **WHEN** structured rewrite inventory supplies a valid failure tag such as
+  `GritApplyMissingTargetExport`
+- **THEN** the adapter preserves that failure tag while still treating the
+  candidate as blocked
 
 #### Scenario: Dry-run rewrite set is unexpected
 - **WHEN** dry-run or transaction-copy evidence includes unexpected files,
@@ -198,11 +219,31 @@ gates, rollback, and final clean status.
 - **THEN** the adapter records an apply transaction failure and does not write
   the developer tree
 
-#### Scenario: Candidate rewrite inventory is collected
+#### Scenario: Candidate rewrite or diff evidence is collected
 - **WHEN** dry-run or transaction-copy evidence is produced over exact roots
-- **THEN** every candidate rewrite is inventoried with file, symbol, current
-  import source, proposed import source, range, raw output digest, and
-  classification as expected, pre-approved, rejected, or blocked
+- **THEN** every candidate rewrite or changed diff is inventoried with exact
+  paths, raw command provenance, digests, and classification as expected,
+  pre-approved, rejected, or blocked
+
+#### Scenario: Apply output lacks structured inventory
+- **WHEN** the pinned Grit apply dry-run output reports only human compact
+  rewrite lines and no pattern-owned structured inventory
+- **THEN** Habitat proves the candidate through an isolated transaction-copy
+  apply diff or fails closed, and SHALL NOT reconstruct the pattern's match or
+  rewrite semantics from source text in the core harness
+
+#### Scenario: Isolated transaction-copy proof succeeds
+- **WHEN** a compact dry-run reports matches and the same Grit pattern produces
+  modified files in an isolated transaction copy
+- **THEN** Habitat records the transaction-copy command, changed paths,
+  before/after digests, diff digests, normalized diff, and source-tree no-write
+  proof
+
+#### Scenario: Isolated transaction-copy evidence creates or deletes files
+- **WHEN** transaction-copy diff evidence contains a file with no before digest
+  or no after digest and no pattern-owned create/delete approval contract exists
+- **THEN** Habitat records an apply transaction failure and blocks that diff
+  even when the changed path is under an approved apply root
 
 #### Scenario: Live candidate rewrite is unexpected
 - **WHEN** a live-tree candidate rewrite is not part of the approved inventory

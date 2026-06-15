@@ -82,9 +82,12 @@
     "./rules": "./src/rules/rules.json"
   },
   "dependencies": {
+    "@effect/platform": "0.96.1",
+    "@effect/platform-node": "0.107.0",
     "@nx/devkit": "22.7.5",
     "@oclif/core": "^4.11.4",
-    "@oclif/plugin-help": "^6.2.50"
+    "@oclif/plugin-help": "^6.2.50",
+    "effect": "3.21.3"
   },
   "oclif": {
     "bin": "habitat",

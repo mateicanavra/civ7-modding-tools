@@ -25,7 +25,7 @@ export default class Verify extends HabitatCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(Verify);
     const base = resolveVerifyBase(flags.base);
-    const report = createCheckReport({ base, commandArgs: this.rawArgv() });
+    const report = await createCheckReport({ base, commandArgs: this.rawArgv() });
     this.log(renderCheckReport(report));
     if (!report.ok) this.exit(1);
 
