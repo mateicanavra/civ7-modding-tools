@@ -72,6 +72,8 @@ apply, and `--json` all proven; known gotchas recorded.
 
 - `habitat-harness-scaffold`
 - `habitat-biome-hygiene` (grit-apply must format rewrites with Biome)
+- `habitat-oclif-cli` (downstream commands extend the oclif CLI surface, not
+  the scaffold hand parser)
 
 ## Enables Parallel Work
 

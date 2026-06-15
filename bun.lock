@@ -384,8 +384,17 @@
     "tools/habitat-harness": {
       "name": "@internal/habitat-harness",
       "version": "0.1.0",
+      "bin": {
+        "habitat": "./bin/run.js",
+      },
+      "dependencies": {
+        "@oclif/core": "^4.8.0",
+        "@oclif/plugin-help": "^6.2.37",
+      },
       "devDependencies": {
         "@types/node": "^22.14.0",
+        "oclif": "^4.22.70",
+        "rimraf": "^6.1.2",
         "typescript": "^5.9.3",
       },
     },

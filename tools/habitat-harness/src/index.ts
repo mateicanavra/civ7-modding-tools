@@ -5,6 +5,21 @@ export {
   mergeBase,
   violationKey,
 } from "./lib/baseline.js";
+export {
+  buildHabitatCommand,
+  classifyPath,
+  commandSummary,
+  createCheckReport,
+  expandBaselines,
+  hookMessage,
+  renderCheckReport,
+  resolveVerifyBase,
+  runAffectedVerification,
+  runFix,
+  runGraph,
+  selectRules,
+  stringifyCheckReport,
+} from "./lib/command-engine.js";
 export type {
   CheckReport,
   HabitatDiagnostic,

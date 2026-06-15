@@ -61,6 +61,7 @@ the harness the only enforcement path, and re-points `check`/CI at
 ## Requires
 
 - `habitat-boundary-tags`
+- `habitat-oclif-cli`
 - `habitat-grit-catalog`
 
 ## Enables Parallel Work

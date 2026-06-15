@@ -72,10 +72,10 @@
     "biome:format": "bunx --bun @biomejs/biome format --write .",
     "biome:check": "bunx --bun @biomejs/biome check .",
     "biome:ci": "bunx --bun @biomejs/biome ci .",
-    "habitat": "bun tools/habitat-harness/src/bin/habitat.ts",
-    "habitat:check": "bun tools/habitat-harness/src/bin/habitat.ts check",
-    "habitat:fix": "bun tools/habitat-harness/src/bin/habitat.ts fix",
-    "habitat:verify": "bun tools/habitat-harness/src/bin/habitat.ts verify"
+    "habitat": "bun tools/habitat-harness/bin/dev.ts",
+    "habitat:check": "bun tools/habitat-harness/bin/dev.ts check",
+    "habitat:fix": "bun tools/habitat-harness/bin/dev.ts fix",
+    "habitat:verify": "bun tools/habitat-harness/bin/dev.ts verify"
   },
   "workspaces": [
     "apps/*",

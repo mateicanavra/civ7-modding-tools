@@ -5,8 +5,8 @@
 - **Method:** `civ7-systematic-workstream` (12 gates) composed with `civ7-open-spec-workstream` (per-slice phase loop)
 - **Controlling frame:** `docs/projects/habitat-harness/FRAME.md` (hard core, falsifier, settled decisions D1–D6)
 - **Stack root:** `agent-F-habitat-harness-workstream` (worktree `wt-agent-F-habitat-harness-workstream`, parent `main`, Graphite-tracked)
-- **Current execution branch:** `agent-F-habitat-biome-hygiene` stacked on H3
-- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 active as of 2026-06-13; H4 Biome setup/lint/integration is complete; H4 2.4 evidence pass and closure remain blocked by DL-15/DL-16
+- **Current execution branch:** `agent-F-habitat-oclif-cli` stacked on H4
+- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 Biome setup/lint/integration is complete but H4 2.4 evidence pass and closure remain blocked by DL-15/DL-16; H4.5 oclif CLI slice is implemented and verified locally before downstream CLI surface hardening
 
 ## Gate state (systematic-workstream)
 
@@ -19,11 +19,11 @@
 | 5 Grouping | DONE | corpus §A–F families; taxonomy.md scope:* families |
 | 6 Expectations | DONE | per-slice verification gates; ratchet baselines predeclared (project plane green; adapter-boundary baseline = 6) |
 | 7 Architecture translation | DONE | taxonomy.md (tags/constraints); five-layer ownership in FRAME hard core #2 |
-| 8 Slices | IN TRAIN | OpenSpec train below; H1/H2/H3 closed locally; H4 active with Biome integration complete |
+| 8 Slices | IN TRAIN | OpenSpec train below; H1/H2/H3 closed locally; H4 active with Biome integration complete; H4.5 oclif CLI migration implemented locally |
 | 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes, but fresh root build dirties the pre-existing DL-16 intelligence-bridge bundle artifact |
 | 10 Runtime proof | N/A by design | harness touches structure only; byte-parity gates stand in (H1/H4) |
 | 11 Review | IN TRAIN | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice |
-| 12 Closure | IN TRAIN | H1/H2/H3 have local phase closure records; H4 open |
+| 12 Closure | IN TRAIN | H1/H2/H3 have local phase closure records; H4 open; H4.5 implemented/verified locally above H4 |
 
 ## The change train (slices)
 
@@ -33,10 +33,11 @@
 | H2 | `habitat-harness-scaffold` | tools/habitat-harness package: habitat CLI, rule pack, ratchet/baselines, Nx plugin; wrap ALL existing checks (zero new rules) | H1 | — |
 | H3 | `habitat-boundary-tags` | tags on all projects + enforce-module-boundaries (locked at empty baseline); ESLint quarantined to that one rule | H1, H2 | — |
 | H4 | `habitat-biome-hygiene` | Biome owns hygiene; prettier retired; one blame-shielded reformat commit; ratcheted lint lane | H1, H2, H3 | — (serialized after H3: shared writes on `package.json` files, `ci.yml`, rule pack — reformat would conflict with tag edits; ledger F1) |
-| H5 | `habitat-grit-catalog` | Grit pattern catalog (ports 8 eslint families + script families incl. G8/G10/G11, fixtures, probe-confirmed parity), first codemods, file-layer generated-zone protection | H2, H4 | — |
-| H6 | `habitat-enforcement-consolidation` | Retire superseded scripts/eslint/tests with per-rule parity + probe evidence; habitat verify becomes the single path; CI re-pointed | H3, H5 | — |
-| H7 | `habitat-git-hooks` | Husky pre-commit (staged scope; restage ONLY formatter-touched files) + pre-push affected verify; dispositions legacy `scripts/git-hooks` | H2, H3, H4, H5 | — |
-| H8 | `habitat-generators-migrations` | Project/pattern generators, harness migrations, habitat classify, agent operating procedure in AGENTS.md | H6, H7 | train tail (strictly after H7; ledger F40) |
+| H4.5 | `habitat-oclif-cli` | Replace the H2 Bun-run hand parser with repo-standard oclif command classes, help, tests, and manifest discipline while preserving command semantics | H2, H3, H4 | inserted before downstream CLI hardening (Matei D7) |
+| H5 | `habitat-grit-catalog` | Grit pattern catalog (ports 8 eslint families + script families incl. G8/G10/G11, fixtures, probe-confirmed parity), first codemods, file-layer generated-zone protection | H2, H4, H4.5 | — |
+| H6 | `habitat-enforcement-consolidation` | Retire superseded scripts/eslint/tests with per-rule parity + probe evidence; habitat verify becomes the single path; CI re-pointed | H3, H4.5, H5 | — |
+| H7 | `habitat-git-hooks` | Husky pre-commit (staged scope; restage ONLY formatter-touched files) + pre-push affected verify; dispositions legacy `scripts/git-hooks` | H2, H3, H4, H4.5, H5 | — |
+| H8 | `habitat-generators-migrations` | Project/pattern generators, harness migrations, habitat classify, agent operating procedure in AGENTS.md | H4.5, H6, H7 | train tail (strictly after H7; ledger F40) |
 
 Each slice = one OpenSpec change + one Graphite branch stacked on its
 prerequisites; phase continuity records go in
@@ -45,11 +46,14 @@ prerequisites; phase continuity records go in
 
 Execution state on 2026-06-13: H1 (`habitat-nx-adoption`), H2
 (`habitat-harness-scaffold`), and H3 (`habitat-boundary-tags`) are locally
-closed on the Graphite stack. H4 (`habitat-biome-hygiene`) is the active slice:
-Biome setup, dry-run, format commit, blame shield, Prettier retirement, minimal
-green lint lane, and Habitat/Nx/CI integration are done; task 2.4 is partially
-evidenced but remains open because root test and fresh-build parity expose
-DL-15/DL-16 blockers.
+closed on the Graphite stack. H4 (`habitat-biome-hygiene`) has Biome setup,
+dry-run, format commit, blame shield, Prettier retirement, minimal green lint
+lane, and Habitat/Nx/CI integration done; task 2.4 is partially evidenced but
+remains open because root test and fresh-build parity expose DL-15/DL-16
+blockers. H4.5 (`habitat-oclif-cli`) is implemented and verified above H4:
+the scaffolded Habitat CLI now uses oclif command classes, help, tests,
+package build/manifest discipline, and preserved machine-output semantics
+before H5-H8 add more command surface.
 
 ## Proof classes per slice (predeclared)
 
@@ -91,7 +95,9 @@ train redefines the other's authority.
 1. ~~Pre-execution spec-review lane~~ DONE (`review-disposition-ledger.md`, all repairs applied).
 2. ~~H1/H2/H3 local execution and closure~~ DONE (see each slice's
    `workstream/phase-record.md`).
-3. Continue H4 (`habitat-biome-hygiene`) on
-   `agent-F-habitat-biome-hygiene`: commit the verified Biome integration
-   slice, then promote/repair DL-16 and DL-15/SDK teardown blockers before
-   claiming H4 task 2.4 or closure.
+3. H4 Biome integration is committed; promote/repair DL-16 and DL-15/SDK
+   teardown blockers before claiming H4 task 2.4 or closure.
+4. Commit/restack H4.5 (`habitat-oclif-cli`), then either repair promoted H4
+   blockers (DL-15 SDK async-write teardown; DL-16 already repaired by
+   `agent-F-intelligence-bridge-ui-bundle`) or continue into H5 once H4 closure
+   evidence is acceptable.
