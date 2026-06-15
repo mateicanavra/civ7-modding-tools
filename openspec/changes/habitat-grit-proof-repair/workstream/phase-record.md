@@ -11,8 +11,10 @@
 - Started: 2026-06-14
 - Status: selector/current-tree wrapper, native-sample, explicit baseline, and
   supervisor-accepted injected-probe safety/cache repair slices recorded;
-  current old-mechanism parity probe failed and remains open; injected row
-  proof, apply, broader downstream realignment, and closure remain open
+  old-mechanism parity has a partial Nx dependency-freshness repair and remains
+  open on stale `wrapped-eslint` identity plus generated map-bundle freshness;
+  injected row proof, apply, broader downstream realignment, and closure remain
+  open
 
 ## Objective
 
@@ -120,6 +122,36 @@
     `arch-test-map-bundle-runtime-imports`, and `arch-test-cutover` failed.
   - Parity closure remains blocked; this evidence is current command truth,
     not row-level Grit parity or retirement proof.
+- Current old-mechanism parity repair probe is recorded as:
+  - `HGPR-NX-TARGET-OWNERSHIP-2026-06-15`: `nx show project` confirms the
+    focused `wrapped-test` architecture targets are real Nx targets with
+    `dependsOn` declared through project configuration, and the generated
+    Habitat per-rule targets are aliases to those owning Nx targets rather
+    than recursive Habitat wrappers.
+  - `HGPR-PARITY-WRAPPED-SCRIPT-NX-2026-06-15`: `bun run habitat:check --
+    --json --tool wrapped-script` remains current-green with 4 reports all
+    `pass`.
+  - `HGPR-PARITY-WRAPPED-ESLINT-NX-2026-06-15`: `bun run habitat:check --
+    --json --tool wrapped-eslint` still exits 1 through
+    `rule-selection-integrity`; `wrapped-eslint` is formally stale H5/H6
+    command identity, not a current Habitat tool to resurrect in this packet.
+  - `HGPR-PARITY-WRAPPED-TEST-NX-2026-06-15`: `bun run habitat:check --
+    --json --tool wrapped-test` now runs dependency-fresh Nx-owned commands for
+    `arch-test-core-purity`, `arch-test-rng-authority`,
+    `arch-test-ecology-step-imports`, `arch-test-m11-projection-band`, and
+    `arch-test-cutover`, and those rules pass. The command still exits 1
+    because `arch-test-map-bundle-runtime-imports` fails on missing generated
+    map bundle output (`studio-current.js`).
+  - Discarded generated-output attempt: wiring
+    `arch-test-map-bundle-runtime-imports` to an Nx target depending on
+    `mod-swooper-maps:build` made `wrapped-test` exit 0 but dirtied generated
+    tracked output (`mods/mod-swooper-maps/mod/config/config.xml`,
+    `mods/mod-swooper-maps/mod/swooper-maps.modinfo`,
+    `mods/mod-swooper-maps/mod/text/en_us/MapText.xml`) and deleted
+    `mods/mod-swooper-maps/src/maps/generated/studio-current.ts` in the
+    implementation worktree. Those artifacts were restored from `HEAD`; this
+    packet treats map-bundle generated-output freshness as a blocker/non-claim,
+    not as a green parity repair.
 - Dry-run apply proof remains design-seed only until this packet runs the
   required apply row. Accepted adapter isolated-copy dry-run/apply-match
   behavior is substrate proof, not row semantic proof.
@@ -275,10 +307,12 @@ implementation tasks 4, 6, or adapter tests begin.
   execution and row claims remain future packet work, not accepted by the
   safety/cache review.
 - Current parity state:
-  `wrapped-script` is current-green, but the named `wrapped-eslint` probe is a
-  repaired-selector unknown-tool failure and `wrapped-test` is current-red.
-  Task 9.8 and any H5/H6 retirement/parity claim remain open until the stale
-  command identity and failing wrapped-test causes are repaired or formally
+  `wrapped-script` is current-green, the named `wrapped-eslint` probe is a
+  repaired-selector unknown-tool failure and formally stale H5/H6 command
+  identity, and `wrapped-test` is partially repaired through Nx-owned targets
+  but remains current-red on `arch-test-map-bundle-runtime-imports` generated
+  output freshness. Task 9.8 and any H5/H6 retirement/parity claim remain open
+  until the generated map-bundle output owner path is repaired or formally
   re-scoped.
 
 ## Verification
@@ -369,16 +403,41 @@ implementation tasks 4, 6, or adapter tests begin.
     - Batch summary artifact:
       `/tmp/habitat-grit-proof-repair-parity-e2a6fd029/summary.json`,
       `sha256=ec170888eff50373aba0489063548ce3a044ea92f434ccb6552e4d50b8c0282e`.
+  - Old-mechanism parity repair probe, partial current state:
+    - `nx show project mod-swooper-maps --json` and
+      `nx show project @swooper/mapgen-core --json` captured the focused
+      architecture targets and Habitat per-rule alias targets in
+      `/tmp/habitat-wrapped-test-nx-target-contract.json`,
+      `sha256=fa37cf050bd618c1512584ebabca9bad73ab5197eefe417c76e92f5fd44e6de5`.
+    - `bun run habitat:check -- --json --tool wrapped-script` exited 0 with
+      schemaVersion 1, `ok:true`, and 4 passing reports; artifact
+      `/tmp/habitat-wrapped-script-nx-parity.json`,
+      `sha256=f3cf6aee2cae8a33b6533ab9f910d4aafc000ae3f3c8ac55f847decab7253107`.
+    - `bun run habitat:check -- --json --tool wrapped-eslint` exited 1 with
+      schemaVersion 1, `ok:false`, and `rule-selection-integrity` for unknown
+      tool id; artifact `/tmp/habitat-wrapped-eslint-nx-parity.json`,
+      `sha256=7b4ad169d53eb3bd32be9f64e2c52b8772409ce962c7d2fc6d66b30b4afd6472`.
+    - `bun run habitat:check -- --json --tool wrapped-test` exited 1 with
+      schemaVersion 1, `ok:false`; 5 dependency-fresh Nx-owned wrapped-test
+      reports and `baseline-integrity` passed, while
+      `arch-test-map-bundle-runtime-imports` failed on missing generated
+      `studio-current.js`; artifact `/tmp/habitat-wrapped-test-nx-narrow.json`,
+      `sha256=fd78e97fd8da5fdda5474d8203190b1aeb0c8180a0916a80c49e754429b90ceb`.
+    - `git status --short --branch` after the narrowed repair probe showed
+      only intentional implementation/packet edits; `git ls-files --deleted |
+      wc -l` showed `0`.
 - Evidence boundary: current implementation slice proves native Grit sample
   success and Habitat wrapper selector/current-tree zero-finding projection
   through CheckReport schemaVersion 1 on the branch that contains the accepted
   command-trust and Effect adapter layers. It also proves explicit empty Grit
   baseline files exist for the 22 current Grit checks, `baseline-integrity`
   accepts them, and unit shrink-only policy rejects added entries for existing
-  rules. It records the current failed old-mechanism parity state. It does not
-  prove raw direct Grit current-tree acquisition, injected violations, live
-  baseline writes, apply safety, semantic target exports, parity retirement,
-  broader downstream realignment, or product/runtime Civ7 behavior.
+  rules. It records the current failed old-mechanism parity state and a partial
+  Nx dependency-freshness repair for wrapped-test. It does not prove raw direct
+  Grit current-tree acquisition, injected violations, live baseline writes,
+  apply safety, semantic target exports, generated-output freshness,
+  parity retirement, broader downstream realignment, or product/runtime Civ7
+  behavior.
 
 ## Realignment
 

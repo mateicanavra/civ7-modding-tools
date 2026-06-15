@@ -132,6 +132,19 @@
     `HGPR-PARITY-WRAPPED-TEST-2026-06-15`. The gate remains open:
     `wrapped-script` passes, `wrapped-eslint` is now an unknown tool id, and
     `wrapped-test` fails three wrapped test rules.
+  - 2026-06-15 repair probe evidence is recorded as
+    `HGPR-NX-TARGET-OWNERSHIP-2026-06-15`,
+    `HGPR-PARITY-WRAPPED-SCRIPT-NX-2026-06-15`,
+    `HGPR-PARITY-WRAPPED-ESLINT-NX-2026-06-15`, and
+    `HGPR-PARITY-WRAPPED-TEST-NX-2026-06-15`. The gate remains open:
+    `wrapped-script` passes, `wrapped-eslint` is formally a stale historical
+    tool id under the repaired selector contract, and `wrapped-test` now passes
+    the dependency-fresh Nx-owned test targets while still failing
+    `arch-test-map-bundle-runtime-imports` on generated map-bundle output
+    freshness. A discarded broader attempt made that rule green only by running
+    `mod-swooper-maps:build`, which dirtied generated/tracked outputs; this
+    packet records that as a generated-output freshness blocker, not parity
+    closure.
 - [ ] 9.9 `nx run @internal/habitat-harness:grit:check --outputStyle=static`
 - [ ] 9.10 `bun run habitat:fix -- --dry-run`
 - [ ] 9.11 controlled apply proof for `deep_import_to_public_surface`

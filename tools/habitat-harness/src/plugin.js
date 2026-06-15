@@ -169,12 +169,20 @@ export const createNodesV2 = [
         "{workspaceRoot}/mods/**",
         "{workspaceRoot}/docs/**",
       ];
+      const dependencyForTarget = (targetName) => {
+        const separator = targetName.indexOf(":");
+        if (separator === -1) return { target: targetName };
+        return {
+          projects: [targetName.slice(0, separator)],
+          target: targetName.slice(separator + 1),
+        };
+      };
       const aliasRuleTarget = (dependency, description) => ({
         command: 'node -e ""',
         options: { cwd: "{workspaceRoot}" },
         cache: false,
         outputs: [],
-        dependsOn: [typeof dependency === "string" ? { target: dependency } : dependency],
+        dependsOn: [typeof dependency === "string" ? dependencyForTarget(dependency) : dependency],
         metadata: { description },
       });
       for (const rule of rulesJson.rules) {
@@ -201,6 +209,11 @@ export const createNodesV2 = [
           project.targets[targetName] = aliasRuleTarget(
             { projects: ["@internal/habitat-harness"], target: generatedCheckTargetName },
             `Alias for the canonical generated-zone target (${rule.id})`
+          );
+        } else if (rule.nxTarget) {
+          project.targets[targetName] = aliasRuleTarget(
+            rule.nxTarget,
+            `Alias for the owning Nx target ${rule.nxTarget} (${rule.id})`
           );
         } else {
           project.targets[targetName] = {

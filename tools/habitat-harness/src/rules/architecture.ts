@@ -22,6 +22,7 @@ export interface HarnessRule {
   forbids: string;
   why: string;
   detect: string[];
+  nxTarget?: string;
   remediate: string | null;
   message: string;
   exceptionPath: string;

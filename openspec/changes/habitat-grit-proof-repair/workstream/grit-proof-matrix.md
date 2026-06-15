@@ -93,3 +93,12 @@ Each current check row carries:
   failed three current wrapped-test rules. Rows that cite H5/H6 original
   mechanisms remain pending for parity disposition; no row may use historical
   H5/H6 green wording as current parity proof.
+- Old-mechanism parity repair probe
+  `HGPR-PARITY-WRAPPED-*-NX-2026-06-15`: `wrapped-script` remains green;
+  `wrapped-eslint` is formally stale historical command identity under the
+  repaired selector contract; `wrapped-test` now runs dependency-fresh
+  Nx-owned architecture targets for five wrapped-test rules and those pass.
+  `arch-test-map-bundle-runtime-imports` remains current-red because proving it
+  through `mod-swooper-maps:build` dirties generated/tracked outputs. This is
+  generated-output freshness evidence and does not close old-mechanism parity,
+  Grit row parity, retirement safety, or product/runtime proof.

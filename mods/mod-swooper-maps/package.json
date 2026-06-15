@@ -89,6 +89,24 @@
           "build:studio-recipes"
         ]
       },
+      "test:architecture-rng-authority": {
+        "dependsOn": [
+          "^build"
+        ],
+        "cache": true
+      },
+      "test:architecture-ecology-step-imports": {
+        "dependsOn": [
+          "^build"
+        ],
+        "cache": true
+      },
+      "test:architecture-m11-projection-band": {
+        "dependsOn": [
+          "^build"
+        ],
+        "cache": true
+      },
       "build:studio-recipes:bundle": {
         "dependsOn": [
           "^build"
@@ -179,6 +197,9 @@
     "check": "tsc --noEmit",
     "test": "bun test",
     "test:studio-run-in-game": "bun test test/standard-run.test.ts test/build/map-bundle-runtime-imports.test.ts test/config/maps-schema-valid.test.ts test/config/shipped-map-identity.test.ts",
+    "test:architecture-rng-authority": "bun test test/pipeline/rng-authority-boundary.test.ts",
+    "test:architecture-ecology-step-imports": "bun test test/ecology/ecology-step-import-guardrails.test.ts",
+    "test:architecture-m11-projection-band": "bun test test/foundation/m11-projection-boundary-band.test.ts",
     "test:architecture-cutover": "bun test test/foundation/no-op-calls-op-tectonics.test.ts test/pipeline/no-dual-contract-paths.test.ts test/pipeline/no-shim-surfaces.test.ts test/pipeline/foundation-topology-lock.test.ts",
     "viz:standard": "bun ./src/dev/viz/standard-run.ts",
     "diag:dump": "bun ./src/dev/diagnostics/run-standard-dump.ts",
