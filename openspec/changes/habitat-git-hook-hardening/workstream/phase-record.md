@@ -5,14 +5,14 @@
 - Project: Habitat Harness
 - Phase: git hook hardening / `habitat-git-hook-hardening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-hook-reporter-service` above
-  `agent-HR-habitat-hook-h7-realignment`
+- Branch/Graphite stack: `agent-HR-habitat-hook-ci-nonclaim` above
+  `agent-HR-habitat-hook-reporter-service`
 - Started: 2026-06-14
 - Status: resource-publish, staged-mutation, pre-push base/range,
   current-tree staged-probe, native Grit finding staged-probe, hook transaction
-  trace, hook pre/post-state trace, and H7 historical realignment checkpoints
-  supervisor-accepted; hook reporter-service checkpoint implemented locally for
-  supervisor review
+  trace, hook pre/post-state trace, H7 historical realignment, and hook
+  reporter-service checkpoints supervisor-accepted; hook CI-authority non-claim
+  checkpoint implemented locally for supervisor review
 
 ## Objective
 
@@ -141,10 +141,15 @@ Core synthesis:
   through fake services. This advances 6.1 and 8.4 for the reporter boundary but
   leaves resource-publisher service proof and full transaction architecture
   open.
+- Hook CI-authority output progress for this checkpoint: `runPreCommit()` and
+  `runPrePush()` now render a stable proof-boundary line that hooks are local
+  feedback only and CI remains authoritative. Focused tests prove the line in
+  returned output and reporter events. This closes 4.6 without claiming CI
+  execution proof, broad Nx affected coverage, or product/runtime behavior.
 - Remaining tasks: full hook transaction model, full fake-service matrix,
   Grit parse-output current-tree staged proof, resource-publisher service proof,
   aggregate verification, and packet closure.
-- Implementation status: hook reporter-service checkpoint
+- Implementation status: hook CI-authority non-claim checkpoint
   implemented and locally verified for supervisor review.
 
 ## Verification
@@ -322,6 +327,12 @@ Core synthesis:
     failure output and pre-push Nx failure output.
   - `bun run --cwd tools/habitat-harness check` exited 0 after the reporter
     service implementation.
+- New implementation evidence for the hook CI-authority non-claim checkpoint:
+  - `tools/habitat-harness/src/lib/hooks.ts` now emits
+    `hook proof: local feedback only; CI remains authoritative.` from
+    `runPreCommit()` and `runPrePush()`.
+  - Focused tests assert the proof-boundary line in returned pre-commit and
+    pre-push output and in reporter service events.
 - Evidence boundary: the accepted resource checkpoint proves the default
   pre-commit resource publish removal, typed resource-state classification,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
@@ -353,7 +364,9 @@ Core synthesis:
   proves typed reporter substitution for hook output in focused unit tests; it
   does not prove resource-publisher service behavior, full transaction
   architecture, current-tree Grit parse-output staged behavior, CI authority, or
-  product/runtime behavior.
+  product/runtime behavior. This CI-authority output checkpoint proves hook
+  output carries the local-feedback non-claim; it does not prove CI execution,
+  broad Nx affected coverage, packet closure, or product/runtime behavior.
 
 ## Realignment
 
@@ -362,7 +375,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the hook reporter-service checkpoint for supervisor review. Do not claim
-  resource-publisher service proof, full hook transaction architecture, Grit
-  parse-output staged probe closure, CI authority, broad Nx affected coverage,
-  or packet closure from this slice.
+- Hold the hook CI-authority non-claim checkpoint for supervisor review. Do not
+  claim resource-publisher service proof, full hook transaction architecture,
+  Grit parse-output staged probe closure, CI execution proof, broad Nx affected
+  coverage, or packet closure from this slice.

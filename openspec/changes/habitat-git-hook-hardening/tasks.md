@@ -49,7 +49,7 @@
 - [ ] 4.4 Make Grit parse failure a failing proof class.
 - [x] 4.5 Record command provenance for Biome, Grit, Git, Nx, Bun, and resource
   publish commands where relevant.
-- [ ] 4.6 Preserve CI-authority non-claims in output or docs.
+- [x] 4.6 Preserve CI-authority non-claims in output or docs.
 
 ## 5. Effect Substrate Decision
 

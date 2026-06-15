@@ -20,6 +20,7 @@ describe("Habitat hook resource policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("resources: clean");
+    expect(result.stdout).toContain("hook proof: local feedback only; CI remains authoritative.");
     expect(result.stdout).toContain("habitat hook pre-commit: PASS");
     expect(fake.calls).toContain("bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json");
     expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
@@ -335,6 +336,10 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(renderReported(events, "stdout")).toBe(result.stdout);
     expect(renderReported(events, "stderr")).toBe(result.stderr);
     expect(events).toContainEqual({
+      channel: "stdout",
+      text: "hook proof: local feedback only; CI remains authoritative.\n",
+    });
+    expect(events).toContainEqual({
       channel: "stderr",
       text: "habitat hook pre-commit: could not parse Grit JSON output.\n",
     });
@@ -349,6 +354,7 @@ describe("Habitat pre-push base policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=HEAD~1");
+    expect(result.stdout).toContain("hook proof: local feedback only; CI remains authoritative.");
     expect(fake.calls).toContain(
       "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base HEAD~1 --head HEAD --outputStyle=static"
     );
@@ -487,6 +493,10 @@ describe("Habitat pre-push base policy", () => {
     expect(result.exitCode).toBe(1);
     expect(renderReported(events, "stdout")).toBe(result.stdout);
     expect(renderReported(events, "stderr")).toBe(result.stderr);
+    expect(events).toContainEqual({
+      channel: "stdout",
+      text: "hook proof: local feedback only; CI remains authoritative.\n",
+    });
     expect(events).toContainEqual({
       channel: "stderr",
       text: "target failed\n",
