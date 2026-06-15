@@ -3,6 +3,41 @@ import * as path from "node:path";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { deployMod, listMods, resolveModsDir } from "../src/index";
 
+vi.mock("@civ7/plugin-files", async () => {
+  const path = await import("node:path");
+  return {
+    copyDirectoryRecursive: vi.fn(() => ({ copiedFiles: 2, skippedEntries: 0, errors: 0 })),
+    ensureDirectory: vi.fn(),
+    resolveModsDir: vi.fn(() => {
+      if (process.platform === "darwin") {
+        return {
+          platform: process.platform,
+          modsDir: path.join(
+            process.env.HOME ?? "",
+            "Library",
+            "Application Support",
+            "Civilization VII",
+            "Mods"
+          ),
+        };
+      }
+      if (process.platform === "win32") {
+        return {
+          platform: process.platform,
+          modsDir: path.join(
+            process.env.USERPROFILE ?? "",
+            "Documents",
+            "My Games",
+            "Sid Meier's Civilization VII",
+            "Mods"
+          ),
+        };
+      }
+      return { platform: process.platform, modsDir: path.join(process.env.HOME ?? "", "Mods") };
+    }),
+  };
+});
+
 vi.mock("node:fs", async () => {
   const actual = await vi.importActual<any>("node:fs");
   return {
@@ -60,5 +95,6 @@ describe("@civ7/plugin-mods", () => {
     const res = deployMod({ inputDir: "/in", modId: "my_mod", modsDir: "/mods" });
     expect(res.targetDir).toBe("/mods/my_mod");
     expect(res.modsDir).toBe("/mods");
+    expect(res.filesCopied).toBe(2);
   });
 });

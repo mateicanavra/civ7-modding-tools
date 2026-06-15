@@ -19,7 +19,7 @@
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
     "check": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
-    "test": "vitest run",
+    "test": "vitest run --project plugin-mods",
     "clean": "rimraf dist"
   },
   "dependencies": {

@@ -7,7 +7,7 @@
 - Owner: workstream owner agent (Codex continuation)
 - Branch/Graphite stack: `agent-F-habitat-biome-hygiene` -> `agent-F-habitat-boundary-tags` -> `agent-F-habitat-harness-scaffold` -> `agent-F-habitat-nx-adoption` -> `agent-F-habitat-harness-workstream` -> `main`
 - Started: 2026-06-13
-- Status: OPEN — Biome setup, format commit, blame shield, Prettier retirement, lint lane, and harness/Nx/CI integration complete; task 2.4 and closure remain blocked by DL-15/DL-16
+- Status: OPEN — Biome setup, format commit, blame shield, Prettier retirement, lint lane, and harness/Nx/CI integration complete; DL-15/DL-16 promoted repairs are verified, but task 2.4 and closure remain blocked by repo-wide `mapgen-studio:test` timeouts under the root test run.
 
 ## Objective
 
@@ -28,7 +28,7 @@
 - Repo/Graphite state: active H4 branch `agent-F-habitat-biome-hygiene`, stacked above H3 (`agent-F-habitat-boundary-tags`); current working diff is H4-owned harness integration and records.
 - Dirty files and owner: current dirty files are H4 integration files (`tools/habitat-harness`, CI, root scripts/Nx config) plus H4 records; all are owned by this H4 step.
 - Current code evidence: H1/H2/H3 locally closed; `openspec list` showed `habitat-biome-hygiene` at 0/11 tasks at phase open; `.prettierrc` has been removed; direct `prettier` / `eslint-config-prettier` package surfaces have been removed; Biome 2.4.16 is installed and `biome.json` loads successfully; the Swooper Maps import guard now parses import declarations with TypeScript so Biome multiline imports do not create false architecture failures; Biome linter/hygiene runs as locked `biome-ci` habitat rule and as inferred Nx `biome:format`, `biome:check`, and `biome:ci` targets.
-- Generated outputs affected: tracked post-format `mods/*/mod/**` hashes still match the pre-format capture exactly. A fresh root build dirties the pre-existing `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js` tracked bundle with a non-format `from "net"` import; this was not hand-edited and is recorded as DL-16 / task 2.4 stop-condition evidence.
+- Generated outputs affected: tracked post-format `mods/*/mod/**` hashes still match the pre-format capture exactly. After the promoted intelligence-bridge repair, a fresh root build completed without tracked generated-zone drift.
 - Tests/guards affected: the Swooper Maps contract guard now tolerates Biome multiline imports; H4 adds the locked `biome-ci` Habitat rule plus Nx/CI wiring; existing `nx-boundaries` and H2 harness rules remain authoritative.
 
 ## Scope
@@ -60,10 +60,10 @@
 ## Implementation
 
 - Completed tasks: 1.1, 1.2, 2.1, 2.2, 2.3, 3.1, 3.2, 4.2.
-- Remaining tasks: 2.4, 4.1, 4.3. Task 2.4 has partial evidence: root build green; tracked pre/post format hashes match; direct `mod-swooper-maps:test` green after repairing the H4-caused multiline-import guard false negative; root `bun run test` remains red through DL-15 / SDK async-teardown behavior, so 2.4 is not marked complete.
+- Remaining tasks: 2.4, 4.1, 4.3. Task 2.4 has partial evidence: root build green; tracked pre/post format hashes match; fresh root build has no generated drift after DL-16 repair; plugin package tests and SDK package tests are green after DL-15 repairs. Root test remains red through `mapgen-studio:test` timeout failures under full repo-wide execution, so 2.4 is not marked complete.
 - Biome lint lane: minimal green bug-risk rule set is enabled in `biome.json` with `recommended: false`; no desired red Biome rule was silently disabled after selection. The red assist class (`organizeImports`) was repaired mechanically by applying the safe assist and committing it separately; no ratchet baseline is required for `biome-ci` because the rule is locked with zero diagnostics.
 - Harness integration: `@internal/habitat-harness` now infers `biome:format`, `biome:check`, and `biome:ci`; `habitat fix` runs `biome check --write .` and `--dry-run` runs non-writing `biome check .`; `habitat check` includes locked `biome-ci`; `habitat verify` composes `build,check,test,boundaries,biome:ci`; CI runs `bunx nx run-many -t biome:ci`; README documents editor setup and the never-plain-`lint` target convention.
-- Stop conditions triggered: task 2.4 cannot close as green yet. Fresh build produces a non-format intelligence-bridge bundle drift (`from "net"`) and root test exits 1 through package-local Vitest fan-out / SDK teardown defects. These are known out-of-scope defects unless promoted, but they block the proposal's strict 2.4 green claim.
+- Stop conditions triggered: task 2.4 cannot close as green yet. The earlier DL-15 package-local Vitest fan-out / SDK teardown defects and DL-16 intelligence-bridge bundle drift are repaired, but the root test still exposes `mapgen-studio:test` timeouts under repo-wide load. That timeout class must be isolated or repaired before H4 can make the proposal's strict build/test green claim.
 
 ## Verification
 
@@ -171,18 +171,15 @@
   modules during declaration generation. The comments were reordered so
   `biome-ignore format` precedes `@ts-ignore`, the imports stay one physical
   line, `tsc --noEmit` passes, and `@civ7/adapter:build` passes.
-- Root build result: `bun run build` passed for 20 projects and 1 dependency
-  task. After the successful build, only the generated
-  `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js`
-  artifact drifted from tracked HEAD; the rebuilt bundle contains
-  `import { createConnection } from "net";`. The generated drift was stashed
-  semantically as `h4-build-generated-intelligence-bridge-bundle-drift` and
-  `h4-root-build-generated-intelligence-bridge-bundle-drift`, not integrated.
+- Root build result after promoted repairs:
+  `NX_DAEMON=false bunx nx run-many -t build --outputStyle=static` passed
+  with exit 0. Nx reported the build target ran for 21 projects and one
+  dependency task, with cached output replayed for 20 of 22 tasks. The
+  post-build generated/protected-path drift grep returned no tracked paths.
 - Build-output parity result: the tracked post-format hashes match the
   pre-format hashes for all six tracked `mods/*/mod/**` files, including the
-  tracked intelligence-bridge bundle. Fresh-build parity is blocked by DL-16,
-  because the regenerated intelligence-bridge bundle changes semantically by
-  introducing a Node `net` import, not by formatting.
+  tracked intelligence-bridge bundle. Fresh-build parity is no longer blocked
+  by DL-16 after `agent-F-intelligence-bridge-ui-bundle`.
 - Swooper Maps guard repair: Biome wrapped long `../rules/index.js` named
   imports in foundation strategy files. The existing guard parsed imports
   line-by-line and falsely concluded the strategy no longer imported local
@@ -192,20 +189,19 @@
   tectonics strategy imports local"` passes (1 pass, 0 fail, 57 expects).
 - Focused package proof: `bunx nx run mod-swooper-maps:test --skip-nx-cache`
   passes after the guard repair (567 pass, 2 skip, 0 fail).
-- Root test result: `bun run test` still exits 1 after the guard repair. Failed
-  Nx tasks are `@civ7/plugin-files:test`, `@civ7/plugin-git:test`,
-  `@civ7/plugin-mods:test`, and `@civ7/plugin-graph:test`. The failure is the
-  DL-15 package-local `vitest run` fan-out class: those package tasks execute
-  the root Vitest project matrix from the plugin package cwd, causing
-  mapgen-studio suites to fail resolving `mod-swooper-maps/recipes/*` exports;
-  the same run also surfaces the known SDK async teardown `ENOENT` and one
-  unrelated direct-control timeout. Direct `mapgen-studio:test` passes in the
-  same root run (47 files, 233 tests), and direct `mod-swooper-maps:test`
-  passes.
+- Root test result after promoted repairs:
+  `NX_DAEMON=false bunx nx run-many -t test --outputStyle=static` progressed
+  past the DL-15/DL-16 classes: SDK and plugin package tests were verified
+  separately, and `mod-civ7-intelligence-bridge:test` passed inside the root
+  probe. The root probe is still red because `mapgen-studio:test` failed under
+  full-repo load with 13 failed files / 16 timed-out tests after 601.30s. The
+  remaining `mod-swooper-maps:test` child continued CPU-bound for more than 25
+  minutes after the probe was already red and was interrupted; no green
+  root-test claim is made from that run.
 - Skipped gates and rationale: task 2.4 is not marked complete because the
-  proposal asks for build/test green plus build-output parity. Root build is
-  green, but root test/parity expose known out-of-scope defects that require
-  promotion or separate repair before strict closure.
+  proposal asks for build/test green plus build-output parity. Root build and
+  build-output parity are green after promoted repairs, but root test remains
+  red through the `mapgen-studio` timeout class.
 - Minimal Biome rule promotion result: selected green correctness/suspicious
   bug-risk rules pass under `biome ci`; nested `**/_archive/**` is excluded so
   live code can keep `noGlobalIsFinite` without historical archive churn.
@@ -232,23 +228,23 @@
   metadata diff; it was interrupted, so no green full-verify claim is made from
   that probe.
 - Evidence boundary: H4-owned formatter/config/test-guard behavior is green;
-  no claim is made that repo-wide root test or fresh-build parity is green.
+  fresh root build parity is green after promoted repairs; no claim is made
+  that repo-wide root test is green.
 
 ## Realignment
 
-- Downstream docs/specs/issues updated: top-level workstream record reconciled from stale pre-execution state to H4-active state; H4 tasks updated for 3.1/3.2/4.2; DL-12 updated from pending to enforced Biome hygiene reality.
+- Downstream docs/specs/issues updated: top-level workstream record reconciled from stale pre-execution state to H4-active state; H4 tasks updated for 3.1/3.2/4.2; DL-12 updated from pending to enforced Biome hygiene reality; DL-15/DL-16 moved to resolved-by-promoted-repair after the SDK/plugin/intelligence slices.
 - Tests/guards updated: Swooper Maps import guard now parses imports structurally; Habitat rule pack now includes locked `biome-ci`; CI includes `biome:ci`.
-- Deferrals/triage updated: none; known red-test triage tasks remain outside H4 unless explicitly promoted.
+- Deferrals/triage updated: the user/Fable suggested DL-15 SDK teardown, DL-16 intelligence bundle, and adapter-boundary river metadata repairs were promoted into separate Graphite/OpenSpec slices. A new H4 proof blocker remains: repo-wide `mapgen-studio:test` timeouts under full Nx test load.
 - Downstream realignment ledger: N/A at phase open.
 
 ## Next Action
 
-- Exact next step: commit the H4 integration diff if final checks remain green,
-  then promote or repair the DL-16 intelligence-bridge bundle leak and DL-15
-  package-local Vitest fan-out / SDK teardown blockers before claiming H4 task
-  2.4 or closure.
+- Exact next step: commit the `plugin-vitest-project-scope` repair slice, then
+  isolate the repo-wide `mapgen-studio:test` timeout class and repair or
+  scope it before claiming H4 task 2.4 or closure.
 - First files to inspect for closure blockers:
-  `mods/mod-civ7-intelligence-bridge` bundling config/source, plugin package
-  `test` scripts, `packages/sdk/src/files/XmlFile.ts`, and
-  `packages/sdk/test/mod.test.ts`.
+  `apps/mapgen-studio/vitest.config.ts`, root `vitest.config.ts`,
+  mapgen-studio timeout-heavy suites under `apps/mapgen-studio/test/server`,
+  `test/viz`, `test/ui`, and `test/runInGame`, plus Nx test parallelism.
 - Stop condition: Biome config would format generated/protected zones, create non-format semantic diff, or require hygiene ownership that overlaps Nx/Grit.

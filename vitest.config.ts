@@ -94,6 +94,11 @@ export default defineConfig({
       },
       {
         extends: true,
+        root: r("packages/plugins/plugin-mods"),
+        test: { name: "plugin-mods" },
+      },
+      {
+        extends: true,
         root: r("tools/habitat-harness"),
         test: {
           name: "habitat-harness",
