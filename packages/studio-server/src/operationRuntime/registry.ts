@@ -412,7 +412,6 @@ export function failSaveDeploy(args: Readonly<{
   nowIso: string;
   phase: "saving" | "deploying";
   err: unknown;
-  normalize?: (args: Readonly<{ err: unknown; phase: "saving" | "deploying" }>) => StudioRuntimeFailure | undefined;
 }>): Effect.Effect<SaveDeployInternalOperation> {
   return SynchronizedRef.modify(args.registry, (state) => {
     const current = state.saveDeploy[args.requestId];
@@ -431,9 +430,7 @@ export function failSaveDeploy(args: Readonly<{
         state,
       ] as const;
     }
-    const failure =
-      args.normalize?.({ err: args.err, phase: args.phase }) ??
-      toRuntimeFailure(args.err, "Save failed");
+    const failure = toRuntimeFailure(args.err, "Save failed");
     const operation = failSaveOperation(current, args.nowIso, failure, args.phase);
     return [
       operation,

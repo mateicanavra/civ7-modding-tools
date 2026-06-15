@@ -1,7 +1,7 @@
 # D5 Testing Ledger
 
-Status: draft
-Date: 2026-06-14
+Status: implementation candidate
+Date: 2026-06-15
 
 | Layer | Required proof | Adequacy criterion |
 | --- | --- | --- |
@@ -98,3 +98,44 @@ rg -n "turbo run|bun x turbo|mod-swooper-maps#build|buildSwooperMapsStudioDeploy
 ```
 
 Hits are not automatically failures. D5 implementation must classify them as sanctioned package owner, bounded port adapter, non-executable status/proof evidence, test fixture, historical evidence, or blocker.
+
+## Implementation Results
+
+Commands run on `codex/runtime-effect-pipeline-effect-services`:
+
+```bash
+bun run --cwd packages/studio-server check
+bun run --cwd packages/studio-server build
+bun run --cwd packages/studio-server test -- test/workflowSessionGraph.test.ts test/operationRuntime.test.ts test/handler.test.ts
+bun run --cwd apps/mapgen-studio check
+bun run --cwd apps/mapgen-studio build
+bun run --cwd apps/mapgen-studio test -- runInGame/requestValidation.test.ts server/oneMount.test.ts server/engineEffectCorpus.test.ts
+bun run openspec -- validate mapgen-studio-pipeline-effect-services --strict
+git diff --check
+```
+
+All commands passed. The Studio app build emitted the existing Vite large-chunk warning only.
+
+Focused D5 proof now covers:
+
+- `RunInGameWorkflow`, `SaveDeployWorkflow`, and `AutoplayWorkflow` entering through the real D4 `StudioOperationRuntime` with fake leaf ports.
+- Save/Deploy deploy failure, rollback failure, and cleanup failure producing one terminal projection and releasing the active gate.
+- Run in Game proof split into `waitForRunInGameLogProof` and `buildRunInGameProof`, with source-snapshot identity preserved from accepted/status/current/event projection through final exact-authorship proof.
+- Raw-control guard rejection for top-level TypeBox-forbidden fields and nested host-validator raw fields.
+- `workflowSessionGraph.test.ts` source guard that `Civ7WorkflowControlLive` does not self-provide or construct `Civ7TunerSessionLive`, plus dynamic Layer proof that `Civ7WorkflowControlLive` consumes an externally supplied `Civ7TunerSession` service.
+
+Negative searches run:
+
+```bash
+rg -n "Civ7WorkflowControlLive.*Layer\\.provide|Layer\\.provide\\(Civ7TunerSessionLive\\)|new\\s+Civ7DirectControlSession|makeCiv7TunerSessionLayer|Civ7TunerSessionLive" packages/studio-server/src/ports/Civ7WorkflowControl.ts packages/studio-server/src/runtime.ts packages/studio-server/src/operationRuntime/StudioOperationRuntime.ts
+rg -n "ensureCiv7SetupMapRowVisible|getCiv7PlayableStatus|getCiv7SetupSnapshot|runCiv7SinglePlayerFromSetup|startCiv7Autoplay|stopCiv7Autoplay|withCiv7DirectControlSession" apps/mapgen-studio/src packages/studio-server/src -g '*.ts'
+rg -n "normalizeSaveDeployFailure|saveDeployFailureForOperation|RunInGameHttpError|StudioEngineError|createStudioEngines|runRunInGameStartEngine|runSaveDeployEngine|runAutoplayEngine|createRunInGameOperationStore|createMapConfigSaveDeployOperationStore|waitForRunInGameProof" apps/mapgen-studio/src packages/studio-server/src packages/studio-server/test apps/mapgen-studio/test -g '*.ts' -g '*.tsx'
+```
+
+Disposition:
+
+- The session-owner scan hits only `packages/studio-server/src/runtime.ts`, where `Civ7TunerSessionLive` is imported, named as `civ7TunerSessionLayer`, merged, and provided to the operation runtime graph. `Civ7WorkflowControl.ts` has no self-provider or constructor hit.
+- The game-call scan hits package-owned `Civ7TunerClient` read services and package-owned `Civ7WorkflowControl` workflow actions. There are no app production game-call imports.
+- The lifecycle/error seam scan has no production hits. Remaining `createStudioEngines`/engine-token hits are in `apps/mapgen-studio/test/server/engineEffectCorpus.test.ts` as negative/deletion proof fixtures.
+
+Live Play and Save/Deploy proof was not run in D5 and is not claimed green.

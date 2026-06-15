@@ -41,15 +41,16 @@
 
 These are D5 implementation obligations recorded by this packet, not pre-acceptance authoring tasks.
 
-- [ ] 3A.1 Implement package-owned workflow services and port service tags/layers.
-- [ ] 3A.2 Move Run in Game orchestration out of app engines into `RunInGameWorkflow`.
-- [ ] 3A.3 Move Save/Deploy orchestration out of app engines into `SaveDeployWorkflow`.
-- [ ] 3A.4 Move Autoplay command orchestration into `AutoplayWorkflow`.
-- [ ] 3A.5 Route all workflow transitions through `StudioOperationRuntime`.
-- [ ] 3A.6 Route game-wire calls through the shared `Civ7TunerSession` backed workflow control service.
-- [ ] 3A.7 Replace app mutation lifecycle context callbacks with package services and bounded ports.
-- [ ] 3A.8 Delete or reduce `createStudioEngines` to composition-only with negative proof.
-- [ ] 3A.9 Run package/app/scenario tests, negative searches, and live Play/SaveDeploy proof.
+- [x] 3A.1 Implement package-owned workflow services and port service tags/layers.
+- [x] 3A.2 Move Run in Game orchestration out of app engines into `RunInGameWorkflow`.
+- [x] 3A.3 Move Save/Deploy orchestration out of app engines into `SaveDeployWorkflow`.
+- [x] 3A.4 Move Autoplay command orchestration into `AutoplayWorkflow`.
+- [x] 3A.5 Route all workflow transitions through `StudioOperationRuntime`.
+- [x] 3A.6 Route game-wire calls through the shared `Civ7TunerSession` backed workflow control service.
+- [x] 3A.7 Replace app mutation lifecycle context callbacks with package services and bounded ports.
+- [x] 3A.8 Delete or reduce `createStudioEngines` to composition-only with negative proof.
+- [x] 3A.9 Run package/app/scenario tests and negative searches.
+- [ ] 3A.10 Live Play/SaveDeploy proof is not claimed in D5; D12 retains the game-door live-proof handoff.
 
 ## 4. Verification
 
@@ -65,3 +66,14 @@ These are D5 implementation obligations recorded by this packet, not pre-accepta
 - [x] 5.1 Record review acceptance in `review-disposition-ledger.md`.
 - [x] 5.2 Mark D5 accepted in `OPENSPEC-PACKET-TRAIN.md`.
 - [x] 5.3 Commit accepted D5 packet through Graphite with clean/quarantined worktree state.
+
+## 6. Implementation Closure
+
+- [x] 6.1 Package-owned workflows, ports, and runtime integration implemented on `codex/runtime-effect-pipeline-effect-services`.
+- [x] 6.2 Focused package runtime/session/handler proof passed: `bun run --cwd packages/studio-server test -- test/workflowSessionGraph.test.ts test/operationRuntime.test.ts test/handler.test.ts`.
+- [x] 6.3 Package/app type and build gates passed: `bun run --cwd packages/studio-server check`, `bun run --cwd packages/studio-server build`, `bun run --cwd apps/mapgen-studio check`, and `bun run --cwd apps/mapgen-studio build`.
+- [x] 6.4 App focused proof passed: `bun run --cwd apps/mapgen-studio test -- runInGame/requestValidation.test.ts server/oneMount.test.ts server/engineEffectCorpus.test.ts`.
+- [x] 6.5 OpenSpec/diff hygiene passed: `bun run openspec -- validate mapgen-studio-pipeline-effect-services --strict` and `git diff --check`.
+- [x] 6.6 Negative searches classified package game-call ownership, no app lifecycle engine production surface, no status-code bridge residue, and no old `waitForRunInGameProof` seam.
+- [x] 6.7 Fresh implementation-diff review disposition recorded after final dirty diff review.
+- [x] 6.8 Commit implementation slice through Graphite with clean/quarantined worktree state: D5 implementation is committed at the current `codex/runtime-effect-pipeline-effect-services` branch tip; post-commit `git status --short --branch` showed a clean worktree.

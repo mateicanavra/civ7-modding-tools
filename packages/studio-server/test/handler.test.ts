@@ -7,8 +7,6 @@ import { afterEach, describe, expect, test } from "vitest";
 import {
   createStudioEventHub,
   createStudioRpcHandler,
-  invalidRequest,
-  operationBlocked,
   type StudioEventHubApi,
   type StudioOperationRuntimePorts,
   type StudioRouter,
@@ -171,39 +169,6 @@ describe("studio-server RPC handler", () => {
       serverInstanceId: expect.stringMatching(/^studio-server-/),
       serverStartedAt: "2026-06-10T00:00:00.000Z",
       diagnostics: { code: "save-deploy-request-not-found" },
-    });
-  });
-
-  test("maps typed runtime leaf failures through the package error spine", async () => {
-    const context = makeContext({
-      operationRuntime: makeOperationRuntimePorts({
-        runAutoplay: async () => {
-          throw operationBlocked({
-            message: "Autoplay blocked by test",
-            activeRequestId: "run-1",
-            activePhase: "deploying",
-            diagnostics: { code: "autoplay-test-blocked" },
-          });
-        },
-      }),
-    });
-    const client = await listenWithClient(context);
-
-    const { error } = await safe(client.civ7.autoplay({ action: "start" }));
-
-    expect(error).toBeInstanceOf(ORPCError);
-    if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
-    expect(isDefinedError(error)).toBe(true);
-    expect(error.code).toBe("AUTOPLAY_BLOCKED");
-    expect(error.status).toBe(409);
-    expect(error.data).toMatchObject({
-      tag: "OperationBlocked",
-      namespace: "autoplay",
-      reason: "active-operation-conflict",
-      message: "Autoplay blocked by test",
-      activeRequestId: "run-1",
-      activePhase: "deploying",
-      diagnostics: { code: "autoplay-test-blocked" },
     });
   });
 
@@ -372,26 +337,12 @@ function makeOperationRuntimePorts(
     },
     materializeRunInGame: async () => ({}),
     deployRunInGame: async () => ({}),
-    checkCiv7ForRunInGame: async () => undefined,
-    prepareSetupForRunInGame: async () => ({}),
-    startGameForRunInGame: async () => ({}),
-    waitForRunInGameProof: async () => ({ result: { ok: true } }),
+    waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
+    buildRunInGameProof: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({ saved: true }),
     deploySavedMapConfig: async () => ({ deployed: true }),
-    runAutoplay: async (input) => ({
-      ok: true,
-      action: input.action,
-      autoplay: {},
-      game: {},
-      gameContext: {},
-      result: {},
-    }),
-    normalizeSaveDeployFailure: ({ err }) =>
-      invalidRequest({
-        message: err instanceof Error ? err.message : "Save failed",
-        diagnostics: { code: "save-deploy-test-failed" },
-      }),
+    rollbackSaveDeploy: async () => ({ restored: true }),
     ...overrides,
   };
 }

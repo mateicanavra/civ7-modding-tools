@@ -1,7 +1,7 @@
 # D5 Review Disposition Ledger
 
-Status: accepted
-Date: 2026-06-14
+Status: implementation-diff review complete; Graphite commit pending
+Date: 2026-06-15
 
 | ID | Lane | Finding | Severity | Disposition | Repair |
 | --- | --- | --- | --- | --- | --- |
@@ -18,6 +18,12 @@ Date: 2026-06-14
 | D5-R11 | Game-wire/TypeScript | OpenSpec raw-tunnel scenario omitted `command` and `rawJs`. | P2 | accepted | Repaired in OpenSpec scenario to include `command` and `rawJs`. |
 | D5-R12 | Workflow/lifecycle repair review | Run in Game ordered program still emitted terminal D4 completion before cleanup finalizers. | P1 | accepted | Repaired in `design.md`: runtime/exact-authorship proof is non-terminal, cleanup/regeneration runs before terminal complete, and cleanup failure projects typed/contained failure instead of success. |
 | D5-R13 | Game-wire/black-ice repair review | Raw-field guard scope still depended on an unenumerated D5 corpus, and negative-search gates omitted literal `command`/`rawJs` coverage. | P2 | accepted | Repaired in `workflow-corpus-ledger.md` with explicit Studio mutation and control-oRPC `risk: "mutation"` corpus; repaired proposal/testing/game-wire negative gates to include `command` and `rawJs` coverage. |
+| D5-I1 | Supervisor implementation review | `Civ7WorkflowControlLive` self-provided `Civ7TunerSessionLive`, hiding a possible second session owner while `makeStudioRuntime` also provided the session. | P1 | accepted | Repaired: `Civ7WorkflowControlLive` depends on `Civ7TunerSession`; `makeStudioRuntime` names/provides `civ7TunerSessionLayer`. `workflowSessionGraph.test.ts` adds source guard plus dynamic external-session Layer proof. |
+| D5-I2 | Supervisor implementation review | Save/Deploy cleanup/rollback ordering could publish multiple terminal failures or retry cleanup after cleanup failure. | P1 | accepted | Repaired in `SaveDeployWorkflow`: package-owned `rollbackSaveDeploy` atom, single `finalizeFailure`, cleanup-attempt guard, and tests for deploy failure, rollback failure, cleanup failure, terminal event count, and active gate release. |
+| D5-I3 | Fresh implementation review | Run in Game completion was still at risk of occurring before cleanup, and proof construction remained too app-monolithic. | P1 | accepted | Repaired: workflow waits log evidence, builds exact-authorship proof, runs cleanup, then completes; app leaf split into `waitForRunInGameLogProof` and `buildRunInGameProof`. |
+| D5-I4 | Fresh implementation review | Public raw-control guard proof needed top-level TypeBox rejection and nested open-input rejection. | P2 | accepted | Repaired in `contract/runInGame.ts`, `requestValidation.ts`, and `requestValidation.test.ts`; top-level forbidden fields fail schema and nested executable fields fail host parser. |
+| D5-I5 | Implementation proof correction | Static source guard alone did not prove `Civ7WorkflowControlLive` consumes an externally supplied session. | P2 | accepted | Repaired with dynamic Layer proof using fake `Civ7TunerSession`; docs distinguish this from unclaimed live shared-socket proof. |
+| D5-I6 | Final implementation-diff review | Halley found `StudioServerContext.civ7WorkflowControl` exposed a public workflow-control override that could bypass the shared-session graph. | P1 | accepted | Repaired by deleting the public context override, production runtime branch, and root `Civ7WorkflowControl*` export. `makeStudioRuntime` always composes `Civ7WorkflowControlLive` through the named top-level session layer; fake workflow-control remains only as package-internal `makeStudioOperationRuntimeLayer` test seam. Rebuilt package declarations and verified no `civ7WorkflowControl`/`Civ7WorkflowControl` appears in public DTS. |
 
 ## Repair Review Closure
 
@@ -29,3 +35,20 @@ Accepted repair-review agents:
 - Lifecycle: accepted proof-before-cleanup-before-terminal-complete ordering.
 - Game-wire/TypeScript: accepted explicit mutation guard corpus and full raw-field search coverage.
 - Hardening/black-ice: accepted D5-R2 through D5-R10 after repair; follow-up D5-R13 was accepted by the narrow corpus re-check.
+
+## Implementation Review Closure
+
+Implementation repair evidence currently green:
+
+- `bun run --cwd packages/studio-server check`
+- `bun run --cwd packages/studio-server build`
+- `bun run --cwd packages/studio-server test -- test/workflowSessionGraph.test.ts test/operationRuntime.test.ts test/handler.test.ts`
+- `bun run --cwd apps/mapgen-studio check`
+- `bun run --cwd apps/mapgen-studio build`
+- `bun run --cwd apps/mapgen-studio test -- runInGame/requestValidation.test.ts server/oneMount.test.ts server/engineEffectCorpus.test.ts`
+- `bun run openspec -- validate mapgen-studio-pipeline-effect-services --strict`
+- `git diff --check`
+
+Live Play and Save/Deploy proof was not run and is not claimed. Browser-runner/recovery/watchdog residue is classified outside D5 and remains assigned to later packet ownership.
+
+Halley final implementation-diff review is complete with the P1 public override blocker accepted and repaired. No remaining P1/P2 findings are open before Graphite commit.

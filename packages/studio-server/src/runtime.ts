@@ -10,10 +10,12 @@ import { StudioEventHub } from "./services/StudioEventHub.js";
 /**
  * Builds the `ManagedRuntime` backing the effect-orpc router for one host.
  *
- * `Civ7TunerSession` is the scoped owner of the ONE shared FireTuner
- * connection; `Civ7TunerClient` consumes it, and layer memoization guarantees
- * both graphs see the same instance (the SAME `Civ7TunerSessionLive`
- * reference appears in the merge and in the client's dependencies).
+ * `Civ7TunerSession` is the scoped owner of the daemon FireTuner connection.
+ * D5 keeps ownership visible: this runtime names one top-level
+ * `Civ7TunerSessionLive` layer and provides that same layer reference into the
+ * operation runtime graph, while `Civ7WorkflowControlLive` depends on
+ * `Civ7TunerSession` instead of constructing or self-providing a session.
+ * Live shared-socket proof remains a D12 game-door closure item.
  * The operation runtime is a scoped package service owning daemon identity,
  * operation admission, registries, TTL/tombstones, background workers, events,
  * and disposal. `StudioConfig` carries only the remaining host seams.
@@ -33,15 +35,17 @@ type StudioRuntimeEnv =
 export type StudioRuntime = ManagedRuntime.ManagedRuntime<unknown, never>;
 
 export function makeStudioRuntime(context: StudioServerContext): StudioRuntime {
+  const civ7TunerSessionLayer = Civ7TunerSessionLive;
+  const operationRuntimeLayer = makeStudioOperationRuntimeLayer({
+    ports: context.operationRuntime,
+    eventHub: context.eventHub,
+  }).pipe(Layer.provide(civ7TunerSessionLayer));
   const layer = Layer.mergeAll(
-    Civ7TunerSessionLive,
+    civ7TunerSessionLayer,
     Civ7TunerClient.Default,
     Layer.succeed(StudioConfig, context),
     Layer.succeed(StudioEventHub, context.eventHub),
-    makeStudioOperationRuntimeLayer({
-      ports: context.operationRuntime,
-      eventHub: context.eventHub,
-    })
+    operationRuntimeLayer
   );
   return ManagedRuntime.make(layer) as unknown as StudioRuntime;
 }

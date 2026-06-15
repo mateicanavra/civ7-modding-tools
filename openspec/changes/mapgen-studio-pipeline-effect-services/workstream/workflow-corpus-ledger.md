@@ -1,7 +1,7 @@
 # D5 Workflow Corpus Ledger
 
-Status: draft corpus
-Date: 2026-06-14
+Status: implementation candidate
+Date: 2026-06-15
 
 | Surface | Current evidence | D5 target | Risk if omitted | Oracle |
 | --- | --- | --- | --- | --- |
@@ -57,3 +57,24 @@ rg -n "\\bcommand\\b|operationType|rawCommand|script|javascript|session|stateNam
 ```
 
 Every hit is classified as executable public input, non-executable status/proof evidence, direct-control package internals, test/historical evidence, or blocker.
+
+## Implementation Disposition
+
+D5 implementation moved the phase programs into package workflow modules and left the app host as bounded leaf-port implementation:
+
+- `packages/studio-server/src/workflows/RunInGameWorkflow.ts`
+- `packages/studio-server/src/workflows/SaveDeployWorkflow.ts`
+- `packages/studio-server/src/workflows/AutoplayWorkflow.ts`
+- `packages/studio-server/src/workflows/workflowTransitions.ts`
+- `packages/studio-server/src/ports/*`
+
+`apps/mapgen-studio/src/server/studio/engines.ts` now provides leaf atoms for filesystem/materialization/deploy/proof/log/process work. It does not own operation ids, admission, active/current projections, events, phase transitions, typed workflow failure classification, or background workers.
+
+Review-driven repairs included:
+
+- Save/Deploy rollback moved into the package workflow through a `rollbackSaveDeploy` leaf atom; deploy failure, rollback failure, and cleanup failure each produce one terminal projection.
+- Run in Game proof waiting was split into `waitForRunInGameLogProof` and `buildRunInGameProof`, so the package workflow owns ordering while the app leaf owns log parsing and exact-authorship construction details.
+- Shared-session ownership was repaired so `Civ7WorkflowControlLive` depends on externally provided `Civ7TunerSession`; `makeStudioRuntime` owns the visible `Civ7TunerSessionLive` layer composition.
+- Raw-control guards reject top-level TypeBox-forbidden fields and nested host-validator fields for `runInGame.start`.
+
+Residual browser-runner/recovery/watchdog cleanup is not claimed by D5. It remains assigned to later D6/D9/D10/D12 packet ownership.
