@@ -3,10 +3,12 @@
 ## Current Gate
 
 Gate 6 / native fixture and parser inventory checkpoint implemented, verified,
-record-aligned, and committed for supervisor review. The row is limited to
-native fixture/parser-edge proof, parser inventory over SDK and mapgen-core
-source, and record truth. Clean row closure remains a non-claim until supervisor
-acceptance and dependency-bound proof classes are available.
+record-aligned, committed, and supervisor-accepted as a bounded checkpoint. The
+row is limited to native fixture/parser-edge proof, parser inventory over SDK
+and mapgen-core source, and record truth. Clean row closure remains a non-claim
+for proof classes not separately recorded. Successor HG rows are committed
+through `agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so
+this packet is not the active next-row gate.
 
 ## Branch / Stack
 
@@ -14,9 +16,13 @@ acceptance and dependency-bound proof classes are available.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-sdk-mapgen-entrypoint`
 - Parent: `agent-HG-habitat-grit-viz-contract-ownership`
-- Base stack still does not include the HR repair layers, so Habitat wrapper
-  selector/current-tree proof and typed adapter/injected cleanup proof remain
-  unavailable in this row's stack/base.
+- Historical row-local proof did not consume HR repair layers. Current
+  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
+  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
+  `HGPR-BASELINE-FILES-2026-06-15`,
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
 
 ## Scope
 
@@ -76,10 +82,14 @@ re-exports from `./mapgen` and `./mapgen/index.js` are native positives, while
 named re-exports remain non-runtime controls. Multiline or alternate-whitespace
 inline type-only formatting remains an unproven parser-edge non-claim. Parser
 inventory found 0 live current-row candidates in SDK root, SDK non-mapgen
-source, and mapgen-core source. Supervisor re-review remains pending after
-final verification and amend.
+source, and mapgen-core source. Supervisor accepted the bounded checkpoint at
+`292c5eba9`.
 
 ## Next Actions
 
-1. Supervisor re-review of this amended checkpoint.
-2. Do not open the next row until supervisor acceptance.
+1. Preserve this packet as a bounded, accepted historical checkpoint.
+2. Keep multiline or alternate-whitespace inline type-only closure, type-first
+   or alternate mixed-order closure, broader SDK/mapgen architecture closure, raw
+   acquisition, Effect adapter closure, apply safety, generator/migration proof,
+   product proof, and row-specific proof beyond inherited shared
+   wrapper/baseline/injected IDs as non-claims unless separately recorded.

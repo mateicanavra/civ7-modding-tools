@@ -3,10 +3,12 @@
 ## Current Gate
 
 Gate 6 / native fixture and parser inventory checkpoint implemented, verified,
-record-aligned, and committed for supervisor review. The row is limited to
-native fixture/parser-edge proof, parser inventory over control-oRPC source, and
-record truth. Clean row closure remains a non-claim until supervisor acceptance
-and dependency-bound proof classes are available.
+record-aligned, committed, and supervisor-accepted as a bounded checkpoint. The
+row is limited to native fixture/parser-edge proof, parser inventory over
+control-oRPC source, and record truth. Clean row closure remains a non-claim for
+proof classes not separately recorded. Successor HG rows are committed through
+`agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so this
+packet is not the active next-row gate.
 
 ## Branch / Stack
 
@@ -14,9 +16,13 @@ and dependency-bound proof classes are available.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-control-orpc-contract-ownership`
 - Parent: `agent-HG-habitat-grit-adapter-base-standard-import`
-- Base stack still does not include the HR repair layers, so Habitat wrapper
-  selector/current-tree proof and typed adapter/injected cleanup proof remain
-  unavailable in this row's stack/base.
+- Historical row-local proof did not consume HR repair layers. Current
+  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
+  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
+  `HGPR-BASELINE-FILES-2026-06-15`,
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
 - Downstack helper redeclaration blocker, empty-schema ordinary-contract
   predicate gap, MapGen core runtime import/type-import blockers, sibling-stage
   proof boundary, domain-root facade non-claims, wrapper advanced config
@@ -94,10 +100,14 @@ inventory found 0 live current-row contract ownership candidates. The
 root-index module-contract schema re-export class remains a predicate-gap
 blocker, so this is not clean rule closure. Outside-contract direct-control
 imports and root index non-module-contract schema exports remain path/control
-context, not current-row candidates. Supervisor review remains pending after
-final verification and commit.
+context, not current-row candidates. Supervisor accepted the bounded checkpoint
+at `e32a55741`.
 
 ## Next Actions
 
-1. Supervisor review of this committed checkpoint.
-2. Do not open the next row until supervisor acceptance.
+1. Preserve this packet as a bounded, accepted historical checkpoint.
+2. Keep the root-index module-contract schema re-export predicate gap, broader
+   control-oRPC architecture closure, raw acquisition, Effect adapter closure,
+   apply safety, generator/migration proof, product proof, and row-specific proof
+   beyond inherited shared wrapper/baseline/injected IDs as non-claims unless
+   separately recorded.

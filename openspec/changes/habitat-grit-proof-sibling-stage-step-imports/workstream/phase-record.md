@@ -3,11 +3,12 @@
 ## Current Gate
 
 Gate 6 / native fixture and parser inventory checkpoint implemented, verified,
-record-aligned, and committed. Supervisor review is pending before opening the
-next row. The row remains limited to native fixture/parser-edge proof, parser
-inventory over the Swooper standard recipe stage root, and record truth. Clean
-row closure remains a non-claim until supervisor acceptance and
-dependency-bound proof classes are available.
+record-aligned, committed, and supervisor-accepted as a bounded checkpoint. The
+row remains limited to native fixture/parser-edge proof, parser inventory over
+the Swooper standard recipe stage root, and record truth. Clean row closure
+remains a non-claim for proof classes not separately recorded. Successor HG rows
+are committed through `agent-HG-habitat-grit-domain-ops-boundary-imports` at
+`f268f3bf5`, so this packet is not the active next-row gate.
 
 ## Branch / Stack
 
@@ -15,9 +16,13 @@ dependency-bound proof classes are available.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-sibling-stage-step-imports`
 - Parent: `agent-HG-habitat-grit-mapgen-core-runtime-civ7`
-- Base stack still does not include the HR repair layers, so Habitat wrapper
-  selector/current-tree proof and typed adapter/injected cleanup proof remain
-  unavailable in this row's stack/base.
+- Historical row-local proof did not consume HR repair layers. Current
+  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
+  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
+  `HGPR-BASELINE-FILES-2026-06-15`,
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
 - Downstack helper redeclaration blocker, empty-schema ordinary-contract
   predicate gap, and MapGen core runtime import/type-import blockers remain
   separate accepted downstream inputs and are not consumed by this row.
@@ -85,14 +90,13 @@ This checkpoint does not own:
 review and repaired in this amended checkpoint. The prior record conflated
 all-stage-root scan counts with actual current-predicate counts. Parser
 inventory still found 0 live current-row candidates, so no source remediation
-or baseline disposition is opened in this row. Supervisor re-review remains
-pending.
+or baseline disposition is opened in this row. Supervisor accepted the bounded
+amended checkpoint at `89b39c0ee`.
 
 ## Next Actions
 
-1. Supervisor review of this committed checkpoint.
-2. Do not open the next row until supervisor acceptance.
-3. Continue treating wrapper/current-tree, raw acquisition, baseline, injected
-   cleanup, Effect adapter, apply safety, retired parity, neighboring-row, and
-   product proof as non-claims unless the relevant layer lands/restacks into
-   this base or supervisor coordinates integration.
+1. Preserve this packet as a bounded, accepted historical checkpoint.
+2. Continue treating raw acquisition, Effect adapter closure, apply safety,
+   retired parity, neighboring-row proof, product proof, and row-specific proof
+   beyond inherited shared wrapper/baseline/injected IDs as non-claims unless
+   separately recorded.

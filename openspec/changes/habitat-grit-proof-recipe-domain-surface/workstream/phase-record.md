@@ -135,15 +135,17 @@ Completed independent row-owned work:
 
 Blocked/non-claim surfaces:
 
-- Habitat wrapper selector proof waits because the accepted command-trust and
-  selector-truth layer from `agent-HR-habitat-repair-chain` is not available
-  in this row's stack/base;
+- Shared Habitat wrapper selector proof is inherited in current aggregate state
+  through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`;
 - raw acquisition closure waits for accepted raw acquisition or typed adapter
   proof;
-- explicit empty baseline proof and baseline expansion safety wait for the
-  scaffold/baseline contract repair surface;
-- injected current-tree probes and cleanup proof wait for an accepted typed
-  Grit adapter substrate;
+- shared explicit baseline proof is inherited through
+  `HGPR-BASELINE-FILES-2026-06-15` and
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`;
+- shared injected Grit-row proof is inherited through
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`; row-specific injected positive recipe
+  probes beyond that shared aggregate proof remain unclaimed;
 - exact-surface closure for `/ops/<tail>`, `ops-by-id`, `config.js/<tail>`,
   and contains-substring lookalikes waits for predicate repair, sibling proof
   ids, or downstream blocked records.

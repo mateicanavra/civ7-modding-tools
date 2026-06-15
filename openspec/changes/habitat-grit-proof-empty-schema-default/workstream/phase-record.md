@@ -2,7 +2,7 @@
 
 ## Current Gate
 
-Gate 13 / supervisor review with predicate-gap disposition blocker. The row
+Gate 13 / accepted bounded checkpoint with predicate-gap disposition blocker. The row
 packet is opened, native fixture/parser-edge expansion has passed, parser
 inventory is recorded in durable row records, downstream ledgers are aligned,
 verification has passed, and the checkpoint is committed. Parser inventory
@@ -11,7 +11,9 @@ ordinary `contract.ts` empty object defaults outside the current predicate.
 This row can claim current-predicate native/parser evidence only; exact
 schema-policy closure remains blocked on predicate repair, source-owner
 disposition, accepted baseline handling, or a separate remediation row.
-Supervisor review remains the gate before next-row work.
+The bounded checkpoint was supervisor-accepted; successor HG rows are committed
+through `agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so
+this packet is not the active next-row gate.
 The accepted P2 parser-inventory count-truth finding has been repaired in this
 amended row layer: records now distinguish 174 TS files whose basename contains
 `contract`, 167 TS files whose basename ends `contract.ts`, 119 ordinary
@@ -24,9 +26,13 @@ predicate.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-empty-schema-default`
 - Parent: `agent-HG-habitat-grit-runtime-helper-redeclarations`
-- Base stack still does not include the HR repair layers, so Habitat wrapper
-  selector/current-tree proof and typed adapter/injected cleanup proof remain
-  unavailable in this row's stack/base.
+- Historical row-local proof did not consume HR repair layers. Current
+  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
+  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
+  `HGPR-BASELINE-FILES-2026-06-15`,
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
 - Downstack helper redeclaration blocker is accepted as a separate downstream
   remediation/apply/source-owner input and is not consumed by this row.
 
@@ -68,6 +74,7 @@ blockers, not repaired in this layer.
 
 ## Next Actions
 
-1. Wait for supervisor review.
-2. Do not open the next row until the predicate-gap blocker has an accepted
-   disposition.
+1. Preserve this packet as an accepted bounded checkpoint.
+2. Keep the two ordinary `contract.ts` empty object defaults as a predicate-gap
+   disposition blocker for exact schema-policy closure; do not treat inherited
+   shared proof as predicate repair, source remediation, or apply safety.

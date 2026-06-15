@@ -3,11 +3,14 @@
 ## Current Gate
 
 Gate 6 / native fixture and parser inventory blocker checkpoint implemented,
-verified, record-aligned, and committed for supervisor review. The row is
-limited to native fixture/parser-edge proof, parser inventory over standard
-recipe stage source, and record truth. Clean row closure remains a non-claim
-because import predicate gaps and one live intended private-viz finding remain
-open, and because dependency-bound proof classes are unavailable.
+verified, record-aligned, committed, and supervisor-accepted as a bounded
+checkpoint. The row is limited to native fixture/parser-edge proof, parser
+inventory over standard recipe stage source, and record truth. Clean row closure
+remains a non-claim because import predicate gaps and one live intended
+private-viz finding remain open, and because proof classes not separately
+recorded remain non-claims. Successor HG rows are committed through
+`agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so this
+packet is not the active next-row gate.
 
 ## Branch / Stack
 
@@ -15,9 +18,13 @@ open, and because dependency-bound proof classes are unavailable.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-viz-contract-ownership`
 - Parent: `agent-HG-habitat-grit-control-orpc-contract-ownership`
-- Base stack still does not include the HR repair layers, so Habitat wrapper
-  selector/current-tree proof and typed adapter/injected cleanup proof remain
-  unavailable in this row's stack/base.
+- Historical row-local proof did not consume HR repair layers. Current
+  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
+  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
+  `HGPR-BASELINE-FILES-2026-06-15`,
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
 - Downstack blockers and non-claims remain separate downstream inputs and are
   not consumed by this row.
 
@@ -81,10 +88,14 @@ This checkpoint does not own:
 
 No accepted P1/P2 supervisor findings are open for this row checkpoint. The row
 records `VCO-IMPORT-PREDICATE-GAP-2026-06-15` and the live private-viz import
-finding as blockers, so this is not clean rule closure. Supervisor review
-remains pending after final verification and commit.
+finding as blockers, so this is not clean rule closure. Supervisor accepted the
+bounded checkpoint at `fd02191ed`.
 
 ## Next Actions
 
-1. Supervisor review of this committed checkpoint.
-2. Do not open the next row until supervisor acceptance.
+1. Preserve this packet as a bounded, accepted blocker checkpoint.
+2. Keep import-form predicate closure, private-viz source remediation or
+   baseline disposition, broader visualization architecture closure, raw
+   acquisition, Effect adapter closure, apply safety, generator/migration proof,
+   product proof, and row-specific proof beyond inherited shared
+   wrapper/baseline/injected IDs as non-claims unless separately recorded.

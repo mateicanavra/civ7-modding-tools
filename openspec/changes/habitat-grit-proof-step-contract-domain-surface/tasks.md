@@ -62,16 +62,18 @@
 
 ## 4. Current-Tree Proof
 
-- [ ] 4.1 Run
+- [x] 4.1 Run
   `bun run habitat:check -- --json --rule grit-step-contract-domain-surface`
   and record output class, selected rule ids, diagnostics count, and baseline
   state.
-  - Blocked/non-claim under supervisor boundary because the accepted
-    command-trust/selector layer is not available in this row's stack/base.
-- [ ] 4.2 Record exact Habitat wrapper scan roots and selected rule projection.
+  - Current restacked shared wrapper/selector proof is inherited through
+    `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
+    `HGPR-PER-RULE-SELECTORS-2026-06-15`; this remains distinct from native
+    fixture proof, all-mod wrapper enforcement proof, and product proof.
+- [x] 4.2 Record exact Habitat wrapper scan roots and selected rule projection.
   - Exact adapter scan roots are recorded from source and parser inventory;
-    selected rule projection proof remains blocked until command selector truth
-    is available in this row's stack/base.
+    selected rule projection proof is current through the shared
+    wrapper/selector proof IDs above.
 - [ ] 4.3 Run bounded raw Grit acquisition over the Swooper recipe root or
   consume an accepted adapter proof id.
   - Blocked/non-claim for closure; parser inventory is not raw Grit

@@ -2,12 +2,13 @@
 
 ## Current Gate
 
-Gate 12 / supervisor review. The row packet is opened, native
+Gate 12 / bounded checkpoint accepted. The row packet is opened, native
 fixture/parser-edge expansion is implemented, parser inventory is recorded in
 durable row records, downstream ledgers are aligned, verification has passed,
-and the checkpoint is committed. A P2 call-count record ambiguity has been
-accepted for repair and amended in this row layer. Supervisor review remains
-the gate before next-row work.
+and the checkpoint is committed. A P2 call-count record ambiguity was accepted
+for repair and amended in this row layer. Successor HG rows are committed
+through `agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so
+this packet is not the active next-row gate.
 
 ## Branch / Stack
 
@@ -15,9 +16,13 @@ the gate before next-row work.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-runtime-run-validated`
 - Parent: `agent-HG-habitat-grit-runtime-validation-imports`
-- Base stack still does not include the HR repair layers, so Habitat wrapper
-  selector/current-tree proof and typed adapter/injected cleanup proof remain
-  unavailable in this row's stack/base.
+- Historical row-local proof did not consume HR repair layers. Current
+  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
+  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
+  `HGPR-BASELINE-FILES-2026-06-15`,
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
 
 ## Scope
 
@@ -52,5 +57,7 @@ row layer. No accepted P1/P2 findings remain open after the repair.
 
 ## Next Actions
 
-1. Wait for supervisor review of this checkpoint.
-2. Do not open the next row until supervisor acceptance.
+1. Preserve this packet as a bounded, accepted historical checkpoint.
+2. Keep raw acquisition, retired parity, neighboring runtime-purity row proof,
+   apply safety, Effect adapter closure, and product proof as separate gates
+   unless separately recorded.

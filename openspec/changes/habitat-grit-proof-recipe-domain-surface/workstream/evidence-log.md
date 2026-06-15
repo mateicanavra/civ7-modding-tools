@@ -7,7 +7,7 @@
 | RDS-E3 | `docs/system/libs/mapgen/policies/IMPORTS.md` | Recipe imports from `@mapgen/domain/*` must stay on domain root, `/ops`, or `/config.js` surfaces. | Current policy authority exists. | Does not prove the current Grit predicate enforces exact surfaces. |
 | RDS-E4 | `docs/projects/habitat-harness/invariant-corpus.md` | Retired recipe import script/test invariant recorded. | Retired mechanism authority exists. | No current proof that this row fully replaces it. |
 | RDS-E5 | `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter recipe_domain_surface --json` | Exit 0; one testable pattern succeeded with one positive and one negative sample. | Design seed only; superseded for fixture coverage by `RDS-E15`. | No parser-edge, current-tree, baseline, injected, overlap, or rewrite proof. |
-| RDS-E6 | `bun run habitat:check -- --json --rule grit-recipe-domain-surface` | Exit 0; report contains `grit-recipe-domain-surface` and `baseline-integrity`, both pass. | Historical wrapper pass seed. | Not consumed as current wrapper proof because the accepted command-trust/selector layer is not available in this row's stack/base; no injected violation proof. |
+| RDS-E6 | `bun run habitat:check -- --json --rule grit-recipe-domain-surface` | Exit 0; report contains `grit-recipe-domain-surface` and `baseline-integrity`, both pass. | Historical pre-restack wrapper pass seed. Current restacked shared wrapper/selector proof is inherited through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and `HGPR-PER-RULE-SELECTORS-2026-06-15`. | The historical seed is not raw acquisition proof, injected violation proof, retired parity proof, apply safety proof, or product proof. |
 | RDS-E7 | `GRIT_TELEMETRY_DISABLED=true grit check mods/mod-swooper-maps/src/recipes --json --level error --no-cache` | Exit 0 with JSON `results: []`. | Bounded raw zero-result seed for the recipe root. | Does not prove exact Habitat projection, full wrapper roots, raw acquisition closure, or injected behavior. |
 | RDS-E8 | `rg "@mapgen/domain/[^\"']+/" mods/mod-swooper-maps/src/recipes -g '*.ts'` | Live recipe imports are approved `/ops` and `/config.js` forms. | Supplemental live import inventory seed. | Superseded by parser inventory `RDS-E16`; regex inventory is not wrapper proof. |
 | RDS-E9 | Disposable Grit probe under `/tmp/.../mods/mod-swooper-maps/src/recipes`. | Shared/private import and export forms report; root, `/ops`, `/config.js`, `.tsx`, maps, other mods, `/ops/private`, `ops-by-id`, and `config.js/private` do not. | Direct Grit behavior seed for core positives and controls. | Disposable probe is not committed fixture, current-tree proof, or Habitat wrapper proof. |
@@ -32,10 +32,16 @@
 - recipe-local test-path policy classification beyond current-predicate native
   proof;
 - neighboring-rule overlap disposition;
-- exact wrapper-root and omitted-root projection proof;
+- current restacked shared wrapper/selector proof is inherited through
+  `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`;
+- current restacked shared explicit baseline proof is inherited through
+  `HGPR-BASELINE-FILES-2026-06-15` and
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`;
+- current restacked shared injected Grit-row proof is inherited through
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`;
 - Effect/manual substrate decision for injected proof;
-- injected positive recipe probe;
+- row-specific injected positive recipe probe beyond the shared aggregate proof;
 - outside-scope path-control probe;
-- explicit empty baseline proof;
-- baseline owner linkage;
+- raw acquisition or accepted adapter proof;
 - stale-record realignment.

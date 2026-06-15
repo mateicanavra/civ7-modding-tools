@@ -171,13 +171,17 @@ Current durable parser inventory summary:
 
 Blocked/non-claim proof classes:
 
-- Habitat wrapper selector/current-tree proof waits because the accepted
-  command-trust/selector layer is not available in this row's stack/base.
+- Shared Habitat wrapper selector/current-tree proof is inherited in current
+  aggregate state through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`.
 - Raw Grit acquisition or accepted adapter proof remains unclaimed for closure.
-- Injected proof remains blocked on the typed Grit adapter/injected cleanup
-  substrate.
-- Baseline proof remains blocked on the scaffold/baseline contract repair
-  surface.
+- Shared injected Grit-row proof is inherited through
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`; row-specific injected positive
+  step-contract probes beyond that shared aggregate proof remain unclaimed.
+- Shared explicit baseline proof is inherited through
+  `HGPR-BASELINE-FILES-2026-06-15` and
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`; injected unbaselined-finding proof
+  remains unclaimed.
 - Exact filename/source-scope closure remains open because source-prefix,
   source-relative, source-protocol, and `notacontract.ts` cases are current
   predicate facts, not predicate repair.
