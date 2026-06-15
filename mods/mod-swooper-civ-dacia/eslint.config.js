@@ -5,7 +5,7 @@ import globals from "globals";
 
 export default [
   {
-    ignores: ["**/mod/**", "**/dist/**", "node_modules/**", ".turbo/**"],
+    ignores: ["**/mod/**", "**/dist/**", "node_modules/**"],
   },
   {
     files: ["**/*.ts"],

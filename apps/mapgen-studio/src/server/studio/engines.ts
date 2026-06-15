@@ -256,7 +256,7 @@ async function restartCiv7ProcessViaSteam(): Promise<{
   };
 }
 
-// Deploy = the Turbo build graph + the @civ7/plugin-mods deploy API (the
+// Deploy = the Nx build graph + the @civ7/plugin-mods deploy API (the
 // rivers-era canonical shape; the old parsed-stdout deploy command is gone).
 // `buildSwooperMapsStudioDeployPlan` threads SWOOPER_STUDIO_RUN_ID so the
 // generated bundle embeds the run's request id (the proof-identity contract).
@@ -944,7 +944,7 @@ export function createStudioEngines(
 
         // Fail fast if the freshly built bundle does not embed this request's
         // id. The in-game [mapgen-proof] line echoes the embedded id and the
-        // proof waiter matches on it — a bundle without it (the turbo
+        // proof waiter matches on it — a bundle without it (the historical
         // cached/strict-env regression) would otherwise zombie in
         // "waiting-for-proof" until the log timeout while the game plays on.
         const localBundlePath = localModScriptPath(repoRoot, id);

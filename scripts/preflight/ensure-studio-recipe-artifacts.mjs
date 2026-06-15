@@ -12,7 +12,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const lockParentDir = join(repoRoot, ".turbo", "preflight-locks");
+const lockParentDir = join(repoRoot, ".nx", "workspace-data", "preflight-locks");
 const lockDir = join(lockParentDir, "studio-recipe-artifacts.lock");
 const lockTimeoutMs = 120_000;
 const staleLockMs = 5 * 60_000;
