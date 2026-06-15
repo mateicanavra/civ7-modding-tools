@@ -1,21 +1,24 @@
 import { Effect, Layer, ManagedRuntime } from "effect";
+import type { TSchema } from "typebox";
+import { Value } from "typebox/value";
 import { afterEach, describe, expect, test } from "vitest";
-
-import { createStudioEventHub, type StudioEventHubApi } from "../src/services/StudioEventHub";
+import type { StudioInputs } from "../src/context";
+import { operationStatusTypeSchema } from "../src/contract/runInGame";
+import { operationsCurrent, studioEventSchema, type StudioEvent } from "../src/contract/studio";
+import { invalidRequest } from "../src/errors/failure";
 import {
   makeStudioOperationRuntimeLayer,
   StudioOperationRuntime,
   type StudioOperationRuntimePorts,
 } from "../src/operationRuntime";
-import type { StudioEvent } from "../src/contract/studio";
 import { Civ7WorkflowControl, type Civ7WorkflowControlApi } from "../src/ports";
+import { StudioEventHub, type StudioEventHubApi } from "../src/services/StudioEventHub";
+import { typeboxOutputSchemaFromContractProcedure } from "../src/typeboxStandardSchema";
 
-const openRuntimes: ManagedRuntime.ManagedRuntime<StudioOperationRuntime, never>[] = [];
-const openEventHubs: StudioEventHubApi[] = [];
+const openRuntimes: ManagedRuntime.ManagedRuntime<unknown, never>[] = [];
 
 afterEach(async () => {
   await Promise.all(openRuntimes.splice(0).map((runtime) => runtime.dispose()));
-  await Promise.all(openEventHubs.splice(0).map((eventHub) => eventHub.shutdown()));
 });
 
 describe("StudioOperationRuntime", () => {
@@ -37,7 +40,7 @@ describe("StudioOperationRuntime", () => {
       runInGame: { active: null, recent: [] },
       saveDeploy: { active: null, recent: [] },
     });
-    expect(eventHub.activeSubscriberCount()).toBe(0);
+    await expect(Effect.runPromise(eventHub.activeSubscriberCount)).resolves.toBe(0);
   });
 
   test("reports active operations only in active and excludes them from recent", async () => {
@@ -51,9 +54,7 @@ describe("StudioOperationRuntime", () => {
       },
     });
     const runService = await runRuntime.runPromise(StudioOperationRuntime);
-    const run = await runRuntime.runPromise(
-      runService.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
-    );
+    const run = await runRuntime.runPromise(runService.runInGameStart(runInGameInput()));
 
     await expect
       .poll(async () => {
@@ -91,7 +92,7 @@ describe("StudioOperationRuntime", () => {
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     const run = await runtime.runPromise(
-      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+      service.runInGameStart(runInGameInput())
     );
     await expect
       .poll(async () => {
@@ -134,8 +135,7 @@ describe("StudioOperationRuntime", () => {
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     const accepted = await runtime.runPromise(
-      service.runInGameStart({
-        recipeId: "mod-swooper-maps/standard",
+      service.runInGameStart(runInGameInput({
         sourceSnapshot: {
           recipeSettings: { seed: "123" },
           worldSettings: { mapSize: "tiny" },
@@ -144,7 +144,7 @@ describe("StudioOperationRuntime", () => {
           materializationMode: "disposable",
           selectedConfig: { id: "current" },
         },
-      })
+      }))
     );
 
     expect(accepted.request?.sourceSnapshot).toMatchObject({
@@ -163,15 +163,7 @@ describe("StudioOperationRuntime", () => {
 
   test("keeps one source snapshot proof identity across runtime projections and final proof", async () => {
     const events: StudioEvent[] = [];
-    const eventHub = createStudioEventHub();
-    openEventHubs.push(eventHub);
-    const recordingEventHub: StudioEventHubApi = {
-      ...eventHub,
-      publish: async (event) => {
-        events.push(event);
-        await eventHub.publish(event);
-      },
-    };
+    const recordingEventHub = makeEventHub({ eventSink: events });
     const runtime = ManagedRuntime.make(
       makeStudioOperationRuntimeLayer({
         ports: makePorts({
@@ -195,16 +187,14 @@ describe("StudioOperationRuntime", () => {
             },
           }),
         }),
-        eventHub: recordingEventHub,
         civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
-      })
+      }).pipe(Layer.provide(Layer.succeed(StudioEventHub, recordingEventHub)))
     );
     openRuntimes.push(runtime);
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     const accepted = await runtime.runPromise(
-      service.runInGameStart({
-        recipeId: "mod-swooper-maps/standard",
+      service.runInGameStart(runInGameInput({
         config: { beta: undefined, alpha: { z: 1, a: 2 } },
         selectedConfig: {
           id: "studio-current",
@@ -218,7 +208,7 @@ describe("StudioOperationRuntime", () => {
           materializationMode: "disposable",
           selectedConfig: { id: "studio-current" },
         },
-      })
+      }))
     );
     const acceptedSourceSnapshot = accepted.request?.sourceSnapshot;
     expect(acceptedSourceSnapshot).toBeDefined();
@@ -259,6 +249,218 @@ describe("StudioOperationRuntime", () => {
     expect(status.exactAuthorshipProof?.sourceSnapshot).toEqual(acceptedSourceSnapshot);
   });
 
+  test("rejects raw-control Run in Game payloads before admission", async () => {
+    const events: StudioEvent[] = [];
+    let materializeCalls = 0;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        materializeRunInGame: async () => {
+          materializeCalls += 1;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    await expect(
+      expectFailure(
+        runtime,
+        service.runInGameStart(runInGameInput({
+          config: { nested: { rawJs: "UI.notifyUIReady()" } },
+        }))
+      )
+    ).resolves.toMatchObject({
+      tag: "InvalidRequest",
+      reason: "invalid-request",
+      diagnostics: {
+        code: "run-in-game-raw-control-rejected",
+        field: "rawJs",
+      },
+    });
+
+    const current = await runtime.runPromise(service.operationsCurrent);
+    expect(events).toEqual([]);
+    expect(materializeCalls).toBe(0);
+    expect(current.runInGame.active).toBeNull();
+    expect(current.runInGame.recent).toEqual([]);
+  });
+
+  test("rejects missing Run in Game config before admission", async () => {
+    const events: StudioEvent[] = [];
+    let materializeCalls = 0;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        materializeRunInGame: async () => {
+          materializeCalls += 1;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    await expect(
+      expectFailure(runtime, service.runInGameStart(runInGameInput({ config: undefined })))
+    ).resolves.toMatchObject({
+      tag: "InvalidRequest",
+      reason: "invalid-request",
+      diagnostics: { code: "run-in-game-config-invalid" },
+    });
+
+    const current = await runtime.runPromise(service.operationsCurrent);
+    expect(events).toEqual([]);
+    expect(materializeCalls).toBe(0);
+    expect(current.runInGame.active).toBeNull();
+    expect(current.runInGame.recent).toEqual([]);
+  });
+
+  test.each(["", "   ", "{swooper-maps}/maps/bad\nscript.js", "bad\rscript.js", "bad\0script.js"])(
+    "rejects invalid Run in Game setup mapScript before admission: %j",
+    async (mapScript) => {
+      const events: StudioEvent[] = [];
+      let materializeCalls = 0;
+      const { runtime } = makeRuntime({
+        eventSink: events,
+        ports: {
+          materializeRunInGame: async () => {
+            materializeCalls += 1;
+            return {};
+          },
+        },
+      });
+      const service = await runtime.runPromise(StudioOperationRuntime);
+
+      await expect(
+        expectFailure(
+          runtime,
+          service.runInGameStart(
+            runInGameInput({
+              setupConfig: {
+                mapScript,
+                gameOptions: {},
+                playerOptions: [{ playerId: 0, options: {} }],
+              },
+            })
+          )
+        )
+      ).resolves.toMatchObject({
+        tag: "InvalidRequest",
+        reason: "invalid-request",
+        diagnostics: {
+          code: "run-in-game-map-script-invalid",
+          field: "setupConfig.mapScript",
+        },
+      });
+
+      const current = await runtime.runPromise(service.operationsCurrent);
+      expect(events).toEqual([]);
+      expect(materializeCalls).toBe(0);
+      expect(current.runInGame.active).toBeNull();
+      expect(current.runInGame.recent).toEqual([]);
+    }
+  );
+
+  test("preserves a valid setup mapScript in the canonical prepared request", async () => {
+    const mapScript = "{swooper-maps}/maps/studio-current.js";
+    let observedMapScript: string | undefined;
+    const { runtime } = makeRuntime({
+      ports: {
+        materializeRunInGame: async ({ prepared }) => {
+          observedMapScript = prepared.request.setupConfig?.mapScript;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(
+        runInGameInput({
+          setupConfig: {
+            mapScript,
+            gameOptions: {},
+            playerOptions: [{ playerId: 0, options: {} }],
+          },
+        })
+      )
+    );
+
+    expect(accepted.request?.setupConfig?.mapScript).toBe(mapScript);
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("complete");
+    expect(observedMapScript).toBe(mapScript);
+  });
+
+  test("keeps failed Run in Game projections schema-valid after live-shaped diagnostics", async () => {
+    const events: StudioEvent[] = [];
+    let observedSeed: number | undefined;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        deployRunInGame: async ({ prepared }) => {
+          observedSeed = prepared.request.seed;
+          throw invalidRequest({
+            message: "Run in Game start is missing map script, map size, or seed",
+            diagnostics: {
+              code: "run-in-game-start-input-missing",
+              requestId: "run-live-shaped",
+              materialization: JSON.stringify({
+                mode: "disposable",
+                path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+                mapScript: "{swooper-maps}/maps/studio-current.js",
+              }),
+              mapSize: prepared.request.mapSize ?? "",
+              seed: prepared.request.seed ?? "",
+            },
+          });
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(runInGameInput({
+        seed: "43",
+        materialization: { mode: "disposable" },
+      }))
+    );
+
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("failed");
+
+    const status = await runtime.runPromise(
+      service.runInGameStatus({ requestId: accepted.requestId })
+    );
+    const current = await runtime.runPromise(service.operationsCurrent);
+    const terminalEvent = events.find(
+      (event) =>
+        event.type === "operation" &&
+        event.kind === "run-in-game" &&
+        event.status.requestId === accepted.requestId &&
+        event.status.phase === "failed"
+    );
+
+    expect(observedSeed).toBe(43);
+    expect(status.details?.materialization).toBeUndefined();
+    expect(status.details?.materializationSummary).toContain("studio-current.js");
+    expectTypeboxValid(operationStatusTypeSchema, status);
+    expectTypeboxValid(typeboxOutputSchemaFromContractProcedure(operationsCurrent), current);
+    expectTypeboxValid(studioEventSchema, terminalEvent);
+  });
+
   test("returns duplicate Run in Game fingerprint from the runtime registry", async () => {
     const blocker = deferred<void>();
     const { runtime } = makeRuntime({
@@ -272,10 +474,10 @@ describe("StudioOperationRuntime", () => {
 
     const service = await runtime.runPromise(StudioOperationRuntime);
     const first = await runtime.runPromise(
-      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+      service.runInGameStart(runInGameInput())
     );
     const second = await runtime.runPromise(
-      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+      service.runInGameStart(runInGameInput())
     );
 
     expect(second.requestId).toBe(first.requestId);
@@ -295,7 +497,7 @@ describe("StudioOperationRuntime", () => {
       .toBe("complete");
 
     const duplicateAfterComplete = await runtime.runPromise(
-      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+      service.runInGameStart(runInGameInput())
     );
     expect(duplicateAfterComplete.requestId).toBe(first.requestId);
     expect(duplicateAfterComplete.details).toMatchObject({
@@ -315,19 +517,22 @@ describe("StudioOperationRuntime", () => {
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     const first = await runtime.runPromise(
-      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+      service.runInGameStart(runInGameInput())
     );
     await expect
-      .poll(async () => {
-        const status = await runtime.runPromise(
-          service.runInGameStatus({ requestId: first.requestId })
-        );
-        return status.status === "running" ? "running" : "terminal";
-      }, { timeout: 5_000 })
+      .poll(
+        async () => {
+          const status = await runtime.runPromise(
+            service.runInGameStatus({ requestId: first.requestId })
+          );
+          return status.status === "running" ? "running" : "terminal";
+        },
+        { timeout: 5_000 }
+      )
       .toBe("terminal");
 
     const duplicateAfterFailure = await runtime.runPromise(
-      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+      service.runInGameStart(runInGameInput())
     );
     expect(duplicateAfterFailure.requestId).toBe(first.requestId);
     expect(duplicateAfterFailure.details).toMatchObject({
@@ -349,7 +554,7 @@ describe("StudioOperationRuntime", () => {
 
     const service = await runtime.runPromise(StudioOperationRuntime);
     const run = await runtime.runPromise(
-      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+      service.runInGameStart(runInGameInput())
     );
     await expect(
       expectFailure(
@@ -399,14 +604,16 @@ describe("StudioOperationRuntime", () => {
     });
     const service = await runtime.runPromise(StudioOperationRuntime);
 
-    await runtime.runPromise(service.runInGameStart({ recipeId: "mod-swooper-maps/standard" }));
+    await runtime.runPromise(service.runInGameStart(runInGameInput()));
     await expect(
       expectFailure(
         runtime,
         service.saveDeployStart({ requestId: "save-1", id: "test-config", envelope: {} })
       )
     ).resolves.toMatchObject({ tag: "OperationBlocked" });
-    await expect(expectFailure(runtime, service.autoplay({ action: "start" }))).resolves.toMatchObject({
+    await expect(
+      expectFailure(runtime, service.autoplay({ action: "start" }))
+    ).resolves.toMatchObject({
       tag: "OperationBlocked",
     });
 
@@ -518,7 +725,7 @@ describe("StudioOperationRuntime", () => {
     expect(terminalSaveDeployEvents(events, accepted.requestId)).toHaveLength(1);
 
     await expect(
-      runtime.runPromise(service.runInGameStart({ recipeId: "mod-swooper-maps/standard" }))
+      runtime.runPromise(service.runInGameStart(runInGameInput()))
     ).resolves.toMatchObject({
       ok: true,
       status: "running",
@@ -582,7 +789,7 @@ describe("StudioOperationRuntime", () => {
     expect(terminalSaveDeployEvents(events, accepted.requestId)).toHaveLength(1);
 
     await expect(
-      runtime.runPromise(service.runInGameStart({ recipeId: "mod-swooper-maps/standard" }))
+      runtime.runPromise(service.runInGameStart(runInGameInput()))
     ).resolves.toMatchObject({
       ok: true,
       status: "running",
@@ -650,7 +857,7 @@ describe("StudioOperationRuntime", () => {
     expect(terminalSaveDeployEvents(events, accepted.requestId)).toHaveLength(1);
 
     await expect(
-      runtime.runPromise(service.runInGameStart({ recipeId: "mod-swooper-maps/standard" }))
+      runtime.runPromise(service.runInGameStart(runInGameInput()))
     ).resolves.toMatchObject({
       ok: true,
       status: "running",
@@ -662,10 +869,7 @@ describe("StudioOperationRuntime", () => {
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     await expect(
-      expectFailure(
-        runtime,
-        service.runInGameStatus({ requestId: "missing" })
-      )
+      expectFailure(runtime, service.runInGameStatus({ requestId: "missing" }))
     ).resolves.toMatchObject({
       tag: "OperationNotFound",
       requestId: "missing",
@@ -685,7 +889,7 @@ describe("StudioOperationRuntime", () => {
 
     const service = await runtime.runPromise(StudioOperationRuntime);
     const accepted = await runtime.runPromise(
-      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+      service.runInGameStart(runInGameInput())
     );
     await runtime.dispose();
 
@@ -704,7 +908,7 @@ describe("StudioOperationRuntime", () => {
       },
     });
     await expect(
-      expectEffectFailure(service.runInGameStart({ recipeId: "mod-swooper-maps/standard" }))
+      expectEffectFailure(service.runInGameStart(runInGameInput()))
     ).resolves.toMatchObject({
       tag: "RuntimeDisposed",
       reason: "runtime-disposed",
@@ -746,16 +950,16 @@ describe("StudioOperationRuntime", () => {
     await runtime.dispose();
 
     await expect(
-      expectEffectFailure(service.runInGameStart({ recipeId: "mod-swooper-maps/standard" }))
+      expectEffectFailure(service.runInGameStart(runInGameInput()))
     ).resolves.toMatchObject({ tag: "RuntimeDisposed" });
     await expect(
       expectEffectFailure(
         service.saveDeployStart({ requestId: "save-1", id: "test-config", envelope: {} })
       )
     ).resolves.toMatchObject({ tag: "RuntimeDisposed" });
-    await expect(
-      expectEffectFailure(service.autoplay({ action: "stop" }))
-    ).resolves.toMatchObject({ tag: "RuntimeDisposed" });
+    await expect(expectEffectFailure(service.autoplay({ action: "stop" }))).resolves.toMatchObject({
+      tag: "RuntimeDisposed",
+    });
 
     expect(materializeCalls).toBe(0);
     expect(savePrepareCalls).toBe(0);
@@ -773,7 +977,7 @@ describe("StudioOperationRuntime", () => {
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     const accepted = await runtime.runPromise(
-      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+      service.runInGameStart(runInGameInput())
     );
     await expect
       .poll(async () => {
@@ -795,10 +999,7 @@ describe("StudioOperationRuntime", () => {
       requestId: accepted.requestId,
     });
     await expect(
-      expectFailure(
-        runtime,
-        service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
-      )
+      expectFailure(runtime, service.runInGameStart(runInGameInput()))
     ).resolves.toMatchObject({
       tag: "OperationExpired",
       requestId: accepted.requestId,
@@ -806,26 +1007,18 @@ describe("StudioOperationRuntime", () => {
   });
 
   test("operation event publish failure does not change registry truth", async () => {
-    const eventHub = createStudioEventHub();
-    openEventHubs.push(eventHub);
-    const failingEventHub: StudioEventHubApi = {
-      ...eventHub,
-      publish: async () => {
-        throw new Error("event sink failed");
-      },
-    };
+    const failingEventHub = makeEventHub({ publishFailure: new Error("event sink failed") });
     const runtime = ManagedRuntime.make(
       makeStudioOperationRuntimeLayer({
         ports: makePorts(),
-        eventHub: failingEventHub,
         civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
-      })
+      }).pipe(Layer.provide(Layer.succeed(StudioEventHub, failingEventHub)))
     );
     openRuntimes.push(runtime);
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     const accepted = await runtime.runPromise(
-      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+      service.runInGameStart(runInGameInput())
     );
     await expect
       .poll(async () => {
@@ -838,20 +1031,12 @@ describe("StudioOperationRuntime", () => {
   });
 
   test("Save/Deploy event publish failure does not change registry truth", async () => {
-    const eventHub = createStudioEventHub();
-    openEventHubs.push(eventHub);
-    const failingEventHub: StudioEventHubApi = {
-      ...eventHub,
-      publish: async () => {
-        throw new Error("event sink failed");
-      },
-    };
+    const failingEventHub = makeEventHub({ publishFailure: new Error("event sink failed") });
     const runtime = ManagedRuntime.make(
       makeStudioOperationRuntimeLayer({
         ports: makePorts(),
-        eventHub: failingEventHub,
         civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
-      })
+      }).pipe(Layer.provide(Layer.succeed(StudioEventHub, failingEventHub)))
     );
     openRuntimes.push(runtime);
     const service = await runtime.runPromise(StudioOperationRuntime);
@@ -875,27 +1060,18 @@ describe("StudioOperationRuntime", () => {
 
   test("publishes accepted and transition events from runtime projections", async () => {
     const events: StudioEvent[] = [];
-    const eventHub = createStudioEventHub();
-    openEventHubs.push(eventHub);
-    const recordingEventHub: StudioEventHubApi = {
-      ...eventHub,
-      publish: async (event) => {
-        events.push(event);
-        await eventHub.publish(event);
-      },
-    };
+    const recordingEventHub = makeEventHub({ eventSink: events });
     const runtime = ManagedRuntime.make(
       makeStudioOperationRuntimeLayer({
         ports: makePorts(),
-        eventHub: recordingEventHub,
         civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
-      })
+      }).pipe(Layer.provide(Layer.succeed(StudioEventHub, recordingEventHub)))
     );
     openRuntimes.push(runtime);
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     const accepted = await runtime.runPromise(
-      service.runInGameStart({ recipeId: "mod-swooper-maps/standard" })
+      service.runInGameStart(runInGameInput())
     );
     await expect
       .poll(async () => {
@@ -922,15 +1098,7 @@ describe("StudioOperationRuntime", () => {
   test("publishes accepted Save/Deploy event before leaf prepare work continues", async () => {
     const events: StudioEvent[] = [];
     const prepareBlocker = deferred<void>();
-    const eventHub = createStudioEventHub();
-    openEventHubs.push(eventHub);
-    const recordingEventHub: StudioEventHubApi = {
-      ...eventHub,
-      publish: async (event) => {
-        events.push(event);
-        await eventHub.publish(event);
-      },
-    };
+    const recordingEventHub = makeEventHub({ eventSink: events });
     const runtime = ManagedRuntime.make(
       makeStudioOperationRuntimeLayer({
         ports: makePorts({
@@ -939,9 +1107,8 @@ describe("StudioOperationRuntime", () => {
             return {};
           },
         }),
-        eventHub: recordingEventHub,
         civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
-      })
+      }).pipe(Layer.provide(Layer.succeed(StudioEventHub, recordingEventHub)))
     );
     openRuntimes.push(runtime);
     const service = await runtime.runPromise(StudioOperationRuntime);
@@ -980,24 +1147,15 @@ describe("StudioOperationRuntime", () => {
   });
 });
 
-function makeRuntime(overrides: {
-  ports?: Partial<StudioOperationRuntimePorts>;
-  civ7?: Partial<Civ7WorkflowControlApi>;
-  ttlMs?: number;
-  eventSink?: StudioEvent[];
-} = {}) {
-  const eventHub = createStudioEventHub();
-  openEventHubs.push(eventHub);
-  const runtimeEventHub: StudioEventHubApi =
-    overrides.eventSink === undefined
-      ? eventHub
-      : {
-          ...eventHub,
-          publish: async (event) => {
-            overrides.eventSink?.push(event);
-            await eventHub.publish(event);
-          },
-        };
+function makeRuntime(
+  overrides: {
+    ports?: Partial<StudioOperationRuntimePorts>;
+    civ7?: Partial<Civ7WorkflowControlApi>;
+    ttlMs?: number;
+    eventSink?: StudioEvent[];
+  } = {}
+) {
+  const eventHub = makeEventHub({ eventSink: overrides.eventSink });
   const ports: StudioOperationRuntimePorts = {
     ...makePorts(),
     ...overrides.ports,
@@ -1005,16 +1163,35 @@ function makeRuntime(overrides: {
   const runtime = ManagedRuntime.make(
     makeStudioOperationRuntimeLayer({
       ports,
-      eventHub: runtimeEventHub,
       civ7WorkflowControl: makeCiv7WorkflowControlLayer(overrides.civ7),
       ttlMs: overrides.ttlMs,
-    })
+    }).pipe(Layer.provide(Layer.succeed(StudioEventHub, eventHub)))
   );
   openRuntimes.push(runtime);
   return { runtime, eventHub };
 }
 
-function makePorts(overrides: Partial<StudioOperationRuntimePorts> = {}): StudioOperationRuntimePorts {
+function makeEventHub(
+  options: Readonly<{
+    eventSink?: StudioEvent[];
+    publishFailure?: unknown;
+  }> = {}
+): StudioEventHubApi {
+  return {
+    publish: (event) =>
+      options.publishFailure === undefined
+        ? Effect.sync(() => {
+            options.eventSink?.push(event);
+          })
+        : Effect.fail(options.publishFailure),
+    subscribe: () => Effect.die("operation runtime tests do not subscribe to StudioEventHub"),
+    activeSubscriberCount: Effect.succeed(0),
+  };
+}
+
+function makePorts(
+  overrides: Partial<StudioOperationRuntimePorts> = {}
+): StudioOperationRuntimePorts {
   return {
     clock: {
       now: () => new Date("2026-06-10T00:00:00.000Z"),
@@ -1033,6 +1210,18 @@ function makePorts(overrides: Partial<StudioOperationRuntimePorts> = {}): Studio
       path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
       restored: true,
     }),
+    ...overrides,
+  };
+}
+
+function runInGameInput(
+  overrides: Partial<StudioInputs["runInGame"]["start"]> = {}
+): StudioInputs["runInGame"]["start"] {
+  return {
+    recipeId: "mod-swooper-maps/standard",
+    seed: 43,
+    mapSize: "MAPSIZE_STANDARD",
+    config: {},
     ...overrides,
   };
 }
@@ -1098,4 +1287,12 @@ function terminalSaveDeployEvents(
       event.status.requestId === requestId &&
       event.status.status !== "running"
   );
+}
+
+function expectTypeboxValid(schema: TSchema, value: unknown): void {
+  const errors = [...Value.Errors(schema, value)].map((error) => ({
+    message: error.message,
+    path: error.path,
+  }));
+  expect(errors).toEqual([]);
 }

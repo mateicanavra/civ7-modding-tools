@@ -73,12 +73,7 @@ export const STUDIO_DEPENDENCY_KINDS = [
 
 export type StudioDependencyKind = (typeof STUDIO_DEPENDENCY_KINDS)[number];
 
-export type StudioBoundedDiagnosticValue =
-  | string
-  | number
-  | boolean
-  | null
-  | string[];
+export type StudioBoundedDiagnosticValue = string | number | boolean | null | string[];
 
 export type StudioBoundedDiagnostics = Readonly<Record<string, StudioBoundedDiagnosticValue>>;
 
@@ -144,7 +139,9 @@ function isFailureReason(value: unknown): value is StudioFailureReasonCode {
 }
 
 function isRecoveryAction(value: unknown): value is StudioRecoveryAction {
-  return typeof value === "string" && STUDIO_RECOVERY_ACTIONS.includes(value as StudioRecoveryAction);
+  return (
+    typeof value === "string" && STUDIO_RECOVERY_ACTIONS.includes(value as StudioRecoveryAction)
+  );
 }
 
 function tagAllowsReason(tag: StudioFailureTag, reason: StudioFailureReasonCode): boolean {

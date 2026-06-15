@@ -160,5 +160,14 @@ describe("daemon deploy isolation", () => {
         env: { PATH: "/bin" },
       }).buildTask
     ).toBe("mod-swooper-maps:build:studio-deploy");
+    expect(
+      buildSwooperMapsStudioDeployPlan({
+        requestId: "studio-run-in-game-test",
+        env: { PATH: "/bin" },
+      }).env
+    ).toMatchObject({
+      SWOOPER_STUDIO_RUN_ID: "studio-run-in-game-test",
+      SWOOPER_INCLUDE_STUDIO_CURRENT: "1",
+    });
   });
 });

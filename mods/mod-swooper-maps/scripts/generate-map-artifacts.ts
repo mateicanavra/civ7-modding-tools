@@ -22,6 +22,8 @@ const generatedEntriesDir = resolve(pkgRoot, "src/maps/generated");
 const modConfigDir = resolve(pkgRoot, "mod/config");
 const modTextDir = resolve(pkgRoot, "mod/text/en_us");
 const distRecipesDir = resolve(pkgRoot, "dist/recipes");
+const transientStudioCurrentConfig = "studio-current.config.json";
+const includeTransientStudioCurrent = process.env.SWOOPER_INCLUDE_STUDIO_CURRENT === "1";
 
 function stableJson(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
@@ -74,6 +76,7 @@ async function loadRegistry(): Promise<ValidatedMapConfig[]> {
 
   for (const entry of entries) {
     if (!entry.isFile() || !entry.name.endsWith(".config.json")) continue;
+    if (!includeTransientStudioCurrent && entry.name === transientStudioCurrentConfig) continue;
     const raw = JSON.parse(await readFile(resolve(configsDir, entry.name), "utf-8")) as unknown;
     configs.push(
       validateCanonicalMapConfig({

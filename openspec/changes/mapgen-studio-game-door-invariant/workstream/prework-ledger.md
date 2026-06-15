@@ -25,7 +25,7 @@ Date: 2026-06-14
 | Session constructor proof | production source guard with exact allowlist |
 | `RunInGameHttpError` | deleted or dispositioned so no live transport bridge remains |
 | Studio contracts | TypeBox/Standard Schema, no Zod imports in contract surface |
-| Public/manual status | diagnostic request/response only or deleted |
+| Public/manual status | diagnostic reads, mutation-state reads/projections, or identity reads only; no background freshness authority |
 | Control-oRPC runtime surfaces | classified ledger, no unclassified mutation/effect surface |
 | Tuner-session residue | close each promise by name |
 | Restart Civ7 | implement, reject with product authority, or durable deferral |

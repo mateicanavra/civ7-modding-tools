@@ -2,7 +2,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { createStudioEventHub, createStudioRpcHandler } from "@civ7/studio-server";
+import { createStudioRpcHandler } from "@civ7/studio-server";
 
 import { createStudioServerContext } from "../studio/context";
 import { createStudioOperationRuntimePorts } from "../studio/engines";
@@ -152,11 +152,9 @@ export function createStudioDaemonFetch(
 }
 
 export async function createStudioDaemon(args: StudioDaemonArgs) {
-  const eventHub = createStudioEventHub();
   const operationRuntime = createStudioOperationRuntimePorts({ repoRoot: args.repoRoot });
   const context = createStudioServerContext({
     operationRuntime,
-    eventHub,
     hostCommand: "daemon",
     repoRoot: args.repoRoot,
   });

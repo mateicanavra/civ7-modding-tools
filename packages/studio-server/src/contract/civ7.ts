@@ -22,6 +22,8 @@ import {
  *
  * Source of truth: audit/05-server-contracts.md endpoints #1, #2, #3, #8, #10,
  * #11, #12 (and the `civ7.live.*` sub-namespace lives in ./live.ts).
+ * Current transport is TypeBox/effect-oRPC under `/rpc`; retired `/api/*`
+ * strings below are audit/parity identifiers, not active routes.
  *
  * Parity note: error status codes are NON-UNIFORM across these procedures
  * (gameInfo->400, setupConfig->503, savedConfigs/setupCatalog->500,
@@ -36,7 +38,7 @@ const setupCatalogSourceSchema = Type.Union([
 ]);
 
 // ---------------------------------------------------------------------------
-// #1 civ7.status - GET /api/civ7/status
+// #1 civ7.status - playable-status read (retired REST parity: GET /api/civ7/status)
 // ---------------------------------------------------------------------------
 // Request: none. Success 200: { ok: status.playable, status: PlayableStatus }.
 // Error 500: { ok:false, error }. Reads FireTuner socket (getCiv7PlayableStatus).
@@ -57,7 +59,7 @@ export const status = oc
   );
 
 // ---------------------------------------------------------------------------
-// #2 civ7.mapSummary - GET /api/civ7/map-summary
+// #2 civ7.mapSummary - map-summary read (retired REST parity: GET /api/civ7/map-summary)
 // ---------------------------------------------------------------------------
 // Request: none (server calls with { includeAreaRegionCounts: true }).
 // Success 200: { ok:true, summary: MapSummary }. Error 500: { ok:false, error }.
@@ -78,7 +80,7 @@ export const mapSummary = oc
   );
 
 // ---------------------------------------------------------------------------
-// #3 civ7.gameInfo - GET /api/civ7/gameinfo?table=&limit=
+// #3 civ7.gameInfo - table read (retired REST parity: GET /api/civ7/gameinfo?table=&limit=)
 // ---------------------------------------------------------------------------
 // Query: table (string, REQUIRED), limit (number, default 100).
 // Success 200: { ok:true, rows }. Error 400 (incl. missing table): { ok:false, error }.
@@ -88,8 +90,9 @@ export const mapSummary = oc
 // getCiv7GameInfoRows(...)` and writes `{ ok:true, rows }` - i.e. `rows` is the
 // WHOLE `Civ7GameInfoRowsResult` object (`{ host, port, table, source, rows,
 // total, ... }`), NOT a bare row array. The A1 contract modelled it as
-// `array(gameInfoRow)`, which does not match `/api`. Refined to the opaque result
-// record to preserve current behavior (the deep payload is internal, per shared.ts).
+// `array(gameInfoRow)`, which does not match the retired REST payload. Refined
+// to the opaque result record to preserve parity (the deep payload is internal,
+// per shared.ts).
 export const gameInfo = oc
   .errors(civ7GameInfoErrors)
   .input(
@@ -117,7 +120,7 @@ export const gameInfo = oc
   );
 
 // ---------------------------------------------------------------------------
-// #8 civ7.autoplay - POST /api/civ7/autoplay
+// #8 civ7.autoplay - autoplay mutation (retired REST parity: POST /api/civ7/autoplay)
 // ---------------------------------------------------------------------------
 // Body: { action: "start" | "stop" }.
 // Success 200: { ok: result.verified, action, autoplay, game, gameContext, result }.
@@ -159,7 +162,7 @@ export const autoplay = oc
   );
 
 // ---------------------------------------------------------------------------
-// #10 civ7.setupConfig - GET /api/civ7/setup-config
+// #10 civ7.setupConfig - setup-config read (retired REST parity: GET /api/civ7/setup-config)
 // ---------------------------------------------------------------------------
 // Request: none. Success 200: { ok:true, observedAt, setup, state, host, port }.
 // Error 503 (UNIQUE): { ok:false, error, observedAt }. Reads FireTuner socket.
@@ -184,7 +187,7 @@ export const setupConfig = oc
   );
 
 // ---------------------------------------------------------------------------
-// #11 civ7.savedConfigs - GET /api/civ7/saved-configs
+// #11 civ7.savedConfigs - saved-configs read (retired REST parity: GET /api/civ7/saved-configs)
 // ---------------------------------------------------------------------------
 // Request: none. Success 200: { ok:true, observedAt, directory, configurations }
 // (spread of listCiv7SavedGameConfigurations listResult). Error 500:
@@ -207,7 +210,7 @@ export const savedConfigs = oc
   );
 
 // ---------------------------------------------------------------------------
-// #12 civ7.setupCatalog - GET /api/civ7/setup-catalog
+// #12 civ7.setupCatalog - setup-catalog read (retired REST parity: GET /api/civ7/setup-catalog)
 // ---------------------------------------------------------------------------
 // Request: none. Success 200: { ok:true, catalog: Civ7SetupCatalog }.
 // Error 500: { ok:false, error, observedAt }. Reads filesystem (repo mirror +

@@ -26,7 +26,7 @@ From repo root:
 
 ```bash
 bun run test:ci
-bunx turbo run build --filter=mapgen-studio
+bun run nx run mapgen-studio:build:vite
 bun run --cwd mods/mod-swooper-maps viz:standard --silent
 ```
 

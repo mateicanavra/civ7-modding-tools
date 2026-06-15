@@ -1,14 +1,12 @@
-import { createServer, type Server } from "node:http";
 import { readFileSync } from "node:fs";
+import { createServer, type Server } from "node:http";
 import { fileURLToPath } from "node:url";
 import { type Civ7ControlOrpcContext, Civ7ControlOrpcContract } from "@civ7/control-orpc";
 import { Civ7DirectControlSession, type Civ7PlayableStatusResult } from "@civ7/direct-control";
 import {
   contract,
-  createStudioEventHub,
   createStudioRpcHandler,
   type StudioContract,
-  type StudioEventHubApi,
   type StudioOperationRuntimePorts,
   type StudioRpcHandle,
   type StudioServerContext,
@@ -33,12 +31,10 @@ import { RecipeDagNotFound } from "../../src/server/recipeDag/service";
 
 const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
-const openEventHubs: StudioEventHubApi[] = [];
 
 afterEach(async () => {
   await Promise.all(openServers.splice(0).map((server) => closeServer(server)));
   await Promise.all(openHandles.splice(0).map((handle) => handle.dispose()));
-  await Promise.all(openEventHubs.splice(0).map((eventHub) => eventHub.shutdown()));
 });
 
 describe("one /rpc mount serves the whole unified contract", () => {
@@ -151,17 +147,21 @@ describe("one /rpc mount serves the whole unified contract", () => {
     }
   });
 
-  test("production daemon composes one EventHub into the Studio RPC context", () => {
+  test("production daemon leaves EventHub lifecycle inside the Studio runtime", () => {
     const daemonSource = readFileSync(
       fileURLToPath(new URL("../../src/server/daemon/daemon.ts", import.meta.url)),
       "utf8"
     );
+    const contextSource = readFileSync(
+      fileURLToPath(new URL("../../src/server/studio/context.ts", import.meta.url)),
+      "utf8"
+    );
 
-    expect(daemonSource).toContain("const eventHub = createStudioEventHub();");
-    expect(daemonSource).toContain("eventHub,");
     expect(daemonSource).toContain("createStudioRpcHandler(context");
+    expect(daemonSource).not.toContain("createStudioEventHub");
     expect(daemonSource).not.toMatch(/eventHub\?:|createStudioRpcHandler\([^)]*\{[^}]*eventHub/);
     expect(daemonSource).not.toContain("eventHub.shutdown();");
+    expect(contextSource).not.toContain("eventHub");
   });
 });
 
@@ -242,8 +242,6 @@ async function nodeRequestToWebRequest(req: import("node:http").IncomingMessage)
 }
 
 function makeContext(overrides: Partial<StudioServerContext>): StudioServerContext {
-  const eventHub = overrides.eventHub ?? createStudioEventHub();
-  if (!overrides.eventHub) openEventHubs.push(eventHub);
   return {
     viteCommand: "serve",
     loadSetupCatalog: async () => {
@@ -258,7 +256,6 @@ function makeContext(overrides: Partial<StudioServerContext>): StudioServerConte
       directControl: {} as StudioServerContext["civ7Control"]["directControl"],
       timeoutMs: 1234,
     },
-    eventHub,
     operationRuntime: makeOperationRuntimePorts(),
     ...overrides,
   };

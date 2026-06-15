@@ -2,10 +2,7 @@ import { runInGame, typeboxInputSchemaFromContractProcedure } from "@civ7/studio
 import { Value } from "typebox/value";
 import { describe, expect, it } from "vitest";
 
-import {
-  assertNoRawControlFields,
-  parseRunInGameSetupRequest,
-} from "../../src/server/runInGame/requestValidation";
+import { assertNoRawControlFields } from "../../src/server/runInGame/requestValidation";
 
 describe("Run in Game request validation", () => {
   it("rejects raw-control top-level tunnel fields in TypeBox and nested fields in host validation", () => {
@@ -26,7 +23,7 @@ describe("Run in Game request validation", () => {
     for (const key of rawKeys) {
       const topLevelPayload = validRunInGameRequest({ [key]: "raw-control" });
       expect(Value.Check(startInputSchema, topLevelPayload)).toBe(false);
-      expect(() => parseRunInGameSetupRequest(topLevelPayload)).toThrow("raw control commands");
+      expect(() => assertNoRawControlFields(topLevelPayload)).toThrow("raw control commands");
 
       const nestedPayload = validRunInGameRequest({
         config: {
@@ -36,7 +33,7 @@ describe("Run in Game request validation", () => {
         },
       });
       expect(Value.Check(startInputSchema, nestedPayload)).toBe(true);
-      expect(() => parseRunInGameSetupRequest(nestedPayload)).toThrow("raw control commands");
+      expect(() => assertNoRawControlFields(nestedPayload)).toThrow("raw control commands");
     }
   });
 
@@ -62,159 +59,9 @@ describe("Run in Game request validation", () => {
       })
     ).toThrow("raw control commands");
   });
-
-  it("normalizes disposable setup requests to studio-current", () => {
-    expect(
-      parseRunInGameSetupRequest({
-        recipeId: "mod-swooper-maps/standard",
-        seed: "123",
-        mapSize: "MAPSIZE_STANDARD",
-        playerCount: 8,
-        materialization: { mode: "disposable" },
-        selectedConfig: { id: "swooper-earthlike" },
-        config: { ok: true },
-      })
-    ).toEqual({
-      requestedMode: "disposable",
-      id: "studio-current",
-      seed: 123,
-      mapSize: "MAPSIZE_STANDARD",
-      playerCount: 8,
-      restartCivProcess: false,
-      setupConfig: {
-        gameOptions: {},
-        playerOptions: [{ playerId: 0, options: {} }],
-      },
-    });
-  });
-
-  it("keeps durable setup requests on the selected repo-backed config id", () => {
-    expect(
-      parseRunInGameSetupRequest({
-        recipeId: "mod-swooper-maps/standard",
-        seed: 123,
-        mapSize: "MAPSIZE_HUGE",
-        materialization: { mode: "durable" },
-        selectedConfig: { id: "swooper-earthlike" },
-        config: { ok: true },
-      })
-    ).toMatchObject({
-      requestedMode: "durable",
-      id: "swooper-earthlike",
-      seed: 123,
-      mapSize: "MAPSIZE_HUGE",
-      restartCivProcess: false,
-      setupConfig: {
-        gameOptions: {},
-        playerOptions: [{ playerId: 0, options: {} }],
-      },
-    });
-  });
-
-  it("normalizes explicit process restart recovery without making it a save concern", () => {
-    expect(
-      parseRunInGameSetupRequest({
-        recipeId: "mod-swooper-maps/standard",
-        seed: 123,
-        mapSize: "MAPSIZE_STANDARD",
-        recovery: { restartCivProcess: true },
-        config: { ok: true },
-      })
-    ).toMatchObject({
-      requestedMode: "disposable",
-      id: "studio-current",
-      restartCivProcess: true,
-      setupConfig: {
-        gameOptions: {},
-        playerOptions: [{ playerId: 0, options: {} }],
-      },
-    });
-  });
-
-  it("normalizes bounded setup config fields", () => {
-    expect(
-      parseRunInGameSetupRequest({
-        recipeId: "mod-swooper-maps/standard",
-        seed: 123,
-        mapSize: "MAPSIZE_STANDARD",
-        setupConfig: {
-          savedConfig: {
-            id: "tot-config",
-            displayName: "ToT Config",
-            fileName: "ToT Config.Civ7Cfg",
-            path: "/tmp/ToT Config.Civ7Cfg",
-          },
-          mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
-          gameOptions: {
-            Difficulty: "DIFFICULTY_CUSTOM",
-            BadOption: "ignored",
-          },
-          playerOptions: [
-            {
-              playerId: 0,
-              options: {
-                PlayerLeader: "LEADER_HARRIET_TUBMAN",
-                PlayerCivilization: "CIVILIZATION_AMERICA",
-                BadPlayerOption: "ignored",
-              },
-            },
-          ],
-        },
-        config: { ok: true },
-      })
-    ).toMatchObject({
-      setupConfig: {
-        savedConfig: {
-          id: "tot-config",
-          displayName: "ToT Config",
-          fileName: "ToT Config.Civ7Cfg",
-          path: "/tmp/ToT Config.Civ7Cfg",
-        },
-        mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
-        gameOptions: {
-          Difficulty: "DIFFICULTY_CUSTOM",
-        },
-        playerOptions: [
-          {
-            playerId: 0,
-            options: {
-              PlayerLeader: "LEADER_HARRIET_TUBMAN",
-              PlayerCivilization: "CIVILIZATION_AMERICA",
-            },
-          },
-        ],
-      },
-    });
-  });
-
-  it("rejects malformed setup fields before any mutation can be queued", () => {
-    expect(() =>
-      parseRunInGameSetupRequest({
-        recipeId: "mod-swooper-maps/standard",
-        seed: "not a number",
-        config: { ok: true },
-      })
-    ).toThrow("Seed must be an integer");
-    expect(() =>
-      parseRunInGameSetupRequest({
-        recipeId: "mod-swooper-maps/standard",
-        seed: 2147483648,
-        config: { ok: true },
-      })
-    ).toThrow("signed 32-bit integers");
-    expect(() =>
-      parseRunInGameSetupRequest({
-        recipeId: "other",
-        seed: 123,
-        config: { ok: true },
-      })
-    ).toThrow("supports only mod-swooper-maps/standard");
-  });
 });
 
-function validRunInGameRequest(
-  extra?: Record<string, unknown>
-): Parameters<typeof parseRunInGameSetupRequest>[0] {
+function validRunInGameRequest(extra?: Record<string, unknown>): Record<string, unknown> {
   return {
     recipeId: "mod-swooper-maps/standard",
     seed: 123,

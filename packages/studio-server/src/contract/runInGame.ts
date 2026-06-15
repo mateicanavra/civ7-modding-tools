@@ -6,7 +6,8 @@ import { runInGameErrors } from "./errors.js";
 import { contractSchema, unknownRecordSchema } from "./shared.js";
 
 /**
- * `runInGame.*` namespace - launch + poll the run-current-config-in-Civ7 pipeline.
+ * `runInGame.*` namespace - launch and keyed mutation-state projection for
+ * the run-current-config-in-Civ7 pipeline.
  *
  * Source of truth: audit/05-server-contracts.md endpoints #13 (status) and #14
  * (start). The package TypeBox schema is the public wire DTO authority; app
@@ -134,6 +135,192 @@ export const materializationStatus = Type.Object(
 );
 export type RunInGameMaterializationStatus = Static<typeof materializationStatus>;
 
+export const setupOptionValue = Type.Union([Type.String(), Type.Number(), Type.Boolean()]);
+export type RunInGameSetupOptionValue = Static<typeof setupOptionValue>;
+
+export const savedSetupConfigRef = Type.Object(
+  {
+    id: Type.String(),
+    displayName: Type.String(),
+    fileName: Type.String(),
+    path: Type.String(),
+  },
+  { additionalProperties: false }
+);
+export type RunInGameSavedSetupConfigRef = Static<typeof savedSetupConfigRef>;
+
+export const playerSetupConfig = Type.Object(
+  {
+    playerId: Type.Number(),
+    options: Type.Record(Type.String(), setupOptionValue),
+  },
+  { additionalProperties: false }
+);
+export type RunInGamePlayerSetupConfig = Static<typeof playerSetupConfig>;
+
+export const setupConfig = Type.Object(
+  {
+    savedConfig: Type.Optional(savedSetupConfigRef),
+    mapScript: Type.Optional(Type.String()),
+    gameOptions: Type.Record(Type.String(), setupOptionValue),
+    playerOptions: Type.Array(playerSetupConfig),
+  },
+  { additionalProperties: false }
+);
+export type RunInGameSetupConfig = Static<typeof setupConfig>;
+
+export const DEFAULT_RUN_IN_GAME_SETUP_CONFIG: RunInGameSetupConfig = {
+  gameOptions: {},
+  playerOptions: [{ playerId: 0, options: {} }],
+};
+
+export const RUN_IN_GAME_MAIN_GAME_OPTION_IDS = [
+  "Difficulty",
+  "GameSpeeds",
+  "StartPosition",
+  "AgeTransitionSetting",
+  "DisasterIntensity",
+  "IndependentHostility",
+  "AgeLength",
+  "AgeCountdownTimer",
+] as const;
+
+export const RUN_IN_GAME_CUSTOM_DIFFICULTY_OPTION_IDS = [
+  "DifficultyIndependentsCombat",
+  "DifficultyCombat",
+  "DifficultyArmyXP",
+  "DifficultyUnitProduction",
+  "DifficultyBuildingProduction",
+  "DifficultyFreeStuff",
+  "DifficultyGold",
+  "DifficultyScience",
+  "DifficultyCulture",
+  "DifficultyHappiness",
+  "DifficultyTechCost",
+  "DifficultyCivicCost",
+  "DifficultyOceanDamage",
+] as const;
+
+export const RUN_IN_GAME_PLAYER_OPTION_IDS = [
+  "PlayerLeader",
+  "PlayerCivilization",
+  "PlayerDifficulty",
+] as const;
+
+const RUN_IN_GAME_GAME_OPTION_ID_SET = new Set<string>([
+  ...RUN_IN_GAME_MAIN_GAME_OPTION_IDS,
+  ...RUN_IN_GAME_CUSTOM_DIFFICULTY_OPTION_IDS,
+]);
+
+const RUN_IN_GAME_PLAYER_OPTION_ID_SET = new Set<string>(RUN_IN_GAME_PLAYER_OPTION_IDS);
+
+export type RunInGameSetupConfigValidation =
+  | Readonly<{ ok: true; value: RunInGameSetupConfig }>
+  | Readonly<{
+      ok: false;
+      message: string;
+      diagnostics: Readonly<{
+        code: "run-in-game-map-script-invalid";
+        field: "setupConfig.mapScript";
+      }>;
+    }>;
+
+export function normalizeRunInGameSetupConfig(value: unknown): RunInGameSetupConfig {
+  const validated = validateRunInGameSetupConfig(value);
+  if (!validated.ok) return DEFAULT_RUN_IN_GAME_SETUP_CONFIG;
+  return validated.value;
+}
+
+export function validateRunInGameSetupConfig(value: unknown): RunInGameSetupConfigValidation {
+  if (!isRecord(value)) return { ok: true, value: DEFAULT_RUN_IN_GAME_SETUP_CONFIG };
+  const mapScript = normalizeSetupMapScript(value.mapScript);
+  if (!mapScript.ok) {
+    return {
+      ok: false,
+      message: "Run in Game setupConfig.mapScript must be a non-empty single-line string.",
+      diagnostics: {
+        code: "run-in-game-map-script-invalid",
+        field: "setupConfig.mapScript",
+      },
+    };
+  }
+  const savedConfig = normalizeSavedConfigRef(value.savedConfig);
+  return {
+    ok: true,
+    value: {
+      ...(savedConfig === undefined ? {} : { savedConfig }),
+      ...(mapScript.value === undefined ? {} : { mapScript: mapScript.value }),
+      gameOptions: normalizeSetupOptions(value.gameOptions, RUN_IN_GAME_GAME_OPTION_ID_SET),
+      playerOptions: normalizePlayerOptions(value.playerOptions),
+    },
+  };
+}
+
+type MapScriptNormalization =
+  | Readonly<{ ok: true; value: string | undefined }>
+  | Readonly<{ ok: false }>;
+
+function normalizeSetupMapScript(value: unknown): MapScriptNormalization {
+  if (value === undefined || value === null) return { ok: true, value: undefined };
+  if (typeof value !== "string") return { ok: true, value: undefined };
+  if (value.trim().length === 0 || /[\n\r\0]/.test(value)) return { ok: false };
+  return { ok: true, value };
+}
+
+function normalizeSavedConfigRef(value: unknown): RunInGameSetupConfig["savedConfig"] | undefined {
+  if (!isRecord(value)) return undefined;
+  if (
+    typeof value.id !== "string" ||
+    typeof value.displayName !== "string" ||
+    typeof value.fileName !== "string" ||
+    typeof value.path !== "string" ||
+    value.fileName.length === 0 ||
+    value.path.length === 0
+  ) {
+    return undefined;
+  }
+  return {
+    id: value.id,
+    displayName: value.displayName,
+    fileName: value.fileName,
+    path: value.path,
+  };
+}
+
+function normalizePlayerOptions(value: unknown): RunInGameSetupConfig["playerOptions"] {
+  if (!Array.isArray(value)) return DEFAULT_RUN_IN_GAME_SETUP_CONFIG.playerOptions;
+  const players: RunInGameSetupConfig["playerOptions"] = [];
+  for (const entry of value) {
+    if (!isRecord(entry)) continue;
+    const playerId = Number(entry.playerId);
+    if (!Number.isInteger(playerId) || playerId < 0 || playerId > 64) continue;
+    players.push({
+      playerId,
+      options: normalizeSetupOptions(entry.options, RUN_IN_GAME_PLAYER_OPTION_ID_SET),
+    });
+  }
+  return players.length > 0 ? players : DEFAULT_RUN_IN_GAME_SETUP_CONFIG.playerOptions;
+}
+
+function normalizeSetupOptions(
+  value: unknown,
+  allowedIds: ReadonlySet<string>
+): Record<string, RunInGameSetupOptionValue> {
+  if (!isRecord(value)) return {};
+  const out: Record<string, RunInGameSetupOptionValue> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (!allowedIds.has(key)) continue;
+    if (typeof entry === "string" || typeof entry === "number" || typeof entry === "boolean") {
+      out[key] = entry;
+    }
+  }
+  return out;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
 // RunInGameRequestStatus
 export const requestStatus = Type.Object(
   {
@@ -143,7 +330,7 @@ export const requestStatus = Type.Object(
     playerCount: Type.Optional(Type.Number()),
     resources: Type.Optional(Type.String()),
     selectedConfigId: Type.Optional(Type.String()),
-    setupConfig: Type.Optional(Type.Unknown()),
+    setupConfig: Type.Optional(setupConfig),
     setupConfigSource: Type.Optional(Type.String()),
     materializationMode: Type.Optional(Type.String()),
     restartCivProcess: Type.Optional(Type.Boolean()),
@@ -173,6 +360,7 @@ export const failureDetails = Type.Object(
     phase: Type.Optional(runInGamePhase),
     mapScript: Type.Optional(Type.String()),
     materialization: Type.Optional(materializationStatus),
+    materializationSummary: Type.Optional(Type.String()),
     reloadRequired: Type.Optional(Type.Boolean()),
     reloadBoundary: Type.Optional(Type.String()),
     reloadAttempted: Type.Optional(Type.Boolean()),
@@ -245,8 +433,8 @@ export const exactAuthorshipProof = Type.Object(
 export type RunInGameExactAuthorshipProof = Static<typeof exactAuthorshipProof>;
 
 /**
- * `RunInGameOperationStatus` - the package-owned operation state returned by
- * BOTH start (#14, 202) and status-poll (#13, 200).
+ * `RunInGameOperationStatus` - the package-owned operation projection returned
+ * by both start (#14, accepted/running) and keyed status read (#13).
  */
 export const operationStatusTypeSchema = Type.Object(
   {
@@ -275,11 +463,11 @@ export type RunInGameOperationStatus = Static<typeof operationStatusTypeSchema>;
 export const operationStatusSchema = contractSchema(operationStatusTypeSchema);
 
 // ---------------------------------------------------------------------------
-// #13 runInGame.status - GET /api/civ7/run-in-game/status?requestId=
+// #13 runInGame.status - keyed mutation-state read by requestId.
 // ---------------------------------------------------------------------------
-// Query: requestId (REQUIRED). Success 200: RunInGameOperationState.
-// Errors: 400 { ok:false, error:"Missing requestId" };
-//         404 { ok:false, error, serverInstanceId, serverStartedAt }.
+// Input: requestId (REQUIRED). Success: RunInGameOperationState projection.
+// Missing/expired/identity-mismatched requests map to declared D3 lifecycle
+// errors with daemon identity data.
 //
 // PARITY INVARIANT (audit/05 #13, target-arch section 1): the 404 echoes
 // `serverInstanceId`/`serverStartedAt` so the client detects a server restart that
@@ -300,19 +488,21 @@ export const status = oc
   .output(operationStatusSchema);
 
 // ---------------------------------------------------------------------------
-// #14 runInGame.start - POST /api/civ7/run-in-game
+// #14 runInGame.start - accepted operation start.
 // ---------------------------------------------------------------------------
-// Body: the full setup request. Success 202: RunInGameOperationState (async).
-// 202 dup (same fingerprint -> details.duplicateRequest). Errors: 409 (run-in-game
-// OR save/deploy active), 400/500/503 via package-owned StudioRuntimeFailure
+// Body: the full setup request. Success: RunInGameOperationState (async).
+// Duplicate same fingerprint returns the existing operation projection.
+// Errors: 409 (run-in-game OR save/deploy active), 400/500/503 via
+// package-owned StudioRuntimeFailure
 // data (sealed code/materialization/recovery diagnostics) - declared as the defined
 // RUN_IN_GAME_BLOCKED/INVALID/FAILED/UNAVAILABLE codes (./errors.ts).
 //
 // SECURITY BOUNDARY (target-arch section 1): the TypeBox contract rejects known
 // raw-control top-level tunnel keys, while the host validator deep-scans opaque
 // config/setup/source payloads for the same vocabulary before any workflow port
-// runs. Recipe pinning + kebab-case id + seed/mapSize/playerCount validation
-// live in `parseRunInGameSetupRequest`, ported in A2/A3.
+// runs. The package operation runtime owns canonical request admission:
+// recipe pinning, kebab-case id, seed/mapSize/playerCount validation,
+// materialization mode, setup config normalization, and fingerprint derivation.
 export const start = oc
   .errors(runInGameErrors)
   .input(
@@ -356,8 +546,8 @@ export const start = oc
           selectedConfig: Type.Optional(
             Type.Object(
               {
-                // `id` is OPTIONAL: disposable runs send `selectedConfig` without one,
-                // and `parseRunInGameSetupRequest` reads `selected.id` defensively.
+                // `id` is OPTIONAL: disposable runs send `selectedConfig` without one;
+                // package runtime admission derives the canonical selected id.
                 id: Type.Optional(Type.String()),
                 label: Type.Optional(Type.String()),
                 description: Type.Optional(Type.String()),

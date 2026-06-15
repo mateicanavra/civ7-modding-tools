@@ -1,5 +1,10 @@
 # MapGen Studio — `App.tsx` refactor implementer handoff
 
+> **D12 STATUS (2026-06-15):** This is a pre-Nx extraction handoff retained as
+> historical planning evidence. Its `bunx turbo` build commands are not current
+> local-dev authority. Use `docs/projects/mapgen-studio/RUNBOOK.md` for the
+> current Nx-owned Studio dev/build commands.
+
 You are implementing a **move-by-extraction refactor** of `apps/mapgen-studio/src/App.tsx` into a modern, modular React + TypeScript architecture **without changing behavior**.
 
 This is not a redesign. Your job is to **carve the monolith into feature modules** while preserving determinism, bundling constraints, and UX invariants.

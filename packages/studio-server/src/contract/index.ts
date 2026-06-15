@@ -1,8 +1,7 @@
 import { Civ7ControlOrpcContract } from "@civ7/control-orpc/contract";
 import { oc } from "@orpc/contract";
-
-import { RecipeDagGetContract } from "../recipeDag/contract.js";
 import type { StudioRecoveryAction } from "../errors/failure.js";
+import { RecipeDagGetContract } from "../recipeDag/contract.js";
 import * as civ7 from "./civ7.js";
 import * as live from "./live.js";
 import * as mapConfigs from "./mapConfigs.js";
@@ -108,11 +107,23 @@ export type {
   RunInGameOperationKind,
   RunInGameOperationStatus,
   RunInGamePhase,
+  RunInGamePlayerSetupConfig,
   RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
+  RunInGameSavedSetupConfigRef,
+  RunInGameSetupConfig,
+  RunInGameSetupOptionValue,
   RunInGameSourceSnapshotProof,
 } from "./runInGame.js";
-export { operationStatusTypeSchema, RUN_IN_GAME_PHASES } from "./runInGame.js";
+export {
+  DEFAULT_RUN_IN_GAME_SETUP_CONFIG,
+  normalizeRunInGameSetupConfig,
+  operationStatusTypeSchema,
+  RUN_IN_GAME_CUSTOM_DIFFICULTY_OPTION_IDS,
+  RUN_IN_GAME_MAIN_GAME_OPTION_IDS,
+  RUN_IN_GAME_PHASES,
+  RUN_IN_GAME_PLAYER_OPTION_IDS,
+} from "./runInGame.js";
 export type {
   StudioEvent,
   StudioHelloEvent,

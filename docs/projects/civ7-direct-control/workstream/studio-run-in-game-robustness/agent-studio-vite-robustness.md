@@ -1,5 +1,12 @@
 # Agent Report: Studio/Vite Robustness
 
+> D12 status (2026-06-15): historical robustness review evidence only. Current
+> local Studio dev authority is Nx-owned (`mapgen-studio:dev`), and Run in Game
+> no longer uses the retired `/api/civ7/run-in-game` Vite/Turbo lifecycle
+> described below. Treat Turbo/preflight and Vite middleware recommendations in
+> this report as pre-runtime-refactor context, not current implementation
+> guidance.
+
 ## Scope
 
 Frame: Studio/Vite robustness lane for `apps/mapgen-studio` Run in Game, Vite

@@ -14,8 +14,8 @@
  *   the `dispose()` shutdown obligation.
  *
  * The host supplies a {@link StudioServerContext} carrying leaf filesystem,
- * resource, control, recipe-DAG, event, and operation adapter ports. The
- * package runtime owns stateful operation lifecycle.
+ * resource, control, recipe-DAG, and operation adapter ports. The package
+ * runtime owns stateful operation and event lifecycle.
  */
 
 export type {
@@ -105,17 +105,11 @@ export {
   statusNotFoundErrorDataSchema,
   studioFailureDataSchema,
   studioRecoveryActionSchema,
+  toStudioDefinedOrpcError,
   unavailableFailureErrorDataSchema,
   unsupportedOperationType,
-  toStudioDefinedOrpcError,
 } from "./errors/index.js";
 export { createStudioRpcHandler, type StudioRpcHandle } from "./handler.js";
-export type { StudioOperationRuntimePorts } from "./operationRuntime/index.js";
-export {
-  buildRunInGameSourceSnapshotProof,
-  buildStandardRunInGameSourceSnapshotProof,
-  hashRunInGameProofValue,
-} from "./operationRuntime/index.js";
 export {
   buildLiveGameErrorState,
   buildLiveGameState,
@@ -132,11 +126,17 @@ export {
 export {
   LIVE_GAME_WATCH_INITIAL_DELAY_MS,
   LIVE_GAME_WATCH_INTERVAL_MS,
-  makeStudioLiveGameWatcherLayer,
-  StudioLiveGameWatcher,
   type LiveGameWatcher,
   type LiveGameWatcherOptions,
+  makeStudioLiveGameWatcherLayer,
+  StudioLiveGameWatcher,
 } from "./liveGame/watcher.js";
+export type { StudioOperationRuntimePorts } from "./operationRuntime/index.js";
+export {
+  buildRunInGameSourceSnapshotProof,
+  buildStandardRunInGameSourceSnapshotProof,
+  hashRunInGameProofValue,
+} from "./operationRuntime/index.js";
 export type { RecipeDagService } from "./recipeDag/service.js";
 export { createStudioRouter, type StudioRouter } from "./router/index.js";
 export { makeStudioRuntime, type StudioRuntime, type StudioRuntimeOptions } from "./runtime.js";
@@ -154,9 +154,11 @@ export {
 } from "./services/Civ7TunerSession.js";
 export { StudioConfig } from "./services/StudioConfig.js";
 export {
-  createStudioEventHub,
   StudioEventHub,
   type StudioEventHubApi,
+  StudioEventHubLive,
+  type StudioEventSubscription,
+  studioEventSubscriptionIterator,
 } from "./services/StudioEventHub.js";
 export {
   toStandardSchema,

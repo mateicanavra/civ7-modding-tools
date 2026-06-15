@@ -12,6 +12,8 @@ import { contractSchema } from "./shared.js";
  * (saveDeploy). The package TypeBox schema is the public wire DTO authority;
  * app modules derive their operation-status types from this contract and keep
  * only UI formatting/presentation helpers locally.
+ * Current transport is TypeBox/effect-oRPC under `/rpc`; retired `/api/*`
+ * strings below are audit/parity identifiers, not active routes.
  */
 
 export const MAP_CONFIG_SAVE_DEPLOY_PHASES = [
@@ -91,7 +93,8 @@ export type MapConfigSaveDeployStatus = Static<typeof saveDeployStatusTypeSchema
 export const saveDeployStatusSchema = contractSchema(saveDeployStatusTypeSchema);
 
 // ---------------------------------------------------------------------------
-// #15 mapConfigs.status - GET /api/map-configs/status?requestId=
+// #15 mapConfigs.status - keyed mutation-state read
+// Retired REST parity: GET /api/map-configs/status?requestId=
 // ---------------------------------------------------------------------------
 // Query: requestId (REQUIRED). Success 200: MapConfigSaveDeployStatus.
 // Errors: 400 (missing); 404 { ok:false, error, serverInstanceId,
@@ -115,7 +118,8 @@ export const status = oc
   .output(saveDeployStatusSchema);
 
 // ---------------------------------------------------------------------------
-// #16 mapConfigs.saveDeploy - POST /api/map-configs
+// #16 mapConfigs.saveDeploy - save/deploy mutation
+// Retired REST parity: POST /api/map-configs
 // ---------------------------------------------------------------------------
 // Body: { requestId?, id, sourcePath?, envelope, restart?, verifyRestart? }.
 // `restart`/`verifyRestart` MUST be falsy -> else 400.

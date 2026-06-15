@@ -649,6 +649,11 @@ plus mid-flight operator additions. Nine slices stacked on
   `recipeDagSafeErrorMiddleware`. **Deferred follow-up:** migrate the
   ~18 engine `RunInGameHttpError` throw sites to contract errors so the
   host mapping shim can die too.
+  **D12 status:** that deferred follow-up is closed by the runtime Effect
+  refactor stack: D3 introduced package-owned typed runtime failures, D4/D5
+  moved lifecycle/workflow ownership into package services, and D12's residue
+  scan treats remaining `RunInGameHttpError` mentions here as historical
+  redesign evidence rather than active implementation authority.
 - [x] **`design/p7-water-stats`** — operator verdict on the proof UI:
   "slop". Re-expressed as a stats section: semantic counts per data
   family, divergence (mismatch/reject) warning-tinted, collapsed summary

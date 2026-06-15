@@ -6,6 +6,7 @@ import {
   type StudioBoundedDiagnostics,
   type StudioBoundedDiagnosticValue,
 } from "../errors/index.js";
+import type { RunInGameFailurePhase } from "../operationRuntime/registry.js";
 import type {
   RunInGameDeployment,
   RunInGameMaterialized,
@@ -14,7 +15,6 @@ import type {
   StudioWorkflowPorts,
 } from "../ports/index.js";
 import { Civ7WorkflowControl, type Civ7WorkflowControlApi } from "../ports/index.js";
-import type { RunInGameFailurePhase } from "../operationRuntime/registry.js";
 import type { RunInGameWorkflowTransitions } from "./workflowTransitions.js";
 
 export type RunInGameWorkflowStart = Readonly<{
@@ -28,23 +28,28 @@ export interface RunInGameWorkflowApi {
   readonly start: (args: RunInGameWorkflowStart) => Effect.Effect<void, never>;
 }
 
-export class RunInGameWorkflow extends Context.Tag(
-  "@civ7/studio-server/RunInGameWorkflow"
-)<RunInGameWorkflow, RunInGameWorkflowApi>() {}
+export class RunInGameWorkflow extends Context.Tag("@civ7/studio-server/RunInGameWorkflow")<
+  RunInGameWorkflow,
+  RunInGameWorkflowApi
+>() {}
 
-export function makeRunInGameWorkflowLayer(args: Readonly<{
-  ports: StudioWorkflowPorts;
-}>): Layer.Layer<RunInGameWorkflow, never, Civ7WorkflowControl> {
+export function makeRunInGameWorkflowLayer(
+  args: Readonly<{
+    ports: StudioWorkflowPorts;
+  }>
+): Layer.Layer<RunInGameWorkflow, never, Civ7WorkflowControl> {
   return Layer.effect(
     RunInGameWorkflow,
     Effect.map(Civ7WorkflowControl, (civ7) => makeRunInGameWorkflow({ ...args, civ7 }))
   );
 }
 
-function makeRunInGameWorkflow(args: Readonly<{
-  ports: StudioWorkflowPorts;
-  civ7: Civ7WorkflowControlApi;
-}>): RunInGameWorkflowApi {
+function makeRunInGameWorkflow(
+  args: Readonly<{
+    ports: StudioWorkflowPorts;
+    civ7: Civ7WorkflowControlApi;
+  }>
+): RunInGameWorkflowApi {
   const tryPromise = <A>(try_: () => Promise<A>) =>
     Effect.tryPromise({
       try: try_,
@@ -60,12 +65,13 @@ function makeRunInGameWorkflow(args: Readonly<{
     }
     return Effect.gen(function* () {
       yield* workflow.transitions.transition({ phase: "restarting-civ" });
-      return yield* tryPromise(() =>
-        args.ports.restartCivForRunInGame?.({
-          requestId: workflow.requestId,
-          prepared: workflow.prepared,
-          deployment,
-        }) ?? Promise.resolve({})
+      return yield* tryPromise(
+        () =>
+          args.ports.restartCivForRunInGame?.({
+            requestId: workflow.requestId,
+            prepared: workflow.prepared,
+            deployment,
+          }) ?? Promise.resolve({})
       );
     });
   };
@@ -197,26 +203,22 @@ function makeRunInGameWorkflow(args: Readonly<{
           Effect.catchAll((err) =>
             cleanupMaterialized(err).pipe(
               Effect.flatMap(() => workflow.transitions.fail({ phase, err })),
-              Effect.catchAll((cleanupErr) =>
-                workflow.transitions.fail({ phase, err: cleanupErr })
-              )
+              Effect.catchAll((cleanupErr) => workflow.transitions.fail({ phase, err: cleanupErr }))
             )
           ),
-          Effect.ensuring(
-            cleanupMaterialized().pipe(
-              Effect.catchAll(() => Effect.void)
-            )
-          )
+          Effect.ensuring(cleanupMaterialized().pipe(Effect.catchAll(() => Effect.void)))
         );
       }).pipe(Effect.catchAll(() => Effect.void)),
   };
 }
 
-function runInGameCleanupFailure(args: Readonly<{
-  err: unknown;
-  phase: RunInGameFailurePhase;
-  original?: unknown;
-}>) {
+function runInGameCleanupFailure(
+  args: Readonly<{
+    err: unknown;
+    phase: RunInGameFailurePhase;
+    original?: unknown;
+  }>
+) {
   return materializationFailed({
     message: "Run in Game materialization cleanup failed",
     diagnostics: boundedDiagnostics({

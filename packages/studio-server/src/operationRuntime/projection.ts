@@ -1,5 +1,12 @@
+import { Value } from "typebox/value";
+
 import type { MapConfigSaveDeployStatus } from "../contract/mapConfigs.js";
-import type { RunInGameOperationStatus, RunInGamePhase } from "../contract/runInGame.js";
+import {
+  materializationStatus,
+  type RunInGameMaterializationStatus,
+  type RunInGameOperationStatus,
+  type RunInGamePhase,
+} from "../contract/runInGame.js";
 import type { StudioOperationEvent, StudioOperationsCurrent } from "../contract/studio.js";
 import type { StudioRecoveryAction, StudioRuntimeFailure } from "../errors/index.js";
 import type {
@@ -25,7 +32,9 @@ export function projectRunInGame(operation: RunInGameInternalOperation): RunInGa
     serverStartedAt: undefined,
     completedPhases: [...operation.completedPhases],
     request: operation.request,
-    ...(operation.materialization === undefined ? {} : { materialization: operation.materialization }),
+    ...(operation.materialization === undefined
+      ? {}
+      : { materialization: operation.materialization }),
     ...(operation.processRestart === undefined ? {} : { processRestart: operation.processRestart }),
     ...(operation.exactAuthorshipProof === undefined
       ? {}
@@ -40,12 +49,17 @@ export function projectRunInGame(operation: RunInGameInternalOperation): RunInGa
   };
 }
 
-export function projectSaveDeploy(operation: SaveDeployInternalOperation): MapConfigSaveDeployStatus {
+export function projectSaveDeploy(
+  operation: SaveDeployInternalOperation
+): MapConfigSaveDeployStatus {
   const phase = publicSaveDeployPhase(operation.phase);
   const recoveryActions =
     operation.failure === undefined && operation.phase === "complete"
       ? ["copy-diagnostics" as const]
-      : saveDeployRecoveryActions(operation.failedAtPhase ?? (phase === "deploying" ? "deploying" : "saving"), operation.failure);
+      : saveDeployRecoveryActions(
+          operation.failedAtPhase ?? (phase === "deploying" ? "deploying" : "saving"),
+          operation.failure
+        );
   const failureDetails =
     operation.failure === undefined
       ? undefined
@@ -76,12 +90,8 @@ export function projectSaveDeploy(operation: SaveDeployInternalOperation): MapCo
 }
 
 export function projectCurrent(state: RegistryState, observedAt: string): StudioOperationsCurrent {
-  const runInGame = Object.values(state.runInGame)
-    .map(projectRunInGame)
-    .sort(byUpdatedAtDesc);
-  const saveDeploy = Object.values(state.saveDeploy)
-    .map(projectSaveDeploy)
-    .sort(byUpdatedAtDesc);
+  const runInGame = Object.values(state.runInGame).map(projectRunInGame).sort(byUpdatedAtDesc);
+  const saveDeploy = Object.values(state.saveDeploy).map(projectSaveDeploy).sort(byUpdatedAtDesc);
   const activeRunInGame = runInGame.find(isRunningOperation) ?? null;
   const activeSaveDeploy = saveDeploy.find(isRunningOperation) ?? null;
   return {
@@ -121,10 +131,7 @@ export function operationEvent(
   };
 }
 
-function byUpdatedAtDesc(
-  left: { updatedAt: string },
-  right: { updatedAt: string }
-): number {
+function byUpdatedAtDesc(left: { updatedAt: string }, right: { updatedAt: string }): number {
   return Date.parse(right.updatedAt) - Date.parse(left.updatedAt);
 }
 
@@ -141,6 +148,7 @@ function runInGameFailureDetails(
   phase: RunInGamePhase,
   completedPhases: readonly RunInGamePhase[]
 ): NonNullable<RunInGameOperationStatus["details"]> {
+  const diagnostics = sanitizeRunInGameFailureDiagnostics(failure.diagnostics);
   const failureClass =
     failure.tag === "OperationBlocked"
       ? "blocked"
@@ -148,7 +156,7 @@ function runInGameFailureDetails(
         ? "uncertain"
         : "failed";
   return {
-    ...(failure.diagnostics ?? {}),
+    ...diagnostics,
     failureClass,
     phase,
     completedPhases: [...completedPhases],
@@ -156,10 +164,45 @@ function runInGameFailureDetails(
   };
 }
 
-function runInGameRecoveryActions(state: Pick<
-  RunInGameOperationStatus,
-  "phase" | "status" | "details"
->): StudioRecoveryAction[] {
+function sanitizeRunInGameFailureDiagnostics(
+  diagnostics: StudioRuntimeFailure["diagnostics"]
+): NonNullable<RunInGameOperationStatus["details"]> {
+  if (diagnostics === undefined) return {};
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(diagnostics)) {
+    if (key === "materialization") {
+      if (isMaterializationStatus(value)) {
+        out.materialization = value;
+      } else if (typeof value === "string" && value.length > 0) {
+        out.materializationSummary = value;
+      } else if (value !== undefined && value !== null) {
+        out.materializationSummary = diagnosticSummary(value);
+      }
+      continue;
+    }
+    out[key] = value;
+  }
+  return out as NonNullable<RunInGameOperationStatus["details"]>;
+}
+
+function isMaterializationStatus(
+  value: unknown
+): value is RunInGameMaterializationStatus {
+  return Value.Check(materializationStatus, value);
+}
+
+function diagnosticSummary(value: unknown): string {
+  if (typeof value === "string") return value;
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
+function runInGameRecoveryActions(
+  state: Pick<RunInGameOperationStatus, "phase" | "status" | "details">
+): StudioRecoveryAction[] {
   const actions: StudioRecoveryAction[] = ["copy-diagnostics"];
   if (
     state.status === "running" ||

@@ -62,7 +62,14 @@ export type RunInGameInternalOperation = Readonly<{
 export type SaveDeployInternalOperation = Readonly<{
   kind: "save-deploy";
   requestId: string;
-  phase: "accepted" | "queued" | "saving" | "deploying" | "complete" | "failed" | "runtime-disposed";
+  phase:
+    | "accepted"
+    | "queued"
+    | "saving"
+    | "deploying"
+    | "complete"
+    | "failed"
+    | "runtime-disposed";
   status: MapConfigSaveDeployStatus["status"];
   startedAt: string;
   updatedAt: string;
@@ -94,7 +101,9 @@ export function emptyRegistry(identity: StudioDaemonIdentity): RegistryState {
   };
 }
 
-export function statusForRunInGamePhase(phase: RunInGameInternalOperation["phase"]): RunInGameOperationKind {
+export function statusForRunInGamePhase(
+  phase: RunInGameInternalOperation["phase"]
+): RunInGameOperationKind {
   if (phase === "complete") return "complete";
   if (phase === "blocked") return "blocked";
   if (phase === "failed" || phase === "runtime-disposed") return "failed";

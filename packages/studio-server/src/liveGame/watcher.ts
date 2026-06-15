@@ -1,7 +1,7 @@
 import { Context, Effect, Layer, Ref, type Scope } from "effect";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
 
-import type { StudioEventHubApi } from "../services/StudioEventHub.js";
+import { StudioEventHub, type StudioEventHubApi } from "../services/StudioEventHub.js";
 import {
   buildLiveGameErrorState,
   buildLiveGameState,
@@ -18,9 +18,10 @@ export interface LiveGameWatcher {
   tick: Effect.Effect<void>;
 }
 
-export class StudioLiveGameWatcher extends Context.Tag(
-  "@civ7/studio-server/StudioLiveGameWatcher"
-)<StudioLiveGameWatcher, LiveGameWatcher>() {}
+export class StudioLiveGameWatcher extends Context.Tag("@civ7/studio-server/StudioLiveGameWatcher")<
+  StudioLiveGameWatcher,
+  LiveGameWatcher
+>() {}
 
 export interface LiveGameWatcherOptions {
   initialDelayMs?: number;
@@ -35,15 +36,15 @@ export interface LiveGameWatcherDeps {
 }
 
 export function makeStudioLiveGameWatcherLayer(args: {
-  eventHub: Pick<StudioEventHubApi, "publish">;
   options?: LiveGameWatcherOptions;
-}): Layer.Layer<StudioLiveGameWatcher, never, Civ7TunerClient> {
+}): Layer.Layer<StudioLiveGameWatcher, never, Civ7TunerClient | StudioEventHub> {
   return Layer.scoped(
     StudioLiveGameWatcher,
     Effect.gen(function* () {
       const tunerClient = yield* Civ7TunerClient;
+      const eventHub = yield* StudioEventHub;
       return yield* makeLiveGameWatcher({
-        eventHub: args.eventHub,
+        eventHub,
         readLiveStatus: readLiveGameStatusBody.pipe(
           Effect.provideService(Civ7TunerClient, tunerClient)
         ),
@@ -59,7 +60,9 @@ export function makeLiveGameWatcherLayer(
   return Layer.scoped(StudioLiveGameWatcher, makeLiveGameWatcher(args));
 }
 
-function makeLiveGameWatcher(args: LiveGameWatcherDeps): Effect.Effect<LiveGameWatcher, never, Scope.Scope> {
+function makeLiveGameWatcher(
+  args: LiveGameWatcherDeps
+): Effect.Effect<LiveGameWatcher, never, Scope.Scope> {
   const initialDelayMs = args.options?.initialDelayMs ?? LIVE_GAME_WATCH_INITIAL_DELAY_MS;
   const intervalMs = args.options?.intervalMs ?? LIVE_GAME_WATCH_INTERVAL_MS;
   const now = args.options?.now ?? (() => new Date());
@@ -76,22 +79,20 @@ function makeLiveGameWatcher(args: LiveGameWatcherDeps): Effect.Effect<LiveGameW
         const lastKey = yield* Ref.get(lastPublishedKey);
         const shouldPublish = key !== lastKey;
         if (!shouldPublish) return;
-        yield* Effect.tryPromise({
-          try: () =>
-            args.eventHub.publish({
-              type: "live-game",
-              state,
-              observedAt: state.updatedAt ?? now().toISOString(),
-            }),
-          catch: (error) => error,
-        }).pipe(
-          Effect.tap(() => Ref.set(lastPublishedKey, key)),
-          Effect.catchAll((error) =>
-            Effect.sync(() => {
-              console.error("[studio-server] failed to publish live-game event", error);
-            })
-          )
-        );
+        yield* args.eventHub
+          .publish({
+            type: "live-game",
+            state,
+            observedAt: state.updatedAt ?? now().toISOString(),
+          })
+          .pipe(
+            Effect.tap(() => Ref.set(lastPublishedKey, key)),
+            Effect.catchAll((error) =>
+              Effect.sync(() => {
+                console.error("[studio-server] failed to publish live-game event", error);
+              })
+            )
+          );
       });
 
     const tick = tickGate.withPermits(1)(

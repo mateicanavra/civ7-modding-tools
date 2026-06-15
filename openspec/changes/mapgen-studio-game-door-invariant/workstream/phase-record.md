@@ -5,9 +5,9 @@
 - Project: Studio runtime Effect refactor
 - Domino: D12
 - OpenSpec change: `mapgen-studio-game-door-invariant`
-- Owner: Codex DRA packet-authoring lane
+- Owner: Codex DRA implementation lane
 - Branch/Graphite stack: `codex/runtime-effect-game-door-invariant`
-- Status: packet accepted; implementation pending
+- Status: D12 implementation committed; live Civ7 and final stack-drain proof not closed
 
 ## Objective
 
@@ -15,11 +15,11 @@
   runtime ownership into guardrails, residue ledgers, status classifications,
   and stack-drain proof.
 - Non-goals: new runtime transport, new browser recovery path, broad product
-  redesign of Restart Civ7, implementation closure on this packet-authoring
-  branch.
-- Done condition: packet can be handed to a D12 implementer with exact guard
-  tests, negative searches, classification ledgers, proof labels, and final
-  Graphite stack closure requirements.
+  redesign of Restart Civ7, or claiming live Civ7 proof from local unit/source
+  tests.
+- Done condition: the D12 Graphite slice has a truthful implementation commit,
+  guard tests, negative searches, classification ledgers, proof labels,
+  not-green live handoff if needed, and clean stack/worktree evidence.
 
 ## Gate 1 - Frame
 
@@ -34,19 +34,19 @@
   construction, unclassified status endpoints, or active docs saying convergence
   is out of scope.
 - Proof labels: OpenSpec validation, guard tests, package/app gates, negative
-  searches, classification ledgers, consumed/new live proof, Graphite submit,
-  merge, sync/drain, worktree cleanliness.
+  searches, classification ledgers, executed/not-green live proof, Graphite
+  submit/merge/sync-drain status, worktree cleanliness.
 - Review lanes: direct-control/prework scout, hardening/orphan/black-ice,
   testing/schema/runtime closeout.
 
 ## Gate 2 - Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`
+- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`
 - Branch: `codex/runtime-effect-game-door-invariant`
-- Entrance status: clean after D11 commit `6b8dc1429`.
-- Dirty-file quarantine: none at entrance; D12 packet edits are restricted to
-  `openspec/changes/mapgen-studio-game-door-invariant/**` and
-  `docs/projects/studio-runtime-simplification/OPENSPEC-PACKET-TRAIN.md`.
+- Entrance status: clean after D11 commit `5cec78079`.
+- Dirty-file quarantine: none at D12 implementation entrance. Current D12 dirty
+  files are the EventHub scoped-service implementation, focused tests, active
+  runtime docs, and D12 workstream records.
 
 ## Gate 3 - Diagnosis
 
@@ -104,8 +104,8 @@ implementation base and how to prove no bridge remains.
 
 ## Gate 8 - Slice Plan
 
-D12 is one OpenSpec change and one future implementation Graphite branch. It is
-the final packet in the train and owns stack-drain proof after implementation
+D12 is one OpenSpec change and one Graphite implementation branch. It is the
+final packet in the train and owns stack-drain proof after implementation
 review/merge policy allows closure.
 
 ## Gates 9-10 - Proof Labels
@@ -114,8 +114,8 @@ review/merge policy allows closure.
 - Guard tests prove game-door source ownership.
 - Package/app gates prove code health.
 - Negative searches prove deletion and residue classification.
-- Live proof is consumed from behavior-changing slices unless D12 changes live
-  runtime behavior or finds a missing live proof.
+- D10 and D11 live proof were not-green. D12 ran the missing live proof and did
+  not consume missing proof by label.
 - Graphite proof is separate from code/test proof.
 
 ## Gate 11 - Review
@@ -126,20 +126,24 @@ review/merge policy allows closure.
 - Fresh D12 prework/black-ice corpus reviewer: completed during packet
   authoring.
 - Review ledger captured all P1/P2 findings before packet acceptance.
+- Implementation explorer/supervisor review findings are recorded in
+  `review-disposition-ledger.md`; root graph hygiene and Graphite preflight
+  remain closure blockers until resolved.
 
 ## Gate 12 - Closure
 
-Packet acceptance required:
+D12 implementation closure requires:
 
 - D12 proposal/design/spec/tasks/ledgers agree.
 - review ledger has no unresolved P1/P2.
 - strict and full OpenSpec validation pass.
 - shortcut scan has no active unowned bridge or stale implementation closure.
 - packet train marks D12 accepted and all D0-D12 accepted.
+- live proof is recorded from the D12 state-machine pass.
 - Graphite/worktree state is clean after commit.
 
 ## Next Action
 
-Implementation opens D12 on its own Graphite branch after D0-D11 implementation
-work is complete, runs the final residue/proof ledger, and drains the runtime
-refactor stack only after review and live-proof policy allow closure.
+Continue D12 implementation from the active Graphite branch, run final
+residue/proof gates, and drain the runtime refactor stack only after review and
+merge policy allow closure.

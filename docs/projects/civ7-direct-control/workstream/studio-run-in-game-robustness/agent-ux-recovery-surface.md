@@ -1,5 +1,11 @@
 # Studio Run In Game UX Recovery Surface
 
+> D12 status (2026-06-15): historical pre-runtime-refactor review evidence
+> only. Current Run in Game operation state is package/runtime-owned through the
+> oRPC Studio surface; the retired `/api/civ7/run-in-game` path and
+> `RunInGameHttpError` bridge described below are not current implementation
+> authority.
+
 ## Scope
 
 This artifact covers the developer-facing Studio surface for `Run in Game`.

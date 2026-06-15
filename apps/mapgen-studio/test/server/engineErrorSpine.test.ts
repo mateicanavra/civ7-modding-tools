@@ -22,8 +22,18 @@ const identity = {
 describe("Studio engine error spine", () => {
   it("maps sealed known runtime failures to declared oRPC errors without status fallthrough", () => {
     const cases = [
-      ["autoplay.command", operationBlocked({ message: "autoplay blocked" }), "AUTOPLAY_BLOCKED", 409],
-      ["autoplay.command", invalidRequest({ message: "autoplay invalid" }), "AUTOPLAY_INVALID", 400],
+      [
+        "autoplay.command",
+        operationBlocked({ message: "autoplay blocked" }),
+        "AUTOPLAY_BLOCKED",
+        409,
+      ],
+      [
+        "autoplay.command",
+        invalidRequest({ message: "autoplay invalid" }),
+        "AUTOPLAY_INVALID",
+        400,
+      ],
       [
         "autoplay.command",
         dependencyUnavailable({ message: "autoplay unavailable" }),
@@ -43,15 +53,45 @@ describe("Studio engine error spine", () => {
         500,
       ],
       ["runInGame.start", invalidRequest({ message: "run invalid" }), "RUN_IN_GAME_INVALID", 400],
-      ["runInGame.status", operationNotFound({ message: "run missing", requestId: "run-1" }), "RUN_IN_GAME_STATUS_NOT_FOUND", 404],
+      [
+        "runInGame.status",
+        operationNotFound({ message: "run missing", requestId: "run-1" }),
+        "RUN_IN_GAME_STATUS_NOT_FOUND",
+        404,
+      ],
       ["runInGame.start", operationBlocked({ message: "run blocked" }), "RUN_IN_GAME_BLOCKED", 409],
-      ["runInGame.start", materializationFailed({ message: "run failed" }), "RUN_IN_GAME_FAILED", 500],
-      ["runInGame.start", dependencyUnavailable({ message: "run unavailable" }), "RUN_IN_GAME_UNAVAILABLE", 503],
+      [
+        "runInGame.start",
+        materializationFailed({ message: "run failed" }),
+        "RUN_IN_GAME_FAILED",
+        500,
+      ],
+      [
+        "runInGame.start",
+        dependencyUnavailable({ message: "run unavailable" }),
+        "RUN_IN_GAME_UNAVAILABLE",
+        503,
+      ],
       ["saveDeploy.start", invalidRequest({ message: "save invalid" }), "SAVE_DEPLOY_INVALID", 400],
-      ["saveDeploy.status", operationNotFound({ message: "save missing", requestId: "save-1" }), "SAVE_DEPLOY_STATUS_NOT_FOUND", 404],
-      ["saveDeploy.start", operationBlocked({ message: "save blocked" }), "SAVE_DEPLOY_BLOCKED", 409],
+      [
+        "saveDeploy.status",
+        operationNotFound({ message: "save missing", requestId: "save-1" }),
+        "SAVE_DEPLOY_STATUS_NOT_FOUND",
+        404,
+      ],
+      [
+        "saveDeploy.start",
+        operationBlocked({ message: "save blocked" }),
+        "SAVE_DEPLOY_BLOCKED",
+        409,
+      ],
       ["saveDeploy.start", deployFailed({ message: "save failed" }), "SAVE_DEPLOY_FAILED", 500],
-      ["saveDeploy.start", dependencyUnavailable({ message: "save unavailable" }), "SAVE_DEPLOY_UNAVAILABLE", 503],
+      [
+        "saveDeploy.start",
+        dependencyUnavailable({ message: "save unavailable" }),
+        "SAVE_DEPLOY_UNAVAILABLE",
+        503,
+      ],
     ] as const;
 
     for (const [procedure, err, code, status] of cases) {

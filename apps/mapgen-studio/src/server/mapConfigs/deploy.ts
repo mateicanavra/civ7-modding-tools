@@ -8,7 +8,11 @@ export function buildSwooperMapsStudioDeployPlan(
   options: { requestId?: string; env?: NodeJS.ProcessEnv } = {}
 ): SwooperMapsStudioDeployPlan {
   const env = options.requestId
-    ? { ...(options.env ?? process.env), SWOOPER_STUDIO_RUN_ID: options.requestId }
+    ? {
+        ...(options.env ?? process.env),
+        SWOOPER_STUDIO_RUN_ID: options.requestId,
+        SWOOPER_INCLUDE_STUDIO_CURRENT: "1",
+      }
     : (options.env ?? process.env);
   return {
     buildTask: "mod-swooper-maps:build:studio-deploy",

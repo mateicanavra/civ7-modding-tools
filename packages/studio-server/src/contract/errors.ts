@@ -2,14 +2,14 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { Type } from "typebox";
 
 import {
-  expectedFailureErrorDataSchema,
-  failedErrorDataSchema,
-  statusNotFoundErrorDataSchema,
-  unavailableFailureErrorDataSchema,
   type ExpectedFailureErrorData,
+  expectedFailureErrorDataSchema,
   type FailedErrorData,
+  failedErrorDataSchema,
   type StatusNotFoundErrorData,
+  statusNotFoundErrorDataSchema,
   type UnavailableFailureErrorData,
+  unavailableFailureErrorDataSchema,
 } from "../errors/errorData.js";
 import { toStandardSchema } from "../typeboxStandardSchema.js";
 
@@ -42,10 +42,8 @@ const observedAtData = toStandardSchema(
   ])
 );
 
-const expectedFailureData: StandardSchemaV1<
-  ExpectedFailureErrorData,
-  ExpectedFailureErrorData
-> = toStandardSchema(expectedFailureErrorDataSchema);
+const expectedFailureData: StandardSchemaV1<ExpectedFailureErrorData, ExpectedFailureErrorData> =
+  toStandardSchema(expectedFailureErrorDataSchema);
 const unavailableFailureData: StandardSchemaV1<
   UnavailableFailureErrorData,
   UnavailableFailureErrorData
@@ -57,10 +55,8 @@ const failedFailureData: StandardSchemaV1<FailedErrorData, FailedErrorData> =
  * Run-in-game status-miss echo: the server identity the client uses for
  * restart detection (PARITY INVARIANT, audit/05 #13).
  */
-const serverIdentityEchoData: StandardSchemaV1<
-  StatusNotFoundErrorData,
-  StatusNotFoundErrorData
-> = toStandardSchema(statusNotFoundErrorDataSchema);
+const serverIdentityEchoData: StandardSchemaV1<StatusNotFoundErrorData, StatusNotFoundErrorData> =
+  toStandardSchema(statusNotFoundErrorDataSchema);
 
 // ---------------------------------------------------------------------------
 // civ7.* reads — per-procedure codes (legacy statuses preserved exactly)

@@ -15,9 +15,10 @@ describe("Swooper Maps Studio deploy plan", () => {
       "--outputStyle=static",
     ]);
     expect(plan.env).not.toHaveProperty("SWOOPER_STUDIO_RUN_ID");
+    expect(plan.env).not.toHaveProperty("SWOOPER_INCLUDE_STUDIO_CURRENT");
   });
 
-  it("adds the Run in Game request marker only for proof-correlated launches", () => {
+  it("adds the Run in Game request marker and transient map row only for proof-correlated launches", () => {
     const plan = buildSwooperMapsStudioDeployPlan({
       requestId: "studio-run-in-game-test",
       env: { PATH: "/bin" },
@@ -31,5 +32,6 @@ describe("Swooper Maps Studio deploy plan", () => {
       "--outputStyle=static",
     ]);
     expect(plan.env.SWOOPER_STUDIO_RUN_ID).toBe("studio-run-in-game-test");
+    expect(plan.env.SWOOPER_INCLUDE_STUDIO_CURRENT).toBe("1");
   });
 });

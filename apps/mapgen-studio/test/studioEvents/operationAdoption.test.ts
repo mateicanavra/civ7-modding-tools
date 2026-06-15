@@ -197,7 +197,9 @@ describe("Studio event operation adoption", () => {
     expect(operationEffect).toContain('event?.type !== "operation"');
     expect(operationEffect).toContain("setRunInGameOperation");
     expect(operationEffect).toContain("setSaveDeployOperation");
-    expect(operationEffect).not.toMatch(/applyStudioLiveGameEvent|readAndAdoptStudioOperationsCurrent/);
+    expect(operationEffect).not.toMatch(
+      /applyStudioLiveGameEvent|readAndAdoptStudioOperationsCurrent/
+    );
     expect(shellSource).not.toMatch(
       /fetchRunInGameStatus|fetchSaveDeployStatus|useOperationStatusPolls|useDaemonInstanceWatchdog|serverInfo\s*\(|runInGame\.status|mapConfigs\.status/
     );
@@ -270,7 +272,9 @@ describe("Studio event operation adoption", () => {
 
     expect(clientState).toContain("parseRunInGameClientSnapshot");
     expect(clientState).toContain("parseRunInGameSourceSnapshot");
-    expect(clientState).not.toMatch(/localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\(/);
+    expect(clientState).not.toMatch(
+      /localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\(/
+    );
   });
 
   test("applies pushed Run in Game operation events without pre-handling terminal toasts", () => {
@@ -385,11 +389,15 @@ describe("Studio event operation adoption", () => {
   });
 
   test("live event query function invokes watch with scoped stream retry context", async () => {
-    const calls: Array<{ input: unknown; options: { signal?: AbortSignal; context?: unknown } }> = [];
+    const calls: Array<{ input: unknown; options: { signal?: AbortSignal; context?: unknown } }> =
+      [];
     const fakeClient = {
       studio: {
         events: {
-          watch: async (input: unknown, options: { signal?: AbortSignal; context?: unknown } = {}) => {
+          watch: async (
+            input: unknown,
+            options: { signal?: AbortSignal; context?: unknown } = {}
+          ) => {
             calls.push({ input, options });
             return oneEventIterator({
               type: "hello",

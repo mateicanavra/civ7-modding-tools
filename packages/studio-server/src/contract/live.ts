@@ -14,6 +14,8 @@ import {
  *
  * Source of truth: audit/05-server-contracts.md endpoints #4 (status), #5
  * (snapshot), #6 (entities), #7 (gameInfo).
+ * Current transport is TypeBox/effect-oRPC under `/rpc`; retired `/api/*`
+ * strings below are audit/parity identifiers, not active routes.
  */
 
 /**
@@ -32,7 +34,7 @@ const fieldOrErrorSchema = Type.Union([
 ]);
 
 // ---------------------------------------------------------------------------
-// #4 civ7.live.status - GET /api/civ7/live/status
+// #4 civ7.live.status - live aggregate read (retired REST parity: GET /api/civ7/live/status)
 // ---------------------------------------------------------------------------
 // Request: none. Success 200: { ok, playable, observedAt, status, appUi,
 // mapSummary, autoplay } where ok = playableStatus && readiness !== "unavailable",
@@ -56,7 +58,7 @@ export const status = oc.input(emptyInputSchema).output(
 );
 
 // ---------------------------------------------------------------------------
-// #5 civ7.live.snapshot - GET /api/civ7/live/snapshot
+// #5 civ7.live.snapshot - live snapshot read (retired REST parity: GET /api/civ7/live/snapshot)
 // ---------------------------------------------------------------------------
 // Query: x(0), y(0), width(24), height(18),
 //   fields(csv, default "terrain,biome,feature,resource,visibility,owner"),
@@ -100,7 +102,7 @@ export const snapshot = oc
   );
 
 // ---------------------------------------------------------------------------
-// #6 civ7.live.entities - GET /api/civ7/live/entities
+// #6 civ7.live.entities - live entities read (retired REST parity: GET /api/civ7/live/entities)
 // ---------------------------------------------------------------------------
 // Query: playerId(opt -> number/omit), maxItems(clamp 1..128, default 128).
 // Success 200: { ok:true, observedAt, players, units, cities }.
@@ -135,7 +137,7 @@ export const entities = oc
   );
 
 // ---------------------------------------------------------------------------
-// #7 civ7.live.gameInfo - GET /api/civ7/live/gameinfo
+// #7 civ7.live.gameInfo - live table read (retired REST parity: GET /api/civ7/live/gameinfo)
 // ---------------------------------------------------------------------------
 // Query: tables(csv, default "Terrains,Biomes,Features,Resources,Maps,MapSizes",
 //   slice(0,8) - 8-table cap), limit(clamp 1..200, default 100).
@@ -146,7 +148,7 @@ export const entities = oc
 // `Civ7GameInfoRowsResult` object (legacy maps `[table, await
 // getCiv7GameInfoRows(...)]`), not a bare row array - same mismatch as
 // `civ7.gameInfo` (#3). Refined from `array(gameInfoRow)` to the opaque result
-// record to preserve current `/api` behavior.
+// record to preserve retired REST parity.
 export const gameInfo = oc
   .errors(liveGameInfoErrors)
   .input(

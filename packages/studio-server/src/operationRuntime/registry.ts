@@ -2,11 +2,11 @@ import { Effect, SynchronizedRef } from "effect";
 
 import type { MapConfigSaveDeployStatus } from "../contract/mapConfigs.js";
 import type {
+  RunInGameExactAuthorshipProof,
+  RunInGameMaterializationStatus,
   RunInGameOperationStatus,
   RunInGamePhase,
-  RunInGameMaterializationStatus,
   RunInGameProcessRestartStatus,
-  RunInGameExactAuthorshipProof,
 } from "../contract/runInGame.js";
 import {
   invalidRequest,
@@ -20,8 +20,8 @@ import {
 import type {
   RegistryState,
   RunInGameInternalOperation,
-  SaveDeployInternalOperation,
   RuntimeActiveSlot,
+  SaveDeployInternalOperation,
 } from "./model.js";
 import {
   emptyRegistry,
@@ -116,14 +116,16 @@ export function markDisposed(
   });
 }
 
-export function admitRunInGame(args: Readonly<{
-  registry: RuntimeRegistry;
-  nowMs: number;
-  nowIso: string;
-  ttlMs?: number;
-  requestId: string;
-  prepared: RunInGamePreparedRequest;
-}>): Effect.Effect<Admission<RunInGameOperationStatus>, StudioRuntimeFailure> {
+export function admitRunInGame(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    nowMs: number;
+    nowIso: string;
+    ttlMs?: number;
+    requestId: string;
+    prepared: RunInGamePreparedRequest;
+  }>
+): Effect.Effect<Admission<RunInGameOperationStatus>, StudioRuntimeFailure> {
   return SynchronizedRef.modifyEffect(args.registry, (raw) => {
     const state = prune(raw, args.nowMs, args.nowIso, args.ttlMs);
     if (state.disposed) return Effect.fail(runtimeDisposedFailure());
@@ -178,7 +180,7 @@ export function admitRunInGame(args: Readonly<{
       completedPhases: [],
     };
     return Effect.succeed([
-        { admitted: true, operation: projectRunInGame(operation), eventOperation: operation },
+      { admitted: true, operation: projectRunInGame(operation), eventOperation: operation },
       {
         ...state,
         active: activeSlot(operation),
@@ -188,12 +190,14 @@ export function admitRunInGame(args: Readonly<{
   });
 }
 
-export function transitionRunInGame(args: Readonly<{
-  registry: RuntimeRegistry;
-  requestId: string;
-  nowIso: string;
-  transition: RunInGameTransition;
-}>): Effect.Effect<RunInGameInternalOperation> {
+export function transitionRunInGame(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    requestId: string;
+    nowIso: string;
+    transition: RunInGameTransition;
+  }>
+): Effect.Effect<RunInGameInternalOperation> {
   return SynchronizedRef.modify(args.registry, (state) => {
     const current = state.runInGame[args.requestId];
     if (!current || state.disposed) {
@@ -242,13 +246,15 @@ export function transitionRunInGame(args: Readonly<{
   });
 }
 
-export function failRunInGame(args: Readonly<{
-  registry: RuntimeRegistry;
-  requestId: string;
-  nowIso: string;
-  phase: RunInGameFailurePhase;
-  err: unknown;
-}>): Effect.Effect<RunInGameInternalOperation> {
+export function failRunInGame(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    requestId: string;
+    nowIso: string;
+    phase: RunInGameFailurePhase;
+    err: unknown;
+  }>
+): Effect.Effect<RunInGameInternalOperation> {
   return SynchronizedRef.modify(args.registry, (state) => {
     const current = state.runInGame[args.requestId];
     if (!current || state.disposed) {
@@ -282,13 +288,15 @@ export function failRunInGame(args: Readonly<{
   });
 }
 
-export function getRunInGame(args: Readonly<{
-  registry: RuntimeRegistry;
-  requestId: string;
-  nowMs: number;
-  nowIso: string;
-  ttlMs?: number;
-}>): Effect.Effect<RunInGameOperationStatus, StudioRuntimeFailure> {
+export function getRunInGame(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    requestId: string;
+    nowMs: number;
+    nowIso: string;
+    ttlMs?: number;
+  }>
+): Effect.Effect<RunInGameOperationStatus, StudioRuntimeFailure> {
   return SynchronizedRef.modifyEffect(args.registry, (raw) => {
     const state = prune(raw, args.nowMs, args.nowIso, args.ttlMs);
     const operation = state.runInGame[args.requestId];
@@ -313,14 +321,16 @@ export function getRunInGame(args: Readonly<{
   });
 }
 
-export function admitSaveDeploy(args: Readonly<{
-  registry: RuntimeRegistry;
-  nowMs: number;
-  nowIso: string;
-  ttlMs?: number;
-  requestId: string;
-  path?: string;
-}>): Effect.Effect<Admission<MapConfigSaveDeployStatus>, StudioRuntimeFailure> {
+export function admitSaveDeploy(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    nowMs: number;
+    nowIso: string;
+    ttlMs?: number;
+    requestId: string;
+    path?: string;
+  }>
+): Effect.Effect<Admission<MapConfigSaveDeployStatus>, StudioRuntimeFailure> {
   return SynchronizedRef.modifyEffect(args.registry, (raw) => {
     const state = prune(raw, args.nowMs, args.nowIso, args.ttlMs);
     if (state.disposed) return Effect.fail(runtimeDisposedFailure());
@@ -363,12 +373,14 @@ export function admitSaveDeploy(args: Readonly<{
   });
 }
 
-export function transitionSaveDeploy(args: Readonly<{
-  registry: RuntimeRegistry;
-  requestId: string;
-  nowIso: string;
-  transition: SaveDeployTransition;
-}>): Effect.Effect<SaveDeployInternalOperation> {
+export function transitionSaveDeploy(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    requestId: string;
+    nowIso: string;
+    transition: SaveDeployTransition;
+  }>
+): Effect.Effect<SaveDeployInternalOperation> {
   return SynchronizedRef.modify(args.registry, (state) => {
     const current = state.saveDeploy[args.requestId];
     if (!current || state.disposed) {
@@ -406,13 +418,15 @@ export function transitionSaveDeploy(args: Readonly<{
   });
 }
 
-export function failSaveDeploy(args: Readonly<{
-  registry: RuntimeRegistry;
-  requestId: string;
-  nowIso: string;
-  phase: "saving" | "deploying";
-  err: unknown;
-}>): Effect.Effect<SaveDeployInternalOperation> {
+export function failSaveDeploy(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    requestId: string;
+    nowIso: string;
+    phase: "saving" | "deploying";
+    err: unknown;
+  }>
+): Effect.Effect<SaveDeployInternalOperation> {
   return SynchronizedRef.modify(args.registry, (state) => {
     const current = state.saveDeploy[args.requestId];
     if (!current || state.disposed) {
@@ -443,13 +457,15 @@ export function failSaveDeploy(args: Readonly<{
   });
 }
 
-export function getSaveDeploy(args: Readonly<{
-  registry: RuntimeRegistry;
-  requestId: string;
-  nowMs: number;
-  nowIso: string;
-  ttlMs?: number;
-}>): Effect.Effect<MapConfigSaveDeployStatus, StudioRuntimeFailure> {
+export function getSaveDeploy(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    requestId: string;
+    nowMs: number;
+    nowIso: string;
+    ttlMs?: number;
+  }>
+): Effect.Effect<MapConfigSaveDeployStatus, StudioRuntimeFailure> {
   return SynchronizedRef.modifyEffect(args.registry, (raw) => {
     const state = prune(raw, args.nowMs, args.nowIso, args.ttlMs);
     const operation = state.saveDeploy[args.requestId];
@@ -486,17 +502,34 @@ export function getState(
   });
 }
 
-export function ensureAdmissionOpen(args: Readonly<{
-  registry: RuntimeRegistry;
-  nowMs: number;
-  nowIso: string;
-  ttlMs?: number;
-}>): Effect.Effect<void, StudioRuntimeFailure> {
+export function ensureAdmissionOpen(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    nowMs: number;
+    nowIso: string;
+    ttlMs?: number;
+  }>
+): Effect.Effect<void, StudioRuntimeFailure> {
   return SynchronizedRef.modifyEffect(args.registry, (raw) => {
     const state = prune(raw, args.nowMs, args.nowIso, args.ttlMs);
     if (state.disposed) return Effect.fail(runtimeDisposedFailure());
     const blocked = activeBlocked(state.active);
     if (blocked) return Effect.fail(blocked);
+    return Effect.succeed([undefined, state] as const);
+  });
+}
+
+export function ensureRuntimeOpen(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    nowMs: number;
+    nowIso: string;
+    ttlMs?: number;
+  }>
+): Effect.Effect<void, StudioRuntimeFailure> {
+  return SynchronizedRef.modifyEffect(args.registry, (raw) => {
+    const state = prune(raw, args.nowMs, args.nowIso, args.ttlMs);
+    if (state.disposed) return Effect.fail(runtimeDisposedFailure());
     return Effect.succeed([undefined, state] as const);
   });
 }
@@ -571,7 +604,12 @@ function failRunOperation(
   return {
     ...operation,
     phase: failure.tag === "RuntimeDisposed" ? "runtime-disposed" : failureClass,
-    status: failureClass === "blocked" ? "blocked" : failureClass === "uncertain" ? "uncertain" : "failed",
+    status:
+      failureClass === "blocked"
+        ? "blocked"
+        : failureClass === "uncertain"
+          ? "uncertain"
+          : "failed",
     updatedAt: nowIso,
     failure,
     completedPhases: operation.completedPhases.includes(phase)

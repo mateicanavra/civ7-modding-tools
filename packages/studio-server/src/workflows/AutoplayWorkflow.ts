@@ -10,11 +10,16 @@ export interface AutoplayWorkflowApi {
   ) => Effect.Effect<StudioOutputs["civ7"]["autoplay"], StudioRuntimeFailure>;
 }
 
-export class AutoplayWorkflow extends Context.Tag(
-  "@civ7/studio-server/AutoplayWorkflow"
-)<AutoplayWorkflow, AutoplayWorkflowApi>() {}
+export class AutoplayWorkflow extends Context.Tag("@civ7/studio-server/AutoplayWorkflow")<
+  AutoplayWorkflow,
+  AutoplayWorkflowApi
+>() {}
 
-export function makeAutoplayWorkflowLayer(): Layer.Layer<AutoplayWorkflow, never, Civ7WorkflowControl> {
+export function makeAutoplayWorkflowLayer(): Layer.Layer<
+  AutoplayWorkflow,
+  never,
+  Civ7WorkflowControl
+> {
   return Layer.effect(
     AutoplayWorkflow,
     Effect.map(Civ7WorkflowControl, (civ7) => ({

@@ -1,16 +1,20 @@
-export type Civ7StudioSetupOptionValue = string | number | boolean;
+import {
+  DEFAULT_RUN_IN_GAME_SETUP_CONFIG,
+  normalizeRunInGameSetupConfig,
+  RUN_IN_GAME_CUSTOM_DIFFICULTY_OPTION_IDS,
+  RUN_IN_GAME_MAIN_GAME_OPTION_IDS,
+  RUN_IN_GAME_PLAYER_OPTION_IDS,
+  type RunInGamePlayerSetupConfig,
+  type RunInGameSavedSetupConfigRef,
+  type RunInGameSetupConfig,
+  type RunInGameSetupOptionValue,
+} from "@civ7/studio-server/contract";
 
-export type Civ7StudioPlayerSetupConfig = Readonly<{
-  playerId: number;
-  options: Readonly<Record<string, Civ7StudioSetupOptionValue>>;
-}>;
+export type Civ7StudioSetupOptionValue = RunInGameSetupOptionValue;
 
-export type Civ7StudioSavedConfigRef = Readonly<{
-  id: string;
-  displayName: string;
-  fileName: string;
-  path: string;
-}>;
+export type Civ7StudioPlayerSetupConfig = RunInGamePlayerSetupConfig;
+
+export type Civ7StudioSavedConfigRef = RunInGameSavedSetupConfigRef;
 
 /**
  * The authored game-setup state behind the header's Game bar — the single
@@ -21,12 +25,7 @@ export type Civ7StudioSavedConfigRef = Readonly<{
  * extra key silently overrides the loaded file (see
  * `studioSetupConfigFromSavedConfigFile` / `studioSetupDriftsFromSavedConfig`).
  */
-export type Civ7StudioSetupConfig = Readonly<{
-  savedConfig?: Civ7StudioSavedConfigRef;
-  mapScript?: string;
-  gameOptions: Readonly<Record<string, Civ7StudioSetupOptionValue>>;
-  playerOptions: ReadonlyArray<Civ7StudioPlayerSetupConfig>;
-}>;
+export type Civ7StudioSetupConfig = RunInGameSetupConfig;
 
 export type Civ7SetupParameterSnapshotLike = Readonly<{
   id?: unknown;
@@ -82,48 +81,14 @@ export type Civ7SavedSetupConfigFile = Readonly<
   }
 >;
 
-export const DEFAULT_CIV7_STUDIO_SETUP_CONFIG: Civ7StudioSetupConfig = {
-  gameOptions: {},
-  playerOptions: [
-    {
-      playerId: 0,
-      options: {},
-    },
-  ],
-};
+export const DEFAULT_CIV7_STUDIO_SETUP_CONFIG = DEFAULT_RUN_IN_GAME_SETUP_CONFIG;
 
-export const CIV7_STUDIO_MAIN_GAME_OPTION_IDS = [
-  "Difficulty",
-  "GameSpeeds",
-  "StartPosition",
-  "AgeTransitionSetting",
-  "DisasterIntensity",
-  "IndependentHostility",
-  "AgeLength",
-  "AgeCountdownTimer",
-] as const;
+export const CIV7_STUDIO_MAIN_GAME_OPTION_IDS = RUN_IN_GAME_MAIN_GAME_OPTION_IDS;
 
-export const CIV7_STUDIO_CUSTOM_DIFFICULTY_OPTION_IDS = [
-  "DifficultyIndependentsCombat",
-  "DifficultyCombat",
-  "DifficultyArmyXP",
-  "DifficultyUnitProduction",
-  "DifficultyBuildingProduction",
-  "DifficultyFreeStuff",
-  "DifficultyGold",
-  "DifficultyScience",
-  "DifficultyCulture",
-  "DifficultyHappiness",
-  "DifficultyTechCost",
-  "DifficultyCivicCost",
-  "DifficultyOceanDamage",
-] as const;
+export const CIV7_STUDIO_CUSTOM_DIFFICULTY_OPTION_IDS =
+  RUN_IN_GAME_CUSTOM_DIFFICULTY_OPTION_IDS;
 
-export const CIV7_STUDIO_PLAYER_OPTION_IDS = [
-  "PlayerLeader",
-  "PlayerCivilization",
-  "PlayerDifficulty",
-] as const;
+export const CIV7_STUDIO_PLAYER_OPTION_IDS = RUN_IN_GAME_PLAYER_OPTION_IDS;
 
 const GAME_OPTION_ID_SET = new Set<string>([
   ...CIV7_STUDIO_MAIN_GAME_OPTION_IDS,
@@ -140,65 +105,8 @@ function isSetupOptionValue(value: unknown): value is Civ7StudioSetupOptionValue
   return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
 }
 
-function compactOptions(
-  value: unknown,
-  allowedIds?: ReadonlySet<string>
-): Record<string, Civ7StudioSetupOptionValue> {
-  if (!isRecord(value)) return {};
-  const out: Record<string, Civ7StudioSetupOptionValue> = {};
-  for (const [key, next] of Object.entries(value)) {
-    if (allowedIds && !allowedIds.has(key)) continue;
-    if (isSetupOptionValue(next)) out[key] = next;
-  }
-  return out;
-}
-
-function compactPlayerOptions(value: unknown): Civ7StudioPlayerSetupConfig[] {
-  if (!Array.isArray(value)) return [...DEFAULT_CIV7_STUDIO_SETUP_CONFIG.playerOptions];
-  const players: Civ7StudioPlayerSetupConfig[] = [];
-  for (const entry of value) {
-    if (!isRecord(entry)) continue;
-    const playerId = Number(entry.playerId);
-    if (!Number.isInteger(playerId) || playerId < 0 || playerId > 64) continue;
-    players.push({
-      playerId,
-      options: compactOptions(entry.options, PLAYER_OPTION_ID_SET),
-    });
-  }
-  return players.length > 0 ? players : [...DEFAULT_CIV7_STUDIO_SETUP_CONFIG.playerOptions];
-}
-
-function compactSavedConfigRef(value: unknown): Civ7StudioSavedConfigRef | undefined {
-  if (!isRecord(value)) return undefined;
-  if (
-    typeof value.id !== "string" ||
-    typeof value.displayName !== "string" ||
-    typeof value.fileName !== "string" ||
-    typeof value.path !== "string" ||
-    value.fileName.length === 0 ||
-    value.path.length === 0
-  ) {
-    return undefined;
-  }
-  return {
-    id: value.id,
-    displayName: value.displayName,
-    fileName: value.fileName,
-    path: value.path,
-  };
-}
-
 export function normalizeStudioSetupConfig(value: unknown): Civ7StudioSetupConfig {
-  if (!isRecord(value)) return DEFAULT_CIV7_STUDIO_SETUP_CONFIG;
-  const savedConfig = compactSavedConfigRef(value.savedConfig);
-  return {
-    ...(savedConfig ? { savedConfig } : {}),
-    ...(typeof value.mapScript === "string" && value.mapScript.length > 0
-      ? { mapScript: value.mapScript }
-      : {}),
-    gameOptions: compactOptions(value.gameOptions, GAME_OPTION_ID_SET),
-    playerOptions: compactPlayerOptions(value.playerOptions),
-  };
+  return normalizeRunInGameSetupConfig(value);
 }
 
 export function studioSetupConfigsEqual(

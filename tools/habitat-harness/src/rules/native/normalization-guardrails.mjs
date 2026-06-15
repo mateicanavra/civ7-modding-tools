@@ -69,20 +69,41 @@ function extractRecipeStages(recipeText) {
     imports.set(match[1], match[2]);
   }
 
-  const stagesMatch = recipeText.match(/const\s+stages\s*=\s*\[([\s\S]*?)\]\s+as\s+const;/);
-  if (!stagesMatch) {
-    throw new Error("Could not locate standard recipe stages array.");
+  const arrayMatch = recipeText.match(/const\s+stages\s*=\s*\[([\s\S]*?)\]\s+as\s+const;/);
+  if (arrayMatch) {
+    return arrayMatch[1]
+      .split(",")
+      .map((token) => token.trim())
+      .filter(Boolean)
+      .map((token) => {
+        const stage = imports.get(token);
+        if (!stage) throw new Error(`Could not resolve recipe stage variable '${token}'.`);
+        return stage;
+      });
   }
 
-  return stagesMatch[1]
-    .split(",")
-    .map((token) => token.trim())
-    .filter(Boolean)
-    .map((token) => {
-      const stage = imports.get(token);
-      if (!stage) throw new Error(`Could not resolve recipe stage variable '${token}'.`);
-      return stage;
-    });
+  const orderManifestMatch = recipeText.match(
+    /const\s+stages\s*=\s*orderStandardStages\s*\(\s*\{([\s\S]*?)\}\s+as\s+const\s*\)/
+  );
+  if (orderManifestMatch) {
+    return orderManifestMatch[1]
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const match = line.match(/^(?:"([^"]+)"|'([^']+)'|([A-Za-z_$][\w$]*))\s*(?::|,)/);
+        if (!match) return null;
+        const key = match[1] ?? match[2];
+        if (key) return key;
+        const variable = match[3];
+        const stage = imports.get(variable);
+        if (!stage) throw new Error(`Could not resolve recipe stage variable '${variable}'.`);
+        return stage;
+      })
+      .filter(Boolean);
+  }
+
+  throw new Error("Could not locate standard recipe stage order.");
 }
 
 function extractDocStages(docText) {
@@ -169,6 +190,17 @@ const stages = [one, two] as const;
 `;
   if (extractRecipeStages(recipe).join(",") !== "one,two") {
     throw new Error("self-test failed: recipe stage extraction");
+  }
+  const manifestRecipe = `
+import one from "./stages/one/index.js";
+import two from "./stages/two/index.js";
+const stages = orderStandardStages({
+  one,
+  "two": two,
+} as const);
+`;
+  if (extractRecipeStages(manifestRecipe).join(",") !== "one,two") {
+    throw new Error("self-test failed: recipe manifest stage extraction");
   }
   if (extractDocStages(docs).join(",") !== "one,two") {
     throw new Error("self-test failed: doc stage extraction");

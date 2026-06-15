@@ -10,7 +10,7 @@ Date: 2026-06-14
 | Game-door invariant doc | evergreen ownership rule | doc path and review |
 | Direct-control constructor guard | prevent unsanctioned session owners | guard test command and allowlist |
 | Control-oRPC runtime surface ledger | no unclassified game-action/effect surface | ledger path and classifications |
-| Public/manual status endpoint ledger | retained endpoints are diagnostic only | endpoint list, consumer, deletion/classification |
+| Public/manual status endpoint ledger | retained endpoints split by authority: diagnostic read, mutation-state read/projection, identity read | endpoint list, consumer, deletion/classification |
 | TypeBox/Zod closeout proof | contract schema substrate uniform | negative search and changed files |
 | Tuner-session disposition | no unchecked promises remain | task diff, deferral/product decision |
 | Final residue ledger | no orphaned bridge/path remains | negative-search output and classifications |
@@ -35,8 +35,13 @@ must be one of:
 - canonical deferral in `docs/system/DEFERRALS.md`;
 - deployment-specific follow-up outside local runtime dev orchestration;
 - external review/merge state for the Graphite stack;
-- `workstream/next-packet.md` if live proof or merge/drain is externally
-  blocked.
+- `workstream/next-packet.md` or a follow-up handoff if merge/drain is
+  externally blocked.
+
+Current implementation note: D10 and D11 both handed off live Civ7 proof gaps.
+D12 ran those live checks and records the results in the testing and
+final-proof ledgers. Remaining downstream work is final Graphite drain, not live
+product proof.
 
 ## Public/Manual Status Endpoint Rule
 
@@ -59,3 +64,8 @@ session. The packet corpus lives in
 If Railway or other deployment-only Turbo commands remain after D11, D12 must
 classify them as deployment-owned residue or schedule a deployment follow-up.
 They cannot be confused with local runtime dev orchestration.
+
+The active local Studio runbook is updated to Nx-native local dev/build
+commands. Remaining Turbo mentions under older project issues, resource plans,
+and Railway deployment handoff are classified as historical planning or
+deployment-owned residue unless a current local-dev command path uses them.

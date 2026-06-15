@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   autoplayStartStopFailed,
@@ -19,10 +19,10 @@ import {
   operationNotFound,
   proofFailed,
   runtimeDisposed,
-  statusNotFoundErrorDataSchema,
   type StudioRuntimeFailure,
-  unsupportedOperationType,
+  statusNotFoundErrorDataSchema,
   unavailableFailureErrorDataSchema,
+  unsupportedOperationType,
 } from "../src/index";
 
 const identity = {

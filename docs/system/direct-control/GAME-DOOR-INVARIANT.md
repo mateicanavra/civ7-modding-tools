@@ -43,3 +43,9 @@ If a new constructor appears outside the sanctioned paths, remove it rather than
 ## Rationale
 
 The runtime simplification program made the daemon the owner of ephemeral truth. FireTuner socket ownership follows the same rule: the daemon owns shared polling state and pushes observations; bounded package workflows may own a short-lived session only inside the direct-control package wrapper. This keeps descriptor lifetime, backoff, shutdown release, event publishing, and restart behavior visible in one place instead of being redistributed across callers.
+
+Event publication follows the same ownership model. The Studio runtime owns
+`StudioEventHubLive` as a scoped Effect service; app/daemon host code does not
+create or shut down a separate EventHub. The oRPC watch procedure may adapt the
+Effect subscription to an `AsyncIterator`, but that transport edge is not a
+second event lifecycle owner.

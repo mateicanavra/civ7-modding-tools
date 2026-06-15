@@ -3,27 +3,28 @@ import { Effect } from "effect";
 import { implementEffect } from "effect-orpc";
 
 import { type StudioEffectContract, studioEffectContract } from "../contract/index.js";
-import { errorMessage } from "../errors.js";
 import {
-  type StudioOperationProcedure,
   mapStudioFailureToDefinedError,
   mapUnexpectedDefectToDefinedError,
+  type StudioOperationProcedure,
   type StudioRuntimeFailure,
 } from "../errors/index.js";
+import { errorMessage } from "../errors.js";
 import { readLiveGameStatusBody } from "../liveGame/statusRead.js";
 import { StudioOperationRuntime } from "../operationRuntime/index.js";
 import type { StudioRuntime } from "../runtime.js";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
 import { StudioConfig } from "../services/StudioConfig.js";
-import { StudioEventHub } from "../services/StudioEventHub.js";
+import { StudioEventHub, studioEventSubscriptionIterator } from "../services/StudioEventHub.js";
 
 /**
  * effect-orpc router for `@civ7/studio-server` (slice A3).
  *
  * This is the ONLY module that imports `effect-orpc` (research/01 section 6 isolation
  * rule). Each leaf is `implementEffect(...).<ns>.<proc>.effect(function*(){...})`.
- * The procedure bodies lift the corresponding `/api/*` handler logic from
- * `apps/mapgen-studio/vite.config.ts` verbatim:
+ * Procedure comments keep retired REST endpoint numbers as audit/parity IDs.
+ * The current runtime surface is the TypeBox/effect-oRPC contract mounted under
+ * one `/rpc` route; `/api/*` references below are not active transport routes.
  *
  *   - Read procedures call `Civ7TunerClient` (-> `@civ7/direct-control`) and map a
  *     failure to its DECLARED contract error via the typed `errors.CODE(...)`
@@ -56,7 +57,7 @@ export function createStudioRouter(
 
   return oe.router({
     civ7: {
-      // #1 GET /api/civ7/status - error 500
+      // #1 civ7.status - retired REST parity id; error 500
       status: oe.civ7.status.effect(function* ({ errors }) {
         const status = yield* Civ7TunerClient.playableStatus().pipe(
           Effect.mapError((err) =>
@@ -68,7 +69,7 @@ export function createStudioRouter(
         return { ok: status.playable, status: status as Record<string, unknown> };
       }),
 
-      // #2 GET /api/civ7/map-summary - error 500
+      // #2 civ7.mapSummary - retired REST parity id; error 500
       mapSummary: oe.civ7.mapSummary.effect(function* ({ errors }) {
         const summary = yield* Civ7TunerClient.mapSummary().pipe(
           Effect.mapError((err) =>
@@ -80,7 +81,7 @@ export function createStudioRouter(
         return { ok: true as const, summary: summary as Record<string, unknown> };
       }),
 
-      // #3 GET /api/civ7/gameinfo?table=&limit= - error 400 (NOT 500)
+      // #3 civ7.gameInfo - retired REST parity id; error 400 (NOT 500)
       gameInfo: oe.civ7.gameInfo.effect(function* ({ input, errors }) {
         const rows = yield* Civ7TunerClient.gameInfoRows(input.table, input.limit ?? 100).pipe(
           Effect.mapError((err) =>
@@ -89,27 +90,29 @@ export function createStudioRouter(
             })
           )
         );
-        // Parity: legacy `/api` writes the WHOLE result object under `rows`.
+        // Retired REST parity: the WHOLE result object stays under `rows`.
         return { ok: true as const, rows: rows as unknown as Record<string, unknown> };
       }),
 
-      // #8 POST /api/civ7/autoplay - package runtime command; 409 mutex / 500
+      // #8 civ7.autoplay - package runtime command; 409 mutex / 500
       autoplay: oe.civ7.autoplay.effect(function* ({ input, errors }) {
         const operationRuntime = yield* StudioOperationRuntime;
-        return yield* operationRuntime.autoplay(input).pipe(
-          Effect.mapError((failure) =>
-            statefulFailure(
-              errors,
-              failure,
-              "autoplay.command",
-              "Civ7 autoplay request failed",
-              operationRuntime.identity
+        return yield* operationRuntime
+          .autoplay(input)
+          .pipe(
+            Effect.mapError((failure) =>
+              statefulFailure(
+                errors,
+                failure,
+                "autoplay.command",
+                "Civ7 autoplay request failed",
+                operationRuntime.identity
+              )
             )
-          )
-        );
+          );
       }),
 
-      // #10 GET /api/civ7/setup-config - error 503 (UNIQUE), body carries observedAt
+      // #10 civ7.setupConfig - error 503 (UNIQUE), body carries observedAt
       setupConfig: oe.civ7.setupConfig.effect(function* ({ errors }) {
         const snapshot = yield* Civ7TunerClient.setupSnapshot().pipe(
           Effect.mapError((err) =>
@@ -129,7 +132,7 @@ export function createStudioRouter(
         };
       }),
 
-      // #11 GET /api/civ7/saved-configs - error 500, body carries observedAt
+      // #11 civ7.savedConfigs - error 500, body carries observedAt
       savedConfigs: oe.civ7.savedConfigs.effect(function* ({ errors }) {
         const result = yield* Civ7TunerClient.savedConfigurations().pipe(
           Effect.mapError((err) =>
@@ -147,7 +150,7 @@ export function createStudioRouter(
         };
       }),
 
-      // #12 GET /api/civ7/setup-catalog - host loader; error 500
+      // #12 civ7.setupCatalog - host loader; error 500
       setupCatalog: oe.civ7.setupCatalog.effect(function* ({ errors }) {
         const config = yield* StudioConfig;
         const catalog = yield* Effect.tryPromise(() => config.loadSetupCatalog()).pipe(
@@ -162,12 +165,12 @@ export function createStudioRouter(
       }),
 
       live: {
-        // #4 GET /api/civ7/live/status - 200-with-embedded-{error}; allSettled
+        // #4 civ7.live.status - request/response read; 200-with-embedded-{error}
         status: oe.civ7.live.status.effect(function* () {
           return yield* readLiveGameStatusBody;
         }),
 
-        // #5 GET /api/civ7/live/snapshot - error 400; clamps + csv parse parity
+        // #5 civ7.live.snapshot - error 400; clamps + csv parse parity
         snapshot: oe.civ7.live.snapshot.effect(function* ({ input, errors }) {
           const fields = (input.fields ?? "terrain,biome,feature,resource,visibility,owner")
             .split(",")
@@ -198,7 +201,7 @@ export function createStudioRouter(
           };
         }),
 
-        // #6 GET /api/civ7/live/entities - error 400; Promise.all (any failure -> 400)
+        // #6 civ7.live.entities - error 400; any failed read -> 400
         entities: oe.civ7.live.entities.effect(function* ({ input, errors }) {
           const maxItems = Math.min(128, Math.max(1, input.maxItems ?? 128));
           const playerId = input.playerId;
@@ -234,7 +237,7 @@ export function createStudioRouter(
           };
         }),
 
-        // #7 GET /api/civ7/live/gameinfo - error 400; 8-table cap, N parallel reads
+        // #7 civ7.live.gameInfo - error 400; 8-table cap, N parallel reads
         gameInfo: oe.civ7.live.gameInfo.effect(function* ({ input, errors }) {
           const tables = (input.tables ?? "Terrains,Biomes,Features,Resources,Maps,MapSizes")
             .split(",")
@@ -256,7 +259,7 @@ export function createStudioRouter(
               })
             )
           );
-          // Parity: each table value is the WHOLE result object (legacy behavior).
+          // Retired REST parity: each table value is the WHOLE result object.
           return {
             ok: true as const,
             observedAt: new Date().toISOString(),
@@ -270,75 +273,83 @@ export function createStudioRouter(
     },
 
     runInGame: {
-      // #14 POST /api/civ7/run-in-game - package runtime operation; 409/400/500/503
+      // #14 runInGame.start - package runtime operation; 409/400/500/503
       start: oe.runInGame.start.effect(function* ({ input, errors }) {
         const operationRuntime = yield* StudioOperationRuntime;
-        return yield* operationRuntime.runInGameStart(input).pipe(
-          Effect.mapError((failure) =>
-            statefulFailure(
-              errors,
-              failure,
-              "runInGame.start",
-              "Run in Game failed",
-              operationRuntime.identity
+        return yield* operationRuntime
+          .runInGameStart(input)
+          .pipe(
+            Effect.mapError((failure) =>
+              statefulFailure(
+                errors,
+                failure,
+                "runInGame.start",
+                "Run in Game failed",
+                operationRuntime.identity
+              )
             )
-          )
-        );
+          );
       }),
 
-      // #13 GET /api/civ7/run-in-game/status - package runtime status; 404 echoes server id
+      // #13 runInGame.status - keyed mutation-state read; 404 echoes server id
       status: oe.runInGame.status.effect(function* ({ input, errors }) {
         const operationRuntime = yield* StudioOperationRuntime;
-        return yield* operationRuntime.runInGameStatus(input).pipe(
-          Effect.mapError((failure) =>
-            statefulFailure(
-              errors,
-              failure,
-              "runInGame.status",
-              "Run in Game status failed",
-              operationRuntime.identity
+        return yield* operationRuntime
+          .runInGameStatus(input)
+          .pipe(
+            Effect.mapError((failure) =>
+              statefulFailure(
+                errors,
+                failure,
+                "runInGame.status",
+                "Run in Game status failed",
+                operationRuntime.identity
+              )
             )
-          )
-        );
+          );
       }),
     },
 
     mapConfigs: {
-      // #16 POST /api/map-configs - package runtime operation; 409 mutex / 400 validation
+      // #16 mapConfigs.saveDeploy - package runtime operation; 409 mutex / 400 validation
       saveDeploy: oe.mapConfigs.saveDeploy.effect(function* ({ input, errors }) {
         const operationRuntime = yield* StudioOperationRuntime;
-        return yield* operationRuntime.saveDeployStart(input).pipe(
-          Effect.mapError((failure) =>
-            statefulFailure(
-              errors,
-              failure,
-              "saveDeploy.start",
-              "Save failed",
-              operationRuntime.identity
+        return yield* operationRuntime
+          .saveDeployStart(input)
+          .pipe(
+            Effect.mapError((failure) =>
+              statefulFailure(
+                errors,
+                failure,
+                "saveDeploy.start",
+                "Save failed",
+                operationRuntime.identity
+              )
             )
-          )
-        );
+          );
       }),
 
-      // #15 GET /api/map-configs/status - package runtime status; 404 echoes server id
+      // #15 mapConfigs.status - keyed mutation-state read; 404 echoes server id
       status: oe.mapConfigs.status.effect(function* ({ input, errors }) {
         const operationRuntime = yield* StudioOperationRuntime;
-        return yield* operationRuntime.saveDeployStatus(input).pipe(
-          Effect.mapError((failure) =>
-            statefulFailure(
-              errors,
-              failure,
-              "saveDeploy.status",
-              "Save/Deploy status failed",
-              operationRuntime.identity
+        return yield* operationRuntime
+          .saveDeployStatus(input)
+          .pipe(
+            Effect.mapError((failure) =>
+              statefulFailure(
+                errors,
+                failure,
+                "saveDeploy.status",
+                "Save/Deploy status failed",
+                operationRuntime.identity
+              )
             )
-          )
-        );
+          );
       }),
     },
 
     studio: {
-      // #9 GET /api/studio/server-info - pure; no errors
+      // #9 studio.serverInfo - identity read; no errors
       serverInfo: oe.studio.serverInfo.effect(function* () {
         const config = yield* StudioConfig;
         const operationRuntime = yield* StudioOperationRuntime;
@@ -354,7 +365,7 @@ export function createStudioRouter(
         watch: oe.studio.events.watch.effect(function* () {
           const operationRuntime = yield* StudioOperationRuntime;
           const eventHub = yield* StudioEventHub;
-          return eventHub.subscribe({
+          const subscription = yield* eventHub.subscribe({
             initialEvents: [
               {
                 type: "hello",
@@ -364,6 +375,7 @@ export function createStudioRouter(
               },
             ],
           });
+          return studioEventSubscriptionIterator(subscription);
         }),
       },
       operations: {
@@ -430,7 +442,10 @@ function statefulFailure(
     procedure,
     identity,
   });
-  const constructors = errors as Record<string, (args: { message?: string; data?: unknown }) => unknown>;
+  const constructors = errors as Record<
+    string,
+    (args: { message?: string; data?: unknown }) => unknown
+  >;
   const constructor = constructors[projected.code];
   if (constructor) {
     return constructor({
