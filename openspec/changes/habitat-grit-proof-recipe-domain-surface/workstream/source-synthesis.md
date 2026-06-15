@@ -58,14 +58,19 @@ or /config.js only."
 - excludes sources containing `/ops`;
 - excludes sources containing `/config.js`.
 
-Current native samples:
+Current native fixture coverage:
 
-- one positive default import from a private domain subpath;
-- one negative import from `/config.js`.
+- ten positive matches: default import, named import, namespace import, type
+  import, side-effect import, named re-export, type re-export, star re-export,
+  recipe-local test path, and step-contract overlap path;
+- zero-match controls for domain root, exact `/ops`, exact `/config.js`,
+  `/ops/<tail>`, `ops-by-id`, `config.js/<tail>`, contains-substring
+  lookalikes, `.tsx`, maps, other mods, and non-recipe tests.
 
-Current native samples do not prove domain root, exact `/ops`, type imports,
-namespace imports, side-effect imports, re-export forms, path controls, or
-substring-gap cases.
+Current native samples prove current predicate behavior for those forms. They
+do not prove Habitat wrapper selector truth, raw acquisition closure, injected
+violation behavior, baseline behavior, retired-mechanism parity, or sibling-row
+enforcement of substring-gap cases.
 
 ## Official Grit Source
 
@@ -101,18 +106,19 @@ classification, command provenance, and cleanup proof.
 
 | Evidence id | Source | Result | Implication |
 | --- | --- | --- | --- |
-| RDS-E1 | `grit patterns test --filter recipe_domain_surface --json` | exits 0; one testable pattern succeeds | native fixture proof exists |
-| RDS-E2 | `bun run habitat:check -- --json --rule grit-recipe-domain-surface` | exits 0; `grit-recipe-domain-surface` and `baseline-integrity` pass | valid wrapper selection currently passes |
-| RDS-E3 | bounded raw `grit check` over recipe root | exits 0 with `results: []` | raw current-tree zero-result seed for the effective root |
-| RDS-E4 | `rg` over recipe source for `@mapgen/domain/<domain>/<tail>` | live imports are `/ops` and `/config.js` | no obvious live recipe violation |
-| RDS-E5 | disposable parser-edge probe | shared/private import and export forms report; root, `/ops`, `/config.js`, `.tsx`, maps, other mods, `/ops/private`, `ops-by-id`, and `config.js/private` do not | core forms work, but exact-surface, side-effect import, namespace import, recipe-local test, and scope gaps exist |
-| RDS-E6 | `domain_deep_import` packet | `/ops/private` is owned there; `ops-by-id` is a current defect there | neighboring proof ids are required |
-| RDS-E7 | Effect docs and local Effect fit pack | Grit adapter hardening is a strong substrate fit | injected proof needs explicit Effect/manual decision |
+| RDS-E15 | `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter recipe_domain_surface --json` | exits 0; 10 positive matches and 0 ignore matches across the expanded fixture classes | native fixture/parser-edge subset is satisfied |
+| RDS-E16 | TypeScript parser inventory over current wrapper roots | finds 230 `@mapgen/domain` references, 124 inside the recipe predicate, 0 current-row matches, 124 exact allowed recipe references, 0 excluded-but-non-exact recipe references, 0 recipe-local test references, and 38 step-contract references inside the recipe predicate | parser inventory and live zero-candidate evidence are recorded |
+| RDS-E6 | `bun run habitat:check -- --json --rule grit-recipe-domain-surface` design seed | exits 0; `grit-recipe-domain-surface` and `baseline-integrity` pass | not consumed as wrapper proof because accepted command selector truth is not available in this row's stack/base |
+| RDS-E7 | bounded raw `grit check` over recipe root | exits 0 with `results: []` | raw acquisition closure remains unclaimed |
+| RDS-E9 | disposable parser-edge probe | shared/private import and export forms report; root, `/ops`, `/config.js`, `.tsx`, maps, other mods, `/ops/private`, `ops-by-id`, and `config.js/private` do not | direct Grit behavior seed only, not current-tree closure |
+| RDS-E10 | `domain_deep_import` packet | `/ops/private` is owned there; `ops-by-id` is a current defect there | neighboring proof ids are required before exact-surface closure |
+| RDS-E12 | Effect docs and local Effect fit pack | Grit adapter hardening is a strong substrate fit | injected proof needs explicit Effect/manual decision |
 
 ## Design Consequences
 
 1. The row is ready for a per-pattern packet.
-2. Native fixture proof needs expansion or supplement before implementation
+2. Native fixture proof has an expanded current-predicate subset, but sibling
+   substring-gap and wrapper proof remain required before implementation
    closure.
 3. Exact allowed-surface proof must replace or supplement substring allowance
    for every non-exact source containing `/ops` or `/config.js`, not just the

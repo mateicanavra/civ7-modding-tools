@@ -106,3 +106,44 @@ classification, and cleanup behavior.
 - Local evidence recorded.
 - External review completed with no P1 findings and three accepted P2 repairs.
 - Implementation pending adapter-substrate readiness and row-level proof.
+
+## Implementation DRA Update - 2026-06-15
+
+Branch/worktree:
+
+- branch: `agent-HG-habitat-grit-recipe-domain-surface`;
+- parent layer: `agent-HG-habitat-grit-pattern-chain`;
+- worktree:
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`;
+- row: `grit-recipe-domain-surface` / `recipe_domain_surface`.
+
+Completed independent row-owned work:
+
+- expanded the native `Matches fixture` to cover ten current-predicate classes:
+  default import, named import, namespace import, type import, side-effect
+  import, named re-export, type re-export, star re-export, recipe-local test
+  path, and step-contract overlap path;
+- expanded the native `Ignores fixture` for domain root, exact `/ops`, exact
+  `/config.js`, `/ops/<tail>`, `ops-by-id`, `config.js/<tail>`,
+  contains-substring lookalikes, `.tsx`, maps, other mods, and non-recipe
+  controls;
+- recorded parser inventory over current wrapper roots: 230 `@mapgen/domain`
+  references, 124 inside the recipe predicate, 0 current-row matches, 124
+  exact allowed recipe references, 0 excluded-but-non-exact recipe references,
+  0 recipe-local test references, and 38 step-contract references inside the
+  recipe predicate.
+
+Blocked/non-claim surfaces:
+
+- Habitat wrapper selector proof waits because the accepted command-trust and
+  selector-truth layer from `agent-HR-habitat-repair-chain` is not available
+  in this row's stack/base;
+- raw acquisition closure waits for accepted raw acquisition or typed adapter
+  proof;
+- explicit empty baseline proof and baseline expansion safety wait for the
+  scaffold/baseline contract repair surface;
+- injected current-tree probes and cleanup proof wait for an accepted typed
+  Grit adapter substrate;
+- exact-surface closure for `/ops/<tail>`, `ops-by-id`, `config.js/<tail>`,
+  and contains-substring lookalikes waits for predicate repair, sibling proof
+  ids, or downstream blocked records.
