@@ -10,18 +10,12 @@ import {
   type RunInGameDeployment,
   type RunInGamePreparedRequest,
 } from "../src/ports";
-import {
-  Civ7TunerSession,
-  type Civ7TunerSessionApi,
-} from "../src/services/Civ7TunerSession";
+import { Civ7TunerSession, type Civ7TunerSessionApi } from "../src/services/Civ7TunerSession";
 
 describe("Studio workflow session graph", () => {
   test("workflow control depends on the runtime-owned Civ7TunerSession layer", () => {
     const root = dirname(dirname(fileURLToPath(import.meta.url)));
-    const workflowControl = readFileSync(
-      join(root, "src/ports/Civ7WorkflowControl.ts"),
-      "utf8"
-    );
+    const workflowControl = readFileSync(join(root, "src/ports/Civ7WorkflowControl.ts"), "utf8");
     const operationRuntime = readFileSync(
       join(root, "src/operationRuntime/StudioOperationRuntime.ts"),
       "utf8"

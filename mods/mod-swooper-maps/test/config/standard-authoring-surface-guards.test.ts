@@ -301,4 +301,18 @@ describe("standard authoring surface guardrails", () => {
       );
     }
   });
+
+  it("keeps transient studio-current out of shipped map catalog artifacts", () => {
+    const artifactPaths = [
+      "../../mod/config/config.xml",
+      "../../mod/swooper-maps.modinfo",
+      "../../mod/text/en_us/MapText.xml",
+    ];
+
+    for (const artifactPath of artifactPaths) {
+      const source = readFileSync(join(import.meta.dir, artifactPath), "utf8");
+      expect(source, artifactPath).not.toContain("studio-current");
+      expect(source, artifactPath).not.toContain("STUDIO_CURRENT");
+    }
+  });
 });

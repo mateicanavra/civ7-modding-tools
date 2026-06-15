@@ -9,15 +9,19 @@ import type {
 } from "./workflowTypes.js";
 
 export type DeployRunner = Readonly<{
-  deployRunInGame(args: Readonly<{
-    requestId: string;
-    prepared: RunInGamePreparedRequest;
-    materialized: RunInGameMaterialized;
-  }>): Promise<RunInGameDeployment>;
-  deploySavedMapConfig(args: Readonly<{
-    requestId: string;
-    input: StudioInputs["mapConfigs"]["saveDeploy"];
-    prepared: SaveDeployPreparedRequest;
-    saved: SaveDeploySaved;
-  }>): Promise<SaveDeployDeployed>;
+  deployRunInGame(
+    args: Readonly<{
+      requestId: string;
+      prepared: RunInGamePreparedRequest;
+      materialized: RunInGameMaterialized;
+    }>
+  ): Promise<RunInGameDeployment>;
+  deploySavedMapConfig(
+    args: Readonly<{
+      requestId: string;
+      input: StudioInputs["mapConfigs"]["saveDeploy"];
+      prepared: SaveDeployPreparedRequest;
+      saved: SaveDeploySaved;
+    }>
+  ): Promise<SaveDeployDeployed>;
 }>;

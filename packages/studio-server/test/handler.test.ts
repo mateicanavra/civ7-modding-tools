@@ -2,27 +2,36 @@ import { createServer, type Server } from "node:http";
 import { createORPCClient, isDefinedError, ORPCError, safe } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
+import { RPCHandler } from "@orpc/server/fetch";
+import { Effect, Layer, ManagedRuntime } from "effect";
 import { afterEach, describe, expect, test } from "vitest";
 
 import {
-  createStudioEventHub,
+  createStudioRouter,
   createStudioRpcHandler,
+  StudioConfig,
   type StudioEvent,
+  StudioEventHub,
   type StudioEventHubApi,
+  StudioEventHubLive,
   type StudioOperationRuntimePorts,
   type StudioRouter,
   type StudioRpcHandle,
+  type StudioRuntime,
   type StudioServerContext,
+  studioEventSubscriptionIterator,
 } from "../src/index";
+import {
+  StudioOperationRuntime,
+  type StudioOperationRuntimeApi,
+} from "../src/operationRuntime/index";
 
 const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
-const openEventHubs: StudioEventHubApi[] = [];
 
 afterEach(async () => {
   await Promise.all(openServers.splice(0).map((server) => closeServer(server)));
   await Promise.all(openHandles.splice(0).map((handle) => handle.dispose()));
-  await Promise.all(openEventHubs.splice(0).map((eventHub) => eventHub.shutdown()));
 });
 
 describe("studio-server RPC handler", () => {
@@ -114,7 +123,9 @@ describe("studio-server RPC handler", () => {
     expect(isDefinedError(error)).toBe(true);
     expect(error.code).toBe("SAVE_DEPLOY_BLOCKED");
     expect(error.status).toBe(409);
-    expect(error.message).toBe("run-in-game is running; wait for it to finish before starting another Studio operation.");
+    expect(error.message).toBe(
+      "run-in-game is running; wait for it to finish before starting another Studio operation."
+    );
     expect(error.data).toMatchObject({
       tag: "OperationBlocked",
       namespace: "saveDeploy",
@@ -183,8 +194,7 @@ describe("studio-server RPC handler", () => {
   });
 
   test("serves studio.events.watch on /rpc with hello delivery and subscription cleanup", async () => {
-    const eventHub = trackEventHub(createStudioEventHub());
-    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const handler = trackHandle(createStudioRpcHandler(makeContext()));
     const client = directClient(handler);
 
     const iterator = await client.studio.events.watch({});
@@ -198,95 +208,12 @@ describe("studio-server RPC handler", () => {
         observedAt: expect.any(String),
       },
     });
-    expect(eventHub.activeSubscriberCount()).toBe(1);
 
     await iterator.return?.();
-    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
-  }, 10_000);
-
-  test("yields hub-published events after the initial studio.events.watch hello", async () => {
-    const eventHub = trackEventHub(createStudioEventHub());
-    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
-    const client = directClient(handler);
-
-    const iterator = await client.studio.events.watch({});
-    await expect(iterator.next()).resolves.toMatchObject({
-      done: false,
-      value: { type: "hello" },
-    });
-
-    await eventHub.publish({
-      type: "operation",
-      kind: "run-in-game",
-      observedAt: "2026-06-10T00:00:01.000Z",
-      status: {
-        ok: true,
-        requestId: "run-event-1",
-        phase: "complete",
-        status: "complete",
-        startedAt: "2026-06-10T00:00:00.000Z",
-        updatedAt: "2026-06-10T00:00:01.000Z",
-        completedPhases: ["materializing", "complete"],
-      },
-    });
-
-    await expect(iterator.next()).resolves.toMatchObject({
-      done: false,
-      value: {
-        type: "operation",
-        kind: "run-in-game",
-        status: { requestId: "run-event-1", phase: "complete" },
-      },
-    });
-    await iterator.return?.();
-    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
-  }, 10_000);
-
-  test("replays latest live-game event to new studio.events.watch subscribers after hello", async () => {
-    const eventHub = trackEventHub(createStudioEventHub());
-    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
-    const client = directClient(handler);
-
-    await eventHub.publish({
-      type: "live-game",
-      observedAt: "2026-06-10T00:00:01.000Z",
-      state: {
-        status: "ok",
-        turn: 12,
-        gameHash: 987654,
-        seed: 123,
-        readiness: "ready",
-        snapshotStatus: "idle",
-        snapshotId: "status:12:abcdef01",
-        snapshotHash: "abcdef01",
-        bindingStatus: "unbound-runtime",
-        failureCount: 0,
-      },
-    });
-
-    const iterator = await client.studio.events.watch({});
-    await expect(iterator.next()).resolves.toMatchObject({
-      done: false,
-      value: { type: "hello" },
-    });
-    await expect(iterator.next()).resolves.toMatchObject({
-      done: false,
-      value: {
-        type: "live-game",
-        state: {
-          status: "ok",
-          turn: 12,
-          snapshotId: "status:12:abcdef01",
-        },
-      },
-    });
-    await iterator.return?.();
-    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
   }, 10_000);
 
   test("operation mutations push through the watched RPC event stream", async () => {
-    const eventHub = trackEventHub(createStudioEventHub());
-    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const handler = trackHandle(createStudioRpcHandler(makeContext()));
     const client = directClient(handler);
 
     const iterator = await client.studio.events.watch({});
@@ -332,12 +259,10 @@ describe("studio-server RPC handler", () => {
     });
 
     await iterator.return?.();
-    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
   }, 10_000);
 
   test("repeated studio.events.watch subscribe and close returns subscriber count to baseline", async () => {
-    const eventHub = trackEventHub(createStudioEventHub());
-    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const handler = trackHandle(createStudioRpcHandler(makeContext()));
     const client = directClient(handler);
 
     for (let index = 0; index < 3; index += 1) {
@@ -346,15 +271,51 @@ describe("studio-server RPC handler", () => {
         done: false,
         value: { type: "hello" },
       });
-      expect(eventHub.activeSubscriberCount()).toBe(1);
       await iterator.return?.();
-      await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
     }
   }, 10_000);
 
+  test("router watch iterator return releases the runtime-owned EventHub subscription", async () => {
+    await withRouterEventHub(async ({ client, eventHub }) => {
+      const iterator = await client.studio.events.watch({});
+      await expect(iterator.next()).resolves.toMatchObject({
+        done: false,
+        value: { type: "hello" },
+      });
+      await expect(Effect.runPromise(eventHub.activeSubscriberCount)).resolves.toBe(1);
+
+      await iterator.return?.();
+
+      await expect(Effect.runPromise(eventHub.activeSubscriberCount)).resolves.toBe(0);
+    });
+  }, 10_000);
+
+  test("runtime disposal racing watch acquisition leaves no registered subscribers", async () => {
+    await withRouterEventHub(async ({ client, eventHub, runtime }) => {
+      const watchAttempts = Array.from({ length: 16 }, async () => {
+        const watch = await settle(client.studio.events.watch({}));
+        if (watch.status === "rejected") return;
+
+        const first = await withTimeout(
+          settle(watch.value.next()),
+          1_000,
+          "watch hello or disposal interruption"
+        );
+        if (first.status === "fulfilled") {
+          await watch.value.return?.();
+        }
+      });
+
+      await Promise.resolve();
+      await runtime.dispose();
+      await Promise.allSettled(watchAttempts);
+
+      await expect(Effect.runPromise(eventHub.activeSubscriberCount)).resolves.toBe(0);
+    });
+  }, 10_000);
+
   test("cancelling the watch response body releases the subscription", async () => {
-    const eventHub = trackEventHub(createStudioEventHub());
-    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const handler = trackHandle(createStudioRpcHandler(makeContext()));
     const result = await handler.handle(
       new Request("http://studio.test/rpc/studio/events/watch", {
         method: "POST",
@@ -372,15 +333,12 @@ describe("studio-server RPC handler", () => {
     const reader = result.response!.body!.getReader();
     const text = await readUntil(reader, "hello");
     expect(text).toContain("hello");
-    expect(eventHub.activeSubscriberCount()).toBe(1);
 
     await reader.cancel();
-    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
   }, 10_000);
 
   test("disposing the RPC handle interrupts pending watch response reads", async () => {
-    const eventHub = trackEventHub(createStudioEventHub());
-    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const handler = trackHandle(createStudioRpcHandler(makeContext()));
     const result = await handler.handle(
       new Request("http://studio.test/rpc/studio/events/watch", {
         method: "POST",
@@ -397,55 +355,106 @@ describe("studio-server RPC handler", () => {
     const reader = result.response!.body!.getReader();
     const text = await readUntil(reader, "hello");
     expect(text).toContain("hello");
-    expect(eventHub.activeSubscriberCount()).toBe(1);
 
     const pendingRead = settle(reader.read());
     await handler.dispose();
-    const pendingOutcome = await withTimeout(pendingRead, 1_000, "pending watch response read to settle");
+    const pendingOutcome = await withTimeout(
+      pendingRead,
+      1_000,
+      "pending watch response read to settle"
+    );
     expect(pendingOutcome.status).toBe("fulfilled");
-    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
     await reader.cancel().catch(() => undefined);
   }, 10_000);
 
-  test("event hub shutdown interrupts open watch subscriptions and releases scopes", async () => {
-    const eventHub = trackEventHub(createStudioEventHub());
-    const iterator = eventHub.subscribe({
-      initialEvents: [
-        {
-          type: "hello",
-          serverInstanceId: "studio-server-test",
-          serverStartedAt: "2026-06-10T00:00:00.000Z",
-          observedAt: "2026-06-10T00:00:00.000Z",
+  test("scoped event hub replays the latest published live-game event after hello", async () => {
+    await withScopedEventHub(async ({ eventHub }) => {
+      await Effect.runPromise(eventHub.publish(liveGameEvent()));
+
+      const subscription = await Effect.runPromise(
+        eventHub.subscribe({ initialEvents: [helloEvent()] })
+      );
+      const iterator = studioEventSubscriptionIterator(subscription);
+
+      await expect(iterator.next()).resolves.toMatchObject({
+        done: false,
+        value: { type: "hello" },
+      });
+      await expect(iterator.next()).resolves.toMatchObject({
+        done: false,
+        value: {
+          type: "live-game",
+          state: {
+            status: "ok",
+            turn: 12,
+            snapshotId: "status:12:abcdef01",
+          },
         },
-      ],
+      });
+      await iterator.return?.();
     });
+  }, 10_000);
 
-    await expect(iterator.next()).resolves.toMatchObject({
-      done: false,
-      value: { type: "hello" },
+  test("concurrent live-game publish and subscribe delivers one replay copy", async () => {
+    await withScopedEventHub(async ({ eventHub }) => {
+      const [subscription] = await Promise.all([
+        Effect.runPromise(eventHub.subscribe({ initialEvents: [helloEvent()] })),
+        Effect.runPromise(eventHub.publish(liveGameEvent())),
+      ]);
+      const iterator = studioEventSubscriptionIterator(subscription);
+
+      await expect(iterator.next()).resolves.toMatchObject({
+        done: false,
+        value: { type: "hello" },
+      });
+      await expect(iterator.next()).resolves.toMatchObject({
+        done: false,
+        value: { type: "live-game" },
+      });
+
+      const sentinel = helloEvent("2026-06-10T00:00:02.000Z");
+      await Effect.runPromise(eventHub.publish(sentinel));
+      await expect(iterator.next()).resolves.toEqual({
+        done: false,
+        value: sentinel,
+      });
+      await iterator.return?.();
     });
-    expect(eventHub.activeSubscriberCount()).toBe(1);
+  }, 10_000);
 
-    const pendingNext = settle(iterator.next());
-    await eventHub.shutdown();
-    const pendingOutcome = await withTimeout(pendingNext, 1_000, "pending event iterator read to settle");
-    expect(pendingOutcome.status).toBe("rejected");
-    if (pendingOutcome.status === "rejected") {
-      expect(String(pendingOutcome.reason)).toMatch(/interrupted|FiberFailure|shutdown/i);
-    }
-    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
-    await iterator.return?.();
+  test("scoped event hub shutdown interrupts open subscriptions and releases scopes", async () => {
+    await withScopedEventHub(async ({ eventHub, runtime }) => {
+      const subscription = await Effect.runPromise(
+        eventHub.subscribe({ initialEvents: [helloEvent()] })
+      );
+      const iterator = studioEventSubscriptionIterator(subscription);
+
+      await expect(iterator.next()).resolves.toMatchObject({
+        done: false,
+        value: { type: "hello" },
+      });
+      await expect(Effect.runPromise(eventHub.activeSubscriberCount)).resolves.toBe(1);
+
+      const pendingNext = settle(iterator.next());
+      await runtime.dispose();
+      const pendingOutcome = await withTimeout(
+        pendingNext,
+        1_000,
+        "pending event iterator read to settle"
+      );
+      expect(pendingOutcome.status).toBe("rejected");
+      if (pendingOutcome.status === "rejected") {
+        expect(String(pendingOutcome.reason)).toMatch(/interrupted|FiberFailure|shutdown/i);
+      }
+      await expect(Effect.runPromise(eventHub.activeSubscriberCount)).resolves.toBe(0);
+      await iterator.return?.();
+    });
   });
 });
 
 function trackHandle(handle: StudioRpcHandle): StudioRpcHandle {
   openHandles.push(handle);
   return handle;
-}
-
-function trackEventHub(eventHub: StudioEventHubApi): StudioEventHubApi {
-  openEventHubs.push(eventHub);
-  return eventHub;
 }
 
 function directClient(handler: StudioRpcHandle): RouterClient<StudioRouter> {
@@ -533,7 +542,6 @@ async function nodeRequestToWebRequest(req: import("node:http").IncomingMessage)
 }
 
 function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServerContext {
-  const eventHub = overrides.eventHub ?? trackEventHub(createStudioEventHub());
   return {
     viteCommand: "serve",
     loadSetupCatalog: async () =>
@@ -556,7 +564,6 @@ function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServer
       directControl: {} as StudioServerContext["civ7Control"]["directControl"],
       timeoutMs: 1234,
     },
-    eventHub,
     operationRuntime: makeOperationRuntimePorts(),
     ...overrides,
   };
@@ -581,6 +588,28 @@ function makeOperationRuntimePorts(
   };
 }
 
+function makeOperationRuntimeApi(): StudioOperationRuntimeApi {
+  const identity = {
+    serverInstanceId: "studio-server-test",
+    serverStartedAt: "2026-06-10T00:00:00.000Z",
+  };
+  const unsupported = () => Effect.die("operation runtime method is not used by watch tests");
+  return {
+    identity,
+    runInGameStart: unsupported,
+    runInGameStatus: unsupported,
+    saveDeployStart: unsupported,
+    saveDeployStatus: unsupported,
+    autoplay: unsupported,
+    operationsCurrent: Effect.succeed({
+      ok: true,
+      ...identity,
+      runInGame: { active: null, recent: [] },
+      saveDeploy: { active: null, recent: [] },
+    }),
+  };
+}
+
 function deferred<T>() {
   let resolve: (value: T | PromiseLike<T>) => void = () => undefined;
   let reject: (reason?: unknown) => void = () => undefined;
@@ -598,7 +627,11 @@ async function readUntil(
   const decoder = new TextDecoder();
   let text = "";
   while (!text.includes(needle)) {
-    const chunk = await withTimeout(reader.read(), 1_000, `event stream chunk containing ${needle}`);
+    const chunk = await withTimeout(
+      reader.read(),
+      1_000,
+      `event stream chunk containing ${needle}`
+    );
     if (chunk.done) break;
     text += decoder.decode(chunk.value, { stream: true });
   }
@@ -616,6 +649,87 @@ async function readOperationEvent(
     if (next.value.type === "operation" && predicate(next.value)) return next.value;
   }
   throw new Error("operation event did not arrive");
+}
+
+async function withScopedEventHub<T>(
+  fn: (args: {
+    eventHub: StudioEventHubApi;
+    runtime: ManagedRuntime.ManagedRuntime<StudioEventHub, never>;
+  }) => Promise<T>
+): Promise<T> {
+  const runtime = ManagedRuntime.make(StudioEventHubLive);
+  try {
+    const eventHub = await runtime.runPromise(StudioEventHub);
+    return await fn({ eventHub, runtime });
+  } finally {
+    await runtime.dispose();
+  }
+}
+
+async function withRouterEventHub<T>(
+  fn: (args: {
+    client: RouterClient<StudioRouter>;
+    eventHub: StudioEventHubApi;
+    runtime: StudioRuntime;
+  }) => Promise<T>
+): Promise<T> {
+  const runtime = ManagedRuntime.make(
+    Layer.mergeAll(
+      StudioEventHubLive,
+      Layer.succeed(StudioConfig, makeContext()),
+      Layer.succeed(StudioOperationRuntime, makeOperationRuntimeApi())
+    )
+  ) as unknown as StudioRuntime;
+  try {
+    const eventHub = await runtime.runPromise(StudioEventHub);
+    const rpcHandler = new RPCHandler(createStudioRouter(runtime));
+    const client = createORPCClient<RouterClient<StudioRouter>>(
+      new RPCLink({
+        url: "http://studio.test/rpc",
+        fetch: async (request) => {
+          const result = await rpcHandler.handle(request, { prefix: "/rpc" });
+          if (!result.matched || !result.response) {
+            return new Response("not found", { status: 404 });
+          }
+          return result.response;
+        },
+      })
+    );
+
+    return await fn({ client, eventHub, runtime });
+  } finally {
+    await runtime.dispose();
+  }
+}
+
+function helloEvent(
+  observedAt = "2026-06-10T00:00:00.000Z"
+): Extract<StudioEvent, { type: "hello" }> {
+  return {
+    type: "hello",
+    serverInstanceId: "studio-server-test",
+    serverStartedAt: "2026-06-10T00:00:00.000Z",
+    observedAt,
+  };
+}
+
+function liveGameEvent(): Extract<StudioEvent, { type: "live-game" }> {
+  return {
+    type: "live-game",
+    observedAt: "2026-06-10T00:00:01.000Z",
+    state: {
+      status: "ok",
+      turn: 12,
+      gameHash: 987654,
+      seed: 123,
+      readiness: "ready",
+      snapshotStatus: "idle",
+      snapshotId: "status:12:abcdef01",
+      snapshotHash: "abcdef01",
+      bindingStatus: "unbound-runtime",
+      failureCount: 0,
+    },
+  };
 }
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {

@@ -4,7 +4,6 @@ import type { InferContractRouterInputs, InferContractRouterOutputs } from "@orp
 import type { studioEffectContract as contract } from "./contract/index.js";
 import type { StudioOperationRuntimePorts } from "./operationRuntime/index.js";
 import type { RecipeDagService } from "./recipeDag/service.js";
-import type { StudioEventHubApi } from "./services/StudioEventHub.js";
 
 /**
  * Typed I/O for every studio-server procedure, derived from the oRPC contract so
@@ -23,12 +22,13 @@ export type SetupCatalog = StudioOutputs["civ7"]["setupCatalog"]["catalog"];
  * surface is owned by the package operation runtime layer. The host
  * supplies leaf ports for filesystem/deploy/direct-control atoms only; it does
  * not own operation identity, admission, registries, TTL/tombstones, current
- * projection, worker supervision, or lifecycle disposal.
+ * projection, event publication, event hub lifecycle, worker supervision, or
+ * lifecycle disposal.
  *
  * The read surface (status, mapSummary, gameInfo, live.*, setupConfig,
  * savedConfigs, serverInfo) is implemented inside the package from
  * `@civ7/direct-control` directly - only the catalog loader, recipe DAG service,
- * control facade, event hub, and operation leaf ports cross this seam.
+ * control facade, and operation leaf ports cross this seam.
  */
 export interface StudioServerContext {
   /** The Vite `command` ("serve" | "build") echoed by `studio.serverInfo`. */
@@ -52,12 +52,6 @@ export interface StudioServerContext {
     directControl: Civ7ControlOrpcDirectControlFacade;
     timeoutMs: number;
   }>;
-
-  /**
-   * Daemon-owned runtime event bus (S3.1). The package watch procedure and
-   * app-side publishers share this one hub through the host context.
-   */
-  readonly eventHub: StudioEventHubApi;
 
   /** Loads the Civ7 setup catalog (filesystem mirror + macOS app resources). */
   loadSetupCatalog(): Promise<SetupCatalog>;

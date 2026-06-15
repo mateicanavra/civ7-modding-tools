@@ -13,5 +13,5 @@ export type {
   SaveDeploySaved,
   StudioClock,
   StudioDaemonIdentity,
+  StudioWorkflowPorts as StudioOperationRuntimePorts,
 } from "../ports/index.js";
-export type { StudioWorkflowPorts as StudioOperationRuntimePorts } from "../ports/index.js";

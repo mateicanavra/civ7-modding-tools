@@ -3,12 +3,14 @@ import { createHash } from "node:crypto";
 import type { StudioInputs } from "../context.js";
 import type { RunInGameSourceSnapshotProof } from "../contract/runInGame.js";
 
-export function buildRunInGameSourceSnapshotProof(args: Readonly<{
-  requestId: string;
-  sourceSnapshot: unknown;
-  configHash?: string;
-  envelopeHash?: string;
-}>): RunInGameSourceSnapshotProof | undefined {
+export function buildRunInGameSourceSnapshotProof(
+  args: Readonly<{
+    requestId: string;
+    sourceSnapshot: unknown;
+    configHash?: string;
+    envelopeHash?: string;
+  }>
+): RunInGameSourceSnapshotProof | undefined {
   if (!isRecord(args.sourceSnapshot)) return undefined;
   const configHash = args.configHash ?? hashProofValue(args.sourceSnapshot.config ?? null);
   const envelopeHash = args.envelopeHash ?? hashProofValue(args.sourceSnapshot.envelope ?? null);
@@ -42,10 +44,12 @@ export function buildRunInGameSourceSnapshotProof(args: Readonly<{
   };
 }
 
-export function buildStandardRunInGameSourceSnapshotProof(args: Readonly<{
-  requestId: string;
-  input: StudioInputs["runInGame"]["start"];
-}>): RunInGameSourceSnapshotProof | undefined {
+export function buildStandardRunInGameSourceSnapshotProof(
+  args: Readonly<{
+    requestId: string;
+    input: StudioInputs["runInGame"]["start"];
+  }>
+): RunInGameSourceSnapshotProof | undefined {
   const configHash = hashProofValue(args.input.config);
   const envelopeHash = hashProofValue({
     id: standardRunInGameMapConfigId(args.input),

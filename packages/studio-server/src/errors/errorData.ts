@@ -1,4 +1,4 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 const namespaceSchema = Type.Union([
   Type.Literal("autoplay"),
@@ -45,20 +45,18 @@ const reasonCodeSchema = Type.Union([
   Type.Literal("unsupported-operation-type"),
   Type.Literal("verification-failed"),
 ]);
-export const studioRecoveryActionSchema = Type.Union(
-  [
-    Type.Literal("check-dev-server"),
-    Type.Literal("copy-diagnostics"),
-    Type.Literal("dismiss-civ-notification-and-retry"),
-    Type.Literal("edit-config"),
-    Type.Literal("exit-to-shell-and-continue"),
-    Type.Literal("inspect-deploy-output"),
-    Type.Literal("restart-civ-process-and-retry"),
-    Type.Literal("retry-run"),
-    Type.Literal("retry-save-deploy"),
-    Type.Literal("retry-status"),
-  ]
-);
+export const studioRecoveryActionSchema = Type.Union([
+  Type.Literal("check-dev-server"),
+  Type.Literal("copy-diagnostics"),
+  Type.Literal("dismiss-civ-notification-and-retry"),
+  Type.Literal("edit-config"),
+  Type.Literal("exit-to-shell-and-continue"),
+  Type.Literal("inspect-deploy-output"),
+  Type.Literal("restart-civ-process-and-retry"),
+  Type.Literal("retry-run"),
+  Type.Literal("retry-save-deploy"),
+  Type.Literal("retry-status"),
+]);
 const dependencyKindSchema = Type.Union([
   Type.Literal("civ7-process"),
   Type.Literal("direct-control"),

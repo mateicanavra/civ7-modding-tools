@@ -1,15 +1,17 @@
-import { describe, expect, test } from "vitest";
-import { Effect, ManagedRuntime } from "effect";
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { Effect, ManagedRuntime } from "effect";
+import { describe, expect, test } from "vitest";
 
 import {
-  createStudioEventHub,
   type LiveGameStatusBody,
   type StudioEvent,
+  StudioEventHub,
+  StudioEventHubLive,
   type StudioHelloEvent,
   type StudioLiveGameEvent,
+  studioEventSubscriptionIterator,
 } from "../src/index";
 import { makeLiveGameWatcherLayer, StudioLiveGameWatcher } from "../src/liveGame/watcher";
 
@@ -29,7 +31,7 @@ describe("live-game watcher", () => {
       "utf8"
     );
 
-    expect(watcherSource).toContain('readLiveGameStatusBody');
+    expect(watcherSource).toContain("readLiveGameStatusBody");
     expect(watcherSource).not.toMatch(
       /@civ7\/direct-control|Civ7DirectControlSession|Civ7TunerSessionLive|Runtime\.runPromise|Effect\.runtime|setTimeout|setInterval/
     );
@@ -54,9 +56,10 @@ describe("live-game watcher", () => {
     ];
     const layer = makeLiveGameWatcherLayer({
       eventHub: {
-        publish: async (event) => {
-          events.push(event);
-        },
+        publish: (event) =>
+          Effect.sync(() => {
+            events.push(event);
+          }),
       },
       readLiveStatus: Effect.sync(() => {
         const body = bodies.shift();
@@ -95,9 +98,10 @@ describe("live-game watcher", () => {
     ];
     const layer = makeLiveGameWatcherLayer({
       eventHub: {
-        publish: async (event) => {
-          events.push(event);
-        },
+        publish: (event) =>
+          Effect.sync(() => {
+            events.push(event);
+          }),
       },
       readLiveStatus: Effect.sync(() => {
         const body = bodies.shift();
@@ -131,11 +135,12 @@ describe("live-game watcher", () => {
     let publishAttempts = 0;
     const layer = makeLiveGameWatcherLayer({
       eventHub: {
-        publish: async (event) => {
-          publishAttempts += 1;
-          if (publishAttempts === 1) throw new Error("event sink failed");
-          events.push(event);
-        },
+        publish: (event) =>
+          Effect.gen(function* () {
+            publishAttempts += 1;
+            if (publishAttempts === 1) yield* Effect.fail(new Error("event sink failed"));
+            events.push(event);
+          }),
       },
       readLiveStatus: Effect.succeed(body),
       options: {
@@ -165,9 +170,10 @@ describe("live-game watcher", () => {
     const events: StudioEvent[] = [];
     const layer = makeLiveGameWatcherLayer({
       eventHub: {
-        publish: async (event) => {
-          events.push(event);
-        },
+        publish: (event) =>
+          Effect.sync(() => {
+            events.push(event);
+          }),
       },
       readLiveStatus: Effect.succeed({
         ok: false,
@@ -197,45 +203,51 @@ describe("live-game watcher", () => {
   });
 
   test("new subscribers replay the latest live-game state after hello", async () => {
-    const eventHub = createStudioEventHub();
-    const layer = makeLiveGameWatcherLayer({
-      eventHub,
-      readLiveStatus: Effect.succeed(
-        liveStatusBody({
-          observedAt: "2026-06-13T00:00:00.000Z",
-          turn: 12,
-          gameHash: 111,
-        })
-      ),
-      options: {
-        initialDelayMs: 60_000,
-        now: () => new Date("2026-06-13T00:00:00.000Z"),
-      },
-    });
+    const eventHubRuntime = ManagedRuntime.make(StudioEventHubLive);
+    try {
+      const eventHub = await eventHubRuntime.runPromise(StudioEventHub);
+      const layer = makeLiveGameWatcherLayer({
+        eventHub,
+        readLiveStatus: Effect.succeed(
+          liveStatusBody({
+            observedAt: "2026-06-13T00:00:00.000Z",
+            turn: 12,
+            gameHash: 111,
+          })
+        ),
+        options: {
+          initialDelayMs: 60_000,
+          now: () => new Date("2026-06-13T00:00:00.000Z"),
+        },
+      });
 
-    await Effect.runPromise(
-      Effect.gen(function* () {
-        const watcher = yield* StudioLiveGameWatcher;
-        yield* watcher.tick;
-      }).pipe(Effect.provide(layer))
-    );
+      await Effect.runPromise(
+        Effect.gen(function* () {
+          const watcher = yield* StudioLiveGameWatcher;
+          yield* watcher.tick;
+        }).pipe(Effect.provide(layer))
+      );
 
-    const hello: StudioHelloEvent = {
-      type: "hello",
-      serverInstanceId: "studio-server-test",
-      serverStartedAt: "2026-06-13T00:00:00.000Z",
-      observedAt: "2026-06-13T00:00:01.000Z",
-    };
-    const subscription = eventHub.subscribe({ initialEvents: [hello] });
+      const hello: StudioHelloEvent = {
+        type: "hello",
+        serverInstanceId: "studio-server-test",
+        serverStartedAt: "2026-06-13T00:00:00.000Z",
+        observedAt: "2026-06-13T00:00:01.000Z",
+      };
+      const subscription = await Effect.runPromise(eventHub.subscribe({ initialEvents: [hello] }));
+      const iterator = studioEventSubscriptionIterator(subscription);
 
-    const first = await subscription.next();
-    const second = await subscription.next();
-    await subscription.return?.();
+      const first = await iterator.next();
+      const second = await iterator.next();
+      await iterator.return?.();
 
-    expect(first).toEqual({ done: false, value: hello });
-    expect(second.done).toBe(false);
-    expect(second.value?.type).toBe("live-game");
-    expect((second.value as StudioLiveGameEvent).state.turn).toBe(12);
+      expect(first).toEqual({ done: false, value: hello });
+      expect(second.done).toBe(false);
+      expect(second.value?.type).toBe("live-game");
+      expect((second.value as StudioLiveGameEvent).state.turn).toBe(12);
+    } finally {
+      await eventHubRuntime.dispose();
+    }
   });
 
   test("runtime scope disposal stops automatic watcher publication", async () => {
@@ -243,9 +255,10 @@ describe("live-game watcher", () => {
     const runtime = ManagedRuntime.make(
       makeLiveGameWatcherLayer({
         eventHub: {
-          publish: async (event) => {
-            events.push(event);
-          },
+          publish: (event) =>
+            Effect.sync(() => {
+              events.push(event);
+            }),
         },
         readLiveStatus: Effect.succeed(
           liveStatusBody({

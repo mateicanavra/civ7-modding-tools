@@ -1,8 +1,8 @@
 export type { Civ7ProcessControl } from "./Civ7ProcessControl.js";
 export {
   Civ7WorkflowControl,
-  Civ7WorkflowControlLive,
   type Civ7WorkflowControlApi,
+  Civ7WorkflowControlLive,
 } from "./Civ7WorkflowControl.js";
 export type { DeployRunner } from "./DeployRunner.js";
 export type { MapConfigStore } from "./MapConfigStore.js";

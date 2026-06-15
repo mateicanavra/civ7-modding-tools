@@ -4,8 +4,8 @@ import { RPCHandler } from "@orpc/server/fetch";
 import { Effect } from "effect";
 import type { StudioServerContext } from "./context.js";
 import type { StudioContract, StudioEffectContract } from "./contract/index.js";
-import { StudioLiveGameWatcher, type LiveGameWatcherOptions } from "./liveGame/watcher.js";
-import { StudioOperationRuntime, type StudioDaemonIdentity } from "./operationRuntime/index.js";
+import { type LiveGameWatcherOptions, StudioLiveGameWatcher } from "./liveGame/watcher.js";
+import { type StudioDaemonIdentity, StudioOperationRuntime } from "./operationRuntime/index.js";
 import { createStudioRouter } from "./router/index.js";
 import { makeStudioRuntime } from "./runtime.js";
 import { Civ7TunerSession, type Civ7TunerSessionHealth } from "./services/Civ7TunerSession.js";
@@ -34,10 +34,9 @@ import { Civ7TunerSession, type Civ7TunerSessionHealth } from "./services/Civ7Tu
  * - `tuner.health()` — consecutive response-timeouts + backoff-gate state
  *   (the daemon's `/healthz` probe).
  * - `dispose()` — closes the runtime scope (graceful FIN to the game and
- *   interruption of runtime-scoped workers such as the live-game watcher), and
- *   shuts down the daemon-owned event hub so open `studio.events.watch` readers
- *   settle. The host MUST call this on shutdown or the release finalizers never
- *   run.
+ *   interruption of runtime-scoped workers such as the live-game watcher and
+ *   event hub subscribers). The host MUST call this on shutdown or the release
+ *   finalizers never run.
  *
  * `StrictGetMethodPlugin` is on by default (GET CSRF hardening) — left
  * enabled. CORS is omitted: `/rpc` is same-origin.
@@ -145,12 +144,13 @@ export function createStudioRpcHandler(
     operationRuntime: {
       identity: () =>
         ensureLiveGameWatcher().then(() =>
-          runtime.runPromise(Effect.map(StudioOperationRuntime, (operationRuntime) => operationRuntime.identity))
+          runtime.runPromise(
+            Effect.map(StudioOperationRuntime, (operationRuntime) => operationRuntime.identity)
+          )
         ),
     },
     dispose: async () => {
       await runtime.dispose();
-      await context.eventHub.shutdown();
     },
   };
 }

@@ -69,9 +69,11 @@ which legacy paths are gone.
 - No new game-control protocol or alternate direct-control client.
 - No broad product redesign of Restart Civ7. D12 either implements it, rejects
   it with product authority, or tracks it durably with trigger and owner.
-- No live-proof inflation. D12 consumes D9-D11 live proof labels and requires new
-  live proof only if D12 implementation changes runtime behavior or the final
-  closeout claim depends on missing live evidence.
+- No live-proof inflation. D12 consumes only executed D9-D11 proof labels. D10
+  and D11 both left live Civ7 proof gaps, and the D12 EventHub ownership repair
+  changes runtime lifecycle behavior, so D12 must either run the missing live
+  proof or write a not-green handoff instead of claiming final live product
+  closure.
 
 ## Impact
 
@@ -125,5 +127,6 @@ which legacy paths are gone.
     `run[- ]in[- ]game` plus `convergence`, `session`, `out of scope`, or
     `deferred` without accepted D12 disposition.
 - Final proof ledger separates OpenSpec validation, source guards, package/app
-  tests, negative searches, consumed live proof, new live proof if required,
-  Graphite submit/merge/drain, and residual risks.
+  tests, negative searches, executed lower-slice live proof,
+  missing/not-green live proof, new live proof if run, Graphite proof, and
+  residual risks.

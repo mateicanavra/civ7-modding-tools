@@ -3,6 +3,11 @@
 This page documents an implementation seam and may drift.
 It is **not** canonical MapGen documentation.
 
+**D12 status (2026-06-15):** This pre-Nx seam note is historical planning
+evidence for browser-runner extraction. Its `bunx turbo` build text is not
+current local-dev authority; use `docs/projects/mapgen-studio/RUNBOOK.md` for
+the current Nx-owned Studio dev/build commands.
+
 Canonical entrypoints:
 - `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
 

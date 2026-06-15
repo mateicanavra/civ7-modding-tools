@@ -60,7 +60,8 @@ runtime ownership promises after D12.
   action
 - **AND** active runtime docs classify every Run in Game convergence/session
   residue through D12 or a durable owner
-  without pointing to that disposition
+- **AND** stale `out of scope` / `deferred` language remains only when it points
+  to that accepted D12 disposition, deletion, or durable owner path
 
 ### Requirement: Runtime Simplification Residue Stays Deleted
 
@@ -109,8 +110,9 @@ D12 SHALL close the packet train with explicit proof classes and stack state.
 
 - **WHEN** D12 implementation closes
 - **THEN** its proof ledger separates OpenSpec validation, guard tests,
-  package/app gates, negative searches, consumed live proof, new live proof if
-  required, Graphite submit/merge/drain, and residual risks
+  package/app gates, negative searches, executed lower-slice live proof,
+  missing/not-green live proof, new live proof if run, Graphite
+  submit/merge/drain, and residual risks
 - **AND** all D0-D12 packet statuses are accepted or have a precise not-green
   handoff
 

@@ -1,5 +1,10 @@
 # MapGen Studio: `App.tsx` Refactor Plan
 
+> **D12 STATUS (2026-06-15):** This is a pre-Nx refactor plan retained as
+> historical planning evidence. Its `bunx turbo` build commands are not current
+> local-dev authority. Use `docs/projects/mapgen-studio/RUNBOOK.md` for the
+> current Nx-owned Studio dev/build commands.
+
 This document is a **comprehensive plan** to refactor `apps/mapgen-studio/src/App.tsx` into a structure that is:
 - **Readable** (clear “what lives where”)
 - **Stable** (low-risk extractions first; minimal behavioral churn)

@@ -2,9 +2,8 @@ import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runti
 import { Civ7DirectControlError, DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "@civ7/direct-control";
 import {
   dependencyUnavailable,
-  type StudioEventHubApi,
-  type StudioOperationRuntimePorts,
   type StudioOperationProcedure,
+  type StudioOperationRuntimePorts,
   type StudioRuntimeFailure,
   type StudioServerContext,
   toStudioDefinedOrpcError,
@@ -65,13 +64,12 @@ export function toStudioRuntimeOrpcError(
  */
 export function createStudioServerContext(
   options: Readonly<{
-    eventHub: StudioEventHubApi;
     hostCommand: string;
     operationRuntime: StudioOperationRuntimePorts;
     repoRoot: string;
   }>
 ): StudioServerContext {
-  const { eventHub, hostCommand, operationRuntime, repoRoot } = options;
+  const { hostCommand, operationRuntime, repoRoot } = options;
   return {
     viteCommand: hostCommand,
     // Recipe-DAG projection: the implementation stays app-side (it imports
@@ -84,7 +82,6 @@ export function createStudioServerContext(
       directControl: liveCiv7ControlOrpcDirectControlFacade,
       timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
     },
-    eventHub,
     loadSetupCatalog: async () => {
       // `Civ7SetupCatalog` is deeply `readonly`; the package TypeBox contract
       // exposes the same wire shape as mutable data. Cross the boundary by value

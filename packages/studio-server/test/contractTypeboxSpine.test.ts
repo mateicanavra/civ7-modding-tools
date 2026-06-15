@@ -8,7 +8,11 @@ import { describe, expect, test } from "vitest";
 
 import { saveDeployStatusTypeSchema } from "../src/contract/mapConfigs";
 import { operationStatusTypeSchema } from "../src/contract/runInGame";
-import { operationsCurrent, studioEventSchema, studioOperationEventSchema } from "../src/contract/studio";
+import {
+  operationsCurrent,
+  studioEventSchema,
+  studioOperationEventSchema,
+} from "../src/contract/studio";
 import { RecipeDagGetContract } from "../src/recipeDag/contract";
 import {
   toStandardSchema,
@@ -217,12 +221,8 @@ describe("studio-server TypeBox contract spine", () => {
 
     expect(runInGameFeatureStatus).toMatch(/from "@civ7\/studio-server\/contract"/);
     expect(mapConfigFeatureStatus).toMatch(/from "@civ7\/studio-server\/contract"/);
-    expect(runInGameFeatureStatus).not.toMatch(
-      /^import\s+(?!type).*from "@civ7\/studio-server";/m
-    );
-    expect(mapConfigFeatureStatus).not.toMatch(
-      /^import\s+(?!type).*from "@civ7\/studio-server";/m
-    );
+    expect(runInGameFeatureStatus).not.toMatch(/^import\s+(?!type).*from "@civ7\/studio-server";/m);
+    expect(mapConfigFeatureStatus).not.toMatch(/^import\s+(?!type).*from "@civ7\/studio-server";/m);
     expect(runInGameFeatureStatus).not.toMatch(
       /export\s+type\s+\{[\s\S]*\}\s+from\s+["']@civ7\/studio-server["']/
     );

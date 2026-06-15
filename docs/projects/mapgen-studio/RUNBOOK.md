@@ -8,18 +8,18 @@ bun run dev:mapgen-studio
 
 Notes:
 - The dev server is persistent. If port `5173` is busy, Vite will pick another port (e.g. `5174`) and print the Local URL.
-- Studio relies on workspace package builds and `mod-swooper-maps` studio recipe artifacts. The root Turbo entrypoint builds those prerequisites before Vite starts.
+- Studio relies on workspace package builds and `mod-swooper-maps` studio recipe artifacts. The root Nx target builds those prerequisites before Vite starts.
 
 Direct package-local execution is a leaf command, not the blessed freshness path:
 ```bash
 bun run --cwd apps/mapgen-studio dev
 ```
-Use it only after the root Turbo graph has prepared dependencies.
+Use it only after the root Nx graph has prepared dependencies.
 
 ## Build Smoke
-Via Turbo:
+Via Nx:
 ```bash
-bunx turbo run build --filter=mapgen-studio
+bun run nx run mapgen-studio:build:vite
 ```
 
 Whole repo:
@@ -30,16 +30,16 @@ bun run build
 ## Common Failure Modes
 - `Rollup failed to resolve import "mod-swooper-maps/recipes/standard-artifacts"`:
   - The `mod-swooper-maps` studio recipe artifacts were not built.
-  - Fix: rerun the root Turbo build for Studio:
-    - `bunx turbo run build --filter=mapgen-studio`
+  - Fix: rerun the root Nx build for Studio:
+    - `bun run nx run mapgen-studio:build:vite`
   - For direct package-local debugging only, build the recipe artifacts explicitly first:
-    - `bunx turbo run build:studio-recipes --filter=mod-swooper-maps`
+    - `bun run nx run mod-swooper-maps:build:studio-recipes`
 
 ## Save/Deploy And Run In Game
 Studio Save/Deploy and Run In Game first rebuild the Swooper Maps package through
-the root Turbo graph:
+the root Nx graph:
 ```bash
-bunx turbo run build --filter=mod-swooper-maps
+bun run nx run mod-swooper-maps:build
 ```
 
 After the build completes, the Studio server installs the built mod with

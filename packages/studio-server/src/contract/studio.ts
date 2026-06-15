@@ -10,10 +10,13 @@ import { contractSchema, emptyInputSchema, isoTimestampSchema } from "./shared.j
  * `studio.*` namespace - server identity / API version.
  *
  * Source of truth: audit/05-server-contracts.md endpoint #9.
+ * Current transport is TypeBox/effect-oRPC under `/rpc`; retired `/api/*`
+ * strings below are audit/parity identifiers, not active routes.
  */
 
 // ---------------------------------------------------------------------------
-// #9 studio.serverInfo - GET /api/studio/server-info
+// #9 studio.serverInfo - daemon identity read
+// Retired REST parity: GET /api/studio/server-info
 // ---------------------------------------------------------------------------
 // Request: none. Success 200: { ok:true, serverInstanceId, startedAt,
 // runInGameApiVersion: 2, viteCommand }. No errors (pure).

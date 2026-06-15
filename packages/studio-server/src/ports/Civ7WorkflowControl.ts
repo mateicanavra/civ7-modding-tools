@@ -17,7 +17,9 @@ import {
   autoplayStartStopFailed,
   autoplayVerificationFailed,
   dependencyUnavailable,
-  operationBlocked,
+  invalidRequest,
+  materializationFailed,
+  proofFailed,
   type StudioBoundedDiagnostics,
   type StudioBoundedDiagnosticValue,
   type StudioRuntimeFailure,
@@ -33,250 +35,254 @@ import type {
 const SCRIPTING_LOG_WAIT_TIMEOUT_MS = 90_000;
 
 export interface Civ7WorkflowControlApi {
-  readonly checkPlayable: (args: Readonly<{
-    requestId: string;
-    prepared: RunInGamePreparedRequest;
-    deployment: RunInGameDeployment;
-  }>) => Effect.Effect<void, StudioRuntimeFailure>;
-  readonly prepareSetup: (args: Readonly<{
-    requestId: string;
-    prepared: RunInGamePreparedRequest;
-    deployment: RunInGameDeployment;
-  }>) => Effect.Effect<RunInGameSetupPrepared, StudioRuntimeFailure>;
-  readonly startGame: (args: Readonly<{
-    requestId: string;
-    prepared: RunInGamePreparedRequest;
-    deployment: RunInGameDeployment;
-    setup: RunInGameSetupPrepared;
-  }>) => Effect.Effect<RunInGameStarted, StudioRuntimeFailure>;
+  readonly checkPlayable: (
+    args: Readonly<{
+      requestId: string;
+      prepared: RunInGamePreparedRequest;
+      deployment: RunInGameDeployment;
+    }>
+  ) => Effect.Effect<void, StudioRuntimeFailure>;
+  readonly prepareSetup: (
+    args: Readonly<{
+      requestId: string;
+      prepared: RunInGamePreparedRequest;
+      deployment: RunInGameDeployment;
+    }>
+  ) => Effect.Effect<RunInGameSetupPrepared, StudioRuntimeFailure>;
+  readonly startGame: (
+    args: Readonly<{
+      requestId: string;
+      prepared: RunInGamePreparedRequest;
+      deployment: RunInGameDeployment;
+      setup: RunInGameSetupPrepared;
+    }>
+  ) => Effect.Effect<RunInGameStarted, StudioRuntimeFailure>;
   readonly runAutoplay: (
     input: StudioInputs["civ7"]["autoplay"]
   ) => Effect.Effect<StudioOutputs["civ7"]["autoplay"], StudioRuntimeFailure>;
 }
 
-export class Civ7WorkflowControl extends Context.Tag(
-  "@civ7/studio-server/Civ7WorkflowControl"
-)<Civ7WorkflowControl, Civ7WorkflowControlApi>() {}
-
-export const Civ7WorkflowControlLive: Layer.Layer<
+export class Civ7WorkflowControl extends Context.Tag("@civ7/studio-server/Civ7WorkflowControl")<
   Civ7WorkflowControl,
-  never,
-  Civ7TunerSession
-> = Layer.effect(
-  Civ7WorkflowControl,
-  Effect.gen(function* () {
-    const tuner = yield* Civ7TunerSession;
-    const runTuner = <A>(
-      action: (options: { readonly session: Civ7DirectControlSession }) => Promise<A>,
-      toFailure: (err: unknown) => StudioRuntimeFailure
-    ) =>
-      tuner.use((options) => action(options)).pipe(
-        Effect.mapError((err) => toFailure(err))
-      );
+  Civ7WorkflowControlApi
+>() {}
 
-    const directControlUnavailable = (
-      message: string,
-      code: string,
-      err: unknown,
-      details: Record<string, unknown> = {}
-    ) =>
-      dependencyUnavailable({
-        message,
-        dependency: "direct-control",
-        causeSummary: diagnosticString(err),
-        diagnostics: boundedDiagnostics({
-          code,
-          ...details,
-          cause: diagnosticString(err),
-        }),
-        recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
-      });
+export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Civ7TunerSession> =
+  Layer.effect(
+    Civ7WorkflowControl,
+    Effect.gen(function* () {
+      const tuner = yield* Civ7TunerSession;
+      const runTuner = <A>(
+        action: (options: { readonly session: Civ7DirectControlSession }) => Promise<A>,
+        toFailure: (err: unknown) => StudioRuntimeFailure
+      ) => tuner.use((options) => action(options)).pipe(Effect.mapError((err) => toFailure(err)));
 
-    return {
-      checkPlayable: (args) =>
-        runTuner(
-          (options) =>
-            getCiv7PlayableStatus({
-              timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
-              ...options,
-            }),
-          (err) =>
-            directControlUnavailable(
-              "Civ7 direct-control status is unavailable",
-              "direct-control-status-unavailable",
-              err,
-              { materialization: args.deployment.materialization }
-            )
-        ).pipe(Effect.asVoid),
+      const directControlUnavailable = (
+        message: string,
+        code: string,
+        err: unknown,
+        details: Record<string, unknown> = {}
+      ) =>
+        dependencyUnavailable({
+          message,
+          dependency: "direct-control",
+          causeSummary: diagnosticString(err),
+          diagnostics: boundedDiagnostics({
+            code,
+            ...details,
+            cause: diagnosticString(err),
+          }),
+          recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
+        });
 
-      prepareSetup: (args) => {
-        const materialization = args.deployment.materialization;
-        const launchMapScript = materialization?.mapScript;
-        if (!launchMapScript) {
-          return Effect.fail(
-            operationBlocked({
-              message: "Run in Game map script is missing before setup preparation",
-              diagnostics: boundedDiagnostics({
-                code: "run-in-game-map-script-missing",
-                requestId: args.requestId,
-                materialization,
+      return {
+        checkPlayable: (args) =>
+          runTuner(
+            (options) =>
+              getCiv7PlayableStatus({
+                timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+                ...options,
               }),
-            })
-          );
-        }
-        return runTuner(
-          (options) =>
-            ensureCiv7SetupMapRowVisible(
-              {
-                file: launchMapScript,
-                limit: 20,
-                reloadIfMissing:
-                  args.prepared.request.materializationMode === "disposable"
-                    ? "exit-to-shell"
-                    : "none",
-                waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
-                pollIntervalMs: 1_000,
-              },
-              { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
-            ),
-          (err) =>
-            directControlUnavailable(
-              "Civ7 setup row visibility check is unavailable",
-              "direct-control-setup-row-unavailable",
-              err,
-              { materialization }
-            )
-        ).pipe(
-          Effect.flatMap((rowVisibility) => {
-            const rowProof = rowVisibility.final;
-            if (rowProof.rows.length === 0) {
-              return Effect.fail(
-                operationBlocked({
-                  message: `Civ7 setup cannot see ${launchMapScript}`,
-                  diagnostics: boundedDiagnostics({
-                    code: "setup-map-row-not-visible",
-                    reloadRequired: true,
-                    reloadBoundary:
-                      args.prepared.request.materializationMode === "disposable"
-                        ? "process-restart-required"
-                        : "setup-row-missing",
-                    reloadAttempted: rowVisibility.refreshed,
-                    mapScript: launchMapScript,
-                    materialization,
-                  }),
-                })
-              );
-            }
-            return Effect.succeed({
-              rowProof,
-              rowVisibility,
-              reloadRequired: rowVisibility.refreshed,
-            });
-          })
-        );
-      },
+            (err) =>
+              directControlUnavailable(
+                "Civ7 direct-control status is unavailable",
+                "direct-control-status-unavailable",
+                err,
+                { materialization: args.deployment.materialization }
+              )
+          ).pipe(Effect.asVoid),
 
-      startGame: (args) => {
-        const materialization = args.deployment.materialization;
-        const launchMapScript = materialization?.mapScript;
-        const request = args.prepared.request;
-        const mapSize = request.mapSize;
-        const seed = request.seed;
-        if (!launchMapScript || !mapSize || seed === undefined) {
-          return Effect.fail(
-            operationBlocked({
-              message: "Run in Game start is missing map script, map size, or seed",
-              diagnostics: boundedDiagnostics({
-                code: "run-in-game-start-input-missing",
-                requestId: args.requestId,
-                materialization,
-                mapSize,
-                seed,
-              }),
-            })
-          );
-        }
-        return runTuner(
-          (options) =>
-            runCiv7SinglePlayerFromSetup(
-              {
-                mapScript: launchMapScript,
-                mapSize,
-                seed,
-                gameSeed: seed,
-                ...(request.playerCount === undefined ? {} : { playerCount: request.playerCount }),
-                ...(readSavedConfig(request.setupConfig) === undefined
-                  ? {}
-                  : { savedConfig: readSavedConfig(request.setupConfig) }),
-                options: readGameOptions(request.setupConfig),
-                playerOptions: readPlayerOptions(request.setupConfig),
-                fromRunningGame: "exit-to-shell",
-                waitForTuner: true,
-                waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
-              },
-              { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
-            ),
-          (err) =>
-            directControlUnavailable(
-              "Civ7 direct-control start is unavailable",
-              "direct-control-start-unavailable",
-              err,
-              { materialization }
-            )
-        ).pipe(Effect.map((start) => ({ start })));
-      },
-
-      runAutoplay: (input) => {
-        const opts = {
-          timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
-          waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
-          pollIntervalMs: 1_000,
-        };
-        return runTuner(
-          (options) =>
-            input.action === "start"
-              ? startCiv7Autoplay({ ...opts, ...options })
-              : stopCiv7Autoplay({ ...opts, ...options }),
-          (err) =>
-            autoplayStartStopFailed({
-              message: `Civ7 autoplay ${input.action} failed`,
-              reason: input.action === "start" ? "start-failed" : "stop-failed",
-              diagnostics: boundedDiagnostics({
-                code: `civ7-autoplay-${input.action}-failed`,
-                action: input.action,
-                cause: diagnosticString(err),
-              }),
-            })
-        ).pipe(
-          Effect.flatMap((result) => {
-            if (result.verified) {
-              return Effect.succeed({
-                ok: true,
-                action: input.action,
-                autoplay: result.after.autoplay,
-                game: result.after.game,
-                gameContext: result.after.gameContext,
-                result,
-              });
-            }
+        prepareSetup: (args) => {
+          const materialization = args.deployment.materialization;
+          const launchMapScript = materialization?.mapScript;
+          if (!launchMapScript) {
             return Effect.fail(
-              autoplayVerificationFailed({
-                message: `Civ7 autoplay ${input.action} verification failed`,
+              materializationFailed({
+                message: "Run in Game map script is missing before setup preparation",
                 diagnostics: boundedDiagnostics({
-                  code: "civ7-autoplay-verification-failed",
+                  code: "run-in-game-map-script-missing",
+                  requestId: args.requestId,
+                  materialization,
+                }),
+              })
+            );
+          }
+          return runTuner(
+            (options) =>
+              ensureCiv7SetupMapRowVisible(
+                {
+                  file: launchMapScript,
+                  limit: 20,
+                  reloadIfMissing:
+                    args.prepared.request.materializationMode === "disposable"
+                      ? "exit-to-shell"
+                      : "none",
+                  waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+                  pollIntervalMs: 1_000,
+                },
+                { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
+              ),
+            (err) =>
+              directControlUnavailable(
+                "Civ7 setup row visibility check is unavailable",
+                "direct-control-setup-row-unavailable",
+                err,
+                { materialization }
+              )
+          ).pipe(
+            Effect.flatMap((rowVisibility) => {
+              const rowProof = rowVisibility.final;
+              if (rowProof.rows.length === 0) {
+                return Effect.fail(
+                  proofFailed({
+                    message: `Civ7 setup cannot see ${launchMapScript}`,
+                    reason: "setup-row-unavailable",
+                    diagnostics: boundedDiagnostics({
+                      code: "setup-map-row-not-visible",
+                      reloadRequired: true,
+                      reloadBoundary:
+                        args.prepared.request.materializationMode === "disposable"
+                          ? "process-restart-required"
+                          : "setup-row-missing",
+                      reloadAttempted: rowVisibility.refreshed,
+                      mapScript: launchMapScript,
+                      materialization,
+                    }),
+                  })
+                );
+              }
+              return Effect.succeed({
+                rowProof,
+                rowVisibility,
+                reloadRequired: rowVisibility.refreshed,
+              });
+            })
+          );
+        },
+
+        startGame: (args) => {
+          const materialization = args.deployment.materialization;
+          const launchMapScript = materialization?.mapScript;
+          const request = args.prepared.request;
+          const mapSize = request.mapSize;
+          const seed = request.seed;
+          if (!launchMapScript || !mapSize || seed === undefined) {
+            return Effect.fail(
+              invalidRequest({
+                message: "Run in Game start is missing map script, map size, or seed",
+                diagnostics: boundedDiagnostics({
+                  code: "run-in-game-start-input-missing",
+                  requestId: args.requestId,
+                  materialization,
+                  mapSize,
+                  seed,
+                }),
+              })
+            );
+          }
+          return runTuner(
+            (options) =>
+              runCiv7SinglePlayerFromSetup(
+                {
+                  mapScript: launchMapScript,
+                  mapSize,
+                  seed,
+                  gameSeed: seed,
+                  ...(request.playerCount === undefined
+                    ? {}
+                    : { playerCount: request.playerCount }),
+                  ...(readSavedConfig(request.setupConfig) === undefined
+                    ? {}
+                    : { savedConfig: readSavedConfig(request.setupConfig) }),
+                  options: readGameOptions(request.setupConfig),
+                  playerOptions: readPlayerOptions(request.setupConfig),
+                  fromRunningGame: "exit-to-shell",
+                  waitForTuner: true,
+                  waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+                },
+                { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
+              ),
+            (err) =>
+              directControlUnavailable(
+                "Civ7 direct-control start is unavailable",
+                "direct-control-start-unavailable",
+                err,
+                { materialization }
+              )
+          ).pipe(Effect.map((start) => ({ start })));
+        },
+
+        runAutoplay: (input) => {
+          const opts = {
+            timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+            waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+            pollIntervalMs: 1_000,
+          };
+          return runTuner(
+            (options) =>
+              input.action === "start"
+                ? startCiv7Autoplay({ ...opts, ...options })
+                : stopCiv7Autoplay({ ...opts, ...options }),
+            (err) =>
+              autoplayStartStopFailed({
+                message: `Civ7 autoplay ${input.action} failed`,
+                reason: input.action === "start" ? "start-failed" : "stop-failed",
+                diagnostics: boundedDiagnostics({
+                  code: `civ7-autoplay-${input.action}-failed`,
+                  action: input.action,
+                  cause: diagnosticString(err),
+                }),
+              })
+          ).pipe(
+            Effect.flatMap((result) => {
+              if (result.verified) {
+                return Effect.succeed({
+                  ok: true,
                   action: input.action,
                   autoplay: result.after.autoplay,
                   game: result.after.game,
                   gameContext: result.after.gameContext,
-                }),
-              })
-            );
-          })
-        );
-      },
-    } satisfies Civ7WorkflowControlApi;
-  })
-);
+                  result,
+                });
+              }
+              return Effect.fail(
+                autoplayVerificationFailed({
+                  message: `Civ7 autoplay ${input.action} verification failed`,
+                  diagnostics: boundedDiagnostics({
+                    code: "civ7-autoplay-verification-failed",
+                    action: input.action,
+                    autoplay: result.after.autoplay,
+                    game: result.after.game,
+                    gameContext: result.after.gameContext,
+                  }),
+                })
+              );
+            })
+          );
+        },
+      } satisfies Civ7WorkflowControlApi;
+    })
+  );
 
 function readSetupConfigValue(value: unknown, key: string): unknown {
   if (!value || typeof value !== "object") return undefined;
@@ -303,7 +309,9 @@ function readSavedConfig(value: unknown): Civ7SavedGameConfigurationRef | undefi
   };
 }
 
-function readGameOptions(value: unknown): Readonly<Record<string, Civ7SetupOptionValue>> | undefined {
+function readGameOptions(
+  value: unknown
+): Readonly<Record<string, Civ7SetupOptionValue>> | undefined {
   const gameOptions = readSetupConfigValue(value, "gameOptions");
   return gameOptions && typeof gameOptions === "object"
     ? (gameOptions as Readonly<Record<string, Civ7SetupOptionValue>>)

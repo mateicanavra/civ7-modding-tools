@@ -11,7 +11,10 @@
 // pinned in packages/studio-server/src/contract/errors.ts) and sealed typed
 // failure data.
 
-import type { RunInGameFailureDetails, RunInGameOperationStatus } from "@civ7/studio-server/contract";
+import type {
+  RunInGameFailureDetails,
+  RunInGameOperationStatus,
+} from "@civ7/studio-server/contract";
 import { isDefinedError, safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
 import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7Setup/setupConfig";
@@ -63,9 +66,9 @@ export async function runCurrentConfigInGame(args: {
 > {
   // The request envelope is assembled exactly as before (the server runs
   // `assertNoRawControlFields` over it); only the transport is the oRPC client.
-  // The legacy handler posted `selectedConfig` verbatim (its `id` may be absent
-  // for disposable runs) and `parseRunInGameSetupRequest` tolerates that, so we
-  // pass it through the permissive (`.catchall`) start input unchanged.
+  // The legacy handler posted `selectedConfig` verbatim; the package operation
+  // runtime now derives canonical selected id, seed, setup config, materialization
+  // mode, and fingerprint before the workflow leaf ports run.
   // The request envelope type-checks directly against the start input now that
   // `selectedConfig.id` is optional in the contract (a disposable run sends
   // `selectedConfig` without an `id`). No `as unknown as Parameters<…>` cast — the

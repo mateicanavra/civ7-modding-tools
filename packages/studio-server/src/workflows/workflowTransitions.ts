@@ -9,16 +9,20 @@ import type {
 
 export type RunInGameWorkflowTransitions = Readonly<{
   transition(transition: RunInGameTransition): Effect.Effect<void, StudioRuntimeFailure>;
-  fail(args: Readonly<{
-    phase: RunInGameFailurePhase;
-    err: unknown;
-  }>): Effect.Effect<void, never>;
+  fail(
+    args: Readonly<{
+      phase: RunInGameFailurePhase;
+      err: unknown;
+    }>
+  ): Effect.Effect<void, never>;
 }>;
 
 export type SaveDeployWorkflowTransitions = Readonly<{
   transition(transition: SaveDeployTransition): Effect.Effect<void, StudioRuntimeFailure>;
-  fail(args: Readonly<{
-    phase: "saving" | "deploying";
-    err: unknown;
-  }>): Effect.Effect<void, never>;
+  fail(
+    args: Readonly<{
+      phase: "saving" | "deploying";
+      err: unknown;
+    }>
+  ): Effect.Effect<void, never>;
 }>;

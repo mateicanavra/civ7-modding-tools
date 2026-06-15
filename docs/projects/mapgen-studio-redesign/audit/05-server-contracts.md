@@ -1,5 +1,15 @@
 # 05 — Server Boundary / API Contract Inventory
 
+> **D12 STATUS (2026-06-15):** This audit is retained as historical migration
+> evidence for the pre-runtime-refactor `/api` inventory. It is not current
+> Studio server authority. Current runtime authority is the TypeBox/oRPC
+> contract surface under `packages/studio-server/src/contract`, the
+> runtime-owned operation services, and the D12 status endpoint corpus at
+> `openspec/changes/mapgen-studio-game-door-invariant/workstream/status-endpoint-corpus.md`.
+> Mentions of `RunInGameHttpError`, app operation stores, polling, and
+> `studioOperationQueue` below describe the retired source snapshot, not an
+> active implementation path.
+
 > **RE-BASELINE (2026-06-08, control seam):** This inventory is **scoped to the
 > studio-server surface** (map authoring, save/deploy, run-in-game, setup catalog —
 > the `runInGame.*` / `mapConfigs.*` / `civ7.*` endpoints below). It remains the

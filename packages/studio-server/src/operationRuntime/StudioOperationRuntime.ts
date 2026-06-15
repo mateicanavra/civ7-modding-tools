@@ -2,19 +2,14 @@ import { createHash } from "node:crypto";
 import { Context, Effect, FiberSet, Layer, type Scope } from "effect";
 
 import type { StudioInputs, StudioOutputs } from "../context.js";
-import type { RunInGameRequestStatus } from "../contract/runInGame.js";
-import type { StudioOperationsCurrent } from "../contract/studio.js";
 import {
-  runtimeDisposed,
-  type StudioRuntimeFailure,
-} from "../errors/index.js";
+  validateRunInGameSetupConfig,
+  type RunInGameRequestStatus,
+} from "../contract/runInGame.js";
+import type { StudioOperationsCurrent } from "../contract/studio.js";
+import { invalidRequest, runtimeDisposed, type StudioRuntimeFailure } from "../errors/index.js";
 import type { Civ7TunerSession } from "../services/Civ7TunerSession.js";
-import type { StudioEventHubApi } from "../services/StudioEventHub.js";
-import type {
-  RunInGamePreparedRequest,
-  StudioDaemonIdentity,
-  StudioOperationRuntimePorts,
-} from "./ports.js";
+import { StudioEventHub } from "../services/StudioEventHub.js";
 import {
   AutoplayWorkflow,
   type Civ7WorkflowControl,
@@ -25,11 +20,18 @@ import {
   RunInGameWorkflow,
   SaveDeployWorkflow,
 } from "../workflows/index.js";
+import { createStudioOperationId } from "./ids.js";
+import type {
+  RunInGamePreparedRequest,
+  StudioDaemonIdentity,
+  StudioOperationRuntimePorts,
+} from "./ports.js";
 import { operationEvent, projectCurrent } from "./projection.js";
 import {
   admitRunInGame,
   admitSaveDeploy,
   ensureAdmissionOpen,
+  ensureRuntimeOpen,
   failRunInGame,
   failSaveDeploy,
   getRunInGame,
@@ -37,12 +39,11 @@ import {
   getState,
   makeRegistry,
   markDisposed,
-  transitionRunInGame,
-  transitionSaveDeploy,
   type RunInGameTransition,
   type SaveDeployTransition,
+  transitionRunInGame,
+  transitionSaveDeploy,
 } from "./registry.js";
-import { createStudioOperationId } from "./ids.js";
 import { buildStandardRunInGameSourceSnapshotProof } from "./sourceSnapshot.js";
 
 export interface StudioOperationRuntimeApi {
@@ -71,23 +72,27 @@ export class StudioOperationRuntime extends Context.Tag(
 
 type StudioOperationRuntimeLayerBaseArgs = Readonly<{
   ports: StudioOperationRuntimePorts;
-  eventHub: StudioEventHubApi;
   ttlMs?: number;
 }>;
 
 export function makeStudioOperationRuntimeLayer(
-  args: StudioOperationRuntimeLayerBaseArgs & Readonly<{
-    civ7WorkflowControl: Layer.Layer<Civ7WorkflowControl>;
-  }>
-): Layer.Layer<StudioOperationRuntime>;
+  args: StudioOperationRuntimeLayerBaseArgs &
+    Readonly<{
+      civ7WorkflowControl: Layer.Layer<Civ7WorkflowControl>;
+    }>
+): Layer.Layer<StudioOperationRuntime, never, StudioEventHub>;
 export function makeStudioOperationRuntimeLayer(
-  args: StudioOperationRuntimeLayerBaseArgs & Readonly<{
-    civ7WorkflowControl?: undefined;
-  }>
-): Layer.Layer<StudioOperationRuntime, never, Civ7TunerSession>;
-export function makeStudioOperationRuntimeLayer(args: StudioOperationRuntimeLayerBaseArgs & Readonly<{
-  civ7WorkflowControl?: Layer.Layer<Civ7WorkflowControl>;
-}>): Layer.Layer<StudioOperationRuntime, never, Civ7TunerSession> {
+  args: StudioOperationRuntimeLayerBaseArgs &
+    Readonly<{
+      civ7WorkflowControl?: undefined;
+    }>
+): Layer.Layer<StudioOperationRuntime, never, Civ7TunerSession | StudioEventHub>;
+export function makeStudioOperationRuntimeLayer(
+  args: StudioOperationRuntimeLayerBaseArgs &
+    Readonly<{
+      civ7WorkflowControl?: Layer.Layer<Civ7WorkflowControl>;
+    }>
+): Layer.Layer<StudioOperationRuntime, never, Civ7TunerSession | StudioEventHub> {
   const workflowLayer = Layer.mergeAll(
     makeRunInGameWorkflowLayer({ ports: args.ports }),
     makeSaveDeployWorkflowLayer({ ports: args.ports }),
@@ -99,14 +104,15 @@ export function makeStudioOperationRuntimeLayer(args: StudioOperationRuntimeLaye
   );
 }
 
-function makeStudioOperationRuntime(args: Readonly<{
-  ports: StudioOperationRuntimePorts;
-  eventHub: StudioEventHubApi;
-  ttlMs?: number;
-}>): Effect.Effect<
+function makeStudioOperationRuntime(
+  args: Readonly<{
+    ports: StudioOperationRuntimePorts;
+    ttlMs?: number;
+  }>
+): Effect.Effect<
   StudioOperationRuntimeApi,
   never,
-  Scope.Scope | RunInGameWorkflow | SaveDeployWorkflow | AutoplayWorkflow
+  Scope.Scope | RunInGameWorkflow | SaveDeployWorkflow | AutoplayWorkflow | StudioEventHub
 > {
   return Effect.gen(function* () {
     const now = () => args.ports.clock?.now() ?? new Date();
@@ -125,12 +131,10 @@ function makeStudioOperationRuntime(args: Readonly<{
     const runInGameWorkflow = yield* RunInGameWorkflow;
     const saveDeployWorkflow = yield* SaveDeployWorkflow;
     const autoplayWorkflow = yield* AutoplayWorkflow;
+    const eventHub = yield* StudioEventHub;
 
     const publish = (operation: Parameters<typeof operationEvent>[0]) =>
-      Effect.tryPromise({
-        try: () => args.eventHub.publish(operationEvent(operation)),
-        catch: (error) => error,
-      }).pipe(
+      eventHub.publish(operationEvent(operation)).pipe(
         Effect.catchAll((error) =>
           Effect.sync(() => {
             console.error("[studio-server] failed to publish operation event", error);
@@ -175,10 +179,7 @@ function makeStudioOperationRuntime(args: Readonly<{
         },
       });
 
-    const saveDeployWorker = (
-      requestId: string,
-      input: StudioInputs["mapConfigs"]["saveDeploy"]
-    ) =>
+    const saveDeployWorker = (requestId: string, input: StudioInputs["mapConfigs"]["saveDeploy"]) =>
       saveDeployWorkflow.start({
         requestId,
         input,
@@ -195,18 +196,12 @@ function makeStudioOperationRuntime(args: Readonly<{
         },
       });
 
-    const transitionRun = (
-      requestId: string,
-      transition: RunInGameTransition
-    ) =>
+    const transitionRun = (requestId: string, transition: RunInGameTransition) =>
       transitionRunInGame({ registry, requestId, nowIso: nowIso(), transition }).pipe(
         Effect.flatMap(publish)
       );
 
-    const transitionSave = (
-      requestId: string,
-      transition: SaveDeployTransition
-    ) =>
+    const transitionSave = (requestId: string, transition: SaveDeployTransition) =>
       transitionSaveDeploy({ registry, requestId, nowIso: nowIso(), transition }).pipe(
         Effect.flatMap(publish)
       );
@@ -214,25 +209,31 @@ function makeStudioOperationRuntime(args: Readonly<{
     const api: StudioOperationRuntimeApi = {
       identity,
       runInGameStart: (input) =>
-        Effect.gen(function* () {
-          const requestId = nextRuntimeId("studio-run-in-game");
-          const prepared = prepareRunInGameRequest(input, requestId);
-          const admitted = yield* admissionGate.withPermits(1)(
-            admitRunInGame({
+        admissionGate.withPermits(1)(
+          Effect.gen(function* () {
+            const requestId = nextRuntimeId("studio-run-in-game");
+            yield* ensureRuntimeOpen({
+              registry,
+              nowMs: nowMs(),
+              nowIso: nowIso(),
+              ttlMs: args.ttlMs,
+            });
+            const prepared = yield* prepareRunInGameRequest(input, requestId);
+            const admitted = yield* admitRunInGame({
               registry,
               nowMs: nowMs(),
               nowIso: nowIso(),
               ttlMs: args.ttlMs,
               requestId,
               prepared,
-            })
-          );
-          if (admitted.admitted) {
-            if (admitted.eventOperation) yield* publish(admitted.eventOperation);
-            yield* runWorker(runInGameWorker(admitted.operation.requestId, input, prepared));
-          }
-          return admitted.operation;
-        }),
+            });
+            if (admitted.admitted) {
+              if (admitted.eventOperation) yield* publish(admitted.eventOperation);
+              yield* runWorker(runInGameWorker(admitted.operation.requestId, input, prepared));
+            }
+            return admitted.operation;
+          })
+        ),
       runInGameStatus: (input) =>
         getRunInGame({
           registry,
@@ -292,23 +293,96 @@ function makeStudioOperationRuntime(args: Readonly<{
 function prepareRunInGameRequest(
   input: StudioInputs["runInGame"]["start"],
   requestId: string
-): RunInGamePreparedRequest {
+): Effect.Effect<RunInGamePreparedRequest, StudioRuntimeFailure> {
+  const rawControlField = findRawControlField(input);
+  if (rawControlField !== undefined) {
+    return Effect.fail(
+      invalidRequest({
+        message: "Run in Game request must not include raw control commands.",
+        diagnostics: {
+          code: "run-in-game-raw-control-rejected",
+          field: rawControlField,
+        },
+      })
+    );
+  }
+  if (!isRecord(input.config)) {
+    return Effect.fail(
+      invalidRequest({
+        message: "Run in Game requires a sanitized config object.",
+        diagnostics: { code: "run-in-game-config-invalid" },
+      })
+    );
+  }
   const selected = input.selectedConfig ?? {};
+  const materializationMode = input.materialization?.mode === "durable" ? "durable" : "disposable";
+  const seed = parseSeed(input.seed);
+  if (!seed.ok) {
+    return Effect.fail(
+      invalidRequest({
+        message: formatSeedError(seed),
+        diagnostics: { code: "run-in-game-seed-invalid" },
+      })
+    );
+  }
+  const mapSize = typeof input.mapSize === "string" ? input.mapSize : "MAPSIZE_STANDARD";
+  if (!/^MAPSIZE_[A-Z0-9_]+$/.test(mapSize)) {
+    return Effect.fail(
+      invalidRequest({
+        message: "Run in Game mapSize must be a Civ7 MAPSIZE_* value",
+        diagnostics: { code: "run-in-game-map-size-invalid" },
+      })
+    );
+  }
+  const playerCount =
+    input.playerCount === undefined ? undefined : Number(input.playerCount);
+  if (
+    playerCount !== undefined &&
+    (!Number.isInteger(playerCount) || playerCount < 1 || playerCount > 64)
+  ) {
+    return Effect.fail(
+      invalidRequest({
+        message: "Run in Game playerCount must be an integer between 1 and 64",
+        diagnostics: { code: "run-in-game-player-count-invalid" },
+      })
+    );
+  }
+  if (input.recipeId !== undefined && input.recipeId !== "mod-swooper-maps/standard") {
+    return Effect.fail(
+      invalidRequest({
+        message: "Run in Game currently supports only mod-swooper-maps/standard",
+        diagnostics: { code: "run-in-game-recipe-invalid" },
+      })
+    );
+  }
+  const setupConfig = validateRunInGameSetupConfig(input.setupConfig);
+  if (!setupConfig.ok) {
+    return Effect.fail(
+      invalidRequest({
+        message: setupConfig.message,
+        diagnostics: setupConfig.diagnostics,
+      })
+    );
+  }
+  const selectedConfigId =
+    materializationMode === "durable" &&
+    typeof selected.id === "string" &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selected.id)
+      ? selected.id
+      : "studio-current";
   const sourceSnapshot = buildStandardRunInGameSourceSnapshotProof({
     requestId,
     input,
   });
   const request: RunInGameRequestStatus = {
     recipeId: input.recipeId ?? "mod-swooper-maps/standard",
-    ...(typeof input.seed === "number" ? { seed: input.seed } : {}),
-    ...(typeof input.mapSize === "string" ? { mapSize: input.mapSize } : {}),
-    ...(typeof input.playerCount === "number" ? { playerCount: input.playerCount } : {}),
+    seed: seed.value,
+    mapSize,
+    ...(playerCount === undefined ? {} : { playerCount }),
     ...(typeof input.resources === "string" ? { resources: input.resources } : {}),
-    ...(typeof selected.id === "string" ? { selectedConfigId: selected.id } : {}),
-    ...(input.setupConfig === undefined ? {} : { setupConfig: input.setupConfig }),
-    ...(typeof input.materialization?.mode === "string"
-      ? { materializationMode: input.materialization.mode }
-      : {}),
+    selectedConfigId,
+    setupConfig: setupConfig.value,
+    materializationMode,
     ...(input.recovery?.restartCivProcess === true ? { restartCivProcess: true } : {}),
     ...(sourceSnapshot === undefined ? {} : { sourceSnapshot }),
   };
@@ -324,17 +398,71 @@ function prepareRunInGameRequest(
     config: input.config ?? null,
     sourceSnapshot: input.sourceSnapshot ?? null,
   });
-  return {
+  return Effect.succeed({
     fingerprint,
     request: {
       ...request,
       fingerprint,
     },
-  };
+  });
+}
+
+const RUN_IN_GAME_SEED_MIN = 0;
+const RUN_IN_GAME_SEED_MAX = 0x7fff_ffff;
+const RAW_CONTROL_FIELD_PATTERN =
+  /^(?:args|command|context|operationType|script|javascript|rawJs|rawCommand|session|stateName)$/i;
+
+type SeedParseResult =
+  | Readonly<{ ok: true; value: number }>
+  | Readonly<{ ok: false; reason: "empty" | "not-integer" | "out-of-range" }>;
+
+function parseSeed(value: unknown): SeedParseResult {
+  const normalized = typeof value === "string" ? value.trim() : value;
+  if (normalized === "" || normalized === undefined) return { ok: false, reason: "empty" };
+  const seed = typeof normalized === "number" ? normalized : Number(normalized);
+  if (!Number.isInteger(seed)) return { ok: false, reason: "not-integer" };
+  if (seed < RUN_IN_GAME_SEED_MIN || seed > RUN_IN_GAME_SEED_MAX) {
+    return { ok: false, reason: "out-of-range" };
+  }
+  return { ok: true, value: seed };
+}
+
+function formatSeedError(seed: SeedParseResult): string {
+  if (seed.ok) return "";
+  if (seed.reason === "empty") {
+    return `Run in Game seed is required (${RUN_IN_GAME_SEED_MIN} to ${RUN_IN_GAME_SEED_MAX}).`;
+  }
+  if (seed.reason === "not-integer") {
+    return `Run in Game seed must be an integer from ${RUN_IN_GAME_SEED_MIN} to ${RUN_IN_GAME_SEED_MAX}.`;
+  }
+  return `Run in Game seed must be between ${RUN_IN_GAME_SEED_MIN} and ${RUN_IN_GAME_SEED_MAX}; Civ7 stores setup seeds as signed 32-bit integers.`;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function findRawControlField(value: unknown): string | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const stack: unknown[] = [value];
+  while (stack.length) {
+    const next = stack.pop();
+    if (!next || typeof next !== "object") continue;
+    const entries = Array.isArray(next)
+      ? next.map((child, index) => [String(index), child] as const)
+      : Object.entries(next);
+    for (const [key, child] of entries) {
+      if (RAW_CONTROL_FIELD_PATTERN.test(key)) return key;
+      if (child && typeof child === "object") stack.push(child);
+    }
+  }
+  return undefined;
 }
 
 function stableHash(value: unknown): string {
-  return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
+  return createHash("sha256")
+    .update(JSON.stringify(canonicalize(value)))
+    .digest("hex");
 }
 
 function canonicalize(value: unknown): unknown {

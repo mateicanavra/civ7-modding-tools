@@ -43,7 +43,7 @@ import {
   runInGameRequiredMaterializationMarkers,
 } from "../runInGame/proofIdentity";
 import type { RunInGameDetailedProofLog } from "../runInGame/proofTypes";
-import { parseRunInGameSetupRequest } from "../runInGame/requestValidation";
+import { assertNoRawControlFields } from "../runInGame/requestValidation";
 
 // ============================================================================
 // Studio operation leaf ports — app-side filesystem/deploy/direct-control atoms
@@ -505,10 +505,14 @@ async function restoreRepoConfig(target: string, previous: string | null): Promi
 }
 
 type RunInGameInput = Parameters<StudioOperationRuntimePorts["materializeRunInGame"]>[0]["input"];
-type RunInGameMaterialized = Awaited<ReturnType<StudioOperationRuntimePorts["materializeRunInGame"]>>;
+type RunInGameMaterialized = Awaited<
+  ReturnType<StudioOperationRuntimePorts["materializeRunInGame"]>
+>;
 type RunInGameDeployment = Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>;
 type RunInGameStarted = Readonly<{ start?: unknown }>;
-type SaveDeployPrepared = Awaited<ReturnType<StudioOperationRuntimePorts["prepareSaveDeployStart"]>>;
+type SaveDeployPrepared = Awaited<
+  ReturnType<StudioOperationRuntimePorts["prepareSaveDeployStart"]>
+>;
 
 type RunInGameLeafContext = Readonly<{
   id: string;
@@ -516,8 +520,8 @@ type RunInGameLeafContext = Readonly<{
   mapSize: string;
   playerCount?: number;
   restartCivProcess: boolean;
-  setupConfig: ReturnType<typeof parseRunInGameSetupRequest>["setupConfig"];
-  requestedMode: ReturnType<typeof parseRunInGameSetupRequest>["requestedMode"];
+  setupConfig: NonNullable<RunInGameRequestStatus["setupConfig"]>;
+  requestedMode: "durable" | "disposable";
   configHash: string;
   envelopeHash: string;
   envelope: Record<string, unknown>;
@@ -534,11 +538,12 @@ type RunInGameLeafContext = Readonly<{
   started?: RunInGameStarted;
 };
 
-type SaveDeployLeafContext = SaveDeployPrepared & Readonly<{
-  parsedRequest: ReturnType<typeof parseMapConfigSaveRequest>;
-  target: string;
-  previous: string | null;
-}>;
+type SaveDeployLeafContext = SaveDeployPrepared &
+  Readonly<{
+    parsedRequest: ReturnType<typeof parseMapConfigSaveRequest>;
+    target: string;
+    previous: string | null;
+  }>;
 
 export function createStudioOperationRuntimePorts(
   options: Readonly<{ repoRoot: string }>
@@ -555,7 +560,8 @@ export function createStudioOperationRuntimePorts(
         repoRoot,
         id: context.id,
         sourcePath:
-          context.requestedMode === "durable" && typeof input.selectedConfig?.sourcePath === "string"
+          context.requestedMode === "durable" &&
+          typeof input.selectedConfig?.sourcePath === "string"
             ? input.selectedConfig.sourcePath
             : undefined,
         envelope: context.envelope,
@@ -567,8 +573,8 @@ export function createStudioOperationRuntimePorts(
         mapScript: materialized.mapScript,
         configHash: context.configHash,
         envelopeHash: context.envelopeHash,
-        ...(await optionalFileIdentity({ repoRoot, path: materialized.path }).then((sourceConfig) =>
-          sourceConfig ? { sourceConfig } : {}
+        ...(await optionalFileIdentity({ repoRoot, path: materialized.path }).then(
+          (sourceConfig) => (sourceConfig ? { sourceConfig } : {})
         )),
       };
       context.materialization = materialization;
@@ -685,7 +691,13 @@ export function createStudioOperationRuntimePorts(
       const logMarkerProof = await waitForFreshLogMarkers({
         logPath: scriptingLogPath,
         snapshot: scriptingSnapshot,
-        markers: ["[mapgen-proof]", requestId, context.configHash, context.envelopeHash, "[mapgen-complete]"],
+        markers: [
+          "[mapgen-proof]",
+          requestId,
+          context.configHash,
+          context.envelopeHash,
+          "[mapgen-complete]",
+        ],
         timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
         rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
       }).catch(async (err: unknown) => {
@@ -714,7 +726,9 @@ export function createStudioOperationRuntimePorts(
           { materialization }
         );
       });
-      const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(() => "");
+      const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(
+        () => ""
+      );
       const logProof = parseSwooperMapgenLogProof({
         text: freshLogText,
         logPath: logMarkerProof.logPath,
@@ -795,10 +809,16 @@ export function createStudioOperationRuntimePorts(
         ...(liveRuntimeStatus
           ? {
               liveRuntimeSnapshot: {
-                ...(liveRuntimeStatus.snapshotId ? { snapshotId: liveRuntimeStatus.snapshotId } : {}),
-                ...(liveRuntimeStatus.snapshotHash ? { snapshotHash: liveRuntimeStatus.snapshotHash } : {}),
+                ...(liveRuntimeStatus.snapshotId
+                  ? { snapshotId: liveRuntimeStatus.snapshotId }
+                  : {}),
+                ...(liveRuntimeStatus.snapshotHash
+                  ? { snapshotHash: liveRuntimeStatus.snapshotHash }
+                  : {}),
                 ...(liveRuntimeStatus.turn === undefined ? {} : { turn: liveRuntimeStatus.turn }),
-                ...(liveRuntimeStatus.gameHash === undefined ? {} : { gameHash: liveRuntimeStatus.gameHash }),
+                ...(liveRuntimeStatus.gameHash === undefined
+                  ? {}
+                  : { gameHash: liveRuntimeStatus.gameHash }),
               },
             }
           : {}),
@@ -856,7 +876,10 @@ export function createStudioOperationRuntimePorts(
     saveMapConfig: async ({ requestId }) => {
       const context = requireSaveContext(saveContexts, requestId);
       await mkdir(dirname(context.target), { recursive: true });
-      await writeFile(context.target, `${JSON.stringify(context.parsedRequest.envelope, null, 2)}\n`);
+      await writeFile(
+        context.target,
+        `${JSON.stringify(context.parsedRequest.envelope, null, 2)}\n`
+      );
       return { path: context.path, saved: true };
     },
     deploySavedMapConfig: async ({ requestId }) => {
@@ -875,22 +898,40 @@ export function createStudioOperationRuntimePorts(
     failureDiagnostics,
   };
 
-  function makeRunInGameLeafContext(args: Readonly<{
-    requestId: string;
-    input: RunInGameInput;
-    prepared: Parameters<StudioOperationRuntimePorts["materializeRunInGame"]>[0]["prepared"];
-  }>): RunInGameLeafContext {
-    let parsedRequest: ReturnType<typeof parseRunInGameSetupRequest>;
+  function makeRunInGameLeafContext(
+    args: Readonly<{
+      requestId: string;
+      input: RunInGameInput;
+      prepared: Parameters<StudioOperationRuntimePorts["materializeRunInGame"]>[0]["prepared"];
+    }>
+  ): RunInGameLeafContext {
     try {
-      parsedRequest = parseRunInGameSetupRequest(args.input);
+      assertNoRawControlFields(args.input);
     } catch (err) {
       throw invalidEngineRequest(
         err instanceof Error ? err.message : "Invalid Run in Game request",
         "run-in-game-request-invalid"
       );
     }
+    if (
+      !args.input.config ||
+      typeof args.input.config !== "object" ||
+      Array.isArray(args.input.config)
+    ) {
+      throw invalidEngineRequest(
+        "Run in Game requires a sanitized config object",
+        "run-in-game-request-invalid"
+      );
+    }
     const selected = args.input.selectedConfig ?? {};
-    const { requestedMode, id, seed, mapSize, playerCount, restartCivProcess, setupConfig } = parsedRequest;
+    const request = args.prepared.request;
+    const requestedMode = request.materializationMode === "durable" ? "durable" : "disposable";
+    const id = request.selectedConfigId ?? "studio-current";
+    const seed = requirePreparedNumber(request.seed, "Run in Game seed", args.requestId);
+    const mapSize = requirePreparedString(request.mapSize, "Run in Game mapSize", args.requestId);
+    const playerCount = request.playerCount;
+    const restartCivProcess = request.restartCivProcess === true;
+    const setupConfig = request.setupConfig ?? { gameOptions: {}, playerOptions: [] };
     const configHash = stableHash(args.input.config);
     const envelope = makeRepoMapEnvelope({
       id,
@@ -925,7 +966,7 @@ export function createStudioOperationRuntimePorts(
       mapSize,
       ...(playerCount === undefined ? {} : { playerCount }),
       ...(typeof args.input.resources === "string" ? { resources: args.input.resources } : {}),
-      ...(typeof selected.id === "string" ? { selectedConfigId: selected.id } : {}),
+      selectedConfigId: id,
       setupConfig,
       materializationMode: requestedMode,
       ...(restartCivProcess ? { restartCivProcess } : {}),
@@ -967,9 +1008,13 @@ function requireRunContext(
 ): RunInGameLeafContext {
   const context = contexts.get(requestId);
   if (!context) {
-    throw invalidEngineRequest("Run in Game leaf context is missing", "run-in-game-leaf-context-missing", {
-      requestId,
-    });
+    throw invalidEngineRequest(
+      "Run in Game leaf context is missing",
+      "run-in-game-leaf-context-missing",
+      {
+        requestId,
+      }
+    );
   }
   return context;
 }
@@ -980,9 +1025,13 @@ function requireSaveContext(
 ): SaveDeployLeafContext {
   const context = contexts.get(requestId);
   if (!context) {
-    throw invalidEngineRequest("Save/Deploy leaf context is missing", "save-deploy-leaf-context-missing", {
-      requestId,
-    });
+    throw invalidEngineRequest(
+      "Save/Deploy leaf context is missing",
+      "save-deploy-leaf-context-missing",
+      {
+        requestId,
+      }
+    );
   }
   return context;
 }
@@ -997,6 +1046,22 @@ function requireMaterialization(
 function requireContextValue<T>(value: T | undefined, label: string, requestId: string): T {
   if (value !== undefined) return value;
   throw invalidEngineRequest(`${label} is missing`, "run-in-game-leaf-context-incomplete", {
+    requestId,
+    label,
+  });
+}
+
+function requirePreparedNumber(value: unknown, label: string, requestId: string): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  throw invalidEngineRequest(`${label} is missing`, "run-in-game-prepared-request-incomplete", {
+    requestId,
+    label,
+  });
+}
+
+function requirePreparedString(value: unknown, label: string, requestId: string): string {
+  if (typeof value === "string" && value.length > 0) return value;
+  throw invalidEngineRequest(`${label} is missing`, "run-in-game-prepared-request-incomplete", {
     requestId,
     label,
   });

@@ -7,7 +7,11 @@ import type {
   StudioFailureData,
   UnexpectedDefectData,
 } from "./errorData.js";
-import type { StudioFailureTag, StudioOperationNamespace, StudioRuntimeFailure } from "./failure.js";
+import type {
+  StudioFailureTag,
+  StudioOperationNamespace,
+  StudioRuntimeFailure,
+} from "./failure.js";
 import { isStudioRuntimeFailure } from "./failure.js";
 
 export const STUDIO_OPERATION_PROCEDURES = [
@@ -141,7 +145,8 @@ export function mapUnexpectedDefectToDefinedError(args: {
   fallbackMessage: string;
 }): StudioDefinedErrorProjection & { data: UnexpectedDefectData } {
   const namespace = procedureNamespace[args.procedure];
-  const message = args.err instanceof Error && args.err.message ? args.err.message : args.fallbackMessage;
+  const message =
+    args.err instanceof Error && args.err.message ? args.err.message : args.fallbackMessage;
   return {
     code: namespaceCodes[namespace].failed,
     status: 500,

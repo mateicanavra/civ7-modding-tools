@@ -37,6 +37,9 @@
           "^default",
           {
             "env": "SWOOPER_STUDIO_RUN_ID"
+          },
+          {
+            "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
           }
         ],
         "outputs": [
@@ -60,6 +63,9 @@
           "default",
           {
             "env": "SWOOPER_STUDIO_RUN_ID"
+          },
+          {
+            "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
           }
         ],
         "outputs": [
@@ -104,6 +110,25 @@
           "{projectRoot}/dist/recipes/standard.d.ts",
           "{projectRoot}/dist/recipes/standard-artifacts.js",
           "{projectRoot}/dist/recipes/standard-artifacts.d.ts"
+        ]
+      },
+      "gen:maps": {
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "env": "SWOOPER_STUDIO_RUN_ID"
+          },
+          {
+            "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/mod/**",
+          "{projectRoot}/src/maps/generated/**",
+          "{projectRoot}/dist/recipes/standard-map-config.schema.json",
+          "{projectRoot}/dist/recipes/standard-map-configs.js",
+          "{projectRoot}/dist/recipes/standard-map-configs.d.ts"
         ]
       },
       "build:studio-recipes:maps": {

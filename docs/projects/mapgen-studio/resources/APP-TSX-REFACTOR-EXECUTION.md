@@ -1,5 +1,10 @@
 # MapGen Studio: `App.tsx` Refactor — Executable Plan
 
+> **D12 STATUS (2026-06-15):** This is a pre-Nx extraction plan retained as
+> historical planning evidence. Its `bunx turbo` build commands are not current
+> local-dev authority. Use `docs/projects/mapgen-studio/RUNBOOK.md` for the
+> current Nx-owned Studio dev/build commands.
+
 This is the **execution-grade** companion to:
 - `docs/projects/mapgen-studio/resources/APP-TSX-REFACTOR-PLAN.md` (architecture + seams + rationale)
 - `docs/projects/mapgen-studio/resources/APP-TSX-SEAMS-MAP.md` (navigation)

@@ -57,9 +57,10 @@ migrates it to TypeBox/Standard Schema or records a blocker; it cannot leave a
 mixed contract stack as a cheap exit.
 
 Retained public/manual operation status endpoints are classified separately from
-background freshness authority. A retained endpoint is allowed only if it is a
-diagnostic request/response read with a named consumer and no browser polling,
-watchdog, or recovery loop. Otherwise D12 deletes it.
+background freshness authority. A retained endpoint is allowed only when its
+role is named: diagnostic request/response read, mutation-state read/projection,
+or identity read. None may own browser polling, watchdog recovery, or operation
+freshness. Otherwise D12 deletes it.
 
 `workstream/status-endpoint-corpus.md` names the retained surfaces and
 distinguishes diagnostic reads from mutation-state reads/projections:
@@ -120,6 +121,7 @@ drain as part of its closure.
 
 OpenSpec validation proves packet shape only. Guard tests prove source
 invariants. Negative searches prove deletion. Package/app gates prove code still
-builds and tests. Live proof is consumed from the behavior-changing slices
-D1/D9/D10/D11; D12 runs new live proof only if its implementation changes live
-runtime behavior or a final closeout claim lacks required live evidence.
+builds and tests. Live proof is consumed only when a lower slice actually ran
+that proof. D10 and D11 left live Civ7 proof not-green; if D12 does not run the
+missing live proof, it writes a D12 not-green handoff instead of claiming final
+live product closure.

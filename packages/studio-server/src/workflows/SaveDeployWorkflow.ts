@@ -24,19 +24,24 @@ export interface SaveDeployWorkflowApi {
   readonly start: (args: SaveDeployWorkflowStart) => Effect.Effect<void, never>;
 }
 
-export class SaveDeployWorkflow extends Context.Tag(
-  "@civ7/studio-server/SaveDeployWorkflow"
-)<SaveDeployWorkflow, SaveDeployWorkflowApi>() {}
+export class SaveDeployWorkflow extends Context.Tag("@civ7/studio-server/SaveDeployWorkflow")<
+  SaveDeployWorkflow,
+  SaveDeployWorkflowApi
+>() {}
 
-export function makeSaveDeployWorkflowLayer(args: Readonly<{
-  ports: StudioWorkflowPorts;
-}>): Layer.Layer<SaveDeployWorkflow> {
+export function makeSaveDeployWorkflowLayer(
+  args: Readonly<{
+    ports: StudioWorkflowPorts;
+  }>
+): Layer.Layer<SaveDeployWorkflow> {
   return Layer.succeed(SaveDeployWorkflow, makeSaveDeployWorkflow(args));
 }
 
-function makeSaveDeployWorkflow(args: Readonly<{
-  ports: StudioWorkflowPorts;
-}>): SaveDeployWorkflowApi {
+function makeSaveDeployWorkflow(
+  args: Readonly<{
+    ports: StudioWorkflowPorts;
+  }>
+): SaveDeployWorkflowApi {
   const tryPromise = <A>(try_: () => Promise<A>) =>
     Effect.tryPromise({
       try: try_,
@@ -81,12 +86,14 @@ function makeSaveDeployWorkflow(args: Readonly<{
           );
         };
         const work = Effect.gen(function* () {
-          prepared = sanitizeSaveDeployPrepared(yield* tryPromise(() =>
-            args.ports.prepareSaveDeployStart({
-              requestId: workflow.requestId,
-              input: workflow.input,
-            })
-          ));
+          prepared = sanitizeSaveDeployPrepared(
+            yield* tryPromise(() =>
+              args.ports.prepareSaveDeployStart({
+                requestId: workflow.requestId,
+                input: workflow.input,
+              })
+            )
+          );
           yield* workflow.transitions.transition({
             phase,
             ...(prepared.path === undefined ? {} : { path: prepared.path }),
@@ -125,11 +132,7 @@ function makeSaveDeployWorkflow(args: Readonly<{
 
         yield* work.pipe(
           Effect.catchAll((err) => finalizeFailure(err)),
-          Effect.ensuring(
-            cleanupPrepared().pipe(
-              Effect.catchAll(() => Effect.void)
-            )
-          )
+          Effect.ensuring(cleanupPrepared().pipe(Effect.catchAll(() => Effect.void)))
         );
 
         function finalizeFailure(err: unknown) {
@@ -178,24 +181,29 @@ function makeSaveDeployWorkflow(args: Readonly<{
   };
 }
 
-function sanitizeSaveDeployPrepared(prepared: SaveDeployPreparedRequest): SaveDeployPreparedRequest {
+function sanitizeSaveDeployPrepared(
+  prepared: SaveDeployPreparedRequest
+): SaveDeployPreparedRequest {
   return {
     ...(prepared.path === undefined ? {} : { path: prepared.path }),
     ...(prepared.cleanup === undefined ? {} : { cleanup: prepared.cleanup }),
   };
 }
 
-function saveDeployWorkflowFailure(args: Readonly<{
-  err: unknown;
-  phase: "saving" | "deploying";
-  path?: string;
-  rollback: SaveDeployRollback;
-  diagnostics?: StudioBoundedDiagnostics;
-}>) {
+function saveDeployWorkflowFailure(
+  args: Readonly<{
+    err: unknown;
+    phase: "saving" | "deploying";
+    path?: string;
+    rollback: SaveDeployRollback;
+    diagnostics?: StudioBoundedDiagnostics;
+  }>
+) {
   if (isStudioRuntimeFailure(args.err)) return args.err;
   const reason = args.phase === "saving" ? "save-failed" : "deploy-failed";
   return deployFailed({
-    message: args.err instanceof Error && args.err.message ? args.err.message : "Save/Deploy failed",
+    message:
+      args.err instanceof Error && args.err.message ? args.err.message : "Save/Deploy failed",
     reason,
     diagnostics: boundedDiagnostics({
       ...args.diagnostics,
@@ -216,13 +224,15 @@ function saveDeployWorkflowFailure(args: Readonly<{
   });
 }
 
-function saveDeployRollbackFailure(args: Readonly<{
-  err: unknown;
-  rollbackErr: unknown;
-  phase: "saving" | "deploying";
-  path?: string;
-  diagnostics?: StudioBoundedDiagnostics;
-}>) {
+function saveDeployRollbackFailure(
+  args: Readonly<{
+    err: unknown;
+    rollbackErr: unknown;
+    phase: "saving" | "deploying";
+    path?: string;
+    diagnostics?: StudioBoundedDiagnostics;
+  }>
+) {
   return deployFailed({
     message: "Save/Deploy rollback failed after workflow failure",
     reason: "rollback-failed",
@@ -234,17 +244,24 @@ function saveDeployRollbackFailure(args: Readonly<{
       cause: diagnosticString(args.err),
       rollbackFailure: diagnosticString(args.rollbackErr),
     }),
-    recoveryActions: ["copy-diagnostics", "retry-status", "retry-save-deploy", "inspect-deploy-output"],
+    recoveryActions: [
+      "copy-diagnostics",
+      "retry-status",
+      "retry-save-deploy",
+      "inspect-deploy-output",
+    ],
   });
 }
 
-function saveDeployCleanupFailure(args: Readonly<{
-  err: unknown;
-  phase: "saving" | "deploying";
-  original?: unknown;
-  path?: string;
-  diagnostics?: StudioBoundedDiagnostics;
-}>) {
+function saveDeployCleanupFailure(
+  args: Readonly<{
+    err: unknown;
+    phase: "saving" | "deploying";
+    original?: unknown;
+    path?: string;
+    diagnostics?: StudioBoundedDiagnostics;
+  }>
+) {
   return deployFailed({
     message: "Save/Deploy cleanup failed",
     reason: args.phase === "saving" ? "save-failed" : "deploy-failed",
