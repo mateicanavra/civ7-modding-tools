@@ -1,5 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { classifyResourcesState, runPreCommit, runPrePush } from "../../src/lib/hooks.js";
+import {
+  classifyResourcesState,
+  createHookTrace,
+  runPreCommit,
+  runPrePush,
+} from "../../src/lib/hooks.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import type { SpawnResult } from "../../src/lib/spawn.js";
 
@@ -228,6 +233,74 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("[grit check]");
   });
+
+  test("records typed pre-commit state and command provenance through fake services", () => {
+    const trace = createHookTrace();
+    const fake = makeFakeRuntime({
+      stagedPaths: ["packages/example/src/index.ts", "README.md"],
+      fileHashes: {
+        "packages/example/src/index.ts": ["before", "after"],
+        "README.md": ["foreign-before", "foreign-after"],
+      },
+    });
+
+    const result = runPreCommit({ ...fake.runtime, trace });
+
+    expect(result.exitCode).toBe(0);
+    expect(trace.preCommit).toMatchObject({
+      resourceState: "clean",
+      stagedPaths: ["packages/example/src/index.ts", "README.md"],
+      biomePaths: ["packages/example/src/index.ts"],
+      gritPaths: ["packages/example/src/index.ts"],
+      partialPaths: [],
+      formatterTouchedPaths: ["packages/example/src/index.ts"],
+      restagedPaths: ["packages/example/src/index.ts"],
+      outcome: "pass",
+      exitCode: 0,
+    });
+    expect(trace.commands.map((command) => command.phase)).toEqual([
+      "resource-state",
+      "resource-state",
+      "resource-state",
+      "resource-state",
+      "resource-state",
+      "resource-state",
+      "resource-state",
+      "staged-paths",
+      "file-layer",
+      "partial-staging",
+      "biome-format",
+      "formatter-restage",
+      "biome-check",
+      "grit-check",
+    ]);
+    expect(trace.commands.find((command) => command.phase === "grit-check")).toMatchObject({
+      argv: ["grit", "--json", "check", "--level", "error", "packages/example/src/index.ts"],
+      cwd: repoRoot,
+      env: {
+        GRIT_CACHE_DIR: `${repoRoot}/.grit/cache`,
+        GRIT_TELEMETRY_DISABLED: "true",
+      },
+      exitCode: 0,
+    });
+  });
+
+  test("records Grit parse failure as an explicit pre-commit outcome", () => {
+    const trace = createHookTrace();
+    const fake = makeFakeRuntime({
+      stagedPaths: ["packages/example/src/index.ts"],
+      gritStdout: "wrapper {\"results\":[]} text\n",
+    });
+
+    const result = runPreCommit({ ...fake.runtime, trace });
+
+    expect(result.exitCode).toBe(1);
+    expect(trace.preCommit).toMatchObject({
+      gritPaths: ["packages/example/src/index.ts"],
+      outcome: "grit-parse-failed",
+      exitCode: 1,
+    });
+  });
 });
 
 describe("Habitat pre-push base policy", () => {
@@ -307,6 +380,46 @@ describe("Habitat pre-push base policy", () => {
     );
     expect(result.stdout).toContain("affected failed");
     expect(result.stderr).toContain("target failed");
+  });
+
+  test("records pre-push base and affected command provenance through fake services", () => {
+    const trace = createHookTrace();
+    const fake = makeFakeRuntime({ graphiteParent: "agent-HR-parent" });
+
+    const result = runPrePush({}, { ...fake.runtime, trace });
+
+    expect(result.exitCode).toBe(0);
+    expect(trace.prePush).toEqual({
+      base: "agent-HR-parent",
+      outcome: "pass",
+      exitCode: 0,
+    });
+    expect(trace.commands).toEqual([
+      {
+        phase: "pre-push-base",
+        argv: ["gt", "branch", "info", "--no-interactive"],
+        cwd: repoRoot,
+        env: undefined,
+        exitCode: 0,
+      },
+      {
+        phase: "pre-push-affected",
+        argv: [
+          "nx",
+          "affected",
+          "-t",
+          "biome:ci,boundaries,grit:check,habitat:check,test",
+          "--base",
+          "agent-HR-parent",
+          "--head",
+          "HEAD",
+          "--outputStyle=static",
+        ],
+        cwd: repoRoot,
+        env: undefined,
+        exitCode: 0,
+      },
+    ]);
   });
 });
 

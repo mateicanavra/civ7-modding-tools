@@ -23,7 +23,7 @@
   and stage the monorepo submodule pointer.
 - [x] 2.5 Refresh local Biome version and command behavior before implementation
   selects exact staged/write command contracts.
-- [ ] 2.6 Refresh Effect package/runtime fit before implementation selects
+- [x] 2.6 Refresh Effect package/runtime fit before implementation selects
   Effect or an equivalent hook transaction architecture.
 
 ## 3. Resource Publish Policy
@@ -43,11 +43,14 @@
 
 ## 4. Hook Transaction Model
 
-- [ ] 4.1 Model hook pre-state and post-state.
+- [ ] 4.1 Model hook pre-state and post-state. A typed hook trace now records
+  resource state, staged/Biome/Grit path sets, formatter-touched/restaged path
+  sets, pre-push base, command phases, and terminal outcome; full branch/head,
+  staged/unstaged diff, resource poststate, and timing poststate remain open.
 - [ ] 4.2 Preserve partial-staging refusal before formatting.
 - [ ] 4.3 Preserve formatter-touched restage only.
 - [ ] 4.4 Make Grit parse failure a failing proof class.
-- [ ] 4.5 Record command provenance for Biome, Grit, Git, Nx, Bun, and resource
+- [x] 4.5 Record command provenance for Biome, Grit, Git, Nx, Bun, and resource
   publish commands where relevant.
 - [ ] 4.6 Preserve CI-authority non-claims in output or docs.
 
@@ -68,7 +71,9 @@
 
 - [ ] 6.1 Add hook unit tests with fake Git, command runner, filesystem, clock,
   reporter, and resource publisher services where the accepted architecture
-  supports service substitution.
+  supports service substitution. Current tests cover fake command,
+  filesystem/path-existence, file hashing, and typed trace provenance; clock,
+  reporter, and resource publisher services remain open.
 - [x] 6.2 Add clean resources pre-commit test.
 - [x] 6.3 Add dirty resources explicit publish refusal test.
 - [x] 6.4 Add uninitialized resources, resources lock, unstaged gitlink, staged
@@ -97,7 +102,9 @@
 - [x] 8.1 `bun run openspec -- validate habitat-git-hook-hardening --strict`
 - [x] 8.2 `bun run openspec:validate`
 - [x] 8.3 `git diff --check`
-- [ ] 8.4 Hook unit/service test matrix
+- [ ] 8.4 Hook unit/service test matrix. Focused trace tests cover fake command,
+  filesystem/path-existence, file hashing, command provenance, and terminal
+  outcomes; full service matrix remains open.
 - [ ] 8.5 Pre-commit staged probe matrix. Current-tree probes for
   generated-zone, pnpm artifact, partial-staging refusal, formatter-touched
   restage, and native Grit finding refusal are recorded; Grit parse-output

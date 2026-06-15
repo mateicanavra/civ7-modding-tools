@@ -5,12 +5,12 @@
 - Project: Habitat Harness
 - Phase: git hook hardening / `habitat-git-hook-hardening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-hook-grit-staged-probe`
+- Branch/Graphite stack: `agent-HR-habitat-hook-transaction-trace`
 - Started: 2026-06-14
-- Status: resource-publish, staged-mutation, pre-push base/range, and
-  current-tree staged-probe checkpoints supervisor-accepted; native Grit
-  finding staged-probe checkpoint implemented and locally verified for
-  supervisor review
+- Status: resource-publish, staged-mutation, pre-push base/range,
+  current-tree staged-probe, and native Grit finding staged-probe checkpoints
+  supervisor-accepted; hook transaction trace checkpoint implemented and
+  locally verified for supervisor review
 
 ## Objective
 
@@ -119,10 +119,18 @@ Core synthesis:
   restage, and native Grit finding probes are recorded toward 8.5. Task 8.5
   remains open until Grit parse-output staged proof is also proven or
   explicitly rescheduled.
+- Hook transaction trace progress for this checkpoint: `runPreCommit()` and
+  `runPrePush()` now accept an optional typed trace sink that records command
+  phase, argv, cwd, selected env, exit code, staged/Biome/Grit path sets,
+  formatter-touched/restaged paths, resource state, pre-push base, and terminal
+  outcome through fake command/filesystem/hash services. This closes 4.5 for
+  hook command provenance and keeps full transaction architecture, timing,
+  branch/head, staged/unstaged diff poststate, resource poststate, and full
+  service matrix open.
 - Remaining tasks: full hook transaction model, full fake-service matrix,
   Grit parse-output current-tree staged proof, historical H7 record
   realignment, aggregate verification, and packet closure.
-- Implementation status: native Grit finding staged-probe checkpoint
+- Implementation status: hook transaction trace checkpoint
   implemented and locally verified for supervisor review.
 
 ## Verification
@@ -243,6 +251,25 @@ Core synthesis:
     `biome format` before native Grit ran. This is recorded only as evidence
     that malformed source does not prove the Grit JSON parse-output path;
     current-tree Grit parse-output proof remains open.
+- New implementation evidence for the hook transaction trace checkpoint:
+  - `tools/habitat-harness/src/lib/hooks.ts` now exports `HookTrace`,
+    `HookCommandRecord`, typed pre-commit/pre-push trace records, and
+    `createHookTrace()`. The hook runtime can receive a trace sink without
+    changing the public `habitat hook` command contract.
+  - `runPreCommit()` records resource-state Git probes, staged-path discovery,
+    file-layer, partial-staging, Biome format/check, formatter restage, and
+    Grit command provenance with argv, cwd, selected env, and exit code. Its
+    typed pre-commit trace records resource state, staged paths, Biome paths,
+    Grit paths, partial paths, formatter-touched paths, restaged paths,
+    terminal outcome, and exit code.
+  - `runPrePush()` records Graphite/merge-base base probes and the Nx affected
+    command with argv, cwd, and exit code, plus typed base and terminal outcome.
+  - `bun run --cwd tools/habitat-harness test -- hooks.test.ts` exited 0 with
+    23 tests. New tests prove trace population through fake services for
+    successful pre-commit, Grit parse-failure outcome, and pre-push base/Nx
+    command provenance.
+  - `bun run --cwd tools/habitat-harness check` exited 0 after the trace
+    implementation.
 - Evidence boundary: the accepted resource checkpoint proves the default
   pre-commit resource publish removal, typed resource-state classification,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
@@ -261,7 +288,12 @@ Core synthesis:
   finding refusal for a row-owned `mapgen_core_runtime_civ7` scratch path, and
   targeted cleanup for the exercised scratch paths. It does not prove Grit
   parse-output current-tree staged behavior, full hook transaction safety, CI
-  authority, or product/runtime behavior.
+  authority, or product/runtime behavior. This transaction trace checkpoint
+  proves typed hook state/provenance capture through fake services for the
+  covered phases; it does not prove the full transaction architecture, timing
+  model, branch/head or staged/unstaged diff poststate, resource poststate,
+  clock/reporter/resource-publisher services, CI authority, or product/runtime
+  behavior.
 
 ## Realignment
 
@@ -270,7 +302,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the native Grit finding staged-probe checkpoint for supervisor review.
-  Do not claim full hook transaction architecture, Grit parse-output staged
-  probe closure, CI authority, broad Nx affected coverage, or packet closure
-  from this slice.
+- Hold the hook transaction trace checkpoint for supervisor review. Do not
+  claim full hook transaction architecture, Grit parse-output staged probe
+  closure, CI authority, broad Nx affected coverage, or packet closure from
+  this slice.
