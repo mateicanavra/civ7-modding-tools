@@ -26,15 +26,15 @@
 
 ## 3. Pattern Authority Manifest
 
-- [ ] 3.1 Add a structured Pattern Authority Manifest schema with the accepted
+- [x] 3.1 Add a structured Pattern Authority Manifest schema with the accepted
   fields from `design.md`.
 - [ ] 3.2 Store manifests as source artifacts adjacent to the Habitat rule pack.
-- [ ] 3.3 Add validation for missing, malformed, placeholder, contradicted, and
+- [x] 3.3 Add validation for missing, malformed, placeholder, contradicted, and
   orphan manifest states.
 - [ ] 3.4 Add `rules.json` manifest references for generated registered rules.
-- [ ] 3.5 Validate that Habitat authority metadata is not accepted solely from
+- [x] 3.5 Validate that Habitat authority metadata is not accepted solely from
   Grit frontmatter or prose.
-- [ ] 3.6 Validate that Nx generator schema fields are treated as option/prompt
+- [x] 3.6 Validate that Nx generator schema fields are treated as option/prompt
   input only, not accepted Habitat authority.
 
 ## 4. Generator State Machine
@@ -73,14 +73,14 @@
 
 - [x] 6.1 Add unit tests for candidate generation output.
 - [ ] 6.2 Add unit tests for registered advisory and registered enforced output.
-- [ ] 6.3 Add schema tests for missing, malformed, placeholder, and accepted
+- [x] 6.3 Add schema tests for missing, malformed, placeholder, and accepted
   manifests.
 - [x] 6.4 Add no-write tests for refused registration.
 - [ ] 6.5 Add duplicate id/name tests.
 - [ ] 6.6 Add hook-scope refusal tests.
 - [ ] 6.7 Add baseline-manifest dependency tests.
 - [ ] 6.8 Add native Grit sample proof for generated registered samples.
-- [ ] 6.9 Add tests proving Nx schema, Grit frontmatter, and Habitat authority
+- [x] 6.9 Add tests proving Nx schema, Grit frontmatter, and Habitat authority
   manifest fields cannot substitute for each other.
 - [ ] 6.10 Add tests for the registered-promotion orchestration decision:
   candidate generation without registered writes, accepted Effect-backed
@@ -102,7 +102,7 @@
 ## 8. Verification
 
 - [x] 8.1 `bun run openspec -- validate habitat-pattern-generator-metadata-repair --strict`
-- [ ] 8.2 Pattern Authority Manifest schema matrix
+- [x] 8.2 Pattern Authority Manifest schema matrix
 - [x] 8.3 Candidate generator command proof
 - [x] 8.4 Refused registration no-write proof
 - [ ] 8.5 Registered advisory generation proof

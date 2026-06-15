@@ -2,7 +2,7 @@
 
 **Change:** `habitat-pattern-generator-metadata-repair`
 **Status:** P1/P2 design findings accepted and patched; candidate/refusal
-implementation checkpoint ready for supervisor review
+checkpoint supervisor-accepted; manifest-validator checkpoint in review
 **Owner:** DRA Habitat recovery owner
 
 Accepted P1/P2 findings block implementation until repaired, rejected with
@@ -13,6 +13,13 @@ Checkpoint note: this branch implements candidate-only sparse generation and
 registered advisory/enforced no-write refusal. It does not close Pattern
 Authority Manifest validation, registered rule promotion, Grit row proof,
 baseline write/shrink proof, hook-scope proof, classify proof, or product proof.
+
+Validator checkpoint note: the child branch
+`agent-HR-habitat-pattern-authority-manifest-validator` adds a pure
+Pattern Authority Manifest model and validator. It validates missing,
+malformed, placeholder, contradicted, orphan, Grit-only, and Nx-options-only
+states without consuming HG row proof, mutating baselines, adding hook scope,
+or promoting registered rules.
 
 ## Findings
 
