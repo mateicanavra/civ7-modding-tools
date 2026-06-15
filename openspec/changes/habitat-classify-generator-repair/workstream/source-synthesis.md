@@ -27,9 +27,10 @@ truth.
   language is not partially scraped into exact path truth.
 - `classifyTarget()` supports literal diffs and patch files by extracting
   changed paths and classifying each path.
-- Project generator supports `plugin`, `foundation`, and `app`, refuses other
-  kinds, writes package/config/source/test/README files, and accepts a
-  directory override.
+- Project generator supports only the canonical uniform `plugin`,
+  `foundation`, and `app` contracts. It refuses unsupported kinds, mismatched
+  roots, mismatched package names, non-empty roots, and workspace package-name
+  collisions before writes.
 - Pattern generator remains separately governed by
   `habitat-pattern-generator-metadata-repair`.
 - Current migration metadata declares a no-op migration, which proves wiring
@@ -78,7 +79,18 @@ truth.
 - `nx g @internal/habitat-harness:project unsupported-mod-probe --kind=mod --dry-run`
   refuses before writes.
 - `nx g @internal/habitat-harness:project misplaced-probe --kind=app --directory=packages/misplaced-app-probe --dry-run`
-  plans files under `packages/`, showing kind/root mismatch is not refused yet.
+  refuses before writes because the `app` root contract is `apps/<name>`.
+- `nx g @internal/habitat-harness:project generator-plugin-probe --kind=plugin --dry-run`
+  plans only canonical plugin files under
+  `packages/plugins/plugin-generator-plugin-probe/`.
+- `nx g @internal/habitat-harness:project generator-foundation-probe --kind=foundation --dry-run`
+  plans only canonical foundation files under
+  `packages/generator-foundation-probe/`.
+- `nx g @internal/habitat-harness:project generator-app-probe --kind=app --dry-run`
+  plans only canonical app files under `apps/generator-app-probe/`.
+- `nx g @internal/habitat-harness:project adapter --kind=foundation --dry-run`
+  refuses before writes because `@civ7/adapter` already exists at
+  `packages/civ7-adapter/package.json`.
 
 ## Official Documentation Evidence
 
@@ -110,10 +122,11 @@ truth.
    as unresolved rather than exact.
 4. Workspace/Habitat gates need separate presentation from project-local
    targets.
-5. Generator support must validate accepted kind/root/package/tag matrix before
+5. Generator support validates accepted kind/root/package/tag matrix before
    writes.
 6. Unsupported-kind refusal is current behavior to preserve.
-7. Mismatched kind/root acceptance is a repair target.
+7. Mismatched kind/root acceptance is repaired for the supported uniform
+   project generator contract.
 8. Migration proof must distinguish no-op wiring from convention migration.
 9. Classify implementation closure must consume command-surface repair evidence
    before claiming canonical command proof.
@@ -140,3 +153,6 @@ truth.
 - One earlier Nx sidecar local-workspace claim was invalidated because it came
   from the wrong checkout. The official-doc constraints remain useful, but
   current local proof comes from this worktree's `nx ...` probes.
+- Generator scratch project discovery and generated target-matrix proof remain
+  open. Current generator evidence proves dry-run output and fail-closed
+  refusal, not Nx discovery after real scratch writes.

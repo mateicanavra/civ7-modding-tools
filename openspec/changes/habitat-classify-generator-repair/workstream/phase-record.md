@@ -5,12 +5,13 @@
 - Project: Habitat Harness
 - Phase: classify/generator repair / `habitat-classify-generator-repair`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: HR classify/generator repair layer above the accepted
-  Pattern Authority Effect decision layer and below the HG pattern stack.
+- Branch/Graphite stack: HR classify/generator repair layers above the accepted
+  Pattern Authority Effect decision layer. HG descendants may be moved by
+  supervisor coordination only.
 - Started: 2026-06-14
-- Status: classify target-truth checkpoint committed; path-aware rule-scope
-  checkpoint implemented and locally verified, with the rule-scope precision
-  repair pending supervisor review; generator support, migration proof
+- Status: classify target-truth and path-aware rule-scope checkpoints accepted;
+  generator support/refusal checkpoint implemented and locally verified;
+  scratch Nx discovery, generated target-matrix proof, migration proof
   boundaries, downstream realignment, and packet closure remain open.
 
 ## Objective
@@ -60,8 +61,13 @@
   exclusions or compound qualifiers instead of scraping a partial glob and
   presenting it as machine-readable path truth.
 - Project generator refuses unsupported `mod` kind.
-- Project generator accepts mismatched `--kind=app --directory=packages/...` in
-  dry-run.
+- Project generator now accepts only the canonical uniform project contracts:
+  `plugin` under `packages/plugins/plugin-<name>` with `@civ7/plugin-<name>`,
+  `foundation` under `packages/<name>` with `@civ7/<name>`, and `app` under
+  `apps/<name>` with package name `<name>`.
+- Project generator refuses unsupported non-uniform kinds, mismatched
+  kind/root pairs, mismatched package names, non-empty roots, and workspace
+  package-name collisions before writes.
 - Local Nx is available in this worktree as v22.7.5, and `nx show` probes
   resolve projects/targets. Official Nx docs support resolved project/target
   metadata and inferred targets as the target-truth source; Habitat uses
@@ -82,8 +88,9 @@ Core synthesis:
   metadata;
 - official Nx docs support target proof through resolved project/target
   metadata;
-- generator support must include kind/root/target proof, not enum membership
-  alone;
+- generator support now has a kind/root/package/tag refusal contract for
+  uniform kinds, while scratch Nx discovery and target-matrix proof remain
+  separate;
 - pattern-generator metadata remains a separate workstream;
 - Effect is a substrate decision if implementation turns target proof into
   command orchestration, provenance capture, service substitution, scoped
@@ -112,8 +119,8 @@ Core synthesis:
 - Review artifacts:
   - `workstream/review-disposition-ledger.md`
 - Blocking findings: accepted P2 command-surface dependency finding patched;
-  accepted P2 rule-scope precision finding repaired locally and pending
-  supervisor review in `workstream/review-disposition-ledger.md`.
+  accepted P2 rule-scope precision finding supervisor-accepted in
+  `workstream/review-disposition-ledger.md`.
 
 ## Agent Fleet State
 
@@ -129,14 +136,15 @@ Core synthesis:
 
 ## Implementation
 
-- Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 4.1-4.5,
-  7.2-7.5, 9.1-9.3, 9.11, and 9.13.
-- Remaining tasks: generator support/refusal, migration proof-boundary repair,
-  full classify matrix, full Nx target matrix, downstream realignment, final
-  verification, and supervisor acceptance.
+- Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 4.1-4.5, 5.1-5.4,
+  5.7, 7.2-7.5, 7.7-7.8, 9.1-9.3, 9.6, 9.8, 9.11, and 9.13.
+- Remaining tasks: scratch Nx discovery, generated target-matrix proof,
+  migration proof-boundary repair, full classify matrix, full Nx target matrix,
+  downstream realignment, final verification, and supervisor acceptance.
 - Implementation status: target-truth slice committed as a bounded checkpoint;
-  path-aware rule-scope slice implemented and in verification. Full packet
-  closure remains open.
+  path-aware rule-scope slice committed and supervisor-accepted; generator
+  support/refusal slice implemented and in verification. Full packet closure
+  remains open.
 
 ## Verification
 
@@ -180,6 +188,15 @@ Core synthesis:
   - `bun run habitat classify apps/mapgen-studio/src/main.tsx`
   - `bun run habitat classify packages/civ7-adapter/src/index.ts`
   - `bun run habitat classify mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-floodplains/index.ts`
+- Commands run for generator contract implementation evidence:
+  - `bun run --cwd tools/habitat-harness test -- project-generator.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run nx g @internal/habitat-harness:project generator-plugin-probe --kind=plugin --dry-run`
+  - `bun run nx g @internal/habitat-harness:project generator-foundation-probe --kind=foundation --dry-run`
+  - `bun run nx g @internal/habitat-harness:project generator-app-probe --kind=app --dry-run`
+  - `bun run nx g @internal/habitat-harness:project unsupported-mod-probe --kind=mod --dry-run`
+  - `bun run nx g @internal/habitat-harness:project misplaced-probe --kind=app --directory=packages/misplaced-app-probe --dry-run`
+  - `bun run nx g @internal/habitat-harness:project adapter --kind=foundation --dry-run`
 - Evidence boundary: current implementation proves resolved Nx target truth for
   the adapter missing-target case, structured target proof output, unavailable
   target reporting, workspace-only target handling, literal diff target
@@ -188,9 +205,12 @@ Core synthesis:
   for Grit rows without parseable scan roots, conservative refusal to treat
   prose exclusions such as `outside packages/civ7-adapter` as exact scan-root
   truth, preservation of pure-glob exact matches, and exclusion of unrelated
-  internal exact-path rules. It does not prove full generator support/refusal,
-  migration capability, current-tree Grit row proof, baseline behavior, hook
-  behavior, or product/runtime behavior.
+  internal exact-path rules. It also proves the project generator's uniform
+  kind/root/package/tag contract and fail-closed refusal for unsupported kinds,
+  mismatched roots, mismatched package names, non-empty roots, and workspace
+  package-name collisions. It does not prove scratch project Nx discovery,
+  generated target-matrix behavior, migration capability, current-tree Grit row
+  proof, baseline behavior, hook behavior, or product/runtime behavior.
 
 ## Realignment
 
@@ -199,7 +219,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the bounded rule-scope checkpoint for supervisor review while the HG
-  commit-ordering guardrail remains active; after the commit window opens,
-  Graphite-commit this checkpoint before proceeding to generator
-  support/refusal unless supervisor review blocks this classify slice.
+- Finish verification and Graphite-commit the bounded generator
+  support/refusal checkpoint as a new HR layer, then hold for supervisor
+  review before proceeding to scratch Nx discovery or migration proof-boundary
+  work.
