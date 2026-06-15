@@ -17,6 +17,7 @@ interface HookRuntime {
   runCommand?: RunCommand;
   pathExists?: (target: string) => boolean;
   fileHash?: (repoRelativePath: string) => string | null;
+  nowMs?: () => number;
   trace?: HookTrace;
 }
 
@@ -41,6 +42,7 @@ interface ResourceState {
 }
 
 export type HookCommandPhase =
+  | "repo-state"
   | "resource-state"
   | "staged-paths"
   | "file-layer"
@@ -71,9 +73,25 @@ export interface HookCommandRecord {
   cwd: string;
   env?: Record<string, string>;
   exitCode: number;
+  startedAtMs: number;
+  endedAtMs: number;
+  durationMs: number;
+}
+
+export interface HookRepoSnapshot {
+  branch: string | null;
+  head: string | null;
+  stagedPaths: string[];
+  unstagedPaths: string[];
+  resourceState: ResourceStateKind;
 }
 
 export interface PreCommitTrace {
+  startedAtMs: number;
+  endedAtMs?: number;
+  durationMs?: number;
+  preState?: HookRepoSnapshot;
+  postState?: HookRepoSnapshot;
   resourceState: ResourceStateKind;
   stagedPaths: string[];
   biomePaths: string[];
@@ -86,6 +104,11 @@ export interface PreCommitTrace {
 }
 
 export interface PrePushTrace {
+  startedAtMs: number;
+  endedAtMs?: number;
+  durationMs?: number;
+  preState?: HookRepoSnapshot;
+  postState?: HookRepoSnapshot;
   base?: string;
   outcome: "started" | "affected-failed" | "pass";
   exitCode?: number;
@@ -143,6 +166,7 @@ export function runHook(name: string | undefined, options: HookOptions = {}): Sp
 }
 
 export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
+  const startedAtMs = hookNow(runtime);
   let stdout = "habitat hook pre-commit\n";
   let stderr = "";
 
@@ -157,7 +181,9 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
       formatterTouchedPaths: [],
       restagedPaths: [],
       outcome: "started",
+      startedAtMs,
     };
+    runtime.trace.preCommit.preState = captureRepoSnapshot(runtime, resources.kind);
   }
   stdout += `resources: ${resources.kind}\n`;
   if (!resources.allowPreCommit) {
@@ -323,7 +349,10 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
 }
 
 export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {}): SpawnResult {
-  if (runtime.trace) runtime.trace.prePush = { outcome: "started" };
+  if (runtime.trace) {
+    runtime.trace.prePush = { outcome: "started", startedAtMs: hookNow(runtime) };
+    runtime.trace.prePush.preState = captureRepoSnapshot(runtime);
+  }
   const base = options.base ?? resolvePrePushBase(runtime);
   if (runtime.trace?.prePush) runtime.trace.prePush.base = base;
   const result = runHookCommand(
@@ -592,6 +621,32 @@ function gitAdd(paths: string[], runtime: HookRuntime = {}): SpawnResult {
   });
 }
 
+function captureRepoSnapshot(
+  runtime: HookRuntime,
+  resourceState?: ResourceStateKind
+): HookRepoSnapshot {
+  const branch = runHookCommand(runtime, "repo-state", ["git", "branch", "--show-current"], {
+    cwd: repoRoot,
+  });
+  const head = runHookCommand(runtime, "repo-state", ["git", "rev-parse", "HEAD"], {
+    cwd: repoRoot,
+  });
+  const staged = runHookCommand(runtime, "repo-state", ["git", "diff", "--cached", "--name-only", "-z"], {
+    cwd: repoRoot,
+  });
+  const unstaged = runHookCommand(runtime, "repo-state", ["git", "diff", "--name-only", "-z"], {
+    cwd: repoRoot,
+  });
+
+  return {
+    branch: branch.exitCode === 0 ? branch.stdout.trim() || null : null,
+    head: head.exitCode === 0 ? head.stdout.trim() || null : null,
+    stagedPaths: parsePathList(staged),
+    unstagedPaths: parsePathList(unstaged),
+    resourceState: resourceState ?? classifyResourcesState(runtime).kind,
+  };
+}
+
 function runHookCommand(
   runtime: HookRuntime,
   phase: HookCommandPhase,
@@ -599,13 +654,18 @@ function runHookCommand(
   options: { cwd?: string; env?: Record<string, string> } = {}
 ): SpawnResult {
   const commandOptions = { cwd: options.cwd ?? repoRoot, env: options.env };
+  const startedAtMs = hookNow(runtime);
   const result = (runtime.runCommand ?? run)(argv, commandOptions);
+  const endedAtMs = hookNow(runtime);
   runtime.trace?.commands.push({
     phase,
     argv: [...argv],
     cwd: commandOptions.cwd,
     env: options.env ? { ...options.env } : undefined,
     exitCode: result.exitCode,
+    startedAtMs,
+    endedAtMs,
+    durationMs: Math.max(0, endedAtMs - startedAtMs),
   });
   return result;
 }
@@ -618,6 +678,12 @@ function finalizePreCommit(
   if (runtime.trace?.preCommit) {
     runtime.trace.preCommit.outcome = outcome;
     runtime.trace.preCommit.exitCode = result.exitCode;
+    runtime.trace.preCommit.postState = captureRepoSnapshot(runtime);
+    runtime.trace.preCommit.endedAtMs = hookNow(runtime);
+    runtime.trace.preCommit.durationMs = Math.max(
+      0,
+      runtime.trace.preCommit.endedAtMs - runtime.trace.preCommit.startedAtMs
+    );
   }
   return result;
 }
@@ -630,8 +696,23 @@ function finalizePrePush(
   if (runtime.trace?.prePush) {
     runtime.trace.prePush.outcome = outcome;
     runtime.trace.prePush.exitCode = result.exitCode;
+    runtime.trace.prePush.postState = captureRepoSnapshot(runtime);
+    runtime.trace.prePush.endedAtMs = hookNow(runtime);
+    runtime.trace.prePush.durationMs = Math.max(
+      0,
+      runtime.trace.prePush.endedAtMs - runtime.trace.prePush.startedAtMs
+    );
   }
   return result;
+}
+
+function hookNow(runtime: HookRuntime): number {
+  return runtime.nowMs?.() ?? Date.now();
+}
+
+function parsePathList(result: SpawnResult): string[] {
+  if (result.exitCode !== 0 || !result.stdout) return [];
+  return result.stdout.split("\0").filter(Boolean).map(toRepoRelative);
 }
 
 function fileHash(repoRelativePath: string): string | null {

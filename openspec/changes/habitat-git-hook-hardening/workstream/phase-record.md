@@ -5,12 +5,12 @@
 - Project: Habitat Harness
 - Phase: git hook hardening / `habitat-git-hook-hardening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-hook-transaction-trace`
+- Branch/Graphite stack: `agent-HR-habitat-hook-prepost-trace`
 - Started: 2026-06-14
 - Status: resource-publish, staged-mutation, pre-push base/range,
-  current-tree staged-probe, and native Grit finding staged-probe checkpoints
-  supervisor-accepted; hook transaction trace checkpoint implemented and
-  locally verified for supervisor review
+  current-tree staged-probe, native Grit finding staged-probe, and hook
+  transaction trace checkpoints supervisor-accepted; hook pre/post-state trace
+  checkpoint implemented and locally verified for supervisor review
 
 ## Objective
 
@@ -124,13 +124,18 @@ Core synthesis:
   phase, argv, cwd, selected env, exit code, staged/Biome/Grit path sets,
   formatter-touched/restaged paths, resource state, pre-push base, and terminal
   outcome through fake command/filesystem/hash services. This closes 4.5 for
-  hook command provenance and keeps full transaction architecture, timing,
-  branch/head, staged/unstaged diff poststate, resource poststate, and full
-  service matrix open.
+  hook command provenance.
+- Hook pre/post-state trace progress for this checkpoint: the optional typed
+  trace now records deterministic start/end/duration timing, command timing,
+  branch, HEAD, staged paths, unstaged paths, and resource state before and
+  after pre-commit/pre-push execution through the fake command/filesystem/hash
+  and clock services. This closes 4.1 for hook pre/post-state modeling and
+  keeps reporter/resource-publisher services and full transaction architecture
+  open.
 - Remaining tasks: full hook transaction model, full fake-service matrix,
   Grit parse-output current-tree staged proof, historical H7 record
   realignment, aggregate verification, and packet closure.
-- Implementation status: hook transaction trace checkpoint
+- Implementation status: hook pre/post-state trace checkpoint
   implemented and locally verified for supervisor review.
 
 ## Verification
@@ -270,6 +275,20 @@ Core synthesis:
     command provenance.
   - `bun run --cwd tools/habitat-harness check` exited 0 after the trace
     implementation.
+- New implementation evidence for the hook pre/post-state trace checkpoint:
+  - The optional hook trace now records pre-state and post-state snapshots for
+    pre-commit and pre-push. Each snapshot includes branch, HEAD, staged paths,
+    unstaged paths, and resources state. Snapshot capture is trace-only; the
+    public `habitat hook` command contract is unchanged.
+  - `HookRuntime` now accepts an optional `nowMs` clock. Command records and
+    pre-commit/pre-push traces include start time, end time, and nonnegative
+    duration, proven through deterministic fake-clock tests.
+  - `bun run --cwd tools/habitat-harness test -- hooks.test.ts` exited 0 with
+    23 tests. The trace tests now assert pre/post snapshots, command timing,
+    overall hook timing, fake command provenance, fake filesystem/path
+    existence, fake file hashing, and Grit parse-failure outcome.
+  - `bun run --cwd tools/habitat-harness check` exited 0 after the pre/post
+    trace implementation.
 - Evidence boundary: the accepted resource checkpoint proves the default
   pre-commit resource publish removal, typed resource-state classification,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
@@ -290,10 +309,11 @@ Core synthesis:
   parse-output current-tree staged behavior, full hook transaction safety, CI
   authority, or product/runtime behavior. This transaction trace checkpoint
   proves typed hook state/provenance capture through fake services for the
-  covered phases; it does not prove the full transaction architecture, timing
-  model, branch/head or staged/unstaged diff poststate, resource poststate,
-  clock/reporter/resource-publisher services, CI authority, or product/runtime
-  behavior.
+  covered phases. This pre/post-state trace checkpoint proves branch/head,
+  staged/unstaged path, resource-state, and timing capture through fake
+  services for the covered phases; it does not prove the full transaction
+  architecture, reporter/resource-publisher services, CI authority, or
+  product/runtime behavior.
 
 ## Realignment
 
@@ -302,7 +322,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the hook transaction trace checkpoint for supervisor review. Do not
+- Hold the hook pre/post-state trace checkpoint for supervisor review. Do not
   claim full hook transaction architecture, Grit parse-output staged probe
   closure, CI authority, broad Nx affected coverage, or packet closure from
   this slice.

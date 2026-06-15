@@ -43,10 +43,7 @@
 
 ## 4. Hook Transaction Model
 
-- [ ] 4.1 Model hook pre-state and post-state. A typed hook trace now records
-  resource state, staged/Biome/Grit path sets, formatter-touched/restaged path
-  sets, pre-push base, command phases, and terminal outcome; full branch/head,
-  staged/unstaged diff, resource poststate, and timing poststate remain open.
+- [x] 4.1 Model hook pre-state and post-state.
 - [ ] 4.2 Preserve partial-staging refusal before formatting.
 - [ ] 4.3 Preserve formatter-touched restage only.
 - [ ] 4.4 Make Grit parse failure a failing proof class.
@@ -72,8 +69,8 @@
 - [ ] 6.1 Add hook unit tests with fake Git, command runner, filesystem, clock,
   reporter, and resource publisher services where the accepted architecture
   supports service substitution. Current tests cover fake command,
-  filesystem/path-existence, file hashing, and typed trace provenance; clock,
-  reporter, and resource publisher services remain open.
+  filesystem/path-existence, file hashing, fake clock/timing, and typed trace
+  provenance; reporter and resource publisher services remain open.
 - [x] 6.2 Add clean resources pre-commit test.
 - [x] 6.3 Add dirty resources explicit publish refusal test.
 - [x] 6.4 Add uninitialized resources, resources lock, unstaged gitlink, staged
@@ -103,8 +100,9 @@
 - [x] 8.2 `bun run openspec:validate`
 - [x] 8.3 `git diff --check`
 - [ ] 8.4 Hook unit/service test matrix. Focused trace tests cover fake command,
-  filesystem/path-existence, file hashing, command provenance, and terminal
-  outcomes; full service matrix remains open.
+  filesystem/path-existence, file hashing, fake clock/timing, command
+  provenance, pre/post-state snapshots, and terminal outcomes; full service
+  matrix remains open.
 - [ ] 8.5 Pre-commit staged probe matrix. Current-tree probes for
   generated-zone, pnpm artifact, partial-staging refusal, formatter-touched
   restage, and native Grit finding refusal are recorded; Grit parse-output

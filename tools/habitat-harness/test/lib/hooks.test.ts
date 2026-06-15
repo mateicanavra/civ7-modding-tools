@@ -248,6 +248,20 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(trace.preCommit).toMatchObject({
+      preState: {
+        branch: "agent-HR-test",
+        head: "abc123head",
+        stagedPaths: ["packages/example/src/index.ts", "README.md"],
+        unstagedPaths: [],
+        resourceState: "clean",
+      },
+      postState: {
+        branch: "agent-HR-test",
+        head: "abc123head",
+        stagedPaths: ["packages/example/src/index.ts", "README.md"],
+        unstagedPaths: [],
+        resourceState: "clean",
+      },
       resourceState: "clean",
       stagedPaths: ["packages/example/src/index.ts", "README.md"],
       biomePaths: ["packages/example/src/index.ts"],
@@ -258,13 +272,10 @@ describe("Habitat pre-commit staged mutation policy", () => {
       outcome: "pass",
       exitCode: 0,
     });
-    expect(trace.commands.map((command) => command.phase)).toEqual([
-      "resource-state",
-      "resource-state",
-      "resource-state",
-      "resource-state",
-      "resource-state",
-      "resource-state",
+    expect(trace.preCommit?.durationMs).toBeGreaterThan(0);
+    expect(trace.commands.every((command) => command.durationMs >= 0)).toBe(true);
+    expect(trace.commands.map((command) => command.phase)).toContain("repo-state");
+    expect(trace.commands.map((command) => command.phase)).toEqual(expect.arrayContaining([
       "resource-state",
       "staged-paths",
       "file-layer",
@@ -273,7 +284,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
       "formatter-restage",
       "biome-check",
       "grit-check",
-    ]);
+    ]));
     expect(trace.commands.find((command) => command.phase === "grit-check")).toMatchObject({
       argv: ["grit", "--json", "check", "--level", "error", "packages/example/src/index.ts"],
       cwd: repoRoot,
@@ -299,6 +310,11 @@ describe("Habitat pre-commit staged mutation policy", () => {
       gritPaths: ["packages/example/src/index.ts"],
       outcome: "grit-parse-failed",
       exitCode: 1,
+      postState: {
+        branch: "agent-HR-test",
+        head: "abc123head",
+        resourceState: "clean",
+      },
     });
   });
 });
@@ -389,22 +405,30 @@ describe("Habitat pre-push base policy", () => {
     const result = runPrePush({}, { ...fake.runtime, trace });
 
     expect(result.exitCode).toBe(0);
-    expect(trace.prePush).toEqual({
+    expect(trace.prePush).toMatchObject({
       base: "agent-HR-parent",
       outcome: "pass",
       exitCode: 0,
-    });
-    expect(trace.commands).toEqual([
-      {
-        phase: "pre-push-base",
-        argv: ["gt", "branch", "info", "--no-interactive"],
-        cwd: repoRoot,
-        env: undefined,
-        exitCode: 0,
+      preState: {
+        branch: "agent-HR-test",
+        head: "abc123head",
+        resourceState: "clean",
       },
-      {
-        phase: "pre-push-affected",
-        argv: [
+      postState: {
+        branch: "agent-HR-test",
+        head: "abc123head",
+        resourceState: "clean",
+      },
+    });
+    expect(trace.prePush?.durationMs).toBeGreaterThan(0);
+    expect(trace.commands.find((command) => command.phase === "pre-push-base")).toMatchObject({
+      argv: ["gt", "branch", "info", "--no-interactive"],
+      cwd: repoRoot,
+      env: undefined,
+      exitCode: 0,
+    });
+    expect(trace.commands.find((command) => command.phase === "pre-push-affected")).toMatchObject({
+      argv: [
           "nx",
           "affected",
           "-t",
@@ -414,12 +438,11 @@ describe("Habitat pre-push base policy", () => {
           "--head",
           "HEAD",
           "--outputStyle=static",
-        ],
-        cwd: repoRoot,
-        env: undefined,
-        exitCode: 0,
-      },
-    ]);
+      ],
+      cwd: repoRoot,
+      env: undefined,
+      exitCode: 0,
+    });
   });
 });
 
@@ -448,6 +471,9 @@ interface FakeRuntimeOptions {
   nxAffectedExitCode?: number;
   nxAffectedStdout?: string;
   nxAffectedStderr?: string;
+  branch?: string;
+  head?: string;
+  allUnstagedPaths?: string[];
 }
 
 function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
@@ -456,9 +482,22 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
 } {
   const calls: string[] = [];
   const hashReads = new Map<string, number>();
+  let nowMs = 1_000;
   const runCommand: RunCommand = (argv, _opts) => {
     const call = argv.join(" ");
     calls.push(call);
+    if (call === "git branch --show-current") {
+      return ok(`${options.branch ?? "agent-HR-test"}\n`);
+    }
+    if (call === "git rev-parse HEAD") {
+      return ok(`${options.head ?? "abc123head"}\n`);
+    }
+    if (call === "git diff --cached --name-only -z") {
+      return ok(renderPathList(options.stagedPaths ?? []));
+    }
+    if (call === "git diff --name-only -z") {
+      return ok(renderPathList(options.allUnstagedPaths ?? []));
+    }
     if (call === "git config -f .gitmodules --get submodule..civ7/outputs/resources.path") {
       return ok(".civ7/outputs/resources\n");
     }
@@ -556,6 +595,7 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
         hashReads.set(repoRelativePath, readCount + 1);
         return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
       },
+      nowMs: () => nowMs++,
     },
   };
 }
