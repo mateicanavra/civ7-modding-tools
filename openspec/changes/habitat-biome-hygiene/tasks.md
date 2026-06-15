@@ -17,7 +17,7 @@
   --write .`; add commit SHA to new `.git-blame-ignore-revs`.
 - [x] 2.3 Remove `.prettierrc` and prettier references (deps, docs, editor
   config); `bun install`.
-- [ ] 2.4 Verify build/test green and build-output parity with 2.1 hashes per
+- [x] 2.4 Verify build/test green and build-output parity with 2.1 hashes per
   the proposal stop condition (formatting-independent `mod/**` artifacts
   byte-identical; bundled JS minify-normalized if it differs, recorded as a
   trade-off).
@@ -33,9 +33,9 @@
 
 ## 4. Verification And Closure
 
-- [ ] 4.1 All proposal verification gates pass (biome ci, parity, blame probe,
+- [x] 4.1 All proposal verification gates pass (biome ci, parity, blame probe,
   habitat integration, no prettier residue).
 - [x] 4.2 Harness README documents editor setup and the never-`lint`-named
   target convention.
-- [ ] 4.3 `bun run openspec -- validate habitat-biome-hygiene --strict`;
+- [x] 4.3 `bun run openspec -- validate habitat-biome-hygiene --strict`;
   realign docs; close per workstream record.

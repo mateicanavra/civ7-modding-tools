@@ -5,8 +5,8 @@
 - **Method:** `civ7-systematic-workstream` (12 gates) composed with `civ7-open-spec-workstream` (per-slice phase loop)
 - **Controlling frame:** `docs/projects/habitat-harness/FRAME.md` (hard core, falsifier, settled decisions D1–D6)
 - **Stack root:** `agent-F-habitat-harness-workstream` (worktree `wt-agent-F-habitat-harness-workstream`, parent `main`, Graphite-tracked)
-- **Current execution branch:** `agent-F-mod-swooper-catalog-order-proof` stacked above the promoted H4 proof repairs
-- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 Biome setup/lint/integration is complete and DL-15/DL-16 promoted repairs are verified; the first `mapgen-studio:test` timeout class, the CLI root-load timeout class, the second `mapgen-studio:test` root-load class, and the `mod-swooper-maps:test` catalog facade order proof are locally repaired. A fresh full root-test rerun now fails in a separate `mod-swooper-maps:test` generated recipe artifact race: the test can import `dist/recipes/standard-artifacts.js` while another root task is cleaning/rebuilding `build:studio-recipes`. H4 2.4 and closure remain open until that blocker is repaired and full root-test proof is green. H4.5 oclif CLI slice is implemented and verified before downstream CLI surface hardening.
+- **Current execution branch:** `agent-F-swooper-recipe-artifact-race` stacked above the promoted H4 proof repairs
+- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 Biome setup/lint/integration is locally closed pending this branch commit; DL-15/DL-16 promoted repairs are verified; the first `mapgen-studio:test` timeout class, the CLI root-load timeout class, the second `mapgen-studio:test` root-load class, the `mod-swooper-maps:test` catalog facade order proof, and the generated recipe artifact race are locally repaired. Full root `test` and strict H4 validation pass after the promoted H4 proof repairs. H4.5 oclif CLI slice is implemented and verified before downstream CLI surface hardening.
 
 ## Gate state (systematic-workstream)
 
@@ -20,7 +20,7 @@
 | 6 Expectations | DONE | per-slice verification gates; ratchet baselines predeclared (project plane green; adapter-boundary baseline = 6) |
 | 7 Architecture translation | DONE | taxonomy.md (tags/constraints); five-layer ownership in FRAME hard core #2 |
 | 8 Slices | IN TRAIN | OpenSpec train below; H1/H2/H3 closed locally; H4 active with Biome integration complete; H4.5 oclif CLI migration implemented locally; promoted proof repairs are stacked above H4 |
-| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes; post-repair root build has no generated drift; first `mapgen-studio`, CLI, second `mapgen-studio`, and `mod-swooper` catalog-order classes have local repair proof; fresh full root now fails in `mod-swooper-maps:test` recipe artifact race |
+| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes; post-repair root build has no generated drift; first `mapgen-studio`, CLI, second `mapgen-studio`, `mod-swooper` catalog-order, and recipe-artifact race classes have local repair proof; full root `test` passes |
 | 10 Runtime proof | N/A by design | harness touches structure only; byte-parity gates stand in (H1/H4) |
 | 11 Review | IN TRAIN | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice |
 | 12 Closure | IN TRAIN | H1/H2/H3 have local phase closure records; H4 open on root-test proof; H4.5 and promoted proof repairs are implemented/verified locally above H4 |
@@ -57,18 +57,14 @@ proof repairs for DL-16 (`intelligence-bridge-ui-bundle`), SDK async teardown
 DL-15 plugin Vitest project scoping are stacked above H4. H4 task 2.4 remains
 open because the full root test is not yet green after the
 `mapgen-studio-test-timeouts`, `cli-root-load-test-timeouts`, and
-`mapgen-studio-root-load-followup` repairs. Root build/parity is green, the
-CLI root-load timeout class is repaired, and direct plus representative
-Nx-load `mapgen-studio:test` proof is green for both known mapgen classes. A
-fresh full root-test rerun passed `mapgen-studio:test` but failed in
-`mod-swooper-maps:test`: first on a morphology catalog ownership proof whose
-allowed exports were in Biome-organized order, then after that local repair on
-an unhandled ENOENT reading
-`mods/mod-swooper-maps/dist/recipes/standard-artifacts.js`. The latter appears
-to be an Nx target dependency/output race between package tests that import
-generated recipe exports and root tasks that clean/rebuild `build:studio-recipes`.
-No H4 green claim is made until that separate proof is repaired and full root
-test passes.
+`mapgen-studio-root-load-followup`, `mod-swooper-catalog-order-proof`, and
+`swooper-recipe-artifact-race` repairs. Root build/parity is green, the CLI
+root-load timeout class is repaired, direct plus representative Nx-load
+`mapgen-studio:test` proof is green for both known mapgen classes, the
+Swooper catalog-order proof is formatter-stable, and `mod-swooper-maps:test`
+now serializes after `build:studio-recipes` before importing generated recipe
+exports. The final full root-test proof passes for 18 projects and 15
+dependency tasks.
 
 ## Proof classes per slice (predeclared)
 
@@ -103,6 +99,13 @@ train redefines the other's authority.
 - Trade-offs taken → FRAME §3 table, visibly revisitable (D6).
 - New baseline entries only via the rule-introduction gate; baselines otherwise shrink-only.
 - habitat-native rule budget watched against the FRAME degeneration trigger (≥3 tool-assigned rules falling back to native ⇒ stop and re-evaluate).
+- Cross-agent capability sharing protocol: whenever a branch unlocks a
+  meaningful capability/toolkit improvement that could help another
+  currently-running agent stack, message that agent with the capability and
+  offer an early merge/drain so they can restack on it. If they accept, do the
+  early merge/drain; if they decline, continue with the normal stack schedule.
+  Record the offer/result in the relevant phase record when it affects
+  sequencing.
 - Structural/boundary/lint-style checks found in normal test suites are
   temporary compatibility gates only. H5/H6 must migrate them into the Habitat
   harness owner that fits (Nx/Biome/Grit/file-layer/native), prove parity, and
@@ -118,6 +121,5 @@ train redefines the other's authority.
    `workstream/phase-record.md`).
 3. ~~H4.5 oclif CLI migration and promoted DL-16 / SDK teardown /
    adapter-boundary repairs~~ DONE locally on the stack.
-4. Validate and commit `mod-swooper-catalog-order-proof`, then promote the
-   `mod-swooper-maps:test` generated recipe artifact race into the next
-   root-test repair slice before claiming H4 task 2.4 or moving into H5.
+4. Validate and commit `swooper-recipe-artifact-race`, then close H4 and move
+   into H5.

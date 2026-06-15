@@ -61,6 +61,12 @@
           "^build",
           "build"
         ]
+      },
+      "test": {
+        "dependsOn": [
+          "^build",
+          "build:studio-recipes"
+        ]
       }
     }
   },
