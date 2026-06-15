@@ -32,6 +32,10 @@
 - Current code evidence: `habitat classify` now supports paths and literal
   diffs/`.diff`/`.patch` files; Habitat package exposes native Nx
   `project` and `pattern` generators plus migration metadata.
+- Current recovery interpretation: the no-op migration is wiring proof only.
+  It demonstrates that Habitat migrations can be declared and executed through
+  a hand-authored Nx run file; it is not evidence that any convention migration
+  updates downstream project files.
 - Generated outputs affected: none expected in final diff; generator probes must be removed after verification.
 - Tests/guards affected: Habitat harness package tests/checks, OpenSpec validation, generated-project probe build/check/test, pattern generator native Grit fixture proof, migration execution proof, classify spot-check matrix.
 
@@ -56,7 +60,9 @@
   `habitat-pattern-generator-metadata-repair`. The current pattern generator
   repair makes sparse generation candidate-only and fail-closes registered
   lifecycles until the manifest/proof gates are accepted; H8 alone is not
-  accepted authority for new enforced rules.
+  accepted authority for new enforced rules. The no-op migration remains
+  wiring proof only; any future convention migration requires a named source
+  shape, target shape, planned file operations, and idempotence proof.
 - Remaining tasks: Graphite commit/clean proof only.
 - Stop conditions triggered: none.
 - Timing interpretation carried from H7: broad self-edits to root/Habitat inputs are an operational boundary, not the normal hook path. H8 should keep normal checks scoped and explicit rather than optimizing around the broad self-edit case.
@@ -97,7 +103,8 @@
   - Temporary migration run file with package `./tools/habitat-harness` +
     `nx migrate --run-migrations=migrations.h8-probe.json
     --skip-install` -> pass; no-op migration made no changes. Probe file
-    removed.
+    removed. This proves migration wiring only, not convention migration
+    behavior.
   - `bun run habitat classify packages/civ7-adapter/src/index.ts` -> project
     `@civ7/adapter`, tag `kind:adapter`, `adapter-boundary` in scope, required
     targets include `nx run @civ7/adapter:check`.

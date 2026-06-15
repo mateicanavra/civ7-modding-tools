@@ -37,8 +37,9 @@ truth.
   HR implementation worktree and removes those roots after proof.
 - Pattern generator remains separately governed by
   `habitat-pattern-generator-metadata-repair`.
-- Current migration metadata declares a no-op migration, which proves wiring
-  only.
+- Current migration metadata declares a no-op migration. It proves wiring only:
+  the implementation returns no file operations and `nx migrate` can execute it
+  from a hand-authored run file with no workspace changes.
 
 ## Fresh Command Evidence
 
@@ -102,6 +103,13 @@ truth.
   `hr-proof-app` with matching `kind:*` tags, and `nx show target` resolves
   `build`, `check`, and `test` for each generated project before targeted
   cleanup removes the scratch roots.
+- `bun run --cwd tools/habitat-harness test -- migration-boundary.test.ts project-generator.test.ts`
+  proves the registered baseline migration is described as no-op wiring, not a
+  convention change, and that the implementation returns `[]`.
+- `bun run nx migrate --run-migrations=migrations.hr-proof-noop.json --skip-install`
+  executes the hand-authored run file for
+  `0.1.0-baseline-metadata-noop`, reports "No changes were made", and leaves
+  no source changes after targeted run-file cleanup.
 
 ## Official Documentation Evidence
 
@@ -138,7 +146,7 @@ truth.
 6. Unsupported-kind refusal is current behavior to preserve.
 7. Mismatched kind/root acceptance is repaired for the supported uniform
    project generator contract.
-8. Migration proof must distinguish no-op wiring from convention migration.
+8. Migration proof distinguishes no-op wiring from convention migration.
 9. Classify implementation closure must consume command-surface repair evidence
    before claiming canonical command proof.
 10. Effect is not a syntax preference. It becomes a substrate decision when
@@ -165,6 +173,7 @@ truth.
   from the wrong checkout. The official-doc constraints remain useful, but
   current local proof comes from this worktree's `nx ...` probes.
 - Generator scratch project discovery and generated target-matrix proof are now
-  closed for the three supported uniform kinds. This does not prove migration
-  capability, registered pattern promotion, non-uniform domain generators, or
-  product/runtime behavior.
+  closed for the three supported uniform kinds. No-op migration wiring proof is
+  also closed. These do not prove convention migration capability, registered
+  pattern promotion, non-uniform domain generators, or product/runtime
+  behavior.

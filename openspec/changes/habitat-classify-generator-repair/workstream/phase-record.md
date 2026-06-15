@@ -11,8 +11,9 @@
 - Started: 2026-06-14
 - Status: classify target-truth, path-aware rule-scope, and generator
   support/refusal checkpoints accepted; generator scratch Nx discovery and
-  generated target-matrix proof implemented and locally verified; migration
-  proof boundaries, downstream realignment, and packet closure remain open.
+  generated target-matrix proof accepted; migration proof-boundary checkpoint
+  implemented and locally verified; downstream realignment and packet closure
+  remain open.
 
 ## Objective
 
@@ -72,6 +73,11 @@
   discoverable by Nx from the normal HR implementation worktree and expose the
   accepted `build`, `check`, and `test` targets. The scratch project roots were
   removed with targeted cleanup after proof and are not committed fixtures.
+- Current migration metadata declares a no-op baseline migration. It proves
+  migration wiring only: the registered implementation returns no file changes,
+  and `nx migrate --run-migrations=<run-file>.json --skip-install` executes
+  the no-op with no workspace changes. Convention migrations still require a
+  named source shape, target shape, file operation plan, and idempotence proof.
 - Local Nx is available in this worktree as v22.7.5, and `nx show` probes
   resolve projects/targets. Official Nx docs support resolved project/target
   metadata and inferred targets as the target-truth source; Habitat uses
@@ -95,6 +101,8 @@ Core synthesis:
 - generator support now has a kind/root/package/tag refusal contract for
   uniform kinds, and normal-worktree scratch proof shows generated supported
   projects are discovered by Nx with the accepted target matrix;
+- current migration proof is explicitly wiring-only, with convention migration
+  capability remaining a separate future proof class;
 - pattern-generator metadata remains a separate workstream;
 - Effect is a substrate decision if implementation turns target proof into
   command orchestration, provenance capture, service substitution, scoped
@@ -141,16 +149,17 @@ Core synthesis:
 ## Implementation
 
 - Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 4.1-4.5, 5.1-5.7,
-  7.2-7.5, 7.7-7.8, 9.1-9.3, 9.6-9.8, 9.11, and 9.13.
-- Remaining tasks: generator scratch discovery test coverage, migration
-  proof-boundary repair, full classify matrix, full Nx target matrix,
-  downstream realignment, final verification, and supervisor acceptance.
+  6.1-6.3, 7.2-7.5, 7.7-7.8, 7.10, 9.1-9.3, 9.6-9.9, 9.11, and 9.13.
+- Remaining tasks: generator scratch discovery test coverage, full classify
+  matrix, full Nx target matrix, downstream realignment, final verification,
+  and supervisor acceptance.
 - Implementation status: target-truth slice committed as a bounded checkpoint;
   path-aware rule-scope slice committed and supervisor-accepted; generator
   support/refusal slice committed and supervisor-accepted; generator scratch
   discovery/target-matrix command proof recorded as the current local
-  checkpoint. Committed test coverage for scratch discovery remains open. Full
-  packet closure remains open.
+  checkpoint and supervisor-accepted; migration proof-boundary slice
+  implemented locally. Committed test coverage for scratch discovery remains
+  open. Full packet closure remains open.
 
 ## Verification
 
@@ -214,6 +223,13 @@ Core synthesis:
   - targeted cleanup of `packages/plugins/plugin-hr-proof-plugin`,
     `packages/hr-proof-foundation`, and `apps/hr-proof-app`, followed by clean
     `git status --short --branch`
+  - `bun run --cwd tools/habitat-harness test -- migration-boundary.test.ts project-generator.test.ts`
+  - temporary migration run file `migrations.hr-proof-noop.json` with package
+    `./tools/habitat-harness`
+  - `bun run nx migrate --run-migrations=migrations.hr-proof-noop.json --skip-install`
+    -> pass; reported no changes
+  - targeted deletion of `migrations.hr-proof-noop.json`, followed by clean
+    source status except the committed test/record edits
 - Evidence boundary: current implementation proves resolved Nx target truth for
   the adapter missing-target case, structured target proof output, unavailable
   target reporting, workspace-only target handling, literal diff target
@@ -229,8 +245,9 @@ Core synthesis:
   projects generated from the normal HR implementation worktree are discovered
   by Nx and expose `build`, `check`, and `test` targets for `plugin`,
   `foundation`, and `app`. It does not add committed scratch discovery tests,
-  and it does not prove migration capability, current-tree Grit row proof,
-  baseline behavior, hook behavior, or product/runtime behavior.
+  and it proves only no-op migration wiring, not convention migration
+  capability. It does not prove current-tree Grit row proof, baseline behavior,
+  hook behavior, or product/runtime behavior.
 
 ## Realignment
 
@@ -239,6 +256,6 @@ Core synthesis:
 
 ## Next Action
 
-- Graphite-commit the bounded generator scratch discovery/target-matrix proof
-  as a record checkpoint, then hold for supervisor review before proceeding to
-  migration proof-boundary work.
+- Graphite-commit the bounded migration proof-boundary checkpoint, then hold
+  for supervisor review before proceeding to classify matrix, stale guidance,
+  downstream realignment, or packet closure work.

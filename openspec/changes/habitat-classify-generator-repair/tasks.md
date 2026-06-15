@@ -72,9 +72,9 @@
 
 ## 6. Migration Claims
 
-- [ ] 6.1 Reclassify the current no-op migration as wiring proof only.
-- [ ] 6.2 Add convention-migration proof requirements to docs/tests or records.
-- [ ] 6.3 Add a test or record that prevents no-op migration proof from being
+- [x] 6.1 Reclassify the current no-op migration as wiring proof only.
+- [x] 6.2 Add convention-migration proof requirements to docs/tests or records.
+- [x] 6.3 Add a test or record that prevents no-op migration proof from being
   used as convention-change proof.
 
 ## 7. Tests
@@ -90,7 +90,7 @@
 - [x] 7.7 Add generator refusal tests for unsupported kinds.
 - [x] 7.8 Add generator refusal tests for mismatched kind/root pairs.
 - [ ] 7.9 Add generator scratch discovery tests for supported kinds.
-- [ ] 7.10 Add migration proof-boundary tests or fixture records.
+- [x] 7.10 Add migration proof-boundary tests or fixture records.
 - [ ] 7.11 Add README/AGENTS stale guidance scan.
 
 ## 8. Downstream Realignment
@@ -119,7 +119,7 @@
 - [x] 9.6 generator dry-run proof
 - [x] 9.7 generator scratch discovery proof
 - [x] 9.8 generator refusal proof
-- [ ] 9.9 migration proof-boundary proof
+- [x] 9.9 migration proof-boundary proof
 - [ ] 9.10 README/AGENTS stale guidance scan
 - [x] 9.11 full-depth-language guardrail scan over this packet
 - [ ] 9.12 Effect fit decision proof if the implementation crosses its
