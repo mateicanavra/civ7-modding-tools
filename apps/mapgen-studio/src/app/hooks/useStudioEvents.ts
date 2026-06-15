@@ -18,8 +18,14 @@ export function studioEventsWatchClientContext() {
   };
 }
 
+type StudioEventsWatchProcedure = Pick<typeof orpc.studio.events.watch, "experimental_liveOptions">;
+
 export function studioEventsWatchLiveOptions() {
-  return orpc.studio.events.watch.experimental_liveOptions({
+  return studioEventsWatchLiveOptionsFor(orpc.studio.events.watch);
+}
+
+export function studioEventsWatchLiveOptionsFor(watch: StudioEventsWatchProcedure) {
+  return watch.experimental_liveOptions({
     input: {},
     context: studioEventsWatchClientContext(),
     retry: false,

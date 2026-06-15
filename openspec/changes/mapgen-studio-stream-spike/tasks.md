@@ -31,12 +31,19 @@
 
 These are D7 implementation obligations recorded by this packet, not pre-acceptance authoring tasks.
 
-- [ ] 3A.1 Implement or preserve `studio.events.watch` with `.effect()` and `eventIterator(...)`.
-- [ ] 3A.2 Prove TypeBox event schema origin and Standard Schema adapter use.
-- [ ] 3A.3 Prove iterator close, abort/disconnect, interruption, and repeated subscribe/close cleanup as separate cases.
-- [ ] 3A.4 Prove one `/rpc` stream passthrough through Vite with at least two ordered chunks before upstream close.
-- [ ] 3A.5 Prove `experimental_liveOptions` plus nonzero retry on the actual watch path.
-- [ ] 3A.6 Promote or delete every D7 spike fixture when D8/D9 production tests cover the same guarantee.
+- [x] 3A.1 Implement or preserve `studio.events.watch` with `.effect()` and `eventIterator(...)`.
+- [x] 3A.2 Prove TypeBox event schema origin and Standard Schema adapter use.
+- [x] 3A.3 Prove iterator close, abort/disconnect, interruption, and repeated subscribe/close cleanup as separate cases.
+- [x] 3A.4 Prove one `/rpc` stream passthrough through Vite with at least two ordered chunks before upstream close.
+- [x] 3A.5 Prove `experimental_liveOptions` plus nonzero retry on the actual watch path.
+- [x] 3A.6 Promote or delete every D7 spike fixture when D8/D9 production tests cover the same guarantee.
+
+Implementation evidence:
+
+- `packages/studio-server/src/router/index.ts` still implements `studio.events.watch` through `oe.studio.events.watch.effect(...)`, and `packages/studio-server/src/contract/studio.ts` still owns the TypeBox event union through the Standard Schema `eventIterator(...)` adapter.
+- `bun run --cwd packages/studio-server test -- test/handler.test.ts test/contractTypeboxSpine.test.ts` passed with package proofs for iterator `return()`, response-body cancel/disconnect cleanup, hub shutdown/interruption cleanup, repeated subscribe/close, event delivery, and TypeBox/Standard Schema contract origin.
+- `bun run --cwd apps/mapgen-studio test -- test/devServer/viteProxyStream.test.ts test/studioEvents/operationAdoption.test.ts` passed with Vite `/rpc` two-ordered-chunk passthrough and actual watch-path `experimental_liveOptions` query-function nonzero retry proof.
+- D7 introduces no new spike-only fixture. Historical S3/D8 references remain classified downstream in the D8/D9 packet records, not as D7 production paths.
 
 ## 4. Verification
 
@@ -51,3 +58,10 @@ These are D7 implementation obligations recorded by this packet, not pre-accepta
 - [x] 5.1 Record review acceptance in `review-disposition-ledger.md`.
 - [x] 5.2 Mark D7 accepted in `OPENSPEC-PACKET-TRAIN.md`.
 - [x] 5.3 Commit accepted D7 packet through Graphite with clean/quarantined worktree state.
+- [x] 5.4 Record fresh implementation-diff review disposition with no unresolved P1/P2.
+- [x] 5.5 Commit D7 implementation changes through Graphite with clean/quarantined worktree state.
+
+Post-commit disposition:
+
+- D7 implementation is committed at the current `codex/runtime-effect-stream-spike` branch tip (`fix(studio): harden event stream cleanup`).
+- Post-amend `git status --short --branch` is clean.

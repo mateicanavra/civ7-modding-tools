@@ -1,6 +1,6 @@
 # D7 Packet Closure Checklist
 
-Status: accepted
+Status: packet accepted; implementation committed at current branch tip
 Date: 2026-06-14
 
 ## Packet Shape
@@ -35,12 +35,22 @@ Date: 2026-06-14
 
 ## Future Implementation Closure Gates
 
-- [ ] `studio.events.watch` uses `.effect()` and `eventIterator(...)`.
-- [ ] event schema origin is TypeBox/Standard Schema.
-- [ ] iterator close cleanup is tested.
-- [ ] abort/disconnect cleanup is tested as its own case.
-- [ ] interruption cleanup is tested as its own case.
-- [ ] repeated subscribe/close leak proof is tested.
-- [ ] Vite `/rpc` stream passthrough is tested with at least two ordered chunks before upstream close.
-- [ ] `experimental_liveOptions` and nonzero retry are tested on the actual watch path.
-- [ ] spike fixture promotion/deletion is recorded.
+- [x] `studio.events.watch` uses `.effect()` and `eventIterator(...)`.
+- [x] event schema origin is TypeBox/Standard Schema.
+- [x] iterator close cleanup is tested.
+- [x] abort/disconnect cleanup is tested as its own case.
+- [x] interruption cleanup is tested as its own case.
+- [x] repeated subscribe/close leak proof is tested.
+- [x] Vite `/rpc` stream passthrough is tested with at least two ordered chunks before upstream close.
+- [x] `experimental_liveOptions` and nonzero retry are tested on the actual watch path.
+- [x] spike fixture promotion/deletion is recorded.
+
+## Implementation Closure Gates
+
+- [x] Package handler/contract tests passed.
+- [x] App Vite stream/adoption tests passed.
+- [x] Package and app TypeScript checks passed.
+- [x] Negative transport/retry/spike scans run and classified.
+- [x] Fresh implementation-diff review disposition recorded with no unresolved P1/P2.
+- [x] Graphite implementation commit exists at the current `codex/runtime-effect-stream-spike` branch tip (`fix(studio): harden event stream cleanup`).
+- [x] Post-amend `git status --short --branch` is clean.
