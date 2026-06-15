@@ -109,7 +109,6 @@ function mapgenDomainAlias(): Plugin {
 
 export default defineConfig({
   entry: {
-    "recipes/browser-test": "src/recipes/browser-test/recipe.ts",
     "recipes/standard": "src/recipes/standard/recipe.ts",
   },
   outDir: "dist",

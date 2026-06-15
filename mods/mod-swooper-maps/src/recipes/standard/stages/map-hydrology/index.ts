@@ -1,4 +1,5 @@
 import { createStage } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   MapHydrologyKnobsSchema,
   MapHydrologyPublicSchema,
@@ -12,5 +13,5 @@ export default createStage({
   compile: () => ({
     lakes: { projectionReadback: true },
   }),
-  steps: [lakes],
+  steps: orderStandardStageSteps("map-hydrology", { lakes }),
 } as const);

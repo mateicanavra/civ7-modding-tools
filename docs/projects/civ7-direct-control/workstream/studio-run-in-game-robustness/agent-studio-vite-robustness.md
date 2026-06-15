@@ -109,7 +109,7 @@ Evidence:
   `standard-artifacts` and `standard-map-configs` point to `dist/recipes`.
 - `apps/mapgen-studio/src/recipes/catalog.ts:75-86`: Studio imports
   `mod-swooper-maps/recipes/standard-artifacts`,
-  `mod-swooper-maps/recipes/standard-map-configs`, and browser-test artifacts.
+  and `mod-swooper-maps/recipes/standard-map-configs`.
 - `apps/mapgen-studio/vite.config.ts:698-700`: Vite server config has only a
   port, so default file watching/HMR behavior applies.
 - Vite docs: `server.watch` watches the root and updates via HMR when watched

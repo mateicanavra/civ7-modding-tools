@@ -1,49 +1,16 @@
 import type { RecipeDagResult, RecipeDagService } from "@civ7/studio-server";
-import { buildRecipeDag, type StageContractAny } from "@swooper/mapgen-core/authoring";
+import { buildRecipeDag } from "@swooper/mapgen-core/authoring/recipe-dag";
+import {
+  type StudioRecipeDagSource,
+  swooperStudioRecipeDagSources,
+} from "mod-swooper-maps/recipes/studio-contracts";
 
-type RecipeDagSource = Readonly<{
-  id: string;
-  namespace: string;
-  recipeId: string;
-  title: string;
-  stages: readonly StageContractAny[];
-}>;
+type RecipeDagSource = StudioRecipeDagSource;
 
 type RecipeDagSourcesProvider = () => Promise<readonly RecipeDagSource[]>;
 
-const swooperRecipeSourceRoot = "../../../../../mods/mod-swooper-maps/src/recipes";
-let defaultRecipeDagSourcesPromise: Promise<readonly RecipeDagSource[]> | undefined;
-
-async function loadDefaultRecipeDagSources(): Promise<readonly RecipeDagSource[]> {
-  const [standardRecipe, browserTestRecipe] = await Promise.all([
-    import(`${swooperRecipeSourceRoot}/standard/recipe.js`) as Promise<{
-      STANDARD_STAGES: readonly StageContractAny[];
-    }>,
-    import(`${swooperRecipeSourceRoot}/browser-test/recipe.js`) as Promise<{
-      BROWSER_TEST_STAGES: readonly StageContractAny[];
-    }>,
-  ]);
-  return [
-    {
-      id: "mod-swooper-maps/standard",
-      namespace: "mod-swooper-maps",
-      recipeId: "standard",
-      title: "Swooper Maps / Standard",
-      stages: standardRecipe.STANDARD_STAGES,
-    },
-    {
-      id: "mod-swooper-maps/browser-test",
-      namespace: "mod-swooper-maps",
-      recipeId: "browser-test",
-      title: "Swooper Maps / Browser Test",
-      stages: browserTestRecipe.BROWSER_TEST_STAGES,
-    },
-  ] as const;
-}
-
-function getDefaultRecipeDagSources(): Promise<readonly RecipeDagSource[]> {
-  defaultRecipeDagSourcesPromise ??= loadDefaultRecipeDagSources();
-  return defaultRecipeDagSourcesPromise;
+async function getDefaultRecipeDagSources(): Promise<readonly RecipeDagSource[]> {
+  return swooperStudioRecipeDagSources;
 }
 
 export class RecipeDagNotFound extends Error {

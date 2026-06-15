@@ -1,5 +1,5 @@
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
-import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../tags.js";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../tag-contracts.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 
 /**

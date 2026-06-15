@@ -1,4 +1,4 @@
-import { defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact } from "@swooper/mapgen-core/authoring/contracts";
 import { PlacementInputsV1Schema } from "../../placement-inputs.js";
 
 /** Shared placement planning inputs (`artifact:placementInputs`). One artifact per file by repo convention. */

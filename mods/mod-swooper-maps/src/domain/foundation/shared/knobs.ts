@@ -1,4 +1,4 @@
-import { type Static, Type } from "@swooper/mapgen-core/authoring";
+import { type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Foundation plate count knob (semantic intent).

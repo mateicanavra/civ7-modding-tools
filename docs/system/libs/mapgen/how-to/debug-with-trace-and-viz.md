@@ -41,12 +41,6 @@ This workflow produces a replayable folder containing:
 From the repo root:
 
 ```bash
-bun run --cwd mods/mod-swooper-maps viz:foundation
-```
-
-or:
-
-```bash
 bun run --cwd mods/mod-swooper-maps viz:standard
 ```
 
@@ -54,7 +48,7 @@ Notes:
 - Canonical deploy-equivalent builds use Nx from repo root (see `bun run dev:mapgen-studio` / `nx run mapgen-studio:build`).
 - The `viz:*` scripts run a small preflight to build dist-exported workspace deps (adapter/core/viz) when needed in a fresh checkout.
 
-Both scripts accept optional CLI args: `width height seed` (see code in the anchors).
+The script accepts optional CLI args: `width height seed` (see code in the anchors).
 
 ### 2) Find the output folder
 
@@ -130,7 +124,6 @@ Routing:
 - Run identity + fingerprint (`runId === planFingerprint` current): `packages/mapgen-core/src/engine/observability.ts`
 - Viz dumper interface + artifact notes: `packages/mapgen-core/src/core/types.ts`
 - Local trace+viz dump harness (writes `trace.jsonl` + `manifest.json`): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
-- Example run harness producing dumps: `mods/mod-swooper-maps/src/dev/viz/foundation-run.ts`
-- Example standard run harness producing dumps: `mods/mod-swooper-maps/src/dev/viz/standard-run.ts`
+- Standard run harness producing dumps: `mods/mod-swooper-maps/src/dev/viz/standard-run.ts`
 - Studio “Dump mode” UI + folder picker entrypoint: `apps/mapgen-studio/src/App.tsx`
 - Studio mode selector (“World” → “Mode: Dump”): `apps/mapgen-studio/src/ui/components/AppHeader.tsx`

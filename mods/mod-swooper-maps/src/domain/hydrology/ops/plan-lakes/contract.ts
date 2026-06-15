@@ -1,4 +1,4 @@
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Hydrology lake planning is the truth-side counterpart to engine lake stamping.

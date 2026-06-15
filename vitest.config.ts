@@ -74,6 +74,14 @@ export default defineConfig({
               find: /^@mapgen\/domain\/(.+)$/,
               replacement: `${r("mods/mod-swooper-maps/src/domain")}/$1`,
             },
+            {
+              find: /^@swooper\/mapgen-core\/authoring\/recipe-dag$/,
+              replacement: r("packages/mapgen-core/src/authoring/recipe-dag.ts"),
+            },
+            {
+              find: /^@swooper\/mapgen-core\/authoring\/contracts$/,
+              replacement: r("packages/mapgen-core/src/authoring/contracts.ts"),
+            },
           ],
         },
         test: {

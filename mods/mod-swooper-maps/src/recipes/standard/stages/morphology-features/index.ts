@@ -4,6 +4,7 @@ import {
 } from "@mapgen/domain/morphology/config.js";
 import { IslandsConfigSchema, VolcanoesConfigSchema } from "@mapgen/domain/morphology/ops";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   MountainRangesPublicSchema,
   resolveMountainRangesPublicConfig,
@@ -48,7 +49,12 @@ export default createStage({
   id: "morphology-features",
   knobsSchema,
   public: publicSchema,
-  steps: [islands, mountains, volcanoes, landmasses],
+  steps: orderStandardStageSteps("morphology-features", {
+    islands,
+    mountains,
+    volcanoes,
+    landmasses,
+  }),
   compile: ({ config }: { config: Record<string, unknown> }) => {
     const mountainRanges = resolveMountainRangesPublicConfig(config.mountainRanges);
     return {

@@ -61,8 +61,7 @@ source for artifact dependency edges.
 ## Requires
 
 - Trunk-visible authoring contracts from `@swooper/mapgen-core`.
-- Trunk-visible Swooper recipe exports `STANDARD_STAGES` and
-  `BROWSER_TEST_STAGES`.
+- Trunk-visible Swooper Standard recipe export `STANDARD_STAGES`.
 - Trunk-visible Studio recipe catalog and Vite server middleware.
 - Existing oRPC + Effect patterns from `@civ7/control-orpc`.
 

@@ -5,6 +5,7 @@ import {
   HydrologyTemperatureKnobSchema,
 } from "@mapgen/domain/hydrology/config.js";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { HydrologyClimateBaselinePublicSchema } from "../hydrology-public-config.js";
 import { climateBaseline } from "./steps/index.js";
 
@@ -52,7 +53,9 @@ export default createStage({
   id: "hydrology-climate-baseline",
   knobsSchema,
   public: HydrologyClimateBaselinePublicSchema,
-  steps: [climateBaseline],
+  steps: orderStandardStageSteps("hydrology-climate-baseline", {
+    "climate-baseline": climateBaseline,
+  }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "climate-baseline": {
       seasonality: config.seasonalCycle ?? {},

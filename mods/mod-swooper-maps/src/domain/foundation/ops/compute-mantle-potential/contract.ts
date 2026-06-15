@@ -1,5 +1,5 @@
-import type { Static } from "@swooper/mapgen-core/authoring";
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 
 const StrategySchema = Type.Object(

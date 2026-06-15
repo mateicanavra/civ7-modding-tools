@@ -1,5 +1,6 @@
 import { HYDROLOGY_NAVIGABLE_RIVER_PROJECTION_POLICY } from "@mapgen/domain/hydrology/config.js";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { MapRiversPublicSchema } from "../map-projection-public-config.js";
 import {
   NavigableRiverDensityKnobSchema,
@@ -42,5 +43,7 @@ export default createStage({
       },
     };
   },
-  steps: [plotRivers],
+  steps: orderStandardStageSteps("map-rivers", {
+    "plot-rivers": plotRivers,
+  }),
 } as const);

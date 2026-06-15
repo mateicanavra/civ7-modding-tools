@@ -190,8 +190,7 @@ No code changes required:
    - `foundation.plates.tileMovement` (vector field)
    - `foundation.crustTiles.type` (expect all oceanic if `maturity` never crosses threshold)
 2. Run a local viz dump (writes under `mods/mod-swooper-maps/dist/visualization/`):
-   - `bun run --cwd mods/mod-swooper-maps viz:foundation 106 66 123`
+   - `bun run --cwd mods/mod-swooper-maps viz:standard 106 66 123`
    - Validate:
      - `continent fraction = count(crustTiles.type==1)/N` (expected ~0 under current compute-crust)
      - landmask connected component size distribution (expected many small components)
-

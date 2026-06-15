@@ -1,5 +1,4 @@
 import type { ArtifactContract } from "./artifact/contract.js";
-import type { StageContractAny, Step } from "./types.js";
 
 export type RecipeDagArtifactRef = Readonly<{
   id: string;
@@ -85,12 +84,28 @@ export type RecipeDag = Readonly<{
   diagnostics: readonly RecipeDagDiagnostic[];
 }>;
 
+export type RecipeDagStepContractInput = Readonly<{
+  id: string;
+  phase: string;
+  requires: readonly string[];
+  provides: readonly string[];
+  artifacts?: Readonly<{
+    requires?: readonly ArtifactContract[];
+    provides?: readonly ArtifactContract[];
+  }>;
+}>;
+
+export type RecipeDagStageInput = Readonly<{
+  id: string;
+  steps: readonly Readonly<{ contract: RecipeDagStepContractInput }>[];
+}>;
+
 export type BuildRecipeDagInput = Readonly<{
   recipeId: string;
   namespace?: string;
   recipeKey?: string;
   title?: string;
-  stages: readonly StageContractAny[];
+  stages: readonly RecipeDagStageInput[];
 }>;
 
 type ArtifactProvider = Readonly<{
@@ -121,7 +136,7 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
   let stepOrder = 0;
   input.stages.forEach((stage, stageIndex) => {
     const stageSteps: RecipeDagStep[] = [];
-    stage.steps.forEach((step: Step, stepIndex: number) => {
+    stage.steps.forEach((step, stepIndex: number) => {
       const fullStepId = computeFullStepId({
         namespace: input.namespace,
         recipeId: input.recipeId,

@@ -1,11 +1,11 @@
-import placement from "@mapgen/domain/placement";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
+import placement from "@mapgen/domain/placement/contract";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import {
   FIELD_DEPENDENCY_TAGS,
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
-} from "../../../../tags.js";
+} from "../../../../tag-contracts.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 import { morphologyArtifacts } from "../../../morphology/artifacts.js";

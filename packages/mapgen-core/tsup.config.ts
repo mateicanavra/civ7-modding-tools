@@ -27,6 +27,8 @@ export default defineConfig({
     "src/index.ts",
     "src/engine/index.ts",
     "src/authoring/index.ts",
+    "src/authoring/contracts.ts",
+    "src/authoring/recipe-dag.ts",
     "src/compiler/normalize.ts",
     "src/compiler/recipe-compile.ts",
     "src/lib/math/index.ts",

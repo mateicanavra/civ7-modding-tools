@@ -1,65 +1,21 @@
-import { ENGINE_EFFECT_TAGS } from "@civ7/adapter";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DependencyTagDefinition, TagOwner } from "@swooper/mapgen-core/engine";
 import { placementArtifacts } from "./stages/placement/artifacts.js";
 import type { PlacementInputsV1 } from "./stages/placement/placement-inputs.js";
 import type { PlacementOutputsV1 } from "./stages/placement/placement-outputs.js";
+import {
+  FIELD_DEPENDENCY_TAGS,
+  MAP_PROJECTION_EFFECT_TAGS,
+  PLACEMENT_PRODUCT_EFFECT_TAGS,
+  STANDARD_ENGINE_EFFECT_TAGS,
+} from "./tag-contracts.js";
 
-export const FIELD_DEPENDENCY_TAGS = {
-  field: {
-    terrainType: "field:terrainType",
-    elevation: "field:elevation",
-    rainfall: "field:rainfall",
-    biomeId: "field:biomeId",
-    featureType: "field:featureType",
-  },
-} as const;
-
-export const STANDARD_ENGINE_EFFECT_TAGS = {
-  engine: {
-    riversModeled: "effect:engine.riversModeled",
-    biomesApplied: ENGINE_EFFECT_TAGS.biomesApplied,
-    featuresApplied: ENGINE_EFFECT_TAGS.featuresApplied,
-    plotEffectsApplied: "effect:engine.plotEffectsApplied",
-    placementApplied: ENGINE_EFFECT_TAGS.placementApplied,
-  },
-} as const;
-
-export const MAP_PROJECTION_EFFECT_TAGS = {
-  map: {
-    coastsPlotted: "effect:map.coastsPlotted",
-    continentsPlotted: "effect:map.continentsPlotted",
-    elevationBuilt: "effect:map.elevationBuilt",
-    mountainsPlotted: "effect:map.mountainsPlotted",
-    volcanoesPlotted: "effect:map.volcanoesPlotted",
-    landmassRegionsPlotted: "effect:map.landmassRegionsPlotted",
-    lakesPlotted: "effect:map.lakesPlotted",
-    riversPlotted: "effect:map.riversPlotted",
-    elevationParityCaptured: "effect:map.elevationParityCaptured",
-    hydrologyLakesParityCaptured: "effect:map.hydrologyLakesParityCaptured",
-    riversParityCaptured: "effect:map.riversParityCaptured",
-    ecologyBiomesParityCaptured: "effect:map.ecologyBiomesParityCaptured",
-    ecologyFeaturesParityCaptured: "effect:map.ecologyFeaturesParityCaptured",
-    placementParityCaptured: "effect:map.placementParityCaptured",
-  },
-} as const;
-
-export const PLACEMENT_PRODUCT_EFFECT_TAGS = {
-  placement: {
-    naturalWondersPlaced: "effect:placement.naturalWondersPlaced",
-    surfacePrepared: "effect:placement.surfacePrepared",
-    // S5 (D3 contract change): planning and stamping are separate effects so
-    // starts assign against the PLAN and the support pass adjusts the plan
-    // before any engine stamping:
-    // resourcesPlanned → startsAssigned → resourcesAdjusted → resourcesPlaced.
-    resourcesPlanned: "effect:placement.resourcesPlanned",
-    resourcesAdjusted: "effect:placement.resourcesAdjusted",
-    resourcesPlaced: "effect:placement.resourcesPlaced",
-    startsAssigned: "effect:placement.startsAssigned",
-    discoveriesPlaced: "effect:placement.discoveriesPlaced",
-    advancedStartsAssigned: "effect:placement.advancedStartsAssigned",
-  },
-} as const;
+export {
+  FIELD_DEPENDENCY_TAGS,
+  MAP_PROJECTION_EFFECT_TAGS,
+  PLACEMENT_PRODUCT_EFFECT_TAGS,
+  STANDARD_ENGINE_EFFECT_TAGS,
+} from "./tag-contracts.js";
 
 export const CANONICAL_FIELD_AND_ENGINE_TAGS: ReadonlySet<string> = new Set([
   ...Object.values(FIELD_DEPENDENCY_TAGS.field),

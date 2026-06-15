@@ -3,6 +3,7 @@ import {
   HydrologyRiverDensityKnobSchema,
 } from "@mapgen/domain/hydrology/config.js";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { HydrologyHydrographyPublicSchema } from "../hydrology-public-config.js";
 import { lakes, rivers } from "./steps/index.js";
 
@@ -35,7 +36,7 @@ export default createStage({
   id: "hydrology-hydrography",
   knobsSchema,
   public: HydrologyHydrographyPublicSchema,
-  steps: [rivers, lakes],
+  steps: orderStandardStageSteps("hydrology-hydrography", { rivers, lakes }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     rivers: {
       drainageRouting: { strategy: "default", config: config.drainageRouting ?? {} },

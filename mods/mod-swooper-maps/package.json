@@ -5,13 +5,9 @@
   "description": "Swooper Maps mod for Civilization VII",
   "type": "module",
   "exports": {
-    "./recipes/browser-test": {
-      "types": "./dist/recipes/browser-test.d.ts",
-      "import": "./dist/recipes/browser-test.js"
-    },
-    "./recipes/browser-test-artifacts": {
-      "types": "./dist/recipes/browser-test-artifacts.d.ts",
-      "import": "./dist/recipes/browser-test-artifacts.js"
+    "./recipes/studio-contracts": {
+      "types": "./src/recipes/studio-contracts/index.ts",
+      "import": "./src/recipes/studio-contracts/index.ts"
     },
     "./recipes/standard": {
       "types": "./dist/recipes/standard.d.ts",
@@ -102,12 +98,6 @@
         ],
         "cache": true,
         "outputs": [
-          "{projectRoot}/dist/recipes/browser-test.schema.json",
-          "{projectRoot}/dist/recipes/browser-test.defaults.json",
-          "{projectRoot}/dist/recipes/browser-test.presets.json",
-          "{projectRoot}/dist/recipes/browser-test.d.ts",
-          "{projectRoot}/dist/recipes/browser-test-artifacts.js",
-          "{projectRoot}/dist/recipes/browser-test-artifacts.d.ts",
           "{projectRoot}/dist/recipes/standard.schema.json",
           "{projectRoot}/dist/recipes/standard.defaults.json",
           "{projectRoot}/dist/recipes/standard.presets.json",
@@ -127,12 +117,6 @@
           "{projectRoot}/dist/recipes/standard-map-configs.d.ts",
           "{projectRoot}/src/maps/generated/**"
         ]
-      },
-      "viz:foundation": {
-        "dependsOn": [
-          "viz:runtime-deps"
-        ],
-        "cache": false
       },
       "viz:standard": {
         "dependsOn": [
@@ -171,7 +155,6 @@
     "test": "bun test",
     "test:studio-run-in-game": "bun test test/standard-run.test.ts test/build/map-bundle-runtime-imports.test.ts test/config/maps-schema-valid.test.ts test/config/shipped-map-identity.test.ts",
     "test:architecture-cutover": "bun test test/foundation/no-op-calls-op-tectonics.test.ts test/pipeline/no-dual-contract-paths.test.ts test/pipeline/no-shim-surfaces.test.ts test/pipeline/foundation-topology-lock.test.ts",
-    "viz:foundation": "bun ./src/dev/viz/foundation-run.ts",
     "viz:standard": "bun ./src/dev/viz/standard-run.ts",
     "diag:dump": "bun ./src/dev/diagnostics/run-standard-dump.ts",
     "diag:analyze": "bun ./src/dev/diagnostics/analyze-dump.ts",

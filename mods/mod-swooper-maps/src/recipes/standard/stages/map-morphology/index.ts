@@ -1,4 +1,5 @@
 import { createStage } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   MapMorphologyKnobsSchema,
   MapMorphologyPublicSchema,
@@ -15,5 +16,10 @@ export default createStage({
     "plot-mountains": {},
     "plot-volcanoes": {},
   }),
-  steps: [plotCoasts, plotContinents, plotMountains, plotVolcanoes],
+  steps: orderStandardStageSteps("map-morphology", {
+    "plot-coasts": plotCoasts,
+    "plot-continents": plotContinents,
+    "plot-mountains": plotMountains,
+    "plot-volcanoes": plotVolcanoes,
+  }),
 } as const);

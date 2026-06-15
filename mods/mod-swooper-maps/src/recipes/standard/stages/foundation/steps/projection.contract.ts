@@ -1,5 +1,5 @@
-import foundation from "@mapgen/domain/foundation";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
+import foundation from "@mapgen/domain/foundation/contract";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { mapArtifacts } from "../../../map-artifacts.js";
 import { foundationArtifacts } from "../artifacts.js";
 

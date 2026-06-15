@@ -1,4 +1,4 @@
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 const ResourcePlanBasinsContract = defineOp({
   kind: "plan",

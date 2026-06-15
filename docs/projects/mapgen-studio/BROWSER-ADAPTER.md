@@ -17,8 +17,7 @@ The browser runner should treat Civ7 as a **reference renderer/runtime**, not th
 - Adapter interface: `EngineAdapter` from `@civ7/adapter`
 - Runner target: MapGen Studio Web Worker
 - Recipe focus:
-  - **V0.1:** `browser-test` recipe end-to-end in-browser (currently Foundation-only)
-  - **V0.2:** `standard` recipe end-to-end in-browser
+  - `standard` recipe end-to-end in-browser
 
 ## Civ7-derived tables as bundled data packages (no runtime fetching)
 
@@ -38,20 +37,6 @@ This keeps:
 - adapter parity anchored to Civ’s source data without importing Civ engine runtime modules.
 
 ## Inventory: adapter calls used today
-
-### Browser test recipe (`mods/mod-swooper-maps/src/recipes/browser-test/recipe.ts`)
-
-Foundation stage steps use `ctxRandom(...)`, which is pipeline-owned and derived
-from `Env.seed`. Browser and Civ runtime must therefore agree even when their
-adapters expose different engine RNG implementations.
-
-In addition, `createExtendedMapContext(...)` initializes terrain constants and therefore requires name→index lookups during context creation.
-
-**Required by Foundation (today):**
-- `width`, `height`
-- `getTerrainTypeIndex(name)`
-- `getBiomeGlobal(name)`
-- `getFeatureTypeIndex(name)`
 
 ### Standard recipe (`mods/mod-swooper-maps/src/recipes/standard/recipe.ts`)
 

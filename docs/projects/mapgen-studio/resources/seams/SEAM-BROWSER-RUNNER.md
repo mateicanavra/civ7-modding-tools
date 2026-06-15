@@ -220,7 +220,7 @@ Examples in `App.tsx`:
 ### Coupling: config overrides flow is split across UI and worker
 
 - UI has two override authoring modes (form + JSON) and conditionally normalizes/validates JSON **only on run start**.
-- Worker independently merges and normalizes `configOverrides` against `BROWSER_TEST_RECIPE_CONFIG` using `normalizeStrict`.
+- Worker independently merges and normalizes `configOverrides` against the active recipe default config using `normalizeStrict`.
   - This means the “true” validation source of truth is the worker.
   - The UI validation gate only applies when JSON tab is active; form edits are trusted and only validated by the worker.
 

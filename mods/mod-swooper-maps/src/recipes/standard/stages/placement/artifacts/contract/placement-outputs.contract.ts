@@ -1,4 +1,4 @@
-import { defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact } from "@swooper/mapgen-core/authoring/contracts";
 import { PlacementOutputsV1Schema } from "../../placement-outputs.js";
 
 /** Terminal placement summary (`artifact:placementOutputs`). One artifact per file by repo convention. */

@@ -16,7 +16,7 @@ Learn how to inspect “what the pipeline produced” using:
 - **projections** (views of domain truth into tile space),
 with **trace + viz dumps** that you can render via the canonical deck.gl viewer.
 
-This tutorial uses the existing “browser-test” recipe as a minimal, Foundation-focused pipeline that emits rich projection layers.
+This tutorial uses the Standard recipe visualization harness, which emits the current projection layers used by Studio.
 
 ## What you’ll learn
 
@@ -38,11 +38,11 @@ This harness runs a minimal recipe and writes a dump under `dist/visualization/<
 Preferred (package script):
 
 ```bash
-bun run --cwd mods/mod-swooper-maps viz:foundation
+bun run --cwd mods/mod-swooper-maps viz:standard
 ```
 
 Optional args:
-- `bun run --cwd mods/mod-swooper-maps viz:foundation <width> <height> <seed>`
+- `bun run --cwd mods/mod-swooper-maps viz:standard <width> <height> <seed>`
 
 The script prints the final dump directory.
 
@@ -110,8 +110,8 @@ trace contexts; if the current step isn’t verbose, the viewer will show no lay
 
 ## Ground truth anchors
 
-- Browser-test recipe wiring (Foundation-only standard tag registry): `mods/mod-swooper-maps/src/recipes/browser-test/recipe.ts`
+- Standard recipe wiring: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
 - Foundation projection step (source of many viz layer dumps): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts`
 - Trace+viz dump harness (writes `trace.jsonl`, `manifest.json`, and `data/*`): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
-- Example runner that produces dumps: `mods/mod-swooper-maps/src/dev/viz/foundation-run.ts`
+- Example runner that produces dumps: `mods/mod-swooper-maps/src/dev/viz/standard-run.ts`
 - Trace core contract: `packages/mapgen-core/src/trace/index.ts`

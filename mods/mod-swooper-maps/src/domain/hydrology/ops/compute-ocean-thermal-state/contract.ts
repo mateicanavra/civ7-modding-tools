@@ -1,4 +1,4 @@
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Computes an ocean surface thermal state (SST + sea-ice proxy) from latitude and surface currents.

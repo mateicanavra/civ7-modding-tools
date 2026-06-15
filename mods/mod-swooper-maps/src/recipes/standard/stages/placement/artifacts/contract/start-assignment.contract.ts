@@ -1,5 +1,5 @@
-import placement from "@mapgen/domain/placement";
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring";
+import placement from "@mapgen/domain/placement/contract";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Verified start assignment (`artifact:placement.startAssignment`). One artifact per file by repo convention. */
 const PlanStartsOutputSchema = placement.ops.planStarts.output;

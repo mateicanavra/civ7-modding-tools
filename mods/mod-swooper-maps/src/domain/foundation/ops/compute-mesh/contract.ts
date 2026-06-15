@@ -1,5 +1,5 @@
-import type { Static } from "@swooper/mapgen-core/authoring";
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 export const BoundingBoxSchema = Type.Object(
   {

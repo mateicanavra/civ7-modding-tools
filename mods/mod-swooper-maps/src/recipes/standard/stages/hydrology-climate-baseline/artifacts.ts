@@ -1,5 +1,5 @@
-import { HydrologyWindFieldSchema } from "@mapgen/domain/hydrology";
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import { HydrologyWindFieldSchema } from "@mapgen/domain/hydrology/contract";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Climate field produced by Hydrology climate-baseline.

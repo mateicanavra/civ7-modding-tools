@@ -1,4 +1,4 @@
-import { type Static, Type } from "@swooper/mapgen-core/authoring";
+import { type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 const EngineBiomeGlobalSchema = (defaultValue: string, description: string) =>
   Type.Union(

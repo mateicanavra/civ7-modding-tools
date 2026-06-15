@@ -1,4 +1,5 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   compileEcologyFeaturesPublicConfig,
   EcologyFeaturesPublicSchema,
@@ -24,15 +25,15 @@ export default createStage({
     }
   ),
   public: EcologyFeaturesPublicSchema,
-  steps: [
-    steps.scoreLayers,
-    steps.planFloodplains,
-    steps.planIce,
-    steps.planReefs,
-    steps.planWetlands,
-    steps.planVegetation,
-    steps.planPlotEffects,
-  ],
+  steps: orderStandardStageSteps("ecology-features", {
+    "score-layers": steps.scoreLayers,
+    "plan-floodplains": steps.planFloodplains,
+    "plan-ice": steps.planIce,
+    "plan-reefs": steps.planReefs,
+    "plan-wetlands": steps.planWetlands,
+    "plan-vegetation": steps.planVegetation,
+    "plan-plot-effects": steps.planPlotEffects,
+  }),
   compile: ({ config }: { config: Record<string, unknown> }) =>
     compileEcologyFeaturesPublicConfig(config),
 } as const);

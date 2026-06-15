@@ -81,20 +81,6 @@ const SUGGESTIONS_BY_RECIPE: Readonly<Record<string, readonly OverlaySuggestion[
       label: "Support adjustments",
     },
   ],
-  "mod-swooper-maps/browser-test": [
-    {
-      id: "foundation.history.boundaryType::foundation.tectonics.boundaryType",
-      primaryDataTypeKey: "foundation.history.boundaryType",
-      overlayDataTypeKey: "foundation.tectonics.boundaryType",
-      label: "Boundary events (snapshot)",
-    },
-    {
-      id: "map.morphology.mountains.orogenyPotential::morphology.drivers.uplift",
-      primaryDataTypeKey: "map.morphology.mountains.orogenyPotential",
-      overlayDataTypeKey: "morphology.drivers.uplift",
-      label: "Uplift driver",
-    },
-  ],
 };
 
 export function getOverlaySuggestions(recipeId: StudioRecipeId): readonly OverlaySuggestion[] {

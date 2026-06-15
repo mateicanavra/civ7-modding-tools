@@ -1,4 +1,5 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   compileEcologyBiomesPublicConfig,
   EcologyBiomesPublicSchema,
@@ -20,7 +21,7 @@ export default createStage({
     }
   ),
   public: EcologyBiomesPublicSchema,
-  steps: [biomes],
+  steps: orderStandardStageSteps("ecology-biomes", { biomes }),
   compile: ({ config }: { config: Record<string, unknown> }) =>
     compileEcologyBiomesPublicConfig(config),
 } as const);

@@ -1,4 +1,4 @@
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Surface preparation evidence (`artifact:placement.surfacePreparation`). One artifact per file by repo convention. */
 const PlacementSurfacePreparationSchema = Type.Object(

@@ -1,4 +1,4 @@
-import { Type } from "@swooper/mapgen-core/authoring";
+import { Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export const MoistureSchema = Type.Object(
   {

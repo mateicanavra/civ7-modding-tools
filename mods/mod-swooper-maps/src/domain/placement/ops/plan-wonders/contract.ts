@@ -1,4 +1,4 @@
-import { defineOp, Type } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 const MapInfoSchema = Type.Object(
   {

@@ -1,5 +1,5 @@
-import type { Static } from "@swooper/mapgen-core/authoring";
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FoundationMantlePotentialSchema } from "../compute-mantle-potential/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 

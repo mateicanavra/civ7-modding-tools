@@ -1,9 +1,4 @@
 import type { TSchema } from "@swooper/mapgen-core/authoring";
-import browserTestRecipe from "mod-swooper-maps/recipes/browser-test";
-import {
-  BROWSER_TEST_RECIPE_CONFIG_SCHEMA as swooperBrowserTestConfigSchema,
-  BROWSER_TEST_RECIPE_CONFIG as swooperBrowserTestDefaultConfig,
-} from "mod-swooper-maps/recipes/browser-test-artifacts";
 import standardRecipe from "mod-swooper-maps/recipes/standard";
 import {
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,
@@ -39,13 +34,6 @@ const RUNTIME_RECIPES: readonly RuntimeRecipeEntry[] = [
     recipe: standardRecipe,
     defaultConfig: swooperStandardDefaultConfig,
     configSchema: swooperStandardConfigSchema,
-  },
-  {
-    id: makeRecipeId("mod-swooper-maps", "browser-test"),
-    label: "Swooper Maps / Browser Test",
-    recipe: browserTestRecipe,
-    defaultConfig: swooperBrowserTestDefaultConfig,
-    configSchema: swooperBrowserTestConfigSchema,
   },
 ] as const;
 

@@ -71,7 +71,6 @@ export const RESOURCE_MODE_OPTIONS: readonly SelectOption<ResourceMode>[] = [
 
 export const DEFAULT_RECIPE_OPTIONS: readonly SelectOption[] = [
   { value: "mod-swooper-maps/standard", label: "Standard" },
-  { value: "mod-swooper-maps/browser-test", label: "Browser Test" },
 ] as const;
 
 export const DEFAULT_PRESET_OPTIONS: readonly SelectOption[] = [

@@ -1,4 +1,5 @@
 import { createStage } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   MapElevationKnobsSchema,
   MapElevationPublicSchema,
@@ -20,5 +21,7 @@ export default createStage({
   compile: () => ({
     "build-elevation": {},
   }),
-  steps: [buildElevation],
+  steps: orderStandardStageSteps("map-elevation", {
+    "build-elevation": buildElevation,
+  }),
 } as const);

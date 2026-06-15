@@ -17,7 +17,7 @@ import {
   type RiftTunables,
   RiftTunablesSchema,
 } from "@mapgen/domain/narrative/tagging/config.js";
-import { type Static, Type } from "@swooper/mapgen-core/authoring";
+import { type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Root narrative config is the recipe-facing facade. The strategy schemas stay

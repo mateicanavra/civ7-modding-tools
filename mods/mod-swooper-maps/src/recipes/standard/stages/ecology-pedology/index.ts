@@ -1,4 +1,5 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   compileEcologyPedologyPublicConfig,
   EcologyPedologyPublicSchema,
@@ -22,7 +23,10 @@ export default createStage({
     }
   ),
   public: EcologyPedologyPublicSchema,
-  steps: [pedology, resourceBasins],
+  steps: orderStandardStageSteps("ecology-pedology", {
+    pedology,
+    "resource-basins": resourceBasins,
+  }),
   compile: ({ config }: { config: Record<string, unknown> }) =>
     compileEcologyPedologyPublicConfig(config),
 } as const);
