@@ -12,8 +12,9 @@
 - Status: classify target-truth, path-aware rule-scope, and generator
   support/refusal checkpoints accepted; generator scratch Nx discovery and
   generated target-matrix proof accepted; migration proof-boundary checkpoint
-  supervisor-accepted; committed scratch discovery test coverage implemented
-  in the current slice; downstream realignment and packet closure remain open.
+  supervisor-accepted; committed scratch discovery test coverage
+  supervisor-accepted; classify matrix test coverage implemented in the
+  current slice; downstream realignment and packet closure remain open.
 
 ## Objective
 
@@ -58,6 +59,11 @@
 - `rulesInScope` is now the compatibility list of structured `scopedRules`;
   scopes distinguish exact-path, project-owner, workspace-gate, and
   unresolved-metadata reasons.
+- Classify matrix coverage now spans adapter, mod, foundation, app, tooling,
+  plugin, generated-zone, and workspace-level paths. Missing paths are
+  classified by path ownership without pretending to prove filesystem
+  existence, and multi-path diffs are classified per changed path in stable
+  path order.
 - Exact-path extraction now fails closed for rule scope prose with unmodeled
   exclusions or compound qualifiers instead of scraping a partial glob and
   presenting it as machine-readable path truth.
@@ -153,16 +159,17 @@ Core synthesis:
 ## Implementation
 
 - Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 4.1-4.5, 5.1-5.7,
-  6.1-6.3, 7.2-7.5, 7.7-7.10, 9.1-9.3, 9.6-9.9, 9.11, and 9.13.
-- Remaining tasks: full classify matrix, full Nx target matrix, downstream
-  realignment, final verification, and supervisor acceptance.
+  6.1-6.3, 7.1-7.10, 9.1-9.4, 9.6-9.9, 9.11, and 9.13.
+- Remaining tasks: full Nx target matrix, downstream realignment, final
+  verification, and supervisor acceptance.
 - Implementation status: target-truth slice committed as a bounded checkpoint;
   path-aware rule-scope slice committed and supervisor-accepted; generator
   support/refusal slice committed and supervisor-accepted; generator scratch
   discovery/target-matrix command proof recorded as the current local
   checkpoint and supervisor-accepted; migration proof-boundary slice
   committed and supervisor-accepted; committed generator scratch discovery test
-  coverage implemented in the current slice. Full packet closure remains open.
+  coverage committed and supervisor-accepted; classify matrix test coverage
+  implemented in the current slice. Full packet closure remains open.
 
 ## Verification
 
@@ -238,6 +245,10 @@ Core synthesis:
     projects through `bun run nx g @internal/habitat-harness:project`, proved
     `nx show project --json` discovery and `build`/`check`/`test` targets for
     each generated project, then removed the exact scratch roots
+  - `bun run --cwd tools/habitat-harness test -- classify.test.ts`
+    -> pass; classify matrix covers adapter, mod, foundation, app, tooling,
+    plugin, generated-zone, and workspace-level paths, plus missing-path and
+    multi-path diff behavior
 - Evidence boundary: current implementation proves resolved Nx target truth for
   the adapter missing-target case, structured target proof output, unavailable
   target reporting, workspace-only target handling, literal diff target
@@ -246,8 +257,11 @@ Core synthesis:
   for Grit rows without parseable scan roots, conservative refusal to treat
   prose exclusions such as `outside packages/civ7-adapter` as exact scan-root
   truth, preservation of pure-glob exact matches, and exclusion of unrelated
-  internal exact-path rules. It also proves the project generator's uniform
-  kind/root/package/tag contract and fail-closed refusal for unsupported kinds,
+  internal exact-path rules. The classify test matrix now covers adapter, mod,
+  foundation, app, tooling, plugin, generated-zone, and workspace-level paths,
+  plus missing path and multi-path diff behavior. It also proves the project
+  generator's uniform kind/root/package/tag contract and fail-closed refusal
+  for unsupported kinds,
   mismatched roots, mismatched package names, non-empty roots, and workspace
   package-name collisions. It also proves through command evidence that scratch
   projects generated from the normal HR implementation worktree are discovered
@@ -264,6 +278,6 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor review of the committed scratch discovery test checkpoint
-  before proceeding to classify matrix, stale guidance, downstream realignment,
-  or packet closure work.
+- Hold for supervisor review of the committed classify matrix test checkpoint
+  before proceeding to stale guidance, downstream realignment, or packet
+  closure work.

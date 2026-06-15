@@ -79,14 +79,14 @@
 
 ## 7. Tests
 
-- [ ] 7.1 Add classify matrix tests for adapter, mod, foundation, app, tooling,
+- [x] 7.1 Add classify matrix tests for adapter, mod, foundation, app, tooling,
   plugin, generated-zone, and workspace-level paths.
 - [x] 7.2 Add tests that missing project targets are not emitted.
 - [x] 7.3 Add tests that existing project targets are emitted with proof.
 - [x] 7.4 Add tests that workspace/Habitat gates are separate from project
   targets.
 - [x] 7.5 Add tests for literal diff classification with resolved targets.
-- [ ] 7.6 Add tests for missing paths and multi-path diffs.
+- [x] 7.6 Add tests for missing paths and multi-path diffs.
 - [x] 7.7 Add generator refusal tests for unsupported kinds.
 - [x] 7.8 Add generator refusal tests for mismatched kind/root pairs.
 - [x] 7.9 Add generator scratch discovery tests for supported kinds.
@@ -114,7 +114,7 @@
 - [x] 9.1 `bun run openspec -- validate habitat-classify-generator-repair --strict`
 - [x] 9.2 `bun run openspec:validate`
 - [x] 9.3 `git diff --check`
-- [ ] 9.4 classify matrix proof
+- [x] 9.4 classify matrix proof
 - [ ] 9.5 Nx target-existence proof matrix
 - [x] 9.6 generator dry-run proof
 - [x] 9.7 generator scratch discovery proof
