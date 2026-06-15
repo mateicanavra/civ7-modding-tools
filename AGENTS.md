@@ -63,11 +63,15 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 - For unfamiliar structure, start with `bun run habitat classify <path-or-diff>`
   before editing. For supported new uniform projects, scaffold with
   `nx g @internal/habitat-harness:project <name> --kind=<plugin|foundation|app>`;
-  for new Grit-backed rules, scaffold with
-  `nx g @internal/habitat-harness:pattern <rule-id>`. Unsupported
-  kinds are intentionally refused until their owning domain defines a uniform
-  generator shape. After authoring, run the targets reported by `habitat
-  classify` plus the nearest package-local checks.
+  for new Grit-backed rules, use
+  `nx g @internal/habitat-harness:pattern <rule-id>` only to create a
+  non-enforcing candidate draft. Candidate output is not a registered Habitat
+  rule, baseline, hook scope, or current-tree proof. Registered enforcement
+  requires the accepted Pattern Authority Manifest, baseline contract,
+  current-tree proof, fixture strategy, false-positive model, and hook-scope
+  decision. Unsupported kinds are intentionally refused until their owning
+  domain defines a uniform generator shape. After authoring, run the targets
+  reported by `habitat classify` plus the nearest package-local checks.
 - Use package scripts (`bun run --cwd <path> <script>`) for leaf-local debugging
   when dependency freshness is already established. Use root Nx-orchestrated
   scripts for proof.

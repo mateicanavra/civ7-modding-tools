@@ -52,9 +52,11 @@
   completed; AGENTS and README procedure updated; probes and final gates
   passed. Current recovery note: registered generated-rule baseline creation
   now depends on `habitat-scaffold-contract-repair`'s explicit baseline and
-  rule-introduction manifest contract plus the future
-  `habitat-pattern-generator-metadata-repair`; H8 alone is not accepted
-  authority for new enforced rules.
+  rule-introduction manifest contract plus authority/proof metadata from
+  `habitat-pattern-generator-metadata-repair`. The current pattern generator
+  repair makes sparse generation candidate-only and fail-closes registered
+  lifecycles until the manifest/proof gates are accepted; H8 alone is not
+  accepted authority for new enforced rules.
 - Remaining tasks: Graphite commit/clean proof only.
 - Stop conditions triggered: none.
 - Timing interpretation carried from H7: broad self-edits to root/Habitat inputs are an operational boundary, not the normal hook path. H8 should keep normal checks scoped and explicit rather than optimizing around the broad self-edit case.

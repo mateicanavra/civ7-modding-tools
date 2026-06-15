@@ -1,12 +1,18 @@
 # Review Disposition Ledger
 
 **Change:** `habitat-pattern-generator-metadata-repair`
-**Status:** P1/P2 review findings accepted and patched into packet
+**Status:** P1/P2 design findings accepted and patched; candidate/refusal
+implementation checkpoint ready for supervisor review
 **Owner:** DRA Habitat recovery owner
 
 Accepted P1/P2 findings block implementation until repaired, rejected with
 source evidence, invalidated with later evidence, or moved by explicit
 authority decision.
+
+Checkpoint note: this branch implements candidate-only sparse generation and
+registered advisory/enforced no-write refusal. It does not close Pattern
+Authority Manifest validation, registered rule promotion, Grit row proof,
+baseline write/shrink proof, hook-scope proof, classify proof, or product proof.
 
 ## Findings
 
