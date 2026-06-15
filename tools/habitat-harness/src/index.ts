@@ -43,6 +43,7 @@ export {
   injectedGritProbeProgram,
   runInjectedGritProbe,
 } from "./lib/grit-injected-probe.js";
+export { injectedProbeRoot } from "./lib/grit.js";
 export {
   HabitatProcess,
   HabitatProcessLive,

@@ -104,6 +104,7 @@ export function injectedGritProbeProgram(
               processLayer: input.processLayer,
               cacheMode: "fresh",
               requireObservableCacheStatus: true,
+              allowInjectedProbeRoot: true,
               projection: { rejectUnexpectedPatternIdentity: true },
             }),
           catch: (error) =>
@@ -258,7 +259,9 @@ function validateInjectedGritProbeInput(
       "Injected probe pattern identity does not match rules.json."
     );
   }
-  const scanRootFailure = validateScanRoots(input.scope.scanRoots);
+  const scanRootFailure = validateScanRoots(input.scope.scanRoots, {
+    allowInjectedProbeRoot: true,
+  });
   if (scanRootFailure) return failure(input, "GritEmptyScanRoots", scanRootFailure);
   for (const probePath of [input.probePath, input.controlPath]) {
     const pathFailure = validateProbePath(probePath, input.scope.scanRoots);
@@ -284,7 +287,10 @@ function validateProbePath(probePath: string, scanRoots: readonly string[]): str
     return `Injected probe path must include a probe-owned __habitat path segment: ${relative}.`;
   }
   const parent = path.dirname(relative);
-  const scanRootFailure = validateScanRoots([parent], { requireExisting: false });
+  const scanRootFailure = validateScanRoots([parent], {
+    requireExisting: false,
+    allowInjectedProbeRoot: true,
+  });
   if (scanRootFailure) return scanRootFailure.replace("Grit scan root", "Injected probe parent");
   if (existsSync(path.join(repoRoot, relative))) {
     return `Injected probe path already exists: ${relative}.`;

@@ -1,0 +1,310 @@
+[
+  {
+    "ruleId": "grit-contract-export-all",
+    "patternIdentity": "contract_export_all",
+    "rulesJsonScope": "contract/public-surface TypeScript files",
+    "sourcePredicate": "value export star in contract/public-surface path",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/plan-demo/index.ts",
+      "body": "export * from \"./contract.js\";\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+      "body": "export * from \"./contract.js\";\n"
+    }
+  },
+  {
+    "ruleId": "grit-domain-deep-import",
+    "patternIdentity": "domain_deep_import",
+    "rulesJsonScope": "mods/*/src/{recipes,maps}/**/*.ts",
+    "sourcePredicate": "recipe/map source deep domain import",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
+      "body": "import x from \"@mapgen/domain/foundation/ops/private\";\n\nexport const value = x;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/demo.ts",
+      "body": "import x from \"@mapgen/domain/foundation/ops/private\";\n\nexport const value = x;\n"
+    }
+  },
+  {
+    "ruleId": "grit-recipe-domain-surface",
+    "patternIdentity": "recipe_domain_surface",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/recipes/**/*.ts",
+    "sourcePredicate": "recipe import from non-public domain subpath",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
+      "body": "import detail from \"@mapgen/domain/foundation/private\";\n\nexport const value = detail;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/demo.ts",
+      "body": "import detail from \"@mapgen/domain/foundation/private\";\n\nexport const value = detail;\n"
+    }
+  },
+  {
+    "ruleId": "grit-studio-recipe-artifacts",
+    "patternIdentity": "studio_recipe_artifacts",
+    "rulesJsonScope": "apps/mapgen-studio/src/**/*.{ts,tsx}",
+    "sourcePredicate": "Studio UI runtime recipe import outside runtime/server exclusions",
+    "match": {
+      "path": "apps/mapgen-studio/src/App.tsx",
+      "body": "import recipe from \"mod-swooper-maps/recipes/standard\";\n\nexport const value = recipe;\n"
+    },
+    "control": {
+      "path": "apps/mapgen-studio/src/browser-runner/recipeRuntime.ts",
+      "body": "import recipe from \"mod-swooper-maps/recipes/standard\";\n\nexport const value = recipe;\n"
+    }
+  },
+  {
+    "ruleId": "grit-step-contract-domain-surface",
+    "patternIdentity": "step_contract_domain_surface",
+    "rulesJsonScope": "mods/*/src/recipes/**/stages/**/steps/**/{contract.ts,*.contract.ts}",
+    "sourcePredicate": "step contract import from domain runtime/private subpath",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/contract.ts",
+      "body": "import ecology from \"@mapgen/domain/ecology/ops\";\n\nexport const contract = ecology;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/contract.ts",
+      "body": "import ecology from \"@mapgen/domain/ecology/ops\";\n\nexport const contract = ecology;\n"
+    }
+  },
+  {
+    "ruleId": "grit-recipe-runtime-domain-ops",
+    "patternIdentity": "recipe_runtime_domain_ops",
+    "rulesJsonScope": "mods/*/src/recipes/**/recipe.ts",
+    "sourcePredicate": "recipe runtime imports domain contract root",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
+      "body": "import ecology from \"@mapgen/domain/ecology\";\n\nexport const recipe = ecology;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
+      "body": "import ecology from \"@mapgen/domain/ecology\";\n\nexport const recipe = ecology;\n"
+    }
+  },
+  {
+    "ruleId": "grit-runtime-validation-imports",
+    "patternIdentity": "runtime_validation_imports",
+    "rulesJsonScope": "runtime recipe steps and domain strategies",
+    "sourcePredicate": "runtime layer import from TypeBox/compiler validation surface",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot.ts",
+      "body": "import { Value } from \"@sinclair/typebox/value\";\n\nexport const value = Value;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/plot.ts",
+      "body": "import { Value } from \"@sinclair/typebox/value\";\n\nexport const value = Value;\n"
+    }
+  },
+  {
+    "ruleId": "grit-runtime-run-validated",
+    "patternIdentity": "runtime_run_validated",
+    "rulesJsonScope": "runtime recipe steps and domain strategies",
+    "sourcePredicate": "runtime layer runValidated call",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot.ts",
+      "body": "runValidated(operation);\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/plot.ts",
+      "body": "runValidated(operation);\n"
+    }
+  },
+  {
+    "ruleId": "grit-runtime-helper-redeclarations",
+    "patternIdentity": "runtime_helper_redeclarations",
+    "rulesJsonScope": "runtime recipe steps and domain strategies",
+    "sourcePredicate": "runtime layer redeclares shared helper",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot.ts",
+      "body": "function clamp01(value: number) {\n  return value;\n}\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/plot.ts",
+      "body": "function clamp01(value: number) {\n  return value;\n}\n"
+    }
+  },
+  {
+    "ruleId": "grit-empty-schema-default",
+    "patternIdentity": "empty_schema_default",
+    "rulesJsonScope": "contract schema files",
+    "sourcePredicate": "empty object default in contract schema file",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts",
+      "body": "export const Schema = {\n  default: {},\n};\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo.ts",
+      "body": "export const Schema = {\n  default: {},\n};\n"
+    }
+  },
+  {
+    "ruleId": "grit-mapgen-core-runtime-civ7",
+    "patternIdentity": "mapgen_core_runtime_civ7",
+    "rulesJsonScope": "packages/mapgen-core/src/{core,engine}/**/*.ts",
+    "sourcePredicate": "mapgen-core core/engine Civ7 runtime member usage",
+    "match": {
+      "path": "packages/mapgen-core/src/core/demo.ts",
+      "body": "GameplayMap.getGridWidth();\n"
+    },
+    "control": {
+      "path": "packages/mapgen-core/src/viz/demo.ts",
+      "body": "GameplayMap.getGridWidth();\n"
+    }
+  },
+  {
+    "ruleId": "grit-sibling-stage-step-imports",
+    "patternIdentity": "sibling_stage_step_imports",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts",
+    "sourcePredicate": "standard stage imports sibling stage private steps",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts",
+      "body": "import step from \"../b/steps/foo/index.js\";\n\nexport const value = step;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/index.ts",
+      "body": "import step from \"../b/steps/foo/index.js\";\n\nexport const value = step;\n"
+    }
+  },
+  {
+    "ruleId": "grit-domain-root-catalogs",
+    "patternIdentity": "domain_root_catalogs",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/{tags,artifacts}.ts",
+    "sourcePredicate": "retired domain-root tags/artifacts file",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/tags.ts",
+      "body": "export const tags = [];\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+      "body": "export const tags = [];\n"
+    }
+  },
+  {
+    "ruleId": "grit-wrapper-advanced-stage-config",
+    "patternIdentity": "wrapper_advanced_stage_config",
+    "rulesJsonScope": "standard recipe and map config source",
+    "sourcePredicate": "advanced config property in standard recipe/map config source",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/maps/demo.ts",
+      "body": "export const config = {\n  advanced: {},\n};\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/demo.ts",
+      "body": "export const config = {\n  advanced: {},\n};\n"
+    }
+  },
+  {
+    "ruleId": "grit-placement-outcome-boundary",
+    "patternIdentity": "placement_outcome_boundary",
+    "rulesJsonScope": "placement apply implementation",
+    "sourcePredicate": "placement apply calls official generator directly",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts",
+      "body": "generateOfficialResources();\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/index.ts",
+      "body": "generateOfficialResources();\n"
+    }
+  },
+  {
+    "ruleId": "grit-adapter-base-standard-import",
+    "patternIdentity": "adapter_base_standard_import",
+    "rulesJsonScope": "packages/**/*.ts outside packages/civ7-adapter",
+    "sourcePredicate": "/base-standard/ import outside adapter package",
+    "match": {
+      "path": "packages/config/src/demo.ts",
+      "body": "import \"/base-standard/maps/map-globals.js\";\n"
+    },
+    "control": {
+      "path": "packages/civ7-adapter/src/demo.ts",
+      "body": "import \"/base-standard/maps/map-globals.js\";\n"
+    }
+  },
+  {
+    "ruleId": "grit-control-orpc-contract-ownership",
+    "patternIdentity": "control_orpc_contract_ownership",
+    "rulesJsonScope": "packages/civ7-control-orpc/src/modules/**/contract.ts and root index",
+    "sourcePredicate": "control-oRPC contract imports direct-control",
+    "match": {
+      "path": "packages/civ7-control-orpc/src/modules/demo/contract.ts",
+      "body": "import { session } from \"@civ7/direct-control\";\n\nexport const contract = session;\n"
+    },
+    "control": {
+      "path": "packages/civ7-control-orpc/src/modules/demo/service.ts",
+      "body": "import { session } from \"@civ7/direct-control\";\n\nexport const contract = session;\n"
+    }
+  },
+  {
+    "ruleId": "grit-viz-contract-ownership",
+    "patternIdentity": "viz_contract_ownership",
+    "rulesJsonScope": "standard recipe stage visualization files",
+    "sourcePredicate": "shared viz contract under steps/",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/viz.ts",
+      "body": "export const viz = {};\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/viz.ts",
+      "body": "export const viz = {};\n"
+    }
+  },
+  {
+    "ruleId": "grit-sdk-mapgen-entrypoint",
+    "patternIdentity": "sdk_mapgen_entrypoint",
+    "rulesJsonScope": "packages/sdk/src/**/*.ts and packages/mapgen-core/src/**/*.ts",
+    "sourcePredicate": "SDK root mapgen export outside mapgen opt-in subpath",
+    "match": {
+      "path": "packages/sdk/src/index.ts",
+      "body": "export * from \"./mapgen\";\n"
+    },
+    "control": {
+      "path": "packages/sdk/src/mapgen/index.ts",
+      "body": "export * from \"./mapgen\";\n"
+    }
+  },
+  {
+    "ruleId": "grit-domain-ops-boundary-imports",
+    "patternIdentity": "domain_ops_boundary_imports",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
+    "sourcePredicate": "domain op adapter/context crossing",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
+      "body": "context.adapter.run();\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts",
+      "body": "context.adapter.run();\n"
+    }
+  },
+  {
+    "ruleId": "grit-domain-ops-projection-effects",
+    "patternIdentity": "domain_ops_projection_effects",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
+    "sourcePredicate": "domain op map artifact/effect dependency key",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
+      "body": "export const key = \"artifact:map.foo\";\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts",
+      "body": "export const key = \"artifact:map.foo\";\n"
+    }
+  },
+  {
+    "ruleId": "grit-domain-ops-root-config",
+    "patternIdentity": "domain_ops_root_config",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
+    "sourcePredicate": "domain op imports domain-root config facade",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
+      "body": "import config from \"../../config.js\";\n\nexport const value = config;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts",
+      "body": "import config from \"../../config.js\";\n\nexport const value = config;\n"
+    }
+  }
+]

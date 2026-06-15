@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { runInjectedGritProbe, type InjectedProbeScope } from "../../src/lib/grit-injected-probe.js";
+import { injectedProbeRoot, runGritRules } from "../../src/lib/grit.js";
 import {
   makeFakeHabitatProcessLayer,
   makeHabitatCommandResult,
@@ -199,6 +200,82 @@ describe("injected Grit probe harness", () => {
       expect(existsSync(path.join(repoRoot, nestedControl))).toBe(false);
       expect(existsSync(path.join(repoRoot, sibling))).toBe(true);
       expect(existsSync(absoluteRoot)).toBe(true);
+    } finally {
+      rmSync(absoluteRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("supports probe-owned mirror roots for exact-path injected rows", async () => {
+    const mirrorRoot = `${injectedProbeRoot}/__habitat_probe_exact_path__`;
+    const matchingPath = `${mirrorRoot}/packages/sdk/src/index.ts`;
+    const controlPath = `${mirrorRoot}/packages/sdk/src/mapgen/index.ts`;
+    const absoluteRoot = path.join(repoRoot, mirrorRoot);
+    rmSync(absoluteRoot, { recursive: true, force: true });
+    mkdirSync(absoluteRoot, { recursive: true });
+    const exactRule = fakeGritRule("grit-sdk-mapgen-entrypoint", "sdk_mapgen_entrypoint");
+    const fakeLayer = makeFakeHabitatProcessLayer((request) =>
+      makeHabitatCommandResult(request, {
+        stderr: output(
+          JSON.stringify({
+            paths: [matchingPath],
+            results: [
+              {
+                local_name: "sdk_mapgen_entrypoint",
+                path: matchingPath,
+                start: { line: 1 },
+                extra: { message: "sdk mapgen entrypoint probe" },
+              },
+            ],
+          })
+        ),
+      })
+    );
+
+    try {
+      const result = await runInjectedGritProbe({
+        ruleId: exactRule.id,
+        patternIdentity: "sdk_mapgen_entrypoint",
+        probePath: matchingPath,
+        probeBody: 'export * from "./mapgen";\n',
+        controlPath,
+        controlBody:
+          'import { createCiv7Adapter } from "@civ7/adapter/civ7";\nexport const adapter = createCiv7Adapter;\n',
+        expectedDiagnostic: "sdk mapgen entrypoint probe",
+        scope: {
+          adapterRoot: mirrorRoot,
+          rulesJsonScope: "packages/sdk/src/**/*.ts and packages/mapgen-core/src/**/*.ts",
+          sourcePredicate: "SDK root mapgen export outside mapgen subpath",
+          scanRoots: [mirrorRoot],
+          exclusions: [],
+          matchingProbePath: matchingPath,
+          outsideScopeControlPath: controlPath,
+        },
+        registry: [exactRule],
+        processLayer: fakeLayer,
+      });
+
+      expect(result.ok).toBe(true);
+      expect(existsSync(path.join(repoRoot, matchingPath))).toBe(false);
+      expect(existsSync(path.join(repoRoot, controlPath))).toBe(false);
+      expect(existsSync(absoluteRoot)).toBe(true);
+    } finally {
+      rmSync(absoluteRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("does not approve probe mirror roots for ordinary Grit scans", async () => {
+    const mirrorRoot = `${injectedProbeRoot}/__habitat_probe_public_reject__`;
+    const absoluteRoot = path.join(repoRoot, mirrorRoot);
+    rmSync(absoluteRoot, { recursive: true, force: true });
+    mkdirSync(absoluteRoot, { recursive: true });
+
+    try {
+      const result = await runGritRules([rule], {
+        scanRoots: [mirrorRoot],
+        processLayer: makeFakeHabitatProcessLayer((request) => makeHabitatCommandResult(request)),
+      });
+
+      expect(result.get(rule.id)?.diagnostics[0]?.message).toContain("not approved");
     } finally {
       rmSync(absoluteRoot, { recursive: true, force: true });
     }

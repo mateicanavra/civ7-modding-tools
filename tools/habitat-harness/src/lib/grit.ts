@@ -60,6 +60,7 @@ export type GritCheckParseResult =
 export interface GritCheckOptions {
   cacheMode?: GritCheckCacheMode;
   requireObservableCacheStatus?: boolean;
+  allowInjectedProbeRoot?: boolean;
 }
 
 export type GritCheckCacheMode = "workspace" | "fresh";
@@ -81,6 +82,7 @@ const gritScanRootCandidates = [
   "mods/mod-swooper-maps/src/maps",
   "mods/mod-swooper-maps/src/domain",
 ];
+export const injectedProbeRoot = "tools/habitat-harness/injected-probe-roots";
 const protectedScanRootPrefixes = [
   ".civ7/",
   ".git/",
@@ -108,12 +110,15 @@ export async function runGritRules(
     processLayer?: Layer.Layer<HabitatProcess>;
     cacheMode?: GritCheckCacheMode;
     requireObservableCacheStatus?: boolean;
+    allowInjectedProbeRoot?: boolean;
     projection?: GritProjectionOptions;
   } = {}
 ): Promise<Map<string, RuleRunResult>> {
   if (selectedRules.length === 0) return new Map();
   const scanRoots = options.scanRoots ?? discoverGritScanRoots();
-  const emptyRootFailure = validateScanRoots(scanRoots);
+  const emptyRootFailure = validateScanRoots(scanRoots, {
+    allowInjectedProbeRoot: options.allowInjectedProbeRoot,
+  });
   if (emptyRootFailure) {
     return new Map(
       selectedRules.map((rule) => [
@@ -127,6 +132,7 @@ export async function runGritRules(
     gritCheckProgram(scanRoots, {
       cacheMode: options.cacheMode,
       requireObservableCacheStatus: options.requireObservableCacheStatus,
+      allowInjectedProbeRoot: options.allowInjectedProbeRoot,
     }).pipe(Effect.provide(options.processLayer ?? HabitatProcessLive))
   );
   if (!parseResult.ok) {
@@ -143,6 +149,17 @@ export async function runGritRules(
 
 export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions = {}) {
   return Effect.scoped(Effect.gen(function* () {
+    const emptyRootFailure = validateScanRoots(scanRoots, {
+      allowInjectedProbeRoot: options.allowInjectedProbeRoot,
+    });
+    if (emptyRootFailure) {
+      return {
+        ok: false as const,
+        failureTag: "GritEmptyScanRoots" as const,
+        parseStatus: "unsupported-mode" as const,
+        message: emptyRootFailure,
+      };
+    }
     const process = yield* HabitatProcess;
     const requestOptions =
       options.cacheMode === "fresh"
@@ -348,6 +365,7 @@ export function discoverGritScanRoots(): string[] {
 
 export interface GritScanRootValidationOptions {
   requireExisting?: boolean;
+  allowInjectedProbeRoot?: boolean;
 }
 
 export function validateScanRoots(
@@ -365,7 +383,8 @@ export function validateScanRoots(
       return `Grit scan root does not exist: ${scanRoot}.`;
     if (isGeneratedRoot(relative)) return `Grit scan root is generated output: ${relative}.`;
     if (isProtectedRoot(relative)) return `Grit scan root is protected: ${relative}.`;
-    if (!isApprovedScanRoot(relative)) return `Grit scan root is not approved: ${relative}.`;
+    if (!isApprovedScanRoot(relative, options))
+      return `Grit scan root is not approved: ${relative}.`;
   }
   return null;
 }
@@ -483,7 +502,16 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((entry) => typeof entry === "string");
 }
 
-function isApprovedScanRoot(relative: string): boolean {
+function isApprovedScanRoot(
+  relative: string,
+  options: Pick<GritScanRootValidationOptions, "allowInjectedProbeRoot"> = {}
+): boolean {
+  if (
+    options.allowInjectedProbeRoot &&
+    (relative === injectedProbeRoot || relative.startsWith(`${injectedProbeRoot}/`))
+  ) {
+    return true;
+  }
   return gritScanRootCandidates.some(
     (root) => relative === root || relative.startsWith(`${root}/`)
   );
