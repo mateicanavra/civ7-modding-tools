@@ -334,5 +334,19 @@
       "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/strategies/default.ts",
       "body": "ops.bind(computeMesh, input);\n"
     }
+  },
+  {
+    "ruleId": "grit-recipe-imports-in-domain",
+    "patternIdentity": "recipe_imports_in_domain",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/*.ts",
+    "sourcePredicate": "domain source imports or re-exports recipe modules",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
+      "body": "import recipe from \"../../../../../recipes/standard/recipe.js\";\n\nexport const value = recipe;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
+      "body": "import recipe from \"../recipe.js\";\n\nexport const value = recipe;\n"
+    }
   }
 ]

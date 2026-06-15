@@ -237,6 +237,21 @@
       "hookScope": "pre-commit"
     },
     {
+      "id": "grit-recipe-imports-in-domain",
+      "ownerTool": "grit-check",
+      "ownerProject": "mod-swooper-maps",
+      "lane": "enforced",
+      "scope": "mods/mod-swooper-maps/src/domain/**/*.ts",
+      "forbids": "domain source importing or re-exporting recipe modules",
+      "why": "Domain code defines reusable public surfaces; recipe composition stays in recipes and must not flow back into domain implementation.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Domain source must not import recipe modules; move composition to recipes or expose a domain surface.",
+      "exceptionPath": "none",
+      "gritPattern": "recipe_imports_in_domain",
+      "hookScope": "pre-commit"
+    },
+    {
       "id": "grit-runtime-helper-redeclarations",
       "ownerTool": "grit-check",
       "ownerProject": "mod-swooper-maps",
