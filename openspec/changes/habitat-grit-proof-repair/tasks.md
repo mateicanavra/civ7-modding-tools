@@ -42,14 +42,26 @@
 
 ## 4. Injected Violation Harness
 
-- [ ] 4.1 Add a controlled probe harness that creates and removes ephemeral
+- [x] 4.1 Add a controlled probe harness that creates and removes ephemeral
   source files under approved scan roots.
-- [ ] 4.2 Prove every current enforced Grit check fails on an injected matching
+- [x] 4.2 Prove every current enforced Grit check fails on an injected matching
   source shape with the expected Habitat rule id.
-- [ ] 4.3 Prove negative/false-positive probes where existing native samples do
+- [x] 4.3 Prove negative/false-positive probes where existing native samples do
   not cover the row's false-positive model.
-- [ ] 4.4 Prove probe cleanup leaves `git status --short` clean.
-- [ ] 4.5 Record generated-output and protected-path non-claims.
+- [x] 4.4 Prove probe cleanup leaves `git status --short` clean.
+- [x] 4.5 Record generated-output and protected-path non-claims.
+  - 2026-06-15 proof is recorded as
+    `HGPR-INJECTED-GRIT-ROWS-2026-06-15`. The packet-owned
+    `workstream/injected-probes.json` corpus drives all 22 current
+    `ownerTool=grit-check` rows through the generic `runInjectedGritProbe(...)`
+    API. The clean-start command exited 0, proved 22/22 injected matching
+    source shapes, proved each outside-scope control path produced no finding,
+    and ended with clean git status. The proof uses a harness-owned injected
+    probe mirror root for exact-path rows so it never overwrites tracked source
+    files; ordinary Grit scans still reject that root unless the injected-probe
+    API explicitly enables it. This is injected violation and cleanup proof
+    only, not raw direct Grit acquisition, baseline shrink/write, apply safety,
+    old-mechanism parity, generated-output freshness, or product/runtime proof.
 - [x] 4.6 Do not implement this harness until `habitat-effect-grit-adapter` is
   supervisor-accepted with scan-root injection, command provenance, exact rule
   mapping, path-control probes, and cleanup.
@@ -122,7 +134,10 @@
 - [x] 9.3 `bun run --cwd tools/habitat-harness test -- grit-patterns.test.ts`
 - [x] 9.4 `bun run habitat:check -- --json --tool grit-check`
 - [x] 9.5 `bun run habitat:check -- --json --rule grit-check`
-- [ ] 9.6 injected-violation proof suite for all current Grit checks
+- [x] 9.6 injected-violation proof suite for all current Grit checks
+  - `HGPR-INJECTED-GRIT-ROWS-2026-06-15`: clean-start runner proof over 22
+    rows, 22 pass, 0 failures, cleanup restored for every row, final git status
+    clean.
 - [x] 9.7 explicit Grit baseline behavior proof suite
 - [ ] 9.8 old-mechanism parity probes:
   `wrapped-script`, `wrapped-eslint`, and `wrapped-test`

@@ -10,12 +10,12 @@
   `agent-HR-habitat-repair-chain` over `main`
 - Started: 2026-06-14
 - Status: selector/current-tree wrapper, native-sample, explicit baseline, and
-  supervisor-accepted injected-probe safety/cache repair slices recorded; Nx
+  supervisor-accepted injected-probe safety/cache repair slices recorded; clean
+  22-row injected-violation proof is recorded for local review; Nx
   `grit:check` target scheduling is repaired for current-tree wrapper
   projection; old-mechanism parity has a partial Nx dependency-freshness repair
   and remains open on stale `wrapped-eslint` identity plus generated map-bundle
-  freshness; injected row proof, apply, broader downstream realignment, and
-  closure remain open
+  freshness; apply, broader downstream realignment, and closure remain open
 
 ## Objective
 
@@ -85,6 +85,20 @@
     all 22 current `ownerTool=grit-check` rule ids.
   - Each command exited 0 with exactly the requested Grit rule as `pass` plus
     `baseline-integrity:pass`.
+- Injected violation proof recorded as
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`:
+  - `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts
+    --require-clean-start`
+  - exit 0; schemaVersion 1 proof report, `ok:true`, 22 rows, 22 pass, 0
+    failures.
+  - The command started and ended with clean git status; every row reports
+    `cleanupRestoredStatus:true` and `finalStatusClean:true`.
+  - Row data is packet-owned in `workstream/injected-probes.json`, and the
+    generic `runInjectedGritProbe(...)` API executes matching and outside-scope
+    control files through the live Habitat Grit wrapper.
+  - Exact-path rows use a harness-owned injected probe mirror root to avoid
+    overwriting tracked source files. Ordinary Grit scans still reject that root
+    unless the injected-probe API explicitly enables it.
 - Direct raw Grit current-tree acquisition remains explicitly unclaimed as
   `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
 - Explicit baseline file inventory is recorded as
@@ -189,10 +203,11 @@
   - Supervisor acceptance after re-review: `SUP-INJECT-P1-01` path ownership
     and cleanup repair and `SUP-INJECT-P2-02` cache-policy repair are accepted
     for the safety/cache slice at `e2a6fd029`.
-  - Remaining non-claims: injected row proof, all-row injected proof,
-    cleanup-to-clean-worktree for a full row run, safe probe path controls
-    beyond the accepted unit/adapter boundary, row semantic proof, and packet
-    closure remain open.
+  - Remaining non-claims after the safety/cache slice: row semantic proof and
+    cleanup-to-clean-worktree were not accepted by the safety/cache review
+    alone. The later local `HGPR-INJECTED-GRIT-ROWS-2026-06-15` proof records
+    those row/cleanup claims for supervisor review. Packet closure remains
+    open.
 
 ## Scope
 
@@ -281,6 +296,9 @@ implementation tasks 4, 6, or adapter tests begin.
     and adapter layers.
   - 4.6 and 6.9 adapter-acceptance dependency gates for injected harness and
     destructive apply proof.
+  - 4.1-4.5 controlled injected probe harness, all 22 current Grit check rows,
+    outside-scope controls, cleanup-to-clean-status proof, and generated/protected
+    output non-claims.
   - 7.1-7.5 substrate decision recorded as accepted
     `habitat-effect-grit-adapter` dependency.
   - 9.2-9.5 native samples, harness native wrapper, valid tool selector, and
@@ -290,9 +308,10 @@ implementation tasks 4, 6, or adapter tests begin.
   - 8.1-8.2 H5/H6 downstream records patched for the baseline historical/current
     split.
   - 9.7 explicit Grit baseline behavior proof suite.
-- Remaining tasks: matrix fields 2.1-2.2 and 2.5-2.7, injected violation
-  harness, apply codemod proof, broader downstream realignment, parity and
-  scheduling probes, remaining verification, Graphite commit, and closure.
+  - 9.6 all-row injected-violation proof suite.
+- Remaining tasks: matrix fields 2.1-2.2 and 2.5-2.7, apply codemod proof,
+  broader downstream realignment, parity generated-output freshness, remaining
+  verification, Graphite commit, and closure.
 - Stop/non-claim state: direct raw current-tree Grit acquisition remains
   unresolved and explicitly unclaimed; wrapper proof controls only the Habitat
   current-tree wrapper claim. Explicit empty Grit baselines are accepted only as
@@ -304,9 +323,11 @@ implementation tasks 4, 6, or adapter tests begin.
   SUP-INJECT-P2-02 repair:
   tracked source deletions restored; focused cleanup/path-control tests pass;
   normal public wrapper checks are no longer forced through fresh temporary
-  cache; the supervisor accepted this safety/cache boundary. Injected proof
-  execution and row claims remain future packet work, not accepted by the
-  safety/cache review.
+  cache; the supervisor accepted this safety/cache boundary. The local
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15` proof now executes all 22 current Grit
+  check rows through a packet-owned corpus and ends clean. This is local
+  injected violation / cleanup proof pending supervisor review, not raw direct
+  Grit acquisition, apply safety, parity closure, or product proof.
 - Current parity state:
   `wrapped-script` is current-green, the named `wrapped-eslint` probe is a
   repaired-selector unknown-tool failure and formally stale H5/H6 command
@@ -350,6 +371,8 @@ implementation tasks 4, 6, or adapter tests begin.
   - `FORCE_COLOR=true bun tools/habitat-harness/bin/dev.ts check --tool
     grit-check --json`
   - `bun tools/habitat-harness/bin/dev.ts check --tool grit-check --json`
+  - `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts
+    --require-clean-start`
   - `find tools/habitat-harness/baselines -maxdepth 1 -type f`
   - `bun run openspec -- validate habitat-grit-proof-repair --strict`
   - full-depth-language guardrail scan over Habitat initiative docs
@@ -512,6 +535,31 @@ implementation tasks 4, 6, or adapter tests begin.
       acquisition, injected violations, live baseline writes, apply safety,
       generated-output freshness, old-mechanism parity closure, or product
       behavior.
+  - Injected Grit row proof:
+    - Implementation checkpoint:
+      `aea91e62e24e30e0e3d318ab7cebfe0450e733a6`
+      (`feat(habitat): add injected Grit probe corpus`) added the packet-owned
+      corpus and runner plus the narrow injected-probe root allowance.
+    - Clean-start proof command:
+      `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts
+      --require-clean-start` exited 0; artifact
+      `/tmp/habitat-injected-probes-clean.json`,
+      `sha256=313c89415690a40b69dfaa92edcb32086189377ce1fd025011cf8195fd762a81`;
+      corpus hash
+      `94c77bdd02c3625c4ca02201f96555e0144c9d45394859575631c3a36c7cb946`.
+    - Parsed summary: schemaVersion 1 proof report, `ok:true`, 22 rows, 22
+      pass, 0 failures, `requireCleanStart:true`, initial and final git status
+      clean, every row `cleanupRestoredStatus:true` and
+      `finalStatusClean:true`.
+    - Boundary: the runner uses a harness-owned injected probe mirror root for
+      exact-path rows so it never overwrites tracked source files. Focused unit
+      proof also verifies ordinary Grit scans reject that root unless called
+      through the injected-probe API.
+    - Non-claim: this proves injected violation projection and cleanup for the
+      22 current Grit check rows only. It does not prove raw direct Grit
+      acquisition, baseline shrink/write behavior, apply safety,
+      old-mechanism parity closure, generated-output freshness, row retirement
+      safety, or product/runtime behavior.
 - Evidence boundary: current implementation slice proves native Grit sample
   success and Habitat wrapper selector/current-tree zero-finding projection
   through CheckReport schemaVersion 1 on the branch that contains the accepted
@@ -519,12 +567,13 @@ implementation tasks 4, 6, or adapter tests begin.
   baseline files exist for the 22 current Grit checks, `baseline-integrity`
   accepts them, unit shrink-only policy rejects added entries for existing
   rules, and the repo-local Nx `grit:check` target now preserves exact Grit JSON
-  acquisition under Nx task color env. It records the current failed
-  old-mechanism parity state and a partial Nx dependency-freshness repair for
-  wrapped-test. It does not prove raw direct Grit current-tree acquisition,
-  injected violations, live baseline writes, apply safety, semantic target
-  exports, generated-output freshness, parity retirement, broader downstream
-  realignment, or product/runtime Civ7 behavior.
+  acquisition under Nx task color env. It also proves all 22 current Grit check
+  rows through injected matching probes plus outside-scope controls with clean
+  cleanup. It records the current failed old-mechanism parity state and a
+  partial Nx dependency-freshness repair for wrapped-test. It does not prove raw
+  direct Grit current-tree acquisition, live baseline writes, apply safety,
+  semantic target exports, generated-output freshness, parity retirement,
+  broader downstream realignment, or product/runtime Civ7 behavior.
 
 ## Realignment
 
@@ -550,12 +599,12 @@ implementation tasks 4, 6, or adapter tests begin.
 
 ## Next Action
 
-- After the task 9.9 Nx Grit target repair checkpoint is committed and reviewed,
+- After the injected-row proof record checkpoint is committed and reviewed,
   continue the next dependency-valid slice. Current open blockers are
-  old-mechanism parity on generated map-bundle freshness, injected row proof,
-  apply semantic proof, broader downstream realignment, and stale-record scans.
-- For injected proof, use the accepted probe path/cache controls and keep raw
-  direct Grit acquisition and row semantic closure separate.
+  old-mechanism parity on generated map-bundle freshness, apply semantic proof,
+  broader downstream realignment, and stale-record scans.
+- Keep raw direct Grit acquisition separate; the injected proof uses Habitat's
+  wrapper/probe API and does not close direct raw acquisition.
 - For apply proof, consume the isolated transaction-copy diff evidence as
   command/apply safety proof only; keep target-export and symbol/import semantic
   proof in this Grit proof packet.

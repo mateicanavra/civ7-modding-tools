@@ -1,10 +1,10 @@
 # Grit Proof Matrix
 
 **Change:** `habitat-grit-proof-repair`
-**Status:** selector/current-tree wrapper and native-sample proof ids are
-recorded for the current 22 Grit checks. Every row stays pending for injected
-probe results, explicit baseline file proof, apply proof where applicable, and
-downstream disposition.
+**Status:** selector/current-tree wrapper, native-sample, explicit baseline,
+and injected-violation proof ids are recorded for the current 22 Grit checks.
+Rows still stay pending for full parity disposition, fixture coverage
+classification, downstream disposition, and apply proof where applicable.
 
 ## Row Contract
 
@@ -83,6 +83,17 @@ Each current check row carries:
 - Baseline integrity proof `HGPR-BASELINE-INTEGRITY-2026-06-15`: `bun run
   habitat:check -- --json --tool grit-check` selected all 22 Grit checks plus
   `baseline-integrity`; `baseline-integrity` passed with the explicit files.
+- Injected violation proof `HGPR-INJECTED-GRIT-ROWS-2026-06-15`: `bun
+  openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts
+  --require-clean-start` consumed
+  `openspec/changes/habitat-grit-proof-repair/workstream/injected-probes.json`
+  and passed 22/22 current `ownerTool=grit-check` rows with zero failures.
+  Every row used the generic `runInjectedGritProbe(...)` API, a matching
+  injected source shape, and an outside-scope control path; every row restored
+  cleanup status and the final git status was clean. The proof uses the
+  harness-owned injected probe mirror root for exact-path rows so no tracked
+  source file is overwritten. Ordinary Grit scans still reject that root unless
+  called through the injected-probe API.
 - Raw direct Grit scan proof `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`: direct raw
   Grit current-tree acquisition remains unclaimed. Habitat wrapper proof
   controls current-tree wrapper claims only.
