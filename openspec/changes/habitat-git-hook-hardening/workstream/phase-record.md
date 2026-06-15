@@ -5,10 +5,10 @@
 - Project: Habitat Harness
 - Phase: git hook hardening / `habitat-git-hook-hardening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `codex/habitat-dra-takeover-frame`
+- Branch/Graphite stack: `agent-HR-habitat-hook-resource-policy`
 - Started: 2026-06-14
-- Status: design packet reviewed, accepted P2 findings patched, validation
-  passed, and ready for Graphite commit
+- Status: resource-publish policy checkpoint implemented and verified locally,
+  with supervisor acceptance pending
 
 ## Objective
 
@@ -44,12 +44,15 @@
 - Repo state at phase open: clean worktree on
   `codex/habitat-dra-takeover-frame`.
 - Husky delegators are installed and point to Habitat hook commands.
-- `runPreCommit()` runs resources publish before staged path collection and
-  before file-layer/Biome/Grit local validation.
-- The resources publish script may commit in the resources submodule, push
-  `origin main`, and stage the monorepo submodule pointer.
-- Existing hook command tests mock `runHook`; they do not prove real hook
-  side-effect behavior.
+- `runPreCommit()` no longer runs `scripts/civ7-resources/publish-submodule.sh`
+  in the default pre-commit path.
+- Pre-commit now classifies resource state read-only before file-layer, Biome,
+  or Grit phases and fails closed for dirty, uninitialized, locked, or
+  unstaged-gitlink resources with explicit remediation commands.
+- Clean resources and clean staged resource gitlinks continue through local
+  staged hook checks without publishing.
+- Focused hook tests exercise resource-state classification through a fake
+  command/filesystem boundary; broader hook transaction proof remains open.
 - H7 phase record says hooks are closed locally, but Stage 0 classifies
   `CLAIM-H7-HOOKS` as mixed with blockers.
 
@@ -63,8 +66,12 @@ Core synthesis:
   side-effect policy under the recovery proof standard;
 - resource publishing is a stronger mutation than formatter restage because it
   can push remote state;
-- local staged validation should precede any external publish;
-- Effect is a required decision point for hook transaction orchestration.
+- default pre-commit should inspect resources but leave publishing to the
+  explicit `bun run resources:publish` path;
+- this checkpoint does not adopt a new Effect hook transaction layer because it
+  removes the hidden publish side effect and adds a typed read-only classifier
+  with injected command/filesystem tests; broader hook transaction orchestration
+  still requires the packet's Effect/equivalent proof decision before closure.
 
 ## Scope
 
@@ -98,10 +105,16 @@ Core synthesis:
 
 ## Implementation
 
-- Completed tasks: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, and 2.4.
-- Remaining tasks: review, validation, implementation, verification,
-  downstream realignment, closure.
-- Implementation status: not started.
+- Completed tasks for this checkpoint: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6,
+  3.7, 5.1, 6.2, 6.3, 6.4, 6.10, 7.1, 7.2, 7.3, 7.4, 8.6, 8.9, and
+  8.12, plus previously completed design/source tasks.
+- Remaining tasks: full hook transaction model, full fake-service matrix,
+  generated-zone and package-manager artifact probe proof, partial-staging and
+  formatter-restage proof, Grit hook parse/finding proof, pre-push base/range
+  proof, historical H7 record realignment, aggregate verification, and packet
+  closure.
+- Implementation status: resource-publish policy checkpoint implemented;
+  pending Graphite commit and supervisor review.
 
 ## Verification
 
@@ -121,8 +134,34 @@ Core synthesis:
   - `bun run openspec:validate`
   - full-depth-language guardrail scan over this packet
   - `git diff --check`
-- Evidence boundary: current phase has design evidence and code/document
-  diagnosis. It does not prove hook hardening implementation.
+- New implementation evidence for this checkpoint:
+  - `bun run --cwd tools/habitat-harness test -- hooks.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run resources:init` initialized `.civ7/outputs/resources` through the
+    repo resource command path after the existing path proved to be an empty
+    non-checkout directory.
+  - `bun run resources:status` exited 0 and reported the resources submodule
+    clean at the recorded gitlink.
+  - `bun run habitat hook pre-commit` exited 0 with `resources: clean`, ran
+    the staged file-layer check, reported no staged Biome-supported files and
+    no staged TypeScript/JavaScript Grit paths, and passed without invoking the
+    resource publish script.
+  - `bun run openspec -- validate habitat-git-hook-hardening --strict`
+  - `bun run openspec:validate`
+  - `git diff --check`
+  - exact scratch/proof residue scan for `apps/hr-scratch-discovery-app`,
+    `mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof`,
+    `packages/hr-scratch-discovery-foundation`, and
+    `packages/plugins/plugin-hr-scratch-discovery-plugin` returned no paths.
+  - stale hook-resource guidance scan over root AGENTS, Habitat README, and
+    resources-submodule docs
+- Evidence boundary: this checkpoint proves the default pre-commit resource
+  publish removal, typed resource-state classification, fail-closed remediation
+  for dirty/uninitialized/locked/unstaged states, clean/staged-gitlink
+  continuation, root/dev pre-commit clean-resource command behavior, and
+  adjacent record truth. It does not prove full hook transaction safety, Grit
+  hook parse/finding behavior, pre-push range behavior, CI authority, or
+  product/runtime behavior.
 
 ## Realignment
 
@@ -131,4 +170,5 @@ Core synthesis:
 
 ## Next Action
 
-- Commit design packet through Graphite.
+- Commit the resource-publish policy checkpoint through Graphite and hold for
+  supervisor review.

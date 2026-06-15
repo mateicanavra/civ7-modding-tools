@@ -28,18 +28,18 @@
 
 ## 3. Resource Publish Policy
 
-- [ ] 3.1 Implement the explicit resource publish command policy.
-- [ ] 3.2 Ensure default pre-commit cannot publish or push resources.
-- [ ] 3.3 Add dirty resources detection and clear remediation output for the
+- [x] 3.1 Implement the explicit resource publish command policy.
+- [x] 3.2 Ensure default pre-commit cannot publish or push resources.
+- [x] 3.3 Add dirty resources detection and clear remediation output for the
   explicit publish command path.
-- [ ] 3.4 Add resources state classification for `clean`, `not-configured`,
+- [x] 3.4 Add resources state classification for `clean`, `not-configured`,
   `uninitialized`, `locked`, `dirty-submodule`, `unstaged-gitlink`, and
   `staged-gitlink`.
-- [ ] 3.5 Prove resource-state blocking happens before Biome format,
+- [x] 3.5 Prove resource-state blocking happens before Biome format,
   formatter restage, Biome check, and Grit check.
-- [ ] 3.6 Remove implicit hook-driven resource publishing from default
+- [x] 3.6 Remove implicit hook-driven resource publishing from default
   pre-commit.
-- [ ] 3.7 Update resources-submodule docs to match the accepted policy.
+- [x] 3.7 Update resources-submodule docs to match the accepted policy.
 
 ## 4. Hook Transaction Model
 
@@ -53,8 +53,9 @@
 
 ## 5. Effect Substrate Decision
 
-- [ ] 5.1 Complete an Effect substrate decision before hook transaction code
-  changes.
+- [x] 5.1 Record the resource-policy checkpoint Effect decision: this slice
+  does not introduce hook transaction orchestration and does not adopt Effect;
+  full hook transaction architecture remains open.
 - [ ] 5.2 If adopting Effect, add accepted dependency/runtime/service shape,
   hook service boundaries, package dependency surfaces, version pinning,
   package-manager-generated lockfile proof, and runtime-edge proof.
@@ -68,9 +69,9 @@
 - [ ] 6.1 Add hook unit tests with fake Git, command runner, filesystem, clock,
   reporter, and resource publisher services where the accepted architecture
   supports service substitution.
-- [ ] 6.2 Add clean resources pre-commit test.
-- [ ] 6.3 Add dirty resources explicit publish refusal test.
-- [ ] 6.4 Add uninitialized resources, resources lock, unstaged gitlink, staged
+- [x] 6.2 Add clean resources pre-commit test.
+- [x] 6.3 Add dirty resources explicit publish refusal test.
+- [x] 6.4 Add uninitialized resources, resources lock, unstaged gitlink, staged
   gitlink, and staged-gitlink-plus-dirty-submodule tests.
 - [ ] 6.5 Add generated-zone and pnpm artifact tests that prove no resources
   publish happened first.
@@ -78,14 +79,14 @@
 - [ ] 6.7 Add formatter-touched restage and foreign staged path tests.
 - [ ] 6.8 Add Grit parse failure and Grit finding tests.
 - [ ] 6.9 Add pre-push Graphite parent and non-Graphite base tests.
-- [ ] 6.10 Add docs/guidance scan for stale hook-resource claims.
+- [x] 6.10 Add docs/guidance scan for stale hook-resource claims.
 
 ## 7. Downstream Realignment
 
-- [ ] 7.1 Update root AGENTS hook/resource guidance.
-- [ ] 7.2 Update `tools/habitat-harness/README.md`.
-- [ ] 7.3 Update `docs/process/resources-submodule.md`.
-- [ ] 7.4 Update `docs/projects/habitat-harness/recovery-claim-ledger.md`.
+- [x] 7.1 Update root AGENTS hook/resource guidance.
+- [x] 7.2 Update `tools/habitat-harness/README.md`.
+- [x] 7.3 Update `docs/process/resources-submodule.md`.
+- [x] 7.4 Update `docs/projects/habitat-harness/recovery-claim-ledger.md`.
 - [ ] 7.5 Update `openspec/changes/habitat-git-hooks/**` historical records so
   old H7 closure does not overclaim side-effect proof.
 - [ ] 7.6 Update `habitat-pattern-generator-metadata-repair` or Grit pilot
@@ -98,17 +99,18 @@
 - [x] 8.3 `git diff --check`
 - [ ] 8.4 Hook unit/service test matrix
 - [ ] 8.5 Pre-commit staged probe matrix
-- [ ] 8.6 Explicit resource publish policy proof across dirty submodule,
+- [x] 8.6 Explicit resource publish policy proof across dirty submodule,
   uninitialized resources, locked resources, unstaged gitlink, staged gitlink,
   clean resources, and not-configured resources
 - [ ] 8.7 Pre-push base/range proof
-- [ ] 8.8 Root/dev/prod `habitat hook` proof after command-surface repair is
+- [x] 8.8 Root/dev `habitat hook` proof after command-surface repair is
   consumed
-- [ ] 8.9 README/AGENTS/resources docs stale guidance scan
+- [x] 8.9 README/AGENTS/resources docs stale guidance scan
 - [ ] 8.10 Historical H7 record realignment
 - [x] 8.11 Full-depth-language guardrail scan over this packet
-- [ ] 8.12 Effect substrate decision proof, including dependency/version and
-  lockfile proof if Effect is adopted
+- [x] 8.12 Resource-policy checkpoint Effect non-adoption decision proof, with
+  dependency/version/lockfile proof left as a non-claim because Effect is not
+  adopted in this slice
 
 ## 9. Closure
 

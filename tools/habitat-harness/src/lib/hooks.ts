@@ -11,11 +11,35 @@ interface HookOptions {
   base?: string;
 }
 
+type RunCommand = typeof run;
+
+interface HookRuntime {
+  runCommand?: RunCommand;
+  pathExists?: (target: string) => boolean;
+}
+
 interface GritReport {
   results?: unknown[];
 }
 
+type ResourceStateKind =
+  | "clean"
+  | "not-configured"
+  | "uninitialized"
+  | "locked"
+  | "dirty-submodule"
+  | "unstaged-gitlink"
+  | "staged-gitlink";
+
+interface ResourceState {
+  kind: ResourceStateKind;
+  allowPreCommit: boolean;
+  detail: string;
+  remediation: string[];
+}
+
 const prePushTargets = ["biome:ci", "boundaries", "grit:check", "habitat:check", "test"];
+const resourcesSubmodulePath = ".civ7/outputs/resources";
 
 const biomeCandidateExtensions = new Set([
   ".cjs",
@@ -55,20 +79,26 @@ export function runHook(name: string | undefined, options: HookOptions = {}): Sp
   return name === "pre-commit" ? runPreCommit() : runPrePush(options);
 }
 
-function runPreCommit(): SpawnResult {
+export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
+  const runCommand = runtime.runCommand ?? run;
   let stdout = "habitat hook pre-commit\n";
   let stderr = "";
 
-  const resources = run(["bash", "scripts/civ7-resources/publish-submodule.sh"], {
-    cwd: repoRoot,
-  });
-  stdout += section("resources publish", resources.stdout);
-  stderr += resources.stderr;
-  if (resources.exitCode !== 0) return { exitCode: resources.exitCode, stdout, stderr };
+  const resources = classifyResourcesState(runtime);
+  stdout += `resources: ${resources.kind}\n`;
+  if (!resources.allowPreCommit) {
+    return {
+      exitCode: 1,
+      stdout,
+      stderr: stderr + renderResourceStateFailure(resources),
+    };
+  }
 
-  const staged = stagedPaths().filter((candidate) => existsSync(path.join(repoRoot, candidate)));
+  const staged = stagedPaths(runCommand).filter((candidate) =>
+    existsSync(path.join(repoRoot, candidate))
+  );
 
-  const fileLayer = run(
+  const fileLayer = runCommand(
     [
       "bun",
       "tools/habitat-harness/bin/dev.ts",
@@ -87,7 +117,7 @@ function runPreCommit(): SpawnResult {
   const biomePaths = staged.filter((candidate) =>
     biomeCandidateExtensions.has(path.extname(candidate))
   );
-  const partials = unstagedAmong(biomePaths);
+  const partials = unstagedAmong(biomePaths, runCommand);
   if (partials.length > 0) {
     return {
       exitCode: 1,
@@ -105,9 +135,12 @@ function runPreCommit(): SpawnResult {
 
   const beforeHashes = new Map(biomePaths.map((candidate) => [candidate, fileHash(candidate)]));
   if (biomePaths.length > 0) {
-    const format = run(["biome", "format", "--write", "--no-errors-on-unmatched", ...biomePaths], {
-      cwd: repoRoot,
-    });
+    const format = runCommand(
+      ["biome", "format", "--write", "--no-errors-on-unmatched", ...biomePaths],
+      {
+        cwd: repoRoot,
+      }
+    );
     stdout += section("biome format", format.stdout);
     stderr += format.stderr;
     if (format.exitCode !== 0) return { exitCode: format.exitCode, stdout, stderr };
@@ -116,7 +149,7 @@ function runPreCommit(): SpawnResult {
       (candidate) => beforeHashes.get(candidate) !== fileHash(candidate)
     );
     if (touched.length > 0) {
-      const restage = gitAdd(touched);
+      const restage = gitAdd(touched, runCommand);
       stdout += section("formatter restage", restage.stdout);
       stderr += restage.stderr;
       if (restage.exitCode !== 0) return { exitCode: restage.exitCode, stdout, stderr };
@@ -125,7 +158,7 @@ function runPreCommit(): SpawnResult {
       stdout += "formatter restage: 0 paths\n";
     }
 
-    const check = run(["biome", "check", "--no-errors-on-unmatched", ...biomePaths], {
+    const check = runCommand(["biome", "check", "--no-errors-on-unmatched", ...biomePaths], {
       cwd: repoRoot,
     });
     stdout += section("biome check", check.stdout);
@@ -139,7 +172,7 @@ function runPreCommit(): SpawnResult {
     gritCandidateExtensions.has(path.extname(candidate))
   );
   if (gritPaths.length > 0) {
-    const grit = run(["grit", "--json", "check", "--level", "error", ...gritPaths], {
+    const grit = runCommand(["grit", "--json", "check", "--level", "error", ...gritPaths], {
       cwd: repoRoot,
       env: {
         GRIT_CACHE_DIR: path.join(repoRoot, ".grit", "cache"),
@@ -189,6 +222,156 @@ function runPrePush(options: HookOptions): SpawnResult {
   };
 }
 
+export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState {
+  const runCommand = runtime.runCommand ?? run;
+  const pathExists = runtime.pathExists ?? existsSync;
+  const gitmodulesPath = path.join(repoRoot, ".gitmodules");
+  if (!pathExists(gitmodulesPath)) {
+    return {
+      kind: "not-configured",
+      allowPreCommit: true,
+      detail: "No .gitmodules file is present.",
+      remediation: [],
+    };
+  }
+
+  const configured = runCommand(
+    ["git", "config", "-f", ".gitmodules", "--get", `submodule.${resourcesSubmodulePath}.path`],
+    { cwd: repoRoot }
+  );
+  if (configured.exitCode !== 0) {
+    return {
+      kind: "not-configured",
+      allowPreCommit: true,
+      detail: `No ${resourcesSubmodulePath} submodule entry is configured.`,
+      remediation: [],
+    };
+  }
+
+  const resourcesRoot = path.join(repoRoot, resourcesSubmodulePath);
+  if (!pathExists(resourcesRoot)) {
+    return resourceFailure(
+      "uninitialized",
+      `The resources submodule is configured but ${resourcesSubmodulePath} is absent.`,
+      ["bun run resources:init", "bun run resources:status"]
+    );
+  }
+
+  const insideWorktree = runCommand(
+    ["git", "-C", resourcesRoot, "rev-parse", "--is-inside-work-tree"],
+    { cwd: repoRoot }
+  );
+  if (insideWorktree.exitCode !== 0) {
+    return resourceFailure(
+      "uninitialized",
+      `${resourcesSubmodulePath} is not an initialized Git worktree.`,
+      ["bun run resources:init", "bun run resources:status"]
+    );
+  }
+
+  const submoduleTopLevel = runCommand(["git", "-C", resourcesRoot, "rev-parse", "--show-toplevel"], {
+    cwd: repoRoot,
+  });
+  if (
+    submoduleTopLevel.exitCode !== 0 ||
+    path.resolve(submoduleTopLevel.stdout.trim()) !== path.resolve(resourcesRoot)
+  ) {
+    return resourceFailure(
+      "uninitialized",
+      `${resourcesSubmodulePath} exists but is not an initialized submodule Git worktree.`,
+      ["bun run resources:init", "bun run resources:status"]
+    );
+  }
+
+  const gitDir = runCommand(["git", "-C", resourcesRoot, "rev-parse", "--git-dir"], {
+    cwd: repoRoot,
+  });
+  if (gitDir.exitCode !== 0) {
+    return resourceFailure(
+      "uninitialized",
+      `Could not inspect the ${resourcesSubmodulePath} Git directory.`,
+      ["bun run resources:init", "bun run resources:status"]
+    );
+  }
+
+  const gitDirPath = gitDir.stdout.trim();
+  const gitDirAbsolute = path.isAbsolute(gitDirPath)
+    ? gitDirPath
+    : path.join(resourcesRoot, gitDirPath);
+  if (pathExists(path.join(gitDirAbsolute, "index.lock"))) {
+    return resourceFailure(
+      "locked",
+      `The resources submodule Git index is locked: ${path.join(gitDirAbsolute, "index.lock")}.`,
+      ["bun run resources:unlock", "bun run resources:status"]
+    );
+  }
+
+  const submoduleStatus = runCommand(["git", "-C", resourcesRoot, "status", "--porcelain"], {
+    cwd: repoRoot,
+  });
+  if (submoduleStatus.exitCode !== 0) {
+    return resourceFailure(
+      "uninitialized",
+      `Could not inspect ${resourcesSubmodulePath} status.`,
+      ["bun run resources:init", "bun run resources:status"]
+    );
+  }
+  if (submoduleStatus.stdout.trim()) {
+    return resourceFailure(
+      "dirty-submodule",
+      `${resourcesSubmodulePath} has uncommitted resource changes.`,
+      ["bun run resources:publish", "bun run resources:status"]
+    );
+  }
+
+  const unstagedGitlink = runCommand(["git", "diff", "--quiet", "--", resourcesSubmodulePath], {
+    cwd: repoRoot,
+  });
+  if (unstagedGitlink.exitCode === 1) {
+    return resourceFailure(
+      "unstaged-gitlink",
+      `The ${resourcesSubmodulePath} gitlink changed but is not staged.`,
+      [`git add ${resourcesSubmodulePath}`, "bun run resources:status"]
+    );
+  }
+  if (unstagedGitlink.exitCode !== 0) {
+    return resourceFailure(
+      "uninitialized",
+      `Could not inspect the unstaged ${resourcesSubmodulePath} gitlink state.`,
+      ["bun run resources:init", "bun run resources:status"]
+    );
+  }
+
+  const stagedGitlink = runCommand(
+    ["git", "diff", "--cached", "--quiet", "--", resourcesSubmodulePath],
+    {
+      cwd: repoRoot,
+    }
+  );
+  if (stagedGitlink.exitCode === 1) {
+    return {
+      kind: "staged-gitlink",
+      allowPreCommit: true,
+      detail: `The ${resourcesSubmodulePath} gitlink is staged and the submodule is clean.`,
+      remediation: [],
+    };
+  }
+  if (stagedGitlink.exitCode !== 0) {
+    return resourceFailure(
+      "uninitialized",
+      `Could not inspect the staged ${resourcesSubmodulePath} gitlink state.`,
+      ["bun run resources:init", "bun run resources:status"]
+    );
+  }
+
+  return {
+    kind: "clean",
+    allowPreCommit: true,
+    detail: `${resourcesSubmodulePath} is initialized, clean, and has no gitlink delta.`,
+    remediation: [],
+  };
+}
+
 function resolvePrePushBase(): string {
   const parent = graphiteParent();
   if (parent) return parent;
@@ -201,8 +384,10 @@ function graphiteParent(): string | null {
   return info.stdout.match(/Parent:\s*([^\s]+)/)?.[1] ?? null;
 }
 
-function stagedPaths(): string[] {
-  const result = run(["git", "diff", "--cached", "--name-status", "-z"], { cwd: repoRoot });
+function stagedPaths(runCommand: RunCommand = run): string[] {
+  const result = runCommand(["git", "diff", "--cached", "--name-status", "-z"], {
+    cwd: repoRoot,
+  });
   if (result.exitCode !== 0 || !result.stdout) return [];
   const tokens = result.stdout.split("\0").filter(Boolean);
   const out: string[] = [];
@@ -222,16 +407,18 @@ function stagedPaths(): string[] {
   return [...new Set(out.map(toRepoRelative))];
 }
 
-function unstagedAmong(paths: string[]): string[] {
+function unstagedAmong(paths: string[], runCommand: RunCommand = run): string[] {
   if (paths.length === 0) return [];
-  const result = run(["git", "diff", "--name-only", "-z", "--", ...paths], { cwd: repoRoot });
+  const result = runCommand(["git", "diff", "--name-only", "-z", "--", ...paths], {
+    cwd: repoRoot,
+  });
   if (result.exitCode !== 0 || !result.stdout) return [];
   return result.stdout.split("\0").filter(Boolean).map(toRepoRelative);
 }
 
-function gitAdd(paths: string[]): SpawnResult {
+function gitAdd(paths: string[], runCommand: RunCommand = run): SpawnResult {
   if (paths.length === 0) return { exitCode: 0, stdout: "", stderr: "" };
-  return run(["git", "add", "--", ...paths], { cwd: repoRoot });
+  return runCommand(["git", "add", "--", ...paths], { cwd: repoRoot });
 }
 
 function fileHash(repoRelativePath: string): string | null {
@@ -263,4 +450,26 @@ function section(label: string, output: string): string {
 
 function isHookName(name: string | undefined): name is HookName {
   return name === "pre-commit" || name === "pre-push";
+}
+
+function resourceFailure(
+  kind: Exclude<ResourceStateKind, "clean" | "not-configured" | "staged-gitlink">,
+  detail: string,
+  remediation: string[]
+): ResourceState {
+  return {
+    kind,
+    allowPreCommit: false,
+    detail,
+    remediation,
+  };
+}
+
+function renderResourceStateFailure(state: ResourceState): string {
+  return [
+    `habitat hook pre-commit: resources state '${state.kind}' requires explicit action.`,
+    state.detail,
+    ...state.remediation.map((command) => `- ${command}`),
+    "",
+  ].join("\n");
 }

@@ -144,12 +144,13 @@ Husky owns the Git hook files and delegates to Habitat:
 - `.husky/pre-commit` -> `bun run habitat hook pre-commit`
 - `.husky/pre-push` -> `bun run habitat hook pre-push`
 
-Pre-commit is staged-scope only. It preserves the legacy resource submodule
-publish behavior, formats staged Biome-supported files, restages only files the
-formatter actually changed, runs one native Grit check over staged TS/JS paths,
-and runs staged file-layer rules including generated-zone and pnpm-artifact
-guards. If a format-eligible file has both staged and unstaged hunks, the hook
-fails before formatting; stage or unstage that whole file first.
+Pre-commit is staged-scope only. It checks resource submodule state without
+publishing, fails with explicit remediation when resources require action,
+formats staged Biome-supported files, restages only files the formatter
+actually changed, runs one native Grit check over staged TS/JS paths, and runs
+staged file-layer rules including generated-zone and pnpm-artifact guards. If a
+format-eligible file has both staged and unstaged hunks, the hook fails before
+formatting; stage or unstage that whole file first.
 
 Pre-push runs Nx affected targets for the local branch slice. In a Graphite
 stack it uses the Graphite parent branch as the affected base; outside
