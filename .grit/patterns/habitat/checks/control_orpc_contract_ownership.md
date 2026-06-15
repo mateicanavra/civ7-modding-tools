@@ -32,13 +32,23 @@ or {
 import { session } from "@civ7/direct-control";
 
 export const contract = session;
-```
 
-```typescript
 // @filename: packages/civ7-control-orpc/src/modules/demo/contract.ts
-import { session } from "@civ7/direct-control";
+import type { DirectControlSession } from "@civ7/direct-control";
 
-export const contract = session;
+export type DemoSession = DirectControlSession;
+
+// @filename: packages/civ7-control-orpc/src/modules/demo/contract.ts
+export const Civ7DemoInputSchema = Type.Object({});
+
+// @filename: packages/civ7-control-orpc/src/modules/demo/contract.ts
+export const Civ7DemoResultSchema = Type.Object({});
+
+// @filename: packages/civ7-control-orpc/src/modules/demo/contract.ts
+export const Civ7DemoStandardSchema = toStandardSchema(Civ7DemoInputSchema);
+
+// @filename: packages/civ7-control-orpc/src/index.ts
+export { Civ7DemoInputSchema } from "./modules/demo/contract";
 ```
 
 ## Ignores fixture
@@ -48,4 +58,40 @@ export const contract = session;
 import { schema } from "./schema.js";
 
 export const contract = schema;
+
+// @filename: packages/civ7-control-orpc/src/modules/demo/contract.ts
+const Civ7DemoInputSchema = Type.Object({});
+const Civ7DemoResultSchema = Type.Object({});
+const Civ7DemoStandardSchema = toStandardSchema(Civ7DemoInputSchema);
+
+// @filename: packages/civ7-control-orpc/src/modules/demo/contract.ts
+export const Civ7DemoStatusSchema = Type.Union([Type.Literal("ready")]);
+
+// @filename: packages/civ7-control-orpc/src/modules/demo/procedures/current.ts
+import type { DirectControlSession } from "@civ7/direct-control";
+
+export type DemoSession = DirectControlSession;
+
+// @filename: packages/civ7-control-orpc/src/context.ts
+import type { DirectControlSession } from "@civ7/direct-control";
+
+export type DemoSession = DirectControlSession;
+
+// @filename: packages/civ7-control-orpc/src/index.ts
+export { Civ7ControllerBridgeRequestSchema } from "./bridge/controller-ingress";
+
+// @filename: packages/civ7-control-orpc/src/modules/demo/contract.tsx
+import { session } from "@civ7/direct-control";
+
+export const contract = session;
+
+// @filename: packages/civ7-control-orpc/src/modules/demo/contract.ts
+import { session } from "@civ7/direct-control/testing";
+
+export const contract = session;
+
+// @filename: packages/civ7-control-orpc/src/modules/demo/contract.ts
+const directControl = import("@civ7/direct-control");
+
+export const contract = directControl;
 ```
