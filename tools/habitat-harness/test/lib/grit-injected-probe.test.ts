@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { runInjectedGritProbe, type InjectedProbeScope } from "../../src/lib/grit-injected-probe.js";
@@ -12,8 +12,8 @@ import { repoRoot } from "../../src/lib/paths.js";
 import type { HarnessRule } from "../../src/rules/architecture.js";
 
 const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
-const probePath = "packages/config/src/habitat-injected-probe.ts";
-const controlPath = "packages/config/src/habitat-injected-control.ts";
+const probePath = "packages/config/src/__habitat_probe__/matching.ts";
+const controlPath = "packages/config/src/__habitat_probe__/control.ts";
 
 describe("injected Grit probe harness", () => {
   test("creates scoped probe files, runs the adapter, asserts exact projection, and cleans up", async () => {
@@ -64,7 +64,7 @@ describe("injected Grit probe harness", () => {
   });
 
   test("refuses protected or non-approved probe paths before file creation", async () => {
-    const generatedProbe = "mods/mod-swooper-maps/src/maps/generated/habitat-probe.ts";
+    const generatedProbe = "mods/mod-swooper-maps/src/maps/generated/__habitat_probe.ts";
     const result = await runInjectedGritProbe({
       ruleId: rule.id,
       patternIdentity: "adapter_base_standard_import",
@@ -72,7 +72,7 @@ describe("injected Grit probe harness", () => {
       probeBody: "import '@civ7/adapter/base-standard/probe';\n",
       controlPath,
       controlBody: "export const control = true;\n",
-      scope: { ...scope(), scanRoots: ["packages/config/src"], matchingProbePath: generatedProbe },
+      scope: { ...scope(), scanRoots: ["mods/mod-swooper-maps/src/maps"], matchingProbePath: generatedProbe },
       registry: [rule],
       processLayer: makeFakeHabitatProcessLayer((request) => makeHabitatCommandResult(request)),
     });
@@ -81,6 +81,127 @@ describe("injected Grit probe harness", () => {
     if (result.ok) return;
     expect(result.failureTag).toBe("GritAdapterInternalContractViolation");
     expect(existsSync(path.join(repoRoot, generatedProbe))).toBe(false);
+  });
+
+  test("refuses source-shaped probe paths without a probe-owned segment", async () => {
+    const sourceShapedProbe = "packages/config/src/source-shaped-probe.ts";
+    const result = await runInjectedGritProbe({
+      ruleId: rule.id,
+      patternIdentity: "adapter_base_standard_import",
+      probePath: sourceShapedProbe,
+      probeBody: "import '@civ7/adapter/base-standard/probe';\n",
+      controlPath,
+      controlBody: "export const control = true;\n",
+      scope: { ...scope(), matchingProbePath: sourceShapedProbe },
+      registry: [rule],
+      processLayer: makeFakeHabitatProcessLayer((request) => makeHabitatCommandResult(request)),
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.message).toContain("__habitat");
+    expect(existsSync(path.join(repoRoot, sourceShapedProbe))).toBe(false);
+  });
+
+  test("creates and removes probe-owned nested parent directories", async () => {
+    const nestedProbe = "packages/config/src/__habitat_probe_nested__/matching/probe.ts";
+    const nestedControl = "packages/config/src/__habitat_probe_nested__/control/probe.ts";
+    const fakeLayer = makeFakeHabitatProcessLayer((request) =>
+      makeHabitatCommandResult(request, {
+        stderr: output(
+          JSON.stringify({
+            paths: [nestedProbe],
+            results: [
+              {
+                local_name: "adapter_base_standard_import",
+                path: nestedProbe,
+                start: { line: 1 },
+                extra: { message: "base-standard probe" },
+              },
+            ],
+          })
+        ),
+      })
+    );
+
+    const result = await runInjectedGritProbe({
+      ruleId: rule.id,
+      patternIdentity: "adapter_base_standard_import",
+      probePath: nestedProbe,
+      probeBody: 'import "@civ7/adapter/base-standard/probe";\n',
+      controlPath: nestedControl,
+      controlBody: "export const control = true;\n",
+      expectedDiagnostic: "base-standard probe",
+      scope: {
+        ...scope(),
+        matchingProbePath: nestedProbe,
+        outsideScopeControlPath: nestedControl,
+      },
+      registry: [rule],
+      processLayer: fakeLayer,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(existsSync(path.join(repoRoot, nestedProbe))).toBe(false);
+    expect(existsSync(path.join(repoRoot, nestedControl))).toBe(false);
+    expect(existsSync(path.join(repoRoot, "packages/config/src/__habitat_probe_nested__"))).toBe(
+      false
+    );
+  });
+
+  test("preserves pre-existing probe directories and sibling files during cleanup", async () => {
+    const existingRoot = "packages/config/src/__habitat_probe_existing__";
+    const sibling = `${existingRoot}/sibling.ts`;
+    const nestedProbe = `${existingRoot}/matching/probe.ts`;
+    const nestedControl = `${existingRoot}/control/probe.ts`;
+    const absoluteRoot = path.join(repoRoot, existingRoot);
+    rmSync(absoluteRoot, { recursive: true, force: true });
+    mkdirSync(absoluteRoot, { recursive: true });
+    writeFileSync(path.join(repoRoot, sibling), "export const sibling = true;\n");
+    const fakeLayer = makeFakeHabitatProcessLayer((request) =>
+      makeHabitatCommandResult(request, {
+        stderr: output(
+          JSON.stringify({
+            paths: [nestedProbe],
+            results: [
+              {
+                local_name: "adapter_base_standard_import",
+                path: nestedProbe,
+                start: { line: 1 },
+                extra: { message: "base-standard probe" },
+              },
+            ],
+          })
+        ),
+      })
+    );
+
+    try {
+      const result = await runInjectedGritProbe({
+        ruleId: rule.id,
+        patternIdentity: "adapter_base_standard_import",
+        probePath: nestedProbe,
+        probeBody: 'import "@civ7/adapter/base-standard/probe";\n',
+        controlPath: nestedControl,
+        controlBody: "export const control = true;\n",
+        expectedDiagnostic: "base-standard probe",
+        scope: {
+          ...scope(),
+          matchingProbePath: nestedProbe,
+          outsideScopeControlPath: nestedControl,
+        },
+        registry: [rule],
+        processLayer: fakeLayer,
+      });
+
+      expect(result.ok).toBe(true);
+      expect(existsSync(path.join(repoRoot, nestedProbe))).toBe(false);
+      expect(existsSync(path.join(repoRoot, nestedControl))).toBe(false);
+      expect(existsSync(path.join(repoRoot, sibling))).toBe(true);
+      expect(existsSync(absoluteRoot)).toBe(true);
+    } finally {
+      rmSync(absoluteRoot, { recursive: true, force: true });
+    }
   });
 
   test("cleans up scoped probes when adapter execution fails", async () => {

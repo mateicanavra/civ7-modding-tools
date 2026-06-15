@@ -1,4 +1,5 @@
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { Effect, Layer } from "effect";
 import type { HarnessRule, RuleRunResult } from "../rules/architecture.js";
@@ -56,7 +57,15 @@ export type GritCheckParseResult =
     };
 
 export interface GritCheckOptions {
+  cacheMode?: GritCheckCacheMode;
   requireObservableCacheStatus?: boolean;
+}
+
+export type GritCheckCacheMode = "workspace" | "fresh";
+
+export interface GritCheckRequestOptions {
+  cacheDir?: string;
+  observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
 }
 
 export interface GritProjectionOptions {
@@ -96,6 +105,7 @@ export async function runGritRules(
   options: {
     scanRoots?: readonly string[];
     processLayer?: Layer.Layer<HabitatProcess>;
+    cacheMode?: GritCheckCacheMode;
     requireObservableCacheStatus?: boolean;
     projection?: GritProjectionOptions;
   } = {}
@@ -114,6 +124,7 @@ export async function runGritRules(
 
   const parseResult = await runHabitatEffect(
     gritCheckProgram(scanRoots, {
+      cacheMode: options.cacheMode,
       requireObservableCacheStatus: options.requireObservableCacheStatus,
     }).pipe(Effect.provide(options.processLayer ?? HabitatProcessLive))
   );
@@ -130,9 +141,18 @@ export async function runGritRules(
 }
 
 export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions = {}) {
-  return Effect.gen(function* () {
+  return Effect.scoped(Effect.gen(function* () {
     const process = yield* HabitatProcess;
-    const result = yield* process.run(gritCheckRequest(scanRoots)).pipe(
+    const requestOptions =
+      options.cacheMode === "fresh"
+        ? {
+            cacheDir: yield* acquireGritCheckCacheDir(),
+            observableCacheStatus: "fresh" as const,
+          }
+        : {};
+    const result = yield* process.run(
+      gritCheckRequest(scanRoots, requestOptions)
+    ).pipe(
       Effect.catchTag("GritToolUnavailable", (error) =>
         Effect.fail(
           new GritToolUnavailable({
@@ -171,11 +191,14 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
         message: `Grit executable unavailable: ${error.executable}.`,
       })
     )
-  );
+  ));
 }
 
-export function gritCheckRequest(scanRoots: readonly string[]): HabitatProcessRequest {
-  const cacheDir = path.join(repoRoot, ".grit", "cache");
+export function gritCheckRequest(
+  scanRoots: readonly string[],
+  options: GritCheckRequestOptions = {}
+): HabitatProcessRequest {
+  const cacheDir = options.cacheDir ?? path.join(repoRoot, ".grit", "cache");
   mkdirSync(cacheDir, { recursive: true });
   return {
     commandId: "grit-check-current-tree",
@@ -191,7 +214,7 @@ export function gritCheckRequest(scanRoots: readonly string[]): HabitatProcessRe
     cachePolicy: {
       mode: "isolated",
       cacheDir,
-      observableStatus: "unknown",
+      observableStatus: options.observableCacheStatus ?? "unknown",
     },
     nonClaims: [
       "does-not-prove-injected-violation",
@@ -200,6 +223,13 @@ export function gritCheckRequest(scanRoots: readonly string[]): HabitatProcessRe
       "does-not-prove-product-runtime",
     ],
   };
+}
+
+function acquireGritCheckCacheDir() {
+  return Effect.acquireRelease(
+    Effect.sync(() => mkdtempSync(path.join(tmpdir(), "habitat-grit-check-"))),
+    (cacheDir) => Effect.sync(() => rmSync(cacheDir, { recursive: true, force: true }))
+  );
 }
 
 export function parseGritCheckOutput(commandResult: HabitatCommandResult): GritCheckParseResult {
@@ -314,14 +344,23 @@ export function discoverGritScanRoots(): string[] {
   return gritScanRootCandidates.filter((scanPath) => existsSync(path.join(repoRoot, scanPath)));
 }
 
-export function validateScanRoots(scanRoots: readonly string[]): string | null {
+export interface GritScanRootValidationOptions {
+  requireExisting?: boolean;
+}
+
+export function validateScanRoots(
+  scanRoots: readonly string[],
+  options: GritScanRootValidationOptions = {}
+): string | null {
+  const requireExisting = options.requireExisting ?? true;
   if (scanRoots.length === 0) return "Grit scan roots are empty.";
   for (const scanRoot of scanRoots) {
     const absolute = path.resolve(repoRoot, scanRoot);
     const relative = toRepoRelative(absolute);
     if (relative === ".." || relative.startsWith("../"))
       return `Grit scan root is outside the repo: ${scanRoot}.`;
-    if (!existsSync(absolute)) return `Grit scan root does not exist: ${scanRoot}.`;
+    if (requireExisting && !existsSync(absolute))
+      return `Grit scan root does not exist: ${scanRoot}.`;
     if (isGeneratedRoot(relative)) return `Grit scan root is generated output: ${relative}.`;
     if (isProtectedRoot(relative)) return `Grit scan root is protected: ${relative}.`;
     if (!isApprovedScanRoot(relative)) return `Grit scan root is not approved: ${relative}.`;

@@ -108,6 +108,34 @@
     the non-Grit adapter-boundary rule.
   - 22 explicit `[]` Grit baseline files now exist for the current enforced
     Grit check ids.
+- Injected-proof P1 cleanup incident, recorded 2026-06-15:
+  - Supervisor disk review found `git status --short` reporting 240 deleted
+    tracked files under protected product/source directories, including
+    `mods/mod-swooper-maps/src/domain/ecology/**` and
+    `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/**`.
+  - Root cause: DRA raw diagnostic code outside the accepted probe harness
+    created exact native-sample paths and then removed broad real source
+    directories with recursive cleanup (`domain/ecology` and
+    `recipes/standard/stages/foundation`) instead of deleting only owned probe
+    artifacts.
+  - Repair evidence: `git diff --name-only --diff-filter=D | wc -l` reported
+    240 before restore; `git diff --name-only --diff-filter=D -z | xargs -0
+    git restore --source=HEAD --` restored the deleted tracked files; follow-up
+    `git ls-files --deleted | wc -l` reported 0.
+  - Repaired boundary: injected probes must now use an explicit probe-owned
+    `__habitat...` path segment, source-shaped probe paths are rejected before
+    file creation, and focused unit tests prove pre-existing probe directories
+    plus sibling files survive cleanup.
+  - Follow-up P2 cache repair: the first draft made fresh temporary Grit cache
+    allocation global for every `gritCheckProgram()` call. That was rejected as
+    broader than the P1 cleanup repair and a public command-surface regression
+    risk. The repaired adapter now keeps ordinary current-tree wrapper checks
+    on the normal workspace cache policy and requires injected/proof callers
+    that create ephemeral files to opt into `cacheMode: "fresh"` plus
+    observable freshness.
+  - Blocked claims until supervisor re-review: injected violation proof,
+    cleanup-to-clean-worktree, safe probe path controls, public wrapper cache
+    policy, and any checkpoint after `00204ede1`.
 
 ## Scope
 
@@ -168,8 +196,11 @@ implementation tasks 4, 6, or adapter tests begin.
   - `workstream/reviews/evidence-system-review.md`
   - `workstream/reviews/effect-substrate-review.md`
   - `workstream/review-disposition-ledger.md`
-- Blocking findings: none after repair. All accepted P1/P2 findings are
-  dispositioned in `workstream/review-disposition-ledger.md`.
+- Blocking findings: SUP-INJECT-P1-01 and SUP-INJECT-P2-02 are repaired in
+  this checkpoint, but injected proof claims and public wrapper cache-policy
+  acceptance remain blocked until supervisor re-review. Earlier accepted P1/P2
+  findings are dispositioned in
+  `workstream/review-disposition-ledger.md`.
 
 ## Agent Fleet State
 
@@ -211,6 +242,12 @@ implementation tasks 4, 6, or adapter tests begin.
   shrink-only policy proof. This slice does not prove injected violations, raw
   direct acquisition, live baseline writes, apply safety, parity retirement, or
   product/runtime behavior.
+- Current injected-proof implementation state after SUP-INJECT-P1-01 and
+  SUP-INJECT-P2-02 repair:
+  tracked source deletions restored; focused cleanup/path-control tests pass;
+  normal public wrapper checks are no longer forced through fresh temporary
+  cache; injected proof execution and row claims remain paused pending
+  supervisor review of the repaired boundary.
 
 ## Verification
 
@@ -256,6 +293,33 @@ implementation tasks 4, 6, or adapter tests begin.
     passed after H6 baseline-record realignment.
   - `bun run openspec:validate` passed with 181 items.
   - `git diff --check` passed.
+  - P1 cleanup incident repair:
+    - `git status --short --branch` showed 240 deleted tracked files before
+      restore.
+    - `git diff --name-only --diff-filter=D | wc -l` showed `240` before
+      restore.
+    - `git diff --name-only --diff-filter=D -z | xargs -0 git restore
+      --source=HEAD --` restored deleted tracked files from branch `HEAD`.
+    - `git diff --name-only --diff-filter=D | wc -l` and
+      `git ls-files --deleted | wc -l` showed `0` after restore.
+    - `bun run --cwd tools/habitat-harness test --
+      grit-injected-probe.test.ts` passed: 1 file / 6 tests.
+    - `bun run --cwd tools/habitat-harness test -- grit-adapter.test.ts
+      grit-injected-probe.test.ts` passed: 2 files / 21 tests.
+    - `bun run --cwd tools/habitat-harness check` passed.
+    - `bun run --cwd tools/habitat-harness test` passed: 13 files / 84 tests.
+    - `bun run habitat:check -- --json --tool grit-check >
+      /tmp/habitat-grit-check-workspace-cache-repair-commit-rerun.json` passed
+      when run standalone with
+      CheckReport schemaVersion 1, `ok:true`, 22 Grit rules plus
+      `baseline-integrity`, all `pass`, zero diagnostics,
+      `sha256=27a8f3586dd8833a067c8d1cd7bafe3e790cf49a8bccbe834b31b7bdd1f4061b`,
+      and max per-rule duration `2206ms` under the narrowed normal workspace
+      cache policy. This is public wrapper compatibility evidence, not
+      injected-row proof.
+    - `bun run openspec -- validate habitat-grit-proof-repair --strict`
+      passed.
+    - `git diff --check` passed.
 - Evidence boundary: current implementation slice proves native Grit sample
   success and Habitat wrapper selector/current-tree zero-finding projection
   through CheckReport schemaVersion 1 on the branch that contains the accepted

@@ -1,4 +1,4 @@
-import { existsSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, rmdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Effect, Layer } from "effect";
 import type { HabitatDiagnostic } from "./diagnostics.js";
@@ -102,6 +102,8 @@ export function injectedGritProbeProgram(
             runGritRules([rule], {
               scanRoots: input.scope.scanRoots,
               processLayer: input.processLayer,
+              cacheMode: "fresh",
+              requireObservableCacheStatus: true,
               projection: { rejectUnexpectedPatternIdentity: true },
             }),
           catch: (error) =>
@@ -278,8 +280,11 @@ function validateProbePath(probePath: string, scanRoots: readonly string[]): str
   ) {
     return `Injected probe path is outside the effective scan roots: ${relative}.`;
   }
+  if (!hasProbeOwnershipMarker(relative)) {
+    return `Injected probe path must include a probe-owned __habitat path segment: ${relative}.`;
+  }
   const parent = path.dirname(relative);
-  const scanRootFailure = validateScanRoots([parent]);
+  const scanRootFailure = validateScanRoots([parent], { requireExisting: false });
   if (scanRootFailure) return scanRootFailure.replace("Grit scan root", "Injected probe parent");
   if (existsSync(path.join(repoRoot, relative))) {
     return `Injected probe path already exists: ${relative}.`;
@@ -298,8 +303,10 @@ function acquireProbeFile(
     Effect.try({
       try: () => {
         const relative = normalizeProbePath(probePath);
-        writeFileSync(path.join(repoRoot, relative), body);
-        return relative;
+        const absolute = path.join(repoRoot, relative);
+        const createdDirs = ensureProbeParentDirs(path.dirname(absolute));
+        writeFileSync(absolute, body);
+        return { relative, createdDirs };
       },
       catch: (error) =>
         failure(
@@ -308,8 +315,44 @@ function acquireProbeFile(
           `Failed to create injected probe ${probePath}: ${String(error)}.`
         ),
     }),
-    (createdPath) => Effect.sync(() => rmSync(path.join(repoRoot, createdPath), { force: true }))
+    ({ relative, createdDirs }) =>
+      Effect.sync(() => {
+        rmSync(path.join(repoRoot, relative), { force: true });
+        for (const dir of createdDirs) {
+          try {
+            rmdirSync(dir);
+          } catch (error) {
+            if (!isIgnorableDirectoryCleanupError(error)) throw error;
+          }
+        }
+      })
   );
+}
+
+function ensureProbeParentDirs(parentDir: string): string[] {
+  const createdDirs: string[] = [];
+  let current = parentDir;
+  while (!existsSync(current)) {
+    createdDirs.push(current);
+    const next = path.dirname(current);
+    if (next === current) break;
+    current = next;
+  }
+  mkdirSync(parentDir, { recursive: true });
+  return createdDirs;
+}
+
+function isIgnorableDirectoryCleanupError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error.code === "ENOENT" || error.code === "ENOTEMPTY")
+  );
+}
+
+function hasProbeOwnershipMarker(relative: string): boolean {
+  return relative.split(/[\\/]+/).some((segment) => segment.startsWith("__habitat"));
 }
 
 function findAdapterFailure(diagnostics: readonly HabitatDiagnostic[]): GritAdapterFailureTag | null {

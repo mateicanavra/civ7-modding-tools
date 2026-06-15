@@ -259,14 +259,51 @@ describe("Grit check adapter parser and projection", () => {
       argv: ["--json", "check", "--level", "error", "packages"],
       cwd: repoRoot,
       scanRoots: ["packages"],
+      cachePolicy: {
+        mode: "isolated",
+        observableStatus: "unknown",
+      },
     });
+    expect(observedRequest?.cachePolicy?.cacheDir).toBe(`${repoRoot}/.grit/cache`);
+    expect(observedRequest?.env?.GRIT_CACHE_DIR).toBe(observedRequest?.cachePolicy?.cacheDir);
     expect(results.get(rule.id)?.diagnostics[0]?.message).toBe("adapter finding");
+  });
+
+  test("fresh proof mode uses a scoped isolated cache with observable freshness", async () => {
+    const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
+    let observedRequest: HabitatProcessRequest | undefined;
+    const fakeLayer = makeFakeHabitatProcessLayer((request) => {
+      observedRequest = request;
+      return makeHabitatCommandResult(request, {
+        stderr: output(JSON.stringify({ paths: [], results: [] })),
+      });
+    });
+
+    const results = await runGritRules([rule], {
+      scanRoots: ["packages"],
+      processLayer: fakeLayer,
+      cacheMode: "fresh",
+      requireObservableCacheStatus: true,
+    });
+
+    expect(observedRequest?.cachePolicy).toMatchObject({
+      mode: "isolated",
+      observableStatus: "fresh",
+    });
+    expect(observedRequest?.cachePolicy?.cacheDir).toContain("habitat-grit-check-");
+    expect(observedRequest?.env?.GRIT_CACHE_DIR).toBe(observedRequest?.cachePolicy?.cacheDir);
+    expect(results.get(rule.id)).toEqual({ exitCode: 0, diagnostics: [] });
   });
 
   test("fails proof paths that require observable cache provenance when status is unknown", async () => {
     const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
     const fakeLayer = makeFakeHabitatProcessLayer((request) =>
       makeHabitatCommandResult(request, {
+        cachePolicy: {
+          mode: request.cachePolicy?.mode ?? "isolated",
+          cacheDir: request.cachePolicy?.cacheDir,
+          observableStatus: "unknown",
+        },
         stderr: output(JSON.stringify({ paths: [], results: [] })),
       })
     );
