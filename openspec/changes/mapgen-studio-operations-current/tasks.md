@@ -2,8 +2,8 @@
 
 - [x] 1.1 Confirm D0-D5 are accepted in `OPENSPEC-PACKET-TRAIN.md`.
 - [x] 1.2 Confirm `mapgen-studio-operations-current` exists but requires repair from stale S2.1 implementation closure to D6 frame-standard packet.
-- [ ] 1.3 Run D6 runtime projection, browser recovery deletion, TypeBox/schema, testing/parity, hardening/prework, black-ice, and downstream review lanes.
-- [ ] 1.4 Record packet entrance proof: dependency install freshness, baseline build/check, `git status --short --branch`, `gt status`, `gt log --no-interactive`, dirty-file quarantine, and selected baseline.
+- [x] 1.3 Run D6 runtime projection, browser recovery deletion, TypeBox/schema, testing/parity, hardening/prework, black-ice, and downstream review lanes.
+- [x] 1.4 Record packet entrance proof: dependency install freshness, baseline build/check, `git status --short --branch`, `gt status`, `gt log --no-interactive`, dirty-file quarantine, and selected baseline.
 
 ## 2. Packet Scope
 
@@ -34,25 +34,25 @@
 
 These are D6 implementation obligations recorded by this packet, not pre-acceptance authoring tasks.
 
-- [ ] 3A.1 Implement/repair `StudioOperationRuntime.current`.
-- [ ] 3A.2 Route `studio.operations.current` router leaf through the managed runtime.
-- [ ] 3A.3 Define TypeBox request/response schemas for operation current.
-- [ ] 3A.4 Delete browser operation recovery localStorage keys/modules.
-- [ ] 3A.5 Replace boot request-id replay with one current adoption read.
-- [ ] 3A.6 Preserve status polling only for active operations until D8/D9.
-- [ ] 3A.7 Run package/app tests, negative searches, and schema guards.
+- [x] 3A.1 Implement/repair `StudioOperationRuntime.current`.
+- [x] 3A.2 Route `studio.operations.current` router leaf through the managed runtime.
+- [x] 3A.3 Define TypeBox request/response schemas for operation current.
+- [x] 3A.4 Delete browser operation recovery localStorage keys/modules.
+- [x] 3A.5 Replace shell boot request-id replay with daemon-current adoption and classify the D8/D9 event-hook hello read as protected residual behavior.
+- [x] 3A.6 Preserve status polling only for active operations until D8/D9.
+- [x] 3A.7 Run package/app tests, negative searches, and schema guards.
 
 ## 4. Verification
 
-- [ ] 4.1 `bun run openspec -- validate mapgen-studio-operations-current --strict`.
-- [ ] 4.2 `bun run openspec:validate`.
-- [ ] 4.3 `git diff --check`.
+- [x] 4.1 `bun run openspec -- validate mapgen-studio-operations-current --strict`.
+- [x] 4.2 `bun run openspec:validate`.
+- [x] 4.3 `git diff --check`.
 - [ ] 4.4 `bun install --frozen-lockfile`.
 - [ ] 4.5 Current packet-authoring base: `bun run build` and `bun run check`.
-- [ ] 4.6 `git status --short --branch`, `gt status`, and `gt log --no-interactive`.
+- [x] 4.6 `git status --short --branch`, `gt status`, and `gt log --no-interactive`.
 
 ## 5. Closure
 
-- [ ] 5.1 Record review acceptance in `review-disposition-ledger.md`.
-- [ ] 5.2 Mark D6 accepted in `OPENSPEC-PACKET-TRAIN.md`.
-- [ ] 5.3 Commit accepted D6 packet through Graphite with clean/quarantined worktree state.
+- [x] 5.1 Record review acceptance in `review-disposition-ledger.md`.
+- [x] 5.2 Mark D6 accepted in `OPENSPEC-PACKET-TRAIN.md`.
+- [x] 5.3 Commit accepted D6 packet through Graphite with clean/quarantined worktree state.

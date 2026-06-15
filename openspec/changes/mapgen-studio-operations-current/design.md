@@ -66,7 +66,7 @@ D6 cannot synthesize an uncertain browser state for a missing operation. Missing
 
 ## Client Boot Adoption
 
-The app performs one boot read:
+The D6-owned shell boot effect performs a daemon-current read:
 
 ```ts
 studio.operations.current({})
@@ -80,7 +80,7 @@ The shell/adoption hook uses the response to seed displayed operation state:
 - retained terminal Save/Deploy seeds only terminal recent/current display and cannot restart deploy;
 - Autoplay remains a D5 immediate command outside D6 current projection.
 
-Existing active-operation status polling remains only as a D8/D9 deletion-targeted surface until D8/D9 replace it with event/push transport. D6 does not add a polling loop for `operations.current`.
+Existing active-operation status polling and the D8/D9-owned event-hook hello adoption read remain deletion-targeted surfaces until D8/D9 replace them with event/push transport. D6 does not add a polling loop for `operations.current` and does not treat the event-hook hello read as D6 closure proof.
 
 ## Browser Recovery Deletion
 

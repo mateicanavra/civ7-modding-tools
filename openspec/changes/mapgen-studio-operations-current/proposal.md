@@ -28,7 +28,7 @@ The browser must not rediscover operation state by replaying persisted request i
 
 - Repair the existing `mapgen-studio-operations-current` change into D6 frame-standard shape.
 - Specify `studio.operations.current` as an Effect-managed read projection over D4 `StudioOperationRuntime`, not app-local operation-store enumeration.
-- Specify boot adoption as a one-shot client read of daemon current truth, followed by existing active-operation status polling until D8/D9 event/push packets replace it.
+- Specify shell boot adoption as a client read of daemon current truth, followed by existing active-operation status polling and D8/D9-owned event-hook hello adoption until D8/D9 event/push packets replace those residual reads.
 - Delete browser-owned operation recovery:
   - Run in Game request-id recovery;
   - Run in Game snapshot recovery;
@@ -98,7 +98,7 @@ Protected paths:
 - `studio.operations.current` returns D4 daemon identity, observed timestamp, active operation projections, terminal-only retained recent projections, and expiry-consistent empty truth after pruning.
 - Fresh daemon reports no operations and no browser recovery path is attempted.
 - Current/status tests cover active, retained terminal, expired-known tombstone, physically pruned or never-known id, and daemon-identity-mismatched id states. Expired-known ids return D3 `OperationExpired` with current daemon identity until D4 physically prunes them; physically pruned or never-known ids return D3 typed not-found with current daemon identity.
-- Boot adoption reads daemon current once and does not replay localStorage operation request ids into status calls.
+- Shell boot adoption reads daemon current and does not replay localStorage operation request ids into status calls; the existing D8/D9-owned event-hook hello read remains classified as protected residual behavior.
 - Protected storage owners remain green: authoring state key `mapgen-studio.authoring-state.v1`, preset key `mapgen-studio.scratchConfigs`, theme key `theme-preference`, and non-operation UI storage owners.
 - Negative searches:
   - no `runInGameRequestId`, `saveDeployRequestId`, `runInGameSnapshot`, `lastRunInGameSource`, `setRunInGameSnapshot`, `setLastRunInGameSource`, `RUN_IN_GAME_LAST`, `MAP_CONFIG_SAVE_LAST_REQUEST`, `sourceSnapshotStorage`, `readStoredRunInGameSourceSnapshot`, or operation recovery localStorage bridge remains as production recovery code;

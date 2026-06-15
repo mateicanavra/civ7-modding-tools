@@ -11,7 +11,7 @@ import type { LastRunSnapshot } from "../features/runInGame/liveSource";
  *
  * S2.1 moved operation recovery to daemon-owned `studio.operations.current`.
  * This store no longer reads or writes operation request ids, run snapshots, or
- * source snapshots through localStorage. The fields here are session-only aids
+ * source snapshots through browser storage. The fields here are session-only aids
  * for the current tab's stale/current relation and Live Game preset display.
  */
 

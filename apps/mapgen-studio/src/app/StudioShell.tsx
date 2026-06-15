@@ -331,7 +331,7 @@ export function StudioShell(props: StudioShellProps) {
   const lastPresetKeyRef = useRef(recipeSettings.preset);
   const lastRecipeIdRef = useRef(recipeSettings.recipe);
   // `lastRunInGameSource` is session-only UI state. S2.1 deleted the
-  // localStorage recovery bridge; daemon-retained operations are adopted from
+  // browser-storage recovery bridge; daemon-retained operations are adopted from
   // `studio.operations.current` instead.
   const lastRunInGameSource = useRunStore((s) => s.lastRunInGameSource);
   const setLastRunInGameSource = useRunStore((s) => s.setLastRunInGameSource);

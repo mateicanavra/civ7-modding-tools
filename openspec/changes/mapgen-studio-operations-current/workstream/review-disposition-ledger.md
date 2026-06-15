@@ -32,3 +32,14 @@ Date: 2026-06-14
 | Browser recovery deletion / protected storage | Russell | accepted | No remaining P1/P2 after expanded recovery symbol corpus, generic storage scan, parser-helper pure-only rule, and protected storage owner tests. |
 | TypeBox/schema/testing adequacy | Boole | accepted | No remaining P1/P2 after recoverable `TSchema` origin, canonical DTO reuse, static/runtime parity, exact lifecycle matrix, and negative-search gates. |
 | Hardening/prework/black ice | Mendel | accepted | No remaining P1/P2 after ambiguity tightening, active-polling D8/D9 deletion target, exact daemon mismatch, and theme untouched-file proof. |
+
+## Implementation-Diff Review Disposition
+
+Status: implementation-diff review complete with no unresolved P1/P2; committed at current D6 branch tip.
+
+| ID | Reviewer | Finding | Severity | Disposition | Repair / Evidence |
+| --- | --- | --- | --- | --- | --- |
+| D6-IMPL-R1 | Maxwell | The D6 implementation/test wording overclaimed “one daemon-current read” because `useStudioEvents.ts` can also read current on event-stream hello. | P2 | accepted/repaired | Test and docs now scope the claim to the D6-owned shell boot effect. The D8/D9-owned event-hook hello-current read is explicitly classified as protected residual behavior, not D6 closure proof. |
+| D6-IMPL-R2 | Supervisor | Boot/no-replay proof omitted the accepted forbidden `fetchSaveDeployStatus` symbol. | P2 | accepted/repaired | `operationAdoption.test.ts` now guards `fetchRunInGameStatus`, `fetchSaveDeployStatus`, `runInGame.status`, and `mapConfigs.status` in the boot/adoption source corpus. |
+| D6-IMPL-R3 | Supervisor | Retained `runInGameSnapshot`, `lastRunInGameSource`, setters, and parse helpers needed explicit session-only/proof-helper classification. | P2 | accepted/repaired | `operationAdoption.test.ts` asserts `runStore.ts` is session-only and has no storage adapter; `StudioShell.tsx` setter usage is storage-free; `clientState.ts` parse helpers have no storage read/write path. |
+| D6-IMPL-R4 | Supervisor | Storage API proof must match the accepted broad scan or record a narrower executable guard plus raw scan classification. | P2 | accepted/repaired | Executable guard bans storage APIs and recovery key symbols outside protected owners. Raw broad scan is recorded as classified evidence: authoring/preset/theme/view/comment owners are unrelated protected storage; operation recovery-key production scan is zero-hit. |
