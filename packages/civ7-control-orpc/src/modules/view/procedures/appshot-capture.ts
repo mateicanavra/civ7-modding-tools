@@ -1,4 +1,3 @@
-import { CIV7_CLEAN_FRAME_VIEW_NAME } from "@civ7/direct-control";
 import { Effect, Ref } from "effect";
 
 import type {
@@ -12,6 +11,7 @@ import { viewCameraFromFocusResult } from "../camera-readback";
 import type { Civ7ViewAppshotCaptureResult, Civ7ViewCamera } from "../contract";
 
 const DEFAULT_APPSHOT_SETTLE_MS = 400;
+const CIV7_CLEAN_FRAME_VIEW_NAME = "DirectControlCleanFrame";
 
 /**
  * Captures a clean, window-scoped frame of the live Civ7 session — game
