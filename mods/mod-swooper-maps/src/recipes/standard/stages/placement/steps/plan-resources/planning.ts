@@ -4,17 +4,23 @@ import resources from "@mapgen/domain/resources";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import {
-  buildHabitatEligibility,
-  buildResourceLegalityMask,
   EARTHLIKE_RESOURCE_EXPECTATIONS,
-  getInitialMapResourcePolicyForType,
-  RESOURCE_HABITAT_SIGNALS,
-  type ResourceFamilyId,
-  type ResourceLegalitySurface,
-  resolveActiveResourceAge,
   resolveResourceRuntimeIds,
 } from "../../../../../../domain/resources/index.js";
 import type { OfficialResourceType } from "../../../../../../domain/resources/lib/corpus/types.js";
+import {
+  buildHabitatEligibility,
+  RESOURCE_HABITAT_SIGNALS,
+  type ResourceFamilyId,
+} from "../../../../../../domain/resources/policy/habitat-eligibility.js";
+import {
+  getInitialMapResourcePolicyForType,
+  resolveActiveResourceAge,
+} from "../../../../../../domain/resources/policy/initial-map-authoring.js";
+import {
+  buildResourceLegalityMask,
+  type ResourceLegalitySurface,
+} from "../../../../../../domain/resources/policy/resource-legality.js";
 
 type HabitatFields = Static<(typeof resources.ops.deriveHabitatFields)["output"]>;
 type SelectSitesInput = Static<(typeof resources.ops.selectResourceSites)["input"]>;

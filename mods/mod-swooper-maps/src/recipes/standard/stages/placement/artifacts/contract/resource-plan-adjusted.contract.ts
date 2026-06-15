@@ -1,4 +1,4 @@
-import resources from "@mapgen/domain/resources/contract";
+import resources from "@mapgen/domain/resources";
 import { defineArtifact } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Support-adjusted resource plan (`artifact:placement.resourcePlanAdjusted`). One artifact per file by repo convention. */

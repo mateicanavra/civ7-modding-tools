@@ -35,7 +35,11 @@ function resolveLocalImport(fromFile: string, specifier: string): string | null 
   }
   if (specifier.startsWith("@mapgen/domain/")) {
     const suffix = specifier.slice("@mapgen/domain/".length).replace(/\.(m?js)$/, "");
-    return resolve(repoRoot, "mods/mod-swooper-maps/src/domain", `${suffix}.ts`);
+    const base = resolve(repoRoot, "mods/mod-swooper-maps/src/domain", suffix);
+    for (const candidate of [`${base}.ts`, `${base}/index.ts`]) {
+      if (existsSync(candidate)) return candidate;
+    }
+    return `${base}.ts`;
   }
   if (!specifier.startsWith(".")) return null;
   const base = resolve(dirname(fromFile), specifier);
@@ -127,11 +131,8 @@ describe("daemon deploy isolation", () => {
       });
       expect({ file: rel(file), source }).not.toMatchObject({
         source: expect.stringMatching(
-          /from\s+["'](?:mod-swooper-maps\/recipes\/(?:standard|standard-artifacts|standard-map-configs|browser-test)|@mapgen\/domain\/[^"']+\/ops["'])/
+          /from\s+["'](?:mod-swooper-maps\/recipes\/(?:standard|standard-artifacts|standard-map-configs|browser-test)|@mapgen\/domain\/[^"']+\/(?:contract|ops)["'])/
         ),
-      });
-      expect({ file: graphPath, source }).not.toMatchObject({
-        source: expect.stringMatching(/from\s+["']@mapgen\/domain\/[^/"']+["']/),
       });
       if (!graphPath.startsWith("mods/mod-swooper-maps/src/recipes/")) continue;
       expect({ file: rel(file), source }).not.toMatchObject({

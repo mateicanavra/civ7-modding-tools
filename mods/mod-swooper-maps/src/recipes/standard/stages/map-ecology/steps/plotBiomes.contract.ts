@@ -1,4 +1,4 @@
-import { BiomeEngineBindingsSchema } from "@mapgen/domain/ecology/contract";
+import { BiomeEngineBindingsSchema } from "@mapgen/domain/ecology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import {

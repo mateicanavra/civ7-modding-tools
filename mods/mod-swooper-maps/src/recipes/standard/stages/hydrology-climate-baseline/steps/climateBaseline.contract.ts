@@ -1,4 +1,4 @@
-import hydrology from "@mapgen/domain/hydrology/contract";
+import hydrology from "@mapgen/domain/hydrology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { morphologyArtifacts } from "../../morphology/artifacts.js";
 import { hydrologyClimateBaselineArtifacts } from "../artifacts.js";
