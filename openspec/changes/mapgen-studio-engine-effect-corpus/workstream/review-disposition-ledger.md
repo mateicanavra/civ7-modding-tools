@@ -20,3 +20,18 @@ Date: 2026-06-14
 - App-hosted engine corpus review: accepted after D2-R6 through D2-R9 repairs.
 - `@civ7/control-orpc` / `@civ7/direct-control` authority review: accepted after D2-R4 and D2-R5 repairs.
 - Adversarial omission/complexity review: accepted after D2-R5 and D2-R9 repairs.
+
+## Implementation Refresh Review - 2026-06-15
+
+Reviewer: Rawls (`019ec9c5-f720-7622-9dfe-96630944faf5`).
+
+| ID | Lane | Finding | Severity | Disposition | Repair |
+| --- | --- | --- | --- | --- | --- |
+| D2-IR1 | control-oRPC retained behavior coverage | `display.explore.request` uses `getCiv7VisibilitySummary`, but the D2 coverage query and guard omitted that retained direct-control/facade seam. | P2 | accepted | Added `getCiv7VisibilitySummary` to the control-oRPC coverage query, behavior-state ledger row, and durable corpus guard. |
+| D2-IR2 | Studio host context corpus | `StudioServerContext.civ7Control` was not represented as its own host-injected composition seam even though it supplies `liveCiv7ControlOrpcDirectControlFacade` and feeds `Civ7ControlOrpcRouter` through the one `/rpc` handler. | P2 | accepted | Added a retained-package-authority row for `StudioServerContext.civ7Control`, `liveCiv7ControlOrpcDirectControlFacade`, `context.civ7Control.directControl`, `context.civ7Control.timeoutMs`, and `Civ7ControlOrpcRouter`; the guard now checks those exact ledger tokens. |
+| D2-IR3 | Studio host context classification | `StudioServerContext.loadSetupCatalog` was grouped with stateful operation-engine functions even though it is a setup catalog/resource seam, not an operation runtime mutation engine. | P2 | accepted | Split `StudioServerContext.loadSetupCatalog` into its own future-domino/D12 retained-surface row and left the operation host-function row scoped to Autoplay, Run in Game, Save/Deploy, and operations-current functions. |
+| D2-IR4 | Run in Game proof/live projection corpus | `buildLiveRuntimeStatusState` and `liveRuntimeSnapshot` feed exact-authorship proof assembly, but D2 only named the package live-game read model. | P3 | accepted | Added a `Run in Game live-runtime snapshot projection` row for `buildLiveRuntimeStatusState`, `liveRuntimeSnapshot`, `snapshotId`, `snapshotHash`, `turn`, and `gameHash`, with D5/D10 ownership and proof oracles. |
+| D2-IR5 | corpus guard strength | The new guard could pass if a token appeared in prose/query text rather than a real ledger row with classification/risk/oracle/re-entry fields. | P3 | accepted | Strengthened `engineEffectCorpus.test.ts` to parse markdown rows and require each discovered token to appear in a row with nonempty classification, risk, oracle, and re-entry trigger columns. |
+
+All implementation-refresh findings above are repaired as of the green focused
+guard run on 2026-06-15.
