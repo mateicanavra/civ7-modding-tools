@@ -128,6 +128,25 @@ export function shouldCommitLiveRuntimeSnapshot(args: {
   return !args.aborted && args.activeRequestKey === args.resultRequestKey;
 }
 
+export function buildLiveRuntimeSetupRequestKey(status: LiveRuntimeStatusState): string {
+  return stableLiveRuntimeStringify({
+    snapshotId: status.snapshotId,
+    snapshotHash: status.snapshotHash,
+    turn: status.turn,
+    seed: status.seed,
+    gameHash: status.gameHash,
+    status: status.status,
+  });
+}
+
+export function shouldCommitLiveRuntimeSetup(args: {
+  activeRequestKey: string | null;
+  resultRequestKey: string;
+  aborted?: boolean;
+}): boolean {
+  return !args.aborted && args.activeRequestKey === args.resultRequestKey;
+}
+
 export function buildLiveRuntimeSnapshotQuery(request: LiveRuntimeSnapshotRequest): string {
   const params = new URLSearchParams({
     x: String(request.bounds.x),

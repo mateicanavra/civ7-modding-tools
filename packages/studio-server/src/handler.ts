@@ -4,11 +4,7 @@ import { RPCHandler } from "@orpc/server/fetch";
 import { Effect } from "effect";
 import type { StudioServerContext } from "./context.js";
 import type { StudioContract, StudioEffectContract } from "./contract/index.js";
-import {
-  createRuntimeLiveGameWatcher,
-  type LiveGameWatcher,
-  type LiveGameWatcherOptions,
-} from "./liveGame/watcher.js";
+import { StudioLiveGameWatcher, type LiveGameWatcherOptions } from "./liveGame/watcher.js";
 import { StudioOperationRuntime, type StudioDaemonIdentity } from "./operationRuntime/index.js";
 import { createStudioRouter } from "./router/index.js";
 import { makeStudioRuntime } from "./runtime.js";
@@ -37,10 +33,11 @@ import { Civ7TunerSession, type Civ7TunerSessionHealth } from "./services/Civ7Tu
  * Remaining host obligations:
  * - `tuner.health()` — consecutive response-timeouts + backoff-gate state
  *   (the daemon's `/healthz` probe).
- * - `dispose()` — closes the runtime scope (graceful FIN to the game), stops
- *   the live-game watcher, and shuts down the daemon-owned event hub so open
- *   `studio.events.watch` readers settle. The host MUST call this on shutdown
- *   or the release finalizers never run.
+ * - `dispose()` — closes the runtime scope (graceful FIN to the game and
+ *   interruption of runtime-scoped workers such as the live-game watcher), and
+ *   shuts down the daemon-owned event hub so open `studio.events.watch` readers
+ *   settle. The host MUST call this on shutdown or the release finalizers never
+ *   run.
  *
  * `StrictGetMethodPlugin` is on by default (GET CSRF hardening) — left
  * enabled. CORS is omitted: `/rpc` is same-origin.
@@ -67,7 +64,7 @@ export function createStudioRpcHandler(
   context: StudioServerContext,
   options: StudioRpcHandlerOptions = {}
 ): StudioRpcHandle {
-  const runtime = makeStudioRuntime(context);
+  const runtime = makeStudioRuntime(context, { liveGameWatch: options.liveGameWatch });
   const effectRouter = createStudioRouter(runtime);
   // `Router<…>` types every node as `Lazyable<…>`; our effect router never
   // contains lazy nodes (no `lazy()` anywhere in the builder), so unwrap the
@@ -106,15 +103,18 @@ export function createStudioRpcHandler(
   // the session object itself is acquired without I/O — but the memo must
   // not be the thing that makes a failure sticky).
   let sessionPromise: Promise<Civ7ControlOrpcContext["endpointDefaults"]> | undefined;
-  let liveGameWatcher: LiveGameWatcher | undefined;
-  if (options.liveGameWatch) {
-    liveGameWatcher = createRuntimeLiveGameWatcher({
-      runtime,
-      eventHub: context.eventHub,
-      options: options.liveGameWatch,
-    });
-    liveGameWatcher.start();
-  }
+  let liveGameWatcherReady: Promise<void> | undefined;
+  const ensureLiveGameWatcher = () => {
+    if (options.liveGameWatch === undefined) return Promise.resolve();
+    return (liveGameWatcherReady ??= runtime
+      .runPromise(StudioLiveGameWatcher)
+      .then(() => undefined)
+      .catch((error: unknown) => {
+        liveGameWatcherReady = undefined;
+        console.error("[studio-server] failed to acquire live-game watcher", error);
+        throw error;
+      }));
+  };
 
   const controlEndpointDefaults = () =>
     (sessionPromise ??= runtime
@@ -129,23 +129,26 @@ export function createStudioRpcHandler(
       }));
 
   return {
-    handle: async (request, options) =>
-      handler.handle(request, {
+    handle: async (request, options) => {
+      await ensureLiveGameWatcher();
+      return handler.handle(request, {
         prefix: options?.prefix ?? "/rpc",
         context: {
           directControl: context.civ7Control.directControl,
           endpointDefaults: await controlEndpointDefaults(),
         } satisfies Civ7ControlOrpcContext,
-      }),
+      });
+    },
     tuner: {
       health: () => runtime.runPromise(Effect.flatMap(Civ7TunerSession, (tuner) => tuner.health)),
     },
     operationRuntime: {
       identity: () =>
-        runtime.runPromise(Effect.map(StudioOperationRuntime, (operationRuntime) => operationRuntime.identity)),
+        ensureLiveGameWatcher().then(() =>
+          runtime.runPromise(Effect.map(StudioOperationRuntime, (operationRuntime) => operationRuntime.identity))
+        ),
     },
     dispose: async () => {
-      liveGameWatcher?.stop();
       await runtime.dispose();
       await context.eventHub.shutdown();
     },

@@ -20,17 +20,21 @@ export class StudioEventHub extends Context.Tag("@civ7/studio-server/StudioEvent
 export function createStudioEventHub(): StudioEventHubApi {
   let activeSubscribers = 0;
   let shutdownStarted = false;
+  let latestLiveGameEvent: StudioEvent | undefined;
   const activeReleases = new Set<() => Promise<void>>();
   const pubsubPromise = Effect.runPromise(PubSub.unbounded<StudioEvent>());
 
   return {
     async publish(event) {
+      if (event.type === "live-game") latestLiveGameEvent = event;
       const pubsub = await pubsubPromise;
       await Effect.runPromise(PubSub.publish(pubsub, event));
     },
 
     subscribe(options = {}) {
-      const initialEvents = options.initialEvents ?? [];
+      const initialEvents = latestLiveGameEvent === undefined
+        ? (options.initialEvents ?? [])
+        : [...(options.initialEvents ?? []), latestLiveGameEvent];
       let initialEventIndex = 0;
       let closed = false;
 

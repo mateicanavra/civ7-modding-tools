@@ -1,9 +1,5 @@
 import { orpcClient } from "../orpc";
 
-export type LiveControlReadinessResult = Awaited<
-  ReturnType<typeof orpcClient.civ7.readiness.current>
->;
-
 export type LiveControlExploreRequestInput = Parameters<
   typeof orpcClient.civ7.display.explore.request
 >[0];
@@ -25,9 +21,6 @@ export type LiveControlExploreRequestResult = Awaited<
  * fake port, not a fake transport).
  */
 export type LiveControlPort = Readonly<{
-  readiness: Readonly<{
-    current(): Promise<LiveControlReadinessResult>;
-  }>;
   display: Readonly<{
     explore: Readonly<{
       /**
@@ -46,9 +39,6 @@ export function createBoundLiveControlPort(
   client: Pick<typeof orpcClient, "civ7"> = orpcClient
 ): LiveControlPort {
   return {
-    readiness: {
-      current: () => client.civ7.readiness.current({}),
-    },
     display: {
       explore: {
         request: (input) => client.civ7.display.explore.request(input),

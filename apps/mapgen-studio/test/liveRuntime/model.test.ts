@@ -4,8 +4,10 @@ import {
   buildLiveRuntimeSnapshotQuery,
   buildLiveRuntimeSnapshotRequest,
   buildLiveRuntimeSnapshotState,
+  buildLiveRuntimeSetupRequestKey,
   buildLiveRuntimeStatusState,
   buildLiveRuntimeSuggestionRecords,
+  shouldCommitLiveRuntimeSetup,
   shouldCommitLiveRuntimeSnapshot,
 } from "../../src/features/liveRuntime/model";
 
@@ -131,6 +133,52 @@ describe("live runtime model", () => {
         aborted: true,
       })
     ).toBe(false);
+  });
+
+  it("keys setup follow-up commits from pushed live-game state", () => {
+    const first = buildLiveRuntimeStatusState({
+      observedAtFallback: "2026-06-06T00:00:00.000Z",
+      body: {
+        ok: true,
+        mapSummary: {
+          game: { turn: { ok: true, value: 7 }, hash: { ok: true, value: 111 } },
+          map: { randomSeed: { ok: true, value: 44 } },
+        },
+      },
+    });
+    const second = buildLiveRuntimeStatusState({
+      observedAtFallback: "2026-06-06T00:00:01.000Z",
+      body: {
+        ok: true,
+        mapSummary: {
+          game: { turn: { ok: true, value: 8 }, hash: { ok: true, value: 222 } },
+          map: { randomSeed: { ok: true, value: 55 } },
+        },
+      },
+    });
+    const firstKey = buildLiveRuntimeSetupRequestKey(first);
+    const secondKey = buildLiveRuntimeSetupRequestKey(second);
+
+    expect(firstKey).not.toBe(secondKey);
+    expect(
+      shouldCommitLiveRuntimeSetup({
+        activeRequestKey: secondKey,
+        resultRequestKey: firstKey,
+      })
+    ).toBe(false);
+    expect(
+      shouldCommitLiveRuntimeSetup({
+        activeRequestKey: firstKey,
+        resultRequestKey: firstKey,
+        aborted: true,
+      })
+    ).toBe(false);
+    expect(
+      shouldCommitLiveRuntimeSetup({
+        activeRequestKey: firstKey,
+        resultRequestKey: firstKey,
+      })
+    ).toBe(true);
   });
 
   it("hashes snapshot payloads and keeps request identity in the state", () => {
