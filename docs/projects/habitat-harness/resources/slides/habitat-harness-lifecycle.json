@@ -1,0 +1,544 @@
+{
+  "slideshows": [
+    {
+      "id": "habitat-harness-lifecycle",
+      "title": "Habitat Harness: Executable Repository Structure",
+      "concepts": {
+        "frame": {
+          "label": "Frame",
+          "description": "The product outcome and boundary of the workstream.",
+          "color": "blue"
+        },
+        "layers": {
+          "label": "Layers",
+          "description": "The enforcement model and owner boundaries.",
+          "color": "purple"
+        },
+        "lifecycle": {
+          "label": "Lifecycle",
+          "description": "How agents and CI use the harness end to end.",
+          "color": "green"
+        },
+        "evidence": {
+          "label": "Evidence",
+          "description": "What was proved locally and how proof was kept honest.",
+          "color": "orange"
+        },
+        "caveats": {
+          "label": "Caveats",
+          "description": "Known tradeoffs, unfinished layers, and future work.",
+          "color": "rose"
+        }
+      },
+      "slides": [
+        {
+          "id": "contract-not-wrapper",
+          "order": 1,
+          "concept": "frame",
+          "explanation": "## What Habitat Is\n\nHabitat is the repo's structural operating system: it turns architecture from scattered scripts, tests, configs, and prose into one executable, ratchetable contract.",
+          "blocks": [
+            {
+              "explainer": {
+                "content": "The core shift is not \"we added another lint wrapper.\" The shift is that repository structure now has a named lifecycle. Agents can ask what owns a path, generate supported shapes, run the right checks, and get normalized diagnostics tied to explicit baselines. The harness encodes the architecture the repo already implied; it does not invent product architecture or runtime behavior.",
+                "metadata": {
+                  "Workstream": "habitat-harness",
+                  "Stack status": "H1-H8 locally closed",
+                  "Latest H8 commit": "208bb4086"
+                }
+              }
+            },
+            {
+              "kpiGrid": {
+                "layout": "grid",
+                "items": [
+                  {
+                    "label": "Slices closed",
+                    "value": "H1-H8",
+                    "subtitle": "Nx, scaffold, boundaries, Biome, oclif, Grit, consolidation, hooks, generators",
+                    "status": "positive"
+                  },
+                  {
+                    "label": "Harness rules",
+                    "value": "42",
+                    "subtitle": "Final H8 habitat:check count; zero failing, one advisory",
+                    "status": "positive"
+                  },
+                  {
+                    "label": "Current worktree",
+                    "value": "Clean",
+                    "subtitle": "agent-F-habitat-generators-migrations",
+                    "status": "positive"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "why-it-exists",
+          "order": 2,
+          "concept": "frame",
+          "explanation": "## Why This Exists\n\nBefore Habitat, enforcement was real but fragmented. Rules lived in lint scripts, ESLint blocks, architecture tests, CI jobs, docs, and AGENTS guidance. The system worked only when an agent already knew where to look.",
+          "blocks": [
+            {
+              "table": {
+                "caption": "The migration target was scattered enforcement, not a greenfield tool.",
+                "rows": [
+                  "Before Habitat,After Habitat",
+                  "Nine lint scripts with different outputs,Rule-pack entries with normalized diagnostics",
+                  "ESLint mixed style and architecture concerns,ESLint quarantined to Nx module boundaries only",
+                  "Structural checks hidden in ordinary tests,Structural checks ported or slimmed after parity proof",
+                  "Generated-zone promises in prose,Generated-zone file-layer gates",
+                  "Manual project/rule scaffolding,Native Nx generators for supported shapes",
+                  "Agents infer verification from habit,Agents classify first and run reported targets"
+                ]
+              }
+            },
+            {
+              "explanation": "The product outcome is an agent-operable repo: classify first, generate what has a known shape, author business logic, then verify through the same structural contract CI will understand."
+            }
+          ]
+        },
+        {
+          "id": "layer-model",
+          "order": 3,
+          "concept": "layers",
+          "explanation": "## The Layer Model\n\nEach structural concern has one owning layer. That boundary is the main design achievement.",
+          "blocks": [
+            {
+              "layers": {
+                "title": "Five Enforcement Layers",
+                "layout": "stack",
+                "layers": [
+                  {
+                    "label": "Repository graph",
+                    "value": "Nx",
+                    "description": "Workspace graph, tags, affected targets, cache, generators, and migrations.",
+                    "color": "blue"
+                  },
+                  {
+                    "label": "Project imports",
+                    "value": "Nx boundaries",
+                    "description": "Graph-level dependency law through a minimal ESLint boundary config.",
+                    "color": "purple"
+                  },
+                  {
+                    "label": "Hygiene",
+                    "value": "Biome",
+                    "description": "Formatting, import organization, ordinary lint hygiene, and safe assists.",
+                    "color": "green"
+                  },
+                  {
+                    "label": "Source shape",
+                    "value": "Grit and file-layer",
+                    "description": "Native Grit patterns for syntax and path-aware guards for generated zones.",
+                    "color": "orange"
+                  },
+                  {
+                    "label": "Contract surface",
+                    "value": "Habitat oclif CLI",
+                    "description": "Rule-pack semantics, baselines, JSON diagnostics, classify, hooks, fix, and verify.",
+                    "color": "rose"
+                  }
+                ],
+                "caption": "The harness composes native tools; it does not collapse them into bespoke scripts."
+              }
+            }
+          ]
+        },
+        {
+          "id": "ratchet",
+          "order": 4,
+          "concept": "layers",
+          "explanation": "## The Ratchet\n\nA rule is not just a check. It has an owner, a baseline, a failure interpretation, and a burn-down path.",
+          "blocks": [
+            {
+              "diagram": {
+                "content": "flowchart TD\n  A[\"Rule enters rule pack\"] --> B[\"Baseline recorded\"]\n  B --> C{\"Baseline empty?\"}\n  C -->|Yes| D[\"Locked rule: any finding fails\"]\n  C -->|No| E[\"Existing findings frozen\"]\n  E --> F[\"Baseline may shrink\"]\n  F --> D\n  B --> G[\"Expansion allowed only with rule introduction gate\"]\n  D --> H[\"CI and Habitat report normalized diagnostics\"]",
+                "caption": "Baselines are explicit state, not comments or allowlists hidden inside scripts."
+              }
+            },
+            {
+              "explanation": "This is what lets the repo adopt enforcement without pretending all historical debt is gone. Locked empty baselines fail immediately; non-empty baselines are shrink-only."
+            }
+          ]
+        },
+        {
+          "id": "taxonomy",
+          "order": 5,
+          "concept": "layers",
+          "explanation": "## Project-Plane Taxonomy\n\nNx tags make the workspace graph queryable and enforceable. The tags were derived from current rules and docs, then locked as project-plane law.",
+          "blocks": [
+            {
+              "table": {
+                "caption": "Current `kind:*` vocabulary.",
+                "rows": [
+                  "Tag,Meaning,Owner plane",
+                  "kind:app,User-facing apps and entry surfaces,Nx project graph",
+                  "kind:sdk,High-level authoring and builder APIs,Nx project graph plus Grit subpath rules",
+                  "kind:engine,Pure TS engine/domain logic,Nx graph plus runtime-value tests",
+                  "kind:adapter,Sole owner of Civ7 globals and base-standard imports,Nx graph plus Grit/runtime import guards",
+                  "kind:control,Live Civ7 control/session/service surfaces,Nx graph plus contract ownership rules",
+                  "kind:foundation,Pure leaf libraries,Nx graph",
+                  "kind:plugin,Reusable CLI/SDK helper libraries,Nx graph",
+                  "kind:mod,Game-facing mod packages,Nx graph plus intra-mod Grit/file rules",
+                  "kind:tooling,Repo-local development tooling,Nx graph"
+                ]
+              }
+            },
+            {
+              "explanation": "Nx owns dependencies between projects. Grit and file-layer rules own structure inside a project. The harness intentionally keeps those planes separate."
+            }
+          ]
+        },
+        {
+          "id": "grit-native",
+          "order": 6,
+          "concept": "layers",
+          "explanation": "## Grit Is Native, Habitat Is the Adapter\n\nH5 settled the Grit integration boundary after a lot of false starts: use native Grit patterns and tests, but keep Habitat responsible for rule IDs, baselines, and fail/pass semantics.",
+          "blocks": [
+            {
+              "diagram": {
+                "content": "flowchart LR\n  A[\".grit/patterns/habitat/**\"] --> B[\"grit patterns test\"]\n  A --> C[\"one grit --json check over audit roots\"]\n  C --> D[\"Habitat maps findings to rule IDs\"]\n  D --> E[\"Baselines and locked-rule failure\"]\n  E --> F[\"Nx target and CI reporting\"]",
+                "caption": "Pattern correctness is native Grit. Enforcement semantics are Habitat."
+              }
+            },
+            {
+              "table": {
+                "caption": "Grit lifecycle decisions.",
+                "rows": [
+                  "Decision,Reason",
+                  "Patterns live under `.grit/patterns/habitat/**`,Uses Grit's native catalog location",
+                  "`grit patterns test` is the sample authority,Avoids custom fixture runners",
+                  "One native JSON scan per Habitat grit-check invocation,Avoids per-rule process startup and fake wrappers",
+                  "Habitat parses JSON and decides failure,Raw `grit --json check` can exit 0 with findings",
+                  "No temp workspaces or copied source,Those were overengineered and abandoned"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "command-surface",
+          "order": 7,
+          "concept": "lifecycle",
+          "explanation": "## The Command Surface\n\nThe CLI is oclif. The tools underneath stay native. Habitat is the contract boundary an agent can remember.",
+          "blocks": [
+            {
+              "table": {
+                "caption": "What can be done end to end now.",
+                "rows": [
+                  "Need,Command,What it gives you",
+                  "Orient before editing,`bun run habitat classify <path-or-diff>`,Owning project, tags, rules, and required targets",
+                  "Run structural checks,`bun run habitat:check`,All rule-pack diagnostics with baselines applied",
+                  "Apply safe hygiene fixes,`bun run habitat:fix`,Biome format/import organization/safe assists",
+                  "Run the integrated proof path,`bun run habitat:verify`,Habitat check plus Nx affected targets",
+                  "Inspect project graph,`bun run habitat -- graph --json`,Machine-readable Nx graph",
+                  "Run local staged hook,`bun run habitat hook pre-commit`,Staged file-layer, Biome, and Grit feedback",
+                  "Run local affected push gate,`bun run habitat hook pre-push`,Committed-range affected feedback"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "agent-loop",
+          "order": 8,
+          "concept": "lifecycle",
+          "explanation": "## Agent Operating Loop\n\nH8 turns the harness into a workflow, not only a gate.",
+          "blocks": [
+            {
+              "diagram": {
+                "content": "flowchart LR\n  A[\"Receive task\"] --> B[\"habitat classify path or diff\"]\n  B --> C{\"Supported shape?\"}\n  C -->|Yes| D[\"Generate with Nx generator\"]\n  C -->|No| E[\"Use domain owner docs and code\"]\n  D --> F[\"Author change\"]\n  E --> F\n  F --> G[\"habitat fix\"]\n  G --> H[\"Run classify-reported targets\"]\n  H --> I[\"Commit with hooks\"]\n  I --> J[\"Pre-push affected verify\"]",
+                "caption": "The default is not to guess. The default is to ask Habitat what structure you are touching."
+              }
+            },
+            {
+              "objectivesDisplay": {
+                "layout": "default",
+                "objectives": [
+                  {
+                    "title": "Classify before authoring",
+                    "description": "Paths and diffs become explicit ownership and target information before code changes start.",
+                    "keyResults": [
+                      {
+                        "category": "add",
+                        "text": "Use `bun run habitat classify <path-or-diff>` as the entry point."
+                      },
+                      {
+                        "category": "increase",
+                        "text": "Run at least the required targets Habitat reports."
+                      }
+                    ]
+                  },
+                  {
+                    "title": "Generate supported structure",
+                    "description": "Known uniform structures are created mechanically so tags, scripts, and tests start clean.",
+                    "keyResults": [
+                      {
+                        "category": "add",
+                        "text": "Use the project generator for foundation, plugin, and app packages."
+                      },
+                      {
+                        "category": "add",
+                        "text": "Use the pattern generator for new native Grit rules."
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "generators",
+          "order": 9,
+          "concept": "lifecycle",
+          "explanation": "## What Generation Covers\n\nH8 deliberately supports only uniform shapes. That refusal is part of the design: Habitat should not guess domain architecture.",
+          "blocks": [
+            {
+              "table": {
+                "caption": "Generator coverage after H8.",
+                "rows": [
+                  "Generator,Supported now,Refused or deferred",
+                  "`@internal/habitat-harness:project`,foundation / plugin / app,mod / engine / control / adapter / sdk / tooling",
+                  "`@internal/habitat-harness:pattern`,Native Grit pattern + empty baseline + rule-pack entry,Semantic product rules or custom scanners",
+                  "Harness migrations,No-op migration wiring via local run file,Published package migration flow",
+                  "`habitat classify`,Paths and literal diff or patch inputs,Policy decisions outside known ownership data"
+                ]
+              }
+            },
+            {
+              "explanation": "The refusal path is valuable. Unsupported kinds are domain-owned shapes; Habitat should not create fake structure just because a generator can write files."
+            }
+          ]
+        },
+        {
+          "id": "hooks",
+          "order": 10,
+          "concept": "lifecycle",
+          "explanation": "## Hooks Are Feedback, Not Truth\n\nH7 adds local friction reduction without moving authority away from CI.",
+          "blocks": [
+            {
+              "diagram": {
+                "content": "flowchart TD\n  A[\"git commit\"] --> B[\"Husky pre-commit\"]\n  B --> C[\"Legacy resources publish behavior\"]\n  C --> D[\"Staged file-layer guards\"]\n  D --> E[\"Biome staged formatting/check\"]\n  E --> F[\"One path-scoped Grit check\"]\n  F --> G[\"Commit allowed\"]\n  H[\"git push\"] --> I[\"Husky pre-push\"]\n  I --> J[\"Graphite parent or main merge-base\"]\n  J --> K[\"Nx affected hook target set\"]\n  K --> L[\"Push allowed\"]",
+                "caption": "Hooks use the same Habitat command surface, but CI remains authoritative."
+              }
+            },
+            {
+              "explanation": "Safety mattered: pre-commit refuses partially staged format-eligible files instead of formatting unstaged hunks, restages only formatter-touched files, and leaves `--no-verify` as a local escape hatch."
+            }
+          ]
+        },
+        {
+          "id": "evidence-chain",
+          "order": 11,
+          "concept": "evidence",
+          "explanation": "## What Was Proved\n\nThe workstream was closed by evidence classes, not optimistic summaries.",
+          "blocks": [
+            {
+              "metricsGrid": {
+                "layout": "standard",
+                "items": [
+                  {
+                    "title": "Native Grit catalog",
+                    "values": [
+                      {
+                        "label": "H6 catalog",
+                        "value": "23 / 45",
+                        "unit": "patterns / samples"
+                      }
+                    ],
+                    "description": "Native `grit patterns test --verbose` passed after H6; H5 also proved subsecond pattern-test behavior."
+                  },
+                  {
+                    "title": "Generated probes",
+                    "values": [
+                      {
+                        "label": "Project kinds",
+                        "value": "3",
+                        "unit": "cold build/check/test"
+                      }
+                    ],
+                    "description": "Foundation, plugin, and app generator outputs passed cold Nx build, check, and test before removal."
+                  },
+                  {
+                    "title": "Rule-pack closure",
+                    "values": [
+                      {
+                        "label": "H8 check",
+                        "value": "42",
+                        "unit": "rules"
+                      }
+                    ],
+                    "description": "Final `habitat:check` passed with zero failing rules and one advisory doc-ambiguity finding."
+                  },
+                  {
+                    "title": "Root closure",
+                    "values": [
+                      {
+                        "label": "H6 gates",
+                        "value": "3",
+                        "unit": "build/check/test"
+                      }
+                    ],
+                    "description": "H6 closed the transition from duplicate enforcement to Habitat-owned structural enforcement."
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "what-is-finished",
+          "order": 12,
+          "concept": "evidence",
+          "explanation": "## What Is Actually Finished\n\nLocally, the train is closed. The repo now has a complete structural loop from orientation to enforcement.",
+          "blocks": [
+            {
+              "table": {
+                "caption": "H1-H8 outcome map.",
+                "rows": [
+                  "Slice,Outcome",
+                  "H1 Nx adoption,Nx replaced Turbo as graph/cache/task authority while preserving root workflows",
+                  "H2 scaffold,Habitat package, rule pack, baselines, and CLI skeleton wrapped existing checks",
+                  "H3 boundary tags,All projects tagged and project-plane constraints locked empty",
+                  "H4 Biome hygiene,Biome became formatter/hygiene owner with Prettier retired",
+                  "H4.5 oclif CLI,Habitat command surface moved to repo-standard oclif",
+                  "H5 Grit catalog,Grit/file-layer rules added with native patterns and generated-zone guards",
+                  "H6 consolidation,Duplicated scripts/ESLint/tests retired or slimmed only after parity proof",
+                  "H7 hooks,Husky delegated staged and pre-push checks to Habitat",
+                  "H8 generators/migrations/classify,Supported structures became generative and classify-first became the agent loop"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "caveats",
+          "order": 13,
+          "concept": "caveats",
+          "explanation": "## Caveats and Tradeoffs\n\nThe system is usable, but not magically complete. The important thing is that the remaining edges are named.",
+          "blocks": [
+            {
+              "table": {
+                "caption": "Known caveats after local closure.",
+                "rows": [
+                  "Area,Caveat,What to do next",
+                  "Graphite lifecycle,H1-H8 are locally closed; stack submission/drain remains,Submit or drain bottom-up through the repo's Graphite process",
+                  "Lower stack note,`agent-F-habitat-harness-workstream` still shows needs restack,Inspect before stack submission instead of blindly rewriting",
+                  "Broad hook timing,Broad root/Habitat self-edits can exceed narrow pre-push budget,Treat as an operational boundary; normal path is scoped classify/affected checks",
+                  "Domain generators,mod/engine/control/adapter/sdk/tooling generators are refused,Let domain owners define real shapes before generating them",
+                  "Habitat-native budget,Doc/manifest/cross-file checks remain native by design,Watch the degeneration trigger if this list grows",
+                  "Strict domain-refactor profile,Full profile remains manual because it has existing findings,Promote families only with parity and baseline ceremony",
+                  "Slides repo state,The slideshow schema repo is dirty with unrelated work,Use it for validation here; avoid mixing this artifact into that worktree without a separate branch"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "future-work",
+          "order": 14,
+          "concept": "caveats",
+          "explanation": "## What Comes Next\n\nThe harness makes structural work cheaper, but the next value comes from using it consistently.",
+          "blocks": [
+            {
+              "objectivesDisplay": {
+                "layout": "default",
+                "objectives": [
+                  {
+                    "title": "Drain the stack cleanly",
+                    "description": "Local closure is not the same as merged authority.",
+                    "keyResults": [
+                      {
+                        "category": "add",
+                        "text": "Submit Graphite branches with H1-H8 evidence preserved."
+                      },
+                      {
+                        "category": "remove",
+                        "text": "Resolve any stale lower-branch restack state before review."
+                      }
+                    ]
+                  },
+                  {
+                    "title": "Move structural checks to Habitat",
+                    "description": "The intended end state is not structural tests hiding in ordinary test suites.",
+                    "keyResults": [
+                      {
+                        "category": "decrease",
+                        "text": "Retire remaining duplicate structural tests only after parity proof."
+                      },
+                      {
+                        "category": "add",
+                        "text": "Use Grit, Biome, Nx, or file-layer ownership before adding native rules."
+                      }
+                    ]
+                  },
+                  {
+                    "title": "Grow generators deliberately",
+                    "description": "Future generators should encode real owner-approved shapes, not guesses.",
+                    "keyResults": [
+                      {
+                        "category": "add",
+                        "text": "Define domain-owned generators for non-uniform project kinds."
+                      },
+                      {
+                        "category": "increase",
+                        "text": "Use migrations for convention changes once shapes are stable."
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "bottom-line",
+          "order": 15,
+          "concept": "frame",
+          "explanation": "## Bottom Line\n\nWhat we can do now: start from a path or diff, know the owning structure, generate supported scaffolds, enforce the architecture through native tool layers, keep baselines honest, get fast local feedback, and produce CI-readable proof.",
+          "blocks": [
+            {
+              "explainer": {
+                "content": "The harness is a practical boundary object for agent work. It is strict enough to prevent drift, explicit enough to survive handoff, and native enough that each tool keeps doing the job it is good at. The value is not any single command; it is the whole loop becoming teachable and repeatable."
+              }
+            },
+            {
+              "kpiGrid": {
+                "layout": "uniform",
+                "items": [
+                  {
+                    "label": "Orient",
+                    "value": "classify",
+                    "subtitle": "path or diff to project/rules/targets",
+                    "status": "positive"
+                  },
+                  {
+                    "label": "Create",
+                    "value": "generate",
+                    "subtitle": "supported project and Grit rule shapes",
+                    "status": "positive"
+                  },
+                  {
+                    "label": "Enforce",
+                    "value": "check",
+                    "subtitle": "normalized rule-pack diagnostics",
+                    "status": "positive"
+                  },
+                  {
+                    "label": "Prove",
+                    "value": "verify",
+                    "subtitle": "Nx affected structural proof path",
+                    "status": "positive"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
