@@ -146,10 +146,17 @@ Core synthesis:
   feedback only and CI remains authoritative. Focused tests prove the line in
   returned output and reporter events. This closes 4.6 without claiming CI
   execution proof, broad Nx affected coverage, or product/runtime behavior.
-- Remaining tasks: full hook transaction model, full fake-service matrix,
-  Grit parse-output current-tree staged proof, resource-publisher service proof,
-  aggregate verification, and packet closure.
-- Implementation status: hook CI-authority non-claim checkpoint
+- Hook resource-publisher service progress for this checkpoint:
+  `HookRuntime` now accepts an optional typed `ResourcePublisher` service.
+  Resource-state remediation consumes the service's explicit command contract
+  while default pre-commit still never calls the publish operation. The default
+  `createResourcePublisher()` exposes the explicit `bun run resources:publish`
+  path and records command provenance only when directly invoked. This closes
+  6.1 and 8.4 for the hook unit/service matrix without claiming implicit
+  publishing or full hook transaction architecture.
+- Remaining tasks: full hook transaction model, Grit parse-output current-tree
+  staged proof, aggregate verification, and packet closure.
+- Implementation status: hook resource-publisher service checkpoint
   implemented and locally verified for supervisor review.
 
 ## Verification
@@ -314,8 +321,8 @@ Core synthesis:
     pre-commit performs read-only resource-state checks, and resource publishing
     is explicit.
 	  - `workstream/downstream-realignment-ledger.md` marks the H7 row realigned
-	    pending supervisor review. This is record-truth proof only; it adds no new
-	    hook behavior.
+	    after supervisor acceptance. This is record-truth proof only; it adds no
+	    new hook behavior.
 - New implementation evidence for the hook reporter-service checkpoint:
   - `tools/habitat-harness/src/lib/hooks.ts` now exports `HookReporter` and
     `HookReportEvent`. `HookRuntime` accepts an optional reporter service.
@@ -333,6 +340,23 @@ Core synthesis:
     `runPreCommit()` and `runPrePush()`.
   - Focused tests assert the proof-boundary line in returned pre-commit and
     pre-push output and in reporter service events.
+- New implementation evidence for the hook resource-publisher service
+  checkpoint:
+  - `tools/habitat-harness/src/lib/hooks.ts` now exports
+    `ResourcePublisher`, `ResourcePublishCommands`, and
+    `createResourcePublisher()`. `HookRuntime` accepts an optional
+    resource-publisher service.
+  - Resource-state remediation uses the injected service command contract for
+    explicit publish/status/init/unlock commands. Tests prove a dirty-resource
+    pre-commit failure renders injected publish/status commands, does not call
+    `publish()`, does not run `bun run resources:publish`, does not run the
+    legacy shell publish script, and stops before the file-layer command.
+  - Direct explicit publisher invocation records `resource-publish` command
+    provenance for `bun run resources:publish`; this is service-boundary proof,
+    not a hook default-publish behavior.
+  - `bun run --cwd tools/habitat-harness test -- hooks.test.ts` exited 0 with
+    27 tests.
+  - `bun run --cwd tools/habitat-harness check` exited 0.
 - Evidence boundary: the accepted resource checkpoint proves the default
   pre-commit resource publish removal, typed resource-state classification,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
@@ -366,7 +390,12 @@ Core synthesis:
   architecture, current-tree Grit parse-output staged behavior, CI authority, or
   product/runtime behavior. This CI-authority output checkpoint proves hook
   output carries the local-feedback non-claim; it does not prove CI execution,
-  broad Nx affected coverage, packet closure, or product/runtime behavior.
+  broad Nx affected coverage, packet closure, or product/runtime behavior. This
+  resource-publisher service checkpoint proves typed service substitution for
+  explicit resource command remediation and direct explicit-publish command
+  provenance; it does not prove implicit hook publishing, full hook transaction
+  architecture, current-tree Grit parse-output staged behavior, CI authority, or
+  product/runtime behavior.
 
 ## Realignment
 
@@ -375,7 +404,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the hook CI-authority non-claim checkpoint for supervisor review. Do not
-  claim resource-publisher service proof, full hook transaction architecture,
-  Grit parse-output staged probe closure, CI execution proof, broad Nx affected
+- Hold the hook resource-publisher service checkpoint for supervisor review. Do
+  not claim implicit hook publishing, full hook transaction architecture, Grit
+  parse-output staged probe closure, CI execution proof, broad Nx affected
   coverage, or packet closure from this slice.

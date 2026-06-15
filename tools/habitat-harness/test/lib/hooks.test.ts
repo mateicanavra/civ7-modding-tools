@@ -2,10 +2,11 @@ import { describe, expect, test } from "vitest";
 import {
   classifyResourcesState,
   createHookTrace,
+  createResourcePublisher,
   runPreCommit,
   runPrePush,
 } from "../../src/lib/hooks.js";
-import type { HookReportEvent } from "../../src/lib/hooks.js";
+import type { HookReportEvent, ResourcePublisher } from "../../src/lib/hooks.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import type { SpawnResult } from "../../src/lib/spawn.js";
 
@@ -126,6 +127,57 @@ describe("Habitat hook resource policy", () => {
       allowPreCommit: true,
     });
     expect(fake.calls).toEqual([]);
+  });
+
+  test("renders resource remediation through an injected publisher service without publishing", () => {
+    let publishCalls = 0;
+    const publisher: ResourcePublisher = {
+      commands: () => ({
+        publish: "custom resources publish",
+        status: "custom resources status",
+        init: "custom resources init",
+        unlock: "custom resources unlock",
+      }),
+      publish: () => {
+        publishCalls += 1;
+        return ok("published\n");
+      },
+    };
+    const fake = makeFakeRuntime({ submoduleStatus: " M resources.xml\n" });
+
+    const result = runPreCommit({ ...fake.runtime, resourcePublisher: publisher });
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain("resources: dirty-submodule");
+    expect(result.stderr).toContain("- custom resources publish");
+    expect(result.stderr).toContain("- custom resources status");
+    expect(publishCalls).toBe(0);
+    expect(fake.calls).not.toContain("bun run resources:publish");
+    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
+    expect(fake.calls).not.toContain("bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json");
+  });
+
+  test("records explicit resource publisher command provenance only when directly invoked", () => {
+    const trace = createHookTrace();
+    const fake = makeFakeRuntime();
+    const publisher = createResourcePublisher({ ...fake.runtime, trace });
+
+    expect(publisher.commands()).toEqual({
+      publish: "bun run resources:publish",
+      status: "bun run resources:status",
+      init: "bun run resources:init",
+      unlock: "bun run resources:unlock",
+    });
+
+    const result = publisher.publish();
+
+    expect(result.exitCode).toBe(0);
+    expect(fake.calls).toContain("bun run resources:publish");
+    expect(trace.commands.find((command) => command.phase === "resource-publish")).toMatchObject({
+      argv: ["bun", "run", "resources:publish"],
+      cwd: repoRoot,
+      exitCode: 0,
+    });
   });
 });
 
@@ -586,6 +638,9 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
         stdout: options.fileLayerStdout ?? '{"ok":true}\n',
         stderr: "",
       };
+    }
+    if (call === "bun run resources:publish") {
+      return ok("resources published\n");
     }
     if (call.startsWith("git diff --name-only -z --")) {
       return ok(renderPathList(options.unstagedPaths ?? []));

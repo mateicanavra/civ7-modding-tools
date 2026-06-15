@@ -19,6 +19,7 @@ interface HookRuntime {
   fileHash?: (repoRelativePath: string) => string | null;
   nowMs?: () => number;
   reporter?: HookReporter;
+  resourcePublisher?: ResourcePublisher;
   trace?: HookTrace;
 }
 
@@ -45,6 +46,7 @@ interface ResourceState {
 export type HookCommandPhase =
   | "repo-state"
   | "resource-state"
+  | "resource-publish"
   | "staged-paths"
   | "file-layer"
   | "partial-staging"
@@ -132,6 +134,18 @@ export interface HookReporter {
   write(event: HookReportEvent): void;
 }
 
+export interface ResourcePublishCommands {
+  publish: string;
+  status: string;
+  init: string;
+  unlock: string;
+}
+
+export interface ResourcePublisher {
+  commands(): ResourcePublishCommands;
+  publish(): SpawnResult;
+}
+
 export function createHookTrace(): HookTrace {
   return { commands: [] };
 }
@@ -139,6 +153,22 @@ export function createHookTrace(): HookTrace {
 const prePushTargets = ["biome:ci", "boundaries", "grit:check", "habitat:check", "test"];
 const resourcesSubmodulePath = ".civ7/outputs/resources";
 const localHookProofNotice = "hook proof: local feedback only; CI remains authoritative.\n";
+const defaultResourcePublishCommands: ResourcePublishCommands = {
+  publish: "bun run resources:publish",
+  status: "bun run resources:status",
+  init: "bun run resources:init",
+  unlock: "bun run resources:unlock",
+};
+
+export function createResourcePublisher(runtime: HookRuntime = {}): ResourcePublisher {
+  return {
+    commands: () => ({ ...defaultResourcePublishCommands }),
+    publish: () =>
+      runHookCommand(runtime, "resource-publish", ["bun", "run", "resources:publish"], {
+        cwd: repoRoot,
+      }),
+  };
+}
 
 const biomeCandidateExtensions = new Set([
   ".cjs",
@@ -392,6 +422,7 @@ export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {})
 
 export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState {
   const pathExists = runtime.pathExists ?? existsSync;
+  const resourceCommands = (runtime.resourcePublisher ?? createResourcePublisher(runtime)).commands();
   const gitmodulesPath = path.join(repoRoot, ".gitmodules");
   if (!pathExists(gitmodulesPath)) {
     return {
@@ -422,7 +453,7 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
     return resourceFailure(
       "uninitialized",
       `The resources submodule is configured but ${resourcesSubmodulePath} is absent.`,
-      ["bun run resources:init", "bun run resources:status"]
+      [resourceCommands.init, resourceCommands.status]
     );
   }
 
@@ -436,7 +467,7 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
     return resourceFailure(
       "uninitialized",
       `${resourcesSubmodulePath} is not an initialized Git worktree.`,
-      ["bun run resources:init", "bun run resources:status"]
+      [resourceCommands.init, resourceCommands.status]
     );
   }
 
@@ -455,7 +486,7 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
     return resourceFailure(
       "uninitialized",
       `${resourcesSubmodulePath} exists but is not an initialized submodule Git worktree.`,
-      ["bun run resources:init", "bun run resources:status"]
+      [resourceCommands.init, resourceCommands.status]
     );
   }
 
@@ -471,7 +502,7 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
     return resourceFailure(
       "uninitialized",
       `Could not inspect the ${resourcesSubmodulePath} Git directory.`,
-      ["bun run resources:init", "bun run resources:status"]
+      [resourceCommands.init, resourceCommands.status]
     );
   }
 
@@ -483,7 +514,7 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
     return resourceFailure(
       "locked",
       `The resources submodule Git index is locked: ${path.join(gitDirAbsolute, "index.lock")}.`,
-      ["bun run resources:unlock", "bun run resources:status"]
+      [resourceCommands.unlock, resourceCommands.status]
     );
   }
 
@@ -499,14 +530,14 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
     return resourceFailure(
       "uninitialized",
       `Could not inspect ${resourcesSubmodulePath} status.`,
-      ["bun run resources:init", "bun run resources:status"]
+      [resourceCommands.init, resourceCommands.status]
     );
   }
   if (submoduleStatus.stdout.trim()) {
     return resourceFailure(
       "dirty-submodule",
       `${resourcesSubmodulePath} has uncommitted resource changes.`,
-      ["bun run resources:publish", "bun run resources:status"]
+      [resourceCommands.publish, resourceCommands.status]
     );
   }
 
@@ -522,14 +553,14 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
     return resourceFailure(
       "unstaged-gitlink",
       `The ${resourcesSubmodulePath} gitlink changed but is not staged.`,
-      [`git add ${resourcesSubmodulePath}`, "bun run resources:status"]
+      [`git add ${resourcesSubmodulePath}`, resourceCommands.status]
     );
   }
   if (unstagedGitlink.exitCode !== 0) {
     return resourceFailure(
       "uninitialized",
       `Could not inspect the unstaged ${resourcesSubmodulePath} gitlink state.`,
-      ["bun run resources:init", "bun run resources:status"]
+      [resourceCommands.init, resourceCommands.status]
     );
   }
 
@@ -553,7 +584,7 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
     return resourceFailure(
       "uninitialized",
       `Could not inspect the staged ${resourcesSubmodulePath} gitlink state.`,
-      ["bun run resources:init", "bun run resources:status"]
+      [resourceCommands.init, resourceCommands.status]
     );
   }
 

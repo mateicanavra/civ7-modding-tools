@@ -66,12 +66,13 @@
 
 ## 6. Tests
 
-- [ ] 6.1 Add hook unit tests with fake Git, command runner, filesystem, clock,
+- [x] 6.1 Add hook unit tests with fake Git, command runner, filesystem, clock,
   reporter, and resource publisher services where the accepted architecture
   supports service substitution. Current tests cover fake command,
   filesystem/path-existence, file hashing, fake clock/timing, and typed trace
-  provenance; the reporter service is covered for pre-commit and pre-push
-  output substitution, and the resource publisher service remains open.
+  provenance; reporter service substitution is covered for pre-commit and
+  pre-push output, and resource publisher service substitution is covered for
+  explicit command remediation plus direct explicit-publish provenance.
 - [x] 6.2 Add clean resources pre-commit test.
 - [x] 6.3 Add dirty resources explicit publish refusal test.
 - [x] 6.4 Add uninitialized resources, resources lock, unstaged gitlink, staged
@@ -100,11 +101,12 @@
 - [x] 8.1 `bun run openspec -- validate habitat-git-hook-hardening --strict`
 - [x] 8.2 `bun run openspec:validate`
 - [x] 8.3 `git diff --check`
-- [ ] 8.4 Hook unit/service test matrix. Focused trace tests cover fake command,
+- [x] 8.4 Hook unit/service test matrix. Focused trace tests cover fake command,
   filesystem/path-existence, file hashing, fake clock/timing, command
   provenance, pre/post-state snapshots, reporter output substitution, and
-  terminal outcomes; full service matrix remains open until the resource
-  publisher boundary is proven or explicitly rescheduled.
+  terminal outcomes; resource publisher service tests cover explicit command
+  remediation, no hidden hook invocation, and direct explicit-publish command
+  provenance. Full hook transaction architecture remains open.
 - [ ] 8.5 Pre-commit staged probe matrix. Current-tree probes for
   generated-zone, pnpm artifact, partial-staging refusal, formatter-touched
   restage, and native Grit finding refusal are recorded; Grit parse-output
