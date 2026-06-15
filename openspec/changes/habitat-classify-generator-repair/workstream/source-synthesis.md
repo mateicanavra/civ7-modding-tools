@@ -31,6 +31,10 @@ truth.
   `foundation`, and `app` contracts. It refuses unsupported kinds, mismatched
   roots, mismatched package names, non-empty roots, and workspace package-name
   collisions before writes.
+- Generated scratch projects for supported `plugin`, `foundation`, and `app`
+  contracts are discoverable by Nx and expose `build`, `check`, and `test`
+  targets. Scratch proof uses temporary generated project roots in the normal
+  HR implementation worktree and removes those roots after proof.
 - Pattern generator remains separately governed by
   `habitat-pattern-generator-metadata-repair`.
 - Current migration metadata declares a no-op migration, which proves wiring
@@ -91,6 +95,13 @@ truth.
 - `nx g @internal/habitat-harness:project adapter --kind=foundation --dry-run`
   refuses before writes because `@civ7/adapter` already exists at
   `packages/civ7-adapter/package.json`.
+- Non-dry-run scratch generation for `hr-proof-plugin`,
+  `hr-proof-foundation`, and `hr-proof-app` in the normal HR implementation
+  worktree creates only canonical project roots. `nx show project` discovers
+  `@civ7/plugin-hr-proof-plugin`, `@civ7/hr-proof-foundation`, and
+  `hr-proof-app` with matching `kind:*` tags, and `nx show target` resolves
+  `build`, `check`, and `test` for each generated project before targeted
+  cleanup removes the scratch roots.
 
 ## Official Documentation Evidence
 
@@ -153,6 +164,7 @@ truth.
 - One earlier Nx sidecar local-workspace claim was invalidated because it came
   from the wrong checkout. The official-doc constraints remain useful, but
   current local proof comes from this worktree's `nx ...` probes.
-- Generator scratch project discovery and generated target-matrix proof remain
-  open. Current generator evidence proves dry-run output and fail-closed
-  refusal, not Nx discovery after real scratch writes.
+- Generator scratch project discovery and generated target-matrix proof are now
+  closed for the three supported uniform kinds. This does not prove migration
+  capability, registered pattern promotion, non-uniform domain generators, or
+  product/runtime behavior.

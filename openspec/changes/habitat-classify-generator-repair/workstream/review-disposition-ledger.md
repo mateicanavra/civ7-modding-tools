@@ -1,7 +1,7 @@
 # Review Disposition Ledger
 
 **Change:** `habitat-classify-generator-repair`
-**Status:** P1/P2 review findings dispositioned; generator contract slice pending supervisor review
+**Status:** P1/P2 review findings dispositioned; generator contract slice supervisor-accepted
 **Owner:** DRA Habitat recovery owner
 
 Accepted P1/P2 findings block implementation until repaired, rejected with

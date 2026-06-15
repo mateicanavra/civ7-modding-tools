@@ -66,8 +66,8 @@
 - [x] 5.2 Refuse mismatched kind/root pairs before writes.
 - [x] 5.3 Refuse package-name collisions before writes.
 - [x] 5.4 Preserve unsupported-kind refusal for non-uniform kinds.
-- [ ] 5.5 Prove generated scratch projects are discoverable by Nx.
-- [ ] 5.6 Prove generated scratch projects expose the accepted target matrix.
+- [x] 5.5 Prove generated scratch projects are discoverable by Nx.
+- [x] 5.6 Prove generated scratch projects expose the accepted target matrix.
 - [x] 5.7 Keep pattern-generator registration metadata outside this packet.
 
 ## 6. Migration Claims
@@ -117,7 +117,7 @@
 - [ ] 9.4 classify matrix proof
 - [ ] 9.5 Nx target-existence proof matrix
 - [x] 9.6 generator dry-run proof
-- [ ] 9.7 generator scratch discovery proof
+- [x] 9.7 generator scratch discovery proof
 - [x] 9.8 generator refusal proof
 - [ ] 9.9 migration proof-boundary proof
 - [ ] 9.10 README/AGENTS stale guidance scan

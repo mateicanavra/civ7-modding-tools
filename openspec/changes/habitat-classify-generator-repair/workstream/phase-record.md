@@ -9,10 +9,10 @@
   Pattern Authority Effect decision layer. HG descendants may be moved by
   supervisor coordination only.
 - Started: 2026-06-14
-- Status: classify target-truth and path-aware rule-scope checkpoints accepted;
-  generator support/refusal checkpoint implemented and locally verified;
-  scratch Nx discovery, generated target-matrix proof, migration proof
-  boundaries, downstream realignment, and packet closure remain open.
+- Status: classify target-truth, path-aware rule-scope, and generator
+  support/refusal checkpoints accepted; generator scratch Nx discovery and
+  generated target-matrix proof implemented and locally verified; migration
+  proof boundaries, downstream realignment, and packet closure remain open.
 
 ## Objective
 
@@ -68,6 +68,10 @@
 - Project generator refuses unsupported non-uniform kinds, mismatched
   kind/root pairs, mismatched package names, non-empty roots, and workspace
   package-name collisions before writes.
+- Generated scratch projects for all three supported uniform kinds are
+  discoverable by Nx from the normal HR implementation worktree and expose the
+  accepted `build`, `check`, and `test` targets. The scratch project roots were
+  removed with targeted cleanup after proof and are not committed fixtures.
 - Local Nx is available in this worktree as v22.7.5, and `nx show` probes
   resolve projects/targets. Official Nx docs support resolved project/target
   metadata and inferred targets as the target-truth source; Habitat uses
@@ -89,8 +93,8 @@ Core synthesis:
 - official Nx docs support target proof through resolved project/target
   metadata;
 - generator support now has a kind/root/package/tag refusal contract for
-  uniform kinds, while scratch Nx discovery and target-matrix proof remain
-  separate;
+  uniform kinds, and normal-worktree scratch proof shows generated supported
+  projects are discovered by Nx with the accepted target matrix;
 - pattern-generator metadata remains a separate workstream;
 - Effect is a substrate decision if implementation turns target proof into
   command orchestration, provenance capture, service substitution, scoped
@@ -136,15 +140,17 @@ Core synthesis:
 
 ## Implementation
 
-- Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 4.1-4.5, 5.1-5.4,
-  5.7, 7.2-7.5, 7.7-7.8, 9.1-9.3, 9.6, 9.8, 9.11, and 9.13.
-- Remaining tasks: scratch Nx discovery, generated target-matrix proof,
-  migration proof-boundary repair, full classify matrix, full Nx target matrix,
+- Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 4.1-4.5, 5.1-5.7,
+  7.2-7.5, 7.7-7.8, 9.1-9.3, 9.6-9.8, 9.11, and 9.13.
+- Remaining tasks: generator scratch discovery test coverage, migration
+  proof-boundary repair, full classify matrix, full Nx target matrix,
   downstream realignment, final verification, and supervisor acceptance.
 - Implementation status: target-truth slice committed as a bounded checkpoint;
   path-aware rule-scope slice committed and supervisor-accepted; generator
-  support/refusal slice implemented and in verification. Full packet closure
-  remains open.
+  support/refusal slice committed and supervisor-accepted; generator scratch
+  discovery/target-matrix command proof recorded as the current local
+  checkpoint. Committed test coverage for scratch discovery remains open. Full
+  packet closure remains open.
 
 ## Verification
 
@@ -197,6 +203,17 @@ Core synthesis:
   - `bun run nx g @internal/habitat-harness:project unsupported-mod-probe --kind=mod --dry-run`
   - `bun run nx g @internal/habitat-harness:project misplaced-probe --kind=app --directory=packages/misplaced-app-probe --dry-run`
   - `bun run nx g @internal/habitat-harness:project adapter --kind=foundation --dry-run`
+  - `bun run nx g @internal/habitat-harness:project hr-proof-plugin --kind=plugin`
+  - `bun run nx g @internal/habitat-harness:project hr-proof-foundation --kind=foundation`
+  - `bun run nx g @internal/habitat-harness:project hr-proof-app --kind=app`
+  - `bun run nx show project @civ7/plugin-hr-proof-plugin --json`
+  - `bun run nx show project @civ7/hr-proof-foundation --json`
+  - `bun run nx show project hr-proof-app --json`
+  - `bun run nx show target` for `build`, `check`, and `test` on each
+    generated proof project
+  - targeted cleanup of `packages/plugins/plugin-hr-proof-plugin`,
+    `packages/hr-proof-foundation`, and `apps/hr-proof-app`, followed by clean
+    `git status --short --branch`
 - Evidence boundary: current implementation proves resolved Nx target truth for
   the adapter missing-target case, structured target proof output, unavailable
   target reporting, workspace-only target handling, literal diff target
@@ -208,9 +225,12 @@ Core synthesis:
   internal exact-path rules. It also proves the project generator's uniform
   kind/root/package/tag contract and fail-closed refusal for unsupported kinds,
   mismatched roots, mismatched package names, non-empty roots, and workspace
-  package-name collisions. It does not prove scratch project Nx discovery,
-  generated target-matrix behavior, migration capability, current-tree Grit row
-  proof, baseline behavior, hook behavior, or product/runtime behavior.
+  package-name collisions. It also proves through command evidence that scratch
+  projects generated from the normal HR implementation worktree are discovered
+  by Nx and expose `build`, `check`, and `test` targets for `plugin`,
+  `foundation`, and `app`. It does not add committed scratch discovery tests,
+  and it does not prove migration capability, current-tree Grit row proof,
+  baseline behavior, hook behavior, or product/runtime behavior.
 
 ## Realignment
 
@@ -219,7 +239,6 @@ Core synthesis:
 
 ## Next Action
 
-- Finish verification and Graphite-commit the bounded generator
-  support/refusal checkpoint as a new HR layer, then hold for supervisor
-  review before proceeding to scratch Nx discovery or migration proof-boundary
-  work.
+- Graphite-commit the bounded generator scratch discovery/target-matrix proof
+  as a record checkpoint, then hold for supervisor review before proceeding to
+  migration proof-boundary work.
