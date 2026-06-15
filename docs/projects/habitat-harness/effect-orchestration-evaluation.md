@@ -171,6 +171,28 @@ Decision boundary:
   semantics, baseline policy, hooks, generated-output policy, or product
   runtime proof into Effect.
 
+### P0 Command Repair Outcome - 2026-06-15
+
+`habitat-oclif-entrypoint-repair` implements the deliberate
+`habitat-no-effect-p0-command-repair` path for the command-surface slice:
+
+- oclif remains the command shell for root, development, source, and production
+  entrypoints;
+- `RuleSelectionResult` and `RuleSelectorFact` provide typed selector outcomes
+  for unknown owner/rule/tool, wrong selector namespace, and valid selectors
+  with an empty intersection;
+- invalid check selectors render schemaVersion 1 `rule-selection-integrity`
+  reports in JSON mode and fail non-zero in human mode;
+- invalid `--expand-baseline` selections fail before baseline authoring;
+- command proof remains phase-record evidence rather than an Effect command
+  service.
+
+This is not a global rejection of Effect. The trigger matrix in
+`habitat-oclif-entrypoint-repair/design.md` remains active for future
+check-pipeline or command-runner policy failures, and
+`habitat-effect-grit-adapter` remains the selected Effect adoption surface for
+Grit adapter hardening.
+
 This provisional selection is controlled by:
 
 - `openspec/changes/habitat-effect-grit-adapter/proposal.md`

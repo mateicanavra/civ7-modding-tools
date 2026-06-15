@@ -289,8 +289,12 @@ and agent operating procedure. We **amend**:
 - **Original H1-H8 train:** historical implementation evidence, not current
   closure authority by itself. The recovery frame and claim ledgers decide
   which claims remain true after fresh proof.
-- **Current branch:** `agent-F-habitat-nx-worktree-state`.
-- **Current phase:** final packet realignment after Nx workflow normalization.
+- **Latest settled branch:** `agent-F-habitat-nx-worktree-state` for Nx
+  workflow normalization.
+- **Current recovery phase:** active repair packets under
+  `openspec/changes/habitat-*`; command trust is owned by
+  `habitat-oclif-entrypoint-repair` before downstream Grit/current-tree proof
+  may consume selector behavior.
 - **Settled tooling baseline:** Nx is fully adopted, Turbo is retired from
   active workflow, root scripts are Nx DAG entrypoints, package-specific
   verifiers live with their owning package, and normal worktree setup uses

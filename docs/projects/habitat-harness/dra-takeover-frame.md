@@ -173,19 +173,30 @@ Stop and reframe if any of these occur:
 - A review lane accepts a P1/P2 finding and the owner proceeds without a repair,
   evidence-backed rejection, or explicit scope movement.
 
-## Current Known Contradictions
+## Stage 0 Contradictions And Repair Disposition
 
-Treat these as current evidence that the first repair wave must preserve until
-it replaces them with fresher proof:
+Treat these as the Stage 0 contradiction set that opened the repair wave. They
+remain useful as seed evidence and stop-condition context, but they are not a
+post-repair source for command behavior once a repair packet records fresher
+proof.
 
-- `bun run habitat -- --help` exits 2 with `Unknown habitat command: --help`.
-- `bun run habitat -- check --help` exits 2 and does not provide subcommand
-  help.
-- `bun run habitat:check -- --json --rule grit-check` exits 0 while selecting
-  only the built-in `baseline-integrity` rule. Empty filter selections can
-  therefore create false confidence.
-- H4.5 phase records claim root help proof that current command behavior does
-  not support.
+- Historical command-trust seed, superseded in
+  `openspec/changes/habitat-oclif-entrypoint-repair/workstream/phase-record.md`:
+  `bun run habitat -- --help` exited 2 with
+  `Unknown habitat command: --help`, `bun run habitat -- check --help` exited 2
+  without subcommand help, and `bun run habitat:check -- --json --rule
+  grit-check` exited 0 while selecting only the built-in `baseline-integrity`
+  rule.
+- Current command-trust disposition in the repair branch: root, development,
+  source, and fresh-build production help paths exit 0 through oclif discovery;
+  `--rule grit-check` exits 1 as a wrong-selector-namespace request because
+  `grit-check` is a tool id, not a rule id; valid `--tool grit-check` selection
+  reaches the Grit rules plus `baseline-integrity`, but remains only
+  selector-preservation proof, not Grit row/current-tree/baseline/injected proof
+  closure.
+- H4.5 phase records claimed root help proof that Stage 0 command behavior did
+  not support; current command proof belongs to the repair packet's phase
+  record.
 - H5 native Grit sample tests prove pattern syntax, but not current-tree scan
   scope, baseline semantics, parity with retired checks, or apply safety.
 - H8 classify/generate claims are too broad until classify proves path-specific

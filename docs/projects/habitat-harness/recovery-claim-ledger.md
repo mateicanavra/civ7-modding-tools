@@ -33,6 +33,25 @@ Older rows and extraction notes that mention `habitat:verify` or root
 design. Active implementation packets must consume the current Nx workflow
 contract above.
 
+## Command Trust Repair Update
+
+The `habitat-oclif-entrypoint-repair` packet on
+`agent-HR-habitat-repair-chain` repairs the Stage 0 command trust rows:
+
+- `CLAIM-H45-CLI`, `CLAIM-P0-ROOT-HELP`, `CLAIM-P0-SUBCOMMAND-HELP`,
+  `CLAIM-P0-PROD-RUNNER`, and `CLAIM-P0-UNKNOWN-COMMAND`: current proof
+  belongs to the packet's root/dev/source/production entrypoint verification.
+- `CLAIM-P0-UNKNOWN-RULE` and `CLAIM-P0-UNKNOWN-TOOL`: current proof belongs
+  to the typed `RuleSelectionResult` boundary, failing schemaVersion 1
+  `rule-selection-integrity` reports in JSON mode, non-zero human-mode
+  failures, and no-write `--expand-baseline` failures.
+
+Downstream Grit packets may consume this as command-surface and selector
+preservation proof only after the repair branch lands or is explicitly used as
+their Graphite parent. It does not close Grit current-tree scan proof, Habitat
+baseline proof, injected violation proof, native Grit sample proof, or apply
+safety proof.
+
 ## Evidence Seed
 
 Fresh probes run on branch `codex/habitat-dra-takeover-frame`:

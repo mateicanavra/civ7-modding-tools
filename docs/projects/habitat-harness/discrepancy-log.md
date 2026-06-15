@@ -8,9 +8,10 @@ workstream end (or fold into later doc-stewardship passes).
 Severity: P1 = doc contradicts enforced reality · P2 = enforcement exists but
 docs drift/omit it · P3 = enforced or practiced but entirely undocumented.
 
-Overall finding from the derivation pass: **no code-violates-docs cases were
-found** — the codebase is clean against its own rules. Every entry below is
-documentation lagging enforcement, which is the favorable direction.
+Overall finding from the original derivation pass: **no code-violates-docs
+cases were found** — the codebase was clean against the rules examined in that
+pass. Treat this as historical derivation evidence, not as a blanket current
+proof for later command-surface records or recovery packets.
 
 | ID | Severity | Where documented | What code/enforcement actually does | Suggested disposition (decide later) |
 |---|---|---|---|---|
@@ -30,6 +31,7 @@ documentation lagging enforcement, which is the favorable direction.
 | DL-14 | P2 | swooper-maps architecture.md: stage truth/projection separation, typed intent APIs | Prose + partial G-guards only; no general rule | Exterior to this workstream (normalization train owns it); revisit after both trains land |
 | DL-15 | P3 | CONTRIBUTING.md: "package-local scripts stay leaf-local" | Resolved-by-promoted-repair: SDK and plugin package test scripts now scope Vitest with `--project`, and the SDK build writes complete synchronously before teardown. Package-local `packages/sdk`, `plugin-files`, `plugin-git`, `plugin-graph`, and `plugin-mods` tests are verified green, and the plugin Nx targets run without fanning out through unrelated root projects. | Resolved by `civ7-sdk-mod-build-sync-writes` and `plugin-vitest-project-scope`; keep as a future workspace-entrypoints rule candidate so bare package-local `vitest run` cannot regress |
 | DL-16 | P3 | root AGENTS.md: "treat generated artifacts as read-only; regenerate via scripts" | Resolved-by-promoted-repair: the intelligence-bridge UI entry now builds through the game-UI package surface, the generated bundle stays free of Node `net`, and `mod-civ7-intelligence-bridge:test` passes inside the repo-wide test probe. The H4 post-repair root build produced no generated/tracked drift. | Resolved by `intelligence-bridge-ui-bundle`; H5 generated-zone rules still prevent recurrence |
+| DL-17 | P1 | `openspec/changes/habitat-oclif-cli/workstream/phase-record.md` claimed root/check help smoke proof from the H4.5 phase | Fresh recovery probes found the canonical root/dev dispatcher treated `--help` as an unknown command and invalid owner/rule/tool selectors could return a green report containing only `baseline-integrity`. `habitat-oclif-entrypoint-repair` repairs this command-record drift and makes the H4.5 proof historical. | Resolved by `habitat-oclif-entrypoint-repair`; keep old H4.5 record as history and cite the repair packet for current command proof |
 
 Maintenance: append new entries during execution slices as agents find them.
 Do not resolve in-slice unless the slice's own scope requires it.

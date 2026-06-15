@@ -76,6 +76,14 @@ re-validated `--strict` after edits. Spec-review lane CLOSED. Remaining lanes
 (architecture review before H3, implementation/evidence/closure per slice)
 open per workstream-record.md.
 
+2026-06-15 recovery note: the pre-execution review outcome above is
+historical readiness evidence for the original H1-H8 train. It is not current
+command-surface, selector-truth, Grit current-tree, baseline, hook, or
+classify/generator proof. Current command-trust proof is owned by
+`openspec/changes/habitat-oclif-entrypoint-repair/`, and downstream Grit proof
+must wait for that packet's explicit command/selector contract instead of
+citing this historical revalidation sentence.
+
 ---
 
 # Architecture-Review Lane (pre-H3, 2026-06-12)
