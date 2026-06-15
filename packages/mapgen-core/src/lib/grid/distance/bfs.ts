@@ -64,4 +64,3 @@ export function distanceTransform(
 
   return dist;
 }
-

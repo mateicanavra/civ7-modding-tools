@@ -16,4 +16,3 @@ export function stripSchemaMetadataRoot(value: unknown): unknown {
   const { $schema: _schema, $id: _id, $comment: _comment, ...rest } = value;
   return rest;
 }
-

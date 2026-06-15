@@ -1,5 +1,10 @@
-import { collectCompileOps, createRecipe, type CompiledRecipeConfigOf, type RecipeConfigInputOf } from "@swooper/mapgen-core/authoring";
 import foundationDomain from "@mapgen/domain/foundation/ops";
+import {
+  type CompiledRecipeConfigOf,
+  collectCompileOps,
+  createRecipe,
+  type RecipeConfigInputOf,
+} from "@swooper/mapgen-core/authoring";
 
 import foundation from "../standard/stages/foundation/index.js";
 import { STANDARD_TAG_DEFINITIONS } from "../standard/tags.js";
@@ -12,7 +17,9 @@ export const BROWSER_TEST_STAGES = stages;
 export type BrowserTestRecipeConfig = RecipeConfigInputOf<typeof stages>;
 export type BrowserTestRecipeCompiledConfig = CompiledRecipeConfigOf<typeof stages>;
 export type BrowserTestFoundationStageConfig = NonNullable<BrowserTestRecipeConfig["foundation"]>;
-export type BrowserTestFoundationStageKnobsConfig = NonNullable<BrowserTestFoundationStageConfig["knobs"]>;
+export type BrowserTestFoundationStageKnobsConfig = NonNullable<
+  BrowserTestFoundationStageConfig["knobs"]
+>;
 
 export const compileOpsById = collectCompileOps(foundationDomain);
 

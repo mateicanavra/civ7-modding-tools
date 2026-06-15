@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { Type } from "typebox";
+import type { DomainOpCompileAny } from "@mapgen/authoring/index.js";
 
 import { defineOp } from "@mapgen/authoring/index.js";
-import type { DomainOpCompileAny } from "@mapgen/authoring/index.js";
 import { compileRecipeConfig, RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
+import { Type } from "typebox";
 
 describe("compileRecipeConfig", () => {
   it("applies canonicalization ordering and op defaults", () => {
@@ -15,7 +15,10 @@ describe("compileRecipeConfig", () => {
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
       strategies: {
-        default: Type.Object({ tag: Type.Optional(Type.String()) }, { additionalProperties: false, default: {} }),
+        default: Type.Object(
+          { tag: Type.Optional(Type.String()) },
+          { additionalProperties: false, default: {} }
+        ),
       },
     } as const);
 
@@ -25,7 +28,10 @@ describe("compileRecipeConfig", () => {
         trees: Type.Object(
           {
             strategy: Type.String(),
-            config: Type.Object({ tag: Type.Optional(Type.String()) }, { additionalProperties: false, default: {} }),
+            config: Type.Object(
+              { tag: Type.Optional(Type.String()) },
+              { additionalProperties: false, default: {} }
+            ),
           },
           { additionalProperties: false }
         ),
@@ -62,7 +68,11 @@ describe("compileRecipeConfig", () => {
         },
         { additionalProperties: false, default: {} }
       ),
-      toInternal: ({ stageConfig }: { stageConfig: { knobs?: Record<string, unknown>; alpha?: unknown } }) => {
+      toInternal: ({
+        stageConfig,
+      }: {
+        stageConfig: { knobs?: Record<string, unknown>; alpha?: unknown };
+      }) => {
         const { knobs = {}, ...rest } = stageConfig ?? {};
         return { knobs, rawSteps: { alpha: rest.alpha ?? {} } };
       },

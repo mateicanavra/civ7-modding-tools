@@ -1,8 +1,8 @@
+import type { OfficialResourceType } from "../lib/corpus/types.js";
 import { AQUATIC_SIGNALS } from "../ops/plan-aquatic-resources/strategies/default.js";
 import { CULTIVATED_SIGNALS } from "../ops/plan-cultivated-resources/strategies/default.js";
 import { GEOLOGICAL_SIGNALS } from "../ops/plan-geological-resources/strategies/default.js";
 import { TERRESTRIAL_SIGNALS } from "../ops/plan-terrestrial-resources/strategies/default.js";
-import type { OfficialResourceType } from "../lib/corpus/types.js";
 
 /**
  * Per-type habitat signal lookup shared between the family demand planners
@@ -24,7 +24,14 @@ export type ResourceHabitatSignal = {
 
 function withFamily(
   family: ResourceFamilyId,
-  table: Record<string, { readonly laneId?: string; readonly primary: readonly string[]; readonly suppress: readonly string[] }>
+  table: Record<
+    string,
+    {
+      readonly laneId?: string;
+      readonly primary: readonly string[];
+      readonly suppress: readonly string[];
+    }
+  >
 ): ReadonlyArray<readonly [OfficialResourceType, ResourceHabitatSignal]> {
   return Object.entries(table).map(([resourceType, signal]) => [
     resourceType as OfficialResourceType,

@@ -25,10 +25,14 @@ export function validatePlacementInputsArtifact(value: unknown): ValidationIssue
     issues.push(issue("placementInputs.starts must be an object."));
   } else {
     if (!isCount(starts.playersLandmass1)) {
-      issues.push(issue(`starts.playersLandmass1 ${String(starts.playersLandmass1)} must be a count.`));
+      issues.push(
+        issue(`starts.playersLandmass1 ${String(starts.playersLandmass1)} must be a count.`)
+      );
     }
     if (!isCount(starts.playersLandmass2)) {
-      issues.push(issue(`starts.playersLandmass2 ${String(starts.playersLandmass2)} must be a count.`));
+      issues.push(
+        issue(`starts.playersLandmass2 ${String(starts.playersLandmass2)} must be a count.`)
+      );
     }
   }
   const wonders = isRecord(value.wonders) ? value.wonders : null;
@@ -53,7 +57,11 @@ export function validateNaturalWonderPlanArtifact(value: unknown): ValidationIss
   const height = Number(value.height);
   const size = width * height;
   if (!Number.isSafeInteger(size) || size <= 0) {
-    return [issue(`naturalWonderPlan has invalid dimensions ${String(value.width)}x${String(value.height)}.`)];
+    return [
+      issue(
+        `naturalWonderPlan has invalid dimensions ${String(value.width)}x${String(value.height)}.`
+      ),
+    ];
   }
   const placements = Array.isArray(value.placements) ? value.placements : null;
   if (!placements) return [issue("naturalWonderPlan.placements must be an array.")];
@@ -62,8 +70,15 @@ export function validateNaturalWonderPlanArtifact(value: unknown): ValidationIss
       issue(`plannedCount ${String(value.plannedCount)} != placements.length ${placements.length}.`)
     );
   }
-  if (!isCount(value.targetCount) || (isCount(value.plannedCount) && value.plannedCount > (value.targetCount as number))) {
-    issues.push(issue(`plannedCount ${String(value.plannedCount)} exceeds targetCount ${String(value.targetCount)}.`));
+  if (
+    !isCount(value.targetCount) ||
+    (isCount(value.plannedCount) && value.plannedCount > (value.targetCount as number))
+  ) {
+    issues.push(
+      issue(
+        `plannedCount ${String(value.plannedCount)} exceeds targetCount ${String(value.targetCount)}.`
+      )
+    );
   }
   const seenPlots = new Set<number>();
   for (const placement of placements) {
@@ -79,7 +94,11 @@ export function validateNaturalWonderPlanArtifact(value: unknown): ValidationIss
     seenPlots.add(plotIndex);
     const priority = Number(placement.priority);
     if (!(priority >= 0 && priority <= 1)) {
-      issues.push(issue(`naturalWonderPlan priority ${String(placement.priority)} outside [0,1] on plot ${plotIndex}.`));
+      issues.push(
+        issue(
+          `naturalWonderPlan priority ${String(placement.priority)} outside [0,1] on plot ${plotIndex}.`
+        )
+      );
     }
   }
   return issues;
@@ -96,7 +115,9 @@ export function validateDiscoveryPlanArtifact(value: unknown): ValidationIssue[]
   const height = Number(value.height);
   const size = width * height;
   if (!Number.isSafeInteger(size) || size <= 0) {
-    return [issue(`discoveryPlan has invalid dimensions ${String(value.width)}x${String(value.height)}.`)];
+    return [
+      issue(`discoveryPlan has invalid dimensions ${String(value.width)}x${String(value.height)}.`),
+    ];
   }
   const placements = Array.isArray(value.placements) ? value.placements : null;
   if (!placements) return [issue("discoveryPlan.placements must be an array.")];

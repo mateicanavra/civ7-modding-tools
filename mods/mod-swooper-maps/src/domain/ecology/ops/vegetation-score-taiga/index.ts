@@ -12,4 +12,3 @@ const scoreVegetationTaiga = createOp(ScoreVegetationTaigaContract, {
 export type * from "./contract.js";
 
 export default scoreVegetationTaiga;
-

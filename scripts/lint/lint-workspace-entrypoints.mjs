@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
 const repoRoot = path.resolve(new URL("../..", import.meta.url).pathname);
-const packageJsonFiles = walkFiles(repoRoot, (file) => path.basename(file) === "package.json").filter(
-  (file) => !file.includes(`${path.sep}node_modules${path.sep}`)
-);
+const packageJsonFiles = walkFiles(
+  repoRoot,
+  (file) => path.basename(file) === "package.json"
+).filter((file) => !file.includes(`${path.sep}node_modules${path.sep}`));
 
 const normalEntrypointNames = new Set([
   "dev",
@@ -76,7 +77,9 @@ for (const file of packageJsonFiles) {
 
 if (failures.length > 0) {
   console.error("Package-local scripts contain hidden workspace dependency orchestration.");
-  console.error("Use root Nx scripts for dependency freshness; keep package-local scripts leaf-local.");
+  console.error(
+    "Use root Nx scripts for dependency freshness; keep package-local scripts leaf-local."
+  );
   for (const failure of failures) {
     console.error(
       `\n- ${failure.file} (${failure.package}) script '${failure.script}' violates ${failure.rule}`

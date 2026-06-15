@@ -151,7 +151,10 @@ export function computeDrainageRouting(params: {
   };
 }
 
-export function computeDrainageAccumulation(landMask: Uint8Array, flowDir: Int32Array): Float32Array {
+export function computeDrainageAccumulation(
+  landMask: Uint8Array,
+  flowDir: Int32Array
+): Float32Array {
   const size = landMask.length;
   if (flowDir.length !== size) {
     throw new Error("[Hydrology] flowDir length must match landMask length.");
@@ -271,10 +274,16 @@ class PriorityFloodHeap {
       const left = index * 2 + 1;
       const right = left + 1;
       let best = index;
-      if (left < this.entries.length && compareEntries(this.entries[left]!, this.entries[best]!) < 0) {
+      if (
+        left < this.entries.length &&
+        compareEntries(this.entries[left]!, this.entries[best]!) < 0
+      ) {
         best = left;
       }
-      if (right < this.entries.length && compareEntries(this.entries[right]!, this.entries[best]!) < 0) {
+      if (
+        right < this.entries.length &&
+        compareEntries(this.entries[right]!, this.entries[best]!) < 0
+      ) {
         best = right;
       }
       if (best === index) break;

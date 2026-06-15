@@ -1,18 +1,17 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
-import { Civ7ComponentIdSchema, type Civ7ComponentId } from "../../civ7-component-id.js";
+import { type Civ7ComponentId, Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
-import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
-
-import type { Civ7OperationFamily } from "../operations/types.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
-import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
-import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import type { Civ7OperationFamily } from "../operations/types.js";
 
 const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
 const Civ7PlayOperationFamilySchema = Type.Union([
@@ -24,112 +23,144 @@ const Civ7PlayOperationFamilySchema = Type.Union([
   Type.Literal("app-ui-action"),
 ]);
 
-export const Civ7PlayNotificationViewInputSchema = Type.Object({
-  maxNotifications: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
-}, { additionalProperties: false });
+export const Civ7PlayNotificationViewInputSchema = Type.Object(
+  {
+    maxNotifications: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  },
+  { additionalProperties: false }
+);
 export type Civ7PlayNotificationViewInput = Static<typeof Civ7PlayNotificationViewInputSchema>;
 
-export const Civ7PlayDecisionInputSchema = Type.Object({
-  name: Type.String(),
-  source: Type.String(),
-  required: Type.Boolean(),
-  note: Type.Optional(Type.String()),
-}, { additionalProperties: false });
+export const Civ7PlayDecisionInputSchema = Type.Object(
+  {
+    name: Type.String(),
+    source: Type.String(),
+    required: Type.Boolean(),
+    note: Type.Optional(Type.String()),
+  },
+  { additionalProperties: false }
+);
 export type Civ7PlayDecisionInputContract = Static<typeof Civ7PlayDecisionInputSchema>;
 
-export const Civ7PlayDecisionActionSchema = Type.Object({
-  label: Type.Optional(Type.String()),
-  operationFamily: Type.Optional(Civ7PlayOperationFamilySchema),
-  operationType: Type.Optional(Type.String()),
-  argsShape: Type.Optional(Type.String()),
-  when: Type.Optional(Type.String()),
-}, { additionalProperties: false });
+export const Civ7PlayDecisionActionSchema = Type.Object(
+  {
+    label: Type.Optional(Type.String()),
+    operationFamily: Type.Optional(Civ7PlayOperationFamilySchema),
+    operationType: Type.Optional(Type.String()),
+    argsShape: Type.Optional(Type.String()),
+    when: Type.Optional(Type.String()),
+  },
+  { additionalProperties: false }
+);
 export type Civ7PlayDecisionActionContract = Static<typeof Civ7PlayDecisionActionSchema>;
 
-export const Civ7PlayDecisionHintSchema = Type.Object({
-  category: Type.String(),
-  operationFamily: Type.Optional(Civ7PlayOperationFamilySchema),
-  operationType: Type.Optional(Type.String()),
-  argsShape: Type.Optional(Type.String()),
-  requiredInputs: Type.Array(Civ7PlayDecisionInputSchema),
-  commonActions: Type.Array(Civ7PlayDecisionActionSchema),
-  confidence: Type.Union([
-    Type.Literal("live-proof"),
-    Type.Literal("official-ui"),
-    Type.Literal("heuristic"),
-  ]),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7PlayDecisionHintSchema = Type.Object(
+  {
+    category: Type.String(),
+    operationFamily: Type.Optional(Civ7PlayOperationFamilySchema),
+    operationType: Type.Optional(Type.String()),
+    argsShape: Type.Optional(Type.String()),
+    requiredInputs: Type.Array(Civ7PlayDecisionInputSchema),
+    commonActions: Type.Array(Civ7PlayDecisionActionSchema),
+    confidence: Type.Union([
+      Type.Literal("live-proof"),
+      Type.Literal("official-ui"),
+      Type.Literal("heuristic"),
+    ]),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 export type Civ7PlayDecisionHintContract = Static<typeof Civ7PlayDecisionHintSchema>;
 
-export const Civ7PlayNotificationSummarySchema = Type.Object({
-  id: nullableComponentIdSchema,
-  type: Type.Unknown(),
-  typeName: Type.Union([Type.String(), Type.Null()]),
-  groupType: Type.Unknown(),
-  player: Type.Unknown(),
-  summary: Type.Union([Type.String(), Type.Null()]),
-  message: Type.Union([Type.String(), Type.Null()]),
-  target: Type.Unknown(),
-  location: Type.Unknown(),
-  canUserDismiss: Type.Unknown(),
-  expired: Type.Unknown(),
-  dismissed: Type.Unknown(),
-  isEndTurnBlocking: Type.Boolean(),
-  decision: Civ7PlayDecisionHintSchema,
-  details: Type.Optional(Type.Unknown()),
-}, { additionalProperties: false });
+export const Civ7PlayNotificationSummarySchema = Type.Object(
+  {
+    id: nullableComponentIdSchema,
+    type: Type.Unknown(),
+    typeName: Type.Union([Type.String(), Type.Null()]),
+    groupType: Type.Unknown(),
+    player: Type.Unknown(),
+    summary: Type.Union([Type.String(), Type.Null()]),
+    message: Type.Union([Type.String(), Type.Null()]),
+    target: Type.Unknown(),
+    location: Type.Unknown(),
+    canUserDismiss: Type.Unknown(),
+    expired: Type.Unknown(),
+    dismissed: Type.Unknown(),
+    isEndTurnBlocking: Type.Boolean(),
+    decision: Civ7PlayDecisionHintSchema,
+    details: Type.Optional(Type.Unknown()),
+  },
+  { additionalProperties: false }
+);
 export type Civ7PlayNotificationSummaryContract = Static<typeof Civ7PlayNotificationSummarySchema>;
 
-export const Civ7PlayDecisionQueueItemSchema = Type.Object({
-  notificationId: nullableComponentIdSchema,
-  isEndTurnBlocking: Type.Boolean(),
-  typeName: Type.Union([Type.String(), Type.Null()]),
-  summary: Type.Union([Type.String(), Type.Null()]),
-  message: Type.Union([Type.String(), Type.Null()]),
-  target: Type.Unknown(),
-  location: Type.Unknown(),
-  player: Type.Unknown(),
-  category: Type.String(),
-  operationFamily: Type.Optional(Civ7PlayOperationFamilySchema),
-  operationType: Type.Optional(Type.String()),
-  argsShape: Type.Optional(Type.String()),
-  requiredInputs: Type.Array(Civ7PlayDecisionInputSchema),
-  commonActions: Type.Array(Civ7PlayDecisionActionSchema),
-  notes: Type.Array(Type.String()),
-  details: Type.Optional(Type.Unknown()),
-}, { additionalProperties: false });
+export const Civ7PlayDecisionQueueItemSchema = Type.Object(
+  {
+    notificationId: nullableComponentIdSchema,
+    isEndTurnBlocking: Type.Boolean(),
+    typeName: Type.Union([Type.String(), Type.Null()]),
+    summary: Type.Union([Type.String(), Type.Null()]),
+    message: Type.Union([Type.String(), Type.Null()]),
+    target: Type.Unknown(),
+    location: Type.Unknown(),
+    player: Type.Unknown(),
+    category: Type.String(),
+    operationFamily: Type.Optional(Civ7PlayOperationFamilySchema),
+    operationType: Type.Optional(Type.String()),
+    argsShape: Type.Optional(Type.String()),
+    requiredInputs: Type.Array(Civ7PlayDecisionInputSchema),
+    commonActions: Type.Array(Civ7PlayDecisionActionSchema),
+    notes: Type.Array(Type.String()),
+    details: Type.Optional(Type.Unknown()),
+  },
+  { additionalProperties: false }
+);
 export type Civ7PlayDecisionQueueItemContract = Static<typeof Civ7PlayDecisionQueueItemSchema>;
 
-export const Civ7PlayNotificationViewResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: Type.Object({
-    id: Type.String(),
-    name: Type.String(),
-  }, { additionalProperties: false }),
-  localPlayerId: Type.Number(),
-  turn: Civ7RuntimeProbeSchema(Type.Number()),
-  turnDate: Civ7RuntimeProbeSchema(Type.String()),
-  hasSentTurnComplete: Civ7RuntimeProbeSchema(Type.Boolean()),
-  canEndTurn: Civ7RuntimeProbeSchema(Type.Boolean()),
-  blocker: Civ7RuntimeProbeSchema(Type.Unknown()),
-  blockingNotificationId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
-  selectedUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
-  selectedCityId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
-  firstReadyUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
-  notifications: Type.Array(Civ7PlayNotificationSummarySchema),
-  decisions: Type.Array(Civ7PlayDecisionHintSchema),
-  hud: Type.Object({
-    nextDecision: Type.Union([Civ7PlayDecisionQueueItemSchema, Type.Null()]),
-    decisionQueue: Type.Array(Civ7PlayDecisionQueueItemSchema),
-  }, { additionalProperties: false }),
-  limits: Type.Object({
-    maxNotifications: Type.Number(),
-    truncated: Type.Boolean(),
-  }, { additionalProperties: false }),
-}, { additionalProperties: false });
-export type Civ7PlayNotificationViewResultContract = Static<typeof Civ7PlayNotificationViewResultSchema>;
+export const Civ7PlayNotificationViewResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: Type.Object(
+      {
+        id: Type.String(),
+        name: Type.String(),
+      },
+      { additionalProperties: false }
+    ),
+    localPlayerId: Type.Number(),
+    turn: Civ7RuntimeProbeSchema(Type.Number()),
+    turnDate: Civ7RuntimeProbeSchema(Type.String()),
+    hasSentTurnComplete: Civ7RuntimeProbeSchema(Type.Boolean()),
+    canEndTurn: Civ7RuntimeProbeSchema(Type.Boolean()),
+    blocker: Civ7RuntimeProbeSchema(Type.Unknown()),
+    blockingNotificationId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+    selectedUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+    selectedCityId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+    firstReadyUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+    notifications: Type.Array(Civ7PlayNotificationSummarySchema),
+    decisions: Type.Array(Civ7PlayDecisionHintSchema),
+    hud: Type.Object(
+      {
+        nextDecision: Type.Union([Civ7PlayDecisionQueueItemSchema, Type.Null()]),
+        decisionQueue: Type.Array(Civ7PlayDecisionQueueItemSchema),
+      },
+      { additionalProperties: false }
+    ),
+    limits: Type.Object(
+      {
+        maxNotifications: Type.Number(),
+        truncated: Type.Boolean(),
+      },
+      { additionalProperties: false }
+    ),
+  },
+  { additionalProperties: false }
+);
+export type Civ7PlayNotificationViewResultContract = Static<
+  typeof Civ7PlayNotificationViewResultSchema
+>;
 
 export type Civ7PlayDecisionHint = Readonly<{
   category: string;
@@ -220,23 +251,24 @@ export type Civ7PlayNotificationViewResult = Readonly<{
   }>;
 }>;
 
-export type PlayNotificationViewOptions = Civ7DirectControlOptions & Readonly<{
-  maxNotifications?: number;
-}>;
+export type PlayNotificationViewOptions = Civ7DirectControlOptions &
+  Readonly<{
+    maxNotifications?: number;
+  }>;
 
 export type PlayNotificationViewDependencies = Readonly<{
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
   parsePlayNotificationView: (
     result: Civ7CommandResult,
-    label: string,
+    label: string
   ) => Civ7PlayNotificationViewResult;
 }>;
 
 export async function getCiv7PlayNotificationView(
   options: PlayNotificationViewOptions = {},
-  dependencies: PlayNotificationViewDependencies = defaultPlayNotificationViewDependencies,
+  dependencies: PlayNotificationViewDependencies = defaultPlayNotificationViewDependencies
 ): Promise<Civ7PlayNotificationViewResult> {
   const result = await dependencies.executeAppUiCommand({
     ...options,

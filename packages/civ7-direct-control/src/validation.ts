@@ -2,7 +2,10 @@ import { Civ7DirectControlError } from "./direct-control-error.js";
 
 export function boundedInteger(value: number, min: number, max: number, label: string): number {
   if (!Number.isInteger(value) || value < min || value > max) {
-    throw new Civ7DirectControlError("command-failed", `${label} must be an integer between ${min} and ${max}`);
+    throw new Civ7DirectControlError(
+      "command-failed",
+      `${label} must be an integer between ${min} and ${max}`
+    );
   }
   return value;
 }

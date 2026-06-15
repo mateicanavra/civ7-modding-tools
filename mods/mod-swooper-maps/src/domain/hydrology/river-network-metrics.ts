@@ -15,4 +15,3 @@ export const HYDROLOGY_FLOW_DRY = 0;
 export const HYDROLOGY_FLOW_EPHEMERAL = 1;
 export const HYDROLOGY_FLOW_INTERMITTENT = 2;
 export const HYDROLOGY_FLOW_PERENNIAL = 3;
-

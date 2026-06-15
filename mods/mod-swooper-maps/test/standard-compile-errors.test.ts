@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import {
-  RecipeCompileError,
   compileRecipeConfig,
+  RecipeCompileError,
 } from "@swooper/mapgen-core/compiler/recipe-compile";
 
 import standardRecipe, { compileOpsById } from "../src/recipes/standard/recipe.js";
@@ -43,8 +43,7 @@ describe("standard recipe compile errors (map-rivers)", () => {
     expect(
       err.errors.some(
         (item) =>
-          item.code === "config.invalid" &&
-          item.path === "/config/map-rivers/knobs/riverDensity"
+          item.code === "config.invalid" && item.path === "/config/map-rivers/knobs/riverDensity"
       )
     ).toBe(true);
   });
@@ -63,7 +62,8 @@ describe("standard recipe compile errors (ecology)", () => {
 
     expect(
       err.errors.some(
-        (item) => item.code === "config.invalid" && item.path === "/config/ecology-biomes/extraField"
+        (item) =>
+          item.code === "config.invalid" && item.path === "/config/ecology-biomes/extraField"
       )
     ).toBe(true);
   });
@@ -77,7 +77,7 @@ describe("standard recipe compile errors (ecology)", () => {
     );
 
     const legacyEcologyError = err.errors.find((item) => item.path === "/config/ecology");
-    expect(legacyEcologyError?.message).toContain("\"ecology-features\"");
+    expect(legacyEcologyError?.message).toContain('"ecology-features"');
     expect(legacyEcologyError?.message).not.toContain("ecology-features-score");
   });
 
@@ -95,7 +95,8 @@ describe("standard recipe compile errors (ecology)", () => {
 
     expect(
       err.errors.some(
-        (item) => item.code === "config.invalid" && item.path.includes("/config/ecology-biomes/biomes")
+        (item) =>
+          item.code === "config.invalid" && item.path.includes("/config/ecology-biomes/biomes")
       )
     ).toBe(true);
   });
@@ -418,8 +419,7 @@ describe("standard recipe compile errors (ecology)", () => {
     expect(
       err.errors.some(
         (item) =>
-          item.code === "config.invalid" &&
-          item.path.includes("/config/map-ecology/features-apply")
+          item.code === "config.invalid" && item.path.includes("/config/map-ecology/features-apply")
       )
     ).toBe(true);
   });
@@ -437,8 +437,7 @@ describe("standard recipe compile errors (ecology)", () => {
     expect(
       err.errors.some(
         (item) =>
-          item.code === "config.invalid" &&
-          item.path.includes("/config/map-rivers/riverProjection")
+          item.code === "config.invalid" && item.path.includes("/config/map-rivers/riverProjection")
       )
     ).toBe(true);
   });

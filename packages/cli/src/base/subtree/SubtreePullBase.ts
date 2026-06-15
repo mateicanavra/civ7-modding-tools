@@ -1,29 +1,29 @@
-import { Args, Flags } from '@oclif/core';
-import SubtreeCommand from './SubtreeCommand.js';
-import { pullSubtree } from '../../utils/git.js';
+import { Args, Flags } from "@oclif/core";
+import { pullSubtree } from "../../utils/git.js";
+import SubtreeCommand from "./SubtreeCommand.js";
 
 export default abstract class SubtreePullBase extends SubtreeCommand {
   static flags = {
     ...SubtreeCommand.baseFlags,
     squash: Flags.boolean({
-      description: 'Squash history when pulling',
+      description: "Squash history when pulling",
       default: false,
-      char: 'S',
+      char: "S",
     }),
     yes: Flags.boolean({
-      description: 'Assume yes to safety prompts',
+      description: "Assume yes to safety prompts",
       default: false,
-      char: 'y',
+      char: "y",
     }),
     autoUnshallow: Flags.boolean({
-      description: 'Automatically unshallow the repo if needed',
+      description: "Automatically unshallow the repo if needed",
       default: undefined,
-      char: 'U',
+      char: "U",
     }),
   } as const;
 
   static args = {
-    slug: Args.string({ description: 'Subtree slug', required: true }),
+    slug: Args.string({ description: "Subtree slug", required: true }),
   } as const;
 
   protected getPrefix(slug: string): string {

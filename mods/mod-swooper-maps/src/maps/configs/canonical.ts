@@ -1,6 +1,5 @@
-import { Type, type TObject, type TSchema } from "typebox";
-
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import { type TObject, type TSchema, Type } from "typebox";
 
 type JsonObject = Record<string, unknown>;
 
@@ -166,7 +165,10 @@ export function validateCanonicalMapConfig(args: {
     }
   }
 
-  if (raw.logPrefix !== undefined && (typeof raw.logPrefix !== "string" || raw.logPrefix.trim().length === 0)) {
+  if (
+    raw.logPrefix !== undefined &&
+    (typeof raw.logPrefix !== "string" || raw.logPrefix.trim().length === 0)
+  ) {
     errors.push(`${label}/logPrefix must be a non-empty string when present`);
   }
 
@@ -177,7 +179,9 @@ export function validateCanonicalMapConfig(args: {
   }
 
   if (errors.length > 0) {
-    throw new Error(`Invalid canonical map config ${fileName}:\n${errors.map((err) => `- ${err}`).join("\n")}`);
+    throw new Error(
+      `Invalid canonical map config ${fileName}:\n${errors.map((err) => `- ${err}`).join("\n")}`
+    );
   }
 
   const envelope = raw as unknown as CanonicalMapConfigEnvelope;

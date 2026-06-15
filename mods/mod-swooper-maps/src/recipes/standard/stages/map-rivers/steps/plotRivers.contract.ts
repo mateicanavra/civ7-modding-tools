@@ -1,15 +1,18 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import hydrology from "@mapgen/domain/hydrology";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 import { mapRiversArtifacts } from "../artifacts.js";
 
-const PlotRiversStepConfigSchema = Type.Object({}, {
-  additionalProperties: false,
-  description:
-    "Map-rivers step config. Navigable-river selection semantics are owned by the Hydrology op envelope on this step.",
-});
+const PlotRiversStepConfigSchema = Type.Object(
+  {},
+  {
+    additionalProperties: false,
+    description:
+      "Map-rivers step config. Navigable-river selection semantics are owned by the Hydrology op envelope on this step.",
+  }
+);
 
 const PlotRiversStepContract = defineStep({
   id: "plot-rivers",

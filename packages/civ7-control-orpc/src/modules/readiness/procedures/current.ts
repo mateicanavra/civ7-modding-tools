@@ -10,18 +10,13 @@ import {
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7ReadinessCurrentResult } from "../contract";
 
-export const readinessCurrentProcedure =
-  civ7ControlOrpcImplementer.readiness.current.effect(function* ({
-    context,
-    errors,
-  }) {
+export const readinessCurrentProcedure = civ7ControlOrpcImplementer.readiness.current.effect(
+  function* ({ context, errors }) {
     return yield* Effect.tryPromise({
       try: async () =>
         readinessCurrentResult(
-          await context.directControl.getCiv7PlayableStatus(
-            context.endpointDefaults,
-          ),
-          context,
+          await context.directControl.getCiv7PlayableStatus(context.endpointDefaults),
+          context
         ),
       catch: (cause) =>
         errors.READINESS_CURRENT_UNAVAILABLE({
@@ -33,11 +28,12 @@ export const readinessCurrentProcedure =
           },
         }),
     });
-  });
+  }
+);
 
 function readinessCurrentResult(
   status: Civ7ControlOrpcPlayableStatusResult,
-  context: Civ7ControlOrpcContext,
+  context: Civ7ControlOrpcContext
 ): Civ7ReadinessCurrentResult {
   return {
     playable: status.playable,
@@ -61,11 +57,10 @@ function readinessCurrentResult(
 }
 
 function readinessControllerSummary(
-  context: Civ7ControlOrpcContext,
+  context: Civ7ControlOrpcContext
 ): Civ7ReadinessCurrentResult["controller"] {
   const readProcedures = context.controller?.supportedReadProcedures ?? [];
-  const mutationProcedures =
-    context.controller?.supportedMutationProcedures ?? [];
+  const mutationProcedures = context.controller?.supportedMutationProcedures ?? [];
   return {
     supportedProcedures: [
       ...readProcedures.map((procedureKey) => ({
@@ -82,7 +77,7 @@ function readinessControllerSummary(
 
 function readinessCapability(
   status: Civ7ControlOrpcPlayableStatusResult,
-  context: Civ7ControlOrpcContext,
+  context: Civ7ControlOrpcContext
 ): Civ7ReadinessCurrentResult["capability"] {
   if (status.playable) {
     return {
@@ -137,65 +132,81 @@ function readinessCapability(
 
 function readinessNextSteps(
   status: Civ7ControlOrpcPlayableStatusResult,
-  context: Civ7ControlOrpcContext,
+  context: Civ7ControlOrpcContext
 ): Civ7ReadinessCurrentResult["nextSteps"] {
   if (
-    status.playable
-    || (status.readiness === "app-ui-game" && supportsAttentionCurrent(context))
+    status.playable ||
+    (status.readiness === "app-ui-game" && supportsAttentionCurrent(context))
   ) {
-    return [{
-      kind: "read-attention",
-      source: "readiness.current",
-      label: "Read current attention before choosing support actions.",
-    }];
+    return [
+      {
+        kind: "read-attention",
+        source: "readiness.current",
+        label: "Read current attention before choosing support actions.",
+      },
+    ];
   }
   if (status.readiness === "app-ui-game" && supportsStrategyFront(context)) {
-    return [{
-      kind: "read-strategy-front",
-      source: "readiness.current",
-      label: "Read strategy front summary before choosing tactical support actions.",
-    }];
+    return [
+      {
+        kind: "read-strategy-front",
+        source: "readiness.current",
+        label: "Read strategy front summary before choosing tactical support actions.",
+      },
+    ];
   }
   if (status.readiness === "app-ui-game" && supportsWorldCurrent(context)) {
-    return [{
-      kind: "read-world",
-      source: "readiness.current",
-      label: "Read current world facts before choosing support actions.",
-    }];
+    return [
+      {
+        kind: "read-world",
+        source: "readiness.current",
+        label: "Read current world facts before choosing support actions.",
+      },
+    ];
   }
 
   switch (status.readiness) {
     case "app-ui-game":
-      return [{
-        kind: "restore-tuner",
-        source: "readiness.current",
-        label: "Restore runtime control readiness before support reads or actions.",
-      }];
+      return [
+        {
+          kind: "restore-tuner",
+          source: "readiness.current",
+          label: "Restore runtime control readiness before support reads or actions.",
+        },
+      ];
     case "begin-ready":
-      return [{
-        kind: "begin-game",
-        source: "readiness.current",
-        label: "Begin the game before reading in-game attention.",
-      }];
+      return [
+        {
+          kind: "begin-game",
+          source: "readiness.current",
+          label: "Begin the game before reading in-game attention.",
+        },
+      ];
     case "loading":
-      return [{
-        kind: "wait-loading",
-        source: "readiness.current",
-        label: "Wait for loading to complete before reading attention.",
-      }];
+      return [
+        {
+          kind: "wait-loading",
+          source: "readiness.current",
+          label: "Wait for loading to complete before reading attention.",
+        },
+      ];
     case "shell":
-      return [{
-        kind: "enter-game",
-        source: "readiness.current",
-        label: "Enter an active game before support reads or actions.",
-      }];
+      return [
+        {
+          kind: "enter-game",
+          source: "readiness.current",
+          label: "Enter an active game before support reads or actions.",
+        },
+      ];
     case "unavailable":
     case "tuner-ready":
-      return [{
-        kind: "inspect-runtime",
-        source: "readiness.current",
-        label: "Inspect Civ7 runtime readiness before continuing.",
-      }];
+      return [
+        {
+          kind: "inspect-runtime",
+          source: "readiness.current",
+          label: "Inspect Civ7 runtime readiness before continuing.",
+        },
+      ];
   }
 }
 

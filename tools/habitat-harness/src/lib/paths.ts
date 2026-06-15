@@ -1,5 +1,5 @@
-import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 /** Repo root, resolved from this file's location (tools/habitat-harness/src/lib/). */
 export const repoRoot = path.resolve(fileURLToPath(new URL("../../../..", import.meta.url)));

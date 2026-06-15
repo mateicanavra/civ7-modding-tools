@@ -1,9 +1,6 @@
-import {
-  Civ7ComponentIdSchema,
-  Civ7MapLocationSchema,
-} from "@civ7/direct-control";
-import { describe, expect, test } from "vitest";
+import { Civ7ComponentIdSchema, Civ7MapLocationSchema } from "@civ7/direct-control";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7ControlOrpcComponentIdSchema,
@@ -21,7 +18,7 @@ describe("control-oRPC primitive service schemas", () => {
     ];
     for (const fixture of componentFixtures) {
       expect(Value.Check(Civ7ControlOrpcComponentIdSchema, fixture)).toBe(
-        Value.Check(Civ7ComponentIdSchema, fixture),
+        Value.Check(Civ7ComponentIdSchema, fixture)
       );
     }
 
@@ -34,7 +31,7 @@ describe("control-oRPC primitive service schemas", () => {
     ];
     for (const fixture of locationFixtures) {
       expect(Value.Check(Civ7ControlOrpcMapLocationSchema, fixture)).toBe(
-        Value.Check(Civ7MapLocationSchema, fixture),
+        Value.Check(Civ7MapLocationSchema, fixture)
       );
     }
   });

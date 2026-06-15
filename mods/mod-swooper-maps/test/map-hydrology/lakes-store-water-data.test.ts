@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
-import { MockAdapter, type LakeProjectionResult } from "@civ7/adapter";
-import { FLAT_TERRAIN, createExtendedMapContext } from "@swooper/mapgen-core";
+import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
+import { createExtendedMapContext, FLAT_TERRAIN } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import lakes from "../../src/recipes/standard/stages/map-hydrology/steps/lakes.js";
@@ -100,16 +100,17 @@ class RejectingLakeAdapter extends MockAdapter {
   }
 }
 
-function createContext(adapter: MockAdapter, width: number, height: number, seed: number): TestContext {
-  return createExtendedMapContext(
-    { width, height },
-    adapter,
-    {
-      seed,
-      dimensions: { width, height },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    }
-  );
+function createContext(
+  adapter: MockAdapter,
+  width: number,
+  height: number,
+  seed: number
+): TestContext {
+  return createExtendedMapContext({ width, height }, adapter, {
+    seed,
+    dimensions: { width, height },
+    latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+  });
 }
 
 function seedLakePlan(

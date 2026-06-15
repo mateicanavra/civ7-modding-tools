@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
+import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import ecology from "@mapgen/domain/ecology/ops";
 import { RIVER_CLASS_MAJOR } from "../../src/domain/hydrology/index.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
 import planFloodplainsStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-floodplains/index.js";
@@ -107,7 +107,11 @@ describe("floodplain feature product row", () => {
       adapter.setBiomeType(x, y, plainsBiome);
       adapter.setTerrainType(x, y, flatTerrain);
     }
-    adapter.setTerrainType(riverIndex % width, Math.floor(riverIndex / width), navigableRiverTerrain);
+    adapter.setTerrainType(
+      riverIndex % width,
+      Math.floor(riverIndex / width),
+      navigableRiverTerrain
+    );
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
     const setupArtifacts = implementArtifacts(

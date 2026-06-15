@@ -331,15 +331,27 @@
               {
                 "title": "Phases run as steps",
                 "keyResults": [
-                  { "category": "add", "text": "Major phases run as pipeline steps with explicit contracts" },
-                  { "category": "add", "text": "Standard pipeline recipe runs end-to-end and produces a coherent map" }
+                  {
+                    "category": "add",
+                    "text": "Major phases run as pipeline steps with explicit contracts"
+                  },
+                  {
+                    "category": "add",
+                    "text": "Standard pipeline recipe runs end-to-end and produces a coherent map"
+                  }
                 ]
               },
               {
                 "title": "Contracts are enforced",
                 "keyResults": [
-                  { "category": "add", "text": "Runtime gating throws on missing `requires` (fail-fast)" },
-                  { "category": "remove", "text": "Silent contract violations / limp-through generation" }
+                  {
+                    "category": "add",
+                    "text": "Runtime gating throws on missing `requires` (fail-fast)"
+                  },
+                  {
+                    "category": "remove",
+                    "text": "Silent contract violations / limp-through generation"
+                  }
                 ]
               },
               {
@@ -353,8 +365,14 @@
               {
                 "title": "Consumers use canonical products",
                 "keyResults": [
-                  { "category": "add", "text": "`ClimateField` and `StoryOverlays` are authoritative inputs for downstream steps" },
-                  { "category": "remove", "text": "Modernized consumers read directly from `GameplayMap` for artifact-available data" }
+                  {
+                    "category": "add",
+                    "text": "`ClimateField` and `StoryOverlays` are authoritative inputs for downstream steps"
+                  },
+                  {
+                    "category": "remove",
+                    "text": "Modernized consumers read directly from `GameplayMap` for artifact-available data"
+                  }
                 ]
               }
             ]
@@ -434,4 +452,3 @@
     }
   ]
 }
-

@@ -40,5 +40,4 @@ describe("score-shared physics candidate ordering", () => {
       tileIndex: 4,
     });
   });
-
 });

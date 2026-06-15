@@ -1,6 +1,5 @@
-import type { Static } from "@swooper/mapgen-core/authoring";
-
 import placement from "@mapgen/domain/placement";
+import type { Static } from "@swooper/mapgen-core/authoring";
 
 type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 

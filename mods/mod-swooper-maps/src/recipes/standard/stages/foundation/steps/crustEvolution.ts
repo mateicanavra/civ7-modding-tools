@@ -2,9 +2,9 @@ import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { foundationArtifacts } from "../artifacts.js";
+import { interleaveXY } from "../viz.js";
 import CrustEvolutionStepContract from "./crustEvolution.contract.js";
 import { validateCrustArtifact, wrapFoundationValidateNoDims } from "./validation.js";
-import { interleaveXY } from "../viz.js";
 
 const GROUP_CRUST = "Foundation / Crust";
 

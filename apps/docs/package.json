@@ -2,10 +2,14 @@
   "name": "@civ7/docs",
   "private": true,
   "nx": {
-    "tags": ["kind:app"],
+    "tags": [
+      "kind:app"
+    ],
     "targets": {
       "dev": {
-        "dependsOn": ["^build"],
+        "dependsOn": [
+          "^build"
+        ],
         "cache": false,
         "continuous": true
       }

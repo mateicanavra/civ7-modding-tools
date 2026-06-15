@@ -24,6 +24,10 @@ import {
   type Civ7NarrativeContract as Civ7NarrativeContractType,
 } from "./modules/narrative/contract";
 import {
+  Civ7NotificationsContract,
+  type Civ7NotificationsContract as Civ7NotificationsContractType,
+} from "./modules/notifications/contract";
+import {
   Civ7ProgressionContract,
   type Civ7ProgressionContract as Civ7ProgressionContractType,
 } from "./modules/progression/contract";
@@ -31,10 +35,6 @@ import {
   Civ7ReadinessContract,
   type Civ7ReadinessContract as Civ7ReadinessContractType,
 } from "./modules/readiness/contract";
-import {
-  Civ7NotificationsContract,
-  type Civ7NotificationsContract as Civ7NotificationsContractType,
-} from "./modules/notifications/contract";
 import {
   Civ7StrategyContract,
   type Civ7StrategyContract as Civ7StrategyContractType,
@@ -73,20 +73,19 @@ export type Civ7ControlOrpcContract = Readonly<{
   world: Civ7WorldContractType;
 }>;
 
-export const Civ7ControlOrpcContract: Civ7ControlOrpcContract =
-  civ7ControlOrpcContractBase.router({
-    attention: Civ7AttentionContract,
-    city: Civ7CityContract,
-    diplomacy: Civ7DiplomacyContract,
-    display: Civ7DisplayContract,
-    government: Civ7GovernmentContract,
-    narrative: Civ7NarrativeContract,
-    notifications: Civ7NotificationsContract,
-    progression: Civ7ProgressionContract,
-    readiness: Civ7ReadinessContract,
-    strategy: Civ7StrategyContract,
-    turn: Civ7TurnContract,
-    unit: Civ7UnitContract,
-    view: Civ7ViewContract,
-    world: Civ7WorldContract,
-  });
+export const Civ7ControlOrpcContract: Civ7ControlOrpcContract = civ7ControlOrpcContractBase.router({
+  attention: Civ7AttentionContract,
+  city: Civ7CityContract,
+  diplomacy: Civ7DiplomacyContract,
+  display: Civ7DisplayContract,
+  government: Civ7GovernmentContract,
+  narrative: Civ7NarrativeContract,
+  notifications: Civ7NotificationsContract,
+  progression: Civ7ProgressionContract,
+  readiness: Civ7ReadinessContract,
+  strategy: Civ7StrategyContract,
+  turn: Civ7TurnContract,
+  unit: Civ7UnitContract,
+  view: Civ7ViewContract,
+  world: Civ7WorldContract,
+});

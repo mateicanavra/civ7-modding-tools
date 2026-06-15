@@ -1,18 +1,17 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
-import {
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  Civ7GovernmentChoiceUnavailableError,
-  createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-  type Civ7ControlOrpcPlayableStatusResult,
-} from "../src/index";
 import type {
   Civ7ControlOrpcGovernmentChoiceResult,
   Civ7ControlOrpcPlayNotificationViewResult,
 } from "../src/dependencies/direct-control";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  type Civ7ControlOrpcPlayableStatusResult,
+  Civ7ControlOrpcRouter,
+  Civ7GovernmentChoiceUnavailableError,
+  createCiv7ControlOrpcServerClient,
+} from "../src/index";
 
 const governmentInput = {
   governmentType: 0,
@@ -36,26 +35,26 @@ describe("government choice control-oRPC procedures", () => {
       }),
     });
 
-    const result = await call(
-      Civ7ControlOrpcRouter.government.choice.request,
-      governmentInput,
-      { context: fake.context },
-    );
+    const result = await call(Civ7ControlOrpcRouter.government.choice.request, governmentInput, {
+      context: fake.context,
+    });
 
     expect(fake.calls.readiness).toHaveLength(1);
     expect(fake.calls.views).toHaveLength(1);
-    expect(fake.calls.government).toEqual([{
-      input: {
-        playerId: 0,
-        governmentType: 0,
-        action: -1_326_475_004,
+    expect(fake.calls.government).toEqual([
+      {
+        input: {
+          playerId: 0,
+          governmentType: 0,
+          action: -1_326_475_004,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expect(fake.calls.celebration).toEqual([]);
     expect(result).toEqual({
       playerId: 0,
@@ -75,11 +74,14 @@ describe("government choice control-oRPC procedures", () => {
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "government.choice.request",
-        label: "Do not repeat this government-domain choice request until fresh attention evidence is read.",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "government.choice.request",
+          label:
+            "Do not repeat this government-domain choice request until fresh attention evidence is read.",
+        },
+      ],
     });
     expectSemanticGovernmentChoiceOmitsRawRuntimeDetails(result);
   });
@@ -96,21 +98,21 @@ describe("government choice control-oRPC procedures", () => {
     });
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
-    const result = await client.government.celebration.choice.request(
-      celebrationInput,
-    );
+    const result = await client.government.celebration.choice.request(celebrationInput);
 
-    expect(fake.calls.celebration).toEqual([{
-      input: {
-        playerId: 0,
-        goldenAgeType: -340_825_966,
+    expect(fake.calls.celebration).toEqual([
+      {
+        input: {
+          playerId: 0,
+          goldenAgeType: -340_825_966,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expect(result).toMatchObject({
       playerId: 0,
       goldenAgeType: -340_825_966,
@@ -138,11 +140,9 @@ describe("government choice control-oRPC procedures", () => {
       }),
     });
 
-    const result = await call(
-      Civ7ControlOrpcRouter.government.choice.request,
-      governmentInput,
-      { context: fake.context },
-    );
+    const result = await call(Civ7ControlOrpcRouter.government.choice.request, governmentInput, {
+      context: fake.context,
+    });
 
     expect(result).toMatchObject({
       playerId: 0,
@@ -160,11 +160,14 @@ describe("government choice control-oRPC procedures", () => {
         noRepeatAfterUnverified: true,
       },
     });
-    expect(result.nextSteps).toEqual([{
-      kind: "inspect-government-choice",
-      source: "government.choice.request",
-      label: "Inspect current government or celebration choice state before attempting another request.",
-    }]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "inspect-government-choice",
+        source: "government.choice.request",
+        label:
+          "Inspect current government or celebration choice state before attempting another request.",
+      },
+    ]);
   });
 
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
@@ -186,11 +189,9 @@ describe("government choice control-oRPC procedures", () => {
       });
 
       await expect(
-        call(
-          Civ7ControlOrpcRouter.government.choice.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.government.choice.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.readiness).toEqual([]);
       expect(fake.calls.views).toEqual([]);
@@ -211,11 +212,9 @@ describe("government choice control-oRPC procedures", () => {
       });
 
       await expect(
-        call(
-          Civ7ControlOrpcRouter.government.celebration.choice.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.government.celebration.choice.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.readiness).toEqual([]);
       expect(fake.calls.views).toEqual([]);
@@ -233,18 +232,16 @@ describe("government choice control-oRPC procedures", () => {
         ...fake.context.directControl,
         requestCiv7GovernmentChoice: async () => {
           throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:65535:CHANGE_GOVERNMENT",
+            "Timed out waiting for Civ7 tuner response to CMD:65535:CHANGE_GOVERNMENT"
           );
         },
       },
     };
 
     await expect(
-      call(
-        Civ7ControlOrpcRouter.government.choice.request,
-        governmentInput,
-        { context: failingContext },
-      ),
+      call(Civ7ControlOrpcRouter.government.choice.request, governmentInput, {
+        context: failingContext,
+      })
     ).rejects.toMatchObject({
       code: "GOVERNMENT_CHOICE_UNAVAILABLE",
       status: 503,
@@ -255,11 +252,9 @@ describe("government choice control-oRPC procedures", () => {
     });
 
     try {
-      await call(
-        Civ7ControlOrpcRouter.government.choice.request,
-        governmentInput,
-        { context: failingContext },
-      );
+      await call(Civ7ControlOrpcRouter.government.choice.request, governmentInput, {
+        context: failingContext,
+      });
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -279,18 +274,16 @@ describe("government choice control-oRPC procedures", () => {
         ...fake.context.directControl,
         requestCiv7CelebrationChoice: async () => {
           throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:65535:CHOOSE_GOLDEN_AGE",
+            "Timed out waiting for Civ7 tuner response to CMD:65535:CHOOSE_GOLDEN_AGE"
           );
         },
       },
     };
 
     await expect(
-      call(
-        Civ7ControlOrpcRouter.government.celebration.choice.request,
-        celebrationInput,
-        { context: failingContext },
-      ),
+      call(Civ7ControlOrpcRouter.government.celebration.choice.request, celebrationInput, {
+        context: failingContext,
+      })
     ).rejects.toMatchObject({
       code: "GOVERNMENT_CHOICE_UNAVAILABLE",
       status: 503,
@@ -302,18 +295,15 @@ describe("government choice control-oRPC procedures", () => {
   });
 
   test("publishes domain-first government service leaves", () => {
-    expect(Civ7ControlOrpcContract.government.choice.request["~orpc"])
-      .toMatchObject({
-        meta: {
-          family: "government",
-          procedureKey: "government.choice.request",
-          proofBoundary: "local-package-test",
-          risk: "mutation",
-        },
-      });
-    expect(
-      Civ7ControlOrpcContract.government.celebration.choice.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.government.choice.request["~orpc"]).toMatchObject({
+      meta: {
+        family: "government",
+        procedureKey: "government.choice.request",
+        proofBoundary: "local-package-test",
+        risk: "mutation",
+      },
+    });
+    expect(Civ7ControlOrpcContract.government.celebration.choice.request["~orpc"]).toMatchObject({
       meta: {
         family: "government",
         procedureKey: "government.celebration.choice.request",
@@ -321,68 +311,77 @@ describe("government choice control-oRPC procedures", () => {
         risk: "mutation",
       },
     });
-    expect(Civ7ControlOrpcContract.government.choice.request["~orpc"].errorMap)
-      .toHaveProperty("GOVERNMENT_CHOICE_UNAVAILABLE");
-    expect(
-      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).operations,
-    ).toBeUndefined();
-    expect(
-      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions,
-    ).toBeUndefined();
-    expect(Civ7GovernmentChoiceUnavailableError.code).toBe(
-      "GOVERNMENT_CHOICE_UNAVAILABLE",
+    expect(Civ7ControlOrpcContract.government.choice.request["~orpc"].errorMap).toHaveProperty(
+      "GOVERNMENT_CHOICE_UNAVAILABLE"
     );
+    expect(
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).operations
+    ).toBeUndefined();
+    expect(
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions
+    ).toBeUndefined();
+    expect(Civ7GovernmentChoiceUnavailableError.code).toBe("GOVERNMENT_CHOICE_UNAVAILABLE");
   });
 });
 
 function expectSemanticGovernmentChoiceOmitsRawRuntimeDetails(result: unknown) {
   const serialized = JSON.stringify(result);
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
-  expect(serialized).not.toContain("\"session\"");
-  expect(serialized).not.toContain("\"rawCommand\"");
-  expect(serialized).not.toContain("\"command\"");
-  expect(serialized).not.toContain("\"operation\"");
-  expect(serialized).not.toContain("\"verified\"");
-  expect(serialized).not.toContain("\"before\"");
-  expect(serialized).not.toContain("\"after\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"operation"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
   expect(serialized).not.toContain("Game.PlayerOperations");
   expect(serialized).not.toContain("CHANGE_GOVERNMENT");
   expect(serialized).not.toContain("CHOOSE_GOLDEN_AGE");
 }
 
-function fakeContext(options: Readonly<{
-  view: Civ7ControlOrpcPlayNotificationViewResult;
-  governmentResult?: Civ7ControlOrpcGovernmentChoiceResult;
-  celebrationResult?: Civ7ControlOrpcGovernmentChoiceResult;
-  playable?: boolean;
-}>): {
+function fakeContext(
+  options: Readonly<{
+    view: Civ7ControlOrpcPlayNotificationViewResult;
+    governmentResult?: Civ7ControlOrpcGovernmentChoiceResult;
+    celebrationResult?: Civ7ControlOrpcGovernmentChoiceResult;
+    playable?: boolean;
+  }>
+): {
   calls: {
     readiness: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
-    government: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
-    celebration: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
+    government: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
+    celebration: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
   };
   context: Civ7ControlOrpcContext;
 } {
   const calls = {
     readiness: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
     views: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
-    government: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
-    celebration: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
+    government: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
+    celebration: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
   };
 
   return {
@@ -404,24 +403,28 @@ function fakeContext(options: Readonly<{
         },
         requestCiv7GovernmentChoice: async (input, endpointDefaults) => {
           calls.government.push({ input, options: endpointDefaults });
-          return options.governmentResult
-            ?? governmentChoiceResult({
+          return (
+            options.governmentResult ??
+            governmentChoiceResult({
               kind: "government",
               playerId: 0,
               governmentType: 0,
               action: -1_326_475_004,
               sent: true,
-            });
+            })
+          );
         },
         requestCiv7CelebrationChoice: async (input, endpointDefaults) => {
           calls.celebration.push({ input, options: endpointDefaults });
-          return options.celebrationResult
-            ?? governmentChoiceResult({
+          return (
+            options.celebrationResult ??
+            governmentChoiceResult({
               kind: "celebration",
               playerId: 0,
               goldenAgeType: -340_825_966,
               sent: true,
-            });
+            })
+          );
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -437,26 +440,25 @@ function governmentChoiceResult(
     goldenAgeType?: number;
     sent: boolean;
     valid?: boolean;
-  }>,
+  }>
 ): Civ7ControlOrpcGovernmentChoiceResult {
   const valid = options.valid ?? true;
-  const operationType = options.kind === "government"
-    ? "CHANGE_GOVERNMENT"
-    : "CHOOSE_GOLDEN_AGE";
-  const args = options.kind === "government"
-    ? {
-      GovernmentType: options.governmentType ?? 0,
-      Action: options.action ?? -1_326_475_004,
-    }
-    : { GoldenAgeType: options.goldenAgeType ?? -340_825_966 };
+  const operationType = options.kind === "government" ? "CHANGE_GOVERNMENT" : "CHOOSE_GOLDEN_AGE";
+  const args =
+    options.kind === "government"
+      ? {
+          GovernmentType: options.governmentType ?? 0,
+          Action: options.action ?? -1_326_475_004,
+        }
+      : { GoldenAgeType: options.goldenAgeType ?? -340_825_966 };
   return {
     kind: options.kind,
     playerId: options.playerId,
     ...(options.kind === "government"
       ? {
-        governmentType: options.governmentType ?? 0,
-        action: options.action ?? -1_326_475_004,
-      }
+          governmentType: options.governmentType ?? 0,
+          action: options.action ?? -1_326_475_004,
+        }
       : { goldenAgeType: options.goldenAgeType ?? -340_825_966 }),
     operation: {
       before: validationResult(operationType, options.playerId, args, valid),
@@ -481,7 +483,7 @@ function validationResult(
   operationType: string,
   playerId: number,
   args: Readonly<Record<string, number>>,
-  valid: boolean,
+  valid: boolean
 ): Civ7ControlOrpcGovernmentChoiceResult["beforeValidation"] {
   return {
     host: "127.0.0.1",
@@ -498,7 +500,7 @@ function validationResult(
 }
 
 function notificationView(
-  options: Readonly<{ localPlayerId: number }>,
+  options: Readonly<{ localPlayerId: number }>
 ): Civ7ControlOrpcPlayNotificationViewResult {
   return {
     host: "127.0.0.1",

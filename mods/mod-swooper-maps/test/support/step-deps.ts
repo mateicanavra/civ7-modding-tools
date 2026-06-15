@@ -1,7 +1,7 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import {
-  ArtifactMissingError,
   type ArtifactContract,
+  ArtifactMissingError,
   type StepDeps,
   type StepModule,
 } from "@swooper/mapgen-core/authoring";
@@ -47,10 +47,16 @@ export function buildTestDeps<TContext extends ExtendedMapContext>(
   for (const contract of artifacts.provides ?? []) {
     const runtime = step.artifacts?.[contract.name as keyof typeof step.artifacts];
     if (!runtime) {
-      throw new Error(`Test deps missing artifact runtime for "${contract.name}" in step "${stepId}"`);
+      throw new Error(
+        `Test deps missing artifact runtime for "${contract.name}" in step "${stepId}"`
+      );
     }
     depsArtifacts[contract.name] = runtime;
   }
 
-  return { artifacts: depsArtifacts as StepDeps<TContext, any>["artifacts"], fields: {}, effects: {} };
+  return {
+    artifacts: depsArtifacts as StepDeps<TContext, any>["artifacts"],
+    fields: {},
+    effects: {},
+  };
 }

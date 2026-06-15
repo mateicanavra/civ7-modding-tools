@@ -6,4 +6,3 @@ import { deriveBeltDriversFromHistory } from "../deriveFromHistory.js";
 export const defaultStrategy = createStrategy(ComputeBeltDriversContract, "default", {
   run: (input) => deriveBeltDriversFromHistory(input),
 });
-

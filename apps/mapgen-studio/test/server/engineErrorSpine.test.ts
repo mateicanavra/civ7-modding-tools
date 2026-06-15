@@ -1,5 +1,5 @@
-import { ORPCError } from "@orpc/client";
 import { Civ7DirectControlError } from "@civ7/direct-control";
+import { ORPCError } from "@orpc/client";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -26,10 +26,20 @@ describe("Studio engine error spine", () => {
       ["runInGame", new StudioEngineError(500, "run failed"), "RUN_IN_GAME_FAILED", 500],
       ["runInGame", new StudioEngineError(503, "run unavailable"), "RUN_IN_GAME_UNAVAILABLE", 503],
       ["saveDeploy", new StudioEngineError(400, "save invalid"), "SAVE_DEPLOY_INVALID", 400],
-      ["saveDeploy", new StudioEngineError(404, "save missing"), "SAVE_DEPLOY_STATUS_NOT_FOUND", 404],
+      [
+        "saveDeploy",
+        new StudioEngineError(404, "save missing"),
+        "SAVE_DEPLOY_STATUS_NOT_FOUND",
+        404,
+      ],
       ["saveDeploy", new StudioEngineError(409, "save blocked"), "SAVE_DEPLOY_BLOCKED", 409],
       ["saveDeploy", new StudioEngineError(500, "save failed"), "SAVE_DEPLOY_FAILED", 500],
-      ["saveDeploy", new StudioEngineError(503, "save unavailable"), "SAVE_DEPLOY_UNAVAILABLE", 503],
+      [
+        "saveDeploy",
+        new StudioEngineError(503, "save unavailable"),
+        "SAVE_DEPLOY_UNAVAILABLE",
+        503,
+      ],
     ] as const;
 
     for (const [namespace, err, code, status] of cases) {
@@ -89,23 +99,29 @@ describe("Studio engine error spine", () => {
       details: { command: "Game.turn" },
     });
 
-    expect(toStudioEngineOrpcError({
-      err,
-      namespace: "runInGame",
-      fallbackMessage: "run failed",
-      ...identity,
-    })).toMatchObject({ code: "RUN_IN_GAME_UNAVAILABLE", status: 503 });
-    expect(toStudioEngineOrpcError({
-      err,
-      namespace: "saveDeploy",
-      fallbackMessage: "save failed",
-      ...identity,
-    })).toMatchObject({ code: "SAVE_DEPLOY_UNAVAILABLE", status: 503 });
-    expect(toStudioEngineOrpcError({
-      err,
-      namespace: "autoplay",
-      fallbackMessage: "autoplay failed",
-      ...identity,
-    })).toMatchObject({ code: "AUTOPLAY_UNAVAILABLE", status: 503 });
+    expect(
+      toStudioEngineOrpcError({
+        err,
+        namespace: "runInGame",
+        fallbackMessage: "run failed",
+        ...identity,
+      })
+    ).toMatchObject({ code: "RUN_IN_GAME_UNAVAILABLE", status: 503 });
+    expect(
+      toStudioEngineOrpcError({
+        err,
+        namespace: "saveDeploy",
+        fallbackMessage: "save failed",
+        ...identity,
+      })
+    ).toMatchObject({ code: "SAVE_DEPLOY_UNAVAILABLE", status: 503 });
+    expect(
+      toStudioEngineOrpcError({
+        err,
+        namespace: "autoplay",
+        fallbackMessage: "autoplay failed",
+        ...identity,
+      })
+    ).toMatchObject({ code: "AUTOPLAY_UNAVAILABLE", status: 503 });
   });
 });

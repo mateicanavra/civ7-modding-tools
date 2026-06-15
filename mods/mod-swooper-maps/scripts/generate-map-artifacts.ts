@@ -1,17 +1,16 @@
-import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
-
-import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
 import {
   buildCanonicalMapConfigSchema,
   mapLocalizationTag,
-  validateCanonicalMapConfig,
   type ValidatedMapConfig,
+  validateCanonicalMapConfig,
 } from "../src/maps/configs/canonical.js";
+import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -41,7 +40,9 @@ function canonicalize(value: unknown): unknown {
 }
 
 function stableHash(value: unknown): string {
-  return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
+  return createHash("sha256")
+    .update(JSON.stringify(canonicalize(value)))
+    .digest("hex");
 }
 
 function configHashFor(config: ValidatedMapConfig): string {
@@ -172,7 +173,9 @@ ${rows}
 }
 
 function renderModInfo(configs: readonly ValidatedMapConfig[]): string {
-  const imports = configs.map((config) => `\t\t\t\t\t<Item>maps/${config.outputFile}</Item>`).join("\n");
+  const imports = configs
+    .map((config) => `\t\t\t\t\t<Item>maps/${config.outputFile}</Item>`)
+    .join("\n");
   return `<?xml version="1.0" encoding="utf-8"?>
 <Mod id="swooper-maps" version="1" xmlns="ModInfo">
 \t<Properties>
@@ -287,8 +290,14 @@ async function main(): Promise<void> {
   await writeFile(resolve(modConfigDir, "config.xml"), renderConfigXml(configs));
   await writeFile(resolve(pkgRoot, "mod/swooper-maps.modinfo"), renderModInfo(configs));
   await writeFile(resolve(modTextDir, "MapText.xml"), renderMapText(configs));
-  await writeFile(resolve(distRecipesDir, "standard-map-config.schema.json"), stableJson(envelopeSchema));
-  await writeFile(resolve(distRecipesDir, "standard-map-configs.js"), renderMapConfigsArtifact(configs));
+  await writeFile(
+    resolve(distRecipesDir, "standard-map-config.schema.json"),
+    stableJson(envelopeSchema)
+  );
+  await writeFile(
+    resolve(distRecipesDir, "standard-map-configs.js"),
+    renderMapConfigsArtifact(configs)
+  );
   await writeFile(resolve(distRecipesDir, "standard-map-configs.d.ts"), renderMapConfigsDts());
 
   const rel = (path: string) => path.replace(`${repoRoot}/`, "");

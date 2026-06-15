@@ -27,7 +27,11 @@ function walkFiles(rootDir: string, exts: readonly string[]): string[] {
   return out.sort((a, b) => a.localeCompare(b));
 }
 
-function scanFile(absFile: string, repoRoot: string, patterns: readonly { name: string; re: RegExp }[]): Finding[] {
+function scanFile(
+  absFile: string,
+  repoRoot: string,
+  patterns: readonly { name: string; re: RegExp }[]
+): Finding[] {
   const text = readFileSync(absFile, "utf8");
   const lines = text.split(/\r?\n/u);
   const relFile = path.relative(repoRoot, absFile);
@@ -98,8 +102,24 @@ describe("M3 no-fudging posture (static scan)", () => {
     const roots = [
       path.join(repoRoot, "src", "domain", "ecology", "ops", "classify-biomes", "layers"),
       path.join(repoRoot, "src", "domain", "ecology", "ops", "classify-biomes", "rules"),
-      path.join(repoRoot, "src", "domain", "ecology", "ops", "features-plan-vegetation", "strategies"),
-      path.join(repoRoot, "src", "domain", "ecology", "ops", "features-plan-wetlands", "strategies"),
+      path.join(
+        repoRoot,
+        "src",
+        "domain",
+        "ecology",
+        "ops",
+        "features-plan-vegetation",
+        "strategies"
+      ),
+      path.join(
+        repoRoot,
+        "src",
+        "domain",
+        "ecology",
+        "ops",
+        "features-plan-wetlands",
+        "strategies"
+      ),
       path.join(repoRoot, "src", "domain", "ecology", "ops", "features-plan-reefs", "strategies"),
       path.join(repoRoot, "src", "domain", "ecology", "ops", "features-plan-ice", "strategies"),
     ] as const;
@@ -155,7 +175,9 @@ describe("M3 no-fudging posture (static scan)", () => {
 
     const files = roots
       .flatMap((root) => walkFiles(root, exts))
-      .filter((abs) => !abs.endsWith(path.join("packages", "civ7-adapter", "src", "mock-adapter.ts")));
+      .filter(
+        (abs) => !abs.endsWith(path.join("packages", "civ7-adapter", "src", "mock-adapter.ts"))
+      );
     const findings = files.flatMap((abs) => scanFile(abs, workspaceRoot, patterns));
     const allowedAdapterLegacyPatterns = new Set([
       "legacy.generateDiscoveries",

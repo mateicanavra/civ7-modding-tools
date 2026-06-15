@@ -6,7 +6,7 @@ const computeLandWaterBudget = createOp(ComputeLandWaterBudgetContract, {
   strategies: { default: defaultStrategy },
 });
 
-export type * from "./types.js";
 export type * from "./contract.js";
+export type * from "./types.js";
 
 export default computeLandWaterBudget;

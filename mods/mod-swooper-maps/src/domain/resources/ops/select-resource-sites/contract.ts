@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 /**
  * Resource site selection (placement-realignment S3 step 3).
@@ -302,8 +302,7 @@ const SelectResourceSitesContract = defineOp({
           {
             additionalProperties: false,
             default: {},
-            description:
-              "Per-family density overrides multiplying targets before range clamping.",
+            description: "Per-family density overrides multiplying targets before range clamping.",
           }
         ),
         affinityRules: Type.Array(AffinityRuleSchema, {

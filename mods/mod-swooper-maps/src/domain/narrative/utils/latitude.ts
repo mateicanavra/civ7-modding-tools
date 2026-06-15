@@ -13,4 +13,3 @@ export function latitudeAbsDeg(
   const norm = height > 0 ? y / height : 0;
   return Math.abs(90 - norm * 180);
 }
-

@@ -1,14 +1,14 @@
-import { describe, expect, it } from "vitest";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import type { VizLayerEntryV1 } from "../../src/features/viz/model";
+import standardRecipe from "mod-swooper-maps/recipes/standard";
+import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
+import { describe, expect, it } from "vitest";
+import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
 import { createWorkerTraceSink } from "../../src/browser-runner/worker-trace-sink";
 import { createWorkerVizDumper } from "../../src/browser-runner/worker-viz-dumper";
 import { buildStepDataTypeModel } from "../../src/features/viz/dataTypeModel";
-import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
-import standardRecipe from "mod-swooper-maps/recipes/standard";
-import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
+import type { VizLayerEntryV1 } from "../../src/features/viz/model";
 
 describe("buildStepDataTypeModel", () => {
   it("groups layers by data type (dataTypeKey) and render mode (kind + role)", () => {
@@ -78,15 +78,24 @@ describe("buildStepDataTypeModel", () => {
     expect(heightfield.visibility).toBe("default");
     expect(heightfield.spaces.map((p) => p.spaceId)).toEqual(["tile.hexOddR"]);
     expect(heightfield.spaces[0]?.renderModes.map((rm) => rm.renderModeId)).toEqual(["grid"]);
-    expect(heightfield.spaces[0]?.renderModes[0]?.variants.map((v) => v.variantId)).toEqual(["f32"]);
+    expect(heightfield.spaces[0]?.renderModes[0]?.variants.map((v) => v.variantId)).toEqual([
+      "f32",
+    ]);
 
     const hotspots = model.dataTypes.find((dt) => dt.dataTypeId === "hotspots")!;
     expect(hotspots.spaces.map((p) => p.spaceId)).toEqual(["world.xy"]);
-    expect(hotspots.spaces[0]?.renderModes.map((rm) => rm.renderModeId)).toEqual(["points:gradient", "points:clamped"]);
+    expect(hotspots.spaces[0]?.renderModes.map((rm) => rm.renderModeId)).toEqual([
+      "points:gradient",
+      "points:clamped",
+    ]);
 
     const modelWithDebug = buildStepDataTypeModel({ layers }, stepId, { includeDebug: true });
-    const heightfieldWithDebug = modelWithDebug.dataTypes.find((dt) => dt.dataTypeId === "heightfield")!;
-    expect(heightfieldWithDebug.spaces[0]?.renderModes[0]?.variants.map((v) => v.variantId)).toEqual(["f32", "u8"]);
+    const heightfieldWithDebug = modelWithDebug.dataTypes.find(
+      (dt) => dt.dataTypeId === "heightfield"
+    )!;
+    expect(
+      heightfieldWithDebug.spaces[0]?.renderModes[0]?.variants.map((v) => v.variantId)
+    ).toEqual(["f32", "u8"]);
   });
 
   it("keeps river proof layers inspectable while hiding metadata diagnostics by default", () => {
@@ -144,10 +153,18 @@ describe("buildStepDataTypeModel", () => {
     ]);
 
     const byId = new Map(debugModel.dataTypes.map((dt) => [dt.dataTypeId, dt]));
-    expect(byId.get("map.rivers.projectedRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:projection");
-    expect(byId.get("map.rivers.plannedMinorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:physics");
-    expect(byId.get("map.rivers.plannedMajorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:physics");
-    expect(byId.get("map.rivers.engineRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:engine");
+    expect(byId.get("map.rivers.projectedRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe(
+      "grid:projection"
+    );
+    expect(
+      byId.get("map.rivers.plannedMinorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId
+    ).toBe("grid:physics");
+    expect(
+      byId.get("map.rivers.plannedMajorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId
+    ).toBe("grid:physics");
+    expect(byId.get("map.rivers.engineRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe(
+      "grid:engine"
+    );
     expect(byId.get("map.rivers.engineNavigableRiverMetadataMask")?.visibility).toBe("debug");
     expect(byId.get("map.rivers.riverMismatchMask")?.visibility).toBe("debug");
     expect(byId.get("map.rivers.engineMinorRiverMask")?.visibility).toBe("debug");
@@ -176,10 +193,15 @@ describe("buildStepDataTypeModel", () => {
         bottomLatitude: mapInfo.MinLatitude,
       },
     };
-    const standardConfig = standardMapConfigs.find((config) => config.id === "swooper-earthlike")?.config;
-    if (!standardConfig) throw new Error("swooper-earthlike config missing from standard map config catalog");
+    const standardConfig = standardMapConfigs.find(
+      (config) => config.id === "swooper-earthlike"
+    )?.config;
+    if (!standardConfig)
+      throw new Error("swooper-earthlike config missing from standard map config catalog");
     const plan = standardRecipe.compile(envBase, standardConfig);
-    const verboseSteps = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
+    const verboseSteps = Object.fromEntries(
+      plan.nodes.map((node) => [node.stepId, "verbose"] as const)
+    );
     const env = {
       ...envBase,
       trace: {
@@ -187,7 +209,13 @@ describe("buildStepDataTypeModel", () => {
         steps: verboseSteps,
       },
     };
-    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+    });
     const context = createExtendedMapContext({ width, height }, adapter, env);
     const events: BrowserRunEvent[] = [];
     context.viz = createWorkerVizDumper();
@@ -201,7 +229,9 @@ describe("buildStepDataTypeModel", () => {
       log: () => {},
     });
 
-    const layers = events.flatMap((event) => (event.type === "viz.layer.upsert" ? [event.layer] : []));
+    const layers = events.flatMap((event) =>
+      event.type === "viz.layer.upsert" ? [event.layer] : []
+    );
     const defaultModel = buildStepDataTypeModel({ layers }, stepId);
     expect(defaultModel.dataTypes.map((dt) => dt.dataTypeId)).toEqual([
       "map.rivers.riverClass",
@@ -226,10 +256,18 @@ describe("buildStepDataTypeModel", () => {
     ]);
 
     const byId = new Map(debugModel.dataTypes.map((dt) => [dt.dataTypeId, dt]));
-    expect(byId.get("map.rivers.projectedRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:projection");
-    expect(byId.get("map.rivers.plannedMinorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:physics");
-    expect(byId.get("map.rivers.plannedMajorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:physics");
-    expect(byId.get("map.rivers.engineRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe("grid:engine");
+    expect(byId.get("map.rivers.projectedRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe(
+      "grid:projection"
+    );
+    expect(
+      byId.get("map.rivers.plannedMinorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId
+    ).toBe("grid:physics");
+    expect(
+      byId.get("map.rivers.plannedMajorRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId
+    ).toBe("grid:physics");
+    expect(byId.get("map.rivers.engineRiverMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe(
+      "grid:engine"
+    );
     expect(byId.get("map.rivers.engineNavigableRiverMetadataMask")?.visibility).toBe("debug");
     expect(byId.get("map.rivers.riverMismatchMask")?.visibility).toBe("debug");
     expect(byId.get("map.rivers.engineMinorRiverMask")?.visibility).toBe("debug");

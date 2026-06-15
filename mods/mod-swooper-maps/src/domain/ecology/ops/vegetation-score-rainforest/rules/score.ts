@@ -46,4 +46,3 @@ export function scoreRainforestSuitability(args: {
 
   return score01;
 }
-

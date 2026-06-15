@@ -1,7 +1,7 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer, type Socket } from "node:net";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7StartPositionsResultSchema,
@@ -84,14 +84,18 @@ describe("start-position readback", () => {
       notes: ["..."],
     };
     expect(Value.Check(Civ7StartPositionsResultSchema, result)).toBe(true);
-    expect(Value.Check(Civ7StartPositionsResultSchema, {
-      ...result,
-      startPlots: [],
-    })).toBe(false);
-    expect(Value.Check(Civ7StartPositionsResultSchema, {
-      ...result,
-      method: "engine-start-plot",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7StartPositionsResultSchema, {
+        ...result,
+        startPlots: [],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7StartPositionsResultSchema, {
+        ...result,
+        method: "engine-start-plot",
+      })
+    ).toBe(false);
   });
 });
 

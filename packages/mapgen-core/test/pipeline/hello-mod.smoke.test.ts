@@ -1,16 +1,16 @@
 import { describe, expect, it } from "bun:test";
-import { Type } from "typebox";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@mapgen/core/types.js";
 import {
   createOp,
   createRecipe,
-  createStrategy,
   createStage,
   createStep,
+  createStrategy,
   defineOp,
   defineStep,
 } from "@mapgen/authoring/index.js";
+import { createExtendedMapContext } from "@mapgen/core/types.js";
+import { Type } from "typebox";
 
 const baseSettings = {
   seed: 1,
@@ -49,11 +49,7 @@ describe("authoring: hello recipe compile/execute", () => {
     });
 
     const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
-    const ctx = createExtendedMapContext(
-      { width: 8, height: 6 },
-      adapter,
-      baseSettings
-    );
+    const ctx = createExtendedMapContext({ width: 8, height: 6 }, adapter, baseSettings);
 
     const plan = recipe.compile(baseSettings, { foundation: { hello: {} } });
     expect(plan.nodes).toHaveLength(1);
@@ -70,7 +66,10 @@ describe("authoring: hello recipe compile/execute", () => {
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({ ok: Type.Boolean() }, { additionalProperties: false }),
       strategies: {
-        default: Type.Object({ enabled: Type.Boolean({ default: true }) }, { additionalProperties: false }),
+        default: Type.Object(
+          { enabled: Type.Boolean({ default: true }) },
+          { additionalProperties: false }
+        ),
       },
     });
 

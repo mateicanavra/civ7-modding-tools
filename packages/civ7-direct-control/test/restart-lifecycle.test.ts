@@ -100,7 +100,9 @@ async function startRestartLifecycleServer(
           socket.write(encodeResponse(frame.listenerId, ["null"]));
         } else if (frame.message.includes("Network.isInSession")) {
           socket.write(
-            encodeResponse(frame.listenerId, [JSON.stringify(appUiSnapshot({ inShell, loadingState }))])
+            encodeResponse(frame.listenerId, [
+              JSON.stringify(appUiSnapshot({ inShell, loadingState })),
+            ])
           );
         } else if (frame.message.includes("evalOk: 1 + 1")) {
           socket.write(

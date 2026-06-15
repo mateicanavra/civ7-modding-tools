@@ -5,14 +5,13 @@ import {
   UnsatisfiedProvidesError,
 } from "@mapgen/engine/errors.js";
 import type { ExecutionPlan } from "@mapgen/engine/execution-plan.js";
+import type { StepRegistry } from "@mapgen/engine/StepRegistry.js";
 import {
   computeInitialSatisfiedTags,
   isDependencyTagSatisfied,
   validateDependencyTags,
 } from "@mapgen/engine/tags.js";
-import type { EngineContext, MapGenStep } from "@mapgen/engine/types.js";
-import type { StepRegistry } from "@mapgen/engine/StepRegistry.js";
-import type { PipelineStepResult } from "@mapgen/engine/types.js";
+import type { EngineContext, MapGenStep, PipelineStepResult } from "@mapgen/engine/types.js";
 import type { TraceSession } from "@mapgen/trace/index.js";
 import { createNoopTraceSession } from "@mapgen/trace/index.js";
 
@@ -146,9 +145,7 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
 
           const durationMs = nowMs() - t0;
           this.log(
-            `${this.logPrefix} [${index + 1}/${total}] ok ${step.id} (${durationMs.toFixed(
-              2
-            )}ms)`
+            `${this.logPrefix} [${index + 1}/${total}] ok ${step.id} (${durationMs.toFixed(2)}ms)`
           );
           trace.emitStepFinish({ ...stepMeta, durationMs, success: true });
           stepResults.push({ stepId: step.id, success: true, durationMs });
@@ -235,7 +232,8 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
 
     const abortSignal = options.abortSignal ?? null;
     const yieldFn: (() => Promise<void>) | null =
-      options.yieldFn ?? (options.yieldToEventLoop ? () => new Promise((r) => setTimeout(r, 0)) : null);
+      options.yieldFn ??
+      (options.yieldToEventLoop ? () => new Promise((r) => setTimeout(r, 0)) : null);
 
     trace.emitRunStart();
 
@@ -279,9 +277,7 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
 
           const durationMs = nowMs() - t0;
           this.log(
-            `${this.logPrefix} [${index + 1}/${total}] ok ${step.id} (${durationMs.toFixed(
-              2
-            )}ms)`
+            `${this.logPrefix} [${index + 1}/${total}] ok ${step.id} (${durationMs.toFixed(2)}ms)`
           );
           trace.emitStepFinish({ ...stepMeta, durationMs, success: true });
           stepResults.push({ stepId: step.id, success: true, durationMs });

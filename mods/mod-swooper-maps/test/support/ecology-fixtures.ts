@@ -1,5 +1,10 @@
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, type TraceSink, type TraceScope, type VizDumper } from "@swooper/mapgen-core";
+import {
+  createExtendedMapContext,
+  type TraceScope,
+  type TraceSink,
+  type VizDumper,
+} from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
@@ -41,7 +46,8 @@ function createVizKeyCollector(): { viz: VizDumper; entries: VizKeyEntry[] } {
 
   const viz: VizDumper = {
     outputRoot: "memory://viz-key-collector",
-    dumpGrid: (trace, layer) => push(trace, { dataTypeKey: layer.dataTypeKey, spaceId: layer.spaceId, kind: "grid" }),
+    dumpGrid: (trace, layer) =>
+      push(trace, { dataTypeKey: layer.dataTypeKey, spaceId: layer.spaceId, kind: "grid" }),
     dumpPoints: (trace, layer) =>
       push(trace, { dataTypeKey: layer.dataTypeKey, spaceId: layer.spaceId, kind: "points" }),
     dumpSegments: (trace, layer) =>
@@ -99,7 +105,9 @@ export function computeEcologyBaselineV1(input?: {
 
   // Enable verbose tracing for every step so viz dumps are captured deterministically.
   const plan = standardRecipe.compile(envBase, config);
-  const verboseSteps = Object.fromEntries(plan.nodes.map((node: any) => [node.stepId, "verbose"] as const));
+  const verboseSteps = Object.fromEntries(
+    plan.nodes.map((node: any) => [node.stepId, "verbose"] as const)
+  );
   const env = { ...envBase, trace: { enabled: true, steps: verboseSteps } } as const;
 
   const adapter = createMockAdapter({
@@ -114,7 +122,11 @@ export function computeEcologyBaselineV1(input?: {
   const { viz, entries } = createVizKeyCollector();
   context.viz = viz;
 
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[ecology-baseline]", storyEnabled: true });
+  initializeStandardRuntime(context, {
+    mapInfo,
+    logPrefix: "[ecology-baseline]",
+    storyEnabled: true,
+  });
 
   standardRecipe.run(context, env, config, { traceSink: NOOP_TRACE_SINK, log: () => {} });
 

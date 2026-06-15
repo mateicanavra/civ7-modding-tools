@@ -1,8 +1,5 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import {
-  getHexRadiusIndicesOddQ,
-  hexDistanceOddQPeriodicX,
-} from "@swooper/mapgen-core/lib/grid";
+import { getHexRadiusIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
 import AdjustResourceSupportContract from "../contract.js";
 
@@ -230,19 +227,14 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     let placedOnQualifyingLand = 0;
     for (const intent of intents) {
       if (intent.landmassId >= 0 && qualifyingLandmassIds.has(intent.landmassId)) {
-        placedByLandmass.set(
-          intent.landmassId,
-          (placedByLandmass.get(intent.landmassId) ?? 0) + 1
-        );
+        placedByLandmass.set(intent.landmassId, (placedByLandmass.get(intent.landmassId) ?? 0) + 1);
         placedOnQualifyingLand += 1;
       }
     }
     const equityMaxDensityRatio = plan.settings.equityMaxDensityRatio;
 
     // --- seat zones ----------------------------------------------------------------------------
-    const seats = input.starts.filter(
-      (seat) => seat.plotIndex >= 0 && seat.plotIndex < size
-    );
+    const seats = input.starts.filter((seat) => seat.plotIndex >= 0 && seat.plotIndex < size);
     const seatPlots = new Set(seats.map((seat) => seat.plotIndex));
     const seatZones: Array<Set<number>> = seats.map(
       (seat) => new Set(getHexRadiusIndicesOddQ(seat.plotIndex, width, height, radius))
@@ -297,14 +289,23 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     // to it" (the official force-pass convention), so an O(7) neighborhood
     // membership test suffices.
     const violatesCrossClearance = (plotIndex: number, ignorePlot: number | null): boolean => {
-      for (const idx of getHexRadiusIndicesOddQ(plotIndex, width, height, CROSS_TYPE_CLEARANCE - 1)) {
+      for (const idx of getHexRadiusIndicesOddQ(
+        plotIndex,
+        width,
+        height,
+        CROSS_TYPE_CLEARANCE - 1
+      )) {
         if (ignorePlot !== null && idx === ignorePlot) continue;
         if (usedPlots.has(idx)) return true;
       }
       return false;
     };
 
-    const excludedAt = (resourceType: string, plotIndex: number, ignorePlot: number | null): {
+    const excludedAt = (
+      resourceType: string,
+      plotIndex: number,
+      ignorePlot: number | null
+    ): {
       excluded: boolean;
       affinityBonus: number;
     } => {
@@ -324,13 +325,20 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       return { excluded: false, affinityBonus };
     };
 
-    const exceedsLandmassCeiling = (plotIndex: number, removedLandmassId: number | null): boolean => {
+    const exceedsLandmassCeiling = (
+      plotIndex: number,
+      removedLandmassId: number | null
+    ): boolean => {
       const landmassId = landmassIdByTile[plotIndex] ?? -1;
       if (landmassId < 0 || !qualifyingLandmassIds.has(landmassId)) return false;
       if (qualifyingLandmassIds.size < 2) return false;
       let total = placedOnQualifyingLand;
       let onLandmass = placedByLandmass.get(landmassId) ?? 0;
-      if (removedLandmassId !== null && removedLandmassId >= 0 && qualifyingLandmassIds.has(removedLandmassId)) {
+      if (
+        removedLandmassId !== null &&
+        removedLandmassId >= 0 &&
+        qualifyingLandmassIds.has(removedLandmassId)
+      ) {
         total -= 1;
         if (removedLandmassId === landmassId) onLandmass -= 1;
       }
@@ -412,9 +420,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       return false;
     };
     const movePairScore = (sourceIntent: PlanIntent, dest: Destination): number =>
-      dest.score +
-      (sourceIntent.inHabitat ? 0 : 5) -
-      (breaksAggregationPair(sourceIntent) ? 4 : 0);
+      dest.score + (sourceIntent.inHabitat ? 0 : 5) - (breaksAggregationPair(sourceIntent) ? 4 : 0);
 
     const applyAdjustment = (args: {
       action: "move" | "add";
@@ -442,7 +448,10 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
         const fromRegionKey = `${intent.resourceType}:${intent.regionSlot}`;
         countByTypeRegion.set(fromRegionKey, (countByTypeRegion.get(fromRegionKey) ?? 1) - 1);
         if (intent.landmassId >= 0 && qualifyingLandmassIds.has(intent.landmassId)) {
-          placedByLandmass.set(intent.landmassId, (placedByLandmass.get(intent.landmassId) ?? 1) - 1);
+          placedByLandmass.set(
+            intent.landmassId,
+            (placedByLandmass.get(intent.landmassId) ?? 1) - 1
+          );
           placedOnQualifyingLand -= 1;
         }
         for (const seatPos of seatsByPlot.get(fromPlot) ?? []) counts[seatPos]! -= 1;

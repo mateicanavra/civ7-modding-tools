@@ -15,7 +15,9 @@ export const latitudeStrategy = createStrategy(ComputeOceanSurfaceCurrentsContra
       );
     }
     if (!(input.isWaterMask instanceof Uint8Array) || input.isWaterMask.length !== size) {
-      throw new Error("[Hydrology] Invalid isWaterMask for hydrology/compute-ocean-surface-currents.");
+      throw new Error(
+        "[Hydrology] Invalid isWaterMask for hydrology/compute-ocean-surface-currents."
+      );
     }
     if (!(input.windU instanceof Int8Array) || input.windU.length !== size) {
       throw new Error("[Hydrology] Invalid windU for hydrology/compute-ocean-surface-currents.");

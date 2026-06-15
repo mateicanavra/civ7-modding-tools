@@ -7,17 +7,17 @@
  * @module dev/viz-vector
  */
 
-import type { TraceScope } from "@mapgen/trace/index.js";
 import type {
-  VizDumper,
   VizDataTypeKey,
   VizDims,
+  VizDumper,
   VizScalarFormat,
   VizSpaceId,
   VizVariantKey,
 } from "@mapgen/core/types.js";
 import { computeSampleStep } from "@mapgen/dev/ascii.js";
 import { defineVizMeta } from "@mapgen/dev/viz-meta.js";
+import type { TraceScope } from "@mapgen/trace/index.js";
 
 function safeLen(view: ArrayBufferView | null | undefined): number {
   return (view as any)?.length ?? 0;
@@ -39,7 +39,12 @@ export type VectorFieldVariantsOptions = Readonly<{
   visibility?: "default" | "debug" | "hidden";
   palette?: "continuous" | "categorical" | "auto";
   vector?: { debugOnly?: boolean };
-  magnitude?: { fieldKey?: string; format?: VizScalarFormat; values?: ArrayBufferView; debugOnly?: boolean };
+  magnitude?: {
+    fieldKey?: string;
+    format?: VizScalarFormat;
+    values?: ArrayBufferView;
+    debugOnly?: boolean;
+  };
   arrows?: {
     /** Sample step in tile space; defaults to `computeSampleStep(width,height)`. */
     sampleStep?: number;
@@ -72,7 +77,10 @@ export function dumpVectorFieldVariants(
 ): void {
   if (!viz) return;
 
-  const applyDebugOnly = (visibility: "default" | "debug" | "hidden", debugOnly: boolean | undefined) => {
+  const applyDebugOnly = (
+    visibility: "default" | "debug" | "hidden",
+    debugOnly: boolean | undefined
+  ) => {
     if (visibility === "hidden") return "hidden";
     return debugOnly ? "debug" : visibility;
   };

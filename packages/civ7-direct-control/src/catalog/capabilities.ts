@@ -1,14 +1,13 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { Type, type Static } from "typebox";
-
-import type { Civ7DirectControlOptions } from "../session/types.js";
+import { type Static, Type } from "typebox";
+import { DEFAULT_CIV7_GAMEINFO_TABLES } from "../play/map/constants.js";
 import type {
   Civ7RootInspectionInput,
   Civ7RootInspectionResult,
 } from "../runtime/root-inspection.js";
 import { inspectCiv7Root } from "../runtime/root-inspection.js";
-import { DEFAULT_CIV7_GAMEINFO_TABLES } from "../play/map/constants.js";
+import type { Civ7DirectControlOptions } from "../session/types.js";
 
 export const Civ7CapabilityCatalogEntrySchema = Type.Object({
   id: Type.String(),
@@ -23,13 +22,23 @@ export const Civ7CapabilityCatalogEntrySchema = Type.Object({
     Type.Literal("gameinfo-table"),
   ]),
   owner: Type.String(),
-  risk: Type.Union([Type.Literal("read"), Type.Literal("low"), Type.Literal("medium"), Type.Literal("high")]),
+  risk: Type.Union([
+    Type.Literal("read"),
+    Type.Literal("low"),
+    Type.Literal("medium"),
+    Type.Literal("high"),
+  ]),
   provenance: Type.Array(Type.String()),
   state: Type.Optional(Type.String()),
   root: Type.Optional(Type.String()),
   method: Type.Optional(Type.String()),
   wrapper: Type.Optional(Type.String()),
-  confidence: Type.Union([Type.Literal("source"), Type.Literal("recorded-live-proof"), Type.Literal("runtime"), Type.Literal("inference")]),
+  confidence: Type.Union([
+    Type.Literal("source"),
+    Type.Literal("recorded-live-proof"),
+    Type.Literal("runtime"),
+    Type.Literal("inference"),
+  ]),
   description: Type.Optional(Type.String()),
 });
 
@@ -44,12 +53,13 @@ export const Civ7CapabilityCatalogSchema = Type.Object({
 
 export type Civ7CapabilityCatalog = Static<typeof Civ7CapabilityCatalogSchema>;
 
-export type Civ7CapabilityCatalogOptions = Civ7DirectControlOptions & Readonly<{
-  includeRuntime?: boolean;
-  includeStatic?: boolean;
-  appUiRoots?: ReadonlyArray<string>;
-  tunerRoots?: ReadonlyArray<string>;
-}>;
+export type Civ7CapabilityCatalogOptions = Civ7DirectControlOptions &
+  Readonly<{
+    includeRuntime?: boolean;
+    includeStatic?: boolean;
+    appUiRoots?: ReadonlyArray<string>;
+    tunerRoots?: ReadonlyArray<string>;
+  }>;
 
 export const DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS = [
   "Network",
@@ -90,14 +100,14 @@ type CapabilityCatalogDependencies = Readonly<{
   gameinfoTables: ReadonlyArray<string>;
   inspectRoot: (
     input: Civ7RootInspectionInput,
-    options?: Civ7CapabilityCatalogOptions,
+    options?: Civ7CapabilityCatalogOptions
   ) => Promise<Civ7RootInspectionResult>;
   tunerRoots: ReadonlyArray<string>;
 }>;
 
-export function createStaticCiv7CapabilityCatalog(options: {
-  gameinfoTables?: ReadonlyArray<string>;
-} = {}): Civ7CapabilityCatalog {
+export function createStaticCiv7CapabilityCatalog(
+  options: { gameinfoTables?: ReadonlyArray<string> } = {}
+): Civ7CapabilityCatalog {
   const gameinfoTables = options.gameinfoTables ?? DEFAULT_CIV7_GAMEINFO_TABLES;
   return {
     generatedAt: new Date().toISOString(),
@@ -105,48 +115,59 @@ export function createStaticCiv7CapabilityCatalog(options: {
     version: "direct-control-v1",
     entries: [
       ...STATIC_CIV7_CAPABILITY_ENTRIES,
-      ...gameinfoTables.map((table): Civ7CapabilityCatalogEntry => ({
-        id: `gameinfo.${table}`,
-        name: table,
-        role: "tuner",
-        kind: "gameinfo-table",
-        owner: "@civ7/direct-control",
-        risk: "read",
-        provenance: ["DEFAULT_CIV7_GAMEINFO_TABLES", "capability-inventory"],
-        confidence: "source",
-        description: `Targeted GameInfo.${table} read surface.`,
-      })),
+      ...gameinfoTables.map(
+        (table): Civ7CapabilityCatalogEntry => ({
+          id: `gameinfo.${table}`,
+          name: table,
+          role: "tuner",
+          kind: "gameinfo-table",
+          owner: "@civ7/direct-control",
+          risk: "read",
+          provenance: ["DEFAULT_CIV7_GAMEINFO_TABLES", "capability-inventory"],
+          confidence: "source",
+          description: `Targeted GameInfo.${table} read surface.`,
+        })
+      ),
     ],
   };
 }
 
 export async function generateCiv7CapabilityCatalog(
   options: Civ7CapabilityCatalogOptions = {},
-  dependencies: CapabilityCatalogDependencies = defaultCapabilityCatalogDependencies,
+  dependencies: CapabilityCatalogDependencies = defaultCapabilityCatalogDependencies
 ): Promise<Civ7CapabilityCatalog> {
   const includeStatic = options.includeStatic !== false;
   const includeRuntime = options.includeRuntime !== false;
   const entries: Civ7CapabilityCatalogEntry[] = includeStatic
-    ? [...createStaticCiv7CapabilityCatalog({ gameinfoTables: dependencies.gameinfoTables }).entries]
+    ? [
+        ...createStaticCiv7CapabilityCatalog({ gameinfoTables: dependencies.gameinfoTables })
+          .entries,
+      ]
     : [];
   if (includeRuntime) {
     const [appUi, tuner] = await Promise.all([
-      dependencies.inspectRoot({
-        state: { role: "app-ui" },
-        roots: options.appUiRoots ?? dependencies.appUiRoots,
-        maxRoots: 32,
-        maxKeys: 128,
-        maxMethods: 128,
-        includeSignatures: false,
-      }, options),
-      dependencies.inspectRoot({
-        state: { role: "tuner" },
-        roots: options.tunerRoots ?? dependencies.tunerRoots,
-        maxRoots: 32,
-        maxKeys: 128,
-        maxMethods: 128,
-        includeSignatures: false,
-      }, options),
+      dependencies.inspectRoot(
+        {
+          state: { role: "app-ui" },
+          roots: options.appUiRoots ?? dependencies.appUiRoots,
+          maxRoots: 32,
+          maxKeys: 128,
+          maxMethods: 128,
+          includeSignatures: false,
+        },
+        options
+      ),
+      dependencies.inspectRoot(
+        {
+          state: { role: "tuner" },
+          roots: options.tunerRoots ?? dependencies.tunerRoots,
+          maxRoots: 32,
+          maxKeys: 128,
+          maxMethods: 128,
+          includeSignatures: false,
+        },
+        options
+      ),
     ]);
     entries.push(...capabilityEntriesFromInspection(appUi, "app-ui"));
     entries.push(...capabilityEntriesFromInspection(tuner, "tuner"));
@@ -172,15 +193,62 @@ export async function loadCiv7OfficialResourceCapabilities(options: {
 }): Promise<ReadonlyArray<Civ7CapabilityCatalogEntry>> {
   const maxFiles = options.maxFiles ?? 2_000;
   const files = await listFiles(options.resourcesRoot, maxFiles);
-  const patterns: ReadonlyArray<Readonly<{ id: string; label: string; pattern: RegExp; risk: Civ7CapabilityCatalogEntry["risk"] }>> = [
-    { id: "official.Network.restartGame", label: "Network.restartGame", pattern: /Network\.restartGame/g, risk: "medium" },
-    { id: "official.UI.notifyUIReady", label: "UI.notifyUIReady", pattern: /UI\.notifyUIReady/g, risk: "medium" },
-    { id: "official.Autoplay", label: "Autoplay setters", pattern: /Autoplay\.set(?:Active|Turns|Pause|ObserveAsPlayer|ReturnAsPlayer)/g, risk: "medium" },
-    { id: "official.GameContext.turn", label: "GameContext turn completion", pattern: /GameContext\.(?:sendTurnComplete|sendUnreadyTurn|hasSentTurnComplete)/g, risk: "medium" },
-    { id: "official.Visibility.revealAllPlots", label: "Visibility.revealAllPlots", pattern: /Visibility\.revealAllPlots/g, risk: "high" },
-    { id: "official.Game.UnitOperations", label: "Game.UnitOperations", pattern: /Game\.UnitOperations\.(?:canStart|sendRequest)/g, risk: "medium" },
-    { id: "official.Game.CityOperations", label: "Game.CityOperations", pattern: /Game\.CityOperations\.(?:canStart|sendRequest)/g, risk: "medium" },
-    { id: "official.Game.PlayerOperations", label: "Game.PlayerOperations", pattern: /Game\.PlayerOperations\.(?:canStart|sendRequest)/g, risk: "medium" },
+  const patterns: ReadonlyArray<
+    Readonly<{
+      id: string;
+      label: string;
+      pattern: RegExp;
+      risk: Civ7CapabilityCatalogEntry["risk"];
+    }>
+  > = [
+    {
+      id: "official.Network.restartGame",
+      label: "Network.restartGame",
+      pattern: /Network\.restartGame/g,
+      risk: "medium",
+    },
+    {
+      id: "official.UI.notifyUIReady",
+      label: "UI.notifyUIReady",
+      pattern: /UI\.notifyUIReady/g,
+      risk: "medium",
+    },
+    {
+      id: "official.Autoplay",
+      label: "Autoplay setters",
+      pattern: /Autoplay\.set(?:Active|Turns|Pause|ObserveAsPlayer|ReturnAsPlayer)/g,
+      risk: "medium",
+    },
+    {
+      id: "official.GameContext.turn",
+      label: "GameContext turn completion",
+      pattern: /GameContext\.(?:sendTurnComplete|sendUnreadyTurn|hasSentTurnComplete)/g,
+      risk: "medium",
+    },
+    {
+      id: "official.Visibility.revealAllPlots",
+      label: "Visibility.revealAllPlots",
+      pattern: /Visibility\.revealAllPlots/g,
+      risk: "high",
+    },
+    {
+      id: "official.Game.UnitOperations",
+      label: "Game.UnitOperations",
+      pattern: /Game\.UnitOperations\.(?:canStart|sendRequest)/g,
+      risk: "medium",
+    },
+    {
+      id: "official.Game.CityOperations",
+      label: "Game.CityOperations",
+      pattern: /Game\.CityOperations\.(?:canStart|sendRequest)/g,
+      risk: "medium",
+    },
+    {
+      id: "official.Game.PlayerOperations",
+      label: "Game.PlayerOperations",
+      pattern: /Game\.PlayerOperations\.(?:canStart|sendRequest)/g,
+      risk: "medium",
+    },
   ];
   const found = new Map<string, Civ7CapabilityCatalogEntry>();
   for (const file of files) {
@@ -192,9 +260,12 @@ export async function loadCiv7OfficialResourceCapabilities(options: {
       found.set(pattern.id, {
         id: pattern.id,
         name: pattern.label,
-        role: pattern.id.includes("Network") || pattern.id.includes("UI.") || pattern.id.includes("GameContext")
-          ? "app-ui"
-          : "tuner",
+        role:
+          pattern.id.includes("Network") ||
+          pattern.id.includes("UI.") ||
+          pattern.id.includes("GameContext")
+            ? "app-ui"
+            : "tuner",
         kind: "method",
         owner: "official-resources",
         risk: pattern.risk,
@@ -217,7 +288,8 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     provenance: ["restartCiv7GameAndBegin", "live-owner-proof"],
     wrapper: "restartCiv7GameAndBegin",
     confidence: "recorded-live-proof",
-    description: "Runs Network.restartGame, follows native Begin Game readiness, and waits for Tuner readiness.",
+    description:
+      "Runs Network.restartGame, follows native Begin Game readiness, and waits for Tuner readiness.",
   },
   {
     id: "wrapper.playable-status",
@@ -240,7 +312,8 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     provenance: ["Configuration", "GameSetup", "Database", "studio-run-in-game"],
     wrapper: "getCiv7SetupSnapshot|getCiv7SetupMapRows",
     confidence: "runtime",
-    description: "Reads Civ7 setup phase, setup parameters, and frontend map-script row visibility.",
+    description:
+      "Reads Civ7 setup phase, setup parameters, and frontend map-script row visibility.",
   },
   {
     id: "wrapper.setup-start",
@@ -250,9 +323,11 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     owner: "@civ7/direct-control",
     risk: "high",
     provenance: ["Configuration.editMap", "Network.hostGame", "studio-run-in-game"],
-    wrapper: "prepareCiv7SinglePlayerSetup|startPreparedCiv7SinglePlayerGame|runCiv7SinglePlayerFromSetup",
+    wrapper:
+      "prepareCiv7SinglePlayerSetup|startPreparedCiv7SinglePlayerGame|runCiv7SinglePlayerFromSetup",
     confidence: "source",
-    description: "Applies map script, map size, and map seed through App UI setup APIs, then starts a prepared single-player game.",
+    description:
+      "Applies map script, map size, and map seed through App UI setup APIs, then starts a prepared single-player game.",
   },
   {
     id: "wrapper.map-summary",
@@ -329,7 +404,8 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     provenance: ["Players", "Cities", "Units", "GameInfo"],
     wrapper: "getCiv7TargetCandidates",
     confidence: "runtime",
-    description: "Ranks candidate other-owner contacts from runtime city/unit summaries and a supplied formation origin.",
+    description:
+      "Ranks candidate other-owner contacts from runtime city/unit summaries and a supplied formation origin.",
   },
   {
     id: "wrapper.battlefield-scan",
@@ -341,7 +417,8 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     provenance: ["Players", "Cities", "Units", "GameInfo"],
     wrapper: "getCiv7BattlefieldScan",
     confidence: "runtime",
-    description: "Summarizes nearby units, cities, owner pressure, and tactical points of interest around supplied origins.",
+    description:
+      "Summarizes nearby units, cities, owner pressure, and tactical points of interest around supplied origins.",
   },
   {
     id: "wrapper.destination-analysis",
@@ -353,7 +430,8 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     provenance: ["Players", "Cities", "Units", "GameplayMap", "GameInfo"],
     wrapper: "getCiv7DestinationAnalysis",
     confidence: "runtime",
-    description: "Summarizes pressure near an intended destination and along a cheap straight-line corridor without issuing movement.",
+    description:
+      "Summarizes pressure near an intended destination and along a cheap straight-line corridor without issuing movement.",
   },
   {
     id: "wrapper.operations",
@@ -362,7 +440,13 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     kind: "action-wrapper",
     owner: "@civ7/direct-control",
     risk: "medium",
-    provenance: ["Game.UnitOperations", "Game.UnitCommands", "Game.CityOperations", "Game.CityCommands", "Game.PlayerOperations"],
+    provenance: [
+      "Game.UnitOperations",
+      "Game.UnitCommands",
+      "Game.CityOperations",
+      "Game.CityCommands",
+      "Game.PlayerOperations",
+    ],
     wrapper: "canStart*/request*",
     confidence: "recorded-live-proof",
   },
@@ -370,7 +454,7 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
 
 function capabilityEntriesFromInspection(
   inspection: Civ7RootInspectionResult,
-  role: "app-ui" | "tuner",
+  role: "app-ui" | "tuner"
 ): Civ7CapabilityCatalogEntry[] {
   const entries: Civ7CapabilityCatalogEntry[] = [];
   for (const root of inspection.roots) {
@@ -393,7 +477,12 @@ function capabilityEntriesFromInspection(
         role,
         kind: "method",
         owner: "runtime",
-        risk: method.name.startsWith("get") || method.name.startsWith("is") || method.name.startsWith("has") ? "read" : "medium",
+        risk:
+          method.name.startsWith("get") ||
+          method.name.startsWith("is") ||
+          method.name.startsWith("has")
+            ? "read"
+            : "medium",
         provenance: [`${inspection.state.name}:${root.name}.${method.name}`],
         state: inspection.state.name,
         root: root.name,
@@ -409,9 +498,20 @@ function dedupeCapabilityCatalog(catalog: Civ7CapabilityCatalog): Civ7Capability
   const byId = new Map<string, Civ7CapabilityCatalogEntry>();
   for (const entry of catalog.entries) {
     const existing = byId.get(entry.id);
-    byId.set(entry.id, existing ? { ...existing, provenance: Array.from(new Set([...existing.provenance, ...entry.provenance])) } : entry);
+    byId.set(
+      entry.id,
+      existing
+        ? {
+            ...existing,
+            provenance: Array.from(new Set([...existing.provenance, ...entry.provenance])),
+          }
+        : entry
+    );
   }
-  return { ...catalog, entries: Array.from(byId.values()).sort((a, b) => a.id.localeCompare(b.id)) };
+  return {
+    ...catalog,
+    entries: Array.from(byId.values()).sort((a, b) => a.id.localeCompare(b.id)),
+  };
 }
 
 async function listFiles(root: string, maxFiles: number): Promise<string[]> {

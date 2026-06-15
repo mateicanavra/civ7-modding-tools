@@ -74,7 +74,10 @@ function hasRawOpEnvelope(value: unknown): boolean {
   if (!value || typeof value !== "object") return false;
   if (Array.isArray(value)) return value.some(hasRawOpEnvelope);
   const obj = value as Record<string, unknown>;
-  if (Object.prototype.hasOwnProperty.call(obj, "strategy") && Object.prototype.hasOwnProperty.call(obj, "config")) {
+  if (
+    Object.prototype.hasOwnProperty.call(obj, "strategy") &&
+    Object.prototype.hasOwnProperty.call(obj, "config")
+  ) {
     return true;
   }
   return Object.values(obj).some(hasRawOpEnvelope);

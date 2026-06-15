@@ -12,4 +12,3 @@ const scoreLotus = createOp(ScoreLotusContract, {
 export type * from "./contract.js";
 
 export default scoreLotus;
-

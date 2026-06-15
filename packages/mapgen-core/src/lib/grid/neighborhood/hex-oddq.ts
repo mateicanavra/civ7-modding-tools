@@ -18,7 +18,12 @@ const OFFSETS_EVEN: readonly (readonly [number, number])[] = [
   [1, -1],
 ];
 
-export function getHexNeighborIndicesOddQ(x: number, y: number, width: number, height: number): number[] {
+export function getHexNeighborIndicesOddQ(
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): number[] {
   const isOddCol = (x & 1) === 1;
   const offsets = isOddCol ? OFFSETS_ODD : OFFSETS_EVEN;
   const indices: number[] = [];

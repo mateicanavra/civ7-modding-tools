@@ -1,16 +1,16 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7DirectControlOptions,
   Civ7DirectControlSession,
   Civ7TunerHealthProcedureDescriptor,
   Civ7TunerHealthProcedureSchemaArtifacts,
+  type Civ7TunerStateSelection,
   callCiv7TunerHealthProcedure,
   checkCiv7TunerHealth,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7DirectControlOptions,
-  type Civ7TunerStateSelection,
   type TunerHealthDependencies,
 } from "../src/index";
 
@@ -33,11 +33,11 @@ describe("Civ7 Tuner health procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7TunerHealthProcedureDescriptor,
-      Civ7TunerHealthProcedureSchemaArtifacts,
+      Civ7TunerHealthProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual([]);
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7TunerHealthProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7TunerHealthProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, {})).toBe(true);
     expect(Value.Check(resolved.inputSchema, { host: "127.0.0.1" })).toBe(false);
@@ -47,10 +47,12 @@ describe("Civ7 Tuner health procedure descriptor", () => {
     expect(Value.Check(resolved.inputSchema, { command: "Game.turn" })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { rawCommand: "Game.turn" })).toBe(false);
     expect(Value.Check(resolved.outputSchema, tunerHealthResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...tunerHealthResult(),
-      rawCommand: "Game.turn",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...tunerHealthResult(),
+        rawCommand: "Game.turn",
+      })
+    ).toBe(false);
   });
 
   test("calls the Tuner health atom through the procedure core without touching the live tuner", async () => {
@@ -61,7 +63,9 @@ describe("Civ7 Tuner health procedure descriptor", () => {
       command: string;
       attempts?: number;
     }> = [];
-    const fakeSession = Object.create(Civ7DirectControlSession.prototype) as Civ7DirectControlSession;
+    const fakeSession = Object.create(
+      Civ7DirectControlSession.prototype
+    ) as Civ7DirectControlSession;
     const dependencies: TunerHealthDependencies = {
       withSession: async (options, run) => {
         sessions.push(options);
@@ -83,17 +87,20 @@ describe("Civ7 Tuner health procedure descriptor", () => {
       },
     };
 
-    const result = await callCiv7TunerHealthProcedure({}, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 750,
-      },
-      procedure: {
-        correlationId: "tuner-health-procedure-test",
-      },
-      dependencies,
-    });
+    const result = await callCiv7TunerHealthProcedure(
+      {},
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 750,
+        },
+        procedure: {
+          correlationId: "tuner-health-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(tunerHealthResult());
     expect(result.diagnostics).toMatchObject({
@@ -104,11 +111,13 @@ describe("Civ7 Tuner health procedure descriptor", () => {
       debugServiceCorrelation: true,
       telemetryCorrelation: false,
     });
-    expect(sessions).toEqual([{
-      host: "127.0.0.1",
-      port: 4318,
-      timeoutMs: 750,
-    }]);
+    expect(sessions).toEqual([
+      {
+        host: "127.0.0.1",
+        port: 4318,
+        timeoutMs: 750,
+      },
+    ]);
     expect(commands).toHaveLength(1);
     expect(commands[0]).toMatchObject({
       state: { role: "tuner" },
@@ -128,14 +137,18 @@ describe("Civ7 Tuner health procedure descriptor", () => {
       },
       executeSessionCommandWithReconnect: async () => {
         touchedRuntime = true;
-        throw new Error("executeSessionCommandWithReconnect should not run after procedure input rejection");
+        throw new Error(
+          "executeSessionCommandWithReconnect should not run after procedure input rejection"
+        );
       },
     };
 
-    await expect(callCiv7TunerHealthProcedure({ host: "127.0.0.1" } as never, {
-      procedure: { correlationId: "tuner-health-invalid-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7TunerHealthProcedure({ host: "127.0.0.1" } as never, {
+        procedure: { correlationId: "tuner-health-invalid-input" },
+        dependencies,
+      })
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

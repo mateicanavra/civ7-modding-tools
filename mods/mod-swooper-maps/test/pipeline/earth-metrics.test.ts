@@ -2,13 +2,12 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
+import { computeEarthMetrics } from "../../src/dev/diagnostics/extract-earth-metrics.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
-import { computeEarthMetrics } from "../../src/dev/diagnostics/extract-earth-metrics.js";
+import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
+import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { standardConfig } from "../support/standard-config.js";
 
 describe("pipeline earth metrics", () => {
@@ -48,9 +47,19 @@ describe("pipeline earth metrics", () => {
       latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
     };
 
-    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+    });
     const context = createExtendedMapContext({ width, height }, adapter, env);
-    initializeStandardRuntime(context, { mapInfo, logPrefix: "[earth-metrics]", storyEnabled: true });
+    initializeStandardRuntime(context, {
+      mapInfo,
+      logPrefix: "[earth-metrics]",
+      storyEnabled: true,
+    });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
     const topography = context.artifacts.get(morphologyArtifacts.topography.id) as
@@ -59,15 +68,18 @@ describe("pipeline earth metrics", () => {
     const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
       | { riverClass?: Uint8Array; sinkMask?: Uint8Array }
       | undefined;
-    const riverNetworkMetrics = context.artifacts.get(hydrologyHydrographyArtifacts.riverNetworkMetrics.id) as
-      | { benchmarkSummary?: { version: 1 } & Record<string, number> }
-      | undefined;
+    const riverNetworkMetrics = context.artifacts.get(
+      hydrologyHydrographyArtifacts.riverNetworkMetrics.id
+    ) as { benchmarkSummary?: { version: 1 } & Record<string, number> } | undefined;
     const classification = context.artifacts.get(ecologyArtifacts.biomeClassification.id) as
       | { biomeIndex?: Uint8Array }
       | undefined;
-    if (!(topography?.landMask instanceof Uint8Array)) throw new Error("Missing topography.landMask.");
-    if (!(hydrography?.riverClass instanceof Uint8Array)) throw new Error("Missing hydrography.riverClass.");
-    if (!(hydrography?.sinkMask instanceof Uint8Array)) throw new Error("Missing hydrography.sinkMask.");
+    if (!(topography?.landMask instanceof Uint8Array))
+      throw new Error("Missing topography.landMask.");
+    if (!(hydrography?.riverClass instanceof Uint8Array))
+      throw new Error("Missing hydrography.riverClass.");
+    if (!(hydrography?.sinkMask instanceof Uint8Array))
+      throw new Error("Missing hydrography.sinkMask.");
     if (riverNetworkMetrics?.benchmarkSummary?.version !== 1) {
       throw new Error("Missing hydrology.riverNetworkMetrics.benchmarkSummary.");
     }
@@ -75,7 +87,8 @@ describe("pipeline earth metrics", () => {
       | { lakeMask?: Uint8Array }
       | undefined;
     if (!(lakePlan?.lakeMask instanceof Uint8Array)) throw new Error("Missing hydrology.lakePlan.");
-    if (!(classification?.biomeIndex instanceof Uint8Array)) throw new Error("Missing biomeClassification.biomeIndex.");
+    if (!(classification?.biomeIndex instanceof Uint8Array))
+      throw new Error("Missing biomeClassification.biomeIndex.");
 
     const metrics = computeEarthMetrics({
       width,

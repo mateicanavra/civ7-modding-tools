@@ -2,10 +2,7 @@ import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
 
-import {
-  getCiv7NotificationDismissal,
-  requestCiv7NotificationDismissal,
-} from "../src/index";
+import { getCiv7NotificationDismissal, requestCiv7NotificationDismissal } from "../src/index";
 
 type FakeTunerServer = {
   received: string[];
@@ -22,16 +19,20 @@ type NotificationDismissalMode =
 
 describe("notification dismissal", () => {
   test("rejects malformed notification ids before building App UI commands", async () => {
-    await expect(getCiv7NotificationDismissal(
-      { notificationId: { owner: 0, type: 20 } } as never,
-      { host: "127.0.0.1", port: 1 },
-    )).rejects.toMatchObject({
+    await expect(
+      getCiv7NotificationDismissal({ notificationId: { owner: 0, type: 20 } } as never, {
+        host: "127.0.0.1",
+        port: 1,
+      })
+    ).rejects.toMatchObject({
       code: "command-failed",
     });
-    await expect(requestCiv7NotificationDismissal(
-      { notificationId: { owner: 0, type: 20 } } as never,
-      { host: "127.0.0.1", port: 1 },
-    )).rejects.toMatchObject({
+    await expect(
+      requestCiv7NotificationDismissal({ notificationId: { owner: 0, type: 20 } } as never, {
+        host: "127.0.0.1",
+        port: 1,
+      })
+    ).rejects.toMatchObject({
       code: "command-failed",
     });
   });
@@ -43,11 +44,11 @@ describe("notification dismissal", () => {
       const notificationId = { owner: 0, id: 113, type: 20 };
       const plan = await getCiv7NotificationDismissal(
         { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
       const request = await requestCiv7NotificationDismissal(
         { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(plan).toMatchObject({
@@ -75,23 +76,29 @@ describe("notification dismissal", () => {
         },
       });
       expect(request.verificationAttempts?.length).toBeGreaterThan(1);
-      const dismissalReads = server.received.filter((message) => message.includes("readNotificationDismissal"));
+      const dismissalReads = server.received.filter((message) =>
+        message.includes("readNotificationDismissal")
+      );
       expect(dismissalReads.length).toBeGreaterThan(2);
       expect(dismissalReads.filter((message) => message.includes('"send":true'))).toHaveLength(1);
-      expect(dismissalReads.filter((message) => message.includes('"send":false')).length).toBeGreaterThan(1);
+      expect(
+        dismissalReads.filter((message) => message.includes('"send":false')).length
+      ).toBeGreaterThan(1);
     } finally {
       await server.close();
     }
   });
 
   test("does not verify dismissal from train absence while engine queue still fronts the target", async () => {
-    const server = await startNotificationDismissalTunerServer({ mode: "engine-front-train-absent" });
+    const server = await startNotificationDismissalTunerServer({
+      mode: "engine-front-train-absent",
+    });
     try {
       const { port } = server.address();
       const notificationId = { owner: 0, id: 113, type: 20 };
       const request = await requestCiv7NotificationDismissal(
         { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -118,7 +125,7 @@ describe("notification dismissal", () => {
       const notificationId = { owner: 0, id: 113, type: 20 };
       const request = await requestCiv7NotificationDismissal(
         { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -138,13 +145,15 @@ describe("notification dismissal", () => {
   });
 
   test("uses panel dismiss when blocker enum is none despite stale engine-front identity", async () => {
-    const server = await startNotificationDismissalTunerServer({ mode: "engine-front-none-blocker" });
+    const server = await startNotificationDismissalTunerServer({
+      mode: "engine-front-none-blocker",
+    });
     try {
       const { port } = server.address();
       const notificationId = { owner: 0, id: 113, type: 20 };
       const request = await requestCiv7NotificationDismissal(
         { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -174,17 +183,19 @@ describe("notification dismissal", () => {
   });
 
   test("uses panel dismiss for expired non-user-dismissible stale front notifications when blocker enum is none", async () => {
-    const server = await startNotificationDismissalTunerServer({ mode: "expired-engine-front-none-blocker" });
+    const server = await startNotificationDismissalTunerServer({
+      mode: "expired-engine-front-none-blocker",
+    });
     try {
       const { port } = server.address();
       const notificationId = { owner: 0, id: 113, type: 20 };
       const plan = await getCiv7NotificationDismissal(
         { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
       const request = await requestCiv7NotificationDismissal(
         { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(plan).toMatchObject({
@@ -220,7 +231,7 @@ describe("notification dismissal", () => {
 });
 
 async function startNotificationDismissalTunerServer(
-  options: { mode?: NotificationDismissalMode } = {},
+  options: { mode?: NotificationDismissalMode } = {}
 ): Promise<FakeTunerServer> {
   const received: string[] = [];
   let notificationDismissalSent = false;
@@ -240,12 +251,14 @@ async function startNotificationDismissalTunerServer(
           if (send) notificationDismissalSent = true;
           socket.write(
             encodeResponse(frame.listenerId, [
-              JSON.stringify(notificationDismissal(
-                send,
-                notificationDismissalSent && !send,
-                options.mode ?? "verified",
-              )),
-            ]),
+              JSON.stringify(
+                notificationDismissal(
+                  send,
+                  notificationDismissalSent && !send,
+                  options.mode ?? "verified"
+                )
+              ),
+            ])
           );
         } else {
           socket.write(encodeResponse(frame.listenerId, ["2"]));
@@ -267,11 +280,12 @@ async function startNotificationDismissalTunerServer(
 function notificationDismissal(
   send: boolean,
   settled = false,
-  mode: NotificationDismissalMode = "verified",
+  mode: NotificationDismissalMode = "verified"
 ) {
   const notificationId = { owner: 0, id: 113, type: 20 };
   const trainAbsent = mode === "engine-front-train-absent";
-  const noneBlocker = mode === "engine-front-none-blocker" || mode === "expired-engine-front-none-blocker";
+  const noneBlocker =
+    mode === "engine-front-none-blocker" || mode === "expired-engine-front-none-blocker";
   const expiredNonDismissible = mode === "expired-engine-front-none-blocker";
   const present = {
     id: notificationId,
@@ -317,13 +331,14 @@ function notificationDismissal(
     ...present,
     dismissed: true,
   };
-  const current = mode === "engine-front-train-absent"
-    ? present
-    : mode === "engine-front-dismissed"
-      ? engineFrontDismissed
-      : settled
-        ? cleared
-        : present;
+  const current =
+    mode === "engine-front-train-absent"
+      ? present
+      : mode === "engine-front-dismissed"
+        ? engineFrontDismissed
+        : settled
+          ? cleared
+          : present;
   return {
     notificationId,
     before: current,
@@ -361,13 +376,11 @@ function notificationDismissal(
   };
 }
 
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
+function parseRequest(buffer: Buffer): {
+  listenerId: number;
+  message: string;
+  bytesRead: number;
+} | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);
   const bytesRead = 8 + messageLength;

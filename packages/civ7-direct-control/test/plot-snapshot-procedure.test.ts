@@ -1,15 +1,15 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7MapLocation,
   Civ7PlotSnapshotProcedureDescriptor,
   Civ7PlotSnapshotProcedureSchemaArtifacts,
   callCiv7PlotSnapshotProcedure,
   getCiv7PlotSnapshot,
+  type PlotSnapshotReadDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7MapLocation,
-  type PlotSnapshotReadDependencies,
 } from "../src/index";
 
 describe("Civ7 plot-snapshot procedure descriptor", () => {
@@ -31,32 +31,38 @@ describe("Civ7 plot-snapshot procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7PlotSnapshotProcedureDescriptor,
-      Civ7PlotSnapshotProcedureSchemaArtifacts,
+      Civ7PlotSnapshotProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7PlotSnapshotProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7PlotSnapshotProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7PlotSnapshotProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7PlotSnapshotProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      x: 3,
-      y: 4,
-      playerId: 0,
-      fields: ["terrain", "resource", "visibility"],
-      includeHidden: false,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        x: 3,
+        y: 4,
+        playerId: 0,
+        fields: ["terrain", "resource", "visibility"],
+        includeHidden: false,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { x: 1.5, y: 4 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { x: 3, y: -1 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { x: 3, y: 4, fields: ["enemy"] })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { x: 3, y: 4, host: "127.0.0.1" })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { x: 3, y: 4, state: { role: "tuner" } })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { x: 3, y: 4, rawCommand: "readPlotSnapshot()" })).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, { x: 3, y: 4, rawCommand: "readPlotSnapshot()" })
+    ).toBe(false);
     expect(Value.Check(resolved.outputSchema, plotSnapshotResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...plotSnapshotResult(),
-      command: "GameplayMap.getTerrainType(3, 4)",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...plotSnapshotResult(),
+        command: "GameplayMap.getTerrainType(3, 4)",
+      })
+    ).toBe(false);
   });
 
   test("calls the plot-snapshot atom through the procedure core without touching the live tuner", async () => {
@@ -88,21 +94,24 @@ describe("Civ7 plot-snapshot procedure descriptor", () => {
       },
     };
 
-    const result = await callCiv7PlotSnapshotProcedure({
-      x: 3,
-      y: 4,
-      playerId: 0,
-      fields: ["terrain", "resource", "visibility"],
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7PlotSnapshotProcedure(
+      {
+        x: 3,
+        y: 4,
+        playerId: 0,
+        fields: ["terrain", "resource", "visibility"],
       },
-      procedure: {
-        correlationId: "plot-snapshot-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "plot-snapshot-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(plotSnapshotResult());
     expect(result.diagnostics).toMatchObject({
@@ -122,7 +131,7 @@ describe("Civ7 plot-snapshot procedure descriptor", () => {
       port: 4318,
     });
     expect(executeCalls[0]?.command).toContain("readPlotSnapshot");
-    expect(executeCalls[0]?.command).toContain("\"fields\":[\"terrain\",\"resource\",\"visibility\"]");
+    expect(executeCalls[0]?.command).toContain('"fields":["terrain","resource","visibility"]');
     expect(executeCalls[0]?.command).not.toContain("sendRequest");
     expect(executeCalls[0]?.command).not.toContain("sendOperation(");
   });
@@ -140,10 +149,15 @@ describe("Civ7 plot-snapshot procedure descriptor", () => {
       validateMapLocation: () => undefined,
     };
 
-    await expect(callCiv7PlotSnapshotProcedure({ x: 1.5, y: 4 }, {
-      procedure: { correlationId: "plot-snapshot-invalid-location" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7PlotSnapshotProcedure(
+        { x: 1.5, y: 4 },
+        {
+          procedure: { correlationId: "plot-snapshot-invalid-location" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -151,14 +165,19 @@ describe("Civ7 plot-snapshot procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7PlotSnapshotProcedure({
-      x: 3,
-      y: 4,
-      rawCommand: "GameplayMap.getTerrainType(3, 4)",
-    } as never, {
-      procedure: { correlationId: "plot-snapshot-context-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7PlotSnapshotProcedure(
+        {
+          x: 3,
+          y: 4,
+          rawCommand: "GameplayMap.getTerrainType(3, 4)",
+        } as never,
+        {
+          procedure: { correlationId: "plot-snapshot-context-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

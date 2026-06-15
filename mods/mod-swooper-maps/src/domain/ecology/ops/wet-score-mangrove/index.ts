@@ -12,4 +12,3 @@ const scoreWetMangrove = createOp(ScoreWetMangroveContract, {
 export type * from "./contract.js";
 
 export default scoreWetMangrove;
-

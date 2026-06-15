@@ -22,9 +22,13 @@ export const HydrologyClimateIndicesSchema = Type.Object(
         "Effective moisture advisory index (rainfall + 0.35 * humidity + riparian bonus; radius=1; minor=4, major=8).",
     }),
     /** Potential evapotranspiration proxy (rainfall units); advisory signal used for aridity. */
-    pet: TypedArraySchemas.f32({ description: "Potential evapotranspiration proxy (rainfall units)." }),
+    pet: TypedArraySchemas.f32({
+      description: "Potential evapotranspiration proxy (rainfall units).",
+    }),
     /** Aridity index (0..1) derived from P vs PET; higher values indicate drier climates. */
-    aridityIndex: TypedArraySchemas.f32({ description: "Aridity index (0..1) derived from P vs PET." }),
+    aridityIndex: TypedArraySchemas.f32({
+      description: "Aridity index (0..1) derived from P vs PET.",
+    }),
     /** Freeze persistence index (0..1); higher values indicate more persistent freezing conditions. */
     freezeIndex: TypedArraySchemas.f32({ description: "Freeze persistence index (0..1)." }),
   },
@@ -47,14 +51,21 @@ export const HydrologyCryosphereSchema = Type.Object(
     /** Albedo proxy (0..255) per tile; may feed bounded albedo feedback into temperature refinement. */
     albedo: TypedArraySchemas.u8({ description: "Albedo proxy (0..255) per tile." }),
     /** Ground ice persistence proxy (0..1) per tile; land-only. */
-    groundIce01: TypedArraySchemas.f32({ description: "Ground ice persistence proxy (0..1) per tile; land-only." }),
+    groundIce01: TypedArraySchemas.f32({
+      description: "Ground ice persistence proxy (0..1) per tile; land-only.",
+    }),
     /** Permafrost proxy (0..1) per tile; land-only. */
-    permafrost01: TypedArraySchemas.f32({ description: "Permafrost proxy (0..1) per tile; land-only." }),
+    permafrost01: TypedArraySchemas.f32({
+      description: "Permafrost proxy (0..1) per tile; land-only.",
+    }),
     /** Melt potential proxy (0..1) per tile; land-only and snow-weighted. */
-    meltPotential01: TypedArraySchemas.f32({ description: "Melt potential proxy (0..1) per tile; land-only." }),
+    meltPotential01: TypedArraySchemas.f32({
+      description: "Melt potential proxy (0..1) per tile; land-only.",
+    }),
   },
   {
-    description: "Hydrology cryosphere state products (snow/sea-ice/albedo + cryosphere truth proxies).",
+    description:
+      "Hydrology cryosphere state products (snow/sea-ice/albedo + cryosphere truth proxies).",
   }
 );
 
@@ -68,19 +79,23 @@ export const HydrologyClimateDiagnosticsSchema = Type.Object(
   {
     /** Advisory rain shadow proxy (0..1); used for debugging and optional downstream narrative biasing. */
     rainShadowIndex: TypedArraySchemas.f32({
-      description: "Advisory rain shadow proxy (0..1) per tile (diagnostic projection; not Hydrology internal truth).",
+      description:
+        "Advisory rain shadow proxy (0..1) per tile (diagnostic projection; not Hydrology internal truth).",
     }),
     /** Advisory continentality proxy (0..1); higher values imply more interior/continental climate. */
     continentalityIndex: TypedArraySchemas.f32({
-      description: "Advisory continentality proxy (0..1) per tile (diagnostic projection; not Hydrology internal truth).",
+      description:
+        "Advisory continentality proxy (0..1) per tile (diagnostic projection; not Hydrology internal truth).",
     }),
     /** Advisory convergence proxy (0..1); indicates likely convergence zones / storm tracks. */
     convergenceIndex: TypedArraySchemas.f32({
-      description: "Advisory convergence proxy (0..1) per tile (diagnostic projection; not Hydrology internal truth).",
+      description:
+        "Advisory convergence proxy (0..1) per tile (diagnostic projection; not Hydrology internal truth).",
     }),
   },
   {
-    description: "Hydrology refinement diagnostics (advisory indices; not Hydrology internal truth).",
+    description:
+      "Hydrology refinement diagnostics (advisory indices; not Hydrology internal truth).",
   }
 );
 

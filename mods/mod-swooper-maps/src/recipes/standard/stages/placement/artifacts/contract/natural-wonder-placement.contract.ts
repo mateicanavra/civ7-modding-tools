@@ -1,4 +1,4 @@
-import { Type, defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring";
 
 /** Natural-wonder stamping outcomes (`artifact:placement.naturalWonderPlacement`). One artifact per file by repo convention. */
 const NaturalWonderPlacementCoordinateDigestSchema = Type.Object(
@@ -52,8 +52,7 @@ const NaturalWonderPlacementCoordinateRowSchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description:
-      "Bounded natural-wonder placement row identity for exact/local proof comparison.",
+    description: "Bounded natural-wonder placement row identity for exact/local proof comparison.",
   }
 );
 

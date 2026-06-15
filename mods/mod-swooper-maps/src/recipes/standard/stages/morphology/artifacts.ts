@@ -1,4 +1,4 @@
-import { TypedArraySchemas, Type, defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const MorphologyTopographyArtifactSchema = Type.Object(
   {
@@ -32,7 +32,9 @@ const MorphologyRoutingArtifactSchema = Type.Object(
     }),
     flowAccum: TypedArraySchemas.f32({ description: "Drainage area proxy per tile." }),
     basinId: Type.Optional(
-      TypedArraySchemas.i32({ description: "Optional basin identifier per tile (or -1 when unassigned)." })
+      TypedArraySchemas.i32({
+        description: "Optional basin identifier per tile (or -1 when unassigned).",
+      })
     ),
   },
   { description: "Morphology routing buffer handle (publish once)." }
@@ -53,7 +55,9 @@ const MorphologySubstrateArtifactSchema = Type.Object(
 const MorphologyCoastlineMetricsArtifactSchema = Type.Object(
   {
     coastalLand: TypedArraySchemas.u8({ description: "Mask (1/0): land tiles adjacent to water." }),
-    coastalWater: TypedArraySchemas.u8({ description: "Mask (1/0): water tiles adjacent to land." }),
+    coastalWater: TypedArraySchemas.u8({
+      description: "Mask (1/0): water tiles adjacent to land.",
+    }),
     shelfMask: TypedArraySchemas.u8({
       description:
         "Mask (1/0): shallow shelf water eligible for TERRAIN_COAST projection (deterministic, derived from Morphology truth).",
@@ -80,10 +84,22 @@ const MorphologyLandmassArtifactSchema = Type.Object(
     }),
     bbox: Type.Object(
       {
-        west: Type.Integer({ minimum: 0, description: "West bound (inclusive) in tile x-coordinates." }),
-        east: Type.Integer({ minimum: 0, description: "East bound (inclusive) in tile x-coordinates." }),
-        south: Type.Integer({ minimum: 0, description: "South bound (inclusive) in tile y-coordinates." }),
-        north: Type.Integer({ minimum: 0, description: "North bound (inclusive) in tile y-coordinates." }),
+        west: Type.Integer({
+          minimum: 0,
+          description: "West bound (inclusive) in tile x-coordinates.",
+        }),
+        east: Type.Integer({
+          minimum: 0,
+          description: "East bound (inclusive) in tile x-coordinates.",
+        }),
+        south: Type.Integer({
+          minimum: 0,
+          description: "South bound (inclusive) in tile y-coordinates.",
+        }),
+        north: Type.Integer({
+          minimum: 0,
+          description: "North bound (inclusive) in tile y-coordinates.",
+        }),
       },
       {
         additionalProperties: false,
@@ -120,22 +136,24 @@ const VolcanoKindSchema = Type.Union([
 
 const MorphologyVolcanoesArtifactSchema = Type.Object(
   {
-    volcanoMask: TypedArraySchemas.u8({ description: "Mask (1/0): tiles containing a volcano vent." }),
+    volcanoMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): tiles containing a volcano vent.",
+    }),
     volcanoes: Type.Immutable(
       Type.Array(
-      Type.Object(
-        {
-          tileIndex: Type.Integer({ minimum: 0, description: "Tile index in row-major order." }),
-          kind: VolcanoKindSchema,
-          strength01: Type.Number({
-            minimum: 0,
-            maximum: 1,
-            description: "Normalized intensity (0..1) derived from volcanism driver strength.",
-          }),
-        },
-        { additionalProperties: false }
+        Type.Object(
+          {
+            tileIndex: Type.Integer({ minimum: 0, description: "Tile index in row-major order." }),
+            kind: VolcanoKindSchema,
+            strength01: Type.Number({
+              minimum: 0,
+              maximum: 1,
+              description: "Normalized intensity (0..1) derived from volcanism driver strength.",
+            }),
+          },
+          { additionalProperties: false }
+        )
       )
-    ),
     ),
   },
   {
@@ -160,7 +178,8 @@ const MorphologyMountainsArtifactSchema = Type.Object(
       description: "Mask (1/0): Morphology truth intent for hill terrain excluding mountain tiles.",
     }),
     foothillMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): ridge-skirt hill terrain intent before non-foothill rough-land merge.",
+      description:
+        "Mask (1/0): ridge-skirt hill terrain intent before non-foothill rough-land merge.",
     }),
     roughLandMask: TypedArraySchemas.u8({
       description: "Mask (1/0): non-foothill rough-land hill terrain intent.",
@@ -185,18 +204,25 @@ const MorphologyMountainsArtifactSchema = Type.Object(
 
 const MorphologyBeltComponentSummarySchema = Type.Object(
   {
-    id: Type.Integer({ minimum: 0, description: "Stable id within this belt-driver snapshot (1..n)." }),
+    id: Type.Integer({
+      minimum: 0,
+      description: "Stable id within this belt-driver snapshot (1..n).",
+    }),
     boundaryType: Type.Integer({
       minimum: 0,
       description: "Boundary type (BOUNDARY_TYPE values).",
     }),
-    size: Type.Integer({ minimum: 0, description: "Number of tiles in this connected belt seed component." }),
+    size: Type.Integer({
+      minimum: 0,
+      description: "Number of tiles in this connected belt seed component.",
+    }),
     diameter: Type.Integer({
       minimum: 0,
       description: "Approximate hex-graph end-to-end length of this connected belt seed component.",
     }),
     meanUpliftBlend: Type.Number({
-      description: "Mean uplift blend intensity (0..255) across belt seeds in this component (pre-decay).",
+      description:
+        "Mean uplift blend intensity (0..255) across belt seeds in this component (pre-decay).",
     }),
     meanWidthScale: Type.Number({
       description: "Mean width scale multiplier (unitless) across belt seeds in this component.",
@@ -208,7 +234,8 @@ const MorphologyBeltComponentSummarySchema = Type.Object(
       description: "Mean origin era index across belt seeds in this component (0..eraCount-1).",
     }),
     meanOriginPlateId: Type.Number({
-      description: "Mean origin plate id across belt seeds in this component (plate id; -1 for unknown).",
+      description:
+        "Mean origin plate id across belt seeds in this component (plate id; -1 for unknown).",
     }),
   },
   {
@@ -220,32 +247,39 @@ const MorphologyBeltComponentSummarySchema = Type.Object(
 const MorphologyBeltDriversArtifactSchema = Type.Object(
   {
     boundaryCloseness: TypedArraySchemas.u8({
-      description: "Boundary proximity field per tile (0..255), weighted by tectonic intensity and belt decay.",
+      description:
+        "Boundary proximity field per tile (0..255), weighted by tectonic intensity and belt decay.",
     }),
     boundaryType: TypedArraySchemas.u8({
-      description: "Boundary regime per tile (BOUNDARY_TYPE values), resolved from active eras/provenance.",
+      description:
+        "Boundary regime per tile (BOUNDARY_TYPE values), resolved from active eras/provenance.",
     }),
     upliftPotential: TypedArraySchemas.u8({
-      description: "Orogeny / uplift potential per tile (0..255), decayed away from belt seed centers.",
+      description:
+        "Orogeny / uplift potential per tile (0..255), decayed away from belt seed centers.",
     }),
     collisionPotential: TypedArraySchemas.u8({
-      description: "Collision-driven uplift potential per tile (0..255), decayed away from belt seed centers.",
+      description:
+        "Collision-driven uplift potential per tile (0..255), decayed away from belt seed centers.",
     }),
     subductionPotential: TypedArraySchemas.u8({
-      description: "Subduction-driven uplift potential per tile (0..255), decayed away from belt seed centers.",
+      description:
+        "Subduction-driven uplift potential per tile (0..255), decayed away from belt seed centers.",
     }),
     riftPotential: TypedArraySchemas.u8({
       description: "Rift potential per tile (0..255), decayed away from belt seed centers.",
     }),
     tectonicStress: TypedArraySchemas.u8({
-      description: "Combined tectonic stress per tile (0..255), derived from uplift/rift/shear contributions.",
+      description:
+        "Combined tectonic stress per tile (0..255), derived from uplift/rift/shear contributions.",
     }),
     beltAge: TypedArraySchemas.u8({
       description:
         "Normalized belt age proxy per tile (0..255). 0=youngest/most recently active, 255=oldest/least recently active.",
     }),
     dominantEra: TypedArraySchemas.u8({
-      description: "Dominant tectonic era index per tile (0..eraCount-1), based on weighted boundary intensity.",
+      description:
+        "Dominant tectonic era index per tile (0..eraCount-1), based on weighted boundary intensity.",
     }),
     beltMask: TypedArraySchemas.u8({
       description: "Seed mask (1/0): tiles considered belt seed centers prior to decay.",

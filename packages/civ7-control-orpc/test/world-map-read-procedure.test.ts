@@ -2,37 +2,43 @@ import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   Civ7WorldReadUnavailableError,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
 } from "../src/index";
 
 describe("world map read control-oRPC procedures", () => {
   test("projects one plot without raw direct-control runtime envelope", async () => {
     const fake = fakeContext();
 
-    const result = await call(Civ7ControlOrpcRouter.world.plot, {
-      location: { x: 3, y: 4 },
-      playerId: 0,
-      fields: ["terrain", "resource", "visibility"],
-    }, { context: fake.context });
-
-    expect(fake.plotCalls).toEqual([{
-      input: {
-        x: 3,
-        y: 4,
-        fields: ["terrain", "resource", "visibility"],
+    const result = await call(
+      Civ7ControlOrpcRouter.world.plot,
+      {
+        location: { x: 3, y: 4 },
         playerId: 0,
-        includeHidden: undefined,
+        fields: ["terrain", "resource", "visibility"],
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+      { context: fake.context }
+    );
+
+    expect(fake.plotCalls).toEqual([
+      {
+        input: {
+          x: 3,
+          y: 4,
+          fields: ["terrain", "resource", "visibility"],
+          playerId: 0,
+          includeHidden: undefined,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-    }]);
+    ]);
     expect(result).toEqual({
       sourceStatus: { plot: "read" },
       plot: {
@@ -54,9 +60,9 @@ describe("world map read control-oRPC procedures", () => {
     });
 
     const serialized = JSON.stringify(result);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
     expect(serialized).not.toContain("rawCommand");
     expect(serialized).not.toContain("enemy");
     expect(serialized).not.toContain("hostile");
@@ -76,12 +82,14 @@ describe("world map read control-oRPC procedures", () => {
           width: { ok: false, error: "GameplayMap unavailable" },
           height: { ok: true, value: 54 },
         },
-        plots: [{
-          ...plotSnapshotResult(),
-          facts: {
-            terrain: { ok: false, error: "terrain unavailable" },
+        plots: [
+          {
+            ...plotSnapshotResult(),
+            facts: {
+              terrain: { ok: false, error: "terrain unavailable" },
+            },
           },
-        }],
+        ],
       },
     });
     const client = createCiv7ControlOrpcServerClient(fake.context);
@@ -92,20 +100,22 @@ describe("world map read control-oRPC procedures", () => {
       maxPlots: 2,
     });
 
-    expect(fake.gridCalls).toEqual([{
-      input: {
-        bounds: { x: 0, y: 0, width: 2, height: 2 },
-        fields: ["terrain"],
-        playerId: undefined,
-        includeHidden: undefined,
-        maxPlots: 2,
+    expect(fake.gridCalls).toEqual([
+      {
+        input: {
+          bounds: { x: 0, y: 0, width: 2, height: 2 },
+          fields: ["terrain"],
+          playerId: undefined,
+          includeHidden: undefined,
+          maxPlots: 2,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expect(result).toMatchObject({
       sourceStatus: {
         grid: "read-with-omissions",
@@ -119,18 +129,20 @@ describe("world map read control-oRPC procedures", () => {
         width: null,
         height: 54,
       },
-      plots: [{
-        summary: {
-          factCount: 1,
-          probeErrorCount: 1,
+      plots: [
+        {
+          summary: {
+            factCount: 1,
+            probeErrorCount: 1,
+          },
         },
-      }],
+      ],
       summary: {
         returnedPlotCount: 1,
         probeErrorCount: 2,
       },
     });
-    expect(JSON.stringify(result)).not.toContain("\"host\"");
+    expect(JSON.stringify(result)).not.toContain('"host"');
   });
 
   test("rejects raw endpoint and command fields before facade execution", async () => {
@@ -148,12 +160,11 @@ describe("world map read control-oRPC procedures", () => {
 
     for (const input of invalidInputs) {
       const fake = fakeContext();
-      const target = "bounds" in input
-        ? Civ7ControlOrpcRouter.world.grid
-        : Civ7ControlOrpcRouter.world.plot;
+      const target =
+        "bounds" in input ? Civ7ControlOrpcRouter.world.grid : Civ7ControlOrpcRouter.world.plot;
 
       await expect(
-        call(target as never, input as never, { context: fake.context }),
+        call(target as never, input as never, { context: fake.context })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.plotCalls).toEqual([]);
       expect(fake.gridCalls).toEqual([]);
@@ -165,16 +176,20 @@ describe("world map read control-oRPC procedures", () => {
       directControl: {
         getCiv7PlotSnapshot: async () => {
           throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:1:GameplayMap.getTerrainType(3,4)",
+            "Timed out waiting for Civ7 tuner response to CMD:1:GameplayMap.getTerrainType(3,4)"
           );
         },
       } as Civ7ControlOrpcContext["directControl"],
     };
 
     await expect(
-      call(Civ7ControlOrpcRouter.world.plot, {
-        location: { x: 3, y: 4 },
-      }, { context }),
+      call(
+        Civ7ControlOrpcRouter.world.plot,
+        {
+          location: { x: 3, y: 4 },
+        },
+        { context }
+      )
     ).rejects.toMatchObject({
       code: "WORLD_READ_UNAVAILABLE",
       status: 503,
@@ -185,9 +200,13 @@ describe("world map read control-oRPC procedures", () => {
     });
 
     try {
-      await call(Civ7ControlOrpcRouter.world.plot, {
-        location: { x: 3, y: 4 },
-      }, { context });
+      await call(
+        Civ7ControlOrpcRouter.world.plot,
+        {
+          location: { x: 3, y: 4 },
+        },
+        { context }
+      );
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -221,7 +240,7 @@ function fakeContext(
   overrides: Partial<{
     plotResult: ReturnType<typeof plotSnapshotResult>;
     gridResult: ReturnType<typeof mapGridResult>;
-  }> = {},
+  }> = {}
 ): {
   plotCalls: Array<{
     input: unknown;

@@ -1,5 +1,5 @@
-import { clampInt } from "@mapgen/lib/math/clamp.js";
 import { projectOddqToHexSpace } from "@mapgen/lib/grid/hex-space.js";
+import { clampInt } from "@mapgen/lib/math/clamp.js";
 
 export type Vec2 = Readonly<{ x: number; y: number }>;
 
@@ -86,7 +86,10 @@ export function dequantizeI8Signed(value: number, maxAbs: number): number {
  * - Uses odd-q projection (`projectOddqToHexSpace`).
  * - Returns vectors in a stable, deterministic order matching the neighbor offset table.
  */
-function computeHexNeighborDirectionVectorsOddQ(baseX: number, offsets: readonly (readonly [number, number])[]): readonly Vec2[] {
+function computeHexNeighborDirectionVectorsOddQ(
+  baseX: number,
+  offsets: readonly (readonly [number, number])[]
+): readonly Vec2[] {
   const base = projectOddqToHexSpace(baseX, 0);
   return offsets.map(([dx, dy]) => {
     const p = projectOddqToHexSpace(baseX + dx, dy);

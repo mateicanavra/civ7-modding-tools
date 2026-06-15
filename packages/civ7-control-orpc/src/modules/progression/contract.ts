@@ -1,5 +1,5 @@
 import type { ContractProcedure } from "@orpc/contract";
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { civ7ControlOrpcContractBase } from "../../contract-base";
 import type { Civ7ControlOrpcErrorMap } from "../../errors";
@@ -12,36 +12,29 @@ const Civ7ProgressionChoiceInputSchema = Type.Object(
     node: Type.Integer(),
     notificationId: Type.Optional(Civ7ControlOrpcComponentIdSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7ProgressionChoiceInput = Static<
-  typeof Civ7ProgressionChoiceInputSchema
->;
+export type Civ7ProgressionChoiceInput = Static<typeof Civ7ProgressionChoiceInputSchema>;
 
 const Civ7ProgressionTargetInputSchema = Type.Object(
   {
     node: Type.Integer(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7ProgressionTargetInput = Static<
-  typeof Civ7ProgressionTargetInputSchema
->;
+export type Civ7ProgressionTargetInput = Static<typeof Civ7ProgressionTargetInputSchema>;
 
 const Civ7ProgressionAttributePurchaseInputSchema = Type.Object(
   {
     node: Type.Integer(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7ProgressionAttributePurchaseInput = Static<
   typeof Civ7ProgressionAttributePurchaseInputSchema
 >;
 
-const Civ7ProgressionPlayerReviewInputSchema = Type.Object(
-  {},
-  { additionalProperties: false },
-);
+const Civ7ProgressionPlayerReviewInputSchema = Type.Object({}, { additionalProperties: false });
 export type Civ7ProgressionPlayerReviewInput = Static<
   typeof Civ7ProgressionPlayerReviewInputSchema
 >;
@@ -50,47 +43,42 @@ const Civ7ProgressionDashboardInputSchema = Type.Object(
   {
     playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7ProgressionDashboardInput = Static<
-  typeof Civ7ProgressionDashboardInputSchema
->;
+export type Civ7ProgressionDashboardInput = Static<typeof Civ7ProgressionDashboardInputSchema>;
 
 const Civ7ProgressionTraditionsInputSchema = Type.Object(
   {
     playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7ProgressionTraditionsInput = Static<
-  typeof Civ7ProgressionTraditionsInputSchema
->;
+export type Civ7ProgressionTraditionsInput = Static<typeof Civ7ProgressionTraditionsInputSchema>;
 
 const Civ7ProgressionTraditionChangeInputSchema = Type.Object(
   {
     traditionType: Type.Integer(),
     action: Type.Integer(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7ProgressionTraditionChangeInput = Static<
   typeof Civ7ProgressionTraditionChangeInputSchema
 >;
 
-export const Civ7ProgressionChoicePostconditionClassificationSchema =
-  Type.Union([
-    Type.Literal("not-sent"),
-    Type.Literal("pending-runtime-proof"),
-    Type.Literal("turn-unblocked"),
-    Type.Literal("technology-choice-cleared"),
-    Type.Literal("technology-choice-transitioned"),
-    Type.Literal("technology-state-changed-blocker-still-live"),
-    Type.Literal("technology-choice-sticky-blocker"),
-    Type.Literal("culture-choice-cleared"),
-    Type.Literal("culture-choice-transitioned"),
-    Type.Literal("culture-state-changed-blocker-still-live"),
-    Type.Literal("culture-choice-sticky-blocker"),
-  ]);
+export const Civ7ProgressionChoicePostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("pending-runtime-proof"),
+  Type.Literal("turn-unblocked"),
+  Type.Literal("technology-choice-cleared"),
+  Type.Literal("technology-choice-transitioned"),
+  Type.Literal("technology-state-changed-blocker-still-live"),
+  Type.Literal("technology-choice-sticky-blocker"),
+  Type.Literal("culture-choice-cleared"),
+  Type.Literal("culture-choice-transitioned"),
+  Type.Literal("culture-state-changed-blocker-still-live"),
+  Type.Literal("culture-choice-sticky-blocker"),
+]);
 
 export const Civ7ProgressionChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
@@ -119,7 +107,7 @@ export const Civ7ProgressionChoiceEvidenceSummarySchema = Type.Object(
     afterBlockerPresent: Type.Union([Type.Boolean(), Type.Null()]),
     canEndTurnAfter: Type.Union([Type.Boolean(), Type.Null()]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7ProgressionChoicePostconditionSummarySchema = Type.Object(
@@ -135,7 +123,7 @@ export const Civ7ProgressionChoicePostconditionSummarySchema = Type.Object(
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7ProgressionTechnologyChoiceNextStepSchema = Type.Object(
@@ -148,7 +136,7 @@ export const Civ7ProgressionTechnologyChoiceNextStepSchema = Type.Object(
     source: Type.Literal("progression.technology.choice.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7ProgressionCultureChoiceNextStepSchema = Type.Object(
@@ -161,7 +149,7 @@ export const Civ7ProgressionCultureChoiceNextStepSchema = Type.Object(
     source: Type.Literal("progression.culture.choice.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionTechnologyChoiceResultSchema = Type.Object(
@@ -175,7 +163,7 @@ const Civ7ProgressionTechnologyChoiceResultSchema = Type.Object(
     postcondition: Civ7ProgressionChoicePostconditionSummarySchema,
     nextSteps: Type.Array(Civ7ProgressionTechnologyChoiceNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7ProgressionTechnologyChoiceResult = Static<
   typeof Civ7ProgressionTechnologyChoiceResultSchema
@@ -192,18 +180,17 @@ const Civ7ProgressionCultureChoiceResultSchema = Type.Object(
     postcondition: Civ7ProgressionChoicePostconditionSummarySchema,
     nextSteps: Type.Array(Civ7ProgressionCultureChoiceNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7ProgressionCultureChoiceResult = Static<
   typeof Civ7ProgressionCultureChoiceResultSchema
 >;
 
-export const Civ7ProgressionTargetPostconditionClassificationSchema =
-  Type.Union([
-    Type.Literal("not-sent"),
-    Type.Literal("pending-runtime-proof"),
-    Type.Literal("missing-postcondition"),
-  ]);
+export const Civ7ProgressionTargetPostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("pending-runtime-proof"),
+  Type.Literal("missing-postcondition"),
+]);
 
 export const Civ7ProgressionTargetProofOutcomeSchema = Type.Union([
   Type.Literal("not-sent"),
@@ -220,7 +207,7 @@ export const Civ7ProgressionTargetValidationSummarySchema = Type.Object(
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7ProgressionTargetPostconditionSummarySchema = Type.Object(
@@ -228,38 +215,29 @@ export const Civ7ProgressionTargetPostconditionSummarySchema = Type.Object(
     classification: Civ7ProgressionTargetPostconditionClassificationSchema,
     reason: Type.String(),
     outcome: Civ7ProgressionTargetProofOutcomeSchema,
-    confidence: Type.Union([
-      Type.Literal("unverified"),
-      Type.Literal("pending-runtime-proof"),
-    ]),
+    confidence: Type.Union([Type.Literal("unverified"), Type.Literal("pending-runtime-proof")]),
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7ProgressionTechnologyTargetNextStepSchema = Type.Object(
   {
-    kind: Type.Union([
-      Type.Literal("do-not-repeat"),
-      Type.Literal("inspect-progression-target"),
-    ]),
+    kind: Type.Union([Type.Literal("do-not-repeat"), Type.Literal("inspect-progression-target")]),
     source: Type.Literal("progression.technology.target.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7ProgressionCultureTargetNextStepSchema = Type.Object(
   {
-    kind: Type.Union([
-      Type.Literal("do-not-repeat"),
-      Type.Literal("inspect-progression-target"),
-    ]),
+    kind: Type.Union([Type.Literal("do-not-repeat"), Type.Literal("inspect-progression-target")]),
     source: Type.Literal("progression.culture.target.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionTechnologyTargetResultSchema = Type.Object(
@@ -272,7 +250,7 @@ const Civ7ProgressionTechnologyTargetResultSchema = Type.Object(
     postcondition: Civ7ProgressionTargetPostconditionSummarySchema,
     nextSteps: Type.Array(Civ7ProgressionTechnologyTargetNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7ProgressionTechnologyTargetResult = Static<
   typeof Civ7ProgressionTechnologyTargetResultSchema
@@ -288,18 +266,17 @@ const Civ7ProgressionCultureTargetResultSchema = Type.Object(
     postcondition: Civ7ProgressionTargetPostconditionSummarySchema,
     nextSteps: Type.Array(Civ7ProgressionCultureTargetNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7ProgressionCultureTargetResult = Static<
   typeof Civ7ProgressionCultureTargetResultSchema
 >;
 
-const Civ7ProgressionPlayerChoicePostconditionClassificationSchema =
-  Type.Union([
-    Type.Literal("not-sent"),
-    Type.Literal("pending-runtime-proof"),
-    Type.Literal("missing-postcondition"),
-  ]);
+const Civ7ProgressionPlayerChoicePostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("pending-runtime-proof"),
+  Type.Literal("missing-postcondition"),
+]);
 
 const Civ7ProgressionPlayerChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("not-sent"),
@@ -316,7 +293,7 @@ const Civ7ProgressionPlayerChoiceValidationSummarySchema = Type.Object(
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionPlayerChoicePostconditionSummarySchema = Type.Object(
@@ -324,14 +301,11 @@ const Civ7ProgressionPlayerChoicePostconditionSummarySchema = Type.Object(
     classification: Civ7ProgressionPlayerChoicePostconditionClassificationSchema,
     reason: Type.String(),
     outcome: Civ7ProgressionPlayerChoiceProofOutcomeSchema,
-    confidence: Type.Union([
-      Type.Literal("unverified"),
-      Type.Literal("pending-runtime-proof"),
-    ]),
+    confidence: Type.Union([Type.Literal("unverified"), Type.Literal("pending-runtime-proof")]),
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionAttributePurchaseNextStepSchema = Type.Object(
@@ -343,7 +317,7 @@ const Civ7ProgressionAttributePurchaseNextStepSchema = Type.Object(
     source: Type.Literal("progression.attribute.purchase.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionAttributeReviewNextStepSchema = Type.Object(
@@ -355,7 +329,7 @@ const Civ7ProgressionAttributeReviewNextStepSchema = Type.Object(
     source: Type.Literal("progression.attribute.review.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionTraditionChangeNextStepSchema = Type.Object(
@@ -367,7 +341,7 @@ const Civ7ProgressionTraditionChangeNextStepSchema = Type.Object(
     source: Type.Literal("progression.tradition.change.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionTraditionReviewNextStepSchema = Type.Object(
@@ -379,7 +353,7 @@ const Civ7ProgressionTraditionReviewNextStepSchema = Type.Object(
     source: Type.Literal("progression.tradition.review.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionPlayerChoiceResultBaseSchema = {
@@ -396,7 +370,7 @@ const Civ7ProgressionAttributePurchaseResultSchema = Type.Object(
     node: Type.Integer(),
     nextSteps: Type.Array(Civ7ProgressionAttributePurchaseNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7ProgressionAttributePurchaseResult = Static<
   typeof Civ7ProgressionAttributePurchaseResultSchema
@@ -407,7 +381,7 @@ const Civ7ProgressionAttributeReviewResultSchema = Type.Object(
     ...Civ7ProgressionPlayerChoiceResultBaseSchema,
     nextSteps: Type.Array(Civ7ProgressionAttributeReviewNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7ProgressionAttributeReviewResult = Static<
   typeof Civ7ProgressionAttributeReviewResultSchema
@@ -420,7 +394,7 @@ const Civ7ProgressionTraditionChangeResultSchema = Type.Object(
     action: Type.Integer(),
     nextSteps: Type.Array(Civ7ProgressionTraditionChangeNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7ProgressionTraditionChangeResult = Static<
   typeof Civ7ProgressionTraditionChangeResultSchema
@@ -431,7 +405,7 @@ const Civ7ProgressionTraditionReviewResultSchema = Type.Object(
     ...Civ7ProgressionPlayerChoiceResultBaseSchema,
     nextSteps: Type.Array(Civ7ProgressionTraditionReviewNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7ProgressionTraditionReviewResult = Static<
   typeof Civ7ProgressionTraditionReviewResultSchema
@@ -443,14 +417,14 @@ const Civ7ProgressionDashboardProbeSchema = Type.Union([
       ok: Type.Literal(true),
       value: Type.Unknown(),
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   ),
   Type.Object(
     {
       ok: Type.Literal(false),
       error: Type.String(),
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   ),
 ]);
 
@@ -465,7 +439,7 @@ const Civ7ProgressionDashboardLegacyPathSchema = Type.Object(
     nextMilestone: Type.Union([Type.String(), Type.Null()]),
     enabledForPlayer: Type.Union([Type.Boolean(), Type.Null()]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionDashboardNextStepSchema = Type.Object(
@@ -479,7 +453,7 @@ const Civ7ProgressionDashboardNextStepSchema = Type.Object(
     source: Type.Literal("progression.dashboard.current"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionDashboardResultSchema = Type.Object(
@@ -490,7 +464,7 @@ const Civ7ProgressionDashboardResultSchema = Type.Object(
       {
         progressDashboard: Type.Literal("read"),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     hiddenInfoPolicy: Type.Literal("local-player-runtime-progress"),
     summary: Type.Object(
@@ -501,7 +475,7 @@ const Civ7ProgressionDashboardResultSchema = Type.Object(
         triumphCount: Type.Integer({ minimum: 0 }),
         nextStepCount: Type.Integer({ minimum: 0 }),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     turn: Civ7ProgressionDashboardProbeSchema,
     turnDate: Civ7ProgressionDashboardProbeSchema,
@@ -516,14 +490,14 @@ const Civ7ProgressionDashboardResultSchema = Type.Object(
         isFinalAge: Civ7ProgressionDashboardProbeSchema,
         isAgeOver: Civ7ProgressionDashboardProbeSchema,
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     player: Type.Object(
       {
         team: Type.Unknown(),
         historicalLegacyPointCountForTeam: Civ7ProgressionDashboardProbeSchema,
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     legacyPaths: Type.Array(Civ7ProgressionDashboardLegacyPathSchema),
     victories: Type.Object(
@@ -531,7 +505,7 @@ const Civ7ProgressionDashboardResultSchema = Type.Object(
         rowCount: Type.Integer({ minimum: 0 }),
         classes: Type.Array(Type.String()),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     triumphs: Type.Object(
       {
@@ -539,31 +513,31 @@ const Civ7ProgressionDashboardResultSchema = Type.Object(
         source: Type.Literal("runtime-gameinfo"),
         rows: Type.Array(Type.Unknown()),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     proof: Type.Object(
       {
         victoryManagerGlobal: Civ7ProgressionDashboardProbeSchema,
         sources: Type.Array(Type.String()),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     warnings: Type.Array(Type.String()),
-    omitted: Type.Array(Type.Object(
-      {
-        path: Type.String(),
-        reason: Type.String(),
-      },
-      { additionalProperties: false },
-    )),
+    omitted: Type.Array(
+      Type.Object(
+        {
+          path: Type.String(),
+          reason: Type.String(),
+        },
+        { additionalProperties: false }
+      )
+    ),
     notes: Type.Array(Type.String()),
     nextSteps: Type.Array(Civ7ProgressionDashboardNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7ProgressionDashboardResult = Static<
-  typeof Civ7ProgressionDashboardResultSchema
->;
+export type Civ7ProgressionDashboardResult = Static<typeof Civ7ProgressionDashboardResultSchema>;
 
 const Civ7ProgressionTraditionActionDescriptorSchema = Type.Object(
   {
@@ -575,28 +549,30 @@ const Civ7ProgressionTraditionActionDescriptorSchema = Type.Object(
         traditionType: Type.Number(),
         action: Type.Union([Type.Number(), Type.Null()]),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
-    nextSteps: Type.Array(Type.Object(
-      {
-        kind: Type.Union([
-          Type.Literal("validate-tradition-change"),
-          Type.Literal("request-tradition-change"),
-        ]),
-        source: Type.Literal("progression.traditions.current"),
-        label: Type.String(),
-        parameters: Type.Object(
-          {
-            traditionType: Type.Number(),
-            action: Type.Union([Type.Number(), Type.Null()]),
-          },
-          { additionalProperties: false },
-        ),
-      },
-      { additionalProperties: false },
-    )),
+    nextSteps: Type.Array(
+      Type.Object(
+        {
+          kind: Type.Union([
+            Type.Literal("validate-tradition-change"),
+            Type.Literal("request-tradition-change"),
+          ]),
+          source: Type.Literal("progression.traditions.current"),
+          label: Type.String(),
+          parameters: Type.Object(
+            {
+              traditionType: Type.Number(),
+              action: Type.Union([Type.Number(), Type.Null()]),
+            },
+            { additionalProperties: false }
+          ),
+        },
+        { additionalProperties: false }
+      )
+    ),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionTraditionRowSchema = Type.Object(
@@ -614,7 +590,7 @@ const Civ7ProgressionTraditionRowSchema = Type.Object(
     recentUnlock: Type.Boolean(),
     actions: Type.Array(Civ7ProgressionTraditionActionDescriptorSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionTraditionsNextStepSchema = Type.Object(
@@ -627,7 +603,7 @@ const Civ7ProgressionTraditionsNextStepSchema = Type.Object(
     source: Type.Literal("progression.traditions.current"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ProgressionTraditionsResultSchema = Type.Object(
@@ -637,7 +613,7 @@ const Civ7ProgressionTraditionsResultSchema = Type.Object(
       {
         traditions: Type.Literal("read"),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     hiddenInfoPolicy: Type.Literal("player-culture-runtime"),
     summary: Type.Object(
@@ -650,7 +626,7 @@ const Civ7ProgressionTraditionsResultSchema = Type.Object(
         disabledAvailableCount: Type.Integer({ minimum: 0 }),
         nextStepCount: Type.Integer({ minimum: 0 }),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     turn: Civ7ProgressionDashboardProbeSchema,
     turnDate: Civ7ProgressionDashboardProbeSchema,
@@ -660,7 +636,7 @@ const Civ7ProgressionTraditionsResultSchema = Type.Object(
         type: Type.Union([Type.String(), Type.Null()]),
         name: Type.Union([Type.String(), Type.Null()]),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     slots: Type.Object(
       {
@@ -672,69 +648,82 @@ const Civ7ProgressionTraditionsResultSchema = Type.Object(
         available: Type.Integer({ minimum: 0 }),
         open: Type.Integer({ minimum: 0 }),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     actions: Type.Object(
       {
         activate: Type.Union([Type.Number(), Type.Null()]),
         deactivate: Type.Union([Type.Number(), Type.Null()]),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     active: Type.Array(Civ7ProgressionTraditionRowSchema),
     available: Type.Array(Civ7ProgressionTraditionRowSchema),
     recentUnlocks: Type.Array(Civ7ProgressionTraditionRowSchema),
     traditions: Type.Array(Civ7ProgressionTraditionRowSchema),
-    omitted: Type.Array(Type.Object(
-      {
-        path: Type.String(),
-        reason: Type.String(),
-      },
-      { additionalProperties: false },
-    )),
+    omitted: Type.Array(
+      Type.Object(
+        {
+          path: Type.String(),
+          reason: Type.String(),
+        },
+        { additionalProperties: false }
+      )
+    ),
     notes: Type.Array(Type.String()),
     nextSteps: Type.Array(Civ7ProgressionTraditionsNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7ProgressionTraditionsResult = Static<
-  typeof Civ7ProgressionTraditionsResultSchema
->;
+export type Civ7ProgressionTraditionsResult = Static<typeof Civ7ProgressionTraditionsResultSchema>;
 
-const Civ7ProgressionChoiceInputStandardSchema =
-  toStandardSchema(Civ7ProgressionChoiceInputSchema);
-const Civ7ProgressionTargetInputStandardSchema =
-  toStandardSchema(Civ7ProgressionTargetInputSchema);
-const Civ7ProgressionAttributePurchaseInputStandardSchema =
-  toStandardSchema(Civ7ProgressionAttributePurchaseInputSchema);
-const Civ7ProgressionPlayerReviewInputStandardSchema =
-  toStandardSchema(Civ7ProgressionPlayerReviewInputSchema);
-const Civ7ProgressionDashboardInputStandardSchema =
-  toStandardSchema(Civ7ProgressionDashboardInputSchema);
-const Civ7ProgressionTraditionsInputStandardSchema =
-  toStandardSchema(Civ7ProgressionTraditionsInputSchema);
-const Civ7ProgressionTraditionChangeInputStandardSchema =
-  toStandardSchema(Civ7ProgressionTraditionChangeInputSchema);
-const Civ7ProgressionTechnologyChoiceResultStandardSchema =
-  toStandardSchema(Civ7ProgressionTechnologyChoiceResultSchema);
-const Civ7ProgressionCultureChoiceResultStandardSchema =
-  toStandardSchema(Civ7ProgressionCultureChoiceResultSchema);
-const Civ7ProgressionTechnologyTargetResultStandardSchema =
-  toStandardSchema(Civ7ProgressionTechnologyTargetResultSchema);
-const Civ7ProgressionCultureTargetResultStandardSchema =
-  toStandardSchema(Civ7ProgressionCultureTargetResultSchema);
-const Civ7ProgressionAttributePurchaseResultStandardSchema =
-  toStandardSchema(Civ7ProgressionAttributePurchaseResultSchema);
-const Civ7ProgressionAttributeReviewResultStandardSchema =
-  toStandardSchema(Civ7ProgressionAttributeReviewResultSchema);
-const Civ7ProgressionTraditionChangeResultStandardSchema =
-  toStandardSchema(Civ7ProgressionTraditionChangeResultSchema);
-const Civ7ProgressionTraditionReviewResultStandardSchema =
-  toStandardSchema(Civ7ProgressionTraditionReviewResultSchema);
-const Civ7ProgressionDashboardResultStandardSchema =
-  toStandardSchema(Civ7ProgressionDashboardResultSchema);
-const Civ7ProgressionTraditionsResultStandardSchema =
-  toStandardSchema(Civ7ProgressionTraditionsResultSchema);
+const Civ7ProgressionChoiceInputStandardSchema = toStandardSchema(Civ7ProgressionChoiceInputSchema);
+const Civ7ProgressionTargetInputStandardSchema = toStandardSchema(Civ7ProgressionTargetInputSchema);
+const Civ7ProgressionAttributePurchaseInputStandardSchema = toStandardSchema(
+  Civ7ProgressionAttributePurchaseInputSchema
+);
+const Civ7ProgressionPlayerReviewInputStandardSchema = toStandardSchema(
+  Civ7ProgressionPlayerReviewInputSchema
+);
+const Civ7ProgressionDashboardInputStandardSchema = toStandardSchema(
+  Civ7ProgressionDashboardInputSchema
+);
+const Civ7ProgressionTraditionsInputStandardSchema = toStandardSchema(
+  Civ7ProgressionTraditionsInputSchema
+);
+const Civ7ProgressionTraditionChangeInputStandardSchema = toStandardSchema(
+  Civ7ProgressionTraditionChangeInputSchema
+);
+const Civ7ProgressionTechnologyChoiceResultStandardSchema = toStandardSchema(
+  Civ7ProgressionTechnologyChoiceResultSchema
+);
+const Civ7ProgressionCultureChoiceResultStandardSchema = toStandardSchema(
+  Civ7ProgressionCultureChoiceResultSchema
+);
+const Civ7ProgressionTechnologyTargetResultStandardSchema = toStandardSchema(
+  Civ7ProgressionTechnologyTargetResultSchema
+);
+const Civ7ProgressionCultureTargetResultStandardSchema = toStandardSchema(
+  Civ7ProgressionCultureTargetResultSchema
+);
+const Civ7ProgressionAttributePurchaseResultStandardSchema = toStandardSchema(
+  Civ7ProgressionAttributePurchaseResultSchema
+);
+const Civ7ProgressionAttributeReviewResultStandardSchema = toStandardSchema(
+  Civ7ProgressionAttributeReviewResultSchema
+);
+const Civ7ProgressionTraditionChangeResultStandardSchema = toStandardSchema(
+  Civ7ProgressionTraditionChangeResultSchema
+);
+const Civ7ProgressionTraditionReviewResultStandardSchema = toStandardSchema(
+  Civ7ProgressionTraditionReviewResultSchema
+);
+const Civ7ProgressionDashboardResultStandardSchema = toStandardSchema(
+  Civ7ProgressionDashboardResultSchema
+);
+const Civ7ProgressionTraditionsResultStandardSchema = toStandardSchema(
+  Civ7ProgressionTraditionsResultSchema
+);
 
 export type Civ7ProgressionTechnologyChoiceContract = ContractProcedure<
   typeof Civ7ProgressionChoiceInputStandardSchema,
@@ -743,8 +732,8 @@ export type Civ7ProgressionTechnologyChoiceContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7ProgressionTechnologyChoiceContract:
-  Civ7ProgressionTechnologyChoiceContract = civ7ControlOrpcContractBase
+export const Civ7ProgressionTechnologyChoiceContract: Civ7ProgressionTechnologyChoiceContract =
+  civ7ControlOrpcContractBase
     .input(Civ7ProgressionChoiceInputStandardSchema)
     .output(Civ7ProgressionTechnologyChoiceResultStandardSchema)
     .meta({
@@ -761,8 +750,8 @@ export type Civ7ProgressionCultureChoiceContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7ProgressionCultureChoiceContract:
-  Civ7ProgressionCultureChoiceContract = civ7ControlOrpcContractBase
+export const Civ7ProgressionCultureChoiceContract: Civ7ProgressionCultureChoiceContract =
+  civ7ControlOrpcContractBase
     .input(Civ7ProgressionChoiceInputStandardSchema)
     .output(Civ7ProgressionCultureChoiceResultStandardSchema)
     .meta({
@@ -779,8 +768,8 @@ export type Civ7ProgressionTechnologyTargetContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7ProgressionTechnologyTargetContract:
-  Civ7ProgressionTechnologyTargetContract = civ7ControlOrpcContractBase
+export const Civ7ProgressionTechnologyTargetContract: Civ7ProgressionTechnologyTargetContract =
+  civ7ControlOrpcContractBase
     .input(Civ7ProgressionTargetInputStandardSchema)
     .output(Civ7ProgressionTechnologyTargetResultStandardSchema)
     .meta({
@@ -797,8 +786,8 @@ export type Civ7ProgressionCultureTargetContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7ProgressionCultureTargetContract:
-  Civ7ProgressionCultureTargetContract = civ7ControlOrpcContractBase
+export const Civ7ProgressionCultureTargetContract: Civ7ProgressionCultureTargetContract =
+  civ7ControlOrpcContractBase
     .input(Civ7ProgressionTargetInputStandardSchema)
     .output(Civ7ProgressionCultureTargetResultStandardSchema)
     .meta({
@@ -815,8 +804,8 @@ type Civ7ProgressionAttributePurchaseContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7ProgressionAttributePurchaseContract:
-  Civ7ProgressionAttributePurchaseContract = civ7ControlOrpcContractBase
+const Civ7ProgressionAttributePurchaseContract: Civ7ProgressionAttributePurchaseContract =
+  civ7ControlOrpcContractBase
     .input(Civ7ProgressionAttributePurchaseInputStandardSchema)
     .output(Civ7ProgressionAttributePurchaseResultStandardSchema)
     .meta({
@@ -833,8 +822,8 @@ type Civ7ProgressionAttributeReviewContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7ProgressionAttributeReviewContract:
-  Civ7ProgressionAttributeReviewContract = civ7ControlOrpcContractBase
+const Civ7ProgressionAttributeReviewContract: Civ7ProgressionAttributeReviewContract =
+  civ7ControlOrpcContractBase
     .input(Civ7ProgressionPlayerReviewInputStandardSchema)
     .output(Civ7ProgressionAttributeReviewResultStandardSchema)
     .meta({
@@ -851,8 +840,8 @@ type Civ7ProgressionTraditionChangeContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7ProgressionTraditionChangeContract:
-  Civ7ProgressionTraditionChangeContract = civ7ControlOrpcContractBase
+const Civ7ProgressionTraditionChangeContract: Civ7ProgressionTraditionChangeContract =
+  civ7ControlOrpcContractBase
     .input(Civ7ProgressionTraditionChangeInputStandardSchema)
     .output(Civ7ProgressionTraditionChangeResultStandardSchema)
     .meta({
@@ -869,8 +858,8 @@ type Civ7ProgressionTraditionReviewContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7ProgressionTraditionReviewContract:
-  Civ7ProgressionTraditionReviewContract = civ7ControlOrpcContractBase
+const Civ7ProgressionTraditionReviewContract: Civ7ProgressionTraditionReviewContract =
+  civ7ControlOrpcContractBase
     .input(Civ7ProgressionPlayerReviewInputStandardSchema)
     .output(Civ7ProgressionTraditionReviewResultStandardSchema)
     .meta({
@@ -887,8 +876,8 @@ type Civ7ProgressionDashboardContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7ProgressionDashboardContract:
-  Civ7ProgressionDashboardContract = civ7ControlOrpcContractBase
+const Civ7ProgressionDashboardContract: Civ7ProgressionDashboardContract =
+  civ7ControlOrpcContractBase
     .input(Civ7ProgressionDashboardInputStandardSchema)
     .output(Civ7ProgressionDashboardResultStandardSchema)
     .meta({
@@ -905,8 +894,8 @@ type Civ7ProgressionTraditionsContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7ProgressionTraditionsContract:
-  Civ7ProgressionTraditionsContract = civ7ControlOrpcContractBase
+const Civ7ProgressionTraditionsContract: Civ7ProgressionTraditionsContract =
+  civ7ControlOrpcContractBase
     .input(Civ7ProgressionTraditionsInputStandardSchema)
     .output(Civ7ProgressionTraditionsResultStandardSchema)
     .meta({

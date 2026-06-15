@@ -1,20 +1,23 @@
 import { defineVizMeta, deriveStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
-import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import AdjustResourcesStepContract from "./contract.js";
+import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { placementArtifacts } from "../../artifacts.js";
-import { validateResourcePlanAdjustedArtifact } from "./validate.js";
 import { warnLog } from "../../log.js";
 import {
+  buildPlacementPointBuffers,
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
-  buildPlacementPointBuffers,
   transparentNoneCategory,
 } from "../../viz.js";
+import AdjustResourcesStepContract from "./contract.js";
+import { validateResourcePlanAdjustedArtifact } from "./validate.js";
 
 const SUPPORT_ADJUSTMENT_CATEGORIES = [
-  { value: 1, label: "Move Origin", color: [148, 163, 184, 200] as [number, number, number, number] },
+  {
+    value: 1,
+    label: "Move Origin",
+    color: [148, 163, 184, 200] as [number, number, number, number],
+  },
   {
     value: 2,
     label: "Move Destination (Floor)",
@@ -25,8 +28,16 @@ const SUPPORT_ADJUSTMENT_CATEGORIES = [
     label: "Move Destination (Equity)",
     color: [14, 165, 233, 235] as [number, number, number, number],
   },
-  { value: 4, label: "Added (Floor)", color: [245, 158, 11, 235] as [number, number, number, number] },
-  { value: 5, label: "Added (Equity)", color: [168, 85, 247, 235] as [number, number, number, number] },
+  {
+    value: 4,
+    label: "Added (Floor)",
+    color: [245, 158, 11, 235] as [number, number, number, number],
+  },
+  {
+    value: 5,
+    label: "Added (Equity)",
+    color: [168, 85, 247, 235] as [number, number, number, number],
+  },
 ];
 
 export default createStep(AdjustResourcesStepContract, {

@@ -27,45 +27,51 @@ import { toStandardSchema } from "../typeboxStandardSchema.js";
  */
 
 /** `observedAt` echo carried by the read failures that historically included it. */
-const observedAtData = toStandardSchema(Type.Union([
-  Type.Object(
-    {
-      observedAt: Type.Optional(Type.String()),
-    },
-    { additionalProperties: false },
-  ),
-  Type.Undefined(),
-]));
+const observedAtData = toStandardSchema(
+  Type.Union([
+    Type.Object(
+      {
+        observedAt: Type.Optional(Type.String()),
+      },
+      { additionalProperties: false }
+    ),
+    Type.Undefined(),
+  ])
+);
 
 /**
  * Engine failure payload: the `StudioEngineError.details` value
  * (`code`, `activeRequestId`, `materialization`, recovery boundaries, …).
  */
-const engineDetailsData = toStandardSchema(Type.Union([
-  Type.Object(
-    {
-      details: Type.Optional(Type.Unknown()),
-    },
-    { additionalProperties: false },
-  ),
-  Type.Undefined(),
-]));
+const engineDetailsData = toStandardSchema(
+  Type.Union([
+    Type.Object(
+      {
+        details: Type.Optional(Type.Unknown()),
+      },
+      { additionalProperties: false }
+    ),
+    Type.Undefined(),
+  ])
+);
 
 /**
  * Run-in-game status-miss echo: the server identity the client uses for
  * restart detection (PARITY INVARIANT, audit/05 #13).
  */
-const serverIdentityEchoData = toStandardSchema(Type.Union([
-  Type.Object(
-    {
-      serverInstanceId: Type.Optional(Type.String()),
-      serverStartedAt: Type.Optional(Type.String()),
-      details: Type.Optional(Type.Unknown()),
-    },
-    { additionalProperties: Type.Unknown() },
-  ),
-  Type.Undefined(),
-]));
+const serverIdentityEchoData = toStandardSchema(
+  Type.Union([
+    Type.Object(
+      {
+        serverInstanceId: Type.Optional(Type.String()),
+        serverStartedAt: Type.Optional(Type.String()),
+        details: Type.Optional(Type.Unknown()),
+      },
+      { additionalProperties: Type.Unknown() }
+    ),
+    Type.Undefined(),
+  ])
+);
 
 // ---------------------------------------------------------------------------
 // civ7.* reads — per-procedure codes (legacy statuses preserved exactly)

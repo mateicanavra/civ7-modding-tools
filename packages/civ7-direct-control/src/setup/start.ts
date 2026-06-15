@@ -1,41 +1,38 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { getCiv7MapSummary } from "../play/map/reads.js";
+import type { Civ7MapSummaryResult } from "../play/map/types.js";
 import {
   appUiSnapshotFromCommandResult,
   buildAppUiSnapshotCommand,
   type Civ7AppUiSnapshot,
   type Civ7AppUiSnapshotResult,
 } from "../runtime/app-ui-snapshot.js";
-import {
-  waitForCiv7TunerReadyWithSession,
-  type Civ7TunerHealthResult,
-} from "../runtime/tuner-health.js";
-import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
-import { withCiv7DirectControlSession, type Civ7DirectControlSession } from "../session/session.js";
-import { jsonPayloadFromCommandResult } from "../session/command-result.js";
-import { validateIdentifier } from "../validation.js";
-import {
-  assertPreparedSetupMatches,
-  normalizeSinglePlayerSetupInput,
-  type Civ7SinglePlayerSetupInput,
-} from "./prepare.js";
-import {
-  buildSetupSnapshotCommand,
-  defaultSetupReadDependencies,
-  type Civ7SetupSnapshotResult,
-  type SetupReadDependencies,
-} from "./reads.js";
-import type { Civ7MapSummaryResult } from "../play/map/types.js";
 import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import {
-  CIV7_BEGIN_GAME_COMMAND,
-  CIV7_UI_LOADING_STATES,
-} from "./constants.js";
+  type Civ7TunerHealthResult,
+  waitForCiv7TunerReadyWithSession,
+} from "../runtime/tuner-health.js";
+import { jsonPayloadFromCommandResult } from "../session/command-result.js";
+import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
+import { type Civ7DirectControlSession, withCiv7DirectControlSession } from "../session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../session/types.js";
+import { validateIdentifier } from "../validation.js";
+import { CIV7_BEGIN_GAME_COMMAND, CIV7_UI_LOADING_STATES } from "./constants.js";
+import {
+  assertPreparedSetupMatches,
+  type Civ7SinglePlayerSetupInput,
+  normalizeSinglePlayerSetupInput,
+} from "./prepare.js";
+import {
+  buildSetupSnapshotCommand,
+  type Civ7SetupSnapshotResult,
+  defaultSetupReadDependencies,
+  type SetupReadDependencies,
+} from "./reads.js";
 
 export type Civ7PreparedStartInput = Readonly<{
   expected: Civ7SinglePlayerSetupInput;
@@ -57,44 +54,45 @@ export type Civ7SinglePlayerStartResult = Readonly<{
   verified: boolean;
 }>;
 
-type SetupStartDependencies = SetupReadDependencies & Readonly<{
-  appUiState: Civ7TunerStateSelection;
-  beginGameCommand: string;
-  executeSessionCommandWithReconnect: (
-    session: Civ7DirectControlSession,
-    options: Readonly<{
-      command: string;
-      state?: Civ7TunerStateSelection;
-      timeoutMs?: number;
-    }>,
-    attempts?: number,
-  ) => Promise<Civ7CommandResult>;
-  getMapSummary: (options: Civ7DirectControlOptions) => Promise<Civ7MapSummaryResult>;
-  parseStartPayload: (result: Civ7CommandResult, label: string) => { ok: unknown };
-  uiLoadingStates: Readonly<{
-    WaitingForUIReady: number;
-    WaitingToStart: number;
-    GameStarted: number;
+type SetupStartDependencies = SetupReadDependencies &
+  Readonly<{
+    appUiState: Civ7TunerStateSelection;
+    beginGameCommand: string;
+    executeSessionCommandWithReconnect: (
+      session: Civ7DirectControlSession,
+      options: Readonly<{
+        command: string;
+        state?: Civ7TunerStateSelection;
+        timeoutMs?: number;
+      }>,
+      attempts?: number
+    ) => Promise<Civ7CommandResult>;
+    getMapSummary: (options: Civ7DirectControlOptions) => Promise<Civ7MapSummaryResult>;
+    parseStartPayload: (result: Civ7CommandResult, label: string) => { ok: unknown };
+    uiLoadingStates: Readonly<{
+      WaitingForUIReady: number;
+      WaitingToStart: number;
+      GameStarted: number;
+    }>;
+    validateIdentifier: (value: string, label: string) => string;
+    waitForTunerReadyWithSession: (
+      session: Civ7DirectControlSession,
+      options: {
+        timeoutMs?: number;
+        waitTimeoutMs?: number;
+        pollIntervalMs?: number;
+      }
+    ) => Promise<Civ7TunerHealthResult & { ready: true }>;
+    withSession: <T>(
+      options: Civ7DirectControlOptions,
+      run: (session: Civ7DirectControlSession) => Promise<T>
+    ) => Promise<T>;
   }>;
-  validateIdentifier: (value: string, label: string) => string;
-  waitForTunerReadyWithSession: (
-    session: Civ7DirectControlSession,
-    options: {
-      timeoutMs?: number;
-      waitTimeoutMs?: number;
-      pollIntervalMs?: number;
-    },
-  ) => Promise<Civ7TunerHealthResult & { ready: true }>;
-  withSession: <T>(
-    options: Civ7DirectControlOptions,
-    run: (session: Civ7DirectControlSession) => Promise<T>,
-  ) => Promise<T>;
-}>;
 
 export async function startPreparedCiv7SinglePlayerGame(
   input: Civ7PreparedStartInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: SetupStartDependencies = defaultSetupStartDependencies,
+  dependencies: SetupStartDependencies = defaultSetupStartDependencies
 ): Promise<Civ7SinglePlayerStartResult> {
   const expected = normalizeSinglePlayerSetupInput(input.expected, dependencies);
   const before = await dependencies.parseSetupSnapshot(
@@ -102,7 +100,7 @@ export async function startPreparedCiv7SinglePlayerGame(
       ...options,
       command: buildSetupSnapshotCommand(dependencies),
     }),
-    "Civ7 setup snapshot",
+    "Civ7 setup snapshot"
   );
   assertPreparedSetupMatches(expected, before.snapshot);
 
@@ -115,7 +113,10 @@ export async function startPreparedCiv7SinglePlayerGame(
       command: buildStartPreparedSinglePlayerCommand(),
       timeoutMs: options.timeoutMs,
     });
-    const startPayload = dependencies.parseStartPayload(command, "Civ7 prepared single-player start");
+    const startPayload = dependencies.parseStartPayload(
+      command,
+      "Civ7 prepared single-player start"
+    );
     if (startPayload.ok === false) {
       throw new Civ7DirectControlError("command-failed", "Civ7 Network.hostGame returned false", {
         details: { command, startPayload },
@@ -134,18 +135,25 @@ export async function startPreparedCiv7SinglePlayerGame(
             state: dependencies.appUiState,
             command: buildAppUiSnapshotCommand(),
             timeoutMs: options.timeoutMs,
-          }),
+          })
         );
         observations.push(snapshotResult.snapshot);
         const loadingState = probeValue(snapshotResult.snapshot.ui.loadingState);
-        if (!beginAttempted && isCiv7BeginReadyLoadingState(loadingState, dependencies.uiLoadingStates)) {
+        if (
+          !beginAttempted &&
+          isCiv7BeginReadyLoadingState(loadingState, dependencies.uiLoadingStates)
+        ) {
           beginAttempted = true;
           try {
-            begin = await dependencies.executeSessionCommandWithReconnect(session, {
-              state: dependencies.appUiState,
-              command: dependencies.beginGameCommand,
-              timeoutMs: options.timeoutMs,
-            }, 1);
+            begin = await dependencies.executeSessionCommandWithReconnect(
+              session,
+              {
+                state: dependencies.appUiState,
+                command: dependencies.beginGameCommand,
+                timeoutMs: options.timeoutMs,
+              },
+              1
+            );
           } catch (err) {
             beginError = errorMessage(err);
             throw err;
@@ -170,12 +178,16 @@ export async function startPreparedCiv7SinglePlayerGame(
       throw new Civ7DirectControlError(
         "setup-start-timeout",
         `Timed out waiting for Civ7 to start prepared single-player game after ${waitTimeoutMs}ms`,
-        { details: { before, observations, beginAttempted, beginError } },
+        { details: { before, observations, beginAttempted, beginError } }
       );
     }
 
     const tunerHealth = input.waitForTuner
-      ? await dependencies.waitForTunerReadyWithSession(session, { timeoutMs: options.timeoutMs, waitTimeoutMs, pollIntervalMs })
+      ? await dependencies.waitForTunerReadyWithSession(session, {
+          timeoutMs: options.timeoutMs,
+          waitTimeoutMs,
+          pollIntervalMs,
+        })
       : undefined;
     const mapSummary = input.waitForTuner
       ? await dependencies.getMapSummary({ ...options, timeoutMs: options.timeoutMs })
@@ -192,7 +204,9 @@ export async function startPreparedCiv7SinglePlayerGame(
       tunerHealth,
       mapSummary,
       observations,
-      verified: mapSummary ? true : finalAppUi.snapshot.ui.inGame.ok && finalAppUi.snapshot.ui.inGame.value,
+      verified: mapSummary
+        ? true
+        : finalAppUi.snapshot.ui.inGame.ok && finalAppUi.snapshot.ui.inGame.value,
     };
   });
 }
@@ -209,23 +223,30 @@ export function buildStartPreparedSinglePlayerCommand(): string {
   })()`;
 }
 
-function assertPostStartMatches(input: Civ7SinglePlayerSetupInput, summary: Civ7MapSummaryResult): void {
+function assertPostStartMatches(
+  input: Civ7SinglePlayerSetupInput,
+  summary: Civ7MapSummaryResult
+): void {
   const seed = probeValue(summary.map.randomSeed);
   if (seed !== undefined && seed !== input.seed) {
-    throw new Civ7DirectControlError("setup-seed-mismatch", `Civ7 runtime map seed ${seed} did not match ${input.seed}`, {
-      details: { input, summary },
-    });
+    throw new Civ7DirectControlError(
+      "setup-seed-mismatch",
+      `Civ7 runtime map seed ${seed} did not match ${input.seed}`,
+      {
+        details: { input, summary },
+      }
+    );
   }
 }
 
 function isCiv7BeginReadyLoadingState(
   state: number | undefined,
-  loadingStates: Pick<SetupStartDependencies["uiLoadingStates"], "WaitingForUIReady" | "WaitingToStart">,
+  loadingStates: Pick<
+    SetupStartDependencies["uiLoadingStates"],
+    "WaitingForUIReady" | "WaitingToStart"
+  >
 ): boolean {
-  return (
-    state === loadingStates.WaitingForUIReady ||
-    state === loadingStates.WaitingToStart
-  );
+  return state === loadingStates.WaitingForUIReady || state === loadingStates.WaitingToStart;
 }
 
 function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {

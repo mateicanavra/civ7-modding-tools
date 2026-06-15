@@ -32,7 +32,7 @@ export function makeStudioRuntime(context: StudioServerContext): StudioRuntime {
     Civ7TunerSessionLive,
     Civ7TunerClient.Default,
     Layer.succeed(StudioConfig, context),
-    Layer.succeed(StudioEventHub, context.eventHub),
+    Layer.succeed(StudioEventHub, context.eventHub)
   );
   return ManagedRuntime.make(layer);
 }

@@ -1,13 +1,12 @@
 import { describe, expect, test } from "vitest";
+import type { Civ7DiplomacyResponsePostconditionClassification } from "../src/play/operations/diplomacy-postconditions.js";
 
+import type { Civ7DiplomacyResponseResult } from "../src/play/operations/diplomacy-request.js";
 import {
   diplomacyResponsePostconditionConfirmed,
   diplomacyResponseProofOutcome,
   diplomacyResponseProofPostcondition,
 } from "../src/proof/diplomacy-response-proof-policy.js";
-
-import type { Civ7DiplomacyResponseResult } from "../src/play/operations/diplomacy-request.js";
-import type { Civ7DiplomacyResponsePostconditionClassification } from "../src/play/operations/diplomacy-postconditions.js";
 import type { Civ7OperationTelemetryPostconditionOutcome } from "../src/proof/operation-telemetry.js";
 
 type DiplomacyResponseProofCase = Readonly<{
@@ -32,7 +31,7 @@ describe("diplomacy response proof policy", () => {
           sent: true,
           postcondition: diplomacyPostcondition(classification),
         }),
-        undefined,
+        undefined
       );
       const confirmed = diplomacyResponsePostconditionConfirmed(classification);
 
@@ -47,17 +46,27 @@ describe("diplomacy response proof policy", () => {
   }
 
   test("omits postconditions for read-only diplomacy responses without postcondition evidence", () => {
-    expect(diplomacyResponseProofPostcondition(diplomacyResponseResult({
-      sent: false,
-      postcondition: undefined,
-    }), undefined)).toBeUndefined();
+    expect(
+      diplomacyResponseProofPostcondition(
+        diplomacyResponseResult({
+          sent: false,
+          postcondition: undefined,
+        }),
+        undefined
+      )
+    ).toBeUndefined();
   });
 
   test("keeps sent diplomacy responses without postcondition evidence no-repeat guarded", () => {
-    expect(diplomacyResponseProofPostcondition(diplomacyResponseResult({
-      sent: true,
-      postcondition: undefined,
-    }), undefined)).toMatchObject({
+    expect(
+      diplomacyResponseProofPostcondition(
+        diplomacyResponseResult({
+          sent: true,
+          postcondition: undefined,
+        }),
+        undefined
+      )
+    ).toMatchObject({
       classification: "missing-postcondition",
       outcome: "unknown",
       confidence: "unverified",
@@ -66,10 +75,15 @@ describe("diplomacy response proof policy", () => {
   });
 
   test("keeps pending runtime proof no-repeat guarded even for confirmed classifications", () => {
-    expect(diplomacyResponseProofPostcondition(diplomacyResponseResult({
-      sent: true,
-      postcondition: diplomacyPostcondition("diplomacy-blocker-cleared"),
-    }), "pending-runtime-proof")).toMatchObject({
+    expect(
+      diplomacyResponseProofPostcondition(
+        diplomacyResponseResult({
+          sent: true,
+          postcondition: diplomacyPostcondition("diplomacy-blocker-cleared"),
+        }),
+        "pending-runtime-proof"
+      )
+    ).toMatchObject({
       classification: "diplomacy-blocker-cleared",
       outcome: "unknown",
       confidence: "pending-runtime-proof",
@@ -79,7 +93,7 @@ describe("diplomacy response proof policy", () => {
 });
 
 function diplomacyResponseResult(
-  overrides: Partial<Civ7DiplomacyResponseResult>,
+  overrides: Partial<Civ7DiplomacyResponseResult>
 ): Civ7DiplomacyResponseResult {
   return {
     sent: true,
@@ -88,7 +102,7 @@ function diplomacyResponseResult(
 }
 
 function diplomacyPostcondition(
-  classification: Civ7DiplomacyResponsePostconditionClassification,
+  classification: Civ7DiplomacyResponsePostconditionClassification
 ): NonNullable<Civ7DiplomacyResponseResult["postcondition"]> {
   return {
     classification,

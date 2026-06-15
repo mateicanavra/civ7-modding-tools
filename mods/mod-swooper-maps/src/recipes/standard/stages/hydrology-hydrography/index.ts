@@ -1,10 +1,10 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
-import { lakes, rivers } from "./steps/index.js";
 import {
   HydrologyLakeinessKnobSchema,
   HydrologyRiverDensityKnobSchema,
 } from "@mapgen/domain/hydrology/config.js";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { HydrologyHydrographyPublicSchema } from "../hydrology-public-config.js";
+import { lakes, rivers } from "./steps/index.js";
 
 const knobsSchema = Type.Object(
   {

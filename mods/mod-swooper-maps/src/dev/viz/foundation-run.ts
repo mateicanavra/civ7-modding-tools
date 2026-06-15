@@ -1,10 +1,9 @@
+import { join } from "node:path";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
-
 import browserTestRecipe from "../../recipes/browser-test/recipe.js";
 import { createTraceDumpSink, createVizDumper } from "./dump.js";
-import { join } from "node:path";
 
 const BROWSER_TEST_RECIPE_CONFIG = {
   foundation: {
@@ -38,7 +37,9 @@ const envBase = {
 } as const;
 
 const plan = browserTestRecipe.compile(envBase, BROWSER_TEST_RECIPE_CONFIG);
-const verboseSteps = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
+const verboseSteps = Object.fromEntries(
+  plan.nodes.map((node) => [node.stepId, "verbose"] as const)
+);
 
 const env = {
   ...envBase,

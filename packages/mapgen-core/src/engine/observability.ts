@@ -1,6 +1,6 @@
 import type { Env } from "@mapgen/core/env.js";
 import type { ExecutionPlan } from "@mapgen/engine/execution-plan.js";
-import type { TraceSink, TraceSession } from "@mapgen/trace/index.js";
+import type { TraceSession, TraceSink } from "@mapgen/trace/index.js";
 import { createTraceSession, sha256Hex, stableStringify } from "@mapgen/trace/index.js";
 
 interface PlanFingerprintInput {

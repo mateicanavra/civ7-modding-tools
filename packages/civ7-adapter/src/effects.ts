@@ -4,5 +4,4 @@ export const ENGINE_EFFECT_TAGS = {
   placementApplied: "effect:engine.placementApplied",
 } as const;
 
-export type EngineEffectTagId =
-  (typeof ENGINE_EFFECT_TAGS)[keyof typeof ENGINE_EFFECT_TAGS];
+export type EngineEffectTagId = (typeof ENGINE_EFFECT_TAGS)[keyof typeof ENGINE_EFFECT_TAGS];

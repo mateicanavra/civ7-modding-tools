@@ -47,10 +47,7 @@ export function aridityShiftForIndex(index: number, thresholds: readonly number[
 /**
  * Shifts a moisture zone toward drier classes by the requested shift count.
  */
-export function shiftMoistureZone(
-  zone: MoistureZone,
-  shift: number
-): MoistureZone {
+export function shiftMoistureZone(zone: MoistureZone, shift: number): MoistureZone {
   const idx = MOISTURE_ORDER.indexOf(zone);
   if (idx < 0) return zone;
   const next = Math.max(0, idx - Math.max(0, shift));

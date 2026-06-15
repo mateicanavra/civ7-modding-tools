@@ -80,10 +80,7 @@ export function timeSection<T>(
  * // ... do work ...
  * timeEnd(token);
  */
-export function timeStart(
-  trace: TraceScope | null | undefined,
-  label: string
-): TimingToken | null {
+export function timeStart(trace: TraceScope | null | undefined, label: string): TimingToken | null {
   if (!trace?.isVerbose) return null;
   return { label, t0: nowMs() };
 }
@@ -94,10 +91,7 @@ export function timeStart(
  *
  * @returns Duration in milliseconds, or 0 if token was null
  */
-export function timeEnd(
-  trace: TraceScope | null | undefined,
-  token: TimingToken | null
-): number {
+export function timeEnd(trace: TraceScope | null | undefined, token: TimingToken | null): number {
   if (!token) return 0;
   const dt = nowMs() - token.t0;
   emitTiming(trace, token.label, dt);

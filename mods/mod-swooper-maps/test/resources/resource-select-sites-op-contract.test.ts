@@ -16,12 +16,7 @@ type Demand = {
   requiredForAge?: boolean;
 };
 
-function buildInput(args: {
-  width: number;
-  height: number;
-  demands: Demand[];
-  seed?: number;
-}) {
+function buildInput(args: { width: number; height: number; demands: Demand[]; seed?: number }) {
   const { width, height } = args;
   const size = width * height;
   const allLand = new Uint8Array(size).fill(1);
@@ -86,7 +81,10 @@ type SelectResult = {
   }>;
 };
 
-function run(input: ReturnType<typeof buildInput>, config: Record<string, unknown> = {}): SelectResult {
+function run(
+  input: ReturnType<typeof buildInput>,
+  config: Record<string, unknown> = {}
+): SelectResult {
   return runOpValidated(resources.ops.selectResourceSites, input as never, {
     strategy: "default",
     config,
@@ -126,15 +124,31 @@ describe("select-resource-sites operation contract", () => {
         width: 24,
         height: 16,
         demands: [
-          { resourceType: "RESOURCE_A", resourceTypeId: 901, weight: 10, targetCount: 12, minCount: 4, maxCount: 14 },
-          { resourceType: "RESOURCE_B", resourceTypeId: 902, weight: 10, targetCount: 6, minCount: 2, maxCount: 8 },
+          {
+            resourceType: "RESOURCE_A",
+            resourceTypeId: 901,
+            weight: 10,
+            targetCount: 12,
+            minCount: 4,
+            maxCount: 14,
+          },
+          {
+            resourceType: "RESOURCE_B",
+            resourceTypeId: 902,
+            weight: 10,
+            targetCount: 6,
+            minCount: 2,
+            maxCount: 8,
+          },
         ],
       })
     );
     for (const row of result.perType) {
       expect(row.plannedCount).toBeLessThanOrEqual(row.maxCount);
       const plots = result.intents
-        .filter((intent) => intent.resourceTypeId === (row.resourceType === "RESOURCE_A" ? 901 : 902))
+        .filter(
+          (intent) => intent.resourceTypeId === (row.resourceType === "RESOURCE_A" ? 901 : 902)
+        )
         .map((intent) => intent.plotIndex);
       for (let i = 0; i < plots.length; i++) {
         for (let j = i + 1; j < plots.length; j++) {
@@ -153,7 +167,14 @@ describe("select-resource-sites operation contract", () => {
         width: 4,
         height: 3,
         demands: [
-          { resourceType: "RESOURCE_A", resourceTypeId: 901, weight: 10, targetCount: 8, minCount: 8, maxCount: 10 },
+          {
+            resourceType: "RESOURCE_A",
+            resourceTypeId: 901,
+            weight: 10,
+            targetCount: 8,
+            minCount: 8,
+            maxCount: 10,
+          },
         ],
       })
     );
@@ -194,8 +215,22 @@ describe("select-resource-sites operation contract", () => {
 
   it("expresses sparsity at knob max and resource-resource exclusion (E3.4)", () => {
     const demands: Demand[] = [
-      { resourceType: "RESOURCE_A", resourceTypeId: 901, weight: 10, targetCount: 16, minCount: 4, maxCount: 20 },
-      { resourceType: "RESOURCE_B", resourceTypeId: 902, weight: 10, targetCount: 16, minCount: 4, maxCount: 20 },
+      {
+        resourceType: "RESOURCE_A",
+        resourceTypeId: 901,
+        weight: 10,
+        targetCount: 16,
+        minCount: 4,
+        maxCount: 20,
+      },
+      {
+        resourceType: "RESOURCE_B",
+        resourceTypeId: 902,
+        weight: 10,
+        targetCount: 16,
+        minCount: 4,
+        maxCount: 20,
+      },
     ];
     const width = 32;
     const baseline = run(buildInput({ width, height: 20, demands }));
@@ -210,8 +245,12 @@ describe("select-resource-sites operation contract", () => {
     for (const row of sparse.perType) {
       expect(row.plannedCount).toBeLessThanOrEqual(row.minCount);
     }
-    const plotsA = sparse.intents.filter((row) => row.resourceTypeId === 901).map((row) => row.plotIndex);
-    const plotsB = sparse.intents.filter((row) => row.resourceTypeId === 902).map((row) => row.plotIndex);
+    const plotsA = sparse.intents
+      .filter((row) => row.resourceTypeId === 901)
+      .map((row) => row.plotIndex);
+    const plotsB = sparse.intents
+      .filter((row) => row.resourceTypeId === 902)
+      .map((row) => row.plotIndex);
     for (const a of plotsA) {
       for (const b of plotsB) {
         expect(hexDistanceOddQPeriodicX(a, b, width)).toBeGreaterThan(4);
@@ -226,8 +265,22 @@ describe("select-resource-sites operation contract", () => {
           width: 24,
           height: 16,
           demands: [
-            { resourceType: "RESOURCE_A", resourceTypeId: 901, weight: 10, targetCount: 8, minCount: 2, maxCount: 10 },
-            { resourceType: "RESOURCE_B", resourceTypeId: 902, weight: 20, targetCount: 8, minCount: 2, maxCount: 10 },
+            {
+              resourceType: "RESOURCE_A",
+              resourceTypeId: 901,
+              weight: 10,
+              targetCount: 8,
+              minCount: 2,
+              maxCount: 10,
+            },
+            {
+              resourceType: "RESOURCE_B",
+              resourceTypeId: 902,
+              weight: 20,
+              targetCount: 8,
+              minCount: 2,
+              maxCount: 10,
+            },
           ],
         })
       );

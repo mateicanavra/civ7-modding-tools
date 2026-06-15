@@ -1,9 +1,9 @@
-import type { FoundationMesh } from "../ops/compute-mesh/contract.js";
 import type { FoundationCrust } from "../ops/compute-crust/contract.js";
 import type { FoundationMantleForcing } from "../ops/compute-mantle-forcing/contract.js";
 import type { FoundationMantlePotential } from "../ops/compute-mantle-potential/contract.js";
-import type { FoundationPlateMotion } from "../ops/compute-plate-motion/contract.js";
+import type { FoundationMesh } from "../ops/compute-mesh/contract.js";
 import type { FoundationPlateGraph } from "../ops/compute-plate-graph/contract.js";
+import type { FoundationPlateMotion } from "../ops/compute-plate-motion/contract.js";
 import type {
   FoundationTectonicHistory,
   FoundationTectonicProvenance,
@@ -21,7 +21,11 @@ export function requireMesh(mesh: FoundationMesh | undefined, scope: string): Fo
   const cellCount = mesh.cellCount | 0;
   if (cellCount <= 0) throw new Error(`[Foundation] Invalid mesh.cellCount for ${scope}.`);
 
-  if (typeof mesh.wrapWidth !== "number" || !Number.isFinite(mesh.wrapWidth) || mesh.wrapWidth <= 0) {
+  if (
+    typeof mesh.wrapWidth !== "number" ||
+    !Number.isFinite(mesh.wrapWidth) ||
+    mesh.wrapWidth <= 0
+  ) {
     throw new Error(`[Foundation] Invalid mesh.wrapWidth for ${scope}.`);
   }
 
@@ -32,7 +36,10 @@ export function requireMesh(mesh: FoundationMesh | undefined, scope: string): Fo
     throw new Error(`[Foundation] Invalid mesh.siteY for ${scope}.`);
   }
 
-  if (!(mesh.neighborsOffsets instanceof Int32Array) || mesh.neighborsOffsets.length !== cellCount + 1) {
+  if (
+    !(mesh.neighborsOffsets instanceof Int32Array) ||
+    mesh.neighborsOffsets.length !== cellCount + 1
+  ) {
     throw new Error(`[Foundation] Invalid mesh.neighborsOffsets for ${scope}.`);
   }
   if (!(mesh.neighbors instanceof Int32Array)) {
@@ -46,7 +53,11 @@ export function requireMesh(mesh: FoundationMesh | undefined, scope: string): Fo
   return mesh;
 }
 
-export function requireCrust(crust: FoundationCrust | undefined, cellCount: number, scope: string): FoundationCrust {
+export function requireCrust(
+  crust: FoundationCrust | undefined,
+  cellCount: number,
+  scope: string
+): FoundationCrust {
   if (!crust) {
     throw new Error(`[Foundation] Crust not provided for ${scope}.`);
   }
@@ -108,10 +119,16 @@ export function requireMantlePotential(
   if (!(mantle.sourceCell instanceof Uint32Array) || mantle.sourceCell.length !== sourceCount) {
     throw new Error(`[Foundation] Invalid mantlePotential.sourceCell for ${scope}.`);
   }
-  if (!(mantle.sourceAmplitude instanceof Float32Array) || mantle.sourceAmplitude.length !== sourceCount) {
+  if (
+    !(mantle.sourceAmplitude instanceof Float32Array) ||
+    mantle.sourceAmplitude.length !== sourceCount
+  ) {
     throw new Error(`[Foundation] Invalid mantlePotential.sourceAmplitude for ${scope}.`);
   }
-  if (!(mantle.sourceRadius instanceof Float32Array) || mantle.sourceRadius.length !== sourceCount) {
+  if (
+    !(mantle.sourceRadius instanceof Float32Array) ||
+    mantle.sourceRadius.length !== sourceCount
+  ) {
     throw new Error(`[Foundation] Invalid mantlePotential.sourceRadius for ${scope}.`);
   }
 
@@ -142,7 +159,10 @@ export function requireMantleForcing(
   if (!(forcing.forcingMag instanceof Float32Array) || forcing.forcingMag.length !== cellCount) {
     throw new Error(`[Foundation] Invalid mantleForcing.forcingMag for ${scope}.`);
   }
-  if (!(forcing.upwellingClass instanceof Int8Array) || forcing.upwellingClass.length !== cellCount) {
+  if (
+    !(forcing.upwellingClass instanceof Int8Array) ||
+    forcing.upwellingClass.length !== cellCount
+  ) {
     throw new Error(`[Foundation] Invalid mantleForcing.upwellingClass for ${scope}.`);
   }
   if (!(forcing.divergence instanceof Float32Array) || forcing.divergence.length !== cellCount) {

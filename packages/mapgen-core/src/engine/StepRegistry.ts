@@ -1,7 +1,7 @@
 import { DuplicateStepError, UnknownStepError } from "@mapgen/engine/errors.js";
 import {
-  TagRegistry,
   type DependencyTagDefinition,
+  TagRegistry,
   validateDependencyTags,
 } from "@mapgen/engine/tags.js";
 import type { MapGenStep } from "@mapgen/engine/types.js";
@@ -44,5 +44,4 @@ export class StepRegistry<TContext> {
   has(stepId: string): boolean {
     return this.steps.has(stepId);
   }
-
 }

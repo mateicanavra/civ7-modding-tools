@@ -1,10 +1,17 @@
-import React from 'react';
-import { Bolt, Dices, Globe, History, Play } from 'lucide-react';
-import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui';
-import { OptionSelect } from './OptionSelect';
-import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS, LAYOUT } from '../constants';
-import type { RecipeSettings, WorldSettings, GenerationStatus } from '../types';
-import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from '../../features/civ7Setup/seedPolicy';
+import { Bolt, Dices, Globe, History, Play } from "lucide-react";
+import React from "react";
+import {
+  Button,
+  Input,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../components/ui";
+import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../../features/civ7Setup/seedPolicy";
+import { LAYOUT, MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS } from "../constants";
+import type { GenerationStatus, RecipeSettings, WorldSettings } from "../types";
+import { OptionSelect } from "./OptionSelect";
 
 // ============================================================================
 // APP FOOTER — the World/Map console (Pass-5 toolbar-architecture-v2 spec)
@@ -73,54 +80,47 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   isDirty,
   onToast,
   autoRunEnabled,
-  onAutoRunEnabledChange
+  onAutoRunEnabledChange,
 }) => {
   // Token-driven chrome; theme follows the single `.dark` class. The footer
   // docks float over the deck.gl map, so they ride the `popover` tier.
-  const panelBg = 'bg-popover/95';
-  const panelBorder = 'border-border';
-  const textPrimary = 'text-foreground';
-  const textSecondary = 'text-muted-foreground';
-  const textMuted = 'text-muted-foreground/70';
-  const dividerColor = 'bg-border';
+  const panelBg = "bg-popover/95";
+  const panelBorder = "border-border";
+  const textPrimary = "text-foreground";
+  const textSecondary = "text-muted-foreground";
+  const textMuted = "text-muted-foreground/70";
+  const dividerColor = "bg-border";
   // Status dots report data the instrument observes (the one place real color
   // belongs in the chrome): running = amber, error = destructive, ready =
   // success. `isDirty` is chrome identity, so it uses the slate accent.
   const statusDotClass =
-  status === 'running' ?
-  'bg-warning' :
-  status === 'error' ?
-  'bg-destructive' :
-  isDirty ?
-  'bg-primary' :
-  'bg-success';
+    status === "running"
+      ? "bg-warning"
+      : status === "error"
+        ? "bg-destructive"
+        : isDirty
+          ? "bg-primary"
+          : "bg-success";
   const statusText =
-  status === 'running' ?
-  'Running' :
-  status === 'error' ?
-  'Error' :
-  isDirty ?
-  'Modified' :
-  'Ready';
-  const displaySize =
-  MAP_SIZE_SHORT[lastGlobalSettings.mapSize] || lastGlobalSettings.mapSize;
+    status === "running"
+      ? "Running"
+      : status === "error"
+        ? "Error"
+        : isDirty
+          ? "Modified"
+          : "Ready";
+  const displaySize = MAP_SIZE_SHORT[lastGlobalSettings.mapSize] || lastGlobalSettings.mapSize;
   const operationControlsDisabled = isRunning || isRunInGameRunning || isSaveDeployRunning;
-  const updateSetting = <K extends keyof RecipeSettings,>(
-  key: K,
-  value: RecipeSettings[K]) =>
-  {
+  const updateSetting = <K extends keyof RecipeSettings>(key: K, value: RecipeSettings[K]) => {
     onSettingsChange({
       ...currentSettings,
-      [key]: value
+      [key]: value,
     });
   };
-  const updateWorldSetting = <K extends keyof WorldSettings,>(
-  key: K,
-  value: WorldSettings[K]) =>
-  {
+  const updateWorldSetting = <K extends keyof WorldSettings>(key: K, value: WorldSettings[K]) => {
     onGlobalSettingsChange({
       ...globalSettings,
-      [key]: value
+      [key]: value,
     });
   };
   // The History affordance compresses the old inline last-run cluster: the
@@ -131,9 +131,9 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   const handleCopySeed = async () => {
     try {
       await navigator.clipboard.writeText(lastRunSettings.seed);
-      onToast?.('Seed copied to clipboard');
+      onToast?.("Seed copied to clipboard");
     } catch (err) {
-      console.error('Failed to copy seed:', err);
+      console.error("Failed to copy seed:", err);
     }
   };
   return (
@@ -144,175 +144,178 @@ export const AppFooter: React.FC<AppFooterProps> = ({
     // reason, and live/autoplay/stale hints stay present for assistive tech and
     // for the static markup — not hidden inside hover-only Tooltip content.
     <TooltipProvider>
-    <footer
-      className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-center"
-      style={{
-        height: FOOTER_HEIGHT
-      }}>
+      <footer
+        className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-center"
+        style={{
+          height: FOOTER_HEIGHT,
+        }}
+      >
+        {/* World/Map console — map authoring + studio iteration loop, centered. */}
 
-      {/* World/Map console — map authoring + studio iteration loop, centered. */}
+        <div
+          className={`h-10 shrink-0 inline-flex items-center gap-3 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}
+        >
+          {/* Console identity: the map/world zone, mirroring the Game bar. */}
+          <div className="flex items-center gap-1.5">
+            <Globe className={`w-4 h-4 ${textMuted}`} />
+            <span className={`text-label font-semibold uppercase tracking-wider ${textSecondary}`}>
+              World
+            </span>
+          </div>
 
-      <div
-        className={`h-10 shrink-0 inline-flex items-center gap-3 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
+          <div className={`w-px h-5 ${dividerColor}`} />
 
-        {/* Console identity: the map/world zone, mirroring the Game bar. */}
-        <div className="flex items-center gap-1.5">
-          <Globe className={`w-4 h-4 ${textMuted}`} />
-          <span className={`text-label font-semibold uppercase tracking-wider ${textSecondary}`}>
-            World
+          {/* Status indicator */}
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${statusDotClass}`} />
+            <span className={`text-data font-medium ${textPrimary}`}>{statusText}</span>
+          </div>
+
+          {/* Run history — the collapsed last-run cluster. */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleCopySeed}
+                aria-label={historyLabel}
+                title={historyLabel}
+              >
+                <History className="w-3.5 h-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-label font-medium uppercase tracking-wider opacity-70">
+                  Last run
+                </span>
+                <span className="font-mono">{lastRunSettings.seed}</span>
+                <span>
+                  {displaySize} · {lastGlobalSettings.playerCount}p
+                </span>
+                <span className="opacity-70">Click to copy seed</span>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+
+          <div className={`w-px h-5 ${dividerColor}`} />
+
+          {/* Map settings (Pass-5: no map settings in the top bar) */}
+          <div className="flex items-center gap-2">
+            <span
+              className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}
+            >
+              Size
+            </span>
+            <OptionSelect
+              value={globalSettings.mapSize}
+              onValueChange={(value) =>
+                updateWorldSetting("mapSize", value as WorldSettings["mapSize"])
+              }
+              options={MAP_SIZE_OPTIONS.map((opt) => ({
+                value: opt.value,
+                label: opt.label,
+              }))}
+              ariaLabel="World size"
+              disabled={operationControlsDisabled}
+              className="w-24"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span
+              className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}
+            >
+              Players
+            </span>
+            <OptionSelect
+              value={globalSettings.playerCount.toString()}
+              onValueChange={(value) => updateWorldSetting("playerCount", parseInt(value, 10))}
+              options={PLAYER_COUNT_OPTIONS.map((count) => ({
+                value: count.toString(),
+                label: count.toString(),
+              }))}
+              ariaLabel="Players"
+              disabled={operationControlsDisabled}
+              className="w-14"
+            />
+          </div>
+
+          <div className={`w-px h-5 ${dividerColor}`} />
+
+          {/* Seed input */}
+          <span className={`text-label font-medium uppercase tracking-wider ${textMuted}`}>
+            Seed
           </span>
-        </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Input
+                type="text"
+                value={currentSettings.seed}
+                onChange={(e) => updateSetting("seed", e.target.value)}
+                placeholder="Seed"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                min={CIV7_STUDIO_SEED_MIN}
+                max={CIV7_STUDIO_SEED_MAX}
+                aria-label={`Generation seed (${CIV7_STUDIO_SEED_MIN}-${CIV7_STUDIO_SEED_MAX})`}
+                disabled={operationControlsDisabled}
+                className="w-20 font-mono"
+              />
+            </TooltipTrigger>
+            <TooltipContent>{`Generation seed (${CIV7_STUDIO_SEED_MIN}-${CIV7_STUDIO_SEED_MAX})`}</TooltipContent>
+          </Tooltip>
 
-        <div className={`w-px h-5 ${dividerColor}`} />
+          {/* Reroll button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onReroll}
+                disabled={operationControlsDisabled}
+                aria-label="Re-roll: New seed and run"
+              >
+                <Dices className="w-3.5 h-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Re-roll: New seed and run</TooltipContent>
+          </Tooltip>
 
-        {/* Status indicator */}
-        <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${statusDotClass}`} />
-          <span className={`text-data font-medium ${textPrimary}`}>
-            {statusText}
-          </span>
-        </div>
+          {/* Auto-run toggle */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => onAutoRunEnabledChange(!autoRunEnabled)}
+                disabled={operationControlsDisabled}
+                aria-pressed={autoRunEnabled}
+                aria-label="Toggle auto-run: run current seed on config changes"
+                className={
+                  autoRunEnabled ? "ring-1 ring-ring border-primary text-primary" : undefined
+                }
+              >
+                <Bolt className="w-3.5 h-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Auto-run: run current seed on config changes</TooltipContent>
+          </Tooltip>
 
-        {/* Run history — the collapsed last-run cluster. */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleCopySeed}
-              aria-label={historyLabel}
-              title={historyLabel}>
-
-              <History className="w-3.5 h-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-label font-medium uppercase tracking-wider opacity-70">
-                Last run
-              </span>
-              <span className="font-mono">{lastRunSettings.seed}</span>
-              <span>
-                {displaySize} · {lastGlobalSettings.playerCount}p
-              </span>
-              <span className="opacity-70">Click to copy seed</span>
-            </div>
-          </TooltipContent>
-        </Tooltip>
-
-        <div className={`w-px h-5 ${dividerColor}`} />
-
-        {/* Map settings (Pass-5: no map settings in the top bar) */}
-        <div className="flex items-center gap-2">
-          <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
-            Size
-          </span>
-          <OptionSelect
-            value={globalSettings.mapSize}
-            onValueChange={(value) =>
-              updateWorldSetting('mapSize', value as WorldSettings['mapSize'])
-            }
-            options={MAP_SIZE_OPTIONS.map((opt) => ({
-              value: opt.value,
-              label: opt.label
-            }))}
-            ariaLabel="World size"
+          {/* Run button — the one filled action; dirty emphasis is the slate accent */}
+          <Button
+            onClick={onRun}
             disabled={operationControlsDisabled}
-            className="w-24" />
+            className={`
+            ${isDirty ? "ring-1 ring-ring border-primary" : ""}
+            ${isRunning ? "opacity-70 cursor-wait" : ""}
+          `}
+          >
+            <Play className="w-3 h-3" />
+            <span>{isRunning ? "Running..." : "Run"}</span>
+          </Button>
         </div>
-
-        <div className="flex items-center gap-2">
-          <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
-            Players
-          </span>
-          <OptionSelect
-            value={globalSettings.playerCount.toString()}
-            onValueChange={(value) =>
-              updateWorldSetting('playerCount', parseInt(value, 10))
-            }
-            options={PLAYER_COUNT_OPTIONS.map((count) => ({
-              value: count.toString(),
-              label: count.toString()
-            }))}
-            ariaLabel="Players"
-            disabled={operationControlsDisabled}
-            className="w-14" />
-        </div>
-
-        <div className={`w-px h-5 ${dividerColor}`} />
-
-        {/* Seed input */}
-        <span
-          className={`text-label font-medium uppercase tracking-wider ${textMuted}`}>
-
-          Seed
-        </span>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Input
-              type="text"
-              value={currentSettings.seed}
-              onChange={(e) => updateSetting('seed', e.target.value)}
-              placeholder="Seed"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              min={CIV7_STUDIO_SEED_MIN}
-              max={CIV7_STUDIO_SEED_MAX}
-              aria-label={`Generation seed (${CIV7_STUDIO_SEED_MIN}-${CIV7_STUDIO_SEED_MAX})`}
-              disabled={operationControlsDisabled}
-              className="w-20 font-mono" />
-          </TooltipTrigger>
-          <TooltipContent>{`Generation seed (${CIV7_STUDIO_SEED_MIN}-${CIV7_STUDIO_SEED_MAX})`}</TooltipContent>
-        </Tooltip>
-
-        {/* Reroll button */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={onReroll}
-              disabled={operationControlsDisabled}
-              aria-label="Re-roll: New seed and run">
-
-              <Dices className="w-3.5 h-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Re-roll: New seed and run</TooltipContent>
-        </Tooltip>
-
-        {/* Auto-run toggle */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onAutoRunEnabledChange(!autoRunEnabled)}
-              disabled={operationControlsDisabled}
-              aria-pressed={autoRunEnabled}
-              aria-label="Toggle auto-run: run current seed on config changes"
-              className={autoRunEnabled ? "ring-1 ring-ring border-primary text-primary" : undefined}>
-
-              <Bolt className="w-3.5 h-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Auto-run: run current seed on config changes</TooltipContent>
-        </Tooltip>
-
-        {/* Run button — the one filled action; dirty emphasis is the slate accent */}
-        <Button
-          onClick={onRun}
-          disabled={operationControlsDisabled}
-          className={`
-            ${isDirty ? 'ring-1 ring-ring border-primary' : ''}
-            ${isRunning ? 'opacity-70 cursor-wait' : ''}
-          `}>
-
-          <Play className="w-3 h-3" />
-          <span>{isRunning ? 'Running...' : 'Run'}</span>
-        </Button>
-      </div>
-    </footer>
-    </TooltipProvider>);
-
+      </footer>
+    </TooltipProvider>
+  );
 };

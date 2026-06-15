@@ -8,9 +8,7 @@ import {
   civ7ControlOrpcErrorCorrelationData,
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
-import {
-  civ7CloseoutMutationProjection,
-} from "../../../policy/mutation-result";
+import { civ7CloseoutMutationProjection } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7ProgressionAttributePurchaseInput,
@@ -34,163 +32,141 @@ type ProgressionPlayerChoiceResult =
   | Civ7ProgressionTraditionChangeResult
   | Civ7ProgressionTraditionReviewResult;
 
-export const progressionAttributePurchaseRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.progression.attribute.purchase.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    const source = "progression.attribute.purchase.request";
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const localPlayerId = await readLocalPlayerId(context);
-        const requestInput = {
-          playerId: localPlayerId,
-          node: input.node,
-        };
-        const result = await context.directControl.requestCiv7AttributePurchase(
-          requestInput,
-          context.endpointDefaults,
-        );
-        return progressionPlayerChoiceResult(source, requestInput, result);
-      },
-      catch: (cause) =>
-        errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: source,
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const progressionAttributePurchaseRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.attribute.purchase.request
+).effect(function* ({ context, errors, input }) {
+  const source = "progression.attribute.purchase.request";
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context);
+      const requestInput = {
+        playerId: localPlayerId,
+        node: input.node,
+      };
+      const result = await context.directControl.requestCiv7AttributePurchase(
+        requestInput,
+        context.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: (cause) =>
+      errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: source,
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-export const progressionAttributeReviewRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.progression.attribute.review.request,
-  ).effect(function* ({
-    context,
-    errors,
-  }) {
-    const source = "progression.attribute.review.request";
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const localPlayerId = await readLocalPlayerId(context);
-        const requestInput = { playerId: localPlayerId };
-        const result = await context.directControl.requestCiv7AttributeReviewCloseout(
-          requestInput,
-          context.endpointDefaults,
-        );
-        return progressionPlayerChoiceResult(source, requestInput, result);
-      },
-      catch: (cause) =>
-        errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: source,
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const progressionAttributeReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.attribute.review.request
+).effect(function* ({ context, errors }) {
+  const source = "progression.attribute.review.request";
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context);
+      const requestInput = { playerId: localPlayerId };
+      const result = await context.directControl.requestCiv7AttributeReviewCloseout(
+        requestInput,
+        context.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: (cause) =>
+      errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: source,
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-export const progressionTraditionChangeRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.progression.tradition.change.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    const source = "progression.tradition.change.request";
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const localPlayerId = await readLocalPlayerId(context);
-        const requestInput = {
-          playerId: localPlayerId,
-          traditionType: input.traditionType,
-          action: input.action,
-        };
-        const result = await context.directControl.requestCiv7TraditionChange(
-          requestInput,
-          context.endpointDefaults,
-        );
-        return progressionPlayerChoiceResult(source, requestInput, result);
-      },
-      catch: (cause) =>
-        errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: source,
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const progressionTraditionChangeRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.tradition.change.request
+).effect(function* ({ context, errors, input }) {
+  const source = "progression.tradition.change.request";
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context);
+      const requestInput = {
+        playerId: localPlayerId,
+        traditionType: input.traditionType,
+        action: input.action,
+      };
+      const result = await context.directControl.requestCiv7TraditionChange(
+        requestInput,
+        context.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: (cause) =>
+      errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: source,
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-export const progressionTraditionReviewRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.progression.tradition.review.request,
-  ).effect(function* ({
-    context,
-    errors,
-  }) {
-    const source = "progression.tradition.review.request";
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const localPlayerId = await readLocalPlayerId(context);
-        const requestInput = { playerId: localPlayerId };
-        const result = await context.directControl.requestCiv7TraditionReviewCloseout(
-          requestInput,
-          context.endpointDefaults,
-        );
-        return progressionPlayerChoiceResult(source, requestInput, result);
-      },
-      catch: (cause) =>
-        errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: source,
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const progressionTraditionReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.tradition.review.request
+).effect(function* ({ context, errors }) {
+  const source = "progression.tradition.review.request";
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context);
+      const requestInput = { playerId: localPlayerId };
+      const result = await context.directControl.requestCiv7TraditionReviewCloseout(
+        requestInput,
+        context.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: (cause) =>
+      errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: source,
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-async function readLocalPlayerId(
-  context: Civ7ControlOrpcContext,
-): Promise<number> {
-  const view = await context.directControl.getCiv7PlayNotificationView(
-    context.endpointDefaults,
-  );
+async function readLocalPlayerId(context: Civ7ControlOrpcContext): Promise<number> {
+  const view = await context.directControl.getCiv7PlayNotificationView(context.endpointDefaults);
   return view.localPlayerId;
 }
 
 function progressionPlayerChoiceResult(
   source: "progression.attribute.purchase.request",
   input: Civ7ProgressionAttributePurchaseInput,
-  result: Civ7ControlOrpcProgressionPlayerChoiceResult,
+  result: Civ7ControlOrpcProgressionPlayerChoiceResult
 ): Civ7ProgressionAttributePurchaseResult;
 function progressionPlayerChoiceResult(
   source: "progression.attribute.review.request",
   input: Civ7ProgressionPlayerReviewInput,
-  result: Civ7ControlOrpcProgressionPlayerChoiceResult,
+  result: Civ7ControlOrpcProgressionPlayerChoiceResult
 ): Civ7ProgressionAttributeReviewResult;
 function progressionPlayerChoiceResult(
   source: "progression.tradition.change.request",
   input: Civ7ProgressionTraditionChangeInput,
-  result: Civ7ControlOrpcProgressionPlayerChoiceResult,
+  result: Civ7ControlOrpcProgressionPlayerChoiceResult
 ): Civ7ProgressionTraditionChangeResult;
 function progressionPlayerChoiceResult(
   source: "progression.tradition.review.request",
   input: Civ7ProgressionPlayerReviewInput,
-  result: Civ7ControlOrpcProgressionPlayerChoiceResult,
+  result: Civ7ControlOrpcProgressionPlayerChoiceResult
 ): Civ7ProgressionTraditionReviewResult;
 function progressionPlayerChoiceResult(
   source: ProgressionPlayerChoiceSource,
@@ -198,14 +174,15 @@ function progressionPlayerChoiceResult(
     | Civ7ProgressionAttributePurchaseInput
     | Civ7ProgressionPlayerReviewInput
     | Civ7ProgressionTraditionChangeInput,
-  result: Civ7ControlOrpcProgressionPlayerChoiceResult,
+  result: Civ7ControlOrpcProgressionPlayerChoiceResult
 ): ProgressionPlayerChoiceResult {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
     postcondition: progressionPlayerChoiceProofPostcondition(result),
     missing: {
       classification: "missing-postcondition",
-      reason: "The progression player-choice result did not include explicit postcondition evidence.",
+      reason:
+        "The progression player-choice result did not include explicit postcondition evidence.",
       outcome: result.sent ? "unknown" : "not-sent",
     },
     source,
@@ -215,7 +192,8 @@ function progressionPlayerChoiceResult(
     inspectLabel: source.includes("attribute")
       ? "Inspect current attribute review state before attempting another request."
       : "Inspect current tradition review state before attempting another request.",
-    doNotRepeatLabel: "Do not repeat this progression player-choice request until fresh attention evidence is read.",
+    doNotRepeatLabel:
+      "Do not repeat this progression player-choice request until fresh attention evidence is read.",
   });
 
   const base = {
@@ -231,9 +209,9 @@ function progressionPlayerChoiceResult(
   };
 
   if (
-    source === "progression.attribute.purchase.request"
-    && "node" in input
-    && result.kind === "attribute-purchase"
+    source === "progression.attribute.purchase.request" &&
+    "node" in input &&
+    result.kind === "attribute-purchase"
   ) {
     return {
       ...base,
@@ -246,9 +224,9 @@ function progressionPlayerChoiceResult(
   }
 
   if (
-    source === "progression.tradition.change.request"
-    && "traditionType" in input
-    && result.kind === "tradition-change"
+    source === "progression.tradition.change.request" &&
+    "traditionType" in input &&
+    result.kind === "tradition-change"
   ) {
     return {
       ...base,

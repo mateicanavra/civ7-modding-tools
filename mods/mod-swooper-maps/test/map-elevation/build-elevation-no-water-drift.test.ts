@@ -1,9 +1,13 @@
 import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import {
+  createExtendedMapContext,
+  FLAT_TERRAIN,
+  HILL_TERRAIN,
+  OCEAN_TERRAIN,
+} from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { FLAT_TERRAIN, HILL_TERRAIN, OCEAN_TERRAIN } from "@swooper/mapgen-core";
 
 import buildElevation from "../../src/recipes/standard/stages/map-elevation/steps/buildElevation.js";
 import { buildTestDeps } from "../support/step-deps.js";
@@ -229,7 +233,11 @@ describe("map-elevation/build-elevation", () => {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
-        adapter.setTerrainType(x, y, lakeMask[idx] === 1 ? adapter.getTerrainTypeIndex("TERRAIN_COAST") : FLAT_TERRAIN);
+        adapter.setTerrainType(
+          x,
+          y,
+          lakeMask[idx] === 1 ? adapter.getTerrainTypeIndex("TERRAIN_COAST") : FLAT_TERRAIN
+        );
         adapter.setWater(x, y, lakeMask[idx] === 1);
       }
     }

@@ -21,7 +21,11 @@ export function validateStartAssignmentArtifact(value: unknown): ValidationIssue
   const height = Number(value.height);
   const size = width * height;
   if (!Number.isSafeInteger(size) || size <= 0) {
-    return [issue(`startAssignment has invalid dimensions ${String(value.width)}x${String(value.height)}.`)];
+    return [
+      issue(
+        `startAssignment has invalid dimensions ${String(value.width)}x${String(value.height)}.`
+      ),
+    ];
   }
   const seats = Array.isArray(value.seats) ? value.seats : null;
   const positions = Array.isArray(value.positions) ? value.positions : null;
@@ -47,7 +51,9 @@ export function validateStartAssignmentArtifact(value: unknown): ValidationIssue
       issues.push(issue(`startAssignment.positions[${i}] does not match seats[${i}].plotIndex.`));
     }
     if (seat.seatIndex !== i) {
-      issues.push(issue(`startAssignment seats[${i}].seatIndex ${String(seat.seatIndex)} out of order.`));
+      issues.push(
+        issue(`startAssignment seats[${i}].seatIndex ${String(seat.seatIndex)} out of order.`)
+      );
     }
     if (plotIndex >= 0) {
       seated += 1;
@@ -63,7 +69,9 @@ export function validateStartAssignmentArtifact(value: unknown): ValidationIssue
       else if (seat.rung === "quality-relaxed") rungTotals.qualityRelaxed += 1;
       else if (seat.rung === "spacing-relaxed") rungTotals.spacingRelaxed += 1;
       if (seat.rung !== "regional" && seat.status !== "degraded") {
-        issues.push(issue(`startAssignment seat ${i} on rung ${String(seat.rung)} must be degraded.`));
+        issues.push(
+          issue(`startAssignment seat ${i} on rung ${String(seat.rung)} must be degraded.`)
+        );
       }
     } else {
       if (seat.status !== "degraded") {
@@ -77,18 +85,24 @@ export function validateStartAssignmentArtifact(value: unknown): ValidationIssue
   }
 
   if (value.assigned !== seated) {
-    issues.push(issue(`startAssignment.assigned ${String(value.assigned)} != seated seats ${seated}.`));
+    issues.push(
+      issue(`startAssignment.assigned ${String(value.assigned)} != seated seats ${seated}.`)
+    );
   }
   if (value.unseatedCount !== seats.length - seated) {
     issues.push(
-      issue(`startAssignment.unseatedCount ${String(value.unseatedCount)} != ${seats.length - seated}.`)
+      issue(
+        `startAssignment.unseatedCount ${String(value.unseatedCount)} != ${seats.length - seated}.`
+      )
     );
   }
   const rungCounts = isRecord(value.rungCounts) ? value.rungCounts : null;
   if (rungCounts) {
     for (const [key, expected] of Object.entries(rungTotals)) {
       if (rungCounts[key] !== expected) {
-        issues.push(issue(`startAssignment.rungCounts.${key} ${String(rungCounts[key])} != ${expected}.`));
+        issues.push(
+          issue(`startAssignment.rungCounts.${key} ${String(rungCounts[key])} != ${expected}.`)
+        );
       }
     }
   } else {
@@ -102,12 +116,14 @@ export function validateStartAssignmentArtifact(value: unknown): ValidationIssue
     const parity = Array.isArray(report.parity) ? report.parity : [];
     if (parity.length !== seats.length) {
       issues.push(
-        issue(`startAssignment.fairnessReport.parity length ${parity.length} != seats ${seats.length}.`)
+        issue(
+          `startAssignment.fairnessReport.parity length ${parity.length} != seats ${seats.length}.`
+        )
       );
     }
     const gap = report.worstPairGap;
     const tolerance = Number(report.tolerance);
-    if (typeof gap === "number" && report.balanced !== (gap <= tolerance)) {
+    if (typeof gap === "number" && report.balanced !== gap <= tolerance) {
       issues.push(
         issue(
           `startAssignment.fairnessReport.balanced ${String(report.balanced)} inconsistent with gap ${gap} vs tolerance ${tolerance}.`

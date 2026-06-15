@@ -29,13 +29,20 @@ function validateLandmassesSnapshot(value: unknown): ArtifactValidationIssue[] {
         continue;
       }
       if (typeof entry.id !== "number" || entry.id < 0) {
-        errors.push({ message: "Expected landmasses.landmasses entries to include a non-negative id." });
+        errors.push({
+          message: "Expected landmasses.landmasses entries to include a non-negative id.",
+        });
       }
       if (typeof entry.tileCount !== "number" || entry.tileCount < 0) {
-        errors.push({ message: "Expected landmasses.landmasses entries to include a non-negative tileCount." });
+        errors.push({
+          message: "Expected landmasses.landmasses entries to include a non-negative tileCount.",
+        });
       }
       if (typeof entry.coastlineLength !== "number" || entry.coastlineLength < 0) {
-        errors.push({ message: "Expected landmasses.landmasses entries to include a non-negative coastlineLength." });
+        errors.push({
+          message:
+            "Expected landmasses.landmasses entries to include a non-negative coastlineLength.",
+        });
       }
       const bbox = (entry as { bbox?: unknown }).bbox;
       if (!isRecord(bbox)) {
@@ -65,7 +72,7 @@ export default createStep(LandmassesStepContract, {
         height,
         landMask: topography.landMask,
       },
-        config.landmasses
+      config.landmasses
     );
 
     context.viz?.dumpGrid(context.trace, {

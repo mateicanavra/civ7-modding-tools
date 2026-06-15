@@ -88,8 +88,17 @@ export function buildRecipeDagLayout(dag: RecipeDagResult): RecipeDagLayout {
   const phaseRowByStageId = assignPhaseRows(dag, phaseIndexById);
   const rankCount = Math.max(1, Math.max(...Array.from(rankByStageId.values()), 0) + 1);
   const phaseMetrics = measurePhaseLanes(dag, phaseIndexById, phaseRowByStageId);
-  const positions = positionStages(dag, phaseMetrics, phaseIndexById, rankByStageId, phaseRowByStageId);
-  const width = Math.max(1040, GRAPH_PAD_X * 2 + rankCount * STAGE_WIDTH + Math.max(0, rankCount - 1) * RANK_GAP_X);
+  const positions = positionStages(
+    dag,
+    phaseMetrics,
+    phaseIndexById,
+    rankByStageId,
+    phaseRowByStageId
+  );
+  const width = Math.max(
+    1040,
+    GRAPH_PAD_X * 2 + rankCount * STAGE_WIDTH + Math.max(0, rankCount - 1) * RANK_GAP_X
+  );
   const height = Math.max(560, GRAPH_PAD_TOP + phaseMetrics.totalHeight + GRAPH_PAD_BOTTOM);
   const rankColumns = Array.from({ length: rankCount }, (_, rank) => ({
     rank,
@@ -115,7 +124,10 @@ export function buildRecipeDagLayout(dag: RecipeDagResult): RecipeDagLayout {
 }
 
 export function groupStageEdges(dag: RecipeDagResult): StageEdgeGroup[] {
-  const groups = new Map<string, { fromStageId: string; toStageId: string; artifacts: Set<string> }>();
+  const groups = new Map<
+    string,
+    { fromStageId: string; toStageId: string; artifacts: Set<string> }
+  >();
   for (const edge of dag.edges) {
     if (edge.internal) continue;
     const key = `${edge.from.stageId}->${edge.to.stageId}`;
@@ -148,7 +160,9 @@ function assignDependencyRanks(
     incomingByStageId.set(edge.toStageId, incoming);
   }
 
-  for (const stage of [...dag.stages].sort((a, b) => a.order - b.order || a.stageId.localeCompare(b.stageId))) {
+  for (const stage of [...dag.stages].sort(
+    (a, b) => a.order - b.order || a.stageId.localeCompare(b.stageId)
+  )) {
     const incoming = incomingByStageId.get(stage.stageId) ?? [];
     let rank = rankByStageId.get(stage.stageId) ?? 0;
     for (const edge of incoming) {
@@ -181,7 +195,10 @@ function measurePhaseLanes(
   let cursor = GRAPH_PAD_TOP;
   for (const phase of dag.phases) {
     const rowCount = Math.max(1, rowCountByPhaseId.get(phase.id) ?? 1);
-    const height = Math.max(PHASE_MIN_HEIGHT, PHASE_TITLE_HEIGHT + rowCount * STAGE_HEIGHT + Math.max(0, rowCount - 1) * STAGE_GAP_Y + 26);
+    const height = Math.max(
+      PHASE_MIN_HEIGHT,
+      PHASE_TITLE_HEIGHT + rowCount * STAGE_HEIGHT + Math.max(0, rowCount - 1) * STAGE_GAP_Y + 26
+    );
     byPhaseId.set(phase.id, { y: cursor, height, rowCount });
     cursor += height + 28;
   }
@@ -226,7 +243,9 @@ function assignPhaseRows(
 ): ReadonlyMap<string, number> {
   const rowByStageId = new Map<string, number>();
   const nextRowByPhaseId = new Map<string, number>();
-  for (const stage of [...dag.stages].sort((a, b) => a.order - b.order || a.stageId.localeCompare(b.stageId))) {
+  for (const stage of [...dag.stages].sort(
+    (a, b) => a.order - b.order || a.stageId.localeCompare(b.stageId)
+  )) {
     const phaseId = resolveStagePhaseId(dag, phaseIndexById, stage.phases);
     const row = nextRowByPhaseId.get(phaseId) ?? 0;
     rowByStageId.set(stage.stageId, row);
@@ -256,7 +275,10 @@ function routeEdges(
     }
 
     const outboundEdges = outboundIndex.get(edge.fromStageId) ?? [];
-    const outOffset = outboundEdges.length > 1 ? from.height / 2 : anchorOffset(outboundEdges, edge.id, from.height);
+    const outOffset =
+      outboundEdges.length > 1
+        ? from.height / 2
+        : anchorOffset(outboundEdges, edge.id, from.height);
     const inOffset = anchorOffset(inboundIndex.get(edge.toStageId) ?? [], edge.id, to.height);
     const start = { x: from.x + from.width, y: from.y + outOffset };
     const end = { x: to.x, y: to.y + inOffset };
@@ -311,7 +333,10 @@ function indexEdgesByEndpoint(
 }
 
 function anchorOffset(edges: readonly StageEdgeGroup[], edgeId: string, height: number): number {
-  const index = Math.max(0, edges.findIndex((edge) => edge.id === edgeId));
+  const index = Math.max(
+    0,
+    edges.findIndex((edge) => edge.id === edgeId)
+  );
   const count = Math.max(1, edges.length);
   const top = 38;
   const bottom = height - 28;
@@ -353,23 +378,25 @@ function resolveStagePhaseId(
   phaseIndexById: ReadonlyMap<string, number>,
   stagePhases: readonly string[]
 ): string {
-  return stagePhases.find((phaseId) => phaseIndexById.has(phaseId)) ?? dag.phases[0]?.id ?? "unphased";
+  return (
+    stagePhases.find((phaseId) => phaseIndexById.has(phaseId)) ?? dag.phases[0]?.id ?? "unphased"
+  );
 }
 
 export function pointsToPath(points: readonly DagPoint[]): string {
   if (points.length === 0) return "";
   const [first, ...rest] = points;
-  return [
-    `M ${first.x} ${first.y}`,
-    ...rest.map((point) => `L ${point.x} ${point.y}`),
-  ].join(" ");
+  return [`M ${first.x} ${first.y}`, ...rest.map((point) => `L ${point.x} ${point.y}`)].join(" ");
 }
 
 export function buildArtifactEdgeLabels(
   edgeGroups: readonly RoutedStageEdgeGroup[],
   selectedStageId: string | null = null
 ): readonly RoutedArtifactEdgeLabel[] {
-  const labelsByKey = new Map<string, { fromStageId: string; artifact: string; edges: RoutedStageEdgeGroup[] }>();
+  const labelsByKey = new Map<
+    string,
+    { fromStageId: string; artifact: string; edges: RoutedStageEdgeGroup[] }
+  >();
   for (const edge of edgeGroups) {
     for (const artifact of edge.artifacts) {
       const key = `${edge.fromStageId}:${artifact}`;
@@ -380,7 +407,9 @@ export function buildArtifactEdgeLabels(
   }
 
   const labels = Array.from(labelsByKey.values()).map((label) => {
-    const edges = [...label.edges].sort((a, b) => a.toStageId.localeCompare(b.toStageId) || a.id.localeCompare(b.id));
+    const edges = [...label.edges].sort(
+      (a, b) => a.toStageId.localeCompare(b.toStageId) || a.id.localeCompare(b.id)
+    );
     const position = resolveArtifactLabelPreferredPosition(edges, selectedStageId);
     return {
       id: `${label.fromStageId}:${label.artifact}`,
@@ -417,14 +446,21 @@ export function resolveEdgeLabelPositions(
   const positions = new Map(
     edgeGroups.map((edge) => [
       edge.id,
-      selectedStageId ? resolveEdgeLabelPosition(edge, selectedStageId) : resolveDestinationEdgeLabelPosition(edge),
+      selectedStageId
+        ? resolveEdgeLabelPosition(edge, selectedStageId)
+        : resolveDestinationEdgeLabelPosition(edge),
     ])
   );
 
   const clusters = new Map<string, RoutedStageEdgeGroup[]>();
   for (const edge of edgeGroups) {
     if (!edge.points.length) continue;
-    if (selectedStageId && edge.fromStageId !== selectedStageId && edge.toStageId !== selectedStageId) continue;
+    if (
+      selectedStageId &&
+      edge.fromStageId !== selectedStageId &&
+      edge.toStageId !== selectedStageId
+    )
+      continue;
     clusters.set(edge.toStageId, [...(clusters.get(edge.toStageId) ?? []), edge]);
   }
 
@@ -475,11 +511,12 @@ function spreadArtifactLabels(
 ): readonly RoutedArtifactEdgeLabel[] {
   const clusters = new Map<string, RoutedArtifactEdgeLabel[]>();
   for (const label of labels) {
-    const clusterKey = selectedStageId && label.toStageIds.includes(selectedStageId)
-      ? `destination:${selectedStageId}`
-      : label.toStageIds.length > 1
-      ? `source:${label.fromStageId}`
-      : `destination:${label.toStageIds[0] ?? label.fromStageId}`;
+    const clusterKey =
+      selectedStageId && label.toStageIds.includes(selectedStageId)
+        ? `destination:${selectedStageId}`
+        : label.toStageIds.length > 1
+          ? `source:${label.fromStageId}`
+          : `destination:${label.toStageIds[0] ?? label.fromStageId}`;
     clusters.set(clusterKey, [...(clusters.get(clusterKey) ?? []), label]);
   }
 

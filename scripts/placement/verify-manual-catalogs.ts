@@ -10,12 +10,13 @@ import {
 const featureTable = CIV7_BROWSER_TABLES_V0.featureTypes;
 const featurePolicies = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
   string,
-  {
-    placementClass?: string;
-    naturalWonderDirection?: number;
-    naturalWonderTiles?: number;
-    naturalWonderPlaceFirst?: boolean;
-  } | undefined
+  | {
+      placementClass?: string;
+      naturalWonderDirection?: number;
+      naturalWonderTiles?: number;
+      naturalWonderPlaceFirst?: boolean;
+    }
+  | undefined
 >;
 const featureTags = CIV7_BROWSER_TABLES_V0.featureTagsByFeatureType as Record<
   string,
@@ -29,16 +30,16 @@ const expectedIds = Object.values(featureTable)
     if (policy.naturalWonderPlaceFirst === true && policy.naturalWonderTiles > 1) return false;
     if (hasUnsupportedNaturalWonderPolicyTags(featureTags[String(featureType)])) return false;
     return (
-      getNaturalWonderFootprintOffsets(
-        policy,
-        resolveNaturalWonderPlacementDirection(policy)
-      ) !== null
+      getNaturalWonderFootprintOffsets(policy, resolveNaturalWonderPlacementDirection(policy)) !==
+      null
     );
   })
   .sort((a, b) => a - b);
 const actualIds = NATURAL_WONDER_CATALOG.map((entry) => entry.featureType);
 if (expectedIds.length !== actualIds.length) {
-  throw new Error(`Supported natural wonder catalog length mismatch (expected ${expectedIds.length}, got ${actualIds.length}).`);
+  throw new Error(
+    `Supported natural wonder catalog length mismatch (expected ${expectedIds.length}, got ${actualIds.length}).`
+  );
 }
 
 const missingIds = expectedIds.filter((id) => !actualIds.includes(id));
@@ -82,7 +83,8 @@ const toU32 = (value: number): number => value >>> 0;
 
 const expectedDiscoveryKeys = new Set(
   discoveryPairs.map(
-    ([improvement, activation]) => `${toU32(hashString(improvement))}:${toU32(hashString(activation))}`
+    ([improvement, activation]) =>
+      `${toU32(hashString(improvement))}:${toU32(hashString(activation))}`
   )
 );
 const actualDiscoveryKeys = new Set(

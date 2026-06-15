@@ -56,7 +56,7 @@ describe("studio daemon fetch router", () => {
       studioRpc: { handle: async () => ({ matched: false }) },
     });
     const res = await createStudioDaemonFetch(deps)(
-      new Request("http://daemon.test/rpc/nope", { method: "POST" }),
+      new Request("http://daemon.test/rpc/nope", { method: "POST" })
     );
     expect(res.status).toBe(404);
   });
@@ -82,7 +82,7 @@ describe("studio daemon fetch router", () => {
   test("retired /api paths stay 404 even with a static assets root", async () => {
     const { deps } = makeDeps({ assetsRoot: "/tmp/does-not-exist-assets" });
     const res = await createStudioDaemonFetch(deps)(
-      new Request("http://daemon.test/api/civ7/rpc/readiness/current"),
+      new Request("http://daemon.test/api/civ7/rpc/readiness/current")
     );
     expect(res.status).toBe(404);
   });

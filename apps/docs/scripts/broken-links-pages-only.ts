@@ -1,32 +1,37 @@
-import { mkdtempSync, rmSync, cpSync, existsSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from "node:child_process";
+import { cpSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 
 async function run(): Promise<void> {
   const projectRoot = process.cwd();
-  const tmpRoot = mkdtempSync(join(tmpdir(), 'mint-pages-only-'));
+  const tmpRoot = mkdtempSync(join(tmpdir(), "mint-pages-only-"));
   try {
     // Copy minimal inputs
-    const docsJson = resolve(projectRoot, 'docs.json');
+    const docsJson = resolve(projectRoot, "docs.json");
     if (!existsSync(docsJson)) {
-      console.error('docs.json missing');
+      console.error("docs.json missing");
       process.exit(1);
     }
-    cpSync(docsJson, join(tmpRoot, 'docs.json'));
+    cpSync(docsJson, join(tmpRoot, "docs.json"));
 
     // Copy only *.mdx from project root recursively, excluding .archive and node_modules
-    const { readdirSync, mkdirSync, copyFileSync } = await import('node:fs');
+    const { readdirSync, mkdirSync, copyFileSync } = await import("node:fs");
     function copyMdx(srcDir: string, dstDir: string): void {
       readdirSync(srcDir, { withFileTypes: true }).forEach((entry) => {
         const srcPath = join(srcDir, entry.name);
         const dstPath = join(dstDir, entry.name);
         if (entry.isDirectory()) {
-          if (entry.name === 'node_modules' || entry.name === '.archive' || entry.name.startsWith('.turbo')) return;
+          if (
+            entry.name === "node_modules" ||
+            entry.name === ".archive" ||
+            entry.name.startsWith(".turbo")
+          )
+            return;
           mkdirSync(dstPath, { recursive: true });
           copyMdx(srcPath, dstPath);
         } else if (entry.isFile()) {
-          if (entry.name.toLowerCase().endsWith('.mdx')) {
+          if (entry.name.toLowerCase().endsWith(".mdx")) {
             mkdirSync(dstDir, { recursive: true });
             copyFileSync(srcPath, dstPath);
           }
@@ -36,9 +41,9 @@ async function run(): Promise<void> {
     copyMdx(projectRoot, tmpRoot);
 
     // Copy public assets to tmp root so absolute paths like /civ7-official/... resolve
-    const publicDir = resolve(projectRoot, 'public');
+    const publicDir = resolve(projectRoot, "public");
     if (existsSync(publicDir)) {
-      const { readdirSync, statSync } = await import('node:fs');
+      const { readdirSync, statSync } = await import("node:fs");
       readdirSync(publicDir, { withFileTypes: true }).forEach((entry) => {
         const srcPath = join(publicDir, entry.name);
         const dstPath = join(tmpRoot, entry.name);
@@ -51,13 +56,13 @@ async function run(): Promise<void> {
     }
 
     // Use local mint binary from original project node_modules
-    const mintBin = resolve(projectRoot, 'node_modules/.bin/mint');
-    const result = spawnSync(mintBin, ['broken-links'], {
+    const mintBin = resolve(projectRoot, "node_modules/.bin/mint");
+    const result = spawnSync(mintBin, ["broken-links"], {
       cwd: tmpRoot,
-      stdio: 'inherit',
+      stdio: "inherit",
       env: process.env,
     });
-    if (typeof result.status === 'number') {
+    if (typeof result.status === "number") {
       process.exit(result.status);
     }
     // If status is null but error exists, throw
@@ -67,10 +72,10 @@ async function run(): Promise<void> {
     }
   } finally {
     // Cleanup temp directory
-    try { rmSync(tmpRoot, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(tmpRoot, { recursive: true, force: true });
+    } catch {}
   }
 }
 
 run();
-
-

@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const GeologicalResourceTypeSchema = Type.Union([
   Type.Literal("RESOURCE_GOLD"),
@@ -158,40 +158,58 @@ const PlanGeologicalResourcesContract = defineOp({
         TypedArraySchemas.u8({ description: "Arid soil or nitrate soil proxy mask." })
       ),
       forestWetlandBasinMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Ancient swamp, forest, wetland, or peat basin proxy mask." })
+        TypedArraySchemas.u8({
+          description: "Ancient swamp, forest, wetland, or peat basin proxy mask.",
+        })
       ),
       hydrocarbonBasinMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Hydrocarbon, petroleum system, or tar-sand basin mask." })
+        TypedArraySchemas.u8({
+          description: "Hydrocarbon, petroleum system, or tar-sand basin mask.",
+        })
       ),
       wetAlluvialMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Wet alluvial, water-contact, or floodplain sediment mask." })
+        TypedArraySchemas.u8({
+          description: "Wet alluvial, water-contact, or floodplain sediment mask.",
+        })
       ),
       graniteBeltMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Granite, greisen, or cassiterite source mask." })
       ),
       oilAdjacencyMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Near-oil, bitumen seep, or asphaltum adjacency mask." })
+        TypedArraySchemas.u8({
+          description: "Near-oil, bitumen seep, or asphaltum adjacency mask.",
+        })
       ),
       metamorphicBeltMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Metamorphic, marble-hosted, or corundum belt mask." })
       ),
       collisionBeltMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Collision belt or tropical metamorphic gemstone source mask." })
+        TypedArraySchemas.u8({
+          description: "Collision belt or tropical metamorphic gemstone source mask.",
+        })
       ),
       flatNonGeologicMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Flat or non-geologic suppression mask." })
       ),
       wetSuppressionMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Wet-climate suppression mask for evaporite/arid resources." })
+        TypedArraySchemas.u8({
+          description: "Wet-climate suppression mask for evaporite/arid resources.",
+        })
       ),
       humidSuppressionMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Humid suppression mask for salt/niter/arid resources." })
+        TypedArraySchemas.u8({
+          description: "Humid suppression mask for salt/niter/arid resources.",
+        })
       ),
       offshoreMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Offshore suppression mask until offshore resources are authorized." })
+        TypedArraySchemas.u8({
+          description: "Offshore suppression mask until offshore resources are authorized.",
+        })
       ),
       igneousTerrainMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Igneous terrain suppression mask for carbonate resources." })
+        TypedArraySchemas.u8({
+          description: "Igneous terrain suppression mask for carbonate resources.",
+        })
       ),
     },
     { additionalProperties: false }

@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 /**
  * Computes diagnostic indices from climate signals (rain shadow, continentality, convergence).

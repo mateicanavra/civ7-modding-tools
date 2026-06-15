@@ -2,12 +2,12 @@ import {
   buildLiveGameErrorState,
   buildLiveGameState,
   hashLiveGameValue,
-  stableLiveGameStringify,
   type LiveGameBindingStatus,
   type LiveGameSnapshotStatus,
   type LiveGameState,
   type LiveGameStatusBody,
   type LiveGameStatusKind,
+  stableLiveGameStringify,
 } from "@civ7/studio-server/live-game";
 
 export type LiveRuntimeStatusKind = LiveGameStatusKind;
@@ -150,10 +150,14 @@ export function buildLiveRuntimeSnapshotState(args: {
     return {
       status: "error",
       requestKey: args.request.key,
-      error: isRecord(args.body) && typeof args.body.error === "string" ? args.body.error : "Live snapshot unavailable",
+      error:
+        isRecord(args.body) && typeof args.body.error === "string"
+          ? args.body.error
+          : "Live snapshot unavailable",
     };
   }
-  const observedAt = typeof args.body.observedAt === "string" ? args.body.observedAt : args.observedAtFallback;
+  const observedAt =
+    typeof args.body.observedAt === "string" ? args.body.observedAt : args.observedAtFallback;
   const snapshotHash = hashLiveRuntimeValue({
     request: args.request,
     grid: args.body.grid,
@@ -176,7 +180,9 @@ export function buildLiveRuntimeSuggestionRecords(args: {
 }): ReadonlyArray<LiveRuntimeSuggestionRecord> {
   const createdAt = (args.now ?? (() => new Date()))().toISOString();
   const confidence = args.provedStudioRun ? "proved-studio-run" : "observed-runtime";
-  const prefix = args.sourceSnapshotId ?? `runtime:${hashLiveRuntimeValue({ seed: args.seed, setupConfig: args.setupConfig })}`;
+  const prefix =
+    args.sourceSnapshotId ??
+    `runtime:${hashLiveRuntimeValue({ seed: args.seed, setupConfig: args.setupConfig })}`;
   const records: LiveRuntimeSuggestionRecord[] = [];
   if (args.seed !== undefined) {
     records.push({

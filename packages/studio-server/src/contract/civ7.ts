@@ -51,9 +51,9 @@ export const status = oc
           // Civ7PlayableStatusResult (@civ7/direct-control). Opaque payload - see shared.ts.
           status: unknownRecordSchema,
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   );
 
 // ---------------------------------------------------------------------------
@@ -72,9 +72,9 @@ export const mapSummary = oc
           // Civ7MapSummaryResult (@civ7/direct-control). Opaque payload.
           summary: unknownRecordSchema,
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   );
 
 // ---------------------------------------------------------------------------
@@ -99,9 +99,9 @@ export const gameInfo = oc
           table: Type.String({ minLength: 1 }),
           limit: Type.Optional(Type.Integer()),
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   )
   .output(
     contractSchema(
@@ -111,9 +111,9 @@ export const gameInfo = oc
           // Civ7GameInfoRowsResult (@civ7/direct-control). Opaque payload (see shared.ts).
           rows: unknownRecordSchema,
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   );
 
 // ---------------------------------------------------------------------------
@@ -136,9 +136,9 @@ export const autoplay = oc
         {
           action: autoplayActionSchema,
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   )
   .output(
     contractSchema(
@@ -153,9 +153,9 @@ export const autoplay = oc
           // Civ7AutoplayActionResult (@civ7/direct-control). Opaque payload.
           result: unknownRecordSchema,
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   );
 
 // ---------------------------------------------------------------------------
@@ -178,9 +178,9 @@ export const setupConfig = oc
           host: Type.String(),
           port: Type.Number(),
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   );
 
 // ---------------------------------------------------------------------------
@@ -201,9 +201,9 @@ export const savedConfigs = oc
           directory: Type.String(),
           configurations: Type.Array(unknownRecordSchema),
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   );
 
 // ---------------------------------------------------------------------------
@@ -221,7 +221,7 @@ const setupCatalogOptionSchema = Type.Object(
     source: setupCatalogSourceSchema,
     sourcePath: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const setupCatalogSchema = Type.Object(
@@ -234,8 +234,8 @@ export const setupCatalogSchema = Type.Object(
           path: Type.String(),
           exists: Type.Boolean(),
         },
-        { additionalProperties: false },
-      ),
+        { additionalProperties: false }
+      )
     ),
     sourceFileCount: Type.Number(),
     leaders: Type.Array(setupCatalogOptionSchema),
@@ -243,17 +243,20 @@ export const setupCatalogSchema = Type.Object(
     difficulties: Type.Array(setupCatalogOptionSchema),
     gameSpeeds: Type.Array(setupCatalogOptionSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
-export const setupCatalog = oc.errors(setupCatalogErrors).input(emptyInputSchema).output(
-  contractSchema(
-    Type.Object(
-      {
-        ok: Type.Literal(true),
-        catalog: setupCatalogSchema,
-      },
-      { additionalProperties: false },
-    ),
-  ),
-);
+export const setupCatalog = oc
+  .errors(setupCatalogErrors)
+  .input(emptyInputSchema)
+  .output(
+    contractSchema(
+      Type.Object(
+        {
+          ok: Type.Literal(true),
+          catalog: setupCatalogSchema,
+        },
+        { additionalProperties: false }
+      )
+    )
+  );

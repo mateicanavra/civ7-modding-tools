@@ -6,4 +6,3 @@ export function freezeClone(obj: unknown): Readonly<Record<string, unknown>> | u
   }
   return Object.freeze(out);
 }
-

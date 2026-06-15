@@ -1,12 +1,12 @@
 import {
-  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
-  normalizeStudioSetupConfig,
-  type Civ7StudioSetupConfig,
-} from "../../features/civ7Setup/setupConfig";
-import {
   formatCiv7StudioSeedError,
   parseCiv7StudioSeed,
 } from "../../features/civ7Setup/seedPolicy";
+import {
+  type Civ7StudioSetupConfig,
+  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
+  normalizeStudioSetupConfig,
+} from "../../features/civ7Setup/setupConfig";
 
 export function assertNoRawControlFields(value: unknown): void {
   if (!value || typeof value !== "object") return;
@@ -54,24 +54,35 @@ export function parseRunInGameSetupRequest(body: {
   }
   const requestedMode = body.materialization?.mode === "durable" ? "durable" : "disposable";
   const selected = body.selectedConfig ?? {};
-  const id = requestedMode === "disposable"
-    ? "studio-current"
-    : typeof selected.id === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selected.id)
-      ? selected.id
-      : "studio-current";
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) throw new Error("Run in Game map config id must be kebab-case");
+  const id =
+    requestedMode === "disposable"
+      ? "studio-current"
+      : typeof selected.id === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selected.id)
+        ? selected.id
+        : "studio-current";
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id))
+    throw new Error("Run in Game map config id must be kebab-case");
   const seedPolicy = parseCiv7StudioSeed(body.seed);
   if (!seedPolicy.ok) throw new Error(`Run in Game ${formatCiv7StudioSeedError(seedPolicy)}`);
   const seed = seedPolicy.value;
   const mapSize = typeof body.mapSize === "string" ? body.mapSize : "MAPSIZE_STANDARD";
-  if (!/^MAPSIZE_[A-Z0-9_]+$/.test(mapSize)) throw new Error("Run in Game mapSize must be a Civ7 MAPSIZE_* value");
+  if (!/^MAPSIZE_[A-Z0-9_]+$/.test(mapSize))
+    throw new Error("Run in Game mapSize must be a Civ7 MAPSIZE_* value");
   const playerCount = body.playerCount === undefined ? undefined : Number(body.playerCount);
-  if (playerCount !== undefined && (!Number.isInteger(playerCount) || playerCount < 1 || playerCount > 64)) {
+  if (
+    playerCount !== undefined &&
+    (!Number.isInteger(playerCount) || playerCount < 1 || playerCount > 64)
+  ) {
     throw new Error("Run in Game playerCount must be an integer between 1 and 64");
   }
   const restartCivProcess = body.recovery?.restartCivProcess === true;
-  const setupConfig = normalizeStudioSetupConfig(body.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG);
-  if (setupConfig.mapScript !== undefined && (!setupConfig.mapScript.trim() || /[\0\r\n]/.test(setupConfig.mapScript))) {
+  const setupConfig = normalizeStudioSetupConfig(
+    body.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG
+  );
+  if (
+    setupConfig.mapScript !== undefined &&
+    (!setupConfig.mapScript.trim() || /[\0\r\n]/.test(setupConfig.mapScript))
+  ) {
     throw new Error("Run in Game setupConfig.mapScript must be a non-empty single-line string");
   }
   return {

@@ -1,18 +1,18 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
+  type Civ7ProductionChoiceRequestInput,
   Civ7ProductionChoiceRequestInputSchema,
+  type Civ7ProductionChoiceResult,
   Civ7ProductionChoiceResultSchema,
   requestCiv7ProductionChoice,
-  type Civ7ProductionChoiceRequestInput,
-  type Civ7ProductionChoiceResult,
 } from "./production-choice.js";
 
 export const Civ7ProductionChoiceRequestProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
@@ -30,18 +30,8 @@ export const Civ7ProductionChoiceRequestProcedureDescriptor = createCiv7Procedur
     owner: "packages/civ7-direct-control/src/play/operations/production-choice.ts",
     exportName: "Civ7ProductionChoiceResultSchema",
   },
-  inputFields: [
-    "cityId",
-    "args",
-  ],
-  outputFields: [
-    "before",
-    "after",
-    "sent",
-    "verified",
-    "productionPostcondition",
-    "payload",
-  ],
+  inputFields: ["cityId", "args"],
+  outputFields: ["before", "after", "sent", "verified", "productionPostcondition", "payload"],
   playerScope: "agent-slot-scoped",
   consumerClasses: [
     "normal-cli-player-agent-view",
@@ -90,7 +80,7 @@ export type Civ7ProductionChoiceRequestProcedureCallOptions = Readonly<{
 
 export function callCiv7ProductionChoiceRequestProcedure(
   input: Civ7ProductionChoiceRequestInput,
-  options: Civ7ProductionChoiceRequestProcedureCallOptions = {},
+  options: Civ7ProductionChoiceRequestProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7ProductionChoiceResult>> {
   return callCiv7ProcedureCore<Civ7ProductionChoiceRequestInput, Civ7ProductionChoiceResult>(
     Civ7ProductionChoiceRequestProcedureDescriptor,
@@ -102,17 +92,19 @@ export function callCiv7ProductionChoiceRequestProcedure(
           cityId: validInput.cityId,
           args: validInput.args,
         },
-        options.directControl,
+        options.directControl
       );
       return {
         before: result.before,
         after: result.after,
         sent: result.sent,
         verified: result.verified,
-        ...(result.productionPostcondition ? { productionPostcondition: result.productionPostcondition } : {}),
+        ...(result.productionPostcondition
+          ? { productionPostcondition: result.productionPostcondition }
+          : {}),
         ...(result.payload ? { payload: result.payload } : {}),
       };
     },
-    options.procedure,
+    options.procedure
   );
 }

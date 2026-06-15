@@ -1,8 +1,8 @@
+import type { CorridorKind, CorridorStyle } from "@mapgen/domain/narrative/corridors/types.js";
 import type {
   NarrativeCorridorAttributes,
   NarrativeCorridors,
 } from "@mapgen/domain/narrative/models.js";
-import type { CorridorKind, CorridorStyle } from "@mapgen/domain/narrative/corridors/types.js";
 
 export type CorridorState = NarrativeCorridors;
 

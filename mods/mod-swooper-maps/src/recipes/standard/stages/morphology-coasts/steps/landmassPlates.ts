@@ -1,3 +1,6 @@
+import type { MapDimensions } from "@civ7/adapter";
+import type { MorphologySeaLevelKnob } from "@mapgen/domain/morphology/config.js";
+import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/config.js";
 import {
   computeSampleStep,
   ctxRandom,
@@ -5,12 +8,9 @@ import {
   defineVizMeta,
   renderAsciiGrid,
 } from "@swooper/mapgen-core";
-import type { MapDimensions } from "@civ7/adapter";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 import LandmassPlatesStepContract from "./landmassPlates.contract.js";
-import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/config.js";
-import type { MorphologySeaLevelKnob } from "@mapgen/domain/morphology/config.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
@@ -216,7 +216,8 @@ function relaxUndrivenInteriorDomes(args: {
   riftPotential: Uint8Array;
   tectonicStress: Uint8Array;
 }): void {
-  const { elevation, landMask, distanceToCoast, upliftPotential, riftPotential, tectonicStress } = args;
+  const { elevation, landMask, distanceToCoast, upliftPotential, riftPotential, tectonicStress } =
+    args;
   let maxLandDistance = 0;
   for (let i = 0; i < landMask.length; i++) {
     if (landMask[i] !== 1) continue;

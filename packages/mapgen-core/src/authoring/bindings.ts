@@ -32,7 +32,9 @@ export type DomainOpRuntime<Op extends DomainOpCompileAny> = Op extends DomainOp
 export type DomainOpRuntimeAny = DomainOpRuntime<DomainOpCompileAny>;
 
 export type DomainOpsRouter<Op extends DomainOpCompileAny> = Readonly<{
-  bind: <Decl extends Record<string, { id: string }>>(contracts: Decl) => {
+  bind: <Decl extends Record<string, { id: string }>>(
+    contracts: Decl
+  ) => {
     compile: BoundOps<Decl, OpsById<Op>>;
     runtime: BoundOps<Decl, OpsById<DomainOpRuntime<Op>>>;
   };
@@ -63,10 +65,10 @@ type BoundOps<
   [K in keyof Decl]: Registry[Decl[K]["id"] & keyof Registry];
 };
 
-function bindOps<Decl extends Record<string, { id: string }>, Registry extends Record<string, unknown>>(
-  decl: Decl,
-  registryById: Registry
-): BoundOps<Decl, Registry> {
+function bindOps<
+  Decl extends Record<string, { id: string }>,
+  Registry extends Record<string, unknown>,
+>(decl: Decl, registryById: Registry): BoundOps<Decl, Registry> {
   const out = {} as BoundOps<Decl, Registry>;
   for (const key of Object.keys(decl) as Array<keyof Decl>) {
     const opId = decl[key].id;
@@ -93,8 +95,9 @@ function buildRuntimeOpsById<const TOps extends Record<string, DomainOpCompileAn
   const out: Partial<OpsById<DomainOpRuntime<TOps[keyof TOps]>>> = {};
   for (const op of Object.values(input) as Array<TOps[keyof TOps]>) {
     const runtime = runtimeOp(op);
-    out[runtime.id as DomainOpRuntime<TOps[keyof TOps]>["id"]] =
-      runtime as OpsById<DomainOpRuntime<TOps[keyof TOps]>>[DomainOpRuntime<TOps[keyof TOps]>["id"]];
+    out[runtime.id as DomainOpRuntime<TOps[keyof TOps]>["id"]] = runtime as OpsById<
+      DomainOpRuntime<TOps[keyof TOps]>
+    >[DomainOpRuntime<TOps[keyof TOps]>["id"]];
   }
   return out as OpsById<DomainOpRuntime<TOps[keyof TOps]>>;
 }
@@ -102,20 +105,14 @@ function buildRuntimeOpsById<const TOps extends Record<string, DomainOpCompileAn
 export function bindCompileOps<
   const Decl extends Record<string, { id: string }>,
   const Registry extends Readonly<Record<string, DomainOpCompileAny>>,
->(
-  decl: Decl,
-  registryById: Registry
-): BoundOps<Decl, Registry> {
+>(decl: Decl, registryById: Registry): BoundOps<Decl, Registry> {
   return bindOps(decl, registryById);
 }
 
 export function bindRuntimeOps<
   const Decl extends Record<string, { id: string }>,
   const Registry extends Readonly<Record<string, DomainOpRuntimeAny>>,
->(
-  decl: Decl,
-  registryById: Registry
-): BoundOps<Decl, Registry> {
+>(decl: Decl, registryById: Registry): BoundOps<Decl, Registry> {
   return bindOps(decl, registryById);
 }
 

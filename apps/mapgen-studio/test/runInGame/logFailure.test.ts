@@ -13,7 +13,7 @@ describe("Civ7 mapgen log failure classifier", () => {
         "[2026-06-05 01:21:01]\tFailed to open file - fs://game/swooper-maps/maps/studio-current.js",
         "[2026-06-05 01:21:01]\tFailed to load file into script system - fs://game/swooper-maps/maps/studio-current.js",
       ].join("\n"),
-      { mapScript: "{swooper-maps}/maps/studio-current.js" },
+      { mapScript: "{swooper-maps}/maps/studio-current.js" }
     );
 
     expect(failure).toMatchObject({
@@ -30,8 +30,8 @@ describe("Civ7 mapgen log failure classifier", () => {
       [
         "[2026-06-05 01:33:39]\tCreating Context -  MapGeneration",
         "[2026-06-05 01:33:40]\t[SWOOPER_MOD] [recipe:standard] [44/50] start mod-swooper-maps.standard.placement.place-natural-wonders",
-        "StepExecutionError: Step \"mod-swooper-maps.standard.placement.place-natural-wonders\" failed",
-      ].join("\n"),
+        'StepExecutionError: Step "mod-swooper-maps.standard.placement.place-natural-wonders" failed',
+      ].join("\n")
     );
 
     expect(failure).toMatchObject({

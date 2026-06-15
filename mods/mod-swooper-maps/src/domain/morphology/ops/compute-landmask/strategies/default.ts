@@ -1,8 +1,7 @@
+import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
-
-import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
 
 import ComputeLandmaskContract from "../contract.js";
 import { validateLandmaskInputs } from "../rules/index.js";
@@ -66,7 +65,12 @@ const MOVEMENT_SPEED_ADVECTION_GATE = 0.05;
 const CRATON_HALF_SATURATION_MIN = 0.01;
 const CRATON_HALF_SATURATION_FALLBACK = 0.35;
 
-function buildCoarseAverageHexOddQ(width: number, height: number, values: Float32Array, grain: number): Float32Array {
+function buildCoarseAverageHexOddQ(
+  width: number,
+  height: number,
+  values: Float32Array,
+  grain: number
+): Float32Array {
   const size = Math.max(0, (width | 0) * (height | 0));
   const g = Math.max(1, Math.round(grain)) | 0;
 
@@ -83,7 +87,7 @@ function buildCoarseAverageHexOddQ(width: number, height: number, values: Float3
       const qb = Math.floor(q / g) | 0;
       const rb = Math.floor(r / g) | 0;
       // Pack two signed 16-bit integers into one 32-bit key.
-      const key = (((qb & 0xffff) << 16) | (rb & 0xffff)) | 0;
+      const key = ((qb & 0xffff) << 16) | (rb & 0xffff) | 0;
       sums.set(key, (sums.get(key) ?? 0) + (values[i] ?? 0));
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
@@ -97,7 +101,7 @@ function buildCoarseAverageHexOddQ(width: number, height: number, values: Float3
       const r = (y - ((x - (x & 1)) >> 1)) | 0;
       const qb = Math.floor(q / g) | 0;
       const rb = Math.floor(r / g) | 0;
-      const key = (((qb & 0xffff) << 16) | (rb & 0xffff)) | 0;
+      const key = ((qb & 0xffff) << 16) | (rb & 0xffff) | 0;
       const denom = counts.get(key) ?? 1;
       out[i] = (sums.get(key) ?? 0) / denom;
     }
@@ -182,7 +186,11 @@ function countLand(landMask: Uint8Array): number {
   return n;
 }
 
-function computeComponents(width: number, height: number, landMask: Uint8Array): { id: Int32Array; sizes: number[] } {
+function computeComponents(
+  width: number,
+  height: number,
+  landMask: Uint8Array
+): { id: Int32Array; sizes: number[] } {
   const size = Math.max(0, (width | 0) * (height | 0));
   const id = new Int32Array(size);
   id.fill(-1);
@@ -435,8 +443,10 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
 
       let boundary = 0;
       if (bt === BOUNDARY_TYPE.convergent)
-        boundary += b * (BOUNDARY_CONVERGENT_STRESS_WEIGHT * s + BOUNDARY_CONVERGENT_UPLIFT_WEIGHT * u);
-      else if (bt === BOUNDARY_TYPE.transform) boundary += b * (BOUNDARY_TRANSFORM_STRESS_WEIGHT * s);
+        boundary +=
+          b * (BOUNDARY_CONVERGENT_STRESS_WEIGHT * s + BOUNDARY_CONVERGENT_UPLIFT_WEIGHT * u);
+      else if (bt === BOUNDARY_TYPE.transform)
+        boundary += b * (BOUNDARY_TRANSFORM_STRESS_WEIGHT * s);
       else if (bt === BOUNDARY_TYPE.divergent) boundary -= b * (BOUNDARY_DIVERGENT_RIFT_WEIGHT * r);
       boundary = Math.max(-1, Math.min(1, boundary));
       // Remap to 0..1 for blending.
@@ -466,7 +476,10 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
     const nucleationScale = Math.max(0, config.cratonNucleationScale ?? 0);
     const diffusion = clamp01(config.cratonDiffusion ?? 0);
     const advection = clamp01(config.cratonAdvection ?? 0);
-    const halfSat = Math.max(CRATON_HALF_SATURATION_MIN, config.cratonHalfSaturation ?? CRATON_HALF_SATURATION_FALLBACK);
+    const halfSat = Math.max(
+      CRATON_HALF_SATURATION_MIN,
+      config.cratonHalfSaturation ?? CRATON_HALF_SATURATION_FALLBACK
+    );
     const cratonWeight = clamp01(config.cratonPotentialWeight ?? 0);
 
     let cratonMass = new Float32Array(size);
@@ -481,7 +494,8 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
 
     if (stepsPerEra > 0 && cratonWeight > 0) {
       for (let era = 0; era < eraCount; era++) {
-        const riftEra = riftPotentialByEra[era] ?? riftPotentialByEra[riftPotentialByEra.length - 1]!;
+        const riftEra =
+          riftPotentialByEra[era] ?? riftPotentialByEra[riftPotentialByEra.length - 1]!;
         const eraWeight = eraWeights[era] ?? 1;
 
         for (let step = 0; step < stepsPerEra; step++) {
@@ -501,7 +515,8 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
             const baseElevationUnit = clamp01(crustBaseElevation[i] ?? 0);
             const emergenceBias = CRATON_EMERGENCE_BASE + CRATON_EMERGENCE_GAIN * baseElevationUnit;
 
-            const nucleate = eraWeight * nucleationScale * riftUnit * fractureBlend * speedBlend * emergenceBias;
+            const nucleate =
+              eraWeight * nucleationScale * riftUnit * fractureBlend * speedBlend * emergenceBias;
             if (nucleate <= 0) continue;
 
             // Deposit on the rift tile and immediate neighbors (rift shoulders).
@@ -580,16 +595,25 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
     // Multi-scale smoothing:
     // - Low-pass only the crust backbone (coarse bin + blur) to avoid "rectangular blocks"
     // - Lightly blur boundary/history fields (no coarse binning) to preserve corridor structure
-    const coarseCrust = buildCoarseAverageHexOddQ(width, height, potentialCrustRaw, config.continentPotentialGrain);
+    const coarseCrust = buildCoarseAverageHexOddQ(
+      width,
+      height,
+      potentialCrustRaw,
+      config.continentPotentialGrain
+    );
     const blurredCrust = blurHex(width, height, coarseCrust, config.continentPotentialBlurSteps);
 
     const blurredBoundary = blurHex(width, height, potentialBoundaryRaw, BLUR_MID_FREQUENCY_STEPS);
     const blurredHistory = blurHex(width, height, potentialHistoryRaw, BLUR_MID_FREQUENCY_STEPS);
 
     const coarseCraton =
-      cratonWeight > 0 ? buildCoarseAverageHexOddQ(width, height, cratonNorm, config.continentPotentialGrain) : cratonNorm;
+      cratonWeight > 0
+        ? buildCoarseAverageHexOddQ(width, height, cratonNorm, config.continentPotentialGrain)
+        : cratonNorm;
     const blurredCraton =
-      cratonWeight > 0 ? blurHex(width, height, coarseCraton, config.continentPotentialBlurSteps) : coarseCraton;
+      cratonWeight > 0
+        ? blurHex(width, height, coarseCraton, config.continentPotentialBlurSteps)
+        : coarseCraton;
 
     const potential = new Float32Array(size);
     for (let i = 0; i < size; i++) {

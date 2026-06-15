@@ -1,8 +1,7 @@
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-
 import type { StudioEvent } from "@civ7/studio-server";
-
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import type { LiveRuntimeStatusState } from "../../features/liveRuntime/model";
 import { orpc, orpcClient } from "../../lib/orpc";
 import {
   applyStudioLiveGameEvent,
@@ -10,7 +9,6 @@ import {
   readAndAdoptStudioOperationsCurrent,
   type StudioOperationAdoptionTargets,
 } from "../operationAdoption";
-import type { LiveRuntimeStatusState } from "../../features/liveRuntime/model";
 
 export const STUDIO_EVENT_STREAM_RETRY_ATTEMPTS = Number.POSITIVE_INFINITY;
 
@@ -31,10 +29,12 @@ export function studioEventsWatchLiveOptions() {
   });
 }
 
-export function useStudioEvents(args: StudioOperationAdoptionTargets & {
-  applyLiveGameState(state: LiveRuntimeStatusState): void;
-  setLocalError(message: string | null): void;
-}): void {
+export function useStudioEvents(
+  args: StudioOperationAdoptionTargets & {
+    applyLiveGameState(state: LiveRuntimeStatusState): void;
+    setLocalError(message: string | null): void;
+  }
+): void {
   const {
     applyLiveGameState,
     setRunInGameOperation,
@@ -44,15 +44,18 @@ export function useStudioEvents(args: StudioOperationAdoptionTargets & {
   } = args;
   const eventQuery = useQuery(studioEventsWatchLiveOptions());
   const event = eventQuery.data as StudioEvent | undefined;
-  const helloKey = event?.type === "hello"
-    ? `${event.serverInstanceId}:${event.serverStartedAt}:${event.observedAt}`
-    : null;
-  const operationKey = event?.type === "operation"
-    ? `${event.kind}:${event.status.requestId}:${event.observedAt}`
-    : null;
-  const liveGameKey = event?.type === "live-game"
-    ? `${event.state.snapshotId ?? event.state.snapshotHash ?? event.state.status}:${event.observedAt}`
-    : null;
+  const helloKey =
+    event?.type === "hello"
+      ? `${event.serverInstanceId}:${event.serverStartedAt}:${event.observedAt}`
+      : null;
+  const operationKey =
+    event?.type === "operation"
+      ? `${event.kind}:${event.status.requestId}:${event.observedAt}`
+      : null;
+  const liveGameKey =
+    event?.type === "live-game"
+      ? `${event.state.snapshotId ?? event.state.snapshotHash ?? event.state.status}:${event.observedAt}`
+      : null;
 
   useEffect(() => {
     if (!helloKey) return;
@@ -70,7 +73,13 @@ export function useStudioEvents(args: StudioOperationAdoptionTargets & {
     return () => {
       cancelled = true;
     };
-  }, [helloKey, markRunInGameToastHandled, setLocalError, setRunInGameOperation, setSaveDeployOperation]);
+  }, [
+    helloKey,
+    markRunInGameToastHandled,
+    setLocalError,
+    setRunInGameOperation,
+    setSaveDeployOperation,
+  ]);
 
   useEffect(() => {
     if (!operationKey || event?.type !== "operation") return;
@@ -92,7 +101,7 @@ export function useStudioEvents(args: StudioOperationAdoptionTargets & {
     setLocalError(
       eventQuery.error instanceof Error
         ? eventQuery.error.message
-        : "Studio event stream unavailable",
+        : "Studio event stream unavailable"
     );
   }, [eventQuery.error, setLocalError]);
 }

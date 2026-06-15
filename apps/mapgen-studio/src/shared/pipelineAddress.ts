@@ -28,4 +28,3 @@ export function assertPipelineAddress(fullStepId: string): PipelineAddress {
   if (!parsed) throw new Error(`Invalid pipeline step id: ${fullStepId}`);
   return parsed;
 }
-

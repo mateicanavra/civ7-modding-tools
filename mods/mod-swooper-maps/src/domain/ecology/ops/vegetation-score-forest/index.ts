@@ -12,4 +12,3 @@ const scoreVegetationForest = createOp(ScoreVegetationForestContract, {
 export type * from "./contract.js";
 
 export default scoreVegetationForest;
-

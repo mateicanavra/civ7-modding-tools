@@ -1,6 +1,5 @@
-import { Type, defineOp, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
-
 import type { PlotEffectKey } from "@mapgen/domain/ecology/types.js";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const createPlotEffectSelectorSchema = (defaultValue: { typeName: PlotEffectKey }) =>
   Type.Object(
@@ -69,7 +68,8 @@ const PlotEffectsBurnedPlanSchema = Type.Object({
     default: 8,
     minimum: 0,
     maximum: 100,
-    description: "Percent of eligible burned tiles to place (deterministic top-coverage selection).",
+    description:
+      "Percent of eligible burned tiles to place (deterministic top-coverage selection).",
   }),
 });
 

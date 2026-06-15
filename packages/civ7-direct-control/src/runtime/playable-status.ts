@@ -1,19 +1,17 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { errorMessage } from "../error-message.js";
-import type {
-  Civ7DirectControlOptions,
-} from "../session/types.js";
+import type { Civ7DirectControlOptions } from "../session/types.js";
 import {
+  type Civ7AppUiSnapshotResult,
   Civ7AppUiSnapshotResultSchema,
   getCiv7AppUiSnapshot,
-  type Civ7AppUiSnapshotResult,
 } from "./app-ui-snapshot.js";
 import type { Civ7RuntimeProbe } from "./probe.js";
 import {
-  checkCiv7TunerHealth,
-  Civ7TunerHealthResultSchema,
   type Civ7TunerHealthResult,
+  Civ7TunerHealthResultSchema,
+  checkCiv7TunerHealth,
 } from "./tuner-health.js";
 
 export const Civ7PlayableStatusInputSchema = Type.Object({}, { additionalProperties: false });
@@ -28,32 +26,31 @@ export const Civ7PlayableReadinessSchema = Type.Union([
   Type.Literal("unavailable"),
 ]);
 
-export const Civ7PlayableStatusResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  playable: Type.Boolean(),
-  readiness: Civ7PlayableReadinessSchema,
-  appUi: Civ7AppUiSnapshotResultSchema,
-  tuner: Type.Optional(Civ7TunerHealthResultSchema),
-  errors: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7PlayableStatusResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    playable: Type.Boolean(),
+    readiness: Civ7PlayableReadinessSchema,
+    appUi: Civ7AppUiSnapshotResultSchema,
+    tuner: Type.Optional(Civ7TunerHealthResultSchema),
+    errors: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7PlayableStatusResult = Readonly<{
   host: string;
   port: number;
   playable: boolean;
-  readiness:
-    | "tuner-ready"
-    | "app-ui-game"
-    | "begin-ready"
-    | "loading"
-    | "shell"
-    | "unavailable";
+  readiness: "tuner-ready" | "app-ui-game" | "begin-ready" | "loading" | "shell" | "unavailable";
   appUi: Civ7AppUiSnapshotResult;
   tuner?: Civ7TunerHealthResult;
   errors: ReadonlyArray<string>;
 }>;
-export type Civ7PlayableStatusResultContract = Readonly<Static<typeof Civ7PlayableStatusResultSchema>>;
+export type Civ7PlayableStatusResultContract = Readonly<
+  Static<typeof Civ7PlayableStatusResultSchema>
+>;
 
 export type PlayableStatusDependencies = Readonly<{
   checkTunerHealth: (options?: Civ7DirectControlOptions) => Promise<Civ7TunerHealthResult>;
@@ -63,7 +60,7 @@ export type PlayableStatusDependencies = Readonly<{
 
 export async function getCiv7PlayableStatus(
   options: Civ7DirectControlOptions = {},
-  dependencies: PlayableStatusDependencies = defaultPlayableStatusDependencies,
+  dependencies: PlayableStatusDependencies = defaultPlayableStatusDependencies
 ): Promise<Civ7PlayableStatusResult> {
   const appUi = await dependencies.getAppUiSnapshot(options);
   const errors: string[] = [];

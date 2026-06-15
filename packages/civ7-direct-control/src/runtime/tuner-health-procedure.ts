@@ -1,18 +1,18 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../session/types.js";
 import {
-  checkCiv7TunerHealth,
-  Civ7TunerHealthInputSchema,
-  Civ7TunerHealthResultSchema,
   type Civ7TunerHealthInput,
+  Civ7TunerHealthInputSchema,
   type Civ7TunerHealthResult,
+  Civ7TunerHealthResultSchema,
+  checkCiv7TunerHealth,
   type TunerHealthDependencies,
 } from "./tuner-health.js";
 
@@ -64,8 +64,10 @@ export const Civ7TunerHealthProcedureDescriptor = createCiv7ProcedureCoreDescrip
 });
 
 export const Civ7TunerHealthProcedureSchemaArtifacts = {
-  [civ7ProcedureSchemaReferenceKey(Civ7TunerHealthProcedureDescriptor.inputSchema)]: Civ7TunerHealthInputSchema,
-  [civ7ProcedureSchemaReferenceKey(Civ7TunerHealthProcedureDescriptor.outputSchema)]: Civ7TunerHealthResultSchema,
+  [civ7ProcedureSchemaReferenceKey(Civ7TunerHealthProcedureDescriptor.inputSchema)]:
+    Civ7TunerHealthInputSchema,
+  [civ7ProcedureSchemaReferenceKey(Civ7TunerHealthProcedureDescriptor.outputSchema)]:
+    Civ7TunerHealthResultSchema,
 } satisfies Civ7ProcedureSchemaArtifactMap;
 
 export type Civ7TunerHealthProcedureCallOptions = Readonly<{
@@ -76,16 +78,13 @@ export type Civ7TunerHealthProcedureCallOptions = Readonly<{
 
 export function callCiv7TunerHealthProcedure(
   input: Civ7TunerHealthInput = {},
-  options: Civ7TunerHealthProcedureCallOptions = {},
+  options: Civ7TunerHealthProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7TunerHealthResult>> {
   return callCiv7ProcedureCore<Civ7TunerHealthInput, Civ7TunerHealthResult>(
     Civ7TunerHealthProcedureDescriptor,
     Civ7TunerHealthProcedureSchemaArtifacts,
     input,
-    () => checkCiv7TunerHealth(
-      options.directControl,
-      options.dependencies,
-    ),
-    options.procedure,
+    () => checkCiv7TunerHealth(options.directControl, options.dependencies),
+    options.procedure
   );
 }

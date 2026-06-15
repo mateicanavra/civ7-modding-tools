@@ -5,4 +5,3 @@ export function pickRandom<T>(items: readonly T[], rng: RngFn, label: string): T
   const index = rng(items.length, label) % items.length;
   return items[index] ?? null;
 }
-

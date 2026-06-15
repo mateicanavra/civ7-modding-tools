@@ -1,18 +1,17 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
-import {
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  Civ7StrategyFormationSnapshotUnavailableError,
-  createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-} from "../src/index";
 import type {
   Civ7ControlOrpcBattlefieldScanResult,
   Civ7ControlOrpcPlayNotificationViewResult,
   Civ7ControlOrpcReadyUnitViewResult,
 } from "../src/dependencies/direct-control";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  Civ7ControlOrpcRouter,
+  Civ7StrategyFormationSnapshotUnavailableError,
+  createCiv7ControlOrpcServerClient,
+} from "../src/index";
 
 describe("strategy.formationSnapshot control-oRPC procedure", () => {
   test("composes ready-unit and battlefield evidence into a safe formation view", async () => {
@@ -27,31 +26,37 @@ describe("strategy.formationSnapshot control-oRPC procedure", () => {
         maxUnits: 96,
         maxCities: 40,
       },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(fake.calls).toEqual({
-      notifications: [{
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-        maxNotifications: 10,
-      }],
-      readyUnit: [{
-        input: {
-          unitId: { owner: 0, id: 458752, type: 26 },
-          radius: 2,
+      notifications: [
+        {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+          maxNotifications: 10,
         },
-      }],
-      battlefield: [{
-        input: {
-          playerId: undefined,
-          origins: [{ x: 17, y: 20 }],
-          radius: 6,
-          maxUnits: 96,
-          maxCities: 40,
+      ],
+      readyUnit: [
+        {
+          input: {
+            unitId: { owner: 0, id: 458752, type: 26 },
+            radius: 2,
+          },
         },
-      }],
+      ],
+      battlefield: [
+        {
+          input: {
+            playerId: undefined,
+            origins: [{ x: 17, y: 20 }],
+            radius: 6,
+            maxUnits: 96,
+            maxCities: 40,
+          },
+        },
+      ],
     });
     expect(result).toMatchObject({
       playerId: 0,
@@ -81,9 +86,7 @@ describe("strategy.formationSnapshot control-oRPC procedure", () => {
     expect(result.formation.screens.length).toBeGreaterThan(0);
     expect(result.formation.otherOwnerContacts.length).toBeGreaterThan(0);
     expect(result.formation.nearbyContacts.length).toBeGreaterThan(0);
-    expect(result.formation.nextSteps.map((step) => step.kind)).toContain(
-      "inspect-civilian-route",
-    );
+    expect(result.formation.nextSteps.map((step) => step.kind)).toContain("inspect-civilian-route");
     expect(JSON.stringify(result.nextSteps)).not.toContain("game play");
     expectSafeFormationOutput(result);
   });
@@ -119,11 +122,9 @@ describe("strategy.formationSnapshot control-oRPC procedure", () => {
     for (const input of invalidInputs) {
       const fake = fakeContext({});
       await expect(
-        call(
-          Civ7ControlOrpcRouter.strategy.formationSnapshot,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.strategy.formationSnapshot, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls).toEqual(emptyCalls());
     }
@@ -133,15 +134,13 @@ describe("strategy.formationSnapshot control-oRPC procedure", () => {
     const context: Civ7ControlOrpcContext = {
       directControl: {
         getCiv7PlayNotificationView: async () => {
-          throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:1:Game.turn",
-          );
+          throw new Error("Timed out waiting for Civ7 tuner response to CMD:1:Game.turn");
         },
       } as Civ7ControlOrpcContext["directControl"],
     };
 
     await expect(
-      call(Civ7ControlOrpcRouter.strategy.formationSnapshot, {}, { context }),
+      call(Civ7ControlOrpcRouter.strategy.formationSnapshot, {}, { context })
     ).rejects.toMatchObject({
       code: "STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE",
       status: 503,
@@ -152,9 +151,13 @@ describe("strategy.formationSnapshot control-oRPC procedure", () => {
     });
 
     try {
-      await call(Civ7ControlOrpcRouter.strategy.formationSnapshot, {}, {
-        context,
-      });
+      await call(
+        Civ7ControlOrpcRouter.strategy.formationSnapshot,
+        {},
+        {
+          context,
+        }
+      );
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -165,9 +168,7 @@ describe("strategy.formationSnapshot control-oRPC procedure", () => {
   });
 
   test("publishes a contract-first strategy.formationSnapshot service leaf", () => {
-    expect(
-      Civ7ControlOrpcContract.strategy.formationSnapshot["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.strategy.formationSnapshot["~orpc"]).toMatchObject({
       meta: {
         family: "strategy",
         procedureKey: "strategy.formationSnapshot",
@@ -175,11 +176,11 @@ describe("strategy.formationSnapshot control-oRPC procedure", () => {
         risk: "read-only",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.strategy.formationSnapshot["~orpc"].errorMap,
-    ).toHaveProperty("STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE");
+    expect(Civ7ControlOrpcContract.strategy.formationSnapshot["~orpc"].errorMap).toHaveProperty(
+      "STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE"
+    );
     expect(Civ7StrategyFormationSnapshotUnavailableError.code).toBe(
-      "STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE",
+      "STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE"
     );
   });
 });
@@ -199,7 +200,7 @@ function fakeContext(
     notifications: Civ7ControlOrpcPlayNotificationViewResult;
     readyUnit: Civ7ControlOrpcReadyUnitViewResult;
     battlefield: Civ7ControlOrpcBattlefieldScanResult;
-  }>,
+  }>
 ): { calls: Calls; context: Civ7ControlOrpcContext } {
   const calls = emptyCalls();
   const results = {
@@ -280,13 +281,15 @@ function readyUnitView(): Civ7ControlOrpcReadyUnitViewResult {
         hitPoints: 100,
       },
     },
-    legalOperations: [{
-      family: "unit-operation",
-      operationType: "SKIP_TURN",
-      enumValue: 1,
-      valid: true,
-      result: { Success: true },
-    }],
+    legalOperations: [
+      {
+        family: "unit-operation",
+        operationType: "SKIP_TURN",
+        enumValue: 1,
+        valid: true,
+        result: { Success: true },
+      },
+    ],
     promotionReadiness: { ok: true, value: null },
     nearby: { ok: true, value: [] },
     notes: ["Read-only ready-unit fixture."],
@@ -334,13 +337,15 @@ function battlefieldScan(): Civ7ControlOrpcBattlefieldScanResult {
     units: [ownScreen, ownCivilian, otherOwnerUnit],
     cities: [],
     owners: [],
-    pointsOfInterest: [{
-      kind: "civilian-risk",
-      severity: "high",
-      location: ownCivilian.location,
-      summary: "friendly civilian has other-owner contact within 4 tiles",
-      units: [ownCivilian],
-    }],
+    pointsOfInterest: [
+      {
+        kind: "civilian-risk",
+        severity: "high",
+        location: ownCivilian.location,
+        summary: "friendly civilian has other-owner contact within 4 tiles",
+        units: [ownCivilian],
+      },
+    ],
     notes: ["Read-only battlefield lens."],
   };
 }
@@ -363,11 +368,11 @@ function formationUnit(overrides: Partial<Record<string, unknown>>) {
 
 function expectSafeFormationOutput(value: unknown): void {
   const serialized = JSON.stringify(value);
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
-  expect(serialized).not.toContain("\"evidence\"");
-  expect(serialized).not.toContain("\"legalOperations\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"evidence"');
+  expect(serialized).not.toContain('"legalOperations"');
   expect(serialized).not.toContain("Game.turn");
   expect(serialized).not.toContain("rawCommand");
   expect(serialized).not.toMatch(/\bfriendly\b/i);

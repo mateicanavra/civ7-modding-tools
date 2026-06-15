@@ -1,8 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { Type } from "typebox";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@mapgen/core/types.js";
-
 import {
   createRecipe,
   createStage,
@@ -11,16 +8,18 @@ import {
   defineStep,
   implementArtifacts,
 } from "@mapgen/authoring/index.js";
+import { createExtendedMapContext } from "@mapgen/core/types.js";
 import {
   compileExecutionPlan,
   InvalidDependencyTagDemoError,
   PipelineExecutor,
+  StepExecutionError,
   StepRegistry,
   TagRegistry,
-  StepExecutionError,
   UnknownDependencyTagError,
   UnsatisfiedProvidesError,
 } from "@mapgen/engine/index.js";
+import { Type } from "typebox";
 
 const TEST_TAGS = {
   effect: {

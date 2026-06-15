@@ -1,13 +1,13 @@
+import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 
 import { isAnyRiverClass } from "../../../../../../domain/hydrology/index.js";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import {
   validateFeatureIntentsListArtifact,
   validateOccupancyArtifact,
 } from "../../../ecology/artifact-validation.js";
+import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import PlanVegetationStepContract from "./contract.js";
 
 const VEGETATION_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {
@@ -87,7 +87,9 @@ export default createStep(PlanVegetationStepContract, {
       const feature = placement.feature;
       const index = VEGETATION_FEATURE_INDEX_BY_KEY[feature];
       if (!index) {
-        throw new Error(`plan-vegetation expected vegetation-family placements (received ${feature})`);
+        throw new Error(
+          `plan-vegetation expected vegetation-family placements (received ${feature})`
+        );
       }
       const x = placement.x | 0;
       const y = placement.y | 0;

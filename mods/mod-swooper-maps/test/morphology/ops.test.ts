@@ -9,11 +9,7 @@ describe("morphology operations", () => {
   it("computes landmass components and validates output", () => {
     const width = 4;
     const height = 3;
-    const landMask = new Uint8Array([
-      1, 1, 0, 0,
-      1, 0, 0, 1,
-      0, 0, 1, 1,
-    ]);
+    const landMask = new Uint8Array([1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1]);
 
     const result = runOpValidated(
       computeLandmasses,
@@ -21,7 +17,11 @@ describe("morphology operations", () => {
       { strategy: "default", config: {} }
     );
 
-    normalizeStrictOrThrow(computeLandmasses.output, result, "/ops/morphology/compute-landmasses/output");
+    normalizeStrictOrThrow(
+      computeLandmasses.output,
+      result,
+      "/ops/morphology/compute-landmasses/output"
+    );
     expect(result.landmasses.length).toBeGreaterThan(0);
     expect(result.landmassIdByTile.length).toBe(width * height);
     expect(result.landmassIdByTile[2]).toBe(-1);

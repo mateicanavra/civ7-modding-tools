@@ -76,7 +76,9 @@ export function validateNaturalWonderPlacementArtifact(value: unknown): Validati
   const rejectedDigest = proof && isRecord(proof.rejected) ? proof.rejected : null;
   if (placedDigest?.count !== placedCount) {
     issues.push(
-      issue(`coordinateProof.placed.count ${String(placedDigest?.count)} != placedCount ${placedCount}.`)
+      issue(
+        `coordinateProof.placed.count ${String(placedDigest?.count)} != placedCount ${placedCount}.`
+      )
     );
   }
   if (rejectedDigest?.count !== rejectedRowsExpected) {

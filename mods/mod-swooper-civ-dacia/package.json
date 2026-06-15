@@ -14,7 +14,6 @@
     "deploy": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
     "docs": "docsify serve docs",
     "lint": "eslint .",
-    "format": "prettier --write .",
     "check": "tsc -p tsconfig.json --noEmit",
     "build:deploy": "bun run build && bun run deploy"
   },
@@ -38,8 +37,6 @@
     "@typescript-eslint/parser": "^8.54.0",
     "docsify-cli": "^4.4.4",
     "eslint": "^9.39.2",
-    "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.8.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },

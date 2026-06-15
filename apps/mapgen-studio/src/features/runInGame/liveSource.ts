@@ -2,9 +2,10 @@
 // authoring model. Drives whether "Sync from Live Game" / "Run in Game" relation
 // states are offered — its semantics are PARITY-CRITICAL and reproduced verbatim
 // from `App.tsx` (app-decomposition slice).
-import { configsEqual } from "../../ui/utils/config";
+
 import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../ui/types";
-import { studioSetupConfigsEqual, type Civ7StudioSetupConfig } from "../civ7Setup/setupConfig";
+import { configsEqual } from "../../ui/utils/config";
+import { type Civ7StudioSetupConfig, studioSetupConfigsEqual } from "../civ7Setup/setupConfig";
 import type { RunInGameSourceSnapshot } from "./clientState";
 
 export type LastRunSnapshot = {

@@ -1,11 +1,10 @@
 import { describe, expect, it } from "bun:test";
-
-import ecology from "@mapgen/domain/ecology/ops";
 import { createMockAdapter } from "@civ7/adapter";
+import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import planReefsStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-reefs/index.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import planReefsStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-reefs/index.js";
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 import { buildTestDeps } from "../support/step-deps.js";
@@ -48,7 +47,11 @@ describe("ecology-features plan-reefs step", () => {
     layers.FEATURE_REEF.fill(1);
 
     const stageArtifacts = implementArtifacts(
-      [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyIce, hydrologyHydrographyArtifacts.lakePlan],
+      [
+        ecologyArtifacts.scoreLayers,
+        ecologyArtifacts.occupancyIce,
+        hydrologyHydrographyArtifacts.lakePlan,
+      ],
       { scoreLayers: {}, occupancyIce: {}, lakePlan: {} }
     );
     stageArtifacts.scoreLayers.publish(ctx, { width, height, layers });

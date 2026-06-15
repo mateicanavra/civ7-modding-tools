@@ -6,7 +6,7 @@ const transportMoisture = createOp(TransportMoistureContract, {
   strategies: { default: defaultStrategy, cardinal: cardinalStrategy },
 });
 
-export type * from "./types.js";
 export type * from "./contract.js";
+export type * from "./types.js";
 
 export default transportMoisture;

@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { promisify } from "node:util";
 
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 
@@ -266,15 +266,18 @@ if #available(macOS 14.0, *) {
 /** Substring matched against app name / bundle id / window title. */
 export const DEFAULT_CIV7_WINDOW_MATCH = "civilization";
 
-export const Civ7CaptureWindowRowSchema = Type.Object({
-  windowId: Type.Integer({ minimum: 0 }),
-  app: Type.String(),
-  bundleId: Type.String(),
-  title: Type.String(),
-  width: Type.Integer({ minimum: 0 }),
-  height: Type.Integer({ minimum: 0 }),
-  onScreen: Type.Boolean(),
-}, { additionalProperties: false });
+export const Civ7CaptureWindowRowSchema = Type.Object(
+  {
+    windowId: Type.Integer({ minimum: 0 }),
+    app: Type.String(),
+    bundleId: Type.String(),
+    title: Type.String(),
+    width: Type.Integer({ minimum: 0 }),
+    height: Type.Integer({ minimum: 0 }),
+    onScreen: Type.Boolean(),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7CaptureWindowRow = Readonly<Static<typeof Civ7CaptureWindowRowSchema>>;
 
@@ -287,16 +290,24 @@ export type Civ7WindowShotCaptureInput = Readonly<{
   windowId?: number;
 }>;
 
-export const Civ7WindowShotFileSchema = Type.Object({
-  path: Type.String(),
-  byteSize: Type.Integer({ minimum: 0 }),
-  sha256: Type.String(),
-  mediaType: Type.Literal("image/png"),
-  dimensions: Type.Optional(Type.Object({
-    width: Type.Integer({ minimum: 0 }),
-    height: Type.Integer({ minimum: 0 }),
-  }, { additionalProperties: false })),
-}, { additionalProperties: false });
+export const Civ7WindowShotFileSchema = Type.Object(
+  {
+    path: Type.String(),
+    byteSize: Type.Integer({ minimum: 0 }),
+    sha256: Type.String(),
+    mediaType: Type.Literal("image/png"),
+    dimensions: Type.Optional(
+      Type.Object(
+        {
+          width: Type.Integer({ minimum: 0 }),
+          height: Type.Integer({ minimum: 0 }),
+        },
+        { additionalProperties: false }
+      )
+    ),
+  },
+  { additionalProperties: false }
+);
 
 export const Civ7WindowShotFrameSourceSchema = Type.Union([
   /** Window was on screen and compositing: one-shot screenshot, fresh. */
@@ -307,13 +318,16 @@ export const Civ7WindowShotFrameSourceSchema = Type.Union([
 
 export type Civ7WindowShotFrameSource = Static<typeof Civ7WindowShotFrameSourceSchema>;
 
-export const Civ7WindowShotCaptureResultSchema = Type.Object({
-  captureMode: Type.Literal("window-scoped-screencapturekit"),
-  requestedAt: Type.String(),
-  frameSource: Civ7WindowShotFrameSourceSchema,
-  window: Civ7CaptureWindowRowSchema,
-  file: Civ7WindowShotFileSchema,
-}, { additionalProperties: false });
+export const Civ7WindowShotCaptureResultSchema = Type.Object(
+  {
+    captureMode: Type.Literal("window-scoped-screencapturekit"),
+    requestedAt: Type.String(),
+    frameSource: Civ7WindowShotFrameSourceSchema,
+    window: Civ7CaptureWindowRowSchema,
+    file: Civ7WindowShotFileSchema,
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7WindowShotCaptureResult = Readonly<{
   captureMode: "window-scoped-screencapturekit";
@@ -333,7 +347,7 @@ export type Civ7WindowShotCaptureResult = Readonly<{
 export type WindowShotDependencies = Readonly<{
   execFile: (
     file: string,
-    args: readonly string[],
+    args: readonly string[]
   ) => Promise<Readonly<{ stdout: string; stderr: string }>>;
   mkdir: typeof mkdir;
   now: () => Date;
@@ -364,7 +378,7 @@ const defaultWindowShotDependencies: WindowShotDependencies = {
  * revisions' binaries and sources, so the cache never accumulates.
  */
 export async function ensureCiv7WindowShotHelper(
-  dependencies: WindowShotDependencies = defaultWindowShotDependencies,
+  dependencies: WindowShotDependencies = defaultWindowShotDependencies
 ): Promise<string> {
   const sourceHash = createHash("sha256")
     .update(CIV7_WINDOW_SHOT_SWIFT_SOURCE)
@@ -377,20 +391,14 @@ export async function ensureCiv7WindowShotHelper(
   const sourcePath = `${binaryPath}.swift`;
   await dependencies.writeFile(sourcePath, CIV7_WINDOW_SHOT_SWIFT_SOURCE, "utf8");
   try {
-    await dependencies.execFile("/usr/bin/xcrun", [
-      "swiftc",
-      "-O",
-      sourcePath,
-      "-o",
-      binaryPath,
-    ]);
+    await dependencies.execFile("/usr/bin/xcrun", ["swiftc", "-O", sourcePath, "-o", binaryPath]);
   } catch (error) {
     throw new Civ7DirectControlError(
       "window-shot-helper-unavailable",
       "Failed to compile the ScreenCaptureKit capture helper (xcrun swiftc). " +
         "Install the Xcode command line tools (xcode-select --install) and retry: " +
         errorMessage(error),
-      { cause: error },
+      { cause: error }
     );
   }
   await pruneStaleHelperRevisions(dependencies, cacheRoot, basename(binaryPath));
@@ -401,16 +409,20 @@ export async function ensureCiv7WindowShotHelper(
 async function pruneStaleHelperRevisions(
   dependencies: WindowShotDependencies,
   cacheRoot: string,
-  keepBasename: string,
+  keepBasename: string
 ): Promise<void> {
   try {
     const entries = await dependencies.readdir(cacheRoot);
-    await Promise.all(entries
-      .filter((name) =>
-        name.startsWith("civ7-window-shot-")
-        && name !== keepBasename
-        && name !== `${keepBasename}.swift`)
-      .map((name) => dependencies.rm(join(cacheRoot, name), { force: true })));
+    await Promise.all(
+      entries
+        .filter(
+          (name) =>
+            name.startsWith("civ7-window-shot-") &&
+            name !== keepBasename &&
+            name !== `${keepBasename}.swift`
+        )
+        .map((name) => dependencies.rm(join(cacheRoot, name), { force: true }))
+    );
   } catch {
     // Cache pruning never blocks a capture.
   }
@@ -426,11 +438,11 @@ async function pruneStaleHelperRevisions(
  */
 export async function captureCiv7WindowShot(
   input: Civ7WindowShotCaptureInput = {},
-  dependencies: WindowShotDependencies = defaultWindowShotDependencies,
+  dependencies: WindowShotDependencies = defaultWindowShotDependencies
 ): Promise<Civ7WindowShotCaptureResult> {
   const requestedAt = dependencies.now();
   const outputPath = resolve(
-    input.outputPath ?? defaultWindowShotPath(requestedAt, dependencies.tmpdir()),
+    input.outputPath ?? defaultWindowShotPath(requestedAt, dependencies.tmpdir())
   );
   await dependencies.mkdir(dirname(outputPath), { recursive: true });
   // Retention loop for the managed destination only — explicit outputPath
@@ -438,14 +450,14 @@ export async function captureCiv7WindowShot(
   if (input.outputPath === undefined) {
     await pruneStaleAppshots(dependencies, dirname(outputPath), requestedAt);
   }
-  const payload = await runWindowShotHelper(dependencies, [
+  const payload = (await runWindowShotHelper(dependencies, [
     "capture",
     "--out",
     outputPath,
     "--app",
     input.appName ?? DEFAULT_CIV7_WINDOW_MATCH,
     ...(input.windowId === undefined ? [] : ["--window-id", String(input.windowId)]),
-  ]) as Readonly<{
+  ])) as Readonly<{
     windowId: number;
     app: string;
     bundleId: string;
@@ -487,7 +499,7 @@ export async function captureCiv7WindowShot(
 
 async function runWindowShotHelper(
   dependencies: WindowShotDependencies,
-  args: readonly string[],
+  args: readonly string[]
 ): Promise<unknown> {
   const helperPath = await ensureCiv7WindowShotHelper(dependencies);
   let stdout: string;
@@ -501,7 +513,7 @@ async function runWindowShotHelper(
       throw new Civ7DirectControlError(
         "window-shot-failed",
         `Capture helper crashed: ${errorMessage(error)}`,
-        { cause: error },
+        { cause: error }
       );
     }
   }
@@ -511,28 +523,27 @@ async function runWindowShotHelper(
   } catch {
     throw new Civ7DirectControlError(
       "window-shot-failed",
-      `Capture helper emitted invalid JSON: ${stdout.slice(0, 200)}`,
+      `Capture helper emitted invalid JSON: ${stdout.slice(0, 200)}`
     );
   }
   const row = payload as Readonly<{ ok?: boolean; error?: string; message?: string }>;
   if (row.ok !== true) {
-    const code = row.error === "permission-required"
-      ? "window-shot-permission-required" as const
-      : row.error === "window-not-found"
-        ? "window-shot-window-not-found" as const
-        : "window-shot-failed" as const;
-    throw new Civ7DirectControlError(
-      code,
-      row.message ?? row.error ?? "window capture failed",
-      { details: payload },
-    );
+    const code =
+      row.error === "permission-required"
+        ? ("window-shot-permission-required" as const)
+        : row.error === "window-not-found"
+          ? ("window-shot-window-not-found" as const)
+          : ("window-shot-failed" as const);
+    throw new Civ7DirectControlError(code, row.message ?? row.error ?? "window capture failed", {
+      details: payload,
+    });
   }
   return payload;
 }
 
 async function pathExists(
   dependencies: Pick<WindowShotDependencies, "stat">,
-  path: string,
+  path: string
 ): Promise<boolean> {
   try {
     await dependencies.stat(path);
@@ -543,11 +554,7 @@ async function pathExists(
 }
 
 function defaultWindowShotPath(date: Date, tmp: string): string {
-  return join(
-    tmp,
-    "civ7-appshots",
-    `civ7-appshot-${date.toISOString().replace(/[:.]/g, "-")}.png`,
-  );
+  return join(tmp, "civ7-appshots", `civ7-appshot-${date.toISOString().replace(/[:.]/g, "-")}.png`);
 }
 
 /**
@@ -561,20 +568,22 @@ const CIV7_APPSHOT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 async function pruneStaleAppshots(
   dependencies: WindowShotDependencies,
   directory: string,
-  now: Date,
+  now: Date
 ): Promise<void> {
   try {
     const cutoff = now.getTime() - CIV7_APPSHOT_RETENTION_MS;
     const entries = await dependencies.readdir(directory);
-    await Promise.all(entries
-      .filter((name) => name.startsWith("civ7-appshot-") && name.endsWith(".png"))
-      .map(async (name) => {
-        const path = join(directory, name);
-        const fileStat = await dependencies.stat(path);
-        if (fileStat.mtimeMs < cutoff) {
-          await dependencies.rm(path, { force: true });
-        }
-      }));
+    await Promise.all(
+      entries
+        .filter((name) => name.startsWith("civ7-appshot-") && name.endsWith(".png"))
+        .map(async (name) => {
+          const path = join(directory, name);
+          const fileStat = await dependencies.stat(path);
+          if (fileStat.mtimeMs < cutoff) {
+            await dependencies.rm(path, { force: true });
+          }
+        })
+    );
   } catch {
     // Retention never blocks a capture.
   }

@@ -1,5 +1,5 @@
-import { TypedArraySchemas, Type, defineOp } from "@swooper/mapgen-core/authoring";
 import type { Static } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
@@ -11,8 +11,7 @@ const StrategySchema = Type.Object(
       default: 1,
       minimum: 0,
       maximum: 10,
-      description:
-        "Controls how mantle mean speed scales fitted plate angular velocity.",
+      description: "Controls how mantle mean speed scales fitted plate angular velocity.",
     }),
     plateRadiusMin: Type.Number({
       default: 1,
@@ -106,7 +105,10 @@ const ComputePlateMotionContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  output: Type.Object({ plateMotion: FoundationPlateMotionSchema }, { additionalProperties: false }),
+  output: Type.Object(
+    { plateMotion: FoundationPlateMotionSchema },
+    { additionalProperties: false }
+  ),
   strategies: {
     default: StrategySchema,
   },

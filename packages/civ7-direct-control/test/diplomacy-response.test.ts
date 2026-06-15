@@ -184,7 +184,9 @@ describe("diplomacy response requests", () => {
       expect(request.postcondition).toMatchObject({
         classification: "no-state-change",
       });
-      expect(request.postcondition.reason).toContain("notification, turn-blocking, and validator state did not change");
+      expect(request.postcondition.reason).toContain(
+        "notification, turn-blocking, and validator state did not change"
+      );
       expect(request.after.notifications).toEqual([
         expect.objectContaining({
           id: notificationId,
@@ -218,10 +220,14 @@ describe("diplomacy response requests", () => {
       expect(request.verified).toBe(true);
       expect(request.postcondition).toMatchObject({
         classification: "diplomacy-blocker-cleared",
-        reason: "The matching diplomatic-response notification is no longer present as a blocking decision.",
+        reason:
+          "The matching diplomatic-response notification is no longer present as a blocking decision.",
       });
       expect(request.after.canEndTurn).toEqual({ ok: true, value: false });
-      expect(request.after.blockingNotificationId).toEqual({ ok: true, value: { owner: 0, id: 77, type: 20 } });
+      expect(request.after.blockingNotificationId).toEqual({
+        ok: true,
+        value: { owner: 0, id: 77, type: 20 },
+      });
     } finally {
       await server.close();
     }
@@ -285,7 +291,8 @@ describe("diplomacy response requests", () => {
       expect(request.verified).toBe(true);
       expect(request.postcondition).toMatchObject({
         classification: "validation-changed",
-        reason: "The response validator changed after the send, but the notification/turn state did not clearly clear.",
+        reason:
+          "The response validator changed after the send, but the notification/turn state did not clearly clear.",
       });
       expect(request.after.canEndTurn).toEqual({ ok: true, value: false });
       expect(request.after.notifications).toEqual([
@@ -410,7 +417,9 @@ function handleCommand(
   if (command.script.includes("return JSON.stringify(readPlayNotifications(")) {
     return {
       kind: "notification-view",
-      output: JSON.stringify(notificationViewPayload(state.input, state.notificationReadCount > 0, state.mode)),
+      output: JSON.stringify(
+        notificationViewPayload(state.input, state.notificationReadCount > 0, state.mode)
+      ),
     };
   }
   if (command.script.includes("return JSON.stringify(validateOperation(")) {
@@ -433,7 +442,9 @@ function handleCommand(
     });
     return {
       kind: "validation",
-      output: JSON.stringify(operationValidationPayload(validation.input, state.mode, state.closeoutObserved)),
+      output: JSON.stringify(
+        operationValidationPayload(validation.input, state.mode, state.closeoutObserved)
+      ),
     };
   }
   if (command.script.includes("return JSON.stringify(sendDiplomacyResponseCloseout(")) {
@@ -561,11 +572,15 @@ function extractJsonObjectAfter(script: string, marker: string): string {
   throw new Error(`Unterminated JSON object after marker: ${marker}`);
 }
 
-function operationValidationPayload(input: {
-  playerId: number;
-  operationType: string;
-  args: Record<string, number>;
-}, mode: DiplomacyResponseMode, closeoutObserved: boolean) {
+function operationValidationPayload(
+  input: {
+    playerId: number;
+    operationType: string;
+    args: Record<string, number>;
+  },
+  mode: DiplomacyResponseMode,
+  closeoutObserved: boolean
+) {
   if (mode === "validation-changed" && closeoutObserved) {
     return {
       family: "player-operation",
@@ -588,11 +603,14 @@ function operationValidationPayload(input: {
   };
 }
 
-function diplomacyCloseoutPayload(input: {
-  actionId: number;
-  responseType: number;
-  notificationId: ComponentId;
-}, mode: DiplomacyResponseMode) {
+function diplomacyCloseoutPayload(
+  input: {
+    actionId: number;
+    responseType: number;
+    notificationId: ComponentId;
+  },
+  mode: DiplomacyResponseMode
+) {
   return {
     localPlayerId: 0,
     playerId: 0,
@@ -614,9 +632,10 @@ function diplomacyCloseoutPayload(input: {
     },
     canStart: { ok: true, value: { Success: true } },
     sent: mode !== "not-sent",
-    sendResult: mode === "not-sent"
-      ? { ok: false, error: "Game.PlayerOperations.sendRequest: test send failure" }
-      : { ok: true, value: true },
+    sendResult:
+      mode === "not-sent"
+        ? { ok: false, error: "Game.PlayerOperations.sendRequest: test send failure" }
+        : { ok: true, value: true },
     uiCloseout: {
       requested: true,
       acknowledgeStarted: { ok: true, value: true },
@@ -637,7 +656,7 @@ function diplomacyCloseoutPayload(input: {
 function notificationViewPayload(
   input: { actionId: number; notificationId: ComponentId },
   afterSend: boolean,
-  mode: DiplomacyResponseMode,
+  mode: DiplomacyResponseMode
 ) {
   const notification = {
     id: input.notificationId,
@@ -668,12 +687,13 @@ function notificationViewPayload(
       responseOptions: [{ responseType: -1713616684, enabled: true }],
     },
   };
-  const afterNotification = mode === "blocking-notification-changed"
-    ? {
-        ...notification,
-        id: { owner: 0, id: 45, type: 20 },
-      }
-    : notification;
+  const afterNotification =
+    mode === "blocking-notification-changed"
+      ? {
+          ...notification,
+          id: { owner: 0, id: 45, type: 20 },
+        }
+      : notification;
   const otherBlockingNotification = {
     id: { owner: 0, id: 77, type: 20 },
     type: "NOTIFICATION_CHOOSE_TECH",

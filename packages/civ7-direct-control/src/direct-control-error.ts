@@ -35,7 +35,7 @@ export class Civ7DirectControlError extends Error {
   constructor(
     code: Civ7DirectControlErrorCode,
     message: string,
-    options?: { cause?: unknown; details?: unknown },
+    options?: { cause?: unknown; details?: unknown }
   ) {
     super(message, options?.cause !== undefined ? { cause: options.cause } : undefined);
     this.name = "Civ7DirectControlError";

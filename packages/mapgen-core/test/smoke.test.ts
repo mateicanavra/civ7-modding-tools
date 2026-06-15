@@ -2,7 +2,7 @@
  * Smoke test - verifies the test infrastructure works
  */
 
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 
 describe("Test Infrastructure", () => {
@@ -16,7 +16,6 @@ describe("Test Infrastructure", () => {
     expect(GameInfo).toBeDefined();
     expect(GameInfo.Maps.lookup("MAPSIZE_HUGE")).toBeDefined();
   });
-
 });
 
 describe("MockAdapter", () => {

@@ -7,9 +7,7 @@ type IslandConfig = PlanIslandChainsTypes["config"]["default"]["islands"];
 /**
  * Ensures island-chain inputs match the expected map size.
  */
-export function validateIslandInputs(
-  input: PlanIslandChainsTypes["input"]
-): {
+export function validateIslandInputs(input: PlanIslandChainsTypes["input"]): {
   size: number;
   landMask: Uint8Array;
   boundaryCloseness: Uint8Array;
@@ -93,7 +91,15 @@ export function shouldSeedIsland(params: {
   microcontinentChance: number;
   rng: LabelRng;
 }): boolean {
-  const { noiseValue, threshold, baseDenom, hotspotSignal, hotspotDenom, microcontinentChance, rng } = params;
+  const {
+    noiseValue,
+    threshold,
+    baseDenom,
+    hotspotSignal,
+    hotspotDenom,
+    microcontinentChance,
+    rng,
+  } = params;
   const baseAllowed = noiseValue >= threshold && rng(baseDenom, "island-seed") === 0;
   const hotspotWeight = Math.max(0, Math.min(1, hotspotSignal));
   const hotspotDenomUsed = Math.max(1, Math.round(hotspotDenom / Math.max(0.1, hotspotWeight)));

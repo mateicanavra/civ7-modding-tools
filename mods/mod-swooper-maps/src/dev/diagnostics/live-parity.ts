@@ -5,10 +5,7 @@ import {
   createMockAdapter,
   getCiv7StandardMapSizePresetForDimensions,
 } from "@civ7/adapter";
-import {
-  CIV7_BROWSER_TABLES_V0,
-  RIVER_TYPE_MINOR,
-} from "@civ7/map-policy";
+import { CIV7_BROWSER_TABLES_V0, RIVER_TYPE_MINOR } from "@civ7/map-policy";
 import {
   createExtendedMapContext,
   createLabelRng,
@@ -18,10 +15,13 @@ import {
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import type { TraceEvent, TraceSink } from "@swooper/mapgen-core/trace";
 
-import { canonicalRecipeConfig, isPlainObject as isCanonicalMapConfigObject } from "../../maps/configs/canonical.js";
+import {
+  canonicalRecipeConfig,
+  isPlainObject as isCanonicalMapConfigObject,
+} from "../../maps/configs/canonical.js";
+import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import { ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { mapElevationArtifacts } from "../../recipes/standard/stages/map-elevation/artifacts.js";
@@ -340,17 +340,19 @@ type NaturalWonderPlanInputRow = Readonly<{
   landMask: number;
 }>;
 
-type NaturalWonderPlanInputDelta = Readonly<Partial<{
-  terrainType: Readonly<{ exact: number; local: number }>;
-  biomeType: Readonly<{ exact: number; local: number }>;
-  occupiedFeatureType: Readonly<{ exact: number; local: number }>;
-  elevationDelta: number;
-  aridityPpmDelta: number;
-  riverClassDelta: number;
-  lakeMaskDelta: number;
-  blockedMaskDelta: number;
-  landMaskDelta: number;
-}>>;
+type NaturalWonderPlanInputDelta = Readonly<
+  Partial<{
+    terrainType: Readonly<{ exact: number; local: number }>;
+    biomeType: Readonly<{ exact: number; local: number }>;
+    occupiedFeatureType: Readonly<{ exact: number; local: number }>;
+    elevationDelta: number;
+    aridityPpmDelta: number;
+    riverClassDelta: number;
+    lakeMaskDelta: number;
+    blockedMaskDelta: number;
+    landMaskDelta: number;
+  }>
+>;
 
 type NaturalWonderPlanInputSurfaceDigests = Readonly<{
   version: number;
@@ -366,19 +368,20 @@ type NaturalWonderPlanInputSurfaceDigests = Readonly<{
   featureTypeHash32: string;
 }>;
 
-const NATURAL_WONDER_PLAN_INPUT_SURFACE_DIGEST_FIELDS: readonly (keyof NaturalWonderPlanInputSurfaceDigests)[] = [
-  "version",
-  "plotCount",
-  "landMaskHash32",
-  "elevationHash32",
-  "aridityPpmHash32",
-  "riverClassHash32",
-  "lakeMaskHash32",
-  "blockedMaskHash32",
-  "terrainTypeHash32",
-  "biomeTypeHash32",
-  "featureTypeHash32",
-];
+const NATURAL_WONDER_PLAN_INPUT_SURFACE_DIGEST_FIELDS: readonly (keyof NaturalWonderPlanInputSurfaceDigests)[] =
+  [
+    "version",
+    "plotCount",
+    "landMaskHash32",
+    "elevationHash32",
+    "aridityPpmHash32",
+    "riverClassHash32",
+    "lakeMaskHash32",
+    "blockedMaskHash32",
+    "terrainTypeHash32",
+    "biomeTypeHash32",
+    "featureTypeHash32",
+  ];
 
 export type ResourcePlacementRejectionContext = Readonly<{
   exact: Readonly<{
@@ -608,8 +611,14 @@ function createMemoryTraceSink(events: TraceEvent[]): TraceSink {
 export function createFinalSurfaceParityMapInfo(width: number, height: number) {
   const mapSizePreset = getCiv7StandardMapSizePresetForDimensions(width, height);
   const fallbackLatitudeBounds = mapSizePreset?.latitudeBounds ?? CIV7_STANDARD_ROW_LATITUDE_BOUNDS;
-  const fallbackMinLatitude = Math.min(fallbackLatitudeBounds.topLatitude, fallbackLatitudeBounds.bottomLatitude);
-  const fallbackMaxLatitude = Math.max(fallbackLatitudeBounds.topLatitude, fallbackLatitudeBounds.bottomLatitude);
+  const fallbackMinLatitude = Math.min(
+    fallbackLatitudeBounds.topLatitude,
+    fallbackLatitudeBounds.bottomLatitude
+  );
+  const fallbackMaxLatitude = Math.max(
+    fallbackLatitudeBounds.topLatitude,
+    fallbackLatitudeBounds.bottomLatitude
+  );
   const baseMapInfo = mapSizePreset?.mapInfo;
   const mapInfo = {
     ...(baseMapInfo ?? {}),
@@ -631,7 +640,9 @@ export function createFinalSurfaceParityMapInfo(width: number, height: number) {
 
 function resolveRecipeConfig(config: unknown, override: unknown): unknown {
   if (config === undefined) {
-    throw new Error("Final-surface parity local run requires an exact-authored source snapshot config.");
+    throw new Error(
+      "Final-surface parity local run requires an exact-authored source snapshot config."
+    );
   }
   const loadedConfig = config;
   const baseConfig =
@@ -643,7 +654,9 @@ function resolveRecipeConfig(config: unknown, override: unknown): unknown {
     : baseConfig;
 }
 
-export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): FinalSurfaceSnapshot {
+export function runLocalFinalSurfaceSnapshot(
+  input: RunLocalFinalSurfaceInput
+): FinalSurfaceSnapshot {
   const { width, height, seed } = input;
   const { latitudeBounds, mapInfo } = createFinalSurfaceParityMapInfo(width, height);
   const envBase = {
@@ -653,7 +666,9 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
   } as const;
   const config = resolveRecipeConfig(input.config, input.override);
   const plan = standardRecipe.compile(envBase, config);
-  const verboseSteps = Object.fromEntries(plan.nodes.map((node: any) => [node.stepId, "verbose"] as const));
+  const verboseSteps = Object.fromEntries(
+    plan.nodes.map((node: any) => [node.stepId, "verbose"] as const)
+  );
   const env = { ...envBase, trace: { enabled: true, steps: verboseSteps } } as const;
   const adapter = createMockAdapter({
     width,
@@ -699,14 +714,19 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
     reefs: context.artifacts.get(ecologyArtifacts.featureIntentsReefs.id),
     ice: context.artifacts.get(ecologyArtifacts.featureIntentsIce.id),
   };
-  const featureApplyDiagnostics = context.artifacts.get(ecologyArtifacts.featureApplyDiagnostics.id);
+  const featureApplyDiagnostics = context.artifacts.get(
+    ecologyArtifacts.featureApplyDiagnostics.id
+  );
   if (featureApplyDiagnostics !== undefined) {
     evidence.featureApplyDiagnostics = featureApplyDiagnostics;
   }
   const naturalWonderPlan = context.artifacts.get(placementArtifacts.naturalWonderPlan.id);
   if (naturalWonderPlan !== undefined) evidence.naturalWonderPlan = naturalWonderPlan;
-  const naturalWonderPlacement = context.artifacts.get(placementArtifacts.naturalWonderPlacement.id);
-  if (naturalWonderPlacement !== undefined) evidence.naturalWonderPlacement = naturalWonderPlacement;
+  const naturalWonderPlacement = context.artifacts.get(
+    placementArtifacts.naturalWonderPlacement.id
+  );
+  if (naturalWonderPlacement !== undefined)
+    evidence.naturalWonderPlacement = naturalWonderPlacement;
   const resourcePlan = context.artifacts.get(placementArtifacts.resourcePlan.id);
   if (resourcePlan !== undefined) evidence.resourcePlan = resourcePlan;
   // S5: the stamped intents are the support-ADJUSTED plan; capture it so the
@@ -755,7 +775,12 @@ function buildLocalRiverMetadataSnapshot(
     plannedMinorRiver: gridFromNumericArray(width, height, projected?.plannedMinorRiverMask, size),
     plannedMajorRiver: gridFromNumericArray(width, height, projected?.plannedMajorRiverMask, size),
     projectedNavigableTerrain: gridFromNumericArray(width, height, projected?.riverMask, size),
-    terrainNavigableRiver: gridFromNumericArray(width, height, readback?.terrainNavigableRiverMask, size),
+    terrainNavigableRiver: gridFromNumericArray(
+      width,
+      height,
+      readback?.terrainNavigableRiverMask,
+      size
+    ),
     riverType: gridFromNumericArray(width, height, readback?.engineRiverType, size),
     river: gridFromNumericArray(width, height, readback?.engineIsRiverMask, size),
     navigableRiver: gridFromNumericArray(width, height, readback?.engineNavigableRiverMask, size),
@@ -765,9 +790,13 @@ function buildLocalRiverMetadataSnapshot(
   }) as RiverMetadataSnapshot | undefined;
 }
 
-function buildTerrainProjectionEvidence(context: ReturnType<typeof createExtendedMapContext>): unknown {
+function buildTerrainProjectionEvidence(
+  context: ReturnType<typeof createExtendedMapContext>
+): unknown {
   const coastlineMetrics = context.artifacts.get(morphologyArtifacts.coastlineMetrics.id);
-  const mapMorphologyCoastPolicy = context.artifacts.get(mapMorphologyArtifacts.coastClassification.id);
+  const mapMorphologyCoastPolicy = context.artifacts.get(
+    mapMorphologyArtifacts.coastClassification.id
+  );
   const mapMorphologyCoastTerrainSnapshot = context.artifacts.get(
     mapMorphologyArtifacts.coastEngineTerrainSnapshot.id
   );
@@ -775,7 +804,9 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createExtende
     mapMorphologyArtifacts.continentValidationTerrainSnapshot.id
   );
   const hydrologyLakePlan = context.artifacts.get(hydrologyHydrographyArtifacts.lakePlan.id);
-  const mapHydrologyProjection = context.artifacts.get(mapHydrologyArtifacts.engineProjectionLakes.id);
+  const mapHydrologyProjection = context.artifacts.get(
+    mapHydrologyArtifacts.engineProjectionLakes.id
+  );
   const hydrologyTerrainSnapshot = context.artifacts.get(
     mapHydrologyArtifacts.hydrologyLakesEngineTerrainSnapshot.id
   );
@@ -889,7 +920,9 @@ function pickSerializableFields(
   fields: ReadonlyArray<string>
 ): Readonly<Record<string, unknown>> | undefined {
   if (!isPlainObject(value)) return undefined;
-  return stripUndefined(Object.fromEntries(fields.map((field) => [field, serializeEvidenceValue(value[field])])));
+  return stripUndefined(
+    Object.fromEntries(fields.map((field) => [field, serializeEvidenceValue(value[field])]))
+  );
 }
 
 function serializeEvidenceValue(value: unknown): unknown {
@@ -899,13 +932,17 @@ function serializeEvidenceValue(value: unknown): unknown {
   if (Array.isArray(value)) return value.map((entry) => serializeEvidenceValue(entry));
   if (isPlainObject(value)) {
     return stripUndefined(
-      Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, serializeEvidenceValue(entry)]))
+      Object.fromEntries(
+        Object.entries(value).map(([key, entry]) => [key, serializeEvidenceValue(entry)])
+      )
     );
   }
   return value;
 }
 
-function stripUndefined(value: Record<string, unknown>): Readonly<Record<string, unknown>> | undefined {
+function stripUndefined(
+  value: Record<string, unknown>
+): Readonly<Record<string, unknown>> | undefined {
   const entries = Object.entries(value).filter(([, entryValue]) => entryValue !== undefined);
   return entries.length === 0 ? undefined : Object.fromEntries(entries);
 }
@@ -964,7 +1001,9 @@ export function liveGridToFinalSurfaceSnapshot(args: {
     ...(args.envelopeHash === undefined ? {} : { envelopeHash: args.envelopeHash }),
     surfaces,
     riverMetadata,
-    ...(args.nativeRiverObjects === undefined ? {} : { nativeRiverObjects: args.nativeRiverObjects }),
+    ...(args.nativeRiverObjects === undefined
+      ? {}
+      : { nativeRiverObjects: args.nativeRiverObjects }),
     ...(args.evidence === undefined ? {} : { evidence: args.evidence }),
   };
 }
@@ -1012,7 +1051,10 @@ export function diffFinalSurfaceSnapshots(
     let missingLive = 0;
     let mismatches = 0;
     const examples: SurfaceMismatchExample[] = [];
-    const pairCounts = new Map<string, { local: number | null; live: number | null; count: number }>();
+    const pairCounts = new Map<
+      string,
+      { local: number | null; live: number | null; count: number }
+    >();
 
     for (let index = 0; index < localGrid.values.length; index += 1) {
       const localValue = localGrid.values[index] ?? null;
@@ -1038,9 +1080,7 @@ export function diffFinalSurfaceSnapshots(
     }
 
     const compared = localGrid.values.length;
-    const pairs = [...pairCounts.values()]
-      .sort((a, b) => b.count - a.count)
-      .slice(0, maxPairs);
+    const pairs = [...pairCounts.values()].sort((a, b) => b.count - a.count).slice(0, maxPairs);
     return {
       key,
       status: mismatches === 0 ? "match" : "mismatch",
@@ -1064,11 +1104,17 @@ export function buildFinalSurfaceParityProof(args: {
   const unresolvedLinks: string[] = [];
   const exact = args.exactAuthorship;
   const naturalWonderPlanCoordinateProof =
-    exact === undefined ? undefined : buildNaturalWonderPlanCoordinateProofComparison(exact, args.local);
+    exact === undefined
+      ? undefined
+      : buildNaturalWonderPlanCoordinateProofComparison(exact, args.local);
   const naturalWonderPlanInputContextProof =
-    exact === undefined ? undefined : buildNaturalWonderPlanInputContextProofComparison(exact, args.local);
+    exact === undefined
+      ? undefined
+      : buildNaturalWonderPlanInputContextProofComparison(exact, args.local);
   const resourcePlacementCoordinateProof =
-    exact === undefined ? undefined : buildResourcePlacementCoordinateProofComparison(exact, args.local);
+    exact === undefined
+      ? undefined
+      : buildResourcePlacementCoordinateProofComparison(exact, args.local);
   const resourcePlacementRejectionContexts =
     exact === undefined ? [] : buildResourcePlacementRejectionContexts(exact, args.local);
   const riverMetadataParity = buildRiverMetadataParityReport(args.local, args.live);
@@ -1077,8 +1123,20 @@ export function buildFinalSurfaceParityProof(args: {
   const exactAuthorshipValidation = validateExactAuthorshipProofPacket(exact);
 
   unresolvedLinks.push(...exactAuthorshipValidation.unresolvedLinks);
-  addSurfaceShapeLinks(unresolvedLinks, args.local, "local", exact?.runtime?.width, exact?.runtime?.height);
-  addSurfaceShapeLinks(unresolvedLinks, args.live, "live", exact?.runtime?.width, exact?.runtime?.height);
+  addSurfaceShapeLinks(
+    unresolvedLinks,
+    args.local,
+    "local",
+    exact?.runtime?.width,
+    exact?.runtime?.height
+  );
+  addSurfaceShapeLinks(
+    unresolvedLinks,
+    args.live,
+    "live",
+    exact?.runtime?.width,
+    exact?.runtime?.height
+  );
   addFullGridEvidenceLinks(unresolvedLinks, args.live);
   if (exact) {
     if (exact.request?.seed !== undefined && args.local.seed !== exact.request.seed) {
@@ -1096,13 +1154,23 @@ export function buildFinalSurfaceParityProof(args: {
     if (exact.runtime?.height !== undefined && args.local.height !== exact.runtime.height) {
       unresolvedLinks.push("exact-authorship-proof.runtime-height.local-height");
     }
-    if (exact.log?.dimensions?.width !== undefined && args.local.width !== exact.log.dimensions.width) {
+    if (
+      exact.log?.dimensions?.width !== undefined &&
+      args.local.width !== exact.log.dimensions.width
+    ) {
       unresolvedLinks.push("exact-authorship-proof.log-width.local-width");
     }
-    if (exact.log?.dimensions?.height !== undefined && args.local.height !== exact.log.dimensions.height) {
+    if (
+      exact.log?.dimensions?.height !== undefined &&
+      args.local.height !== exact.log.dimensions.height
+    ) {
       unresolvedLinks.push("exact-authorship-proof.log-height.local-height");
     }
-    if (exact.runtime?.seed !== undefined && args.live.seed !== undefined && exact.runtime.seed !== args.live.seed) {
+    if (
+      exact.runtime?.seed !== undefined &&
+      args.live.seed !== undefined &&
+      exact.runtime.seed !== args.live.seed
+    ) {
       unresolvedLinks.push("exact-authorship-proof.runtime-seed.live-seed");
     }
     if (exact.runtime?.width !== undefined && exact.runtime.width !== args.live.width) {
@@ -1111,24 +1179,46 @@ export function buildFinalSurfaceParityProof(args: {
     if (exact.runtime?.height !== undefined && exact.runtime.height !== args.live.height) {
       unresolvedLinks.push("exact-authorship-proof.runtime-height.live-height");
     }
-    const liveRuntime = isPlainObject(args.live.evidence?.runtime) ? args.live.evidence.runtime : undefined;
+    const liveRuntime = isPlainObject(args.live.evidence?.runtime)
+      ? args.live.evidence.runtime
+      : undefined;
     const liveTurn = numberValue(liveRuntime?.turn);
     const liveGameHash = numberValue(liveRuntime?.gameHash);
     const livePlotCount = numberValue(liveRuntime?.plotCount);
-    if (exact.runtime?.turn !== undefined && liveTurn !== undefined && exact.runtime.turn !== liveTurn) {
+    if (
+      exact.runtime?.turn !== undefined &&
+      liveTurn !== undefined &&
+      exact.runtime.turn !== liveTurn
+    ) {
       unresolvedLinks.push("exact-authorship-proof.runtime-turn.live-turn");
     }
-    if (exact.runtime?.gameHash !== undefined && liveGameHash !== undefined && exact.runtime.gameHash !== liveGameHash) {
+    if (
+      exact.runtime?.gameHash !== undefined &&
+      liveGameHash !== undefined &&
+      exact.runtime.gameHash !== liveGameHash
+    ) {
       unresolvedLinks.push("exact-authorship-proof.runtime-game-hash.live-game-hash");
     }
-    if (exact.runtime?.plotCount !== undefined && livePlotCount !== undefined && exact.runtime.plotCount !== livePlotCount) {
+    if (
+      exact.runtime?.plotCount !== undefined &&
+      livePlotCount !== undefined &&
+      exact.runtime.plotCount !== livePlotCount
+    ) {
       unresolvedLinks.push("exact-authorship-proof.runtime-plot-count.live-plot-count");
     }
-    if (!exact.runtime?.sourceSnapshotId) unresolvedLinks.push("exact-authorship-proof.runtime.source-snapshot-id");
-    if (!exact.runtime?.snapshotHash) unresolvedLinks.push("exact-authorship-proof.runtime.snapshot-hash");
-    if (exact.runtime?.turn === undefined) unresolvedLinks.push("exact-authorship-proof.runtime.turn");
-    if (exact.runtime?.gameHash === undefined) unresolvedLinks.push("exact-authorship-proof.runtime.game-hash");
-    if (exact.sourceSnapshot?.configHash !== undefined && args.local.configHash !== undefined && exact.sourceSnapshot.configHash !== args.local.configHash) {
+    if (!exact.runtime?.sourceSnapshotId)
+      unresolvedLinks.push("exact-authorship-proof.runtime.source-snapshot-id");
+    if (!exact.runtime?.snapshotHash)
+      unresolvedLinks.push("exact-authorship-proof.runtime.snapshot-hash");
+    if (exact.runtime?.turn === undefined)
+      unresolvedLinks.push("exact-authorship-proof.runtime.turn");
+    if (exact.runtime?.gameHash === undefined)
+      unresolvedLinks.push("exact-authorship-proof.runtime.game-hash");
+    if (
+      exact.sourceSnapshot?.configHash !== undefined &&
+      args.local.configHash !== undefined &&
+      exact.sourceSnapshot.configHash !== args.local.configHash
+    ) {
       unresolvedLinks.push("exact-authorship-proof.config-hash.local-config-hash");
     }
     if (
@@ -1150,7 +1240,9 @@ export function buildFinalSurfaceParityProof(args: {
       args.local.envelopeHash !== undefined &&
       exact.materialization.envelopeHash !== args.local.envelopeHash
     ) {
-      unresolvedLinks.push("exact-authorship-proof.materialization-envelope-hash.local-envelope-hash");
+      unresolvedLinks.push(
+        "exact-authorship-proof.materialization-envelope-hash.local-envelope-hash"
+      );
     }
     if (naturalWonderPlanCoordinateProof) {
       unresolvedLinks.push(...naturalWonderPlanCoordinateProof.mismatchedLinks);
@@ -1200,7 +1292,8 @@ export function buildFinalSurfaceParityProof(args: {
   }
 
   for (const diff of diffs) {
-    if (diff.status === "dimension-mismatch") unresolvedLinks.push(`surface.${diff.key}.dimensions`);
+    if (diff.status === "dimension-mismatch")
+      unresolvedLinks.push(`surface.${diff.key}.dimensions`);
     if (diff.missingLive > 0) unresolvedLinks.push(`surface.${diff.key}.live-readback`);
     if (diff.mismatches > 0) unresolvedLinks.push(`surface.${diff.key}.mismatch`);
   }
@@ -1223,8 +1316,12 @@ export function buildFinalSurfaceParityProof(args: {
     exactAuthorshipSummary: {
       ...(exact?.requestId === undefined ? {} : { requestId: exact.requestId }),
       ...(exact?.status === undefined ? {} : { status: exact.status }),
-      ...(exact?.sourceSnapshot?.configHash === undefined ? {} : { configHash: exact.sourceSnapshot.configHash }),
-      ...(exact?.sourceSnapshot?.envelopeHash === undefined ? {} : { envelopeHash: exact.sourceSnapshot.envelopeHash }),
+      ...(exact?.sourceSnapshot?.configHash === undefined
+        ? {}
+        : { configHash: exact.sourceSnapshot.configHash }),
+      ...(exact?.sourceSnapshot?.envelopeHash === undefined
+        ? {}
+        : { envelopeHash: exact.sourceSnapshot.envelopeHash }),
       ...(exact?.request?.seed === undefined ? {} : { seed: exact.request.seed }),
       ...(exact?.request?.mapSize === undefined ? {} : { mapSize: exact.request.mapSize }),
       dimensions: {
@@ -1236,9 +1333,7 @@ export function buildFinalSurfaceParityProof(args: {
     local: args.local,
     live: args.live,
     diffs,
-    ...(naturalWonderPlanCoordinateProof === undefined
-      ? {}
-      : { naturalWonderPlanCoordinateProof }),
+    ...(naturalWonderPlanCoordinateProof === undefined ? {} : { naturalWonderPlanCoordinateProof }),
     ...(naturalWonderPlanInputContextProof === undefined
       ? {}
       : { naturalWonderPlanInputContextProof }),
@@ -1272,18 +1367,31 @@ export function validateExactAuthorshipProofPacket(value: unknown): {
     unresolvedLinks.push("exact-authorship-proof.unresolved-links-empty");
   }
   if (!exact.requestId) unresolvedLinks.push("exact-authorship-proof.request-id");
-  if (!exact.sourceSnapshot?.identityHash) unresolvedLinks.push("exact-authorship-proof.source-snapshot.identity-hash");
-  if (exact.sourceSnapshot?.requestId && exact.requestId && exact.sourceSnapshot.requestId !== exact.requestId) {
+  if (!exact.sourceSnapshot?.identityHash)
+    unresolvedLinks.push("exact-authorship-proof.source-snapshot.identity-hash");
+  if (
+    exact.sourceSnapshot?.requestId &&
+    exact.requestId &&
+    exact.sourceSnapshot.requestId !== exact.requestId
+  ) {
     unresolvedLinks.push("exact-authorship-proof.source-snapshot.request-id-mismatch");
   }
-  if (exact.sourceSnapshot?.recipeSettings === undefined) unresolvedLinks.push("exact-authorship-proof.source-snapshot.recipe-settings");
-  if (exact.sourceSnapshot?.worldSettings === undefined) unresolvedLinks.push("exact-authorship-proof.source-snapshot.world-settings");
-  if (exact.sourceSnapshot?.pipelineConfig === undefined) unresolvedLinks.push("exact-authorship-proof.source-snapshot.pipeline-config");
-  if (exact.sourceSnapshot?.setupConfig === undefined) unresolvedLinks.push("exact-authorship-proof.source-snapshot.setup-config");
-  if (!exact.sourceSnapshot?.materializationMode) unresolvedLinks.push("exact-authorship-proof.source-snapshot.materialization-mode");
-  if (exact.sourceSnapshot?.selectedConfig === undefined) unresolvedLinks.push("exact-authorship-proof.source-snapshot.selected-config");
-  if (!exact.sourceSnapshot?.configHash) unresolvedLinks.push("exact-authorship-proof.source-snapshot.config-hash");
-  if (!exact.sourceSnapshot?.envelopeHash) unresolvedLinks.push("exact-authorship-proof.source-snapshot.envelope-hash");
+  if (exact.sourceSnapshot?.recipeSettings === undefined)
+    unresolvedLinks.push("exact-authorship-proof.source-snapshot.recipe-settings");
+  if (exact.sourceSnapshot?.worldSettings === undefined)
+    unresolvedLinks.push("exact-authorship-proof.source-snapshot.world-settings");
+  if (exact.sourceSnapshot?.pipelineConfig === undefined)
+    unresolvedLinks.push("exact-authorship-proof.source-snapshot.pipeline-config");
+  if (exact.sourceSnapshot?.setupConfig === undefined)
+    unresolvedLinks.push("exact-authorship-proof.source-snapshot.setup-config");
+  if (!exact.sourceSnapshot?.materializationMode)
+    unresolvedLinks.push("exact-authorship-proof.source-snapshot.materialization-mode");
+  if (exact.sourceSnapshot?.selectedConfig === undefined)
+    unresolvedLinks.push("exact-authorship-proof.source-snapshot.selected-config");
+  if (!exact.sourceSnapshot?.configHash)
+    unresolvedLinks.push("exact-authorship-proof.source-snapshot.config-hash");
+  if (!exact.sourceSnapshot?.envelopeHash)
+    unresolvedLinks.push("exact-authorship-proof.source-snapshot.envelope-hash");
   if (
     exact.sourceSnapshot?.pipelineConfig !== undefined &&
     exact.sourceSnapshot?.configHash &&
@@ -1291,31 +1399,49 @@ export function validateExactAuthorshipProofPacket(value: unknown): {
   ) {
     unresolvedLinks.push("exact-authorship-proof.source-snapshot.config-hash-body-mismatch");
   }
-  if (!exact.materialization?.mapScript) unresolvedLinks.push("exact-authorship-proof.materialization.map-script");
-  if (!exact.materialization?.configHash) unresolvedLinks.push("exact-authorship-proof.materialization.config-hash");
-  if (!exact.materialization?.envelopeHash) unresolvedLinks.push("exact-authorship-proof.materialization.envelope-hash");
-  if (!hasFileIdentity(exact.materialization?.sourceConfig)) unresolvedLinks.push("exact-authorship-proof.materialization.source-config");
+  if (!exact.materialization?.mapScript)
+    unresolvedLinks.push("exact-authorship-proof.materialization.map-script");
+  if (!exact.materialization?.configHash)
+    unresolvedLinks.push("exact-authorship-proof.materialization.config-hash");
+  if (!exact.materialization?.envelopeHash)
+    unresolvedLinks.push("exact-authorship-proof.materialization.envelope-hash");
+  if (!hasFileIdentity(exact.materialization?.sourceConfig))
+    unresolvedLinks.push("exact-authorship-proof.materialization.source-config");
   if (!hasFileIdentity(exact.materialization?.generatedSourceScript)) {
     unresolvedLinks.push("exact-authorship-proof.materialization.generated-source-script");
   }
-  if (!hasFileIdentity(exact.materialization?.localModScript)) unresolvedLinks.push("exact-authorship-proof.materialization.local-mod-script");
-  if (!hasFileIdentity(exact.materialization?.deployedModScript)) unresolvedLinks.push("exact-authorship-proof.materialization.deployed-mod-script");
+  if (!hasFileIdentity(exact.materialization?.localModScript))
+    unresolvedLinks.push("exact-authorship-proof.materialization.local-mod-script");
+  if (!hasFileIdentity(exact.materialization?.deployedModScript))
+    unresolvedLinks.push("exact-authorship-proof.materialization.deployed-mod-script");
   if (!exact.log?.requestId) unresolvedLinks.push("exact-authorship-proof.log.request-id");
   if (!exact.log?.configHash) unresolvedLinks.push("exact-authorship-proof.log.config-hash");
   if (!exact.log?.envelopeHash) unresolvedLinks.push("exact-authorship-proof.log.envelope-hash");
   if (exact.log?.requestId && exact.requestId && exact.log.requestId !== exact.requestId) {
     unresolvedLinks.push("exact-authorship-proof.log.request-id-mismatch");
   }
-  if (exact.log?.configHash && exact.materialization?.configHash && exact.log.configHash !== exact.materialization.configHash) {
+  if (
+    exact.log?.configHash &&
+    exact.materialization?.configHash &&
+    exact.log.configHash !== exact.materialization.configHash
+  ) {
     unresolvedLinks.push("exact-authorship-proof.log.config-hash-mismatch");
   }
-  if (exact.log?.envelopeHash && exact.materialization?.envelopeHash && exact.log.envelopeHash !== exact.materialization.envelopeHash) {
+  if (
+    exact.log?.envelopeHash &&
+    exact.materialization?.envelopeHash &&
+    exact.log.envelopeHash !== exact.materialization.envelopeHash
+  ) {
     unresolvedLinks.push("exact-authorship-proof.log.envelope-hash-mismatch");
   }
-  if (!exact.runtime?.sourceSnapshotId) unresolvedLinks.push("exact-authorship-proof.runtime.source-snapshot-id");
-  if (!exact.runtime?.snapshotHash) unresolvedLinks.push("exact-authorship-proof.runtime.snapshot-hash");
-  if (exact.runtime?.turn === undefined) unresolvedLinks.push("exact-authorship-proof.runtime.turn");
-  if (exact.runtime?.gameHash === undefined) unresolvedLinks.push("exact-authorship-proof.runtime.game-hash");
+  if (!exact.runtime?.sourceSnapshotId)
+    unresolvedLinks.push("exact-authorship-proof.runtime.source-snapshot-id");
+  if (!exact.runtime?.snapshotHash)
+    unresolvedLinks.push("exact-authorship-proof.runtime.snapshot-hash");
+  if (exact.runtime?.turn === undefined)
+    unresolvedLinks.push("exact-authorship-proof.runtime.turn");
+  if (exact.runtime?.gameHash === undefined)
+    unresolvedLinks.push("exact-authorship-proof.runtime.game-hash");
 
   return {
     proof: exact,
@@ -1338,7 +1464,12 @@ function buildRiverLakeProofClaimLedger(args: {
   lakeReadbackParity?: LakeReadbackParityReport;
   floodplainActiveParity?: FloodplainActiveParityReport;
 }): RiverLakeProofClaimLedger {
-  const { exactAuthorshipUnresolvedLinks, riverMetadataParity, lakeReadbackParity, floodplainActiveParity } = args;
+  const {
+    exactAuthorshipUnresolvedLinks,
+    riverMetadataParity,
+    lakeReadbackParity,
+    floodplainActiveParity,
+  } = args;
   const exactAuthorship =
     exactAuthorshipUnresolvedLinks.length === 0
       ? proofClaim(
@@ -1393,7 +1524,9 @@ function buildRiverLakeProofClaimLedger(args: {
   return { version: 1, claims };
 }
 
-function floodplainActiveClaim(parity: FloodplainActiveParityReport | undefined): RiverLakeProofClaim {
+function floodplainActiveClaim(
+  parity: FloodplainActiveParityReport | undefined
+): RiverLakeProofClaim {
   if (parity === undefined) {
     return proofClaim(
       "floodplain-active",
@@ -1442,9 +1575,7 @@ function floodplainActiveClaim(parity: FloodplainActiveParityReport | undefined)
   );
 }
 
-function terrainReadbackClaim(
-  parity: RiverMetadataParityReport | undefined
-): RiverLakeProofClaim {
+function terrainReadbackClaim(parity: RiverMetadataParityReport | undefined): RiverLakeProofClaim {
   if (parity === undefined) {
     return proofClaim(
       "terrain-readback",
@@ -1477,9 +1608,7 @@ function terrainReadbackClaim(
   );
 }
 
-function metadataReadbackClaim(
-  parity: RiverMetadataParityReport | undefined
-): RiverLakeProofClaim {
+function metadataReadbackClaim(parity: RiverMetadataParityReport | undefined): RiverLakeProofClaim {
   if (parity === undefined) {
     return proofClaim(
       "metadata-readback",
@@ -1497,12 +1626,9 @@ function metadataReadbackClaim(
     );
   }
   if (parity.status === "dimension-mismatch" || parity.status === "mismatch") {
-    return proofClaim(
-      "metadata-readback",
-      "fail",
-      "Civ river metadata comparison failed.",
-      [`river-metadata.${parity.status}`]
-    );
+    return proofClaim("metadata-readback", "fail", "Civ river metadata comparison failed.", [
+      `river-metadata.${parity.status}`,
+    ]);
   }
   if (
     riverMetadataParityExpectsNativeObjects(parity) &&
@@ -1543,12 +1669,9 @@ function metadataReadbackClaim(
       ["river-metadata.terrain-match-metadata-divergent"]
     );
   }
-  return proofClaim(
-    "metadata-readback",
-    "fail",
-    "Civ river metadata comparison failed.",
-    [`river-metadata.${parity.status}`]
-  );
+  return proofClaim("metadata-readback", "fail", "Civ river metadata comparison failed.", [
+    `river-metadata.${parity.status}`,
+  ]);
 }
 
 function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLakeProofClaim {
@@ -1602,7 +1725,9 @@ function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLake
   );
 }
 
-export function configFromExactAuthorshipProof(exact: ExactAuthorshipProofLike | undefined): unknown {
+export function configFromExactAuthorshipProof(
+  exact: ExactAuthorshipProofLike | undefined
+): unknown {
   return exact?.sourceSnapshot?.pipelineConfig;
 }
 
@@ -1610,9 +1735,11 @@ export function hashParityValue(value: unknown): string {
   return sha256Hex(stableStringify(value));
 }
 
-export function dimensionsFromExactAuthorshipProof(
-  exact: ExactAuthorshipProofLike | undefined
-): { width?: number; height?: number; seed?: number } {
+export function dimensionsFromExactAuthorshipProof(exact: ExactAuthorshipProofLike | undefined): {
+  width?: number;
+  height?: number;
+  seed?: number;
+} {
   return {
     ...(exact?.runtime?.width === undefined ? {} : { width: exact.runtime.width }),
     ...(exact?.runtime?.height === undefined ? {} : { height: exact.runtime.height }),
@@ -1637,9 +1764,7 @@ function buildLakeReadbackParityReport(
   const terrainProjection = isPlainObject(local.evidence?.terrainProjection)
     ? local.evidence.terrainProjection
     : undefined;
-  const localCounters = readLakeReadbackCounters(
-    terrainProjection?.placementSurfacePreparation
-  );
+  const localCounters = readLakeReadbackCounters(terrainProjection?.placementSurfacePreparation);
   const exactCounters = readLakeReadbackCounters(exact?.log?.placementSurfacePreparation);
   if (localCounters === undefined && exactCounters === undefined) return undefined;
   if (localCounters === undefined) {
@@ -1673,9 +1798,7 @@ function readLakeReadbackCounters(value: unknown): LakeReadbackCounters | undefi
   const counters: Partial<Record<keyof LakeReadbackCounters, number>> = {};
   const acceptedLakeTileCount = numberValue(value.acceptedLakeTileCount);
   const finalLakeWaterDriftCount = numberValue(value.finalLakeWaterDriftCount);
-  const finalLakeClassificationDriftCount = numberValue(
-    value.finalLakeClassificationDriftCount
-  );
+  const finalLakeClassificationDriftCount = numberValue(value.finalLakeClassificationDriftCount);
   if (acceptedLakeTileCount !== undefined) {
     counters.acceptedLakeTileCount = acceptedLakeTileCount;
   }
@@ -1701,7 +1824,9 @@ function buildFloodplainActiveParityReport(
   diffs: ReadonlyArray<SurfaceDiffSummary>
 ): FloodplainActiveParityReport | undefined {
   const localCounters = readFloodplainFeatureApplyCounters(
-    isPlainObject(local.evidence?.featureApplyDiagnostics) ? local.evidence.featureApplyDiagnostics : undefined
+    isPlainObject(local.evidence?.featureApplyDiagnostics)
+      ? local.evidence.featureApplyDiagnostics
+      : undefined
   );
   const exactCounters = readFloodplainFeatureApplyCounters(exact?.log?.featureApply?.stats);
   const featureSurface = diffs.find((diff) => diff.key === "feature");
@@ -1735,7 +1860,10 @@ function buildFloodplainActiveParityReport(
       mismatchedFields,
     };
   }
-  if (localCounters.appliedFloodplainFeatureCount === 0 && localCounters.attemptedFloodplainFeatureCount === 0) {
+  if (
+    localCounters.appliedFloodplainFeatureCount === 0 &&
+    localCounters.attemptedFloodplainFeatureCount === 0
+  ) {
     return {
       status: "inactive-control",
       local: localCounters,
@@ -1771,12 +1899,18 @@ function buildFloodplainActiveParityReport(
   };
 }
 
-function readFloodplainFeatureApplyCounters(value: unknown): FloodplainFeatureApplyCounters | undefined {
+function readFloodplainFeatureApplyCounters(
+  value: unknown
+): FloodplainFeatureApplyCounters | undefined {
   if (!isPlainObject(value)) return undefined;
   const attemptedByFeature = readCountRecord(value.attemptedByFeature);
   const appliedByFeature = readCountRecord(value.appliedByFeature);
   const rejectedByFeature = readCountRecord(value.rejectedCanHaveFeatureByFeature);
-  if (attemptedByFeature === undefined && appliedByFeature === undefined && rejectedByFeature === undefined) {
+  if (
+    attemptedByFeature === undefined &&
+    appliedByFeature === undefined &&
+    rejectedByFeature === undefined
+  ) {
     return undefined;
   }
   return {
@@ -1806,8 +1940,12 @@ function sumFloodplainFeatureCounts(counts: Readonly<Record<string, number>> | u
   return total;
 }
 
-function classifyResidualSurfaces(local: FinalSurfaceSnapshot): ReadonlyArray<ParityResidualClassification> {
-  const placementParity = isPlainObject(local.evidence?.placementParity) ? local.evidence.placementParity : undefined;
+function classifyResidualSurfaces(
+  local: FinalSurfaceSnapshot
+): ReadonlyArray<ParityResidualClassification> {
+  const placementParity = isPlainObject(local.evidence?.placementParity)
+    ? local.evidence.placementParity
+    : undefined;
   const wondersPlanned = numberValue(placementParity?.wondersPlanned);
   const wondersPlaced = numberValue(placementParity?.wondersPlaced);
   return [
@@ -1834,7 +1972,8 @@ function classifyResidualSurfaces(local: FinalSurfaceSnapshot): ReadonlyArray<Pa
     },
     {
       key: "wonders",
-      status: wondersPlanned === 0 && wondersPlaced === 0 ? "not-applicable" : "covered-by-feature-grid",
+      status:
+        wondersPlanned === 0 && wondersPlaced === 0 ? "not-applicable" : "covered-by-feature-grid",
       owner: "mapgen-authored-policy",
       evidence:
         wondersPlanned === 0 && wondersPlaced === 0
@@ -1888,7 +2027,12 @@ function buildRiverMetadataParityReport(
     liveTerrain?.values.length ?? 0,
     liveNavigable?.values.length ?? 0
   );
-  if (localProjected === undefined || liveTerrain === undefined || liveNavigable === undefined || compared === 0) {
+  if (
+    localProjected === undefined ||
+    liveTerrain === undefined ||
+    liveNavigable === undefined ||
+    compared === 0
+  ) {
     return {
       status: "readback-missing",
       compared: 0,
@@ -1957,16 +2101,21 @@ function buildRiverMetadataParityReport(
     const liveNavigableValue = normalizedMaskValue(liveNavigable.values[index]);
     const plannedMinorValue =
       localPlannedMinor === undefined ? null : normalizedMaskValue(localPlannedMinor.values[index]);
-    const liveMinorValue = liveMinor === undefined ? null : normalizedMaskValue(liveMinor.values[index]);
+    const liveMinorValue =
+      liveMinor === undefined ? null : normalizedMaskValue(liveMinor.values[index]);
     if (liveTerrainValue === null || liveNavigableValue === null) {
       missingLiveReadback += 1;
     }
     const projectedTerrainMismatch =
       projectedValue !== null && liveTerrainValue !== null && projectedValue !== liveTerrainValue;
     const projectedMetadataMismatch =
-      projectedValue !== null && liveNavigableValue !== null && projectedValue !== liveNavigableValue;
+      projectedValue !== null &&
+      liveNavigableValue !== null &&
+      projectedValue !== liveNavigableValue;
     const terrainMetadataMismatch =
-      liveTerrainValue !== null && liveNavigableValue !== null && liveTerrainValue !== liveNavigableValue;
+      liveTerrainValue !== null &&
+      liveNavigableValue !== null &&
+      liveTerrainValue !== liveNavigableValue;
     if (projectedTerrainMismatch) projectedVsLiveTerrainMismatchCount += 1;
     if (projectedMetadataMismatch) projectedVsLiveMetadataMismatchCount += 1;
     if (terrainMetadataMismatch) liveTerrainVsMetadataMismatchCount += 1;
@@ -1975,7 +2124,9 @@ function buildRiverMetadataParityReport(
       (projectedTerrainMismatch ||
         projectedMetadataMismatch ||
         terrainMetadataMismatch ||
-        (plannedMinorValue !== null && liveMinorValue !== null && plannedMinorValue !== liveMinorValue))
+        (plannedMinorValue !== null &&
+          liveMinorValue !== null &&
+          plannedMinorValue !== liveMinorValue))
     ) {
       const y = Math.floor(index / localProjected.width);
       examples.push({
@@ -2141,12 +2292,14 @@ function nativeRiverObjectParityFields(args: {
 }
 
 function riverMetadataParityExpectsNativeObjects(parity: RiverMetadataParityReport): boolean {
-  return Math.max(
-    parity.projectedNavigableTerrainTileCount,
-    parity.liveTerrainNavigableRiverTileCount,
-    parity.liveRiverTileCount,
-    parity.liveNavigableRiverTileCount
-  ) > 0;
+  return (
+    Math.max(
+      parity.projectedNavigableTerrainTileCount,
+      parity.liveTerrainNavigableRiverTileCount,
+      parity.liveRiverTileCount,
+      parity.liveNavigableRiverTileCount
+    ) > 0
+  );
 }
 
 function minorRiverBoundaryFields(
@@ -2166,7 +2319,7 @@ function addSurfaceShapeLinks(
   snapshot: FinalSurfaceSnapshot,
   label: "local" | "live",
   expectedWidth: number | undefined,
-  expectedHeight: number | undefined,
+  expectedHeight: number | undefined
 ): void {
   const width = expectedWidth ?? snapshot.width;
   const height = expectedHeight ?? snapshot.height;
@@ -2229,9 +2382,8 @@ function buildNaturalWonderPlanCoordinateProofComparison(
       status: "missing-exact-log",
       local: localProof,
       rowComparisons,
-      mismatchedLinks: (localProof?.planned?.count ?? 0) > 0
-        ? ["natural-wonder-plan-coordinate-proof.log"]
-        : [],
+      mismatchedLinks:
+        (localProof?.planned?.count ?? 0) > 0 ? ["natural-wonder-plan-coordinate-proof.log"] : [],
     };
   }
   if (!localProof) {
@@ -2239,9 +2391,8 @@ function buildNaturalWonderPlanCoordinateProofComparison(
       status: "missing-local-plan",
       exact: exactProof,
       rowComparisons,
-      mismatchedLinks: (exactProof.planned?.count ?? 0) > 0
-        ? ["natural-wonder-plan-coordinate-proof.local"]
-        : [],
+      mismatchedLinks:
+        (exactProof.planned?.count ?? 0) > 0 ? ["natural-wonder-plan-coordinate-proof.local"] : [],
     };
   }
   const mismatchedLinks = [
@@ -2262,9 +2413,7 @@ function buildNaturalWonderPlanCoordinateProofComparison(
 
 function readExactNaturalWonderPlanRows(exact: ExactAuthorshipProofLike): NaturalWonderPlanRow[] {
   const rows = exact.log?.naturalWonderPlan?.planRows;
-  return Array.isArray(rows)
-    ? rows.flatMap((row) => readNaturalWonderPlanRow(row))
-    : [];
+  return Array.isArray(rows) ? rows.flatMap((row) => readNaturalWonderPlanRow(row)) : [];
 }
 
 function readLocalNaturalWonderPlanRows(local: FinalSurfaceSnapshot): NaturalWonderPlanRow[] {
@@ -2283,7 +2432,14 @@ function readNaturalWonderPlanRow(value: unknown, width?: number): NaturalWonder
     const y = numberValue(value[3]);
     const featureType = numberValue(value[4]);
     const direction = numberValue(value[5]);
-    if (status !== "p" || plotIndex === undefined || x === undefined || y === undefined || featureType === undefined || direction === undefined) {
+    if (
+      status !== "p" ||
+      plotIndex === undefined ||
+      x === undefined ||
+      y === undefined ||
+      featureType === undefined ||
+      direction === undefined
+    ) {
       return [];
     }
     return [
@@ -2303,8 +2459,11 @@ function readNaturalWonderPlanRow(value: unknown, width?: number): NaturalWonder
   const featureType = numberValue(value.featureType);
   const direction = numberValue(value.direction);
   if (plotIndex === undefined || featureType === undefined || direction === undefined) return [];
-  const rowY = numberValue(value.y) ?? (width === undefined ? undefined : Math.floor(plotIndex / width));
-  const rowX = numberValue(value.x) ?? (width === undefined || rowY === undefined ? undefined : plotIndex - rowY * width);
+  const rowY =
+    numberValue(value.y) ?? (width === undefined ? undefined : Math.floor(plotIndex / width));
+  const rowX =
+    numberValue(value.x) ??
+    (width === undefined || rowY === undefined ? undefined : plotIndex - rowY * width);
   if (rowX === undefined || rowY === undefined) return [];
   return [
     stripUndefinedNaturalWonderPlanRow({
@@ -2319,9 +2478,7 @@ function readNaturalWonderPlanRow(value: unknown, width?: number): NaturalWonder
   ];
 }
 
-function stripUndefinedNaturalWonderPlanRow(
-  row: NaturalWonderPlanRow
-): NaturalWonderPlanRow {
+function stripUndefinedNaturalWonderPlanRow(row: NaturalWonderPlanRow): NaturalWonderPlanRow {
   return {
     plotIndex: row.plotIndex,
     x: row.x,
@@ -2340,9 +2497,10 @@ function priorityPpmValue(value: unknown): number | undefined {
   return Math.max(0, Math.min(1_000_000, Math.round(numeric * 1_000_000)));
 }
 
-function naturalWonderPlanCoordinateDigest(
-  rows: readonly NaturalWonderPlanRow[]
-): { count: number; hash32: string } {
+function naturalWonderPlanCoordinateDigest(rows: readonly NaturalWonderPlanRow[]): {
+  count: number;
+  hash32: string;
+} {
   return {
     count: rows.length,
     hash32: hash32Hex(
@@ -2383,11 +2541,12 @@ function exactNaturalWonderPlanLoggedDigest(
   const payload = isPlainObject(exact.log?.naturalWonderPlan?.payload)
     ? exact.log?.naturalWonderPlan?.payload
     : undefined;
-  const coordinateProof = isPlainObject(payload?.coordinateProof) ? payload.coordinateProof : undefined;
-  const count = numberValue(coordinateProof?.plannedCount);
-  const hash32 = typeof coordinateProof?.plannedHash32 === "string"
-    ? coordinateProof.plannedHash32
+  const coordinateProof = isPlainObject(payload?.coordinateProof)
+    ? payload.coordinateProof
     : undefined;
+  const count = numberValue(coordinateProof?.plannedCount);
+  const hash32 =
+    typeof coordinateProof?.plannedHash32 === "string" ? coordinateProof.plannedHash32 : undefined;
   return count === undefined && hash32 === undefined ? undefined : { count, hash32 };
 }
 
@@ -2398,8 +2557,9 @@ function buildNaturalWonderPlanRowComparisons(
 ): NaturalWonderPlanRowComparison[] {
   const exactByFeature = new Map(exactRows.map((row) => [row.featureType, row] as const));
   const localByFeature = new Map(localRows.map((row) => [row.featureType, row] as const));
-  const featureTypes = [...new Set([...exactByFeature.keys(), ...localByFeature.keys()])]
-    .sort((a, b) => a - b);
+  const featureTypes = [...new Set([...exactByFeature.keys(), ...localByFeature.keys()])].sort(
+    (a, b) => a - b
+  );
   return featureTypes.map((featureType) => {
     const exact = exactByFeature.get(featureType);
     const local = localByFeature.get(featureType);
@@ -2419,9 +2579,10 @@ function buildNaturalWonderPlanRowComparisons(
     }
     return {
       featureType,
-      classification: exact.plotIndex === local.plotIndex && exact.direction === local.direction
-        ? "exact-local-same-anchor"
-        : "exact-local-anchor-diverged",
+      classification:
+        exact.plotIndex === local.plotIndex && exact.direction === local.direction
+          ? "exact-local-same-anchor"
+          : "exact-local-anchor-diverged",
       exact,
       local,
       distance: hexDistanceOddQPeriodicX(exact.plotIndex, local.plotIndex, width),
@@ -2442,8 +2603,13 @@ function buildNaturalWonderPlanInputContextProofComparison(
   const exactRows = readExactNaturalWonderPlanInputRows(exact);
   const localRows = readLocalNaturalWonderPlanInputRows(local);
   const surfaceDigests = buildNaturalWonderPlanInputSurfaceDigestComparison(exact, local);
-  if (exactRows.length === 0 && localRows.length === 0 && surfaceDigests === undefined) return undefined;
-  const rowComparisons = buildNaturalWonderPlanInputRowComparisons(exactRows, localRows, local.width);
+  if (exactRows.length === 0 && localRows.length === 0 && surfaceDigests === undefined)
+    return undefined;
+  const rowComparisons = buildNaturalWonderPlanInputRowComparisons(
+    exactRows,
+    localRows,
+    local.width
+  );
   if (exactRows.length === 0) {
     return {
       status: "missing-exact-log",
@@ -2500,7 +2666,9 @@ function buildNaturalWonderPlanInputSurfaceDigestComparison(
 function readExactNaturalWonderPlanInputSurfaceDigests(
   exact: ExactAuthorshipProofLike
 ): NaturalWonderPlanInputSurfaceDigests | undefined {
-  return readNaturalWonderPlanInputSurfaceDigests(exact.log?.naturalWonderPlanInput?.surfaceDigests);
+  return readNaturalWonderPlanInputSurfaceDigests(
+    exact.log?.naturalWonderPlanInput?.surfaceDigests
+  );
 }
 
 function readLocalNaturalWonderPlanInputSurfaceDigests(
@@ -2561,9 +2729,7 @@ function readExactNaturalWonderPlanInputRows(
   exact: ExactAuthorshipProofLike
 ): NaturalWonderPlanInputRow[] {
   const rows = exact.log?.naturalWonderPlanInput?.inputRows;
-  return Array.isArray(rows)
-    ? rows.flatMap((row) => readNaturalWonderPlanInputRow(row))
-    : [];
+  return Array.isArray(rows) ? rows.flatMap((row) => readNaturalWonderPlanInputRow(row)) : [];
 }
 
 function readLocalNaturalWonderPlanInputRows(
@@ -2685,8 +2851,9 @@ function buildNaturalWonderPlanInputRowComparisons(
 ): NaturalWonderPlanInputRowComparison[] {
   const exactByFeature = new Map(exactRows.map((row) => [row.featureType, row] as const));
   const localByFeature = new Map(localRows.map((row) => [row.featureType, row] as const));
-  const featureTypes = [...new Set([...exactByFeature.keys(), ...localByFeature.keys()])]
-    .sort((a, b) => a - b);
+  const featureTypes = [...new Set([...exactByFeature.keys(), ...localByFeature.keys()])].sort(
+    (a, b) => a - b
+  );
   return featureTypes.map((featureType) => {
     const exact = exactByFeature.get(featureType);
     const local = localByFeature.get(featureType);
@@ -2725,23 +2892,34 @@ function naturalWonderPlanInputDelta(
   exact: NaturalWonderPlanInputRow,
   local: NaturalWonderPlanInputRow
 ): NaturalWonderPlanInputDelta {
-  return stripUndefined({
-    terrainType: exact.terrainType === local.terrainType
-      ? undefined
-      : { exact: exact.terrainType, local: local.terrainType },
-    biomeType: exact.biomeType === local.biomeType
-      ? undefined
-      : { exact: exact.biomeType, local: local.biomeType },
-    occupiedFeatureType: exact.occupiedFeatureType === local.occupiedFeatureType
-      ? undefined
-      : { exact: exact.occupiedFeatureType, local: local.occupiedFeatureType },
-    elevationDelta: exact.elevation === local.elevation ? undefined : exact.elevation - local.elevation,
-    aridityPpmDelta: exact.aridityPpm === local.aridityPpm ? undefined : exact.aridityPpm - local.aridityPpm,
-    riverClassDelta: exact.riverClass === local.riverClass ? undefined : exact.riverClass - local.riverClass,
-    lakeMaskDelta: exact.lakeMask === local.lakeMask ? undefined : exact.lakeMask - local.lakeMask,
-    blockedMaskDelta: exact.blockedMask === local.blockedMask ? undefined : exact.blockedMask - local.blockedMask,
-    landMaskDelta: exact.landMask === local.landMask ? undefined : exact.landMask - local.landMask,
-  }) ?? {};
+  return (
+    stripUndefined({
+      terrainType:
+        exact.terrainType === local.terrainType
+          ? undefined
+          : { exact: exact.terrainType, local: local.terrainType },
+      biomeType:
+        exact.biomeType === local.biomeType
+          ? undefined
+          : { exact: exact.biomeType, local: local.biomeType },
+      occupiedFeatureType:
+        exact.occupiedFeatureType === local.occupiedFeatureType
+          ? undefined
+          : { exact: exact.occupiedFeatureType, local: local.occupiedFeatureType },
+      elevationDelta:
+        exact.elevation === local.elevation ? undefined : exact.elevation - local.elevation,
+      aridityPpmDelta:
+        exact.aridityPpm === local.aridityPpm ? undefined : exact.aridityPpm - local.aridityPpm,
+      riverClassDelta:
+        exact.riverClass === local.riverClass ? undefined : exact.riverClass - local.riverClass,
+      lakeMaskDelta:
+        exact.lakeMask === local.lakeMask ? undefined : exact.lakeMask - local.lakeMask,
+      blockedMaskDelta:
+        exact.blockedMask === local.blockedMask ? undefined : exact.blockedMask - local.blockedMask,
+      landMaskDelta:
+        exact.landMask === local.landMask ? undefined : exact.landMask - local.landMask,
+    }) ?? {}
+  );
 }
 
 const FNV1A_32_OFFSET = 0x811c9dc5;
@@ -2825,7 +3003,9 @@ function localResourcePlacementCoordinateProof(local: FinalSurfaceSnapshot):
   const summary = isPlainObject(resourcePlacementOutcomes?.summary)
     ? resourcePlacementOutcomes.summary
     : undefined;
-  const coordinateProof = isPlainObject(summary?.coordinateProof) ? summary.coordinateProof : undefined;
+  const coordinateProof = isPlainObject(summary?.coordinateProof)
+    ? summary.coordinateProof
+    : undefined;
   if (!coordinateProof) return undefined;
   return {
     placed: coordinateDigest(coordinateProof.placed),
@@ -2854,7 +3034,9 @@ function buildResourcePlacementRejectionContexts(
     local: {
       ...(indexedSurfaceValue(local.surfaces.resource.values, row.plotIndex) === undefined
         ? {}
-        : { surfaceResourceType: indexedSurfaceValue(local.surfaces.resource.values, row.plotIndex) }),
+        : {
+            surfaceResourceType: indexedSurfaceValue(local.surfaces.resource.values, row.plotIndex),
+          }),
       ...(localEvidence.preferredByPlot.get(row.plotIndex) === undefined
         ? {}
         : { preferredPlacement: localEvidence.preferredByPlot.get(row.plotIndex)! }),
@@ -2971,7 +3153,11 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
     if (!isPlainObject(intent)) continue;
     const plotIndex = numberValue(intent.plotIndex);
     const preferredResourceType = numberValue(intent.resourceTypeId);
-    if (plotIndex === undefined || preferredResourceType === undefined || preferredByPlot.has(plotIndex)) {
+    if (
+      plotIndex === undefined ||
+      preferredResourceType === undefined ||
+      preferredByPlot.has(plotIndex)
+    ) {
       continue;
     }
     preferredByPlot.set(plotIndex, { preferredResourceType });
@@ -2994,7 +3180,12 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
     const plotIndex = numberValue(outcome.plotIndex);
     const status = stringValue(outcome.status);
     const resourceType = numberValue(outcome.resourceType);
-    if (plotIndex === undefined || !status || resourceType === undefined || outcomeByPlot.has(plotIndex)) {
+    if (
+      plotIndex === undefined ||
+      !status ||
+      resourceType === undefined ||
+      outcomeByPlot.has(plotIndex)
+    ) {
       continue;
     }
     outcomeByPlot.set(plotIndex, {
@@ -3052,7 +3243,10 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
   return { preferredByPlot, outcomeByPlot, planIntentByPlot };
 }
 
-function indexedSurfaceValue(values: ReadonlyArray<number | null>, index: number): number | null | undefined {
+function indexedSurfaceValue(
+  values: ReadonlyArray<number | null>,
+  index: number
+): number | null | undefined {
   if (!Number.isInteger(index) || index < 0 || index >= values.length) return undefined;
   const value = values[index];
   return value === undefined ? undefined : value;
@@ -3142,7 +3336,13 @@ function probeBooleanValue(value: unknown): number | null {
 }
 
 function hasFileIdentity(value: FileIdentityLike | undefined): boolean {
-  return Boolean(value?.path && value.sha256 && value.sizeBytes !== undefined && value.mtimeMs !== undefined && value.mtimeIso);
+  return Boolean(
+    value?.path &&
+      value.sha256 &&
+      value.sizeBytes !== undefined &&
+      value.mtimeMs !== undefined &&
+      value.mtimeIso
+  );
 }
 
 function numberValue(value: unknown): number | undefined {

@@ -2,8 +2,8 @@ import { Civ7DirectControlError } from "../../direct-control-error";
 import type { Civ7DirectControlOptions } from "../../session/types";
 import { validatePlayerId } from "../../validation";
 import {
-  requestCiv7PlayerOperation,
   type Civ7OperationRequestResult,
+  requestCiv7PlayerOperation,
 } from "../operations/validate-request";
 
 export type Civ7ProgressionPlayerChoiceKind =
@@ -61,21 +61,25 @@ type Civ7ProgressionPlayerChoiceResultBase = Readonly<{
 }>;
 
 export type Civ7ProgressionPlayerChoiceResult =
-  | Civ7ProgressionPlayerChoiceResultBase & Readonly<{
-    kind: "attribute-purchase";
-    node: number;
-  }>
-  | Civ7ProgressionPlayerChoiceResultBase & Readonly<{
-    kind: "attribute-review";
-  }>
-  | Civ7ProgressionPlayerChoiceResultBase & Readonly<{
-    kind: "tradition-change";
-    traditionType: number;
-    action: number;
-  }>
-  | Civ7ProgressionPlayerChoiceResultBase & Readonly<{
-    kind: "tradition-review";
-  }>;
+  | (Civ7ProgressionPlayerChoiceResultBase &
+      Readonly<{
+        kind: "attribute-purchase";
+        node: number;
+      }>)
+  | (Civ7ProgressionPlayerChoiceResultBase &
+      Readonly<{
+        kind: "attribute-review";
+      }>)
+  | (Civ7ProgressionPlayerChoiceResultBase &
+      Readonly<{
+        kind: "tradition-change";
+        traditionType: number;
+        action: number;
+      }>)
+  | (Civ7ProgressionPlayerChoiceResultBase &
+      Readonly<{
+        kind: "tradition-review";
+      }>);
 
 type ProgressionPlayerChoiceDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;
@@ -85,7 +89,7 @@ type ProgressionPlayerChoiceDependencies = Readonly<{
       operationType: string;
       args: Readonly<Record<string, number>>;
     }>,
-    options: Civ7DirectControlOptions,
+    options: Civ7DirectControlOptions
   ) => Promise<Civ7OperationRequestResult>;
   invalidIntegerError: (field: string) => never;
 }>;
@@ -93,16 +97,18 @@ type ProgressionPlayerChoiceDependencies = Readonly<{
 export async function requestCiv7ProgressionPlayerChoice(
   input: Civ7ProgressionPlayerChoiceInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: ProgressionPlayerChoiceDependencies =
-    defaultProgressionPlayerChoiceDependencies,
+  dependencies: ProgressionPlayerChoiceDependencies = defaultProgressionPlayerChoiceDependencies
 ): Promise<Civ7ProgressionPlayerChoiceResult> {
   dependencies.validatePlayerId(input.playerId);
   const request = progressionPlayerChoiceOperation(input, dependencies);
-  const operation = await dependencies.requestPlayerOperation({
-    playerId: input.playerId,
-    operationType: request.operationType,
-    args: request.args,
-  }, options);
+  const operation = await dependencies.requestPlayerOperation(
+    {
+      playerId: input.playerId,
+      operationType: request.operationType,
+      args: request.args,
+    },
+    options
+  );
   const sent = operation.sent === true;
   const common = {
     playerId: input.playerId,
@@ -144,47 +150,59 @@ export async function requestCiv7ProgressionPlayerChoice(
 
 export async function requestCiv7AttributePurchase(
   input: Omit<Civ7AttributePurchaseInput, "kind">,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7ProgressionPlayerChoiceResult> {
-  return await requestCiv7ProgressionPlayerChoice({
-    ...input,
-    kind: "attribute-purchase",
-  }, options);
+  return await requestCiv7ProgressionPlayerChoice(
+    {
+      ...input,
+      kind: "attribute-purchase",
+    },
+    options
+  );
 }
 
 export async function requestCiv7AttributeReviewCloseout(
   input: Omit<Civ7AttributeReviewInput, "kind">,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7ProgressionPlayerChoiceResult> {
-  return await requestCiv7ProgressionPlayerChoice({
-    ...input,
-    kind: "attribute-review",
-  }, options);
+  return await requestCiv7ProgressionPlayerChoice(
+    {
+      ...input,
+      kind: "attribute-review",
+    },
+    options
+  );
 }
 
 export async function requestCiv7TraditionChange(
   input: Omit<Civ7TraditionChangeInput, "kind">,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7ProgressionPlayerChoiceResult> {
-  return await requestCiv7ProgressionPlayerChoice({
-    ...input,
-    kind: "tradition-change",
-  }, options);
+  return await requestCiv7ProgressionPlayerChoice(
+    {
+      ...input,
+      kind: "tradition-change",
+    },
+    options
+  );
 }
 
 export async function requestCiv7TraditionReviewCloseout(
   input: Omit<Civ7TraditionReviewInput, "kind">,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7ProgressionPlayerChoiceResult> {
-  return await requestCiv7ProgressionPlayerChoice({
-    ...input,
-    kind: "tradition-review",
-  }, options);
+  return await requestCiv7ProgressionPlayerChoice(
+    {
+      ...input,
+      kind: "tradition-review",
+    },
+    options
+  );
 }
 
 function progressionPlayerChoiceOperation(
   input: Civ7ProgressionPlayerChoiceInput,
-  dependencies: Pick<ProgressionPlayerChoiceDependencies, "invalidIntegerError">,
+  dependencies: Pick<ProgressionPlayerChoiceDependencies, "invalidIntegerError">
 ): Readonly<{
   operationType: string;
   args: Readonly<Record<string, number>>;
@@ -224,7 +242,7 @@ function progressionPlayerChoiceOperation(
 
 function progressionPlayerChoicePostcondition(
   sent: boolean,
-  kind: Civ7ProgressionPlayerChoiceKind,
+  kind: Civ7ProgressionPlayerChoiceKind
 ): Civ7ProgressionPlayerChoicePostcondition {
   if (!sent) {
     return {
@@ -239,11 +257,10 @@ function progressionPlayerChoicePostcondition(
   };
 }
 
-const defaultProgressionPlayerChoiceDependencies:
-  ProgressionPlayerChoiceDependencies = {
-    validatePlayerId,
-    requestPlayerOperation: requestCiv7PlayerOperation,
-    invalidIntegerError: (field) => {
-      throw new Civ7DirectControlError("command-failed", `${field} must be an integer`);
-    },
-  };
+const defaultProgressionPlayerChoiceDependencies: ProgressionPlayerChoiceDependencies = {
+  validatePlayerId,
+  requestPlayerOperation: requestCiv7PlayerOperation,
+  invalidIntegerError: (field) => {
+    throw new Civ7DirectControlError("command-failed", `${field} must be an integer`);
+  },
+};

@@ -12,4 +12,3 @@ const scoreVegetationSavannaWoodland = createOp(ScoreVegetationSavannaWoodlandCo
 export type * from "./contract.js";
 
 export default scoreVegetationSavannaWoodland;
-

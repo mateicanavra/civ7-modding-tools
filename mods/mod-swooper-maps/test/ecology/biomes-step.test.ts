@@ -1,14 +1,13 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
+import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import ecology from "@mapgen/domain/ecology/ops";
-
-import biomesStep from "../../src/recipes/standard/stages/ecology-biomes/steps/biomes/index.js";
-import plotBiomesStep from "../../src/recipes/standard/stages/map-ecology/steps/plotBiomes.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import biomesStep from "../../src/recipes/standard/stages/ecology-biomes/steps/biomes/index.js";
 import { hydrologyClimateRefineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-refine/artifacts.js";
+import plotBiomesStep from "../../src/recipes/standard/stages/map-ecology/steps/plotBiomes.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 import { buildTestDeps } from "../support/step-deps.js";
@@ -73,7 +72,10 @@ describe("biomes step", () => {
       fertility: new Float32Array(size).fill(0.5),
     });
 
-    const classifyConfig = normalizeOpSelectionOrThrow(ecology.ops.classifyBiomes, ecology.ops.classifyBiomes.defaultConfig);
+    const classifyConfig = normalizeOpSelectionOrThrow(
+      ecology.ops.classifyBiomes,
+      ecology.ops.classifyBiomes.defaultConfig
+    );
 
     const ops = ecology.ops.bind(biomesStep.contract.ops!).runtime;
     biomesStep.run(ctx, { classify: classifyConfig }, ops, buildTestDeps(biomesStep));
@@ -148,7 +150,10 @@ describe("biomes step", () => {
       fertility: new Float32Array(size).fill(0.5),
     });
 
-    const classifyConfig = normalizeOpSelectionOrThrow(ecology.ops.classifyBiomes, ecology.ops.classifyBiomes.defaultConfig);
+    const classifyConfig = normalizeOpSelectionOrThrow(
+      ecology.ops.classifyBiomes,
+      ecology.ops.classifyBiomes.defaultConfig
+    );
 
     const ops = ecology.ops.bind(biomesStep.contract.ops!).runtime;
     biomesStep.run(ctx, { classify: classifyConfig }, ops, buildTestDeps(biomesStep));
@@ -161,10 +166,14 @@ describe("biomes step", () => {
           freezeIndex?: Float32Array;
         }
       | undefined;
-    if (!(classification?.surfaceTemperature instanceof Float32Array)) throw new Error("Missing surfaceTemperature.");
-    if (!(classification?.effectiveMoisture instanceof Float32Array)) throw new Error("Missing effectiveMoisture.");
-    if (!(classification?.aridityIndex instanceof Float32Array)) throw new Error("Missing aridityIndex.");
-    if (!(classification?.freezeIndex instanceof Float32Array)) throw new Error("Missing freezeIndex.");
+    if (!(classification?.surfaceTemperature instanceof Float32Array))
+      throw new Error("Missing surfaceTemperature.");
+    if (!(classification?.effectiveMoisture instanceof Float32Array))
+      throw new Error("Missing effectiveMoisture.");
+    if (!(classification?.aridityIndex instanceof Float32Array))
+      throw new Error("Missing aridityIndex.");
+    if (!(classification?.freezeIndex instanceof Float32Array))
+      throw new Error("Missing freezeIndex.");
 
     expect(Array.from(classification.surfaceTemperature)).toEqual(Array.from(surfaceTemperatureC));
     expect(Array.from(classification.effectiveMoisture)).toEqual(Array.from(effectiveMoistureIn));
@@ -182,7 +191,10 @@ describe("biomes step", () => {
       latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
     };
 
-    const classifyConfig = normalizeOpSelectionOrThrow(ecology.ops.classifyBiomes, ecology.ops.classifyBiomes.defaultConfig);
+    const classifyConfig = normalizeOpSelectionOrThrow(
+      ecology.ops.classifyBiomes,
+      ecology.ops.classifyBiomes.defaultConfig
+    );
 
     const run = (effectiveMoistureIn: Float32Array): Float32Array => {
       const adapter = createMockAdapter({ width, height });

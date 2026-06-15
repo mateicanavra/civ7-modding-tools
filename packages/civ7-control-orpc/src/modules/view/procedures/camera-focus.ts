@@ -19,12 +19,8 @@ import { viewCameraFromFocusResult } from "../camera-readback";
  * The camera deliberately STAYS where it was moved — camera position is
  * navigation state the caller asked to change, not UI chrome to restore.
  */
-export const viewCameraFocusProcedure =
-  civ7ControlOrpcImplementer.view.camera.focus.effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
+export const viewCameraFocusProcedure = civ7ControlOrpcImplementer.view.camera.focus.effect(
+  function* ({ context, errors, input }) {
     const errorData = {
       procedureKey: "view.camera.focus" as const,
       source: "direct-control-facade" as const,
@@ -37,11 +33,9 @@ export const viewCameraFocusProcedure =
             x: input.x,
             y: input.y,
             ...(input.zoom === undefined ? {} : { zoom: input.zoom }),
-            ...(input.instantaneous === undefined
-              ? {}
-              : { instantaneous: input.instantaneous }),
+            ...(input.instantaneous === undefined ? {} : { instantaneous: input.instantaneous }),
           },
-          context.endpointDefaults,
+          context.endpointDefaults
         ),
       catch: (error) =>
         errors.CAMERA_FOCUS_FAILED({
@@ -60,8 +54,9 @@ export const viewCameraFocusProcedure =
               ? "camera move readback reported the lookAt did not run"
               : focus.lookAt.error,
           },
-        }),
+        })
       );
     }
     return viewCameraFromFocusResult(focus);
-  });
+  }
+);

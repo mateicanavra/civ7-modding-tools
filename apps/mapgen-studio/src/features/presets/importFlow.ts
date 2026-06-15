@@ -1,11 +1,10 @@
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
-
 import type { StudioPresetExportFileV1 } from "@swooper/mapgen-core/authoring";
+import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import type { RecipeArtifacts } from "../../recipes/catalog";
 import {
-  PipelineConfigMigrationError,
   migratePipelineConfigUnknown,
+  PipelineConfigMigrationError,
 } from "../configMigrations/pipelineConfig";
 
 export type ImportPresetResult =
@@ -23,7 +22,9 @@ export type ImportPresetResult =
       details?: ReadonlyArray<string>;
     }>;
 
-function formatErrors(errors: ReadonlyArray<{ path: string; message: string }>): ReadonlyArray<string> {
+function formatErrors(
+  errors: ReadonlyArray<{ path: string; message: string }>
+): ReadonlyArray<string> {
   return errors.map((e) => `${e.path}: ${e.message}`);
 }
 

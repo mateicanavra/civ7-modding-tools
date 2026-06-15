@@ -1,5 +1,5 @@
-import { Type, type TSchema } from "@swooper/mapgen-core/authoring";
 import hydrology from "@mapgen/domain/hydrology";
+import { type TSchema, Type } from "@swooper/mapgen-core/authoring";
 
 type MutableSchemaNode = TSchema & {
   description?: string;
@@ -31,7 +31,10 @@ function authorDescription(existing: unknown, label: string): string {
     .replace(/\binternally\b/gi, "during deterministic computation")
     .replace(/\binternal\b/gi, "pipeline")
     .replace(/\s*\((?:basic|cardinal|default|latitude|refine|vector) strategy\)/gi, "")
-    .replace(/\b(?:basic|cardinal|default|latitude|refine|vector) strategy\b/gi, "deterministic control set")
+    .replace(
+      /\b(?:basic|cardinal|default|latitude|refine|vector) strategy\b/gi,
+      "deterministic control set"
+    )
     .replace(/\bstrategy\b/gi, "control mode")
     .replace(/\beach step\b/gi, "each iteration");
   if (!cleaned) return `Controls ${label} for Hydrology map generation.`;
@@ -95,8 +98,7 @@ export const HydrologySeasonalCycleSchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description:
-      "Seasonal-cycle controls for annual climate means and amplitude fields.",
+    description: "Seasonal-cycle controls for annual climate means and amplitude fields.",
   }
 );
 

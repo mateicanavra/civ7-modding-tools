@@ -1,7 +1,7 @@
 /**
- * Nx inference plugin (createNodesV2): gives the harness project the repo-wide
- * `boundaries` target, and every project that owns at least one habitat rule a
- * `habitat:check` target running only that project's rules.
+ * Nx inference plugin (createNodesV2): gives the harness project repo-wide
+ * `boundaries` and `biome:*` targets, and every project that owns at least one
+ * habitat rule a `habitat:check` target running only that project's rules.
  *
  * Plain ESM JS on purpose: Nx loads workspace plugins on Node, and a JS file
  * avoids the optional @swc-node TS-plugin toolchain. The rule data is shared
@@ -27,6 +27,9 @@ export const createNodesV2 = [
   (configFiles, options, _context) => {
     const checkTargetName = options?.checkTargetName ?? "habitat:check";
     const boundariesTargetName = options?.boundariesTargetName ?? "boundaries";
+    const biomeFormatTargetName = options?.biomeFormatTargetName ?? "biome:format";
+    const biomeCheckTargetName = options?.biomeCheckTargetName ?? "biome:check";
+    const biomeCiTargetName = options?.biomeCiTargetName ?? "biome:ci";
     const owners = new Set(rulesJson.rules.map((r) => r.ownerProject));
     return configFiles.map((configFile) => {
       const projects = {};
@@ -35,8 +38,48 @@ export const createNodesV2 = [
         return projects[root];
       };
       const harnessProject = ensureProject(OWNER_ROOTS["@internal/habitat-harness"]);
+      const biomeInputs = [
+        "{workspaceRoot}/biome.json",
+        "{workspaceRoot}/bun.lock",
+        "{workspaceRoot}/package.json",
+        "{workspaceRoot}/apps/**",
+        "{workspaceRoot}/packages/**",
+        "{workspaceRoot}/mods/**",
+        "{workspaceRoot}/tools/**",
+        "{workspaceRoot}/scripts/**",
+        "{workspaceRoot}/docs/**",
+        "{workspaceRoot}/vitest.config.ts",
+      ];
+      harnessProject.targets[biomeFormatTargetName] = {
+        command: "bunx --bun @biomejs/biome format --write .",
+        options: { cwd: "{workspaceRoot}" },
+        cache: false,
+        inputs: biomeInputs,
+        metadata: {
+          description: "Biome formatter write pass for the repo hygiene layer (H4)",
+        },
+      };
+      harnessProject.targets[biomeCheckTargetName] = {
+        command: "bunx --bun @biomejs/biome check .",
+        options: { cwd: "{workspaceRoot}" },
+        cache: true,
+        inputs: biomeInputs,
+        metadata: {
+          description: "Biome formatter, lint hygiene, and safe-assist check (H4)",
+        },
+      };
+      harnessProject.targets[biomeCiTargetName] = {
+        command: "bunx --bun @biomejs/biome ci .",
+        options: { cwd: "{workspaceRoot}" },
+        cache: true,
+        inputs: biomeInputs,
+        metadata: {
+          description: "Biome CI gate for hygiene-layer enforcement (H4)",
+        },
+      };
       harnessProject.targets[boundariesTargetName] = {
-        command: "FORCE_COLOR=0 bunx eslint . --quiet --config eslint.boundaries.config.mjs --no-config-lookup",
+        command:
+          "FORCE_COLOR=0 bunx eslint . --quiet --config eslint.boundaries.config.mjs --no-config-lookup",
         options: { cwd: "{workspaceRoot}" },
         cache: true,
         inputs: [

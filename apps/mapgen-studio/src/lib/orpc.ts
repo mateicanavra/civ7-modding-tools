@@ -1,9 +1,9 @@
+import type { StudioContract } from "@civ7/studio-server/contract";
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { ClientRetryPlugin } from "@orpc/client/plugins";
-import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import type { ContractRouterClient } from "@orpc/contract";
-import type { StudioContract } from "@civ7/studio-server/contract";
+import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 
 /**
  * Studio oRPC client — the ONE typed seam to the daemon's `/rpc` mount
@@ -28,8 +28,7 @@ const link = new RPCLink({
 });
 
 /** Typed RPC client mirroring the unified contract tree. */
-export const orpcClient: ContractRouterClient<StudioContract> =
-  createORPCClient(link);
+export const orpcClient: ContractRouterClient<StudioContract> = createORPCClient(link);
 
 /**
  * oRPC-native TanStack Query utils. Use directly per architecture/10 §2:

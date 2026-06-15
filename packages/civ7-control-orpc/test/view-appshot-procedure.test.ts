@@ -1,22 +1,21 @@
 import { CIV7_CLEAN_FRAME_VIEW_NAME, Civ7DirectControlError } from "@civ7/direct-control";
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
-import {
-  Civ7AppshotCaptureFailedError,
-  Civ7AppshotCleanFrameUnverifiedError,
-  Civ7AppshotPermissionRequiredError,
-  Civ7AppshotWindowNotFoundError,
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  type Civ7ControlOrpcContext,
-} from "../src/index";
 import type {
   Civ7ControlOrpcCameraFocusResult,
   Civ7ControlOrpcCleanFrameEnterResult,
   Civ7ControlOrpcCloseDisplaysResult,
   Civ7ControlOrpcWindowShotCaptureResult,
 } from "../src/dependencies/direct-control";
+import {
+  Civ7AppshotCaptureFailedError,
+  Civ7AppshotCleanFrameUnverifiedError,
+  Civ7AppshotPermissionRequiredError,
+  Civ7AppshotWindowNotFoundError,
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  Civ7ControlOrpcRouter,
+} from "../src/index";
 
 // The procedure sleeps for real (Effect.sleep); pin settleMs to zero.
 const fastSettle = { settleMs: 0 } as const;
@@ -27,7 +26,7 @@ describe("view.appshot.capture control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.view.appshot.capture,
       { ...fastSettle },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     // The clean frame is fully verified BEFORE any pixel is captured, and the
@@ -80,7 +79,7 @@ describe("view.appshot.capture control-oRPC procedure", () => {
         windowId: 7,
         ...fastSettle,
       },
-      { context: fake.context },
+      { context: fake.context }
     );
     expect(fake.enterInputs).toEqual([{ hideUnits: true }]);
     expect(fake.captureInputs).toEqual([
@@ -93,7 +92,7 @@ describe("view.appshot.capture control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.view.appshot.capture,
       { target: { x: 12, y: 34 }, zoom: 0.25, ...fastSettle },
-      { context: fake.context },
+      { context: fake.context }
     );
     expect(fake.calls).toEqual([
       "cameraFocus",
@@ -120,7 +119,7 @@ describe("view.appshot.capture control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.view.appshot.capture,
       { ...fastSettle },
-      { context: fake.context },
+      { context: fake.context }
     );
     expect(fake.calls).not.toContain("cameraFocus");
     expect(result.camera).toBeUndefined();
@@ -132,8 +131,8 @@ describe("view.appshot.capture control-oRPC procedure", () => {
       call(
         Civ7ControlOrpcRouter.view.appshot.capture,
         { zoom: 0.25, ...fastSettle },
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({
       code: "CAMERA_FOCUS_FAILED",
       data: { detail: expect.stringContaining("zoom requires a target plot") },
@@ -147,8 +146,8 @@ describe("view.appshot.capture control-oRPC procedure", () => {
       call(
         Civ7ControlOrpcRouter.view.appshot.capture,
         { target: { x: 12, y: 34 }, ...fastSettle },
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({
       code: "CAMERA_FOCUS_UNVERIFIED",
       data: {
@@ -168,8 +167,8 @@ describe("view.appshot.capture control-oRPC procedure", () => {
       call(
         Civ7ControlOrpcRouter.view.appshot.capture,
         { target: { x: 12, y: 34 }, ...fastSettle },
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({
       code: "CAMERA_FOCUS_FAILED",
       data: { detail: "Camera.lookAtPlot unavailable" },
@@ -183,8 +182,8 @@ describe("view.appshot.capture control-oRPC procedure", () => {
       call(
         Civ7ControlOrpcRouter.view.appshot.capture,
         { target: { x: 12, y: 34 }, ...fastSettle },
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({
       code: "CAMERA_FOCUS_FAILED",
       data: { detail: "tuner socket closed" },
@@ -195,11 +194,7 @@ describe("view.appshot.capture control-oRPC procedure", () => {
   test("fails APPSHOT_CLEAN_FRAME_UNVERIFIED when queue suspension readback fails", async () => {
     const fake = fakeContext({ suspendIsSuspended: false });
     await expect(
-      call(
-        Civ7ControlOrpcRouter.view.appshot.capture,
-        { ...fastSettle },
-        { context: fake.context },
-      ),
+      call(Civ7ControlOrpcRouter.view.appshot.capture, { ...fastSettle }, { context: fake.context })
     ).rejects.toMatchObject({
       code: "APPSHOT_CLEAN_FRAME_UNVERIFIED",
       data: {
@@ -222,11 +217,7 @@ describe("view.appshot.capture control-oRPC procedure", () => {
       },
     });
     await expect(
-      call(
-        Civ7ControlOrpcRouter.view.appshot.capture,
-        { ...fastSettle },
-        { context: fake.context },
-      ),
+      call(Civ7ControlOrpcRouter.view.appshot.capture, { ...fastSettle }, { context: fake.context })
     ).rejects.toMatchObject({ code: "APPSHOT_CLEAN_FRAME_UNVERIFIED" });
     expect(fake.calls).not.toContain("capture");
     // The release finalizer still restores both the view and the queue.
@@ -237,15 +228,11 @@ describe("view.appshot.capture control-oRPC procedure", () => {
     const fake = fakeContext({
       captureError: new Civ7DirectControlError(
         "window-shot-permission-required",
-        "Screen Recording permission is not granted for the app running this command.",
+        "Screen Recording permission is not granted for the app running this command."
       ),
     });
     await expect(
-      call(
-        Civ7ControlOrpcRouter.view.appshot.capture,
-        { ...fastSettle },
-        { context: fake.context },
-      ),
+      call(Civ7ControlOrpcRouter.view.appshot.capture, { ...fastSettle }, { context: fake.context })
     ).rejects.toMatchObject({
       code: "APPSHOT_PERMISSION_REQUIRED",
       data: {
@@ -267,26 +254,22 @@ describe("view.appshot.capture control-oRPC procedure", () => {
     const fake = fakeContext({
       captureError: new Civ7DirectControlError(
         "window-shot-window-not-found",
-        "no window matched app substring 'nope'",
+        "no window matched app substring 'nope'"
       ),
     });
     await expect(
       call(
         Civ7ControlOrpcRouter.view.appshot.capture,
         { appName: "nope", ...fastSettle },
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({ code: "APPSHOT_WINDOW_NOT_FOUND" });
   });
 
   test("maps any other capture failure to APPSHOT_CAPTURE_FAILED and restores", async () => {
     const fake = fakeContext({ captureError: new Error("disk full") });
     await expect(
-      call(
-        Civ7ControlOrpcRouter.view.appshot.capture,
-        { ...fastSettle },
-        { context: fake.context },
-      ),
+      call(Civ7ControlOrpcRouter.view.appshot.capture, { ...fastSettle }, { context: fake.context })
     ).rejects.toMatchObject({
       code: "APPSHOT_CAPTURE_FAILED",
       data: { detail: "disk full" },
@@ -307,20 +290,14 @@ describe("view.appshot.capture control-oRPC procedure", () => {
     for (const input of invalidInputs) {
       const fake = fakeContext();
       await expect(
-        call(
-          Civ7ControlOrpcRouter.view.appshot.capture,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.view.appshot.capture, input as never, { context: fake.context })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls).toEqual([]);
     }
   });
 
   test("publishes the contract-first view leaf with typed errors", () => {
-    expect(
-      Civ7ControlOrpcContract.view.appshot.capture["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.view.appshot.capture["~orpc"]).toMatchObject({
       meta: {
         family: "view",
         procedureKey: "view.appshot.capture",
@@ -344,14 +321,16 @@ describe("view.appshot.capture control-oRPC procedure", () => {
 
 type EnterPayload = Omit<Civ7ControlOrpcCleanFrameEnterResult, "host" | "port" | "state">;
 
-function fakeContext(options: {
-  suspendIsSuspended?: boolean;
-  enterResult?: EnterPayload;
-  captureError?: Error;
-  cameraCenter?: { x: number; y: number } | null;
-  cameraLookAt?: { ok: true; value: boolean } | { ok: false; error: string };
-  cameraError?: Error;
-} = {}): {
+function fakeContext(
+  options: {
+    suspendIsSuspended?: boolean;
+    enterResult?: EnterPayload;
+    captureError?: Error;
+    cameraCenter?: { x: number; y: number } | null;
+    cameraLookAt?: { ok: true; value: boolean } | { ok: false; error: string };
+    cameraError?: Error;
+  } = {}
+): {
   context: Civ7ControlOrpcContext;
   calls: string[];
   enterInputs: unknown[];
@@ -440,12 +419,14 @@ function fakeContext(options: {
   };
 }
 
-function cameraFocusResult(input: Readonly<{
-  target: { x: number; y: number };
-  center: { x: number; y: number } | null;
-  zoom?: number;
-  lookAt?: { ok: true; value: boolean } | { ok: false; error: string };
-}>): Civ7ControlOrpcCameraFocusResult {
+function cameraFocusResult(
+  input: Readonly<{
+    target: { x: number; y: number };
+    center: { x: number; y: number } | null;
+    zoom?: number;
+    lookAt?: { ok: true; value: boolean } | { ok: false; error: string };
+  }>
+): Civ7ControlOrpcCameraFocusResult {
   const snapshot = (center: { x: number; y: number } | null) => ({
     exists: true,
     zoomLevel: { ok: true, value: input.zoom ?? 0.4 } as const,
@@ -464,9 +445,10 @@ function cameraFocusResult(input: Readonly<{
     before: snapshot({ x: 0, y: 0 }),
     lookAt: input.lookAt ?? { ok: true, value: true },
     after: snapshot(input.center),
-    centerMatchesTarget: input.center !== null
-      && input.center.x === input.target.x
-      && input.center.y === input.target.y,
+    centerMatchesTarget:
+      input.center !== null &&
+      input.center.x === input.target.x &&
+      input.center.y === input.target.y,
   };
 }
 
@@ -495,7 +477,7 @@ function windowShotResult(): Civ7ControlOrpcWindowShotCaptureResult {
 }
 
 function closeDisplaysResult(
-  closed: Array<{ category: string; closed: number }>,
+  closed: Array<{ category: string; closed: number }>
 ): Civ7ControlOrpcCloseDisplaysResult {
   return {
     ...appUiEnvelope(),
@@ -522,9 +504,9 @@ function expectSafeAppshotOutput(output: unknown): void {
   const serialized = JSON.stringify(output);
   expect(serialized).not.toContain("127.0.0.1");
   expect(serialized).not.toContain("65535");
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
   expect(serialized).not.toContain("rawCommand");
   expect(serialized).not.toContain("bundleId");
 }

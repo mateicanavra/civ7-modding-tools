@@ -36,7 +36,9 @@ function wrapX(x: number, width: number): number {
   return ((x % width) + width) % width;
 }
 
-export function hasUnsupportedNaturalWonderPolicyTags(tags: readonly string[] | undefined): boolean {
+export function hasUnsupportedNaturalWonderPolicyTags(
+  tags: readonly string[] | undefined
+): boolean {
   if (!Array.isArray(tags)) return false;
   return tags.some((tag) => !SUPPORTED_POLICY_TAGS.has(tag));
 }

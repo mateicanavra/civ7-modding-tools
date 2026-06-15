@@ -1,4 +1,4 @@
-import { Type, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring";
 
 const ResourceGroupIdSchema = Type.Union([
   Type.Literal("aquatic-coastal-navigable-river"),

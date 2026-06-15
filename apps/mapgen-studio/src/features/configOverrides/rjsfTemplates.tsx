@@ -1,6 +1,11 @@
-import type { ArrayFieldTemplateProps, FieldTemplateProps, ObjectFieldTemplateProps, RJSFSchema } from "@rjsf/utils";
-import type { ReactNode } from "react";
+import type {
+  ArrayFieldTemplateProps,
+  FieldTemplateProps,
+  ObjectFieldTemplateProps,
+  RJSFSchema,
+} from "@rjsf/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
 import { FieldRow } from "../../ui/components/fields";
 import { pathToPointer } from "./schemaPresentation";
 
@@ -122,13 +127,15 @@ function CollapsibleHeader(args: {
     <header
       className={["flex items-center gap-1", className].filter(Boolean).join(" ")}
       data-config-header=""
-      data-config-pointer={pointer}>
+      data-config-pointer={pointer}
+    >
       <button
         type="button"
         onClick={() => collapse.toggle(pointer)}
         aria-expanded={expanded}
         aria-controls={configContentId(pointer)}
-        className="flex flex-1 min-w-0 items-center gap-1.5 text-left cursor-pointer">
+        className="flex flex-1 min-w-0 items-center gap-1.5 text-left cursor-pointer"
+      >
         <Chevron className="w-3 h-3 shrink-0 text-muted-foreground/70" aria-hidden="true" />
         <span className={`min-w-0 truncate ${titleClass}`}>{title}</span>
       </button>
@@ -139,8 +146,20 @@ function CollapsibleHeader(args: {
 
 export function BrowserConfigFieldTemplate(
   props: FieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>
-){
-  const { id, label, required, description, errors, help, children, hidden, classNames, displayLabel, rawErrors } = props;
+) {
+  const {
+    id,
+    label,
+    required,
+    description,
+    errors,
+    help,
+    children,
+    hidden,
+    classNames,
+    displayLabel,
+    rawErrors,
+  } = props;
   if (hidden) return <div style={{ display: "none" }} />;
   const prettyLabel = label ? humanizeSchemaLabel(label) : "";
   const schemaType = props.schema?.type;
@@ -164,9 +183,15 @@ export function BrowserConfigFieldTemplate(
     return (
       <div className={[`flex flex-col ${FORM.rhythm.field}`, classNames].filter(Boolean).join(" ")}>
         <div className={textClass}>{children}</div>
-        {description && !suppressDescription ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
+        {description && !suppressDescription ? (
+          <div className={`text-data ${labelClass}`}>{description}</div>
+        ) : null}
         {renderGsComments({ schema: props.schema, className: labelClass })}
-        {hasErrors ? <div id={errorId} role="alert" className="text-data text-destructive">{errors}</div> : null}
+        {hasErrors ? (
+          <div id={errorId} role="alert" className="text-data text-destructive">
+            {errors}
+          </div>
+        ) : null}
         {help ? <div className={`text-data ${mutedClass}`}>{help}</div> : null}
       </div>
     );
@@ -181,15 +206,25 @@ export function BrowserConfigFieldTemplate(
         </label>
         <div className={`flex-1 min-w-[120px] ${textClass}`}>{children}</div>
       </FieldRow>
-      {description && !suppressDescription ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
+      {description && !suppressDescription ? (
+        <div className={`text-data ${labelClass}`}>{description}</div>
+      ) : null}
       {renderGsComments({ schema: props.schema, className: labelClass })}
-      {hasErrors ? <div id={errorId} role="alert" className="text-data text-destructive">{errors}</div> : null}
+      {hasErrors ? (
+        <div id={errorId} role="alert" className="text-data text-destructive">
+          {errors}
+        </div>
+      ) : null}
       {help ? <div className={`text-data ${mutedClass}`}>{help}</div> : null}
     </div>
   );
 }
 
-type ObjectProperty = ObjectFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>["properties"][number];
+type ObjectProperty = ObjectFieldTemplateProps<
+  unknown,
+  RJSFSchema,
+  BrowserConfigFormContext
+>["properties"][number];
 
 type PropertyRun =
   | { kind: "fields"; items: ObjectProperty[] }
@@ -211,7 +246,7 @@ function isSectionProperty(parentSchema: RJSFSchema | undefined, name: string): 
 
 function groupPropertyRuns(
   properties: readonly ObjectProperty[],
-  parentSchema: RJSFSchema | undefined,
+  parentSchema: RJSFSchema | undefined
 ): PropertyRun[] {
   const runs: PropertyRun[] = [];
   for (const property of properties) {
@@ -249,7 +284,7 @@ function FlatObjectChildren(args: {
           <div key={index} className={`flex flex-col ${FORM.rhythm.siblings} ${args.fieldsClass}`}>
             {run.items.map((p) => p.content)}
           </div>
-        ),
+        )
       )}
     </div>
   );
@@ -257,7 +292,7 @@ function FlatObjectChildren(args: {
 
 export function BrowserConfigObjectFieldTemplate(
   props: ObjectFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>
-){
+) {
   const { title, description, properties, fieldPathId, schema } = props;
   const path = fieldPathId.path ?? [];
   const transparentPaths = props.registry.formContext?.transparentPaths ?? new Set<string>();
@@ -284,7 +319,11 @@ export function BrowserConfigObjectFieldTemplate(
     return <div>{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
   }
 
-  const prettyTitle = title ? humanizeSchemaLabel(title) : leafKey ? humanizeSchemaLabel(leafKey) : "Section";
+  const prettyTitle = title
+    ? humanizeSchemaLabel(title)
+    : leafKey
+      ? humanizeSchemaLabel(leafKey)
+      : "Section";
   const isStage = depth === 1;
 
   // Collapse plumbing (Pass-4): no context ⇒ always expanded, no chevrons.
@@ -321,11 +360,15 @@ export function BrowserConfigObjectFieldTemplate(
         {expanded ? (
           <div
             id={collapse ? configContentId(pointer) : undefined}
-            className={`border-t bg-surface-sunken/60 ${FORM.borderSubtle}`}>
-            {collapse && (description || normalizeGsComments((schema as GsSchemaMeta | null)?.gs?.comments)) ? (
+            className={`border-t bg-surface-sunken/60 ${FORM.borderSubtle}`}
+          >
+            {collapse &&
+            (description || normalizeGsComments((schema as GsSchemaMeta | null)?.gs?.comments)) ? (
               <div className="flex flex-col gap-1 px-2.5 pt-2 pb-1.5">
                 {renderGsComments({ schema, className: labelClass })}
-                {description ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
+                {description ? (
+                  <div className={`text-data ${labelClass}`}>{description}</div>
+                ) : null}
               </div>
             ) : null}
             <FlatObjectChildren properties={properties} schema={schema} fieldsClass="px-2.5 py-2" />
@@ -362,7 +405,11 @@ export function BrowserConfigObjectFieldTemplate(
           {description ? (
             <div className={`text-data px-2.5 pb-1.5 ${labelClass}`}>{description}</div>
           ) : null}
-          <FlatObjectChildren properties={properties} schema={schema} fieldsClass="px-2.5 pb-2 pt-1" />
+          <FlatObjectChildren
+            properties={properties}
+            schema={schema}
+            fieldsClass="px-2.5 pb-2 pt-1"
+          />
         </div>
       ) : null}
     </section>
@@ -371,7 +418,7 @@ export function BrowserConfigObjectFieldTemplate(
 
 export function BrowserConfigArrayFieldTemplate(
   props: ArrayFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>
-){
+) {
   const { title, items, canAdd, onAddClick, disabled, readonly, schema, fieldPathId } = props;
   const prettyTitle = title ? humanizeSchemaLabel(title) : "Items";
   const allowMutations = !disabled && !readonly;

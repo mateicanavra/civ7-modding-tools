@@ -173,13 +173,7 @@
               "chart": {
                 "type": "scatter",
                 "csv": {
-                  "rows": [
-                    "A_km2,E_relative",
-                    "1,0.1",
-                    "10,0.6",
-                    "100,3.0",
-                    "1000,15.0"
-                  ]
+                  "rows": ["A_km2,E_relative", "1,0.1", "10,0.6", "100,3.0", "1000,15.0"]
                 },
                 "config": {
                   "title": "Stream power: bigger basins incise more",
@@ -228,14 +222,7 @@
               "chart": {
                 "type": "line",
                 "csv": {
-                  "rows": [
-                    "LatitudeDeg,MeanSST_C",
-                    "-60,0",
-                    "-30,8",
-                    "0,26",
-                    "30,18",
-                    "60,4"
-                  ]
+                  "rows": ["LatitudeDeg,MeanSST_C", "-60,0", "-30,8", "0,26", "30,18", "60,4"]
                 },
                 "config": {
                   "title": "Currents flatten the latitudinal temperature gradient",
@@ -540,13 +527,7 @@
               "chart": {
                 "type": "line",
                 "csv": {
-                  "rows": [
-                    "AxialTiltDeg,DesertLandPercent",
-                    "10,8",
-                    "20,12",
-                    "30,18",
-                    "40,25"
-                  ]
+                  "rows": ["AxialTiltDeg,DesertLandPercent", "10,8", "20,12", "30,18", "40,25"]
                 },
                 "config": {
                   "title": "Example sensitivity: tilt increases desert belts",

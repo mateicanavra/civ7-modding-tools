@@ -1,16 +1,13 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
+import type { Civ7ControlOrpcCameraFocusResult } from "../src/dependencies/direct-control";
 import {
   Civ7CameraFocusFailedError,
   Civ7CameraFocusUnverifiedError,
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
-  type Civ7ControlOrpcContext,
 } from "../src/index";
-import type {
-  Civ7ControlOrpcCameraFocusResult,
-} from "../src/dependencies/direct-control";
 
 describe("view.camera.focus control-oRPC procedure", () => {
   test("moves the camera and returns the flattened verified readback", async () => {
@@ -18,7 +15,7 @@ describe("view.camera.focus control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.view.camera.focus,
       { x: 12, y: 34, zoom: 0.25 },
-      { context: fake.context },
+      { context: fake.context }
     );
     expect(fake.cameraInputs).toEqual([{ x: 12, y: 34, zoom: 0.25 }]);
     expect(result).toEqual({
@@ -41,7 +38,7 @@ describe("view.camera.focus control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.view.camera.focus,
       { x: 12, y: 34, instantaneous: false },
-      { context: fake.context },
+      { context: fake.context }
     );
     expect(fake.cameraInputs).toEqual([{ x: 12, y: 34, instantaneous: false }]);
     expect(result.centerMatchesTarget).toBe(false);
@@ -53,11 +50,7 @@ describe("view.camera.focus control-oRPC procedure", () => {
       cameraLookAt: { ok: false, error: "Camera.lookAtPlot unavailable" },
     });
     await expect(
-      call(
-        Civ7ControlOrpcRouter.view.camera.focus,
-        { x: 12, y: 34 },
-        { context: fake.context },
-      ),
+      call(Civ7ControlOrpcRouter.view.camera.focus, { x: 12, y: 34 }, { context: fake.context })
     ).rejects.toMatchObject({
       code: "CAMERA_FOCUS_FAILED",
       data: {
@@ -71,11 +64,7 @@ describe("view.camera.focus control-oRPC procedure", () => {
   test("a facade error maps to CAMERA_FOCUS_FAILED with the message as detail", async () => {
     const fake = fakeContext({ cameraError: new Error("tuner socket closed") });
     await expect(
-      call(
-        Civ7ControlOrpcRouter.view.camera.focus,
-        { x: 12, y: 34 },
-        { context: fake.context },
-      ),
+      call(Civ7ControlOrpcRouter.view.camera.focus, { x: 12, y: 34 }, { context: fake.context })
     ).rejects.toMatchObject({
       code: "CAMERA_FOCUS_FAILED",
       data: { detail: "tuner socket closed" },
@@ -93,20 +82,14 @@ describe("view.camera.focus control-oRPC procedure", () => {
     for (const input of invalidInputs) {
       const fake = fakeContext();
       await expect(
-        call(
-          Civ7ControlOrpcRouter.view.camera.focus,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.view.camera.focus, input as never, { context: fake.context })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.cameraInputs).toEqual([]);
     }
   });
 
   test("publishes the contract-first camera leaf with typed errors", () => {
-    expect(
-      Civ7ControlOrpcContract.view.camera.focus["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.view.camera.focus["~orpc"]).toMatchObject({
       meta: {
         family: "view",
         procedureKey: "view.camera.focus",
@@ -122,11 +105,13 @@ describe("view.camera.focus control-oRPC procedure", () => {
   });
 });
 
-function fakeContext(options: {
-  cameraCenter?: { x: number; y: number } | null;
-  cameraLookAt?: { ok: true; value: boolean } | { ok: false; error: string };
-  cameraError?: Error;
-} = {}): {
+function fakeContext(
+  options: {
+    cameraCenter?: { x: number; y: number } | null;
+    cameraLookAt?: { ok: true; value: boolean } | { ok: false; error: string };
+    cameraError?: Error;
+  } = {}
+): {
   context: Civ7ControlOrpcContext;
   cameraInputs: unknown[];
 } {
@@ -167,9 +152,7 @@ function fakeContext(options: {
             before: snapshot({ x: 0, y: 0 }),
             lookAt: options.cameraLookAt ?? { ok: true, value: true },
             after: snapshot(center),
-            centerMatchesTarget: center !== null
-              && center.x === target.x
-              && center.y === target.y,
+            centerMatchesTarget: center !== null && center.x === target.x && center.y === target.y,
           };
           return result;
         },

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { FEATURE_PLACEMENT_KEYS } from "@mapgen/domain/ecology";
+import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import {
-  FEATURE_TYPE_NONE_VALUE,
   buildFeatureTypeVizCategories,
+  FEATURE_TYPE_NONE_VALUE,
 } from "../../src/recipes/standard/stages/map-ecology/steps/features-apply/viz.js";
 
 describe("features apply viz meta (engine featureType)", () => {
@@ -64,4 +64,3 @@ describe("features apply viz meta (engine featureType)", () => {
     }
   });
 });
-

@@ -1,16 +1,17 @@
+import type {
+  ArrayFieldTemplateProps,
+  FieldTemplateProps,
+  ObjectFieldTemplateProps,
+  RJSFSchema,
+} from "@rjsf/utils";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import type { FieldTemplateProps, RJSFSchema } from "@rjsf/utils";
-
-import type { ObjectFieldTemplateProps } from "@rjsf/utils";
-
-import type { ArrayFieldTemplateProps } from "@rjsf/utils";
 
 import {
   BrowserConfigArrayFieldTemplate,
   BrowserConfigFieldTemplate,
-  BrowserConfigObjectFieldTemplate,
   type BrowserConfigFormContext,
+  BrowserConfigObjectFieldTemplate,
 } from "../../src/features/configOverrides/rjsfTemplates";
 
 type TemplateProps = FieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>;

@@ -1,18 +1,15 @@
-import type { Civ7OperationRequestResult } from "./validate-request";
-import {
-  requestCiv7PlayerOperation,
-} from "./validate-request";
-import {
-  firstMeetResponsePostcondition,
-  type Civ7FirstMeetResponsePostcondition,
-  waitForCiv7FirstMeetResponseAfter,
-} from "./first-meet-postconditions";
-
 import { Civ7DirectControlError } from "../../direct-control-error";
 import type { Civ7DirectControlOptions } from "../../session/types";
 import { validatePlayerId } from "../../validation";
 import type { Civ7PlayNotificationViewResult } from "../notifications/view";
 import { getCiv7PlayNotificationView } from "../notifications/view";
+import {
+  type Civ7FirstMeetResponsePostcondition,
+  firstMeetResponsePostcondition,
+  waitForCiv7FirstMeetResponseAfter,
+} from "./first-meet-postconditions";
+import type { Civ7OperationRequestResult } from "./validate-request";
+import { requestCiv7PlayerOperation } from "./validate-request";
 
 const RESPOND_DIPLOMATIC_FIRST_MEET = "RESPOND_DIPLOMATIC_FIRST_MEET";
 
@@ -38,14 +35,16 @@ export type Civ7FirstMeetResponseResult = Readonly<{
 
 type FirstMeetResponseRequestDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;
-  getPlayNotificationView: (options: Civ7DirectControlOptions) => Promise<Civ7PlayNotificationViewResult>;
+  getPlayNotificationView: (
+    options: Civ7DirectControlOptions
+  ) => Promise<Civ7PlayNotificationViewResult>;
   requestPlayerOperation: (
     input: Readonly<{
       playerId: number;
       operationType: string;
       args: Readonly<{ Player1: number; Player2: number; Type: number }>;
     }>,
-    options: Civ7DirectControlOptions,
+    options: Civ7DirectControlOptions
   ) => Promise<Civ7OperationRequestResult>;
   invalidResponseTypeError: () => never;
 }>;
@@ -53,7 +52,7 @@ type FirstMeetResponseRequestDependencies = Readonly<{
 export async function requestCiv7FirstMeetResponse(
   input: Civ7FirstMeetResponseInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: FirstMeetResponseRequestDependencies = defaultFirstMeetResponseRequestDependencies,
+  dependencies: FirstMeetResponseRequestDependencies = defaultFirstMeetResponseRequestDependencies
 ): Promise<Civ7FirstMeetResponseResult> {
   dependencies.validatePlayerId(input.playerId);
   dependencies.validatePlayerId(input.metPlayerId);
@@ -77,15 +76,10 @@ export async function requestCiv7FirstMeetResponse(
         input.metPlayerId,
         options,
         before,
-        dependencies.getPlayNotificationView,
+        dependencies.getPlayNotificationView
       )
     : before;
-  const postcondition = firstMeetResponsePostcondition(
-    sent,
-    before,
-    after,
-    input.metPlayerId,
-  );
+  const postcondition = firstMeetResponsePostcondition(sent, before, after, input.metPlayerId);
 
   return {
     playerId: input.playerId,
@@ -103,8 +97,10 @@ export async function requestCiv7FirstMeetResponse(
 }
 
 function firstMeetResponseVerified(postcondition: Civ7FirstMeetResponsePostcondition): boolean {
-  return postcondition.classification === "turn-unblocked"
-    || postcondition.classification === "first-meet-cleared";
+  return (
+    postcondition.classification === "turn-unblocked" ||
+    postcondition.classification === "first-meet-cleared"
+  );
 }
 
 const defaultFirstMeetResponseRequestDependencies: FirstMeetResponseRequestDependencies = {

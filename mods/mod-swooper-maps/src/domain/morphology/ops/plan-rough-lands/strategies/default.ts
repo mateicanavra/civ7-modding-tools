@@ -1,15 +1,13 @@
+import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-
-import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
-
-import PlanRoughLandsContract from "../contract.js";
-import type { PlanRoughLandsTypes } from "../types.js";
 import {
   encodeNormalizedToU8,
   normalizeMountainFractal,
   resolveDriverStrength,
 } from "../../mountains-shared/rules.js";
+import PlanRoughLandsContract from "../contract.js";
+import type { PlanRoughLandsTypes } from "../types.js";
 
 type RoughLandInputs = Readonly<{
   size: number;
@@ -248,8 +246,7 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
         (0.45 + stress * 0.35 + fractal * 0.2);
       const plateau =
         elevationRelief * coastInterior * (0.35 + resistantSubstrate * 0.35 + ageNorm * 0.3);
-      const escarpment =
-        localRelief * (0.35 + coastInterior * 0.35 + resistantSubstrate * 0.3);
+      const escarpment = localRelief * (0.35 + coastInterior * 0.35 + resistantSubstrate * 0.3);
       const basinMargin = flowRelief * localRelief * thinSediment;
       const boundaryShoulder =
         boundaryNorm *
@@ -258,14 +255,15 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
           : boundary === BOUNDARY_TYPE.divergent
             ? rift
             : stress);
-      const orographicBasinMargin =
-        insideMountainRegion
-          ? (0.18 + flowRelief * 0.22 + localRelief * 0.2 + thinSediment * 0.18) *
-            (0.45 + fractal * 0.55)
-          : 0;
+      const orographicBasinMargin = insideMountainRegion
+        ? (0.18 + flowRelief * 0.22 + localRelief * 0.2 + thinSediment * 0.18) *
+          (0.45 + fractal * 0.55)
+        : 0;
       const localReliefSupport = clamp01(localRelief * 1.2 + escarpment * 0.8 + basinMargin * 0.5);
       const activeDeformationSupport = clamp01(
-        boundaryShoulder * 0.85 + riftShoulder * 0.65 + stress * (boundary === BOUNDARY_TYPE.transform ? 0.45 : 0.15)
+        boundaryShoulder * 0.85 +
+          riftShoulder * 0.65 +
+          stress * (boundary === BOUNDARY_TYPE.transform ? 0.45 : 0.15)
       );
       const dissectedUplandSupport = clamp01(
         (oldHighland * 0.3 + rollingUpland * 0.25 + plateau * 0.45) *
@@ -299,20 +297,20 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
           fractal > 0.48 &&
           (localReliefSupport > 0.08 || activeDeformationSupport > 0.12 || flowRelief > 0.25));
       const textureGate =
-        fractal > 0.42 ||
-        localReliefSupport > 0.2 ||
-        activeDeformationSupport > 0.28;
+        fractal > 0.42 || localReliefSupport > 0.2 || activeDeformationSupport > 0.28;
       if (hasCausalSupport && textureGate && score >= threshold) candidates.push(i);
     }
 
-    const hillBudgetRaw = Math.floor(landCount * Math.max(0, Math.min(1, config.hillMaxFraction))) | 0;
+    const hillBudgetRaw =
+      Math.floor(landCount * Math.max(0, Math.min(1, config.hillMaxFraction))) | 0;
     const roughLandBudgetRaw =
       roughLandMaxFraction > 0 ? Math.floor(landCount * roughLandMaxFraction) | 0 : hillBudgetRaw;
     const hillCapacity = Math.max(0, landCount - mountainCount - foothillCount) | 0;
-    const roughTarget = Math.max(
-      0,
-      Math.min(candidates.length, hillCapacity, hillBudgetRaw - foothillCount, roughLandBudgetRaw)
-    ) | 0;
+    const roughTarget =
+      Math.max(
+        0,
+        Math.min(candidates.length, hillCapacity, hillBudgetRaw - foothillCount, roughLandBudgetRaw)
+      ) | 0;
 
     candidates.sort((a, b) => {
       const sa = roughScoreByTile[a] ?? 0;

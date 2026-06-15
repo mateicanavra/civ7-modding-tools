@@ -1,9 +1,8 @@
 import { describe, expect, it } from "bun:test";
-
+import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "../src/domain/hydrology/config.js";
 import { defaultStrategy as accumulateDischarge } from "../src/domain/hydrology/ops/accumulate-discharge/strategies/default.js";
 import { defaultStrategy as planLakes } from "../src/domain/hydrology/ops/plan-lakes/strategies/default.js";
 import { defaultStrategy as projectRiverNetwork } from "../src/domain/hydrology/ops/project-river-network/strategies/default.js";
-import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "../src/domain/hydrology/config.js";
 
 const SIMPLE_DISCHARGE_CONFIG = {
   runoffScale: 1,
@@ -304,7 +303,14 @@ describe("hydrology physical river benchmarks", () => {
     expect(lakes.sinkLakeCount).toBe(1);
     expect(lakes.plannedLakeTileCount).toBe(3);
     expect(Array.from(lakes.lakeMask)).toEqual([0, 0, 1, 1, 1]);
-    assertDrainageInvariants({ width, height, landMask, flowDir, lakeMask: lakes.lakeMask, ...accumulated });
+    assertDrainageInvariants({
+      width,
+      height,
+      landMask,
+      flowDir,
+      lakeMask: lakes.lakeMask,
+      ...accumulated,
+    });
   });
 
   it("uses saddle spill and lake-chain topology to grow lakes from admitted terminal basins", () => {
@@ -337,7 +343,14 @@ describe("hydrology physical river benchmarks", () => {
     expect(accumulated.discharge[5]).toBeGreaterThan(accumulated.discharge[2]);
     expect(lakes.sinkLakeCount).toBe(1);
     expect(Array.from(lakes.lakeMask)).toEqual([0, 0, 0, 0, 1, 1, 1]);
-    assertDrainageInvariants({ width, height, landMask, flowDir, lakeMask: lakes.lakeMask, ...accumulated });
+    assertDrainageInvariants({
+      width,
+      height,
+      landMask,
+      flowDir,
+      lakeMask: lakes.lakeMask,
+      ...accumulated,
+    });
   });
 
   it("turns rain-shadow coasts into stronger windward rivers than dry leeward slopes", () => {

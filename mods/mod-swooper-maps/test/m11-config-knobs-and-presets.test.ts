@@ -169,12 +169,14 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     ).toBeCloseTo(3.0, 6);
 
     // - orogeny=high scales Morphology truth planning before map projection.
-    expect(
-      compiled["morphology-features"].mountains.ridges.config.tectonicIntensity
-    ).toBeCloseTo(1.25, 6);
-    expect(
-      compiled["morphology-features"].mountains.ridges.config.mountainThreshold
-    ).toBeCloseTo(0.2, 6);
+    expect(compiled["morphology-features"].mountains.ridges.config.tectonicIntensity).toBeCloseTo(
+      1.25,
+      6
+    );
+    expect(compiled["morphology-features"].mountains.ridges.config.mountainThreshold).toBeCloseTo(
+      0.2,
+      6
+    );
     expect(compiled["morphology-features"].mountains.ridges.config.hillThreshold).toBeCloseTo(
       0.1555,
       6

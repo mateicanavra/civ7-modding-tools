@@ -1,4 +1,3 @@
-
 /**
  * Story Orogeny — Mountain belt tagging and windward/lee cache.
  *
@@ -9,19 +8,24 @@
  * Uses lazy provider pattern for test isolation.
  */
 
+import type { StoryConfig } from "@mapgen/domain/narrative/config.js";
+import type { NarrativeMotifsOrogeny } from "@mapgen/domain/narrative/models.js";
+import {
+  getOrogenyCache,
+  type OrogenyCacheInstance,
+} from "@mapgen/domain/narrative/orogeny/cache.js";
+import {
+  publishStoryOverlay,
+  STORY_OVERLAY_KEYS,
+} from "@mapgen/domain/narrative/overlays/index.js";
+import { getDims } from "@mapgen/domain/narrative/utils/dims.js";
+import { isWaterAt } from "@mapgen/domain/narrative/utils/water.js";
 import type {
   ExtendedMapContext,
   FoundationPlateFields,
   StoryOverlaySnapshot,
 } from "@swooper/mapgen-core";
-import type { StoryConfig } from "@mapgen/domain/narrative/config.js";
 import { storyKey } from "@swooper/mapgen-core";
-import type { NarrativeMotifsOrogeny } from "@mapgen/domain/narrative/models.js";
-import { publishStoryOverlay, STORY_OVERLAY_KEYS } from "@mapgen/domain/narrative/overlays/index.js";
-import { getDims } from "@mapgen/domain/narrative/utils/dims.js";
-import { isWaterAt } from "@mapgen/domain/narrative/utils/water.js";
-
-import { getOrogenyCache, type OrogenyCacheInstance } from "@mapgen/domain/narrative/orogeny/cache.js";
 
 export interface OrogenySummary {
   belts: number;
@@ -46,10 +50,10 @@ export function storyTagOrogenyBelts(
 
   const { width, height } = getDims(ctx);
   const area = Math.max(1, width * height);
-  
+
   // Dynamic scaling based on map size
   const sqrtScale = Math.min(2.0, Math.max(0.6, Math.sqrt(area / 10000)));
-  
+
   // Configuration
   const storyCfg = storyConfig as Record<string, unknown>;
   const cfg = storyCfg.orogeny as Record<string, number>;
@@ -57,7 +61,7 @@ export function storyTagOrogenyBelts(
     throw new Error("[Narrative] Missing story orogeny config.");
   }
 
-  const beltMinLength = Number.isFinite(cfg.beltMinLength) ? (cfg.beltMinLength | 0) : 30;
+  const beltMinLength = Number.isFinite(cfg.beltMinLength) ? cfg.beltMinLength | 0 : 30;
   const minLenSoft = Math.max(10, Math.round(beltMinLength * (0.9 + 0.4 * sqrtScale)));
 
   const kind: OrogenySummary["kind"] = "foundation";
@@ -109,7 +113,7 @@ function runFoundationPass(
   plates: FoundationPlateFields
 ): void {
   const { upliftPotential: U, tectonicStress: S, boundaryType: BT, boundaryCloseness: BC } = plates;
-  
+
   let thr = 180;
   let attempts = 0;
   const maxAttempts = 5;
@@ -123,7 +127,7 @@ function runFoundationPass(
         if (isWaterAt(ctx, x, y)) continue;
 
         const i = y * width + x;
-        
+
         // Filter: Must be Convergent Boundary (1) and reasonably close
         if (BT[i] !== 1 || BC[i] < 48) continue;
 
@@ -137,10 +141,10 @@ function runFoundationPass(
         neighbor_loop: for (let dy = -1; dy <= 1; dy++) {
           for (let dx = -1; dx <= 1; dx++) {
             if (dx === 0 && dy === 0) continue;
-            
+
             const j = (y + dy) * width + (x + dx);
             const m2 = Math.round(0.7 * U[j] + 0.3 * S[j]);
-            
+
             if (m2 >= thr) {
               dense++;
               if (dense >= 2) break neighbor_loop; // Optimization: Fail fast

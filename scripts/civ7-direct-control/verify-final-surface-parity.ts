@@ -2,24 +2,23 @@
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-
-import {
-  getCiv7FullMapGrid,
-  getCiv7NativeRiverObjects,
-  type Civ7NativeRiverObjectsResult,
-  type Civ7RuntimeProbe,
-} from "../../packages/civ7-direct-control/src/index.ts";
 import {
   buildFinalSurfaceParityProof,
   configFromExactAuthorshipProof,
   dimensionsFromExactAuthorshipProof,
+  type ExactAuthorshipProofLike,
   hashParityValue,
   liveGridToFinalSurfaceSnapshot,
+  type NativeRiverObjectSnapshot,
   runLocalFinalSurfaceSnapshot,
   validateExactAuthorshipProofPacket,
-  type ExactAuthorshipProofLike,
-  type NativeRiverObjectSnapshot,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
+import {
+  type Civ7NativeRiverObjectsResult,
+  type Civ7RuntimeProbe,
+  getCiv7FullMapGrid,
+  getCiv7NativeRiverObjects,
+} from "../../packages/civ7-direct-control/src/index.ts";
 
 type Args = Readonly<{
   requestId?: string;
@@ -132,7 +131,9 @@ async function loadExactAuthorshipProof(args: Args): Promise<ExactAuthorshipProo
   const envelope = (await response.json()) as { json?: unknown };
   const payload = envelope?.json;
   if (!response.ok || (isRecord(payload) && payload.ok === false)) {
-    throw new Error(`Studio Run in Game status unavailable for ${args.requestId}: ${JSON.stringify(payload ?? envelope)}`);
+    throw new Error(
+      `Studio Run in Game status unavailable for ${args.requestId}: ${JSON.stringify(payload ?? envelope)}`
+    );
   }
   return extractExactAuthorshipProof(payload);
 }
@@ -141,13 +142,16 @@ export function extractExactAuthorshipProof(payload: unknown): ExactAuthorshipPr
   if (!isRecord(payload)) throw new Error("Proof payload must be an object");
   const direct = isRecord(payload.exactAuthorshipProof) ? payload.exactAuthorshipProof : undefined;
   const status = isRecord(payload.status) ? payload.status : undefined;
-  const nested = status && isRecord(status.exactAuthorshipProof) ? status.exactAuthorshipProof : undefined;
+  const nested =
+    status && isRecord(status.exactAuthorshipProof) ? status.exactAuthorshipProof : undefined;
   const result = isRecord(payload.result) ? payload.result : undefined;
-  const resultProof = result && isRecord(result.exactAuthorshipProof) ? result.exactAuthorshipProof : undefined;
+  const resultProof =
+    result && isRecord(result.exactAuthorshipProof) ? result.exactAuthorshipProof : undefined;
   const parityProof = isRecord(payload.proof) ? payload.proof : undefined;
-  const parityProofPacket = parityProof && isRecord(parityProof.exactAuthorshipPacket)
-    ? parityProof.exactAuthorshipPacket
-    : undefined;
+  const parityProofPacket =
+    parityProof && isRecord(parityProof.exactAuthorshipPacket)
+      ? parityProof.exactAuthorshipPacket
+      : undefined;
   const proof = direct ?? nested ?? resultProof ?? parityProofPacket;
   if (!proof) throw new Error("Missing exactAuthorshipProof in status/proof payload");
   return proof as ExactAuthorshipProofLike;
@@ -162,12 +166,24 @@ function requireNumber(value: number | undefined, link: string, blockers: string
 }
 
 function probeNumber(value: Civ7RuntimeProbe<number> | undefined): number | undefined {
-  if (!value || value.ok !== true || typeof value.value !== "number" || !Number.isFinite(value.value)) return undefined;
+  if (
+    !value ||
+    value.ok !== true ||
+    typeof value.value !== "number" ||
+    !Number.isFinite(value.value)
+  )
+    return undefined;
   return value.value;
 }
 
 function probeNullableNumber(value: Civ7RuntimeProbe<number | null> | undefined): number | null {
-  if (!value || value.ok !== true || typeof value.value !== "number" || !Number.isFinite(value.value)) return null;
+  if (
+    !value ||
+    value.ok !== true ||
+    typeof value.value !== "number" ||
+    !Number.isFinite(value.value)
+  )
+    return null;
   return value.value;
 }
 
@@ -177,19 +193,22 @@ function probeNullableBoolean(value: Civ7RuntimeProbe<boolean | null> | undefine
 }
 
 function probeNativeRiverPlots(
-  value: Civ7NativeRiverObjectsResult["samples"][number]["plots"] | undefined,
+  value: Civ7NativeRiverObjectsResult["samples"][number]["plots"] | undefined
 ): NonNullable<NativeRiverObjectSnapshot["samples"]>[number]["plots"] {
   if (!value || value.ok !== true || !Array.isArray(value.value)) return undefined;
   return value.value.map((plot) => ({
     raw: plot.raw,
     index: typeof plot.index === "number" && Number.isFinite(plot.index) ? plot.index : null,
-    location: plot.location && typeof plot.location.x === "number" && typeof plot.location.y === "number"
-      ? { x: plot.location.x, y: plot.location.y }
-      : null,
+    location:
+      plot.location && typeof plot.location.x === "number" && typeof plot.location.y === "number"
+        ? { x: plot.location.x, y: plot.location.y }
+        : null,
   }));
 }
 
-function nativeRiverObjectsSnapshot(result: Civ7NativeRiverObjectsResult): NativeRiverObjectSnapshot {
+function nativeRiverObjectsSnapshot(
+  result: Civ7NativeRiverObjectsResult
+): NativeRiverObjectSnapshot {
   return {
     exists: result.exists,
     numRivers: probeNumber(result.numRivers) ?? null,
@@ -219,7 +238,11 @@ export function buildBlockedFinalSurfaceParityOutput(args: {
   dimensions: ReturnType<typeof dimensionsFromExactAuthorshipProof>;
 }) {
   const exactAuthorshipUnresolvedLinks = Array.isArray(args.exact.unresolvedLinks)
-    ? [...new Set(args.exact.unresolvedLinks.filter((link): link is string => typeof link === "string"))].sort((a, b) => a.localeCompare(b))
+    ? [
+        ...new Set(
+          args.exact.unresolvedLinks.filter((link): link is string => typeof link === "string")
+        ),
+      ].sort((a, b) => a.localeCompare(b))
     : [];
   return {
     ok: false,
@@ -247,14 +270,27 @@ async function main(): Promise<number> {
   const exactValidation = validateExactAuthorshipProofPacket(exact);
   const dimensions = dimensionsFromExactAuthorshipProof(exact);
   const localBlockers = [...exactValidation.unresolvedLinks];
-  const width = requireNumber(dimensions.width, "exact-authorship-proof.runtime.width", localBlockers);
-  const height = requireNumber(dimensions.height, "exact-authorship-proof.runtime.height", localBlockers);
+  const width = requireNumber(
+    dimensions.width,
+    "exact-authorship-proof.runtime.width",
+    localBlockers
+  );
+  const height = requireNumber(
+    dimensions.height,
+    "exact-authorship-proof.runtime.height",
+    localBlockers
+  );
   const seed = requireNumber(dimensions.seed, "exact-authorship-proof.request.seed", localBlockers);
   const config = configFromExactAuthorshipProof(exact);
-  if (config === undefined) localBlockers.push("exact-authorship-proof.source-snapshot.pipeline-config");
+  if (config === undefined)
+    localBlockers.push("exact-authorship-proof.source-snapshot.pipeline-config");
 
   if (localBlockers.length > 0) {
-    const output = buildBlockedFinalSurfaceParityOutput({ exact, blockedBy: localBlockers, dimensions });
+    const output = buildBlockedFinalSurfaceParityOutput({
+      exact,
+      blockedBy: localBlockers,
+      dimensions,
+    });
     writeOutput(args.output, output);
     console.log(JSON.stringify(output, null, 2));
     return 2;
@@ -269,15 +305,18 @@ async function main(): Promise<number> {
     envelopeHash: exact.sourceSnapshot?.envelopeHash,
   });
 
-  const grid = await getCiv7FullMapGrid({
-    fields: ["terrain", "biome", "feature", "resource", "hydrology"],
-    includeHidden: true,
-    maxPlotsPerRead: args.maxPlotsPerRead,
-  }, {
-    host: args.host,
-    port: args.port,
-    timeoutMs: args.timeoutMs,
-  });
+  const grid = await getCiv7FullMapGrid(
+    {
+      fields: ["terrain", "biome", "feature", "resource", "hydrology"],
+      includeHidden: true,
+      maxPlotsPerRead: args.maxPlotsPerRead,
+    },
+    {
+      host: args.host,
+      port: args.port,
+      timeoutMs: args.timeoutMs,
+    }
+  );
   const nativeRiverObjects = await getCiv7NativeRiverObjects(
     { maxSamples: 16 },
     {
@@ -371,7 +410,13 @@ if (import.meta.main) {
       process.exitCode = code;
     })
     .catch((error) => {
-      console.error(JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) }, null, 2));
+      console.error(
+        JSON.stringify(
+          { ok: false, error: error instanceof Error ? error.message : String(error) },
+          null,
+          2
+        )
+      );
       process.exitCode = 1;
     });
 }

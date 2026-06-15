@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 /**
  * Computes an ocean surface thermal state (SST + sea-ice proxy) from latitude and surface currents.
@@ -18,7 +18,9 @@ const ComputeOceanThermalStateInputSchema = Type.Object(
     /** Water mask per tile (1=water, 0=land). */
     isWaterMask: TypedArraySchemas.u8({ description: "Water mask per tile (1=water, 0=land)." }),
     /** Continental shelf mask per tile (1=shelf, 0=not), from Morphology coastline metrics. */
-    shelfMask: TypedArraySchemas.u8({ description: "Continental shelf mask per tile (1=shelf, 0=not)." }),
+    shelfMask: TypedArraySchemas.u8({
+      description: "Continental shelf mask per tile (1=shelf, 0=not).",
+    }),
     /** Current U component per tile (-127..127). */
     currentU: TypedArraySchemas.i8({ description: "Current U component per tile (-127..127)." }),
     /** Current V component per tile (-127..127). */

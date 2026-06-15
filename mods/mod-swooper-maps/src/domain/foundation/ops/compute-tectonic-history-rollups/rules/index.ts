@@ -1,5 +1,5 @@
-import type { FoundationTectonicHistory } from "../../../lib/tectonics/schemas.js";
 import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
+import type { FoundationTectonicHistory } from "../../../lib/tectonics/schemas.js";
 
 import { clampByte } from "../../../lib/tectonics/shared.js";
 
@@ -44,10 +44,12 @@ export function buildTectonicHistoryRollups(params: {
     upliftRecentFraction[i] = upliftSum > 0 ? clampByte((recent / upliftSum) * 255) : 0;
 
     const recentCollision = eras[eraCount - 1]!.collisionPotential[i] ?? 0;
-    collisionRecentFraction[i] = collisionSum > 0 ? clampByte((recentCollision / collisionSum) * 255) : 0;
+    collisionRecentFraction[i] =
+      collisionSum > 0 ? clampByte((recentCollision / collisionSum) * 255) : 0;
 
     const recentSubduction = eras[eraCount - 1]!.subductionPotential[i] ?? 0;
-    subductionRecentFraction[i] = subductionSum > 0 ? clampByte((recentSubduction / subductionSum) * 255) : 0;
+    subductionRecentFraction[i] =
+      subductionSum > 0 ? clampByte((recentSubduction / subductionSum) * 255) : 0;
   }
 
   const lastActiveEra = (() => {

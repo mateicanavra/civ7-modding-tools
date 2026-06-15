@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 /** Per-type eligibility fields (`artifact:placement.resourceEligibility`). One artifact per file by repo convention. */
 const ResourceEligibilityArtifactSchema = Type.Object(
@@ -14,7 +14,8 @@ const ResourceEligibilityArtifactSchema = Type.Object(
             description: "Habitat lane eligibility (1=in-lane).",
           }),
           legalMask: TypedArraySchemas.u8({
-            description: "Per-resource policy legality from Resource_ValidPlacements rows (1=legal).",
+            description:
+              "Per-resource policy legality from Resource_ValidPlacements rows (1=legal).",
           }),
           intensity: TypedArraySchemas.f32({
             description: "Habitat intensity (0..1).",

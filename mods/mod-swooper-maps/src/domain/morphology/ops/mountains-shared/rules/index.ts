@@ -1,10 +1,10 @@
-export { resolveDriverStrength } from "./resolveDriverStrength.js";
-export { resolveBoundaryStrength } from "./resolveBoundaryStrength.js";
-export { computeOrogenyPotential } from "./computeOrogenyPotential.js";
+export { computeHexDistanceToMask } from "./computeDistanceToMask.js";
 export { computeFracturePotential } from "./computeFracturePotential.js";
-export { computeMountainScore } from "./computeMountainScore.js";
 export { computeHillScore } from "./computeHillScore.js";
-export { normalizeMountainFractal } from "./normalizeMountainFractal.js";
+export { computeMountainScore } from "./computeMountainScore.js";
+export { computeOrogenyPotential } from "./computeOrogenyPotential.js";
 export { encodeNormalizedToU8 } from "./encodeNormalizedToU8.js";
 export { isStrictLocalMaximumHexWithTies } from "./isStrictLocalMaximumHex.js";
-export { computeHexDistanceToMask } from "./computeDistanceToMask.js";
+export { normalizeMountainFractal } from "./normalizeMountainFractal.js";
+export { resolveBoundaryStrength } from "./resolveBoundaryStrength.js";
+export { resolveDriverStrength } from "./resolveDriverStrength.js";

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ExternalLink, Github, User } from 'lucide-react';
+import { ExternalLink, Github, User } from "lucide-react";
+import React, { useState } from "react";
 
 /**
  * AppBrand — the identity pill in the header, with a hover info card.
@@ -15,8 +15,8 @@ export const AppBrand: React.FC = () => {
     <div
       className="relative h-10"
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}>
-
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Main Pill */}
       <div className="h-full inline-flex items-center gap-2 px-3 rounded-lg border border-border bg-popover/90 backdrop-blur-sm cursor-default">
         <span className="font-semibold text-[13px] tracking-tight text-foreground">
@@ -26,8 +26,8 @@ export const AppBrand: React.FC = () => {
       </div>
 
       {/* Hover Dropdown */}
-      {isHovered &&
-      <div className="absolute top-full left-0 mt-2 min-w-[200px] p-3 rounded-lg border border-border bg-popover/95 backdrop-blur-sm shadow-lg z-50">
+      {isHovered && (
+        <div className="absolute top-full left-0 mt-2 min-w-[200px] p-3 rounded-lg border border-border bg-popover/95 backdrop-blur-sm shadow-lg z-50">
           {/* Description */}
           <p className="text-data leading-relaxed text-muted-foreground mb-3">
             Procedural map generation toolkit for game developers.
@@ -38,23 +38,23 @@ export const AppBrand: React.FC = () => {
           {/* Links */}
           <div className="flex flex-col gap-2">
             <a
-            href="#"
-            className="flex items-center gap-2 text-data font-medium text-muted-foreground transition-colors hover:text-foreground">
-
+              href="#"
+              className="flex items-center gap-2 text-data font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
               <User className="w-3.5 h-3.5" />
               <span>Author Name</span>
             </a>
             <a
-            href="#"
-            className="flex items-center gap-2 text-data font-medium text-muted-foreground transition-colors hover:text-foreground">
-
+              href="#"
+              className="flex items-center gap-2 text-data font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
               <Github className="w-3.5 h-3.5" />
               <span>View on GitHub</span>
             </a>
             <a
-            href="#"
-            className="flex items-center gap-2 text-data font-medium text-muted-foreground transition-colors hover:text-foreground">
-
+              href="#"
+              className="flex items-center gap-2 text-data font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Documentation</span>
             </a>
@@ -65,7 +65,7 @@ export const AppBrand: React.FC = () => {
           {/* Footer */}
           <p className="text-label text-muted-foreground">© 2024 • MIT License</p>
         </div>
-      }
-    </div>);
-
+      )}
+    </div>
+  );
 };

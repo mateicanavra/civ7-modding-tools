@@ -12,4 +12,3 @@ const scoreVegetationSagebrushSteppe = createOp(ScoreVegetationSagebrushSteppeCo
 export type * from "./contract.js";
 
 export default scoreVegetationSagebrushSteppe;
-

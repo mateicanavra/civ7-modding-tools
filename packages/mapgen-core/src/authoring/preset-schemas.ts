@@ -1,4 +1,4 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 type JsonObject = Record<string, unknown>;
 const RECIPE_PRESET_DEFINITION_KEYS = new Set(["$schema", "id", "label", "description", "config"]);

@@ -4,8 +4,8 @@ import type { FinalSurfaceSnapshot } from "../../src/dev/diagnostics/live-parity
 import {
   buildFeatureDeltaPlacementContexts,
   buildNaturalWonderFootprintCatalogContexts,
-  buildNaturalWonderLiveProofBoundaryContext,
   buildNaturalWonderFootprintReadbackContexts,
+  buildNaturalWonderLiveProofBoundaryContext,
   buildResourceDeltaFeasibilityContexts,
   buildResourceDeltaPlacementContexts,
   buildSurfaceDeltaContext,
@@ -286,24 +286,27 @@ describe("surface delta context diagnostics", () => {
   });
 
   test("classifies feature deltas into reef absences and nearby natural-wonder offsets", () => {
-    const local = snapshot({
-      feature: { width: 3, height: 2, values: [11, 35, -1, -1, -1, 36] },
-    }, {
-      featureIntents: {
-        reefs: [{ x: 0, y: 0, feature: "FEATURE_COLD_REEF", weight: 0.8 }],
+    const local = snapshot(
+      {
+        feature: { width: 3, height: 2, values: [11, 35, -1, -1, -1, 36] },
       },
-      naturalWonderPlan: {
-        width: 3,
-        height: 2,
-        wondersCount: 2,
-        targetCount: 2,
-        plannedCount: 2,
-        placements: [
-          { plotIndex: 1, featureType: 35, direction: 0, elevation: 1000, priority: 0.9 },
-          { plotIndex: 5, featureType: 36, direction: 0, elevation: 900, priority: 0.8 },
-        ],
-      },
-    });
+      {
+        featureIntents: {
+          reefs: [{ x: 0, y: 0, feature: "FEATURE_COLD_REEF", weight: 0.8 }],
+        },
+        naturalWonderPlan: {
+          width: 3,
+          height: 2,
+          wondersCount: 2,
+          targetCount: 2,
+          plannedCount: 2,
+          placements: [
+            { plotIndex: 1, featureType: 35, direction: 0, elevation: 1000, priority: 0.9 },
+            { plotIndex: 5, featureType: 36, direction: 0, elevation: 900, priority: 0.8 },
+          ],
+        },
+      }
+    );
     const live = snapshot({
       feature: { width: 3, height: 2, values: [-1, -1, 35, -1, 36, -1] },
     });
@@ -377,20 +380,23 @@ describe("surface delta context diagnostics", () => {
   });
 
   test("summarizes natural-wonder footprint readback direction matches", () => {
-    const local = snapshot({
-      feature: { width: 3, height: 2, values: [-1, 35, 35, -1, -1, -1] },
-    }, {
-      naturalWonderPlan: {
-        width: 3,
-        height: 2,
-        wondersCount: 1,
-        targetCount: 1,
-        plannedCount: 1,
-        placements: [
-          { plotIndex: 1, featureType: 35, direction: 0, elevation: 1000, priority: 0.9 },
-        ],
+    const local = snapshot(
+      {
+        feature: { width: 3, height: 2, values: [-1, 35, 35, -1, -1, -1] },
       },
-    });
+      {
+        naturalWonderPlan: {
+          width: 3,
+          height: 2,
+          wondersCount: 1,
+          targetCount: 1,
+          plannedCount: 1,
+          placements: [
+            { plotIndex: 1, featureType: 35, direction: 0, elevation: 1000, priority: 0.9 },
+          ],
+        },
+      }
+    );
     const live = snapshot({
       feature: { width: 3, height: 2, values: [-1, 35, 35, -1, -1, -1] },
     });
@@ -408,20 +414,23 @@ describe("surface delta context diagnostics", () => {
   });
 
   test("classifies natural-wonder footprint direction divergence", () => {
-    const local = snapshot({
-      feature: { width: 3, height: 2, values: [-1, 35, 35, -1, -1, -1] },
-    }, {
-      naturalWonderPlan: {
-        width: 3,
-        height: 2,
-        wondersCount: 1,
-        targetCount: 1,
-        plannedCount: 1,
-        placements: [
-          { plotIndex: 1, featureType: 35, direction: 0, elevation: 1000, priority: 0.9 },
-        ],
+    const local = snapshot(
+      {
+        feature: { width: 3, height: 2, values: [-1, 35, 35, -1, -1, -1] },
       },
-    });
+      {
+        naturalWonderPlan: {
+          width: 3,
+          height: 2,
+          wondersCount: 1,
+          targetCount: 1,
+          plannedCount: 1,
+          placements: [
+            { plotIndex: 1, featureType: 35, direction: 0, elevation: 1000, priority: 0.9 },
+          ],
+        },
+      }
+    );
     const live = snapshot({
       feature: { width: 3, height: 2, values: [-1, 35, -1, -1, 35, -1] },
     });
@@ -448,7 +457,9 @@ describe("surface delta context diagnostics", () => {
       directionClass: "unspecified-engine-direction-local-fixed-projection",
       readbackDisposition: "no-exact-run-evidence",
     });
-    expect(kilimanjaro?.supportedDirections.map((row) => row.direction)).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(kilimanjaro?.supportedDirections.map((row) => row.direction)).toEqual([
+      0, 1, 2, 3, 4, 5,
+    ]);
     expect(kilimanjaro?.localProjectionOffsets).toEqual([
       { dx: 0, dy: 0 },
       { dx: 1, dy: 1 },
@@ -466,20 +477,23 @@ describe("surface delta context diagnostics", () => {
   });
 
   test("joins exact-run readback evidence to natural-wonder catalog direction classes", () => {
-    const local = snapshot({
-      feature: { width: 3, height: 2, values: [-1, 36, -1, -1, -1, 36] },
-    }, {
-      naturalWonderPlan: {
-        width: 3,
-        height: 2,
-        wondersCount: 1,
-        targetCount: 1,
-        plannedCount: 1,
-        placements: [
-          { plotIndex: 1, featureType: 36, direction: -1, elevation: 1000, priority: 0.9 },
-        ],
+    const local = snapshot(
+      {
+        feature: { width: 3, height: 2, values: [-1, 36, -1, -1, -1, 36] },
       },
-    });
+      {
+        naturalWonderPlan: {
+          width: 3,
+          height: 2,
+          wondersCount: 1,
+          targetCount: 1,
+          plannedCount: 1,
+          placements: [
+            { plotIndex: 1, featureType: 36, direction: -1, elevation: 1000, priority: 0.9 },
+          ],
+        },
+      }
+    );
     const live = snapshot({
       feature: { width: 3, height: 2, values: [-1, 36, -1, -1, 36, -1] },
     });
@@ -504,15 +518,18 @@ describe("surface delta context diagnostics", () => {
   });
 
   test("keeps natural-wonder placement proof unresolved when stats are local-only", () => {
-    const local = snapshot({}, {
-      naturalWonderPlacement: {
-        plannedCount: 7,
-        targetCount: 7,
-        placedCount: 7,
-        rejectedCount: 0,
-        shortfallCount: 0,
-      },
-    });
+    const local = snapshot(
+      {},
+      {
+        naturalWonderPlacement: {
+          plannedCount: 7,
+          targetCount: 7,
+          placedCount: 7,
+          rejectedCount: 0,
+          shortfallCount: 0,
+        },
+      }
+    );
 
     const context = buildNaturalWonderLiveProofBoundaryContext({
       local,
@@ -540,12 +557,15 @@ describe("surface delta context diagnostics", () => {
   });
 
   test("accepts natural-wonder placement stats only when live proof payload carries them", () => {
-    const local = snapshot({}, {
-      naturalWonderPlacement: {
-        plannedCount: 7,
-        placedCount: 7,
-      },
-    });
+    const local = snapshot(
+      {},
+      {
+        naturalWonderPlacement: {
+          plannedCount: 7,
+          placedCount: 7,
+        },
+      }
+    );
 
     const context = buildNaturalWonderLiveProofBoundaryContext({
       local,
@@ -580,12 +600,15 @@ describe("surface delta context diagnostics", () => {
   });
 
   test("accepts natural-wonder placement stats from exact log telemetry", () => {
-    const local = snapshot({}, {
-      naturalWonderPlacement: {
-        plannedCount: 7,
-        placedCount: 7,
-      },
-    });
+    const local = snapshot(
+      {},
+      {
+        naturalWonderPlacement: {
+          plannedCount: 7,
+          placedCount: 7,
+        },
+      }
+    );
 
     const context = buildNaturalWonderLiveProofBoundaryContext({
       local,
@@ -593,24 +616,24 @@ describe("surface delta context diagnostics", () => {
         log: {
           naturalWonderPlacement: {
             marker: "NATURAL_WONDER_PLACEMENT_V1",
-          stats: {
-            version: 1,
-            plannedCount: 7,
+            stats: {
+              version: 1,
+              plannedCount: 7,
               targetCount: 7,
               placedCount: 7,
               terrainAdjustedCount: 0,
               skippedOutOfBoundsCount: 0,
               rejectedCount: 0,
-            shortfallCount: 0,
-            rejectionExampleCount: 0,
-          },
-          coordinateProof: {
-            version: 1,
-            placed: { count: 7, hash32: "3c3530cb" },
+              shortfallCount: 0,
+              rejectionExampleCount: 0,
+            },
+            coordinateProof: {
+              version: 1,
+              placed: { count: 7, hash32: "3c3530cb" },
+            },
           },
         },
-      },
-    }),
+      }),
     });
 
     expect(context).toMatchObject({
@@ -889,11 +912,46 @@ describe("surface delta context diagnostics", () => {
         },
         resourcePlacementOutcomes: {
           outcomes: [
-            { status: "placed", plotIndex: 0, x: 0, y: 0, resourceType: 3, observedResourceType: 3 },
-            { status: "placed", plotIndex: 2, x: 2, y: 0, resourceType: 2, observedResourceType: 2 },
-            { status: "placed", plotIndex: 3, x: 0, y: 1, resourceType: 6, observedResourceType: 6 },
-            { status: "placed", plotIndex: 4, x: 1, y: 1, resourceType: 53, observedResourceType: 53 },
-            { status: "placed", plotIndex: 5, x: 2, y: 1, resourceType: 14, observedResourceType: 14 },
+            {
+              status: "placed",
+              plotIndex: 0,
+              x: 0,
+              y: 0,
+              resourceType: 3,
+              observedResourceType: 3,
+            },
+            {
+              status: "placed",
+              plotIndex: 2,
+              x: 2,
+              y: 0,
+              resourceType: 2,
+              observedResourceType: 2,
+            },
+            {
+              status: "placed",
+              plotIndex: 3,
+              x: 0,
+              y: 1,
+              resourceType: 6,
+              observedResourceType: 6,
+            },
+            {
+              status: "placed",
+              plotIndex: 4,
+              x: 1,
+              y: 1,
+              resourceType: 53,
+              observedResourceType: 53,
+            },
+            {
+              status: "placed",
+              plotIndex: 5,
+              x: 2,
+              y: 1,
+              resourceType: 14,
+              observedResourceType: 14,
+            },
           ],
         },
       }
@@ -952,15 +1010,14 @@ function feasibilityCell(
   return {
     location: { x, y, index: { ok: true, value: index } },
     feasibility: Object.fromEntries(
-      Object.entries(values).map(([resourceType, value]) => [
-        resourceType,
-        { ok: true, value },
-      ])
+      Object.entries(values).map(([resourceType, value]) => [resourceType, { ok: true, value }])
     ),
   };
 }
 
-function exactAuthorshipPacket(value: unknown): NonNullable<
+function exactAuthorshipPacket(
+  value: unknown
+): NonNullable<
   Parameters<typeof buildNaturalWonderLiveProofBoundaryContext>[0]["exactAuthorshipPacket"]
 > {
   return value as NonNullable<

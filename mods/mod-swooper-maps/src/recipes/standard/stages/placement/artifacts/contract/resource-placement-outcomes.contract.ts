@@ -1,4 +1,4 @@
-import { Type, defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring";
 
 /** Resource stamping outcomes (`artifact:placement.resourcePlacementOutcomes`). One artifact per file by repo convention. */
 const ResourcePlacementOutcomeSchema = Type.Object(
@@ -120,7 +120,8 @@ const ResourceReconciliationSummarySchema = Type.Object(
       },
       {
         additionalProperties: false,
-        description: "Placed counts by planning phase (joined from the adjusted resource plan intents).",
+        description:
+          "Placed counts by planning phase (joined from the adjusted resource plan intents).",
       }
     ),
     supportAdjustedPlacedCount: Type.Integer({

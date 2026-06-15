@@ -12,4 +12,3 @@ const computeShelfMask = createOp(ComputeShelfMaskContract, {
 export type * from "./contract.js";
 
 export default computeShelfMask;
-

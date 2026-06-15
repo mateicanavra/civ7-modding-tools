@@ -1,6 +1,5 @@
-import { buildRecipeDag, type StageContractAny } from "@swooper/mapgen-core/authoring";
-
 import type { RecipeDagResult, RecipeDagService } from "@civ7/studio-server";
+import { buildRecipeDag, type StageContractAny } from "@swooper/mapgen-core/authoring";
 
 type RecipeDagSource = Readonly<{
   id: string;
@@ -55,7 +54,7 @@ export class RecipeDagNotFound extends Error {
 }
 
 export function createRecipeDagService(
-  sources: readonly RecipeDagSource[] | RecipeDagSourcesProvider = getDefaultRecipeDagSources,
+  sources: readonly RecipeDagSource[] | RecipeDagSourcesProvider = getDefaultRecipeDagSources
 ): RecipeDagService {
   return {
     async getRecipeDag(recipeId: string): Promise<RecipeDagResult> {

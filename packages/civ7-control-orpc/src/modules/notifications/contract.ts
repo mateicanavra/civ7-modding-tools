@@ -1,5 +1,5 @@
 import type { ContractProcedure } from "@orpc/contract";
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { civ7ControlOrpcContractBase } from "../../contract-base";
 import type { Civ7ControlOrpcErrorMap } from "../../errors";
@@ -11,38 +11,35 @@ const Civ7NotificationDismissInputSchema = Type.Object(
   {
     notificationId: Civ7ControlOrpcComponentIdSchema,
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7NotificationDismissInput = Static<
-  typeof Civ7NotificationDismissInputSchema
->;
+export type Civ7NotificationDismissInput = Static<typeof Civ7NotificationDismissInputSchema>;
 
 const Civ7NotificationDismissInputStandardSchema = toStandardSchema(
-  Civ7NotificationDismissInputSchema,
+  Civ7NotificationDismissInputSchema
 );
 
 const Civ7NotificationAdvisorWarningViewedInputSchema = Type.Object(
   {
     target: Civ7ControlOrpcComponentIdSchema,
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7NotificationAdvisorWarningViewedInput = Static<
   typeof Civ7NotificationAdvisorWarningViewedInputSchema
 >;
 
-const Civ7NotificationAdvisorWarningViewedInputStandardSchema =
-  toStandardSchema(Civ7NotificationAdvisorWarningViewedInputSchema);
+const Civ7NotificationAdvisorWarningViewedInputStandardSchema = toStandardSchema(
+  Civ7NotificationAdvisorWarningViewedInputSchema
+);
 
 const Civ7NotificationQueueInputSchema = Type.Object(
   {
     maxNotifications: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7NotificationQueueInput = Static<
-  typeof Civ7NotificationQueueInputSchema
->;
+export type Civ7NotificationQueueInput = Static<typeof Civ7NotificationQueueInputSchema>;
 
 const Civ7NotificationQueueDismissInputSchema = Type.Object(
   {
@@ -50,17 +47,15 @@ const Civ7NotificationQueueDismissInputSchema = Type.Object(
     maxDismissals: Type.Optional(Type.Integer({ minimum: 1, maximum: 25 })),
     send: Type.Optional(Type.Boolean()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7NotificationQueueDismissInput = Static<
   typeof Civ7NotificationQueueDismissInputSchema
 >;
 
-const Civ7NotificationQueueInputStandardSchema = toStandardSchema(
-  Civ7NotificationQueueInputSchema,
-);
+const Civ7NotificationQueueInputStandardSchema = toStandardSchema(Civ7NotificationQueueInputSchema);
 const Civ7NotificationQueueDismissInputStandardSchema = toStandardSchema(
-  Civ7NotificationQueueDismissInputSchema,
+  Civ7NotificationQueueDismissInputSchema
 );
 
 export const Civ7NotificationDismissalProofOutcomeSchema = Type.Union([
@@ -79,19 +74,18 @@ export const Civ7NotificationDismissalRequestStatusSchema = Type.Union([
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7NotificationDismissalPostconditionClassificationSchema =
-  Type.Union([
-    Type.Literal("not-sent"),
-    Type.Literal("missing-after"),
-    Type.Literal("notification-disappeared"),
-    Type.Literal("engine-front-still-live"),
-    Type.Literal("notification-dismissed"),
-    Type.Literal("engine-queue-cleared"),
-    Type.Literal("notification-train-cleared"),
-    Type.Literal("engine-front-moved"),
-    Type.Literal("notification-train-front-moved"),
-    Type.Literal("no-state-change"),
-  ]);
+export const Civ7NotificationDismissalPostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("missing-after"),
+  Type.Literal("notification-disappeared"),
+  Type.Literal("engine-front-still-live"),
+  Type.Literal("notification-dismissed"),
+  Type.Literal("engine-queue-cleared"),
+  Type.Literal("notification-train-cleared"),
+  Type.Literal("engine-front-moved"),
+  Type.Literal("notification-train-front-moved"),
+  Type.Literal("no-state-change"),
+]);
 
 export const Civ7NotificationDismissalPostconditionSummarySchema = Type.Object(
   {
@@ -109,7 +103,7 @@ export const Civ7NotificationDismissalPostconditionSummarySchema = Type.Object(
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7NotificationDismissalValidationSummarySchema = Type.Object(
@@ -118,7 +112,7 @@ export const Civ7NotificationDismissalValidationSummarySchema = Type.Object(
     canDismiss: Type.Boolean(),
     afterExists: Type.Union([Type.Boolean(), Type.Null()]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7NotificationDismissalNextStepSchema = Type.Object(
@@ -131,7 +125,7 @@ export const Civ7NotificationDismissalNextStepSchema = Type.Object(
     source: Type.Literal("notifications.dismiss.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7NotificationAdvisorWarningViewedStatusSchema = Type.Union([
@@ -144,7 +138,7 @@ const Civ7NotificationAdvisorWarningViewedValidationSchema = Type.Object(
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7NotificationAdvisorWarningViewedPostconditionSchema = Type.Object(
@@ -155,30 +149,21 @@ const Civ7NotificationAdvisorWarningViewedPostconditionSchema = Type.Object(
       Type.Literal("missing-postcondition"),
     ]),
     reason: Type.String(),
-    outcome: Type.Union([
-      Type.Literal("not-sent"),
-      Type.Literal("unknown"),
-    ]),
-    confidence: Type.Union([
-      Type.Literal("unverified"),
-      Type.Literal("pending-runtime-proof"),
-    ]),
+    outcome: Type.Union([Type.Literal("not-sent"), Type.Literal("unknown")]),
+    confidence: Type.Union([Type.Literal("unverified"), Type.Literal("pending-runtime-proof")]),
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7NotificationAdvisorWarningViewedNextStepSchema = Type.Object(
   {
-    kind: Type.Union([
-      Type.Literal("do-not-repeat"),
-      Type.Literal("inspect-notification"),
-    ]),
+    kind: Type.Union([Type.Literal("do-not-repeat"), Type.Literal("inspect-notification")]),
     source: Type.Literal("notifications.advisorWarning.viewed.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7NotificationAdvisorWarningViewedResultSchema = Type.Object(
@@ -191,7 +176,7 @@ const Civ7NotificationAdvisorWarningViewedResultSchema = Type.Object(
     postcondition: Civ7NotificationAdvisorWarningViewedPostconditionSchema,
     nextSteps: Type.Array(Civ7NotificationAdvisorWarningViewedNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7NotificationAdvisorWarningViewedResult = Static<
   typeof Civ7NotificationAdvisorWarningViewedResultSchema
@@ -226,10 +211,10 @@ const Civ7NotificationQueueNextStepSchema = Type.Object(
         operationFamily: Type.Optional(Type.String()),
         operationType: Type.Optional(Type.String()),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7NotificationQueueStepSchema = Type.Object(
@@ -251,7 +236,7 @@ const Civ7NotificationQueueStepSchema = Type.Object(
     reason: Type.String(),
     guardrails: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7NotificationQueueResultSchema = Type.Object(
@@ -260,10 +245,7 @@ const Civ7NotificationQueueResultSchema = Type.Object(
     turn: Type.Unknown(),
     turnDate: Type.Unknown(),
     blocker: Type.Unknown(),
-    blockingNotificationId: Type.Union([
-      Civ7ControlOrpcComponentIdSchema,
-      Type.Null(),
-    ]),
+    blockingNotificationId: Type.Union([Civ7ControlOrpcComponentIdSchema, Type.Null()]),
     canEndTurn: Type.Unknown(),
     limits: Type.Unknown(),
     queueLength: Type.Integer({ minimum: 0 }),
@@ -271,11 +253,9 @@ const Civ7NotificationQueueResultSchema = Type.Object(
     nextSteps: Type.Array(Civ7NotificationQueueNextStepSchema),
     notes: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7NotificationQueueResult = Static<
-  typeof Civ7NotificationQueueResultSchema
->;
+export type Civ7NotificationQueueResult = Static<typeof Civ7NotificationQueueResultSchema>;
 
 const Civ7NotificationDismissalResultSchema = Type.Object(
   {
@@ -286,11 +266,9 @@ const Civ7NotificationDismissalResultSchema = Type.Object(
     postcondition: Civ7NotificationDismissalPostconditionSummarySchema,
     nextSteps: Type.Array(Civ7NotificationDismissalNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7NotificationDismissalResult = Static<
-  typeof Civ7NotificationDismissalResultSchema
->;
+export type Civ7NotificationDismissalResult = Static<typeof Civ7NotificationDismissalResultSchema>;
 
 const Civ7NotificationQueueExcludedSchema = Type.Object(
   {
@@ -301,7 +279,7 @@ const Civ7NotificationQueueExcludedSchema = Type.Object(
     isEndTurnBlocking: Type.Boolean(),
     reason: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7NotificationQueueDismissStatusSchema = Type.Union([
@@ -323,14 +301,11 @@ const Civ7NotificationQueueDismissPostconditionSchema = Type.Object(
       Type.Literal("cleared"),
       Type.Literal("unknown"),
     ]),
-    confidence: Type.Union([
-      Type.Literal("confirmed"),
-      Type.Literal("unverified"),
-    ]),
+    confidence: Type.Union([Type.Literal("confirmed"), Type.Literal("unverified")]),
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7NotificationQueueDismissResultSchema = Type.Object(
@@ -339,10 +314,7 @@ const Civ7NotificationQueueDismissResultSchema = Type.Object(
     turn: Type.Unknown(),
     turnDate: Type.Unknown(),
     blocker: Type.Unknown(),
-    blockingNotificationId: Type.Union([
-      Civ7ControlOrpcComponentIdSchema,
-      Type.Null(),
-    ]),
+    blockingNotificationId: Type.Union([Civ7ControlOrpcComponentIdSchema, Type.Null()]),
     canEndTurn: Type.Unknown(),
     queueLength: Type.Integer({ minimum: 0 }),
     sent: Type.Boolean(),
@@ -356,36 +328,39 @@ const Civ7NotificationQueueDismissResultSchema = Type.Object(
     excluded: Type.Array(Civ7NotificationQueueExcludedSchema),
     results: Type.Array(Civ7NotificationDismissalResultSchema),
     noRepeatAfterUnverified: Type.Boolean(),
-    nextSteps: Type.Array(Type.Object(
-      {
-        kind: Type.Union([
-          Type.Literal("refresh-attention"),
-          Type.Literal("do-not-repeat"),
-          Type.Literal("inspect-notification"),
-        ]),
-        source: Type.Literal("notifications.queue.dismiss.request"),
-        label: Type.String(),
-      },
-      { additionalProperties: false },
-    )),
+    nextSteps: Type.Array(
+      Type.Object(
+        {
+          kind: Type.Union([
+            Type.Literal("refresh-attention"),
+            Type.Literal("do-not-repeat"),
+            Type.Literal("inspect-notification"),
+          ]),
+          source: Type.Literal("notifications.queue.dismiss.request"),
+          label: Type.String(),
+        },
+        { additionalProperties: false }
+      )
+    ),
     notes: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7NotificationQueueDismissResult = Static<
   typeof Civ7NotificationQueueDismissResultSchema
 >;
 
 const Civ7NotificationDismissalResultStandardSchema = toStandardSchema(
-  Civ7NotificationDismissalResultSchema,
+  Civ7NotificationDismissalResultSchema
 );
-const Civ7NotificationAdvisorWarningViewedResultStandardSchema =
-  toStandardSchema(Civ7NotificationAdvisorWarningViewedResultSchema);
+const Civ7NotificationAdvisorWarningViewedResultStandardSchema = toStandardSchema(
+  Civ7NotificationAdvisorWarningViewedResultSchema
+);
 const Civ7NotificationQueueResultStandardSchema = toStandardSchema(
-  Civ7NotificationQueueResultSchema,
+  Civ7NotificationQueueResultSchema
 );
 const Civ7NotificationQueueDismissResultStandardSchema = toStandardSchema(
-  Civ7NotificationQueueDismissResultSchema,
+  Civ7NotificationQueueDismissResultSchema
 );
 
 export type Civ7NotificationDismissalContract = ContractProcedure<
@@ -413,8 +388,8 @@ type Civ7NotificationAdvisorWarningViewedContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7NotificationAdvisorWarningViewedContract:
-  Civ7NotificationAdvisorWarningViewedContract = civ7ControlOrpcContractBase
+const Civ7NotificationAdvisorWarningViewedContract: Civ7NotificationAdvisorWarningViewedContract =
+  civ7ControlOrpcContractBase
     .input(Civ7NotificationAdvisorWarningViewedInputStandardSchema)
     .output(Civ7NotificationAdvisorWarningViewedResultStandardSchema)
     .meta({
@@ -431,8 +406,8 @@ type Civ7NotificationQueueCurrentContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7NotificationQueueCurrentContract:
-  Civ7NotificationQueueCurrentContract = civ7ControlOrpcContractBase
+const Civ7NotificationQueueCurrentContract: Civ7NotificationQueueCurrentContract =
+  civ7ControlOrpcContractBase
     .input(Civ7NotificationQueueInputStandardSchema)
     .output(Civ7NotificationQueueResultStandardSchema)
     .meta({
@@ -449,8 +424,8 @@ type Civ7NotificationQueueDismissContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7NotificationQueueDismissContract:
-  Civ7NotificationQueueDismissContract = civ7ControlOrpcContractBase
+const Civ7NotificationQueueDismissContract: Civ7NotificationQueueDismissContract =
+  civ7ControlOrpcContractBase
     .input(Civ7NotificationQueueDismissInputStandardSchema)
     .output(Civ7NotificationQueueDismissResultStandardSchema)
     .meta({

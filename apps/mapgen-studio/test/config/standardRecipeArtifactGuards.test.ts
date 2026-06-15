@@ -1,17 +1,17 @@
-import { describe, expect, it } from "vitest";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
   studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
 } from "mod-swooper-maps/recipes/standard-artifacts";
+import { describe, expect, it } from "vitest";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
+import { migratePipelineConfigUnknown } from "../../src/features/configMigrations/pipelineConfig";
 import {
   DEFAULT_STUDIO_RECIPE_ID,
   getRecipeArtifacts,
   STUDIO_RECIPE_ARTIFACTS,
 } from "../../src/recipes/catalog";
-import { migratePipelineConfigUnknown } from "../../src/features/configMigrations/pipelineConfig";
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -48,7 +48,10 @@ function hasRawOpEnvelope(value: unknown): boolean {
   if (!value || typeof value !== "object") return false;
   if (Array.isArray(value)) return value.some(hasRawOpEnvelope);
   const obj = value as Record<string, unknown>;
-  if (Object.prototype.hasOwnProperty.call(obj, "strategy") && Object.prototype.hasOwnProperty.call(obj, "config")) {
+  if (
+    Object.prototype.hasOwnProperty.call(obj, "strategy") &&
+    Object.prototype.hasOwnProperty.call(obj, "config")
+  ) {
     return true;
   }
   return Object.values(obj).some(hasRawOpEnvelope);
@@ -85,7 +88,9 @@ describe("standard recipe generated artifact guardrails", () => {
 
     for (const stage of STANDARD_RECIPE_UI_META.stages) {
       expect(stageSchemas, `${stage.stageId} schema`).toHaveProperty(stage.stageId);
-      expect(STANDARD_RECIPE_CONFIG, `${stage.stageId} default config`).toHaveProperty(stage.stageId);
+      expect(STANDARD_RECIPE_CONFIG, `${stage.stageId} default config`).toHaveProperty(
+        stage.stageId
+      );
       const stageSchema = stageSchemas[stage.stageId];
       const stageDefaults = (STANDARD_RECIPE_CONFIG as Record<string, unknown>)[stage.stageId];
 
@@ -106,7 +111,9 @@ describe("standard recipe generated artifact guardrails", () => {
 
     expect(presets.length).toBeGreaterThan(0);
     for (const preset of presets) {
-      expect(hasRawOpEnvelope(preset.config), `${preset.id} public config raw envelopes`).toBe(false);
+      expect(hasRawOpEnvelope(preset.config), `${preset.id} public config raw envelopes`).toBe(
+        false
+      );
       const { errors } = normalizeStrict<Record<string, unknown>>(
         STANDARD_RECIPE_CONFIG_SCHEMA,
         preset.config,

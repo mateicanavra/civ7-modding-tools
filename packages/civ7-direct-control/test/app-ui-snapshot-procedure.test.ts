@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type AppUiSnapshotDependencies,
   Civ7AppUiSnapshotProcedureDescriptor,
   Civ7AppUiSnapshotProcedureSchemaArtifacts,
   callCiv7AppUiSnapshotProcedure,
   getCiv7AppUiSnapshot,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type AppUiSnapshotDependencies,
 } from "../src/index";
 
 describe("Civ7 App UI snapshot procedure descriptor", () => {
@@ -30,11 +30,11 @@ describe("Civ7 App UI snapshot procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7AppUiSnapshotProcedureDescriptor,
-      Civ7AppUiSnapshotProcedureSchemaArtifacts,
+      Civ7AppUiSnapshotProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual([]);
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7AppUiSnapshotProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7AppUiSnapshotProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, {})).toBe(true);
     expect(Value.Check(resolved.inputSchema, { host: "127.0.0.1" })).toBe(false);
@@ -44,10 +44,12 @@ describe("Civ7 App UI snapshot procedure descriptor", () => {
     expect(Value.Check(resolved.inputSchema, { command: "Game.turn" })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { rawCommand: "Game.turn" })).toBe(false);
     expect(Value.Check(resolved.outputSchema, appUiSnapshotResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...appUiSnapshotResult(),
-      rawCommand: "Game.turn",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...appUiSnapshotResult(),
+        rawCommand: "Game.turn",
+      })
+    ).toBe(false);
   });
 
   test("calls the App UI snapshot atom through the procedure core without touching the live tuner", async () => {
@@ -68,16 +70,19 @@ describe("Civ7 App UI snapshot procedure descriptor", () => {
       },
     };
 
-    const result = await callCiv7AppUiSnapshotProcedure({}, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
-      },
-      procedure: {
-        correlationId: "app-ui-snapshot-procedure-test",
-      },
-      dependencies,
-    });
+    const result = await callCiv7AppUiSnapshotProcedure(
+      {},
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "app-ui-snapshot-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(appUiSnapshotResult());
     expect(result.diagnostics).toMatchObject({
@@ -108,10 +113,12 @@ describe("Civ7 App UI snapshot procedure descriptor", () => {
       },
     };
 
-    await expect(callCiv7AppUiSnapshotProcedure({ host: "127.0.0.1" } as never, {
-      procedure: { correlationId: "app-ui-snapshot-invalid-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7AppUiSnapshotProcedure({ host: "127.0.0.1" } as never, {
+        procedure: { correlationId: "app-ui-snapshot-invalid-input" },
+        dependencies,
+      })
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

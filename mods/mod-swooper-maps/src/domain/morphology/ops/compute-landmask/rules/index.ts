@@ -3,9 +3,7 @@ import type { ComputeLandmaskTypes } from "../types.js";
 /**
  * Ensures landmask inputs match the expected map size.
  */
-export function validateLandmaskInputs(
-  input: ComputeLandmaskTypes["input"]
-): {
+export function validateLandmaskInputs(input: ComputeLandmaskTypes["input"]): {
   size: number;
   elevation: Int16Array;
   boundaryCloseness: Uint8Array;

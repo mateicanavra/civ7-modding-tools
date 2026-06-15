@@ -71,7 +71,8 @@ function makeMantleForcing(cellCount: number) {
   if (cellCount >= 2) forcingU[1] = -1;
 
   const forcingMag = new Float32Array(cellCount);
-  for (let i = 0; i < cellCount; i++) forcingMag[i] = Math.hypot(forcingU[i] ?? 0, forcingV[i] ?? 0);
+  for (let i = 0; i < cellCount; i++)
+    forcingMag[i] = Math.hypot(forcingU[i] ?? 0, forcingV[i] ?? 0);
 
   return {
     version: 1,
@@ -115,7 +116,9 @@ function runDecomposedTectonicHistory(params: {
     ...computeEraTectonicFields.defaultConfig,
     config: {
       ...computeEraTectonicFields.defaultConfig.config,
-      ...(custom.beltInfluenceDistance != null ? { beltInfluenceDistance: custom.beltInfluenceDistance } : {}),
+      ...(custom.beltInfluenceDistance != null
+        ? { beltInfluenceDistance: custom.beltInfluenceDistance }
+        : {}),
       ...(custom.beltDecay != null ? { beltDecay: custom.beltDecay } : {}),
     },
   };
@@ -128,7 +131,10 @@ function runDecomposedTectonicHistory(params: {
     },
   };
 
-  const eraPlateMembership = computeEraPlateMembership.run({ mesh, plateGraph, plateMotion }, eraMembershipConfig);
+  const eraPlateMembership = computeEraPlateMembership.run(
+    { mesh, plateGraph, plateMotion },
+    eraMembershipConfig
+  );
 
   const eras: Array<ReturnType<typeof computeEraTectonicFields.run>["eraFields"]> = [];
   for (let era = 0; era < eraPlateMembership.eraCount; era++) {
@@ -230,13 +236,26 @@ describe("m11 tectonics (segments + history)", () => {
 
     const basePlateMotion = makePlateMotion(basePlateGraph, mesh.cellCount);
     const noRot = computeTectonicSegments.run(
-      { mesh, crust: crust as any, plateGraph: basePlateGraph as any, plateMotion: basePlateMotion as any },
+      {
+        mesh,
+        crust: crust as any,
+        plateGraph: basePlateGraph as any,
+        plateMotion: basePlateMotion as any,
+      },
       computeTectonicSegments.defaultConfig
     ).segments;
 
-    const withRotPlateMotion = makePlateMotion(basePlateGraph, mesh.cellCount, [{}, { omega: 1.0 }]);
+    const withRotPlateMotion = makePlateMotion(basePlateGraph, mesh.cellCount, [
+      {},
+      { omega: 1.0 },
+    ]);
     const withRot = computeTectonicSegments.run(
-      { mesh, crust: crust as any, plateGraph: basePlateGraph as any, plateMotion: withRotPlateMotion as any },
+      {
+        mesh,
+        crust: crust as any,
+        plateGraph: basePlateGraph as any,
+        plateMotion: withRotPlateMotion as any,
+      },
       computeTectonicSegments.defaultConfig
     ).segments;
 
@@ -359,11 +378,21 @@ describe("m11 tectonics (segments + history)", () => {
     } as const;
 
     const strongSeg = computeTectonicSegments.run(
-      { mesh, crust: crustStrong as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
+      {
+        mesh,
+        crust: crustStrong as any,
+        plateGraph: plateGraph as any,
+        plateMotion: plateMotion as any,
+      },
       scaledConfig
     ).segments;
     const weakSeg = computeTectonicSegments.run(
-      { mesh, crust: crustWeak as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
+      {
+        mesh,
+        crust: crustWeak as any,
+        plateGraph: plateGraph as any,
+        plateMotion: plateMotion as any,
+      },
       scaledConfig
     ).segments;
 

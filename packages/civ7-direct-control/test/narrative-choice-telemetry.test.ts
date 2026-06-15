@@ -1,33 +1,33 @@
 import { describe, expect, test } from "vitest";
-
-import {
-  createCiv7NarrativeChoiceTelemetryRecord,
-  type Civ7NarrativeChoiceTelemetryAdapterInput,
-} from "../src/proof/narrative-choice-telemetry";
-import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
-
 import type { Civ7ComponentId } from "../src/civ7-component-id";
-import type { Civ7NarrativeChoiceResult } from "../src/play/operations/narrative-request";
+import type { Civ7PlayNotificationViewResult } from "../src/play/notifications/view";
 import type {
   Civ7NarrativeChoicePostcondition,
   Civ7NarrativeChoicePostconditionClassification,
 } from "../src/play/operations/narrative-postconditions";
+import type { Civ7NarrativeChoiceResult } from "../src/play/operations/narrative-request";
 import type { Civ7OperationValidationResult } from "../src/play/operations/types";
-import type { Civ7PlayNotificationViewResult } from "../src/play/notifications/view";
+import {
+  type Civ7NarrativeChoiceTelemetryAdapterInput,
+  createCiv7NarrativeChoiceTelemetryRecord,
+} from "../src/proof/narrative-choice-telemetry";
+import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
 
 describe("narrative-choice telemetry adapter", () => {
   test("adapts a confirmed narrative choice into separated operation telemetry", () => {
-    const record = createCiv7NarrativeChoiceTelemetryRecord(narrativeTelemetryInput({
-      result: narrativeChoiceResult({
-        sent: true,
-        verified: true,
-        postcondition: narrativePostcondition("turn-unblocked"),
-        after: notificationView({
-          canEndTurn: { ok: true, value: true },
-          notifications: [],
+    const record = createCiv7NarrativeChoiceTelemetryRecord(
+      narrativeTelemetryInput({
+        result: narrativeChoiceResult({
+          sent: true,
+          verified: true,
+          postcondition: narrativePostcondition("turn-unblocked"),
+          after: notificationView({
+            canEndTurn: { ok: true, value: true },
+            notifications: [],
+          }),
         }),
-      }),
-    }));
+      })
+    );
 
     expect(record.candidateAction).toMatchObject({
       id: "narrative-choice:0:0:421:24:CLOSE:1",
@@ -74,17 +74,19 @@ describe("narrative-choice telemetry adapter", () => {
   });
 
   test("summarizes source-owned narrative panel closeouts as state-changed", () => {
-    const record = createCiv7NarrativeChoiceTelemetryRecord(narrativeTelemetryInput({
-      result: narrativeChoiceResult({
-        sent: true,
-        verified: true,
-        postcondition: narrativePostcondition("narrative-panel-cleared"),
-        after: notificationView({
-          blockingNotificationId: { ok: true, value: changedNotificationId() },
-          notifications: [narrativeNotification(changedNotificationId())],
+    const record = createCiv7NarrativeChoiceTelemetryRecord(
+      narrativeTelemetryInput({
+        result: narrativeChoiceResult({
+          sent: true,
+          verified: true,
+          postcondition: narrativePostcondition("narrative-panel-cleared"),
+          after: notificationView({
+            blockingNotificationId: { ok: true, value: changedNotificationId() },
+            notifications: [narrativeNotification(changedNotificationId())],
+          }),
         }),
-      }),
-    }));
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "narrative-panel-cleared",
@@ -104,13 +106,15 @@ describe("narrative-choice telemetry adapter", () => {
   });
 
   test("does not treat a legacy verified boolean as confirmed postcondition proof", () => {
-    const record = createCiv7NarrativeChoiceTelemetryRecord(narrativeTelemetryInput({
-      result: narrativeChoiceResult({
-        sent: true,
-        verified: true,
-        postcondition: undefined,
-      }),
-    }));
+    const record = createCiv7NarrativeChoiceTelemetryRecord(
+      narrativeTelemetryInput({
+        result: narrativeChoiceResult({
+          sent: true,
+          verified: true,
+          postcondition: undefined,
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "missing-postcondition",
@@ -127,15 +131,17 @@ describe("narrative-choice telemetry adapter", () => {
 
   test("keeps validator-blocked narrative choices no-repeat guarded", () => {
     const validation = validationResult({ valid: false, result: { FailureReasons: ["blocked"] } });
-    const record = createCiv7NarrativeChoiceTelemetryRecord(narrativeTelemetryInput({
-      result: narrativeChoiceResult({
-        beforeValidation: validation,
-        afterValidation: validation,
-        sent: false,
-        verified: false,
-        postcondition: narrativePostcondition("not-sent"),
-      }),
-    }));
+    const record = createCiv7NarrativeChoiceTelemetryRecord(
+      narrativeTelemetryInput({
+        result: narrativeChoiceResult({
+          beforeValidation: validation,
+          afterValidation: validation,
+          sent: false,
+          verified: false,
+          postcondition: narrativePostcondition("not-sent"),
+        }),
+      })
+    );
 
     expect(record.send_receipt).toMatchObject({
       status: "not-attempted",
@@ -155,13 +161,15 @@ describe("narrative-choice telemetry adapter", () => {
   });
 
   test("keeps no-state-change sends no-repeat guarded", () => {
-    const record = createCiv7NarrativeChoiceTelemetryRecord(narrativeTelemetryInput({
-      result: narrativeChoiceResult({
-        sent: true,
-        verified: false,
-        postcondition: narrativePostcondition("no-state-change"),
-      }),
-    }));
+    const record = createCiv7NarrativeChoiceTelemetryRecord(
+      narrativeTelemetryInput({
+        result: narrativeChoiceResult({
+          sent: true,
+          verified: false,
+          postcondition: narrativePostcondition("no-state-change"),
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "no-state-change",
@@ -177,13 +185,15 @@ describe("narrative-choice telemetry adapter", () => {
   });
 
   test("keeps validation-changed sends no-repeat guarded", () => {
-    const record = createCiv7NarrativeChoiceTelemetryRecord(narrativeTelemetryInput({
-      result: narrativeChoiceResult({
-        sent: true,
-        verified: true,
-        postcondition: narrativePostcondition("validation-changed"),
-      }),
-    }));
+    const record = createCiv7NarrativeChoiceTelemetryRecord(
+      narrativeTelemetryInput({
+        result: narrativeChoiceResult({
+          sent: true,
+          verified: true,
+          postcondition: narrativePostcondition("validation-changed"),
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "validation-changed",
@@ -199,14 +209,16 @@ describe("narrative-choice telemetry adapter", () => {
   });
 
   test("keeps pending runtime proof sends no-repeat guarded", () => {
-    const record = createCiv7NarrativeChoiceTelemetryRecord(narrativeTelemetryInput({
-      proofBoundary: "pending-runtime-proof",
-      result: narrativeChoiceResult({
-        sent: true,
-        verified: true,
-        postcondition: narrativePostcondition("narrative-blocker-cleared"),
-      }),
-    }));
+    const record = createCiv7NarrativeChoiceTelemetryRecord(
+      narrativeTelemetryInput({
+        proofBoundary: "pending-runtime-proof",
+        result: narrativeChoiceResult({
+          sent: true,
+          verified: true,
+          postcondition: narrativePostcondition("narrative-blocker-cleared"),
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "narrative-blocker-cleared",
@@ -289,15 +301,20 @@ function narrativeChoiceResult(
 }
 
 function narrativePostcondition(
-  classification: Civ7NarrativeChoicePostconditionClassification,
+  classification: Civ7NarrativeChoicePostconditionClassification
 ): Civ7NarrativeChoicePostcondition {
   const reasons: Record<Civ7NarrativeChoicePostconditionClassification, string> = {
-    "not-sent": "The narrative choice was not sent, either because validation failed before send or the App UI closeout reported no send.",
+    "not-sent":
+      "The narrative choice was not sent, either because validation failed before send or the App UI closeout reported no send.",
     "turn-unblocked": "The narrative choice and UI handling left the turn unblocked.",
-    "narrative-blocker-cleared": "The narrative/discovery choice notification is no longer present as a blocking decision.",
-    "narrative-panel-cleared": "The visible narrative panel for the selected story target was closed after the choice.",
-    "validation-changed": "The narrative choice validator changed after the send, but notification/turn state did not clearly clear.",
-    "no-state-change": "The narrative choice was sent, but the same narrative blocker remained live without a turn-unblock or blocker transition.",
+    "narrative-blocker-cleared":
+      "The narrative/discovery choice notification is no longer present as a blocking decision.",
+    "narrative-panel-cleared":
+      "The visible narrative panel for the selected story target was closed after the choice.",
+    "validation-changed":
+      "The narrative choice validator changed after the send, but notification/turn state did not clearly clear.",
+    "no-state-change":
+      "The narrative choice was sent, but the same narrative blocker remained live without a turn-unblock or blocker transition.",
   };
   return {
     classification,

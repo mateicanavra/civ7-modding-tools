@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import computeCryosphereState from "../src/domain/hydrology/ops/compute-cryosphere-state/index.js";
 
 describe("hydrology cryosphere truth proxies", () => {
@@ -29,4 +29,3 @@ describe("hydrology cryosphere truth proxies", () => {
     expect(first.groundIce01[0]).not.toBe(first.groundIce01[1]);
   });
 });
-

@@ -1,17 +1,17 @@
-import { Flags } from '@oclif/core';
-import BaseCommand from '../BaseCommand.js';
-import { resolveBranch } from '../../utils/git.js';
+import { Flags } from "@oclif/core";
+import { resolveBranch } from "../../utils/git.js";
+import BaseCommand from "../BaseCommand.js";
 
 export default abstract class SubtreeCommand extends BaseCommand {
   static baseFlags = {
     branch: Flags.string({
-      description: 'Branch to track',
-      char: 'b',
+      description: "Branch to track",
+      char: "b",
     }),
     verbose: Flags.boolean({
-      description: 'Show underlying git commands',
+      description: "Show underlying git commands",
       default: false,
-      char: 'v',
+      char: "v",
     }),
   } as const;
 

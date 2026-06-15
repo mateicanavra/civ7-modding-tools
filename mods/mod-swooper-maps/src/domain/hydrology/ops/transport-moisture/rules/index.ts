@@ -1,10 +1,6 @@
 import { idx } from "@swooper/mapgen-core";
 
-export function upwindOffset(
-  u: number,
-  v: number,
-  absLatDeg: number
-): { dx: number; dy: number } {
+export function upwindOffset(u: number, v: number, absLatDeg: number): { dx: number; dy: number } {
   if (Math.abs(u) >= Math.abs(v)) {
     if (u !== 0) return { dx: u > 0 ? 1 : -1, dy: 0 };
   } else if (v !== 0) {

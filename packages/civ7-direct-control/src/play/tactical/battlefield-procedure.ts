@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
-  Civ7BattlefieldScanInputSchema,
-  Civ7BattlefieldScanResultSchema,
-  getCiv7BattlefieldScan,
   type BattlefieldScanDependencies,
   type Civ7BattlefieldScanInput,
+  Civ7BattlefieldScanInputSchema,
   type Civ7BattlefieldScanResult,
+  Civ7BattlefieldScanResultSchema,
+  getCiv7BattlefieldScan,
 } from "./battlefield.js";
 
 export const Civ7BattlefieldScanProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
@@ -31,14 +31,7 @@ export const Civ7BattlefieldScanProcedureDescriptor = createCiv7ProcedureCoreDes
     owner: "packages/civ7-direct-control/src/play/tactical/battlefield.ts",
     exportName: "Civ7BattlefieldScanResultSchema",
   },
-  inputFields: [
-    "playerId",
-    "origins",
-    "radius",
-    "maxPlayers",
-    "maxUnits",
-    "maxCities",
-  ],
+  inputFields: ["playerId", "origins", "radius", "maxPlayers", "maxUnits", "maxCities"],
   outputFields: [
     "localPlayerId",
     "playerId",
@@ -53,10 +46,7 @@ export const Civ7BattlefieldScanProcedureDescriptor = createCiv7ProcedureCoreDes
     "notes",
   ],
   playerScope: "local-player-scoped",
-  consumerClasses: [
-    "normal-cli-player-agent-view",
-    "effect-orpc-procedure-core",
-  ],
+  consumerClasses: ["normal-cli-player-agent-view", "effect-orpc-procedure-core"],
   proofBoundary: "local-package-test",
   projection: {
     normalCli: "semantic-projection",
@@ -95,13 +85,13 @@ export type Civ7BattlefieldScanProcedureCallOptions = Readonly<{
 
 export function callCiv7BattlefieldScanProcedure(
   input: Civ7BattlefieldScanInput = {},
-  options: Civ7BattlefieldScanProcedureCallOptions = {},
+  options: Civ7BattlefieldScanProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7BattlefieldScanResult>> {
   return callCiv7ProcedureCore<Civ7BattlefieldScanInput, Civ7BattlefieldScanResult>(
     Civ7BattlefieldScanProcedureDescriptor,
     Civ7BattlefieldScanProcedureSchemaArtifacts,
     input,
     (validInput) => getCiv7BattlefieldScan(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    options.procedure
   );
 }

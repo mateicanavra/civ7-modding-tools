@@ -8,68 +8,53 @@ import {
   civ7ControlOrpcErrorCorrelationData,
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
-import {
-  civ7CloseoutMutationProjection,
-} from "../../../policy/mutation-result";
+import { civ7CloseoutMutationProjection } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
-import type {
-  Civ7DiplomacyResponseInput,
-  Civ7DiplomacyResponseResult,
-} from "../contract";
+import type { Civ7DiplomacyResponseInput, Civ7DiplomacyResponseResult } from "../contract";
 
-type DiplomacyResponseRuntimeInput = Civ7DiplomacyResponseInput & Readonly<{
-  playerId: number;
-}>;
+type DiplomacyResponseRuntimeInput = Civ7DiplomacyResponseInput &
+  Readonly<{
+    playerId: number;
+  }>;
 
-export const diplomacyResponseRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.diplomacy.response.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const localPlayerId = await readLocalPlayerId(context);
-        const requestInput = {
-          playerId: localPlayerId,
-          actionId: input.actionId,
-          responseType: input.responseType,
-          ...(input.notificationId === undefined
-            ? {}
-            : { notificationId: input.notificationId }),
-        };
-        const result = await context.directControl.requestCiv7DiplomacyResponse(
-          requestInput,
-          context.endpointDefaults,
-        );
-        return diplomacyResponseResult(requestInput, result);
-      },
-      catch: (cause) =>
-        errors.DIPLOMACY_RESPONSE_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: "diplomacy.response.request",
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const diplomacyResponseRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.diplomacy.response.request
+).effect(function* ({ context, errors, input }) {
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context);
+      const requestInput = {
+        playerId: localPlayerId,
+        actionId: input.actionId,
+        responseType: input.responseType,
+        ...(input.notificationId === undefined ? {} : { notificationId: input.notificationId }),
+      };
+      const result = await context.directControl.requestCiv7DiplomacyResponse(
+        requestInput,
+        context.endpointDefaults
+      );
+      return diplomacyResponseResult(requestInput, result);
+    },
+    catch: (cause) =>
+      errors.DIPLOMACY_RESPONSE_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: "diplomacy.response.request",
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-async function readLocalPlayerId(
-  context: Civ7ControlOrpcContext,
-): Promise<number> {
-  const view = await context.directControl.getCiv7PlayNotificationView(
-    context.endpointDefaults,
-  );
+async function readLocalPlayerId(context: Civ7ControlOrpcContext): Promise<number> {
+  const view = await context.directControl.getCiv7PlayNotificationView(context.endpointDefaults);
   return view.localPlayerId;
 }
 
 function diplomacyResponseResult(
   input: DiplomacyResponseRuntimeInput,
-  result: Civ7ControlOrpcDiplomacyResponseResult,
+  result: Civ7ControlOrpcDiplomacyResponseResult
 ): Civ7DiplomacyResponseResult {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
@@ -81,8 +66,10 @@ function diplomacyResponseResult(
     },
     source: "diplomacy.response.request",
     inspectKind: "inspect-diplomacy-response",
-    inspectLabel: "Inspect current attention and diplomacy response state before attempting another diplomacy request.",
-    doNotRepeatLabel: "Do not repeat this diplomacy response request until fresh attention and diplomacy evidence is read.",
+    inspectLabel:
+      "Inspect current attention and diplomacy response state before attempting another diplomacy request.",
+    doNotRepeatLabel:
+      "Do not repeat this diplomacy response request until fresh attention and diplomacy evidence is read.",
   });
 
   return {

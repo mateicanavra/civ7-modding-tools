@@ -22,7 +22,9 @@ export function validateResourcePlanAdjustedArtifact(value: unknown): Validation
   const size = width * height;
   if (!Number.isSafeInteger(size) || size <= 0) {
     return [
-      issue(`resourcePlanAdjusted has invalid dimensions ${String(value.width)}x${String(value.height)}.`),
+      issue(
+        `resourcePlanAdjusted has invalid dimensions ${String(value.width)}x${String(value.height)}.`
+      ),
     ];
   }
   const intents = Array.isArray(value.intents) ? value.intents : null;
@@ -46,7 +48,9 @@ export function validateResourcePlanAdjustedArtifact(value: unknown): Validation
     if (!isRecord(intent)) continue;
     const plotIndex = Number(intent.plotIndex);
     if (!Number.isInteger(plotIndex) || plotIndex < 0 || plotIndex >= size) {
-      issues.push(issue(`resourcePlanAdjusted intent plotIndex ${String(intent.plotIndex)} out of bounds.`));
+      issues.push(
+        issue(`resourcePlanAdjusted intent plotIndex ${String(intent.plotIndex)} out of bounds.`)
+      );
       continue;
     }
     if (seenPlots.has(plotIndex)) {
@@ -96,7 +100,9 @@ export function validateResourcePlanAdjustedArtifact(value: unknown): Validation
     const provenance = adjustedByPlot.get(toPlot);
     if (!provenance || provenance.action !== row.action) {
       issues.push(
-        issue(`adjustment to plot ${toPlot} has no matching intent provenance (${String(row.action)}).`)
+        issue(
+          `adjustment to plot ${toPlot} has no matching intent provenance (${String(row.action)}).`
+        )
       );
     }
   }

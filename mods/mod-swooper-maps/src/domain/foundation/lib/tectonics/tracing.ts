@@ -1,8 +1,7 @@
 import type { FoundationMantleForcing } from "../../ops/compute-mantle-forcing/contract.js";
 import type { FoundationMesh } from "../../ops/compute-mesh/contract.js";
-import type { FoundationTectonicEraFieldsInternal } from "./internal-contract.js";
-
 import { ADVECTION_STEPS_PER_ERA } from "./constants.js";
+import type { FoundationTectonicEraFieldsInternal } from "./internal-contract.js";
 import { chooseDriftNeighbor, normalizeToInt8 } from "./shared.js";
 
 function advectTracerIndex(params: {
@@ -58,7 +57,10 @@ export function computeTracerIndexByEra(params: {
   const mantleDriftU = new Int8Array(cellCount);
   const mantleDriftV = new Int8Array(cellCount);
   for (let i = 0; i < cellCount; i++) {
-    const drift = normalizeToInt8(params.mantleForcing.forcingU[i] ?? 0, params.mantleForcing.forcingV[i] ?? 0);
+    const drift = normalizeToInt8(
+      params.mantleForcing.forcingU[i] ?? 0,
+      params.mantleForcing.forcingV[i] ?? 0
+    );
     mantleDriftU[i] = drift.u;
     mantleDriftV[i] = drift.v;
   }

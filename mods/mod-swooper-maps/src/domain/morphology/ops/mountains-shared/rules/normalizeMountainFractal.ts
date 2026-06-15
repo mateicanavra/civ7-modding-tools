@@ -6,4 +6,3 @@ import { normalizeFractal } from "@swooper/mapgen-core/lib/noise";
 export function normalizeMountainFractal(value: number): number {
   return normalizeFractal(value);
 }
-

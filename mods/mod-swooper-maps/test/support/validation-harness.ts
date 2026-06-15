@@ -52,10 +52,18 @@ export const M1_TIER1_ARTIFACT_IDS = [
   mapArtifacts.foundationTectonicProvenanceTiles.id,
 ] as const;
 
-function hashView(view: ArrayBufferView): { type: string; length: number; byteLength: number; sha256: string } {
+function hashView(view: ArrayBufferView): {
+  type: string;
+  length: number;
+  byteLength: number;
+  sha256: string;
+} {
   const bytes = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
   const sha256 = sha256Hex(Buffer.from(bytes).toString("base64"));
-  const length = typeof (view as { length?: number }).length === "number" ? (view as { length: number }).length : view.byteLength;
+  const length =
+    typeof (view as { length?: number }).length === "number"
+      ? (view as { length: number }).length
+      : view.byteLength;
   return {
     type: view.constructor?.name ?? "ArrayBufferView",
     length,

@@ -1,21 +1,16 @@
 import { describe, expect, it } from "bun:test";
-
-import { defaultStrategy as computeDrainageRouting } from "../../src/domain/hydrology/ops/compute-drainage-routing/strategies/default.js";
 import {
+  computeDrainageAccumulation,
   HYDROLOGY_TERMINAL_CLOSED_BASIN,
   HYDROLOGY_TERMINAL_OCEAN,
-  computeDrainageAccumulation,
 } from "../../src/domain/hydrology/ops/compute-drainage-routing/rules/index.js";
+import { defaultStrategy as computeDrainageRouting } from "../../src/domain/hydrology/ops/compute-drainage-routing/strategies/default.js";
 
 describe("hydrology/compute-drainage-routing", () => {
   it("routes a raw pit through its spill path to ocean without making it a terminal river sink", () => {
     const width = 5;
     const height = 3;
-    const elevation = new Int16Array([
-      9, 9, 9, 9, 9,
-      6, 1, 5, 4, -10,
-      9, 9, 9, 9, 9,
-    ]);
+    const elevation = new Int16Array([9, 9, 9, 9, 9, 6, 1, 5, 4, -10, 9, 9, 9, 9, 9]);
     const landMask = new Uint8Array(elevation.length).fill(1);
     landMask[9] = 0;
 

@@ -1,12 +1,11 @@
+import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
-
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import {
   validateFeatureIntentsListArtifact,
   validateOccupancyArtifact,
 } from "../../../ecology/artifact-validation.js";
+import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import PlanReefsStepContract from "./contract.js";
 
 const REEFS_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {
@@ -17,14 +16,17 @@ const REEFS_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {
 };
 
 export default createStep(PlanReefsStepContract, {
-  artifacts: implementArtifacts([ecologyArtifacts.featureIntentsReefs, ecologyArtifacts.occupancyReefs], {
-    featureIntentsReefs: {
-      validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
-    },
-    occupancyReefs: {
-      validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
-    },
-  }),
+  artifacts: implementArtifacts(
+    [ecologyArtifacts.featureIntentsReefs, ecologyArtifacts.occupancyReefs],
+    {
+      featureIntentsReefs: {
+        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+      },
+      occupancyReefs: {
+        validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
+      },
+    }
+  ),
   run: (context, config, ops, deps) => {
     const prev = deps.artifacts.occupancyIce.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);

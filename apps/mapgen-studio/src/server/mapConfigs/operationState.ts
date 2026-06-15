@@ -1,8 +1,8 @@
 import {
   createMapConfigSaveDeployStatus,
-  updateMapConfigSaveDeployStatus,
-  type MapConfigSaveDeployStatus,
   type MapConfigSaveDeployPhase,
+  type MapConfigSaveDeployStatus,
+  updateMapConfigSaveDeployStatus,
 } from "../../features/mapConfigSave/status";
 
 function recoveryActionsForSaveDeploy(phase: MapConfigSaveDeployPhase): string[] {
@@ -40,7 +40,9 @@ export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
 
   function list(): MapConfigSaveDeployStatus[] {
     prune();
-    return [...operations.values()].sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt));
+    return [...operations.values()].sort(
+      (left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt)
+    );
   }
 
   function create(requestId: string): MapConfigSaveDeployStatus {
@@ -58,7 +60,7 @@ export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
 
   function update(
     requestId: string,
-    patch: Parameters<typeof updateMapConfigSaveDeployStatus>[1],
+    patch: Parameters<typeof updateMapConfigSaveDeployStatus>[1]
   ): MapConfigSaveDeployStatus {
     const current = operations.get(requestId);
     if (!current) throw new Error(`Unknown Save/Deploy request id: ${requestId}`);
@@ -73,7 +75,7 @@ export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
 
   function complete(
     requestId: string,
-    patch: Omit<Parameters<typeof updateMapConfigSaveDeployStatus>[1], "phase">,
+    patch: Omit<Parameters<typeof updateMapConfigSaveDeployStatus>[1], "phase">
   ): MapConfigSaveDeployStatus {
     return update(requestId, {
       ...patch,
@@ -87,7 +89,7 @@ export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
     requestId: string,
     phase: MapConfigSaveDeployPhase,
     error: string,
-    patch: Omit<Parameters<typeof updateMapConfigSaveDeployStatus>[1], "phase" | "error"> = {},
+    patch: Omit<Parameters<typeof updateMapConfigSaveDeployStatus>[1], "phase" | "error"> = {}
   ): MapConfigSaveDeployStatus {
     return update(requestId, {
       ...patch,

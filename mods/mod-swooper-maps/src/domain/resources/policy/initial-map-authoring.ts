@@ -5,7 +5,8 @@ import type {
   OfficialResourceType,
 } from "../lib/corpus/types.js";
 
-export const INITIAL_MAP_RESOURCE_AUTHORING_AGE = "AGE_ANTIQUITY" as const satisfies OfficialAgeType;
+export const INITIAL_MAP_RESOURCE_AUTHORING_AGE =
+  "AGE_ANTIQUITY" as const satisfies OfficialAgeType;
 
 export type InitialMapResourceAuthoringStatus =
   | "eligible"
@@ -69,7 +70,9 @@ function rationaleFor(
   return `${entry.resourceType} is not map-placeable in the official corpus; do not author it onto the initial map surface.`;
 }
 
-function buildPolicyForAge(authoringAge: OfficialAgeType): readonly InitialMapResourceAuthoringPolicyEntry[] {
+function buildPolicyForAge(
+  authoringAge: OfficialAgeType
+): readonly InitialMapResourceAuthoringPolicyEntry[] {
   return deepFreeze(
     OFFICIAL_RESOURCE_CORPUS.map((entry) => {
       const status = statusFor(entry, authoringAge);
@@ -88,9 +91,9 @@ function buildPolicyForAge(authoringAge: OfficialAgeType): readonly InitialMapRe
 function byType(
   policy: readonly InitialMapResourceAuthoringPolicyEntry[]
 ): Readonly<Record<OfficialResourceType, InitialMapResourceAuthoringPolicyEntry>> {
-  return deepFreeze(Object.fromEntries(policy.map((entry) => [entry.resourceType, entry]))) as Readonly<
-    Record<OfficialResourceType, InitialMapResourceAuthoringPolicyEntry>
-  >;
+  return deepFreeze(
+    Object.fromEntries(policy.map((entry) => [entry.resourceType, entry]))
+  ) as Readonly<Record<OfficialResourceType, InitialMapResourceAuthoringPolicyEntry>>;
 }
 
 function byStaticSlot(
@@ -199,7 +202,9 @@ export function isInitialMapResourceTypeId(
   resourceTypeId: number,
   authoringAge: OfficialAgeType = INITIAL_MAP_RESOURCE_AUTHORING_AGE
 ): boolean {
-  return getInitialMapResourcePolicyForStaticSlot(resourceTypeId, authoringAge)?.status === "eligible";
+  return (
+    getInitialMapResourcePolicyForStaticSlot(resourceTypeId, authoringAge)?.status === "eligible"
+  );
 }
 
 export function filterInitialMapResourceTypeIds(

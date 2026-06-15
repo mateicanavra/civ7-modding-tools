@@ -1,11 +1,10 @@
 import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
 
 import { clamp } from "@swooper/mapgen-core/lib/math";
-
+import { computeOrogenyPotential } from "./computeOrogenyPotential.js";
+import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
 import type { MountainsConfig } from "./types.js";
 import { clamp01 } from "./util.js";
-import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
-import { computeOrogenyPotential } from "./computeOrogenyPotential.js";
 
 /**
  * Computes hill score from tectonic signals and fractal noise.
@@ -20,7 +19,8 @@ export function computeHillScore(params: {
   driverStrength: number;
   config: MountainsConfig;
 }): number {
-  const { boundaryStrength, boundaryType, uplift, stress, rift, fractal, driverStrength, config } = params;
+  const { boundaryStrength, boundaryType, uplift, stress, rift, fractal, driverStrength, config } =
+    params;
   const regime = resolveBoundaryRegime({ boundaryType, uplift, stress, rift });
 
   const scaledHillBoundaryWeight = config.hillBoundaryWeight * config.tectonicIntensity;
@@ -55,7 +55,8 @@ export function computeHillScore(params: {
   }
 
   if (divergence > 0) {
-    hillScore += hillIntensity * rift * config.hillRiftBonus * foothillExtent * config.hillRiftBonusScale;
+    hillScore +=
+      hillIntensity * rift * config.hillRiftBonus * foothillExtent * config.hillRiftBonusScale;
   }
 
   if (config.hillInteriorFalloff > 0) {

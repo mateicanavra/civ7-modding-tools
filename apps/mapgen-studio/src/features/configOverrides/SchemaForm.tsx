@@ -1,12 +1,12 @@
 import Form from "@rjsf/core";
-import { customizeValidator } from "@rjsf/validator-ajv8";
 import type { RJSFSchema, UiSchema } from "@rjsf/utils";
+import { customizeValidator } from "@rjsf/validator-ajv8";
 import { useMemo } from "react";
 import {
   BrowserConfigArrayFieldTemplate,
   BrowserConfigFieldTemplate,
-  BrowserConfigObjectFieldTemplate,
   type BrowserConfigFormContext,
+  BrowserConfigObjectFieldTemplate,
 } from "./rjsfTemplates";
 import { configWidgets } from "./rjsfWidgets";
 

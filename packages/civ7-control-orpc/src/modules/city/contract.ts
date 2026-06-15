@@ -1,5 +1,5 @@
 import type { ContractProcedure } from "@orpc/contract";
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { civ7ControlOrpcContractBase } from "../../contract-base";
 import type { Civ7ControlOrpcErrorMap } from "../../errors";
@@ -10,9 +10,7 @@ import {
 } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-const Civ7CityProductionChoiceArgsSchema = Type.Unsafe<
-  Readonly<Record<string, number>>
->({
+const Civ7CityProductionChoiceArgsSchema = Type.Unsafe<Readonly<Record<string, number>>>({
   type: "object",
   additionalProperties: false,
   properties: {
@@ -59,10 +57,7 @@ const Civ7CityProductionChoiceArgsSchema = Type.Unsafe<
     {
       required: ["ConstructibleType", "X", "Y"],
       not: {
-        anyOf: [
-          { required: ["UnitType"] },
-          { required: ["ProjectType"] },
-        ],
+        anyOf: [{ required: ["UnitType"] }, { required: ["ProjectType"] }],
       },
     },
   ],
@@ -73,14 +68,12 @@ const Civ7CityProductionChoiceInputSchema = Type.Object(
     cityId: Civ7ControlOrpcComponentIdSchema,
     args: Civ7CityProductionChoiceArgsSchema,
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7CityProductionChoiceInput = Static<
-  typeof Civ7CityProductionChoiceInputSchema
->;
+export type Civ7CityProductionChoiceInput = Static<typeof Civ7CityProductionChoiceInputSchema>;
 
 const Civ7CityProductionChoiceInputStandardSchema = toStandardSchema(
-  Civ7CityProductionChoiceInputSchema,
+  Civ7CityProductionChoiceInputSchema
 );
 
 const Civ7CityPopulationPlacementInputSchema = Type.Union([
@@ -89,7 +82,7 @@ const Civ7CityPopulationPlacementInputSchema = Type.Union([
       mode: Type.Literal("assign-worker"),
       location: Type.Integer({ minimum: 0 }),
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   ),
   Type.Object(
     {
@@ -97,7 +90,7 @@ const Civ7CityPopulationPlacementInputSchema = Type.Union([
       cityId: Civ7ControlOrpcComponentIdSchema,
       destination: Civ7ControlOrpcMapLocationSchema,
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   ),
 ]);
 export type Civ7CityPopulationPlacementInput = Static<
@@ -105,7 +98,7 @@ export type Civ7CityPopulationPlacementInput = Static<
 >;
 
 const Civ7CityPopulationPlacementInputStandardSchema = toStandardSchema(
-  Civ7CityPopulationPlacementInputSchema,
+  Civ7CityPopulationPlacementInputSchema
 );
 
 const Civ7CityTownFocusChangeInputSchema = Type.Object(
@@ -115,21 +108,17 @@ const Civ7CityTownFocusChangeInputSchema = Type.Object(
     projectType: Type.Integer(),
     city: Type.Optional(Type.Integer()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7CityTownFocusChangeInput = Static<
-  typeof Civ7CityTownFocusChangeInputSchema
->;
+export type Civ7CityTownFocusChangeInput = Static<typeof Civ7CityTownFocusChangeInputSchema>;
 
 const Civ7CityTownFocusReviewInputSchema = Type.Object(
   {
     cityId: Civ7ControlOrpcComponentIdSchema,
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7CityTownFocusReviewInput = Static<
-  typeof Civ7CityTownFocusReviewInputSchema
->;
+export type Civ7CityTownFocusReviewInput = Static<typeof Civ7CityTownFocusReviewInputSchema>;
 
 export const Civ7CityPopulationPlacementModeSchema = Type.Union([
   Type.Literal("assign-worker"),
@@ -145,15 +134,14 @@ export const Civ7CityPopulationPlacementProofOutcomeSchema = Type.Union([
   Type.Literal("unknown"),
 ]);
 
-export const Civ7CityPopulationPlacementPostconditionClassificationSchema =
-  Type.Union([
-    Type.Literal("not-sent"),
-    Type.Literal("population-ready-cleared"),
-    Type.Literal("placement-state-changed"),
-    Type.Literal("validation-changed"),
-    Type.Literal("no-state-change"),
-    Type.Literal("missing-postcondition"),
-  ]);
+export const Civ7CityPopulationPlacementPostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("population-ready-cleared"),
+  Type.Literal("placement-state-changed"),
+  Type.Literal("validation-changed"),
+  Type.Literal("no-state-change"),
+  Type.Literal("missing-postcondition"),
+]);
 
 export const Civ7CityPopulationPlacementRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
@@ -169,7 +157,7 @@ export const Civ7CityPopulationPlacementSummarySchema = Type.Union([
       playerId: Type.Integer({ minimum: 0 }),
       location: Type.Integer({ minimum: 0 }),
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   ),
   Type.Object(
     {
@@ -177,7 +165,7 @@ export const Civ7CityPopulationPlacementSummarySchema = Type.Union([
       cityId: Civ7ControlOrpcComponentIdSchema,
       destination: Civ7ControlOrpcMapLocationSchema,
     },
-    { additionalProperties: false },
+    { additionalProperties: false }
   ),
 ]);
 
@@ -186,26 +174,22 @@ export const Civ7CityPopulationPlacementValidationSummarySchema = Type.Object(
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
-export const Civ7CityPopulationPlacementPostconditionSummarySchema =
-  Type.Object(
-    {
-      classification: Civ7CityPopulationPlacementPostconditionClassificationSchema,
-      reason: Type.String(),
-      outcome: Civ7CityPopulationPlacementProofOutcomeSchema,
-      confidence: Type.Union([
-        Type.Literal("confirmed"),
-        Type.Literal("unverified"),
-      ]),
-      confirmed: Type.Boolean(),
-      noRepeatAfterUnverified: Type.Boolean(),
-      readyCleared: Type.Union([Type.Boolean(), Type.Null()]),
-      placementStateChanged: Type.Union([Type.Boolean(), Type.Null()]),
-    },
-    { additionalProperties: false },
-  );
+export const Civ7CityPopulationPlacementPostconditionSummarySchema = Type.Object(
+  {
+    classification: Civ7CityPopulationPlacementPostconditionClassificationSchema,
+    reason: Type.String(),
+    outcome: Civ7CityPopulationPlacementProofOutcomeSchema,
+    confidence: Type.Union([Type.Literal("confirmed"), Type.Literal("unverified")]),
+    confirmed: Type.Boolean(),
+    noRepeatAfterUnverified: Type.Boolean(),
+    readyCleared: Type.Union([Type.Boolean(), Type.Null()]),
+    placementStateChanged: Type.Union([Type.Boolean(), Type.Null()]),
+  },
+  { additionalProperties: false }
+);
 
 export const Civ7CityPopulationPlacementNextStepSchema = Type.Object(
   {
@@ -217,7 +201,7 @@ export const Civ7CityPopulationPlacementNextStepSchema = Type.Object(
     source: Type.Literal("city.population.place.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7CityPopulationPlacementResultSchema = Type.Object(
@@ -229,14 +213,15 @@ const Civ7CityPopulationPlacementResultSchema = Type.Object(
     postcondition: Civ7CityPopulationPlacementPostconditionSummarySchema,
     nextSteps: Type.Array(Civ7CityPopulationPlacementNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7CityPopulationPlacementResult = Static<
   typeof Civ7CityPopulationPlacementResultSchema
 >;
 
-const Civ7CityPopulationPlacementResultStandardSchema =
-  toStandardSchema(Civ7CityPopulationPlacementResultSchema);
+const Civ7CityPopulationPlacementResultStandardSchema = toStandardSchema(
+  Civ7CityPopulationPlacementResultSchema
+);
 
 export const Civ7CityProductionChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
@@ -252,15 +237,14 @@ export const Civ7CityProductionChoiceRequestStatusSchema = Type.Union([
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7CityProductionChoicePostconditionClassificationSchema =
-  Type.Union([
-    Type.Literal("not-sent"),
-    Type.Literal("production-choice-cleared"),
-    Type.Literal("production-state-changed"),
-    Type.Literal("production-state-changed-blocker-still-live"),
-    Type.Literal("validation-changed"),
-    Type.Literal("no-state-change"),
-  ]);
+export const Civ7CityProductionChoicePostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("production-choice-cleared"),
+  Type.Literal("production-state-changed"),
+  Type.Literal("production-state-changed-blocker-still-live"),
+  Type.Literal("validation-changed"),
+  Type.Literal("no-state-change"),
+]);
 
 export const Civ7CityProductionChoicePostconditionSummarySchema = Type.Object(
   {
@@ -270,16 +254,13 @@ export const Civ7CityProductionChoicePostconditionSummarySchema = Type.Object(
     ]),
     reason: Type.String(),
     outcome: Civ7CityProductionChoiceProofOutcomeSchema,
-    confidence: Type.Union([
-      Type.Literal("confirmed"),
-      Type.Literal("unverified"),
-    ]),
+    confidence: Type.Union([Type.Literal("confirmed"), Type.Literal("unverified")]),
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
     productionStateChanged: Type.Union([Type.Boolean(), Type.Null()]),
     blockerStillLive: Type.Union([Type.Boolean(), Type.Null()]),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7CityProductionChoiceValidationSummarySchema = Type.Object(
@@ -287,7 +268,7 @@ export const Civ7CityProductionChoiceValidationSummarySchema = Type.Object(
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const Civ7CityProductionChoiceNextStepSchema = Type.Object(
@@ -300,7 +281,7 @@ export const Civ7CityProductionChoiceNextStepSchema = Type.Object(
     source: Type.Literal("city.production.choice.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7CityProductionChoiceResultSchema = Type.Object(
@@ -313,14 +294,12 @@ const Civ7CityProductionChoiceResultSchema = Type.Object(
     postcondition: Civ7CityProductionChoicePostconditionSummarySchema,
     nextSteps: Type.Array(Civ7CityProductionChoiceNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7CityProductionChoiceResult = Static<
-  typeof Civ7CityProductionChoiceResultSchema
->;
+export type Civ7CityProductionChoiceResult = Static<typeof Civ7CityProductionChoiceResultSchema>;
 
 const Civ7CityProductionChoiceResultStandardSchema = toStandardSchema(
-  Civ7CityProductionChoiceResultSchema,
+  Civ7CityProductionChoiceResultSchema
 );
 
 const Civ7CityTownFocusPostconditionClassificationSchema = Type.Union([
@@ -344,7 +323,7 @@ const Civ7CityTownFocusValidationSummarySchema = Type.Object(
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7CityTownFocusPostconditionSummarySchema = Type.Object(
@@ -352,38 +331,29 @@ const Civ7CityTownFocusPostconditionSummarySchema = Type.Object(
     classification: Civ7CityTownFocusPostconditionClassificationSchema,
     reason: Type.String(),
     outcome: Civ7CityTownFocusProofOutcomeSchema,
-    confidence: Type.Union([
-      Type.Literal("unverified"),
-      Type.Literal("pending-runtime-proof"),
-    ]),
+    confidence: Type.Union([Type.Literal("unverified"), Type.Literal("pending-runtime-proof")]),
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7CityTownFocusChangeNextStepSchema = Type.Object(
   {
-    kind: Type.Union([
-      Type.Literal("do-not-repeat"),
-      Type.Literal("inspect-town-focus"),
-    ]),
+    kind: Type.Union([Type.Literal("do-not-repeat"), Type.Literal("inspect-town-focus")]),
     source: Type.Literal("city.townFocus.change.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7CityTownFocusReviewNextStepSchema = Type.Object(
   {
-    kind: Type.Union([
-      Type.Literal("do-not-repeat"),
-      Type.Literal("inspect-town-focus"),
-    ]),
+    kind: Type.Union([Type.Literal("do-not-repeat"), Type.Literal("inspect-town-focus")]),
     source: Type.Literal("city.townFocus.review.request"),
     label: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7CityTownFocusResultBaseSchema = {
@@ -402,37 +372,33 @@ const Civ7CityTownFocusChangeResultSchema = Type.Object(
     city: Type.Integer(),
     nextSteps: Type.Array(Civ7CityTownFocusChangeNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7CityTownFocusChangeResult = Static<
-  typeof Civ7CityTownFocusChangeResultSchema
->;
+export type Civ7CityTownFocusChangeResult = Static<typeof Civ7CityTownFocusChangeResultSchema>;
 
 const Civ7CityTownFocusReviewResultSchema = Type.Object(
   {
     ...Civ7CityTownFocusResultBaseSchema,
     nextSteps: Type.Array(Civ7CityTownFocusReviewNextStepSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7CityTownFocusReviewResult = Static<
-  typeof Civ7CityTownFocusReviewResultSchema
->;
+export type Civ7CityTownFocusReviewResult = Static<typeof Civ7CityTownFocusReviewResultSchema>;
 
 const Civ7CityTownFocusChangeInputStandardSchema = toStandardSchema(
-  Civ7CityTownFocusChangeInputSchema,
+  Civ7CityTownFocusChangeInputSchema
 );
 
 const Civ7CityTownFocusReviewInputStandardSchema = toStandardSchema(
-  Civ7CityTownFocusReviewInputSchema,
+  Civ7CityTownFocusReviewInputSchema
 );
 
 const Civ7CityTownFocusChangeResultStandardSchema = toStandardSchema(
-  Civ7CityTownFocusChangeResultSchema,
+  Civ7CityTownFocusChangeResultSchema
 );
 
 const Civ7CityTownFocusReviewResultStandardSchema = toStandardSchema(
-  Civ7CityTownFocusReviewResultSchema,
+  Civ7CityTownFocusReviewResultSchema
 );
 
 export type Civ7CityPopulationPlacementContract = ContractProcedure<
@@ -442,8 +408,8 @@ export type Civ7CityPopulationPlacementContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7CityPopulationPlacementContract:
-  Civ7CityPopulationPlacementContract = civ7ControlOrpcContractBase
+export const Civ7CityPopulationPlacementContract: Civ7CityPopulationPlacementContract =
+  civ7ControlOrpcContractBase
     .input(Civ7CityPopulationPlacementInputStandardSchema)
     .output(Civ7CityPopulationPlacementResultStandardSchema)
     .meta({
@@ -478,16 +444,15 @@ type Civ7CityTownFocusChangeContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7CityTownFocusChangeContract: Civ7CityTownFocusChangeContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7CityTownFocusChangeInputStandardSchema)
-    .output(Civ7CityTownFocusChangeResultStandardSchema)
-    .meta({
-      family: "city",
-      procedureKey: "city.townFocus.change.request",
-      proofBoundary: "local-package-test",
-      risk: "mutation",
-    });
+const Civ7CityTownFocusChangeContract: Civ7CityTownFocusChangeContract = civ7ControlOrpcContractBase
+  .input(Civ7CityTownFocusChangeInputStandardSchema)
+  .output(Civ7CityTownFocusChangeResultStandardSchema)
+  .meta({
+    family: "city",
+    procedureKey: "city.townFocus.change.request",
+    proofBoundary: "local-package-test",
+    risk: "mutation",
+  });
 
 type Civ7CityTownFocusReviewContract = ContractProcedure<
   typeof Civ7CityTownFocusReviewInputStandardSchema,
@@ -496,16 +461,15 @@ type Civ7CityTownFocusReviewContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7CityTownFocusReviewContract: Civ7CityTownFocusReviewContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7CityTownFocusReviewInputStandardSchema)
-    .output(Civ7CityTownFocusReviewResultStandardSchema)
-    .meta({
-      family: "city",
-      procedureKey: "city.townFocus.review.request",
-      proofBoundary: "local-package-test",
-      risk: "mutation",
-    });
+const Civ7CityTownFocusReviewContract: Civ7CityTownFocusReviewContract = civ7ControlOrpcContractBase
+  .input(Civ7CityTownFocusReviewInputStandardSchema)
+  .output(Civ7CityTownFocusReviewResultStandardSchema)
+  .meta({
+    family: "city",
+    procedureKey: "city.townFocus.review.request",
+    proofBoundary: "local-package-test",
+    risk: "mutation",
+  });
 
 export type Civ7CityContract = Readonly<{
   population: Readonly<{

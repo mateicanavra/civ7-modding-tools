@@ -1,6 +1,5 @@
-import type { Static, TSchema, TUnsafe } from "typebox";
-
 import type { NormalizeContext } from "@mapgen/engine/index.js";
+import type { Static, TSchema, TUnsafe } from "typebox";
 
 // Allow ops with specific input/config types to flow through generic registries.
 type BivariantCallback<Args extends unknown[], Return> = {

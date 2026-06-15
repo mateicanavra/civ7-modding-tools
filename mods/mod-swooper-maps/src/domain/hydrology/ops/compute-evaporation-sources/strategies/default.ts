@@ -20,7 +20,9 @@ export const defaultStrategy = createStrategy(ComputeEvaporationSourcesContract,
       !(input.surfaceTemperatureC instanceof Float32Array) ||
       input.surfaceTemperatureC.length !== size
     ) {
-      throw new Error("[Hydrology] Invalid surfaceTemperatureC for hydrology/compute-evaporation-sources.");
+      throw new Error(
+        "[Hydrology] Invalid surfaceTemperatureC for hydrology/compute-evaporation-sources."
+      );
     }
     if (input.windU != null) {
       if (!(input.windU instanceof Int8Array) || input.windU.length !== size) {
@@ -39,7 +41,9 @@ export const defaultStrategy = createStrategy(ComputeEvaporationSourcesContract,
     }
     if (input.seaIceMask != null) {
       if (!(input.seaIceMask instanceof Uint8Array) || input.seaIceMask.length !== size) {
-        throw new Error("[Hydrology] Invalid seaIceMask for hydrology/compute-evaporation-sources.");
+        throw new Error(
+          "[Hydrology] Invalid seaIceMask for hydrology/compute-evaporation-sources."
+        );
       }
     }
 
@@ -55,7 +59,7 @@ export const defaultStrategy = createStrategy(ComputeEvaporationSourcesContract,
 
     for (let i = 0; i < size; i++) {
       const isLand = input.landMask[i] === 1;
-      const oceanTemp = !isLand && sstC ? sstC[i] ?? minT : undefined;
+      const oceanTemp = !isLand && sstC ? (sstC[i] ?? minT) : undefined;
       const temp = clampNumber(oceanTemp ?? input.surfaceTemperatureC[i] ?? minT, minT, maxT);
 
       // Temperature-driven baseline.

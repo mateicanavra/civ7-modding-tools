@@ -1,9 +1,9 @@
 import type {
   VizLayerEntryV1,
   VizLayerKind,
-  VizScalarFormat,
   VizLayerVisibility,
   VizManifestV1,
+  VizScalarFormat,
   VizSpaceId,
 } from "@swooper/mapgen-viz";
 
@@ -28,7 +28,12 @@ export type RiverLakeInspectorProofClass =
   | "civ-rendered"
   | "product-acceptance";
 
-export type RiverLakeInspectorClaimStatus = "available" | "pass" | "fail" | "unresolved" | "out-of-scope";
+export type RiverLakeInspectorClaimStatus =
+  | "available"
+  | "pass"
+  | "fail"
+  | "unresolved"
+  | "out-of-scope";
 
 export type RiverLakeInspectorMaskCategory =
   | "physical-river-truth"
@@ -204,8 +209,7 @@ const LANE_SPECS: readonly LaneSpec[] = [
     missingStatus: "metadata-readback-missing",
     missingEvidence:
       "No Civ river metadata readback layer is present; metadata parity is unresolved for this run.",
-    presentEvidence:
-      "Civ river metadata readback layers are present behind debug inspection.",
+    presentEvidence: "Civ river metadata readback layers are present behind debug inspection.",
   },
   {
     rowKey: "lake-plan-readback",
@@ -219,7 +223,10 @@ const LANE_SPECS: readonly LaneSpec[] = [
       "map.hydrology.lakes.engineLakeMask",
       "map.hydrology.lakes.rejectedLakeMask",
     ],
-    requiredDataTypeKeys: ["map.hydrology.lakes.plannedLakeMask", "map.hydrology.lakes.engineLakeMask"],
+    requiredDataTypeKeys: [
+      "map.hydrology.lakes.plannedLakeMask",
+      "map.hydrology.lakes.engineLakeMask",
+    ],
     presentStatus: "lake-readback-present",
     missingStatus: "lake-exact-log-missing",
     missingEvidence:
@@ -249,7 +256,10 @@ const LANE_SPECS: readonly LaneSpec[] = [
     laneLabel: "Floodplains",
     label: "Floodplain intent",
     proofClass: "floodplain-active",
-    dataTypeKeys: ["map.ecology.features.floodplainIntentMask", "ecology.features.floodplainIntentMask"],
+    dataTypeKeys: [
+      "map.ecology.features.floodplainIntentMask",
+      "ecology.features.floodplainIntentMask",
+    ],
     requiredDataTypeKeys: ["map.ecology.features.floodplainIntentMask"],
     presentStatus: "floodplain-apply-present",
     missingStatus: "floodplain-intent-missing",
@@ -348,7 +358,9 @@ const COUNT_LABEL_BY_DATA_TYPE_KEY: Readonly<Record<string, string>> = {
   "map.ecology.features.rejectionMask": "feature rejects",
 };
 
-const MASK_PRESENTATIONS: Readonly<Record<RiverLakeInspectorMaskCategory, RiverLakeInspectorMaskPresentation>> = {
+const MASK_PRESENTATIONS: Readonly<
+  Record<RiverLakeInspectorMaskCategory, RiverLakeInspectorMaskPresentation>
+> = {
   "physical-river-truth": {
     category: "physical-river-truth",
     categoryLabel: "Hydrology truth",
@@ -452,10 +464,17 @@ const MASK_PRESENTATIONS: Readonly<Record<RiverLakeInspectorMaskCategory, RiverL
 
 function maskCategoryForLayer(layer: VizLayerEntryV1): RiverLakeInspectorMaskCategory {
   const key = layer.dataTypeKey;
-  if (key.includes("MismatchMask") || key.includes("RejectedMask") || key.includes("rejectionMask")) {
+  if (
+    key.includes("MismatchMask") ||
+    key.includes("RejectedMask") ||
+    key.includes("rejectionMask")
+  ) {
     return "mismatch-debug";
   }
-  if (key === "map.rivers.engineNavigableRiverMetadataMask" || key === "map.rivers.engineMinorRiverMask") {
+  if (
+    key === "map.rivers.engineNavigableRiverMetadataMask" ||
+    key === "map.rivers.engineMinorRiverMask"
+  ) {
     return "engine-metadata-readback";
   }
   if (key === "map.rivers.engineRiverMask") return "engine-terrain-readback";
@@ -463,7 +482,8 @@ function maskCategoryForLayer(layer: VizLayerEntryV1): RiverLakeInspectorMaskCat
   if (key.startsWith("hydrology.hydrography.")) return "physical-river-truth";
   if (key.includes(".lakes.") || key === "hydrology.lakes.lakePlan") return "lake-plan-readback";
   if (key.includes("floodplainIntentMask")) return "floodplain-intent";
-  if (key.includes("floodplainAppliedMask") || key === "map.ecology.featureType") return "floodplain-apply";
+  if (key.includes("floodplainAppliedMask") || key === "map.ecology.featureType")
+    return "floodplain-apply";
   return "proof-only";
 }
 
@@ -493,7 +513,9 @@ function asNumberArray(buffer: ArrayBuffer, format: VizScalarFormat): ArrayLike<
   return null;
 }
 
-function countNonZeroSamples(layer: VizLayerEntryV1): { nonZeroCount: number; sampleCount: number } | null {
+function countNonZeroSamples(
+  layer: VizLayerEntryV1
+): { nonZeroCount: number; sampleCount: number } | null {
   if (layer.kind !== "grid") return null;
   if (layer.field.data.kind !== "inline") return null;
   const values = asNumberArray(layer.field.data.buffer, layer.field.format);
@@ -551,7 +573,9 @@ function hasRequiredRefs(
   requiredDataTypeKeys: readonly string[]
 ): boolean {
   if (requiredDataTypeKeys.length === 0) return false;
-  return requiredDataTypeKeys.every((dataTypeKey) => (layersByDataTypeKey.get(dataTypeKey)?.length ?? 0) > 0);
+  return requiredDataTypeKeys.every(
+    (dataTypeKey) => (layersByDataTypeKey.get(dataTypeKey)?.length ?? 0) > 0
+  );
 }
 
 function countByVisibility(refs: readonly RiverLakeInspectorLayerRef[]): Record<string, number> {
@@ -598,8 +622,8 @@ export function buildRiverLakeFloodplainInspectorSummary(
       const layerRefs = collectRefs(layersByDataTypeKey, spec.dataTypeKeys);
       const hasEvidence = hasRequiredRefs(layersByDataTypeKey, spec.requiredDataTypeKeys);
       const claimStatus: RiverLakeInspectorClaimStatus = hasEvidence
-        ? spec.presentClaimStatus ?? "available"
-        : spec.missingClaimStatus ?? "unresolved";
+        ? (spec.presentClaimStatus ?? "available")
+        : (spec.missingClaimStatus ?? "unresolved");
       return {
         rowKey: spec.rowKey,
         lane: spec.lane,

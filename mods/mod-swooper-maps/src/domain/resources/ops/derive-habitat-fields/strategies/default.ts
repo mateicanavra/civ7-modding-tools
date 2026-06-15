@@ -25,7 +25,10 @@ type Grids = {
 
 function percentileOf(sortedValues: readonly number[], q: number): number {
   if (sortedValues.length === 0) return 0;
-  const pos = Math.min(sortedValues.length - 1, Math.max(0, Math.round(q * (sortedValues.length - 1))));
+  const pos = Math.min(
+    sortedValues.length - 1,
+    Math.max(0, Math.round(q * (sortedValues.length - 1)))
+  );
   return sortedValues[pos]!;
 }
 
@@ -223,7 +226,9 @@ export const defaultStrategy = createStrategy(DeriveHabitatFieldsContract, "defa
       }
       return false;
     };
-    const warmAlluvialMask = landMaskOf((i) => T(i) >= 16 && (riverClass[i] ?? 0) >= 1 && F(i) >= 0.45);
+    const warmAlluvialMask = landMaskOf(
+      (i) => T(i) >= 16 && (riverClass[i] ?? 0) >= 1 && F(i) >= 0.45
+    );
     const floodplainOrRiverMask = landMaskOf((i) => (riverClass[i] ?? 0) >= 1);
     const warmGrassPlainsMask = landMaskOf((i) => T(i) >= 14 && V(i) <= 0.55 && A(i) <= 0.85);
     const oasisOrDesertWaterMask = landMaskOf(
@@ -240,7 +245,9 @@ export const defaultStrategy = createStrategy(DeriveHabitatFieldsContract, "defa
       (i) => savannaWateringHoleMask[i] === 1 || tropicalForestEdgeMask[i] === 1
     );
     const tropicalFruitMask = landMaskOf((i) => T(i) >= 21 && A(i) <= 0.8);
-    const wetlandPaddyMask = landMaskOf((i) => T(i) >= 16 && ((riverClass[i] ?? 0) >= 1 || moistN(i) >= 0.7));
+    const wetlandPaddyMask = landMaskOf(
+      (i) => T(i) >= 16 && ((riverClass[i] ?? 0) >= 1 || moistN(i) >= 0.7)
+    );
     const coolTemperatePlainsMask = landMaskOf(
       (i) => T(i) >= 3 && T(i) <= 14 && V(i) <= 0.6 && A(i) <= 0.85
     );
@@ -257,13 +264,19 @@ export const defaultStrategy = createStrategy(DeriveHabitatFieldsContract, "defa
     const tundraDesertHillMask = landMaskOf((i) => relief(i) && (T(i) <= 0 || A(i) >= 0.85));
     const evaporiteBasinMask = landMaskOf((i) => A(i) >= 0.85 && flat(i));
     const sedimentaryBasinMask = landMaskOf((i) => flat(i) && (elevation[i] ?? 0) <= elevP60);
-    const ultramaficMask = landMaskOf((i) => (rift ? (rift[i] ?? 0) >= riftP85 && riftP85 > 0 : false));
+    const ultramaficMask = landMaskOf((i) =>
+      rift ? (rift[i] ?? 0) >= riftP85 && riftP85 > 0 : false
+    );
     const weatheringClayFlatMask = landMaskOf((i) => A(i) <= 0.7 && flat(i) && T(i) >= 12);
     const carbonateBeltMask = landMaskOf(
       (i) => relief(i) && A(i) <= 0.9 && (stress ? (stress[i] ?? 0) <= stressP60 : true)
     );
-    const cratonMask = landMaskOf((i) => flat(i) && (stress ? (stress[i] ?? 0) <= stressP30 : true));
-    const closedBasinMask = landMaskOf((i) => A(i) >= 0.85 && (riverClass[i] ?? 0) === 0 && flat(i));
+    const cratonMask = landMaskOf(
+      (i) => flat(i) && (stress ? (stress[i] ?? 0) <= stressP30 : true)
+    );
+    const closedBasinMask = landMaskOf(
+      (i) => A(i) >= 0.85 && (riverClass[i] ?? 0) === 0 && flat(i)
+    );
     const aridSoilMask = landMaskOf((i) => A(i) >= 0.8);
     const forestWetlandBasinMask = landMaskOf((i) => (V(i) >= 0.5 || moistN(i) >= 0.65) && flat(i));
     const wetAlluvialMask = landMaskOf((i) => (riverClass[i] ?? 0) >= 1 || moistN(i) >= 0.7);
@@ -279,7 +292,9 @@ export const defaultStrategy = createStrategy(DeriveHabitatFieldsContract, "defa
     const wetSuppressionMask = landMaskOf((i) => moistN(i) >= 0.85);
     const humidSuppressionMask = landMaskOf((i) => A(i) <= 0.3);
     const offshoreMask = mask((i) => grids.water(i));
-    const igneousTerrainMask = landMaskOf((i) => (rift ? (rift[i] ?? 0) >= riftP90 && riftP90 > 0 : false));
+    const igneousTerrainMask = landMaskOf((i) =>
+      rift ? (rift[i] ?? 0) >= riftP90 && riftP90 > 0 : false
+    );
 
     // --- intensities ---------------------------------------------------------------------------
     const aquaticIntensity = new Float32Array(size);

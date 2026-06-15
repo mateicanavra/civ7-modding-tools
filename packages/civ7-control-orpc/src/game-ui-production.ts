@@ -1,10 +1,7 @@
 import type { Civ7ControlOrpcProductionChoiceResult } from "./dependencies/direct-control";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 
-type RuntimeProbe<T> = Readonly<
-  | { ok: true; value: T }
-  | { ok: false; error: string }
->;
+type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 type ProductionPostcondition = NonNullable<
   Civ7ControlOrpcProductionChoiceResult["productionPostcondition"]
 >;
@@ -26,19 +23,19 @@ export type Civ7GameUiProductionTarget = Readonly<{
         cityId: Civ7ControlOrpcComponentId,
         operationType: unknown,
         args: Readonly<Record<string, number>>,
-        queue?: boolean,
+        queue?: boolean
       ) => unknown;
       sendRequest?: (
         cityId: Civ7ControlOrpcComponentId,
         operationType: unknown,
-        args: Readonly<Record<string, number>>,
+        args: Readonly<Record<string, number>>
       ) => unknown;
     };
     Notifications?: {
       getEndTurnBlockingType?: (playerId: number) => unknown;
       findEndTurnBlocking?: (
         playerId: number,
-        blockerType: unknown,
+        blockerType: unknown
       ) => Civ7ControlOrpcComponentId | null;
       find?: (id: Civ7ControlOrpcComponentId) => unknown;
     };
@@ -65,15 +62,15 @@ export type Civ7GameUiProductionTarget = Readonly<{
   canEndTurn?: () => unknown;
 }>;
 
-export function civ7GameUiProductionChoiceAvailable(
-  target: Civ7GameUiProductionTarget,
-): boolean {
-  return typeof target.Game?.CityOperations?.canStart === "function"
-    && typeof target.Game.CityOperations.sendRequest === "function"
-    && target.CityOperationTypes?.BUILD !== undefined
-    && typeof target.Game?.Notifications?.getEndTurnBlockingType === "function"
-    && typeof target.Game.Notifications.findEndTurnBlocking === "function"
-    && typeof target.Game.Notifications.find === "function";
+export function civ7GameUiProductionChoiceAvailable(target: Civ7GameUiProductionTarget): boolean {
+  return (
+    typeof target.Game?.CityOperations?.canStart === "function" &&
+    typeof target.Game.CityOperations.sendRequest === "function" &&
+    target.CityOperationTypes?.BUILD !== undefined &&
+    typeof target.Game?.Notifications?.getEndTurnBlockingType === "function" &&
+    typeof target.Game.Notifications.findEndTurnBlocking === "function" &&
+    typeof target.Game.Notifications.find === "function"
+  );
 }
 
 export async function requestCiv7GameUiProductionChoice(
@@ -81,7 +78,7 @@ export async function requestCiv7GameUiProductionChoice(
     cityId: Civ7ControlOrpcComponentId;
     args: Readonly<Record<string, number>>;
   }>,
-  target: Civ7GameUiProductionTarget = globalThis as Civ7GameUiProductionTarget,
+  target: Civ7GameUiProductionTarget = globalThis as Civ7GameUiProductionTarget
 ): Promise<Civ7ControlOrpcProductionChoiceResult> {
   const cityId = toComponentId(input.cityId);
   if (cityId == null) {
@@ -127,11 +124,7 @@ export async function requestCiv7GameUiProductionChoice(
 
   const sendArgs = productionSendArgs(cityId, before.result, args, target);
   const sendResult = probe(() =>
-    target.Game?.CityOperations?.sendRequest?.(
-      cityId,
-      target.CityOperationTypes?.BUILD,
-      sendArgs,
-    )
+    target.Game?.CityOperations?.sendRequest?.(cityId, target.CityOperationTypes?.BUILD, sendArgs)
   );
   const sent = sendResult.ok && sendResult.value !== false;
   if (sent) {
@@ -151,8 +144,9 @@ export async function requestCiv7GameUiProductionChoice(
     before,
     after,
     sent,
-    verified: productionPostcondition.classification === "production-choice-cleared"
-      || productionPostcondition.classification === "production-state-changed",
+    verified:
+      productionPostcondition.classification === "production-choice-cleared" ||
+      productionPostcondition.classification === "production-state-changed",
     productionPostcondition,
     payload: {
       cityId,
@@ -173,7 +167,7 @@ export async function requestCiv7GameUiProductionChoice(
 function gameUiProductionValidation(
   cityId: Civ7ControlOrpcComponentId,
   args: Readonly<Record<string, number>>,
-  target: Civ7GameUiProductionTarget,
+  target: Civ7GameUiProductionTarget
 ): Civ7ControlOrpcProductionChoiceResult["before"] {
   const result = safeValue(
     () =>
@@ -181,9 +175,9 @@ function gameUiProductionValidation(
         cityId,
         target.CityOperationTypes?.BUILD,
         args,
-        false,
+        false
       ),
-    null,
+    null
   );
   return {
     host: "game-ui",
@@ -201,21 +195,18 @@ function gameUiProductionValidation(
 
 function gameUiProductionSnapshot(
   cityId: Civ7ControlOrpcComponentId,
-  target: Civ7GameUiProductionTarget,
+  target: Civ7GameUiProductionTarget
 ): ProductionSnapshot {
   const localPlayerId = target.GameContext?.localPlayerID ?? -1;
-  const blocker = probe(() =>
-    target.Game?.Notifications?.getEndTurnBlockingType?.(localPlayerId) ?? null
+  const blocker = probe(
+    () => target.Game?.Notifications?.getEndTurnBlockingType?.(localPlayerId) ?? null
   );
   const blockingNotification = probe(() => {
     const blockerValue = blocker.ok ? blocker.value : null;
-    const notificationId = target.Game?.Notifications?.findEndTurnBlocking?.(
-      localPlayerId,
-      blockerValue,
-    ) ?? null;
-    const notification = notificationId == null
-      ? null
-      : target.Game?.Notifications?.find?.(notificationId) ?? null;
+    const notificationId =
+      target.Game?.Notifications?.findEndTurnBlocking?.(localPlayerId, blockerValue) ?? null;
+    const notification =
+      notificationId == null ? null : (target.Game?.Notifications?.find?.(notificationId) ?? null);
     return {
       notificationId,
       matchesCity: notificationMatchesCity(notification, cityId),
@@ -226,9 +217,7 @@ function gameUiProductionSnapshot(
     cityId,
     city: probe(() => target.Cities?.get?.(cityId) ?? null),
     buildQueue: probe(() => cityBuildQueue(target.Cities?.get?.(cityId))),
-    selectedCityId: probe(() =>
-      toComponentId(target.UI?.Player?.getHeadSelectedCity?.())
-    ),
+    selectedCityId: probe(() => toComponentId(target.UI?.Player?.getHeadSelectedCity?.())),
     blocker,
     canEndTurn: probe(() => target.canEndTurn?.() ?? false),
     blockingProductionNotification: blockingNotification,
@@ -242,16 +231,10 @@ function gameUiProductionPostcondition(
     after: Civ7ControlOrpcProductionChoiceResult["after"];
     beforeSnapshot: ProductionSnapshot;
     afterSnapshot: ProductionSnapshot;
-  }>,
+  }>
 ): ProductionPostcondition {
-  const productionStateChanged = snapshotChanged(
-    input.beforeSnapshot,
-    input.afterSnapshot,
-  );
-  const blockerStillLive = !productionBlockerCleared(
-    input.beforeSnapshot,
-    input.afterSnapshot,
-  );
+  const productionStateChanged = snapshotChanged(input.beforeSnapshot, input.afterSnapshot);
+  const blockerStillLive = !productionBlockerCleared(input.beforeSnapshot, input.afterSnapshot);
   const classification = classifyProductionPostcondition({
     sent: input.sent,
     before: input.before,
@@ -272,25 +255,25 @@ function gameUiProductionPostcondition(
 }
 
 function normalizeProductionArgs(
-  input: Readonly<Record<string, number>>,
+  input: Readonly<Record<string, number>>
 ): Readonly<Record<string, number>> {
-  const selected = ["UnitType", "ConstructibleType", "ProjectType"].filter(
-    (key) => Number.isInteger(input[key]),
+  const selected = ["UnitType", "ConstructibleType", "ProjectType"].filter((key) =>
+    Number.isInteger(input[key])
   );
   if (selected.length !== 1) {
     throw new Error(
-      "Production choice requires exactly one UnitType, ConstructibleType, or ProjectType.",
+      "Production choice requires exactly one UnitType, ConstructibleType, or ProjectType."
     );
   }
   if (
-    (input.X !== undefined || input.Y !== undefined)
-    && (!Number.isInteger(input.X) || !Number.isInteger(input.Y))
+    (input.X !== undefined || input.Y !== undefined) &&
+    (!Number.isInteger(input.X) || !Number.isInteger(input.Y))
   ) {
     throw new Error("Production placement coordinates require integer X and Y.");
   }
   if ((input.X !== undefined || input.Y !== undefined) && selected[0] !== "ConstructibleType") {
     throw new Error(
-      "Production placement coordinates are only valid for ConstructibleType choices.",
+      "Production placement coordinates are only valid for ConstructibleType choices."
     );
   }
   return { ...input };
@@ -300,16 +283,16 @@ function productionSendArgs(
   cityId: Civ7ControlOrpcComponentId,
   canStartResult: unknown,
   args: Readonly<Record<string, number>>,
-  target: Civ7GameUiProductionTarget,
+  target: Civ7GameUiProductionTarget
 ): Readonly<Record<string, number>> {
   const out: Record<string, number> = { ...args };
   if (
-    canStartResult != null
-    && typeof canStartResult === "object"
-    && Boolean((canStartResult as Record<string, unknown>).InProgress)
-    && Array.isArray((canStartResult as Record<string, unknown>).Plots)
-    && out.X == null
-    && out.Y == null
+    canStartResult != null &&
+    typeof canStartResult === "object" &&
+    Boolean((canStartResult as Record<string, unknown>).InProgress) &&
+    Array.isArray((canStartResult as Record<string, unknown>).Plots) &&
+    out.X == null &&
+    out.Y == null
   ) {
     const plot = ((canStartResult as Record<string, unknown>).Plots as unknown[])[0];
     if (typeof plot === "number") {
@@ -325,9 +308,9 @@ function productionSendArgs(
 
   const city = target.Cities?.get?.(cityId) as Record<string, unknown> | null;
   if (
-    Number.isInteger(out.ProjectType)
-    && city?.isTown === true
-    && target.CityOperationsParametersValues?.Exclusive !== undefined
+    Number.isInteger(out.ProjectType) &&
+    city?.isTown === true &&
+    target.CityOperationsParametersValues?.Exclusive !== undefined
   ) {
     out.InsertMode = target.CityOperationsParametersValues.Exclusive;
   }
@@ -339,15 +322,15 @@ function closeGameUiProductionSurface(target: Civ7GameUiProductionTarget): void 
   target.InterfaceMode?.switchToDefault?.();
 }
 
-function classifyProductionPostcondition(input: Readonly<{
-  sent: boolean;
-  before: Civ7ControlOrpcProductionChoiceResult["before"];
-  after: Civ7ControlOrpcProductionChoiceResult["after"];
-  productionStateChanged: boolean;
-  blockerStillLive: boolean;
-}>): NonNullable<
-  Civ7ControlOrpcProductionChoiceResult["productionPostcondition"]
->["classification"] {
+function classifyProductionPostcondition(
+  input: Readonly<{
+    sent: boolean;
+    before: Civ7ControlOrpcProductionChoiceResult["before"];
+    after: Civ7ControlOrpcProductionChoiceResult["after"];
+    productionStateChanged: boolean;
+    blockerStillLive: boolean;
+  }>
+): NonNullable<Civ7ControlOrpcProductionChoiceResult["productionPostcondition"]>["classification"] {
   if (!input.sent) return "not-sent";
   if (input.productionStateChanged && input.blockerStillLive) {
     return "production-state-changed-blocker-still-live";
@@ -355,8 +338,8 @@ function classifyProductionPostcondition(input: Readonly<{
   if (!input.blockerStillLive) return "production-choice-cleared";
   if (input.productionStateChanged) return "production-state-changed";
   if (
-    input.before.valid !== input.after.valid
-    || stableJson(input.before.result) !== stableJson(input.after.result)
+    input.before.valid !== input.after.valid ||
+    stableJson(input.before.result) !== stableJson(input.after.result)
   ) {
     return "validation-changed";
   }
@@ -366,7 +349,7 @@ function classifyProductionPostcondition(input: Readonly<{
 function productionPostconditionReason(
   classification: NonNullable<
     Civ7ControlOrpcProductionChoiceResult["productionPostcondition"]
-  >["classification"],
+  >["classification"]
 ): string {
   switch (classification) {
     case "not-sent":
@@ -396,18 +379,14 @@ function successFromCanStart(result: unknown): boolean {
   return Boolean(result);
 }
 
-function snapshotChanged(
-  before: ProductionSnapshot,
-  after: ProductionSnapshot,
-): boolean {
-  return stableJson(probeValue(before?.city)) !== stableJson(probeValue(after?.city))
-    || stableJson(probeValue(before?.buildQueue)) !== stableJson(probeValue(after?.buildQueue));
+function snapshotChanged(before: ProductionSnapshot, after: ProductionSnapshot): boolean {
+  return (
+    stableJson(probeValue(before?.city)) !== stableJson(probeValue(after?.city)) ||
+    stableJson(probeValue(before?.buildQueue)) !== stableJson(probeValue(after?.buildQueue))
+  );
 }
 
-function productionBlockerCleared(
-  before: ProductionSnapshot,
-  after: ProductionSnapshot,
-): boolean {
+function productionBlockerCleared(before: ProductionSnapshot, after: ProductionSnapshot): boolean {
   const beforeValue = probeValue(before.blockingProductionNotification);
   const afterValue = probeValue(after.blockingProductionNotification);
   if (!blockingNotificationMatchesCity(beforeValue)) return false;
@@ -424,14 +403,15 @@ function blockingNotificationMatchesCity(value: unknown): boolean {
 
 function notificationMatchesCity(
   notification: unknown,
-  cityId: Civ7ControlOrpcComponentId,
+  cityId: Civ7ControlOrpcComponentId
 ): boolean {
   if (notification == null || typeof notification !== "object") return false;
   const record = notification as Record<string, unknown>;
   for (const key of ["Target", "target", "City", "city", "CityID", "cityId"]) {
-    const value = typeof record[key] === "function"
-      ? (record[key] as () => unknown).call(notification)
-      : record[key];
+    const value =
+      typeof record[key] === "function"
+        ? (record[key] as () => unknown).call(notification)
+        : record[key];
     if (componentIdEqual(toComponentId(value), cityId)) return true;
   }
   return false;
@@ -456,11 +436,13 @@ function toComponentId(value: unknown): Civ7ControlOrpcComponentId | null {
 
 function componentIdEqual(
   left: Civ7ControlOrpcComponentId | null,
-  right: Civ7ControlOrpcComponentId,
+  right: Civ7ControlOrpcComponentId
 ): boolean {
-  return left?.owner === right.owner
-    && left.id === right.id
-    && (left.type ?? null) === (right.type ?? null);
+  return (
+    left?.owner === right.owner &&
+    left.id === right.id &&
+    (left.type ?? null) === (right.type ?? null)
+  );
 }
 
 function safeValue<T>(fn: () => T | undefined, fallback: T): T {
@@ -487,7 +469,8 @@ function stableJson(value: unknown): string {
   if (value == null || typeof value !== "object") return JSON.stringify(value);
   if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
   const record = value as Record<string, unknown>;
-  return `{${Object.keys(record).sort().map((key) =>
-    `${JSON.stringify(key)}:${stableJson(record[key])}`
-  ).join(",")}}`;
+  return `{${Object.keys(record)
+    .sort()
+    .map((key) => `${JSON.stringify(key)}:${stableJson(record[key])}`)
+    .join(",")}}`;
 }

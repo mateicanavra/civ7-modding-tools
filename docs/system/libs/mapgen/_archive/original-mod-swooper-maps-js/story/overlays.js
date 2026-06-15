@@ -69,8 +69,7 @@ export function finalizeStoryOverlay(key, overlay) {
 export function getStoryOverlay(ctx, key) {
   if (ctx && ctx.overlays && typeof ctx.overlays.get === "function") {
     const local = ctx.overlays.get(key);
-    if (local)
-      return local;
+    if (local) return local;
   }
   return overlayRegistry.get(key) || null;
 }
@@ -84,8 +83,7 @@ export function getStoryOverlay(ctx, key) {
  * @returns {typeof storyTags}
  */
 export function hydrateMarginsStoryTags(overlay, storyTags, options = {}) {
-  if (!overlay || !storyTags || typeof storyTags !== "object")
-    return storyTags;
+  if (!overlay || !storyTags || typeof storyTags !== "object") return storyTags;
   const active = Array.isArray(overlay.active) ? overlay.active : [];
   const passive = Array.isArray(overlay.passive) ? overlay.passive : [];
   const clear = options.clear !== false;
@@ -96,12 +94,10 @@ export function hydrateMarginsStoryTags(overlay, storyTags, options = {}) {
     passiveSet?.clear?.();
   }
   if (activeSet && typeof activeSet.add === "function") {
-    for (const key of active)
-      activeSet.add(key);
+    for (const key of active) activeSet.add(key);
   }
   if (passiveSet && typeof passiveSet.add === "function") {
-    for (const key of passive)
-      passiveSet.add(key);
+    for (const key of passive) passiveSet.add(key);
   }
   return storyTags;
 }
@@ -135,15 +131,12 @@ function normalizeOverlay(key, overlay) {
 }
 
 function freezeKeyArray(values) {
-  if (!Array.isArray(values))
-    return Object.freeze([]);
+  if (!Array.isArray(values)) return Object.freeze([]);
   const deduped = [];
   const seen = new Set();
   for (const value of values) {
-    if (typeof value !== "string")
-      continue;
-    if (seen.has(value))
-      continue;
+    if (typeof value !== "string") continue;
+    if (seen.has(value)) continue;
     seen.add(value);
     deduped.push(value);
   }
@@ -151,8 +144,7 @@ function freezeKeyArray(values) {
 }
 
 function freezeSummary(summary) {
-  if (!summary || typeof summary !== "object")
-    return Object.freeze({});
+  if (!summary || typeof summary !== "object") return Object.freeze({});
   return Object.freeze({ ...summary });
 }
 

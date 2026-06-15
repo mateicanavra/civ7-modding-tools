@@ -1,12 +1,12 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../../map-artifacts.js";
+import { PLACEMENT_VIZ_GROUP, transparentNoneCategory } from "../../viz.js";
+import PlotLandmassRegionsStepContract from "./contract.js";
 import {
   validateLandmassRegionSlotByTileArtifact,
   validateProjectionMetaArtifact,
 } from "./validate.js";
-import PlotLandmassRegionsStepContract from "./contract.js";
-import { PLACEMENT_VIZ_GROUP, transparentNoneCategory } from "../../viz.js";
 
 type RegionSlot = 0 | 1 | 2;
 
@@ -34,7 +34,9 @@ function resolveSlotByTile(input: {
     throw new Error(`Expected landMask length ${size} (received ${landMask.length}).`);
   }
   if (landmassIdByTile.length !== size) {
-    throw new Error(`Expected landmassIdByTile length ${size} (received ${landmassIdByTile.length}).`);
+    throw new Error(
+      `Expected landmassIdByTile length ${size} (received ${landmassIdByTile.length}).`
+    );
   }
 
   const slotByLandmass = new Uint8Array(landmasses.length);
@@ -62,10 +64,7 @@ function resolveSlotByTile(input: {
 
 export default createStep(PlotLandmassRegionsStepContract, {
   artifacts: implementArtifacts(
-    [
-      mapArtifacts.projectionMeta,
-      mapArtifacts.landmassRegionSlotByTile,
-    ],
+    [mapArtifacts.projectionMeta, mapArtifacts.landmassRegionSlotByTile],
     {
       projectionMeta: {
         validate: (value) => validateProjectionMetaArtifact(value),

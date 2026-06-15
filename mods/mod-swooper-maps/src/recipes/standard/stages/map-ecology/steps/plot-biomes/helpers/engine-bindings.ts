@@ -34,7 +34,9 @@ export function resolveEngineBiomeIds(
     const key = bindings[symbol] ?? DEFAULT_ENGINE_BINDINGS[symbol];
     const resolvedId = adapter.getBiomeGlobal(key);
     if (typeof resolvedId !== "number" || Number.isNaN(resolvedId)) {
-      throw new Error(`resolveEngineBiomeIds: missing biome global "${key}" for symbol "${symbol}"`);
+      throw new Error(
+        `resolveEngineBiomeIds: missing biome global "${key}" for symbol "${symbol}"`
+      );
     }
     resolved[symbol] = resolvedId;
   }

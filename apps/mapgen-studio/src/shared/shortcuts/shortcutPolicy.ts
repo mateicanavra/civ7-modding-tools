@@ -8,4 +8,3 @@ export function shouldIgnoreGlobalShortcutsInEditableTarget(args: {
   const isMod = args.metaKey || args.ctrlKey;
   return !isMod && !args.altKey;
 }
-

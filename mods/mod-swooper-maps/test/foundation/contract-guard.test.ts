@@ -10,6 +10,7 @@ import {
   FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
   FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
 } from "@swooper/mapgen-core";
+import * as ts from "typescript";
 import foundation from "../../src/domain/foundation/index.js";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
@@ -31,10 +32,25 @@ function listFilesRecursive(rootDir: string): string[] {
   return out;
 }
 
+function listImportSources(text: string, fileName: string): string[] {
+  const sourceFile = ts.createSourceFile(fileName, text, ts.ScriptTarget.Latest, false);
+
+  return sourceFile.statements.flatMap((statement) => {
+    if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {
+      return [statement.moduleSpecifier.text];
+    }
+
+    return [];
+  });
+}
+
 describe("foundation contract guardrails", () => {
   it("requires volcanism in foundation plates schema", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
-    const artifactsFile = path.join(repoRoot, "src/recipes/standard/stages/foundation/artifacts.ts");
+    const artifactsFile = path.join(
+      repoRoot,
+      "src/recipes/standard/stages/foundation/artifacts.ts"
+    );
     const text = readFileSync(artifactsFile, "utf8");
     expect(text).toContain("volcanism");
   });
@@ -58,7 +74,9 @@ describe("foundation contract guardrails", () => {
   it("does not import domain config bags from the foundation step contract", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const stepsDir = path.join(repoRoot, "src/recipes/standard/stages/foundation/steps");
-    const contractFiles = listFilesRecursive(stepsDir).filter((file) => file.endsWith("contract.ts"));
+    const contractFiles = listFilesRecursive(stepsDir).filter((file) =>
+      file.endsWith("contract.ts")
+    );
 
     expect(contractFiles.length).toBeGreaterThan(0);
 
@@ -210,11 +228,7 @@ describe("foundation contract guardrails", () => {
       const text = readFileSync(path.join(repoRoot, relativeFile), "utf8");
       expect(text).not.toContain("domain/foundation/lib/tectonics/");
       expect(text).not.toContain("lib/tectonics/");
-      const importSources = text
-        .split(/\r?\n/)
-        .map((line) => line.match(/^\s*import(?:\s+type)?\s+.*\sfrom\s+["']([^"']+)["'];?/))
-        .filter((match): match is RegExpMatchArray => Boolean(match))
-        .map((match) => match[1]);
+      const importSources = listImportSources(text, relativeFile);
 
       expect(importSources.length).toBeGreaterThan(0);
       expect(importSources.some((source) => source.startsWith("../rules/"))).toBe(true);
@@ -253,14 +267,22 @@ describe("foundation contract guardrails", () => {
     expect(foundationArtifacts.mantlePotential.id).toBe(FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG);
     expect(foundationArtifacts.mantleForcing.id).toBe(FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG);
     expect(foundationArtifacts.plateMotion.id).toBe(FOUNDATION_PLATE_MOTION_ARTIFACT_TAG);
-    expect(foundationArtifacts.tectonicProvenance.id).toBe(FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG);
-    expect(mapArtifacts.foundationTectonicHistoryTiles.id).toBe(FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG);
-    expect(mapArtifacts.foundationTectonicProvenanceTiles.id).toBe(FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG);
+    expect(foundationArtifacts.tectonicProvenance.id).toBe(
+      FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG
+    );
+    expect(mapArtifacts.foundationTectonicHistoryTiles.id).toBe(
+      FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG
+    );
+    expect(mapArtifacts.foundationTectonicProvenanceTiles.id).toBe(
+      FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG
+    );
   });
 
   it("requires tectonic provenance before projection", () => {
     const requires = ProjectionStepContract.artifacts?.requires ?? [];
-    const requiredIds = requires.map((artifact: any) => (typeof artifact === "string" ? artifact : artifact.id));
+    const requiredIds = requires.map((artifact: any) =>
+      typeof artifact === "string" ? artifact : artifact.id
+    );
     expect(requiredIds).toContain(foundationArtifacts.tectonicProvenance.id);
   });
 
@@ -279,7 +301,9 @@ describe("foundation contract guardrails", () => {
     expect(projectionContractText).toContain("foundationArtifacts.plateMotion");
 
     const projectionStepText = readFileSync(projectionStepFile, "utf8");
-    expect(projectionStepText).toContain("const plateMotion = deps.artifacts.foundationPlateMotion.read(context);");
+    expect(projectionStepText).toContain(
+      "const plateMotion = deps.artifacts.foundationPlateMotion.read(context);"
+    );
     expect(projectionStepText).toContain("plateMotion,");
     expect(projectionStepText).toContain("platesResult.plates.movementU");
     expect(projectionStepText).toContain("platesResult.plates.movementV");

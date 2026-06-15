@@ -9,62 +9,63 @@
  * Additive only: this barrel introduces the primitives; existing call sites
  * are migrated in a later slice.
  */
-export { Button, buttonVariants, type ButtonProps } from "./button";
-export { Input } from "./input";
-export { Textarea } from "./textarea";
-export { Label } from "./label";
-export {
-  Select,
-  SelectGroup,
-  SelectValue,
-  SelectTrigger,
-  SelectContent,
-  SelectLabel,
-  SelectItem,
-  SelectSeparator,
-  SelectScrollUpButton,
-  SelectScrollDownButton,
-} from "./select";
-export { Switch } from "./switch";
+
+export { toast } from "sonner";
+export { Button, type ButtonProps, buttonVariants } from "./button";
 export { Checkbox } from "./checkbox";
 export {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-} from "./tooltip";
-export {
   Dialog,
-  DialogPortal,
-  DialogOverlay,
-  DialogTrigger,
   DialogClose,
   DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
   DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
 } from "./dialog";
 export {
   DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuCheckboxItem,
-  DropdownMenuRadioItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuGroup,
-  DropdownMenuPortal,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuRadioGroup,
+  DropdownMenuTrigger,
 } from "./dropdown-menu";
-export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from "./popover";
-export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
-export { Separator } from "./separator";
+export { Input } from "./input";
+export { Label } from "./label";
+export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "./popover";
 export { ScrollArea, ScrollBar } from "./scroll-area";
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "./select";
+export { Separator } from "./separator";
 export { Toaster } from "./sonner";
-export { toast } from "sonner";
+export { Switch } from "./switch";
+export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
+export { Textarea } from "./textarea";
+export {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./tooltip";

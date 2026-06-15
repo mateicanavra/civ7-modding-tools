@@ -1,10 +1,16 @@
-import { TypedArraySchemas, Type } from "@swooper/mapgen-core/authoring";
 import type { Static } from "@swooper/mapgen-core/authoring";
+import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const EraFieldsSchema = Type.Object(
   {
-    boundaryType: TypedArraySchemas.u8({ shape: null, description: "Boundary regime per mesh cell (BOUNDARY_TYPE values)." }),
-    upliftPotential: TypedArraySchemas.u8({ shape: null, description: "Uplift potential per mesh cell (0..255)." }),
+    boundaryType: TypedArraySchemas.u8({
+      shape: null,
+      description: "Boundary regime per mesh cell (BOUNDARY_TYPE values).",
+    }),
+    upliftPotential: TypedArraySchemas.u8({
+      shape: null,
+      description: "Uplift potential per mesh cell (0..255).",
+    }),
     collisionPotential: TypedArraySchemas.u8({
       shape: null,
       description: "Collision-driven uplift potential per mesh cell (0..255).",
@@ -13,10 +19,22 @@ const EraFieldsSchema = Type.Object(
       shape: null,
       description: "Subduction-driven uplift potential per mesh cell (0..255).",
     }),
-    riftPotential: TypedArraySchemas.u8({ shape: null, description: "Rift potential per mesh cell (0..255)." }),
-    shearStress: TypedArraySchemas.u8({ shape: null, description: "Shear stress per mesh cell (0..255)." }),
-    volcanism: TypedArraySchemas.u8({ shape: null, description: "Volcanism potential per mesh cell (0..255)." }),
-    fracture: TypedArraySchemas.u8({ shape: null, description: "Fracture potential per mesh cell (0..255)." }),
+    riftPotential: TypedArraySchemas.u8({
+      shape: null,
+      description: "Rift potential per mesh cell (0..255).",
+    }),
+    shearStress: TypedArraySchemas.u8({
+      shape: null,
+      description: "Shear stress per mesh cell (0..255).",
+    }),
+    volcanism: TypedArraySchemas.u8({
+      shape: null,
+      description: "Volcanism potential per mesh cell (0..255).",
+    }),
+    fracture: TypedArraySchemas.u8({
+      shape: null,
+      description: "Fracture potential per mesh cell (0..255).",
+    }),
   },
   { additionalProperties: false }
 );
@@ -24,17 +42,37 @@ const EraFieldsSchema = Type.Object(
 export const FoundationTectonicHistorySchema = Type.Object(
   {
     eraCount: Type.Integer({ minimum: 5, maximum: 8 }),
-    eras: Type.Immutable(Type.Array(EraFieldsSchema, { description: "Era fields (oldest→newest)." })),
-    plateIdByEra: Type.Immutable(
-      Type.Array(TypedArraySchemas.i16({ shape: null, description: "Plate id per mesh cell for the era." }), {
-        description: "Era plate membership (oldest→newest).",
-      })
+    eras: Type.Immutable(
+      Type.Array(EraFieldsSchema, { description: "Era fields (oldest→newest)." })
     ),
-    upliftTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated uplift across eras (0..255)." }),
-    collisionTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated collision uplift across eras (0..255)." }),
-    subductionTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated subduction uplift across eras (0..255)." }),
-    fractureTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated fracture across eras (0..255)." }),
-    volcanismTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated volcanism across eras (0..255)." }),
+    plateIdByEra: Type.Immutable(
+      Type.Array(
+        TypedArraySchemas.i16({ shape: null, description: "Plate id per mesh cell for the era." }),
+        {
+          description: "Era plate membership (oldest→newest).",
+        }
+      )
+    ),
+    upliftTotal: TypedArraySchemas.u8({
+      shape: null,
+      description: "Accumulated uplift across eras (0..255).",
+    }),
+    collisionTotal: TypedArraySchemas.u8({
+      shape: null,
+      description: "Accumulated collision uplift across eras (0..255).",
+    }),
+    subductionTotal: TypedArraySchemas.u8({
+      shape: null,
+      description: "Accumulated subduction uplift across eras (0..255).",
+    }),
+    fractureTotal: TypedArraySchemas.u8({
+      shape: null,
+      description: "Accumulated fracture across eras (0..255).",
+    }),
+    volcanismTotal: TypedArraySchemas.u8({
+      shape: null,
+      description: "Accumulated volcanism across eras (0..255).",
+    }),
     upliftRecentFraction: TypedArraySchemas.u8({
       shape: null,
       description: "Fraction of total uplift contributed by newest era (0..255).",
@@ -49,11 +87,13 @@ export const FoundationTectonicHistorySchema = Type.Object(
     }),
     lastActiveEra: TypedArraySchemas.u8({
       shape: null,
-      description: "Most recent active era index per cell (0..eraCount-1), or 255 when never active.",
+      description:
+        "Most recent active era index per cell (0..eraCount-1), or 255 when never active.",
     }),
     lastCollisionEra: TypedArraySchemas.u8({
       shape: null,
-      description: "Most recent collision-active era index per cell (0..eraCount-1), or 255 when never collision-active.",
+      description:
+        "Most recent collision-active era index per cell (0..eraCount-1), or 255 when never collision-active.",
     }),
     lastSubductionEra: TypedArraySchemas.u8({
       shape: null,
@@ -68,13 +108,29 @@ export const FoundationTectonicsSchema = Type.Object(
   {
     boundaryType: TypedArraySchemas.u8({
       shape: null,
-      description: "Boundary type per mesh cell (BOUNDARY_TYPE values; 0 when non-boundary/unknown).",
+      description:
+        "Boundary type per mesh cell (BOUNDARY_TYPE values; 0 when non-boundary/unknown).",
     }),
-    upliftPotential: TypedArraySchemas.u8({ shape: null, description: "Uplift potential per mesh cell (0..255)." }),
-    riftPotential: TypedArraySchemas.u8({ shape: null, description: "Rift potential per mesh cell (0..255)." }),
-    shearStress: TypedArraySchemas.u8({ shape: null, description: "Shear stress per mesh cell (0..255)." }),
-    volcanism: TypedArraySchemas.u8({ shape: null, description: "Volcanism per mesh cell (0..255)." }),
-    fracture: TypedArraySchemas.u8({ shape: null, description: "Fracture potential per mesh cell (0..255)." }),
+    upliftPotential: TypedArraySchemas.u8({
+      shape: null,
+      description: "Uplift potential per mesh cell (0..255).",
+    }),
+    riftPotential: TypedArraySchemas.u8({
+      shape: null,
+      description: "Rift potential per mesh cell (0..255).",
+    }),
+    shearStress: TypedArraySchemas.u8({
+      shape: null,
+      description: "Shear stress per mesh cell (0..255).",
+    }),
+    volcanism: TypedArraySchemas.u8({
+      shape: null,
+      description: "Volcanism per mesh cell (0..255).",
+    }),
+    fracture: TypedArraySchemas.u8({
+      shape: null,
+      description: "Fracture potential per mesh cell (0..255).",
+    }),
     cumulativeUplift: TypedArraySchemas.u8({
       shape: null,
       description: "Accumulated uplift per mesh cell (0..255).",
@@ -120,7 +176,11 @@ const FoundationTectonicProvenanceScalarsSchema = Type.Object(
 export const FoundationTectonicProvenanceSchema = Type.Object(
   {
     version: Type.Integer({ minimum: 1, description: "Schema major version." }),
-    eraCount: Type.Integer({ minimum: 5, maximum: 8, description: "Number of eras included in the provenance payload." }),
+    eraCount: Type.Integer({
+      minimum: 5,
+      maximum: 8,
+      description: "Number of eras included in the provenance payload.",
+    }),
     cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
     tracerIndex: Type.Immutable(
       Type.Array(
@@ -128,12 +188,17 @@ export const FoundationTectonicProvenanceSchema = Type.Object(
           shape: null,
           description: "Tracer source cell index per mesh cell (length = cellCount).",
         }),
-        { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
+        {
+          description: "Per-era tracer indices (length = eraCount; each entry length = cellCount).",
+        }
       )
     ),
     provenance: FoundationTectonicProvenanceScalarsSchema,
   },
-  { additionalProperties: false, description: "Foundation tectonic provenance payload (tracer history + scalars)." }
+  {
+    additionalProperties: false,
+    description: "Foundation tectonic provenance payload (tracer history + scalars).",
+  }
 );
 
 export type FoundationTectonicHistory = Static<typeof FoundationTectonicHistorySchema>;

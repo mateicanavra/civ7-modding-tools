@@ -1,7 +1,4 @@
-import {
-  CIV7_BROWSER_TABLES_V0,
-  isResourceAdjacentToLandRuntimeOptional,
-} from "@civ7/map-policy";
+import { CIV7_BROWSER_TABLES_V0, isResourceAdjacentToLandRuntimeOptional } from "@civ7/map-policy";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 
 /**

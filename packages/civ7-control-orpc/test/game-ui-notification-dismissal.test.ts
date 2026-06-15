@@ -1,17 +1,16 @@
-import { describe, expect, test } from "vitest";
-
-import {
-  requestCiv7GameUiNotificationDismissal,
-  type Civ7GameUiNotificationDismissalTarget,
-} from "../src/game-ui-notification-dismissal";
 import { notificationDismissalProofPostcondition } from "@civ7/direct-control";
+import { describe, expect, test } from "vitest";
+import {
+  type Civ7GameUiNotificationDismissalTarget,
+  requestCiv7GameUiNotificationDismissal,
+} from "../src/game-ui-notification-dismissal";
 
 describe("game UI notification dismissal runtime", () => {
   test("dismisses a notification through game UI globals with confirmed proof", async () => {
     const notificationId = { owner: 0, id: 113, type: 20 };
     const result = await requestCiv7GameUiNotificationDismissal(
       { notificationId },
-      gameUiNotificationTarget(notificationId),
+      gameUiNotificationTarget(notificationId)
     );
 
     expect(result).toMatchObject({
@@ -46,7 +45,7 @@ describe("game UI notification dismissal runtime", () => {
     const notificationId = { owner: 0, id: 113, type: 20 };
     const result = await requestCiv7GameUiNotificationDismissal(
       { notificationId },
-      gameUiNotificationTarget(notificationId, { exists: false }),
+      gameUiNotificationTarget(notificationId, { exists: false })
     );
 
     expect(result).toMatchObject({
@@ -70,7 +69,7 @@ describe("game UI notification dismissal runtime", () => {
 
 function gameUiNotificationTarget(
   notificationId: { owner: number; id: number; type: number },
-  options: { exists?: boolean } = {},
+  options: { exists?: boolean } = {}
 ): Civ7GameUiNotificationDismissalTarget {
   let exists = options.exists ?? true;
   const notification = {
@@ -89,15 +88,15 @@ function gameUiNotificationTarget(
     GameContext: { localPlayerID: 0 },
     Game: {
       Notifications: {
-        find: () => exists ? notification : null,
+        find: () => (exists ? notification : null),
         getType: () => notificationId.type,
         getTypeName: () => "NOTIFICATION_WONDER_COMPLETED",
         getSummary: () => "Wonder Completed",
         getMessage: () => "Wonder Completed",
         getBlocksTurnAdvancement: () => true,
         getEndTurnBlockingType: () => notificationId.type,
-        findEndTurnBlocking: () => exists ? notificationId : null,
-        getIdsForPlayer: () => exists ? [notificationId] : [],
+        findEndTurnBlocking: () => (exists ? notificationId : null),
+        getIdsForPlayer: () => (exists ? [notificationId] : []),
       },
     },
     NotificationModel: {
@@ -108,9 +107,7 @@ function gameUiNotificationTarget(
           return true;
         },
         findPlayer: () => ({
-          getTypesBy: () => exists
-            ? [{ notifications: [notificationId] }]
-            : [],
+          getTypesBy: () => (exists ? [{ notifications: [notificationId] }] : []),
         }),
       },
     },

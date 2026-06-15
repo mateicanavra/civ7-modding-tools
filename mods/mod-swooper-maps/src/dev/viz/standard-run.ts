@@ -1,14 +1,12 @@
+import { join } from "node:path";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
-import { createLabelRng } from "@swooper/mapgen-core";
-
 import { canonicalRecipeConfig } from "../../maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import { createTraceDumpSink, createVizDumper } from "./dump.js";
-import { join } from "node:path";
 
 function parseIntArg(value: string | undefined, fallback: number): number {
   if (!value) return fallback;
@@ -47,7 +45,9 @@ const envBase = {
 
 const config = canonicalRecipeConfig(swooperEarthlikeConfigRaw);
 const plan = standardRecipe.compile(envBase, config);
-const verboseSteps = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
+const verboseSteps = Object.fromEntries(
+  plan.nodes.map((node) => [node.stepId, "verbose"] as const)
+);
 
 const env = {
   ...envBase,

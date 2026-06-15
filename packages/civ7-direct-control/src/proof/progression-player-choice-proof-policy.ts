@@ -4,9 +4,7 @@ import type {
   Civ7ProgressionPlayerChoiceResult,
 } from "../play/progression/player-choice-request";
 
-export type Civ7ProgressionPlayerChoiceProofOutcome =
-  | "not-sent"
-  | "unknown";
+export type Civ7ProgressionPlayerChoiceProofOutcome = "not-sent" | "unknown";
 
 export type Civ7ProgressionPlayerChoiceProofPostcondition = Readonly<{
   classification: Civ7ProgressionPlayerChoicePostconditionClassification;
@@ -17,21 +15,22 @@ export type Civ7ProgressionPlayerChoiceProofPostcondition = Readonly<{
 }>;
 
 export function progressionPlayerChoiceProofPostcondition(
-  result: Civ7ProgressionPlayerChoiceResult,
+  result: Civ7ProgressionPlayerChoiceResult
 ): Civ7ProgressionPlayerChoiceProofPostcondition {
   return {
     classification: result.postcondition.classification,
     reason: result.postcondition.reason,
     outcome: progressionPlayerChoiceProofOutcome(result.postcondition),
-    confidence: result.postcondition.classification === "pending-runtime-proof"
-      ? "pending-runtime-proof"
-      : "unverified",
+    confidence:
+      result.postcondition.classification === "pending-runtime-proof"
+        ? "pending-runtime-proof"
+        : "unverified",
     noRepeatAfterUnverified: true,
   };
 }
 
 export function progressionPlayerChoiceProofOutcome(
-  postcondition: Civ7ProgressionPlayerChoicePostcondition,
+  postcondition: Civ7ProgressionPlayerChoicePostcondition
 ): Civ7ProgressionPlayerChoiceProofOutcome {
   return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
 }

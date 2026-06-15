@@ -21,7 +21,9 @@ export const defaultStrategy = createStrategy(ComputeLandWaterBudgetContract, "d
       !(input.surfaceTemperatureC instanceof Float32Array) ||
       input.surfaceTemperatureC.length !== size
     ) {
-      throw new Error("[Hydrology] Invalid surfaceTemperatureC for hydrology/compute-land-water-budget.");
+      throw new Error(
+        "[Hydrology] Invalid surfaceTemperatureC for hydrology/compute-land-water-budget."
+      );
     }
 
     const pet = new Float32Array(size);

@@ -1,11 +1,11 @@
 import type { Civ7ComponentId } from "../../civ7-component-id";
-import { sameComponentId } from "./component-id";
-import { probeValue } from "./probe-values";
 import type { Civ7DirectControlOptions } from "../../session/types";
 import type {
   Civ7PlayNotificationSummary,
   Civ7PlayNotificationViewResult,
 } from "../notifications/view";
+import { sameComponentId } from "./component-id";
+import { probeValue } from "./probe-values";
 
 export type Civ7FirstMeetResponsePostconditionClassification =
   | "not-sent"
@@ -24,7 +24,9 @@ export async function waitForCiv7FirstMeetResponseAfter(
   metPlayerId: number,
   options: Civ7DirectControlOptions,
   before: Civ7PlayNotificationViewResult,
-  readPlayNotifications: (options: Civ7DirectControlOptions) => Promise<Civ7PlayNotificationViewResult>,
+  readPlayNotifications: (
+    options: Civ7DirectControlOptions
+  ) => Promise<Civ7PlayNotificationViewResult>
 ): Promise<Civ7PlayNotificationViewResult> {
   const waitTimeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
   const pollIntervalMs = 250;
@@ -43,7 +45,7 @@ export function firstMeetResponsePostcondition(
   sent: boolean,
   before: Civ7PlayNotificationViewResult,
   after: Civ7PlayNotificationViewResult,
-  metPlayerId: number,
+  metPlayerId: number
 ): Civ7FirstMeetResponsePostcondition {
   const classification = classifyFirstMeetResponsePostcondition(sent, before, after, metPlayerId);
   return {
@@ -56,7 +58,7 @@ function classifyFirstMeetResponsePostcondition(
   sent: boolean,
   before: Civ7PlayNotificationViewResult,
   after: Civ7PlayNotificationViewResult,
-  metPlayerId: number,
+  metPlayerId: number
 ): Civ7FirstMeetResponsePostconditionClassification {
   if (!sent) return "not-sent";
   if (probeValue(after.canEndTurn) === true) return "turn-unblocked";
@@ -64,14 +66,16 @@ function classifyFirstMeetResponsePostcondition(
   if (!beforeBlocker) return "first-meet-blocker-unmatched";
   const afterBlocker = findFirstMeetNotification(after, metPlayerId);
   if (!afterBlocker) return "first-meet-cleared";
-  if (!sameComponentId(firstMeetNotificationId(beforeBlocker), firstMeetNotificationId(afterBlocker))) {
+  if (
+    !sameComponentId(firstMeetNotificationId(beforeBlocker), firstMeetNotificationId(afterBlocker))
+  ) {
     return "first-meet-blocker-transitioned";
   }
   return "first-meet-sticky-blocker";
 }
 
 function firstMeetResponsePostconditionReason(
-  classification: Civ7FirstMeetResponsePostconditionClassification,
+  classification: Civ7FirstMeetResponsePostconditionClassification
 ): string {
   switch (classification) {
     case "not-sent":
@@ -91,7 +95,7 @@ function firstMeetResponsePostconditionReason(
 
 function findFirstMeetNotification(
   view: Civ7PlayNotificationViewResult,
-  metPlayerId: number,
+  metPlayerId: number
 ): Civ7PlayNotificationSummary | undefined {
   return view.notifications.find((notification) => {
     const typeName = String(notification.typeName ?? "").toUpperCase();
@@ -101,7 +105,9 @@ function findFirstMeetNotification(
   });
 }
 
-function firstMeetNotificationId(notification: Civ7PlayNotificationSummary): Civ7ComponentId | undefined {
+function firstMeetNotificationId(
+  notification: Civ7PlayNotificationSummary
+): Civ7ComponentId | undefined {
   const id = notification.id;
   if (id && typeof id.owner === "number" && typeof id.id === "number") return id;
   return undefined;

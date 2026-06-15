@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 import { FeaturePlacementSchema } from "../../shared/placement-schema.js";
 
 const PlanVegetationContract = defineOp({
@@ -9,9 +9,15 @@ const PlanVegetationContract = defineOp({
     height: Type.Integer({ minimum: 1 }),
     seed: Type.Integer({ minimum: 0 }),
 
-    scoreForest01: TypedArraySchemas.f32({ description: "Forest suitability score per tile (0..1)." }),
-    scoreRainforest01: TypedArraySchemas.f32({ description: "Rainforest suitability score per tile (0..1)." }),
-    scoreTaiga01: TypedArraySchemas.f32({ description: "Taiga suitability score per tile (0..1)." }),
+    scoreForest01: TypedArraySchemas.f32({
+      description: "Forest suitability score per tile (0..1).",
+    }),
+    scoreRainforest01: TypedArraySchemas.f32({
+      description: "Rainforest suitability score per tile (0..1).",
+    }),
+    scoreTaiga01: TypedArraySchemas.f32({
+      description: "Taiga suitability score per tile (0..1).",
+    }),
     scoreSavannaWoodland01: TypedArraySchemas.f32({
       description: "Savanna woodland suitability score per tile (0..1).",
     }),

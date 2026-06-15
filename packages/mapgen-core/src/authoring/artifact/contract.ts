@@ -19,14 +19,13 @@ export type ArtifactContract<
 
 export type ArtifactValueOf<C extends ArtifactContract<any, any, any>> = Static<C["schema"]>;
 
-export type DeepReadonly<T> =
-  T extends (...args: any[]) => any
-    ? T
-    : T extends ReadonlyArray<infer U>
-      ? ReadonlyArray<DeepReadonly<U>>
-      : T extends object
-        ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-        : T;
+export type DeepReadonly<T> = T extends (...args: any[]) => any
+  ? T
+  : T extends ReadonlyArray<infer U>
+    ? ReadonlyArray<DeepReadonly<U>>
+    : T extends object
+      ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+      : T;
 
 export type ArtifactReadValueOf<C extends ArtifactContract<any, any, any>> = DeepReadonly<
   ArtifactValueOf<C>
@@ -62,11 +61,7 @@ export function defineArtifact<
   const Name extends string,
   const Id extends string,
   const Schema extends TSchema,
->(def: {
-  name: Name;
-  id: Id;
-  schema: Schema;
-}): ArtifactContract<Name, Id, Schema> {
+>(def: { name: Name; id: Id; schema: Schema }): ArtifactContract<Name, Id, Schema> {
   assertValidArtifactName(def.name);
   assertValidArtifactId(def.id);
   applySchemaConventions(def.schema, `artifact:${def.id}`);

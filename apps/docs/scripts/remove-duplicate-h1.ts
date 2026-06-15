@@ -1,8 +1,8 @@
-import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
-import { join, extname } from 'node:path';
+import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { extname, join } from "node:path";
 
-const OFFICIAL_DIR = join(process.cwd(), 'official');
-const COMMUNITY_DIR = join(process.cwd(), 'community');
+const OFFICIAL_DIR = join(process.cwd(), "official");
+const COMMUNITY_DIR = join(process.cwd(), "community");
 
 function walk(dir: string, acc: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
@@ -10,7 +10,7 @@ function walk(dir: string, acc: string[] = []): string[] {
     const st = statSync(full);
     if (st.isDirectory()) {
       walk(full, acc);
-    } else if (st.isFile() && (extname(full) === '.mdx' || extname(full) === '.md')) {
+    } else if (st.isFile() && (extname(full) === ".mdx" || extname(full) === ".md")) {
       acc.push(full);
     }
   }
@@ -18,11 +18,11 @@ function walk(dir: string, acc: string[] = []): string[] {
 }
 
 function extractTitleFromFrontmatter(text: string): { title?: string; fmEndIdx: number } {
-  if (!text.startsWith('---')) return { fmEndIdx: 0 };
-  const end = text.indexOf('\n---', 3);
+  if (!text.startsWith("---")) return { fmEndIdx: 0 };
+  const end = text.indexOf("\n---", 3);
   if (end === -1) return { fmEndIdx: 0 };
   const fmBlock = text.slice(3, end).trim();
-  const fmEndIdx = end + '\n---'.length;
+  const fmEndIdx = end + "\n---".length;
   // Try common title patterns
   const lines = fmBlock.split(/\r?\n/);
   for (const line of lines) {
@@ -37,7 +37,7 @@ function extractTitleFromFrontmatter(text: string): { title?: string; fmEndIdx: 
 }
 
 function removeDuplicateH1(filePath: string): boolean {
-  const original = readFileSync(filePath, 'utf8');
+  const original = readFileSync(filePath, "utf8");
   const { title, fmEndIdx } = extractTitleFromFrontmatter(original);
   if (!title || fmEndIdx === 0) return false;
 
@@ -45,12 +45,12 @@ function removeDuplicateH1(filePath: string): boolean {
   const afterFm = original.slice(fmEndIdx);
   const lines = afterFm.split(/\r?\n/);
   let idx = 0;
-  while (idx < lines.length && lines[idx].trim() === '') idx += 1;
+  while (idx < lines.length && lines[idx].trim() === "") idx += 1;
   if (idx >= lines.length) return false;
 
   const firstLine = lines[idx].trim();
-  if (!firstLine.startsWith('# ')) return false;
-  const headingText = firstLine.replace(/^#\s+/, '').trim();
+  if (!firstLine.startsWith("# ")) return false;
+  const headingText = firstLine.replace(/^#\s+/, "").trim();
   if (headingText !== title.trim()) return false;
 
   // Remove this heading line and a single trailing blank line if present
@@ -60,12 +60,12 @@ function removeDuplicateH1(filePath: string): boolean {
   // Remove heading
   restLines.splice(idx, 1);
   // Remove following blank line
-  if (idx < restLines.length && restLines[idx].trim() === '') {
+  if (idx < restLines.length && restLines[idx].trim() === "") {
     restLines.splice(idx, 1);
   }
-  const updated = pre + restLines.join('\n');
+  const updated = pre + restLines.join("\n");
   if (updated !== original) {
-    writeFileSync(filePath, updated, 'utf8');
+    writeFileSync(filePath, updated, "utf8");
     return true;
   }
   return false;
@@ -83,9 +83,9 @@ function main(): void {
     }
   }
   // eslint-disable-next-line no-console
-  console.log(`Removed duplicate H1 where matching title. Files processed: ${processed}. Files changed: ${changed}.`);
+  console.log(
+    `Removed duplicate H1 where matching title. Files processed: ${processed}. Files changed: ${changed}.`
+  );
 }
 
 main();
-
-

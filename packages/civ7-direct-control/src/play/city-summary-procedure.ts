@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../procedure-core";
 import type { Civ7DirectControlOptions } from "../session/types";
 import {
-  Civ7CitySummaryInputSchema,
-  Civ7CitySummaryResultSchema,
-  getCiv7CitySummary,
   type Civ7CitySummaryDependencies,
   type Civ7CitySummaryInput,
+  Civ7CitySummaryInputSchema,
   type Civ7CitySummaryResult,
+  Civ7CitySummaryResultSchema,
+  getCiv7CitySummary,
 } from "./summaries";
 
 export const Civ7CitySummaryProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
@@ -31,20 +31,8 @@ export const Civ7CitySummaryProcedureDescriptor = createCiv7ProcedureCoreDescrip
     owner: "packages/civ7-direct-control/src/play/summaries.ts",
     exportName: "Civ7CitySummaryResultSchema",
   },
-  inputFields: [
-    "playerIds",
-    "cityIds",
-    "playerId",
-    "maxItems",
-    "includeHidden",
-  ],
-  outputFields: [
-    "host",
-    "port",
-    "state",
-    "cities",
-    "omitted",
-  ],
+  inputFields: ["playerIds", "cityIds", "playerId", "maxItems", "includeHidden"],
+  outputFields: ["host", "port", "state", "cities", "omitted"],
   playerScope: "local-player-scoped",
   consumerClasses: [
     "normal-cli-player-agent-view",
@@ -89,13 +77,13 @@ export type Civ7CitySummaryProcedureCallOptions = Readonly<{
 
 export function callCiv7CitySummaryProcedure(
   input: Civ7CitySummaryInput = {},
-  options: Civ7CitySummaryProcedureCallOptions = {},
+  options: Civ7CitySummaryProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7CitySummaryResult>> {
   return callCiv7ProcedureCore<Civ7CitySummaryInput, Civ7CitySummaryResult>(
     Civ7CitySummaryProcedureDescriptor,
     Civ7CitySummaryProcedureSchemaArtifacts,
     input,
     (validInput) => getCiv7CitySummary(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    options.procedure
   );
 }

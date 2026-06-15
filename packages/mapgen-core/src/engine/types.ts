@@ -1,5 +1,5 @@
-import type { TSchema } from "typebox";
 import type { TraceScope } from "@mapgen/trace/index.js";
+import type { TSchema } from "typebox";
 
 export interface EngineContext {
   trace: TraceScope;

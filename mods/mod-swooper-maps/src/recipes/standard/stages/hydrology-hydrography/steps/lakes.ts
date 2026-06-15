@@ -1,7 +1,7 @@
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { defineVizMeta } from "@swooper/mapgen-core";
-import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/config.js";
 import type { HydrologyLakeinessKnob } from "@mapgen/domain/hydrology/config.js";
+import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/config.js";
+import { defineVizMeta } from "@swooper/mapgen-core";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { hydrologyHydrographyArtifacts } from "../artifacts.js";
 import LakesStepContract from "./lakes.contract.js";
@@ -42,7 +42,10 @@ export default createStep(LakesStepContract, {
     const { width, height } = context.dimensions;
     const topography = deps.artifacts.topography.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
-    if (!(topography.landMask instanceof Uint8Array) || !(topography.elevation instanceof Int16Array)) {
+    if (
+      !(topography.landMask instanceof Uint8Array) ||
+      !(topography.elevation instanceof Int16Array)
+    ) {
       throw new Error("[Hydrology] Missing topography inputs for hydrology-hydrography/lakes.");
     }
     if (

@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const FeatureSubstrateConfigSchema = Type.Object(
   {
@@ -23,7 +23,8 @@ const FeatureSubstrateConfigSchema = Type.Object(
       minimum: 0,
     }),
     intertidalMaxElevationAboveSeaM: Type.Integer({
-      description: "Maximum coastal land elevation above sea level treated as intertidal substrate.",
+      description:
+        "Maximum coastal land elevation above sea level treated as intertidal substrate.",
       default: 40,
       minimum: 0,
     }),

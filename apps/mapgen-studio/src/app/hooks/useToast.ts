@@ -6,7 +6,7 @@ export type ToastVariant = "default" | "success" | "error" | "info";
 
 export type ToastFn = (
   message: string,
-  options?: { variant?: ToastVariant; duration?: number },
+  options?: { variant?: ToastVariant; duration?: number }
 ) => void;
 
 /**
@@ -21,7 +21,8 @@ export type ToastFn = (
  */
 export function useToast(): ToastFn {
   return useCallback<ToastFn>((message, options) => {
-    const sonnerOptions = options?.duration !== undefined ? { duration: options.duration } : undefined;
+    const sonnerOptions =
+      options?.duration !== undefined ? { duration: options.duration } : undefined;
     switch (options?.variant) {
       case "success":
         sonnerToast.success(message, sonnerOptions);

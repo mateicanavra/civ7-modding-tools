@@ -2,9 +2,8 @@ import { describe, expect, it } from "bun:test";
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../src/recipes/standard/tags.js";
 import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/recipe.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../src/recipes/standard/tags.js";
 
 function listFilesRecursive(rootDir: string): string[] {
   const out: string[] = [];
@@ -130,7 +129,9 @@ describe("map stamping contract guardrails", () => {
     });
 
     nativeRiverGeneratorCallers.sort();
-    expect(nativeRiverGeneratorCallers).toEqual([path.join(stagesRoot, "map-rivers/steps/plotRivers.ts")]);
+    expect(nativeRiverGeneratorCallers).toEqual([
+      path.join(stagesRoot, "map-rivers/steps/plotRivers.ts"),
+    ]);
 
     const plotRiversText = readFileSync(
       path.join(stagesRoot, "map-rivers/steps/plotRivers.ts"),
@@ -154,7 +155,9 @@ describe("map stamping contract guardrails", () => {
     const stagesRoot = path.join(repoRoot, "src/recipes/standard/stages");
     const files = listFilesRecursive(stagesRoot).filter((file) => file.endsWith(".ts"));
 
-    const oddRCallsites = files.filter((file) => readFileSync(file, "utf8").includes("tile.hexOddR"));
+    const oddRCallsites = files.filter((file) =>
+      readFileSync(file, "utf8").includes("tile.hexOddR")
+    );
 
     expect(oddRCallsites).toEqual([]);
   });

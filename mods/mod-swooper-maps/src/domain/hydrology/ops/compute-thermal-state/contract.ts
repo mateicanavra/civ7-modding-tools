@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 /**
  * Computes a surface temperature proxy from insolation + elevation + land/ocean mask.
@@ -26,7 +26,9 @@ const ComputeThermalStateInputSchema = Type.Object(
      * Intended use:
      * - Coupling ocean currents/SST into downstream thermal + evap/cryosphere without breaking the default posture.
      */
-    sstC: Type.Optional(TypedArraySchemas.f32({ description: "Optional sea surface temperature (C) per tile." })),
+    sstC: Type.Optional(
+      TypedArraySchemas.f32({ description: "Optional sea surface temperature (C) per tile." })
+    ),
   },
   {
     additionalProperties: false,

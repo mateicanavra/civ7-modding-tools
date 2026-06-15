@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import computeSubstrate from "../../src/domain/morphology/ops/compute-substrate/index.js";
 
 describe("m11 substrate (material-driven)", () => {
@@ -47,4 +47,3 @@ describe("m11 substrate (material-driven)", () => {
     expect(first.erodibilityK[0]).not.toBe(first.erodibilityK[1]);
   });
 });
-

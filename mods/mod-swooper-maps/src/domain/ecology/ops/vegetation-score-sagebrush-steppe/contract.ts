@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const ScoreVegetationSagebrushSteppeContract = defineOp({
   kind: "compute",
@@ -28,4 +28,3 @@ const ScoreVegetationSagebrushSteppeContract = defineOp({
 });
 
 export default ScoreVegetationSagebrushSteppeContract;
-

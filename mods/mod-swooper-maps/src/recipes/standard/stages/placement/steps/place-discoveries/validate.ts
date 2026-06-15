@@ -37,17 +37,25 @@ export function validateDiscoveryPlacementOutcomesArtifact(value: unknown): Vali
     } else if (outcome.status === "rejected") {
       rejected += 1;
       if (typeof outcome.reason !== "string" || outcome.reason.length === 0) {
-        issues.push(issue(`rejected discovery outcome on plot ${String(outcome.plotIndex)} has no typed reason.`));
+        issues.push(
+          issue(
+            `rejected discovery outcome on plot ${String(outcome.plotIndex)} has no typed reason.`
+          )
+        );
       }
     } else {
       issues.push(issue(`discovery outcome has untyped status ${String(outcome.status)}.`));
     }
   }
   if (summary.placedCount !== placed) {
-    issues.push(issue(`summary.placedCount ${String(summary.placedCount)} != placed rows ${placed}.`));
+    issues.push(
+      issue(`summary.placedCount ${String(summary.placedCount)} != placed rows ${placed}.`)
+    );
   }
   if (summary.rejectedCount !== rejected) {
-    issues.push(issue(`summary.rejectedCount ${String(summary.rejectedCount)} != rejected rows ${rejected}.`));
+    issues.push(
+      issue(`summary.rejectedCount ${String(summary.rejectedCount)} != rejected rows ${rejected}.`)
+    );
   }
   return issues;
 }

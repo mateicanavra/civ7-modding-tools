@@ -1,79 +1,5 @@
-export { createStep, createStepFor, defineStep } from "./step/index.js";
-export { defineArtifact, implementArtifacts } from "./artifact/index.js";
-export { createStage, deriveStageAuthoringModel } from "./stage.js";
-export { createRecipe } from "./recipe.js";
-export { buildRecipeDag } from "./recipe-dag.js";
-export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
-export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
-export {
-  RecipePresetDefinitionV1Schema,
-  StudioPresetExportFileV1Schema,
-  derivePresetLabel,
-  isPresetWrapper,
-} from "./preset-schemas.js";
-export { createDomain, defineDomain } from "./domain.js";
-export {
-  bindCompileOps,
-  bindRuntimeOps,
-  collectCompileOps,
-  createDomainOpsSurface,
-  runtimeOp,
-} from "./bindings.js";
-export {
-  ArtifactDoublePublishError,
-  ArtifactMissingError,
-  ArtifactValidationError,
-} from "./artifact/index.js";
-export { createOp, createStrategy, defineOp, opRef } from "./op/index.js";
-export { TypedArraySchemas } from "./typed-array-schemas.js";
+export type { Static, TSchema } from "typebox";
 export { Type } from "typebox";
-export {
-  assertFloat32Array,
-  assertInt16Array,
-  assertInt32Array,
-  assertInt8Array,
-  assertTypedArrayOf,
-  assertUint16Array,
-  assertUint8Array,
-  expectedGridSize,
-  isFloat32Array,
-  isInt16Array,
-  isInt32Array,
-  isInt8Array,
-  isTypedArrayOf,
-  isUint16Array,
-  isUint8Array,
-} from "./typed-arrays.js";
-
-export type {
-  RecipeConfig,
-  RecipeConfigOf,
-  RecipeConfigInputOf,
-  CompiledRecipeConfigOf,
-  RecipeDefinition,
-  RecipeModule,
-  Stage,
-  StageContractAny,
-  StageModule,
-  StageAuthoringConfigLayer,
-  StageAuthoringModel,
-  StageAuthoringRuntimeStep,
-  StepDeps,
-  Step,
-  StepModule,
-} from "./types.js";
-export type {
-  BuildRecipeDagInput,
-  RecipeDag,
-  RecipeDagArtifactRef,
-  RecipeDagDiagnostic,
-  RecipeDagEdge,
-  RecipeDagEndpoint,
-  RecipeDagPhase,
-  RecipeDagStage,
-  RecipeDagStep,
-} from "./recipe-dag.js";
-export type { RecipePresetDefinitionV1, StudioPresetExportFileV1 } from "./preset-schemas.js";
 export type {
   ArtifactContract,
   ArtifactReadValueOf,
@@ -83,21 +9,36 @@ export type {
   ProvidedArtifactRuntime,
   RequiredArtifactRuntime,
 } from "./artifact/index.js";
+export {
+  ArtifactDoublePublishError,
+  ArtifactMissingError,
+  ArtifactValidationError,
+  defineArtifact,
+  implementArtifacts,
+} from "./artifact/index.js";
+export type {
+  DomainOpCompileAny,
+  DomainOpRuntime,
+  DomainOpRuntimeAny,
+  DomainOpsRouter,
+  DomainOpsSurface,
+  OpId,
+  OpsById,
+} from "./bindings.js";
+export {
+  bindCompileOps,
+  bindRuntimeOps,
+  collectCompileOps,
+  createDomainOpsSurface,
+  runtimeOp,
+} from "./bindings.js";
 export type {
   DomainContract,
   DomainContractAny,
   DomainModule,
   DomainOpImplementationsForContracts,
 } from "./domain.js";
-export type {
-  DomainOpCompileAny,
-  DomainOpsRouter,
-  DomainOpsSurface,
-  DomainOpRuntime,
-  DomainOpRuntimeAny,
-  OpId,
-  OpsById,
-} from "./bindings.js";
+export { createDomain, defineDomain } from "./domain.js";
 export type {
   DomainOp,
   DomainOpKind,
@@ -114,5 +55,70 @@ export type {
   StrategyImplMapFor,
   StrategySelection,
 } from "./op/index.js";
-export type { CreateStepFor, OpContractAny, StepContract, StepOpsDecl, StepRuntimeOps } from "./step/index.js";
-export type { Static, TSchema } from "typebox";
+export { createOp, createStrategy, defineOp, opRef } from "./op/index.js";
+export type { RecipePresetDefinitionV1, StudioPresetExportFileV1 } from "./preset-schemas.js";
+export {
+  derivePresetLabel,
+  isPresetWrapper,
+  RecipePresetDefinitionV1Schema,
+  StudioPresetExportFileV1Schema,
+} from "./preset-schemas.js";
+export { createRecipe } from "./recipe.js";
+export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
+export type {
+  BuildRecipeDagInput,
+  RecipeDag,
+  RecipeDagArtifactRef,
+  RecipeDagDiagnostic,
+  RecipeDagEdge,
+  RecipeDagEndpoint,
+  RecipeDagPhase,
+  RecipeDagStage,
+  RecipeDagStep,
+} from "./recipe-dag.js";
+export { buildRecipeDag } from "./recipe-dag.js";
+export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
+export { createStage, deriveStageAuthoringModel } from "./stage.js";
+export type {
+  CreateStepFor,
+  OpContractAny,
+  StepContract,
+  StepOpsDecl,
+  StepRuntimeOps,
+} from "./step/index.js";
+export { createStep, createStepFor, defineStep } from "./step/index.js";
+export { TypedArraySchemas } from "./typed-array-schemas.js";
+export {
+  assertFloat32Array,
+  assertInt8Array,
+  assertInt16Array,
+  assertInt32Array,
+  assertTypedArrayOf,
+  assertUint8Array,
+  assertUint16Array,
+  expectedGridSize,
+  isFloat32Array,
+  isInt8Array,
+  isInt16Array,
+  isInt32Array,
+  isTypedArrayOf,
+  isUint8Array,
+  isUint16Array,
+} from "./typed-arrays.js";
+export type {
+  CompiledRecipeConfigOf,
+  RecipeConfig,
+  RecipeConfigInputOf,
+  RecipeConfigOf,
+  RecipeDefinition,
+  RecipeModule,
+  Stage,
+  StageAuthoringConfigLayer,
+  StageAuthoringModel,
+  StageAuthoringRuntimeStep,
+  StageContractAny,
+  StageModule,
+  Step,
+  StepDeps,
+  StepModule,
+} from "./types.js";

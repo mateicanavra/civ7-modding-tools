@@ -1,15 +1,14 @@
+import type { RecipeDagResult } from "@civ7/studio-server/contract";
 import { describe, expect, it } from "vitest";
-
 import {
   buildArtifactEdgeLabels,
   buildRecipeDagLayout,
   groupStageEdges,
   pointsToPath,
+  type RoutedStageEdgeGroup,
   resolveEdgeLabelPosition,
   resolveEdgeLabelPositions,
-  type RoutedStageEdgeGroup,
 } from "../../src/features/recipeDag/layout";
-import type { RecipeDagResult } from "@civ7/studio-server/contract";
 
 describe("recipe DAG layout", () => {
   it("places stages by dependency rank while preserving phase grouping", () => {
@@ -39,14 +38,18 @@ describe("recipe DAG layout", () => {
     expect(branchA?.rank).toBe(branchB?.rank);
     expect(branchA?.y).not.toBe(branchB?.y);
     expect(shapeBand).toBeDefined();
-    expect(shapeBand!.y + shapeBand!.height).toBeGreaterThanOrEqual(branchB!.y + branchB!.height + 26);
+    expect(shapeBand!.y + shapeBand!.height).toBeGreaterThanOrEqual(
+      branchB!.y + branchB!.height + 26
+    );
   });
 
   it("groups stage edges and produces routed orthogonal paths", () => {
     const dag = recipeDag();
     const groups = groupStageEdges(dag);
     const layout = buildRecipeDagLayout(dag);
-    const routed = layout.edgeGroups.find((edge) => edge.fromStageId === "source" && edge.toStageId === "branch-a");
+    const routed = layout.edgeGroups.find(
+      (edge) => edge.fromStageId === "source" && edge.toStageId === "branch-a"
+    );
 
     expect(groups).toHaveLength(4);
     expect(routed?.artifacts).toEqual(["seed-grid"]);
@@ -68,7 +71,9 @@ describe("recipe DAG layout", () => {
 
   it("pulls selected-stage edge labels toward the dependency destination", () => {
     const layout = buildRecipeDagLayout(recipeDag());
-    const edge = layout.edgeGroups.find((candidate) => candidate.fromStageId === "source" && candidate.toStageId === "branch-a");
+    const edge = layout.edgeGroups.find(
+      (candidate) => candidate.fromStageId === "source" && candidate.toStageId === "branch-a"
+    );
 
     expect(edge).toBeDefined();
     const routed = edge!;
@@ -92,9 +97,7 @@ describe("recipe DAG layout", () => {
       routedEdge("c->sink", "c", "sink", 102),
     ];
     const resolved = resolveEdgeLabelPositions(edges, "sink");
-    const positions = edges
-      .map((edge) => resolved.get(edge.id)!)
-      .sort((a, b) => a.y - b.y);
+    const positions = edges.map((edge) => resolved.get(edge.id)!).sort((a, b) => a.y - b.y);
 
     expect(positions[1]!.y - positions[0]!.y).toBeGreaterThanOrEqual(30);
     expect(positions[2]!.y - positions[1]!.y).toBeGreaterThanOrEqual(30);
@@ -107,9 +110,7 @@ describe("recipe DAG layout", () => {
       routedEdge("c->sink", "c", "sink", 102),
     ];
     const resolved = resolveEdgeLabelPositions(edges, null);
-    const positions = edges
-      .map((edge) => resolved.get(edge.id)!)
-      .sort((a, b) => a.y - b.y);
+    const positions = edges.map((edge) => resolved.get(edge.id)!).sort((a, b) => a.y - b.y);
 
     expect(positions.every((position) => position.x < 320)).toBe(true);
     expect(positions[1]!.y - positions[0]!.y).toBeGreaterThanOrEqual(30);
@@ -139,14 +140,18 @@ describe("recipe DAG layout", () => {
     expect(seedLabel?.label).toBe("seed-grid");
     expect(seedLabel?.labelX).toBeGreaterThan(sourceEdge.points[0]!.x);
     expect(seedLabel?.labelX).toBeLessThanOrEqual(sourceEdge.points[1]!.x);
-    expect(seedLabel?.labelX).toBeGreaterThan(sourceEdge.points[0]!.x + (sourceEdge.points[1]!.x - sourceEdge.points[0]!.x) * 0.7);
+    expect(seedLabel?.labelX).toBeGreaterThan(
+      sourceEdge.points[0]!.x + (sourceEdge.points[1]!.x - sourceEdge.points[0]!.x) * 0.7
+    );
   });
 
   it("moves a split artifact label near the selected destination branch", () => {
     const layout = buildRecipeDagLayout(recipeDag());
     const labels = buildArtifactEdgeLabels(layout.edgeGroups, "branch-b");
     const seedLabel = labels.find((label) => label.artifact === "seed-grid");
-    const branchBEdge = layout.edgeGroups.find((edge) => edge.fromStageId === "source" && edge.toStageId === "branch-b")!;
+    const branchBEdge = layout.edgeGroups.find(
+      (edge) => edge.fromStageId === "source" && edge.toStageId === "branch-b"
+    )!;
     const branchBEndpoint = branchBEdge.points[branchBEdge.points.length - 1]!;
 
     expect(seedLabel).toBeDefined();
@@ -157,7 +162,12 @@ describe("recipe DAG layout", () => {
   });
 });
 
-function routedEdge(id: string, fromStageId: string, toStageId: string, destinationY: number): RoutedStageEdgeGroup {
+function routedEdge(
+  id: string,
+  fromStageId: string,
+  toStageId: string,
+  destinationY: number
+): RoutedStageEdgeGroup {
   return {
     id,
     fromStageId,
@@ -208,7 +218,12 @@ function crowdedRecipeDag(): RecipeDagResult {
     namespace: "mod-swooper-maps",
     title: "Crowded DAG",
     phases: [
-      { id: "shape", order: 0, stageIds: ["source", "branch-a", "branch-b", "branch-c", "branch-d"], stepCount: 5 },
+      {
+        id: "shape",
+        order: 0,
+        stageIds: ["source", "branch-a", "branch-b", "branch-c", "branch-d"],
+        stepCount: 5,
+      },
     ],
     stages: [
       stage("source", 0, "shape", [], ["seed-a", "seed-b", "seed-c", "seed-d"]),

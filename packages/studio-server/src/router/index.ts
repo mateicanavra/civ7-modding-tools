@@ -3,7 +3,7 @@ import { ORPCError } from "@orpc/server";
 import { Effect } from "effect";
 import { implementEffect } from "effect-orpc";
 
-import { studioEffectContract, type StudioEffectContract } from "../contract/index.js";
+import { type StudioEffectContract, studioEffectContract } from "../contract/index.js";
 import { errorMessage } from "../errors.js";
 import { readLiveGameStatusBody } from "../liveGame/statusRead.js";
 import type { StudioRuntime } from "../runtime.js";
@@ -44,7 +44,7 @@ import { StudioEventHub } from "../services/StudioEventHub.js";
 // inferring `EnhancedRouter<...>`, which would reference effect-orpc internals and
 // trip TS2742 in the emitted `.d.ts`) keeps `StudioRouter` contract-typed.
 export function createStudioRouter(
-  runtime: StudioRuntime,
+  runtime: StudioRuntime
 ): Router<StudioEffectContract, Record<never, never>> {
   const oe = implementEffect(studioEffectContract, runtime);
 
@@ -56,8 +56,8 @@ export function createStudioRouter(
           Effect.mapError((err) =>
             errors.CIV7_STATUS_UNAVAILABLE({
               message: errorMessage(err, "Civ7 status request failed"),
-            }),
-          ),
+            })
+          )
         );
         return { ok: status.playable, status: status as Record<string, unknown> };
       }),
@@ -68,8 +68,8 @@ export function createStudioRouter(
           Effect.mapError((err) =>
             errors.CIV7_MAP_SUMMARY_UNAVAILABLE({
               message: errorMessage(err, "Civ7 map summary request failed"),
-            }),
-          ),
+            })
+          )
         );
         return { ok: true as const, summary: summary as Record<string, unknown> };
       }),
@@ -80,8 +80,8 @@ export function createStudioRouter(
           Effect.mapError((err) =>
             errors.CIV7_GAMEINFO_FAILED({
               message: errorMessage(err, "Civ7 GameInfo request failed"),
-            }),
-          ),
+            })
+          )
         );
         // Parity: legacy `/api` writes the WHOLE result object under `rows`.
         return { ok: true as const, rows: rows as unknown as Record<string, unknown> };
@@ -99,8 +99,8 @@ export function createStudioRouter(
               ? err
               : errors.AUTOPLAY_FAILED({
                   message: errorMessage(err, "Civ7 autoplay request failed"),
-                }),
-          ),
+                })
+          )
         );
       }),
 
@@ -111,8 +111,8 @@ export function createStudioRouter(
             errors.SETUP_CONFIG_UNAVAILABLE({
               message: errorMessage(err, "Civ7 setup config unavailable"),
               data: { observedAt: new Date().toISOString() },
-            }),
-          ),
+            })
+          )
         );
         return {
           ok: true as const,
@@ -131,8 +131,8 @@ export function createStudioRouter(
             errors.SAVED_CONFIGS_UNAVAILABLE({
               message: errorMessage(err, "Civ7 saved configurations unavailable"),
               data: { observedAt: new Date().toISOString() },
-            }),
-          ),
+            })
+          )
         );
         return {
           ok: true as const,
@@ -150,8 +150,8 @@ export function createStudioRouter(
             errors.SETUP_CATALOG_UNAVAILABLE({
               message: errorMessage(err, "Civ7 setup catalog unavailable"),
               data: { observedAt: new Date().toISOString() },
-            }),
-          ),
+            })
+          )
         );
         return { ok: true as const, catalog };
       }),
@@ -183,8 +183,8 @@ export function createStudioRouter(
             Effect.mapError((err) =>
               errors.CIV7_LIVE_SNAPSHOT_FAILED({
                 message: errorMessage(err, "Civ7 live snapshot request failed"),
-              }),
-            ),
+              })
+            )
           );
           return {
             ok: true as const,
@@ -212,13 +212,13 @@ export function createStudioRouter(
                 maxItems,
               }),
             },
-            { concurrency: "unbounded" },
+            { concurrency: "unbounded" }
           ).pipe(
             Effect.mapError((err) =>
               errors.CIV7_LIVE_ENTITIES_FAILED({
                 message: errorMessage(err, "Civ7 live entities request failed"),
-              }),
-            ),
+              })
+            )
           );
           return {
             ok: true as const,
@@ -240,16 +240,16 @@ export function createStudioRouter(
           const entries = yield* Effect.all(
             tables.map((table) =>
               Civ7TunerClient.gameInfoRows(table, limit).pipe(
-                Effect.map((rows) => [table, rows] as const),
-              ),
+                Effect.map((rows) => [table, rows] as const)
+              )
             ),
-            { concurrency: "unbounded" },
+            { concurrency: "unbounded" }
           ).pipe(
             Effect.mapError((err) =>
               errors.CIV7_LIVE_GAMEINFO_FAILED({
                 message: errorMessage(err, "Civ7 live GameInfo request failed"),
-              }),
-            ),
+              })
+            )
           );
           // Parity: each table value is the WHOLE result object (legacy behavior).
           return {
@@ -275,8 +275,8 @@ export function createStudioRouter(
           Effect.mapError((err) =>
             err instanceof ORPCError
               ? err
-              : errors.RUN_IN_GAME_FAILED({ message: errorMessage(err, "Run in Game failed") }),
-          ),
+              : errors.RUN_IN_GAME_FAILED({ message: errorMessage(err, "Run in Game failed") })
+          )
         );
       }),
 
@@ -292,8 +292,8 @@ export function createStudioRouter(
               ? err
               : errors.RUN_IN_GAME_FAILED({
                   message: errorMessage(err, "Run in Game status failed"),
-                }),
-          ),
+                })
+          )
         );
       }),
     },
@@ -309,8 +309,8 @@ export function createStudioRouter(
           Effect.mapError((err) =>
             err instanceof ORPCError
               ? err
-              : errors.SAVE_DEPLOY_FAILED({ message: errorMessage(err, "Save failed") }),
-          ),
+              : errors.SAVE_DEPLOY_FAILED({ message: errorMessage(err, "Save failed") })
+          )
         );
       }),
 
@@ -326,8 +326,8 @@ export function createStudioRouter(
               ? err
               : errors.SAVE_DEPLOY_FAILED({
                   message: errorMessage(err, "Save/Deploy status failed"),
-                }),
-          ),
+                })
+          )
         );
       }),
     },

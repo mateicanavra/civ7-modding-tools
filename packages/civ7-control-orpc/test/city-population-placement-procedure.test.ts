@@ -2,11 +2,11 @@ import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   Civ7PopulationPlacementUnavailableError,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
 } from "../src/index";
 
 const cityId = { owner: 0, id: 196_610, type: 1 };
@@ -17,14 +17,12 @@ type PopulationPlacementRuntimeResult = Awaited<
 
 describe("city.population.place.request control-oRPC procedure", () => {
   test("maps assign-worker placement to the semantic population runtime port ", async () => {
-    const fake = fakeContext(
-      operationRequestResult("population-ready-cleared", "assign-worker"),
-    );
+    const fake = fakeContext(operationRequestResult("population-ready-cleared", "assign-worker"));
 
     const result = await call(
       Civ7ControlOrpcRouter.city.population.place.request,
       { mode: "assign-worker", location: 2543 },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -48,20 +46,22 @@ describe("city.population.place.request control-oRPC procedure", () => {
         readyCleared: true,
         placementStateChanged: true,
       },
-      nextSteps: [{
-        kind: "refresh-attention",
-        source: "city.population.place.request",
-      }],
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "city.population.place.request",
+        },
+      ],
     });
     const serialized = JSON.stringify(result);
     expect(serialized).not.toContain("CMD");
     expect(serialized).not.toContain("Game.PlayerOperations");
     expect(serialized).not.toContain("Game.CityCommands");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"verified"');
     expect(fake.calls).toEqual([
       {
         method: "getCiv7PlayNotificationView",
@@ -87,15 +87,14 @@ describe("city.population.place.request control-oRPC procedure", () => {
   });
 
   test("uses live local-player evidence instead of caller player input for assign-worker sends", async () => {
-    const fake = fakeContext(
-      operationRequestResult("population-ready-cleared", "assign-worker"),
-      { localPlayerId: 2 },
-    );
+    const fake = fakeContext(operationRequestResult("population-ready-cleared", "assign-worker"), {
+      localPlayerId: 2,
+    });
 
     const result = await call(
       Civ7ControlOrpcRouter.city.population.place.request,
       { mode: "assign-worker", location: 2543 },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result.placement).toEqual({
@@ -118,9 +117,7 @@ describe("city.population.place.request control-oRPC procedure", () => {
   });
 
   test("maps expand-city placement to the semantic population runtime port through the server-side router client", async () => {
-    const fake = fakeContext(
-      operationRequestResult("population-ready-cleared", "expand-city"),
-    );
+    const fake = fakeContext(operationRequestResult("population-ready-cleared", "expand-city"));
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
     const result = await client.city.population.place.request({
@@ -137,29 +134,29 @@ describe("city.population.place.request control-oRPC procedure", () => {
       },
       status: "sent-confirmed",
     });
-    expect(fake.calls).toEqual([{
-      method: "requestCiv7ExpandCityPlacement",
-      input: {
-        cityId,
-        destination,
+    expect(fake.calls).toEqual([
+      {
+        method: "requestCiv7ExpandCityPlacement",
+        input: {
+          cityId,
+          destination,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
   });
 
   test("keeps state-changed placement proof no-repeat guarded", async () => {
-    const fake = fakeContext(
-      operationRequestResult("placement-state-changed", "assign-worker"),
-    );
+    const fake = fakeContext(operationRequestResult("placement-state-changed", "assign-worker"));
 
     const result = await call(
       Civ7ControlOrpcRouter.city.population.place.request,
       { mode: "assign-worker", location: 2543 },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -174,10 +171,12 @@ describe("city.population.place.request control-oRPC procedure", () => {
         readyCleared: false,
         placementStateChanged: true,
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "city.population.place.request",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "city.population.place.request",
+        },
+      ],
     });
   });
 
@@ -196,7 +195,7 @@ describe("city.population.place.request control-oRPC procedure", () => {
       const result = await call(
         Civ7ControlOrpcRouter.city.population.place.request,
         { mode: "assign-worker", location: 2543 },
-        { context: fake.context },
+        { context: fake.context }
       );
 
       expect(result).toMatchObject({
@@ -207,26 +206,30 @@ describe("city.population.place.request control-oRPC procedure", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "city.population.place.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "city.population.place.request",
+          },
+        ],
       });
     }
   });
 
   test("projects validator-blocked placement as not-sent", async () => {
-    const fake = fakeContext(operationRequestResult("not-sent", "assign-worker", {
-      beforeValid: false,
-      afterValid: false,
-      sent: false,
-      verified: false,
-    }));
+    const fake = fakeContext(
+      operationRequestResult("not-sent", "assign-worker", {
+        beforeValid: false,
+        afterValid: false,
+        sent: false,
+        verified: false,
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.city.population.place.request,
       { mode: "assign-worker", location: 2543 },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -242,10 +245,12 @@ describe("city.population.place.request control-oRPC procedure", () => {
         confidence: "unverified",
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "inspect-population-placement",
-        source: "city.population.place.request",
-      }],
+      nextSteps: [
+        {
+          kind: "inspect-population-placement",
+          source: "city.population.place.request",
+        },
+      ],
     });
   });
 
@@ -281,31 +286,33 @@ describe("city.population.place.request control-oRPC procedure", () => {
     ];
 
     for (const input of invalidInputs) {
-      const fake = fakeContext(
-        operationRequestResult("population-ready-cleared", "assign-worker"),
-      );
+      const fake = fakeContext(operationRequestResult("population-ready-cleared", "assign-worker"));
 
       await expect(
-        call(
-          Civ7ControlOrpcRouter.city.population.place.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.city.population.place.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls).toEqual([]);
     }
   });
 
   test("maps population placement facade failures to a tagged error without raw details", async () => {
-    const fake = fakeContext(new Error(
-      "Timed out waiting for Civ7 tuner response to CMD:65535:Game.PlayerOperations.sendRequest(...)",
-    ));
+    const fake = fakeContext(
+      new Error(
+        "Timed out waiting for Civ7 tuner response to CMD:65535:Game.PlayerOperations.sendRequest(...)"
+      )
+    );
 
     await expect(
-      call(Civ7ControlOrpcRouter.city.population.place.request, {
-        mode: "assign-worker",
-        location: 2543,
-      }, { context: fake.context }),
+      call(
+        Civ7ControlOrpcRouter.city.population.place.request,
+        {
+          mode: "assign-worker",
+          location: 2543,
+        },
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({
       code: "POPULATION_PLACEMENT_UNAVAILABLE",
       status: 503,
@@ -316,10 +323,14 @@ describe("city.population.place.request control-oRPC procedure", () => {
     });
 
     try {
-      await call(Civ7ControlOrpcRouter.city.population.place.request, {
-        mode: "assign-worker",
-        location: 2543,
-      }, { context: fake.context });
+      await call(
+        Civ7ControlOrpcRouter.city.population.place.request,
+        {
+          mode: "assign-worker",
+          location: 2543,
+        },
+        { context: fake.context }
+      );
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -330,21 +341,18 @@ describe("city.population.place.request control-oRPC procedure", () => {
   });
 
   test("publishes a contract-first city.population.place.request leaf", () => {
-    expect(
-      Civ7ControlOrpcContract.city.population.place.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.city.population.place.request["~orpc"]).toMatchObject({
       meta: {
         family: "city",
         procedureKey: "city.population.place.request",
         proofBoundary: "local-package-test",
         risk: "mutation",
       },
-    });    expect(
-      Civ7ControlOrpcContract.city.population.place.request["~orpc"].errorMap,
-    ).toHaveProperty("POPULATION_PLACEMENT_UNAVAILABLE");
-    expect(Civ7PopulationPlacementUnavailableError.code).toBe(
-      "POPULATION_PLACEMENT_UNAVAILABLE",
+    });
+    expect(Civ7ControlOrpcContract.city.population.place.request["~orpc"].errorMap).toHaveProperty(
+      "POPULATION_PLACEMENT_UNAVAILABLE"
     );
+    expect(Civ7PopulationPlacementUnavailableError.code).toBe("POPULATION_PLACEMENT_UNAVAILABLE");
   });
 });
 
@@ -352,7 +360,7 @@ function fakeContext(
   resultOrError: PopulationPlacementRuntimeResult | Error,
   options: {
     localPlayerId?: number;
-  } = {},
+  } = {}
 ): {
   context: Civ7ControlOrpcContext;
   calls: Array<{
@@ -396,7 +404,8 @@ function fakeContext(
           calls.push({
             method: "requestCiv7AssignWorkerPlacement",
             input,
-            options: endpointDefaults,          });
+            options: endpointDefaults,
+          });
           if (resultOrError instanceof Error) throw resultOrError;
           return resultOrError;
         },
@@ -404,7 +413,8 @@ function fakeContext(
           calls.push({
             method: "requestCiv7ExpandCityPlacement",
             input,
-            options: endpointDefaults,          });
+            options: endpointDefaults,
+          });
           if (resultOrError instanceof Error) throw resultOrError;
           return resultOrError;
         },
@@ -425,15 +435,14 @@ function operationRequestResult(
     includePostcondition?: boolean;
     sent?: boolean;
     verified?: boolean;
-  } = {},
+  } = {}
 ): PopulationPlacementRuntimeResult {
   const sent = options.sent ?? classification !== "not-sent";
   const family = mode === "expand-city" ? "city-command" : "player-operation";
   const operationType = mode === "expand-city" ? "EXPAND" : "ASSIGN_WORKER";
   const target = mode === "expand-city" ? { cityId } : { playerId: 0 };
-  const args = mode === "expand-city"
-    ? { X: destination.x, Y: destination.y }
-    : { Location: 2543, Amount: 1 };
+  const args =
+    mode === "expand-city" ? { X: destination.x, Y: destination.y } : { Location: 2543, Amount: 1 };
   const includePostcondition = options.includePostcondition ?? true;
 
   return {
@@ -446,21 +455,21 @@ function operationRequestResult(
           output: [
             JSON.stringify({
               sent: true,
-              rawCommand: mode === "expand-city"
-                ? "Game.CityCommands.sendRequest(...)"
-                : "Game.PlayerOperations.sendRequest(...)",
+              rawCommand:
+                mode === "expand-city"
+                  ? "Game.CityCommands.sendRequest(...)"
+                  : "Game.PlayerOperations.sendRequest(...)",
             }),
           ],
         }
       : undefined,
     after: validationResult(family, operationType, target, args, options.afterValid ?? true),
     sent,
-    verified: options.verified
-      ?? (
-        classification === "population-ready-cleared"
-        || classification === "placement-state-changed"
-        || classification === "validation-changed"
-      ),
+    verified:
+      options.verified ??
+      (classification === "population-ready-cleared" ||
+        classification === "placement-state-changed" ||
+        classification === "validation-changed"),
     ...(includePostcondition
       ? {
           populationPostcondition: {
@@ -468,8 +477,9 @@ function operationRequestResult(
             operationType,
             classification,
             readyCleared: classification === "population-ready-cleared",
-            placementStateChanged: classification === "placement-state-changed"
-              || classification === "population-ready-cleared",
+            placementStateChanged:
+              classification === "placement-state-changed" ||
+              classification === "population-ready-cleared",
             reason: `test ${classification}`,
           },
         }
@@ -482,7 +492,7 @@ function validationResult(
   operationType: "EXPAND" | "ASSIGN_WORKER",
   target: { cityId: typeof cityId } | { playerId: number },
   args: Record<string, number>,
-  valid: boolean,
+  valid: boolean
 ) {
   return {
     host: "127.0.0.1",

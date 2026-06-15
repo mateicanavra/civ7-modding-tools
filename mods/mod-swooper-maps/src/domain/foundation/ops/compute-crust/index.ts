@@ -34,7 +34,11 @@ function strengthFromThickness(thickness: number): number {
   return STRENGTH_THICKNESS_MIN + (1 - STRENGTH_THICKNESS_MIN) * clamp01(thickness);
 }
 
-function deriveBuoyancy(params: { maturity: number; thickness: number; thermalAge01: number }): number {
+function deriveBuoyancy(params: {
+  maturity: number;
+  thickness: number;
+  thermalAge01: number;
+}): number {
   const maturityBoost = MATURITY_BUOYANCY_BOOST * clamp01(params.maturity);
   const thicknessBoost = THICKNESS_BUOYANCY_BOOST * clamp01(params.thickness);
   const subsidence = OCEANIC_AGE_DEPTH * clamp01(params.thermalAge01);
@@ -82,7 +86,9 @@ const computeCrust = createOp(ComputeCrustContract, {
           // Event/era mechanics are responsible for continental emergence in later steps.
           const maturitySeed = 0;
           const thicknessSeed = basalticThickness;
-          const riftSignal = clamp01(divergencePos * (0.35 + 0.65 * forcingMag) * (0.5 + 0.5 * stress));
+          const riftSignal = clamp01(
+            divergencePos * (0.35 + 0.65 * forcingMag) * (0.5 + 0.5 * stress)
+          );
 
           maturity[i] = maturitySeed;
           thickness[i] = thicknessSeed;

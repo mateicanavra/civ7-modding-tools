@@ -12,4 +12,3 @@ const computeFeatureSubstrate = createOp(ComputeFeatureSubstrateContract, {
 export type * from "./contract.js";
 
 export default computeFeatureSubstrate;
-

@@ -1,8 +1,7 @@
 import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
-
+import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
 import type { MountainsConfig } from "./types.js";
 import { clamp01 } from "./util.js";
-import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
 
 export function computeOrogenyPotential(params: {
   boundaryStrength: number;
@@ -20,10 +19,12 @@ export function computeOrogenyPotential(params: {
   const divergence = regime === BOUNDARY_TYPE.divergent ? boundaryStrength : 0;
 
   const collisionSignal =
-    collision * (config.orogenyCollisionStressWeight * stress + config.orogenyCollisionUpliftWeight * uplift);
+    collision *
+    (config.orogenyCollisionStressWeight * stress + config.orogenyCollisionUpliftWeight * uplift);
   const transformSignal = transform * (config.orogenyTransformStressWeight * stress);
   const divergenceSignal =
-    divergence * (config.orogenyDivergentRiftWeight * rift + config.orogenyDivergentStressWeight * stress);
+    divergence *
+    (config.orogenyDivergentRiftWeight * rift + config.orogenyDivergentStressWeight * stress);
 
   return clamp01(collisionSignal + transformSignal + divergenceSignal);
 }

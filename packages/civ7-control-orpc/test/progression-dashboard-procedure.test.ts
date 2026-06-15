@@ -1,13 +1,12 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
+import type { Civ7ControlOrpcProgressDashboardResult } from "../src/dependencies/direct-control";
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
 } from "../src/index";
-import type { Civ7ControlOrpcProgressDashboardResult } from "../src/dependencies/direct-control";
 
 describe("progression dashboard control-oRPC procedure", () => {
   test("projects runtime progress evidence into a semantic dashboard result", async () => {
@@ -16,17 +15,19 @@ describe("progression dashboard control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.progression.dashboard.current,
       {},
-      { context: fake.context },
+      { context: fake.context }
     );
 
-    expect(fake.calls.dashboard).toEqual([{
-      input: {},
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+    expect(fake.calls.dashboard).toEqual([
+      {
+        input: {},
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-    }]);
+    ]);
     expect(result).toMatchObject({
       playerId: 0,
       localPlayerId: 0,
@@ -68,10 +69,10 @@ describe("progression dashboard control-oRPC procedure", () => {
     ]);
 
     const serialized = JSON.stringify(result);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
     expect(serialized).not.toContain("game play ");
     expect(serialized).not.toContain("CMD:");
     expect(serialized).not.toContain("approval");
@@ -83,7 +84,7 @@ describe("progression dashboard control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.progression.dashboard.current,
       { playerId: 2 },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(fake.calls.dashboard[0]?.input).toEqual({ playerId: 2 });
@@ -104,9 +105,7 @@ describe("progression dashboard control-oRPC procedure", () => {
       { rawCommand: "Game.turn" },
       { approvalReason: "go" },
     ]) {
-      await expect(
-        client.progression.dashboard.current(input as never),
-      ).rejects.toMatchObject({
+      await expect(client.progression.dashboard.current(input as never)).rejects.toMatchObject({
         code: "BAD_REQUEST",
       });
     }
@@ -116,14 +115,14 @@ describe("progression dashboard control-oRPC procedure", () => {
 
   test("maps direct-control failures to tagged unavailable errors without raw cause text", async () => {
     const fake = fakeContext(
-      new Error("Timed out waiting for Civ7 tuner response to CMD:65535:Game.turn"),
+      new Error("Timed out waiting for Civ7 tuner response to CMD:65535:Game.turn")
     );
 
     try {
       await call(
         Civ7ControlOrpcRouter.progression.dashboard.current,
         {},
-        { context: fake.context },
+        { context: fake.context }
       );
       throw new Error("expected progression dashboard call to fail");
     } catch (err) {
@@ -140,22 +139,24 @@ describe("progression dashboard control-oRPC procedure", () => {
   });
 });
 
-function fakeContext(
-  dashboard: Civ7ControlOrpcProgressDashboardResult | Error,
-): {
+function fakeContext(dashboard: Civ7ControlOrpcProgressDashboardResult | Error): {
   calls: {
-    dashboard: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
+    dashboard: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
   };
   context: Civ7ControlOrpcContext;
 } {
   const calls = {
-    dashboard: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
+    dashboard: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
   };
 
   return {
@@ -181,7 +182,7 @@ function fakeContext(
 }
 
 function progressDashboardResult(
-  overrides: Partial<Pick<Civ7ControlOrpcProgressDashboardResult, "playerId">> = {},
+  overrides: Partial<Pick<Civ7ControlOrpcProgressDashboardResult, "playerId">> = {}
 ): Civ7ControlOrpcProgressDashboardResult {
   return {
     host: "127.0.0.1",
@@ -214,8 +215,18 @@ function progressDashboardResult(
     ],
     victories: {
       rows: [
-        { victoryType: "VICTORY_CULTURE", victoryClassType: "VICTORY_CLASS_CULTURE", name: "Culture", description: null },
-        { victoryType: "VICTORY_SCIENCE", victoryClassType: "VICTORY_CLASS_SCIENCE", name: "Science", description: null },
+        {
+          victoryType: "VICTORY_CULTURE",
+          victoryClassType: "VICTORY_CLASS_CULTURE",
+          name: "Culture",
+          description: null,
+        },
+        {
+          victoryType: "VICTORY_SCIENCE",
+          victoryClassType: "VICTORY_CLASS_SCIENCE",
+          name: "Science",
+          description: null,
+        },
       ],
     },
     triumphs: {
@@ -246,7 +257,7 @@ function legacyPath(
   legacyPathClassType: string,
   score: number,
   finalRequiredPathPoints: number,
-  nextRequired: number,
+  nextRequired: number
 ): Civ7ControlOrpcProgressDashboardResult["legacyPaths"][number] {
   return {
     legacyPathType,
@@ -259,8 +270,7 @@ function legacyPath(
     score: probe(score),
     finalRequiredPathPoints,
     nextMilestone: {
-      ageProgressionMilestoneType:
-        `${legacyPathType.replace("LEGACY_PATH_", "")}_MILESTONE_1`,
+      ageProgressionMilestoneType: `${legacyPathType.replace("LEGACY_PATH_", "")}_MILESTONE_1`,
       legacyPathType,
       requiredPathPoints: nextRequired,
       finalMilestone: false,

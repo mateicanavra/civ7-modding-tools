@@ -4,9 +4,9 @@
 // Manages visualization preferences and selected step.
 // ============================================================================
 
-import { useState, useCallback } from 'react';
-import type { ViewState } from '../types';
-import { DEFAULT_VIEW_STATE } from '../constants';
+import { useCallback, useState } from "react";
+import { DEFAULT_VIEW_STATE } from "../constants";
+import type { ViewState } from "../types";
 
 export interface UseViewStateOptions {
   initialState?: Partial<ViewState>;
@@ -25,24 +25,18 @@ export interface UseViewStateReturn extends ViewState {
   resetView: () => void;
 }
 
-export function useViewState(
-options: UseViewStateOptions = {})
-: UseViewStateReturn {
+export function useViewState(options: UseViewStateOptions = {}): UseViewStateReturn {
   const initialState: ViewState = {
     ...DEFAULT_VIEW_STATE,
-    ...options.initialState
+    ...options.initialState,
   };
 
   const [showEdges, setShowEdges] = useState(initialState.showEdges);
   const [showGrid, setShowGrid] = useState(initialState.showGrid);
   const [selectedStage, setSelectedStage] = useState(initialState.selectedStage);
   const [selectedStep, setSelectedStep] = useState(initialState.selectedStep);
-  const [selectedDataType, setSelectedDataType] = useState(
-    initialState.selectedDataType
-  );
-  const [selectedRenderMode, setSelectedRenderMode] = useState(
-    initialState.selectedRenderMode
-  );
+  const [selectedDataType, setSelectedDataType] = useState(initialState.selectedDataType);
+  const [selectedRenderMode, setSelectedRenderMode] = useState(initialState.selectedRenderMode);
 
   const toggleEdges = useCallback(() => setShowEdges((prev) => !prev), []);
   const toggleGrid = useCallback(() => setShowGrid((prev) => !prev), []);
@@ -71,6 +65,6 @@ options: UseViewStateOptions = {})
     setSelectedRenderMode,
     toggleEdges,
     toggleGrid,
-    resetView
+    resetView,
   };
 }

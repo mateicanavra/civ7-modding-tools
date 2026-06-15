@@ -1,7 +1,19 @@
 /// <reference types="@civ7/types" />
 
-import type { OpTypeBagOf, RecipeModule, Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
-import { Type, createRecipe, createStage, createStep, defineOp, defineStep } from "@swooper/mapgen-core/authoring";
+import type {
+  OpTypeBagOf,
+  RecipeModule,
+  Static,
+  StepRuntimeOps,
+} from "@swooper/mapgen-core/authoring";
+import {
+  createRecipe,
+  createStage,
+  createStep,
+  defineOp,
+  defineStep,
+  Type,
+} from "@swooper/mapgen-core/authoring";
 
 // This file exists purely to lock in critical authoring type paths:
 // - defineOp strategies stay narrow (not widened to string)
@@ -139,9 +151,8 @@ const TypeTestRecipe = createRecipe({
   compileOpsById: {},
 });
 
-type _ConfigInput = typeof TypeTestRecipe extends RecipeModule<any, infer TConfigInput, any>
-  ? TConfigInput
-  : never;
+type _ConfigInput =
+  typeof TypeTestRecipe extends RecipeModule<any, infer TConfigInput, any> ? TConfigInput : never;
 
 // Accessing unknown stage ids should be a type error (no index signature).
 // @ts-expect-error - unknown stage id should not be indexable.
@@ -162,7 +173,8 @@ type _AuthoredMultiEnvelope = NonNullable<_TypeTestStepConfig["multi"]>;
 
 // The authored envelope should still keep strategy ids narrow.
 type _AuthoredStrategy = _AuthoredMultiEnvelope extends { strategy?: infer S } ? S : never;
-type _AuthoredStrategyIsNarrow = string extends Exclude<_AuthoredStrategy, undefined> ? false : true;
+type _AuthoredStrategyIsNarrow =
+  string extends Exclude<_AuthoredStrategy, undefined> ? false : true;
 const _authoredStrategyIsNarrow: _AuthoredStrategyIsNarrow = true;
 
 const _okConfig: _ConfigInput = {

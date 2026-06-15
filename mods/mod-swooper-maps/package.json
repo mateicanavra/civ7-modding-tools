@@ -27,19 +27,40 @@
     }
   },
   "nx": {
-    "tags": ["kind:mod"],
+    "tags": [
+      "kind:mod"
+    ],
     "targets": {
       "build": {
-        "dependsOn": ["^build"],
-        "inputs": ["default", "^default", { "env": "SWOOPER_STUDIO_RUN_ID" }],
-        "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"]
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "env": "SWOOPER_STUDIO_RUN_ID"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/mod/**",
+          "{projectRoot}/src/maps/generated/**"
+        ]
       },
       "build:studio-recipes": {
-        "dependsOn": ["^build"],
-        "outputs": ["{projectRoot}/dist/**", "{projectRoot}/src/maps/generated/**"]
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": [
+          "{projectRoot}/dist/**",
+          "{projectRoot}/src/maps/generated/**"
+        ]
       },
       "check": {
-        "dependsOn": ["^build", "build"]
+        "dependsOn": [
+          "^build",
+          "build"
+        ]
       }
     }
   },

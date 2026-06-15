@@ -1,15 +1,15 @@
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import { validatePlayerId } from "../../validation.js";
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
+import { validatePlayerId } from "../../validation.js";
 
 export type Civ7CultureChoiceCloseoutInput = Readonly<{
   playerId: number;
@@ -31,19 +31,22 @@ type CultureChoiceCloseoutCommandDependencies = Readonly<{
   jsLiteral: (value: unknown) => string;
 }>;
 
-type CultureChoiceCloseoutRequestDependencies = CultureChoiceCloseoutCommandDependencies & Readonly<{
-  executeAppUiCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;
-  invalidNodeError: () => never;
-  parseCultureChoiceCloseout: (
-    result: Civ7CommandResult,
-    label: string,
-  ) => { sent?: boolean; chooseResult?: { ok?: boolean }; clearTargetResult?: { ok?: boolean } };
-  validatePlayerId: (playerId: number) => void;
-}>;
+type CultureChoiceCloseoutRequestDependencies = CultureChoiceCloseoutCommandDependencies &
+  Readonly<{
+    executeAppUiCommand: (
+      options: Civ7DirectControlOptions & Readonly<{ command: string }>
+    ) => Promise<Civ7CommandResult>;
+    invalidNodeError: () => never;
+    parseCultureChoiceCloseout: (
+      result: Civ7CommandResult,
+      label: string
+    ) => { sent?: boolean; chooseResult?: { ok?: boolean }; clearTargetResult?: { ok?: boolean } };
+    validatePlayerId: (playerId: number) => void;
+  }>;
 
 export function buildCultureChoiceCloseoutCommand(
   input: Civ7CultureChoiceCloseoutInput,
-  dependencies: CultureChoiceCloseoutCommandDependencies,
+  dependencies: CultureChoiceCloseoutCommandDependencies
 ): string {
   return `(() => {
     ${cultureChoiceCloseoutSource()}
@@ -160,7 +163,7 @@ export function cultureChoiceCloseoutSource(): string {
 export async function requestCiv7CultureChoiceCloseout(
   input: Civ7CultureChoiceCloseoutInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: CultureChoiceCloseoutRequestDependencies = defaultCultureChoiceCloseoutDependencies,
+  dependencies: CultureChoiceCloseoutRequestDependencies = defaultCultureChoiceCloseoutDependencies
 ): Promise<Civ7CultureChoiceCloseoutResult> {
   dependencies.validatePlayerId(input.playerId);
   if (!Number.isInteger(input.node)) dependencies.invalidNodeError();

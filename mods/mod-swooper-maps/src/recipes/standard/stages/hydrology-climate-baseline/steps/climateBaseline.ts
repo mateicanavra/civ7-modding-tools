@@ -1,22 +1,9 @@
-import {
-  ctxRandom,
-  ctxRandomLabel,
-  defineVizMeta,
-  dumpScalarFieldVariants,
-  dumpVectorFieldVariants,
-  writeClimateField,
-} from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
-import {
-  hydrologyClimateBaselineArtifacts,
-} from "../artifacts.js";
-import {
-  validateClimateFieldArtifact,
-  validateClimateSeasonalityArtifact,
-  validateWindFieldArtifact,
-} from "./climateBaseline.validation.js";
-import ClimateBaselineStepContract from "./climateBaseline.contract.js";
+import type {
+  HydrologyDrynessKnob,
+  HydrologyOceanCouplingKnob,
+  HydrologySeasonalityKnob,
+  HydrologyTemperatureKnob,
+} from "@mapgen/domain/hydrology/config.js";
 import {
   HYDROLOGY_DRYNESS_WETNESS_SCALE,
   HYDROLOGY_EVAPORATION_LAND_STRENGTH_BASE,
@@ -35,12 +22,23 @@ import {
   HYDROLOGY_WATER_GRADIENT_LOWLAND_BONUS_BASE,
   HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE,
 } from "@mapgen/domain/hydrology/config.js";
-import type {
-  HydrologyDrynessKnob,
-  HydrologyOceanCouplingKnob,
-  HydrologySeasonalityKnob,
-  HydrologyTemperatureKnob,
-} from "@mapgen/domain/hydrology/config.js";
+import {
+  ctxRandom,
+  ctxRandomLabel,
+  defineVizMeta,
+  dumpScalarFieldVariants,
+  dumpVectorFieldVariants,
+  writeClimateField,
+} from "@swooper/mapgen-core";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
+import { hydrologyClimateBaselineArtifacts } from "../artifacts.js";
+import ClimateBaselineStepContract from "./climateBaseline.contract.js";
+import {
+  validateClimateFieldArtifact,
+  validateClimateSeasonalityArtifact,
+  validateWindFieldArtifact,
+} from "./climateBaseline.validation.js";
 
 const GROUP_SEASONALITY = "Hydrology / Seasonality";
 const GROUP_CLIMATE = "Hydrology / Climate";

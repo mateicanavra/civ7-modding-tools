@@ -3,57 +3,49 @@ import type {
   Civ7ControlOrpcPlayNotificationViewResult,
 } from "./dependencies/direct-control";
 import {
-  getCiv7GameUiPlayNotificationView,
   type Civ7GameUiAttentionTarget,
+  getCiv7GameUiPlayNotificationView,
 } from "./game-ui-attention";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 
-type FirstMeetValidation =
-  Civ7ControlOrpcFirstMeetResponseResult["beforeValidation"];
-type FirstMeetPostcondition =
-  Civ7ControlOrpcFirstMeetResponseResult["postcondition"];
-type RuntimeProbe<T> = Readonly<
-  | { ok: true; value: T }
-  | { ok: false; error: string }
->;
+type FirstMeetValidation = Civ7ControlOrpcFirstMeetResponseResult["beforeValidation"];
+type FirstMeetPostcondition = Civ7ControlOrpcFirstMeetResponseResult["postcondition"];
+type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
-export type Civ7GameUiFirstMeetTarget = Civ7GameUiAttentionTarget & Readonly<{
-  Game?: Civ7GameUiAttentionTarget["Game"] & {
-    Notifications?: NonNullable<Civ7GameUiAttentionTarget["Game"]>["Notifications"] & {
-      activate?: (id: Civ7ControlOrpcComponentId) => unknown;
+export type Civ7GameUiFirstMeetTarget = Civ7GameUiAttentionTarget &
+  Readonly<{
+    Game?: Civ7GameUiAttentionTarget["Game"] & {
+      Notifications?: NonNullable<Civ7GameUiAttentionTarget["Game"]>["Notifications"] & {
+        activate?: (id: Civ7ControlOrpcComponentId) => unknown;
+      };
+      PlayerOperations?: {
+        canStart?: (
+          playerId: number,
+          operationType: unknown,
+          args: unknown,
+          queue?: boolean
+        ) => unknown;
+        sendRequest?: (playerId: number, operationType: unknown, args: unknown) => unknown;
+      };
     };
-    PlayerOperations?: {
-      canStart?: (
-        playerId: number,
-        operationType: unknown,
-        args: unknown,
-        queue?: boolean,
-      ) => unknown;
-      sendRequest?: (
-        playerId: number,
-        operationType: unknown,
-        args: unknown,
-      ) => unknown;
+    PlayerOperationTypes?: {
+      RESPOND_DIPLOMATIC_FIRST_MEET?: unknown;
     };
-  };
-  PlayerOperationTypes?: {
-    RESPOND_DIPLOMATIC_FIRST_MEET?: unknown;
-  };
-}>;
+  }>;
 
-export function civ7GameUiFirstMeetResponseAvailable(
-  target: Civ7GameUiFirstMeetTarget,
-): boolean {
-  return typeof target.Game?.PlayerOperations?.canStart === "function"
-    && typeof target.Game.PlayerOperations.sendRequest === "function"
-    && target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET !== undefined
-    && typeof target.GameContext?.localPlayerID === "number"
-    && typeof target.Game?.Notifications?.activate === "function"
-    && typeof target.Game.Notifications.getIdsForPlayer === "function"
-    && typeof target.Game.Notifications.getType === "function"
-    && typeof target.Game.Notifications.getTypeName === "function"
-    && typeof target.Game.Notifications.find === "function"
-    && typeof target.Game.Notifications.getBlocksTurnAdvancement === "function";
+export function civ7GameUiFirstMeetResponseAvailable(target: Civ7GameUiFirstMeetTarget): boolean {
+  return (
+    typeof target.Game?.PlayerOperations?.canStart === "function" &&
+    typeof target.Game.PlayerOperations.sendRequest === "function" &&
+    target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET !== undefined &&
+    typeof target.GameContext?.localPlayerID === "number" &&
+    typeof target.Game?.Notifications?.activate === "function" &&
+    typeof target.Game.Notifications.getIdsForPlayer === "function" &&
+    typeof target.Game.Notifications.getType === "function" &&
+    typeof target.Game.Notifications.getTypeName === "function" &&
+    typeof target.Game.Notifications.find === "function" &&
+    typeof target.Game.Notifications.getBlocksTurnAdvancement === "function"
+  );
 }
 
 export async function requestCiv7GameUiFirstMeetResponse(
@@ -62,7 +54,7 @@ export async function requestCiv7GameUiFirstMeetResponse(
     metPlayerId: number;
     responseType: number;
   }>,
-  target: Civ7GameUiFirstMeetTarget = globalThis as Civ7GameUiFirstMeetTarget,
+  target: Civ7GameUiFirstMeetTarget = globalThis as Civ7GameUiFirstMeetTarget
 ): Promise<Civ7ControlOrpcFirstMeetResponseResult> {
   const args = {
     Player1: input.playerId,
@@ -70,13 +62,14 @@ export async function requestCiv7GameUiFirstMeetResponse(
     Type: input.responseType,
   };
   const before = await getCiv7GameUiPlayNotificationView({}, target);
-  const beforeValidation = input.playerId === target.GameContext?.localPlayerID
-    ? gameUiFirstMeetValidation(input.playerId, args, target)
-    : gameUiFirstMeetValidationBlocked(
-      input.playerId,
-      args,
-      "GameContext.localPlayerID does not match the requested first-meet player.",
-    );
+  const beforeValidation =
+    input.playerId === target.GameContext?.localPlayerID
+      ? gameUiFirstMeetValidation(input.playerId, args, target)
+      : gameUiFirstMeetValidationBlocked(
+          input.playerId,
+          args,
+          "GameContext.localPlayerID does not match the requested first-meet player."
+        );
 
   if (!beforeValidation.valid) {
     return firstMeetResponseResult({
@@ -97,7 +90,7 @@ export async function requestCiv7GameUiFirstMeetResponse(
     target.Game?.PlayerOperations?.sendRequest?.(
       input.playerId,
       target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET,
-      args,
+      args
     )
   );
   const sent = sendResult.ok && sendResult.value !== false;
@@ -114,23 +107,25 @@ export async function requestCiv7GameUiFirstMeetResponse(
   });
 }
 
-function firstMeetResponseResult(input: Readonly<{
+function firstMeetResponseResult(
   input: Readonly<{
-    playerId: number;
-    metPlayerId: number;
-    responseType: number;
-  }>;
-  before: Civ7ControlOrpcPlayNotificationViewResult;
-  beforeValidation: FirstMeetValidation;
-  after: Civ7ControlOrpcPlayNotificationViewResult;
-  afterValidation: FirstMeetValidation;
-  sent: boolean;
-}>): Civ7ControlOrpcFirstMeetResponseResult {
+    input: Readonly<{
+      playerId: number;
+      metPlayerId: number;
+      responseType: number;
+    }>;
+    before: Civ7ControlOrpcPlayNotificationViewResult;
+    beforeValidation: FirstMeetValidation;
+    after: Civ7ControlOrpcPlayNotificationViewResult;
+    afterValidation: FirstMeetValidation;
+    sent: boolean;
+  }>
+): Civ7ControlOrpcFirstMeetResponseResult {
   const postcondition = gameUiFirstMeetPostcondition(
     input.sent,
     input.before,
     input.after,
-    input.input.metPlayerId,
+    input.input.metPlayerId
   );
   return {
     playerId: input.input.playerId,
@@ -165,14 +160,14 @@ function firstMeetResponseResult(input: Readonly<{
 function gameUiFirstMeetValidation(
   playerId: number,
   args: Readonly<{ Player1: number; Player2: number; Type: number }>,
-  target: Civ7GameUiFirstMeetTarget,
+  target: Civ7GameUiFirstMeetTarget
 ): FirstMeetValidation {
   const result = probe(() =>
     target.Game?.PlayerOperations?.canStart?.(
       playerId,
       target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET,
       args,
-      false,
+      false
     )
   );
   return {
@@ -192,7 +187,7 @@ function gameUiFirstMeetValidation(
 function gameUiFirstMeetValidationBlocked(
   playerId: number,
   args: Readonly<{ Player1: number; Player2: number; Type: number }>,
-  reason: string,
+  reason: string
 ): FirstMeetValidation {
   return {
     host: "game-ui",
@@ -216,14 +211,9 @@ function gameUiFirstMeetPostcondition(
   sent: boolean,
   before: Civ7ControlOrpcPlayNotificationViewResult,
   after: Civ7ControlOrpcPlayNotificationViewResult,
-  metPlayerId: number,
+  metPlayerId: number
 ): FirstMeetPostcondition {
-  const classification = classifyGameUiFirstMeetPostcondition(
-    sent,
-    before,
-    after,
-    metPlayerId,
-  );
+  const classification = classifyGameUiFirstMeetPostcondition(sent, before, after, metPlayerId);
   return {
     classification,
     reason: firstMeetResponsePostconditionReason(classification),
@@ -234,7 +224,7 @@ function classifyGameUiFirstMeetPostcondition(
   sent: boolean,
   before: Civ7ControlOrpcPlayNotificationViewResult,
   after: Civ7ControlOrpcPlayNotificationViewResult,
-  metPlayerId: number,
+  metPlayerId: number
 ): FirstMeetPostcondition["classification"] {
   if (!sent) return "not-sent";
   if (probeValue(after.canEndTurn) === true) return "turn-unblocked";
@@ -249,7 +239,7 @@ function classifyGameUiFirstMeetPostcondition(
 }
 
 function firstMeetResponsePostconditionReason(
-  classification: FirstMeetPostcondition["classification"],
+  classification: FirstMeetPostcondition["classification"]
 ): string {
   switch (classification) {
     case "not-sent":
@@ -269,14 +259,14 @@ function firstMeetResponsePostconditionReason(
 
 function currentFirstMeetNotification(
   metPlayerId: number,
-  view: Civ7ControlOrpcPlayNotificationViewResult,
+  view: Civ7ControlOrpcPlayNotificationViewResult
 ): Civ7ControlOrpcComponentId | null {
   return notificationId(findFirstMeetNotification(view, metPlayerId));
 }
 
 function findFirstMeetNotification(
   view: Civ7ControlOrpcPlayNotificationViewResult,
-  metPlayerId: number,
+  metPlayerId: number
 ): Civ7ControlOrpcPlayNotificationViewResult["notifications"][number] | undefined {
   return view.notifications.find((notification) => {
     const typeName = String(notification.typeName ?? "").toUpperCase();
@@ -284,33 +274,34 @@ function findFirstMeetNotification(
       return false;
     }
     const target = notification.target;
-    return recordNumber(target, "owner") === metPlayerId
-      || recordNumber(target, "id") === metPlayerId;
+    return (
+      recordNumber(target, "owner") === metPlayerId || recordNumber(target, "id") === metPlayerId
+    );
   });
 }
 
-function firstMeetResponseVerified(
-  postcondition: FirstMeetPostcondition,
-): boolean {
-  return postcondition.classification === "turn-unblocked"
-    || postcondition.classification === "first-meet-cleared";
+function firstMeetResponseVerified(postcondition: FirstMeetPostcondition): boolean {
+  return (
+    postcondition.classification === "turn-unblocked" ||
+    postcondition.classification === "first-meet-cleared"
+  );
 }
 
 function notificationId(
-  notification:
-    | Civ7ControlOrpcPlayNotificationViewResult["notifications"][number]
-    | undefined,
+  notification: Civ7ControlOrpcPlayNotificationViewResult["notifications"][number] | undefined
 ): Civ7ControlOrpcComponentId | null {
   return notification?.id ?? null;
 }
 
 function componentIdEqual(
   left: Civ7ControlOrpcComponentId | null | undefined,
-  right: Civ7ControlOrpcComponentId | null | undefined,
+  right: Civ7ControlOrpcComponentId | null | undefined
 ): boolean {
-  return left?.owner === right?.owner
-    && left?.id === right?.id
-    && (left?.type ?? null) === (right?.type ?? null);
+  return (
+    left?.owner === right?.owner &&
+    left?.id === right?.id &&
+    (left?.type ?? null) === (right?.type ?? null)
+  );
 }
 
 function recordNumber(value: unknown, key: string): number | null {

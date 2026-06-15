@@ -4,10 +4,10 @@ import {
   formatRunInGamePhaseLabel,
   isRunInGameTerminalPhase,
   kindForRunInGamePhase,
+  type RunInGameOperationStatus,
   runInGameCanRetryStatus,
   runInGamePrimaryActionLabel,
   runInGameRequiresProcessRestart,
-  type RunInGameOperationStatus,
 } from "../../src/features/runInGame/status";
 
 describe("Run in Game status helpers", () => {
@@ -50,7 +50,9 @@ describe("Run in Game status helpers", () => {
     expect(diagnostics).toContain('"phase": "failed"');
     expect(diagnostics.indexOf('"completedPhases"')).toBeLessThan(diagnostics.indexOf('"details"'));
     expect(runInGameCanRetryStatus(status)).toBe(true);
-    expect(runInGameCanRetryStatus({ ...status, phase: "complete", status: "complete", ok: true })).toBe(false);
+    expect(
+      runInGameCanRetryStatus({ ...status, phase: "complete", status: "complete", ok: true })
+    ).toBe(false);
   });
 
   it("marks process-restart recovery as an explicit Run in Game action", () => {
@@ -70,7 +72,11 @@ describe("Run in Game status helpers", () => {
 
     expect(runInGameRequiresProcessRestart(status)).toBe(true);
     expect(runInGamePrimaryActionLabel(status, "current")).toBe("Restart Civ & Run");
-    expect(runInGamePrimaryActionLabel({ ...status, details: { code: "other" } }, "current")).toBe("Retry Run");
-    expect(runInGamePrimaryActionLabel({ ...status, details: { code: "other" } }, "stale")).toBe("Run Current");
+    expect(runInGamePrimaryActionLabel({ ...status, details: { code: "other" } }, "current")).toBe(
+      "Retry Run"
+    );
+    expect(runInGamePrimaryActionLabel({ ...status, details: { code: "other" } }, "stale")).toBe(
+      "Run Current"
+    );
   });
 });

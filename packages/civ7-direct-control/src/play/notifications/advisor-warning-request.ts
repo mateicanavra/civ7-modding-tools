@@ -2,8 +2,8 @@ import { assertCiv7ComponentId, type Civ7ComponentId } from "../../civ7-componen
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import { validatePlayerId } from "../../validation.js";
 import {
-  requestCiv7PlayerOperation,
   type Civ7OperationRequestResult,
+  requestCiv7PlayerOperation,
 } from "../operations/validate-request.js";
 
 export type Civ7AdvisorWarningViewedInput = Readonly<{
@@ -40,24 +40,26 @@ type AdvisorWarningViewedDependencies = Readonly<{
       operationType: "VIEWED_ADVISOR_WARNING";
       args: Readonly<{ Target: Civ7ComponentId }>;
     }>,
-    options: Civ7DirectControlOptions,
+    options: Civ7DirectControlOptions
   ) => Promise<Civ7OperationRequestResult>;
 }>;
 
 export async function requestCiv7AdvisorWarningViewed(
   input: Civ7AdvisorWarningViewedInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: AdvisorWarningViewedDependencies =
-    defaultAdvisorWarningViewedDependencies,
+  dependencies: AdvisorWarningViewedDependencies = defaultAdvisorWarningViewedDependencies
 ): Promise<Civ7AdvisorWarningViewedResult> {
   dependencies.validatePlayerId(input.playerId);
   dependencies.assertComponentId(input.target, "target");
 
-  const operation = await dependencies.requestPlayerOperation({
-    playerId: input.playerId,
-    operationType: "VIEWED_ADVISOR_WARNING",
-    args: { Target: input.target },
-  }, options);
+  const operation = await dependencies.requestPlayerOperation(
+    {
+      playerId: input.playerId,
+      operationType: "VIEWED_ADVISOR_WARNING",
+      args: { Target: input.target },
+    },
+    options
+  );
   const sent = operation.sent === true;
 
   return {
@@ -72,25 +74,24 @@ export async function requestCiv7AdvisorWarningViewed(
   };
 }
 
-function advisorWarningViewedPostcondition(
-  sent: boolean,
-): Civ7AdvisorWarningViewedPostcondition {
+function advisorWarningViewedPostcondition(sent: boolean): Civ7AdvisorWarningViewedPostcondition {
   if (!sent) {
     return {
       classification: "not-sent",
-      reason: "The advisor warning viewed request did not validate, so no advisor-warning acknowledgement was sent.",
+      reason:
+        "The advisor warning viewed request did not validate, so no advisor-warning acknowledgement was sent.",
     };
   }
 
   return {
     classification: "pending-runtime-proof",
-    reason: "The advisor warning viewed request was sent, but local tests do not prove the live warning blocker cleared; read fresh attention before another request.",
+    reason:
+      "The advisor warning viewed request was sent, but local tests do not prove the live warning blocker cleared; read fresh attention before another request.",
   };
 }
 
-const defaultAdvisorWarningViewedDependencies: AdvisorWarningViewedDependencies =
-  {
-    validatePlayerId,
-    assertComponentId: assertCiv7ComponentId,
-    requestPlayerOperation: requestCiv7PlayerOperation,
-  };
+const defaultAdvisorWarningViewedDependencies: AdvisorWarningViewedDependencies = {
+  validatePlayerId,
+  assertComponentId: assertCiv7ComponentId,
+  requestPlayerOperation: requestCiv7PlayerOperation,
+};

@@ -1,10 +1,9 @@
 import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
 
 import { clamp } from "@swooper/mapgen-core/lib/math";
-
-import type { MountainsConfig } from "./types.js";
-import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
 import { computeOrogenyPotential } from "./computeOrogenyPotential.js";
+import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
+import type { MountainsConfig } from "./types.js";
 
 /**
  * Computes mountain score from tectonic signals and fractal noise.
@@ -71,7 +70,11 @@ export function computeMountainScore(params: {
         config.mountainCollisionUpliftWeight * resolvedCollisionUplift +
         config.mountainSubductionUpliftWeight * resolvedSubductionUplift) +
     // Interior uplift is allowed, but it should still be coupled to proximity and driver gating.
-    convergentUplift * scaledUpliftWeight * config.mountainInteriorUpliftScale * driverStrength * boundaryStrength +
+    convergentUplift *
+      scaledUpliftWeight *
+      config.mountainInteriorUpliftScale *
+      driverStrength *
+      boundaryStrength +
     // Fractal modulation is visual roughness; the physics signal is carried by orogenyPotential.
     fractal * config.fractalWeight * config.mountainFractalScale * orogenyPotential;
 

@@ -346,7 +346,10 @@ function generateOpposedPalette(count: number, seedKey: string): RgbaColor[] {
   return selected;
 }
 
-export function buildCategoricalColorMap(options: { values: ArrayBufferView; seedKey: string }): Map<number, RgbaColor> {
+export function buildCategoricalColorMap(options: {
+  values: ArrayBufferView;
+  seedKey: string;
+}): Map<number, RgbaColor> {
   const ids = collectCategoryIds(options.values);
   const palette = generateOpposedPalette(ids.length, options.seedKey);
   const colorById = new Map<number, RgbaColor>();
@@ -424,7 +427,10 @@ function isNoData(value: number, noData: VizNoDataSpec | undefined): boolean {
 
 type Domain = { min: number; max: number };
 
-function resolveDomain(domain: VizValueDomain | undefined, stats: VizScalarStats | null): Domain | null {
+function resolveDomain(
+  domain: VizValueDomain | undefined,
+  stats: VizScalarStats | null
+): Domain | null {
   if (!domain) return null;
   if (domain.kind === "unit") return { min: 0, max: 1 };
   if (domain.kind === "explicit") return { min: domain.min, max: domain.max };
@@ -436,7 +442,11 @@ function resolveDomain(domain: VizValueDomain | undefined, stats: VizScalarStats
   return null;
 }
 
-function applyTransform(value: number, transform: VizValueTransform | undefined, stats: VizScalarStats | null): number {
+function applyTransform(
+  value: number,
+  transform: VizValueTransform | undefined,
+  stats: VizScalarStats | null
+): number {
   if (!transform || transform.kind === "identity") return value;
   if (transform.kind === "clamp") return Math.max(transform.min, Math.min(transform.max, value));
   if (transform.kind === "affine") return value * transform.scale + transform.offset;
@@ -525,7 +535,10 @@ function resolveUnitValue(args: {
   }
 
   // Otherwise, normalize based on the field's declared domain (or inferred stats).
-  const dom = resolveDomain(valueSpec?.domain ?? (stats ? { kind: "fromStats" } : undefined), stats);
+  const dom = resolveDomain(
+    valueSpec?.domain ?? (stats ? { kind: "fromStats" } : undefined),
+    stats
+  );
   if (!dom) return transformed;
 
   const unit = mapToUnitWithScale(transformed, dom, valueSpec?.scale ?? "linear");
@@ -558,7 +571,11 @@ function resolveColorForValue(args: {
 
   const paletteMode = meta?.palette ?? "auto";
   if (args.categoricalColorMap) {
-    writeRgba(args.out, args.offset, args.categoricalColorMap.get(rawValue | 0) ?? [148, 163, 184, 220]);
+    writeRgba(
+      args.out,
+      args.offset,
+      args.categoricalColorMap.get(rawValue | 0) ?? [148, 163, 184, 220]
+    );
     return;
   }
 
@@ -650,13 +667,21 @@ export function legendForLayer(
   if (stats && Number.isFinite(stats.min) && Number.isFinite(stats.max)) {
     const min = stats.min ?? 0;
     const max = stats.max ?? 1;
-    const unitSpec = (layer.kind === "grid" ? layer.field.valueSpec : layer.kind === "gridFields" ? null : layer.values?.valueSpec) ?? undefined;
+    const unitSpec =
+      (layer.kind === "grid"
+        ? layer.field.valueSpec
+        : layer.kind === "gridFields"
+          ? null
+          : layer.values?.valueSpec) ?? undefined;
     const units = unitSpec?.units ? ` ${unitSpec.units}` : "";
     return {
       title,
       items: [
         { label: `min = ${min.toFixed(3)}${units}`, color: VALUE_RAMP[0] ?? UNKNOWN_COLOR },
-        { label: `max = ${max.toFixed(3)}${units}`, color: VALUE_RAMP[VALUE_RAMP.length - 1] ?? UNKNOWN_COLOR },
+        {
+          label: `max = ${max.toFixed(3)}${units}`,
+          color: VALUE_RAMP[VALUE_RAMP.length - 1] ?? UNKNOWN_COLOR,
+        },
       ],
       context,
     };
@@ -668,4 +693,3 @@ export function legendForLayer(
     context,
   };
 }
-

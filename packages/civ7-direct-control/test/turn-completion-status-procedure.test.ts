@@ -1,19 +1,21 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7TurnCompletionStatusDependencies,
   Civ7TurnCompletionStatusProcedureDescriptor,
   Civ7TurnCompletionStatusProcedureSchemaArtifacts,
   callCiv7TurnCompletionStatusProcedure,
   getCiv7TurnCompletionStatus,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7TurnCompletionStatusDependencies,
 } from "../src/index";
 
 describe("Civ7 turn-completion status procedure descriptor", () => {
   test("records the turn-completion status read atom and resolves its schemas", () => {
-    const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7TurnCompletionStatusProcedureDescriptor);
+    const summary = summarizeCiv7ProcedureCoreDescriptor(
+      Civ7TurnCompletionStatusProcedureDescriptor
+    );
     expect(summary).toMatchObject({
       procedureKey: "runtime.turn.completion.status",
       family: "runtime",
@@ -31,22 +33,26 @@ describe("Civ7 turn-completion status procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7TurnCompletionStatusProcedureDescriptor,
-      Civ7TurnCompletionStatusProcedureSchemaArtifacts,
+      Civ7TurnCompletionStatusProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual([]);
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7TurnCompletionStatusProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7TurnCompletionStatusProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, {})).toBe(true);
     expect(Value.Check(resolved.inputSchema, { host: "127.0.0.1" })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { port: 4318 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { state: { role: "app-ui" } })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { rawCommand: "GameContext.sendTurnComplete()" })).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, { rawCommand: "GameContext.sendTurnComplete()" })
+    ).toBe(false);
     expect(Value.Check(resolved.outputSchema, turnCompletionStatusResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...turnCompletionStatusResult(),
-      command: "GameContext.sendTurnComplete()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...turnCompletionStatusResult(),
+        command: "GameContext.sendTurnComplete()",
+      })
+    ).toBe(false);
   });
 
   test("calls the status atom through the procedure core without sending turn commands", async () => {
@@ -68,16 +74,19 @@ describe("Civ7 turn-completion status procedure descriptor", () => {
       parseTurnCompletionStatus: () => turnCompletionStatusResult(),
     };
 
-    const result = await callCiv7TurnCompletionStatusProcedure({}, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
-      },
-      procedure: {
-        correlationId: "turn-completion-status-procedure-test",
-      },
-      dependencies,
-    });
+    const result = await callCiv7TurnCompletionStatusProcedure(
+      {},
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "turn-completion-status-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(turnCompletionStatusResult());
     expect(result.diagnostics).toMatchObject({
@@ -115,10 +124,12 @@ describe("Civ7 turn-completion status procedure descriptor", () => {
       { state: { role: "app-ui" } },
       { rawCommand: "GameContext.sendTurnComplete()" },
     ]) {
-      await expect(callCiv7TurnCompletionStatusProcedure(input as never, {
-        procedure: { correlationId: "turn-completion-status-invalid-input" },
-        dependencies,
-      })).rejects.toMatchObject({
+      await expect(
+        callCiv7TurnCompletionStatusProcedure(input as never, {
+          procedure: { correlationId: "turn-completion-status-invalid-input" },
+          dependencies,
+        })
+      ).rejects.toMatchObject({
         code: "procedure-descriptor-invalid",
         details: {
           reason: "input-schema-invalid",

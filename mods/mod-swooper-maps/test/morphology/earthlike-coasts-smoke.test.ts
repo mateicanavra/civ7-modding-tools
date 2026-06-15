@@ -1,14 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, COAST_TERRAIN, OCEAN_TERRAIN } from "@swooper/mapgen-core";
+import { COAST_TERRAIN, createExtendedMapContext, OCEAN_TERRAIN } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
+import morphologyDomain from "../../src/domain/morphology/ops.js";
+import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
-
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
-import morphologyDomain from "../../src/domain/morphology/ops.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
 describe("Earthlike coasts (smoke)", () => {
@@ -37,7 +35,13 @@ describe("Earthlike coasts (smoke)", () => {
       },
     };
 
-    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+    });
     const context = createExtendedMapContext({ width, height }, adapter, env);
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
     standardRecipe.run(context, env, realismEarthlikeConfig, { log: () => {} });
@@ -45,21 +49,28 @@ describe("Earthlike coasts (smoke)", () => {
     const topography = context.artifacts.get(morphologyArtifacts.topography.id) as
       | { landMask?: Uint8Array; bathymetry?: Int16Array }
       | undefined;
-    if (!(topography?.landMask instanceof Uint8Array)) throw new Error("Missing topography.landMask.");
-    if (!(topography?.bathymetry instanceof Int16Array)) throw new Error("Missing topography.bathymetry.");
+    if (!(topography?.landMask instanceof Uint8Array))
+      throw new Error("Missing topography.landMask.");
+    if (!(topography?.bathymetry instanceof Int16Array))
+      throw new Error("Missing topography.bathymetry.");
 
     const coastlineMetrics = context.artifacts.get(morphologyArtifacts.coastlineMetrics.id) as
       | { coastalWater?: Uint8Array; shelfMask?: Uint8Array; distanceToCoast?: Uint16Array }
       | undefined;
-    if (!(coastlineMetrics?.coastalWater instanceof Uint8Array)) throw new Error("Missing coastlineMetrics.coastalWater.");
-    if (!(coastlineMetrics?.shelfMask instanceof Uint8Array)) throw new Error("Missing coastlineMetrics.shelfMask.");
-    if (!(coastlineMetrics?.distanceToCoast instanceof Uint16Array)) throw new Error("Missing coastlineMetrics.distanceToCoast.");
+    if (!(coastlineMetrics?.coastalWater instanceof Uint8Array))
+      throw new Error("Missing coastlineMetrics.coastalWater.");
+    if (!(coastlineMetrics?.shelfMask instanceof Uint8Array))
+      throw new Error("Missing coastlineMetrics.shelfMask.");
+    if (!(coastlineMetrics?.distanceToCoast instanceof Uint16Array))
+      throw new Error("Missing coastlineMetrics.distanceToCoast.");
 
     const beltDrivers = context.artifacts.get(morphologyArtifacts.beltDrivers.id) as
       | { boundaryCloseness?: Uint8Array; boundaryType?: Uint8Array }
       | undefined;
-    if (!(beltDrivers?.boundaryCloseness instanceof Uint8Array)) throw new Error("Missing beltDrivers.boundaryCloseness.");
-    if (!(beltDrivers?.boundaryType instanceof Uint8Array)) throw new Error("Missing beltDrivers.boundaryType.");
+    if (!(beltDrivers?.boundaryCloseness instanceof Uint8Array))
+      throw new Error("Missing beltDrivers.boundaryCloseness.");
+    if (!(beltDrivers?.boundaryType instanceof Uint8Array))
+      throw new Error("Missing beltDrivers.boundaryType.");
 
     // Basic “earthlike” guardrails: not all-coast, and shelf extends beyond adjacency ring.
     let waterTiles = 0;
@@ -88,7 +99,11 @@ describe("Earthlike coasts (smoke)", () => {
     for (let i = 0; i < width * height; i++) {
       const dist = coastlineMetrics.distanceToCoast[i] | 0;
       if ((coastlineMetrics.coastalWater[i] | 0) === 1) shorelineRing += 1;
-      if ((coastlineMetrics.shelfMask[i] | 0) === 1 && (coastlineMetrics.coastalWater[i] | 0) === 0 && dist >= 2) {
+      if (
+        (coastlineMetrics.shelfMask[i] | 0) === 1 &&
+        (coastlineMetrics.coastalWater[i] | 0) === 0 &&
+        dist >= 2
+      ) {
         shelfBeyondRing += 1;
       }
     }

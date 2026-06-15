@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7CitySummaryDependencies,
   Civ7CitySummaryProcedureDescriptor,
   Civ7CitySummaryProcedureSchemaArtifacts,
   callCiv7CitySummaryProcedure,
   getCiv7CitySummary,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7CitySummaryDependencies,
 } from "../src/index";
 
 describe("Civ7 city-summary procedure descriptor", () => {
@@ -30,32 +30,37 @@ describe("Civ7 city-summary procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7CitySummaryProcedureDescriptor,
-      Civ7CitySummaryProcedureSchemaArtifacts,
+      Civ7CitySummaryProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7CitySummaryProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7CitySummaryProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7CitySummaryProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7CitySummaryProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      playerId: 0,
-      cityIds: [{ owner: -1, id: -1, type: 1 }],
-      maxItems: 2,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        playerId: 0,
+        cityIds: [{ owner: -1, id: -1, type: 1 }],
+        maxItems: 2,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { playerId: 1025 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { maxItems: 1_001 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { state: { role: "tuner" } })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { rawCommand: "Cities.get(id)" })).toBe(false);
     expect(Value.Check(resolved.outputSchema, citySummaryResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...citySummaryResult(),
-      command: "Cities.get(id)",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...citySummaryResult(),
+        command: "Cities.get(id)",
+      })
+    ).toBe(false);
   });
 
   test("calls the city-summary atom through the procedure core without sending operations", async () => {
-    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> =
+      [];
     const validatePlayerIdCalls: number[] = [];
     const executeCalls: Array<{
       host?: string;
@@ -89,21 +94,24 @@ describe("Civ7 city-summary procedure descriptor", () => {
       },
     };
 
-    const result = await callCiv7CitySummaryProcedure({
-      playerIds: [0],
-      playerId: 0,
-      cityIds: [{ owner: -1, id: -1, type: 1 }],
-      maxItems: 2,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7CitySummaryProcedure(
+      {
+        playerIds: [0],
+        playerId: 0,
+        cityIds: [{ owner: -1, id: -1, type: 1 }],
+        maxItems: 2,
       },
-      procedure: {
-        correlationId: "city-summary-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "city-summary-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(citySummaryResult());
     expect(result.diagnostics).toMatchObject({
@@ -114,9 +122,7 @@ describe("Civ7 city-summary procedure descriptor", () => {
       debugServiceCorrelation: true,
       telemetryCorrelation: false,
     });
-    expect(boundedIntegerCalls).toEqual([
-      { value: 2, min: 1, max: 1_000, label: "maxItems" },
-    ]);
+    expect(boundedIntegerCalls).toEqual([{ value: 2, min: 1, max: 1_000, label: "maxItems" }]);
     expect(validatePlayerIdCalls).toEqual([0, 0]);
     expect(executeCalls).toHaveLength(1);
     expect(executeCalls[0]).toMatchObject({
@@ -151,10 +157,12 @@ describe("Civ7 city-summary procedure descriptor", () => {
       { state: { role: "tuner" } },
       { rawCommand: "Cities.get(id)" },
     ]) {
-      await expect(callCiv7CitySummaryProcedure(input as never, {
-        procedure: { correlationId: "city-summary-invalid-input" },
-        dependencies,
-      })).rejects.toMatchObject({
+      await expect(
+        callCiv7CitySummaryProcedure(input as never, {
+          procedure: { correlationId: "city-summary-invalid-input" },
+          dependencies,
+        })
+      ).rejects.toMatchObject({
         code: "procedure-descriptor-invalid",
         details: {
           reason: "input-schema-invalid",

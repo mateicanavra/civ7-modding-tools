@@ -7,7 +7,10 @@ import { collectWorldBalanceStats } from "../support/world-balance-stats.js";
 
 function loadEarthlikeConfig(): StandardRecipeConfig {
   const raw = JSON.parse(
-    readFileSync(new URL("../../src/maps/configs/swooper-earthlike.config.json", import.meta.url), "utf8")
+    readFileSync(
+      new URL("../../src/maps/configs/swooper-earthlike.config.json", import.meta.url),
+      "utf8"
+    )
   );
   return canonicalRecipeConfig(raw) as StandardRecipeConfig;
 }

@@ -1,35 +1,31 @@
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7TunerCommand } from "../../session/execute.js";
-import {
-  populationPlacementPostcondition,
-  type Civ7PopulationPlacementPostcondition,
-  type Civ7PopulationPlacementPostconditionSnapshot,
-} from "./population-postconditions.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
 import { populationPlacementRequestVerified } from "./population-placement-proof.js";
 import {
-  productionPostconditionFor,
+  type Civ7PopulationPlacementPostcondition,
+  type Civ7PopulationPlacementPostconditionSnapshot,
+  populationPlacementPostcondition,
+} from "./population-postconditions.js";
+import {
   type Civ7ProductionPostcondition,
   type Civ7ProductionPostconditionSnapshot,
+  productionPostconditionFor,
 } from "./production-postconditions.js";
 import { operationRouterSource } from "./router.js";
-import {
-  unitOperationPostcondition,
-  type Civ7UnitOperationPostcondition,
-  type Civ7UnitOperationPostconditionSnapshot,
-} from "./unit-postconditions.js";
 import type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./types.js";
-
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-} from "../../session/types.js";
+import {
+  type Civ7UnitOperationPostcondition,
+  type Civ7UnitOperationPostconditionSnapshot,
+  unitOperationPostcondition,
+} from "./unit-postconditions.js";
 
 export type Civ7OperationRequestResult = Readonly<{
   before: Civ7OperationValidationResult;
@@ -43,7 +39,9 @@ export type Civ7OperationRequestResult = Readonly<{
 }>;
 
 type OperationRequestDependencies = Readonly<{
-  executeTunerCommand: (options: Civ7DirectControlOptions & { command: string }) => Promise<Civ7CommandResult>;
+  executeTunerCommand: (
+    options: Civ7DirectControlOptions & { command: string }
+  ) => Promise<Civ7CommandResult>;
   jsonPayloadFromCommandResult: <T extends object>(result: Civ7CommandResult, label: string) => T;
   jsLiteral: (value: unknown) => string;
 }>;
@@ -51,7 +49,7 @@ type OperationRequestDependencies = Readonly<{
 export async function canStartCiv7UnitOperation(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies,
+  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationValidationResult> {
   return await validateCiv7Operation("unit-operation", input, options, dependencies);
 }
@@ -59,7 +57,7 @@ export async function canStartCiv7UnitOperation(
 export async function requestCiv7UnitOperation(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies,
+  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationRequestResult> {
   return await requestCiv7Operation("unit-operation", input, options, dependencies);
 }
@@ -67,7 +65,7 @@ export async function requestCiv7UnitOperation(
 export async function canStartCiv7UnitCommand(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies,
+  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationValidationResult> {
   return await validateCiv7Operation("unit-command", input, options, dependencies);
 }
@@ -75,7 +73,7 @@ export async function canStartCiv7UnitCommand(
 export async function requestCiv7UnitCommand(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies,
+  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationRequestResult> {
   return await requestCiv7Operation("unit-command", input, options, dependencies);
 }
@@ -83,7 +81,7 @@ export async function requestCiv7UnitCommand(
 export async function canStartCiv7CityOperation(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies,
+  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationValidationResult> {
   return await validateCiv7Operation("city-operation", input, options, dependencies);
 }
@@ -91,7 +89,7 @@ export async function canStartCiv7CityOperation(
 export async function requestCiv7CityOperation(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies,
+  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationRequestResult> {
   return await requestCiv7Operation("city-operation", input, options, dependencies);
 }
@@ -99,7 +97,7 @@ export async function requestCiv7CityOperation(
 export async function canStartCiv7CityCommand(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies,
+  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationValidationResult> {
   return await validateCiv7Operation("city-command", input, options, dependencies);
 }
@@ -107,7 +105,7 @@ export async function canStartCiv7CityCommand(
 export async function requestCiv7CityCommand(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies,
+  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationRequestResult> {
   return await requestCiv7Operation("city-command", input, options, dependencies);
 }
@@ -115,7 +113,7 @@ export async function requestCiv7CityCommand(
 export async function canStartCiv7PlayerOperation(
   input: Civ7OperationInput & Readonly<{ playerId: number }>,
   options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies,
+  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationValidationResult> {
   return await validateCiv7Operation("player-operation", input, options, dependencies);
 }
@@ -123,7 +121,7 @@ export async function canStartCiv7PlayerOperation(
 export async function requestCiv7PlayerOperation(
   input: Civ7OperationInput & Readonly<{ playerId: number }>,
   options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies,
+  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationRequestResult> {
   return await requestCiv7Operation("player-operation", input, options, dependencies);
 }
@@ -131,7 +129,7 @@ export async function requestCiv7PlayerOperation(
 export function buildOperationValidationCommand(
   family: Civ7OperationFamily,
   input: Civ7OperationInput,
-  dependencies: Pick<OperationRequestDependencies, "jsLiteral">,
+  dependencies: Pick<OperationRequestDependencies, "jsLiteral">
 ): string {
   return `(() => {
     ${operationRouterSource()}
@@ -142,7 +140,7 @@ export function buildOperationValidationCommand(
 export function buildOperationRequestCommand(
   family: Civ7OperationFamily,
   input: Civ7OperationInput,
-  dependencies: Pick<OperationRequestDependencies, "jsLiteral">,
+  dependencies: Pick<OperationRequestDependencies, "jsLiteral">
 ): string {
   return `(() => {
     ${operationRouterSource()}
@@ -154,21 +152,24 @@ async function validateCiv7Operation(
   family: Civ7OperationFamily,
   input: Civ7OperationInput,
   options: Civ7DirectControlOptions,
-  dependencies: OperationRequestDependencies,
+  dependencies: OperationRequestDependencies
 ): Promise<Civ7OperationValidationResult> {
   validateOperationInput(family, input);
   const result = await dependencies.executeTunerCommand({
     ...options,
     command: buildOperationValidationCommand(family, input, dependencies),
   });
-  return dependencies.jsonPayloadFromCommandResult<Civ7OperationValidationResult>(result, "Civ7 operation validation");
+  return dependencies.jsonPayloadFromCommandResult<Civ7OperationValidationResult>(
+    result,
+    "Civ7 operation validation"
+  );
 }
 
 async function requestCiv7Operation(
   family: Civ7OperationFamily,
   input: Civ7OperationInput,
   options: Civ7DirectControlOptions,
-  dependencies: OperationRequestDependencies,
+  dependencies: OperationRequestDependencies
 ): Promise<Civ7OperationRequestResult> {
   validateOperationInput(family, input);
   const before = await validateCiv7Operation(family, input, options, dependencies);
@@ -178,7 +179,15 @@ async function requestCiv7Operation(
       after: before,
       sent: false,
       verified: false,
-      postcondition: unitOperationPostcondition(family, input, false, before, before, undefined, undefined),
+      postcondition: unitOperationPostcondition(
+        family,
+        input,
+        false,
+        before,
+        before,
+        undefined,
+        undefined
+      ),
     };
   }
   const command = await dependencies.executeTunerCommand({
@@ -203,7 +212,7 @@ async function requestCiv7Operation(
     before,
     after,
     sentPayload.beforePostcondition,
-    sentPayload.afterPostcondition,
+    sentPayload.afterPostcondition
   );
   const populationPostcondition = populationPlacementPostcondition(
     family,
@@ -212,7 +221,7 @@ async function requestCiv7Operation(
     before,
     after,
     sentPayload.beforePopulationPostcondition,
-    sentPayload.afterPopulationPostcondition,
+    sentPayload.afterPopulationPostcondition
   );
   const productionPostcondition = productionPostconditionFor(
     family,
@@ -221,18 +230,18 @@ async function requestCiv7Operation(
     before,
     after,
     sentPayload.beforeProductionPostcondition,
-    sentPayload.afterProductionPostcondition,
+    sentPayload.afterProductionPostcondition
   );
-  const operationVerified =
-    postcondition
-      ? postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change"
-      : populationPostcondition
-        ? populationPlacementRequestVerified(populationPostcondition.classification)
-        : productionPostcondition
-          ? productionPostcondition.classification !== "not-sent"
-            && productionPostcondition.classification !== "no-state-change"
-            && productionPostcondition.classification !== "production-state-changed-blocker-still-live"
-          : command.output.length > 0 && sent;
+  const operationVerified = postcondition
+    ? postcondition.classification !== "not-sent" &&
+      postcondition.classification !== "no-state-change"
+    : populationPostcondition
+      ? populationPlacementRequestVerified(populationPostcondition.classification)
+      : productionPostcondition
+        ? productionPostcondition.classification !== "not-sent" &&
+          productionPostcondition.classification !== "no-state-change" &&
+          productionPostcondition.classification !== "production-state-changed-blocker-still-live"
+        : command.output.length > 0 && sent;
   return {
     before,
     command,

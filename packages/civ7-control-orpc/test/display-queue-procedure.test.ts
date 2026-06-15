@@ -1,25 +1,24 @@
 import { call } from "@orpc/server";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
-
-import {
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  Civ7DisplayQueueUnavailableError,
-  createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-} from "../src/index";
-import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+import { describe, expect, test } from "vitest";
 import type {
   Civ7ControlOrpcCloseDisplaysResult,
   Civ7ControlOrpcDisplayQueueSnapshotResult,
 } from "../src/dependencies/direct-control";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  Civ7ControlOrpcRouter,
+  Civ7DisplayQueueUnavailableError,
+  createCiv7ControlOrpcServerClient,
+} from "../src/index";
+import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 const QueueCurrentInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.display.queue.current,
+  Civ7ControlOrpcContract.display.queue.current
 );
 const QueueCloseInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.display.queue.close,
+  Civ7ControlOrpcContract.display.queue.close
 );
 
 describe("display.queue control-oRPC procedures", () => {
@@ -28,14 +27,16 @@ describe("display.queue control-oRPC procedures", () => {
     const result = await call(
       Civ7ControlOrpcRouter.display.queue.current,
       {},
-      { context: fake.context },
+      { context: fake.context }
     );
 
-    expect(fake.calls.reads).toEqual([{
-      host: "127.0.0.1",
-      port: 4318,
-      timeoutMs: 1_000,
-    }]);
+    expect(fake.calls.reads).toEqual([
+      {
+        host: "127.0.0.1",
+        port: 4318,
+        timeoutMs: 1_000,
+      },
+    ]);
     expect(result).toEqual({
       active: [{ category: "Cinematic", id: 6 }],
       suspended: [{ category: "UnlockPopup", id: null }],
@@ -53,14 +54,16 @@ describe("display.queue control-oRPC procedures", () => {
       categories: ["Cinematic"],
     });
 
-    expect(fake.calls.closes).toEqual([{
-      input: { categories: ["Cinematic"] },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+    expect(fake.calls.closes).toEqual([
+      {
+        input: { categories: ["Cinematic"] },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-    }]);
+    ]);
     expect(result).toEqual({
       closed: [{ category: "Cinematic", closed: 7 }],
       closedTotal: 7,
@@ -73,20 +76,18 @@ describe("display.queue control-oRPC procedures", () => {
   test("close without categories purges everything queued", async () => {
     const fake = fakeContext();
 
-    await call(
-      Civ7ControlOrpcRouter.display.queue.close,
-      {},
-      { context: fake.context },
-    );
+    await call(Civ7ControlOrpcRouter.display.queue.close, {}, { context: fake.context });
 
-    expect(fake.calls.closes).toEqual([{
-      input: {},
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+    expect(fake.calls.closes).toEqual([
+      {
+        input: {},
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-    }]);
+    ]);
   });
 
   test("rejects raw endpoint/session/command input before facade reads", async () => {
@@ -101,11 +102,7 @@ describe("display.queue control-oRPC procedures", () => {
     for (const input of invalidInputs) {
       const fake = fakeContext();
       await expect(
-        call(
-          Civ7ControlOrpcRouter.display.queue.close,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.display.queue.close, input as never, { context: fake.context })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.closes).toEqual([]);
     }
@@ -119,14 +116,18 @@ describe("display.queue control-oRPC procedures", () => {
   test("maps facade failures to tagged errors without raw command details", async () => {
     const fake = fakeContext({
       readError: new Error(
-        "Timed out waiting for Civ7 tuner response to CMD:65535:globalThis.__civ7DirectControlDqm",
+        "Timed out waiting for Civ7 tuner response to CMD:65535:globalThis.__civ7DirectControlDqm"
       ),
     });
 
     await expect(
-      call(Civ7ControlOrpcRouter.display.queue.current, {}, {
-        context: fake.context,
-      }),
+      call(
+        Civ7ControlOrpcRouter.display.queue.current,
+        {},
+        {
+          context: fake.context,
+        }
+      )
     ).rejects.toMatchObject({
       code: "DISPLAY_QUEUE_UNAVAILABLE",
       status: 503,
@@ -137,9 +138,13 @@ describe("display.queue control-oRPC procedures", () => {
     });
 
     try {
-      await call(Civ7ControlOrpcRouter.display.queue.current, {}, {
-        context: fake.context,
-      });
+      await call(
+        Civ7ControlOrpcRouter.display.queue.current,
+        {},
+        {
+          context: fake.context,
+        }
+      );
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -149,9 +154,7 @@ describe("display.queue control-oRPC procedures", () => {
   });
 
   test("publishes contract-first display queue leaves", () => {
-    expect(
-      Civ7ControlOrpcContract.display.queue.current["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.display.queue.current["~orpc"]).toMatchObject({
       meta: {
         family: "display",
         procedureKey: "display.queue.current",
@@ -159,9 +162,7 @@ describe("display.queue control-oRPC procedures", () => {
         risk: "read-only",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.display.queue.close["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.display.queue.close["~orpc"]).toMatchObject({
       meta: {
         family: "display",
         procedureKey: "display.queue.close",
@@ -169,20 +170,20 @@ describe("display.queue control-oRPC procedures", () => {
         risk: "runtime-support",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.display.queue.current["~orpc"].errorMap,
-    ).toHaveProperty("DISPLAY_QUEUE_UNAVAILABLE");
-    expect(Civ7DisplayQueueUnavailableError.code).toBe(
-      "DISPLAY_QUEUE_UNAVAILABLE",
+    expect(Civ7ControlOrpcContract.display.queue.current["~orpc"].errorMap).toHaveProperty(
+      "DISPLAY_QUEUE_UNAVAILABLE"
     );
+    expect(Civ7DisplayQueueUnavailableError.code).toBe("DISPLAY_QUEUE_UNAVAILABLE");
   });
 });
 
-function fakeContext(options: {
-  readError?: Error;
-  snapshot?: Civ7ControlOrpcDisplayQueueSnapshotResult;
-  closeResult?: Civ7ControlOrpcCloseDisplaysResult;
-} = {}): {
+function fakeContext(
+  options: {
+    readError?: Error;
+    snapshot?: Civ7ControlOrpcDisplayQueueSnapshotResult;
+    closeResult?: Civ7ControlOrpcCloseDisplaysResult;
+  } = {}
+): {
   context: Civ7ControlOrpcContext;
   calls: {
     reads: unknown[];
@@ -245,8 +246,8 @@ function expectSafeDisplayOutput(output: unknown): void {
   const serialized = JSON.stringify(output);
   expect(serialized).not.toContain("127.0.0.1");
   expect(serialized).not.toContain("65535");
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
   expect(serialized).not.toContain("rawCommand");
 }

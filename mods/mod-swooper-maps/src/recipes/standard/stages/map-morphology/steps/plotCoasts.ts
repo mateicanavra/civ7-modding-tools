@@ -1,32 +1,29 @@
 import {
-  COAST_TERRAIN,
-  FLAT_TERRAIN,
-  OCEAN_TERRAIN,
-  defineVizMeta,
-  logLandmassAscii,
-  snapshotEngineHeightfield,
-} from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
+  applyCiv7CoastClassificationPolicy,
   CIV7_COAST_CLASSIFICATION_POLICY_V0,
   WATER_CLASS_COAST,
   WATER_CLASS_LAND,
   WATER_CLASS_OCEAN,
-  applyCiv7CoastClassificationPolicy,
 } from "@civ7/map-policy";
-import PlotCoastsStepContract from "./plotCoasts.contract.js";
+import {
+  COAST_TERRAIN,
+  defineVizMeta,
+  FLAT_TERRAIN,
+  logLandmassAscii,
+  OCEAN_TERRAIN,
+  snapshotEngineHeightfield,
+} from "@swooper/mapgen-core";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
 import { mapMorphologyArtifacts } from "../artifacts.js";
+import PlotCoastsStepContract from "./plotCoasts.contract.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(PlotCoastsStepContract, {
   artifacts: implementArtifacts(
-    [
-      mapMorphologyArtifacts.coastClassification,
-      mapMorphologyArtifacts.coastEngineTerrainSnapshot,
-    ],
+    [mapMorphologyArtifacts.coastClassification, mapMorphologyArtifacts.coastEngineTerrainSnapshot],
     {
       coastClassification: {},
       coastEngineTerrainSnapshot: {},
@@ -86,11 +83,12 @@ export default createStep(PlotCoastsStepContract, {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
         const cls = waterClass[idx] | 0;
-        const terrain = cls === WATER_CLASS_LAND
-          ? FLAT_TERRAIN
-          : cls === WATER_CLASS_COAST
-            ? COAST_TERRAIN
-            : OCEAN_TERRAIN;
+        const terrain =
+          cls === WATER_CLASS_LAND
+            ? FLAT_TERRAIN
+            : cls === WATER_CLASS_COAST
+              ? COAST_TERRAIN
+              : OCEAN_TERRAIN;
         context.adapter.setTerrainType(x, y, terrain);
       }
     }

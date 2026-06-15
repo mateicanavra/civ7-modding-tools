@@ -2,8 +2,8 @@ import { Civ7DirectControlError } from "../../direct-control-error";
 import type { Civ7DirectControlOptions } from "../../session/types";
 import { validatePlayerId } from "../../validation";
 import {
-  requestCiv7PlayerOperation,
   type Civ7OperationRequestResult,
+  requestCiv7PlayerOperation,
 } from "../operations/validate-request";
 
 export const CIV7_GOVERNMENT_ACTIVATE_ACTION = -1_326_475_004;
@@ -27,9 +27,7 @@ export type Civ7GovernmentDomainChoiceInput =
   | Civ7GovernmentChoiceInput
   | Civ7CelebrationChoiceInput;
 
-export type Civ7GovernmentChoicePostconditionClassification =
-  | "not-sent"
-  | "pending-runtime-proof";
+export type Civ7GovernmentChoicePostconditionClassification = "not-sent" | "pending-runtime-proof";
 
 export type Civ7GovernmentChoicePostcondition = Readonly<{
   classification: Civ7GovernmentChoicePostconditionClassification;
@@ -47,15 +45,17 @@ type Civ7GovernmentDomainChoiceResultBase = Readonly<{
 }>;
 
 export type Civ7GovernmentDomainChoiceResult =
-  | Civ7GovernmentDomainChoiceResultBase & Readonly<{
-    kind: "government";
-    governmentType: number;
-    action: number;
-  }>
-  | Civ7GovernmentDomainChoiceResultBase & Readonly<{
-    kind: "celebration";
-    goldenAgeType: number;
-  }>;
+  | (Civ7GovernmentDomainChoiceResultBase &
+      Readonly<{
+        kind: "government";
+        governmentType: number;
+        action: number;
+      }>)
+  | (Civ7GovernmentDomainChoiceResultBase &
+      Readonly<{
+        kind: "celebration";
+        goldenAgeType: number;
+      }>);
 
 type GovernmentChoiceRequestDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;
@@ -65,7 +65,7 @@ type GovernmentChoiceRequestDependencies = Readonly<{
       operationType: string;
       args: Readonly<Record<string, number>>;
     }>,
-    options: Civ7DirectControlOptions,
+    options: Civ7DirectControlOptions
   ) => Promise<Civ7OperationRequestResult>;
   invalidIntegerError: (field: string) => never;
 }>;
@@ -73,16 +73,18 @@ type GovernmentChoiceRequestDependencies = Readonly<{
 export async function requestCiv7GovernmentDomainChoice(
   input: Civ7GovernmentDomainChoiceInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: GovernmentChoiceRequestDependencies =
-    defaultGovernmentChoiceRequestDependencies,
+  dependencies: GovernmentChoiceRequestDependencies = defaultGovernmentChoiceRequestDependencies
 ): Promise<Civ7GovernmentDomainChoiceResult> {
   dependencies.validatePlayerId(input.playerId);
   const request = governmentChoiceOperation(input, dependencies);
-  const operation = await dependencies.requestPlayerOperation({
-    playerId: input.playerId,
-    operationType: request.operationType,
-    args: request.args,
-  }, options);
+  const operation = await dependencies.requestPlayerOperation(
+    {
+      playerId: input.playerId,
+      operationType: request.operationType,
+      args: request.args,
+    },
+    options
+  );
   const sent = operation.sent === true;
   const common = {
     playerId: input.playerId,
@@ -112,27 +114,33 @@ export async function requestCiv7GovernmentDomainChoice(
 
 export async function requestCiv7GovernmentChoice(
   input: Omit<Civ7GovernmentChoiceInput, "kind">,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7GovernmentDomainChoiceResult> {
-  return await requestCiv7GovernmentDomainChoice({
-    ...input,
-    kind: "government",
-  }, options);
+  return await requestCiv7GovernmentDomainChoice(
+    {
+      ...input,
+      kind: "government",
+    },
+    options
+  );
 }
 
 export async function requestCiv7CelebrationChoice(
   input: Omit<Civ7CelebrationChoiceInput, "kind">,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7GovernmentDomainChoiceResult> {
-  return await requestCiv7GovernmentDomainChoice({
-    ...input,
-    kind: "celebration",
-  }, options);
+  return await requestCiv7GovernmentDomainChoice(
+    {
+      ...input,
+      kind: "celebration",
+    },
+    options
+  );
 }
 
 function governmentChoiceOperation(
   input: Civ7GovernmentDomainChoiceInput,
-  dependencies: Pick<GovernmentChoiceRequestDependencies, "invalidIntegerError">,
+  dependencies: Pick<GovernmentChoiceRequestDependencies, "invalidIntegerError">
 ): Readonly<{
   operationType: string;
   args: Readonly<Record<string, number>>;
@@ -173,7 +181,7 @@ function governmentChoiceOperation(
 
 function governmentChoicePostcondition(
   sent: boolean,
-  kind: Civ7GovernmentChoiceKind,
+  kind: Civ7GovernmentChoiceKind
 ): Civ7GovernmentChoicePostcondition {
   if (!sent) {
     return {
@@ -188,11 +196,10 @@ function governmentChoicePostcondition(
   };
 }
 
-const defaultGovernmentChoiceRequestDependencies:
-  GovernmentChoiceRequestDependencies = {
-    validatePlayerId,
-    requestPlayerOperation: requestCiv7PlayerOperation,
-    invalidIntegerError: (field) => {
-      throw new Civ7DirectControlError("command-failed", `${field} must be an integer`);
-    },
-  };
+const defaultGovernmentChoiceRequestDependencies: GovernmentChoiceRequestDependencies = {
+  validatePlayerId,
+  requestPlayerOperation: requestCiv7PlayerOperation,
+  invalidIntegerError: (field) => {
+    throw new Civ7DirectControlError("command-failed", `${field} must be an integer`);
+  },
+};

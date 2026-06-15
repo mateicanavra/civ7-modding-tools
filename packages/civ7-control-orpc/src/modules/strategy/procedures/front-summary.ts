@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 
 import type {
-  Civ7ControlOrpcDirectControlFacade,
   Civ7ControlOrpcBattlefieldScanResult,
   Civ7ControlOrpcDestinationAnalysisResult,
+  Civ7ControlOrpcDirectControlFacade,
   Civ7ControlOrpcTargetCandidatesResult,
 } from "../../../dependencies/direct-control";
 import {
@@ -11,10 +11,7 @@ import {
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
-import type {
-  Civ7StrategyFrontSummaryInput,
-  Civ7StrategyFrontSummaryResult,
-} from "../contract";
+import type { Civ7StrategyFrontSummaryInput, Civ7StrategyFrontSummaryResult } from "../contract";
 
 type Civ7StrategyTargetCandidatesInput = NonNullable<
   Parameters<Civ7ControlOrpcDirectControlFacade["getCiv7TargetCandidates"]>[0]
@@ -25,41 +22,30 @@ type Civ7StrategyBattlefieldScanInput = NonNullable<
 type Civ7StrategyDestinationAnalysisInput = Parameters<
   Civ7ControlOrpcDirectControlFacade["getCiv7DestinationAnalysis"]
 >[0];
-type Civ7StrategyPointOfInterest =
-  Civ7StrategyFrontSummaryResult["pointsOfInterest"][number];
+type Civ7StrategyPointOfInterest = Civ7StrategyFrontSummaryResult["pointsOfInterest"][number];
 
 export const strategyFrontSummaryProcedure =
-  civ7ControlOrpcImplementer.strategy.frontSummary.effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
+  civ7ControlOrpcImplementer.strategy.frontSummary.effect(function* ({ context, errors, input }) {
     return yield* Effect.tryPromise({
       try: async () => {
         const targetInput = targetCandidatesInput(input);
         const battlefieldInput = battlefieldScanInput(input);
         const [targetCandidates, battlefieldScan] = await Promise.all([
-          context.directControl.getCiv7TargetCandidates(
-            targetInput,
-            context.endpointDefaults,
-          ),
-          context.directControl.getCiv7BattlefieldScan(
-            battlefieldInput,
-            context.endpointDefaults,
-          ),
+          context.directControl.getCiv7TargetCandidates(targetInput, context.endpointDefaults),
+          context.directControl.getCiv7BattlefieldScan(battlefieldInput, context.endpointDefaults),
         ]);
-        const target = input.target ??
-          firstCandidateCityLocation(targetCandidates.candidates);
-        const destinationAnalysis = target == null
-          ? null
-          : await context.directControl.getCiv7DestinationAnalysis(
-            destinationAnalysisInput({
-              input,
-              target,
-              origin: targetCandidates.origins[0] ?? battlefieldScan.origins[0],
-            }),
-            context.endpointDefaults,
-          );
+        const target = input.target ?? firstCandidateCityLocation(targetCandidates.candidates);
+        const destinationAnalysis =
+          target == null
+            ? null
+            : await context.directControl.getCiv7DestinationAnalysis(
+                destinationAnalysisInput({
+                  input,
+                  target,
+                  origin: targetCandidates.origins[0] ?? battlefieldScan.origins[0],
+                }),
+                context.endpointDefaults
+              );
 
         return strategyFrontSummaryResult({
           input,
@@ -82,7 +68,7 @@ export const strategyFrontSummaryProcedure =
   });
 
 function targetCandidatesInput(
-  input: Civ7StrategyFrontSummaryInput,
+  input: Civ7StrategyFrontSummaryInput
 ): Civ7StrategyTargetCandidatesInput {
   return {
     playerId: input.playerId,
@@ -94,7 +80,7 @@ function targetCandidatesInput(
 }
 
 function battlefieldScanInput(
-  input: Civ7StrategyFrontSummaryInput,
+  input: Civ7StrategyFrontSummaryInput
 ): Civ7StrategyBattlefieldScanInput {
   return {
     playerId: input.playerId,
@@ -139,21 +125,19 @@ function strategyFrontSummaryResult({
   destinationAnalysis: Civ7ControlOrpcDestinationAnalysisResult | null;
   target: Civ7StrategyFrontSummaryResult["target"];
 }>): Civ7StrategyFrontSummaryResult {
-  const targetCandidateSummaries = targetCandidates.candidates.map(
-    (candidate) => ({
-      owner: candidate.owner,
-      relationship: "relationship-unproven" as const,
-      relationshipProof: "none" as const,
-      nearestDistance: candidate.nearestDistance,
-      cityCount: candidate.cityCount,
-      unitCount: candidate.unitCount,
-      nearbyUnitCount: candidate.nearbyUnitCount,
-      apparentStrength: candidate.apparentStrength,
-      routeKind: candidate.approach.routeKind,
-      routeHint: candidate.approach.routeHint,
-      reasons: [...candidate.reasons],
-    }),
-  );
+  const targetCandidateSummaries = targetCandidates.candidates.map((candidate) => ({
+    owner: candidate.owner,
+    relationship: "relationship-unproven" as const,
+    relationshipProof: "none" as const,
+    nearestDistance: candidate.nearestDistance,
+    cityCount: candidate.cityCount,
+    unitCount: candidate.unitCount,
+    nearbyUnitCount: candidate.nearbyUnitCount,
+    apparentStrength: candidate.apparentStrength,
+    routeKind: candidate.approach.routeKind,
+    routeHint: candidate.approach.routeHint,
+    reasons: [...candidate.reasons],
+  }));
   const pointsOfInterest = [
     ...battlefieldScan.pointsOfInterest.map((point) => ({
       kind: point.kind,
@@ -172,12 +156,9 @@ function strategyFrontSummaryResult({
   ];
   const observedOwners = battlefieldScan.owners.map((owner) => ({
     owner: owner.owner,
-    relationship: owner.relationshipProof === "self"
-      ? "self" as const
-      : "relationship-unproven" as const,
-    relationshipProof: owner.relationshipProof === "self"
-      ? "self" as const
-      : "none" as const,
+    relationship:
+      owner.relationshipProof === "self" ? ("self" as const) : ("relationship-unproven" as const),
+    relationshipProof: owner.relationshipProof === "self" ? ("self" as const) : ("none" as const),
     unitCount: owner.unitCount,
     cityCount: owner.cityCount,
     apparentStrength: owner.apparentStrength,
@@ -188,9 +169,8 @@ function strategyFrontSummaryResult({
     pointsOfInterest,
   });
   const front = strategyFrontView({
-    origins: targetCandidates.origins.length > 0
-      ? targetCandidates.origins
-      : battlefieldScan.origins,
+    origins:
+      targetCandidates.origins.length > 0 ? targetCandidates.origins : battlefieldScan.origins,
     target,
     targetCandidates: targetCandidateSummaries,
     pointsOfInterest,
@@ -201,22 +181,20 @@ function strategyFrontSummaryResult({
   return {
     playerId: targetCandidates.playerId,
     localPlayerId: targetCandidates.localPlayerId,
-    origins: targetCandidates.origins.length > 0
-      ? targetCandidates.origins
-      : battlefieldScan.origins,
+    origins:
+      targetCandidates.origins.length > 0 ? targetCandidates.origins : battlefieldScan.origins,
     target,
     sourceStatus: {
       targetCandidates: "read",
       battlefieldScan: "read",
-      destinationAnalysis: destinationAnalysis == null
-        ? "skipped-no-target"
-        : "read",
+      destinationAnalysis: destinationAnalysis == null ? "skipped-no-target" : "read",
     },
     relationshipLabelPolicy: {
       relationshipSource: "not-classified",
       relationshipProof: "none",
       unprovenLabel: "relationship-unproven",
-      guidance: "Front summary composes planning evidence only. Other-owner contact, proximity, ranking, and action legality do not prove official diplomatic status.",
+      guidance:
+        "Front summary composes planning evidence only. Other-owner contact, proximity, ranking, and action legality do not prove official diplomatic status.",
     },
     summary: {
       targetCandidateCount: targetCandidateSummaries.length,
@@ -238,7 +216,7 @@ function strategyFrontSummaryResult({
 }
 
 function nearestOwnerDistance(
-  owner: Civ7ControlOrpcBattlefieldScanResult["owners"][number],
+  owner: Civ7ControlOrpcBattlefieldScanResult["owners"][number]
 ): number | null {
   const distances = [
     distanceFromUnknown(owner.nearestUnit),
@@ -294,11 +272,13 @@ function strategyNextSteps({
   }
 
   if (nextSteps.length === 0) {
-    return [{
-      kind: "observe",
-      source: "strategy.frontSummary",
-      label: "No front planning evidence found; refresh attention or narrow the scan origins.",
-    }];
+    return [
+      {
+        kind: "observe",
+        source: "strategy.frontSummary",
+        label: "No front planning evidence found; refresh attention or narrow the scan origins.",
+      },
+    ];
   }
 
   return nextSteps;
@@ -338,12 +318,8 @@ function strategyFrontView({
   const targetLabel = target
     ? `target/front (${target.x},${target.y})`
     : "no target/front selected";
-  const originLabel = origin
-    ? `origin (${origin.x},${origin.y})`
-    : "inferred runtime origins";
-  const candidateLabel = candidate
-    ? `owner ${candidate.owner}`
-    : "no ranked target candidate";
+  const originLabel = origin ? `origin (${origin.x},${origin.y})` : "inferred runtime origins";
+  const candidateLabel = candidate ? `owner ${candidate.owner}` : "no ranked target candidate";
 
   return {
     posture: postureFromPressure(pressure, destinationAnalysis),
@@ -355,7 +331,7 @@ function strategyFrontView({
 }
 
 function destinationRisks(
-  destinationAnalysis: Civ7ControlOrpcDestinationAnalysisResult | null,
+  destinationAnalysis: Civ7ControlOrpcDestinationAnalysisResult | null
 ): string[] {
   const pressure = asRecord(destinationAnalysis?.destinationPressure);
   const risks: string[] = [];
@@ -376,18 +352,12 @@ function destinationRisks(
 
 function postureFromPressure(
   pressure: ReadonlyArray<Civ7StrategyFrontSummaryResult["front"]["pressure"][number]>,
-  destinationAnalysis: Civ7ControlOrpcDestinationAnalysisResult | null,
+  destinationAnalysis: Civ7ControlOrpcDestinationAnalysisResult | null
 ): string {
-  if (
-    pressure.some((item) =>
-      item.kind === "civilian-risk" && item.severity === "high"
-    )
-  ) return "screen-civilians-before-advance";
-  if (
-    pressure.some((item) =>
-      item.kind === "nearby-other-owners" && item.severity === "high"
-    )
-  ) return "stabilize-front-before-committing-siege";
+  if (pressure.some((item) => item.kind === "civilian-risk" && item.severity === "high"))
+    return "screen-civilians-before-advance";
+  if (pressure.some((item) => item.kind === "nearby-other-owners" && item.severity === "high"))
+    return "stabilize-front-before-committing-siege";
   const destinationPressure = asRecord(destinationAnalysis?.destinationPressure);
   if (
     Number(destinationPressure?.unitCount ?? 0) > 0 ||
@@ -413,7 +383,7 @@ function normalizeRelationshipSummary(summary: string): string {
 }
 
 function firstCandidateCityLocation(
-  candidates: ReadonlyArray<Civ7ControlOrpcTargetCandidatesResult["candidates"][number]>,
+  candidates: ReadonlyArray<Civ7ControlOrpcTargetCandidatesResult["candidates"][number]>
 ): Civ7StrategyFrontSummaryResult["target"] {
   for (const candidate of candidates) {
     if (candidate.approach.targetLocation != null) {
@@ -434,9 +404,7 @@ function locationFromUnknown(value: unknown): Civ7StrategyFrontSummaryResult["ta
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
-  return value !== null && typeof value === "object"
-    ? value as Record<string, unknown>
-    : null;
+  return value !== null && typeof value === "object" ? (value as Record<string, unknown>) : null;
 }
 
 function uniqueStrings(values: ReadonlyArray<string>): string[] {

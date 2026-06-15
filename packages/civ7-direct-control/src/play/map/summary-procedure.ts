@@ -1,22 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
+import { getCiv7MapSummary, type MapSummaryReadDependencies } from "./reads.js";
 import {
-  Civ7MapSummaryInputSchema,
-  Civ7MapSummaryResultSchema,
   type Civ7MapSummaryInput,
+  Civ7MapSummaryInputSchema,
   type Civ7MapSummaryResult,
+  Civ7MapSummaryResultSchema,
 } from "./types.js";
-import {
-  getCiv7MapSummary,
-  type MapSummaryReadDependencies,
-} from "./reads.js";
 
 export const Civ7MapSummaryProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "map.summary.read",
@@ -33,18 +30,8 @@ export const Civ7MapSummaryProcedureDescriptor = createCiv7ProcedureCoreDescript
     owner: "packages/civ7-direct-control/src/play/map/types.ts",
     exportName: "Civ7MapSummaryResultSchema",
   },
-  inputFields: [
-    "includeAreaRegionCounts",
-    "maxIds",
-  ],
-  outputFields: [
-    "host",
-    "port",
-    "state",
-    "map",
-    "game",
-    "areas",
-  ],
+  inputFields: ["includeAreaRegionCounts", "maxIds"],
+  outputFields: ["host", "port", "state", "map", "game", "areas"],
   playerScope: "global",
   consumerClasses: [
     "normal-cli-player-agent-view",
@@ -89,13 +76,14 @@ export type Civ7MapSummaryProcedureCallOptions = Readonly<{
 
 export function callCiv7MapSummaryProcedure(
   input: Civ7MapSummaryInput = {},
-  options: Civ7MapSummaryProcedureCallOptions = {},
+  options: Civ7MapSummaryProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7MapSummaryResult>> {
   return callCiv7ProcedureCore<Civ7MapSummaryInput, Civ7MapSummaryResult>(
     Civ7MapSummaryProcedureDescriptor,
     Civ7MapSummaryProcedureSchemaArtifacts,
     input,
-    (validInput) => getCiv7MapSummary({ ...options.directControl, ...validInput }, options.dependencies),
-    options.procedure,
+    (validInput) =>
+      getCiv7MapSummary({ ...options.directControl, ...validInput }, options.dependencies),
+    options.procedure
   );
 }

@@ -35,7 +35,9 @@ export function requireEnvDimensions(
   return { width, height };
 }
 
-export function deriveFoundationReferenceArea(dimensions: Readonly<{ width: number; height: number }>): number {
+export function deriveFoundationReferenceArea(
+  dimensions: Readonly<{ width: number; height: number }>
+): number {
   const { width, height } = dimensions;
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width <= 0 || height <= 0) {
     throw new Error("[Foundation] Cannot derive reference area from invalid map dimensions.");

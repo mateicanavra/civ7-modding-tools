@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const NavigableRiverSignalStatusSchema = Type.Union(
   [
@@ -159,11 +159,13 @@ const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
     targetMajorTileFraction: Type.Number({
       minimum: 0,
       maximum: 1,
-      description: "Requested share of eligible major-river tiles to preserve as navigable terrain.",
+      description:
+        "Requested share of eligible major-river tiles to preserve as navigable terrain.",
     }),
     selectedEndpointDischargeFloor: Type.Number({
       minimum: 0,
-      description: "Discharge floor imposed on candidate major-river endpoints for this selection run.",
+      description:
+        "Discharge floor imposed on candidate major-river endpoints for this selection run.",
     }),
     nonProjectableMajorTileCount: Type.Integer({
       minimum: 0,

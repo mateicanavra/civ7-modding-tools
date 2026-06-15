@@ -6,9 +6,9 @@ import type {
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../session/types.js";
-import type { Civ7RuntimeApiInspection } from "./inspection.js";
 import { boundedInteger, validateIdentifier } from "../validation.js";
 import { jsLiteral } from "./command-serialization.js";
+import type { Civ7RuntimeApiInspection } from "./inspection.js";
 import {
   DEFAULT_CIV7_ROOT_MAX_KEYS,
   DEFAULT_CIV7_ROOT_MAX_METHODS,
@@ -25,20 +25,22 @@ export type Civ7RootInspectionInput = Readonly<{
   includeSignatures?: boolean;
 }>;
 
-export type Civ7RootInspectionResult = Civ7RuntimeApiInspection & Readonly<{
-  limits: Readonly<{
-    maxRoots: number;
-    maxKeys: number;
-    maxMethods: number;
-    truncated: boolean;
+export type Civ7RootInspectionResult = Civ7RuntimeApiInspection &
+  Readonly<{
+    limits: Readonly<{
+      maxRoots: number;
+      maxKeys: number;
+      maxMethods: number;
+      truncated: boolean;
+    }>;
   }>;
-}>;
 
 type RootInspectionDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   commandFailedError: (message: string) => Error;
   executeCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string; state?: Civ7TunerStateSelection }>,
+    options: Civ7DirectControlOptions &
+      Readonly<{ command: string; state?: Civ7TunerStateSelection }>
   ) => Promise<Civ7CommandResult>;
   jsonPayloadFromCommandResult: <T extends object>(result: Civ7CommandResult, label: string) => T;
   jsLiteral: (value: unknown) => string;
@@ -50,7 +52,7 @@ type RootInspectionDependencies = Readonly<{
 export async function inspectCiv7Root(
   input: Civ7RootInspectionInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: RootInspectionDependencies = defaultRootInspectionDependencies,
+  dependencies: RootInspectionDependencies = defaultRootInspectionDependencies
 ): Promise<Civ7RootInspectionResult> {
   const roots = input.roots.map((root) => dependencies.validateIdentifier(root, "runtime root"));
   if (roots.length === 0) {
@@ -68,19 +70,22 @@ export async function inspectCiv7Root(
           input.maxKeys ?? dependencies.rootMaxKeysDefault,
           1,
           1_000,
-          "maxKeys",
+          "maxKeys"
         ),
         maxMethods: dependencies.boundedInteger(
           input.maxMethods ?? dependencies.rootMaxMethodsDefault,
           1,
           1_000,
-          "maxMethods",
+          "maxMethods"
         ),
       },
-      dependencies,
+      dependencies
     ),
   });
-  return dependencies.jsonPayloadFromCommandResult<Civ7RootInspectionResult>(result, "Civ7 root inspection");
+  return dependencies.jsonPayloadFromCommandResult<Civ7RootInspectionResult>(
+    result,
+    "Civ7 root inspection"
+  );
 }
 
 function buildBoundedRootInspectionCommand(
@@ -90,7 +95,7 @@ function buildBoundedRootInspectionCommand(
     maxKeys: number;
     maxMethods: number;
   },
-  dependencies: RootInspectionDependencies,
+  dependencies: RootInspectionDependencies
 ): string {
   return `(() => {
     const input = ${dependencies.jsLiteral(input)};

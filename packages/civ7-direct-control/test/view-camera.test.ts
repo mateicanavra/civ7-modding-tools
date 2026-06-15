@@ -1,15 +1,14 @@
 import { describe, expect, test } from "vitest";
-
+import { Civ7DirectControlError } from "../src/direct-control-error";
+import { validateMapLocation } from "../src/play/map/validation";
 import {
-  focusCiv7CameraOnPlot,
   type CameraFocusDependencies,
   type Civ7CameraFocusResult,
+  focusCiv7CameraOnPlot,
 } from "../src/play/view/camera";
-import { Civ7DirectControlError } from "../src/direct-control-error";
 import { jsLiteral } from "../src/runtime/command-serialization";
 import { probeHelperSource } from "../src/runtime/probe";
 import { jsonPayloadFromCommandResult } from "../src/session/command-result";
-import { validateMapLocation } from "../src/play/map/validation";
 import type { Civ7CommandResult } from "../src/session/types";
 
 function commandResult(payload: unknown): Civ7CommandResult {
@@ -21,12 +20,14 @@ function commandResult(payload: unknown): Civ7CommandResult {
   };
 }
 
-function cameraPayload(overrides: Partial<{
-  centerPlot: { x: number; y: number } | null;
-  lookAt: { ok: true; value: boolean } | { ok: false; error: string };
-  target: { x: number; y: number };
-  zoomLevel: number;
-}> = {}) {
+function cameraPayload(
+  overrides: Partial<{
+    centerPlot: { x: number; y: number } | null;
+    lookAt: { ok: true; value: boolean } | { ok: false; error: string };
+    target: { x: number; y: number };
+    zoomLevel: number;
+  }> = {}
+) {
   const target = overrides.target ?? { x: 12, y: 34 };
   const centerPlot = overrides.centerPlot === undefined ? target : overrides.centerPlot;
   const snapshot = {
@@ -43,13 +44,15 @@ function cameraPayload(overrides: Partial<{
     before: snapshot,
     lookAt: overrides.lookAt ?? { ok: true, value: true },
     after: snapshot,
-    centerMatchesTarget: centerPlot !== null && centerPlot.x === target.x && centerPlot.y === target.y,
+    centerMatchesTarget:
+      centerPlot !== null && centerPlot.x === target.x && centerPlot.y === target.y,
   };
 }
 
-function fakeDependencies(
-  payloads: ReadonlyArray<unknown>,
-): { dependencies: CameraFocusDependencies; commands: string[] } {
+function fakeDependencies(payloads: ReadonlyArray<unknown>): {
+  dependencies: CameraFocusDependencies;
+  commands: string[];
+} {
   const commands: string[] = [];
   const queue = [...payloads];
   const dependencies: CameraFocusDependencies = {
@@ -97,7 +100,7 @@ describe("focusCiv7CameraOnPlot", () => {
     await focusCiv7CameraOnPlot(
       { x: 12, y: 34, zoom: 0.25, instantaneous: false },
       {},
-      zoomed.dependencies,
+      zoomed.dependencies
     );
     expect(zoomed.commands[0]).toContain('"zoom":0.25');
     expect(zoomed.commands[0]).toContain('"instantaneous":false');
@@ -111,11 +114,7 @@ describe("focusCiv7CameraOnPlot", () => {
       cameraPayload({ zoomLevel: 1 }),
       cameraPayload({ zoomLevel: 0.25 }),
     ]);
-    const result = await focusCiv7CameraOnPlot(
-      { x: 12, y: 34, zoom: 0.25 },
-      {},
-      dependencies,
-    );
+    const result = await focusCiv7CameraOnPlot({ x: 12, y: 34, zoom: 0.25 }, {}, dependencies);
     expect(commands).toHaveLength(3);
     expect(result.centerMatchesTarget).toBe(true);
     expect(result.after.zoomLevel).toEqual({ ok: true, value: 0.25 });
@@ -123,13 +122,9 @@ describe("focusCiv7CameraOnPlot", () => {
 
   test("an unsettled zoom returns the last readback truth after the retry budget", async () => {
     const { dependencies, commands } = fakeDependencies(
-      Array.from({ length: 5 }, () => cameraPayload({ zoomLevel: 1 })),
+      Array.from({ length: 5 }, () => cameraPayload({ zoomLevel: 1 }))
     );
-    const result = await focusCiv7CameraOnPlot(
-      { x: 12, y: 34, zoom: 0.25 },
-      {},
-      dependencies,
-    );
+    const result = await focusCiv7CameraOnPlot({ x: 12, y: 34, zoom: 0.25 }, {}, dependencies);
     // 1 move + 4 settle reads, then the loop gives up and reports truth.
     expect(commands).toHaveLength(5);
     expect(result.centerMatchesTarget).toBe(true);
@@ -145,7 +140,7 @@ describe("focusCiv7CameraOnPlot", () => {
     const result = await focusCiv7CameraOnPlot(
       { x: 12, y: 34, instantaneous: false },
       {},
-      dependencies,
+      dependencies
     );
     expect(commands).toHaveLength(2);
     // The settle pass only reads state — it must not re-issue the move.
@@ -169,11 +164,11 @@ describe("focusCiv7CameraOnPlot", () => {
   test("rejects out-of-range zoom and invalid plot coordinates before touching the game", async () => {
     const { dependencies, commands } = fakeDependencies([]);
     await expect(
-      focusCiv7CameraOnPlot({ x: 12, y: 34, zoom: 1.5 }, {}, dependencies),
+      focusCiv7CameraOnPlot({ x: 12, y: 34, zoom: 1.5 }, {}, dependencies)
     ).rejects.toThrow(Civ7DirectControlError);
-    await expect(
-      focusCiv7CameraOnPlot({ x: -1, y: 34 }, {}, dependencies),
-    ).rejects.toThrow(Civ7DirectControlError);
+    await expect(focusCiv7CameraOnPlot({ x: -1, y: 34 }, {}, dependencies)).rejects.toThrow(
+      Civ7DirectControlError
+    );
     expect(commands).toHaveLength(0);
   });
 });

@@ -42,9 +42,7 @@ export const defaultStrategy = createStrategy(PlanResourceGroupsContract, "defau
     for (const [inputField, expectedGroupId] of EXPECTED_INPUT_GROUPS) {
       const groupPlan = input[inputField] as ResourceGroupPlan;
       if (groupPlan.groupId !== expectedGroupId) {
-        blockers.push(
-          `${inputField} supplied ${groupPlan.groupId}; expected ${expectedGroupId}.`
-        );
+        blockers.push(`${inputField} supplied ${groupPlan.groupId}; expected ${expectedGroupId}.`);
       }
 
       for (const row of groupPlan.plans) {

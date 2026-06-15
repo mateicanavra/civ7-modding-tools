@@ -1,11 +1,11 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
-import { climateRefine } from "./steps/index.js";
 import {
   HydrologyCryosphereKnobSchema,
   HydrologyDrynessKnobSchema,
   HydrologyTemperatureKnobSchema,
 } from "@mapgen/domain/hydrology/config.js";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { HydrologyClimateRefinePublicSchema } from "../hydrology-public-config.js";
+import { climateRefine } from "./steps/index.js";
 
 const knobsSchema = Type.Object(
   {

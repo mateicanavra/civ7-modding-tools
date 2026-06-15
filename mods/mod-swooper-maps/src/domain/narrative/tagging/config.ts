@@ -1,4 +1,4 @@
-import { Type, type Static } from "@swooper/mapgen-core/authoring";
+import { type Static, Type } from "@swooper/mapgen-core/authoring";
 
 /**
  * Tagging config owns hotspot, rift, and margin schemas because those knobs
@@ -50,21 +50,24 @@ export const HotspotTunablesSchema = Type.Object(
     /** Bias applied to paradise hotspots when selecting overlays. */
     paradiseBias: Type.Optional(
       Type.Number({
-        description: "Bias applied to paradise hotspots when selecting overlays (unitless multiplier).",
+        description:
+          "Bias applied to paradise hotspots when selecting overlays (unitless multiplier).",
         default: 2,
       })
     ),
     /** Bias applied to volcanic hotspots when selecting overlays. */
     volcanicBias: Type.Optional(
       Type.Number({
-        description: "Bias applied to volcanic hotspots when selecting overlays (unitless multiplier).",
+        description:
+          "Bias applied to volcanic hotspots when selecting overlays (unitless multiplier).",
         default: 1,
       })
     ),
     /** Chance that a volcanic hotspot contains a high peak suitable for story placement. */
     volcanicPeakChance: Type.Optional(
       Type.Number({
-        description: "Chance that a volcanic hotspot contains a high peak suitable for story placement (0..1).",
+        description:
+          "Chance that a volcanic hotspot contains a high peak suitable for story placement (0..1).",
         default: 0.33,
         minimum: 0,
         maximum: 1,

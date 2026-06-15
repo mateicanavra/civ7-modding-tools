@@ -1,10 +1,10 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import { BiomeEngineBindingsSchema } from "@mapgen/domain/ecology";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
 import {
   FIELD_DEPENDENCY_TAGS,
-  STANDARD_ENGINE_EFFECT_TAGS,
   MAP_PROJECTION_EFFECT_TAGS,
+  STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../tags.js";
 import { ecologyArtifacts } from "../../ecology/artifacts.js";
 import { morphologyArtifacts } from "../../morphology/artifacts.js";

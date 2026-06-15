@@ -1,43 +1,44 @@
 import { call } from "@orpc/server";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
+  type Civ7ControlOrpcNotificationDismissalResult,
   Civ7ControlOrpcRouter,
   Civ7NotificationDismissalUnavailableError,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-  type Civ7ControlOrpcNotificationDismissalResult,
 } from "../src/index";
 import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 const notificationId = { owner: 0, id: 113, type: 20 };
-const Civ7NotificationDismissInputSchema =
-  typeboxInputSchemaFromContractProcedure(
-    Civ7ControlOrpcContract.notifications.dismiss.request,
-  );
+const Civ7NotificationDismissInputSchema = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.notifications.dismiss.request
+);
 
 describe("notifications.dismiss.request control-oRPC procedure", () => {
   test("owns the caller-facing notification dismiss contract without raw fields", () => {
-    expect(Value.Check(Civ7NotificationDismissInputSchema, {
-      notificationId,
-    })).toBe(true);
-    expect(Value.Check(Civ7NotificationDismissInputSchema, {
-      notificationId,
-      rawCommand: "Game.turn",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7NotificationDismissInputSchema, {
+        notificationId,
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7NotificationDismissInputSchema, {
+        notificationId,
+        rawCommand: "Game.turn",
+      })
+    ).toBe(false);
   });
 
   test("calls notification dismissal through native Effect/oRPC ", async () => {
-    const fake = fakeContext(
-      notificationDismissalResult("notification-disappeared"),
-    );
+    const fake = fakeContext(notificationDismissalResult("notification-disappeared"));
 
     const result = await call(
       Civ7ControlOrpcRouter.notifications.dismiss.request,
       { notificationId },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -56,36 +57,36 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
         confirmed: true,
         noRepeatAfterUnverified: false,
       },
-      nextSteps: [{
-        kind: "refresh-attention",
-        source: "notifications.dismiss.request",
-      }],
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "notifications.dismiss.request",
+        },
+      ],
     });
     expect(JSON.stringify(result)).not.toContain("127.0.0.1");
     expect(JSON.stringify(result)).not.toContain("65535");
-    expect(JSON.stringify(result)).not.toContain("\"host\"");
-    expect(JSON.stringify(result)).not.toContain("\"port\"");
-    expect(JSON.stringify(result)).not.toContain("\"state\"");
-    expect(JSON.stringify(result)).not.toContain("\"result\"");
-    expect(JSON.stringify(result)).not.toContain("\"verified\"");
-    expect(JSON.stringify(result)).not.toContain(
-      "NotificationModel.manager.dismiss",
-    );
+    expect(JSON.stringify(result)).not.toContain('"host"');
+    expect(JSON.stringify(result)).not.toContain('"port"');
+    expect(JSON.stringify(result)).not.toContain('"state"');
+    expect(JSON.stringify(result)).not.toContain('"result"');
+    expect(JSON.stringify(result)).not.toContain('"verified"');
+    expect(JSON.stringify(result)).not.toContain("NotificationModel.manager.dismiss");
     expect(JSON.stringify(result)).not.toContain("Game.Notifications.dismiss");
-    expect(fake.calls).toEqual([{
-      input: { notificationId },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+    expect(fake.calls).toEqual([
+      {
+        input: { notificationId },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-    }]);
+    ]);
   });
 
   test("supports the in-process server-side router client", async () => {
-    const fake = fakeContext(
-      notificationDismissalResult("notification-disappeared"),
-    );
+    const fake = fakeContext(notificationDismissalResult("notification-disappeared"));
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
     const result = await client.notifications.dismiss.request({
@@ -106,13 +107,13 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
           isNotificationTrainFront: { ok: true, value: false },
         }),
         verified: true,
-      }),
+      })
     );
 
     const result = await call(
       Civ7ControlOrpcRouter.notifications.dismiss.request,
       { notificationId },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -125,25 +126,29 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "notifications.dismiss.request",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "notifications.dismiss.request",
+        },
+      ],
     });
   });
 
   test("projects validator-blocked notification dismissals as not-sent", async () => {
-    const fake = fakeContext(notificationDismissalResult("not-sent", {
-      after: null,
-      canDismiss: false,
-      sent: false,
-      verified: false,
-    }));
+    const fake = fakeContext(
+      notificationDismissalResult("not-sent", {
+        after: null,
+        canDismiss: false,
+        sent: false,
+        verified: false,
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.notifications.dismiss.request,
       { notificationId },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -159,10 +164,12 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
         outcome: "not-sent",
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "inspect-notification",
-        source: "notifications.dismiss.request",
-      }],
+      nextSteps: [
+        {
+          kind: "inspect-notification",
+          source: "notifications.dismiss.request",
+        },
+      ],
     });
   });
 
@@ -180,28 +187,32 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
     ];
 
     for (const input of invalidInputs) {
-      const fake = fakeContext(
-        notificationDismissalResult("notification-disappeared"),
-      );
+      const fake = fakeContext(notificationDismissalResult("notification-disappeared"));
 
       await expect(
         call(Civ7ControlOrpcRouter.notifications.dismiss.request, input as never, {
           context: fake.context,
-        }),
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls).toEqual([]);
     }
   });
 
   test("maps notification dismissal facade failures to a tagged error without raw details", async () => {
-    const fake = fakeContext(new Error(
-      "Timed out waiting for Civ7 tuner response to CMD:65535:Game.Notifications.dismiss(...)",
-    ));
+    const fake = fakeContext(
+      new Error(
+        "Timed out waiting for Civ7 tuner response to CMD:65535:Game.Notifications.dismiss(...)"
+      )
+    );
 
     await expect(
-      call(Civ7ControlOrpcRouter.notifications.dismiss.request, {
-        notificationId,
-      }, { context: fake.context }),
+      call(
+        Civ7ControlOrpcRouter.notifications.dismiss.request,
+        {
+          notificationId,
+        },
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({
       code: "NOTIFICATION_DISMISSAL_UNAVAILABLE",
       status: 503,
@@ -212,9 +223,13 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
     });
 
     try {
-      await call(Civ7ControlOrpcRouter.notifications.dismiss.request, {
-        notificationId,
-      }, { context: fake.context });
+      await call(
+        Civ7ControlOrpcRouter.notifications.dismiss.request,
+        {
+          notificationId,
+        },
+        { context: fake.context }
+      );
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -225,28 +240,26 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
   });
 
   test("publishes a contract-first notifications.dismiss.request leaf", () => {
-    expect(
-      Civ7ControlOrpcContract.notifications.dismiss.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.notifications.dismiss.request["~orpc"]).toMatchObject({
       meta: {
         family: "notifications",
         procedureKey: "notifications.dismiss.request",
         proofBoundary: "local-package-test",
         risk: "mutation",
       },
-    });    expect(
-      Civ7ControlOrpcContract.notifications.dismiss.request["~orpc"].errorMap,
-    ).toHaveProperty("NOTIFICATION_DISMISSAL_UNAVAILABLE");
+    });
+    expect(Civ7ControlOrpcContract.notifications.dismiss.request["~orpc"].errorMap).toHaveProperty(
+      "NOTIFICATION_DISMISSAL_UNAVAILABLE"
+    );
     expect(Civ7NotificationDismissalUnavailableError.code).toBe(
-      "NOTIFICATION_DISMISSAL_UNAVAILABLE",
+      "NOTIFICATION_DISMISSAL_UNAVAILABLE"
     );
   });
 });
 
 function fakeContext(
   resultOrError: Civ7ControlOrpcNotificationDismissalResult | Error,
-  options: {
-  } = {},
+  options: {} = {}
 ): {
   context: Civ7ControlOrpcContext;
   calls: Array<{
@@ -271,9 +284,7 @@ function fakeContext(
           playable: true,
           readiness: "tuner-ready",
         }),
-        requestCiv7NotificationDismissal: async (
-          input,
-          endpointDefaults,        ) => {
+        requestCiv7NotificationDismissal: async (input, endpointDefaults) => {
           calls.push({ input, options: endpointDefaults });
           if (resultOrError instanceof Error) throw resultOrError;
           return resultOrError;
@@ -291,12 +302,10 @@ function notificationDismissalResult(
     canDismiss?: boolean;
     sent?: boolean;
     verified?: boolean;
-  } = {},
+  } = {}
 ): Civ7ControlOrpcNotificationDismissalResult {
   const before = notificationSummary();
-  const after = "after" in options
-    ? options.after
-    : notificationSummary({ exists: false });
+  const after = "after" in options ? options.after : notificationSummary({ exists: false });
   const sent = options.sent ?? classification !== "not-sent";
 
   return {
@@ -318,15 +327,14 @@ function notificationDismissalResult(
     },
     closeoutPath: "NotificationModel.manager.dismiss",
     verificationAttempts: after == null ? [before] : [before, after],
-    verified: options.verified
-      ?? (
-        classification === "notification-disappeared"
-        || classification === "notification-dismissed"
-        || classification === "engine-queue-cleared"
-        || classification === "notification-train-cleared"
-        || classification === "engine-front-moved"
-        || classification === "notification-train-front-moved"
-      ),
+    verified:
+      options.verified ??
+      (classification === "notification-disappeared" ||
+        classification === "notification-dismissed" ||
+        classification === "engine-queue-cleared" ||
+        classification === "notification-train-cleared" ||
+        classification === "engine-front-moved" ||
+        classification === "notification-train-front-moved"),
     postcondition: {
       classification,
       reason: `test ${classification}`,
@@ -336,9 +344,7 @@ function notificationDismissalResult(
 }
 
 function notificationSummary(
-  overrides: Partial<
-    Civ7ControlOrpcNotificationDismissalResult["before"]
-  > = {},
+  overrides: Partial<Civ7ControlOrpcNotificationDismissalResult["before"]> = {}
 ): Civ7ControlOrpcNotificationDismissalResult["before"] {
   return {
     id: notificationId,

@@ -19,8 +19,7 @@ import type {
 } from "../contract";
 
 type TriageStatus = Civ7StrategyCivilianRouteTriageResult["triage"]["status"];
-type TriageNextStep =
-  Civ7StrategyCivilianRouteTriageResult["nextSteps"][number];
+type TriageNextStep = Civ7StrategyCivilianRouteTriageResult["nextSteps"][number];
 
 export const strategyCivilianRouteTriageProcedure =
   civ7ControlOrpcImplementer.strategy.civilianRouteTriage.effect(function* ({
@@ -37,42 +36,54 @@ export const strategyCivilianRouteTriageProcedure =
         });
         const requestedOrigin = input.origin ?? null;
         const readyUnitId = probeValue(notifications.firstReadyUnitId);
-        const readyUnit = requestedOrigin != null || readyUnitId == null
-          ? null
-          : await context.directControl.getCiv7ReadyUnitView({
-            unitId: readyUnitId,
-            radius: 2,
-          }, endpointDefaults);
+        const readyUnit =
+          requestedOrigin != null || readyUnitId == null
+            ? null
+            : await context.directControl.getCiv7ReadyUnitView(
+                {
+                  unitId: readyUnitId,
+                  radius: 2,
+                },
+                endpointDefaults
+              );
         const origin = requestedOrigin ?? readyUnitLocation(readyUnit);
         const origins = origin == null ? undefined : [origin];
-        const settlement =
-          await context.directControl.getCiv7SettlementRecommendations({
+        const settlement = await context.directControl.getCiv7SettlementRecommendations(
+          {
             playerId: input.playerId,
             locations: origins,
             count: input.settlementCount ?? 5,
             includeSettlers: origin == null,
             includeCities: false,
-          }, endpointDefaults);
-        const destination = input.destination ??
-          firstSettlementSuggestion(settlement);
-        const battlefield = await context.directControl.getCiv7BattlefieldScan({
-          playerId: input.playerId,
-          origins,
-          radius: input.scanRadius ?? 6,
-          maxUnits: input.maxUnits ?? 96,
-          maxCities: input.maxCities ?? 40,
-        }, endpointDefaults);
-        const destinationAnalysis = origin != null && destination != null
-          ? await context.directControl.getCiv7DestinationAnalysis({
+          },
+          endpointDefaults
+        );
+        const destination = input.destination ?? firstSettlementSuggestion(settlement);
+        const battlefield = await context.directControl.getCiv7BattlefieldScan(
+          {
             playerId: input.playerId,
-            origin,
-            destination,
-            corridorRadius: input.corridorRadius ?? 2,
-            destinationRadius: input.destinationRadius ?? 4,
+            origins,
+            radius: input.scanRadius ?? 6,
             maxUnits: input.maxUnits ?? 96,
             maxCities: input.maxCities ?? 40,
-          }, endpointDefaults)
-          : null;
+          },
+          endpointDefaults
+        );
+        const destinationAnalysis =
+          origin != null && destination != null
+            ? await context.directControl.getCiv7DestinationAnalysis(
+                {
+                  playerId: input.playerId,
+                  origin,
+                  destination,
+                  corridorRadius: input.corridorRadius ?? 2,
+                  destinationRadius: input.destinationRadius ?? 4,
+                  maxUnits: input.maxUnits ?? 96,
+                  maxCities: input.maxCities ?? 40,
+                },
+                endpointDefaults
+              )
+            : null;
 
         return civilianRouteTriageResult({
           input,
@@ -129,29 +140,33 @@ function civilianRouteTriageResult({
     destination,
     sourceStatus: {
       notifications: "read",
-      readyUnit: input.origin != null
-        ? "skipped-explicit-origin"
-        : readyUnit == null ? "skipped-no-ready-unit" : "read",
+      readyUnit:
+        input.origin != null
+          ? "skipped-explicit-origin"
+          : readyUnit == null
+            ? "skipped-no-ready-unit"
+            : "read",
       settlementRecommendations: "read",
       battlefieldScan: "read",
-      destinationAnalysis: destinationAnalysis == null
-        ? "skipped-no-origin-or-destination"
-        : "read",
+      destinationAnalysis:
+        destinationAnalysis == null ? "skipped-no-origin-or-destination" : "read",
     },
     relationshipLabelPolicy: {
       relationshipSource: "not-classified",
       relationshipProof: "none",
       unprovenLabel: "relationship-unproven",
-      guidance: "Civilian route triage composes planning evidence only. Other-owner contact, proximity, ranking, and action legality do not prove official diplomatic status.",
+      guidance:
+        "Civilian route triage composes planning evidence only. Other-owner contact, proximity, ranking, and action legality do not prove official diplomatic status.",
     },
-    readyUnit: readyUnit == null
-      ? null
-      : {
-        unitId: readyUnit.unitId,
-        typeName: stringValue(asRecord(unit)?.typeName),
-        location: locationFromUnknown(asRecord(unit)?.location),
-        legalOperationCount: readyUnit.legalOperations.length,
-      },
+    readyUnit:
+      readyUnit == null
+        ? null
+        : {
+            unitId: readyUnit.unitId,
+            typeName: stringValue(asRecord(unit)?.typeName),
+            location: locationFromUnknown(asRecord(unit)?.location),
+            legalOperationCount: readyUnit.legalOperations.length,
+          },
     settlement: {
       originCount: settlement.origins.length,
       recommendationCount: settlement.recommendations.length,
@@ -162,21 +177,20 @@ function civilianRouteTriageResult({
       observedOwnerCount: battlefield.owners.length,
       hiddenInfoPolicy: battlefield.hiddenInfoPolicy,
     },
-    destinationAnalysis: destinationAnalysis == null
-      ? null
-      : {
-        pointOfInterestCount: destinationAnalysis.pointsOfInterest.length,
-        destinationUnitCount: numericValue(
-          asRecord(destinationAnalysis.destinationPressure)?.unitCount,
-        ) ?? 0,
-        destinationCityCount: numericValue(
-          asRecord(destinationAnalysis.destinationPressure)?.cityCount,
-        ) ?? 0,
-        apparentOtherStrength: numericValue(
-          asRecord(destinationAnalysis.destinationPressure)
-            ?.apparentOtherStrength,
-        ) ?? 0,
-      },
+    destinationAnalysis:
+      destinationAnalysis == null
+        ? null
+        : {
+            pointOfInterestCount: destinationAnalysis.pointsOfInterest.length,
+            destinationUnitCount:
+              numericValue(asRecord(destinationAnalysis.destinationPressure)?.unitCount) ?? 0,
+            destinationCityCount:
+              numericValue(asRecord(destinationAnalysis.destinationPressure)?.cityCount) ?? 0,
+            apparentOtherStrength:
+              numericValue(
+                asRecord(destinationAnalysis.destinationPressure)?.apparentOtherStrength
+              ) ?? 0,
+          },
     triage: {
       status,
       summary: routeSummary(origin, destination),
@@ -201,11 +215,13 @@ function triageReasons({
   destinationAnalysis: Civ7ControlOrpcDestinationAnalysisResult | null;
 }>): string[] {
   return uniqueStrings([
-    ...battlefield.pointsOfInterest.map((point) =>
-      `${point.severity} local ${point.kind}: ${normalizeRelationshipSummary(point.summary)}`
+    ...battlefield.pointsOfInterest.map(
+      (point) =>
+        `${point.severity} local ${point.kind}: ${normalizeRelationshipSummary(point.summary)}`
     ),
-    ...(destinationAnalysis?.pointsOfInterest.map((point) =>
-      `${point.severity} route ${point.kind}: ${normalizeRelationshipSummary(point.summary)}`
+    ...(destinationAnalysis?.pointsOfInterest.map(
+      (point) =>
+        `${point.severity} route ${point.kind}: ${normalizeRelationshipSummary(point.summary)}`
     ) ?? []),
     ...destinationPressureReasons(destinationAnalysis),
   ]).slice(0, 10);
@@ -218,11 +234,9 @@ function triageStatus({
   destination: Civ7ControlOrpcMapLocation | null;
   reasons: readonly string[];
 }>): TriageStatus {
-  const hasCivilianRisk = reasons.some((reason) =>
-    reason.includes("civilian-risk")
-  );
-  const hasHighRouteRisk = reasons.some((reason) =>
-    reason.includes("high route") || reason.includes("high local")
+  const hasCivilianRisk = reasons.some((reason) => reason.includes("civilian-risk"));
+  const hasHighRouteRisk = reasons.some(
+    (reason) => reason.includes("high route") || reason.includes("high local")
   );
   if (destination == null) return "inspect-candidate";
   if (hasCivilianRisk) return "hold-or-screen";
@@ -239,24 +253,29 @@ function triageNextSteps({
   destination: Civ7ControlOrpcMapLocation | null;
   status: TriageStatus;
 }>): TriageNextStep[] {
-  const nextSteps: TriageNextStep[] = [{
-    kind: "read-priorities",
-    source: "strategy.civilianRouteTriage",
-    label: "Refresh current attention priorities before choosing a civilian action.",
-    parameters: {},
-  }];
+  const nextSteps: TriageNextStep[] = [
+    {
+      kind: "read-priorities",
+      source: "strategy.civilianRouteTriage",
+      label: "Refresh current attention priorities before choosing a civilian action.",
+      parameters: {},
+    },
+  ];
   if (origin != null) {
-    nextSteps.push({
-      kind: "inspect-battlefield",
-      source: "strategy.civilianRouteTriage",
-      label: "Inspect battlefield evidence at the civilian origin.",
-      parameters: { origin },
-    }, {
-      kind: "inspect-settlement",
-      source: "strategy.civilianRouteTriage",
-      label: "Inspect settlement recommendation evidence at the civilian origin.",
-      parameters: { origin },
-    });
+    nextSteps.push(
+      {
+        kind: "inspect-battlefield",
+        source: "strategy.civilianRouteTriage",
+        label: "Inspect battlefield evidence at the civilian origin.",
+        parameters: { origin },
+      },
+      {
+        kind: "inspect-settlement",
+        source: "strategy.civilianRouteTriage",
+        label: "Inspect settlement recommendation evidence at the civilian origin.",
+        parameters: { origin },
+      }
+    );
   }
   if (origin != null && destination != null) {
     nextSteps.push({
@@ -274,29 +293,31 @@ function triageNextSteps({
       parameters: { origin: origin ?? undefined, destination: destination ?? undefined },
     });
   }
-  nextSteps.push({
-    kind: "inspect-ready-unit",
-    source: "strategy.civilianRouteTriage",
-    label: "Re-read the ready unit before validating a route action.",
-    parameters: {},
-  }, {
-    kind: "validate-unit-action",
-    source: "strategy.civilianRouteTriage",
-    label: "Use unit action validation before moving or targeting.",
-    parameters: { destination: destination ?? undefined },
-  });
+  nextSteps.push(
+    {
+      kind: "inspect-ready-unit",
+      source: "strategy.civilianRouteTriage",
+      label: "Re-read the ready unit before validating a route action.",
+      parameters: {},
+    },
+    {
+      kind: "validate-unit-action",
+      source: "strategy.civilianRouteTriage",
+      label: "Use unit action validation before moving or targeting.",
+      parameters: { destination: destination ?? undefined },
+    }
+  );
   return nextSteps;
 }
 
 function destinationPressureReasons(
-  destinationAnalysis: Civ7ControlOrpcDestinationAnalysisResult | null,
+  destinationAnalysis: Civ7ControlOrpcDestinationAnalysisResult | null
 ): string[] {
   const pressure = asRecord(destinationAnalysis?.destinationPressure);
   const reasons: string[] = [];
   const unitCount = numericValue(pressure?.unitCount) ?? 0;
   const cityCount = numericValue(pressure?.cityCount) ?? 0;
-  const apparentOtherStrength = numericValue(pressure?.apparentOtherStrength)
-    ?? 0;
+  const apparentOtherStrength = numericValue(pressure?.apparentOtherStrength) ?? 0;
   if (unitCount > 0) {
     reasons.push(`${unitCount} other-owner units near candidate destination`);
   }
@@ -310,7 +331,7 @@ function destinationPressureReasons(
 }
 
 function firstSettlementSuggestion(
-  settlement: Civ7ControlOrpcSettlementRecommendationsResult,
+  settlement: Civ7ControlOrpcSettlementRecommendationsResult
 ): Civ7ControlOrpcMapLocation | null {
   for (const recommendation of settlement.recommendations) {
     const suggestions = probeValue(recommendation.suggestions);
@@ -324,7 +345,7 @@ function firstSettlementSuggestion(
 }
 
 function readyUnitLocation(
-  readyUnit: Civ7ControlOrpcReadyUnitViewResult | null,
+  readyUnit: Civ7ControlOrpcReadyUnitViewResult | null
 ): Civ7ControlOrpcMapLocation | null {
   const unit = readyUnit == null ? null : probeValue(readyUnit.unit);
   return locationFromUnknown(asRecord(unit)?.location);
@@ -332,14 +353,11 @@ function readyUnitLocation(
 
 function routeSummary(
   origin: Civ7ControlOrpcMapLocation | null,
-  destination: Civ7ControlOrpcMapLocation | null,
+  destination: Civ7ControlOrpcMapLocation | null
 ): string {
-  const originLabel = origin == null
-    ? "<unknown origin>"
-    : `(${origin.x},${origin.y})`;
-  const destinationLabel = destination == null
-    ? "<no candidate destination>"
-    : `(${destination.x},${destination.y})`;
+  const originLabel = origin == null ? "<unknown origin>" : `(${origin.x},${origin.y})`;
+  const destinationLabel =
+    destination == null ? "<no candidate destination>" : `(${destination.x},${destination.y})`;
   return `civilian route ${originLabel} -> ${destinationLabel}`;
 }
 
@@ -358,15 +376,13 @@ function locationFromUnknown(value: unknown): Civ7ControlOrpcMapLocation | null 
 }
 
 function probeValue<T>(
-  probe: { ok: true; value: T } | { ok: false; error: string } | null | undefined,
+  probe: { ok: true; value: T } | { ok: false; error: string } | null | undefined
 ): T | null {
   return probe?.ok === true ? probe.value : null;
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
-  return value !== null && typeof value === "object"
-    ? value as Record<string, unknown>
-    : null;
+  return value !== null && typeof value === "object" ? (value as Record<string, unknown>) : null;
 }
 
 function numericValue(value: unknown): number | null {

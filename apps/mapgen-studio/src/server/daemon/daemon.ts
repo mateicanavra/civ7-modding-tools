@@ -58,7 +58,7 @@ const mimeTypes: Record<string, string> = {
 
 export function parseStudioDaemonArgs(
   argv: readonly string[],
-  defaults: Readonly<{ repoRoot: string }>,
+  defaults: Readonly<{ repoRoot: string }>
 ): StudioDaemonArgs {
   const options = new Map<string, string>();
   for (let index = 0; index < argv.length; index += 1) {
@@ -112,7 +112,7 @@ export interface StudioDaemonDeps {
   studioRpc: {
     handle(
       request: Request,
-      options?: { prefix?: `/${string}` },
+      options?: { prefix?: `/${string}` }
     ): Promise<{ matched: boolean; response?: Response }>;
   };
   health():
@@ -123,7 +123,7 @@ export interface StudioDaemonDeps {
 
 /** Pure fetch router over the injected handler — unit-testable without Bun.serve. */
 export function createStudioDaemonFetch(
-  deps: StudioDaemonDeps,
+  deps: StudioDaemonDeps
 ): (request: Request) => Promise<Response> {
   return async (request) => {
     const url = new URL(request.url);
@@ -224,6 +224,6 @@ if ((import.meta as { main?: boolean }).main) {
   process.once("SIGINT", () => void shutdown());
   process.once("SIGTERM", () => void shutdown());
   process.stdout.write(
-    `mapgen-studio daemon listening on http://${server.hostname}:${server.port} (repoRoot ${args.repoRoot})\n`,
+    `mapgen-studio daemon listening on http://${server.hostname}:${server.port} (repoRoot ${args.repoRoot})\n`
   );
 }

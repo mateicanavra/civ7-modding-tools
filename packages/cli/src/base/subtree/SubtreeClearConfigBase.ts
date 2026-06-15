@@ -1,19 +1,19 @@
-import { Flags } from '@oclif/core';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import BaseCommand from '../BaseCommand.js';
-import { listSubtreeConfigs, removeSubtreeConfig } from '../../utils/git.js';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { Flags } from "@oclif/core";
+import { listSubtreeConfigs, removeSubtreeConfig } from "../../utils/git.js";
+import BaseCommand from "../BaseCommand.js";
 
 export default abstract class SubtreeClearConfigBase extends BaseCommand {
   static flags = {
     deleteLocal: Flags.boolean({
-      description: 'Also delete local subtree directories',
+      description: "Also delete local subtree directories",
       default: false,
     }),
     verbose: Flags.boolean({
-      description: 'Show underlying git commands',
+      description: "Show underlying git commands",
       default: false,
-      char: 'v',
+      char: "v",
     }),
   } as const;
 
@@ -27,7 +27,7 @@ export default abstract class SubtreeClearConfigBase extends BaseCommand {
     });
     const configs = await listSubtreeConfigs(this.domain, { verbose: flags.verbose });
     if (configs.length === 0) {
-      this.log('No stored config entries to clear.');
+      this.log("No stored config entries to clear.");
       return;
     }
     for (const cfg of configs) {
@@ -39,6 +39,6 @@ export default abstract class SubtreeClearConfigBase extends BaseCommand {
         }
       }
     }
-    this.log(`Cleared ${configs.length} config entr${configs.length === 1 ? 'y' : 'ies'}.`);
+    this.log(`Cleared ${configs.length} config entr${configs.length === 1 ? "y" : "ies"}.`);
   }
 }

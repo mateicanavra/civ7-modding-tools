@@ -1,11 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, sha256Hex } from "@swooper/mapgen-core";
 import type { VizDumper } from "@swooper/mapgen-core";
+import { createExtendedMapContext, sha256Hex } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
-import standardRecipe from "../../src/recipes/standard/recipe.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
+import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { hydrologyClimateBaselineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts.js";
 import { standardConfig } from "../support/standard-config.js";
@@ -50,7 +49,13 @@ function runAndCaptureSst(options: {
     },
   };
 
-  const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+  const adapter = createMockAdapter({
+    width,
+    height,
+    mapInfo,
+    mapSizeId: 1,
+    rng: createLabelRng(seed),
+  });
   const context = createExtendedMapContext({ width, height }, adapter, env);
 
   let capturedSst: Float32Array | null = null;
@@ -72,13 +77,16 @@ function runAndCaptureSst(options: {
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
   standardRecipe.run(context, env, config, { log: () => {} });
 
-  if (!capturedSst) throw new Error("Expected hydrology.ocean.sstC to be emitted when circulation v2 is enabled.");
+  if (!capturedSst)
+    throw new Error("Expected hydrology.ocean.sstC to be emitted when circulation v2 is enabled.");
 
   const windField = context.artifacts.get(hydrologyClimateBaselineArtifacts.windField.id) as
     | { windU?: Int8Array; currentU?: Int8Array }
     | undefined;
-  if (!(windField?.windU instanceof Int8Array)) throw new Error("Missing artifact:hydrology._internal.windField windU.");
-  if (!(windField?.currentU instanceof Int8Array)) throw new Error("Missing artifact:hydrology._internal.windField currentU.");
+  if (!(windField?.windU instanceof Int8Array))
+    throw new Error("Missing artifact:hydrology._internal.windField windU.");
+  if (!(windField?.currentU instanceof Int8Array))
+    throw new Error("Missing artifact:hydrology._internal.windField currentU.");
 
   return { sstC: capturedSst, windU: windField.windU, currentU: windField.currentU } as const;
 }
@@ -123,7 +131,12 @@ describe("circulation v2 (pipeline integration)", () => {
           secondaryWeightMin: 0.25,
           seaIceThresholdC: -1,
         },
-        moistureTransport: { iterations: 42, advection: 0.7, retention: 0.93, secondaryWeightMin: 0.2 },
+        moistureTransport: {
+          iterations: 42,
+          advection: 0.7,
+          retention: 0.93,
+          secondaryWeightMin: 0.2,
+        },
         precipitation: {
           rainfallScale: 180,
           humidityExponent: 1,
@@ -210,7 +223,12 @@ describe("circulation v2 (pipeline integration)", () => {
           secondaryWeightMin: 0.25,
           seaIceThresholdC: -1,
         },
-        moistureTransport: { iterations: 22, advection: 0.7, retention: 0.93, secondaryWeightMin: 0.2 },
+        moistureTransport: {
+          iterations: 22,
+          advection: 0.7,
+          retention: 0.93,
+          secondaryWeightMin: 0.2,
+        },
         precipitation: {
           rainfallScale: 180,
           humidityExponent: 1,
@@ -232,10 +250,14 @@ describe("circulation v2 (pipeline integration)", () => {
     const b = runAndCaptureSst({ seed, width, height, config: cfg });
 
     const shaA = sha256Hex(
-      Buffer.from(new Uint8Array(a.sstC.buffer, a.sstC.byteOffset, a.sstC.byteLength)).toString("base64")
+      Buffer.from(new Uint8Array(a.sstC.buffer, a.sstC.byteOffset, a.sstC.byteLength)).toString(
+        "base64"
+      )
     );
     const shaB = sha256Hex(
-      Buffer.from(new Uint8Array(b.sstC.buffer, b.sstC.byteOffset, b.sstC.byteLength)).toString("base64")
+      Buffer.from(new Uint8Array(b.sstC.buffer, b.sstC.byteOffset, b.sstC.byteLength)).toString(
+        "base64"
+      )
     );
     expect(shaA).toBe(shaB);
   });

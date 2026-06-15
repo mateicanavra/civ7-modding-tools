@@ -1,30 +1,30 @@
 import { describe, expect, test } from "vitest";
-
+import type { Civ7ComponentId } from "../src/civ7-component-id";
+import type { Civ7PlayNotificationViewResult } from "../src/play/notifications/view";
+import type { Civ7DiplomacyResponsePostcondition } from "../src/play/operations/diplomacy-postconditions";
+import type { Civ7DiplomacyResponseResult } from "../src/play/operations/diplomacy-request";
+import type { Civ7OperationValidationResult } from "../src/play/operations/types";
 import {
-  createCiv7DiplomacyResponseTelemetryRecord,
   type Civ7DiplomacyResponseTelemetryAdapterInput,
+  createCiv7DiplomacyResponseTelemetryRecord,
 } from "../src/proof/diplomacy-response-telemetry";
 import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
 
-import type { Civ7ComponentId } from "../src/civ7-component-id";
-import type { Civ7DiplomacyResponseResult } from "../src/play/operations/diplomacy-request";
-import type { Civ7DiplomacyResponsePostcondition } from "../src/play/operations/diplomacy-postconditions";
-import type { Civ7PlayNotificationViewResult } from "../src/play/notifications/view";
-import type { Civ7OperationValidationResult } from "../src/play/operations/types";
-
 describe("diplomacy-response telemetry adapter", () => {
   test("adapts a confirmed diplomacy response into separated operation telemetry", () => {
-    const record = createCiv7DiplomacyResponseTelemetryRecord(diplomacyTelemetryInput({
-      result: diplomacyResponseResult({
-        sent: true,
-        verified: true,
-        postcondition: diplomacyPostcondition("turn-unblocked"),
-        after: notificationView({
-          canEndTurn: { ok: true, value: true },
-          notifications: [],
+    const record = createCiv7DiplomacyResponseTelemetryRecord(
+      diplomacyTelemetryInput({
+        result: diplomacyResponseResult({
+          sent: true,
+          verified: true,
+          postcondition: diplomacyPostcondition("turn-unblocked"),
+          after: notificationView({
+            canEndTurn: { ok: true, value: true },
+            notifications: [],
+          }),
         }),
-      }),
-    }));
+      })
+    );
 
     expect(record.candidateAction).toMatchObject({
       id: "diplomacy-response:0:8821:-1713616684",
@@ -71,13 +71,15 @@ describe("diplomacy-response telemetry adapter", () => {
   });
 
   test("does not treat a legacy verified boolean as confirmed postcondition proof", () => {
-    const record = createCiv7DiplomacyResponseTelemetryRecord(diplomacyTelemetryInput({
-      result: diplomacyResponseResult({
-        sent: true,
-        verified: true,
-        postcondition: undefined,
-      }),
-    }));
+    const record = createCiv7DiplomacyResponseTelemetryRecord(
+      diplomacyTelemetryInput({
+        result: diplomacyResponseResult({
+          sent: true,
+          verified: true,
+          postcondition: undefined,
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "missing-postcondition",
@@ -94,15 +96,17 @@ describe("diplomacy-response telemetry adapter", () => {
 
   test("keeps validator-blocked diplomacy responses no-repeat guarded", () => {
     const validation = validationResult({ valid: false, result: { FailureReasons: ["blocked"] } });
-    const record = createCiv7DiplomacyResponseTelemetryRecord(diplomacyTelemetryInput({
-      result: diplomacyResponseResult({
-        beforeValidation: validation,
-        afterValidation: validation,
-        sent: false,
-        verified: false,
-        postcondition: diplomacyPostcondition("not-sent"),
-      }),
-    }));
+    const record = createCiv7DiplomacyResponseTelemetryRecord(
+      diplomacyTelemetryInput({
+        result: diplomacyResponseResult({
+          beforeValidation: validation,
+          afterValidation: validation,
+          sent: false,
+          verified: false,
+          postcondition: diplomacyPostcondition("not-sent"),
+        }),
+      })
+    );
 
     expect(record.send_receipt).toMatchObject({
       status: "not-attempted",
@@ -122,13 +126,15 @@ describe("diplomacy-response telemetry adapter", () => {
   });
 
   test("keeps no-state-change sends no-repeat guarded", () => {
-    const record = createCiv7DiplomacyResponseTelemetryRecord(diplomacyTelemetryInput({
-      result: diplomacyResponseResult({
-        sent: true,
-        verified: false,
-        postcondition: diplomacyPostcondition("no-state-change"),
-      }),
-    }));
+    const record = createCiv7DiplomacyResponseTelemetryRecord(
+      diplomacyTelemetryInput({
+        result: diplomacyResponseResult({
+          sent: true,
+          verified: false,
+          postcondition: diplomacyPostcondition("no-state-change"),
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "no-state-change",
@@ -144,13 +150,15 @@ describe("diplomacy-response telemetry adapter", () => {
   });
 
   test("keeps validation-changed sends no-repeat guarded", () => {
-    const record = createCiv7DiplomacyResponseTelemetryRecord(diplomacyTelemetryInput({
-      result: diplomacyResponseResult({
-        sent: true,
-        verified: true,
-        postcondition: diplomacyPostcondition("validation-changed"),
-      }),
-    }));
+    const record = createCiv7DiplomacyResponseTelemetryRecord(
+      diplomacyTelemetryInput({
+        result: diplomacyResponseResult({
+          sent: true,
+          verified: true,
+          postcondition: diplomacyPostcondition("validation-changed"),
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "validation-changed",
@@ -166,14 +174,16 @@ describe("diplomacy-response telemetry adapter", () => {
   });
 
   test("keeps pending runtime proof sends no-repeat guarded", () => {
-    const record = createCiv7DiplomacyResponseTelemetryRecord(diplomacyTelemetryInput({
-      proofBoundary: "pending-runtime-proof",
-      result: diplomacyResponseResult({
-        sent: true,
-        verified: true,
-        postcondition: diplomacyPostcondition("diplomacy-blocker-cleared"),
-      }),
-    }));
+    const record = createCiv7DiplomacyResponseTelemetryRecord(
+      diplomacyTelemetryInput({
+        proofBoundary: "pending-runtime-proof",
+        result: diplomacyResponseResult({
+          sent: true,
+          verified: true,
+          postcondition: diplomacyPostcondition("diplomacy-blocker-cleared"),
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "diplomacy-blocker-cleared",
@@ -256,15 +266,19 @@ function diplomacyResponseResult(
 }
 
 function diplomacyPostcondition(
-  classification: Civ7DiplomacyResponsePostcondition["classification"],
+  classification: Civ7DiplomacyResponsePostcondition["classification"]
 ): Civ7DiplomacyResponsePostcondition {
   const reasons: Record<Civ7DiplomacyResponsePostcondition["classification"], string> = {
     "not-sent": "The diplomatic response was not sent, so no postcondition can be verified.",
     "turn-unblocked": "The response and UI closeout left the turn unblocked.",
-    "diplomacy-blocker-cleared": "The matching diplomatic-response notification is no longer present as a blocking decision.",
-    "blocking-notification-changed": "The end-turn blocking notification changed after the response closeout.",
-    "validation-changed": "The response validator changed after the send, but the notification/turn state did not clearly clear.",
-    "no-state-change": "The response was sent, but notification, turn-blocking, and validator state did not change; use stale-blocker diagnostics instead of repeating blindly.",
+    "diplomacy-blocker-cleared":
+      "The matching diplomatic-response notification is no longer present as a blocking decision.",
+    "blocking-notification-changed":
+      "The end-turn blocking notification changed after the response closeout.",
+    "validation-changed":
+      "The response validator changed after the send, but the notification/turn state did not clearly clear.",
+    "no-state-change":
+      "The response was sent, but notification, turn-blocking, and validator state did not change; use stale-blocker diagnostics instead of repeating blindly.",
   };
   return {
     classification,

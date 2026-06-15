@@ -5,9 +5,7 @@ import type { ComputeBaseTopographyTypes } from "../types.js";
 /**
  * Ensures base-topography inputs match the expected map size.
  */
-export function validateBaseTopographyInputs(
-  input: ComputeBaseTopographyTypes["input"]
-): {
+export function validateBaseTopographyInputs(input: ComputeBaseTopographyTypes["input"]): {
   size: number;
   crustBaseElevation: Float32Array;
   uplift: Uint8Array;
@@ -20,7 +18,12 @@ export function validateBaseTopographyInputs(
   const uplift = input.upliftPotential as Uint8Array;
   const rift = input.riftPotential as Uint8Array;
   const closeness = input.boundaryCloseness as Uint8Array;
-  if (crustBaseElevation.length !== size || uplift.length !== size || rift.length !== size || closeness.length !== size) {
+  if (
+    crustBaseElevation.length !== size ||
+    uplift.length !== size ||
+    rift.length !== size ||
+    closeness.length !== size
+  ) {
     throw new Error("[BaseTopography] Input tensors must match width*height.");
   }
   return { size, crustBaseElevation, uplift, rift, closeness };
@@ -36,9 +39,14 @@ export function computeUpliftBlend(params: {
   boundaryArcWeight: number;
   clusteringBias: number;
 }): number {
-  const { upliftNorm, closenessNorm, interiorNoiseWeight, boundaryArcWeight, clusteringBias } = params;
+  const { upliftNorm, closenessNorm, interiorNoiseWeight, boundaryArcWeight, clusteringBias } =
+    params;
   const interiorBoost = clusteringBias * upliftNorm * (1 - closenessNorm) * 0.2;
-  return clamp(upliftNorm * (interiorNoiseWeight + closenessNorm * boundaryArcWeight) + interiorBoost, 0, 1);
+  return clamp(
+    upliftNorm * (interiorNoiseWeight + closenessNorm * boundaryArcWeight) + interiorBoost,
+    0,
+    1
+  );
 }
 
 /**
@@ -53,7 +61,8 @@ export function computeElevationRaw(params: {
   arcNoise: number;
   config: ComputeBaseTopographyTypes["config"]["default"];
 }): number {
-  const { crustBaseElevationUnit, upliftNorm, riftNorm, closenessNorm, noise, arcNoise, config } = params;
+  const { crustBaseElevationUnit, upliftNorm, riftNorm, closenessNorm, noise, arcNoise, config } =
+    params;
   const upliftBlend = computeUpliftBlend({
     upliftNorm,
     closenessNorm,

@@ -4,28 +4,33 @@ import { jsLiteral } from "../../runtime/command-serialization.js";
 import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import { boundedInteger, validatePlayerId } from "../../validation.js";
-import { Civ7MapLocationSchema } from "../map/types.js";
-
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
+import { boundedInteger, validatePlayerId } from "../../validation.js";
+import { Civ7MapLocationSchema } from "../map/types.js";
 
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7BattlefieldScanInputSchema = Type.Object({
-  playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
-  origins: Type.Optional(Type.Array(Civ7MapLocationSchema)),
-  radius: Type.Optional(Type.Integer({ minimum: 1, maximum: 32 })),
-  maxPlayers: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
-  maxUnits: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
-  maxCities: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
-}, { additionalProperties: false });
+export const Civ7BattlefieldScanInputSchema = Type.Object(
+  {
+    playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
+    origins: Type.Optional(Type.Array(Civ7MapLocationSchema)),
+    radius: Type.Optional(Type.Integer({ minimum: 1, maximum: 32 })),
+    maxPlayers: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
+    maxUnits: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
+    maxCities: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7BattlefieldScanInput = Readonly<{
   playerId?: number;
@@ -36,99 +41,111 @@ export type Civ7BattlefieldScanInput = Readonly<{
   maxCities?: number;
 }>;
 
-export const Civ7BattlefieldRelationshipLabelPolicySchema = Type.Object({
-  relationshipSource: Type.Literal("not-classified"),
-  relationshipProof: Type.Literal("none"),
-  unprovenLabel: Type.Literal("relationship-unproven"),
-  guidance: Type.String(),
-}, { additionalProperties: false });
+export const Civ7BattlefieldRelationshipLabelPolicySchema = Type.Object(
+  {
+    relationshipSource: Type.Literal("not-classified"),
+    relationshipProof: Type.Literal("none"),
+    unprovenLabel: Type.Literal("relationship-unproven"),
+    guidance: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
-const battlefieldRelationshipProofSchema = Type.Union([
-  Type.Literal("self"),
-  Type.Literal("none"),
-]);
+const battlefieldRelationshipProofSchema = Type.Union([Type.Literal("self"), Type.Literal("none")]);
 
 const battlefieldRelationshipLabelSchema = Type.Union([
   Type.Literal("friendly"),
   Type.Literal("relationship-unproven"),
 ]);
 
-const battlefieldStanceSchema = Type.Union([
-  Type.Literal("friendly"),
-  Type.Literal("other"),
-]);
+const battlefieldStanceSchema = Type.Union([Type.Literal("friendly"), Type.Literal("other")]);
 
-export const Civ7BattlefieldScanUnitSchema = Type.Object({
-  id: Type.Unknown(),
-  owner: Type.Number(),
-  stance: battlefieldStanceSchema,
-  relationshipProof: battlefieldRelationshipProofSchema,
-  relationshipLabel: battlefieldRelationshipLabelSchema,
-  type: Type.Unknown(),
-  typeName: Type.Union([Type.String(), Type.Null()]),
-  role: Type.String(),
-  location: Civ7MapLocationSchema,
-  distance: Type.Number(),
-  nearestOrigin: Type.Union([Civ7MapLocationSchema, Type.Null()]),
-  damage: Type.Number(),
-  wounded: Type.Boolean(),
-  strength: Type.Number(),
-  movementMovesRemaining: Type.Union([Type.Number(), Type.Null()]),
-  attacksRemaining: Type.Union([Type.Number(), Type.Null()]),
-}, { additionalProperties: false });
+export const Civ7BattlefieldScanUnitSchema = Type.Object(
+  {
+    id: Type.Unknown(),
+    owner: Type.Number(),
+    stance: battlefieldStanceSchema,
+    relationshipProof: battlefieldRelationshipProofSchema,
+    relationshipLabel: battlefieldRelationshipLabelSchema,
+    type: Type.Unknown(),
+    typeName: Type.Union([Type.String(), Type.Null()]),
+    role: Type.String(),
+    location: Civ7MapLocationSchema,
+    distance: Type.Number(),
+    nearestOrigin: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+    damage: Type.Number(),
+    wounded: Type.Boolean(),
+    strength: Type.Number(),
+    movementMovesRemaining: Type.Union([Type.Number(), Type.Null()]),
+    attacksRemaining: Type.Union([Type.Number(), Type.Null()]),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7BattlefieldScanCitySchema = Type.Object({
-  id: Type.Unknown(),
-  owner: Type.Number(),
-  stance: battlefieldStanceSchema,
-  relationshipProof: battlefieldRelationshipProofSchema,
-  relationshipLabel: battlefieldRelationshipLabelSchema,
-  name: Type.Union([Type.String(), Type.Null()]),
-  location: Civ7MapLocationSchema,
-  distance: Type.Number(),
-  nearestOrigin: Type.Union([Civ7MapLocationSchema, Type.Null()]),
-  population: Type.Unknown(),
-  isTown: Type.Unknown(),
-}, { additionalProperties: false });
+export const Civ7BattlefieldScanCitySchema = Type.Object(
+  {
+    id: Type.Unknown(),
+    owner: Type.Number(),
+    stance: battlefieldStanceSchema,
+    relationshipProof: battlefieldRelationshipProofSchema,
+    relationshipLabel: battlefieldRelationshipLabelSchema,
+    name: Type.Union([Type.String(), Type.Null()]),
+    location: Civ7MapLocationSchema,
+    distance: Type.Number(),
+    nearestOrigin: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+    population: Type.Unknown(),
+    isTown: Type.Unknown(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7BattlefieldScanOwnerSchema = Type.Object({
-  owner: Type.Number(),
-  stance: battlefieldStanceSchema,
-  relationshipProof: battlefieldRelationshipProofSchema,
-  relationshipLabel: battlefieldRelationshipLabelSchema,
-  unitCount: Type.Number(),
-  cityCount: Type.Number(),
-  roles: Type.Unknown(),
-  apparentStrength: Type.Number(),
-  nearestUnit: Type.Unknown(),
-  nearestCity: Type.Unknown(),
-}, { additionalProperties: false });
+export const Civ7BattlefieldScanOwnerSchema = Type.Object(
+  {
+    owner: Type.Number(),
+    stance: battlefieldStanceSchema,
+    relationshipProof: battlefieldRelationshipProofSchema,
+    relationshipLabel: battlefieldRelationshipLabelSchema,
+    unitCount: Type.Number(),
+    cityCount: Type.Number(),
+    roles: Type.Unknown(),
+    apparentStrength: Type.Number(),
+    nearestUnit: Type.Unknown(),
+    nearestCity: Type.Unknown(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7BattlefieldScanPointOfInterestSchema = Type.Object({
-  kind: Type.String(),
-  severity: Type.String(),
-  location: Type.Union([Civ7MapLocationSchema, Type.Null()]),
-  summary: Type.String(),
-  units: Type.Optional(Type.Array(Civ7BattlefieldScanUnitSchema)),
-  cities: Type.Optional(Type.Array(Civ7BattlefieldScanCitySchema)),
-}, { additionalProperties: false });
+export const Civ7BattlefieldScanPointOfInterestSchema = Type.Object(
+  {
+    kind: Type.String(),
+    severity: Type.String(),
+    location: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+    summary: Type.String(),
+    units: Type.Optional(Type.Array(Civ7BattlefieldScanUnitSchema)),
+    cities: Type.Optional(Type.Array(Civ7BattlefieldScanCitySchema)),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7BattlefieldScanResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  localPlayerId: Type.Number(),
-  playerId: Type.Number(),
-  origins: Type.Array(Civ7MapLocationSchema),
-  radius: Type.Number(),
-  hiddenInfoPolicy: Type.String(),
-  relationshipLabelPolicy: Civ7BattlefieldRelationshipLabelPolicySchema,
-  units: Type.Array(Civ7BattlefieldScanUnitSchema),
-  cities: Type.Array(Civ7BattlefieldScanCitySchema),
-  owners: Type.Array(Civ7BattlefieldScanOwnerSchema),
-  pointsOfInterest: Type.Array(Civ7BattlefieldScanPointOfInterestSchema),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7BattlefieldScanResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    localPlayerId: Type.Number(),
+    playerId: Type.Number(),
+    origins: Type.Array(Civ7MapLocationSchema),
+    radius: Type.Number(),
+    hiddenInfoPolicy: Type.String(),
+    relationshipLabelPolicy: Civ7BattlefieldRelationshipLabelPolicySchema,
+    units: Type.Array(Civ7BattlefieldScanUnitSchema),
+    cities: Type.Array(Civ7BattlefieldScanCitySchema),
+    owners: Type.Array(Civ7BattlefieldScanOwnerSchema),
+    pointsOfInterest: Type.Array(Civ7BattlefieldScanPointOfInterestSchema),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7BattlefieldScanResult = Readonly<{
   host: string;
@@ -151,18 +168,15 @@ export type BattlefieldScanDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
-  parseBattlefieldScan: (
-    result: Civ7CommandResult,
-    label: string,
-  ) => Civ7BattlefieldScanResult;
+  parseBattlefieldScan: (result: Civ7CommandResult, label: string) => Civ7BattlefieldScanResult;
 }>;
 
 export async function getCiv7BattlefieldScan(
   input: Civ7BattlefieldScanInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: BattlefieldScanDependencies = defaultBattlefieldScanDependencies,
+  dependencies: BattlefieldScanDependencies = defaultBattlefieldScanDependencies
 ): Promise<Civ7BattlefieldScanResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeAppUiCommand({
@@ -178,7 +192,14 @@ export async function getCiv7BattlefieldScan(
   return dependencies.parseBattlefieldScan(result, "Civ7 battlefield scan");
 }
 
-function buildBattlefieldScanCommand(input: Civ7BattlefieldScanInput & { radius: number; maxPlayers: number; maxUnits: number; maxCities: number }): string {
+function buildBattlefieldScanCommand(
+  input: Civ7BattlefieldScanInput & {
+    radius: number;
+    maxPlayers: number;
+    maxUnits: number;
+    maxCities: number;
+  }
+): string {
   return `(() => {
     ${battlefieldScanSource()}
     return JSON.stringify(readBattlefieldScan(${jsLiteral(input)}));

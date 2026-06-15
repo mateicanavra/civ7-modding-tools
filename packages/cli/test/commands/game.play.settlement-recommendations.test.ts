@@ -1,34 +1,40 @@
-import { describe, expect, test, vi } from 'vitest';
-import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
-import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
-import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
+import { describe, expect, test, vi } from "vitest";
+import GamePlaySettlementRecommendations from "../../src/commands/game/play/settlement-recommendations";
+import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 
-describe('game play settlement recommendations command', () => {
-  test('reads settlement recommendations without sending operations', async () => {
+describe("game play settlement recommendations command", () => {
+  test("reads settlement recommendations without sending operations", async () => {
     const server = await startSettlementRecommendationsTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GamePlaySettlementRecommendations.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
+    const log = vi
+      .spyOn(GamePlaySettlementRecommendations.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
     try {
       const { port } = server.address();
       await GamePlaySettlementRecommendations.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--x',
-        '15',
-        '--y',
-        '23',
-        '--json',
+        "--x",
+        "15",
+        "--y",
+        "23",
+        "--json",
       ]);
 
-      const payload = JSON.parse(writes.join(''));
+      const payload = JSON.parse(writes.join(""));
       expectNormalPlayPayloadToOmitDebugInternals(payload);
-      expect(server.received.some((message) => message.includes('readSettlementRecommendations'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"locations":[{"x":15,"y":23}]'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+      expect(
+        server.received.some((message) => message.includes("readSettlementRecommendations"))
+      ).toBe(true);
+      expect(
+        server.received.some((message) => message.includes('"locations":[{"x":15,"y":23}]'))
+      ).toBe(true);
+      expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
     } finally {
       log.mockRestore();
       await server.close();
@@ -39,7 +45,7 @@ describe('game play settlement recommendations command', () => {
 async function startSettlementRecommendationsTunerServer(): Promise<FakeTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
-      if (message.includes('readSettlementRecommendations')) {
+      if (message.includes("readSettlementRecommendations")) {
         return [JSON.stringify(settlementRecommendationsView())];
       }
       return undefined;
@@ -55,7 +61,7 @@ function settlementRecommendationsView() {
     requestedLocations: [{ x: 15, y: 23 }],
     origins: [
       {
-        kind: 'requested',
+        kind: "requested",
         location: { x: 15, y: 23 },
         plotIndex: { ok: true, value: 1927 },
       },
@@ -63,7 +69,7 @@ function settlementRecommendationsView() {
     recommendations: [
       {
         origin: {
-          kind: 'requested',
+          kind: "requested",
           location: { x: 15, y: 23 },
           plotIndex: { ok: true, value: 1927 },
         },
@@ -76,8 +82,8 @@ function settlementRecommendationsView() {
               factors: [
                 {
                   positive: true,
-                  title: 'LOC_SETTLEMENT_RECOMMENDATION_TOTAL_YIELD',
-                  description: 'LOC_SETTLEMENT_RECOMMENDATION_GOOD_TOTAL_YIELD',
+                  title: "LOC_SETTLEMENT_RECOMMENDATION_TOTAL_YIELD",
+                  description: "LOC_SETTLEMENT_RECOMMENDATION_GOOD_TOTAL_YIELD",
                 },
               ],
             },
@@ -85,6 +91,6 @@ function settlementRecommendationsView() {
         },
       },
     ],
-    notes: ['Read-only settlement recommendation view. It wraps the official settlement lens API.'],
+    notes: ["Read-only settlement recommendation view. It wraps the official settlement lens API."],
   };
 }

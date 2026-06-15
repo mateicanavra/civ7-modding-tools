@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
-  Civ7NotificationDismissRequestInputSchema,
+  type Civ7NotificationDismissalResult,
   Civ7NotificationDismissalResultSchema,
-  requestCiv7NotificationDismissal,
   type Civ7NotificationDismissInput,
   type Civ7NotificationDismissRequestInput,
-  type Civ7NotificationDismissalResult,
+  Civ7NotificationDismissRequestInputSchema,
+  requestCiv7NotificationDismissal,
 } from "./dismissal-request.js";
 
 export const Civ7NotificationDismissRequestProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
@@ -31,9 +31,7 @@ export const Civ7NotificationDismissRequestProcedureDescriptor = createCiv7Proce
     owner: "packages/civ7-direct-control/src/play/notifications/dismissal-request.ts",
     exportName: "Civ7NotificationDismissalResultSchema",
   },
-  inputFields: [
-    "notificationId",
-  ],
+  inputFields: ["notificationId"],
   outputFields: [
     "host",
     "port",
@@ -98,24 +96,27 @@ export type Civ7NotificationDismissRequestProcedureCallOptions = Readonly<{
 
 export function callCiv7NotificationDismissRequestProcedure(
   input: Civ7NotificationDismissRequestInput,
-  options: Civ7NotificationDismissRequestProcedureCallOptions = {},
+  options: Civ7NotificationDismissRequestProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7NotificationDismissalResult>> {
-  return callCiv7ProcedureCore<Civ7NotificationDismissRequestInput, Civ7NotificationDismissalResult>(
+  return callCiv7ProcedureCore<
+    Civ7NotificationDismissRequestInput,
+    Civ7NotificationDismissalResult
+  >(
     Civ7NotificationDismissRequestProcedureDescriptor,
     Civ7NotificationDismissRequestProcedureSchemaArtifacts,
     input,
     (validInput) => {
       return (options.request ?? requestCiv7NotificationDismissal)(
         notificationDismissInput(validInput),
-        options.directControl,
+        options.directControl
       );
     },
-    options.procedure,
+    options.procedure
   );
 }
 
 function notificationDismissInput(
-  input: Civ7NotificationDismissRequestInput,
+  input: Civ7NotificationDismissRequestInput
 ): Civ7NotificationDismissInput {
   return {
     notificationId: input.notificationId,

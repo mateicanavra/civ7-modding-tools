@@ -1,36 +1,37 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock('@civ7/config', () => ({
+vi.mock("@civ7/config", () => ({
   expandPath: (p: string) => p,
-  findProjectRoot: vi.fn(() => '/project'),
+  findProjectRoot: vi.fn(() => "/project"),
 }));
 
-vi.mock('../../src/utils', () => ({
-  resolveRootFromConfigOrFlag: vi.fn(async () => '/root'),
+vi.mock("../../src/utils", () => ({
+  resolveRootFromConfigOrFlag: vi.fn(async () => "/root"),
 }));
 
-vi.mock('node:fs', () => ({
+vi.mock("node:fs", () => ({
   existsSync: vi.fn(() => true),
   promises: {
-    readFile: vi.fn(async () => '/root/a\n/root/b\n'),
+    readFile: vi.fn(async () => "/root/a\n/root/b\n"),
     mkdir: vi.fn(async () => {}),
     copyFile: vi.fn(async () => {}),
   },
 }));
 
-import Slice from '../../src/commands/data/slice';
-import * as fs from 'node:fs';
+import * as fs from "node:fs";
+import Slice from "../../src/commands/data/slice";
+
 const copyFile = (fs.promises as any).copyFile as any;
 
-describe('slice command', () => {
+describe("slice command", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test('copies files listed in manifest', async () => {
-    await Slice.run(['manifest.txt']);
+  test("copies files listed in manifest", async () => {
+    await Slice.run(["manifest.txt"]);
     expect(copyFile).toHaveBeenCalledTimes(2);
-    expect(copyFile).toHaveBeenCalledWith('/root/a', expect.any(String));
-    expect(copyFile).toHaveBeenCalledWith('/root/b', expect.any(String));
+    expect(copyFile).toHaveBeenCalledWith("/root/a", expect.any(String));
+    expect(copyFile).toHaveBeenCalledWith("/root/b", expect.any(String));
   });
 });

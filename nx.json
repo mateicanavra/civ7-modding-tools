@@ -5,15 +5,16 @@
       "plugin": "./tools/habitat-harness/src/plugin.js",
       "options": {
         "checkTargetName": "habitat:check",
-        "boundariesTargetName": "boundaries"
+        "boundariesTargetName": "boundaries",
+        "biomeFormatTargetName": "biome:format",
+        "biomeCheckTargetName": "biome:check",
+        "biomeCiTargetName": "biome:ci"
       }
     }
   ],
   "targetDefaults": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "outputs": [
         "{projectRoot}/dist/**",
         "{projectRoot}/types/**",
@@ -23,9 +24,7 @@
       "cache": true
     },
     "build:studio-recipes": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "outputs": [
         "{projectRoot}/dist/**",
         "{projectRoot}/mod/**",
@@ -58,31 +57,22 @@
       "continuous": true
     },
     "check": {
-      "dependsOn": [
-        "^build",
-        "^check"
-      ],
+      "dependsOn": ["^build", "^check"],
       "cache": true
     },
     "lint": {
       "cache": true
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "cache": true
     },
     "test:studio-run-in-game": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "cache": true
     },
     "test:architecture-cutover": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "cache": true
     },
     "clean": {

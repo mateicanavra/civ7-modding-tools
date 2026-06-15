@@ -14,12 +14,12 @@ export type Civ7GameUiGovernmentTarget = Readonly<{
         playerId: number,
         operationType: unknown,
         args: Readonly<Record<string, number>>,
-        queue?: boolean,
+        queue?: boolean
       ) => unknown;
       sendRequest?: (
         playerId: number,
         operationType: unknown,
-        args: Readonly<Record<string, number>>,
+        args: Readonly<Record<string, number>>
       ) => unknown;
     };
   };
@@ -32,14 +32,14 @@ export type Civ7GameUiGovernmentTarget = Readonly<{
   };
 }>;
 
-export function civ7GameUiGovernmentAvailable(
-  target: Civ7GameUiGovernmentTarget,
-): boolean {
-  return typeof target.Game?.PlayerOperations?.canStart === "function"
-    && typeof target.Game.PlayerOperations.sendRequest === "function"
-    && target.PlayerOperationTypes?.CHANGE_GOVERNMENT !== undefined
-    && target.PlayerOperationTypes.CHOOSE_GOLDEN_AGE !== undefined
-    && typeof target.GameContext?.localPlayerID === "number";
+export function civ7GameUiGovernmentAvailable(target: Civ7GameUiGovernmentTarget): boolean {
+  return (
+    typeof target.Game?.PlayerOperations?.canStart === "function" &&
+    typeof target.Game.PlayerOperations.sendRequest === "function" &&
+    target.PlayerOperationTypes?.CHANGE_GOVERNMENT !== undefined &&
+    target.PlayerOperationTypes.CHOOSE_GOLDEN_AGE !== undefined &&
+    typeof target.GameContext?.localPlayerID === "number"
+  );
 }
 
 export async function requestCiv7GameUiGovernmentChoice(
@@ -48,22 +48,25 @@ export async function requestCiv7GameUiGovernmentChoice(
     governmentType: number;
     action?: number;
   }>,
-  target: Civ7GameUiGovernmentTarget = globalThis as Civ7GameUiGovernmentTarget,
+  target: Civ7GameUiGovernmentTarget = globalThis as Civ7GameUiGovernmentTarget
 ): Promise<GovernmentChoiceResult> {
   const action = input.action ?? CIV7_GAME_UI_GOVERNMENT_ACTIVATE_ACTION;
   const args = {
     GovernmentType: input.governmentType,
     Action: action,
   };
-  return gameUiGovernmentChoice({
-    kind: "government",
-    playerId: input.playerId,
-    operationType: "CHANGE_GOVERNMENT",
-    enumValue: target.PlayerOperationTypes?.CHANGE_GOVERNMENT,
-    args,
-    governmentType: input.governmentType,
-    action,
-  }, target);
+  return gameUiGovernmentChoice(
+    {
+      kind: "government",
+      playerId: input.playerId,
+      operationType: "CHANGE_GOVERNMENT",
+      enumValue: target.PlayerOperationTypes?.CHANGE_GOVERNMENT,
+      args,
+      governmentType: input.governmentType,
+      action,
+    },
+    target
+  );
 }
 
 export async function requestCiv7GameUiCelebrationChoice(
@@ -71,70 +74,69 @@ export async function requestCiv7GameUiCelebrationChoice(
     playerId: number;
     goldenAgeType: number;
   }>,
-  target: Civ7GameUiGovernmentTarget = globalThis as Civ7GameUiGovernmentTarget,
+  target: Civ7GameUiGovernmentTarget = globalThis as Civ7GameUiGovernmentTarget
 ): Promise<GovernmentChoiceResult> {
   const args = { GoldenAgeType: input.goldenAgeType };
-  return gameUiGovernmentChoice({
-    kind: "celebration",
-    playerId: input.playerId,
-    operationType: "CHOOSE_GOLDEN_AGE",
-    enumValue: target.PlayerOperationTypes?.CHOOSE_GOLDEN_AGE,
-    args,
-    goldenAgeType: input.goldenAgeType,
-  }, target);
+  return gameUiGovernmentChoice(
+    {
+      kind: "celebration",
+      playerId: input.playerId,
+      operationType: "CHOOSE_GOLDEN_AGE",
+      enumValue: target.PlayerOperationTypes?.CHOOSE_GOLDEN_AGE,
+      args,
+      goldenAgeType: input.goldenAgeType,
+    },
+    target
+  );
 }
 
 function gameUiGovernmentChoice(
   input: Readonly<
     | {
-      kind: "government";
-      playerId: number;
-      operationType: "CHANGE_GOVERNMENT";
-      enumValue: unknown;
-      args: Readonly<Record<string, number>>;
-      governmentType: number;
-      action: number;
-    }
+        kind: "government";
+        playerId: number;
+        operationType: "CHANGE_GOVERNMENT";
+        enumValue: unknown;
+        args: Readonly<Record<string, number>>;
+        governmentType: number;
+        action: number;
+      }
     | {
-      kind: "celebration";
-      playerId: number;
-      operationType: "CHOOSE_GOLDEN_AGE";
-      enumValue: unknown;
-      args: Readonly<Record<string, number>>;
-      goldenAgeType: number;
-    }
+        kind: "celebration";
+        playerId: number;
+        operationType: "CHOOSE_GOLDEN_AGE";
+        enumValue: unknown;
+        args: Readonly<Record<string, number>>;
+        goldenAgeType: number;
+      }
   >,
-  target: Civ7GameUiGovernmentTarget,
+  target: Civ7GameUiGovernmentTarget
 ): GovernmentChoiceResult {
   const localPlayerId = target.GameContext?.localPlayerID;
-  const before = input.playerId === localPlayerId
-    ? gameUiGovernmentValidation(input, target)
-    : governmentValidation({
-      operationType: input.operationType,
-      enumValue: input.enumValue,
-      playerId: input.playerId,
-      args: input.args,
-      valid: false,
-      result: {
-        ok: false,
-        reason: "player-id-mismatch",
-        inputPlayerId: input.playerId,
-        localPlayerId: localPlayerId ?? null,
-      },
-    });
+  const before =
+    input.playerId === localPlayerId
+      ? gameUiGovernmentValidation(input, target)
+      : governmentValidation({
+          operationType: input.operationType,
+          enumValue: input.enumValue,
+          playerId: input.playerId,
+          args: input.args,
+          valid: false,
+          result: {
+            ok: false,
+            reason: "player-id-mismatch",
+            inputPlayerId: input.playerId,
+            localPlayerId: localPlayerId ?? null,
+          },
+        });
 
   if (!before.valid) {
     return governmentResult({ ...input, before, after: before, sent: false });
   }
 
   const sendResult = safeValue(
-    () =>
-      target.Game?.PlayerOperations?.sendRequest?.(
-        input.playerId,
-        input.enumValue,
-        input.args,
-      ),
-    false,
+    () => target.Game?.PlayerOperations?.sendRequest?.(input.playerId, input.enumValue, input.args),
+    false
   );
   const sent = sendResult !== false;
   const after = gameUiGovernmentValidation(input, target);
@@ -148,17 +150,12 @@ function gameUiGovernmentValidation(
     playerId: number;
     args: Readonly<Record<string, number>>;
   }>,
-  target: Civ7GameUiGovernmentTarget,
+  target: Civ7GameUiGovernmentTarget
 ): GovernmentValidation {
   const result = safeValue(
     () =>
-      target.Game?.PlayerOperations?.canStart?.(
-        input.playerId,
-        input.enumValue,
-        input.args,
-        false,
-      ),
-    null,
+      target.Game?.PlayerOperations?.canStart?.(input.playerId, input.enumValue, input.args, false),
+    null
   );
   return governmentValidation({
     operationType: input.operationType,
@@ -178,7 +175,7 @@ function governmentValidation(
     args: Readonly<Record<string, number>>;
     valid: boolean;
     result: unknown;
-  }>,
+  }>
 ): GovernmentValidation {
   return {
     host: "game-ui",
@@ -197,27 +194,27 @@ function governmentValidation(
 function governmentResult(
   input: Readonly<
     | {
-      kind: "government";
-      playerId: number;
-      operationType: "CHANGE_GOVERNMENT";
-      args: Readonly<Record<string, number>>;
-      governmentType: number;
-      action: number;
-      before: GovernmentValidation;
-      after: GovernmentValidation;
-      sent: boolean;
-    }
+        kind: "government";
+        playerId: number;
+        operationType: "CHANGE_GOVERNMENT";
+        args: Readonly<Record<string, number>>;
+        governmentType: number;
+        action: number;
+        before: GovernmentValidation;
+        after: GovernmentValidation;
+        sent: boolean;
+      }
     | {
-      kind: "celebration";
-      playerId: number;
-      operationType: "CHOOSE_GOLDEN_AGE";
-      args: Readonly<Record<string, number>>;
-      goldenAgeType: number;
-      before: GovernmentValidation;
-      after: GovernmentValidation;
-      sent: boolean;
-    }
-  >,
+        kind: "celebration";
+        playerId: number;
+        operationType: "CHOOSE_GOLDEN_AGE";
+        args: Readonly<Record<string, number>>;
+        goldenAgeType: number;
+        before: GovernmentValidation;
+        after: GovernmentValidation;
+        sent: boolean;
+      }
+  >
 ): GovernmentChoiceResult {
   const common = {
     playerId: input.playerId,
@@ -252,7 +249,7 @@ function governmentResult(
 
 function governmentPostcondition(
   sent: boolean,
-  kind: "government" | "celebration",
+  kind: "government" | "celebration"
 ): GovernmentChoiceResult["postcondition"] {
   if (!sent) {
     return {

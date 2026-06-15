@@ -5,7 +5,7 @@ import {
   type EarthlikeResourceExpectation,
 } from "../../src/domain/resources/index.js";
 
-import { TestCompileError, normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
+import { normalizeOpSelectionOrThrow, TestCompileError } from "../support/compiler-helpers.js";
 
 const CULTIVATED_RESOURCE_TYPES = [
   "RESOURCE_COTTON",
@@ -164,7 +164,9 @@ describe("cultivated resource operation contract", () => {
       {
         width: 2,
         height: 2,
-        expectations: cultivatedExpectations().filter((row) => row.resourceType === "RESOURCE_COTTON"),
+        expectations: cultivatedExpectations().filter(
+          (row) => row.resourceType === "RESOURCE_COTTON"
+        ),
         warmGrassPlainsMask: every(4),
       },
       resources.ops.planCultivatedResources.defaultConfig

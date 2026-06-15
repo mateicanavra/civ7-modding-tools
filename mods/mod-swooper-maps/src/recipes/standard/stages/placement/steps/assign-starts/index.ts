@@ -1,14 +1,13 @@
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
+import { placementArtifacts } from "../../artifacts.js";
 import { runPlacementProductStep } from "../product-runtime.js";
+import AssignStartsStepContract from "./contract.js";
 import {
   emitStartPositionsViz,
   emitStartViabilityViz,
   materializeStartAssignment,
 } from "./materialize.js";
-import { placementArtifacts } from "../../artifacts.js";
 import { validateStartAssignmentArtifact } from "./validate.js";
-import AssignStartsStepContract from "./contract.js";
 
 export default createStep(AssignStartsStepContract, {
   artifacts: implementArtifacts([placementArtifacts.startAssignment], {

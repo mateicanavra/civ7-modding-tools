@@ -1,11 +1,7 @@
-import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 import type { ExtendedMapContext } from "@mapgen/core/types.js";
+import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 
-import type {
-  ArtifactContract,
-  ArtifactReadValueOf,
-  ArtifactValueOf,
-} from "./contract.js";
+import type { ArtifactContract, ArtifactReadValueOf, ArtifactValueOf } from "./contract.js";
 
 export class ArtifactMissingError extends Error {
   public readonly artifactId: string;
@@ -69,7 +65,10 @@ type ArtifactsByName<T extends readonly ArtifactContract[]> = {
   [Name in T[number]["name"] & string]: Extract<T[number], { name: Name }>;
 };
 
-type ArtifactNameOf<T extends readonly ArtifactContract[]> = Extract<keyof ArtifactsByName<T>, string>;
+type ArtifactNameOf<T extends readonly ArtifactContract[]> = Extract<
+  keyof ArtifactsByName<T>,
+  string
+>;
 
 type ArtifactByName<T extends readonly ArtifactContract[], K extends string> = Extract<
   T[number],
@@ -112,11 +111,13 @@ export type ProvidedArtifactRuntime<
     satisfies: DependencyTagDefinition<TContext>["satisfies"];
   }>;
 
-export type ArtifactRuntimeImpl<C extends ArtifactContract, TContext extends ExtendedMapContext> =
-  Readonly<{
-    validate?: (value: ArtifactValueOf<C>, context: TContext) => readonly { message: string }[];
-    satisfies?: DependencyTagDefinition<TContext>["satisfies"];
-  }>;
+export type ArtifactRuntimeImpl<
+  C extends ArtifactContract,
+  TContext extends ExtendedMapContext,
+> = Readonly<{
+  validate?: (value: ArtifactValueOf<C>, context: TContext) => readonly { message: string }[];
+  satisfies?: DependencyTagDefinition<TContext>["satisfies"];
+}>;
 
 function resolveStepId(context: ExtendedMapContext): string {
   const trace = context.trace as { stepId?: string } | null | undefined;
@@ -138,7 +139,10 @@ function assertUniqueContracts(provides: readonly ArtifactContract[]): void {
   }
 }
 
-function readStored<C extends ArtifactContract>(context: ExtendedMapContext, contract: C): {
+function readStored<C extends ArtifactContract>(
+  context: ExtendedMapContext,
+  contract: C
+): {
   hasValue: boolean;
   value: ArtifactValueOf<C> | undefined;
 } {
@@ -180,18 +184,12 @@ export function implementArtifacts<
     [K in ArtifactNameOf<Provides>]: ArtifactRuntimeImpl<ArtifactByName<Provides, K>, TContext>;
   }
 ): {
-  [K in ArtifactNameOf<Provides>]: ProvidedArtifactRuntime<
-    ArtifactByName<Provides, K>,
-    TContext
-  >;
+  [K in ArtifactNameOf<Provides>]: ProvidedArtifactRuntime<ArtifactByName<Provides, K>, TContext>;
 } {
   assertUniqueContracts(provides);
 
   const runtimes = {} as {
-    [K in ArtifactNameOf<Provides>]: ProvidedArtifactRuntime<
-      ArtifactByName<Provides, K>,
-      TContext
-    >;
+    [K in ArtifactNameOf<Provides>]: ProvidedArtifactRuntime<ArtifactByName<Provides, K>, TContext>;
   };
 
   for (const contract of provides) {
@@ -253,8 +251,10 @@ export function implementArtifacts<
       },
       satisfies,
     };
-    runtimes[contract.name as ArtifactNameOf<Provides>] =
-      runtime as ProvidedArtifactRuntime<ArtifactByName<Provides, ArtifactNameOf<Provides>>, TContext>;
+    runtimes[contract.name as ArtifactNameOf<Provides>] = runtime as ProvidedArtifactRuntime<
+      ArtifactByName<Provides, ArtifactNameOf<Provides>>,
+      TContext
+    >;
   }
 
   return runtimes;

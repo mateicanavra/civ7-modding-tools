@@ -1,17 +1,22 @@
 import type { MapDimensions } from "@civ7/adapter";
-import { computeSampleStep, defineVizMeta, deriveStepSeed, renderAsciiGrid } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
-import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
-import {
-  MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER,
-  MORPHOLOGY_SHELF_WIDTH_MULTIPLIER,
-} from "@mapgen/domain/morphology/config.js";
 import type {
   MorphologyCoastRuggednessKnob,
   MorphologyShelfWidthKnob,
 } from "@mapgen/domain/morphology/config.js";
+import {
+  MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER,
+  MORPHOLOGY_SHELF_WIDTH_MULTIPLIER,
+} from "@mapgen/domain/morphology/config.js";
+import {
+  computeSampleStep,
+  defineVizMeta,
+  deriveStepSeed,
+  renderAsciiGrid,
+} from "@swooper/mapgen-core";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
+import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
+import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 

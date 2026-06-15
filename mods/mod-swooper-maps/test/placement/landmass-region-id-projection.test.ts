@@ -3,10 +3,9 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
+import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 
 describe("placement landmass region projection", () => {
   it("projects LandmassRegionId before typed resource materialization and starts using adapter constants", () => {

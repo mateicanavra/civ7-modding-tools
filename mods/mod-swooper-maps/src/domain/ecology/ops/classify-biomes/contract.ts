@@ -1,8 +1,7 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
-
-import { TemperatureSchema } from "./rules/temperature.schema.js";
-import { MoistureSchema } from "./rules/moisture.schema.js";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 import { AriditySchema } from "./rules/aridity.schema.js";
+import { MoistureSchema } from "./rules/moisture.schema.js";
+import { TemperatureSchema } from "./rules/temperature.schema.js";
 import { VegetationSchema } from "./rules/vegetation.schema.js";
 
 /** Biome classification parameters for temperature, moisture, aridity, vegetation, and edge refinement. */
@@ -62,8 +61,12 @@ const BiomeClassificationContract = defineOp({
       description: "Freeze persistence index (0..1) per tile (from Hydrology climate indices).",
     }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-    soilType: TypedArraySchemas.u8({ description: "Soil type palette index per tile (from Ecology soils artifact)." }),
-    fertility: TypedArraySchemas.f32({ description: "Fertility per tile (0..1) (from Ecology soils artifact)." }),
+    soilType: TypedArraySchemas.u8({
+      description: "Soil type palette index per tile (from Ecology soils artifact).",
+    }),
+    fertility: TypedArraySchemas.f32({
+      description: "Fertility per tile (0..1) (from Ecology soils artifact).",
+    }),
   }),
   output: Type.Object({
     biomeIndex: TypedArraySchemas.u8({ description: "Biome symbol indices per tile." }),

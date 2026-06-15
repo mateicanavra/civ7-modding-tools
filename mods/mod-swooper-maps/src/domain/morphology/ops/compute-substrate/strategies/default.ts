@@ -1,7 +1,11 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeSubstrateContract from "../contract.js";
-import { erodibilityForTile, sedimentDepthForTile, validateSubstrateInputs } from "../rules/index.js";
+import {
+  erodibilityForTile,
+  sedimentDepthForTile,
+  validateSubstrateInputs,
+} from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeSubstrateContract, "default", {
   run: (input, config) => {

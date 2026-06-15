@@ -88,7 +88,9 @@ describe("production choice requests", () => {
   });
 
   test("reports sticky production-choice blockers after BUILD sends", async () => {
-    const server = await startProductionChoiceTunerServer({ productionPostconditionMode: "blocker-still-live" });
+    const server = await startProductionChoiceTunerServer({
+      productionPostconditionMode: "blocker-still-live",
+    });
     try {
       const { port } = server.address();
       const cityId = { owner: 0, id: 65536, type: 1 };
@@ -104,7 +106,9 @@ describe("production choice requests", () => {
         productionStateChanged: true,
         blockerStillLive: true,
       });
-      expect(request.productionPostcondition?.reason).toContain("production-choice notification still blocks");
+      expect(request.productionPostcondition?.reason).toContain(
+        "production-choice notification still blocks"
+      );
       expect(
         request.payload?.afterProductionPostcondition?.blockingProductionNotification
       ).toMatchObject({ ok: true });
@@ -114,9 +118,9 @@ describe("production choice requests", () => {
   });
 });
 
-async function startProductionChoiceTunerServer(options: {
-  productionPostconditionMode?: "cleared" | "blocker-still-live";
-} = {}): Promise<FakeTunerServer> {
+async function startProductionChoiceTunerServer(
+  options: { productionPostconditionMode?: "cleared" | "blocker-still-live" } = {}
+): Promise<FakeTunerServer> {
   const received: string[] = [];
   const operationCalls: OperationCall[] = [];
   const productionChoiceCalls: ProductionChoiceCall[] = [];
@@ -156,11 +160,13 @@ async function startProductionChoiceTunerServer(options: {
             if (send) productionChoiceSent = true;
             socket.write(
               encodeResponse(frame.listenerId, [
-                JSON.stringify(productionChoicePayload(
-                  send,
-                  options.productionPostconditionMode ?? "cleared",
-                  productionChoiceSent && !send,
-                )),
+                JSON.stringify(
+                  productionChoicePayload(
+                    send,
+                    options.productionPostconditionMode ?? "cleared",
+                    productionChoiceSent && !send
+                  )
+                ),
               ])
             );
           } else {
@@ -209,7 +215,7 @@ function parseProductionChoiceCall(message: string): ProductionChoiceCall | unde
 function productionChoicePayload(
   send: boolean,
   mode: "cleared" | "blocker-still-live",
-  settled = false,
+  settled = false
 ) {
   const cityId = { owner: 0, id: 65536, type: 1 };
   const before = productionPostconditionSnapshot("before", mode);

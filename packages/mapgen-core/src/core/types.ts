@@ -25,10 +25,10 @@ import type {
   VizDims,
   VizLayerMeta,
   VizScalarFormat,
-  VizSpaceId,
   VizScalarStats,
-  VizVariantKey,
+  VizSpaceId,
   VizValueSpec,
+  VizVariantKey,
 } from "@swooper/mapgen-viz";
 
 export type {
@@ -36,24 +36,24 @@ export type {
   VizBinaryRef,
   VizDataTypeKey,
   VizDims,
-  VizLayerKind,
-  VizLayerKey,
-  VizLayerMeta,
-  VizLayerVisibility,
-  VizPaletteMode,
-  VizScalarFormat,
-  VizSpaceId,
-  VizValueSpec,
-  VizScalarStats,
-  VizScaleType,
-  VizNoDataSpec,
-  VizValueDomain,
-  VizValueTransform,
-  VizVariantKey,
   VizLayerCategory,
   VizLayerEmissionV1,
   VizLayerEntryV1,
+  VizLayerKey,
+  VizLayerKind,
+  VizLayerMeta,
+  VizLayerVisibility,
   VizManifestV1,
+  VizNoDataSpec,
+  VizPaletteMode,
+  VizScalarFormat,
+  VizScalarStats,
+  VizScaleType,
+  VizSpaceId,
+  VizValueDomain,
+  VizValueSpec,
+  VizValueTransform,
+  VizVariantKey,
 } from "@swooper/mapgen-viz";
 
 // ============================================================================
@@ -167,8 +167,10 @@ export const FOUNDATION_TECTONICS_ARTIFACT_TAG = "artifact:foundation.tectonics"
 export const FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG = "artifact:foundation.tectonicProvenance";
 export const FOUNDATION_TILE_TO_CELL_INDEX_ARTIFACT_TAG = "artifact:map.foundationTileToCellIndex";
 export const FOUNDATION_CRUST_TILES_ARTIFACT_TAG = "artifact:map.foundationCrustTiles";
-export const FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG = "artifact:map.foundationTectonicHistoryTiles";
-export const FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG = "artifact:map.foundationTectonicProvenanceTiles";
+export const FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG =
+  "artifact:map.foundationTectonicHistoryTiles";
+export const FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG =
+  "artifact:map.foundationTectonicProvenanceTiles";
 
 /**
  * Store of published artifacts keyed by dependency tag id.
@@ -214,51 +216,71 @@ export interface VizDumper {
    */
   outputRoot: string;
 
-  dumpGrid: (trace: TraceScope, layer: {
-    dataTypeKey: VizDataTypeKey;
-    variantKey?: VizVariantKey;
-    spaceId: VizSpaceId;
-    dims: VizDims;
-    format: VizScalarFormat;
-    values: ArrayBufferView;
-    stats?: VizScalarStats;
-    valueSpec?: VizValueSpec;
-    meta?: VizLayerMeta;
-  }) => void;
+  dumpGrid: (
+    trace: TraceScope,
+    layer: {
+      dataTypeKey: VizDataTypeKey;
+      variantKey?: VizVariantKey;
+      spaceId: VizSpaceId;
+      dims: VizDims;
+      format: VizScalarFormat;
+      values: ArrayBufferView;
+      stats?: VizScalarStats;
+      valueSpec?: VizValueSpec;
+      meta?: VizLayerMeta;
+    }
+  ) => void;
 
-  dumpPoints: (trace: TraceScope, layer: {
-    dataTypeKey: VizDataTypeKey;
-    variantKey?: VizVariantKey;
-    spaceId: VizSpaceId;
-    positions: Float32Array; // [x0,y0,x1,y1,...]
-    values?: ArrayBufferView;
-    valueFormat?: VizScalarFormat;
-    valueStats?: VizScalarStats;
-    valueSpec?: VizValueSpec;
-    meta?: VizLayerMeta;
-  }) => void;
+  dumpPoints: (
+    trace: TraceScope,
+    layer: {
+      dataTypeKey: VizDataTypeKey;
+      variantKey?: VizVariantKey;
+      spaceId: VizSpaceId;
+      positions: Float32Array; // [x0,y0,x1,y1,...]
+      values?: ArrayBufferView;
+      valueFormat?: VizScalarFormat;
+      valueStats?: VizScalarStats;
+      valueSpec?: VizValueSpec;
+      meta?: VizLayerMeta;
+    }
+  ) => void;
 
-  dumpSegments: (trace: TraceScope, layer: {
-    dataTypeKey: VizDataTypeKey;
-    variantKey?: VizVariantKey;
-    spaceId: VizSpaceId;
-    segments: Float32Array; // [x0,y0,x1,y1,...] pairs per segment
-    values?: ArrayBufferView;
-    valueFormat?: VizScalarFormat;
-    valueStats?: VizScalarStats;
-    valueSpec?: VizValueSpec;
-    meta?: VizLayerMeta;
-  }) => void;
+  dumpSegments: (
+    trace: TraceScope,
+    layer: {
+      dataTypeKey: VizDataTypeKey;
+      variantKey?: VizVariantKey;
+      spaceId: VizSpaceId;
+      segments: Float32Array; // [x0,y0,x1,y1,...] pairs per segment
+      values?: ArrayBufferView;
+      valueFormat?: VizScalarFormat;
+      valueStats?: VizScalarStats;
+      valueSpec?: VizValueSpec;
+      meta?: VizLayerMeta;
+    }
+  ) => void;
 
-  dumpGridFields: (trace: TraceScope, layer: {
-    dataTypeKey: VizDataTypeKey;
-    variantKey?: VizVariantKey;
-    spaceId: VizSpaceId;
-    dims: VizDims;
-    fields: Record<string, { format: VizScalarFormat; values: ArrayBufferView; stats?: VizScalarStats; valueSpec?: VizValueSpec }>;
-    vector?: { u: string; v: string; magnitude?: string };
-    meta?: VizLayerMeta;
-  }) => void;
+  dumpGridFields: (
+    trace: TraceScope,
+    layer: {
+      dataTypeKey: VizDataTypeKey;
+      variantKey?: VizVariantKey;
+      spaceId: VizSpaceId;
+      dims: VizDims;
+      fields: Record<
+        string,
+        {
+          format: VizScalarFormat;
+          values: ArrayBufferView;
+          stats?: VizScalarStats;
+          valueSpec?: VizValueSpec;
+        }
+      >;
+      vector?: { u: string; v: string; magnitude?: string };
+      meta?: VizLayerMeta;
+    }
+  ) => void;
 }
 
 // ============================================================================
@@ -374,11 +396,7 @@ export function createExtendedMapContext(
  * derives from `ctx.env.seed`, not `ctx.adapter.getRandomNumber`, so browser,
  * tests, and Civ7 runtime all consume the same authored entropy stream.
  */
-export function ctxRandom(
-  ctx: ExtendedMapContext,
-  label: string,
-  max: number
-): number {
+export function ctxRandom(ctx: ExtendedMapContext, label: string, max: number): number {
   const count = ctx.rng.callCounts.get(label) || 0;
   ctx.rng.callCounts.set(label, count + 1);
   return ctx.rng.nextInt(max, `${label}_${count}`);
@@ -388,11 +406,7 @@ export function ctxRandom(
  * Canonical ctxRandom label for op-level seed derivation.
  * Format: "<stepId>:<opName>:<suffix>" (default suffix = "rngSeed").
  */
-export function ctxRandomLabel(
-  stepId: string,
-  opName: string,
-  suffix = "rngSeed"
-): string {
+export function ctxRandomLabel(stepId: string, opName: string, suffix = "rngSeed"): string {
   return `${stepId}:${opName}:${suffix}`;
 }
 
@@ -487,11 +501,7 @@ export function writeClimateField(
   }
 
   if (typeof options.rainfall === "number") {
-    ctx.adapter.setRainfall(
-      x,
-      y,
-      Math.max(0, Math.min(200, options.rainfall)) | 0
-    );
+    ctx.adapter.setRainfall(x, y, Math.max(0, Math.min(200, options.rainfall)) | 0);
   }
 }
 

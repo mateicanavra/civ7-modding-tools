@@ -1,5 +1,9 @@
 import { clampInt, idx } from "@swooper/mapgen-core";
-import { estimateDivergenceOddQ, projectOddqToHexSpace, wrapX } from "@swooper/mapgen-core/lib/grid";
+import {
+  estimateDivergenceOddQ,
+  projectOddqToHexSpace,
+  wrapX,
+} from "@swooper/mapgen-core/lib/grid";
 
 export function computeCurrents(
   width: number,
@@ -71,8 +75,12 @@ function getNeighborDeltaHexSpaceFrom(baseX: number, dx: number, dy: number): Ve
   return { x: p.x - base.x, y: p.y - base.y };
 }
 
-const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) => getNeighborDeltaHexSpaceFrom(1, dx, dy));
-const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) => getNeighborDeltaHexSpaceFrom(0, dx, dy));
+const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) =>
+  getNeighborDeltaHexSpaceFrom(1, dx, dy)
+);
+const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) =>
+  getNeighborDeltaHexSpaceFrom(0, dx, dy)
+);
 
 function vec2(x: number, y: number): Vec2 {
   return { x, y };
@@ -250,7 +258,12 @@ type BasinCenters = Readonly<{
   centerY: Float32Array;
 }>;
 
-function computeBasinCenters(width: number, height: number, isWaterMask: Uint8Array, basinId: Int32Array): BasinCenters {
+function computeBasinCenters(
+  width: number,
+  height: number,
+  isWaterMask: Uint8Array,
+  basinId: Int32Array
+): BasinCenters {
   const size = Math.max(0, width * height);
   let maxId = 0;
   for (let i = 0; i < size; i++) maxId = Math.max(maxId, basinId[i] ?? 0);
@@ -321,7 +334,9 @@ export function computeCurrentsEarthlike(
   const fx = new Float32Array(size);
   const fy = new Float32Array(size);
 
-  const centers = options.basinId ? computeBasinCenters(width, height, isWaterMask, options.basinId) : null;
+  const centers = options.basinId
+    ? computeBasinCenters(width, height, isWaterMask, options.basinId)
+    : null;
 
   for (let y = 0; y < height; y++) {
     const latDeg = latitudeByRow[y] ?? 0;

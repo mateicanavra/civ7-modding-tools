@@ -1,32 +1,32 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { describe, expect, test, vi } from 'vitest';
-import GameWatch from '../../src/commands/game/watch';
-import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
-import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { describe, expect, test, vi } from "vitest";
+import GameWatch from "../../src/commands/game/watch";
+import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
 
-describe('game watch command', () => {
-  test('watches live play as JSONL without sending operations', async () => {
+describe("game watch command", () => {
+  test("watches live play as JSONL without sending operations", async () => {
     const server = await startWatchTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GameWatch.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameWatch.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       const { port } = server.address();
       await GameWatch.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--count',
-        '2',
-        '--interval-ms',
-        '1',
-        '--include-ready-unit',
-        '--include-ready-city',
-        '--jsonl',
+        "--count",
+        "2",
+        "--interval-ms",
+        "1",
+        "--include-ready-unit",
+        "--include-ready-city",
+        "--jsonl",
       ]);
 
       const observations = writes.map((line) => JSON.parse(line)) as Array<{
@@ -43,59 +43,66 @@ describe('game watch command', () => {
         readyCity: unknown;
       }>;
       expect(observations).toHaveLength(2);
-      for (const observation of observations) expectNormalPlayPayloadToOmitDebugInternals(observation);
-      expect(observations[0].schema).toBe('civ7-watcher-observation.v1');
-      expect(observations[0].mode).toBe('human-turn-watch');
-      expect(observations[0].wrapper).toBe('getCiv7PlayNotificationView+getCiv7ReadyUnitView+getCiv7ReadyCityView');
-      expect(observations[0]).not.toHaveProperty('cli');
-      expect(JSON.stringify(observations[0])).not.toContain('game watch');
+      for (const observation of observations)
+        expectNormalPlayPayloadToOmitDebugInternals(observation);
+      expect(observations[0].schema).toBe("civ7-watcher-observation.v1");
+      expect(observations[0].mode).toBe("human-turn-watch");
+      expect(observations[0].wrapper).toBe(
+        "getCiv7PlayNotificationView+getCiv7ReadyUnitView+getCiv7ReadyCityView"
+      );
+      expect(observations[0]).not.toHaveProperty("cli");
+      expect(JSON.stringify(observations[0])).not.toContain("game watch");
       expect(observations[0].ok).toBe(true);
       expect(observations[0].firstReadyUnitId).toEqual({ owner: 0, id: 458752, type: 26 });
       expect(observations[0].readyUnit).not.toBeNull();
-      expect(observations[0].readyUnit?.legalOperationScope).toBe('no-target');
-      expect(observations[0].readyUnit?.legalNoTargetOperationCount).toBe(observations[0].readyUnit?.legalOperationCount);
+      expect(observations[0].readyUnit?.legalOperationScope).toBe("no-target");
+      expect(observations[0].readyUnit?.legalNoTargetOperationCount).toBe(
+        observations[0].readyUnit?.legalOperationCount
+      );
       expect(observations[0].readyCity).not.toBeNull();
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-      expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
-      expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+      expect(server.received.some((message) => message.includes("readPlayNotifications"))).toBe(
+        true
+      );
+      expect(server.received.some((message) => message.includes("readReadyUnitView"))).toBe(true);
+      expect(server.received.some((message) => message.includes("readReadyCityView"))).toBe(true);
+      expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
     } finally {
       log.mockRestore();
       await server.close();
     }
   });
 
-  test('appends watch observations to an artifact file', async () => {
+  test("appends watch observations to an artifact file", async () => {
     const server = await startWatchTunerServer();
-    const tempDir = await mkdtemp(join(tmpdir(), 'civ7-watch-'));
-    const artifact = join(tempDir, 'watcher.jsonl');
+    const tempDir = await mkdtemp(join(tmpdir(), "civ7-watch-"));
+    const artifact = join(tempDir, "watcher.jsonl");
     try {
       const { port } = server.address();
       await GameWatch.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--count',
-        '2',
-        '--interval-ms',
-        '1',
-        '--artifact',
+        "--count",
+        "2",
+        "--interval-ms",
+        "1",
+        "--artifact",
         artifact,
-        '--json',
+        "--json",
       ]);
 
-      const lines = (await readFile(artifact, 'utf8')).trim().split('\n');
+      const lines = (await readFile(artifact, "utf8")).trim().split("\n");
       expect(lines).toHaveLength(2);
       for (const line of lines) expectNormalPlayPayloadToOmitDebugInternals(JSON.parse(line));
       expect(JSON.parse(lines[0])).toMatchObject({
-        schema: 'civ7-watcher-observation.v1',
+        schema: "civ7-watcher-observation.v1",
         ok: true,
-        stateRole: 'app-ui',
+        stateRole: "app-ui",
       });
-      expect(JSON.parse(lines[0])).not.toHaveProperty('cli');
-      expect(lines[0]).not.toContain('game watch');
-      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+      expect(JSON.parse(lines[0])).not.toHaveProperty("cli");
+      expect(lines[0]).not.toContain("game watch");
+      expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
     } finally {
       await rm(tempDir, { force: true, recursive: true });
       await server.close();
@@ -106,13 +113,13 @@ describe('game watch command', () => {
 async function startWatchTunerServer(): Promise<FakeTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
-      if (message.includes('readPlayNotifications')) {
+      if (message.includes("readPlayNotifications")) {
         return [JSON.stringify(playNotificationView())];
       }
-      if (message.includes('readReadyUnitView')) {
+      if (message.includes("readReadyUnitView")) {
         return [JSON.stringify(readyUnitView())];
       }
-      if (message.includes('readReadyCityView')) {
+      if (message.includes("readReadyCityView")) {
         return [JSON.stringify(readyCityView())];
       }
       return undefined;
@@ -125,7 +132,7 @@ function playNotificationView() {
   return {
     localPlayerId: 0,
     turn: { ok: true, value: 80 },
-    turnDate: { ok: true, value: '2025 BCE' },
+    turnDate: { ok: true, value: "2025 BCE" },
     hasSentTurnComplete: { ok: true, value: false },
     canEndTurn: { ok: true, value: false },
     blocker: { ok: true, value: 0 },
@@ -157,7 +164,7 @@ function readyUnitView() {
         id: unitId,
         owner: 0,
         type: 111,
-        typeName: 'UNIT_ARMY_COMMANDER',
+        typeName: "UNIT_ARMY_COMMANDER",
         location: { x: 22, y: 31 },
         movementMovesRemaining: 2,
         attacksRemaining: 0,
@@ -167,8 +174,8 @@ function readyUnitView() {
     },
     legalOperations: [
       {
-        family: 'unit-operation',
-        operationType: 'SKIP_TURN',
+        family: "unit-operation",
+        operationType: "SKIP_TURN",
         enumValue: 1,
         valid: true,
         result: { Success: true },
@@ -182,7 +189,7 @@ function readyUnitView() {
       },
     },
     nearby: { ok: true, value: [] },
-    notes: ['Read-only ready-unit view. Use operation validation before mutation.'],
+    notes: ["Read-only ready-unit view. Use operation validation before mutation."],
   };
 }
 
@@ -198,15 +205,15 @@ function readyCityView() {
       ok: true,
       value: {
         id: cityId,
-        name: 'Dur-Sharrukin',
+        name: "Dur-Sharrukin",
         population: 4,
         isTown: true,
       },
     },
     legalOperations: [
       {
-        family: 'city-operation',
-        operationType: 'CONSIDER_TOWN_PROJECT',
+        family: "city-operation",
+        operationType: "CONSIDER_TOWN_PROJECT",
         enumValue: 1,
         valid: true,
         result: { Success: true },
@@ -215,6 +222,6 @@ function readyCityView() {
     productionCandidates: { ok: true, value: [] },
     townFocusOptions: { ok: true, value: [] },
     populationPlacement: { ok: true, value: null },
-    notes: ['Read-only ready-city view.'],
+    notes: ["Read-only ready-city view."],
   };
 }

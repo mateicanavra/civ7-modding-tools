@@ -12,9 +12,7 @@ const WORLD_AGE_SCALE: Record<string, number> = {
 /**
  * Ensures geomorphic-cycle inputs match the expected map size.
  */
-export function validateGeomorphicInputs(
-  input: ComputeGeomorphicCycleTypes["input"]
-): {
+export function validateGeomorphicInputs(input: ComputeGeomorphicCycleTypes["input"]): {
   size: number;
   elevation: Int16Array;
   flowDir: Int32Array;
@@ -49,7 +47,9 @@ export function validateGeomorphicInputs(
 /**
  * Resolves the world-age scaling multiplier.
  */
-export function resolveWorldAgeScale(worldAge: ComputeGeomorphicCycleTypes["config"]["default"]["worldAge"]): number {
+export function resolveWorldAgeScale(
+  worldAge: ComputeGeomorphicCycleTypes["config"]["default"]["worldAge"]
+): number {
   return WORLD_AGE_SCALE[worldAge] ?? 1.0;
 }
 
@@ -67,8 +67,17 @@ export function computeGeomorphicDeltas(params: {
   landMask: Uint8Array;
   config: ComputeGeomorphicCycleTypes["config"]["default"];
 }): { elevationDelta: Float32Array; sedimentDelta: Float32Array } {
-  const { width, height, elevation, flowDir, flowAccum, erodibility, sedimentDepth, landMask, config } =
-    params;
+  const {
+    width,
+    height,
+    elevation,
+    flowDir,
+    flowAccum,
+    erodibility,
+    sedimentDepth,
+    landMask,
+    config,
+  } = params;
   const size = elevation.length;
 
   let maxFlow = 1;

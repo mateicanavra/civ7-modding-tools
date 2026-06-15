@@ -1,18 +1,18 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
+  type Civ7UnitTargetActionRequestInput,
   Civ7UnitTargetActionRequestInputSchema,
+  type Civ7UnitTargetActionResult,
   Civ7UnitTargetActionResultSchema,
   requestCiv7UnitTargetAction,
-  type Civ7UnitTargetActionRequestInput,
-  type Civ7UnitTargetActionResult,
 } from "./unit-target-action.js";
 
 export const Civ7UnitTargetActionRequestProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
@@ -30,11 +30,7 @@ export const Civ7UnitTargetActionRequestProcedureDescriptor = createCiv7Procedur
     owner: "packages/civ7-direct-control/src/play/operations/unit-target-action.ts",
     exportName: "Civ7UnitTargetActionResultSchema",
   },
-  inputFields: [
-    "unitId",
-    "x",
-    "y",
-  ],
+  inputFields: ["unitId", "x", "y"],
   outputFields: [
     "host",
     "port",
@@ -101,7 +97,7 @@ export type Civ7UnitTargetActionRequestProcedureCallOptions = Readonly<{
 
 export function callCiv7UnitTargetActionRequestProcedure(
   input: Civ7UnitTargetActionRequestInput,
-  options: Civ7UnitTargetActionRequestProcedureCallOptions = {},
+  options: Civ7UnitTargetActionRequestProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7UnitTargetActionResult>> {
   return callCiv7ProcedureCore<Civ7UnitTargetActionRequestInput, Civ7UnitTargetActionResult>(
     Civ7UnitTargetActionRequestProcedureDescriptor,
@@ -114,9 +110,9 @@ export function callCiv7UnitTargetActionRequestProcedure(
           x: validInput.x,
           y: validInput.y,
         },
-        options.directControl,
+        options.directControl
       );
     },
-    options.procedure,
+    options.procedure
   );
 }

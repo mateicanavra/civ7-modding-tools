@@ -5,19 +5,23 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { canonicalRecipeConfig } from "../../src/maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
-import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 
 function median(values: number[]): number {
   const sorted = values.slice().sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 1 ? (sorted[mid] ?? 0) : ((sorted[mid - 1] ?? 0) + (sorted[mid] ?? 0)) / 2;
+  return sorted.length % 2 === 1
+    ? (sorted[mid] ?? 0)
+    : ((sorted[mid - 1] ?? 0) + (sorted[mid] ?? 0)) / 2;
 }
 
 describe("biomes stripes regression (M3-012)", () => {
-  it("has within-row biome variety for fixed seed (no horizontal banding domination)", { timeout: 20_000 }, () => {
+  it("has within-row biome variety for fixed seed (no horizontal banding domination)", {
+    timeout: 20_000,
+  }, () => {
     const width = 106;
     const height = 66;
     const seed = 1337;

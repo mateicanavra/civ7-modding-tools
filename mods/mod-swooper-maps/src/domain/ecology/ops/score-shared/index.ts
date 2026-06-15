@@ -1,10 +1,12 @@
 import { clamp01, normalizeRange } from "@swooper/mapgen-core";
 
-export function validateGridSize(args: Readonly<{
-  width: number;
-  height: number;
-  fields: ReadonlyArray<Readonly<{ label: string; arr: { length: number } }>>;
-}>): number {
+export function validateGridSize(
+  args: Readonly<{
+    width: number;
+    height: number;
+    fields: ReadonlyArray<Readonly<{ label: string; arr: { length: number } }>>;
+  }>
+): number {
   const width = args.width | 0;
   const height = args.height | 0;
   if (!Number.isFinite(width) || width <= 0) throw new Error("invalid width");

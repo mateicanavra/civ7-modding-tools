@@ -1,7 +1,6 @@
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
-import type { contracts } from "./contracts.js";
-
 import adjustResourceSupport from "./adjust-resource-support/index.js";
+import type { contracts } from "./contracts.js";
 import deriveHabitatFields from "./derive-habitat-fields/index.js";
 import planAquaticResources from "./plan-aquatic-resources/index.js";
 import planCultivatedResources from "./plan-cultivated-resources/index.js";

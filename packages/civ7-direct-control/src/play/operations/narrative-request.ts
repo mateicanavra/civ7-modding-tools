@@ -1,30 +1,21 @@
-import {
-  narrativeChoicePostcondition,
-  type Civ7NarrativeChoicePostcondition,
-  waitForCiv7NarrativeChoiceAfter,
-} from "./narrative-postconditions.js";
-import type {
-  Civ7OperationValidationResult,
-} from "./types.js";
-
-import {
-  assertCiv7ComponentId,
-  type Civ7ComponentId,
-} from "../../civ7-component-id.js";
+import { assertCiv7ComponentId, type Civ7ComponentId } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-} from "../../session/types.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
 import { validatePlayerId } from "../../validation.js";
 import {
-  getCiv7PlayNotificationView,
   type Civ7PlayNotificationViewResult,
+  getCiv7PlayNotificationView,
 } from "../notifications/view.js";
+import {
+  type Civ7NarrativeChoicePostcondition,
+  narrativeChoicePostcondition,
+  waitForCiv7NarrativeChoiceAfter,
+} from "./narrative-postconditions.js";
+import type { Civ7OperationValidationResult } from "./types.js";
 import { canStartCiv7PlayerOperation } from "./validate-request.js";
 
 export type Civ7NarrativeChoiceInput = Readonly<{
@@ -67,20 +58,22 @@ type NarrativeChoiceRequestDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;
   assertComponentId: (value: unknown, name: string) => void;
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
-  getPlayNotificationView: (options: Civ7DirectControlOptions) => Promise<Civ7PlayNotificationViewResult>;
+  getPlayNotificationView: (
+    options: Civ7DirectControlOptions
+  ) => Promise<Civ7PlayNotificationViewResult>;
   canStartPlayerOperation: (
     input: Readonly<{
       playerId: number;
       operationType: string;
       args: { TargetType: string; Target: Civ7NarrativeChoiceInput["target"]; Action: number };
     }>,
-    options: Civ7DirectControlOptions,
+    options: Civ7DirectControlOptions
   ) => Promise<Civ7OperationValidationResult>;
   parseNarrativePayload: (
     result: Civ7CommandResult,
-    label: string,
+    label: string
   ) => Civ7NarrativeChoiceCommandPayload;
   jsLiteral: (value: unknown) => string;
   invalidTargetTypeError: () => never;
@@ -90,7 +83,7 @@ type NarrativeChoiceRequestDependencies = Readonly<{
 export async function requestCiv7NarrativeChoice(
   input: Civ7NarrativeChoiceInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: NarrativeChoiceRequestDependencies = defaultNarrativeChoiceRequestDependencies,
+  dependencies: NarrativeChoiceRequestDependencies = defaultNarrativeChoiceRequestDependencies
 ): Promise<Civ7NarrativeChoiceResult> {
   dependencies.validatePlayerId(input.playerId);
   if (!input.targetType) dependencies.invalidTargetTypeError();
@@ -120,7 +113,8 @@ export async function requestCiv7NarrativeChoice(
       verified: false,
       postcondition: {
         classification: "not-sent",
-        reason: "CHOOSE_NARRATIVE_STORY_DIRECTION did not validate, so no narrative choice was sent.",
+        reason:
+          "CHOOSE_NARRATIVE_STORY_DIRECTION did not validate, so no narrative choice was sent.",
       },
     };
   }
@@ -135,7 +129,7 @@ export async function requestCiv7NarrativeChoice(
     options,
     before,
     beforeValidation,
-    dependencies.getPlayNotificationView,
+    dependencies.getPlayNotificationView
   );
   const afterValidation = await dependencies.canStartPlayerOperation(operationInput, options);
   const postcondition = narrativeChoicePostcondition(
@@ -145,7 +139,7 @@ export async function requestCiv7NarrativeChoice(
     after,
     beforeValidation,
     afterValidation,
-    payload,
+    payload
   );
   return {
     playerId,
@@ -156,7 +150,9 @@ export async function requestCiv7NarrativeChoice(
     after,
     afterValidation,
     sent: payload.sent === true,
-    verified: postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change",
+    verified:
+      postcondition.classification !== "not-sent" &&
+      postcondition.classification !== "no-state-change",
     postcondition,
   };
 }
@@ -180,7 +176,7 @@ const defaultNarrativeChoiceRequestDependencies: NarrativeChoiceRequestDependenc
 
 export function buildNarrativeChoiceRequestCommand(
   input: Civ7NarrativeChoiceInput,
-  dependencies: Pick<NarrativeChoiceRequestDependencies, "jsLiteral">,
+  dependencies: Pick<NarrativeChoiceRequestDependencies, "jsLiteral">
 ): string {
   return `(() => {
     ${narrativeChoiceRequestSource()}

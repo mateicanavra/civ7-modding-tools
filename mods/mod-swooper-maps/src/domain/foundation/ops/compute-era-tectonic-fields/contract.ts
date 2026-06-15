@@ -1,11 +1,10 @@
-import { Type, defineOp } from "@swooper/mapgen-core/authoring";
 import type { Static } from "@swooper/mapgen-core/authoring";
-
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring";
 import {
   FoundationTectonicEraFieldsInternalSchema,
   TectonicEventsSchema,
 } from "../../lib/tectonics/internal-contract.js";
+import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 
 const StrategySchema = Type.Object(
   {
@@ -13,8 +12,7 @@ const StrategySchema = Type.Object(
       default: 8,
       minimum: 1,
       maximum: 64,
-      description:
-        "Controls how far tectonic belt influence spreads across mesh-neighbor steps.",
+      description: "Controls how far tectonic belt influence spreads across mesh-neighbor steps.",
     }),
     beltDecay: Type.Number({
       default: 0.55,

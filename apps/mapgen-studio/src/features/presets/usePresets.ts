@@ -1,15 +1,15 @@
 import { useCallback, useMemo, useState } from "react";
-import type { SelectOption } from "../../ui/types";
 import type { BuiltInPreset } from "../../recipes/catalog";
+import type { SelectOption } from "../../ui/types";
 import {
+  type LocalPresetV1,
   loadPresetStore,
   persistPresetStore,
   removeLocalPreset,
-  upsertLocalPreset,
-  type LocalPresetV1,
   type StudioPresetStoreV1,
+  upsertLocalPreset,
 } from "./storage";
-import { parsePresetKey, type PresetKey, type ResolvedPreset } from "./types";
+import { type PresetKey, parsePresetKey, type ResolvedPreset } from "./types";
 
 export type LivePreset = Readonly<{
   id: string;
@@ -19,18 +19,19 @@ export type LivePreset = Readonly<{
 }>;
 
 export type PresetActions = Readonly<{
-  saveAsNew: (args: {
-    recipeId: string;
-    label: string;
-    description?: string;
-    config: unknown;
-  }) => { preset: LocalPresetV1; persistenceError?: string };
-  saveToCurrent: (args: {
-    recipeId: string;
-    presetId: string;
-    config: unknown;
-  }) => { preset?: LocalPresetV1; error?: string; persistenceError?: string };
-  deleteLocal: (args: { recipeId: string; presetId: string }) => { deleted: boolean; persistenceError?: string };
+  saveAsNew: (args: { recipeId: string; label: string; description?: string; config: unknown }) => {
+    preset: LocalPresetV1;
+    persistenceError?: string;
+  };
+  saveToCurrent: (args: { recipeId: string; presetId: string; config: unknown }) => {
+    preset?: LocalPresetV1;
+    error?: string;
+    persistenceError?: string;
+  };
+  deleteLocal: (args: { recipeId: string; presetId: string }) => {
+    deleted: boolean;
+    persistenceError?: string;
+  };
 }>;
 
 export type UsePresetsResult = Readonly<{
@@ -85,37 +86,52 @@ export function usePresets(args: {
     return [...base, ...liveOptions, ...builtInOptions, ...localOptions];
   }, [builtIns, livePresets, localPresets]);
 
-  const resolvePreset = useCallback((key: PresetKey): ResolvedPreset | null => {
-    const parsed = parsePresetKey(key);
-    if (parsed.kind === "builtin") {
-      const preset = builtIns.find((p) => p.id === parsed.id);
-      return preset
-        ? {
-            source: "builtin",
-            id: preset.id,
-            label: preset.label,
-            description: preset.description,
-            sourcePath: preset.sourcePath,
-            sortIndex: preset.sortIndex,
-            latitudeBounds: preset.latitudeBounds,
-            config: preset.config,
-          }
-        : null;
-    }
-    if (parsed.kind === "local") {
-      const preset = localPresets.find((p) => p.id === parsed.id);
-      return preset
-        ? { source: "local", id: preset.id, label: preset.label, description: preset.description, config: preset.config }
-        : null;
-    }
-    if (parsed.kind === "live") {
-      const preset = livePresets.find((p) => p.id === parsed.id);
-      return preset
-        ? { source: "live", id: preset.id, label: preset.label, description: preset.description, config: preset.config }
-        : null;
-    }
-    return null;
-  }, [builtIns, livePresets, localPresets]);
+  const resolvePreset = useCallback(
+    (key: PresetKey): ResolvedPreset | null => {
+      const parsed = parsePresetKey(key);
+      if (parsed.kind === "builtin") {
+        const preset = builtIns.find((p) => p.id === parsed.id);
+        return preset
+          ? {
+              source: "builtin",
+              id: preset.id,
+              label: preset.label,
+              description: preset.description,
+              sourcePath: preset.sourcePath,
+              sortIndex: preset.sortIndex,
+              latitudeBounds: preset.latitudeBounds,
+              config: preset.config,
+            }
+          : null;
+      }
+      if (parsed.kind === "local") {
+        const preset = localPresets.find((p) => p.id === parsed.id);
+        return preset
+          ? {
+              source: "local",
+              id: preset.id,
+              label: preset.label,
+              description: preset.description,
+              config: preset.config,
+            }
+          : null;
+      }
+      if (parsed.kind === "live") {
+        const preset = livePresets.find((p) => p.id === parsed.id);
+        return preset
+          ? {
+              source: "live",
+              id: preset.id,
+              label: preset.label,
+              description: preset.description,
+              config: preset.config,
+            }
+          : null;
+      }
+      return null;
+    },
+    [builtIns, livePresets, localPresets]
+  );
 
   const setStore = useCallback((next: StudioPresetStoreV1): string | undefined => {
     setStoreState((prev) => ({ store: next, warning: prev.warning }));
@@ -124,42 +140,47 @@ export function usePresets(args: {
     return undefined;
   }, []);
 
-  const actions: PresetActions = useMemo(() => ({
-    saveAsNew: ({ recipeId: targetRecipeId, label, description, config }) => {
-      const now = new Date().toISOString();
-      const existing = store.presetsByRecipeId[targetRecipeId] ?? [];
-      const preset: LocalPresetV1 = {
-        id: createLocalPresetId(existing),
-        label,
-        description,
-        config,
-        createdAtIso: now,
-        updatedAtIso: now,
-      };
-      const nextStore = upsertLocalPreset({ store, recipeId: targetRecipeId, preset });
-      const persistenceError = setStore(nextStore);
-      return { preset, persistenceError };
-    },
-    saveToCurrent: ({ recipeId: targetRecipeId, presetId, config }) => {
-      const existing = store.presetsByRecipeId[targetRecipeId] ?? [];
-      const current = existing.find((p) => p.id === presetId);
-      if (!current) return { error: "Preset not found" };
-      const preset: LocalPresetV1 = {
-        ...current,
-        config,
-        updatedAtIso: new Date().toISOString(),
-      };
-      const nextStore = upsertLocalPreset({ store, recipeId: targetRecipeId, preset });
-      const persistenceError = setStore(nextStore);
-      return { preset, persistenceError };
-    },
-    deleteLocal: ({ recipeId: targetRecipeId, presetId }) => {
-      const nextStore = removeLocalPreset({ store, recipeId: targetRecipeId, presetId });
-      const persistenceError = setStore(nextStore);
-      const deleted = (store.presetsByRecipeId[targetRecipeId] ?? []).some((p) => p.id === presetId);
-      return { deleted, persistenceError };
-    },
-  }), [setStore, store]);
+  const actions: PresetActions = useMemo(
+    () => ({
+      saveAsNew: ({ recipeId: targetRecipeId, label, description, config }) => {
+        const now = new Date().toISOString();
+        const existing = store.presetsByRecipeId[targetRecipeId] ?? [];
+        const preset: LocalPresetV1 = {
+          id: createLocalPresetId(existing),
+          label,
+          description,
+          config,
+          createdAtIso: now,
+          updatedAtIso: now,
+        };
+        const nextStore = upsertLocalPreset({ store, recipeId: targetRecipeId, preset });
+        const persistenceError = setStore(nextStore);
+        return { preset, persistenceError };
+      },
+      saveToCurrent: ({ recipeId: targetRecipeId, presetId, config }) => {
+        const existing = store.presetsByRecipeId[targetRecipeId] ?? [];
+        const current = existing.find((p) => p.id === presetId);
+        if (!current) return { error: "Preset not found" };
+        const preset: LocalPresetV1 = {
+          ...current,
+          config,
+          updatedAtIso: new Date().toISOString(),
+        };
+        const nextStore = upsertLocalPreset({ store, recipeId: targetRecipeId, preset });
+        const persistenceError = setStore(nextStore);
+        return { preset, persistenceError };
+      },
+      deleteLocal: ({ recipeId: targetRecipeId, presetId }) => {
+        const nextStore = removeLocalPreset({ store, recipeId: targetRecipeId, presetId });
+        const persistenceError = setStore(nextStore);
+        const deleted = (store.presetsByRecipeId[targetRecipeId] ?? []).some(
+          (p) => p.id === presetId
+        );
+        return { deleted, persistenceError };
+      },
+    }),
+    [setStore, store]
+  );
 
   return { options, resolvePreset, localPresets, actions, loadWarning: warning };
 }

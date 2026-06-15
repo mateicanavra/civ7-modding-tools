@@ -1,6 +1,9 @@
-import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "../direct-control-error.js";
-import type { Civ7CommandResult, Civ7TunerStateSelection } from "./types.js";
+import {
+  Civ7DirectControlError,
+  type Civ7DirectControlErrorCode,
+} from "../direct-control-error.js";
 import type { Civ7DirectControlSession } from "./session.js";
+import type { Civ7CommandResult, Civ7TunerStateSelection } from "./types.js";
 
 export async function executeSessionCommandWithReconnect(
   session: Civ7DirectControlSession,
@@ -9,7 +12,7 @@ export async function executeSessionCommandWithReconnect(
     state?: Civ7TunerStateSelection;
     timeoutMs?: number;
   },
-  attempts = 6,
+  attempts = 6
 ): Promise<Civ7CommandResult> {
   let lastError: unknown;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
@@ -24,7 +27,10 @@ export async function executeSessionCommandWithReconnect(
   throw toDirectControlError(lastError, "command-failed");
 }
 
-function toDirectControlError(err: unknown, fallbackCode: Civ7DirectControlErrorCode): Civ7DirectControlError {
+function toDirectControlError(
+  err: unknown,
+  fallbackCode: Civ7DirectControlErrorCode
+): Civ7DirectControlError {
   if (err instanceof Civ7DirectControlError) return err;
   return new Civ7DirectControlError(fallbackCode, errorMessage(err), { cause: err });
 }

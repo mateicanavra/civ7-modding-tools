@@ -1,3 +1,3 @@
-export { fill } from './fill';
-export { locale } from './locale';
-export { trim } from './trim';
+export { fill } from "./fill";
+export { locale } from "./locale";
+export { trim } from "./trim";

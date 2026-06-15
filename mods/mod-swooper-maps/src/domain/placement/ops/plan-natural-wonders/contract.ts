@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const PlanNaturalWondersContract = defineOp({
   kind: "plan",
@@ -10,8 +10,12 @@ const PlanNaturalWondersContract = defineOp({
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
     elevation: TypedArraySchemas.i16({ description: "Elevation per tile (meters)." }),
     aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),
-    riverClass: TypedArraySchemas.u8({ description: "Hydrology river class per tile (0=none,1=minor,>=2=major/projectable)." }),
-    lakeMask: TypedArraySchemas.u8({ description: "Hydrology lake mask per tile (1=lake, 0=non-lake)." }),
+    riverClass: TypedArraySchemas.u8({
+      description: "Hydrology river class per tile (0=none,1=minor,>=2=major/projectable).",
+    }),
+    lakeMask: TypedArraySchemas.u8({
+      description: "Hydrology lake mask per tile (1=lake, 0=non-lake).",
+    }),
     coastTerrainType: Type.Integer({ minimum: 0 }),
     mountainTerrainType: Type.Integer({ minimum: 0 }),
     iceFeatureType: Type.Integer({ minimum: 0 }),

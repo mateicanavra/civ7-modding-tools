@@ -1,16 +1,17 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/types.js";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
+import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
-import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/types.js";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 
 describe("Earthlike ecology balance (smoke)", () => {
-  it("has biome variety and non-zero vegetation without drowning coasts", { timeout: 15_000 }, () => {
+  it("has biome variety and non-zero vegetation without drowning coasts", {
+    timeout: 15_000,
+  }, () => {
     const width = 32;
     const height = 20;
     const seed = 1018;
@@ -100,7 +101,12 @@ describe("Earthlike ecology balance (smoke)", () => {
         if (feature === savannaIdx) savannaCount++;
         if (feature === steppeIdx) steppeCount++;
         if (feature === marshIdx || feature === bogIdx || feature === mangroveIdx) wetlandCount++;
-        if (feature === reefIdx || feature === coldReefIdx || feature === atollIdx || feature === lotusIdx) {
+        if (
+          feature === reefIdx ||
+          feature === coldReefIdx ||
+          feature === atollIdx ||
+          feature === lotusIdx
+        ) {
           reefFamilyCount++;
         }
         if (feature === atollIdx) atollCount++;
@@ -112,7 +118,9 @@ describe("Earthlike ecology balance (smoke)", () => {
     expect(landBiomes.size).toBeGreaterThanOrEqual(2);
     // Dry-biome presence can vary with foundation truth initialization; ensure we still have biome variety.
 
-    expect(forestCount + rainforestCount + taigaCount + savannaCount + steppeCount + wetlandCount).toBeGreaterThan(0);
+    expect(
+      forestCount + rainforestCount + taigaCount + savannaCount + steppeCount + wetlandCount
+    ).toBeGreaterThan(0);
 
     expect(wetlandCount).toBeLessThan(Math.max(1, Math.floor(landCount * 0.35)));
     expect(reefFamilyCount).toBeLessThan(Math.max(1, Math.floor(waterCount * 0.35)));

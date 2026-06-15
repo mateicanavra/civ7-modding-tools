@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const AquaticResourceTypeSchema = Type.Union([
   Type.Literal("RESOURCE_FISH"),
@@ -115,7 +115,9 @@ const PlanAquaticResourcesContract = defineOp({
         TypedArraySchemas.u8({ description: "Lake mask to suppress marine resources." })
       ),
       iceMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Ice-covered water mask to suppress warm/coastal resources." })
+        TypedArraySchemas.u8({
+          description: "Ice-covered water mask to suppress warm/coastal resources.",
+        })
       ),
     },
     { additionalProperties: false }

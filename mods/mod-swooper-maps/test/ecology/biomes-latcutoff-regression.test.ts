@@ -5,13 +5,15 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { canonicalRecipeConfig } from "../../src/maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
-import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 
 describe("biomes latitude-cutoff regression (M3-013)", () => {
-  it("does not hard-cut rainforest into latitude stripes (and still produces cold biomes)", { timeout: 20_000 }, () => {
+  it("does not hard-cut rainforest into latitude stripes (and still produces cold biomes)", {
+    timeout: 20_000,
+  }, () => {
     const width = 106;
     const height = 66;
     const seed = 1337;

@@ -2,12 +2,12 @@ import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
+  type Civ7ControlOrpcPlayableStatusResult,
   Civ7ControlOrpcRouter,
   Civ7ReadinessCurrentUnavailableError,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-  type Civ7ControlOrpcPlayableStatusResult,
 } from "../src/index";
 
 describe("readiness.current control-oRPC procedure", () => {
@@ -26,9 +26,13 @@ describe("readiness.current control-oRPC procedure", () => {
     });
     const fake = fakeContext(fixture);
 
-    const result = await call(Civ7ControlOrpcRouter.readiness.current, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.readiness.current,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result).toEqual({
       playable: true,
@@ -53,11 +57,13 @@ describe("readiness.current control-oRPC procedure", () => {
         supportedProcedures: [],
       },
       errorCount: 1,
-      nextSteps: [{
-        kind: "read-attention",
-        source: "readiness.current",
-        label: "Read current attention before choosing support actions.",
-      }],
+      nextSteps: [
+        {
+          kind: "read-attention",
+          source: "readiness.current",
+          label: "Read current attention before choosing support actions.",
+        },
+      ],
     });
     expect(fake.calls).toEqual([
       {
@@ -67,26 +73,28 @@ describe("readiness.current control-oRPC procedure", () => {
       },
     ]);
     const serialized = JSON.stringify(result);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
     expect(serialized).not.toContain("App UI");
     expect(serialized).not.toContain("Tuner");
     expect(serialized).not.toContain("internal runtime detail");
   });
 
   test("supports the in-process server-side router client for non-ready status", async () => {
-    const fake = fakeContext(playableStatusResult({
-      playable: false,
-      readiness: "shell",
-      tunerReady: null,
-      appUi: {
-        inGame: false,
-        inShell: true,
-        inLoading: false,
-        canBeginGame: false,
-      },
-    }));
+    const fake = fakeContext(
+      playableStatusResult({
+        playable: false,
+        readiness: "shell",
+        tunerReady: null,
+        appUi: {
+          inGame: false,
+          inShell: true,
+          inLoading: false,
+          canBeginGame: false,
+        },
+      })
+    );
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
     const result = await client.readiness.current({});
@@ -99,28 +107,37 @@ describe("readiness.current control-oRPC procedure", () => {
         canMutate: false,
         reason: "Civ7 is outside an active game.",
       },
-      nextSteps: [{
-        kind: "enter-game",
-        source: "readiness.current",
-      }],
+      nextSteps: [
+        {
+          kind: "enter-game",
+          source: "readiness.current",
+        },
+      ],
     });
     expect(fake.calls).toHaveLength(1);
   });
 
   test("reports narrow controller-supported procedure capabilities without broad readiness overclaim", async () => {
-    const fake = fakeContext(playableStatusResult({
-      playable: false,
-      readiness: "app-ui-game",
-      tunerReady: null,
-    }), {
-      controller: {
-        supportedMutationProcedures: ["notifications.dismiss.request"],
-      },
-    });
+    const fake = fakeContext(
+      playableStatusResult({
+        playable: false,
+        readiness: "app-ui-game",
+        tunerReady: null,
+      }),
+      {
+        controller: {
+          supportedMutationProcedures: ["notifications.dismiss.request"],
+        },
+      }
+    );
 
-    const result = await call(Civ7ControlOrpcRouter.readiness.current, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.readiness.current,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result).toMatchObject({
       playable: false,
@@ -131,39 +148,48 @@ describe("readiness.current control-oRPC procedure", () => {
         reason: "The game is open, but runtime control is not ready.",
       },
       controller: {
-        supportedProcedures: [{
-          procedureKey: "notifications.dismiss.request",
-          risk: "mutation",
-        }],
+        supportedProcedures: [
+          {
+            procedureKey: "notifications.dismiss.request",
+            risk: "mutation",
+          },
+        ],
       },
-      nextSteps: [{
-        kind: "restore-tuner",
-        source: "readiness.current",
-      }],
+      nextSteps: [
+        {
+          kind: "restore-tuner",
+          source: "readiness.current",
+        },
+      ],
     });
-    expect(result.nextSteps.map((step) => step.kind)).not.toContain(
-      "read-attention",
-    );
-    expect(JSON.stringify(result)).not.toContain("\"host\"");
-    expect(JSON.stringify(result)).not.toContain("\"port\"");
-    expect(JSON.stringify(result)).not.toContain("\"state\"");
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("read-attention");
+    expect(JSON.stringify(result)).not.toContain('"host"');
+    expect(JSON.stringify(result)).not.toContain('"port"');
+    expect(JSON.stringify(result)).not.toContain('"state"');
   });
 
   test("recommends attention when the controller supports attention.current", async () => {
-    const fake = fakeContext(playableStatusResult({
-      playable: false,
-      readiness: "app-ui-game",
-      tunerReady: null,
-    }), {
-      controller: {
-        supportedReadProcedures: ["attention.current"],
-        supportedMutationProcedures: ["notifications.dismiss.request"],
-      },
-    });
+    const fake = fakeContext(
+      playableStatusResult({
+        playable: false,
+        readiness: "app-ui-game",
+        tunerReady: null,
+      }),
+      {
+        controller: {
+          supportedReadProcedures: ["attention.current"],
+          supportedMutationProcedures: ["notifications.dismiss.request"],
+        },
+      }
+    );
 
-    const result = await call(Civ7ControlOrpcRouter.readiness.current, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.readiness.current,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result).toMatchObject({
       playable: false,
@@ -186,27 +212,36 @@ describe("readiness.current control-oRPC procedure", () => {
           },
         ],
       },
-      nextSteps: [{
-        kind: "read-attention",
-        source: "readiness.current",
-      }],
+      nextSteps: [
+        {
+          kind: "read-attention",
+          source: "readiness.current",
+        },
+      ],
     });
   });
 
   test("recommends strategy front when it is the supported controller read", async () => {
-    const fake = fakeContext(playableStatusResult({
-      playable: false,
-      readiness: "app-ui-game",
-      tunerReady: null,
-    }), {
-      controller: {
-        supportedReadProcedures: ["strategy.frontSummary"],
-      },
-    });
+    const fake = fakeContext(
+      playableStatusResult({
+        playable: false,
+        readiness: "app-ui-game",
+        tunerReady: null,
+      }),
+      {
+        controller: {
+          supportedReadProcedures: ["strategy.frontSummary"],
+        },
+      }
+    );
 
-    const result = await call(Civ7ControlOrpcRouter.readiness.current, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.readiness.current,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result).toMatchObject({
       playable: false,
@@ -218,36 +253,45 @@ describe("readiness.current control-oRPC procedure", () => {
           "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
       },
       controller: {
-        supportedProcedures: [{
-          procedureKey: "strategy.frontSummary",
-          risk: "read-only",
-        }],
+        supportedProcedures: [
+          {
+            procedureKey: "strategy.frontSummary",
+            risk: "read-only",
+          },
+        ],
       },
-      nextSteps: [{
-        kind: "read-strategy-front",
-        source: "readiness.current",
-        label: "Read strategy front summary before choosing tactical support actions.",
-      }],
+      nextSteps: [
+        {
+          kind: "read-strategy-front",
+          source: "readiness.current",
+          label: "Read strategy front summary before choosing tactical support actions.",
+        },
+      ],
     });
-    expect(result.nextSteps.map((step) => step.kind)).not.toContain(
-      "read-attention",
-    );
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("read-attention");
   });
 
   test("recommends current world when it is the supported controller read", async () => {
-    const fake = fakeContext(playableStatusResult({
-      playable: false,
-      readiness: "app-ui-game",
-      tunerReady: null,
-    }), {
-      controller: {
-        supportedReadProcedures: ["world.current"],
-      },
-    });
+    const fake = fakeContext(
+      playableStatusResult({
+        playable: false,
+        readiness: "app-ui-game",
+        tunerReady: null,
+      }),
+      {
+        controller: {
+          supportedReadProcedures: ["world.current"],
+        },
+      }
+    );
 
-    const result = await call(Civ7ControlOrpcRouter.readiness.current, {}, {
-      context: fake.context,
-    });
+    const result = await call(
+      Civ7ControlOrpcRouter.readiness.current,
+      {},
+      {
+        context: fake.context,
+      }
+    );
 
     expect(result).toMatchObject({
       playable: false,
@@ -259,20 +303,22 @@ describe("readiness.current control-oRPC procedure", () => {
           "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
       },
       controller: {
-        supportedProcedures: [{
-          procedureKey: "world.current",
-          risk: "read-only",
-        }],
+        supportedProcedures: [
+          {
+            procedureKey: "world.current",
+            risk: "read-only",
+          },
+        ],
       },
-      nextSteps: [{
-        kind: "read-world",
-        source: "readiness.current",
-        label: "Read current world facts before choosing support actions.",
-      }],
+      nextSteps: [
+        {
+          kind: "read-world",
+          source: "readiness.current",
+          label: "Read current world facts before choosing support actions.",
+        },
+      ],
     });
-    expect(result.nextSteps.map((step) => step.kind)).not.toContain(
-      "read-attention",
-    );
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("read-attention");
   });
 
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
@@ -292,7 +338,7 @@ describe("readiness.current control-oRPC procedure", () => {
       await expect(
         call(Civ7ControlOrpcRouter.readiness.current, input as never, {
           context: fake.context,
-        }),
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls).toEqual([]);
     }
@@ -302,15 +348,13 @@ describe("readiness.current control-oRPC procedure", () => {
     const context: Civ7ControlOrpcContext = {
       directControl: {
         getCiv7PlayableStatus: async () => {
-          throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:1:Game.turn",
-          );
+          throw new Error("Timed out waiting for Civ7 tuner response to CMD:1:Game.turn");
         },
       } as Civ7ControlOrpcContext["directControl"],
     };
 
     await expect(
-      call(Civ7ControlOrpcRouter.readiness.current, {}, { context }),
+      call(Civ7ControlOrpcRouter.readiness.current, {}, { context })
     ).rejects.toMatchObject({
       code: "READINESS_CURRENT_UNAVAILABLE",
       status: 503,
@@ -340,18 +384,16 @@ describe("readiness.current control-oRPC procedure", () => {
         risk: "runtime-support",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.readiness.current["~orpc"].errorMap,
-    ).toHaveProperty("READINESS_CURRENT_UNAVAILABLE");
-    expect(Civ7ReadinessCurrentUnavailableError.code).toBe(
-      "READINESS_CURRENT_UNAVAILABLE",
+    expect(Civ7ControlOrpcContract.readiness.current["~orpc"].errorMap).toHaveProperty(
+      "READINESS_CURRENT_UNAVAILABLE"
     );
+    expect(Civ7ReadinessCurrentUnavailableError.code).toBe("READINESS_CURRENT_UNAVAILABLE");
   });
 });
 
 function fakeContext(
   result: Civ7ControlOrpcPlayableStatusResult,
-  overrides: Partial<Pick<Civ7ControlOrpcContext, "controller">> = {},
+  overrides: Partial<Pick<Civ7ControlOrpcContext, "controller">> = {}
 ): {
   calls: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
   context: Civ7ControlOrpcContext;
@@ -389,7 +431,7 @@ function playableStatusResult(
       canBeginGame: boolean | null;
     };
     errors: string[];
-  }> = {},
+  }> = {}
 ): Civ7ControlOrpcPlayableStatusResult {
   const appUi = overrides.appUi ?? {
     inGame: true,
@@ -416,18 +458,19 @@ function playableStatusResult(
         },
       },
     },
-    tuner: overrides.tunerReady == null
-      ? undefined
-      : {
-        host: "127.0.0.1",
-        port: 4318,
-        state: { id: "1", name: "Tuner" },
-        ready: overrides.tunerReady,
-        snapshot: {
-          evalOk: overrides.tunerReady ? 2 : 0,
-          ready: overrides.tunerReady,
-        },
-      },
+    tuner:
+      overrides.tunerReady == null
+        ? undefined
+        : {
+            host: "127.0.0.1",
+            port: 4318,
+            state: { id: "1", name: "Tuner" },
+            ready: overrides.tunerReady,
+            snapshot: {
+              evalOk: overrides.tunerReady ? 2 : 0,
+              ready: overrides.tunerReady,
+            },
+          },
     errors: overrides.errors ?? [],
   } as Civ7ControlOrpcPlayableStatusResult;
 }

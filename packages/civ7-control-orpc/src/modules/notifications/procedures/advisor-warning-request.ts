@@ -1,6 +1,4 @@
-import {
-  advisorWarningProofPostcondition,
-} from "@civ7/direct-control/proof/advisor-warning-proof-policy";
+import { advisorWarningProofPostcondition } from "@civ7/direct-control/proof/advisor-warning-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcContext } from "../../../context";
@@ -10,9 +8,7 @@ import {
   civ7ControlOrpcErrorCorrelationData,
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
-import {
-  civ7CloseoutMutationProjection,
-} from "../../../policy/mutation-result";
+import { civ7CloseoutMutationProjection } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7NotificationAdvisorWarningViewedInput,
@@ -21,51 +17,41 @@ import type {
 
 const source = "notifications.advisorWarning.viewed.request";
 
-export const notificationsAdvisorWarningViewedRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.notifications.advisorWarning.viewed.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const localPlayerId = await readLocalPlayerId(context);
-        const result =
-          await context.directControl.requestCiv7AdvisorWarningViewed(
-            {
-              playerId: localPlayerId,
-              target: input.target,
-            },
-            context.endpointDefaults,
-          );
-        return advisorWarningViewedResult(input, result);
-      },
-      catch: (cause) =>
-        errors.NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: source,
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const notificationsAdvisorWarningViewedRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.notifications.advisorWarning.viewed.request
+).effect(function* ({ context, errors, input }) {
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context);
+      const result = await context.directControl.requestCiv7AdvisorWarningViewed(
+        {
+          playerId: localPlayerId,
+          target: input.target,
+        },
+        context.endpointDefaults
+      );
+      return advisorWarningViewedResult(input, result);
+    },
+    catch: (cause) =>
+      errors.NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: source,
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-async function readLocalPlayerId(
-  context: Civ7ControlOrpcContext,
-): Promise<number> {
-  const view = await context.directControl.getCiv7PlayNotificationView(
-    context.endpointDefaults,
-  );
+async function readLocalPlayerId(context: Civ7ControlOrpcContext): Promise<number> {
+  const view = await context.directControl.getCiv7PlayNotificationView(context.endpointDefaults);
   return view.localPlayerId;
 }
 
 function advisorWarningViewedResult(
   input: Civ7NotificationAdvisorWarningViewedInput,
-  result: Civ7ControlOrpcAdvisorWarningViewedResult,
+  result: Civ7ControlOrpcAdvisorWarningViewedResult
 ): Civ7NotificationAdvisorWarningViewedResult {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
@@ -78,7 +64,8 @@ function advisorWarningViewedResult(
     source,
     inspectKind: "inspect-notification",
     inspectLabel: "Inspect advisor-warning notification state before attempting another request.",
-    doNotRepeatLabel: "Do not repeat this advisor-warning acknowledgement until fresh attention evidence is read.",
+    doNotRepeatLabel:
+      "Do not repeat this advisor-warning acknowledgement until fresh attention evidence is read.",
   });
 
   return {
@@ -90,7 +77,8 @@ function advisorWarningViewedResult(
       beforeValid: result.beforeValidation.valid,
       afterValid: result.afterValidation.valid,
     },
-    postcondition: projection.postcondition as Civ7NotificationAdvisorWarningViewedResult["postcondition"],
+    postcondition:
+      projection.postcondition as Civ7NotificationAdvisorWarningViewedResult["postcondition"],
     nextSteps: projection.nextSteps as Civ7NotificationAdvisorWarningViewedResult["nextSteps"],
   };
 }

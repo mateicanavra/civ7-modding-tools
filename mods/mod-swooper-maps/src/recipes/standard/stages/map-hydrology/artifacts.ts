@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 export const MapHydrologyEngineProjectionArtifactSchema = Type.Object(
   {
@@ -42,11 +42,13 @@ export const MapHydrologyEngineProjectionArtifactSchema = Type.Object(
     }),
     nonLakeTileCount: Type.Integer({
       minimum: 0,
-      description: "Count of planned lake tiles that did not read back as Civ7 lake-classified tiles.",
+      description:
+        "Count of planned lake tiles that did not read back as Civ7 lake-classified tiles.",
     }),
     terrainMismatchTileCount: Type.Integer({
       minimum: 0,
-      description: "Count of planned lake tiles whose terrain readback did not match TERRAIN_COAST.",
+      description:
+        "Count of planned lake tiles whose terrain readback did not match TERRAIN_COAST.",
     }),
     morphologyProtectedLakeTileCount: Type.Integer({
       minimum: 0,

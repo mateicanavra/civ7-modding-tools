@@ -1,7 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
-import { buildTectonicHistoryRollups } from "../rules/index.js";
 import ComputeTectonicHistoryRollupsContract from "../contract.js";
+import { buildTectonicHistoryRollups } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeTectonicHistoryRollupsContract, "default", {
   run: (input, config) => {

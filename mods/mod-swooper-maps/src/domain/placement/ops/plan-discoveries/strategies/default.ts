@@ -21,7 +21,11 @@ function sanitizeCandidateDiscoveries(values: DiscoveryCandidate[]): DiscoveryCa
   const unique = new Set<string>();
   const candidates: DiscoveryCandidate[] = [];
   for (const raw of values) {
-    if (!Number.isFinite(raw?.discoveryVisualType) || !Number.isFinite(raw?.discoveryActivationType)) continue;
+    if (
+      !Number.isFinite(raw?.discoveryVisualType) ||
+      !Number.isFinite(raw?.discoveryActivationType)
+    )
+      continue;
     const discoveryVisualType = Math.trunc(raw.discoveryVisualType as number);
     const discoveryActivationType = Math.trunc(raw.discoveryActivationType as number);
     const key = `${discoveryVisualType}:${discoveryActivationType}`;
@@ -40,9 +44,7 @@ export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default"
     const width = input.width | 0;
     const height = input.height | 0;
     const size = Math.max(0, width * height);
-    const candidateDiscoveries = sanitizeCandidateDiscoveries(
-      input.candidateDiscoveries ?? []
-    );
+    const candidateDiscoveries = sanitizeCandidateDiscoveries(input.candidateDiscoveries ?? []);
     if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
       throw new Error("[Placement] Invalid landMask for placement/plan-discoveries.");
     }
@@ -63,7 +65,11 @@ export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default"
     const reliefByTile = new Float32Array(size);
     let maxRelief = 0;
     for (let i = 0; i < size; i++) {
-      if (input.landMask[i] !== 1 || input.lakeMask[i] === 1 || isAnyRiverClass(input.riverClass[i])) {
+      if (
+        input.landMask[i] !== 1 ||
+        input.lakeMask[i] === 1 ||
+        isAnyRiverClass(input.riverClass[i])
+      ) {
         continue;
       }
       landTileCount += 1;
@@ -105,7 +111,11 @@ export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default"
     const reliefScale = Math.max(1, maxRelief);
     const candidates: Candidate[] = [];
     for (let i = 0; i < size; i++) {
-      if (input.landMask[i] !== 1 || input.lakeMask[i] === 1 || isAnyRiverClass(input.riverClass[i])) {
+      if (
+        input.landMask[i] !== 1 ||
+        input.lakeMask[i] === 1 ||
+        isAnyRiverClass(input.riverClass[i])
+      ) {
         continue;
       }
       const reliefN = clamp01((reliefByTile[i] ?? 0) / reliefScale);
@@ -143,7 +153,9 @@ export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default"
       let tooClose = false;
       if (minSpacingTiles > 0) {
         for (const placed of selected) {
-          if (hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) < minSpacingTiles) {
+          if (
+            hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) < minSpacingTiles
+          ) {
             tooClose = true;
             break;
           }

@@ -1,6 +1,4 @@
-import type {
-  Civ7TurnCompletionActionResult,
-} from "../play/turn-completion";
+import type { Civ7TurnCompletionActionResult } from "../play/turn-completion";
 import type { Civ7RuntimeProbe } from "../runtime/probe";
 import type {
   Civ7OperationProofBoundary,
@@ -18,7 +16,7 @@ export type Civ7TurnCompletionPostconditionClassification =
 
 export function turnCompletionProofPostcondition(
   result: Civ7TurnCompletionActionResult,
-  proofBoundary: Civ7OperationProofBoundary | undefined,
+  proofBoundary: Civ7OperationProofBoundary | undefined
 ): Civ7OperationTelemetryPostcondition {
   const classification = turnCompletionPostconditionClassification(result);
 
@@ -39,15 +37,13 @@ export function turnCompletionProofPostcondition(
     classification,
     reason: turnCompletionPostconditionReason(classification),
     outcome,
-    noRepeatAfterUnverified: turnCompletionNoRepeatAfterUnverified(
-      classification,
-    ),
+    noRepeatAfterUnverified: turnCompletionNoRepeatAfterUnverified(classification),
     confidence: confirmed ? "confirmed" : "unverified",
   };
 }
 
 export function turnCompletionProofOutcome(
-  classification: Civ7TurnCompletionPostconditionClassification,
+  classification: Civ7TurnCompletionPostconditionClassification
 ): Civ7OperationTelemetryPostconditionOutcome {
   switch (classification) {
     case "turn-advanced":
@@ -64,7 +60,7 @@ export function turnCompletionProofOutcome(
 }
 
 export function turnCompletionPostconditionConfirmed(
-  classification: Civ7TurnCompletionPostconditionClassification,
+  classification: Civ7TurnCompletionPostconditionClassification
 ): boolean {
   switch (classification) {
     case "turn-advanced":
@@ -79,7 +75,7 @@ export function turnCompletionPostconditionConfirmed(
 }
 
 function turnCompletionPostconditionClassification(
-  result: Civ7TurnCompletionActionResult,
+  result: Civ7TurnCompletionActionResult
 ): Civ7TurnCompletionPostconditionClassification {
   const beforeTurn = probeValue(result.before.turn);
   const afterTurn = probeValue(result.after.turn);
@@ -97,7 +93,7 @@ function turnCompletionPostconditionClassification(
 }
 
 function turnCompletionPostconditionReason(
-  classification: Civ7TurnCompletionPostconditionClassification,
+  classification: Civ7TurnCompletionPostconditionClassification
 ): string {
   switch (classification) {
     case "turn-advanced":
@@ -116,7 +112,7 @@ function turnCompletionPostconditionReason(
 }
 
 function turnCompletionNoRepeatAfterUnverified(
-  classification: Civ7TurnCompletionPostconditionClassification,
+  classification: Civ7TurnCompletionPostconditionClassification
 ): boolean {
   switch (classification) {
     case "turn-advanced":

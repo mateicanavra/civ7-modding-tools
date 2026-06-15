@@ -1,13 +1,12 @@
-import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/map-policy";
 import type {
   NaturalWonderFootprintReadback,
   NaturalWonderFootprintReadbackStatus,
   NaturalWonderPlacementOutcome,
 } from "@civ7/adapter";
+import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/map-policy";
+import placement from "@mapgen/domain/placement";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
-
-import placement from "@mapgen/domain/placement";
 
 type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 
@@ -93,12 +92,16 @@ export type NaturalWonderPlacementRuntimeRejectedRow = readonly [
   expectedFootprintReadbackStatus: NaturalWonderFootprintReadbackStatus | null,
 ];
 
-const FEATURE_VALID_TERRAIN_TYPE_INDICES = CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as
-  Record<string, readonly number[] | undefined>;
+const FEATURE_VALID_TERRAIN_TYPE_INDICES =
+  CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as Record<
+    string,
+    readonly number[] | undefined
+  >;
 const POLAR_WATER_ROWS = Math.max(0, CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows | 0);
 const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
   string,
-  { placementClass?: string; naturalWonderTiles?: number; naturalWonderDirection?: number } | undefined
+  | { placementClass?: string; naturalWonderTiles?: number; naturalWonderDirection?: number }
+  | undefined
 >;
 const FNV1A_32_OFFSET = 0x811c9dc5;
 const FNV1A_32_PRIME = 0x01000193;
@@ -136,7 +139,8 @@ function naturalWonderCoordinateDigest(
         row.reason,
       ];
       if (row.observedPlotIndex !== undefined) fields.push(`observedPlot=${row.observedPlotIndex}`);
-      if (row.observedFeatureType !== undefined) fields.push(`observedFeature=${row.observedFeatureType}`);
+      if (row.observedFeatureType !== undefined)
+        fields.push(`observedFeature=${row.observedFeatureType}`);
       const footprint = formatExpectedFootprintReadback(row.expectedFootprintReadback);
       if (footprint !== undefined) fields.push(`footprint=${footprint}`);
       const readbackStatus = resolveExpectedFootprintReadbackStatus(
@@ -154,9 +158,7 @@ function formatExpectedFootprintReadback(
   readback: readonly NaturalWonderFootprintReadback[] | undefined
 ): string | undefined {
   if (!Array.isArray(readback) || readback.length === 0) return undefined;
-  return readback
-    .map((row) => `${row.plotIndex | 0}:${row.observedFeatureType | 0}`)
-    .join(",");
+  return readback.map((row) => `${row.plotIndex | 0}:${row.observedFeatureType | 0}`).join(",");
 }
 
 function resolveExpectedFootprintReadbackStatus(
@@ -166,7 +168,9 @@ function resolveExpectedFootprintReadbackStatus(
 ): NaturalWonderFootprintReadbackStatus | undefined {
   if (explicitStatus !== undefined) return explicitStatus;
   if (!Array.isArray(readback) || readback.length === 0) return undefined;
-  const matchingCells = readback.filter((cell) => (cell.observedFeatureType | 0) === (featureType | 0)).length;
+  const matchingCells = readback.filter(
+    (cell) => (cell.observedFeatureType | 0) === (featureType | 0)
+  ).length;
   if (matchingCells === readback.length) return undefined;
   return matchingCells === 0 ? "empty-expected-footprint" : "partial-expected-footprint";
 }
@@ -195,7 +199,9 @@ function formatNaturalWonderRejectionExample(args: {
     ...(args.elevation === undefined ? [] : [`elevation=${Math.trunc(args.elevation)}`]),
     `reason=${args.reason}`,
     ...(args.observedPlotIndex === undefined ? [] : [`observedPlot=${args.observedPlotIndex}`]),
-    ...(args.observedFeatureType === undefined ? [] : [`observedFeature=${args.observedFeatureType}`]),
+    ...(args.observedFeatureType === undefined
+      ? []
+      : [`observedFeature=${args.observedFeatureType}`]),
     ...(footprint === undefined ? [] : [`footprint=${footprint}`]),
     ...(readbackStatus === undefined ? [] : [`readback=${readbackStatus}`]),
   ].join(" ");
@@ -290,15 +296,23 @@ export function stampNaturalWondersFromPlan({
     const plotIndex = placementPlan.plotIndex | 0;
     if (plotIndex < 0 || plotIndex >= width * height) {
       skippedOutOfBoundsCount += 1;
-      rejectionDetails.push(`feature=${placementPlan.featureType} plot=${plotIndex} reason=out-of-bounds`);
+      rejectionDetails.push(
+        `feature=${placementPlan.featureType} plot=${plotIndex} reason=out-of-bounds`
+      );
       coordinateRows.push({
         status: "rejected",
         plotIndex,
         x: -1,
         y: -1,
-        featureType: Number.isFinite(placementPlan.featureType) ? Math.trunc(placementPlan.featureType) : -1,
-        direction: Number.isFinite(placementPlan.direction) ? Math.trunc(placementPlan.direction) : -1,
-        ...(Number.isFinite(placementPlan.elevation) ? { elevation: Math.trunc(placementPlan.elevation) } : {}),
+        featureType: Number.isFinite(placementPlan.featureType)
+          ? Math.trunc(placementPlan.featureType)
+          : -1,
+        direction: Number.isFinite(placementPlan.direction)
+          ? Math.trunc(placementPlan.direction)
+          : -1,
+        ...(Number.isFinite(placementPlan.elevation)
+          ? { elevation: Math.trunc(placementPlan.elevation) }
+          : {}),
         reason: "out-of-bounds",
       });
       continue;
@@ -332,7 +346,9 @@ export function stampNaturalWondersFromPlan({
     });
     if (!footprint) {
       rejectedCount += 1;
-      rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=unsupported-footprint`);
+      rejectionDetails.push(
+        `feature=${featureType} plot=${plotIndex} reason=unsupported-footprint`
+      );
       coordinateRows.push({
         status: "rejected",
         plotIndex,
@@ -409,8 +425,12 @@ export function stampNaturalWondersFromPlan({
         direction,
         ...(outcome.elevation === undefined ? {} : { elevation: Math.trunc(outcome.elevation) }),
         reason: outcome.reason,
-        ...(outcome.observedPlotIndex === undefined ? {} : { observedPlotIndex: outcome.observedPlotIndex }),
-        ...(outcome.observedFeatureType === undefined ? {} : { observedFeatureType: outcome.observedFeatureType }),
+        ...(outcome.observedPlotIndex === undefined
+          ? {}
+          : { observedPlotIndex: outcome.observedPlotIndex }),
+        ...(outcome.observedFeatureType === undefined
+          ? {}
+          : { observedFeatureType: outcome.observedFeatureType }),
         ...(outcome.expectedFootprintReadback === undefined
           ? {}
           : { expectedFootprintReadback: outcome.expectedFootprintReadback }),
@@ -520,7 +540,9 @@ export function normalizeNaturalWonderStampingStats(
   };
 }
 
-function normalizeNaturalWonderCoordinateProof(value: unknown): NaturalWonderPlacementCoordinateProof {
+function normalizeNaturalWonderCoordinateProof(
+  value: unknown
+): NaturalWonderPlacementCoordinateProof {
   if (!value || typeof value !== "object") {
     return {
       version: 1,
@@ -544,13 +566,16 @@ function normalizeNaturalWonderCoordinateDigest(
 ): NaturalWonderPlacementCoordinateDigest {
   const rawCount = digest?.count;
   const count = Math.max(0, Number.isFinite(rawCount) ? Math.trunc(rawCount as number) : 0);
-  const hash32 = typeof digest?.hash32 === "string" && /^[0-9a-f]{8}$/i.test(digest.hash32)
-    ? digest.hash32.toLowerCase()
-    : hash32Hex("");
+  const hash32 =
+    typeof digest?.hash32 === "string" && /^[0-9a-f]{8}$/i.test(digest.hash32)
+      ? digest.hash32.toLowerCase()
+      : hash32Hex("");
   return { count, hash32 };
 }
 
-function normalizeNaturalWonderCoordinateRows(value: unknown): NaturalWonderPlacementCoordinateRow[] {
+function normalizeNaturalWonderCoordinateRows(
+  value: unknown
+): NaturalWonderPlacementCoordinateRow[] {
   if (!Array.isArray(value)) return [];
   const rows: NaturalWonderPlacementCoordinateRow[] = [];
   for (const entry of value) {

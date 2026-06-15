@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
-
-import { RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
 import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
+import { RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
 function broadVegetationHabitatFields(size: number) {
@@ -247,7 +246,10 @@ describe("ecology op contract surfaces", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.classifyBiomes, ecology.ops.classifyBiomes.defaultConfig);
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.classifyBiomes,
+      ecology.ops.classifyBiomes.defaultConfig
+    );
 
     const result = ecology.ops.classifyBiomes.run(
       {
@@ -335,7 +337,10 @@ describe("ecology op contract surfaces", () => {
 
     for (const op of scoreOps) {
       const selection = normalizeOpSelectionOrThrow(op, { strategy: "default", config: {} });
-      const result = op.run({ width, height, landMask: new Uint8Array(size).fill(1), ...substrate }, selection);
+      const result = op.run(
+        { width, height, landMask: new Uint8Array(size).fill(1), ...substrate },
+        selection
+      );
       expect(result.score01.length).toBe(size);
       for (let i = 0; i < size; i++) {
         const score = result.score01[i];
@@ -414,7 +419,15 @@ describe("ecology op contract surfaces", () => {
         },
         {
           op: ecology.ops.scoreWetOasis,
-          input: { width, height, landMask, isolatedWaterPointMask, water01, aridityIndex, surfaceTemperature },
+          input: {
+            width,
+            height,
+            landMask,
+            isolatedWaterPointMask,
+            water01,
+            aridityIndex,
+            surfaceTemperature,
+          },
         },
         {
           op: ecology.ops.scoreWetWateringHole,
@@ -521,7 +534,10 @@ describe("ecology op contract surfaces", () => {
       const surfaceTemperature = new Float32Array(size).fill(-8);
       const elevation = new Int16Array(size).fill(3000);
       const freezeIndex = new Float32Array(size).fill(0.8);
-      const selection = normalizeOpSelectionOrThrow(ecology.ops.scoreIce, { strategy: "default", config: {} });
+      const selection = normalizeOpSelectionOrThrow(ecology.ops.scoreIce, {
+        strategy: "default",
+        config: {},
+      });
       const result = ecology.ops.scoreIce.run(
         { width, height, landMask, surfaceTemperature, elevation, freezeIndex },
         selection

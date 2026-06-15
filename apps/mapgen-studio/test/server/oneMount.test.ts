@@ -1,21 +1,20 @@
 import { createServer, type Server } from "node:http";
-import { afterEach, describe, expect, test } from "vitest";
-
-import { createORPCClient, safe } from "@orpc/client";
-import { RPCLink } from "@orpc/client/fetch";
-import type { ContractRouterClient } from "@orpc/contract";
+import { type Civ7ControlOrpcContext, Civ7ControlOrpcContract } from "@civ7/control-orpc";
+import { Civ7DirectControlSession, type Civ7PlayableStatusResult } from "@civ7/direct-control";
 import {
+  contract,
   createStudioEventHub,
   createStudioRpcHandler,
-  contract,
-  studioEffectContract,
   type StudioContract,
   type StudioEventHubApi,
   type StudioRpcHandle,
   type StudioServerContext,
+  studioEffectContract,
 } from "@civ7/studio-server";
-import { Civ7ControlOrpcContract, type Civ7ControlOrpcContext } from "@civ7/control-orpc";
-import { Civ7DirectControlSession, type Civ7PlayableStatusResult } from "@civ7/direct-control";
+import { createORPCClient, safe } from "@orpc/client";
+import { RPCLink } from "@orpc/client/fetch";
+import type { ContractRouterClient } from "@orpc/contract";
+import { afterEach, describe, expect, test } from "vitest";
 
 import { RecipeDagNotFound } from "../../src/server/recipeDag/service";
 
@@ -117,7 +116,7 @@ describe("one /rpc mount serves the whole unified contract", () => {
 
     // (c) recipeDag namespace — success and the typed not-found error.
     await expect(
-      client.recipeDag.get({ recipeId: "mod-swooper-maps/standard" }),
+      client.recipeDag.get({ recipeId: "mod-swooper-maps/standard" })
     ).resolves.toMatchObject({ recipeKey: "mod-swooper-maps/standard" });
     const { error } = await safe(client.recipeDag.get({ recipeId: "missing/recipe" }));
     expect(error).toMatchObject({ code: "RECIPE_DAG_RECIPE_NOT_FOUND" });
@@ -168,7 +167,7 @@ async function listenWithStudioServer(overrides: Partial<StudioServerContext>): 
     res.end(response.body ? Buffer.from(await response.arrayBuffer()) : undefined);
   });
   const client: ContractRouterClient<StudioContract> = createORPCClient(
-    new RPCLink({ url: `${origin}/rpc` }),
+    new RPCLink({ url: `${origin}/rpc` })
   );
   return { origin, client };
 }
@@ -199,9 +198,7 @@ async function closeServer(server: Server): Promise<void> {
   });
 }
 
-async function nodeRequestToWebRequest(
-  req: import("node:http").IncomingMessage,
-): Promise<Request> {
+async function nodeRequestToWebRequest(req: import("node:http").IncomingMessage): Promise<Request> {
   const method = req.method ?? "GET";
   const host = (req.headers.host as string | undefined) ?? "localhost";
   const url = `http://${host}${req.url ?? "/"}`;

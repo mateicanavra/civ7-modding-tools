@@ -4,19 +4,9 @@
 // Manages generation state and actions.
 // ============================================================================
 
-import { useState, useCallback, useMemo } from 'react';
-import type {
-  PipelineConfig,
-  WorldSettings,
-  RecipeSettings,
-  GenerationStatus } from
-'../types';
-import {
-  configsEqual,
-  worldSettingsEqual,
-  recipeSettingsEqual,
-  generateSeed } from
-'../utils';
+import { useCallback, useMemo, useState } from "react";
+import type { GenerationStatus, PipelineConfig, RecipeSettings, WorldSettings } from "../types";
+import { configsEqual, generateSeed, recipeSettingsEqual, worldSettingsEqual } from "../utils";
 
 export interface GenerationSnapshot {
   config: PipelineConfig;
@@ -57,30 +47,20 @@ export interface UseGenerationReturn {
   reset: (defaultConfig: PipelineConfig) => void;
 }
 
-export function useGeneration(
-options: UseGenerationOptions)
-: UseGenerationReturn {
-  const {
-    initialConfig,
-    initialWorldSettings,
-    initialRecipeSettings,
-    onGenerate
-  } = options;
+export function useGeneration(options: UseGenerationOptions): UseGenerationReturn {
+  const { initialConfig, initialWorldSettings, initialRecipeSettings, onGenerate } = options;
 
   // Current state
-  const [status, setStatus] = useState<GenerationStatus>('ready');
+  const [status, setStatus] = useState<GenerationStatus>("ready");
   const [config, setConfig] = useState<PipelineConfig>(initialConfig);
-  const [worldSettings, setWorldSettings] =
-  useState<WorldSettings>(initialWorldSettings);
-  const [recipeSettings, setRecipeSettings] = useState<RecipeSettings>(
-    initialRecipeSettings
-  );
+  const [worldSettings, setWorldSettings] = useState<WorldSettings>(initialWorldSettings);
+  const [recipeSettings, setRecipeSettings] = useState<RecipeSettings>(initialRecipeSettings);
 
   // Last run snapshot
   const [lastRunSnapshot, setLastRunSnapshot] = useState<GenerationSnapshot>({
     config: initialConfig,
     worldSettings: initialWorldSettings,
-    recipeSettings: initialRecipeSettings
+    recipeSettings: initialRecipeSettings,
   });
 
   // Derived state
@@ -88,22 +68,22 @@ options: UseGenerationOptions)
     return (
       !configsEqual(config, lastRunSnapshot.config) ||
       !worldSettingsEqual(worldSettings, lastRunSnapshot.worldSettings) ||
-      !recipeSettingsEqual(recipeSettings, lastRunSnapshot.recipeSettings));
-
+      !recipeSettingsEqual(recipeSettings, lastRunSnapshot.recipeSettings)
+    );
   }, [config, worldSettings, recipeSettings, lastRunSnapshot]);
 
-  const isRunning = status === 'running';
+  const isRunning = status === "running";
 
   // Run generation with current settings
   const run = useCallback(async () => {
     const snapshot: GenerationSnapshot = {
       config: { ...config },
       worldSettings: { ...worldSettings },
-      recipeSettings: { ...recipeSettings }
+      recipeSettings: { ...recipeSettings },
     };
 
     setLastRunSnapshot(snapshot);
-    setStatus('running');
+    setStatus("running");
 
     try {
       if (onGenerate) {
@@ -112,10 +92,10 @@ options: UseGenerationOptions)
         // Default: simulate generation delay
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
-      setStatus('ready');
+      setStatus("ready");
     } catch (error) {
-      console.error('Generation failed:', error);
-      setStatus('error');
+      console.error("Generation failed:", error);
+      setStatus("error");
     }
   }, [config, worldSettings, recipeSettings, onGenerate]);
 
@@ -129,11 +109,11 @@ options: UseGenerationOptions)
     const snapshot: GenerationSnapshot = {
       config: { ...config },
       worldSettings: { ...worldSettings },
-      recipeSettings: newRecipeSettings
+      recipeSettings: newRecipeSettings,
     };
 
     setLastRunSnapshot(snapshot);
-    setStatus('running');
+    setStatus("running");
 
     try {
       if (onGenerate) {
@@ -141,10 +121,10 @@ options: UseGenerationOptions)
       } else {
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
-      setStatus('ready');
+      setStatus("ready");
     } catch (error) {
-      console.error('Generation failed:', error);
-      setStatus('error');
+      console.error("Generation failed:", error);
+      setStatus("error");
     }
   }, [config, worldSettings, recipeSettings, onGenerate]);
 
@@ -166,6 +146,6 @@ options: UseGenerationOptions)
     setRecipeSettings,
     run,
     reroll,
-    reset
+    reset,
   };
 }

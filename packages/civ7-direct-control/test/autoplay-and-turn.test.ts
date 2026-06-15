@@ -1,7 +1,7 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7TurnCompletionStatusInputSchema,
@@ -27,15 +27,23 @@ describe("Civ7 autoplay and turn completion", () => {
     expect(Value.Check(Civ7TurnCompletionStatusInputSchema, {})).toBe(true);
     expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { host: "127.0.0.1" })).toBe(false);
     expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { port: 4318 })).toBe(false);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { state: { role: "app-ui" } })).toBe(false);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { rawCommand: "GameContext.sendTurnComplete()" })).toBe(false);
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { state: { role: "app-ui" } })).toBe(
+      false
+    );
+    expect(
+      Value.Check(Civ7TurnCompletionStatusInputSchema, {
+        rawCommand: "GameContext.sendTurnComplete()",
+      })
+    ).toBe(false);
 
     const status = turnCompletionStatusResult();
     expect(Value.Check(Civ7TurnCompletionStatusResultSchema, status)).toBe(true);
-    expect(Value.Check(Civ7TurnCompletionStatusResultSchema, {
-      ...status,
-      command: "GameContext.sendTurnComplete()",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7TurnCompletionStatusResultSchema, {
+        ...status,
+        command: "GameContext.sendTurnComplete()",
+      })
+    ).toBe(false);
   });
 
   test("returns guard-blocked turn completion requests without sending", async () => {
@@ -49,12 +57,14 @@ describe("Civ7 autoplay and turn completion", () => {
         return commandResult();
       },
       getPlayNotificationView: async () => ({
-        notifications: [{
-          isEndTurnBlocking: true,
-          typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
-          canUserDismiss: false,
-          decision: { category: "town-focus" },
-        }],
+        notifications: [
+          {
+            isEndTurnBlocking: true,
+            typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
+            canUserDismiss: false,
+            decision: { category: "town-focus" },
+          },
+        ],
       }),
       parseTurnCompletionStatus: () => blockedStatus,
     };
@@ -117,9 +127,13 @@ describe("Civ7 autoplay and turn completion", () => {
       const endpoint = { host: "127.0.0.1", port, timeoutMs: 1_000, pollIntervalMs: 5 };
       const status = await getCiv7AutoplayStatus(endpoint);
 
-      const configure = await configureCiv7Autoplay(
-        { ...endpoint, turns: 4, observeAsPlayer: 2, returnAsPlayer: 0, pause: true },
-      );
+      const configure = await configureCiv7Autoplay({
+        ...endpoint,
+        turns: 4,
+        observeAsPlayer: 2,
+        returnAsPlayer: 0,
+        pause: true,
+      });
       const start = await startCiv7Autoplay(endpoint);
 
       expect(configure).toMatchObject({
@@ -186,15 +200,13 @@ describe("Civ7 autoplay and turn completion", () => {
     const server = await startAutoplayTurnTunerServer({ activeAutoplay: true });
     try {
       const { port } = server.address();
-      const result = await stopCiv7Autoplay(
-        {
-          host: "127.0.0.1",
-          port,
-          timeoutMs: 1_000,
-          pollIntervalMs: 5,
-          stabilityWindowMs: 5,
-        }
-      );
+      const result = await stopCiv7Autoplay({
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+        pollIntervalMs: 5,
+        stabilityWindowMs: 5,
+      });
 
       expect(result).toMatchObject({
         state: { id: "65535", name: "App UI" },

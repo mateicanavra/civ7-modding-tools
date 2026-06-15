@@ -1,18 +1,17 @@
-import { readFile, readdir, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { compile } from "json-schema-to-typescript";
-import type { TObject, TSchema } from "typebox";
-
 import {
   derivePresetLabel,
   deriveRecipeConfigSchema,
   deriveStageAuthoringModel,
-  stripSchemaMetadataRoot,
   type RecipePresetDefinitionV1,
   type StageAuthoringModel,
+  stripSchemaMetadataRoot,
 } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import { compile } from "json-schema-to-typescript";
+import type { TObject, TSchema } from "typebox";
 import { validateCanonicalMapConfig } from "../src/maps/configs/canonical.js";
 
 type JsonObject = Record<string, unknown>;
@@ -50,7 +49,9 @@ type StageLike = Readonly<{
   public?: TObject;
   surfaceSchema: TObject;
   authoring: StageAuthoringModel;
-  toInternal: (args: { env: unknown; stageConfig: unknown }) => { rawSteps: Record<string, unknown> };
+  toInternal: (args: { env: unknown; stageConfig: unknown }) => {
+    rawSteps: Record<string, unknown>;
+  };
 }>;
 
 type StudioRecipeUiMeta = Readonly<{
@@ -237,7 +238,6 @@ async function loadBuiltInPresets(args: {
   return presets;
 }
 
-
 function formatKebabIdLabel(id: string): string {
   return id
     .split("-")
@@ -405,11 +405,9 @@ const browserTestUiMeta = deriveStudioRecipeUiMeta({
   stages: browserTestMod.BROWSER_TEST_STAGES,
 });
 const browserTestDefaultsSeed = buildDefaultsSkeleton(browserTestUiMeta);
-const { value: browserTestDefaults, errors: browserTestDefaultsErrors } = normalizeStrict<Record<string, unknown>>(
-  browserTestSchema,
-  browserTestDefaultsSeed,
-  "/defaults"
-);
+const { value: browserTestDefaults, errors: browserTestDefaultsErrors } = normalizeStrict<
+  Record<string, unknown>
+>(browserTestSchema, browserTestDefaultsSeed, "/defaults");
 if (browserTestDefaultsErrors.length > 0) {
   throw new Error(
     `[recipe:mod-swooper-maps.browser-test] derived defaults do not validate: ${JSON.stringify(
@@ -492,8 +490,16 @@ const standardUiMeta = deriveStudioRecipeUiMeta({
   stages: standardMod.STANDARD_STAGES,
 });
 const transientStudioCurrentConfig = "studio-current.config.json";
-const standardDefaultPresetPath = resolve(pkgRoot, "src", "maps", "configs", "swooper-earthlike.config.json");
-const standardDefaultPresetRaw = JSON.parse(await readFile(standardDefaultPresetPath, "utf-8")) as unknown;
+const standardDefaultPresetPath = resolve(
+  pkgRoot,
+  "src",
+  "maps",
+  "configs",
+  "swooper-earthlike.config.json"
+);
+const standardDefaultPresetRaw = JSON.parse(
+  await readFile(standardDefaultPresetPath, "utf-8")
+) as unknown;
 const standardDefaultMapConfig = validateCanonicalMapConfig({
   fileName: "swooper-earthlike.config.json",
   raw: standardDefaultPresetRaw,
@@ -501,11 +507,9 @@ const standardDefaultMapConfig = validateCanonicalMapConfig({
   stages: standardMod.STANDARD_STAGES,
 });
 const standardDefaultPresetClean = stripSchemaMetadataRoot(standardDefaultMapConfig.config);
-const { value: standardDefaults, errors: standardDefaultsErrors } = normalizeStrict<Record<string, unknown>>(
-  standardSchema,
-  standardDefaultPresetClean,
-  "/defaults"
-);
+const { value: standardDefaults, errors: standardDefaultsErrors } = normalizeStrict<
+  Record<string, unknown>
+>(standardSchema, standardDefaultPresetClean, "/defaults");
 if (standardDefaultsErrors.length > 0) {
   throw new Error(
     `[recipe:mod-swooper-maps.standard] derived defaults do not validate: ${JSON.stringify(

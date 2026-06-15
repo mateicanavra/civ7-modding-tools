@@ -1,14 +1,14 @@
 import { describe, expect, it } from "bun:test";
 
 import computeCrust from "../../src/domain/foundation/ops/compute-crust/index.js";
-import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
-import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
 import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
+import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
+import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
 import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
-import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
 import computeBaseTopography from "../../src/domain/morphology/ops/compute-base-topography/index.js";
+import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
 
 function quantile(sorted: number[], q: number): number {
   if (sorted.length === 0) return 0;
@@ -18,11 +18,18 @@ function quantile(sorted: number[], q: number): number {
 }
 
 function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
-  const mantlePotential = computeMantlePotential.run({ mesh, rngSeed }, computeMantlePotential.defaultConfig)
-    .mantlePotential;
-  const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
-    .mantleForcing;
-  return computePlateMotion.run({ mesh, plateGraph, mantleForcing }, computePlateMotion.defaultConfig).plateMotion;
+  const mantlePotential = computeMantlePotential.run(
+    { mesh, rngSeed },
+    computeMantlePotential.defaultConfig
+  ).mantlePotential;
+  const mantleForcing = computeMantleForcing.run(
+    { mesh, mantlePotential },
+    computeMantleForcing.defaultConfig
+  ).mantleForcing;
+  return computePlateMotion.run(
+    { mesh, plateGraph, mantleForcing },
+    computePlateMotion.defaultConfig
+  ).plateMotion;
 }
 
 describe("m11 morphology baseline consumes crust isostasy prior", () => {
@@ -35,20 +42,27 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2},
+        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
       },
       ctx as any
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 10 }, meshConfig).mesh;
-    const mantlePotential = computeMantlePotential.run({ mesh, rngSeed: 11 }, computeMantlePotential.defaultConfig)
-      .mantlePotential;
-    const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
-      .mantleForcing;
-    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 11 }, computeCrust.defaultConfig).crust;
+    const mantlePotential = computeMantlePotential.run(
+      { mesh, rngSeed: 11 },
+      computeMantlePotential.defaultConfig
+    ).mantlePotential;
+    const mantleForcing = computeMantleForcing.run(
+      { mesh, mantlePotential },
+      computeMantleForcing.defaultConfig
+    ).mantleForcing;
+    const crust = computeCrust.run(
+      { mesh, mantleForcing, rngSeed: 11 },
+      computeCrust.defaultConfig
+    ).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 12 },
-      { strategy: "default", config: { plateCount: 16} }
+      { strategy: "default", config: { plateCount: 16 } }
     ).plateGraph;
     const plateMotion = derivePlateMotion(mesh, plateGraph, 13);
     const historyResult = runTectonicHistoryChain({

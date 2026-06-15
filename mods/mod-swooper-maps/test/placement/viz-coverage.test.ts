@@ -5,8 +5,8 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { standardConfig } from "../support/standard-config.js";
 import { PLACEMENT_VIZ_GROUP } from "../../src/recipes/standard/stages/placement/viz.js";
+import { standardConfig } from "../support/standard-config.js";
 
 /**
  * E4.2 coverage guard (placement-realignment S7): every placement step emits
@@ -51,10 +51,7 @@ const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
     "placement.starts.seatRung",
     "placement.starts.startPosition",
   ],
-  "adjust-resources": [
-    "placement.resources.supportAdjustment",
-    "placement.starts.supportRadius",
-  ],
+  "adjust-resources": ["placement.resources.supportAdjustment", "placement.starts.supportRadius"],
   "place-resources": ["placement.resources.outcome"],
   "place-discoveries": ["placement.discoveries.outcome"],
   placement: ["map.placement.engine.landMask", "map.placement.engine.waterDrift"],

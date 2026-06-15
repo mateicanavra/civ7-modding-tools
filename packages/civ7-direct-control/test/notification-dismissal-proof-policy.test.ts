@@ -1,13 +1,11 @@
 import { describe, expect, test } from "vitest";
-
+import type { Civ7NotificationDismissalResult } from "../src/play/notifications/dismissal-request";
+import type { Civ7NotificationDismissalPostconditionClassification } from "../src/play/notifications/postconditions";
+import { notificationDismissalPostconditionConfirmed } from "../src/play/notifications/postconditions";
 import {
   notificationDismissalProofOutcome,
   notificationDismissalProofPostcondition,
 } from "../src/proof/notification-dismissal-proof-policy";
-import { notificationDismissalPostconditionConfirmed } from "../src/play/notifications/postconditions";
-
-import type { Civ7NotificationDismissalResult } from "../src/play/notifications/dismissal-request";
-import type { Civ7NotificationDismissalPostconditionClassification } from "../src/play/notifications/postconditions";
 import type { Civ7OperationTelemetryPostconditionOutcome } from "../src/proof/operation-telemetry";
 
 type NotificationDismissalProofCase = Readonly<{
@@ -33,7 +31,7 @@ describe("notification dismissal proof policy", () => {
     test(`maps ${classification} into proof confidence and outcome`, () => {
       const postcondition = notificationDismissalProofPostcondition(
         notificationDismissalResult(classification),
-        undefined,
+        undefined
       );
       const confirmed = notificationDismissalPostconditionConfirmed(classification);
 
@@ -48,9 +46,14 @@ describe("notification dismissal proof policy", () => {
   }
 
   test("keeps sent dismissals without postcondition evidence no-repeat guarded", () => {
-    expect(notificationDismissalProofPostcondition({
-      sent: true,
-    } as Civ7NotificationDismissalResult, undefined)).toMatchObject({
+    expect(
+      notificationDismissalProofPostcondition(
+        {
+          sent: true,
+        } as Civ7NotificationDismissalResult,
+        undefined
+      )
+    ).toMatchObject({
       classification: "missing-postcondition",
       outcome: "unknown",
       confidence: "unverified",
@@ -59,10 +62,12 @@ describe("notification dismissal proof policy", () => {
   });
 
   test("keeps pending runtime proof no-repeat guarded even for confirmed classifications", () => {
-    expect(notificationDismissalProofPostcondition(
-      notificationDismissalResult("notification-disappeared"),
-      "pending-runtime-proof",
-    )).toMatchObject({
+    expect(
+      notificationDismissalProofPostcondition(
+        notificationDismissalResult("notification-disappeared"),
+        "pending-runtime-proof"
+      )
+    ).toMatchObject({
       classification: "notification-disappeared",
       outcome: "unknown",
       confidence: "pending-runtime-proof",
@@ -72,7 +77,7 @@ describe("notification dismissal proof policy", () => {
 });
 
 function notificationDismissalResult(
-  classification: Civ7NotificationDismissalPostconditionClassification,
+  classification: Civ7NotificationDismissalPostconditionClassification
 ): Civ7NotificationDismissalResult {
   return {
     sent: classification !== "not-sent",

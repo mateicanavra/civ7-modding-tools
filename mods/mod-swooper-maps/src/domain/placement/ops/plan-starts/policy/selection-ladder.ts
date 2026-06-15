@@ -127,9 +127,7 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
       if (used.has(tile.plotIndex)) continue;
       const distance = minDistanceToSeated(tile.plotIndex);
       if (distance < requirement) continue;
-      const spacingScore = seatedPlots.length
-        ? clamp01(distance / Math.max(1, desired))
-        : 0.75;
+      const spacingScore = seatedPlots.length ? clamp01(distance / Math.max(1, desired)) : 0.75;
       const biasTerm =
         args.startBiasWeight > 0 && bias
           ? args.startBiasWeight * seatBiasTerm(bias, args.biasContextOf(tile.plotIndex))
@@ -159,7 +157,12 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
       const tile = pickBest(seat, pool, requirement);
       if (tile) {
         for (let step = desired; step > requirement; step--) {
-          relaxations.push({ seatIndex: seat.seatIndex, kind: "spacing", from: step, to: step - 1 });
+          relaxations.push({
+            seatIndex: seat.seatIndex,
+            kind: "spacing",
+            from: step,
+            to: step - 1,
+          });
         }
         return tile;
       }

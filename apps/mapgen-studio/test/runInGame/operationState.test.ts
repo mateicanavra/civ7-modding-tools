@@ -1,10 +1,9 @@
 import { Civ7DirectControlError } from "@civ7/direct-control";
 import { describe, expect, it } from "vitest";
-
-import { createRunInGameOperationStore } from "../../src/server/runInGame/operationState";
-import { StudioEngineError } from "../../src/server/studio/engineErrors";
 import { formatRunInGameDiagnostics } from "../../src/features/runInGame/status";
 import type { RunInGameOperationState } from "../../src/server/runInGame/operationState";
+import { createRunInGameOperationStore } from "../../src/server/runInGame/operationState";
+import { StudioEngineError } from "../../src/server/studio/engineErrors";
 
 function createStore(options: { onChange?: (state: RunInGameOperationState) => void } = {}) {
   let nowMs = Date.parse("2026-06-01T00:00:00.000Z");
@@ -88,10 +87,14 @@ describe("Run in Game operation store", () => {
   it("classifies row visibility failures as blocked with recovery actions", () => {
     const { store } = createStore();
     store.create("request-1");
-    const failed = store.fail("request-1", "checking-civ7", new StudioEngineError(409, "row missing", {
-      code: "setup-map-row-not-visible",
-      reloadRequired: true,
-    }));
+    const failed = store.fail(
+      "request-1",
+      "checking-civ7",
+      new StudioEngineError(409, "row missing", {
+        code: "setup-map-row-not-visible",
+        reloadRequired: true,
+      })
+    );
 
     expect(failed.status).toBe("blocked");
     expect(failed.details?.code).toBe("setup-map-row-not-visible");
@@ -101,11 +104,15 @@ describe("Run in Game operation store", () => {
   it("surfaces process restart recovery when setup row reload requires a Civ process boundary", () => {
     const { store } = createStore();
     store.create("request-1");
-    const failed = store.fail("request-1", "checking-civ7", new StudioEngineError(409, "row missing", {
-      code: "setup-map-row-not-visible",
-      reloadRequired: true,
-      reloadBoundary: "process-restart-required",
-    }));
+    const failed = store.fail(
+      "request-1",
+      "checking-civ7",
+      new StudioEngineError(409, "row missing", {
+        code: "setup-map-row-not-visible",
+        reloadRequired: true,
+        reloadBoundary: "process-restart-required",
+      })
+    );
 
     expect(failed.status).toBe("blocked");
     expect(failed.recoveryActions).toContain("exit-to-shell-and-continue");
@@ -115,11 +122,15 @@ describe("Run in Game operation store", () => {
   it("surfaces Civ notification dismissal recovery for map script fatal failures", () => {
     const { store } = createStore();
     store.create("request-1");
-    const failed = store.fail("request-1", "waiting-for-proof", new StudioEngineError(500, "Civ7 could not load generated map script", {
-      code: "map-script-load-failed",
-      dismissNotificationRequired: true,
-      recoveryBoundary: "civ-notification-dismiss",
-    }));
+    const failed = store.fail(
+      "request-1",
+      "waiting-for-proof",
+      new StudioEngineError(500, "Civ7 could not load generated map script", {
+        code: "map-script-load-failed",
+        dismissNotificationRequired: true,
+        recoveryBoundary: "civ-notification-dismiss",
+      })
+    );
 
     expect(failed.status).toBe("failed");
     expect(failed.recoveryActions).toContain("dismiss-civ-notification-and-retry");
@@ -136,11 +147,15 @@ describe("Run in Game operation store", () => {
         launchAttempts: [{ attempt: 1, processStart: { started: true } }],
       },
     });
-    const failed = store.fail("request-1", "starting-game", new StudioEngineError(500, "Civ7 could not load generated map script", {
-      code: "map-script-load-failed",
-      dismissNotificationRequired: true,
-      recoveryBoundary: "civ-notification-dismiss",
-    }));
+    const failed = store.fail(
+      "request-1",
+      "starting-game",
+      new StudioEngineError(500, "Civ7 could not load generated map script", {
+        code: "map-script-load-failed",
+        dismissNotificationRequired: true,
+        recoveryBoundary: "civ-notification-dismiss",
+      })
+    );
 
     expect(failed.status).toBe("failed");
     expect(failed.phase).toBe("failed");
@@ -187,8 +202,8 @@ describe("Run in Game operation store", () => {
               output: "before LSQ:state-list",
             },
           },
-        },
-      ),
+        }
+      )
     );
 
     expect(failed.status).toBe("uncertain");

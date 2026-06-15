@@ -1,4 +1,4 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { routing } from "./steps/index.js";
 
 /**
@@ -15,7 +15,13 @@ const knobsSchema = Type.Object(
 export default createStage({
   id: "morphology-routing",
   knobsSchema,
-  public: Type.Object({}, { additionalProperties: false, description: "Morphology routing has no authored controls today." }),
+  public: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description: "Morphology routing has no authored controls today.",
+    }
+  ),
   steps: [routing],
   compile: () => ({
     routing: {

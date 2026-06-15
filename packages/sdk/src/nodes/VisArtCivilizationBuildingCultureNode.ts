@@ -1,19 +1,19 @@
-import { TObjectValues } from "../types";
 import { BUILDING_CULTURES } from "../constants";
+import { TObjectValues } from "../types";
 
 import { BaseNode } from "./BaseNode";
 
-export type TVisArtCivilizationBuildingCultureNode = Pick<VisArtCivilizationBuildingCultureNode,
-    "civilizationType" |
-    "buildingCulture"
+export type TVisArtCivilizationBuildingCultureNode = Pick<
+  VisArtCivilizationBuildingCultureNode,
+  "civilizationType" | "buildingCulture"
 >;
 
 export class VisArtCivilizationBuildingCultureNode extends BaseNode<TVisArtCivilizationBuildingCultureNode> {
-    civilizationType: string | null = 'CIVILIZATION_';
-    buildingCulture: TObjectValues<typeof BUILDING_CULTURES> | null = BUILDING_CULTURES.MED;
+  civilizationType: string | null = "CIVILIZATION_";
+  buildingCulture: TObjectValues<typeof BUILDING_CULTURES> | null = BUILDING_CULTURES.MED;
 
-    constructor(payload: Partial<TVisArtCivilizationBuildingCultureNode> = {}) {
-        super();
-        this.fill(payload);
-    }
+  constructor(payload: Partial<TVisArtCivilizationBuildingCultureNode> = {}) {
+    super();
+    this.fill(payload);
+  }
 }

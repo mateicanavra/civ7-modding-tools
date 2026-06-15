@@ -1,6 +1,6 @@
-import { Type, type TSchema } from "@swooper/mapgen-core/authoring";
 import placement from "@mapgen/domain/placement";
 import resources from "@mapgen/domain/resources";
+import { type TSchema, Type } from "@swooper/mapgen-core/authoring";
 
 function defaultEnvelope(config: unknown): { strategy: "default"; config: unknown } {
   return { strategy: "default", config: config ?? {} };

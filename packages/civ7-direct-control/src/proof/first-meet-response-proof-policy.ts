@@ -20,7 +20,7 @@ export type Civ7FirstMeetResponseProofPostcondition = Readonly<{
 }>;
 
 export function firstMeetResponseProofPostcondition(
-  result: Civ7FirstMeetResponseResult,
+  result: Civ7FirstMeetResponseResult
 ): Civ7FirstMeetResponseProofPostcondition {
   return {
     classification: result.postcondition.classification,
@@ -32,7 +32,7 @@ export function firstMeetResponseProofPostcondition(
 }
 
 export function firstMeetResponseProofOutcome(
-  postcondition: Civ7FirstMeetResponsePostcondition,
+  postcondition: Civ7FirstMeetResponsePostcondition
 ): Civ7FirstMeetResponseProofOutcome {
   switch (postcondition.classification) {
     case "turn-unblocked":
@@ -50,8 +50,10 @@ export function firstMeetResponseProofOutcome(
 }
 
 function firstMeetResponseProofConfirmed(
-  postcondition: Civ7FirstMeetResponsePostcondition,
+  postcondition: Civ7FirstMeetResponsePostcondition
 ): boolean {
-  return postcondition.classification === "turn-unblocked"
-    || postcondition.classification === "first-meet-cleared";
+  return (
+    postcondition.classification === "turn-unblocked" ||
+    postcondition.classification === "first-meet-cleared"
+  );
 }

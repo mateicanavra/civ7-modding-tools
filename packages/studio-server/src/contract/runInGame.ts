@@ -49,7 +49,7 @@ const fileIdentity = Type.Object(
     mtimeMs: Type.Number(),
     mtimeIso: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const contentMarkerProof = Type.Object(
@@ -58,7 +58,7 @@ const contentMarkerProof = Type.Object(
     marker: Type.String(),
     present: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const fileContentProof = Type.Object(
@@ -66,7 +66,7 @@ const fileContentProof = Type.Object(
     path: Type.String(),
     markers: Type.Array(contentMarkerProof),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 // RunInGameSourceSnapshotProof
@@ -83,7 +83,7 @@ const sourceSnapshotProof = Type.Object(
     configHash: Type.Optional(Type.String()),
     envelopeHash: Type.Optional(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 // RunInGameMaterializationStatus
@@ -101,7 +101,7 @@ const materializationStatus = Type.Object(
     localModScriptContent: Type.Optional(fileContentProof),
     deployedModScriptContent: Type.Optional(fileContentProof),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 // RunInGameRequestStatus
@@ -120,7 +120,7 @@ const requestStatus = Type.Object(
     fingerprint: Type.Optional(Type.String()),
     sourceSnapshot: Type.Optional(sourceSnapshotProof),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 // RunInGameProcessRestartStatus - { command?, launchAttempts?, [key]: unknown }
@@ -129,7 +129,7 @@ const processRestartStatus = Type.Object(
     command: Type.Optional(Type.String()),
     launchAttempts: Type.Optional(Type.Unknown()),
   },
-  { additionalProperties: Type.Unknown() },
+  { additionalProperties: Type.Unknown() }
 );
 
 // RunInGameFailureDetails - open record with known optional fields.
@@ -150,7 +150,7 @@ const failureDetails = Type.Object(
     directControlCode: Type.Optional(Type.String()),
     cause: Type.Optional(Type.Unknown()),
   },
-  { additionalProperties: Type.Unknown() },
+  { additionalProperties: Type.Unknown() }
 );
 
 // RunInGameExactAuthorshipProof - large nested proof. The `log` sub-tree is deep
@@ -174,7 +174,7 @@ const exactAuthorshipProof = Type.Object(
         setupConfigSource: Type.Optional(Type.String()),
         fingerprint: Type.Optional(Type.String()),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
     materialization: materializationStatus,
     civSetup: Type.Object(
@@ -186,7 +186,7 @@ const exactAuthorshipProof = Type.Object(
         playerCount: Type.Optional(Type.Unknown()),
         rowCount: Type.Optional(Type.Number()),
       },
-      { additionalProperties: Type.Unknown() },
+      { additionalProperties: Type.Unknown() }
     ),
     runtime: Type.Object(
       {
@@ -199,13 +199,13 @@ const exactAuthorshipProof = Type.Object(
         sourceSnapshotId: Type.Optional(Type.String()),
         snapshotHash: Type.Optional(Type.String()),
       },
-      { additionalProperties: Type.Unknown() },
+      { additionalProperties: Type.Unknown() }
     ),
     // RunInGameExactAuthorshipProof["log"] - deep proof payload. Opaque (see shared.ts).
     log: Type.Optional(unknownRecordSchema),
     unresolvedLinks: Type.Array(Type.String()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 /**
@@ -232,7 +232,7 @@ const operationStatusTypeSchema = Type.Object(
     result: Type.Optional(Type.Unknown()),
     recoveryActions: Type.Optional(Type.Array(Type.String())),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const operationStatusSchema = contractSchema(operationStatusTypeSchema);
@@ -256,9 +256,9 @@ export const status = oc
         {
           requestId: Type.String({ minLength: 1 }),
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   )
   .output(operationStatusSchema);
 
@@ -293,16 +293,16 @@ export const start = oc
               {
                 mode: Type.String(),
               },
-              { additionalProperties: false },
-            ),
+              { additionalProperties: false }
+            )
           ),
           recovery: Type.Optional(
             Type.Object(
               {
                 restartCivProcess: Type.Optional(Type.Boolean()),
               },
-              { additionalProperties: false },
-            ),
+              { additionalProperties: false }
+            )
           ),
           setupConfig: Type.Optional(Type.Unknown()),
           config: Type.Optional(Type.Unknown()),
@@ -319,13 +319,13 @@ export const start = oc
                 sortIndex: Type.Optional(Type.Number()),
                 latitudeBounds: Type.Optional(Type.Unknown()),
               },
-              { additionalProperties: false },
-            ),
+              { additionalProperties: false }
+            )
           ),
         },
         // Preserve unknown keys so `assertNoRawControlFields` can inspect/reject them.
-        { additionalProperties: Type.Unknown() },
-      ),
-    ),
+        { additionalProperties: Type.Unknown() }
+      )
+    )
   )
   .output(operationStatusSchema);

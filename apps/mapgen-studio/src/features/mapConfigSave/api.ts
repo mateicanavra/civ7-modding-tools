@@ -59,7 +59,7 @@ export async function saveRepoBackedConfig(args: {
         id: args.id,
         sourcePath: args.sourcePath,
         envelope,
-      }),
+      })
     );
     if (saveResult.error) {
       return {

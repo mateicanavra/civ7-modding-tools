@@ -2,7 +2,7 @@ import type { Civ7ControlOrpcProcedureMeta } from "../metadata";
 
 export function civ7MutationProcedureKey(
   meta: Civ7ControlOrpcProcedureMeta,
-  path: readonly string[],
+  path: readonly string[]
 ): string {
   if (typeof meta.procedureKey === "string" && meta.procedureKey.trim()) {
     return meta.procedureKey;

@@ -10,14 +10,10 @@ import {
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
-import type {
-  Civ7NotificationQueueDismissResult,
-  Civ7NotificationQueueResult,
-} from "../contract";
+import type { Civ7NotificationQueueDismissResult, Civ7NotificationQueueResult } from "../contract";
 import { notificationDismissalResult } from "./dismiss-request";
 
-type QueueItem =
-  Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number];
+type QueueItem = Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number];
 type QueueStep = Civ7NotificationQueueResult["schedule"][number];
 type QueueNextStep = NonNullable<QueueStep["nextStep"]>;
 type ExcludedNotification = Civ7NotificationQueueDismissResult["excluded"][number];
@@ -49,62 +45,57 @@ export const notificationsQueueCurrentProcedure =
     });
   });
 
-export const notificationsQueueDismissRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.notifications.queue.dismiss.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const view = await context.directControl.getCiv7PlayNotificationView({
-          ...context.endpointDefaults,
-          maxNotifications: input.maxNotifications ?? 50,
-        });
-        const { candidates, excluded } = classifyQueue(view.hud.decisionQueue);
-        const maxDismissals = input.maxDismissals ?? 10;
-        const selected = candidates.slice(0, maxDismissals);
-        const results: Civ7ControlOrpcNotificationDismissalResult[] = [];
-        const send = input.send === true;
+export const notificationsQueueDismissRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.notifications.queue.dismiss.request
+).effect(function* ({ context, errors, input }) {
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const view = await context.directControl.getCiv7PlayNotificationView({
+        ...context.endpointDefaults,
+        maxNotifications: input.maxNotifications ?? 50,
+      });
+      const { candidates, excluded } = classifyQueue(view.hud.decisionQueue);
+      const maxDismissals = input.maxDismissals ?? 10;
+      const selected = candidates.slice(0, maxDismissals);
+      const results: Civ7ControlOrpcNotificationDismissalResult[] = [];
+      const send = input.send === true;
 
-        if (send) {
-          for (const candidate of selected) {
-            if (candidate.notificationId == null) continue;
-            results.push(
-              await context.directControl.requestCiv7NotificationDismissal(
-                { notificationId: candidate.notificationId },
-                context.endpointDefaults,
-              ),
-            );
-          }
+      if (send) {
+        for (const candidate of selected) {
+          if (candidate.notificationId == null) continue;
+          results.push(
+            await context.directControl.requestCiv7NotificationDismissal(
+              { notificationId: candidate.notificationId },
+              context.endpointDefaults
+            )
+          );
         }
+      }
 
-        return notificationQueueDismissResult({
-          view,
-          candidates,
-          excluded,
-          selected,
-          results,
-          send,
-          maxDismissals,
-        });
-      },
-      catch: (cause) =>
-        errors.NOTIFICATION_QUEUE_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: "notifications.queue.dismiss.request",
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+      return notificationQueueDismissResult({
+        view,
+        candidates,
+        excluded,
+        selected,
+        results,
+        send,
+        maxDismissals,
+      });
+    },
+    catch: (cause) =>
+      errors.NOTIFICATION_QUEUE_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: "notifications.queue.dismiss.request",
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
 function notificationQueueResult(
-  view: Civ7ControlOrpcPlayNotificationViewResult,
+  view: Civ7ControlOrpcPlayNotificationViewResult
 ): Civ7NotificationQueueResult {
   const schedule = buildNotificationSchedule(view.hud.decisionQueue);
   return {
@@ -128,50 +119,51 @@ function notificationQueueResult(
   };
 }
 
-function notificationQueueDismissResult(input: Readonly<{
-  view: Civ7ControlOrpcPlayNotificationViewResult;
-  candidates: QueueStep[];
-  excluded: ExcludedNotification[];
-  selected: QueueStep[];
-  results: Civ7ControlOrpcNotificationDismissalResult[];
-  send: boolean;
-  maxDismissals: number;
-}>): Civ7NotificationQueueDismissResult {
+function notificationQueueDismissResult(
+  input: Readonly<{
+    view: Civ7ControlOrpcPlayNotificationViewResult;
+    candidates: QueueStep[];
+    excluded: ExcludedNotification[];
+    selected: QueueStep[];
+    results: Civ7ControlOrpcNotificationDismissalResult[];
+    send: boolean;
+    maxDismissals: number;
+  }>
+): Civ7NotificationQueueDismissResult {
   const projectedResults = input.results.map(notificationDismissalResult);
-  const allConfirmed = input.send && input.selected.length > 0 &&
+  const allConfirmed =
+    input.send &&
+    input.selected.length > 0 &&
     projectedResults.length === input.selected.length &&
     projectedResults.every((result) => result.status === "sent-confirmed");
-  const status = !input.send
-    ? "not-sent"
-    : allConfirmed
-    ? "sent-confirmed"
-    : "sent-guarded";
+  const status = !input.send ? "not-sent" : allConfirmed ? "sent-confirmed" : "sent-guarded";
   const postcondition = !input.send
     ? {
-      classification: "not-sent" as const,
-      reason: "Dry run only; no notification dismissal was sent.",
-      outcome: "not-sent" as const,
-      confidence: "unverified" as const,
-      confirmed: false,
-      noRepeatAfterUnverified: true,
-    }
+        classification: "not-sent" as const,
+        reason: "Dry run only; no notification dismissal was sent.",
+        outcome: "not-sent" as const,
+        confidence: "unverified" as const,
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      }
     : allConfirmed
-    ? {
-      classification: "all-selected-confirmed" as const,
-      reason: "Every selected notification dismissal had confirmed postcondition evidence.",
-      outcome: "cleared" as const,
-      confidence: "confirmed" as const,
-      confirmed: true,
-      noRepeatAfterUnverified: false,
-    }
-    : {
-      classification: "selection-unverified" as const,
-      reason: "At least one selected notification dismissal lacked confirmed postcondition evidence.",
-      outcome: "unknown" as const,
-      confidence: "unverified" as const,
-      confirmed: false,
-      noRepeatAfterUnverified: true,
-    };
+      ? {
+          classification: "all-selected-confirmed" as const,
+          reason: "Every selected notification dismissal had confirmed postcondition evidence.",
+          outcome: "cleared" as const,
+          confidence: "confirmed" as const,
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        }
+      : {
+          classification: "selection-unverified" as const,
+          reason:
+            "At least one selected notification dismissal lacked confirmed postcondition evidence.",
+          outcome: "unknown" as const,
+          confidence: "unverified" as const,
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        };
 
   return {
     localPlayerId: input.view.localPlayerId,
@@ -192,26 +184,30 @@ function notificationQueueDismissResult(input: Readonly<{
     excluded: input.excluded,
     results: projectedResults,
     noRepeatAfterUnverified: postcondition.noRepeatAfterUnverified,
-    nextSteps: status === "sent-confirmed"
-      ? [{
-        kind: "refresh-attention",
-        source: "notifications.queue.dismiss.request",
-        label: "Re-read notification queue and attention state before making further decisions.",
-      }]
-      : [
-        {
-          kind: "do-not-repeat",
-          source: "notifications.queue.dismiss.request",
-          label: input.send
-            ? "Do not repeat bulk dismissal until fresh notification evidence is read."
-            : "Dry run only; no dismissal was sent.",
-        },
-        {
-          kind: "inspect-notification",
-          source: "notifications.queue.dismiss.request",
-          label: "Inspect selected notification evidence before any repeat attempt.",
-        },
-      ],
+    nextSteps:
+      status === "sent-confirmed"
+        ? [
+            {
+              kind: "refresh-attention",
+              source: "notifications.queue.dismiss.request",
+              label:
+                "Re-read notification queue and attention state before making further decisions.",
+            },
+          ]
+        : [
+            {
+              kind: "do-not-repeat",
+              source: "notifications.queue.dismiss.request",
+              label: input.send
+                ? "Do not repeat bulk dismissal until fresh notification evidence is read."
+                : "Dry run only; no dismissal was sent.",
+            },
+            {
+              kind: "inspect-notification",
+              source: "notifications.queue.dismiss.request",
+              label: "Inspect selected notification evidence before any repeat attempt.",
+            },
+          ],
     notes: [
       input.send
         ? "Bulk dismissal sent only for eligible informational closeout candidates selected from a fresh HUD queue read."
@@ -223,9 +219,7 @@ function notificationQueueDismissResult(input: Readonly<{
   };
 }
 
-function buildNotificationSchedule(
-  queue: ReadonlyArray<QueueItem>,
-): QueueStep[] {
+function buildNotificationSchedule(queue: ReadonlyArray<QueueItem>): QueueStep[] {
   return queue
     .map((item, index) => buildQueueStep(item, index + 1))
     .sort((left, right) => right.priority - left.priority || left.step - right.step)
@@ -286,18 +280,15 @@ function buildQueueStep(item: QueueItem, originalStep: number): QueueStep {
     reason: reasonFor(item, disposition),
     guardrails: isDismissalCandidate
       ? [
-        "Review the message and context first; this schedule only identifies an eligible dismissal candidate.",
-        ...guardrails,
-      ]
+          "Review the message and context first; this schedule only identifies an eligible dismissal candidate.",
+          ...guardrails,
+        ]
       : guardrails,
   };
 }
 
 function dispositionFor(item: QueueItem): QueueStep["disposition"] {
-  if (
-    item.category === "informational-notification" &&
-    item.operationFamily === "app-ui-action"
-  ) {
+  if (item.category === "informational-notification" && item.operationFamily === "app-ui-action") {
     return "reviewed-dismissal-candidate";
   }
   if (item.category === "unit-command") return "inspect-ready-unit";
@@ -315,10 +306,7 @@ function isBatchSafeDismissalCandidate(item: QueueItem): boolean {
   return item.typeName !== "NOTIFICATION_UNIT_LOST";
 }
 
-function priorityFor(
-  item: QueueItem,
-  disposition: QueueStep["disposition"],
-): number {
+function priorityFor(item: QueueItem, disposition: QueueStep["disposition"]): number {
   if (item.isEndTurnBlocking) return 100;
   if (disposition === "operate-with-live-inputs") return 70;
   if (disposition === "inspect-ready-unit") return 65;
@@ -327,10 +315,7 @@ function priorityFor(
   return 20;
 }
 
-function reasonFor(
-  item: QueueItem,
-  disposition: QueueStep["disposition"],
-): string {
+function reasonFor(item: QueueItem, disposition: QueueStep["disposition"]): string {
   if (item.isEndTurnBlocking) {
     return "End-turn blocker; resolve or consciously defer before broad tactical planning.";
   }
@@ -355,10 +340,7 @@ function exclusionReason(item: QueueStep): string {
     return "front unit-loss reports require exact reviewed dismissal proof, not bulk dismissal";
   }
   if (item.category === "unit-command") return "unit command requires ready-unit inspection";
-  if (
-    item.operationFamily != null &&
-    item.operationFamily !== "app-ui-action"
-  ) {
+  if (item.operationFamily != null && item.operationFamily !== "app-ui-action") {
     return "gameplay operation requires live inputs and validator-backed command";
   }
   if (item.category === "notification" || item.category === "blocking-notification") {
@@ -373,17 +355,21 @@ function exclusionReason(item: QueueStep): string {
 function guardrailsFor(
   item: QueueItem,
   disposition: QueueStep["disposition"],
-  requiredInputs: ReadonlyArray<string>,
+  requiredInputs: ReadonlyArray<string>
 ): string[] {
   const guardrails: string[] = [];
   if (requiredInputs.length > 0 && disposition !== "reviewed-dismissal-candidate") {
     guardrails.push(`Read required live inputs first: ${requiredInputs.join(", ")}.`);
   }
   if (item.location && typeof item.location === "object") {
-    guardrails.push("Use the reported location as tactical context, not as proof of a valid operation target.");
+    guardrails.push(
+      "Use the reported location as tactical context, not as proof of a valid operation target."
+    );
   }
   if (disposition === "operate-with-live-inputs") {
-    guardrails.push("Validate against the current domain surface; this schedule does not prove the args.");
+    guardrails.push(
+      "Validate against the current domain surface; this schedule does not prove the args."
+    );
   }
   if (disposition === "inspect-handler") {
     guardrails.push("Do not dismiss unclassified notifications in bulk.");
@@ -395,7 +381,7 @@ function nextStepFor(
   item: QueueItem,
   disposition: QueueStep["disposition"],
   operationFamily: string | undefined,
-  operationType: string | undefined,
+  operationType: string | undefined
 ): QueueNextStep | null {
   const baseParameters = {
     ...(item.notificationId == null ? {} : { notificationId: item.notificationId }),
@@ -408,7 +394,8 @@ function nextStepFor(
     return {
       kind: "dismiss-notification",
       source: "notifications.queue.current",
-      label: "Review and dismiss this informational notification with the item-scoped dismissal request.",
+      label:
+        "Review and dismiss this informational notification with the item-scoped dismissal request.",
       parameters: baseParameters,
     };
   }

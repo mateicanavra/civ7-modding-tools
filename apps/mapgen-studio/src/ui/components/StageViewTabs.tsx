@@ -1,6 +1,6 @@
-import React from 'react';
-import { Map as MapIcon, Workflow } from 'lucide-react';
-import type { StageView } from '../../stores/viewStore';
+import { Map as MapIcon, Workflow } from "lucide-react";
+import React from "react";
+import type { StageView } from "../../stores/viewStore";
 
 // ============================================================================
 // STAGE VIEW TABS — the stage's own view switcher (mapgen-studio-dag-tab)
@@ -20,11 +20,11 @@ const VIEWS: ReadonlyArray<{
   description: string;
   Icon: typeof MapIcon;
 }> = [
-  { id: 'map', label: 'Map', description: 'Generated map view', Icon: MapIcon },
+  { id: "map", label: "Map", description: "Generated map view", Icon: MapIcon },
   {
-    id: 'pipeline',
-    label: 'Pipeline',
-    description: 'Recipe dependency graph',
+    id: "pipeline",
+    label: "Pipeline",
+    description: "Recipe dependency graph",
     Icon: Workflow,
   },
 ];
@@ -56,9 +56,7 @@ export const StageViewTabs: React.FC<StageViewTabsProps> = ({ value, onValueChan
             title={description}
             onClick={() => onValueChange(id)}
             className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-data font-medium transition-colors ${
-              active
-                ? 'bg-muted text-foreground'
-                : 'text-muted-foreground hover:text-foreground'
+              active ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <Icon className="h-3.5 w-3.5 shrink-0" />

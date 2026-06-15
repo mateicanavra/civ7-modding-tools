@@ -1,9 +1,8 @@
-import { Type, defineOp } from "@swooper/mapgen-core/authoring";
-
+import { defineOp, Type } from "@swooper/mapgen-core/authoring";
+import { TectonicEventsSchema } from "../../lib/tectonics/internal-contract.js";
 import { FoundationCrustSchema } from "../compute-crust/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 import { FoundationTectonicSegmentsSchema } from "../compute-tectonic-segments/contract.js";
-import { TectonicEventsSchema } from "../../lib/tectonics/internal-contract.js";
 
 const ComputeSegmentEventsContract = defineOp({
   kind: "compute",

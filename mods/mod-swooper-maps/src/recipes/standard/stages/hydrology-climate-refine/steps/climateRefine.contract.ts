@@ -1,10 +1,9 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import hydrology from "@mapgen/domain/hydrology";
-
-import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 import { hydrologyClimateBaselineArtifacts } from "../../hydrology-climate-baseline/artifacts.js";
-import { hydrologyClimateRefineArtifacts } from "../artifacts.js";
+import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 import { morphologyArtifacts } from "../../morphology/artifacts.js";
+import { hydrologyClimateRefineArtifacts } from "../artifacts.js";
 
 /**
  * Hydrology refinement + diagnostics step (bounded, deterministic).

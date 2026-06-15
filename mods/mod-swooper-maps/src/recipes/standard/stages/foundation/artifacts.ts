@@ -1,14 +1,14 @@
-import { TypedArraySchemas, Type, defineArtifact } from "@swooper/mapgen-core/authoring";
 import {
   FOUNDATION_CRUST_ARTIFACT_TAG,
   FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
   FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG,
   FOUNDATION_MESH_ARTIFACT_TAG,
-  FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
   FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG,
+  FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
   FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
   FOUNDATION_TECTONICS_ARTIFACT_TAG,
 } from "@swooper/mapgen-core";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const FOUNDATION_TECTONIC_SEGMENTS_ARTIFACT_TAG = "artifact:foundation.tectonicSegments";
 const FOUNDATION_TECTONIC_HISTORY_ARTIFACT_TAG = "artifact:foundation.tectonicHistory";
@@ -36,11 +36,16 @@ const FoundationPlateMetadataSchema = Type.Object(
     /** Plate id (0..plateCount-1). */
     id: Type.Integer({ minimum: 0, description: "Plate id (0..plateCount-1)." }),
     /** Plate role classification. */
-    role: Type.Union([Type.Literal("polarCap"), Type.Literal("polarMicroplate"), Type.Literal("tectonic")], {
-      description: "Plate role classification.",
-    }),
+    role: Type.Union(
+      [Type.Literal("polarCap"), Type.Literal("polarMicroplate"), Type.Literal("tectonic")],
+      {
+        description: "Plate role classification.",
+      }
+    ),
     /** Plate size classification. */
-    kind: Type.Union([Type.Literal("major"), Type.Literal("minor")], { description: "Plate size classification." }),
+    kind: Type.Union([Type.Literal("major"), Type.Literal("minor")], {
+      description: "Plate size classification.",
+    }),
     /** Plate seed X coordinate in mesh space. */
     seedX: Type.Number({ description: "Plate seed X coordinate in mesh space." }),
     /** Plate seed Y coordinate in mesh space. */
@@ -82,33 +87,75 @@ const FoundationPlateTopologySchema = Type.Object(
 const FoundationTectonicSegmentsArtifactSchema = Type.Object(
   {
     /** Number of tectonic boundary segments. */
-    segmentCount: Type.Integer({ minimum: 0, description: "Number of tectonic boundary segments." }),
+    segmentCount: Type.Integer({
+      minimum: 0,
+      description: "Number of tectonic boundary segments.",
+    }),
     /** Mesh cell index for side A of each segment. */
-    aCell: TypedArraySchemas.i32({ shape: null, description: "Mesh cell index for side A of each segment." }),
+    aCell: TypedArraySchemas.i32({
+      shape: null,
+      description: "Mesh cell index for side A of each segment.",
+    }),
     /** Mesh cell index for side B of each segment. */
-    bCell: TypedArraySchemas.i32({ shape: null, description: "Mesh cell index for side B of each segment." }),
+    bCell: TypedArraySchemas.i32({
+      shape: null,
+      description: "Mesh cell index for side B of each segment.",
+    }),
     /** Plate id for side A of each segment. */
-    plateA: TypedArraySchemas.i16({ shape: null, description: "Plate id for side A of each segment." }),
+    plateA: TypedArraySchemas.i16({
+      shape: null,
+      description: "Plate id for side A of each segment.",
+    }),
     /** Plate id for side B of each segment. */
-    plateB: TypedArraySchemas.i16({ shape: null, description: "Plate id for side B of each segment." }),
+    plateB: TypedArraySchemas.i16({
+      shape: null,
+      description: "Plate id for side B of each segment.",
+    }),
     /** Boundary regime for each segment (BOUNDARY_TYPE values). */
-    regime: TypedArraySchemas.u8({ shape: null, description: "Boundary regime for each segment (BOUNDARY_TYPE values)." }),
+    regime: TypedArraySchemas.u8({
+      shape: null,
+      description: "Boundary regime for each segment (BOUNDARY_TYPE values).",
+    }),
     /** Boundary polarity for each segment (signed indicator). */
-    polarity: TypedArraySchemas.i8({ shape: null, description: "Boundary polarity for each segment (signed indicator)." }),
+    polarity: TypedArraySchemas.i8({
+      shape: null,
+      description: "Boundary polarity for each segment (signed indicator).",
+    }),
     /** Compression component for each segment (0..255). */
-    compression: TypedArraySchemas.u8({ shape: null, description: "Compression component for each segment (0..255)." }),
+    compression: TypedArraySchemas.u8({
+      shape: null,
+      description: "Compression component for each segment (0..255).",
+    }),
     /** Extension component for each segment (0..255). */
-    extension: TypedArraySchemas.u8({ shape: null, description: "Extension component for each segment (0..255)." }),
+    extension: TypedArraySchemas.u8({
+      shape: null,
+      description: "Extension component for each segment (0..255).",
+    }),
     /** Shear component for each segment (0..255). */
-    shear: TypedArraySchemas.u8({ shape: null, description: "Shear component for each segment (0..255)." }),
+    shear: TypedArraySchemas.u8({
+      shape: null,
+      description: "Shear component for each segment (0..255).",
+    }),
     /** Volcanism potential for each segment (0..255). */
-    volcanism: TypedArraySchemas.u8({ shape: null, description: "Volcanism potential for each segment (0..255)." }),
+    volcanism: TypedArraySchemas.u8({
+      shape: null,
+      description: "Volcanism potential for each segment (0..255).",
+    }),
     /** Fracture potential for each segment (0..255). */
-    fracture: TypedArraySchemas.u8({ shape: null, description: "Fracture potential for each segment (0..255)." }),
+    fracture: TypedArraySchemas.u8({
+      shape: null,
+      description: "Fracture potential for each segment (0..255).",
+    }),
     /** Drift vector U component for each segment (-127..127). */
-    driftU: TypedArraySchemas.i8({ shape: null, description: "Drift vector U component for each segment (-127..127)." }),
+    driftU: TypedArraySchemas.i8({
+      shape: null,
+      description: "Drift vector U component for each segment (-127..127).",
+    }),
     /** Drift vector V component for each segment (-127..127). */
-    driftV: TypedArraySchemas.i8({ shape: null, description: "Drift vector V component for each segment (-127..127)." }),
+    driftV: TypedArraySchemas.i8({
+      shape: null,
+      description: "Drift vector V component for each segment (-127..127).",
+    }),
   },
   { description: "Foundation tectonic segments artifact payload." }
 );
@@ -117,9 +164,15 @@ const FoundationTectonicSegmentsArtifactSchema = Type.Object(
 const FoundationTectonicHistoryEraArtifactSchema = Type.Object(
   {
     /** Boundary type per mesh cell (BOUNDARY_TYPE values). */
-    boundaryType: TypedArraySchemas.u8({ shape: null, description: "Boundary type per mesh cell (BOUNDARY_TYPE values)." }),
+    boundaryType: TypedArraySchemas.u8({
+      shape: null,
+      description: "Boundary type per mesh cell (BOUNDARY_TYPE values).",
+    }),
     /** Uplift potential per mesh cell (0..255). */
-    upliftPotential: TypedArraySchemas.u8({ shape: null, description: "Uplift potential per mesh cell (0..255)." }),
+    upliftPotential: TypedArraySchemas.u8({
+      shape: null,
+      description: "Uplift potential per mesh cell (0..255).",
+    }),
     /** Collision-driven uplift potential per mesh cell (0..255). */
     collisionPotential: TypedArraySchemas.u8({
       shape: null,
@@ -131,13 +184,25 @@ const FoundationTectonicHistoryEraArtifactSchema = Type.Object(
       description: "Subduction-driven uplift potential per mesh cell (0..255).",
     }),
     /** Rift potential per mesh cell (0..255). */
-    riftPotential: TypedArraySchemas.u8({ shape: null, description: "Rift potential per mesh cell (0..255)." }),
+    riftPotential: TypedArraySchemas.u8({
+      shape: null,
+      description: "Rift potential per mesh cell (0..255).",
+    }),
     /** Shear stress per mesh cell (0..255). */
-    shearStress: TypedArraySchemas.u8({ shape: null, description: "Shear stress per mesh cell (0..255)." }),
+    shearStress: TypedArraySchemas.u8({
+      shape: null,
+      description: "Shear stress per mesh cell (0..255).",
+    }),
     /** Volcanism per mesh cell (0..255). */
-    volcanism: TypedArraySchemas.u8({ shape: null, description: "Volcanism per mesh cell (0..255)." }),
+    volcanism: TypedArraySchemas.u8({
+      shape: null,
+      description: "Volcanism per mesh cell (0..255).",
+    }),
     /** Fracture potential per mesh cell (0..255). */
-    fracture: TypedArraySchemas.u8({ shape: null, description: "Fracture potential per mesh cell (0..255)." }),
+    fracture: TypedArraySchemas.u8({
+      shape: null,
+      description: "Fracture potential per mesh cell (0..255).",
+    }),
   },
   { description: "Foundation tectonic history era payload (per-era tectonic driver tensors)." }
 );
@@ -146,19 +211,31 @@ const FoundationTectonicHistoryEraArtifactSchema = Type.Object(
 const FoundationTectonicHistoryArtifactSchema = Type.Object(
   {
     /** Number of eras included in the history payload. */
-    eraCount: Type.Integer({ minimum: 5, maximum: 8, description: "Number of eras included in the history payload." }),
+    eraCount: Type.Integer({
+      minimum: 5,
+      maximum: 8,
+      description: "Number of eras included in the history payload.",
+    }),
     /** Era payloads (length = eraCount). */
     eras: Type.Immutable(
-      Type.Array(FoundationTectonicHistoryEraArtifactSchema, { description: "Era payloads (length = eraCount)." })
+      Type.Array(FoundationTectonicHistoryEraArtifactSchema, {
+        description: "Era payloads (length = eraCount).",
+      })
     ),
     /** Plate id per mesh cell for each era (length = eraCount; each entry length = cellCount). */
     plateIdByEra: Type.Immutable(
-      Type.Array(TypedArraySchemas.i16({ shape: null, description: "Plate id per mesh cell for the era." }), {
-        description: "Era plate membership (oldest→newest).",
-      })
+      Type.Array(
+        TypedArraySchemas.i16({ shape: null, description: "Plate id per mesh cell for the era." }),
+        {
+          description: "Era plate membership (oldest→newest).",
+        }
+      )
     ),
     /** Accumulated uplift total per mesh cell (0..255). */
-    upliftTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated uplift total per mesh cell (0..255)." }),
+    upliftTotal: TypedArraySchemas.u8({
+      shape: null,
+      description: "Accumulated uplift total per mesh cell (0..255).",
+    }),
     /** Accumulated collision uplift total per mesh cell (0..255). */
     collisionTotal: TypedArraySchemas.u8({
       shape: null,
@@ -170,9 +247,15 @@ const FoundationTectonicHistoryArtifactSchema = Type.Object(
       description: "Accumulated subduction uplift total per mesh cell (0..255).",
     }),
     /** Accumulated fracture total per mesh cell (0..255). */
-    fractureTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated fracture total per mesh cell (0..255)." }),
+    fractureTotal: TypedArraySchemas.u8({
+      shape: null,
+      description: "Accumulated fracture total per mesh cell (0..255).",
+    }),
     /** Accumulated volcanism total per mesh cell (0..255). */
-    volcanismTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated volcanism total per mesh cell (0..255)." }),
+    volcanismTotal: TypedArraySchemas.u8({
+      shape: null,
+      description: "Accumulated volcanism total per mesh cell (0..255).",
+    }),
     /** Fraction of uplift attributable to recent eras per mesh cell (0..255). */
     upliftRecentFraction: TypedArraySchemas.u8({
       shape: null,
@@ -181,15 +264,20 @@ const FoundationTectonicHistoryArtifactSchema = Type.Object(
     /** Fraction of collision uplift attributable to recent eras per mesh cell (0..255). */
     collisionRecentFraction: TypedArraySchemas.u8({
       shape: null,
-      description: "Fraction of collision uplift attributable to recent eras per mesh cell (0..255).",
+      description:
+        "Fraction of collision uplift attributable to recent eras per mesh cell (0..255).",
     }),
     /** Fraction of subduction uplift attributable to recent eras per mesh cell (0..255). */
     subductionRecentFraction: TypedArraySchemas.u8({
       shape: null,
-      description: "Fraction of subduction uplift attributable to recent eras per mesh cell (0..255).",
+      description:
+        "Fraction of subduction uplift attributable to recent eras per mesh cell (0..255).",
     }),
     /** Last active era index per mesh cell (0..255). */
-    lastActiveEra: TypedArraySchemas.u8({ shape: null, description: "Last active era index per mesh cell (0..255)." }),
+    lastActiveEra: TypedArraySchemas.u8({
+      shape: null,
+      description: "Last active era index per mesh cell (0..255).",
+    }),
     /** Last collision-active era index per mesh cell (0..255; 255 = never). */
     lastCollisionEra: TypedArraySchemas.u8({
       shape: null,
@@ -201,7 +289,10 @@ const FoundationTectonicHistoryArtifactSchema = Type.Object(
       description: "Last subduction-active era index per mesh cell (0..255; 255 = never).",
     }),
   },
-  { description: "Foundation tectonic history artifact payload (fixed-count eras + cumulative fields)." }
+  {
+    description:
+      "Foundation tectonic history artifact payload (fixed-count eras + cumulative fields).",
+  }
 );
 
 /** Foundation provenance scalars payload (per-cell, newest-era state). */
@@ -252,7 +343,11 @@ const FoundationTectonicProvenanceArtifactSchema = Type.Object(
     /** Schema major version. */
     version: Type.Integer({ minimum: 1, description: "Schema major version." }),
     /** Number of eras included in the provenance payload. */
-    eraCount: Type.Integer({ minimum: 5, maximum: 8, description: "Number of eras included in the provenance payload." }),
+    eraCount: Type.Integer({
+      minimum: 5,
+      maximum: 8,
+      description: "Number of eras included in the provenance payload.",
+    }),
     /** Number of mesh cells. */
     cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
     /** Per-era tracer indices (length = eraCount; each entry length = cellCount). */
@@ -262,7 +357,9 @@ const FoundationTectonicProvenanceArtifactSchema = Type.Object(
           shape: null,
           description: "Tracer source cell index per mesh cell (length = cellCount).",
         }),
-        { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
+        {
+          description: "Per-era tracer indices (length = eraCount; each entry length = cellCount).",
+        }
       )
     ),
     /** Provenance scalars (final state at newest era). */
@@ -277,9 +374,13 @@ export const FoundationPlatesArtifactSchema = Type.Object(
     /** Plate id per tile. */
     id: TypedArraySchemas.i16({ description: "Plate id per tile." }),
     /** Boundary proximity per tile (0..255). */
-    boundaryCloseness: TypedArraySchemas.u8({ description: "Boundary proximity per tile (0..255)." }),
+    boundaryCloseness: TypedArraySchemas.u8({
+      description: "Boundary proximity per tile (0..255).",
+    }),
     /** Boundary type per tile (BOUNDARY_TYPE values). */
-    boundaryType: TypedArraySchemas.u8({ description: "Boundary type per tile (BOUNDARY_TYPE values)." }),
+    boundaryType: TypedArraySchemas.u8({
+      description: "Boundary type per tile (BOUNDARY_TYPE values).",
+    }),
     /** Tectonic stress per tile (0..255). */
     tectonicStress: TypedArraySchemas.u8({ description: "Tectonic stress per tile (0..255)." }),
     /** Uplift potential per tile (0..255). */
@@ -291,9 +392,13 @@ export const FoundationPlatesArtifactSchema = Type.Object(
     /** Volcanism per tile (0..255). */
     volcanism: TypedArraySchemas.u8({ description: "Volcanism per tile (0..255)." }),
     /** Plate movement U component per tile (-127..127). */
-    movementU: TypedArraySchemas.i8({ description: "Plate movement U component per tile (-127..127)." }),
+    movementU: TypedArraySchemas.i8({
+      description: "Plate movement U component per tile (-127..127).",
+    }),
     /** Plate movement V component per tile (-127..127). */
-    movementV: TypedArraySchemas.i8({ description: "Plate movement V component per tile (-127..127)." }),
+    movementV: TypedArraySchemas.i8({
+      description: "Plate movement V component per tile (-127..127).",
+    }),
     /** Plate rotation per tile (-127..127). */
     rotation: TypedArraySchemas.i8({ description: "Plate rotation per tile (-127..127)." }),
   },
@@ -308,9 +413,15 @@ const FoundationMeshArtifactSchema = Type.Object(
     /** Periodic wrap width in mesh-space units (hex space). */
     wrapWidth: Type.Number({ description: "Periodic wrap width in mesh-space units (hex space)." }),
     /** X coordinate per mesh cell (hex space). */
-    siteX: TypedArraySchemas.f32({ shape: null, description: "X coordinate per mesh cell (hex space)." }),
+    siteX: TypedArraySchemas.f32({
+      shape: null,
+      description: "X coordinate per mesh cell (hex space).",
+    }),
     /** Y coordinate per mesh cell (hex space). */
-    siteY: TypedArraySchemas.f32({ shape: null, description: "Y coordinate per mesh cell (hex space)." }),
+    siteY: TypedArraySchemas.f32({
+      shape: null,
+      description: "Y coordinate per mesh cell (hex space).",
+    }),
     /** CSR offsets into neighbors array (length = cellCount + 1). */
     neighborsOffsets: TypedArraySchemas.i32({
       shape: null,
@@ -319,7 +430,10 @@ const FoundationMeshArtifactSchema = Type.Object(
     /** CSR neighbor indices. */
     neighbors: TypedArraySchemas.i32({ shape: null, description: "CSR neighbor indices." }),
     /** Cell area per mesh cell (hex-space units). */
-    areas: TypedArraySchemas.f32({ shape: null, description: "Cell area per mesh cell (hex-space units)." }),
+    areas: TypedArraySchemas.f32({
+      shape: null,
+      description: "Cell area per mesh cell (hex-space units).",
+    }),
     /** Bounding box in mesh-space units. */
     bbox: BoundingBoxSchema,
   },
@@ -394,7 +508,8 @@ const FoundationMantleForcingArtifactSchema = Type.Object(
     /** Upwelling classification per mesh cell (+1 upwelling, -1 downwelling, 0 neutral). */
     upwellingClass: TypedArraySchemas.i8({
       shape: null,
-      description: "Upwelling classification per mesh cell (+1 upwelling, -1 downwelling, 0 neutral).",
+      description:
+        "Upwelling classification per mesh cell (+1 upwelling, -1 downwelling, 0 neutral).",
     }),
     /** Divergence per mesh cell (normalized -1..1). */
     divergence: TypedArraySchemas.f32({
@@ -532,7 +647,8 @@ export const FoundationCrustTilesArtifactSchema = Type.Object(
     /** Crust maturity per tile (0=basaltic lid, 1=cratonic), sampled via tileToCellIndex. */
     maturity: TypedArraySchemas.f32({
       shape: null,
-      description: "Crust maturity per tile (0=basaltic lid, 1=cratonic), sampled via tileToCellIndex.",
+      description:
+        "Crust maturity per tile (0=basaltic lid, 1=cratonic), sampled via tileToCellIndex.",
     }),
     /** Crust thickness proxy per tile (0..1), sampled via tileToCellIndex. */
     thickness: TypedArraySchemas.f32({
@@ -572,7 +688,9 @@ export const FoundationCrustTilesArtifactSchema = Type.Object(
 const FoundationTectonicHistoryTilesEraArtifactSchema = Type.Object(
   {
     /** Boundary type per tile (BOUNDARY_TYPE values). */
-    boundaryType: TypedArraySchemas.u8({ description: "Boundary type per tile (BOUNDARY_TYPE values)." }),
+    boundaryType: TypedArraySchemas.u8({
+      description: "Boundary type per tile (BOUNDARY_TYPE values).",
+    }),
     /** Convergent mask per tile (0/1). */
     convergentMask: TypedArraySchemas.u8({ description: "Convergent mask per tile (0/1)." }),
     /** Divergent mask per tile (0/1). */
@@ -582,9 +700,13 @@ const FoundationTectonicHistoryTilesEraArtifactSchema = Type.Object(
     /** Uplift potential per tile (0..255). */
     upliftPotential: TypedArraySchemas.u8({ description: "Uplift potential per tile (0..255)." }),
     /** Collision-driven uplift potential per tile (0..255). */
-    collisionPotential: TypedArraySchemas.u8({ description: "Collision-driven uplift potential per tile (0..255)." }),
+    collisionPotential: TypedArraySchemas.u8({
+      description: "Collision-driven uplift potential per tile (0..255).",
+    }),
     /** Subduction-driven uplift potential per tile (0..255). */
-    subductionPotential: TypedArraySchemas.u8({ description: "Subduction-driven uplift potential per tile (0..255)." }),
+    subductionPotential: TypedArraySchemas.u8({
+      description: "Subduction-driven uplift potential per tile (0..255).",
+    }),
     /** Rift potential per tile (0..255). */
     riftPotential: TypedArraySchemas.u8({ description: "Rift potential per tile (0..255)." }),
     /** Shear stress per tile (0..255). */
@@ -601,15 +723,25 @@ const FoundationTectonicHistoryTilesEraArtifactSchema = Type.Object(
 const FoundationTectonicHistoryTilesRollupArtifactSchema = Type.Object(
   {
     /** Accumulated uplift total per tile (0..255). */
-    upliftTotal: TypedArraySchemas.u8({ description: "Accumulated uplift total per tile (0..255)." }),
+    upliftTotal: TypedArraySchemas.u8({
+      description: "Accumulated uplift total per tile (0..255).",
+    }),
     /** Accumulated collision uplift total per tile (0..255). */
-    collisionTotal: TypedArraySchemas.u8({ description: "Accumulated collision uplift total per tile (0..255)." }),
+    collisionTotal: TypedArraySchemas.u8({
+      description: "Accumulated collision uplift total per tile (0..255).",
+    }),
     /** Accumulated subduction uplift total per tile (0..255). */
-    subductionTotal: TypedArraySchemas.u8({ description: "Accumulated subduction uplift total per tile (0..255)." }),
+    subductionTotal: TypedArraySchemas.u8({
+      description: "Accumulated subduction uplift total per tile (0..255).",
+    }),
     /** Accumulated fracture total per tile (0..255). */
-    fractureTotal: TypedArraySchemas.u8({ description: "Accumulated fracture total per tile (0..255)." }),
+    fractureTotal: TypedArraySchemas.u8({
+      description: "Accumulated fracture total per tile (0..255).",
+    }),
     /** Accumulated volcanism total per tile (0..255). */
-    volcanismTotal: TypedArraySchemas.u8({ description: "Accumulated volcanism total per tile (0..255)." }),
+    volcanismTotal: TypedArraySchemas.u8({
+      description: "Accumulated volcanism total per tile (0..255).",
+    }),
     /** Fraction of uplift attributable to recent eras per tile (0..255). */
     upliftRecentFraction: TypedArraySchemas.u8({
       description: "Fraction of uplift attributable to recent eras per tile (0..255).",
@@ -623,15 +755,25 @@ const FoundationTectonicHistoryTilesRollupArtifactSchema = Type.Object(
       description: "Fraction of subduction uplift attributable to recent eras per tile (0..255).",
     }),
     /** Last active era index per tile (0..255; 255 = never). */
-    lastActiveEra: TypedArraySchemas.u8({ description: "Last active era index per tile (0..255; 255 = never)." }),
+    lastActiveEra: TypedArraySchemas.u8({
+      description: "Last active era index per tile (0..255; 255 = never).",
+    }),
     /** Last collision-active era index per tile (0..255; 255 = never). */
-    lastCollisionEra: TypedArraySchemas.u8({ description: "Last collision-active era index per tile (0..255; 255 = never)." }),
+    lastCollisionEra: TypedArraySchemas.u8({
+      description: "Last collision-active era index per tile (0..255; 255 = never).",
+    }),
     /** Last subduction-active era index per tile (0..255; 255 = never). */
-    lastSubductionEra: TypedArraySchemas.u8({ description: "Last subduction-active era index per tile (0..255; 255 = never)." }),
+    lastSubductionEra: TypedArraySchemas.u8({
+      description: "Last subduction-active era index per tile (0..255; 255 = never).",
+    }),
     /** Plate movement U component per tile (-127..127). */
-    movementU: TypedArraySchemas.i8({ description: "Plate movement U component per tile (-127..127)." }),
+    movementU: TypedArraySchemas.i8({
+      description: "Plate movement U component per tile (-127..127).",
+    }),
     /** Plate movement V component per tile (-127..127). */
-    movementV: TypedArraySchemas.i8({ description: "Plate movement V component per tile (-127..127)." }),
+    movementV: TypedArraySchemas.i8({
+      description: "Plate movement V component per tile (-127..127).",
+    }),
   },
   { description: "Foundation tectonic history tiles rollup payload (tile-space rollups)." }
 );
@@ -642,7 +784,11 @@ export const FoundationTectonicHistoryTilesArtifactSchema = Type.Object(
     /** Schema major version. */
     version: Type.Integer({ minimum: 1, description: "Schema major version." }),
     /** Number of eras included in the history tiles payload. */
-    eraCount: Type.Integer({ minimum: 5, maximum: 8, description: "Number of eras included in the history tiles payload." }),
+    eraCount: Type.Integer({
+      minimum: 5,
+      maximum: 8,
+      description: "Number of eras included in the history tiles payload.",
+    }),
     /** Per-era tile fields (length = eraCount). */
     perEra: Type.Immutable(
       Type.Array(FoundationTectonicHistoryTilesEraArtifactSchema, {
@@ -652,7 +798,10 @@ export const FoundationTectonicHistoryTilesArtifactSchema = Type.Object(
     /** Rollup fields across eras. */
     rollups: FoundationTectonicHistoryTilesRollupArtifactSchema,
   },
-  { description: "Foundation tectonic history tiles artifact payload (tile-space era fields + rollups)." }
+  {
+    description:
+      "Foundation tectonic history tiles artifact payload (tile-space era fields + rollups).",
+  }
 );
 
 /** Foundation tectonic provenance tiles artifact payload (tile-space provenance scalars). */
@@ -661,11 +810,17 @@ export const FoundationTectonicProvenanceTilesArtifactSchema = Type.Object(
     /** Schema major version. */
     version: Type.Integer({ minimum: 1, description: "Schema major version." }),
     /** Era index of first appearance per tile (0..eraCount-1). */
-    originEra: TypedArraySchemas.u8({ description: "Era index of first appearance per tile (0..eraCount-1)." }),
+    originEra: TypedArraySchemas.u8({
+      description: "Era index of first appearance per tile (0..eraCount-1).",
+    }),
     /** Origin plate id per tile (plate id; -1 for unknown). */
-    originPlateId: TypedArraySchemas.i16({ description: "Origin plate id per tile (plate id; -1 for unknown)." }),
+    originPlateId: TypedArraySchemas.i16({
+      description: "Origin plate id per tile (plate id; -1 for unknown).",
+    }),
     /** Drift distance bucket per tile (0..255). */
-    driftDistance: TypedArraySchemas.u8({ description: "Drift distance bucket per tile (0..255)." }),
+    driftDistance: TypedArraySchemas.u8({
+      description: "Drift distance bucket per tile (0..255).",
+    }),
     /** Era index of most recent boundary event per tile (255 = none). */
     lastBoundaryEra: TypedArraySchemas.u8({
       description: "Era index of most recent boundary event per tile (255 = none).",
@@ -675,7 +830,10 @@ export const FoundationTectonicProvenanceTilesArtifactSchema = Type.Object(
       description: "Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none).",
     }),
   },
-  { description: "Foundation tectonic provenance tiles artifact payload (tile-space provenance scalars)." }
+  {
+    description:
+      "Foundation tectonic provenance tiles artifact payload (tile-space provenance scalars).",
+  }
 );
 
 /** Foundation plate graph artifact payload (mesh-space plate assignment + metadata). */
@@ -685,20 +843,30 @@ const FoundationPlateGraphArtifactSchema = Type.Object(
     cellToPlate: TypedArraySchemas.i16({ shape: null, description: "Plate id per mesh cell." }),
     /** Plate metadata array (indexed by plate id). */
     plates: Type.Immutable(
-      Type.Array(FoundationPlateMetadataSchema, { description: "Plate metadata array (indexed by plate id)." })
+      Type.Array(FoundationPlateMetadataSchema, {
+        description: "Plate metadata array (indexed by plate id).",
+      })
     ),
   },
-  { description: "Foundation plate graph artifact payload (mesh-space plate assignment + metadata)." }
+  {
+    description:
+      "Foundation plate graph artifact payload (mesh-space plate assignment + metadata).",
+  }
 );
 
 /** Foundation plate topology artifact payload (plate adjacency + centroid/area). */
 const FoundationPlateTopologyArtifactSchema = Type.Object(
   {
     /** Number of plates included in the topology payload. */
-    plateCount: Type.Integer({ minimum: 1, description: "Number of plates included in the topology payload." }),
+    plateCount: Type.Integer({
+      minimum: 1,
+      description: "Number of plates included in the topology payload.",
+    }),
     /** Plate topology array (indexed by plate id). */
     plates: Type.Immutable(
-      Type.Array(FoundationPlateTopologySchema, { description: "Plate topology array (indexed by plate id)." })
+      Type.Array(FoundationPlateTopologySchema, {
+        description: "Plate topology array (indexed by plate id).",
+      })
     ),
   },
   { description: "Foundation plate topology artifact payload (plate adjacency + centroid/area)." }
@@ -710,18 +878,34 @@ const FoundationTectonicsArtifactSchema = Type.Object(
     /** Boundary type per mesh cell (BOUNDARY_TYPE values; 0 when non-boundary/unknown). */
     boundaryType: TypedArraySchemas.u8({
       shape: null,
-      description: "Boundary type per mesh cell (BOUNDARY_TYPE values; 0 when non-boundary/unknown).",
+      description:
+        "Boundary type per mesh cell (BOUNDARY_TYPE values; 0 when non-boundary/unknown).",
     }),
     /** Uplift potential per mesh cell (0..255). */
-    upliftPotential: TypedArraySchemas.u8({ shape: null, description: "Uplift potential per mesh cell (0..255)." }),
+    upliftPotential: TypedArraySchemas.u8({
+      shape: null,
+      description: "Uplift potential per mesh cell (0..255).",
+    }),
     /** Rift potential per mesh cell (0..255). */
-    riftPotential: TypedArraySchemas.u8({ shape: null, description: "Rift potential per mesh cell (0..255)." }),
+    riftPotential: TypedArraySchemas.u8({
+      shape: null,
+      description: "Rift potential per mesh cell (0..255).",
+    }),
     /** Shear stress per mesh cell (0..255). */
-    shearStress: TypedArraySchemas.u8({ shape: null, description: "Shear stress per mesh cell (0..255)." }),
+    shearStress: TypedArraySchemas.u8({
+      shape: null,
+      description: "Shear stress per mesh cell (0..255).",
+    }),
     /** Volcanism per mesh cell (0..255). */
-    volcanism: TypedArraySchemas.u8({ shape: null, description: "Volcanism per mesh cell (0..255)." }),
+    volcanism: TypedArraySchemas.u8({
+      shape: null,
+      description: "Volcanism per mesh cell (0..255).",
+    }),
     /** Fracture potential per mesh cell (0..255). */
-    fracture: TypedArraySchemas.u8({ shape: null, description: "Fracture potential per mesh cell (0..255)." }),
+    fracture: TypedArraySchemas.u8({
+      shape: null,
+      description: "Fracture potential per mesh cell (0..255).",
+    }),
     /** Accumulated uplift per mesh cell (0..255). */
     cumulativeUplift: TypedArraySchemas.u8({
       shape: null,

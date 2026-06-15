@@ -1,10 +1,14 @@
-import { Type, type TObject, type TSchema } from "typebox";
+import { type TObject, type TSchema, Type } from "typebox";
 
 import type { StageContractAny } from "./types.js";
 
 type StageStepLike = Readonly<{ contract: Readonly<{ id: string; schema: TSchema }> }>;
 type StageLike = Pick<StageContractAny, "id" | "surfaceSchema" | "knobsSchema" | "steps"> &
-  Readonly<{ public?: unknown; authoring?: StageContractAny["authoring"]; steps: readonly StageStepLike[] }>;
+  Readonly<{
+    public?: unknown;
+    authoring?: StageContractAny["authoring"];
+    steps: readonly StageStepLike[];
+  }>;
 
 function deriveStageSurfaceSchema(stage: StageLike): TObject {
   if (stage.authoring) return stage.authoring.config.schema;

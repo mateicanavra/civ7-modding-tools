@@ -1,8 +1,8 @@
 /// <reference types="@civ7/types" />
 
+import foundationDomain from "@mapgen/domain/foundation";
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { Static } from "@swooper/mapgen-core/authoring";
-import foundationDomain from "@mapgen/domain/foundation";
 import standardRecipe, { type StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import foundationStage from "../../recipes/standard/stages/foundation/index.js";
 

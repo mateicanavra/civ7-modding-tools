@@ -6,7 +6,7 @@
  * 2. Climate adapter stubs blocking fallback execution
  */
 
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import type { ClimateAdapter } from "@mapgen/domain/hydrology/climate/index.js";
 
 describe("CIV-18: Call-site Fixes", () => {
@@ -55,8 +55,7 @@ describe("CIV-18: Call-site Fixes", () => {
       const height = 5;
       const waterGrid = new Set(["0,0", "0,1", "1,0"]); // Water tiles
 
-      const isWater = (x: number, y: number): boolean =>
-        waterGrid.has(`${x},${y}`);
+      const isWater = (x: number, y: number): boolean => waterGrid.has(`${x},${y}`);
 
       // Local fallback implementation (mirrors climate-engine.ts)
       const isCoastalLandFallback = (x: number, y: number): boolean => {

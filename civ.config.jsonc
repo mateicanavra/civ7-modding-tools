@@ -1,47 +1,70 @@
 {
-    "$schema": "./packages/config/schema/civ.config.schema.json",
-    "inputs": {
-        // "installDir": "~/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources"
+  "$schema": "./packages/config/schema/civ.config.schema.json",
+  "inputs": {
+    // "installDir": "~/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources"
+  },
+  "outputs": {
+    "baseDir": ".civ7/outputs",
+    "zip": {
+      "dir": "archives",
+      "name": "civ7-official-resources.zip"
     },
-    "outputs": {
-        "baseDir": ".civ7/outputs",
-        "zip": {
-            "dir": "archives",
-            "name": "civ7-official-resources.zip"
-        },
-        "unzip": {
-            "dir": "resources"
-        },
-        "graph": {
-            "dir": "graph"
-        }
+    "unzip": {
+      "dir": "resources"
     },
-    "profiles": {
-        "default": {
-            "description": "Core gameplay data, excluding large assets. Used by the official docs site.",
-            "zip": {
-                "exclude": [
-                    "*/Platforms/*", "*/movies/*", "*/data/icons/*", "*/fonts/*", "*/Assets/Benchmark/*",
-                    "*/Assets/Legal/*", "Assets.car", "AppIcon.icns", "default.metallib",
-                    "ShaderAutoGen_*", "*.mp4", "*.webm", "*.mov", "*.ogg", "*.mp3", "*.wav",
-                    "*.dds", "*.png", "*.ttf", "*.otf", "*.js.map"
-                ]
-            }
-        },
-        "full": {
-            "description": "A complete set of game resources, including all assets.",
-            "zip": {
-                "exclude": []
-            }
-        },
-        "assets": {
-            "description": "Only media assets like icons, fonts, and movies.",
-            "zip": {
-                "include": [
-                    "Assets/*", "movies/*", "data/icons/*", "fonts/*", "Assets.car",
-                    "AppIcon.icns", "default.metallib", "ShaderAutoGen_*"
-                ]
-            }
-        }
+    "graph": {
+      "dir": "graph"
     }
+  },
+  "profiles": {
+    "default": {
+      "description": "Core gameplay data, excluding large assets. Used by the official docs site.",
+      "zip": {
+        "exclude": [
+          "*/Platforms/*",
+          "*/movies/*",
+          "*/data/icons/*",
+          "*/fonts/*",
+          "*/Assets/Benchmark/*",
+          "*/Assets/Legal/*",
+          "Assets.car",
+          "AppIcon.icns",
+          "default.metallib",
+          "ShaderAutoGen_*",
+          "*.mp4",
+          "*.webm",
+          "*.mov",
+          "*.ogg",
+          "*.mp3",
+          "*.wav",
+          "*.dds",
+          "*.png",
+          "*.ttf",
+          "*.otf",
+          "*.js.map"
+        ]
+      }
+    },
+    "full": {
+      "description": "A complete set of game resources, including all assets.",
+      "zip": {
+        "exclude": []
+      }
+    },
+    "assets": {
+      "description": "Only media assets like icons, fonts, and movies.",
+      "zip": {
+        "include": [
+          "Assets/*",
+          "movies/*",
+          "data/icons/*",
+          "fonts/*",
+          "Assets.car",
+          "AppIcon.icns",
+          "default.metallib",
+          "ShaderAutoGen_*"
+        ]
+      }
+    }
+  }
 }

@@ -1,7 +1,7 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7ReadyCityViewInputSchema,
@@ -26,7 +26,7 @@ describe("getCiv7ReadyCityView", () => {
           host: "127.0.0.1",
           port,
           timeoutMs: 1_000,
-        },
+        }
       );
 
       expect(view).toMatchObject({
@@ -57,45 +57,63 @@ describe("getCiv7ReadyCityView", () => {
       });
       expect(view.notes.some((note) => note.includes("does not choose production"))).toBe(true);
       expect(view.populationPlacement.ok && view.populationPlacement.value?.notes).toContain(
-        "For NEW_POPULATION, compare workablePlots against expansionCandidates; assign-worker and expand-city are different acquire-tile branches.",
+        "For NEW_POPULATION, compare workablePlots against expansionCandidates; assign-worker and expand-city are different acquire-tile branches."
       );
       expect(server.received.some((message) => message.includes("readReadyCityView"))).toBe(true);
-      expect(server.received.some((message) => message.includes('source: "Players.Cities.getCityIds"'))).toBe(true);
-      expect(server.received.some((message) => message.includes("toComponentId(city.id ?? cityId) ?? cityId"))).toBe(false);
+      expect(
+        server.received.some((message) => message.includes('source: "Players.Cities.getCityIds"'))
+      ).toBe(true);
+      expect(
+        server.received.some((message) =>
+          message.includes("toComponentId(city.id ?? cityId) ?? cityId")
+        )
+      ).toBe(false);
       expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
-      expect(Value.Check(Civ7ReadyCityViewInputSchema, {
-        cityId: { owner: 0, id: 131073, type: 1 },
-        maxOperations: 96,
-      })).toBe(true);
+      expect(
+        Value.Check(Civ7ReadyCityViewInputSchema, {
+          cityId: { owner: 0, id: 131073, type: 1 },
+          maxOperations: 96,
+        })
+      ).toBe(true);
       expect(Value.Check(Civ7ReadyCityViewInputSchema, { maxOperations: 257 })).toBe(false);
-      expect(Value.Check(Civ7ReadyCityViewInputSchema, { rawCommand: "readReadyCityView()" })).toBe(false);
+      expect(Value.Check(Civ7ReadyCityViewInputSchema, { rawCommand: "readReadyCityView()" })).toBe(
+        false
+      );
       expect(Value.Check(Civ7ReadyCityViewResultSchema, view)).toBe(true);
-      expect(Value.Check(Civ7ReadyCityViewResultSchema, {
-        ...view,
-        command: "readReadyCityView()",
-      })).toBe(false);
-      expect(Value.Check(Civ7ReadyCityViewResultSchema, {
-        ...view,
-        productionCandidates: {
-          ...view.productionCandidates,
-          value: [{
-            ...(view.productionCandidates.ok ? view.productionCandidates.value[0] : {}),
-            cli: "game play build-production --send",
-          }],
-        },
-      })).toBe(false);
-      expect(Value.Check(Civ7ReadyCityViewResultSchema, {
-        ...view,
-        populationPlacement: {
-          ...view.populationPlacement,
-          value: view.populationPlacement.ok
-            ? {
-                ...view.populationPlacement.value,
-                cliHints: ["game play expand-city --send"],
-              }
-            : null,
-        },
-      })).toBe(false);
+      expect(
+        Value.Check(Civ7ReadyCityViewResultSchema, {
+          ...view,
+          command: "readReadyCityView()",
+        })
+      ).toBe(false);
+      expect(
+        Value.Check(Civ7ReadyCityViewResultSchema, {
+          ...view,
+          productionCandidates: {
+            ...view.productionCandidates,
+            value: [
+              {
+                ...(view.productionCandidates.ok ? view.productionCandidates.value[0] : {}),
+                cli: "game play build-production --send",
+              },
+            ],
+          },
+        })
+      ).toBe(false);
+      expect(
+        Value.Check(Civ7ReadyCityViewResultSchema, {
+          ...view,
+          populationPlacement: {
+            ...view.populationPlacement,
+            value: view.populationPlacement.ok
+              ? {
+                  ...view.populationPlacement.value,
+                  cliHints: ["game play expand-city --send"],
+                }
+              : null,
+          },
+        })
+      ).toBe(false);
     } finally {
       await server.close();
     }
@@ -218,13 +236,11 @@ function readyCityView() {
   };
 }
 
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
+function parseRequest(buffer: Buffer): {
+  listenerId: number;
+  message: string;
+  bytesRead: number;
+} | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);
   const bytesRead = 8 + messageLength;

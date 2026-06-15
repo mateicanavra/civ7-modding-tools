@@ -1,15 +1,17 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
-import { buildPlateTopology } from "@swooper/mapgen-core/lib/plates";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { buildPlateTopology } from "@swooper/mapgen-core/lib/plates";
 
 import { foundationArtifacts } from "../artifacts.js";
+import { pointsFromTileCentroids, segmentsFromTileTopologyNeighbors } from "../viz.js";
 import PlateTopologyStepContract from "./plateTopology.contract.js";
 import { validatePlateTopologyArtifact, wrapFoundationValidateNoDims } from "./validation.js";
-import { pointsFromTileCentroids, segmentsFromTileTopologyNeighbors } from "../viz.js";
 
 const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
 
-function validateTopologySymmetry(plates: ReadonlyArray<{ id: number; neighbors: number[] }>): void {
+function validateTopologySymmetry(
+  plates: ReadonlyArray<{ id: number; neighbors: number[] }>
+): void {
   const neighborSets = new Map<number, Set<number>>();
   for (const p of plates) neighborSets.set(p.id, new Set(p.neighbors));
 

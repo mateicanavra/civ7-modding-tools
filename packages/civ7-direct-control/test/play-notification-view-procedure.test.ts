@@ -1,19 +1,21 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7PlayNotificationViewProcedureDescriptor,
   Civ7PlayNotificationViewProcedureSchemaArtifacts,
   callCiv7PlayNotificationViewProcedure,
   getCiv7PlayNotificationView,
+  type PlayNotificationViewDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type PlayNotificationViewDependencies,
 } from "../src/index";
 
 describe("Civ7 play-notification view procedure descriptor", () => {
   test("records the notification read atom and resolves its schemas", () => {
-    const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7PlayNotificationViewProcedureDescriptor);
+    const summary = summarizeCiv7ProcedureCoreDescriptor(
+      Civ7PlayNotificationViewProcedureDescriptor
+    );
     expect(summary).toMatchObject({
       procedureKey: "notifications.view",
       family: "notifications",
@@ -30,23 +32,27 @@ describe("Civ7 play-notification view procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7PlayNotificationViewProcedureDescriptor,
-      Civ7PlayNotificationViewProcedureSchemaArtifacts,
+      Civ7PlayNotificationViewProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7PlayNotificationViewProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7PlayNotificationViewProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7PlayNotificationViewProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7PlayNotificationViewProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, { maxNotifications: 12 })).toBe(true);
     expect(Value.Check(resolved.inputSchema, { maxNotifications: 101 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { rawCommand: "readPlayNotifications()" })).toBe(false);
+    expect(Value.Check(resolved.inputSchema, { rawCommand: "readPlayNotifications()" })).toBe(
+      false
+    );
     expect(Value.Check(resolved.outputSchema, playNotificationViewResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...playNotificationViewResult(),
-      rawCommand: "readPlayNotifications()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...playNotificationViewResult(),
+        rawCommand: "readPlayNotifications()",
+      })
+    ).toBe(false);
   });
 
   test("calls the notification view atom through the procedure core without touching the live tuner", async () => {
@@ -68,18 +74,21 @@ describe("Civ7 play-notification view procedure descriptor", () => {
       parsePlayNotificationView: () => playNotificationViewResult(12),
     };
 
-    const result = await callCiv7PlayNotificationViewProcedure({
-      maxNotifications: 12,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7PlayNotificationViewProcedure(
+      {
+        maxNotifications: 12,
       },
-      procedure: {
-        correlationId: "notifications-view-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "notifications-view-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(playNotificationViewResult(12));
     expect(result.diagnostics).toMatchObject({
@@ -109,10 +118,15 @@ describe("Civ7 play-notification view procedure descriptor", () => {
       parsePlayNotificationView: () => playNotificationViewResult(),
     };
 
-    await expect(callCiv7PlayNotificationViewProcedure({ maxNotifications: 101 }, {
-      procedure: { correlationId: "notifications-view-invalid-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7PlayNotificationViewProcedure(
+        { maxNotifications: 101 },
+        {
+          procedure: { correlationId: "notifications-view-invalid-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -120,12 +134,17 @@ describe("Civ7 play-notification view procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7PlayNotificationViewProcedure({
-      host: "127.0.0.1",
-    } as never, {
-      procedure: { correlationId: "notifications-view-context-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7PlayNotificationViewProcedure(
+        {
+          host: "127.0.0.1",
+        } as never,
+        {
+          procedure: { correlationId: "notifications-view-context-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

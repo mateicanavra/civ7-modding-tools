@@ -1,28 +1,32 @@
 import { describe, expect, it } from "bun:test";
 
 import { OFFICIAL_RESOURCE_CORPUS } from "../../src/domain/resources/index.js";
-import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
+import {
+  type CanonicalMapConfigWithRecipe,
+  canonicalRecipeConfig,
+} from "../../src/maps/configs/canonical.js";
 import shatteredRingRaw from "../../src/maps/configs/shattered-ring.config.json";
 import sunderedArchipelagoRaw from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
-import { canonicalRecipeConfig, type CanonicalMapConfigWithRecipe } from "../../src/maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
+import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
-import { collectWorldBalanceStats, type WorldBalanceStats } from "../support/world-balance-stats.js";
+import {
+  collectWorldBalanceStats,
+  type WorldBalanceStats,
+} from "../support/world-balance-stats.js";
 
 function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
   return canonicalRecipeConfig<StandardRecipeConfig>(config);
 }
 
 const ANTIQUITY_RESOURCE_CANDIDATE_TYPES = new Set(
-  OFFICIAL_RESOURCE_CORPUS
-    .filter(
-      (entry) =>
-        entry.validAges.includes("AGE_ANTIQUITY") &&
-        entry.placeability.status === "placeable" &&
-        entry.strategyRequired.status === "required"
-    )
-    .map((entry) => entry.staticResourceRowSlot)
+  OFFICIAL_RESOURCE_CORPUS.filter(
+    (entry) =>
+      entry.validAges.includes("AGE_ANTIQUITY") &&
+      entry.placeability.status === "placeable" &&
+      entry.strategyRequired.status === "required"
+  ).map((entry) => entry.staticResourceRowSlot)
 );
 const ANTIQUITY_RESOURCE_CANDIDATE_COUNT = ANTIQUITY_RESOURCE_CANDIDATE_TYPES.size;
 
@@ -149,17 +153,17 @@ function expectResourceDiagnostics(stats: WorldBalanceStats): void {
     stats.resourceBelowMinWithoutShortfallCount,
     `${stats.label} below-min types must carry a recorded shortfall`
   ).toBe(0);
-  expect(
-    stats.resourceInHabitatShare,
-    `${stats.label} habitat fidelity`
-  ).toBeGreaterThanOrEqual(scenarioResourceHabitatFidelityMin(stats.label));
+  expect(stats.resourceInHabitatShare, `${stats.label} habitat fidelity`).toBeGreaterThanOrEqual(
+    scenarioResourceHabitatFidelityMin(stats.label)
+  );
   expect(
     stats.resourceSameTypeSpacingViolationCount,
     `${stats.label} same-type spacing floor violations`
   ).toBe(0);
-  expect(stats.resourceUniquePlannedTypes, `${stats.label} planned resource variety`).toBeGreaterThanOrEqual(
-    Math.min(stats.resourceDemandTypeCount, stats.resourcePlannedCount)
-  );
+  expect(
+    stats.resourceUniquePlannedTypes,
+    `${stats.label} planned resource variety`
+  ).toBeGreaterThanOrEqual(Math.min(stats.resourceDemandTypeCount, stats.resourcePlannedCount));
   expect(
     stats.resourcePlacedCount + stats.resourceRejectedCount + stats.resourceMismatchCount,
     `${stats.label} resource outcome total`
@@ -297,7 +301,9 @@ function expectNavigableRiverDiagnostics(stats: WorldBalanceStats): void {
 }
 
 describe("world balance stats", () => {
-  it("keeps shipped map identities within product-visible geography budgets", { timeout: 30_000 }, () => {
+  it("keeps shipped map identities within product-visible geography budgets", {
+    timeout: 30_000,
+  }, () => {
     for (const caseData of CASES) {
       const stats = collectWorldBalanceStats({
         label: caseData.label,
@@ -310,7 +316,9 @@ describe("world balance stats", () => {
       expectResourceDiagnostics(stats);
 
       // Lakes should read as occasional inland basins, not a terrain-wide sink mask.
-      expect(stats.lakeShareOfPreLakeLand, `${caseData.label} lake share`).toBeLessThanOrEqual(0.08);
+      expect(stats.lakeShareOfPreLakeLand, `${caseData.label} lake share`).toBeLessThanOrEqual(
+        0.08
+      );
       expect(stats.lakeWaterDriftCount, `${caseData.label} lake water drift`).toBe(0);
       expect(stats.finalLakeWaterDriftCount, `${caseData.label} final lake water drift`).toBe(0);
       expect(
@@ -321,27 +329,42 @@ describe("world balance stats", () => {
       for (const [feature, count] of Object.entries(stats.featureHabitatMismatchCounts)) {
         expect(count, `${caseData.label} ${feature} habitat mismatch`).toBe(0);
       }
-      expect(stats.lakeProjectionMismatchCount, `${caseData.label} rejected lake tiles`).toBeLessThanOrEqual(2);
-      expect(stats.singleTileLakeShare, `${caseData.label} one-tile lake share`).toBeLessThanOrEqual(0.2);
-      expect(stats.lakeComponentCount, `${caseData.label} lake component count`).toBeLessThanOrEqual(24);
-      expect(stats.largestLakeComponentSize, `${caseData.label} largest lake component`).toBeGreaterThanOrEqual(
-        caseData.largestLakeComponentSizeMin ?? 4
-      );
+      expect(
+        stats.lakeProjectionMismatchCount,
+        `${caseData.label} rejected lake tiles`
+      ).toBeLessThanOrEqual(2);
+      expect(
+        stats.singleTileLakeShare,
+        `${caseData.label} one-tile lake share`
+      ).toBeLessThanOrEqual(0.2);
+      expect(
+        stats.lakeComponentCount,
+        `${caseData.label} lake component count`
+      ).toBeLessThanOrEqual(24);
+      expect(
+        stats.largestLakeComponentSize,
+        `${caseData.label} largest lake component`
+      ).toBeGreaterThanOrEqual(caseData.largestLakeComponentSizeMin ?? 4);
 
       // Wetlands can cluster around coasts and floodplains, but they should not
       // occupy a large fraction of playable land for any shipped map identity.
-      expect(stats.wetlandShareOfPreLakeLand, `${caseData.label} wetland share`).toBeLessThanOrEqual(
-        caseData.wetlandMax
-      );
+      expect(
+        stats.wetlandShareOfPreLakeLand,
+        `${caseData.label} wetland share`
+      ).toBeLessThanOrEqual(caseData.wetlandMax);
 
       // Reef-family features are visible ocean accents; high water coverage does
       // not justify carpeting shelves, banks, or atoll candidates.
-      expect(stats.reefFamilyShareOfWater, `${caseData.label} reef-family share`).toBeLessThanOrEqual(
-        caseData.reefMax
-      );
+      expect(
+        stats.reefFamilyShareOfWater,
+        `${caseData.label} reef-family share`
+      ).toBeLessThanOrEqual(caseData.reefMax);
 
       if (caseData.requireColdReefs) {
-        expect(stats.featureCounts.FEATURE_COLD_REEF, `${caseData.label} cold reefs`).toBeGreaterThan(0);
+        expect(
+          stats.featureCounts.FEATURE_COLD_REEF,
+          `${caseData.label} cold reefs`
+        ).toBeGreaterThan(0);
       }
       if (caseData.requireAtolls) {
         expect(stats.featureCounts.FEATURE_ATOLL, `${caseData.label} atolls`).toBeGreaterThan(0);
@@ -360,9 +383,10 @@ describe("world balance stats", () => {
         ).toBeLessThanOrEqual(caseData.rainforestVegetationShareMax);
       }
       if ("rainforestMax" in caseData) {
-        expect(stats.featureCounts.FEATURE_RAINFOREST, `${caseData.label} rainforest`).toBeLessThanOrEqual(
-          caseData.rainforestMax
-        );
+        expect(
+          stats.featureCounts.FEATURE_RAINFOREST,
+          `${caseData.label} rainforest`
+        ).toBeLessThanOrEqual(caseData.rainforestMax);
       }
     }
   });
@@ -387,25 +411,44 @@ describe("world balance stats", () => {
       expectNavigableRiverDiagnostics(stats);
       expect(stats.invalidFeatureSurfaceCount, `${stats.label} invalid feature surface`).toBe(0);
       expect(stats.finalLakeWaterDriftCount, `${stats.label} final lake water drift`).toBe(0);
-      expect(stats.finalLakeClassificationDriftCount, `${stats.label} final lake classification drift`).toBe(0);
-      expect(stats.vegetationFamilyTiles, `${stats.label} vegetation-family tiles`).toBeGreaterThan(0);
-      expect(stats.vegetationFeatureFamiliesPresent, `${stats.label} vegetation families present`).toBeGreaterThanOrEqual(4);
-      expect(stats.vegetationFamilyShareOfPreLakeLand, `${stats.label} vegetation share`).toBeGreaterThan(0.08);
-      expect(stats.vegetationFamilyShareOfPreLakeLand, `${stats.label} vegetation share`).toBeLessThan(0.55);
+      expect(
+        stats.finalLakeClassificationDriftCount,
+        `${stats.label} final lake classification drift`
+      ).toBe(0);
+      expect(stats.vegetationFamilyTiles, `${stats.label} vegetation-family tiles`).toBeGreaterThan(
+        0
+      );
+      expect(
+        stats.vegetationFeatureFamiliesPresent,
+        `${stats.label} vegetation families present`
+      ).toBeGreaterThanOrEqual(4);
+      expect(
+        stats.vegetationFamilyShareOfPreLakeLand,
+        `${stats.label} vegetation share`
+      ).toBeGreaterThan(0.08);
+      expect(
+        stats.vegetationFamilyShareOfPreLakeLand,
+        `${stats.label} vegetation share`
+      ).toBeLessThan(0.55);
       expect(
         stats.featureCounts.FEATURE_RAINFOREST / Math.max(1, stats.vegetationFamilyTiles),
         `${stats.label} rainforest share of vegetation`
       ).toBeLessThanOrEqual(0.7);
-      expect(stats.featureCounts.FEATURE_RAINFOREST, `${stats.label} rainforest`).toBeLessThanOrEqual(
-        Math.max(1, Math.floor(stats.preLakeLandTiles * 0.35))
-      );
+      expect(
+        stats.featureCounts.FEATURE_RAINFOREST,
+        `${stats.label} rainforest`
+      ).toBeLessThanOrEqual(Math.max(1, Math.floor(stats.preLakeLandTiles * 0.35)));
     }
 
     expect(presentIn("FEATURE_FOREST"), "forest seed presence").toBe(seeds.length);
     expect(presentIn("FEATURE_RAINFOREST"), "rainforest seed presence").toBe(seeds.length);
     expect(presentIn("FEATURE_TAIGA"), "taiga seed presence").toBe(seeds.length);
-    expect(presentIn("FEATURE_SAVANNA_WOODLAND"), "savanna seed presence").toBeGreaterThanOrEqual(6);
-    expect(presentIn("FEATURE_SAGEBRUSH_STEPPE"), "sagebrush seed presence").toBeGreaterThanOrEqual(6);
+    expect(presentIn("FEATURE_SAVANNA_WOODLAND"), "savanna seed presence").toBeGreaterThanOrEqual(
+      6
+    );
+    expect(presentIn("FEATURE_SAGEBRUSH_STEPPE"), "sagebrush seed presence").toBeGreaterThanOrEqual(
+      6
+    );
   });
 
   // SKIPPED (live-integration 2026-06-11): this gate arrived RED on the rivers
@@ -488,7 +531,9 @@ describe("world balance stats", () => {
     }
   });
 
-  it("keeps a floodplain-producing Earthlike acceptance seed available", { timeout: 15_000 }, () => {
+  it("keeps a floodplain-producing Earthlike acceptance seed available", {
+    timeout: 15_000,
+  }, () => {
     const stats = collectWorldBalanceStats({
       label: "swooper-earthlike:floodplain-acceptance",
       config: recipeConfig(swooperEarthlikeConfigRaw),

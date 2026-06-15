@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
-import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
 import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
+import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
+import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
 import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
@@ -67,17 +67,27 @@ function computeDistanceFieldOddQ(params: {
 }
 
 function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
-  const mantlePotential = computeMantlePotential.run({ mesh, rngSeed }, computeMantlePotential.defaultConfig)
-    .mantlePotential;
-  const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
-    .mantleForcing;
-  return computePlateMotion.run({ mesh, plateGraph, mantleForcing }, computePlateMotion.defaultConfig).plateMotion;
+  const mantlePotential = computeMantlePotential.run(
+    { mesh, rngSeed },
+    computeMantlePotential.defaultConfig
+  ).mantlePotential;
+  const mantleForcing = computeMantleForcing.run(
+    { mesh, mantlePotential },
+    computeMantleForcing.defaultConfig
+  ).mantleForcing;
+  return computePlateMotion.run(
+    { mesh, plateGraph, mantleForcing },
+    computePlateMotion.defaultConfig
+  ).plateMotion;
 }
 
 function deriveMantleForcing(mesh: any, rngSeed: number) {
-  const mantlePotential = computeMantlePotential.run({ mesh, rngSeed }, computeMantlePotential.defaultConfig)
-    .mantlePotential;
-  return computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig).mantleForcing;
+  const mantlePotential = computeMantlePotential.run(
+    { mesh, rngSeed },
+    computeMantlePotential.defaultConfig
+  ).mantlePotential;
+  return computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
+    .mantleForcing;
 }
 
 describe("m11 plates projection (boundary band)", () => {
@@ -113,10 +123,13 @@ describe("m11 plates projection (boundary band)", () => {
     } as const;
 
     const plateGraphConfig = computePlateGraph.normalize(
-      { strategy: "default", config: { plateCount: 10} },
+      { strategy: "default", config: { plateCount: 10 } },
       ctx as any
     );
-    const plateGraph = computePlateGraph.run({ mesh, crust: crust as any, rngSeed: 11 }, plateGraphConfig).plateGraph;
+    const plateGraph = computePlateGraph.run(
+      { mesh, crust: crust as any, rngSeed: 11 },
+      plateGraphConfig
+    ).plateGraph;
 
     const plateMotion = derivePlateMotion(mesh, plateGraph, 12);
     const mantleForcing = deriveMantleForcing(mesh, 12);
@@ -160,7 +173,12 @@ describe("m11 plates projection (boundary band)", () => {
 
     const plates = projected.plates;
     const boundary = computeBoundaryTiles(width, height, plates.id);
-    const boundaryDist = computeDistanceFieldOddQ({ width, height, isSeed: boundary, maxDistance: 8 });
+    const boundaryDist = computeDistanceFieldOddQ({
+      width,
+      height,
+      isSeed: boundary,
+      maxDistance: 8,
+    });
 
     let sawMultiTileBelt = false;
     for (let i = 0; i < width * height; i++) {

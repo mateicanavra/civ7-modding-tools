@@ -2,19 +2,19 @@ import { once } from "node:events";
 import { type AddressInfo, createServer, type Socket } from "node:net";
 import { describe, expect, test } from "vitest";
 import {
-  CIV7_SIGNED_INT_SEED_MAX,
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
   CIV7_RELOAD_UI_COMMAND,
+  CIV7_SIGNED_INT_SEED_MAX,
+  type Civ7SetupMapRow,
+  type Civ7SetupSnapshot,
+  type Civ7SinglePlayerSetupInput,
   ensureCiv7SetupMapRowVisible,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   prepareCiv7SinglePlayerSetup,
   runCiv7SinglePlayerFromSetup,
   startPreparedCiv7SinglePlayerGame,
-  type Civ7SinglePlayerSetupInput,
-  type Civ7SetupMapRow,
-  type Civ7SetupSnapshot,
 } from "../src/index";
 
 const HOST = "127.0.0.1";
@@ -97,10 +97,11 @@ describe("Civ7 setup and lifecycle orchestration", () => {
         gameSeed: 223,
       };
 
-      const prepare = await prepareCiv7SinglePlayerSetup(
-        expected,
-        { host: HOST, port, timeoutMs: 1_000 }
-      );
+      const prepare = await prepareCiv7SinglePlayerSetup(expected, {
+        host: HOST,
+        port,
+        timeoutMs: 1_000,
+      });
       const start = await startPreparedCiv7SinglePlayerGame(
         { expected, waitForTuner: true, waitTimeoutMs: 2_000, pollIntervalMs: 10 },
         { host: HOST, port, timeoutMs: 1_000 }
@@ -236,10 +237,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     try {
       const { port } = beginFailure.address();
       const expected = { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 222 };
-      await prepareCiv7SinglePlayerSetup(
-        expected,
-        { host: HOST, port, timeoutMs: 1_000 }
-      );
+      await prepareCiv7SinglePlayerSetup(expected, { host: HOST, port, timeoutMs: 1_000 });
       await expect(
         startPreparedCiv7SinglePlayerGame(
           { expected, waitForTuner: true, waitTimeoutMs: 500, pollIntervalMs: 10 },
@@ -259,10 +257,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     try {
       const { port } = server.address();
       const expected = { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 222 };
-      await prepareCiv7SinglePlayerSetup(
-        expected,
-        { host: HOST, port, timeoutMs: 1_000 }
-      );
+      await prepareCiv7SinglePlayerSetup(expected, { host: HOST, port, timeoutMs: 1_000 });
 
       await expect(
         startPreparedCiv7SinglePlayerGame(

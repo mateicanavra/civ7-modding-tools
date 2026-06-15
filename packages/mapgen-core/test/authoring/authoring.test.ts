@@ -1,21 +1,17 @@
 import { describe, expect, it } from "bun:test";
-import { Type } from "typebox";
-
 import { createMockAdapter } from "@civ7/adapter";
-import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
-import { RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
-import { createExtendedMapContext } from "@mapgen/core/types.js";
+import type { DomainOpCompileAny } from "@mapgen/authoring/index.js";
 import {
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
-  createOp,
   bindCompileOps,
   bindRuntimeOps,
+  createOp,
   createRecipe,
   createStage,
-  createStrategy,
   createStep,
+  createStrategy,
   defineArtifact,
   defineOp,
   defineStep,
@@ -23,7 +19,10 @@ import {
   implementArtifacts,
   runtimeOp,
 } from "@mapgen/authoring/index.js";
-import type { DomainOpCompileAny } from "@mapgen/authoring/index.js";
+import { RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
+import { createExtendedMapContext } from "@mapgen/core/types.js";
+import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
+import { Type } from "typebox";
 
 describe("authoring SDK", () => {
   const baseSettings = {
@@ -215,10 +214,7 @@ describe("authoring SDK", () => {
       alpha: [],
       beta: ["beta"],
     });
-    expect(stage.authoring.runtime.steps).toEqual([
-      { stepId: "alpha" },
-      { stepId: "beta" },
-    ]);
+    expect(stage.authoring.runtime.steps).toEqual([{ stepId: "alpha" }, { stepId: "beta" }]);
 
     const internal = stage.toInternal({ env: {}, stageConfig: { knobs: {}, climate: 2 } });
     expect(internal.rawSteps).toEqual({ alpha: { value: 2 } });

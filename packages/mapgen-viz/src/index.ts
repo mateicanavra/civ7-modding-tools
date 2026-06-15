@@ -86,9 +86,7 @@ export type VizLayerMeta = {
   showGrid?: boolean;
 };
 
-export type VizBinaryRef =
-  | { kind: "path"; path: string }
-  | { kind: "inline"; buffer: ArrayBuffer };
+export type VizBinaryRef = { kind: "path"; path: string } | { kind: "inline"; buffer: ArrayBuffer };
 
 export type VizDims = { width: number; height: number };
 

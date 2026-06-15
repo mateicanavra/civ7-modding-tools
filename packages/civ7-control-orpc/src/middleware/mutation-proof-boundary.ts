@@ -10,10 +10,8 @@ export type Civ7MutationProofBoundaryViolation =
   | "sent-unverified-without-do-not-repeat"
   | "sent-guarded-without-do-not-repeat";
 
-export const civ7MutationProofBoundaryMiddleware =
-  civ7ControlOrpcImplementer.middleware(async (
-    { context, errors, next, path, procedure },
-  ) => {
+export const civ7MutationProofBoundaryMiddleware = civ7ControlOrpcImplementer.middleware(
+  async ({ context, errors, next, path, procedure }) => {
     const result = await next();
     const violation = civ7MutationProofBoundaryViolation(result.output);
     if (violation == null) return result;
@@ -27,10 +25,11 @@ export const civ7MutationProofBoundaryMiddleware =
         ...civ7ControlOrpcErrorCorrelationData(context),
       },
     });
-  });
+  }
+);
 
 export function civ7MutationProofBoundaryViolation(
-  output: unknown,
+  output: unknown
 ): Civ7MutationProofBoundaryViolation | null {
   if (!isRecord(output)) return "missing-postcondition";
 
@@ -45,8 +44,8 @@ export function civ7MutationProofBoundaryViolation(
   const confidence = postcondition.confidence;
   const status = output.status;
   if (
-    (confidence === "unverified" || confidence === "pending-runtime-proof")
-    && !noRepeatAfterUnverified
+    (confidence === "unverified" || confidence === "pending-runtime-proof") &&
+    !noRepeatAfterUnverified
   ) {
     return "unverified-repeat-safe";
   }
@@ -64,8 +63,10 @@ export function civ7MutationProofBoundaryViolation(
 
 function hasDoNotRepeatNextStep(output: Record<string, unknown>): boolean {
   const nextSteps = output.nextSteps;
-  return Array.isArray(nextSteps)
-    && nextSteps.some((step) => isRecord(step) && step.kind === "do-not-repeat");
+  return (
+    Array.isArray(nextSteps) &&
+    nextSteps.some((step) => isRecord(step) && step.kind === "do-not-repeat")
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

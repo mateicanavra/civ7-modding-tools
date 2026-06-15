@@ -62,4 +62,3 @@ export function formatErrorForUi(e: unknown): string {
   const json = safeStringify(e);
   return json ?? String(e);
 }
-

@@ -1,11 +1,13 @@
 import { describe, expect, it } from "bun:test";
-
-import standardRecipe from "../../src/recipes/standard/recipe";
-import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
+import {
+  type CanonicalMapConfigWithRecipe,
+  canonicalRecipeConfig,
+} from "../../src/maps/configs/canonical.js";
 import shatteredRingRaw from "../../src/maps/configs/shattered-ring.config.json";
 import sunderedArchipelagoRaw from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
-import { canonicalRecipeConfig, type CanonicalMapConfigWithRecipe } from "../../src/maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
+import standardRecipe from "../../src/recipes/standard/recipe";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 
 function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
@@ -16,7 +18,10 @@ function hasRawOpEnvelope(value: unknown): boolean {
   if (!value || typeof value !== "object") return false;
   if (Array.isArray(value)) return value.some(hasRawOpEnvelope);
   const obj = value as Record<string, unknown>;
-  if (Object.prototype.hasOwnProperty.call(obj, "strategy") && Object.prototype.hasOwnProperty.call(obj, "config")) {
+  if (
+    Object.prototype.hasOwnProperty.call(obj, "strategy") &&
+    Object.prototype.hasOwnProperty.call(obj, "config")
+  ) {
     return true;
   }
   return Object.values(obj).some(hasRawOpEnvelope);
@@ -65,16 +70,18 @@ describe("shipped map config identity", () => {
       bedrockWeight: 0.82,
     });
     expect(earthlike["ecology-biomes"].biomeClassification.moisture.thresholds).toEqual([
-      90,
-      188,
-      228,
-      252,
+      90, 188, 228, 252,
     ]);
     expect(earthlike["ecology-features"].reefPlanning).toMatchObject({
       minConfidence01: 0.84,
       stride: 4,
     });
-    expect(earthlike.placement.resources).toEqual({ density: 1, sparsity: 0, rarityFidelity: 1, siteSpacingTiles: 3 });
+    expect(earthlike.placement.resources).toEqual({
+      density: 1,
+      sparsity: 0,
+      rarityFidelity: 1,
+      siteSpacingTiles: 3,
+    });
 
     expect(earthlike.placement).not.toHaveProperty("floodplains");
     expect(earthlike["map-rivers"].knobs.navigableRiverDensity).toBe("normal");
@@ -93,7 +100,10 @@ describe("shipped map config identity", () => {
       const config = recipeConfig(raw);
       const features = config["ecology-features"];
       expect(features, `${label} ecology-features`).toBeDefined();
-      expect(hasRawOpEnvelope(features), `${label} public ecology-features has no raw envelopes`).toBe(false);
+      expect(
+        hasRawOpEnvelope(features),
+        `${label} public ecology-features has no raw envelopes`
+      ).toBe(false);
       expect(features, `${label} public ecology-features`).toHaveProperty("vegetationPlanning");
       expect(features, `${label} public ecology-features`).not.toHaveProperty("plan-vegetation");
       expect(features, `${label} public ecology-features`).not.toHaveProperty("plan-wetlands");
@@ -104,7 +114,9 @@ describe("shipped map config identity", () => {
       const compiledFeatures = compiled["ecology-features"];
       const vegetation = compiledFeatures?.["plan-vegetation"]?.planVegetation;
       expect(vegetation?.strategy, `${label} vegetation strategy`).toBe("default");
-      expect(vegetation?.config, `${label} vegetation config`).not.toHaveProperty("minConfidence01");
+      expect(vegetation?.config, `${label} vegetation config`).not.toHaveProperty(
+        "minConfidence01"
+      );
       for (const key of VEGETATION_THRESHOLDS) {
         const value = vegetation?.config?.[key];
         expect(typeof value, `${label} ${key}`).toBe("number");
@@ -112,9 +124,10 @@ describe("shipped map config identity", () => {
         expect(value, `${label} ${key}`).toBeLessThanOrEqual(0.45);
       }
 
-      expect(compiledFeatures?.["plan-wetlands"]?.planWetlands?.strategy, `${label} wetlands strategy`).toBe(
-        "default"
-      );
+      expect(
+        compiledFeatures?.["plan-wetlands"]?.planWetlands?.strategy,
+        `${label} wetlands strategy`
+      ).toBe("default");
       expect(compiledFeatures?.["plan-ice"]?.planIce?.strategy, `${label} ice strategy`).toBe(
         "continentality"
       );

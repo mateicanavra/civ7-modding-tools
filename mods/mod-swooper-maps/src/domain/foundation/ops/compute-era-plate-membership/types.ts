@@ -7,7 +7,10 @@ export type EraPlateMembershipMesh = Pick<
   "cellCount" | "wrapWidth" | "siteX" | "siteY" | "neighborsOffsets" | "neighbors"
 >;
 
-export type EraPlateMembershipPlate = Pick<FoundationPlateGraph["plates"][number], "id" | "seedX" | "seedY">;
+export type EraPlateMembershipPlate = Pick<
+  FoundationPlateGraph["plates"][number],
+  "id" | "seedX" | "seedY"
+>;
 
 export type EraPlateMembershipParams = Readonly<{
   mesh: EraPlateMembershipMesh;

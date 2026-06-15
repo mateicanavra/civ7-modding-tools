@@ -1,11 +1,4 @@
 import { describe, expect, test } from "vitest";
-
-import {
-  createCiv7ProductionChoiceTelemetryRecord,
-  type Civ7ProductionChoiceTelemetryAdapterInput,
-} from "../src/proof/production-choice-telemetry";
-import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
-
 import type { Civ7ProductionChoiceResult } from "../src/play/operations/production-choice";
 import type {
   Civ7ProductionPostcondition,
@@ -13,19 +6,26 @@ import type {
   Civ7ProductionPostconditionSnapshot,
 } from "../src/play/operations/production-postconditions";
 import type { Civ7OperationValidationResult } from "../src/play/operations/types";
+import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
+import {
+  type Civ7ProductionChoiceTelemetryAdapterInput,
+  createCiv7ProductionChoiceTelemetryRecord,
+} from "../src/proof/production-choice-telemetry";
 
 describe("production-choice telemetry adapter", () => {
   test("adapts a cleared production choice into separated telemetry slots", () => {
-    const record = createCiv7ProductionChoiceTelemetryRecord(productionTelemetryInput({
-      result: productionChoiceResult({
-        sent: true,
-        verified: true,
-        productionPostcondition: productionPostcondition("production-choice-cleared", {
-          productionStateChanged: false,
-          blockerStillLive: false,
+    const record = createCiv7ProductionChoiceTelemetryRecord(
+      productionTelemetryInput({
+        result: productionChoiceResult({
+          sent: true,
+          verified: true,
+          productionPostcondition: productionPostcondition("production-choice-cleared", {
+            productionStateChanged: false,
+            blockerStillLive: false,
+          }),
         }),
-      }),
-    }));
+      })
+    );
 
     expect(record.candidateAction).toMatchObject({
       id: "production-choice:0:65536:ConstructibleType:713967338",
@@ -51,7 +51,8 @@ describe("production-choice telemetry adapter", () => {
     });
     expect(record.postcondition).toEqual({
       classification: "production-choice-cleared",
-      reason: "The sent BUILD request no longer has a matching end-turn-blocking production-choice notification for the city.",
+      reason:
+        "The sent BUILD request no longer has a matching end-turn-blocking production-choice notification for the city.",
       outcome: "cleared",
       noRepeatAfterUnverified: false,
       confidence: "confirmed",
@@ -78,13 +79,15 @@ describe("production-choice telemetry adapter", () => {
   });
 
   test("does not treat a legacy verified boolean as confirmed postcondition proof", () => {
-    const record = createCiv7ProductionChoiceTelemetryRecord(productionTelemetryInput({
-      result: productionChoiceResult({
-        sent: true,
-        verified: true,
-        productionPostcondition: undefined,
-      }),
-    }));
+    const record = createCiv7ProductionChoiceTelemetryRecord(
+      productionTelemetryInput({
+        result: productionChoiceResult({
+          sent: true,
+          verified: true,
+          productionPostcondition: undefined,
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "missing-postcondition",
@@ -100,18 +103,20 @@ describe("production-choice telemetry adapter", () => {
   });
 
   test("keeps validator-blocked no-send production choices no-repeat guarded", () => {
-    const record = createCiv7ProductionChoiceTelemetryRecord(productionTelemetryInput({
-      result: productionChoiceResult({
-        before: validationResult({ valid: false, result: { FailureReasons: ["blocked"] } }),
-        after: validationResult({ valid: false, result: { FailureReasons: ["blocked"] } }),
-        sent: false,
-        verified: false,
-        productionPostcondition: productionPostcondition("not-sent", {
-          productionStateChanged: false,
-          blockerStillLive: true,
+    const record = createCiv7ProductionChoiceTelemetryRecord(
+      productionTelemetryInput({
+        result: productionChoiceResult({
+          before: validationResult({ valid: false, result: { FailureReasons: ["blocked"] } }),
+          after: validationResult({ valid: false, result: { FailureReasons: ["blocked"] } }),
+          sent: false,
+          verified: false,
+          productionPostcondition: productionPostcondition("not-sent", {
+            productionStateChanged: false,
+            blockerStillLive: true,
+          }),
         }),
-      }),
-    }));
+      })
+    );
 
     expect(record.send_receipt).toMatchObject({
       status: "not-attempted",
@@ -131,16 +136,18 @@ describe("production-choice telemetry adapter", () => {
   });
 
   test("keeps no-state-change sends no-repeat guarded", () => {
-    const record = createCiv7ProductionChoiceTelemetryRecord(productionTelemetryInput({
-      result: productionChoiceResult({
-        sent: true,
-        verified: false,
-        productionPostcondition: productionPostcondition("no-state-change", {
-          productionStateChanged: false,
-          blockerStillLive: true,
+    const record = createCiv7ProductionChoiceTelemetryRecord(
+      productionTelemetryInput({
+        result: productionChoiceResult({
+          sent: true,
+          verified: false,
+          productionPostcondition: productionPostcondition("no-state-change", {
+            productionStateChanged: false,
+            blockerStillLive: true,
+          }),
         }),
-      }),
-    }));
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "no-state-change",
@@ -156,16 +163,21 @@ describe("production-choice telemetry adapter", () => {
   });
 
   test("keeps blocker-still-live production state changes no-repeat guarded", () => {
-    const record = createCiv7ProductionChoiceTelemetryRecord(productionTelemetryInput({
-      result: productionChoiceResult({
-        sent: true,
-        verified: true,
-        productionPostcondition: productionPostcondition("production-state-changed-blocker-still-live", {
-          productionStateChanged: true,
-          blockerStillLive: true,
+    const record = createCiv7ProductionChoiceTelemetryRecord(
+      productionTelemetryInput({
+        result: productionChoiceResult({
+          sent: true,
+          verified: true,
+          productionPostcondition: productionPostcondition(
+            "production-state-changed-blocker-still-live",
+            {
+              productionStateChanged: true,
+              blockerStillLive: true,
+            }
+          ),
         }),
-      }),
-    }));
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "production-state-changed-blocker-still-live",
@@ -181,16 +193,18 @@ describe("production-choice telemetry adapter", () => {
   });
 
   test("keeps validation-changed sends no-repeat guarded while the blocker is still live", () => {
-    const record = createCiv7ProductionChoiceTelemetryRecord(productionTelemetryInput({
-      result: productionChoiceResult({
-        sent: true,
-        verified: true,
-        productionPostcondition: productionPostcondition("validation-changed", {
-          productionStateChanged: false,
-          blockerStillLive: true,
+    const record = createCiv7ProductionChoiceTelemetryRecord(
+      productionTelemetryInput({
+        result: productionChoiceResult({
+          sent: true,
+          verified: true,
+          productionPostcondition: productionPostcondition("validation-changed", {
+            productionStateChanged: false,
+            blockerStillLive: true,
+          }),
         }),
-      }),
-    }));
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "validation-changed",
@@ -206,17 +220,19 @@ describe("production-choice telemetry adapter", () => {
   });
 
   test("keeps pending runtime proof sends no-repeat guarded", () => {
-    const record = createCiv7ProductionChoiceTelemetryRecord(productionTelemetryInput({
-      proofBoundary: "pending-runtime-proof",
-      result: productionChoiceResult({
-        sent: true,
-        verified: true,
-        productionPostcondition: productionPostcondition("production-choice-cleared", {
-          productionStateChanged: false,
-          blockerStillLive: false,
+    const record = createCiv7ProductionChoiceTelemetryRecord(
+      productionTelemetryInput({
+        proofBoundary: "pending-runtime-proof",
+        result: productionChoiceResult({
+          sent: true,
+          verified: true,
+          productionPostcondition: productionPostcondition("production-choice-cleared", {
+            productionStateChanged: false,
+            blockerStillLive: false,
+          }),
         }),
-      }),
-    }));
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "production-choice-cleared",
@@ -315,7 +331,9 @@ function productionPostcondition(
     operationType: "BUILD",
     classification,
     before: productionSnapshot("before"),
-    after: overrides.blockerStillLive ? productionSnapshot("after-blocked") : productionSnapshot("after-cleared"),
+    after: overrides.blockerStillLive
+      ? productionSnapshot("after-blocked")
+      : productionSnapshot("after-cleared"),
     productionStateChanged: overrides.productionStateChanged,
     blockerStillLive: overrides.blockerStillLive,
     reason: productionReason(classification),

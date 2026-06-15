@@ -17,7 +17,11 @@ export function weightedChoiceIndex(weights: readonly number[], roll: number): n
   return -1;
 }
 
-export function weightedChoice<T>(items: readonly T[], weights: readonly number[], roll: number): T | null {
+export function weightedChoice<T>(
+  items: readonly T[],
+  weights: readonly number[],
+  roll: number
+): T | null {
   const count = Math.min(items.length, weights.length);
   if (count === 0) return null;
 
@@ -25,4 +29,3 @@ export function weightedChoice<T>(items: readonly T[], weights: readonly number[
   if (index < 0 || index >= count) return null;
   return items[index] ?? null;
 }
-

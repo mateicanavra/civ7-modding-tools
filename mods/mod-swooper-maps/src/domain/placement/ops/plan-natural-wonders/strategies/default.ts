@@ -3,9 +3,9 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexNeighborIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
 import {
+  isAnyRiverClass,
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_NONE,
-  isAnyRiverClass,
 } from "../../../../hydrology/index.js";
 import PlanNaturalWondersContract from "../contract.js";
 
@@ -153,47 +153,49 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
     for (const feature of featureCatalog) {
       if (selected.length >= targetCount) break;
 
-      const candidate = chooseFeatureCandidate({
-        feature,
-        candidates,
-        width,
-        height,
-        terrainType: input.terrainType,
-        biomeType: input.biomeType,
-        featureType: input.featureType,
-        landMask: input.landMask,
-        riverClass: input.riverClass,
-        coastTerrainType: input.coastTerrainType | 0,
-        mountainTerrainType: input.mountainTerrainType | 0,
-        iceFeatureType: input.iceFeatureType | 0,
-        noFeatureType,
-        naturalWonderBlockedMask: input.naturalWonderBlockedMask,
-        lakeMask: input.lakeMask,
-        selected,
-        usedPlots,
-        minSpacingTiles,
-        relaxSpacing: false,
-      }) ?? chooseFeatureCandidate({
-        feature,
-        candidates,
-        width,
-        height,
-        terrainType: input.terrainType,
-        biomeType: input.biomeType,
-        featureType: input.featureType,
-        landMask: input.landMask,
-        riverClass: input.riverClass,
-        coastTerrainType: input.coastTerrainType | 0,
-        mountainTerrainType: input.mountainTerrainType | 0,
-        iceFeatureType: input.iceFeatureType | 0,
-        noFeatureType,
-        naturalWonderBlockedMask: input.naturalWonderBlockedMask,
-        lakeMask: input.lakeMask,
-        selected,
-        usedPlots,
-        minSpacingTiles,
-        relaxSpacing: true,
-      });
+      const candidate =
+        chooseFeatureCandidate({
+          feature,
+          candidates,
+          width,
+          height,
+          terrainType: input.terrainType,
+          biomeType: input.biomeType,
+          featureType: input.featureType,
+          landMask: input.landMask,
+          riverClass: input.riverClass,
+          coastTerrainType: input.coastTerrainType | 0,
+          mountainTerrainType: input.mountainTerrainType | 0,
+          iceFeatureType: input.iceFeatureType | 0,
+          noFeatureType,
+          naturalWonderBlockedMask: input.naturalWonderBlockedMask,
+          lakeMask: input.lakeMask,
+          selected,
+          usedPlots,
+          minSpacingTiles,
+          relaxSpacing: false,
+        }) ??
+        chooseFeatureCandidate({
+          feature,
+          candidates,
+          width,
+          height,
+          terrainType: input.terrainType,
+          biomeType: input.biomeType,
+          featureType: input.featureType,
+          landMask: input.landMask,
+          riverClass: input.riverClass,
+          coastTerrainType: input.coastTerrainType | 0,
+          mountainTerrainType: input.mountainTerrainType | 0,
+          iceFeatureType: input.iceFeatureType | 0,
+          noFeatureType,
+          naturalWonderBlockedMask: input.naturalWonderBlockedMask,
+          lakeMask: input.lakeMask,
+          selected,
+          usedPlots,
+          minSpacingTiles,
+          relaxSpacing: true,
+        });
       if (!candidate) continue;
       for (const plotIndex of getFootprintIndices({
         plotIndex: candidate.plotIndex,
@@ -256,7 +258,9 @@ function sanitizeFootprintOffsets(
 function sanitizeStringArray(values: readonly string[] | undefined): string[] {
   if (!Array.isArray(values)) return [];
   return Array.from(
-    new Set(values.filter((value): value is string => typeof value === "string" && value.length > 0))
+    new Set(
+      values.filter((value): value is string => typeof value === "string" && value.length > 0)
+    )
   ).sort();
 }
 
@@ -597,7 +601,10 @@ function chooseFeatureCandidate(args: {
     if (!args.relaxSpacing && args.minSpacingTiles > 0) {
       let tooClose = false;
       for (const placed of args.selected) {
-        if (hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, args.width) < args.minSpacingTiles) {
+        if (
+          hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, args.width) <
+          args.minSpacingTiles
+        ) {
           tooClose = true;
           break;
         }

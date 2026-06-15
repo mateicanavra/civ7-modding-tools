@@ -37,7 +37,7 @@ export type MapConfigSaveDeployStatus = Readonly<{
 }>;
 
 export function kindForMapConfigSaveDeployPhase(
-  phase: MapConfigSaveDeployPhase,
+  phase: MapConfigSaveDeployPhase
 ): MapConfigSaveDeployKind {
   if (phase === "idle") return "idle";
   if (phase === "complete") return "complete";
@@ -105,7 +105,7 @@ export function updateMapConfigSaveDeployStatus(
     deploy?: MapConfigSaveDeployStatus["deploy"];
     details?: Record<string, unknown>;
     recoveryActions?: ReadonlyArray<string>;
-  }>,
+  }>
 ): MapConfigSaveDeployStatus {
   const status = kindForMapConfigSaveDeployPhase(patch.phase);
   return {

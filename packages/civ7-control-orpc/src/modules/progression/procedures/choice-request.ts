@@ -18,8 +18,8 @@ import {
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
 import {
-  civ7CloseoutMutationProjection,
   type Civ7MutationProofPostcondition,
+  civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
@@ -32,9 +32,10 @@ type ProgressionChoiceCloseoutResult =
   | Civ7ControlOrpcTechnologyChoiceCloseoutResult
   | Civ7ControlOrpcCultureChoiceCloseoutResult;
 type ProgressionChoiceKind = "technology" | "culture";
-type ProgressionChoiceRuntimeInput = Civ7ProgressionChoiceInput & Readonly<{
-  playerId: number;
-}>;
+type ProgressionChoiceRuntimeInput = Civ7ProgressionChoiceInput &
+  Readonly<{
+    playerId: number;
+  }>;
 type ProgressionChoiceResult =
   | Civ7ProgressionTechnologyChoiceResult
   | Civ7ProgressionCultureChoiceResult;
@@ -56,112 +57,98 @@ type ProgressionChoicePostRead =
       view: null;
     }>;
 
-export const progressionTechnologyChoiceRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.progression.technology.choice.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    const kind = "technology";
-    const source = "progression.technology.choice.request";
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const before = await context.directControl.getCiv7PlayNotificationView(
-          context.endpointDefaults,
-        );
-        const requestInput = progressionChoiceRuntimeInput(input, before);
-        const result = await requestProgressionChoice(kind, requestInput, {
-          context,
-        });
-        const after = await readAfterProgressionChoice(context, result);
-        return progressionChoiceResult(kind, source, requestInput, result, before, after);
-      },
-      catch: (cause) =>
-        errors.PROGRESSION_CHOICE_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: source,
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const progressionTechnologyChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.technology.choice.request
+).effect(function* ({ context, errors, input }) {
+  const kind = "technology";
+  const source = "progression.technology.choice.request";
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const before = await context.directControl.getCiv7PlayNotificationView(
+        context.endpointDefaults
+      );
+      const requestInput = progressionChoiceRuntimeInput(input, before);
+      const result = await requestProgressionChoice(kind, requestInput, {
+        context,
+      });
+      const after = await readAfterProgressionChoice(context, result);
+      return progressionChoiceResult(kind, source, requestInput, result, before, after);
+    },
+    catch: (cause) =>
+      errors.PROGRESSION_CHOICE_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: source,
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-export const progressionCultureChoiceRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.progression.culture.choice.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    const kind = "culture";
-    const source = "progression.culture.choice.request";
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const before = await context.directControl.getCiv7PlayNotificationView(
-          context.endpointDefaults,
-        );
-        const requestInput = progressionChoiceRuntimeInput(input, before);
-        const result = await requestProgressionChoice(kind, requestInput, {
-          context,
-        });
-        const after = await readAfterProgressionChoice(context, result);
-        return progressionChoiceResult(kind, source, requestInput, result, before, after);
-      },
-      catch: (cause) =>
-        errors.PROGRESSION_CHOICE_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: source,
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const progressionCultureChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.culture.choice.request
+).effect(function* ({ context, errors, input }) {
+  const kind = "culture";
+  const source = "progression.culture.choice.request";
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const before = await context.directControl.getCiv7PlayNotificationView(
+        context.endpointDefaults
+      );
+      const requestInput = progressionChoiceRuntimeInput(input, before);
+      const result = await requestProgressionChoice(kind, requestInput, {
+        context,
+      });
+      const after = await readAfterProgressionChoice(context, result);
+      return progressionChoiceResult(kind, source, requestInput, result, before, after);
+    },
+    catch: (cause) =>
+      errors.PROGRESSION_CHOICE_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: source,
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
 async function requestProgressionChoice(
   kind: ProgressionChoiceKind,
   input: ProgressionChoiceRuntimeInput,
   dependencies: Readonly<{
     context: Civ7ControlOrpcContext;
-  }>,
+  }>
 ): Promise<ProgressionChoiceCloseoutResult> {
   const requestInput = {
     playerId: input.playerId,
     node: input.node,
-    ...(input.notificationId === undefined
-      ? {}
-      : { notificationId: input.notificationId }),
+    ...(input.notificationId === undefined ? {} : { notificationId: input.notificationId }),
   };
 
   if (kind === "technology") {
     return dependencies.context.directControl.requestCiv7TechnologyChoiceCloseout(
       requestInput,
-      dependencies.context.endpointDefaults,
+      dependencies.context.endpointDefaults
     );
   }
 
   return dependencies.context.directControl.requestCiv7CultureChoiceCloseout(
     requestInput,
-    dependencies.context.endpointDefaults,
+    dependencies.context.endpointDefaults
   );
 }
 
 function progressionChoiceRuntimeInput(
   input: Civ7ProgressionChoiceInput,
-  before: Civ7ControlOrpcPlayNotificationViewResult,
+  before: Civ7ControlOrpcPlayNotificationViewResult
 ): ProgressionChoiceRuntimeInput {
   return {
     playerId: before.localPlayerId,
     node: input.node,
-    ...(input.notificationId === undefined
-      ? {}
-      : { notificationId: input.notificationId }),
+    ...(input.notificationId === undefined ? {} : { notificationId: input.notificationId }),
   };
 }
 
@@ -171,7 +158,7 @@ function progressionChoiceResult(
   input: ProgressionChoiceRuntimeInput,
   result: ProgressionChoiceCloseoutResult,
   before: Civ7ControlOrpcPlayNotificationViewResult,
-  after: ProgressionChoicePostRead,
+  after: ProgressionChoicePostRead
 ): Civ7ProgressionTechnologyChoiceResult;
 function progressionChoiceResult(
   kind: "culture",
@@ -179,17 +166,15 @@ function progressionChoiceResult(
   input: ProgressionChoiceRuntimeInput,
   result: ProgressionChoiceCloseoutResult,
   before: Civ7ControlOrpcPlayNotificationViewResult,
-  after: ProgressionChoicePostRead,
+  after: ProgressionChoicePostRead
 ): Civ7ProgressionCultureChoiceResult;
 function progressionChoiceResult(
   kind: ProgressionChoiceKind,
-  source:
-    | "progression.technology.choice.request"
-    | "progression.culture.choice.request",
+  source: "progression.technology.choice.request" | "progression.culture.choice.request",
   input: ProgressionChoiceRuntimeInput,
   result: ProgressionChoiceCloseoutResult,
   before: Civ7ControlOrpcPlayNotificationViewResult,
-  after: ProgressionChoicePostRead,
+  after: ProgressionChoicePostRead
 ): ProgressionChoiceResult {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
@@ -201,27 +186,23 @@ function progressionChoiceResult(
     },
     source,
     inspectKind: "inspect-progression-choice",
-    inspectLabel: "Inspect current attention and progression choice state before attempting another progression request.",
-    doNotRepeatLabel: "Do not repeat this progression choice request until fresh attention and progression evidence is read.",
+    inspectLabel:
+      "Inspect current attention and progression choice state before attempting another progression request.",
+    doNotRepeatLabel:
+      "Do not repeat this progression choice request until fresh attention and progression evidence is read.",
   });
 
   return {
     playerId: input.playerId,
     node: input.node,
-    ...(input.notificationId === undefined
-      ? {}
-      : { notificationId: input.notificationId }),
+    ...(input.notificationId === undefined ? {} : { notificationId: input.notificationId }),
     sent: result.sent,
     status: projection.status,
     evidence: {
       beforeBlockerPresent: progressionBlockerPresent(kind, before),
       afterReadStatus: after.status,
-      afterBlockerPresent: after.view == null
-        ? null
-        : progressionBlockerPresent(kind, after.view),
-      canEndTurnAfter: after.view == null
-        ? null
-        : booleanProbeValue(after.view.canEndTurn),
+      afterBlockerPresent: after.view == null ? null : progressionBlockerPresent(kind, after.view),
+      canEndTurnAfter: after.view == null ? null : booleanProbeValue(after.view.canEndTurn),
     },
     postcondition: projection.postcondition,
     nextSteps: projection.nextSteps,
@@ -232,12 +213,13 @@ function progressionChoicePostcondition(
   kind: ProgressionChoiceKind,
   result: ProgressionChoiceCloseoutResult,
   before: Civ7ControlOrpcPlayNotificationViewResult,
-  after: ProgressionChoicePostRead,
+  after: ProgressionChoicePostRead
 ): ProgressionChoicePostcondition {
   if (!result.sent) {
     return {
       classification: "not-sent",
-      reason: "The progression choice closeout did not send both required App UI progression requests.",
+      reason:
+        "The progression choice closeout did not send both required App UI progression requests.",
       outcome: "not-sent",
       confidence: "unverified",
       noRepeatAfterUnverified: true,
@@ -247,16 +229,18 @@ function progressionChoicePostcondition(
   if (after.view == null) {
     return {
       classification: "pending-runtime-proof",
-      reason: "The progression choice closeout was sent, but the post-send notification read failed; do not repeat until fresh attention evidence is available.",
+      reason:
+        "The progression choice closeout was sent, but the post-send notification read failed; do not repeat until fresh attention evidence is available.",
       outcome: "unknown",
       confidence: "pending-runtime-proof",
       noRepeatAfterUnverified: true,
     };
   }
 
-  const postcondition = kind === "technology"
-    ? technologyChoicePostcondition(before, after.view)
-    : cultureChoicePostcondition(before, after.view);
+  const postcondition =
+    kind === "technology"
+      ? technologyChoicePostcondition(before, after.view)
+      : cultureChoicePostcondition(before, after.view);
   const outcome = progressionChoiceOutcome(postcondition.classification);
 
   return {
@@ -269,7 +253,7 @@ function progressionChoicePostcondition(
 }
 
 function progressionChoiceOutcome(
-  classification: ProgressionChoiceResult["postcondition"]["classification"],
+  classification: ProgressionChoiceResult["postcondition"]["classification"]
 ): ProgressionChoiceResult["postcondition"]["outcome"] {
   switch (classification) {
     case "turn-unblocked":
@@ -294,16 +278,14 @@ function progressionChoiceOutcome(
 
 async function readAfterProgressionChoice(
   context: Civ7ControlOrpcContext,
-  result: ProgressionChoiceCloseoutResult,
+  result: ProgressionChoiceCloseoutResult
 ): Promise<ProgressionChoicePostRead> {
   if (!result.sent) return { status: "skipped-not-sent", view: null };
 
   try {
     return {
       status: "read",
-      view: await context.directControl.getCiv7PlayNotificationView(
-        context.endpointDefaults,
-      ),
+      view: await context.directControl.getCiv7PlayNotificationView(context.endpointDefaults),
     };
   } catch {
     return { status: "failed", view: null };
@@ -312,7 +294,7 @@ async function readAfterProgressionChoice(
 
 function progressionBlockerPresent(
   kind: ProgressionChoiceKind,
-  view: Civ7ControlOrpcPlayNotificationViewResult,
+  view: Civ7ControlOrpcPlayNotificationViewResult
 ): boolean {
   return kind === "technology"
     ? findTechnologyChoiceNotification(view) != null
@@ -327,7 +309,7 @@ function booleanProbeValue(value: unknown): boolean | null {
 function probeValue(value: unknown): unknown {
   if (value && typeof value === "object" && "ok" in value) {
     const probe = value as { ok?: unknown; value?: unknown };
-    return probe.ok === true ? probe.value ?? null : null;
+    return probe.ok === true ? (probe.value ?? null) : null;
   }
   return value ?? null;
 }

@@ -35,7 +35,7 @@ function failureKindForStatus(statusCode: StudioEngineFailureStatus): StudioEngi
 export function createStudioEngineFailure(
   statusCode: StudioEngineFailureStatus,
   message: string,
-  details?: unknown,
+  details?: unknown
 ): StudioEngineFailure {
   return {
     kind: failureKindForStatus(statusCode),
@@ -51,19 +51,16 @@ export class StudioEngineError extends Error {
   readonly failure: StudioEngineFailure;
 
   constructor(failure: StudioEngineFailure);
-  constructor(
-    statusCode: StudioEngineFailureStatus,
-    message: string,
-    details?: unknown,
-  );
+  constructor(statusCode: StudioEngineFailureStatus, message: string, details?: unknown);
   constructor(
     statusOrFailure: StudioEngineFailureStatus | StudioEngineFailure,
     message?: string,
-    details?: unknown,
+    details?: unknown
   ) {
-    const failure = typeof statusOrFailure === "number"
-      ? createStudioEngineFailure(statusOrFailure, message ?? "Studio engine failed", details)
-      : statusOrFailure;
+    const failure =
+      typeof statusOrFailure === "number"
+        ? createStudioEngineFailure(statusOrFailure, message ?? "Studio engine failed", details)
+        : statusOrFailure;
     super(failure.message);
     this.name = "StudioEngineError";
     this.statusCode = failure.statusCode;

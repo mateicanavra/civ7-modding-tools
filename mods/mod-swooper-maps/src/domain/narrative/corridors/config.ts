@@ -1,4 +1,4 @@
-import { Type, type Static } from "@swooper/mapgen-core/authoring";
+import { type Static, Type } from "@swooper/mapgen-core/authoring";
 
 /**
  * Corridor config lives with the corridor owner because these policies decide
@@ -13,14 +13,16 @@ export const SeaCorridorPolicySchema = Type.Object(
      */
     protection: Type.Optional(
       Type.Union([Type.Literal("hard"), Type.Literal("soft")], {
-        description: "Hard protection blocks edits in corridors; soft allows limited carving with penalties.",
+        description:
+          "Hard protection blocks edits in corridors; soft allows limited carving with penalties.",
         default: "hard",
       })
     ),
     /** Probability multiplier applied when soft protection keeps lanes mostly open. */
     softChanceMultiplier: Type.Optional(
       Type.Number({
-        description: "Probability multiplier applied when protection is soft to keep lanes mostly open.",
+        description:
+          "Probability multiplier applied when protection is soft to keep lanes mostly open.",
         default: 0.5,
         minimum: 0,
         maximum: 1,
@@ -77,7 +79,8 @@ export const SeaCorridorPolicySchema = Type.Object(
     /** Minimum required channel width for a tile to be considered part of a lane. */
     minChannelWidth: Type.Optional(
       Type.Number({
-        description: "Minimum required channel width for a tile to be considered part of a lane (tiles).",
+        description:
+          "Minimum required channel width for a tile to be considered part of a lane (tiles).",
         default: 3,
         minimum: 1,
       })

@@ -1,13 +1,12 @@
 import {
   HILL_TERRAIN,
-  MOUNTAIN_TERRAIN,
   logMountainSummary,
   logReliefAscii,
+  MOUNTAIN_TERRAIN,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-
-import PlotMountainsStepContract from "./plotMountains.contract.js";
 import { assertNoWaterDrift } from "../../../projection-policies/noWaterDrift.js";
+import PlotMountainsStepContract from "./plotMountains.contract.js";
 
 export default createStep(PlotMountainsStepContract, {
   run: (context, _config, _ops, deps) => {

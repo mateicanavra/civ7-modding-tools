@@ -63,7 +63,9 @@ export function assignCrustTypes(
   const seedCandidates = graph
     .filter((plate) => plate.area >= MIN_SEED_AREA)
     .map((plate) => plate.id);
-  const fallbackCandidates = seedCandidates.length ? seedCandidates : graph.map((plate) => plate.id);
+  const fallbackCandidates = seedCandidates.length
+    ? seedCandidates
+    : graph.map((plate) => plate.id);
 
   const frontier = new Set<number>();
   let assignedCount = 0;

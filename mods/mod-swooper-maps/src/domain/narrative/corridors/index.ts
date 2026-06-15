@@ -9,21 +9,23 @@
  * from the latest overlays entry (no standalone corridor artifact).
  */
 
-import type { ExtendedMapContext, StoryOverlaySnapshot } from "@swooper/mapgen-core";
-import { publishStoryOverlay, STORY_OVERLAY_KEYS } from "@mapgen/domain/narrative/overlays/index.js";
+import { backfillCorridorKinds } from "@mapgen/domain/narrative/corridors/backfill.js";
 import type { CorridorsConfig } from "@mapgen/domain/narrative/corridors/config.js";
+import { tagIslandHopFromHotspots } from "@mapgen/domain/narrative/corridors/island-hop.js";
+import { tagLandCorridorsFromRifts } from "@mapgen/domain/narrative/corridors/land-corridors.js";
+import { tagSeaLanes } from "@mapgen/domain/narrative/corridors/sea-lanes.js";
+import { createCorridorState } from "@mapgen/domain/narrative/corridors/state.js";
+import type { CorridorStage } from "@mapgen/domain/narrative/corridors/types.js";
 import {
   type NarrativeCorridors,
   type NarrativeMotifsHotspots,
   type NarrativeMotifsRifts,
 } from "@mapgen/domain/narrative/models.js";
-
-import type { CorridorStage } from "@mapgen/domain/narrative/corridors/types.js";
-import { createCorridorState } from "@mapgen/domain/narrative/corridors/state.js";
-import { tagSeaLanes } from "@mapgen/domain/narrative/corridors/sea-lanes.js";
-import { tagIslandHopFromHotspots } from "@mapgen/domain/narrative/corridors/island-hop.js";
-import { tagLandCorridorsFromRifts } from "@mapgen/domain/narrative/corridors/land-corridors.js";
-import { backfillCorridorKinds } from "@mapgen/domain/narrative/corridors/backfill.js";
+import {
+  publishStoryOverlay,
+  STORY_OVERLAY_KEYS,
+} from "@mapgen/domain/narrative/overlays/index.js";
+import type { ExtendedMapContext, StoryOverlaySnapshot } from "@swooper/mapgen-core";
 
 export type { CorridorStage } from "@mapgen/domain/narrative/corridors/types.js";
 

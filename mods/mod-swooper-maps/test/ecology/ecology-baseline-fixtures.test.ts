@@ -22,11 +22,7 @@ const ARTIFACTS_FIXTURE_PATH = path.join(
   "ecology-parity",
   "ecology-artifacts-fingerprints.v1.json"
 );
-const VIZ_KEYS_FIXTURE_PATH = path.join(
-  FIXTURES_DIR,
-  "viz-keys",
-  "ecology-vizkeys-v1.txt"
-);
+const VIZ_KEYS_FIXTURE_PATH = path.join(FIXTURES_DIR, "viz-keys", "ecology-vizkeys-v1.txt");
 
 let cachedBaseline: EcologyFixtureBaselineV1 | null = null;
 function getBaseline(): EcologyFixtureBaselineV1 {
@@ -43,18 +39,14 @@ function readVizKeysFixture(pathname: string): string[] {
 }
 
 describe("Ecology baseline fixtures (M3 no-fudging)", () => {
-  it(
-    "artifact fingerprints fixture matches computed baseline",
-    { timeout: 20_000 },
-    () => {
-      const expected = JSON.parse(readFileSync(ARTIFACTS_FIXTURE_PATH, "utf8")) as ArtifactsFixtureV1;
-      const baseline = getBaseline();
+  it("artifact fingerprints fixture matches computed baseline", { timeout: 20_000 }, () => {
+    const expected = JSON.parse(readFileSync(ARTIFACTS_FIXTURE_PATH, "utf8")) as ArtifactsFixtureV1;
+    const baseline = getBaseline();
 
-      expect(baseline.version).toBe(expected.version);
-      expect(baseline.case).toEqual(expected.case);
-      expect(baseline.artifacts).toEqual(expected.artifacts);
-    }
-  );
+    expect(baseline.version).toBe(expected.version);
+    expect(baseline.case).toEqual(expected.case);
+    expect(baseline.artifacts).toEqual(expected.artifacts);
+  });
 
   it("viz keys fixture matches computed baseline", { timeout: 20_000 }, () => {
     const baseline = getBaseline();
@@ -62,4 +54,3 @@ describe("Ecology baseline fixtures (M3 no-fudging)", () => {
     expect(baseline.vizKeys).toEqual(expected);
   });
 });
-

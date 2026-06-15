@@ -1,7 +1,6 @@
-import { Type, type Static, type TObject, type TSchema } from "typebox";
-
 import type { ExtendedMapContext } from "@mapgen/core/types.js";
-
+import { type Static, type TObject, type TSchema, Type } from "typebox";
+import { applySchemaConventions, applySchemaDefaults } from "./schema.js";
 import {
   RESERVED_STAGE_KEY,
   type StageAuthoringModel,
@@ -10,8 +9,6 @@ import {
   type StageDef,
   type StageToInternalResult,
 } from "./types.js";
-import { applySchemaDefaults } from "./schema.js";
-import { applySchemaConventions } from "./schema.js";
 
 function assertSchema(value: unknown, stepId?: string, stageId?: string): void {
   if (value == null) {

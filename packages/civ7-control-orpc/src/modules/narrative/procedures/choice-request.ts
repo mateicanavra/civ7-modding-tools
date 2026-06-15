@@ -8,66 +8,53 @@ import {
   civ7ControlOrpcErrorCorrelationData,
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
-import {
-  civ7CloseoutMutationProjection,
-} from "../../../policy/mutation-result";
+import { civ7CloseoutMutationProjection } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
-import type {
-  Civ7NarrativeChoiceInput,
-  Civ7NarrativeChoiceResult,
-} from "../contract";
+import type { Civ7NarrativeChoiceInput, Civ7NarrativeChoiceResult } from "../contract";
 
-type NarrativeChoiceRuntimeInput = Civ7NarrativeChoiceInput & Readonly<{
-  playerId: number;
-}>;
+type NarrativeChoiceRuntimeInput = Civ7NarrativeChoiceInput &
+  Readonly<{
+    playerId: number;
+  }>;
 
-export const narrativeChoiceRequestProcedure =
-  civ7ControlOrpcMutationProcedure(
-    civ7ControlOrpcImplementer.narrative.choice.request,
-  ).effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const localPlayerId = await readLocalPlayerId(context);
-        const requestInput = {
-          playerId: localPlayerId,
-          targetType: input.targetType,
-          target: input.target,
-          action: input.action,
-        };
-        const result = await context.directControl.requestCiv7NarrativeChoice(
-          requestInput,
-          context.endpointDefaults,
-        );
-        return narrativeChoiceResult(requestInput, result);
-      },
-      catch: (cause) =>
-        errors.NARRATIVE_CHOICE_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: "narrative.choice.request",
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const narrativeChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.narrative.choice.request
+).effect(function* ({ context, errors, input }) {
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context);
+      const requestInput = {
+        playerId: localPlayerId,
+        targetType: input.targetType,
+        target: input.target,
+        action: input.action,
+      };
+      const result = await context.directControl.requestCiv7NarrativeChoice(
+        requestInput,
+        context.endpointDefaults
+      );
+      return narrativeChoiceResult(requestInput, result);
+    },
+    catch: (cause) =>
+      errors.NARRATIVE_CHOICE_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: "narrative.choice.request",
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-async function readLocalPlayerId(
-  context: Civ7ControlOrpcContext,
-): Promise<number> {
-  const view = await context.directControl.getCiv7PlayNotificationView(
-    context.endpointDefaults,
-  );
+async function readLocalPlayerId(context: Civ7ControlOrpcContext): Promise<number> {
+  const view = await context.directControl.getCiv7PlayNotificationView(context.endpointDefaults);
   return view.localPlayerId;
 }
 
 function narrativeChoiceResult(
   input: NarrativeChoiceRuntimeInput,
-  result: Civ7ControlOrpcNarrativeChoiceResult,
+  result: Civ7ControlOrpcNarrativeChoiceResult
 ): Civ7NarrativeChoiceResult {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
@@ -79,8 +66,10 @@ function narrativeChoiceResult(
     },
     source: "narrative.choice.request",
     inspectKind: "inspect-narrative-choice",
-    inspectLabel: "Inspect current attention and narrative choice state before attempting another narrative request.",
-    doNotRepeatLabel: "Do not repeat this narrative choice request until fresh attention and narrative evidence is read.",
+    inspectLabel:
+      "Inspect current attention and narrative choice state before attempting another narrative request.",
+    doNotRepeatLabel:
+      "Do not repeat this narrative choice request until fresh attention and narrative evidence is read.",
   });
 
   return {

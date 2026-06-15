@@ -1,4 +1,4 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 const UnknownRecord = Type.Record(Type.String(), Type.Unknown(), { default: {} });
 

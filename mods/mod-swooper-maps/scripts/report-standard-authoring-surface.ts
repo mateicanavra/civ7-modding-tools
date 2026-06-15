@@ -165,18 +165,21 @@ const STAGE_IMPACT: Record<string, string> = {
   "morphology-routing": "terrain routing fields consumed by erosion and drainage",
   "morphology-erosion": "geomorphic smoothing, incision, deposition, and relief age",
   "morphology-features": "islands, mountain ranges, volcanoes, rough lands, and landmass summaries",
-  "hydrology-climate-baseline": "baseline temperature, winds, currents, humidity, and precipitation",
+  "hydrology-climate-baseline":
+    "baseline temperature, winds, currents, humidity, and precipitation",
   "hydrology-hydrography": "river discharge/network projection and lake planning",
   "hydrology-climate-refine": "refined climate, cryosphere, land-water budget, and diagnostics",
   "ecology-pedology": "soil/resource basin classification inputs for ecology and placement",
   "ecology-biomes": "biome classification and vegetation/aridity bands",
-  "ecology-features": "feature suitability scores and planned ice/reefs/wetlands/vegetation/effects",
+  "ecology-features":
+    "feature suitability scores and planned ice/reefs/wetlands/vegetation/effects",
   "map-morphology": "projection of morphology truth into Civ7 plot terrain/features",
   "map-hydrology": "projection/materialization of hydrology truth into Civ7 water artifacts",
   "map-elevation": "projection of elevation truth into Civ7 map height/elevation values",
   "map-rivers": "projection of river truth into Civ7 river edges/classes",
   "map-ecology": "projection of ecology truth into Civ7 biomes/features/effects",
-  placement: "natural wonders, resources, starts, discoveries, placement surface, and final SDK map output",
+  placement:
+    "natural wonders, resources, starts, discoveries, placement surface, and final SDK map output",
 };
 
 function asStages(): StageLike[] {
@@ -220,7 +223,7 @@ function descriptionQuality(schema?: SchemaLike): "missing" | "weak" | "ok" {
   if (!description) return "missing";
   if (
     /(impact|controls|sets|determines|affects|used|author|map|gameplay|density|coverage|shape|terrain|biome|river|lake|coast|plate|climate|feature|placement|derived|projection|coordinate)/i.test(
-      description,
+      description
     )
   ) {
     return "ok";
@@ -231,7 +234,9 @@ function descriptionQuality(schema?: SchemaLike): "missing" | "weak" | "ok" {
 function isRawOpEnvelope(schema?: SchemaLike): boolean {
   if (!schema) return false;
   const variants = schemaVariants(schema) ?? [schema];
-  return variants.some((variant) => Boolean(variant.properties?.strategy && variant.properties?.config));
+  return variants.some((variant) =>
+    Boolean(variant.properties?.strategy && variant.properties?.config)
+  );
 }
 
 function envelopeStrategies(schema?: SchemaLike): string[] {
@@ -258,7 +263,7 @@ function flattenSchema(
   path: string[],
   rows: FlattenedSchemaRow[],
   required: boolean,
-  strategies?: string[],
+  strategies?: string[]
 ): void {
   if (!schema) return;
 
@@ -285,7 +290,7 @@ function flattenSchema(
             [...path, "strategies", strategy, "config", key],
             rows,
             requiredConfigKeys.has(key),
-            [strategy],
+            [strategy]
           );
         } else {
           flattenSchema(childSchema, [...path, "config", key], rows, requiredConfigKeys.has(key));
@@ -315,7 +320,13 @@ function flattenSchema(
   const traversableVariants = variants?.filter(shouldTraverseVariant);
   if (traversableVariants?.length) {
     traversableVariants.forEach((variant, index) => {
-      flattenSchema(variant, [...path, "variants", variantPathSegment(variant, index)], rows, required, strategies);
+      flattenSchema(
+        variant,
+        [...path, "variants", variantPathSegment(variant, index)],
+        rows,
+        required,
+        strategies
+      );
     });
     return;
   }
@@ -336,11 +347,19 @@ function flattenSchema(
   }
 }
 
-function variantForStrategy(schema: SchemaLike | undefined, strategy: string): SchemaLike | undefined {
-  return (schemaVariants(schema) ?? [schema]).find((variant) => variant?.properties?.strategy?.const === strategy);
+function variantForStrategy(
+  schema: SchemaLike | undefined,
+  strategy: string
+): SchemaLike | undefined {
+  return (schemaVariants(schema) ?? [schema]).find(
+    (variant) => variant?.properties?.strategy?.const === strategy
+  );
 }
 
-function schemaAtPath(root: SchemaLike | undefined, pathSegments: string[]): SchemaLike | undefined {
+function schemaAtPath(
+  root: SchemaLike | undefined,
+  pathSegments: string[]
+): SchemaLike | undefined {
   let schema = root;
   for (let index = 0; index < pathSegments.length; index += 1) {
     const part = pathSegments[index]!;
@@ -378,7 +397,11 @@ function directSiblingNames(stage: StageLike, path: string): string[] {
   return Object.keys(schema?.properties ?? {}).filter((name) => name !== parts.at(-1));
 }
 
-function stageFieldLayer(stage: StageLike, path: string, rawEnvelope: boolean): AuthorFieldRow["layer"] {
+function stageFieldLayer(
+  stage: StageLike,
+  path: string,
+  rawEnvelope: boolean
+): AuthorFieldRow["layer"] {
   const stageRelative = path.split(".").slice(1);
   if (rawEnvelope || stageRelative.includes("config")) return "internal-envelope";
   if (stageRelative[0] === "knobs") return "knob";
@@ -405,12 +428,16 @@ function compileTargetFor(stage: StageLike, path: string, layer: AuthorFieldRow[
 function whyExposedFor(stage: StageLike, layer: AuthorFieldRow["layer"]): string {
   if (layer === "knob") return "semantic stage-level recipe knob";
   if (stage.public && layer === "public") return "declared product-facing public stage schema";
-  if (stage.public && layer === "internal-envelope") return "defect candidate: raw step/op envelope is reachable through a public stage schema";
+  if (stage.public && layer === "internal-envelope")
+    return "defect candidate: raw step/op envelope is reachable through a public stage schema";
   if (layer === "internal-envelope") return "transitional internal-as-public step/op parameter";
   return "transitional internal-as-public step config surface";
 }
 
-function runtimeImpactFor(row: FlattenedSchemaRow, layer: AuthorFieldRow["layer"]): AuthorFieldRow["changesRuntimeOutput"] {
+function runtimeImpactFor(
+  row: FlattenedSchemaRow,
+  layer: AuthorFieldRow["layer"]
+): AuthorFieldRow["changesRuntimeOutput"] {
   if (row.type === "object") return "depends";
   if (layer === "knob" || layer === "public" || layer === "internal-envelope") return "likely";
   return "depends";
@@ -427,7 +454,9 @@ function strategyReachabilityFor(stage: StageLike, row: FlattenedSchemaRow): str
 
 function artifactRefs(artifacts: readonly ArtifactLike[] | undefined): string[] {
   return (artifacts ?? []).map((artifact) =>
-    [artifact.name, artifact.id].filter((part): part is string => typeof part === "string").join(":")
+    [artifact.name, artifact.id]
+      .filter((part): part is string => typeof part === "string")
+      .join(":")
   );
 }
 
@@ -468,7 +497,9 @@ function buildFieldRows(): AuthorFieldRow[] {
 function buildStageRows(fieldRows: AuthorFieldRow[]): StageLedgerRow[] {
   return asStages().map((stage) => {
     const stageFieldRows = fieldRows.filter((row) => row.stageId === stage.id);
-    const numericLeaves = stageFieldRows.filter((row) => row.type === "integer" || row.type === "number");
+    const numericLeaves = stageFieldRows.filter(
+      (row) => row.type === "integer" || row.type === "number"
+    );
     return {
       stageId: stage.id,
       layer: stage.authoring?.config?.layer ?? "unknown",
@@ -477,10 +508,15 @@ function buildStageRows(fieldRows: AuthorFieldRow[]): StageLedgerRow[] {
       steps: stage.steps.map((step) => step.contract.id),
       surfaceKeys: Object.keys(stage.surfaceSchema?.properties ?? {}),
       fieldCount: stageFieldRows.length,
-      rawEnvelopeRows: stageFieldRows.filter((row) => row.rawEnvelope || row.path.includes(".config.")).length,
-      missingDescriptions: stageFieldRows.filter((row) => row.descriptionQuality === "missing").length,
+      rawEnvelopeRows: stageFieldRows.filter(
+        (row) => row.rawEnvelope || row.path.includes(".config.")
+      ).length,
+      missingDescriptions: stageFieldRows.filter((row) => row.descriptionQuality === "missing")
+        .length,
       weakDescriptions: stageFieldRows.filter((row) => row.descriptionQuality === "weak").length,
-      boundedNumericLeaves: numericLeaves.filter((row) => row.minimum !== undefined || row.maximum !== undefined).length,
+      boundedNumericLeaves: numericLeaves.filter(
+        (row) => row.minimum !== undefined || row.maximum !== undefined
+      ).length,
       numericLeaves: numericLeaves.length,
     };
   });
@@ -502,7 +538,9 @@ function buildStepRows(): Array<Record<string, Json>> {
         artifactProvides: artifactRefs(step.contract.artifacts?.provides),
         schemaOwner: `mods/mod-swooper-maps/src/recipes/standard/stages/${stage.id}/`,
         schemaFieldCount: schemaRows.length,
-        schemaRawEnvelopeRows: schemaRows.filter((row) => row.rawEnvelope || row.path.includes(".config.")).length,
+        schemaRawEnvelopeRows: schemaRows.filter(
+          (row) => row.rawEnvelope || row.path.includes(".config.")
+        ).length,
         schemaRows: schemaRows as unknown as Json,
         opEnvelopes: Object.entries(step.contract.ops ?? {}).map(([opId, op]) => ({
           opId,
@@ -510,7 +548,7 @@ function buildStepRows(): Array<Record<string, Json>> {
           defaultConfig: op.defaultConfig as Json,
         })),
       };
-    }),
+    })
   );
 }
 
@@ -523,7 +561,7 @@ function buildFocusRows(): Array<Record<string, Json>> {
       configFocusPathWithinStage: [
         ...(stage.authoring?.config?.focusPathsByStepId?.[step.contract.id] ?? []),
       ],
-    })),
+    }))
   );
 }
 
@@ -532,7 +570,11 @@ function buildConsumerRows(): Array<Record<string, Json>> {
     {
       kind: "generated-schema-default-artifacts",
       owner: "mod-swooper-maps scripts",
-      refs: [REPO_REFS.generatedMapArtifacts, REPO_REFS.generatedStudioTypes, ...GENERATED_ARTIFACT_REFS],
+      refs: [
+        REPO_REFS.generatedMapArtifacts,
+        REPO_REFS.generatedStudioTypes,
+        ...GENERATED_ARTIFACT_REFS,
+      ],
       note: "Generated outputs must be regenerated by scripts; do not hand edit.",
     },
     {
@@ -608,11 +650,18 @@ function renderSummaryMarkdown(ledger: ReturnType<typeof buildLedger>): string {
       String(stage.rawEnvelopeRows),
       `${stage.missingDescriptions}/${stage.weakDescriptions}`,
       `${stage.boundedNumericLeaves}/${stage.numericLeaves}`,
-    ]),
+    ])
   );
 
   const stepTable = markdownTable(
-    ["stage", "steps", "step schema rows", "raw envelope rows", "op envelopes / strategies", "compile owner"],
+    [
+      "stage",
+      "steps",
+      "step schema rows",
+      "raw envelope rows",
+      "op envelopes / strategies",
+      "compile owner",
+    ],
     asStages().map((stage) => [
       stage.id,
       stage.steps.map((step) => step.contract.id).join(", "),
@@ -627,13 +676,13 @@ function renderSummaryMarkdown(ledger: ReturnType<typeof buildLedger>): string {
       stage.steps
         .map((step) => {
           const ops = Object.entries(step.contract.ops ?? {}).map(
-            ([opId, op]) => `${opId}(${Object.keys(op.strategies ?? {}).join("|") || "none"})`,
+            ([opId, op]) => `${opId}(${Object.keys(op.strategies ?? {}).join("|") || "none"})`
           );
           return `${step.contract.id}: ${ops.join(", ") || "none"}`;
         })
         .join("<br>"),
       stage.public ? "stage public compile" : "identity internal step config",
-    ]),
+    ])
   );
 
   return [
@@ -657,7 +706,7 @@ function renderSummaryMarkdown(ledger: ReturnType<typeof buildLedger>): string {
         String(row.stageId),
         String(row.stepId),
         (row.configFocusPathWithinStage as string[]).join("."),
-      ]),
+      ])
     ),
     "",
     "## Consumer And Artifact Summary",
@@ -669,7 +718,7 @@ function renderSummaryMarkdown(ledger: ReturnType<typeof buildLedger>): string {
         String(row.owner),
         (row.refs as string[]).map((ref) => `\`${ref}\``).join("<br>"),
         String(row.note),
-      ]),
+      ])
     ),
   ].join("\n");
 }
@@ -698,7 +747,10 @@ function renderFullMarkdown(ledger: ReturnType<typeof buildLedger>): string {
       row.default === undefined ? "" : JSON.stringify(row.default),
       row.enum
         ? row.enum.map(String).join(", ")
-        : [row.minimum === undefined ? "" : `min ${row.minimum}`, row.maximum === undefined ? "" : `max ${row.maximum}`]
+        : [
+            row.minimum === undefined ? "" : `min ${row.minimum}`,
+            row.maximum === undefined ? "" : `max ${row.maximum}`,
+          ]
             .filter(Boolean)
             .join(", "),
       row.descriptionQuality,
@@ -707,7 +759,7 @@ function renderFullMarkdown(ledger: ReturnType<typeof buildLedger>): string {
       row.compileTarget,
       row.selectedStrategyReachability.join(", "),
       row.changesRuntimeOutput,
-    ]),
+    ])
   );
 
   return `${renderSummaryMarkdown(ledger)}\n\n## Author-Facing Field Rows\n\n${fieldRows}\n`;

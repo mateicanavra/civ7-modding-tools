@@ -6,10 +6,7 @@ import {
   civ7ControlOrpcErrorCorrelationData,
   civ7ControlOrpcFailureDetail,
 } from "../../../model/correlation";
-import {
-  civ7MutationNextSteps,
-  civ7MutationRequestStatus,
-} from "../../../policy/mutation-result";
+import { civ7MutationNextSteps, civ7MutationRequestStatus } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7UnitCommandResult,
@@ -22,7 +19,7 @@ type Civ7UnitCommandRuntimeResult = Awaited<
 >;
 
 export const unitUpgradeRequestProcedure = civ7ControlOrpcMutationProcedure(
-  civ7ControlOrpcImplementer.unit.upgrade.request,
+  civ7ControlOrpcImplementer.unit.upgrade.request
 ).effect(function* ({ context, errors, input }) {
   return yield* Effect.tryPromise({
     try: async () => {
@@ -32,13 +29,9 @@ export const unitUpgradeRequestProcedure = civ7ControlOrpcMutationProcedure(
       };
       const result = await context.directControl.requestCiv7UnitCommand(
         unitCommandRuntimeRequest(procedureInput),
-        context.endpointDefaults,
+        context.endpointDefaults
       );
-      return unitCommandResult(
-        procedureInput,
-        result,
-        "unit.upgrade.request",
-      );
+      return unitCommandResult(procedureInput, result, "unit.upgrade.request");
     },
     catch: (cause) =>
       errors.UNIT_REQUEST_UNAVAILABLE({
@@ -53,7 +46,7 @@ export const unitUpgradeRequestProcedure = civ7ControlOrpcMutationProcedure(
 });
 
 export const unitResettleRequestProcedure = civ7ControlOrpcMutationProcedure(
-  civ7ControlOrpcImplementer.unit.resettle.request,
+  civ7ControlOrpcImplementer.unit.resettle.request
 ).effect(function* ({ context, errors, input }) {
   return yield* Effect.tryPromise({
     try: async () => {
@@ -63,13 +56,9 @@ export const unitResettleRequestProcedure = civ7ControlOrpcMutationProcedure(
       };
       const result = await context.directControl.requestCiv7UnitCommand(
         unitCommandRuntimeRequest(procedureInput),
-        context.endpointDefaults,
+        context.endpointDefaults
       );
-      return unitCommandResult(
-        procedureInput,
-        result,
-        "unit.resettle.request",
-      );
+      return unitCommandResult(procedureInput, result, "unit.resettle.request");
     },
     catch: (cause) =>
       errors.UNIT_REQUEST_UNAVAILABLE({
@@ -87,12 +76,10 @@ type UnitCommandProcedureInput =
   | (Civ7UnitUpgradeInput & Readonly<{ mode: "upgrade" }>)
   | (Civ7UnitResettleInput & Readonly<{ mode: "resettle" }>);
 
-type UnitCommandProcedureKey =
-  | "unit.upgrade.request"
-  | "unit.resettle.request";
+type UnitCommandProcedureKey = "unit.upgrade.request" | "unit.resettle.request";
 
 function unitCommandRuntimeRequest(
-  input: UnitCommandProcedureInput,
+  input: UnitCommandProcedureInput
 ): Parameters<Civ7ControlOrpcContext["directControl"]["requestCiv7UnitCommand"]>[0] {
   if (input.mode === "upgrade") {
     return {
@@ -115,7 +102,7 @@ function unitCommandRuntimeRequest(
 function unitCommandResult(
   input: UnitCommandProcedureInput,
   result: Civ7UnitCommandRuntimeResult,
-  procedureKey: UnitCommandProcedureKey,
+  procedureKey: UnitCommandProcedureKey
 ): Civ7UnitCommandResult {
   const postcondition = unitCommandPostconditionSummary(result);
   const status = civ7MutationRequestStatus({
@@ -137,15 +124,15 @@ function unitCommandResult(
       postcondition,
       source: procedureKey,
       inspectKind: "inspect-unit-command",
-      inspectLabel: "Inspect ready-unit and unit command evidence before attempting another unit command request.",
-      doNotRepeatLabel: "Do not repeat this unit command until fresh unit readiness and postcondition evidence is read.",
+      inspectLabel:
+        "Inspect ready-unit and unit command evidence before attempting another unit command request.",
+      doNotRepeatLabel:
+        "Do not repeat this unit command until fresh unit readiness and postcondition evidence is read.",
     }),
   };
 }
 
-function unitCommandSummary(
-  input: UnitCommandProcedureInput,
-): Civ7UnitCommandResult["action"] {
+function unitCommandSummary(input: UnitCommandProcedureInput): Civ7UnitCommandResult["action"] {
   if (input.mode === "upgrade") {
     return {
       kind: "upgrade",
@@ -164,7 +151,7 @@ function unitCommandSummary(
 }
 
 function unitCommandPostconditionSummary(
-  result: Civ7UnitCommandRuntimeResult,
+  result: Civ7UnitCommandRuntimeResult
 ): Civ7UnitCommandResult["postcondition"] {
   const source = result.postcondition;
   if (source == null) {
@@ -179,9 +166,9 @@ function unitCommandPostconditionSummary(
   }
 
   const guarded =
-    source.classification === "not-sent"
-    || source.classification === "no-state-change"
-    || source.classification === "validation-changed";
+    source.classification === "not-sent" ||
+    source.classification === "no-state-change" ||
+    source.classification === "validation-changed";
   const confidence = guarded ? "unverified" : "confirmed";
 
   return {
@@ -195,7 +182,7 @@ function unitCommandPostconditionSummary(
 }
 
 function unitCommandProofOutcome(
-  classification: Civ7UnitCommandResult["postcondition"]["classification"],
+  classification: Civ7UnitCommandResult["postcondition"]["classification"]
 ): Civ7UnitCommandResult["postcondition"]["outcome"] {
   switch (classification) {
     case "not-sent":

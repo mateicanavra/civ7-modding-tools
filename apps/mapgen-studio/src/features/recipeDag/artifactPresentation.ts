@@ -48,10 +48,15 @@ export function resolveArtifactGroupDomainId(artifacts: readonly string[]): stri
     .filter((domainId): domainId is string => Boolean(domainId));
   if (domains.length === 0) return null;
   const [first] = domains.map((domainId) => normalizeRecipeDagDomainId(domainId));
-  return domains.every((domainId) => normalizeRecipeDagDomainId(domainId) === first) ? first ?? null : null;
+  return domains.every((domainId) => normalizeRecipeDagDomainId(domainId) === first)
+    ? (first ?? null)
+    : null;
 }
 
-function resolveSemanticArtifactDomainId(withoutTag: string, segments: readonly string[]): string | null {
+function resolveSemanticArtifactDomainId(
+  withoutTag: string,
+  segments: readonly string[]
+): string | null {
   const candidates = segments.length > 1 ? segments : [withoutTag];
   const mapNamespaceCandidates = segments[0] === "map" ? segments.slice(1) : [];
   const domainId = chooseRecipeDagDomainId([...mapNamespaceCandidates, ...candidates]);
@@ -60,7 +65,9 @@ function resolveSemanticArtifactDomainId(withoutTag: string, segments: readonly 
 
 function formatLocalArtifactLabel(label: string, domainId: string | null): string {
   const normalizedDomain = normalizeRecipeDagDomainId(domainId);
-  const domainPrefixPatterns: Partial<Record<ReturnType<typeof normalizeRecipeDagDomainId>, RegExp>> = {
+  const domainPrefixPatterns: Partial<
+    Record<ReturnType<typeof normalizeRecipeDagDomainId>, RegExp>
+  > = {
     foundation: /^foundation(?=[A-Z0-9_-])/,
     hydrology: /^hydrology(?=[A-Z0-9_-])/,
     ecology: /^ecology(?=[A-Z0-9_-])/,

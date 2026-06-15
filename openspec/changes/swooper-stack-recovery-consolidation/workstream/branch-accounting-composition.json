@@ -53,13 +53,8 @@
     "splitPoints": [
       {
         "branch": "codex/civ7-orpc-control-architecture-skill",
-        "children": [
-          "codex/consolidate-play-agent-docs",
-          "codex/play-agent-hotseat-phase-packet"
-        ],
-        "dispositionMoveIds": [
-          "done-supersede-civ7-orpc-control-architecture-skill-live-control"
-        ]
+        "children": ["codex/consolidate-play-agent-docs", "codex/play-agent-hotseat-phase-packet"],
+        "dispositionMoveIds": ["done-supersede-civ7-orpc-control-architecture-skill-live-control"]
       },
       {
         "branch": "codex/earthlike-natural-wonder-footprint-readback",
@@ -67,9 +62,7 @@
           "codex/earthlike-natural-wonder-footprint-catalog-context",
           "codex/earthlike-terrain-edge-diagnostics"
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ]
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"]
       }
     ],
     "terminalLeaves": [
@@ -77,34 +70,26 @@
         "branch": "codex/earthlike-natural-wonder-postwrite-footprint-proof-record",
         "head": "cbe4943babf131389c892ddd8527b90f52355ab8",
         "subject": "fix(mapgen): preserve earthlike floodplain surface",
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-floodplain-config-leaf"
-        ]
+        "dispositionMoveIds": ["done-adopt-earthlike-floodplain-config-leaf"]
       },
       {
         "branch": "codex/earthlike-terrain-edge-mock-terrain-materialization-repair",
         "head": "4f2d0399a292f0d8b521de777a1119711ed8c449",
         "subject": "fix(civ7): align mock terrain materialization",
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-terrain-edge-stack"
-        ]
+        "dispositionMoveIds": ["done-adopt-earthlike-terrain-edge-stack"]
       },
       {
         "branch": "codex/play-agent-hotseat-phase-packet",
         "head": "547b81e13d5bbd004132d0e5ffe915723c431ff1",
         "subject": "docs(direct-control): frame hotseat proof phase",
-        "dispositionMoveIds": [
-          "done-adopt-hotseat-phase-packet-live-control"
-        ]
+        "dispositionMoveIds": ["done-adopt-hotseat-phase-packet-live-control"]
       }
     ],
     "branches": [
       {
         "branch": "codex/live-play-settlement-reference",
         "parent": "main",
-        "children": [
-          "codex/unit-movement-api-investigation"
-        ],
+        "children": ["codex/unit-movement-api-investigation"],
         "head": "754f90431964aaac4e266a483012b4711b2f6198",
         "subject": "docs(graphite): prepare live-play settlement reference",
         "branchCommitCount": 1,
@@ -115,17 +100,13 @@
             "subject": "docs(graphite): prepare live-play settlement reference"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-civ7-intelligence-and-control-doc-train-live-control"
-        ],
+        "dispositionMoveIds": ["done-adopt-civ7-intelligence-and-control-doc-train-live-control"],
         "accounted": true
       },
       {
         "branch": "codex/unit-movement-api-investigation",
         "parent": "codex/live-play-settlement-reference",
-        "children": [
-          "codex/play-agent-output-contract"
-        ],
+        "children": ["codex/play-agent-output-contract"],
         "head": "af05f5e8484441e6988a1e5544b94e02da15a43f",
         "subject": "docs(direct-control): record unit movement API findings",
         "branchCommitCount": 1,
@@ -136,17 +117,13 @@
             "subject": "docs(direct-control): record unit movement API findings"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-civ7-intelligence-and-control-doc-train-live-control"
-        ],
+        "dispositionMoveIds": ["done-adopt-civ7-intelligence-and-control-doc-train-live-control"],
         "accounted": true
       },
       {
         "branch": "codex/play-agent-output-contract",
         "parent": "codex/unit-movement-api-investigation",
-        "children": [
-          "codex/civ7-orpc-control-architecture-skill"
-        ],
+        "children": ["codex/civ7-orpc-control-architecture-skill"],
         "head": "2c5a743faddb0f15d255680531bc84e8942ac32d",
         "subject": "docs(civ7): persist play-agent session strategy notes",
         "branchCommitCount": 2,
@@ -162,18 +139,13 @@
             "subject": "docs(civ7): persist play-agent session strategy notes"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-civ7-intelligence-and-control-doc-train-live-control"
-        ],
+        "dispositionMoveIds": ["done-adopt-civ7-intelligence-and-control-doc-train-live-control"],
         "accounted": true
       },
       {
         "branch": "codex/civ7-orpc-control-architecture-skill",
         "parent": "codex/play-agent-output-contract",
-        "children": [
-          "codex/consolidate-play-agent-docs",
-          "codex/play-agent-hotseat-phase-packet"
-        ],
+        "children": ["codex/consolidate-play-agent-docs", "codex/play-agent-hotseat-phase-packet"],
         "head": "d3d49b48fbbb541c0fc6ff273014f86cf84af10d",
         "subject": "Add effect-orpc direct-control procedures",
         "branchCommitCount": 1,
@@ -184,17 +156,13 @@
             "subject": "Add effect-orpc direct-control procedures"
           }
         ],
-        "dispositionMoveIds": [
-          "done-supersede-civ7-orpc-control-architecture-skill-live-control"
-        ],
+        "dispositionMoveIds": ["done-supersede-civ7-orpc-control-architecture-skill-live-control"],
         "accounted": true
       },
       {
         "branch": "codex/consolidate-play-agent-docs",
         "parent": "codex/civ7-orpc-control-architecture-skill",
-        "children": [
-          "codex/frame-civ7-intelligence-layer"
-        ],
+        "children": ["codex/frame-civ7-intelligence-layer"],
         "head": "c965762044039b7e8f52ee651a9326648660c23b",
         "subject": "docs(direct-control): consolidate play-agent workstream docs",
         "branchCommitCount": 1,
@@ -205,17 +173,13 @@
             "subject": "docs(direct-control): consolidate play-agent workstream docs"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-civ7-intelligence-and-control-doc-train-live-control"
-        ],
+        "dispositionMoveIds": ["done-adopt-civ7-intelligence-and-control-doc-train-live-control"],
         "accounted": true
       },
       {
         "branch": "codex/frame-civ7-intelligence-layer",
         "parent": "codex/consolidate-play-agent-docs",
-        "children": [
-          "codex/shape-civ7-intelligence-solution"
-        ],
+        "children": ["codex/shape-civ7-intelligence-solution"],
         "head": "251ce6f4db1db8107897d4bd2641bf04a6c455c2",
         "subject": "docs(civ7): frame intelligence layer workstream",
         "branchCommitCount": 1,
@@ -226,17 +190,13 @@
             "subject": "docs(civ7): frame intelligence layer workstream"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-civ7-intelligence-and-control-doc-train-live-control"
-        ],
+        "dispositionMoveIds": ["done-adopt-civ7-intelligence-and-control-doc-train-live-control"],
         "accounted": true
       },
       {
         "branch": "codex/shape-civ7-intelligence-solution",
         "parent": "codex/frame-civ7-intelligence-layer",
-        "children": [
-          "codex/investigate-civ7-intelligence-threads"
-        ],
+        "children": ["codex/investigate-civ7-intelligence-threads"],
         "head": "9c3f87b3a4283c670aec1e3aa996c5c141237d9b",
         "subject": "docs(civ7): refine intelligence solution frame",
         "branchCommitCount": 1,
@@ -247,17 +207,13 @@
             "subject": "docs(civ7): refine intelligence solution frame"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-civ7-intelligence-and-control-doc-train-live-control"
-        ],
+        "dispositionMoveIds": ["done-adopt-civ7-intelligence-and-control-doc-train-live-control"],
         "accounted": true
       },
       {
         "branch": "codex/investigate-civ7-intelligence-threads",
         "parent": "codex/shape-civ7-intelligence-solution",
-        "children": [
-          "codex/start-placement-viability"
-        ],
+        "children": ["codex/start-placement-viability"],
         "head": "0ef887b0b52d24cae97283ff55fbd252f0efe0b4",
         "subject": "docs(civ7): update controller bridge handoff metadata",
         "branchCommitCount": 5,
@@ -288,17 +244,13 @@
             "subject": "docs(civ7): update controller bridge handoff metadata"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-civ7-intelligence-and-control-doc-train-live-control"
-        ],
+        "dispositionMoveIds": ["done-adopt-civ7-intelligence-and-control-doc-train-live-control"],
         "accounted": true
       },
       {
         "branch": "codex/start-placement-viability",
         "parent": "codex/investigate-civ7-intelligence-threads",
-        "children": [
-          "codex/resource-initial-map-policy"
-        ],
+        "children": ["codex/resource-initial-map-policy"],
         "head": "4cb03e3943a6db93492875930c3f6afda6a17057",
         "subject": "fix(mapgen): plan starts by expansion viability",
         "branchCommitCount": 1,
@@ -309,17 +261,13 @@
             "subject": "fix(mapgen): plan starts by expansion viability"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-start-placement-and-initial-resource-policy"
-        ],
+        "dispositionMoveIds": ["done-adopt-start-placement-and-initial-resource-policy"],
         "accounted": true
       },
       {
         "branch": "codex/resource-initial-map-policy",
         "parent": "codex/start-placement-viability",
-        "children": [
-          "codex/studio-setup-config-sync"
-        ],
+        "children": ["codex/studio-setup-config-sync"],
         "head": "c4e3e3ee81ce16bc9bea58e4ab2627c160a936d7",
         "subject": "fix(mapgen): gate initial resource authoring by age",
         "branchCommitCount": 1,
@@ -330,17 +278,13 @@
             "subject": "fix(mapgen): gate initial resource authoring by age"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-start-placement-and-initial-resource-policy"
-        ],
+        "dispositionMoveIds": ["done-adopt-start-placement-and-initial-resource-policy"],
         "accounted": true
       },
       {
         "branch": "codex/studio-setup-config-sync",
         "parent": "codex/resource-initial-map-policy",
-        "children": [
-          "06-05-fix_studio_validate_civ7_setup_seeds"
-        ],
+        "children": ["06-05-fix_studio_validate_civ7_setup_seeds"],
         "head": "bbd313378ec13fda4dd324e0a74a4f13b7596d40",
         "subject": "feat(studio): load Civ saved setup configs",
         "branchCommitCount": 1,
@@ -351,17 +295,13 @@
             "subject": "feat(studio): load Civ saved setup configs"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-studio-setup-config-sync"
-        ],
+        "dispositionMoveIds": ["done-adopt-studio-setup-config-sync"],
         "accounted": true
       },
       {
         "branch": "06-05-fix_studio_validate_civ7_setup_seeds",
         "parent": "codex/studio-setup-config-sync",
-        "children": [
-          "codex/swooper-dra-takeover-handoff"
-        ],
+        "children": ["codex/swooper-dra-takeover-handoff"],
         "head": "58b8e35f5e357674e312c9744858362329df288f",
         "subject": "fix(mapgen): consolidate Swooper stack recovery Recover the missing semantic deltas from adjacent Swooper work without replaying stale branches wholesale: isolate transient Studio configs, restore the Earthlike range-system count baseline, add live mapgen log completion proof, align natural-wonder contract wording, and remove the unused build-elevation boundary policy export. Record the stack-recovery OpenSpec ledger, including branch/worktree dispositions and the current product-visible proof gaps for mountain-region shape, missing rivers, and Studio deploy/config identity. Rebaseline generated map and morphology fixture artifacts from source after the intentional Earthlike tuning change. Also record the local predecessor cleanup disposition: the stale Swooper Earthlike worktree and local Graphite branch were removed, while remote PR #1421 is kept only as a published fallback/reference until this replacement stack is submitted or merged. Verified with focused map-policy, map-elevation, natural-wonder, direct-control, config/schema, mountain-region, terrain-balance, package check/build, full OpenSpec validation gates, and cleanup topology checks.",
         "branchCommitCount": 12,
@@ -427,17 +367,13 @@
             "subject": "fix(mapgen): consolidate Swooper stack recovery Recover the missing semantic deltas from adjacent Swooper work without replaying stale branches wholesale: isolate transient Studio configs, restore the Earthlike range-system count baseline, add live mapgen log completion proof, align natural-wonder contract wording, and remove the unused build-elevation boundary policy export. Record the stack-recovery OpenSpec ledger, including branch/worktree dispositions and the current product-visible proof gaps for mountain-region shape, missing rivers, and Studio deploy/config identity. Rebaseline generated map and morphology fixture artifacts from source after the intentional Earthlike tuning change. Also record the local predecessor cleanup disposition: the stale Swooper Earthlike worktree and local Graphite branch were removed, while remote PR #1421 is kept only as a published fallback/reference until this replacement stack is submitted or merged. Verified with focused map-policy, map-elevation, natural-wonder, direct-control, config/schema, mountain-region, terrain-balance, package check/build, full OpenSpec validation gates, and cleanup topology checks."
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-studio-setup-config-sync"
-        ],
+        "dispositionMoveIds": ["done-adopt-studio-setup-config-sync"],
         "accounted": true
       },
       {
         "branch": "codex/swooper-dra-takeover-handoff",
         "parent": "06-05-fix_studio_validate_civ7_setup_seeds",
-        "children": [
-          "codex/swooper-recovery-openspec-plan"
-        ],
+        "children": ["codex/swooper-recovery-openspec-plan"],
         "head": "70faecfd1d1c271fdc54c91b3e88a5d72cad2daa",
         "subject": "docs(graphite): visualize stack recovery topology",
         "branchCommitCount": 2,
@@ -453,17 +389,13 @@
             "subject": "docs(graphite): visualize stack recovery topology"
           }
         ],
-        "dispositionMoveIds": [
-          "done-reference-swooper-recovery-planning-context"
-        ],
+        "dispositionMoveIds": ["done-reference-swooper-recovery-planning-context"],
         "accounted": true
       },
       {
         "branch": "codex/swooper-recovery-openspec-plan",
         "parent": "codex/swooper-dra-takeover-handoff",
-        "children": [
-          "codex/studio-live-runtime-snapshot-completion"
-        ],
+        "children": ["codex/studio-live-runtime-snapshot-completion"],
         "head": "26747873be074ad5d700c22b88fcfe1d5ce423c6",
         "subject": "docs(openspec): plan Swooper recovery workstreams Add the normative Swooper recovery takeover anchor and proof-led OpenSpec planning changes for live snapshot completion, exact authorship proof, final-surface parity, Earthlike acceptance, evidence-gated repair lanes, and product closure.\\n\\nKeep the first recovery goal at workstream creation only: implementation remains blocked until the relevant category goal and supervisor lane are started.\\n\\nVerification:\\n- bun run openspec:validate\\n- git diff --check\\n\\nNote: bun run lint:mapgen-docs was also run and failed on pre-existing docs/system/libs/mapgen/pipeline-visualization-deckgl.md missing anchor apps/mapgen-studio/src/features/dumpViewer/manifest.ts.",
         "branchCommitCount": 1,
@@ -474,17 +406,13 @@
             "subject": "docs(openspec): plan Swooper recovery workstreams Add the normative Swooper recovery takeover anchor and proof-led OpenSpec planning changes for live snapshot completion, exact authorship proof, final-surface parity, Earthlike acceptance, evidence-gated repair lanes, and product closure.\\n\\nKeep the first recovery goal at workstream creation only: implementation remains blocked until the relevant category goal and supervisor lane are started.\\n\\nVerification:\\n- bun run openspec:validate\\n- git diff --check\\n\\nNote: bun run lint:mapgen-docs was also run and failed on pre-existing docs/system/libs/mapgen/pipeline-visualization-deckgl.md missing anchor apps/mapgen-studio/src/features/dumpViewer/manifest.ts."
           }
         ],
-        "dispositionMoveIds": [
-          "done-reference-swooper-recovery-planning-context"
-        ],
+        "dispositionMoveIds": ["done-reference-swooper-recovery-planning-context"],
         "accounted": true
       },
       {
         "branch": "codex/studio-live-runtime-snapshot-completion",
         "parent": "codex/swooper-recovery-openspec-plan",
-        "children": [
-          "codex/studio-civ7-exact-authorship-proof"
-        ],
+        "children": ["codex/studio-civ7-exact-authorship-proof"],
         "head": "5fd0a81955d52568328555702ec88e99bb64e679",
         "subject": "fix(studio): key live runtime snapshots",
         "branchCommitCount": 1,
@@ -495,17 +423,13 @@
             "subject": "fix(studio): key live runtime snapshots"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-studio-live-runtime-snapshot-completion"
-        ],
+        "dispositionMoveIds": ["done-adopt-studio-live-runtime-snapshot-completion"],
         "accounted": true
       },
       {
         "branch": "codex/studio-civ7-exact-authorship-proof",
         "parent": "codex/studio-live-runtime-snapshot-completion",
-        "children": [
-          "codex/civ7-map-policy-final-surface-parity"
-        ],
+        "children": ["codex/civ7-map-policy-final-surface-parity"],
         "head": "8966aba5eb6fb3d2adf7edf38aa2bd0b8cde905f",
         "subject": "fix(studio): prove exact run authorship",
         "branchCommitCount": 1,
@@ -516,17 +440,13 @@
             "subject": "fix(studio): prove exact run authorship"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-studio-exact-authorship-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-studio-exact-authorship-proof"],
         "accounted": true
       },
       {
         "branch": "codex/civ7-map-policy-final-surface-parity",
         "parent": "codex/studio-civ7-exact-authorship-proof",
-        "children": [
-          "codex/earthlike-live-feature-resource-legality-repair"
-        ],
+        "children": ["codex/earthlike-live-feature-resource-legality-repair"],
         "head": "70a22c815bd8918febe2750043e4db920cf2bcb6",
         "subject": "docs(openspec): route parity proof deltas",
         "branchCommitCount": 4,
@@ -552,17 +472,13 @@
             "subject": "docs(openspec): route parity proof deltas"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-map-policy-final-surface-parity"
-        ],
+        "dispositionMoveIds": ["done-adopt-map-policy-final-surface-parity"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-live-feature-resource-legality-repair",
         "parent": "codex/civ7-map-policy-final-surface-parity",
-        "children": [
-          "codex/earthlike-adjacent-land-rerun-record"
-        ],
+        "children": ["codex/earthlike-adjacent-land-rerun-record"],
         "head": "e67fd07ef0bee273f7822aba8ed84ad6c30763ac",
         "subject": "fix(civ7): align adjacent-land resource policy",
         "branchCommitCount": 3,
@@ -583,17 +499,13 @@
             "subject": "fix(civ7): align adjacent-land resource policy"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-adjacent-land-rerun-record",
         "parent": "codex/earthlike-live-feature-resource-legality-repair",
-        "children": [
-          "codex/earthlike-resource-assignment-evidence"
-        ],
+        "children": ["codex/earthlike-resource-assignment-evidence"],
         "head": "9a7110db62429770254e51ada484d40a1fe35844",
         "subject": "docs(openspec): record adjacent-land parity rerun",
         "branchCommitCount": 1,
@@ -604,17 +516,13 @@
             "subject": "docs(openspec): record adjacent-land parity rerun"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-assignment-evidence",
         "parent": "codex/earthlike-adjacent-land-rerun-record",
-        "children": [
-          "codex/earthlike-resource-feasibility-readback"
-        ],
+        "children": ["codex/earthlike-resource-feasibility-readback"],
         "head": "f8368a08f7eda6b122e5f7225e422a893c10577c",
         "subject": "test(mapgen): expose resource delta assignment evidence",
         "branchCommitCount": 1,
@@ -625,17 +533,13 @@
             "subject": "test(mapgen): expose resource delta assignment evidence"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-feasibility-readback",
         "parent": "codex/earthlike-resource-assignment-evidence",
-        "children": [
-          "codex/earthlike-resource-feasibility-classification"
-        ],
+        "children": ["codex/earthlike-resource-feasibility-classification"],
         "head": "d0091d86d8bd1faf73e9aa769b1504d408c99b36",
         "subject": "feat(civ7): add resource feasibility readback Add a package-owned direct-control ResourceBuilder.canHaveResource read wrapper for bounded resource placement feasibility checks, with coverage for bounded inputs and tuner command construction. Record the exact-authored studio-run-in-game-mq20rbzr-1fhc feasibility artifact for 106 resource delta cells: strict ignoreWeight:false is preserved as non-authoritative post-materialization evidence, while ignoreWeight:true separates assignment/rebalance divergence from the 9-row local-overacceptance investigation class. The single both-infeasible substitution row remains unresolved with no repair authority until row-level ownership is classified. This layer does not claim final-surface parity, Earthlike tuning quality, product acceptance, or generated-output authority. Verification: bun test packages/civ7-direct-control/test/direct-control.test.ts --test-name-pattern 'resource placement feasibility'; bun run --cwd packages/civ7-direct-control check; bun run --cwd packages/civ7-direct-control test -- direct-control; bun run --cwd packages/civ7-direct-control build; bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict; bun run openspec:validate; git diff --check",
         "branchCommitCount": 1,
@@ -646,17 +550,13 @@
             "subject": "feat(civ7): add resource feasibility readback Add a package-owned direct-control ResourceBuilder.canHaveResource read wrapper for bounded resource placement feasibility checks, with coverage for bounded inputs and tuner command construction. Record the exact-authored studio-run-in-game-mq20rbzr-1fhc feasibility artifact for 106 resource delta cells: strict ignoreWeight:false is preserved as non-authoritative post-materialization evidence, while ignoreWeight:true separates assignment/rebalance divergence from the 9-row local-overacceptance investigation class. The single both-infeasible substitution row remains unresolved with no repair authority until row-level ownership is classified. This layer does not claim final-surface parity, Earthlike tuning quality, product acceptance, or generated-output authority. Verification: bun test packages/civ7-direct-control/test/direct-control.test.ts --test-name-pattern 'resource placement feasibility'; bun run --cwd packages/civ7-direct-control check; bun run --cwd packages/civ7-direct-control test -- direct-control; bun run --cwd packages/civ7-direct-control build; bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict; bun run openspec:validate; git diff --check"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-feasibility-classification",
         "parent": "codex/earthlike-resource-feasibility-readback",
-        "children": [
-          "codex/earthlike-resource-feasibility-artifact"
-        ],
+        "children": ["codex/earthlike-resource-feasibility-artifact"],
         "head": "977fe8a8bc59cbe9a34cfe397110e03988b6cc6c",
         "subject": "test(mapgen): classify resource feasibility deltas Add a pure Swooper diagnostic helper that joins local resource delta placement evidence to a provided Civ resource feasibility readback. The helper preserves separate classes for live-feasible assignment gaps, local-feasible live-empty rows, local-overaccepted live-empty rows, both-feasible substitutions, and the individual both-infeasible substitution case. Update the earthlike-live-feature-resource-legality-repair records to keep the 9-row mock/static-policy investigation separate from the single both-infeasible substitution row. This is source-authority classification support only; it does not change resource generation, static policy, tuning, generated output, parity status, or product acceptance. Verification: bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts; bun run --cwd mods/mod-swooper-maps check; bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict; bun run openspec:validate; git diff --check",
         "branchCommitCount": 1,
@@ -667,17 +567,13 @@
             "subject": "test(mapgen): classify resource feasibility deltas Add a pure Swooper diagnostic helper that joins local resource delta placement evidence to a provided Civ resource feasibility readback. The helper preserves separate classes for live-feasible assignment gaps, local-feasible live-empty rows, local-overaccepted live-empty rows, both-feasible substitutions, and the individual both-infeasible substitution case. Update the earthlike-live-feature-resource-legality-repair records to keep the 9-row mock/static-policy investigation separate from the single both-infeasible substitution row. This is source-authority classification support only; it does not change resource generation, static policy, tuning, generated output, parity status, or product acceptance. Verification: bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts; bun run --cwd mods/mod-swooper-maps check; bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict; bun run openspec:validate; git diff --check"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-feasibility-artifact",
         "parent": "codex/earthlike-resource-feasibility-classification",
-        "children": [
-          "codex/earthlike-resource-feasibility-row-context"
-        ],
+        "children": ["codex/earthlike-resource-feasibility-row-context"],
         "head": "efce0b82bb3740f0dbbf039c505c727435306c58",
         "subject": "feat(civ7): verify resource delta feasibility Add a resource-delta feasibility verifier that reads a saved final-surface parity proof, binds the current live runtime through package-owned map summary identity, and only then probes the delta cells through ResourceBuilder.canHaveResource. Missing or mismatched width, height, plot count, seed, turn, or game hash produces a blocked artifact before feasibility rows are accepted. Record the runtime-bound studio-run-in-game-mq20rbzr-1fhc artifact and its row classes for the earthlike-live-feature-resource-legality-repair lane. The loose feasibility split remains 37 live-feasible/no-local-assignment, 28 local-feasible/live-empty, 9 local-overaccepted/live-empty, 31 substitution-both-feasible, and 1 substitution-both-infeasible. The single both-infeasible substitution row remains outside repair authority. This layer is read-only proof tooling and records only. It does not change resource generation, static policy, tuning, generated output, final-surface parity status, Earthlike quality, or product acceptance. Verification: bun run verify:resource-delta-feasibility -- --help; bun run verify:resource-delta-feasibility -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-assignment-evidence.json --host 127.0.0.1 --port 4318 --output /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json; bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts; bun run --cwd mods/mod-swooper-maps check; bun run --cwd packages/civ7-direct-control check; bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict; bun run openspec:validate; git diff --check",
         "branchCommitCount": 1,
@@ -688,17 +584,13 @@
             "subject": "feat(civ7): verify resource delta feasibility Add a resource-delta feasibility verifier that reads a saved final-surface parity proof, binds the current live runtime through package-owned map summary identity, and only then probes the delta cells through ResourceBuilder.canHaveResource. Missing or mismatched width, height, plot count, seed, turn, or game hash produces a blocked artifact before feasibility rows are accepted. Record the runtime-bound studio-run-in-game-mq20rbzr-1fhc artifact and its row classes for the earthlike-live-feature-resource-legality-repair lane. The loose feasibility split remains 37 live-feasible/no-local-assignment, 28 local-feasible/live-empty, 9 local-overaccepted/live-empty, 31 substitution-both-feasible, and 1 substitution-both-infeasible. The single both-infeasible substitution row remains outside repair authority. This layer is read-only proof tooling and records only. It does not change resource generation, static policy, tuning, generated output, final-surface parity status, Earthlike quality, or product acceptance. Verification: bun run verify:resource-delta-feasibility -- --help; bun run verify:resource-delta-feasibility -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-assignment-evidence.json --host 127.0.0.1 --port 4318 --output /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json; bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts; bun run --cwd mods/mod-swooper-maps check; bun run --cwd packages/civ7-direct-control check; bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict; bun run openspec:validate; git diff --check"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-feasibility-row-context",
         "parent": "codex/earthlike-resource-feasibility-artifact",
-        "children": [
-          "codex/earthlike-resource-policy-spacing-context"
-        ],
+        "children": ["codex/earthlike-resource-policy-spacing-context"],
         "head": "fcdbeb8022f18ad5f464a6668843fc37af0b7d45",
         "subject": "test(mapgen): bind resource feasibility row context",
         "branchCommitCount": 1,
@@ -709,17 +601,13 @@
             "subject": "test(mapgen): bind resource feasibility row context"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-policy-spacing-context",
         "parent": "codex/earthlike-resource-feasibility-row-context",
-        "children": [
-          "codex/earthlike-resource-live-plot-context"
-        ],
+        "children": ["codex/earthlike-resource-live-plot-context"],
         "head": "0e5b89ede52f4be3d7ad472df8e81834d9052dbc",
         "subject": "test(mapgen): expose resource policy spacing context",
         "branchCommitCount": 1,
@@ -730,17 +618,13 @@
             "subject": "test(mapgen): expose resource policy spacing context"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-live-plot-context",
         "parent": "codex/earthlike-resource-policy-spacing-context",
-        "children": [
-          "codex/earthlike-resource-assignment-trace"
-        ],
+        "children": ["codex/earthlike-resource-assignment-trace"],
         "head": "c3230f1cd55192cedf9ef0b29dc995c5558af3cb",
         "subject": "test(civ7): bind resource deltas to live plot context",
         "branchCommitCount": 1,
@@ -751,17 +635,13 @@
             "subject": "test(civ7): bind resource deltas to live plot context"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-assignment-trace",
         "parent": "codex/earthlike-resource-live-plot-context",
-        "children": [
-          "codex/earthlike-resource-builder-diagnostics"
-        ],
+        "children": ["codex/earthlike-resource-builder-diagnostics"],
         "head": "68f75976fa6c684f5ba3db6b2e47a55affe013f5",
         "subject": "test(mapgen): trace resource assignment deltas",
         "branchCommitCount": 1,
@@ -772,17 +652,13 @@
             "subject": "test(mapgen): trace resource assignment deltas"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-builder-diagnostics",
         "parent": "codex/earthlike-resource-assignment-trace",
-        "children": [
-          "codex/earthlike-resource-assignment-order-context"
-        ],
+        "children": ["codex/earthlike-resource-assignment-order-context"],
         "head": "ba587053435cad8f55355399b0f5e05d4b580721",
         "subject": "test(civ7): read ResourceBuilder cut diagnostics",
         "branchCommitCount": 1,
@@ -793,17 +669,13 @@
             "subject": "test(civ7): read ResourceBuilder cut diagnostics"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-assignment-order-context",
         "parent": "codex/earthlike-resource-builder-diagnostics",
-        "children": [
-          "codex/earthlike-resource-builder-subclassification"
-        ],
+        "children": ["codex/earthlike-resource-builder-subclassification"],
         "head": "5636b12971b6adf4d942450af40fd6dbe81a573a",
         "subject": "test(mapgen): trace resource assignment order",
         "branchCommitCount": 1,
@@ -814,17 +686,13 @@
             "subject": "test(mapgen): trace resource assignment order"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-builder-subclassification",
         "parent": "codex/earthlike-resource-assignment-order-context",
-        "children": [
-          "codex/earthlike-resource-builder-policy-context"
-        ],
+        "children": ["codex/earthlike-resource-builder-policy-context"],
         "head": "7e20f5c866789ac3711be4b2a2130141b658d505",
         "subject": "test(civ7): classify resource builder cuts",
         "branchCommitCount": 1,
@@ -835,17 +703,13 @@
             "subject": "test(civ7): classify resource builder cuts"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-builder-policy-context",
         "parent": "codex/earthlike-resource-builder-subclassification",
-        "children": [
-          "codex/earthlike-resource-assignment-class-summary"
-        ],
+        "children": ["codex/earthlike-resource-assignment-class-summary"],
         "head": "9f800479916133c9d20fe8cb8563ca5137e627b0",
         "subject": "test(civ7): record resource builder policy context",
         "branchCommitCount": 1,
@@ -856,17 +720,13 @@
             "subject": "test(civ7): record resource builder policy context"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-assignment-class-summary",
         "parent": "codex/earthlike-resource-builder-policy-context",
-        "children": [
-          "codex/earthlike-resource-distribution-context"
-        ],
+        "children": ["codex/earthlike-resource-distribution-context"],
         "head": "54f07a365e0dcafa676fbbad5abb2133a5035e24",
         "subject": "test(civ7): summarize resource assignment classes",
         "branchCommitCount": 1,
@@ -877,17 +737,13 @@
             "subject": "test(civ7): summarize resource assignment classes"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-distribution-context",
         "parent": "codex/earthlike-resource-assignment-class-summary",
-        "children": [
-          "codex/earthlike-resource-position-context"
-        ],
+        "children": ["codex/earthlike-resource-position-context"],
         "head": "22a8980bd906af3c569aef61c3ce8d5e23367fd1",
         "subject": "test(civ7): summarize resource distribution context",
         "branchCommitCount": 1,
@@ -898,17 +754,13 @@
             "subject": "test(civ7): summarize resource distribution context"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-position-context",
         "parent": "codex/earthlike-resource-distribution-context",
-        "children": [
-          "codex/earthlike-resource-local-materialization-context"
-        ],
+        "children": ["codex/earthlike-resource-local-materialization-context"],
         "head": "6b976a4172df0462bfafac8335545dc711b20c6c",
         "subject": "test(civ7): summarize resource position context",
         "branchCommitCount": 1,
@@ -919,17 +771,13 @@
             "subject": "test(civ7): summarize resource position context"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-local-materialization-context",
         "parent": "codex/earthlike-resource-position-context",
-        "children": [
-          "codex/earthlike-resource-placement-coordinate-proof"
-        ],
+        "children": ["codex/earthlike-resource-placement-coordinate-proof"],
         "head": "5c293be1281b2522e19c2923ab45db6081fac2f0",
         "subject": "test(civ7): summarize local resource materialization",
         "branchCommitCount": 1,
@@ -940,17 +788,13 @@
             "subject": "test(civ7): summarize local resource materialization"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-placement-coordinate-proof",
         "parent": "codex/earthlike-resource-local-materialization-context",
-        "children": [
-          "codex/earthlike-resource-coordinate-proof-intake"
-        ],
+        "children": ["codex/earthlike-resource-coordinate-proof-intake"],
         "head": "b2c8f88d5407cabd2ce94152b5f985f8824bd056",
         "subject": "test(civ7): add resource placement coordinate proof",
         "branchCommitCount": 1,
@@ -961,17 +805,13 @@
             "subject": "test(civ7): add resource placement coordinate proof"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-resource-coordinate-proof-intake",
         "parent": "codex/earthlike-resource-placement-coordinate-proof",
-        "children": [
-          "codex/earthlike-feature-delta-context"
-        ],
+        "children": ["codex/earthlike-feature-delta-context"],
         "head": "88055a5ec7de6e0d3ca86f48e05b502cc6c745d4",
         "subject": "test(civ7): bind resource coordinate proof intake",
         "branchCommitCount": 1,
@@ -982,17 +822,13 @@
             "subject": "test(civ7): bind resource coordinate proof intake"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-feature-resource-proof-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-feature-resource-proof-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-feature-delta-context",
         "parent": "codex/earthlike-resource-coordinate-proof-intake",
-        "children": [
-          "codex/earthlike-feature-local-evidence-context"
-        ],
+        "children": ["codex/earthlike-feature-local-evidence-context"],
         "head": "c74412d6e665b0831df53d7d9436996c3b10f9a0",
         "subject": "test(civ7): classify feature delta context",
         "branchCommitCount": 1,
@@ -1003,17 +839,13 @@
             "subject": "test(civ7): classify feature delta context"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-feature-local-evidence-context",
         "parent": "codex/earthlike-feature-delta-context",
-        "children": [
-          "codex/earthlike-feature-live-feasibility-readback"
-        ],
+        "children": ["codex/earthlike-feature-live-feasibility-readback"],
         "head": "089bb47c2ecf0309f13646b4159d57e9b9c170ea",
         "subject": "test(civ7): expose feature local evidence context",
         "branchCommitCount": 1,
@@ -1024,17 +856,13 @@
             "subject": "test(civ7): expose feature local evidence context"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-feature-live-feasibility-readback",
         "parent": "codex/earthlike-feature-local-evidence-context",
-        "children": [
-          "codex/earthlike-feature-footprint-direction-context"
-        ],
+        "children": ["codex/earthlike-feature-footprint-direction-context"],
         "head": "826e736b37fe515bb6c3715ff71af6ffdec89eb1",
         "subject": "test(civ7): bind feature feasibility readback",
         "branchCommitCount": 1,
@@ -1045,17 +873,13 @@
             "subject": "test(civ7): bind feature feasibility readback"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-feature-footprint-direction-context",
         "parent": "codex/earthlike-feature-live-feasibility-readback",
-        "children": [
-          "codex/earthlike-natural-wonder-footprint-readback"
-        ],
+        "children": ["codex/earthlike-natural-wonder-footprint-readback"],
         "head": "085ab295534cc689ade853f6e9029e0283fd0693",
         "subject": "test(civ7): classify wonder footprint directions",
         "branchCommitCount": 1,
@@ -1066,9 +890,7 @@
             "subject": "test(civ7): classify wonder footprint directions"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
@@ -1088,17 +910,13 @@
             "subject": "test(civ7): add wonder footprint readback context"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-natural-wonder-footprint-catalog-context",
         "parent": "codex/earthlike-natural-wonder-footprint-readback",
-        "children": [
-          "codex/earthlike-natural-wonder-live-proof-boundary"
-        ],
+        "children": ["codex/earthlike-natural-wonder-live-proof-boundary"],
         "head": "03455aaccc9f4293d56f79ba86722ffa9c75c2dc",
         "subject": "test(civ7): classify wonder catalog directions",
         "branchCommitCount": 1,
@@ -1109,17 +927,13 @@
             "subject": "test(civ7): classify wonder catalog directions"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-natural-wonder-live-proof-boundary",
         "parent": "codex/earthlike-natural-wonder-footprint-catalog-context",
-        "children": [
-          "codex/earthlike-terrain-edge-stack-integration"
-        ],
+        "children": ["codex/earthlike-terrain-edge-stack-integration"],
         "head": "98ebc47d57613f21935e8630268b6b4ea27aa3d0",
         "subject": "test(civ7): classify wonder live proof boundary",
         "branchCommitCount": 1,
@@ -1130,17 +944,13 @@
             "subject": "test(civ7): classify wonder live proof boundary"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-terrain-edge-stack-integration",
         "parent": "codex/earthlike-natural-wonder-live-proof-boundary",
-        "children": [
-          "codex/earthlike-natural-wonder-live-telemetry"
-        ],
+        "children": ["codex/earthlike-natural-wonder-live-telemetry"],
         "head": "9137689da849ba227f4057aa941c20a502d92e80",
         "subject": "docs(openspec): reconcile terrain edge integration",
         "branchCommitCount": 9,
@@ -1191,17 +1001,13 @@
             "subject": "docs(openspec): reconcile terrain edge integration"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-terrain-edge-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-terrain-edge-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-natural-wonder-live-telemetry",
         "parent": "codex/earthlike-terrain-edge-stack-integration",
-        "children": [
-          "codex/earthlike-natural-wonder-coordinate-proof"
-        ],
+        "children": ["codex/earthlike-natural-wonder-coordinate-proof"],
         "head": "2ee5a01319bf2e9d57e328c3c76689fc7a9e14bc",
         "subject": "test(civ7): bind wonder placement telemetry",
         "branchCommitCount": 1,
@@ -1212,17 +1018,13 @@
             "subject": "test(civ7): bind wonder placement telemetry"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-natural-wonder-coordinate-proof",
         "parent": "codex/earthlike-natural-wonder-live-telemetry",
-        "children": [
-          "codex/earthlike-natural-wonder-source-classification"
-        ],
+        "children": ["codex/earthlike-natural-wonder-source-classification"],
         "head": "88d761f69453a8e50a58b0d65c1af3335a715c0a",
         "subject": "test(civ7): bind wonder placement coordinates",
         "branchCommitCount": 1,
@@ -1233,17 +1035,13 @@
             "subject": "test(civ7): bind wonder placement coordinates"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-natural-wonder-source-classification",
         "parent": "codex/earthlike-natural-wonder-coordinate-proof",
-        "children": [
-          "codex/workspace-source-package-resolution"
-        ],
+        "children": ["codex/workspace-source-package-resolution"],
         "head": "94f18673fc16718b94a1e33184f28070693b3b7b",
         "subject": "docs(openspec): classify wonder coordinate source",
         "branchCommitCount": 1,
@@ -1254,17 +1052,13 @@
             "subject": "docs(openspec): classify wonder coordinate source"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/workspace-source-package-resolution",
         "parent": "codex/earthlike-natural-wonder-source-classification",
-        "children": [
-          "codex/earthlike-natural-wonder-materialization-repair"
-        ],
+        "children": ["codex/earthlike-natural-wonder-materialization-repair"],
         "head": "ca60fac8ee711ad7d2a977787ed2689dd9524e29",
         "subject": "fix(repo): resolve map policy from source",
         "branchCommitCount": 1,
@@ -1275,17 +1069,13 @@
             "subject": "fix(repo): resolve map policy from source"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-natural-wonder-materialization-repair",
         "parent": "codex/workspace-source-package-resolution",
-        "children": [
-          "codex/earthlike-natural-wonder-repair-proof-record"
-        ],
+        "children": ["codex/earthlike-natural-wonder-repair-proof-record"],
         "head": "87b9f238eb5877f707eaad538b404f86fb200fcc",
         "subject": "fix(civ7): materialize projected wonder direction",
         "branchCommitCount": 1,
@@ -1296,17 +1086,13 @@
             "subject": "fix(civ7): materialize projected wonder direction"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-natural-wonder-repair-proof-record",
         "parent": "codex/earthlike-natural-wonder-materialization-repair",
-        "children": [
-          "codex/earthlike-feature-post-wonder-repair-context"
-        ],
+        "children": ["codex/earthlike-feature-post-wonder-repair-context"],
         "head": "a9a76792b6525b79b6f8ced25e96c59dbce9cf96",
         "subject": "docs(openspec): record wonder repair proof",
         "branchCommitCount": 1,
@@ -1317,17 +1103,13 @@
             "subject": "docs(openspec): record wonder repair proof"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-feature-post-wonder-repair-context",
         "parent": "codex/earthlike-natural-wonder-repair-proof-record",
-        "children": [
-          "codex/earthlike-feature-proof-correction"
-        ],
+        "children": ["codex/earthlike-feature-proof-correction"],
         "head": "cf21b6d1c775bed31b2f611d98afaba73cf484dc",
         "subject": "docs(openspec): classify post-repair feature deltas",
         "branchCommitCount": 1,
@@ -1338,17 +1120,13 @@
             "subject": "docs(openspec): classify post-repair feature deltas"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-feature-proof-correction",
         "parent": "codex/earthlike-feature-post-wonder-repair-context",
-        "children": [
-          "codex/earthlike-natural-wonder-deploy-proof-gap"
-        ],
+        "children": ["codex/earthlike-natural-wonder-deploy-proof-gap"],
         "head": "a164ae6680b5313162e15884f9f47e1355e17e36",
         "subject": "docs(openspec): correct feature proof classification",
         "branchCommitCount": 1,
@@ -1359,17 +1137,13 @@
             "subject": "docs(openspec): correct feature proof classification"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-natural-wonder-deploy-proof-gap",
         "parent": "codex/earthlike-feature-proof-correction",
-        "children": [
-          "codex/earthlike-natural-wonder-named-rejection-proof"
-        ],
+        "children": ["codex/earthlike-natural-wonder-named-rejection-proof"],
         "head": "da385a004552f4999318cb331d12c80ade505731",
         "subject": "feat(civ7): name natural wonder rejection outcomes",
         "branchCommitCount": 1,
@@ -1380,17 +1154,13 @@
             "subject": "feat(civ7): name natural wonder rejection outcomes"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-natural-wonder-named-rejection-proof",
         "parent": "codex/earthlike-natural-wonder-deploy-proof-gap",
-        "children": [
-          "codex/earthlike-natural-wonder-readback-mismatch-context"
-        ],
+        "children": ["codex/earthlike-natural-wonder-readback-mismatch-context"],
         "head": "d259f31475e25be988a223cf40d408b393688b75",
         "subject": "docs(openspec): record named wonder rejection proof",
         "branchCommitCount": 1,
@@ -1401,17 +1171,13 @@
             "subject": "docs(openspec): record named wonder rejection proof"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-natural-wonder-readback-mismatch-context",
         "parent": "codex/earthlike-natural-wonder-named-rejection-proof",
-        "children": [
-          "codex/earthlike-natural-wonder-postwrite-footprint-proof"
-        ],
+        "children": ["codex/earthlike-natural-wonder-postwrite-footprint-proof"],
         "head": "7dc0c18bedd3c65ee3cb91e20f1a867c2cb90e8e",
         "subject": "test(civ7): preserve wonder readback context",
         "branchCommitCount": 1,
@@ -1422,17 +1188,13 @@
             "subject": "test(civ7): preserve wonder readback context"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-natural-wonder-postwrite-footprint-proof",
         "parent": "codex/earthlike-natural-wonder-readback-mismatch-context",
-        "children": [
-          "codex/earthlike-natural-wonder-postwrite-footprint-proof-record"
-        ],
+        "children": ["codex/earthlike-natural-wonder-postwrite-footprint-proof-record"],
         "head": "47b5ccb35983c8b2c55435074bc17dd1ff90561a",
         "subject": "test(civ7): capture wonder readback footprint",
         "branchCommitCount": 1,
@@ -1443,9 +1205,7 @@
             "subject": "test(civ7): capture wonder readback footprint"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-natural-wonder-stack-through-footprint-proof"],
         "accounted": true
       },
       {
@@ -1467,17 +1227,13 @@
             "subject": "fix(mapgen): preserve earthlike floodplain surface"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-floodplain-config-leaf"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-floodplain-config-leaf"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-terrain-edge-diagnostics",
         "parent": "codex/earthlike-natural-wonder-footprint-readback",
-        "children": [
-          "codex/earthlike-terrain-edge-local-mask-context"
-        ],
+        "children": ["codex/earthlike-terrain-edge-local-mask-context"],
         "head": "6ccbd8c717817d89ca19caffb363465a8e0fb497",
         "subject": "test(civ7): classify terrain edge deltas",
         "branchCommitCount": 1,
@@ -1488,17 +1244,13 @@
             "subject": "test(civ7): classify terrain edge deltas"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-terrain-edge-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-terrain-edge-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-terrain-edge-local-mask-context",
         "parent": "codex/earthlike-terrain-edge-diagnostics",
-        "children": [
-          "codex/earthlike-terrain-edge-live-readback"
-        ],
+        "children": ["codex/earthlike-terrain-edge-live-readback"],
         "head": "35c55eee84de2d62319b6a678adf45802092b0c3",
         "subject": "test(civ7): add terrain edge mask context",
         "branchCommitCount": 1,
@@ -1509,17 +1261,13 @@
             "subject": "test(civ7): add terrain edge mask context"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-terrain-edge-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-terrain-edge-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-terrain-edge-live-readback",
         "parent": "codex/earthlike-terrain-edge-local-mask-context",
-        "children": [
-          "codex/earthlike-terrain-edge-validation-boundary"
-        ],
+        "children": ["codex/earthlike-terrain-edge-validation-boundary"],
         "head": "560be926b93b8ed82c10c7ed5ed908d2e26b5d66",
         "subject": "test(civ7): bind terrain edge live readback",
         "branchCommitCount": 1,
@@ -1530,17 +1278,13 @@
             "subject": "test(civ7): bind terrain edge live readback"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-terrain-edge-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-terrain-edge-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-terrain-edge-validation-boundary",
         "parent": "codex/earthlike-terrain-edge-live-readback",
-        "children": [
-          "codex/earthlike-terrain-edge-mock-lake-classification"
-        ],
+        "children": ["codex/earthlike-terrain-edge-mock-lake-classification"],
         "head": "d1d4965791e7820d790decdec4119c08a03e16de",
         "subject": "test(civ7): trace terrain validation boundary",
         "branchCommitCount": 1,
@@ -1551,17 +1295,13 @@
             "subject": "test(civ7): trace terrain validation boundary"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-terrain-edge-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-terrain-edge-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-terrain-edge-mock-lake-classification",
         "parent": "codex/earthlike-terrain-edge-validation-boundary",
-        "children": [
-          "codex/earthlike-terrain-edge-mock-materialization-repair"
-        ],
+        "children": ["codex/earthlike-terrain-edge-mock-materialization-repair"],
         "head": "16d99f753f0c3a6f3268b34cb3a3599872e02b20",
         "subject": "docs(openspec): classify terrain edge source owner",
         "branchCommitCount": 1,
@@ -1572,17 +1312,13 @@
             "subject": "docs(openspec): classify terrain edge source owner"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-terrain-edge-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-terrain-edge-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-terrain-edge-mock-materialization-repair",
         "parent": "codex/earthlike-terrain-edge-mock-lake-classification",
-        "children": [
-          "codex/earthlike-terrain-edge-coast-materialization-context"
-        ],
+        "children": ["codex/earthlike-terrain-edge-coast-materialization-context"],
         "head": "2722eddbb7c288bf15fb33119c4f041a9ee03bb2",
         "subject": "fix(civ7): separate mock lake readback",
         "branchCommitCount": 1,
@@ -1593,17 +1329,13 @@
             "subject": "fix(civ7): separate mock lake readback"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-terrain-edge-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-terrain-edge-stack"],
         "accounted": true
       },
       {
         "branch": "codex/earthlike-terrain-edge-coast-materialization-context",
         "parent": "codex/earthlike-terrain-edge-mock-materialization-repair",
-        "children": [
-          "codex/earthlike-terrain-edge-mock-terrain-materialization-repair"
-        ],
+        "children": ["codex/earthlike-terrain-edge-mock-terrain-materialization-repair"],
         "head": "a0df33e8d147fddcc95dc9925d4ab8e93a11b643",
         "subject": "test(civ7): trace coast materialization edge",
         "branchCommitCount": 1,
@@ -1614,9 +1346,7 @@
             "subject": "test(civ7): trace coast materialization edge"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-terrain-edge-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-terrain-edge-stack"],
         "accounted": true
       },
       {
@@ -1633,9 +1363,7 @@
             "subject": "fix(civ7): align mock terrain materialization"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-earthlike-terrain-edge-stack"
-        ],
+        "dispositionMoveIds": ["done-adopt-earthlike-terrain-edge-stack"],
         "accounted": true
       },
       {
@@ -1652,9 +1380,7 @@
             "subject": "docs(direct-control): frame hotseat proof phase"
           }
         ],
-        "dispositionMoveIds": [
-          "done-adopt-hotseat-phase-packet-live-control"
-        ],
+        "dispositionMoveIds": ["done-adopt-hotseat-phase-packet-live-control"],
         "accounted": true
       }
     ]
@@ -1824,10 +1550,7 @@
       "state": "done",
       "kind": "adopt",
       "method": "semantic",
-      "sourceTargets": [
-        "codex/start-placement-viability",
-        "codex/resource-initial-map-policy"
-      ],
+      "sourceTargets": ["codex/start-placement-viability", "codex/resource-initial-map-policy"],
       "sink": {
         "kind": "branch",
         "branch": "codex/swooper-mapgen-recovery-drain"
@@ -1864,9 +1587,7 @@
       "state": "done",
       "kind": "adopt",
       "method": "semantic",
-      "sourceTargets": [
-        "codex/studio-civ7-exact-authorship-proof"
-      ],
+      "sourceTargets": ["codex/studio-civ7-exact-authorship-proof"],
       "sink": {
         "kind": "branch",
         "branch": "codex/swooper-studio-parity-proof-drain"
@@ -1884,9 +1605,7 @@
       "state": "done",
       "kind": "adopt",
       "method": "semantic",
-      "sourceTargets": [
-        "codex/civ7-map-policy-final-surface-parity"
-      ],
+      "sourceTargets": ["codex/civ7-map-policy-final-surface-parity"],
       "sink": {
         "kind": "branch",
         "branch": "codex/swooper-studio-parity-proof-drain"
@@ -1904,9 +1623,7 @@
       "state": "done",
       "kind": "adopt",
       "method": "semantic",
-      "sourceTargets": [
-        "codex/studio-live-runtime-snapshot-completion"
-      ],
+      "sourceTargets": ["codex/studio-live-runtime-snapshot-completion"],
       "sink": {
         "kind": "branch",
         "branch": "codex/swooper-studio-parity-proof-drain"
@@ -2086,9 +1803,7 @@
       "state": "done",
       "kind": "adopt",
       "method": "semantic",
-      "sourceTargets": [
-        "codex/earthlike-natural-wonder-postwrite-footprint-proof-record"
-      ],
+      "sourceTargets": ["codex/earthlike-natural-wonder-postwrite-footprint-proof-record"],
       "sink": {
         "kind": "branch",
         "branch": "codex/swooper-earthlike-floodplain-final-adoption"
@@ -2106,9 +1821,7 @@
       "state": "done",
       "kind": "adopt",
       "method": "cherry-pick",
-      "sourceTargets": [
-        "codex/play-agent-hotseat-phase-packet"
-      ],
+      "sourceTargets": ["codex/play-agent-hotseat-phase-packet"],
       "sink": {
         "kind": "branch",
         "branch": "codex/live-control-hotseat-phase-packet-adoption"
@@ -2126,9 +1839,7 @@
       "state": "done",
       "kind": "supersede",
       "method": "semantic",
-      "sourceTargets": [
-        "codex/civ7-orpc-control-architecture-skill"
-      ],
+      "sourceTargets": ["codex/civ7-orpc-control-architecture-skill"],
       "sink": {
         "kind": "branch",
         "branch": "codex/live-control-source-route-docs-adoption"

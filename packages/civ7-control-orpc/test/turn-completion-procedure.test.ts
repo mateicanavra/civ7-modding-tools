@@ -1,63 +1,62 @@
 import { call, ORPCError } from "@orpc/server";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
-
+import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../src/dependencies/direct-control";
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   Civ7TurnCompletionUnavailableError,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
 } from "../src/index";
-import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../src/dependencies/direct-control";
 import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 type TurnCompletionServiceResult = Awaited<
-  ReturnType<
-    ReturnType<typeof createCiv7ControlOrpcServerClient>["turn"]["complete"]["request"]
-  >
+  ReturnType<ReturnType<typeof createCiv7ControlOrpcServerClient>["turn"]["complete"]["request"]>
 >;
 
 const Civ7TurnCompletionInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.turn.complete.request,
+  Civ7ControlOrpcContract.turn.complete.request
 );
 
 describe("turn.complete.request control-oRPC procedure", () => {
   test("owns the caller-facing turn completion input without runtime controls", () => {
     expect(Value.Check(Civ7TurnCompletionInputSchema, {})).toBe(true);
-    for (
-      const input of [
-        { host: "127.0.0.1" },
-        { port: 4318 },
-        { state: { role: "app-ui" } },
-        { session: { state: "App UI" } },
-        { command: "GameContext.sendTurnComplete()" },
-        { rawCommand: "GameContext.sendTurnComplete()" },
-      ]
-    ) {
+    for (const input of [
+      { host: "127.0.0.1" },
+      { port: 4318 },
+      { state: { role: "app-ui" } },
+      { session: { state: "App UI" } },
+      { command: "GameContext.sendTurnComplete()" },
+      { rawCommand: "GameContext.sendTurnComplete()" },
+    ]) {
       expect(Value.Check(Civ7TurnCompletionInputSchema, input)).toBe(false);
     }
   });
 
   test("calls the turn completion mutation through native Effect/oRPC with readiness guards", async () => {
-    const fake = fakeContext(turnCompletionActionResult({
-      after: turnCompletionStatus({ turn: 13, hasSentTurnComplete: false }),
-    }));
+    const fake = fakeContext(
+      turnCompletionActionResult({
+        after: turnCompletionStatus({ turn: 13, hasSentTurnComplete: false }),
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.turn.complete.request,
       {},
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(fake.calls.readiness).toHaveLength(1);
-    expect(fake.calls.turnCompletion).toEqual([{
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+    expect(fake.calls.turnCompletion).toEqual([
+      {
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-    }]);
+    ]);
     expect(result).toEqual({
       sent: true,
       status: "sent-confirmed",
@@ -85,24 +84,28 @@ describe("turn.complete.request control-oRPC procedure", () => {
         confirmed: true,
         noRepeatAfterUnverified: false,
       },
-      nextSteps: [{
-        kind: "refresh-attention",
-        source: "turn.complete.request",
-        label: "Refresh current attention before choosing the next player action.",
-      }],
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "turn.complete.request",
+          label: "Refresh current attention before choosing the next player action.",
+        },
+      ],
     });
     expectPublicResultOmitsRawRuntimeDetails(result);
   });
 
   test("keeps sent turn-complete state no-repeat guarded", async () => {
-    const fake = fakeContext(turnCompletionActionResult({
-      after: turnCompletionStatus({ turn: 12, hasSentTurnComplete: true }),
-    }));
+    const fake = fakeContext(
+      turnCompletionActionResult({
+        after: turnCompletionStatus({ turn: 12, hasSentTurnComplete: true }),
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.turn.complete.request,
       {},
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -115,22 +118,26 @@ describe("turn.complete.request control-oRPC procedure", () => {
         confirmed: true,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "turn.complete.request",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "turn.complete.request",
+        },
+      ],
     });
   });
 
   test("keeps no-state-change results no-repeat guarded", async () => {
-    const fake = fakeContext(turnCompletionActionResult({
-      after: turnCompletionStatus({ turn: 12, hasSentTurnComplete: false }),
-    }));
+    const fake = fakeContext(
+      turnCompletionActionResult({
+        after: turnCompletionStatus({ turn: 12, hasSentTurnComplete: false }),
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.turn.complete.request,
       {},
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -143,26 +150,30 @@ describe("turn.complete.request control-oRPC procedure", () => {
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "turn.complete.request",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "turn.complete.request",
+        },
+      ],
     });
   });
 
   test("keeps missing postconditions no-repeat guarded", async () => {
-    const fake = fakeContext(turnCompletionActionResult({
-      after: turnCompletionStatus({
-        turn: 12,
-        hasSentTurnComplete: false,
-        hasSentTurnCompleteOk: false,
-      }),
-    }));
+    const fake = fakeContext(
+      turnCompletionActionResult({
+        after: turnCompletionStatus({
+          turn: 12,
+          hasSentTurnComplete: false,
+          hasSentTurnCompleteOk: false,
+        }),
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.turn.complete.request,
       {},
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -184,7 +195,7 @@ describe("turn.complete.request control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.turn.complete.request,
       {},
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -226,23 +237,29 @@ describe("turn.complete.request control-oRPC procedure", () => {
       call(
         Civ7ControlOrpcRouter.turn.complete.request,
         { rawCommand: "GameContext.sendTurnComplete()" },
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toBeInstanceOf(ORPCError);
     expect(fake.calls.readiness).toEqual([]);
     expect(fake.calls.turnCompletion).toEqual([]);
   });
 
   test("maps source failures to bounded tagged errors without raw cause details", async () => {
-    const fake = fakeContext(new Error(
-      "Timed out waiting for Civ7 tuner response to CMD:65535:GameContext.sendTurnComplete()",
-    ));
+    const fake = fakeContext(
+      new Error(
+        "Timed out waiting for Civ7 tuner response to CMD:65535:GameContext.sendTurnComplete()"
+      )
+    );
 
     let caught: unknown;
     try {
-      await call(Civ7ControlOrpcRouter.turn.complete.request, {}, {
-        context: fake.context,
-      });
+      await call(
+        Civ7ControlOrpcRouter.turn.complete.request,
+        {},
+        {
+          context: fake.context,
+        }
+      );
     } catch (err) {
       caught = err;
     }
@@ -263,9 +280,11 @@ describe("turn.complete.request control-oRPC procedure", () => {
   });
 
   test("supports the in-process server-side router client", async () => {
-    const fake = fakeContext(turnCompletionActionResult({
-      after: turnCompletionStatus({ turn: 13, hasSentTurnComplete: false }),
-    }));
+    const fake = fakeContext(
+      turnCompletionActionResult({
+        after: turnCompletionStatus({ turn: 13, hasSentTurnComplete: false }),
+      })
+    );
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
     const result = await client.turn.complete.request({});
@@ -275,9 +294,7 @@ describe("turn.complete.request control-oRPC procedure", () => {
   });
 
   test("publishes contract metadata and tagged error constructors", () => {
-    expect(
-      Civ7ControlOrpcContract.turn.complete.request["~orpc"].meta,
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.turn.complete.request["~orpc"].meta).toMatchObject({
       family: "turn",
       procedureKey: "turn.complete.request",
       risk: "mutation",
@@ -287,22 +304,18 @@ describe("turn.complete.request control-oRPC procedure", () => {
   });
 });
 
-function expectPublicResultOmitsRawRuntimeDetails(
-  result: TurnCompletionServiceResult,
-): void {
+function expectPublicResultOmitsRawRuntimeDetails(result: TurnCompletionServiceResult): void {
   const serialized = JSON.stringify(result);
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
-  expect(serialized).not.toContain("\"command\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"command"');
   expect(serialized).not.toContain("CMD");
   expect(serialized).not.toContain("GameContext.sendTurnComplete");
-  expect(serialized).not.toContain("\"verified\"");
+  expect(serialized).not.toContain('"verified"');
 }
 
-function fakeContext(
-  resultOrError: Civ7ControlOrpcTurnCompletionRequestResult | Error,
-): {
+function fakeContext(resultOrError: Civ7ControlOrpcTurnCompletionRequestResult | Error): {
   context: Civ7ControlOrpcContext;
   calls: {
     readiness: unknown[];
@@ -343,7 +356,7 @@ function fakeContext(
 }
 
 function turnCompletionActionResult(
-  overrides: Partial<Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }>>,
+  overrides: Partial<Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }>>
 ): Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }> {
   return {
     sent: true,
@@ -353,9 +366,7 @@ function turnCompletionActionResult(
       host: "127.0.0.1",
       port: 4318,
       state: { id: "65535", name: "App UI" },
-      output: [
-        "CMD:65535:GameContext.sendTurnComplete()",
-      ],
+      output: ["CMD:65535:GameContext.sendTurnComplete()"],
     },
     verified: true,
     ...overrides,
@@ -375,34 +386,40 @@ function turnCompletionBlockedResult(): Extract<
       canEndTurn: false,
     }),
     fallbackPreflight: {
-      notifications: [{
-        isEndTurnBlocking: true,
-        typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
-        decision: { category: "town-focus" },
-      }],
+      notifications: [
+        {
+          isEndTurnBlocking: true,
+          typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
+          decision: { category: "town-focus" },
+        },
+      ],
     },
   } as Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: false }>;
 }
 
-function turnCompletionStatus(options: Readonly<{
-  turn: number;
-  hasSentTurnComplete: boolean;
-  canEndTurn?: boolean;
-  turnOk?: boolean;
-  hasSentTurnCompleteOk?: boolean;
-}>): Civ7ControlOrpcTurnCompletionRequestResult["before"] {
+function turnCompletionStatus(
+  options: Readonly<{
+    turn: number;
+    hasSentTurnComplete: boolean;
+    canEndTurn?: boolean;
+    turnOk?: boolean;
+    hasSentTurnCompleteOk?: boolean;
+  }>
+): Civ7ControlOrpcTurnCompletionRequestResult["before"] {
   return {
     host: "127.0.0.1",
     port: 4318,
     state: { id: "65535", name: "App UI" },
     localPlayerId: 0,
-    turn: options.turnOk === false
-      ? { ok: false, reason: "missing turn" }
-      : { ok: true, value: options.turn },
+    turn:
+      options.turnOk === false
+        ? { ok: false, reason: "missing turn" }
+        : { ok: true, value: options.turn },
     turnDate: { ok: true, value: options.turn === 12 ? "3990 BCE" : "3980 BCE" },
-    hasSentTurnComplete: options.hasSentTurnCompleteOk === false
-      ? { ok: false, reason: "missing sent state" }
-      : { ok: true, value: options.hasSentTurnComplete },
+    hasSentTurnComplete:
+      options.hasSentTurnCompleteOk === false
+        ? { ok: false, reason: "missing sent state" }
+        : { ok: true, value: options.hasSentTurnComplete },
     canEndTurn: { ok: true, value: options.canEndTurn ?? true },
     blocker: { ok: true, value: 0 },
     firstReadyUnitId: { ok: true, value: null },

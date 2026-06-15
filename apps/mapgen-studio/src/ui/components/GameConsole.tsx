@@ -1,17 +1,27 @@
-import React from 'react';
-import { Bug, ChevronDown, LoaderCircle, Play, Radio, Rocket, RotateCw, ScanEye, Square } from 'lucide-react';
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
 import {
-  formatRunInGamePhaseLabel,
-  runInGamePrimaryActionLabel,
-  runInGameCanRetryStatus,
-  type RunInGameOperationStatus,
-} from '../../features/runInGame/status';
-import type { RunInGameCurrentRelation } from '../../features/runInGame/clientState';
+  Bug,
+  ChevronDown,
+  LoaderCircle,
+  Play,
+  Radio,
+  Rocket,
+  RotateCw,
+  ScanEye,
+  Square,
+} from "lucide-react";
+import React from "react";
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
 import {
   formatMapConfigSaveDeployPhaseLabel,
   type MapConfigSaveDeployStatus,
-} from '../../features/mapConfigSave/status';
+} from "../../features/mapConfigSave/status";
+import type { RunInGameCurrentRelation } from "../../features/runInGame/clientState";
+import {
+  formatRunInGamePhaseLabel,
+  type RunInGameOperationStatus,
+  runInGameCanRetryStatus,
+  runInGamePrimaryActionLabel,
+} from "../../features/runInGame/status";
 
 // ============================================================================
 // GAME CONSOLE
@@ -122,7 +132,11 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   React.useEffect(() => {
     if (!statusOpen) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (rootRef.current && event.target instanceof Node && !rootRef.current.contains(event.target)) {
+      if (
+        rootRef.current &&
+        event.target instanceof Node &&
+        !rootRef.current.contains(event.target)
+      ) {
         setStatusOpen(false);
       }
     };
@@ -136,30 +150,37 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [statusOpen]);
-  const textPrimary = 'text-foreground';
-  const textMuted = 'text-muted-foreground/70';
+  const textPrimary = "text-foreground";
+  const textMuted = "text-muted-foreground/70";
   const eyebrowClass = `text-label font-medium uppercase tracking-wider ${textMuted}`;
   // The "stale vs live game" emphasis is a warning about data, so it uses the
   // `warning` token (not the slate identity accent).
   const liveDotClass =
-    liveRuntime?.status === "ok" ? "bg-success" : liveRuntime?.status === "error" ? "bg-destructive" : "bg-muted-foreground";
+    liveRuntime?.status === "ok"
+      ? "bg-success"
+      : liveRuntime?.status === "error"
+        ? "bg-destructive"
+        : "bg-muted-foreground";
   // The live summary splits into a primary segment (always rendered) and the
   // seed suffix, which the chip drops when the Game bar container narrows
   // (container query on the header's center column). The full string stays in
   // the tooltip/accessible name.
   const liveHasGameIdentity =
-    liveRuntime?.status === "ok" && (liveRuntime.turn !== undefined || liveRuntime.seed !== undefined);
+    liveRuntime?.status === "ok" &&
+    (liveRuntime.turn !== undefined || liveRuntime.seed !== undefined);
   const liveTextPrimary =
     liveRuntime?.status === "ok"
       ? liveHasGameIdentity
         ? `Turn ${liveRuntime.turn ?? "?"}`
-        : liveRuntime.readiness ?? "Civ7 ready"
+        : (liveRuntime.readiness ?? "Civ7 ready")
       : liveRuntime?.status === "error"
-        ? liveRuntime.error ?? "Live unavailable"
+        ? (liveRuntime.error ?? "Live unavailable")
         : "Live idle";
   const liveTextSeedSuffix = liveHasGameIdentity ? ` · Seed ${liveRuntime?.seed ?? "?"}` : "";
   const liveText = `${liveTextPrimary}${liveTextSeedSuffix}`;
-  const runInGamePhaseLabel = runInGameStatus ? formatRunInGamePhaseLabel(runInGameStatus.phase) : "Run in Game";
+  const runInGamePhaseLabel = runInGameStatus
+    ? formatRunInGamePhaseLabel(runInGameStatus.phase)
+    : "Run in Game";
   const runInGameStateLabel =
     runInGameStatus && !isRunInGameRunning
       ? runInGameCurrentRelation === "stale"
@@ -169,24 +190,33 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
           : "Previous"
       : null;
   const runInGameFailed =
-    runInGameStatus?.status === "failed" || runInGameStatus?.status === "blocked" || runInGameStatus?.status === "uncertain";
+    runInGameStatus?.status === "failed" ||
+    runInGameStatus?.status === "blocked" ||
+    runInGameStatus?.status === "uncertain";
   const runInGameDotClass =
     runInGameCurrentRelation === "stale"
       ? "bg-warning"
       : runInGameStatus?.status === "complete"
-      ? "bg-success"
-      : runInGameFailed
-        ? "bg-destructive"
-        : isRunInGameRunning
-          ? "bg-warning"
-          : "bg-muted-foreground";
-  const runInGameButtonText = runInGamePrimaryActionLabel(runInGameStatus, runInGameCurrentRelation);
+        ? "bg-success"
+        : runInGameFailed
+          ? "bg-destructive"
+          : isRunInGameRunning
+            ? "bg-warning"
+            : "bg-muted-foreground";
+  const runInGameButtonText = runInGamePrimaryActionLabel(
+    runInGameStatus,
+    runInGameCurrentRelation
+  );
   const liveSyncAvailable =
     liveRuntime?.status === "ok" &&
     liveGameStudioRelation === "stale" &&
     Boolean(onSyncFromLiveGame) &&
     !operationControlsDisabled;
-  const autoplayControlDisabled = operationControlsDisabled || isAutoplayActionRunning || liveRuntime?.status !== "ok" || !onToggleAutoplay;
+  const autoplayControlDisabled =
+    operationControlsDisabled ||
+    isAutoplayActionRunning ||
+    liveRuntime?.status !== "ok" ||
+    !onToggleAutoplay;
   // Icon-only contract (Pass-4): the start/stop/in-flight wording the label
   // used to carry lives entirely in the accessible name + tooltip.
   const autoplayTitle = isAutoplayActionRunning
@@ -199,7 +229,9 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     : isExploreActionRunning
       ? "Explore request in flight"
       : "Explore: reveal the full map in the live game";
-  const saveDeployLabel = saveDeployStatus ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase) : null;
+  const saveDeployLabel = saveDeployStatus
+    ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase)
+    : null;
   const saveDeployActive = saveDeployStatus?.status === "running";
   const saveDeployDotClass =
     saveDeployStatus?.status === "failed"
@@ -225,7 +257,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   const chipText = isRunInGameRunning
     ? runInGamePhaseLabel
     : saveDeployActive
-      ? saveDeployLabel ?? liveText
+      ? (saveDeployLabel ?? liveText)
       : liveText;
   // Rendered chip content: live summaries drop the seed suffix when the Game
   // bar container narrows (`@max-3xl` ≈ 768px container width) — the turn is
@@ -241,26 +273,38 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     );
   const chipTitle = [
     `Live: ${liveText}`,
-    liveRuntime?.autoplayActive ? `Autoplay active${liveRuntime.autoplayPaused ? " (paused)" : ""}` : null,
-    liveGameStudioRelation === "stale" ? "Live game is ahead of Studio — open for the apply action" : null,
+    liveRuntime?.autoplayActive
+      ? `Autoplay active${liveRuntime.autoplayPaused ? " (paused)" : ""}`
+      : null,
+    liveGameStudioRelation === "stale"
+      ? "Live game is ahead of Studio — open for the apply action"
+      : null,
     runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : null,
     runInGameStateLabel ? `Studio state: ${runInGameStateLabel}` : null,
     runInGameStatus?.requestId ? `Request: ${runInGameStatus.requestId}` : null,
     saveDeployStatus ? `Save/Deploy: ${saveDeployLabel}` : null,
     saveDeployStatus?.requestId ? `Deploy request: ${saveDeployStatus.requestId}` : null,
     "Click to expand game status",
-  ].filter(Boolean).join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
   // The labeled CTA keeps the full operation story in its accessible name:
   // dynamic action ("Run in Game", "Retry Run", "Restart Civ & Run") first.
   const runInGameTitle = [
     runInGameButtonText,
     runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : "Launches the current config in Civ7",
     runInGameStatus?.requestId ? `Request: ${runInGameStatus.requestId}` : null,
-    runInGameStatus?.materialization?.mapScript ? `Map: ${runInGameStatus.materialization.mapScript}` : null,
+    runInGameStatus?.materialization?.mapScript
+      ? `Map: ${runInGameStatus.materialization.mapScript}`
+      : null,
     runInGameStateLabel ? `Studio state: ${runInGameStateLabel}` : null,
     runInGameStatus?.error ? `Error: ${runInGameStatus.error}` : null,
-    runInGameStatus?.details?.recoveryHint ? `Recovery: ${runInGameStatus.details.recoveryHint}` : null,
-  ].filter(Boolean).join("\n");
+    runInGameStatus?.details?.recoveryHint
+      ? `Recovery: ${runInGameStatus.details.recoveryHint}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
   const applyLiveTitle = "Apply live game suggestion to Studio";
 
   return (
@@ -280,11 +324,15 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                 : statusOpen
                   ? "border-input bg-accent"
                   : "border-transparent"
-            }`}>
-
-            <Radio className={`w-3.5 h-3.5 ${liveGameStudioRelation === "stale" ? "text-warning" : textMuted}`} />
+            }`}
+          >
+            <Radio
+              className={`w-3.5 h-3.5 ${liveGameStudioRelation === "stale" ? "text-warning" : textMuted}`}
+            />
             <div className={`w-2 h-2 shrink-0 rounded-full ${combinedDotClass}`} />
-            <span className={`truncate text-data font-medium ${liveGameStudioRelation === "stale" ? "text-warning" : textPrimary}`}>
+            <span
+              className={`truncate text-data font-medium ${liveGameStudioRelation === "stale" ? "text-warning" : textPrimary}`}
+            >
               {chipContent}
             </span>
             {liveRuntime?.autoplayActive ? (
@@ -292,7 +340,9 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                 Auto
               </span>
             ) : null}
-            <ChevronDown className={`h-3 w-3 shrink-0 ${textMuted} transition-transform ${statusOpen ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`h-3 w-3 shrink-0 ${textMuted} transition-transform ${statusOpen ? "rotate-180" : ""}`}
+            />
           </button>
         </TooltipTrigger>
         <TooltipContent className="whitespace-pre-line">{chipTitle}</TooltipContent>
@@ -307,8 +357,8 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
             disabled={autoplayControlDisabled}
             aria-label={autoplayTitle}
             title={autoplayTitle}
-            className={`shrink-0 ${liveRuntime?.autoplayActive ? "border-warning/60 text-warning" : ""}`}>
-
+            className={`shrink-0 ${liveRuntime?.autoplayActive ? "border-warning/60 text-warning" : ""}`}
+          >
             {isAutoplayActionRunning ? (
               <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
             ) : liveRuntime?.autoplayActive ? (
@@ -327,11 +377,16 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
             variant="outline"
             size="icon"
             onClick={onExplore}
-            disabled={operationControlsDisabled || isExploreActionRunning || liveRuntime?.status !== "ok" || !onExplore}
+            disabled={
+              operationControlsDisabled ||
+              isExploreActionRunning ||
+              liveRuntime?.status !== "ok" ||
+              !onExplore
+            }
             aria-label={exploreTitle}
             title={exploreTitle}
-            className="shrink-0">
-
+            className="shrink-0"
+          >
             {isExploreActionRunning ? (
               <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
             ) : (
@@ -350,10 +405,10 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
         disabled={operationControlsDisabled}
         aria-label={runInGameTitle}
         title={runInGameTitle}
-        className={isRunInGameRunning ? 'shrink-0 opacity-70 cursor-wait' : 'shrink-0'}>
-
+        className={isRunInGameRunning ? "shrink-0 opacity-70 cursor-wait" : "shrink-0"}
+      >
         <Rocket className="w-3 h-3" />
-        <span>{isRunInGameRunning ? 'Playing...' : 'Play'}</span>
+        <span>{isRunInGameRunning ? "Playing..." : "Play"}</span>
       </Button>
 
       {statusOpen ? (
@@ -361,8 +416,8 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
           id="game-status-panel"
           role="region"
           aria-label="Expanded game status"
-          className="absolute left-0 top-full z-30 mt-3.5 w-80 overflow-hidden rounded-lg border border-border bg-popover/95 shadow-lg backdrop-blur-sm">
-
+          className="absolute left-0 top-full z-30 mt-3.5 w-80 overflow-hidden rounded-lg border border-border bg-popover/95 shadow-lg backdrop-blur-sm"
+        >
           <div className="flex flex-col divide-y divide-border-subtle">
             {/* Live runtime */}
             <div className="flex flex-col gap-1.5 px-3 py-2.5">
@@ -378,7 +433,9 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                 <span className={`h-2 w-2 shrink-0 rounded-full ${liveDotClass}`} />
                 <span className={`truncate text-data font-medium ${textPrimary}`}>{liveText}</span>
               </div>
-              {liveRuntime?.readiness && liveRuntime.status === "ok" && (liveRuntime.turn !== undefined || liveRuntime.seed !== undefined) ? (
+              {liveRuntime?.readiness &&
+              liveRuntime.status === "ok" &&
+              (liveRuntime.turn !== undefined || liveRuntime.seed !== undefined) ? (
                 <span className={`text-label ${textMuted}`}>{liveRuntime.readiness}</span>
               ) : null}
               {liveSyncAvailable ? (
@@ -388,7 +445,8 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                   onClick={onSyncFromLiveGame}
                   aria-label={applyLiveTitle}
                   title={applyLiveTitle}
-                  className="self-start border-warning/40 text-warning hover:bg-warning/10">
+                  className="self-start border-warning/40 text-warning hover:bg-warning/10"
+                >
                   Apply to Studio
                 </Button>
               ) : null}
@@ -399,7 +457,9 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
               <div className="flex items-center justify-between gap-2">
                 <span className={eyebrowClass}>Run in Game</span>
                 <div className="flex items-center gap-1">
-                  {runInGameStatus && onRunInGameRetryStatus && runInGameCanRetryStatus(runInGameStatus) ? (
+                  {runInGameStatus &&
+                  onRunInGameRetryStatus &&
+                  runInGameCanRetryStatus(runInGameStatus) ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
@@ -408,8 +468,8 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                           className="h-6 w-6"
                           onClick={onRunInGameRetryStatus}
                           aria-label="Refresh Run in Game status"
-                          title="Refresh Run in Game status">
-
+                          title="Refresh Run in Game status"
+                        >
                           <RotateCw className="w-3.5 h-3.5" />
                         </Button>
                       </TooltipTrigger>
@@ -425,8 +485,8 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                           className="h-6 w-6"
                           onClick={onCopyRunInGameDiagnostics}
                           aria-label="Copy Run in Game diagnostics"
-                          title="Copy Run in Game diagnostics">
-
+                          title="Copy Run in Game diagnostics"
+                        >
                           <Bug className="w-3.5 h-3.5" />
                         </Button>
                       </TooltipTrigger>
@@ -439,21 +499,30 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                 <>
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 shrink-0 rounded-full ${runInGameDotClass}`} />
-                    <span className={`text-data font-medium ${textPrimary}`}>{runInGamePhaseLabel}</span>
+                    <span className={`text-data font-medium ${textPrimary}`}>
+                      {runInGamePhaseLabel}
+                    </span>
                     {runInGameStateLabel ? (
-                      <span className={`rounded border px-1 py-0.5 text-label ${runInGameCurrentRelation === "stale" ? "border-warning/40 text-warning" : "border-border text-muted-foreground"}`}>
+                      <span
+                        className={`rounded border px-1 py-0.5 text-label ${runInGameCurrentRelation === "stale" ? "border-warning/40 text-warning" : "border-border text-muted-foreground"}`}
+                      >
                         {runInGameStateLabel}
                       </span>
                     ) : null}
                   </div>
-                  <span className={`truncate text-label ${textMuted}`} title={runInGameStatus.requestId}>
+                  <span
+                    className={`truncate text-label ${textMuted}`}
+                    title={runInGameStatus.requestId}
+                  >
                     {runInGameStatus.requestId}
                   </span>
                   {runInGameStatus.error ? (
                     <p className="text-label text-destructive">{runInGameStatus.error}</p>
                   ) : null}
                   {runInGameStatus.details?.recoveryHint ? (
-                    <p className={`text-label ${textMuted}`}>{runInGameStatus.details.recoveryHint}</p>
+                    <p className={`text-label ${textMuted}`}>
+                      {runInGameStatus.details.recoveryHint}
+                    </p>
                   ) : null}
                 </>
               ) : (
@@ -470,7 +539,10 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                   <span className={`text-data font-medium ${textPrimary}`}>{saveDeployLabel}</span>
                 </div>
                 {saveDeployStatus.requestId ? (
-                  <span className={`truncate text-label ${textMuted}`} title={saveDeployStatus.requestId}>
+                  <span
+                    className={`truncate text-label ${textMuted}`}
+                    title={saveDeployStatus.requestId}
+                  >
                     {saveDeployStatus.requestId}
                   </span>
                 ) : null}

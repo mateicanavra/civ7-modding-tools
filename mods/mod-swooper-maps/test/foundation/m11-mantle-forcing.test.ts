@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
-
-import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
-import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
 import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
+import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
+import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
 
 function variance(values: Float32Array): number {
   if (values.length === 0) return 0;
@@ -25,7 +24,7 @@ describe("foundation mantle forcing (D02r)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2},
+        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
       },
       ctx as any
     );
@@ -73,7 +72,7 @@ describe("foundation mantle forcing (D02r)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 12, cellsPerPlate: 2, relaxationSteps: 2},
+        config: { plateCount: 12, cellsPerPlate: 2, relaxationSteps: 2 },
       },
       ctx as any
     );

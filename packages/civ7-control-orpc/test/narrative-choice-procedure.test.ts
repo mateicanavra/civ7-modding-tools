@@ -1,18 +1,17 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
-import {
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  Civ7NarrativeChoiceUnavailableError,
-  createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-  type Civ7ControlOrpcPlayableStatusResult,
-} from "../src/index";
 import type {
   Civ7ControlOrpcNarrativeChoiceResult,
   Civ7ControlOrpcPlayNotificationViewResult,
 } from "../src/dependencies/direct-control";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  type Civ7ControlOrpcPlayableStatusResult,
+  Civ7ControlOrpcRouter,
+  Civ7NarrativeChoiceUnavailableError,
+  createCiv7ControlOrpcServerClient,
+} from "../src/index";
 
 const narrativeInput = {
   targetType: "DISCOVERY_STORY",
@@ -24,25 +23,25 @@ describe("narrative.choice.request control-oRPC procedure", () => {
   test("projects confirmed narrative choices without raw command output", async () => {
     const fake = fakeContext(narrativeChoiceResult("narrative-blocker-cleared"));
 
-    const result = await call(
-      Civ7ControlOrpcRouter.narrative.choice.request,
-      narrativeInput,
-      { context: fake.context },
-    );
+    const result = await call(Civ7ControlOrpcRouter.narrative.choice.request, narrativeInput, {
+      context: fake.context,
+    });
 
     expect(fake.calls.readiness).toHaveLength(1);
     expect(fake.calls.views).toHaveLength(1);
-    expect(fake.calls.request).toEqual([{
-      input: {
-        playerId: 0,
-        ...narrativeInput,
+    expect(fake.calls.request).toEqual([
+      {
+        input: {
+          playerId: 0,
+          ...narrativeInput,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expect(result).toEqual({
       playerId: 0,
       targetType: "DISCOVERY_STORY",
@@ -62,33 +61,36 @@ describe("narrative.choice.request control-oRPC procedure", () => {
         confirmed: true,
         noRepeatAfterUnverified: false,
       },
-      nextSteps: [{
-        kind: "refresh-attention",
-        source: "narrative.choice.request",
-        label: "Refresh current attention before choosing the next player action.",
-      }],
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "narrative.choice.request",
+          label: "Refresh current attention before choosing the next player action.",
+        },
+      ],
     });
 
     const serialized = JSON.stringify(result);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"verified"');
     expect(serialized).not.toContain("Game.turn");
   });
 
   test("derives send player from live notification evidence", async () => {
-    const fake = fakeContext(narrativeChoiceResult("narrative-blocker-cleared", {
-      playerId: 0,
-    }), { localPlayerId: 2 });
-
-    const result = await call(
-      Civ7ControlOrpcRouter.narrative.choice.request,
-      narrativeInput,
-      { context: fake.context },
+    const fake = fakeContext(
+      narrativeChoiceResult("narrative-blocker-cleared", {
+        playerId: 0,
+      }),
+      { localPlayerId: 2 }
     );
+
+    const result = await call(Civ7ControlOrpcRouter.narrative.choice.request, narrativeInput, {
+      context: fake.context,
+    });
 
     expect(fake.calls.request[0]?.input).toEqual({
       playerId: 2,
@@ -104,8 +106,8 @@ describe("narrative.choice.request control-oRPC procedure", () => {
       call(
         Civ7ControlOrpcRouter.narrative.choice.request,
         { ...narrativeInput, playerId: 2 } as never,
-        { context: fake.context },
-      ),
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(fake.calls.readiness).toEqual([]);
     expect(fake.calls.views).toEqual([]);
@@ -113,16 +115,16 @@ describe("narrative.choice.request control-oRPC procedure", () => {
   });
 
   test("keeps sent no-state-change narrative choices no-repeat guarded", async () => {
-    const fake = fakeContext(narrativeChoiceResult("no-state-change", {
-      afterValid: true,
-      verified: true,
-    }));
-
-    const result = await call(
-      Civ7ControlOrpcRouter.narrative.choice.request,
-      narrativeInput,
-      { context: fake.context },
+    const fake = fakeContext(
+      narrativeChoiceResult("no-state-change", {
+        afterValid: true,
+        verified: true,
+      })
     );
+
+    const result = await call(Civ7ControlOrpcRouter.narrative.choice.request, narrativeInput, {
+      context: fake.context,
+    });
 
     expect(result.status).toBe("sent-unverified");
     expect(result.postcondition).toMatchObject({
@@ -132,26 +134,29 @@ describe("narrative.choice.request control-oRPC procedure", () => {
       confirmed: false,
       noRepeatAfterUnverified: true,
     });
-    expect(result.nextSteps).toEqual([{
-      kind: "do-not-repeat",
-      source: "narrative.choice.request",
-      label: "Do not repeat this narrative choice request until fresh attention and narrative evidence is read.",
-    }]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "do-not-repeat",
+        source: "narrative.choice.request",
+        label:
+          "Do not repeat this narrative choice request until fresh attention and narrative evidence is read.",
+      },
+    ]);
   });
 
   test("projects validator-blocked narrative choices as not-sent", async () => {
-    const fake = fakeContext(narrativeChoiceResult("not-sent", {
-      sent: false,
-      beforeValid: false,
-      afterValid: false,
-      verified: false,
-    }));
-
-    const result = await call(
-      Civ7ControlOrpcRouter.narrative.choice.request,
-      narrativeInput,
-      { context: fake.context },
+    const fake = fakeContext(
+      narrativeChoiceResult("not-sent", {
+        sent: false,
+        beforeValid: false,
+        afterValid: false,
+        verified: false,
+      })
     );
+
+    const result = await call(Civ7ControlOrpcRouter.narrative.choice.request, narrativeInput, {
+      context: fake.context,
+    });
 
     expect(result).toMatchObject({
       sent: false,
@@ -167,11 +172,14 @@ describe("narrative.choice.request control-oRPC procedure", () => {
         noRepeatAfterUnverified: true,
       },
     });
-    expect(result.nextSteps).toEqual([{
-      kind: "inspect-narrative-choice",
-      source: "narrative.choice.request",
-      label: "Inspect current attention and narrative choice state before attempting another narrative request.",
-    }]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "inspect-narrative-choice",
+        source: "narrative.choice.request",
+        label:
+          "Inspect current attention and narrative choice state before attempting another narrative request.",
+      },
+    ]);
   });
 
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
@@ -188,11 +196,9 @@ describe("narrative.choice.request control-oRPC procedure", () => {
       const fake = fakeContext(narrativeChoiceResult("narrative-blocker-cleared"));
 
       await expect(
-        call(
-          Civ7ControlOrpcRouter.narrative.choice.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.narrative.choice.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.readiness).toEqual([]);
       expect(fake.calls.views).toEqual([]);
@@ -207,19 +213,15 @@ describe("narrative.choice.request control-oRPC procedure", () => {
       directControl: {
         ...context.directControl,
         requestCiv7NarrativeChoice: async () => {
-          throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:1:Game.turn",
-          );
+          throw new Error("Timed out waiting for Civ7 tuner response to CMD:1:Game.turn");
         },
       },
     };
 
     await expect(
-      call(
-        Civ7ControlOrpcRouter.narrative.choice.request,
-        narrativeInput,
-        { context: failingContext },
-      ),
+      call(Civ7ControlOrpcRouter.narrative.choice.request, narrativeInput, {
+        context: failingContext,
+      })
     ).rejects.toMatchObject({
       code: "NARRATIVE_CHOICE_UNAVAILABLE",
       status: 503,
@@ -230,11 +232,9 @@ describe("narrative.choice.request control-oRPC procedure", () => {
     });
 
     try {
-      await call(
-        Civ7ControlOrpcRouter.narrative.choice.request,
-        narrativeInput,
-        { context: failingContext },
-      );
+      await call(Civ7ControlOrpcRouter.narrative.choice.request, narrativeInput, {
+        context: failingContext,
+      });
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -255,9 +255,7 @@ describe("narrative.choice.request control-oRPC procedure", () => {
   });
 
   test("publishes a contract-first narrative domain service leaf", () => {
-    expect(
-      Civ7ControlOrpcContract.narrative.choice.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.narrative.choice.request["~orpc"]).toMatchObject({
       meta: {
         family: "narrative",
         procedureKey: "narrative.choice.request",
@@ -265,42 +263,42 @@ describe("narrative.choice.request control-oRPC procedure", () => {
         risk: "mutation",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.narrative.choice.request["~orpc"].errorMap,
-    ).toHaveProperty("NARRATIVE_CHOICE_UNAVAILABLE");
-    expect(
-      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions,
-    ).toBeUndefined();
-    expect(
-      (Civ7ControlOrpcRouter as unknown as Record<string, unknown>).decisions,
-    ).toBeUndefined();
-    expect(Civ7NarrativeChoiceUnavailableError.code).toBe(
-      "NARRATIVE_CHOICE_UNAVAILABLE",
+    expect(Civ7ControlOrpcContract.narrative.choice.request["~orpc"].errorMap).toHaveProperty(
+      "NARRATIVE_CHOICE_UNAVAILABLE"
     );
+    expect(
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions
+    ).toBeUndefined();
+    expect((Civ7ControlOrpcRouter as unknown as Record<string, unknown>).decisions).toBeUndefined();
+    expect(Civ7NarrativeChoiceUnavailableError.code).toBe("NARRATIVE_CHOICE_UNAVAILABLE");
   });
 });
 
 function fakeContext(
   result: Civ7ControlOrpcNarrativeChoiceResult,
-  options: Partial<{ playable: boolean; localPlayerId: number }> = {},
+  options: Partial<{ playable: boolean; localPlayerId: number }> = {}
 ): {
   calls: {
     readiness: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
-    request: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
+    request: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
   };
   context: Civ7ControlOrpcContext;
 } {
   const calls = {
     readiness: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
     views: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
-    request: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
+    request: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
   };
 
   return {
@@ -339,7 +337,7 @@ function narrativeChoiceResult(
     beforeValid: boolean;
     afterValid: boolean;
     verified: boolean;
-  }> = {},
+  }> = {}
 ): Civ7ControlOrpcNarrativeChoiceResult {
   const sent = options.sent ?? classification !== "not-sent";
   return {
@@ -369,9 +367,8 @@ function narrativeChoiceResult(
       result: {},
     } as Civ7ControlOrpcNarrativeChoiceResult["afterValidation"],
     sent,
-    verified: options.verified ?? (
-      classification !== "not-sent" && classification !== "no-state-change"
-    ),
+    verified:
+      options.verified ?? (classification !== "not-sent" && classification !== "no-state-change"),
     postcondition: {
       classification,
       reason: `${classification} reason`,

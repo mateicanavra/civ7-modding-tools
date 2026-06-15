@@ -1,5 +1,9 @@
+import type {
+  Civ7NotificationDismissalResult,
+  Civ7NotificationDismissInput,
+} from "../play/notifications/dismissal-request";
+import { notificationDismissalProofPostcondition } from "./notification-dismissal-proof-policy";
 import {
-  createCiv7OperationProofTelemetryRecord,
   type Civ7OperationProofBoundary,
   type Civ7OperationProofClass,
   type Civ7OperationProofTelemetryRecord,
@@ -7,13 +11,8 @@ import {
   type Civ7OperationTelemetryEvidencePolicy,
   type Civ7OperationTelemetryObservationLink,
   type Civ7OperationTelemetryPlayerScope,
+  createCiv7OperationProofTelemetryRecord,
 } from "./operation-telemetry";
-import { notificationDismissalProofPostcondition } from "./notification-dismissal-proof-policy";
-
-import type {
-  Civ7NotificationDismissInput,
-  Civ7NotificationDismissalResult,
-} from "../play/notifications/dismissal-request";
 
 export type Civ7NotificationDismissalTelemetryAdapterInput = Readonly<{
   input: Civ7NotificationDismissInput;
@@ -35,7 +34,7 @@ export function createCiv7NotificationDismissalTelemetryRecord(
   const evidenceClass = input.allowedProofClasses?.[0] ?? "local-package-test";
   const evidence = <T>(
     value: T,
-    freshness: Civ7OperationTelemetryEvidence<T>["freshness"],
+    freshness: Civ7OperationTelemetryEvidence<T>["freshness"]
   ): Civ7OperationTelemetryEvidence<T> => ({
     evidenceClass,
     source: input.source,
@@ -101,22 +100,30 @@ export function createCiv7NotificationDismissalTelemetryRecord(
         : {
             status: "not-sent",
             requestFamily: "app-ui-action",
-            reason: notificationDismissalPostconditionOf(input.result)?.reason ?? "Notification dismissal was not sent.",
+            reason:
+              notificationDismissalPostconditionOf(input.result)?.reason ??
+              "Notification dismissal was not sent.",
           },
-    post_read: input.result.sent || input.result.after
-      ? evidence(
-          {
-            before: notificationDismissalTelemetrySummary(input.result.before),
-            after: input.result.after ? notificationDismissalTelemetrySummary(input.result.after) : null,
-            verificationAttempts: input.result.verificationAttempts?.map(notificationDismissalTelemetrySummary) ?? [],
-          },
-          input.result.sent ? "read-after-send" : "read-before-send"
-        )
-      : undefined,
+    post_read:
+      input.result.sent || input.result.after
+        ? evidence(
+            {
+              before: notificationDismissalTelemetrySummary(input.result.before),
+              after: input.result.after
+                ? notificationDismissalTelemetrySummary(input.result.after)
+                : null,
+              verificationAttempts:
+                input.result.verificationAttempts?.map(notificationDismissalTelemetrySummary) ?? [],
+            },
+            input.result.sent ? "read-after-send" : "read-before-send"
+          )
+        : undefined,
     validation_post: input.result.sent
       ? evidence(
           {
-            postconditionClassification: notificationDismissalPostconditionOf(input.result)?.classification ?? "missing-postcondition",
+            postconditionClassification:
+              notificationDismissalPostconditionOf(input.result)?.classification ??
+              "missing-postcondition",
             verified: input.result.verified,
           },
           "read-after-send"
@@ -126,9 +133,13 @@ export function createCiv7NotificationDismissalTelemetryRecord(
     outcome_delta: input.result.sent
       ? evidence(
           {
-            classification: notificationDismissalPostconditionOf(input.result)?.classification ?? "missing-postcondition",
+            classification:
+              notificationDismissalPostconditionOf(input.result)?.classification ??
+              "missing-postcondition",
             before: notificationDismissalTelemetrySummary(input.result.before),
-            after: input.result.after ? notificationDismissalTelemetrySummary(input.result.after) : null,
+            after: input.result.after
+              ? notificationDismissalTelemetrySummary(input.result.after)
+              : null,
           },
           "read-after-send"
         )
@@ -166,14 +177,13 @@ function notificationDismissalEvidencePolicy(
 }
 
 function notificationDismissalPostconditionOf(
-  result: Civ7NotificationDismissalResult,
+  result: Civ7NotificationDismissalResult
 ): Civ7NotificationDismissalResult["postcondition"] | undefined {
-  return (result as { postcondition?: Civ7NotificationDismissalResult["postcondition"] }).postcondition;
+  return (result as { postcondition?: Civ7NotificationDismissalResult["postcondition"] })
+    .postcondition;
 }
 
-function notificationDismissalTelemetrySummary(
-  summary: Civ7NotificationDismissalResult["before"],
-) {
+function notificationDismissalTelemetrySummary(summary: Civ7NotificationDismissalResult["before"]) {
   return {
     id: summary.id,
     exists: summary.exists,

@@ -1,20 +1,20 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
+import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
-  getCiv7ReadyCityView,
-  Civ7ReadyCityViewInputSchema,
-  Civ7ReadyCityViewResultSchema,
   type Civ7ReadyCityViewInput,
+  Civ7ReadyCityViewInputSchema,
   type Civ7ReadyCityViewResult,
+  Civ7ReadyCityViewResultSchema,
+  getCiv7ReadyCityView,
   type ReadyCityViewDependencies,
 } from "./city.js";
-import type { Civ7DirectControlOptions } from "../../session/types.js";
 
 export const Civ7ReadyCityViewProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "city.ready.view",
@@ -41,10 +41,7 @@ export const Civ7ReadyCityViewProcedureDescriptor = createCiv7ProcedureCoreDescr
     "populationPlacement",
   ],
   playerScope: "local-player-scoped",
-  consumerClasses: [
-    "normal-cli-player-agent-view",
-    "effect-orpc-procedure-core",
-  ],
+  consumerClasses: ["normal-cli-player-agent-view", "effect-orpc-procedure-core"],
   proofBoundary: "local-package-test",
   projection: {
     normalCli: "semantic-projection",
@@ -69,8 +66,10 @@ export const Civ7ReadyCityViewProcedureDescriptor = createCiv7ProcedureCoreDescr
 });
 
 export const Civ7ReadyCityViewProcedureSchemaArtifacts = {
-  [civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.inputSchema)]: Civ7ReadyCityViewInputSchema,
-  [civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.outputSchema)]: Civ7ReadyCityViewResultSchema,
+  [civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.inputSchema)]:
+    Civ7ReadyCityViewInputSchema,
+  [civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.outputSchema)]:
+    Civ7ReadyCityViewResultSchema,
 } satisfies Civ7ProcedureSchemaArtifactMap;
 
 export type Civ7ReadyCityViewProcedureCallOptions = Readonly<{
@@ -81,17 +80,13 @@ export type Civ7ReadyCityViewProcedureCallOptions = Readonly<{
 
 export function callCiv7ReadyCityViewProcedure(
   input: Civ7ReadyCityViewInput = {},
-  options: Civ7ReadyCityViewProcedureCallOptions = {},
+  options: Civ7ReadyCityViewProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7ReadyCityViewResult>> {
   return callCiv7ProcedureCore<Civ7ReadyCityViewInput, Civ7ReadyCityViewResult>(
     Civ7ReadyCityViewProcedureDescriptor,
     Civ7ReadyCityViewProcedureSchemaArtifacts,
     input,
-    (validInput) => getCiv7ReadyCityView(
-      validInput,
-      options.directControl,
-      options.dependencies,
-    ),
-    options.procedure,
+    (validInput) => getCiv7ReadyCityView(validInput, options.directControl, options.dependencies),
+    options.procedure
   );
 }

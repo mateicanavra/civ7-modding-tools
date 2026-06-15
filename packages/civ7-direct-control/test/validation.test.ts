@@ -10,7 +10,7 @@ describe("direct-control validation primitives", () => {
     expect(boundedInteger(3, 1, 5, "limit")).toBe(3);
     for (const value of [0, 6, 1.5, Number.NaN]) {
       expect(() => boundedInteger(value, 1, 5, "limit")).toThrow(
-        "limit must be an integer between 1 and 5",
+        "limit must be an integer between 1 and 5"
       );
     }
     try {
@@ -24,7 +24,7 @@ describe("direct-control validation primitives", () => {
     expect(validateIdentifier("Resources_2025", "GameInfo table")).toBe("Resources_2025");
     for (const value of ["Resources;DROP", "1Resources", "Resources.Name", ""]) {
       expect(() => validateIdentifier(value, "GameInfo table")).toThrow(
-        "GameInfo table must be a simple identifier",
+        "GameInfo table must be a simple identifier"
       );
     }
   });
@@ -39,18 +39,18 @@ describe("direct-control validation primitives", () => {
   test("validates map locations and bounds with existing map-specific ranges", () => {
     expect(() => validateMapLocation({ x: 0, y: 1_000_000 })).not.toThrow();
     expect(() => validateMapLocation({ x: -1, y: 0 })).toThrow(
-      "x must be an integer between 0 and 1000000",
+      "x must be an integer between 0 and 1000000"
     );
     expect(() => validateMapLocation({ x: 0, y: 1_000_001 })).toThrow(
-      "y must be an integer between 0 and 1000000",
+      "y must be an integer between 0 and 1000000"
     );
 
     expect(() => validateMapBounds({ x: 0, y: 0, width: 1, height: 10_000 })).not.toThrow();
     expect(() => validateMapBounds({ x: 0, y: 0, width: 0, height: 1 })).toThrow(
-      "bounds.width must be an integer between 1 and 10000",
+      "bounds.width must be an integer between 1 and 10000"
     );
     expect(() => validateMapBounds({ x: 0, y: 0, width: 1, height: 10_001 })).toThrow(
-      "bounds.height must be an integer between 1 and 10000",
+      "bounds.height must be an integer between 1 and 10000"
     );
   });
 

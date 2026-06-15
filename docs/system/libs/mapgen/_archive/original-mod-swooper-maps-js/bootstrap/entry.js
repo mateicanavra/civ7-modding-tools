@@ -35,26 +35,25 @@ import { setConfig } from "./runtime.js";
  * @returns {any}
  */
 function deepMerge(base, src) {
-    const isObj = (v) => v != null &&
-        typeof v === "object" &&
-        (Object.getPrototypeOf(v) === Object.prototype ||
-            Object.getPrototypeOf(v) === null);
-    if (!isObj(base) || Array.isArray(src)) {
-        return clone(src);
-    }
-    if (!isObj(src)) {
-        return clone(src);
-    }
-    /** @type {Record<string, any>} */
-    const out = {};
-    for (const k of Object.keys(base))
-        out[k] = clone(base[k]);
-    for (const k of Object.keys(src)) {
-        const b = out[k];
-        const s = src[k];
-        out[k] = isObj(b) && isObj(s) ? deepMerge(b, s) : clone(s);
-    }
-    return out;
+  const isObj = (v) =>
+    v != null &&
+    typeof v === "object" &&
+    (Object.getPrototypeOf(v) === Object.prototype || Object.getPrototypeOf(v) === null);
+  if (!isObj(base) || Array.isArray(src)) {
+    return clone(src);
+  }
+  if (!isObj(src)) {
+    return clone(src);
+  }
+  /** @type {Record<string, any>} */
+  const out = {};
+  for (const k of Object.keys(base)) out[k] = clone(base[k]);
+  for (const k of Object.keys(src)) {
+    const b = out[k];
+    const s = src[k];
+    out[k] = isObj(b) && isObj(s) ? deepMerge(b, s) : clone(s);
+  }
+  return out;
 }
 /**
  * Shallow clone helper (new containers for arrays/objects).
@@ -62,19 +61,17 @@ function deepMerge(base, src) {
  * @returns {any}
  */
 function clone(v) {
-    if (Array.isArray(v))
-        return v.slice();
-    const isObj = v != null &&
-        typeof v === "object" &&
-        (Object.getPrototypeOf(v) === Object.prototype ||
-            Object.getPrototypeOf(v) === null);
-    if (isObj) {
-        const o = {};
-        for (const k of Object.keys(v))
-            o[k] = v[k];
-        return o;
-    }
-    return v;
+  if (Array.isArray(v)) return v.slice();
+  const isObj =
+    v != null &&
+    typeof v === "object" &&
+    (Object.getPrototypeOf(v) === Object.prototype || Object.getPrototypeOf(v) === null);
+  if (isObj) {
+    const o = {};
+    for (const k of Object.keys(v)) o[k] = v[k];
+    return o;
+  }
+  return v;
 }
 /**
  * Compose a per-entry configuration object from presets and overrides,
@@ -86,26 +83,26 @@ function clone(v) {
  * @param {Record<string, boolean>} [options.stageConfig] - Stage metadata indicating which stages provide config overrides
  */
 export function bootstrap(options = {}) {
-    const presets = Array.isArray(options.presets) &&
-        options.presets.length > 0
-        ? options.presets.filter((n) => typeof n === "string")
-        : undefined;
-    const overrides = options && typeof options === "object" && options.overrides
-        ? clone(options.overrides)
-        : undefined;
-    const stageConfig = options && typeof options === "object" && options.stageConfig
-        ? clone(options.stageConfig)
-        : undefined;
-    const cfg = {};
-    if (presets)
-        cfg.presets = presets;
-    if (stageConfig)
-        cfg.stageConfig = stageConfig;
-    if (overrides) {
-        // If both presets and overrides exist, ensure overrides apply last (highest precedence)
-        Object.assign(cfg, deepMerge(cfg, overrides));
-    }
-    // Store runtime config for this map entry (entries must import orchestrator separately)
-    setConfig(cfg);
+  const presets =
+    Array.isArray(options.presets) && options.presets.length > 0
+      ? options.presets.filter((n) => typeof n === "string")
+      : undefined;
+  const overrides =
+    options && typeof options === "object" && options.overrides
+      ? clone(options.overrides)
+      : undefined;
+  const stageConfig =
+    options && typeof options === "object" && options.stageConfig
+      ? clone(options.stageConfig)
+      : undefined;
+  const cfg = {};
+  if (presets) cfg.presets = presets;
+  if (stageConfig) cfg.stageConfig = stageConfig;
+  if (overrides) {
+    // If both presets and overrides exist, ensure overrides apply last (highest precedence)
+    Object.assign(cfg, deepMerge(cfg, overrides));
+  }
+  // Store runtime config for this map entry (entries must import orchestrator separately)
+  setConfig(cfg);
 }
 export default { bootstrap };

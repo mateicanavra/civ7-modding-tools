@@ -95,13 +95,19 @@ export function loadTraceLines(runDir: string): any[] {
     .filter(Boolean);
 }
 
-export function pickLatestGridLayer(manifest: VizManifestV1, dataTypeKey: string): VizManifestV1["layers"][number] {
+export function pickLatestGridLayer(
+  manifest: VizManifestV1,
+  dataTypeKey: string
+): VizManifestV1["layers"][number] {
   const matches = manifest.layers.filter((l) => l.kind === "grid" && l.dataTypeKey === dataTypeKey);
   if (matches.length === 0) throw new Error(`Missing grid layer for dataTypeKey="${dataTypeKey}".`);
   return matches.slice().sort((a, b) => (b.stepIndex ?? 0) - (a.stepIndex ?? 0))[0]!;
 }
 
-export function listLayers(manifest: VizManifestV1, filter?: { prefix?: string; dataTypeKey?: string }): any[] {
+export function listLayers(
+  manifest: VizManifestV1,
+  filter?: { prefix?: string; dataTypeKey?: string }
+): any[] {
   const prefix = filter?.prefix;
   const exact = filter?.dataTypeKey;
   return manifest.layers
@@ -129,7 +135,10 @@ export function readBinaryView(runDir: string, relPath: string): Buffer {
   return readFileSync(abs);
 }
 
-export function readU8Grid(runDir: string, layer: VizManifestV1["layers"][number]): {
+export function readU8Grid(
+  runDir: string,
+  layer: VizManifestV1["layers"][number]
+): {
   values: Uint8Array;
   width: number;
   height: number;
@@ -145,7 +154,10 @@ export function readU8Grid(runDir: string, layer: VizManifestV1["layers"][number
   };
 }
 
-export function readI16Grid(runDir: string, layer: VizManifestV1["layers"][number]): {
+export function readI16Grid(
+  runDir: string,
+  layer: VizManifestV1["layers"][number]
+): {
   values: Int16Array;
   width: number;
   height: number;
@@ -158,7 +170,10 @@ export function readI16Grid(runDir: string, layer: VizManifestV1["layers"][numbe
   return { values: arr, width: layer.dims.width, height: layer.dims.height };
 }
 
-export function readF32Grid(runDir: string, layer: VizManifestV1["layers"][number]): {
+export function readF32Grid(
+  runDir: string,
+  layer: VizManifestV1["layers"][number]
+): {
   values: Float32Array;
   width: number;
   height: number;
@@ -178,21 +193,30 @@ export function hammingU8(a: Uint8Array, b: Uint8Array): number {
   return diff;
 }
 
-export function landmaskStats(values: Uint8Array): { land: number; water: number; pctLand: number } {
+export function landmaskStats(values: Uint8Array): {
+  land: number;
+  water: number;
+  pctLand: number;
+} {
   let land = 0;
   for (let i = 0; i < values.length; i++) if (values[i] === 1) land++;
   const water = values.length - land;
   return { land, water, pctLand: values.length > 0 ? land / values.length : 0 };
 }
 
-export function connectedComponentsLandOddQ(values: Uint8Array, width: number, height: number): {
+export function connectedComponentsLandOddQ(
+  values: Uint8Array,
+  width: number,
+  height: number
+): {
   landComponents: number;
   largestLandComponent: number;
   largestLandFrac: number;
   totalLand: number;
 } {
   const size = width * height;
-  if (values.length !== size) throw new Error(`CC size mismatch: values=${values.length} dims=${size}`);
+  if (values.length !== size)
+    throw new Error(`CC size mismatch: values=${values.length} dims=${size}`);
 
   const visited = new Uint8Array(size);
   const componentSizes: number[] = [];

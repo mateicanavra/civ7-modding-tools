@@ -5,9 +5,5 @@
     "outDir": "dist"
   },
   "include": ["src"],
-  "references": [
-    { "path": "../plugin-files" }
-  ]
+  "references": [{ "path": "../plugin-files" }]
 }
-
-

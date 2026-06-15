@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 /**
  * Computes a runoff proxy and accumulates it along Hydrology-derived routing to derive discharge.
@@ -40,10 +40,13 @@ const AccumulateDischargeOutputSchema = Type.Object(
     /** Accumulated discharge proxy per tile. */
     discharge: TypedArraySchemas.f32({ description: "Accumulated discharge proxy per tile." }),
     /** Mask (1/0): land tiles that are routing sinks. */
-    sinkMask: TypedArraySchemas.u8({ description: "Mask (1/0): land tiles that are routing sinks." }),
+    sinkMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): land tiles that are routing sinks.",
+    }),
     /** Mask (1/0): land tiles that drain directly into ocean/edges (land→water/out-of-bounds). */
     outletMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): land tiles that drain directly into ocean/edges (land→water/out-of-bounds).",
+      description:
+        "Mask (1/0): land tiles that drain directly into ocean/edges (land→water/out-of-bounds).",
     }),
   },
   {

@@ -1,4 +1,4 @@
-import { Type, type Static, type TSchema } from "typebox";
+import { type Static, type TSchema, Type } from "typebox";
 
 import type { DomainOpSchema } from "./op/schema.js";
 
@@ -123,10 +123,7 @@ export function buildSchemaDefaults(schema: TSchema): unknown {
   return undefined;
 }
 
-export function applySchemaDefaults<T extends TSchema>(
-  schema: T,
-  input: unknown
-): Static<T> {
+export function applySchemaDefaults<T extends TSchema>(schema: T, input: unknown): Static<T> {
   const typed = schema as SchemaWithDefaults;
   if (input == null) {
     const defaults = buildSchemaDefaults(typed);

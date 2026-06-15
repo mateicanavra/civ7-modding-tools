@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 import {
   FoundationCrustTilesArtifactSchema,
   FoundationPlatesArtifactSchema,
@@ -24,8 +24,7 @@ const ProjectionMetaArtifactSchema = Type.Object(
 const LandmassRegionSlotByTileArtifactSchema = Type.Object(
   {
     slotByTile: TypedArraySchemas.u8({
-      description:
-        "Per-tile landmass region slot (0=none, 1=west, 2=east), in tileIndex order.",
+      description: "Per-tile landmass region slot (0=none, 1=west, 2=east), in tileIndex order.",
     }),
   },
   {

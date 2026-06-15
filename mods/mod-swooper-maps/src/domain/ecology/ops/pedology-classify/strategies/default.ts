@@ -5,7 +5,11 @@ import { computeReliefProxy, fertilityForTile, soilPaletteIndex } from "../rules
 export const defaultStrategy = createStrategy(PedologyClassifyContract, "default", {
   run: (input, config) => {
     const size = input.width * input.height;
-    const relief = computeReliefProxy(input.slope as Float32Array | undefined, input.elevation as Int16Array, size);
+    const relief = computeReliefProxy(
+      input.slope as Float32Array | undefined,
+      input.elevation as Int16Array,
+      size
+    );
     const sediment = input.sedimentDepth as Float32Array | undefined;
     const bedrock = input.bedrockAge as Int16Array | undefined;
 

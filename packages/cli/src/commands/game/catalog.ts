@@ -1,34 +1,37 @@
-import { Command, Flags } from '@oclif/core';
-import { createStaticCiv7CapabilityCatalog, generateCiv7CapabilityCatalog } from '@civ7/direct-control';
+import {
+  createStaticCiv7CapabilityCatalog,
+  generateCiv7CapabilityCatalog,
+} from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GameCatalog extends Command {
-  static id = 'game catalog';
-  static summary = 'Generate the Civ7 direct-control capability catalog';
+  static id = "game catalog";
+  static summary = "Generate the Civ7 direct-control capability catalog";
   static description =
-    'Prints the provenance-aware direct-control capability catalog from static wrappers and, by default, the live runtime.';
+    "Prints the provenance-aware direct-control capability catalog from static wrappers and, by default, the live runtime.";
 
   static examples = [
-    '<%= config.bin %> game catalog --json',
-    '<%= config.bin %> game catalog --static --json',
+    "<%= config.bin %> game catalog --json",
+    "<%= config.bin %> game catalog --static --json",
   ];
 
   static flags = {
     host: Flags.string({
-      description: 'Civ7 tuner socket host',
+      description: "Civ7 tuner socket host",
     }),
     port: Flags.integer({
-      description: 'Civ7 tuner socket port',
+      description: "Civ7 tuner socket port",
     }),
     static: Flags.boolean({
-      description: 'Emit only the static package-owned catalog',
+      description: "Emit only the static package-owned catalog",
       default: false,
     }),
-    'timeout-ms': Flags.integer({
-      description: 'Socket timeout',
+    "timeout-ms": Flags.integer({
+      description: "Socket timeout",
       default: 45_000,
     }),
     json: Flags.boolean({
-      description: 'Emit machine-readable JSON',
+      description: "Emit machine-readable JSON",
       default: false,
     }),
   };
@@ -40,7 +43,7 @@ export default class GameCatalog extends Command {
       : await generateCiv7CapabilityCatalog({
           host: flags.host,
           port: flags.port,
-          timeoutMs: flags['timeout-ms'],
+          timeoutMs: flags["timeout-ms"],
         });
 
     if (flags.json) {

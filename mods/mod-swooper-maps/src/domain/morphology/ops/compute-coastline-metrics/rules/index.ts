@@ -78,7 +78,8 @@ export function resolveFjordDenom(params: {
   nearPassive: boolean;
 }): number {
   const { fjord, plateBias, bias, nearActive, nearPassive } = params;
-  const denom = fjord.baseDenom - (nearPassive ? fjord.passiveBonus : 0) - (nearActive ? fjord.activeBonus : 0);
+  const denom =
+    fjord.baseDenom - (nearPassive ? fjord.passiveBonus : 0) - (nearActive ? fjord.activeBonus : 0);
   let denomUsed = Math.max(1, Math.round(denom));
 
   if (plateBias.fjordWeight > 0 && bias !== 0) {

@@ -1,20 +1,18 @@
-import { Command, Flags } from '@oclif/core';
-import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
-import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
-import {
-  getCiv7NotificationDismissal,
-} from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
+import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import { getCiv7NotificationDismissal } from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 import {
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-} from '../../../utils/game-play-shared';
+} from "../../../utils/game-play-shared";
 
 export default class GamePlayDismissNotification extends Command {
-  static id = 'game play dismiss-notification';
-  static summary = 'Inspect or dismiss a reviewed notification';
+  static id = "game play dismiss-notification";
+  static summary = "Inspect or dismiss a reviewed notification";
   static description =
-    'Reads a notification through App UI state and optionally dismisses it through the native control-oRPC notification procedure when --send is explicit.';
+    "Reads a notification through App UI state and optionally dismisses it through the native control-oRPC notification procedure when --send is explicit.";
 
   static examples = [
     '<%= config.bin %> game play dismiss-notification --target \'{"owner":0,"id":113,"type":20}\' --json',
@@ -23,32 +21,32 @@ export default class GamePlayDismissNotification extends Command {
 
   static flags = {
     host: Flags.string({
-      description: 'Civ7 tuner socket host',
+      description: "Civ7 tuner socket host",
     }),
     port: Flags.integer({
-      description: 'Civ7 tuner socket port',
+      description: "Civ7 tuner socket port",
     }),
     target: Flags.string({
-      description: 'Notification ComponentID JSON',
+      description: "Notification ComponentID JSON",
       required: true,
     }),
     send: Flags.boolean({
-      description: 'Dismiss the notification when canUserDismiss is true',
+      description: "Dismiss the notification when canUserDismiss is true",
       default: false,
     }),
-    'timeout-ms': Flags.integer({
-      description: 'Socket timeout',
+    "timeout-ms": Flags.integer({
+      description: "Socket timeout",
       default: 45_000,
     }),
     json: Flags.boolean({
-      description: 'Emit machine-readable JSON',
+      description: "Emit machine-readable JSON",
       default: false,
     }),
   };
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayDismissNotification);
-    const input = { notificationId: parseComponentId(flags.target, 'target') };
+    const input = { notificationId: parseComponentId(flags.target, "target") };
     const options = buildDirectControlOptions(flags);
     const result = flags.send
       ? await createCiv7ControlOrpcServerClient({

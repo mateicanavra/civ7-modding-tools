@@ -16,19 +16,18 @@ export type { EngineAdapter, MapContext } from "@civ7/adapter";
 
 // Re-export core utilities and types
 export * from "@mapgen/core/index.js";
-
-// Re-export dev diagnostics module
-export * from "@mapgen/dev/index.js";
-
 // Explicit dev surface exports used by pipeline steps.
 // (Some consumers import these from the package root, not `@swooper/mapgen-core/dev`.)
-export { snapshotEngineHeightfield, type EngineHeightfieldSnapshot } from "@mapgen/dev/engine-heightfield.js";
-
-// Re-export tracing primitives
-export * from "@mapgen/trace/index.js";
-
+export {
+  type EngineHeightfieldSnapshot,
+  snapshotEngineHeightfield,
+} from "@mapgen/dev/engine-heightfield.js";
+// Re-export dev diagnostics module
+export * from "@mapgen/dev/index.js";
 // Re-export engine primitives (runtime SDK)
 export * from "@mapgen/engine/index.js";
+// Re-export tracing primitives
+export * from "@mapgen/trace/index.js";
 
 // Package version
 export const VERSION = "0.1.0";

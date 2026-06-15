@@ -107,12 +107,16 @@ type StageAccumulator = {
 };
 
 export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
-  const recipeKey = input.recipeKey ?? (input.namespace ? `${input.namespace}/${input.recipeId}` : input.recipeId);
+  const recipeKey =
+    input.recipeKey ?? (input.namespace ? `${input.namespace}/${input.recipeId}` : input.recipeId);
   const providers = new Map<string, ArtifactProvider[]>();
   const consumerArtifactIds = new Set<string>();
   const steps: RecipeDagStep[] = [];
   const stageAccumulators = new Map<string, StageAccumulator>();
-  const phaseAccumulators = new Map<string, { order: number; stageIds: Set<string>; stepCount: number }>();
+  const phaseAccumulators = new Map<
+    string,
+    { order: number; stageIds: Set<string>; stepCount: number }
+  >();
 
   let stepOrder = 0;
   input.stages.forEach((stage, stageIndex) => {
@@ -209,7 +213,8 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
             consumer,
           });
           duplicateProviderDiagnostics.add(key);
-          for (const provider of artifactProviders) incrementDiagnostic(stageAccumulators, provider.endpoint.stageId);
+          for (const provider of artifactProviders)
+            incrementDiagnostic(stageAccumulators, provider.endpoint.stageId);
         }
         incrementDiagnostic(stageAccumulators, step.stageId);
         continue;

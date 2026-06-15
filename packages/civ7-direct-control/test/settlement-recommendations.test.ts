@@ -1,7 +1,7 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7SettlementRecommendationInputSchema,
@@ -39,16 +39,24 @@ describe("getCiv7SettlementRecommendations", () => {
     expect(Value.Check(Civ7SettlementRecommendationInputSchema, { count: 0 })).toBe(false);
     expect(Value.Check(Civ7SettlementRecommendationInputSchema, { count: 13 })).toBe(false);
     expect(Value.Check(Civ7SettlementRecommendationInputSchema, { playerId: -1 })).toBe(false);
-    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { locations: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(
+      Value.Check(Civ7SettlementRecommendationInputSchema, { locations: [{ x: 1.5, y: 0 }] })
+    ).toBe(false);
     expect(Value.Check(Civ7SettlementRecommendationInputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { rawCommand: "readSettlementRecommendations()" })).toBe(false);
+    expect(
+      Value.Check(Civ7SettlementRecommendationInputSchema, {
+        rawCommand: "readSettlementRecommendations()",
+      })
+    ).toBe(false);
 
     const result = settlementRecommendationsResult(requestedInput);
     expect(Value.Check(Civ7SettlementRecommendationResultSchema, result)).toBe(true);
-    expect(Value.Check(Civ7SettlementRecommendationResultSchema, {
-      ...result,
-      rawCommand: "readSettlementRecommendations()",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7SettlementRecommendationResultSchema, {
+        ...result,
+        rawCommand: "readSettlementRecommendations()",
+      })
+    ).toBe(false);
   });
 
   test("routes a requested-location read through App UI settlement recommendations without send operations", async () => {

@@ -3,65 +3,56 @@ import type {
   Civ7ControlOrpcPlayNotificationViewResult,
 } from "./dependencies/direct-control";
 import {
-  getCiv7GameUiPlayNotificationView,
   type Civ7GameUiAttentionTarget,
+  getCiv7GameUiPlayNotificationView,
 } from "./game-ui-attention";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 
-type RuntimeProbe<T> = Readonly<
-  | { ok: true; value: T }
-  | { ok: false; error: string }
->;
-type NarrativeValidation =
-  Civ7ControlOrpcNarrativeChoiceResult["beforeValidation"];
-type NarrativePayload = NonNullable<
-  Civ7ControlOrpcNarrativeChoiceResult["payload"]
->;
+type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
+type NarrativeValidation = Civ7ControlOrpcNarrativeChoiceResult["beforeValidation"];
+type NarrativePayload = NonNullable<Civ7ControlOrpcNarrativeChoiceResult["payload"]>;
 type NarrativeUiState = NarrativePayload["ui"]["before"];
 
-export type Civ7GameUiNarrativeTarget = Civ7GameUiAttentionTarget & Readonly<{
-  Game?: Civ7GameUiAttentionTarget["Game"] & {
-    Notifications?: NonNullable<Civ7GameUiAttentionTarget["Game"]>["Notifications"] & {
-      activate?: (id: Civ7ControlOrpcComponentId) => unknown;
+export type Civ7GameUiNarrativeTarget = Civ7GameUiAttentionTarget &
+  Readonly<{
+    Game?: Civ7GameUiAttentionTarget["Game"] & {
+      Notifications?: NonNullable<Civ7GameUiAttentionTarget["Game"]>["Notifications"] & {
+        activate?: (id: Civ7ControlOrpcComponentId) => unknown;
+      };
+      PlayerOperations?: {
+        canStart?: (
+          playerId: number,
+          operationType: unknown,
+          args: unknown,
+          queue?: boolean
+        ) => unknown;
+        sendRequest?: (playerId: number, operationType: unknown, args: unknown) => unknown;
+      };
     };
-    PlayerOperations?: {
-      canStart?: (
-        playerId: number,
-        operationType: unknown,
-        args: unknown,
-        queue?: boolean,
-      ) => unknown;
-      sendRequest?: (
-        playerId: number,
-        operationType: unknown,
-        args: unknown,
-      ) => unknown;
+    NarrativePopupManager?: {
+      isShowing?: () => unknown;
+      currentNarrativeData?: unknown;
+      closePopup?: () => unknown;
     };
-  };
-  NarrativePopupManager?: {
-    isShowing?: () => unknown;
-    currentNarrativeData?: unknown;
-    closePopup?: () => unknown;
-  };
-  PlayerOperationTypes?: {
-    CHOOSE_NARRATIVE_STORY_DIRECTION?: unknown;
-  };
-  document?: {
-    querySelectorAll?: (selector: string) => Iterable<unknown> | ArrayLike<unknown>;
-  };
-}>;
+    PlayerOperationTypes?: {
+      CHOOSE_NARRATIVE_STORY_DIRECTION?: unknown;
+    };
+    document?: {
+      querySelectorAll?: (selector: string) => Iterable<unknown> | ArrayLike<unknown>;
+    };
+  }>;
 
-export function civ7GameUiNarrativeChoiceAvailable(
-  target: Civ7GameUiNarrativeTarget,
-): boolean {
-  return typeof target.Game?.PlayerOperations?.canStart === "function"
-    && typeof target.Game.PlayerOperations.sendRequest === "function"
-    && target.PlayerOperationTypes?.CHOOSE_NARRATIVE_STORY_DIRECTION !== undefined
-    && typeof target.Game?.Notifications?.activate === "function"
-    && typeof target.Game.Notifications.getIdsForPlayer === "function"
-    && typeof target.Game.Notifications.getType === "function"
-    && typeof target.Game.Notifications.getTypeName === "function"
-    && typeof target.Game.Notifications.find === "function";
+export function civ7GameUiNarrativeChoiceAvailable(target: Civ7GameUiNarrativeTarget): boolean {
+  return (
+    typeof target.Game?.PlayerOperations?.canStart === "function" &&
+    typeof target.Game.PlayerOperations.sendRequest === "function" &&
+    target.PlayerOperationTypes?.CHOOSE_NARRATIVE_STORY_DIRECTION !== undefined &&
+    typeof target.Game?.Notifications?.activate === "function" &&
+    typeof target.Game.Notifications.getIdsForPlayer === "function" &&
+    typeof target.Game.Notifications.getType === "function" &&
+    typeof target.Game.Notifications.getTypeName === "function" &&
+    typeof target.Game.Notifications.find === "function"
+  );
 }
 
 export async function requestCiv7GameUiNarrativeChoice(
@@ -71,11 +62,12 @@ export async function requestCiv7GameUiNarrativeChoice(
     target: Civ7ControlOrpcComponentId;
     action: number;
   }>,
-  target: Civ7GameUiNarrativeTarget = globalThis as Civ7GameUiNarrativeTarget,
+  target: Civ7GameUiNarrativeTarget = globalThis as Civ7GameUiNarrativeTarget
 ): Promise<Civ7ControlOrpcNarrativeChoiceResult> {
-  const playerId = typeof target.GameContext?.localPlayerID === "number"
-    ? target.GameContext.localPlayerID
-    : input.playerId;
+  const playerId =
+    typeof target.GameContext?.localPlayerID === "number"
+      ? target.GameContext.localPlayerID
+      : input.playerId;
   const args = {
     TargetType: input.targetType,
     Target: input.target,
@@ -83,13 +75,14 @@ export async function requestCiv7GameUiNarrativeChoice(
   };
   const before = await getCiv7GameUiPlayNotificationView({}, target);
   const beforeUi = readNarrativeUiState(input.target, target);
-  const beforeValidation = typeof target.GameContext?.localPlayerID === "number"
-    ? gameUiNarrativeValidation(playerId, args, target)
-    : gameUiNarrativeValidationBlocked(
-      playerId,
-      args,
-      "GameContext.localPlayerID is unavailable.",
-    );
+  const beforeValidation =
+    typeof target.GameContext?.localPlayerID === "number"
+      ? gameUiNarrativeValidation(playerId, args, target)
+      : gameUiNarrativeValidationBlocked(
+          playerId,
+          args,
+          "GameContext.localPlayerID is unavailable."
+        );
 
   if (!beforeValidation.valid) {
     return narrativeChoiceResult({
@@ -106,15 +99,13 @@ export async function requestCiv7GameUiNarrativeChoice(
 
   const notificationId = currentNarrativeNotification(playerId, target);
   const activationResult = probe(() =>
-    notificationId == null
-      ? null
-      : target.Game?.Notifications?.activate?.(notificationId)
+    notificationId == null ? null : target.Game?.Notifications?.activate?.(notificationId)
   );
   const sendResult = probe(() =>
     target.Game?.PlayerOperations?.sendRequest?.(
       playerId,
       target.PlayerOperationTypes?.CHOOSE_NARRATIVE_STORY_DIRECTION,
-      args,
+      args
     )
   );
   const sent = sendResult.ok && sendResult.value !== false;
@@ -156,21 +147,23 @@ export async function requestCiv7GameUiNarrativeChoice(
   });
 }
 
-function narrativeChoiceResult(input: Readonly<{
+function narrativeChoiceResult(
   input: Readonly<{
+    input: Readonly<{
+      playerId: number;
+      targetType: string;
+      target: Civ7ControlOrpcComponentId;
+      action: number;
+    }>;
     playerId: number;
-    targetType: string;
-    target: Civ7ControlOrpcComponentId;
-    action: number;
-  }>;
-  playerId: number;
-  before: Civ7ControlOrpcPlayNotificationViewResult;
-  beforeValidation: NarrativeValidation;
-  after: Civ7ControlOrpcPlayNotificationViewResult;
-  afterValidation: NarrativeValidation;
-  sent: boolean;
-  payload: NarrativePayload | undefined;
-}>): Civ7ControlOrpcNarrativeChoiceResult {
+    before: Civ7ControlOrpcPlayNotificationViewResult;
+    beforeValidation: NarrativeValidation;
+    after: Civ7ControlOrpcPlayNotificationViewResult;
+    afterValidation: NarrativeValidation;
+    sent: boolean;
+    payload: NarrativePayload | undefined;
+  }>
+): Civ7ControlOrpcNarrativeChoiceResult {
   const postcondition = narrativePostcondition(
     input.input,
     input.sent,
@@ -178,7 +171,7 @@ function narrativeChoiceResult(input: Readonly<{
     input.after,
     input.beforeValidation,
     input.afterValidation,
-    input.payload,
+    input.payload
   );
   return {
     playerId: input.playerId,
@@ -196,8 +189,9 @@ function narrativeChoiceResult(input: Readonly<{
     after: input.after,
     afterValidation: input.afterValidation,
     sent: input.sent,
-    verified: postcondition.classification !== "not-sent"
-      && postcondition.classification !== "no-state-change",
+    verified:
+      postcondition.classification !== "not-sent" &&
+      postcondition.classification !== "no-state-change",
     postcondition,
   };
 }
@@ -209,14 +203,14 @@ function gameUiNarrativeValidation(
     Target: Civ7ControlOrpcComponentId;
     Action: number;
   }>,
-  target: Civ7GameUiNarrativeTarget,
+  target: Civ7GameUiNarrativeTarget
 ): NarrativeValidation {
   const result = probe(() =>
     target.Game?.PlayerOperations?.canStart?.(
       playerId,
       target.PlayerOperationTypes?.CHOOSE_NARRATIVE_STORY_DIRECTION,
       args,
-      false,
+      false
     )
   );
   return {
@@ -240,7 +234,7 @@ function gameUiNarrativeValidationBlocked(
     Target: Civ7ControlOrpcComponentId;
     Action: number;
   }>,
-  reason: string,
+  reason: string
 ): NarrativeValidation {
   return {
     host: "game-ui",
@@ -269,7 +263,7 @@ function narrativePostcondition(
   after: Civ7ControlOrpcPlayNotificationViewResult,
   beforeValidation: NarrativeValidation,
   afterValidation: NarrativeValidation,
-  payload: NarrativePayload | undefined,
+  payload: NarrativePayload | undefined
 ): Civ7ControlOrpcNarrativeChoiceResult["postcondition"] {
   const classification = classifyNarrativePostcondition(
     input,
@@ -278,7 +272,7 @@ function narrativePostcondition(
     after,
     beforeValidation,
     afterValidation,
-    payload,
+    payload
   );
   return {
     classification,
@@ -295,7 +289,7 @@ function classifyNarrativePostcondition(
   after: Civ7ControlOrpcPlayNotificationViewResult,
   beforeValidation: NarrativeValidation,
   afterValidation: NarrativeValidation,
-  payload: NarrativePayload | undefined,
+  payload: NarrativePayload | undefined
 ): Civ7ControlOrpcNarrativeChoiceResult["postcondition"]["classification"] {
   if (!sent) return "not-sent";
   if (probeValue(after.canEndTurn) === true) return "turn-unblocked";
@@ -309,8 +303,8 @@ function classifyNarrativePostcondition(
     return "narrative-panel-cleared";
   }
   if (
-    beforeValidation.valid !== afterValidation.valid
-    || stableJson(beforeValidation.result) !== stableJson(afterValidation.result)
+    beforeValidation.valid !== afterValidation.valid ||
+    stableJson(beforeValidation.result) !== stableJson(afterValidation.result)
   ) {
     return "validation-changed";
   }
@@ -318,7 +312,7 @@ function classifyNarrativePostcondition(
 }
 
 function narrativePostconditionReason(
-  classification: Civ7ControlOrpcNarrativeChoiceResult["postcondition"]["classification"],
+  classification: Civ7ControlOrpcNarrativeChoiceResult["postcondition"]["classification"]
 ): string {
   switch (classification) {
     case "not-sent":
@@ -337,41 +331,37 @@ function narrativePostconditionReason(
 }
 
 function findNarrativeChoiceNotification(
-  view: Civ7ControlOrpcPlayNotificationViewResult,
+  view: Civ7ControlOrpcPlayNotificationViewResult
 ): Civ7ControlOrpcPlayNotificationViewResult["notifications"][number] | undefined {
   return view.notifications.find((notification) => {
     const typeName = String(notification.typeName ?? "").toUpperCase();
-    return notification.isEndTurnBlocking === true
-      && typeName.includes("CHOOSE")
-      && (typeName.includes("NARRATIVE_STORY_DIRECTION")
-        || typeName.includes("DISCOVERY_STORY_DIRECTION")
-        || typeName.includes("AUTO_NARRATIVE_STORY_DIRECTION"));
+    return (
+      notification.isEndTurnBlocking === true &&
+      typeName.includes("CHOOSE") &&
+      (typeName.includes("NARRATIVE_STORY_DIRECTION") ||
+        typeName.includes("DISCOVERY_STORY_DIRECTION") ||
+        typeName.includes("AUTO_NARRATIVE_STORY_DIRECTION"))
+    );
   });
 }
 
 function currentNarrativeNotification(
   playerId: number,
-  target: Civ7GameUiNarrativeTarget,
+  target: Civ7GameUiNarrativeTarget
 ): Civ7ControlOrpcComponentId | null {
-  const ids = safeValue(() =>
-    target.Game?.Notifications?.getIdsForPlayer?.(playerId),
-    [],
-  );
+  const ids = safeValue(() => target.Game?.Notifications?.getIdsForPlayer?.(playerId), []);
   if (!Array.isArray(ids)) return null;
   for (const rawId of ids) {
     const id = toComponentId(rawId);
     if (id == null) continue;
     const type = safeValue(() => target.Game?.Notifications?.getType?.(id), null);
-    const typeName = safeValue(
-      () => target.Game?.Notifications?.getTypeName?.(type),
-      null,
-    );
+    const typeName = safeValue(() => target.Game?.Notifications?.getTypeName?.(type), null);
     const normalized = String(typeName ?? "").toUpperCase();
     if (
-      normalized.includes("CHOOSE")
-      && (normalized.includes("NARRATIVE_STORY_DIRECTION")
-        || normalized.includes("DISCOVERY_STORY_DIRECTION")
-        || normalized.includes("AUTO_NARRATIVE_STORY_DIRECTION"))
+      normalized.includes("CHOOSE") &&
+      (normalized.includes("NARRATIVE_STORY_DIRECTION") ||
+        normalized.includes("DISCOVERY_STORY_DIRECTION") ||
+        normalized.includes("AUTO_NARRATIVE_STORY_DIRECTION"))
     ) {
       return id;
     }
@@ -387,7 +377,7 @@ function narrativePanelCleared(payload: NarrativePayload): boolean {
 
 function sameNarrativeChoiceNotification(
   before: Civ7ControlOrpcPlayNotificationViewResult["notifications"][number] | undefined,
-  after: Civ7ControlOrpcPlayNotificationViewResult["notifications"][number] | undefined,
+  after: Civ7ControlOrpcPlayNotificationViewResult["notifications"][number] | undefined
 ): boolean {
   if (!before || !after) return false;
   return componentIdEqual(before.id, after.id);
@@ -395,10 +385,9 @@ function sameNarrativeChoiceNotification(
 
 function readNarrativeUiState(
   targetStoryId: Civ7ControlOrpcComponentId,
-  target: Civ7GameUiNarrativeTarget,
+  target: Civ7GameUiNarrativeTarget
 ): NarrativeUiState {
-  const panels = narrativePanels(target)
-    .map((panel) => summarizePanel(panel, targetStoryId));
+  const panels = narrativePanels(target).map((panel) => summarizePanel(panel, targetStoryId));
   const matchingPanels = panels.filter((panel) => panel.matchesTarget === true);
   return {
     panelCount: panels.length,
@@ -406,15 +395,13 @@ function readNarrativeUiState(
     matchingPanelCount: matchingPanels.length,
     matchingPanels,
     popupShowing: probe(() => target.NarrativePopupManager?.isShowing?.() ?? null),
-    currentNarrativeData: probe(() =>
-      target.NarrativePopupManager?.currentNarrativeData ?? null
-    ),
+    currentNarrativeData: probe(() => target.NarrativePopupManager?.currentNarrativeData ?? null),
   };
 }
 
 function summarizePanel(
   panel: unknown,
-  targetStoryId: Civ7ControlOrpcComponentId,
+  targetStoryId: Civ7ControlOrpcComponentId
 ): Readonly<{
   panelType: string | null;
   componentType: string | null;
@@ -428,9 +415,8 @@ function summarizePanel(
   const panelTarget = toComponentId(component?.targetStoryId);
   return {
     panelType: typeof record?.tagName === "string" ? record.tagName : null,
-    componentType: typeof component?.constructor?.name === "string"
-      ? component.constructor.name
-      : null,
+    componentType:
+      typeof component?.constructor?.name === "string" ? component.constructor.name : null,
     targetStoryId: panelTarget,
     storyType: component?.storyType,
     choiceKeys: choiceKeys(record),
@@ -440,11 +426,13 @@ function summarizePanel(
 
 function closeVisibleNarrativePanels(
   targetStoryId: Civ7ControlOrpcComponentId,
-  target: Civ7GameUiNarrativeTarget,
-): RuntimeProbe<Readonly<{
-  attempted: number;
-  results: unknown[];
-}>> {
+  target: Civ7GameUiNarrativeTarget
+): RuntimeProbe<
+  Readonly<{
+    attempted: number;
+    results: unknown[];
+  }>
+> {
   return probe(() => {
     const panels = narrativePanels(target).filter((panel) => {
       const component = panelRecord(panelRecord(panel)?._component);
@@ -471,7 +459,7 @@ function closeVisibleNarrativePanels(
 }
 
 function closeNarrativePopup(
-  target: Civ7GameUiNarrativeTarget,
+  target: Civ7GameUiNarrativeTarget
 ): RuntimeProbe<Readonly<{ available: boolean }>> {
   return probe(() => {
     const closePopup = target.NarrativePopupManager?.closePopup;
@@ -495,7 +483,7 @@ function narrativePanels(target: Civ7GameUiNarrativeTarget): unknown[] {
       selectors.flatMap((selector) =>
         Array.from(query.call(target.document, selector) as Iterable<unknown>)
       ),
-    [],
+    []
   );
 }
 
@@ -507,17 +495,17 @@ function choiceKeys(panel: Record<string, unknown> | null): string[] {
       Array.from(
         (query as (selector: string) => Iterable<unknown>).call(
           panel,
-          "fxs-reward-button[small-narrative-choice-key]",
-        ),
-      ).map((button) => {
-        const getAttribute = panelRecord(button)?.getAttribute;
-        return typeof getAttribute === "function"
-          ? getAttribute.call(button, "small-narrative-choice-key")
-          : null;
-      }).filter((value): value is string =>
-        typeof value === "string" && value.length > 0
-      ),
-    [],
+          "fxs-reward-button[small-narrative-choice-key]"
+        )
+      )
+        .map((button) => {
+          const getAttribute = panelRecord(button)?.getAttribute;
+          return typeof getAttribute === "function"
+            ? getAttribute.call(button, "small-narrative-choice-key")
+            : null;
+        })
+        .filter((value): value is string => typeof value === "string" && value.length > 0),
+    []
   );
 }
 
@@ -541,7 +529,7 @@ function stableJson(value: unknown): string {
     return Object.fromEntries(
       Object.entries(candidate as Record<string, unknown>).sort(([left], [right]) =>
         left.localeCompare(right)
-      ),
+      )
     );
   });
 }
@@ -565,23 +553,25 @@ function toComponentId(value: unknown): Civ7ControlOrpcComponentId | null {
 
 function componentIdEqual(
   left: Civ7ControlOrpcComponentId | null | undefined,
-  right: Civ7ControlOrpcComponentId | null | undefined,
+  right: Civ7ControlOrpcComponentId | null | undefined
 ): boolean {
-  return left?.owner === right?.owner
-    && left?.id === right?.id
-    && (left?.type ?? null) === (right?.type ?? null);
+  return (
+    left?.owner === right?.owner &&
+    left?.id === right?.id &&
+    (left?.type ?? null) === (right?.type ?? null)
+  );
 }
 
 function panelRecord(value: unknown): Record<string, any> | null {
-  return value != null && typeof value === "object"
-    ? value as Record<string, any>
-    : null;
+  return value != null && typeof value === "object" ? (value as Record<string, any>) : null;
 }
 
-function skippedProbe(reason: string): RuntimeProbe<Readonly<{
-  skipped: true;
-  reason: string;
-}>> {
+function skippedProbe(reason: string): RuntimeProbe<
+  Readonly<{
+    skipped: true;
+    reason: string;
+  }>
+> {
   return { ok: false, error: reason };
 }
 

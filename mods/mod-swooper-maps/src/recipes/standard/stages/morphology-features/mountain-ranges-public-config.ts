@@ -1,5 +1,5 @@
-import { Type, type Static } from "@swooper/mapgen-core/authoring";
 import type { MountainsConfig } from "@mapgen/domain/morphology/ops";
+import { type Static, Type } from "@swooper/mapgen-core/authoring";
 
 function clamp(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min;
@@ -59,8 +59,7 @@ export const MountainRangesPublicSchema = Type.Object(
       default: 3,
       minimum: 0,
       maximum: 12,
-      description:
-        "Controls how far foothill and high-pass terrain can spread from ridge spines.",
+      description: "Controls how far foothill and high-pass terrain can spread from ridge spines.",
     }),
     interiorHighlandExpression: Type.Number({
       default: 0.55,
@@ -147,7 +146,11 @@ export function resolveMountainRangesPublicConfig(value: unknown): MountainsConf
 
   return {
     tectonicIntensity: clamp(tectonicActivity, 0, 10),
-    driverSignalByteMin: clampInt(30 - tectonicSignalSensitivity * 16 - tectonicActivity * 2, 0, 255),
+    driverSignalByteMin: clampInt(
+      30 - tectonicSignalSensitivity * 16 - tectonicActivity * 2,
+      0,
+      255
+    ),
     driverExponent: clamp(1.24 - tectonicSignalSensitivity * 0.3, 0.35, 2),
     mountainMaxFraction,
     mountainMinFraction,
@@ -157,12 +160,24 @@ export function resolveMountainRangesPublicConfig(value: unknown): MountainsConf
     mountainRangeLengthTiles: rangeSystemLengthTiles,
     mountainRegionRadiusTiles: provinceRadiusTiles,
     mountainSpineDilationSteps: ridgeWidthTiles,
-    mountainShoulderThresholdScale: clamp(0.58 - ridgeWidthTiles * 0.09 - tectonicActivity * 0.04, 0.22, 0.7),
-    mountainSpineMinDistance: clampInt(Math.max(ridgeWidthTiles * 2 + 1, rangeSystemSpacingTiles * 0.28), 0, 32),
+    mountainShoulderThresholdScale: clamp(
+      0.58 - ridgeWidthTiles * 0.09 - tectonicActivity * 0.04,
+      0.22,
+      0.7
+    ),
+    mountainSpineMinDistance: clampInt(
+      Math.max(ridgeWidthTiles * 2 + 1, rangeSystemSpacingTiles * 0.28),
+      0,
+      32
+    ),
     oldBeltMountainScale: clamp(0.92 - erosionMaturity * 0.42, 0.35, 0.94),
     oldBeltHillScale: clamp(1.0 + erosionMaturity * 0.32, 1.0, 1.6),
     foothillMaxDistance: foothillExtentTiles,
-    foothillMinFraction: clamp(0.012 + foothillExtentTiles * 0.006 + tectonicActivity * 0.002, 0, foothillMaxFraction),
+    foothillMinFraction: clamp(
+      0.012 + foothillExtentTiles * 0.006 + tectonicActivity * 0.002,
+      0,
+      foothillMaxFraction
+    ),
     foothillMaxFraction,
     mountainThreshold: clamp(
       0.44 - tectonicActivity * 0.13 - tectonicSignalSensitivity * 0.04 - ridgeWidthTiles * 0.02,
@@ -197,18 +212,34 @@ export function resolveMountainRangesPublicConfig(value: unknown): MountainsConf
     riftDepth: clamp(0.16 + erosionMaturity * 0.14, 0, 1),
     boundaryWeight: clamp(0.78 + tectonicActivity * 0.18 + provinceScale * 0.3, 0, 10),
     boundaryGate: clamp(0.13 - tectonicSignalSensitivity * 0.07 - tectonicActivity * 0.02, 0, 0.99),
-    boundaryExponent: clamp(1.78 - provinceRadiusTiles * 0.11 - tectonicSignalSensitivity * 0.12, 0.25, 10),
+    boundaryExponent: clamp(
+      1.78 - provinceRadiusTiles * 0.11 - tectonicSignalSensitivity * 0.12,
+      0.25,
+      10
+    ),
     rangeEnvelopeScale: clamp(1 + provinceRadiusTiles * 0.13 + tectonicActivity * 0.22, 0.25, 4),
-    interiorPenaltyWeight: clamp(0.24 - interiorHighlandExpression * 0.11 + ridgeWidthScale * 0.04, 0, 10),
+    interiorPenaltyWeight: clamp(
+      0.24 - interiorHighlandExpression * 0.11 + ridgeWidthScale * 0.04,
+      0,
+      10
+    ),
     convergenceBonus: clamp(0.72 + tectonicActivity * 0.27, 0, 10),
-    transformPenalty: clamp(0.78 - terrainTextureFractalMix * 0.18 - tectonicActivity * 0.02, 0, 10),
+    transformPenalty: clamp(
+      0.78 - terrainTextureFractalMix * 0.18 - tectonicActivity * 0.02,
+      0,
+      10
+    ),
     riftPenalty: clamp(0.95 + erosionMaturity * 0.12, 0, 10),
     hillBoundaryWeight: clamp(0.34 + foothillExtentTiles * 0.045, 0, 10),
     hillRiftBonus: clamp(0.18 + foothillScale * 0.28 + terrainTextureFractalMix * 0.08, 0, 10),
     hillFoothillBase: clamp(0.4 + foothillScale * 0.32, 0, 10),
     hillFoothillFractalGain: clamp(0.42 + terrainTextureFractalMix * 1.1, 0, 10),
     hillConvergentFoothill: clamp(0.3 + foothillExtentTiles * 0.055, 0, 10),
-    hillInteriorFalloff: clamp(0.26 - interiorHighlandExpression * 0.1 - terrainTextureFractalMix * 0.03, 0, 10),
+    hillInteriorFalloff: clamp(
+      0.26 - interiorHighlandExpression * 0.1 - terrainTextureFractalMix * 0.03,
+      0,
+      10
+    ),
     hillUpliftWeight: clamp(0.18 + interiorHighlandExpression * 0.17, 0, 10),
     hillFractalScale: clamp(0.62 + terrainTextureFractalMix * 0.9, 0, 10),
     hillUpliftScale: clamp(0.28 + interiorHighlandExpression * 0.48, 0, 10),

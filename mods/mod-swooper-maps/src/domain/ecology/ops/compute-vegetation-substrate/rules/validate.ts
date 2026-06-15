@@ -29,4 +29,3 @@ export function validateVegetationSubstrateInputs(args: {
 
   return size;
 }
-

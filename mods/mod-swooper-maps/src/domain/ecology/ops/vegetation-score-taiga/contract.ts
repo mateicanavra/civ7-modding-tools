@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const ScoreVegetationTaigaContract = defineOp({
   kind: "compute",
@@ -26,4 +26,3 @@ const ScoreVegetationTaigaContract = defineOp({
 });
 
 export default ScoreVegetationTaigaContract;
-

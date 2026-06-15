@@ -1,15 +1,15 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import placement from "@mapgen/domain/placement";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
 import {
   FIELD_DEPENDENCY_TAGS,
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tags.js";
-import { placementArtifacts } from "../../artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 import { morphologyArtifacts } from "../../../morphology/artifacts.js";
+import { placementArtifacts } from "../../artifacts.js";
 
 /**
  * Builds the placement input artifact from runtime config and placement ops.

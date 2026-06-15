@@ -1,6 +1,5 @@
-import type { Static, TSchema } from "typebox";
-
 import type { NormalizeContext } from "@mapgen/engine/index.js";
+import type { Static, TSchema } from "typebox";
 import type { OpContract } from "./contract.js";
 
 type NoInfer<T> = [T][T extends any ? 0 : never];
@@ -25,11 +24,7 @@ export type StrategyImpl<ConfigSchema extends TSchema, Input, Output> = Readonly
 export type StrategyImplFor<
   C extends OpContract<any, any, any, any, any>,
   Id extends keyof C["strategies"] & string,
-> = StrategyImpl<
-  C["strategies"][Id],
-  Static<C["input"]>,
-  Static<C["output"]>
->;
+> = StrategyImpl<C["strategies"][Id], Static<C["input"]>, Static<C["output"]>>;
 
 export type StrategyImplMapFor<C extends OpContract<any, any, any, any, any>> = Readonly<{
   [K in keyof C["strategies"] & string]: StrategyImplFor<C, K>;

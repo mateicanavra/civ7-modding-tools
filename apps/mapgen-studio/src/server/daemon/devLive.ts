@@ -1,4 +1,4 @@
-import { spawn, type ChildProcess } from "node:child_process";
+import { type ChildProcess, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { STUDIO_DAEMON_DEFAULT_PORT } from "./daemon";
@@ -115,7 +115,7 @@ function startChild(name: string, command: DevLiveCommand): RunningChild {
 async function waitForDaemonReadiness(
   backendUrl: string,
   timeoutMs: number,
-  daemon: RunningChild,
+  daemon: RunningChild
 ): Promise<void> {
   const startedAt = Date.now();
   while (Date.now() - startedAt <= timeoutMs) {
@@ -169,7 +169,7 @@ export async function runDevLive(args: DevLiveArgs): Promise<void> {
     const vite = startChild("vite", plan.vite);
     running.push(vite);
     process.stdout.write(
-      `mapgen-studio frontend at ${plan.frontendUrl} (proxying /rpc to ${plan.rpcProxyTarget})\n`,
+      `mapgen-studio frontend at ${plan.frontendUrl} (proxying /rpc to ${plan.rpcProxyTarget})\n`
     );
 
     const exited = await waitForFirstExit(running);

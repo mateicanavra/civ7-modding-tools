@@ -2,30 +2,29 @@
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-
 import {
-  getCiv7MapGrid,
-  getCiv7MapSummary,
-  getCiv7ResourceBuilderDiagnostics,
-  getCiv7ResourcePlacementFeasibility,
-  type Civ7MapGridResult,
-  type Civ7PlotSnapshotField,
-  type Civ7MapSummaryResult,
-  type Civ7ResourcePlacementFeasibilityCellInput,
-  type Civ7ResourceBuilderDiagnosticsResult,
-  type Civ7ResourcePlacementFeasibilityResult,
-  type Civ7RuntimeProbe,
-} from "../../packages/civ7-direct-control/src/index.ts";
-import {
+  type FinalSurfaceParityProof,
   hashParityValue,
   stableParityProofStringify,
-  type FinalSurfaceParityProof,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts";
 import {
   buildResourceDeltaFeasibilityContexts,
   buildResourceDeltaPlacementContexts,
   type ResourceDeltaFeasibilityContext,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/surface-delta-context.ts";
+import {
+  type Civ7MapGridResult,
+  type Civ7MapSummaryResult,
+  type Civ7PlotSnapshotField,
+  type Civ7ResourceBuilderDiagnosticsResult,
+  type Civ7ResourcePlacementFeasibilityCellInput,
+  type Civ7ResourcePlacementFeasibilityResult,
+  type Civ7RuntimeProbe,
+  getCiv7MapGrid,
+  getCiv7MapSummary,
+  getCiv7ResourceBuilderDiagnostics,
+  getCiv7ResourcePlacementFeasibility,
+} from "../../packages/civ7-direct-control/src/index.ts";
 
 type Args = Readonly<{
   proofFile?: string;
@@ -172,7 +171,9 @@ async function main(): Promise<number> {
   const deltaRows = buildResourceDeltaPlacementContexts({ local: proof.local, live: proof.live });
   if (deltaRows.length === 0) throw new Error("Expected at least one resource delta row");
   if (deltaRows.length > args.maxCells) {
-    throw new Error(`Resource delta row count ${deltaRows.length} exceeds --max-cells ${args.maxCells}`);
+    throw new Error(
+      `Resource delta row count ${deltaRows.length} exceeds --max-cells ${args.maxCells}`
+    );
   }
 
   const livePlotContext = await getCiv7MapGrid(
@@ -201,8 +202,9 @@ async function main(): Promise<number> {
   ]);
   const ignoreWeightProof = summarizeFeasibilityProof(proof, ignoreWeight);
   const resourceBuilderDiagnosticCells = cellsForResourceBuilderDiagnostics(ignoreWeightProof.rows);
-  const resourceBuilderDiagnosticResourceTypes =
-    resourceTypesForResourceBuilderDiagnostics(ignoreWeightProof.rows);
+  const resourceBuilderDiagnosticResourceTypes = resourceTypesForResourceBuilderDiagnostics(
+    ignoreWeightProof.rows
+  );
   const resourceBuilderDiagnostics =
     resourceBuilderDiagnosticCells.length > 0
       ? await getResourceBuilderDiagnosticsBatched(
@@ -215,11 +217,16 @@ async function main(): Promise<number> {
         )
       : null;
   const resourceBuilderDiagnosticsSummary =
-    resourceBuilderDiagnostics === null ? null : summarizeResourceBuilderDiagnostics(resourceBuilderDiagnostics);
+    resourceBuilderDiagnostics === null
+      ? null
+      : summarizeResourceBuilderDiagnostics(resourceBuilderDiagnostics);
   const resourceBuilderSubclassification =
     resourceBuilderDiagnosticsSummary === null
       ? null
-      : summarizeResourceBuilderSubclassification(ignoreWeightProof.rows, resourceBuilderDiagnosticsSummary);
+      : summarizeResourceBuilderSubclassification(
+          ignoreWeightProof.rows,
+          resourceBuilderDiagnosticsSummary
+        );
 
   const outputWithoutHash = {
     ok: true,
@@ -237,7 +244,10 @@ async function main(): Promise<number> {
       resourceBuilderDiagnosticsSummary
     ),
     resourcePositionContext: summarizeResourcePositionContext(proof, ignoreWeightProof.rows),
-    localMaterializationContext: summarizeLocalMaterializationContext(proof, ignoreWeightProof.rows),
+    localMaterializationContext: summarizeLocalMaterializationContext(
+      proof,
+      ignoreWeightProof.rows
+    ),
     assignmentClassSummary: summarizeAssignmentClasses(ignoreWeightProof.rows),
     strict: summarizeFeasibilityProof(proof, strict),
     ignoreWeight: ignoreWeightProof,
@@ -276,7 +286,10 @@ async function getResourceBuilderDiagnosticsBatched(
   }
   const first = results[0];
   if (!first) throw new Error("Expected at least one ResourceBuilder diagnostics batch");
-  const resourcesByType = new Map<number, Civ7ResourceBuilderDiagnosticsResult["resources"][number]>();
+  const resourcesByType = new Map<
+    number,
+    Civ7ResourceBuilderDiagnosticsResult["resources"][number]
+  >();
   for (const result of results) {
     for (const resource of result.resources) {
       resourcesByType.set(resource.resourceType, resource);
@@ -287,9 +300,12 @@ async function getResourceBuilderDiagnosticsBatched(
     port: first.port,
     state: first.state,
     cellCount: input.cells.length,
-    omittedCells: Math.max(0, input.cells.length - cells.length) +
+    omittedCells:
+      Math.max(0, input.cells.length - cells.length) +
       results.reduce((sum, result) => sum + result.omittedCells, 0),
-    resources: [...resourcesByType.values()].sort((left, right) => left.resourceType - right.resourceType),
+    resources: [...resourcesByType.values()].sort(
+      (left, right) => left.resourceType - right.resourceType
+    ),
     cells: results.flatMap((result) => result.cells),
   };
 }
@@ -323,7 +339,7 @@ function resolveRequestIdentity(proof: FinalSurfaceParityProof) {
         : [];
   return {
     requestId: uniqueValues.length === 1 ? uniqueValues[0] : undefined,
-    status: blockedBy.length === 0 ? "matched" as const : "blocked" as const,
+    status: blockedBy.length === 0 ? ("matched" as const) : ("blocked" as const),
     blockedBy,
     sources,
   };
@@ -354,7 +370,7 @@ async function readAndCompareRuntimeIdentity(
     .sort((left, right) => left.localeCompare(right));
 
   return {
-    status: blockedBy.length === 0 ? "matched" as const : "blocked" as const,
+    status: blockedBy.length === 0 ? ("matched" as const) : ("blocked" as const),
     blockedBy,
     saved,
     observed,
@@ -402,7 +418,10 @@ function summarizeFeasibilityProof(
   proof: Pick<FinalSurfaceParityProof, "local" | "live">,
   readback: Civ7ResourcePlacementFeasibilityResult
 ) {
-  const rows = buildResourceDeltaFeasibilityContexts({ local: proof.local, live: proof.live }, readback);
+  const rows = buildResourceDeltaFeasibilityContexts(
+    { local: proof.local, live: proof.live },
+    readback
+  );
   return {
     readback: {
       host: readback.host,
@@ -462,19 +481,25 @@ function summarizeResourceBuilderSubclassification(
   diagnostics: ResourceBuilderDiagnosticsSummary
 ) {
   const focusedRows = rows.filter(
-    (row) => row.feasibilityClass === "local-overaccepted-live-empty" && row.localResource.value !== null
+    (row) =>
+      row.feasibilityClass === "local-overaccepted-live-empty" && row.localResource.value !== null
   );
   const cellsByLocation = new Map(
     diagnostics.cells.map((cell) => [`${cell.location.x},${cell.location.y}`, cell] as const)
   );
-  const resourcesByType = new Map(diagnostics.resources.map((resource) => [resource.resourceType, resource] as const));
+  const resourcesByType = new Map(
+    diagnostics.resources.map((resource) => [resource.resourceType, resource] as const)
+  );
   const classifiedRows = focusedRows.map((row) => {
     const localResourceType = row.localResource.value as number;
     const cell = cellsByLocation.get(`${row.x},${row.y}`);
     const cellResource = cell?.resources[String(localResourceType)];
     const resource = resourcesByType.get(localResourceType);
     const cutResourceTypes = cutResourceTypeNames(cellResource?.bestMapResourceCuts);
-    const cutIncludesLocal = cutIncludesResource(cellResource?.bestMapResourceCuts, localResourceType);
+    const cutIncludesLocal = cutIncludesResource(
+      cellResource?.bestMapResourceCuts,
+      localResourceType
+    );
     const strict = probeBoolean(cellResource?.canHaveResource.strict);
     const ignoreWeight = probeBoolean(cellResource?.canHaveResource.ignoreWeight);
     const assignmentPhase = row.assignmentTrace?.assignmentPhase ?? null;
@@ -514,9 +539,13 @@ function summarizeResourceBuilderSubclassification(
           targetMinPerType,
           officialMinimumPerHemisphere: officialMinimum,
           targetExceedsOfficialMinimum:
-            targetMinPerType !== null && officialMinimum !== null ? targetMinPerType > officialMinimum : null,
+            targetMinPerType !== null && officialMinimum !== null
+              ? targetMinPerType > officialMinimum
+              : null,
           targetMinusOfficialMinimum:
-            targetMinPerType !== null && officialMinimum !== null ? targetMinPerType - officialMinimum : null,
+            targetMinPerType !== null && officialMinimum !== null
+              ? targetMinPerType - officialMinimum
+              : null,
         },
       },
       subclassification: classification,
@@ -538,7 +567,9 @@ function summarizeResourceDistributionContext(
 ) {
   const assignmentSummary = readLocalAssignmentSummary(proof.local.evidence);
   const assignmentByResource = new Map(
-    assignmentSummary.byPreferredResource.map((resource) => [resource.resourceType, resource] as const)
+    assignmentSummary.byPreferredResource.map(
+      (resource) => [resource.resourceType, resource] as const
+    )
   );
   const resourcesByType = new Map(
     (diagnostics?.resources ?? []).map((resource) => [resource.resourceType, resource] as const)
@@ -588,9 +619,13 @@ function summarizeResourceDistributionContext(
     const assignmentOrder = row.assignmentTrace?.assignmentOrder;
     if (typeof assignmentOrder === "number" && Number.isFinite(assignmentOrder)) {
       group.minAssignmentOrder =
-        group.minAssignmentOrder === null ? assignmentOrder : Math.min(group.minAssignmentOrder, assignmentOrder);
+        group.minAssignmentOrder === null
+          ? assignmentOrder
+          : Math.min(group.minAssignmentOrder, assignmentOrder);
       group.maxAssignmentOrder =
-        group.maxAssignmentOrder === null ? assignmentOrder : Math.max(group.maxAssignmentOrder, assignmentOrder);
+        group.maxAssignmentOrder === null
+          ? assignmentOrder
+          : Math.max(group.maxAssignmentOrder, assignmentOrder);
     }
   }
 
@@ -602,8 +637,11 @@ function summarizeResourceDistributionContext(
       const officialPolicy = summarizeResourcePolicy(builder);
       const builderCount = probeNumberLike(builder?.count);
       const assignedCount = assignment?.assignedCount ?? null;
-      const targetMinPerTypeValues = [...group.targetMinPerTypeValues].sort((left, right) => left - right);
-      const primaryTargetMinPerType = targetMinPerTypeValues.length === 1 ? targetMinPerTypeValues[0] : null;
+      const targetMinPerTypeValues = [...group.targetMinPerTypeValues].sort(
+        (left, right) => left - right
+      );
+      const primaryTargetMinPerType =
+        targetMinPerTypeValues.length === 1 ? targetMinPerTypeValues[0] : null;
       const officialMinimum = officialPolicy.minimumPerHemisphere;
       return {
         resourceType: group.resourceType,
@@ -629,7 +667,9 @@ function summarizeResourceDistributionContext(
               ? primaryTargetMinPerType - officialMinimum
               : null,
           assignedCountMinusOfficialMinimum:
-            assignedCount !== null && officialMinimum !== null ? assignedCount - officialMinimum : null,
+            assignedCount !== null && officialMinimum !== null
+              ? assignedCount - officialMinimum
+              : null,
         },
       };
     });
@@ -870,7 +910,10 @@ function summarizeDistances(distances: ReadonlyArray<number>) {
   const sorted = [...distances].sort((left, right) => left - right);
   const quantile = (fraction: number): number | null => {
     if (sorted.length === 0) return null;
-    const index = Math.min(sorted.length - 1, Math.max(0, Math.floor((sorted.length - 1) * fraction)));
+    const index = Math.min(
+      sorted.length - 1,
+      Math.max(0, Math.floor((sorted.length - 1) * fraction))
+    );
     return sorted[index];
   };
   return {
@@ -903,7 +946,9 @@ function readLocalAssignmentSummary(evidence: unknown): {
   const resourcePlacementOutcomes = isRecord(record.resourcePlacementOutcomes)
     ? record.resourcePlacementOutcomes
     : {};
-  const assignment = isRecord(resourcePlacementOutcomes.assignment) ? resourcePlacementOutcomes.assignment : {};
+  const assignment = isRecord(resourcePlacementOutcomes.assignment)
+    ? resourcePlacementOutcomes.assignment
+    : {};
   const byPreferredResource = Array.isArray(assignment.byPreferredResource)
     ? assignment.byPreferredResource
     : [];
@@ -962,7 +1007,8 @@ function summarizeAssignmentClasses(rows: ReadonlyArray<ResourceDeltaFeasibility
     classCounts: countBy(rows, (row) => row.feasibilityClass),
     classPhaseCounts: countBy(
       classAndPhaseRows,
-      (row) => `${row.feasibilityClass}|${row.assignmentPhase}|target:${row.targetMinPerType ?? "missing"}`
+      (row) =>
+        `${row.feasibilityClass}|${row.assignmentPhase}|target:${row.targetMinPerType ?? "missing"}`
     ),
     classPhaseResources: summarizeClassPhaseResources(classAndPhaseRows),
   };
@@ -1008,9 +1054,13 @@ function summarizeClassPhaseResources(
     group.resources.add(row.resourceSymbol);
     if (row.assignmentOrder !== null) {
       group.minAssignmentOrder =
-        group.minAssignmentOrder === null ? row.assignmentOrder : Math.min(group.minAssignmentOrder, row.assignmentOrder);
+        group.minAssignmentOrder === null
+          ? row.assignmentOrder
+          : Math.min(group.minAssignmentOrder, row.assignmentOrder);
       group.maxAssignmentOrder =
-        group.maxAssignmentOrder === null ? row.assignmentOrder : Math.max(group.maxAssignmentOrder, row.assignmentOrder);
+        group.maxAssignmentOrder === null
+          ? row.assignmentOrder
+          : Math.max(group.maxAssignmentOrder, row.assignmentOrder);
     }
   }
   return [...groups.values()]
@@ -1045,7 +1095,8 @@ function classifyResourceBuilderFocusedRow(input: {
   if (!input.hasCellDiagnostics) return "scarce-floor-resource-builder-evidence-missing";
   if (input.assignmentPhase !== "scarce-floor") return "local-overaccepted-non-scarce-floor";
   if (input.cutIncludesLocal === false) return "scarce-floor-cut-excluded";
-  if (input.cutIncludesLocal === true && input.ignoreWeight === false) return "scarce-floor-cut-included-rejected";
+  if (input.cutIncludesLocal === true && input.ignoreWeight === false)
+    return "scarce-floor-cut-included-rejected";
   return "scarce-floor-resource-builder-evidence-missing";
 }
 
@@ -1058,10 +1109,14 @@ function cutIncludesResource(
 }
 
 function cutResourceTypeNames(
-  probe: Civ7RuntimeProbe<ReadonlyArray<{ resourceTypeName?: string; resourceType?: number }>> | undefined
+  probe:
+    | Civ7RuntimeProbe<ReadonlyArray<{ resourceTypeName?: string; resourceType?: number }>>
+    | undefined
 ): ReadonlyArray<string> | null {
   if (!probe?.ok || !Array.isArray(probe.value)) return null;
-  return probe.value.map((resource) => resource.resourceTypeName ?? String(resource.resourceType ?? "unknown"));
+  return probe.value.map(
+    (resource) => resource.resourceTypeName ?? String(resource.resourceType ?? "unknown")
+  );
 }
 
 function probeBoolean(probe: Civ7RuntimeProbe<boolean> | undefined): boolean | null {
@@ -1074,7 +1129,9 @@ function probeNumberLike(probe: Civ7RuntimeProbe<number> | undefined): number | 
   return probe.value;
 }
 
-function summarizeResourcePolicy(resource: Civ7ResourceBuilderDiagnosticsResult["resources"][number] | undefined) {
+function summarizeResourcePolicy(
+  resource: Civ7ResourceBuilderDiagnosticsResult["resources"][number] | undefined
+) {
   const row = resource?.row.ok === true && isRecord(resource.row.value) ? resource.row.value : {};
   return {
     resourceType: stringValue(row.ResourceType),
@@ -1101,7 +1158,10 @@ function cellsForResourceBuilderDiagnostics(
   rows: ReadonlyArray<ResourceDeltaFeasibilityContext>
 ): ReadonlyArray<{ x: number; y: number; resourceTypes: ReadonlyArray<number> }> {
   return rows
-    .filter((row) => row.feasibilityClass === "local-overaccepted-live-empty" && row.localResource.value !== null)
+    .filter(
+      (row) =>
+        row.feasibilityClass === "local-overaccepted-live-empty" && row.localResource.value !== null
+    )
     .map((row) => ({
       x: row.x,
       y: row.y,
@@ -1113,9 +1173,7 @@ function resourceTypesForResourceBuilderDiagnostics(
   rows: ReadonlyArray<ResourceDeltaFeasibilityContext>
 ): ReadonlyArray<number> {
   return uniqueNumbers(
-    rows
-      .filter((row) => row.assignmentTrace !== null)
-      .map((row) => row.localResource.value)
+    rows.filter((row) => row.assignmentTrace !== null).map((row) => row.localResource.value)
   );
 }
 
@@ -1127,7 +1185,10 @@ function feasibilityValue(
   return probe.value ? "true" : "false";
 }
 
-function countBy<T>(items: ReadonlyArray<T>, keyFor: (item: T) => string): Readonly<Record<string, number>> {
+function countBy<T>(
+  items: ReadonlyArray<T>,
+  keyFor: (item: T) => string
+): Readonly<Record<string, number>> {
   const counts: Record<string, number> = {};
   for (const item of items) {
     const key = keyFor(item);
@@ -1140,8 +1201,12 @@ function incrementCount(counts: Record<string, number>, key: string): void {
   counts[key] = (counts[key] ?? 0) + 1;
 }
 
-function sortCountRecord(counts: Readonly<Record<string, number>>): Readonly<Record<string, number>> {
-  return Object.fromEntries(Object.entries(counts).sort(([left], [right]) => left.localeCompare(right)));
+function sortCountRecord(
+  counts: Readonly<Record<string, number>>
+): Readonly<Record<string, number>> {
+  return Object.fromEntries(
+    Object.entries(counts).sort(([left], [right]) => left.localeCompare(right))
+  );
 }
 
 function uniqueNumbers(values: ReadonlyArray<number | null>): number[] {
@@ -1192,7 +1257,13 @@ if (import.meta.main) {
       process.exitCode = code;
     })
     .catch((error) => {
-      console.error(JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) }, null, 2));
+      console.error(
+        JSON.stringify(
+          { ok: false, error: error instanceof Error ? error.message : String(error) },
+          null,
+          2
+        )
+      );
       process.exitCode = 1;
     });
 }

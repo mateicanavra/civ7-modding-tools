@@ -1,7 +1,7 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import {
-  EcologyFeaturesPublicSchema,
   compileEcologyFeaturesPublicConfig,
+  EcologyFeaturesPublicSchema,
 } from "../ecology-public-config.js";
 import { steps } from "./steps/index.js";
 

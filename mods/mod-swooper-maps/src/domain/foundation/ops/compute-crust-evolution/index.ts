@@ -1,7 +1,12 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampU8 } from "@swooper/mapgen-core/lib/math";
 
-import { requireCrust, requireMesh, requireTectonicHistory, requireTectonics } from "../../lib/require.js";
+import {
+  requireCrust,
+  requireMesh,
+  requireTectonicHistory,
+  requireTectonics,
+} from "../../lib/require.js";
 import ComputeCrustEvolutionContract from "./contract.js";
 
 const MATURITY_CONTINENT_THRESHOLD = 0.55;
@@ -50,7 +55,11 @@ function strengthFromThickness(thickness: number): number {
   return STRENGTH_THICKNESS_MIN + (1 - STRENGTH_THICKNESS_MIN) * clamp01(thickness);
 }
 
-function deriveBuoyancy(params: { maturity: number; thickness: number; thermalAge01: number }): number {
+function deriveBuoyancy(params: {
+  maturity: number;
+  thickness: number;
+  thermalAge01: number;
+}): number {
   const maturityBoost = MATURITY_BUOYANCY_BOOST * clamp01(params.maturity);
   const thicknessBoost = THICKNESS_BUOYANCY_BOOST * clamp01(params.thickness);
   const subsidence = OCEANIC_AGE_DEPTH * clamp01(params.thermalAge01);
@@ -64,8 +73,16 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
         const mesh = requireMesh(input.mesh, "foundation/compute-crust-evolution");
         const cellCount = mesh.cellCount | 0;
 
-        const crustInit = requireCrust(input.crustInit, cellCount, "foundation/compute-crust-evolution");
-        const tectonics = requireTectonics(input.tectonics, cellCount, "foundation/compute-crust-evolution");
+        const crustInit = requireCrust(
+          input.crustInit,
+          cellCount,
+          "foundation/compute-crust-evolution"
+        );
+        const tectonics = requireTectonics(
+          input.tectonics,
+          cellCount,
+          "foundation/compute-crust-evolution"
+        );
         const tectonicHistory = requireTectonicHistory(
           input.tectonicHistory,
           cellCount,
@@ -98,7 +115,9 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           const fractureTotal01 = clamp01((tectonicHistory.fractureTotal[i] ?? 0) / 255);
           const riftNow01 = clamp01((tectonics.riftPotential[i] ?? 0) / 255);
           const shearNow01 = clamp01((tectonics.shearStress[i] ?? 0) / 255);
-          let damage01 = clamp01((0.55 * fractureTotal01 + 0.6 * riftNow01 + 0.45 * shearNow01) / DAMAGE_COEFF_SUM);
+          let damage01 = clamp01(
+            (0.55 * fractureTotal01 + 0.6 * riftNow01 + 0.45 * shearNow01) / DAMAGE_COEFF_SUM
+          );
 
           for (let e = 0; e < eraCount; e++) {
             const era = eras[e]!;
@@ -132,11 +151,15 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
             damage01 = clamp01(Math.max(damage01, disrupt));
 
             // Thermal age accrual.
-            thermalAge01 = clamp01(thermalAge01 + thermalAgeStep * (1 - THERMAL_AGE_RIFT_SLOWDOWN * r));
+            thermalAge01 = clamp01(
+              thermalAge01 + thermalAgeStep * (1 - THERMAL_AGE_RIFT_SLOWDOWN * r)
+            );
           }
 
           // Thickness increases with differentiated crust, and implicitly responds to uplift/volcanism via maturity.
-          thickness01 = clamp01(Math.max(thickness01, initThickness + THICKNESS_FROM_MATURITY_GAIN * maturity01));
+          thickness01 = clamp01(
+            Math.max(thickness01, initThickness + THICKNESS_FROM_MATURITY_GAIN * maturity01)
+          );
 
           maturity[i] = maturity01;
           thickness[i] = thickness01;
@@ -147,7 +170,11 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           type[i] = isContinent;
           age[i] = thermalAge[i];
 
-          const buoy = deriveBuoyancy({ maturity: maturity01, thickness: thickness01, thermalAge01 });
+          const buoy = deriveBuoyancy({
+            maturity: maturity01,
+            thickness: thickness01,
+            thermalAge01,
+          });
           buoyancy[i] = buoy;
           baseElevation[i] = buoy;
 

@@ -1,113 +1,114 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ControllerBridgeCityPopulationPlacementRequest,
   Civ7ControllerBridgeCityPopulationPlacementRequestSchema,
+  type Civ7ControllerBridgeCityPopulationPlacementSuccessResponse,
   Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema,
+  type Civ7ControllerBridgeCityProductionChoiceRequest,
   Civ7ControllerBridgeCityProductionChoiceRequestSchema,
+  type Civ7ControllerBridgeCityProductionChoiceSuccessResponse,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
+  type Civ7ControllerBridgeCityTownFocusChangeRequest,
   Civ7ControllerBridgeCityTownFocusChangeRequestSchema,
+  type Civ7ControllerBridgeCityTownFocusChangeSuccessResponse,
   Civ7ControllerBridgeCityTownFocusChangeSuccessResponseSchema,
+  type Civ7ControllerBridgeCityTownFocusReviewRequest,
   Civ7ControllerBridgeCityTownFocusReviewRequestSchema,
+  type Civ7ControllerBridgeCityTownFocusReviewSuccessResponse,
   Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
+  type Civ7ControllerBridgeDiplomacyResponseRequest,
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
+  type Civ7ControllerBridgeDiplomacyResponseSuccessResponse,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+  type Civ7ControllerBridgeFirstMeetResponseRequest,
   Civ7ControllerBridgeFirstMeetResponseRequestSchema,
+  type Civ7ControllerBridgeFirstMeetResponseSuccessResponse,
   Civ7ControllerBridgeFirstMeetResponseSuccessResponseSchema,
+  type Civ7ControllerBridgeGovernmentCelebrationChoiceRequest,
   Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema,
+  type Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse,
   Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema,
+  type Civ7ControllerBridgeGovernmentChoiceRequest,
   Civ7ControllerBridgeGovernmentChoiceRequestSchema,
+  type Civ7ControllerBridgeGovernmentChoiceSuccessResponse,
   Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema,
+  type Civ7ControllerBridgeNarrativeChoiceRequest,
   Civ7ControllerBridgeNarrativeChoiceRequestSchema,
+  type Civ7ControllerBridgeNarrativeChoiceSuccessResponse,
   Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
-  Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
-  Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
-  Civ7ControllerBridgeProgressionCultureTargetRequestSchema,
-  Civ7ControllerBridgeProgressionCultureTargetSuccessResponseSchema,
+  type Civ7ControllerBridgeProgressionAttributePurchaseRequest,
   Civ7ControllerBridgeProgressionAttributePurchaseRequestSchema,
+  type Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponse,
   Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponseSchema,
+  type Civ7ControllerBridgeProgressionAttributeReviewRequest,
   Civ7ControllerBridgeProgressionAttributeReviewRequestSchema,
+  type Civ7ControllerBridgeProgressionAttributeReviewSuccessResponse,
   Civ7ControllerBridgeProgressionAttributeReviewSuccessResponseSchema,
+  type Civ7ControllerBridgeProgressionCultureChoiceRequest,
+  Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
+  type Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse,
+  Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
+  type Civ7ControllerBridgeProgressionCultureTargetRequest,
+  Civ7ControllerBridgeProgressionCultureTargetRequestSchema,
+  type Civ7ControllerBridgeProgressionCultureTargetSuccessResponse,
+  Civ7ControllerBridgeProgressionCultureTargetSuccessResponseSchema,
+  type Civ7ControllerBridgeProgressionTechnologyChoiceRequest,
   Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
+  type Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse,
   Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
+  type Civ7ControllerBridgeProgressionTechnologyTargetRequest,
   Civ7ControllerBridgeProgressionTechnologyTargetRequestSchema,
+  type Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponse,
   Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponseSchema,
+  type Civ7ControllerBridgeProgressionTraditionChangeRequest,
   Civ7ControllerBridgeProgressionTraditionChangeRequestSchema,
+  type Civ7ControllerBridgeProgressionTraditionChangeSuccessResponse,
   Civ7ControllerBridgeProgressionTraditionChangeSuccessResponseSchema,
+  type Civ7ControllerBridgeProgressionTraditionReviewRequest,
   Civ7ControllerBridgeProgressionTraditionReviewRequestSchema,
+  type Civ7ControllerBridgeProgressionTraditionReviewSuccessResponse,
   Civ7ControllerBridgeProgressionTraditionReviewSuccessResponseSchema,
   Civ7ControllerBridgeResponseSchema,
+  type Civ7ControllerBridgeStrategyFrontSummaryRequest,
   Civ7ControllerBridgeStrategyFrontSummaryRequestSchema,
+  type Civ7ControllerBridgeStrategyFrontSummarySuccessResponse,
   Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
+  type Civ7ControllerBridgeUnitResettleRequest,
   Civ7ControllerBridgeUnitResettleRequestSchema,
+  type Civ7ControllerBridgeUnitResettleSuccessResponse,
   Civ7ControllerBridgeUnitResettleSuccessResponseSchema,
+  type Civ7ControllerBridgeUnitTargetActionRequest,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
+  type Civ7ControllerBridgeUnitTargetActionSuccessResponse,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
+  type Civ7ControllerBridgeUnitUpgradeRequest,
   Civ7ControllerBridgeUnitUpgradeRequestSchema,
+  type Civ7ControllerBridgeUnitUpgradeSuccessResponse,
   Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema,
+  type Civ7ControllerBridgeWorldCurrentRequest,
   Civ7ControllerBridgeWorldCurrentRequestSchema,
+  type Civ7ControllerBridgeWorldCurrentSuccessResponse,
   Civ7ControllerBridgeWorldCurrentSuccessResponseSchema,
+  type Civ7ControllerBridgeWorldGridReadRequest,
   Civ7ControllerBridgeWorldGridReadRequestSchema,
+  type Civ7ControllerBridgeWorldGridReadSuccessResponse,
   Civ7ControllerBridgeWorldGridReadSuccessResponseSchema,
+  type Civ7ControllerBridgeWorldPlotReadRequest,
   Civ7ControllerBridgeWorldPlotReadRequestSchema,
+  type Civ7ControllerBridgeWorldPlotReadSuccessResponse,
   Civ7ControllerBridgeWorldPlotReadSuccessResponseSchema,
-  createCiv7ControllerBridgeIngress,
-  invokeCiv7ControllerBridgeRequest,
   type Civ7ControlOrpcContext,
   type Civ7ControlOrpcPlayableStatusResult,
-  type Civ7ControllerBridgeCityPopulationPlacementRequest,
-  type Civ7ControllerBridgeCityPopulationPlacementSuccessResponse,
-  type Civ7ControllerBridgeCityProductionChoiceRequest,
-  type Civ7ControllerBridgeCityProductionChoiceSuccessResponse,
-  type Civ7ControllerBridgeCityTownFocusChangeRequest,
-  type Civ7ControllerBridgeCityTownFocusChangeSuccessResponse,
-  type Civ7ControllerBridgeCityTownFocusReviewRequest,
-  type Civ7ControllerBridgeCityTownFocusReviewSuccessResponse,
-  type Civ7ControllerBridgeDiplomacyResponseRequest,
-  type Civ7ControllerBridgeDiplomacyResponseSuccessResponse,
-  type Civ7ControllerBridgeFirstMeetResponseRequest,
-  type Civ7ControllerBridgeFirstMeetResponseSuccessResponse,
-  type Civ7ControllerBridgeGovernmentCelebrationChoiceRequest,
-  type Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse,
-  type Civ7ControllerBridgeGovernmentChoiceRequest,
-  type Civ7ControllerBridgeGovernmentChoiceSuccessResponse,
-  type Civ7ControllerBridgeNarrativeChoiceRequest,
-  type Civ7ControllerBridgeNarrativeChoiceSuccessResponse,
-  type Civ7ControllerBridgeProgressionCultureChoiceRequest,
-  type Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse,
-  type Civ7ControllerBridgeProgressionCultureTargetRequest,
-  type Civ7ControllerBridgeProgressionCultureTargetSuccessResponse,
-  type Civ7ControllerBridgeProgressionAttributePurchaseRequest,
-  type Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponse,
-  type Civ7ControllerBridgeProgressionAttributeReviewRequest,
-  type Civ7ControllerBridgeProgressionAttributeReviewSuccessResponse,
-  type Civ7ControllerBridgeProgressionTechnologyChoiceRequest,
-  type Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse,
-  type Civ7ControllerBridgeProgressionTechnologyTargetRequest,
-  type Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponse,
-  type Civ7ControllerBridgeProgressionTraditionChangeRequest,
-  type Civ7ControllerBridgeProgressionTraditionChangeSuccessResponse,
-  type Civ7ControllerBridgeProgressionTraditionReviewRequest,
-  type Civ7ControllerBridgeProgressionTraditionReviewSuccessResponse,
-  type Civ7ControllerBridgeStrategyFrontSummaryRequest,
-  type Civ7ControllerBridgeStrategyFrontSummarySuccessResponse,
-  type Civ7ControllerBridgeUnitResettleRequest,
-  type Civ7ControllerBridgeUnitResettleSuccessResponse,
-  type Civ7ControllerBridgeUnitTargetActionRequest,
-  type Civ7ControllerBridgeUnitTargetActionSuccessResponse,
-  type Civ7ControllerBridgeUnitUpgradeRequest,
-  type Civ7ControllerBridgeUnitUpgradeSuccessResponse,
-  type Civ7ControllerBridgeWorldCurrentRequest,
-  type Civ7ControllerBridgeWorldCurrentSuccessResponse,
-  type Civ7ControllerBridgeWorldGridReadRequest,
-  type Civ7ControllerBridgeWorldGridReadSuccessResponse,
-  type Civ7ControllerBridgeWorldPlotReadRequest,
-  type Civ7ControllerBridgeWorldPlotReadSuccessResponse,
+  createCiv7ControllerBridgeIngress,
+  invokeCiv7ControllerBridgeRequest,
 } from "../src/index";
 
-type TestControllerContext = Civ7ControlOrpcContext & Readonly<{
-  controllerProof?: unknown;
-}>;
+type TestControllerContext = Civ7ControlOrpcContext &
+  Readonly<{
+    controllerProof?: unknown;
+  }>;
 
 const notificationId = { owner: 0, id: 113, type: 20 };
 const unitId = { owner: 0, id: 458_752, type: 26 };
@@ -161,56 +162,58 @@ const traditionChangeInput = {
   action: -1_326_475_004,
 };
 
-type PublicControllerBridgeSchemaTypeCoverage = Readonly<[
-  Civ7ControllerBridgeStrategyFrontSummaryRequest,
-  Civ7ControllerBridgeStrategyFrontSummarySuccessResponse,
-  Civ7ControllerBridgeWorldCurrentRequest,
-  Civ7ControllerBridgeWorldCurrentSuccessResponse,
-  Civ7ControllerBridgeWorldPlotReadRequest,
-  Civ7ControllerBridgeWorldPlotReadSuccessResponse,
-  Civ7ControllerBridgeWorldGridReadRequest,
-  Civ7ControllerBridgeWorldGridReadSuccessResponse,
-  Civ7ControllerBridgeCityProductionChoiceRequest,
-  Civ7ControllerBridgeCityProductionChoiceSuccessResponse,
-  Civ7ControllerBridgeCityPopulationPlacementRequest,
-  Civ7ControllerBridgeCityPopulationPlacementSuccessResponse,
-  Civ7ControllerBridgeCityTownFocusChangeRequest,
-  Civ7ControllerBridgeCityTownFocusChangeSuccessResponse,
-  Civ7ControllerBridgeCityTownFocusReviewRequest,
-  Civ7ControllerBridgeCityTownFocusReviewSuccessResponse,
-  Civ7ControllerBridgeNarrativeChoiceRequest,
-  Civ7ControllerBridgeNarrativeChoiceSuccessResponse,
-  Civ7ControllerBridgeDiplomacyResponseRequest,
-  Civ7ControllerBridgeDiplomacyResponseSuccessResponse,
-  Civ7ControllerBridgeFirstMeetResponseRequest,
-  Civ7ControllerBridgeFirstMeetResponseSuccessResponse,
-  Civ7ControllerBridgeGovernmentChoiceRequest,
-  Civ7ControllerBridgeGovernmentChoiceSuccessResponse,
-  Civ7ControllerBridgeGovernmentCelebrationChoiceRequest,
-  Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse,
-  Civ7ControllerBridgeUnitTargetActionRequest,
-  Civ7ControllerBridgeUnitTargetActionSuccessResponse,
-  Civ7ControllerBridgeUnitUpgradeRequest,
-  Civ7ControllerBridgeUnitUpgradeSuccessResponse,
-  Civ7ControllerBridgeUnitResettleRequest,
-  Civ7ControllerBridgeUnitResettleSuccessResponse,
-  Civ7ControllerBridgeProgressionTechnologyChoiceRequest,
-  Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse,
-  Civ7ControllerBridgeProgressionCultureChoiceRequest,
-  Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse,
-  Civ7ControllerBridgeProgressionTechnologyTargetRequest,
-  Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponse,
-  Civ7ControllerBridgeProgressionCultureTargetRequest,
-  Civ7ControllerBridgeProgressionCultureTargetSuccessResponse,
-  Civ7ControllerBridgeProgressionAttributePurchaseRequest,
-  Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponse,
-  Civ7ControllerBridgeProgressionAttributeReviewRequest,
-  Civ7ControllerBridgeProgressionAttributeReviewSuccessResponse,
-  Civ7ControllerBridgeProgressionTraditionChangeRequest,
-  Civ7ControllerBridgeProgressionTraditionChangeSuccessResponse,
-  Civ7ControllerBridgeProgressionTraditionReviewRequest,
-  Civ7ControllerBridgeProgressionTraditionReviewSuccessResponse,
-]>;
+type PublicControllerBridgeSchemaTypeCoverage = Readonly<
+  [
+    Civ7ControllerBridgeStrategyFrontSummaryRequest,
+    Civ7ControllerBridgeStrategyFrontSummarySuccessResponse,
+    Civ7ControllerBridgeWorldCurrentRequest,
+    Civ7ControllerBridgeWorldCurrentSuccessResponse,
+    Civ7ControllerBridgeWorldPlotReadRequest,
+    Civ7ControllerBridgeWorldPlotReadSuccessResponse,
+    Civ7ControllerBridgeWorldGridReadRequest,
+    Civ7ControllerBridgeWorldGridReadSuccessResponse,
+    Civ7ControllerBridgeCityProductionChoiceRequest,
+    Civ7ControllerBridgeCityProductionChoiceSuccessResponse,
+    Civ7ControllerBridgeCityPopulationPlacementRequest,
+    Civ7ControllerBridgeCityPopulationPlacementSuccessResponse,
+    Civ7ControllerBridgeCityTownFocusChangeRequest,
+    Civ7ControllerBridgeCityTownFocusChangeSuccessResponse,
+    Civ7ControllerBridgeCityTownFocusReviewRequest,
+    Civ7ControllerBridgeCityTownFocusReviewSuccessResponse,
+    Civ7ControllerBridgeNarrativeChoiceRequest,
+    Civ7ControllerBridgeNarrativeChoiceSuccessResponse,
+    Civ7ControllerBridgeDiplomacyResponseRequest,
+    Civ7ControllerBridgeDiplomacyResponseSuccessResponse,
+    Civ7ControllerBridgeFirstMeetResponseRequest,
+    Civ7ControllerBridgeFirstMeetResponseSuccessResponse,
+    Civ7ControllerBridgeGovernmentChoiceRequest,
+    Civ7ControllerBridgeGovernmentChoiceSuccessResponse,
+    Civ7ControllerBridgeGovernmentCelebrationChoiceRequest,
+    Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse,
+    Civ7ControllerBridgeUnitTargetActionRequest,
+    Civ7ControllerBridgeUnitTargetActionSuccessResponse,
+    Civ7ControllerBridgeUnitUpgradeRequest,
+    Civ7ControllerBridgeUnitUpgradeSuccessResponse,
+    Civ7ControllerBridgeUnitResettleRequest,
+    Civ7ControllerBridgeUnitResettleSuccessResponse,
+    Civ7ControllerBridgeProgressionTechnologyChoiceRequest,
+    Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse,
+    Civ7ControllerBridgeProgressionCultureChoiceRequest,
+    Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse,
+    Civ7ControllerBridgeProgressionTechnologyTargetRequest,
+    Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponse,
+    Civ7ControllerBridgeProgressionCultureTargetRequest,
+    Civ7ControllerBridgeProgressionCultureTargetSuccessResponse,
+    Civ7ControllerBridgeProgressionAttributePurchaseRequest,
+    Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponse,
+    Civ7ControllerBridgeProgressionAttributeReviewRequest,
+    Civ7ControllerBridgeProgressionAttributeReviewSuccessResponse,
+    Civ7ControllerBridgeProgressionTraditionChangeRequest,
+    Civ7ControllerBridgeProgressionTraditionChangeSuccessResponse,
+    Civ7ControllerBridgeProgressionTraditionReviewRequest,
+    Civ7ControllerBridgeProgressionTraditionReviewSuccessResponse,
+  ]
+>;
 
 const publicControllerBridgeSchemaTypeCoverage = <_T>() => undefined;
 
@@ -268,15 +271,15 @@ describe("Civ7 controller bridge ingress", () => {
     ];
 
     expect(
-      publicControllerBridgeSchemaTypeCoverage<
-        PublicControllerBridgeSchemaTypeCoverage
-      >(),
+      publicControllerBridgeSchemaTypeCoverage<PublicControllerBridgeSchemaTypeCoverage>()
     ).toBeUndefined();
     for (const schema of publicSchemas) {
-      expect(schema).toEqual(expect.objectContaining({
-        additionalProperties: false,
-        type: "object",
-      }));
+      expect(schema).toEqual(
+        expect.objectContaining({
+          additionalProperties: false,
+          type: "object",
+        })
+      );
     }
   });
 
@@ -310,18 +313,20 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "controller-readiness-1",
-    }]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "readiness.current",
+        input: {},
+        correlationId: "controller-readiness-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
     expect(serialized).not.toContain("Game.turn");
     expect(serialized).not.toContain("Tuner");
     expect(serialized).not.toContain("App UI");
@@ -366,24 +371,22 @@ describe("Civ7 controller bridge ingress", () => {
         },
       },
     });
-    expect(fake.calls.notifications).toEqual([
-      { timeoutMs: 1_000, maxNotifications: 4 },
+    expect(fake.calls.notifications).toEqual([{ timeoutMs: 1_000, maxNotifications: 4 }]);
+    expect(fake.calls.readyUnit).toEqual([{ input: {}, options: { timeoutMs: 1_000 } }]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "attention.current",
+        input: { maxNotifications: 4 },
+        correlationId: "controller-attention-1",
+      },
     ]);
-    expect(fake.calls.readyUnit).toEqual([
-      { input: {}, options: { timeoutMs: 1_000 } },
-    ]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "attention.current",
-      input: { maxNotifications: 4 },
-      correlationId: "controller-attention-1",
-    }]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
     expect(serialized).not.toContain("Game.turn");
     expect(serialized).not.toContain("Tuner");
     expect(serialized).not.toContain("App UI");
@@ -434,18 +437,20 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "world.current",
-      input: {},
-      correlationId: "controller-world-1",
-    }]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "world.current",
+        input: {},
+        correlationId: "controller-world-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
     expect(serialized).not.toContain("relationship");
   });
 
@@ -491,32 +496,36 @@ describe("Civ7 controller bridge ingress", () => {
         },
       },
     });
-    expect(fake.calls.plot).toEqual([{
-      input: {
-        x: 3,
-        y: 4,
-        fields: ["terrain", "owner"],
-        playerId: 0,
-        includeHidden: undefined,
+    expect(fake.calls.plot).toEqual([
+      {
+        input: {
+          x: 3,
+          y: 4,
+          fields: ["terrain", "owner"],
+          playerId: 0,
+          includeHidden: undefined,
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "world.plot.read",
-      input: {
-        location: { x: 3, y: 4 },
-        fields: ["terrain", "owner"],
-        playerId: 0,
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "world.plot.read",
+        input: {
+          location: { x: 3, y: 4 },
+          fields: ["terrain", "owner"],
+          playerId: 0,
+        },
+        correlationId: "controller-world-plot-1",
       },
-      correlationId: "controller-world-plot-1",
-    }]);
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
     expect(serialized).not.toContain("relationship");
   });
 
@@ -561,23 +570,25 @@ describe("Civ7 controller bridge ingress", () => {
         ],
       },
     });
-    expect(fake.calls.grid).toEqual([{
-      input: {
-        bounds: { x: 3, y: 4, width: 2, height: 1 },
-        fields: ["terrain"],
-        playerId: undefined,
-        includeHidden: undefined,
-        maxPlots: 1,
+    expect(fake.calls.grid).toEqual([
+      {
+        input: {
+          bounds: { x: 3, y: 4, width: 2, height: 1 },
+          fields: ["terrain"],
+          playerId: undefined,
+          includeHidden: undefined,
+          maxPlots: 1,
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
     expect(serialized).not.toContain("relationship");
   });
 
@@ -655,22 +666,26 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.calls.dismissal).toEqual([{
-      input: { notificationId },
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "notifications.dismiss.request",
-      input: { notificationId },
-      correlationId: "controller-notification-1",
-    }]);
+    expect(fake.calls.dismissal).toEqual([
+      {
+        input: { notificationId },
+        options: { timeoutMs: 1_000 },
+      },
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "notifications.dismiss.request",
+        input: { notificationId },
+        correlationId: "controller-notification-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
 
     expect(serialized).not.toContain("NotificationModel.manager.dismiss");
     expect(serialized).not.toContain("Game.Notifications.dismiss");
@@ -709,21 +724,25 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.calls.turnCompletion).toEqual([{
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "turn.complete.request",
-      input: {},
-      correlationId: "controller-turn-1",
-    }]);
+    expect(fake.calls.turnCompletion).toEqual([
+      {
+        options: { timeoutMs: 1_000 },
+      },
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "turn.complete.request",
+        input: {},
+        correlationId: "controller-turn-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
 
     expect(serialized).not.toContain("GameContext.sendTurnComplete");
     expect(serialized).not.toContain("CMD");
@@ -764,22 +783,26 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.calls.targetAction).toEqual([{
-      input: { unitId, ...target },
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "unit.target.action.request",
-      input: { unitId, ...target },
-      correlationId: "controller-unit-target-1",
-    }]);
+    expect(fake.calls.targetAction).toEqual([
+      {
+        input: { unitId, ...target },
+        options: { timeoutMs: 1_000 },
+      },
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "unit.target.action.request",
+        input: { unitId, ...target },
+        correlationId: "controller-unit-target-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
 
     expect(serialized).not.toContain("Game.UnitOperations.sendRequest");
     expect(serialized).not.toContain("CMD");
@@ -822,19 +845,23 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.calls.unitCommand).toEqual([{
-      input: {
-        unitId,
-        operationType: "UNITCOMMAND_UPGRADE",
-        args: {},
+    expect(fake.calls.unitCommand).toEqual([
+      {
+        input: {
+          unitId,
+          operationType: "UNITCOMMAND_UPGRADE",
+          args: {},
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "unit.upgrade.request",
-      input: { unitId },
-      correlationId: "controller-unit-upgrade-1",
-    }]);
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "unit.upgrade.request",
+        input: { unitId },
+        correlationId: "controller-unit-upgrade-1",
+      },
+    ]);
 
     expectSemanticControllerOutputOmitsRawUnitCommand(response);
   });
@@ -877,25 +904,29 @@ describe("Civ7 controller bridge ingress", () => {
         },
       },
     });
-    expect(fake.calls.unitCommand).toEqual([{
-      input: {
-        unitId,
-        operationType: "UNITCOMMAND_RESETTLE",
-        args: {
-          X: 22,
-          Y: 31,
+    expect(fake.calls.unitCommand).toEqual([
+      {
+        input: {
+          unitId,
+          operationType: "UNITCOMMAND_RESETTLE",
+          args: {
+            X: 22,
+            Y: 31,
+          },
         },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "unit.resettle.request",
-      input: {
-        unitId,
-        destination: target,
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "unit.resettle.request",
+        input: {
+          unitId,
+          destination: target,
+        },
+        correlationId: "controller-unit-resettle-1",
       },
-      correlationId: "controller-unit-resettle-1",
-    }]);
+    ]);
 
     expectSemanticControllerOutputOmitsRawUnitCommand(response);
   });
@@ -933,22 +964,26 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.calls.production).toEqual([{
-      input: { cityId, args: productionArgs },
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "city.production.choice.request",
-      input: { cityId, args: productionArgs },
-      correlationId: "controller-production-1",
-    }]);
+    expect(fake.calls.production).toEqual([
+      {
+        input: { cityId, args: productionArgs },
+        options: { timeoutMs: 1_000 },
+      },
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "city.production.choice.request",
+        input: { cityId, args: productionArgs },
+        correlationId: "controller-production-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
 
     expect(serialized).not.toContain("Game.CityOperations.sendRequest");
     expect(serialized).not.toContain("Game.CityOperations.canStart");
@@ -997,26 +1032,30 @@ describe("Civ7 controller bridge ingress", () => {
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.calls.population).toEqual([{
-      method: "requestCiv7AssignWorkerPlacement",
-      input: { playerId: 0, location: workerLocation },
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "city.population.place.request",
-      input: {
-        mode: "assign-worker",
-        location: workerLocation,
+    expect(fake.calls.population).toEqual([
+      {
+        method: "requestCiv7AssignWorkerPlacement",
+        input: { playerId: 0, location: workerLocation },
+        options: { timeoutMs: 1_000 },
       },
-      correlationId: "controller-population-1",
-    }]);
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "city.population.place.request",
+        input: {
+          mode: "assign-worker",
+          location: workerLocation,
+        },
+        correlationId: "controller-population-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
 
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
     expect(serialized).not.toContain("Game.CityCommands.sendRequest");
@@ -1060,26 +1099,30 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.calls.townFocus).toEqual([{
-      method: "requestCiv7TownFocusChange",
-      input: townFocusInput,
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "city.townFocus.change.request",
-      input: townFocusInput,
-      correlationId: "controller-town-focus-change-1",
-    }]);
+    expect(fake.calls.townFocus).toEqual([
+      {
+        method: "requestCiv7TownFocusChange",
+        input: townFocusInput,
+        options: { timeoutMs: 1_000 },
+      },
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "city.townFocus.change.request",
+        input: townFocusInput,
+        correlationId: "controller-town-focus-change-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"operation\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"operation"');
+    expect(serialized).not.toContain('"verified"');
     expect(serialized).not.toContain("CHANGE_GROWTH_MODE");
     expect(serialized).not.toContain("Game.CityCommands.sendRequest");
     expect(serialized).not.toContain("CMD");
@@ -1118,19 +1161,21 @@ describe("Civ7 controller bridge ingress", () => {
         },
       },
     });
-    expect(fake.calls.townFocus).toEqual([{
-      method: "requestCiv7TownFocusReviewCloseout",
-      input: { cityId },
-      options: { timeoutMs: 1_000 },
-    }]);
+    expect(fake.calls.townFocus).toEqual([
+      {
+        method: "requestCiv7TownFocusReviewCloseout",
+        input: { cityId },
+        options: { timeoutMs: 1_000 },
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
+    expect(serialized).not.toContain('"command"');
     expect(serialized).not.toContain("CONSIDER_TOWN_PROJECT");
     expect(serialized).not.toContain("Game.CityOperations.sendRequest");
   });
@@ -1171,27 +1216,31 @@ describe("Civ7 controller bridge ingress", () => {
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.calls.narrative).toEqual([{
-      input: {
-        playerId: 0,
-        ...narrativeInput,
+    expect(fake.calls.narrative).toEqual([
+      {
+        input: {
+          playerId: 0,
+          ...narrativeInput,
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "narrative.choice.request",
-      input: narrativeInput,
-      correlationId: "controller-narrative-1",
-    }]);
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "narrative.choice.request",
+        input: narrativeInput,
+        correlationId: "controller-narrative-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
 
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
     expect(serialized).not.toContain("Game.turn");
@@ -1236,28 +1285,32 @@ describe("Civ7 controller bridge ingress", () => {
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.calls.diplomacy).toEqual([{
-      input: {
-        playerId: 0,
-        ...diplomacyInput,
+    expect(fake.calls.diplomacy).toEqual([
+      {
+        input: {
+          playerId: 0,
+          ...diplomacyInput,
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "diplomacy.response.request",
-      input: diplomacyInput,
-      correlationId: "controller-diplomacy-1",
-    }]);
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "diplomacy.response.request",
+        input: diplomacyInput,
+        correlationId: "controller-diplomacy-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"verified"');
 
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
     expect(serialized).not.toContain("DiplomacyManager");
@@ -1301,29 +1354,33 @@ describe("Civ7 controller bridge ingress", () => {
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.calls.firstMeet).toEqual([{
-      input: {
-        playerId: 0,
-        metPlayerId: 2,
-        responseType: 673_478_009,
+    expect(fake.calls.firstMeet).toEqual([
+      {
+        input: {
+          playerId: 0,
+          metPlayerId: 2,
+          responseType: 673_478_009,
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
-    expect(fake.contextRequests).toEqual([{
-      procedureKey: "diplomacy.firstMeet.response.request",
-      input: firstMeetInput,
-      correlationId: "controller-first-meet-1",
-    }]);
+    ]);
+    expect(fake.contextRequests).toEqual([
+      {
+        procedureKey: "diplomacy.firstMeet.response.request",
+        input: firstMeetInput,
+        correlationId: "controller-first-meet-1",
+      },
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"verified"');
     expect(serialized).not.toContain("RESPOND_DIPLOMATIC_FIRST_MEET");
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
     expect(serialized).not.toContain("CMD");
@@ -1366,25 +1423,27 @@ describe("Civ7 controller bridge ingress", () => {
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.calls.government).toEqual([{
-      input: {
-        playerId: 0,
-        governmentType: 0,
-        action: -1_326_475_004,
+    expect(fake.calls.government).toEqual([
+      {
+        input: {
+          playerId: 0,
+          governmentType: 0,
+          action: -1_326_475_004,
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
+    ]);
     expect(fake.calls.celebration).toEqual([]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"verified"');
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
   });
 
@@ -1420,13 +1479,15 @@ describe("Civ7 controller bridge ingress", () => {
         },
       },
     });
-    expect(fake.calls.celebration).toEqual([{
-      input: {
-        playerId: 0,
-        goldenAgeType: -340_825_966,
+    expect(fake.calls.celebration).toEqual([
+      {
+        input: {
+          playerId: 0,
+          goldenAgeType: -340_825_966,
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
+    ]);
     expect(fake.calls.government).toEqual([]);
   });
 
@@ -1465,24 +1526,26 @@ describe("Civ7 controller bridge ingress", () => {
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }, { timeoutMs: 1_000 }]);
-    expect(fake.calls.technology).toEqual([{
-      input: {
-        playerId: 0,
-        node: 18_001,
-        notificationId,
+    expect(fake.calls.technology).toEqual([
+      {
+        input: {
+          playerId: 0,
+          node: 18_001,
+          notificationId,
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
+    ]);
     expect(fake.calls.culture).toEqual([]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
 
     expect(serialized).not.toContain("SET_TECH_TREE_NODE");
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
@@ -1527,23 +1590,25 @@ describe("Civ7 controller bridge ingress", () => {
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }, { timeoutMs: 1_000 }]);
     expect(fake.calls.technology).toEqual([]);
-    expect(fake.calls.culture).toEqual([{
-      input: {
-        playerId: 0,
-        node: 27_001,
-        notificationId,
+    expect(fake.calls.culture).toEqual([
+      {
+        input: {
+          playerId: 0,
+          node: 27_001,
+          notificationId,
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
+    expect(serialized).not.toContain('"rawCommand"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
 
     expect(serialized).not.toContain("SET_CULTURE_TREE_NODE");
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
@@ -1584,19 +1649,21 @@ describe("Civ7 controller bridge ingress", () => {
         },
       },
     });
-    expect(fake.calls.technologyTarget).toEqual([{
-      input: {
-        playerId: 0,
-        node: 18_001,
+    expect(fake.calls.technologyTarget).toEqual([
+      {
+        input: {
+          playerId: 0,
+          node: 18_001,
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"operation\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"operation"');
+    expect(serialized).not.toContain('"verified"');
     expect(serialized).not.toContain("SET_TECH_TREE_TARGET_NODE");
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
   });
@@ -1633,19 +1700,21 @@ describe("Civ7 controller bridge ingress", () => {
         },
       },
     });
-    expect(fake.calls.attributePurchase).toEqual([{
-      input: {
-        playerId: 0,
-        node: 20,
+    expect(fake.calls.attributePurchase).toEqual([
+      {
+        input: {
+          playerId: 0,
+          node: 20,
+        },
+        options: { timeoutMs: 1_000 },
       },
-      options: { timeoutMs: 1_000 },
-    }]);
+    ]);
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"operation\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"operation"');
+    expect(serialized).not.toContain('"verified"');
     expect(serialized).not.toContain("BUY_ATTRIBUTE_TREE_NODE");
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
   });
@@ -1974,21 +2043,23 @@ describe("Civ7 controller bridge ingress", () => {
   test("requires controller-owned mutation proof before dispatch", async () => {
     const fake = fakeContext(playableStatusResult(), false);
 
-    const response = await invokeCiv7ControllerBridgeRequest({
-      procedureKey: "notifications.dismiss.request",
-      input: { notificationId },
-      correlationId: "controller-missing-proof-1",
-    }, {
-      createContext: () => fake.context,
-    });
+    const response = await invokeCiv7ControllerBridgeRequest(
+      {
+        procedureKey: "notifications.dismiss.request",
+        input: { notificationId },
+        correlationId: "controller-missing-proof-1",
+      },
+      {
+        createContext: () => fake.context,
+      }
+    );
 
     expect(response).toEqual({
       ok: false,
       correlationId: "controller-missing-proof-1",
       error: {
         code: "BRIDGE_CONTROLLER_PROOF_REQUIRED",
-        message:
-          "Civ7 controller bridge mutation proof is required before dispatch.",
+        message: "Civ7 controller bridge mutation proof is required before dispatch.",
         reason: "invalid-envelope",
       },
     });
@@ -1997,21 +2068,23 @@ describe("Civ7 controller bridge ingress", () => {
 
   test("rejects unsupported controller read procedures before dispatch", async () => {
     const fake = fakeAttentionContext(unitId);
-    const response = await invokeCiv7ControllerBridgeRequest({
-      procedureKey: "strategy.frontSummary",
-      input: {},
-      correlationId: "controller-unsupported-read-1",
-    }, {
-      createContext: () => fake.context,
-    });
+    const response = await invokeCiv7ControllerBridgeRequest(
+      {
+        procedureKey: "strategy.frontSummary",
+        input: {},
+        correlationId: "controller-unsupported-read-1",
+      },
+      {
+        createContext: () => fake.context,
+      }
+    );
 
     expect(response).toEqual({
       ok: false,
       correlationId: "controller-unsupported-read-1",
       error: {
         code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message:
-          "Civ7 controller bridge procedure is not supported by this controller context.",
+        message: "Civ7 controller bridge procedure is not supported by this controller context.",
         reason: "procedure-not-supported",
       },
     });
@@ -2021,21 +2094,23 @@ describe("Civ7 controller bridge ingress", () => {
 
   test("rejects unsupported controller mutation procedures after proof but before dispatch", async () => {
     const fake = fakeNotificationDismissContext();
-    const response = await invokeCiv7ControllerBridgeRequest({
-      procedureKey: "turn.complete.request",
-      input: {},
-      correlationId: "controller-unsupported-mutation-1",
-    }, {
-      createContext: () => fake.context,
-    });
+    const response = await invokeCiv7ControllerBridgeRequest(
+      {
+        procedureKey: "turn.complete.request",
+        input: {},
+        correlationId: "controller-unsupported-mutation-1",
+      },
+      {
+        createContext: () => fake.context,
+      }
+    );
 
     expect(response).toEqual({
       ok: false,
       correlationId: "controller-unsupported-mutation-1",
       error: {
         code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message:
-          "Civ7 controller bridge procedure is not supported by this controller context.",
+        message: "Civ7 controller bridge procedure is not supported by this controller context.",
         reason: "procedure-not-supported",
       },
     });
@@ -2046,12 +2121,15 @@ describe("Civ7 controller bridge ingress", () => {
   test("rejects procedures outside the bridge allowlist without dispatch", async () => {
     const fake = fakeContext(playableStatusResult());
 
-    const response = await invokeCiv7ControllerBridgeRequest({
-      procedureKey: "progression.legacy.choice.request",
-      input: { playerId: 0, node: 123 },
-    }, {
-      createContext: () => fake.context,
-    });
+    const response = await invokeCiv7ControllerBridgeRequest(
+      {
+        procedureKey: "progression.legacy.choice.request",
+        input: { playerId: 0, node: 123 },
+      },
+      {
+        createContext: () => fake.context,
+      }
+    );
 
     expect(response).toEqual({
       ok: false,
@@ -2065,17 +2143,20 @@ describe("Civ7 controller bridge ingress", () => {
   });
 
   test("keeps raw direct-control failure details out of bridge failures", async () => {
-    const fake = fakeContext(new Error(
-      "Timed out waiting for Civ7 tuner response to CMD:65535:Game.turn",
-    ));
+    const fake = fakeContext(
+      new Error("Timed out waiting for Civ7 tuner response to CMD:65535:Game.turn")
+    );
 
-    const response = await invokeCiv7ControllerBridgeRequest({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "controller-error-1",
-    }, {
-      createContext: () => fake.context,
-    });
+    const response = await invokeCiv7ControllerBridgeRequest(
+      {
+        procedureKey: "readiness.current",
+        input: {},
+        correlationId: "controller-error-1",
+      },
+      {
+        createContext: () => fake.context,
+      }
+    );
 
     expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
     expect(response).toEqual({
@@ -2097,7 +2178,7 @@ describe("Civ7 controller bridge ingress", () => {
 
 function fakeContext(
   resultOrError: Civ7ControlOrpcPlayableStatusResult | Error,
-  withControllerProof = true,
+  withControllerProof = true
 ): {
   calls: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
   contextRequests: unknown[];
@@ -2109,9 +2190,7 @@ function fakeContext(
     contextRequests: [],
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
-      ...(withControllerProof
-        ? { controllerProof: controllerMutationProof() }
-        : {}),
+      ...(withControllerProof ? { controllerProof: controllerMutationProof() } : {}),
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.push(options);
@@ -2177,11 +2256,7 @@ function fakeWorldMapContext(): {
   };
 }
 
-function plotSnapshotResult(
-  x: number,
-  y: number,
-  fields: readonly string[],
-) {
+function plotSnapshotResult(x: number, y: number, fields: readonly string[]) {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -2194,10 +2269,9 @@ function plotSnapshotResult(
     revealedState: { ok: true, value: 1 },
     visible: { ok: true, value: true },
     hiddenInfoPolicy: "visibility-filtered",
-    facts: Object.fromEntries(fields.map((field) => [
-      field,
-      { ok: true, value: field === "owner" ? 0 : 7 },
-    ])),
+    facts: Object.fromEntries(
+      fields.map((field) => [field, { ok: true, value: field === "owner" ? 0 : 7 }])
+    ),
   } as const;
 }
 
@@ -2407,10 +2481,7 @@ function fakeUnitCommandContext(kind: "upgrade" | "resettle"): {
       endpointDefaults: { timeoutMs: 1_000 },
       controllerProof: controllerMutationProof(),
       controller: {
-        supportedMutationProcedures: [
-          "unit.upgrade.request",
-          "unit.resettle.request",
-        ],
+        supportedMutationProcedures: ["unit.upgrade.request", "unit.resettle.request"],
       },
       directControl: {
         getCiv7PlayableStatus: async (options) => {
@@ -2421,7 +2492,7 @@ function fakeUnitCommandContext(kind: "upgrade" | "resettle"): {
           calls.unitCommand.push({ input, options });
           return unitCommandResult(
             kind === "upgrade" ? "queue-advanced" : "unit-state-changed",
-            kind,
+            kind
           );
         },
       } as Civ7ControlOrpcContext["directControl"],
@@ -2906,10 +2977,7 @@ function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technolo
     traditionChange: [],
     traditionReview: [],
   };
-  const views = [
-    progressionNotificationView(kind),
-    progressionCleanNotificationView(),
-  ];
+  const views = [progressionNotificationView(kind), progressionCleanNotificationView()];
   return {
     calls,
     contextRequests: [],
@@ -3129,20 +3197,20 @@ function cleanNotificationViewResult(): any {
 }
 
 function progressionNotificationView(kind: "technology" | "culture"): any {
-  const typeName = kind === "technology"
-    ? "NOTIFICATION_CHOOSE_TECH"
-    : "NOTIFICATION_CHOOSE_CULTURE_NODE";
-  const details = kind === "technology"
-    ? {
-        kind: "technology-choice-options",
-        currentResearching: { ok: true, value: 10 },
-        targetNode: { ok: true, value: 20 },
-      }
-    : {
-        kind: "culture-choice-options",
-        currentResearching: { ok: true, value: 30 },
-        targetNode: { ok: true, value: 40 },
-      };
+  const typeName =
+    kind === "technology" ? "NOTIFICATION_CHOOSE_TECH" : "NOTIFICATION_CHOOSE_CULTURE_NODE";
+  const details =
+    kind === "technology"
+      ? {
+          kind: "technology-choice-options",
+          currentResearching: { ok: true, value: 10 },
+          targetNode: { ok: true, value: 20 },
+        }
+      : {
+          kind: "culture-choice-options",
+          currentResearching: { ok: true, value: 30 },
+          targetNode: { ok: true, value: 40 },
+        };
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -3157,13 +3225,15 @@ function progressionNotificationView(kind: "technology" | "culture"): any {
     selectedUnitId: { ok: true, value: null },
     selectedCityId: { ok: true, value: null },
     blockingNotificationId: { ok: true, value: notificationId },
-    notifications: [{
-      id: notificationId,
-      typeName,
-      summary: typeName,
-      isEndTurnBlocking: true,
-      details,
-    }],
+    notifications: [
+      {
+        id: notificationId,
+        typeName,
+        summary: typeName,
+        isEndTurnBlocking: true,
+        details,
+      },
+    ],
   };
 }
 
@@ -3285,17 +3355,13 @@ function unitCommandResult(
     | "validation-changed"
     | "no-state-change"
     | "not-sent",
-  kind: "upgrade" | "resettle" = "upgrade",
+  kind: "upgrade" | "resettle" = "upgrade"
 ): any {
   const sent = classification !== "not-sent";
-  const operationType = kind === "upgrade"
-    ? "UNITCOMMAND_UPGRADE"
-    : "UNITCOMMAND_RESETTLE";
+  const operationType = kind === "upgrade" ? "UNITCOMMAND_UPGRADE" : "UNITCOMMAND_RESETTLE";
   const args = kind === "upgrade" ? {} : { X: target.x, Y: target.y };
   const beforeValid = classification === "not-sent" ? false : true;
-  const afterValid = classification === "validation-changed"
-    ? !beforeValid
-    : beforeValid;
+  const afterValid = classification === "validation-changed" ? !beforeValid : beforeValid;
   return {
     before: unitCommandValidation(operationType, args, beforeValid),
     ...(sent
@@ -3323,7 +3389,7 @@ function unitCommandResult(
 function unitCommandValidation(
   operationType: string,
   args: Readonly<Record<string, number>>,
-  valid: boolean,
+  valid: boolean
 ) {
   return {
     family: "unit-command",
@@ -3363,18 +3429,18 @@ function expectSemanticControllerOutputOmitsRawUnitCommand(result: unknown) {
   expect(serialized).not.toContain("Game.UnitCommands");
   expect(serialized).not.toContain("Game.UnitOperations");
   expect(serialized).not.toContain("sendRequest");
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
-  expect(serialized).not.toContain("\"session\"");
-  expect(serialized).not.toContain("\"rawCommand\"");
-  expect(serialized).not.toContain("\"command\"");
-  expect(serialized).not.toContain("\"operationType\"");
-  expect(serialized).not.toContain("\"sendResult\"");
-  expect(serialized).not.toContain("\"result\"");
-  expect(serialized).not.toContain("\"verified\"");
-  expect(serialized).not.toContain("\"before\"");
-  expect(serialized).not.toContain("\"after\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"operationType"');
+  expect(serialized).not.toContain('"sendResult"');
+  expect(serialized).not.toContain('"result"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
 }
 
 function productionChoiceResult(): any {
@@ -3457,35 +3523,25 @@ function populationPlacementResult(mode: "assign-worker" | "expand-city"): any {
   const family = mode === "expand-city" ? "city-command" : "player-operation";
   const operationType = mode === "expand-city" ? "EXPAND" : "ASSIGN_WORKER";
   const placementTarget = mode === "expand-city" ? { cityId } : { playerId: 0 };
-  const args = mode === "expand-city"
-    ? { X: target.x, Y: target.y }
-    : { Location: workerLocation, Amount: 1 };
+  const args =
+    mode === "expand-city" ? { X: target.x, Y: target.y } : { Location: workerLocation, Amount: 1 };
 
   return {
-    before: populationPlacementValidationResult(
-      family,
-      operationType,
-      placementTarget,
-      args,
-    ),
+    before: populationPlacementValidationResult(family, operationType, placementTarget, args),
     command: {
       host: "127.0.0.1",
       port: 4318,
       state: { id: "65535", name: "App UI" },
       output: [
         JSON.stringify({
-          rawCommand: mode === "expand-city"
-            ? "Game.CityCommands.sendRequest(...)"
-            : "Game.PlayerOperations.sendRequest(...)",
+          rawCommand:
+            mode === "expand-city"
+              ? "Game.CityCommands.sendRequest(...)"
+              : "Game.PlayerOperations.sendRequest(...)",
         }),
       ],
     },
-    after: populationPlacementValidationResult(
-      family,
-      operationType,
-      placementTarget,
-      args,
-    ),
+    after: populationPlacementValidationResult(family, operationType, placementTarget, args),
     sent: true,
     verified: true,
     populationPostcondition: {
@@ -3503,7 +3559,7 @@ function populationPlacementValidationResult(
   family: "city-command" | "player-operation",
   operationType: "EXPAND" | "ASSIGN_WORKER",
   placementTarget: { cityId: typeof cityId } | { playerId: number },
-  args: Record<string, number>,
+  args: Record<string, number>
 ) {
   return {
     host: "127.0.0.1",
@@ -3517,26 +3573,25 @@ function populationPlacementValidationResult(
     valid: true,
     result: {
       raw: "validation-result",
-      command: family === "city-command"
-        ? "Game.CityCommands.canStart(...)"
-        : "Game.PlayerOperations.canStart(...)",
+      command:
+        family === "city-command"
+          ? "Game.CityCommands.canStart(...)"
+          : "Game.PlayerOperations.canStart(...)",
     },
   };
 }
 
-function townFocusRuntimeResult(
-  kind: "town-focus-change" | "town-focus-review",
-): any {
-  const operationType = kind === "town-focus-change"
-    ? "CHANGE_GROWTH_MODE"
-    : "CONSIDER_TOWN_PROJECT";
-  const args = kind === "town-focus-change"
-    ? {
-        Type: -284_569_333,
-        ProjectType: -548_685_232,
-        City: 65_536,
-      }
-    : {};
+function townFocusRuntimeResult(kind: "town-focus-change" | "town-focus-review"): any {
+  const operationType =
+    kind === "town-focus-change" ? "CHANGE_GROWTH_MODE" : "CONSIDER_TOWN_PROJECT";
+  const args =
+    kind === "town-focus-change"
+      ? {
+          Type: -284_569_333,
+          ProjectType: -548_685_232,
+          City: 65_536,
+        }
+      : {};
   const beforeValidation = townFocusValidationResult(operationType, args);
   const common = {
     cityId,
@@ -3577,15 +3632,13 @@ function townFocusRuntimeResult(
 
 function townFocusValidationResult(
   operationType: "CHANGE_GROWTH_MODE" | "CONSIDER_TOWN_PROJECT",
-  args: Record<string, number>,
+  args: Record<string, number>
 ) {
   return {
     host: "127.0.0.1",
     port: 4318,
     state: { id: "65535", name: "App UI" },
-    family: operationType === "CHANGE_GROWTH_MODE"
-      ? "city-command"
-      : "city-operation",
+    family: operationType === "CHANGE_GROWTH_MODE" ? "city-command" : "city-operation",
     operationType,
     enumValue: operationType,
     target: { cityId },
@@ -3593,9 +3646,10 @@ function townFocusValidationResult(
     valid: true,
     result: {
       raw: "validation-result",
-      command: operationType === "CHANGE_GROWTH_MODE"
-        ? "Game.CityCommands.canStart(...)"
-        : "Game.CityOperations.canStart(...)",
+      command:
+        operationType === "CHANGE_GROWTH_MODE"
+          ? "Game.CityCommands.canStart(...)"
+          : "Game.CityOperations.canStart(...)",
     },
   };
 }
@@ -3734,12 +3788,11 @@ function firstMeetResponseResult(classification: string): any {
 }
 
 function governmentChoiceResult(kind: "government" | "celebration"): any {
-  const operationType = kind === "government"
-    ? "CHANGE_GOVERNMENT"
-    : "CHOOSE_GOLDEN_AGE";
-  const args = kind === "government"
-    ? { GovernmentType: 0, Action: -1_326_475_004 }
-    : { GoldenAgeType: -340_825_966 };
+  const operationType = kind === "government" ? "CHANGE_GOVERNMENT" : "CHOOSE_GOLDEN_AGE";
+  const args =
+    kind === "government"
+      ? { GovernmentType: 0, Action: -1_326_475_004 }
+      : { GoldenAgeType: -340_825_966 };
   return {
     playerId: 0,
     kind,
@@ -3784,9 +3837,7 @@ function governmentChoiceResult(kind: "government" | "celebration"): any {
 }
 
 function progressionCloseoutResult(kind: "technology" | "culture"): any {
-  const operationType = kind === "technology"
-    ? "SET_TECH_TREE_NODE"
-    : "SET_CULTURE_TREE_NODE";
+  const operationType = kind === "technology" ? "SET_TECH_TREE_NODE" : "SET_CULTURE_TREE_NODE";
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -3810,9 +3861,8 @@ function progressionCloseoutResult(kind: "technology" | "culture"): any {
 
 function progressionTargetResult(kind: "technology" | "culture"): any {
   const node = kind === "technology" ? 18_001 : 27_001;
-  const operationType = kind === "technology"
-    ? "SET_TECH_TREE_TARGET_NODE"
-    : "SET_CULTURE_TREE_TARGET_NODE";
+  const operationType =
+    kind === "technology" ? "SET_TECH_TREE_TARGET_NODE" : "SET_CULTURE_TREE_TARGET_NODE";
   return {
     kind,
     playerId: 0,
@@ -3835,27 +3885,25 @@ function progressionTargetResult(kind: "technology" | "culture"): any {
 }
 
 function progressionPlayerChoiceResult(
-  kind:
-    | "attribute-purchase"
-    | "attribute-review"
-    | "tradition-change"
-    | "tradition-review",
+  kind: "attribute-purchase" | "attribute-review" | "tradition-change" | "tradition-review"
 ): any {
-  const operationType = kind === "attribute-purchase"
-    ? "BUY_ATTRIBUTE_TREE_NODE"
-    : kind === "attribute-review"
-    ? "CONSIDER_ASSIGN_ATTRIBUTE"
-    : kind === "tradition-change"
-    ? "CHANGE_TRADITION"
-    : "CONSIDER_ASSIGN_TRADITIONS";
-  const args = kind === "attribute-purchase"
-    ? { ProgressionTreeNodeType: 20 }
-    : kind === "tradition-change"
-    ? {
-        TraditionType: -331_546_976,
-        Action: -1_326_475_004,
-      }
-    : {};
+  const operationType =
+    kind === "attribute-purchase"
+      ? "BUY_ATTRIBUTE_TREE_NODE"
+      : kind === "attribute-review"
+        ? "CONSIDER_ASSIGN_ATTRIBUTE"
+        : kind === "tradition-change"
+          ? "CHANGE_TRADITION"
+          : "CONSIDER_ASSIGN_TRADITIONS";
+  const args =
+    kind === "attribute-purchase"
+      ? { ProgressionTreeNodeType: 20 }
+      : kind === "tradition-change"
+        ? {
+            TraditionType: -331_546_976,
+            Action: -1_326_475_004,
+          }
+        : {};
   return {
     kind,
     playerId: 0,
@@ -3886,7 +3934,7 @@ function progressionPlayerChoiceResult(
 function progressionValidation(
   operationType: string,
   node: number,
-  args: Readonly<Record<string, number>> = { ProgressionTreeNodeType: node },
+  args: Readonly<Record<string, number>> = { ProgressionTreeNodeType: node }
 ): any {
   return {
     host: "127.0.0.1",

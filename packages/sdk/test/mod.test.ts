@@ -1,15 +1,15 @@
-import { Mod, BaseBuilder, BaseFile } from '../src';
-import { expect, test } from 'vitest';
-import * as fs from 'node:fs';
-import * as os from 'node:os';
-import { join } from 'node:path';
+import * as fs from "node:fs";
+import * as os from "node:os";
+import { join } from "node:path";
+import { expect, test } from "vitest";
+import { BaseBuilder, BaseFile, Mod } from "../src";
 
-test('Mod has default id', () => {
+test("Mod has default id", () => {
   const mod = new Mod();
-  expect(mod.id).toBe('test');
+  expect(mod.id).toBe("test");
 });
 
-test('Mod.add invokes build for each builder', () => {
+test("Mod.add invokes build for each builder", () => {
   const mod = new Mod();
   let single = 0;
   let array = 0;
@@ -27,7 +27,7 @@ test('Mod.add invokes build for each builder', () => {
   }
   mod.add(new SingleBuilder());
   mod.add([new ArrayBuilder(), new ArrayBuilder()]);
-  const tmp = fs.mkdtempSync(join(os.tmpdir(), 'mod-test-'));
+  const tmp = fs.mkdtempSync(join(os.tmpdir(), "mod-test-"));
   try {
     mod.build(tmp);
     expect(single).toBe(1);
@@ -37,12 +37,12 @@ test('Mod.add invokes build for each builder', () => {
   }
 });
 
-test('Mod.addFiles invokes write for each file', () => {
+test("Mod.addFiles invokes write for each file", () => {
   const mod = new Mod();
   let count = 0;
   class FileStub extends BaseFile {
     constructor() {
-      super({ content: 'data' });
+      super({ content: "data" });
     }
     write() {
       count++;
@@ -50,7 +50,7 @@ test('Mod.addFiles invokes write for each file', () => {
   }
   mod.addFiles(new FileStub());
   mod.addFiles([new FileStub(), new FileStub()]);
-  const tmp = fs.mkdtempSync(join(os.tmpdir(), 'mod-test-'));
+  const tmp = fs.mkdtempSync(join(os.tmpdir(), "mod-test-"));
   try {
     mod.build(tmp);
     expect(count).toBe(3);

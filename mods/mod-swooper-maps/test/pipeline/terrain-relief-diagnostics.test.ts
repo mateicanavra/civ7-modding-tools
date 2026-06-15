@@ -1,7 +1,9 @@
 import { describe, expect, it } from "bun:test";
-
+import {
+  type CanonicalMapConfigWithRecipe,
+  canonicalRecipeConfig,
+} from "../../src/maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
-import { canonicalRecipeConfig, type CanonicalMapConfigWithRecipe } from "../../src/maps/configs/canonical.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { collectWorldBalanceStats } from "../support/world-balance-stats.js";
 
@@ -17,7 +19,9 @@ function expectComponentMetrics(
 ): void {
   expect(componentCount, `${label} component count`).toBeGreaterThanOrEqual(0);
   expect(largestComponentSize, `${label} largest component`).toBeGreaterThanOrEqual(0);
-  expect(largestComponentSize, `${label} largest component <= tiles`).toBeLessThanOrEqual(tileCount);
+  expect(largestComponentSize, `${label} largest component <= tiles`).toBeLessThanOrEqual(
+    tileCount
+  );
   if (tileCount === 0) {
     expect(componentCount, `${label} empty component count`).toBe(0);
     expect(largestComponentSize, `${label} empty largest component`).toBe(0);
@@ -32,7 +36,9 @@ function sumRecordValues(record: Readonly<Record<string, number>>): number {
 }
 
 describe("terrain relief diagnostics", () => {
-  it("separates planned hills, final hills, volcano mountains, and flat budgets", { timeout: 30_000 }, () => {
+  it("separates planned hills, final hills, volcano mountains, and flat budgets", {
+    timeout: 30_000,
+  }, () => {
     const stats = collectWorldBalanceStats({
       label: "swooper-earthlike:relief-diagnostics",
       config: recipeConfig(swooperEarthlikeConfigRaw),
@@ -41,7 +47,9 @@ describe("terrain relief diagnostics", () => {
       height: 66,
     });
 
-    expect(stats.plannedRoughTerrainTiles).toBe(stats.plannedMountainTiles + stats.plannedHillTiles);
+    expect(stats.plannedRoughTerrainTiles).toBe(
+      stats.plannedMountainTiles + stats.plannedHillTiles
+    );
     expect(stats.plannedHillTiles).toBe(
       stats.plannedFoothillTiles + stats.plannedRoughLandHillTiles
     );

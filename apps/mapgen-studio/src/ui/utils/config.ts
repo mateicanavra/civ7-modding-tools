@@ -5,15 +5,15 @@
 // ============================================================================
 
 import type {
-  PipelineConfig,
-  ConfigValue,
   ConfigPatch,
-  WorldSettings,
+  ConfigValue,
+  DataTypeOption,
+  PipelineConfig,
   RecipeSettings,
   StageOption,
-  StepOption,
-  DataTypeOption,
   StepConfig,
+  StepOption,
+  WorldSettings,
 } from "../types";
 import { formatStageName } from "./formatting";
 
@@ -113,11 +113,7 @@ export function configsEqual(a: PipelineConfig, b: PipelineConfig): boolean {
  * Check if world settings are equal.
  */
 export function worldSettingsEqual(a: WorldSettings, b: WorldSettings): boolean {
-  return (
-    a.mapSize === b.mapSize &&
-    a.playerCount === b.playerCount &&
-    a.resources === b.resources
-  );
+  return a.mapSize === b.mapSize && a.playerCount === b.playerCount && a.resources === b.resources;
 }
 
 /**

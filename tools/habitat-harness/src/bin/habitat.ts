@@ -5,11 +5,8 @@
  * Commands: graph | classify <path> | check | fix | verify | hook <name>
  * Every rule emits normalized JSON diagnostics; see lib/diagnostics.ts.
  */
-import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { repoRoot, toRepoRelative } from "../lib/paths.js";
-import { run } from "../lib/spawn.js";
-import { rules, executeRule, eslintProjects, type HarnessRule } from "../rules/architecture.js";
 import {
   applyBaseline,
   checkBaselineIntegrity,
@@ -20,6 +17,9 @@ import {
 } from "../lib/baseline.js";
 import type { CheckReport, RuleReport } from "../lib/diagnostics.js";
 import { validateCheckReport } from "../lib/diagnostics.js";
+import { repoRoot, toRepoRelative } from "../lib/paths.js";
+import { run } from "../lib/spawn.js";
+import { eslintProjects, executeRule, type HarnessRule, rules } from "../rules/architecture.js";
 import { renderReport } from "../rules/messages.js";
 
 const argv = process.argv.slice(2);
@@ -110,7 +110,9 @@ function emit(report: CheckReport): never {
   const json = JSON.stringify(report, null, 2);
   const schemaErrors = validateCheckReport(report);
   if (schemaErrors.length > 0) {
-    console.error(`habitat internal error: report violates its own schema:\n${schemaErrors.join("\n")}`);
+    console.error(
+      `habitat internal error: report violates its own schema:\n${schemaErrors.join("\n")}`
+    );
     process.exit(2);
   }
   if (out) writeFileSync(path.resolve(repoRoot, out), `${json}\n`);
@@ -143,9 +145,13 @@ switch (command) {
     break;
   }
   case "fix": {
-    // Zero fixable rules are registered in H2 (codemods land with the grit catalog, H5).
-    console.log("no fixable rules registered");
-    process.exit(0);
+    const args = flag("--dry-run")
+      ? ["bunx", "--bun", "@biomejs/biome", "check", "."]
+      : ["bunx", "--bun", "@biomejs/biome", "check", "--write", "."];
+    const res = run(args, { cwd: repoRoot });
+    process.stdout.write(res.stdout);
+    process.stderr.write(res.stderr);
+    process.exit(res.exitCode);
     break;
   }
   case "verify": {
@@ -155,8 +161,8 @@ switch (command) {
     const base = opt("--base") ?? mergeBase("main") ?? "main";
     console.log(`\nhabitat verify: running nx affected (base=${base}) ...`);
     const res = run(
-      ["bunx", "nx", "affected", "-t", "build,check,test,boundaries", "--base", base],
-      { cwd: repoRoot },
+      ["bunx", "nx", "affected", "-t", "build,check,test,boundaries,biome:ci", "--base", base],
+      { cwd: repoRoot }
     );
     process.stdout.write(res.stdout);
     process.stderr.write(res.stderr);
@@ -202,11 +208,15 @@ switch (command) {
       .filter((r) => rel === r.root || rel.startsWith(`${r.root}/`))
       .sort((a, b) => b.root.length - a.root.length)[0];
     if (!owner) {
-      console.log(JSON.stringify({ path: rel, project: null, note: "workspace-level path" }, null, 2));
+      console.log(
+        JSON.stringify({ path: rel, project: null, note: "workspace-level path" }, null, 2)
+      );
       process.exit(0);
     }
     const owningRules = rules
-      .filter((r) => r.ownerProject === owner.name || r.ownerProject === "@internal/habitat-harness")
+      .filter(
+        (r) => r.ownerProject === owner.name || r.ownerProject === "@internal/habitat-harness"
+      )
       .map((r) => r.id);
     console.log(
       JSON.stringify(
@@ -220,12 +230,13 @@ switch (command) {
             `nx run ${owner.name}:check`,
             `nx run ${owner.name}:test`,
             "nx run @internal/habitat-harness:boundaries",
+            "nx run-many -t biome:ci --projects=@internal/habitat-harness",
             "habitat check",
           ],
         },
         null,
-        2,
-      ),
+        2
+      )
     );
     process.exit(0);
     break;
@@ -251,7 +262,7 @@ switch (command) {
         "  hook    <name>",
         "",
         `rule pack: ${rules.length} rules (+ baseline-integrity built-in); eslint fan-out over ${eslintProjects.length} projects`,
-      ].join("\n"),
+      ].join("\n")
     );
     process.exit(command ? 2 : 0);
   }

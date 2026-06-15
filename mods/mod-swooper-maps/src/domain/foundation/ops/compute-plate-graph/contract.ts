@@ -1,7 +1,7 @@
-import { TypedArraySchemas, Type, defineOp } from "@swooper/mapgen-core/authoring";
 import type { Static } from "@swooper/mapgen-core/authoring";
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 import { FoundationCrustSchema } from "../compute-crust/contract.js";
+import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 
 const StrategySchema = Type.Object(
   {
@@ -9,8 +9,7 @@ const StrategySchema = Type.Object(
       default: 8,
       minimum: 2,
       maximum: 256,
-      description:
-        "Authored tectonic plate count for the selected map size.",
+      description: "Authored tectonic plate count for the selected map size.",
     }),
     polarCaps: Type.Optional(
       Type.Object(
@@ -19,25 +18,29 @@ const StrategySchema = Type.Object(
             default: 0.1,
             minimum: 0.02,
             maximum: 0.25,
-            description: "Controls the mesh Y-span fraction reserved as the locked polar cap in each hemisphere.",
+            description:
+              "Controls the mesh Y-span fraction reserved as the locked polar cap in each hemisphere.",
           }),
           microplateBandFraction: Type.Number({
             default: 0.2,
             minimum: 0.02,
             maximum: 0.5,
-            description: "Fraction of mesh Y-span eligible for polar microplate seeding (outside the locked cap).",
+            description:
+              "Fraction of mesh Y-span eligible for polar microplate seeding (outside the locked cap).",
           }),
           microplatesPerPole: Type.Integer({
             default: 0,
             minimum: 0,
             maximum: 8,
-            description: "Maximum polar microplates per pole (subject to plateCount and min-plate guards).",
+            description:
+              "Maximum polar microplates per pole (subject to plateCount and min-plate guards).",
           }),
           microplatesMinPlateCount: Type.Integer({
             default: 14,
             minimum: 0,
             maximum: 256,
-            description: "Only enable polar microplates when the normalized plateCount meets this threshold.",
+            description:
+              "Only enable polar microplates when the normalized plateCount meets this threshold.",
           }),
           microplateMinAreaCells: Type.Integer({
             default: 8,
@@ -60,7 +63,11 @@ const StrategySchema = Type.Object(
 export const FoundationPlateSchema = Type.Object(
   {
     id: Type.Integer({ minimum: 0 }),
-    role: Type.Union([Type.Literal("polarCap"), Type.Literal("polarMicroplate"), Type.Literal("tectonic")]),
+    role: Type.Union([
+      Type.Literal("polarCap"),
+      Type.Literal("polarMicroplate"),
+      Type.Literal("tectonic"),
+    ]),
     kind: Type.Union([Type.Literal("major"), Type.Literal("minor")]),
     seedX: Type.Number({ description: "Seed location X in mesh hex space." }),
     seedY: Type.Number({ description: "Seed location Y in mesh hex space." }),

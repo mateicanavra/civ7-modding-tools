@@ -17,24 +17,23 @@
  * the catalog loader, and the three stateful engine fns (shared queue + dual-store
  * mutex live host-side) — see ./context.ts.
  */
+
+export type {
+  SetupCatalog,
+  StudioInputs,
+  StudioOutputs,
+  StudioServerContext,
+} from "./context.js";
+export type { RecipeDagResult, StudioContract, StudioEffectContract } from "./contract/index.js";
 export {
-  contract,
-  studioEffectContract,
   civ7,
+  contract,
   live,
   mapConfigs,
   runInGame,
   studio,
+  studioEffectContract,
 } from "./contract/index.js";
-export type { StudioContract, StudioEffectContract, RecipeDagResult } from "./contract/index.js";
-export type { RecipeDagService } from "./recipeDag/service.js";
-
-export type {
-  StudioServerContext,
-  StudioInputs,
-  StudioOutputs,
-  SetupCatalog,
-} from "./context.js";
 export type {
   StudioEvent,
   StudioHelloEvent,
@@ -43,38 +42,18 @@ export type {
   StudioOperationsCurrent,
 } from "./contract/studio.js";
 export { createStudioRpcHandler, type StudioRpcHandle } from "./handler.js";
-export { createStudioRouter, type StudioRouter } from "./router/index.js";
-export { makeStudioRuntime, type StudioRuntime } from "./runtime.js";
-export { Civ7TunerClient } from "./services/Civ7TunerClient.js";
-export {
-  CIV7_TUNER_GATE_COOLDOWN_MS,
-  CIV7_TUNER_GATE_THRESHOLD,
-  Civ7TunerBackoffError,
-  Civ7TunerSession,
-  Civ7TunerSessionLive,
-  makeCiv7TunerSessionLayer,
-  type Civ7TunerSessionApi,
-  type Civ7TunerSessionHealth,
-  type Civ7TunerSessionOptions,
-} from "./services/Civ7TunerSession.js";
-export { StudioConfig } from "./services/StudioConfig.js";
-export {
-  createStudioEventHub,
-  StudioEventHub,
-  type StudioEventHubApi,
-} from "./services/StudioEventHub.js";
 export {
   buildLiveGameErrorState,
   buildLiveGameState,
   hashLiveGameValue,
-  liveGameStateKey,
-  liveGameStateSchema,
-  stableLiveGameStringify,
   type LiveGameBindingStatus,
   type LiveGameSnapshotStatus,
   type LiveGameState,
   type LiveGameStatusBody,
   type LiveGameStatusKind,
+  liveGameStateKey,
+  liveGameStateSchema,
+  stableLiveGameStringify,
 } from "./liveGame/model.js";
 export {
   createLiveGameWatcher,
@@ -84,3 +63,24 @@ export {
   type LiveGameWatcher,
   type LiveGameWatcherOptions,
 } from "./liveGame/watcher.js";
+export type { RecipeDagService } from "./recipeDag/service.js";
+export { createStudioRouter, type StudioRouter } from "./router/index.js";
+export { makeStudioRuntime, type StudioRuntime } from "./runtime.js";
+export { Civ7TunerClient } from "./services/Civ7TunerClient.js";
+export {
+  CIV7_TUNER_GATE_COOLDOWN_MS,
+  CIV7_TUNER_GATE_THRESHOLD,
+  Civ7TunerBackoffError,
+  Civ7TunerSession,
+  type Civ7TunerSessionApi,
+  type Civ7TunerSessionHealth,
+  Civ7TunerSessionLive,
+  type Civ7TunerSessionOptions,
+  makeCiv7TunerSessionLayer,
+} from "./services/Civ7TunerSession.js";
+export { StudioConfig } from "./services/StudioConfig.js";
+export {
+  createStudioEventHub,
+  StudioEventHub,
+  type StudioEventHubApi,
+} from "./services/StudioEventHub.js";

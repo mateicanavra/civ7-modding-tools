@@ -43,7 +43,7 @@ export type LiveControlPort = Readonly<{
 }>;
 
 export function createBoundLiveControlPort(
-  client: Pick<typeof orpcClient, "civ7"> = orpcClient,
+  client: Pick<typeof orpcClient, "civ7"> = orpcClient
 ): LiveControlPort {
   return {
     readiness: {

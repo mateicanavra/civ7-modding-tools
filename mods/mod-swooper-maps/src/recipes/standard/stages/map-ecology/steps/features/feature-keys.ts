@@ -1,8 +1,5 @@
 import type { EngineAdapter } from "@civ7/adapter";
-import {
-  FEATURE_PLACEMENT_KEYS,
-  type FeatureKey,
-} from "@mapgen/domain/ecology";
+import { FEATURE_PLACEMENT_KEYS, type FeatureKey } from "@mapgen/domain/ecology";
 
 export type FeatureKeyLookups = {
   byKey: Record<FeatureKey, number>;

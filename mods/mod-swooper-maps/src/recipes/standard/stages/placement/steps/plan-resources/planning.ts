@@ -1,19 +1,18 @@
+import { getCiv7StandardMapSizePresetForDimensions } from "@civ7/adapter";
+import { CIV7_POLICY_TABLES_V1 } from "@civ7/map-policy";
+import resources from "@mapgen/domain/resources";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
-import { CIV7_POLICY_TABLES_V1 } from "@civ7/map-policy";
-import { getCiv7StandardMapSizePresetForDimensions } from "@civ7/adapter";
-
-import resources from "@mapgen/domain/resources";
 import {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
-  RESOURCE_HABITAT_SIGNALS,
   buildHabitatEligibility,
   buildResourceLegalityMask,
+  EARTHLIKE_RESOURCE_EXPECTATIONS,
   getInitialMapResourcePolicyForType,
-  resolveActiveResourceAge,
-  resolveResourceRuntimeIds,
+  RESOURCE_HABITAT_SIGNALS,
   type ResourceFamilyId,
   type ResourceLegalitySurface,
+  resolveActiveResourceAge,
+  resolveResourceRuntimeIds,
 } from "../../../../../../domain/resources/index.js";
 import type { OfficialResourceType } from "../../../../../../domain/resources/lib/corpus/types.js";
 

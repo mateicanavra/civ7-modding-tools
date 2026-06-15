@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
-
-import { createMapConfigSaveDeployOperationStore } from "../../src/server/mapConfigs/operationState";
 import type { MapConfigSaveDeployStatus } from "../../src/features/mapConfigSave/status";
+import { createMapConfigSaveDeployOperationStore } from "../../src/server/mapConfigs/operationState";
 
 function createStore(options: { onChange?: (status: MapConfigSaveDeployStatus) => void } = {}) {
   let nowMs = Date.parse("2026-06-01T00:00:00.000Z");
@@ -64,7 +63,10 @@ describe("Map config save/deploy operation store", () => {
     const { store } = createStore({ onChange: (status) => events.push(status) });
 
     store.create("studio-save-deploy-1");
-    store.update("studio-save-deploy-1", { phase: "saving", path: "configs/studio-current.config.json" });
+    store.update("studio-save-deploy-1", {
+      phase: "saving",
+      path: "configs/studio-current.config.json",
+    });
     store.complete("studio-save-deploy-1", { path: "configs/studio-current.config.json" });
     store.create("studio-save-deploy-2");
     store.fail("studio-save-deploy-2", "deploying", "Deploy failed");

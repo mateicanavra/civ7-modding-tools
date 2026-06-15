@@ -1,5 +1,5 @@
-import { TypedArraySchemas, Type, defineOp } from "@swooper/mapgen-core/authoring";
 import type { Static } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 export const BoundingBoxSchema = Type.Object(
   {
@@ -17,14 +17,23 @@ export const FoundationMeshSchema = Type.Object(
   {
     cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
     wrapWidth: Type.Number({ description: "Periodic wrap width in mesh-space units (hex space)." }),
-    siteX: TypedArraySchemas.f32({ shape: null, description: "X coordinate per mesh cell (hex space)." }),
-    siteY: TypedArraySchemas.f32({ shape: null, description: "Y coordinate per mesh cell (hex space)." }),
+    siteX: TypedArraySchemas.f32({
+      shape: null,
+      description: "X coordinate per mesh cell (hex space).",
+    }),
+    siteY: TypedArraySchemas.f32({
+      shape: null,
+      description: "Y coordinate per mesh cell (hex space).",
+    }),
     neighborsOffsets: TypedArraySchemas.i32({
       shape: null,
       description: "CSR offsets into neighbors array (length = cellCount + 1).",
     }),
     neighbors: TypedArraySchemas.i32({ shape: null, description: "CSR neighbor indices." }),
-    areas: TypedArraySchemas.f32({ shape: null, description: "Cell area per mesh cell (hex-space units)." }),
+    areas: TypedArraySchemas.f32({
+      shape: null,
+      description: "Cell area per mesh cell (hex-space units).",
+    }),
     bbox: BoundingBoxSchema,
   },
   { additionalProperties: false }
@@ -71,7 +80,10 @@ const ComputeMeshContract = defineOp({
             "Controls how many relaxation passes smooth generated mesh sites before downstream plate logic runs.",
         }),
         cellCount: Type.Optional(
-          Type.Integer({ minimum: 1, description: "Derived in normalization (do not author directly)." })
+          Type.Integer({
+            minimum: 1,
+            description: "Derived in normalization (do not author directly).",
+          })
         ),
       },
       { additionalProperties: false }

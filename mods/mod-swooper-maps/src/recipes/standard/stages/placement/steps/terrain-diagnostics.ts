@@ -1,9 +1,5 @@
 import type { ExtendedMapContext, TraceScope } from "@swooper/mapgen-core";
-import {
-  HILL_TERRAIN,
-  MOUNTAIN_TERRAIN,
-  getTerrainSymbol,
-} from "@swooper/mapgen-core";
+import { getTerrainSymbol, HILL_TERRAIN, MOUNTAIN_TERRAIN } from "@swooper/mapgen-core";
 
 /**
  * Emits placement terrain diagnostics at the two sanctioned observation points:

@@ -1,12 +1,12 @@
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { probeValueChanged } from "./probe-values.js";
+import { stableJson } from "./stable-json.js";
 import type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./types.js";
-import { probeValueChanged } from "./probe-values.js";
-import { stableJson } from "./stable-json.js";
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
 export type Civ7PopulationPlacementPostconditionClassification =
   | "not-sent"
@@ -43,18 +43,30 @@ export function populationPlacementPostcondition(
   before: Civ7OperationValidationResult,
   after: Civ7OperationValidationResult,
   beforeSnapshot: Civ7PopulationPlacementPostconditionSnapshot | undefined,
-  afterSnapshot: Civ7PopulationPlacementPostconditionSnapshot | undefined,
+  afterSnapshot: Civ7PopulationPlacementPostconditionSnapshot | undefined
 ): Civ7PopulationPlacementPostcondition | undefined {
   if (!populationPlacementPostconditionEligible(family, input)) return undefined;
-  const readyCleared = probeReadyCleared(beforeSnapshot?.isReadyToPlacePopulation, afterSnapshot?.isReadyToPlacePopulation);
+  const readyCleared = probeReadyCleared(
+    beforeSnapshot?.isReadyToPlacePopulation,
+    afterSnapshot?.isReadyToPlacePopulation
+  );
   const placementStateChanged =
-    probeValueChanged(beforeSnapshot?.city, afterSnapshot?.city)
-    || probeValueChanged(beforeSnapshot?.isReadyToPlacePopulation, afterSnapshot?.isReadyToPlacePopulation)
-    || probeValueChanged(beforeSnapshot?.cityWorkerCap, afterSnapshot?.cityWorkerCap)
-    || probeValueChanged(beforeSnapshot?.workablePlotIndexes, afterSnapshot?.workablePlotIndexes)
-    || probeValueChanged(beforeSnapshot?.blockedPlotIndexes, afterSnapshot?.blockedPlotIndexes)
-    || probeValueChanged(beforeSnapshot?.expansionPlotIndexes, afterSnapshot?.expansionPlotIndexes);
-  const classification = classifyPopulationPlacementPostcondition(sent, before, after, readyCleared, placementStateChanged);
+    probeValueChanged(beforeSnapshot?.city, afterSnapshot?.city) ||
+    probeValueChanged(
+      beforeSnapshot?.isReadyToPlacePopulation,
+      afterSnapshot?.isReadyToPlacePopulation
+    ) ||
+    probeValueChanged(beforeSnapshot?.cityWorkerCap, afterSnapshot?.cityWorkerCap) ||
+    probeValueChanged(beforeSnapshot?.workablePlotIndexes, afterSnapshot?.workablePlotIndexes) ||
+    probeValueChanged(beforeSnapshot?.blockedPlotIndexes, afterSnapshot?.blockedPlotIndexes) ||
+    probeValueChanged(beforeSnapshot?.expansionPlotIndexes, afterSnapshot?.expansionPlotIndexes);
+  const classification = classifyPopulationPlacementPostcondition(
+    sent,
+    before,
+    after,
+    readyCleared,
+    placementStateChanged
+  );
   return {
     family: family as "player-operation" | "city-command",
     operationType: input.operationType,
@@ -67,13 +79,23 @@ export function populationPlacementPostcondition(
   };
 }
 
-function populationPlacementPostconditionEligible(family: Civ7OperationFamily, input: Civ7OperationInput): boolean {
-  return (family === "player-operation" && input.operationType === "ASSIGN_WORKER")
-    || (family === "city-command" && input.operationType === "EXPAND");
+function populationPlacementPostconditionEligible(
+  family: Civ7OperationFamily,
+  input: Civ7OperationInput
+): boolean {
+  return (
+    (family === "player-operation" && input.operationType === "ASSIGN_WORKER") ||
+    (family === "city-command" && input.operationType === "EXPAND")
+  );
 }
 
-function probeReadyCleared(before: Civ7RuntimeProbe<unknown> | undefined, after: Civ7RuntimeProbe<unknown> | undefined): boolean {
-  return before?.ok === true && before.value === true && after?.ok === true && after.value === false;
+function probeReadyCleared(
+  before: Civ7RuntimeProbe<unknown> | undefined,
+  after: Civ7RuntimeProbe<unknown> | undefined
+): boolean {
+  return (
+    before?.ok === true && before.value === true && after?.ok === true && after.value === false
+  );
 }
 
 function classifyPopulationPlacementPostcondition(
@@ -81,16 +103,19 @@ function classifyPopulationPlacementPostcondition(
   before: Civ7OperationValidationResult,
   after: Civ7OperationValidationResult,
   readyCleared: boolean,
-  placementStateChanged: boolean,
+  placementStateChanged: boolean
 ): Civ7PopulationPlacementPostconditionClassification {
   if (!sent) return "not-sent";
   if (readyCleared) return "population-ready-cleared";
   if (placementStateChanged) return "placement-state-changed";
-  if (before.valid !== after.valid || stableJson(before.result) !== stableJson(after.result)) return "validation-changed";
+  if (before.valid !== after.valid || stableJson(before.result) !== stableJson(after.result))
+    return "validation-changed";
   return "no-state-change";
 }
 
-function populationPlacementPostconditionReason(classification: Civ7PopulationPlacementPostconditionClassification): string {
+function populationPlacementPostconditionReason(
+  classification: Civ7PopulationPlacementPostconditionClassification
+): string {
   switch (classification) {
     case "not-sent":
       return "The operation was not sent, so no population-placement postcondition can be verified.";

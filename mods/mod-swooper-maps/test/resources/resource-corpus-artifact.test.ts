@@ -1,11 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { Value } from "typebox/value";
-
-import { OFFICIAL_RESOURCE_CORPUS_ARTIFACT } from "../../src/domain/resources/index.js";
 import {
   ResourceCorpusArtifactSchema,
   resourceCorpusArtifact,
 } from "../../src/domain/resources/artifacts/contract/corpus.contract.js";
+import { OFFICIAL_RESOURCE_CORPUS_ARTIFACT } from "../../src/domain/resources/index.js";
 
 describe("resources corpus artifact", () => {
   it("declares the resource-owned corpus artifact id without creating a stage shell", () => {

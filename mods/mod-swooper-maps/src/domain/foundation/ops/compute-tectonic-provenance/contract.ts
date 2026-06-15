@@ -1,12 +1,11 @@
-import { Type, defineOp } from "@swooper/mapgen-core/authoring";
-
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
-import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
-import { FoundationTectonicProvenanceSchema } from "../../lib/tectonics/schemas.js";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring";
 import {
   FoundationTectonicEraFieldsInternalListSchema,
   TracerIndexByEraSchema,
 } from "../../lib/tectonics/internal-contract.js";
+import { FoundationTectonicProvenanceSchema } from "../../lib/tectonics/schemas.js";
+import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
 
 const ComputeTectonicProvenanceContract = defineOp({
   kind: "compute",

@@ -1,5 +1,5 @@
-import * as crawler from '../crawler';
-import { Graph } from '../types';
+import * as crawler from "../crawler";
+import { Graph } from "../types";
 
 export interface CrawlGraphResult {
   graph: Graph;
@@ -28,5 +28,3 @@ export async function crawlGraph(
     throw err;
   }
 }
-
-

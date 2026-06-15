@@ -11,10 +11,10 @@
  * @example formatStageName('morphology-coasts') // 'Morphology Pre'
  */
 export function formatStageName(name: string): string {
-  return name.
-  split('-').
-  map((word) => word.charAt(0).toUpperCase() + word.slice(1)).
-  join(' ');
+  return name
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 /**
@@ -24,10 +24,10 @@ export function formatStageName(name: string): string {
  * @example formatFieldName('plateCount') // 'Plate Count'
  */
 export function formatFieldName(name: string): string {
-  return name.
-  replace(/([A-Z])/g, ' $1').
-  replace(/^./, (str) => str.toUpperCase()).
-  trim();
+  return name
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase())
+    .trim();
 }
 
 /**
@@ -39,8 +39,8 @@ export function formatFieldName(name: string): string {
  */
 export function formatResourceMode(mode: string): string {
   const displayNames: Record<string, string> = {
-    balanced: 'Balanced',
-    strategic: 'Strategic'
+    balanced: "Balanced",
+    strategic: "Strategic",
   };
   return displayNames[mode] || mode;
 }

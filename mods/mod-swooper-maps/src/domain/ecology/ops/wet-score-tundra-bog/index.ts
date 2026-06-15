@@ -12,4 +12,3 @@ const scoreWetTundraBog = createOp(ScoreWetTundraBogContract, {
 export type * from "./contract.js";
 
 export default scoreWetTundraBog;
-

@@ -32,7 +32,11 @@ function meanU8(values: Uint8Array): number {
   return sum / values.length;
 }
 
-function runWithTilt(axialTiltDeg: number): { elevationSha: string; rainfallAmplitudeMean: number; humidityAmplitudeMean: number } {
+function runWithTilt(axialTiltDeg: number): {
+  elevationSha: string;
+  rainfallAmplitudeMean: number;
+  humidityAmplitudeMean: number;
+} {
   const { width, height } = env.dimensions;
   const adapter = createMockAdapter({
     width,
@@ -63,16 +67,25 @@ function runWithTilt(axialTiltDeg: number): { elevationSha: string; rainfallAmpl
     throw new Error("Missing artifact:morphology.topography elevation buffer.");
   }
   const elevationSha = sha256Hex(
-    Buffer.from(new Uint8Array(topography.elevation.buffer, topography.elevation.byteOffset, topography.elevation.byteLength)).toString(
-      "base64"
-    )
+    Buffer.from(
+      new Uint8Array(
+        topography.elevation.buffer,
+        topography.elevation.byteOffset,
+        topography.elevation.byteLength
+      )
+    ).toString("base64")
   );
 
-  const seasonality = context.artifacts.get(hydrologyClimateBaselineArtifacts.climateSeasonality.id) as
-    | { rainfallAmplitude?: Uint8Array; humidityAmplitude?: Uint8Array }
-    | undefined;
-  if (!(seasonality?.rainfallAmplitude instanceof Uint8Array) || !(seasonality?.humidityAmplitude instanceof Uint8Array)) {
-    throw new Error("Missing artifact:hydrology.climateSeasonality rainfallAmplitude/humidityAmplitude buffers.");
+  const seasonality = context.artifacts.get(
+    hydrologyClimateBaselineArtifacts.climateSeasonality.id
+  ) as { rainfallAmplitude?: Uint8Array; humidityAmplitude?: Uint8Array } | undefined;
+  if (
+    !(seasonality?.rainfallAmplitude instanceof Uint8Array) ||
+    !(seasonality?.humidityAmplitude instanceof Uint8Array)
+  ) {
+    throw new Error(
+      "Missing artifact:hydrology.climateSeasonality rainfallAmplitude/humidityAmplitude buffers."
+    );
   }
 
   return {

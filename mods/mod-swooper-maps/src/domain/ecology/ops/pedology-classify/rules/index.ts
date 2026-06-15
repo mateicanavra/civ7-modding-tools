@@ -7,7 +7,9 @@ import type { PedologyClassifyInput } from "../types.js";
  */
 export function ensureSize(array: ArrayLike<number>, expected: number, label: string): void {
   if (array.length !== expected) {
-    throw new Error(`Pedology classify: expected ${label} length ${expected}, got ${array.length}.`);
+    throw new Error(
+      `Pedology classify: expected ${label} length ${expected}, got ${array.length}.`
+    );
   }
 }
 
@@ -71,7 +73,12 @@ export function fertilityForTile({
     sedimentSignal * weights.sedimentWeight +
     bedrockSignal * weights.bedrockWeight;
 
-  const normalized = weighted / (weights.climateWeight + weights.reliefWeight + weights.sedimentWeight + weights.bedrockWeight || 1);
+  const normalized =
+    weighted /
+    (weights.climateWeight +
+      weights.reliefWeight +
+      weights.sedimentWeight +
+      weights.bedrockWeight || 1);
   return Math.min(weights.fertilityCeiling, clamp01(normalized));
 }
 
@@ -89,7 +96,10 @@ export function soilPaletteIndex(fertility: number, relief: number, moisture: nu
 /**
  * Normalizes an optional field into a 0..1 Float32Array or returns zeros when missing.
  */
-export function normalizeOptionalField(field: Float32Array | Int16Array | undefined, size: number): Float32Array {
+export function normalizeOptionalField(
+  field: Float32Array | Int16Array | undefined,
+  size: number
+): Float32Array {
   if (!field || field.length !== size) return new Float32Array(size);
   let max = 1;
   for (let i = 0; i < size; i++) {

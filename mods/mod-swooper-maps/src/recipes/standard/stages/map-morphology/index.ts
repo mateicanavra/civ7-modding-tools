@@ -3,12 +3,7 @@ import {
   MapMorphologyKnobsSchema,
   MapMorphologyPublicSchema,
 } from "../map-projection-public-config.js";
-import {
-  plotCoasts,
-  plotContinents,
-  plotMountains,
-  plotVolcanoes,
-} from "./steps/index.js";
+import { plotCoasts, plotContinents, plotMountains, plotVolcanoes } from "./steps/index.js";
 
 export default createStage({
   id: "map-morphology",

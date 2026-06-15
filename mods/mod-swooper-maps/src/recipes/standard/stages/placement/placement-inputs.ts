@@ -1,5 +1,5 @@
-import { Type, type Static } from "@swooper/mapgen-core/authoring";
 import placement from "@mapgen/domain/placement";
+import { type Static, Type } from "@swooper/mapgen-core/authoring";
 
 export const PlacementInputsConfigSchema = Type.Object(
   {
@@ -28,5 +28,5 @@ export const PlacementInputsV1Schema = Type.Object(
   { additionalProperties: false }
 );
 
-type MapInfo = Static<typeof placement.ops.planWonders["input"]["properties"]["mapInfo"]>;
+type MapInfo = Static<(typeof placement.ops.planWonders)["input"]["properties"]["mapInfo"]>;
 export type PlacementInputsV1 = Static<typeof PlacementInputsV1Schema> & { mapInfo: MapInfo };

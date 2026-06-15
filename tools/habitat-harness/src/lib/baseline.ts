@@ -1,8 +1,8 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { run } from "./spawn.js";
-import { baselinesDir, repoRoot } from "./paths.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
+import { baselinesDir, repoRoot } from "./paths.js";
+import { run } from "./spawn.js";
 
 /**
  * Ratchet baselines (FRAME hard core #3).
@@ -77,8 +77,7 @@ export function checkBaselineIntegrity(base = "main"): BaselineIntegrityFinding[
   const findings: BaselineIntegrityFinding[] = [];
   const mb = mergeBase(base);
   if (!mb) return findings; // no merge-base (fresh clone edge) — nothing to compare
-  const rulePackAtBase =
-    gitShow(mb, "tools/habitat-harness/src/rules/rules.json") ?? "";
+  const rulePackAtBase = gitShow(mb, "tools/habitat-harness/src/rules/rules.json") ?? "";
   if (!existsSync(baselinesDir)) return findings;
   for (const file of readdirSync(baselinesDir)) {
     if (!file.endsWith(".json")) continue;

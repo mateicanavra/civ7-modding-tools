@@ -1,8 +1,8 @@
 import type { TSchema } from "typebox";
 
 import type { DomainOpCompileAny } from "../authoring/bindings.js";
-import type { CompiledRecipeConfigOf, RecipeConfigInputOf } from "../authoring/types.js";
 import type { StepOpsDecl } from "../authoring/step/ops.js";
+import type { CompiledRecipeConfigOf, RecipeConfigInputOf } from "../authoring/types.js";
 import type { CompileErrorItem } from "./errors.js";
 import type { NormalizeCtx } from "./normalize.js";
 import { normalizeOpsTopLevel, normalizeStrict, prefillOpDefaults } from "./normalize.js";
@@ -193,7 +193,8 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
           errors.push({
             code: "normalize.not.shape-preserving",
             path: stepPath,
-            message: "step.normalize returned a value that does not validate against the step schema",
+            message:
+              "step.normalize returned a value that does not validate against the step schema",
             stageId,
             stepId,
           });

@@ -10,33 +10,28 @@ import {
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7WorldCurrentResult } from "../contract";
 
-export const worldCurrentProcedure =
-  civ7ControlOrpcImplementer.world.current.effect(function* ({
-    context,
-    errors,
-  }) {
-    return yield* Effect.tryPromise({
-      try: async () =>
-        worldCurrentResult(
-          await context.directControl.getCiv7PlayableStatus(
-            context.endpointDefaults,
-          ),
-        ),
-      catch: (cause) =>
-        errors.WORLD_CURRENT_UNAVAILABLE({
-          data: {
-            detail: civ7ControlOrpcFailureDetail(cause),
-            procedureKey: "world.current",
-            source: "direct-control-facade",
-            ...civ7ControlOrpcErrorCorrelationData(context),
-          },
-        }),
-    });
+export const worldCurrentProcedure = civ7ControlOrpcImplementer.world.current.effect(function* ({
+  context,
+  errors,
+}) {
+  return yield* Effect.tryPromise({
+    try: async () =>
+      worldCurrentResult(
+        await context.directControl.getCiv7PlayableStatus(context.endpointDefaults)
+      ),
+    catch: (cause) =>
+      errors.WORLD_CURRENT_UNAVAILABLE({
+        data: {
+          detail: civ7ControlOrpcFailureDetail(cause),
+          procedureKey: "world.current",
+          source: "direct-control-facade",
+          ...civ7ControlOrpcErrorCorrelationData(context),
+        },
+      }),
   });
+});
 
-function worldCurrentResult(
-  status: Civ7ControlOrpcPlayableStatusResult,
-): Civ7WorldCurrentResult {
+function worldCurrentResult(status: Civ7ControlOrpcPlayableStatusResult): Civ7WorldCurrentResult {
   const inGame = status.playable || status.readiness === "app-ui-game";
   const snapshot = status.appUi.snapshot;
   const map = inGame ? worldMapFacts(status) : emptyMapFacts();
@@ -50,9 +45,7 @@ function worldCurrentResult(
       playableStatus: "read",
       game: inGame ? "read" : "skipped-not-playable",
       map: inGame ? mapSourceStatus(snapshot.map) : "skipped-not-playable",
-      players: inGame
-        ? playersSourceStatus(snapshot.players)
-        : "skipped-not-playable",
+      players: inGame ? playersSourceStatus(snapshot.players) : "skipped-not-playable",
     },
     turn: inGame
       ? {
@@ -72,9 +65,7 @@ function worldCurrentResult(
     localPlayer: inGame
       ? {
           playerId: playerIdOrNull(status.appUi.snapshot.gameContext.localPlayerID),
-          observerId: playerIdOrNull(
-            status.appUi.snapshot.gameContext.localObserverID,
-          ),
+          observerId: playerIdOrNull(status.appUi.snapshot.gameContext.localObserverID),
         }
       : {
           playerId: null,
@@ -83,8 +74,7 @@ function worldCurrentResult(
     map,
     players,
     summary: {
-      hasMapDimensions: map.width != null && map.height != null
-        && map.width > 0 && map.height > 0,
+      hasMapDimensions: map.width != null && map.height != null && map.width > 0 && map.height > 0,
       alivePlayerCount: players.alivePlayerIds.length,
       nextStepCount: nextSteps.length,
     },
@@ -92,9 +82,7 @@ function worldCurrentResult(
   };
 }
 
-function worldMapFacts(
-  status: Civ7ControlOrpcPlayableStatusResult,
-): Civ7WorldCurrentResult["map"] {
+function worldMapFacts(status: Civ7ControlOrpcPlayableStatusResult): Civ7WorldCurrentResult["map"] {
   const map = status.appUi.snapshot.map;
   return {
     width: probeValue(map.width),
@@ -116,7 +104,7 @@ function emptyMapFacts(): Civ7WorldCurrentResult["map"] {
 }
 
 function worldPlayerFacts(
-  status: Civ7ControlOrpcPlayableStatusResult,
+  status: Civ7ControlOrpcPlayableStatusResult
 ): Civ7WorldCurrentResult["players"] {
   const players = status.appUi.snapshot.players;
   return {
@@ -138,42 +126,49 @@ function emptyPlayerFacts(): Civ7WorldCurrentResult["players"] {
 
 function worldCurrentNextSteps(
   status: Civ7ControlOrpcPlayableStatusResult,
-  map: Civ7WorldCurrentResult["map"],
+  map: Civ7WorldCurrentResult["map"]
 ): Civ7WorldCurrentResult["nextSteps"] {
   if (status.playable || status.readiness === "app-ui-game") {
     if (map.width == null || map.height == null) {
-      return [{
-        kind: "inspect-world",
-        source: "world.current",
-        label:
-          "World map facts are incomplete; inspect current world evidence before acting.",
-      }];
+      return [
+        {
+          kind: "inspect-world",
+          source: "world.current",
+          label: "World map facts are incomplete; inspect current world evidence before acting.",
+        },
+      ];
     }
 
-    return [{
-      kind: "read-attention",
-      source: "world.current",
-      label: "Read current attention before choosing support actions.",
-    }];
+    return [
+      {
+        kind: "read-attention",
+        source: "world.current",
+        label: "Read current attention before choosing support actions.",
+      },
+    ];
   }
 
   if (status.readiness === "shell") {
-    return [{
-      kind: "enter-game",
-      source: "world.current",
-      label: "Enter an active game before reading current world facts.",
-    }];
+    return [
+      {
+        kind: "enter-game",
+        source: "world.current",
+        label: "Enter an active game before reading current world facts.",
+      },
+    ];
   }
 
-  return [{
-    kind: "restore-readiness",
-    source: "world.current",
-    label: "Restore playable or game UI readiness before reading current world facts.",
-  }];
+  return [
+    {
+      kind: "restore-readiness",
+      source: "world.current",
+      label: "Restore playable or game UI readiness before reading current world facts.",
+    },
+  ];
 }
 
 function mapSourceStatus(
-  map: Civ7ControlOrpcPlayableStatusResult["appUi"]["snapshot"]["map"],
+  map: Civ7ControlOrpcPlayableStatusResult["appUi"]["snapshot"]["map"]
 ): Civ7WorldCurrentResult["sourceStatus"]["map"] {
   return map.width.ok || map.height.ok || map.plotCount.ok || map.mapSize.ok
     ? "read"
@@ -181,10 +176,9 @@ function mapSourceStatus(
 }
 
 function playersSourceStatus(
-  players: Civ7ControlOrpcPlayableStatusResult["appUi"]["snapshot"]["players"],
+  players: Civ7ControlOrpcPlayableStatusResult["appUi"]["snapshot"]["players"]
 ): Civ7WorldCurrentResult["sourceStatus"]["players"] {
-  return players.aliveIds.ok || players.aliveHumanIds.ok
-      || players.numAliveHumans.ok
+  return players.aliveIds.ok || players.aliveHumanIds.ok || players.numAliveHumans.ok
     ? "read"
     : "skipped-unavailable";
 }
@@ -195,9 +189,7 @@ function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | null {
 
 function integerArrayOrEmpty(value: unknown): number[] {
   return Array.isArray(value)
-    ? value.filter((item): item is number =>
-        Number.isInteger(item) && item >= 0
-      )
+    ? value.filter((item): item is number => Number.isInteger(item) && item >= 0)
     : [];
 }
 

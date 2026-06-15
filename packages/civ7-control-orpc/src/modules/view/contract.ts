@@ -1,5 +1,5 @@
 import type { ContractProcedure } from "@orpc/contract";
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { civ7ControlOrpcContractBase } from "../../contract-base";
 import type { Civ7ControlOrpcErrorMap } from "../../errors";
@@ -11,13 +11,10 @@ const Civ7ViewCameraTargetSchema = Type.Object(
     x: Type.Integer({ minimum: 0 }),
     y: Type.Integer({ minimum: 0 }),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
-const Civ7ViewCameraPlotSchema = Type.Union([
-  Civ7ViewCameraTargetSchema,
-  Type.Null(),
-]);
+const Civ7ViewCameraPlotSchema = Type.Union([Civ7ViewCameraTargetSchema, Type.Null()]);
 
 const Civ7ViewCameraStateSchema = Type.Object(
   {
@@ -26,7 +23,7 @@ const Civ7ViewCameraStateSchema = Type.Object(
     /** Plot at the viewport center (Camera.pickPlot readback); null when unresolved. */
     centerPlot: Civ7ViewCameraPlotSchema,
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ViewCameraSchema = Type.Object(
@@ -41,7 +38,7 @@ const Civ7ViewCameraSchema = Type.Object(
     /** Verified by readback: the viewport-center plot IS the requested target. */
     centerMatchesTarget: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 export type Civ7ViewCamera = Static<typeof Civ7ViewCameraSchema>;
 
@@ -54,16 +51,12 @@ const Civ7ViewCameraFocusInputSchema = Type.Object(
     /** Skip the pan animation. Default true. */
     instantaneous: Type.Optional(Type.Boolean()),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7ViewCameraFocusInput = Static<
-  typeof Civ7ViewCameraFocusInputSchema
->;
+export type Civ7ViewCameraFocusInput = Static<typeof Civ7ViewCameraFocusInputSchema>;
 
 const Civ7ViewCameraFocusResultSchema = Civ7ViewCameraSchema;
-export type Civ7ViewCameraFocusResult = Static<
-  typeof Civ7ViewCameraFocusResultSchema
->;
+export type Civ7ViewCameraFocusResult = Static<typeof Civ7ViewCameraFocusResultSchema>;
 
 const Civ7ViewAppshotCaptureInputSchema = Type.Object(
   {
@@ -90,11 +83,9 @@ const Civ7ViewAppshotCaptureInputSchema = Type.Object(
      */
     settleMs: Type.Optional(Type.Integer({ minimum: 0, maximum: 30_000 })),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7ViewAppshotCaptureInput = Static<
-  typeof Civ7ViewAppshotCaptureInputSchema
->;
+export type Civ7ViewAppshotCaptureInput = Static<typeof Civ7ViewAppshotCaptureInputSchema>;
 
 const Civ7ViewAppshotWindowSchema = Type.Object(
   {
@@ -105,7 +96,7 @@ const Civ7ViewAppshotWindowSchema = Type.Object(
     height: Type.Integer({ minimum: 0 }),
     onScreen: Type.Boolean(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ViewAppshotFileSchema = Type.Object(
@@ -114,15 +105,17 @@ const Civ7ViewAppshotFileSchema = Type.Object(
     byteSize: Type.Integer({ minimum: 0 }),
     sha256: Type.String(),
     mediaType: Type.Literal("image/png"),
-    dimensions: Type.Optional(Type.Object(
-      {
-        width: Type.Integer({ minimum: 0 }),
-        height: Type.Integer({ minimum: 0 }),
-      },
-      { additionalProperties: false },
-    )),
+    dimensions: Type.Optional(
+      Type.Object(
+        {
+          width: Type.Integer({ minimum: 0 }),
+          height: Type.Integer({ minimum: 0 }),
+        },
+        { additionalProperties: false }
+      )
+    ),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ViewAppshotSuppressedRowSchema = Type.Object(
@@ -130,7 +123,7 @@ const Civ7ViewAppshotSuppressedRowSchema = Type.Object(
     category: Type.String(),
     closed: Type.Integer({ minimum: 1 }),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ViewAppshotCleanFrameSchema = Type.Object(
@@ -155,10 +148,10 @@ const Civ7ViewAppshotCleanFrameSchema = Type.Object(
         /** Readback: display queue resumed after the restore. */
         queueResumed: Type.Boolean(),
       },
-      { additionalProperties: false },
+      { additionalProperties: false }
     ),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 const Civ7ViewAppshotCaptureResultSchema = Type.Object(
@@ -173,27 +166,22 @@ const Civ7ViewAppshotCaptureResultSchema = Type.Object(
      * off-screen window whose stream yields nothing FAILS instead of
      * returning possibly-stale pixels.
      */
-    frameSource: Type.Union([
-      Type.Literal("screenshot"),
-      Type.Literal("stream"),
-    ]),
+    frameSource: Type.Union([Type.Literal("screenshot"), Type.Literal("stream")]),
     window: Civ7ViewAppshotWindowSchema,
     file: Civ7ViewAppshotFileSchema,
     cleanFrame: Civ7ViewAppshotCleanFrameSchema,
     /** Present when a target plot was requested: the verified camera move. */
     camera: Type.Optional(Civ7ViewCameraSchema),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
-export type Civ7ViewAppshotCaptureResult = Static<
-  typeof Civ7ViewAppshotCaptureResultSchema
->;
+export type Civ7ViewAppshotCaptureResult = Static<typeof Civ7ViewAppshotCaptureResultSchema>;
 
 const Civ7ViewAppshotCaptureInputStandardSchema = toStandardSchema(
-  Civ7ViewAppshotCaptureInputSchema,
+  Civ7ViewAppshotCaptureInputSchema
 );
 const Civ7ViewAppshotCaptureResultStandardSchema = toStandardSchema(
-  Civ7ViewAppshotCaptureResultSchema,
+  Civ7ViewAppshotCaptureResultSchema
 );
 
 type Civ7ViewAppshotCaptureContract = ContractProcedure<
@@ -203,23 +191,18 @@ type Civ7ViewAppshotCaptureContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7ViewAppshotCaptureContract: Civ7ViewAppshotCaptureContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7ViewAppshotCaptureInputStandardSchema)
-    .output(Civ7ViewAppshotCaptureResultStandardSchema)
-    .meta({
-      family: "view",
-      procedureKey: "view.appshot.capture",
-      proofBoundary: "local-package-test",
-      risk: "runtime-support",
-    });
+const Civ7ViewAppshotCaptureContract: Civ7ViewAppshotCaptureContract = civ7ControlOrpcContractBase
+  .input(Civ7ViewAppshotCaptureInputStandardSchema)
+  .output(Civ7ViewAppshotCaptureResultStandardSchema)
+  .meta({
+    family: "view",
+    procedureKey: "view.appshot.capture",
+    proofBoundary: "local-package-test",
+    risk: "runtime-support",
+  });
 
-const Civ7ViewCameraFocusInputStandardSchema = toStandardSchema(
-  Civ7ViewCameraFocusInputSchema,
-);
-const Civ7ViewCameraFocusResultStandardSchema = toStandardSchema(
-  Civ7ViewCameraFocusResultSchema,
-);
+const Civ7ViewCameraFocusInputStandardSchema = toStandardSchema(Civ7ViewCameraFocusInputSchema);
+const Civ7ViewCameraFocusResultStandardSchema = toStandardSchema(Civ7ViewCameraFocusResultSchema);
 
 type Civ7ViewCameraFocusContract = ContractProcedure<
   typeof Civ7ViewCameraFocusInputStandardSchema,
@@ -228,16 +211,15 @@ type Civ7ViewCameraFocusContract = ContractProcedure<
   Civ7ControlOrpcProcedureMeta
 >;
 
-const Civ7ViewCameraFocusContract: Civ7ViewCameraFocusContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7ViewCameraFocusInputStandardSchema)
-    .output(Civ7ViewCameraFocusResultStandardSchema)
-    .meta({
-      family: "view",
-      procedureKey: "view.camera.focus",
-      proofBoundary: "local-package-test",
-      risk: "runtime-support",
-    });
+const Civ7ViewCameraFocusContract: Civ7ViewCameraFocusContract = civ7ControlOrpcContractBase
+  .input(Civ7ViewCameraFocusInputStandardSchema)
+  .output(Civ7ViewCameraFocusResultStandardSchema)
+  .meta({
+    family: "view",
+    procedureKey: "view.camera.focus",
+    proofBoundary: "local-package-test",
+    risk: "runtime-support",
+  });
 
 export type Civ7ViewContract = Readonly<{
   appshot: Readonly<{

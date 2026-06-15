@@ -4,8 +4,9 @@
 - **Owner:** workstream owner agent (single accountable synthesizer; agents assist)
 - **Method:** `civ7-systematic-workstream` (12 gates) composed with `civ7-open-spec-workstream` (per-slice phase loop)
 - **Controlling frame:** `docs/projects/habitat-harness/FRAME.md` (hard core, falsifier, settled decisions D1–D6)
-- **Branch:** `agent-F-habitat-harness-workstream` (worktree `wt-agent-F-habitat-harness-workstream`, parent `main`, Graphite-tracked)
-- **Status:** PREPARATION COMPLETE — execution not started (per Matei instruction 2026-06-12)
+- **Stack root:** `agent-F-habitat-harness-workstream` (worktree `wt-agent-F-habitat-harness-workstream`, parent `main`, Graphite-tracked)
+- **Current execution branch:** `agent-F-habitat-biome-hygiene` stacked on H3
+- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 active as of 2026-06-13; H4 Biome setup/lint/integration is complete; H4 2.4 evidence pass and closure remain blocked by DL-15/DL-16
 
 ## Gate state (systematic-workstream)
 
@@ -18,11 +19,11 @@
 | 5 Grouping | DONE | corpus §A–F families; taxonomy.md scope:* families |
 | 6 Expectations | DONE | per-slice verification gates; ratchet baselines predeclared (project plane green; adapter-boundary baseline = 6) |
 | 7 Architecture translation | DONE | taxonomy.md (tags/constraints); five-layer ownership in FRAME hard core #2 |
-| 8 Slices | DONE (defined, not executed) | OpenSpec train below; all strict-valid (146/146 repo-wide) |
-| 9 Local stats | NOT STARTED | begins with H1 execution |
+| 8 Slices | IN TRAIN | OpenSpec train below; H1/H2/H3 closed locally; H4 active with Biome integration complete |
+| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes, but fresh root build dirties the pre-existing DL-16 intelligence-bridge bundle artifact |
 | 10 Runtime proof | N/A by design | harness touches structure only; byte-parity gates stand in (H1/H4) |
 | 11 Review | IN TRAIN | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice |
-| 12 Closure | NOT STARTED | per-slice via closure checklists |
+| 12 Closure | IN TRAIN | H1/H2/H3 have local phase closure records; H4 open |
 
 ## The change train (slices)
 
@@ -41,6 +42,14 @@ Each slice = one OpenSpec change + one Graphite branch stacked on its
 prerequisites; phase continuity records go in
 `openspec/changes/<id>/workstream/` at execution time per
 `civ7-open-spec-workstream`.
+
+Execution state on 2026-06-13: H1 (`habitat-nx-adoption`), H2
+(`habitat-harness-scaffold`), and H3 (`habitat-boundary-tags`) are locally
+closed on the Graphite stack. H4 (`habitat-biome-hygiene`) is the active slice:
+Biome setup, dry-run, format commit, blame shield, Prettier retirement, minimal
+green lint lane, and Habitat/Nx/CI integration are done; task 2.4 is partially
+evidenced but remains open because root test and fresh-build parity expose
+DL-15/DL-16 blockers.
 
 ## Proof classes per slice (predeclared)
 
@@ -80,5 +89,9 @@ train redefines the other's authority.
 ## Next exact action
 
 1. ~~Pre-execution spec-review lane~~ DONE (`review-disposition-ledger.md`, all repairs applied).
-2. Open H1: phase record into `openspec/changes/habitat-nx-adoption/workstream/`,
-   then execute tasks 1.1+ on a stacked branch off this one.
+2. ~~H1/H2/H3 local execution and closure~~ DONE (see each slice's
+   `workstream/phase-record.md`).
+3. Continue H4 (`habitat-biome-hygiene`) on
+   `agent-F-habitat-biome-hygiene`: commit the verified Biome integration
+   slice, then promote/repair DL-16 and DL-15/SDK teardown blockers before
+   claiming H4 task 2.4 or closure.

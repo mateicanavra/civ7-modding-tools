@@ -1,29 +1,25 @@
-import { describe, expect, test, vi } from 'vitest';
-import GamePlayReadyUnit from '../../../../src/commands/game/play/ready-unit';
-import { type FakeTunerServer, startFakeTunerServer } from '../../fixtures/tuner-socket-server';
-import { expectNormalPlayPayloadToOmitDebugInternals } from './normal-output-boundary';
+import { describe, expect, test, vi } from "vitest";
+import GamePlayReadyUnit from "../../../../src/commands/game/play/ready-unit";
+import { type FakeTunerServer, startFakeTunerServer } from "../../fixtures/tuner-socket-server";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "./normal-output-boundary";
 
-describe('game play ready-unit command', () => {
-  test('reads ready-unit tactical view without sending operations', async () => {
+describe("game play ready-unit command", () => {
+  test("reads ready-unit tactical view without sending operations", async () => {
     const server = await startReadyUnitTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GamePlayReadyUnit.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
+    const log = vi
+      .spyOn(GamePlayReadyUnit.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
     try {
       const { port } = server.address();
-      await GamePlayReadyUnit.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--json',
-      ]);
+      await GamePlayReadyUnit.run(["--host", "127.0.0.1", "--port", String(port), "--json"]);
 
-      const payload = JSON.parse(writes.join(''));
+      const payload = JSON.parse(writes.join(""));
       expectNormalPlayPayloadToOmitDebugInternals(payload);
-      expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+      expect(server.received.some((message) => message.includes("readReadyUnitView"))).toBe(true);
+      expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
     } finally {
       log.mockRestore();
       await server.close();
@@ -34,7 +30,7 @@ describe('game play ready-unit command', () => {
 async function startReadyUnitTunerServer(): Promise<FakeTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
-      if (message.includes('readReadyUnitView')) {
+      if (message.includes("readReadyUnitView")) {
         return [JSON.stringify(readyUnitView())];
       }
       return undefined;
@@ -56,7 +52,7 @@ function readyUnitView() {
         id: unitId,
         owner: 0,
         type: 111,
-        typeName: 'UNIT_ARMY_COMMANDER',
+        typeName: "UNIT_ARMY_COMMANDER",
         location: { x: 22, y: 31 },
         movementMovesRemaining: 2,
         attacksRemaining: 0,
@@ -66,8 +62,8 @@ function readyUnitView() {
     },
     legalOperations: [
       {
-        family: 'unit-operation',
-        operationType: 'SKIP_TURN',
+        family: "unit-operation",
+        operationType: "SKIP_TURN",
         enumValue: 1,
         valid: true,
         result: { Success: true },
@@ -78,7 +74,7 @@ function readyUnitView() {
       value: {
         hasExperience: true,
         canPromote: false,
-        promotionClass: 'PROMOTION_CLASS_LAND_COMMANDER',
+        promotionClass: "PROMOTION_CLASS_LAND_COMMANDER",
         level: 2,
         experiencePoints: 19,
         experienceToNextLevel: 45,
@@ -87,7 +83,7 @@ function readyUnitView() {
         storedCommendations: 0,
         canPurchase: false,
         availablePromotions: [],
-        notes: ['PROMOTE can open the commander promotion UI even when no points are spendable.'],
+        notes: ["PROMOTE can open the commander promotion UI even when no points are spendable."],
       },
     },
     nearby: {
@@ -96,10 +92,10 @@ function readyUnitView() {
         {
           x: 22,
           y: 31,
-          units: [{ id: unitId, owner: 0, typeName: 'UNIT_ARMY_COMMANDER' }],
+          units: [{ id: unitId, owner: 0, typeName: "UNIT_ARMY_COMMANDER" }],
         },
       ],
     },
-    notes: ['Read-only ready-unit view. Use operation validation before mutation.'],
+    notes: ["Read-only ready-unit view. Use operation validation before mutation."],
   };
 }

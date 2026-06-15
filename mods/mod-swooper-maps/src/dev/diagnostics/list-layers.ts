@@ -1,4 +1,4 @@
-import { parseArgs, loadManifest, listLayers } from "./shared.js";
+import { listLayers, loadManifest, parseArgs } from "./shared.js";
 
 /**
  * List layers in a viz dump manifest.
@@ -9,7 +9,8 @@ import { parseArgs, loadManifest, listLayers } from "./shared.js";
 function main(): void {
   const { positionals, flags } = parseArgs(process.argv.slice(2));
   const runDir = positionals[0];
-  if (!runDir) throw new Error("Usage: bun ./src/dev/diagnostics/list-layers.ts -- <runDir> [--prefix ...]");
+  if (!runDir)
+    throw new Error("Usage: bun ./src/dev/diagnostics/list-layers.ts -- <runDir> [--prefix ...]");
 
   const manifest = loadManifest(runDir);
   const prefix = typeof flags.prefix === "string" ? flags.prefix : undefined;
@@ -25,4 +26,3 @@ try {
   console.error(err);
   process.exitCode = 1;
 }
-

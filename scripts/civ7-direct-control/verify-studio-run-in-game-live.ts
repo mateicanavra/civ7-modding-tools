@@ -6,6 +6,8 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  type Civ7DirectControlOptions,
+  type Civ7SetupOptionValue,
   checkCiv7DirectControlHealth,
   createCiv7ControlRequestId,
   DEFAULT_CIV7_SCRIPTING_LOG,
@@ -13,8 +15,6 @@ import {
   getCiv7SetupSnapshot,
   runCiv7SinglePlayerFromSetup,
   snapshotFile,
-  type Civ7DirectControlOptions,
-  type Civ7SetupOptionValue,
   waitForFreshLogMarkers,
 } from "../../packages/civ7-direct-control/src/index.ts";
 import { resolveModsDir } from "../../packages/plugins/plugin-mods/src/index.ts";
@@ -86,7 +86,8 @@ export type SwooperMapScriptDeploymentStage = Readonly<{
   recoveryHint?: string;
 }>;
 
-export const SWOOPER_MAP_SCRIPT_PATTERN = /^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*\.js)$/;
+export const SWOOPER_MAP_SCRIPT_PATTERN =
+  /^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*\.js)$/;
 
 export const REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS = [
   "map.rivers.authoredTerrainMaterialization",
@@ -195,10 +196,12 @@ export function resolveSwooperMapScriptPaths(args: {
   mapScript: string;
   repoRoot: string;
   modsDir: string;
-}): Readonly<{
-  localPath: string;
-  deployedPath: string;
-}> | undefined {
+}):
+  | Readonly<{
+      localPath: string;
+      deployedPath: string;
+    }>
+  | undefined {
   const match = SWOOPER_MAP_SCRIPT_PATTERN.exec(args.mapScript);
   if (!match) return undefined;
   const fileName = match[1]!;
@@ -234,10 +237,12 @@ export function buildSwooperMapScriptDeploymentStage(args: {
     unresolvedLinks.push("deployed-mod-script.hash-mismatch");
   }
   for (const proof of args.localMarkers ?? []) {
-    if (!proof.present) unresolvedLinks.push(`local-mod-script.marker-missing.${markerId(proof.marker)}`);
+    if (!proof.present)
+      unresolvedLinks.push(`local-mod-script.marker-missing.${markerId(proof.marker)}`);
   }
   for (const proof of args.deployedMarkers ?? []) {
-    if (!proof.present) unresolvedLinks.push(`deployed-mod-script.marker-missing.${markerId(proof.marker)}`);
+    if (!proof.present)
+      unresolvedLinks.push(`deployed-mod-script.marker-missing.${markerId(proof.marker)}`);
   }
 
   const ok = unresolvedLinks.length === 0;
@@ -315,7 +320,10 @@ function markerProofs(text: string): ReadonlyArray<MapScriptMarkerProof> {
 }
 
 function markerId(marker: string): string {
-  return marker.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+  return marker
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase();
 }
 
 function serializeError(error: unknown): Record<string, unknown> {
@@ -346,7 +354,7 @@ function safeJson(value: unknown): string {
       seen.add(item);
       return item;
     },
-    2,
+    2
   );
 }
 
@@ -447,7 +455,7 @@ async function main(): Promise<number> {
         waitTimeoutMs: args.waitTimeoutMs,
         pollIntervalMs: args.pollIntervalMs,
       },
-      options,
+      options
     );
     stages.push({
       name: "setup-start",

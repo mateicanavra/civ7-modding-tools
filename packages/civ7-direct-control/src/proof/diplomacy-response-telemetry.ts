@@ -1,5 +1,9 @@
+import type {
+  Civ7DiplomacyResponseInput,
+  Civ7DiplomacyResponseResult,
+} from "../play/operations/diplomacy-request.js";
+import { diplomacyResponseProofPostcondition } from "./diplomacy-response-proof-policy.js";
 import {
-  createCiv7OperationProofTelemetryRecord,
   type Civ7OperationProofBoundary,
   type Civ7OperationProofClass,
   type Civ7OperationProofTelemetryRecord,
@@ -7,13 +11,8 @@ import {
   type Civ7OperationTelemetryEvidencePolicy,
   type Civ7OperationTelemetryObservationLink,
   type Civ7OperationTelemetryPlayerScope,
+  createCiv7OperationProofTelemetryRecord,
 } from "./operation-telemetry.js";
-import { diplomacyResponseProofPostcondition } from "./diplomacy-response-proof-policy.js";
-
-import type {
-  Civ7DiplomacyResponseInput,
-  Civ7DiplomacyResponseResult,
-} from "../play/operations/diplomacy-request.js";
 
 export type Civ7DiplomacyResponseTelemetryAdapterInput = Readonly<{
   input: Civ7DiplomacyResponseInput;
@@ -35,7 +34,7 @@ export function createCiv7DiplomacyResponseTelemetryRecord(
   const evidenceClass = input.allowedProofClasses?.[0] ?? "local-package-test";
   const evidence = <T>(
     value: T,
-    freshness: Civ7OperationTelemetryEvidence<T>["freshness"],
+    freshness: Civ7OperationTelemetryEvidence<T>["freshness"]
   ): Civ7OperationTelemetryEvidence<T> => ({
     evidenceClass,
     source: input.source,

@@ -54,4 +54,3 @@ describe("shouldIgnoreGlobalShortcutsInEditableTarget", () => {
     ).toBe(false);
   });
 });
-

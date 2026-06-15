@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-
+import { Civ7DirectControlError } from "../src/direct-control-error";
 import {
   buildCleanFrameEnterCommand,
   buildCleanFrameExitCommand,
@@ -9,12 +9,11 @@ import {
   CIV7_CLEAN_FRAME_PREVIOUS_VIEW_GLOBAL,
   CIV7_CLEAN_FRAME_VIEW_NAME,
   CIV7_VIEW_MANAGER_BRIDGE_GLOBAL,
+  type CleanFrameDependencies,
   ensureCiv7ViewManagerBridge,
   enterCiv7CleanFrame,
   exitCiv7CleanFrame,
-  type CleanFrameDependencies,
 } from "../src/play/view/clean-frame";
-import { Civ7DirectControlError } from "../src/direct-control-error";
 import { jsLiteral } from "../src/runtime/command-serialization";
 import type { Civ7CommandResult } from "../src/session/types";
 
@@ -27,9 +26,11 @@ function commandResult(payload: unknown): Civ7CommandResult {
   };
 }
 
-function fakeDependencies(
-  payloads: ReadonlyArray<unknown>,
-): { dependencies: CleanFrameDependencies; commands: string[]; slept: number[] } {
+function fakeDependencies(payloads: ReadonlyArray<unknown>): {
+  dependencies: CleanFrameDependencies;
+  commands: string[];
+  slept: number[];
+} {
   const commands: string[] = [];
   const slept: number[] = [];
   const queue = [...payloads];
@@ -41,7 +42,7 @@ function fakeDependencies(
       return commandResult(payload);
     },
     jsLiteral,
-    parsePayload: <T,>(result: Civ7CommandResult) => JSON.parse(result.output[0] ?? "{}") as T,
+    parsePayload: <T>(result: Civ7CommandResult) => JSON.parse(result.output[0] ?? "{}") as T,
     sleep: async (ms) => {
       slept.push(ms);
     },
@@ -90,29 +91,24 @@ describe("clean-frame primitives", () => {
 
   test("hideUnits is embedded as a literal so the registered view reads the caller's choice", () => {
     expect(buildCleanFrameEnterCommand(true, { jsLiteral })).toContain(
-      `globalThis[${jsLiteral(CIV7_CLEAN_FRAME_HIDE_UNITS_GLOBAL)}] = true;`,
+      `globalThis[${jsLiteral(CIV7_CLEAN_FRAME_HIDE_UNITS_GLOBAL)}] = true;`
     );
     expect(buildCleanFrameEnterCommand(false, { jsLiteral })).toContain(
-      `globalThis[${jsLiteral(CIV7_CLEAN_FRAME_HIDE_UNITS_GLOBAL)}] = false;`,
+      `globalThis[${jsLiteral(CIV7_CLEAN_FRAME_HIDE_UNITS_GLOBAL)}] = false;`
     );
   });
 
   test("ensure bridge retries until the module-registry import resolves", async () => {
-    const { dependencies, commands, slept } = fakeDependencies([
-      { ready: false },
-      { ready: true },
-    ]);
+    const { dependencies, commands, slept } = fakeDependencies([{ ready: false }, { ready: true }]);
     await ensureCiv7ViewManagerBridge({}, dependencies);
     expect(commands).toHaveLength(2);
     expect(slept).toEqual([500]);
   });
 
   test("ensure bridge fails after the retry budget", async () => {
-    const { dependencies } = fakeDependencies(
-      Array.from({ length: 6 }, () => ({ ready: false })),
-    );
+    const { dependencies } = fakeDependencies(Array.from({ length: 6 }, () => ({ ready: false })));
     await expect(ensureCiv7ViewManagerBridge({}, dependencies)).rejects.toThrow(
-      Civ7DirectControlError,
+      Civ7DirectControlError
     );
   });
 

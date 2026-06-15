@@ -1,7 +1,6 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import { inBounds } from "@swooper/mapgen-core";
-import { COAST_TERRAIN } from "@swooper/mapgen-core";
 import { isWaterAt } from "@mapgen/domain/narrative/utils/water.js";
+import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import { COAST_TERRAIN, inBounds } from "@swooper/mapgen-core";
 
 export function isAdjacentToLand(
   ctx: ExtendedMapContext,

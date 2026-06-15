@@ -1,14 +1,13 @@
 import { describe, expect, it } from "bun:test";
-
-import ecology from "@mapgen/domain/ecology/ops";
 import { createMockAdapter } from "@civ7/adapter";
+import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import planWetlandsStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-wetlands/index.js";
+import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import planWetlandsStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-wetlands/index.js";
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
-import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
@@ -84,14 +83,23 @@ describe("ecology-features plan-wetlands step", () => {
     });
     stageArtifacts.hydrography.publish(ctx, { width, height, riverClass: new Uint8Array(size) });
     stageArtifacts.lakePlan.publish(ctx, { width, height, lakeMask: new Uint8Array(size) });
-    stageArtifacts.topography.publish(ctx, { width, height, landMask: new Uint8Array(size).fill(1) });
+    stageArtifacts.topography.publish(ctx, {
+      width,
+      height,
+      landMask: new Uint8Array(size).fill(1),
+    });
     stageArtifacts.mountains.publish(ctx, {
       width,
       height,
       mountainMask: new Uint8Array(size),
       hillMask: new Uint8Array(size),
     });
-    stageArtifacts.volcanoes.publish(ctx, { width, height, volcanoMask: new Uint8Array(size), volcanoes: [] });
+    stageArtifacts.volcanoes.publish(ctx, {
+      width,
+      height,
+      volcanoMask: new Uint8Array(size),
+      volcanoes: [],
+    });
 
     const config = {
       planWetlands: normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {

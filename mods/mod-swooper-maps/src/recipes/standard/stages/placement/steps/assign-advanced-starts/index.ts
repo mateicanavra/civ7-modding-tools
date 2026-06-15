@@ -1,9 +1,8 @@
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import { runPlacementProductStep } from "../product-runtime.js";
 import { placementArtifacts } from "../../artifacts.js";
-import { validateAdvancedStartAssignmentArtifact } from "./validate.js";
+import { runPlacementProductStep } from "../product-runtime.js";
 import AssignAdvancedStartsStepContract from "./contract.js";
+import { validateAdvancedStartAssignmentArtifact } from "./validate.js";
 
 export default createStep(AssignAdvancedStartsStepContract, {
   artifacts: implementArtifacts([placementArtifacts.advancedStartAssignment], {

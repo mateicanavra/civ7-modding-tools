@@ -1,10 +1,10 @@
+import type { InitialMapResourceAuthoringStatus } from "../../policy/initial-map-authoring.js";
 import type {
   OfficialAgeType,
   OfficialPlacementConstraintSummary,
   OfficialResourceType,
   ResourceRuntimeIdStatus,
 } from "../corpus/types.js";
-import type { InitialMapResourceAuthoringStatus } from "../../policy/initial-map-authoring.js";
 
 export type ResourceExpectationGroupId =
   | "aquatic-coastal-navigable-river"
@@ -13,14 +13,8 @@ export type ResourceExpectationGroupId =
   | "geological-mineral-gemstone-industrial";
 
 export type ResourceExpectationStatus = "expected" | "conditional" | "blocked";
-export type ResourceExpectationRangeEvidence =
-  | "source-backed"
-  | "inference-backed"
-  | "blocked";
-export type ResourceExpectationEvidenceStrength =
-  | "official"
-  | "external"
-  | "inferred";
+export type ResourceExpectationRangeEvidence = "source-backed" | "inference-backed" | "blocked";
+export type ResourceExpectationEvidenceStrength = "official" | "external" | "inferred";
 
 export type ResourceExpectedCountRange = {
   readonly baseline: "standard-earthlike-map";

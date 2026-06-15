@@ -1,15 +1,15 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { HabitatDiagnostic } from "../lib/diagnostics.js";
 import { repoRoot } from "../lib/paths.js";
 import { run, type SpawnResult } from "../lib/spawn.js";
-import type { HabitatDiagnostic } from "../lib/diagnostics.js";
 
 /**
  * The rule pack. Data lives in rules.json (shared with the Nx plugin); this
- * module types it and supplies per-rule output parsers. H2 = wrapped rules
- * only: every detect command executes the pre-existing mechanism unchanged
- * and is re-emitted as normalized diagnostics.
+ * module types it and supplies per-rule output parsers. H2 wrapped existing
+ * mechanisms unchanged; later slices add owning-tool gates such as H3
+ * nx-boundaries and H4 Biome hygiene.
  */
 
 export interface HarnessRule {
@@ -26,10 +26,7 @@ export interface HarnessRule {
   exceptionPath: string;
 }
 
-const rulesJsonPath = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "rules.json",
-);
+const rulesJsonPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "rules.json");
 
 export const rules: HarnessRule[] = (
   JSON.parse(readFileSync(rulesJsonPath, "utf8")) as { rules: HarnessRule[] }
@@ -85,7 +82,8 @@ function parseAdapterBoundary(rule: HarnessRule, res: SpawnResult): HabitatDiagn
     diags.push({
       ruleId: rule.id,
       path: f,
-      message: "/base-standard/ reference allowlisted in scripts/lint/lint-adapter-boundary.sh (tracked debt)",
+      message:
+        "/base-standard/ reference allowlisted in scripts/lint/lint-adapter-boundary.sh (tracked debt)",
       severity: "error",
       baselined: true, // legacy allowlist is this rule's transitional baseline (design.md)
     });
@@ -100,7 +98,8 @@ function parseAdapterBoundary(rule: HarnessRule, res: SpawnResult): HabitatDiagn
     });
   }
   // Script failed but we parsed nothing → fall back to coarse so failures never vanish.
-  if (res.exitCode !== 0 && !diags.some((d) => !d.baselined)) return [...diags, ...coarse(rule, res)];
+  if (res.exitCode !== 0 && !diags.some((d) => !d.baselined))
+    return [...diags, ...coarse(rule, res)];
   return diags;
 }
 

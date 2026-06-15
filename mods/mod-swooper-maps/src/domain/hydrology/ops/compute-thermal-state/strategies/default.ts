@@ -41,10 +41,7 @@ export const defaultStrategy = createStrategy(ComputeThermalStateContract, "defa
         continue;
       }
       const temp =
-        base +
-        forcing * insolationScale +
-        elevation * lapseRate -
-        (isLand ? landCooling : 0);
+        base + forcing * insolationScale + elevation * lapseRate - (isLand ? landCooling : 0);
       surfaceTemperatureC[i] = clampNumber(temp, minC, maxC);
     }
 

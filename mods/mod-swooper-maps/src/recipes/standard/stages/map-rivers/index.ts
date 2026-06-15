@@ -1,12 +1,12 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
 import { HYDROLOGY_NAVIGABLE_RIVER_PROJECTION_POLICY } from "@mapgen/domain/hydrology/config.js";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { MapRiversPublicSchema } from "../map-projection-public-config.js";
-import { plotRivers } from "./steps/index.js";
 import {
   NavigableRiverDensityKnobSchema,
   type NavigableRiverDensityKnobs,
   resolveNavigableRiverDensityKnob,
 } from "./riverProjectionKnobs.js";
+import { plotRivers } from "./steps/index.js";
 
 const knobsSchema = Type.Object(
   {

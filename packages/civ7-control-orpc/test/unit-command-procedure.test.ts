@@ -3,21 +3,21 @@ import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   Civ7UnitRequestUnavailableError,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
 } from "../src/index";
 import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 const unitId = { owner: 0, id: 1769488, type: 26 };
 const destination = { x: 17, y: 25 };
 const Civ7UnitUpgradeInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.unit.upgrade.request,
+  Civ7ControlOrpcContract.unit.upgrade.request
 );
 const Civ7UnitResettleInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.unit.resettle.request,
+  Civ7ControlOrpcContract.unit.resettle.request
 );
 
 type UnitCommandRuntimeResult = Awaited<
@@ -27,10 +27,12 @@ type UnitCommandRuntimeResult = Awaited<
 describe("unit upgrade/resettle control-oRPC procedures", () => {
   test("own semantic unit input contracts without endpoint or raw command fields", () => {
     expect(Value.Check(Civ7UnitUpgradeInputSchema, { unitId })).toBe(true);
-    expect(Value.Check(Civ7UnitResettleInputSchema, {
-      unitId,
-      destination,
-    })).toBe(true);
+    expect(
+      Value.Check(Civ7UnitResettleInputSchema, {
+        unitId,
+        destination,
+      })
+    ).toBe(true);
 
     for (const invalid of [
       { unitId, rawCommand: "Game.UnitCommands.sendRequest(...)" },
@@ -43,18 +45,24 @@ describe("unit upgrade/resettle control-oRPC procedures", () => {
       expect(Value.Check(Civ7UnitUpgradeInputSchema, invalid)).toBe(false);
     }
 
-    expect(Value.Check(Civ7UnitResettleInputSchema, {
-      unitId,
-      destination: { x: 17.5, y: 25 },
-    })).toBe(false);
-    expect(Value.Check(Civ7UnitResettleInputSchema, {
-      unitId,
-      destination: { x: -1, y: 25 },
-    })).toBe(false);
-    expect(Value.Check(Civ7UnitResettleInputSchema, {
-      unitId,
-      destination: { x: 17, y: 1_000_001 },
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7UnitResettleInputSchema, {
+        unitId,
+        destination: { x: 17.5, y: 25 },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7UnitResettleInputSchema, {
+        unitId,
+        destination: { x: -1, y: 25 },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7UnitResettleInputSchema, {
+        unitId,
+        destination: { x: 17, y: 1_000_001 },
+      })
+    ).toBe(false);
   });
 
   test("calls unit upgrade through native Effect/oRPC and omits raw runtime fields", async () => {
@@ -63,7 +71,7 @@ describe("unit upgrade/resettle control-oRPC procedures", () => {
     const result = await call(
       Civ7ControlOrpcRouter.unit.upgrade.request,
       { unitId },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -84,23 +92,27 @@ describe("unit upgrade/resettle control-oRPC procedures", () => {
         confirmed: true,
         noRepeatAfterUnverified: false,
       },
-      nextSteps: [{
-        kind: "refresh-attention",
-        source: "unit.upgrade.request",
-      }],
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "unit.upgrade.request",
+        },
+      ],
     });
-    expect(fake.calls).toEqual([{
-      input: {
-        unitId,
-        operationType: "UNITCOMMAND_UPGRADE",
-        args: {},
+    expect(fake.calls).toEqual([
+      {
+        input: {
+          unitId,
+          operationType: "UNITCOMMAND_UPGRADE",
+          args: {},
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expectSemanticUnitRequestOmitsRawRuntimeDetails(result);
   });
 
@@ -145,7 +157,7 @@ describe("unit upgrade/resettle control-oRPC procedures", () => {
       const result = await call(
         Civ7ControlOrpcRouter.unit.upgrade.request,
         { unitId },
-        { context: fake.context },
+        { context: fake.context }
       );
 
       expect(result).toMatchObject({
@@ -157,23 +169,27 @@ describe("unit upgrade/resettle control-oRPC procedures", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "unit.upgrade.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "unit.upgrade.request",
+          },
+        ],
       });
     }
   });
 
   test("keeps missing postconditions no-repeat guarded", async () => {
-    const fake = fakeContext(unitCommandResult("queue-advanced", {
-      includePostcondition: false,
-    }));
+    const fake = fakeContext(
+      unitCommandResult("queue-advanced", {
+        includePostcondition: false,
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.unit.upgrade.request,
       { unitId },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -186,22 +202,26 @@ describe("unit upgrade/resettle control-oRPC procedures", () => {
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "unit.upgrade.request",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "unit.upgrade.request",
+        },
+      ],
     });
   });
 
   test("projects validator-blocked unit requests as not-sent", async () => {
-    const fake = fakeContext(unitCommandResult("not-sent", {
-      sent: false,
-    }));
+    const fake = fakeContext(
+      unitCommandResult("not-sent", {
+        sent: false,
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.unit.resettle.request,
       { unitId, destination },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -217,22 +237,30 @@ describe("unit upgrade/resettle control-oRPC procedures", () => {
         confidence: "unverified",
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "inspect-unit-command",
-        source: "unit.resettle.request",
-      }],
+      nextSteps: [
+        {
+          kind: "inspect-unit-command",
+          source: "unit.resettle.request",
+        },
+      ],
     });
   });
 
   test("maps facade failures to tagged errors without raw details", async () => {
-    const fake = fakeContext(new Error(
-      "Timed out waiting for Civ7 tuner response to CMD:1:Game.UnitCommands.sendRequest(...)",
-    ));
+    const fake = fakeContext(
+      new Error(
+        "Timed out waiting for Civ7 tuner response to CMD:1:Game.UnitCommands.sendRequest(...)"
+      )
+    );
 
     await expect(
-      call(Civ7ControlOrpcRouter.unit.upgrade.request, { unitId }, {
-        context: fake.context,
-      }),
+      call(
+        Civ7ControlOrpcRouter.unit.upgrade.request,
+        { unitId },
+        {
+          context: fake.context,
+        }
+      )
     ).rejects.toMatchObject({
       code: "UNIT_REQUEST_UNAVAILABLE",
       status: 503,
@@ -243,9 +271,13 @@ describe("unit upgrade/resettle control-oRPC procedures", () => {
     });
 
     try {
-      await call(Civ7ControlOrpcRouter.unit.upgrade.request, { unitId }, {
-        context: fake.context,
-      });
+      await call(
+        Civ7ControlOrpcRouter.unit.upgrade.request,
+        { unitId },
+        {
+          context: fake.context,
+        }
+      );
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -272,16 +304,14 @@ describe("unit upgrade/resettle control-oRPC procedures", () => {
         risk: "mutation",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.unit.upgrade.request["~orpc"].errorMap,
-    ).toHaveProperty("UNIT_REQUEST_UNAVAILABLE");
+    expect(Civ7ControlOrpcContract.unit.upgrade.request["~orpc"].errorMap).toHaveProperty(
+      "UNIT_REQUEST_UNAVAILABLE"
+    );
     expect(Civ7UnitRequestUnavailableError.code).toBe("UNIT_REQUEST_UNAVAILABLE");
   });
 });
 
-function fakeContext(
-  resultOrError: UnitCommandRuntimeResult | Error,
-): {
+function fakeContext(resultOrError: UnitCommandRuntimeResult | Error): {
   context: Civ7ControlOrpcContext;
   calls: Array<{
     input: unknown;
@@ -317,19 +347,15 @@ function fakeContext(
 }
 
 function unitCommandResult(
-  classification: NonNullable<
-    UnitCommandRuntimeResult["postcondition"]
-  >["classification"],
+  classification: NonNullable<UnitCommandRuntimeResult["postcondition"]>["classification"],
   options: {
     includePostcondition?: boolean;
     sent?: boolean;
-  } = {},
+  } = {}
 ): UnitCommandRuntimeResult {
   const sent = options.sent ?? classification !== "not-sent";
   const beforeValid = classification === "not-sent" ? false : true;
-  const afterValid = classification === "validation-changed"
-    ? !beforeValid
-    : beforeValid;
+  const afterValid = classification === "validation-changed" ? !beforeValid : beforeValid;
   return {
     before: {
       family: "unit-command",
@@ -382,16 +408,16 @@ function expectSemanticUnitRequestOmitsRawRuntimeDetails(result: unknown) {
   expect(serialized).not.toContain("CMD");
   expect(serialized).not.toContain("Game.UnitCommands");
   expect(serialized).not.toContain("Game.UnitOperations");
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
-  expect(serialized).not.toContain("\"session\"");
-  expect(serialized).not.toContain("\"rawCommand\"");
-  expect(serialized).not.toContain("\"command\"");
-  expect(serialized).not.toContain("\"operationType\"");
-  expect(serialized).not.toContain("\"sendResult\"");
-  expect(serialized).not.toContain("\"result\"");
-  expect(serialized).not.toContain("\"verified\"");
-  expect(serialized).not.toContain("\"before\"");
-  expect(serialized).not.toContain("\"after\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"operationType"');
+  expect(serialized).not.toContain('"sendResult"');
+  expect(serialized).not.toContain('"result"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
 }

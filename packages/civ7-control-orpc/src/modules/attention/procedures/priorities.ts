@@ -20,26 +20,17 @@ import {
 } from "../../../model/correlation";
 import type { Civ7ControlOrpcMapLocation } from "../../../model/primitives";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
-import type {
-  Civ7AttentionPrioritiesInput,
-  Civ7AttentionPrioritiesResult,
-} from "../contract";
+import type { Civ7AttentionPrioritiesInput, Civ7AttentionPrioritiesResult } from "../contract";
 
 type PriorityItem = Civ7AttentionPrioritiesResult["priorities"][number];
 type PriorityNextStep = NonNullable<PriorityItem["nextStep"]>;
 
-export const attentionPrioritiesProcedure =
-  civ7ControlOrpcImplementer.attention.priorities.effect(function* ({
-    context,
-    errors,
-    input,
-  }) {
+export const attentionPrioritiesProcedure = civ7ControlOrpcImplementer.attention.priorities.effect(
+  function* ({ context, errors, input }) {
     return yield* Effect.tryPromise({
       try: async () => {
         const endpointDefaults = context.endpointDefaults;
-        const playableStatus = await context.directControl.getCiv7PlayableStatus(
-          endpointDefaults,
-        );
+        const playableStatus = await context.directControl.getCiv7PlayableStatus(endpointDefaults);
         const canRead = canReadAttentionPriorities(playableStatus, context);
 
         if (!canRead) {
@@ -65,22 +56,26 @@ export const attentionPrioritiesProcedure =
         const [readyUnit, readyCity] = await Promise.all([
           context.directControl.getCiv7ReadyUnitView(
             readyUnitInputFromSources(input, notifications, turnCompletion),
-            endpointDefaults,
+            endpointDefaults
           ),
           context.directControl.getCiv7ReadyCityView(
             readyCityInputFromNotifications(notifications),
-            endpointDefaults,
+            endpointDefaults
           ),
         ]);
         const battlefieldOrigin = readyUnitLocation(readyUnit);
         const shouldReadBattlefield = input.includeBattlefield === true;
-        const battlefield = shouldReadBattlefield && battlefieldOrigin != null
-          ? await context.directControl.getCiv7BattlefieldScan({
-            origins: [battlefieldOrigin],
-            radius: input.battlefieldRadius ?? 6,
-            maxUnits: input.maxBattlefieldUnits ?? 80,
-          }, endpointDefaults)
-          : null;
+        const battlefield =
+          shouldReadBattlefield && battlefieldOrigin != null
+            ? await context.directControl.getCiv7BattlefieldScan(
+                {
+                  origins: [battlefieldOrigin],
+                  radius: input.battlefieldRadius ?? 6,
+                  maxUnits: input.maxBattlefieldUnits ?? 80,
+                },
+                endpointDefaults
+              )
+            : null;
 
         return buildPrioritiesResult({
           input,
@@ -97,7 +92,9 @@ export const attentionPrioritiesProcedure =
             readyUnit: sourceReadStatus(true, readyUnit),
             readyCity: sourceReadStatus(true, readyCity),
             battlefield: shouldReadBattlefield
-              ? battlefield == null ? "skipped-no-origin" : "read"
+              ? battlefield == null
+                ? "skipped-no-origin"
+                : "read"
               : "skipped-disabled",
           },
         });
@@ -112,7 +109,8 @@ export const attentionPrioritiesProcedure =
           },
         }),
     });
-  });
+  }
+);
 
 type BuildInput = Readonly<{
   input: Civ7AttentionPrioritiesInput;
@@ -149,17 +147,18 @@ function buildPrioritiesResult({
   return {
     playable: playableStatus.playable,
     readiness: playableStatus.readiness,
-    localPlayerId: numericValue(notifications?.localPlayerId)
-      ?? numericValue(readyUnit?.localPlayerId)
-      ?? numericValue(readyCity?.localPlayerId)
-      ?? numericValue(battlefield?.localPlayerId),
-    turn: probeValue<number>(turnCompletion?.turn)
-      ?? probeValue<number>(notifications?.turn),
-    turnDate: probeValue<string>(turnCompletion?.turnDate)
-      ?? probeValue<string>(notifications?.turnDate),
-    canEndTurn: turnCompletion == null
-      ? probeValue<boolean>(notifications?.canEndTurn)
-      : probeValue<boolean>(turnCompletion.canEndTurn),
+    localPlayerId:
+      numericValue(notifications?.localPlayerId) ??
+      numericValue(readyUnit?.localPlayerId) ??
+      numericValue(readyCity?.localPlayerId) ??
+      numericValue(battlefield?.localPlayerId),
+    turn: probeValue<number>(turnCompletion?.turn) ?? probeValue<number>(notifications?.turn),
+    turnDate:
+      probeValue<string>(turnCompletion?.turnDate) ?? probeValue<string>(notifications?.turnDate),
+    canEndTurn:
+      turnCompletion == null
+        ? probeValue<boolean>(notifications?.canEndTurn)
+        : probeValue<boolean>(turnCompletion.canEndTurn),
     sourceStatus,
     turnCompletion: turnCompletionSummary(turnCompletion),
     readyUnit: readyUnitSummary(readyUnit),
@@ -181,14 +180,16 @@ function buildPrioritiesResult({
   };
 }
 
-function priorityItems(input: Readonly<{
-  playableStatus: Civ7ControlOrpcPlayableStatusResult;
-  notifications: Civ7ControlOrpcPlayNotificationViewResult | null;
-  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null;
-  readyUnit: Civ7ControlOrpcReadyUnitViewResult | null;
-  readyCity: Civ7ControlOrpcReadyCityViewResult | null;
-  battlefield: Civ7ControlOrpcBattlefieldScanResult | null;
-}>): PriorityItem[] {
+function priorityItems(
+  input: Readonly<{
+    playableStatus: Civ7ControlOrpcPlayableStatusResult;
+    notifications: Civ7ControlOrpcPlayNotificationViewResult | null;
+    turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null;
+    readyUnit: Civ7ControlOrpcReadyUnitViewResult | null;
+    readyCity: Civ7ControlOrpcReadyCityViewResult | null;
+    battlefield: Civ7ControlOrpcBattlefieldScanResult | null;
+  }>
+): PriorityItem[] {
   const items: PriorityItem[] = [];
 
   if (!input.playableStatus.playable && input.notifications == null) {
@@ -215,7 +216,8 @@ function priorityItems(input: Readonly<{
       priority: 95,
       kind: "runtime-state-error",
       summary: "core HUD probes failed; live blocker state is not proven clean",
-      reason: "A missing turn, blocker, or blocking-notification probe means the attention read is partial.",
+      reason:
+        "A missing turn, blocker, or blocking-notification probe means the attention read is partial.",
       blocking: true,
       nextStep: {
         kind: "observe",
@@ -233,10 +235,12 @@ function priorityItems(input: Readonly<{
     items.push({
       priority: nextDecision.isEndTurnBlocking === true ? 100 : 70,
       kind: stale?.kind ?? `hud:${String(nextDecision.category)}`,
-      summary: stale?.summary ?? stringValue(
-        nextDecision.summary ?? nextDecision.message ?? nextDecision.typeName,
-        "current HUD decision",
-      ),
+      summary:
+        stale?.summary ??
+        stringValue(
+          nextDecision.summary ?? nextDecision.message ?? nextDecision.typeName,
+          "current HUD decision"
+        ),
       reason: stale?.reason ?? decisionReason(nextDecision),
       blocking: nextDecision.isEndTurnBlocking === true,
       nextStep: stale?.nextStep ?? decisionNextStep(nextDecision, input.readyUnit),
@@ -246,16 +250,15 @@ function priorityItems(input: Readonly<{
 
   if (input.readyUnit?.unitId != null) {
     const unit = probeValue<{ typeName?: string; location?: Civ7ControlOrpcMapLocation }>(
-      input.readyUnit.unit,
+      input.readyUnit.unit
     );
-    const location = unit?.location
-      ? ` at (${unit.location.x},${unit.location.y})`
-      : "";
+    const location = unit?.location ? ` at (${unit.location.x},${unit.location.y})` : "";
     items.push({
       priority: 85,
       kind: "ready-unit",
       summary: `${unit?.typeName ?? "ready unit"}${location}`,
-      reason: "A ready unit blocks turn flow and any target action still needs validator-backed confirmation.",
+      reason:
+        "A ready unit blocks turn flow and any target action still needs validator-backed confirmation.",
       blocking: true,
       nextStep: {
         kind: "inspect-ready-unit",
@@ -275,7 +278,8 @@ function priorityItems(input: Readonly<{
       priority: 80,
       kind: "ready-city",
       summary: city?.name ?? "ready city",
-      reason: "City blockers branch between production, town focus, population placement, and expansion.",
+      reason:
+        "City blockers branch between production, town focus, population placement, and expansion.",
       blocking: true,
       nextStep: {
         kind: "inspect-ready-city",
@@ -294,7 +298,8 @@ function priorityItems(input: Readonly<{
       priority: severityPriority(point.severity),
       kind: `battlefield:${point.kind}`,
       summary: point.summary,
-      reason: "Battlefield points identify inspection needs around the ready-unit origin; they are not mutation authority.",
+      reason:
+        "Battlefield points identify inspection needs around the ready-unit origin; they are not mutation authority.",
       blocking: false,
       nextStep: {
         kind: "inspect-battlefield-point",
@@ -313,7 +318,8 @@ function priorityItems(input: Readonly<{
       priority: 10,
       kind: "clean-read",
       summary: "no HUD, ready-unit, ready-city, or battlefield priority surfaced",
-      reason: "Fresh clean reads can use the guarded end-turn path; it rechecks blockers before mutation.",
+      reason:
+        "Fresh clean reads can use the guarded end-turn path; it rechecks blockers before mutation.",
       blocking: false,
       nextStep: {
         kind: "end-turn",
@@ -333,9 +339,7 @@ function decisionReason(nextDecision: Record<string, unknown>): string {
   if (category === "unit-command") {
     return "A ready unit decision exists; inspect ready-unit and target surfaces before treating command-units as stale.";
   }
-  if (
-    category === "production-choice" || category === "population-placement"
-  ) {
+  if (category === "production-choice" || category === "population-placement") {
     return "A ready city decision exists; inspect the city decision surface before broad strategy.";
   }
   if (category === "informational-notification") {
@@ -351,7 +355,7 @@ function decisionReason(nextDecision: Record<string, unknown>): string {
 
 function decisionNextStep(
   nextDecision: Record<string, unknown>,
-  readyUnit: Civ7ControlOrpcReadyUnitViewResult | null,
+  readyUnit: Civ7ControlOrpcReadyUnitViewResult | null
 ): PriorityNextStep | null {
   const category = String(nextDecision.category ?? "decision");
   const componentId = componentIdFromUnknown(nextDecision.notificationId);
@@ -373,7 +377,8 @@ function decisionNextStep(
   }
 
   if (
-    category === "technology-choice" || category === "culture-choice" ||
+    category === "technology-choice" ||
+    category === "culture-choice" ||
     category === "tradition-review"
   ) {
     return {
@@ -390,8 +395,10 @@ function decisionNextStep(
   }
 
   if (
-    category === "celebration-choice" || category === "government-choice" ||
-    category === "narrative-choice" || category === "first-meet-diplomacy"
+    category === "celebration-choice" ||
+    category === "government-choice" ||
+    category === "narrative-choice" ||
+    category === "first-meet-diplomacy"
   ) {
     if (category === "narrative-choice" && narrativeChoiceOptionsEmpty(nextDecision)) {
       return {
@@ -463,14 +470,16 @@ function decisionNextStep(
 
 function narrativeChoiceOptionsEmpty(nextDecision: Record<string, unknown>): boolean {
   const details = asRecord(nextDecision.details);
-  return details?.kind === "narrative-choice-options" &&
+  return (
+    details?.kind === "narrative-choice-options" &&
     Array.isArray(details.enabledOptions) &&
-    details.enabledOptions.length === 0;
+    details.enabledOptions.length === 0
+  );
 }
 
-function staleUnitCommandPriority(
-  nextDecision: { details?: unknown },
-): Pick<PriorityItem, "kind" | "summary" | "reason" | "nextStep"> | null {
+function staleUnitCommandPriority(nextDecision: {
+  details?: unknown;
+}): Pick<PriorityItem, "kind" | "summary" | "reason" | "nextStep"> | null {
   const details = asRecord(nextDecision.details);
   if (details?.kind !== "unit-command-reconciliation") return null;
   if (
@@ -481,14 +490,16 @@ function staleUnitCommandPriority(
     return null;
   }
 
-  const enabledCandidate = asArray(details.enabledCloseoutCandidates)
-    .find((item) => typeof item.operationType === "string");
+  const enabledCandidate = asArray(details.enabledCloseoutCandidates).find(
+    (item) => typeof item.operationType === "string"
+  );
   if (enabledCandidate != null) {
     const unitId = componentIdFromUnknown(enabledCandidate.unitId);
     return {
       kind: "hud:unit-command",
       summary: "COMMAND_UNITS closeout candidate needs validator-backed review",
-      reason: "Official command-units evidence exposes an enabled unit command candidate; validate it before mutation.",
+      reason:
+        "Official command-units evidence exposes an enabled unit command candidate; validate it before mutation.",
       nextStep: {
         kind: "validate-unit-command",
         source: "notification",
@@ -524,22 +535,18 @@ function staleUnitCommandPriority(
 }
 
 function turnCompletionSummary(
-  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null,
+  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null
 ): Civ7AttentionPrioritiesResult["turnCompletion"] {
   return {
-    hasSentTurnComplete: probeValue<boolean>(
-      turnCompletion?.hasSentTurnComplete,
-    ),
+    hasSentTurnComplete: probeValue<boolean>(turnCompletion?.hasSentTurnComplete),
     canEndTurn: probeValue<boolean>(turnCompletion?.canEndTurn),
-    firstReadyUnitId: probeValue<Civ7ComponentId>(
-      turnCompletion?.firstReadyUnitId,
-    ),
+    firstReadyUnitId: probeValue<Civ7ComponentId>(turnCompletion?.firstReadyUnitId),
     blockerStatus: turnCompletionBlockerStatus(turnCompletion),
   };
 }
 
 function turnCompletionBlockerStatus(
-  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null,
+  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null
 ): Civ7AttentionPrioritiesResult["turnCompletion"]["blockerStatus"] {
   const blocker = turnCompletion?.blocker;
   if (blocker == null || typeof blocker !== "object") return "unknown";
@@ -551,22 +558,20 @@ function turnCompletionBlockerStatus(
 }
 
 function readyUnitSummary(
-  readyUnit: Civ7ControlOrpcReadyUnitViewResult | null,
+  readyUnit: Civ7ControlOrpcReadyUnitViewResult | null
 ): Civ7AttentionPrioritiesResult["readyUnit"] {
   if (readyUnit == null) return null;
   const unit = probeValue<{ typeName?: string }>(readyUnit.unit);
   return {
     unitId: readyUnit.unitId,
     legalOperationCount: readyUnit.legalOperations.length,
-    promotionReadinessAvailable: probeValue<unknown>(
-      readyUnit.promotionReadiness,
-    ) != null,
+    promotionReadinessAvailable: probeValue<unknown>(readyUnit.promotionReadiness) != null,
     summary: unit?.typeName ?? "ready unit",
   };
 }
 
 function readyCitySummary(
-  readyCity: Civ7ControlOrpcReadyCityViewResult | null,
+  readyCity: Civ7ControlOrpcReadyCityViewResult | null
 ): Civ7AttentionPrioritiesResult["readyCity"] {
   if (readyCity == null) return null;
   const city = probeValue<{ name?: string }>(readyCity.city);
@@ -575,15 +580,13 @@ function readyCitySummary(
     legalOperationCount: readyCity.legalOperations.length,
     productionCandidateCount: probeArrayLength(readyCity.productionCandidates),
     townFocusOptionCount: probeArrayLength(readyCity.townFocusOptions),
-    populationPlacementAvailable: probeValue<unknown>(
-      readyCity.populationPlacement,
-    ) != null,
+    populationPlacementAvailable: probeValue<unknown>(readyCity.populationPlacement) != null,
     summary: city?.name ?? "ready city",
   };
 }
 
 function battlefieldSummary(
-  battlefield: Civ7ControlOrpcBattlefieldScanResult | null,
+  battlefield: Civ7ControlOrpcBattlefieldScanResult | null
 ): Civ7AttentionPrioritiesResult["battlefield"] {
   if (battlefield == null) return null;
   return {
@@ -604,11 +607,12 @@ function battlefieldSummary(
 function readyUnitInputFromSources(
   input: Civ7AttentionPrioritiesInput,
   notifications: Civ7ControlOrpcPlayNotificationViewResult,
-  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult,
+  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult
 ): Civ7ReadyUnitViewInput {
-  const unitId = probeValue<Civ7ComponentId>(notifications.selectedUnitId)
-    ?? probeValue<Civ7ComponentId>(notifications.firstReadyUnitId)
-    ?? probeValue<Civ7ComponentId>(turnCompletion.firstReadyUnitId);
+  const unitId =
+    probeValue<Civ7ComponentId>(notifications.selectedUnitId) ??
+    probeValue<Civ7ComponentId>(notifications.firstReadyUnitId) ??
+    probeValue<Civ7ComponentId>(turnCompletion.firstReadyUnitId);
   return {
     ...(unitId == null ? {} : { unitId }),
     ...(input.readyUnitRadius == null ? {} : { radius: input.readyUnitRadius }),
@@ -619,23 +623,22 @@ function readyUnitInputFromSources(
 }
 
 function readyCityInputFromNotifications(
-  notifications: Civ7ControlOrpcPlayNotificationViewResult,
+  notifications: Civ7ControlOrpcPlayNotificationViewResult
 ): Civ7ReadyCityViewInput {
-  const cityId = probeValue<Civ7ComponentId>(notifications.selectedCityId)
-    ?? componentIdFromUnknown(notifications.hud.nextDecision?.target)
-    ?? notifications.hud.decisionQueue
+  const cityId =
+    probeValue<Civ7ComponentId>(notifications.selectedCityId) ??
+    componentIdFromUnknown(notifications.hud.nextDecision?.target) ??
+    notifications.hud.decisionQueue
       .map((item) => componentIdFromUnknown(item.target))
-      .find((id): id is Civ7ComponentId => id != null)
-    ?? null;
+      .find((id): id is Civ7ComponentId => id != null) ??
+    null;
   return cityId == null ? {} : { cityId };
 }
 
 function readyUnitLocation(
-  readyUnit: Civ7ControlOrpcReadyUnitViewResult,
+  readyUnit: Civ7ControlOrpcReadyUnitViewResult
 ): Civ7ControlOrpcMapLocation | null {
-  const unit = probeValue<{ location?: { x?: unknown; y?: unknown } }>(
-    readyUnit.unit,
-  );
+  const unit = probeValue<{ location?: { x?: unknown; y?: unknown } }>(readyUnit.unit);
   const x = unit?.location?.x;
   const y = unit?.location?.y;
   return typeof x === "number" && typeof y === "number" ? { x, y } : null;
@@ -643,53 +646,43 @@ function readyUnitLocation(
 
 function sourceReadStatus(
   attempted: boolean,
-  result:
-    | Civ7ControlOrpcReadyUnitViewResult
-    | Civ7ControlOrpcReadyCityViewResult
-    | null,
+  result: Civ7ControlOrpcReadyUnitViewResult | Civ7ControlOrpcReadyCityViewResult | null
 ): Civ7AttentionPrioritiesResult["sourceStatus"]["readyUnit"] {
   if (!attempted || result == null) return "skipped-unsupported";
   if (result.host !== "game-ui") return "read";
   if ("unitId" in result) {
-    return result.firstReadyUnitId.ok === true
-      ? "read"
-      : "skipped-unsupported";
+    return result.firstReadyUnitId.ok === true ? "read" : "skipped-unsupported";
   }
-  const readyCityId = result.cityId
-    ?? probeValue<Civ7ComponentId>(result.blockingCityId);
+  const readyCityId = result.cityId ?? probeValue<Civ7ComponentId>(result.blockingCityId);
   return readyCityId == null ? "skipped-unsupported" : "read";
 }
 
 function skippedSourceStatus(
-  playableStatus: Civ7ControlOrpcPlayableStatusResult,
+  playableStatus: Civ7ControlOrpcPlayableStatusResult
 ): Civ7AttentionPrioritiesResult["sourceStatus"] {
-  const skipped = playableStatus.playable
-    ? "skipped-unsupported"
-    : "skipped-not-playable";
+  const skipped = playableStatus.playable ? "skipped-unsupported" : "skipped-not-playable";
   return {
     playableStatus: "read",
     notifications: skipped,
     turnCompletion: skipped,
     readyUnit: skipped,
     readyCity: skipped,
-    battlefield: playableStatus.playable
-      ? "skipped-unsupported"
-      : "skipped-not-playable",
+    battlefield: playableStatus.playable ? "skipped-unsupported" : "skipped-not-playable",
   };
 }
 
 function canReadAttentionPriorities(
   playableStatus: Civ7ControlOrpcPlayableStatusResult,
-  context: Civ7ControlOrpcContext,
+  context: Civ7ControlOrpcContext
 ): boolean {
-  return playableStatus.playable
-    || context.controller?.supportedReadProcedures?.includes(
-      "attention.priorities",
-    ) === true;
+  return (
+    playableStatus.playable ||
+    context.controller?.supportedReadProcedures?.includes("attention.priorities") === true
+  );
 }
 
 function hudProbeErrors(
-  notifications: Civ7ControlOrpcPlayNotificationViewResult | null,
+  notifications: Civ7ControlOrpcPlayNotificationViewResult | null
 ): Array<{ field: string; error: string }> {
   if (notifications == null) return [];
   return [
@@ -698,26 +691,16 @@ function hudProbeErrors(
     ["blocker", notifications.blocker],
     ["blockingNotificationId", notifications.blockingNotificationId],
   ].flatMap(([field, probe]) =>
-    isProbeError(probe)
-      ? [{ field: String(field), error: probe.error }]
-      : []
+    isProbeError(probe) ? [{ field: String(field), error: probe.error }] : []
   );
 }
 
-function readyUnitEvidence(
-  readyUnit: Civ7ControlOrpcReadyUnitViewResult,
-): string[] {
-  return readyUnit.host === "game-ui"
-    ? ["game-ui-ready-unit-source"]
-    : ["ready-unit-view"];
+function readyUnitEvidence(readyUnit: Civ7ControlOrpcReadyUnitViewResult): string[] {
+  return readyUnit.host === "game-ui" ? ["game-ui-ready-unit-source"] : ["ready-unit-view"];
 }
 
-function readyCityEvidence(
-  readyCity: Civ7ControlOrpcReadyCityViewResult,
-): string[] {
-  return readyCity.host === "game-ui"
-    ? ["game-ui-ready-city-source"]
-    : ["ready-city-view"];
+function readyCityEvidence(readyCity: Civ7ControlOrpcReadyCityViewResult): string[] {
+  return readyCity.host === "game-ui" ? ["game-ui-ready-city-source"] : ["ready-city-view"];
 }
 
 function severityPriority(severity: string): number {
@@ -729,8 +712,7 @@ function severityPriority(severity: string): number {
 
 function isProbeError(probe: unknown): probe is { ok: false; error: string } {
   return Boolean(
-    probe && typeof probe === "object" && "ok" in probe &&
-      (probe as { ok?: unknown }).ok === false,
+    probe && typeof probe === "object" && "ok" in probe && (probe as { ok?: unknown }).ok === false
   );
 }
 
@@ -750,24 +732,19 @@ function numericValue(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-function stringValue<T extends string | null | undefined>(
-  value: unknown,
-  fallback: T,
-): string | T {
+function stringValue<T extends string | null | undefined>(value: unknown, fallback: T): string | T {
   return typeof value === "string" && value.length > 0 ? value : fallback;
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
-  return value != null && typeof value === "object"
-    ? value as Record<string, unknown>
-    : null;
+  return value != null && typeof value === "object" ? (value as Record<string, unknown>) : null;
 }
 
 function asArray(value: unknown): Array<Record<string, unknown>> {
   return Array.isArray(value)
-    ? value.filter((item): item is Record<string, unknown> =>
-      item != null && typeof item === "object"
-    )
+    ? value.filter(
+        (item): item is Record<string, unknown> => item != null && typeof item === "object"
+      )
     : [];
 }
 

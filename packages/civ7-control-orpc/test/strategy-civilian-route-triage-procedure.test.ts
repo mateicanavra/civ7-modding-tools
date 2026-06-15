@@ -1,13 +1,5 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
-import {
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  Civ7StrategyCivilianRouteTriageUnavailableError,
-  createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-} from "../src/index";
 import type {
   Civ7ControlOrpcBattlefieldScanResult,
   Civ7ControlOrpcDestinationAnalysisResult,
@@ -15,6 +7,13 @@ import type {
   Civ7ControlOrpcReadyUnitViewResult,
   Civ7ControlOrpcSettlementRecommendationsResult,
 } from "../src/dependencies/direct-control";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  Civ7ControlOrpcRouter,
+  Civ7StrategyCivilianRouteTriageUnavailableError,
+  createCiv7ControlOrpcServerClient,
+} from "../src/index";
 
 describe("strategy.civilianRouteTriage control-oRPC procedure", () => {
   test("composes route evidence into semantic civilian triage", async () => {
@@ -29,41 +28,47 @@ describe("strategy.civilianRouteTriage control-oRPC procedure", () => {
         maxUnits: 96,
         maxCities: 40,
       },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(fake.calls).toMatchObject({
       notifications: [{ maxNotifications: 10 }],
       readyUnit: [],
-      settlement: [{
-        input: {
-          playerId: undefined,
-          locations: [{ x: 15, y: 23 }],
-          count: 5,
-          includeSettlers: false,
-          includeCities: false,
+      settlement: [
+        {
+          input: {
+            playerId: undefined,
+            locations: [{ x: 15, y: 23 }],
+            count: 5,
+            includeSettlers: false,
+            includeCities: false,
+          },
         },
-      }],
-      battlefield: [{
-        input: {
-          playerId: undefined,
-          origins: [{ x: 15, y: 23 }],
-          radius: 6,
-          maxUnits: 96,
-          maxCities: 40,
+      ],
+      battlefield: [
+        {
+          input: {
+            playerId: undefined,
+            origins: [{ x: 15, y: 23 }],
+            radius: 6,
+            maxUnits: 96,
+            maxCities: 40,
+          },
         },
-      }],
-      destinationAnalysis: [{
-        input: {
-          playerId: undefined,
-          origin: { x: 15, y: 23 },
-          destination: { x: 20, y: 20 },
-          corridorRadius: 2,
-          destinationRadius: 4,
-          maxUnits: 96,
-          maxCities: 40,
+      ],
+      destinationAnalysis: [
+        {
+          input: {
+            playerId: undefined,
+            origin: { x: 15, y: 23 },
+            destination: { x: 20, y: 20 },
+            corridorRadius: 2,
+            destinationRadius: 4,
+            maxUnits: 96,
+            maxCities: 40,
+          },
         },
-      }],
+      ],
     });
     expect(result).toMatchObject({
       playerId: 0,
@@ -87,9 +92,7 @@ describe("strategy.civilianRouteTriage control-oRPC procedure", () => {
         summary: "civilian route (15,23) -> (20,20)",
       },
     });
-    expect(result.triage.nextSteps.map((step) => step.kind)).toContain(
-      "validate-unit-action",
-    );
+    expect(result.triage.nextSteps.map((step) => step.kind)).toContain("validate-unit-action");
     expect(JSON.stringify(result.nextSteps)).not.toContain("game play");
     expectSafeCivilianTriageOutput(result);
   });
@@ -129,11 +132,9 @@ describe("strategy.civilianRouteTriage control-oRPC procedure", () => {
     for (const input of invalidInputs) {
       const fake = fakeContext({});
       await expect(
-        call(
-          Civ7ControlOrpcRouter.strategy.civilianRouteTriage,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.strategy.civilianRouteTriage, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls).toEqual(emptyCalls());
     }
@@ -143,15 +144,13 @@ describe("strategy.civilianRouteTriage control-oRPC procedure", () => {
     const context: Civ7ControlOrpcContext = {
       directControl: {
         getCiv7PlayNotificationView: async () => {
-          throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:1:Game.turn",
-          );
+          throw new Error("Timed out waiting for Civ7 tuner response to CMD:1:Game.turn");
         },
       } as Civ7ControlOrpcContext["directControl"],
     };
 
     await expect(
-      call(Civ7ControlOrpcRouter.strategy.civilianRouteTriage, {}, { context }),
+      call(Civ7ControlOrpcRouter.strategy.civilianRouteTriage, {}, { context })
     ).rejects.toMatchObject({
       code: "STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE",
       status: 503,
@@ -162,9 +161,13 @@ describe("strategy.civilianRouteTriage control-oRPC procedure", () => {
     });
 
     try {
-      await call(Civ7ControlOrpcRouter.strategy.civilianRouteTriage, {}, {
-        context,
-      });
+      await call(
+        Civ7ControlOrpcRouter.strategy.civilianRouteTriage,
+        {},
+        {
+          context,
+        }
+      );
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -175,9 +178,7 @@ describe("strategy.civilianRouteTriage control-oRPC procedure", () => {
   });
 
   test("publishes a contract-first strategy.civilianRouteTriage service leaf", () => {
-    expect(
-      Civ7ControlOrpcContract.strategy.civilianRouteTriage["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.strategy.civilianRouteTriage["~orpc"]).toMatchObject({
       meta: {
         family: "strategy",
         procedureKey: "strategy.civilianRouteTriage",
@@ -185,11 +186,11 @@ describe("strategy.civilianRouteTriage control-oRPC procedure", () => {
         risk: "read-only",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.strategy.civilianRouteTriage["~orpc"].errorMap,
-    ).toHaveProperty("STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE");
+    expect(Civ7ControlOrpcContract.strategy.civilianRouteTriage["~orpc"].errorMap).toHaveProperty(
+      "STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE"
+    );
     expect(Civ7StrategyCivilianRouteTriageUnavailableError.code).toBe(
-      "STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE",
+      "STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE"
     );
   });
 });
@@ -213,7 +214,7 @@ function fakeContext(
     settlement: Civ7ControlOrpcSettlementRecommendationsResult;
     battlefield: Civ7ControlOrpcBattlefieldScanResult;
     destinationAnalysis: Civ7ControlOrpcDestinationAnalysisResult;
-  }>,
+  }>
 ): { calls: Calls; context: Civ7ControlOrpcContext } {
   const calls = emptyCalls();
   const results = {
@@ -301,13 +302,15 @@ function readyUnitView(): Civ7ControlOrpcReadyUnitViewResult {
         hitPoints: 100,
       },
     },
-    legalOperations: [{
-      family: "unit-operation",
-      operationType: "SKIP_TURN",
-      enumValue: 1,
-      valid: true,
-      result: { Success: true },
-    }],
+    legalOperations: [
+      {
+        family: "unit-operation",
+        operationType: "SKIP_TURN",
+        enumValue: 1,
+        valid: true,
+        result: { Success: true },
+      },
+    ],
     promotionReadiness: {
       ok: true,
       value: {
@@ -322,37 +325,44 @@ function readyUnitView(): Civ7ControlOrpcReadyUnitViewResult {
   };
 }
 
-function settlementRecommendations():
-  Civ7ControlOrpcSettlementRecommendationsResult {
+function settlementRecommendations(): Civ7ControlOrpcSettlementRecommendationsResult {
   return {
     localPlayerId: 0,
     playerId: 0,
     count: 5,
     requestedLocations: [{ x: 15, y: 23 }],
-    origins: [{
-      kind: "requested",
-      location: { x: 15, y: 23 },
-      plotIndex: { ok: true, value: 1927 },
-    }],
-    recommendations: [{
-      origin: {
+    origins: [
+      {
         kind: "requested",
         location: { x: 15, y: 23 },
         plotIndex: { ok: true, value: 1927 },
       },
-      suggestions: {
-        ok: true,
-        value: [{
-          location: { x: 20, y: 20 },
-          plotIndex: { ok: true, value: 1660 },
-          factors: [{
-            positive: true,
-            title: "total yield",
-            description: "good total yield",
-          }],
-        }],
+    ],
+    recommendations: [
+      {
+        origin: {
+          kind: "requested",
+          location: { x: 15, y: 23 },
+          plotIndex: { ok: true, value: 1927 },
+        },
+        suggestions: {
+          ok: true,
+          value: [
+            {
+              location: { x: 20, y: 20 },
+              plotIndex: { ok: true, value: 1660 },
+              factors: [
+                {
+                  positive: true,
+                  title: "total yield",
+                  description: "good total yield",
+                },
+              ],
+            },
+          ],
+        },
       },
-    }],
+    ],
     notes: ["Settlement recommendation fixture."],
   };
 }
@@ -370,24 +380,28 @@ function battlefieldScan(): Civ7ControlOrpcBattlefieldScanResult {
     relationshipLabelPolicy: relationshipPolicy(),
     units: [],
     cities: [],
-    owners: [{
-      owner: 0,
-      stance: "friendly",
-      relationshipProof: "self",
-      relationshipLabel: "friendly",
-      unitCount: 1,
-      cityCount: 0,
-      roles: {},
-      apparentStrength: 1,
-      nearestUnit: { distance: 0 },
-      nearestCity: null,
-    }],
-    pointsOfInterest: [{
-      kind: "civilian-risk",
-      severity: "high",
-      location: { x: 16, y: 18 },
-      summary: "friendly civilian has other-owner contact within 4 tiles",
-    }],
+    owners: [
+      {
+        owner: 0,
+        stance: "friendly",
+        relationshipProof: "self",
+        relationshipLabel: "friendly",
+        unitCount: 1,
+        cityCount: 0,
+        roles: {},
+        apparentStrength: 1,
+        nearestUnit: { distance: 0 },
+        nearestCity: null,
+      },
+    ],
+    pointsOfInterest: [
+      {
+        kind: "civilian-risk",
+        severity: "high",
+        location: { x: 16, y: 18 },
+        summary: "friendly civilian has other-owner contact within 4 tiles",
+      },
+    ],
     notes: ["Battlefield fixture."],
   };
 }
@@ -420,12 +434,14 @@ function destinationAnalysis(): Civ7ControlOrpcDestinationAnalysisResult {
       cityCount: 1,
       apparentOtherStrength: 20,
     },
-    pointsOfInterest: [{
-      kind: "destination-pressure",
-      severity: "medium",
-      location: { x: 20, y: 20 },
-      summary: "1 other-owner units near destination",
-    }],
+    pointsOfInterest: [
+      {
+        kind: "destination-pressure",
+        severity: "medium",
+        location: { x: 20, y: 20 },
+        summary: "1 other-owner units near destination",
+      },
+    ],
     notes: ["Destination fixture."],
   };
 }
@@ -441,9 +457,9 @@ function relationshipPolicy() {
 
 function expectSafeCivilianTriageOutput(value: unknown): void {
   const serialized = JSON.stringify(value);
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
   expect(serialized).not.toContain("Game.turn");
   expect(serialized).not.toContain("rawCommand");
   expect(serialized).not.toMatch(/\benemy\b/i);

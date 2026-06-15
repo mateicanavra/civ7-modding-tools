@@ -1,14 +1,16 @@
-import type { ExtendedMapContext, FoundationPlateFields } from "@swooper/mapgen-core";
-import { inBounds, storyKey } from "@swooper/mapgen-core";
-import { idx } from "@swooper/mapgen-core/lib/grid";
+import type { StoryConfig } from "@mapgen/domain/narrative/config.js";
 import type { NarrativeMotifsRifts } from "@mapgen/domain/narrative/models.js";
-import { publishStoryOverlay, STORY_OVERLAY_KEYS } from "@mapgen/domain/narrative/overlays/index.js";
+import {
+  publishStoryOverlay,
+  STORY_OVERLAY_KEYS,
+} from "@mapgen/domain/narrative/overlays/index.js";
+import type { RiftValleysSummary } from "@mapgen/domain/narrative/tagging/types.js";
 import { getDims } from "@mapgen/domain/narrative/utils/dims.js";
 import { latitudeAbsDeg } from "@mapgen/domain/narrative/utils/latitude.js";
 import { isWaterAt } from "@mapgen/domain/narrative/utils/water.js";
-
-import type { RiftValleysSummary } from "@mapgen/domain/narrative/tagging/types.js";
-import type { StoryConfig } from "@mapgen/domain/narrative/config.js";
+import type { ExtendedMapContext, FoundationPlateFields } from "@swooper/mapgen-core";
+import { inBounds, storyKey } from "@swooper/mapgen-core";
+import { idx } from "@swooper/mapgen-core/lib/grid";
 
 export interface RiftValleysResult {
   summary: RiftValleysSummary;
@@ -35,14 +37,8 @@ export function storyTagRiftValleys(
   const baseStepLen = riftCfg.stepLen ?? 2;
   const baseShoulderWidth = riftCfg.shoulderWidth ?? 1;
 
-  const maxRiftsPerMap = Math.max(
-    1,
-    Math.round(baseMaxRifts * (0.8 + 0.6 * sqrtRift))
-  );
-  const lineSteps = Math.max(
-    1,
-    Math.round(baseLineSteps * (0.9 + 0.4 * sqrtRift))
-  );
+  const maxRiftsPerMap = Math.max(1, Math.round(baseMaxRifts * (0.8 + 0.6 * sqrtRift)));
+  const lineSteps = Math.max(1, Math.round(baseLineSteps * (0.9 + 0.4 * sqrtRift)));
   const stepLen = Math.max(1, baseStepLen | 0);
   const shoulderWidth = (baseShoulderWidth | 0) + (sqrtRift > 1.5 ? 1 : 0);
 
@@ -94,9 +90,7 @@ export function storyTagRiftValleys(
 
   for (const s of seeds) {
     if (chosen.length >= maxRiftsPerMap) break;
-    const farEnough = chosen.every(
-      (c) => Math.abs(c.x - s.x) + Math.abs(c.y - s.y) >= minSeedSep
-    );
+    const farEnough = chosen.every((c) => Math.abs(c.x - s.x) + Math.abs(c.y - s.y) >= minSeedSep);
     if (farEnough) chosen.push(s);
   }
 
@@ -187,8 +181,7 @@ export function storyTagRiftValleys(
           const cy = y + ty * stepLen;
           if (!inBounds(cx, cy, width, height) || isWaterAt(ctx, cx, cy)) continue;
           const p = RP[idx(cx, cy, width)];
-          const align =
-            tx === sdx && ty === sdy ? 16 : tx === -sdx && ty === -sdy ? -12 : 0;
+          const align = tx === sdx && ty === sdy ? 16 : tx === -sdx && ty === -sdy ? -12 : 0;
           const score = p + align + stepDirBias(tx, ty);
           if (score > bestScore) {
             bestScore = score;

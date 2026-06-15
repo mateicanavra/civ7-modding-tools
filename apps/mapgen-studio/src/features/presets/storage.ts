@@ -91,7 +91,9 @@ export function loadPresetStore(): PresetStoreLoadResult {
   }
 }
 
-export function persistPresetStore(store: StudioPresetStoreV1): { ok: true } | { ok: false; error: string } {
+export function persistPresetStore(
+  store: StudioPresetStoreV1
+): { ok: true } | { ok: false; error: string } {
   const storage = getLocalStorage();
   if (!storage) return { ok: false, error: "Local storage unavailable." };
   try {

@@ -3,9 +3,8 @@ import type {
   StudioOperationEvent,
   StudioOperationsCurrent,
 } from "@civ7/studio-server";
-
-import type { MapConfigSaveDeployStatus } from "../features/mapConfigSave/status";
 import type { LiveRuntimeStatusState } from "../features/liveRuntime/model";
+import type { MapConfigSaveDeployStatus } from "../features/mapConfigSave/status";
 import {
   isRunInGameTerminalPhase,
   type RunInGameOperationStatus,
@@ -19,7 +18,7 @@ export interface StudioOperationAdoptionTargets {
 
 export function adoptStudioOperationsCurrent(
   current: StudioOperationsCurrent,
-  targets: StudioOperationAdoptionTargets,
+  targets: StudioOperationAdoptionTargets
 ): void {
   const runInGame = current.runInGame.active ?? current.runInGame.recent[0] ?? null;
   if (runInGame) {
@@ -38,7 +37,7 @@ export function adoptStudioOperationsCurrent(
 
 export function applyStudioOperationEvent(
   event: StudioOperationEvent,
-  targets: Pick<StudioOperationAdoptionTargets, "setRunInGameOperation" | "setSaveDeployOperation">,
+  targets: Pick<StudioOperationAdoptionTargets, "setRunInGameOperation" | "setSaveDeployOperation">
 ): void {
   if (event.kind === "run-in-game") {
     targets.setRunInGameOperation(event.status as RunInGameOperationStatus);
@@ -49,17 +48,19 @@ export function applyStudioOperationEvent(
 
 export function applyStudioLiveGameEvent(
   event: StudioLiveGameEvent,
-  targets: { applyLiveGameState(state: LiveRuntimeStatusState): void },
+  targets: { applyLiveGameState(state: LiveRuntimeStatusState): void }
 ): void {
   targets.applyLiveGameState(event.state as LiveRuntimeStatusState);
 }
 
-export async function readAndAdoptStudioOperationsCurrent(args: Readonly<{
-  readCurrent(): Promise<StudioOperationsCurrent>;
-  targets: StudioOperationAdoptionTargets;
-  isCancelled?: () => boolean;
-  onError(message: string): void;
-}>): Promise<void> {
+export async function readAndAdoptStudioOperationsCurrent(
+  args: Readonly<{
+    readCurrent(): Promise<StudioOperationsCurrent>;
+    targets: StudioOperationAdoptionTargets;
+    isCancelled?: () => boolean;
+    onError(message: string): void;
+  }>
+): Promise<void> {
   try {
     const current = await args.readCurrent();
     if (args.isCancelled?.()) return;

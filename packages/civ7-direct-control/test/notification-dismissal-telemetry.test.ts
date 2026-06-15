@@ -1,11 +1,4 @@
 import { describe, expect, test } from "vitest";
-
-import {
-  createCiv7NotificationDismissalTelemetryRecord,
-  type Civ7NotificationDismissalTelemetryAdapterInput,
-} from "../src/proof/notification-dismissal-telemetry";
-import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
-
 import type { Civ7ComponentId } from "../src/civ7-component-id";
 import type {
   Civ7NotificationDismissalResult,
@@ -15,17 +8,24 @@ import type {
   Civ7NotificationDismissalPostcondition,
   Civ7NotificationDismissalPostconditionClassification,
 } from "../src/play/notifications/postconditions";
+import {
+  type Civ7NotificationDismissalTelemetryAdapterInput,
+  createCiv7NotificationDismissalTelemetryRecord,
+} from "../src/proof/notification-dismissal-telemetry";
+import { summarizeCiv7OperationProofTelemetry } from "../src/proof/operation-telemetry";
 
 describe("notification-dismissal telemetry adapter", () => {
   test("adapts confirmed notification disappearance into separated telemetry", () => {
-    const record = createCiv7NotificationDismissalTelemetryRecord(notificationTelemetryInput({
-      result: notificationDismissalResult({
-        sent: true,
-        verified: true,
-        after: notificationSummary({ exists: false }),
-        postcondition: notificationPostcondition("notification-disappeared"),
-      }),
-    }));
+    const record = createCiv7NotificationDismissalTelemetryRecord(
+      notificationTelemetryInput({
+        result: notificationDismissalResult({
+          sent: true,
+          verified: true,
+          after: notificationSummary({ exists: false }),
+          postcondition: notificationPostcondition("notification-disappeared"),
+        }),
+      })
+    );
 
     expect(record.candidateAction).toMatchObject({
       id: "notification-dismissal:0:113:20",
@@ -76,13 +76,15 @@ describe("notification-dismissal telemetry adapter", () => {
   });
 
   test("does not treat a legacy verified boolean as confirmed postcondition proof", () => {
-    const record = createCiv7NotificationDismissalTelemetryRecord(notificationTelemetryInput({
-      result: notificationDismissalResult({
-        sent: true,
-        verified: true,
-        postcondition: undefined,
-      } as Partial<Civ7NotificationDismissalResult>),
-    }));
+    const record = createCiv7NotificationDismissalTelemetryRecord(
+      notificationTelemetryInput({
+        result: notificationDismissalResult({
+          sent: true,
+          verified: true,
+          postcondition: undefined,
+        } as Partial<Civ7NotificationDismissalResult>),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "missing-postcondition",
@@ -98,15 +100,17 @@ describe("notification-dismissal telemetry adapter", () => {
   });
 
   test("keeps validator-blocked notification dismissals no-repeat guarded", () => {
-    const record = createCiv7NotificationDismissalTelemetryRecord(notificationTelemetryInput({
-      result: notificationDismissalResult({
-        canDismiss: false,
-        sent: false,
-        verified: false,
-        after: notificationSummary(),
-        postcondition: notificationPostcondition("not-sent"),
-      }),
-    }));
+    const record = createCiv7NotificationDismissalTelemetryRecord(
+      notificationTelemetryInput({
+        result: notificationDismissalResult({
+          canDismiss: false,
+          sent: false,
+          verified: false,
+          after: notificationSummary(),
+          postcondition: notificationPostcondition("not-sent"),
+        }),
+      })
+    );
 
     expect(record.validation_pre?.value).toMatchObject({
       valid: false,
@@ -130,19 +134,21 @@ describe("notification-dismissal telemetry adapter", () => {
   });
 
   test("keeps stale engine-front evidence no-repeat guarded even when verified is true", () => {
-    const record = createCiv7NotificationDismissalTelemetryRecord(notificationTelemetryInput({
-      result: notificationDismissalResult({
-        sent: true,
-        verified: true,
-        after: notificationSummary({
-          dismissed: true,
-          isEngineQueueFront: { ok: true, value: true },
-          notificationTrainContains: { ok: true, value: false },
-          isNotificationTrainFront: { ok: true, value: false },
+    const record = createCiv7NotificationDismissalTelemetryRecord(
+      notificationTelemetryInput({
+        result: notificationDismissalResult({
+          sent: true,
+          verified: true,
+          after: notificationSummary({
+            dismissed: true,
+            isEngineQueueFront: { ok: true, value: true },
+            notificationTrainContains: { ok: true, value: false },
+            isNotificationTrainFront: { ok: true, value: false },
+          }),
+          postcondition: notificationPostcondition("engine-front-still-live"),
         }),
-        postcondition: notificationPostcondition("engine-front-still-live"),
-      }),
-    }));
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "engine-front-still-live",
@@ -158,22 +164,26 @@ describe("notification-dismissal telemetry adapter", () => {
   });
 
   test("keeps missing-after and no-state-change sends no-repeat guarded", () => {
-    const missingAfter = createCiv7NotificationDismissalTelemetryRecord(notificationTelemetryInput({
-      result: notificationDismissalResult({
-        sent: true,
-        verified: false,
-        after: null,
-        postcondition: notificationPostcondition("missing-after"),
-      }),
-    }));
-    const noStateChange = createCiv7NotificationDismissalTelemetryRecord(notificationTelemetryInput({
-      result: notificationDismissalResult({
-        sent: true,
-        verified: false,
-        after: notificationSummary(),
-        postcondition: notificationPostcondition("no-state-change"),
-      }),
-    }));
+    const missingAfter = createCiv7NotificationDismissalTelemetryRecord(
+      notificationTelemetryInput({
+        result: notificationDismissalResult({
+          sent: true,
+          verified: false,
+          after: null,
+          postcondition: notificationPostcondition("missing-after"),
+        }),
+      })
+    );
+    const noStateChange = createCiv7NotificationDismissalTelemetryRecord(
+      notificationTelemetryInput({
+        result: notificationDismissalResult({
+          sent: true,
+          verified: false,
+          after: notificationSummary(),
+          postcondition: notificationPostcondition("no-state-change"),
+        }),
+      })
+    );
 
     expect(missingAfter.postcondition).toMatchObject({
       classification: "missing-after",
@@ -198,15 +208,17 @@ describe("notification-dismissal telemetry adapter", () => {
   });
 
   test("keeps pending runtime proof sends no-repeat guarded", () => {
-    const record = createCiv7NotificationDismissalTelemetryRecord(notificationTelemetryInput({
-      proofBoundary: "pending-runtime-proof",
-      result: notificationDismissalResult({
-        sent: true,
-        verified: true,
-        after: notificationSummary({ exists: false }),
-        postcondition: notificationPostcondition("notification-disappeared"),
-      }),
-    }));
+    const record = createCiv7NotificationDismissalTelemetryRecord(
+      notificationTelemetryInput({
+        proofBoundary: "pending-runtime-proof",
+        result: notificationDismissalResult({
+          sent: true,
+          verified: true,
+          after: notificationSummary({ exists: false }),
+          postcondition: notificationPostcondition("notification-disappeared"),
+        }),
+      })
+    );
 
     expect(record.postcondition).toMatchObject({
       classification: "notification-disappeared",
@@ -267,19 +279,27 @@ function notificationDismissalResult(
 }
 
 function notificationPostcondition(
-  classification: Civ7NotificationDismissalPostconditionClassification,
+  classification: Civ7NotificationDismissalPostconditionClassification
 ): Civ7NotificationDismissalPostcondition {
   const reasons: Record<Civ7NotificationDismissalPostconditionClassification, string> = {
     "not-sent": "The notification dismissal was not sent, so no postcondition can be verified.",
-    "missing-after": "The notification dismissal was sent without an after-read summary, so the outcome is unverified.",
+    "missing-after":
+      "The notification dismissal was sent without an after-read summary, so the outcome is unverified.",
     "notification-disappeared": "The target notification no longer exists after dismissal.",
-    "engine-front-still-live": "The target notification still fronts the engine queue, so weaker dismissed/train evidence is treated as stale.",
-    "notification-dismissed": "The target notification reports dismissed after dismissal and is not still the engine queue front.",
-    "engine-queue-cleared": "The target notification was removed from the engine notification queue.",
-    "notification-train-cleared": "The target notification was removed from the notification train.",
-    "engine-front-moved": "The target notification moved off the engine queue front it occupied before dismissal.",
-    "notification-train-front-moved": "The target notification moved off the notification train front it occupied before dismissal.",
-    "no-state-change": "The dismissal was sent, but notification identity evidence did not confirm disappearance, queue removal, or front movement.",
+    "engine-front-still-live":
+      "The target notification still fronts the engine queue, so weaker dismissed/train evidence is treated as stale.",
+    "notification-dismissed":
+      "The target notification reports dismissed after dismissal and is not still the engine queue front.",
+    "engine-queue-cleared":
+      "The target notification was removed from the engine notification queue.",
+    "notification-train-cleared":
+      "The target notification was removed from the notification train.",
+    "engine-front-moved":
+      "The target notification moved off the engine queue front it occupied before dismissal.",
+    "notification-train-front-moved":
+      "The target notification moved off the notification train front it occupied before dismissal.",
+    "no-state-change":
+      "The dismissal was sent, but notification identity evidence did not confirm disappearance, queue removal, or front movement.",
   };
   return {
     classification,
@@ -288,7 +308,7 @@ function notificationPostcondition(
 }
 
 function notificationSummary(
-  overrides: Partial<Civ7NotificationDismissalSummary> = {},
+  overrides: Partial<Civ7NotificationDismissalSummary> = {}
 ): Civ7NotificationDismissalSummary {
   return {
     id: notificationId(),

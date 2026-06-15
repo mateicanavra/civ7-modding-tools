@@ -4,13 +4,13 @@
  * Tests for publishStoryOverlay, getStoryOverlay, and overlay utilities.
  */
 
-import { describe, it, expect, beforeEach } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 import {
-  STORY_OVERLAY_KEYS,
-  resetStoryOverlays,
-  publishStoryOverlay,
   finalizeStoryOverlay,
   getStoryOverlay,
+  publishStoryOverlay,
+  resetStoryOverlays,
+  STORY_OVERLAY_KEYS,
 } from "@mapgen/domain/narrative/overlays/index.js";
 import type { StoryOverlayRegistry } from "@swooper/mapgen-core";
 

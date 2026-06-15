@@ -44,12 +44,16 @@ export function validatePlacementEngineStateArtifact(value: unknown): Validation
   const height = Number(value.height);
   const size = width * height;
   if (!Number.isSafeInteger(size) || size <= 0) {
-    return [issue(`engineState has invalid dimensions ${String(value.width)}x${String(value.height)}.`)];
+    return [
+      issue(`engineState has invalid dimensions ${String(value.width)}x${String(value.height)}.`),
+    ];
   }
   for (const key of ["slotByTile", "engineLandMask"] as const) {
     const buffer = value[key] as { length?: number } | undefined;
     if (typeof buffer?.length !== "number" || buffer.length !== size) {
-      issues.push(issue(`engineState.${key} length ${String(buffer?.length)} != map size ${size}.`));
+      issues.push(
+        issue(`engineState.${key} length ${String(buffer?.length)} != map size ${size}.`)
+      );
     }
   }
   const slotCounts = isRecord(value.slotCounts) ? value.slotCounts : null;
@@ -62,11 +66,19 @@ export function validatePlacementEngineStateArtifact(value: unknown): Validation
     issues.push(issue("engineState.slotCounts must carry none/west/east counts."));
   } else if (slotCounts.none + slotCounts.west + slotCounts.east !== size) {
     issues.push(
-      issue(`slotCounts ${slotCounts.none}+${slotCounts.west}+${slotCounts.east} != map size ${size}.`)
+      issue(
+        `slotCounts ${slotCounts.none}+${slotCounts.west}+${slotCounts.east} != map size ${size}.`
+      )
     );
   }
-  if (isCount(value.wondersPlanned) && isCount(value.wondersPlaced) && value.wondersPlaced > value.wondersPlanned) {
-    issues.push(issue(`wondersPlaced ${value.wondersPlaced} exceeds wondersPlanned ${value.wondersPlanned}.`));
+  if (
+    isCount(value.wondersPlanned) &&
+    isCount(value.wondersPlaced) &&
+    value.wondersPlaced > value.wondersPlanned
+  ) {
+    issues.push(
+      issue(`wondersPlaced ${value.wondersPlaced} exceeds wondersPlanned ${value.wondersPlanned}.`)
+    );
   }
   if (
     isCount(value.discoveriesPlanned) &&
@@ -105,7 +117,9 @@ export function validatePlacementEngineTerrainSnapshotArtifact(value: unknown): 
     const buffer = value[key] as { length?: number } | undefined;
     if (typeof buffer?.length !== "number" || buffer.length !== size) {
       issues.push(
-        issue(`placementEngineTerrainSnapshot.${key} length ${String(buffer?.length)} != map size ${size}.`)
+        issue(
+          `placementEngineTerrainSnapshot.${key} length ${String(buffer?.length)} != map size ${size}.`
+        )
       );
     }
   }

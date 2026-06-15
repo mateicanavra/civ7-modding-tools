@@ -1,10 +1,10 @@
 import { once } from "node:events";
 import { mkdtemp, rm, utimes, writeFile } from "node:fs/promises";
+import { type AddressInfo, createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { type AddressInfo, createServer } from "node:net";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 import {
   Civ7AppUiSnapshotResultSchema,
   Civ7GameInfoRowsInputSchema,
@@ -33,7 +33,7 @@ import { jsLiteral } from "../src/runtime/command-serialization";
 describe("Civ7 runtime inspection and capability catalog support", () => {
   test("serializes command-source literals without changing JSON shape", () => {
     expect(jsLiteral({ input: "<city-id>", amount: 2, enabled: true })).toBe(
-      '{"input":"<city-id>","amount":2,"enabled":true}',
+      '{"input":"<city-id>","amount":2,"enabled":true}'
     );
     expect(jsLiteral(["Game", "UI"])).toBe('["Game","UI"]');
     expect(jsLiteral(null)).toBe("null");
@@ -166,10 +166,12 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
       expect(Value.Check(Civ7PlayableStatusResultSchema, playable)).toBe(true);
       expect(Value.Check(Civ7PlayableStatusInputSchema, {})).toBe(true);
       expect(Value.Check(Civ7PlayableStatusInputSchema, { host: "127.0.0.1" })).toBe(false);
-      expect(Value.Check(Civ7PlayableStatusResultSchema, {
-        ...playable,
-        rawCommand: "Game.turn",
-      })).toBe(false);
+      expect(
+        Value.Check(Civ7PlayableStatusResultSchema, {
+          ...playable,
+          rawCommand: "Game.turn",
+        })
+      ).toBe(false);
     } finally {
       await server.close();
     }
@@ -197,73 +199,76 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
   });
 
   test("validates playable status when Tuner health is unavailable", async () => {
-    const status = await getCiv7PlayableStatus({}, {
-      checkTunerHealth: async () => {
-        throw new Error("Tuner socket unavailable");
-      },
-      errorMessage: (err) => err instanceof Error ? err.message : String(err),
-      getAppUiSnapshot: async () => ({
-        host: "127.0.0.1",
-        port: 4318,
-        state: { id: "65535", name: "App UI" },
-        snapshot: {
-          network: {
-            isInSession: { ok: false, error: "Network unavailable" },
-            numPlayers: { ok: false, error: "Network unavailable" },
-            hostPlayerId: { ok: false, error: "Network unavailable" },
-            isConnectedToNetwork: { ok: false, error: "Network unavailable" },
-            isAuthenticated: { ok: false, error: "Network unavailable" },
-            isLoggedIn: { ok: false, error: "Network unavailable" },
-          },
-          autoplay: {
-            isActive: false,
-            turns: 0,
-            isPaused: false,
-            isPausedOrPending: false,
-            observeAsPlayer: -1,
-            returnAsPlayer: -1,
-          },
-          game: {
-            turn: -1,
-            age: -1,
-            maxTurns: 0,
-            turnDate: { ok: false, error: "Game unavailable" },
-            hash: { ok: false, error: "Game unavailable" },
-          },
-          ui: {
-            inGame: { ok: false, error: "UI unavailable" },
-            inShell: { ok: false, error: "UI unavailable" },
-            inLoading: { ok: false, error: "UI unavailable" },
-            loadingState: { ok: false, error: "UI unavailable" },
-            loadingStateName: null,
-            canBeginGame: { ok: false, error: "UI unavailable" },
-            canNotifyUIReady: "undefined",
-            skipStartButton: { ok: false, error: "Configuration unavailable" },
-            automationActive: { ok: false, error: "Automation unavailable" },
-            activeInputContext: { ok: false, error: "Input unavailable" },
-            activeInputContextName: null,
-          },
-          gameContext: {
-            localPlayerID: -1,
-            localObserverID: -1,
-            hasRequestedPause: { ok: false, error: "GameContext unavailable" },
-          },
-          players: {
-            maxPlayers: 0,
-            aliveIds: { ok: false, error: "Players unavailable" },
-            aliveHumanIds: { ok: false, error: "Players unavailable" },
-            numAliveHumans: { ok: false, error: "Players unavailable" },
-          },
-          map: {
-            width: { ok: false, error: "Map unavailable" },
-            height: { ok: false, error: "Map unavailable" },
-            plotCount: { ok: false, error: "Map unavailable" },
-            mapSize: { ok: false, error: "Map unavailable" },
-            randomSeed: { ok: false, error: "Map unavailable" },
-          },
+    const status = await getCiv7PlayableStatus(
+      {},
+      {
+        checkTunerHealth: async () => {
+          throw new Error("Tuner socket unavailable");
         },
-      }),
-    });
+        errorMessage: (err) => (err instanceof Error ? err.message : String(err)),
+        getAppUiSnapshot: async () => ({
+          host: "127.0.0.1",
+          port: 4318,
+          state: { id: "65535", name: "App UI" },
+          snapshot: {
+            network: {
+              isInSession: { ok: false, error: "Network unavailable" },
+              numPlayers: { ok: false, error: "Network unavailable" },
+              hostPlayerId: { ok: false, error: "Network unavailable" },
+              isConnectedToNetwork: { ok: false, error: "Network unavailable" },
+              isAuthenticated: { ok: false, error: "Network unavailable" },
+              isLoggedIn: { ok: false, error: "Network unavailable" },
+            },
+            autoplay: {
+              isActive: false,
+              turns: 0,
+              isPaused: false,
+              isPausedOrPending: false,
+              observeAsPlayer: -1,
+              returnAsPlayer: -1,
+            },
+            game: {
+              turn: -1,
+              age: -1,
+              maxTurns: 0,
+              turnDate: { ok: false, error: "Game unavailable" },
+              hash: { ok: false, error: "Game unavailable" },
+            },
+            ui: {
+              inGame: { ok: false, error: "UI unavailable" },
+              inShell: { ok: false, error: "UI unavailable" },
+              inLoading: { ok: false, error: "UI unavailable" },
+              loadingState: { ok: false, error: "UI unavailable" },
+              loadingStateName: null,
+              canBeginGame: { ok: false, error: "UI unavailable" },
+              canNotifyUIReady: "undefined",
+              skipStartButton: { ok: false, error: "Configuration unavailable" },
+              automationActive: { ok: false, error: "Automation unavailable" },
+              activeInputContext: { ok: false, error: "Input unavailable" },
+              activeInputContextName: null,
+            },
+            gameContext: {
+              localPlayerID: -1,
+              localObserverID: -1,
+              hasRequestedPause: { ok: false, error: "GameContext unavailable" },
+            },
+            players: {
+              maxPlayers: 0,
+              aliveIds: { ok: false, error: "Players unavailable" },
+              aliveHumanIds: { ok: false, error: "Players unavailable" },
+              numAliveHumans: { ok: false, error: "Players unavailable" },
+            },
+            map: {
+              width: { ok: false, error: "Map unavailable" },
+              height: { ok: false, error: "Map unavailable" },
+              plotCount: { ok: false, error: "Map unavailable" },
+              mapSize: { ok: false, error: "Map unavailable" },
+              randomSeed: { ok: false, error: "Map unavailable" },
+            },
+          },
+        }),
+      }
+    );
 
     expect(status.playable).toBe(false);
     expect(status.readiness).toBe("unavailable");
@@ -282,7 +287,11 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
         roots: ["Network"],
       });
       const rows = await getCiv7GameInfoRows(
-        { table: "Resources", limit: 2, filter: { key: "ResourceType", equals: "RESOURCE_COTTON" } },
+        {
+          table: "Resources",
+          limit: 2,
+          filter: { key: "ResourceType", equals: "RESOURCE_COTTON" },
+        },
         options
       );
 
@@ -312,24 +321,39 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
         offset: 0,
         total: { ok: true, value: 1 },
       });
-      expect(Value.Check(Civ7GameInfoRowsInputSchema, {
-        table: "Resources",
-        limit: 2,
-        filter: { key: "ResourceType", equals: "RESOURCE_COTTON" },
-      })).toBe(true);
+      expect(
+        Value.Check(Civ7GameInfoRowsInputSchema, {
+          table: "Resources",
+          limit: 2,
+          filter: { key: "ResourceType", equals: "RESOURCE_COTTON" },
+        })
+      ).toBe(true);
       expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources;DROP" })).toBe(false);
-      expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", limit: 1_001 })).toBe(false);
-      expect(Value.Check(Civ7GameInfoRowsInputSchema, {
-        table: "Resources",
-        filter: { key: "Resource-Type", equals: "RESOURCE_COTTON" },
-      })).toBe(false);
-      expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", host: "127.0.0.1" })).toBe(false);
-      expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", rawCommand: "GameInfo.Resources" })).toBe(false);
+      expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", limit: 1_001 })).toBe(
+        false
+      );
+      expect(
+        Value.Check(Civ7GameInfoRowsInputSchema, {
+          table: "Resources",
+          filter: { key: "Resource-Type", equals: "RESOURCE_COTTON" },
+        })
+      ).toBe(false);
+      expect(
+        Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", host: "127.0.0.1" })
+      ).toBe(false);
+      expect(
+        Value.Check(Civ7GameInfoRowsInputSchema, {
+          table: "Resources",
+          rawCommand: "GameInfo.Resources",
+        })
+      ).toBe(false);
       expect(Value.Check(Civ7GameInfoRowsResultSchema, rows)).toBe(true);
-      expect(Value.Check(Civ7GameInfoRowsResultSchema, {
-        ...rows,
-        session: { stateName: "Tuner" },
-      })).toBe(false);
+      expect(
+        Value.Check(Civ7GameInfoRowsResultSchema, {
+          ...rows,
+          session: { stateName: "Tuner" },
+        })
+      ).toBe(false);
     } finally {
       await server.close();
     }
@@ -353,10 +377,14 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
       for (const root of DEFAULT_CIV7_TUNER_API_ROOTS) {
         expect(tunerCommand).toContain(JSON.stringify(root));
       }
-      for (const root of DEFAULT_CIV7_TUNER_API_ROOTS.filter((root) => !DEFAULT_CIV7_APP_UI_API_ROOTS.includes(root))) {
+      for (const root of DEFAULT_CIV7_TUNER_API_ROOTS.filter(
+        (root) => !DEFAULT_CIV7_APP_UI_API_ROOTS.includes(root)
+      )) {
         expect(appUiCommand).not.toContain(JSON.stringify(root));
       }
-      for (const root of DEFAULT_CIV7_APP_UI_API_ROOTS.filter((root) => !DEFAULT_CIV7_TUNER_API_ROOTS.includes(root))) {
+      for (const root of DEFAULT_CIV7_APP_UI_API_ROOTS.filter(
+        (root) => !DEFAULT_CIV7_TUNER_API_ROOTS.includes(root)
+      )) {
         expect(tunerCommand).not.toContain(JSON.stringify(root));
       }
     } finally {
@@ -395,7 +423,7 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
       });
       const boundedRoot = await inspectCiv7Root(
         { roots: ["Game"], maxRoots: 32, maxKeys: 128, maxMethods: 128 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
       const proof = await waitForFreshLogMarkers({
         logPath: logFixture,
@@ -517,12 +545,7 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
   });
 });
 
-async function startFocusedTunerServer(
-  options: {
-    shell?: boolean;
-    tunerReady?: boolean;
-  } = {}
-) {
+async function startFocusedTunerServer(options: { shell?: boolean; tunerReady?: boolean } = {}) {
   const received: string[] = [];
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);

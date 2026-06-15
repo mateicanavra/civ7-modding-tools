@@ -3,53 +3,64 @@ import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
+  type Civ7ControlOrpcUnitTargetActionResult,
   Civ7UnitTargetActionUnavailableError,
   createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-  type Civ7ControlOrpcUnitTargetActionResult,
 } from "../src/index";
 import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 const unitId = { owner: 0, id: 42, type: 1 };
 const target = { x: 22, y: 31 };
-const Civ7UnitTargetActionInputSchema =
-  typeboxInputSchemaFromContractProcedure(
-    Civ7ControlOrpcContract.unit.target.action.request,
-  );
+const Civ7UnitTargetActionInputSchema = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.target.action.request
+);
 
 describe("unit.target.action.request control-oRPC procedure", () => {
   test("owns the caller-facing unit target action contract without raw fields", () => {
-    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
-      unitId,
-      ...target,
-    })).toBe(true);
-    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
-      unitId,
-      ...target,
-      rawCommand: "Game.UnitOperations.sendRequest(...)",
-    })).toBe(false);
-    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
-      unitId,
-      ...target,
-      session: { state: "App UI" },
-    })).toBe(false);
-    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
-      unitId,
-      x: 22.5,
-      y: 31,
-    })).toBe(false);
-    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
-      unitId,
-      x: -1,
-      y: 31,
-    })).toBe(false);
-    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
-      unitId,
-      x: 22,
-      y: 1_000_001,
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7UnitTargetActionInputSchema, {
+        unitId,
+        ...target,
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7UnitTargetActionInputSchema, {
+        unitId,
+        ...target,
+        rawCommand: "Game.UnitOperations.sendRequest(...)",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7UnitTargetActionInputSchema, {
+        unitId,
+        ...target,
+        session: { state: "App UI" },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7UnitTargetActionInputSchema, {
+        unitId,
+        x: 22.5,
+        y: 31,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7UnitTargetActionInputSchema, {
+        unitId,
+        x: -1,
+        y: 31,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7UnitTargetActionInputSchema, {
+        unitId,
+        x: 22,
+        y: 1_000_001,
+      })
+    ).toBe(false);
   });
 
   test("calls the unit target action mutation through native Effect/oRPC ", async () => {
@@ -58,7 +69,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.unit.target.action.request,
       { unitId, ...target },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -88,29 +99,33 @@ describe("unit.target.action.request control-oRPC procedure", () => {
         landedLocation: target,
         source: "bounded-poll",
       },
-      nextSteps: [{
-        kind: "refresh-attention",
-        source: "unit.target.action.request",
-      }],
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "unit.target.action.request",
+        },
+      ],
     });
     const serialized = JSON.stringify(result);
     expect(serialized).not.toContain("CMD");
     expect(serialized).not.toContain("Game.UnitOperations");
     expect(serialized).not.toContain("Game.UnitCommands");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"sendResult\"");
-    expect(serialized).not.toContain("\"result\"");
-    expect(serialized).not.toContain("\"verified\"");
-    expect(fake.calls).toEqual([{
-      input: { unitId, ...target },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"sendResult"');
+    expect(serialized).not.toContain('"result"');
+    expect(serialized).not.toContain('"verified"');
+    expect(fake.calls).toEqual([
+      {
+        input: { unitId, ...target },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-    }]);
+    ]);
   });
 
   test("supports the in-process server-side router client", async () => {
@@ -132,7 +147,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.unit.target.action.request,
       { unitId, ...target },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -147,10 +162,12 @@ describe("unit.target.action.request control-oRPC procedure", () => {
         destinationReached: false,
         landedLocation: { x: 21, y: 31 },
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "unit.target.action.request",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "unit.target.action.request",
+        },
+      ],
     });
   });
 
@@ -160,7 +177,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     const result = await call(
       Civ7ControlOrpcRouter.unit.target.action.request,
       { unitId, ...target },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -173,23 +190,27 @@ describe("unit.target.action.request control-oRPC procedure", () => {
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "unit.target.action.request",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "unit.target.action.request",
+        },
+      ],
     });
   });
 
   test("keeps missing postconditions no-repeat guarded", async () => {
-    const fake = fakeContext(unitTargetActionResult("target-reached", {
-      includeVerification: false,
-      verified: false,
-    }));
+    const fake = fakeContext(
+      unitTargetActionResult("target-reached", {
+        includeVerification: false,
+        verified: false,
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.unit.target.action.request,
       { unitId, ...target },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -206,16 +227,18 @@ describe("unit.target.action.request control-oRPC procedure", () => {
   });
 
   test("projects validator-blocked unit target actions as not-sent", async () => {
-    const fake = fakeContext(unitTargetActionResult("not-sent", {
-      sent: false,
-      selected: null,
-      verified: false,
-    }));
+    const fake = fakeContext(
+      unitTargetActionResult("not-sent", {
+        sent: false,
+        selected: null,
+        verified: false,
+      })
+    );
 
     const result = await call(
       Civ7ControlOrpcRouter.unit.target.action.request,
       { unitId, ...target },
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -230,10 +253,12 @@ describe("unit.target.action.request control-oRPC procedure", () => {
         confidence: "unverified",
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "inspect-unit-action",
-        source: "unit.target.action.request",
-      }],
+      nextSteps: [
+        {
+          kind: "inspect-unit-action",
+          source: "unit.target.action.request",
+        },
+      ],
     });
   });
 
@@ -257,26 +282,30 @@ describe("unit.target.action.request control-oRPC procedure", () => {
       const fake = fakeContext(unitTargetActionResult("target-reached"));
 
       await expect(
-        call(
-          Civ7ControlOrpcRouter.unit.target.action.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.unit.target.action.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls).toEqual([]);
     }
   });
 
   test("maps unit target action facade failures to a tagged error without raw details", async () => {
-    const fake = fakeContext(new Error(
-      "Timed out waiting for Civ7 tuner response to CMD:65535:Game.UnitOperations.sendRequest(...)",
-    ));
+    const fake = fakeContext(
+      new Error(
+        "Timed out waiting for Civ7 tuner response to CMD:65535:Game.UnitOperations.sendRequest(...)"
+      )
+    );
 
     await expect(
-      call(Civ7ControlOrpcRouter.unit.target.action.request, {
-        unitId,
-        ...target,
-      }, { context: fake.context }),
+      call(
+        Civ7ControlOrpcRouter.unit.target.action.request,
+        {
+          unitId,
+          ...target,
+        },
+        { context: fake.context }
+      )
     ).rejects.toMatchObject({
       code: "UNIT_TARGET_ACTION_UNAVAILABLE",
       status: 503,
@@ -287,10 +316,14 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     });
 
     try {
-      await call(Civ7ControlOrpcRouter.unit.target.action.request, {
-        unitId,
-        ...target,
-      }, { context: fake.context });
+      await call(
+        Civ7ControlOrpcRouter.unit.target.action.request,
+        {
+          unitId,
+          ...target,
+        },
+        { context: fake.context }
+      );
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -301,29 +334,24 @@ describe("unit.target.action.request control-oRPC procedure", () => {
   });
 
   test("publishes a contract-first unit.target.action.request leaf", () => {
-    expect(
-      Civ7ControlOrpcContract.unit.target.action.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.unit.target.action.request["~orpc"]).toMatchObject({
       meta: {
         family: "unit",
         procedureKey: "unit.target.action.request",
         proofBoundary: "local-package-test",
         risk: "mutation",
       },
-    });    expect(
-      Civ7ControlOrpcContract.unit.target.action.request["~orpc"]
-        .errorMap,
-    ).toHaveProperty("UNIT_TARGET_ACTION_UNAVAILABLE");
-    expect(Civ7UnitTargetActionUnavailableError.code).toBe(
-      "UNIT_TARGET_ACTION_UNAVAILABLE",
+    });
+    expect(Civ7ControlOrpcContract.unit.target.action.request["~orpc"].errorMap).toHaveProperty(
+      "UNIT_TARGET_ACTION_UNAVAILABLE"
     );
+    expect(Civ7UnitTargetActionUnavailableError.code).toBe("UNIT_TARGET_ACTION_UNAVAILABLE");
   });
 });
 
 function fakeContext(
   resultOrError: Civ7ControlOrpcUnitTargetActionResult | Error,
-  options: {
-  } = {},
+  options: {} = {}
 ): {
   context: Civ7ControlOrpcContext;
   calls: Array<{
@@ -348,9 +376,7 @@ function fakeContext(
           playable: true,
           readiness: "tuner-ready",
         }),
-        requestCiv7UnitTargetAction: async (
-          input,
-          endpointDefaults,        ) => {
+        requestCiv7UnitTargetAction: async (input, endpointDefaults) => {
           calls.push({ input, options: endpointDefaults });
           if (resultOrError instanceof Error) throw resultOrError;
           return resultOrError;
@@ -370,14 +396,12 @@ function unitTargetActionResult(
     selected?: Civ7ControlOrpcUnitTargetActionResult["selected"];
     sent?: boolean;
     verified?: boolean;
-  } = {},
+  } = {}
 ): Civ7ControlOrpcUnitTargetActionResult {
   const sent = options.sent ?? classification !== "not-sent";
   const selected = "selected" in options ? options.selected : moveCandidate();
   const includeVerification = options.includeVerification ?? true;
-  const verification = includeVerification
-    ? unitTargetVerification(classification)
-    : undefined;
+  const verification = includeVerification ? unitTargetVerification(classification) : undefined;
 
   return {
     host: "127.0.0.1",
@@ -390,10 +414,7 @@ function unitTargetActionResult(
     },
     beforeUnit: unitProbe({ x: 20, y: 31 }),
     beforeTargetUnits: { ok: true, value: [] },
-    candidates: [
-      rejectedCandidate(),
-      moveCandidate(),
-    ],
+    candidates: [rejectedCandidate(), moveCandidate()],
     selected,
     sent,
     ...(sent
@@ -405,8 +426,7 @@ function unitTargetActionResult(
           afterTargetUnits: { ok: true, value: [] },
         }
       : {}),
-    verified: options.verified
-      ?? (verification?.status === "verified"),
+    verified: options.verified ?? verification?.status === "verified",
     ...(verification ? { verification } : {}),
     notes: ["fixture"],
   } as Civ7ControlOrpcUnitTargetActionResult;
@@ -415,26 +435,27 @@ function unitTargetActionResult(
 function unitTargetVerification(
   classification: NonNullable<
     Civ7ControlOrpcUnitTargetActionResult["verification"]
-  >["classification"],
+  >["classification"]
 ): NonNullable<Civ7ControlOrpcUnitTargetActionResult["verification"]> {
-  const landedLocation = classification === "path-shortfall"
-    ? { x: 21, y: 31 }
-    : classification === "not-sent" || classification === "no-state-change"
-    ? { x: 20, y: 31 }
-    : target;
-  const verified =
-    classification !== "not-sent" && classification !== "no-state-change";
+  const landedLocation =
+    classification === "path-shortfall"
+      ? { x: 21, y: 31 }
+      : classification === "not-sent" || classification === "no-state-change"
+        ? { x: 20, y: 31 }
+        : target;
+  const verified = classification !== "not-sent" && classification !== "no-state-change";
 
   return {
     status: verified ? "verified" : classification,
     classification,
     unitChanged: verified,
     targetUnitsChanged: classification === "target-state-changed",
-    destinationReached: classification === "path-shortfall"
-      ? false
-      : classification === "target-reached"
-      ? true
-      : null,
+    destinationReached:
+      classification === "path-shortfall"
+        ? false
+        : classification === "target-reached"
+          ? true
+          : null,
     requestedLocation: target,
     landedLocation,
     source: "bounded-poll",
@@ -444,9 +465,7 @@ function unitTargetVerification(
   };
 }
 
-function moveCandidate(): NonNullable<
-  Civ7ControlOrpcUnitTargetActionResult["selected"]
-> {
+function moveCandidate(): NonNullable<Civ7ControlOrpcUnitTargetActionResult["selected"]> {
   return {
     family: "unit-operation",
     operationType: "MOVE_TO",
@@ -463,9 +482,7 @@ function moveCandidate(): NonNullable<
   };
 }
 
-function rejectedCandidate(): NonNullable<
-  Civ7ControlOrpcUnitTargetActionResult["selected"]
-> {
+function rejectedCandidate(): NonNullable<Civ7ControlOrpcUnitTargetActionResult["selected"]> {
   return {
     family: "unit-command",
     operationType: "UNITCOMMAND_ARMY_OVERRUN",

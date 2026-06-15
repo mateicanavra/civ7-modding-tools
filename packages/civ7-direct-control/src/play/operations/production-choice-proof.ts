@@ -8,16 +8,18 @@ export type Civ7ProductionChoicePostconditionOutcome =
   | "not-sent";
 
 export function productionChoiceRequestVerified(
-  classification: Civ7ProductionPostconditionClassification | undefined,
+  classification: Civ7ProductionPostconditionClassification | undefined
 ): boolean {
   // Preserve the legacy request-result boolean; proof confirmation is stricter.
-  return classification !== "not-sent"
-    && classification !== "no-state-change"
-    && classification !== "production-state-changed-blocker-still-live";
+  return (
+    classification !== "not-sent" &&
+    classification !== "no-state-change" &&
+    classification !== "production-state-changed-blocker-still-live"
+  );
 }
 
 export function productionChoicePostconditionConfirmed(
-  classification: Civ7ProductionPostconditionClassification,
+  classification: Civ7ProductionPostconditionClassification
 ): boolean {
   switch (classification) {
     case "production-choice-cleared":
@@ -32,7 +34,7 @@ export function productionChoicePostconditionConfirmed(
 }
 
 export function productionChoicePostconditionOutcome(
-  classification: Civ7ProductionPostconditionClassification,
+  classification: Civ7ProductionPostconditionClassification
 ): Civ7ProductionChoicePostconditionOutcome {
   switch (classification) {
     case "not-sent":

@@ -43,8 +43,7 @@ export const useRunStore = create<RunState>()((set) => ({
     set((s) => ({ runInGameSnapshot: resolve(next, s.runInGameSnapshot) })),
   setLastRunInGameSource: (next) =>
     set((s) => ({ lastRunInGameSource: resolve(next, s.lastRunInGameSource) })),
-  setLastRunSnapshot: (next) =>
-    set((s) => ({ lastRunSnapshot: resolve(next, s.lastRunSnapshot) })),
+  setLastRunSnapshot: (next) => set((s) => ({ lastRunSnapshot: resolve(next, s.lastRunSnapshot) })),
   setLastSaveDeployConfig: (next) =>
     set((s) => ({ lastSaveDeployConfig: resolve(next, s.lastSaveDeployConfig) })),
 }));

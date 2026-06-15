@@ -10,7 +10,9 @@ export const defaultStrategy = createStrategy(ComputeOceanThermalStateContract, 
     const size = Math.max(0, width * height);
 
     if (!(input.latitudeByRow instanceof Float32Array) || input.latitudeByRow.length !== height) {
-      throw new Error("[Hydrology] Invalid latitudeByRow for hydrology/compute-ocean-thermal-state.");
+      throw new Error(
+        "[Hydrology] Invalid latitudeByRow for hydrology/compute-ocean-thermal-state."
+      );
     }
     if (!(input.isWaterMask instanceof Uint8Array) || input.isWaterMask.length !== size) {
       throw new Error("[Hydrology] Invalid isWaterMask for hydrology/compute-ocean-thermal-state.");
@@ -25,13 +27,22 @@ export const defaultStrategy = createStrategy(ComputeOceanThermalStateContract, 
       throw new Error("[Hydrology] Invalid currentV for hydrology/compute-ocean-thermal-state.");
     }
 
-    return computeOceanThermalState(width, height, input.latitudeByRow, input.isWaterMask, input.shelfMask, input.currentU, input.currentV, {
-      equatorTempC: config.equatorTempC,
-      poleTempC: config.poleTempC,
-      advectIters: config.advectIters,
-      diffusion: config.diffusion,
-      secondaryWeightMin: config.secondaryWeightMin,
-      seaIceThresholdC: config.seaIceThresholdC,
-    });
+    return computeOceanThermalState(
+      width,
+      height,
+      input.latitudeByRow,
+      input.isWaterMask,
+      input.shelfMask,
+      input.currentU,
+      input.currentV,
+      {
+        equatorTempC: config.equatorTempC,
+        poleTempC: config.poleTempC,
+        advectIters: config.advectIters,
+        diffusion: config.diffusion,
+        secondaryWeightMin: config.secondaryWeightMin,
+        seaIceThresholdC: config.seaIceThresholdC,
+      }
+    );
   },
 });

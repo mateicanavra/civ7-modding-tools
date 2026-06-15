@@ -1,11 +1,10 @@
 import { describe, expect, it } from "bun:test";
-
-import ecology from "@mapgen/domain/ecology/ops";
 import { createMockAdapter } from "@civ7/adapter";
+import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import featuresApplyStep from "../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import featuresApplyStep from "../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
@@ -49,7 +48,10 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     stageArtifacts.featureIntentsIce.publish(ctx, []);
 
     const config = {
-      apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, { strategy: "default", config: {} }),
+      apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, {
+        strategy: "default",
+        config: {},
+      }),
     };
     const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
 
@@ -92,18 +94,25 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
       }
     );
 
-    stageArtifacts.featureIntentsVegetation.publish(ctx, [{ x: 0, y: 0, feature: "FEATURE_FOREST" }]);
+    stageArtifacts.featureIntentsVegetation.publish(ctx, [
+      { x: 0, y: 0, feature: "FEATURE_FOREST" },
+    ]);
     stageArtifacts.featureIntentsWetlands.publish(ctx, []);
     stageArtifacts.featureIntentsFloodplains.publish(ctx, []);
     stageArtifacts.featureIntentsReefs.publish(ctx, []);
     stageArtifacts.featureIntentsIce.publish(ctx, []);
 
     const config = {
-      apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, { strategy: "default", config: {} }),
+      apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, {
+        strategy: "default",
+        config: {},
+      }),
     };
     const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
 
-    expect(() => featuresApplyStep.run(ctx, config, ops, buildTestDeps(featuresApplyStep))).not.toThrow();
+    expect(() =>
+      featuresApplyStep.run(ctx, config, ops, buildTestDeps(featuresApplyStep))
+    ).not.toThrow();
 
     const diagnostics = ctx.artifacts.get(ecologyArtifacts.featureApplyDiagnostics.id) as
       | {

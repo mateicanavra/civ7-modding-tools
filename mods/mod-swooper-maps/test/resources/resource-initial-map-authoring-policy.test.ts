@@ -32,14 +32,12 @@ function restoreRuntimeGlobals(): void {
 }
 
 function expectedStaticSlotsForAge(age: string): number[] {
-  return OFFICIAL_RESOURCE_CORPUS
-    .filter(
-      (entry) =>
-        entry.validAges.includes(age as never) &&
-        entry.placeability.status === "placeable" &&
-        entry.strategyRequired.status === "required"
-    )
-    .map((entry) => entry.staticResourceRowSlot);
+  return OFFICIAL_RESOURCE_CORPUS.filter(
+    (entry) =>
+      entry.validAges.includes(age as never) &&
+      entry.placeability.status === "placeable" &&
+      entry.strategyRequired.status === "required"
+  ).map((entry) => entry.staticResourceRowSlot);
 }
 
 describe("initial map resource authoring policy", () => {
@@ -52,8 +50,8 @@ describe("initial map resource authoring policy", () => {
     expect(INITIAL_MAP_RESOURCE_AUTHORING_POLICY).toHaveLength(OFFICIAL_RESOURCE_CORPUS.length);
     expect(INITIAL_MAP_RESOURCE_TYPES).toHaveLength(34);
     expect(INITIAL_MAP_RESOURCE_TYPE_IDS).toEqual([
-      0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21,
-      22, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53,
+      0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 41, 42, 43, 44, 45,
+      46, 47, 48, 49, 50, 51, 52, 53,
     ]);
 
     for (const entry of INITIAL_MAP_RESOURCE_AUTHORING_POLICY) {
@@ -112,9 +110,12 @@ describe("initial map resource authoring policy", () => {
   });
 
   it("filters adapter catalogs to initial-map resource ids only", () => {
-    expect(filterInitialMapResourceTypeIds(Array.from({ length: 55 }, (_, index) => index), -1)).toEqual(
-      INITIAL_MAP_RESOURCE_TYPE_IDS
-    );
+    expect(
+      filterInitialMapResourceTypeIds(
+        Array.from({ length: 55 }, (_, index) => index),
+        -1
+      )
+    ).toEqual(INITIAL_MAP_RESOURCE_TYPE_IDS);
     expect(filterInitialMapResourceTypeIds([38, 4, 36, -1, 40, 4, 99], -1)).toEqual([4]);
   });
 

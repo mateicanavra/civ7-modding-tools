@@ -1,4 +1,9 @@
-import { computeSampleStep, defineVizMeta, deriveStepSeed, renderAsciiGrid } from "@swooper/mapgen-core";
+import {
+  computeSampleStep,
+  defineVizMeta,
+  deriveStepSeed,
+  renderAsciiGrid,
+} from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampInt16 } from "@swooper/mapgen-core/lib/math";
 import IslandsStepContract from "./islands.contract.js";
@@ -10,7 +15,10 @@ export default createStep(IslandsStepContract, {
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const plates = deps.artifacts.foundationPlates.read(context);
-    const topography = deps.artifacts.topography.read(context) as { seaLevel?: number; bathymetry?: Int16Array };
+    const topography = deps.artifacts.topography.read(context) as {
+      seaLevel?: number;
+      bathymetry?: Int16Array;
+    };
     const heightfield = context.buffers.heightfield;
     const seaLevelValue = typeof topography.seaLevel === "number" ? topography.seaLevel : 0;
     const landElevation = clampInt16(Math.floor(seaLevelValue) + 1);

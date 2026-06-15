@@ -5,4 +5,3 @@ export function shadeByte(value: number, ramp: string = BYTE_SHADE_RAMP): string
   const idx = Math.max(0, Math.min(ramp.length - 1, Math.floor((v / 255) * (ramp.length - 1))));
   return ramp[idx] ?? "?";
 }
-

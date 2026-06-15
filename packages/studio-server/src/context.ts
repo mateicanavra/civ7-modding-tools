@@ -1,8 +1,5 @@
-import type {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import type { Civ7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import type { InferContractRouterInputs, InferContractRouterOutputs } from "@orpc/contract";
 
 import type { studioEffectContract as contract } from "./contract/index.js";
 import type { RecipeDagService } from "./recipeDag/service.js";
@@ -90,7 +87,7 @@ export interface StudioServerContext {
    * throws `ORPCError` 409/400/500/503 with `data.details`.
    */
   runInGameStart(
-    input: StudioInputs["runInGame"]["start"],
+    input: StudioInputs["runInGame"]["start"]
   ): Promise<StudioOutputs["runInGame"]["start"]>;
 
   /**
@@ -99,7 +96,7 @@ export interface StudioServerContext {
    * detection (parity invariant).
    */
   runInGameStatus(
-    input: StudioInputs["runInGame"]["status"],
+    input: StudioInputs["runInGame"]["status"]
   ): Promise<StudioOutputs["runInGame"]["status"]>;
 
   /**
@@ -107,7 +104,7 @@ export interface StudioServerContext {
    * active requestId); throws `ORPCError` 409 (mutex) / 400 (validation).
    */
   mapConfigSaveDeploy(
-    input: StudioInputs["mapConfigs"]["saveDeploy"],
+    input: StudioInputs["mapConfigs"]["saveDeploy"]
   ): Promise<StudioOutputs["mapConfigs"]["saveDeploy"]>;
 
   /**
@@ -116,7 +113,7 @@ export interface StudioServerContext {
    * restart-detection contract as run-in-game status.
    */
   mapConfigStatus(
-    input: StudioInputs["mapConfigs"]["status"],
+    input: StudioInputs["mapConfigs"]["status"]
   ): Promise<StudioOutputs["mapConfigs"]["status"]>;
 
   /**

@@ -26,7 +26,7 @@ describe("Studio dev server watch ignores", () => {
         "**/mods/mod-swooper-maps/mod/**",
         "**/mods/mod-swooper-maps/src/maps/generated/**",
         "**/mods/mod-swooper-maps/src/maps/configs/*.config.json",
-      ]),
+      ])
     );
   });
 });

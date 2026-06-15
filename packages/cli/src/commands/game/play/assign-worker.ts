@@ -1,53 +1,54 @@
-import { Command, Flags } from '@oclif/core';
-import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
-import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
+import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
+import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import { Command, Flags } from "@oclif/core";
 import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from '../../../utils/game-play-shared';
+} from "../../../utils/game-play-shared";
 
-const ASSIGN_WORKER = 'ASSIGN_WORKER';
+const ASSIGN_WORKER = "ASSIGN_WORKER";
 
 export default class GamePlayAssignWorker extends Command {
-  static id = 'game play assign-worker';
-  static summary = 'Validate or assign a city growth worker';
+  static id = "game play assign-worker";
+  static summary = "Validate or assign a city growth worker";
   static description =
-    'Validates player-operation ASSIGN_WORKER choices, or sends worker placement through the native control-oRPC city population procedure when --send is explicit.';
+    "Validates player-operation ASSIGN_WORKER choices, or sends worker placement through the native control-oRPC city population procedure when --send is explicit.";
 
   static examples = [
-    '<%= config.bin %> game play assign-worker --player-id 0 --location 2543 --json',
-    '<%= config.bin %> game play assign-worker --location 2543 --send --json',
+    "<%= config.bin %> game play assign-worker --player-id 0 --location 2543 --json",
+    "<%= config.bin %> game play assign-worker --location 2543 --send --json",
   ];
 
   static flags = {
     host: Flags.string({
-      description: 'Civ7 tuner socket host',
+      description: "Civ7 tuner socket host",
     }),
     port: Flags.integer({
-      description: 'Civ7 tuner socket port',
+      description: "Civ7 tuner socket port",
     }),
-    'player-id': Flags.integer({
-      description: 'Player id for dry-run validation; send mode reads local player evidence from live notifications',
+    "player-id": Flags.integer({
+      description:
+        "Player id for dry-run validation; send mode reads local player evidence from live notifications",
     }),
     location: Flags.integer({
-      description: 'Plot index/location selected for worker placement',
+      description: "Plot index/location selected for worker placement",
       required: true,
     }),
     amount: Flags.integer({
-      description: 'Worker amount',
+      description: "Worker amount",
       default: 1,
     }),
     send: Flags.boolean({
-      description: 'Send ASSIGN_WORKER after validator success',
+      description: "Send ASSIGN_WORKER after validator success",
       default: false,
     }),
-    'timeout-ms': Flags.integer({
-      description: 'Socket timeout',
+    "timeout-ms": Flags.integer({
+      description: "Socket timeout",
       default: 45_000,
     }),
     json: Flags.boolean({
-      description: 'Emit machine-readable JSON',
+      description: "Emit machine-readable JSON",
       default: false,
     }),
   };
@@ -56,14 +57,16 @@ export default class GamePlayAssignWorker extends Command {
     const { flags } = await this.parse(GamePlayAssignWorker);
     const options = buildDirectControlOptions(flags);
     if (flags.send && flags.amount !== 1) {
-      throw new Error('game play assign-worker --send supports the source-owned one-worker placement atom; omit --amount or use --amount 1');
+      throw new Error(
+        "game play assign-worker --send supports the source-owned one-worker placement atom; omit --amount or use --amount 1"
+      );
     }
     if (flags.send) {
       const result = await createCiv7ControlOrpcServerClient({
         directControl: liveCiv7ControlOrpcDirectControlFacade,
         endpointDefaults: options,
       }).city.population.place.request({
-        mode: 'assign-worker',
+        mode: "assign-worker",
         location: flags.location,
       });
 
@@ -71,19 +74,19 @@ export default class GamePlayAssignWorker extends Command {
       return;
     }
 
-    if (typeof flags['player-id'] !== 'number') {
-      throw new Error('game play assign-worker requires --player-id for dry-run validation');
+    if (typeof flags["player-id"] !== "number") {
+      throw new Error("game play assign-worker requires --player-id for dry-run validation");
     }
 
     const input = {
       operationType: ASSIGN_WORKER,
-      playerId: flags['player-id'],
+      playerId: flags["player-id"],
       args: {
         Location: flags.location,
         Amount: flags.amount,
       },
     };
-    const result = await validatePlayOperation('player-operation', input, options);
+    const result = await validatePlayOperation("player-operation", input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

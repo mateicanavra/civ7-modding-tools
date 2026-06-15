@@ -5,8 +5,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import type {
-  RunInGameFileContentProof,
   RunInGameExactAuthorshipProof,
+  RunInGameFileContentProof,
   RunInGameFileIdentity,
   RunInGameMaterializationStatus,
   RunInGameRequestStatus,
@@ -57,7 +57,7 @@ describe("Run in Game exact authorship proof identity", () => {
           "map.rivers.authoredTerrainMaterialization",
           "POST-AUTHORED-RIVERS",
         ].join("\n"),
-        "utf8",
+        "utf8"
       );
 
       const proof = await fileContentMarkerProof({
@@ -109,17 +109,26 @@ describe("Run in Game exact authorship proof identity", () => {
       recipeSettings: { seed: 42, mapSize: "MAPSIZE_STANDARD" },
       pipelineConfig: { continents: { knobs: { landmassRatio: 0.42 } } },
     });
-    expect(buildRunInGameSourceSnapshotProof({
-      requestId,
-      sourceSnapshot: {
-        recipeSettings: { seed: 42, mapSize: "MAPSIZE_STANDARD" },
-        worldSettings: { resources: "balanced" },
-        pipelineConfig: { continents: { knobs: { landmassRatio: 0.5 } } },
-      },
-      configHash,
-      envelopeHash,
-    })?.identityHash).not.toBe(first?.identityHash);
-    expect(buildRunInGameSourceSnapshotProof({ requestId, sourceSnapshot: undefined, configHash, envelopeHash })).toBeUndefined();
+    expect(
+      buildRunInGameSourceSnapshotProof({
+        requestId,
+        sourceSnapshot: {
+          recipeSettings: { seed: 42, mapSize: "MAPSIZE_STANDARD" },
+          worldSettings: { resources: "balanced" },
+          pipelineConfig: { continents: { knobs: { landmassRatio: 0.5 } } },
+        },
+        configHash,
+        envelopeHash,
+      })?.identityHash
+    ).not.toBe(first?.identityHash);
+    expect(
+      buildRunInGameSourceSnapshotProof({
+        requestId,
+        sourceSnapshot: undefined,
+        configHash,
+        envelopeHash,
+      })
+    ).toBeUndefined();
   });
 
   it("parses bounded Swooper proof and completion log payloads for the same request chain", () => {
@@ -233,7 +242,19 @@ describe("Run in Game exact authorship proof identity", () => {
             rejectedHash32: "aaaaaaaa",
           },
           rejectedRows: [
-            ["r", 1320, 60, 15, 35, 0, 120, "readback-mismatch", -1, 1405, "partial-expected-footprint"],
+            [
+              "r",
+              1320,
+              60,
+              15,
+              35,
+              0,
+              120,
+              "readback-mismatch",
+              -1,
+              1405,
+              "partial-expected-footprint",
+            ],
           ],
         })}`,
         `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
@@ -432,23 +453,27 @@ describe("Run in Game exact authorship proof identity", () => {
         },
       ],
     });
-    expect(parseSwooperMapgenLogProof({
-      text: `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 41, dimensions: { width: 84, height: 54 } })}`,
-      requestId,
-      configHash,
-      envelopeHash,
-      seed: 42,
-    })).toBeUndefined();
-    expect(parseSwooperMapgenLogProof({
-      text: [
-        `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
-        `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 55 } })}`,
-      ].join("\n"),
-      requestId,
-      configHash,
-      envelopeHash,
-      seed: 42,
-    })).toBeUndefined();
+    expect(
+      parseSwooperMapgenLogProof({
+        text: `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 41, dimensions: { width: 84, height: 54 } })}`,
+        requestId,
+        configHash,
+        envelopeHash,
+        seed: 42,
+      })
+    ).toBeUndefined();
+    expect(
+      parseSwooperMapgenLogProof({
+        text: [
+          `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
+          `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 55 } })}`,
+        ].join("\n"),
+        requestId,
+        configHash,
+        envelopeHash,
+        seed: 42,
+      })
+    ).toBeUndefined();
   });
 
   it("ignores placement telemetry outside the matching proof section", () => {
@@ -529,14 +554,16 @@ describe("Run in Game exact authorship proof identity", () => {
     });
 
     expect(proof.status).toBe("unresolved");
-    expect(proof.unresolvedLinks).toEqual(expect.arrayContaining([
-      "source-snapshot.recipe-settings",
-      "source-snapshot.world-settings",
-      "source-snapshot.pipeline-config",
-      "source-snapshot.setup-config",
-      "source-snapshot.materialization-mode",
-      "source-snapshot.selected-config",
-    ]));
+    expect(proof.unresolvedLinks).toEqual(
+      expect.arrayContaining([
+        "source-snapshot.recipe-settings",
+        "source-snapshot.world-settings",
+        "source-snapshot.pipeline-config",
+        "source-snapshot.setup-config",
+        "source-snapshot.materialization-mode",
+        "source-snapshot.selected-config",
+      ])
+    );
   });
 
   it("keeps exact authorship unresolved when setup, runtime, log, or deployed content differs", () => {
@@ -554,13 +581,15 @@ describe("Run in Game exact authorship proof identity", () => {
     });
 
     expect(proof.status).toBe("unresolved");
-    expect(proof.unresolvedLinks).toEqual(expect.arrayContaining([
-      "civ-setup.map-seed-mismatch",
-      "runtime.seed-mismatch",
-      "swooper-log.seed-mismatch",
-      "runtime.log-height-mismatch",
-      "materialization.deployed-mod-script-hash-mismatch",
-    ]));
+    expect(proof.unresolvedLinks).toEqual(
+      expect.arrayContaining([
+        "civ-setup.map-seed-mismatch",
+        "runtime.seed-mismatch",
+        "swooper-log.seed-mismatch",
+        "runtime.log-height-mismatch",
+        "materialization.deployed-mod-script-hash-mismatch",
+      ])
+    );
   });
 
   it("keeps exact authorship unresolved when the deployed script lacks current river materialization markers", () => {
@@ -571,7 +600,7 @@ describe("Run in Game exact authorship proof identity", () => {
         ...args.materialization,
         deployedModScriptContent: contentProof(
           "/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js",
-          { "authored-river-materialization-checkpoint": false },
+          { "authored-river-materialization-checkpoint": false }
         ),
       },
     });
@@ -590,18 +619,24 @@ describe("Run in Game exact authorship proof identity", () => {
         localModScriptContent: contentProof("different.js"),
         deployedModScriptContent: contentProof(
           "/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js",
-          { "run-request-id": false },
+          { "run-request-id": false }
         ),
       },
       localModScript: args.localModScript,
       deployedModScript: args.deployedModScript,
-      requiredMarkers: runInGameRequiredMaterializationMarkers({ requestId, configHash, envelopeHash }),
+      requiredMarkers: runInGameRequiredMaterializationMarkers({
+        requestId,
+        configHash,
+        envelopeHash,
+      }),
     });
 
-    expect(links).toEqual(expect.arrayContaining([
-      "materialization.local-mod-script-content-path-mismatch",
-      "materialization.deployed-mod-script-marker.run-request-id",
-    ]));
+    expect(links).toEqual(
+      expect.arrayContaining([
+        "materialization.local-mod-script-content-path-mismatch",
+        "materialization.deployed-mod-script-marker.run-request-id",
+      ])
+    );
   });
 
   it("uses setup config player count as exact-authorship readback", () => {
@@ -666,7 +701,10 @@ function completeProofArgs(): Parameters<typeof buildRunInGameExactAuthorshipPro
     envelopeHash,
   };
   const localModScript = fileProof("mod/maps/studio-current.js", "same-deployed-js-hash");
-  const deployedModScript = fileProof("/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js", localModScript.sha256);
+  const deployedModScript = fileProof(
+    "/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js",
+    localModScript.sha256
+  );
   return {
     requestId,
     request,
@@ -698,16 +736,17 @@ function completeProofArgs(): Parameters<typeof buildRunInGameExactAuthorshipPro
 
 function contentProof(
   path: string,
-  overrides: Partial<Record<string, boolean>> = {},
+  overrides: Partial<Record<string, boolean>> = {}
 ): RunInGameFileContentProof {
   return {
     path,
-    markers: runInGameRequiredMaterializationMarkers({ requestId, configHash, envelopeHash })
-      .map((marker) => ({
+    markers: runInGameRequiredMaterializationMarkers({ requestId, configHash, envelopeHash }).map(
+      (marker) => ({
         id: marker.id,
         marker: marker.marker,
         present: overrides[marker.id] ?? true,
-      })),
+      })
+    ),
   };
 }
 
@@ -721,7 +760,9 @@ function fileProof(path: string, sha256: string): RunInGameFileIdentity {
   };
 }
 
-function setupSnapshot(overrides: { mapSeed?: number; includePlayerCountParameter?: boolean } = {}): unknown {
+function setupSnapshot(
+  overrides: { mapSeed?: number; includePlayerCountParameter?: boolean } = {}
+): unknown {
   const parameters = [
     { id: "Map", exists: true, value: mapScript },
     { id: "MapSize", exists: true, value: "MAPSIZE_STANDARD" },
@@ -766,8 +807,20 @@ function logProof(): NonNullable<RunInGameExactAuthorshipProof["log"]> {
     seed: 42,
     mapSize: "MAPSIZE_STANDARD",
     dimensions: { width: 84, height: 54 },
-    proofPayload: { requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } },
-    completionPayload: { requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } },
+    proofPayload: {
+      requestId,
+      configHash,
+      envelopeHash,
+      seed: 42,
+      dimensions: { width: 84, height: 54 },
+    },
+    completionPayload: {
+      requestId,
+      configHash,
+      envelopeHash,
+      seed: 42,
+      dimensions: { width: 84, height: 54 },
+    },
     matched: ["[mapgen-proof]", requestId, configHash, envelopeHash, "[mapgen-complete]"],
   };
 }

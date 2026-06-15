@@ -1,11 +1,17 @@
+import { createLabelRng } from "@swooper/mapgen-core";
 import { createOp } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampInt, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
-import { createLabelRng } from "@swooper/mapgen-core";
 
 import { requireMesh } from "../../lib/require.js";
 import ComputeMantlePotentialContract from "./contract.js";
 
-function distanceSqWrapped(ax: number, ay: number, bx: number, by: number, wrapWidth: number): number {
+function distanceSqWrapped(
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+  wrapWidth: number
+): number {
   const dx = wrapDeltaPeriodic(ax - bx, wrapWidth);
   const dy = ay - by;
   return dx * dx + dy * dy;
@@ -114,7 +120,13 @@ const computeMantlePotential = createOp(ComputeMantlePotentialContract, {
         const used = new Uint8Array(cellCount);
         const existingSeeds: number[] = [];
 
-        const pickSources = (count: number, type: 1 | -1, radius: number, amplitude: number, label: string) => {
+        const pickSources = (
+          count: number,
+          type: 1 | -1,
+          radius: number,
+          amplitude: number,
+          label: string
+        ) => {
           if (count <= 0) return;
           const minDist = radius * minSeparationScale;
           const minDistSq = minDist * minDist;
@@ -138,7 +150,13 @@ const computeMantlePotential = createOp(ComputeMantlePotentialContract, {
         };
 
         pickSources(plumeCount, 1, plumeRadius, Math.abs(plumeAmplitude), "MantlePlume");
-        pickSources(downwellingCount, -1, downwellingRadius, -Math.abs(downwellingAmplitude), "MantleDownwelling");
+        pickSources(
+          downwellingCount,
+          -1,
+          downwellingRadius,
+          -Math.abs(downwellingAmplitude),
+          "MantleDownwelling"
+        );
 
         if (existingSeeds.length !== sourceCount) {
           throw new Error("[Foundation] MantlePotential source selection mismatch.");

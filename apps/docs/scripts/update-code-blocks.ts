@@ -9,13 +9,13 @@
   Usage: bun run scripts/update-code-blocks.ts
 */
 
-import { readdirSync, readFileSync, writeFileSync, statSync, existsSync } from 'node:fs';
-import { join, extname, relative } from 'node:path';
-import { createHash } from 'node:crypto';
+import { createHash } from "node:crypto";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { extname, join, relative } from "node:path";
 
 // This script is executed from apps/docs; use that as the root for docs
-const OFFICIAL_DIR = join(process.cwd(), 'official');
-const COMMUNITY_DIR = join(process.cwd(), 'community');
+const OFFICIAL_DIR = join(process.cwd(), "official");
+const COMMUNITY_DIR = join(process.cwd(), "community");
 
 type Detection = {
   language: string;
@@ -23,41 +23,41 @@ type Detection = {
 };
 
 const LANGUAGE_ALIASES: Record<string, string> = {
-  ts: 'typescript',
-  tsx: 'typescript',
-  js: 'javascript',
-  jsx: 'javascript',
-  sh: 'bash',
-  zsh: 'bash',
-  shell: 'bash',
-  console: 'bash',
-  plaintext: 'text',
-  txt: 'text',
-  md: 'markdown',
-  yml: 'yaml',
-  json5: 'json',
-  jsonc: 'json',
+  ts: "typescript",
+  tsx: "typescript",
+  js: "javascript",
+  jsx: "javascript",
+  sh: "bash",
+  zsh: "bash",
+  shell: "bash",
+  console: "bash",
+  plaintext: "text",
+  txt: "text",
+  md: "markdown",
+  yml: "yaml",
+  json5: "json",
+  jsonc: "json",
 };
 
 // Map languages to Font Awesome icon names (fallbacks when no local icon is present)
 const LANGUAGE_TO_FA_ICON: Record<string, string> = {
-  xml: 'file-code',
-  sql: 'file-code',
-  bash: 'terminal',
-  javascript: 'square-js',
-  typescript: 'file-code',
-  ini: 'file-lines',
-  json: 'file-code',
-  yaml: 'file-code',
-  markdown: 'file-lines',
-  text: 'text',
+  xml: "file-code",
+  sql: "file-code",
+  bash: "terminal",
+  javascript: "square-js",
+  typescript: "file-code",
+  ini: "file-lines",
+  json: "file-code",
+  yaml: "file-code",
+  markdown: "file-lines",
+  text: "text",
 };
 
 function getIconNameForLanguage(language: string): string {
   // Prefer local icons in public/icons via absolute path under /public
-  if (language === 'typescript') return '/icons/icon-code-ts.svg';
-  if (language === 'sql') return '/icons/icon-code-sql.svg';
-  return LANGUAGE_TO_FA_ICON[language] ?? 'file-code';
+  if (language === "typescript") return "/icons/icon-code-ts.svg";
+  if (language === "sql") return "/icons/icon-code-sql.svg";
+  return LANGUAGE_TO_FA_ICON[language] ?? "file-code";
 }
 
 function normalizeLanguageToken(token: string | undefined): string | undefined {
@@ -67,7 +67,7 @@ function normalizeLanguageToken(token: string | undefined): string | undefined {
 }
 
 function createShortHash(input: string): string {
-  const h = createHash('sha1').update(input).digest('hex');
+  const h = createHash("sha1").update(input).digest("hex");
   return h.substring(0, 8);
 }
 
@@ -75,29 +75,32 @@ function buildPageSlug(filePath: string): string {
   const relOfficial = relative(OFFICIAL_DIR, filePath);
   const relCommunity = relative(COMMUNITY_DIR, filePath);
   let rel: string;
-  if (!relOfficial.startsWith('..')) {
-    rel = join('official', relOfficial);
-  } else if (!relCommunity.startsWith('..')) {
-    rel = join('community', relCommunity);
+  if (!relOfficial.startsWith("..")) {
+    rel = join("official", relOfficial);
+  } else if (!relCommunity.startsWith("..")) {
+    rel = join("community", relCommunity);
   } else {
     rel = filePath;
   }
-  const noExt = rel.replace(/\.(mdx?|MDX?)$/, '');
-  return noExt.replace(/[\\/]+/g, '-').replace(/[^a-zA-Z0-9_-]+/g, '-').toLowerCase();
+  const noExt = rel.replace(/\.(mdx?|MDX?)$/, "");
+  return noExt
+    .replace(/[\\/]+/g, "-")
+    .replace(/[^a-zA-Z0-9_-]+/g, "-")
+    .toLowerCase();
 }
 
 function detectTag(language: string, code: string): string {
   const snippet = code.slice(0, 2000);
-  if (language === 'bash') return 'shell';
-  if (language === 'sql') return 'sql';
-  if (language === 'xml') return 'xml';
-  if (language === 'json') return 'json';
-  if (language === 'yaml') return 'yaml';
-  if (language === 'ini') return 'ini';
-  if (language === 'markdown') return 'markdown';
-  if (/[├└]──|\b(src|assets|public|dist|node_modules)\/.*/.test(snippet)) return 'file-tree';
-  if (language === 'typescript' || language === 'javascript') return 'code-snippet';
-  return 'text';
+  if (language === "bash") return "shell";
+  if (language === "sql") return "sql";
+  if (language === "xml") return "xml";
+  if (language === "json") return "json";
+  if (language === "yaml") return "yaml";
+  if (language === "ini") return "ini";
+  if (language === "markdown") return "markdown";
+  if (/[├└]──|\b(src|assets|public|dist|node_modules)\/.*/.test(snippet)) return "file-tree";
+  if (language === "typescript" || language === "javascript") return "code-snippet";
+  return "text";
 }
 type TagConfig = {
   icon?: string | false;
@@ -112,10 +115,10 @@ type Config = {
   tags?: Record<string, TagConfig>;
 };
 function loadConfig(cwd: string): Config {
-  const p = join(cwd, 'code-blocks.config.json');
+  const p = join(cwd, "code-blocks.config.json");
   if (!existsSync(p)) return {};
   try {
-    return JSON.parse(readFileSync(p, 'utf8')) as Config;
+    return JSON.parse(readFileSync(p, "utf8")) as Config;
   } catch {
     return {};
   }
@@ -136,19 +139,26 @@ function detectLanguage(code: string): Detection {
   const lines = snippet.split(/\r?\n/);
 
   // xml: XML declaration or typical tags
-  if (/<\?xml\s+version\s*=/.test(snippet) || /<database[\s>]/i.test(snippet) || /<gameeffects[\s>]/i.test(snippet) || /<mod[\s>]/i.test(snippet)) {
-    return { language: 'xml', reason: 'xml-structure' };
+  if (
+    /<\?xml\s+version\s*=/.test(snippet) ||
+    /<database[\s>]/i.test(snippet) ||
+    /<gameeffects[\s>]/i.test(snippet) ||
+    /<mod[\s>]/i.test(snippet)
+  ) {
+    return { language: "xml", reason: "xml-structure" };
   }
 
   // sql: common DDL/DML patterns
   if (/(^|\n)\s*(insert\s+into|update\s+|delete\s+from|select\s+.+\s+from)\b/i.test(snippet)) {
-    return { language: 'sql', reason: 'sql-keywords' };
+    return { language: "sql", reason: "sql-keywords" };
   }
 
   // ini-like: lines with ';' comments and KEY VALUE patterns
-  const iniLike = lines.every(l => l.trim() === '' || l.trim().startsWith(';') || /^[A-Za-z0-9_.-]+\s+[^<>{}]+$/.test(l));
-  if (iniLike && lines.some(l => l.trim().startsWith(';'))) {
-    return { language: 'ini', reason: 'ini-comment-style' };
+  const iniLike = lines.every(
+    (l) => l.trim() === "" || l.trim().startsWith(";") || /^[A-Za-z0-9_.-]+\s+[^<>{}]+$/.test(l)
+  );
+  if (iniLike && lines.some((l) => l.trim().startsWith(";"))) {
+    return { language: "ini", reason: "ini-comment-style" };
   }
 
   // bash/terminal: typical commands
@@ -156,30 +166,36 @@ function detectLanguage(code: string): Detection {
     /^\s*#\s/, // comment lines
     /^\s*(mkdir|cd|ls|cat|touch|echo|rm|cp|mv|npm|yarn|bun|git|npx|chmod|chown|ts-node)\b/,
   ];
-  if (lines.every(l => l.trim() === '' || bashSignals.some(rx => rx.test(l)))) {
-    return { language: 'bash', reason: 'terminal-commands' };
+  if (lines.every((l) => l.trim() === "" || bashSignals.some((rx) => rx.test(l)))) {
+    return { language: "bash", reason: "terminal-commands" };
   }
 
   // typescript: imports/exports and TS types or patterns
-  if (/(^|\n)\s*import\s+[^;]+from\s+['"][^'"]+['"]/i.test(snippet) || /(interface|type)\s+\w+\s*=|:\s*\w+/.test(snippet)) {
-    return { language: 'typescript', reason: 'ts-syntax' };
+  if (
+    /(^|\n)\s*import\s+[^;]+from\s+['"][^'"]+['"]/i.test(snippet) ||
+    /(interface|type)\s+\w+\s*=|:\s*\w+/.test(snippet)
+  ) {
+    return { language: "typescript", reason: "ts-syntax" };
   }
 
   // javascript fallback when code-ish
   if (/(^|\n)\s*(const|let|var|function|class)\s+/.test(snippet)) {
-    return { language: 'javascript', reason: 'js-syntax' };
+    return { language: "javascript", reason: "js-syntax" };
   }
 
   // xml-like generic tag detection (but avoid html fragments in docs text)
   if (/<[A-Za-z][A-Za-z0-9_-]*[\s>]/.test(snippet) && /<\/?[A-Za-z]/.test(snippet)) {
-    return { language: 'xml', reason: 'tag-structure' };
+    return { language: "xml", reason: "tag-structure" };
   }
 
-  return { language: 'text', reason: 'default' };
+  return { language: "text", reason: "default" };
 }
 
-function processFile(filePath: string, config: any = {}): { updated: boolean; before: string; after: string } {
-  const original = readFileSync(filePath, 'utf8');
+function processFile(
+  filePath: string,
+  config: any = {}
+): { updated: boolean; before: string; after: string } {
+  const original = readFileSync(filePath, "utf8");
 
   const lines = original.split(/\r?\n/);
   const out: string[] = [];
@@ -197,7 +213,7 @@ function processFile(filePath: string, config: any = {}): { updated: boolean; be
     }
 
     const fence = fenceMatch[1];
-    const infoRaw = fenceMatch[2] ?? '';
+    const infoRaw = fenceMatch[2] ?? "";
     const infoTokens = infoRaw.trim().split(/\s+/).filter(Boolean);
 
     const existingLanguageRaw = infoTokens.length > 0 ? infoTokens[0] : undefined;
@@ -220,7 +236,7 @@ function processFile(filePath: string, config: any = {}): { updated: boolean; be
       j += 1;
     }
     const blockEnd = j; // index of closing fence or lines.length
-    const codeBody = lines.slice(blockStart, blockEnd).join('\n');
+    const codeBody = lines.slice(blockStart, blockEnd).join("\n");
 
     // Determine final language
     let finalLanguage = existingLanguage;
@@ -229,7 +245,9 @@ function processFile(filePath: string, config: any = {}): { updated: boolean; be
     }
 
     // If language normalization changed or was added, we will update
-    const normalizedExisting = existingLanguageRaw ? normalizeLanguageToken(existingLanguageRaw) : undefined;
+    const normalizedExisting = existingLanguageRaw
+      ? normalizeLanguageToken(existingLanguageRaw)
+      : undefined;
     const needsHeaderUpdate = !normalizedExisting || normalizedExisting !== finalLanguage;
 
     // Enrich meta options per Mintlify guidelines
@@ -237,33 +255,40 @@ function processFile(filePath: string, config: any = {}): { updated: boolean; be
     // - Add expandable for long code blocks
     // - Set icon to a Font Awesome icon matching the language
     let workingMetaTokens = [...metaTokens];
-    const hasLines = workingMetaTokens.some(t => t === 'lines' || t.startsWith('lines='));
-    const hasExpandable = workingMetaTokens.some(t => t === 'expandable' || t.startsWith('expandable='));
-    const iconIndex = workingMetaTokens.findIndex(t => /^icon=/.test(t));
-    const idIndex = workingMetaTokens.findIndex(t => /^id=/.test(t));
-    const tagIndex = workingMetaTokens.findIndex(t => /^tag=/.test(t));
+    const hasLines = workingMetaTokens.some((t) => t === "lines" || t.startsWith("lines="));
+    const hasExpandable = workingMetaTokens.some(
+      (t) => t === "expandable" || t.startsWith("expandable=")
+    );
+    const iconIndex = workingMetaTokens.findIndex((t) => /^icon=/.test(t));
+    const idIndex = workingMetaTokens.findIndex((t) => /^id=/.test(t));
+    const tagIndex = workingMetaTokens.findIndex((t) => /^tag=/.test(t));
 
     const detectedTag = detectTag(finalLanguage, codeBody);
-    const existingTagValue = getMetaValue(metaTokens, 'tag');
+    const existingTagValue = getMetaValue(metaTokens, "tag");
     const effectiveTag = existingTagValue ?? detectedTag;
     const tagConfig = (config.tags && config.tags[effectiveTag]) || undefined;
-    const codeLineCount = codeBody === '' ? 0 : codeBody.split(/\r?\n/).length;
+    const codeLineCount = codeBody === "" ? 0 : codeBody.split(/\r?\n/).length;
     const LONG_BLOCK_THRESHOLD = (tagConfig && tagConfig.expandableMinLines) ?? 40;
 
     if (tagConfig && tagConfig.lines === false) {
-      workingMetaTokens = workingMetaTokens.filter(t => t !== 'lines' && !t.startsWith('lines='));
+      workingMetaTokens = workingMetaTokens.filter((t) => t !== "lines" && !t.startsWith("lines="));
     } else if (!hasLines || (tagConfig && tagConfig.lines === true)) {
-      if (!hasLines) workingMetaTokens.push('lines');
+      if (!hasLines) workingMetaTokens.push("lines");
     }
-    if ((tagConfig && tagConfig.expandable === true) || (!hasExpandable && codeLineCount >= LONG_BLOCK_THRESHOLD)) {
-      if (!hasExpandable) workingMetaTokens.push('expandable');
+    if (
+      (tagConfig && tagConfig.expandable === true) ||
+      (!hasExpandable && codeLineCount >= LONG_BLOCK_THRESHOLD)
+    ) {
+      if (!hasExpandable) workingMetaTokens.push("expandable");
     }
-    if (tagConfig && tagConfig.wrap) workingMetaTokens.push('wrap');
+    if (tagConfig && tagConfig.wrap) workingMetaTokens.push("wrap");
     const iconDisabled = tagConfig && tagConfig.icon === false;
     if (iconDisabled) {
       if (iconIndex >= 0) workingMetaTokens.splice(iconIndex, 1);
     } else {
-      const iconName = (tagConfig && typeof tagConfig.icon === 'string' ? tagConfig.icon : undefined) || getIconNameForLanguage(finalLanguage);
+      const iconName =
+        (tagConfig && typeof tagConfig.icon === "string" ? tagConfig.icon : undefined) ||
+        getIconNameForLanguage(finalLanguage);
       if (iconIndex >= 0) {
         workingMetaTokens[iconIndex] = `icon="${iconName}"`;
       } else {
@@ -272,9 +297,10 @@ function processFile(filePath: string, config: any = {}): { updated: boolean; be
     }
 
     if (tagConfig && tagConfig.title) {
-      const titleIndex = workingMetaTokens.findIndex(t => /^title=/.test(t));
+      const titleIndex = workingMetaTokens.findIndex((t) => /^title=/.test(t));
       const titleToken = `title="${tagConfig.title}"`;
-      if (titleIndex >= 0) workingMetaTokens[titleIndex] = titleToken; else workingMetaTokens.push(titleToken);
+      if (titleIndex >= 0) workingMetaTokens[titleIndex] = titleToken;
+      else workingMetaTokens.push(titleToken);
     }
     if (tagConfig && Array.isArray(tagConfig.extra) && tagConfig.extra.length > 0) {
       workingMetaTokens.push(...tagConfig.extra);
@@ -295,16 +321,20 @@ function processFile(filePath: string, config: any = {}): { updated: boolean; be
     }
 
     // De-duplicate meta tokens by key, keeping the last occurrence
-    const keys = workingMetaTokens.map(t => t.split('=')[0]);
-    let enrichedMetaTokens = workingMetaTokens.filter((t, idx) => keys.lastIndexOf(t.split('=')[0]) === idx);
+    const keys = workingMetaTokens.map((t) => t.split("=")[0]);
+    let enrichedMetaTokens = workingMetaTokens.filter(
+      (t, idx) => keys.lastIndexOf(t.split("=")[0]) === idx
+    );
     // Final enforcement: if config disables lines, ensure it's removed even after de-dup
     if (tagConfig && tagConfig.lines === false) {
-      enrichedMetaTokens = enrichedMetaTokens.filter(t => t !== 'lines' && !t.startsWith('lines='));
+      enrichedMetaTokens = enrichedMetaTokens.filter(
+        (t) => t !== "lines" && !t.startsWith("lines=")
+      );
     }
-    const metaChanged = enrichedMetaTokens.join(' ') !== metaTokens.join(' ');
+    const metaChanged = enrichedMetaTokens.join(" ") !== metaTokens.join(" ");
     if (needsHeaderUpdate || metaChanged) changed = true;
 
-    const newHeader = `${fence}${finalLanguage ? ' ' + finalLanguage : ''}${enrichedMetaTokens.length ? ' ' + enrichedMetaTokens.join(' ') : ''}`;
+    const newHeader = `${fence}${finalLanguage ? " " + finalLanguage : ""}${enrichedMetaTokens.length ? " " + enrichedMetaTokens.join(" ") : ""}`;
 
     out.push(newHeader);
     // push body as-is
@@ -318,9 +348,9 @@ function processFile(filePath: string, config: any = {}): { updated: boolean; be
     }
   }
 
-  const updated = out.join('\n');
+  const updated = out.join("\n");
   if (changed && updated !== original) {
-    writeFileSync(filePath, updated, 'utf8');
+    writeFileSync(filePath, updated, "utf8");
   }
   return { updated: changed && updated !== original, before: original, after: updated };
 }
@@ -331,7 +361,7 @@ function walkDir(dir: string, acc: string[] = []): string[] {
     const st = statSync(full);
     if (st.isDirectory()) {
       walkDir(full, acc);
-    } else if (st.isFile() && (extname(full) === '.mdx' || extname(full) === '.md')) {
+    } else if (st.isFile() && (extname(full) === ".mdx" || extname(full) === ".md")) {
       acc.push(full);
     }
   }
@@ -351,8 +381,9 @@ function main() {
       if (updated) filesChanged += 1;
     }
   }
-  console.log(`Code fences normalized. Files processed: ${filesProcessed}. Files changed: ${filesChanged}.`);
+  console.log(
+    `Code fences normalized. Files processed: ${filesProcessed}. Files changed: ${filesChanged}.`
+  );
 }
 
 main();
-

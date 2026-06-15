@@ -1,7 +1,7 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7ProgressDashboardInputSchema,
@@ -24,46 +24,56 @@ describe("progression read surfaces", () => {
     expect(Value.Check(Civ7TraditionsViewInputSchema, { playerId: 0 })).toBe(true);
     expect(Value.Check(Civ7TraditionsViewInputSchema, { playerId: -1 })).toBe(false);
     expect(Value.Check(Civ7TraditionsViewInputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7TraditionsViewInputSchema, { rawCommand: "readTraditionsView()" })).toBe(false);
+    expect(Value.Check(Civ7TraditionsViewInputSchema, { rawCommand: "readTraditionsView()" })).toBe(
+      false
+    );
 
     const result = traditionsViewResult();
     expect(Value.Check(Civ7TraditionsViewResultSchema, result)).toBe(true);
-    expect(Value.Check(Civ7TraditionsViewResultSchema, {
-      ...result,
-      active: [
-        {
-          ...result.active[0],
-          actionHints: [
-            {
-              ...result.active[0].actionHints[0],
-              operationType: "sendRequest",
-            },
-          ],
-        },
-      ],
-    })).toBe(false);
-    expect(Value.Check(Civ7TraditionsViewResultSchema, {
-      ...result,
-      active: [
-        {
-          ...result.active[0],
-          actionHints: [
-            {
-              ...result.active[0].actionHints[0],
-              cli: "game play change-tradition --send",
-            },
-          ],
-        },
-      ],
-    })).toBe(false);
-    expect(Value.Check(Civ7TraditionsViewResultSchema, {
-      ...result,
-      hiddenInfoPolicy: "raw-debug-output",
-    })).toBe(false);
-    expect(Value.Check(Civ7TraditionsViewResultSchema, {
-      ...result,
-      rawCommand: "readTraditionsView()",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7TraditionsViewResultSchema, {
+        ...result,
+        active: [
+          {
+            ...result.active[0],
+            actionHints: [
+              {
+                ...result.active[0].actionHints[0],
+                operationType: "sendRequest",
+              },
+            ],
+          },
+        ],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7TraditionsViewResultSchema, {
+        ...result,
+        active: [
+          {
+            ...result.active[0],
+            actionHints: [
+              {
+                ...result.active[0].actionHints[0],
+                cli: "game play change-tradition --send",
+              },
+            ],
+          },
+        ],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7TraditionsViewResultSchema, {
+        ...result,
+        hiddenInfoPolicy: "raw-debug-output",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7TraditionsViewResultSchema, {
+        ...result,
+        rawCommand: "readTraditionsView()",
+      })
+    ).toBe(false);
   });
 
   test("exports TypeBox schemas for the read-only progress dashboard atom", () => {
@@ -71,25 +81,33 @@ describe("progression read surfaces", () => {
     expect(Value.Check(Civ7ProgressDashboardInputSchema, { playerId: 0 })).toBe(true);
     expect(Value.Check(Civ7ProgressDashboardInputSchema, { playerId: -1 })).toBe(false);
     expect(Value.Check(Civ7ProgressDashboardInputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7ProgressDashboardInputSchema, { rawCommand: "readProgressDashboard()" })).toBe(false);
+    expect(
+      Value.Check(Civ7ProgressDashboardInputSchema, { rawCommand: "readProgressDashboard()" })
+    ).toBe(false);
 
     const result = progressDashboardResult();
     expect(Value.Check(Civ7ProgressDashboardResultSchema, result)).toBe(true);
-    expect(Value.Check(Civ7ProgressDashboardResultSchema, {
-      ...result,
-      triumphs: {
-        ...result.triumphs,
-        source: "raw-debug-output",
-      },
-    })).toBe(false);
-    expect(Value.Check(Civ7ProgressDashboardResultSchema, {
-      ...result,
-      hiddenInfoPolicy: "raw-debug-output",
-    })).toBe(false);
-    expect(Value.Check(Civ7ProgressDashboardResultSchema, {
-      ...result,
-      rawCommand: "readProgressDashboard()",
-    })).toBe(false);
+    expect(
+      Value.Check(Civ7ProgressDashboardResultSchema, {
+        ...result,
+        triumphs: {
+          ...result.triumphs,
+          source: "raw-debug-output",
+        },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7ProgressDashboardResultSchema, {
+        ...result,
+        hiddenInfoPolicy: "raw-debug-output",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7ProgressDashboardResultSchema, {
+        ...result,
+        rawCommand: "readProgressDashboard()",
+      })
+    ).toBe(false);
   });
 
   test("reads traditions view through App UI without sending tradition operations", async () => {

@@ -12,4 +12,3 @@ const scoreIce = createOp(ScoreIceContract, {
 export type * from "./contract.js";
 
 export default scoreIce;
-

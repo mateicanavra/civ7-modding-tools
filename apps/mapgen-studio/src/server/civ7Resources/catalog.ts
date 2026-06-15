@@ -12,7 +12,7 @@ export const DEFAULT_CIV7_APP_RESOURCES_ROOT = join(
   "Sid Meier's Civilization VII",
   "CivilizationVII.app",
   "Contents",
-  "Resources",
+  "Resources"
 );
 
 export type Civ7SetupCatalogOption = Readonly<{
@@ -118,7 +118,7 @@ export async function loadCiv7SetupCatalog(input: CatalogInput): Promise<Civ7Set
 async function pathExists(path: string): Promise<boolean> {
   return stat(path).then(
     () => true,
-    () => false,
+    () => false
   );
 }
 
@@ -148,7 +148,7 @@ function ingestSetupXml(
     maps: CatalogMaps;
     source: Civ7SetupCatalogOption["source"];
     sourcePath: string;
-  }>,
+  }>
 ): void {
   for (const row of readXmlRows(text)) {
     const leader = row.LeaderType;
@@ -157,7 +157,11 @@ function ingestSetupXml(
     }
 
     const civilization = row.CivilizationType;
-    if (civilization && isPlayableCivilizationValue(civilization) && isPlayableCivilizationRow(row)) {
+    if (
+      civilization &&
+      isPlayableCivilizationValue(civilization) &&
+      isPlayableCivilizationRow(row)
+    ) {
       addOption(context.maps.civilizations, civilization, row.Name, context);
     }
 
@@ -213,7 +217,7 @@ function addOption(
   context: Readonly<{
     source: Civ7SetupCatalogOption["source"];
     sourcePath: string;
-  }>,
+  }>
 ): void {
   const next = {
     value,
@@ -288,12 +292,14 @@ function sortByLabel(options: Civ7SetupCatalogOption[]): Civ7SetupCatalogOption[
 
 function sortByKnownOrder(
   options: Civ7SetupCatalogOption[],
-  order: ReadonlyArray<string>,
+  order: ReadonlyArray<string>
 ): Civ7SetupCatalogOption[] {
   const positions = new Map(order.map((value, index) => [value, index]));
   return options.sort((a, b) => {
     const aPosition = positions.get(a.value) ?? Number.MAX_SAFE_INTEGER;
     const bPosition = positions.get(b.value) ?? Number.MAX_SAFE_INTEGER;
-    return aPosition - bPosition || a.label.localeCompare(b.label) || a.value.localeCompare(b.value);
+    return (
+      aPosition - bPosition || a.label.localeCompare(b.label) || a.value.localeCompare(b.value)
+    );
   });
 }

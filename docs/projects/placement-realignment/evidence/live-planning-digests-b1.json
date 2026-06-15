@@ -1,5 +1,16 @@
 {
   "source": "NATURAL_WONDER_PLAN_INPUT_V1 surfaceDigests, live run studio-run-in-game-mq95a8mp-o7l (Huge 106x66 seed 1337, 10p)",
-  "live": {"plotCount": 6996, "landMaskHash32": "38bc48f5", "elevationHash32": "3ea69a4e", "aridityPpmHash32": "263631b8", "riverClassHash32": "75550547", "lakeMaskHash32": "7dd195d5", "blockedMaskHash32": "844568c5", "terrainTypeHash32": "e8060fc0", "biomeTypeHash32": "42ceb397", "featureTypeHash32": "42fcf491"},
+  "live": {
+    "plotCount": 6996,
+    "landMaskHash32": "38bc48f5",
+    "elevationHash32": "3ea69a4e",
+    "aridityPpmHash32": "263631b8",
+    "riverClassHash32": "75550547",
+    "lakeMaskHash32": "7dd195d5",
+    "blockedMaskHash32": "844568c5",
+    "terrainTypeHash32": "e8060fc0",
+    "biomeTypeHash32": "42ceb397",
+    "featureTypeHash32": "42fcf491"
+  },
   "note": "B1 gate: a local headless run at the identical frame must reproduce these planning-time digests; any differing hash names the drifting surface. Also recorded: Civ7 Scripting.log truncates the RESOURCE_PLACEMENT_V1 line mid-payload on Huge (rejectionRows cut; byPhase unreadable from log) — telemetry payload cap owed as a follow-up."
 }

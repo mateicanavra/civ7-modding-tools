@@ -9,4 +9,3 @@ export function wrapDeltaPeriodic(dx: number, span: number): number {
 export function wrapAbsDeltaPeriodic(dx: number, span: number): number {
   return Math.abs(wrapDeltaPeriodic(dx, span));
 }
-

@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const StartsBaseSchema = Type.Object(
   {
@@ -14,8 +14,7 @@ const StartsBaseSchema = Type.Object(
     }),
   },
   {
-    description:
-      "Per-hemisphere start counts supplied by the run environment (map-size config).",
+    description: "Per-hemisphere start counts supplied by the run environment (map-size config).",
   }
 );
 
@@ -121,11 +120,7 @@ const StartRecordSchema = Type.Object(
 const FairnessRelaxationSchema = Type.Object(
   {
     seatIndex: Type.Integer({ minimum: 0 }),
-    kind: Type.Union([
-      Type.Literal("spacing"),
-      Type.Literal("region"),
-      Type.Literal("quality"),
-    ]),
+    kind: Type.Union([Type.Literal("spacing"), Type.Literal("region"), Type.Literal("quality")]),
     from: Type.Number(),
     to: Type.Number(),
   },
@@ -274,9 +269,7 @@ const PlanStartsContract = defineOp({
         description: "Hydrology river class per tile (0=none,1=minor,>=2=major/projectable).",
       })
     ),
-    lakeMask: Type.Optional(
-      TypedArraySchemas.u8({ description: "Hydrology lake mask per tile." })
-    ),
+    lakeMask: Type.Optional(TypedArraySchemas.u8({ description: "Hydrology lake mask per tile." })),
     mountainMask: Type.Optional(
       TypedArraySchemas.u8({
         description: "Morphology mountain terrain mask per tile (1=mountain); excludes candidates.",
@@ -388,8 +381,7 @@ const PlanStartsContract = defineOp({
         minimum: 1,
         maximum: 400,
         default: 24,
-        description:
-          "Minimum connected landmass size for a normal first-age start candidate.",
+        description: "Minimum connected landmass size for a normal first-age start candidate.",
       }),
       expansionRadiusTiles: Type.Integer({
         minimum: 1,
@@ -407,8 +399,7 @@ const PlanStartsContract = defineOp({
         minimum: 1,
         maximum: 10,
         default: 5,
-        description:
-          "Radius used to evaluate nearby expansion land for intentional island starts.",
+        description: "Radius used to evaluate nearby expansion land for intentional island starts.",
       }),
       minIslandClusterLandTiles: Type.Integer({
         minimum: 1,

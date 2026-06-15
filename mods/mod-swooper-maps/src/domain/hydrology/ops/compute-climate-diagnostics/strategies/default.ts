@@ -2,11 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { idx } from "@swooper/mapgen-core/lib/grid";
 
 import ComputeClimateDiagnosticsContract from "../contract.js";
-import {
-  clamp01,
-  computeDistanceToWater,
-  upwindBarrierDistance,
-} from "../rules/index.js";
+import { clamp01, computeDistanceToWater, upwindBarrierDistance } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeClimateDiagnosticsContract, "default", {
   run: (input, config) => {
@@ -15,7 +11,9 @@ export const defaultStrategy = createStrategy(ComputeClimateDiagnosticsContract,
     const size = Math.max(0, width * height);
 
     if (!(input.latitudeByRow instanceof Float32Array) || input.latitudeByRow.length !== height) {
-      throw new Error("[Hydrology] Invalid latitudeByRow for hydrology/compute-climate-diagnostics.");
+      throw new Error(
+        "[Hydrology] Invalid latitudeByRow for hydrology/compute-climate-diagnostics."
+      );
     }
     if (!(input.elevation instanceof Int16Array) || input.elevation.length !== size) {
       throw new Error("[Hydrology] Invalid elevation for hydrology/compute-climate-diagnostics.");
@@ -80,7 +78,7 @@ export const defaultStrategy = createStrategy(ComputeClimateDiagnosticsContract,
         const uR = input.windU[idx(Math.min(width - 1, x + 1), y, width)] | 0;
         const vD = input.windV[idx(x, Math.max(0, y - 1), width)] | 0;
         const vU = input.windV[idx(x, Math.min(height - 1, y + 1), width)] | 0;
-        const divergence = (uR - uL) + (vU - vD);
+        const divergence = uR - uL + (vU - vD);
         const convergence = Math.max(0, -divergence);
         convergenceIndex[i] = clamp01(convergence / convNorm);
       }

@@ -1,15 +1,3 @@
-import {
-  createCiv7OperationProofTelemetryRecord,
-  type Civ7OperationProofBoundary,
-  type Civ7OperationProofClass,
-  type Civ7OperationProofTelemetryRecord,
-  type Civ7OperationTelemetryEvidence,
-  type Civ7OperationTelemetryEvidencePolicy,
-  type Civ7OperationTelemetryObservationLink,
-  type Civ7OperationTelemetryPlayerScope,
-  type Civ7OperationTelemetryPostcondition,
-} from "./operation-telemetry.js";
-
 import type {
   Civ7ProductionChoiceInput,
   Civ7ProductionChoiceResult,
@@ -18,6 +6,17 @@ import {
   productionChoicePostconditionConfirmed,
   productionChoicePostconditionOutcome,
 } from "../play/operations/production-choice-proof.js";
+import {
+  type Civ7OperationProofBoundary,
+  type Civ7OperationProofClass,
+  type Civ7OperationProofTelemetryRecord,
+  type Civ7OperationTelemetryEvidence,
+  type Civ7OperationTelemetryEvidencePolicy,
+  type Civ7OperationTelemetryObservationLink,
+  type Civ7OperationTelemetryPlayerScope,
+  type Civ7OperationTelemetryPostcondition,
+  createCiv7OperationProofTelemetryRecord,
+} from "./operation-telemetry.js";
 
 export type Civ7ProductionChoiceTelemetryAdapterInput = Readonly<{
   input: Civ7ProductionChoiceInput;
@@ -39,7 +38,7 @@ export function createCiv7ProductionChoiceTelemetryRecord(
   const evidenceClass = input.allowedProofClasses?.[0] ?? "local-package-test";
   const evidence = <T>(
     value: T,
-    freshness: Civ7OperationTelemetryEvidence<T>["freshness"],
+    freshness: Civ7OperationTelemetryEvidence<T>["freshness"]
   ): Civ7OperationTelemetryEvidence<T> => ({
     evidenceClass,
     source: input.source,
@@ -100,18 +99,20 @@ export function createCiv7ProductionChoiceTelemetryRecord(
         : {
             status: "not-sent",
             requestFamily: "city-operation",
-            reason: input.result.productionPostcondition?.reason ?? "Production choice was not sent.",
+            reason:
+              input.result.productionPostcondition?.reason ?? "Production choice was not sent.",
           },
-    post_read: input.result.sent || input.result.payload
-      ? evidence(
-          {
-            beforeProductionPostcondition: input.result.payload?.beforeProductionPostcondition,
-            afterProductionPostcondition: input.result.payload?.afterProductionPostcondition,
-            ui: input.result.payload?.ui,
-          },
-          input.result.sent ? "read-after-send" : "read-before-send"
-        )
-      : undefined,
+    post_read:
+      input.result.sent || input.result.payload
+        ? evidence(
+            {
+              beforeProductionPostcondition: input.result.payload?.beforeProductionPostcondition,
+              afterProductionPostcondition: input.result.payload?.afterProductionPostcondition,
+              ui: input.result.payload?.ui,
+            },
+            input.result.sent ? "read-after-send" : "read-before-send"
+          )
+        : undefined,
     validation_post: input.result.sent
       ? evidence(
           {
@@ -127,8 +128,10 @@ export function createCiv7ProductionChoiceTelemetryRecord(
     outcome_delta: input.result.sent
       ? evidence(
           {
-            classification: input.result.productionPostcondition?.classification ?? "missing-postcondition",
-            productionStateChanged: input.result.productionPostcondition?.productionStateChanged ?? null,
+            classification:
+              input.result.productionPostcondition?.classification ?? "missing-postcondition",
+            productionStateChanged:
+              input.result.productionPostcondition?.productionStateChanged ?? null,
             blockerStillLive: input.result.productionPostcondition?.blockerStillLive ?? null,
           },
           "read-after-send"
@@ -149,7 +152,9 @@ export function createCiv7ProductionChoiceTelemetryRecord(
 }
 
 function productionChoiceTelemetryId(input: Civ7ProductionChoiceInput): string {
-  const itemKey = ["UnitType", "ConstructibleType", "ProjectType"].find((key) => Number.isInteger(input.args[key]));
+  const itemKey = ["UnitType", "ConstructibleType", "ProjectType"].find((key) =>
+    Number.isInteger(input.args[key])
+  );
   const itemValue = itemKey ? input.args[itemKey] : "unknown";
   return `production-choice:${input.cityId.owner}:${input.cityId.id}:${itemKey ?? "unknown"}:${itemValue}`;
 }
@@ -167,7 +172,7 @@ function productionChoiceEvidencePolicy(
 
 function productionChoicePostcondition(
   result: Civ7ProductionChoiceResult,
-  proofBoundary: Civ7OperationProofBoundary | undefined,
+  proofBoundary: Civ7OperationProofBoundary | undefined
 ): Civ7OperationTelemetryPostcondition | undefined {
   if (!result.sent && !result.productionPostcondition) return undefined;
   if (proofBoundary === "pending-runtime-proof") {

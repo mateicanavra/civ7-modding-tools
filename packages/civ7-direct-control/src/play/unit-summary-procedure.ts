@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../session/types.js";
 import {
-  Civ7UnitSummaryInputSchema,
-  Civ7UnitSummaryResultSchema,
-  getCiv7UnitSummary,
   type Civ7UnitSummaryDependencies,
   type Civ7UnitSummaryInput,
+  Civ7UnitSummaryInputSchema,
   type Civ7UnitSummaryResult,
+  Civ7UnitSummaryResultSchema,
+  getCiv7UnitSummary,
 } from "./summaries.js";
 
 export const Civ7UnitSummaryProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
@@ -31,20 +31,8 @@ export const Civ7UnitSummaryProcedureDescriptor = createCiv7ProcedureCoreDescrip
     owner: "packages/civ7-direct-control/src/play/summaries.ts",
     exportName: "Civ7UnitSummaryResultSchema",
   },
-  inputFields: [
-    "playerIds",
-    "unitIds",
-    "playerId",
-    "maxItems",
-    "includeHidden",
-  ],
-  outputFields: [
-    "host",
-    "port",
-    "state",
-    "units",
-    "omitted",
-  ],
+  inputFields: ["playerIds", "unitIds", "playerId", "maxItems", "includeHidden"],
+  outputFields: ["host", "port", "state", "units", "omitted"],
   playerScope: "local-player-scoped",
   consumerClasses: [
     "normal-cli-player-agent-view",
@@ -89,13 +77,13 @@ export type Civ7UnitSummaryProcedureCallOptions = Readonly<{
 
 export function callCiv7UnitSummaryProcedure(
   input: Civ7UnitSummaryInput = {},
-  options: Civ7UnitSummaryProcedureCallOptions = {},
+  options: Civ7UnitSummaryProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7UnitSummaryResult>> {
   return callCiv7ProcedureCore<Civ7UnitSummaryInput, Civ7UnitSummaryResult>(
     Civ7UnitSummaryProcedureDescriptor,
     Civ7UnitSummaryProcedureSchemaArtifacts,
     input,
     (validInput) => getCiv7UnitSummary(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    options.procedure
   );
 }

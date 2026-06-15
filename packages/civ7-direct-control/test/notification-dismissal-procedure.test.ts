@@ -1,22 +1,24 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7NotificationDismissalResult,
+  Civ7NotificationDismissalResultSchema,
+  type Civ7NotificationDismissalSummary,
+  type Civ7NotificationDismissInput,
   Civ7NotificationDismissRequestInputSchema,
   Civ7NotificationDismissRequestProcedureDescriptor,
   Civ7NotificationDismissRequestProcedureSchemaArtifacts,
-  Civ7NotificationDismissalResultSchema,
   callCiv7NotificationDismissRequestProcedure,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7NotificationDismissInput,
-  type Civ7NotificationDismissalResult,
-  type Civ7NotificationDismissalSummary,
 } from "../src/index";
 
 describe("Civ7 notification dismissal request procedure descriptor", () => {
   test("records notification dismissal validator, postcondition, and no-repeat metadata and resolves schemas", () => {
-    const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7NotificationDismissRequestProcedureDescriptor);
+    const summary = summarizeCiv7ProcedureCoreDescriptor(
+      Civ7NotificationDismissRequestProcedureDescriptor
+    );
     expect(summary).toMatchObject({
       procedureKey: "notifications.dismiss.request",
       family: "notifications",
@@ -36,44 +38,56 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7NotificationDismissRequestProcedureDescriptor,
-      Civ7NotificationDismissRequestProcedureSchemaArtifacts,
+      Civ7NotificationDismissRequestProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7NotificationDismissRequestProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7NotificationDismissRequestProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7NotificationDismissRequestProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7NotificationDismissRequestProcedureDescriptor.outputFields)
     );
     expect(Civ7NotificationDismissRequestProcedureDescriptor.outputFields).not.toContain("command");
-    expect(Value.Check(resolved.inputSchema, {
-      notificationId: { owner: 0, id: 113, type: 20 },
-    })).toBe(true);
-    expect(Value.Check(resolved.inputSchema, {
-      notificationId: { owner: 0, type: 20 },
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      notificationId: { owner: 0, id: 113, type: 20 },
-      rawCommand: "Game.Notifications.dismiss(...)",
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      notificationId: { owner: 0, id: 113, type: 20 },
-      state: { role: "app-ui" },
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        notificationId: { owner: 0, id: 113, type: 20 },
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        notificationId: { owner: 0, type: 20 },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        notificationId: { owner: 0, id: 113, type: 20 },
+        rawCommand: "Game.Notifications.dismiss(...)",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        notificationId: { owner: 0, id: 113, type: 20 },
+        state: { role: "app-ui" },
+      })
+    ).toBe(false);
     expect(Value.Check(resolved.outputSchema, notificationDismissalResult())).toBe(true);
     expect(Value.Check(resolved.outputSchema, guardedNotificationDismissalResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...notificationDismissalResult(),
-      command: {
-        host: "127.0.0.1",
-        port: 4318,
-        state: { id: "65535", name: "App UI" },
-        output: ["{}"],
-      },
-    })).toBe(false);
-    expect(Value.Check(Civ7NotificationDismissalResultSchema, {
-      ...notificationDismissalResult(),
-      rawCommand: "Game.Notifications.dismiss(...)",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...notificationDismissalResult(),
+        command: {
+          host: "127.0.0.1",
+          port: 4318,
+          state: { id: "65535", name: "App UI" },
+          output: ["{}"],
+        },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7NotificationDismissalResultSchema, {
+        ...notificationDismissalResult(),
+        rawCommand: "Game.Notifications.dismiss(...)",
+      })
+    ).toBe(false);
   });
 
   test("calls the notification dismissal atom through the procedure core", async () => {
@@ -83,25 +97,28 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
       port?: number;
     }> = [];
 
-    const result = await callCiv7NotificationDismissRequestProcedure({
-      notificationId: { owner: 0, id: 113, type: 20 },
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7NotificationDismissRequestProcedure(
+      {
+        notificationId: { owner: 0, id: 113, type: 20 },
       },
-      procedure: {
-        correlationId: "notification-dismissal-procedure-test",
-      },
-      request: async (input, options) => {
-        calls.push({
-          input,
-          host: options.host,
-          port: options.port,
-        });
-        return notificationDismissalResult();
-      },
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "notification-dismissal-procedure-test",
+        },
+        request: async (input, options) => {
+          calls.push({
+            input,
+            host: options.host,
+            port: options.port,
+          });
+          return notificationDismissalResult();
+        },
+      }
+    );
 
     expect(result.output).toEqual(notificationDismissalResult());
     expect(result.output).not.toHaveProperty("command");
@@ -113,13 +130,15 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
       debugServiceCorrelation: true,
       telemetryCorrelation: true,
     });
-    expect(calls).toEqual([{
-      input: {
-        notificationId: { owner: 0, id: 113, type: 20 },
+    expect(calls).toEqual([
+      {
+        input: {
+          notificationId: { owner: 0, id: 113, type: 20 },
+        },
+        host: "127.0.0.1",
+        port: 4318,
       },
-      host: "127.0.0.1",
-      port: 4318,
-    }]);
+    ]);
   });
 
   test("rejects invalid procedure input before request dependencies run", async () => {
@@ -132,13 +151,15 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
         command: "Game.Notifications.dismiss(...)",
       },
     ]) {
-      await expect(callCiv7NotificationDismissRequestProcedure(input as never, {
-        procedure: { correlationId: "notification-dismissal-invalid-input" },
-        request: async () => {
-          requested = true;
-          throw new Error("request should not run after procedure input rejection");
-        },
-      })).rejects.toMatchObject({
+      await expect(
+        callCiv7NotificationDismissRequestProcedure(input as never, {
+          procedure: { correlationId: "notification-dismissal-invalid-input" },
+          request: async () => {
+            requested = true;
+            throw new Error("request should not run after procedure input rejection");
+          },
+        })
+      ).rejects.toMatchObject({
         code: "procedure-descriptor-invalid",
         details: {
           reason: "input-schema-invalid",
@@ -152,14 +173,19 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
 
   test("requires caller-provided correlation before mutation handler execution", async () => {
     let requested = false;
-    await expect(callCiv7NotificationDismissRequestProcedure({
-      notificationId: { owner: 0, id: 113, type: 20 },
-    }, {
-      request: async () => {
-        requested = true;
-        return notificationDismissalResult();
-      },
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7NotificationDismissRequestProcedure(
+        {
+          notificationId: { owner: 0, id: 113, type: 20 },
+        },
+        {
+          request: async () => {
+            requested = true;
+            return notificationDismissalResult();
+          },
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "correlation-id-missing",
@@ -198,9 +224,7 @@ function notificationDismissalResult(): Civ7NotificationDismissalResult {
       classification: "notification-disappeared",
       reason: "The target notification no longer exists after dismissal.",
     },
-    notes: [
-      "Verification is identity-based.",
-    ],
+    notes: ["Verification is identity-based."],
   };
 }
 
@@ -214,13 +238,14 @@ function guardedNotificationDismissalResult(): Civ7NotificationDismissalResult {
     verified: false,
     postcondition: {
       classification: "engine-front-still-live",
-      reason: "The target notification still fronts the engine queue, so weaker dismissed/train evidence is treated as stale.",
+      reason:
+        "The target notification still fronts the engine queue, so weaker dismissed/train evidence is treated as stale.",
     },
   };
 }
 
 function notificationSummary(
-  phase: "before" | "after-cleared" | "after-still-front",
+  phase: "before" | "after-cleared" | "after-still-front"
 ): Civ7NotificationDismissalSummary {
   const notificationId = phase === "after-cleared" ? null : { owner: 0, id: 113, type: 20 };
   const exists = phase !== "after-cleared";

@@ -59,4 +59,3 @@ export function createStep<const C extends StepContract<any, any>, TContext = un
   }
   return { contract, ...impl };
 }
-

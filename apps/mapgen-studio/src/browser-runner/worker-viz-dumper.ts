@@ -1,6 +1,10 @@
 import type { VizDumper } from "@swooper/mapgen-core";
+import type {
+  VizGridFieldsLayerEmissionV1,
+  VizLayerEmissionV1,
+  VizScalarField,
+} from "@swooper/mapgen-viz";
 import { computeVizScalarStats, createVizLayerKey } from "@swooper/mapgen-viz";
-import type { VizGridFieldsLayerEmissionV1, VizLayerEmissionV1, VizScalarField } from "@swooper/mapgen-viz";
 
 type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
 
@@ -19,7 +23,12 @@ function boundsFromPositions(positions: Float32Array): Bounds {
     if (y > maxY) maxY = y;
   }
 
-  if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
+  if (
+    !Number.isFinite(minX) ||
+    !Number.isFinite(minY) ||
+    !Number.isFinite(maxX) ||
+    !Number.isFinite(maxY)
+  ) {
     return [0, 0, 1, 1];
   }
 
@@ -46,14 +55,20 @@ function inlineField(args: {
     format: args.format,
     stats:
       args.stats ??
-      computeVizScalarStats({ format: args.format, values: args.values, noData: args.valueSpec?.noData }) ??
+      computeVizScalarStats({
+        format: args.format,
+        values: args.values,
+        noData: args.valueSpec?.noData,
+      }) ??
       undefined,
     valueSpec: args.valueSpec,
     data: { kind: "inline", buffer: cloneArrayBuffer(args.values) },
   };
 }
 
-function addVectorMagnitudeField(layer: VizGridFieldsLayerEmissionV1): VizGridFieldsLayerEmissionV1 {
+function addVectorMagnitudeField(
+  layer: VizGridFieldsLayerEmissionV1
+): VizGridFieldsLayerEmissionV1 {
   const vector = layer.vector;
   if (!vector?.magnitude) return layer;
   if (layer.fields[vector.magnitude]) return layer;
@@ -101,7 +116,12 @@ export function createWorkerVizDumper(): VizDumper {
         bounds: [0, 0, layer.dims.width, layer.dims.height],
         meta: layer.meta,
         dims: layer.dims,
-        field: inlineField({ format: layer.format, values: layer.values, stats: layer.stats, valueSpec: layer.valueSpec }),
+        field: inlineField({
+          format: layer.format,
+          values: layer.values,
+          stats: layer.stats,
+          valueSpec: layer.valueSpec,
+        }),
       },
     }));
   };
@@ -130,7 +150,15 @@ export function createWorkerVizDumper(): VizDumper {
         meta: layer.meta,
         count: (layer.positions.length / 2) | 0,
         positions: { kind: "inline", buffer: cloneArrayBuffer(layer.positions) },
-        values: layer.values && layer.valueFormat ? inlineField({ format: layer.valueFormat, values: layer.values, stats: layer.valueStats, valueSpec: layer.valueSpec }) : undefined,
+        values:
+          layer.values && layer.valueFormat
+            ? inlineField({
+                format: layer.valueFormat,
+                values: layer.values,
+                stats: layer.valueStats,
+                valueSpec: layer.valueSpec,
+              })
+            : undefined,
       },
     }));
   };
@@ -159,7 +187,15 @@ export function createWorkerVizDumper(): VizDumper {
         meta: layer.meta,
         count: (layer.segments.length / 4) | 0,
         segments: { kind: "inline", buffer: cloneArrayBuffer(layer.segments) },
-        values: layer.values && layer.valueFormat ? inlineField({ format: layer.valueFormat, values: layer.values, stats: layer.valueStats, valueSpec: layer.valueSpec }) : undefined,
+        values:
+          layer.values && layer.valueFormat
+            ? inlineField({
+                format: layer.valueFormat,
+                values: layer.values,
+                stats: layer.valueStats,
+                valueSpec: layer.valueSpec,
+              })
+            : undefined,
       },
     }));
   };
@@ -169,7 +205,12 @@ export function createWorkerVizDumper(): VizDumper {
 
     const fields: Record<string, VizScalarField> = {};
     for (const [key, field] of Object.entries(layer.fields)) {
-      fields[key] = inlineField({ format: field.format, values: field.values, stats: field.stats, valueSpec: field.valueSpec });
+      fields[key] = inlineField({
+        format: field.format,
+        values: field.values,
+        stats: field.stats,
+        valueSpec: field.valueSpec,
+      });
     }
 
     const emitted: VizGridFieldsLayerEmissionV1 = {

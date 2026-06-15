@@ -1,4 +1,4 @@
-import { Type, type Static } from "@swooper/mapgen-core/authoring";
+import { type Static, Type } from "@swooper/mapgen-core/authoring";
 
 /**
  * Morphology sea level knob (semantic intent).

@@ -1,5 +1,5 @@
-import type { Civ7NarrativeChoiceResult } from "../play/operations/narrative-request.js";
 import type { Civ7NarrativeChoicePostconditionClassification } from "../play/operations/narrative-postconditions.js";
+import type { Civ7NarrativeChoiceResult } from "../play/operations/narrative-request.js";
 import type {
   Civ7OperationProofBoundary,
   Civ7OperationTelemetryPostcondition,
@@ -8,7 +8,7 @@ import type {
 
 export function narrativeChoiceProofPostcondition(
   result: Civ7NarrativeChoiceResult,
-  proofBoundary: Civ7OperationProofBoundary | undefined,
+  proofBoundary: Civ7OperationProofBoundary | undefined
 ): Civ7OperationTelemetryPostcondition | undefined {
   if (!result.sent && !result.postcondition) return undefined;
   if (proofBoundary === "pending-runtime-proof") {
@@ -48,7 +48,7 @@ export function narrativeChoiceProofPostcondition(
 }
 
 export function narrativeChoicePostconditionConfirmed(
-  classification: Civ7NarrativeChoicePostconditionClassification,
+  classification: Civ7NarrativeChoicePostconditionClassification
 ): boolean {
   switch (classification) {
     case "turn-unblocked":
@@ -63,7 +63,7 @@ export function narrativeChoicePostconditionConfirmed(
 }
 
 export function narrativeChoiceProofOutcome(
-  classification: Civ7NarrativeChoicePostconditionClassification,
+  classification: Civ7NarrativeChoicePostconditionClassification
 ): Civ7OperationTelemetryPostconditionOutcome {
   switch (classification) {
     case "not-sent":

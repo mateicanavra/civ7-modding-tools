@@ -1,25 +1,25 @@
-import { Args, Flags } from '@oclif/core';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import BaseCommand from '../BaseCommand.js';
-import { removeSubtreeConfig } from '../../utils/git.js';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { Args, Flags } from "@oclif/core";
+import { removeSubtreeConfig } from "../../utils/git.js";
+import BaseCommand from "../BaseCommand.js";
 
 export default abstract class SubtreeRemoveConfigBase extends BaseCommand {
   static flags = {
-    repoUrl: Flags.string({ description: 'Repository URL to match' }),
+    repoUrl: Flags.string({ description: "Repository URL to match" }),
     deleteLocal: Flags.boolean({
-      description: 'Also delete local subtree directory',
+      description: "Also delete local subtree directory",
       default: false,
     }),
     verbose: Flags.boolean({
-      description: 'Show underlying git commands',
+      description: "Show underlying git commands",
       default: false,
-      char: 'v',
+      char: "v",
     }),
   } as const;
 
   static args = {
-    slug: Args.string({ description: 'Subtree slug', required: false }),
+    slug: Args.string({ description: "Subtree slug", required: false }),
   } as const;
 
   protected abstract domain: string;
@@ -34,11 +34,15 @@ export default abstract class SubtreeRemoveConfigBase extends BaseCommand {
     const slug = args.slug as string | undefined;
     const repoUrl = flags.repoUrl as string | undefined;
     if (!slug && !repoUrl) {
-      throw new Error('Provide a slug or --repoUrl to remove.');
+      throw new Error("Provide a slug or --repoUrl to remove.");
     }
-    const removed = await removeSubtreeConfig(this.domain, { slug, repoUrl, verbose: flags.verbose });
+    const removed = await removeSubtreeConfig(this.domain, {
+      slug,
+      repoUrl,
+      verbose: flags.verbose,
+    });
     if (!removed) {
-      this.log('No matching config entry found.');
+      this.log("No matching config entry found.");
       return;
     }
     if (flags.deleteLocal) {

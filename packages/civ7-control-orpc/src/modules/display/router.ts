@@ -1,8 +1,5 @@
 import { displayExploreRequestProcedure } from "./procedures/explore-request";
-import {
-  displayQueueCloseProcedure,
-  displayQueueCurrentProcedure,
-} from "./procedures/queue";
+import { displayQueueCloseProcedure, displayQueueCurrentProcedure } from "./procedures/queue";
 
 export const displayRouter = {
   queue: {

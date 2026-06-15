@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 import { FeaturePlacementSchema } from "../../shared/placement-schema.js";
 
 const PlanIceContract = defineOp({
@@ -34,8 +34,7 @@ const PlanIceContract = defineOp({
         minimum: 0,
         maximum: 1,
         default: 0.5,
-        description:
-          "Family-local admission threshold for the continentality-aware ice planner.",
+        description: "Family-local admission threshold for the continentality-aware ice planner.",
       }),
     }),
   },

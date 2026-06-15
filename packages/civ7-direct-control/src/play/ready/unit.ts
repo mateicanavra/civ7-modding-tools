@@ -1,114 +1,139 @@
-import { Type, type Static } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
 import { boundedInteger } from "../../validation.js";
-
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-} from "../../session/types.js";
 
 const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
 
-export const Civ7ReadyUnitViewInputSchema = Type.Object({
-  unitId: Type.Optional(Civ7ComponentIdSchema),
-  radius: Type.Optional(Type.Integer({ minimum: 0, maximum: 5 })),
-  maxOperations: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
-}, { additionalProperties: false });
+export const Civ7ReadyUnitViewInputSchema = Type.Object(
+  {
+    unitId: Type.Optional(Civ7ComponentIdSchema),
+    radius: Type.Optional(Type.Integer({ minimum: 0, maximum: 5 })),
+    maxOperations: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
+  },
+  { additionalProperties: false }
+);
 export type Civ7ReadyUnitViewInput = Static<typeof Civ7ReadyUnitViewInputSchema>;
 
-export const Civ7ReadyUnitOperationCandidateSchema = Type.Object({
-  family: Type.Union([Type.Literal("unit-operation"), Type.Literal("unit-command")]),
-  operationType: Type.String(),
-  enumValue: Type.Unknown(),
-  valid: Type.Boolean(),
-  result: Type.Unknown(),
-}, { additionalProperties: false });
+export const Civ7ReadyUnitOperationCandidateSchema = Type.Object(
+  {
+    family: Type.Union([Type.Literal("unit-operation"), Type.Literal("unit-command")]),
+    operationType: Type.String(),
+    enumValue: Type.Unknown(),
+    valid: Type.Boolean(),
+    result: Type.Unknown(),
+  },
+  { additionalProperties: false }
+);
 export type Civ7ReadyUnitOperationCandidate = Static<typeof Civ7ReadyUnitOperationCandidateSchema>;
 
-export const Civ7ReadyUnitNearbyPlotSchema = Type.Object({
-  x: Type.Number(),
-  y: Type.Number(),
-  units: Type.Unknown(),
-}, { additionalProperties: false });
+export const Civ7ReadyUnitNearbyPlotSchema = Type.Object(
+  {
+    x: Type.Number(),
+    y: Type.Number(),
+    units: Type.Unknown(),
+  },
+  { additionalProperties: false }
+);
 export type Civ7ReadyUnitNearbyPlot = Static<typeof Civ7ReadyUnitNearbyPlotSchema>;
 
-export const Civ7ReadyUnitPromotionReadinessSchema = Type.Object({
-  hasExperience: Type.Boolean(),
-  canPromote: Type.Unknown(),
-  promotionClass: Type.Union([Type.String(), Type.Null()]),
-  level: Type.Unknown(),
-  experiencePoints: Type.Unknown(),
-  experienceToNextLevel: Type.Unknown(),
-  totalPromotionsEarned: Type.Unknown(),
-  storedPromotionPoints: Type.Unknown(),
-  storedCommendations: Type.Unknown(),
-  canPurchase: Type.Boolean(),
-  availablePromotions: Type.Array(Type.Object({
-    disciplineType: Type.String(),
-    promotionType: Type.String(),
-    name: Type.Union([Type.String(), Type.Null()]),
-    description: Type.Union([Type.String(), Type.Null()]),
-    commendation: Type.Boolean(),
-    args: Type.Unknown(),
-    validation: Type.Unknown(),
-  }, { additionalProperties: false })),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7ReadyUnitPromotionReadinessSchema = Type.Object(
+  {
+    hasExperience: Type.Boolean(),
+    canPromote: Type.Unknown(),
+    promotionClass: Type.Union([Type.String(), Type.Null()]),
+    level: Type.Unknown(),
+    experiencePoints: Type.Unknown(),
+    experienceToNextLevel: Type.Unknown(),
+    totalPromotionsEarned: Type.Unknown(),
+    storedPromotionPoints: Type.Unknown(),
+    storedCommendations: Type.Unknown(),
+    canPurchase: Type.Boolean(),
+    availablePromotions: Type.Array(
+      Type.Object(
+        {
+          disciplineType: Type.String(),
+          promotionType: Type.String(),
+          name: Type.Union([Type.String(), Type.Null()]),
+          description: Type.Union([Type.String(), Type.Null()]),
+          commendation: Type.Boolean(),
+          args: Type.Unknown(),
+          validation: Type.Unknown(),
+        },
+        { additionalProperties: false }
+      )
+    ),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 export type Civ7ReadyUnitPromotionReadiness = Static<typeof Civ7ReadyUnitPromotionReadinessSchema>;
 
-export const Civ7ReadyUnitViewResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: Type.Object({
-    id: Type.String(),
-    name: Type.String(),
-  }, { additionalProperties: false }),
-  localPlayerId: Type.Number(),
-  requestedUnitId: nullableComponentIdSchema,
-  selectedUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
-  firstReadyUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
-  unitId: nullableComponentIdSchema,
-  unit: Civ7RuntimeProbeSchema(Type.Unknown()),
-  legalOperations: Type.Array(Civ7ReadyUnitOperationCandidateSchema),
-  promotionReadiness: Civ7RuntimeProbeSchema(Type.Union([Civ7ReadyUnitPromotionReadinessSchema, Type.Null()])),
-  nearby: Civ7RuntimeProbeSchema(Type.Array(Civ7ReadyUnitNearbyPlotSchema)),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7ReadyUnitViewResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: Type.Object(
+      {
+        id: Type.String(),
+        name: Type.String(),
+      },
+      { additionalProperties: false }
+    ),
+    localPlayerId: Type.Number(),
+    requestedUnitId: nullableComponentIdSchema,
+    selectedUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+    firstReadyUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+    unitId: nullableComponentIdSchema,
+    unit: Civ7RuntimeProbeSchema(Type.Unknown()),
+    legalOperations: Type.Array(Civ7ReadyUnitOperationCandidateSchema),
+    promotionReadiness: Civ7RuntimeProbeSchema(
+      Type.Union([Civ7ReadyUnitPromotionReadinessSchema, Type.Null()])
+    ),
+    nearby: Civ7RuntimeProbeSchema(Type.Array(Civ7ReadyUnitNearbyPlotSchema)),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 export type Civ7ReadyUnitViewResult = Static<typeof Civ7ReadyUnitViewResultSchema>;
 
 export type ReadyUnitViewDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
-  parseReadyUnitView: (
-    result: Civ7CommandResult,
-    label: string,
-  ) => Civ7ReadyUnitViewResult;
+  parseReadyUnitView: (result: Civ7CommandResult, label: string) => Civ7ReadyUnitViewResult;
 }>;
 
 export async function getCiv7ReadyUnitView(
   input: Civ7ReadyUnitViewInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: ReadyUnitViewDependencies = defaultReadyUnitViewDependencies,
+  dependencies: ReadyUnitViewDependencies = defaultReadyUnitViewDependencies
 ): Promise<Civ7ReadyUnitViewResult> {
   const result = await dependencies.executeAppUiCommand({
     ...options,
     command: buildReadyUnitViewCommand({
       ...input,
       radius: dependencies.boundedInteger(input.radius ?? 2, 0, 5, "radius"),
-      maxOperations: dependencies.boundedInteger(input.maxOperations ?? 96, 1, 256, "maxOperations"),
+      maxOperations: dependencies.boundedInteger(
+        input.maxOperations ?? 96,
+        1,
+        256,
+        "maxOperations"
+      ),
     }),
   });
   return dependencies.parseReadyUnitView(result, "Civ7 ready unit view");
 }
 
-function buildReadyUnitViewCommand(input: Civ7ReadyUnitViewInput & { radius: number; maxOperations: number }): string {
+function buildReadyUnitViewCommand(
+  input: Civ7ReadyUnitViewInput & { radius: number; maxOperations: number }
+): string {
   return `(() => {
     ${readyUnitViewSource()}
     return JSON.stringify(readReadyUnitView(${jsLiteral(input)}));

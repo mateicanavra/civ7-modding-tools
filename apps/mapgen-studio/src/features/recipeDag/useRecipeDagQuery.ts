@@ -1,6 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-
 import type { RecipeDagResult } from "@civ7/studio-server/contract";
+import { useQuery } from "@tanstack/react-query";
 
 import { orpcClient } from "../../lib/orpc";
 
@@ -28,7 +27,7 @@ export type RecipeDagQueryView = Readonly<{
 
 export function useRecipeDagQuery(
   recipeId: string,
-  options: Readonly<{ enabled: boolean }>,
+  options: Readonly<{ enabled: boolean }>
 ): RecipeDagQueryView {
   const query = useQuery<RecipeDagResult, Error>({
     queryKey: ["recipeDag", recipeId],

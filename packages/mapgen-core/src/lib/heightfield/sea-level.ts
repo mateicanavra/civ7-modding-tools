@@ -5,10 +5,7 @@
  * quantile corresponding to the desired land coverage. Caller decides whether
  * to use `>` or `>=` for land checks.
  */
-export function computeSeaLevel(
-  heights: Float32Array | number[],
-  targetLandTiles: number
-): number {
+export function computeSeaLevel(heights: Float32Array | number[], targetLandTiles: number): number {
   const size = heights.length;
   if (size === 0) return 0;
 

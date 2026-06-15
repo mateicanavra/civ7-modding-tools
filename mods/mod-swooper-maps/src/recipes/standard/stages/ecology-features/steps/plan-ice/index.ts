@@ -1,23 +1,25 @@
+import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
-
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import {
   validateFeatureIntentsListArtifact,
   validateOccupancyArtifact,
 } from "../../../ecology/artifact-validation.js";
+import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import PlanIceStepContract from "./contract.js";
 
 export default createStep(PlanIceStepContract, {
-  artifacts: implementArtifacts([ecologyArtifacts.featureIntentsIce, ecologyArtifacts.occupancyIce], {
-    featureIntentsIce: {
-      validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
-    },
-    occupancyIce: {
-      validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
-    },
-  }),
+  artifacts: implementArtifacts(
+    [ecologyArtifacts.featureIntentsIce, ecologyArtifacts.occupancyIce],
+    {
+      featureIntentsIce: {
+        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+      },
+      occupancyIce: {
+        validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
+      },
+    }
+  ),
   run: (context, config, ops, deps) => {
     const base = deps.artifacts.occupancyFloodplains.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);

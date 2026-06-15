@@ -2,8 +2,8 @@ import { Civ7DirectControlError } from "../../direct-control-error";
 import type { Civ7DirectControlOptions } from "../../session/types";
 import { validatePlayerId } from "../../validation";
 import {
-  requestCiv7PlayerOperation,
   type Civ7OperationRequestResult,
+  requestCiv7PlayerOperation,
 } from "../operations/validate-request";
 
 export type Civ7ProgressionTargetKind = "technology" | "culture";
@@ -14,9 +14,7 @@ export type Civ7ProgressionTargetInput = Readonly<{
   node: number;
 }>;
 
-export type Civ7ProgressionTargetPostconditionClassification =
-  | "not-sent"
-  | "pending-runtime-proof";
+export type Civ7ProgressionTargetPostconditionClassification = "not-sent" | "pending-runtime-proof";
 
 export type Civ7ProgressionTargetPostcondition = Readonly<{
   classification: Civ7ProgressionTargetPostconditionClassification;
@@ -43,7 +41,7 @@ type ProgressionTargetRequestDependencies = Readonly<{
       operationType: string;
       args: Readonly<{ ProgressionTreeNodeType: number }>;
     }>,
-    options: Civ7DirectControlOptions,
+    options: Civ7DirectControlOptions
   ) => Promise<Civ7OperationRequestResult>;
   invalidNodeError: () => never;
 }>;
@@ -51,16 +49,19 @@ type ProgressionTargetRequestDependencies = Readonly<{
 export async function requestCiv7ProgressionTarget(
   input: Civ7ProgressionTargetInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: ProgressionTargetRequestDependencies = defaultProgressionTargetRequestDependencies,
+  dependencies: ProgressionTargetRequestDependencies = defaultProgressionTargetRequestDependencies
 ): Promise<Civ7ProgressionTargetResult> {
   dependencies.validatePlayerId(input.playerId);
   if (!Number.isInteger(input.node)) dependencies.invalidNodeError();
 
-  const operation = await dependencies.requestPlayerOperation({
-    playerId: input.playerId,
-    operationType: progressionTargetOperationType(input.kind),
-    args: { ProgressionTreeNodeType: input.node },
-  }, options);
+  const operation = await dependencies.requestPlayerOperation(
+    {
+      playerId: input.playerId,
+      operationType: progressionTargetOperationType(input.kind),
+      args: { ProgressionTreeNodeType: input.node },
+    },
+    options
+  );
   const sent = operation.sent === true;
 
   return {
@@ -78,27 +79,25 @@ export async function requestCiv7ProgressionTarget(
 
 export async function requestCiv7TechnologyTarget(
   input: Omit<Civ7ProgressionTargetInput, "kind">,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7ProgressionTargetResult> {
   return await requestCiv7ProgressionTarget({ ...input, kind: "technology" }, options);
 }
 
 export async function requestCiv7CultureTarget(
   input: Omit<Civ7ProgressionTargetInput, "kind">,
-  options: Civ7DirectControlOptions = {},
+  options: Civ7DirectControlOptions = {}
 ): Promise<Civ7ProgressionTargetResult> {
   return await requestCiv7ProgressionTarget({ ...input, kind: "culture" }, options);
 }
 
 function progressionTargetOperationType(kind: Civ7ProgressionTargetKind): string {
-  return kind === "technology"
-    ? "SET_TECH_TREE_TARGET_NODE"
-    : "SET_CULTURE_TREE_TARGET_NODE";
+  return kind === "technology" ? "SET_TECH_TREE_TARGET_NODE" : "SET_CULTURE_TREE_TARGET_NODE";
 }
 
 function progressionTargetPostcondition(
   sent: boolean,
-  kind: Civ7ProgressionTargetKind,
+  kind: Civ7ProgressionTargetKind
 ): Civ7ProgressionTargetPostcondition {
   if (!sent) {
     return {

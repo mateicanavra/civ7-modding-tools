@@ -1,7 +1,6 @@
+import { biomeSymbolFromIndex } from "@mapgen/domain/ecology/types.js";
 import { clamp01, normalizeRange } from "@swooper/mapgen-core";
 import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
-
-import { biomeSymbolFromIndex } from "@mapgen/domain/ecology/types.js";
 
 import PlotEffectsScoreSandContract from "../contract.js";
 
@@ -60,4 +59,3 @@ export const defaultStrategy = createStrategy(PlotEffectsScoreSandContract, "def
     return { score01, eligibleMask };
   },
 });
-

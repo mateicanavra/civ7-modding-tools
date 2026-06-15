@@ -1,4 +1,4 @@
-import { Type, defineArtifact } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring";
 
 /** Discovery stamping outcomes (`artifact:placement.discoveryPlacementOutcomes`). One artifact per file by repo convention. */
 const DiscoveryPlacementOutcomeSchema = Type.Object(

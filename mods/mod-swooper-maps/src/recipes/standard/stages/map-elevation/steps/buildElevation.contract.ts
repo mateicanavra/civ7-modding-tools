@@ -1,8 +1,8 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
-import { morphologyArtifacts } from "../../morphology/artifacts.js";
 import { mapHydrologyArtifacts } from "../../map-hydrology/artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 import { mapElevationArtifacts } from "../artifacts.js";
 
 const BuildElevationStepContract = defineStep({

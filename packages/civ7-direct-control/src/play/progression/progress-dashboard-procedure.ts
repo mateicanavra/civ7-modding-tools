@@ -1,18 +1,18 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
+  type Civ7ProgressDashboardInput,
   Civ7ProgressDashboardInputSchema,
+  type Civ7ProgressDashboardResult,
   Civ7ProgressDashboardResultSchema,
   getCiv7ProgressDashboard,
-  type Civ7ProgressDashboardInput,
-  type Civ7ProgressDashboardResult,
   type ProgressDashboardDependencies,
 } from "./reads.js";
 
@@ -31,9 +31,7 @@ export const Civ7ProgressDashboardProcedureDescriptor = createCiv7ProcedureCoreD
     owner: "packages/civ7-direct-control/src/play/progression/reads.ts",
     exportName: "Civ7ProgressDashboardResultSchema",
   },
-  inputFields: [
-    "playerId",
-  ],
+  inputFields: ["playerId"],
   outputFields: [
     "localPlayerId",
     "playerId",
@@ -49,10 +47,7 @@ export const Civ7ProgressDashboardProcedureDescriptor = createCiv7ProcedureCoreD
     "notes",
   ],
   playerScope: "local-player-scoped",
-  consumerClasses: [
-    "normal-cli-player-agent-view",
-    "effect-orpc-procedure-core",
-  ],
+  consumerClasses: ["normal-cli-player-agent-view", "effect-orpc-procedure-core"],
   proofBoundary: "local-package-test",
   projection: {
     normalCli: "semantic-projection",
@@ -91,13 +86,14 @@ export type Civ7ProgressDashboardProcedureCallOptions = Readonly<{
 
 export function callCiv7ProgressDashboardProcedure(
   input: Civ7ProgressDashboardInput = {},
-  options: Civ7ProgressDashboardProcedureCallOptions = {},
+  options: Civ7ProgressDashboardProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7ProgressDashboardResult>> {
   return callCiv7ProcedureCore<Civ7ProgressDashboardInput, Civ7ProgressDashboardResult>(
     Civ7ProgressDashboardProcedureDescriptor,
     Civ7ProgressDashboardProcedureSchemaArtifacts,
     input,
-    (validInput) => getCiv7ProgressDashboard(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    (validInput) =>
+      getCiv7ProgressDashboard(validInput, options.directControl, options.dependencies),
+    options.procedure
   );
 }

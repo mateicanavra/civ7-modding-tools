@@ -1,5 +1,5 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import { hydrologyClimateRefineArtifacts } from "../../../hydrology-climate-refine/artifacts.js";
@@ -23,11 +23,9 @@ const BiomesStepContract = defineStep({
     classify: ecology.ops.classifyBiomes,
   },
   schema: Type.Object(
+    {},
     {
-    },
-    {
-      description:
-        "Biome classification configuration.",
+      description: "Biome classification configuration.",
     }
   ),
 });

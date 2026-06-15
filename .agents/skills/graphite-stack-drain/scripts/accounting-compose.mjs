@@ -15,7 +15,9 @@ function parseArgs(argv) {
     else if (arg === "--ledger") args.ledger = argv[++index];
     else if (arg === "--output") args.output = argv[++index];
     else if (arg === "--help" || arg === "-h") {
-      console.log("Usage: accounting-compose.mjs --census census.json --ledger ledger.json [--output PATH]");
+      console.log(
+        "Usage: accounting-compose.mjs --census census.json --ledger ledger.json [--output PATH]"
+      );
       process.exit(0);
     } else {
       throw new Error(`Unknown argument: ${arg}`);
@@ -31,7 +33,8 @@ function readJson(path) {
 
 function assertEndpoint(endpoint, label) {
   if (!endpoint || typeof endpoint !== "object") throw new Error(`${label} endpoint is missing`);
-  if (!endpointKinds.has(endpoint.kind)) throw new Error(`${label} endpoint has invalid kind: ${endpoint.kind}`);
+  if (!endpointKinds.has(endpoint.kind))
+    throw new Error(`${label} endpoint has invalid kind: ${endpoint.kind}`);
   if (endpoint.kind === "branch" && typeof endpoint.branch !== "string") {
     throw new Error(`${label} branch endpoint requires branch`);
   }
@@ -52,7 +55,8 @@ function validateMove(move, index) {
   if (typeof move.id !== "string") throw new Error(`${label}.id is required`);
   if (!moveStates.has(move.state)) throw new Error(`${label}.state is invalid: ${move.state}`);
   if (!moveKinds.has(move.kind)) throw new Error(`${label}.kind is invalid: ${move.kind}`);
-  if (move.method !== undefined && !methods.has(move.method)) throw new Error(`${label}.method is invalid: ${move.method}`);
+  if (move.method !== undefined && !methods.has(move.method))
+    throw new Error(`${label}.method is invalid: ${move.method}`);
   assertEndpoint(move.source, `${label}.source`);
   if (move.sink !== undefined) assertEndpoint(move.sink, `${label}.sink`);
   if (move.kind === "adopt" && !move.sink) throw new Error(`${label} adopt move requires a sink`);
@@ -61,13 +65,15 @@ function validateMove(move, index) {
 
 function endpointBranches(endpoint) {
   if (endpoint.kind === "branch") return [endpoint.branch];
-  if (endpoint.kind === "stack-slice") return Array.isArray(endpoint.branches) ? endpoint.branches : [endpoint.root];
+  if (endpoint.kind === "stack-slice")
+    return Array.isArray(endpoint.branches) ? endpoint.branches : [endpoint.root];
   if (endpoint.kind === "main") return ["main"];
   return [];
 }
 
 function labelFor(move, role) {
-  if (role === "sink") return `${move.state}:sink:${move.kind}${move.method ? `:${move.method}` : ""}`;
+  if (role === "sink")
+    return `${move.state}:sink:${move.kind}${move.method ? `:${move.method}` : ""}`;
   return `${move.state}:source:${move.kind}${move.method ? `:${move.method}` : ""}`;
 }
 
@@ -83,9 +89,11 @@ function main() {
     labelsByBranch.get(branch).push(entry);
   };
   for (const move of moves) {
-    for (const branch of endpointBranches(move.source)) add(branch, { role: "source", moveId: move.id, label: labelFor(move, "source") });
+    for (const branch of endpointBranches(move.source))
+      add(branch, { role: "source", moveId: move.id, label: labelFor(move, "source") });
     if (move.sink) {
-      for (const branch of endpointBranches(move.sink)) add(branch, { role: "sink", moveId: move.id, label: labelFor(move, "sink") });
+      for (const branch of endpointBranches(move.sink))
+        add(branch, { role: "sink", moveId: move.id, label: labelFor(move, "sink") });
     }
   }
   const branches = Array.isArray(census.branches)

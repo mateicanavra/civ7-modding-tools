@@ -36,9 +36,18 @@ function scanFile(absFile: string, repoRoot: string): Finding[] {
     { name: "official-biome-generator", re: /\.\s*designateBiomes\s*\(/u },
     { name: "official-feature-generator", re: /\.\s*addFeatures\s*\(/u },
     { name: "official-snow-generator", re: /\.\s*generateSnow\s*\(/u },
-    { name: "official-resource-generator", re: /\.\s*(?:generateResources|generateOfficialResources)\s*\(/u },
-    { name: "official-discovery-generator", re: /\.\s*(?:generateDiscoveries|generateOfficialDiscoveries)\s*\(/u },
-    { name: "official-start-generator", re: /\.\s*(?:assignStartPositions|chooseStartSectors)\s*\(/u },
+    {
+      name: "official-resource-generator",
+      re: /\.\s*(?:generateResources|generateOfficialResources)\s*\(/u,
+    },
+    {
+      name: "official-discovery-generator",
+      re: /\.\s*(?:generateDiscoveries|generateOfficialDiscoveries)\s*\(/u,
+    },
+    {
+      name: "official-start-generator",
+      re: /\.\s*(?:assignStartPositions|chooseStartSectors)\s*\(/u,
+    },
   ] as const;
 
   const findings: Finding[] = [];
@@ -48,7 +57,10 @@ function scanFile(absFile: string, repoRoot: string): Finding[] {
       if (!re.test(line)) continue;
       findings.push({ file: relFile, line: i + 1, pattern: name, text: line.trim() });
     }
-    if ((isStandardRecipeFile || relFile.startsWith(path.join("src", "domain"))) && /from\s+["']@swooper\/mapgen-core\/lib\/rng/u.test(line)) {
+    if (
+      (isStandardRecipeFile || relFile.startsWith(path.join("src", "domain"))) &&
+      /from\s+["']@swooper\/mapgen-core\/lib\/rng/u.test(line)
+    ) {
       findings.push({
         file: relFile,
         line: i + 1,
@@ -75,7 +87,9 @@ describe("authored RNG authority boundary", () => {
       path.join(repoRoot, "src", "recipes", "standard"),
     ] as const;
 
-    const findings = roots.flatMap((root) => walkFiles(root)).flatMap((file) => scanFile(file, repoRoot));
+    const findings = roots
+      .flatMap((root) => walkFiles(root))
+      .flatMap((file) => scanFile(file, repoRoot));
 
     expect(findings.length, formatFindings(findings)).toBe(0);
   });

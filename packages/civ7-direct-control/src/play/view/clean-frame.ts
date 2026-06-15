@@ -4,13 +4,12 @@ import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import { sleep } from "../../timing.js";
-
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
+import { sleep } from "../../timing.js";
 
 // Live-verified against a running Civ7 game on 2026-06-11: the only machinery
 // that hides the in-game HUD and world overlays is the ViewManager rules
@@ -43,12 +42,10 @@ export const CIV7_VIEW_MANAGER_BRIDGE_GLOBAL = "__civ7DirectControlViewManager";
 export const CIV7_CLEAN_FRAME_VIEW_NAME = "DirectControlCleanFrame";
 
 /** Where the pre-clean-frame view name is parked for the restore. */
-export const CIV7_CLEAN_FRAME_PREVIOUS_VIEW_GLOBAL =
-  "__civ7DirectControlCleanFramePreviousView";
+export const CIV7_CLEAN_FRAME_PREVIOUS_VIEW_GLOBAL = "__civ7DirectControlCleanFramePreviousView";
 
 /** Flag read by the registered view's enterView to also hide 3D units. */
-export const CIV7_CLEAN_FRAME_HIDE_UNITS_GLOBAL =
-  "__civ7DirectControlCleanFrameHideUnits";
+export const CIV7_CLEAN_FRAME_HIDE_UNITS_GLOBAL = "__civ7DirectControlCleanFrameHideUnits";
 
 /**
  * World-system rule names hidden by the clean-frame view — the Cinematic
@@ -68,26 +65,32 @@ export const CIV7_CLEAN_FRAME_HIDDEN_WORLD_RULES: ReadonlyArray<string> = [
 export const DEFAULT_CIV7_VIEW_BRIDGE_ATTEMPTS = 6;
 export const CIV7_VIEW_BRIDGE_RETRY_MS = 500;
 
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7CleanFrameEnterInput = Readonly<{
   /** Also hide 3D unit models (WorldUI.setUnitVisibility) for map-only frames. */
   hideUnits?: boolean;
 }>;
 
-export const Civ7CleanFrameEnterResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  switched: Type.Boolean(),
-  viewBefore: Type.String(),
-  view: Type.String(),
-  harnessHidden: Type.Boolean(),
-  hideUnits: Type.Boolean(),
-}, { additionalProperties: false });
+export const Civ7CleanFrameEnterResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    switched: Type.Boolean(),
+    viewBefore: Type.String(),
+    view: Type.String(),
+    harnessHidden: Type.Boolean(),
+    hideUnits: Type.Boolean(),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7CleanFrameEnterResult = Readonly<{
   host: string;
@@ -104,14 +107,17 @@ export type Civ7CleanFrameEnterResult = Readonly<{
   hideUnits: boolean;
 }>;
 
-export const Civ7CleanFrameExitResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  switched: Type.Boolean(),
-  view: Type.String(),
-  harnessHidden: Type.Boolean(),
-}, { additionalProperties: false });
+export const Civ7CleanFrameExitResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    switched: Type.Boolean(),
+    view: Type.String(),
+    harnessHidden: Type.Boolean(),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7CleanFrameExitResult = Readonly<{
   host: string;
@@ -124,7 +130,7 @@ export type Civ7CleanFrameExitResult = Readonly<{
 
 export type CleanFrameDependencies = Readonly<{
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
   jsLiteral: (value: unknown) => string;
   parsePayload: <T>(result: Civ7CommandResult, label: string) => T;
@@ -134,7 +140,7 @@ export type CleanFrameDependencies = Readonly<{
 const defaultCleanFrameDependencies: CleanFrameDependencies = {
   executeAppUiCommand: executeCiv7AppUiCommand,
   jsLiteral,
-  parsePayload: <T,>(result: Civ7CommandResult, label: string) =>
+  parsePayload: <T>(result: Civ7CommandResult, label: string) =>
     jsonPayloadFromCommandResult(result, label) as T,
   sleep,
 };
@@ -147,7 +153,7 @@ type BridgePayload = Readonly<{ ready: boolean }>;
  */
 export async function ensureCiv7ViewManagerBridge(
   options: Civ7DirectControlOptions = {},
-  dependencies: CleanFrameDependencies = defaultCleanFrameDependencies,
+  dependencies: CleanFrameDependencies = defaultCleanFrameDependencies
 ): Promise<void> {
   for (let attempt = 0; attempt < DEFAULT_CIV7_VIEW_BRIDGE_ATTEMPTS; attempt += 1) {
     const payload = dependencies.parsePayload<BridgePayload>(
@@ -155,14 +161,14 @@ export async function ensureCiv7ViewManagerBridge(
         ...options,
         command: buildViewManagerBridgeCommand(),
       }),
-      "Civ7 view-manager bridge",
+      "Civ7 view-manager bridge"
     );
     if (payload.ready) return;
     await dependencies.sleep(CIV7_VIEW_BRIDGE_RETRY_MS);
   }
   throw new Civ7DirectControlError(
     "command-failed",
-    "Civ7 view-manager bridge never became ready (module-registry import did not resolve)",
+    "Civ7 view-manager bridge never became ready (module-registry import did not resolve)"
   );
 }
 
@@ -176,7 +182,7 @@ export async function ensureCiv7ViewManagerBridge(
 export async function enterCiv7CleanFrame(
   input: Civ7CleanFrameEnterInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: CleanFrameDependencies = defaultCleanFrameDependencies,
+  dependencies: CleanFrameDependencies = defaultCleanFrameDependencies
 ): Promise<Civ7CleanFrameEnterResult> {
   await ensureCiv7ViewManagerBridge(options, dependencies);
   const hideUnits = input.hideUnits === true;
@@ -204,7 +210,7 @@ export async function enterCiv7CleanFrame(
  */
 export async function exitCiv7CleanFrame(
   options: Civ7DirectControlOptions = {},
-  dependencies: CleanFrameDependencies = defaultCleanFrameDependencies,
+  dependencies: CleanFrameDependencies = defaultCleanFrameDependencies
 ): Promise<Civ7CleanFrameExitResult> {
   await ensureCiv7ViewManagerBridge(options, dependencies);
   const result = await dependencies.executeAppUiCommand({
@@ -230,13 +236,11 @@ export function buildViewManagerBridgeCommand(): string {
 
 export function buildCleanFrameEnterCommand(
   hideUnits: boolean,
-  dependencies: Pick<CleanFrameDependencies, "jsLiteral">,
+  dependencies: Pick<CleanFrameDependencies, "jsLiteral">
 ): string {
-  const worldRules = CIV7_CLEAN_FRAME_HIDDEN_WORLD_RULES
-    .map((name) =>
-      `{ name: ${dependencies.jsLiteral(name)}, type: U.World, visible: "false" }`
-    )
-    .join(",\n        ");
+  const worldRules = CIV7_CLEAN_FRAME_HIDDEN_WORLD_RULES.map(
+    (name) => `{ name: ${dependencies.jsLiteral(name)}, type: U.World, visible: "false" }`
+  ).join(",\n        ");
   // views.set (not addHandler) so re-registration is idempotent: addHandler
   // refuses duplicates, and the registered closure must always reflect the
   // current package version, not whichever one registered first.

@@ -5,14 +5,9 @@ type Civ7GameUiUnitCommandRuntimeResult = Awaited<
   ReturnType<Civ7ControlOrpcContext["directControl"]["requestCiv7UnitCommand"]>
 >;
 type UnitCommandValidation = Civ7GameUiUnitCommandRuntimeResult["before"];
-type UnitCommandPostcondition =
-  NonNullable<Civ7GameUiUnitCommandRuntimeResult["postcondition"]>;
-type UnitCommandPostconditionSnapshot =
-  NonNullable<UnitCommandPostcondition["before"]>;
-type RuntimeProbe<T> = Readonly<
-  | { ok: true; value: T }
-  | { ok: false; error: string }
->;
+type UnitCommandPostcondition = NonNullable<Civ7GameUiUnitCommandRuntimeResult["postcondition"]>;
+type UnitCommandPostconditionSnapshot = NonNullable<UnitCommandPostcondition["before"]>;
+type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
 export type Civ7GameUiUnitCommandTarget = Readonly<{
   Game?: {
@@ -24,12 +19,12 @@ export type Civ7GameUiUnitCommandTarget = Readonly<{
         unitId: Civ7ControlOrpcComponentId,
         commandType: unknown,
         args: Readonly<Record<string, number>>,
-        queue?: boolean,
+        queue?: boolean
       ) => unknown;
       sendRequest?: (
         unitId: Civ7ControlOrpcComponentId,
         commandType: unknown,
-        args: Readonly<Record<string, number>>,
+        args: Readonly<Record<string, number>>
       ) => unknown;
     };
   };
@@ -48,25 +43,21 @@ export type Civ7GameUiUnitCommandTarget = Readonly<{
   };
 }>;
 
-export function civ7GameUiUnitCommandAvailable(
-  target: Civ7GameUiUnitCommandTarget,
-): boolean {
-  return typeof target.Game?.UnitCommands?.canStart === "function"
-    && typeof target.Game.UnitCommands.sendRequest === "function"
-    && target.UnitCommandTypes != null
-    && (
-      target.UnitCommandTypes.UNITCOMMAND_UPGRADE !== undefined
-      || target.UnitCommandTypes.UPGRADE !== undefined
-    )
-    && (
-      target.UnitCommandTypes.UNITCOMMAND_RESETTLE !== undefined
-      || target.UnitCommandTypes.RESETTLE !== undefined
-    )
-    && typeof target.GameContext?.localPlayerID === "number"
-    && typeof target.Units?.get === "function"
-    && typeof target.UI?.Player?.getFirstReadyUnit === "function"
-    && typeof target.UI.Player.getHeadSelectedUnit === "function"
-    && typeof target.Game?.Notifications?.getEndTurnBlockingType === "function";
+export function civ7GameUiUnitCommandAvailable(target: Civ7GameUiUnitCommandTarget): boolean {
+  return (
+    typeof target.Game?.UnitCommands?.canStart === "function" &&
+    typeof target.Game.UnitCommands.sendRequest === "function" &&
+    target.UnitCommandTypes != null &&
+    (target.UnitCommandTypes.UNITCOMMAND_UPGRADE !== undefined ||
+      target.UnitCommandTypes.UPGRADE !== undefined) &&
+    (target.UnitCommandTypes.UNITCOMMAND_RESETTLE !== undefined ||
+      target.UnitCommandTypes.RESETTLE !== undefined) &&
+    typeof target.GameContext?.localPlayerID === "number" &&
+    typeof target.Units?.get === "function" &&
+    typeof target.UI?.Player?.getFirstReadyUnit === "function" &&
+    typeof target.UI.Player.getHeadSelectedUnit === "function" &&
+    typeof target.Game?.Notifications?.getEndTurnBlockingType === "function"
+  );
 }
 
 export async function requestCiv7GameUiUnitCommand(
@@ -75,20 +66,20 @@ export async function requestCiv7GameUiUnitCommand(
     operationType: string;
     args?: Readonly<Record<string, number>>;
   }>,
-  target: Civ7GameUiUnitCommandTarget =
-    globalThis as Civ7GameUiUnitCommandTarget,
+  target: Civ7GameUiUnitCommandTarget = globalThis as Civ7GameUiUnitCommandTarget
 ): Promise<Civ7GameUiUnitCommandRuntimeResult> {
   const args = argsRecord(input.args);
   const localPlayerId = target.GameContext?.localPlayerID;
   const beforeSnapshot = readUnitPostconditionSnapshot(input.unitId, target);
-  const before = input.unitId.owner === localPlayerId
-    ? gameUiUnitCommandValidation(input.unitId, input.operationType, args, target)
-    : gameUiUnitCommandValidationBlocked(
-      input.unitId,
-      input.operationType,
-      args,
-      "The requested unit is not owned by GameContext.localPlayerID; game UI controller did not send.",
-    );
+  const before =
+    input.unitId.owner === localPlayerId
+      ? gameUiUnitCommandValidation(input.unitId, input.operationType, args, target)
+      : gameUiUnitCommandValidationBlocked(
+          input.unitId,
+          input.operationType,
+          args,
+          "The requested unit is not owned by GameContext.localPlayerID; game UI controller did not send."
+        );
 
   if (!before.valid) {
     const postcondition = gameUiUnitCommandPostcondition(
@@ -97,7 +88,7 @@ export async function requestCiv7GameUiUnitCommand(
       before,
       before,
       beforeSnapshot,
-      beforeSnapshot,
+      beforeSnapshot
     );
     return {
       before,
@@ -114,19 +105,14 @@ export async function requestCiv7GameUiUnitCommand(
   );
   const sent = sendResult.ok && sendResult.value !== false;
   const afterSnapshot = readUnitPostconditionSnapshot(input.unitId, target);
-  const after = gameUiUnitCommandValidation(
-    input.unitId,
-    input.operationType,
-    args,
-    target,
-  );
+  const after = gameUiUnitCommandValidation(input.unitId, input.operationType, args, target);
   const postcondition = gameUiUnitCommandPostcondition(
     input.operationType,
     sent,
     before,
     after,
     beforeSnapshot,
-    afterSnapshot,
+    afterSnapshot
   );
 
   return {
@@ -152,12 +138,10 @@ function gameUiUnitCommandValidation(
   unitId: Civ7ControlOrpcComponentId,
   operationType: string,
   args: Readonly<Record<string, number>>,
-  target: Civ7GameUiUnitCommandTarget,
+  target: Civ7GameUiUnitCommandTarget
 ): UnitCommandValidation {
   const enumValue = enumValueFor(target.UnitCommandTypes, operationType);
-  const result = probe(() =>
-    target.Game?.UnitCommands?.canStart?.(unitId, enumValue, args, false)
-  );
+  const result = probe(() => target.Game?.UnitCommands?.canStart?.(unitId, enumValue, args, false));
   return {
     host: "game-ui",
     port: 0,
@@ -176,7 +160,7 @@ function gameUiUnitCommandValidationBlocked(
   unitId: Civ7ControlOrpcComponentId,
   operationType: string,
   args: Readonly<Record<string, number>>,
-  reason: string,
+  reason: string
 ): UnitCommandValidation {
   return {
     host: "game-ui",
@@ -202,14 +186,14 @@ function gameUiUnitCommandPostcondition(
   before: UnitCommandValidation,
   after: UnitCommandValidation,
   beforeSnapshot: UnitCommandPostconditionSnapshot,
-  afterSnapshot: UnitCommandPostconditionSnapshot,
+  afterSnapshot: UnitCommandPostconditionSnapshot
 ): UnitCommandPostcondition {
   const classification = classifyGameUiUnitCommandPostcondition(
     sent,
     before,
     after,
     beforeSnapshot,
-    afterSnapshot,
+    afterSnapshot
   );
   return {
     family: "unit-command",
@@ -226,7 +210,7 @@ function classifyGameUiUnitCommandPostcondition(
   before: UnitCommandValidation,
   after: UnitCommandValidation,
   beforeSnapshot: UnitCommandPostconditionSnapshot,
-  afterSnapshot: UnitCommandPostconditionSnapshot,
+  afterSnapshot: UnitCommandPostconditionSnapshot
 ): UnitCommandPostcondition["classification"] {
   if (!sent) return "not-sent";
   if (probeValueChanged(beforeSnapshot.firstReadyUnitId, afterSnapshot.firstReadyUnitId)) {
@@ -251,7 +235,7 @@ function classifyGameUiUnitCommandPostcondition(
 }
 
 function unitCommandPostconditionReason(
-  classification: UnitCommandPostcondition["classification"],
+  classification: UnitCommandPostcondition["classification"]
 ): string {
   switch (classification) {
     case "not-sent":
@@ -275,21 +259,16 @@ function unitCommandPostconditionReason(
 
 function readUnitPostconditionSnapshot(
   unitId: Civ7ControlOrpcComponentId,
-  target: Civ7GameUiUnitCommandTarget,
+  target: Civ7GameUiUnitCommandTarget
 ): UnitCommandPostconditionSnapshot {
   const localPlayerId = target.GameContext?.localPlayerID;
   return {
     unit: probe(() => summarizeUnit(target.Units?.get?.(unitId))),
-    selectedUnitId: probe(() =>
-      componentIdFromUnknown(target.UI?.Player?.getHeadSelectedUnit?.())
-    ),
-    firstReadyUnitId: probe(() =>
-      componentIdFromUnknown(target.UI?.Player?.getFirstReadyUnit?.())
-    ),
+    selectedUnitId: probe(() => componentIdFromUnknown(target.UI?.Player?.getHeadSelectedUnit?.())),
+    firstReadyUnitId: probe(() => componentIdFromUnknown(target.UI?.Player?.getFirstReadyUnit?.())),
     blocker: probe(() =>
       typeof localPlayerId === "number"
-        ? target.Game?.Notifications?.getEndTurnBlockingType?.(localPlayerId)
-          ?? null
+        ? (target.Game?.Notifications?.getEndTurnBlockingType?.(localPlayerId) ?? null)
         : null
     ),
   };
@@ -301,19 +280,10 @@ function summarizeUnit(unit: unknown): unknown {
   return {
     id: componentIdFromUnknown(record.id ?? record.ID ?? record.UnitId ?? record.unitId),
     location: record.location ?? record.Location ?? null,
-    movement: record.Movement
-      ?? record.movement
-      ?? record.movementMovesRemaining
-      ?? null,
-    activity: record.Activity
-      ?? record.activity
-      ?? record.currentActivity
-      ?? null,
+    movement: record.Movement ?? record.movement ?? record.movementMovesRemaining ?? null,
+    activity: record.Activity ?? record.activity ?? record.currentActivity ?? null,
     damage: record.Damage ?? record.damage ?? null,
-    attacks: record.Attacks
-      ?? record.attacks
-      ?? record.attackCharges
-      ?? null,
+    attacks: record.Attacks ?? record.attacks ?? record.attackCharges ?? null,
   };
 }
 
@@ -330,7 +300,7 @@ function componentIdFromUnknown(value: unknown): Civ7ControlOrpcComponentId | nu
 function numberField(
   record: Readonly<Record<string, unknown>>,
   lowerKey: string,
-  upperKey: string,
+  upperKey: string
 ): number | null {
   const lower = record[lowerKey];
   if (typeof lower === "number") return lower;
@@ -340,7 +310,7 @@ function numberField(
 
 function enumValueFor(
   enums: Readonly<Record<string, unknown>> | undefined,
-  operationType: string,
+  operationType: string
 ): unknown {
   if (enums == null) return operationType;
   if (Object.prototype.hasOwnProperty.call(enums, operationType)) {
@@ -354,7 +324,7 @@ function enumValueFor(
 }
 
 function argsRecord(
-  args: Readonly<Record<string, number>> | undefined,
+  args: Readonly<Record<string, number>> | undefined
 ): Readonly<Record<string, number>> {
   return args == null ? {} : { ...args };
 }
@@ -384,7 +354,7 @@ function probe<T>(read: () => T): RuntimeProbe<T> {
 
 function probeValueChanged(
   left: RuntimeProbe<unknown> | undefined,
-  right: RuntimeProbe<unknown> | undefined,
+  right: RuntimeProbe<unknown> | undefined
 ): boolean {
   if (!left?.ok || !right?.ok) return false;
   return stableJson(left.value) !== stableJson(right.value);
@@ -393,22 +363,25 @@ function probeValueChanged(
 function probeFieldChanged(
   left: RuntimeProbe<unknown> | undefined,
   right: RuntimeProbe<unknown> | undefined,
-  field: string,
+  field: string
 ): boolean {
   if (!left?.ok || !right?.ok) return false;
   if (left.value == null || right.value == null) return false;
   if (typeof left.value !== "object" || typeof right.value !== "object") {
     return false;
   }
-  return stableJson((left.value as Record<string, unknown>)[field])
-    !== stableJson((right.value as Record<string, unknown>)[field]);
+  return (
+    stableJson((left.value as Record<string, unknown>)[field]) !==
+    stableJson((right.value as Record<string, unknown>)[field])
+  );
 }
 
 function stableJson(value: unknown): string {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
   if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
   const record = value as Record<string, unknown>;
-  return `{${Object.keys(record).sort().map((key) =>
-    `${JSON.stringify(key)}:${stableJson(record[key])}`
-  ).join(",")}}`;
+  return `{${Object.keys(record)
+    .sort()
+    .map((key) => `${JSON.stringify(key)}:${stableJson(record[key])}`)
+    .join(",")}}`;
 }

@@ -1,19 +1,44 @@
 {
   "requestId": "studio-run-in-game-mq95a8mp-o7l",
-  "frame": {"mapSize": "MAPSIZE_HUGE", "width": 106, "height": 66, "seed": 1337, "gameSeed": 1337, "playerCount": 10, "setupConfig": "ToT Config.Civ7Cfg", "config": "swooper-earthlike"},
-  "aliveMajorIds": [0,1,2,3,4,5,6,7,8,9],
+  "frame": {
+    "mapSize": "MAPSIZE_HUGE",
+    "width": 106,
+    "height": 66,
+    "seed": 1337,
+    "gameSeed": 1337,
+    "playerCount": 10,
+    "setupConfig": "ToT Config.Civ7Cfg",
+    "config": "swooper-earthlike"
+  },
+  "aliveMajorIds": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
   "humanIds": [0],
   "players": [
-    {"id":0,"civHash":2053970112,"leaderHash":578691269,"isHuman":true,"startPlot":{"x":34,"y":41}},
-    {"id":1,"civHash":-1806906687,"leaderHash":218420113,"startPlot":{"x":25,"y":37}},
-    {"id":2,"civHash":541029069,"leaderHash":1387277196,"startPlot":{"x":45,"y":19}},
-    {"id":3,"civHash":1987523711,"leaderHash":-393488514,"startPlot":{"x":39,"y":28}},
-    {"id":4,"civHash":42338908,"leaderHash":24461270,"startPlot":{"x":31,"y":48}},
-    {"id":5,"civHash":-1634075386,"leaderHash":-1945031742,"startPlot":{"x":48,"y":27}},
-    {"id":6,"civHash":1377625745,"leaderHash":-767424053,"startPlot":{"x":90,"y":19}},
-    {"id":7,"civHash":-1155553852,"leaderHash":638173148,"startPlot":{"x":95,"y":25}},
-    {"id":8,"civHash":-1940045117,"leaderHash":2005200816,"startPlot":{"x":69,"y":40}},
-    {"id":9,"civHash":-1716173954,"leaderHash":-531939460,"startPlot":{"x":58,"y":26}}
+    {
+      "id": 0,
+      "civHash": 2053970112,
+      "leaderHash": 578691269,
+      "isHuman": true,
+      "startPlot": { "x": 34, "y": 41 }
+    },
+    { "id": 1, "civHash": -1806906687, "leaderHash": 218420113, "startPlot": { "x": 25, "y": 37 } },
+    { "id": 2, "civHash": 541029069, "leaderHash": 1387277196, "startPlot": { "x": 45, "y": 19 } },
+    { "id": 3, "civHash": 1987523711, "leaderHash": -393488514, "startPlot": { "x": 39, "y": 28 } },
+    { "id": 4, "civHash": 42338908, "leaderHash": 24461270, "startPlot": { "x": 31, "y": 48 } },
+    {
+      "id": 5,
+      "civHash": -1634075386,
+      "leaderHash": -1945031742,
+      "startPlot": { "x": 48, "y": 27 }
+    },
+    { "id": 6, "civHash": 1377625745, "leaderHash": -767424053, "startPlot": { "x": 90, "y": 19 } },
+    { "id": 7, "civHash": -1155553852, "leaderHash": 638173148, "startPlot": { "x": 95, "y": 25 } },
+    {
+      "id": 8,
+      "civHash": -1940045117,
+      "leaderHash": 2005200816,
+      "startPlot": { "x": 69, "y": 40 }
+    },
+    { "id": 9, "civHash": -1716173954, "leaderHash": -531939460, "startPlot": { "x": 58, "y": 26 } }
   ],
   "liveAgeHash": 2077444219,
   "unitTypeHash": 1221509844,

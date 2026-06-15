@@ -43,20 +43,15 @@ export class Civ7TunerClient extends Effect.Service<Civ7TunerClient>()(
       const timeoutMs = DEFAULT_CIV7_TUNER_TIMEOUT_MS;
       return {
         // #1 status — getCiv7PlayableStatus({ timeoutMs })
-        playableStatus: () =>
-          tuner.use((o) => getCiv7PlayableStatus({ timeoutMs, ...o })),
+        playableStatus: () => tuner.use((o) => getCiv7PlayableStatus({ timeoutMs, ...o })),
 
         // #2 mapSummary — includeAreaRegionCounts: true
         mapSummary: () =>
-          tuner.use((o) =>
-            getCiv7MapSummary({ timeoutMs, includeAreaRegionCounts: true, ...o }),
-          ),
+          tuner.use((o) => getCiv7MapSummary({ timeoutMs, includeAreaRegionCounts: true, ...o })),
 
         // live.status field read — includeAreaRegionCounts: false
         liveMapSummary: () =>
-          tuner.use((o) =>
-            getCiv7MapSummary({ timeoutMs, includeAreaRegionCounts: false, ...o }),
-          ),
+          tuner.use((o) => getCiv7MapSummary({ timeoutMs, includeAreaRegionCounts: false, ...o })),
 
         appUiSnapshot: () => tuner.use((o) => getCiv7AppUiSnapshot({ timeoutMs, ...o })),
 
@@ -85,5 +80,5 @@ export class Civ7TunerClient extends Effect.Service<Civ7TunerClient>()(
           tuner.use((o) => getCiv7CitySummary(input, { timeoutMs, ...o })),
       };
     }),
-  },
+  }
 ) {}

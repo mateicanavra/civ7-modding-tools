@@ -16,7 +16,13 @@ export const RUN_IN_GAME_PHASES = [
 
 export type RunInGamePhase = (typeof RUN_IN_GAME_PHASES)[number];
 
-export type RunInGameOperationKind = "idle" | "running" | "complete" | "blocked" | "failed" | "uncertain";
+export type RunInGameOperationKind =
+  | "idle"
+  | "running"
+  | "complete"
+  | "blocked"
+  | "failed"
+  | "uncertain";
 
 export type RunInGameMaterializationStatus = Readonly<{
   mode?: string;
@@ -94,10 +100,12 @@ export type RunInGameNaturalWonderPlacementCoordinateRow = Readonly<{
   reason: string;
   observedFeatureType?: number;
   observedPlotIndex?: number;
-  expectedFootprintReadback?: ReadonlyArray<Readonly<{
-    plotIndex: number;
-    observedFeatureType: number;
-  }>>;
+  expectedFootprintReadback?: ReadonlyArray<
+    Readonly<{
+      plotIndex: number;
+      observedFeatureType: number;
+    }>
+  >;
   expectedFootprintReadbackStatus?: "empty-expected-footprint" | "partial-expected-footprint";
 }>;
 
@@ -409,7 +417,12 @@ export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
 
 export function runInGameCanRetryStatus(status?: RunInGameOperationStatus | null): boolean {
   if (!status) return false;
-  return status.status === "running" || status.status === "blocked" || status.status === "failed" || status.status === "uncertain";
+  return (
+    status.status === "running" ||
+    status.status === "blocked" ||
+    status.status === "failed" ||
+    status.status === "uncertain"
+  );
 }
 
 export function runInGameRequiresProcessRestart(status?: RunInGameOperationStatus | null): boolean {
@@ -418,11 +431,15 @@ export function runInGameRequiresProcessRestart(status?: RunInGameOperationStatu
 
 export function runInGamePrimaryActionLabel(
   status?: RunInGameOperationStatus | null,
-  relation: "current" | "stale" | "unknown" = "unknown",
+  relation: "current" | "stale" | "unknown" = "unknown"
 ): string {
   if (status?.status === "running") return formatRunInGamePhaseLabel(status.phase);
   if (status && runInGameRequiresProcessRestart(status)) return "Restart Civ & Run";
-  if (status?.status === "failed" || status?.status === "blocked" || status?.status === "uncertain") {
+  if (
+    status?.status === "failed" ||
+    status?.status === "blocked" ||
+    status?.status === "uncertain"
+  ) {
     return relation === "stale" ? "Run Current" : "Retry Run";
   }
   return "Run in Game";

@@ -2,9 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
-import standardRecipe from "../src/recipes/standard/recipe.js";
 import type { StandardRecipeConfig } from "../src/recipes/standard/recipe.js";
+import standardRecipe from "../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
 import { hydrologyClimateBaselineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-baseline/artifacts.js";
 import { hydrologyClimateRefineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-refine/artifacts.js";
@@ -39,15 +38,21 @@ describe("hydrology dryness knob effects (integration)", () => {
         "hydrology-climate-baseline": { knobs: { dryness } },
         "hydrology-climate-refine": { knobs: { dryness } },
       };
-      const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+      const adapter = createMockAdapter({
+        width,
+        height,
+        mapInfo,
+        mapSizeId: 1,
+        rng: createLabelRng(seed),
+      });
       const context = createExtendedMapContext({ width, height }, adapter, env);
       initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
 
       standardRecipe.run(context, env, config, { log: () => {} });
 
-      const climateField = context.artifacts.get(hydrologyClimateBaselineArtifacts.climateField.id) as
-        | { rainfall?: Uint8Array; humidity?: Uint8Array }
-        | undefined;
+      const climateField = context.artifacts.get(
+        hydrologyClimateBaselineArtifacts.climateField.id
+      ) as { rainfall?: Uint8Array; humidity?: Uint8Array } | undefined;
       const rainfall = climateField?.rainfall;
       const humidity = climateField?.humidity;
       if (!(rainfall instanceof Uint8Array) || !(humidity instanceof Uint8Array)) {

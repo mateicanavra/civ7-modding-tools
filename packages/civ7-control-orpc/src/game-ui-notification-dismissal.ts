@@ -3,23 +3,16 @@ import {
   notificationDismissalPostconditionConfirmed,
 } from "@civ7/direct-control/play/notifications/postconditions";
 
-import type {
-  Civ7ControlOrpcNotificationDismissalResult,
-} from "./dependencies/direct-control";
+import type { Civ7ControlOrpcNotificationDismissalResult } from "./dependencies/direct-control";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 
 type Civ7ComponentId = Civ7ControlOrpcComponentId;
 type Civ7NotificationDismissInput = Readonly<{
   notificationId: Civ7ComponentId;
 }>;
-type Civ7NotificationDismissalResult =
-  Civ7ControlOrpcNotificationDismissalResult;
-type Civ7NotificationDismissalSummary =
-  Civ7NotificationDismissalResult["before"];
-type Civ7RuntimeProbe<T> = Readonly<
-  | { ok: true; value: T }
-  | { ok: false; error: string }
->;
+type Civ7NotificationDismissalResult = Civ7ControlOrpcNotificationDismissalResult;
+type Civ7NotificationDismissalSummary = Civ7NotificationDismissalResult["before"];
+type Civ7RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
 type DismissRouteResult = Readonly<{
   ok: boolean;
@@ -45,10 +38,7 @@ export type Civ7GameUiNotificationDismissalTarget = Readonly<{
       getMessage?: (id: Civ7ComponentId | null) => string | null;
       getBlocksTurnAdvancement?: (id: Civ7ComponentId | null) => unknown;
       getEndTurnBlockingType?: (playerId: number) => unknown;
-      findEndTurnBlocking?: (
-        playerId: number,
-        blockerType: unknown,
-      ) => Civ7ComponentId | null;
+      findEndTurnBlocking?: (playerId: number, blockerType: unknown) => Civ7ComponentId | null;
       getIdsForPlayer?: (playerId: number) => unknown;
       dismiss?: (id: Civ7ComponentId) => unknown;
     };
@@ -65,32 +55,24 @@ export type Civ7GameUiNotificationDismissalTarget = Readonly<{
 
 export async function requestCiv7GameUiNotificationDismissal(
   input: Civ7NotificationDismissInput,
-  target: Civ7GameUiNotificationDismissalTarget = globalThis as Civ7GameUiNotificationDismissalTarget,
+  target: Civ7GameUiNotificationDismissalTarget = globalThis as Civ7GameUiNotificationDismissalTarget
 ): Promise<Civ7NotificationDismissalResult> {
   assertGameUiComponentId(input.notificationId, "notificationId");
-  return notificationDismissalResult(
-    input.notificationId,
-    { send: true },
-    target,
-  );
+  return notificationDismissalResult(input.notificationId, { send: true }, target);
 }
 
 function notificationDismissalResult(
   notificationId: Civ7ComponentId,
   options: Readonly<{ send: boolean }>,
-  target: Civ7GameUiNotificationDismissalTarget,
+  target: Civ7GameUiNotificationDismissalTarget
 ): Civ7NotificationDismissalResult {
   const before = summarizeNotification(notificationId, target);
   const noneBlocker = target.EndTurnBlockingTypes?.NONE ?? 0;
-  const blockerType = before.endTurnBlockingType.ok
-    ? before.endTurnBlockingType.value
-    : null;
+  const blockerType = before.endTurnBlockingType.ok ? before.endTurnBlockingType.value : null;
   const canUseExpiredPanelCloseControl =
-    before.exists === true
-    && before.expired === true
-    && blockerType === noneBlocker;
-  const canDismiss = before.exists === true
-    && (before.canUserDismiss === true || canUseExpiredPanelCloseControl);
+    before.exists === true && before.expired === true && blockerType === noneBlocker;
+  const canDismiss =
+    before.exists === true && (before.canUserDismiss === true || canUseExpiredPanelCloseControl);
   const notes = [
     "This is an App UI notification action, not a gameplay operation family.",
     "Use it only for reviewed notifications whose official handler does not require a specialized operation.",
@@ -114,23 +96,18 @@ function notificationDismissalResult(
       verified: false,
       notes: canDismiss
         ? notes
-        : notes.concat([
-          "Notification was not dismissed because canUserDismiss was not true.",
-        ]),
+        : notes.concat(["Notification was not dismissed because canUserDismiss was not true."]),
     });
   }
 
   const managerResult = notificationTrainManagerDismiss(notificationId, target);
-  const panelCloseControlResult = panelCloseControlDismiss(
-    notificationId,
-    before,
-    target,
-  );
+  const panelCloseControlResult = panelCloseControlDismiss(notificationId, before, target);
   const after = summarizeNotification(notificationId, target);
-  const closeoutPath = [managerResult, panelCloseControlResult]
-    .filter((value) => value.attempted && value.path)
-    .map((value) => value.path!)
-    .join("+") || null;
+  const closeoutPath =
+    [managerResult, panelCloseControlResult]
+      .filter((value) => value.attempted && value.path)
+      .map((value) => value.path!)
+      .join("+") || null;
   const result = {
     notificationTrainManager: managerResult,
     panelCloseControl: panelCloseControlResult,
@@ -153,16 +130,14 @@ function notificationDismissalResult(
     result,
     closeoutPath,
     verificationAttempts: [after],
-    verified: notificationDismissalPostconditionConfirmed(
-      postcondition.classification,
-    ),
+    verified: notificationDismissalPostconditionConfirmed(postcondition.classification),
     postcondition,
     notes,
   };
 }
 
 function withPostcondition(
-  result: Omit<Civ7NotificationDismissalResult, "postcondition">,
+  result: Omit<Civ7NotificationDismissalResult, "postcondition">
 ): Civ7NotificationDismissalResult {
   return {
     ...result,
@@ -172,23 +147,24 @@ function withPostcondition(
 
 function summarizeNotification(
   id: Civ7ComponentId,
-  target: Civ7GameUiNotificationDismissalTarget,
+  target: Civ7GameUiNotificationDismissalTarget
 ): Civ7NotificationDismissalSummary {
   const normalizedId = toComponentId(id);
   const notifications = target.Game?.Notifications;
-  const notification = normalizedId && notifications?.find
-    ? safeValue(() => notifications.find?.(normalizedId) ?? null, null)
-    : null;
+  const notification =
+    normalizedId && notifications?.find
+      ? safeValue(() => notifications.find?.(normalizedId) ?? null, null)
+      : null;
   const type = safeValue(
     () =>
       typeof notifications?.getType === "function"
         ? notifications.getType(normalizedId)
         : notificationValue(notification, "Type"),
-    null,
+    null
   );
   const localPlayerId = target.GameContext?.localPlayerID ?? -1;
-  const endTurnBlockingType = probe(() =>
-    notifications?.getEndTurnBlockingType?.(localPlayerId) ?? null
+  const endTurnBlockingType = probe(
+    () => notifications?.getEndTurnBlockingType?.(localPlayerId) ?? null
   );
   const engineIds = engineQueueIds(target, localPlayerId);
   const trainIds = notificationTrainQueueIds(target, localPlayerId);
@@ -201,22 +177,18 @@ function summarizeNotification(
     type,
     typeName: safeValue(
       () =>
-        typeof notifications?.getTypeName === "function"
-          ? notifications.getTypeName(type)
-          : null,
-      null,
+        typeof notifications?.getTypeName === "function" ? notifications.getTypeName(type) : null,
+      null
     ),
-    summary: safeStringValue(
-      () =>
-        typeof notifications?.getSummary === "function"
-          ? notifications.getSummary(normalizedId)
-          : notificationValue(notification, "Summary"),
+    summary: safeStringValue(() =>
+      typeof notifications?.getSummary === "function"
+        ? notifications.getSummary(normalizedId)
+        : notificationValue(notification, "Summary")
     ),
-    message: safeStringValue(
-      () =>
-        typeof notifications?.getMessage === "function"
-          ? notifications.getMessage(normalizedId)
-          : notificationValue(notification, "Message"),
+    message: safeStringValue(() =>
+      typeof notifications?.getMessage === "function"
+        ? notifications.getMessage(normalizedId)
+        : notificationValue(notification, "Message")
     ),
     target: notificationValue(notification, "Target"),
     location: notificationValue(notification, "Location"),
@@ -233,10 +205,7 @@ function summarizeNotification(
       const blockerType = endTurnBlockingType.ok
         ? endTurnBlockingType.value
         : notifications?.getEndTurnBlockingType?.(localPlayerId);
-      const blockerId = notifications?.findEndTurnBlocking?.(
-        localPlayerId,
-        blockerType,
-      );
+      const blockerId = notifications?.findEndTurnBlocking?.(localPlayerId, blockerType);
       return componentKey(blockerId) === componentKey(normalizedId);
     }),
     engineQueueCount: probe(() => engineIds.length),
@@ -244,26 +213,27 @@ function summarizeNotification(
       engineIds.some((value) => componentKey(value) === componentKey(normalizedId))
     ),
     engineQueueFirstId,
-    isEngineQueueFront: probe(() =>
-      componentKey(engineQueueFirstId.ok ? engineQueueFirstId.value : null)
-        === componentKey(normalizedId)
+    isEngineQueueFront: probe(
+      () =>
+        componentKey(engineQueueFirstId.ok ? engineQueueFirstId.value : null) ===
+        componentKey(normalizedId)
     ),
     notificationTrainCount: probe(() => trainIds.length),
     notificationTrainContains: probe(() =>
       trainIds.some((value) => componentKey(value) === componentKey(normalizedId))
     ),
     notificationTrainFirstId,
-    isNotificationTrainFront: probe(() =>
-      componentKey(
-        notificationTrainFirstId.ok ? notificationTrainFirstId.value : null,
-      ) === componentKey(normalizedId)
+    isNotificationTrainFront: probe(
+      () =>
+        componentKey(notificationTrainFirstId.ok ? notificationTrainFirstId.value : null) ===
+        componentKey(normalizedId)
     ),
   };
 }
 
 function notificationTrainManagerDismiss(
   notificationId: Civ7ComponentId,
-  target: Civ7GameUiNotificationDismissalTarget,
+  target: Civ7GameUiNotificationDismissalTarget
 ): DismissRouteResult {
   const manager = target.NotificationModel?.manager;
   if (!manager) {
@@ -295,7 +265,7 @@ function notificationTrainManagerDismiss(
 function panelCloseControlDismiss(
   notificationId: Civ7ComponentId,
   before: Civ7NotificationDismissalSummary,
-  target: Civ7GameUiNotificationDismissalTarget,
+  target: Civ7GameUiNotificationDismissalTarget
 ): DismissRouteResult {
   const dismiss = target.Game?.Notifications?.dismiss;
   if (typeof dismiss !== "function") {
@@ -307,22 +277,19 @@ function panelCloseControlDismiss(
     };
   }
   const noneBlocker = target.EndTurnBlockingTypes?.NONE ?? 0;
-  const blockingType = before.endTurnBlockingType.ok
-    ? before.endTurnBlockingType.value
-    : null;
+  const blockingType = before.endTurnBlockingType.ok ? before.endTurnBlockingType.value : null;
   if (
-    blockingType != null
-    && blockingType !== noneBlocker
-    && before.isEndTurnBlocking.ok
-    && before.isEndTurnBlocking.value === true
+    blockingType != null &&
+    blockingType !== noneBlocker &&
+    before.isEndTurnBlocking.ok &&
+    before.isEndTurnBlocking.value === true
   ) {
     return {
       ok: false,
       attempted: false,
       available: false,
       path: "Game.Notifications.dismiss",
-      reason:
-        "official panel close control does not dismiss the active end-turn blocker",
+      reason: "official panel close control does not dismiss the active end-turn blocker",
     };
   }
   return callDismiss("Game.Notifications.dismiss", () => dismiss(notificationId));
@@ -350,18 +317,15 @@ function callDismiss(path: string, fn: () => unknown): DismissRouteResult {
 
 function engineQueueIds(
   target: Civ7GameUiNotificationDismissalTarget,
-  playerId: number,
+  playerId: number
 ): Civ7ComponentId[] {
-  const ids = safeValue(
-    () => target.Game?.Notifications?.getIdsForPlayer?.(playerId),
-    [],
-  );
+  const ids = safeValue(() => target.Game?.Notifications?.getIdsForPlayer?.(playerId), []);
   return Array.isArray(ids) ? ids.map(toComponentId).filter(isPresent) : [];
 }
 
 function notificationTrainQueueIds(
   target: Civ7GameUiNotificationDismissalTarget,
-  playerId: number,
+  playerId: number
 ): Civ7ComponentId[] {
   const manager = target.NotificationModel?.manager;
   const playerEntry = manager?.findPlayer?.(playerId) as
@@ -397,11 +361,11 @@ function toComponentId(value: unknown): Civ7ComponentId | null {
 
 function assertGameUiComponentId(
   value: unknown,
-  label = "ComponentID",
+  label = "ComponentID"
 ): asserts value is Civ7ComponentId {
   if (toComponentId(value)) return;
   throw new Error(
-    `${label} must be a Civ7 ComponentID object with numeric owner, id, and optional type`,
+    `${label} must be a Civ7 ComponentID object with numeric owner, id, and optional type`
   );
 }
 
@@ -416,7 +380,7 @@ function notificationValue(notification: unknown, key: string): unknown {
     const value = (notification as Record<string, unknown>)[key];
     return typeof value === "function"
       ? (value as () => unknown).call(notification)
-      : value ?? null;
+      : (value ?? null);
   }, null);
 }
 

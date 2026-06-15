@@ -4,10 +4,9 @@ export type SwooperMapsStudioDeployPlan = Readonly<{
   env: NodeJS.ProcessEnv;
 }>;
 
-export function buildSwooperMapsStudioDeployPlan(options: {
-  requestId?: string;
-  env?: NodeJS.ProcessEnv;
-} = {}): SwooperMapsStudioDeployPlan {
+export function buildSwooperMapsStudioDeployPlan(
+  options: { requestId?: string; env?: NodeJS.ProcessEnv } = {}
+): SwooperMapsStudioDeployPlan {
   const env = options.requestId
     ? { ...(options.env ?? process.env), SWOOPER_STUDIO_RUN_ID: options.requestId }
     : (options.env ?? process.env);

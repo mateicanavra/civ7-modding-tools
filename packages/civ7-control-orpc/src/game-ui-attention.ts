@@ -7,13 +7,9 @@ import type {
 } from "./dependencies/direct-control";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 
-type RuntimeProbe<T> = Readonly<
-  | { ok: true; value: T }
-  | { ok: false; error: string }
->;
+type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
-type PlayNotificationSummary =
-  Civ7ControlOrpcPlayNotificationViewResult["notifications"][number];
+type PlayNotificationSummary = Civ7ControlOrpcPlayNotificationViewResult["notifications"][number];
 type PlayDecisionHint = PlayNotificationSummary["decision"];
 
 export type Civ7GameUiAttentionTarget = Readonly<{
@@ -32,13 +28,11 @@ export type Civ7GameUiAttentionTarget = Readonly<{
       getTypeName?: (type: unknown) => string | null;
       getSummary?: (id: Civ7ControlOrpcComponentId | null) => string | null;
       getMessage?: (id: Civ7ControlOrpcComponentId | null) => string | null;
-      getBlocksTurnAdvancement?: (
-        id: Civ7ControlOrpcComponentId | null,
-      ) => unknown;
+      getBlocksTurnAdvancement?: (id: Civ7ControlOrpcComponentId | null) => unknown;
       getEndTurnBlockingType?: (playerId: number) => unknown;
       findEndTurnBlocking?: (
         playerId: number,
-        blockerType: unknown,
+        blockerType: unknown
       ) => Civ7ControlOrpcComponentId | null;
     };
   };
@@ -78,15 +72,11 @@ export type Civ7GameUiReadyCityOptions = Readonly<{
 
 export async function getCiv7GameUiPlayNotificationView(
   options: Civ7GameUiAttentionOptions = {},
-  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget,
+  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget
 ): Promise<Civ7ControlOrpcPlayNotificationViewResult> {
   const localPlayerId = target.GameContext?.localPlayerID ?? -1;
   const maxNotifications = clampMaxNotifications(options.maxNotifications);
-  const notificationRead = gameUiNotificationSummaries(
-    target,
-    localPlayerId,
-    maxNotifications,
-  );
+  const notificationRead = gameUiNotificationSummaries(target, localPlayerId, maxNotifications);
   const blocker = gameUiEndTurnBlocker(target, localPlayerId);
 
   return {
@@ -96,30 +86,23 @@ export async function getCiv7GameUiPlayNotificationView(
     localPlayerId,
     turn: probe(() => target.Game?.turn ?? -1),
     turnDate: probe(() => target.Game?.getTurnDate?.() ?? ""),
-    hasSentTurnComplete: probe(() =>
-      target.GameContext?.hasSentTurnComplete?.() ?? false
-    ),
+    hasSentTurnComplete: probe(() => target.GameContext?.hasSentTurnComplete?.() ?? false),
     canEndTurn: probe(() => target.canEndTurn?.() ?? false),
     blocker,
-    blockingNotificationId: probe(() =>
-      target.Game?.Notifications?.findEndTurnBlocking?.(
-        localPlayerId,
-        blocker.ok ? blocker.value : null,
-      ) ?? null
+    blockingNotificationId: probe(
+      () =>
+        target.Game?.Notifications?.findEndTurnBlocking?.(
+          localPlayerId,
+          blocker.ok ? blocker.value : null
+        ) ?? null
     ),
     selectedUnitId: ok(null),
     selectedCityId: ok(null),
-    firstReadyUnitId: probe(() =>
-      toComponentId(target.UI?.Player?.getFirstReadyUnit?.())
-    ),
+    firstReadyUnitId: probe(() => toComponentId(target.UI?.Player?.getFirstReadyUnit?.())),
     notifications: notificationRead.notifications,
-    decisions: notificationRead.notifications.map((notification) =>
-      notification.decision
-    ),
+    decisions: notificationRead.notifications.map((notification) => notification.decision),
     hud: {
-      nextDecision: notificationDecisionQueueItem(
-        notificationRead.notifications[0] ?? null,
-      ),
+      nextDecision: notificationDecisionQueueItem(notificationRead.notifications[0] ?? null),
       decisionQueue: notificationRead.notifications
         .map(notificationDecisionQueueItem)
         .filter(isPresent),
@@ -132,7 +115,7 @@ export async function getCiv7GameUiPlayNotificationView(
 }
 
 export async function getCiv7GameUiTurnCompletionStatus(
-  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget,
+  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget
 ): Promise<Civ7ControlOrpcTurnCompletionStatusResult> {
   const localPlayerId = target.GameContext?.localPlayerID ?? -1;
   return {
@@ -142,24 +125,18 @@ export async function getCiv7GameUiTurnCompletionStatus(
     localPlayerId,
     turn: probe(() => target.Game?.turn ?? -1),
     turnDate: probe(() => target.Game?.getTurnDate?.() ?? ""),
-    hasSentTurnComplete: probe(() =>
-      target.GameContext?.hasSentTurnComplete?.() ?? false
-    ),
+    hasSentTurnComplete: probe(() => target.GameContext?.hasSentTurnComplete?.() ?? false),
     canEndTurn: probe(() => target.canEndTurn?.() ?? false),
     blocker: gameUiEndTurnBlocker(target, localPlayerId),
-    firstReadyUnitId: probe(() =>
-      toComponentId(target.UI?.Player?.getFirstReadyUnit?.())
-    ),
+    firstReadyUnitId: probe(() => toComponentId(target.UI?.Player?.getFirstReadyUnit?.())),
   };
 }
 
 export async function getCiv7GameUiReadyUnitView(
   input: Civ7GameUiReadyUnitOptions = {},
-  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget,
+  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget
 ): Promise<Civ7ControlOrpcReadyUnitViewResult> {
-  const selectedUnitId = probe(() =>
-    toComponentId(target.UI?.Player?.getHeadSelectedUnit?.())
-  );
+  const selectedUnitId = probe(() => toComponentId(target.UI?.Player?.getHeadSelectedUnit?.()));
   const firstReadyUnitId = probe(() => {
     const readFirstReadyUnit = target.UI?.Player?.getFirstReadyUnit;
     if (typeof readFirstReadyUnit !== "function") {
@@ -179,7 +156,7 @@ export async function getCiv7GameUiReadyUnitView(
     selectedUnitId,
     firstReadyUnitId,
     unitId,
-    unit: probe(() => unitId == null ? null : target.Units?.get?.(unitId) ?? null),
+    unit: probe(() => (unitId == null ? null : (target.Units?.get?.(unitId) ?? null))),
     legalOperations: [],
     promotionReadiness: ok(null),
     nearby: ok([]),
@@ -193,12 +170,10 @@ export async function getCiv7GameUiReadyUnitView(
 
 export async function getCiv7GameUiReadyCityView(
   input: Civ7GameUiReadyCityOptions = {},
-  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget,
+  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget
 ): Promise<Civ7ControlOrpcReadyCityViewResult> {
   const localPlayerId = target.GameContext?.localPlayerID ?? -1;
-  const selectedCityId = probe(() =>
-    toComponentId(target.UI?.Player?.getHeadSelectedCity?.())
-  );
+  const selectedCityId = probe(() => toComponentId(target.UI?.Player?.getHeadSelectedCity?.()));
   const requestedCityId = toComponentId(input.cityId);
   const blockingCityId = gameUiReadyCityId(target, localPlayerId);
   const cityId = blockingCityId.ok ? blockingCityId.value : null;
@@ -212,7 +187,7 @@ export async function getCiv7GameUiReadyCityView(
     selectedCityId,
     blockingCityId,
     cityId,
-    city: probe(() => cityId == null ? null : target.Cities?.get?.(cityId) ?? null),
+    city: probe(() => (cityId == null ? null : (target.Cities?.get?.(cityId) ?? null))),
     legalOperations: [],
     productionCandidates: ok([]),
     townFocusOptions: ok([]),
@@ -226,7 +201,7 @@ export async function getCiv7GameUiReadyCityView(
 }
 
 export async function requestCiv7GameUiTurnComplete(
-  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget,
+  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget
 ): Promise<Civ7ControlOrpcTurnCompletionRequestResult> {
   const before = await getCiv7GameUiTurnCompletionStatus(target);
   if (!gameUiTurnCompletionAllowed(before)) {
@@ -262,15 +237,16 @@ export async function requestCiv7GameUiTurnComplete(
       state: { id: "game-ui", name: "Game UI" },
       output: ["game-ui-turn-completion-requested"],
     },
-    verified: probeValue(after.hasSentTurnComplete) === true
-      || probeValue(after.turn) !== probeValue(before.turn),
+    verified:
+      probeValue(after.hasSentTurnComplete) === true ||
+      probeValue(after.turn) !== probeValue(before.turn),
   };
 }
 
 function gameUiNotificationSummaries(
   target: Civ7GameUiAttentionTarget,
   playerId: number,
-  maxNotifications: number,
+  maxNotifications: number
 ): Readonly<{
   notifications: PlayNotificationSummary[];
   truncated: boolean;
@@ -294,36 +270,35 @@ function gameUiNotificationSummaries(
 
 function gameUiNotificationSummary(
   id: Civ7ControlOrpcComponentId,
-  target: Civ7GameUiAttentionTarget,
+  target: Civ7GameUiAttentionTarget
 ): PlayNotificationSummary {
   const notifications = target.Game?.Notifications;
   const notification = safeValue(() => notifications?.find?.(id), null);
   const type = safeValue(
-    () => typeof notifications?.getType === "function"
-      ? notifications.getType(id)
-      : notificationValue(notification, "Type"),
-    null,
+    () =>
+      typeof notifications?.getType === "function"
+        ? notifications.getType(id)
+        : notificationValue(notification, "Type"),
+    null
   );
   const typeName = safeValue(
-    () => typeof notifications?.getTypeName === "function"
-      ? notifications.getTypeName(type)
-      : null,
-    null,
+    () =>
+      typeof notifications?.getTypeName === "function" ? notifications.getTypeName(type) : null,
+    null
   );
-  const summary = safeStringValue(
-    () => typeof notifications?.getSummary === "function"
+  const summary = safeStringValue(() =>
+    typeof notifications?.getSummary === "function"
       ? notifications.getSummary(id)
-      : notificationValue(notification, "Summary"),
+      : notificationValue(notification, "Summary")
   );
-  const message = safeStringValue(
-    () => typeof notifications?.getMessage === "function"
+  const message = safeStringValue(() =>
+    typeof notifications?.getMessage === "function"
       ? notifications.getMessage(id)
-      : notificationValue(notification, "Message"),
+      : notificationValue(notification, "Message")
   );
-  const isEndTurnBlocking = Boolean(safeValue(
-    () => notifications?.getBlocksTurnAdvancement?.(id),
-    false,
-  ));
+  const isEndTurnBlocking = Boolean(
+    safeValue(() => notifications?.getBlocksTurnAdvancement?.(id), false)
+  );
   const category = notificationCategory(typeName, isEndTurnBlocking);
 
   return {
@@ -349,12 +324,14 @@ function gameUiNotificationSummary(
   };
 }
 
-function notificationDecisionHint(input: Readonly<{
-  category: string;
-  typeName: string | null;
-  summary: string | null;
-  isEndTurnBlocking: boolean;
-}>): PlayDecisionHint {
+function notificationDecisionHint(
+  input: Readonly<{
+    category: string;
+    typeName: string | null;
+    summary: string | null;
+    isEndTurnBlocking: boolean;
+  }>
+): PlayDecisionHint {
   return {
     category: input.category,
     requiredInputs: [],
@@ -372,7 +349,7 @@ function notificationDecisionHint(input: Readonly<{
 }
 
 function notificationDecisionQueueItem(
-  notification: PlayNotificationSummary | null,
+  notification: PlayNotificationSummary | null
 ): Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number] | null {
   if (notification == null) return null;
   return {
@@ -391,33 +368,26 @@ function notificationDecisionQueueItem(
   };
 }
 
-function notificationCategory(
-  typeName: string | null,
-  isEndTurnBlocking: boolean,
-): string {
+function notificationCategory(typeName: string | null, isEndTurnBlocking: boolean): string {
   const normalized = String(typeName ?? "").toUpperCase();
   if (normalized.includes("CHOOSE_PRODUCTION")) return "production-choice";
   if (normalized.includes("CHOOSE_TECH")) return "technology-choice";
   if (normalized.includes("CHOOSE_CULTURE")) return "culture-choice";
   if (normalized.includes("COMMAND_UNITS")) return "unit-command";
   if (normalized.includes("DIPLOMATIC")) return "diplomacy";
-  return isEndTurnBlocking
-    ? "blocking-notification"
-    : "informational-notification";
+  return isEndTurnBlocking ? "blocking-notification" : "informational-notification";
 }
 
 function gameUiEndTurnBlocker(
   target: Civ7GameUiAttentionTarget,
-  playerId: number,
+  playerId: number
 ): RuntimeProbe<unknown> {
-  return probe(() =>
-    target.Game?.Notifications?.getEndTurnBlockingType?.(playerId) ?? null
-  );
+  return probe(() => target.Game?.Notifications?.getEndTurnBlockingType?.(playerId) ?? null);
 }
 
 function gameUiReadyCityId(
   target: Civ7GameUiAttentionTarget,
-  playerId: number,
+  playerId: number
 ): RuntimeProbe<Civ7ControlOrpcComponentId | null> {
   return probe(() => {
     const blockerCityId = gameUiBlockingNotificationCityId(target, playerId);
@@ -428,7 +398,7 @@ function gameUiReadyCityId(
 
 function gameUiBlockingNotificationCityId(
   target: Civ7GameUiAttentionTarget,
-  playerId: number,
+  playerId: number
 ): Civ7ControlOrpcComponentId | null {
   const notifications = target.Game?.Notifications;
   const blockerType = notifications?.getEndTurnBlockingType?.(playerId);
@@ -441,15 +411,14 @@ function gameUiBlockingNotificationCityId(
 
 function gameUiPopulationReadyCityId(
   target: Civ7GameUiAttentionTarget,
-  playerId: number,
+  playerId: number
 ): Civ7ControlOrpcComponentId | null {
   const cities = target.Players?.Cities?.get?.(playerId);
   const cityIds = readCityIds(cities);
   for (const cityId of cityIds) {
     const city = target.Cities?.get?.(cityId);
     if (city == null || typeof city !== "object") continue;
-    const growth = (city as { Growth?: { isReadyToPlacePopulation?: unknown } })
-      .Growth;
+    const growth = (city as { Growth?: { isReadyToPlacePopulation?: unknown } }).Growth;
     if (growth?.isReadyToPlacePopulation === true) return cityId;
   }
   return null;
@@ -486,7 +455,7 @@ function notificationValue(notification: unknown, key: string): unknown {
     const value = (notification as Record<string, unknown>)[key];
     return typeof value === "function"
       ? (value as () => unknown).call(notification)
-      : value ?? null;
+      : (value ?? null);
   }, null);
 }
 
@@ -515,11 +484,8 @@ function ok<T>(value: T): RuntimeProbe<T> {
   return { ok: true, value };
 }
 
-function gameUiTurnCompletionAllowed(
-  status: Civ7ControlOrpcTurnCompletionStatusResult,
-): boolean {
-  return probeValue(status.canEndTurn) === true
-    && probeValue(status.hasSentTurnComplete) !== true;
+function gameUiTurnCompletionAllowed(status: Civ7ControlOrpcTurnCompletionStatusResult): boolean {
+  return probeValue(status.canEndTurn) === true && probeValue(status.hasSentTurnComplete) !== true;
 }
 
 function probeValue<T>(probe: RuntimeProbe<T>): T | undefined {

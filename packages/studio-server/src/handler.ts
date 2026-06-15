@@ -1,14 +1,9 @@
-import { Effect } from "effect";
+import { type Civ7ControlOrpcContext, Civ7ControlOrpcRouter } from "@civ7/control-orpc";
 import { onError, type Router } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
-
-import {
-  Civ7ControlOrpcRouter,
-  type Civ7ControlOrpcContext,
-} from "@civ7/control-orpc";
-
-import type { StudioContract, StudioEffectContract } from "./contract/index.js";
+import { Effect } from "effect";
 import type { StudioServerContext } from "./context.js";
+import type { StudioContract, StudioEffectContract } from "./contract/index.js";
 import {
   createRuntimeLiveGameWatcher,
   type LiveGameWatcher,
@@ -16,10 +11,7 @@ import {
 } from "./liveGame/watcher.js";
 import { createStudioRouter } from "./router/index.js";
 import { makeStudioRuntime } from "./runtime.js";
-import {
-  Civ7TunerSession,
-  type Civ7TunerSessionHealth,
-} from "./services/Civ7TunerSession.js";
+import { Civ7TunerSession, type Civ7TunerSessionHealth } from "./services/Civ7TunerSession.js";
 
 /**
  * `createStudioRpcHandler(context)` — the host entrypoint for the ONE oRPC
@@ -53,7 +45,7 @@ import {
 export interface StudioRpcHandle {
   handle(
     request: Request,
-    options?: { prefix?: `/${string}` },
+    options?: { prefix?: `/${string}` }
   ): Promise<{ matched: boolean; response?: Response }>;
   readonly tuner: {
     health(): Promise<Civ7TunerSessionHealth>;
@@ -67,7 +59,7 @@ export interface StudioRpcHandlerOptions {
 
 export function createStudioRpcHandler(
   context: StudioServerContext,
-  options: StudioRpcHandlerOptions = {},
+  options: StudioRpcHandlerOptions = {}
 ): StudioRpcHandle {
   const runtime = makeStudioRuntime(context);
   const effectRouter = createStudioRouter(runtime);
@@ -140,8 +132,7 @@ export function createStudioRpcHandler(
         } satisfies Civ7ControlOrpcContext,
       }),
     tuner: {
-      health: () =>
-        runtime.runPromise(Effect.flatMap(Civ7TunerSession, (tuner) => tuner.health)),
+      health: () => runtime.runPromise(Effect.flatMap(Civ7TunerSession, (tuner) => tuner.health)),
     },
     dispose: async () => {
       liveGameWatcher?.stop();

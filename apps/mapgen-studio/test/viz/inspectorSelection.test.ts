@@ -57,7 +57,10 @@ function makePorts(
 
 const STAGES = [
   { stageId: "stage-0", steps: [{ fullStepId: "stage-0.other" }] },
-  { stageId: "stage-1", steps: [{ fullStepId: "stage-1.step-a" }, { fullStepId: "stage-1.step-b" }] },
+  {
+    stageId: "stage-1",
+    steps: [{ fullStepId: "stage-1.step-a" }, { fullStepId: "stage-1.step-b" }],
+  },
 ];
 
 describe("applyRiverLakeInspectorSelection", () => {

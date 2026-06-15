@@ -1,12 +1,11 @@
 import { describe, expect, it } from "bun:test";
-
-import ecology from "@mapgen/domain/ecology/ops";
 import { createMockAdapter } from "@civ7/adapter";
+import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import planVegetationStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/index.js";
-import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
 import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
+import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import planVegetationStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/index.js";
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";

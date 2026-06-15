@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
@@ -111,9 +111,7 @@ function stageStepsVizHub(normalizedPath) {
 }
 
 function privateStepVizOwner(normalizedPath) {
-  return normalizedPath.match(
-    /src\/recipes\/standard\/stages\/([^/]+)\/steps\/([^/]+)\/viz\.ts$/
-  );
+  return normalizedPath.match(/src\/recipes\/standard\/stages\/([^/]+)\/steps\/([^/]+)\/viz\.ts$/);
 }
 
 function isInsideStep(normalizedPath, stage, step) {
@@ -278,7 +276,9 @@ const stages = [one, two] as const;
   if (importHits[0] !== "../other/steps/foo.js") {
     throw new Error("self-test failed: import specifier extraction");
   }
-  if (!stageStepsVizHub("mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/viz.ts")) {
+  if (
+    !stageStepsVizHub("mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/viz.ts")
+  ) {
     throw new Error("self-test failed: steps/viz.ts hub detection");
   }
   const privateViz = privateStepVizOwner(

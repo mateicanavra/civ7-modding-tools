@@ -1,9 +1,8 @@
 import { BOUNDARY_TYPE } from "../../../constants.js";
-import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
-import type { FoundationMesh } from "../../compute-mesh/contract.js";
-import type { FoundationTectonicProvenance } from "../../../lib/tectonics/schemas.js";
-import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
-
+import {
+  requireMesh as requireMeshInput,
+  requirePlateGraph as requirePlateGraphInput,
+} from "../../../lib/require.js";
 import {
   ARC_RESET_THRESHOLD_FRAC_OF_MAX,
   ARC_RESET_THRESHOLD_MIN,
@@ -13,8 +12,11 @@ import {
   RIFT_RESET_THRESHOLD_FRAC_OF_MAX,
   RIFT_RESET_THRESHOLD_MIN,
 } from "../../../lib/tectonics/constants.js";
-import { requireMesh as requireMeshInput, requirePlateGraph as requirePlateGraphInput } from "../../../lib/require.js";
+import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
+import type { FoundationTectonicProvenance } from "../../../lib/tectonics/schemas.js";
 import { clampByte, deriveResetThreshold } from "../../../lib/tectonics/shared.js";
+import type { FoundationMesh } from "../../compute-mesh/contract.js";
+import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
 
 export function computeTectonicProvenance(params: {
   mesh: FoundationMesh;
@@ -127,11 +129,15 @@ export function computeTectonicProvenance(params: {
       if (boundary !== BOUNDARY_TYPE.none && intensity > 0) {
         lastBoundaryEra[i] = era;
         lastBoundaryType[i] = boundary;
-        lastBoundaryPolarity[i] = boundary === BOUNDARY_TYPE.convergent ? fields.boundaryPolarity[i] ?? 0 : 0;
+        lastBoundaryPolarity[i] =
+          boundary === BOUNDARY_TYPE.convergent ? (fields.boundaryPolarity[i] ?? 0) : 0;
         lastBoundaryIntensity[i] = intensity;
       }
 
-      if (boundary === BOUNDARY_TYPE.divergent && (fields.riftPotential[i] ?? 0) >= riftResetThreshold) {
+      if (
+        boundary === BOUNDARY_TYPE.divergent &&
+        (fields.riftPotential[i] ?? 0) >= riftResetThreshold
+      ) {
         originEra[i] = era;
         originPlateId[i] = fields.riftOriginPlate[i] ?? params.plateGraph.cellToPlate[i] ?? -1;
       }
@@ -180,7 +186,9 @@ export function computeTectonicProvenance(params: {
   };
 }
 
-export function requireMesh(...args: Parameters<typeof requireMeshInput>): ReturnType<typeof requireMeshInput> {
+export function requireMesh(
+  ...args: Parameters<typeof requireMeshInput>
+): ReturnType<typeof requireMeshInput> {
   return requireMeshInput(...args);
 }
 

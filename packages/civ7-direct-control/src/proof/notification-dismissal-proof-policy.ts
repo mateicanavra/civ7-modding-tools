@@ -1,9 +1,8 @@
-import {
-  notificationDismissalPostconditionConfirmed,
-  type Civ7NotificationDismissalPostconditionClassification,
-} from "../play/notifications/postconditions";
-
 import type { Civ7NotificationDismissalResult } from "../play/notifications/dismissal-request";
+import {
+  type Civ7NotificationDismissalPostconditionClassification,
+  notificationDismissalPostconditionConfirmed,
+} from "../play/notifications/postconditions";
 import type {
   Civ7OperationProofBoundary,
   Civ7OperationTelemetryPostcondition,
@@ -12,7 +11,7 @@ import type {
 
 export function notificationDismissalProofPostcondition(
   result: Civ7NotificationDismissalResult,
-  proofBoundary: Civ7OperationProofBoundary | undefined,
+  proofBoundary: Civ7OperationProofBoundary | undefined
 ): Civ7OperationTelemetryPostcondition | undefined {
   const postcondition = notificationDismissalPostconditionOf(result);
   if (!result.sent && !postcondition) return undefined;
@@ -53,7 +52,7 @@ export function notificationDismissalProofPostcondition(
 }
 
 export function notificationDismissalProofOutcome(
-  classification: Civ7NotificationDismissalPostconditionClassification,
+  classification: Civ7NotificationDismissalPostconditionClassification
 ): Civ7OperationTelemetryPostconditionOutcome {
   switch (classification) {
     case "not-sent":
@@ -76,7 +75,8 @@ export function notificationDismissalProofOutcome(
 }
 
 function notificationDismissalPostconditionOf(
-  result: Civ7NotificationDismissalResult,
+  result: Civ7NotificationDismissalResult
 ): Civ7NotificationDismissalResult["postcondition"] | undefined {
-  return (result as { postcondition?: Civ7NotificationDismissalResult["postcondition"] }).postcondition;
+  return (result as { postcondition?: Civ7NotificationDismissalResult["postcondition"] })
+    .postcondition;
 }

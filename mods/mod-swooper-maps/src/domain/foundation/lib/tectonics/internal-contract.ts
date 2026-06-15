@@ -1,5 +1,5 @@
-import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 import type { Static } from "@swooper/mapgen-core/authoring";
+import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 export const TectonicEventSchema = Type.Object(
   {
@@ -43,11 +43,15 @@ export const FoundationTectonicEraFieldsInternalSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const FoundationTectonicEraFieldsInternalListSchema = Type.Array(FoundationTectonicEraFieldsInternalSchema);
+export const FoundationTectonicEraFieldsInternalListSchema = Type.Array(
+  FoundationTectonicEraFieldsInternalSchema
+);
 
 export const PlateIdByEraSchema = Type.Array(TypedArraySchemas.i16({ shape: null }));
 
 export const TracerIndexByEraSchema = Type.Array(TypedArraySchemas.u32({ shape: null }));
 
 export type TectonicEventRecord = Static<typeof TectonicEventSchema>;
-export type FoundationTectonicEraFieldsInternal = Static<typeof FoundationTectonicEraFieldsInternalSchema>;
+export type FoundationTectonicEraFieldsInternal = Static<
+  typeof FoundationTectonicEraFieldsInternalSchema
+>;

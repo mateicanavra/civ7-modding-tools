@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7GameUiRuntimeTarget,
   createCiv7GameUiControllerContextFactory,
   installCiv7GameUiIntelligenceBridge,
-  type Civ7GameUiRuntimeTarget,
 } from "../src/game-ui";
 import { requestCiv7GameUiTechnologyTarget } from "../src/game-ui-progression";
 import { requestCiv7GameUiTownFocusChange } from "../src/game-ui-town-focus";
@@ -72,11 +72,13 @@ describe("Civ7 game UI controller bootstrap", () => {
         },
       },
     });
-    expect(response.ok && response.output.nextSteps).toEqual([{
-      kind: "read-world",
-      source: "readiness.current",
-      label: "Read current world facts before choosing support actions.",
-    }]);
+    expect(response.ok && response.output.nextSteps).toEqual([
+      {
+        kind: "read-world",
+        source: "readiness.current",
+        label: "Read current world facts before choosing support actions.",
+      },
+    ]);
   });
 
   test("reads current world through game UI service dependency", async () => {
@@ -129,10 +131,10 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
     expect(serialized).not.toContain("rawCommand");
     expect(serialized).not.toContain("Game.");
     expect(serialized).not.toMatch(/\benemy\b/i);
@@ -225,10 +227,10 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
 
     const serialized = JSON.stringify({ plot, grid });
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"session"');
     expect(serialized).not.toContain("rawCommand");
     expect(serialized).not.toContain("Game.");
     expect(serialized).not.toContain("relationship");
@@ -252,9 +254,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       ok: true,
       output: {
         controller: {
-          supportedProcedures: [
-            { procedureKey: "world.current", risk: "read-only" },
-          ],
+          supportedProcedures: [{ procedureKey: "world.current", risk: "read-only" }],
         },
       },
     });
@@ -270,8 +270,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       ok: false,
       error: {
         code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message:
-          "Civ7 controller bridge procedure is not supported by this controller context.",
+        message: "Civ7 controller bridge procedure is not supported by this controller context.",
         reason: "procedure-not-supported",
       },
     });
@@ -309,8 +308,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       ok: false,
       error: {
         code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message:
-          "Civ7 controller bridge procedure is not supported by this controller context.",
+        message: "Civ7 controller bridge procedure is not supported by this controller context.",
         reason: "procedure-not-supported",
       },
     });
@@ -357,11 +355,13 @@ describe("Civ7 game UI controller bootstrap", () => {
         },
       },
     });
-    expect(response.ok && response.output.nextSteps).toEqual([{
-      kind: "read-attention",
-      source: "readiness.current",
-      label: "Read current attention before choosing support actions.",
-    }]);
+    expect(response.ok && response.output.nextSteps).toEqual([
+      {
+        kind: "read-attention",
+        source: "readiness.current",
+        label: "Read current attention before choosing support actions.",
+      },
+    ]);
   });
 
   test("executes notification dismissal through game UI runtime", async () => {
@@ -398,9 +398,9 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(serialized).not.toContain("NotificationModel.manager.dismiss");
     expect(serialized).not.toContain("Game.Notifications.dismiss");
 
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
   });
 
   test("keeps unsupported mutation ports bounded by the existing bridge projection", async () => {
@@ -416,14 +416,12 @@ describe("Civ7 game UI controller bootstrap", () => {
       ok: false,
       error: {
         code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message:
-          "Civ7 controller bridge procedure is not supported by this controller context.",
+        message: "Civ7 controller bridge procedure is not supported by this controller context.",
         reason: "procedure-not-supported",
       },
     });
     expect(JSON.stringify(response)).not.toContain("NotificationModel");
     expect(JSON.stringify(response)).not.toContain("Game.Notifications");
-
   });
 
   test("keeps unsupported game UI mutations bounded when notification dismissal is available", async () => {
@@ -439,8 +437,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       ok: false,
       error: {
         code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message:
-          "Civ7 controller bridge procedure is not supported by this controller context.",
+        message: "Civ7 controller bridge procedure is not supported by this controller context.",
         reason: "procedure-not-supported",
       },
     });
@@ -491,10 +488,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: true,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "turn.complete.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "turn.complete.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual(["send"]);
@@ -503,10 +502,10 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     expect(serialized).not.toContain("GameContext.sendTurnComplete");
     expect(serialized).not.toContain("game-ui-turn-completion-requested");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
   });
 
   test("executes production choice through game UI service dependency", async () => {
@@ -572,21 +571,23 @@ describe("Civ7 game UI controller bootstrap", () => {
           noRepeatAfterUnverified: false,
           blockerStillLive: false,
         },
-        nextSteps: [{
-          kind: "refresh-attention",
-          source: "city.production.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "refresh-attention",
+            source: "city.production.choice.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual([productionArgs]);
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("Game.CityOperations");
     expect(serialized).not.toContain("sendRequest");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
   });
 
   test("keeps game UI production validator blocks semantic and not sent", async () => {
@@ -621,10 +622,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "inspect-production",
-          source: "city.production.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "inspect-production",
+            source: "city.production.choice.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual([]);
@@ -657,10 +660,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           noRepeatAfterUnverified: true,
           blockerStillLive: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "city.production.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "city.production.choice.request",
+          },
+        ],
       },
     });
   });
@@ -828,21 +833,23 @@ describe("Civ7 game UI controller bootstrap", () => {
           noRepeatAfterUnverified: false,
           readyCleared: true,
         },
-        nextSteps: [{
-          kind: "refresh-attention",
-          source: "city.population.place.request",
-        }],
+        nextSteps: [
+          {
+            kind: "refresh-attention",
+            source: "city.population.place.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual([{ Location: 2543, Amount: 1 }]);
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("Game.PlayerOperations");
     expect(serialized).not.toContain("sendRequest");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
   });
 
   test("executes expand-city population placement through game UI service dependency", async () => {
@@ -918,10 +925,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "inspect-population-placement",
-          source: "city.population.place.request",
-        }],
+        nextSteps: [
+          {
+            kind: "inspect-population-placement",
+            source: "city.population.place.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual([]);
@@ -984,10 +993,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           readyCleared: false,
           placementStateChanged: false,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "city.population.place.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "city.population.place.request",
+          },
+        ],
       },
     });
   });
@@ -1018,10 +1029,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confidence: "confirmed",
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "city.population.place.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "city.population.place.request",
+          },
+        ],
       },
     });
   });
@@ -1052,10 +1065,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "city.population.place.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "city.population.place.request",
+          },
+        ],
       },
     });
   });
@@ -1124,26 +1139,30 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "city.townFocus.change.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "city.townFocus.change.request",
+          },
+        ],
       },
     });
-    expect(sendCalls).toEqual([{
-      Type: townFocusGrowthType,
-      ProjectType: townFocusProjectType,
-      City: cityId.id,
-    }]);
+    expect(sendCalls).toEqual([
+      {
+        Type: townFocusGrowthType,
+        ProjectType: townFocusProjectType,
+        City: cityId.id,
+      },
+    ]);
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("Game.CityCommands");
     expect(serialized).not.toContain("CHANGE_GROWTH_MODE");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"verified"');
   });
 
   test("executes town project review through game UI service dependency", async () => {
@@ -1181,8 +1200,8 @@ describe("Civ7 game UI controller bootstrap", () => {
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("Game.CityOperations");
     expect(serialized).not.toContain("CONSIDER_TOWN_PROJECT");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
   });
 
   test("keeps game UI town focus validator blocks semantic and not sent", async () => {
@@ -1278,7 +1297,7 @@ describe("Civ7 game UI controller bootstrap", () => {
             canStart: () => ({ Success: true }),
           },
         },
-      },
+      }
     );
 
     expect(result).toMatchObject({
@@ -1362,10 +1381,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: true,
           noRepeatAfterUnverified: false,
         },
-        nextSteps: [{
-          kind: "refresh-attention",
-          source: "progression.technology.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "refresh-attention",
+            source: "progression.technology.choice.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual([
@@ -1381,12 +1402,12 @@ describe("Civ7 game UI controller bootstrap", () => {
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("SET_TECH_TREE_NODE");
     expect(serialized).not.toContain("SET_TECH_TREE_TARGET_NODE");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"rawCommand"');
   });
 
   test("keeps sticky game UI culture progression choices no-repeat guarded", async () => {
@@ -1424,10 +1445,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "progression.culture.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "progression.culture.choice.request",
+          },
+        ],
       },
     });
   });
@@ -1466,10 +1489,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "inspect-progression-choice",
-          source: "progression.technology.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "inspect-progression-choice",
+            source: "progression.technology.choice.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual([]);
@@ -1533,24 +1558,28 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "progression.technology.target.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "progression.technology.target.request",
+          },
+        ],
       },
     });
-    expect(sendCalls).toEqual([{
-      operationType: "SET_TECH_TREE_TARGET_NODE",
-      args: { ProgressionTreeNodeType: 18_001 },
-    }]);
+    expect(sendCalls).toEqual([
+      {
+        operationType: "SET_TECH_TREE_TARGET_NODE",
+        args: { ProgressionTreeNodeType: 18_001 },
+      },
+    ]);
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("SET_TECH_TREE_TARGET_NODE");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"operation\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"operation"');
+    expect(serialized).not.toContain('"verified"');
   });
 
   test("does not advertise progression requests without local-player notification evidence", async () => {
@@ -1654,10 +1683,10 @@ describe("Civ7 game UI controller bootstrap", () => {
     const serialized = JSON.stringify({ attribute, tradition });
     expect(serialized).not.toContain("BUY_ATTRIBUTE_TREE_NODE");
     expect(serialized).not.toContain("CHANGE_TRADITION");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"operation\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"operation"');
+    expect(serialized).not.toContain('"verified"');
   });
 
   test("keeps game UI progression review validator blocks semantic and not sent", async () => {
@@ -1690,10 +1719,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "inspect-progression-attribute",
-          source: "progression.attribute.review.request",
-        }],
+        nextSteps: [
+          {
+            kind: "inspect-progression-attribute",
+            source: "progression.attribute.review.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual([]);
@@ -1720,7 +1751,7 @@ describe("Civ7 game UI controller bootstrap", () => {
             },
           },
         },
-      },
+      }
     );
 
     expect(result).toMatchObject({
@@ -1749,7 +1780,7 @@ describe("Civ7 game UI controller bootstrap", () => {
             canStart: () => ({ Success: true }),
           },
         },
-      },
+      }
     );
 
     expect(result).toMatchObject({
@@ -1822,29 +1853,33 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: true,
           noRepeatAfterUnverified: false,
         },
-        nextSteps: [{
-          kind: "refresh-attention",
-          source: "narrative.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "refresh-attention",
+            source: "narrative.choice.request",
+          },
+        ],
       },
     });
-    expect(sendCalls).toEqual([{
-      playerId: 0,
-      args: {
-        TargetType: "DISCOVERY_STORY",
-        Target: notificationId,
-        Action: 1,
+    expect(sendCalls).toEqual([
+      {
+        playerId: 0,
+        args: {
+          TargetType: "DISCOVERY_STORY",
+          Target: notificationId,
+          Action: 1,
+        },
       },
-    }]);
+    ]);
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("CHOOSE_NARRATIVE_STORY_DIRECTION");
     expect(serialized).not.toContain("sendRequest");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"rawCommand"');
   });
 
   test("keeps sticky game UI narrative choices no-repeat guarded", async () => {
@@ -1885,10 +1920,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "narrative.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "narrative.choice.request",
+          },
+        ],
       },
     });
   });
@@ -1928,10 +1965,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "inspect-narrative-choice",
-          source: "narrative.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "inspect-narrative-choice",
+            source: "narrative.choice.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual([]);
@@ -1999,29 +2038,33 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: true,
           noRepeatAfterUnverified: false,
         },
-        nextSteps: [{
-          kind: "refresh-attention",
-          source: "diplomacy.response.request",
-        }],
+        nextSteps: [
+          {
+            kind: "refresh-attention",
+            source: "diplomacy.response.request",
+          },
+        ],
       },
     });
-    expect(sendCalls).toEqual([{
-      playerId: 0,
-      args: {
-        ID: diplomacyActionId,
-        Type: diplomacyResponseType,
+    expect(sendCalls).toEqual([
+      {
+        playerId: 0,
+        args: {
+          ID: diplomacyActionId,
+          Type: diplomacyResponseType,
+        },
       },
-    }]);
+    ]);
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("RESPOND_DIPLOMATIC_ACTION");
     expect(serialized).not.toContain("sendRequest");
     expect(serialized).not.toContain("DiplomacyManager");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"rawCommand"');
   });
 
   test("keeps sticky game UI diplomacy responses no-repeat guarded", async () => {
@@ -2057,10 +2100,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "diplomacy.response.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "diplomacy.response.request",
+          },
+        ],
       },
     });
   });
@@ -2101,10 +2146,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "inspect-diplomacy-response",
-          source: "diplomacy.response.request",
-        }],
+        nextSteps: [
+          {
+            kind: "inspect-diplomacy-response",
+            source: "diplomacy.response.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual([]);
@@ -2134,8 +2181,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       ok: false,
       error: {
         code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message:
-          "Civ7 controller bridge procedure is not supported by this controller context.",
+        message: "Civ7 controller bridge procedure is not supported by this controller context.",
         reason: "procedure-not-supported",
       },
     });
@@ -2167,11 +2213,13 @@ describe("Civ7 game UI controller bootstrap", () => {
             },
           ]),
         },
-        nextSteps: [{
-          kind: "read-strategy-front",
-          source: "readiness.current",
-          label: "Read strategy front summary before choosing tactical support actions.",
-        }],
+        nextSteps: [
+          {
+            kind: "read-strategy-front",
+            source: "readiness.current",
+            label: "Read strategy front summary before choosing tactical support actions.",
+          },
+        ],
       },
     });
 
@@ -2208,15 +2256,17 @@ describe("Civ7 game UI controller bootstrap", () => {
           pointOfInterestCount: expect.any(Number),
           observedOwnerCount: 2,
         },
-        targetCandidates: [{
-          owner: 1,
-          relationship: "relationship-unproven",
-          relationshipProof: "none",
-          nearestDistance: 5,
-          cityCount: 1,
-          unitCount: 1,
-          routeKind: "land",
-        }],
+        targetCandidates: [
+          {
+            owner: 1,
+            relationship: "relationship-unproven",
+            relationshipProof: "none",
+            nearestDistance: 5,
+            cityCount: 1,
+            unitCount: 1,
+            routeKind: "land",
+          },
+        ],
         observedOwners: expect.arrayContaining([
           expect.objectContaining({
             owner: 0,
@@ -2231,13 +2281,14 @@ describe("Civ7 game UI controller bootstrap", () => {
         ]),
       },
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind))
-      .toContain("inspect-target-candidate");
+    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).toContain(
+      "inspect-target-candidate"
+    );
 
     const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
     expect(serialized).not.toContain("Game.turn");
     expect(serialized).not.toContain("rawCommand");
     expect(serialized).not.toContain("Game.UnitOperations");
@@ -2288,8 +2339,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       ok: false,
       error: {
         code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message:
-          "Civ7 controller bridge procedure is not supported by this controller context.",
+        message: "Civ7 controller bridge procedure is not supported by this controller context.",
         reason: "procedure-not-supported",
       },
     });
@@ -2356,30 +2406,34 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: true,
           noRepeatAfterUnverified: false,
         },
-        nextSteps: [{
-          kind: "refresh-attention",
-          source: "diplomacy.firstMeet.response.request",
-        }],
+        nextSteps: [
+          {
+            kind: "refresh-attention",
+            source: "diplomacy.firstMeet.response.request",
+          },
+        ],
       },
     });
-    expect(sendCalls).toEqual([{
-      playerId: 0,
-      args: {
-        Player1: 0,
-        Player2: 2,
-        Type: firstMeetResponseType,
+    expect(sendCalls).toEqual([
+      {
+        playerId: 0,
+        args: {
+          Player1: 0,
+          Player2: 2,
+          Type: firstMeetResponseType,
+        },
       },
-    }]);
+    ]);
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("Game.PlayerOperations");
     expect(serialized).not.toContain("sendRequest");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"operation\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"operation"');
+    expect(serialized).not.toContain('"verified"');
   });
 
   test("keeps game UI first-meet validator blocks semantic and not sent", async () => {
@@ -2419,10 +2473,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "inspect-first-meet-response",
-          source: "diplomacy.firstMeet.response.request",
-        }],
+        nextSteps: [
+          {
+            kind: "inspect-first-meet-response",
+            source: "diplomacy.firstMeet.response.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual([]);
@@ -2459,10 +2515,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "diplomacy.firstMeet.response.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "diplomacy.firstMeet.response.request",
+          },
+        ],
       },
     });
   });
@@ -2530,27 +2588,31 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "government.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "government.choice.request",
+          },
+        ],
       },
     });
-    expect(sendCalls).toEqual([{
-      playerId: 0,
-      operationType: "CHANGE_GOVERNMENT",
-      args: { GovernmentType: governmentType, Action: governmentAction },
-    }]);
+    expect(sendCalls).toEqual([
+      {
+        playerId: 0,
+        operationType: "CHANGE_GOVERNMENT",
+        args: { GovernmentType: governmentType, Action: governmentAction },
+      },
+    ]);
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("Game.PlayerOperations");
     expect(serialized).not.toContain("sendRequest");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"verified\"");
-    expect(serialized).not.toContain("\"result\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"payload"');
+    expect(serialized).not.toContain('"verified"');
+    expect(serialized).not.toContain('"result"');
   });
 
   test("keeps game UI government validator blocks semantic and not sent", async () => {
@@ -2589,10 +2651,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "inspect-government-choice",
-          source: "government.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "inspect-government-choice",
+            source: "government.choice.request",
+          },
+        ],
       },
     });
     expect(sendCalls).toEqual([]);
@@ -2636,17 +2700,21 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "government.celebration.choice.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "government.celebration.choice.request",
+          },
+        ],
       },
     });
-    expect(sendCalls).toEqual([{
-      playerId: 0,
-      operationType: "CHOOSE_GOLDEN_AGE",
-      args: { GoldenAgeType: goldenAgeType },
-    }]);
+    expect(sendCalls).toEqual([
+      {
+        playerId: 0,
+        operationType: "CHOOSE_GOLDEN_AGE",
+        args: { GoldenAgeType: goldenAgeType },
+      },
+    ]);
   });
 
   test("executes unit target action through game UI service dependency", async () => {
@@ -2655,8 +2723,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       unitTargetAction: {
         unitId,
         target: unitTarget,
-        onSend: (family, operationType, args) =>
-          sendCalls.push({ family, operationType, args }),
+        onSend: (family, operationType, args) => sendCalls.push({ family, operationType, args }),
       },
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
@@ -2713,27 +2780,31 @@ describe("Civ7 game UI controller bootstrap", () => {
           noRepeatAfterUnverified: false,
           destinationReached: true,
         },
-        nextSteps: [{
-          kind: "refresh-attention",
-          source: "unit.target.action.request",
-        }],
+        nextSteps: [
+          {
+            kind: "refresh-attention",
+            source: "unit.target.action.request",
+          },
+        ],
       },
     });
-    expect(sendCalls).toEqual([{
-      family: "unit-operation",
-      operationType: "MOVE_TO",
-      args: { X: 22, Y: 31, Modifiers: 3 },
-    }]);
+    expect(sendCalls).toEqual([
+      {
+        family: "unit-operation",
+        operationType: "MOVE_TO",
+        args: { X: 22, Y: 31, Modifiers: 3 },
+      },
+    ]);
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("Game.UnitOperations");
     expect(serialized).not.toContain("Game.UnitCommands");
     expect(serialized).not.toContain("sendRequest");
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"sendResult\"");
-    expect(serialized).not.toContain("\"result\"");
-    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"sendResult"');
+    expect(serialized).not.toContain('"result"');
+    expect(serialized).not.toContain('"rawCommand"');
   });
 
   test("blocks game UI unit target sends for non-local unit owners", async () => {
@@ -2743,8 +2814,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       unitTargetAction: {
         unitId: foreignUnitId,
         target: unitTarget,
-        onSend: (family, operationType, args) =>
-          sendCalls.push({ family, operationType, args }),
+        onSend: (family, operationType, args) => sendCalls.push({ family, operationType, args }),
       },
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
@@ -2810,10 +2880,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           destinationReached: false,
           landedLocation: { x: 21, y: 31 },
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "unit.target.action.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "unit.target.action.request",
+          },
+        ],
       },
     });
   });
@@ -2825,8 +2897,7 @@ describe("Civ7 game UI controller bootstrap", () => {
         unitId,
         target: unitTarget,
         canMoveTo: false,
-        onSend: (family, operationType, args) =>
-          sendCalls.push({ family, operationType, args }),
+        onSend: (family, operationType, args) => sendCalls.push({ family, operationType, args }),
       },
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
@@ -2883,8 +2954,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       ok: false,
       error: {
         code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message:
-          "Civ7 controller bridge procedure is not supported by this controller context.",
+        message: "Civ7 controller bridge procedure is not supported by this controller context.",
         reason: "procedure-not-supported",
       },
     });
@@ -2898,8 +2968,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       unitCommand: {
         unitId,
         nextReadyUnitId,
-        onSend: (operationType, args) =>
-          sendCalls.push({ operationType, args }),
+        onSend: (operationType, args) => sendCalls.push({ operationType, args }),
       },
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
@@ -2953,16 +3022,20 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: true,
           noRepeatAfterUnverified: false,
         },
-        nextSteps: [{
-          kind: "refresh-attention",
-          source: "unit.upgrade.request",
-        }],
+        nextSteps: [
+          {
+            kind: "refresh-attention",
+            source: "unit.upgrade.request",
+          },
+        ],
       },
     });
-    expect(sendCalls).toEqual([{
-      operationType: "UNITCOMMAND_UPGRADE",
-      args: {},
-    }]);
+    expect(sendCalls).toEqual([
+      {
+        operationType: "UNITCOMMAND_UPGRADE",
+        args: {},
+      },
+    ]);
     expectSemanticOutputOmitsRawUnitCommand(response);
   });
 
@@ -2972,8 +3045,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       unitCommand: {
         unitId,
         destination: resettleTarget,
-        onSend: (operationType, args) =>
-          sendCalls.push({ operationType, args }),
+        onSend: (operationType, args) => sendCalls.push({ operationType, args }),
       },
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
@@ -3006,10 +3078,12 @@ describe("Civ7 game UI controller bootstrap", () => {
         },
       },
     });
-    expect(sendCalls).toEqual([{
-      operationType: "UNITCOMMAND_RESETTLE",
-      args: { X: 22, Y: 31 },
-    }]);
+    expect(sendCalls).toEqual([
+      {
+        operationType: "UNITCOMMAND_RESETTLE",
+        args: { X: 22, Y: 31 },
+      },
+    ]);
     expectSemanticOutputOmitsRawUnitCommand(response);
   });
 
@@ -3019,8 +3093,7 @@ describe("Civ7 game UI controller bootstrap", () => {
     const target = gameUiNotificationTarget(notificationId, {
       unitCommand: {
         unitId: foreignUnitId,
-        onSend: (operationType, args) =>
-          sendCalls.push({ operationType, args }),
+        onSend: (operationType, args) => sendCalls.push({ operationType, args }),
       },
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
@@ -3078,10 +3151,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [{
-          kind: "do-not-repeat",
-          source: "unit.upgrade.request",
-        }],
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "unit.upgrade.request",
+          },
+        ],
       },
     });
     expectSemanticOutputOmitsRawUnitCommand(response);
@@ -3124,10 +3199,7 @@ describe("Civ7 game UI controller bootstrap", () => {
           confirmed: false,
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [
-          { kind: "inspect-turn-completion" },
-          { kind: "do-not-repeat" },
-        ],
+        nextSteps: [{ kind: "inspect-turn-completion" }, { kind: "do-not-repeat" }],
       },
     });
     expect(sendCalls).toEqual([]);
@@ -3166,10 +3238,7 @@ describe("Civ7 game UI controller bootstrap", () => {
           classification: "turn-completion-blocked",
           noRepeatAfterUnverified: true,
         },
-        nextSteps: [
-          { kind: "inspect-turn-completion" },
-          { kind: "do-not-repeat" },
-        ],
+        nextSteps: [{ kind: "inspect-turn-completion" }, { kind: "do-not-repeat" }],
       },
     });
     expect(sendCalls).toEqual([]);
@@ -3197,20 +3266,24 @@ describe("Civ7 game UI controller bootstrap", () => {
           decisionCount: 1,
           readyActorCount: 0,
         },
-        blockers: [{
-          source: "notification",
-          kind: "blocking-notification",
-          label: "Wonder Completed",
-          componentId: notificationId,
-          evidence: ["end-turn-blocking-notification"],
-        }],
-        decisions: [{
-          source: "notification",
-          category: "blocking-notification",
-          summary: "Wonder Completed",
-          isEndTurnBlocking: true,
-          requiredInputs: [],
-        }],
+        blockers: [
+          {
+            source: "notification",
+            kind: "blocking-notification",
+            label: "Wonder Completed",
+            componentId: notificationId,
+            evidence: ["end-turn-blocking-notification"],
+          },
+        ],
+        decisions: [
+          {
+            source: "notification",
+            category: "blocking-notification",
+            summary: "Wonder Completed",
+            isEndTurnBlocking: true,
+            requiredInputs: [],
+          },
+        ],
         readyActors: [],
         sourceStatus: {
           playableStatus: "read",
@@ -3219,19 +3292,22 @@ describe("Civ7 game UI controller bootstrap", () => {
           readyUnit: "read",
           readyCity: "skipped-unsupported",
         },
-        nextSteps: [{
-          kind: "resolve-blocker",
-          source: "notification",
-          label: "Resolve Wonder Completed.",
-        }],
+        nextSteps: [
+          {
+            kind: "resolve-blocker",
+            source: "notification",
+            label: "Resolve Wonder Completed.",
+          },
+        ],
       },
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind))
-      .not.toContain("end-turn");
+    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
+      "end-turn"
+    );
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("Civ7 game UI controller dependency");
     expect(serialized).not.toContain("Game.Notifications.dismiss");
-    expect(serialized).not.toContain("\"cli\"");
+    expect(serialized).not.toContain('"cli"');
     expect(serialized).not.toContain("game play ");
   });
 
@@ -3262,17 +3338,20 @@ describe("Civ7 game UI controller bootstrap", () => {
           nextStepCount: 1,
         },
         readyActors: [],
-        nextSteps: [{
-          kind: "observe",
-          source: "attention",
-          label:
-            "Ready actor coverage is incomplete; inspect ready unit and city evidence before concluding there are no blockers.",
-        }],
+        nextSteps: [
+          {
+            kind: "observe",
+            source: "attention",
+            label:
+              "Ready actor coverage is incomplete; inspect ready unit and city evidence before concluding there are no blockers.",
+          },
+        ],
       },
     });
     expect(JSON.stringify(response)).not.toContain("act-ready-unit");
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind))
-      .not.toContain("end-turn");
+    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
+      "end-turn"
+    );
   });
 
   test("uses first-ready-unit evidence without implying full ready actor coverage", async () => {
@@ -3303,25 +3382,32 @@ describe("Civ7 game UI controller bootstrap", () => {
           readyActorCount: 1,
           nextStepCount: 1,
         },
-        blockers: [{
-          source: "ready-unit",
-          componentId: readyUnitId,
-          evidence: ["game-ui-ready-unit-source"],
-        }],
-        readyActors: [{
-          kind: "unit",
-          componentId: readyUnitId,
-          operationCount: 0,
-          evidence: ["game-ui-ready-unit-source"],
-        }],
-        nextSteps: [{
-          kind: "act-ready-unit",
-          source: "ready-unit",
-        }],
+        blockers: [
+          {
+            source: "ready-unit",
+            componentId: readyUnitId,
+            evidence: ["game-ui-ready-unit-source"],
+          },
+        ],
+        readyActors: [
+          {
+            kind: "unit",
+            componentId: readyUnitId,
+            operationCount: 0,
+            evidence: ["game-ui-ready-unit-source"],
+          },
+        ],
+        nextSteps: [
+          {
+            kind: "act-ready-unit",
+            source: "ready-unit",
+          },
+        ],
       },
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind))
-      .not.toContain("end-turn");
+    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
+      "end-turn"
+    );
   });
 
   test("does not treat selected or notification-target city hints as ready city evidence", async () => {
@@ -3353,17 +3439,20 @@ describe("Civ7 game UI controller bootstrap", () => {
           nextStepCount: 1,
         },
         readyActors: [],
-        nextSteps: [{
-          kind: "observe",
-          source: "attention",
-          label:
-            "Ready actor coverage is incomplete; inspect ready unit and city evidence before concluding there are no blockers.",
-        }],
+        nextSteps: [
+          {
+            kind: "observe",
+            source: "attention",
+            label:
+              "Ready actor coverage is incomplete; inspect ready unit and city evidence before concluding there are no blockers.",
+          },
+        ],
       },
     });
     expect(JSON.stringify(response)).not.toContain("act-ready-city");
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind))
-      .not.toContain("end-turn");
+    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
+      "end-turn"
+    );
   });
 
   test("uses blocking notification target city evidence as ready city source", async () => {
@@ -3400,12 +3489,14 @@ describe("Civ7 game UI controller bootstrap", () => {
             evidence: ["game-ui-ready-city-source"],
           }),
         ]),
-        readyActors: [{
-          kind: "city",
-          componentId: cityId,
-          operationCount: 0,
-          evidence: ["game-ui-ready-city-source"],
-        }],
+        readyActors: [
+          {
+            kind: "city",
+            componentId: cityId,
+            operationCount: 0,
+            evidence: ["game-ui-ready-city-source"],
+          },
+        ],
         nextSteps: expect.arrayContaining([
           expect.objectContaining({
             kind: "act-ready-city",
@@ -3414,8 +3505,9 @@ describe("Civ7 game UI controller bootstrap", () => {
         ]),
       },
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind))
-      .not.toContain("end-turn");
+    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
+      "end-turn"
+    );
   });
 
   test("uses population-ready city evidence as ready city source", async () => {
@@ -3444,25 +3536,32 @@ describe("Civ7 game UI controller bootstrap", () => {
           blockerCount: 1,
           readyActorCount: 1,
         },
-        blockers: [{
-          source: "ready-city",
-          componentId: cityId,
-          evidence: ["game-ui-ready-city-source"],
-        }],
-        readyActors: [{
-          kind: "city",
-          componentId: cityId,
-          operationCount: 0,
-          evidence: ["game-ui-ready-city-source"],
-        }],
-        nextSteps: [{
-          kind: "act-ready-city",
-          source: "ready-city",
-        }],
+        blockers: [
+          {
+            source: "ready-city",
+            componentId: cityId,
+            evidence: ["game-ui-ready-city-source"],
+          },
+        ],
+        readyActors: [
+          {
+            kind: "city",
+            componentId: cityId,
+            operationCount: 0,
+            evidence: ["game-ui-ready-city-source"],
+          },
+        ],
+        nextSteps: [
+          {
+            kind: "act-ready-city",
+            source: "ready-city",
+          },
+        ],
       },
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind))
-      .not.toContain("end-turn");
+    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
+      "end-turn"
+    );
   });
 
   test("treats truncated game UI notification coverage as incomplete attention evidence", async () => {
@@ -3489,18 +3588,22 @@ describe("Civ7 game UI controller bootstrap", () => {
           readyActorCount: 0,
           nextStepCount: 1,
         },
-        nextSteps: [{
-          kind: "observe",
-          source: "attention",
-          label:
-            "Notification coverage is truncated; inspect more attention evidence before concluding there are no blockers.",
-        }],
+        nextSteps: [
+          {
+            kind: "observe",
+            source: "attention",
+            label:
+              "Notification coverage is truncated; inspect more attention evidence before concluding there are no blockers.",
+          },
+        ],
       },
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind))
-      .not.toContain("end-turn");
-    expect(response.ok && response.output.nextSteps.map((step) => step.label))
-      .not.toContain("No current blockers found.");
+    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
+      "end-turn"
+    );
+    expect(response.ok && response.output.nextSteps.map((step) => step.label)).not.toContain(
+      "No current blockers found."
+    );
   });
 
   test("requires game-owned mutation proof before bridge dispatch", async () => {
@@ -3523,12 +3626,10 @@ describe("Civ7 game UI controller bootstrap", () => {
       ok: false,
       error: {
         code: "BRIDGE_CONTROLLER_PROOF_REQUIRED",
-        message:
-          "Civ7 controller bridge mutation proof is required before dispatch.",
+        message: "Civ7 controller bridge mutation proof is required before dispatch.",
         reason: "invalid-envelope",
       },
     });
-
   });
 
   test("creates context without endpoint or raw command inputs", async () => {
@@ -3594,9 +3695,7 @@ describe("Civ7 game UI controller bootstrap", () => {
   });
 });
 
-function gameUiTarget(
-  overrides: Partial<Civ7GameUiRuntimeTarget> = {},
-): Civ7GameUiRuntimeTarget {
+function gameUiTarget(overrides: Partial<Civ7GameUiRuntimeTarget> = {}): Civ7GameUiRuntimeTarget {
   const target: Civ7GameUiRuntimeTarget = {
     UI: {
       isInGame: () => true,
@@ -3771,12 +3870,12 @@ function gameUiStrategyFrontTarget(): Civ7GameUiRuntimeTarget {
       }),
       Units: {
         get: (playerId) => ({
-          getUnitIds: () => playerId === 0 ? [ownUnitId] : [otherUnitId],
+          getUnitIds: () => (playerId === 0 ? [ownUnitId] : [otherUnitId]),
         }),
       },
       Cities: {
         get: (playerId) => ({
-          getCityIds: () => playerId === 0 ? [ownCityId] : [otherCityId],
+          getCityIds: () => (playerId === 0 ? [ownCityId] : [otherCityId]),
         }),
       },
     },
@@ -3840,10 +3939,7 @@ function gameUiNotificationTarget(
       canChoose?: boolean;
       canClearTarget?: boolean;
       clearBlockerOnSend?: boolean;
-      onSend?: (
-        operationType: string,
-        args: Readonly<Record<string, number>>,
-      ) => void;
+      onSend?: (operationType: string, args: Readonly<Record<string, number>>) => void;
     };
     progressionRequest?: {
       canTechnologyTarget?: boolean;
@@ -3852,10 +3948,7 @@ function gameUiNotificationTarget(
       canAttributeReview?: boolean;
       canTraditionChange?: boolean;
       canTraditionReview?: boolean;
-      onSend?: (
-        operationType: string,
-        args: Readonly<Record<string, number>>,
-      ) => void;
+      onSend?: (operationType: string, args: Readonly<Record<string, number>>) => void;
     };
     narrativeChoice?: {
       canChoose?: boolean;
@@ -3866,7 +3959,7 @@ function gameUiNotificationTarget(
           TargetType: string;
           Target: { owner: number; id: number; type: number };
           Action: number;
-        }>,
+        }>
       ) => void;
     };
     diplomacyResponse?: {
@@ -3878,7 +3971,7 @@ function gameUiNotificationTarget(
         args: Readonly<{
           ID: number;
           Type: number;
-        }>,
+        }>
       ) => void;
     };
     firstMeetResponse?: {
@@ -3890,7 +3983,7 @@ function gameUiNotificationTarget(
           Player1: number;
           Player2: number;
           Type: number;
-        }>,
+        }>
       ) => void;
     };
     governmentChoice?: {
@@ -3899,7 +3992,7 @@ function gameUiNotificationTarget(
       onSend?: (
         playerId: number,
         operationType: string,
-        args: Readonly<Record<string, number>>,
+        args: Readonly<Record<string, number>>
       ) => void;
     };
     unitTargetAction?: {
@@ -3912,7 +4005,7 @@ function gameUiNotificationTarget(
       onSend?: (
         family: "unit-operation" | "unit-command",
         operationType: string,
-        args: Readonly<Record<string, number>>,
+        args: Readonly<Record<string, number>>
       ) => void;
     };
     unitCommand?: {
@@ -3923,12 +4016,9 @@ function gameUiNotificationTarget(
       nextReadyUnitId?: { owner: number; id: number; type: number } | null;
       advanceQueueOnSend?: boolean;
       changeUnitStateOnSend?: boolean;
-      onSend?: (
-        operationType: string,
-        args: Readonly<Record<string, number>>,
-      ) => void;
+      onSend?: (operationType: string, args: Readonly<Record<string, number>>) => void;
     };
-  }> = {},
+  }> = {}
 ): Civ7GameUiRuntimeTarget {
   const target = gameUiTarget();
   let exists = true;
@@ -3955,54 +4045,55 @@ function gameUiNotificationTarget(
 
   return {
     ...target,
-    CityOperationTypes: options.productionChoice == null && options.townFocus == null
-      ? undefined
-      : {
-          ...(options.productionChoice == null ? {} : { BUILD: "BUILD" }),
-          ...(options.townFocus == null
-            ? {}
-            : { CONSIDER_TOWN_PROJECT: "CONSIDER_TOWN_PROJECT" }),
-        },
-    CityCommandTypes: options.populationPlacement == null && options.townFocus == null
-      ? undefined
-      : {
-          ...(options.populationPlacement == null ? {} : { EXPAND: "EXPAND" }),
-          ...(options.townFocus == null
-            ? {}
-            : { CHANGE_GROWTH_MODE: "CHANGE_GROWTH_MODE" }),
-        },
-    UnitCommandTypes: options.unitTargetAction == null && options.unitCommand == null
-      ? undefined
-      : {
-          ...(options.unitTargetAction == null
-            ? {}
-            : { UNITCOMMAND_ARMY_OVERRUN: "UNITCOMMAND_ARMY_OVERRUN" }),
-          ...(options.unitCommand == null
-            ? {}
-            : {
-                UNITCOMMAND_UPGRADE: "UNITCOMMAND_UPGRADE",
-                UNITCOMMAND_RESETTLE: "UNITCOMMAND_RESETTLE",
-              }),
-        },
-    UnitOperationMoveModifiers: options.unitTargetAction == null
-      ? undefined
-      : {
-          ATTACK: 1,
-          MOVE_IGNORE_UNEXPLORED_DESTINATION: 2,
-        },
-    UnitOperationTypes: options.unitTargetAction == null
-      ? undefined
-      : {
-          UNITOPERATION_NAVAL_ATTACK: "UNITOPERATION_NAVAL_ATTACK",
-          UNITOPERATION_AIR_ATTACK: "UNITOPERATION_AIR_ATTACK",
-          UNITOPERATION_RANGE_ATTACK: "UNITOPERATION_RANGE_ATTACK",
-          UNITOPERATION_SWAP_UNITS: "UNITOPERATION_SWAP_UNITS",
-          MOVE_TO: "MOVE_TO",
-        },
+    CityOperationTypes:
+      options.productionChoice == null && options.townFocus == null
+        ? undefined
+        : {
+            ...(options.productionChoice == null ? {} : { BUILD: "BUILD" }),
+            ...(options.townFocus == null
+              ? {}
+              : { CONSIDER_TOWN_PROJECT: "CONSIDER_TOWN_PROJECT" }),
+          },
+    CityCommandTypes:
+      options.populationPlacement == null && options.townFocus == null
+        ? undefined
+        : {
+            ...(options.populationPlacement == null ? {} : { EXPAND: "EXPAND" }),
+            ...(options.townFocus == null ? {} : { CHANGE_GROWTH_MODE: "CHANGE_GROWTH_MODE" }),
+          },
+    UnitCommandTypes:
+      options.unitTargetAction == null && options.unitCommand == null
+        ? undefined
+        : {
+            ...(options.unitTargetAction == null
+              ? {}
+              : { UNITCOMMAND_ARMY_OVERRUN: "UNITCOMMAND_ARMY_OVERRUN" }),
+            ...(options.unitCommand == null
+              ? {}
+              : {
+                  UNITCOMMAND_UPGRADE: "UNITCOMMAND_UPGRADE",
+                  UNITCOMMAND_RESETTLE: "UNITCOMMAND_RESETTLE",
+                }),
+          },
+    UnitOperationMoveModifiers:
+      options.unitTargetAction == null
+        ? undefined
+        : {
+            ATTACK: 1,
+            MOVE_IGNORE_UNEXPLORED_DESTINATION: 2,
+          },
+    UnitOperationTypes:
+      options.unitTargetAction == null
+        ? undefined
+        : {
+            UNITOPERATION_NAVAL_ATTACK: "UNITOPERATION_NAVAL_ATTACK",
+            UNITOPERATION_AIR_ATTACK: "UNITOPERATION_AIR_ATTACK",
+            UNITOPERATION_RANGE_ATTACK: "UNITOPERATION_RANGE_ATTACK",
+            UNITOPERATION_SWAP_UNITS: "UNITOPERATION_SWAP_UNITS",
+            MOVE_TO: "MOVE_TO",
+          },
     PlayerOperationTypes: {
-      ...(options.populationPlacement == null
-        ? {}
-        : { ASSIGN_WORKER: "ASSIGN_WORKER" }),
+      ...(options.populationPlacement == null ? {} : { ASSIGN_WORKER: "ASSIGN_WORKER" }),
       ...(options.progressionChoice == null
         ? {}
         : {
@@ -4024,8 +4115,7 @@ function gameUiNotificationTarget(
       ...(options.narrativeChoice == null
         ? {}
         : {
-            CHOOSE_NARRATIVE_STORY_DIRECTION:
-              "CHOOSE_NARRATIVE_STORY_DIRECTION",
+            CHOOSE_NARRATIVE_STORY_DIRECTION: "CHOOSE_NARRATIVE_STORY_DIRECTION",
           }),
       ...(options.diplomacyResponse == null
         ? {}
@@ -4035,8 +4125,7 @@ function gameUiNotificationTarget(
       ...(options.firstMeetResponse == null
         ? {}
         : {
-            RESPOND_DIPLOMATIC_FIRST_MEET:
-              "RESPOND_DIPLOMATIC_FIRST_MEET",
+            RESPOND_DIPLOMATIC_FIRST_MEET: "RESPOND_DIPLOMATIC_FIRST_MEET",
           }),
       ...(options.governmentChoice == null
         ? {}
@@ -4045,109 +4134,146 @@ function gameUiNotificationTarget(
             CHOOSE_GOLDEN_AGE: "CHOOSE_GOLDEN_AGE",
           }),
     },
-    ProgressionTreeNodeTypes: options.progressionChoice == null
-      ? undefined
-      : { NO_NODE: -1 },
-    Cities: options.productionChoice == null
-        && options.populationPlacement == null
-        && options.readyCity == null
-      ? undefined
-      : {
-          get: (id) =>
-            componentIdEqual(id, options.productionChoice?.cityId)
-              ? {
-                isTown: false,
-                BuildQueue: {
-                  currentProductionTypeHash:
-                    productionSent
-                      && options.productionChoice?.changeProductionStateOnSend !== false
-                      ? 99
-                      : 1,
-                },
-              }
-              : componentIdEqual(id, options.populationPlacement?.cityId)
-              ? (() => {
-                if (
-                  populationSent
-                  && options.populationPlacement?.cityReadFailsAfterSend === true
-                ) {
-                  throw new Error("population city read failed");
-                }
-                return {
-                id: options.populationPlacement?.cityId,
-                isTown: false,
-                population: populationSent
-                    && options.populationPlacement?.changePlacementStateOnSend !== false
-                  ? 4
-                  : 3,
-                Growth: {
-                  isReadyToPlacePopulation:
-                    options.populationPlacement?.readyBefore === true
-                    && !(
-                      populationSent
-                      && options.populationPlacement?.clearReadyOnSend === true
-                    ),
-                },
-                Workers: {
-                  getCityWorkerCap: () => populationSent
-                      && options.populationPlacement?.changePlacementStateOnSend !== false
-                    ? 5
-                    : 4,
-                  GetAllPlacementInfo: () => [{
-                    PlotIndex: 2543,
-                    IsBlocked: false,
-                  }],
-                },
-              };
-              })()
-              : componentIdEqual(id, options.readyCity?.cityId)
-              ? {
-                id: options.readyCity?.cityId,
-                isTown: false,
-                population: 3,
-                Growth: {
-                  isReadyToPlacePopulation:
-                    options.readyCity?.populationReady === true,
-                },
-              }
-              : null,
-        },
+    ProgressionTreeNodeTypes: options.progressionChoice == null ? undefined : { NO_NODE: -1 },
+    Cities:
+      options.productionChoice == null &&
+      options.populationPlacement == null &&
+      options.readyCity == null
+        ? undefined
+        : {
+            get: (id) =>
+              componentIdEqual(id, options.productionChoice?.cityId)
+                ? {
+                    isTown: false,
+                    BuildQueue: {
+                      currentProductionTypeHash:
+                        productionSent &&
+                        options.productionChoice?.changeProductionStateOnSend !== false
+                          ? 99
+                          : 1,
+                    },
+                  }
+                : componentIdEqual(id, options.populationPlacement?.cityId)
+                  ? (() => {
+                      if (
+                        populationSent &&
+                        options.populationPlacement?.cityReadFailsAfterSend === true
+                      ) {
+                        throw new Error("population city read failed");
+                      }
+                      return {
+                        id: options.populationPlacement?.cityId,
+                        isTown: false,
+                        population:
+                          populationSent &&
+                          options.populationPlacement?.changePlacementStateOnSend !== false
+                            ? 4
+                            : 3,
+                        Growth: {
+                          isReadyToPlacePopulation:
+                            options.populationPlacement?.readyBefore === true &&
+                            !(
+                              populationSent &&
+                              options.populationPlacement?.clearReadyOnSend === true
+                            ),
+                        },
+                        Workers: {
+                          getCityWorkerCap: () =>
+                            populationSent &&
+                            options.populationPlacement?.changePlacementStateOnSend !== false
+                              ? 5
+                              : 4,
+                          GetAllPlacementInfo: () => [
+                            {
+                              PlotIndex: 2543,
+                              IsBlocked: false,
+                            },
+                          ],
+                        },
+                      };
+                    })()
+                  : componentIdEqual(id, options.readyCity?.cityId)
+                    ? {
+                        id: options.readyCity?.cityId,
+                        isTown: false,
+                        population: 3,
+                        Growth: {
+                          isReadyToPlacePopulation: options.readyCity?.populationReady === true,
+                        },
+                      }
+                    : null,
+          },
     GameplayMap: {
       ...target.GameplayMap,
       getIndexFromLocation: (location) => location.x * 1_000 + location.y,
       getIndexFromXY: (x, y) => x * 1_000 + y,
     },
-    MapUnits: options.unitTargetAction == null
-      ? undefined
-      : {
-          getUnits: (x, y) =>
-            x === options.unitTargetAction?.target.x
-              && y === options.unitTargetAction.target.y
-              && unitTargetSent
-              && options.unitTargetAction.targetUnitsChangeOnSend === true
-              ? [{ owner: 1, id: 99, type: 1 }]
-              : [],
-        },
-    Units: options.unitTargetAction == null && options.unitCommand == null
-      ? undefined
-      : {
-          get: (id) => {
-            if (options.unitTargetAction != null) {
-              if (!componentIdEqual(id, options.unitTargetAction.unitId)) {
+    MapUnits:
+      options.unitTargetAction == null
+        ? undefined
+        : {
+            getUnits: (x, y) =>
+              x === options.unitTargetAction?.target.x &&
+              y === options.unitTargetAction.target.y &&
+              unitTargetSent &&
+              options.unitTargetAction.targetUnitsChangeOnSend === true
+                ? [{ owner: 1, id: 99, type: 1 }]
+                : [],
+          },
+    Units:
+      options.unitTargetAction == null && options.unitCommand == null
+        ? undefined
+        : {
+            get: (id) => {
+              if (options.unitTargetAction != null) {
+                if (!componentIdEqual(id, options.unitTargetAction.unitId)) {
+                  return null;
+                }
+                return {
+                  id: options.unitTargetAction.unitId,
+                  owner: options.unitTargetAction.unitId.owner,
+                  type: options.unitTargetAction.unitId.type,
+                  location: unitTargetSent
+                    ? (options.unitTargetAction.landedLocation ?? options.unitTargetAction.target)
+                    : { x: 20, y: 31 },
+                  Movement: {
+                    movementMovesRemaining: unitTargetSent ? 0 : 1,
+                    movementTurnsRemaining: 0,
+                  },
+                  Combat: {
+                    attacksRemaining: 1,
+                    rangedStrength: 5,
+                    bombardStrength: 0,
+                    getMeleeStrength: () => 10,
+                  },
+                  Health: {
+                    damage: 0,
+                    hitPoints: 100,
+                  },
+                };
+              }
+
+              if (!componentIdEqual(id, options.unitCommand?.unitId)) {
                 return null;
               }
+              const commandDestination = options.unitCommand?.destination ?? resettleTarget;
+              const unitCommandLocation =
+                unitCommandSent &&
+                lastUnitCommandOperationType === "UNITCOMMAND_RESETTLE" &&
+                options.unitCommand?.changeUnitStateOnSend !== false
+                  ? commandDestination
+                  : { x: 20, y: 31 };
               return {
-                id: options.unitTargetAction.unitId,
-                owner: options.unitTargetAction.unitId.owner,
-                type: options.unitTargetAction.unitId.type,
-                location: unitTargetSent
-                  ? options.unitTargetAction.landedLocation
-                    ?? options.unitTargetAction.target
-                  : { x: 20, y: 31 },
+                id: options.unitCommand?.unitId,
+                owner: options.unitCommand?.unitId.owner,
+                type: options.unitCommand?.unitId.type,
+                location: unitCommandLocation,
                 Movement: {
-                  movementMovesRemaining: unitTargetSent ? 0 : 1,
+                  movementMovesRemaining:
+                    unitCommandSent && options.unitCommand?.changeUnitStateOnSend !== false ? 0 : 1,
                   movementTurnsRemaining: 0,
                 },
+                Activity: "UNIT_ACTIVITY_AWAKE",
                 Combat: {
                   attacksRemaining: 1,
                   rangedStrength: 5,
@@ -4159,58 +4285,19 @@ function gameUiNotificationTarget(
                   hitPoints: 100,
                 },
               };
-            }
-
-            if (!componentIdEqual(id, options.unitCommand?.unitId)) {
-              return null;
-            }
-            const commandDestination = options.unitCommand?.destination
-              ?? resettleTarget;
-            const unitCommandLocation =
-              unitCommandSent
-                && lastUnitCommandOperationType === "UNITCOMMAND_RESETTLE"
-                && options.unitCommand?.changeUnitStateOnSend !== false
-                ? commandDestination
-                : { x: 20, y: 31 };
-            return {
-              id: options.unitCommand?.unitId,
-              owner: options.unitCommand?.unitId.owner,
-              type: options.unitCommand?.unitId.type,
-              location: unitCommandLocation,
-              Movement: {
-                movementMovesRemaining:
-                  unitCommandSent
-                    && options.unitCommand?.changeUnitStateOnSend !== false
-                    ? 0
-                    : 1,
-                movementTurnsRemaining: 0,
-              },
-              Activity: "UNIT_ACTIVITY_AWAKE",
-              Combat: {
-                attacksRemaining: 1,
-                rangedStrength: 5,
-                bombardStrength: 0,
-                getMeleeStrength: () => 10,
-              },
-              Health: {
-                damage: 0,
-                hitPoints: 100,
-              },
-            };
+            },
           },
-        },
     UI: {
       ...target.UI,
       Player: {
         getHeadSelectedUnit: () => options.selectedUnitId ?? null,
         getFirstReadyUnit: () =>
-          options.unitCommand != null
-              && unitCommandSent
-              && options.unitCommand.advanceQueueOnSend !== false
-            ? options.unitCommand.nextReadyUnitId ?? null
-            : options.firstReadyUnitId ?? null,
-        getHeadSelectedCity: () =>
-          selectedCityCleared ? null : options.selectedCityId ?? null,
+          options.unitCommand != null &&
+          unitCommandSent &&
+          options.unitCommand.advanceQueueOnSend !== false
+            ? (options.unitCommand.nextReadyUnitId ?? null)
+            : (options.firstReadyUnitId ?? null),
+        getHeadSelectedCity: () => (selectedCityCleared ? null : (options.selectedCityId ?? null)),
         deselectAllCities: () => {
           if (options.productionChoice?.clearSelectedCityOnSend === true) {
             selectedCityCleared = true;
@@ -4221,244 +4308,243 @@ function gameUiNotificationTarget(
     },
     GameContext: {
       ...target.GameContext,
-      hasSentTurnComplete: options.turnCompletion == null
-        ? target.GameContext?.hasSentTurnComplete
-        : () => turnCompletionSent,
-      sendTurnComplete: options.turnCompletion == null
-        ? undefined
-        : () => {
-            options.turnCompletion?.onSend?.();
-            turnCompletionSent = true;
-          },
+      hasSentTurnComplete:
+        options.turnCompletion == null
+          ? target.GameContext?.hasSentTurnComplete
+          : () => turnCompletionSent,
+      sendTurnComplete:
+        options.turnCompletion == null
+          ? undefined
+          : () => {
+              options.turnCompletion?.onSend?.();
+              turnCompletionSent = true;
+            },
     },
     canEndTurn: () => options.canEndTurn ?? false,
     Game: {
       ...target.Game,
-      ProgressionTrees: options.progressionChoice == null
-        ? undefined
-        : {
-            getTree: () => ({
-              activeNodeIndex: 0,
-              nodes: [{
-                nodeType: progressionSent ? 27_001 : 26_000,
-              }],
-            }),
-          },
-      CityCommands: options.populationPlacement == null && options.townFocus == null
-        ? undefined
-        : {
-            canStart: (_cityId, commandType) => ({
-              Success: String(commandType) === "CHANGE_GROWTH_MODE"
-                ? options.townFocus?.canChange ?? true
-                : options.populationPlacement?.canExpandCity ?? true,
-              Plots: [2543],
-            }),
-            sendRequest: (_cityId, commandType, args) => {
-              if (String(commandType) === "CHANGE_GROWTH_MODE") {
-                options.townFocus?.onChangeSend?.(args);
-              } else {
-                options.populationPlacement?.onExpandCitySend?.(args);
-                populationSent = true;
-              }
-              return true;
-            },
-          },
-      CityOperations: options.productionChoice == null && options.townFocus == null
-        ? undefined
-        : {
-            canStart: (_cityId, operationType) => ({
-              Success: String(operationType) === "CONSIDER_TOWN_PROJECT"
-                ? options.townFocus?.canReview ?? true
-                : options.productionChoice?.canStart ?? true,
-            }),
-            sendRequest: (_cityId, operationType, args) => {
-              if (String(operationType) === "CONSIDER_TOWN_PROJECT") {
-                options.townFocus?.onReviewSend?.(args);
-              } else {
-                options.productionChoice?.onSend?.(args);
-                productionSent = true;
-                if (options.productionChoice?.clearBlockerOnSend === true) {
-                  exists = false;
-                }
-              }
-              return true;
-            },
-          },
-      UnitCommands: options.unitTargetAction == null && options.unitCommand == null
-        ? undefined
-        : {
-            canStart: (_unitId, commandType) => {
-              const operationType = String(commandType);
-              return {
-                Success: operationType === "UNITCOMMAND_UPGRADE"
-                  ? options.unitCommand?.canUpgrade ?? true
-                  : operationType === "UNITCOMMAND_RESETTLE"
-                  ? options.unitCommand?.canResettle ?? true
-                  : false,
-                Plots: [],
-              };
-            },
-            sendRequest: (_unitId, commandType, args) => {
-              const operationType = String(commandType);
-              if (
-                operationType === "UNITCOMMAND_UPGRADE"
-                || operationType === "UNITCOMMAND_RESETTLE"
-              ) {
-                options.unitCommand?.onSend?.(operationType, args);
-                unitCommandSent = true;
-                lastUnitCommandOperationType = operationType;
-              } else {
-                options.unitTargetAction?.onSend?.(
-                  "unit-command",
-                  operationType,
-                  args,
-                );
-                unitTargetSent = true;
-              }
-              return true;
-            },
-          },
-      UnitOperations: options.unitTargetAction == null
-        ? undefined
-        : {
-            canStart: (_unitId, operationType) => {
-              const isMove = String(operationType) === "MOVE_TO";
-              const targetIndex = options.unitTargetAction == null
-                ? -1
-                : options.unitTargetAction.target.x * 1_000
-                  + options.unitTargetAction.target.y;
-              return {
-                Success: isMove && (options.unitTargetAction?.canMoveTo ?? true),
-                Plots: options.unitTargetAction?.moveTargetInReturnedPlots === false
-                  ? []
-                  : [targetIndex],
-              };
-            },
-            sendRequest: (_unitId, operationType, args) => {
-              options.unitTargetAction?.onSend?.(
-                "unit-operation",
-                String(operationType),
-                args,
-              );
-              unitTargetSent = true;
-              return true;
-            },
-          },
-      PlayerOperations: options.populationPlacement == null
-          && options.progressionChoice == null
-          && options.progressionRequest == null
-          && options.narrativeChoice == null
-          && options.diplomacyResponse == null
-          && options.firstMeetResponse == null
-          && options.governmentChoice == null
-        ? undefined
-        : {
-            canStart: (_playerId, operationType) => ({
-              Success: operationType === "ASSIGN_WORKER"
-                ? options.populationPlacement?.canAssignWorker ?? true
-                : operationType === "CHOOSE_NARRATIVE_STORY_DIRECTION"
-                ? options.narrativeChoice?.canChoose ?? true
-                : operationType === "RESPOND_DIPLOMATIC_ACTION"
-                ? options.diplomacyResponse?.canRespond ?? true
-                : operationType === "RESPOND_DIPLOMATIC_FIRST_MEET"
-                ? options.firstMeetResponse?.canRespond ?? true
-                : operationType === "CHANGE_GOVERNMENT"
-                ? options.governmentChoice?.canChange ?? true
-                : operationType === "CHOOSE_GOLDEN_AGE"
-                ? options.governmentChoice?.canCelebrate ?? true
-                : String(operationType).includes("TARGET")
-                ? progressionTargetCanStart(
-                  String(operationType),
-                  options.progressionRequest,
-                  options.progressionChoice,
-                )
-                : operationType === "BUY_ATTRIBUTE_TREE_NODE"
-                ? options.progressionRequest?.canAttributePurchase ?? true
-                : operationType === "CONSIDER_ASSIGN_ATTRIBUTE"
-                ? options.progressionRequest?.canAttributeReview ?? true
-                : operationType === "CHANGE_TRADITION"
-                ? options.progressionRequest?.canTraditionChange ?? true
-                : operationType === "CONSIDER_ASSIGN_TRADITIONS"
-                ? options.progressionRequest?.canTraditionReview ?? true
-                : options.progressionChoice?.canChoose ?? true,
-            }),
-            sendRequest: (_playerId, _operationType, args) => {
-              const operationType = String(_operationType);
-              if (operationType === "ASSIGN_WORKER") {
-                options.populationPlacement?.onAssignWorkerSend?.(args);
-                populationSent = true;
-              } else if (operationType === "CHOOSE_NARRATIVE_STORY_DIRECTION") {
-                options.narrativeChoice?.onSend?.(
-                  _playerId,
-                  args as {
-                    TargetType: string;
-                    Target: { owner: number; id: number; type: number };
-                    Action: number;
+      ProgressionTrees:
+        options.progressionChoice == null
+          ? undefined
+          : {
+              getTree: () => ({
+                activeNodeIndex: 0,
+                nodes: [
+                  {
+                    nodeType: progressionSent ? 27_001 : 26_000,
                   },
-                );
-                if (options.narrativeChoice?.clearBlockerOnSend === true) {
-                  exists = false;
-                }
-              } else if (operationType === "RESPOND_DIPLOMATIC_ACTION") {
-                options.diplomacyResponse?.onSend?.(
-                  _playerId,
-                  args as {
-                    ID: number;
-                    Type: number;
-                  },
-                );
-                if (options.diplomacyResponse?.clearBlockerOnSend === true) {
-                  exists = false;
-                }
-              } else if (operationType === "RESPOND_DIPLOMATIC_FIRST_MEET") {
-                options.firstMeetResponse?.onSend?.(
-                  _playerId,
-                  args as {
-                    Player1: number;
-                    Player2: number;
-                    Type: number;
-                  },
-                );
-                if (options.firstMeetResponse?.clearBlockerOnSend === true) {
-                  exists = false;
-                }
-              } else if (
-                operationType === "CHANGE_GOVERNMENT"
-                || operationType === "CHOOSE_GOLDEN_AGE"
-              ) {
-                options.governmentChoice?.onSend?.(
-                  _playerId,
-                  operationType,
-                  args,
-                );
-              } else {
-                if (options.progressionRequest != null) {
-                  options.progressionRequest.onSend?.(operationType, args);
+                ],
+              }),
+            },
+      CityCommands:
+        options.populationPlacement == null && options.townFocus == null
+          ? undefined
+          : {
+              canStart: (_cityId, commandType) => ({
+                Success:
+                  String(commandType) === "CHANGE_GROWTH_MODE"
+                    ? (options.townFocus?.canChange ?? true)
+                    : (options.populationPlacement?.canExpandCity ?? true),
+                Plots: [2543],
+              }),
+              sendRequest: (_cityId, commandType, args) => {
+                if (String(commandType) === "CHANGE_GROWTH_MODE") {
+                  options.townFocus?.onChangeSend?.(args);
                 } else {
-                  options.progressionChoice?.onSend?.(operationType, args);
+                  options.populationPlacement?.onExpandCitySend?.(args);
+                  populationSent = true;
                 }
-                progressionSent = true;
-                if (options.progressionChoice?.clearBlockerOnSend === true) {
-                  exists = false;
-                }
-              }
-              return true;
+                return true;
+              },
             },
-          },
+      CityOperations:
+        options.productionChoice == null && options.townFocus == null
+          ? undefined
+          : {
+              canStart: (_cityId, operationType) => ({
+                Success:
+                  String(operationType) === "CONSIDER_TOWN_PROJECT"
+                    ? (options.townFocus?.canReview ?? true)
+                    : (options.productionChoice?.canStart ?? true),
+              }),
+              sendRequest: (_cityId, operationType, args) => {
+                if (String(operationType) === "CONSIDER_TOWN_PROJECT") {
+                  options.townFocus?.onReviewSend?.(args);
+                } else {
+                  options.productionChoice?.onSend?.(args);
+                  productionSent = true;
+                  if (options.productionChoice?.clearBlockerOnSend === true) {
+                    exists = false;
+                  }
+                }
+                return true;
+              },
+            },
+      UnitCommands:
+        options.unitTargetAction == null && options.unitCommand == null
+          ? undefined
+          : {
+              canStart: (_unitId, commandType) => {
+                const operationType = String(commandType);
+                return {
+                  Success:
+                    operationType === "UNITCOMMAND_UPGRADE"
+                      ? (options.unitCommand?.canUpgrade ?? true)
+                      : operationType === "UNITCOMMAND_RESETTLE"
+                        ? (options.unitCommand?.canResettle ?? true)
+                        : false,
+                  Plots: [],
+                };
+              },
+              sendRequest: (_unitId, commandType, args) => {
+                const operationType = String(commandType);
+                if (
+                  operationType === "UNITCOMMAND_UPGRADE" ||
+                  operationType === "UNITCOMMAND_RESETTLE"
+                ) {
+                  options.unitCommand?.onSend?.(operationType, args);
+                  unitCommandSent = true;
+                  lastUnitCommandOperationType = operationType;
+                } else {
+                  options.unitTargetAction?.onSend?.("unit-command", operationType, args);
+                  unitTargetSent = true;
+                }
+                return true;
+              },
+            },
+      UnitOperations:
+        options.unitTargetAction == null
+          ? undefined
+          : {
+              canStart: (_unitId, operationType) => {
+                const isMove = String(operationType) === "MOVE_TO";
+                const targetIndex =
+                  options.unitTargetAction == null
+                    ? -1
+                    : options.unitTargetAction.target.x * 1_000 + options.unitTargetAction.target.y;
+                return {
+                  Success: isMove && (options.unitTargetAction?.canMoveTo ?? true),
+                  Plots:
+                    options.unitTargetAction?.moveTargetInReturnedPlots === false
+                      ? []
+                      : [targetIndex],
+                };
+              },
+              sendRequest: (_unitId, operationType, args) => {
+                options.unitTargetAction?.onSend?.("unit-operation", String(operationType), args);
+                unitTargetSent = true;
+                return true;
+              },
+            },
+      PlayerOperations:
+        options.populationPlacement == null &&
+        options.progressionChoice == null &&
+        options.progressionRequest == null &&
+        options.narrativeChoice == null &&
+        options.diplomacyResponse == null &&
+        options.firstMeetResponse == null &&
+        options.governmentChoice == null
+          ? undefined
+          : {
+              canStart: (_playerId, operationType) => ({
+                Success:
+                  operationType === "ASSIGN_WORKER"
+                    ? (options.populationPlacement?.canAssignWorker ?? true)
+                    : operationType === "CHOOSE_NARRATIVE_STORY_DIRECTION"
+                      ? (options.narrativeChoice?.canChoose ?? true)
+                      : operationType === "RESPOND_DIPLOMATIC_ACTION"
+                        ? (options.diplomacyResponse?.canRespond ?? true)
+                        : operationType === "RESPOND_DIPLOMATIC_FIRST_MEET"
+                          ? (options.firstMeetResponse?.canRespond ?? true)
+                          : operationType === "CHANGE_GOVERNMENT"
+                            ? (options.governmentChoice?.canChange ?? true)
+                            : operationType === "CHOOSE_GOLDEN_AGE"
+                              ? (options.governmentChoice?.canCelebrate ?? true)
+                              : String(operationType).includes("TARGET")
+                                ? progressionTargetCanStart(
+                                    String(operationType),
+                                    options.progressionRequest,
+                                    options.progressionChoice
+                                  )
+                                : operationType === "BUY_ATTRIBUTE_TREE_NODE"
+                                  ? (options.progressionRequest?.canAttributePurchase ?? true)
+                                  : operationType === "CONSIDER_ASSIGN_ATTRIBUTE"
+                                    ? (options.progressionRequest?.canAttributeReview ?? true)
+                                    : operationType === "CHANGE_TRADITION"
+                                      ? (options.progressionRequest?.canTraditionChange ?? true)
+                                      : operationType === "CONSIDER_ASSIGN_TRADITIONS"
+                                        ? (options.progressionRequest?.canTraditionReview ?? true)
+                                        : (options.progressionChoice?.canChoose ?? true),
+              }),
+              sendRequest: (_playerId, _operationType, args) => {
+                const operationType = String(_operationType);
+                if (operationType === "ASSIGN_WORKER") {
+                  options.populationPlacement?.onAssignWorkerSend?.(args);
+                  populationSent = true;
+                } else if (operationType === "CHOOSE_NARRATIVE_STORY_DIRECTION") {
+                  options.narrativeChoice?.onSend?.(
+                    _playerId,
+                    args as {
+                      TargetType: string;
+                      Target: { owner: number; id: number; type: number };
+                      Action: number;
+                    }
+                  );
+                  if (options.narrativeChoice?.clearBlockerOnSend === true) {
+                    exists = false;
+                  }
+                } else if (operationType === "RESPOND_DIPLOMATIC_ACTION") {
+                  options.diplomacyResponse?.onSend?.(
+                    _playerId,
+                    args as {
+                      ID: number;
+                      Type: number;
+                    }
+                  );
+                  if (options.diplomacyResponse?.clearBlockerOnSend === true) {
+                    exists = false;
+                  }
+                } else if (operationType === "RESPOND_DIPLOMATIC_FIRST_MEET") {
+                  options.firstMeetResponse?.onSend?.(
+                    _playerId,
+                    args as {
+                      Player1: number;
+                      Player2: number;
+                      Type: number;
+                    }
+                  );
+                  if (options.firstMeetResponse?.clearBlockerOnSend === true) {
+                    exists = false;
+                  }
+                } else if (
+                  operationType === "CHANGE_GOVERNMENT" ||
+                  operationType === "CHOOSE_GOLDEN_AGE"
+                ) {
+                  options.governmentChoice?.onSend?.(_playerId, operationType, args);
+                } else {
+                  if (options.progressionRequest != null) {
+                    options.progressionRequest.onSend?.(operationType, args);
+                  } else {
+                    options.progressionChoice?.onSend?.(operationType, args);
+                  }
+                  progressionSent = true;
+                  if (options.progressionChoice?.clearBlockerOnSend === true) {
+                    exists = false;
+                  }
+                }
+                return true;
+              },
+            },
       Notifications: {
-        find: () => exists ? notification : null,
+        find: () => (exists ? notification : null),
         getType: () => notificationId.type,
-        getTypeName: () =>
-          options.notificationTypeName ?? "NOTIFICATION_WONDER_COMPLETED",
+        getTypeName: () => options.notificationTypeName ?? "NOTIFICATION_WONDER_COMPLETED",
         getSummary: () => "Wonder Completed",
         getMessage: () => "Wonder Completed",
         getBlocksTurnAdvancement: () => blocksTurnAdvancement,
         activate: () => true,
         getEndTurnBlockingType: () => {
-          if (
-            productionSent
-            && options.productionChoice?.blockerReadFailsAfterSend === true
-          ) {
+          if (productionSent && options.productionChoice?.blockerReadFailsAfterSend === true) {
             throw new Error("production blocker read failed");
           }
           if (options.diplomacyResponse?.blockerReadFailsAfterSend === true) {
@@ -4466,72 +4552,69 @@ function gameUiNotificationTarget(
           }
           return blocksTurnAdvancement ? notificationId.type : 0;
         },
-        findEndTurnBlocking: () =>
-          exists && blocksTurnAdvancement ? notificationId : null,
-        getIdsForPlayer: () =>
-          exists ? [notificationId, ...(options.extraIds ?? [])] : [],
+        findEndTurnBlocking: () => (exists && blocksTurnAdvancement ? notificationId : null),
+        getIdsForPlayer: () => (exists ? [notificationId, ...(options.extraIds ?? [])] : []),
       },
-      Diplomacy: options.diplomacyResponse == null
+      Diplomacy:
+        options.diplomacyResponse == null
+          ? undefined
+          : {
+              getResponseDataForUI: (actionId: number) => ({ actionID: actionId }),
+              getDiplomaticEventData: (actionId: number) => ({ actionID: actionId }),
+            },
+    },
+    DiplomacyManager:
+      options.diplomacyResponse == null
         ? undefined
         : {
-            getResponseDataForUI: (actionId: number) => ({ actionID: actionId }),
-            getDiplomaticEventData: (actionId: number) => ({ actionID: actionId }),
+            currentProjectReactionData: null,
+            currentProjectReactionRequest: null,
+            selectedActionID: null,
+            isShowing: () => true,
+            addCurrentDiplomacyProject(project) {
+              this.currentProjectReactionData = project as { actionID?: unknown };
+            },
+            closeCurrentDiplomacyProject: () => true,
+            hide: () => true,
           },
-    },
-    DiplomacyManager: options.diplomacyResponse == null
-      ? undefined
-      : {
-          currentProjectReactionData: null,
-          currentProjectReactionRequest: null,
-          selectedActionID: null,
-          isShowing: () => true,
-          addCurrentDiplomacyProject(project) {
-            this.currentProjectReactionData = project as { actionID?: unknown };
-          },
-          closeCurrentDiplomacyProject: () => true,
-          hide: () => true,
-        },
-    InterfaceMode: options.diplomacyResponse == null
-      ? undefined
-      : { getCurrent: () => "DIPLOMACY" },
-    LeaderModelManager: options.diplomacyResponse == null
-      ? undefined
-      : { beginAcknowledgePlayerSequence: () => true },
+    InterfaceMode:
+      options.diplomacyResponse == null ? undefined : { getCurrent: () => "DIPLOMACY" },
+    LeaderModelManager:
+      options.diplomacyResponse == null
+        ? undefined
+        : { beginAcknowledgePlayerSequence: () => true },
     Players: {
       ...target.Players,
-      Cities: options.readyCity == null
-        ? target.Players?.Cities
-        : {
-            get: (playerId: number) => ({
-              getCityIds: () =>
-                playerId === target.GameContext?.localPlayerID
-                  ? [options.readyCity?.cityId]
-                  : [],
-            }),
-          },
+      Cities:
+        options.readyCity == null
+          ? target.Players?.Cities
+          : {
+              get: (playerId: number) => ({
+                getCityIds: () =>
+                  playerId === target.GameContext?.localPlayerID ? [options.readyCity?.cityId] : [],
+              }),
+            },
       get: (playerId) =>
         playerId === 0 && options.populationPlacement != null
           ? {
-            Cities: {
-              getCityIds: () => [options.populationPlacement?.cityId],
-            },
-          }
-          : playerId === 0 && (
-            options.progressionChoice != null
-            || options.progressionRequest != null
-          )
-          ? {
-            Techs: {
-              getResearching: () => progressionSent ? 18_001 : 17_000,
-              getTargetNode: () => progressionSent ? -1 : 18_001,
-            },
-            Culture: {
-              getActiveTree: () => 1,
-              getTargetNode: () => progressionSent ? -1 : 27_001,
-              getAllAvailableNodeTypes: () => [27_001],
-            },
-          }
-          : null,
+              Cities: {
+                getCityIds: () => [options.populationPlacement?.cityId],
+              },
+            }
+          : playerId === 0 &&
+              (options.progressionChoice != null || options.progressionRequest != null)
+            ? {
+                Techs: {
+                  getResearching: () => (progressionSent ? 18_001 : 17_000),
+                  getTargetNode: () => (progressionSent ? -1 : 18_001),
+                },
+                Culture: {
+                  getActiveTree: () => 1,
+                  getTargetNode: () => (progressionSent ? -1 : 27_001),
+                  getAllAvailableNodeTypes: () => [27_001],
+                },
+              }
+            : null,
     },
     NotificationModel: {
       QueryBy: { Priority: 2 },
@@ -4541,9 +4624,7 @@ function gameUiNotificationTarget(
           return true;
         },
         findPlayer: () => ({
-          getTypesBy: () => exists
-            ? [{ notifications: [notificationId] }]
-            : [],
+          getTypesBy: () => (exists ? [{ notifications: [notificationId] }] : []),
         }),
       },
     },
@@ -4556,54 +4637,56 @@ function expectSemanticOutputOmitsRawUnitCommand(result: unknown) {
   expect(serialized).not.toContain("Game.UnitCommands");
   expect(serialized).not.toContain("Game.UnitOperations");
   expect(serialized).not.toContain("sendRequest");
-  expect(serialized).not.toContain("\"host\"");
-  expect(serialized).not.toContain("\"port\"");
-  expect(serialized).not.toContain("\"state\"");
-  expect(serialized).not.toContain("\"session\"");
-  expect(serialized).not.toContain("\"rawCommand\"");
-  expect(serialized).not.toContain("\"command\"");
-  expect(serialized).not.toContain("\"operationType\"");
-  expect(serialized).not.toContain("\"sendResult\"");
-  expect(serialized).not.toContain("\"result\"");
-  expect(serialized).not.toContain("\"verified\"");
-  expect(serialized).not.toContain("\"before\"");
-  expect(serialized).not.toContain("\"after\"");
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"operationType"');
+  expect(serialized).not.toContain('"sendResult"');
+  expect(serialized).not.toContain('"result"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
 }
 
 function progressionTargetCanStart(
   operationType: string,
-  progressionRequest: Readonly<{
-    canTechnologyTarget?: boolean;
-    canCultureTarget?: boolean;
-  }> | undefined,
-  progressionChoice: Readonly<{
-    canClearTarget?: boolean;
-  }> | undefined,
+  progressionRequest:
+    | Readonly<{
+        canTechnologyTarget?: boolean;
+        canCultureTarget?: boolean;
+      }>
+    | undefined,
+  progressionChoice:
+    | Readonly<{
+        canClearTarget?: boolean;
+      }>
+    | undefined
 ): boolean {
   if (operationType === "SET_TECH_TREE_TARGET_NODE") {
-    return progressionRequest?.canTechnologyTarget
-      ?? progressionChoice?.canClearTarget
-      ?? true;
+    return progressionRequest?.canTechnologyTarget ?? progressionChoice?.canClearTarget ?? true;
   }
   if (operationType === "SET_CULTURE_TREE_TARGET_NODE") {
-    return progressionRequest?.canCultureTarget
-      ?? progressionChoice?.canClearTarget
-      ?? true;
+    return progressionRequest?.canCultureTarget ?? progressionChoice?.canClearTarget ?? true;
   }
   return progressionChoice?.canClearTarget ?? true;
 }
 
 function componentIdEqual(
   left: { owner: number; id: number; type?: number } | null | undefined,
-  right: { owner: number; id: number; type?: number } | null | undefined,
+  right: { owner: number; id: number; type?: number } | null | undefined
 ): boolean {
-  return left?.owner === right?.owner
-    && left?.id === right?.id
-    && (left?.type ?? null) === (right?.type ?? null);
+  return (
+    left?.owner === right?.owner &&
+    left?.id === right?.id &&
+    (left?.type ?? null) === (right?.type ?? null)
+  );
 }
 
 function componentKey(
-  value: { owner: number; id: number; type?: number } | null | undefined,
+  value: { owner: number; id: number; type?: number } | null | undefined
 ): string {
   return `${value?.owner}:${value?.id}:${value?.type ?? "none"}`;
 }

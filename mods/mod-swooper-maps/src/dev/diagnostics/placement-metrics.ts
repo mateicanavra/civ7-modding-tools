@@ -14,9 +14,9 @@
  * explicit non-"computed" status instead of being silently omitted.
  */
 
-import { createMockAdapter } from "@civ7/adapter";
 import type { GameMapAdapter } from "@civ7/adapter";
-import { VOLCANO_FEATURE, createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
+import { createMockAdapter } from "@civ7/adapter";
+import { createExtendedMapContext, createLabelRng, VOLCANO_FEATURE } from "@swooper/mapgen-core";
 import {
   getHexNeighborIndicesOddQ,
   getHexRadiusIndicesOddQ,
@@ -25,15 +25,18 @@ import {
 
 import resourcesDomainOps from "../../domain/resources/ops.js";
 
-import { canonicalRecipeConfig, isPlainObject as isCanonicalMapConfigObject } from "../../maps/configs/canonical.js";
+import {
+  canonicalRecipeConfig,
+  isPlainObject as isCanonicalMapConfigObject,
+} from "../../maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
-import { placementArtifacts } from "../../recipes/standard/stages/placement/artifacts.js";
-import { morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts.js";
 import { ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { hydrologyClimateRefineArtifacts } from "../../recipes/standard/stages/hydrology-climate-refine/artifacts.js";
+import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";
+import { morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts.js";
+import { placementArtifacts } from "../../recipes/standard/stages/placement/artifacts.js";
 
 export const PLACEMENT_METRICS_SCHEMA_VERSION = 1;
 
@@ -92,7 +95,10 @@ export type PlacementMetricsAggregate = {
       expectation: string;
       status: PlacementMetricStatus;
       note?: string;
-      summary: Record<string, { mean: number | null; min: number | null; max: number | null; trueCount?: number }>;
+      summary: Record<
+        string,
+        { mean: number | null; min: number | null; max: number | null; trueCount?: number }
+      >;
     }
   >;
 };
@@ -297,7 +303,12 @@ function shannonEntropy(counts: readonly number[]): { entropy: number; maxEntrop
   return { entropy, maxEntropy: Math.log(counts.length) };
 }
 
-function rowLatitude(y: number, height: number, topLatitude: number, bottomLatitude: number): number {
+function rowLatitude(
+  y: number,
+  height: number,
+  topLatitude: number,
+  bottomLatitude: number
+): number {
   if (height <= 1) return (topLatitude + bottomLatitude) / 2;
   return topLatitude + ((bottomLatitude - topLatitude) * y) / (height - 1);
 }
@@ -352,9 +363,19 @@ export function runPlacementMetrics(options: PlacementMetricsRunOptions): Placem
       ? canonicalRecipeConfig(loadedConfig)
       : loadedConfig;
 
-  const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+  const adapter = createMockAdapter({
+    width,
+    height,
+    mapInfo,
+    mapSizeId: 1,
+    rng: createLabelRng(seed),
+  });
   const context = createExtendedMapContext({ width, height }, adapter, env);
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[placement-metrics]", storyEnabled: true });
+  initializeStandardRuntime(context, {
+    mapInfo,
+    logPrefix: "[placement-metrics]",
+    storyEnabled: true,
+  });
   standardRecipe.run(context, env, config, { log: () => {} });
 
   const metrics = computePlacementMetricsFromRun({
@@ -394,15 +415,24 @@ type ComputeArgs = {
   bottomLatitude: number;
 };
 
-export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string, PlacementMetricResult> {
-  const { context, adapter, width, height, intendedPlayerCount, topLatitude, bottomLatitude } = args;
+export function computePlacementMetricsFromRun(
+  args: ComputeArgs
+): Record<string, PlacementMetricResult> {
+  const { context, adapter, width, height, intendedPlayerCount, topLatitude, bottomLatitude } =
+    args;
   const size = width * height;
 
   const startAssignment = context.artifacts.get(placementArtifacts.startAssignment.id) as
     | StartAssignmentArtifact
     | undefined;
   const wonderPlacement = context.artifacts.get(placementArtifacts.naturalWonderPlacement.id) as
-    | { coordinateRows?: ReadonlyArray<{ status: string; plotIndex: number; observedPlotIndex?: number }> }
+    | {
+        coordinateRows?: ReadonlyArray<{
+          status: string;
+          plotIndex: number;
+          observedPlotIndex?: number;
+        }>;
+      }
     | undefined;
   const resourcePlan = context.artifacts.get(placementArtifacts.resourcePlan.id) as
     | ResourcePlanArtifact
@@ -458,7 +488,9 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
     throw new Error("Missing artifact:hydrology.climateIndices aridityIndex/surfaceTemperatureC.");
   }
 
-  const startPlots = startAssignment.positions.filter((plotIndex) => plotIndex >= 0 && plotIndex < size);
+  const startPlots = startAssignment.positions.filter(
+    (plotIndex) => plotIndex >= 0 && plotIndex < size
+  );
   const placed = resourceOutcomes.outcomes.filter((outcome) => outcome.status === "placed");
 
   const wonderPlots = new Set<number>();
@@ -534,11 +566,11 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       intendedPlayerCount,
       seatedCount: startAssignment.assigned,
       seatedMatchesIntended: startAssignment.assigned === intendedPlayerCount,
-      doublingDetected: intendedPlayerCount > 0 && startAssignment.assigned === intendedPlayerCount * 2,
+      doublingDetected:
+        intendedPlayerCount > 0 && startAssignment.assigned === intendedPlayerCount * 2,
     },
     {
-      note:
-        "Mock-adapter run; live getAliveMajorIds() comparison requires the live engine (E1.2 engine half is requires-live-engine).",
+      note: "Mock-adapter run; live getAliveMajorIds() comparison requires the live engine (E1.2 engine half is requires-live-engine).",
     }
   );
 
@@ -556,11 +588,16 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       });
       if (hasFreshwater) freshwaterStarts++;
     }
-    metrics["E1.3"] = metric("E1.3", "Freshwater access (river/lake adjacency <=1 tile) >= 80%", "computed", {
-      startsTotal: startPlots.length,
-      freshwaterStarts,
-      freshwaterPct: startPlots.length ? freshwaterStarts / startPlots.length : null,
-    });
+    metrics["E1.3"] = metric(
+      "E1.3",
+      "Freshwater access (river/lake adjacency <=1 tile) >= 80%",
+      "computed",
+      {
+        startsTotal: startPlots.length,
+        freshwaterStarts,
+        freshwaterPct: startPlots.length ? freshwaterStarts / startPlots.length : null,
+      }
+    );
   }
 
   // --- E1.4 fertile neighborhood ------------------------------------------------------------------
@@ -572,16 +609,24 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
     const landMean = mean(landFertility);
     const startMeans: number[] = [];
     for (const plotIndex of startPlots) {
-      const around = getHexRadiusIndicesOddQ(plotIndex, width, height, 2).filter((idx) => landMask[idx] === 1);
+      const around = getHexRadiusIndicesOddQ(plotIndex, width, height, 2).filter(
+        (idx) => landMask[idx] === 1
+      );
       const m = mean(around.map((idx) => fertility[idx] ?? 0));
       if (m != null) startMeans.push(m);
     }
     const startMean = mean(startMeans);
-    metrics["E1.4"] = metric("E1.4", "Start radius-2 fertility mean >= 1.3x land mean", "computed", {
-      startFertilityMean: startMean,
-      landFertilityMean: landMean,
-      fertilityRatio: startMean != null && landMean != null && landMean > 0 ? startMean / landMean : null,
-    });
+    metrics["E1.4"] = metric(
+      "E1.4",
+      "Start radius-2 fertility mean >= 1.3x land mean",
+      "computed",
+      {
+        startFertilityMean: startMean,
+        landFertilityMean: landMean,
+        fertilityRatio:
+          startMean != null && landMean != null && landMean > 0 ? startMean / landMean : null,
+      }
+    );
   }
 
   // --- E1.5 spacing --------------------------------------------------------------------------------
@@ -593,19 +638,24 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
         if (minSpacing == null || d < minSpacing) minSpacing = d;
       }
     }
-    metrics["E1.5"] = metric("E1.5", "Min pairwise start spacing >= 6 tiles (score tapers to 12)", "computed", {
-      minPairwiseStartSpacing: minSpacing,
-      pairsBelow6:
-        startPlots.length < 2
-          ? 0
-          : startPlots.reduce((acc, a, i) => {
-              let below = 0;
-              for (let j = i + 1; j < startPlots.length; j++) {
-                if (hexDistanceOddQPeriodicX(a, startPlots[j]!, width) < 6) below++;
-              }
-              return acc + below;
-            }, 0),
-    });
+    metrics["E1.5"] = metric(
+      "E1.5",
+      "Min pairwise start spacing >= 6 tiles (score tapers to 12)",
+      "computed",
+      {
+        minPairwiseStartSpacing: minSpacing,
+        pairsBelow6:
+          startPlots.length < 2
+            ? 0
+            : startPlots.reduce((acc, a, i) => {
+                let below = 0;
+                for (let j = i + 1; j < startPlots.length; j++) {
+                  if (hexDistanceOddQPeriodicX(a, startPlots[j]!, width) < 6) below++;
+                }
+                return acc + below;
+              }, 0),
+      }
+    );
   }
 
   // --- E1.6 fairness (computed from fairnessReport since S4) ----------------------------------------
@@ -625,8 +675,7 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
         maxSeatScore: seatScores.length ? Math.max(...seatScores) : null,
       },
       {
-        note:
-          "worstPairGap is the published fairnessReport value on fixed-normalization StartRecord scores; balanced reflects the post-balancing-pass verdict.",
+        note: "worstPairGap is the published fairnessReport value on fixed-normalization StartRecord scores; balanced reflects the post-balancing-pass verdict.",
       }
     );
   }
@@ -744,8 +793,7 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       },
       {
         detail: { coEligible: coEligible.detail, familySpearmans },
-        note:
-          "coEligiblePoolSpearman exercises the live rotation on a synthetic fully co-eligible pool with distinct official Weights and non-binding targets (frequency ∝ 1/Weight). Family Spearmans on the real map are confounded by per-type range clamps and habitat breadth; perTypeCountCv > 0 guards against the old force-uniform regression.",
+        note: "coEligiblePoolSpearman exercises the live rotation on a synthetic fully co-eligible pool with distinct official Weights and non-binding targets (frequency ∝ 1/Weight). Family Spearmans on the real map are confounded by per-type range clamps and habitat breadth; perTypeCountCv > 0 guards against the old force-uniform regression.",
       }
     );
   }
@@ -767,8 +815,7 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       },
       {
         detail: rows,
-        note:
-          "Every unsatisfied row carries an explicit typed shortfall in the plan artifact (official semantics: per landmass-region, gated by isResourceRequiredForAge).",
+        note: "Every unsatisfied row carries an explicit typed shortfall in the plan artifact (official semantics: per landmass-region, gated by isResourceRequiredForAge).",
       }
     );
   }
@@ -784,11 +831,16 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       placedWithIntent += 1;
       if (intent.inHabitat) placedInHabitat += 1;
     }
-    metrics["E2.3"] = metric("E2.3", "Habitat fidelity >= 90% inside type's habitat lane", "computed", {
-      placedWithIntent,
-      placedInHabitat,
-      habitatFidelity: placedWithIntent ? placedInHabitat / placedWithIntent : null,
-    });
+    metrics["E2.3"] = metric(
+      "E2.3",
+      "Habitat fidelity >= 90% inside type's habitat lane",
+      "computed",
+      {
+        placedWithIntent,
+        placedInHabitat,
+        habitatFidelity: placedWithIntent ? placedInHabitat / placedWithIntent : null,
+      }
+    );
   }
 
   // --- E2.5 aggregation above the spacing floor (pair-correlation proxy) ---------------------------------
@@ -849,7 +901,12 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
                 .filter((row) => row.family === family)
                 .map((row) => row.spacingFloorTiles)
             );
-      return { family, placedCount: plots.length, floor, pairCorrelationRatio: pairRatioFor(plots, floor) };
+      return {
+        family,
+        placedCount: plots.length,
+        floor,
+        pairCorrelationRatio: pairRatioFor(plots, floor),
+      };
     });
     const geological = detail.find((row) => row.family === "geological");
     // Counterfactual (S5): the same ratio on the BASE plan's geological
@@ -869,8 +926,7 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       },
       {
         detail,
-        note:
-          "Ratio of observed same-family pair counts in the annulus (floor, floor+2] to the CSR expectation over land. > 1 means regional aggregation above the blue-noise floor; floorByTypeId guards E2.6 separately. basePlanGeologicalPairCorrelation is the pre-support-pass counterfactual (S5).",
+        note: "Ratio of observed same-family pair counts in the annulus (floor, floor+2] to the CSR expectation over land. > 1 means regional aggregation above the blue-noise floor; floorByTypeId guards E2.6 separately. basePlanGeologicalPairCorrelation is the pre-support-pass counterfactual (S5).",
       }
     );
     void floorByTypeId;
@@ -894,7 +950,10 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       else if (placedCount < row.minCount && shortfall === 0) belowMinWithoutShortfall += 1;
       if (row.authoredTargetCount > 0) {
         withTarget += 1;
-        if (Math.abs(placedCount - row.authoredTargetCount) <= 0.2 * row.authoredTargetCount + 1e-9) {
+        if (
+          Math.abs(placedCount - row.authoredTargetCount) <=
+          0.2 * row.authoredTargetCount + 1e-9
+        ) {
           within20 += 1;
         }
       }
@@ -909,13 +968,19 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
         inRange: inRangeRow,
       };
     });
-    metrics["E2.7"] = metric("E2.7", "Per-type counts within expectedCountRange", "computed", {
-      typeCount: rows.length,
-      typesInRange: inRange,
-      inRangePct: rows.length ? inRange / rows.length : null,
-      within20PctOfTarget: withTarget ? within20 / withTarget : null,
-      belowMinWithoutShortfall,
-    }, { detail: rows.filter((row) => !row.inRange) });
+    metrics["E2.7"] = metric(
+      "E2.7",
+      "Per-type counts within expectedCountRange",
+      "computed",
+      {
+        typeCount: rows.length,
+        typesInRange: inRange,
+        inRangePct: rows.length ? inRange / rows.length : null,
+        within20PctOfTarget: withTarget ? within20 / withTarget : null,
+        belowMinWithoutShortfall,
+      },
+      { detail: rows.filter((row) => !row.inRange) }
+    );
   }
 
   // --- E2.4 marine resources -----------------------------------------------------------------------------
@@ -928,11 +993,16 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
         marineTypes.add(outcome.resourceType);
       }
     }
-    metrics["E2.4"] = metric("E2.4", "Marine resources place on water (> 0 with coast)", "computed", {
-      marinePlacedCount: marinePlaced,
-      marinePlacedTypeCount: marineTypes.size,
-      totalPlacedCount: placed.length,
-    });
+    metrics["E2.4"] = metric(
+      "E2.4",
+      "Marine resources place on water (> 0 with coast)",
+      "computed",
+      {
+        marinePlacedCount: marinePlaced,
+        marinePlacedTypeCount: marineTypes.size,
+        totalPlacedCount: placed.length,
+      }
+    );
   }
 
   // --- E2.6 type-aware spacing -----------------------------------------------------------------------------
@@ -969,12 +1039,18 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
         if (minNN < floor) typesBelowFloor++;
       }
     }
-    metrics["E2.6"] = metric("E2.6", "Per-type spacing floors honored; never decay to 0", "computed", {
-      siteSpacingTiles: resourcePlan.siteSpacingTiles | 0,
-      globalMinSameTypeDistance: globalMinNN,
-      typesBelowFloor,
-      typeCount: perTypeMinNN.length,
-    }, { detail: perTypeMinNN });
+    metrics["E2.6"] = metric(
+      "E2.6",
+      "Per-type spacing floors honored; never decay to 0",
+      "computed",
+      {
+        siteSpacingTiles: resourcePlan.siteSpacingTiles | 0,
+        globalMinSameTypeDistance: globalMinNN,
+        typesBelowFloor,
+        typeCount: perTypeMinNN.length,
+      },
+      { detail: perTypeMinNN }
+    );
   }
 
   // --- E2.8 regional equity ----------------------------------------------------------------------------------
@@ -988,7 +1064,11 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       densitySpreadRatio: null,
     };
     let detail: unknown;
-    if (landmassIdByTile instanceof Int32Array && landmassIdByTile.length === size && landmassRows.length) {
+    if (
+      landmassIdByTile instanceof Int32Array &&
+      landmassIdByTile.length === size &&
+      landmassRows.length
+    ) {
       const totalLand = landmassRows.reduce((acc, row) => acc + row.tileCount, 0);
       const counts = new Map<number, number>();
       for (const outcome of placed) {
@@ -1003,7 +1083,8 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
         landmassId: row.id,
         tileCount: row.tileCount,
         placedCount: counts.get(row.id) ?? 0,
-        densityPer100Tiles: row.tileCount > 0 ? ((counts.get(row.id) ?? 0) / row.tileCount) * 100 : 0,
+        densityPer100Tiles:
+          row.tileCount > 0 ? ((counts.get(row.id) ?? 0) / row.tileCount) * 100 : 0,
       }));
       const densityValues = densities.map((row) => row.densityPer100Tiles);
       const maxDensity = densityValues.length ? Math.max(...densityValues) : null;
@@ -1012,7 +1093,10 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
         qualifyingLandmassCount: densities.length,
         maxDensityPer100Tiles: maxDensity,
         minDensityPer100Tiles: minDensity,
-        densitySpreadRatio: maxDensity != null && minDensity != null && minDensity > 0 ? maxDensity / minDensity : null,
+        densitySpreadRatio:
+          maxDensity != null && minDensity != null && minDensity > 0
+            ? maxDensity / minDensity
+            : null,
       };
       detail = densities;
     }
@@ -1110,7 +1194,9 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
         assignedCount,
         finalPlacedCount,
         plannedToAssignedDrift: plannedCount ? (plannedCount - assignedCount) / plannedCount : null,
-        assignedToFinalDrift: assignedCount ? (assignedCount - finalPlacedCount) / assignedCount : null,
+        assignedToFinalDrift: assignedCount
+          ? (assignedCount - finalPlacedCount) / assignedCount
+          : null,
         maxLatitudeBandOverrepresentation: overrepresentationValues.length
           ? Math.max(...overrepresentationValues)
           : null,
@@ -1118,9 +1204,10 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
         sectorEntropyNormalized: maxEntropy > 0 ? entropy / maxEntropy : null,
       },
       {
-        detail: { latitudeBands: bands.filter((band) => band.landTiles > 0 || band.placedCount > 0) },
-        note:
-          "preferredLegalityRate is evaluated with the mock adapter's static policy legality (Resource_ValidBiomes emulation) on the final surface.",
+        detail: {
+          latitudeBands: bands.filter((band) => band.landTiles > 0 || band.placedCount > 0),
+        },
+        note: "preferredLegalityRate is evaluated with the mock adapter's static policy legality (Resource_ValidBiomes emulation) on the final surface.",
       }
     );
   }
@@ -1141,59 +1228,105 @@ export function computePlacementMetricsFromRun(args: ComputeArgs): Record<string
       (sum, row) => sum + row.missing,
       0
     );
-    metrics["E3.1"] = metric("E3.1", "Resources within radius 4 of each start >= 2", "computed", {
-      minResourcesPerStart: minPerStart,
-      meanResourcesPerStart: mean(perStartCounts),
-      startsBelowFloor: perStartCounts.filter((count) => count < START_SUPPORT_FLOOR).length,
-      startsTotal: perStartCounts.length,
-      supportMoves: resourcePlanAdjusted.moveCount,
-      supportAdds: resourcePlanAdjusted.addCount,
-      supportShortfallMissing,
-    }, {
-      detail: {
-        perStartPlacedCounts: perStartCounts,
-        perStartPlanned: resourcePlanAdjusted.perStart,
-        adjustments: resourcePlanAdjusted.adjustments,
-        shortfalls: resourcePlanAdjusted.shortfalls,
+    metrics["E3.1"] = metric(
+      "E3.1",
+      "Resources within radius 4 of each start >= 2",
+      "computed",
+      {
+        minResourcesPerStart: minPerStart,
+        meanResourcesPerStart: mean(perStartCounts),
+        startsBelowFloor: perStartCounts.filter((count) => count < START_SUPPORT_FLOOR).length,
+        startsTotal: perStartCounts.length,
+        supportMoves: resourcePlanAdjusted.moveCount,
+        supportAdds: resourcePlanAdjusted.addCount,
+        supportShortfallMissing,
       },
-      note:
-        "Measured on PLACED outcomes (post-stamp). supportMoves/supportAdds and the per-adjustment provenance come from the adjusted-plan artifact (S5).",
-    });
-    metrics["E3.2"] = metric("E3.2", "Start support equity: max-min per-player count <= 2", "computed", {
-      maxMinGap: minPerStart != null && maxPerStart != null ? maxPerStart - minPerStart : null,
-      plannedGapBefore: resourcePlanAdjusted.equity.gapBefore,
-      plannedGapAfter: resourcePlanAdjusted.equity.gapAfter,
-    });
-    metrics["E3.3"] = metric("E3.3", "Support guarantee holds across seeds (20/20)", "computed", {
-      guaranteeHolds:
-        minPerStart != null &&
-        minPerStart >= START_SUPPORT_FLOOR &&
-        maxPerStart != null &&
-        maxPerStart - minPerStart <= 2,
-    }, { note: "guaranteeHolds = floor (E3.1) AND equity (E3.2) on this seed; aggregate trueCount across seeds gives the N/N guarantee rate." });
+      {
+        detail: {
+          perStartPlacedCounts: perStartCounts,
+          perStartPlanned: resourcePlanAdjusted.perStart,
+          adjustments: resourcePlanAdjusted.adjustments,
+          shortfalls: resourcePlanAdjusted.shortfalls,
+        },
+        note: "Measured on PLACED outcomes (post-stamp). supportMoves/supportAdds and the per-adjustment provenance come from the adjusted-plan artifact (S5).",
+      }
+    );
+    metrics["E3.2"] = metric(
+      "E3.2",
+      "Start support equity: max-min per-player count <= 2",
+      "computed",
+      {
+        maxMinGap: minPerStart != null && maxPerStart != null ? maxPerStart - minPerStart : null,
+        plannedGapBefore: resourcePlanAdjusted.equity.gapBefore,
+        plannedGapAfter: resourcePlanAdjusted.equity.gapAfter,
+      }
+    );
+    metrics["E3.3"] = metric(
+      "E3.3",
+      "Support guarantee holds across seeds (20/20)",
+      "computed",
+      {
+        guaranteeHolds:
+          minPerStart != null &&
+          minPerStart >= START_SUPPORT_FLOOR &&
+          maxPerStart != null &&
+          maxPerStart - minPerStart <= 2,
+      },
+      {
+        note: "guaranteeHolds = floor (E3.1) AND equity (E3.2) on this seed; aggregate trueCount across seeds gives the N/N guarantee rate.",
+      }
+    );
   }
 
   // --- E3.4 / E4.* -----------------------------------------------------------------------------------------------------
-  metrics["E3.4"] = metric("E3.4", "Sparsity + exclusion expressible at knob extremes", "computed", computeExpressivenessProbe(), {
-    note:
-      "Probe through the live select-resource-sites op on a synthetic surface: a sparsity-max config must plan at the range minimums with scaled floors, and an exclusion rule must remove all pair co-occurrences within radius relative to the default config.",
-  });
-  metrics["E4.1"] = metric("E4.1", "Studio seats == live seats", "requires-live-engine", {}, {
-    note: "Needs a same-seed live run via civ7 game (milestone boundary proof).",
-  });
-  metrics["E4.2"] = metric("E4.2", "Every placement product step has viz", "requires-studio-dump", {}, {
-    note: "Measured by browser-runner dump inspection, not this harness.",
-  });
-  metrics["E4.3"] = metric("E4.3", "Viz shows decision substance", "requires-studio-dump", {}, {
-    note: "Measured by browser-runner dump inspection, not this harness.",
-  });
-  metrics["E4.4"] = metric("E4.4", "Mock canHaveResource vs live engine >= 95% agreement", "requires-live-engine", {}, {
-    note: "Needs live `civ7 game map` probes at a milestone boundary.",
-  });
+  metrics["E3.4"] = metric(
+    "E3.4",
+    "Sparsity + exclusion expressible at knob extremes",
+    "computed",
+    computeExpressivenessProbe(),
+    {
+      note: "Probe through the live select-resource-sites op on a synthetic surface: a sparsity-max config must plan at the range minimums with scaled floors, and an exclusion rule must remove all pair co-occurrences within radius relative to the default config.",
+    }
+  );
+  metrics["E4.1"] = metric(
+    "E4.1",
+    "Studio seats == live seats",
+    "requires-live-engine",
+    {},
+    {
+      note: "Needs a same-seed live run via civ7 game (milestone boundary proof).",
+    }
+  );
+  metrics["E4.2"] = metric(
+    "E4.2",
+    "Every placement product step has viz",
+    "requires-studio-dump",
+    {},
+    {
+      note: "Measured by browser-runner dump inspection, not this harness.",
+    }
+  );
+  metrics["E4.3"] = metric(
+    "E4.3",
+    "Viz shows decision substance",
+    "requires-studio-dump",
+    {},
+    {
+      note: "Measured by browser-runner dump inspection, not this harness.",
+    }
+  );
+  metrics["E4.4"] = metric(
+    "E4.4",
+    "Mock canHaveResource vs live engine >= 95% agreement",
+    "requires-live-engine",
+    {},
+    {
+      note: "Needs live `civ7 game map` probes at a milestone boundary.",
+    }
+  );
 
   return metrics;
 }
-
 
 // ---------------------------------------------------------------------------
 // Op-level probes (E2.1 co-eligible rotation semantics, E3.4 expressiveness)
@@ -1282,10 +1415,13 @@ function runSelectSitesProbe(
   input: ReturnType<typeof syntheticSelectSitesInput>,
   config: SelectSitesConfig
 ) {
-  return resourcesDomainOps.ops.selectResourceSites.run(input as never, {
-    strategy: "default",
-    config,
-  } as never) as unknown as {
+  return resourcesDomainOps.ops.selectResourceSites.run(
+    input as never,
+    {
+      strategy: "default",
+      config,
+    } as never
+  ) as unknown as {
     plannedCount: number;
     intents: ReadonlyArray<{ plotIndex: number; resourceTypeId: number }>;
     perType: ReadonlyArray<{
@@ -1314,10 +1450,38 @@ function computeCoEligibleWeightSpearman(): {
     width: 20,
     height: 12,
     demands: [
-      { resourceType: "RESOURCE_PROBE_W5", resourceTypeId: 901, weight: 5, targetCount: 60, minCount: 0, maxCount: 60 },
-      { resourceType: "RESOURCE_PROBE_W10", resourceTypeId: 902, weight: 10, targetCount: 60, minCount: 0, maxCount: 60 },
-      { resourceType: "RESOURCE_PROBE_W20", resourceTypeId: 903, weight: 20, targetCount: 60, minCount: 0, maxCount: 60 },
-      { resourceType: "RESOURCE_PROBE_W40", resourceTypeId: 904, weight: 40, targetCount: 60, minCount: 0, maxCount: 60 },
+      {
+        resourceType: "RESOURCE_PROBE_W5",
+        resourceTypeId: 901,
+        weight: 5,
+        targetCount: 60,
+        minCount: 0,
+        maxCount: 60,
+      },
+      {
+        resourceType: "RESOURCE_PROBE_W10",
+        resourceTypeId: 902,
+        weight: 10,
+        targetCount: 60,
+        minCount: 0,
+        maxCount: 60,
+      },
+      {
+        resourceType: "RESOURCE_PROBE_W20",
+        resourceTypeId: 903,
+        weight: 20,
+        targetCount: 60,
+        minCount: 0,
+        maxCount: 60,
+      },
+      {
+        resourceType: "RESOURCE_PROBE_W40",
+        resourceTypeId: 904,
+        weight: 40,
+        targetCount: 60,
+        minCount: 0,
+        maxCount: 60,
+      },
     ],
   });
   const result = runSelectSitesProbe(input, DEFAULT_SELECT_SITES_CONFIG);
@@ -1343,9 +1507,30 @@ function computeCoEligibleWeightSpearman(): {
  */
 function computeExpressivenessProbe(): Record<string, number | boolean | null> {
   const demands = [
-    { resourceType: "RESOURCE_PROBE_A", resourceTypeId: 911, weight: 10, targetCount: 16, minCount: 4, maxCount: 20 },
-    { resourceType: "RESOURCE_PROBE_B", resourceTypeId: 912, weight: 10, targetCount: 16, minCount: 4, maxCount: 20 },
-    { resourceType: "RESOURCE_PROBE_C", resourceTypeId: 913, weight: 10, targetCount: 16, minCount: 4, maxCount: 20 },
+    {
+      resourceType: "RESOURCE_PROBE_A",
+      resourceTypeId: 911,
+      weight: 10,
+      targetCount: 16,
+      minCount: 4,
+      maxCount: 20,
+    },
+    {
+      resourceType: "RESOURCE_PROBE_B",
+      resourceTypeId: 912,
+      weight: 10,
+      targetCount: 16,
+      minCount: 4,
+      maxCount: 20,
+    },
+    {
+      resourceType: "RESOURCE_PROBE_C",
+      resourceTypeId: 913,
+      weight: 10,
+      targetCount: 16,
+      minCount: 4,
+      maxCount: 20,
+    },
   ];
   const input = () => syntheticSelectSitesInput({ width: 32, height: 20, demands });
   const exclusionRadius = 4;
@@ -1391,7 +1576,9 @@ function computeExpressivenessProbe(): Record<string, number | boolean | null> {
   };
 }
 
-export function aggregatePlacementMetrics(runs: readonly PlacementMetricsRun[]): PlacementMetricsAggregate {
+export function aggregatePlacementMetrics(
+  runs: readonly PlacementMetricsRun[]
+): PlacementMetricsAggregate {
   const metricIds = runs.length ? Object.keys(runs[0]!.metrics) : [];
   const metrics: PlacementMetricsAggregate["metrics"] = {};
 

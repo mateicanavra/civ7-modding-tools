@@ -19,12 +19,9 @@ import type {
   Civ7StrategyFormationSnapshotResult,
 } from "../contract";
 
-type FormationPosture =
-  Civ7StrategyFormationSnapshotResult["formation"]["posture"];
-type FormationUnit =
-  Civ7StrategyFormationSnapshotResult["formation"]["civilians"][number];
-type FormationNextStep =
-  Civ7StrategyFormationSnapshotResult["nextSteps"][number];
+type FormationPosture = Civ7StrategyFormationSnapshotResult["formation"]["posture"];
+type FormationUnit = Civ7StrategyFormationSnapshotResult["formation"]["civilians"][number];
+type FormationNextStep = Civ7StrategyFormationSnapshotResult["nextSteps"][number];
 
 export const strategyFormationSnapshotProcedure =
   civ7ControlOrpcImplementer.strategy.formationSnapshot.effect(function* ({
@@ -41,20 +38,27 @@ export const strategyFormationSnapshotProcedure =
         });
         const readyUnitId = probeValue(notifications.firstReadyUnitId);
         const requestedOrigin = input.origin ?? null;
-        const readyUnit = requestedOrigin != null || readyUnitId == null
-          ? null
-          : await context.directControl.getCiv7ReadyUnitView({
-            unitId: readyUnitId,
-            radius: 2,
-          }, endpointDefaults);
+        const readyUnit =
+          requestedOrigin != null || readyUnitId == null
+            ? null
+            : await context.directControl.getCiv7ReadyUnitView(
+                {
+                  unitId: readyUnitId,
+                  radius: 2,
+                },
+                endpointDefaults
+              );
         const origin = requestedOrigin ?? readyUnitLocation(readyUnit);
-        const battlefield = await context.directControl.getCiv7BattlefieldScan({
-          playerId: input.playerId,
-          origins: origin == null ? undefined : [origin],
-          radius: input.radius ?? 6,
-          maxUnits: input.maxUnits ?? 96,
-          maxCities: input.maxCities ?? 40,
-        }, endpointDefaults);
+        const battlefield = await context.directControl.getCiv7BattlefieldScan(
+          {
+            playerId: input.playerId,
+            origins: origin == null ? undefined : [origin],
+            radius: input.radius ?? 6,
+            maxUnits: input.maxUnits ?? 96,
+            maxCities: input.maxCities ?? 40,
+          },
+          endpointDefaults
+        );
 
         return formationSnapshotResult({
           input,
@@ -90,27 +94,23 @@ function formationSnapshotResult({
   origin: Civ7ControlOrpcMapLocation | null;
 }>): Civ7StrategyFormationSnapshotResult {
   const units = asRecords(battlefield.units).map(toFormationUnit);
-  const civilians = units.filter((unit) =>
-    unit.stance === "own" && unit.role === "civilian"
-  );
-  const ownUnits = units.filter((unit) =>
-    unit.stance === "own" && unit.role !== "civilian"
-  );
-  const otherOwnerContacts = units.filter((unit) =>
-    unit.stance !== "own"
-  );
+  const civilians = units.filter((unit) => unit.stance === "own" && unit.role === "civilian");
+  const ownUnits = units.filter((unit) => unit.stance === "own" && unit.role !== "civilian");
+  const otherOwnerContacts = units.filter((unit) => unit.stance !== "own");
   const screens = ownUnits.filter((unit) =>
-    civilians.some((civilian) =>
-      civilian.location != null && unit.location != null &&
-      gridDistance(civilian.location, unit.location) <=
-        (input.screenRadius ?? 2)
+    civilians.some(
+      (civilian) =>
+        civilian.location != null &&
+        unit.location != null &&
+        gridDistance(civilian.location, unit.location) <= (input.screenRadius ?? 2)
     )
   );
   const nearbyContacts = otherOwnerContacts.filter((unit) =>
-    civilians.some((civilian) =>
-      civilian.location != null && unit.location != null &&
-      gridDistance(civilian.location, unit.location) <=
-        (input.contactRadius ?? 4)
+    civilians.some(
+      (civilian) =>
+        civilian.location != null &&
+        unit.location != null &&
+        gridDistance(civilian.location, unit.location) <= (input.contactRadius ?? 4)
     )
   );
   const poiReasons = pointReasons(battlefield.pointsOfInterest);
@@ -127,9 +127,7 @@ function formationSnapshotResult({
     nearbyContacts,
     posture,
   });
-  const readyUnitValue = readyUnit == null
-    ? null
-    : probeValue(readyUnit.unit);
+  const readyUnitValue = readyUnit == null ? null : probeValue(readyUnit.unit);
 
   return {
     playerId: battlefield.playerId,
@@ -141,19 +139,23 @@ function formationSnapshotResult({
     origin,
     sourceStatus: {
       notifications: "read",
-      readyUnit: input.origin != null
-        ? "skipped-explicit-origin"
-        : readyUnit == null ? "skipped-no-ready-unit" : "read",
+      readyUnit:
+        input.origin != null
+          ? "skipped-explicit-origin"
+          : readyUnit == null
+            ? "skipped-no-ready-unit"
+            : "read",
       battlefieldScan: "read",
     },
-    readyUnit: readyUnit == null
-      ? null
-      : {
-        unitId: readyUnit.unitId,
-        typeName: stringValue(asRecord(readyUnitValue)?.typeName),
-        location: locationFromUnknown(asRecord(readyUnitValue)?.location),
-        legalNoTargetOperationCount: readyUnit.legalOperations.length,
-      },
+    readyUnit:
+      readyUnit == null
+        ? null
+        : {
+            unitId: readyUnit.unitId,
+            typeName: stringValue(asRecord(readyUnitValue)?.typeName),
+            location: locationFromUnknown(asRecord(readyUnitValue)?.location),
+            legalNoTargetOperationCount: readyUnit.legalOperations.length,
+          },
     battlefield: {
       originCount: battlefield.origins.length,
       unitCount: units.length,
@@ -166,7 +168,8 @@ function formationSnapshotResult({
         relationshipSource: "not-classified",
         relationshipProof: "none",
         unprovenLabel: "relationship-unproven",
-        guidance: "Formation snapshot treats owner mismatch and proximity as contact evidence only. Official diplomatic or team evidence is required for stronger labels.",
+        guidance:
+          "Formation snapshot treats owner mismatch and proximity as contact evidence only. Official diplomatic or team evidence is required for stronger labels.",
       },
       headline: formationHeadline({
         origin,
@@ -196,13 +199,15 @@ function formationSnapshotResult({
   };
 }
 
-function postureFor(input: Readonly<{
-  civilians: readonly FormationUnit[];
-  screens: readonly FormationUnit[];
-  nearbyContacts: readonly FormationUnit[];
-  poiReasons: readonly string[];
-  readyUnit: Civ7ControlOrpcReadyUnitViewResult | null;
-}>): FormationPosture {
+function postureFor(
+  input: Readonly<{
+    civilians: readonly FormationUnit[];
+    screens: readonly FormationUnit[];
+    nearbyContacts: readonly FormationUnit[];
+    poiReasons: readonly string[];
+    readyUnit: Civ7ControlOrpcReadyUnitViewResult | null;
+  }>
+): FormationPosture {
   if (input.readyUnit == null) return "inspect-ready-unit";
   if (input.civilians.length > 0 && input.nearbyContacts.length > 0) {
     return "screen-civilian";
@@ -211,9 +216,8 @@ function postureFor(input: Readonly<{
     return "hold-ready-unit";
   }
   if (
-    input.poiReasons.some((reason) =>
-      reason.includes("nearby-other-owners") ||
-      reason.includes("owner-contact")
+    input.poiReasons.some(
+      (reason) => reason.includes("nearby-other-owners") || reason.includes("owner-contact")
     )
   ) {
     return "stabilize-front";
@@ -232,17 +236,20 @@ function formationNextSteps({
   nearbyContacts: readonly FormationUnit[];
   posture: FormationPosture;
 }>): FormationNextStep[] {
-  const nextSteps: FormationNextStep[] = [{
-    kind: "read-priorities",
-    source: "strategy.formationSnapshot",
-    label: "Refresh current attention priorities before choosing a formation action.",
-    parameters: {},
-  }, {
-    kind: "inspect-ready-unit",
-    source: "strategy.formationSnapshot",
-    label: "Re-read the ready unit before validating a concrete action.",
-    parameters: {},
-  }];
+  const nextSteps: FormationNextStep[] = [
+    {
+      kind: "read-priorities",
+      source: "strategy.formationSnapshot",
+      label: "Refresh current attention priorities before choosing a formation action.",
+      parameters: {},
+    },
+    {
+      kind: "inspect-ready-unit",
+      source: "strategy.formationSnapshot",
+      label: "Re-read the ready unit before validating a concrete action.",
+      parameters: {},
+    },
+  ];
   if (origin != null) {
     nextSteps.push({
       kind: "inspect-battlefield",
@@ -272,9 +279,10 @@ function formationNextSteps({
   nextSteps.push({
     kind: "validate-unit-action",
     source: "strategy.formationSnapshot",
-    label: posture === "screen-civilian" || posture === "stabilize-front"
-      ? "Validate a screen or contact unit action."
-      : "Validate a concrete unit action.",
+    label:
+      posture === "screen-civilian" || posture === "stabilize-front"
+        ? "Validate a screen or contact unit action."
+        : "Validate a concrete unit action.",
     parameters: {},
   });
   return uniqueNextSteps(nextSteps);
@@ -305,15 +313,11 @@ function formationHeadline({
   screens: readonly FormationUnit[];
   nearbyContacts: readonly FormationUnit[];
 }>): string {
-  const originLabel = origin == null
-    ? "<unknown origin>"
-    : `(${origin.x},${origin.y})`;
+  const originLabel = origin == null ? "<unknown origin>" : `(${origin.x},${origin.y})`;
   return `${readyUnitSummary(readyUnit)} formation at ${originLabel}: ${civilians.length} civilians, ${screens.length} local screens, ${nearbyContacts.length} nearby other-owner contacts`;
 }
 
-function readyUnitSummary(
-  readyUnit: Civ7ControlOrpcReadyUnitViewResult | null,
-): string {
+function readyUnitSummary(readyUnit: Civ7ControlOrpcReadyUnitViewResult | null): string {
   const unit = readyUnit == null ? null : probeValue(readyUnit.unit);
   return stringValue(asRecord(unit)?.typeName) ?? "ready unit";
 }
@@ -329,20 +333,19 @@ function pointReasons(value: unknown): string[] {
 
 function civilianContactReasons(
   civilians: readonly FormationUnit[],
-  nearbyContacts: readonly FormationUnit[],
+  nearbyContacts: readonly FormationUnit[]
 ): string[] {
   if (civilians.length === 0 || nearbyContacts.length === 0) return [];
   return civilians.map((civilian) => {
-    const location = civilian.location == null
-      ? "<unknown>"
-      : `(${civilian.location.x},${civilian.location.y})`;
+    const location =
+      civilian.location == null ? "<unknown>" : `(${civilian.location.x},${civilian.location.y})`;
     return `${civilian.typeName ?? "civilian"} at ${location} has ${nearbyContacts.length} other-owner units within contact radius`;
   });
 }
 
 function screenReasons(
   civilians: readonly FormationUnit[],
-  screens: readonly FormationUnit[],
+  screens: readonly FormationUnit[]
 ): string[] {
   if (civilians.length === 0) return [];
   if (screens.length === 0) {
@@ -352,19 +355,17 @@ function screenReasons(
 }
 
 function readyUnitLocation(
-  readyUnit: Civ7ControlOrpcReadyUnitViewResult | null,
+  readyUnit: Civ7ControlOrpcReadyUnitViewResult | null
 ): Civ7ControlOrpcMapLocation | null {
   const unit = readyUnit == null ? null : probeValue(readyUnit.unit);
   return locationFromUnknown(asRecord(unit)?.location);
 }
 
-function componentIdFromUnknown(
-  value: unknown,
-): Civ7ControlOrpcComponentId | null {
+function componentIdFromUnknown(value: unknown): Civ7ControlOrpcComponentId | null {
   const record = asRecord(value);
   return typeof record?.owner === "number" &&
-      typeof record.id === "number" &&
-      typeof record.type === "number"
+    typeof record.id === "number" &&
+    typeof record.type === "number"
     ? { owner: record.owner, id: record.id, type: record.type }
     : null;
 }
@@ -376,31 +377,26 @@ function locationFromUnknown(value: unknown): Civ7ControlOrpcMapLocation | null 
     : null;
 }
 
-function gridDistance(
-  left: Civ7ControlOrpcMapLocation,
-  right: Civ7ControlOrpcMapLocation,
-): number {
+function gridDistance(left: Civ7ControlOrpcMapLocation, right: Civ7ControlOrpcMapLocation): number {
   return Math.max(Math.abs(left.x - right.x), Math.abs(left.y - right.y));
 }
 
 function probeValue<T>(
-  probe: { ok: true; value: T } | { ok: false; error: string } | null | undefined,
+  probe: { ok: true; value: T } | { ok: false; error: string } | null | undefined
 ): T | null {
   return probe?.ok === true ? probe.value : null;
 }
 
 function asRecords(value: unknown): Array<Record<string, unknown>> {
   return Array.isArray(value)
-    ? value.filter((item): item is Record<string, unknown> =>
-      item !== null && typeof item === "object"
-    )
+    ? value.filter(
+        (item): item is Record<string, unknown> => item !== null && typeof item === "object"
+      )
     : [];
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
-  return value !== null && typeof value === "object"
-    ? value as Record<string, unknown>
-    : null;
+  return value !== null && typeof value === "object" ? (value as Record<string, unknown>) : null;
 }
 
 function numericValue(value: unknown): number | null {
@@ -427,9 +423,7 @@ function uniqueStrings(values: readonly string[]): string[] {
   return [...new Set(values.filter((value) => value.length > 0))];
 }
 
-function uniqueNextSteps(
-  values: readonly FormationNextStep[],
-): FormationNextStep[] {
+function uniqueNextSteps(values: readonly FormationNextStep[]): FormationNextStep[] {
   const seen = new Set<string>();
   const nextSteps: FormationNextStep[] = [];
   for (const value of values) {

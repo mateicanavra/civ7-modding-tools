@@ -26,34 +26,34 @@
  */
 // @ts-check
 import {
-    refresh as __refreshResolved__,
-    // group getters
-    TOGGLES as __TOGGLES__,
-    STORY as __STORY__,
-    MICROCLIMATE as __MICROCLIMATE__,
-    LANDMASS_CFG as __LANDMASS__,
-    COASTLINES_CFG as __COASTLINES__,
-    MARGINS_CFG as __MARGINS__,
-    ISLANDS_CFG as __ISLANDS__,
-    CLIMATE_CFG as __CLIMATE__,
-    MOUNTAINS_CFG as __MOUNTAINS__,
-    VOLCANOES_CFG as __VOLCANOES__,
-    BIOMES_CFG as __BIOMES__,
-    FEATURES_DENSITY_CFG as __FEATURES_DENSITY__,
-    CORRIDORS_CFG as __CORRIDORS__,
-    PLACEMENT_CFG as __PLACEMENT__,
-    DEV_LOG_CFG as __DEV__,
-    FOUNDATION_CFG as __FOUNDATION__,
-    STAGE_MANIFEST as __STAGE_MANIFEST__,
-    // foundation helpers
-    FOUNDATION_SEED as __FOUNDATION_SEED__,
-    FOUNDATION_PLATES as __FOUNDATION_PLATES__,
-    FOUNDATION_DYNAMICS as __FOUNDATION_DYNAMICS__,
-    FOUNDATION_SURFACE as __FOUNDATION_SURFACE__,
-    FOUNDATION_POLICY as __FOUNDATION_POLICY__,
-    FOUNDATION_DIAGNOSTICS as __FOUNDATION_DIAGNOSTICS__,
-    FOUNDATION_DIRECTIONALITY as __FOUNDATION_DIR__,
-    FOUNDATION_OCEAN_SEPARATION as __FOUNDATION_OSEPARATION__,
+  refresh as __refreshResolved__,
+  // group getters
+  TOGGLES as __TOGGLES__,
+  STORY as __STORY__,
+  MICROCLIMATE as __MICROCLIMATE__,
+  LANDMASS_CFG as __LANDMASS__,
+  COASTLINES_CFG as __COASTLINES__,
+  MARGINS_CFG as __MARGINS__,
+  ISLANDS_CFG as __ISLANDS__,
+  CLIMATE_CFG as __CLIMATE__,
+  MOUNTAINS_CFG as __MOUNTAINS__,
+  VOLCANOES_CFG as __VOLCANOES__,
+  BIOMES_CFG as __BIOMES__,
+  FEATURES_DENSITY_CFG as __FEATURES_DENSITY__,
+  CORRIDORS_CFG as __CORRIDORS__,
+  PLACEMENT_CFG as __PLACEMENT__,
+  DEV_LOG_CFG as __DEV__,
+  FOUNDATION_CFG as __FOUNDATION__,
+  STAGE_MANIFEST as __STAGE_MANIFEST__,
+  // foundation helpers
+  FOUNDATION_SEED as __FOUNDATION_SEED__,
+  FOUNDATION_PLATES as __FOUNDATION_PLATES__,
+  FOUNDATION_DYNAMICS as __FOUNDATION_DYNAMICS__,
+  FOUNDATION_SURFACE as __FOUNDATION_SURFACE__,
+  FOUNDATION_POLICY as __FOUNDATION_POLICY__,
+  FOUNDATION_DIAGNOSTICS as __FOUNDATION_DIAGNOSTICS__,
+  FOUNDATION_DIRECTIONALITY as __FOUNDATION_DIR__,
+  FOUNDATION_OCEAN_SEPARATION as __FOUNDATION_OSEPARATION__,
 } from "./resolved.js";
 /**
  * Type definitions for configuration objects (available at runtime).
@@ -96,12 +96,12 @@ import {
 const EMPTY_OBJECT = /** @type {Readonly<any>} */ (Object.freeze({}));
 const EMPTY_ARRAY = /** @type {ReadonlyArray<any>} */ (Object.freeze([]));
 const EMPTY_STAGE_ORDER = /** @type {ReadonlyArray<string>} */ (Object.freeze([]));
-const EMPTY_STAGE_MANIFEST = /** @type {StageManifestSnapshot} */ (Object.freeze({
+const EMPTY_STAGE_MANIFEST = /** @type {StageManifestSnapshot} */ (
+  Object.freeze({
     order: EMPTY_STAGE_ORDER,
-    stages: Object.freeze(
-        /** @type {Partial<Record<string, StageDescriptor>>} */ ({})
-    ),
-}));
+    stages: Object.freeze(/** @type {Partial<Record<string, StageDescriptor>>} */ ({})),
+  })
+);
 const EMPTY_CLIMATE_BASELINE = /** @type {Readonly<ClimateBaseline>} */ (Object.freeze({}));
 const EMPTY_CLIMATE_REFINE = /** @type {Readonly<ClimateRefine>} */ (Object.freeze({}));
 /* -----------------------------------------------------------------------------
@@ -115,11 +115,10 @@ export let STAGE_MANIFEST = EMPTY_STAGE_MANIFEST;
  * @returns {boolean}
  */
 export function stageEnabled(stage) {
-    if (!STAGE_MANIFEST || typeof STAGE_MANIFEST !== "object")
-        return false;
-    const stages = STAGE_MANIFEST.stages || {};
-    const entry = stages && stages[stage];
-    return !!(entry && entry.enabled !== false);
+  if (!STAGE_MANIFEST || typeof STAGE_MANIFEST !== "object") return false;
+  const stages = STAGE_MANIFEST.stages || {};
+  const entry = stages && stages[stage];
+  return !!(entry && entry.enabled !== false);
 }
 // Master toggles
 export let STORY_ENABLE_HOTSPOTS = true;
@@ -130,13 +129,13 @@ export let STORY_ENABLE_PALEO = true;
 export let STORY_ENABLE_CORRIDORS = true;
 // Merged story+micro tunables convenience view
 export let STORY_TUNABLES = Object.freeze({
-    hotspot: Object.freeze({}),
-    rift: Object.freeze({}),
-    orogeny: Object.freeze({}),
-    swatches: Object.freeze({}),
-    paleo: Object.freeze({}),
-    rainfall: Object.freeze({}),
-    features: Object.freeze({}),
+  hotspot: Object.freeze({}),
+  rift: Object.freeze({}),
+  orogeny: Object.freeze({}),
+  swatches: Object.freeze({}),
+  paleo: Object.freeze({}),
+  rainfall: Object.freeze({}),
+  features: Object.freeze({}),
 });
 // Group objects (treat as read‑only from callers)
 /** @type {Readonly<Landmass>} */
@@ -158,16 +157,16 @@ export let CLIMATE_CFG = Object.freeze({});
  * climate.moistureAdjustments — targeted adjustments used by layers and overlays.
  */
 export let CLIMATE = Object.freeze({
-    drivers: Object.freeze({
-        baseline: Object.freeze({}),
-        refine: Object.freeze({}),
-    }),
-    moistureAdjustments: Object.freeze({
-        baseline: Object.freeze({}),
-        refine: Object.freeze({}),
-        story: Object.freeze({}),
-        micro: Object.freeze({}),
-    }),
+  drivers: Object.freeze({
+    baseline: Object.freeze({}),
+    refine: Object.freeze({}),
+  }),
+  moistureAdjustments: Object.freeze({
+    baseline: Object.freeze({}),
+    refine: Object.freeze({}),
+    story: Object.freeze({}),
+    micro: Object.freeze({}),
+  }),
 });
 export let CLIMATE_DRIVERS = CLIMATE.drivers;
 export let MOISTURE_ADJUSTMENTS = CLIMATE.moistureAdjustments;
@@ -177,13 +176,13 @@ export let FOUNDATION_CFG = Object.freeze({});
  * Consolidated view of the world foundation configuration (seed, plates, dynamics, surface, policy).
  */
 export let FOUNDATION = Object.freeze({
-    core: Object.freeze({}),
-    seed: Object.freeze({}),
-    plates: Object.freeze({}),
-    dynamics: Object.freeze({}),
-    surface: Object.freeze({}),
-    policy: Object.freeze({}),
-    diagnostics: Object.freeze({}),
+  core: Object.freeze({}),
+  seed: Object.freeze({}),
+  plates: Object.freeze({}),
+  dynamics: Object.freeze({}),
+  surface: Object.freeze({}),
+  policy: Object.freeze({}),
+  diagnostics: Object.freeze({}),
 });
 /** @type {Readonly<FoundationSeedConfig>} */
 export let FOUNDATION_SEED = Object.freeze({});
@@ -228,53 +227,53 @@ export let CORRIDOR_KINDS = Object.freeze({});
  * Uses getters so consumers always see the most recent rebind() snapshot.
  */
 export const CLIMATE_TUNABLES = Object.freeze({
-    get config() {
-        return CLIMATE_CFG;
-    },
-    get snapshot() {
-        return CLIMATE;
-    },
-    get drivers() {
-        return CLIMATE_DRIVERS;
-    },
-    get moistureAdjustments() {
-        return MOISTURE_ADJUSTMENTS;
-    },
+  get config() {
+    return CLIMATE_CFG;
+  },
+  get snapshot() {
+    return CLIMATE;
+  },
+  get drivers() {
+    return CLIMATE_DRIVERS;
+  },
+  get moistureAdjustments() {
+    return MOISTURE_ADJUSTMENTS;
+  },
 });
 /**
  * Focused accessor bundle for foundation/world settings.
  */
 export const FOUNDATION_TUNABLES = Object.freeze({
-    get config() {
-        return FOUNDATION_CFG;
-    },
-    get snapshot() {
-        return FOUNDATION;
-    },
-    get seed() {
-        return FOUNDATION_SEED;
-    },
-    get plates() {
-        return FOUNDATION_PLATES;
-    },
-    get dynamics() {
-        return FOUNDATION_DYNAMICS;
-    },
-    get surface() {
-        return FOUNDATION_SURFACE;
-    },
-    get policy() {
-        return FOUNDATION_POLICY;
-    },
-    get diagnostics() {
-        return FOUNDATION_DIAGNOSTICS;
-    },
-    get directionality() {
-        return FOUNDATION_DIRECTIONALITY;
-    },
-    get oceanSeparation() {
-        return FOUNDATION_OCEAN_SEPARATION;
-    },
+  get config() {
+    return FOUNDATION_CFG;
+  },
+  get snapshot() {
+    return FOUNDATION;
+  },
+  get seed() {
+    return FOUNDATION_SEED;
+  },
+  get plates() {
+    return FOUNDATION_PLATES;
+  },
+  get dynamics() {
+    return FOUNDATION_DYNAMICS;
+  },
+  get surface() {
+    return FOUNDATION_SURFACE;
+  },
+  get policy() {
+    return FOUNDATION_POLICY;
+  },
+  get diagnostics() {
+    return FOUNDATION_DIAGNOSTICS;
+  },
+  get directionality() {
+    return FOUNDATION_DIRECTIONALITY;
+  },
+  get oceanSeparation() {
+    return FOUNDATION_OCEAN_SEPARATION;
+  },
 });
 /* -----------------------------------------------------------------------------
  * Rebind implementation
@@ -284,155 +283,158 @@ export const FOUNDATION_TUNABLES = Object.freeze({
  * Call this at the start of a generation (or whenever the active entry changes).
  */
 export function rebind() {
-    // 1) Resolve the current snapshot from defaults + presets + per-entry overrides
-    __refreshResolved__();
-    STAGE_MANIFEST = coerceStageManifest(__STAGE_MANIFEST__());
-    const manifestToggleMap = deriveManifestToggleMap(STAGE_MANIFEST);
-    const resolvedToggleSnapshot = /** @type {Readonly<Record<string, unknown>>} */ (safeObj(__TOGGLES__()));
-    /**
-     * Resolve a toggle key using manifest overrides, then runtime toggles.
-     * @param {string} key
-     * @param {boolean} fallback
-     * @returns {boolean}
-     */
-    const toggleValue = (key, fallback) => {
-        if (Object.prototype.hasOwnProperty.call(manifestToggleMap, key))
-            return manifestToggleMap[key];
-        const raw = resolvedToggleSnapshot[key];
-        return typeof raw === "boolean" ? raw : fallback;
-    };
-    // 2) Toggles
-    STORY_ENABLE_HOTSPOTS = toggleValue("STORY_ENABLE_HOTSPOTS", true);
-    STORY_ENABLE_RIFTS = toggleValue("STORY_ENABLE_RIFTS", true);
-    STORY_ENABLE_OROGENY = toggleValue("STORY_ENABLE_OROGENY", true);
-    STORY_ENABLE_SWATCHES = toggleValue("STORY_ENABLE_SWATCHES", true);
-    STORY_ENABLE_PALEO = toggleValue("STORY_ENABLE_PALEO", true);
-    STORY_ENABLE_CORRIDORS = toggleValue("STORY_ENABLE_CORRIDORS", true);
-    // 3) Story+Micro merged convenience
-    const S = safeObj(__STORY__());
-    const M = safeObj(__MICROCLIMATE__());
-    STORY_TUNABLES = Object.freeze({
-        hotspot: safeObj(S.hotspot),
-        rift: safeObj(S.rift),
-        orogeny: safeObj(S.orogeny),
-        swatches: safeObj(S.swatches),
-        paleo: safeObj(S.paleo),
-        rainfall: safeObj(M.rainfall),
-        features: safeObj(M.features),
-    });
-    // 4) Groups
-    LANDMASS_CFG = safeObj(__LANDMASS__());
-    LANDMASS_GEOMETRY = safeObj(LANDMASS_CFG.geometry);
-    COASTLINES_CFG = safeObj(__COASTLINES__());
-    MARGINS_CFG = safeObj(__MARGINS__());
-    ISLANDS_CFG = safeObj(__ISLANDS__());
-    CLIMATE_CFG = safeObj(__CLIMATE__());
-    const climateBaselineRaw = safeObj(CLIMATE_CFG.baseline, EMPTY_CLIMATE_BASELINE);
-    const climateRefineRaw = safeObj(CLIMATE_CFG.refine, EMPTY_CLIMATE_REFINE);
-    const climateSwatches = safeObj(CLIMATE_CFG.swatches);
-    const climateBaseline = Object.keys(climateBaselineRaw).length > 0 ? climateBaselineRaw : EMPTY_CLIMATE_BASELINE;
-    const climateRefine = Object.keys(climateRefineRaw).length > 0 ? climateRefineRaw : EMPTY_CLIMATE_REFINE;
-    MOUNTAINS_CFG = safeObj(__MOUNTAINS__());
-    VOLCANOES_CFG = safeObj(__VOLCANOES__());
-    BIOMES_CFG = safeObj(__BIOMES__());
-    FEATURES_DENSITY_CFG = safeObj(__FEATURES_DENSITY__());
-    CORRIDORS_CFG = safeObj(__CORRIDORS__());
-    PLACEMENT_CFG = safeObj(__PLACEMENT__());
-    DEV_LOG_CFG = safeObj(__DEV__());
-    // 5) Foundation config (new unified world settings)
-    FOUNDATION_CFG = safeObj(__FOUNDATION__());
-    FOUNDATION_SEED = safeObj(__FOUNDATION_SEED__());
-    FOUNDATION_PLATES = safeObj(__FOUNDATION_PLATES__());
-    FOUNDATION_DYNAMICS = safeObj(__FOUNDATION_DYNAMICS__());
-    const foundationDirResolved = safeObj(__FOUNDATION_DIR__());
-    const foundationSurfaceRaw = safeObj(__FOUNDATION_SURFACE__());
-    FOUNDATION_SURFACE = foundationSurfaceRaw;
-    const foundationPolicyRaw = safeObj(__FOUNDATION_POLICY__());
-    FOUNDATION_POLICY = foundationPolicyRaw;
-    FOUNDATION_DIAGNOSTICS = safeObj(__FOUNDATION_DIAGNOSTICS__());
-    const foundationDirectionalityFromDynamics = safeObj(FOUNDATION_DYNAMICS.directionality);
-    FOUNDATION_DIRECTIONALITY =
-        Object.keys(foundationDirectionalityFromDynamics).length > 0
-            ? foundationDirectionalityFromDynamics
-            : foundationDirResolved;
-    const foundationSurfaceOcean = safeObj(foundationSurfaceRaw.oceanSeparation);
-    const foundationPolicyOcean = safeObj(foundationPolicyRaw.oceanSeparation);
-    const foundationOceanResolved = safeObj(__FOUNDATION_OSEPARATION__());
-    FOUNDATION_OCEAN_SEPARATION =
-        Object.keys(foundationSurfaceOcean).length > 0
-            ? foundationSurfaceOcean
-            : Object.keys(foundationPolicyOcean).length > 0
-                ? foundationPolicyOcean
-                : foundationOceanResolved;
-    FOUNDATION = Object.freeze({
-        core: FOUNDATION_CFG,
-        seed: FOUNDATION_SEED,
-        plates: FOUNDATION_PLATES,
-        dynamics: FOUNDATION_DYNAMICS,
-        surface: FOUNDATION_SURFACE,
-        policy: FOUNDATION_POLICY,
-        diagnostics: FOUNDATION_DIAGNOSTICS,
-    });
-    // Corridor sub-groups
-    CORRIDOR_POLICY = safeObj(CORRIDORS_CFG.policy);
-    CORRIDOR_KINDS = safeObj(CORRIDORS_CFG.kinds);
-    // 7) Climate primitives (drivers + shared adjustments)
-    const baselineDrivers = Object.freeze({
-        bands: safeObj(climateBaseline.bands),
-        blend: safeObj(climateBaseline.blend),
-    });
-    const refineDrivers = Object.freeze({
-        waterGradient: safeObj(climateRefine.waterGradient),
-        orographic: safeObj(climateRefine.orographic),
-        riverCorridor: safeObj(climateRefine.riverCorridor),
-        lowBasin: safeObj(climateRefine.lowBasin),
-        pressure: safeObj(climateRefine.pressure),
-    });
-    const storyMoisture = Object.freeze({
-        swatches: Object.keys(climateSwatches).length > 0 ? climateSwatches : safeObj(S.swatches),
-        paleo: safeObj(S.paleo),
-        rainfall: safeObj(M.rainfall),
-        orogeny: safeObj(S.orogeny),
-    });
-    const baselineMoisture = Object.freeze({
-        orographic: safeObj(climateBaseline.orographic),
-        coastal: safeObj(climateBaseline.coastal),
-        noise: safeObj(climateBaseline.noise),
-        bands: baselineDrivers.bands,
-        blend: baselineDrivers.blend,
-    });
-    const refineMoisture = Object.freeze({
-        waterGradient: refineDrivers.waterGradient,
-        orographic: refineDrivers.orographic,
-        riverCorridor: refineDrivers.riverCorridor,
-        lowBasin: refineDrivers.lowBasin,
-        pressure: refineDrivers.pressure,
-    });
-    const microMoisture = Object.freeze({
-        rainfall: safeObj(M.rainfall),
-        features: safeObj(M.features),
-    });
-    CLIMATE = Object.freeze({
-        drivers: Object.freeze({
-            baseline: Object.freeze({
-                ...baselineDrivers,
-                orographic: baselineMoisture.orographic,
-                coastal: baselineMoisture.coastal,
-                noise: baselineMoisture.noise,
-            }),
-            refine: Object.freeze({
-                ...refineDrivers,
-            }),
-        }),
-        moistureAdjustments: Object.freeze({
-            baseline: baselineMoisture,
-            refine: refineMoisture,
-            story: storyMoisture,
-            micro: microMoisture,
-        }),
-    });
-    CLIMATE_DRIVERS = CLIMATE.drivers;
-    MOISTURE_ADJUSTMENTS = CLIMATE.moistureAdjustments;
+  // 1) Resolve the current snapshot from defaults + presets + per-entry overrides
+  __refreshResolved__();
+  STAGE_MANIFEST = coerceStageManifest(__STAGE_MANIFEST__());
+  const manifestToggleMap = deriveManifestToggleMap(STAGE_MANIFEST);
+  const resolvedToggleSnapshot = /** @type {Readonly<Record<string, unknown>>} */ (
+    safeObj(__TOGGLES__())
+  );
+  /**
+   * Resolve a toggle key using manifest overrides, then runtime toggles.
+   * @param {string} key
+   * @param {boolean} fallback
+   * @returns {boolean}
+   */
+  const toggleValue = (key, fallback) => {
+    if (Object.prototype.hasOwnProperty.call(manifestToggleMap, key)) return manifestToggleMap[key];
+    const raw = resolvedToggleSnapshot[key];
+    return typeof raw === "boolean" ? raw : fallback;
+  };
+  // 2) Toggles
+  STORY_ENABLE_HOTSPOTS = toggleValue("STORY_ENABLE_HOTSPOTS", true);
+  STORY_ENABLE_RIFTS = toggleValue("STORY_ENABLE_RIFTS", true);
+  STORY_ENABLE_OROGENY = toggleValue("STORY_ENABLE_OROGENY", true);
+  STORY_ENABLE_SWATCHES = toggleValue("STORY_ENABLE_SWATCHES", true);
+  STORY_ENABLE_PALEO = toggleValue("STORY_ENABLE_PALEO", true);
+  STORY_ENABLE_CORRIDORS = toggleValue("STORY_ENABLE_CORRIDORS", true);
+  // 3) Story+Micro merged convenience
+  const S = safeObj(__STORY__());
+  const M = safeObj(__MICROCLIMATE__());
+  STORY_TUNABLES = Object.freeze({
+    hotspot: safeObj(S.hotspot),
+    rift: safeObj(S.rift),
+    orogeny: safeObj(S.orogeny),
+    swatches: safeObj(S.swatches),
+    paleo: safeObj(S.paleo),
+    rainfall: safeObj(M.rainfall),
+    features: safeObj(M.features),
+  });
+  // 4) Groups
+  LANDMASS_CFG = safeObj(__LANDMASS__());
+  LANDMASS_GEOMETRY = safeObj(LANDMASS_CFG.geometry);
+  COASTLINES_CFG = safeObj(__COASTLINES__());
+  MARGINS_CFG = safeObj(__MARGINS__());
+  ISLANDS_CFG = safeObj(__ISLANDS__());
+  CLIMATE_CFG = safeObj(__CLIMATE__());
+  const climateBaselineRaw = safeObj(CLIMATE_CFG.baseline, EMPTY_CLIMATE_BASELINE);
+  const climateRefineRaw = safeObj(CLIMATE_CFG.refine, EMPTY_CLIMATE_REFINE);
+  const climateSwatches = safeObj(CLIMATE_CFG.swatches);
+  const climateBaseline =
+    Object.keys(climateBaselineRaw).length > 0 ? climateBaselineRaw : EMPTY_CLIMATE_BASELINE;
+  const climateRefine =
+    Object.keys(climateRefineRaw).length > 0 ? climateRefineRaw : EMPTY_CLIMATE_REFINE;
+  MOUNTAINS_CFG = safeObj(__MOUNTAINS__());
+  VOLCANOES_CFG = safeObj(__VOLCANOES__());
+  BIOMES_CFG = safeObj(__BIOMES__());
+  FEATURES_DENSITY_CFG = safeObj(__FEATURES_DENSITY__());
+  CORRIDORS_CFG = safeObj(__CORRIDORS__());
+  PLACEMENT_CFG = safeObj(__PLACEMENT__());
+  DEV_LOG_CFG = safeObj(__DEV__());
+  // 5) Foundation config (new unified world settings)
+  FOUNDATION_CFG = safeObj(__FOUNDATION__());
+  FOUNDATION_SEED = safeObj(__FOUNDATION_SEED__());
+  FOUNDATION_PLATES = safeObj(__FOUNDATION_PLATES__());
+  FOUNDATION_DYNAMICS = safeObj(__FOUNDATION_DYNAMICS__());
+  const foundationDirResolved = safeObj(__FOUNDATION_DIR__());
+  const foundationSurfaceRaw = safeObj(__FOUNDATION_SURFACE__());
+  FOUNDATION_SURFACE = foundationSurfaceRaw;
+  const foundationPolicyRaw = safeObj(__FOUNDATION_POLICY__());
+  FOUNDATION_POLICY = foundationPolicyRaw;
+  FOUNDATION_DIAGNOSTICS = safeObj(__FOUNDATION_DIAGNOSTICS__());
+  const foundationDirectionalityFromDynamics = safeObj(FOUNDATION_DYNAMICS.directionality);
+  FOUNDATION_DIRECTIONALITY =
+    Object.keys(foundationDirectionalityFromDynamics).length > 0
+      ? foundationDirectionalityFromDynamics
+      : foundationDirResolved;
+  const foundationSurfaceOcean = safeObj(foundationSurfaceRaw.oceanSeparation);
+  const foundationPolicyOcean = safeObj(foundationPolicyRaw.oceanSeparation);
+  const foundationOceanResolved = safeObj(__FOUNDATION_OSEPARATION__());
+  FOUNDATION_OCEAN_SEPARATION =
+    Object.keys(foundationSurfaceOcean).length > 0
+      ? foundationSurfaceOcean
+      : Object.keys(foundationPolicyOcean).length > 0
+        ? foundationPolicyOcean
+        : foundationOceanResolved;
+  FOUNDATION = Object.freeze({
+    core: FOUNDATION_CFG,
+    seed: FOUNDATION_SEED,
+    plates: FOUNDATION_PLATES,
+    dynamics: FOUNDATION_DYNAMICS,
+    surface: FOUNDATION_SURFACE,
+    policy: FOUNDATION_POLICY,
+    diagnostics: FOUNDATION_DIAGNOSTICS,
+  });
+  // Corridor sub-groups
+  CORRIDOR_POLICY = safeObj(CORRIDORS_CFG.policy);
+  CORRIDOR_KINDS = safeObj(CORRIDORS_CFG.kinds);
+  // 7) Climate primitives (drivers + shared adjustments)
+  const baselineDrivers = Object.freeze({
+    bands: safeObj(climateBaseline.bands),
+    blend: safeObj(climateBaseline.blend),
+  });
+  const refineDrivers = Object.freeze({
+    waterGradient: safeObj(climateRefine.waterGradient),
+    orographic: safeObj(climateRefine.orographic),
+    riverCorridor: safeObj(climateRefine.riverCorridor),
+    lowBasin: safeObj(climateRefine.lowBasin),
+    pressure: safeObj(climateRefine.pressure),
+  });
+  const storyMoisture = Object.freeze({
+    swatches: Object.keys(climateSwatches).length > 0 ? climateSwatches : safeObj(S.swatches),
+    paleo: safeObj(S.paleo),
+    rainfall: safeObj(M.rainfall),
+    orogeny: safeObj(S.orogeny),
+  });
+  const baselineMoisture = Object.freeze({
+    orographic: safeObj(climateBaseline.orographic),
+    coastal: safeObj(climateBaseline.coastal),
+    noise: safeObj(climateBaseline.noise),
+    bands: baselineDrivers.bands,
+    blend: baselineDrivers.blend,
+  });
+  const refineMoisture = Object.freeze({
+    waterGradient: refineDrivers.waterGradient,
+    orographic: refineDrivers.orographic,
+    riverCorridor: refineDrivers.riverCorridor,
+    lowBasin: refineDrivers.lowBasin,
+    pressure: refineDrivers.pressure,
+  });
+  const microMoisture = Object.freeze({
+    rainfall: safeObj(M.rainfall),
+    features: safeObj(M.features),
+  });
+  CLIMATE = Object.freeze({
+    drivers: Object.freeze({
+      baseline: Object.freeze({
+        ...baselineDrivers,
+        orographic: baselineMoisture.orographic,
+        coastal: baselineMoisture.coastal,
+        noise: baselineMoisture.noise,
+      }),
+      refine: Object.freeze({
+        ...refineDrivers,
+      }),
+    }),
+    moistureAdjustments: Object.freeze({
+      baseline: baselineMoisture,
+      refine: refineMoisture,
+      story: storyMoisture,
+      micro: microMoisture,
+    }),
+  });
+  CLIMATE_DRIVERS = CLIMATE.drivers;
+  MOISTURE_ADJUSTMENTS = CLIMATE.moistureAdjustments;
 }
 /* -----------------------------------------------------------------------------
  * Helpers
@@ -443,35 +445,35 @@ export function rebind() {
  * @returns {StageManifestSnapshot}
  */
 function coerceStageManifest(manifest) {
-    if (!manifest || typeof manifest !== "object")
-        return EMPTY_STAGE_MANIFEST;
-    const rawOrder = Array.isArray(manifest.order) ? manifest.order : EMPTY_ARRAY;
-    /** @type {Array<string>} */
-    const order = [];
-    for (const entry of rawOrder) {
-        if (typeof entry === "string")
-            order.push(entry);
-    }
-    const rawStages = manifest.stages && typeof manifest.stages === "object"
-        ? /** @type {Record<string, any>} */ (manifest.stages)
-        : {};
-    /** @type {Partial<Record<string, StageDescriptor>>} */
-    const normalizedStages = {};
-    for (const name of Object.keys(rawStages)) {
-        const descriptor = rawStages[name];
-        if (!descriptor || typeof descriptor !== "object")
-            continue;
-        normalizedStages[name] = /** @type {StageDescriptor} */ (Object.isFrozen(descriptor)
-            ? descriptor
-            : Object.freeze({ ...descriptor }));
-    }
-    if (!order.length && !Object.keys(normalizedStages).length) {
-        return EMPTY_STAGE_MANIFEST;
-    }
-    return /** @type {StageManifestSnapshot} */ (Object.freeze({
-        order: /** @type {ReadonlyArray<string>} */ (Object.freeze(order)),
-        stages: Object.freeze(normalizedStages),
-    }));
+  if (!manifest || typeof manifest !== "object") return EMPTY_STAGE_MANIFEST;
+  const rawOrder = Array.isArray(manifest.order) ? manifest.order : EMPTY_ARRAY;
+  /** @type {Array<string>} */
+  const order = [];
+  for (const entry of rawOrder) {
+    if (typeof entry === "string") order.push(entry);
+  }
+  const rawStages =
+    manifest.stages && typeof manifest.stages === "object"
+      ? /** @type {Record<string, any>} */ (manifest.stages)
+      : {};
+  /** @type {Partial<Record<string, StageDescriptor>>} */
+  const normalizedStages = {};
+  for (const name of Object.keys(rawStages)) {
+    const descriptor = rawStages[name];
+    if (!descriptor || typeof descriptor !== "object") continue;
+    normalizedStages[name] = /** @type {StageDescriptor} */ (
+      Object.isFrozen(descriptor) ? descriptor : Object.freeze({ ...descriptor })
+    );
+  }
+  if (!order.length && !Object.keys(normalizedStages).length) {
+    return EMPTY_STAGE_MANIFEST;
+  }
+  return /** @type {StageManifestSnapshot} */ (
+    Object.freeze({
+      order: /** @type {ReadonlyArray<string>} */ (Object.freeze(order)),
+      stages: Object.freeze(normalizedStages),
+    })
+  );
 }
 /**
  * Build a lookup of legacy toggle keys derived from the stage manifest.
@@ -479,39 +481,33 @@ function coerceStageManifest(manifest) {
  * @returns {Record<string, boolean>}
  */
 function deriveManifestToggleMap(manifest) {
-    /** @type {Record<string, boolean>} */
-    const out = {};
-    if (!manifest || typeof manifest !== "object")
-        return out;
-    const stages = manifest?.stages
-        ? /** @type {Partial<Record<string, StageDescriptor>>} */ (manifest.stages)
-        : {};
-    const order = manifest?.order && manifest.order.length > 0
-        ? Array.from(manifest.order)
-        : Object.keys(stages);
-    for (const name of order) {
-        const stage = stages && stages[name];
-        if (!stage)
-            continue;
-        const toggles = Array.isArray(stage.legacyToggles) ? stage.legacyToggles : [];
-        for (const key of toggles) {
-            if (typeof key !== "string")
-                continue;
-            out[key] = stage.enabled !== false;
-        }
+  /** @type {Record<string, boolean>} */
+  const out = {};
+  if (!manifest || typeof manifest !== "object") return out;
+  const stages = manifest?.stages
+    ? /** @type {Partial<Record<string, StageDescriptor>>} */ (manifest.stages)
+    : {};
+  const order =
+    manifest?.order && manifest.order.length > 0 ? Array.from(manifest.order) : Object.keys(stages);
+  for (const name of order) {
+    const stage = stages && stages[name];
+    if (!stage) continue;
+    const toggles = Array.isArray(stage.legacyToggles) ? stage.legacyToggles : [];
+    for (const key of toggles) {
+      if (typeof key !== "string") continue;
+      out[key] = stage.enabled !== false;
     }
-    for (const name of Object.keys(stages)) {
-        const stage = stages[name];
-        if (!stage)
-            continue;
-        const toggles = Array.isArray(stage.legacyToggles) ? stage.legacyToggles : [];
-        for (const key of toggles) {
-            if (typeof key !== "string" || Object.prototype.hasOwnProperty.call(out, key))
-                continue;
-            out[key] = stage.enabled !== false;
-        }
+  }
+  for (const name of Object.keys(stages)) {
+    const stage = stages[name];
+    if (!stage) continue;
+    const toggles = Array.isArray(stage.legacyToggles) ? stage.legacyToggles : [];
+    for (const key of toggles) {
+      if (typeof key !== "string" || Object.prototype.hasOwnProperty.call(out, key)) continue;
+      out[key] = stage.enabled !== false;
     }
-    return out;
+  }
+  return out;
 }
 /**
  * Ensure we always return a frozen object of the expected shape for TS consumers.
@@ -522,18 +518,16 @@ function deriveManifestToggleMap(manifest) {
  * @returns {Readonly<T>}
  */
 function safeObj(value, fallback) {
-    if (!value || typeof value !== "object") {
-        if (fallback)
-            return fallback;
-        return /** @type {Readonly<T>} */ (EMPTY_OBJECT);
-    }
-    if (Object.isFrozen(value))
-        return /** @type {Readonly<T>} */ (value);
-    if (Array.isArray(value)) {
-        const clone = value.slice();
-        return /** @type {Readonly<T>} */ (/** @type {unknown} */ (Object.freeze(clone)));
-    }
-    return /** @type {Readonly<T>} */ (Object.freeze({ ...value }));
+  if (!value || typeof value !== "object") {
+    if (fallback) return fallback;
+    return /** @type {Readonly<T>} */ (EMPTY_OBJECT);
+  }
+  if (Object.isFrozen(value)) return /** @type {Readonly<T>} */ (value);
+  if (Array.isArray(value)) {
+    const clone = value.slice();
+    return /** @type {Readonly<T>} */ (/** @type {unknown} */ (Object.freeze(clone)));
+  }
+  return /** @type {Readonly<T>} */ (Object.freeze({ ...value }));
 }
 /* -----------------------------------------------------------------------------
  * Module-load bootstrap
@@ -542,25 +536,24 @@ function safeObj(value, fallback) {
 // Callers should still rebind() at the start of each GenerateMap to ensure the
 // snapshot reflects the active entry’s presets and overrides.
 try {
-    rebind();
-}
-catch {
-    // Keep imports resilient even if resolution fails very early in a cold VM.
-    // Bindings already hold conservative defaults above.
+  rebind();
+} catch {
+  // Keep imports resilient even if resolution fails very early in a cold VM.
+  // Bindings already hold conservative defaults above.
 }
 export default {
-    rebind,
-    // expose current group snapshots (optional convenience mirror)
-    get LANDMASS() {
-        return LANDMASS_CFG;
-    },
-    get CORRIDORS() {
-        return CORRIDORS_CFG;
-    },
-    get FOUNDATION() {
-        return FOUNDATION;
-    },
-    get CLIMATE() {
-        return CLIMATE;
-    },
+  rebind,
+  // expose current group snapshots (optional convenience mirror)
+  get LANDMASS() {
+    return LANDMASS_CFG;
+  },
+  get CORRIDORS() {
+    return CORRIDORS_CFG;
+  },
+  get FOUNDATION() {
+    return FOUNDATION;
+  },
+  get CLIMATE() {
+    return CLIMATE;
+  },
 };

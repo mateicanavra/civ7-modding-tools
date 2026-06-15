@@ -62,16 +62,22 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
     const size = Math.max(0, width * height);
 
     if (!(input.riverClass instanceof Uint8Array)) {
-      throw new Error("[Hydrology] Invalid riverClass for hydrology/select-navigable-river-terrain.");
+      throw new Error(
+        "[Hydrology] Invalid riverClass for hydrology/select-navigable-river-terrain."
+      );
     }
     if (!(input.discharge instanceof Float32Array)) {
-      throw new Error("[Hydrology] Invalid discharge for hydrology/select-navigable-river-terrain.");
+      throw new Error(
+        "[Hydrology] Invalid discharge for hydrology/select-navigable-river-terrain."
+      );
     }
     if (!(input.flowDir instanceof Int32Array)) {
       throw new Error("[Hydrology] Invalid flowDir for hydrology/select-navigable-river-terrain.");
     }
     if (!(input.mouthType instanceof Uint8Array)) {
-      throw new Error("[Hydrology] Invalid mouthType for hydrology/select-navigable-river-terrain.");
+      throw new Error(
+        "[Hydrology] Invalid mouthType for hydrology/select-navigable-river-terrain."
+      );
     }
     if (!(input.lakeMask instanceof Uint8Array)) {
       throw new Error("[Hydrology] Invalid lakeMask for hydrology/select-navigable-river-terrain.");
@@ -122,8 +128,13 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
     const riverMask = new Uint8Array(size);
     const targetMajorTileFraction = clamp01(config.targetMajorTileFraction);
     const targetTileCount =
-      eligibleTileCount === 0 ? 0 : Math.max(1, Math.round(eligibleTileCount * targetMajorTileFraction));
-    const nonProjectableMajorTileCount = Math.max(0, plannedMajorRiverTileCount - eligibleTileCount);
+      eligibleTileCount === 0
+        ? 0
+        : Math.max(1, Math.round(eligibleTileCount * targetMajorTileFraction));
+    const nonProjectableMajorTileCount = Math.max(
+      0,
+      plannedMajorRiverTileCount - eligibleTileCount
+    );
 
     if (eligibleTileCount === 0 || targetTileCount === 0) {
       return {
@@ -182,12 +193,7 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
       const chain: number[] = [];
       const seen = new Set<number>();
       let current = endpoint;
-      while (
-        current >= 0 &&
-        current < size &&
-        corridorMask[current] === 1 &&
-        !seen.has(current)
-      ) {
+      while (current >= 0 && current < size && corridorMask[current] === 1 && !seen.has(current)) {
         seen.add(current);
         if (eligible[current] === 1) {
           if (riverMask[current] === 1) break;
@@ -217,7 +223,8 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
     const meanSelectedChainLength =
       selectedChainLengths.length === 0
         ? 0
-        : selectedChainLengths.reduce((sum, length) => sum + length, 0) / selectedChainLengths.length;
+        : selectedChainLengths.reduce((sum, length) => sum + length, 0) /
+          selectedChainLengths.length;
 
     return {
       riverMask,

@@ -1,5 +1,5 @@
-import { ingestVizEvent } from "./ingest";
 import type { VizEvent } from "../../shared/vizEvents";
+import { ingestVizEvent } from "./ingest";
 import type { VizManifestV1 } from "./model";
 
 export type VizStoreSnapshot = Readonly<{
@@ -20,7 +20,6 @@ export type VizStore = {
   setSelectedLayerKey(next: string | null): void;
   setShowDebugLayers(next: boolean): void;
 };
-
 
 export function createVizStore(): VizStore {
   const listeners = new Set<() => void>();
@@ -125,11 +124,13 @@ export function createVizStore(): VizStore {
     }
 
     if (event.type === "viz.layer.upsert") {
-      const currentStep = pendingSelectedStepId !== undefined ? pendingSelectedStepId : selectedStepId;
+      const currentStep =
+        pendingSelectedStepId !== undefined ? pendingSelectedStepId : selectedStepId;
       const desiredStep = currentStep ?? event.layer.stepId;
       if (!currentStep) pendingSelectedStepId = desiredStep;
 
-      const currentLayer = pendingSelectedLayerKey !== undefined ? pendingSelectedLayerKey : selectedLayerKey;
+      const currentLayer =
+        pendingSelectedLayerKey !== undefined ? pendingSelectedLayerKey : selectedLayerKey;
       if (!currentLayer && event.layer.stepId === desiredStep) {
         pendingSelectedLayerKey = event.layer.layerKey;
       }

@@ -1,10 +1,10 @@
-import type { NaturalWonderCatalogEntry } from "../types.js";
 import { CIV7_BROWSER_TABLES_V0 } from "../civ7-tables.gen.js";
 import {
   getNaturalWonderFootprintOffsets,
   hasUnsupportedNaturalWonderPolicyTags,
   resolveNaturalWonderPlacementDirection,
 } from "../natural-wonder-footprints.js";
+import type { NaturalWonderCatalogEntry } from "../types.js";
 
 /**
  * Generated natural-wonder catalog, const-backed to avoid runtime reads.
@@ -14,12 +14,13 @@ import {
 const { featureTypes } = CIV7_BROWSER_TABLES_V0;
 const featurePolicies = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
   string,
-  {
-    placementClass?: string;
-    naturalWonderDirection?: number;
-    naturalWonderTiles?: number;
-    naturalWonderPlaceFirst?: boolean;
-  } | undefined
+  | {
+      placementClass?: string;
+      naturalWonderDirection?: number;
+      naturalWonderTiles?: number;
+      naturalWonderPlaceFirst?: boolean;
+    }
+  | undefined
 >;
 const featureTags = CIV7_BROWSER_TABLES_V0.featureTagsByFeatureType as Record<
   string,
@@ -47,5 +48,6 @@ const NATURAL_WONDER_CANDIDATES: NaturalWonderCatalogEntry[] = Object.values(fea
   }))
   .sort((a, b) => a.featureType - b.featureType);
 
-export const NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] =
-  NATURAL_WONDER_CANDIDATES.filter((entry) => isSupportedNaturalWonder(entry.featureType));
+export const NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = NATURAL_WONDER_CANDIDATES.filter(
+  (entry) => isSupportedNaturalWonder(entry.featureType)
+);

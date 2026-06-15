@@ -1,38 +1,44 @@
-import { Type, type Static } from "typebox";
-
+import { type Static, Type } from "typebox";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { assertCiv7ComponentId, Civ7ComponentIdSchema } from "../../civ7-component-id.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7TunerState,
+} from "../../session/types.js";
 import { notificationDismissalSource } from "./dismissal.js";
+import type { Civ7NotificationDismissalPostcondition } from "./postconditions.js";
 import {
   Civ7NotificationDismissalPostconditionSchema,
   Civ7NotificationDismissalSummarySchema,
   notificationDismissalPostcondition,
 } from "./postconditions.js";
 import { waitForCiv7NotificationDismissal } from "./verification.js";
-import { jsLiteral } from "../../runtime/command-serialization.js";
-import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
-import { executeCiv7AppUiCommand } from "../../session/execute.js";
-
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
-import type { Civ7NotificationDismissalPostcondition } from "./postconditions.js";
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-  Civ7TunerState,
-} from "../../session/types.js";
 
 export type Civ7NotificationDismissInput = Readonly<{
   notificationId: Civ7ComponentId;
 }>;
 
-export const Civ7NotificationDismissInputSchema = Type.Object({
-  notificationId: Civ7ComponentIdSchema,
-}, { additionalProperties: false });
+export const Civ7NotificationDismissInputSchema = Type.Object(
+  {
+    notificationId: Civ7ComponentIdSchema,
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7NotificationDismissRequestInputSchema = Type.Object({
-  notificationId: Civ7ComponentIdSchema,
-}, { additionalProperties: false });
-export type Civ7NotificationDismissRequestInput = Readonly<Static<typeof Civ7NotificationDismissRequestInputSchema>>;
+export const Civ7NotificationDismissRequestInputSchema = Type.Object(
+  {
+    notificationId: Civ7ComponentIdSchema,
+  },
+  { additionalProperties: false }
+);
+export type Civ7NotificationDismissRequestInput = Readonly<
+  Static<typeof Civ7NotificationDismissRequestInputSchema>
+>;
 
 export type Civ7NotificationDismissalSummary = Readonly<{
   id: Civ7ComponentId | null;
@@ -76,37 +82,43 @@ export type Civ7NotificationDismissalResult = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7NotificationDismissalResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  notificationId: Civ7ComponentIdSchema,
-  before: Civ7NotificationDismissalSummarySchema,
-  after: Type.Union([Civ7NotificationDismissalSummarySchema, Type.Null()]),
-  canDismiss: Type.Boolean(),
-  sent: Type.Boolean(),
-  result: Type.Unknown(),
-  closeoutPath: Type.Optional(Type.Union([Type.String(), Type.Null()])),
-  verificationAttempts: Type.Optional(Type.Array(Civ7NotificationDismissalSummarySchema)),
-  verified: Type.Boolean(),
-  postcondition: Civ7NotificationDismissalPostconditionSchema,
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7NotificationDismissalResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    notificationId: Civ7ComponentIdSchema,
+    before: Civ7NotificationDismissalSummarySchema,
+    after: Type.Union([Civ7NotificationDismissalSummarySchema, Type.Null()]),
+    canDismiss: Type.Boolean(),
+    sent: Type.Boolean(),
+    result: Type.Unknown(),
+    closeoutPath: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+    verificationAttempts: Type.Optional(Type.Array(Civ7NotificationDismissalSummarySchema)),
+    verified: Type.Boolean(),
+    postcondition: Civ7NotificationDismissalPostconditionSchema,
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 
 type Civ7NotificationDismissalPayload = Omit<Civ7NotificationDismissalResult, "postcondition">;
 
 type NotificationDismissalRequestDependencies = Readonly<{
   executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
   parseNotificationDismissal: (
     result: Civ7CommandResult,
-    label: string,
+    label: string
   ) => Civ7NotificationDismissalPayload;
   jsLiteral: (value: unknown) => string;
 }>;
@@ -114,7 +126,7 @@ type NotificationDismissalRequestDependencies = Readonly<{
 export function buildNotificationDismissalCommand(
   input: Civ7NotificationDismissInput,
   options: { send: boolean; verificationAttempts?: number },
-  dependencies: Pick<NotificationDismissalRequestDependencies, "jsLiteral">,
+  dependencies: Pick<NotificationDismissalRequestDependencies, "jsLiteral">
 ): string {
   return `(() => {
     ${notificationDismissalSource()}
@@ -125,7 +137,7 @@ export function buildNotificationDismissalCommand(
 export async function getCiv7NotificationDismissal(
   input: Civ7NotificationDismissInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: NotificationDismissalRequestDependencies = defaultNotificationDismissalRequestDependencies,
+  dependencies: NotificationDismissalRequestDependencies = defaultNotificationDismissalRequestDependencies
 ): Promise<Civ7NotificationDismissalResult> {
   assertCiv7ComponentId(input.notificationId, "notificationId");
   const result = await dependencies.executeAppUiCommand({
@@ -133,35 +145,40 @@ export async function getCiv7NotificationDismissal(
     command: buildNotificationDismissalCommand(input, { send: false }, dependencies),
   });
   return withNotificationDismissalPostcondition(
-    dependencies.parseNotificationDismissal(result, "Civ7 notification dismissal"),
+    dependencies.parseNotificationDismissal(result, "Civ7 notification dismissal")
   );
 }
 
 export async function requestCiv7NotificationDismissal(
   input: Civ7NotificationDismissInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: NotificationDismissalRequestDependencies & Readonly<{
-  }> = defaultNotificationDismissalRequestDependencies,
+  dependencies: NotificationDismissalRequestDependencies &
+    Readonly<{}> = defaultNotificationDismissalRequestDependencies
 ): Promise<Civ7NotificationDismissalResult> {
   assertCiv7ComponentId(input.notificationId, "notificationId");
   const result = await dependencies.executeAppUiCommand({
     ...options,
-    command: buildNotificationDismissalCommand(input, { send: true, verificationAttempts: 1 }, dependencies),
+    command: buildNotificationDismissalCommand(
+      input,
+      { send: true, verificationAttempts: 1 },
+      dependencies
+    ),
   });
   const initial = withNotificationDismissalPostcondition(
-    dependencies.parseNotificationDismissal(result, "Civ7 notification dismissal"),
+    dependencies.parseNotificationDismissal(result, "Civ7 notification dismissal")
   );
   if (initial.verified || !initial.sent || initial.before.exists === false) return initial;
   return await waitForCiv7NotificationDismissal(
     input,
     options,
     initial,
-    async (nextInput, nextOptions) => await getCiv7NotificationDismissal(nextInput, nextOptions, dependencies),
+    async (nextInput, nextOptions) =>
+      await getCiv7NotificationDismissal(nextInput, nextOptions, dependencies)
   );
 }
 
-const defaultNotificationDismissalRequestDependencies: NotificationDismissalRequestDependencies & Readonly<{
-}> = {
+const defaultNotificationDismissalRequestDependencies: NotificationDismissalRequestDependencies &
+  Readonly<{}> = {
   executeAppUiCommand: executeCiv7AppUiCommand,
   jsLiteral,
   parseNotificationDismissal: (result, label) =>
@@ -169,7 +186,7 @@ const defaultNotificationDismissalRequestDependencies: NotificationDismissalRequ
 };
 
 function withNotificationDismissalPostcondition(
-  result: Civ7NotificationDismissalPayload,
+  result: Civ7NotificationDismissalPayload
 ): Civ7NotificationDismissalResult {
   return {
     ...result,

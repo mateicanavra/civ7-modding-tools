@@ -1,53 +1,53 @@
-import { describe, expect, test, vi } from 'vitest';
-import { once } from 'node:events';
-import { type AddressInfo, createServer } from 'node:net';
-import GameExec from '../../src/commands/game/exec';
-import GameHealth from '../../src/commands/game/health';
-import GameInspect from '../../src/commands/game/inspect';
-import GameStatus from '../../src/commands/game/status';
-import GameCatalog from '../../src/commands/game/catalog';
-import GameMap from '../../src/commands/game/map';
-import GameGameInfo from '../../src/commands/game/gameinfo';
-import GameMapVisibility from '../../src/commands/game/map/visibility';
-import GameAiLoadedLevers from '../../src/commands/game/ai/loaded-levers';
-import GameOperation from '../../src/commands/game/operation';
+import { once } from "node:events";
+import { type AddressInfo, createServer } from "node:net";
+import { describe, expect, test, vi } from "vitest";
+import GameAiLoadedLevers from "../../src/commands/game/ai/loaded-levers";
+import GameCatalog from "../../src/commands/game/catalog";
+import GameExec from "../../src/commands/game/exec";
+import GameGameInfo from "../../src/commands/game/gameinfo";
+import GameHealth from "../../src/commands/game/health";
+import GameInspect from "../../src/commands/game/inspect";
+import GameMap from "../../src/commands/game/map";
+import GameMapVisibility from "../../src/commands/game/map/visibility";
+import GameOperation from "../../src/commands/game/operation";
+import GameStatus from "../../src/commands/game/status";
 import {
-  debugServiceProjectionMissingPaths,
   type DebugServiceProjectionExpectation,
-} from '../../src/game-debug/debug-service-projection';
+  debugServiceProjectionMissingPaths,
+} from "../../src/game-debug/debug-service-projection";
 
-describe('game direct-control commands', () => {
-  test('runs arbitrary JavaScript through the direct socket boundary', async () => {
+describe("game direct-control commands", () => {
+  test("runs arbitrary JavaScript through the direct socket boundary", async () => {
     const server = await startTunerServer();
     try {
       const { port } = server.address();
-      await GameExec.run(['1+1', '--host', '127.0.0.1', '--port', String(port), '--json']);
+      await GameExec.run(["1+1", "--host", "127.0.0.1", "--port", String(port), "--json"]);
 
-      expect(server.received).toEqual(['LSQ:', 'CMD:65535:1+1']);
+      expect(server.received).toEqual(["LSQ:", "CMD:65535:1+1"]);
     } finally {
       await server.close();
     }
   });
 
-  test('prints exec dry-run request routing as debug projection', async () => {
+  test("prints exec dry-run request routing as debug projection", async () => {
     const writes: string[] = [];
-    const log = vi.spyOn(GameExec.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameExec.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       await GameExec.run([
-        'Network.restartGame()',
-        '--host',
-        '127.0.0.1',
-        '--port',
-        '4318',
-        '--state',
-        'App UI',
-        '--dry-run',
-        '--json',
+        "Network.restartGame()",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "4318",
+        "--state",
+        "App UI",
+        "--dry-run",
+        "--json",
       ]);
 
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         dryRun: true;
         request: {
@@ -61,35 +61,43 @@ describe('game direct-control commands', () => {
         ok: true,
         dryRun: true,
         request: {
-          command: 'Network.restartGame()',
-          hosts: ['127.0.0.1'],
+          command: "Network.restartGame()",
+          hosts: ["127.0.0.1"],
           port: 4318,
-          state: 'App UI',
+          state: "App UI",
         },
       });
       expectDebugProjectionFields(payload, [
-        { fieldClass: 'route-selection', path: ['request', 'command'] },
-        { fieldClass: 'transport-session-state', path: ['request', 'hosts'] },
-        { fieldClass: 'transport-session-state', path: ['request', 'port'] },
-        { fieldClass: 'transport-session-state', path: ['request', 'state'] },
+        { fieldClass: "route-selection", path: ["request", "command"] },
+        { fieldClass: "transport-session-state", path: ["request", "hosts"] },
+        { fieldClass: "transport-session-state", path: ["request", "port"] },
+        { fieldClass: "transport-session-state", path: ["request", "state"] },
       ]);
     } finally {
       log.mockRestore();
     }
   });
 
-  test('reports direct-control health and available states', async () => {
+  test("reports direct-control health and available states", async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GameHealth.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameHealth.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       const { port } = server.address();
-      await GameHealth.run(['--host', '127.0.0.1', '--port', String(port), '--state', 'App UI', '--json']);
+      await GameHealth.run([
+        "--host",
+        "127.0.0.1",
+        "--port",
+        String(port),
+        "--state",
+        "App UI",
+        "--json",
+      ]);
 
-      expect(server.received).toEqual(['LSQ:']);
-      const payload = JSON.parse(writes.join('')) as {
+      expect(server.received).toEqual(["LSQ:"]);
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         health: {
           ok: true;
@@ -103,20 +111,20 @@ describe('game direct-control commands', () => {
       expect(payload.ok).toBe(true);
       expect(payload.health).toMatchObject({
         ok: true,
-        status: 'ready',
-        host: '127.0.0.1',
+        status: "ready",
+        host: "127.0.0.1",
         port,
-        selectedState: { id: '65535', name: 'App UI' },
+        selectedState: { id: "65535", name: "App UI" },
       });
       expect(payload.health.states).toEqual([
-        { id: '65535', name: 'App UI' },
-        { id: '1', name: 'Tuner' },
+        { id: "65535", name: "App UI" },
+        { id: "1", name: "Tuner" },
       ]);
       expectDebugProjectionFields(payload, [
-        { fieldClass: 'transport-session-state', path: ['health', 'host'] },
-        { fieldClass: 'transport-session-state', path: ['health', 'port'] },
-        { fieldClass: 'transport-session-state', path: ['health', 'states'] },
-        { fieldClass: 'transport-session-state', path: ['health', 'selectedState'] },
+        { fieldClass: "transport-session-state", path: ["health", "host"] },
+        { fieldClass: "transport-session-state", path: ["health", "port"] },
+        { fieldClass: "transport-session-state", path: ["health", "states"] },
+        { fieldClass: "transport-session-state", path: ["health", "selectedState"] },
       ]);
     } finally {
       log.mockRestore();
@@ -124,37 +132,37 @@ describe('game direct-control commands', () => {
     }
   });
 
-  test('reports Tuner gameplay readiness', async () => {
+  test("reports Tuner gameplay readiness", async () => {
     const server = await startTunerServer();
     try {
       const { port } = server.address();
-      await GameHealth.run(['--host', '127.0.0.1', '--port', String(port), '--tuner', '--json']);
+      await GameHealth.run(["--host", "127.0.0.1", "--port", String(port), "--tuner", "--json"]);
 
-      expect(server.received).toEqual(['LSQ:', expect.stringContaining('CMD:1:(() =>')]);
+      expect(server.received).toEqual(["LSQ:", expect.stringContaining("CMD:1:(() =>")]);
     } finally {
       await server.close();
     }
   });
 
-  test('reports structured tuner socket diagnostics when disconnected', async () => {
+  test("reports structured tuner socket diagnostics when disconnected", async () => {
     const port = await findUnusedPort();
     const writes: string[] = [];
-    const log = vi.spyOn(GameHealth.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameHealth.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       await GameHealth.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--timeout-ms',
-        '200',
-        '--tuner',
-        '--json',
+        "--timeout-ms",
+        "200",
+        "--tuner",
+        "--json",
       ]);
 
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: boolean;
         health: {
           ready: boolean;
@@ -167,60 +175,62 @@ describe('game direct-control commands', () => {
       };
       expect(payload.ok).toBe(false);
       expect(payload.health.ready).toBe(false);
-      expect(payload.health.status).toBe('unavailable');
-      expect(payload.health.host).toBe('127.0.0.1');
+      expect(payload.health.status).toBe("unavailable");
+      expect(payload.health.host).toBe("127.0.0.1");
       expect(payload.health.port).toBe(port);
-      expect(payload.health.error.code).toBe('all-hosts-unavailable');
-      expect(payload.health.error.message).toContain('Unable to reach Civ7 tuner socket');
-      expect(payload.health.recoveryHints.join(' ')).toContain(`lsof -nP -iTCP:${port}`);
-      expect(payload.health.recoveryHints.join(' ')).toContain('CIV7_TUNER_HOST');
+      expect(payload.health.error.code).toBe("all-hosts-unavailable");
+      expect(payload.health.error.message).toContain("Unable to reach Civ7 tuner socket");
+      expect(payload.health.recoveryHints.join(" ")).toContain(`lsof -nP -iTCP:${port}`);
+      expect(payload.health.recoveryHints.join(" ")).toContain("CIV7_TUNER_HOST");
       expectDebugProjectionFields(payload, [
-        { fieldClass: 'transport-session-state', path: ['health', 'host'] },
-        { fieldClass: 'transport-session-state', path: ['health', 'port'] },
-        { fieldClass: 'correlation-diagnostic', path: ['health', 'error', 'code'] },
-        { fieldClass: 'correlation-diagnostic', path: ['health', 'recoveryHints'] },
+        { fieldClass: "transport-session-state", path: ["health", "host"] },
+        { fieldClass: "transport-session-state", path: ["health", "port"] },
+        { fieldClass: "correlation-diagnostic", path: ["health", "error", "code"] },
+        { fieldClass: "correlation-diagnostic", path: ["health", "recoveryHints"] },
       ]);
     } finally {
       log.mockRestore();
     }
   });
 
-  test('reports tuner socket unavailability in non-json output', async () => {
+  test("reports tuner socket unavailability in non-json output", async () => {
     const port = await findUnusedPort();
 
-    await expect(GameHealth.run([
-      '--host',
-      '127.0.0.1',
-      '--port',
-      String(port),
-      '--timeout-ms',
-      '200',
-      '--tuner',
-    ])).rejects.toThrow(/Civ7 tuner unavailable: Unable to reach Civ7 tuner socket/);
+    await expect(
+      GameHealth.run([
+        "--host",
+        "127.0.0.1",
+        "--port",
+        String(port),
+        "--timeout-ms",
+        "200",
+        "--tuner",
+      ])
+    ).rejects.toThrow(/Civ7 tuner unavailable: Unable to reach Civ7 tuner socket/);
   });
 
-  test('inspects runtime API roots in a selected state', async () => {
+  test("inspects runtime API roots in a selected state", async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GameInspect.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameInspect.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       const { port } = server.address();
       await GameInspect.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--state',
-        'App UI',
-        '--roots',
-        'Network',
-        '--json',
+        "--state",
+        "App UI",
+        "--roots",
+        "Network",
+        "--json",
       ]);
 
-      expect(server.received).toEqual(['LSQ:', expect.stringContaining('CMD:65535:(() =>')]);
-      const payload = JSON.parse(writes.join('')) as {
+      expect(server.received).toEqual(["LSQ:", expect.stringContaining("CMD:65535:(() =>")]);
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         inspection: {
           host: string;
@@ -241,34 +251,34 @@ describe('game direct-control commands', () => {
         };
       };
       expect(payload.inspection).toMatchObject({
-        host: '127.0.0.1',
+        host: "127.0.0.1",
         port,
-        state: { id: '65535', name: 'App UI' },
+        state: { id: "65535", name: "App UI" },
       });
       expect(payload.inspection.roots[0]).toMatchObject({
-        name: 'Network',
-        ownKeys: ['isInSession'],
-        prototypeKeys: ['restartGame'],
-        enumerableKeys: ['isInSession', 'restartGame'],
+        name: "Network",
+        ownKeys: ["isInSession"],
+        prototypeKeys: ["restartGame"],
+        enumerableKeys: ["isInSession", "restartGame"],
         methods: [
           {
-            name: 'restartGame',
-            owner: 'prototype',
+            name: "restartGame",
+            owner: "prototype",
             length: 0,
-            signature: 'function restartGame() { [native code] }',
+            signature: "function restartGame() { [native code] }",
           },
         ],
       });
       expectDebugProjectionFields(payload, [
-        { fieldClass: 'transport-session-state', path: ['inspection', 'host'] },
-        { fieldClass: 'transport-session-state', path: ['inspection', 'port'] },
-        { fieldClass: 'transport-session-state', path: ['inspection', 'state'] },
-        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'ownKeys'] },
-        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'prototypeKeys'] },
-        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'enumerableKeys'] },
-        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'methods', 0, 'owner'] },
-        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'methods', 0, 'length'] },
-        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'methods', 0, 'signature'] },
+        { fieldClass: "transport-session-state", path: ["inspection", "host"] },
+        { fieldClass: "transport-session-state", path: ["inspection", "port"] },
+        { fieldClass: "transport-session-state", path: ["inspection", "state"] },
+        { fieldClass: "raw-probe", path: ["inspection", "roots", 0, "ownKeys"] },
+        { fieldClass: "raw-probe", path: ["inspection", "roots", 0, "prototypeKeys"] },
+        { fieldClass: "raw-probe", path: ["inspection", "roots", 0, "enumerableKeys"] },
+        { fieldClass: "raw-probe", path: ["inspection", "roots", 0, "methods", 0, "owner"] },
+        { fieldClass: "raw-probe", path: ["inspection", "roots", 0, "methods", 0, "length"] },
+        { fieldClass: "raw-probe", path: ["inspection", "roots", 0, "methods", 0, "signature"] },
       ]);
     } finally {
       log.mockRestore();
@@ -276,25 +286,25 @@ describe('game direct-control commands', () => {
     }
   });
 
-  test('prints the package-owned App UI snapshot', async () => {
+  test("prints the package-owned App UI snapshot", async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GameInspect.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameInspect.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       const { port } = server.address();
       await GameInspect.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--app-ui-snapshot',
-        '--json',
+        "--app-ui-snapshot",
+        "--json",
       ]);
 
-      expect(server.received).toEqual(['LSQ:', expect.stringContaining('CMD:65535:(() =>')]);
-      const payload = JSON.parse(writes.join('')) as {
+      expect(server.received).toEqual(["LSQ:", expect.stringContaining("CMD:65535:(() =>")]);
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         snapshot: {
           host: string;
@@ -330,9 +340,9 @@ describe('game direct-control commands', () => {
       expect(payload).toMatchObject({
         ok: true,
         snapshot: {
-          host: '127.0.0.1',
+          host: "127.0.0.1",
           port,
-          state: { id: '65535', name: 'App UI' },
+          state: { id: "65535", name: "App UI" },
         },
       });
       expect(payload.snapshot.snapshot).toMatchObject({
@@ -342,12 +352,12 @@ describe('game direct-control commands', () => {
         },
         game: {
           turn: 1,
-          turnDate: { ok: true, value: '4000 BCE' },
+          turnDate: { ok: true, value: "4000 BCE" },
         },
         ui: {
           inGame: { ok: true, value: true },
-          loadingStateName: 'WaitingForUIReady',
-          canNotifyUIReady: 'function',
+          loadingStateName: "WaitingForUIReady",
+          canNotifyUIReady: "function",
         },
         gameContext: { localPlayerID: 0, localObserverID: 0 },
         players: {
@@ -361,14 +371,14 @@ describe('game direct-control commands', () => {
         },
       });
       expectDebugProjectionFields(payload, [
-        { fieldClass: 'transport-session-state', path: ['snapshot', 'host'] },
-        { fieldClass: 'transport-session-state', path: ['snapshot', 'port'] },
-        { fieldClass: 'transport-session-state', path: ['snapshot', 'state'] },
-        { fieldClass: 'raw-probe', path: ['snapshot', 'snapshot', 'network'] },
-        { fieldClass: 'raw-probe', path: ['snapshot', 'snapshot', 'ui'] },
-        { fieldClass: 'raw-probe', path: ['snapshot', 'snapshot', 'gameContext'] },
-        { fieldClass: 'raw-probe', path: ['snapshot', 'snapshot', 'players'] },
-        { fieldClass: 'raw-probe', path: ['snapshot', 'snapshot', 'map'] },
+        { fieldClass: "transport-session-state", path: ["snapshot", "host"] },
+        { fieldClass: "transport-session-state", path: ["snapshot", "port"] },
+        { fieldClass: "transport-session-state", path: ["snapshot", "state"] },
+        { fieldClass: "raw-probe", path: ["snapshot", "snapshot", "network"] },
+        { fieldClass: "raw-probe", path: ["snapshot", "snapshot", "ui"] },
+        { fieldClass: "raw-probe", path: ["snapshot", "snapshot", "gameContext"] },
+        { fieldClass: "raw-probe", path: ["snapshot", "snapshot", "players"] },
+        { fieldClass: "raw-probe", path: ["snapshot", "snapshot", "map"] },
       ]);
     } finally {
       log.mockRestore();
@@ -376,23 +386,23 @@ describe('game direct-control commands', () => {
     }
   });
 
-  test('reports composed playable status', async () => {
+  test("reports composed playable status", async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GameStatus.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameStatus.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       const { port } = server.address();
-      await GameStatus.run(['--host', '127.0.0.1', '--port', String(port), '--json']);
+      await GameStatus.run(["--host", "127.0.0.1", "--port", String(port), "--json"]);
 
       expect(server.received).toEqual([
-        'LSQ:',
-        expect.stringContaining('CMD:65535:(() =>'),
-        'LSQ:',
-        expect.stringContaining('CMD:1:(() =>'),
+        "LSQ:",
+        expect.stringContaining("CMD:65535:(() =>"),
+        "LSQ:",
+        expect.stringContaining("CMD:1:(() =>"),
       ]);
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         status: {
           playable: true;
@@ -419,7 +429,7 @@ describe('game direct-control commands', () => {
         ok: true,
         status: {
           playable: true,
-          readiness: 'tuner-ready',
+          readiness: "tuner-ready",
           capability: {
             canObserve: true,
             canMutate: true,
@@ -434,33 +444,35 @@ describe('game direct-control commands', () => {
             runtimeControl: { ready: true },
           },
           errorCount: 0,
-          nextSteps: [{
-            kind: 'read-attention',
-            source: 'readiness.current',
-          }],
+          nextSteps: [
+            {
+              kind: "read-attention",
+              source: "readiness.current",
+            },
+          ],
         },
       });
       expect(JSON.stringify(payload)).not.toContain('"host"');
       expect(JSON.stringify(payload)).not.toContain('"port"');
       expect(JSON.stringify(payload)).not.toContain('"state"');
-      expect(JSON.stringify(payload)).not.toContain('App UI');
-      expect(JSON.stringify(payload)).not.toContain('Tuner');
-      expect(JSON.stringify(payload)).not.toContain('globals');
+      expect(JSON.stringify(payload)).not.toContain("App UI");
+      expect(JSON.stringify(payload)).not.toContain("Tuner");
+      expect(JSON.stringify(payload)).not.toContain("globals");
     } finally {
       log.mockRestore();
       await server.close();
     }
   });
 
-  test('prints the static capability catalog debug projection', async () => {
+  test("prints the static capability catalog debug projection", async () => {
     const writes: string[] = [];
-    const log = vi.spyOn(GameCatalog.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameCatalog.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
-      await GameCatalog.run(['--static', '--json']);
+      await GameCatalog.run(["--static", "--json"]);
 
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         catalog: {
           source: string;
@@ -479,62 +491,68 @@ describe('game direct-control commands', () => {
       };
       expect(payload.ok).toBe(true);
       expect(payload.catalog).toMatchObject({
-        source: 'static',
-        version: 'direct-control-v1',
+        source: "static",
+        version: "direct-control-v1",
       });
-      expect(payload.catalog.entries).toEqual(expect.arrayContaining([
-        expect.objectContaining({
-          id: 'wrapper.playable-status',
-          kind: 'read-wrapper',
-          role: 'shared',
-          owner: '@civ7/direct-control',
-          risk: 'read',
-          provenance: ['getCiv7AppUiSnapshot', 'checkCiv7TunerHealth'],
-          confidence: 'runtime',
-          wrapper: 'getCiv7PlayableStatus',
-        }),
-        expect.objectContaining({
-          id: 'gameinfo.Resources',
-          kind: 'gameinfo-table',
-          role: 'tuner',
-          owner: '@civ7/direct-control',
-          risk: 'read',
-          provenance: ['DEFAULT_CIV7_GAMEINFO_TABLES', 'capability-inventory'],
-          confidence: 'source',
-        }),
-      ]));
+      expect(payload.catalog.entries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: "wrapper.playable-status",
+            kind: "read-wrapper",
+            role: "shared",
+            owner: "@civ7/direct-control",
+            risk: "read",
+            provenance: ["getCiv7AppUiSnapshot", "checkCiv7TunerHealth"],
+            confidence: "runtime",
+            wrapper: "getCiv7PlayableStatus",
+          }),
+          expect.objectContaining({
+            id: "gameinfo.Resources",
+            kind: "gameinfo-table",
+            role: "tuner",
+            owner: "@civ7/direct-control",
+            risk: "read",
+            provenance: ["DEFAULT_CIV7_GAMEINFO_TABLES", "capability-inventory"],
+            confidence: "source",
+          }),
+        ])
+      );
       expectDebugProjectionFields(payload, [
-        { fieldClass: 'resource-log-database-proof', path: ['catalog', 'source'] },
-        { fieldClass: 'resource-log-database-proof', path: ['catalog', 'version'] },
-        { fieldClass: 'resource-log-database-proof', path: ['catalog', 'entries'] },
+        { fieldClass: "resource-log-database-proof", path: ["catalog", "source"] },
+        { fieldClass: "resource-log-database-proof", path: ["catalog", "version"] },
+        { fieldClass: "resource-log-database-proof", path: ["catalog", "entries"] },
       ]);
     } finally {
       log.mockRestore();
     }
   });
 
-  test('prints visibility summary as debug projection', async () => {
+  test("prints visibility summary as debug projection", async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GameMapVisibility.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
+    const log = vi
+      .spyOn(GameMapVisibility.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
     try {
       const { port } = server.address();
       await GameMapVisibility.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--player-id',
-        '0',
-        '--bounds',
-        '0,0,2,1',
-        '--json',
+        "--player-id",
+        "0",
+        "--bounds",
+        "0,0,2,1",
+        "--json",
       ]);
 
-      expect(server.received.some((message) => message.includes('GameplayMap.getRevealedState'))).toBe(true);
-      const payload = JSON.parse(writes.join('')) as {
+      expect(
+        server.received.some((message) => message.includes("GameplayMap.getRevealedState"))
+      ).toBe(true);
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         result: {
           host: string;
@@ -559,13 +577,13 @@ describe('game direct-control commands', () => {
       };
       expect(payload.ok).toBe(true);
       expect(payload.result).toMatchObject({
-        host: '127.0.0.1',
+        host: "127.0.0.1",
         port,
-        state: { id: '1', name: 'Tuner' },
+        state: { id: "1", name: "Tuner" },
         playerId: 0,
         numPlotsRevealed: { ok: true, value: 10 },
         numPlotsVisible: { ok: true, value: 8 },
-        counts: { '1': 2 },
+        counts: { "1": 2 },
         grid: {
           bounds: { x: 0, y: 0, width: 2, height: 1 },
           plotCount: 2,
@@ -577,13 +595,13 @@ describe('game direct-control commands', () => {
         },
       });
       expectDebugProjectionFields(payload, [
-        { fieldClass: 'transport-session-state', path: ['result', 'host'] },
-        { fieldClass: 'transport-session-state', path: ['result', 'port'] },
-        { fieldClass: 'transport-session-state', path: ['result', 'state'] },
-        { fieldClass: 'raw-probe', path: ['result', 'numPlotsRevealed'] },
-        { fieldClass: 'raw-probe', path: ['result', 'numPlotsVisible'] },
-        { fieldClass: 'raw-probe', path: ['result', 'counts'] },
-        { fieldClass: 'raw-probe', path: ['result', 'grid', 'states'] },
+        { fieldClass: "transport-session-state", path: ["result", "host"] },
+        { fieldClass: "transport-session-state", path: ["result", "port"] },
+        { fieldClass: "transport-session-state", path: ["result", "state"] },
+        { fieldClass: "raw-probe", path: ["result", "numPlotsRevealed"] },
+        { fieldClass: "raw-probe", path: ["result", "numPlotsVisible"] },
+        { fieldClass: "raw-probe", path: ["result", "counts"] },
+        { fieldClass: "raw-probe", path: ["result", "grid", "states"] },
       ]);
     } finally {
       log.mockRestore();
@@ -591,18 +609,28 @@ describe('game direct-control commands', () => {
     }
   });
 
-  test('routes plot map reads through the world service projection', async () => {
+  test("routes plot map reads through the world service projection", async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GameMap.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameMap.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       const { port } = server.address();
-      await GameMap.run(['--host', '127.0.0.1', '--port', String(port), '--plot', '3,4', '--player-id', '0', '--json']);
+      await GameMap.run([
+        "--host",
+        "127.0.0.1",
+        "--port",
+        String(port),
+        "--plot",
+        "3,4",
+        "--player-id",
+        "0",
+        "--json",
+      ]);
 
-      expect(server.received.some((message) => message.includes('readPlotSnapshot'))).toBe(true);
-      const payload = JSON.parse(writes.join('')) as {
+      expect(server.received.some((message) => message.includes("readPlotSnapshot"))).toBe(true);
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         result: {
           sourceStatus: { plot: string };
@@ -617,10 +645,10 @@ describe('game direct-control commands', () => {
       expect(payload).toMatchObject({
         ok: true,
         result: {
-          sourceStatus: { plot: 'read' },
+          sourceStatus: { plot: "read" },
           plot: {
             location: { x: 3, y: 4, index: 339 },
-            hiddenInfoPolicy: 'visibility-filtered',
+            hiddenInfoPolicy: "visibility-filtered",
             facts: {
               terrain: { ok: true, value: 4 },
               resource: { ok: true, value: -1 },
@@ -633,44 +661,44 @@ describe('game direct-control commands', () => {
       expect(serialized).not.toContain('"host"');
       expect(serialized).not.toContain('"port"');
       expect(serialized).not.toContain('"state"');
-      expect(serialized).not.toContain('rawCommand');
-      expect(serialized).not.toContain('enemy');
-      expect(serialized).not.toContain('hostile');
-      expect(serialized).not.toContain('opponent');
-      expect(serialized).not.toContain('threat');
-      expect(serialized).not.toContain('war');
-      expect(serialized).not.toContain('ally');
-      expect(serialized).not.toContain('suzerain');
+      expect(serialized).not.toContain("rawCommand");
+      expect(serialized).not.toContain("enemy");
+      expect(serialized).not.toContain("hostile");
+      expect(serialized).not.toContain("opponent");
+      expect(serialized).not.toContain("threat");
+      expect(serialized).not.toContain("war");
+      expect(serialized).not.toContain("ally");
+      expect(serialized).not.toContain("suzerain");
     } finally {
       log.mockRestore();
       await server.close();
     }
   });
 
-  test('routes bounded grid map reads through the world service projection', async () => {
+  test("routes bounded grid map reads through the world service projection", async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GameMap.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameMap.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       const { port } = server.address();
       await GameMap.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--bounds',
-        '0,0,2,1',
-        '--fields',
-        'terrain',
-        '--max-plots',
-        '1',
-        '--json',
+        "--bounds",
+        "0,0,2,1",
+        "--fields",
+        "terrain",
+        "--max-plots",
+        "1",
+        "--json",
       ]);
 
-      expect(server.received.some((message) => message.includes('locationsFromBounds'))).toBe(true);
-      const payload = JSON.parse(writes.join('')) as {
+      expect(server.received.some((message) => message.includes("locationsFromBounds"))).toBe(true);
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         result: {
           sourceStatus: { grid: string; map: string };
@@ -683,7 +711,7 @@ describe('game direct-control commands', () => {
       expect(payload).toMatchObject({
         ok: true,
         result: {
-          sourceStatus: { grid: 'read-with-omissions', map: 'read' },
+          sourceStatus: { grid: "read-with-omissions", map: "read" },
           bounds: { x: 0, y: 0, width: 2, height: 1 },
           plotCount: 2,
           omitted: 1,
@@ -696,36 +724,47 @@ describe('game direct-control commands', () => {
       expect(serialized).not.toContain('"host"');
       expect(serialized).not.toContain('"port"');
       expect(serialized).not.toContain('"state"');
-      expect(serialized).not.toContain('rawCommand');
+      expect(serialized).not.toContain("rawCommand");
     } finally {
       log.mockRestore();
       await server.close();
     }
   });
 
-  test('reads GameInfo surfaces as debug projection', async () => {
+  test("reads GameInfo surfaces as debug projection", async () => {
     const server = await startTunerServer();
     try {
       const { port } = server.address();
-      await GameGameInfo.run(['Resources', '--host', '127.0.0.1', '--port', String(port), '--limit', '2', '--json']);
+      await GameGameInfo.run([
+        "Resources",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        String(port),
+        "--limit",
+        "2",
+        "--json",
+      ]);
 
-      expect(server.received.some((message) => message.includes('GameInfo[input.table]'))).toBe(true);
+      expect(server.received.some((message) => message.includes("GameInfo[input.table]"))).toBe(
+        true
+      );
     } finally {
       await server.close();
     }
   });
 
-  test('routes map summary through the current world service projection', async () => {
+  test("routes map summary through the current world service projection", async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GameMap.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GameMap.prototype, "log").mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       const { port } = server.address();
-      await GameMap.run(['--host', '127.0.0.1', '--port', String(port), '--summary', '--json']);
+      await GameMap.run(["--host", "127.0.0.1", "--port", String(port), "--summary", "--json"]);
 
-      const payload = JSON.parse(writes.join('')) as {
+      const payload = JSON.parse(writes.join("")) as {
         ok: true;
         result: {
           readiness: string;
@@ -738,12 +777,12 @@ describe('game direct-control commands', () => {
       expect(payload).toMatchObject({
         ok: true,
         result: {
-          readiness: 'tuner-ready',
+          readiness: "tuner-ready",
           sourceStatus: {
-            playableStatus: 'read',
-            game: 'read',
-            map: 'read',
-            players: 'read',
+            playableStatus: "read",
+            game: "read",
+            map: "read",
+            players: "read",
           },
           map: {
             width: 84,
@@ -758,79 +797,93 @@ describe('game direct-control commands', () => {
           },
           nextSteps: [
             {
-              kind: 'read-attention',
-              source: 'world.current',
+              kind: "read-attention",
+              source: "world.current",
             },
           ],
         },
       });
-      expect(server.received.some((message) => message.includes('Network.isInSession'))).toBe(true);
-      expect(server.received.some((message) => message.includes('readPlotSnapshot'))).toBe(false);
+      expect(server.received.some((message) => message.includes("Network.isInSession"))).toBe(true);
+      expect(server.received.some((message) => message.includes("readPlotSnapshot"))).toBe(false);
       const serialized = JSON.stringify(payload);
       expect(serialized).not.toContain('"host"');
       expect(serialized).not.toContain('"port"');
       expect(serialized).not.toContain('"state"');
       expect(serialized).not.toContain('"session"');
-      expect(serialized).not.toContain('rawCommand');
-      expect(serialized).not.toContain('enemy');
-      expect(serialized).not.toContain('hostile');
-      expect(serialized).not.toContain('opponent');
-      expect(serialized).not.toContain('threat');
-      expect(serialized).not.toContain('war');
-      expect(serialized).not.toContain('ally');
-      expect(serialized).not.toContain('suzerain');
+      expect(serialized).not.toContain("rawCommand");
+      expect(serialized).not.toContain("enemy");
+      expect(serialized).not.toContain("hostile");
+      expect(serialized).not.toContain("opponent");
+      expect(serialized).not.toContain("threat");
+      expect(serialized).not.toContain("war");
+      expect(serialized).not.toContain("ally");
+      expect(serialized).not.toContain("suzerain");
     } finally {
       log.mockRestore();
       await server.close();
     }
   });
 
-  test('samples loaded AI levers through bounded GameInfo reads', async () => {
+  test("samples loaded AI levers through bounded GameInfo reads", async () => {
     const server = await startTunerServer();
     try {
       const { port } = server.address();
       await GameAiLoadedLevers.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--family',
-        'rhq',
-        '--limit-per-table',
-        '2',
-        '--json',
+        "--family",
+        "rhq",
+        "--limit-per-table",
+        "2",
+        "--json",
       ]);
 
-      expect(server.received.some((message) => message.includes('"table":"AiOperationDefs"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"table":"AllowedOperations"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"table":"AiFavoredItems"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"equals":"PSEUDOYIELD_NEW_CITY"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation'))).toBe(false);
+      expect(server.received.some((message) => message.includes('"table":"AiOperationDefs"'))).toBe(
+        true
+      );
+      expect(
+        server.received.some((message) => message.includes('"table":"AllowedOperations"'))
+      ).toBe(true);
+      expect(server.received.some((message) => message.includes('"table":"AiFavoredItems"'))).toBe(
+        true
+      );
+      expect(
+        server.received.some((message) => message.includes('"equals":"PSEUDOYIELD_NEW_CITY"'))
+      ).toBe(true);
+      expect(server.received.some((message) => message.includes("sendOperation"))).toBe(false);
     } finally {
       await server.close();
     }
   });
 
-  test('validates operation commands through the canonical package boundary', async () => {
+  test("validates operation commands through the canonical package boundary", async () => {
     const server = await startTunerServer();
     try {
       const { port } = server.address();
       await GameOperation.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
+        "--host",
+        "127.0.0.1",
+        "--port",
         String(port),
-        '--family',
-        'unit-operation',
-        '--operation-type',
-        'SKIP_TURN',
-        '--unit-id',
+        "--family",
+        "unit-operation",
+        "--operation-type",
+        "SKIP_TURN",
+        "--unit-id",
         '{"owner":0,"id":65536,"type":26}',
-        '--json',
+        "--json",
       ]);
 
-      expect(server.received.some((message) => message.includes('return JSON.stringify(validateOperation'))).toBe(true);
-      expect(server.received.some((message) => message.includes('return JSON.stringify(sendOperation'))).toBe(false);
+      expect(
+        server.received.some((message) =>
+          message.includes("return JSON.stringify(validateOperation")
+        )
+      ).toBe(true);
+      expect(
+        server.received.some((message) => message.includes("return JSON.stringify(sendOperation"))
+      ).toBe(false);
     } finally {
       await server.close();
     }
@@ -846,10 +899,10 @@ function expectDebugProjectionFields(
 
 async function findUnusedPort(): Promise<number> {
   const server = createServer();
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   const port = (server.address() as AddressInfo).port;
   server.close();
-  await once(server, 'close');
+  await once(server, "close");
   return port;
 }
 
@@ -857,16 +910,16 @@ async function startTunerServer() {
   const received: string[] = [];
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
-    socket.on('data', (chunk) => {
+    socket.on("data", (chunk) => {
       buffer = Buffer.concat([buffer, chunk]);
       for (;;) {
         const frame = parseRequest(buffer);
         if (!frame) return;
         buffer = buffer.subarray(frame.bytesRead);
         received.push(frame.message);
-        if (frame.message === 'LSQ:') {
-          socket.write(encodeResponse(frame.listenerId, ['65535', 'App UI', '1', 'Tuner']));
-        } else if (frame.message.includes('Network.isInSession')) {
+        if (frame.message === "LSQ:") {
+          socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
+        } else if (frame.message.includes("Network.isInSession")) {
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
@@ -890,7 +943,7 @@ async function startTunerServer() {
                   turn: 1,
                   age: 0,
                   maxTurns: 0,
-                  turnDate: { ok: true, value: '4000 BCE' },
+                  turnDate: { ok: true, value: "4000 BCE" },
                   hash: { ok: true, value: 0 },
                 },
                 ui: {
@@ -898,9 +951,9 @@ async function startTunerServer() {
                   inShell: { ok: true, value: false },
                   inLoading: { ok: true, value: false },
                   loadingState: { ok: true, value: 6 },
-                  loadingStateName: 'WaitingForUIReady',
+                  loadingStateName: "WaitingForUIReady",
                   canBeginGame: { ok: true, value: true },
-                  canNotifyUIReady: 'function',
+                  canNotifyUIReady: "function",
                   skipStartButton: { ok: true, value: false },
                   automationActive: { ok: true, value: false },
                 },
@@ -925,21 +978,21 @@ async function startTunerServer() {
               }),
             ])
           );
-        } else if (frame.message.includes('evalOk: 1 + 1')) {
+        } else if (frame.message.includes("evalOk: 1 + 1")) {
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
                 evalOk: 2,
                 ready: true,
                 globals: {
-                  Game: 'object',
-                  Autoplay: 'object',
-                  GameplayMap: 'object',
-                  Players: 'object',
-                  Network: 'undefined',
+                  Game: "object",
+                  Autoplay: "object",
+                  GameplayMap: "object",
+                  Players: "object",
+                  Network: "undefined",
                 },
                 turn: { ok: true, value: 1 },
-                turnDate: { ok: true, value: '4000 BCE' },
+                turnDate: { ok: true, value: "4000 BCE" },
                 width: { ok: true, value: 84 },
                 height: { ok: true, value: 54 },
                 aliveIds: { ok: true, value: [0] },
@@ -948,37 +1001,39 @@ async function startTunerServer() {
               }),
             ])
           );
-        } else if (frame.message.includes('locationsFromBounds')) {
+        } else if (frame.message.includes("locationsFromBounds")) {
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
                 bounds: { x: 0, y: 0, width: 2, height: 1 },
-                fields: ['terrain'],
+                fields: ["terrain"],
                 plotCount: 2,
                 omitted: 1,
-                hiddenInfoPolicy: 'not-player-scoped',
+                hiddenInfoPolicy: "not-player-scoped",
                 map: {
                   width: { ok: true, value: 84 },
                   height: { ok: true, value: 54 },
                 },
-                plots: [{
-                  location: { x: 0, y: 0, index: { ok: true, value: 0 } },
-                  hiddenInfoPolicy: 'not-player-scoped',
-                  facts: {
-                    terrain: { ok: true, value: 4 },
+                plots: [
+                  {
+                    location: { x: 0, y: 0, index: { ok: true, value: 0 } },
+                    hiddenInfoPolicy: "not-player-scoped",
+                    facts: {
+                      terrain: { ok: true, value: 4 },
+                    },
                   },
-                }],
+                ],
               }),
             ])
           );
-        } else if (frame.message.includes('readPlotSnapshot')) {
+        } else if (frame.message.includes("readPlotSnapshot")) {
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
                 location: { x: 3, y: 4, index: { ok: true, value: 339 } },
                 revealedState: { ok: true, value: 1 },
                 visible: { ok: true, value: true },
-                hiddenInfoPolicy: 'visibility-filtered',
+                hiddenInfoPolicy: "visibility-filtered",
                 facts: {
                   terrain: { ok: true, value: 4 },
                   resource: { ok: true, value: -1 },
@@ -988,14 +1043,14 @@ async function startTunerServer() {
               }),
             ])
           );
-        } else if (frame.message.includes('GameplayMap.getRevealedState')) {
+        } else if (frame.message.includes("GameplayMap.getRevealedState")) {
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
                 playerId: 0,
                 numPlotsRevealed: { ok: true, value: 10 },
                 numPlotsVisible: { ok: true, value: 8 },
-                counts: { '1': 2 },
+                counts: { "1": 2 },
                 grid: {
                   bounds: { x: 0, y: 0, width: 2, height: 1 },
                   plotCount: 2,
@@ -1018,13 +1073,13 @@ async function startTunerServer() {
               }),
             ])
           );
-        } else if (frame.message.includes('GameInfo[input.table]')) {
-          const table = gameInfoTableFromCommand(frame.message) ?? 'Resources';
+        } else if (frame.message.includes("GameInfo[input.table]")) {
+          const table = gameInfoTableFromCommand(frame.message) ?? "Resources";
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
                 table,
-                source: 'GameInfo',
+                source: "GameInfo",
                 rows: [sampleGameInfoRow(table)],
                 limit: 2,
                 offset: 0,
@@ -1033,36 +1088,36 @@ async function startTunerServer() {
               }),
             ])
           );
-        } else if (frame.message.includes('return JSON.stringify(validateOperation')) {
+        } else if (frame.message.includes("return JSON.stringify(validateOperation")) {
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
-                family: 'unit-operation',
-                operationType: 'SKIP_TURN',
-                enumValue: 'SKIP_TURN',
+                family: "unit-operation",
+                operationType: "SKIP_TURN",
+                enumValue: "SKIP_TURN",
                 target: { unitId: { owner: 0, id: 65536, type: 26 } },
                 valid: true,
                 result: { Success: true },
               }),
             ])
           );
-        } else if (frame.message.startsWith('CMD:65535:(() =>')) {
+        } else if (frame.message.startsWith("CMD:65535:(() =>")) {
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify([
                 {
-                  name: 'Network',
-                  type: 'object',
+                  name: "Network",
+                  type: "object",
                   exists: true,
-                  ownKeys: ['isInSession'],
-                  prototypeKeys: ['restartGame'],
-                  enumerableKeys: ['isInSession', 'restartGame'],
+                  ownKeys: ["isInSession"],
+                  prototypeKeys: ["restartGame"],
+                  enumerableKeys: ["isInSession", "restartGame"],
                   methods: [
                     {
-                      name: 'restartGame',
-                      owner: 'prototype',
+                      name: "restartGame",
+                      owner: "prototype",
                       length: 0,
-                      signature: 'function restartGame() { [native code] }',
+                      signature: "function restartGame() { [native code] }",
                     },
                   ],
                 },
@@ -1070,42 +1125,40 @@ async function startTunerServer() {
             ])
           );
         } else {
-          socket.write(encodeResponse(frame.listenerId, ['2']));
+          socket.write(encodeResponse(frame.listenerId, ["2"]));
         }
       }
     });
   });
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   return {
     received,
     address: () => server.address() as AddressInfo,
     close: async () => {
       server.close();
-      await once(server, 'close');
+      await once(server, "close");
     },
   };
 }
 
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
+function parseRequest(buffer: Buffer): {
+  listenerId: number;
+  message: string;
+  bytesRead: number;
+} | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);
   const bytesRead = 8 + messageLength;
   if (buffer.length < bytesRead) return null;
   return {
     listenerId: buffer.readUInt32LE(4),
-    message: buffer.subarray(8, bytesRead).toString('utf8').replace(/\0$/, ''),
+    message: buffer.subarray(8, bytesRead).toString("utf8").replace(/\0$/, ""),
     bytesRead,
   };
 }
 
 function encodeResponse(listenerId: number, parts: string[]): Buffer {
-  const messageBytes = Buffer.from(`${parts.join('\0')}\0`, 'utf8');
+  const messageBytes = Buffer.from(`${parts.join("\0")}\0`, "utf8");
   const frame = Buffer.alloc(8 + messageBytes.length);
   frame.writeUInt32LE(messageBytes.length, 0);
   frame.writeUInt32LE(listenerId, 4);
@@ -1119,22 +1172,26 @@ function gameInfoTableFromCommand(message: string): string | null {
 
 function sampleGameInfoRow(table: string): Record<string, unknown> {
   switch (table) {
-    case 'Resources':
-      return { ResourceType: 'RESOURCE_COTTON' };
-    case 'AiOperationDefs':
-      return { OperationName: 'NAVAL_CITY_ATTACK', BehaviorTree: 'Naval City Attack', TargetType: 'CITY' };
-    case 'AllowedOperations':
-      return { ListType: 'BaseOperations', OperationDef: 'NAVAL_CITY_ATTACK' };
-    case 'AIUnitPrioritizedActions':
-      return { UnitType: 'UNIT_BOMBER', OperationType: 'UNITOPERATION_AIR_ATTACK' };
-    case 'AiFavoredItems':
-      return { ListType: 'Test PseudoYield Biases', Item: 'PSEUDOYIELD_NEW_CITY', Value: 50 };
-    case 'PseudoYields':
-      return { PseudoYieldType: 'PSEUDOYIELD_REPAIR_BONUS', DefaultValue: 10000 };
-    case 'BehaviorTrees':
-      return { TreeName: 'Naval City Attack' };
-    case 'TreeData':
-      return { TreeName: 'Naval City Attack', NodeId: 1, Name: 'Create Units' };
+    case "Resources":
+      return { ResourceType: "RESOURCE_COTTON" };
+    case "AiOperationDefs":
+      return {
+        OperationName: "NAVAL_CITY_ATTACK",
+        BehaviorTree: "Naval City Attack",
+        TargetType: "CITY",
+      };
+    case "AllowedOperations":
+      return { ListType: "BaseOperations", OperationDef: "NAVAL_CITY_ATTACK" };
+    case "AIUnitPrioritizedActions":
+      return { UnitType: "UNIT_BOMBER", OperationType: "UNITOPERATION_AIR_ATTACK" };
+    case "AiFavoredItems":
+      return { ListType: "Test PseudoYield Biases", Item: "PSEUDOYIELD_NEW_CITY", Value: 50 };
+    case "PseudoYields":
+      return { PseudoYieldType: "PSEUDOYIELD_REPAIR_BONUS", DefaultValue: 10000 };
+    case "BehaviorTrees":
+      return { TreeName: "Naval City Attack" };
+    case "TreeData":
+      return { TreeName: "Naval City Attack", NodeId: 1, Name: "Create Units" };
     default:
       return { RowType: table };
   }

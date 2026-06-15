@@ -13,10 +13,11 @@ export type Civ7OperationTarget =
   | Readonly<{ cityId: Civ7ComponentId }>
   | Readonly<{ playerId: number }>;
 
-export type Civ7OperationInput = Civ7OperationTarget & Readonly<{
-  operationType: string;
-  args?: unknown;
-}>;
+export type Civ7OperationInput = Civ7OperationTarget &
+  Readonly<{
+    operationType: string;
+    args?: unknown;
+  }>;
 
 export type Civ7OperationValidationResult = Readonly<{
   host: string;

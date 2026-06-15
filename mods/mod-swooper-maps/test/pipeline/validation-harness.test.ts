@@ -34,7 +34,13 @@ function runStandardContext(seed: number) {
     },
   };
 
-  const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+  const adapter = createMockAdapter({
+    width,
+    height,
+    mapInfo,
+    mapSizeId: 1,
+    rng: createLabelRng(seed),
+  });
   const context = createExtendedMapContext({ width, height }, adapter, env);
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
   standardRecipe.run(context, env, standardConfig, { log: () => {} });

@@ -44,9 +44,9 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import {
-  executeCiv7TunerCommand,
   type Civ7CommandResult,
   type Civ7DirectControlOptions,
+  executeCiv7TunerCommand,
 } from "../../packages/civ7-direct-control/src/index.ts";
 import {
   CIV7_BROWSER_TABLES_V0,
@@ -161,7 +161,7 @@ function jsonPayloadFromCommandResult<T>(result: Civ7CommandResult, label: strin
 async function execJson<T>(
   options: Civ7DirectControlOptions,
   command: string,
-  label: string,
+  label: string
 ): Promise<T> {
   const result = await executeCiv7TunerCommand({ ...options, command });
   return jsonPayloadFromCommandResult<T>(result, label);
@@ -242,7 +242,7 @@ async function main(): Promise<number> {
   const context = await execJson<LiveGameContext>(
     directControl,
     buildGameContextCommand(),
-    "live game context (age + leaders)",
+    "live game context (age + leaders)"
   );
   if (!context.ageType) {
     throw new Error(`Live age unavailable: ${JSON.stringify(context)}`);
@@ -251,19 +251,20 @@ async function main(): Promise<number> {
   const liveLeaderTypes = new Set(
     context.leaders
       .map((leader) => leader.leaderType)
-      .filter((leaderType): leaderType is string => typeof leaderType === "string"),
+      .filter((leaderType): leaderType is string => typeof leaderType === "string")
   );
 
   const sweep = await execJson<LiveRequiredSweep>(
     directControl,
     buildRequiredForAgeSweepCommand(),
-    "isResourceRequiredForAge sweep",
+    "isResourceRequiredForAge sweep"
   );
 
   const perResource: PerResourceRow[] = sweep.rows.map((row) => {
-    const staticIndex = row.type !== null && V0_RESOURCE_TYPES[row.type] !== undefined
-      ? V0_RESOURCE_TYPES[row.type]
-      : null;
+    const staticIndex =
+      row.type !== null && V0_RESOURCE_TYPES[row.type] !== undefined
+        ? V0_RESOURCE_TYPES[row.type]
+        : null;
     const staticKey = staticIndex !== null ? String(staticIndex) : null;
     const staticAges = staticKey !== null ? (V1_REQUIRED_FOR_AGE[staticKey] ?? []) : [];
     const keyingLeaders = staticKey !== null ? (V1_REQUIRED_LEADERS[staticKey] ?? []) : [];
@@ -288,15 +289,16 @@ async function main(): Promise<number> {
 
   const mismatchesVsPrediction = perResource.filter((row) => !row.matchesPrediction);
   const mismatchesVsStaticOnly = perResource.filter(
-    (row) => row.liveRequired !== row.staticRequiredForLiveAge,
+    (row) => row.liveRequired !== row.staticRequiredForLiveAge
   );
   const indexMismatches = perResource.filter((row) => row.indexMismatch);
 
-  const ruleBoundary = mismatchesVsPrediction.length === 0
-    ? "live isResourceRequiredForAge == static required-for-age set FILTERED to keying leaders present in the live game (live = static AND any-keying-leader-present)"
-    : mismatchesVsStaticOnly.length === 0
-      ? "live isResourceRequiredForAge == static required-for-age set (NO leader-presence filtering observed)"
-      : "live behavior matches NEITHER the static set nor the leader-filtered static set; see mismatches";
+  const ruleBoundary =
+    mismatchesVsPrediction.length === 0
+      ? "live isResourceRequiredForAge == static required-for-age set FILTERED to keying leaders present in the live game (live = static AND any-keying-leader-present)"
+      : mismatchesVsStaticOnly.length === 0
+        ? "live isResourceRequiredForAge == static required-for-age set (NO leader-presence filtering observed)"
+        : "live behavior matches NEITHER the static set nor the leader-filtered static set; see mismatches";
 
   const output = {
     ok: mismatchesVsPrediction.length === 0 || mismatchesVsStaticOnly.length === 0,
@@ -309,8 +311,10 @@ async function main(): Promise<number> {
       liveRequiredCount: perResource.filter((row) => row.liveRequired).length,
     },
     static: {
-      source: "@civ7/map-policy CIV7_POLICY_TABLES_V1 (isResourceRequiredForAge, resourceRequiredLeaders)",
-      staticRequiredForLiveAgeCount: perResource.filter((row) => row.staticRequiredForLiveAge).length,
+      source:
+        "@civ7/map-policy CIV7_POLICY_TABLES_V1 (isResourceRequiredForAge, resourceRequiredLeaders)",
+      staticRequiredForLiveAgeCount: perResource.filter((row) => row.staticRequiredForLiveAge)
+        .length,
       predictedRequiredCount: perResource.filter((row) => row.predictedRequired).length,
     },
     ruleBoundary,
@@ -348,7 +352,13 @@ if (import.meta.main) {
       process.exitCode = code;
     })
     .catch((error) => {
-      console.error(JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) }, null, 2));
+      console.error(
+        JSON.stringify(
+          { ok: false, error: error instanceof Error ? error.message : String(error) },
+          null,
+          2
+        )
+      );
       process.exitCode = 1;
     });
 }

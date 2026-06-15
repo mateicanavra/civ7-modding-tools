@@ -1,7 +1,7 @@
+import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
-import { describe, expect, it } from "bun:test";
 
 import placementDomain from "../../src/domain/placement/ops.js";
 import { materializeStartAssignment } from "../../src/recipes/standard/stages/placement/steps/assign-starts/materialize.js";
@@ -40,7 +40,12 @@ function idx(width: number, x: number, y: number): number {
   return y * width + x;
 }
 
-function makeInput(width: number, height: number, playersLandmass1 = 1, playersLandmass2 = 0): StartInput {
+function makeInput(
+  width: number,
+  height: number,
+  playersLandmass1 = 1,
+  playersLandmass2 = 0
+): StartInput {
   const size = width * height;
   const distanceToCoast = new Uint16Array(size);
   distanceToCoast.fill(0);
@@ -125,10 +130,22 @@ describe("start viability planning", () => {
 
   it("allows intentional archipelago starts when nearby small islands form an expansion cluster", () => {
     const input = makeInput(12, 8);
-    addLandmass(input, 0, 1, [[3, 3], [3, 4]]);
-    addLandmass(input, 1, 1, [[5, 3], [5, 4]]);
-    addLandmass(input, 2, 1, [[7, 3], [7, 4]]);
-    addLandmass(input, 3, 1, [[6, 5], [6, 6]]);
+    addLandmass(input, 0, 1, [
+      [3, 3],
+      [3, 4],
+    ]);
+    addLandmass(input, 1, 1, [
+      [5, 3],
+      [5, 4],
+    ]);
+    addLandmass(input, 2, 1, [
+      [7, 3],
+      [7, 4],
+    ]);
+    addLandmass(input, 3, 1, [
+      [6, 5],
+      [6, 6],
+    ]);
 
     const result = plan(input, {
       minContiguousLandTiles: 20,
@@ -150,9 +167,18 @@ describe("start viability planning", () => {
       1,
       Array.from({ length: 30 }, (_value, i) => [1 + (i % 6), 1 + Math.floor(i / 6)] as const)
     );
-    addLandmass(input, 1, 1, [[10, 3], [10, 4]]);
-    addLandmass(input, 2, 1, [[12, 3], [12, 4]]);
-    addLandmass(input, 3, 1, [[11, 5], [11, 6]]);
+    addLandmass(input, 1, 1, [
+      [10, 3],
+      [10, 4],
+    ]);
+    addLandmass(input, 2, 1, [
+      [12, 3],
+      [12, 4],
+    ]);
+    addLandmass(input, 3, 1, [
+      [11, 5],
+      [11, 6],
+    ]);
 
     const result = plan(input, {
       minIslandClusterLandTiles: 6,
@@ -193,7 +219,14 @@ describe("start viability planning", () => {
       Array.from({ length: 48 }, (_value, i) => [1 + (i % 8), 1 + Math.floor(i / 8)] as const)
     );
     const result = plan(input);
-    const componentKeys = ["freshwater", "fertility", "expansion", "climate", "resource", "roughness"];
+    const componentKeys = [
+      "freshwater",
+      "fertility",
+      "expansion",
+      "climate",
+      "resource",
+      "roughness",
+    ];
     for (const candidate of result.candidates) {
       for (const key of componentKeys) {
         const value = (candidate.components as Record<string, number>)[key];
@@ -302,7 +335,13 @@ describe("start selection ladder (op-owned, S4)", () => {
     const input = makeInput(12, 8, 2, 0);
     // A 5-tile strip: below every tier admission gate (marginal needs 6
     // contiguous at marginalLandRatio 0.5) but still settleable land.
-    addLandmass(input, 0, 1, [[1, 1], [2, 1], [3, 1], [4, 1], [5, 1]]);
+    addLandmass(input, 0, 1, [
+      [1, 1],
+      [2, 1],
+      [3, 1],
+      [4, 1],
+      [5, 1],
+    ]);
 
     const result = plan(input, { spacingFloorTiles: 2, desiredSpacingTiles: 3 });
 
@@ -321,7 +360,11 @@ describe("start selection ladder (op-owned, S4)", () => {
   it("spacing-relaxed last resort stays scored, goes below the floor only when forced, and never throws", () => {
     const input = makeInput(8, 6, 3, 0);
     // Three settleable tiles in a tight cluster: floor 2 cannot hold 3 seats.
-    addLandmass(input, 0, 1, [[2, 2], [3, 2], [2, 3]]);
+    addLandmass(input, 0, 1, [
+      [2, 2],
+      [3, 2],
+      [2, 3],
+    ]);
 
     const result = plan(input, { spacingFloorTiles: 2, desiredSpacingTiles: 3 });
 
@@ -343,7 +386,10 @@ describe("start selection ladder (op-owned, S4)", () => {
   it("records unseated players as degraded data instead of throwing on an exhausted map", () => {
     const input = makeInput(8, 6, 3, 0);
     // Two settleable tiles for three seats: one seat must remain unseated.
-    addLandmass(input, 0, 1, [[2, 2], [5, 4]]);
+    addLandmass(input, 0, 1, [
+      [2, 2],
+      [5, 4],
+    ]);
 
     const result = plan(input, { spacingFloorTiles: 1, desiredSpacingTiles: 2 });
 
@@ -400,7 +446,9 @@ describe("start selection ladder (op-owned, S4)", () => {
     const gap = result.fairnessReport.worstPairGap;
     expect(gap).not.toBeNull();
     expect(result.fairnessReport.balanced).toBe((gap as number) <= result.fairnessReport.tolerance);
-    const seatedScores = result.seats.filter((seat) => seat.plotIndex >= 0).map((seat) => seat.score);
+    const seatedScores = result.seats
+      .filter((seat) => seat.plotIndex >= 0)
+      .map((seat) => seat.score);
     expect(Math.max(...seatedScores) - Math.min(...seatedScores)).toBeCloseTo(gap as number, 10);
   });
 
@@ -492,9 +540,9 @@ describe("start materializer (thin shell)", () => {
 
     expect(assignment.assigned).toBe(2);
     expect(adapter.calls.setStartPosition.map((call) => call.playerId).sort()).toEqual([4, 9]);
-    expect(adapter.calls.setStartPosition.map((call) => call.plotIndex).sort((a, b) => a - b)).toEqual(
-      [...assignment.positions].sort((a, b) => a - b)
-    );
+    expect(
+      adapter.calls.setStartPosition.map((call) => call.plotIndex).sort((a, b) => a - b)
+    ).toEqual([...assignment.positions].sort((a, b) => a - b));
     expect(validateStartAssignmentArtifact(assignment)).toEqual([]);
     const spacing = hexDistanceOddQPeriodicX(
       assignment.positions[0]!,
@@ -516,7 +564,10 @@ describe("start materializer (thin shell)", () => {
 
   it("materializes degraded plans as data (no assign-or-throw)", () => {
     const input = makeInput(8, 6, 3, 0);
-    addLandmass(input, 0, 1, [[2, 2], [5, 4]]);
+    addLandmass(input, 0, 1, [
+      [2, 2],
+      [5, 4],
+    ]);
     const planned = plan(input, { spacingFloorTiles: 1, desiredSpacingTiles: 2 });
     const { adapter, context } = contextFor(input.width, input.height);
 

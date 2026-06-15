@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7VisibilitySummaryProcedureDescriptor,
@@ -31,37 +31,44 @@ describe("Civ7 visibility summary procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7VisibilitySummaryProcedureDescriptor,
-      Civ7VisibilitySummaryProcedureSchemaArtifacts,
+      Civ7VisibilitySummaryProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7VisibilitySummaryProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7VisibilitySummaryProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7VisibilitySummaryProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7VisibilitySummaryProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      playerId: 0,
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      includeGrid: true,
-      maxPlots: 2,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        playerId: 0,
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        includeGrid: true,
+        maxPlots: 2,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { playerId: 0 })).toBe(true);
     expect(Value.Check(resolved.inputSchema, { playerId: 1.5 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { playerId: 0, includeGrid: true })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { playerId: 0, host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      playerId: 0,
-      rawCommand: "Visibility.revealAllPlots(0)",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        playerId: 0,
+        rawCommand: "Visibility.revealAllPlots(0)",
+      })
+    ).toBe(false);
     expect(Value.Check(resolved.outputSchema, visibilitySummaryResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...visibilitySummaryResult(),
-      command: "Visibility.revealAllPlots(0)",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...visibilitySummaryResult(),
+        command: "Visibility.revealAllPlots(0)",
+      })
+    ).toBe(false);
   });
 
   test("calls the visibility summary atom through the procedure core without reveal mutation", async () => {
-    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> =
+      [];
     const boundsCalls: Array<{ x: number; y: number; width: number; height: number }> = [];
     const playerIds: number[] = [];
     const executeCalls: Array<{
@@ -101,21 +108,24 @@ describe("Civ7 visibility summary procedure descriptor", () => {
       },
     };
 
-    const result = await callCiv7VisibilitySummaryProcedure({
-      playerId: 0,
-      bounds: { x: 0, y: 0, width: 2, height: 1 },
-      includeGrid: true,
-      maxPlots: 2,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7VisibilitySummaryProcedure(
+      {
+        playerId: 0,
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        includeGrid: true,
+        maxPlots: 2,
       },
-      procedure: {
-        correlationId: "visibility-summary-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "visibility-summary-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(visibilitySummaryResult());
     expect(result.diagnostics).toMatchObject({
@@ -127,9 +137,7 @@ describe("Civ7 visibility summary procedure descriptor", () => {
       telemetryCorrelation: false,
     });
     expect(playerIds).toEqual([0]);
-    expect(boundedIntegerCalls).toEqual([
-      { value: 2, min: 1, max: 10_000, label: "maxPlots" },
-    ]);
+    expect(boundedIntegerCalls).toEqual([{ value: 2, min: 1, max: 10_000, label: "maxPlots" }]);
     expect(boundsCalls).toEqual([{ x: 0, y: 0, width: 2, height: 1 }]);
     expect(executeCalls).toHaveLength(1);
     expect(executeCalls[0]).toMatchObject({
@@ -161,13 +169,18 @@ describe("Civ7 visibility summary procedure descriptor", () => {
       validatePlayerId: (playerId) => playerId,
     };
 
-    await expect(callCiv7VisibilitySummaryProcedure({
-      playerId: 0,
-      includeGrid: true,
-    }, {
-      procedure: { correlationId: "visibility-summary-missing-bounds" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7VisibilitySummaryProcedure(
+        {
+          playerId: 0,
+          includeGrid: true,
+        },
+        {
+          procedure: { correlationId: "visibility-summary-missing-bounds" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -175,13 +188,18 @@ describe("Civ7 visibility summary procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7VisibilitySummaryProcedure({
-      playerId: 0,
-      rawCommand: "Visibility.revealAllPlots(0)",
-    } as never, {
-      procedure: { correlationId: "visibility-summary-raw-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7VisibilitySummaryProcedure(
+        {
+          playerId: 0,
+          rawCommand: "Visibility.revealAllPlots(0)",
+        } as never,
+        {
+          procedure: { correlationId: "visibility-summary-raw-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

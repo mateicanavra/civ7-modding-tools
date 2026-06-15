@@ -1,5 +1,5 @@
-import { PREFIX_TO_TABLE, PRIMARY_KEYS } from './constants';
-import { Index, RowRecord } from '../types';
+import { Index, RowRecord } from "../types";
+import { PREFIX_TO_TABLE, PRIMARY_KEYS } from "./constants";
 
 /** Lookup rows by a specific column value using the prebuilt column index. */
 export function findBy(table: string, col: string, val: string, idx: Index): RowRecord[] {
@@ -25,10 +25,8 @@ export function getByPk(table: string, id: string, idx: Index): RowRecord | unde
 
 /** Guess a table name from a well-known ID prefix (e.g., LEADER_*, MODIFIER_*). */
 export function guessTableFromId(id: string): string | undefined {
-  for (const [re, table] of (PREFIX_TO_TABLE as Array<[RegExp, string]>)) {
+  for (const [re, table] of PREFIX_TO_TABLE as Array<[RegExp, string]>) {
     if (re.test(id)) return table;
   }
   return undefined;
 }
-
-

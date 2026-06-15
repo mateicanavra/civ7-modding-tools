@@ -135,9 +135,10 @@ export function Keys(value: string) {
   return `Object.getOwnPropertyNames(${value})`;
 }
 export function HasPropertyKey(value: string, key: string) {
-  const isProtoField =
-    key === '"__proto__"' || key === '"toString"' || key === '"constructor"';
-  return isProtoField ? `Object.prototype.hasOwnProperty.call(${value}, ${key})` : `${key} in ${value}`;
+  const isProtoField = key === '"__proto__"' || key === '"toString"' || key === '"constructor"';
+  return isProtoField
+    ? `Object.prototype.hasOwnProperty.call(${value}, ${key})`
+    : `${key} in ${value}`;
 }
 export function IsDeepEqual(left: string, right: string) {
   return `Guard.IsDeepEqual(${left}, ${right})`;
@@ -203,4 +204,3 @@ export function PrefixIncrement(expression: string) {
 export function MultipleOf(dividend: string, divisor: string) {
   return `Guard.IsMultipleOf(${dividend}, ${divisor})`;
 }
-

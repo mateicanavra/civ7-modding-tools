@@ -1,7 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { Type } from "typebox";
-
-import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import {
   buildRecipeDag,
   createStage,
@@ -9,6 +6,9 @@ import {
   defineArtifact,
   defineStep,
 } from "@mapgen/authoring/index.js";
+
+import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
+import { Type } from "typebox";
 
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false, default: {} });
 
@@ -103,12 +103,14 @@ describe("recipe DAG authoring model", () => {
     expect(dag.recipeKey).toBe("test-mod/standard");
     expect(dag.stages.map((node) => node.stageId)).toEqual(["source-stage", "target-stage"]);
     expect(dag.phases.map((phase) => phase.id)).toEqual(["foundation", "morphology"]);
-    expect(dag.edges.map((edge) => ({
-      artifact: edge.artifact.id,
-      from: edge.from.fullStepId,
-      to: edge.to.fullStepId,
-      internal: edge.internal,
-    }))).toEqual([
+    expect(
+      dag.edges.map((edge) => ({
+        artifact: edge.artifact.id,
+        from: edge.from.fullStepId,
+        to: edge.to.fullStepId,
+        internal: edge.internal,
+      }))
+    ).toEqual([
       {
         artifact: "artifact:test.internal",
         from: "test-mod.standard.target-stage.produce-internal",

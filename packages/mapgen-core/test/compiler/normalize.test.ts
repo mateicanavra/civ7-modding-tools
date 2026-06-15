@@ -1,12 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { Type } from "typebox";
-
 import { defineOp } from "@mapgen/authoring/index.js";
 import {
   normalizeOpsTopLevel,
   normalizeStrict,
   prefillOpDefaults,
 } from "@mapgen/compiler/normalize.js";
+import { Type } from "typebox";
 
 describe("compiler normalize helpers", () => {
   it("reports unknown keys with stable paths", () => {
@@ -18,9 +17,9 @@ describe("compiler normalize helpers", () => {
     );
 
     const result = normalizeStrict(schema, { foo: "ok", extra: 1 }, "/config");
-    expect(result.errors.some((err) => err.path === "/config/extra" && err.message === "Unknown key")).toBe(
-      true
-    );
+    expect(
+      result.errors.some((err) => err.path === "/config/extra" && err.message === "Unknown key")
+    ).toBe(true);
   });
 
   it("handles null input with deterministic error paths", () => {

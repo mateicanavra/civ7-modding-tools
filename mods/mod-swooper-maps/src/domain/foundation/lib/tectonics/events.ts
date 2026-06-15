@@ -3,9 +3,8 @@ import type { FoundationCrust } from "../../ops/compute-crust/contract.js";
 import type { FoundationMantleForcing } from "../../ops/compute-mantle-forcing/contract.js";
 import type { FoundationMesh } from "../../ops/compute-mesh/contract.js";
 import type { FoundationTectonicSegments } from "../../ops/compute-tectonic-segments/contract.js";
-import type { TectonicEventRecord } from "./internal-contract.js";
-
 import { EVENT_TYPE } from "./constants.js";
+import type { TectonicEventRecord } from "./internal-contract.js";
 import { clamp01, clampByte, normalizeToInt8 } from "./shared.js";
 
 export function buildBoundaryEventsFromSegments(params: {
@@ -63,7 +62,10 @@ export function buildBoundaryEventsFromSegments(params: {
     let originPlateId = -1;
     if (eventType === EVENT_TYPE.convergenceSubduction) {
       originPlateId = polarity < 0 ? plateB : polarity > 0 ? plateA : -1;
-    } else if (eventType === EVENT_TYPE.divergenceRift || eventType === EVENT_TYPE.convergenceCollision) {
+    } else if (
+      eventType === EVENT_TYPE.divergenceRift ||
+      eventType === EVENT_TYPE.convergenceCollision
+    ) {
       originPlateId = Math.min(plateA, plateB);
     }
 

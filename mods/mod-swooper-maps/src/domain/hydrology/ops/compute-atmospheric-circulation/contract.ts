@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 /**
  * Computes a prevailing wind field (U/V) from latitude plus deterministic structure/noise.
@@ -26,15 +26,20 @@ const ComputeAtmosphericCirculationInputSchema = Type.Object(
       description: "Deterministic RNG seed (derived in the step; pure data).",
     }),
     /** Optional land mask per tile (1=land, 0=water). */
-    landMask: Type.Optional(TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." })),
+    landMask: Type.Optional(
+      TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." })
+    ),
     /** Optional elevation (meters-ish) per tile (signed). */
-    elevation: Type.Optional(TypedArraySchemas.i16({ description: "Elevation per tile (optional; signed meters-ish)." })),
+    elevation: Type.Optional(
+      TypedArraySchemas.i16({ description: "Elevation per tile (optional; signed meters-ish)." })
+    ),
     /** Optional season phase (0..1), where 0 and 1 represent the same point in the cycle. */
     seasonPhase01: Type.Optional(
       Type.Number({
         minimum: 0,
         maximum: 1,
-        description: "Optional season phase (0..1), where 0 and 1 represent the same point in the cycle.",
+        description:
+          "Optional season phase (0..1), where 0 and 1 represent the same point in the cycle.",
       })
     ),
   },
@@ -108,7 +113,8 @@ const ComputeAtmosphericCirculationDefaultStrategySchema = Type.Object(
       default: 110,
       minimum: 1,
       maximum: 400,
-      description: "Max speed used for quantization to i8 (higher = weaker output for same internal field).",
+      description:
+        "Max speed used for quantization to i8 (higher = weaker output for same internal field).",
     }),
     /** Base zonal (east-west) circulation strength. */
     zonalStrength: Type.Number({
@@ -171,7 +177,8 @@ const ComputeAtmosphericCirculationDefaultStrategySchema = Type.Object(
       default: 4,
       minimum: 0,
       maximum: 16,
-      description: "Bounded smoothing passes over the vector field (higher = smoother, less noisy).",
+      description:
+        "Bounded smoothing passes over the vector field (higher = smoother, less noisy).",
     }),
   },
   {

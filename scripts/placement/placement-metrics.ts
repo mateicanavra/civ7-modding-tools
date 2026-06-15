@@ -29,14 +29,13 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { getCiv7StandardMapSizePreset } from "../../packages/civ7-adapter/src/map-metadata.ts";
-
 import {
   aggregatePlacementMetrics,
-  runPlacementMetrics,
   type PlacementMetricsRun,
+  runPlacementMetrics,
 } from "../../mods/mod-swooper-maps/src/dev/diagnostics/placement-metrics.js";
 import { parseArgs } from "../../mods/mod-swooper-maps/src/dev/diagnostics/shared.js";
+import { getCiv7StandardMapSizePreset } from "../../packages/civ7-adapter/src/map-metadata.ts";
 
 function parseIntFlag(value: string | true | undefined, fallback: number): number {
   if (typeof value !== "string") return fallback;
@@ -44,7 +43,11 @@ function parseIntFlag(value: string | true | undefined, fallback: number): numbe
   return Number.isFinite(n) ? n : fallback;
 }
 
-function parseSize(value: string | true | undefined): { width: number; height: number; label: string } {
+function parseSize(value: string | true | undefined): {
+  width: number;
+  height: number;
+  label: string;
+} {
   const raw = typeof value === "string" ? value.trim().toLowerCase() : "standard";
   const explicit = /^(\d+)x(\d+)$/.exec(raw);
   if (explicit) {

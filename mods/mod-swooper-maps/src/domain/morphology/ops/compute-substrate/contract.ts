@@ -1,15 +1,17 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 export const SubstrateConfigSchema = Type.Object(
   {
     continentalBaseErodibility: Type.Number({
-      description: "Controls baseline erodibility for continental crust tiles used by terrain incision.",
+      description:
+        "Controls baseline erodibility for continental crust tiles used by terrain incision.",
       default: 0.45,
       minimum: 0,
       maximum: 1,
     }),
     oceanicBaseErodibility: Type.Number({
-      description: "Controls baseline erodibility for oceanic crust tiles used by terrain incision.",
+      description:
+        "Controls baseline erodibility for oceanic crust tiles used by terrain incision.",
       default: 0.35,
       minimum: 0,
       maximum: 1,
@@ -27,13 +29,15 @@ export const SubstrateConfigSchema = Type.Object(
       maximum: 1,
     }),
     ageErodibilityReduction: Type.Number({
-      description: "Controls how strongly crust age reduces erodibility in terrain substrates (0..1).",
+      description:
+        "Controls how strongly crust age reduces erodibility in terrain substrates (0..1).",
       default: 0.25,
       minimum: 0,
       maximum: 1,
     }),
     ageSedimentBoost: Type.Number({
-      description: "Controls how strongly crust age raises sediment depth in terrain substrates (0..1).",
+      description:
+        "Controls how strongly crust age raises sediment depth in terrain substrates (0..1).",
       default: 0.15,
       minimum: 0,
       maximum: 1,

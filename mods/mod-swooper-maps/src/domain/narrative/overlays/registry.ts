@@ -1,6 +1,6 @@
-import type { StoryOverlaySnapshot, StoryOverlayRegistry } from "@swooper/mapgen-core";
-import { STORY_OVERLAY_KEYS, type StoryOverlayKey } from "./keys.js";
 import { normalizeOverlay } from "@mapgen/domain/narrative/overlays/normalize.js";
+import type { StoryOverlayRegistry, StoryOverlaySnapshot } from "@swooper/mapgen-core";
+import { STORY_OVERLAY_KEYS, type StoryOverlayKey } from "./keys.js";
 
 interface OverlayContext {
   overlays?: StoryOverlayRegistry;
@@ -39,15 +39,11 @@ const ensureOverlayRegistry = (
     return ctx.overlays;
   }
 
-  ctx.overlays.corridors = Array.isArray(ctx.overlays.corridors)
-    ? ctx.overlays.corridors
-    : [];
-  ctx.overlays.swatches = Array.isArray(ctx.overlays.swatches)
-    ? ctx.overlays.swatches
-    : [];
+  ctx.overlays.corridors = Array.isArray(ctx.overlays.corridors) ? ctx.overlays.corridors : [];
+  ctx.overlays.swatches = Array.isArray(ctx.overlays.swatches) ? ctx.overlays.swatches : [];
   ctx.overlays.motifs = Array.isArray(ctx.overlays.motifs) ? ctx.overlays.motifs : [];
   return ctx.overlays;
-}
+};
 
 export function publishStoryOverlay(
   ctx: OverlayContext | null | undefined,

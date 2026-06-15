@@ -1,4 +1,4 @@
-import { Type, type TSchema } from "typebox";
+import { type TSchema, Type } from "typebox";
 
 import { toStandardSchema } from "../typeboxStandardSchema.js";
 
@@ -19,9 +19,7 @@ export const unknownRecordSchema = Type.Record(Type.String(), Type.Unknown());
 export const isoTimestampSchema = Type.String();
 
 /** Empty request body/query object. */
-export const emptyInputSchema = toStandardSchema(
-  Type.Object({}, { additionalProperties: false }),
-);
+export const emptyInputSchema = toStandardSchema(Type.Object({}, { additionalProperties: false }));
 
 /** Convert a TypeBox schema to the Standard Schema artifact oRPC consumes. */
 export function contractSchema<TypeSchema extends TSchema>(schema: TypeSchema) {
@@ -37,5 +35,5 @@ export const errorEnvelopeSchema = Type.Object(
     ok: Type.Literal(false),
     error: Type.String(),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );

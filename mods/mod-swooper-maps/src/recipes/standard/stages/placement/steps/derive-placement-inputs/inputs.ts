@@ -1,5 +1,3 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import type { DiscoveryCatalogEntry } from "@civ7/adapter";
 import {
   CIV7_BROWSER_TABLES_V0,
@@ -7,15 +5,19 @@ import {
   resolveNaturalWonderMaterializationDirection,
 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
-import type { PlacementInputsV1 } from "../../placement-inputs.js";
+import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import { getStandardRuntime } from "../../../../runtime.js";
+import type { PlacementInputsV1 } from "../../placement-inputs.js";
 
 import DerivePlacementInputsContract from "./contract.js";
 
 type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsContract.schema>;
-type DerivePlacementInputsOps = StepRuntimeOps<NonNullable<typeof DerivePlacementInputsContract.ops>>;
-type PlanNaturalWondersOutput = Static<typeof placement.ops.planNaturalWonders["output"]>;
-type PlanDiscoveriesOutput = Static<typeof placement.ops.planDiscoveries["output"]>;
+type DerivePlacementInputsOps = StepRuntimeOps<
+  NonNullable<typeof DerivePlacementInputsContract.ops>
+>;
+type PlanNaturalWondersOutput = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
+type PlanDiscoveriesOutput = Static<(typeof placement.ops.planDiscoveries)["output"]>;
 
 const FEATURE_VALID_TERRAIN_TYPE_INDICES =
   CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as Record<
@@ -29,13 +31,14 @@ const FEATURE_VALID_BIOME_TYPE_INDICES =
   >;
 const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
   string,
-  {
-    noLake: boolean;
-    minimumElevation?: number;
-    placementClass?: string;
-    naturalWonderTiles?: number;
-    naturalWonderDirection?: number;
-  } | undefined
+  | {
+      noLake: boolean;
+      minimumElevation?: number;
+      placementClass?: string;
+      naturalWonderTiles?: number;
+      naturalWonderDirection?: number;
+    }
+  | undefined
 >;
 const FEATURE_TAGS_BY_FEATURE_TYPE = CIV7_BROWSER_TABLES_V0.featureTagsByFeatureType as Record<
   string,

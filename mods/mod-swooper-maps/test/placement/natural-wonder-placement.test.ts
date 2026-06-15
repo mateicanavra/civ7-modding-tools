@@ -2,11 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import {
-  FLAT_TERRAIN,
-  HILL_TERRAIN,
-  MOUNTAIN_TERRAIN,
-} from "@swooper/mapgen-core";
+import { FLAT_TERRAIN, HILL_TERRAIN, MOUNTAIN_TERRAIN } from "@swooper/mapgen-core";
 
 import {
   buildNaturalWonderPlacementRuntimeTelemetry,

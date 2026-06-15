@@ -5,4 +5,4 @@
 import { ModifierBuilder } from "@mateicanavra/civ7-sdk";
 
 // Collection of shared modifiers
-export const sharedModifiers: ModifierBuilder[] = []; 
+export const sharedModifiers: ModifierBuilder[] = [];

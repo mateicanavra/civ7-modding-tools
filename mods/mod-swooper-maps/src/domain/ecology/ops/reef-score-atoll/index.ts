@@ -12,4 +12,3 @@ const scoreAtoll = createOp(ScoreAtollContract, {
 export type * from "./contract.js";
 
 export default scoreAtoll;
-

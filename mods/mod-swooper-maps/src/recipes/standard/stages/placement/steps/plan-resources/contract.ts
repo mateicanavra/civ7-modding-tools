@@ -1,14 +1,13 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import resources from "@mapgen/domain/resources";
-
-import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tags.js";
-import { placementArtifacts } from "../../artifacts.js";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../../map-artifacts.js";
-import { morphologyArtifacts } from "../../../morphology/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
-import { hydrologyClimateRefineArtifacts } from "../../../hydrology-climate-refine/artifacts.js";
+import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tags.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { hydrologyClimateRefineArtifacts } from "../../../hydrology-climate-refine/artifacts.js";
+import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 import { mapRiversArtifacts } from "../../../map-rivers/artifacts.js";
+import { morphologyArtifacts } from "../../../morphology/artifacts.js";
+import { placementArtifacts } from "../../artifacts.js";
 
 /**
  * Resource planning (placement-realignment S3): habitat-lane derivation +

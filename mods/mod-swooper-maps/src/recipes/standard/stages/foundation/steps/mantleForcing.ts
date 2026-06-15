@@ -1,9 +1,9 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
+import { interleaveXY } from "../viz.js";
 import MantleForcingStepContract from "./mantleForcing.contract.js";
 import { validateMantleForcingArtifact, wrapFoundationValidateNoDims } from "./validation.js";
-import { interleaveXY } from "../viz.js";
 
 const GROUP_MANTLE = "Foundation / Mantle";
 

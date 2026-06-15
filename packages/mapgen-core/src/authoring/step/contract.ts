@@ -1,11 +1,9 @@
-import { Type, type TObject, type TSchema } from "typebox";
-
-import { applySchemaConventions } from "../schema.js";
+import type { DependencyTag, GenerationPhase } from "@mapgen/engine/index.js";
+import { type TObject, type TSchema, Type } from "typebox";
 import type { ArtifactContract } from "../artifact/contract.js";
 import { buildOpEnvelopeSchemaWithDefaultStrategy } from "../op/envelope.js";
-
-import type { DependencyTag, GenerationPhase } from "@mapgen/engine/index.js";
-import type { StepOpUse, StepOpsDecl, StepOpsDeclInput } from "./ops.js";
+import { applySchemaConventions } from "../schema.js";
+import type { StepOpsDecl, StepOpsDeclInput, StepOpUse } from "./ops.js";
 
 type PropsOf<T extends TObject> = T extends TObject<infer P> ? P : never;
 
@@ -13,10 +11,10 @@ type OpPropsFromDecl<Ops extends StepOpsDecl> = {
   [K in keyof Ops & string]: Ops[K]["config"];
 };
 
-type SchemaWithOps<Schema extends TObject, Ops extends StepOpsDecl | undefined> =
-  Ops extends StepOpsDecl
-    ? TObject<PropsOf<Schema> & OpPropsFromDecl<Ops>>
-    : Schema;
+type SchemaWithOps<
+  Schema extends TObject,
+  Ops extends StepOpsDecl | undefined,
+> = Ops extends StepOpsDecl ? TObject<PropsOf<Schema> & OpPropsFromDecl<Ops>> : Schema;
 
 function objectProperties(schema: TObject): Record<string, TSchema> {
   return ((schema as any).properties as Record<string, TSchema> | undefined) ?? {};
@@ -116,7 +114,9 @@ type StepArtifactsRequires<T> = T extends { requires?: infer R } ? R : undefined
 type StepArtifactsProvides<T> = T extends { provides?: infer P } ? P : undefined;
 
 type CoerceArtifactList<T> =
-  Extract<T, readonly ArtifactContract[]> extends never ? undefined : Extract<T, readonly ArtifactContract[]>;
+  Extract<T, readonly ArtifactContract[]> extends never
+    ? undefined
+    : Extract<T, readonly ArtifactContract[]>;
 
 type StepArtifactsDeclFromInput<T extends StepArtifactsDeclInput | undefined> =
   T extends StepArtifactsDeclInput
@@ -202,8 +202,10 @@ export function defineStep(def: any): any {
     throw new Error(`step id "${def.id}" must be kebab-case (e.g. "plot-vegetation")`);
   }
 
-  const artifactRequires: string[] = def.artifacts?.requires?.map((artifact: ArtifactContract) => artifact.id) ?? [];
-  const artifactProvides: string[] = def.artifacts?.provides?.map((artifact: ArtifactContract) => artifact.id) ?? [];
+  const artifactRequires: string[] =
+    def.artifacts?.requires?.map((artifact: ArtifactContract) => artifact.id) ?? [];
+  const artifactProvides: string[] =
+    def.artifacts?.provides?.map((artifact: ArtifactContract) => artifact.id) ?? [];
   const hasArtifacts = Boolean(def.artifacts);
 
   if (hasArtifacts) {
@@ -220,7 +222,9 @@ export function defineStep(def: any): any {
   const seenArtifacts = new Set<string>();
   for (const id of artifactRequires) {
     if (seenArtifacts.has(id)) {
-      throw new Error(`step "${def.id}" declares artifact "${id}" multiple times in artifacts.requires`);
+      throw new Error(
+        `step "${def.id}" declares artifact "${id}" multiple times in artifacts.requires`
+      );
     }
     seenArtifacts.add(id);
   }
@@ -238,9 +242,7 @@ export function defineStep(def: any): any {
 
   const ops = def.ops ? normalizeOpsDecl({ stepId: def.id, ops: def.ops }) : undefined;
 
-  const schema = ops
-    ? buildSchemaWithOps({ stepId: def.id, schema: def.schema, ops })
-    : def.schema;
+  const schema = ops ? buildSchemaWithOps({ stepId: def.id, schema: def.schema, ops }) : def.schema;
   applySchemaConventions(schema, `step:${def.id}.schema`);
 
   return {

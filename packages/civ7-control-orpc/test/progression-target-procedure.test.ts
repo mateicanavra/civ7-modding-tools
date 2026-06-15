@@ -1,18 +1,17 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-
-import {
-  Civ7ControlOrpcContract,
-  Civ7ControlOrpcRouter,
-  Civ7ProgressionTargetUnavailableError,
-  createCiv7ControlOrpcServerClient,
-  type Civ7ControlOrpcContext,
-  type Civ7ControlOrpcPlayableStatusResult,
-} from "../src/index";
 import type {
   Civ7ControlOrpcPlayNotificationViewResult,
   Civ7ControlOrpcProgressionTargetResult,
 } from "../src/dependencies/direct-control";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  type Civ7ControlOrpcPlayableStatusResult,
+  Civ7ControlOrpcRouter,
+  Civ7ProgressionTargetUnavailableError,
+  createCiv7ControlOrpcServerClient,
+} from "../src/index";
 
 const technologyInput = {
   node: 18_001,
@@ -37,22 +36,24 @@ describe("progression target control-oRPC procedures", () => {
     const result = await call(
       Civ7ControlOrpcRouter.progression.technology.target.request,
       technologyInput,
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(fake.calls.readiness).toHaveLength(1);
     expect(fake.calls.views).toHaveLength(1);
-    expect(fake.calls.technology).toEqual([{
-      input: {
-        playerId: 0,
-        node: 18_001,
+    expect(fake.calls.technology).toEqual([
+      {
+        input: {
+          playerId: 0,
+          node: 18_001,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expect(fake.calls.culture).toEqual([]);
     expect(result).toEqual({
       playerId: 0,
@@ -71,20 +72,23 @@ describe("progression target control-oRPC procedures", () => {
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{
-        kind: "do-not-repeat",
-        source: "progression.technology.target.request",
-        label: "Do not repeat this progression target request until fresh progression target evidence is read.",
-      }],
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "progression.technology.target.request",
+          label:
+            "Do not repeat this progression target request until fresh progression target evidence is read.",
+        },
+      ],
     });
 
     const serialized = JSON.stringify(result);
-    expect(serialized).not.toContain("\"host\"");
-    expect(serialized).not.toContain("\"port\"");
-    expect(serialized).not.toContain("\"state\"");
-    expect(serialized).not.toContain("\"operation\"");
-    expect(serialized).not.toContain("\"command\"");
-    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain('"host"');
+    expect(serialized).not.toContain('"port"');
+    expect(serialized).not.toContain('"state"');
+    expect(serialized).not.toContain('"operation"');
+    expect(serialized).not.toContain('"command"');
+    expect(serialized).not.toContain('"verified"');
     expect(serialized).not.toContain("SET_TECH_TREE_TARGET_NODE");
   });
 
@@ -102,17 +106,19 @@ describe("progression target control-oRPC procedures", () => {
     const client = createCiv7ControlOrpcServerClient(fake.context);
     const result = await client.progression.culture.target.request(cultureInput);
 
-    expect(fake.calls.culture).toEqual([{
-      input: {
-        playerId: 0,
-        node: 27_001,
+    expect(fake.calls.culture).toEqual([
+      {
+        input: {
+          playerId: 0,
+          node: 27_001,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
       },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
+    ]);
     expect(result.status).toBe("sent-unverified");
     expect(result.postcondition).toMatchObject({
       classification: "pending-runtime-proof",
@@ -137,7 +143,7 @@ describe("progression target control-oRPC procedures", () => {
     const result = await call(
       Civ7ControlOrpcRouter.progression.technology.target.request,
       technologyInput,
-      { context: fake.context },
+      { context: fake.context }
     );
 
     expect(result).toMatchObject({
@@ -156,11 +162,13 @@ describe("progression target control-oRPC procedures", () => {
         noRepeatAfterUnverified: true,
       },
     });
-    expect(result.nextSteps).toEqual([{
-      kind: "inspect-progression-target",
-      source: "progression.technology.target.request",
-      label: "Inspect current progression target state before attempting another target request.",
-    }]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "inspect-progression-target",
+        source: "progression.technology.target.request",
+        label: "Inspect current progression target state before attempting another target request.",
+      },
+    ]);
   });
 
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
@@ -182,11 +190,9 @@ describe("progression target control-oRPC procedures", () => {
       });
 
       await expect(
-        call(
-          Civ7ControlOrpcRouter.progression.technology.target.request,
-          input as never,
-          { context: fake.context },
-        ),
+        call(Civ7ControlOrpcRouter.progression.technology.target.request, input as never, {
+          context: fake.context,
+        })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.readiness).toEqual([]);
       expect(fake.calls.views).toEqual([]);
@@ -204,18 +210,16 @@ describe("progression target control-oRPC procedures", () => {
         ...fake.context.directControl,
         requestCiv7TechnologyTarget: async () => {
           throw new Error(
-            "Timed out waiting for Civ7 tuner response to CMD:65535:SET_TECH_TREE_TARGET_NODE",
+            "Timed out waiting for Civ7 tuner response to CMD:65535:SET_TECH_TREE_TARGET_NODE"
           );
         },
       },
     };
 
     await expect(
-      call(
-        Civ7ControlOrpcRouter.progression.technology.target.request,
-        technologyInput,
-        { context: failingContext },
-      ),
+      call(Civ7ControlOrpcRouter.progression.technology.target.request, technologyInput, {
+        context: failingContext,
+      })
     ).rejects.toMatchObject({
       code: "PROGRESSION_TARGET_UNAVAILABLE",
       status: 503,
@@ -226,11 +230,9 @@ describe("progression target control-oRPC procedures", () => {
     });
 
     try {
-      await call(
-        Civ7ControlOrpcRouter.progression.technology.target.request,
-        technologyInput,
-        { context: failingContext },
-      );
+      await call(Civ7ControlOrpcRouter.progression.technology.target.request, technologyInput, {
+        context: failingContext,
+      });
     } catch (err) {
       const serialized = JSON.stringify(err);
       expect(serialized).not.toContain("CMD");
@@ -241,9 +243,7 @@ describe("progression target control-oRPC procedures", () => {
   });
 
   test("publishes domain-first progression target service leaves", () => {
-    expect(
-      Civ7ControlOrpcContract.progression.technology.target.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.progression.technology.target.request["~orpc"]).toMatchObject({
       meta: {
         family: "progression",
         procedureKey: "progression.technology.target.request",
@@ -251,9 +251,7 @@ describe("progression target control-oRPC procedures", () => {
         risk: "mutation",
       },
     });
-    expect(
-      Civ7ControlOrpcContract.progression.culture.target.request["~orpc"],
-    ).toMatchObject({
+    expect(Civ7ControlOrpcContract.progression.culture.target.request["~orpc"]).toMatchObject({
       meta: {
         family: "progression",
         procedureKey: "progression.culture.target.request",
@@ -262,51 +260,59 @@ describe("progression target control-oRPC procedures", () => {
       },
     });
     expect(
-      Civ7ControlOrpcContract.progression.technology.target.request["~orpc"].errorMap,
+      Civ7ControlOrpcContract.progression.technology.target.request["~orpc"].errorMap
     ).toHaveProperty("PROGRESSION_TARGET_UNAVAILABLE");
     expect(
-      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions,
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions
     ).toBeUndefined();
     expect(
-      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).operations,
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).operations
     ).toBeUndefined();
-    expect(Civ7ProgressionTargetUnavailableError.code).toBe(
-      "PROGRESSION_TARGET_UNAVAILABLE",
-    );
+    expect(Civ7ProgressionTargetUnavailableError.code).toBe("PROGRESSION_TARGET_UNAVAILABLE");
   });
 });
 
-function fakeContext(options: Readonly<{
-  view: Civ7ControlOrpcPlayNotificationViewResult;
-  technologyResult?: Civ7ControlOrpcProgressionTargetResult;
-  cultureResult?: Civ7ControlOrpcProgressionTargetResult;
-  playable?: boolean;
-}>): {
+function fakeContext(
+  options: Readonly<{
+    view: Civ7ControlOrpcPlayNotificationViewResult;
+    technologyResult?: Civ7ControlOrpcProgressionTargetResult;
+    cultureResult?: Civ7ControlOrpcProgressionTargetResult;
+    playable?: boolean;
+  }>
+): {
   calls: {
     readiness: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
-    technology: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
-    culture: Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>;
+    technology: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
+    culture: Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >;
   };
   context: Civ7ControlOrpcContext;
 } {
   const calls = {
     readiness: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
     views: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
-    technology: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
-    culture: [] as Array<Readonly<{
-      input: unknown;
-      options: Civ7ControlOrpcContext["endpointDefaults"];
-    }>>,
+    technology: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
+    culture: [] as Array<
+      Readonly<{
+        input: unknown;
+        options: Civ7ControlOrpcContext["endpointDefaults"];
+      }>
+    >,
   };
 
   return {
@@ -328,23 +334,27 @@ function fakeContext(options: Readonly<{
         },
         requestCiv7TechnologyTarget: async (input, endpointDefaults) => {
           calls.technology.push({ input, options: endpointDefaults });
-          return options.technologyResult
-            ?? progressionTargetResult({
+          return (
+            options.technologyResult ??
+            progressionTargetResult({
               kind: "technology",
               playerId: 0,
               node: 18_001,
               sent: true,
-            });
+            })
+          );
         },
         requestCiv7CultureTarget: async (input, endpointDefaults) => {
           calls.culture.push({ input, options: endpointDefaults });
-          return options.cultureResult
-            ?? progressionTargetResult({
+          return (
+            options.cultureResult ??
+            progressionTargetResult({
               kind: "culture",
               playerId: 0,
               node: 27_001,
               sent: true,
-            });
+            })
+          );
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -358,12 +368,11 @@ function progressionTargetResult(
     node: number;
     sent: boolean;
     valid?: boolean;
-  }>,
+  }>
 ): Civ7ControlOrpcProgressionTargetResult {
   const valid = options.valid ?? true;
-  const operationType = options.kind === "technology"
-    ? "SET_TECH_TREE_TARGET_NODE"
-    : "SET_CULTURE_TREE_TARGET_NODE";
+  const operationType =
+    options.kind === "technology" ? "SET_TECH_TREE_TARGET_NODE" : "SET_CULTURE_TREE_TARGET_NODE";
   return {
     kind: options.kind,
     playerId: options.playerId,
@@ -393,7 +402,7 @@ function validationResult(
     playerId: number;
     node: number;
   }>,
-  valid: boolean,
+  valid: boolean
 ): Civ7ControlOrpcProgressionTargetResult["beforeValidation"] {
   return {
     host: "127.0.0.1",
@@ -410,7 +419,7 @@ function validationResult(
 }
 
 function notificationView(
-  options: Readonly<{ localPlayerId: number }>,
+  options: Readonly<{ localPlayerId: number }>
 ): Civ7ControlOrpcPlayNotificationViewResult {
   return {
     host: "127.0.0.1",

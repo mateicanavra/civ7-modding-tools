@@ -1,64 +1,63 @@
-import { Command, Flags } from '@oclif/core';
 import {
   configureCiv7Autoplay,
   getCiv7AutoplayStatus,
   startCiv7Autoplay,
   stopCiv7Autoplay,
-} from '@civ7/direct-control';
+} from "@civ7/direct-control";
+import { Command, Flags } from "@oclif/core";
 
 export default class GameAutoplay extends Command {
-  static id = 'game autoplay';
-  static summary = 'Inspect or control Civ7 autoplay';
-  static description =
-    'Reads and changes native Civ7 Autoplay state through @civ7/direct-control.';
+  static id = "game autoplay";
+  static summary = "Inspect or control Civ7 autoplay";
+  static description = "Reads and changes native Civ7 Autoplay state through @civ7/direct-control.";
 
   static examples = [
-    '<%= config.bin %> game autoplay --json',
-    '<%= config.bin %> game autoplay --action start --json',
-    '<%= config.bin %> game autoplay --action start --turns 1 --json',
-    '<%= config.bin %> game autoplay --action stop',
+    "<%= config.bin %> game autoplay --json",
+    "<%= config.bin %> game autoplay --action start --json",
+    "<%= config.bin %> game autoplay --action start --turns 1 --json",
+    "<%= config.bin %> game autoplay --action stop",
   ];
 
   static flags = {
     host: Flags.string({
-      description: 'Civ7 tuner socket host',
+      description: "Civ7 tuner socket host",
     }),
     port: Flags.integer({
-      description: 'Civ7 tuner socket port',
+      description: "Civ7 tuner socket port",
     }),
     action: Flags.string({
-      description: 'Action to run',
-      options: ['status', 'configure', 'start', 'stop'],
-      default: 'status',
+      description: "Action to run",
+      options: ["status", "configure", "start", "stop"],
+      default: "status",
     }),
     turns: Flags.integer({
-      description: 'Optional autoplay turn count; omit for native unbounded autoplay',
+      description: "Optional autoplay turn count; omit for native unbounded autoplay",
     }),
-    'observe-as-player': Flags.integer({
-      description: 'Player id to observe as',
+    "observe-as-player": Flags.integer({
+      description: "Player id to observe as",
     }),
-    'return-as-player': Flags.integer({
-      description: 'Player id to return as',
+    "return-as-player": Flags.integer({
+      description: "Player id to return as",
     }),
     pause: Flags.boolean({
-      description: 'Set autoplay pause state during configure/start',
+      description: "Set autoplay pause state during configure/start",
       allowNo: true,
     }),
-    'timeout-ms': Flags.integer({
-      description: 'Socket timeout',
+    "timeout-ms": Flags.integer({
+      description: "Socket timeout",
       default: 45_000,
     }),
-    'wait-timeout-ms': Flags.integer({
-      description: 'Autoplay state transition wait timeout',
+    "wait-timeout-ms": Flags.integer({
+      description: "Autoplay state transition wait timeout",
     }),
-    'poll-interval-ms': Flags.integer({
-      description: 'Autoplay state polling interval',
+    "poll-interval-ms": Flags.integer({
+      description: "Autoplay state polling interval",
     }),
-    'stability-window-ms': Flags.integer({
-      description: 'Turn-stability window for stop verification',
+    "stability-window-ms": Flags.integer({
+      description: "Turn-stability window for stop verification",
     }),
     json: Flags.boolean({
-      description: 'Emit machine-readable JSON',
+      description: "Emit machine-readable JSON",
       default: false,
     }),
   };
@@ -68,21 +67,21 @@ export default class GameAutoplay extends Command {
     const options = {
       host: flags.host,
       port: flags.port,
-      timeoutMs: flags['timeout-ms'],
+      timeoutMs: flags["timeout-ms"],
       turns: flags.turns,
-      observeAsPlayer: flags['observe-as-player'],
-      returnAsPlayer: flags['return-as-player'],
+      observeAsPlayer: flags["observe-as-player"],
+      returnAsPlayer: flags["return-as-player"],
       pause: flags.pause,
-      waitTimeoutMs: flags['wait-timeout-ms'],
-      pollIntervalMs: flags['poll-interval-ms'],
-      stabilityWindowMs: flags['stability-window-ms'],
+      waitTimeoutMs: flags["wait-timeout-ms"],
+      pollIntervalMs: flags["poll-interval-ms"],
+      stabilityWindowMs: flags["stability-window-ms"],
     };
     const result =
-      flags.action === 'configure'
+      flags.action === "configure"
         ? await configureCiv7Autoplay(options)
-        : flags.action === 'start'
+        : flags.action === "start"
           ? await startCiv7Autoplay(options)
-          : flags.action === 'stop'
+          : flags.action === "stop"
             ? await stopCiv7Autoplay(options)
             : await getCiv7AutoplayStatus(options);
 

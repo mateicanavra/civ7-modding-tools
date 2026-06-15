@@ -51,20 +51,20 @@ const saveDeployStatusTypeSchema = Type.Object(
                 stdout: Type.Optional(Type.String()),
                 stderr: Type.Optional(Type.String()),
               },
-              { additionalProperties: false },
-            ),
+              { additionalProperties: false }
+            )
           ),
           targetDir: Type.Optional(Type.String()),
           modsDir: Type.Optional(Type.String()),
           filesCopied: Type.Optional(Type.Number()),
         },
-        { additionalProperties: false },
-      ),
+        { additionalProperties: false }
+      )
     ),
     details: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
     recoveryActions: Type.Optional(Type.Array(Type.String())),
   },
-  { additionalProperties: false },
+  { additionalProperties: false }
 );
 
 export const saveDeployStatusSchema = contractSchema(saveDeployStatusTypeSchema);
@@ -87,9 +87,9 @@ export const status = oc
         {
           requestId: Type.String({ minLength: 1 }),
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   )
   .output(saveDeployStatusSchema);
 
@@ -122,8 +122,8 @@ export const saveDeploy = oc
           restart: Type.Optional(Type.Boolean()),
           verifyRestart: Type.Optional(Type.Boolean()),
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   )
   .output(saveDeployStatusSchema);

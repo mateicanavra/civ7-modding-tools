@@ -1,7 +1,7 @@
-import { Delaunay } from "d3-delaunay";
-import { createLabelRng } from "@mapgen/lib/rng/label.js";
-import { rollUnit, type RngFn } from "@mapgen/lib/rng/unit.js";
 import { HEX_HEIGHT, HEX_WIDTH } from "@mapgen/lib/grid/hex-space.js";
+import { createLabelRng } from "@mapgen/lib/rng/label.js";
+import { type RngFn, rollUnit } from "@mapgen/lib/rng/unit.js";
+import { Delaunay } from "d3-delaunay";
 
 export type MeshBBox = {
   xl: number;
@@ -150,7 +150,11 @@ export function buildDelaunayMesh(input: DelaunayMeshInput): DelaunayMesh {
 
   for (let step = 0; step < relaxationSteps; step++) {
     const expandedSites = buildExpandedSites(sites, wrapWidth);
-    const delaunay = Delaunay.from(expandedSites, (p) => p.x, (p) => p.y);
+    const delaunay = Delaunay.from(
+      expandedSites,
+      (p) => p.x,
+      (p) => p.y
+    );
     const voronoi = delaunay.voronoi([-wrapWidth, bbox.yt, wrapWidth * 2, bbox.yb]);
     const nextSites: Point2D[] = Array.from({ length: cellCount }, () => ({ x: 0, y: 0 }));
 
@@ -175,7 +179,11 @@ export function buildDelaunayMesh(input: DelaunayMeshInput): DelaunayMesh {
   }
 
   const expandedSites = buildExpandedSites(sites, wrapWidth);
-  const delaunay = Delaunay.from(expandedSites, (p) => p.x, (p) => p.y);
+  const delaunay = Delaunay.from(
+    expandedSites,
+    (p) => p.x,
+    (p) => p.y
+  );
   const voronoi = delaunay.voronoi([bbox.xl, bbox.yt, bbox.xr, bbox.yb]);
 
   const siteX = new Float32Array(cellCount);

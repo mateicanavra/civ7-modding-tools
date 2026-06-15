@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
-import { MockAdapter, type MapInfo } from "@civ7/adapter";
-import { FLAT_TERRAIN, createExtendedMapContext } from "@swooper/mapgen-core";
+import { type MapInfo, MockAdapter } from "@civ7/adapter";
+import { createExtendedMapContext, FLAT_TERRAIN } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";

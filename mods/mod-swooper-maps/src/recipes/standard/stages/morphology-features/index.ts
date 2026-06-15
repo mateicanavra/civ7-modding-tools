@@ -1,17 +1,14 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
-import { islands, landmasses, mountains, volcanoes } from "./steps/index.js";
 import {
   MorphologyOrogenyKnobSchema,
   MorphologyVolcanismKnobSchema,
 } from "@mapgen/domain/morphology/config.js";
-import {
-  IslandsConfigSchema,
-  VolcanoesConfigSchema,
-} from "@mapgen/domain/morphology/ops";
+import { IslandsConfigSchema, VolcanoesConfigSchema } from "@mapgen/domain/morphology/ops";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import {
   MountainRangesPublicSchema,
   resolveMountainRangesPublicConfig,
 } from "./mountain-ranges-public-config.js";
+import { islands, landmasses, mountains, volcanoes } from "./steps/index.js";
 
 /**
  * Morphology-features owns landform intent before map projection. Volcanism

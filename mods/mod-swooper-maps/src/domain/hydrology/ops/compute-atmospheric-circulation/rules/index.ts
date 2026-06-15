@@ -1,6 +1,5 @@
-import { clampInt, idx } from "@swooper/mapgen-core";
+import { clampInt, createLabelRng, idx } from "@swooper/mapgen-core";
 import { projectOddqToHexSpace, wrapX } from "@swooper/mapgen-core/lib/grid";
-import { createLabelRng } from "@swooper/mapgen-core";
 
 export function computeWinds(
   width: number,
@@ -155,10 +154,20 @@ function getNeighborDeltaHexSpaceFrom(baseX: number, dx: number, dy: number): Ve
   return { x: p.x - base.x, y: p.y - base.y };
 }
 
-const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) => getNeighborDeltaHexSpaceFrom(1, dx, dy));
-const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) => getNeighborDeltaHexSpaceFrom(0, dx, dy));
+const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) =>
+  getNeighborDeltaHexSpaceFrom(1, dx, dy)
+);
+const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) =>
+  getNeighborDeltaHexSpaceFrom(0, dx, dy)
+);
 
-function smoothFieldOddQ(width: number, height: number, fx: Float32Array, fy: Float32Array, iters: number): void {
+function smoothFieldOddQ(
+  width: number,
+  height: number,
+  fx: Float32Array,
+  fy: Float32Array,
+  iters: number
+): void {
   const size = Math.max(0, width * height);
   if (iters <= 0 || size === 0) return;
 

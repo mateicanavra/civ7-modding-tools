@@ -4,12 +4,12 @@
 // config skeleton, merge schema defaults and presets deterministically, and
 // normalize the result through the recipe schema. They were extracted verbatim
 // from `App.tsx` during the app-decomposition slice — behavior is unchanged.
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
-import { stripSchemaMetadataRoot, type TSchema } from "@swooper/mapgen-core/authoring";
 
-import { migratePipelineConfigUnknown } from "../configMigrations/pipelineConfig";
-import type { PipelineConfig } from "../../ui/types";
+import { stripSchemaMetadataRoot, type TSchema } from "@swooper/mapgen-core/authoring";
+import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import type { StudioRecipeUiMeta } from "../../recipes/catalog";
+import type { PipelineConfig } from "../../ui/types";
+import { migratePipelineConfigUnknown } from "../configMigrations/pipelineConfig";
 import type { PresetKey } from "../presets/types";
 
 export function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -34,7 +34,11 @@ export function mergeDeterministic(base: unknown, overrides: unknown): unknown {
   return out;
 }
 
-export function setAtPath(root: Record<string, unknown>, path: readonly string[], value: unknown): void {
+export function setAtPath(
+  root: Record<string, unknown>,
+  path: readonly string[],
+  value: unknown
+): void {
   let current: unknown = root;
   for (let i = 0; i < path.length; i += 1) {
     const key = path[i];
@@ -124,6 +128,8 @@ export function applyPresetConfig(args: {
   return { value, errors: [] };
 }
 
-export function formatPresetErrors(errors: ReadonlyArray<{ path: string; message: string }>): ReadonlyArray<string> {
+export function formatPresetErrors(
+  errors: ReadonlyArray<{ path: string; message: string }>
+): ReadonlyArray<string> {
   return errors.map((e) => `${e.path}: ${e.message}`);
 }

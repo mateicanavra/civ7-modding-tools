@@ -1,11 +1,7 @@
 import { oc } from "@orpc/contract";
 import { Type } from "typebox";
 
-import {
-  liveEntitiesErrors,
-  liveGameInfoErrors,
-  liveSnapshotErrors,
-} from "./errors.js";
+import { liveEntitiesErrors, liveGameInfoErrors, liveSnapshotErrors } from "./errors.js";
 import {
   contractSchema,
   emptyInputSchema,
@@ -42,24 +38,22 @@ const fieldOrErrorSchema = Type.Union([
 // mapSummary, autoplay } where ok = playableStatus && readiness !== "unavailable",
 // and each of status/appUi/mapSummary/autoplay may be the payload OR { error }
 // (Promise.allSettled). Error 500 ONLY on outer throw.
-export const status = oc
-  .input(emptyInputSchema)
-  .output(
-    contractSchema(
-      Type.Object(
-        {
-          ok: Type.Boolean(),
-          playable: Type.Boolean(),
-          observedAt: isoTimestampSchema,
-          status: fieldOrErrorSchema,
-          appUi: fieldOrErrorSchema,
-          mapSummary: fieldOrErrorSchema,
-          autoplay: fieldOrErrorSchema,
-        },
-        { additionalProperties: false },
-      ),
-    ),
-  );
+export const status = oc.input(emptyInputSchema).output(
+  contractSchema(
+    Type.Object(
+      {
+        ok: Type.Boolean(),
+        playable: Type.Boolean(),
+        observedAt: isoTimestampSchema,
+        status: fieldOrErrorSchema,
+        appUi: fieldOrErrorSchema,
+        mapSummary: fieldOrErrorSchema,
+        autoplay: fieldOrErrorSchema,
+      },
+      { additionalProperties: false }
+    )
+  )
+);
 
 // ---------------------------------------------------------------------------
 // #5 civ7.live.snapshot - GET /api/civ7/live/snapshot
@@ -87,9 +81,9 @@ export const snapshot = oc
           playerId: Type.Optional(Type.Integer()),
           maxPlots: Type.Optional(Type.Integer()),
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   )
   .output(
     contractSchema(
@@ -100,9 +94,9 @@ export const snapshot = oc
           // Civ7MapGridResult (@civ7/direct-control). Opaque payload.
           grid: unknownRecordSchema,
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   );
 
 // ---------------------------------------------------------------------------
@@ -121,9 +115,9 @@ export const entities = oc
           playerId: Type.Optional(Type.Integer()),
           maxItems: Type.Optional(Type.Integer()),
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   )
   .output(
     contractSchema(
@@ -135,9 +129,9 @@ export const entities = oc
           units: unknownRecordSchema,
           cities: unknownRecordSchema,
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   );
 
 // ---------------------------------------------------------------------------
@@ -162,9 +156,9 @@ export const gameInfo = oc
           tables: Type.Optional(Type.String()),
           limit: Type.Optional(Type.Integer()),
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   )
   .output(
     contractSchema(
@@ -174,7 +168,7 @@ export const gameInfo = oc
           observedAt: isoTimestampSchema,
           tables: Type.Record(Type.String(), unknownRecordSchema),
         },
-        { additionalProperties: false },
-      ),
-    ),
+        { additionalProperties: false }
+      )
+    )
   );

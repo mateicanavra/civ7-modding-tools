@@ -1,5 +1,5 @@
 import { createServer, type Server } from "node:http";
-import { createORPCClient, isDefinedError, safe, ORPCError } from "@orpc/client";
+import { createORPCClient, isDefinedError, ORPCError, safe } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import { afterEach, describe, expect, test } from "vitest";
@@ -8,8 +8,8 @@ import {
   createStudioEventHub,
   createStudioRpcHandler,
   type StudioEventHubApi,
-  type StudioRpcHandle,
   type StudioRouter,
+  type StudioRpcHandle,
   type StudioServerContext,
 } from "../src/index";
 
@@ -97,7 +97,7 @@ describe("studio-server RPC handler", () => {
     const client = await listenWithClient(context);
 
     const { error } = await safe(
-      client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} }),
+      client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} })
     );
 
     expect(error).toBeInstanceOf(ORPCError);
@@ -250,13 +250,11 @@ function directClient(handler: StudioRpcHandle): RouterClient<StudioRouter> {
         }
         return result.response;
       },
-    }),
+    })
   );
 }
 
-async function listenWithClient(
-  context: StudioServerContext,
-): Promise<RouterClient<StudioRouter>> {
+async function listenWithClient(context: StudioServerContext): Promise<RouterClient<StudioRouter>> {
   const studioRpc = trackHandle(createStudioRpcHandler(context));
   const origin = await listen(async (req, res) => {
     const request = await nodeRequestToWebRequest(req);
@@ -270,9 +268,7 @@ async function listenWithClient(
     response.headers.forEach((value, key) => res.setHeader(key, value));
     res.end(response.body ? Buffer.from(await response.arrayBuffer()) : undefined);
   });
-  return createORPCClient<RouterClient<StudioRouter>>(
-    new RPCLink({ url: `${origin}/rpc` }),
-  );
+  return createORPCClient<RouterClient<StudioRouter>>(new RPCLink({ url: `${origin}/rpc` }));
 }
 
 async function listen(handler: Parameters<typeof createServer>[0]): Promise<string> {
@@ -301,9 +297,7 @@ async function closeServer(server: Server): Promise<void> {
   });
 }
 
-async function nodeRequestToWebRequest(
-  req: import("node:http").IncomingMessage,
-): Promise<Request> {
+async function nodeRequestToWebRequest(req: import("node:http").IncomingMessage): Promise<Request> {
   const method = req.method ?? "GET";
   const host = (req.headers.host as string | undefined) ?? "localhost";
   const url = `http://${host}${req.url ?? "/"}`;
@@ -329,24 +323,23 @@ async function nodeRequestToWebRequest(
   } as RequestInit & { duplex?: "half" });
 }
 
-function makeContext(
-  overrides: Partial<StudioServerContext> = {},
-): StudioServerContext {
+function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServerContext {
   const eventHub = overrides.eventHub ?? trackEventHub(createStudioEventHub());
   return {
     serverInstanceId: "studio-server-test",
     serverStartedAt: "2026-06-10T00:00:00.000Z",
     viteCommand: "serve",
-    loadSetupCatalog: async () => ({
-      leaders: [],
-      civilizations: [],
-      maps: [],
-      mapSizes: [],
-      ruleSets: [],
-      gameSpeeds: [],
-      difficulties: [],
-      age: [],
-    } as any),
+    loadSetupCatalog: async () =>
+      ({
+        leaders: [],
+        civilizations: [],
+        maps: [],
+        mapSizes: [],
+        ruleSets: [],
+        gameSpeeds: [],
+        difficulties: [],
+        age: [],
+      }) as any,
     autoplay: async () => {
       throw new Error("Unexpected autoplay call");
     },

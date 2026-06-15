@@ -12,11 +12,10 @@ import { Toaster as Sonner, type ToasterProps } from "sonner";
 const useThemeFromClass = (): "light" | "dark" => {
   const getTheme = React.useCallback(
     (): "light" | "dark" =>
-      typeof document !== "undefined" &&
-      document.documentElement.classList.contains("dark")
+      typeof document !== "undefined" && document.documentElement.classList.contains("dark")
         ? "dark"
         : "light",
-    [],
+    []
   );
 
   const [theme, setTheme] = React.useState<"light" | "dark">(getTheme);
@@ -52,10 +51,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
           toast:
             "group toast group-[.toaster]:bg-popover group-[.toaster]:text-popover-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg group-[.toaster]:rounded-lg group-[.toaster]:text-data",
           description: "group-[.toast]:text-muted-foreground",
-          actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-          cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+          actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+          cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
       }}
       {...props}

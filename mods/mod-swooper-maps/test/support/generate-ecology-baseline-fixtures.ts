@@ -20,7 +20,11 @@ function main(): void {
   const baseline = computeEcologyBaselineV1();
 
   const fixturesRoot = join(process.cwd(), "test", "fixtures");
-  const artifactsPath = join(fixturesRoot, "ecology-parity", "ecology-artifacts-fingerprints.v1.json");
+  const artifactsPath = join(
+    fixturesRoot,
+    "ecology-parity",
+    "ecology-artifacts-fingerprints.v1.json"
+  );
   const vizKeysPath = join(fixturesRoot, "viz-keys", "ecology-vizkeys-v1.txt");
 
   writeJson(artifactsPath, {
@@ -36,4 +40,3 @@ function main(): void {
 }
 
 main();
-

@@ -27,7 +27,14 @@ describe("hydrology/compute-river-network-metrics", () => {
     const depressionDepth = new Float32Array(size);
     const runoff = new Float32Array([2, 2, 2, 2, 2, 2]);
     const discharge = new Float32Array([2, 4, 3, 2, 4, 15]);
-    const riverClass = new Uint8Array([0, RIVER_CLASS_MINOR, RIVER_CLASS_MINOR, 0, RIVER_CLASS_MINOR, RIVER_CLASS_MAJOR]);
+    const riverClass = new Uint8Array([
+      0,
+      RIVER_CLASS_MINOR,
+      RIVER_CLASS_MINOR,
+      0,
+      RIVER_CLASS_MINOR,
+      RIVER_CLASS_MAJOR,
+    ]);
     const flowDir = new Int32Array([1, 5, 5, 4, 5, -1]);
     const basinId = new Int32Array(size).fill(5);
     const terminalType = new Uint8Array(size);
@@ -191,9 +198,7 @@ describe("hydrology/compute-river-network-metrics", () => {
     const landMask = new Uint8Array(size).fill(1);
     landMask[outletWater] = 0;
     const elevation = new Int16Array([
-      30, 28, 26, 24, 26, 28, 30,
-      28, 26, 24, 22, 20, 18, 12,
-      30, 28, 26, 24, 20, 10, 0,
+      30, 28, 26, 24, 26, 28, 30, 28, 26, 24, 22, 20, 18, 12, 30, 28, 26, 24, 20, 10, 0,
     ]);
     const routingElevation = new Float32Array(elevation);
     const depressionDepth = new Float32Array(size);
@@ -292,7 +297,14 @@ describe("hydrology/compute-river-network-metrics", () => {
     const depressionDepth = new Float32Array([0, 0, 2, 0, 0, 0]);
     const runoff = new Float32Array([3, 3, 3, 3, 3, 0]);
     const discharge = new Float32Array([3, 6, 9, 12, 30, 0]);
-    const riverClass = new Uint8Array([0, RIVER_CLASS_MINOR, RIVER_CLASS_MINOR, RIVER_CLASS_MAJOR, RIVER_CLASS_MAJOR + 1, 0]);
+    const riverClass = new Uint8Array([
+      0,
+      RIVER_CLASS_MINOR,
+      RIVER_CLASS_MINOR,
+      RIVER_CLASS_MAJOR,
+      RIVER_CLASS_MAJOR + 1,
+      0,
+    ]);
     const flowDir = new Int32Array([1, 2, 3, 4, 5, -1]);
     const basinId = new Int32Array([4, 4, 4, 4, 4, -1]);
     const terminalType = new Uint8Array([0, 0, 0, 0, 1, 0]);

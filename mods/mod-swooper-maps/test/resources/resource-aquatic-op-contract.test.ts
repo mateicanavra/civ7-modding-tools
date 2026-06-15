@@ -5,7 +5,7 @@ import {
   type EarthlikeResourceExpectation,
 } from "../../src/domain/resources/index.js";
 
-import { TestCompileError, normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
+import { normalizeOpSelectionOrThrow, TestCompileError } from "../support/compiler-helpers.js";
 
 const AQUATIC_RESOURCE_TYPES = [
   "RESOURCE_FISH",
@@ -51,7 +51,9 @@ describe("aquatic resource operation contract", () => {
     expect(result.plans.map((plan) => plan.resourceType)).toEqual([...AQUATIC_RESOURCE_TYPES]);
     expect(result.plans.every((plan) => plan.status === "planned")).toBe(true);
     expect(result.plans.every((plan) => plan.eligibilityStatus === "observed")).toBe(true);
-    expect(result.plans.every((plan) => plan.targetIntentCount === plan.expectedCountRange.target)).toBe(true);
+    expect(
+      result.plans.every((plan) => plan.targetIntentCount === plan.expectedCountRange.target)
+    ).toBe(true);
 
     for (const row of result.plans) {
       expect(Object.hasOwn(row, "resourceId")).toBe(false);

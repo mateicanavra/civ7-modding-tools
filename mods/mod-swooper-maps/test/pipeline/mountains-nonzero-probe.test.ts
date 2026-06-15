@@ -4,12 +4,11 @@ import { readFileSync } from "node:fs";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
-import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { canonicalRecipeConfig } from "../../src/maps/configs/canonical.js";
+import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
+import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 
 const PROBE_WIDTH = 106;
@@ -18,12 +17,20 @@ const PROBE_SEED = 1337;
 
 function loadEarthlikeConfig(): StandardRecipeConfig {
   const raw = JSON.parse(
-    readFileSync(new URL("../../src/maps/configs/swooper-earthlike.config.json", import.meta.url), "utf8")
+    readFileSync(
+      new URL("../../src/maps/configs/swooper-earthlike.config.json", import.meta.url),
+      "utf8"
+    )
   ) as Record<string, unknown>;
   return structuredClone(canonicalRecipeConfig(raw as any)) as StandardRecipeConfig;
 }
 
-function runStandardContext(args: { width: number; height: number; seed: number; config: StandardRecipeConfig }) {
+function runStandardContext(args: {
+  width: number;
+  height: number;
+  seed: number;
+  config: StandardRecipeConfig;
+}) {
   const { width, height, seed, config } = args;
   const mapInfo = {
     GridWidth: width,
@@ -45,9 +52,19 @@ function runStandardContext(args: { width: number; height: number; seed: number;
   };
 
   // compileConfig may normalize/mutate inputs; keep the runtime config object pristine for standardRecipe.run.
-  const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+  const adapter = createMockAdapter({
+    width,
+    height,
+    mapInfo,
+    mapSizeId: 1,
+    rng: createLabelRng(seed),
+  });
   const context = createExtendedMapContext({ width, height }, adapter, env);
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[mountains-probe]", storyEnabled: true });
+  initializeStandardRuntime(context, {
+    mapInfo,
+    logPrefix: "[mountains-probe]",
+    storyEnabled: true,
+  });
   standardRecipe.run(context, env, config, { log: () => {} });
   return { context, env } as const;
 }
@@ -96,7 +113,12 @@ function countEqWhere(values: Uint8Array, mask: Uint8Array, expected: number): n
   return n;
 }
 
-function maxU8WhereEq(values: Uint8Array, mask: Uint8Array, types: Uint8Array, expectedType: number): number {
+function maxU8WhereEq(
+  values: Uint8Array,
+  mask: Uint8Array,
+  types: Uint8Array,
+  expectedType: number
+): number {
   const t = expectedType | 0;
   let m = 0;
   for (let i = 0; i < values.length; i++) {
@@ -109,7 +131,9 @@ function maxU8WhereEq(values: Uint8Array, mask: Uint8Array, types: Uint8Array, e
 }
 
 describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
-  it("produces nonzero orogeny + mountains, and keeps volcano points nonzero", { timeout: 20_000 }, () => {
+  it("produces nonzero orogeny + mountains, and keeps volcano points nonzero", {
+    timeout: 20_000,
+  }, () => {
     const config = loadEarthlikeConfig();
     const { context } = runStandardContext({
       width: PROBE_WIDTH,
@@ -122,7 +146,9 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
     const belts = context.artifacts.get(morphologyArtifacts.beltDrivers.id) as any;
     const mountains = context.artifacts.get(morphologyArtifacts.mountains.id) as any;
     const volcanoes = context.artifacts.get(morphologyArtifacts.volcanoes.id) as any;
-    const historyTiles = context.artifacts.get(mapArtifacts.foundationTectonicHistoryTiles.id) as any;
+    const historyTiles = context.artifacts.get(
+      mapArtifacts.foundationTectonicHistoryTiles.id
+    ) as any;
 
     const size = PROBE_WIDTH * PROBE_HEIGHT;
     expect(topography?.landMask).toBeInstanceOf(Uint8Array);
@@ -173,7 +199,10 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
         },
       },
       foundation: {
-        upliftTotalMax: maxU8Where(historyTiles?.rollups?.upliftTotal ?? new Uint8Array(size), topography.landMask),
+        upliftTotalMax: maxU8Where(
+          historyTiles?.rollups?.upliftTotal ?? new Uint8Array(size),
+          topography.landMask
+        ),
         upliftRecentFractionMax: maxU8Where(
           historyTiles?.rollups?.upliftRecentFraction ?? new Uint8Array(size),
           topography.landMask

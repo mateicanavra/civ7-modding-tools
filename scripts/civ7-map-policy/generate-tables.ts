@@ -17,7 +17,7 @@
  */
 
 import { execSync } from "node:child_process";
-import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 
 const REPO_ROOT = process.cwd();
@@ -445,7 +445,10 @@ const startBias = {
 };
 
 const startGlobals = {
-  requiredBufferBetweenMajorStarts: jsGlobal(mapGlobalsSource, "g_RequiredBufferBetweenMajorStarts"),
+  requiredBufferBetweenMajorStarts: jsGlobal(
+    mapGlobalsSource,
+    "g_RequiredBufferBetweenMajorStarts"
+  ),
   desiredBufferBetweenMajorStarts: jsGlobal(mapGlobalsSource, "g_DesiredBufferBetweenMajorStarts"),
   requiredDistanceFromMajorForDiscoveries: jsGlobal(
     mapGlobalsSource,
@@ -456,12 +459,7 @@ const startGlobals = {
   startSectorWeight: jsGlobal(mapGlobalsSource, "g_StartSectorWeight"),
 };
 
-const v1Sources = [
-  ...allResourceDataFiles,
-  MAPS_XML,
-  MAP_GLOBALS,
-  ...startBiasFiles,
-];
+const v1Sources = [...allResourceDataFiles, MAPS_XML, MAP_GLOBALS, ...startBiasFiles];
 
 // ---------------------------------------------------------------------------
 // Emission — V0 formatting must stay byte-stable with the committed tables

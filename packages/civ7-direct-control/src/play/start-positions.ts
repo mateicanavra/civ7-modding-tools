@@ -1,17 +1,15 @@
 import { Type } from "typebox";
-
+import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import { Civ7RuntimeProbeSchema, probeHelperSource } from "../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../session/command-result.js";
 import { executeCiv7TunerCommand } from "../session/execute.js";
-import { Civ7MapLocationSchema } from "./map/types.js";
-
-import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../session/types.js";
 import type { Civ7MapLocation } from "./map/types.js";
+import { Civ7MapLocationSchema } from "./map/types.js";
 
 // Live-verified against a running Civ7 game on 2026-06-11
 // (docs/projects/placement-realignment/evidence/milestone-b-2026-06-11.md, placement stack):
@@ -31,29 +29,38 @@ export type Civ7StartPositionPlayer = Readonly<{
   firstUnitPlot: Civ7MapLocation | null;
 }>;
 
-export const Civ7StartPositionPlayerSchema = Type.Object({
-  id: Type.Integer({ minimum: 0, maximum: 1024 }),
-  isHuman: Type.Boolean(),
-  civilizationType: Type.Union([Type.String(), Type.Number(), Type.Null()]),
-  leaderType: Type.Union([Type.String(), Type.Number(), Type.Null()]),
-  unitCount: Type.Integer({ minimum: 0 }),
-  firstUnitPlot: Type.Union([Civ7MapLocationSchema, Type.Null()]),
-}, { additionalProperties: false });
+export const Civ7StartPositionPlayerSchema = Type.Object(
+  {
+    id: Type.Integer({ minimum: 0, maximum: 1024 }),
+    isHuman: Type.Boolean(),
+    civilizationType: Type.Union([Type.String(), Type.Number(), Type.Null()]),
+    leaderType: Type.Union([Type.String(), Type.Number(), Type.Null()]),
+    unitCount: Type.Integer({ minimum: 0 }),
+    firstUnitPlot: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+  },
+  { additionalProperties: false }
+);
 
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
-export const Civ7StartPositionsResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  method: Type.Literal(CIV7_START_POSITIONS_METHOD),
-  turn: Civ7RuntimeProbeSchema(Type.Number()),
-  players: Civ7RuntimeProbeSchema(Type.Array(Civ7StartPositionPlayerSchema)),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7StartPositionsResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    method: Type.Literal(CIV7_START_POSITIONS_METHOD),
+    turn: Civ7RuntimeProbeSchema(Type.Number()),
+    players: Civ7RuntimeProbeSchema(Type.Array(Civ7StartPositionPlayerSchema)),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7StartPositionsResult = Readonly<{
   host: string;
@@ -67,7 +74,7 @@ export type Civ7StartPositionsResult = Readonly<{
 
 type StartPositionsReadDependencies = Readonly<{
   executeTunerCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>
   ) => Promise<Civ7CommandResult>;
   parseStartPositions: (result: Civ7CommandResult, label: string) => Civ7StartPositionsResult;
   probeHelperSource: () => string;
@@ -75,7 +82,7 @@ type StartPositionsReadDependencies = Readonly<{
 
 export async function readCiv7StartPositions(
   options: Civ7DirectControlOptions = {},
-  dependencies: StartPositionsReadDependencies = defaultStartPositionsReadDependencies,
+  dependencies: StartPositionsReadDependencies = defaultStartPositionsReadDependencies
 ): Promise<Civ7StartPositionsResult> {
   const result = await dependencies.executeTunerCommand({
     ...options,
@@ -85,7 +92,7 @@ export async function readCiv7StartPositions(
 }
 
 export function buildStartPositionsCommand(
-  dependencies: Pick<StartPositionsReadDependencies, "probeHelperSource">,
+  dependencies: Pick<StartPositionsReadDependencies, "probeHelperSource">
 ): string {
   // CAVEAT (live-verified): there is no start-plot getter anywhere on the player prototype
   // (probed live: zero /[Ss]tart/ members). The founder unit's current location is only the

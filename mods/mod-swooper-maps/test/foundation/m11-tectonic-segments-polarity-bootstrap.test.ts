@@ -89,11 +89,21 @@ describe("m11 tectonic segments (polarity bootstrap)", () => {
     } as const;
 
     const segA = computeTectonicSegments.run(
-      { mesh, crust: crustBootstrap as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
+      {
+        mesh,
+        crust: crustBootstrap as any,
+        plateGraph: plateGraph as any,
+        plateMotion: plateMotion as any,
+      },
       scaledConfig
     ).segments;
     const segB = computeTectonicSegments.run(
-      { mesh, crust: crustNoBootstrap as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
+      {
+        mesh,
+        crust: crustNoBootstrap as any,
+        plateGraph: plateGraph as any,
+        plateMotion: plateMotion as any,
+      },
       scaledConfig
     ).segments;
 

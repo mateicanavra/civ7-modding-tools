@@ -15,37 +15,37 @@
  */
 // @ts-check
 export const TEMPERATE_PRESET = Object.freeze({
-    stageConfig: Object.freeze({
-        foundation: true,
-        landmassPlates: true,
-    }),
-    // Keep all major systems enabled (gentle, cohesive world)
-    toggles: Object.freeze({
-        STORY_ENABLE_HOTSPOTS: true,
-        STORY_ENABLE_RIFTS: true,
-        STORY_ENABLE_OROGENY: true,
-        STORY_ENABLE_SWATCHES: true,
-        STORY_ENABLE_PALEO: true,
-        STORY_ENABLE_CORRIDORS: true,
-    }),
-    // Lightweight Earth Forces with moderated global cohesion
-    foundation: Object.freeze({
-        dynamics: Object.freeze({
-            directionality: Object.freeze({
-                cohesion: 0.6,
-                hemispheres: Object.freeze({
-                    // Slight seasonal/hemispheric asymmetry
-                    monsoonBias: 0.25,
-                }),
-            }),
+  stageConfig: Object.freeze({
+    foundation: true,
+    landmassPlates: true,
+  }),
+  // Keep all major systems enabled (gentle, cohesive world)
+  toggles: Object.freeze({
+    STORY_ENABLE_HOTSPOTS: true,
+    STORY_ENABLE_RIFTS: true,
+    STORY_ENABLE_OROGENY: true,
+    STORY_ENABLE_SWATCHES: true,
+    STORY_ENABLE_PALEO: true,
+    STORY_ENABLE_CORRIDORS: true,
+  }),
+  // Lightweight Earth Forces with moderated global cohesion
+  foundation: Object.freeze({
+    dynamics: Object.freeze({
+      directionality: Object.freeze({
+        cohesion: 0.6,
+        hemispheres: Object.freeze({
+          // Slight seasonal/hemispheric asymmetry
+          monsoonBias: 0.25,
         }),
+      }),
     }),
-    // Dev logger defaults (quiet; entries may override during debugging)
-    dev: Object.freeze({
-        enabled: false,
-        logTiming: false,
-        logStoryTags: false,
-        rainfallHistogram: false,
-    }),
+  }),
+  // Dev logger defaults (quiet; entries may override during debugging)
+  dev: Object.freeze({
+    enabled: false,
+    logTiming: false,
+    logStoryTags: false,
+    rainfallHistogram: false,
+  }),
 });
 export default TEMPERATE_PRESET;

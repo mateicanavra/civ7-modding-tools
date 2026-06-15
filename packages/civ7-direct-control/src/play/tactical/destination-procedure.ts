@@ -1,19 +1,19 @@
 import {
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreCallOptions,
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
+  callCiv7ProcedureCore,
+  civ7ProcedureSchemaReferenceKey,
+  createCiv7ProcedureCoreDescriptor,
 } from "../../procedure-core.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
-  Civ7DestinationAnalysisInputSchema,
-  Civ7DestinationAnalysisResultSchema,
-  getCiv7DestinationAnalysis,
   type Civ7DestinationAnalysisInput,
+  Civ7DestinationAnalysisInputSchema,
   type Civ7DestinationAnalysisResult,
+  Civ7DestinationAnalysisResultSchema,
   type DestinationAnalysisDependencies,
+  getCiv7DestinationAnalysis,
 } from "./destination.js";
 
 export const Civ7DestinationAnalysisProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
@@ -56,10 +56,7 @@ export const Civ7DestinationAnalysisProcedureDescriptor = createCiv7ProcedureCor
     "notes",
   ],
   playerScope: "local-player-scoped",
-  consumerClasses: [
-    "normal-cli-player-agent-view",
-    "effect-orpc-procedure-core",
-  ],
+  consumerClasses: ["normal-cli-player-agent-view", "effect-orpc-procedure-core"],
   proofBoundary: "local-package-test",
   projection: {
     normalCli: "semantic-projection",
@@ -98,13 +95,14 @@ export type Civ7DestinationAnalysisProcedureCallOptions = Readonly<{
 
 export function callCiv7DestinationAnalysisProcedure(
   input: Civ7DestinationAnalysisInput,
-  options: Civ7DestinationAnalysisProcedureCallOptions = {},
+  options: Civ7DestinationAnalysisProcedureCallOptions = {}
 ): Promise<Civ7ProcedureCoreCallResult<Civ7DestinationAnalysisResult>> {
   return callCiv7ProcedureCore<Civ7DestinationAnalysisInput, Civ7DestinationAnalysisResult>(
     Civ7DestinationAnalysisProcedureDescriptor,
     Civ7DestinationAnalysisProcedureSchemaArtifacts,
     input,
-    (validInput) => getCiv7DestinationAnalysis(validInput, options.directControl, options.dependencies),
-    options.procedure,
+    (validInput) =>
+      getCiv7DestinationAnalysis(validInput, options.directControl, options.dependencies),
+    options.procedure
   );
 }

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
 import resources from "@mapgen/domain/resources/ops";
-import { HABITAT_MASK_FIELD_NAMES } from "../../src/domain/resources/ops/derive-habitat-fields/contract.js";
 import { RESOURCE_HABITAT_SIGNALS } from "../../src/domain/resources/index.js";
+import { HABITAT_MASK_FIELD_NAMES } from "../../src/domain/resources/ops/derive-habitat-fields/contract.js";
 
 import { runOpValidated } from "../support/compiler-helpers.js";
 

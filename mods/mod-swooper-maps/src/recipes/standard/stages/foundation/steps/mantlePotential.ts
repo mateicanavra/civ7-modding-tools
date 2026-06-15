@@ -1,9 +1,9 @@
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
+import { interleaveXY } from "../viz.js";
 import MantlePotentialStepContract from "./mantlePotential.contract.js";
 import { validateMantlePotentialArtifact, wrapFoundationValidateNoDims } from "./validation.js";
-import { interleaveXY } from "../viz.js";
 
 const GROUP_MANTLE = "Foundation / Mantle";
 
@@ -16,7 +16,11 @@ export default createStep(MantlePotentialStepContract, {
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const stepId = `${MantlePotentialStepContract.phase}/${MantlePotentialStepContract.id}`;
-    const rngSeed = ctxRandom(context, ctxRandomLabel(stepId, "foundation/compute-mantle-potential"), 2_147_483_647);
+    const rngSeed = ctxRandom(
+      context,
+      ctxRandomLabel(stepId, "foundation/compute-mantle-potential"),
+      2_147_483_647
+    );
 
     const mantleResult = ops.computeMantlePotential(
       {

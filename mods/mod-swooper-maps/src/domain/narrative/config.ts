@@ -1,24 +1,23 @@
-import { Type, type Static } from "@swooper/mapgen-core/authoring";
-
 import {
-  CorridorsConfigSchema,
   type CorridorsConfig,
+  CorridorsConfigSchema,
   type IslandHopCorridorConfig,
   type LandCorridorConfig,
   type SeaCorridorPolicy,
 } from "@mapgen/domain/narrative/corridors/config.js";
 import {
-  OrogenyTunablesSchema,
   type OrogenyTunables,
+  OrogenyTunablesSchema,
 } from "@mapgen/domain/narrative/orogeny/config.js";
 import {
+  type ContinentalMarginsConfig,
   ContinentalMarginsConfigSchema,
   HotspotTunablesSchema,
-  RiftTunablesSchema,
-  type ContinentalMarginsConfig,
   type NarrativeHotspotTunables,
   type RiftTunables,
+  RiftTunablesSchema,
 } from "@mapgen/domain/narrative/tagging/config.js";
+import { type Static, Type } from "@swooper/mapgen-core/authoring";
 
 /**
  * Root narrative config is the recipe-facing facade. The strategy schemas stay

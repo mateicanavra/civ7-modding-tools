@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
+  type BattlefieldScanDependencies,
   Civ7BattlefieldScanProcedureDescriptor,
   Civ7BattlefieldScanProcedureSchemaArtifacts,
   callCiv7BattlefieldScanProcedure,
   getCiv7BattlefieldScan,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type BattlefieldScanDependencies,
 } from "../src/index";
 
 describe("Civ7 battlefield-scan procedure descriptor", () => {
@@ -30,44 +30,51 @@ describe("Civ7 battlefield-scan procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7BattlefieldScanProcedureDescriptor,
-      Civ7BattlefieldScanProcedureSchemaArtifacts,
+      Civ7BattlefieldScanProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7BattlefieldScanProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7BattlefieldScanProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7BattlefieldScanProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7BattlefieldScanProcedureDescriptor.outputFields)
     );
-    expect(Value.Check(resolved.inputSchema, {
-      origins: [{ x: 17, y: 20 }],
-      radius: 8,
-      maxPlayers: 12,
-      maxUnits: 16,
-      maxCities: 8,
-    })).toBe(true);
+    expect(
+      Value.Check(resolved.inputSchema, {
+        origins: [{ x: 17, y: 20 }],
+        radius: 8,
+        maxPlayers: 12,
+        maxUnits: 16,
+        maxCities: 8,
+      })
+    ).toBe(true);
     expect(Value.Check(resolved.inputSchema, { radius: 33 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { host: "127.0.0.1" })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { rawCommand: "readBattlefieldScan()" })).toBe(false);
     expect(Value.Check(resolved.outputSchema, battlefieldScanResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...battlefieldScanResult(),
-      units: [
-        {
-          ...battlefieldScanResult().units[1],
-          relationshipProof: "owner-mismatch",
-        },
-      ],
-    })).toBe(false);
-    expect(Value.Check(resolved.outputSchema, {
-      ...battlefieldScanResult(),
-      rawCommand: "readBattlefieldScan()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...battlefieldScanResult(),
+        units: [
+          {
+            ...battlefieldScanResult().units[1],
+            relationshipProof: "owner-mismatch",
+          },
+        ],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...battlefieldScanResult(),
+        rawCommand: "readBattlefieldScan()",
+      })
+    ).toBe(false);
   });
 
   test("calls the battlefield scan atom through the procedure core without touching the live tuner", async () => {
     const validatedPlayers: number[] = [];
-    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const boundedIntegerCalls: Array<{ value: number; min: number; max: number; label: string }> =
+      [];
     const executeCalls: Array<{ host?: string; port?: number; command: string }> = [];
     const dependencies: BattlefieldScanDependencies = {
       validatePlayerId: (playerId) => {
@@ -93,23 +100,26 @@ describe("Civ7 battlefield-scan procedure descriptor", () => {
       parseBattlefieldScan: () => battlefieldScanResult(),
     };
 
-    const result = await callCiv7BattlefieldScanProcedure({
-      playerId: 0,
-      origins: [{ x: 17, y: 20 }],
-      radius: 8,
-      maxPlayers: 12,
-      maxUnits: 16,
-      maxCities: 8,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7BattlefieldScanProcedure(
+      {
+        playerId: 0,
+        origins: [{ x: 17, y: 20 }],
+        radius: 8,
+        maxPlayers: 12,
+        maxUnits: 16,
+        maxCities: 8,
       },
-      procedure: {
-        correlationId: "battlefield-scan-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "battlefield-scan-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(battlefieldScanResult());
     expect(result.output.relationshipLabelPolicy).toEqual({
@@ -170,10 +180,15 @@ describe("Civ7 battlefield-scan procedure descriptor", () => {
       parseBattlefieldScan: () => battlefieldScanResult(),
     };
 
-    await expect(callCiv7BattlefieldScanProcedure({ radius: 33 }, {
-      procedure: { correlationId: "battlefield-scan-invalid-radius" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7BattlefieldScanProcedure(
+        { radius: 33 },
+        {
+          procedure: { correlationId: "battlefield-scan-invalid-radius" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -181,12 +196,17 @@ describe("Civ7 battlefield-scan procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7BattlefieldScanProcedure({
-      host: "127.0.0.1",
-    } as never, {
-      procedure: { correlationId: "battlefield-scan-context-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7BattlefieldScanProcedure(
+        {
+          host: "127.0.0.1",
+        } as never,
+        {
+          procedure: { correlationId: "battlefield-scan-context-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

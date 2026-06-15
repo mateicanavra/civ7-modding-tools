@@ -1,37 +1,37 @@
-import { Args, Flags } from '@oclif/core';
-import SubtreeCommand from './SubtreeCommand.js';
-import { configureRemote, importSubtree } from '../../utils/git.js';
+import { Args, Flags } from "@oclif/core";
+import { configureRemote, importSubtree } from "../../utils/git.js";
+import SubtreeCommand from "./SubtreeCommand.js";
 
 export default abstract class SubtreeSetupBase extends SubtreeCommand {
   static flags = {
     ...SubtreeCommand.baseFlags,
-      repoUrl: Flags.string({
-        description: 'Git repository URL',
-        char: 'u',
-      }),
+    repoUrl: Flags.string({
+      description: "Git repository URL",
+      char: "u",
+    }),
     squash: Flags.boolean({
-      description: 'Squash history when importing',
+      description: "Squash history when importing",
       default: false,
-      char: 'S',
+      char: "S",
     }),
     yes: Flags.boolean({
-      description: 'Assume yes to safety prompts',
+      description: "Assume yes to safety prompts",
       default: false,
-      char: 'y',
+      char: "y",
     }),
     autoUnshallow: Flags.boolean({
-      description: 'Automatically unshallow the repo if needed',
+      description: "Automatically unshallow the repo if needed",
       default: undefined,
-      char: 'U',
+      char: "U",
     }),
     overwrite: Flags.boolean({
-      description: 'Overwrite existing subtree directory if non-empty',
+      description: "Overwrite existing subtree directory if non-empty",
       default: false,
     }),
   } as const;
 
   static args = {
-    slug: Args.string({ description: 'Subtree slug', required: true }),
+    slug: Args.string({ description: "Subtree slug", required: true }),
   } as const;
 
   protected getPrefix(slug: string): string {

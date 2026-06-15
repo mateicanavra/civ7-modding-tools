@@ -1,5 +1,5 @@
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import morphology from "@mapgen/domain/morphology";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
 import { morphologyArtifacts } from "../../morphology/artifacts.js";
 

@@ -1,21 +1,19 @@
+import type { ExtendedMapContext } from "@mapgen/core/types.js";
 import {
   compileExecutionPlan,
   createTraceSessionFromPlan,
-  PipelineExecutor,
-  StepRegistry,
-  TagRegistry,
   type DependencyTagDefinition,
+  type Env,
   type ExecutionPlan,
   type MapGenStep,
+  PipelineExecutor,
   type RecipeV2,
   type RunRequest,
-  type Env,
+  StepRegistry,
+  TagRegistry,
 } from "@mapgen/engine/index.js";
-
-import { createConsoleTraceSink } from "@mapgen/trace/index.js";
 import type { TraceSession, TraceSink } from "@mapgen/trace/index.js";
-import type { ExtendedMapContext } from "@mapgen/core/types.js";
-import { bindRuntimeOps, runtimeOp, type DomainOpRuntimeAny } from "./bindings.js";
+import { createConsoleTraceSink } from "@mapgen/trace/index.js";
 import { compileRecipeConfig } from "../compiler/recipe-compile.js";
 import type { ArtifactContract, ArtifactReadValueOf } from "./artifact/contract.js";
 import {
@@ -23,6 +21,7 @@ import {
   type ProvidedArtifactRuntime,
   type RequiredArtifactRuntime,
 } from "./artifact/runtime.js";
+import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./bindings.js";
 import type {
   CompiledRecipeConfigOf,
   RecipeConfig,
@@ -34,7 +33,14 @@ import type {
   StepDeps,
 } from "./types.js";
 
-type AnyStage<TContext extends ExtendedMapContext> = StageContract<any, TContext, any, any, any, any>;
+type AnyStage<TContext extends ExtendedMapContext> = StageContract<
+  any,
+  TContext,
+  any,
+  any,
+  any,
+  any
+>;
 
 type StepOccurrence<TContext> = {
   stageId: string;
@@ -111,8 +117,10 @@ function buildArtifactDeps<TContext extends ExtendedMapContext>(
   const artifacts = authored.contract.artifacts;
   if (!artifacts) return {} as StepDeps<TContext, any>["artifacts"];
 
-  const out: Record<string, RequiredArtifactRuntime<any, TContext> | ProvidedArtifactRuntime<any, TContext>> =
-    {};
+  const out: Record<
+    string,
+    RequiredArtifactRuntime<any, TContext> | ProvidedArtifactRuntime<any, TContext>
+  > = {};
 
   const requires = (artifacts.requires ?? []) as readonly ArtifactContract[];
   const provides = (artifacts.provides ?? []) as readonly ArtifactContract[];
@@ -228,9 +236,7 @@ function finalizeOccurrences<TContext extends ExtendedMapContext>(input: {
           requires: authored.contract.requires,
           provides: authored.contract.provides,
           configSchema: authored.contract.schema,
-          normalize: authored.normalize as
-            | MapGenStep<TContext, unknown>["normalize"]
-            | undefined,
+          normalize: authored.normalize as MapGenStep<TContext, unknown>["normalize"] | undefined,
           run: ((context: TContext, config: unknown) => {
             return (authored.run as any)(context, config, ops, deps);
           }) as unknown as MapGenStep<TContext, unknown>["run"],
@@ -327,7 +333,9 @@ export function createRecipe<
     config: CompiledRecipeConfigOf<TStages> | null | undefined
   ): asserts config is CompiledRecipeConfigOf<TStages> {
     if (!config) {
-      throw new Error(`[recipe:${input.id}] compiled config required (use recipe.compileConfig(...))`);
+      throw new Error(
+        `[recipe:${input.id}] compiled config required (use recipe.compileConfig(...))`
+      );
     }
 
     const cfg = config as RecipeConfig;
@@ -363,7 +371,10 @@ export function createRecipe<
     };
   }
 
-  function compileConfig(env: Env, config?: RecipeConfigInputOf<TStages>): CompiledRecipeConfigOf<TStages> {
+  function compileConfig(
+    env: Env,
+    config?: RecipeConfigInputOf<TStages>
+  ): CompiledRecipeConfigOf<TStages> {
     return compileRecipeConfig({
       env,
       recipe: { stages: input.stages },
@@ -385,7 +396,11 @@ export function createRecipe<
     context: TContext,
     env: Env,
     config?: RecipeConfigInputOf<TStages>,
-    options: { trace?: TraceSession | null; traceSink?: TraceSink | null; log?: (message: string) => void } = {}
+    options: {
+      trace?: TraceSession | null;
+      traceSink?: TraceSink | null;
+      log?: (message: string) => void;
+    } = {}
   ): void {
     const plan = compile(env, config);
     context.env = plan.env;

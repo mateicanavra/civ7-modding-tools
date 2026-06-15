@@ -1,38 +1,30 @@
-import { Type, type Static } from "typebox";
-
+import { type Static, Type } from "typebox";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { assertCiv7ComponentId, Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import {
-  Civ7ProductionPostconditionSchema,
-  Civ7ProductionPostconditionSnapshotSchema,
-  productionPostconditionFor,
-  type Civ7ProductionPostconditionSnapshot,
-} from "./production-postconditions.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
 import { productionChoiceRequestVerified } from "./production-choice-proof.js";
 import {
-  canStartCiv7CityOperation,
-  type Civ7OperationRequestResult,
-} from "./validate-request.js";
-import type {
-  Civ7OperationInput,
-  Civ7OperationValidationResult,
-} from "./types.js";
+  Civ7ProductionPostconditionSchema,
+  type Civ7ProductionPostconditionSnapshot,
+  Civ7ProductionPostconditionSnapshotSchema,
+  productionPostconditionFor,
+} from "./production-postconditions.js";
+import type { Civ7OperationInput, Civ7OperationValidationResult } from "./types.js";
+import { type Civ7OperationRequestResult, canStartCiv7CityOperation } from "./validate-request.js";
 
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-} from "../../session/types.js";
-
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
+const civ7TunerStateSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String(),
+  },
+  { additionalProperties: false }
+);
 
 const civ7ProductionChoiceArgsSchema = Type.Unsafe<Readonly<Record<string, number>>>({
   type: "object",
@@ -81,45 +73,56 @@ const civ7ProductionChoiceArgsSchema = Type.Unsafe<Readonly<Record<string, numbe
     {
       required: ["ConstructibleType", "X", "Y"],
       not: {
-        anyOf: [
-          { required: ["UnitType"] },
-          { required: ["ProjectType"] },
-        ],
+        anyOf: [{ required: ["UnitType"] }, { required: ["ProjectType"] }],
       },
     },
   ],
 });
 
-export const Civ7ProductionChoiceInputSchema = Type.Object({
-  cityId: Civ7ComponentIdSchema,
-  args: civ7ProductionChoiceArgsSchema,
-}, { additionalProperties: false });
+export const Civ7ProductionChoiceInputSchema = Type.Object(
+  {
+    cityId: Civ7ComponentIdSchema,
+    args: civ7ProductionChoiceArgsSchema,
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7ProductionChoiceInput = Readonly<{
   cityId: Civ7ComponentId;
   args: Readonly<Record<string, number>>;
 }>;
 
-export const Civ7ProductionChoiceRequestInputSchema = Type.Object({
-  cityId: Civ7ComponentIdSchema,
-  args: civ7ProductionChoiceArgsSchema,
-}, { additionalProperties: false });
-export type Civ7ProductionChoiceRequestInput = Readonly<Static<typeof Civ7ProductionChoiceRequestInputSchema>>;
-
-const civ7OperationValidationResultSchema = Type.Object({
-  host: Type.String(),
-  port: Type.Number(),
-  state: civ7TunerStateSchema,
-  family: Type.Literal("city-operation"),
-  operationType: Type.Literal("BUILD"),
-  enumValue: Type.Unknown(),
-  target: Type.Object({
+export const Civ7ProductionChoiceRequestInputSchema = Type.Object(
+  {
     cityId: Civ7ComponentIdSchema,
-  }, { additionalProperties: false }),
-  args: Type.Unknown(),
-  valid: Type.Boolean(),
-  result: Type.Unknown(),
-}, { additionalProperties: false });
+    args: civ7ProductionChoiceArgsSchema,
+  },
+  { additionalProperties: false }
+);
+export type Civ7ProductionChoiceRequestInput = Readonly<
+  Static<typeof Civ7ProductionChoiceRequestInputSchema>
+>;
+
+const civ7OperationValidationResultSchema = Type.Object(
+  {
+    host: Type.String(),
+    port: Type.Number(),
+    state: civ7TunerStateSchema,
+    family: Type.Literal("city-operation"),
+    operationType: Type.Literal("BUILD"),
+    enumValue: Type.Unknown(),
+    target: Type.Object(
+      {
+        cityId: Civ7ComponentIdSchema,
+      },
+      { additionalProperties: false }
+    ),
+    args: Type.Unknown(),
+    valid: Type.Boolean(),
+    result: Type.Unknown(),
+  },
+  { additionalProperties: false }
+);
 
 export type Civ7ProductionChoiceCommandPayload = Readonly<{
   cityId: Civ7ComponentId;
@@ -137,42 +140,56 @@ export type Civ7ProductionChoiceCommandPayload = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
-export const Civ7ProductionChoiceCommandPayloadSchema = Type.Object({
-  cityId: Civ7ComponentIdSchema,
-  args: Type.Unknown(),
-  beforeValidation: Type.Unknown(),
-  afterValidation: Type.Unknown(),
-  sent: Type.Boolean(),
-  sendResult: Type.Optional(Type.Unknown()),
-  beforeProductionPostcondition: Civ7ProductionPostconditionSnapshotSchema,
-  afterProductionPostcondition: Civ7ProductionPostconditionSnapshotSchema,
-  ui: Type.Optional(Type.Object({
-    cityActivation: Type.Optional(Type.Unknown()),
-    interfaceClose: Type.Optional(Type.Unknown()),
-  }, { additionalProperties: false })),
-  notes: Type.Array(Type.String()),
-}, { additionalProperties: false });
+export const Civ7ProductionChoiceCommandPayloadSchema = Type.Object(
+  {
+    cityId: Civ7ComponentIdSchema,
+    args: Type.Unknown(),
+    beforeValidation: Type.Unknown(),
+    afterValidation: Type.Unknown(),
+    sent: Type.Boolean(),
+    sendResult: Type.Optional(Type.Unknown()),
+    beforeProductionPostcondition: Civ7ProductionPostconditionSnapshotSchema,
+    afterProductionPostcondition: Civ7ProductionPostconditionSnapshotSchema,
+    ui: Type.Optional(
+      Type.Object(
+        {
+          cityActivation: Type.Optional(Type.Unknown()),
+          interfaceClose: Type.Optional(Type.Unknown()),
+        },
+        { additionalProperties: false }
+      )
+    ),
+    notes: Type.Array(Type.String()),
+  },
+  { additionalProperties: false }
+);
 
-export type Civ7ProductionChoiceResult = Civ7OperationRequestResult & Readonly<{
-  payload?: Civ7ProductionChoiceCommandPayload;
-}>;
+export type Civ7ProductionChoiceResult = Civ7OperationRequestResult &
+  Readonly<{
+    payload?: Civ7ProductionChoiceCommandPayload;
+  }>;
 
-export const Civ7ProductionChoiceResultSchema = Type.Object({
-  before: civ7OperationValidationResultSchema,
-  after: civ7OperationValidationResultSchema,
-  sent: Type.Boolean(),
-  verified: Type.Boolean(),
-  productionPostcondition: Type.Optional(Civ7ProductionPostconditionSchema),
-  payload: Type.Optional(Civ7ProductionChoiceCommandPayloadSchema),
-}, { additionalProperties: false });
+export const Civ7ProductionChoiceResultSchema = Type.Object(
+  {
+    before: civ7OperationValidationResultSchema,
+    after: civ7OperationValidationResultSchema,
+    sent: Type.Boolean(),
+    verified: Type.Boolean(),
+    productionPostcondition: Type.Optional(Civ7ProductionPostconditionSchema),
+    payload: Type.Optional(Civ7ProductionChoiceCommandPayloadSchema),
+  },
+  { additionalProperties: false }
+);
 
 type ProductionChoiceDependencies = Readonly<{
   assertComponentId: (value: Civ7ComponentId, label?: string) => void;
   canStartCityOperation: (
     input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
-    options?: Civ7DirectControlOptions,
+    options?: Civ7DirectControlOptions
   ) => Promise<Civ7OperationValidationResult>;
-  executeAppUiCommand: (options: Civ7DirectControlOptions & { command: string }) => Promise<Civ7CommandResult>;
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & { command: string }
+  ) => Promise<Civ7CommandResult>;
   jsonPayloadFromCommandResult: <T extends object>(result: Civ7CommandResult, label: string) => T;
   jsLiteral: (value: unknown) => string;
 }>;
@@ -180,7 +197,7 @@ type ProductionChoiceDependencies = Readonly<{
 export async function requestCiv7ProductionChoice(
   input: Civ7ProductionChoiceInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: ProductionChoiceDependencies = defaultProductionChoiceDependencies,
+  dependencies: ProductionChoiceDependencies = defaultProductionChoiceDependencies
 ): Promise<Civ7ProductionChoiceResult> {
   dependencies.assertComponentId(input.cityId, "cityId");
   validateProductionChoiceArgs(input.args);
@@ -199,7 +216,7 @@ export async function requestCiv7ProductionChoice(
       before,
       before,
       snapshotPayload.beforeProductionPostcondition,
-      snapshotPayload.beforeProductionPostcondition,
+      snapshotPayload.beforeProductionPostcondition
     );
     return {
       before,
@@ -214,8 +231,17 @@ export async function requestCiv7ProductionChoice(
     ...options,
     command: buildProductionChoiceRequestCommand(input, { send: true }, dependencies),
   });
-  const payload = dependencies.jsonPayloadFromCommandResult<Civ7ProductionChoiceCommandPayload>(command, "Civ7 production choice request");
-  const afterBundle = await waitForCiv7ProductionChoiceAfter(input, options, before, payload.beforeProductionPostcondition, dependencies);
+  const payload = dependencies.jsonPayloadFromCommandResult<Civ7ProductionChoiceCommandPayload>(
+    command,
+    "Civ7 production choice request"
+  );
+  const afterBundle = await waitForCiv7ProductionChoiceAfter(
+    input,
+    options,
+    before,
+    payload.beforeProductionPostcondition,
+    dependencies
+  );
   const productionPostcondition = productionPostconditionFor(
     "city-operation",
     operationInput,
@@ -223,7 +249,7 @@ export async function requestCiv7ProductionChoice(
     before,
     afterBundle.validation,
     payload.beforeProductionPostcondition,
-    afterBundle.snapshot,
+    afterBundle.snapshot
   );
   const verified = productionChoiceRequestVerified(productionPostcondition?.classification);
   return {
@@ -252,7 +278,7 @@ const defaultProductionChoiceDependencies: ProductionChoiceDependencies = {
 export function buildProductionChoiceRequestCommand(
   input: Civ7ProductionChoiceInput,
   options: { send: boolean },
-  dependencies: Pick<ProductionChoiceDependencies, "jsLiteral">,
+  dependencies: Pick<ProductionChoiceDependencies, "jsLiteral">
 ): string {
   return `(() => {
     ${productionChoiceRequestSource()}
@@ -445,21 +471,24 @@ function validateProductionChoiceArgs(args: Readonly<Record<string, number>>): v
     throw new Civ7DirectControlError(
       "command-failed",
       "production choice requires exactly one UnitType, ConstructibleType, or ProjectType",
-      { details: { args } },
+      { details: { args } }
     );
   }
-  if ((args.X !== undefined || args.Y !== undefined) && (!Number.isInteger(args.X) || !Number.isInteger(args.Y))) {
+  if (
+    (args.X !== undefined || args.Y !== undefined) &&
+    (!Number.isInteger(args.X) || !Number.isInteger(args.Y))
+  ) {
     throw new Civ7DirectControlError(
       "command-failed",
       "production placement coordinates require integer X and Y",
-      { details: { args } },
+      { details: { args } }
     );
   }
   if ((args.X !== undefined || args.Y !== undefined) && selected[0] !== "ConstructibleType") {
     throw new Civ7DirectControlError(
       "command-failed",
       "production placement coordinates are only valid for ConstructibleType choices",
-      { details: { args } },
+      { details: { args } }
     );
   }
 }
@@ -467,13 +496,16 @@ function validateProductionChoiceArgs(args: Readonly<Record<string, number>>): v
 async function readCiv7ProductionChoicePayload(
   input: Civ7ProductionChoiceInput,
   options: Civ7DirectControlOptions,
-  dependencies: ProductionChoiceDependencies,
+  dependencies: ProductionChoiceDependencies
 ): Promise<Civ7ProductionChoiceCommandPayload> {
   const result = await dependencies.executeAppUiCommand({
     ...options,
     command: buildProductionChoiceRequestCommand(input, { send: false }, dependencies),
   });
-  return dependencies.jsonPayloadFromCommandResult<Civ7ProductionChoiceCommandPayload>(result, "Civ7 production choice status");
+  return dependencies.jsonPayloadFromCommandResult<Civ7ProductionChoiceCommandPayload>(
+    result,
+    "Civ7 production choice status"
+  );
 }
 
 async function waitForCiv7ProductionChoiceAfter(
@@ -481,8 +513,11 @@ async function waitForCiv7ProductionChoiceAfter(
   options: Civ7DirectControlOptions,
   before: Civ7OperationValidationResult,
   beforeSnapshot: Civ7ProductionPostconditionSnapshot,
-  dependencies: ProductionChoiceDependencies,
-): Promise<{ validation: Civ7OperationValidationResult; snapshot: Civ7ProductionPostconditionSnapshot }> {
+  dependencies: ProductionChoiceDependencies
+): Promise<{
+  validation: Civ7OperationValidationResult;
+  snapshot: Civ7ProductionPostconditionSnapshot;
+}> {
   const operationInput = {
     cityId: input.cityId,
     operationType: "BUILD",
@@ -492,7 +527,8 @@ async function waitForCiv7ProductionChoiceAfter(
   const pollIntervalMs = 250;
   const startedAt = Date.now();
   let lastValidation = await dependencies.canStartCityOperation(operationInput, options);
-  let lastSnapshot = (await readCiv7ProductionChoicePayload(input, options, dependencies)).afterProductionPostcondition;
+  let lastSnapshot = (await readCiv7ProductionChoicePayload(input, options, dependencies))
+    .afterProductionPostcondition;
   while (Date.now() - startedAt <= waitTimeoutMs) {
     const postcondition = productionPostconditionFor(
       "city-operation",
@@ -501,7 +537,7 @@ async function waitForCiv7ProductionChoiceAfter(
       before,
       lastValidation,
       beforeSnapshot,
-      lastSnapshot,
+      lastSnapshot
     );
     if (postcondition && postcondition.classification !== "no-state-change") {
       return { validation: lastValidation, snapshot: lastSnapshot };

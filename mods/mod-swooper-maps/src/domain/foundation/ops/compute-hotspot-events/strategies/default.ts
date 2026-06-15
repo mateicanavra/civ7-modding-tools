@@ -1,7 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
-import { buildHotspotEvents, requireMantleForcing, requireMesh } from "../rules/index.js";
 import ComputeHotspotEventsContract from "../contract.js";
+import { buildHotspotEvents, requireMantleForcing, requireMesh } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeHotspotEventsContract, "default", {
   run: (input) => {

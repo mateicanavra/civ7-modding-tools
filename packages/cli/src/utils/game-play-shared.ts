@@ -1,4 +1,9 @@
 import {
+  assertCiv7ComponentId,
+  type Civ7ComponentId,
+  type Civ7DirectControlOptions,
+  type Civ7OperationFamily,
+  type Civ7OperationInput,
   canStartCiv7CityCommand,
   canStartCiv7CityOperation,
   canStartCiv7PlayerOperation,
@@ -9,23 +14,14 @@ import {
   requestCiv7PlayerOperation,
   requestCiv7UnitCommand,
   requestCiv7UnitOperation,
-  assertCiv7ComponentId,
-  type Civ7ComponentId,
-  type Civ7DirectControlOptions,
-  type Civ7OperationFamily,
-  type Civ7OperationInput,
-} from '@civ7/direct-control';
+} from "@civ7/direct-control";
 
-export type PlayOperationFamilyAlias =
-  | Civ7OperationFamily
-  | 'unit'
-  | 'city'
-  | 'player';
+export type PlayOperationFamilyAlias = Civ7OperationFamily | "unit" | "city" | "player";
 
 export type DirectControlFlagOptions = Readonly<{
   host?: string;
   port?: number;
-  'timeout-ms': number;
+  "timeout-ms": number;
 }>;
 
 export type PlayOperationStep = Readonly<{
@@ -36,11 +32,13 @@ export type PlayOperationStep = Readonly<{
 
 export type MapLocationFlag = Readonly<{ x: number; y: number }>;
 
-export function buildDirectControlOptions(flags: DirectControlFlagOptions): Civ7DirectControlOptions {
+export function buildDirectControlOptions(
+  flags: DirectControlFlagOptions
+): Civ7DirectControlOptions {
   return {
     host: flags.host,
     port: flags.port,
-    timeoutMs: flags['timeout-ms'],
+    timeoutMs: flags["timeout-ms"],
   };
 }
 
@@ -49,7 +47,9 @@ export function parseJsonFlag<T>(value: string | undefined, flag: string): T {
   try {
     return JSON.parse(value) as T;
   } catch (error) {
-    throw new Error(`--${flag} must be valid JSON: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `--${flag} must be valid JSON: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
 }
 
@@ -72,7 +72,9 @@ export function resolveCoordinateFlags(input: {
   const hasX = input.x !== undefined;
   const hasY = input.y !== undefined;
   if (hasPair && (hasX || hasY)) {
-    throw new Error(`--${input.pairFlag} cannot be combined with --${input.xFlag}/--${input.yFlag}`);
+    throw new Error(
+      `--${input.pairFlag} cannot be combined with --${input.xFlag}/--${input.yFlag}`
+    );
   }
   if (pair !== undefined) return parseCoordinatePair(pair, input.pairFlag);
   if (hasX !== hasY) {
@@ -90,40 +92,48 @@ export function parseComponentId(value: string | undefined, flag: string): Civ7C
 }
 
 export function normalizeOperationFamily(family: PlayOperationFamilyAlias): Civ7OperationFamily {
-  if (family === 'unit') return 'unit-operation';
-  if (family === 'city') return 'city-operation';
-  if (family === 'player') return 'player-operation';
+  if (family === "unit") return "unit-operation";
+  if (family === "city") return "city-operation";
+  if (family === "player") return "player-operation";
   return family;
 }
 
 export async function validatePlayOperation(
   family: Civ7OperationFamily,
   input: Civ7OperationInput,
-  options: Civ7DirectControlOptions,
+  options: Civ7DirectControlOptions
 ) {
-  if (family === 'unit-operation') return await canStartCiv7UnitOperation(assertUnitInput(input), options);
-  if (family === 'unit-command') return await canStartCiv7UnitCommand(assertUnitInput(input), options);
-  if (family === 'city-operation') return await canStartCiv7CityOperation(assertCityInput(input), options);
-  if (family === 'city-command') return await canStartCiv7CityCommand(assertCityInput(input), options);
+  if (family === "unit-operation")
+    return await canStartCiv7UnitOperation(assertUnitInput(input), options);
+  if (family === "unit-command")
+    return await canStartCiv7UnitCommand(assertUnitInput(input), options);
+  if (family === "city-operation")
+    return await canStartCiv7CityOperation(assertCityInput(input), options);
+  if (family === "city-command")
+    return await canStartCiv7CityCommand(assertCityInput(input), options);
   return await canStartCiv7PlayerOperation(assertPlayerInput(input), options);
 }
 
 export async function sendPlayOperation(
   family: Civ7OperationFamily,
   input: Civ7OperationInput,
-  options: Civ7DirectControlOptions,
+  options: Civ7DirectControlOptions
 ) {
-  if (family === 'unit-operation') return await requestCiv7UnitOperation(assertUnitInput(input), options);
-  if (family === 'unit-command') return await requestCiv7UnitCommand(assertUnitInput(input), options);
-  if (family === 'city-operation') return await requestCiv7CityOperation(assertCityInput(input), options);
-  if (family === 'city-command') return await requestCiv7CityCommand(assertCityInput(input), options);
+  if (family === "unit-operation")
+    return await requestCiv7UnitOperation(assertUnitInput(input), options);
+  if (family === "unit-command")
+    return await requestCiv7UnitCommand(assertUnitInput(input), options);
+  if (family === "city-operation")
+    return await requestCiv7CityOperation(assertCityInput(input), options);
+  if (family === "city-command")
+    return await requestCiv7CityCommand(assertCityInput(input), options);
   return await requestCiv7PlayerOperation(assertPlayerInput(input), options);
 }
 
 export async function executePlayOperationSequence(
   steps: ReadonlyArray<PlayOperationStep>,
   options: Civ7DirectControlOptions,
-  config: { send: boolean; reason?: string },
+  config: { send: boolean; reason?: string }
 ) {
   const results = [];
   for (const step of steps) {
@@ -139,19 +149,23 @@ export async function executePlayOperationSequence(
   }
 
   return {
-    mode: config.send ? 'send' : 'validate',
+    mode: config.send ? "send" : "validate",
     stepCount: results.length,
     verified: config.send ? results.every((step) => resultVerified(step.result)) : null,
     steps: results,
     notes: [
       config.send
-        ? 'Executed as one caller-level workflow with sequential runtime operations and per-step postconditions.'
-        : 'Dry-run sequence validation only; closeout validation may differ after the primary operation mutates state.',
+        ? "Executed as one caller-level workflow with sequential runtime operations and per-step postconditions."
+        : "Dry-run sequence validation only; closeout validation may differ after the primary operation mutates state.",
     ],
   };
 }
 
-export function emitPlayResult(log: (message?: string) => void, json: boolean, result: unknown): void {
+export function emitPlayResult(
+  log: (message?: string) => void,
+  json: boolean,
+  result: unknown
+): void {
   if (json) {
     log(JSON.stringify({ ok: true, result }));
     return;
@@ -159,30 +173,36 @@ export function emitPlayResult(log: (message?: string) => void, json: boolean, r
   log(JSON.stringify(result, null, 2));
 }
 
-function assertUnitInput(input: Civ7OperationInput): Civ7OperationInput & { unitId: Civ7ComponentId } {
-  if (!('unitId' in input)) throw new Error('unit operation requires --unit-id');
+function assertUnitInput(
+  input: Civ7OperationInput
+): Civ7OperationInput & { unitId: Civ7ComponentId } {
+  if (!("unitId" in input)) throw new Error("unit operation requires --unit-id");
   return input;
 }
 
-function assertCityInput(input: Civ7OperationInput): Civ7OperationInput & { cityId: Civ7ComponentId } {
-  if (!('cityId' in input)) throw new Error('city operation requires --city-id');
+function assertCityInput(
+  input: Civ7OperationInput
+): Civ7OperationInput & { cityId: Civ7ComponentId } {
+  if (!("cityId" in input)) throw new Error("city operation requires --city-id");
   return input;
 }
 
 function assertPlayerInput(input: Civ7OperationInput): Civ7OperationInput & { playerId: number } {
-  if (!('playerId' in input)) throw new Error('player operation requires --player-id');
+  if (!("playerId" in input)) throw new Error("player operation requires --player-id");
   return input;
 }
 
 function resultVerified(result: unknown): boolean {
-  return result !== null
-    && typeof result === 'object'
-    && 'verified' in result
-    && (result as { verified?: unknown }).verified === true;
+  return (
+    result !== null &&
+    typeof result === "object" &&
+    "verified" in result &&
+    (result as { verified?: unknown }).verified === true
+  );
 }
 
 function parseCoordinatePair(value: string, flag: string): MapLocationFlag {
-  const parts = value.split(',').map((part) => part.trim());
+  const parts = value.split(",").map((part) => part.trim());
   if (parts.length !== 2) throw new Error(`--${flag} must be formatted as x,y`);
   const [xRaw, yRaw] = parts;
   const x = Number(xRaw);

@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7TraditionsViewProcedureDescriptor,
@@ -30,37 +30,41 @@ describe("Civ7 traditions-view procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7TraditionsViewProcedureDescriptor,
-      Civ7TraditionsViewProcedureSchemaArtifacts,
+      Civ7TraditionsViewProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7TraditionsViewProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7TraditionsViewProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7TraditionsViewProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7TraditionsViewProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, { playerId: 0 })).toBe(true);
     expect(Value.Check(resolved.inputSchema, { playerId: -1 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { host: "127.0.0.1" })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { rawCommand: "readTraditionsView()" })).toBe(false);
     expect(Value.Check(resolved.outputSchema, traditionsViewResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...traditionsViewResult(),
-      active: [
-        {
-          ...traditionsViewResult().active[0],
-          actionHints: [
-            {
-              ...traditionsViewResult().active[0].actionHints[0],
-              operationType: "sendRequest",
-            },
-          ],
-        },
-      ],
-    })).toBe(false);
-    expect(Value.Check(resolved.outputSchema, {
-      ...traditionsViewResult(),
-      rawCommand: "readTraditionsView()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...traditionsViewResult(),
+        active: [
+          {
+            ...traditionsViewResult().active[0],
+            actionHints: [
+              {
+                ...traditionsViewResult().active[0].actionHints[0],
+                operationType: "sendRequest",
+              },
+            ],
+          },
+        ],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...traditionsViewResult(),
+        rawCommand: "readTraditionsView()",
+      })
+    ).toBe(false);
   });
 
   test("calls the traditions view atom through the procedure core without touching the live tuner", async () => {
@@ -86,18 +90,21 @@ describe("Civ7 traditions-view procedure descriptor", () => {
       parseTraditionsView: () => traditionsViewResult(),
     };
 
-    const result = await callCiv7TraditionsViewProcedure({
-      playerId: 0,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7TraditionsViewProcedure(
+      {
+        playerId: 0,
       },
-      procedure: {
-        correlationId: "traditions-view-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "traditions-view-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(traditionsViewResult());
     expect(result.output.active[0].actionHints[0]).toMatchObject({
@@ -139,10 +146,15 @@ describe("Civ7 traditions-view procedure descriptor", () => {
       parseTraditionsView: () => traditionsViewResult(),
     };
 
-    await expect(callCiv7TraditionsViewProcedure({ playerId: -1 }, {
-      procedure: { correlationId: "traditions-view-invalid-player" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7TraditionsViewProcedure(
+        { playerId: -1 },
+        {
+          procedure: { correlationId: "traditions-view-invalid-player" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -150,12 +162,17 @@ describe("Civ7 traditions-view procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7TraditionsViewProcedure({
-      stateName: "App UI",
-    } as never, {
-      procedure: { correlationId: "traditions-view-context-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7TraditionsViewProcedure(
+        {
+          stateName: "App UI",
+        } as never,
+        {
+          procedure: { correlationId: "traditions-view-context-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",

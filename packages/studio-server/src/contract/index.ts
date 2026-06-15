@@ -1,5 +1,5 @@
-import { oc } from "@orpc/contract";
 import { Civ7ControlOrpcContract } from "@civ7/control-orpc";
+import { oc } from "@orpc/contract";
 
 import { RecipeDagGetContract } from "../recipeDag/contract.js";
 import * as civ7 from "./civ7.js";
@@ -84,5 +84,10 @@ export const contract = oc.router({
 export type StudioContract = typeof contract;
 
 export type { RecipeDagResult } from "../recipeDag/schema.js";
-export type { StudioEvent, StudioHelloEvent, StudioLiveGameEvent, StudioOperationEvent } from "./studio.js";
+export type {
+  StudioEvent,
+  StudioHelloEvent,
+  StudioLiveGameEvent,
+  StudioOperationEvent,
+} from "./studio.js";
 export { civ7, live, mapConfigs, runInGame, studio };

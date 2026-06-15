@@ -19,7 +19,10 @@ function percentileThreshold(values: number[], fraction: number): number {
   return sorted[idx] ?? 0;
 }
 
-function buildDeterministicTerrain(width: number, height: number): { elevation: Int16Array; landMask: Uint8Array } {
+function buildDeterministicTerrain(
+  width: number,
+  height: number
+): { elevation: Int16Array; landMask: Uint8Array } {
   const size = width * height;
   const elevation = new Int16Array(size);
   const landMask = new Uint8Array(size);
@@ -165,7 +168,9 @@ describe("m11 geomorphology (stream-power erosion + sediment transport)", () => 
       const drop =
         dest >= 0 && dest < size ? Math.max(0, (elevation[i] ?? 0) - (elevation[dest] ?? 0)) : 0;
       const slopeNorm = Math.max(0, Math.min(1, drop / maxDrop));
-      const power = Math.pow(aNorm, selection.config.geomorphology.fluvial.m) * Math.pow(slopeNorm, selection.config.geomorphology.fluvial.n);
+      const power =
+        Math.pow(aNorm, selection.config.geomorphology.fluvial.m) *
+        Math.pow(slopeNorm, selection.config.geomorphology.fluvial.n);
 
       const delta = first.elevationDelta[i] ?? 0;
       const erosion = delta < 0 ? -delta : 0;
@@ -173,8 +178,10 @@ describe("m11 geomorphology (stream-power erosion + sediment transport)", () => 
 
       const deposit = delta > 0 ? delta : 0;
       const flow = routing.flowAccum[i] ?? 0;
-      if (flow >= highFlowThreshold && slopeNorm <= lowSlopeThreshold) depositHighFlowLowSlope.push(deposit);
-      if (flow >= highFlowThreshold && slopeNorm >= highSlopeThreshold) depositHighFlowHighSlope.push(deposit);
+      if (flow >= highFlowThreshold && slopeNorm <= lowSlopeThreshold)
+        depositHighFlowLowSlope.push(deposit);
+      if (flow >= highFlowThreshold && slopeNorm >= highSlopeThreshold)
+        depositHighFlowHighSlope.push(deposit);
     }
 
     powers.sort((a, b) => a.power - b.power);
@@ -243,4 +250,3 @@ describe("m11 geomorphology (stream-power erosion + sediment transport)", () => 
     expect(elapsedMs).toBeLessThan(1000);
   });
 });
-

@@ -1,10 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../components/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui";
 
 export interface OptionSelectProps {
   /** Current selected value (controlled). */

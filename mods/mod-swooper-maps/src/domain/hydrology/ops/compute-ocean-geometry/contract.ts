@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 /**
  * Computes ocean geometry helpers for obstacle-aware surface current modeling:
@@ -20,16 +20,24 @@ const ComputeOceanGeometryInputSchema = Type.Object(
      * Coastal water mask per tile (1=coastal water, 0=not). Produced by Morphology coastline metrics and treated
      * as authoritative for coast distance seeding.
      */
-    coastalWaterMask: TypedArraySchemas.u8({ description: "Coastal water mask per tile (1=coastal water, 0=not)." }),
+    coastalWaterMask: TypedArraySchemas.u8({
+      description: "Coastal water mask per tile (1=coastal water, 0=not).",
+    }),
     /**
      * Distance-to-coast metric produced by Morphology. This may traverse land; Hydrology still computes a separate
      * water-only coast distance for ocean flow modeling, but consumes this artifact as part of the coastlines contract.
      */
-    distanceToCoast: TypedArraySchemas.u16({ description: "Distance-to-coast from Morphology coastline metrics." }),
+    distanceToCoast: TypedArraySchemas.u16({
+      description: "Distance-to-coast from Morphology coastline metrics.",
+    }),
     /** Continental shelf mask per tile (1=shelf, 0=not) from Morphology coastline metrics. */
-    shelfMask: TypedArraySchemas.u8({ description: "Continental shelf mask per tile (1=shelf, 0=not)." }),
+    shelfMask: TypedArraySchemas.u8({
+      description: "Continental shelf mask per tile (1=shelf, 0=not).",
+    }),
     /** Optional bathymetry (negative below sea level; 0+ above), if available. */
-    bathymetry: Type.Optional(TypedArraySchemas.f32({ description: "Bathymetry per tile (optional)." })),
+    bathymetry: Type.Optional(
+      TypedArraySchemas.f32({ description: "Bathymetry per tile (optional)." })
+    ),
   },
   {
     additionalProperties: false,
@@ -43,16 +51,25 @@ const ComputeOceanGeometryOutputSchema = Type.Object(
     basinId: TypedArraySchemas.i32({ description: "Basin id per tile (0 on land)." }),
     /** Coast distance in steps over water (0 at coastal water; clamped on water; 65535 on land). */
     coastDistance: TypedArraySchemas.u16({
-      description: "Coast distance in steps over water (0 at coastal water; clamped to maxCoastDistance on water; 65535 on land).",
+      description:
+        "Coast distance in steps over water (0 at coastal water; clamped to maxCoastDistance on water; 65535 on land).",
     }),
     /** Advisory coast normal U component per tile (-127..127). */
-    coastNormalU: TypedArraySchemas.i8({ description: "Advisory coast normal U component per tile (-127..127)." }),
+    coastNormalU: TypedArraySchemas.i8({
+      description: "Advisory coast normal U component per tile (-127..127).",
+    }),
     /** Advisory coast normal V component per tile (-127..127). */
-    coastNormalV: TypedArraySchemas.i8({ description: "Advisory coast normal V component per tile (-127..127)." }),
+    coastNormalV: TypedArraySchemas.i8({
+      description: "Advisory coast normal V component per tile (-127..127).",
+    }),
     /** Advisory coast tangent U component per tile (-127..127). */
-    coastTangentU: TypedArraySchemas.i8({ description: "Advisory coast tangent U component per tile (-127..127)." }),
+    coastTangentU: TypedArraySchemas.i8({
+      description: "Advisory coast tangent U component per tile (-127..127).",
+    }),
     /** Advisory coast tangent V component per tile (-127..127). */
-    coastTangentV: TypedArraySchemas.i8({ description: "Advisory coast tangent V component per tile (-127..127)." }),
+    coastTangentV: TypedArraySchemas.i8({
+      description: "Advisory coast tangent V component per tile (-127..127).",
+    }),
   },
   {
     additionalProperties: false,

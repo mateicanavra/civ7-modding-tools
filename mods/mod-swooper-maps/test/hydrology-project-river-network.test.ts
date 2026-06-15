@@ -85,13 +85,6 @@ describe("hydrology/project-river-network (default strategy)", () => {
 
     expect(out.minorThreshold).toBe(30);
     expect(out.majorThreshold).toBe(120);
-    expect(Array.from(out.riverClass)).toEqual([
-      1,
-      2,
-      2,
-      1,
-      2,
-      2,
-    ]);
+    expect(Array.from(out.riverClass)).toEqual([1, 2, 2, 1, 2, 2]);
   });
 });

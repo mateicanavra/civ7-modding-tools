@@ -1,8 +1,7 @@
+import type { StudioPresetExportFileV1 } from "@swooper/mapgen-core/authoring";
 import { describe, expect, it } from "vitest";
-
 import { resolveImportedPreset } from "../../src/features/presets/importFlow";
 import { findRecipeArtifacts } from "../../src/recipes/catalog";
-import type { StudioPresetExportFileV1 } from "@swooper/mapgen-core/authoring";
 
 describe("resolveImportedPreset", () => {
   it("rejects unknown recipe ids", () => {

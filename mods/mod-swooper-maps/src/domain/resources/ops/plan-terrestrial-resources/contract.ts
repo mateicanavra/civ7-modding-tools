@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 const TerrestrialResourceTypeSchema = Type.Union([
   Type.Literal("RESOURCE_CAMELS"),
@@ -109,10 +109,14 @@ const PlanTerrestrialResourcesContract = defineOp({
       height: Type.Integer({ minimum: 1 }),
       expectations: Type.Array(TerrestrialExpectationSchema),
       aridRangelandMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Arid plains, desert rangeland, or dryland corridor mask." })
+        TypedArraySchemas.u8({
+          description: "Arid plains, desert rangeland, or dryland corridor mask.",
+        })
       ),
       openGrassPlainsMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Open grassland, plains, steppe, or low-tree-cover mask." })
+        TypedArraySchemas.u8({
+          description: "Open grassland, plains, steppe, or low-tree-cover mask.",
+        })
       ),
       tundraColdEdgeMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Tundra, cold edge, or cold open habitat mask." })
@@ -121,37 +125,54 @@ const PlanTerrestrialResourcesContract = defineOp({
         TypedArraySchemas.u8({ description: "Hill, highland, or pastoral relief mask." })
       ),
       savannaWateringHoleMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Savanna, wooded savanna, watering-hole, or desert-edge mask." })
+        TypedArraySchemas.u8({
+          description: "Savanna, wooded savanna, watering-hole, or desert-edge mask.",
+        })
       ),
       tropicalForestEdgeMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Tropical forest-edge or wooded savanna megafauna proxy mask." })
+        TypedArraySchemas.u8({
+          description: "Tropical forest-edge or wooded savanna megafauna proxy mask.",
+        })
       ),
       taigaBorealForestMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Taiga, tundra-bog, boreal forest, or cold woodland mask." })
+        TypedArraySchemas.u8({
+          description: "Taiga, tundra-bog, boreal forest, or cold woodland mask.",
+        })
       ),
       moistWoodlandEdgeMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Moist woodland edge or host-tree proxy mask." })
       ),
       tropicalForestMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Humid tropical forest, rainforest, mangrove, or hardwood mask." })
+        TypedArraySchemas.u8({
+          description: "Humid tropical forest, rainforest, mangrove, or hardwood mask.",
+        })
       ),
       diverseWildHabitatMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Mixed natural habitat, marsh edge, forest/grass mosaic, or low-cultivation mask." })
+        TypedArraySchemas.u8({
+          description:
+            "Mixed natural habitat, marsh edge, forest/grass mosaic, or low-cultivation mask.",
+        })
       ),
       tropicalHighlandMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Tropical hill/highland pastoral candidate mask." })
       ),
       coldMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Cold suppression mask where the resource is frost-limited." })
+        TypedArraySchemas.u8({
+          description: "Cold suppression mask where the resource is frost-limited.",
+        })
       ),
       aridWithoutWaterMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Arid-without-water suppression mask." })
       ),
       denseForestMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Dense forest suppression mask for open-grazing resources." })
+        TypedArraySchemas.u8({
+          description: "Dense forest suppression mask for open-grazing resources.",
+        })
       ),
       cultivatedPressureMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Cultivation or monoculture pressure suppression mask." })
+        TypedArraySchemas.u8({
+          description: "Cultivation or monoculture pressure suppression mask.",
+        })
       ),
     },
     { additionalProperties: false }

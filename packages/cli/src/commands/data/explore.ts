@@ -1,17 +1,18 @@
-import { Args, Command, Flags } from "@oclif/core";
-import { promises as fs } from "node:fs";
-import * as path from "node:path";
-import * as fssync from "node:fs";
-import { exploreGraph } from "@civ7/plugin-graph";
-import { findProjectRoot, loadConfig, resolveGraphOutDir } from "@civ7/config";
-import { resolveRootFromConfigOrFlag } from "../../utils";
 import { spawn } from "node:child_process";
+import * as fssync from "node:fs";
+import { promises as fs } from "node:fs";
 import * as http from "node:http";
+import * as path from "node:path";
+import { findProjectRoot, loadConfig, resolveGraphOutDir } from "@civ7/config";
+import { exploreGraph } from "@civ7/plugin-graph";
+import { Args, Command, Flags } from "@oclif/core";
+import { resolveRootFromConfigOrFlag } from "../../utils";
 
 export default class Explore extends Command {
   static id = "explore";
   static summary = "Crawl + render + open a visualization in one pipeline.";
-  static description = `Runs the full pipeline: crawl resources for a seed, emit graph.json/graph.dot, render SVG, and optionally open a visualizer (local SVG or Graphviz Online).`;
+  static description =
+    `Runs the full pipeline: crawl resources for a seed, emit graph.json/graph.dot, render SVG, and optionally open a visualizer (local SVG or Graphviz Online).`;
 
   static examples = [
     "<%= config.bin %> explore LEADER_AMINA",

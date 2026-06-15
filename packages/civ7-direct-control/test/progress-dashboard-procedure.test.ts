@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7ProgressDashboardProcedureDescriptor,
   Civ7ProgressDashboardProcedureSchemaArtifacts,
   callCiv7ProgressDashboardProcedure,
   getCiv7ProgressDashboard,
+  type ProgressDashboardDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type ProgressDashboardDependencies,
 } from "../src/index";
 
 describe("Civ7 progress-dashboard procedure descriptor", () => {
@@ -30,30 +30,36 @@ describe("Civ7 progress-dashboard procedure descriptor", () => {
 
     const resolved = resolveCiv7ProcedureCoreSchemas(
       Civ7ProgressDashboardProcedureDescriptor,
-      Civ7ProgressDashboardProcedureSchemaArtifacts,
+      Civ7ProgressDashboardProcedureSchemaArtifacts
     );
     expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7ProgressDashboardProcedureDescriptor.inputFields),
+      expect.arrayContaining(Civ7ProgressDashboardProcedureDescriptor.inputFields)
     );
     expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
-      expect.arrayContaining(Civ7ProgressDashboardProcedureDescriptor.outputFields),
+      expect.arrayContaining(Civ7ProgressDashboardProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, { playerId: 0 })).toBe(true);
     expect(Value.Check(resolved.inputSchema, { playerId: -1 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { rawCommand: "readProgressDashboard()" })).toBe(false);
+    expect(Value.Check(resolved.inputSchema, { rawCommand: "readProgressDashboard()" })).toBe(
+      false
+    );
     expect(Value.Check(resolved.outputSchema, progressDashboardResult())).toBe(true);
-    expect(Value.Check(resolved.outputSchema, {
-      ...progressDashboardResult(),
-      triumphs: {
-        ...progressDashboardResult().triumphs,
-        source: "raw-debug-output",
-      },
-    })).toBe(false);
-    expect(Value.Check(resolved.outputSchema, {
-      ...progressDashboardResult(),
-      rawCommand: "readProgressDashboard()",
-    })).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...progressDashboardResult(),
+        triumphs: {
+          ...progressDashboardResult().triumphs,
+          source: "raw-debug-output",
+        },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(resolved.outputSchema, {
+        ...progressDashboardResult(),
+        rawCommand: "readProgressDashboard()",
+      })
+    ).toBe(false);
   });
 
   test("calls the progress dashboard atom through the procedure core without touching the live tuner", async () => {
@@ -79,18 +85,21 @@ describe("Civ7 progress-dashboard procedure descriptor", () => {
       parseProgressDashboard: () => progressDashboardResult(),
     };
 
-    const result = await callCiv7ProgressDashboardProcedure({
-      playerId: 0,
-    }, {
-      directControl: {
-        host: "127.0.0.1",
-        port: 4318,
+    const result = await callCiv7ProgressDashboardProcedure(
+      {
+        playerId: 0,
       },
-      procedure: {
-        correlationId: "progress-dashboard-procedure-test",
-      },
-      dependencies,
-    });
+      {
+        directControl: {
+          host: "127.0.0.1",
+          port: 4318,
+        },
+        procedure: {
+          correlationId: "progress-dashboard-procedure-test",
+        },
+        dependencies,
+      }
+    );
 
     expect(result.output).toEqual(progressDashboardResult());
     expect(result.output.hiddenInfoPolicy).toBe("local-player-runtime-progress");
@@ -138,10 +147,15 @@ describe("Civ7 progress-dashboard procedure descriptor", () => {
       parseProgressDashboard: () => progressDashboardResult(),
     };
 
-    await expect(callCiv7ProgressDashboardProcedure({ playerId: -1 }, {
-      procedure: { correlationId: "progress-dashboard-invalid-player" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7ProgressDashboardProcedure(
+        { playerId: -1 },
+        {
+          procedure: { correlationId: "progress-dashboard-invalid-player" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -149,12 +163,17 @@ describe("Civ7 progress-dashboard procedure descriptor", () => {
         role: "input",
       },
     });
-    await expect(callCiv7ProgressDashboardProcedure({
-      stateName: "App UI",
-    } as never, {
-      procedure: { correlationId: "progress-dashboard-context-input" },
-      dependencies,
-    })).rejects.toMatchObject({
+    await expect(
+      callCiv7ProgressDashboardProcedure(
+        {
+          stateName: "App UI",
+        } as never,
+        {
+          procedure: { correlationId: "progress-dashboard-context-input" },
+          dependencies,
+        }
+      )
+    ).rejects.toMatchObject({
       code: "procedure-descriptor-invalid",
       details: {
         reason: "input-schema-invalid",
@@ -254,7 +273,7 @@ function milestone(
   ageProgressionMilestoneType: string,
   requiredPathPoints: number,
   finalMilestone: boolean,
-  complete: boolean,
+  complete: boolean
 ) {
   return {
     ageProgressionMilestoneType,

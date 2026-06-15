@@ -1,7 +1,7 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
-import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 import {
   Civ7MapLocationSchema,
@@ -32,7 +32,7 @@ describe("getCiv7UnitMovePreview", () => {
           host: "127.0.0.1",
           port,
           timeoutMs: 1_000,
-        },
+        }
       );
 
       expect(result).toMatchObject({
@@ -95,12 +95,14 @@ describe("getCiv7UnitMovePreview", () => {
           unprovenLabel: "relationship-unproven",
         },
       });
-      expect(result.relationshipPolicy.guidance).toMatch(/does not classify other-owner relationships/);
+      expect(result.relationshipPolicy.guidance).toMatch(
+        /does not classify other-owner relationships/
+      );
       expect(result.notes).toEqual(
         expect.arrayContaining([
           "Read-only official movement preview. It does not send MOVE_TO, reserve a path, or prove tactical safety.",
           "Relationship labels are intentionally conservative: owner mismatch is contact evidence, not relationship proof.",
-        ]),
+        ])
       );
 
       expect(server.received).toHaveLength(2);
@@ -115,27 +117,45 @@ describe("getCiv7UnitMovePreview", () => {
       expect(server.received[1]).toContain("getQueuedOperationDestination");
       expect(server.received[1]).toContain("getPathTo");
       expect(Value.Check(Civ7MapLocationSchema, { x: 25, y: 35 })).toBe(true);
-      expect(Value.Check(Civ7MapLocationSchema, { x: 25, y: 35, rawCommand: "MOVE_TO" })).toBe(false);
+      expect(Value.Check(Civ7MapLocationSchema, { x: 25, y: 35, rawCommand: "MOVE_TO" })).toBe(
+        false
+      );
       expect(Value.Check(Civ7MapLocationSchema, { x: 1.5, y: 0 })).toBe(false);
       expect(Value.Check(Civ7MapLocationSchema, { x: -1, y: 0 })).toBe(false);
       expect(Value.Check(Civ7MapLocationSchema, { x: 0, y: 1_000_001 })).toBe(false);
-      expect(Value.Check(Civ7UnitMovePreviewInputSchema, {
-        unitId: { owner: 0, id: 65536, type: 26 },
-        destination: { x: 25, y: 35 },
-        maxPlots: 12,
-        maxPathPlots: 8,
-      })).toBe(true);
+      expect(
+        Value.Check(Civ7UnitMovePreviewInputSchema, {
+          unitId: { owner: 0, id: 65536, type: 26 },
+          destination: { x: 25, y: 35 },
+          maxPlots: 12,
+          maxPathPlots: 8,
+        })
+      ).toBe(true);
       expect(Value.Check(Civ7UnitMovePreviewInputSchema, { maxPlots: 513 })).toBe(false);
-      expect(Value.Check(Civ7UnitMovePreviewInputSchema, { rawCommand: "readUnitMovePreview()" })).toBe(false);
-      expect(Value.Check(Civ7UnitMovePreviewInputSchema, { destination: { x: 1.5, y: 0 } })).toBe(false);
-      expect(Value.Check(Civ7UnitMovePreviewInputSchema, { destination: { x: -1, y: 0 } })).toBe(false);
-      expect(Value.Check(Civ7UnitMovePreviewInputSchema, { destination: { x: 0, y: 1_000_001 } })).toBe(false);
-      expect(Value.Check(Civ7UnitMovePreviewInputSchema, { destination: { x: 0, y: 0, rawCommand: "MOVE_TO" } })).toBe(false);
+      expect(
+        Value.Check(Civ7UnitMovePreviewInputSchema, { rawCommand: "readUnitMovePreview()" })
+      ).toBe(false);
+      expect(Value.Check(Civ7UnitMovePreviewInputSchema, { destination: { x: 1.5, y: 0 } })).toBe(
+        false
+      );
+      expect(Value.Check(Civ7UnitMovePreviewInputSchema, { destination: { x: -1, y: 0 } })).toBe(
+        false
+      );
+      expect(
+        Value.Check(Civ7UnitMovePreviewInputSchema, { destination: { x: 0, y: 1_000_001 } })
+      ).toBe(false);
+      expect(
+        Value.Check(Civ7UnitMovePreviewInputSchema, {
+          destination: { x: 0, y: 0, rawCommand: "MOVE_TO" },
+        })
+      ).toBe(false);
       expect(Value.Check(Civ7UnitMovePreviewResultSchema, result)).toBe(true);
-      expect(Value.Check(Civ7UnitMovePreviewResultSchema, {
-        ...result,
-        command: "readUnitMovePreview()",
-      })).toBe(false);
+      expect(
+        Value.Check(Civ7UnitMovePreviewResultSchema, {
+          ...result,
+          command: "readUnitMovePreview()",
+        })
+      ).toBe(false);
     } finally {
       await server.close();
     }
@@ -157,8 +177,8 @@ describe("getCiv7UnitMovePreview", () => {
             host: "127.0.0.1",
             port,
             timeoutMs: 1_000,
-          },
-        ),
+          }
+        )
       ).rejects.toMatchObject({
         code: "command-failed",
         message: expect.stringContaining("maxPlots must be an integer between 1 and 512"),
@@ -188,8 +208,8 @@ describe("getCiv7UnitMovePreview", () => {
               host: "127.0.0.1",
               port,
               timeoutMs: 1_000,
-            },
-          ),
+            }
+          )
         ).rejects.toMatchObject({
           code: "command-failed",
           message: expect.stringContaining(`${field} must be an integer between 0 and 1000000`),
@@ -234,13 +254,11 @@ async function startUnitMovePreviewTunerServer(): Promise<FakeTunerServer> {
   };
 }
 
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
+function parseRequest(buffer: Buffer): {
+  listenerId: number;
+  message: string;
+  bytesRead: number;
+} | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);
   const bytesRead = 8 + messageLength;

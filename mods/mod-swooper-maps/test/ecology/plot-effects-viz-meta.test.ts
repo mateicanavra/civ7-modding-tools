@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 
 import {
   PLOT_EFFECT_VIZ_CATEGORIES,
@@ -15,7 +15,10 @@ describe("plot effects viz meta", () => {
     expect(uniqueValues.size).toBe(values.length);
 
     // Every mapped value should have an explicit category with an explicit RGBA color.
-    const categoriesByValue = new Map<number | string, (typeof PLOT_EFFECT_VIZ_CATEGORIES)[number]>();
+    const categoriesByValue = new Map<
+      number | string,
+      (typeof PLOT_EFFECT_VIZ_CATEGORIES)[number]
+    >();
     for (const category of PLOT_EFFECT_VIZ_CATEGORIES) {
       categoriesByValue.set(category.value, category);
       expect(category.color.length).toBe(4);
@@ -30,4 +33,3 @@ describe("plot effects viz meta", () => {
     }
   });
 });
-

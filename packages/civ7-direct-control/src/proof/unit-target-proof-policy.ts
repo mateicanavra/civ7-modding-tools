@@ -5,12 +5,13 @@ import type {
   Civ7OperationTelemetryPostconditionOutcome,
 } from "./operation-telemetry";
 
-export type Civ7UnitTargetActionVerification =
-  NonNullable<Civ7UnitTargetActionResult["verification"]>;
+export type Civ7UnitTargetActionVerification = NonNullable<
+  Civ7UnitTargetActionResult["verification"]
+>;
 
 export function unitTargetProofPostcondition(
   result: Civ7UnitTargetActionResult,
-  proofBoundary: Civ7OperationProofBoundary | undefined,
+  proofBoundary: Civ7OperationProofBoundary | undefined
 ): Civ7OperationTelemetryPostcondition | undefined {
   if (!result.sent) return undefined;
   if (proofBoundary === "pending-runtime-proof") {
@@ -50,7 +51,7 @@ export function unitTargetProofPostcondition(
 }
 
 export function unitTargetProofOutcome(
-  classification: Civ7UnitTargetActionVerification["classification"],
+  classification: Civ7UnitTargetActionVerification["classification"]
 ): Civ7OperationTelemetryPostconditionOutcome {
   switch (classification) {
     case "not-sent":
@@ -67,7 +68,7 @@ export function unitTargetProofOutcome(
 }
 
 function unitTargetProofNoRepeatAfterConfirmed(
-  verification: Civ7UnitTargetActionVerification,
+  verification: Civ7UnitTargetActionVerification
 ): boolean {
   return verification.classification === "path-shortfall";
 }

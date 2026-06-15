@@ -1,8 +1,7 @@
-import { freezeClone } from "@swooper/mapgen-core/lib/collections";
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
-
-import type { CorridorKind, CorridorStyle } from "@mapgen/domain/narrative/corridors/types.js";
 import type { CorridorState } from "@mapgen/domain/narrative/corridors/state.js";
+import type { CorridorKind, CorridorStyle } from "@mapgen/domain/narrative/corridors/types.js";
+import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import { freezeClone } from "@swooper/mapgen-core/lib/collections";
 
 const STYLE_PRIMITIVE_CACHE = new WeakMap<
   ExtendedMapContext,

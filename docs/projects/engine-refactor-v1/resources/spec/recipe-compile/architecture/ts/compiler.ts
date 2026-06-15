@@ -1,8 +1,8 @@
 import type { TSchema } from "typebox";
 
 import type { DomainOpCompileAny } from "./ops";
-import type { StageToInternalResult } from "./stages";
 import type { RecipeConfig, RecipeConfigInput } from "./recipes";
+import type { StageToInternalResult } from "./stages";
 
 export type CompileErrorCode =
   | "config.invalid"

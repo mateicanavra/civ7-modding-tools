@@ -2,17 +2,10 @@ import type { Socket } from "node:net";
 
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { resolveCiv7DirectControlConfig } from "./config.js";
-import {
-  encodeCiv7TunerRequest,
-  parseCiv7TunerFrame,
-  type Civ7TunerFrame,
-} from "./framing.js";
+import { type Civ7TunerFrame, encodeCiv7TunerRequest, parseCiv7TunerFrame } from "./framing.js";
 import { allocateListenerId } from "./listener-id.js";
 import { openCiv7TunerSocket } from "./socket.js";
-import {
-  selectCiv7TunerState,
-  tunerStatesFromParts,
-} from "./state.js";
+import { selectCiv7TunerState, tunerStatesFromParts } from "./state.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
@@ -96,10 +89,14 @@ export class Civ7DirectControlSession {
         this.buffer = Buffer.alloc(0);
         socket.on("data", (chunk) => this.handleData(chunk));
         socket.once("error", (err) => {
-          this.rejectPending(new Civ7DirectControlError("connection-failed", err.message, { cause: err }));
+          this.rejectPending(
+            new Civ7DirectControlError("connection-failed", err.message, { cause: err })
+          );
         });
         socket.once("close", () => {
-          this.rejectPending(new Civ7DirectControlError("socket-closed", "Civ7 tuner socket closed"));
+          this.rejectPending(
+            new Civ7DirectControlError("socket-closed", "Civ7 tuner socket closed")
+          );
           this.socket = undefined;
           this.endpointValue = undefined;
         });
@@ -112,7 +109,7 @@ export class Civ7DirectControlSession {
     throw new Civ7DirectControlError(
       "all-hosts-unavailable",
       `Unable to reach Civ7 tuner socket on ${this.config.hosts.join(", ")}:${this.config.port}`,
-      { details: errors },
+      { details: errors }
     );
   }
 
@@ -161,7 +158,10 @@ export class Civ7DirectControlSession {
     const response = await this.request(`CMD:${state.id}:${command}`, options.timeoutMs);
     const endpoint = this.endpoint;
     if (!endpoint) {
-      throw new Civ7DirectControlError("socket-closed", "Civ7 tuner socket closed after command completed");
+      throw new Civ7DirectControlError(
+        "socket-closed",
+        "Civ7 tuner socket closed after command completed"
+      );
     }
     return {
       host: endpoint.host,
@@ -175,7 +175,10 @@ export class Civ7DirectControlSession {
     await this.connect();
     const socket = this.socket;
     if (!socket || socket.destroyed) {
-      throw new Civ7DirectControlError("socket-closed", `Civ7 tuner socket is closed before ${message}`);
+      throw new Civ7DirectControlError(
+        "socket-closed",
+        `Civ7 tuner socket is closed before ${message}`
+      );
     }
     const listenerId = allocateListenerId();
     const response = new Promise<Civ7TunerFrame>((resolve, reject) => {
@@ -185,8 +188,8 @@ export class Civ7DirectControlSession {
         reject(
           new Civ7DirectControlError(
             "response-timeout",
-            `Timed out waiting for Civ7 tuner response to ${message}`,
-          ),
+            `Timed out waiting for Civ7 tuner response to ${message}`
+          )
         );
       }, timeoutMs);
       this.pending.set(listenerId, { resolve, reject, timer, message });
@@ -220,8 +223,8 @@ export class Civ7DirectControlSession {
           err.message === "Civ7 tuner socket closed"
             ? `Civ7 tuner socket closed while waiting for ${pending.message}`
             : err.message,
-          { cause: err, details: { message: pending.message } },
-        ),
+          { cause: err, details: { message: pending.message } }
+        )
       );
     }
   }
@@ -229,7 +232,7 @@ export class Civ7DirectControlSession {
 
 export async function withCiv7DirectControlSession<T>(
   options: Civ7DirectControlOptions,
-  run: (session: Civ7DirectControlSession) => Promise<T>,
+  run: (session: Civ7DirectControlSession) => Promise<T>
 ): Promise<T> {
   // Caller-owned shared session: reuse, never close — the owner (e.g. the
   // studio daemon's Effect-scoped service) manages acquisition/release.

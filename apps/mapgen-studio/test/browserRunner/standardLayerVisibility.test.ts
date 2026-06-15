@@ -7,8 +7,12 @@ type WorkerHarness = {
   onmessage: ((ev: { data: BrowserRunRequest }) => void) | null;
 };
 
-function visibilityOf(layer: Extract<BrowserRunEvent, { type: "viz.layer.upsert" }>["layer"]): string {
-  return layer.meta?.visibility === "hidden" || layer.meta?.visibility === "debug" ? layer.meta.visibility : "default";
+function visibilityOf(
+  layer: Extract<BrowserRunEvent, { type: "viz.layer.upsert" }>["layer"]
+): string {
+  return layer.meta?.visibility === "hidden" || layer.meta?.visibility === "debug"
+    ? layer.meta.visibility
+    : "default";
 }
 
 async function runStandardRecipeInWorker(): Promise<BrowserRunEvent[]> {
@@ -27,7 +31,8 @@ async function runStandardRecipeInWorker(): Promise<BrowserRunEvent[]> {
 
   await import("../../src/browser-runner/pipeline.worker.ts?standard-layer-visibility");
 
-  if (typeof harness.onmessage !== "function") throw new Error("pipeline worker did not install onmessage");
+  if (typeof harness.onmessage !== "function")
+    throw new Error("pipeline worker did not install onmessage");
 
   harness.onmessage({
     data: {
@@ -48,7 +53,8 @@ async function runStandardRecipeInWorker(): Promise<BrowserRunEvent[]> {
   const deadline = Date.now() + 30_000;
   while (Date.now() < deadline) {
     const terminal = harness.events.find(
-      (event) => event.type === "run.finished" || event.type === "run.error" || event.type === "run.canceled"
+      (event) =>
+        event.type === "run.finished" || event.type === "run.error" || event.type === "run.canceled"
     );
     if (terminal) break;
     await new Promise((resolve) => setTimeout(resolve, 25));
@@ -61,15 +67,20 @@ describe("standard browser runner layer visibility", () => {
   it("keeps core balance layers visible with debug layers off", async () => {
     const events = await runStandardRecipeInWorker();
     const terminal = events.find(
-      (event) => event.type === "run.finished" || event.type === "run.error" || event.type === "run.canceled"
+      (event) =>
+        event.type === "run.finished" || event.type === "run.error" || event.type === "run.canceled"
     );
     expect(terminal).toEqual(expect.objectContaining({ type: "run.finished" }));
 
-    const layers = events.filter((event): event is Extract<BrowserRunEvent, { type: "viz.layer.upsert" }> => {
-      return event.type === "viz.layer.upsert";
-    });
+    const layers = events.filter(
+      (event): event is Extract<BrowserRunEvent, { type: "viz.layer.upsert" }> => {
+        return event.type === "viz.layer.upsert";
+      }
+    );
     const defaultVisibleDataTypeKeys = new Set(
-      layers.filter((event) => visibilityOf(event.layer) === "default").map((event) => event.layer.dataTypeKey)
+      layers
+        .filter((event) => visibilityOf(event.layer) === "default")
+        .map((event) => event.layer.dataTypeKey)
     );
     expect([...defaultVisibleDataTypeKeys]).toEqual(
       expect.arrayContaining([
@@ -83,16 +94,21 @@ describe("standard browser runner layer visibility", () => {
     );
 
     const tileMotionLayers = layers.filter((event) => {
-      return event.layer.dataTypeKey === "foundation.plates.tileMovement" && visibilityOf(event.layer) === "default";
+      return (
+        event.layer.dataTypeKey === "foundation.plates.tileMovement" &&
+        visibilityOf(event.layer) === "default"
+      );
     });
     expect(tileMotionLayers.map((event) => event.layer.spaceId)).toEqual(
       expect.arrayContaining(["tile.hexOddQ"])
     );
-    expect(tileMotionLayers.map((event) => `${event.layer.kind}:${event.layer.meta?.role ?? ""}`)).toEqual(
-      expect.arrayContaining(["gridFields:vector", "segments:arrows"])
-    );
+    expect(
+      tileMotionLayers.map((event) => `${event.layer.kind}:${event.layer.meta?.role ?? ""}`)
+    ).toEqual(expect.arrayContaining(["gridFields:vector", "segments:arrows"]));
 
-    const rawWorldMotionLayers = layers.filter((event) => event.layer.dataTypeKey === "foundation.plateMotion.motion");
+    const rawWorldMotionLayers = layers.filter(
+      (event) => event.layer.dataTypeKey === "foundation.plateMotion.motion"
+    );
     expect(rawWorldMotionLayers.length).toBeGreaterThan(0);
     expect(rawWorldMotionLayers.every((event) => visibilityOf(event.layer) === "debug")).toBe(true);
   }, 35_000);

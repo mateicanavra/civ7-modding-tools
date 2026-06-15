@@ -12,4 +12,3 @@ const scorePlotEffectsBurned = createOp(PlotEffectsScoreBurnedContract, {
 export type * from "./contract.js";
 
 export default scorePlotEffectsBurned;
-

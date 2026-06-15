@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import type { ExtendedMapContext } from "@mapgen/core/types.js";
 import { createExtendedMapContext } from "@mapgen/core/types.js";
@@ -33,8 +33,11 @@ const TEST_TAG_DEFINITIONS = [
     id: TEST_TAGS.artifact.placementOutputs,
     kind: "artifact",
     satisfies: (context: ExtendedMapContext, _state) =>
-      (context.artifacts.get(TEST_TAGS.artifact.placementOutputs) as { valid?: boolean } | undefined)
-        ?.valid === true,
+      (
+        context.artifacts.get(TEST_TAGS.artifact.placementOutputs) as
+          | { valid?: boolean }
+          | undefined
+      )?.valid === true,
   },
   {
     id: TEST_TAGS.effect.coastlinesApplied,
@@ -50,8 +53,11 @@ const TEST_TAG_DEFINITIONS = [
     id: TEST_TAGS.effect.placementApplied,
     kind: "effect",
     satisfies: (context: ExtendedMapContext, _state) =>
-      (context.artifacts.get(TEST_TAGS.artifact.placementOutputs) as { valid?: boolean } | undefined)
-        ?.valid === true,
+      (
+        context.artifacts.get(TEST_TAGS.artifact.placementOutputs) as
+          | { valid?: boolean }
+          | undefined
+      )?.valid === true,
   },
 ] as const;
 
@@ -134,9 +140,7 @@ describe("placement step contracts", () => {
     } catch (err) {
       expect(err).toBeInstanceOf(MissingDependencyError);
       expect((err as MissingDependencyError).stepId).toBe("placement");
-      expect((err as MissingDependencyError).missing).toEqual([
-        TEST_TAGS.artifact.placementInputs,
-      ]);
+      expect((err as MissingDependencyError).missing).toEqual([TEST_TAGS.artifact.placementInputs]);
     }
   });
 

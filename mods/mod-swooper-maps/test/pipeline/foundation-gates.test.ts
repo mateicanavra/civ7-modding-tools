@@ -90,13 +90,7 @@ describe("foundation invariant gates", () => {
     ]);
 
     const gate = findGate("foundation-event-provenance-causality");
-    const result = gate.check(
-      makeInvariantContext(
-        artifacts,
-        4,
-        4
-      )
-    );
+    const result = gate.check(makeInvariantContext(artifacts, 4, 4));
 
     expect(result.ok).toBe(false);
     expect(result.message).toContain("Origin resets lack same-era event signal");

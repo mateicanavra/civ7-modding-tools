@@ -1,9 +1,9 @@
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
+import { interleaveXY } from "../viz.js";
 import CrustStepContract from "./crust.contract.js";
 import { validateCrustArtifact, wrapFoundationValidateNoDims } from "./validation.js";
-import { interleaveXY } from "../viz.js";
 
 const GROUP_CRUST = "Foundation / Crust";
 
@@ -17,7 +17,11 @@ export default createStep(CrustStepContract, {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);
     const stepId = `${CrustStepContract.phase}/${CrustStepContract.id}`;
-    const rngSeed = ctxRandom(context, ctxRandomLabel(stepId, "foundation/compute-crust"), 2_147_483_647);
+    const rngSeed = ctxRandom(
+      context,
+      ctxRandomLabel(stepId, "foundation/compute-crust"),
+      2_147_483_647
+    );
 
     const crustResult = ops.computeCrust(
       {
