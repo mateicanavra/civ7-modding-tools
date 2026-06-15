@@ -18,12 +18,12 @@ Owner-layer legend (frame hard core #2): `nx-boundaries` (tags + enforce-module-
 |---|---|---|---|---|---|---|---|---|
 | adapter-boundary | `lint-adapter-boundary.sh` (bash+rg) | `/base-standard/` imports only inside `packages/civ7-adapter` | `packages/**` | `ci:architecture-strict-core` only (root `check` does NOT invoke it) | parseable text | 7 allowlisted files (CIV-20, CIV-47, map-policy provenance/test/setup) remain in the wrapped broad string rule; H5's Grit runtime-import rule starts empty | grit-check for runtime imports; wrapped script for broad provenance-string scan until H6 disposition | wrap-then-port |
 | domain-refactor-guardrails | `lint-domain-refactor-guardrails.sh` (bash+rg, `boundary`/`full` profiles) | boundary profile: ops don't import adapter/context/map-projection/domain-root config; full profile adds cross-domain/RNG/engine/config/docs/schema/foundation/ecology special cases | `mods/mod-swooper-maps/src/domain/**`, `recipes/standard/**` | root `check` + strict-core (full) | text | 0 | grit-check for the default boundary profile; wrapped rule for full profile | wrap-then-port |
-| mapgen-recipe-imports | `lint-mapgen-recipe-imports.sh` (bash+rg) | recipes import domain only via public surfaces (`@mapgen/domain/<d>`, `/ops`, `/config.js`) | `mods/mod-swooper-maps/src/recipes/**` | root `check` | text | 0 | nx-boundaries (package-level) + grit-check (path-level within mod) | wrap-then-port |
-| normalization-guardrails | `lint-normalization-guardrails.mjs` | G1 no milestone-prefixed recipe IDs; G2 no domain-root catalogs; G3 no Civ7 runtime imports in mapgen-core; G5 no sibling stage step imports; G6 recipe/docs stage-order sync; G7 superseded stage IDs in docs; G8 placement outcome contract boundary; G9 no wrapper-only stage config; G10 viz contract ownership; G11 SDK runtime entrypoint isolation | mod recipes/domain, sdk, mapgen-core, docs | root `check` | structured text | 0 | split: grit-check (G2, G5, G8, G9, G10, G11, and the G3 runtime-value ban — all intra-project shapes Nx cannot see), nx-boundaries (G3 project-edge context only, via the `kind:engine` tag rule), habitat-native/wrapped original (G1 Grit parity stop; G6/G7 doc/code sync is semantic) | wrap-then-port |
-| control-orpc-contract-ownership | `lint-control-orpc-contract-ownership.mjs` | no `@civ7/direct-control` imports in service contracts; no schema exports from module contracts; no contract-local re-exports from public surface | `packages/civ7-control-orpc/src/modules/**/contract.ts` | root `check` | text | 0 | grit-check | wrap-then-port |
-| workspace-entrypoints | `lint-workspace-entrypoints.mjs` | package-local scripts must not hide workspace orchestration (`--filter`, `--cwd`, nested turbo→nx) | all `package.json` | root `check` | text | 0 | habitat-native (manifest rule, not source syntax) | wrap-then-port (update for nx in H1) |
-| adr-lint | `lint-doc-adrs.mjs` | ADR frontmatter shape + heading IDs + no hardcoded paths | `docs/projects/*/resources/spec/adr/` | manual | yes (`--json`) | 0 | habitat-native (doc tooling) | wrap (keep semantics; low priority) |
-| doc-ambiguity-lint | `lint-doc-ambiguity.mjs` | vague-language reduction with baseline tracking | `docs/**` | manual/advisory | yes + baseline file | baseline `docs/.doc-ambiguity-lint-baseline.json` (prior art for the ratchet) | habitat-native | wrap (advisory lane) |
+| mapgen-recipe-imports | retired H6 (`lint-mapgen-recipe-imports.sh`) | recipes import domain only via public surfaces (`@mapgen/domain/<d>`, `/ops`, `/config.js`) | `mods/mod-swooper-maps/src/recipes/**` | Habitat `grit-check` | JSON via Habitat | 0 | grit-check (path-level within mod) | ported/retired in H6 |
+| normalization-guardrails | Habitat-native + Grit split (former `lint-normalization-guardrails.mjs`) | G1 no milestone-prefixed recipe IDs; G2 no domain-root catalogs; G3 no Civ7 runtime imports in mapgen-core; G5 no sibling stage step imports; G6 recipe/docs stage-order sync; G7 superseded stage IDs in docs; G8 placement outcome contract boundary; G9 no wrapper-only stage config; G10 viz contract ownership; G11 SDK runtime entrypoint isolation | mod recipes/domain, sdk, mapgen-core, docs | Habitat `normalization-guardrails` + `grit-check` | JSON via Habitat | 0 | split: grit-check (G2, G3 runtime-value, G5, G8, G9, G10, G11), habitat-native (G1, G6, G7), nx-boundaries (G3 project-edge context only) | ported/slimmed in H6 |
+| control-orpc-contract-ownership | retired H6 (`lint-control-orpc-contract-ownership.mjs`) | no `@civ7/direct-control` imports in service contracts; no schema exports from module contracts; no contract-local re-exports from public surface | `packages/civ7-control-orpc/src/modules/**/contract.ts` | Habitat `grit-control-orpc-contract-ownership` | JSON via Habitat | 0 | grit-check | ported/retired in H6 |
+| workspace-entrypoints | Habitat-native (former `lint-workspace-entrypoints.mjs`) | package-local scripts must not hide workspace orchestration (`--filter`, `--cwd`, nested turbo→nx) | all `package.json` | Habitat `workspace-entrypoints` | JSON via Habitat | 0 | habitat-native (manifest rule, not source syntax) | ported in H6 |
+| adr-lint | Habitat-native (former `lint-doc-adrs.mjs`) | ADR frontmatter shape + heading IDs + no hardcoded paths | `docs/projects/*/resources/spec/adr/` | manual/advisory | yes (`--json`) | 0 | habitat-native (doc tooling) | ported in H6 |
+| doc-ambiguity-lint | Habitat-native (former `lint-doc-ambiguity.mjs`) | vague-language reduction with baseline tracking | `docs/**` | manual/advisory | yes + baseline file | baseline `docs/.doc-ambiguity-lint-baseline.json` (prior art for the ratchet) | habitat-native | ported in H6 (advisory lane) |
 | mapgen-docs-lint | `lint-mapgen-docs.py` (python) | mapgen canonical docs have `<toc>`, ground-truth anchors, anchor paths exist | `docs/system/libs/mapgen/**` | root `check` | stderr text | 0 | habitat-native | wrap (port py→TS only if touched) |
 
 ## B. ESLint flat-config blocks (`eslint.config.js`)
@@ -36,12 +36,12 @@ Owner-layer legend (frame hard core #2): `nx-boundaries` (tags + enforce-module-
 | eslint-redefined-helpers | ~129–170 | steps/strategies must not redeclare `clamp01`/`clampChance`/`normalizeRange`/`rollPercent` | grit-check | port |
 | eslint-step-contract-imports | ~174–197 | step contracts import only `@mapgen/domain/<d>` entrypoint | grit-check | port |
 | eslint-recipe-domain-ops | ~199–214 | `recipe.ts` imports domain ops surface, not contract entrypoint | grit-check | port |
-| eslint-contract-export-all | ~216–235 | no bare `export *` in contract/public-surface files (`export type *` ok) | original ESLint remains authoritative after H5 Grit parity stop; future native/Grit hybrid needed for named export synthesis. H5 Grit probes confirm the value-star/type-star distinction is expressible; the native sample runner, not `grit check`, currently parse-errors on `export type *`. | keep wrapped until safe port |
+| eslint-contract-export-all | ~216–235 | no bare `export *` in contract/public-surface files (`export type *` ok) | Habitat `grit-contract-export-all` after H6; pattern uses native Grit with a `text(...)` guard so existing type-only export stars stay green. | ported/retired in H6 |
 | eslint-empty-schema-defaults | ~237–250 | no `{ default: {} }` in contract schemas | grit-check | port |
 
-Note (frame hard core #2): after porting, `eslint.config.js` is replaced by a
-minimal boundary-only config whose sole rule is `@nx/enforce-module-boundaries`.
-No other ESLint rules survive.
+Note (frame hard core #2): after H6, root `eslint.config.js` is deleted. ESLint
+survives only in `eslint.boundaries.config.mjs`, whose sole rule is
+`@nx/enforce-module-boundaries`.
 
 ## C. Architecture tests (stay as tests)
 
@@ -49,8 +49,8 @@ No other ESLint rules survive.
 |---|---|---|---|
 | core-purity | `packages/mapgen-core/test/architecture/core-purity.test.ts` | mapgen-core prod code has no Civ7 runtime refs | keep-as-test; **duplicated intent** with nx-boundaries tag rule (`kind:core` ↛ `kind:adapter`) — once the tag rule is locked, slim the test or retire (decided in H6) |
 | rng-authority-boundary | `mods/.../test/pipeline/rng-authority-boundary.test.ts` | no engine RNG / official generators in standard recipe + domain | keep-as-test (runtime semantics) |
-| recipe-import-boundary | `mods/.../test/pipeline/recipe-import-boundary.test.ts` | recipes use public domain surfaces | keep-as-test until grit-check equivalent is locked, then retire (H6) |
-| ecology-step-import-guardrails | `mods/.../test/ecology/ecology-step-import-guardrails.test.ts` | ecology steps don't deep-import ops/rules; retired stage dirs absent | split in H6: deep-import half retires once the grit equivalent locks; the retired-stage-dirs-absent half stays (test slimmed, not deleted — no grit/file rule covers directory absence) |
+| recipe-import-boundary | retired H6 (`mods/.../test/pipeline/recipe-import-boundary.test.ts`) | recipes use public domain surfaces | grit-check equivalent locked; retired in H6 |
+| ecology-step-import-guardrails | `mods/.../test/ecology/ecology-step-import-guardrails.test.ts` | retired stage dirs absent | slimmed in H6: deep-import half retired to Grit; directory-absence half stays (no grit/file rule covers directory absence) |
 | m11-projection-boundary-band | `mods/.../test/foundation/m11-projection-boundary-band.test.ts` | projection algorithm correctness | keep-as-test (domain logic, not structure) |
 | map-bundle-runtime-imports | `mods/.../test/build/map-bundle-runtime-imports.test.ts` | built bundles embed workspace packages; TextEncoder bootstrap; river markers | keep-as-test (build output correctness) |
 | cutover-tests (×4) | `mods/mod-swooper-maps` `test:architecture-cutover` → `no-op-calls-op-tectonics`, `no-dual-contract-paths`, `no-shim-surfaces`, `foundation-topology-lock` | M-cutover structural invariants (distinct from the six rows above) | keep-as-test; coarse-wrapped via the script target in H2 (the six rows above need per-file `bun test` invocations — see H2 task 2.4) |
@@ -84,8 +84,8 @@ No other ESLint rules survive.
 
 ## Summary counts
 
-- 9 lint scripts → 5 grit-check families (normalization split: G2/G3-runtime/G5/G8/G9/G10/G11 grit; G1 remains wrapped after parity stop; G6/G7 native; G3 project-edge via nx tags), 4 habitat-native (docs/manifest) wraps.
-- 8 ESLint rule families → 7 grit-check-ready families plus 1 original-owned export-star guard after H5 parity stop; ESLint reduction waits for H6 retirement decisions.
-- 6 architecture tests (+4 coarse-wrapped cutover tests) → all keep-as-test initially; in H6: 2 retire once equivalent grit rules lock (core-purity slim-or-retire, recipe-import-boundary), ecology test slims (dir-absence half stays).
+- 9 lint scripts → Grit/Habitat-native/wrapped split after H6: recipe-import and control-oRPC scripts retired; workspace/doc/normalization native rules moved under `tools/habitat-harness/src/rules/native`; adapter/domain-refactor/mapgen-docs remain wrapped for still-owned semantics.
+- 8 ESLint rule families → grit-check families after H6, including `grit-contract-export-all`; root `eslint.config.js` retired.
+- 6 architecture tests (+4 coarse-wrapped cutover tests) → recipe-import-boundary retired in H6; ecology test slimmed to directory absence; runtime/build/domain tests stay.
 - 4 generated zones → file-layer rules (new enforcement).
 - 5 promised-but-unenforced invariants → 3 in-scope new rules (H4/H5/H7), 2 logged as future.

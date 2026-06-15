@@ -1,7 +1,7 @@
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { eslintProjects, executeRule, type HarnessRule, rules } from "../rules/architecture.js";
+import { executeRule, type HarnessRule, rules } from "../rules/architecture.js";
 import { renderReport } from "../rules/messages.js";
 import {
   applyBaseline,
@@ -164,9 +164,7 @@ export function stringifyCheckReport(report: CheckReport): string {
 export function runFix(options: FixOptions = {}): SpawnResult {
   const grit = runGritApplyPatterns({ dryRun: options.dryRun });
   if (grit.exitCode !== 0) return grit;
-  const argv = options.dryRun
-    ? ["bunx", "--bun", "@biomejs/biome", "check", "."]
-    : ["bunx", "--bun", "@biomejs/biome", "check", "--write", "."];
+  const argv = options.dryRun ? ["biome", "check", "."] : ["biome", "check", "--write", "."];
   const biome = run(argv, { cwd: repoRoot });
   return {
     exitCode: biome.exitCode,
@@ -182,7 +180,6 @@ export function resolveVerifyBase(base?: string): string {
 export function runAffectedVerification(base: string): SpawnResult {
   return run(
     [
-      "bunx",
       "nx",
       "affected",
       "-t",
@@ -200,7 +197,7 @@ export function runGraph(options: { json?: boolean } = {}): SpawnResult {
   const dir = mkdtempSync(path.join(tmpdir(), "habitat-graph-"));
   const graphPath = path.join(dir, "graph.json");
   try {
-    const graphResult = run(["bunx", "nx", "graph", "--file", graphPath], { cwd: repoRoot });
+    const graphResult = run(["nx", "graph", "--file", graphPath], { cwd: repoRoot });
     if (graphResult.exitCode !== 0) return graphResult;
     const graph = JSON.parse(readFileSync(graphPath, "utf8"));
     return {
@@ -263,5 +260,5 @@ export function hookMessage(name = ""): string {
 }
 
 export function commandSummary(): string {
-  return `rule pack: ${rules.length} rules (+ baseline-integrity built-in); eslint fan-out over ${eslintProjects.length} projects`;
+  return `rule pack: ${rules.length} rules (+ baseline-integrity built-in)`;
 }

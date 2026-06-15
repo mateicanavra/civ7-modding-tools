@@ -18,11 +18,11 @@ Two enforcement planes — do not conflate them:
 
 | Tag | Definition | Provenance (existing rule/doc) |
 |---|---|---|
-| `kind:app` | User-facing applications and entry surfaces (CLI included): own caller-specific transports/workflows; consume public surfaces only | `apps/*` layout; `docs/system/ARCHITECTURE.md`; `lint-workspace-entrypoints.mjs` |
-| `kind:sdk` | High-level authoring/builder APIs for mod generation; mapgen runtime only via `@civ7/sdk/mapgen` subpath | `packages/sdk/AGENTS.md`; `lint-normalization-guardrails.mjs` G11 |
+| `kind:app` | User-facing applications and entry surfaces (CLI included): own caller-specific transports/workflows; consume public surfaces only | `apps/*` layout; `docs/system/ARCHITECTURE.md`; Habitat `workspace-entrypoints` |
+| `kind:sdk` | High-level authoring/builder APIs for mod generation; mapgen runtime only via `@civ7/sdk/mapgen` subpath | `packages/sdk/AGENTS.md`; Habitat `grit-sdk-mapgen-entrypoint` |
 | `kind:engine` | Pure TS engine/domain logic (no Civ7 runtime values, no engine globals) | `core-purity.test.ts`; normalization guardrail G3 |
 | `kind:adapter` | Sole owner of Civ7 engine globals and `/base-standard/` imports | `lint-adapter-boundary.sh`; `packages/civ7-adapter/AGENTS.md` |
-| `kind:control` | Runtime control of a live Civ7 instance: socket protocol (`direct-control`) and oRPC service surface (`control-orpc`, `studio-server`) | `packages/civ7-direct-control/AGENTS.md`; `lint-control-orpc-contract-ownership.mjs`; root `AGENTS.md` ("runtime Civ7 control belongs in @civ7/direct-control") |
+| `kind:control` | Runtime control of a live Civ7 instance: socket protocol (`direct-control`) and oRPC service surface (`control-orpc`, `studio-server`) | `packages/civ7-direct-control/AGENTS.md`; Habitat `grit-control-orpc-contract-ownership`; root `AGENTS.md` ("runtime Civ7 control belongs in @civ7/direct-control") |
 | `kind:foundation` | Pure leaf libraries: types, config, policy facts, viz contracts; no domain orchestration, broadly importable | `packages/civ7-types`, `config`, `civ7-map-policy`, `mapgen-viz` package docs |
 | `kind:plugin` | Reusable CLI/SDK helper libraries, leaf-local | `packages/plugins/*`; `packages/cli/AGENTS.md` |
 | `kind:mod` | Game-facing mod packages (recipes, domains, map configs, game runtime wrappers) | `mods/*`; `docs/system/ARCHITECTURE.md` |
@@ -123,8 +123,8 @@ mapgen-core) for provenance and grit-pattern grouping:
 
 | Family | Rules | Provenance |
 |---|---|---|
-| `scope:domain-surface` | recipes import domain only via `@mapgen/domain/<d>`, `/ops`, `/config.js`; step contracts only the entrypoint; no deep ops/rules/strategies imports; no domain-root `export *` facades | `lint-mapgen-recipe-imports.sh`, eslint blocks, `recipe-import-boundary.test.ts`, guardrails full profile |
+| `scope:domain-surface` | recipes import domain only via `@mapgen/domain/<d>`, `/ops`, `/config.js`; step contracts only the entrypoint; no deep ops/rules/strategies imports; no domain-root `export *` facades | Habitat Grit catalog, `grit-contract-export-all`, guardrails full profile |
 | `scope:runtime-purity` | steps/strategies: no TypeBox runtime (`Value.*`, `TypeCompiler`), no `runValidated`, no helper redeclarations, no config merges (`?? {}`, `Value.Default(`) | eslint blocks; guardrails full profile |
-| `scope:stage-isolation` | no sibling-stage step imports (G5); no milestone-prefixed recipe IDs (G1); stage-order doc sync (G6) | `lint-normalization-guardrails.mjs` |
+| `scope:stage-isolation` | no sibling-stage step imports (G5); no milestone-prefixed recipe IDs (G1); stage-order doc sync (G6) | Habitat `grit-sibling-stage-step-imports` and `normalization-guardrails` |
 | `scope:rng-authority` | no engine RNG / official generators in authored generation | `rng-authority-boundary.test.ts` (stays a test) |
 | `scope:generated-zone` | generated paths are regenerate-only | root `AGENTS.md` promise (new enforcement, slice H5) |

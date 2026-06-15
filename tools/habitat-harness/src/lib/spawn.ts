@@ -1,4 +1,6 @@
 import { spawnSync } from "node:child_process";
+import path from "node:path";
+import { repoRoot } from "./paths.js";
 
 export interface SpawnResult {
   exitCode: number;
@@ -15,9 +17,13 @@ export function run(
   opts: { cwd: string; env?: Record<string, string> }
 ): SpawnResult {
   const [cmd, ...args] = argv;
+  const env = { ...process.env, ...opts.env };
+  env.PATH = [path.join(repoRoot, "node_modules", ".bin"), env.PATH]
+    .filter(Boolean)
+    .join(path.delimiter);
   const res = spawnSync(cmd, args, {
     cwd: opts.cwd,
-    env: { ...process.env, ...opts.env },
+    env,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
   });

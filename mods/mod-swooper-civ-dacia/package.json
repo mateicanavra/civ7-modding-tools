@@ -13,7 +13,7 @@
     "build": "tsx build.ts",
     "deploy": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
     "docs": "docsify serve docs",
-    "lint": "eslint .",
+    "lint": "biome check .",
     "check": "tsc -p tsconfig.json --noEmit",
     "build:deploy": "bun run build && bun run deploy"
   },

@@ -13,7 +13,7 @@ import process from "node:process";
  * product work should stay in OpenSpec/docs, not in red CI.
  */
 
-const repoRoot = path.resolve(new URL("../..", import.meta.url).pathname);
+const repoRoot = path.resolve(new URL("../../../../..", import.meta.url).pathname);
 const args = new Set(process.argv.slice(2));
 const failures = [];
 
@@ -141,47 +141,6 @@ function checkSiblingStageStepImports() {
   if (hits.length > 0) addFailure("G5: sibling stage step imports", hits);
 }
 
-/**
- * Enforces the visualization ownership rule that came out of the biome repair:
- * stable/shared stage visualization contracts are stage surfaces, while
- * `steps/<step>/viz.ts` stays private to that step. This keeps debug contracts
- * discoverable without turning `steps/` into a compatibility namespace.
- */
-function checkVisualizationContractOwnership() {
-  const stageRoot = repoPath("mods/mod-swooper-maps/src/recipes/standard/stages");
-  const hits = [];
-
-  for (const file of walkFiles(stageRoot, (candidate) => candidate.endsWith(".ts"))) {
-    const importer = toRepoRelative(file);
-    if (stageStepsVizHub(importer)) {
-      hits.push(`${importer} is a shared steps/viz.ts hub; use stages/<stage>/viz.ts`);
-    }
-
-    for (const specifier of importSpecifiers(readText(file))) {
-      const resolved = resolveImport(file, specifier);
-      if (!resolved) continue;
-      const resolvedPath = toRepoRelative(resolved);
-
-      const hub = stageStepsVizHub(resolvedPath);
-      if (hub) {
-        hits.push(`${importer} imports shared steps/viz.ts via '${specifier}'`);
-        continue;
-      }
-
-      const privateOwner = privateStepVizOwner(resolvedPath);
-      if (!privateOwner) continue;
-      const [, stage, step] = privateOwner;
-      if (!isInsideStep(importer, stage, step)) {
-        hits.push(
-          `${importer} imports private step viz '${specifier}'; promote it to stages/${stage}/viz.ts`
-        );
-      }
-    }
-  }
-
-  if (hits.length > 0) addFailure("G10: visualization contract owner surfaces", hits);
-}
-
 function checkStandardRecipeDocs() {
   const recipeStages = extractRecipeStages(
     readText(repoPath("mods/mod-swooper-maps/src/recipes/standard/recipe.ts"))
@@ -195,64 +154,6 @@ function checkStandardRecipeDocs() {
       `docs:   ${docStages.join(", ")}`,
     ]);
   }
-}
-
-function checkPlacementOutcomeContract() {
-  const contractText = readText(
-    repoPath(
-      "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/contract.ts"
-    )
-  );
-  const applyText = readText(
-    repoPath("mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts")
-  );
-  const missing = [];
-  for (const token of ["resourcePlacementOutcomes", "discoveryPlacementOutcomes"]) {
-    if (!contractText.includes(token))
-      missing.push(`placement contract does not reference ${token}`);
-  }
-  for (const token of ["generateOfficialResources(", "generateOfficialDiscoveries("]) {
-    if (applyText.includes(token)) missing.push(`placement apply still calls ${token}`);
-  }
-  if (missing.length > 0) addFailure("G8: placement typed outcome boundary", missing);
-}
-
-/**
- * Keeps the SDK package split honest: general SDK authoring APIs are consumed
- * by Node/Bun build tools, while `@mateicanavra/civ7-sdk/mapgen` is the
- * explicit opt-in surface for Civ7 map runtime bindings. This catches the
- * category that broke repo builds instead of only checking the playground.
- */
-function checkSdkMapgenRuntimeEntrypoint() {
-  const hits = [];
-  const sdkRoot = repoPath("packages/sdk/src/index.ts");
-  const rootText = readText(sdkRoot);
-
-  if (/from\s+["']\.\/mapgen(?:\/index\.js)?["']/.test(rootText)) {
-    hits.push("packages/sdk/src/index.ts imports from ./mapgen");
-  }
-  if (/export\s+\*\s+from\s+["']\.\/mapgen(?:\/index\.js)?["']/.test(rootText)) {
-    hits.push("packages/sdk/src/index.ts exports ./mapgen");
-  }
-
-  const sdkSrc = repoPath("packages/sdk/src");
-  for (const file of walkFiles(sdkSrc, (candidate) => candidate.endsWith(".ts"))) {
-    const normalized = toRepoRelative(file);
-    if (normalized.startsWith("packages/sdk/src/mapgen/")) continue;
-    if (readText(file).includes("@civ7/adapter/civ7")) {
-      hits.push(`${normalized} imports @civ7/adapter/civ7 outside the mapgen runtime subpath`);
-    }
-  }
-
-  const coreSrc = repoPath("packages/mapgen-core/src");
-  for (const file of walkFiles(coreSrc, (candidate) => candidate.endsWith(".ts"))) {
-    const normalized = toRepoRelative(file);
-    if (readText(file).includes("@civ7/adapter/civ7")) {
-      hits.push(`${normalized} imports @civ7/adapter/civ7`);
-    }
-  }
-
-  if (hits.length > 0) addFailure("G11: SDK mapgen runtime entrypoint boundary", hits);
 }
 
 function runSelfTest() {
@@ -276,39 +177,6 @@ const stages = [one, two] as const;
   if (importHits[0] !== "../other/steps/foo.js") {
     throw new Error("self-test failed: import specifier extraction");
   }
-  if (
-    !stageStepsVizHub("mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/viz.ts")
-  ) {
-    throw new Error("self-test failed: steps/viz.ts hub detection");
-  }
-  const privateViz = privateStepVizOwner(
-    "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plot-biomes/viz.ts"
-  );
-  if (!privateViz || privateViz[1] !== "map-ecology" || privateViz[2] !== "plot-biomes") {
-    throw new Error("self-test failed: private step viz owner detection");
-  }
-  if (
-    !isInsideStep(
-      "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plot-biomes/index.ts",
-      "map-ecology",
-      "plot-biomes"
-    )
-  ) {
-    throw new Error("self-test failed: same-step viz import allowance");
-  }
-  if (
-    isInsideStep(
-      "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plot-effects/index.ts",
-      "map-ecology",
-      "plot-biomes"
-    )
-  ) {
-    throw new Error("self-test failed: cross-step viz import rejection");
-  }
-  const rootImport = `export * from './mapgen';`;
-  if (!/export\s+\*\s+from\s+["']\.\/mapgen(?:\/index\.js)?["']/.test(rootImport)) {
-    throw new Error("self-test failed: SDK mapgen root export detection");
-  }
   console.log("normalization guardrail self-test passed");
 }
 
@@ -325,25 +193,6 @@ checkNoRegex({
   include: (file) => file.endsWith(".ts"),
 });
 
-checkNoRegex({
-  id: "G2",
-  label: "domain-root tag/artifact catalogs",
-  roots: [repoPath("mods/mod-swooper-maps/src/domain")],
-  pattern: /./,
-  include: (file) => /\/(tags|artifacts)\.ts$/.test(file.split(path.sep).join("/")),
-});
-
-checkNoRegex({
-  id: "G3",
-  label: "Civ7 value imports or runtime engine globals in mapgen-core runtime source",
-  roots: [repoPath("packages/mapgen-core/src/core"), repoPath("packages/mapgen-core/src/engine")],
-  pattern:
-    /import\s+(?!type\b)[\s\S]*?from\s+["']@civ7\/adapter["']|\/base-standard\/|(?<![A-Za-z0-9_])(GameplayMap|TerrainBuilder|ResourceBuilder|FeatureBuilder|AreaBuilder|MapConstructibles|GameInfo)\s*\./,
-  include: (file) => file.endsWith(".ts"),
-});
-
-checkSiblingStageStepImports();
-checkVisualizationContractOwnership();
 checkStandardRecipeDocs();
 
 checkNoRegex({
@@ -356,20 +205,6 @@ checkNoRegex({
   exclude: (file) => toRepoRelative(file).includes("/_archive/"),
 });
 
-checkPlacementOutcomeContract();
-checkSdkMapgenRuntimeEntrypoint();
-
-checkNoRegex({
-  id: "G9",
-  label: "wrapper-only advanced stage config surfaces",
-  roots: [
-    repoPath("mods/mod-swooper-maps/src/recipes/standard"),
-    repoPath("mods/mod-swooper-maps/src/maps"),
-  ],
-  pattern: /(?<![A-Za-z0-9_])["']?advanced["']?\s*:/,
-  include: (file) => file.endsWith(".ts") || file.endsWith(".json"),
-});
-
 if (failures.length > 0) {
   console.error("Normalization guardrails failed:");
   for (const failure of failures) {
@@ -379,4 +214,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("Normalization guardrails passed.");
+console.log("Habitat-native normalization guardrails passed.");

@@ -33,12 +33,7 @@ const gritScanPaths = [
 ].filter((scanPath) => existsSync(path.join(repoRoot, scanPath)));
 const gritApplyScanPaths = discoverApplySourceRoots();
 const gritApplyPatterns = [".grit/patterns/habitat/apply/deep_import_to_public_surface.md"];
-const gritBin = path.join(
-  repoRoot,
-  "node_modules",
-  ".bin",
-  process.platform === "win32" ? "grit.cmd" : "grit"
-);
+const gritBin = "grit";
 
 let cachedReport: { stdout: string; stderr: string; exitCode: number; parsed?: GritReport } | null =
   null;

@@ -210,10 +210,10 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
     // eslint-disable-next-line no-console
-    console.log(`lint-doc-adrs
+    console.log(`habitat-native doc-adrs
 
 Usage:
-  node scripts/lint/lint-doc-adrs.mjs [--root <path>]... [--json]
+  bun tools/habitat-harness/src/rules/native/doc-adrs.mjs [--root <path>]... [--json]
 
 Defaults:
   --root ${DEFAULT_SEARCH_ROOTS.join(" --root ")}

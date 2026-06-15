@@ -22,7 +22,7 @@
     "build": "rimraf dist && tsc -b --force && oclif manifest && chmod +x bin/run.js",
     "dev": "bun run bin/dev.ts",
     "check": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint .",
+    "lint": "biome check .",
     "test": "vitest run --project cli",
     "link:global": "bun link",
     "unlink:global": "bun unlink",

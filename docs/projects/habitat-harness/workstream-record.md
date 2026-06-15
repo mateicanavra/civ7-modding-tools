@@ -5,8 +5,9 @@
 - **Method:** `civ7-systematic-workstream` (12 gates) composed with `civ7-open-spec-workstream` (per-slice phase loop)
 - **Controlling frame:** `docs/projects/habitat-harness/FRAME.md` (hard core, falsifier, settled decisions D1–D6)
 - **Stack root:** `agent-F-habitat-harness-workstream` (worktree `wt-agent-F-habitat-harness-workstream`, parent `main`, Graphite-tracked)
-- **Current execution branch:** `agent-F-swooper-recipe-artifact-race` stacked above the promoted H4 proof repairs
-- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 Biome setup/lint/integration is locally closed pending this branch commit; DL-15/DL-16 promoted repairs are verified; the first `mapgen-studio:test` timeout class, the CLI root-load timeout class, the second `mapgen-studio:test` root-load class, the `mod-swooper-maps:test` catalog facade order proof, and the generated recipe artifact race are locally repaired. Full root `test` and strict H4 validation pass after the promoted H4 proof repairs. H4.5 oclif CLI slice is implemented and verified before downstream CLI surface hardening.
+- **Current execution branch:** `agent-F-habitat-enforcement-consolidation` stacked above locally closed H5
+- **Status:** IN EXECUTION — H1/H2/H3/H4/H4.5/H5/H6 are locally closed on
+  the Graphite stack. H7 git hooks is next after H6 submission/restack.
 
 ## Gate state (systematic-workstream)
 
@@ -19,11 +20,11 @@
 | 5 Grouping | DONE | corpus §A–F families; taxonomy.md scope:* families |
 | 6 Expectations | DONE | per-slice verification gates; ratchet baselines predeclared (project plane green; adapter-boundary baseline = 6) |
 | 7 Architecture translation | DONE | taxonomy.md (tags/constraints); five-layer ownership in FRAME hard core #2 |
-| 8 Slices | IN TRAIN | OpenSpec train below; H1/H2/H3 closed locally; H4 active with Biome integration complete; H4.5 oclif CLI migration implemented locally; promoted proof repairs are stacked above H4 |
-| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes; post-repair root build has no generated drift; first `mapgen-studio`, CLI, second `mapgen-studio`, `mod-swooper` catalog-order, and recipe-artifact race classes have local repair proof; full root `test` passes |
+| 8 Slices | IN TRAIN | OpenSpec train below; H1-H6 closed locally; H7 next |
+| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes; H5 Grit/file-layer parity and root closure gates green; H6 retirement table/probe matrix complete |
 | 10 Runtime proof | N/A by design | harness touches structure only; byte-parity gates stand in (H1/H4) |
-| 11 Review | IN TRAIN | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice |
-| 12 Closure | IN TRAIN | H1/H2/H3 have local phase closure records; H4 open on root-test proof; H4.5 and promoted proof repairs are implemented/verified locally above H4 |
+| 11 Review | IN TRAIN | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice; H6 inventory/probe closure complete |
+| 12 Closure | IN TRAIN | H1-H6 have local phase closure records |
 
 ## The change train (slices)
 
@@ -44,27 +45,17 @@ prerequisites; phase continuity records go in
 `openspec/changes/<id>/workstream/` at execution time per
 `civ7-open-spec-workstream`.
 
-Execution state on 2026-06-13: H1 (`habitat-nx-adoption`), H2
-(`habitat-harness-scaffold`), and H3 (`habitat-boundary-tags`) are locally
-closed on the Graphite stack. H4 (`habitat-biome-hygiene`) has Biome setup,
-dry-run, format commit, blame shield, Prettier retirement, minimal green lint
-lane, and Habitat/Nx/CI integration done. H4.5 (`habitat-oclif-cli`) is
-implemented and verified above H4: the scaffolded Habitat CLI now uses oclif
-command classes, help, tests, package build/manifest discipline, and preserved
-machine-output semantics before H5-H8 add more command surface. The promoted
-proof repairs for DL-16 (`intelligence-bridge-ui-bundle`), SDK async teardown
-(`civ7-sdk-mod-build-sync-writes`), adapter-boundary river metadata, and
-DL-15 plugin Vitest project scoping are stacked above H4. H4 task 2.4 remains
-open because the full root test is not yet green after the
-`mapgen-studio-test-timeouts`, `cli-root-load-test-timeouts`, and
-`mapgen-studio-root-load-followup`, `mod-swooper-catalog-order-proof`, and
-`swooper-recipe-artifact-race` repairs. Root build/parity is green, the CLI
-root-load timeout class is repaired, direct plus representative Nx-load
-`mapgen-studio:test` proof is green for both known mapgen classes, the
-Swooper catalog-order proof is formatter-stable, and `mod-swooper-maps:test`
-now serializes after `build:studio-recipes` before importing generated recipe
-exports. The final full root-test proof passes for 18 projects and 15
-dependency tasks.
+Execution state on 2026-06-14: H1 (`habitat-nx-adoption`), H2
+(`habitat-harness-scaffold`), H3 (`habitat-boundary-tags`), H4
+(`habitat-biome-hygiene`), H4.5 (`habitat-oclif-cli`), H5
+(`habitat-grit-catalog`), and H6 (`habitat-enforcement-consolidation`) are
+locally closed on the Graphite stack. H5 closed with native Grit patterns
+under `.grit/patterns/habitat/**`, one native Grit JSON scan per Habitat
+`grit-check` invocation, file-layer generated-zone guards, and root
+`build/check/test` closure gates green. H6 closed with root ESLint retired,
+duplicate scripts/tests deleted or slimmed only with replacement probes,
+direct local tool resolution centralized in Habitat subprocess spawning, and
+root `build/check/test` closure gates green.
 
 ## Proof classes per slice (predeclared)
 
@@ -121,5 +112,10 @@ train redefines the other's authority.
    `workstream/phase-record.md`).
 3. ~~H4.5 oclif CLI migration and promoted DL-16 / SDK teardown /
    adapter-boundary repairs~~ DONE locally on the stack.
-4. Validate and commit `swooper-recipe-artifact-race`, then close H4 and move
-   into H5.
+4. ~~H4/H4.5/H5 local execution and closure~~ DONE (see each slice's
+   `workstream/phase-record.md`).
+5. ~~H6 enforcement consolidation~~ DONE locally (retirement table/probe
+   matrix, root ESLint retirement, duplicate structural checks retired/slimmed,
+   closure gates green).
+6. H7: open git-hooks phase, preserve existing resource-publish hook behavior,
+   and wire staged/affected Habitat hook paths.

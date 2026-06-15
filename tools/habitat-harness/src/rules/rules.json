@@ -3,13 +3,13 @@
   "rules": [
     {
       "id": "workspace-entrypoints",
-      "ownerTool": "wrapped-script",
+      "ownerTool": "habitat-native",
       "ownerProject": "@internal/habitat-harness",
       "lane": "enforced",
       "scope": "all package.json manifests",
       "forbids": "package-local scripts hiding workspace orchestration (--filter, --cwd against siblings, nested nx)",
       "why": "Dependency freshness is root-orchestrated; hidden orchestration breaks the task graph and caching.",
-      "detect": ["node", "scripts/lint/lint-workspace-entrypoints.mjs"],
+      "detect": ["bun", "tools/habitat-harness/src/rules/native/workspace-entrypoints.mjs"],
       "remediate": null,
       "message": "Move workspace orchestration into root Nx scripts; keep package-local scripts leaf-local.",
       "exceptionPath": "none"
@@ -41,19 +41,6 @@
       "exceptionPath": "scripts/lint/lint-adapter-boundary.sh#ALLOWLIST (transitional; migrates to baselines/ in H5)"
     },
     {
-      "id": "control-orpc-contract-ownership",
-      "ownerTool": "wrapped-script",
-      "ownerProject": "@civ7/control-orpc",
-      "lane": "enforced",
-      "scope": "packages/civ7-control-orpc/src/modules/**/contract.ts",
-      "forbids": "@civ7/direct-control imports in service contracts; schema exports from module contracts; contract-local re-exports from the public surface",
-      "why": "Contract files are the ownership boundary of the oRPC surface; leaks invert the layering.",
-      "detect": ["node", "scripts/lint/lint-control-orpc-contract-ownership.mjs"],
-      "remediate": null,
-      "message": "Keep contracts transport-pure; move schemas/implementations to their owning modules.",
-      "exceptionPath": "none"
-    },
-    {
       "id": "domain-refactor-guardrails",
       "ownerTool": "wrapped-script",
       "ownerProject": "mod-swooper-maps",
@@ -67,43 +54,31 @@
       "exceptionPath": "none"
     },
     {
-      "id": "mapgen-recipe-imports",
-      "ownerTool": "wrapped-script",
-      "ownerProject": "mod-swooper-maps",
-      "lane": "enforced",
-      "scope": "mods/mod-swooper-maps/src/recipes/**",
-      "forbids": "recipes importing domain internals instead of the three public surfaces",
-      "why": "Recipes compose domains only via @mapgen/domain/<d>, /ops, /config.js.",
-      "detect": ["./scripts/lint/lint-mapgen-recipe-imports.sh"],
-      "remediate": null,
-      "message": "Import the domain public surface, not its internals.",
-      "exceptionPath": "none"
-    },
-    {
       "id": "normalization-guardrails",
-      "ownerTool": "wrapped-script",
+      "ownerTool": "habitat-native",
       "ownerProject": "mod-swooper-maps",
       "lane": "enforced",
       "scope": "mod recipes/domain, sdk, mapgen-core, docs",
-      "forbids": "G1-G11 normalization guard violations (stage isolation, catalogs, runtime imports, doc sync, placement contracts, viz ownership, sdk entrypoint isolation)",
-      "why": "The normalization train's invariants; see scripts/lint/lint-normalization-guardrails.mjs for the per-guard rationale.",
-      "detect": ["node", "scripts/lint/lint-normalization-guardrails.mjs"],
+      "forbids": "G1 milestone-prefixed recipe identifiers, G6 standard recipe doc stage-order drift, and G7 superseded stage IDs in evergreen docs",
+      "why": "These normalization invariants are cross-file/doc checks; H5 Grit owns G2/G3/G5/G8/G9/G10/G11.",
+      "detect": ["bun", "tools/habitat-harness/src/rules/native/normalization-guardrails.mjs"],
       "remediate": null,
-      "message": "The failing guard names its own remediation; G-guards are documented in the script header.",
+      "message": "The failing normalization guard names its own remediation.",
       "exceptionPath": "none"
     },
     {
-      "id": "eslint",
-      "ownerTool": "wrapped-eslint",
-      "ownerProject": "@internal/habitat-harness",
+      "id": "grit-contract-export-all",
+      "ownerTool": "grit-check",
+      "ownerProject": "mod-swooper-maps",
       "lane": "enforced",
-      "scope": "the 9 projects with a lint script (eslint .)",
-      "forbids": "restricted-import/syntax rule families in eslint.config.js (8 families; ports to grit in H5)",
-      "why": "Current import-shape enforcement until the grit catalog (H5) and boundary config (H3) take ownership.",
-      "detect": ["__eslint_multi__"],
+      "scope": "contract/public-surface TypeScript files",
+      "forbids": "bare value export * in contract/public-surface files; export type * is allowed",
+      "why": "Contract/public surfaces should publish named values; type-star exports remain safe type-only API aggregation.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
       "remediate": null,
-      "message": "Fix the reported eslint violation; rule families are documented inline in eslint.config.js.",
-      "exceptionPath": "none"
+      "message": "Replace value export * with named exports, or use export type * for type-only surfaces.",
+      "exceptionPath": "none",
+      "gritPattern": "contract_export_all"
     },
     {
       "id": "nx-boundaries",
@@ -116,7 +91,6 @@
       "detect": [
         "env",
         "FORCE_COLOR=0",
-        "bunx",
         "eslint",
         ".",
         "--quiet",
@@ -136,9 +110,9 @@
       "scope": "live repo files included by biome.json",
       "forbids": "formatter drift, ordinary lint hygiene violations, and import-organization drift",
       "why": "Biome owns the hygiene layer in H4; ESLint/Nx/Grit must not duplicate formatter or ordinary hygiene ownership.",
-      "detect": ["bunx", "--bun", "@biomejs/biome", "ci", "."],
+      "detect": ["biome", "ci", "."],
       "remediate": "bun run habitat:fix",
-      "message": "Run `bun run habitat:fix` or `bunx --bun @biomejs/biome check --write .`; keep generated/protected zones excluded in biome.json.",
+      "message": "Run `bun run habitat:fix` or `biome check --write .`; keep generated/protected zones excluded in biome.json.",
       "exceptionPath": "none"
     },
     {
@@ -508,23 +482,6 @@
       "exceptionPath": "none"
     },
     {
-      "id": "arch-test-recipe-import-boundary",
-      "ownerTool": "wrapped-test",
-      "ownerProject": "mod-swooper-maps",
-      "lane": "enforced",
-      "scope": "mods/mod-swooper-maps/src/recipes/**",
-      "forbids": "recipes bypassing public domain surfaces (test-level duplicate of mapgen-recipe-imports; retires in H6 once the grit equivalent locks)",
-      "why": "Belt-and-suspenders with the lint script until H5/H6 consolidation.",
-      "detect": [
-        "bun",
-        "test",
-        "mods/mod-swooper-maps/test/pipeline/recipe-import-boundary.test.ts"
-      ],
-      "remediate": null,
-      "message": "Import the domain public surface, not its internals.",
-      "exceptionPath": "none"
-    },
-    {
       "id": "arch-test-ecology-step-imports",
       "ownerTool": "wrapped-test",
       "ownerProject": "mod-swooper-maps",
@@ -590,26 +547,26 @@
     },
     {
       "id": "adr-lint",
-      "ownerTool": "wrapped-script",
+      "ownerTool": "habitat-native",
       "ownerProject": "@internal/habitat-harness",
       "lane": "advisory",
       "scope": "docs/projects/*/resources/spec/adr/",
       "forbids": "ADR frontmatter/heading/path-hardcoding drift",
       "why": "Doc tooling; manual today (advisory lane preserves pre-harness enforcement reality).",
-      "detect": ["node", "scripts/lint/lint-doc-adrs.mjs", "--json"],
+      "detect": ["bun", "tools/habitat-harness/src/rules/native/doc-adrs.mjs", "--json"],
       "remediate": null,
       "message": "Fix the ADR frontmatter/heading shape.",
       "exceptionPath": "none"
     },
     {
       "id": "doc-ambiguity",
-      "ownerTool": "wrapped-script",
+      "ownerTool": "habitat-native",
       "ownerProject": "@internal/habitat-harness",
       "lane": "advisory",
       "scope": "docs/**",
       "forbids": "vague-language regressions beyond the committed baseline",
       "why": "Advisory doc-quality lane; its own baseline file is prior art for the ratchet.",
-      "detect": ["node", "scripts/lint/lint-doc-ambiguity.mjs"],
+      "detect": ["bun", "tools/habitat-harness/src/rules/native/doc-ambiguity.mjs"],
       "remediate": null,
       "message": "Reduce flagged ambiguity or update docs/.doc-ambiguity-lint-baseline.json per that tool's workflow.",
       "exceptionPath": "docs/.doc-ambiguity-lint-baseline.json"
