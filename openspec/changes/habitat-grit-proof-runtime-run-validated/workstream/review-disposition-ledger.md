@@ -2,5 +2,5 @@
 
 | Finding id | Priority | Source | Finding | Disposition | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| RRV-REVIEW-OPEN | N/A | Row launch | No accepted P1/P2 findings are open at packet creation. | Informational | Revisit after fixture/parser proof and supervisor review. |
+| RRV-REVIEW-CURRENT | N/A | Post-restack record truth | Supervisor-accepted bounded checkpoint after P2 count-label repair; no accepted P1/P2 findings remain open for this checkpoint. | Informational | Supervisor accepted `c0eb23d45` after durable records distinguished total call expressions from current-row `runValidated` candidate calls. Successor HG rows are committed through `agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`; this packet is not an active next-row sequencing gate. |
 | RRV-P2-CALL-COUNT-AMBIGUITY-2026-06-15 | P2 | Supervisor repair demand | `RRV-RUNTIME-INVENTORY-2026-06-15` records said `0 call expressions inside current predicate`, which was false if read as total calls. The intended row proof was zero current-row `runValidated` candidate calls. | Accepted and repaired in the amended row layer. | Row evidence log, aggregate corpus ledger, aggregate proof matrix, and command proof log now record 4,936 total call expressions inside current-predicate files and 0 current-row `runValidated` candidate call expressions. |

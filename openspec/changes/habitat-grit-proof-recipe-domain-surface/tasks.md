@@ -110,16 +110,18 @@
 
 ## 6. Baseline Proof
 
-- [ ] 6.1 Add explicit empty baseline file
+- [x] 6.1 Record explicit empty baseline file
   `tools/habitat-harness/baselines/grit-recipe-domain-surface.json`.
-  - Blocked/non-claim under supervisor boundary until the scaffold/baseline
-    contract repair surface is accepted.
-- [ ] 6.2 Prove `baseline-integrity` accepts the explicit empty baseline.
+  - Current restacked shared baseline file proof is inherited through
+    `HGPR-BASELINE-FILES-2026-06-15`; this is not a row-local baseline
+    mutation claim.
+- [x] 6.2 Record accepted `baseline-integrity` proof through
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`.
 - [ ] 6.3 Prove an injected finding is unbaselined and fails.
-- [ ] 6.4 Link baseline expansion safety to the accepted scaffold/baseline
-  contract repair owner before claiming shared baseline mutation safety.
-  - Expected interface needed: explicit empty-baseline owner contract plus
-    shrink-only expansion rules that make row-local baseline additions safe.
+- [x] 6.4 Link shared baseline owner/integrity to
+  `HGPR-BASELINE-FILES-2026-06-15` and
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`; no separate RDS baseline-mutation
+  claim is made.
 
 ## 7. Downstream Realignment
 
@@ -133,8 +135,11 @@
   implementation changes policy or remediation text.
 - [ ] 7.4 Update H5/H6 historical records if their wording implies stronger
   proof than implementation supplies.
-- [ ] 7.5 Update `docs/projects/habitat-harness/recovery-claim-ledger.md` rows
+- [x] 7.5 Update `docs/projects/habitat-harness/recovery-claim-ledger.md` rows
   for H5, H6, baseline, and stale-record truth after aggregate proof ids exist.
+  - Current front-door recovery ledger realignment is recorded in the HG
+    record-truth follow-up layer; it does not close raw acquisition, injected
+    row-local proof, apply safety, or product proof.
 - [ ] 7.6 Update command docs only if user-visible diagnostics or remediation
   text changes.
 
@@ -148,16 +153,25 @@
 - [x] 8.6 namespace and side-effect import disposition
 - [x] 8.7 recipe-local test-path classification
 - [ ] 8.8 neighboring-rule overlap disposition
-- [ ] 8.9 Habitat current-tree wrapper proof
-- [ ] 8.10 wrapper scan-root and projection proof
+- [x] 8.9 Habitat current-tree wrapper proof inherited through
+  `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`
+- [x] 8.10 wrapper scan-root and projection proof inherited through
+  `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`
 - [ ] 8.11 bounded raw acquisition or adapter proof id
 - [x] 8.12 current-tree import inventory
 - [ ] 8.13 injected recipe proof
 - [ ] 8.14 outside-scope path-control proof
-- [ ] 8.15 explicit baseline proof
-- [ ] 8.16 baseline owner linkage
+- [x] 8.15 explicit baseline proof inherited through
+  `HGPR-BASELINE-FILES-2026-06-15` and
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`
+- [x] 8.16 baseline owner linkage inherited through
+  `HGPR-BASELINE-FILES-2026-06-15` and
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`
 - [x] 8.17 aggregate proof matrix aligned
-- [ ] 8.18 recovery claim ledger aligned
+- [x] 8.18 recovery claim ledger aligned for current shared proof and
+  non-claim state
 - [x] 8.19 active-packet language guardrail scan
 - [x] 8.20 `git diff --check`
 - [x] 8.21 `bun run openspec:validate`
