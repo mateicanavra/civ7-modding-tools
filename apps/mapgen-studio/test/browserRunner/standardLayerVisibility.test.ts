@@ -42,7 +42,7 @@ async function runStandardRecipeInWorker(): Promise<BrowserRunEvent[]> {
       recipeId: "mod-swooper-maps/standard",
       seed: 1780185340,
       mapSizeId: "MAPSIZE_TINY",
-      dimensions: { width: 60, height: 38 },
+      dimensions: { width: 32, height: 20 },
       latitudeBounds: { topLatitude: 70, bottomLatitude: -70 },
       playerCount: 4,
       resourcesMode: "balanced",
@@ -50,7 +50,7 @@ async function runStandardRecipeInWorker(): Promise<BrowserRunEvent[]> {
     },
   });
 
-  const deadline = Date.now() + 30_000;
+  const deadline = Date.now() + 120_000;
   while (Date.now() < deadline) {
     const terminal = harness.events.find(
       (event) =>
@@ -111,5 +111,5 @@ describe("standard browser runner layer visibility", () => {
     );
     expect(rawWorldMotionLayers.length).toBeGreaterThan(0);
     expect(rawWorldMotionLayers.every((event) => visibilityOf(event.layer) === "debug")).toBe(true);
-  }, 35_000);
+  }, 240_000);
 });

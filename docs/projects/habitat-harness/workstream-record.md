@@ -5,8 +5,8 @@
 - **Method:** `civ7-systematic-workstream` (12 gates) composed with `civ7-open-spec-workstream` (per-slice phase loop)
 - **Controlling frame:** `docs/projects/habitat-harness/FRAME.md` (hard core, falsifier, settled decisions D1–D6)
 - **Stack root:** `agent-F-habitat-harness-workstream` (worktree `wt-agent-F-habitat-harness-workstream`, parent `main`, Graphite-tracked)
-- **Current execution branch:** `agent-F-plugin-vitest-project-scope` stacked above the promoted H4 proof repairs
-- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 Biome setup/lint/integration is complete and DL-15/DL-16 promoted repairs are verified, but H4 2.4 evidence pass and closure remain blocked by repo-wide `mapgen-studio:test` timeouts under the root test run; H4.5 oclif CLI slice is implemented and verified before downstream CLI surface hardening
+- **Current execution branch:** `agent-F-mapgen-studio-test-timeouts` stacked above the promoted H4 proof repairs
+- **Status:** IN EXECUTION — H1/H2/H3 closed locally; H4 Biome setup/lint/integration is complete and DL-15/DL-16 promoted repairs are verified; the `mapgen-studio:test` timeout class is locally repaired with direct and representative Nx-load proof, but H4 2.4 and closure still require a final full root-test proof. H4.5 oclif CLI slice is implemented and verified before downstream CLI surface hardening.
 
 ## Gate state (systematic-workstream)
 
@@ -20,7 +20,7 @@
 | 6 Expectations | DONE | per-slice verification gates; ratchet baselines predeclared (project plane green; adapter-boundary baseline = 6) |
 | 7 Architecture translation | DONE | taxonomy.md (tags/constraints); five-layer ownership in FRAME hard core #2 |
 | 8 Slices | IN TRAIN | OpenSpec train below; H1/H2/H3 closed locally; H4 active with Biome integration complete; H4.5 oclif CLI migration implemented locally; promoted proof repairs are stacked above H4 |
-| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes; post-repair root build has no generated drift; root test remains red through `mapgen-studio` timeouts |
+| 9 Local stats | IN TRAIN | H1 build-output byte parity complete; H4 tracked post-format hashes match pre-format hashes; post-repair root build has no generated drift; `mapgen-studio` timeouts have local repair proof; final root test still pending |
 | 10 Runtime proof | N/A by design | harness touches structure only; byte-parity gates stand in (H1/H4) |
 | 11 Review | IN TRAIN | spec lane DONE (ledger); architecture lane before H3; impl/evidence/closure per slice |
 | 12 Closure | IN TRAIN | H1/H2/H3 have local phase closure records; H4 open on root-test proof; H4.5 and promoted proof repairs are implemented/verified locally above H4 |
@@ -55,8 +55,9 @@ machine-output semantics before H5-H8 add more command surface. The promoted
 proof repairs for DL-16 (`intelligence-bridge-ui-bundle`), SDK async teardown
 (`civ7-sdk-mod-build-sync-writes`), adapter-boundary river metadata, and
 DL-15 plugin Vitest project scoping are stacked above H4. H4 task 2.4 remains
-open because the post-repair root test still fails in `mapgen-studio:test`
-with timeout failures under repo-wide execution; root build/parity is green.
+open because the full root test has not yet been rerun green after the
+`mapgen-studio-test-timeouts` repair; root build/parity is green, and direct
+plus representative Nx-load `mapgen-studio:test` proof is green.
 
 ## Proof classes per slice (predeclared)
 
@@ -100,6 +101,5 @@ train redefines the other's authority.
    `workstream/phase-record.md`).
 3. ~~H4.5 oclif CLI migration and promoted DL-16 / SDK teardown /
    adapter-boundary repairs~~ DONE locally on the stack.
-4. Commit/restack `plugin-vitest-project-scope`, then isolate and repair the
-   repo-wide `mapgen-studio:test` timeout class before claiming H4 task 2.4 or
-   moving into H5.
+4. Validate and commit `mapgen-studio-test-timeouts`, then rerun the full root
+   test before claiming H4 task 2.4 or moving into H5.

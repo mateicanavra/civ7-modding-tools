@@ -75,7 +75,10 @@ export default defineConfig({
             },
           ],
         },
-        test: { name: "mapgen-studio" },
+        test: {
+          name: "mapgen-studio",
+          testTimeout: 180_000,
+        },
       },
       {
         extends: true,
