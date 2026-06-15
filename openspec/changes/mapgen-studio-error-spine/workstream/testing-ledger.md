@@ -1,7 +1,7 @@
 # D3 Testing Ledger
 
-Status: draft
-Date: 2026-06-14
+Status: implementation evidence recorded
+Date: 2026-06-15
 
 | Layer | Required proof | Adequacy criterion |
 | --- | --- | --- |
@@ -41,12 +41,13 @@ git diff --check
 bun run --cwd packages/studio-server test
 bun run --cwd packages/studio-server check
 bun run --cwd packages/studio-server build
-bun run --cwd apps/mapgen-studio test -- test/server/engineErrorSpine.test.ts test/mapConfigSave/operationState.test.ts test/runInGame/operationState.test.ts
-bun run --cwd apps/mapgen-studio check
-bun run --cwd apps/mapgen-studio build
 bun run --cwd packages/civ7-control-orpc test
 bun run --cwd packages/civ7-control-orpc check
 bun run --cwd packages/civ7-control-orpc build
+bun run --cwd apps/mapgen-studio test -- test/server/engineErrorSpine.test.ts test/mapConfigSave/operationState.test.ts test/runInGame/operationState.test.ts
+bun run --cwd apps/mapgen-studio test -- test/server/engineErrorSpine.test.ts test/runInGame/operationState.test.ts test/server/engineEffectCorpus.test.ts test/mapConfigSave/operationState.test.ts test/mapConfigSave/status.test.ts
+bun run --cwd apps/mapgen-studio check
+bun run --cwd apps/mapgen-studio build
 bun run --cwd packages/civ7-direct-control test
 bun run --cwd packages/civ7-direct-control check
 bun run --cwd packages/civ7-direct-control build
@@ -59,8 +60,46 @@ rg -n "RunInGameHttpError|details\\?: unknown|Type\\.Unknown\\(\\)|new StudioEng
 rg -n "from ['\\\"]effect-orpc['\\\"]|effect-orpc" packages/studio-server/src -g "*.ts"
 rg -n "StudioEngineError" apps/mapgen-studio/src/server packages/studio-server/src -g "*.{ts,tsx}"
 git diff --name-only -- packages/civ7-control-orpc packages/civ7-direct-control
+rg -nU --pcre2 "^import\\s+(?!type)(?:\\{[^}]*\\}|[^\\n;]+)\\s+from\\s+[\\\"']@civ7/studio-server[\\\"']" apps/mapgen-studio/src -g '*.ts' -g '*.tsx'
+rg -nU --pcre2 "^import\\s+(?!type)(?:\\{[^}]*\\}|[^\\n;]+)\\s+from\\s+[\\\"']@civ7/studio-server[\\\"']" apps/mapgen-studio/src -g '*.ts' -g '*.tsx' -g '!apps/mapgen-studio/src/server/**'
 ```
 
 Hits are not automatically failures. They must be classified as forbidden public expected-failure truth, router/runtime ownership, D2.5 recipe-DAG residue, deleted production bridge residue, untouched control package proof, or historical packet evidence.
 
 On the accepted migrated Nx/Habitat implementation base, add classified repo-local Nx/Habitat gates before code edits. Missing migrated tooling is a stop/reroute condition, not a reason to substitute stale Turbo-era implementation proof.
+
+## Implementation Evidence - 2026-06-15
+
+Commands run on `codex/runtime-effect-error-spine`:
+
+```bash
+bun run --cwd packages/studio-server check
+bun run --cwd packages/studio-server build
+bun run --cwd packages/studio-server test -- test/handler.test.ts test/errorSpine.test.ts test/contractTypeboxSpine.test.ts
+bun run --cwd packages/civ7-control-orpc check
+bun run --cwd packages/civ7-control-orpc build
+bun run --cwd packages/civ7-control-orpc build
+bun run --cwd packages/civ7-control-orpc test -- test/attention-current-procedure.test.ts test/strategy-front-summary-procedure.test.ts
+bun run --cwd apps/mapgen-studio check
+bun run --cwd apps/mapgen-studio build
+bun run --cwd apps/mapgen-studio test -- test/mapConfigSave/operationState.test.ts test/server/engineErrorSpine.test.ts
+bun run --cwd apps/mapgen-studio test -- test/server/engineErrorSpine.test.ts test/runInGame/operationState.test.ts test/server/engineEffectCorpus.test.ts test/mapConfigSave/operationState.test.ts test/mapConfigSave/status.test.ts
+rg "StudioEngineError|STUDIO_ENGINE_ERROR_MAPPINGS|toStudioEngineOrpcError|RunInGameHttpError|data\\.details|details\\?: unknown|details: Type\\.Optional\\(Type\\.Unknown|recoveryActions: Type\\.Optional\\(Type\\.Array\\(Type\\.String\\(\\)\\)" apps/mapgen-studio/src apps/mapgen-studio/test packages/studio-server/src packages/studio-server/test -g '*.ts'
+rg --pcre2 -n "^import\\s+(?!type).*@civ7/studio-server[\\\"']" apps/mapgen-studio/src -g '*.ts' -g '*.tsx'
+rg --pcre2 -n "^import\\s+(?!type).*@civ7/studio-server" apps/mapgen-studio/src -g '*.ts' -g '*.tsx'
+rg -nU --pcre2 "^import\\s+(?!type)(?:\\{[^}]*\\}|[^\\n;]+)\\s+from\\s+[\\\"']@civ7/studio-server[\\\"']" apps/mapgen-studio/src -g '*.ts' -g '*.tsx'
+rg -nU --pcre2 "^import\\s+(?!type)(?:\\{[^}]*\\}|[^\\n;]+)\\s+from\\s+[\\\"']@civ7/studio-server[\\\"']" apps/mapgen-studio/src -g '*.ts' -g '*.tsx' -g '!apps/mapgen-studio/src/server/**'
+```
+
+Results:
+
+- Package check, build, focused `errorSpine.test.ts`, contract TypeBox-spine tests, and handler declared-error/defect-containment tests passed.
+- App check, app build, and focused engine/Run-in-Game/Save-Deploy operation-state/corpus tests passed, including the supervisor-requested `test/mapConfigSave/operationState.test.ts test/server/engineErrorSpine.test.ts` proof.
+- Active app/package bridge scan returned no matches for old bridge names, old `data.details` payloads, permissive expected-error details, or public operation-state string-array recovery-action schema residue.
+- Browser-boundary root cause and proof: `apps/mapgen-studio build` failed when browser feature modules value-imported `MAP_CONFIG_SAVE_DEPLOY_PHASES` / `RUN_IN_GAME_PHASES` from the root `@civ7/studio-server` server/runtime entrypoint, which pulled direct-control Node built-ins into Vite. The repair moved those browser DTO/constant imports to `@civ7/studio-server/contract`.
+- Control-contract boundary repair: because `@civ7/studio-server/contract` value-imports the Civ7 control contract, D3 now owns a browser-safe `@civ7/control-orpc/contract` subpath. `packages/civ7-control-orpc/package.json` exports that subpath, `tsup.config.ts` builds `src/contract.ts`, and `scripts/build.mjs` makes declaration output repeatable by clearing stale `tsconfig.tsbuildinfo` between `tsup` clean output and `tsc` declaration emit. `bun run --cwd packages/civ7-control-orpc build` passed twice in sequence and emitted `dist/contract.d.ts`.
+- Control package gates passed: `bun run --cwd packages/civ7-control-orpc check`, repeated `bun run --cwd packages/civ7-control-orpc build`, and `bun run --cwd packages/civ7-control-orpc test -- test/attention-current-procedure.test.ts test/strategy-front-summary-procedure.test.ts`.
+- Studio package/app boundary gates passed after the control subpath repair: `bun run --cwd packages/studio-server check`, `bun run --cwd packages/studio-server build`, focused package tests, `bun run --cwd apps/mapgen-studio check`, `bun run --cwd apps/mapgen-studio build`, and focused app operation-state/error-spine/corpus tests.
+- Multiline-safe exact-root value-import scan `@civ7/studio-server["']` now hits only server modules (`src/server/daemon/daemon.ts`, `src/server/runInGame/operationState.ts`, `src/server/studio/engines.ts`, `src/server/studio/context.ts`); the same scan excluding `apps/mapgen-studio/src/server/**` returns zero browser/non-server hits. The broader prefix scan still sees the intended browser-safe `/contract` imports in browser feature modules; those are accepted.
+- `packages/civ7-direct-control` remains untouched by the D3 diff. `packages/civ7-control-orpc` is intentionally touched by D3 for the browser-safe contract subpath and is covered by the gates above.
+- No live Civ7 proof is claimed for D3; this slice changes failure typing/mapping, not successful Play/Save&Deploy execution.

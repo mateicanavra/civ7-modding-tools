@@ -38,16 +38,18 @@
 
 ## 3A. Future Implementation Closure Gates
 
-These are D3 implementation obligations recorded by this packet, not pre-acceptance authoring tasks.
+These were D3 implementation obligations recorded by this packet, not
+pre-acceptance authoring tasks. Implementation started on the accepted
+Nx/Habitat-restacked runtime stack (`codex/runtime-effect-error-spine`).
 
-- [ ] 3A.1 Implement package-owned failure ADT, TypeBox error-data schemas, namespace mapper, and sanitized defect data.
-- [ ] 3A.2 Replace status-code-shaped `StudioEngineError` public truth with typed expected failures.
-- [ ] 3A.3 Remove or narrow expected-failure `details?: unknown` declared error data.
-- [ ] 3A.4 Move raw ORPC construction to router/runtime mapping ownership only.
-- [ ] 3A.5 Convert Run in Game, Save/Deploy, and Autoplay known failure paths to typed failures.
-- [ ] 3A.6 Delete production `StudioEngineError` / `RunInGameHttpError` construction, catch, import, and bridge mapping.
-- [ ] 3A.7 Update stale comments/docs/specs that describe old S1.2 closure or legacy Zod/permissive details.
-- [ ] 3A.8 Run package/app/scenario tests and negative searches, including `effect-orpc` import classification, status-code bridge deletion scans, and control package gates or untouched-package dispositions.
+- [x] 3A.1 Implement package-owned failure ADT, TypeBox error-data schemas, namespace mapper, and sanitized defect data.
+- [x] 3A.2 Replace status-code-shaped `StudioEngineError` public truth with typed expected failures.
+- [x] 3A.3 Remove or narrow expected-failure `details?: unknown` declared error data.
+- [x] 3A.4 Move raw ORPC construction to router/runtime mapping ownership only.
+- [x] 3A.5 Convert Run in Game, Save/Deploy, and Autoplay known failure paths to typed failures.
+- [x] 3A.6 Delete production `StudioEngineError` / `RunInGameHttpError` construction, catch, import, and bridge mapping.
+- [x] 3A.7 Update stale comments/docs/specs that describe old S1.2 closure or legacy Zod/permissive details.
+- [x] 3A.8 Run package/app/scenario tests and negative searches, including `effect-orpc` import classification, status-code bridge deletion scans, and control package gates or untouched-package dispositions.
 
 ## 4. Verification
 
@@ -57,9 +59,19 @@ These are D3 implementation obligations recorded by this packet, not pre-accepta
 - [x] 4.4 `bun install --frozen-lockfile`.
 - [x] 4.5 Historical pre-settlement packet-authoring base: `bun run build` and `bun run check`. Future migrated Nx/Habitat implementation base: replace with classified repo-local Nx/Habitat targets before code edits.
 - [x] 4.6 `git status --short --branch`, `gt status`, and `gt log --no-interactive`.
+- [x] 4.7 Implementation package gate: `bun run --cwd packages/studio-server check`.
+- [x] 4.8 Implementation package proof: `bun run --cwd packages/studio-server test -- test/handler.test.ts test/errorSpine.test.ts test/contractTypeboxSpine.test.ts`.
+- [x] 4.9 Implementation package build/declaration freshness: `bun run --cwd packages/studio-server build`.
+- [x] 4.10 Implementation app gate: `bun run --cwd apps/mapgen-studio check`.
+- [x] 4.11 Implementation focused app proof: `bun run --cwd apps/mapgen-studio test -- test/server/engineErrorSpine.test.ts test/runInGame/operationState.test.ts test/server/engineEffectCorpus.test.ts test/mapConfigSave/operationState.test.ts test/mapConfigSave/status.test.ts`.
+- [x] 4.12 Implementation negative bridge/recovery-action scan: `rg "StudioEngineError|STUDIO_ENGINE_ERROR_MAPPINGS|toStudioEngineOrpcError|RunInGameHttpError|data\\.details|details\\?: unknown|details: Type\\.Optional\\(Type\\.Unknown|recoveryActions: Type\\.Optional\\(Type\\.Array\\(Type\\.String\\(\\)\\)" apps/mapgen-studio/src apps/mapgen-studio/test packages/studio-server/src packages/studio-server/test -g '*.ts'` returned no matches.
+- [x] 4.13 Implementation browser-boundary build proof: `bun run --cwd packages/civ7-control-orpc check`, repeated `bun run --cwd packages/civ7-control-orpc build`, focused `bun run --cwd packages/civ7-control-orpc test -- test/attention-current-procedure.test.ts test/strategy-front-summary-procedure.test.ts`, `bun run --cwd packages/studio-server build`, and `bun run --cwd apps/mapgen-studio build` passed after browser feature modules moved value imports for operation DTO constants to `@civ7/studio-server/contract` and Studio's contract entrypoint moved its control contract value import to `@civ7/control-orpc/contract`.
+- [x] 4.14 Implementation browser root-import proof: multiline-safe exact-root scan `rg -nU --pcre2 "^import\\s+(?!type)(?:\\{[^}]*\\}|[^\\n;]+)\\s+from\\s+[\\\"']@civ7/studio-server[\\\"']" apps/mapgen-studio/src -g '*.ts' -g '*.tsx'` returns only server modules, and the same scan with `-g '!apps/mapgen-studio/src/server/**'` returns zero browser/non-server hits.
 
 ## 5. Closure
 
 - [x] 5.1 Record review acceptance in `review-disposition-ledger.md`.
 - [x] 5.2 Mark D3 accepted in `OPENSPEC-PACKET-TRAIN.md`.
 - [x] 5.3 Commit accepted D3 packet through Graphite with clean/quarantined worktree state.
+- [x] 5.4 Record fresh implementation-diff review disposition, including the post-build browser-boundary review and control-package contract subpath repair.
+- [x] 5.5 Commit D3 implementation through Graphite with clean/quarantined worktree state: current branch tip `feat(studio): add typed runtime failure spine`, followed by clean `git status --short --branch` on `codex/runtime-effect-error-spine`.

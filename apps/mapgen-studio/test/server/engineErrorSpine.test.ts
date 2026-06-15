@@ -1,12 +1,18 @@
 import { Civ7DirectControlError } from "@civ7/direct-control";
+import {
+  autoplayStartStopFailed,
+  autoplayVerificationFailed,
+  dependencyUnavailable,
+  deployFailed,
+  invalidRequest,
+  materializationFailed,
+  operationBlocked,
+  operationNotFound,
+} from "@civ7/studio-server";
 import { ORPCError } from "@orpc/client";
 import { describe, expect, it } from "vitest";
 
-import {
-  STUDIO_ENGINE_ERROR_MAPPINGS,
-  toStudioEngineOrpcError,
-} from "../../src/server/studio/context";
-import { StudioEngineError } from "../../src/server/studio/engineErrors";
+import { toStudioRuntimeOrpcError } from "../../src/server/studio/context";
 
 const identity = {
   serverInstanceId: "studio-server-test",
@@ -14,38 +20,44 @@ const identity = {
 };
 
 describe("Studio engine error spine", () => {
-  it("maps sealed known engine failures to declared oRPC errors without status fallthrough", () => {
+  it("maps sealed known runtime failures to declared oRPC errors without status fallthrough", () => {
     const cases = [
-      ["autoplay", new StudioEngineError(409, "autoplay blocked"), "AUTOPLAY_BLOCKED", 409],
-      ["autoplay", new StudioEngineError(400, "autoplay invalid"), "AUTOPLAY_INVALID", 400],
-      ["autoplay", new StudioEngineError(503, "autoplay unavailable"), "AUTOPLAY_UNAVAILABLE", 503],
-      ["autoplay", new StudioEngineError(500, "autoplay failed"), "AUTOPLAY_FAILED", 500],
-      ["runInGame", new StudioEngineError(400, "run invalid"), "RUN_IN_GAME_INVALID", 400],
-      ["runInGame", new StudioEngineError(404, "run missing"), "RUN_IN_GAME_STATUS_NOT_FOUND", 404],
-      ["runInGame", new StudioEngineError(409, "run blocked"), "RUN_IN_GAME_BLOCKED", 409],
-      ["runInGame", new StudioEngineError(500, "run failed"), "RUN_IN_GAME_FAILED", 500],
-      ["runInGame", new StudioEngineError(503, "run unavailable"), "RUN_IN_GAME_UNAVAILABLE", 503],
-      ["saveDeploy", new StudioEngineError(400, "save invalid"), "SAVE_DEPLOY_INVALID", 400],
+      ["autoplay.command", operationBlocked({ message: "autoplay blocked" }), "AUTOPLAY_BLOCKED", 409],
+      ["autoplay.command", invalidRequest({ message: "autoplay invalid" }), "AUTOPLAY_INVALID", 400],
       [
-        "saveDeploy",
-        new StudioEngineError(404, "save missing"),
-        "SAVE_DEPLOY_STATUS_NOT_FOUND",
-        404,
-      ],
-      ["saveDeploy", new StudioEngineError(409, "save blocked"), "SAVE_DEPLOY_BLOCKED", 409],
-      ["saveDeploy", new StudioEngineError(500, "save failed"), "SAVE_DEPLOY_FAILED", 500],
-      [
-        "saveDeploy",
-        new StudioEngineError(503, "save unavailable"),
-        "SAVE_DEPLOY_UNAVAILABLE",
+        "autoplay.command",
+        dependencyUnavailable({ message: "autoplay unavailable" }),
+        "AUTOPLAY_UNAVAILABLE",
         503,
       ],
+      [
+        "autoplay.command",
+        autoplayStartStopFailed({ message: "autoplay start failed", reason: "start-failed" }),
+        "AUTOPLAY_FAILED",
+        500,
+      ],
+      [
+        "autoplay.command",
+        autoplayVerificationFailed({ message: "autoplay verification failed" }),
+        "AUTOPLAY_FAILED",
+        500,
+      ],
+      ["runInGame.start", invalidRequest({ message: "run invalid" }), "RUN_IN_GAME_INVALID", 400],
+      ["runInGame.status", operationNotFound({ message: "run missing", requestId: "run-1" }), "RUN_IN_GAME_STATUS_NOT_FOUND", 404],
+      ["runInGame.start", operationBlocked({ message: "run blocked" }), "RUN_IN_GAME_BLOCKED", 409],
+      ["runInGame.start", materializationFailed({ message: "run failed" }), "RUN_IN_GAME_FAILED", 500],
+      ["runInGame.start", dependencyUnavailable({ message: "run unavailable" }), "RUN_IN_GAME_UNAVAILABLE", 503],
+      ["saveDeploy.start", invalidRequest({ message: "save invalid" }), "SAVE_DEPLOY_INVALID", 400],
+      ["saveDeploy.status", operationNotFound({ message: "save missing", requestId: "save-1" }), "SAVE_DEPLOY_STATUS_NOT_FOUND", 404],
+      ["saveDeploy.start", operationBlocked({ message: "save blocked" }), "SAVE_DEPLOY_BLOCKED", 409],
+      ["saveDeploy.start", deployFailed({ message: "save failed" }), "SAVE_DEPLOY_FAILED", 500],
+      ["saveDeploy.start", dependencyUnavailable({ message: "save unavailable" }), "SAVE_DEPLOY_UNAVAILABLE", 503],
     ] as const;
 
-    for (const [namespace, err, code, status] of cases) {
-      const mapped = toStudioEngineOrpcError({
+    for (const [procedure, err, code, status] of cases) {
+      const mapped = toStudioRuntimeOrpcError({
         err,
-        namespace,
+        procedure,
         fallbackMessage: "unexpected",
         ...identity,
       });
@@ -58,25 +70,16 @@ describe("Studio engine error spine", () => {
     }
   });
 
-  it("keeps every namespace mapping total over the sealed failure kinds", () => {
-    for (const mapping of Object.values(STUDIO_ENGINE_ERROR_MAPPINGS)) {
-      expect(Object.keys(mapping).sort()).toEqual([
-        "blocked",
-        "failed",
-        "invalid",
-        "not-found",
-        "unavailable",
-      ]);
-    }
-  });
-
-  it("preserves identity echo and structured details for status misses", () => {
-    const mapped = toStudioEngineOrpcError({
-      err: new StudioEngineError(404, "save missing", {
-        code: "save-deploy-status-not-found",
+  it("preserves identity echo and sealed data for status misses", () => {
+    const mapped = toStudioRuntimeOrpcError({
+      err: operationNotFound({
+        message: "save missing",
         requestId: "save-1",
+        diagnostics: {
+          code: "save-deploy-status-not-found",
+        },
       }),
-      namespace: "saveDeploy",
+      procedure: "saveDeploy.status",
       fallbackMessage: "save failed",
       ...identity,
     });
@@ -86,10 +89,8 @@ describe("Studio engine error spine", () => {
       status: 404,
       data: {
         ...identity,
-        details: {
-          code: "save-deploy-status-not-found",
-          requestId: "save-1",
-        },
+        requestId: "save-1",
+        diagnostics: { code: "save-deploy-status-not-found" },
       },
     });
   });
@@ -100,25 +101,25 @@ describe("Studio engine error spine", () => {
     });
 
     expect(
-      toStudioEngineOrpcError({
+      toStudioRuntimeOrpcError({
         err,
-        namespace: "runInGame",
+        procedure: "runInGame.status",
         fallbackMessage: "run failed",
         ...identity,
       })
     ).toMatchObject({ code: "RUN_IN_GAME_UNAVAILABLE", status: 503 });
     expect(
-      toStudioEngineOrpcError({
+      toStudioRuntimeOrpcError({
         err,
-        namespace: "saveDeploy",
+        procedure: "saveDeploy.status",
         fallbackMessage: "save failed",
         ...identity,
       })
     ).toMatchObject({ code: "SAVE_DEPLOY_UNAVAILABLE", status: 503 });
     expect(
-      toStudioEngineOrpcError({
+      toStudioRuntimeOrpcError({
         err,
-        namespace: "autoplay",
+        procedure: "autoplay.command",
         fallbackMessage: "autoplay failed",
         ...identity,
       })

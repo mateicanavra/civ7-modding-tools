@@ -1,14 +1,25 @@
-import type { MapConfigSaveDeployPhase, MapConfigSaveDeployStatus } from "@civ7/studio-server";
+import type {
+  MapConfigSaveDeployPhase,
+  MapConfigSaveDeployStatus,
+  StudioRecoveryAction,
+  StudioRuntimeFailure,
+} from "@civ7/studio-server";
 import {
   createMapConfigSaveDeployStatus,
   updateMapConfigSaveDeployStatus,
 } from "../../features/mapConfigSave/status";
 
-function recoveryActionsForSaveDeploy(phase: MapConfigSaveDeployPhase): string[] {
-  const actions = ["copy-diagnostics", "retry-status", "retry-save-deploy"];
+function recoveryActionsForSaveDeploy(phase: MapConfigSaveDeployPhase): StudioRecoveryAction[] {
+  const actions: StudioRecoveryAction[] = ["copy-diagnostics", "retry-status", "retry-save-deploy"];
   if (phase === "deploying") actions.push("inspect-deploy-output");
   return actions;
 }
+
+type MapConfigSaveDeployStatusPatch = Parameters<typeof updateMapConfigSaveDeployStatus>[1];
+type SaveDeployFailurePatch = Omit<
+  MapConfigSaveDeployStatusPatch,
+  "phase" | "error" | "details" | "recoveryActions"
+>;
 
 type StoreOptions = Readonly<{
   ttlMs: number;
@@ -87,19 +98,24 @@ export function createMapConfigSaveDeployOperationStore(options: StoreOptions) {
   function fail(
     requestId: string,
     phase: MapConfigSaveDeployPhase,
-    error: string,
-    patch: Omit<Parameters<typeof updateMapConfigSaveDeployStatus>[1], "phase" | "error"> = {}
+    failure: StudioRuntimeFailure,
+    patch: SaveDeployFailurePatch = {}
   ): MapConfigSaveDeployStatus {
+    const recoveryActions = [
+      ...new Set([...recoveryActionsForSaveDeploy(phase), ...failure.recoveryActions]),
+    ];
     return update(requestId, {
       ...patch,
       phase: "failed",
-      error,
+      error: failure.message,
       details: {
-        ...(patch.details ?? {}),
+        ...(failure.diagnostics ?? {}),
+        failureTag: failure.tag,
+        reason: failure.reason,
         failedAtPhase: phase,
-        recoveryActions: recoveryActionsForSaveDeploy(phase),
+        recoveryActions,
       },
-      recoveryActions: recoveryActionsForSaveDeploy(phase),
+      recoveryActions,
     });
   }
 

@@ -1,7 +1,7 @@
 # D3 Review Disposition Ledger
 
-Status: accepted
-Date: 2026-06-14
+Status: packet accepted; implementation-diff review repairs recorded
+Date: 2026-06-15
 
 | ID | Lane | Finding | Severity | Disposition | Repair |
 | --- | --- | --- | --- | --- | --- |
@@ -23,6 +23,13 @@ Date: 2026-06-14
 | D3-R16 | black-ice review | D3 still allowed a retained production bridge as a possible D4 cleanup path. | P1 | accepted | Made D3 implementation closure binary and removed retained-bridge/D4-deletion language from packet gates. |
 | D3-R17 | black-ice/effect review | Reason codes were illustrative rather than sealed. | P1 | accepted | Promoted reason codes into a normative matrix with family, tag, code/status, TypeBox data, recovery actions, and oracle. |
 | D3-R18 | black-ice review | Frame-required `@civ7/control-orpc` and `@civ7/direct-control` package gates were missing from future implementation verification. | P2 | accepted | Added control package check/test/build gates or untouched-package negative-scan disposition. |
+| D3-IMPL-R1 | Kepler implementation review | Save/Deploy background failures still stored string-plus-arbitrary-details status data rather than a package-owned `DeployFailed` projection. | P1 | accepted | Converted `runSaveDeployEngine` failure catch and `createMapConfigSaveDeployOperationStore().fail` to consume `StudioRuntimeFailure`, project bounded diagnostics, and test `DeployFailed` status details. |
+| D3-IMPL-R2 | Kepler implementation review | Autoplay command and verification failures could still fall through generic dependency/proof failure taxonomy. | P1 | accepted | Converted Autoplay start/stop command failures to `AutoplayStartStopFailed`, failed verification to `AutoplayVerificationFailed`, and updated mapper tests to use Autoplay-specific tags. |
+| D3-IMPL-R3 | Kepler implementation review | Closure wording overclaimed operation-state typed projections while Save/Deploy details and public recovery actions were still open. | P2 | accepted | Narrowed Save/Deploy status `details` to bounded diagnostic values and wired Run in Game / Save-Deploy public `recoveryActions` to `studioRecoveryActionSchema`. |
+| D3-IMPL-R4 | Supervisor boundary review | Router-facing non-`ORPCError` stateful host defects mapped to namespace `*_FAILED` without `UnexpectedDefectData`. | P1 | accepted | Routed stateful router defect catches through package `mapUnexpectedDefectToDefinedError` and updated handler tests to assert sanitized defect data. |
+| D3-IMPL-R5 | Supervisor browser-boundary review | Browser feature modules value-imported the root `@civ7/studio-server` server/runtime entrypoint for operation constants, causing `apps/mapgen-studio build` to pull direct-control Node built-ins into Vite. | P1 | accepted | Moved browser DTO constants/types in `features/mapConfigSave/status.ts` and `features/runInGame/status.ts` to `@civ7/studio-server/contract`; package rebuild, app build, and exact-root value-import scans now pass. |
+| D3-IMPL-R6 | Rawls browser-boundary review | `@civ7/studio-server/contract` still imported the root `@civ7/control-orpc` contract value, and the line-oriented root `@civ7/studio-server` scan was underpowered for multiline imports. | P1 | accepted | Added browser-safe `@civ7/control-orpc/contract` export/build entrypoint, moved Studio contract value import to that subpath, and recorded multiline-safe exact-root scans plus non-server zero-hit proof. |
+| D3-IMPL-R7 | Supervisor control-package gate review | D3 docs claimed `packages/civ7-control-orpc` untouched while the diff added a contract subpath and changed package build inputs; the initial control build was not declaration-green. | P1 | accepted | D3 now owns the touched control package paths, includes `scripts/build.mjs`, records the `tsup`/DTS/`tsconfig.tsbuildinfo` root cause, and gates `packages/civ7-control-orpc` check/build/test before Studio package/app closure. |
 
 ## Required Fresh Reviews
 
@@ -33,3 +40,16 @@ Date: 2026-06-14
 - Hardening/prework philosophy review: accepted.
 - Black-ice disambiguation review: accepted after bridge deletion, reason-code, and control package gate repairs.
 - Adversarial residue/orphan review: accepted; no unresolved P1/P2 findings remain.
+
+## Implementation-Diff Review
+
+- Fresh D3 implementation review requested from Kepler on 2026-06-15 over the
+  current dirty diff. Scope: package failure ADT/TypeBox schema/mapping, app
+  engine conversion, raw oRPC ownership, operation-state projections, residue
+  scans, and proof/doc claims.
+- [x] Kepler P1/P2 findings and supervisor boundary findings accepted and
+  repaired before Graphite commit. Focused package/app gates and residue scans
+  were rerun after repair; no live Civ7 Play/Save&Deploy proof is claimed.
+- [x] Rawls/browser-boundary and supervisor control-package blockers accepted
+  and repaired before Graphite commit. Remaining live Civ7 proof remains
+  explicitly unclaimed.

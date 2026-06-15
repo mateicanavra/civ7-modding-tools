@@ -2,8 +2,9 @@ import type {
   MapConfigSaveDeployKind,
   MapConfigSaveDeployPhase,
   MapConfigSaveDeployStatus,
-} from "@civ7/studio-server";
-import { MAP_CONFIG_SAVE_DEPLOY_PHASES } from "@civ7/studio-server";
+  StudioRecoveryAction,
+} from "@civ7/studio-server/contract";
+import { MAP_CONFIG_SAVE_DEPLOY_PHASES } from "@civ7/studio-server/contract";
 
 export { MAP_CONFIG_SAVE_DEPLOY_PHASES };
 
@@ -42,8 +43,8 @@ export function createMapConfigSaveDeployStatus(args: {
   deployed?: boolean;
   error?: string;
   deploy?: MapConfigSaveDeployStatus["deploy"];
-  details?: Record<string, unknown>;
-  recoveryActions?: ReadonlyArray<string>;
+  details?: MapConfigSaveDeployStatus["details"];
+  recoveryActions?: ReadonlyArray<StudioRecoveryAction>;
 }): MapConfigSaveDeployStatus {
   const timestamp = (args.now ?? (() => new Date()))().toISOString();
   const status = kindForMapConfigSaveDeployPhase(args.phase);
@@ -74,8 +75,8 @@ export function updateMapConfigSaveDeployStatus(
     deployed?: boolean;
     error?: string;
     deploy?: MapConfigSaveDeployStatus["deploy"];
-    details?: Record<string, unknown>;
-    recoveryActions?: ReadonlyArray<string>;
+    details?: MapConfigSaveDeployStatus["details"];
+    recoveryActions?: ReadonlyArray<StudioRecoveryAction>;
   }>
 ): MapConfigSaveDeployStatus {
   const status = kindForMapConfigSaveDeployPhase(patch.phase);

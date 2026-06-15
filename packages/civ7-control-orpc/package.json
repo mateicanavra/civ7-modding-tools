@@ -62,6 +62,9 @@
       "game-ui": [
         "./dist/game-ui.d.ts"
       ],
+      "contract": [
+        "./dist/contract.d.ts"
+      ],
       "runtime": [
         "./dist/runtime.d.ts"
       ],
@@ -88,10 +91,15 @@
       "types": "./dist/game-ui.d.ts",
       "import": "./dist/game-ui.js",
       "require": "./dist/game-ui.cjs"
+    },
+    "./contract": {
+      "types": "./dist/contract.d.ts",
+      "import": "./dist/contract.js",
+      "require": "./dist/contract.cjs"
     }
   },
   "scripts": {
-    "build": "tsup --config tsup.config.ts && tsc -p tsconfig.json --emitDeclarationOnly --noEmit false",
+    "build": "node scripts/build.mjs",
     "check": "tsc -p tsconfig.json --noEmit",
     "lint:contract-ownership": "node -e \"\"",
     "test": "vitest run --config vitest.config.ts",

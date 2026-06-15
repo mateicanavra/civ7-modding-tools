@@ -1,9 +1,9 @@
 import { Civ7DirectControlError } from "@civ7/direct-control";
+import { operationBlocked, proofFailed } from "@civ7/studio-server";
 import { describe, expect, it } from "vitest";
 import { formatRunInGameDiagnostics } from "../../src/features/runInGame/status";
 import type { RunInGameOperationState } from "../../src/server/runInGame/operationState";
 import { createRunInGameOperationStore } from "../../src/server/runInGame/operationState";
-import { StudioEngineError } from "../../src/server/studio/engineErrors";
 
 function createStore(options: { onChange?: (state: RunInGameOperationState) => void } = {}) {
   let nowMs = Date.parse("2026-06-01T00:00:00.000Z");
@@ -90,9 +90,12 @@ describe("Run in Game operation store", () => {
     const failed = store.fail(
       "request-1",
       "checking-civ7",
-      new StudioEngineError(409, "row missing", {
-        code: "setup-map-row-not-visible",
-        reloadRequired: true,
+      operationBlocked({
+        message: "row missing",
+        diagnostics: {
+          code: "setup-map-row-not-visible",
+          reloadRequired: true,
+        },
       })
     );
 
@@ -107,10 +110,13 @@ describe("Run in Game operation store", () => {
     const failed = store.fail(
       "request-1",
       "checking-civ7",
-      new StudioEngineError(409, "row missing", {
-        code: "setup-map-row-not-visible",
-        reloadRequired: true,
-        reloadBoundary: "process-restart-required",
+      operationBlocked({
+        message: "row missing",
+        diagnostics: {
+          code: "setup-map-row-not-visible",
+          reloadRequired: true,
+          reloadBoundary: "process-restart-required",
+        },
       })
     );
 
@@ -125,10 +131,14 @@ describe("Run in Game operation store", () => {
     const failed = store.fail(
       "request-1",
       "waiting-for-proof",
-      new StudioEngineError(500, "Civ7 could not load generated map script", {
-        code: "map-script-load-failed",
-        dismissNotificationRequired: true,
-        recoveryBoundary: "civ-notification-dismiss",
+      proofFailed({
+        message: "Civ7 could not load generated map script",
+        reason: "log-proof-missing",
+        diagnostics: {
+          code: "map-script-load-failed",
+          dismissNotificationRequired: true,
+          recoveryBoundary: "civ-notification-dismiss",
+        },
       })
     );
 
@@ -150,10 +160,14 @@ describe("Run in Game operation store", () => {
     const failed = store.fail(
       "request-1",
       "starting-game",
-      new StudioEngineError(500, "Civ7 could not load generated map script", {
-        code: "map-script-load-failed",
-        dismissNotificationRequired: true,
-        recoveryBoundary: "civ-notification-dismiss",
+      proofFailed({
+        message: "Civ7 could not load generated map script",
+        reason: "start-game-failed",
+        diagnostics: {
+          code: "map-script-load-failed",
+          dismissNotificationRequired: true,
+          recoveryBoundary: "civ-notification-dismiss",
+        },
       })
     );
 

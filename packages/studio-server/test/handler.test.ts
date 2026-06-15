@@ -76,20 +76,23 @@ describe("studio-server RPC handler", () => {
     expect(calls).toEqual(["status:save-1"]);
   }, 10_000);
 
-  test("delivers an engine 409 as the DEFINED SAVE_DEPLOY_BLOCKED error", async () => {
-    // The host context throws a RAW ORPCError whose code/status/data match the
-    // declared contract entry (contract/errors.ts) — oRPC must validate it into
-    // a defined error client-side (the "combining both approaches" rule).
+  test("delivers a mapped engine 409 as the DEFINED SAVE_DEPLOY_BLOCKED error", async () => {
+    // The app host context maps package StudioRuntimeFailure values to declared
+    // ORPCError payloads before they cross into this package. This fake asserts
+    // the router preserves that declared payload unchanged.
     const context = makeContext({
       mapConfigSaveDeploy: async () => {
         throw new ORPCError("SAVE_DEPLOY_BLOCKED", {
           status: 409,
           message: "Save/Deploy is already running.",
           data: {
-            details: {
-              code: "save-deploy-operation-active",
-              activeRequestId: "save-0",
-            },
+            tag: "OperationBlocked",
+            namespace: "saveDeploy",
+            reason: "active-operation-conflict",
+            message: "Save/Deploy is already running.",
+            recoveryActions: ["retry-status", "copy-diagnostics"],
+            activeRequestId: "save-0",
+            diagnostics: { code: "save-deploy-operation-active" },
           },
         });
       },
@@ -107,10 +110,13 @@ describe("studio-server RPC handler", () => {
     expect(error.status).toBe(409);
     expect(error.message).toBe("Save/Deploy is already running.");
     expect(error.data).toEqual({
-      details: {
-        code: "save-deploy-operation-active",
-        activeRequestId: "save-0",
-      },
+      tag: "OperationBlocked",
+      namespace: "saveDeploy",
+      reason: "active-operation-conflict",
+      message: "Save/Deploy is already running.",
+      recoveryActions: ["retry-status", "copy-diagnostics"],
+      activeRequestId: "save-0",
+      diagnostics: { code: "save-deploy-operation-active" },
     });
   });
 
@@ -121,6 +127,12 @@ describe("studio-server RPC handler", () => {
           status: 404,
           message: "Run in Game request not found: run-1",
           data: {
+            tag: "OperationNotFound",
+            namespace: "runInGame",
+            reason: "status-not-found",
+            message: "Run in Game request not found: run-1",
+            recoveryActions: ["retry-status", "copy-diagnostics"],
+            requestId: "run-1",
             serverInstanceId: "studio-server-test",
             serverStartedAt: "2026-06-10T00:00:00.000Z",
           },
@@ -138,6 +150,12 @@ describe("studio-server RPC handler", () => {
     expect(error.status).toBe(404);
     // PARITY INVARIANT: the 404 echoes the server identity for restart detection.
     expect(error.data).toEqual({
+      tag: "OperationNotFound",
+      namespace: "runInGame",
+      reason: "status-not-found",
+      message: "Run in Game request not found: run-1",
+      recoveryActions: ["retry-status", "copy-diagnostics"],
+      requestId: "run-1",
       serverInstanceId: "studio-server-test",
       serverStartedAt: "2026-06-10T00:00:00.000Z",
     });
@@ -150,12 +168,15 @@ describe("studio-server RPC handler", () => {
           status: 404,
           message: "Save/Deploy request not found: save-1",
           data: {
+            tag: "OperationNotFound",
+            namespace: "saveDeploy",
+            reason: "status-not-found",
+            message: "Save/Deploy request not found: save-1",
+            recoveryActions: ["retry-status", "copy-diagnostics"],
+            requestId: "save-1",
             serverInstanceId: "studio-server-test",
             serverStartedAt: "2026-06-10T00:00:00.000Z",
-            details: {
-              code: "save-deploy-status-not-found",
-              requestId: "save-1",
-            },
+            diagnostics: { code: "save-deploy-status-not-found" },
           },
         });
       },
@@ -170,12 +191,15 @@ describe("studio-server RPC handler", () => {
     expect(error.code).toBe("SAVE_DEPLOY_STATUS_NOT_FOUND");
     expect(error.status).toBe(404);
     expect(error.data).toEqual({
+      tag: "OperationNotFound",
+      namespace: "saveDeploy",
+      reason: "status-not-found",
+      message: "Save/Deploy request not found: save-1",
+      recoveryActions: ["retry-status", "copy-diagnostics"],
+      requestId: "save-1",
       serverInstanceId: "studio-server-test",
       serverStartedAt: "2026-06-10T00:00:00.000Z",
-      details: {
-        code: "save-deploy-status-not-found",
-        requestId: "save-1",
-      },
+      diagnostics: { code: "save-deploy-status-not-found" },
     });
   });
 
@@ -195,6 +219,14 @@ describe("studio-server RPC handler", () => {
     expect(error.code).toBe("RUN_IN_GAME_FAILED");
     expect(error.status).toBe(500);
     expect(error.message).toBe("engine exploded");
+    expect(error.data).toEqual({
+      tag: "UnexpectedDefect",
+      namespace: "runInGame",
+      message: "engine exploded",
+      recoveryActions: ["copy-diagnostics"],
+      causeName: "Error",
+      causeMessage: "engine exploded",
+    });
   });
 
   test("passes non-rpc paths through for host fallback middleware", async () => {

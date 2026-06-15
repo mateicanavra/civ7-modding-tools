@@ -7,8 +7,9 @@ import type {
   RunInGamePhase,
   RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
+  StudioRecoveryAction,
 } from "@civ7/studio-server";
-import { StudioEngineError } from "../studio/engineErrors";
+import { isStudioRuntimeFailure } from "@civ7/studio-server";
 import type { RunInGameDetailedExactAuthorshipProof } from "./proofTypes";
 
 export type RunInGameOperationState = Omit<
@@ -188,8 +189,8 @@ export function statusForPhase(phase: RunInGamePhase): RunInGameOperationKind {
 
 export function recoveryActionsFor(
   state: Pick<RunInGameOperationState, "phase" | "status" | "details">
-): string[] {
-  const actions = ["copy-diagnostics"];
+): StudioRecoveryAction[] {
+  const actions: StudioRecoveryAction[] = ["copy-diagnostics"];
   if (
     state.status === "running" ||
     state.status === "blocked" ||
@@ -223,7 +224,8 @@ export function runInGameFailureDetails(
   materialization?: RunInGameMaterializationStatus
 ): RunInGameFailureDetails {
   const directControlCode = err instanceof Civ7DirectControlError ? err.code : undefined;
-  const httpDetails = err instanceof StudioEngineError && isRecord(err.details) ? err.details : {};
+  const runtimeFailure = isStudioRuntimeFailure(err) ? err : undefined;
+  const httpDetails = isRecord(runtimeFailure?.diagnostics) ? runtimeFailure.diagnostics : {};
   const failureClass = classifyRunInGameFailure(err, phase);
   const nextMaterialization =
     materialization ??
@@ -251,7 +253,7 @@ export function classifyRunInGameFailure(
   err: unknown,
   phase: RunInGamePhase
 ): "blocked" | "failed" | "uncertain" {
-  if (err instanceof StudioEngineError && err.statusCode === 409) return "blocked";
+  if (isStudioRuntimeFailure(err) && err.tag === "OperationBlocked") return "blocked";
   const code = err instanceof Civ7DirectControlError ? err.code : undefined;
   if (
     (phase === "starting-game" || phase === "waiting-for-proof") &&
@@ -273,7 +275,7 @@ function cloneForJson(value: unknown): unknown {
 function publicRunInGameFailureMessage(err: unknown, details: RunInGameFailureDetails): string {
   const phase = details.phase ?? "failed";
   const phaseLabel = publicRunInGamePhaseLabel(phase);
-  if (err instanceof StudioEngineError) {
+  if (isStudioRuntimeFailure(err)) {
     return redactRuntimeCommandText(err.message);
   }
   if (err instanceof Civ7DirectControlError) {

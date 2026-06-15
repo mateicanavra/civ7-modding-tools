@@ -1,6 +1,7 @@
 import { oc } from "@orpc/contract";
 import { type Static, Type } from "typebox";
 
+import { studioRecoveryActionSchema } from "../errors/errorData.js";
 import { mapConfigsErrors } from "./errors.js";
 import { contractSchema } from "./shared.js";
 
@@ -42,6 +43,11 @@ export const saveDeployKind = Type.Union([
   Type.Literal("failed"),
 ]);
 
+export const saveDeployStatusDetailsSchema = Type.Record(
+  Type.String(),
+  Type.Union([Type.String(), Type.Number(), Type.Boolean(), Type.Null(), Type.Array(Type.String())])
+);
+
 /** `MapConfigSaveDeployStatus` - returned by both saveDeploy (#16, 202) and status (#15, 200). */
 export const saveDeployStatusTypeSchema = Type.Object(
   {
@@ -75,8 +81,8 @@ export const saveDeployStatusTypeSchema = Type.Object(
         { additionalProperties: false }
       )
     ),
-    details: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    recoveryActions: Type.Optional(Type.Array(Type.String())),
+    details: Type.Optional(saveDeployStatusDetailsSchema),
+    recoveryActions: Type.Optional(Type.Array(studioRecoveryActionSchema)),
   },
   { additionalProperties: false }
 );

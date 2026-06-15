@@ -150,7 +150,7 @@ describe("D2 engine Effect corpus", () => {
       "runSaveDeployEngine",
       "runSaveDeployStatusEngine",
       "currentOperations",
-      "StudioEngineError",
+      "StudioRuntimeFailure",
       "deploySwooperMaps",
       "deploySwooperMapsForRun",
       "buildSwooperMapsStudioDeployPlan",
