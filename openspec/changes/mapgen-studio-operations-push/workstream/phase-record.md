@@ -5,9 +5,10 @@
 - Project: Studio runtime Effect refactor
 - Domino: D9
 - OpenSpec change: `mapgen-studio-operations-push`
-- Owner: Codex DRA packet-authoring lane
+- Owner: Codex DRA implementation lane
 - Branch/Graphite stack: `codex/runtime-effect-operations-push`
-- Status: packet accepted; implementation pending
+- Status: D9 implementation committed at the current Graphite branch tip with
+  fresh review disposition and post-commit clean-state proof
 
 ## Objective
 
@@ -39,15 +40,18 @@
 
 ## Gate 2 - Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`
+- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`
 - Branch: `codex/runtime-effect-operations-push`
-- Entrance status: clean before D9 edits after D8 commit `3ed082058`.
-- Dirty-file quarantine: none at entrance; D9 edits are restricted to
-  `openspec/changes/mapgen-studio-operations-push/**` and
-  `docs/projects/studio-runtime-simplification/OPENSPEC-PACKET-TRAIN.md`.
-- Dependency/build entrance: D6 refreshed dependency/build/check baseline;
-  D7-D9 are docs-only packet repairs and require OpenSpec/Graphite/status gates
-  unless code is touched.
+- Packet-authoring entrance status: clean before D9 packet edits after the
+  then-current D8 packet-authoring base.
+- Implementation entrance status: clean on `codex/runtime-effect-operations-push`
+  stacked above D8 implementation commit `8fce5359b`.
+- Dirty-file quarantine: none at implementation entrance. D9 implementation
+  touches app operation readback deletion, operation event tests, package
+  runtime event proof, and D9 workstream records.
+- Dependency/build entrance: D8 restored the stack and the D9 branch was clean
+  before edits. D9 is not docs-only during implementation because it changes
+  browser operation readback and tests.
 
 ## Gate 3 - Diagnosis
 
@@ -124,6 +128,8 @@ cadence and D12 owns final runtime invariant closeout.
 - Testing/vendor alignment reviewer: completed during packet authoring.
 - Hardening/prework/black-ice reviewer: completed during packet authoring.
 - Review ledger captured all P1/P2 findings before packet acceptance.
+- Fresh implementation-diff review is complete before D9 Graphite commit with
+  no unresolved P1/P2 findings.
 
 ## Gate 12 - Closure
 
@@ -138,5 +144,6 @@ Packet acceptance required:
 
 ## Next Action
 
-Implementation opens D9 on its own Graphite branch after D8 EventHub exists,
-then runs the gates in `tasks.md` before claiming operation-push closure.
+D9 is complete at the current Graphite branch tip. Continue to D10 on
+`codex/runtime-effect-live-game-watch` only after confirming the D9 worktree is
+clean.

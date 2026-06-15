@@ -1,7 +1,7 @@
 # D9 Downstream Realignment Ledger - Studio Operations Push
 
-Status: packet accepted; implementation pending
-Date: 2026-06-14
+Status: D9 implementation downstream disposition recorded in the current D9 Graphite branch tip
+Date: 2026-06-15
 
 ## D10 - Live Game Watch
 
@@ -48,6 +48,7 @@ them as diagnostic request-response reads or delete them with source evidence.
 
 ## Proof Boundary
 
-D9 acceptance proves packet readiness. D9 implementation proves operation event
-publication and operation polling deletion. D10 proves live-game event cadence
-and browser live-game timer deletion. D12 proves the final runtime invariant.
+D9 implementation proves operation event publication and operation polling
+deletion. D10 proves live-game event cadence and browser live-game timer
+deletion. D12 proves public/manual status endpoint classification and the final
+runtime invariant. D9 does not claim live Civ7 Play/Save&Deploy proof.

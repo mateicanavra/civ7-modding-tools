@@ -16,7 +16,6 @@ import { formatMapConfigSaveDeployPhaseLabel } from "../../features/mapConfigSav
 import type { RunInGameCurrentRelation } from "../../features/runInGame/clientState";
 import {
   formatRunInGamePhaseLabel,
-  runInGameCanRetryStatus,
   runInGamePrimaryActionLabel,
 } from "../../features/runInGame/status";
 
@@ -33,10 +32,12 @@ import {
 // the Run in Game operation, and save/deploy into one color, and clicking it
 // opens the status hang-off: a panel docked under the bar (same idiom as the
 // header's setup disclosure) carrying the expanded per-operation statuses and
-// their secondary affordances (apply-live-to-Studio, refresh status, copy
+// their secondary affordances (apply-live-to-Studio, copy
 // diagnostics as the Bug action). Nothing else in the bar pulses or stacks
 // pills; the studio↔game bridge cues (stale warning ring, Current/Stale/
-// Previous relation) surface on the chip and inside the hang-off.
+// Previous relation) surface on the chip and inside the hang-off. Operation
+// freshness is daemon-pushed; the hang-off offers diagnostics, not status
+// readback.
 // ============================================================================
 
 /** Read-only live Civ7 runtime snapshot the console renders. */
@@ -81,8 +82,6 @@ export interface GameConsoleProps {
   runInGameCurrentRelation?: RunInGameCurrentRelation;
   /** Callback to launch the current map config in Civ7 */
   onRunInGame: () => void;
-  /** Callback to refresh the current Civ7 Run in Game operation status */
-  onRunInGameRetryStatus?: () => void;
   /** Callback to copy current Civ7 Run in Game diagnostics */
   onCopyRunInGameDiagnostics?: () => void;
   /** Current config save/deploy status */
@@ -116,7 +115,6 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   runInGameStatus,
   runInGameCurrentRelation = "unknown",
   onRunInGame,
-  onRunInGameRetryStatus,
   onCopyRunInGameDiagnostics,
   saveDeployStatus,
   defaultStatusOpen = false,
@@ -454,25 +452,6 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
               <div className="flex items-center justify-between gap-2">
                 <span className={eyebrowClass}>Run in Game</span>
                 <div className="flex items-center gap-1">
-                  {runInGameStatus &&
-                  onRunInGameRetryStatus &&
-                  runInGameCanRetryStatus(runInGameStatus) ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={onRunInGameRetryStatus}
-                          aria-label="Refresh Run in Game status"
-                          title="Refresh Run in Game status"
-                        >
-                          <RotateCw className="w-3.5 h-3.5" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Refresh Run in Game status</TooltipContent>
-                    </Tooltip>
-                  ) : null}
                   {runInGameStatus && onCopyRunInGameDiagnostics ? (
                     <Tooltip>
                       <TooltipTrigger asChild>

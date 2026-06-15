@@ -71,7 +71,7 @@ import { type PresetKey, parsePresetKey } from "../features/presets/types";
 import { usePresets } from "../features/presets/usePresets";
 import { PipelineStage } from "../features/recipeDag/PipelineStage";
 import { useRecipeDagQuery } from "../features/recipeDag/useRecipeDagQuery";
-import { fetchRunInGameStatus, runCurrentConfigInGame } from "../features/runInGame/api";
+import { runCurrentConfigInGame } from "../features/runInGame/api";
 import {
   buildRunInGameClientSnapshot,
   buildRunInGameFingerprint,
@@ -211,7 +211,7 @@ function saveDeployResultFromTerminalStatus(
  * `CanvasStage`, `LeftDock`, `RightDock`, and `ErrorBanner` components, and the
  * sonner toast adapter is sourced from the shared `useToast` hook. No hard-core
  * behavior (browserRunner gating, run-in-game fingerprint/relation/materialization,
- * live-poll request-key staleness + adaptive backoff, localStorage schema) is
+ * live-runtime request-key staleness + adaptive backoff, localStorage schema) is
  * touched — see architecture/10 §7.
  */
 export function StudioShell(props: StudioShellProps) {
@@ -1628,19 +1628,6 @@ export function StudioShell(props: StudioShellProps) {
     [savedSetupConfigs.configurations, toast]
   );
 
-  const refreshRunInGameStatus = useCallback(
-    async (requestId: string) => {
-      const result = await fetchRunInGameStatus(requestId);
-      if (!("requestId" in result)) {
-        setLocalError(result.error);
-        toast(`Run in Game status unavailable: ${result.error}`, { variant: "error" });
-        return;
-      }
-      setRunInGameOperation(result);
-    },
-    [toast]
-  );
-
   const markRunInGameToastHandled = useCallback((requestId: string) => {
     lastRunInGameToastRef.current = requestId;
   }, []);
@@ -2573,9 +2560,6 @@ export function StudioShell(props: StudioShellProps) {
               restartCivProcess: runInGameRequiresProcessRestart(runInGameOperation),
             });
           }}
-          onRunInGameRetryStatus={() => {
-            if (runInGameOperation) void refreshRunInGameStatus(runInGameOperation.requestId);
-          }}
           onCopyRunInGameDiagnostics={copyRunInGameDiagnostics}
           saveDeployStatus={saveDeployOperation}
         />
@@ -2781,7 +2765,7 @@ export function StudioShell(props: StudioShellProps) {
         className="absolute inset-0"
       >
         {/* The map stage stays MOUNTED (just not painted) while the pipeline
-            view is up: deck camera state and in-flight run/poll loops are
+            view is up: deck camera state and in-flight generation loops are
             untouched — behavior parity (mapgen-studio-dag-tab). */}
         <div className={`absolute inset-0 ${stageView === "pipeline" ? "invisible" : ""}`}>
           <CanvasStage

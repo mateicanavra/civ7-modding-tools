@@ -173,6 +173,45 @@ describe("Studio event operation adoption", () => {
     );
   });
 
+  test("StudioShell operation freshness stays on current plus pushed events", () => {
+    const shellSource = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/app/StudioShell.tsx"),
+      "utf8"
+    );
+    const eventHookSource = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useStudioEvents.ts"),
+      "utf8"
+    );
+    const runApiSource = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/features/runInGame/api.ts"),
+      "utf8"
+    );
+    const saveApiSource = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/features/mapConfigSave/api.ts"),
+      "utf8"
+    );
+
+    expect(shellSource).toContain("void readAndAdoptStudioOperationsCurrent");
+    expect(shellSource).toContain("useStudioEvents({");
+    const operationEffect = sourceBlockAround(eventHookSource, "applyStudioOperationEvent(event");
+    expect(operationEffect).toContain('event?.type !== "operation"');
+    expect(operationEffect).toContain("setRunInGameOperation");
+    expect(operationEffect).toContain("setSaveDeployOperation");
+    expect(operationEffect).not.toMatch(/applyStudioLiveGameEvent|readAndAdoptStudioOperationsCurrent/);
+    expect(shellSource).not.toMatch(
+      /fetchRunInGameStatus|fetchSaveDeployStatus|useOperationStatusPolls|useDaemonInstanceWatchdog|serverInfo\s*\(|runInGame\.status|mapConfigs\.status/
+    );
+    expect(runApiSource).not.toMatch(/fetchRunInGameStatus|runInGame\.status/);
+    expect(saveApiSource).not.toMatch(/fetchSaveDeployStatus|mapConfigs\.status/);
+
+    const saveStartResponse = sourceSliceAround(saveApiSource, "args.onStatus?.(status)");
+    expect(saveStartResponse).not.toMatch(/setTimeout|setInterval|sleep|while\s*\(/);
+
+    const eventWaiter = sourceSliceAround(shellSource, "waitForSaveDeployTerminalEvent");
+    expect(eventWaiter).toContain("saveDeployWaitersRef");
+    expect(eventWaiter).not.toMatch(/orpcClient|mapConfigs\.status|fetchSaveDeployStatus/);
+  });
+
   test("keeps browser operation recovery out of persisted storage", () => {
     const srcRoot = join(repoRoot, "apps/mapgen-studio/src");
     const storageOwnerAllowlist = new Set([
@@ -447,4 +486,10 @@ function sourceBlockAround(source: string, marker: string): string {
   if (effectStart < 0) throw new Error(`Missing useEffect before marker: ${marker}`);
   const nextEffect = source.indexOf("useEffect(() =>", markerIndex + marker.length);
   return source.slice(effectStart, nextEffect < 0 ? undefined : nextEffect);
+}
+
+function sourceSliceAround(source: string, marker: string, radius = 900): string {
+  const markerIndex = source.indexOf(marker);
+  if (markerIndex < 0) throw new Error(`Missing source marker: ${marker}`);
+  return source.slice(Math.max(0, markerIndex - radius), markerIndex + marker.length + radius);
 }

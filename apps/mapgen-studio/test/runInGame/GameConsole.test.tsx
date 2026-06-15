@@ -34,7 +34,6 @@ function renderWithStatus(
     isRunInGameRunning: status.status === "running",
     runInGameStatus: status,
     runInGameCurrentRelation: relation,
-    onRunInGameRetryStatus: vi.fn(),
     onCopyRunInGameDiagnostics: vi.fn(),
   });
 }
@@ -66,7 +65,7 @@ describe("GameConsole Run in Game status", () => {
     expect(html).toContain("Copy Run in Game diagnostics");
   });
 
-  it("renders retry status and retry run affordances for failed operations", () => {
+  it("renders diagnostics and retry run affordances for failed operations", () => {
     const html = renderWithStatus({
       ok: false,
       requestId: "studio-run-in-game-failed",
@@ -82,7 +81,7 @@ describe("GameConsole Run in Game status", () => {
       },
     });
 
-    expect(html).toContain("Refresh Run in Game status");
+    expect(html).not.toContain("Refresh Run in Game status");
     expect(html).toContain("Retry Run");
     expect(html).toContain("setup cannot see");
   });
