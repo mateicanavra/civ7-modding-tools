@@ -40,6 +40,7 @@ mods/mod-swooper-maps/mod/maps/
 # MapGen Studio live-run config. This is written by Studio for ad hoc launches
 # and must not become a shipped built-in map preset.
 mods/mod-swooper-maps/src/maps/configs/studio-current.config.json
+mods/mod-swooper-maps/src/maps/generated/studio-current.ts
 
 
 # OS/system files

@@ -19,13 +19,14 @@ backend serve target.
 Use scale-continuous target names:
 
 - `mapgen-studio:serve-daemon`: backend daemon serve target, continuous.
-- `mapgen-studio:dev-frontend`: Vite dev server target, continuous.
-- `mapgen-studio:dev`: user-facing dev target that depends on
-  `serve-daemon` and runs the frontend target.
+- `mapgen-studio:dev`: user-facing Vite dev server target, continuous,
+  depending on `serve-daemon`.
 
-These target names are the D11 implementation contract. Existing baseline
-targets with overlapping behavior are migrated to this topology or deleted; D11
-does not preserve alternate names as an implementation option.
+These target names are the D11 implementation contract. The `dev` target is
+both the public user-facing target and the frontend process target so the graph
+has no orphaned second frontend authority. Existing baseline targets with
+overlapping behavior are migrated to this topology or deleted; D11 does not
+preserve alternate names as an implementation option.
 
 Generated recipe/build prerequisites are Nx dependencies, not app-supervisor
 logic. `mapgen-studio:dev` or its dependency chain must account for the Studio

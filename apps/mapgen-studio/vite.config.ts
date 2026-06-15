@@ -9,10 +9,11 @@ import { defineConfig } from "vite";
 // The studio server surface is ONE oRPC mount — `/rpc`, hosting the unified
 // `@civ7/studio-server` contract (studio + `civ7.*` control + `recipeDag.*`)
 // — and ALL server state lives in the standalone Bun daemon
-// (src/server/daemon/daemon.ts). Dev runs both via `bun run dev`
-// (src/server/daemon/devLive.ts); this config proxies exactly `/rpc` to the
-// daemon. The legacy `/api/*` REST handlers and the former satellite mounts
-// are RETIRED — `/api` paths 404 at the daemon and are not proxied.
+// (src/server/daemon/daemon.ts). Dev orchestration is Nx-owned:
+// `mapgen-studio:dev` runs this frontend target after the continuous daemon
+// target is active. This config proxies exactly `/rpc` to the daemon. The
+// legacy `/api/*` REST handlers and the former satellite mounts are RETIRED —
+// `/api` paths 404 at the daemon and are not proxied.
 //
 // No server modules are imported here anymore: config evaluation is cheap,
 // restarts are safe, and the effect-orpc TS-source constraint is gone (the
