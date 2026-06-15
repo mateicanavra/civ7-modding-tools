@@ -1,7 +1,7 @@
 # D8 Testing Ledger - Studio Event Hub
 
-Status: packet accepted; implementation pending
-Date: 2026-06-14
+Status: implementation committed at current branch tip; live Civ7 proof is not run or claimed
+Date: 2026-06-15
 
 | Layer | Required proof | Adequacy criterion |
 | --- | --- | --- |
@@ -11,7 +11,7 @@ Date: 2026-06-14
 | Hub event delivery | package service/handler test | an event published after subscribe is yielded after `hello` without changing procedure shape |
 | Iterator close cleanup | service/handler test | `return()` closes the Effect subscription scope and subscriber count returns to baseline |
 | Abort/disconnect cleanup | handler or transport test | aborting the client read releases subscription resources and returns counts to baseline |
-| Runtime interruption cleanup | Effect runtime/fiber test | interrupting the watch fiber closes subscription scope and returns counts to baseline |
+| Runtime/handle interruption cleanup | handler transport test | disposing the Studio RPC handle stops runtime-owned resources, shuts down the daemon hub, settles a pending watch response read, and returns subscriber count to baseline |
 | Hub shutdown cleanup | service/runtime test | hub shutdown terminates pending subscriber waits and leaves no active subscriber count |
 | Repeated subscribe/close | leak test | repeated watch cycles leave no subscriber/dequeue growth |
 | One-route proof | package/app route test plus negative search | watch is served through existing `/rpc`; no SSE, second RPC mount, or app-local event route exists |
@@ -19,7 +19,7 @@ Date: 2026-06-14
 | Retry owner | app hook/client test | actual `studio.events.watch` subscription carries nonzero retry context or link policy |
 | Hello adoption | app hook/adoption test | receiving `hello` calls `studio.operations.current` and applies D6 adoption without page reload/request-id recovery |
 
-## Future Implementation Commands
+## Implementation Commands
 
 ```bash
 bun run nx run @civ7/studio-server:test --outputStyle=static
@@ -32,6 +32,33 @@ D8 implementation records the focused test files that exercise
 `test/handler.test.ts`, `test/studioEvents/operationAdoption.test.ts`, and
 `test/server/oneMount.test.ts`, but repo-local Nx targets remain the closure
 commands. Direct package-local scripts are supporting evidence only.
+
+Current implementation evidence includes:
+
+- `bun run --cwd packages/studio-server test -- test/handler.test.ts test/contractTypeboxSpine.test.ts`
+- `bun run --cwd apps/mapgen-studio test -- test/studioEvents/operationAdoption.test.ts test/server/oneMount.test.ts test/devServer/daemonDeployIsolation.test.ts`
+- `bun run nx run @civ7/studio-server:test --outputStyle=static`
+- `bun run nx run mapgen-studio:test --outputStyle=static`
+- `bun run nx run mapgen-studio:check --outputStyle=static`
+- `bun run --cwd packages/studio-server check`
+- `bun run --cwd packages/studio-server build`
+- `bun run nx run @civ7/studio-server:check --outputStyle=static`
+- `bun run openspec -- validate mapgen-studio-event-hub --strict`
+- `bun run openspec:validate`
+- `git diff --check`
+
+The graph-owned Habitat/Grit dependency failure found during D8 closure was
+repaired below D8 in `codex/runtime-effect-domain-contract-import-surface`.
+That lower slice keeps recipe contracts on the Habitat-approved domain-root
+surface while preserving D1's daemon import-graph invariant that the reachable
+domain root is contract-only and does not evaluate broad authoring/runtime
+barrels.
+
+The recovery-storage scan still finds protected non-event storage owners:
+Studio state persistence, preset storage, and comments documenting that
+operation recovery is now `studio.operations.current` plus
+`studio.events.watch`. These are classified D6/D8-compatible and are not
+browser request-id replay paths.
 
 ## Negative Search Gates
 

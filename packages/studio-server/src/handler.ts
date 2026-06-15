@@ -37,8 +37,10 @@ import { Civ7TunerSession, type Civ7TunerSessionHealth } from "./services/Civ7Tu
  * Remaining host obligations:
  * - `tuner.health()` — consecutive response-timeouts + backoff-gate state
  *   (the daemon's `/healthz` probe).
- * - `dispose()` — closes the runtime scope (graceful FIN to the game). The
- *   host MUST call this on shutdown or the release finalizer never runs.
+ * - `dispose()` — closes the runtime scope (graceful FIN to the game), stops
+ *   the live-game watcher, and shuts down the daemon-owned event hub so open
+ *   `studio.events.watch` readers settle. The host MUST call this on shutdown
+ *   or the release finalizers never run.
  *
  * `StrictGetMethodPlugin` is on by default (GET CSRF hardening) — left
  * enabled. CORS is omitted: `/rpc` is same-origin.
@@ -145,6 +147,7 @@ export function createStudioRpcHandler(
     dispose: async () => {
       liveGameWatcher?.stop();
       await runtime.dispose();
+      await context.eventHub.shutdown();
     },
   };
 }

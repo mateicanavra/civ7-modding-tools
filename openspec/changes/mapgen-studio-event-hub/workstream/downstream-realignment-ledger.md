@@ -1,7 +1,7 @@
 # D8 Downstream Realignment Ledger - Studio Event Hub
 
-Status: packet accepted; implementation pending
-Date: 2026-06-14
+Status: implementation committed at current branch tip; D9/D10 downstream ownership unchanged
+Date: 2026-06-15
 
 ## D9 - Operations Push
 
@@ -77,3 +77,14 @@ D8 acceptance proves packet readiness. D8 implementation proves event hub/watch
 mechanics. D9/D10 prove publisher parity and polling deletion. D12 proves the
 final runtime invariant. These claims must not be collapsed into one green
 OpenSpec validation or one package test.
+
+Current implementation classification:
+
+- Existing package/app operation and live-game event apply/publish-shaped hooks
+  are downstream-hook surfaces available to D9/D10. D8 uses service/handler
+  publication proof to show events flow after `hello`; it does not claim
+  operation transition publisher parity or live-game cadence parity.
+- Browser operation polling/watchdog deletion remains D9-owned.
+- Browser live-game timer/polling deletion remains D10-owned.
+- The retired `browser-test` recipe/import surface remains outside D8's current
+  implementation diff and is not reintroduced.

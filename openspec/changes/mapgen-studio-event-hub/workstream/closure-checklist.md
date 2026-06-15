@@ -1,7 +1,7 @@
 # D8 Closure Checklist - Studio Event Hub
 
-Status: accepted pending commit
-Date: 2026-06-14
+Status: implementation committed at current branch tip; live Civ7 proof is not run or claimed
+Date: 2026-06-15
 
 - [x] Proposal, design, tasks, and spec delta agree on D8 ownership.
 - [x] D8 packet uses the runtime Effect refactor frame and packet train as
@@ -21,11 +21,19 @@ Date: 2026-06-14
 - [x] `bun run openspec -- validate mapgen-studio-event-hub --strict` passed.
 - [x] `bun run openspec:validate` passed.
 - [x] `git diff --check` passed.
-- [x] Graphite/status checks passed before commit.
+- [x] Fresh implementation-diff review disposition is recorded with no
+      unresolved P1/P2.
+- [x] Graph-owned `@civ7/studio-server:check` Habitat/Grit blocker is repaired
+      in separate lower slice `codex/runtime-effect-domain-contract-import-surface`
+      before D8 closure.
+- [x] D8 Graphite implementation commit exists at current branch tip:
+      `feat(studio): establish event hub watch spine`.
+- [x] Post-commit `git status --short --branch` was clean immediately after
+      the D8 implementation commit; this checklist update is amended into the
+      same D8 slice.
 
 Residual implementation risk:
 
-- Existing historical code/tests do not yet satisfy every D8 future
-  implementation closure gate. That is intentional packet output, not packet
-  acceptance proof. The implementation branch must satisfy `tasks.md` section
-  `3A` before claiming D8 implementation closure.
+- Live Civ7 Play/SaveDeploy proof is not run or claimed by D8.
+- D9/D10 publisher parity and polling/timer deletion remain downstream
+  ownership, not D8 closure claims.

@@ -203,6 +203,44 @@ describe("studio-server RPC handler", () => {
     await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
   }, 10_000);
 
+  test("yields hub-published events after the initial studio.events.watch hello", async () => {
+    const eventHub = trackEventHub(createStudioEventHub());
+    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const client = directClient(handler);
+
+    const iterator = await client.studio.events.watch({});
+    await expect(iterator.next()).resolves.toMatchObject({
+      done: false,
+      value: { type: "hello" },
+    });
+
+    await eventHub.publish({
+      type: "operation",
+      kind: "run-in-game",
+      observedAt: "2026-06-10T00:00:01.000Z",
+      status: {
+        ok: true,
+        requestId: "run-event-1",
+        phase: "complete",
+        status: "complete",
+        startedAt: "2026-06-10T00:00:00.000Z",
+        updatedAt: "2026-06-10T00:00:01.000Z",
+        completedPhases: ["materializing", "complete"],
+      },
+    });
+
+    await expect(iterator.next()).resolves.toMatchObject({
+      done: false,
+      value: {
+        type: "operation",
+        kind: "run-in-game",
+        status: { requestId: "run-event-1", phase: "complete" },
+      },
+    });
+    await iterator.return?.();
+    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
+  }, 10_000);
+
   test("repeated studio.events.watch subscribe and close returns subscriber count to baseline", async () => {
     const eventHub = trackEventHub(createStudioEventHub());
     const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
@@ -244,6 +282,35 @@ describe("studio-server RPC handler", () => {
 
     await reader.cancel();
     await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
+  }, 10_000);
+
+  test("disposing the RPC handle interrupts pending watch response reads", async () => {
+    const eventHub = trackEventHub(createStudioEventHub());
+    const handler = trackHandle(createStudioRpcHandler(makeContext({ eventHub })));
+    const result = await handler.handle(
+      new Request("http://studio.test/rpc/studio/events/watch", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ json: {} }),
+      }),
+      { prefix: "/rpc" }
+    );
+
+    expect(result.matched).toBe(true);
+    expect(result.response?.status).toBe(200);
+    expect(result.response?.body).not.toBeNull();
+
+    const reader = result.response!.body!.getReader();
+    const text = await readUntil(reader, "hello");
+    expect(text).toContain("hello");
+    expect(eventHub.activeSubscriberCount()).toBe(1);
+
+    const pendingRead = settle(reader.read());
+    await handler.dispose();
+    const pendingOutcome = await withTimeout(pendingRead, 1_000, "pending watch response read to settle");
+    expect(pendingOutcome.status).toBe("fulfilled");
+    await expect.poll(() => eventHub.activeSubscriberCount(), { timeout: 1_000 }).toBe(0);
+    await reader.cancel().catch(() => undefined);
   }, 10_000);
 
   test("event hub shutdown interrupts open watch subscriptions and releases scopes", async () => {
