@@ -28,6 +28,28 @@ Two enforcement planes — do not conflate them:
 | `kind:mod` | Game-facing mod packages (recipes, domains, map configs, game runtime wrappers) | `mods/*`; `docs/system/ARCHITECTURE.md` |
 | `kind:tooling` | Repo-local dev tooling (the habitat harness itself) | new with this workstream |
 
+### Control lifecycle note
+
+`kind:control` is a project-plane grouping, not a single lifecycle owner. Current
+accepted control architecture keeps these responsibilities separate:
+
+- `@civ7/direct-control` owns the raw tuner socket/framing/session primitive and
+  graceful close behavior.
+- `@civ7/studio-server` owns the long-lived Studio host session through the
+  Effect-scoped `Civ7TunerSession` (`Layer.scoped`, `Effect.acquireRelease`, and
+  host `ManagedRuntime.dispose`).
+- `@civ7/control-orpc` owns native oRPC/Effect procedure contracts and service
+  behavior over supplied direct-control ports; provider construction belongs to
+  callers/runtime adapters.
+- Effect procedure code may use scoped acquire/release for reversible game UI
+  state, but must not add raw transports or caller-local session ownership.
+
+Provenance: `packages/civ7-direct-control/AGENTS.md`,
+`packages/civ7-control-orpc/AGENTS.md`,
+`docs/projects/mapgen-studio-redesign/research/04-effect-native-substrate-spike.md`,
+`docs/projects/studio-runtime-simplification/PLAN.md`, and
+`packages/studio-server/src/services/Civ7TunerSession.ts`.
+
 ## 2. Per-project assignment (all 21 existing projects + the new harness package)
 
 | Project | Path | Tags |
@@ -52,7 +74,7 @@ Two enforcement planes — do not conflate them:
 | @civ7/plugin-mods | `packages/plugins/plugin-mods` | `kind:plugin` |
 | mod-swooper-maps | `mods/mod-swooper-maps` | `kind:mod` |
 | mod-civ7-intelligence-bridge | `mods/mod-civ7-intelligence-bridge` | `kind:mod`, `kind:control` |
-| mod-swooper-civ-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
+| civ-mod-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
 | (new) @internal/habitat-harness | `tools/habitat-harness` | `kind:tooling` |
 
 ## 3. Dependency constraints (project plane, initial rule set)
@@ -69,18 +91,30 @@ and become the grit rule's baseline).
 | `kind:engine` | `kind:adapter`, `kind:foundation` | core purity: mapgen-core sees adapter *types* only, never runtime values (`core-purity.test.ts`, G3 — runtime-value ban stays grit/test-owned) |
 | `kind:plugin` | `kind:plugin`, `kind:foundation` | plugins stay leaf-local (`cli/AGENTS.md`) |
 | `kind:sdk` | `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:plugin` | SDK composes engine+adapter; mapgen subpath isolation (G11) stays grit-owned |
-| `kind:control` | `kind:control`, `kind:foundation`, `kind:adapter`, `kind:engine`, `kind:mod` ¹ | control service layering (`control-orpc` over `direct-control`); contract-ownership rules stay grit-owned |
+| `kind:control` | `kind:control`, `kind:foundation`, `kind:adapter`, `kind:engine` | control service layering (`control-orpc` over `direct-control`); lifecycle ownership remains governed by the control note above, and contract-ownership rules stay grit-owned. Architecture review 2026-06-12: no control→mod edge exists, and main `331534895` (studio-server) explicitly forbids that direction in code comments — the previously drafted `kind:mod` allowance was dropped pre-lock as falsely provenanced |
 | `kind:mod` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:control` | mods consume SDK/engine/adapter/policy |
 | `kind:app` | everything except `kind:app` | apps are top of the graph; nothing imports apps |
 | `kind:tooling` | `kind:tooling`, `kind:foundation` | harness stays out of product graph |
 
-¹ `kind:control` → `kind:mod` exists only for the studio-server → mod-swooper-maps
-recipe-artifact edge; expect to narrow this when artifact packages split out.
-Recorded as a deliberate wide edge, revisit on ratchet review.
+Dual-tagged projects (`mod-civ7-intelligence-bridge`: `kind:mod` +
+`kind:control`) are constrained by the **intersection** of their rows — every
+matching constraint is enforced, so its effective allowed set is
+{engine, adapter, foundation, control} (e.g. a future sdk dep would be red
+despite the mod row allowing it).
 
-Initial baseline expectation: **all constraints green at adoption** (the
-project-plane graph is already clean). The burn-down backlog lives in the
-intra-project plane (existing allowlists + new file-layer/grit rules).
+devDependency edges and test-file imports are constrained identically to
+runtime deps (`enforce-module-boundaries` lints imports wherever the config's
+globs reach; dep kind is irrelevant to the tag check). Verified green at
+adoption (4 devDep edges).
+
+Initial baseline expectation: **all constraints green at adoption** — confirmed
+by the pre-H3 architecture review and locked on 2026-06-13 when
+`nx-boundaries` was adopted with an empty baseline. The H3 direct rule run also
+found one hidden relative test import from `@civ7/direct-control` into
+`@civ7/map-policy`; it was repaired as an explicit package import/devDependency
+because `kind:control -> kind:foundation` is tag-legal. The burn-down backlog
+lives in the intra-project plane (existing allowlists + new file-layer/grit
+rules).
 
 ## 4. `scope:*` rule families (intra-project plane — grit/file-layer owned)
 

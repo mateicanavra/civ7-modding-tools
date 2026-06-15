@@ -106,6 +106,19 @@
       "exceptionPath": "none"
     },
     {
+      "id": "nx-boundaries",
+      "ownerTool": "nx-boundaries",
+      "ownerProject": "@internal/habitat-harness",
+      "lane": "enforced",
+      "scope": "all workspace project imports",
+      "forbids": "cross-project imports that violate docs/projects/habitat-harness/taxonomy.md §3 or bypass package entrypoints with relative/absolute project imports",
+      "why": "Project-plane architecture is graph law in H3: every workspace package carries kind:* tags and the tag constraints lock with an empty baseline.",
+      "detect": ["env", "FORCE_COLOR=0", "bunx", "eslint", ".", "--quiet", "--config", "eslint.boundaries.config.mjs", "--no-config-lookup"],
+      "remediate": null,
+      "message": "Fix the import edge or revise taxonomy.md and eslint.boundaries.config.mjs together with recorded provenance; do not weaken the boundary config ad hoc.",
+      "exceptionPath": "none"
+    },
+    {
       "id": "arch-test-core-purity",
       "ownerTool": "wrapped-test",
       "ownerProject": "@swooper/mapgen-core",

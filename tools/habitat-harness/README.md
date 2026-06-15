@@ -15,6 +15,7 @@ bun run habitat            # command help
 bun run habitat:check      # all rules, human output (add -- --json for JSON)
 bun run habitat:verify     # check + nx affected build/check/test vs merge-base
 bunx nx run-many -t habitat:check   # the same rules, per owning project, cached
+bunx nx run-many -t boundaries      # project-plane tag boundaries
 ```
 
 Notes:
@@ -30,3 +31,28 @@ Notes:
 - H2 wraps existing mechanisms verbatim (zero new rules, zero semantic
   change). Porting to owning tools (Nx boundaries, GritQL, Biome, file layer)
   happens in H3–H6; codemods (`habitat fix`) land with the grit catalog.
+
+## Project-Plane Tags
+
+H3 locks the project-plane taxonomy from
+`docs/projects/habitat-harness/taxonomy.md`: workspace projects carry `kind:*`
+tags in `package.json`, and `@nx/enforce-module-boundaries` enforces the
+dependency table through `eslint.boundaries.config.mjs`.
+
+Current vocabulary:
+
+- `kind:app`
+- `kind:sdk`
+- `kind:engine`
+- `kind:adapter`
+- `kind:control`
+- `kind:foundation`
+- `kind:plugin`
+- `kind:mod`
+- `kind:tooling`
+
+Taxonomy revisions are deliberate rule changes. Edit
+`docs/projects/habitat-harness/taxonomy.md` and
+`eslint.boundaries.config.mjs` together, cite the provenance for the tag or
+constraint change, and keep `nx-boundaries` locked unless the rule-introduction
+gate explicitly baselines a discovered edge.

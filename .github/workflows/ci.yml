@@ -104,6 +104,9 @@ jobs:
       - name: Strict adapter boundary
         run: bun run lint:adapter-boundary
 
+      - name: Boundary tags
+        run: bunx nx run-many -t boundaries
+
       - name: Architecture cutover scans
         run: bun run test:architecture-cutover
 

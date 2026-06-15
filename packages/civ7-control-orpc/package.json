@@ -2,6 +2,11 @@
   "name": "@civ7/control-orpc",
   "version": "0.1.0",
   "private": true,
+  "nx": {
+    "tags": [
+      "kind:control"
+    ]
+  },
   "description": "Native oRPC/Effect procedure composition over Civ7 direct-control atoms.",
   "type": "module",
   "main": "./dist/index.cjs",

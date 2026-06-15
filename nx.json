@@ -4,7 +4,8 @@
     {
       "plugin": "./tools/habitat-harness/src/plugin.js",
       "options": {
-        "checkTargetName": "habitat:check"
+        "checkTargetName": "habitat:check",
+        "boundariesTargetName": "boundaries"
       }
     }
   ],

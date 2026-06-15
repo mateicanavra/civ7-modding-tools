@@ -75,3 +75,34 @@ All accepted P1/P2 repairs applied 2026-06-12 before H1 start; all 8 changes
 re-validated `--strict` after edits. Spec-review lane CLOSED. Remaining lanes
 (architecture review before H3, implementation/evidence/closure per slice)
 open per workstream-record.md.
+
+---
+
+# Architecture-Review Lane (pre-H3, 2026-06-12)
+
+- **Reviewer:** 1 fresh agent; full 22-project package-manifest edge audit (43
+  declared workspace edges incl. devDeps) against taxonomy §3 under §2
+  assignments, source-level import scan, normalization-train collision check,
+  ESLint-config-resolution check. H3 implementation later found one hidden
+  relative test import that the source scan missed
+  (`@civ7/direct-control` -> `@civ7/map-policy`); it was tag-legal and repaired
+  as an explicit package import/devDependency, with no baseline needed.
+- **Verdict: LOCK-SAFE** — 43/43 declared manifest edges green on both the
+  workstream branch and current main (incl. the post-derivation
+  `studio-server → control-orpc` edge from `331534895`). H3's implementation
+  pass repaired the one missed hidden relative source import as a declared,
+  tag-legal devDependency. No baseline needed; the boundaries rule locks empty.
+
+| ID | Sev | Finding | Disposition |
+|---|---|---|---|
+| A1 | P2 | `kind:control → kind:mod` allowance falsely provenanced: no such edge exists, and main `331534895` forbids the direction in studio-server code comments | ACCEPT — allowance dropped from taxonomy §3 pre-lock (narrowing is lock-safe) |
+| A2 | P2 | devDependencies constraint scope unstated in H3 | ACCEPT — stated in taxonomy §3 (constrained identically; 4 edges green) |
+| A3 | P2 | Taxonomy §2 named the project `mod-swooper-civ-dacia`; Nx graph identity is `civ-mod-dacia` | ACCEPT — corrected |
+| A4 | P3 | Dual-tag semantics are intersection | ACCEPT — documented in §3 |
+| A5 | P3 | Boundaries config needs root ignore set (dist/**, .nx/**, .scratch/** etc.) | ACCEPT — applied in H3 config |
+| A6 | P3 | `eslint` devDep already present (task said add); pin `@nx/eslint-plugin` to 22.7.5; `--all` flag possibly deprecated | ACCEPT — applied at implementation |
+
+Collision check: normalize-import-boundaries / normalize-guardrails-promotion
+(archived 2026-05-30) define only intra-mod policy — no project-plane overlap.
+Config resolution: `eslint.boundaries.config.mjs` is non-default (never
+auto-discovered); package `lint` scripts keep resolving root eslint.config.js.

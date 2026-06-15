@@ -55,7 +55,7 @@ prerequisites; phase continuity records go in
 | Lane | Scope | When |
 |---|---|---|
 | Spec review | train coherence, shortcut language, task readiness | DONE 2026-06-12 — 4 reviewers, 4× READY-WITH-REPAIRS; all repairs applied (see `review-disposition-ledger.md`) |
-| Architecture review | taxonomy/constraints vs normalization-train ownership; no overlap with `normalize-import-boundaries` change (coordination note below) | before H3 |
+| Architecture review | taxonomy/constraints vs normalization-train ownership; no overlap with `normalize-import-boundaries` change (coordination note below) | DONE 2026-06-12 — LOCK-SAFE for manifest edges; H3 repaired one hidden relative test import missed by the source scan; A1–A6 repairs applied (ledger) |
 | Implementation review | per-slice diff + fixtures + baselines | each slice |
 | Evidence review | parity tables, probe matrices, byte-parity claims | H1, H4, H5, H6 |
 | Closure review | tasks/records/Graphite state agreement | each slice |

@@ -155,7 +155,7 @@ switch (command) {
     const base = opt("--base") ?? mergeBase("main") ?? "main";
     console.log(`\nhabitat verify: running nx affected (base=${base}) ...`);
     const res = run(
-      ["bunx", "nx", "affected", "-t", "build,check,test", "--base", base],
+      ["bunx", "nx", "affected", "-t", "build,check,test,boundaries", "--base", base],
       { cwd: repoRoot },
     );
     process.stdout.write(res.stdout);
@@ -216,7 +216,12 @@ switch (command) {
           projectRoot: owner.root,
           tags: owner.tags,
           rulesInScope: owningRules,
-          verifyTargets: [`nx run ${owner.name}:check`, `nx run ${owner.name}:test`, "habitat check"],
+          verifyTargets: [
+            `nx run ${owner.name}:check`,
+            `nx run ${owner.name}:test`,
+            "nx run @internal/habitat-harness:boundaries",
+            "habitat check",
+          ],
         },
         null,
         2,
