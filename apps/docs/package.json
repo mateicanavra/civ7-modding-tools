@@ -36,7 +36,7 @@
   },
   "scripts": {
     "dev": "bun run scripts/dev-staged.ts",
-    "start": "mint dev -p 6660 --no-open",
+    "start": "mintlify dev -p 6660 --no-open",
     "normalize": "bun run scripts/update-code-blocks.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "check:ts": "tsc -p tsconfig.json --noEmit",

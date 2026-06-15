@@ -50,9 +50,9 @@ async function run(): Promise<void> {
       });
     }
 
-    // Use local mint binary from original project node_modules
-    const mintBin = resolve(projectRoot, "node_modules/.bin/mint");
-    const result = spawnSync(mintBin, ["broken-links"], {
+    // Use the docs app's installed Mintlify CLI so builds do not depend on global binaries.
+    const mintlifyBin = resolve(projectRoot, "node_modules/.bin/mintlify");
+    const result = spawnSync(mintlifyBin, ["broken-links"], {
       cwd: tmpRoot,
       stdio: "inherit",
       env: process.env,
