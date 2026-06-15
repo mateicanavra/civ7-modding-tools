@@ -308,12 +308,11 @@ export const status = oc
 // data (sealed code/materialization/recovery diagnostics) - declared as the defined
 // RUN_IN_GAME_BLOCKED/INVALID/FAILED/UNAVAILABLE codes (./errors.ts).
 //
-// SECURITY BOUNDARY (target-arch section 1): the handler runs `assertNoRawControlFields`
-// - a deep scan rejecting `command|script|javascript|rawJs|rawCommand|session|stateName` keys. The
-// input is therefore intentionally permissive at the contract layer (the deep scan
-// + recipe pinning + kebab-case id + seed/mapSize/playerCount validation live in
-// `parseRunInGameSetupRequest`, ported in A2/A3). Known top-level fields are typed;
-// the body is otherwise passed through for the validator to reject raw-control keys.
+// SECURITY BOUNDARY (target-arch section 1): the TypeBox contract rejects known
+// raw-control top-level tunnel keys, while the host validator deep-scans opaque
+// config/setup/source payloads for the same vocabulary before any workflow port
+// runs. Recipe pinning + kebab-case id + seed/mapSize/playerCount validation
+// live in `parseRunInGameSetupRequest`, ported in A2/A3.
 export const start = oc
   .errors(runInGameErrors)
   .input(
@@ -325,6 +324,16 @@ export const start = oc
           mapSize: Type.Optional(Type.String()),
           playerCount: Type.Optional(Type.Integer()),
           resources: Type.Optional(Type.String()),
+          args: Type.Optional(Type.Never()),
+          command: Type.Optional(Type.Never()),
+          context: Type.Optional(Type.Never()),
+          javascript: Type.Optional(Type.Never()),
+          operationType: Type.Optional(Type.Never()),
+          rawCommand: Type.Optional(Type.Never()),
+          rawJs: Type.Optional(Type.Never()),
+          script: Type.Optional(Type.Never()),
+          session: Type.Optional(Type.Never()),
+          stateName: Type.Optional(Type.Never()),
           materialization: Type.Optional(
             Type.Object(
               {

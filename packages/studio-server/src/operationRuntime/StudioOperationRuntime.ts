@@ -5,22 +5,26 @@ import type { StudioInputs, StudioOutputs } from "../context.js";
 import type { RunInGameRequestStatus } from "../contract/runInGame.js";
 import type { StudioOperationsCurrent } from "../contract/studio.js";
 import {
-  invalidRequest,
-  isStudioRuntimeFailure,
   runtimeDisposed,
   type StudioRuntimeFailure,
 } from "../errors/index.js";
+import type { Civ7TunerSession } from "../services/Civ7TunerSession.js";
 import type { StudioEventHubApi } from "../services/StudioEventHub.js";
 import type {
-  RunInGameDeployment,
   RunInGamePreparedRequest,
-  RunInGameRestartResult,
-  RunInGameSetupPrepared,
-  SaveDeployPreparedRequest,
-  RunInGameStarted,
   StudioDaemonIdentity,
   StudioOperationRuntimePorts,
 } from "./ports.js";
+import {
+  AutoplayWorkflow,
+  type Civ7WorkflowControl,
+  Civ7WorkflowControlLive,
+  makeAutoplayWorkflowLayer,
+  makeRunInGameWorkflowLayer,
+  makeSaveDeployWorkflowLayer,
+  RunInGameWorkflow,
+  SaveDeployWorkflow,
+} from "../workflows/index.js";
 import { operationEvent, projectCurrent } from "./projection.js";
 import {
   admitRunInGame,
@@ -35,7 +39,6 @@ import {
   markDisposed,
   transitionRunInGame,
   transitionSaveDeploy,
-  type RunInGameFailurePhase,
   type RunInGameTransition,
   type SaveDeployTransition,
 } from "./registry.js";
@@ -66,19 +69,45 @@ export class StudioOperationRuntime extends Context.Tag(
   "@civ7/studio-server/StudioOperationRuntime"
 )<StudioOperationRuntime, StudioOperationRuntimeApi>() {}
 
-export function makeStudioOperationRuntimeLayer(args: Readonly<{
+type StudioOperationRuntimeLayerBaseArgs = Readonly<{
   ports: StudioOperationRuntimePorts;
   eventHub: StudioEventHubApi;
   ttlMs?: number;
-}>): Layer.Layer<StudioOperationRuntime> {
-  return Layer.scoped(StudioOperationRuntime, makeStudioOperationRuntime(args));
+}>;
+
+export function makeStudioOperationRuntimeLayer(
+  args: StudioOperationRuntimeLayerBaseArgs & Readonly<{
+    civ7WorkflowControl: Layer.Layer<Civ7WorkflowControl>;
+  }>
+): Layer.Layer<StudioOperationRuntime>;
+export function makeStudioOperationRuntimeLayer(
+  args: StudioOperationRuntimeLayerBaseArgs & Readonly<{
+    civ7WorkflowControl?: undefined;
+  }>
+): Layer.Layer<StudioOperationRuntime, never, Civ7TunerSession>;
+export function makeStudioOperationRuntimeLayer(args: StudioOperationRuntimeLayerBaseArgs & Readonly<{
+  civ7WorkflowControl?: Layer.Layer<Civ7WorkflowControl>;
+}>): Layer.Layer<StudioOperationRuntime, never, Civ7TunerSession> {
+  const workflowLayer = Layer.mergeAll(
+    makeRunInGameWorkflowLayer({ ports: args.ports }),
+    makeSaveDeployWorkflowLayer({ ports: args.ports }),
+    makeAutoplayWorkflowLayer()
+  ).pipe(Layer.provide(args.civ7WorkflowControl ?? Civ7WorkflowControlLive));
+  return Layer.provide(
+    Layer.scoped(StudioOperationRuntime, makeStudioOperationRuntime(args)),
+    workflowLayer
+  );
 }
 
 function makeStudioOperationRuntime(args: Readonly<{
   ports: StudioOperationRuntimePorts;
   eventHub: StudioEventHubApi;
   ttlMs?: number;
-}>): Effect.Effect<StudioOperationRuntimeApi, never, Scope.Scope> {
+}>): Effect.Effect<
+  StudioOperationRuntimeApi,
+  never,
+  Scope.Scope | RunInGameWorkflow | SaveDeployWorkflow | AutoplayWorkflow
+> {
   return Effect.gen(function* () {
     const now = () => args.ports.clock?.now() ?? new Date();
     const nowIso = () => now().toISOString();
@@ -93,6 +122,9 @@ function makeStudioOperationRuntime(args: Readonly<{
     const registry = yield* makeRegistry(identity);
     const admissionGate = yield* Effect.makeSemaphore(1);
     const fibers = yield* FiberSet.make<void, never>();
+    const runInGameWorkflow = yield* RunInGameWorkflow;
+    const saveDeployWorkflow = yield* SaveDeployWorkflow;
+    const autoplayWorkflow = yield* AutoplayWorkflow;
 
     const publish = (operation: Parameters<typeof operationEvent>[0]) =>
       Effect.tryPromise({
@@ -126,155 +158,42 @@ function makeStudioOperationRuntime(args: Readonly<{
       input: StudioInputs["runInGame"]["start"],
       prepared: RunInGamePreparedRequest
     ) =>
-      Effect.gen(function* () {
-        let phase: RunInGameFailurePhase = "materializing";
-        let materialized: Awaited<ReturnType<StudioOperationRuntimePorts["materializeRunInGame"]>> = {};
-        const work = Effect.gen(function* () {
-          yield* transitionRun(requestId, { phase });
-          materialized = yield* tryPromise(() =>
-            args.ports.materializeRunInGame({ requestId, input, prepared })
-          );
-          if (materialized.materialization) {
-            yield* transitionRun(requestId, {
-              phase,
-              materialization: materialized.materialization,
-            });
-          }
-
-          phase = "deploying";
-          yield* transitionRun(requestId, { phase, materialization: materialized.materialization });
-          const deployment = yield* tryPromise(() =>
-            args.ports.deployRunInGame({ requestId, prepared, materialized })
-          );
-          yield* transitionRun(requestId, {
-            phase,
-            materialization: deployment.materialization ?? materialized.materialization,
-          });
-
-          const restart = yield* maybeRestart(requestId, prepared, deployment);
-          phase = "checking-civ7";
-          yield* transitionRun(requestId, {
-            phase,
-            materialization: deployment.materialization ?? materialized.materialization,
-            ...(restart.processRestart === undefined
-              ? {}
-              : { processRestart: restart.processRestart }),
-          });
-          yield* tryPromise(() =>
-            args.ports.checkCiv7ForRunInGame({ requestId, prepared, deployment })
-          );
-
-          phase = "preparing-setup";
-          yield* transitionRun(requestId, { phase });
-          const setup = yield* tryPromise(() =>
-            args.ports.prepareSetupForRunInGame({ requestId, prepared, deployment })
-          );
-          if (setup.reloadRequired) {
-            phase = "reload-needed";
-            yield* transitionRun(requestId, { phase });
-          }
-
-          phase = "starting-game";
-          yield* transitionRun(requestId, { phase });
-          const started = yield* tryPromise(() =>
-            args.ports.startGameForRunInGame({ requestId, prepared, deployment, setup })
-          );
-
-          phase = "waiting-for-proof";
-          yield* transitionRun(requestId, { phase });
-          const proof = yield* tryPromise(() =>
-            args.ports.waitForRunInGameProof({
-              requestId,
-              prepared,
-              deployment,
-              setup,
-              started,
-            })
-          );
-          yield* transitionRun(requestId, {
-            phase: "complete",
-            result: proof.result ?? { ok: true },
-            materialization:
-              proof.materialization ?? deployment.materialization ?? materialized.materialization,
-            ...(proof.exactAuthorshipProof === undefined
-              ? {}
-              : { exactAuthorshipProof: proof.exactAuthorshipProof }),
-          });
-        });
-        yield* work.pipe(
-          Effect.catchAll((err) =>
+      runInGameWorkflow.start({
+        requestId,
+        input,
+        prepared,
+        transitions: {
+          transition: (transition) => transitionRun(requestId, transition).pipe(Effect.asVoid),
+          fail: ({ phase, err }) =>
             failRunInGame({
               registry,
               requestId,
               nowIso: nowIso(),
               phase,
               err,
-            }).pipe(Effect.flatMap(publish))
-          ),
-          Effect.ensuring(
-            Effect.promise(() => materialized?.cleanup?.() ?? Promise.resolve()).pipe(
-              Effect.catchAll(() => Effect.void)
-            )
-          )
-        );
-      }).pipe(Effect.catchAll(() => Effect.void));
+            }).pipe(Effect.flatMap(publish), Effect.asVoid),
+        },
+      });
 
     const saveDeployWorker = (
       requestId: string,
       input: StudioInputs["mapConfigs"]["saveDeploy"]
     ) =>
-      Effect.gen(function* () {
-        let phase: "saving" | "deploying" = "saving";
-        let prepared: SaveDeployPreparedRequest = {};
-        const work = Effect.gen(function* () {
-          prepared = sanitizeSaveDeployPrepared(yield* tryPromise(() =>
-            args.ports.prepareSaveDeployStart({
-              requestId,
-              input,
-            })
-          ));
-          yield* transitionSave(requestId, {
-            phase,
-            ...(prepared.path === undefined ? {} : { path: prepared.path }),
-          });
-          const saved = yield* tryPromise(() =>
-            args.ports.saveMapConfig({ requestId, input, prepared })
-          );
-          phase = "deploying";
-          yield* transitionSave(requestId, {
-            phase,
-            path: saved.path ?? prepared.path,
-            saved: saved.saved ?? true,
-          });
-          const deployed = yield* tryPromise(() =>
-            args.ports.deploySavedMapConfig({ requestId, input, prepared, saved })
-          );
-          yield* transitionSave(requestId, {
-            phase: "complete",
-            path: deployed.path ?? saved.path ?? prepared.path,
-            saved: deployed.saved ?? saved.saved ?? true,
-            deployed: deployed.deployed ?? true,
-            deploy: deployed.deploy,
-          });
-        });
-        yield* work.pipe(
-          Effect.catchAll((err) =>
+      saveDeployWorkflow.start({
+        requestId,
+        input,
+        transitions: {
+          transition: (transition) => transitionSave(requestId, transition).pipe(Effect.asVoid),
+          fail: ({ phase, err }) =>
             failSaveDeploy({
               registry,
               requestId,
               nowIso: nowIso(),
               phase,
               err,
-              normalize: args.ports.normalizeSaveDeployFailure,
-            }).pipe(Effect.flatMap(publish))
-          ),
-          Effect.ensuring(
-            Effect.promise(() => prepared.cleanup?.() ?? Promise.resolve()).pipe(
-              Effect.catchAll(() => Effect.void)
-            )
-          )
-        );
-      }).pipe(Effect.catchAll(() => Effect.void));
+            }).pipe(Effect.flatMap(publish), Effect.asVoid),
+        },
+      });
 
     const transitionRun = (
       requestId: string,
@@ -291,23 +210,6 @@ function makeStudioOperationRuntime(args: Readonly<{
       transitionSaveDeploy({ registry, requestId, nowIso: nowIso(), transition }).pipe(
         Effect.flatMap(publish)
       );
-
-    const maybeRestart = (
-      requestId: string,
-      prepared: RunInGamePreparedRequest,
-      deployment: RunInGameDeployment
-    ): Effect.Effect<RunInGameRestartResult, StudioRuntimeFailure> => {
-      if (!prepared.request.restartCivProcess || !args.ports.restartCivForRunInGame) {
-        return Effect.succeed({});
-      }
-      return Effect.gen(function* () {
-        yield* transitionRun(requestId, { phase: "restarting-civ" });
-        return yield* tryPromise(() =>
-          args.ports.restartCivForRunInGame?.({ requestId, prepared, deployment }) ??
-          Promise.resolve({})
-        );
-      });
-    };
 
     const api: StudioOperationRuntimeApi = {
       identity,
@@ -374,7 +276,7 @@ function makeStudioOperationRuntime(args: Readonly<{
               nowIso: nowIso(),
               ttlMs: args.ttlMs,
             });
-            return yield* tryPromise(() => args.ports.runAutoplay(input));
+            return yield* autoplayWorkflow.run(input);
           })
         ),
       operationsCurrent: Effect.gen(function* () {
@@ -384,13 +286,6 @@ function makeStudioOperationRuntime(args: Readonly<{
     };
 
     return yield* Effect.acquireRelease(Effect.succeed(api), () => dispose);
-  });
-}
-
-function tryPromise<A>(try_: () => Promise<A>): Effect.Effect<A, StudioRuntimeFailure> {
-  return Effect.tryPromise({
-    try: try_,
-    catch: toRuntimeFailure,
   });
 }
 
@@ -438,13 +333,6 @@ function prepareRunInGameRequest(
   };
 }
 
-function sanitizeSaveDeployPrepared(prepared: SaveDeployPreparedRequest): SaveDeployPreparedRequest {
-  return {
-    ...(prepared.path === undefined ? {} : { path: prepared.path }),
-    ...(prepared.cleanup === undefined ? {} : { cleanup: prepared.cleanup }),
-  };
-}
-
 function stableHash(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
 }
@@ -459,15 +347,4 @@ function canonicalize(value: unknown): unknown {
     return out;
   }
   return value;
-}
-
-function toRuntimeFailure(err: unknown): StudioRuntimeFailure {
-  if (isStudioRuntimeFailure(err)) return err;
-  return invalidRequest({
-    message: err instanceof Error && err.message ? err.message : "Studio operation failed",
-    diagnostics: {
-      code: "studio-operation-port-failed",
-      cause: err instanceof Error && err.message ? err.message : String(err),
-    },
-  });
 }

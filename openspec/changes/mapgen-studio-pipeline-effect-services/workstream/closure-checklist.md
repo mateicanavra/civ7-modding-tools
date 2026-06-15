@@ -1,7 +1,7 @@
 # D5 Packet Closure Checklist
 
-Status: accepted
-Date: 2026-06-14
+Status: implementation committed
+Date: 2026-06-15
 
 ## Packet Shape
 
@@ -44,21 +44,38 @@ Date: 2026-06-14
 - `bun run openspec -- validate mapgen-studio-pipeline-effect-services --strict` passed.
 - `bun run openspec:validate` passed: 151 passed, 0 failed.
 - `git diff --check` passed.
-- `git status --short --branch`, `gt status`, and `gt log --no-interactive` were checked on `codex/runtime-effect-openspec-packets`; only the D5 packet files are pending before commit.
+- Historical packet-authoring status proof was checked on `codex/runtime-effect-openspec-packets` before the D5 packet commit. Current D5 implementation work is on `codex/runtime-effect-pipeline-effect-services`; the implementation commit exists at the current branch tip and post-commit `git status --short --branch` was clean.
 
 ## Future Implementation Closure Gates
 
-- [ ] `RunInGameWorkflow`, `SaveDeployWorkflow`, and `AutoplayWorkflow` are package-owned Effect services.
-- [ ] workflow services enter through D4 `StudioOperationRuntime`.
-- [ ] D3 typed failures are the only expected workflow failure model.
-- [ ] Run in Game materialization/proof/start/log/exact-authorship semantics remain green.
-- [ ] Save/Deploy save/deploy/rollback semantics remain green.
-- [ ] Save/Deploy same-request idempotency remains green.
-- [ ] Autoplay conflict/unavailable/start/stop/verification failures are typed.
-- [ ] Studio workflow game calls use shared `Civ7TunerSession`.
-- [ ] no app-local workflow authority remains in `createStudioEngines`, app helpers, or package context.
-- [ ] no unsanctioned session constructor or `withCiv7DirectControlSession` use exists in Studio workflow/app/router code.
-- [ ] public raw-control input guardrails remain green.
-- [ ] control-oRPC/direct-control package gates or untouched dispositions are recorded.
-- [ ] D12 game-door handoff evidence is recorded.
+- [x] `RunInGameWorkflow`, `SaveDeployWorkflow`, and `AutoplayWorkflow` are package-owned Effect services.
+- [x] workflow services enter through D4 `StudioOperationRuntime`.
+- [x] D3 typed failures are the only expected workflow failure model.
+- [x] Run in Game materialization/proof/start/log/exact-authorship semantics remain green.
+- [x] Save/Deploy save/deploy/rollback semantics remain green.
+- [x] Save/Deploy same-request idempotency remains green.
+- [x] Autoplay conflict/unavailable/start/stop/verification failures are typed.
+- [x] Studio workflow game calls use shared `Civ7TunerSession`.
+- [x] no app-local workflow authority remains in `createStudioEngines`, app helpers, or package context.
+- [x] no unsanctioned session constructor or `withCiv7DirectControlSession` use exists in Studio workflow/app/router code.
+- [x] public raw-control input guardrails remain green.
+- [x] control-oRPC/direct-control package disposition is recorded: D5 touched neither package; package game-call routing is through `@civ7/studio-server` services.
+- [x] D12 game-door handoff evidence is recorded.
 - [ ] live Play and Save/Deploy proof is recorded.
+- [x] fresh implementation-diff review disposition is recorded.
+- [x] Graphite implementation commit exists and post-commit `git status --short --branch` is clean.
+
+## Implementation Evidence
+
+- `bun run --cwd packages/studio-server check` passed.
+- `bun run --cwd packages/studio-server build` passed; no tracked `dist` artifact diff is pending.
+- `bun run --cwd packages/studio-server test -- test/workflowSessionGraph.test.ts test/operationRuntime.test.ts test/handler.test.ts` passed. `workflowSessionGraph.test.ts` now includes both source-shape guards and a dynamic Layer proof that `Civ7WorkflowControlLive` consumes an externally supplied `Civ7TunerSession`.
+- `bun run --cwd apps/mapgen-studio check` passed after the package declaration rebuild.
+- `bun run --cwd apps/mapgen-studio build` passed.
+- `bun run --cwd apps/mapgen-studio test -- runInGame/requestValidation.test.ts server/oneMount.test.ts server/engineEffectCorpus.test.ts` passed.
+- `bun run openspec -- validate mapgen-studio-pipeline-effect-services --strict` passed.
+- `git diff --check` passed.
+- Negative scans show direct-control game-call imports only in package `Civ7TunerClient` read services and package `Civ7WorkflowControl` workflow actions; lifecycle/error seam scan has no production hits, with remaining `createStudioEngines`/engine token hits only in `engineEffectCorpus.test.ts` as deletion/negative-proof fixtures.
+- Final implementation-diff review found a public `StudioServerContext.civ7WorkflowControl` override. The override was removed from the public context and production runtime path, and the root `Civ7WorkflowControl*` export was removed. Package declarations were rebuilt; public DTS no longer exposes the override or workflow-control layer, and the remaining fake workflow-control seam is package-internal to `makeStudioOperationRuntimeLayer` tests.
+
+Live Play and Save/Deploy were not run for D5 and are not claimed green. D12 retains the final game-door live-proof handoff.

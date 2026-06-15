@@ -1,7 +1,7 @@
 # D5 Game-Wire Ledger
 
-Status: draft
-Date: 2026-06-14
+Status: implementation candidate
+Date: 2026-06-15
 
 ## Decision
 
@@ -48,3 +48,18 @@ D5 implementation must hand D12:
 - public-route raw-field search classification;
 - control-oRPC/direct-control metadata proof;
 - live Play and Save/Deploy proof pointers.
+
+## Implementation Disposition
+
+D5 implemented `packages/studio-server/src/ports/Civ7WorkflowControl.ts` as the workflow game-call facade. It depends on `Civ7TunerSession` and calls direct-control atoms through `tuner.use(...)`; it does not import or provide `Civ7TunerSessionLive`, call `makeCiv7TunerSessionLayer`, or construct `Civ7DirectControlSession`.
+
+`packages/studio-server/src/runtime.ts` is the visible owner/composition point for `Civ7TunerSessionLive`: it names `const civ7TunerSessionLayer = Civ7TunerSessionLive`, merges that layer into the Studio runtime graph, and provides that named layer to the operation runtime graph when no test/runtime override is supplied.
+
+Proof:
+
+- `bun run --cwd packages/studio-server test -- test/workflowSessionGraph.test.ts test/operationRuntime.test.ts test/handler.test.ts` passed.
+- `test/workflowSessionGraph.test.ts` includes a static source-shape guard for the production graph and a dynamic Layer proof that `Civ7WorkflowControlLive` consumes an externally supplied `Civ7TunerSession` service. The dynamic proof does not claim `Civ7TunerClient` and `Civ7WorkflowControlLive` share one live FireTuner socket by running against Civ7; it proves workflow-control has no independent session owner.
+- The game-call scan hits only package-owned `Civ7TunerClient` read services and package-owned `Civ7WorkflowControl` workflow actions; app production code has no direct setup/start/autoplay game-call imports.
+- The session-owner scan hits only `packages/studio-server/src/runtime.ts` for the accepted top-level `Civ7TunerSessionLive` composition.
+
+Live Play and Save/Deploy proof was not run in D5. D12 retains the final live game-door proof pointer requirement.

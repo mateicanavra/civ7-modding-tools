@@ -1,10 +1,11 @@
 # D5 Packet Phase Record - Pipeline Effect Services
 
-Status: accepted
-Date: 2026-06-14
+Status: implementation committed
+Date: 2026-06-15
 Domino: D5
 OpenSpec change: `mapgen-studio-pipeline-effect-services`
-Graphite packet branch: `codex/runtime-effect-openspec-packets`
+Graphite implementation branch: `codex/runtime-effect-pipeline-effect-services`
+Graphite implementation commit: current `codex/runtime-effect-pipeline-effect-services` branch tip
 
 ## Frame
 
@@ -59,7 +60,7 @@ The D5 implementation slice cannot close if:
 - Autoplay conflict/unavailable/start/stop/verification failures are not typed;
 - Studio workflow/app/router code constructs `Civ7DirectControlSession` or calls `withCiv7DirectControlSession`;
 - public Studio/control-oRPC mutation inputs in the D5 corpus accept executable raw command/session/script fields without explicit disposition;
-- live Play and Save/Deploy proof is absent after implementation changes successful execution paths.
+- it claims live Play or Save/Deploy proof without a real live run.
 
 ## Packet Acceptance Evidence
 
@@ -72,3 +73,26 @@ The D5 implementation slice cannot close if:
 - `bun run openspec:validate` passed.
 - `git diff --check` passed.
 - `git status --short --branch`, `gt status`, and `gt log --no-interactive` were checked before closure.
+
+## Implementation Evidence
+
+D5 implementation moved workflow phase programs into package-owned services while preserving D4 runtime ownership of admission, registry, fibers, events, current/status projection, TTL, and disposal:
+
+- `RunInGameWorkflow`, `SaveDeployWorkflow`, and `AutoplayWorkflow` own ordered phase programs.
+- App code supplies bounded leaf atoms for filesystem/materialization/deploy/log/proof/process work.
+- `Civ7WorkflowControlLive` depends on externally supplied `Civ7TunerSession`; `makeStudioRuntime` owns the visible `Civ7TunerSessionLive` composition.
+- Save/Deploy deploy failure, rollback failure, and cleanup failure each produce one terminal projection.
+- Run in Game exact-authorship proof is built before cleanup and terminal completion; source-snapshot identity remains stable through accepted/status/current/event/final proof projections.
+
+Implementation gates passed:
+
+- `bun run --cwd packages/studio-server check`
+- `bun run --cwd packages/studio-server build`
+- `bun run --cwd packages/studio-server test -- test/workflowSessionGraph.test.ts test/operationRuntime.test.ts test/handler.test.ts`
+- `bun run --cwd apps/mapgen-studio check`
+- `bun run --cwd apps/mapgen-studio build`
+- `bun run --cwd apps/mapgen-studio test -- runInGame/requestValidation.test.ts server/oneMount.test.ts server/engineEffectCorpus.test.ts`
+- `bun run openspec -- validate mapgen-studio-pipeline-effect-services --strict`
+- `git diff --check`
+
+Live Play and Save/Deploy proof was not run in D5 and is not claimed. D12 retains final live game-door proof closure.

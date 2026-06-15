@@ -256,21 +256,12 @@ function makeOperationRuntimePorts(): StudioOperationRuntimePorts {
     },
     materializeRunInGame: async () => ({}),
     deployRunInGame: async () => ({}),
-    checkCiv7ForRunInGame: async () => undefined,
-    prepareSetupForRunInGame: async () => ({}),
-    startGameForRunInGame: async () => ({}),
-    waitForRunInGameProof: async () => ({ result: { ok: true } }),
+    waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
+    buildRunInGameProof: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({ saved: true }),
     deploySavedMapConfig: async () => ({ deployed: true }),
-    runAutoplay: async (input) => ({
-      ok: true,
-      action: input.action,
-      autoplay: {},
-      game: {},
-      gameContext: {},
-      result: {},
-    }),
+    rollbackSaveDeploy: async () => ({ restored: true }),
   };
 }
 

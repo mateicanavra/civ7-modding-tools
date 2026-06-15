@@ -1,4 +1,4 @@
-import { Effect, ManagedRuntime } from "effect";
+import { Effect, Layer, ManagedRuntime } from "effect";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { createStudioEventHub, type StudioEventHubApi } from "../src/services/StudioEventHub";
@@ -8,6 +8,7 @@ import {
   type StudioOperationRuntimePorts,
 } from "../src/operationRuntime";
 import type { StudioEvent } from "../src/contract/studio";
+import { Civ7WorkflowControl, type Civ7WorkflowControlApi } from "../src/ports";
 
 const openRuntimes: ManagedRuntime.ManagedRuntime<StudioOperationRuntime, never>[] = [];
 const openEventHubs: StudioEventHubApi[] = [];
@@ -85,7 +86,7 @@ describe("StudioOperationRuntime", () => {
     const runtime = ManagedRuntime.make(
       makeStudioOperationRuntimeLayer({
         ports: makePorts({
-          waitForRunInGameProof: async ({ requestId, prepared, deployment }) => ({
+          buildRunInGameProof: async ({ requestId, prepared, deployment }) => ({
             result: { ok: true },
             exactAuthorshipProof: {
               status: "complete",
@@ -106,6 +107,7 @@ describe("StudioOperationRuntime", () => {
           }),
         }),
         eventHub: recordingEventHub,
+        civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
       })
     );
     openRuntimes.push(runtime);
@@ -290,17 +292,20 @@ describe("StudioOperationRuntime", () => {
           savePrepareCalls += 1;
           return {};
         },
-        runAutoplay: async (input) => {
-          autoplayCalls += 1;
-          return {
-            ok: true,
-            action: input.action,
-            autoplay: {},
-            game: {},
-            gameContext: {},
-            result: {},
-          };
-        },
+      },
+      civ7: {
+        runAutoplay: (input) =>
+          Effect.sync(() => {
+            autoplayCalls += 1;
+            return {
+              ok: true,
+              action: input.action,
+              autoplay: {},
+              game: {},
+              gameContext: {},
+              result: {},
+            };
+          }),
       },
     });
     const service = await runtime.runPromise(StudioOperationRuntime);
@@ -365,10 +370,27 @@ describe("StudioOperationRuntime", () => {
   });
 
   test("Save/Deploy leaf failure projects terminal state and releases the mutation gate", async () => {
+    const events: StudioEvent[] = [];
+    let rollbackCalls = 0;
+    let cleanupCalls = 0;
     const { runtime } = makeRuntime({
+      eventSink: events,
       ports: {
+        prepareSaveDeployStart: async () => ({
+          path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+          cleanup: async () => {
+            cleanupCalls += 1;
+          },
+        }),
         deploySavedMapConfig: async () => {
           throw new Error("deploy failed");
+        },
+        rollbackSaveDeploy: async () => {
+          rollbackCalls += 1;
+          return {
+            path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+            restored: true,
+          };
         },
       },
     });
@@ -397,8 +419,146 @@ describe("StudioOperationRuntime", () => {
       error: "deploy failed",
       details: {
         failedAtPhase: "deploying",
+        reason: "deploy-failed",
+        code: "save-deploy-deploy-failed",
+        rollbackRestored: true,
       },
     });
+    expect(rollbackCalls).toBe(1);
+    expect(cleanupCalls).toBe(1);
+    expect(terminalSaveDeployEvents(events, accepted.requestId)).toHaveLength(1);
+
+    await expect(
+      runtime.runPromise(service.runInGameStart({ recipeId: "mod-swooper-maps/standard" }))
+    ).resolves.toMatchObject({
+      ok: true,
+      status: "running",
+    });
+  });
+
+  test("Save/Deploy rollback failure projects one rollback terminal state", async () => {
+    const events: StudioEvent[] = [];
+    let rollbackCalls = 0;
+    let cleanupCalls = 0;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        prepareSaveDeployStart: async () => ({
+          path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+          cleanup: async () => {
+            cleanupCalls += 1;
+          },
+        }),
+        deploySavedMapConfig: async () => {
+          throw new Error("deploy failed");
+        },
+        rollbackSaveDeploy: async () => {
+          rollbackCalls += 1;
+          throw new Error("restore failed");
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.saveDeployStart({ requestId: "save-rollback-fail", id: "test-config", envelope: {} })
+    );
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.saveDeployStatus({ requestId: accepted.requestId })
+        );
+        return status.status;
+      })
+      .toBe("failed");
+
+    const failed = await runtime.runPromise(
+      service.saveDeployStatus({ requestId: accepted.requestId })
+    );
+    expect(failed).toMatchObject({
+      ok: false,
+      requestId: "save-rollback-fail",
+      phase: "failed",
+      status: "failed",
+      error: "Save/Deploy rollback failed after workflow failure",
+      details: {
+        failedAtPhase: "deploying",
+        reason: "rollback-failed",
+        code: "save-deploy-rollback-failed",
+        rollbackFailure: "restore failed",
+      },
+    });
+    expect(rollbackCalls).toBe(1);
+    expect(cleanupCalls).toBe(1);
+    expect(terminalSaveDeployEvents(events, accepted.requestId)).toHaveLength(1);
+
+    await expect(
+      runtime.runPromise(service.runInGameStart({ recipeId: "mod-swooper-maps/standard" }))
+    ).resolves.toMatchObject({
+      ok: true,
+      status: "running",
+    });
+  });
+
+  test("Save/Deploy cleanup failure projects one cleanup terminal state without retry", async () => {
+    const events: StudioEvent[] = [];
+    let rollbackCalls = 0;
+    let cleanupCalls = 0;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        prepareSaveDeployStart: async () => ({
+          path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+          cleanup: async () => {
+            cleanupCalls += 1;
+            throw new Error("cleanup failed");
+          },
+        }),
+        deploySavedMapConfig: async () => {
+          throw new Error("deploy failed");
+        },
+        rollbackSaveDeploy: async () => {
+          rollbackCalls += 1;
+          return {
+            path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+            restored: true,
+          };
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.saveDeployStart({ requestId: "save-cleanup-fail", id: "test-config", envelope: {} })
+    );
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.saveDeployStatus({ requestId: accepted.requestId })
+        );
+        return status.status;
+      })
+      .toBe("failed");
+
+    const failed = await runtime.runPromise(
+      service.saveDeployStatus({ requestId: accepted.requestId })
+    );
+    expect(failed).toMatchObject({
+      ok: false,
+      requestId: "save-cleanup-fail",
+      phase: "failed",
+      status: "failed",
+      error: "Save/Deploy cleanup failed",
+      details: {
+        failedAtPhase: "deploying",
+        reason: "deploy-failed",
+        code: "save-deploy-cleanup-failed",
+        cause: "cleanup failed",
+      },
+    });
+    expect(rollbackCalls).toBe(1);
+    expect(cleanupCalls).toBe(1);
+    expect(terminalSaveDeployEvents(events, accepted.requestId)).toHaveLength(1);
 
     await expect(
       runtime.runPromise(service.runInGameStart({ recipeId: "mod-swooper-maps/standard" }))
@@ -427,7 +587,7 @@ describe("StudioOperationRuntime", () => {
     const blocker = deferred<void>();
     const { runtime } = makeRuntime({
       ports: {
-        waitForRunInGameProof: async () => {
+        buildRunInGameProof: async () => {
           await blocker.promise;
           return { result: { ok: true } };
         },
@@ -477,17 +637,20 @@ describe("StudioOperationRuntime", () => {
           savePrepareCalls += 1;
           return {};
         },
-        runAutoplay: async (input) => {
-          autoplayCalls += 1;
-          return {
-            ok: true,
-            action: input.action,
-            autoplay: {},
-            game: {},
-            gameContext: {},
-            result: {},
-          };
-        },
+      },
+      civ7: {
+        runAutoplay: (input) =>
+          Effect.sync(() => {
+            autoplayCalls += 1;
+            return {
+              ok: true,
+              action: input.action,
+              autoplay: {},
+              game: {},
+              gameContext: {},
+              result: {},
+            };
+          }),
       },
     });
     const service = await runtime.runPromise(StudioOperationRuntime);
@@ -563,6 +726,7 @@ describe("StudioOperationRuntime", () => {
       makeStudioOperationRuntimeLayer({
         ports: makePorts(),
         eventHub: failingEventHub,
+        civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
       })
     );
     openRuntimes.push(runtime);
@@ -596,6 +760,7 @@ describe("StudioOperationRuntime", () => {
       makeStudioOperationRuntimeLayer({
         ports: makePorts(),
         eventHub: recordingEventHub,
+        civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
       })
     );
     openRuntimes.push(runtime);
@@ -647,6 +812,7 @@ describe("StudioOperationRuntime", () => {
           },
         }),
         eventHub: recordingEventHub,
+        civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
       })
     );
     openRuntimes.push(runtime);
@@ -685,10 +851,22 @@ describe("StudioOperationRuntime", () => {
 
 function makeRuntime(overrides: {
   ports?: Partial<StudioOperationRuntimePorts>;
+  civ7?: Partial<Civ7WorkflowControlApi>;
   ttlMs?: number;
+  eventSink?: StudioEvent[];
 } = {}) {
   const eventHub = createStudioEventHub();
   openEventHubs.push(eventHub);
+  const runtimeEventHub: StudioEventHubApi =
+    overrides.eventSink === undefined
+      ? eventHub
+      : {
+          ...eventHub,
+          publish: async (event) => {
+            overrides.eventSink?.push(event);
+            await eventHub.publish(event);
+          },
+        };
   const ports: StudioOperationRuntimePorts = {
     ...makePorts(),
     ...overrides.ports,
@@ -696,7 +874,8 @@ function makeRuntime(overrides: {
   const runtime = ManagedRuntime.make(
     makeStudioOperationRuntimeLayer({
       ports,
-      eventHub,
+      eventHub: runtimeEventHub,
+      civ7WorkflowControl: makeCiv7WorkflowControlLayer(overrides.civ7),
       ttlMs: overrides.ttlMs,
     })
   );
@@ -711,26 +890,41 @@ function makePorts(overrides: Partial<StudioOperationRuntimePorts> = {}): Studio
     },
     materializeRunInGame: async () => ({}),
     deployRunInGame: async () => ({}),
-    checkCiv7ForRunInGame: async () => undefined,
-    prepareSetupForRunInGame: async () => ({}),
-    startGameForRunInGame: async () => ({}),
-    waitForRunInGameProof: async () => ({ result: { ok: true } }),
+    waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
+    buildRunInGameProof: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({
       path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
       saved: true,
     }),
     deploySavedMapConfig: async () => ({ deployed: true }),
-    runAutoplay: async (input) => ({
-      ok: true,
-      action: input.action,
-      autoplay: {},
-      game: {},
-      gameContext: {},
-      result: {},
+    rollbackSaveDeploy: async () => ({
+      path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+      restored: true,
     }),
     ...overrides,
   };
+}
+
+function makeCiv7WorkflowControlLayer(
+  overrides: Partial<Civ7WorkflowControlApi> = {}
+): Layer.Layer<Civ7WorkflowControl> {
+  const service: Civ7WorkflowControlApi = {
+    checkPlayable: () => Effect.void,
+    prepareSetup: () => Effect.succeed({}),
+    startGame: () => Effect.succeed({}),
+    runAutoplay: (input) =>
+      Effect.succeed({
+        ok: true,
+        action: input.action,
+        autoplay: {},
+        game: {},
+        gameContext: {},
+        result: {},
+      }),
+    ...overrides,
+  };
+  return Layer.succeed(Civ7WorkflowControl, service);
 }
 
 async function expectFailure<A, E>(
@@ -760,4 +954,17 @@ function deferred<T>() {
     reject = rejectPromise;
   });
   return { promise, resolve, reject };
+}
+
+function terminalSaveDeployEvents(
+  events: readonly StudioEvent[],
+  requestId: string
+): StudioEvent[] {
+  return events.filter(
+    (event) =>
+      event.type === "operation" &&
+      event.kind === "save-deploy" &&
+      event.status.requestId === requestId &&
+      event.status.status !== "running"
+  );
 }

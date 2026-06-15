@@ -8,12 +8,15 @@ import {
 } from "../../src/server/runInGame/requestValidation";
 
 describe("Run in Game request validation", () => {
-  it("pairs the open public start schema with host-side raw-control rejection", () => {
+  it("rejects raw-control top-level tunnel fields in TypeBox and nested fields in host validation", () => {
     const startInputSchema = typeboxInputSchemaFromContractProcedure(runInGame.start);
     const rawKeys = [
+      "args",
       "command",
+      "context",
       "script",
       "javascript",
+      "operationType",
       "rawCommand",
       "rawJs",
       "session",
@@ -22,7 +25,7 @@ describe("Run in Game request validation", () => {
 
     for (const key of rawKeys) {
       const topLevelPayload = validRunInGameRequest({ [key]: "raw-control" });
-      expect(Value.Check(startInputSchema, topLevelPayload)).toBe(true);
+      expect(Value.Check(startInputSchema, topLevelPayload)).toBe(false);
       expect(() => parseRunInGameSetupRequest(topLevelPayload)).toThrow("raw control commands");
 
       const nestedPayload = validRunInGameRequest({
