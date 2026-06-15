@@ -98,7 +98,10 @@
 - [x] 8.2 `bun run openspec:validate`
 - [x] 8.3 `git diff --check`
 - [ ] 8.4 Hook unit/service test matrix
-- [ ] 8.5 Pre-commit staged probe matrix
+- [ ] 8.5 Pre-commit staged probe matrix. Current-tree probes for
+  generated-zone, pnpm artifact, partial-staging refusal, and formatter-touched
+  restage are recorded; Grit parse/finding staged probes remain open before
+  this matrix can close.
 - [x] 8.6 Explicit resource publish policy proof across dirty submodule,
   uninitialized resources, locked resources, unstaged gitlink, staged gitlink,
   clean resources, and not-configured resources

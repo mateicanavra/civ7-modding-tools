@@ -5,11 +5,11 @@
 - Project: Habitat Harness
 - Phase: git hook hardening / `habitat-git-hook-hardening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-hook-pre-push-proof`
+- Branch/Graphite stack: `agent-HR-habitat-hook-staged-probes`
 - Started: 2026-06-14
-- Status: resource-publish and staged-mutation checkpoints supervisor-accepted;
-  pre-push base/range checkpoint implemented and locally verified for
-  supervisor review
+- Status: resource-publish, staged-mutation, and pre-push base/range
+  checkpoints supervisor-accepted; current-tree staged-probe checkpoint
+  implemented and locally verified for supervisor review
 
 ## Objective
 
@@ -112,11 +112,16 @@ Core synthesis:
   and 8.12, plus previously completed design/source tasks.
 - Completed tasks for this staged-mutation checkpoint: 2.5, 6.5, 6.6, 6.7,
   and 6.8.
-- Completed tasks for this pre-push checkpoint: 6.9 and 8.7.
+- Completed tasks for the accepted pre-push checkpoint: 6.9 and 8.7.
+- Current-tree staged-probe progress for this checkpoint: row-owned
+  generated-zone, pnpm artifact, partial-staging refusal, and
+  formatter-touched restage probes are recorded toward 8.5. Task 8.5 remains
+  open until Grit parse/finding staged probes are also proven or explicitly
+  rescheduled.
 - Remaining tasks: full hook transaction model, full fake-service matrix,
-  pre-commit current-tree staged probe matrix, historical H7 record
+  Grit parse/finding current-tree staged probes, historical H7 record
   realignment, aggregate verification, and packet closure.
-- Implementation status: pre-push base/range checkpoint implemented and
+- Implementation status: current-tree staged-probe checkpoint implemented and
   locally verified for supervisor review.
 
 ## Verification
@@ -188,6 +193,34 @@ Core synthesis:
   - `bun run habitat hook pre-push --base HEAD` exited 0 and rendered `habitat
     hook pre-push: repo Nx affected base=HEAD`; Nx reported no tasks were run
     for the empty explicit range.
+- New implementation evidence for the current-tree staged-probe checkpoint:
+  - Non-proof discovery: a forced-staged scratch file under
+    `mods/mod-swooper-maps/mod/maps/hr-hook-generated-probe.js` exited 0 and
+    did not trigger the generated-zone rule because that path is an ignored
+    built artifact path, not the rule-owned generated source zone. The scratch
+    file was unstaged and removed; no claim uses this command.
+  - Generated-zone proof: a scratch file staged at
+    `mods/mod-swooper-maps/src/maps/generated/hr-hook-generated-probe.ts`
+    caused `bun run habitat hook pre-commit` to exit 1 before Biome/Grit
+    mutation with `file-layer-swooper-map-generated` failing on that path. The
+    scratch file was unstaged and removed.
+  - Package-manager artifact proof: a staged scratch `pnpm-lock.yaml` caused
+    `bun run habitat hook pre-commit` to exit 1 before Biome/Grit mutation
+    with `file-layer-pnpm-artifacts` failing on that path. The scratch file
+    was unstaged and removed.
+  - Partial-staging proof: a staged scratch
+    `tools/habitat-harness/test/__hook-probes__/partial.ts` with an unstaged
+    worktree edit caused `bun run habitat hook pre-commit` to exit 1 after the
+    staged file-layer pass and before Biome format, with the partial-staging
+    refusal naming the scratch path. The scratch directory was unstaged and
+    removed.
+  - Formatter-restage proof: a staged scratch
+    `tools/habitat-harness/test/__hook-probes__/format.ts` with Biome-fixable
+    formatting caused `bun run habitat hook pre-commit` to exit 0, report
+    `formatter restage: 1 path(s)`, and leave only that scratch path staged
+    before cleanup. The scratch directory was unstaged and removed.
+  - Post-probe clean check: `bun run habitat hook pre-commit` exited 0 from a
+    clean initialized resources state after the scratch probes were removed.
 - Evidence boundary: the accepted resource checkpoint proves the default
   pre-commit resource publish removal, typed resource-state classification,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
@@ -199,8 +232,12 @@ Core synthesis:
   Graphite parent, non-Graphite merge-base, literal-main fallback, explicit
   base override, Nx command provenance, and Nx failure propagation; it also
   proves the explicit-base wrapper path on an empty current-tree range. It does
-  not prove full hook transaction safety, pre-commit current-tree staged probe
-  behavior, CI authority, broad Nx affected coverage, or product/runtime
+  not prove full hook transaction safety, CI authority, broad Nx affected
+  coverage, or product/runtime behavior. This current-tree staged-probe
+  checkpoint proves staged file-layer generated-zone and pnpm artifact
+  failures, partial-staging refusal, formatter-touched restage, and targeted
+  cleanup for the exercised scratch paths. It does not prove Grit parse/finding
+  staged probes, full hook transaction safety, CI authority, or product/runtime
   behavior.
 
 ## Realignment
@@ -210,6 +247,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the pre-push base/range checkpoint for supervisor review. Do not claim
-  full hook transaction architecture, current-tree staged probe closure, CI
-  authority, broad Nx affected coverage, or packet closure from this slice.
+- Hold the current-tree staged-probe checkpoint for supervisor review. Do not
+  claim full hook transaction architecture, Grit parse/finding staged probe
+  closure, CI authority, broad Nx affected coverage, or packet closure from
+  this slice.
